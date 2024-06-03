@@ -6,6 +6,7 @@ import { StorageService } from './storage.service';
 import { lDUser } from '../mock-data/ld-client-user.data';
 import { ldAllFlagsRes } from '../mock-data/ld-all-flags.data';
 import { of } from 'rxjs';
+
 describe('LaunchDarklyService', () => {
   let launchDarklyService: LaunchDarklyService;
   let userEventService: jasmine.SpyObj<UserEventService>;
@@ -36,6 +37,13 @@ describe('LaunchDarklyService', () => {
 
   it('should be created', () => {
     expect(launchDarklyService).toBeTruthy();
+  });
+
+  it('should call shutDownClient on userEventService logout', () => {
+    spyOn(launchDarklyService, 'shutDownClient');
+
+    userEventService.onLogout.calls.mostRecent().args[0]();
+    expect(launchDarklyService.shutDownClient).toHaveBeenCalledTimes(1);
   });
 
   it('isTheSameUser(): should check if the user is same', () => {
@@ -85,5 +93,66 @@ describe('LaunchDarklyService', () => {
       expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith(key, false);
       done();
     });
+  });
+
+  it('checkIfAndroidNegativeExpensePluginIsEnabled(): should check if android negative expense plugin is enabled', (done) => {
+    spyOn(launchDarklyService, 'getVariation').and.returnValue(of(true));
+    const key = 'android-numeric-keypad';
+
+    launchDarklyService.checkIfAndroidNegativeExpensePluginIsEnabled().subscribe((res) => {
+      expect(res).toBeTrue();
+      expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith(key, false);
+      done();
+    });
+  });
+
+  it('checkIfManualFlaggingFeatureIsEnabled(): should check if manual flagging feature is enabled', (done) => {
+    spyOn(launchDarklyService, 'getVariation').and.returnValue(of(true));
+    const key = 'deprecate_manual_flagging';
+
+    launchDarklyService.checkIfManualFlaggingFeatureIsEnabled().subscribe((res) => {
+      expect(res.value).toBeTrue();
+      expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith(key, true);
+      done();
+    });
+  });
+
+  describe('shutDownClient():', () => {
+    beforeEach(() => {
+      ldClient = jasmine.createSpyObj('LDClient', ['off', 'close']);
+      launchDarklyService.ldClient = ldClient;
+    });
+
+    it('should shut down LD client if it exists', () => {
+      launchDarklyService.shutDownClient();
+      expect(ldClient.off).toHaveBeenCalledWith('initialized', jasmine.any(Function), launchDarklyService);
+      expect(ldClient.off).toHaveBeenCalledWith('change', jasmine.any(Function), launchDarklyService);
+      expect(ldClient.close).toHaveBeenCalled();
+      expect(launchDarklyService.ldClient).toBeNull();
+    });
+
+    it('should not throw error if LD client does not exist', () => {
+      launchDarklyService.ldClient = null;
+      expect(() => launchDarklyService.shutDownClient()).not.toThrow();
+    });
+  });
+
+  it('getImmediate: should immediately return a value', () => {
+    launchDarklyService.initializeUser({
+      key: '123',
+    });
+    spyOn(launchDarklyService.ldClient, 'variation').and.returnValue(of(true));
+
+    launchDarklyService.getImmediate('timezone_fix', true);
+
+    expect(launchDarklyService.ldClient.variation).toHaveBeenCalledOnceWith('timezone_fix', true);
+  });
+
+  it('getImmediate: should return default value if ldclient is not present', () => {
+    launchDarklyService.ldClient = null;
+
+    const value = launchDarklyService.getImmediate('timezone_fix', true);
+
+    expect(value).toBeTrue();
   });
 });

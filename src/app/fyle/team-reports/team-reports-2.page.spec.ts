@@ -16,7 +16,7 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { HeaderState } from 'src/app/shared/components/fy-header/header-state.enum';
 import { BehaviorSubject, of } from 'rxjs';
 import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
-import { apiExtendedReportRes, reportParam } from 'src/app/core/mock-data/report.data';
+import { reportParam } from 'src/app/core/mock-data/report.data';
 import { creditTxnFilterPill } from 'src/app/core/mock-data/filter-pills.data';
 import { getElementRef } from 'src/app/core/dom-helpers';
 import { cloneDeep } from 'lodash';
@@ -37,6 +37,8 @@ import { GetTasksQueryParamsWithFilters } from 'src/app/core/models/get-tasks-qu
 import { GetTasksQueryParams } from 'src/app/core/models/get-tasks.query-params.model';
 import * as dayjs from 'dayjs';
 import { popupConfigData, popupConfigData2 } from 'src/app/core/mock-data/popup.data';
+import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
+import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-report.data';
 
 export function TestCases2(getTestBed) {
   return describe('test cases set 2', () => {
@@ -74,6 +76,7 @@ export function TestCases2(getTestBed) {
       apiV2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
       tasksService = TestBed.inject(TasksService) as jasmine.SpyObj<TasksService>;
       orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+      component.eou$ = of(apiEouRes);
     }));
 
     describe('generateCustomDateParams(): ', () => {
@@ -84,14 +87,10 @@ export function TestCases2(getTestBed) {
       });
 
       it('should not alter queryParams if customDateStart and customDateEnd are not defined in filters', () => {
-        const queryParams: Partial<GetTasksQueryParams> = {
-          or: [],
-        };
+        const queryParams: Partial<GetTasksQueryParams> = {};
 
         component.generateCustomDateParams(queryParams);
-        expect(queryParams).toEqual({
-          or: [],
-        });
+        expect(queryParams).toEqual({});
       });
 
       it('should not update queryParams if customDateStart and customDateEnd are defined in filters', () => {
@@ -100,9 +99,7 @@ export function TestCases2(getTestBed) {
           customDateStart: new Date('2023-01-01'),
           customDateEnd: new Date('2023-01-04'),
         };
-        const queryParams: Partial<GetTasksQueryParams> = {
-          or: [],
-        };
+        const queryParams: Partial<GetTasksQueryParams> = {};
 
         component.generateCustomDateParams(queryParams);
         expect(queryParams).toEqual(teamReportsQueryParams);
@@ -113,9 +110,7 @@ export function TestCases2(getTestBed) {
           date: 'custom',
           customDateStart: new Date('2023-01-01'),
         };
-        const queryParams: Partial<GetTasksQueryParams> = {
-          or: [],
-        };
+        const queryParams: Partial<GetTasksQueryParams> = {};
 
         component.generateCustomDateParams(queryParams);
         expect(queryParams).toEqual(teamReportsQueryParams2);
@@ -126,9 +121,7 @@ export function TestCases2(getTestBed) {
           date: 'custom',
           customDateEnd: new Date('2023-01-04'),
         };
-        const queryParams: Partial<GetTasksQueryParams> = {
-          or: [],
-        };
+        const queryParams: Partial<GetTasksQueryParams> = {};
 
         component.generateCustomDateParams(queryParams);
         expect(queryParams).toEqual(teamReportsQueryParams3);
@@ -150,9 +143,7 @@ export function TestCases2(getTestBed) {
           from: new Date('2023-01-01'),
           to: new Date('2023-01-04'),
         });
-        const queryParams: Partial<GetTasksQueryParams> = {
-          or: [],
-        };
+        const queryParams: Partial<GetTasksQueryParams> = {};
         component.generateDateParams(queryParams);
         expect(dateService.getThisMonthRange).toHaveBeenCalledTimes(1);
         expect(queryParams).toEqual(teamReportsQueryParams);
@@ -165,9 +156,7 @@ export function TestCases2(getTestBed) {
           from: dayjs(new Date('2023-01-01')),
           to: dayjs(new Date('2023-01-04')),
         });
-        const queryParams: Partial<GetTasksQueryParams> = {
-          or: [],
-        };
+        const queryParams: Partial<GetTasksQueryParams> = {};
         component.generateDateParams(queryParams);
         expect(dateService.getThisWeekRange).toHaveBeenCalledTimes(1);
         expect(queryParams).toEqual(teamReportsQueryParams);
@@ -180,9 +169,7 @@ export function TestCases2(getTestBed) {
           from: new Date('2023-01-01'),
           to: new Date('2023-01-04'),
         });
-        const queryParams: Partial<GetTasksQueryParams> = {
-          or: [],
-        };
+        const queryParams: Partial<GetTasksQueryParams> = {};
         component.generateDateParams(queryParams);
         expect(dateService.getLastMonthRange).toHaveBeenCalledTimes(1);
         expect(queryParams).toEqual(teamReportsQueryParams);
@@ -198,35 +185,29 @@ export function TestCases2(getTestBed) {
       });
 
       it('should update queryParams.or if filter state is defined and consist of APPROVER_PENDING and APPROVER_INQUIRY', () => {
-        const queryParams: Partial<GetTasksQueryParams> = {
-          or: [],
-        };
-        component.generateStateFilters(queryParams);
+        const queryParams: Partial<GetTasksQueryParams> = {};
+        component.generateStateFilters(queryParams, apiEouRes);
         expect(queryParams).toEqual({
-          or: ['(rp_state.in.(APPROVER_PENDING), rp_state.in.(APPROVER_INQUIRY))'],
+          state: 'in.(APPROVER_PENDING,APPROVER_INQUIRY)',
         });
       });
 
       it('should update queryParams.or and queryParams.sequential_approval_turn if filter state consist only of APPROVER_PENDING', () => {
         component.filters.state = ['APPROVER_PENDING'];
-        const queryParams: Partial<GetTasksQueryParams> = {
-          or: [],
-        };
-        component.generateStateFilters(queryParams);
+        const queryParams: Partial<GetTasksQueryParams> = {};
+        component.generateStateFilters(queryParams, apiEouRes);
         expect(queryParams).toEqual({
-          or: ['(rp_state.in.(APPROVER_PENDING))'],
-          sequential_approval_turn: 'in.(true)',
+          state: 'in.(APPROVER_PENDING)',
+          next_approver_user_ids: 'cs.[usvKA4X8Ugcr]',
         });
       });
 
       it('should update queryParams.or if filter state consist of APPROVED and PAID', () => {
         component.filters.state = ['APPROVED', 'PAID'];
-        const queryParams: Partial<GetTasksQueryParams> = {
-          or: [],
-        };
-        component.generateStateFilters(queryParams);
+        const queryParams: Partial<GetTasksQueryParams> = {};
+        component.generateStateFilters(queryParams, apiEouRes);
         expect(queryParams).toEqual({
-          or: ['(rp_state.in.(APPROVED), rp_state.in.(PAID))'],
+          state: 'in.(APPROVED,PAID)',
         });
       });
     });
@@ -250,14 +231,14 @@ export function TestCases2(getTestBed) {
         });
       });
 
-      it('should set currentParams sortParam and sortDir equal to rp_submitted_at and desc if filter.sortParam and filter.sortDir are not defined', () => {
+      it('should set currentParams sortParam and sortDir equal to last_submitted_at and desc if filter.sortParam and filter.sortDir are not defined', () => {
         component.filters = {};
         const mockQueryParams = cloneDeep(tasksQueryParamsWithFiltersData);
         component.setSortParams(mockQueryParams);
 
         expect(mockQueryParams).toEqual({
           ...mockQueryParams,
-          sortParam: 'rp_submitted_at',
+          sortParam: 'last_submitted_at',
           sortDir: 'desc',
         });
       });
@@ -268,7 +249,7 @@ export function TestCases2(getTestBed) {
       component.loadData$ = new BehaviorSubject(mockTaskQueryParamsData);
       component.filters = {
         date: 'thisMonth',
-        state: ['APPROVER_INQUIRY'],
+        state: 'in.(APPROVER_INQUIRY)',
       };
 
       dateService.getThisMonthRange.and.returnValue({
@@ -279,7 +260,7 @@ export function TestCases2(getTestBed) {
       spyOn(component, 'generateStateFilters').and.callThrough();
       spyOn(component, 'setSortParams').and.callThrough();
 
-      const result = component.addNewFiltersToParams();
+      const result = component.addNewFiltersToParams(apiEouRes);
 
       expect(component.generateDateParams).toHaveBeenCalledTimes(1);
       expect(component.generateStateFilters).toHaveBeenCalledTimes(1);
@@ -304,15 +285,15 @@ export function TestCases2(getTestBed) {
     });
 
     it('onReportClick(): should navigate to the view report page', () => {
-      const erpt = apiExtendedReportRes[0];
+      const report = expectedReportsSinglePage[0];
 
-      component.onReportClick(erpt);
+      component.onReportClick(report);
 
       expect(router.navigate).toHaveBeenCalledOnceWith([
         '/',
         'enterprise',
         'view_team_report',
-        { id: erpt.rp_id, navigate_back: true },
+        { id: report.id, navigate_back: true },
       ]);
     });
 
@@ -353,7 +334,7 @@ export function TestCases2(getTestBed) {
         expect(component.simpleSearchText).toEqual('');
         expect(inputElement.value).toEqual('');
         expect(dispatchEventSpy).toHaveBeenCalledOnceWith(new Event('keyup'));
-        expect(component.isSearchBarFocused).toEqual(true);
+        expect(component.isSearchBarFocused).toBeTrue();
       });
 
       it('should clear the search text, input value, dispatch keyup event, and toggle search bar focus when called from onSimpleSearchCancel', () => {
@@ -369,7 +350,7 @@ export function TestCases2(getTestBed) {
         expect(component.simpleSearchText).toEqual('');
         expect(inputElement.value).toEqual('');
         expect(dispatchEventSpy).toHaveBeenCalledOnceWith(new Event('keyup'));
-        expect(component.isSearchBarFocused).toEqual(false);
+        expect(component.isSearchBarFocused).toBeFalse();
       });
     });
   });

@@ -23,12 +23,10 @@ export interface ReportV1 {
   settlement_id?: string;
   verification_state?: string;
   trip_request_id?: string;
-  physical_bill: boolean;
   exported: boolean;
   manual_flag: boolean;
   policy_flag: boolean;
   claim_number: string;
-  physical_bill_at: Date;
   from_dt: Date;
   to_dt: Date;
   location1: string;

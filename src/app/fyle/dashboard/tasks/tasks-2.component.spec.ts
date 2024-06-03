@@ -45,7 +45,8 @@ import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-report.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
-import { apiReportRes } from 'src/app/core/mock-data/api-reports.data';
+import { OrgService } from 'src/app/core/services/org.service';
+import { orgData1 } from 'src/app/core/mock-data/org.data';
 
 export function TestCases2(getTestBed) {
   return describe('test case set 2', () => {
@@ -68,6 +69,7 @@ export function TestCases2(getTestBed) {
     let networkService: jasmine.SpyObj<NetworkService>;
     let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
     let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
+    let orgService: jasmine.SpyObj<OrgService>;
 
     beforeEach(waitForAsync(() => {
       const TestBed = getTestBed();
@@ -90,11 +92,14 @@ export function TestCases2(getTestBed) {
       networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
       spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
       approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
+      orgService = TestBed.inject(OrgService) as jasmine.SpyObj<OrgService>;
     }));
 
     describe('init():', () => {
       beforeEach(() => {
         reportService.getReportAutoSubmissionDetails.and.returnValue(of(apiReportAutoSubmissionDetails));
+        orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
+        orgService.getPrimaryOrg.and.returnValue(of(orgData1[0]));
         tasksService.getTasks.and.returnValue(of(dashboardTasksData));
         spyOn(component, 'trackTasks');
         tasksService.generateFilterPills.and.returnValue([typeFilterPill]);
@@ -113,7 +118,7 @@ export function TestCases2(getTestBed) {
         component.tasks$.subscribe((res) => {
           // Called 2 times as tasks$ will update again because we are changing loadData$ value
           expect(tasksService.getTasks).toHaveBeenCalledTimes(2);
-          expect(tasksService.getTasks).toHaveBeenCalledWith(true, component.loadData$.getValue());
+          expect(tasksService.getTasks).toHaveBeenCalledWith(true, component.loadData$.getValue(), true);
           expect(component.trackTasks).toHaveBeenCalledTimes(2);
           expect(component.taskCount).toEqual(dashboardTasksData.length);
           expect(res).toEqual(dashboardTasksData);
@@ -363,7 +368,7 @@ export function TestCases2(getTestBed) {
         loaderService.showLoader.and.resolveTo();
         loaderService.hideLoader.and.resolveTo();
         authService.getEou.and.resolveTo(apiEouRes);
-        reportService.getTeamReports.and.returnValue(of(apiReportRes));
+        approverReportsService.getAllReportsByParams.and.returnValue(of(expectedReportsSinglePage));
       });
 
       it('should get all team reports and navigate to my view report page if task count is 1', fakeAsync(() => {
@@ -372,21 +377,16 @@ export function TestCases2(getTestBed) {
         component.onTeamReportsTaskClick(taskCtaData3, mockDashboardTasksData[0]);
         tick(100);
         expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Opening your report...');
-        expect(reportService.getTeamReports).toHaveBeenCalledOnceWith({
-          queryParams: {
-            rp_approval_state: ['in.(APPROVAL_PENDING)'],
-            rp_state: ['in.(APPROVER_PENDING)'],
-            sequential_approval_turn: ['in.(true)'],
-          },
-          offset: 0,
-          limit: 1,
+        expect(approverReportsService.getAllReportsByParams).toHaveBeenCalledOnceWith({
+          state: 'eq.APPROVER_PENDING',
+          next_approver_user_ids: `cs.[${apiEouRes.us.id}]`,
         });
         expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
         expect(router.navigate).toHaveBeenCalledOnceWith([
           '/',
           'enterprise',
           'view_team_report',
-          { id: apiReportRes.data[0].rp_id, navigate_back: true },
+          { id: expectedReportsSinglePage[0].id, navigate_back: true },
         ]);
       }));
 
@@ -394,7 +394,7 @@ export function TestCases2(getTestBed) {
         component.onTeamReportsTaskClick(taskCtaData3, dashboardTasksData[0]);
         tick(100);
         expect(loaderService.showLoader).not.toHaveBeenCalled();
-        expect(reportService.getTeamReports).not.toHaveBeenCalled();
+        expect(approverReportsService.getAllReportsByParams).not.toHaveBeenCalled();
         expect(loaderService.hideLoader).not.toHaveBeenCalled();
         expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'team_reports'], {
           queryParams: { filters: JSON.stringify({ state: ['APPROVER_PENDING'] }) },

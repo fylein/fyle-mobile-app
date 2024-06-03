@@ -34,6 +34,8 @@ import { SpenderService } from 'src/app/core/services/platform/v1/spender/spende
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { FyOptInComponent } from 'src/app/shared/components/fy-opt-in/fy-opt-in.component';
+import { AllowedPaymentModes } from 'src/app/core/models/allowed-payment-modes.enum';
+import { UtilityService } from 'src/app/core/services/utility.service';
 
 describe('MyProfilePage', () => {
   let component: MyProfilePage;
@@ -56,6 +58,7 @@ describe('MyProfilePage', () => {
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
   let paymentModeService: jasmine.SpyObj<PaymentModesService>;
   let modalController: jasmine.SpyObj<ModalController>;
+  let utilityService: jasmine.SpyObj<UtilityService>;
 
   beforeEach(waitForAsync(() => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou', 'logout', 'refreshEou']);
@@ -81,6 +84,7 @@ describe('MyProfilePage', () => {
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     const paymentModeServiceSpy = jasmine.createSpyObj('PaymentModesService', ['getPaymentModeDisplayName']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
+    const utilityServiceSpy = jasmine.createSpyObj('UtilityService', ['isUserFromINCluster']);
 
     TestBed.configureTestingModule({
       declarations: [MyProfilePage],
@@ -168,6 +172,10 @@ describe('MyProfilePage', () => {
           provide: ModalController,
           useValue: modalControllerSpy,
         },
+        {
+          provide: UtilityService,
+          useValue: utilityServiceSpy,
+        },
         SpenderService,
       ],
     }).compileComponents();
@@ -194,6 +202,7 @@ describe('MyProfilePage', () => {
     activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
     paymentModeService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
+    utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
 
     component.loadEou$ = new BehaviorSubject(null);
     component.eou$ = of(apiEouRes);
@@ -394,6 +403,7 @@ describe('MyProfilePage', () => {
     spyOn(component, 'setPreferenceSettings');
     spyOn(component, 'setCCCFlags');
     paymentModeService.getPaymentModeDisplayName.and.returnValue('Personal Cash/Card');
+    utilityService.isUserFromINCluster.and.resolveTo(false);
     fixture.detectChanges();
 
     component.reset();
@@ -402,7 +412,7 @@ describe('MyProfilePage', () => {
     expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
     expect(orgService.getCurrentOrg).toHaveBeenCalledTimes(1);
     expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-    expect(component.setInfoCardsData).toHaveBeenCalledOnceWith(apiEouRes);
+    expect(component.setInfoCardsData).toHaveBeenCalledOnceWith(apiEouRes, false);
     expect(component.setPreferenceSettings).toHaveBeenCalledTimes(1);
     expect(component.setCCCFlags).toHaveBeenCalledTimes(1);
     expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
@@ -438,14 +448,22 @@ describe('MyProfilePage', () => {
 
   describe('setInfoCardsData(): ', () => {
     it('should show only email card for non USD orgs', () => {
-      component.setInfoCardsData(eouRes3);
+      const isUserFromINCluster = false;
+      component.setInfoCardsData(eouRes3, isUserFromINCluster);
+      expect(component.infoCardsData).toEqual([allInfoCardsData[1]]);
+    });
+
+    it('should show only email card if user is from IN cluster', () => {
+      const isUserFromINCluster = true;
+      component.setInfoCardsData(apiEouRes, isUserFromINCluster);
       expect(component.infoCardsData).toEqual([allInfoCardsData[1]]);
     });
 
     it('should show both email and mobile number cards for USD orgs', () => {
+      const isUserFromINCluster = false;
       const eou = cloneDeep(apiEouRes);
       eou.ou.mobile_verified = true;
-      component.setInfoCardsData(eou);
+      component.setInfoCardsData(eou, isUserFromINCluster);
       expect(component.infoCardsData).toEqual(allInfoCardsData);
     });
   });

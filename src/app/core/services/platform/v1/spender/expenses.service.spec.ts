@@ -4,16 +4,21 @@ import { ExpensesService } from './expenses.service';
 import { SpenderService } from './spender.service';
 import {
   expenseData,
+  expenseResponseData,
   readyToReportExpensesData2,
   splitExpensesData,
 } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { PAGINATION_SIZE } from 'src/app/constants';
-import { expensesResponse } from 'src/app/core/mock-data/platform/v1/expenses-response.data';
+import { expenseResponse, expensesResponse } from 'src/app/core/mock-data/platform/v1/expenses-response.data';
 import { getExpensesQueryParams } from 'src/app/core/mock-data/platform/v1/expenses-query-params.data';
 import { expenseDuplicateSets } from 'src/app/core/mock-data/platform/v1/expense-duplicate-sets.data';
 import { completeStats } from 'src/app/core/mock-data/platform/v1/expenses-stats.data';
 import { ExpensesService as SharedExpenseService } from '../shared/expenses.service';
 import { expensesCacheBuster$ } from 'src/app/core/cache-buster/expense-cache-buster';
+import {
+  attachReceiptPayload1,
+  attachReceiptsPayload1,
+} from 'src/app/core/mock-data/platform/v1/attach-receipt-payload.data';
 
 describe('ExpensesService', () => {
   let service: ExpensesService;
@@ -237,5 +242,29 @@ describe('ExpensesService', () => {
       expect(service.getAllExpenses).toHaveBeenCalledOnceWith({ queryParams });
       done();
     });
+  });
+
+  it('attachReceiptToExpense(): should attach a receipt to an expense', (done) => {
+    spenderService.post.and.returnValue(of(expenseResponse));
+
+    service
+      .attachReceiptToExpense(attachReceiptPayload1.data.id, attachReceiptPayload1.data.file_id)
+      .subscribe((res) => {
+        expect(res).toEqual(expenseData);
+        expect(spenderService.post).toHaveBeenCalledOnceWith('/expenses/attach_receipt', attachReceiptPayload1);
+        done();
+      });
+  });
+
+  it('attachReceiptsToExpense(): should attach multiple receipts to an expense', (done) => {
+    spenderService.post.and.returnValue(of(expensesResponse));
+
+    service
+      .attachReceiptsToExpense(attachReceiptPayload1.data.id, attachReceiptsPayload1.data[0].file_ids)
+      .subscribe((res) => {
+        expect(res).toEqual(expensesResponse.data);
+        expect(spenderService.post).toHaveBeenCalledOnceWith('/expenses/attach_files/bulk', attachReceiptsPayload1);
+        done();
+      });
   });
 });
