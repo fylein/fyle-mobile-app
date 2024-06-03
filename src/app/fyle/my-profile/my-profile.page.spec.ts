@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angul
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { IonicModule, PopoverController } from '@ionic/angular';
+import { IonicModule, ModalController, PopoverController } from '@ionic/angular';
 import { cloneDeep } from 'lodash';
 import { BehaviorSubject, of, throwError } from 'rxjs';
 import { selectedCurrencies } from 'src/app/core/mock-data/currency.data';
@@ -28,14 +28,12 @@ import { PopupWithBulletsComponent } from 'src/app/shared/components/popup-with-
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { TrackingService } from '../../core/services/tracking.service';
 import { MyProfilePage } from './my-profile.page';
-import { UpdateMobileNumberComponent } from './update-mobile-number/update-mobile-number.component';
 import { VerifyNumberPopoverComponent } from './verify-number-popover/verify-number-popover.component';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
 import { SpenderService } from 'src/app/core/services/platform/v1/spender/spender.service';
-import { HttpClient } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
-import { AllowedPaymentModes } from 'src/app/core/models/allowed-payment-modes.enum';
+import { FyOptInComponent } from 'src/app/shared/components/fy-opt-in/fy-opt-in.component';
 
 describe('MyProfilePage', () => {
   let component: MyProfilePage;
@@ -57,6 +55,7 @@ describe('MyProfilePage', () => {
   let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
   let paymentModeService: jasmine.SpyObj<PaymentModesService>;
+  let modalController: jasmine.SpyObj<ModalController>;
 
   beforeEach(waitForAsync(() => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou', 'logout', 'refreshEou']);
@@ -81,6 +80,7 @@ describe('MyProfilePage', () => {
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     const paymentModeServiceSpy = jasmine.createSpyObj('PaymentModesService', ['getPaymentModeDisplayName']);
+    const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
 
     TestBed.configureTestingModule({
       declarations: [MyProfilePage],
@@ -164,6 +164,10 @@ describe('MyProfilePage', () => {
           provide: PaymentModesService,
           useValue: paymentModeServiceSpy,
         },
+        {
+          provide: ModalController,
+          useValue: modalControllerSpy,
+        },
         SpenderService,
       ],
     }).compileComponents();
@@ -189,6 +193,7 @@ describe('MyProfilePage', () => {
     snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
     activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
     paymentModeService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
+    modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
 
     component.loadEou$ = new BehaviorSubject(null);
     component.eou$ = of(apiEouRes);
@@ -641,22 +646,18 @@ describe('MyProfilePage', () => {
     it('should open edit number popover and show success toast message if update is successful', fakeAsync(() => {
       const popoverSpy = jasmine.createSpyObj('updateMobileNumberPopover', ['present', 'onWillDismiss']);
       popoverSpy.onWillDismiss.and.resolveTo({ data: { action: 'SUCCESS' } });
-      popoverController.create.and.resolveTo(popoverSpy);
+      modalController.create.and.resolveTo(popoverSpy);
 
       component.updateMobileNumber(apiEouRes);
       tick(500);
       fixture.detectChanges();
 
-      expect(popoverController.create).toHaveBeenCalledOnceWith({
-        component: UpdateMobileNumberComponent,
+      expect(modalController.create).toHaveBeenCalledOnceWith({
+        component: FyOptInComponent,
         componentProps: {
-          title: 'Edit Mobile Number',
-          ctaText: 'Next',
-          inputLabel: 'Mobile Number',
           extendedOrgUser: apiEouRes,
-          placeholder: 'Enter mobile number e.g. +129586736556',
         },
-        cssClass: 'fy-dialog-popover',
+        mode: 'ios',
       });
       expect(popoverSpy.present).toHaveBeenCalledTimes(1);
       expect(popoverSpy.onWillDismiss).toHaveBeenCalledTimes(1);
@@ -669,22 +670,18 @@ describe('MyProfilePage', () => {
       component.eou$ = of(eouWithNoAttempts);
       const popoverSpy = jasmine.createSpyObj('updateMobileNumberPopover', ['present', 'onWillDismiss']);
       popoverSpy.onWillDismiss.and.resolveTo({ data: { action: 'SUCCESS' } });
-      popoverController.create.and.resolveTo(popoverSpy);
+      modalController.create.and.resolveTo(popoverSpy);
       fixture.detectChanges();
 
       component.updateMobileNumber(eouWithNoAttempts);
       tick(500);
 
-      expect(popoverController.create).toHaveBeenCalledOnceWith({
-        component: UpdateMobileNumberComponent,
+      expect(modalController.create).toHaveBeenCalledOnceWith({
+        component: FyOptInComponent,
         componentProps: {
-          title: 'Edit Mobile Number',
-          ctaText: 'Save',
-          inputLabel: 'Mobile Number',
           extendedOrgUser: eouWithNoAttempts,
-          placeholder: 'Enter mobile number e.g. +129586736556',
         },
-        cssClass: 'fy-dialog-popover',
+        mode: 'ios',
       });
       expect(popoverSpy.present).toHaveBeenCalledTimes(1);
       expect(popoverSpy.onWillDismiss).toHaveBeenCalledTimes(1);
@@ -695,7 +692,7 @@ describe('MyProfilePage', () => {
     it('should open add number popover and show error toast message if api returns error', fakeAsync(() => {
       const popoverSpy = jasmine.createSpyObj('updateMobileNumberPopover', ['present', 'onWillDismiss']);
       popoverSpy.onWillDismiss.and.resolveTo({ data: { action: 'ERROR' } });
-      popoverController.create.and.resolveTo(popoverSpy);
+      modalController.create.and.resolveTo(popoverSpy);
 
       const eouWithoutMobileNumber = {
         ...apiEouRes,
@@ -709,16 +706,12 @@ describe('MyProfilePage', () => {
       tick(500);
       fixture.detectChanges();
 
-      expect(popoverController.create).toHaveBeenCalledOnceWith({
-        component: UpdateMobileNumberComponent,
+      expect(modalController.create).toHaveBeenCalledOnceWith({
+        component: FyOptInComponent,
         componentProps: {
-          title: 'Add Mobile Number',
-          ctaText: 'Next',
-          inputLabel: 'Mobile Number',
           extendedOrgUser: eouWithoutMobileNumber,
-          placeholder: 'Enter mobile number e.g. +129586736556',
         },
-        cssClass: 'fy-dialog-popover',
+        mode: 'ios',
       });
       expect(popoverSpy.present).toHaveBeenCalledTimes(1);
       expect(popoverSpy.onWillDismiss).toHaveBeenCalledTimes(1);

@@ -145,6 +145,8 @@ import { AutofocusDirective } from './directive/autofocus.directive';
 import { TransactionStatusInfoPopoverComponent } from './components/transaction-status-info-popover/transaction-status-info-popover.component';
 import { TransactionStatusComponent } from './components/transaction-status/transaction-status.component';
 import { FySelectCommuteDetailsComponent } from './components/fy-select-commute-details/fy-select-commute-details.component';
+import { FyOptInComponent } from './components/fy-opt-in/fy-opt-in.component';
+import { NgOtpInputModule } from 'ng-otp-input';
 
 @NgModule({
   declarations: [
@@ -267,6 +269,7 @@ import { FySelectCommuteDetailsComponent } from './components/fy-select-commute-
     TransactionStatusInfoPopoverComponent,
     VirtualCardComponent,
     FySelectCommuteDetailsComponent,
+    FyOptInComponent,
   ],
   imports: [
     CommonModule,
@@ -293,6 +296,7 @@ import { FySelectCommuteDetailsComponent } from './components/fy-select-commute-
     MatBottomSheetModule,
     ImageCropperModule,
     ScrollingModule,
+    NgOtpInputModule,
   ],
   exports: [
     EllipsisPipe,
@@ -394,6 +398,7 @@ import { FySelectCommuteDetailsComponent } from './components/fy-select-commute-
     TransactionStatusInfoPopoverComponent,
     VirtualCardComponent,
     FySelectCommuteDetailsComponent,
+    FyOptInComponent,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker, FyCurrencyPipe, ReportState],
 })

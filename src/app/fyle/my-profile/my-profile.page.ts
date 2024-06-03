@@ -25,7 +25,6 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
 import { environment } from 'src/environments/environment';
 import { globalCacheBusterNotifier } from 'ts-cacheable';
 import { TrackingService } from '../../core/services/tracking.service';
-import { UpdateMobileNumberComponent } from './update-mobile-number/update-mobile-number.component';
 import { VerifyNumberPopoverComponent } from './verify-number-popover/verify-number-popover.component';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
@@ -40,6 +39,7 @@ import { ToastType } from 'src/app/core/enums/toast-type.enum';
 import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
 import { CommuteDetailsResponse } from 'src/app/core/models/platform/commute-details-response.model';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
+import { FyOptInComponent } from 'src/app/shared/components/fy-opt-in/fy-opt-in.component';
 
 @Component({
   selector: 'app-my-profile',
@@ -406,16 +406,12 @@ export class MyProfilePage {
   }
 
   async updateMobileNumber(eou: ExtendedOrgUser): Promise<void> {
-    const updateMobileNumberPopover = await this.popoverController.create({
-      component: UpdateMobileNumberComponent,
+    const updateMobileNumberPopover = await this.modalController.create({
+      component: FyOptInComponent,
       componentProps: {
-        title: (eou.ou.mobile?.length ? 'Edit' : 'Add') + ' Mobile Number',
-        ctaText: eou.ou.mobile_verification_attempts_left !== 0 ? 'Next' : 'Save',
-        inputLabel: 'Mobile Number',
         extendedOrgUser: eou,
-        placeholder: 'Enter mobile number e.g. +129586736556',
       },
-      cssClass: 'fy-dialog-popover',
+      mode: 'ios',
     });
 
     await updateMobileNumberPopover.present();

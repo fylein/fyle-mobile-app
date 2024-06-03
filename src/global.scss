@@ -834,6 +834,12 @@ ref - https://stackoverflow.com/a/31162426
   letter-spacing: 0px !important;
 }
 
+.btn-outline-secondary {
+  @extend .btn-secondary;
+  border: 1px solid $grey;
+  border-radius: 4px;
+}
+
 .cta-footer {
   box-shadow: 0px -2px 40px rgb(215 215 215 / 40%);
 }

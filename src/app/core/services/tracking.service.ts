@@ -708,4 +708,28 @@ export class TrackingService {
   statsClicked(properties: { event: string }): void {
     this.eventTrack('Dashboard Stats Clicked', properties);
   }
+
+  openOptInDialog(properties): void {
+    this.eventTrack('Open Opt In Dialog', properties);
+  }
+
+  optInFlowSuccess(properties): void {
+    this.eventTrack('Opt In Flow Success', properties);
+  }
+
+  optInFlowError(properties): void {
+    this.eventTrack('Opt In Flow Error', properties);
+  }
+
+  optInFlowRetry(properties): void {
+    this.eventTrack('Opt In Flow Retry', properties);
+  }
+
+  clickedOnHelpArticle(): void {
+    this.eventTrack('Clicked on help article link for Opt-in Dialog');
+  }
+
+  skipOptInFlow(): void {
+    this.eventTrack('Skip Opt-in');
+  }
 }
