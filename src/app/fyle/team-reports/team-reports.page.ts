@@ -175,7 +175,8 @@ export class TeamReportsPage implements OnInit {
           if (params.searchString) {
             queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString, true);
           }
-          const orderByParams = params.sortParam && params.sortDir ? `${params.sortParam}.${params.sortDir}` : null;
+          const orderByParams =
+            params.sortParam && params.sortDir ? `${params.sortParam}.${params.sortDir}` : 'created_at.desc,id.desc';
           this.isLoadingDataInInfiniteScroll = true;
           return this.approverReportsService.getReportsByParams({
             offset: (params.pageNumber - 1) * 10,
