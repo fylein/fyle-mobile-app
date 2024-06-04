@@ -230,6 +230,7 @@ export function TestCases2(getTestBed) {
     });
 
     it('setupFilteredCategories(): should setup filteredCategories$', () => {
+      component.subCategories$ = of(orgCategoryData1);
       component.fg.patchValue({
         sub_category: {
           id: 247980,
@@ -238,7 +239,7 @@ export function TestCases2(getTestBed) {
       });
       projectsService.getAllowedOrgCategoryIds.and.returnValue([orgCategoryData]);
       spyOn(component.fg.controls.sub_category, 'reset');
-      component.setupFilteredCategories(of(orgCategoryData1));
+      component.setupFilteredCategories();
       expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledOnceWith(projects[0], orgCategoryData1);
       expect(component.fg.controls.sub_category.reset).toHaveBeenCalledTimes(1);
     });
@@ -620,9 +621,12 @@ export function TestCases2(getTestBed) {
         });
 
         component.isProjectVisible$.subscribe((res) => {
-          expect(projectsService.getProjectCount).toHaveBeenCalledOnceWith({
-            categoryIds: ['129140', '129112', '16582', '201952'],
-          });
+          expect(projectsService.getProjectCount).toHaveBeenCalledOnceWith(
+            {
+              categoryIds: ['129140', '129112', '16582', '201952'],
+            },
+            orgCategoryData1
+          );
           expect(res).toBeTrue();
         });
 
