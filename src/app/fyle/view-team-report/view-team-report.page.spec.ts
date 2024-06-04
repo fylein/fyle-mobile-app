@@ -500,7 +500,7 @@ describe('ViewTeamReportPageV2', () => {
 
       expect(component.systemEstatuses).toEqual(systemCommentsWithSt);
 
-      // expect(component.userComments).toEqual([expectedNewStatusData[2], expectedNewStatusData[3]]);
+      expect(component.userComments).toEqual(userComments);
 
       expect(reportService.getExports).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
 
