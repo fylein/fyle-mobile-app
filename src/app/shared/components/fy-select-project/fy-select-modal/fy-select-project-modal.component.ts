@@ -179,10 +179,7 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
     if (this.categoryIds?.length > 0) {
       this.activeCategories$ = forkJoin(
         this.categoryIds.map((id) => this.categoriesService.getCategoryById(parseInt(id, 10)))
-      ).pipe(
-        map((categories) => categories),
-        shareReplay(1)
-      );
+      ).pipe(shareReplay(1));
     } else {
       // Fallback if this.categoryIds is empty
       this.activeCategories$ = this.getActiveCategories().pipe(shareReplay(1));

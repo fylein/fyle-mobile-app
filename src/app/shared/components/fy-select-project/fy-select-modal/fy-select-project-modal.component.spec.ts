@@ -140,6 +140,7 @@ describe('FyProjectSelectModalComponent', () => {
     orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
 
     categoriesService.getAll.and.returnValue(of([orgCategoryData]));
+    categoriesService.getCategoryById.and.returnValue(of(orgCategoryPaginated1[0]));
 
     projectsService.getByParamsUnformatted.and.returnValue(of([singleProject2]));
 
@@ -378,15 +379,13 @@ describe('FyProjectSelectModalComponent', () => {
 
   describe('ngAfterViewInit():', () => {
     it('should get all categories by id if categoryIds are present', (done) => {
-      categoriesService.getCategoryById.and.callFake((id) => of(orgCategoryPaginated1.find((cat) => cat.id === id)));
-
       component.categoryIds = categoryIds;
       component.ngAfterViewInit();
 
       component.activeCategories$.subscribe((categories) => {
-        expect(categoriesService.getCategoryById).toHaveBeenCalledTimes(2);
-        expect(categories.length).toBe(2);
-        expect(categories).toEqual(orgCategoryPaginated1);
+        expect(categoriesService.getCategoryById).toHaveBeenCalledTimes(categoryIds.length);
+        expect(categories.length).toBe(categoryIds.length);
+        expect(categories).toEqual([orgCategoryPaginated1[0]]);
         done();
       });
     });

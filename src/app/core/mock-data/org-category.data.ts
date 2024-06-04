@@ -370,7 +370,7 @@ export const orgCategoryPaginated1: OrgCategory[] = deepFreeze([
   },
 ]);
 
-export const categoryIds: string[] = deepFreeze(['129140', '129112']);
+export const categoryIds: string[] = deepFreeze(['129140']);
 
 export const orgCategoryPaginated2: OrgCategory[] = deepFreeze([
   {
