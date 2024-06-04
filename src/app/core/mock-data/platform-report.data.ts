@@ -79,7 +79,7 @@ export const platformReportData: Report = deepFreeze({
   last_paid_at: null,
   last_resubmitted_at: null,
   last_submitted_at: null,
-  next_approver_user_ids: null,
+  next_approver_user_ids: ['us0wOWkksndvkdv'],
   num_expenses: 0,
   org_id: 'orNVthTo2Zyo',
   purpose: '#3:  Jul 2023 - Office expense',
