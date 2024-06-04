@@ -378,7 +378,10 @@ export class MyViewReportPage {
         )
       )
       .subscribe((editReportNamePopoverDetails) => {
-        const newReportName = editReportNamePopoverDetails?.data?.reportName;
+        const newReportName =
+          editReportNamePopoverDetails &&
+          editReportNamePopoverDetails.data &&
+          editReportNamePopoverDetails.data.reportName;
         if (newReportName) {
           this.updateReportName(newReportName);
         }
