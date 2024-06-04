@@ -773,24 +773,22 @@ export function TestCases5(getTestBed) {
     describe('getReceiptCount():', () => {
       it('should get receipt count', (done) => {
         component.etxn$ = of(unflattenedTxnData);
-        expensesService.getExpenseById.and.returnValue(of(platformExpenseWithExtractedData));
+        component.platformExpense$ = of(platformExpenseWithExtractedData);
         fixture.detectChanges();
 
         component.getReceiptCount().subscribe((res) => {
           expect(res).toEqual(1);
-          expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
           done();
         });
       });
 
       it('should return 0 if no receipts are returned', (done) => {
         component.etxn$ = of(unflattenedTxnData);
-        expensesService.getExpenseById.and.returnValue(of(platformExpenseData));
+        component.platformExpense$ = of(platformExpenseData);
         fixture.detectChanges();
 
         component.getReceiptCount().subscribe((res) => {
           expect(res).toEqual(0);
-          expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
           done();
         });
       });
@@ -1338,6 +1336,7 @@ export function TestCases5(getTestBed) {
         component.isConnected$ = of(true);
         component.txnFields$ = of(txnFieldsData2);
         component.filteredCategories$ = of();
+        component.platformExpense$ = of(expenseData);
 
         spyOn(component, 'initClassObservables').and.returnValue(null);
         tokenService.getClusterDomain.and.resolveTo('domain');
@@ -1365,7 +1364,6 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'getActiveCategories').and.returnValue(of(sortedCategory));
         spyOn(component, 'getNewExpenseObservable').and.returnValue(of(expectedExpenseObservable));
         spyOn(component, 'getEditExpenseObservable').and.returnValue(of(expectedUnflattendedTxnData1));
-        expensesService.getExpenseById.and.returnValue(of(expenseData));
         fileService.getReceiptsDetails.and.returnValue({
           type: 'pdf',
           thumbnail: 'img/fy-pdf.svg',
@@ -1488,11 +1486,8 @@ export function TestCases5(getTestBed) {
 
         expect(component.pendingTransactionAllowedToReportAndSplit).toBeTrue();
 
-        expect(expensesService.getExpenseById).toHaveBeenCalledWith(activatedRoute.snapshot.params.id);
-
         component.attachments$.subscribe((res) => {
           expect(res).toEqual(receiptInfoData2);
-          expect(expensesService.getExpenseById).toHaveBeenCalledWith(unflattenedTxnData.tx.id);
           expect(spenderFileService.generateUrlsBulk).toHaveBeenCalledOnceWith(expenseData.file_ids);
         });
 
