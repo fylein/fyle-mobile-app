@@ -581,7 +581,7 @@ export class ViewTeamReportPage {
     this.timeSpentOnEditingReportName = (this.reportNameChangeEndTime - this.reportNameChangeStartTime) / 1000;
     this.trackingService.reportNameChange({
       Time_spent: this.timeSpentOnEditingReportName,
-      Roles: this.eou?.ou.roles,
+      Roles: this.eou && this.eou.ou.roles,
     });
   }
 
