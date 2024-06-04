@@ -35,9 +35,15 @@ import {
 import { click, getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { By } from '@angular/platform-browser';
 import { CategoriesService } from 'src/app/core/services/categories.service';
-import { orgCategoryData, sortedCategory } from 'src/app/core/mock-data/org-category.data';
+import {
+  categoryIds,
+  expectedAllOrgCategories,
+  orgCategoryData,
+  orgCategoryPaginated1,
+  sortedCategory,
+} from 'src/app/core/mock-data/org-category.data';
 
-describe('FyProjectSelectModalComponent', () => {
+fdescribe('FyProjectSelectModalComponent', () => {
   let component: FyProjectSelectModalComponent;
   let fixture: ComponentFixture<FyProjectSelectModalComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
@@ -59,7 +65,11 @@ describe('FyProjectSelectModalComponent', () => {
     const utilityServiceSpy = jasmine.createSpyObj('UtilityService', ['searchArrayStream']);
     const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
-    const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', ['getAll', 'filterRequired']);
+    const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', [
+      'getAll',
+      'filterRequired',
+      'getCategoryById',
+    ]);
 
     TestBed.configureTestingModule({
       declarations: [FyProjectSelectModalComponent, FyHighlightTextComponent, HighlightPipe],
@@ -366,33 +376,49 @@ describe('FyProjectSelectModalComponent', () => {
     });
   });
 
-  it('ngAfterViewInit(): show filtered projects and recently used items', fakeAsync((done) => {
-    spyOn(component, 'getRecentlyUsedItems').and.returnValue(of(expectedProjects));
-    spyOn(component, 'getProjects').and.returnValue(of(labelledProjects));
+  describe('ngAfterViewInit():', () => {
+    it('should get all categories by id if categoryIds are present', (done) => {
+      categoriesService.getCategoryById.and.callFake((id) => of(orgCategoryPaginated1.find((cat) => cat.id === id)));
 
-    utilityService.searchArrayStream.and.returnValue(() => of([{ label: 'project1', value: testProjectV2 }]));
-    fixture.detectChanges();
+      component.categoryIds = categoryIds;
+      component.ngAfterViewInit();
 
-    component.ngAfterViewInit();
-    inputElement.value = 'projects';
-    inputElement.dispatchEvent(new Event('keyup'));
-
-    tick(300);
-    component.recentrecentlyUsedItems$.subscribe((res) => {
-      expect(res).toEqual(expectedProjects4);
+      component.activeCategories$.subscribe((categories) => {
+        expect(categoriesService.getCategoryById).toHaveBeenCalledTimes(2);
+        expect(categories.length).toBe(2);
+        expect(categories).toEqual(orgCategoryPaginated1);
+        done();
+      });
     });
 
-    tick(300);
-    component.filteredOptions$.subscribe((res) => {
-      expect(res).toEqual(expectedLabelledProjects);
-    });
+    it('should show filtered projects and recently used items', fakeAsync((done) => {
+      spyOn(component, 'getRecentlyUsedItems').and.returnValue(of(expectedProjects));
+      spyOn(component, 'getProjects').and.returnValue(of(labelledProjects));
 
-    expect(component.getProjects).toHaveBeenCalledWith('projects');
-    expect(component.getRecentlyUsedItems).toHaveBeenCalled();
-    expect(utilityService.searchArrayStream).toHaveBeenCalledWith('projects');
+      utilityService.searchArrayStream.and.returnValue(() => of([{ label: 'project1', value: testProjectV2 }]));
+      fixture.detectChanges();
 
-    discardPeriodicTasks();
-  }));
+      component.ngAfterViewInit();
+      inputElement.value = 'projects';
+      inputElement.dispatchEvent(new Event('keyup'));
+
+      tick(300);
+      component.recentrecentlyUsedItems$.subscribe((res) => {
+        expect(res).toEqual(expectedProjects4);
+      });
+
+      tick(300);
+      component.filteredOptions$.subscribe((res) => {
+        expect(res).toEqual(expectedLabelledProjects);
+      });
+
+      expect(component.getProjects).toHaveBeenCalledWith('projects');
+      expect(component.getRecentlyUsedItems).toHaveBeenCalled();
+      expect(utilityService.searchArrayStream).toHaveBeenCalledWith('projects');
+
+      discardPeriodicTasks();
+    }));
+  });
 
   it('should show label on the screen', () => {
     component.activeCategories$ = of([]);
