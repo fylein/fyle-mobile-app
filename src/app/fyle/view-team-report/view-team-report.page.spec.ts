@@ -336,7 +336,7 @@ describe('ViewTeamReportPageV2', () => {
   });
 
   describe('ionViewWillEnter():', () => {
-    fit('should initialize the variables and load reports and statuses', fakeAsync(() => {
+    it('should initialize the variables and load reports and statuses', fakeAsync(() => {
       spyOn(component, 'loadReports').and.returnValue(of(expectedReportsSinglePage[0]));
       spyOn(component, 'setupNetworkWatcher');
       spyOn(component, 'getApprovalSettings').and.returnValue(true);
