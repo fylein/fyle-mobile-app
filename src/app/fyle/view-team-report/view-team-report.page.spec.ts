@@ -998,7 +998,7 @@ describe('ViewTeamReportPageV2', () => {
     component.trackReportNameChange();
     expect(trackingService.reportNameChange).toHaveBeenCalledOnceWith({
       Time_spent: component.timeSpentOnEditingReportName,
-      Roles: undefined,
+      Roles: null,
     });
   });
 
