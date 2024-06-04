@@ -79,7 +79,7 @@ export const platformReportData: Report = deepFreeze({
   last_paid_at: null,
   last_resubmitted_at: null,
   last_submitted_at: null,
-  next_approver_user_ids: null,
+  next_approver_user_ids: ['us0wOWkksndvkdv'],
   num_expenses: 0,
   org_id: 'orNVthTo2Zyo',
   purpose: '#3:  Jul 2023 - Office expense',
@@ -137,7 +137,7 @@ export const allReportsPaginated1: PlatformApiResponse<Report[]> = deepFreeze({
         },
         {
           comment: 'aaac',
-          created_at: new Date('2024-05-22T07:32:19.199048+00:00'),
+          created_at: new Date('2024-05-22T07:33:20.199048+00:00'),
           creator_user: {
             email: 'aastha.b@fyle.in',
             full_name: 'Aastha',
@@ -148,7 +148,7 @@ export const allReportsPaginated1: PlatformApiResponse<Report[]> = deepFreeze({
         },
         {
           comment: 'aaa',
-          created_at: new Date('2024-05-23T07:32:19.199048+00:00'),
+          created_at: new Date('2024-05-23T07:34:21.199048+00:00'),
           creator_user: {
             email: 'aastha.b@fyle.in',
             full_name: 'Aastha',
@@ -204,7 +204,7 @@ export const allReportsPaginated1: PlatformApiResponse<Report[]> = deepFreeze({
       last_paid_at: null,
       last_resubmitted_at: null,
       last_submitted_at: new Date('2023-02-01T13:02:35.097839+00:00'),
-      next_approver_user_ids: null,
+      next_approver_user_ids: ['us0wOWkksndvkdv'],
       num_expenses: 0,
       org_id: 'orNVthTo2Zyo',
       purpose: '#8:  Jan 2023',
@@ -682,7 +682,7 @@ export const submittedReportData: Report = deepFreeze({
     },
     {
       comment: 'aaac',
-      created_at: new Date('2024-05-22T07:32:19.199048+00:00'),
+      created_at: new Date('2024-05-22T07:33:20.199048+00:00'),
       creator_user: {
         email: 'aastha.b@fyle.in',
         full_name: 'Aastha',
@@ -693,7 +693,7 @@ export const submittedReportData: Report = deepFreeze({
     },
     {
       comment: 'aaa',
-      created_at: new Date('2024-05-23T07:32:19.199048+00:00'),
+      created_at: new Date('2024-05-23T07:34:21.199048+00:00'),
       creator_user: {
         email: 'aastha.b@fyle.in',
         full_name: 'Aastha',
