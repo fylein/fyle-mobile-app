@@ -78,7 +78,7 @@
           <div *ngFor="let report of teamReports$ | async as list; let i = index">
             <app-reports-card
               [report]="report"
-              [prevDate]="list[i-1]?.rp_created_at"
+              [prevDate]="list[i-1]?.created_at"
               [simplifyReportsEnabled]="simplifyReportsSettings.enabled"
               [isManualFlagFeatureEnabled]="isManualFlagFeatureEnabled.value"
               (gotoReport)="onReportClick($event)"
