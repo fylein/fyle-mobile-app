@@ -204,7 +204,7 @@ export const allReportsPaginated1: PlatformApiResponse<Report[]> = deepFreeze({
       last_paid_at: null,
       last_resubmitted_at: null,
       last_submitted_at: new Date('2023-02-01T13:02:35.097839+00:00'),
-      next_approver_user_ids: null,
+      next_approver_user_ids: ['us0wOWkksndvkdv'],
       num_expenses: 0,
       org_id: 'orNVthTo2Zyo',
       purpose: '#8:  Jan 2023',
