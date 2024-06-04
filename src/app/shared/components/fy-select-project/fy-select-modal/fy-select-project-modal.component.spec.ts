@@ -43,7 +43,7 @@ import {
   sortedCategory,
 } from 'src/app/core/mock-data/org-category.data';
 
-fdescribe('FyProjectSelectModalComponent', () => {
+describe('FyProjectSelectModalComponent', () => {
   let component: FyProjectSelectModalComponent;
   let fixture: ComponentFixture<FyProjectSelectModalComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
