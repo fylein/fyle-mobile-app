@@ -91,10 +91,10 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
         return forkJoin({
           allowedProjectIds: allowedProjectIds$,
           eou: from(this.authService.getEou()),
-          allActiveCategories: this.activeCategories$,
+          activeCategories: this.activeCategories$,
         });
       }),
-      switchMap(({ allowedProjectIds, eou, allActiveCategories }) =>
+      switchMap(({ allowedProjectIds, eou, activeCategories }) =>
         this.projectsService.getByParamsUnformatted(
           {
             orgId: eou.ou.org_id,
@@ -107,7 +107,7 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
             offset: 0,
             limit: 20,
           },
-          allActiveCategories
+          activeCategories
         )
       ),
       switchMap((projects) => {
@@ -176,7 +176,14 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.activeCategories$ = this.getActiveCategories().pipe(shareReplay(1));
+    if (this.categoryIds?.length > 0) {
+      this.activeCategories$ = forkJoin(
+        this.categoryIds.map((id) => this.categoriesService.getCategoryById(parseInt(id, 10)))
+      ).pipe(shareReplay(1));
+    } else {
+      // Fallback if this.categoryIds is empty
+      this.activeCategories$ = this.getActiveCategories().pipe(shareReplay(1));
+    }
 
     this.filteredOptions$ = fromEvent<{ target: HTMLInputElement }>(this.searchBarRef.nativeElement, 'keyup').pipe(
       map((event) => event.target.value),
