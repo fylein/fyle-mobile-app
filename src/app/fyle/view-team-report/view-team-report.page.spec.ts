@@ -436,7 +436,7 @@ describe('ViewTeamReportPageV2', () => {
 
       expect(component.reportExpensesIds).toEqual(['txcSFe6efB6R', 'txcSFe6efB6R']);
       expect(component.isSequentialApprovalEnabled).toBeTrue();
-      expect(component.canApprove).toBeNull();
+      expect(component.canApprove).toBeFalse();
       expect(component.canShowTooltip).toBeTrue();
     }));
 
@@ -500,7 +500,7 @@ describe('ViewTeamReportPageV2', () => {
 
       expect(component.systemEstatuses).toEqual(systemCommentsWithSt);
 
-      // expect(component.userComments).toEqual([expectedNewStatusData[2], expectedNewStatusData[3]]);
+      expect(component.userComments).toEqual(userComments);
 
       expect(reportService.getExports).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
 
@@ -998,7 +998,7 @@ describe('ViewTeamReportPageV2', () => {
     component.trackReportNameChange();
     expect(trackingService.reportNameChange).toHaveBeenCalledOnceWith({
       Time_spent: component.timeSpentOnEditingReportName,
-      Roles: undefined,
+      Roles: null,
     });
   });
 

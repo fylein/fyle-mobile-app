@@ -14,5 +14,4 @@ export interface DateParams {
   reimbursed_at: Date | string;
   from_dt: Date | string;
   to_dt: Date | string;
-  physical_bill_at: Date | string;
 }

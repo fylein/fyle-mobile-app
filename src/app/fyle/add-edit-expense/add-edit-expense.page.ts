@@ -374,6 +374,8 @@ export class AddEditExpensePage implements OnInit {
 
   cardNumber: string;
 
+  cardNickname: string;
+
   policyDetails: IndividualExpensePolicyState[];
 
   source = 'MOBILE';
@@ -2795,6 +2797,7 @@ export class AddEditExpensePage implements OnInit {
 
     if (this.selectedCCCTransaction) {
       this.cardNumber = this.selectedCCCTransaction.card_or_account_number;
+      this.cardNickname = this.selectedCCCTransaction.corporate_card_nickname;
     }
   }
 
