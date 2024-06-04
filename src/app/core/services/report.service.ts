@@ -1,7 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { Inject, Injectable } from '@angular/core';
-import { Observable, Subject, from, of, range } from 'rxjs';
-import { catchError, concatMap, map, reduce, switchMap, tap } from 'rxjs/operators';
+import { Observable, Subject, of, range } from 'rxjs';
+import { catchError, concatMap, map, reduce, switchMap } from 'rxjs/operators';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { CacheBuster, Cacheable } from 'ts-cacheable';
 import { OrgSettings } from '../models/org-settings.model';
