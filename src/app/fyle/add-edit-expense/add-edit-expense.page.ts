@@ -2542,11 +2542,11 @@ export class AddEditExpensePage implements OnInit {
       switchMap((etxn) => {
         if (etxn.tx.project_id) {
           return this.activeCategories$.pipe(
-            map((allActiveCategories) => this.projectsService.getbyId(etxn.tx.project_id, allActiveCategories))
+            concatMap((allActiveCategories) => this.projectsService.getbyId(etxn.tx.project_id, allActiveCategories))
           );
         } else if (projectControl?.value?.project_id) {
           return this.activeCategories$.pipe(
-            map((allActiveCategories) =>
+            concatMap((allActiveCategories) =>
               this.projectsService.getbyId(projectControl.value.project_id, allActiveCategories)
             )
           );
