@@ -204,47 +204,6 @@ export class ReportService {
     );
   }
 
-  getUserReportParams(state: keyof ReportStateMap): Record<'state', string[]> {
-    const stateMap: ReportStateMap = {
-      draft: {
-        state: ['DRAFT'],
-      },
-      pending: {
-        state: ['APPROVER_PENDING'],
-      },
-      inquiry: {
-        state: ['APPROVER_INQUIRY'],
-      },
-      approved: {
-        state: ['APPROVED'],
-      },
-      payment_queue: {
-        state: ['PAYMENT_PENDING'],
-      },
-      paid: {
-        state: ['PAID'],
-      },
-      edit: {
-        state: ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'],
-      },
-      all: {
-        state: [
-          'DRAFT',
-          'COMPLETE',
-          'APPROVED',
-          'APPROVER_PENDING',
-          'APPROVER_INQUIRY',
-          'PAYMENT_PENDING',
-          'PAYMENT_PROCESSING',
-          'PAID',
-          'REJECTED',
-        ],
-      },
-    };
-
-    return stateMap[state];
-  }
-
   getExports(rptId: string): Observable<{ results: PdfExport[] }> {
     return this.apiService.get<{ results: PdfExport[] }>('/reports/' + rptId + '/exports');
   }
@@ -279,32 +238,6 @@ export class ReportService {
     }
   }
 
-  searchParamsGenerator(
-    search: { state: keyof ReportStateMap; dateRange?: { from: string; to: string } },
-    sortOrder?: string
-  ): Record<string, string[]> {
-    let params = {};
-
-    params = this.userReportsSearchParamsGenerator(params, search);
-    params = this.addOrderByParams(params, sortOrder);
-
-    return params;
-  }
-
-  userReportsSearchParamsGenerator(
-    params: ReportParams,
-    search: {
-      state: keyof ReportStateMap;
-      dateRange?: {
-        from?: string;
-        to?: string;
-      };
-    }
-  ): Record<'state', string[]> {
-    const searchParams = this.getUserReportParams(search.state);
-    return Object.assign({}, params, searchParams);
-  }
-
   getReportPurpose(reportPurpose: { ids: string[] }): Observable<string> {
     return this.apiService.post<ReportV1>('/reports/purpose', reportPurpose).pipe(map((res) => res.purpose));
   }
@@ -319,23 +252,6 @@ export class ReportService {
       concatMap((rptIds) => this.apiService.get('/reports/approvers', { params: { report_ids: rptIds } })),
       reduce((acc: Approver[], curr: Approver) => acc.concat(curr), [])
     );
-  }
-
-  addApprovers(erpts: UnflattenedReport[], approvers: Approver[]): UnflattenedReport[] {
-    const reportApprovalsMap: Record<string, Approver[]> = {};
-
-    approvers.forEach((approver) => {
-      if (reportApprovalsMap[approver.report_id]) {
-        reportApprovalsMap[approver.report_id].push(approver);
-      } else {
-        reportApprovalsMap[approver.report_id] = [approver];
-      }
-    });
-
-    return erpts.map((erpt) => {
-      erpt.rp.approvals = reportApprovalsMap[erpt.rp.id];
-      return erpt;
-    });
   }
 
   approverUpdateReportPurpose(report: Report): Observable<Report> {

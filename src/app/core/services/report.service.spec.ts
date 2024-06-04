@@ -3,9 +3,7 @@ import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { DatePipe } from '@angular/common';
 import { of } from 'rxjs';
 import { PAGINATION_SIZE } from 'src/app/constants';
-import { apiReportStatsRawRes, apiReportStatsRes } from '../../core/mock-data/stats-response.data';
 import { reportAllowedActionsResponse } from '../mock-data/allowed-actions.data';
-import { apiReportRes } from '../mock-data/api-reports.data';
 import {
   approversData1,
   apiAllApproverRes1,
@@ -18,16 +16,7 @@ import {
 import { apiEouRes } from '../mock-data/extended-org-user.data';
 import { orgSettingsRes } from '../mock-data/org-settings.data';
 import { apiReportAutoSubmissionDetails } from '../mock-data/report-auto-submission-details.data';
-import {
-  expectedErpt,
-  unflattenedErptcArrayItem1,
-  unflattenedErptcArrayItem2,
-  unflattenedErptcArrayItem3,
-  unflattenedErptcArrayItem4,
-  singleERptcFixDatesMock,
-  addApproverERpts,
-  expectedAddedApproverERpts,
-} from '../mock-data/report-unflattened.data';
+import { addApproverERpts, expectedAddedApproverERpts } from '../mock-data/report-unflattened.data';
 import {
   reportUnflattenedData,
   reportUnflattenedData2,
@@ -455,14 +444,6 @@ describe('ReportService', () => {
     });
   });
 
-  it('searchParamsGenerator(): should generate search parameters', () => {
-    const result = reportService.searchParamsGenerator({ state: 'edit' });
-
-    expect(result).toEqual({
-      state: ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'],
-    });
-  });
-
   it('getReportPurpose(): should get the purpose of the report', (done) => {
     const reportName = ' #7:  Jan 2023';
     apiService.post.and.returnValue(of(apiEmptyReportRes));
@@ -531,121 +512,5 @@ describe('ReportService', () => {
       const result = reportService.addOrderByParams(params, 'rp_created_at.desc,rp_id.desc');
       expect(result).toEqual(params);
     });
-  });
-
-  describe('getUserReportParams():', () => {
-    it('generate parameters as per state | edit', () => {
-      const params = 'edit';
-
-      const expectedRes = {
-        state: ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'],
-      };
-
-      const result = reportService.getUserReportParams(params);
-      expect(result).toEqual(expectedRes);
-      expect(expectedRes.state.length).toEqual(3);
-    });
-
-    it('generate parameters as per state | draft', () => {
-      const params = 'draft';
-
-      const expectedRes = {
-        state: ['DRAFT'],
-      };
-
-      const result = reportService.getUserReportParams(params);
-      expect(result).toEqual(expectedRes);
-      expect(expectedRes.state.length).toEqual(1);
-    });
-
-    it('generate parameters as per state | pending', () => {
-      const params = 'pending';
-
-      const expectedRes = {
-        state: ['APPROVER_PENDING'],
-      };
-
-      const result = reportService.getUserReportParams(params);
-      expect(result).toEqual(expectedRes);
-      expect(expectedRes.state.length).toEqual(1);
-    });
-
-    it('generate parameters as per state | inquiry', () => {
-      const params = 'inquiry';
-
-      const expectedRes = {
-        state: ['APPROVER_INQUIRY'],
-      };
-
-      const result = reportService.getUserReportParams(params);
-      expect(result).toEqual(expectedRes);
-      expect(expectedRes.state.length).toEqual(1);
-    });
-
-    it('generate parameters as per state | approved', () => {
-      const params = 'approved';
-
-      const expectedRes = {
-        state: ['APPROVED'],
-      };
-
-      const result = reportService.getUserReportParams(params);
-      expect(result).toEqual(expectedRes);
-      expect(expectedRes.state.length).toEqual(1);
-    });
-
-    it('generate parameters as per state | payment_queue', () => {
-      const params = 'payment_queue';
-
-      const expectedRes = {
-        state: ['PAYMENT_PENDING'],
-      };
-
-      const result = reportService.getUserReportParams(params);
-      expect(result).toEqual(expectedRes);
-      expect(expectedRes.state.length).toEqual(1);
-    });
-
-    it('generate parameters as per state | paid', () => {
-      const params = 'paid';
-
-      const expectedRes = {
-        state: ['PAID'],
-      };
-
-      const result = reportService.getUserReportParams(params);
-      expect(result).toEqual(expectedRes);
-      expect(expectedRes.state.length).toEqual(1);
-    });
-
-    it('generate parameters as per state | all', () => {
-      const params = 'all';
-
-      const expectedRes = {
-        state: [
-          'DRAFT',
-          'COMPLETE',
-          'APPROVED',
-          'APPROVER_PENDING',
-          'APPROVER_INQUIRY',
-          'PAYMENT_PENDING',
-          'PAYMENT_PROCESSING',
-          'PAID',
-          'REJECTED',
-        ],
-      };
-
-      const result = reportService.getUserReportParams(params);
-      expect(result).toEqual(expectedRes);
-      expect(expectedRes.state.length).toEqual(9);
-    });
-  });
-
-  it('addApprovers(): add approvers to reports', () => {
-    const mockApproverData = cloneDeep(approversData1);
-    const mockERpts = cloneDeep(addApproverERpts);
-    const res = reportService.addApprovers(mockERpts, mockApproverData);
-
-    expect(res).toEqual(expectedAddedApproverERpts);
   });
 });
