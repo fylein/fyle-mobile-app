@@ -222,36 +222,8 @@ export class ReportService {
     return this.apiService.post('/reports/summary/download', data);
   }
 
-  addOrderByParams(
-    params: {
-      state?: string[];
-    },
-    sortOrder?: string
-  ): {
-    state?: string[];
-    order_by?: string;
-  } {
-    if (sortOrder) {
-      return Object.assign(params, { order_by: sortOrder });
-    } else {
-      return params;
-    }
-  }
-
   getReportPurpose(reportPurpose: { ids: string[] }): Observable<string> {
     return this.apiService.post<ReportV1>('/reports/purpose', reportPurpose).pipe(map((res) => res.purpose));
-  }
-
-  getApproversInBulk(rptIds: string[]): Observable<Approver[]> {
-    if (!rptIds || rptIds.length === 0) {
-      return of(<Approver[]>[]);
-    }
-    const count = rptIds.length > this.paginationSize ? rptIds.length / this.paginationSize : 1;
-    return range(0, count).pipe(
-      map((page) => rptIds.slice(page * this.paginationSize, (page + 1) * this.paginationSize)),
-      concatMap((rptIds) => this.apiService.get('/reports/approvers', { params: { report_ids: rptIds } })),
-      reduce((acc: Approver[], curr: Approver) => acc.concat(curr), [])
-    );
   }
 
   approverUpdateReportPurpose(report: Report): Observable<Report> {
