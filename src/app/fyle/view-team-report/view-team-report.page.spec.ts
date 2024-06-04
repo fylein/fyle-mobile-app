@@ -436,7 +436,7 @@ describe('ViewTeamReportPageV2', () => {
 
       expect(component.reportExpensesIds).toEqual(['txcSFe6efB6R', 'txcSFe6efB6R']);
       expect(component.isSequentialApprovalEnabled).toBeTrue();
-      expect(component.canApprove).toBeNull();
+      expect(component.canApprove).toBeFalse();
       expect(component.canShowTooltip).toBeTrue();
     }));
 
