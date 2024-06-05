@@ -1055,37 +1055,16 @@ describe('TasksService', () => {
   });
 
   describe('mapMobileNumberVerificationTask(): ', () => {
-    it('should return correct task object for add mobile number', () => {
-      expect(tasksService.mapMobileNumberVerificationTask('Add')).toEqual([addMobileNumberTask]);
-    });
-
     it('should return correct task object for verify mobile number', () => {
-      expect(tasksService.mapMobileNumberVerificationTask('Verify')).toEqual([verifyMobileNumberTask]);
+      expect(tasksService.mapMobileNumberVerificationTask()).toEqual([verifyMobileNumberTask]);
     });
   });
 
   describe('getMobileNumberVerificationTasks(): ', () => {
     it('should not return any task if user has verified mobile number', (done) => {
       authService.getEou.and.resolveTo(extendedOrgUserResponse);
-      corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([mastercardRTFCard]));
       const mapMobileNumberVerificationTaskSpy = spyOn(tasksService, 'mapMobileNumberVerificationTask');
       tasksService.getMobileNumberVerificationTasks().subscribe((res) => {
-        expect(corporateCreditCardExpenseService.getCorporateCards).toHaveBeenCalledOnceWith();
-        expect(authService.getEou).toHaveBeenCalledOnceWith();
-        expect(res).toEqual([]);
-        expect(mapMobileNumberVerificationTaskSpy).not.toHaveBeenCalled();
-        done();
-      });
-    });
-
-    it('should not return any task if user has not enrolled for RTF', (done) => {
-      const eou = cloneDeep(extendedOrgUserResponse);
-      eou.ou.mobile_verified = false;
-      authService.getEou.and.resolveTo(eou);
-      corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([]));
-      const mapMobileNumberVerificationTaskSpy = spyOn(tasksService, 'mapMobileNumberVerificationTask');
-      tasksService.getMobileNumberVerificationTasks().subscribe((res) => {
-        expect(corporateCreditCardExpenseService.getCorporateCards).toHaveBeenCalledOnceWith();
         expect(authService.getEou).toHaveBeenCalledOnceWith();
         expect(res).toEqual([]);
         expect(mapMobileNumberVerificationTaskSpy).not.toHaveBeenCalled();
@@ -1097,11 +1076,9 @@ describe('TasksService', () => {
       const eou = cloneDeep(extendedOrgUserResponse);
       eou.ou.mobile_verified = false;
       authService.getEou.and.resolveTo(eou);
-      corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([mastercardRTFCard]));
       utilityService.isUserFromINCluster.and.resolveTo(true);
       const mapMobileNumberVerificationTaskSpy = spyOn(tasksService, 'mapMobileNumberVerificationTask');
       tasksService.getMobileNumberVerificationTasks().subscribe((res) => {
-        expect(corporateCreditCardExpenseService.getCorporateCards).toHaveBeenCalledOnceWith();
         expect(authService.getEou).toHaveBeenCalledOnceWith();
         expect(utilityService.isUserFromINCluster).toHaveBeenCalledOnceWith();
         expect(res).toEqual([]);
@@ -1110,35 +1087,35 @@ describe('TasksService', () => {
       });
     });
 
-    it('should return add number task if user has not added mobile number', (done) => {
+    it('should return opt in task if user has not added mobile number and currency is CAD', (done) => {
       const eou = cloneDeep(extendedOrgUserResponse);
       eou.ou.mobile_verified = false;
       eou.ou.mobile = null;
+      eou.org.currency = 'CAD';
       authService.getEou.and.resolveTo(eou);
-      corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([mastercardRTFCard]));
       const mapMobileNumberVerificationTaskSpy = spyOn(tasksService, 'mapMobileNumberVerificationTask').and.returnValue(
         [addMobileNumberTask]
       );
-      tasksService.getMobileNumberVerificationTasks().subscribe(() => {
-        expect(corporateCreditCardExpenseService.getCorporateCards).toHaveBeenCalledOnceWith();
-        expect(authService.getEou).toHaveBeenCalledOnceWith();
-        expect(mapMobileNumberVerificationTaskSpy).toHaveBeenCalledOnceWith('Add');
+      tasksService.getMobileNumberVerificationTasks().subscribe((res) => {
+        expect(authService.getEou).toHaveBeenCalledTimes(1);
+        expect(mapMobileNumberVerificationTaskSpy).toHaveBeenCalledTimes(1);
+        expect(res).toEqual([addMobileNumberTask]);
         done();
       });
     });
 
-    it('should return verify number task if user has verified mobile number', (done) => {
+    it('should return opt in task if user has not verified mobile number', (done) => {
       const eou = cloneDeep(extendedOrgUserResponse);
       eou.ou.mobile_verified = false;
+      eou.org.currency = 'USD';
       authService.getEou.and.resolveTo(eou);
-      corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([mastercardRTFCard]));
       const mapMobileNumberVerificationTaskSpy = spyOn(tasksService, 'mapMobileNumberVerificationTask').and.returnValue(
         [addMobileNumberTask]
       );
-      tasksService.getMobileNumberVerificationTasks().subscribe(() => {
-        expect(corporateCreditCardExpenseService.getCorporateCards).toHaveBeenCalledOnceWith();
-        expect(authService.getEou).toHaveBeenCalledOnceWith();
-        expect(mapMobileNumberVerificationTaskSpy).toHaveBeenCalledOnceWith('Verify');
+      tasksService.getMobileNumberVerificationTasks().subscribe((res) => {
+        expect(authService.getEou).toHaveBeenCalledTimes(1);
+        expect(mapMobileNumberVerificationTaskSpy).toHaveBeenCalledTimes(1);
+        expect(res).toEqual([addMobileNumberTask]);
         done();
       });
     });
