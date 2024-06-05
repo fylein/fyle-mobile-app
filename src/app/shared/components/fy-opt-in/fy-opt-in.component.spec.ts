@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { IonicModule, ModalController } from '@ionic/angular';
 
 import { FyOptInComponent } from './fy-opt-in.component';
@@ -19,6 +19,8 @@ import { Subscription, of, throwError } from 'rxjs';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ToastType } from 'src/app/core/enums/toast-type.enum';
 import { HttpErrorResponse } from '@angular/common/http';
+import { snackbarPropertiesRes2 } from 'src/app/core/mock-data/snackbar-properties.data';
+import { ToastMessageComponent } from '../toast-message/toast-message.component';
 
 describe('FyOptInComponent', () => {
   let component: FyOptInComponent;
@@ -422,5 +424,106 @@ describe('FyOptInComponent', () => {
         'msb-failure-with-camera-icon'
       );
     });
+  });
+
+  describe('verifyOtp():', () => {
+    beforeEach(() => {
+      component.ngOtpInput = {
+        setValue: jasmine.createSpy('setValue'),
+      } as any;
+
+      mobileNumberVerificationService.verifyOtp.and.returnValue(of({ message: 'success' }));
+      loaderService.showLoader.and.resolveTo();
+      loaderService.hideLoader.and.resolveTo();
+      spyOn(component, 'toastWithoutCTA');
+      component.optInFlowState = OptInFlowState.OTP_VERIFICATION;
+    });
+
+    it('should show success screen and track event if otp is verified', fakeAsync(() => {
+      component.verifyOtp('123456');
+      tick(100);
+
+      expect(component.optInFlowState).toBe(OptInFlowState.SUCCESS);
+      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Verifying code...');
+      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should reset otp if API call fails', fakeAsync(() => {
+      mobileNumberVerificationService.verifyOtp.and.returnValue(throwError('error'));
+      component.verifyOtp('123456');
+      tick(100);
+
+      expect(component.ngOtpInput.setValue).toHaveBeenCalledOnceWith('');
+      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Verifying code...');
+      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+      expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
+        'Code is invalid',
+        ToastType.FAILURE,
+        'msb-failure-with-camera-icon'
+      );
+      expect(component.optInFlowState).toBe(OptInFlowState.OTP_VERIFICATION);
+    }));
+  });
+
+  it('onOtpChange(): should call verifyOtp if otp length is 6', () => {
+    spyOn(component, 'verifyOtp');
+    component.onOtpChange('123456');
+    expect(component.verifyOtp).toHaveBeenCalledOnceWith('123456');
+  });
+
+  it('toastWithoutCTA(): should show toast message', () => {
+    snackbarProperties.setSnackbarProperties.and.returnValue(snackbarPropertiesRes2);
+    component.toastWithoutCTA('message', ToastType.SUCCESS, 'icon');
+    expect(matSnackbar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
+      ...snackbarPropertiesRes2,
+      panelClass: ['icon'],
+    });
+    expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
+      ToastContent: 'message',
+    });
+  });
+
+  it('startTimer(): should start a timer and clear it after 30 seconds', fakeAsync(() => {
+    spyOn(window, 'setInterval').and.callThrough();
+    spyOn(window, 'clearInterval').and.callThrough();
+
+    component.startTimer();
+    expect(setInterval).toHaveBeenCalledOnceWith(jasmine.any(Function), 1000);
+    expect(component.otpTimer).toBe(30);
+    expect(component.showOtpTimer).toBeTrue();
+
+    tick(1000);
+    expect(component.otpTimer).toBe(29);
+
+    tick(29000);
+    expect(component.otpTimer).toBe(0);
+    expect(clearInterval).toHaveBeenCalledOnceWith(jasmine.any(Number));
+    expect(component.showOtpTimer).toBeFalse();
+  }));
+
+  it('openHelpArticle(): should open help article in browser', () => {
+    component.openHelpArticle();
+    expect(trackingService.clickedOnHelpArticle).toHaveBeenCalledTimes(1);
+    expect(browserHandlerService.openLinkWithToolbarColor).toHaveBeenCalledOnceWith(
+      '#280a31',
+      'https://help.fylehq.com/en/articles/8045065-submit-your-receipts-via-text-message'
+    );
+  });
+
+  it('onGotItClicked(): should dismiss the modal and track opt in event', () => {
+    component.onGotItClicked();
+    expect(modalController.dismiss).toHaveBeenCalledOnceWith({
+      action: 'SUCCESS',
+    });
+    expect(trackingService.optInFlowSuccess).toHaveBeenCalledOnceWith({
+      message: 'SUCCESS',
+    });
+  });
+
+  it('ionViewWillLeave(): should unsubscribe hardwareBackButtonAction', () => {
+    component.hardwareBackButtonAction = new Subscription();
+    spyOn(component.hardwareBackButtonAction, 'unsubscribe');
+    component.ionViewWillLeave();
+    expect(component.hardwareBackButtonAction.unsubscribe).toHaveBeenCalledTimes(1);
   });
 });
