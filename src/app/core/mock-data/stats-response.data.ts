@@ -1,6 +1,4 @@
-import deepFreeze from 'deep-freeze-strict';
-
-import { Datum, StatsResponse } from '../models/v2/stats-response.model';
+import { StatsResponse } from '../models/v2/stats-response.model';
 // type StatsResponse = {
 //   data: {
 //     dimensions: string[];
