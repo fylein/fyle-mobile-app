@@ -1069,14 +1069,13 @@ export function TestCases3(getTestBed) {
         component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
         component.etxn$ = of(unflattenedPaidExp);
         component.initialFetch = true;
-        categoriesService.getCategoryById.and.returnValue(of(orgCategoryData1[0]));
+        component.selectedCategory$ = of(orgCategoryData1[0]);
 
         fixture.detectChanges();
         component.getCategoryOnEdit(orgCategoryData1[0]).subscribe((res) => {
           expect(res).toEqual(orgCategoryPaginated1[0]);
           expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-          expect(categoriesService.getCategoryById).toHaveBeenCalledOnceWith(unflattenedDraftExp.tx.org_category_id);
           done();
         });
       });
@@ -1091,14 +1090,13 @@ export function TestCases3(getTestBed) {
           tx: { ...unflattenedPaidExp.tx, fyle_category: undefined, state: 'DRAFT' },
         });
         component.initialFetch = true;
-        categoriesService.getCategoryById.and.returnValue(of(orgCategoryData1[0]));
+        component.selectedCategory$ = of(orgCategoryData1[0]);
 
         fixture.detectChanges();
         component.getCategoryOnEdit(orgCategoryData1[0]).subscribe((res) => {
           expect(res).toEqual(orgCategoryPaginated1[0]);
           expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-          expect(categoriesService.getCategoryById).toHaveBeenCalledOnceWith(unflattenedDraftExp.tx.org_category_id);
           done();
         });
       });
