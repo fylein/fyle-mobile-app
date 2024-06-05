@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing';
+import { TestBed, discardPeriodicTasks, fakeAsync, tick } from '@angular/core/testing';
 import { ApiService } from './api.service';
 import { ProjectsService } from './projects.service';
 import { RecentlyUsedItemsService } from './recently-used-items.service';
@@ -16,11 +16,16 @@ import {
 import { apiEouRes } from '../mock-data/extended-org-user.data';
 import { of } from 'rxjs';
 import { recentUsedCategoriesRes } from '../mock-data/org-category-list-item.data';
+import { CategoriesService } from './categories.service';
+import { orgCategoryPaginated1 } from '../mock-data/org-category.data';
+import { testActiveCategoryList } from '../test-data/projects.spec.data';
+import { platformProjectsArgs1 } from '../mock-data/platform/v1/platform-project-args.data';
 
 describe('RecentlyUsedItemsService', () => {
   let recentlyUsedItemsService: RecentlyUsedItemsService;
   let apiService: jasmine.SpyObj<ApiService>;
   let projectsService: jasmine.SpyObj<ProjectsService>;
+  let categoriesService: jasmine.SpyObj<CategoriesService>;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -34,11 +39,16 @@ describe('RecentlyUsedItemsService', () => {
           provide: ProjectsService,
           useValue: jasmine.createSpyObj('ProjectsService', ['getByParamsUnformatted']),
         },
+        {
+          provide: CategoriesService,
+          useValue: jasmine.createSpyObj('CategoriesService', ['getAll']),
+        },
       ],
     });
     recentlyUsedItemsService = TestBed.inject(RecentlyUsedItemsService);
     apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
     projectsService = TestBed.inject(ProjectsService) as jasmine.SpyObj<ProjectsService>;
+    categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
   });
 
   it('should be created', () => {
@@ -56,33 +66,34 @@ describe('RecentlyUsedItemsService', () => {
 
   describe('getRecentlyUsedProjects():', () => {
     it('should get all the recently used projects', (done) => {
+      categoriesService.getAll.and.returnValue(of(orgCategoryPaginated1));
       projectsService.getByParamsUnformatted.and.returnValue(of(recentlyUsedProjectRes));
+
       const config = {
         recentValues: recentlyUsedRes,
         eou: apiEouRes,
         categoryIds: ['16558', '16559', '16560', '16561', '16562'],
+        activeCategoryList: testActiveCategoryList,
       };
+
       recentlyUsedItemsService.getRecentlyUsedProjects(config).subscribe((res) => {
-        expect(projectsService.getByParamsUnformatted).toHaveBeenCalledOnceWith({
-          orgId: config.eou.ou.org_id,
-          active: true,
-          sortDirection: 'asc',
-          sortOrder: 'project_name',
-          orgCategoryIds: config.categoryIds,
-          projectIds: config.recentValues.recent_project_ids,
-          offset: 0,
-          limit: 10,
-        });
+        expect(projectsService.getByParamsUnformatted).toHaveBeenCalledOnceWith(
+          platformProjectsArgs1,
+          testActiveCategoryList
+        );
         expect(res).toEqual(recentlyUsedProjectRes);
         done();
       });
     });
 
     it('should return null when there are no recently used projects', (done) => {
+      categoriesService.getAll.and.returnValue(of(orgCategoryPaginated1));
+
       const config = {
         recentValues: null,
         eou: apiEouRes,
         categoryIds: ['16558', '16559', '16560', '16561', '16562'],
+        activeCategoryList: testActiveCategoryList,
       };
       recentlyUsedItemsService.getRecentlyUsedProjects(config).subscribe((res) => {
         expect(res).toBeNull();

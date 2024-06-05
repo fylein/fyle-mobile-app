@@ -34,6 +34,14 @@ import {
 } from 'src/app/core/mock-data/extended-projects.data';
 import { click, getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { By } from '@angular/platform-browser';
+import { CategoriesService } from 'src/app/core/services/categories.service';
+import {
+  categoryIds,
+  expectedAllOrgCategories,
+  orgCategoryData,
+  orgCategoryPaginated1,
+  sortedCategory,
+} from 'src/app/core/mock-data/org-category.data';
 
 describe('FyProjectSelectModalComponent', () => {
   let component: FyProjectSelectModalComponent;
@@ -41,6 +49,7 @@ describe('FyProjectSelectModalComponent', () => {
   let modalController: jasmine.SpyObj<ModalController>;
   let cdr: ChangeDetectorRef;
   let projectsService: jasmine.SpyObj<ProjectsService>;
+  let categoriesService: jasmine.SpyObj<CategoriesService>;
   let authService: jasmine.SpyObj<AuthService>;
   let recentLocalStorageItemsService: jasmine.SpyObj<RecentLocalStorageItemsService>;
   let utilityService: jasmine.SpyObj<UtilityService>;
@@ -56,6 +65,11 @@ describe('FyProjectSelectModalComponent', () => {
     const utilityServiceSpy = jasmine.createSpyObj('UtilityService', ['searchArrayStream']);
     const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', [
+      'getAll',
+      'filterRequired',
+      'getCategoryById',
+    ]);
 
     TestBed.configureTestingModule({
       declarations: [FyProjectSelectModalComponent, FyHighlightTextComponent, HighlightPipe],
@@ -98,6 +112,10 @@ describe('FyProjectSelectModalComponent', () => {
           provide: OrgUserSettingsService,
           useValue: orgUserSettingsServiceSpy,
         },
+        {
+          provide: CategoriesService,
+          useValue: categoriesServiceSpy,
+        },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(FyProjectSelectModalComponent);
@@ -106,6 +124,7 @@ describe('FyProjectSelectModalComponent', () => {
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     cdr = TestBed.inject(ChangeDetectorRef);
     projectsService = TestBed.inject(ProjectsService) as jasmine.SpyObj<ProjectsService>;
+    categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     recentLocalStorageItemsService = TestBed.inject(
       RecentLocalStorageItemsService
@@ -119,6 +138,9 @@ describe('FyProjectSelectModalComponent', () => {
     orgSettingsService.get.and.returnValue(of(orgSettingsData));
     authService.getEou.and.resolveTo(apiEouRes);
     orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+
+    categoriesService.getAll.and.returnValue(of([orgCategoryData]));
+    categoriesService.getCategoryById.and.returnValue(of(orgCategoryPaginated1[0]));
 
     projectsService.getByParamsUnformatted.and.returnValue(of([singleProject2]));
 
@@ -147,18 +169,21 @@ describe('FyProjectSelectModalComponent', () => {
         expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
         expect(authService.getEou).toHaveBeenCalledTimes(2);
         expect(orgUserSettingsService.get).toHaveBeenCalledTimes(4);
-        expect(projectsService.getByParamsUnformatted).toHaveBeenCalledWith({
-          orgId: 'orNVthTo2Zyo',
-          active: true,
-          sortDirection: 'asc',
-          sortOrder: 'project_name',
-          orgCategoryIds: undefined,
-          projectIds: null,
-          searchNameText: '',
-          offset: 0,
-          limit: 20,
-        });
-        expect(projectsService.getbyId).toHaveBeenCalledWith(3943);
+        expect(projectsService.getByParamsUnformatted).toHaveBeenCalledWith(
+          {
+            orgId: 'orNVthTo2Zyo',
+            isEnabled: true,
+            sortDirection: 'asc',
+            sortOrder: 'name',
+            orgCategoryIds: undefined,
+            projectIds: null,
+            searchNameText: '',
+            offset: 0,
+            limit: 20,
+          },
+          undefined
+        );
+        expect(projectsService.getbyId).toHaveBeenCalledWith(3943, undefined);
         done();
       });
     });
@@ -173,23 +198,27 @@ describe('FyProjectSelectModalComponent', () => {
         expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
         expect(authService.getEou).toHaveBeenCalledTimes(2);
         expect(orgUserSettingsService.get).toHaveBeenCalledTimes(4);
-        expect(projectsService.getByParamsUnformatted).toHaveBeenCalledWith({
-          orgId: 'orNVthTo2Zyo',
-          active: true,
-          sortDirection: 'asc',
-          sortOrder: 'project_name',
-          orgCategoryIds: undefined,
-          projectIds: null,
-          searchNameText: '',
-          offset: 0,
-          limit: 20,
-        });
-        expect(projectsService.getbyId).toHaveBeenCalledWith(3943);
+        expect(projectsService.getByParamsUnformatted).toHaveBeenCalledWith(
+          {
+            orgId: 'orNVthTo2Zyo',
+            isEnabled: true,
+            sortDirection: 'asc',
+            sortOrder: 'name',
+            orgCategoryIds: undefined,
+            projectIds: null,
+            searchNameText: '',
+            offset: 0,
+            limit: 20,
+          },
+          undefined
+        );
+        expect(projectsService.getbyId).toHaveBeenCalledWith(3943, undefined);
         done();
       });
     });
 
     it('should get projects when default value is null and no default projects are available', (done) => {
+      component.activeCategories$ = of(sortedCategory);
       orgSettingsService.get.and.returnValue(of(orgSettingsDataWithoutAdvPro));
       projectsService.getbyId.and.returnValue(of(expectedProjects[0].value));
       component.defaultValue = false;
@@ -199,20 +228,58 @@ describe('FyProjectSelectModalComponent', () => {
         expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
         expect(authService.getEou).toHaveBeenCalledTimes(2);
         expect(orgUserSettingsService.get).toHaveBeenCalledTimes(4);
-        expect(projectsService.getByParamsUnformatted).toHaveBeenCalledWith({
-          orgId: 'orNVthTo2Zyo',
-          active: true,
-          sortDirection: 'asc',
-          sortOrder: 'project_name',
-          orgCategoryIds: undefined,
-          projectIds: null,
-          searchNameText: '',
-          offset: 0,
-          limit: 20,
-        });
-        expect(projectsService.getbyId).toHaveBeenCalledWith(3943);
+        expect(projectsService.getByParamsUnformatted).toHaveBeenCalledWith(
+          {
+            orgId: 'orNVthTo2Zyo',
+            isEnabled: true,
+            sortDirection: 'asc',
+            sortOrder: 'name',
+            orgCategoryIds: undefined,
+            projectIds: null,
+            searchNameText: '',
+            offset: 0,
+            limit: 20,
+          },
+          undefined
+        );
+        expect(projectsService.getbyId).toHaveBeenCalledWith(3943, undefined);
         done();
       });
+    });
+
+    it('should return an empty list when no projects match the search criteria', (done) => {
+      projectsService.getByParamsUnformatted.and.returnValue(of([]));
+      projectsService.getbyId.and.returnValue(of(null));
+      authService.getEou.and.resolveTo(apiEouRes);
+      orgSettingsService.get.and.returnValue(of(orgSettingsData));
+      orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+      component.currentSelection = null;
+      component.defaultValue = false;
+      component.activeCategories$ = of([]);
+
+      component.getProjects('nonexistent').subscribe((res) => {
+        expect(res).toEqual([{ label: 'None', value: null }]);
+        expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
+        expect(authService.getEou).toHaveBeenCalledTimes(2);
+        expect(orgUserSettingsService.get).toHaveBeenCalledTimes(4);
+        expect(projectsService.getByParamsUnformatted).toHaveBeenCalledWith(
+          {
+            orgId: apiEouRes.ou.org_id,
+            isEnabled: true,
+            sortDirection: 'asc',
+            sortOrder: 'name',
+            orgCategoryIds: undefined,
+            projectIds: null,
+            searchNameText: 'nonexistent',
+            offset: 0,
+            limit: 20,
+          },
+          []
+        );
+        done();
+      });
+
+      fixture.detectChanges();
     });
   });
 
@@ -275,12 +342,14 @@ describe('FyProjectSelectModalComponent', () => {
     });
   });
 
-  it('onDoneClick(): should dimiss the modal on clicking the done CTA', () => {
+  it('onDoneClick(): should dismiss the modal on clicking the done CTA', fakeAsync(() => {
     modalController.dismiss.and.resolveTo(true);
 
     component.onDoneClick();
+    tick();
     expect(modalController.dismiss).toHaveBeenCalledTimes(1);
-  });
+    discardPeriodicTasks();
+  }));
 
   describe('onElementSelect():', () => {
     it('should dismiss the modal with selected option', () => {
@@ -308,35 +377,50 @@ describe('FyProjectSelectModalComponent', () => {
     });
   });
 
-  it('ngAfterViewInit(): show filtered projects and recently used items', fakeAsync((done) => {
-    spyOn(component, 'getRecentlyUsedItems').and.returnValue(of(expectedProjects));
-    spyOn(component, 'getProjects').and.returnValue(of(labelledProjects));
+  describe('ngAfterViewInit():', () => {
+    it('should get all categories by id if categoryIds are present', (done) => {
+      component.categoryIds = categoryIds;
+      component.ngAfterViewInit();
 
-    utilityService.searchArrayStream.and.returnValue(() => of([{ label: 'project1', value: testProjectV2 }]));
-    fixture.detectChanges();
-
-    component.ngAfterViewInit();
-    inputElement.value = 'projects';
-    inputElement.dispatchEvent(new Event('keyup'));
-
-    tick(300);
-    component.recentrecentlyUsedItems$.subscribe((res) => {
-      expect(res).toEqual(expectedProjects4);
+      component.activeCategories$.subscribe((categories) => {
+        expect(categoriesService.getCategoryById).toHaveBeenCalledTimes(categoryIds.length);
+        expect(categories.length).toBe(categoryIds.length);
+        expect(categories).toEqual([orgCategoryPaginated1[0]]);
+        done();
+      });
     });
 
-    tick(300);
-    component.filteredOptions$.subscribe((res) => {
-      expect(res).toEqual(expectedLabelledProjects);
-    });
+    it('should show filtered projects and recently used items', fakeAsync((done) => {
+      spyOn(component, 'getRecentlyUsedItems').and.returnValue(of(expectedProjects));
+      spyOn(component, 'getProjects').and.returnValue(of(labelledProjects));
 
-    expect(component.getProjects).toHaveBeenCalledWith('projects');
-    expect(component.getRecentlyUsedItems).toHaveBeenCalled();
-    expect(utilityService.searchArrayStream).toHaveBeenCalledWith('projects');
+      utilityService.searchArrayStream.and.returnValue(() => of([{ label: 'project1', value: testProjectV2 }]));
+      fixture.detectChanges();
 
-    discardPeriodicTasks();
-  }));
+      component.ngAfterViewInit();
+      inputElement.value = 'projects';
+      inputElement.dispatchEvent(new Event('keyup'));
+
+      tick(300);
+      component.recentrecentlyUsedItems$.subscribe((res) => {
+        expect(res).toEqual(expectedProjects4);
+      });
+
+      tick(300);
+      component.filteredOptions$.subscribe((res) => {
+        expect(res).toEqual(expectedLabelledProjects);
+      });
+
+      expect(component.getProjects).toHaveBeenCalledWith('projects');
+      expect(component.getRecentlyUsedItems).toHaveBeenCalled();
+      expect(utilityService.searchArrayStream).toHaveBeenCalledWith('projects');
+
+      discardPeriodicTasks();
+    }));
+  });
 
   it('should show label on the screen', () => {
+    component.activeCategories$ = of([]);
     component.label = 'Projects';
     fixture.detectChanges();
 
