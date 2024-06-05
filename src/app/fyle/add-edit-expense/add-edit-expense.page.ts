@@ -429,6 +429,8 @@ export class AddEditExpensePage implements OnInit {
 
   activeCategories$: Observable<OrgCategory[]>;
 
+  selectedCategory$: Observable<OrgCategory>;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -1655,7 +1657,7 @@ export class AddEditExpensePage implements OnInit {
   setupFormInit(): void {
     const selectedProject$ = this.getSelectedProjects();
 
-    const selectedCategory$ = this.getSelectedCategory();
+    this.selectedCategory$ = this.getSelectedCategory().pipe(shareReplay(1));
 
     const selectedReport$ = this.getSelectedReport();
 
@@ -1682,7 +1684,7 @@ export class AddEditExpensePage implements OnInit {
             etxn: this.etxn$,
             paymentMode: selectedPaymentMode$,
             project: selectedProject$,
-            category: selectedCategory$,
+            category: this.selectedCategory$,
             report: selectedReport$,
             costCenter: selectedCostCenter$,
             customExpenseFields: customExpenseFields$,
@@ -2058,7 +2060,7 @@ export class AddEditExpensePage implements OnInit {
         }) => {
           const isExpenseCategoryUnspecified = etxn.tx.fyle_category?.toLowerCase() === 'unspecified';
           if (this.initialFetch && etxn.tx.org_category_id && !isExpenseCategoryUnspecified) {
-            return this.categoriesService.getCategoryById(etxn.tx.org_category_id).pipe(
+            return this.selectedCategory$.pipe(
               map((selectedCategory) => ({
                 orgUserSettings,
                 orgSettings,
