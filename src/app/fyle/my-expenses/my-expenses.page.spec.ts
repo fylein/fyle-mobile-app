@@ -86,7 +86,6 @@ import {
   snackbarPropertiesRes3,
   snackbarPropertiesRes4,
 } from 'src/app/core/mock-data/snackbar-properties.data';
-import { transactionDatum1, transactionDatum3 } from 'src/app/core/mock-data/stats-response.data';
 import { txnList } from 'src/app/core/mock-data/transaction.data';
 import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
 import { unformattedTxnData } from 'src/app/core/mock-data/unformatted-transaction.data';
