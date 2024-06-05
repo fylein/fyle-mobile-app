@@ -2538,18 +2538,12 @@ export class AddEditExpensePage implements OnInit {
       };
     };
 
-    this.filteredCategories$ = this.etxn$.pipe(
-      switchMap((etxn) => {
-        if (etxn.tx.project_id) {
-          return this.activeCategories$.pipe(
-            map((allActiveCategories) => this.projectsService.getbyId(etxn.tx.project_id, allActiveCategories))
-          );
-        } else if (projectControl?.value?.project_id) {
-          return this.activeCategories$.pipe(
-            map((allActiveCategories) =>
-              this.projectsService.getbyId(projectControl.value.project_id, allActiveCategories)
-            )
-          );
+    const projectId$ = this.etxn$.pipe(map((etxn) => etxn.tx.project_id || projectControl?.value?.project_id));
+
+    this.filteredCategories$ = combineLatest([projectId$, this.activeCategories$]).pipe(
+      switchMap(([projectId, allActiveCategories]) => {
+        if (projectId) {
+          return this.projectsService.getbyId(projectId, allActiveCategories);
         } else {
           return of(null);
         }
