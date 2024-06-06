@@ -1,5 +1,3 @@
-import { User } from './user.model';
-
 export interface AdvanceWallet {
   id: string;
   org_id: string;
@@ -9,4 +7,5 @@ export interface AdvanceWallet {
   created_at: Date;
   updated_at: Date;
   type?: string;
+  isReimbursable?: boolean;
 }

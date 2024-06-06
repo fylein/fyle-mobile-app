@@ -58,6 +58,7 @@ import { TokenService } from 'src/app/core/services/token.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
+import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
 import { orgSettingsData, unflattenedAccount1Data } from 'src/app/core/test-data/accounts.service.spec.data';
 import { projectsV1Data } from 'src/app/core/test-data/projects.spec.data';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
@@ -114,6 +115,7 @@ export function TestCases1(getTestBed) {
     let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
     let storageService: jasmine.SpyObj<StorageService>;
     let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
+    let advanceWalletsService: jasmine.SpyObj<AdvanceWalletsService>;
 
     beforeEach(() => {
       const TestBed = getTestBed();
@@ -409,6 +411,8 @@ export function TestCases1(getTestBed) {
     describe('checkIfInvalidPaymentMode():', () => {
       it('should check for invalid payment mode', (done) => {
         component.etxn$ = of(unflattenedExpData);
+        orgSettingsService.get.and.returnValue(of(orgSettingsRes));
+
         component.fg.controls.paymentMode.setValue(unflattenedAccount1Data);
         component.fg.controls.currencyObj.setValue({
           currency: 'USD',
@@ -424,6 +428,8 @@ export function TestCases1(getTestBed) {
 
       it('should check for invalid payment in case of Advance accounts', (done) => {
         component.etxn$ = of(unflattenedExpData);
+        orgSettingsService.get.and.returnValue(of(orgSettingsRes));
+
         component.fg.controls.paymentMode.setValue({
           ...unflattenedAccount1Data,
           acc: { ...unflattenedAccount1Data.acc, type: AccountType.ADVANCE },
@@ -443,6 +449,8 @@ export function TestCases1(getTestBed) {
 
       it('should check for invalid payment mode if the source account ID matches with the account type', (done) => {
         component.etxn$ = of(unflattenedExpData);
+        orgSettingsService.get.and.returnValue(of(orgSettingsRes));
+
         component.fg.controls.paymentMode.setValue({
           ...unflattenedAccount1Data,
           acc: { ...unflattenedAccount1Data.acc, type: AccountType.ADVANCE, id: 'accZ1IWjhjLv4' },

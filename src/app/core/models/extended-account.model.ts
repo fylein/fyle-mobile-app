@@ -20,4 +20,7 @@ export interface ExtendedAccount {
   us: Pick<User, 'email' | 'full_name'>;
   currency: string;
   amount: number;
+  id?: string;
+  type?: string;
+  isReimbursable?: boolean;
 }

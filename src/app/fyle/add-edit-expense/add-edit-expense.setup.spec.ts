@@ -60,6 +60,9 @@ import { TestCases6 } from './add-edit-expense-6.spec';
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
+import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
+import { PAGINATION_SIZE } from 'src/app/constants';
+import { SpenderService } from 'src/app/core/services/platform/v1/spender/spender.service';
 
 export function setFormValid(component) {
   Object.defineProperty(component.fg, 'valid', {
@@ -224,6 +227,8 @@ describe('AddEditExpensePage', () => {
       'getSplitExpenses',
       'attachReceiptToExpense',
     ]);
+    const advanceWalletsServiceSpy = jasmine.createSpyObj('AdvanceWalletsService', ['getAllAdvanceWallets']);
+    const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['get', 'post']);
 
     TestBed.configureTestingModule({
       declarations: [AddEditExpensePage, MaskNumber, FySelectComponent, EllipsisPipe, DependentFieldComponent],
@@ -242,6 +247,7 @@ describe('AddEditExpensePage', () => {
             },
           },
         },
+        { provide: PAGINATION_SIZE, useValue: 2 },
         {
           provide: AccountsService,
           useValue: accountsServiceSpy,
@@ -421,6 +427,10 @@ describe('AddEditExpensePage', () => {
         {
           provide: ExpensesService,
           useValue: expensesServiceSpy,
+        },
+        {
+          provide: AdvanceWalletsService,
+          useValue: advanceWalletsServiceSpy,
         },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],

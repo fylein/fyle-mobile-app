@@ -360,11 +360,7 @@ export class TransactionsOutboxService {
               that.statusService.post('transactions', resp.id, { comment }, true).subscribe(noop);
             });
           }
-          if (
-            entry.transaction.advance_wallet_id &&
-            resp.id &&
-            entry.transaction.advance_wallet_id !== resp.advance_wallet_id
-          ) {
+          if (resp.id && entry.transaction.advance_wallet_id !== resp.advance_wallet_id) {
             const expense = {
               id: resp.id,
               advance_wallet_id: entry.transaction.advance_wallet_id,

@@ -79,6 +79,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
+import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
 import { txnCustomProperties } from 'src/app/core/test-data/dependent-fields.service.spec.data';
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 import { AddEditExpensePage } from './add-edit-expense.page';
@@ -151,6 +152,7 @@ export function TestCases4(getTestBed) {
     let storageService: jasmine.SpyObj<StorageService>;
     let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
     let platform: jasmine.SpyObj<Platform>;
+    let advanceWalletsService: jasmine.SpyObj<AdvanceWalletsService>;
 
     beforeEach(() => {
       const TestBed = getTestBed();

@@ -39,6 +39,7 @@ export const orgSettingsRes: OrgSettings = deepFreeze({
   advances: {
     allowed: true,
     enabled: true,
+    advance_wallets_enabled: false,
   },
   projects: {
     allowed: true,
@@ -446,6 +447,7 @@ export const orgSettingsParams2: OrgSettings = deepFreeze({
   advances: {
     allowed: true,
     enabled: true,
+    advance_wallets_enabled: false,
   },
   projects: {
     allowed: true,

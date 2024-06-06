@@ -72,6 +72,7 @@ import { AddEditExpensePage } from './add-edit-expense.page';
 import { TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
 import { TransactionStatusInfoPopoverComponent } from 'src/app/shared/components/transaction-status-info-popover/transaction-status-info-popover.component';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
 import { expenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import {
   transformedExpenseWithMatchCCCData,
@@ -132,6 +133,7 @@ export function TestCases6(getTestBed) {
     let platform: jasmine.SpyObj<Platform>;
     let platformHandlerService: jasmine.SpyObj<PlatformHandlerService>;
     let expensesService: jasmine.SpyObj<ExpensesService>;
+    let advanceWalletsService: jasmine.SpyObj<AdvanceWalletsService>;
 
     function setFormValueNull() {
       Object.defineProperty(component.fg, 'value', {
