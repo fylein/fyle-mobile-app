@@ -20,7 +20,7 @@ import {
   attachReceiptsPayload1,
 } from 'src/app/core/mock-data/platform/v1/attach-receipt-payload.data';
 
-fdescribe('ExpensesService', () => {
+describe('ExpensesService', () => {
   let service: ExpensesService;
   let spenderService: jasmine.SpyObj<SpenderService>;
   let sharedExpenseService: jasmine.SpyObj<SharedExpenseService>;
