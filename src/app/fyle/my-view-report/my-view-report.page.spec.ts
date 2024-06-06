@@ -960,7 +960,6 @@ describe('MyViewReportPage', () => {
       component.segmentValue = ReportPageSegment.EXPENSES;
       component.report$ = of(cloneDeep({ ...platformReportData, state: 'DRAFT', num_expenses: 3 }));
       component.unreportedExpenses = [expense1, expense2];
-      fixture.detectChanges();
 
       const addExpensesToReportModalSpy = jasmine.createSpyObj('addExpensesToReportModal', [
         'onWillDismiss',
@@ -976,9 +975,8 @@ describe('MyViewReportPage', () => {
       modalProperties.getModalDefaultProperties.and.returnValue(fyModalProperties);
       spyOn(component, 'addExpensesToReport').and.returnValue(null);
 
-      const openButton = getElementBySelector(fixture, '.view-reports--add-expenses-container__icon') as HTMLElement;
-      click(openButton);
-      tick(5000);
+      component.showAddExpensesToReportModal();
+      tick(100);
 
       expect(modalController.create).toHaveBeenCalledOnceWith({
         component: AddExpensesToReportComponent,
@@ -997,7 +995,6 @@ describe('MyViewReportPage', () => {
       component.segmentValue = ReportPageSegment.EXPENSES;
       component.report$ = of(cloneDeep({ ...platformReportData, state: 'DRAFT', num_expenses: 3 }));
       component.unreportedExpenses = [expense1, expense2];
-      fixture.detectChanges();
 
       const addExpensesToReportModalSpy = jasmine.createSpyObj('addExpensesToReportModal', [
         'onWillDismiss',
@@ -1009,9 +1006,8 @@ describe('MyViewReportPage', () => {
       modalProperties.getModalDefaultProperties.and.returnValue(fyModalProperties);
       spyOn(component, 'addExpensesToReport').and.returnValue(null);
 
-      const openButton = getElementBySelector(fixture, '.view-reports--add-expenses-container__icon') as HTMLElement;
-      click(openButton);
-      tick(5000);
+      component.showAddExpensesToReportModal();
+      tick(100);
 
       expect(modalController.create).toHaveBeenCalledOnceWith({
         component: AddExpensesToReportComponent,

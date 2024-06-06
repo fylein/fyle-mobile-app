@@ -211,6 +211,8 @@ export class MyViewReportPage {
         (status) => !!status.creator_user_id && !['SYSTEM', 'POLICY'].includes(status.creator_user_id)
       );
 
+      this.userComments.sort((a, b) => (a.created_at > b.created_at ? 1 : -1));
+
       for (let i = 0; i < this.userComments.length; i++) {
         const prevCommentDt = dayjs(this.userComments[i - 1] && this.userComments[i - 1].created_at);
         const currentCommentDt = dayjs(this.userComments[i] && this.userComments[i].created_at);
@@ -288,7 +290,9 @@ export class MyViewReportPage {
       .pipe(
         map(
           (orgSetting) =>
-            orgSetting?.corporate_credit_card_settings?.enabled && orgSetting.pending_cct_expense_restriction?.enabled
+            orgSetting &&
+            orgSetting.corporate_credit_card_settings?.enabled &&
+            orgSetting.pending_cct_expense_restriction?.enabled
         ),
         switchMap((filterPendingTxn: boolean) => {
           if (filterPendingTxn) {
@@ -374,7 +378,10 @@ export class MyViewReportPage {
         )
       )
       .subscribe((editReportNamePopoverDetails) => {
-        const newReportName = editReportNamePopoverDetails?.data?.reportName;
+        const newReportName =
+          editReportNamePopoverDetails &&
+          editReportNamePopoverDetails.data &&
+          editReportNamePopoverDetails.data.reportName;
         if (newReportName) {
           this.updateReportName(newReportName);
         }

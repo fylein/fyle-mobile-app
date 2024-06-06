@@ -37,7 +37,6 @@ import { UserEventService } from './user-event.service';
 import { UtilityService } from './utility.service';
 import * as dayjs from 'dayjs';
 import { eouRes2 } from '../mock-data/extended-org-user.data';
-import { txnStats } from '../mock-data/stats-response.data';
 import { expenseV2Data, expenseV2DataMultiple } from '../mock-data/expense-v2.data';
 import * as lodash from 'lodash';
 import { txnData, txnData2, txnData4, txnDataPayload, txnList, upsertTxnParam } from '../mock-data/transaction.data';

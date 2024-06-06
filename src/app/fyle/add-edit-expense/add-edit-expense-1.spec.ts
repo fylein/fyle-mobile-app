@@ -67,6 +67,7 @@ import { expenseResponseData } from 'src/app/core/mock-data/platform/v1/expense.
 import { expenseFieldResponse } from 'src/app/core/mock-data/expense-field.data';
 import { expectedProjects4 } from 'src/app/core/mock-data/extended-projects.data';
 import { reportData1 } from 'src/app/core/mock-data/report.data';
+import { sortedCategory } from 'src/app/core/mock-data/org-category.data';
 
 export function TestCases1(getTestBed) {
   return describe('AddEditExpensePage-1', () => {
@@ -841,8 +842,8 @@ export function TestCases1(getTestBed) {
         expect(popoverController.create).toHaveBeenCalledOnceWith(
           component.getRemoveCCCExpModalParams(header, body, ctaText, ctaLoadingText)
         );
-        expect(trackingService.unlinkCorporateCardExpense).toHaveBeenCalledTimes(1),
-          expect(component.goBack).toHaveBeenCalledOnceWith();
+        expect(trackingService.unlinkCorporateCardExpense).toHaveBeenCalledTimes(1);
+        expect(component.goBack).toHaveBeenCalledOnceWith();
         expect(component.showSnackBarToast).toHaveBeenCalledOnceWith(
           { message: 'Successfully removed the card details from the expense.' },
           'information',
@@ -1199,6 +1200,7 @@ export function TestCases1(getTestBed) {
             expense_settings: { ...orgSettingsData.expense_settings, split_expense_settings: { enabled: true } },
           })
         );
+        component.activeCategories$ = of(sortedCategory);
         component.costCenters$ = of(expectedCCdata);
         projectsService.getAllActive.and.returnValue(of(projectsV1Data));
         component.filteredCategories$ = of(categorieListRes);
@@ -1251,6 +1253,7 @@ export function TestCases1(getTestBed) {
             expense_settings: { ...orgSettingsData.expense_settings, split_expense_settings: { enabled: true } },
           })
         );
+        component.activeCategories$ = of(sortedCategory);
         component.costCenters$ = of(expectedCCdata);
         projectsService.getAllActive.and.returnValue(of(projectsV1Data));
         component.filteredCategories$ = of(categorieListRes);
@@ -1304,6 +1307,7 @@ export function TestCases1(getTestBed) {
             expense_settings: { ...orgSettingsData.expense_settings, split_expense_settings: { enabled: false } },
           })
         );
+        component.activeCategories$ = of(sortedCategory);
         component.costCenters$ = of(expectedCCdata);
         projectsService.getAllActive.and.returnValue(of(projectsV1Data));
         component.filteredCategories$ = of(categorieListRes);
@@ -1337,6 +1341,7 @@ export function TestCases1(getTestBed) {
             expense_settings: { ...orgSettingsData.expense_settings, split_expense_settings: { enabled: false } },
           })
         );
+        component.activeCategories$ = of(sortedCategory);
         component.costCenters$ = of(expectedCCdata);
         projectsService.getAllActive.and.returnValue(of(projectsV1Data));
         component.filteredCategories$ = of(categorieListRes);
@@ -1368,6 +1373,7 @@ export function TestCases1(getTestBed) {
             expense_settings: { ...orgSettingsData.expense_settings, split_expense_settings: { enabled: false } },
           })
         );
+        component.activeCategories$ = of(sortedCategory);
         component.costCenters$ = of(expectedCCdata);
         projectsService.getAllActive.and.returnValue(of(projectsV1Data));
         component.filteredCategories$ = of(categorieListRes);

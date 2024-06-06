@@ -15,7 +15,10 @@ export const tasksQueryParamsWithFiltersData: Partial<GetTasksQueryParamsWithFil
 export const tasksQueryParamsWithFiltersData2: Partial<GetTasksQueryParamsWithFilters> = deepFreeze({
   pageNumber: 1,
   sortDir: 'asc',
-  sortParam: 'approvalDate',
+  searchString: 'example',
+  queryParams: {
+    state: 'in.(APPROVER_PENDING)',
+  },
 });
 
 export const tasksQueryParamsWithFiltersData3: Partial<GetTasksQueryParamsWithFilters> = deepFreeze({

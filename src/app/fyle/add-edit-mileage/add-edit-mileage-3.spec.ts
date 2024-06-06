@@ -485,12 +485,13 @@ export function TestCases3(getTestBed) {
 
     describe('setupFilteredCategories():', () => {
       it('should set up filtered categories', fakeAsync(() => {
+        component.subCategories$ = of(sortedCategory);
         projectsService.getAllowedOrgCategoryIds.and.returnValue(transformedOrgCategories);
         spyOn(component, 'getFormValues').and.returnValue({
           sub_category: orgCategoryData,
         });
 
-        component.setupFilteredCategories(of(sortedCategory));
+        component.setupFilteredCategories();
         tick(500);
 
         component.fg.controls.project.setValue(expectedProjectsResponse[0]);
@@ -507,12 +508,13 @@ export function TestCases3(getTestBed) {
       }));
 
       it('should set up filtered categories and set default billable value if project is removed', fakeAsync(() => {
+        component.subCategories$ = of(sortedCategory);
         projectsService.getAllowedOrgCategoryIds.and.returnValue(transformedOrgCategories);
         spyOn(component, 'getFormValues').and.returnValue({
           sub_category: orgCategoryData,
         });
 
-        component.setupFilteredCategories(of(sortedCategory));
+        component.setupFilteredCategories();
         tick(500);
 
         component.fg.controls.project.setValue(null);
