@@ -1,6 +1,5 @@
 import deepFreeze from 'deep-freeze-strict';
 
-import { cloneDeep } from 'lodash';
 import { AdvanceWallet } from 'src/app/core/models/platform/v1/advance-wallet.model';
 import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
 import { APIQueryParams } from 'src/app/core/models/platform/v1/query-params.model';
