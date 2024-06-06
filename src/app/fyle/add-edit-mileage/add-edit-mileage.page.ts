@@ -454,7 +454,7 @@ export class AddEditMileagePage implements OnInit {
     this.connectionStatus$ = this.isConnected$.pipe(map((isConnected) => ({ connected: isConnected })));
   }
 
-  setupFilteredCategories(activeCategories$: Observable<OrgCategory[]>): void {
+  setupFilteredCategories(): void {
     this.filteredCategories$ = this.fg.controls.project.valueChanges.pipe(
       tap(() => {
         if (!this.fg.controls.project.value) {
@@ -465,9 +465,9 @@ export class AddEditMileagePage implements OnInit {
       }),
       startWith(this.fg.controls.project.value),
       concatMap((project: ProjectV2) =>
-        activeCategories$.pipe(
-          map((activeCategories: OrgCategory[]) =>
-            this.projectsService.getAllowedOrgCategoryIds(project, activeCategories)
+        this.subCategories$.pipe(
+          map((allActiveSubCategories: OrgCategory[]) =>
+            this.projectsService.getAllowedOrgCategoryIds(project, allActiveSubCategories)
           )
         )
       ),
@@ -1160,7 +1160,9 @@ export class AddEditMileagePage implements OnInit {
       }),
       switchMap((projectId) => {
         if (projectId) {
-          return this.projectsService.getbyId(projectId);
+          return this.subCategories$.pipe(
+            switchMap((allActiveSubCategories) => this.projectsService.getbyId(projectId, allActiveSubCategories))
+          );
         } else {
           return of(null);
         }
@@ -1493,6 +1495,7 @@ export class AddEditMileagePage implements OnInit {
   }
 
   ionViewWillEnter(): void {
+    this.subCategories$ = this.getSubCategories().pipe(shareReplay(1));
     this.initClassObservables();
 
     from(this.tokenService.getClusterDomain()).subscribe((clusterDomain) => {
@@ -1566,11 +1569,13 @@ export class AddEditMileagePage implements OnInit {
 
     this.txnFields$ = this.getTransactionFields();
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
-    this.subCategories$ = this.getSubCategories();
-    this.setupFilteredCategories(this.subCategories$);
+
+    this.setupFilteredCategories();
     this.projectCategoryIds$ = this.getProjectCategoryIds();
-    this.isProjectVisible$ = this.projectCategoryIds$.pipe(
-      switchMap((projectCategoryIds) => this.projectsService.getProjectCount({ categoryIds: projectCategoryIds })),
+    this.isProjectVisible$ = combineLatest([this.projectCategoryIds$, this.subCategories$]).pipe(
+      switchMap(([projectCategoryIds, allActiveSubCategories]) =>
+        this.projectsService.getProjectCount({ categoryIds: projectCategoryIds }, allActiveSubCategories)
+      ),
       map((projectCount) => projectCount > 0)
     );
     this.comments$ = this.statusService.find('transactions', this.activatedRoute.snapshot.params.id as string);
@@ -1700,12 +1705,14 @@ export class AddEditMileagePage implements OnInit {
       recentValues: this.recentlyUsedValues$,
       mileageCategoryIds: this.projectCategoryIds$,
       eou: eou$,
+      activeSubCategories: this.subCategories$,
     }).pipe(
-      switchMap(({ recentValues, mileageCategoryIds, eou }) =>
+      switchMap(({ recentValues, mileageCategoryIds, eou, activeSubCategories }) =>
         this.recentlyUsedItemsService.getRecentlyUsedProjects({
           recentValues,
           eou,
           categoryIds: mileageCategoryIds,
+          activeCategoryList: activeSubCategories,
         })
       )
     );
