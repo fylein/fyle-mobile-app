@@ -194,10 +194,8 @@ export class ExpensesService {
   }
 
   post(expense: Partial<Expense>): Observable<void> {
-    return this.spenderService
-      .post('/expenses', {
-        data: expense,
-      })
-      .pipe(map((response) => response));
+    return this.spenderService.post<void>('/expenses', {
+      data: expense,
+    });
   }
 }

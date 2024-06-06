@@ -23,4 +23,9 @@ export interface ExtendedAccount {
   id?: string;
   type?: string;
   isReimbursable?: boolean;
+  org_id?: string;
+  user_id?: string;
+  balance_amount?: number;
+  created_at?: string;
+  updated_at?: string;
 }

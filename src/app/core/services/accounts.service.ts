@@ -49,11 +49,10 @@ export class AccountsService {
     allowedPaymentModes: string[],
     config: {
       etxn: Partial<UnflattenedTransaction>;
-      orgSettings: OrgSettings;
       expenseType: ExpenseType;
     }
-  ) {
-    const { etxn, orgSettings, expenseType } = config;
+  ): AccountOption[] {
+    const { etxn, expenseType } = config;
     const isMileageOrPerDiemExpense = [ExpenseType.MILEAGE, ExpenseType.PER_DIEM].includes(expenseType);
     const userAccounts = accounts.filter(
       (account) => [AccountType.PERSONAL, AccountType.CCC].indexOf(account.acc.type) > -1
@@ -80,7 +79,7 @@ export class AccountsService {
       value: account,
     }));
 
-    let formattedAdvanceWallets = allowedAdvanceWallets.map((advanceWallet) => {
+    const formattedAdvanceWallets = allowedAdvanceWallets.map((advanceWallet) => {
       const formattedAdvanceWallet = {
         label: this.getAdvanceWalletDisplayName(advanceWallet),
         value: advanceWallet,

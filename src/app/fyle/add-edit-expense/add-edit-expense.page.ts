@@ -637,7 +637,7 @@ export class AddEditExpensePage implements OnInit {
       orgSettings: this.orgSettingsService.get(),
     }).pipe(
       map(({ etxn, orgSettings }) => {
-        const paymentMode: any = formValues.paymentMode;
+        const paymentMode: ExtendedAccount | AdvanceWallet = formValues.paymentMode;
         const isAdvanceWalletEnabled = orgSettings?.advances?.advance_wallets_enabled;
         const originalSourceAccountId = etxn && etxn.tx && etxn.tx.source_account_id;
         const originalAdvanceWalletId = etxn && etxn.tx && etxn.tx.advance_wallet_id;
@@ -1160,15 +1160,9 @@ export class AddEditExpensePage implements OnInit {
       switchMap((paymentMode: ExtendedAccount) => {
         // check both advance wallets and advance accounts
         let isAdvanceWalletEnabled = false;
-        orgSettings$
-          .pipe(
-            map((orgSettings) => {
-              return orgSettings?.advances?.advance_wallets_enabled;
-            })
-          )
-          .subscribe((data) => {
-            isAdvanceWalletEnabled = data;
-          });
+        orgSettings$.pipe(map((orgSettings) => orgSettings?.advances?.advance_wallets_enabled)).subscribe((data) => {
+          isAdvanceWalletEnabled = data;
+        });
         if (paymentMode?.acc?.type === AccountType.PERSONAL && !!isAdvanceWalletEnabled) {
           return advanceWallets$.pipe(
             map((advanceWallets) => this.checkAdvanceWalletsWithSufficientBalance(advanceWallets))

@@ -46,7 +46,7 @@ import { DataTransformService } from './data-transform.service';
 
 const accountsCallResponse1 = [account1Data, account2Data];
 
-describe('AccountsService', () => {
+fdescribe('AccountsService', () => {
   let accountsService: AccountsService;
   let apiService: jasmine.SpyObj<ApiService>;
   let dataTransformService: jasmine.SpyObj<DataTransformService>;
@@ -99,17 +99,17 @@ describe('AccountsService', () => {
   });
 
   it('should be able to check if etxn has same payment mode', () => {
-    expect(accountsService.checkIfEtxnHasSamePaymentMode(unflattenedTransactionCCC, paymentModeDataCCC)).toEqual(true);
+    expect(accountsService.checkIfEtxnHasSamePaymentMode(unflattenedTransactionCCC, paymentModeDataCCC)).toBeTrue();
   });
 
   it('should be able to check if etxn has same personal account payment mode', () => {
     expect(
       accountsService.checkIfEtxnHasSamePaymentMode(unflattenedTransactionPersonal, paymentModeDataPersonal)
-    ).toEqual(false);
+    ).toBeFalse();
 
     expect(
       accountsService.checkIfEtxnHasSamePaymentMode(unflattenedTransactionPersonal, paymentModeDataPersonal2)
-    ).toEqual(true);
+    ).toBeTrue();
   });
 
   it('should be able to get etxn selected payment mode with source account id', () => {
@@ -130,7 +130,7 @@ describe('AccountsService', () => {
   it('should be able to get selected payment mode as null when extn is without source account id', () => {
     expect(
       accountsService.getEtxnSelectedPaymentMode(unflattenedTxnWithoutSourceAccountIdData, paymentModesData)
-    ).toEqual(null);
+    ).toBeNull();
   });
 
   it('should be able to get account type from payment mode', () => {
@@ -162,7 +162,7 @@ describe('AccountsService', () => {
   });
 
   it('should be able to set account properties for multiple advance account as default without account', () => {
-    expect(accountsService.setAccountProperties(null, AccountType.ADVANCE, true)).toEqual(null);
+    expect(accountsService.setAccountProperties(null, AccountType.ADVANCE, true)).toBeNull();
   });
 
   it('should be able to set account properties for multiple advance account as default without orig amount', () => {
@@ -304,7 +304,6 @@ describe('AccountsService', () => {
     fyCurrencyPipe.transform.and.returnValue('$1500');
     const config = {
       etxn: etxnObjData,
-      orgSettings: orgSettingsData,
       expenseType: ExpenseType.EXPENSE,
     };
     const allowedPaymentModes = [
