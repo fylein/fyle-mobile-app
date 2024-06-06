@@ -46,7 +46,7 @@ import { DataTransformService } from './data-transform.service';
 
 const accountsCallResponse1 = [account1Data, account2Data];
 
-fdescribe('AccountsService', () => {
+describe('AccountsService', () => {
   let accountsService: AccountsService;
   let apiService: jasmine.SpyObj<ApiService>;
   let dataTransformService: jasmine.SpyObj<DataTransformService>;
