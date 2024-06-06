@@ -1,5 +1,3 @@
-import { User } from './user.model';
-
 export interface AdvanceWallet {
   id: string;
   org_id: string;
