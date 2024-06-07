@@ -692,21 +692,21 @@ export function TestCases4(getTestBed) {
         };
         component.fg.controls.paymentMode.setValue(paymentModeFormValue);
 
-        const result = component.getAdvanceWalletId({ paymentMode: paymentModeFormValue }, true);
+        const result = component.getAdvanceWalletId(true);
         expect(result).toEqual('areq1234');
       });
 
       it('should return null', () => {
         component.fg.controls.paymentMode.setValue(null);
 
-        const result = component.getAdvanceWalletId(null, true);
+        const result = component.getAdvanceWalletId(true);
         expect(result).toBeUndefined();
       });
 
       it('should return null when advance wallet setting is disabled', () => {
         component.fg.controls.paymentMode.setValue(null);
 
-        const result = component.getAdvanceWalletId(null, false);
+        const result = component.getAdvanceWalletId(false);
         expect(result).toBeFalse();
       });
     });
@@ -717,7 +717,6 @@ export function TestCases4(getTestBed) {
         component.homeCurrency$ = of('USD');
         component.mileageRates$ = of(unfilteredMileageRatesData);
         component.rate$ = of(null);
-        orgSettingsService.get.and.returnValue(of(orgSettingsData));
       });
 
       it('should generate an expense from form', (done) => {

@@ -2372,7 +2372,8 @@ export class AddEditMileagePage implements OnInit {
     return data;
   }
 
-  getAdvanceWalletId(formValue: MileageFormValue, isAdvanceWalletEnabled: boolean): string {
+  getAdvanceWalletId(isAdvanceWalletEnabled: boolean): string {
+    const formValue = this.getFormValues();
     // setting advance_wallet_id as null when the source account id is set.
     return formValue?.paymentMode?.acc?.id ? null : isAdvanceWalletEnabled && formValue?.paymentMode?.id;
   }
@@ -2419,7 +2420,7 @@ export class AddEditMileagePage implements OnInit {
             mileage_is_round_trip: formValue.route.roundTrip,
             mileage_rate: rate || etxn.tx.mileage_rate,
             source_account_id: formValue?.paymentMode?.acc?.id,
-            advance_wallet_id: this.getAdvanceWalletId(formValue, isAdvanceWalletEnabled),
+            advance_wallet_id: this.getAdvanceWalletId(isAdvanceWalletEnabled),
             billable: formValue.billable,
             distance: +formValue.route.distance,
             org_category_id: (formValue.sub_category && formValue.sub_category.id) || etxn.tx.org_category_id,
