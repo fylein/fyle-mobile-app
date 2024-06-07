@@ -599,7 +599,7 @@ export function TestCases1(getTestBed) {
       expect(expenseFieldsService.getDefaultTxnFieldValues).toHaveBeenCalledOnceWith(mockTxnFieldData);
       expect(component.fg.controls.costCenter.value).toEqual(15818);
       expect(component.fg.controls.purpose.value).toEqual('test_term');
-      expect(component.fg.controls.billable.value).toEqual(true);
+      expect(component.fg.controls.billable.value).toBeTrue();
     });
 
     it('getPaymentModes(): should get payment modes', (done) => {
