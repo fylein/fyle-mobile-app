@@ -9,42 +9,41 @@ import { ProjectV1 } from '../models/v1/extended-project.model';
 import { ProjectParams } from '../models/project-params.model';
 import { intersection } from 'lodash';
 import { OrgCategory } from '../models/v1/org-category.model';
-
+import { PlatformProject } from '../models/platform/platform-project.model';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
+import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
+import { PlatformProjectParams } from '../models/platform/v1/platform-project-params.model';
+import { PlatformProjectArgs } from '../models/platform/v1/platform-project-args.model';
 @Injectable({
   providedIn: 'root',
 })
 export class ProjectsService {
-  constructor(private apiService: ApiService, private apiV2Service: ApiV2Service) {}
+  constructor(
+    private apiService: ApiService,
+    private apiV2Service: ApiV2Service,
+    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService
+  ) {}
 
   @Cacheable()
   getByParamsUnformatted(
-    projectParams: Partial<{
-      orgId: string;
-      active: boolean;
-      orgCategoryIds: string[];
-      searchNameText: string;
-      limit: number;
-      offset: number;
-      sortOrder: string;
-      sortDirection: string;
-      projectIds: number[];
-    }>
+    projectParams: PlatformProjectArgs,
+    activeCategoryList?: OrgCategory[]
   ): Observable<ProjectV2[]> {
     // eslint-disable-next-line prefer-const
-    let { orgId, active, orgCategoryIds, searchNameText, limit, offset, sortOrder, sortDirection, projectIds } =
+    let { orgId, isEnabled, orgCategoryIds, searchNameText, limit, offset, sortOrder, sortDirection, projectIds } =
       projectParams;
     sortOrder = sortOrder || 'project_updated_at';
     sortDirection = sortDirection || 'desc';
 
-    const params: ProjectParams = {
-      project_org_id: 'eq.' + orgId,
+    const params: PlatformProjectParams = {
+      org_id: 'eq.' + orgId,
       order: sortOrder + '.' + sortDirection,
       limit: limit || 200,
       offset: offset || 0,
     };
 
     // `active` can be optional
-    this.addActiveFilter(active, params);
+    this.addActiveFilter(isEnabled, params);
 
     // `orgCategoryIds` can be optional
     this.addOrgCategoryIdsFilter(orgCategoryIds, params);
@@ -55,25 +54,20 @@ export class ProjectsService {
     // `searchNameText` can be optional
     this.addNameSearchFilter(searchNameText, params);
 
-    return this.apiV2Service
-      .get<ProjectV2, {}>('/projects', {
+    return this.spenderPlatformV1ApiService
+      .get<PlatformApiResponse<PlatformProject[]>>('/projects', {
         params,
       })
-      .pipe(
-        map((res) =>
-          res.data.map((datum) => ({
-            ...datum,
-            project_created_at: new Date(datum.project_created_at),
-            project_updated_at: new Date(datum.project_updated_at),
-          }))
-        )
-      );
+      .pipe(map((res) => this.transformToV2Response(res.data, activeCategoryList)));
   }
 
   @Cacheable()
-  getProjectCount(params: { categoryIds: string[] } = { categoryIds: [] }): Observable<number> {
+  getProjectCount(
+    params: { categoryIds: string[] } = { categoryIds: [] },
+    activeCategoryList?: OrgCategory[]
+  ): Observable<number> {
     const categoryIds = params.categoryIds?.map((categoryId) => parseInt(categoryId, 10));
-    return this.getAllActive().pipe(
+    return this.getAllActive(activeCategoryList).pipe(
       map((projects) => {
         const filterdProjects = projects.filter((project) => {
           if (categoryIds?.length) {
@@ -87,27 +81,27 @@ export class ProjectsService {
     );
   }
 
-  addNameSearchFilter(searchNameText: string, params: ProjectParams): void {
+  addNameSearchFilter(searchNameText: string, params: PlatformProjectParams): void {
     if (typeof searchNameText !== 'undefined' && searchNameText !== null) {
-      params.project_name = 'ilike.%' + searchNameText + '%';
+      params.name = 'ilike.%' + searchNameText + '%';
     }
   }
 
-  addProjectIdsFilter(projectIds: number[], params: ProjectParams): void {
+  addProjectIdsFilter(projectIds: number[], params: PlatformProjectParams): void {
     if (typeof projectIds !== 'undefined' && projectIds !== null) {
-      params.project_id = 'in.(' + projectIds.join(',') + ')';
+      params.id = 'in.(' + projectIds.join(',') + ')';
     }
   }
 
-  addOrgCategoryIdsFilter(orgCategoryIds: string[], params: ProjectParams): void {
+  addOrgCategoryIdsFilter(orgCategoryIds: string[], params: PlatformProjectParams): void {
     if (typeof orgCategoryIds !== 'undefined' && orgCategoryIds !== null) {
-      params.project_org_category_ids = 'ov.{' + orgCategoryIds.join(',') + '}';
+      params.or = '(category_ids.is.null, ' + 'category_ids.ov.{' + orgCategoryIds.join(',') + '}' + ')';
     }
   }
 
-  addActiveFilter(active: boolean, params: ProjectParams): void {
-    if (typeof active !== 'undefined' && active !== null) {
-      params.project_active = 'eq.' + active;
+  addActiveFilter(isEnabled: boolean, params: PlatformProjectParams): void {
+    if (typeof isEnabled !== 'undefined' && isEnabled !== null) {
+      params.is_enabled = 'eq.' + isEnabled;
     }
   }
 
@@ -125,41 +119,62 @@ export class ProjectsService {
     return categoryList;
   }
 
-  // TODO: We should remove this from being used and replace with transform
-  getAllActive(): Observable<ProjectV1[]> {
+  getAllActive(activeCategoryList?: OrgCategory[]): Observable<ProjectV1[]> {
     const data = {
       params: {
-        active_only: true,
+        is_enabled: `eq.true`,
       },
     };
 
-    return this.apiService.get<ProjectV1[]>('/projects', data).pipe(
-      map((res) =>
-        res.map((datum) => ({
-          ...datum,
-          created_at: new Date(datum.created_at),
-          updated_at: new Date(datum.updated_at),
-        }))
-      )
-    );
+    return this.spenderPlatformV1ApiService
+      .get<PlatformApiResponse<PlatformProject[]>>('/projects', data)
+      .pipe(map((res) => this.transformToV1Response(res.data, activeCategoryList)));
   }
 
-  getbyId(projectId: number | string): Observable<ProjectV2> {
-    return this.apiV2Service
-      .get<ProjectV2, {}>('/projects', {
+  getbyId(projectId: number | string, activeCategoryList?: OrgCategory[]): Observable<ProjectV2> {
+    return this.spenderPlatformV1ApiService
+      .get<PlatformApiResponse<PlatformProject[]>>('/projects', {
         params: {
-          project_id: `eq.${projectId}`,
+          id: `eq.${projectId}`,
         },
       })
-      .pipe(
-        map(
-          (res) =>
-            res.data.map((datum) => ({
-              ...datum,
-              project_created_at: new Date(datum.project_created_at),
-              project_updated_at: new Date(datum.project_updated_at),
-            }))[0]
-        )
-      );
+      .pipe(map((res) => this.transformToV2Response(res.data, activeCategoryList)[0]));
+  }
+
+  transformToV1Response(platformProject: PlatformProject[], activeCategoryList?: OrgCategory[]): ProjectV1[] {
+    const allCategoryIDs = activeCategoryList?.map((category) => category.id);
+
+    const projectV1 = platformProject.map((platformProject) => ({
+      id: platformProject.id,
+      created_at: new Date(platformProject.created_at),
+      updated_at: new Date(platformProject.updated_at),
+      name: platformProject.name,
+      sub_project: platformProject.sub_project,
+      code: platformProject.code,
+      org_id: platformProject.org_id,
+      description: platformProject.description,
+      active: platformProject.is_enabled,
+      org_category_ids: platformProject.category_ids === null ? allCategoryIDs : platformProject.category_ids,
+    }));
+    return projectV1;
+  }
+
+  transformToV2Response(platformProject: PlatformProject[], activeCategoryList?: OrgCategory[]): ProjectV2[] {
+    const allCategoryIDs = activeCategoryList?.map((category) => category.id);
+
+    const projectV2 = platformProject.map((platformProject) => ({
+      project_active: platformProject.is_enabled,
+      project_code: platformProject.code,
+      project_created_at: new Date(platformProject.created_at),
+      project_description: platformProject.description,
+      project_id: platformProject.id,
+      project_name: platformProject.display_name,
+      project_org_category_ids: platformProject.category_ids === null ? allCategoryIDs : platformProject.category_ids,
+      project_org_id: platformProject.org_id,
+      project_updated_at: new Date(platformProject.updated_at),
+      projectv2_name: platformProject.name,
+      sub_project_name: platformProject.sub_project,
+    }));
+    return projectV2;
   }
 }

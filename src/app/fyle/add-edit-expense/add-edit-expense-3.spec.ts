@@ -414,16 +414,15 @@ export function TestCases3(getTestBed) {
 
     describe('getExpenseAttachments():', () => {
       it('should return file observables in edit mode', (done) => {
-        expensesService.getExpenseById.and.returnValue(of(platformExpenseWithExtractedData));
+        component.platformExpense$ = of(platformExpenseWithExtractedData);
         fileService.getReceiptsDetails.and.returnValue({
           type: 'pdf',
           thumbnail: 'img/fy-pdf.svg',
         });
         spenderFileService.generateUrlsBulk.and.returnValue(of(generateUrlsBulkData1));
 
-        component.getExpenseAttachments('edit', platformExpenseWithExtractedData.id).subscribe((res) => {
+        component.getExpenseAttachments('edit').subscribe((res) => {
           expect(res).toEqual(receiptInfoData2);
-          expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(platformExpenseWithExtractedData.id);
           expect(spenderFileService.generateUrlsBulk).toHaveBeenCalledOnceWith(
             platformExpenseWithExtractedData.file_ids
           );
@@ -501,7 +500,7 @@ export function TestCases3(getTestBed) {
           .generateEtxnFromFg(of(mockEtxn), of([mockCustomFieldData1, mockCustomFieldData2]))
           .subscribe((res) => {
             expect(res).toEqual(newExpFromFg);
-            expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(component.mode, unflattenedExpData.tx.id);
+            expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(component.mode);
             expect(component.getSourceAccID).toHaveBeenCalledTimes(1);
             expect(component.getBillable).toHaveBeenCalledTimes(1);
             expect(component.getSkipRemibursement).toHaveBeenCalledTimes(1);
@@ -573,7 +572,7 @@ export function TestCases3(getTestBed) {
         const mockCustomFieldData1 = cloneDeep(customFieldData2);
         component.generateEtxnFromFg(of(unflattenedTxnData2), of(mockCustomFieldData1), true).subscribe((res) => {
           expect(res).toEqual(newExpFromFg2);
-          expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(component.mode, 'tx3qHxFNgRcZ');
+          expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(component.mode);
           expect(dateService.getUTCDate).toHaveBeenCalledOnceWith(new Date('2023-02-23T16:24:01.335Z'));
           expect(component.getSourceAccID).toHaveBeenCalledTimes(1);
           expect(component.getBillable).toHaveBeenCalledTimes(1);
@@ -644,7 +643,7 @@ export function TestCases3(getTestBed) {
           .generateEtxnFromFg(of(cloneDeep(draftUnflattendedTxn)), of(mockCustomFields), false)
           .subscribe((res) => {
             expect(res).toEqual(newExpFromFg3);
-            expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(component.mode, null);
+            expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(component.mode);
 
             expect(component.getSourceAccID).toHaveBeenCalledTimes(1);
             expect(component.getBillable).toHaveBeenCalledTimes(1);
@@ -710,7 +709,7 @@ export function TestCases3(getTestBed) {
         const mockEtxn = cloneDeep(draftUnflattendedTxn);
         component.generateEtxnFromFg(of(cloneDeep(mockEtxn)), of(mockCustomFields), false).subscribe((res) => {
           expect(res).toEqual(newExpFromFg4);
-          expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(component.mode, draftUnflattendedTxn.tx.id);
+          expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(component.mode);
           expect(component.getSourceAccID).toHaveBeenCalledTimes(1);
           expect(component.getBillable).toHaveBeenCalledTimes(1);
           expect(component.getSkipRemibursement).toHaveBeenCalledTimes(1);
@@ -988,10 +987,10 @@ export function TestCases3(getTestBed) {
     describe('viewAttachments():', () => {
       it('should upload receipts and increment count in edit mode', fakeAsync(() => {
         component.etxn$ = of(unflattenedTxnData);
+        component.platformExpense$ = of(platformExpenseWithExtractedData);
         component.mode = 'edit';
         component.attachedReceiptsCount = 0;
         spyOn(component, 'getExpenseAttachments').and.returnValue(of(fileObject4));
-        expensesService.getExpenseById.and.returnValue(of(platformExpenseWithExtractedData));
         spyOn(component.loadAttachments$, 'next');
         loaderService.showLoader.and.resolveTo();
         loaderService.hideLoader.and.resolveTo();
@@ -1009,8 +1008,7 @@ export function TestCases3(getTestBed) {
         component.viewAttachments();
         tick(500);
 
-        expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(component.mode, unflattenedTxnData.tx.id);
-        expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
+        expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(component.mode);
         expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
         expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
         expect(modalController.create).toHaveBeenCalledOnceWith({
@@ -1046,7 +1044,7 @@ export function TestCases3(getTestBed) {
         component.viewAttachments();
         tick(500);
 
-        expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(component.mode, unflattenedTxnData.tx.id);
+        expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(component.mode);
         expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
         expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
         expect(modalController.create).toHaveBeenCalledOnceWith({
@@ -1069,14 +1067,13 @@ export function TestCases3(getTestBed) {
         component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
         component.etxn$ = of(unflattenedPaidExp);
         component.initialFetch = true;
-        categoriesService.getCategoryById.and.returnValue(of(orgCategoryData1[0]));
+        component.selectedCategory$ = of(orgCategoryData1[0]);
 
         fixture.detectChanges();
         component.getCategoryOnEdit(orgCategoryData1[0]).subscribe((res) => {
           expect(res).toEqual(orgCategoryPaginated1[0]);
           expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-          expect(categoriesService.getCategoryById).toHaveBeenCalledOnceWith(unflattenedDraftExp.tx.org_category_id);
           done();
         });
       });
@@ -1091,14 +1088,13 @@ export function TestCases3(getTestBed) {
           tx: { ...unflattenedPaidExp.tx, fyle_category: undefined, state: 'DRAFT' },
         });
         component.initialFetch = true;
-        categoriesService.getCategoryById.and.returnValue(of(orgCategoryData1[0]));
+        component.selectedCategory$ = of(orgCategoryData1[0]);
 
         fixture.detectChanges();
         component.getCategoryOnEdit(orgCategoryData1[0]).subscribe((res) => {
           expect(res).toEqual(orgCategoryPaginated1[0]);
           expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-          expect(categoriesService.getCategoryById).toHaveBeenCalledOnceWith(unflattenedDraftExp.tx.org_category_id);
           done();
         });
       });
@@ -1418,9 +1414,9 @@ export function TestCases3(getTestBed) {
       it('should attach receipt in edit mode', fakeAsync(() => {
         component.mode = 'edit';
         component.etxn$ = of(unflattenedExpData);
+        component.platformExpense$ = of(platformExpenseWithExtractedData);
         component.isConnected$ = of(true);
         const mockFileData = cloneDeep(fileObjectData1);
-        expensesService.getExpenseById.and.returnValue(of(platformExpenseWithExtractedData));
         transactionOutboxService.fileUpload.and.resolveTo(mockFileData[0]);
         activatedRoute.snapshot.params.id = mockFileData[0].transaction_id;
         expensesService.attachReceiptToExpense.and.returnValue(of(platformExpenseWithExtractedData));
@@ -1434,7 +1430,6 @@ export function TestCases3(getTestBed) {
         });
         tick(1000);
 
-        expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(unflattenedExpData.tx.id);
         expect(transactionOutboxService.fileUpload).toHaveBeenCalledOnceWith('url', 'pdf');
         expect(expensesService.attachReceiptToExpense).toHaveBeenCalledOnceWith(
           mockFileData[0].transaction_id,

@@ -676,7 +676,7 @@ export class AddEditPerDiemPage implements OnInit {
     );
   }
 
-  setupFilteredCategories(activeCategories$: Observable<OrgCategory[]>): void {
+  setupFilteredCategories(): void {
     this.filteredCategories$ = this.fg.controls.project.valueChanges.pipe(
       tap(() => {
         if (!this.fg.controls.project.value) {
@@ -687,8 +687,10 @@ export class AddEditPerDiemPage implements OnInit {
       }),
       startWith(this.fg.controls.project.value),
       concatMap((project: ProjectV2) =>
-        activeCategories$.pipe(
-          map((activeCategories) => this.projectsService.getAllowedOrgCategoryIds(project, activeCategories))
+        this.subCategories$.pipe(
+          map((allActiveSubCategories: OrgCategory[]) =>
+            this.projectsService.getAllowedOrgCategoryIds(project, allActiveSubCategories)
+          )
         )
       ),
       map((categories) => categories.map((category) => ({ label: category.sub_category, value: category })))
@@ -841,6 +843,7 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   ionViewWillEnter(): void {
+    this.subCategories$ = this.getSubCategories().pipe(shareReplay(1));
     this.isNewReportsFlowEnabled = false;
     this.onPageExit$ = new Subject();
     this.projectDependentFieldsRef?.ngOnInit();
@@ -1002,12 +1005,14 @@ export class AddEditPerDiemPage implements OnInit {
 
     this.txnFields$ = this.getTransactionFields();
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
-    this.subCategories$ = this.getSubCategories();
-    this.setupFilteredCategories(this.subCategories$);
+
+    this.setupFilteredCategories();
 
     this.projectCategoryIds$ = this.getProjectCategoryIds();
-    this.isProjectVisible$ = this.projectCategoryIds$.pipe(
-      switchMap((projectCategoryIds) => this.projectsService.getProjectCount({ categoryIds: projectCategoryIds })),
+    this.isProjectVisible$ = combineLatest([this.projectCategoryIds$, this.subCategories$]).pipe(
+      switchMap(([projectCategoryIds, allActiveSubCategories]) =>
+        this.projectsService.getProjectCount({ categoryIds: projectCategoryIds }, allActiveSubCategories)
+      ),
       map((projectCount) => projectCount > 0)
     );
     this.comments$ = this.statusService.find('transactions', this.activatedRoute.snapshot.params.id as string);
@@ -1304,7 +1309,9 @@ export class AddEditPerDiemPage implements OnInit {
       }),
       switchMap((projectId) => {
         if (projectId) {
-          return this.projectsService.getbyId(projectId);
+          return this.subCategories$.pipe(
+            switchMap((allActiveSubCategories) => this.projectsService.getbyId(projectId, allActiveSubCategories))
+          );
         } else {
           return of(null);
         }
@@ -1331,12 +1338,14 @@ export class AddEditPerDiemPage implements OnInit {
       recentValues: this.recentlyUsedValues$,
       perDiemCategoryIds: this.projectCategoryIds$,
       eou: this.authService.getEou(),
+      activeSubCategories: this.subCategories$,
     }).pipe(
-      switchMap(({ recentValues, perDiemCategoryIds, eou }) =>
+      switchMap(({ recentValues, perDiemCategoryIds, eou, activeSubCategories }) =>
         this.recentlyUsedItemsService.getRecentlyUsedProjects({
           recentValues,
           eou,
           categoryIds: perDiemCategoryIds,
+          activeCategoryList: activeSubCategories,
         })
       )
     );
@@ -1346,7 +1355,9 @@ export class AddEditPerDiemPage implements OnInit {
         iif(
           () => !!etxn.tx.org_category_id,
           this.subCategories$.pipe(
-            map((subCategories) => subCategories.find((subCategory) => subCategory.id === etxn.tx.org_category_id))
+            map((allActiveSubCategories) =>
+              allActiveSubCategories.find((subCategory) => subCategory.id === etxn.tx.org_category_id)
+            )
           ),
           of(null)
         )
