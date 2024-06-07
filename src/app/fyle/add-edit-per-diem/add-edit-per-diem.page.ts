@@ -104,7 +104,6 @@ import { ExtendedAccount } from 'src/app/core/models/extended-account.model';
 import { OutboxQueue } from 'src/app/core/models/outbox-queue.model';
 import { AllowedPerDiemRateOptions } from 'src/app/core/models/allowed-per-diem-rate-options.model';
 import { PerDiemReports } from 'src/app/core/models/per-diem-reports.model';
-import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { TransactionState } from 'src/app/core/models/transaction-state.enum';
 import { ToastType } from 'src/app/core/enums/toast-type.enum';
 import { Expense } from 'src/app/core/models/expense.model';
@@ -1092,13 +1091,9 @@ export class AddEditPerDiemPage implements OnInit {
           reports
             .filter((report) => !report.approvals.some((approval) => approval.state === 'APPROVAL_DONE'))
             .map((report) => ({ label: report.purpose, value: report }))
-        )
-      ) as Observable<
-      {
-        label: string;
-        value: Report;
-      }[]
-    >;
+        ),
+        shareReplay(1)
+      );
 
     this.txnFields$
       .pipe(
