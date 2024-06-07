@@ -46,6 +46,7 @@ export const unflattenedTxnData: UnflattenedTransaction = deepFreeze({
     cost_center_code: null,
     cost_center_id: 13795,
     source_account_id: 'acc5APeygFjRd',
+    advance_wallet_id: null,
     transcription_state: null,
     verification_state: null,
     policy_state: null,
