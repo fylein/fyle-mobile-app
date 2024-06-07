@@ -2376,7 +2376,7 @@ export class AddEditMileagePage implements OnInit {
     return data;
   }
 
-  getAdvanceWalletId(formValue, isAdvanceWalletEnabled): string {
+  getAdvanceWalletId(formValue: MileageFormValue, isAdvanceWalletEnabled: boolean): string {
     // setting advance_wallet_id as null when the source account id is set.
     return formValue?.paymentMode?.acc?.id ? null : isAdvanceWalletEnabled && formValue?.paymentMode?.id;
   }
