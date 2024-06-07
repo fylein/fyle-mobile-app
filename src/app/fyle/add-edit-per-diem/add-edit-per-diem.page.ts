@@ -488,10 +488,12 @@ export class AddEditPerDiemPage implements OnInit {
         if (isAdvanceWalletEnabled && paymentMode && paymentMode.id) {
           if (etxn.tx.id && paymentMode.id === originalAdvanceWalletId) {
             isPaymentModeInvalid =
-              paymentMode.balance_amount + etxn.tx.amount < (formValues.currencyObj && formValues.currencyObj.amount);
+              paymentMode.balance_amount + etxn.tx.amount <
+              (this.fg.controls.currencyObj.value && (this.fg.controls.currencyObj.value as { amount: number }).amount);
           } else {
             isPaymentModeInvalid =
-              paymentMode.balance_amount < (formValues.currencyObj && formValues.currencyObj.amount);
+              paymentMode.balance_amount <
+              (this.fg.controls.currencyObj.value && (this.fg.controls.currencyObj.value as { amount: number }).amount);
           }
         }
 
