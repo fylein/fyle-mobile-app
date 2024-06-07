@@ -3176,13 +3176,9 @@ export class AddEditExpensePage implements OnInit {
         map((reports) =>
           reports.filter((report) => !report.approvals.some((approval) => approval.state === 'APPROVAL_DONE'))
         ),
-        map((reports: Report[]) => reports.map((report) => ({ label: report.purpose, value: report })))
-      ) as Observable<
-      {
-        label: string;
-        value: Report;
-      }[]
-    >;
+        map((reports: Report[]) => reports.map((report) => ({ label: report.purpose, value: report }))),
+        shareReplay(1)
+      );
 
     this.recentlyUsedCategories$ = forkJoin({
       filteredCategories: this.filteredCategories$.pipe(take(1)),
