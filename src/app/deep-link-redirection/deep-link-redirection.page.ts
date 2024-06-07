@@ -133,35 +133,43 @@ export class DeepLinkRedirectionPage {
     if (currentEou.ou.roles.includes('APPROVER')) {
       rptObservables$.push(this.approverReportsService.getReportById(this.activatedRoute.snapshot.params.id as string));
     }
-    spenderReport$.subscribe(
-      (spenderReport) => {
-        if (spenderReport) {
-          this.router.navigate([
-            '/',
-            'enterprise',
-            'my_view_report',
-            { id: this.activatedRoute.snapshot.params.id as string },
-          ]);
-        } else {
-          approverReport$.subscribe((approverReport) => {
-            if (approverReport) {
-              this.router.navigate([
-                '/',
-                'enterprise',
-                'view_team_report',
-                { id: this.activatedRoute.snapshot.params.id as string },
-              ]);
-            }
-          });
-        }
-      },
-      () => {
-        this.switchOrg();
-      },
-      async () => {
-        await this.loaderService.hideLoader();
-      }
-    );
+    spenderReport$
+      .pipe(
+        finalize(async () => {
+          await this.loaderService.hideLoader();
+        })
+      )
+      .subscribe({
+        next: (spenderReport) => {
+          if (spenderReport) {
+            this.router.navigate([
+              '/',
+              'enterprise',
+              'my_view_report',
+              { id: this.activatedRoute.snapshot.params.id as string },
+            ]);
+          } else {
+            approverReport$.subscribe({
+              next: (approverReport) => {
+                if (approverReport) {
+                  this.router.navigate([
+                    '/',
+                    'enterprise',
+                    'view_team_report',
+                    { id: this.activatedRoute.snapshot.params.id as string },
+                  ]);
+                }
+              },
+              error: () => {
+                this.switchOrg();
+              },
+            });
+          }
+        },
+        error: () => {
+          this.switchOrg();
+        },
+      });
   }
 
   switchOrg(): void {
