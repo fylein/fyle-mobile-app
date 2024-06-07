@@ -506,6 +506,7 @@ export function TestCases2(getTestBed) {
       it('should return false if source ID is same and if txn amount and tentative amount is less than the current amount', (done) => {
         spyOn(component, 'getFormValues').and.returnValue({ paymentMode: multiplePaymentModesData[2] });
         component.etxn$ = of(unflattenedTxnWithSourceID);
+        orgSettingsService.get.and.returnValue(of(orgSettingsRes));
         component.amount$ = of(101);
         fixture.detectChanges();
 
@@ -519,6 +520,7 @@ export function TestCases2(getTestBed) {
       it('should return true if source ID is different and if tentative amount less than expense amount', (done) => {
         spyOn(component, 'getFormValues').and.returnValue({ paymentMode: accountsData[2] });
         component.etxn$ = of(unflattenedTxnWithSourceID2);
+        orgSettingsService.get.and.returnValue(of(orgSettingsRes));
         component.amount$ = of(600);
         fixture.detectChanges();
 
@@ -533,6 +535,7 @@ export function TestCases2(getTestBed) {
       it('should return false if payment account is null', (done) => {
         spyOn(component, 'getFormValues').and.returnValue({ paymentMode: null });
         component.etxn$ = of(unflattenedTxnWithSourceID2);
+        orgSettingsService.get.and.returnValue(of(orgSettingsRes));
         component.amount$ = of(600);
         fixture.detectChanges();
 

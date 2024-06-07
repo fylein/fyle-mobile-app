@@ -685,12 +685,39 @@ export function TestCases4(getTestBed) {
       expect(result).toEqual([]);
     });
 
+    describe('getAdvanceWalletId():', () => {
+      it('should get advance wallet id', () => {
+        const paymentModeFormValue = {
+          id: 'areq1234',
+        };
+        component.fg.controls.paymentMode.setValue(paymentModeFormValue);
+
+        const result = component.getAdvanceWalletId({ paymentMode: paymentModeFormValue }, true);
+        expect(result).toEqual('areq1234');
+      });
+
+      it('should return null', () => {
+        component.fg.controls.paymentMode.setValue(null);
+
+        const result = component.getAdvanceWalletId(null, true);
+        expect(result).toBeUndefined();
+      });
+
+      it('should return null when advance wallet setting is disabled', () => {
+        component.fg.controls.paymentMode.setValue(null);
+
+        const result = component.getAdvanceWalletId(null, false);
+        expect(result).toBeFalse();
+      });
+    });
+
     describe('generateEtxnFromFg():', () => {
       beforeEach(() => {
         component.amount$ = of(100);
         component.homeCurrency$ = of('USD');
         component.mileageRates$ = of(unfilteredMileageRatesData);
         component.rate$ = of(null);
+        orgSettingsService.get.and.returnValue(of(orgSettingsData));
       });
 
       it('should generate an expense from form', (done) => {
