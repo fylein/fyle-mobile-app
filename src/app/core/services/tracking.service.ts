@@ -736,4 +736,16 @@ export class TrackingService {
   clickedOnTask(properties): void {
     this.eventTrack('Clicked On Task', properties);
   }
+
+  clickedOptInFromProfile(): void {
+    this.eventTrack('Click On Opt in CTA in Profile page');
+  }
+
+  clickedOnEditNumber(): void {
+    this.eventTrack('Edit Mobile Number Clicked');
+  }
+
+  clickedOnOptOut(): void {
+    this.eventTrack('Opt Out Clicked');
+  }
 }

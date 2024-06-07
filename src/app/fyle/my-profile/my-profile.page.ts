@@ -96,6 +96,8 @@ export class MyProfilePage {
 
   defaultPaymentMode: string;
 
+  isUserFromINCluster$: Observable<boolean>;
+
   constructor(
     private authService: AuthService,
     private orgUserSettingsService: OrgUserSettingsService,
@@ -179,6 +181,8 @@ export class MyProfilePage {
     this.setupNetworkWatcher();
     this.loadEou$ = new BehaviorSubject<null>(null);
     this.eou$ = this.loadEou$.pipe(switchMap(() => from(this.authService.getEou())));
+    this.isUserFromINCluster$ = from(this.utilityService.isUserFromINCluster());
+
     this.reset();
     from(this.tokenService.getClusterDomain()).subscribe((clusterDomain) => {
       this.clusterDomain = clusterDomain;
@@ -207,12 +211,7 @@ export class MyProfilePage {
     this.org$ = this.orgService.getCurrentOrg();
     const orgSettings$ = this.orgSettingsService.get();
 
-    forkJoin({
-      eou: this.eou$.pipe(take(1)),
-      isUserFromINCluster: from(this.utilityService.isUserFromINCluster()),
-    }).subscribe(({ eou, isUserFromINCluster }) => {
-      this.setInfoCardsData(eou, isUserFromINCluster);
-    });
+    this.setInfoCardsData();
 
     from(this.loaderService.showLoader())
       .pipe(
@@ -303,18 +302,10 @@ export class MyProfilePage {
     this.preferenceSettings = allPreferenceSettings.filter((setting) => setting.isAllowed);
   }
 
-  setInfoCardsData(eou: ExtendedOrgUser, isUserFromINCluster: boolean): void {
-    const fyleMobileNumber = '(302) 440-2921';
+  setInfoCardsData(): void {
     const fyleEmail = 'receipts@fylehq.com';
 
     const allInfoCardsData: InfoCardData[] = [
-      {
-        title: 'Message Receipts',
-        content: `Message your receipts to Fyle at ${fyleMobileNumber}.`,
-        contentToCopy: fyleMobileNumber,
-        toastMessageContent: 'Phone Number Copied Successfully',
-        isShown: eou.org.currency === 'USD' && eou.ou.mobile_verified && !isUserFromINCluster,
-      },
       {
         title: 'Email Receipts',
         content: `Forward your receipts to Fyle at ${fyleEmail}.`,
@@ -426,14 +417,7 @@ export class MyProfilePage {
 
     if (data) {
       if (data.action === 'SUCCESS') {
-        this.loadEou$.next(null);
-        this.eou$.pipe(take(1)).subscribe((eou) => {
-          if (eou.ou.mobile_verification_attempts_left !== 0) {
-            this.verifyMobileNumber(eou);
-          } else {
-            this.showToastMessage('Mobile Number Updated Successfully', 'success');
-          }
-        });
+        this.eou$ = from(this.authService.refreshEou());
       } else if (data.action === 'ERROR') {
         this.showToastMessage('Something went wrong. Please try again later.', 'failure');
       }

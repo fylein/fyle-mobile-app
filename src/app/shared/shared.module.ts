@@ -147,6 +147,7 @@ import { TransactionStatusComponent } from './components/transaction-status/tran
 import { FySelectCommuteDetailsComponent } from './components/fy-select-commute-details/fy-select-commute-details.component';
 import { FyOptInComponent } from './components/fy-opt-in/fy-opt-in.component';
 import { NgOtpInputModule } from 'ng-otp-input';
+import { ProfileOptInCardComponent } from '../app/shared/components/profile-opt-in-card/profile-opt-in-card.component';
 
 @NgModule({
   declarations: [
@@ -270,6 +271,7 @@ import { NgOtpInputModule } from 'ng-otp-input';
     VirtualCardComponent,
     FySelectCommuteDetailsComponent,
     FyOptInComponent,
+    ProfileOptInCardComponent,
   ],
   imports: [
     CommonModule,
@@ -399,6 +401,7 @@ import { NgOtpInputModule } from 'ng-otp-input';
     VirtualCardComponent,
     FySelectCommuteDetailsComponent,
     FyOptInComponent,
+    ProfileOptInCardComponent,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker, FyCurrencyPipe, ReportState],
 })
