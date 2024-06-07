@@ -41,6 +41,9 @@ import { CommuteDetailsResponse } from 'src/app/core/models/platform/commute-det
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { FyOptInComponent } from 'src/app/shared/components/fy-opt-in/fy-opt-in.component';
 import { UtilityService } from 'src/app/core/services/utility.service';
+import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
+import { OrgUser } from 'src/app/core/models/org-user.model';
+import { OrgUserService } from 'src/app/core/services/org-user.service';
 
 @Component({
   selector: 'app-my-profile',
@@ -120,7 +123,8 @@ export class MyProfilePage {
     private modalProperties: ModalPropertiesService,
     private employeesService: EmployeesService,
     private paymentModeService: PaymentModesService,
-    private utilityService: UtilityService
+    private utilityService: UtilityService,
+    private orgUserService: OrgUserService
   ) {}
 
   setupNetworkWatcher(): void {
@@ -463,6 +467,62 @@ export class MyProfilePage {
       }
       this.reset();
       this.showToastMessage('Commute details updated successfully', ToastType.SUCCESS);
+    }
+  }
+
+  getOptOutMessageBody(): string {
+    return `<div>
+              <p>You can't send receipts and expense details via text message if you opt out</p>
+              <p>Are you sure you want to continue?<p>  
+            </div>`;
+  }
+
+  deleteMobileNumber(): void {
+    from(this.loaderService.showLoader())
+      .pipe(
+        switchMap(() => this.authService.getEou()),
+        switchMap((eou) => {
+          const updatedOrgUserDetails: OrgUser = {
+            ...eou.ou,
+            mobile: '',
+          };
+
+          return this.orgUserService.postOrgUser(updatedOrgUserDetails);
+        }),
+        finalize(() => from(this.loaderService.hideLoader()))
+      )
+      .subscribe(() => {
+        this.trackingService.optedOut();
+        this.eou$ = from(this.authService.refreshEou());
+      });
+  }
+
+  async optOutClick(): Promise<void> {
+    const optOutPopover = await this.popoverController.create({
+      component: PopupAlertComponent,
+      componentProps: {
+        title: 'Opt out of text messages',
+        message: this.getOptOutMessageBody(),
+        primaryCta: {
+          text: 'Yes, opt out',
+          action: 'continue',
+        },
+        secondaryCta: {
+          text: 'No, go back',
+          action: 'cancel',
+        },
+      },
+      cssClass: 'pop-up-in-center',
+    });
+
+    await optOutPopover.present();
+
+    const { data } = await optOutPopover.onWillDismiss<{ action: string }>();
+
+    if (data && data.action === 'continue') {
+      this.deleteMobileNumber();
+    } else {
+      optOutPopover.dismiss();
     }
   }
 }
