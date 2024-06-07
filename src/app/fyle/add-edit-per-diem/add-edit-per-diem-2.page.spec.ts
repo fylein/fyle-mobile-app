@@ -199,7 +199,7 @@ export function TestCases2(getTestBed) {
       });
     }));
 
-    xit('getNewExpense(): should return new expense object', () => {
+    it('getNewExpense(): should return new expense object', () => {
       spyOn(component, 'getPerDiemCategories').and.returnValue(
         of({
           defaultPerDiemCategory: perDiemCategory,
