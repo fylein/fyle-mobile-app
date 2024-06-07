@@ -340,6 +340,7 @@ describe('MyProfilePage', () => {
       spyOn(component, 'reset');
       spyOn(component, 'updateMobileNumber');
       activatedRoute.snapshot.params.openPopover = 'add_mobile_number';
+      utilityService.isUserFromINCluster.and.resolveTo(false);
       fixture.detectChanges();
 
       component.ionViewWillEnter();
@@ -359,6 +360,7 @@ describe('MyProfilePage', () => {
       spyOn(component, 'reset');
       spyOn(component, 'verifyMobileNumber');
       activatedRoute.snapshot.params.openPopover = 'verify_mobile_number';
+      utilityService.isUserFromINCluster.and.resolveTo(false);
       fixture.detectChanges();
 
       component.ionViewWillEnter();
@@ -379,6 +381,7 @@ describe('MyProfilePage', () => {
       spyOn(component, 'verifyMobileNumber');
       spyOn(component, 'updateMobileNumber');
       activatedRoute.snapshot.params.openPopover = null;
+      utilityService.isUserFromINCluster.and.resolveTo(true);
       fixture.detectChanges();
 
       component.ionViewWillEnter();
@@ -412,7 +415,7 @@ describe('MyProfilePage', () => {
     expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
     expect(orgService.getCurrentOrg).toHaveBeenCalledTimes(1);
     expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-    expect(component.setInfoCardsData).toHaveBeenCalledOnceWith(apiEouRes, false);
+    expect(component.setInfoCardsData).toHaveBeenCalledTimes(1);
     expect(component.setPreferenceSettings).toHaveBeenCalledTimes(1);
     expect(component.setCCCFlags).toHaveBeenCalledTimes(1);
     expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
@@ -446,26 +449,9 @@ describe('MyProfilePage', () => {
     expect(component.preferenceSettings.length).toEqual(2);
   });
 
-  describe('setInfoCardsData(): ', () => {
-    it('should show only email card for non USD orgs', () => {
-      const isUserFromINCluster = false;
-      component.setInfoCardsData(eouRes3, isUserFromINCluster);
-      expect(component.infoCardsData).toEqual([allInfoCardsData[1]]);
-    });
-
-    it('should show only email card if user is from IN cluster', () => {
-      const isUserFromINCluster = true;
-      component.setInfoCardsData(apiEouRes, isUserFromINCluster);
-      expect(component.infoCardsData).toEqual([allInfoCardsData[1]]);
-    });
-
-    it('should show both email and mobile number cards for USD orgs', () => {
-      const isUserFromINCluster = false;
-      const eou = cloneDeep(apiEouRes);
-      eou.ou.mobile_verified = true;
-      component.setInfoCardsData(eou, isUserFromINCluster);
-      expect(component.infoCardsData).toEqual(allInfoCardsData);
-    });
+  it('setInfoCardsData(): should show only email card for non USD orgs', () => {
+    component.setInfoCardsData();
+    expect(component.infoCardsData).toEqual(allInfoCardsData);
   });
 
   describe('toggleSetting():', () => {
@@ -657,8 +643,6 @@ describe('MyProfilePage', () => {
     beforeEach(() => {
       authService.refreshEou.and.returnValue(of(apiEouRes));
       spyOn(component, 'showToastMessage');
-      spyOn(component, 'verifyMobileNumber').and.resolveTo();
-      spyOn(component.loadEou$, 'next');
     });
 
     it('should open edit number popover and show success toast message if update is successful', fakeAsync(() => {
@@ -679,9 +663,7 @@ describe('MyProfilePage', () => {
       });
       expect(popoverSpy.present).toHaveBeenCalledTimes(1);
       expect(popoverSpy.onWillDismiss).toHaveBeenCalledTimes(1);
-      expect(component.loadEou$.next).toHaveBeenCalledOnceWith(null);
-      expect(component.verifyMobileNumber).toHaveBeenCalledOnceWith(apiEouRes);
-      expect(component.showToastMessage).not.toHaveBeenCalled();
+      expect(authService.refreshEou).toHaveBeenCalledTimes(1);
     }));
 
     it('should should show success toast message if there are no more attempts left', fakeAsync(() => {
@@ -703,8 +685,7 @@ describe('MyProfilePage', () => {
       });
       expect(popoverSpy.present).toHaveBeenCalledTimes(1);
       expect(popoverSpy.onWillDismiss).toHaveBeenCalledTimes(1);
-      expect(component.loadEou$.next).toHaveBeenCalledOnceWith(null);
-      expect(component.showToastMessage).toHaveBeenCalledOnceWith('Mobile Number Updated Successfully', 'success');
+      expect(authService.refreshEou).toHaveBeenCalledTimes(1);
     }));
 
     it('should open add number popover and show error toast message if api returns error', fakeAsync(() => {

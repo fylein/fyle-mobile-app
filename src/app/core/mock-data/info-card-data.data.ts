@@ -4,13 +4,6 @@ import { InfoCardData } from '../models/info-card-data.model';
 
 export const allInfoCardsData: InfoCardData[] = deepFreeze([
   {
-    title: 'Message Receipts',
-    content: 'Message your receipts to Fyle at (302) 440-2921.',
-    contentToCopy: '(302) 440-2921',
-    toastMessageContent: 'Phone Number Copied Successfully',
-    isShown: true,
-  },
-  {
     title: 'Email Receipts',
     content: 'Forward your receipts to Fyle at receipts@fylehq.com.',
     contentToCopy: 'receipts@fylehq.com',
