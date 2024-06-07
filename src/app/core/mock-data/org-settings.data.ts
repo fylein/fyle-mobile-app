@@ -1231,6 +1231,15 @@ export const orgSettingsParamsWithSimplifiedReport: OrgSettings = deepFreeze({
   },
 });
 
+export const orgSettingsParamsWithAdvanceWallet: OrgSettings = deepFreeze({
+  ...orgSettingsRes,
+  advances: {
+    allowed: true,
+    enabled: true,
+    advance_wallets_enabled: true,
+  },
+});
+
 export const taxSettingsData: TaxSettings = deepFreeze({
   allowed: true,
   enabled: true,

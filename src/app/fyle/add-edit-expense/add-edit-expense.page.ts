@@ -1145,7 +1145,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   checkAdvanceWalletsWithSufficientBalance(advanceWallets: AdvanceWallet[]): boolean {
-    return advanceWallets.some((advanceWallet) => advanceWallet.balance_amount > 0);
+    return !!advanceWallets?.some((advanceWallet) => advanceWallet.balance_amount > 0);
   }
 
   checkAdvanceAccountAndBalance(account: ExtendedAccount): boolean {

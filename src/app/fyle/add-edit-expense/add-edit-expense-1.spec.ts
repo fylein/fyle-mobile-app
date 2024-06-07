@@ -16,7 +16,7 @@ import { expenseFieldObjData, txnFieldData } from 'src/app/core/mock-data/expens
 import { txnFieldsMap2 } from 'src/app/core/mock-data/expense-fields-map.data';
 import { apiExpenseRes, expenseData1 } from 'src/app/core/mock-data/expense.data';
 import { categorieListRes } from 'src/app/core/mock-data/org-category-list-item.data';
-import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
+import { orgSettingsRes, orgSettingsParamsWithAdvanceWallet } from 'src/app/core/mock-data/org-settings.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import {
   getMarkDismissModalParamsData1,
@@ -24,7 +24,12 @@ import {
 } from 'src/app/core/mock-data/popover-params.data';
 import { expectedReportsPaginated } from 'src/app/core/mock-data/platform-report.data';
 import { UndoMergeData2 } from 'src/app/core/mock-data/undo-merge.data';
-import { unflattenedExpData, unflattenedTxn } from 'src/app/core/mock-data/unflattened-expense.data';
+import {
+  unflattenedExpData,
+  unflattenedTxn,
+  unflattenedExpDataWithAdvanceWallet,
+  unflattenedExpDataWithAdvanceWalletWithoutId,
+} from 'src/app/core/mock-data/unflattened-expense.data';
 import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -59,7 +64,11 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
-import { orgSettingsData, unflattenedAccount1Data } from 'src/app/core/test-data/accounts.service.spec.data';
+import {
+  orgSettingsData,
+  unflattenedAccount1Data,
+  paymentModeDataAdvanceWallet,
+} from 'src/app/core/test-data/accounts.service.spec.data';
 import { projectsV1Data } from 'src/app/core/test-data/projects.spec.data';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { AddEditExpensePage } from './add-edit-expense.page';
@@ -438,6 +447,42 @@ export function TestCases1(getTestBed) {
         component.fg.controls.currencyObj.setValue({
           currency: 'USD',
           amount: 500,
+        });
+        fixture.detectChanges();
+
+        component.checkIfInvalidPaymentMode().subscribe((res) => {
+          expect(res).toBeTrue();
+          expect(paymentModesService.showInvalidPaymentModeToast).toHaveBeenCalledTimes(1);
+          done();
+        });
+      });
+
+      it('should check for invalid payment in case of Advance wallets', (done) => {
+        component.etxn$ = of(unflattenedExpDataWithAdvanceWallet);
+        orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithAdvanceWallet));
+
+        component.fg.controls.paymentMode.setValue(paymentModeDataAdvanceWallet);
+        component.fg.controls.currencyObj.setValue({
+          currency: 'USD',
+          amount: 2500,
+        });
+        fixture.detectChanges();
+
+        component.checkIfInvalidPaymentMode().subscribe((res) => {
+          expect(res).toBeTrue();
+          expect(paymentModesService.showInvalidPaymentModeToast).toHaveBeenCalledTimes(1);
+          done();
+        });
+      });
+
+      it('should check for invalid payment while adding expense', (done) => {
+        component.etxn$ = of(unflattenedExpDataWithAdvanceWalletWithoutId);
+        orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithAdvanceWallet));
+
+        component.fg.controls.paymentMode.setValue(paymentModeDataAdvanceWallet);
+        component.fg.controls.currencyObj.setValue({
+          currency: 'USD',
+          amount: 2500,
         });
         fixture.detectChanges();
 

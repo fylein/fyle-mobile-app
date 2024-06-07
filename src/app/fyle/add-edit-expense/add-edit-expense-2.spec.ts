@@ -23,7 +23,11 @@ import {
 import { fileObject7, fileObjectData } from 'src/app/core/mock-data/file-object.data';
 import { individualExpPolicyStateData2 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
 import { filterOrgCategoryParam, orgCategoryData } from 'src/app/core/mock-data/org-category.data';
-import { orgSettingsCCCDisabled, orgSettingsCCCEnabled } from 'src/app/core/mock-data/org-settings.data';
+import {
+  orgSettingsCCCDisabled,
+  orgSettingsCCCEnabled,
+  orgSettingsParamsWithAdvanceWallet,
+} from 'src/app/core/mock-data/org-settings.data';
 import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
 import {
   expectedInstaFyleData1,
@@ -81,6 +85,7 @@ import {
   orgSettingsData,
   paymentModesData,
   advanceWallet1Data,
+  paymentModesWithAdvanceWalletsResData,
 } from 'src/app/core/test-data/accounts.service.spec.data';
 import { estatusData1 } from 'src/app/core/test-data/status.service.spec.data';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
@@ -353,6 +358,33 @@ export function TestCases2(getTestBed) {
         component.getPaymentModes().subscribe((res) => {
           expect(res).toEqual(paymentModesData);
           expect(component.showCardTransaction).toBeTrue();
+          expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+          expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledTimes(1);
+          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(orgUserSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
+          expect(paymentModesService.checkIfPaymentModeConfigurationsIsEnabled).toHaveBeenCalledTimes(1);
+          expect(component.getCCCSettings).toHaveBeenCalledTimes(1);
+          done();
+        });
+      });
+
+      it('should get payment modes with advance wallets if advance wallets are enabled', (done) => {
+        component.etxn$ = of(unflattenedTxnData);
+        accountsService.getEMyAccounts.and.returnValue(of(accountsData));
+        advanceWalletsService.getAllAdvanceWallets.and.returnValue(of(advanceWallet1Data));
+        orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithAdvanceWallet));
+        orgUserSettingsService.getAllowedPaymentModes.and.returnValue(
+          of([AccountType.ADVANCE, AccountType.PERSONAL, AccountType.COMPANY])
+        );
+        paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(
+          of(orgSettingsData.payment_mode_settings.enabled && orgSettingsData.payment_mode_settings.allowed)
+        );
+        spyOn(component, 'getCCCSettings').and.returnValue(false);
+        accountsService.getPaymentModesWithAdvanceWallets.and.returnValue(paymentModesWithAdvanceWalletsResData);
+
+        component.getPaymentModes().subscribe((res) => {
+          expect(res).toEqual(paymentModesWithAdvanceWalletsResData);
+          expect(component.showCardTransaction).toBeFalse();
           expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
           expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledTimes(1);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
