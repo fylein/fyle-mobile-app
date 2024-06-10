@@ -3322,8 +3322,11 @@ export class AddEditExpensePage implements OnInit {
 
   getAdvanceWalletId(isAdvanceWalletEnabled): string {
     const formValue = this.getFormValues();
+    if (!formValue?.paymentMode?.acc?.id) {
+      return isAdvanceWalletEnabled && formValue?.paymentMode?.id;
+    }
     // setting advance_wallet_id as null when the source account id is set.
-    return formValue?.paymentMode?.acc?.id ? null : isAdvanceWalletEnabled && formValue?.paymentMode?.id;
+    return null;
   }
 
   getBillable(): boolean {
