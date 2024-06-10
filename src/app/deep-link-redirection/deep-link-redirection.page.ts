@@ -135,47 +135,45 @@ export class DeepLinkRedirectionPage {
     }
     spenderReport$
       .pipe(
+        catchError(() => {
+          this.switchOrg();
+          return EMPTY;
+        }),
         finalize(async () => {
           await this.loaderService.hideLoader();
         })
       )
-      .subscribe(
-        (spenderReport) => {
-          if (spenderReport) {
-            this.router.navigate([
-              '/',
-              'enterprise',
-              'my_view_report',
-              { id: this.activatedRoute.snapshot.params.id as string },
-            ]);
-          } else {
-            approverReport$
-              .pipe(
-                finalize(async () => {
-                  await this.loaderService.hideLoader();
-                })
-              )
-              .subscribe(
-                (approverReport) => {
-                  if (approverReport) {
-                    this.router.navigate([
-                      '/',
-                      'enterprise',
-                      'view_team_report',
-                      { id: this.activatedRoute.snapshot.params.id as string },
-                    ]);
-                  }
-                },
-                () => {
-                  this.switchOrg();
-                }
-              );
-          }
-        },
-        () => {
-          this.switchOrg();
+      .subscribe((spenderReport) => {
+        if (spenderReport) {
+          this.router.navigate([
+            '/',
+            'enterprise',
+            'my_view_report',
+            { id: this.activatedRoute.snapshot.params.id as string },
+          ]);
+        } else {
+          approverReport$
+            .pipe(
+              catchError(() => {
+                this.switchOrg();
+                return EMPTY;
+              }),
+              finalize(async () => {
+                await this.loaderService.hideLoader();
+              })
+            )
+            .subscribe((approverReport) => {
+              if (approverReport) {
+                this.router.navigate([
+                  '/',
+                  'enterprise',
+                  'view_team_report',
+                  { id: this.activatedRoute.snapshot.params.id as string },
+                ]);
+              }
+            });
         }
-      );
+      });
   }
 
   switchOrg(): void {
