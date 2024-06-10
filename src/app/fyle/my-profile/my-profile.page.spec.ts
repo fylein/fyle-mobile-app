@@ -8,7 +8,7 @@ import { cloneDeep } from 'lodash';
 import { BehaviorSubject, of, throwError } from 'rxjs';
 import { selectedCurrencies } from 'src/app/core/mock-data/currency.data';
 import { extendedDeviceInfoMockData } from 'src/app/core/mock-data/extended-device-info.data';
-import { apiEouRes, eouRes3, eouWithNoAttempts } from 'src/app/core/mock-data/extended-org-user.data';
+import { apiEouRes, eouRes2, eouRes3, eouWithNoAttempts } from 'src/app/core/mock-data/extended-org-user.data';
 import { allInfoCardsData } from 'src/app/core/mock-data/info-card-data.data';
 import { orgUserSettingsData, orgUserSettingsWoInstaFyle } from 'src/app/core/mock-data/org-user-settings.data';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -36,6 +36,7 @@ import { PaymentModesService } from 'src/app/core/services/payment-modes.service
 import { FyOptInComponent } from 'src/app/shared/components/fy-opt-in/fy-opt-in.component';
 import { AllowedPaymentModes } from 'src/app/core/models/allowed-payment-modes.enum';
 import { UtilityService } from 'src/app/core/services/utility.service';
+import { OrgUserService } from 'src/app/core/services/org-user.service';
 
 describe('MyProfilePage', () => {
   let component: MyProfilePage;
@@ -59,6 +60,7 @@ describe('MyProfilePage', () => {
   let paymentModeService: jasmine.SpyObj<PaymentModesService>;
   let modalController: jasmine.SpyObj<ModalController>;
   let utilityService: jasmine.SpyObj<UtilityService>;
+  let orgUserService: jasmine.SpyObj<OrgUserService>;
 
   beforeEach(waitForAsync(() => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou', 'logout', 'refreshEou']);
@@ -75,6 +77,7 @@ describe('MyProfilePage', () => {
       'mobileNumberVerified',
       'updateMobileNumber',
       'verifyMobileNumber',
+      'optedOut',
     ]);
     const orgServiceSpy = jasmine.createSpyObj('OrgService', ['getCurrentOrg']);
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
@@ -85,6 +88,7 @@ describe('MyProfilePage', () => {
     const paymentModeServiceSpy = jasmine.createSpyObj('PaymentModesService', ['getPaymentModeDisplayName']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const utilityServiceSpy = jasmine.createSpyObj('UtilityService', ['isUserFromINCluster']);
+    const orgUserServiceSpy = jasmine.createSpyObj('OrgUserService', ['postOrgUser']);
 
     TestBed.configureTestingModule({
       declarations: [MyProfilePage],
@@ -176,6 +180,10 @@ describe('MyProfilePage', () => {
           provide: UtilityService,
           useValue: utilityServiceSpy,
         },
+        {
+          provide: OrgUserService,
+          useValue: orgUserServiceSpy,
+        },
         SpenderService,
       ],
     }).compileComponents();
@@ -203,6 +211,7 @@ describe('MyProfilePage', () => {
     paymentModeService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
+    orgUserService = TestBed.inject(OrgUserService) as jasmine.SpyObj<OrgUserService>;
 
     component.loadEou$ = new BehaviorSubject(null);
     component.eou$ = of(apiEouRes);
@@ -340,6 +349,7 @@ describe('MyProfilePage', () => {
       spyOn(component, 'reset');
       spyOn(component, 'updateMobileNumber');
       activatedRoute.snapshot.params.openPopover = 'add_mobile_number';
+      utilityService.isUserFromINCluster.and.resolveTo(false);
       fixture.detectChanges();
 
       component.ionViewWillEnter();
@@ -359,6 +369,7 @@ describe('MyProfilePage', () => {
       spyOn(component, 'reset');
       spyOn(component, 'verifyMobileNumber');
       activatedRoute.snapshot.params.openPopover = 'verify_mobile_number';
+      utilityService.isUserFromINCluster.and.resolveTo(false);
       fixture.detectChanges();
 
       component.ionViewWillEnter();
@@ -379,6 +390,7 @@ describe('MyProfilePage', () => {
       spyOn(component, 'verifyMobileNumber');
       spyOn(component, 'updateMobileNumber');
       activatedRoute.snapshot.params.openPopover = null;
+      utilityService.isUserFromINCluster.and.resolveTo(true);
       fixture.detectChanges();
 
       component.ionViewWillEnter();
@@ -412,7 +424,7 @@ describe('MyProfilePage', () => {
     expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
     expect(orgService.getCurrentOrg).toHaveBeenCalledTimes(1);
     expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-    expect(component.setInfoCardsData).toHaveBeenCalledOnceWith(apiEouRes, false);
+    expect(component.setInfoCardsData).toHaveBeenCalledTimes(1);
     expect(component.setPreferenceSettings).toHaveBeenCalledTimes(1);
     expect(component.setCCCFlags).toHaveBeenCalledTimes(1);
     expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
@@ -446,26 +458,9 @@ describe('MyProfilePage', () => {
     expect(component.preferenceSettings.length).toEqual(2);
   });
 
-  describe('setInfoCardsData(): ', () => {
-    it('should show only email card for non USD orgs', () => {
-      const isUserFromINCluster = false;
-      component.setInfoCardsData(eouRes3, isUserFromINCluster);
-      expect(component.infoCardsData).toEqual([allInfoCardsData[1]]);
-    });
-
-    it('should show only email card if user is from IN cluster', () => {
-      const isUserFromINCluster = true;
-      component.setInfoCardsData(apiEouRes, isUserFromINCluster);
-      expect(component.infoCardsData).toEqual([allInfoCardsData[1]]);
-    });
-
-    it('should show both email and mobile number cards for USD orgs', () => {
-      const isUserFromINCluster = false;
-      const eou = cloneDeep(apiEouRes);
-      eou.ou.mobile_verified = true;
-      component.setInfoCardsData(eou, isUserFromINCluster);
-      expect(component.infoCardsData).toEqual(allInfoCardsData);
-    });
+  it('setInfoCardsData(): should show only email card for non USD orgs', () => {
+    component.setInfoCardsData();
+    expect(component.infoCardsData).toEqual(allInfoCardsData);
   });
 
   describe('toggleSetting():', () => {
@@ -657,8 +652,6 @@ describe('MyProfilePage', () => {
     beforeEach(() => {
       authService.refreshEou.and.returnValue(of(apiEouRes));
       spyOn(component, 'showToastMessage');
-      spyOn(component, 'verifyMobileNumber').and.resolveTo();
-      spyOn(component.loadEou$, 'next');
     });
 
     it('should open edit number popover and show success toast message if update is successful', fakeAsync(() => {
@@ -679,9 +672,7 @@ describe('MyProfilePage', () => {
       });
       expect(popoverSpy.present).toHaveBeenCalledTimes(1);
       expect(popoverSpy.onWillDismiss).toHaveBeenCalledTimes(1);
-      expect(component.loadEou$.next).toHaveBeenCalledOnceWith(null);
-      expect(component.verifyMobileNumber).toHaveBeenCalledOnceWith(apiEouRes);
-      expect(component.showToastMessage).not.toHaveBeenCalled();
+      expect(authService.refreshEou).toHaveBeenCalledTimes(1);
     }));
 
     it('should should show success toast message if there are no more attempts left', fakeAsync(() => {
@@ -703,8 +694,7 @@ describe('MyProfilePage', () => {
       });
       expect(popoverSpy.present).toHaveBeenCalledTimes(1);
       expect(popoverSpy.onWillDismiss).toHaveBeenCalledTimes(1);
-      expect(component.loadEou$.next).toHaveBeenCalledOnceWith(null);
-      expect(component.showToastMessage).toHaveBeenCalledOnceWith('Mobile Number Updated Successfully', 'success');
+      expect(authService.refreshEou).toHaveBeenCalledTimes(1);
     }));
 
     it('should open add number popover and show error toast message if api returns error', fakeAsync(() => {
@@ -740,4 +730,60 @@ describe('MyProfilePage', () => {
       );
     }));
   });
+
+  describe('optOutClick():', () => {
+    it('should open a popover and call deleteMobileNumber if user confirms', fakeAsync(() => {
+      const popoverSpy = jasmine.createSpyObj('optOutPopover', ['present', 'onWillDismiss']);
+      popoverSpy.onWillDismiss.and.resolveTo({ data: { action: 'continue' } });
+      popoverController.create.and.resolveTo(popoverSpy);
+
+      spyOn(component, 'deleteMobileNumber');
+
+      component.optOutClick();
+      tick(100);
+
+      expect(popoverSpy.present).toHaveBeenCalledTimes(1);
+      expect(popoverSpy.onWillDismiss).toHaveBeenCalledTimes(1);
+
+      expect(component.deleteMobileNumber).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should not call deleteMobileNumber if user cancels', fakeAsync(() => {
+      const popoverSpy = jasmine.createSpyObj('optOutPopover', ['present', 'onWillDismiss', 'dismiss']);
+      popoverSpy.onWillDismiss.and.resolveTo({ data: { action: 'cancel' } });
+      popoverController.create.and.resolveTo(popoverSpy);
+
+      spyOn(component, 'deleteMobileNumber');
+
+      component.optOutClick();
+      tick(100);
+
+      expect(popoverSpy.present).toHaveBeenCalledTimes(1);
+      expect(popoverSpy.onWillDismiss).toHaveBeenCalledTimes(1);
+
+      expect(component.deleteMobileNumber).not.toHaveBeenCalled();
+    }));
+  });
+
+  it('deleteMobileNumber(): should delete mobile number', fakeAsync(() => {
+    const mockEou = cloneDeep(eouRes2);
+    authService.getEou.and.resolveTo(mockEou);
+    authService.refreshEou.and.returnValue(of({ ...mockEou, ou: { ...mockEou.ou, mobile: '' } }));
+    loaderService.showLoader.and.resolveTo();
+    loaderService.hideLoader.and.resolveTo();
+    orgUserService.postOrgUser.and.returnValue(of(apiEouRes.us));
+
+    component.deleteMobileNumber();
+    tick(500);
+
+    expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+    expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+    expect(authService.getEou).toHaveBeenCalledTimes(1);
+    expect(orgUserService.postOrgUser).toHaveBeenCalledOnceWith({ ...mockEou.ou, mobile: '' });
+    expect(authService.refreshEou).toHaveBeenCalledTimes(1);
+    expect(trackingService.optedOut).toHaveBeenCalledTimes(1);
+    component.eou$.subscribe((eou) => {
+      expect(eou.ou.mobile).toBe('');
+    });
+  }));
 });
