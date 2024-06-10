@@ -352,7 +352,7 @@
                     <ng-template #paymentMode let-label="label" let-paymentMode="value" let-selected="selected">
                       <div>
                         <div class="add-edit-expense--payment-mode-header">{{label}}</div>
-                        <ng-container *ngIf="paymentMode && paymentMode.acc">
+                        <ng-container *ngIf="paymentMode?.acc">
                           <ng-container *ngIf="paymentMode.acc.type === 'PERSONAL_ADVANCE_ACCOUNT'">
                             <div class="add-edit-expense--payment-mode-section">{{paymentMode.advance.purpose}}</div>
                           </ng-container>
