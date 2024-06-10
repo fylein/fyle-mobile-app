@@ -485,7 +485,7 @@ export class AddEditPerDiemPage implements OnInit {
           }
         }
 
-        if (isAdvanceWalletEnabled && paymentMode && paymentMode.id) {
+        if (isAdvanceWalletEnabled && paymentMode?.id) {
           if (etxn.tx.id && paymentMode.id === originalAdvanceWalletId) {
             isPaymentModeInvalid =
               paymentMode.balance_amount + etxn.tx.amount <
@@ -1655,8 +1655,11 @@ export class AddEditPerDiemPage implements OnInit {
 
   getAdvanceWalletId(isAdvanceWalletEnabled: boolean): string {
     const formValue = this.getFormValues();
+    if (!formValue?.paymentMode?.acc?.id) {
+      return isAdvanceWalletEnabled && formValue?.paymentMode?.id;
+    }
     // setting advance_wallet_id as null when the source account id is set.
-    return formValue?.paymentMode?.acc?.id ? null : isAdvanceWalletEnabled && formValue?.paymentMode?.id;
+    return null;
   }
 
   generateEtxnFromFg(
