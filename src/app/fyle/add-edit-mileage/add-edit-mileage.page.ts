@@ -2090,8 +2090,8 @@ export class AddEditMileagePage implements OnInit {
           const formValues = this.getFormValues();
           const paymentMode: ExtendedAccount | AdvanceWallet = formValues.paymentMode;
           const isAdvanceWalletEnabled = orgSettings?.advances?.advance_wallets_enabled;
-          const originalSourceAccountId = etxn && etxn.tx && etxn.tx.source_account_id;
-          const originalAdvanceWalletId = etxn && etxn.tx && etxn.tx.advance_wallet_id;
+          const originalSourceAccountId = etxn?.tx?.source_account_id;
+          const originalAdvanceWalletId = etxn?.tx?.advance_wallet_id;
 
           let isPaymentModeInvalid = false;
           if (!isAdvanceWalletEnabled && paymentMode?.acc?.type === AccountType.ADVANCE) {
@@ -2374,8 +2374,11 @@ export class AddEditMileagePage implements OnInit {
 
   getAdvanceWalletId(isAdvanceWalletEnabled: boolean): string {
     const formValue = this.getFormValues();
+    if (!formValue?.paymentMode?.acc?.id) {
+      return isAdvanceWalletEnabled && formValue?.paymentMode?.id;
+    }
     // setting advance_wallet_id as null when the source account id is set.
-    return formValue?.paymentMode?.acc?.id ? null : isAdvanceWalletEnabled && formValue?.paymentMode?.id;
+    return null;
   }
 
   generateEtxnFromFg(
