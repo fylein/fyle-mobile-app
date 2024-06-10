@@ -54,8 +54,8 @@ export class AccountsService {
   ): AccountOption[] {
     const { etxn, expenseType } = config;
     const isMileageOrPerDiemExpense = [ExpenseType.MILEAGE, ExpenseType.PER_DIEM].includes(expenseType);
-    const userAccounts = accounts.filter(
-      (account) => [AccountType.PERSONAL, AccountType.CCC].indexOf(account.acc.type) > -1
+    const userAccounts = accounts.filter((account) =>
+      [AccountType.PERSONAL, AccountType.CCC].includes(account.acc.type)
     );
 
     const allowedAccounts = this.getAllowedAccountsWithAdvanceWallets(
@@ -69,7 +69,7 @@ export class AccountsService {
     if (allowedPaymentModes.includes('PERSONAL_ADVANCE_ACCOUNT')) {
       allowedAdvanceWallets = advanceWallets.filter(
         (advanceWallet) =>
-          (etxn?.tx?.advance_wallet_id && etxn?.tx?.advance_wallet_id === advanceWallet.id) ||
+          (etxn?.tx?.advance_wallet_id && etxn.tx.advance_wallet_id === advanceWallet.id) ||
           advanceWallet.balance_amount > 0
       );
     }
