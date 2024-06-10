@@ -1,3 +1,5 @@
+import { AccountDetail } from 'src/app/core/models/account-detail.model';
+
 export interface AdvanceWallet {
   id: string;
   org_id: string;
@@ -8,4 +10,5 @@ export interface AdvanceWallet {
   updated_at: Date;
   type?: string;
   isReimbursable?: boolean;
+  acc?: AccountDetail;
 }

@@ -655,7 +655,7 @@ export class AddEditExpensePage implements OnInit {
           }
         }
 
-        if (isAdvanceWalletEnabled && paymentMode && paymentMode.id) {
+        if (isAdvanceWalletEnabled && paymentMode?.id) {
           if (etxn.tx.id && paymentMode.id === originalAdvanceWalletId) {
             isPaymentModeInvalid =
               paymentMode.balance_amount + etxn.tx.amount < (formValues.currencyObj && formValues.currencyObj.amount);
@@ -3320,7 +3320,7 @@ export class AddEditExpensePage implements OnInit {
     return formValue?.paymentMode?.acc?.id;
   }
 
-  getAdvanceWalletId(isAdvanceWalletEnabled): string {
+  getAdvanceWalletId(isAdvanceWalletEnabled: boolean): string {
     const formValue = this.getFormValues();
     if (!formValue?.paymentMode?.acc?.id) {
       return isAdvanceWalletEnabled && formValue?.paymentMode?.id;

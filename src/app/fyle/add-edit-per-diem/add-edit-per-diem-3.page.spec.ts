@@ -41,6 +41,7 @@ import {
   perDiemFormValuesData8,
   perDiemFormValuesData9,
 } from 'src/app/core/mock-data/per-diem-form-value.data';
+import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import {
   expectedTxnCustomProperties,
   txnCustomProperties4,
@@ -247,6 +248,7 @@ export function TestCases3(getTestBed) {
       beforeEach(() => {
         spyOn(component, 'getFormValues').and.returnValue(perDiemFormValuesData8);
         component.fg.controls.currencyObj.setValue(currencyObjData6);
+        orgSettingsService.get.and.returnValue(of(orgSettingsRes));
       });
 
       it('should return etxn object from form data', (done) => {

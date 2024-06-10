@@ -171,6 +171,15 @@ export const orgUserSettingsWoPaymentModes: OrgUserSettings = deepFreeze({
   },
 });
 
+export const orgUserSettingsWithAdvanceWallet: OrgUserSettings = deepFreeze({
+  ...orgUserSettingsData,
+  payment_mode_settings: {
+    allowed: false,
+    enabled: false,
+    allowed_payment_modes: [AccountType.ADVANCE, AccountType.PERSONAL, AccountType.COMPANY],
+  },
+});
+
 export const orgUserSettingsWoPayModesCompany: OrgUserSettings = deepFreeze({
   ...orgUserSettingsWoPaymentModes,
   preferences: {
