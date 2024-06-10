@@ -133,17 +133,8 @@ export class DeepLinkRedirectionPage {
     if (currentEou.ou.roles.includes('APPROVER')) {
       rptObservables$.push(this.approverReportsService.getReportById(this.activatedRoute.snapshot.params.id as string));
     }
-    spenderReport$
-      .pipe(
-        catchError(() => {
-          this.switchOrg();
-          return EMPTY;
-        }),
-        finalize(async () => {
-          await this.loaderService.hideLoader();
-        })
-      )
-      .subscribe((spenderReport) => {
+    spenderReport$.subscribe(
+      (spenderReport) => {
         if (spenderReport) {
           this.router.navigate([
             '/',
@@ -152,30 +143,27 @@ export class DeepLinkRedirectionPage {
             { id: this.activatedRoute.snapshot.params.id as string },
           ]);
         } else {
-          approverReport$
-            .pipe(
-              catchError(() => {
-                this.switchOrg();
-                return EMPTY;
-              }),
-              finalize(async () => {
-                await this.loaderService.hideLoader();
-              })
-            )
-            .subscribe((approverReport) => {
-              if (approverReport) {
-                this.router.navigate([
-                  '/',
-                  'enterprise',
-                  'view_team_report',
-                  { id: this.activatedRoute.snapshot.params.id as string },
-                ]);
-              } else {
-                this.switchOrg();
-              }
-            });
+          approverReport$.subscribe((approverReport) => {
+            if (approverReport) {
+              this.router.navigate([
+                '/',
+                'enterprise',
+                'view_team_report',
+                { id: this.activatedRoute.snapshot.params.id as string },
+              ]);
+            } else {
+              this.switchOrg();
+            }
+          });
         }
-      });
+      },
+      () => {
+        this.switchOrg();
+      },
+      async () => {
+        await this.loaderService.hideLoader();
+      }
+    );
   }
 
   switchOrg(): void {
