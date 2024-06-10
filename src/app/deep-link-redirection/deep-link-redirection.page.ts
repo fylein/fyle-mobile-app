@@ -139,8 +139,8 @@ export class DeepLinkRedirectionPage {
           await this.loaderService.hideLoader();
         })
       )
-      .subscribe({
-        next: (spenderReport) => {
+      .subscribe(
+        (spenderReport) => {
           if (spenderReport) {
             this.router.navigate([
               '/',
@@ -149,27 +149,33 @@ export class DeepLinkRedirectionPage {
               { id: this.activatedRoute.snapshot.params.id as string },
             ]);
           } else {
-            approverReport$.subscribe({
-              next: (approverReport) => {
-                if (approverReport) {
-                  this.router.navigate([
-                    '/',
-                    'enterprise',
-                    'view_team_report',
-                    { id: this.activatedRoute.snapshot.params.id as string },
-                  ]);
+            approverReport$
+              .pipe(
+                finalize(async () => {
+                  await this.loaderService.hideLoader();
+                })
+              )
+              .subscribe(
+                (approverReport) => {
+                  if (approverReport) {
+                    this.router.navigate([
+                      '/',
+                      'enterprise',
+                      'view_team_report',
+                      { id: this.activatedRoute.snapshot.params.id as string },
+                    ]);
+                  }
+                },
+                () => {
+                  this.switchOrg();
                 }
-              },
-              error: () => {
-                this.switchOrg();
-              },
-            });
+              );
           }
         },
-        error: () => {
+        () => {
           this.switchOrg();
-        },
-      });
+        }
+      );
   }
 
   switchOrg(): void {
