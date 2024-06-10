@@ -170,6 +170,8 @@ export class DeepLinkRedirectionPage {
                   'view_team_report',
                   { id: this.activatedRoute.snapshot.params.id as string },
                 ]);
+              } else {
+                this.switchOrg();
               }
             });
         }
