@@ -18,7 +18,7 @@ import {
   mileageCategoryWithoutId,
   transformedOrgCategoryById,
 } from 'src/app/core/mock-data/org-category.data';
-import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
+import { orgUserSettingsData, orgUserSettingsWithAdvanceWallet } from 'src/app/core/mock-data/org-user-settings.data';
 import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
 import { splitPolicyExp4 } from 'src/app/core/mock-data/policy-violation.data';
 import { txnData2 } from 'src/app/core/mock-data/transaction.data';
@@ -69,7 +69,9 @@ import {
   multiplePaymentModesWithoutAdvData,
   orgSettingsData,
   advanceWallet1Data,
+  paymentModesWithAdvanceWalletsResData,
 } from 'src/app/core/test-data/accounts.service.spec.data';
+import { orgSettingsParamsWithAdvanceWallet } from 'src/app/core/mock-data/org-settings.data';
 import { estatusData1 } from 'src/app/core/test-data/status.service.spec.data';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
@@ -1031,6 +1033,30 @@ export function TestCases1(getTestBed) {
 
         tick(500);
       }));
+    });
+
+    it('getPaymentModes(): should get payment modes with advance wallets if advance wallets are enabled', (done) => {
+      component.etxn$ = of(unflattenedTxnData);
+      accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
+      advanceWalletsService.getAllAdvanceWallets.and.returnValue(of(advanceWallet1Data));
+      orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithAdvanceWallet));
+      orgUserSettingsService.getAllowedPaymentModes.and.returnValue(
+        of(orgUserSettingsWithAdvanceWallet.payment_mode_settings.allowed_payment_modes)
+      );
+      paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(
+        of(orgSettingsData.payment_mode_settings.enabled && orgSettingsData.payment_mode_settings.allowed)
+      );
+      accountsService.getPaymentModesWithAdvanceWallets.and.returnValue(paymentModesWithAdvanceWalletsResData);
+
+      component.getPaymentModes().subscribe((res) => {
+        expect(res).toEqual(paymentModesWithAdvanceWalletsResData);
+        expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+        expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledTimes(1);
+        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+        expect(orgUserSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
+        expect(paymentModesService.checkIfPaymentModeConfigurationsIsEnabled).toHaveBeenCalledTimes(1);
+        done();
+      });
     });
 
     it('getPaymentModes(): should get payment modes', (done) => {
