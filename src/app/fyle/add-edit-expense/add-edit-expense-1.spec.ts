@@ -513,6 +513,23 @@ export function TestCases1(getTestBed) {
           done();
         });
       });
+
+      it('should check for invalid payment mode with null orgSettings', (done) => {
+        component.etxn$ = of(unflattenedExpData);
+        orgSettingsService.get.and.returnValue(of(null));
+
+        component.fg.controls.paymentMode.setValue(unflattenedAccount1Data);
+        component.fg.controls.currencyObj.setValue({
+          currency: 'USD',
+          amount: 500,
+        });
+        fixture.detectChanges();
+
+        component.checkIfInvalidPaymentMode().subscribe((res) => {
+          expect(res).toBeFalse();
+          done();
+        });
+      });
     });
 
     describe('setUpTaxCalculations(): ', () => {

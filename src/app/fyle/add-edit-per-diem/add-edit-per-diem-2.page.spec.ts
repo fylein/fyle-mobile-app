@@ -77,6 +77,7 @@ import {
   orgSettingsParamsWithSimplifiedReport,
   orgSettingsRes,
   orgSettingsWoTax,
+  orgSettingsParamsWithAdvanceWallet,
 } from 'src/app/core/mock-data/org-settings.data';
 import { TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
 import { OrgCategory } from 'src/app/core/models/v1/org-category.model';
@@ -462,6 +463,44 @@ export function TestCases2(getTestBed) {
           expect(orgSettingsService.get).toHaveBeenCalledOnceWith();
         });
         component.fg.controls.paymentMode.setValue(null);
+        fixture.detectChanges();
+
+        tick(500);
+      }));
+
+      it('should return false when orgSettings is null', fakeAsync(() => {
+        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
+        advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
+        orgSettingsService.get.and.returnValue(of(null));
+        component.setupBalanceFlag();
+        tick(500);
+
+        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
+          expect(res).toBeTrue();
+          expect(accountsService.getEMyAccounts).toHaveBeenCalledOnceWith();
+          expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledOnceWith();
+          expect(orgSettingsService.get).toHaveBeenCalledOnceWith();
+        });
+        component.fg.controls.paymentMode.setValue(multiplePaymentModesWithoutAdvData[0]);
+        fixture.detectChanges();
+
+        tick(500);
+      }));
+
+      it('should return true for advance wallets', fakeAsync(() => {
+        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesWithoutAdvData));
+        advanceWalletsService.getAllAdvanceWallets.and.returnValue(of(advanceWallet1Data));
+        orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithAdvanceWallet));
+        component.setupBalanceFlag();
+        tick(500);
+
+        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
+          expect(res).toBeTrue();
+          expect(accountsService.getEMyAccounts).toHaveBeenCalledOnceWith();
+          expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledOnceWith();
+          expect(orgSettingsService.get).toHaveBeenCalledOnceWith();
+        });
+        component.fg.controls.paymentMode.setValue(multiplePaymentModesWithoutAdvData[0]);
         fixture.detectChanges();
 
         tick(500);

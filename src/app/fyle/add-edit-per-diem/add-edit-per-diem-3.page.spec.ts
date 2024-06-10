@@ -32,7 +32,11 @@ import { ModalController, NavController, Platform, PopoverController } from '@io
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
 import { multiplePaymentModesData, unflattenedAccount2Data } from 'src/app/core/test-data/accounts.service.spec.data';
-import { unflattenedTxnData, unflattenedTxnData2 } from 'src/app/core/mock-data/unflattened-txn.data';
+import {
+  unflattenedTxnData,
+  unflattenedTxnData2,
+  unflattenedTxnWithAdvanceWallet,
+} from 'src/app/core/mock-data/unflattened-txn.data';
 import { finalize, of, throwError } from 'rxjs';
 import { currencyObjData5, currencyObjData6 } from 'src/app/core/mock-data/currency-obj.data';
 import { before, cloneDeep } from 'lodash';
@@ -41,7 +45,7 @@ import {
   perDiemFormValuesData8,
   perDiemFormValuesData9,
 } from 'src/app/core/mock-data/per-diem-form-value.data';
-import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
+import { orgSettingsRes, orgSettingsParamsWithAdvanceWallet } from 'src/app/core/mock-data/org-settings.data';
 import {
   expectedTxnCustomProperties,
   txnCustomProperties4,
@@ -269,6 +273,55 @@ export function TestCases3(getTestBed) {
           expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-08-03'));
           expect(res.tx).toEqual({ ...unflattenedTxnData.tx, ...perDiemTransaction });
           expect(res.ou).toEqual(unflattenedTxnData.ou);
+          expect(res.dataUrls).toEqual([]);
+          done();
+        });
+      });
+
+      it('should return etxn object from form data when orgSettings is null', (done) => {
+        const etxn = of(unflattenedTxnData);
+        const customProperties = of(cloneDeep(expectedTxnCustomProperties));
+        orgSettingsService.get.and.returnValue(of(null));
+        dateService.getUTCDate.and.returnValues(
+          new Date('2023-02-13T17:00:00.000Z'),
+          new Date('2023-08-01T17:00:00.000Z'),
+          new Date('2023-08-03T17:00:00.000Z')
+        );
+
+        const expectedEtxn$ = component.generateEtxnFromFg(etxn, customProperties);
+
+        expectedEtxn$.subscribe((res) => {
+          expect(dateService.getUTCDate).toHaveBeenCalledTimes(3);
+          expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-02-13T17:00:00.000Z'));
+          expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-08-01'));
+          expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-08-03'));
+          expect(res.tx).toEqual({ ...unflattenedTxnData.tx, ...perDiemTransaction });
+          expect(res.ou).toEqual(unflattenedTxnData.ou);
+          expect(res.dataUrls).toEqual([]);
+          done();
+        });
+      });
+
+      it('should return etxn object from form data when advance wallets is enabled', (done) => {
+        const etxn = of(unflattenedTxnWithAdvanceWallet);
+        const customProperties = of(cloneDeep(expectedTxnCustomProperties));
+        orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithAdvanceWallet));
+        dateService.getUTCDate.and.returnValues(
+          new Date('2023-02-13T17:00:00.000Z'),
+          new Date('2023-08-01T17:00:00.000Z'),
+          new Date('2023-08-03T17:00:00.000Z')
+        );
+        spyOn(component, 'getAdvanceWalletId').and.returnValue('areq1234');
+
+        const expectedEtxn$ = component.generateEtxnFromFg(etxn, customProperties);
+
+        expectedEtxn$.subscribe((res) => {
+          expect(dateService.getUTCDate).toHaveBeenCalledTimes(3);
+          expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-02-13T17:00:00.000Z'));
+          expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-08-01'));
+          expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-08-03'));
+          expect(res.tx).toEqual({ ...unflattenedTxnWithAdvanceWallet.tx, ...perDiemTransaction });
+          expect(res.ou).toEqual(unflattenedTxnWithAdvanceWallet.ou);
           expect(res.dataUrls).toEqual([]);
           done();
         });

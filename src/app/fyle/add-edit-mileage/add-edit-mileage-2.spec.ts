@@ -545,6 +545,20 @@ export function TestCases2(getTestBed) {
           done();
         });
       });
+
+      it('should return false if org setting is null', (done) => {
+        spyOn(component, 'getFormValues').and.returnValue({ paymentMode: multiplePaymentModesData[2] });
+        component.etxn$ = of(unflattenedTxnWithSourceID);
+        orgSettingsService.get.and.returnValue(of(null));
+        component.amount$ = of(101);
+        fixture.detectChanges();
+
+        component.checkIfInvalidPaymentMode().subscribe((res) => {
+          expect(res).toBeFalse();
+          expect(component.getFormValues).toHaveBeenCalledTimes(1);
+          done();
+        });
+      });
     });
 
     describe('showClosePopup():', () => {

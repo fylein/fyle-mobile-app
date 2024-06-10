@@ -472,6 +472,23 @@ export function TestCases1(getTestBed) {
         });
       });
 
+      it('should check for invalid payment mode if org settings is null', (done) => {
+        component.etxn$ = of(expectedUnflattendedTxnData3);
+        orgSettingsService.get.and.returnValue(of(null));
+        component.fg.controls.paymentMode.setValue(unflattenedAccount1Data);
+        component.fg.controls.currencyObj.setValue({
+          currency: 'USD',
+          amount: 500,
+        });
+        fixture.detectChanges();
+
+        component.checkIfInvalidPaymentMode().subscribe((res) => {
+          expect(paymentModesService.showInvalidPaymentModeToast).not.toHaveBeenCalled();
+          expect(res).toBeFalse();
+          done();
+        });
+      });
+
       it('should check for invalid payment in case of Advance accounts if source account ID does not match with account type', (done) => {
         component.etxn$ = of(expectedUnflattendedTxnData3);
         orgSettingsService.get.and.returnValue(of(orgSettingsRes));

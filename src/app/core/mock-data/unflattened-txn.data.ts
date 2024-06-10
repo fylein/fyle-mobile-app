@@ -302,6 +302,15 @@ export const unflattenedTxnDataWithSubCategory: UnflattenedTransaction = deepFre
   },
 });
 
+export const unflattenedTxnWithAdvanceWallet: UnflattenedTransaction = deepFreeze({
+  ...unflattenedTxnData,
+  tx: {
+    ...unflattenedTxnData.tx,
+    source_account_id: undefined,
+    advance_wallet_id: 'areq1234',
+  },
+});
+
 export const unflattenedTxnWithExtractedData: UnflattenedTransaction = deepFreeze({
   ...unflattenedTxnData,
   tx: {
@@ -2025,6 +2034,15 @@ export const newExpFromFg: Partial<UnflattenedTransaction> = deepFreeze({
   dataUrls: [],
 });
 
+export const newExpFromFgWithAdvanceWallet: Partial<UnflattenedTransaction> = deepFreeze({
+  ...newExpFromFg,
+  tx: {
+    ...newExpFromFg.tx,
+    source_account_id: null,
+    advance_wallet_id: 'areq1234',
+  },
+});
+
 export const newExpFromFg2: Partial<UnflattenedTransaction> = deepFreeze({
   tx: {
     risk_state: null,
@@ -3467,6 +3485,15 @@ export const newMileageExpFromForm2: Partial<UnflattenedTransaction> = deepFreez
     mobile: '123456',
     sub_department: null,
     joining_dt: new Date('2017-07-25T00:00:00.000Z'),
+  },
+});
+
+export const newMileageExpFromFgWithAdvanceWallet: Partial<UnflattenedTransaction> = deepFreeze({
+  ...newMileageExpFromForm,
+  tx: {
+    ...newMileageExpFromForm.tx,
+    source_account_id: undefined,
+    advance_wallet_id: 'areq1234',
   },
 });
 

@@ -66,6 +66,23 @@ describe('AdvanceWalletsService', () => {
     });
   });
 
+  it('should get all advance wallets in a single page', (done) => {
+    const getAdvanceWallets = spyOn(advanceWalletsService, 'getAdvanceWallets');
+    spyOn(advanceWalletsService, 'getAdvanceWalletsCount').and.returnValue(of(2));
+
+    getAdvanceWallets
+      .withArgs({ offset: 0, limit: 2, order: 'created_at.desc,id.desc' })
+      .and.returnValue(of(advanceWalletPaginated1));
+
+    advanceWalletsService.getAllAdvanceWallets().subscribe((res) => {
+      expect(res.length).toEqual(2);
+      expect(advanceWalletsService.getAdvanceWalletsCount).toHaveBeenCalledTimes(1);
+      expect(getAdvanceWallets).toHaveBeenCalledWith({ offset: 0, limit: 2, order: 'created_at.desc,id.desc' });
+      expect(getAdvanceWallets).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
   it('getAdvanceWallets(): should return the advance wallets', (done) => {
     spenderPlatformV1ApiService.get.and.returnValue(of(advanceWalletsResponse));
 
