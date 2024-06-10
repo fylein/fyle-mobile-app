@@ -748,4 +748,8 @@ export class TrackingService {
   clickedOnOptOut(): void {
     this.eventTrack('Opt Out Clicked');
   }
+
+  optedOut(): void {
+    this.eventTrack('Opted Out');
+  }
 }
