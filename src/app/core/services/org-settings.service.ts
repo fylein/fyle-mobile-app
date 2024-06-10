@@ -139,6 +139,8 @@ export class OrgSettingsService {
       advances: {
         allowed: incoming.advances_settings && incoming.advances_settings.allowed,
         enabled: incoming.advances_settings && incoming.advances_settings.enabled,
+        advance_wallets_enabled:
+          incoming?.advances_settings?.allowed && incoming.advances_settings.advance_wallets_enabled,
       },
       projects: {
         allowed: incoming.project_settings && incoming.project_settings.allowed,
@@ -455,6 +457,7 @@ export class OrgSettingsService {
         allowed: outgoing.advances.allowed,
         enabled: outgoing.advances.enabled,
         advance_requests_enabled: outgoing.advance_requests.enabled,
+        advance_wallets_enabled: outgoing.advances.advance_wallets_enabled,
       },
       org_mileage_settings: {
         allowed: outgoing.mileage.allowed,

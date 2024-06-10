@@ -222,8 +222,9 @@ export class TransactionService {
     return forkJoin({
       orgUserSettings: this.orgUserSettingsService.get(),
       txnAccount: this.getTxnAccount(),
+      personalAccount: this.getPersonalAccount(),
     }).pipe(
-      switchMap(({ orgUserSettings, txnAccount }) => {
+      switchMap(({ orgUserSettings, txnAccount, personalAccount }) => {
         const offset = orgUserSettings.locale.offset;
 
         transaction.custom_properties = <TxnCustomProperties[]>(
@@ -259,9 +260,15 @@ export class TransactionService {
           transaction.to_dt = this.timezoneService.convertToUtc(transaction.to_dt, offset);
         }
 
-        if (!transaction.source_account_id) {
+        if (!transaction.source_account_id && !transaction.advance_wallet_id) {
           transaction.source_account_id = txnAccount.source_account_id;
           transaction.skip_reimbursement = txnAccount.skip_reimbursement;
+        }
+
+        if (transaction.advance_wallet_id) {
+          // this is required as a failsafe to make sue that the source_account_id is not set as any other account other than Personal account.
+          transaction.skip_reimbursement = true;
+          transaction.source_account_id = personalAccount?.source_account_id || null;
         }
 
         const transactionCopy = this.utilityService.discardRedundantCharacters(transaction, fieldsToCheck);
@@ -925,6 +932,17 @@ export class TransactionService {
       source_account_type: this.sourceAccountTypePublicMapping(expense.source_account?.type),
     };
     return updatedExpense;
+  }
+
+  private getPersonalAccount(): Observable<{ source_account_id: string }> {
+    return this.accountsService.getEMyAccounts().pipe(
+      map((accounts) => {
+        const account = accounts?.find((account) => account?.acc?.type === 'PERSONAL_ACCOUNT');
+        return {
+          source_account_id: account?.acc?.id,
+        };
+      })
+    );
   }
 
   private getTxnAccount(): Observable<{ source_account_id: string; skip_reimbursement: boolean }> {

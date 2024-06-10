@@ -37,6 +37,9 @@ import { StorageService } from 'src/app/core/services/storage.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { TokenService } from 'src/app/core/services/token.service';
 import { DateService } from 'src/app/core/services/date.service';
+import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
+import { PAGINATION_SIZE } from 'src/app/constants';
+import { SpenderService } from 'src/app/core/services/platform/v1/spender/spender.service';
 import { TestCases2 } from './add-edit-per-diem-2.page.spec';
 import { TestCases3 } from './add-edit-per-diem-3.page.spec';
 import { TestCases4 } from './add-edit-per-diem-4.page.spec';
@@ -49,6 +52,7 @@ describe('AddEditPerDiemPage', () => {
       'getPaymentModes',
       'getEtxnSelectedPaymentMode',
       'getAccountTypeFromPaymentMode',
+      'getPaymentModesWithAdvanceWallets',
     ]);
     const perDiemServiceSpy = jasmine.createSpyObj('PerDiemService', ['getRates', 'getAllowedPerDiems']);
     const customInputsServiceSpy = jasmine.createSpyObj('CustomInputsService', ['getAll', 'filterByCategory']);
@@ -96,6 +100,8 @@ describe('AddEditPerDiemPage', () => {
     const statusServiceSpy = jasmine.createSpyObj('StatusService', ['find', 'findLatestComment', 'post']);
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
     const navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
+    const advanceWalletsServiceSpy = jasmine.createSpyObj('AdvanceWalletsService', ['getAllAdvanceWallets']);
+    const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['get', 'post']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
       'addPageView',
       'addPageViewWithParams',
@@ -148,6 +154,7 @@ describe('AddEditPerDiemPage', () => {
         FormBuilder,
         FyCurrencyPipe,
         CurrencyPipe,
+        { provide: PAGINATION_SIZE, useValue: 2 },
         {
           provide: AccountsService,
           useValue: accountsServiceSpy,
@@ -294,6 +301,10 @@ describe('AddEditPerDiemPage', () => {
         {
           provide: ExpensesService,
           useValue: expensesServiceSpy,
+        },
+        {
+          provide: AdvanceWalletsService,
+          useValue: advanceWalletsServiceSpy,
         },
       ],
       schemas: [NO_ERRORS_SCHEMA],

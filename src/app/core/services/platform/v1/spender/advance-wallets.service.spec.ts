@@ -17,7 +17,7 @@ describe('AdvanceWalletsService', () => {
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderService>;
 
   beforeEach(() => {
-    const spenderServiceSpy = jasmine.createSpyObj('AdvanceWalletsService', ['get', 'post']);
+    const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['get', 'post']);
     TestBed.configureTestingModule({
       providers: [
         { provide: PAGINATION_SIZE, useValue: 2 },

@@ -23,7 +23,11 @@ import {
 import { fileObject7, fileObjectData } from 'src/app/core/mock-data/file-object.data';
 import { individualExpPolicyStateData2 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
 import { filterOrgCategoryParam, orgCategoryData } from 'src/app/core/mock-data/org-category.data';
-import { orgSettingsCCCDisabled, orgSettingsCCCEnabled } from 'src/app/core/mock-data/org-settings.data';
+import {
+  orgSettingsCCCDisabled,
+  orgSettingsCCCEnabled,
+  orgSettingsParamsWithAdvanceWallet,
+} from 'src/app/core/mock-data/org-settings.data';
 import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
 import {
   expectedInstaFyleData1,
@@ -76,7 +80,13 @@ import { TokenService } from 'src/app/core/services/token.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { accountsData, orgSettingsData, paymentModesData } from 'src/app/core/test-data/accounts.service.spec.data';
+import {
+  accountsData,
+  orgSettingsData,
+  paymentModesData,
+  advanceWallet1Data,
+  paymentModesWithAdvanceWalletsResData,
+} from 'src/app/core/test-data/accounts.service.spec.data';
 import { estatusData1 } from 'src/app/core/test-data/status.service.spec.data';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
@@ -115,6 +125,7 @@ import {
 } from 'src/app/core/mock-data/transformed-expense.data';
 import { apiExpenses1, apiExpenses2, splitExpensesData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
 
 const properties = {
   cssClass: 'fy-modal',
@@ -176,9 +187,11 @@ export function TestCases2(getTestBed) {
     let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
     let expensesService: jasmine.SpyObj<ExpensesService>;
     let reportsService: jasmine.SpyObj<SpenderReportsService>;
+    let advanceWalletsService: jasmine.SpyObj<AdvanceWalletsService>;
 
     beforeEach(() => {
       const TestBed = getTestBed();
+      const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['get', 'post']);
       TestBed.compileComponents();
 
       fixture = TestBed.createComponent(AddEditExpensePage);
@@ -233,6 +246,7 @@ export function TestCases2(getTestBed) {
       launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
       expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
       reportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
+      advanceWalletsService = TestBed.inject(AdvanceWalletsService) as jasmine.SpyObj<AdvanceWalletsService>;
 
       component.fg = formBuilder.group({
         currencyObj: [, component.currencyObjValidator],
@@ -277,6 +291,7 @@ export function TestCases2(getTestBed) {
       it('should get payment modes', (done) => {
         component.etxn$ = of(unflattenedTxnData);
         accountsService.getEMyAccounts.and.returnValue(of(accountsData));
+        advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
         orgSettingsService.get.and.returnValue(of(orgSettingsCCCDisabled));
         orgUserSettingsService.getAllowedPaymentModes.and.returnValue(
           of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY])
@@ -291,6 +306,7 @@ export function TestCases2(getTestBed) {
           expect(res).toEqual(paymentModesData);
           expect(component.showCardTransaction).toBeFalse();
           expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+          expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledTimes(1);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
           expect(orgUserSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
           expect(paymentModesService.checkIfPaymentModeConfigurationsIsEnabled).toHaveBeenCalledTimes(1);
@@ -301,6 +317,7 @@ export function TestCases2(getTestBed) {
       it('should get payment modes in case org settings are not present', (done) => {
         component.etxn$ = of(unflattenedTxnData);
         accountsService.getEMyAccounts.and.returnValue(of(accountsData));
+        advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
         orgSettingsService.get.and.returnValue(of(null));
         orgUserSettingsService.getAllowedPaymentModes.and.returnValue(
           of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY])
@@ -315,6 +332,7 @@ export function TestCases2(getTestBed) {
           expect(res).toEqual(paymentModesData);
           expect(component.showCardTransaction).toBeFalse();
           expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+          expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledTimes(1);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
           expect(orgUserSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
           expect(paymentModesService.checkIfPaymentModeConfigurationsIsEnabled).toHaveBeenCalledTimes(1);
@@ -326,6 +344,7 @@ export function TestCases2(getTestBed) {
       it('should get payment modes if CCC expense is enabled', (done) => {
         component.etxn$ = of(unflattenedTxnData);
         accountsService.getEMyAccounts.and.returnValue(of(accountsData));
+        advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
         orgSettingsService.get.and.returnValue(of(orgSettingsCCCEnabled));
         orgUserSettingsService.getAllowedPaymentModes.and.returnValue(
           of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY])
@@ -340,6 +359,34 @@ export function TestCases2(getTestBed) {
           expect(res).toEqual(paymentModesData);
           expect(component.showCardTransaction).toBeTrue();
           expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+          expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledTimes(1);
+          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(orgUserSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
+          expect(paymentModesService.checkIfPaymentModeConfigurationsIsEnabled).toHaveBeenCalledTimes(1);
+          expect(component.getCCCSettings).toHaveBeenCalledTimes(1);
+          done();
+        });
+      });
+
+      it('should get payment modes with advance wallets if advance wallets are enabled', (done) => {
+        component.etxn$ = of(unflattenedTxnData);
+        accountsService.getEMyAccounts.and.returnValue(of(accountsData));
+        advanceWalletsService.getAllAdvanceWallets.and.returnValue(of(advanceWallet1Data));
+        orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithAdvanceWallet));
+        orgUserSettingsService.getAllowedPaymentModes.and.returnValue(
+          of([AccountType.ADVANCE, AccountType.PERSONAL, AccountType.COMPANY])
+        );
+        paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(
+          of(orgSettingsData.payment_mode_settings.enabled && orgSettingsData.payment_mode_settings.allowed)
+        );
+        spyOn(component, 'getCCCSettings').and.returnValue(false);
+        accountsService.getPaymentModesWithAdvanceWallets.and.returnValue(paymentModesWithAdvanceWalletsResData);
+
+        component.getPaymentModes().subscribe((res) => {
+          expect(res).toEqual(paymentModesWithAdvanceWalletsResData);
+          expect(component.showCardTransaction).toBeFalse();
+          expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+          expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledTimes(1);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
           expect(orgUserSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
           expect(paymentModesService.checkIfPaymentModeConfigurationsIsEnabled).toHaveBeenCalledTimes(1);

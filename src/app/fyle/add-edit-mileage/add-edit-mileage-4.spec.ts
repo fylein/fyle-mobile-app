@@ -685,12 +685,39 @@ export function TestCases4(getTestBed) {
       expect(result).toEqual([]);
     });
 
+    describe('getAdvanceWalletId():', () => {
+      it('should get advance wallet id', () => {
+        const paymentModeFormValue = {
+          id: 'areq1234',
+        };
+        component.fg.controls.paymentMode.setValue(paymentModeFormValue);
+
+        const result = component.getAdvanceWalletId(true);
+        expect(result).toEqual('areq1234');
+      });
+
+      it('should return null', () => {
+        component.fg.controls.paymentMode.setValue(null);
+
+        const result = component.getAdvanceWalletId(true);
+        expect(result).toBeUndefined();
+      });
+
+      it('should return null when advance wallet setting is disabled', () => {
+        component.fg.controls.paymentMode.setValue(null);
+
+        const result = component.getAdvanceWalletId(false);
+        expect(result).toBeFalse();
+      });
+    });
+
     describe('generateEtxnFromFg():', () => {
       beforeEach(() => {
         component.amount$ = of(100);
         component.homeCurrency$ = of('USD');
         component.mileageRates$ = of(unfilteredMileageRatesData);
         component.rate$ = of(null);
+        orgSettingsService.get.and.returnValue(of(orgSettingsRes));
       });
 
       it('should generate an expense from form', (done) => {
@@ -707,7 +734,7 @@ export function TestCases4(getTestBed) {
           .generateEtxnFromFg(of(unflattenedTxnWithReportID3), of(mockTxnCustomProperties), of(10))
           .subscribe((res) => {
             expect(res).toEqual(newMileageExpFromForm);
-            expect(component.getFormValues).toHaveBeenCalledTimes(1);
+            expect(component.getFormValues).toHaveBeenCalledTimes(2);
             expect(dateService.getUTCDate).toHaveBeenCalledTimes(2);
             done();
           });
@@ -719,7 +746,7 @@ export function TestCases4(getTestBed) {
 
         component.generateEtxnFromFg(of(unflattenedTxnWithReportID3), of(null), of(10)).subscribe((res) => {
           expect(res).toEqual(newMileageExpFromForm2);
-          expect(component.getFormValues).toHaveBeenCalledTimes(1);
+          expect(component.getFormValues).toHaveBeenCalledTimes(2);
           expect(dateService.getUTCDate).toHaveBeenCalledTimes(1);
           done();
         });

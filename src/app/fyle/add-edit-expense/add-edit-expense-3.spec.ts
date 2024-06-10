@@ -109,6 +109,7 @@ import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/fi
 import { generateUrlsBulkData1 } from 'src/app/core/mock-data/generate-urls-bulk-response.data';
 import { receiptInfoData2 } from 'src/app/core/mock-data/receipt-info.data';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
 import { platformExpenseWithExtractedData } from 'src/app/core/mock-data/platform/v1/expense.data';
 
 export function TestCases3(getTestBed) {
@@ -160,6 +161,7 @@ export function TestCases3(getTestBed) {
     let storageService: jasmine.SpyObj<StorageService>;
     let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
     let expensesService: jasmine.SpyObj<ExpensesService>;
+    let advanceWalletsService: jasmine.SpyObj<AdvanceWalletsService>;
 
     beforeEach(() => {
       const TestBed = getTestBed();
@@ -457,7 +459,10 @@ export function TestCases3(getTestBed) {
 
     describe('generateEtxnFromFg():', () => {
       it('should generate expense object from input in the form', (done) => {
+        orgSettingsService.get.and.returnValue(of(orgSettingsData));
+
         spyOn(component, 'getSourceAccID').and.returnValue('id');
+        spyOn(component, 'getAdvanceWalletId').and.returnValue(null);
         spyOn(component, 'getBillable').and.returnValue(true);
         spyOn(component, 'getSkipRemibursement').and.returnValue(false);
         spyOn(component, 'getTxnDate').and.returnValue(new Date('2019-06-19T06:30:00Z'));
@@ -502,6 +507,7 @@ export function TestCases3(getTestBed) {
             expect(res).toEqual(newExpFromFg);
             expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(component.mode);
             expect(component.getSourceAccID).toHaveBeenCalledTimes(1);
+            expect(component.getAdvanceWalletId).toHaveBeenCalledTimes(1);
             expect(component.getBillable).toHaveBeenCalledTimes(1);
             expect(component.getSkipRemibursement).toHaveBeenCalledTimes(1);
             expect(component.getTxnDate).toHaveBeenCalledTimes(1);
@@ -531,7 +537,9 @@ export function TestCases3(getTestBed) {
 
       it('should generate expense object from form if the expense is a policy txn and has location data', (done) => {
         dateService.getUTCDate.and.returnValue(new Date('2017-07-25T00:00:00.000Z'));
+        orgSettingsService.get.and.returnValue(of(orgSettingsData));
         spyOn(component, 'getSourceAccID').and.returnValue('id');
+        spyOn(component, 'getAdvanceWalletId').and.returnValue(null);
         spyOn(component, 'getBillable').and.returnValue(true);
         spyOn(component, 'getSkipRemibursement').and.returnValue(false);
         spyOn(component, 'getTxnDate').and.returnValue(new Date('2019-06-19T06:30:00Z'));
@@ -575,6 +583,7 @@ export function TestCases3(getTestBed) {
           expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(component.mode);
           expect(dateService.getUTCDate).toHaveBeenCalledOnceWith(new Date('2023-02-23T16:24:01.335Z'));
           expect(component.getSourceAccID).toHaveBeenCalledTimes(1);
+          expect(component.getAdvanceWalletId).toHaveBeenCalledTimes(1);
           expect(component.getBillable).toHaveBeenCalledTimes(1);
           expect(component.getSkipRemibursement).toHaveBeenCalledTimes(1);
           expect(component.getTxnDate).toHaveBeenCalledTimes(1);
@@ -603,8 +612,10 @@ export function TestCases3(getTestBed) {
       });
 
       it('should generate expense from form without location data', (done) => {
+        orgSettingsService.get.and.returnValue(of(orgSettingsData));
         spyOn(component, 'getExpenseAttachments').and.returnValue(of(fileObject4));
         spyOn(component, 'getSourceAccID').and.returnValue('id');
+        spyOn(component, 'getAdvanceWalletId').and.returnValue(null);
         spyOn(component, 'getBillable').and.returnValue(true);
         spyOn(component, 'getSkipRemibursement').and.returnValue(false);
         spyOn(component, 'getTxnDate').and.returnValue(new Date('2019-06-19T06:30:00Z'));
@@ -646,6 +657,7 @@ export function TestCases3(getTestBed) {
             expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(component.mode);
 
             expect(component.getSourceAccID).toHaveBeenCalledTimes(1);
+            expect(component.getAdvanceWalletId).toHaveBeenCalledTimes(1);
             expect(component.getBillable).toHaveBeenCalledTimes(1);
             expect(component.getSkipRemibursement).toHaveBeenCalledTimes(1);
             expect(component.getTxnDate).toHaveBeenCalledTimes(1);
@@ -674,7 +686,9 @@ export function TestCases3(getTestBed) {
       });
 
       it('should generate expense from form without cost center and location data in edit mode and is not a policy violation', (done) => {
+        orgSettingsService.get.and.returnValue(of(orgSettingsData));
         spyOn(component, 'getSourceAccID').and.returnValue('id');
+        spyOn(component, 'getAdvanceWalletId').and.returnValue(null);
         spyOn(component, 'getBillable').and.returnValue(true);
         spyOn(component, 'getSkipRemibursement').and.returnValue(false);
         spyOn(component, 'getTxnDate').and.returnValue(new Date('2019-06-19T06:30:00Z'));
@@ -711,6 +725,7 @@ export function TestCases3(getTestBed) {
           expect(res).toEqual(newExpFromFg4);
           expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(component.mode);
           expect(component.getSourceAccID).toHaveBeenCalledTimes(1);
+          expect(component.getAdvanceWalletId).toHaveBeenCalledTimes(1);
           expect(component.getBillable).toHaveBeenCalledTimes(1);
           expect(component.getSkipRemibursement).toHaveBeenCalledTimes(1);
           expect(component.getTxnDate).toHaveBeenCalledTimes(1);
