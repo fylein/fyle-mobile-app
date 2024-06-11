@@ -190,6 +190,8 @@ export class AddEditMileagePage implements OnInit {
 
   projectCategoryIds$: Observable<string[]>;
 
+  projectCategories$: Observable<OrgCategory[]>;
+
   isConnected$: Observable<boolean>;
 
   connectionStatus$: Observable<{ connected: boolean }>;
@@ -489,16 +491,18 @@ export class AddEditMileagePage implements OnInit {
     });
   }
 
-  getProjectCategoryIds(): Observable<string[]> {
+  getProjectCategories(): Observable<OrgCategory[]> {
     return this.categoriesService.getAll().pipe(
       map((categories) => {
-        const mileageCategories = categories
-          .filter((category) => ['Mileage'].indexOf(category.fyle_category) > -1)
-          .map((category) => category.id?.toString());
+        const mileageCategories = categories.filter((category) => ['Mileage'].indexOf(category.fyle_category) > -1);
 
         return mileageCategories;
       })
     );
+  }
+
+  getProjectCategoryIds(): Observable<string[]> {
+    return this.projectCategories$.pipe(map((categories) => categories.map((category) => category.id.toString())));
   }
 
   getMileageCategories(): Observable<{ defaultMileageCategory: OrgCategory; mileageCategories: OrgCategory[] }> {
@@ -1160,8 +1164,8 @@ export class AddEditMileagePage implements OnInit {
       }),
       switchMap((projectId) => {
         if (projectId) {
-          return this.subCategories$.pipe(
-            switchMap((allActiveSubCategories) => this.projectsService.getbyId(projectId, allActiveSubCategories))
+          return this.projectCategories$.pipe(
+            switchMap((projectCategories) => this.projectsService.getbyId(projectId, projectCategories))
           );
         } else {
           return of(null);
@@ -1571,10 +1575,12 @@ export class AddEditMileagePage implements OnInit {
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
 
     this.setupFilteredCategories();
+    this.projectCategories$ = this.getProjectCategories();
     this.projectCategoryIds$ = this.getProjectCategoryIds();
-    this.isProjectVisible$ = combineLatest([this.projectCategoryIds$, this.subCategories$]).pipe(
-      switchMap(([projectCategoryIds, allActiveSubCategories]) =>
-        this.projectsService.getProjectCount({ categoryIds: projectCategoryIds }, allActiveSubCategories)
+
+    this.isProjectVisible$ = combineLatest([this.projectCategoryIds$, this.projectCategories$]).pipe(
+      switchMap(([projectCategoryIds, projectCategories]) =>
+        this.projectsService.getProjectCount({ categoryIds: projectCategoryIds }, projectCategories)
       ),
       map((projectCount) => projectCount > 0)
     );
@@ -1701,14 +1707,14 @@ export class AddEditMileagePage implements OnInit {
       recentValues: this.recentlyUsedValues$,
       mileageCategoryIds: this.projectCategoryIds$,
       eou: eou$,
-      activeSubCategories: this.subCategories$,
+      projectCategories: this.projectCategories$,
     }).pipe(
-      switchMap(({ recentValues, mileageCategoryIds, eou, activeSubCategories }) =>
+      switchMap(({ recentValues, mileageCategoryIds, eou, projectCategories }) =>
         this.recentlyUsedItemsService.getRecentlyUsedProjects({
           recentValues,
           eou,
           categoryIds: mileageCategoryIds,
-          activeCategoryList: activeSubCategories,
+          activeCategoryList: projectCategories,
         })
       )
     );
