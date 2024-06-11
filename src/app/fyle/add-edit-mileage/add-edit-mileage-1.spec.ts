@@ -1097,6 +1097,29 @@ export function TestCases1(getTestBed) {
       });
     });
 
+    it('should get payment modes in case org settings are not present', (done) => {
+      component.etxn$ = of(unflattenedTxnData);
+      accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
+      advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
+      orgSettingsService.get.and.returnValue(of(null));
+      orgUserSettingsService.getAllowedPaymentModes.and.returnValue(
+        of(orgUserSettingsData.payment_mode_settings.allowed_payment_modes)
+      );
+      paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(of(true));
+      accountsService.getPaymentModes.and.returnValue(accountOptionData1);
+      fixture.detectChanges();
+
+      component.getPaymentModes().subscribe((res) => {
+        expect(res).toEqual(accountOptionData1);
+        expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+        expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledTimes(1);
+        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+        expect(orgUserSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
+        expect(paymentModesService.checkIfPaymentModeConfigurationsIsEnabled).toHaveBeenCalledTimes(1);
+        done();
+      });
+    });
+
     it('getPaymentModes(): should get payment modes', (done) => {
       accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
       advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));

@@ -24,6 +24,7 @@ import {
   orgSettingsParams2,
   orgSettingsRes,
   orgSettingsWithExpenseFormAutofill,
+  orgSettingsParamsWithAdvanceWallet,
 } from 'src/app/core/mock-data/org-settings.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import { recentlyUsedRes } from 'src/app/core/mock-data/recently-used.data';
@@ -33,7 +34,9 @@ import {
   unflattenedTxnData,
   unflattenedTxnWithSourceID,
   unflattenedTxnWithSourceID2,
+  unflattenedTxnWithAdvanceWallet,
 } from 'src/app/core/mock-data/unflattened-txn.data';
+import { unflattenedExpDataWithAdvanceWalletWithoutId } from 'src/app/core/mock-data/unflattened-expense.data';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
@@ -69,7 +72,11 @@ import { TokenService } from 'src/app/core/services/token.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { accountsData, multiplePaymentModesData } from 'src/app/core/test-data/accounts.service.spec.data';
+import {
+  accountsData,
+  multiplePaymentModesData,
+  paymentModeDataAdvanceWallet,
+} from 'src/app/core/test-data/accounts.service.spec.data';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { AddEditMileagePage } from './add-edit-mileage.page';
 import { setFormValid } from './add-edit-mileage.page.setup.spec';
@@ -556,6 +563,51 @@ export function TestCases2(getTestBed) {
         component.checkIfInvalidPaymentMode().subscribe((res) => {
           expect(res).toBeFalse();
           expect(component.getFormValues).toHaveBeenCalledTimes(1);
+          done();
+        });
+      });
+
+      it('should return false if payment account is null and advance wallets is enabled', (done) => {
+        spyOn(component, 'getFormValues').and.returnValue({ paymentMode: null });
+        component.etxn$ = of(unflattenedTxnWithSourceID2);
+        orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithAdvanceWallet));
+        component.amount$ = of(600);
+        fixture.detectChanges();
+
+        component.checkIfInvalidPaymentMode().subscribe((res) => {
+          expect(res).toBeFalse();
+          expect(component.getFormValues).toHaveBeenCalledTimes(1);
+          done();
+        });
+      });
+
+      it('should check for invalid payment in case of Advance wallets', (done) => {
+        spyOn(component, 'getFormValues').and.returnValue({ paymentMode: paymentModeDataAdvanceWallet });
+        component.etxn$ = of(unflattenedTxnWithAdvanceWallet);
+        orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithAdvanceWallet));
+
+        component.fg.controls.paymentMode.setValue(paymentModeDataAdvanceWallet);
+        component.amount$ = of(2500);
+        fixture.detectChanges();
+
+        component.checkIfInvalidPaymentMode().subscribe((res) => {
+          expect(res).toBeTrue();
+          expect(paymentModesService.showInvalidPaymentModeToast).toHaveBeenCalledTimes(1);
+          done();
+        });
+      });
+
+      it('should check for invalid payment while adding expense with advance wallets', (done) => {
+        component.etxn$ = of(unflattenedExpDataWithAdvanceWalletWithoutId);
+        orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithAdvanceWallet));
+
+        component.fg.controls.paymentMode.setValue(paymentModeDataAdvanceWallet);
+        component.amount$ = of(2500);
+        fixture.detectChanges();
+
+        component.checkIfInvalidPaymentMode().subscribe((res) => {
+          expect(res).toBeTrue();
+          expect(paymentModesService.showInvalidPaymentModeToast).toHaveBeenCalledTimes(1);
           done();
         });
       });

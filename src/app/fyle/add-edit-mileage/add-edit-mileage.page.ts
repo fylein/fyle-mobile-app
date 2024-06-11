@@ -2090,8 +2090,8 @@ export class AddEditMileagePage implements OnInit {
           const formValues = this.getFormValues();
           const paymentMode: ExtendedAccount | AdvanceWallet = formValues.paymentMode;
           const isAdvanceWalletEnabled = orgSettings?.advances?.advance_wallets_enabled;
-          const originalSourceAccountId = etxn?.tx?.source_account_id;
-          const originalAdvanceWalletId = etxn?.tx?.advance_wallet_id;
+          const originalSourceAccountId = etxn.tx.source_account_id;
+          const originalAdvanceWalletId = etxn.tx.advance_wallet_id;
 
           let isPaymentModeInvalid = false;
           if (!isAdvanceWalletEnabled && paymentMode?.acc?.type === AccountType.ADVANCE) {

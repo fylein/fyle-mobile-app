@@ -4049,6 +4049,13 @@ export const editUnflattenedTransactionPlatform: Partial<Transaction> = deepFree
   project_code: null,
 });
 
+export const editUnflattenedTransactionPlatformWithAdvanceWallet: Partial<Transaction> = deepFreeze({
+  ...editUnflattenedTransactionPlatform,
+  advance_wallet_id: null,
+  source_account_id: null,
+  skip_reimbursement: true,
+});
+
 export const editUnflattenedTransactionPlatform2: Partial<Transaction> = deepFreeze({
   ...editUnflattenedTransactionPlatform,
   report_id: 'rpbNc3kn5baq',

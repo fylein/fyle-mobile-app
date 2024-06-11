@@ -407,6 +407,25 @@ export function TestCases5(getTestBed) {
         tick(500);
       }));
 
+      it('should return false when account changes to null', fakeAsync(() => {
+        accountsService.getEMyAccounts.and.returnValue(of(null));
+        advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
+        orgSettingsService.get.and.returnValue(of(orgSettingsData));
+        component.setupBalanceFlag();
+        tick(500);
+
+        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
+          expect(res).toBeFalse();
+          expect(accountsService.getEMyAccounts).toHaveBeenCalledOnceWith();
+          expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledOnceWith();
+          expect(orgSettingsService.get).toHaveBeenCalledOnceWith();
+        });
+        component.fg.controls.paymentMode.setValue(null);
+        fixture.detectChanges();
+
+        tick(500);
+      }));
+
       it('should return false when orgSettings is null', fakeAsync(() => {
         accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
         advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));

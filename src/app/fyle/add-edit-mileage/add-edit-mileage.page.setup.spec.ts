@@ -124,7 +124,7 @@ describe('AddEditMileagePage', () => {
       'matchCCCExpense',
       'getDefaultVehicleType',
     ]);
-    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById']);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById', 'post']);
     const policyServiceSpy = jasmine.createSpyObj('PolicyService', [
       'transformTo',
       'getCriticalPolicyRules',
