@@ -244,6 +244,7 @@ export function TestCases5(getTestBed) {
     function getClassValues() {
       spyOn(component, 'getTransactionFields').and.returnValue(of(expenseFieldObjData));
       spyOn(component, 'getSubCategories').and.returnValue(of(mileageCategories2));
+      spyOn(component, 'getProjectCategories').and.returnValue(of(mileageCategories2));
       spyOn(component, 'getProjectCategoryIds').and.returnValue(of(['141295', '141300']));
       spyOn(component, 'getNewExpense').and.returnValue(of(newExpenseMileageData1));
       spyOn(component, 'getCustomInputs').and.returnValue(of(null));
