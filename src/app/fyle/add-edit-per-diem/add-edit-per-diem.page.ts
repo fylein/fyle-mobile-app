@@ -184,6 +184,8 @@ export class AddEditPerDiemPage implements OnInit {
 
   projectCategoryIds$: Observable<string[]>;
 
+  projectCategories$: Observable<OrgCategory[]>;
+
   filteredCategories$: Observable<{ label: string; value: OrgCategory }[]>;
 
   isConnected$: Observable<boolean>;
@@ -638,16 +640,18 @@ export class AddEditPerDiemPage implements OnInit {
     );
   }
 
-  getProjectCategoryIds(): Observable<string[]> {
+  getProjectCategories(): Observable<OrgCategory[]> {
     return this.categoriesService.getAll().pipe(
       map((categories) => {
-        const perDiemCategories = categories
-          .filter((category) => ['Per Diem'].indexOf(category.fyle_category) > -1)
-          .map((category) => category?.id?.toString());
+        const perDiemCategories = categories.filter((category) => category.fyle_category === 'Per Diem');
 
         return perDiemCategories;
       })
     );
+  }
+
+  getProjectCategoryIds(): Observable<string[]> {
+    return this.projectCategories$.pipe(map((categories) => categories.map((category) => category?.id?.toString())));
   }
 
   getPerDiemCategories(): Observable<{
@@ -1072,13 +1076,14 @@ export class AddEditPerDiemPage implements OnInit {
 
     this.txnFields$ = this.getTransactionFields();
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
-
     this.setupFilteredCategories();
 
+    this.projectCategories$ = this.getProjectCategories();
     this.projectCategoryIds$ = this.getProjectCategoryIds();
-    this.isProjectVisible$ = combineLatest([this.projectCategoryIds$, this.subCategories$]).pipe(
-      switchMap(([projectCategoryIds, allActiveSubCategories]) =>
-        this.projectsService.getProjectCount({ categoryIds: projectCategoryIds }, allActiveSubCategories)
+
+    this.isProjectVisible$ = combineLatest([this.projectCategoryIds$, this.projectCategories$]).pipe(
+      switchMap(([projectCategoryIds, projectCategories]) =>
+        this.projectsService.getProjectCount({ categoryIds: projectCategoryIds }, projectCategories)
       ),
       map((projectCount) => projectCount > 0)
     );
@@ -1360,8 +1365,8 @@ export class AddEditPerDiemPage implements OnInit {
       }),
       switchMap((projectId) => {
         if (projectId) {
-          return this.subCategories$.pipe(
-            switchMap((allActiveSubCategories) => this.projectsService.getbyId(projectId, allActiveSubCategories))
+          return this.projectCategories$.pipe(
+            switchMap((projectCategories) => this.projectsService.getbyId(projectId, projectCategories))
           );
         } else {
           return of(null);
@@ -1388,15 +1393,15 @@ export class AddEditPerDiemPage implements OnInit {
     this.recentlyUsedProjects$ = forkJoin({
       recentValues: this.recentlyUsedValues$,
       perDiemCategoryIds: this.projectCategoryIds$,
+      perDiemCategories: this.projectCategories$,
       eou: this.authService.getEou(),
-      activeSubCategories: this.subCategories$,
     }).pipe(
-      switchMap(({ recentValues, perDiemCategoryIds, eou, activeSubCategories }) =>
+      switchMap(({ recentValues, perDiemCategoryIds, perDiemCategories, eou }) =>
         this.recentlyUsedItemsService.getRecentlyUsedProjects({
           recentValues,
           eou,
           categoryIds: perDiemCategoryIds,
-          activeCategoryList: activeSubCategories,
+          activeCategoryList: perDiemCategories,
         })
       )
     );

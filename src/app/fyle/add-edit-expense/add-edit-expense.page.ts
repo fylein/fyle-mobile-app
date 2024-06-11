@@ -4522,8 +4522,11 @@ export class AddEditExpensePage implements OnInit {
           }
         });
       } else {
-        const editExpenseAttachments$ = this.etxn$.pipe(
-          switchMap((etxn) => (etxn.tx.id ? this.platformExpense$ : of({}))),
+        this.platformExpense$ = this.etxn$.pipe(
+          switchMap((etxn) => this.expensesService.getExpenseById(etxn.tx.id).pipe(shareReplay(1)))
+        );
+
+        const editExpenseAttachments$ = this.platformExpense$.pipe(
           map((expense: PlatformExpense) => expense.file_ids?.length || 0)
         );
 
@@ -4725,6 +4728,10 @@ export class AddEditExpensePage implements OnInit {
             attachments: File[];
           };
         };
+
+        this.platformExpense$ = this.etxn$.pipe(
+          switchMap((etxn) => this.expensesService.getExpenseById(etxn.tx.id).pipe(shareReplay(1)))
+        );
 
         if (this.mode === 'add') {
           if (data && data.attachments) {
