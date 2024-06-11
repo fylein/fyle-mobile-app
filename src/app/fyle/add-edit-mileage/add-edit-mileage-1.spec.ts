@@ -395,33 +395,33 @@ export function TestCases1(getTestBed) {
 
     describe('getProjectCategoryIds():', () => {
       it('should return MILEAGE category IDs', (done) => {
+        component.projectCategories$ = of(mileageCategories);
         categoriesService.getAll.and.returnValue(of(mileageCategories));
 
         component.getProjectCategoryIds().subscribe((res) => {
-          expect(res).toEqual(['141295', '141300']);
-          expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
+          expect(res).toEqual(['141295', '141300', '226659']);
           done();
         });
       });
 
       it('should return an empty array if there are no MILEAGE categories', (done) => {
+        component.projectCategories$ = of([]);
         categoriesService.getAll.and.returnValue(of(transformedOrgCategoryById));
 
         component.getProjectCategoryIds().subscribe((res) => {
           expect(res).toEqual([]);
-          expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
           done();
         });
       });
 
       it('should return undefined if category id is not defined', (done) => {
+        component.projectCategories$ = of(mileageCategoryWithoutId);
         categoriesService.getAll.and.returnValue(of(mileageCategoryWithoutId));
 
         const projectCategoryIds = component.getProjectCategoryIds();
 
         projectCategoryIds.subscribe((expectedProjectCategoryIds) => {
           expect(expectedProjectCategoryIds).toEqual([undefined]);
-          expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
           done();
         });
       });

@@ -421,6 +421,7 @@ export function TestCases2(getTestBed) {
         perDiemService.getRates.and.returnValue(of(expectedPerDiems));
         spyOn(component, 'getSubCategories').and.returnValue(of(orgCategoryData1));
         spyOn(component, 'setupFilteredCategories');
+        spyOn(component, 'getProjectCategories').and.returnValue(of(orgCategoryData1));
         spyOn(component, 'getProjectCategoryIds').and.returnValue(of(['129140', '129112', '16582', '201952']));
         spyOn(component, 'getPerDiemCategories').and.returnValue(
           of({
@@ -442,6 +443,7 @@ export function TestCases2(getTestBed) {
 
       it('should initialize all the variables correctly', fakeAsync(() => {
         const dependentFieldSpy = jasmine.createSpyObj('DependentFieldComponent', ['ngOnInit']);
+        component.projectCategories$ = of(orgCategoryData1);
         component.projectDependentFieldsRef = dependentFieldSpy;
         component.costCenterDependentFieldsRef = dependentFieldSpy;
         const tomorrow = new Date('2023-08-18');

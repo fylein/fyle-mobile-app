@@ -591,7 +591,7 @@ export function TestCases1(getTestBed) {
       expect(expenseFieldsService.getDefaultTxnFieldValues).toHaveBeenCalledOnceWith(mockTxnFieldData);
       expect(component.fg.controls.costCenter.value).toEqual(15818);
       expect(component.fg.controls.purpose.value).toEqual('test_term');
-      expect(component.fg.controls.billable.value).toEqual(true);
+      expect(component.fg.controls.billable.value).toBeTrue();
     });
 
     it('getPaymentModes(): should get payment modes', (done) => {
@@ -658,20 +658,20 @@ export function TestCases1(getTestBed) {
 
     describe('getProjectCategoryIds():', () => {
       it('should return project category ids', (done) => {
+        component.projectCategories$ = of([perDiemCategory]);
         categoriesService.getAll.and.returnValue(of([...expectedAllOrgCategories, perDiemCategory]));
         component.getProjectCategoryIds().subscribe((res) => {
-          expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
           expect(res).toEqual(['38912']);
           done();
         });
       });
 
       it('should return undefined if category id is undefined', (done) => {
+        component.projectCategories$ = of([undefined]);
         const mockPerDiemCategory = cloneDeep(perDiemCategory);
         mockPerDiemCategory.id = undefined;
         categoriesService.getAll.and.returnValue(of([...expectedAllOrgCategories, mockPerDiemCategory]));
         component.getProjectCategoryIds().subscribe((res) => {
-          expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
           // If category id is undefined, it will return undefined due to default behaviour of map function
           expect(res).toEqual([undefined]);
           done();
