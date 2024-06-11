@@ -502,7 +502,7 @@ export class AddEditMileagePage implements OnInit {
   }
 
   getProjectCategoryIds(): Observable<string[]> {
-    return this.projectCategories$.pipe(map((categories) => categories.map((category) => category.id.toString())));
+    return this.projectCategories$.pipe(map((categories) => categories.map((category) => category?.id?.toString())));
   }
 
   getMileageCategories(): Observable<{ defaultMileageCategory: OrgCategory; mileageCategories: OrgCategory[] }> {

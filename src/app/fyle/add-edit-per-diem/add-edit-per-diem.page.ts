@@ -617,7 +617,7 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   getProjectCategoryIds(): Observable<string[]> {
-    return this.projectCategories$.pipe(map((categories) => categories.map((category) => category.id.toString())));
+    return this.projectCategories$.pipe(map((categories) => categories.map((category) => category?.id?.toString())));
   }
 
   getPerDiemCategories(): Observable<{
