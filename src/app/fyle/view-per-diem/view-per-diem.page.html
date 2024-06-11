@@ -20,14 +20,18 @@
         <ion-icon [src]="'../../../assets/svg/chat.svg'" slot="icon-only"></ion-icon>
       </ion-button>
 
-      <ng-container *ngIf="view === ExpenseView.team && canFlagOrUnflag$|async">
-        <ion-button
-          class="view-per-diem--header-btn-container__btn"
-          (click)="flagUnflagExpense()"
-          [ngClass]="isExpenseFlagged ? 'icon--flagged' : 'icon--unflagged'"
-        >
-          <ion-icon [src]="'../../../assets/svg/flag-fill.svg'" slot="icon-only"></ion-icon>
-        </ion-button>
+      <ng-container *ngIf="(isManualFlagFeatureEnabled$|async) as isManualFlagFeatureEnabled">
+        <ng-container *ngIf="(canFlagOrUnflag$|async) as canFlagOrUnflag">
+          <ng-container *ngIf="view === ExpenseView.team && isManualFlagFeatureEnabled.value && canFlagOrUnflag">
+            <ion-button
+              class="view-per-diem--header-btn-container__btn"
+              (click)="flagUnflagExpense()"
+              [ngClass]="isExpenseFlagged ? 'icon--flagged' : 'icon--unflagged'"
+            >
+              <ion-icon [src]="'../../../assets/svg/flag-fill.svg'" slot="icon-only"></ion-icon>
+            </ion-button>
+          </ng-container>
+        </ng-container>
       </ng-container>
 
       <ng-container *ngIf="view === ExpenseView.team && canDelete$|async">
