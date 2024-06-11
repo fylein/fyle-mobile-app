@@ -41,6 +41,7 @@ import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/fi
 import { ApproverFileService } from 'src/app/core/services/platform/v1/approver/file.service';
 import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
 import { PlatformFileGenerateUrlsResponse } from 'src/app/core/models/platform/platform-file-generate-urls-response.model';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-view-mileage',
@@ -114,6 +115,8 @@ export class ViewMileagePage {
 
   commuteDeduction: string;
 
+  isManualFlagFeatureEnabled$: Observable<{ value: boolean }>;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private loaderService: LoaderService,
@@ -136,7 +139,8 @@ export class ViewMileagePage {
     private mileageRatesService: MileageRatesService,
     private approverReportsService: ApproverReportsService,
     private spenderFileService: SpenderFileService,
-    private approverFileService: ApproverFileService
+    private approverFileService: ApproverFileService,
+    private launchDarklyService: LaunchDarklyService
   ) {}
 
   get ExpenseView(): typeof ExpenseView {
@@ -297,6 +301,8 @@ export class ViewMileagePage {
 
     this.expenseId = this.activatedRoute.snapshot.params.id as string;
     this.view = this.activatedRoute.snapshot.params.view as ExpenseView;
+
+    this.isManualFlagFeatureEnabled$ = this.launchDarklyService.checkIfManualFlaggingFeatureIsEnabled();
 
     this.mileageExpense$ = this.updateFlag$.pipe(
       switchMap(() =>
