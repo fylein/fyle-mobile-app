@@ -991,6 +991,7 @@ export function TestCases3(getTestBed) {
         component.mode = 'edit';
         component.attachedReceiptsCount = 0;
         spyOn(component, 'getExpenseAttachments').and.returnValue(of(fileObject4));
+        expensesService.getExpenseById.and.returnValue(of(platformExpenseWithExtractedData));
         spyOn(component.loadAttachments$, 'next');
         loaderService.showLoader.and.resolveTo();
         loaderService.hideLoader.and.resolveTo();
@@ -1020,6 +1021,7 @@ export function TestCases3(getTestBed) {
           mode: 'ios',
         });
         expect(component.loadAttachments$.next).toHaveBeenCalledOnceWith();
+        expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('tx3qHxFNgRcZ');
         expect(component.attachedReceiptsCount).toEqual(1);
       }));
 
@@ -1420,6 +1422,7 @@ export function TestCases3(getTestBed) {
         transactionOutboxService.fileUpload.and.resolveTo(mockFileData[0]);
         activatedRoute.snapshot.params.id = mockFileData[0].transaction_id;
         expensesService.attachReceiptToExpense.and.returnValue(of(platformExpenseWithExtractedData));
+        expensesService.getExpenseById.and.returnValue(of(platformExpenseWithExtractedData));
         spyOn(component, 'parseFile').and.returnValue(null);
         spyOn(component.loadAttachments$, 'next');
         fixture.detectChanges();
@@ -1435,6 +1438,7 @@ export function TestCases3(getTestBed) {
           mockFileData[0].transaction_id,
           mockFileData[0].id
         );
+        expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txbO4Xaj4N53');
         expect(component.loadAttachments$.next).toHaveBeenCalledOnceWith();
         expect(trackingService.fileUploadComplete).toHaveBeenCalledOnceWith({
           mode: 'edit',
