@@ -75,6 +75,7 @@ import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog/add-tx
 import { MyExpensesService } from './my-expenses.service';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
+import { PromoteOptInModalComponent } from 'src/app/shared/components/promote-opt-in-modal/promote-opt-in-modal.component';
 
 @Component({
   selector: 'app-my-expenses',
@@ -191,6 +192,8 @@ export class MyExpensesPage implements OnInit {
   isDisabled = false;
 
   restrictPendingTransactionsEnabled = false;
+
+  optInShowTimer;
 
   constructor(
     private networkService: NetworkService,
@@ -419,6 +422,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   ionViewWillLeave(): void {
+    clearTimeout(this.optInShowTimer as number);
     this.hardwareBackButton.unsubscribe();
     this.onPageExit$.next(null);
   }
@@ -433,7 +437,7 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  ionViewWillEnter(): void {
+  async ionViewWillEnter(): Promise<void> {
     this.isNewReportsFlowEnabled = false;
     this.hardwareBackButton = this.platformHandlerService.registerBackButtonAction(
       BackButtonActionPriority.MEDIUM,
@@ -709,6 +713,28 @@ export class MyExpensesPage implements OnInit {
     this.doRefresh();
 
     this.checkDeleteDisabled();
+
+    this.showModalAfterDelay();
+  }
+
+  showModalAfterDelay(): void {
+    this.optInShowTimer = setTimeout(async () => {
+      const optInPromotionalModal = await this.modalController.create({
+        component: PromoteOptInModalComponent,
+        mode: 'ios',
+        ...this.modalProperties.getModalDefaultProperties('promote-opt-in-modal'),
+      });
+
+      await optInPromotionalModal.present();
+
+      const { data } = await optInPromotionalModal.onDidDismiss<{ skipOptIn: boolean }>();
+
+      if (data && data.skipOptIn) {
+        // TODO: set true in feature config
+      } else {
+        // TODO: set false in feature config
+      }
+    }, 2000);
   }
 
   setupNetworkWatcher(): void {
