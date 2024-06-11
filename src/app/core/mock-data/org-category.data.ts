@@ -1031,6 +1031,32 @@ export const perDiemCategory: OrgCategory = deepFreeze({
   sub_category: 'Per Diem',
   updated_at: new Date('2022-09-13T17:16:56.232081+00:00'),
 });
+export const perDiemCategories2: OrgCategory[] = deepFreeze([
+  {
+    code: null,
+    created_at: new Date('2018-07-27T08:52:38.938006+00:00'),
+    displayName: 'Per Diem',
+    enabled: true,
+    fyle_category: 'Per Diem',
+    id: 38912,
+    name: 'Per Diem',
+    org_id: 'orrb8EW1zZsy',
+    sub_category: 'Per Diem',
+    updated_at: new Date('2022-09-13T17:16:56.232081+00:00'),
+  },
+  {
+    code: null,
+    created_at: new Date('2018-07-27T08:52:38.938006+00:00'),
+    displayName: 'Per Diem',
+    enabled: true,
+    fyle_category: 'Per Diem',
+    id: 38912,
+    name: 'Per Diem',
+    org_id: 'orrb8EW1zZsy',
+    sub_category: 'Per Diem',
+    updated_at: new Date('2022-09-13T17:16:56.232081+00:00'),
+  },
+]);
 
 export const mileageCategories: OrgCategory[] = deepFreeze([
   {

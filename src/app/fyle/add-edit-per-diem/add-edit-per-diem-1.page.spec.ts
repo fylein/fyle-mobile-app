@@ -48,7 +48,12 @@ import {
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { cloneDeep } from 'lodash';
 import { expenseFieldsMapResponse } from 'src/app/core/mock-data/expense-fields-map.data';
-import { expectedAllOrgCategories, perDiemCategory } from 'src/app/core/mock-data/org-category.data';
+import {
+  expectedAllOrgCategories,
+  perDiemCategories2,
+  perDiemCategory,
+  transformedOrgCategoryById,
+} from 'src/app/core/mock-data/org-category.data';
 import { txnFieldsData2 } from 'src/app/core/mock-data/expense-field-obj.data';
 import { defaultTxnFieldValuesData2 } from 'src/app/core/mock-data/default-txn-field-values.data';
 import { orgSettingsCCCDisabled } from 'src/app/core/mock-data/org-settings.data';
@@ -591,7 +596,7 @@ export function TestCases1(getTestBed) {
       expect(expenseFieldsService.getDefaultTxnFieldValues).toHaveBeenCalledOnceWith(mockTxnFieldData);
       expect(component.fg.controls.costCenter.value).toEqual(15818);
       expect(component.fg.controls.purpose.value).toEqual('test_term');
-      expect(component.fg.controls.billable.value).toEqual(true);
+      expect(component.fg.controls.billable.value).toBeTrue();
     });
 
     it('getPaymentModes(): should get payment modes', (done) => {
@@ -658,22 +663,44 @@ export function TestCases1(getTestBed) {
 
     describe('getProjectCategoryIds():', () => {
       it('should return project category ids', (done) => {
+        component.projectCategories$ = of([perDiemCategory]);
         categoriesService.getAll.and.returnValue(of([...expectedAllOrgCategories, perDiemCategory]));
         component.getProjectCategoryIds().subscribe((res) => {
-          expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
           expect(res).toEqual(['38912']);
           done();
         });
       });
 
       it('should return undefined if category id is undefined', (done) => {
+        component.projectCategories$ = of([undefined]);
         const mockPerDiemCategory = cloneDeep(perDiemCategory);
         mockPerDiemCategory.id = undefined;
         categoriesService.getAll.and.returnValue(of([...expectedAllOrgCategories, mockPerDiemCategory]));
         component.getProjectCategoryIds().subscribe((res) => {
-          expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
           // If category id is undefined, it will return undefined due to default behaviour of map function
           expect(res).toEqual([undefined]);
+          done();
+        });
+      });
+    });
+
+    describe('getProjectCategories():', () => {
+      it('should return MILEAGE category IDs', (done) => {
+        component.projectCategories$ = of(perDiemCategories2);
+        categoriesService.getAll.and.returnValue(of(perDiemCategories2));
+
+        component.getProjectCategories().subscribe((res) => {
+          expect(res).toEqual(perDiemCategories2);
+          done();
+        });
+      });
+
+      it('should return an empty array if there are no MILEAGE categories', (done) => {
+        component.projectCategories$ = of([]);
+        categoriesService.getAll.and.returnValue(of(transformedOrgCategoryById));
+
+        component.getProjectCategories().subscribe((res) => {
+          expect(res).toEqual([]);
           done();
         });
       });
