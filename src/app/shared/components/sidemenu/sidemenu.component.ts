@@ -22,7 +22,6 @@ import { MenuController } from '@ionic/angular';
 import { SidemenuAllowedActions } from 'src/app/core/models/sidemenu-allowed-actions.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 
-
 @Component({
   selector: 'app-sidemenu',
   templateUrl: './sidemenu.component.html',
@@ -98,7 +97,6 @@ export class SidemenuComponent implements OnInit {
   }
 
   async showSideMenuOnline(): Promise<void> {
-
     const isLoggedIn = await this.routerAuthService.isLoggedIn();
     if (!isLoggedIn) {
       return;
@@ -182,7 +180,6 @@ export class SidemenuComponent implements OnInit {
     );
   }
 
-
   getCardOptions(): Partial<SidemenuItem>[] {
     const cardOptions = [
       {
@@ -196,7 +193,6 @@ export class SidemenuComponent implements OnInit {
     ];
     return cardOptions.filter((cardOption) => cardOption.isVisible);
   }
-
 
   getTeamOptions(): Partial<SidemenuItem>[] {
     const showTeamReportsPage = this.primaryOrg?.id === (this.activeOrg as Org)?.id;

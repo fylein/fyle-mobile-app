@@ -241,6 +241,10 @@ describe('MyReportsPage', () => {
   describe('ionViewWillEnter(): ', () => {
     it('should initialize component properties and load data', fakeAsync(() => {
       tasksService.getReportsTaskCount.and.returnValue(of(5));
+      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
+        state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
+        q: 'example:*',
+      });
       const homeCurrency = 'USD';
       currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
 
@@ -324,6 +328,7 @@ describe('MyReportsPage', () => {
         limit: 10,
         state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
         order: 'created_at.desc,id.desc',
+        q: 'example:*',
       });
 
       expect(component.acc).toEqual(expectedReportsSinglePage);
@@ -371,6 +376,9 @@ describe('MyReportsPage', () => {
 
     it('should initialize component properties and load data when search string is empty', fakeAsync(() => {
       tasksService.getReportsTaskCount.and.returnValue(of(5));
+      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
+        state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
+      });
       const homeCurrency = 'USD';
       currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
 
@@ -495,6 +503,9 @@ describe('MyReportsPage', () => {
 
     it('should initialize component properties and set simplifyReportsSetting$ to undefined if orgSetting$ is undefined', fakeAsync(() => {
       tasksService.getReportsTaskCount.and.returnValue(of(5));
+      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
+        state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
+      });
       const homeCurrency = 'USD';
       currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
 
@@ -619,6 +630,9 @@ describe('MyReportsPage', () => {
 
     it('should initialize component properties and set simplifyReportsSetting$ to false if orgSetting$.payment_mode_setting.payment_modes_order is not defined', fakeAsync(() => {
       tasksService.getReportsTaskCount.and.returnValue(of(5));
+      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
+        state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
+      });
       const homeCurrency = 'USD';
       currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
 
@@ -742,6 +756,9 @@ describe('MyReportsPage', () => {
 
     it('should initialize component properties and get report by order if sortParam and sortDir is defined, aggregates is empty array and simplified_report is enabled', fakeAsync(() => {
       tasksService.getReportsTaskCount.and.returnValue(of(5));
+      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
+        state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
+      });
       const homeCurrency = 'USD';
       currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
 
@@ -858,6 +875,9 @@ describe('MyReportsPage', () => {
 
     it('should initialize component properties and load data if filters is defined in activatedRoute.snapshot', fakeAsync(() => {
       tasksService.getReportsTaskCount.and.returnValue(of(5));
+      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
+        state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
+      });
       const homeCurrency = 'USD';
       currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
 
@@ -995,6 +1015,10 @@ describe('MyReportsPage', () => {
 
     it('should initialize component properties and load data if state is defined in activatedRoute.snapshot', fakeAsync(() => {
       tasksService.getReportsTaskCount.and.returnValue(of(5));
+      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
+        state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
+        q: 'example:*',
+      });
       const homeCurrency = 'USD';
       currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
 
@@ -1049,6 +1073,7 @@ describe('MyReportsPage', () => {
       // It is called 6 times because loadData$ is behaviorSubject and next() is called 1 times
       expect(spenderReportsService.getReportsCount).toHaveBeenCalledWith({
         state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
+        q: 'example:*',
       });
 
       component.expensesAmountStats$.subscribe((expenseAmountStates) => {
@@ -1075,6 +1100,7 @@ describe('MyReportsPage', () => {
         limit: 10,
         state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
         order: 'created_at.desc,id.desc',
+        q: 'example:*',
       });
       expect(spenderReportsService.getReportsByParams).toHaveBeenCalledWith({
         offset: 0,
@@ -1088,6 +1114,7 @@ describe('MyReportsPage', () => {
         limit: 10,
         state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
         order: 'created_at.desc,id.desc',
+        q: 'example:*',
       });
 
       expect(component.acc).toEqual(expectedReportsSinglePage);
