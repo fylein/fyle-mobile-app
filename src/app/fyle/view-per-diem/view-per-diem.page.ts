@@ -33,6 +33,7 @@ import { ExpensesService as SpenderExpensesService } from 'src/app/core/services
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-view-per-diem',
@@ -98,6 +99,8 @@ export class ViewPerDiemPage {
 
   costCenterDependentCustomProperties$: Observable<Partial<CustomInput>[]>;
 
+  isManualFlagFeatureEnabled$: Observable<{ value: boolean }>;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private transactionService: TransactionService,
@@ -116,7 +119,8 @@ export class ViewPerDiemPage {
     private dependentFieldsService: DependentFieldsService,
     private spenderExpensesService: SpenderExpensesService,
     private approverExpensesService: ApproverExpensesService,
-    private approverReportsService: ApproverReportsService
+    private approverReportsService: ApproverReportsService,
+    private launchDarklyService: LaunchDarklyService
   ) {}
 
   get ExpenseView(): typeof ExpenseView {
@@ -176,6 +180,8 @@ export class ViewPerDiemPage {
   ionViewWillEnter(): void {
     this.expenseId = this.activatedRoute.snapshot.params.id as string;
     this.view = this.activatedRoute.snapshot.params.view as ExpenseView;
+
+    this.isManualFlagFeatureEnabled$ = this.launchDarklyService.checkIfManualFlaggingFeatureIsEnabled();
 
     this.perDiemExpense$ = this.updateFlag$.pipe(
       switchMap(() =>
