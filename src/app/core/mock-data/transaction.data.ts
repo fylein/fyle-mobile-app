@@ -3832,7 +3832,7 @@ export const perDiemTransaction: Partial<Transaction> = deepFreeze({
   source_account_id: 'accWUsrRlinFb',
   billable: true,
   org_category_id: 129140,
-  skip_reimbursement: true,
+  skip_reimbursement: false,
   per_diem_rate_id: 440,
   source: 'MOBILE',
   currency: 'USD',
@@ -3851,6 +3851,14 @@ export const perDiemTransaction: Partial<Transaction> = deepFreeze({
   cost_center_name: 'Test3',
   cost_center_code: 'code3',
   user_reason_for_duplicate_expenses: null,
+});
+
+export const perDiemTransactionWithAdvanceWallet: Partial<Transaction> = deepFreeze({
+  ...perDiemTransaction,
+  source_account_id: undefined,
+  advance_wallet_id: 'areq1234',
+  org_category_id: 16577,
+  skip_reimbursement: true,
 });
 
 export const editUnflattenedTransaction: Partial<Transaction> = deepFreeze({

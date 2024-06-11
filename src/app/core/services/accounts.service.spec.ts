@@ -7,6 +7,7 @@ import {
   account1Data,
   account2Data,
   etxnObjData,
+  etxnObjWithAdvanceWalletSource,
   etxnObjWithAdvSourceData,
   etxnObjWithSourceData,
   multipleAdvAccountsData,
@@ -36,7 +37,9 @@ import {
   unflattenedTransactionPersonal,
   unflattenedTxnWithoutSourceAccountIdData,
   advanceWallet1Data,
+  advanceWallet1DataZeroBalance,
   paymentModesWithAdvanceWalletsResData,
+  paymentModesWithZeroAdvanceWalletBalanceResData,
   unflattenedTransactionAdvanceWallet,
   paymentModeDataAdvanceWallet,
 } from '../test-data/accounts.service.spec.data';
@@ -304,6 +307,52 @@ describe('AccountsService', () => {
     fyCurrencyPipe.transform.and.returnValue('$1500');
     const config = {
       etxn: etxnObjData,
+      expenseType: ExpenseType.EXPENSE,
+    };
+    const allowedPaymentModes = [
+      'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT',
+      'PERSONAL_ACCOUNT',
+      'COMPANY_ACCOUNT',
+      'PERSONAL_ADVANCE_ACCOUNT',
+    ];
+    expect(
+      accountsService.getPaymentModesWithAdvanceWallets(
+        paymentModesAccountsData,
+        advanceWallet1Data,
+        allowedPaymentModes,
+        config
+      )
+    ).toEqual(paymentModesWithAdvanceWalletsResData);
+    expect(fyCurrencyPipe.transform).toHaveBeenCalledWith(1500, 'USD');
+  });
+
+  it('should be able to get payment modes with advance wallets during edit expense when wallet balance is 0', () => {
+    fyCurrencyPipe.transform.and.returnValue('$0');
+    const config = {
+      etxn: etxnObjWithAdvanceWalletSource,
+      expenseType: ExpenseType.EXPENSE,
+    };
+    const allowedPaymentModes = [
+      'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT',
+      'PERSONAL_ACCOUNT',
+      'COMPANY_ACCOUNT',
+      'PERSONAL_ADVANCE_ACCOUNT',
+    ];
+    expect(
+      accountsService.getPaymentModesWithAdvanceWallets(
+        paymentModesAccountsData,
+        advanceWallet1DataZeroBalance,
+        allowedPaymentModes,
+        config
+      )
+    ).toEqual(paymentModesWithZeroAdvanceWalletBalanceResData);
+    expect(fyCurrencyPipe.transform).toHaveBeenCalledWith(0, 'USD');
+  });
+
+  it('should be able to get payment modes without passing etxn param', () => {
+    fyCurrencyPipe.transform.and.returnValue('$1500');
+    const config = {
+      etxn: null,
       expenseType: ExpenseType.EXPENSE,
     };
     const allowedPaymentModes = [

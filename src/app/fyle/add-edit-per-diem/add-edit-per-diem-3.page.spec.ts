@@ -44,6 +44,7 @@ import {
   perDiemFormValuesData10,
   perDiemFormValuesData8,
   perDiemFormValuesData9,
+  perDiemFormValuesWithAdvanceWalletData,
 } from 'src/app/core/mock-data/per-diem-form-value.data';
 import { orgSettingsRes, orgSettingsParamsWithAdvanceWallet } from 'src/app/core/mock-data/org-settings.data';
 import {
@@ -51,7 +52,7 @@ import {
   txnCustomProperties4,
   txnCustomPropertiesData5,
 } from 'src/app/core/mock-data/txn-custom-properties.data';
-import { perDiemTransaction } from 'src/app/core/mock-data/transaction.data';
+import { perDiemTransaction, perDiemTransactionWithAdvanceWallet } from 'src/app/core/mock-data/transaction.data';
 import { perDiemCustomInputsData2 } from 'src/app/core/mock-data/per-diem-custom-inputs.data';
 import { expenseFieldResponse } from 'src/app/core/mock-data/expense-field.data';
 import { platformPolicyExpenseData1 } from 'src/app/core/mock-data/platform-policy-expense.data';
@@ -272,6 +273,7 @@ export function TestCases3(getTestBed) {
           expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-08-01'));
           expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-08-03'));
           expect(res.tx).toEqual({ ...unflattenedTxnData.tx, ...perDiemTransaction });
+          expect(res.tx.skip_reimbursement).toBeFalse();
           expect(res.ou).toEqual(unflattenedTxnData.ou);
           expect(res.dataUrls).toEqual([]);
           done();
@@ -303,6 +305,7 @@ export function TestCases3(getTestBed) {
       });
 
       it('should return etxn object from form data when advance wallets is enabled', (done) => {
+        component.getFormValues = jasmine.createSpy().and.returnValue(perDiemFormValuesWithAdvanceWalletData);
         const etxn = of(unflattenedTxnWithAdvanceWallet);
         const customProperties = of(cloneDeep(expectedTxnCustomProperties));
         orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithAdvanceWallet));
@@ -320,7 +323,8 @@ export function TestCases3(getTestBed) {
           expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-02-13T17:00:00.000Z'));
           expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-08-01'));
           expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-08-03'));
-          expect(res.tx).toEqual({ ...unflattenedTxnWithAdvanceWallet.tx, ...perDiemTransaction });
+          expect(res.tx).toEqual({ ...unflattenedTxnWithAdvanceWallet.tx, ...perDiemTransactionWithAdvanceWallet });
+          expect(res.tx.skip_reimbursement).toBeTrue();
           expect(res.ou).toEqual(unflattenedTxnWithAdvanceWallet.ou);
           expect(res.dataUrls).toEqual([]);
           done();

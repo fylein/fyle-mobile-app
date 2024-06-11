@@ -308,6 +308,7 @@ export const unflattenedTxnWithAdvanceWallet: UnflattenedTransaction = deepFreez
     ...unflattenedTxnData.tx,
     source_account_id: undefined,
     advance_wallet_id: 'areq1234',
+    skip_reimbursement: true,
   },
 });
 

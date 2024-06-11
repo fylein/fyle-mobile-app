@@ -601,7 +601,7 @@ export class AddEditPerDiemPage implements OnInit {
     }).pipe(
       map(
         ({ accounts, advanceWallets, orgSettings, etxn, allowedPaymentModes, isPaymentModeConfigurationsEnabled }) => {
-          const isAdvanceWalletEnabled = orgSettings?.advances?.advance_wallets_enabled;
+          const isAdvanceWalletEnabled = orgSettings.advances?.advance_wallets_enabled;
           const config = {
             etxn,
             orgSettings,
@@ -1684,8 +1684,7 @@ export class AddEditPerDiemPage implements OnInit {
           return customProperty;
         });
         const skipReimbursement =
-          (formValue?.paymentMode?.acc?.type === AccountType.PERSONAL &&
-            !formValue?.paymentMode?.acc?.isReimbursable) ||
+          (formValue?.paymentMode?.acc?.type === AccountType.PERSONAL && !formValue.paymentMode.acc.isReimbursable) ||
           !!formValue?.paymentMode?.id;
 
         const currencyObj = this.fg.controls.currencyObj.value as CurrencyObj;

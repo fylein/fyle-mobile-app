@@ -24,6 +24,20 @@ export const advanceWallet1Data: AdvanceWallet[] = deepFreeze([
   },
 ]);
 
+export const advanceWallet1DataZeroBalance = deepFreeze([
+  {
+    currency: 'USD',
+    balance_amount: 0,
+    id: 'areq1234',
+    org_id: 'orNVthTo2Zyo',
+    user_id: 'usvKA4X8Ugcr',
+    created_at: new Date('2021-03-14T06:07:39.652664+00:00'),
+    updated_at: new Date('2022-05-05T17:45:12.393241+00:00'),
+    type: 'PERSONAL_ADVANCE_ACCOUNT',
+    isReimbursable: false,
+  },
+]);
+
 export const account1Data = deepFreeze({
   acc_id: 'accfziaxbGFVW',
   acc_created_at: new Date('2018-10-08T07:04:42.753Z'),
@@ -1259,6 +1273,7 @@ export const multiplePaymentModesData: ExtendedAccount[] = deepFreeze([
       current_balance_amount: 0,
       tentative_balance_amount: 159097.536645,
       category: null,
+      isReimbursable: true,
     },
     ou: {
       id: 'ouvyOFOSx5bh',
@@ -1934,6 +1949,24 @@ export const etxnObjWithAdvSourceData = deepFreeze({
     account_type: AccountType.ADVANCE,
     account_id: 'accYoo40xd0C1',
   },
+});
+
+export const etxnObjWithAdvanceWalletSource = deepFreeze({
+  tx: {
+    skip_reimbursement: true,
+    source: 'MOBILE',
+    txn_dt: new Date('2022-12-20T20:41:40.771Z'),
+    currency: 'USD',
+    amount: null,
+    orig_currency: null,
+    orig_amount: null,
+    policy_amount: null,
+    custom_properties: [],
+    num_files: 0,
+    org_user_id: 'ouvyOFOSx5bh',
+    advance_wallet_id: 'areq1234',
+  },
+  dataUrls: [],
 });
 
 export const orgSettingsData: OrgSettings = deepFreeze({
@@ -2863,6 +2896,149 @@ export const paymentModesWithAdvanceWalletsResData = deepFreeze([
       isReimbursable: false,
       currency: 'USD',
       balance_amount: 1500,
+      id: 'areq1234',
+      org_id: 'orNVthTo2Zyo',
+      user_id: 'usvKA4X8Ugcr',
+      created_at: new Date('2021-03-14T06:07:39.652664+00:00'),
+      updated_at: new Date('2022-05-05T17:45:12.393241+00:00'),
+    },
+  },
+]);
+
+export const paymentModesWithZeroAdvanceWalletBalanceResData = deepFreeze([
+  {
+    label: 'Corporate Card',
+    value: {
+      acc: {
+        id: 'accYoo40xd0C1',
+        created_at: new Date('2018-08-05T08:32:51.583Z'),
+        updated_at: new Date('2022-12-23T08:34:46.658Z'),
+        name: 'Corporate Credit Card Account',
+        type: AccountType.CCC,
+        currency: 'USD',
+        target_balance_amount: 0,
+        current_balance_amount: 107069.2181,
+        tentative_balance_amount: -379832.039763,
+        category: null,
+        displayName: 'Corporate Card',
+        isReimbursable: false,
+      },
+      ou: {
+        id: 'ouvyOFOSx5bh',
+        org_id: 'orrb8EW1zZsy',
+      },
+      us: {
+        email: 'ajain@fyle.in',
+        full_name: 'Abhishek Jain',
+      },
+      org: {
+        id: null,
+        domain: null,
+      },
+      advance: {
+        purpose: null,
+        number: null,
+        id: null,
+      },
+      orig: {
+        currency: null,
+        amount: null,
+      },
+      currency: null,
+      amount: null,
+    },
+  },
+  {
+    label: 'Personal Card/Cash',
+    value: {
+      acc: {
+        id: 'accWUsrRlinFb',
+        created_at: new Date('2018-08-05T06:02:11.742Z'),
+        updated_at: new Date('2022-12-23T08:32:19.246Z'),
+        name: 'Personal Account',
+        type: AccountType.PERSONAL,
+        currency: 'USD',
+        target_balance_amount: 0,
+        current_balance_amount: 0,
+        tentative_balance_amount: 159640.246645,
+        category: null,
+        displayName: 'Personal Card/Cash',
+        isReimbursable: true,
+      },
+      ou: {
+        id: 'ouvyOFOSx5bh',
+        org_id: 'orrb8EW1zZsy',
+      },
+      us: {
+        email: 'ajain@fyle.in',
+        full_name: 'Abhishek Jain',
+      },
+      org: {
+        id: null,
+        domain: null,
+      },
+      advance: {
+        purpose: null,
+        number: null,
+        id: null,
+      },
+      orig: {
+        currency: null,
+        amount: null,
+      },
+      currency: null,
+      amount: null,
+    },
+  },
+  {
+    label: 'Paid by Company',
+    value: {
+      acc: {
+        id: 'accWUsrRlinFb',
+        created_at: new Date('2018-08-05T06:02:11.742Z'),
+        updated_at: new Date('2022-12-23T08:32:19.246Z'),
+        name: 'Personal Account',
+        type: AccountType.PERSONAL,
+        currency: 'USD',
+        target_balance_amount: 0,
+        current_balance_amount: 0,
+        tentative_balance_amount: 159640.246645,
+        category: null,
+        displayName: 'Paid by Company',
+        isReimbursable: false,
+      },
+      ou: {
+        id: 'ouvyOFOSx5bh',
+        org_id: 'orrb8EW1zZsy',
+      },
+      us: {
+        email: 'ajain@fyle.in',
+        full_name: 'Abhishek Jain',
+      },
+      org: {
+        id: null,
+        domain: null,
+      },
+      advance: {
+        purpose: null,
+        number: null,
+        id: null,
+      },
+      orig: {
+        currency: null,
+        amount: null,
+      },
+      currency: null,
+      amount: null,
+    },
+  },
+  {
+    label: 'Advance Wallet (Balance: $0)',
+    value: {
+      type: 'PERSONAL_ADVANCE_ACCOUNT',
+      isReimbursable: false,
+      currency: 'USD',
+      balance_amount: 0,
       id: 'areq1234',
       org_id: 'orNVthTo2Zyo',
       user_id: 'usvKA4X8Ugcr',
