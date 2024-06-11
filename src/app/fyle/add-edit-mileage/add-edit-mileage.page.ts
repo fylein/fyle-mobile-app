@@ -494,7 +494,7 @@ export class AddEditMileagePage implements OnInit {
   getProjectCategories(): Observable<OrgCategory[]> {
     return this.categoriesService.getAll().pipe(
       map((categories) => {
-        const mileageCategories = categories.filter((category) => ['Mileage'].indexOf(category.fyle_category) > -1);
+        const mileageCategories = categories.filter((category) => category.fyle_category === 'Mileage');
 
         return mileageCategories;
       })

@@ -609,7 +609,7 @@ export class AddEditPerDiemPage implements OnInit {
   getProjectCategories(): Observable<OrgCategory[]> {
     return this.categoriesService.getAll().pipe(
       map((categories) => {
-        const perDiemCategories = categories.filter((category) => ['Per Diem'].indexOf(category.fyle_category) > -1);
+        const perDiemCategories = categories.filter((category) => category.fyle_category === 'Per Diem');
 
         return perDiemCategories;
       })
