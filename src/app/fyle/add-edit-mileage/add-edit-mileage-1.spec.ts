@@ -427,6 +427,28 @@ export function TestCases1(getTestBed) {
       });
     });
 
+    describe('getProjectCategories():', () => {
+      it('should return MILEAGE category IDs', (done) => {
+        component.projectCategories$ = of(mileageCategories);
+        categoriesService.getAll.and.returnValue(of(mileageCategories));
+
+        component.getProjectCategories().subscribe((res) => {
+          expect(res).toEqual([mileageCategories[0], mileageCategories[1]]);
+          done();
+        });
+      });
+
+      it('should return an empty array if there are no MILEAGE categories', (done) => {
+        component.projectCategories$ = of([]);
+        categoriesService.getAll.and.returnValue(of(transformedOrgCategoryById));
+
+        component.getProjectCategories().subscribe((res) => {
+          expect(res).toEqual([]);
+          done();
+        });
+      });
+    });
+
     describe('saveExpenseAndGotoNext():', () => {
       it('should add a new expense and close the form', () => {
         spyOn(component, 'addExpense').and.returnValue(of(outboxQueueData1[0]));
