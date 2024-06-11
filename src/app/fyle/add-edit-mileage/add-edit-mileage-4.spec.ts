@@ -496,6 +496,7 @@ export function TestCases4(getTestBed) {
       it('should return project from ID specified in the expense', (done) => {
         component.etxn$ = of(unflattenedTxnData);
         component.subCategories$ = of(sortedCategory);
+        component.projectCategories$ = of(sortedCategory);
         projectsService.getbyId.and.returnValue(of(expectedProjectsResponse[0]));
         fixture.detectChanges();
 
@@ -508,6 +509,7 @@ export function TestCases4(getTestBed) {
 
       it('should get default project ID and return the project if not provided in the expense', (done) => {
         component.etxn$ = of(newUnflattenedTxn);
+        component.projectCategories$ = of(sortedCategory);
         component.subCategories$ = of(sortedCategory);
         orgSettingsService.get.and.returnValue(of(orgSettingsRes));
         orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
