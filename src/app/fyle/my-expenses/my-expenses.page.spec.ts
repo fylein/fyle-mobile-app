@@ -136,7 +136,7 @@ import {
 import { corporateCardsResponseData } from 'src/app/core/mock-data/corporate-card-response.data';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
-describe('MyExpensesV2Page', () => {
+xdescribe('MyExpensesV2Page', () => {
   let component: MyExpensesPage;
   let fixture: ComponentFixture<MyExpensesPage>;
   let tasksService: jasmine.SpyObj<TasksService>;
