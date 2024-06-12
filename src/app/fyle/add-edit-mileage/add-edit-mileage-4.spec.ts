@@ -713,6 +713,17 @@ export function TestCases4(getTestBed) {
         const result = component.getAdvanceWalletId(false);
         expect(result).toBeFalse();
       });
+
+      it('should return null', () => {
+        component.fg.controls.paymentMode.setValue({
+          acc: {
+            id: 'id',
+          },
+        });
+
+        const result = component.getAdvanceWalletId(true);
+        expect(result).toBeNull();
+      });
     });
 
     describe('generateEtxnFromFg():', () => {

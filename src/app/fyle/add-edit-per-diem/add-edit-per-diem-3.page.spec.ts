@@ -249,6 +249,42 @@ export function TestCases3(getTestBed) {
       });
     });
 
+    describe('getAdvanceWalletId():', () => {
+      it('should get advance wallet id', () => {
+        component.fg.controls.paymentMode.setValue({
+          id: 'areq1234',
+        });
+
+        const result = component.getAdvanceWalletId(true);
+        expect(result).toEqual('areq1234');
+      });
+
+      it('should return null', () => {
+        component.fg.controls.paymentMode.setValue(null);
+
+        const result = component.getAdvanceWalletId(true);
+        expect(result).toBeUndefined();
+      });
+
+      it('should return null when advance wallet setting is disabled', () => {
+        component.fg.controls.paymentMode.setValue(null);
+
+        const result = component.getAdvanceWalletId(false);
+        expect(result).toBeFalse();
+      });
+
+      it('should return null', () => {
+        component.fg.controls.paymentMode.setValue({
+          acc: {
+            id: 'id',
+          },
+        });
+
+        const result = component.getAdvanceWalletId(true);
+        expect(result).toBeNull();
+      });
+    });
+
     describe('generateEtxnFromFg():', () => {
       beforeEach(() => {
         spyOn(component, 'getFormValues').and.returnValue(perDiemFormValuesData8);
