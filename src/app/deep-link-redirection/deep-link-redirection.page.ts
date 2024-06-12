@@ -125,14 +125,9 @@ export class DeepLinkRedirectionPage {
 
   async redirectToReportModule(): Promise<void> {
     await this.loaderService.showLoader('Loading....');
-    const currentEou = await this.authService.getEou();
 
     const spenderReport$ = this.spenderReportsService.getReportById(this.activatedRoute.snapshot.params.id as string);
     const approverReport$ = this.approverReportsService.getReportById(this.activatedRoute.snapshot.params.id as string);
-    const rptObservables$ = [];
-    if (currentEou.ou.roles.includes('APPROVER')) {
-      rptObservables$.push(this.approverReportsService.getReportById(this.activatedRoute.snapshot.params.id as string));
-    }
     spenderReport$.subscribe(
       (spenderReport) => {
         if (spenderReport) {
@@ -151,6 +146,8 @@ export class DeepLinkRedirectionPage {
                 'view_team_report',
                 { id: this.activatedRoute.snapshot.params.id as string },
               ]);
+            } else {
+              this.switchOrg();
             }
           });
         }
