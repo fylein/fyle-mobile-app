@@ -17,6 +17,18 @@
   </ng-container>
   <div class="my-profile__content-container__content">
     <ng-container *ngIf="isConnected$ | async">
+      <!-- Hide Opt in flow for IN cluster -->
+      <ng-container *ngIf="!(isUserFromINCluster$ | async)">
+        <ng-container *ngIf="eou$ | async as eou">
+          <app-profile-opt-in-card
+            [extendedOrgUser]="eou"
+            (copiedText)="showToastMessage($event, 'success')"
+            (optInClicked)="updateMobileNumber($event)"
+            (optOutClicked)="optOutClick($event)"
+            (editMobileNumberClicked)="updateMobileNumber($event)"
+          ></app-profile-opt-in-card>
+        </ng-container>
+      </ng-container>
       <ng-container *ngIf="infoCardsData?.length">
         <div class="my-profile__info-card-container">
           <div matRipple *ngFor="let infoCardData of infoCardsData;let isLast=last">

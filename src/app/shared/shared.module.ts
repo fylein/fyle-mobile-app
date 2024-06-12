@@ -148,6 +148,7 @@ import { FySelectCommuteDetailsComponent } from './components/fy-select-commute-
 import { FyOptInComponent } from './components/fy-opt-in/fy-opt-in.component';
 import { NgOtpInputModule } from 'ng-otp-input';
 import { PromoteOptInModalComponent } from './components/promote-opt-in-modal/promote-opt-in-modal.component';
+import { ProfileOptInCardComponent } from '../app/shared/components/profile-opt-in-card/profile-opt-in-card.component';
 
 @NgModule({
   declarations: [
@@ -272,6 +273,7 @@ import { PromoteOptInModalComponent } from './components/promote-opt-in-modal/pr
     FySelectCommuteDetailsComponent,
     FyOptInComponent,
     PromoteOptInModalComponent,
+    ProfileOptInCardComponent,
   ],
   imports: [
     CommonModule,
@@ -402,6 +404,7 @@ import { PromoteOptInModalComponent } from './components/promote-opt-in-modal/pr
     FySelectCommuteDetailsComponent,
     FyOptInComponent,
     PromoteOptInModalComponent,
+    ProfileOptInCardComponent,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker, FyCurrencyPipe, ReportState],
 })
