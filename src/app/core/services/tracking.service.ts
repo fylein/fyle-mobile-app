@@ -752,4 +752,16 @@ export class TrackingService {
   optedOut(): void {
     this.eventTrack('Opted Out');
   }
+
+  showOptInModalPostExpenseCreation(): void {
+    this.eventTrack('Opt In Modal Post Expense Creation Shown');
+  }
+
+  skipOptInModalPostExpenseCreation(): void {
+    this.eventTrack('Skip Opt In Modal Post Expense Creation');
+  }
+
+  optInFromPostExpenseCreationModal(): void {
+    this.eventTrack('Opt In From Post Expense Creation Modal');
+  }
 }
