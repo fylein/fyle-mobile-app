@@ -519,6 +519,22 @@ export const unflattenedExpData = deepFreeze({
   dataUrls: [],
 });
 
+export const unflattenedExpDataWithAdvanceWallet = deepFreeze({
+  ...unflattenedExpData,
+  tx: {
+    ...unflattenedExpData.tx,
+    advance_wallet_id: 'areq1234',
+  },
+});
+
+export const unflattenedExpDataWithAdvanceWalletWithoutId = deepFreeze({
+  ...unflattenedExpDataWithAdvanceWallet,
+  tx: {
+    ...unflattenedExpDataWithAdvanceWallet.tx,
+    id: null,
+  },
+});
+
 export const draftUnflattendedTxn = deepFreeze({
   ...unflattenedExpData,
   tx: {

@@ -46,6 +46,7 @@ export const unflattenedTxnData: UnflattenedTransaction = deepFreeze({
     cost_center_code: null,
     cost_center_id: 13795,
     source_account_id: 'acc5APeygFjRd',
+    advance_wallet_id: null,
     transcription_state: null,
     verification_state: null,
     policy_state: null,
@@ -298,6 +299,16 @@ export const unflattenedTxnDataWithSubCategory: UnflattenedTransaction = deepFre
   },
   is: {
     test_call: null,
+  },
+});
+
+export const unflattenedTxnWithAdvanceWallet: UnflattenedTransaction = deepFreeze({
+  ...unflattenedTxnData,
+  tx: {
+    ...unflattenedTxnData.tx,
+    source_account_id: undefined,
+    advance_wallet_id: 'areq1234',
+    skip_reimbursement: true,
   },
 });
 
@@ -1913,6 +1924,7 @@ export const newExpFromFg: Partial<UnflattenedTransaction> = deepFreeze({
     cost_center_code: null,
     cost_center_id: 2411,
     source_account_id: 'id',
+    advance_wallet_id: null,
     transcription_state: null,
     verification_state: null,
     policy_state: null,
@@ -2023,6 +2035,15 @@ export const newExpFromFg: Partial<UnflattenedTransaction> = deepFreeze({
   dataUrls: [],
 });
 
+export const newExpFromFgWithAdvanceWallet: Partial<UnflattenedTransaction> = deepFreeze({
+  ...newExpFromFg,
+  tx: {
+    ...newExpFromFg.tx,
+    source_account_id: null,
+    advance_wallet_id: 'areq1234',
+  },
+});
+
 export const newExpFromFg2: Partial<UnflattenedTransaction> = deepFreeze({
   tx: {
     risk_state: null,
@@ -2064,6 +2085,7 @@ export const newExpFromFg2: Partial<UnflattenedTransaction> = deepFreeze({
     cost_center_code: null,
     cost_center_id: 2411,
     source_account_id: 'id',
+    advance_wallet_id: null,
     transcription_state: null,
     verification_state: null,
     policy_state: null,
@@ -2216,6 +2238,7 @@ export const newExpFromFg3: Partial<UnflattenedTransaction> = deepFreeze({
     cost_center_code: null,
     cost_center_id: 2411,
     source_account_id: 'id',
+    advance_wallet_id: null,
     transcription_state: null,
     verification_state: null,
     policy_state: null,
@@ -2351,6 +2374,7 @@ export const newExpFromFg4: Partial<UnflattenedTransaction> = deepFreeze({
     cost_center_code: null,
     cost_center_id: null,
     source_account_id: 'id',
+    advance_wallet_id: null,
     transcription_state: null,
     verification_state: null,
     policy_state: null,
@@ -3026,6 +3050,7 @@ export const unflattenedTxnWithReportID3: UnflattenedTransaction = deepFreeze({
     cost_center_code: null,
     cost_center_id: 13795,
     source_account_id: 'acc5APeygFjRd',
+    advance_wallet_id: null,
     transcription_state: null,
     verification_state: null,
     policy_state: null,
@@ -3174,6 +3199,7 @@ export const newMileageExpFromForm: Partial<UnflattenedTransaction> = deepFreeze
     cost_center_id: 2411,
     txn_dt: new Date('2023-02-13T01:00:00.000Z'),
     source_account_id: 'accZ1IWjhjLyu4',
+    advance_wallet_id: null,
     transcription_state: null,
     verification_state: null,
     policy_state: null,
@@ -3386,6 +3412,7 @@ export const newMileageExpFromForm2: Partial<UnflattenedTransaction> = deepFreez
     cost_center_code: null,
     cost_center_id: 2411,
     source_account_id: 'accZ1IWjhjLyu4',
+    advance_wallet_id: null,
     transcription_state: null,
     verification_state: null,
     policy_state: null,
@@ -3459,6 +3486,15 @@ export const newMileageExpFromForm2: Partial<UnflattenedTransaction> = deepFreez
     mobile: '123456',
     sub_department: null,
     joining_dt: new Date('2017-07-25T00:00:00.000Z'),
+  },
+});
+
+export const newMileageExpFromFgWithAdvanceWallet: Partial<UnflattenedTransaction> = deepFreeze({
+  ...newMileageExpFromForm,
+  tx: {
+    ...newMileageExpFromForm.tx,
+    source_account_id: undefined,
+    advance_wallet_id: 'areq1234',
   },
 });
 

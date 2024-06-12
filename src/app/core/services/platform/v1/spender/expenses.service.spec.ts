@@ -19,6 +19,9 @@ import {
   attachReceiptPayload1,
   attachReceiptsPayload1,
 } from 'src/app/core/mock-data/platform/v1/attach-receipt-payload.data';
+import { splitPayloadData1 } from 'src/app/core/mock-data/split-payload.data';
+import { splitPolicyExp1 } from 'src/app/core/mock-data/split-expense-policy.data';
+import { SplitExpenseMissingFieldsData } from 'src/app/core/models/split-expense-missing-fields.data';
 
 describe('ExpensesService', () => {
   let service: ExpensesService;
@@ -266,5 +269,45 @@ describe('ExpensesService', () => {
         expect(spenderService.post).toHaveBeenCalledOnceWith('/expenses/attach_files/bulk', attachReceiptsPayload1);
         done();
       });
+  });
+
+  it('splitExpenseCheckPolicies(): should get expense policy check for split expense', (done) => {
+    spenderService.post.and.returnValue(of(splitPolicyExp1));
+
+    service.splitExpenseCheckPolicies(splitPayloadData1).subscribe((res) => {
+      expect(res).toEqual(splitPolicyExp1);
+      expect(spenderService.post).toHaveBeenCalledOnceWith('/expenses/split/check_policies', {
+        data: splitPayloadData1,
+      });
+      done();
+    });
+  });
+
+  it('splitExpenseCheckMissingFields(): should get expense policy check missing fields for split expense', (done) => {
+    spenderService.post.and.returnValue(of(SplitExpenseMissingFieldsData));
+
+    service.splitExpenseCheckMissingFields(splitPayloadData1).subscribe((res) => {
+      expect(res).toEqual(SplitExpenseMissingFieldsData);
+      expect(spenderService.post).toHaveBeenCalledOnceWith('/expenses/split/check_mandatory_fields', {
+        data: splitPayloadData1,
+      });
+      done();
+    });
+  });
+
+  it('post(): should post expenses', (done) => {
+    spenderService.post.and.returnValue(of({}));
+
+    const expenseWithAdvanceWalletId = {
+      id: 'tx1234',
+      advance_wallet_id: 'areq123',
+    };
+
+    service.post(expenseWithAdvanceWalletId).subscribe(() => {
+      expect(spenderService.post).toHaveBeenCalledOnceWith('/expenses', {
+        data: expenseWithAdvanceWalletId,
+      });
+      done();
+    });
   });
 });

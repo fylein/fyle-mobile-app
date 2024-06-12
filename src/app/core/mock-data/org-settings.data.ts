@@ -39,6 +39,7 @@ export const orgSettingsRes: OrgSettings = deepFreeze({
   advances: {
     allowed: true,
     enabled: true,
+    advance_wallets_enabled: false,
   },
   projects: {
     allowed: true,
@@ -446,6 +447,7 @@ export const orgSettingsParams2: OrgSettings = deepFreeze({
   advances: {
     allowed: true,
     enabled: true,
+    advance_wallets_enabled: false,
   },
   projects: {
     allowed: true,
@@ -1226,6 +1228,15 @@ export const orgSettingsParamsWithSimplifiedReport: OrgSettings = deepFreeze({
   simplified_report_closure_settings: {
     allowed: true,
     enabled: true,
+  },
+});
+
+export const orgSettingsParamsWithAdvanceWallet: OrgSettings = deepFreeze({
+  ...orgSettingsRes,
+  advances: {
+    allowed: true,
+    enabled: true,
+    advance_wallets_enabled: true,
   },
 });
 

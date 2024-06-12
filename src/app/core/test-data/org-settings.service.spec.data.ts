@@ -43,6 +43,7 @@ export const orgSettingsGetData: OrgSettings = deepFreeze({
   advances: {
     allowed: true,
     enabled: true,
+    advance_wallets_enabled: true,
   },
   projects: {
     allowed: true,
@@ -474,6 +475,7 @@ export const orgSettingsPostData: OrgSettingsResponse = deepFreeze({
     allowed: true,
     enabled: true,
     advance_requests_enabled: true,
+    advance_wallets_enabled: true,
   },
   org_mileage_settings: {
     allowed: true,

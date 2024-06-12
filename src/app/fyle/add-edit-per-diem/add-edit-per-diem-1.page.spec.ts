@@ -27,6 +27,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
+import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
 
 import { FormArray, FormBuilder, Validators } from '@angular/forms';
 import { ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
@@ -37,13 +38,22 @@ import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup
 import { popoverControllerParams2 } from 'src/app/core/mock-data/modal-controller.data';
 import { of } from 'rxjs';
 import { expectedUnflattendedTxnData3, unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
-import { unflattenExp1, unflattenedTxn } from 'src/app/core/mock-data/unflattened-expense.data';
+import {
+  unflattenExp1,
+  unflattenedTxn,
+  unflattenedExpDataWithAdvanceWallet,
+  unflattenedExpDataWithAdvanceWalletWithoutId,
+} from 'src/app/core/mock-data/unflattened-expense.data';
 import { EventEmitter } from '@angular/core';
 import {
   accountsData,
   paymentModesConfig,
   paymentModesData,
   unflattenedAccount1Data,
+  paymentModeDataAdvanceWallet,
+  advanceWallet1Data,
+  paymentModesWithAdvanceWalletsResData,
+  orgSettingsData,
 } from 'src/app/core/test-data/accounts.service.spec.data';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { cloneDeep } from 'lodash';
@@ -56,7 +66,11 @@ import {
 } from 'src/app/core/mock-data/org-category.data';
 import { txnFieldsData2 } from 'src/app/core/mock-data/expense-field-obj.data';
 import { defaultTxnFieldValuesData2 } from 'src/app/core/mock-data/default-txn-field-values.data';
-import { orgSettingsCCCDisabled } from 'src/app/core/mock-data/org-settings.data';
+import {
+  orgSettingsCCCDisabled,
+  orgSettingsRes,
+  orgSettingsParamsWithAdvanceWallet,
+} from 'src/app/core/mock-data/org-settings.data';
 import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
 import { expectedProjectsResponse } from 'src/app/core/test-data/projects.spec.data';
 import {
@@ -107,6 +121,7 @@ export function TestCases1(getTestBed) {
     let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
     let storageService: jasmine.SpyObj<StorageService>;
     let perDiemService: jasmine.SpyObj<PerDiemService>;
+    let advanceWalletsService: jasmine.SpyObj<AdvanceWalletsService>;
 
     beforeEach(waitForAsync(() => {
       const TestBed = getTestBed();
@@ -148,6 +163,7 @@ export function TestCases1(getTestBed) {
       orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       perDiemService = TestBed.inject(PerDiemService) as jasmine.SpyObj<PerDiemService>;
+      advanceWalletsService = TestBed.inject(AdvanceWalletsService) as jasmine.SpyObj<AdvanceWalletsService>;
 
       component.fg = formBuilder.group({
         currencyObj: [
@@ -459,6 +475,24 @@ export function TestCases1(getTestBed) {
     describe('checkIfInvalidPaymentMode():', () => {
       it('should check for invalid payment mode if payment account type is not advance account', (done) => {
         component.etxn$ = of(expectedUnflattendedTxnData3);
+        orgSettingsService.get.and.returnValue(of(orgSettingsRes));
+        component.fg.controls.paymentMode.setValue(unflattenedAccount1Data);
+        component.fg.controls.currencyObj.setValue({
+          currency: 'USD',
+          amount: 500,
+        });
+        fixture.detectChanges();
+
+        component.checkIfInvalidPaymentMode().subscribe((res) => {
+          expect(paymentModesService.showInvalidPaymentModeToast).not.toHaveBeenCalled();
+          expect(res).toBeFalse();
+          done();
+        });
+      });
+
+      it('should check for invalid payment mode if org settings is null', (done) => {
+        component.etxn$ = of(expectedUnflattendedTxnData3);
+        orgSettingsService.get.and.returnValue(of(null));
         component.fg.controls.paymentMode.setValue(unflattenedAccount1Data);
         component.fg.controls.currencyObj.setValue({
           currency: 'USD',
@@ -475,6 +509,7 @@ export function TestCases1(getTestBed) {
 
       it('should check for invalid payment in case of Advance accounts if source account ID does not match with account type', (done) => {
         component.etxn$ = of(expectedUnflattendedTxnData3);
+        orgSettingsService.get.and.returnValue(of(orgSettingsRes));
         component.fg.controls.paymentMode.setValue({
           ...unflattenedAccount1Data,
           acc: { ...unflattenedAccount1Data.acc, type: AccountType.ADVANCE },
@@ -496,6 +531,7 @@ export function TestCases1(getTestBed) {
         const mockUnflattedData = cloneDeep(expectedUnflattendedTxnData3);
         mockUnflattedData.tx.source_account_id = 'acc5APeygFjRd';
         component.etxn$ = of(mockUnflattedData);
+        orgSettingsService.get.and.returnValue(of(orgSettingsRes));
         component.fg.controls.paymentMode.setValue({
           ...unflattenedAccount1Data,
           acc: { ...unflattenedAccount1Data.acc, type: AccountType.ADVANCE, id: 'acc5APeygFjRd' },
@@ -515,6 +551,7 @@ export function TestCases1(getTestBed) {
 
       it('should not call paymentModesService.showInvalidPaymentModeToast method if paymentAccount.acc is undefined', (done) => {
         component.etxn$ = of(expectedUnflattendedTxnData3);
+        orgSettingsService.get.and.returnValue(of(orgSettingsRes));
         const mockPaymentAccount = cloneDeep(unflattenedAccount1Data);
         mockPaymentAccount.acc = undefined;
         component.fg.controls.paymentMode.setValue(mockPaymentAccount);
@@ -529,12 +566,62 @@ export function TestCases1(getTestBed) {
 
       it('should not call paymentModesService.showInvalidPaymentModeToast method if paymentAccount is undefined', (done) => {
         component.etxn$ = of(expectedUnflattendedTxnData3);
+        orgSettingsService.get.and.returnValue(of(orgSettingsRes));
         component.fg.controls.paymentMode.setValue(undefined);
         fixture.detectChanges();
 
         component.checkIfInvalidPaymentMode().subscribe((res) => {
           expect(paymentModesService.showInvalidPaymentModeToast).not.toHaveBeenCalled();
           expect(res).toBeFalse();
+          done();
+        });
+      });
+
+      it('should not call paymentModesService.showInvalidPaymentModeToast method if paymentAccount is undefined and advance wallets is enabled', (done) => {
+        component.etxn$ = of(expectedUnflattendedTxnData3);
+        orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithAdvanceWallet));
+        component.fg.controls.paymentMode.setValue(undefined);
+        fixture.detectChanges();
+
+        component.checkIfInvalidPaymentMode().subscribe((res) => {
+          expect(paymentModesService.showInvalidPaymentModeToast).not.toHaveBeenCalled();
+          expect(res).toBeFalse();
+          done();
+        });
+      });
+
+      it('should check for invalid payment in case of Advance wallets', (done) => {
+        component.etxn$ = of(unflattenedExpDataWithAdvanceWallet);
+        orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithAdvanceWallet));
+
+        component.fg.controls.paymentMode.setValue(paymentModeDataAdvanceWallet);
+        component.fg.controls.currencyObj.setValue({
+          currency: 'USD',
+          amount: 2500,
+        });
+        fixture.detectChanges();
+
+        component.checkIfInvalidPaymentMode().subscribe((res) => {
+          expect(res).toBeTrue();
+          expect(paymentModesService.showInvalidPaymentModeToast).toHaveBeenCalledTimes(1);
+          done();
+        });
+      });
+
+      it('should check for invalid payment while adding expense', (done) => {
+        component.etxn$ = of(unflattenedExpDataWithAdvanceWalletWithoutId);
+        orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithAdvanceWallet));
+
+        component.fg.controls.paymentMode.setValue(paymentModeDataAdvanceWallet);
+        component.fg.controls.currencyObj.setValue({
+          currency: 'USD',
+          amount: 2500,
+        });
+        fixture.detectChanges();
+
+        component.checkIfInvalidPaymentMode().subscribe((res) => {
+          expect(res).toBeTrue();
+          expect(paymentModesService.showInvalidPaymentModeToast).toHaveBeenCalledTimes(1);
           done();
         });
       });
@@ -602,6 +689,7 @@ export function TestCases1(getTestBed) {
     it('getPaymentModes(): should get payment modes', (done) => {
       component.etxn$ = of(unflattenedTxn);
       accountsService.getEMyAccounts.and.returnValue(of(accountsData));
+      advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
       orgSettingsService.get.and.returnValue(of(orgSettingsCCCDisabled));
       orgUserSettingsService.getAllowedPaymentModes.and.returnValue(
         of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY])
@@ -613,6 +701,7 @@ export function TestCases1(getTestBed) {
       component.getPaymentModes().subscribe((res) => {
         expect(res).toEqual(paymentModesData);
         expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+        expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledTimes(1);
         expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
         expect(orgUserSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
         expect(paymentModesService.checkIfPaymentModeConfigurationsIsEnabled).toHaveBeenCalledTimes(1);
@@ -622,6 +711,54 @@ export function TestCases1(getTestBed) {
           [AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY],
           paymentModesConfig
         );
+        done();
+      });
+    });
+
+    it('should get payment modes with advance wallets if advance wallets are enabled', (done) => {
+      component.etxn$ = of(unflattenedTxnData);
+      accountsService.getEMyAccounts.and.returnValue(of(accountsData));
+      advanceWalletsService.getAllAdvanceWallets.and.returnValue(of(advanceWallet1Data));
+      orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithAdvanceWallet));
+      orgUserSettingsService.getAllowedPaymentModes.and.returnValue(
+        of([AccountType.ADVANCE, AccountType.PERSONAL, AccountType.COMPANY])
+      );
+      paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(
+        of(orgSettingsData.payment_mode_settings.enabled && orgSettingsData.payment_mode_settings.allowed)
+      );
+      accountsService.getPaymentModesWithAdvanceWallets.and.returnValue(paymentModesWithAdvanceWalletsResData);
+      fixture.detectChanges();
+
+      component.getPaymentModes().subscribe((res) => {
+        expect(res).toEqual(paymentModesWithAdvanceWalletsResData);
+        expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+        expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledTimes(1);
+        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+        expect(orgUserSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
+        expect(paymentModesService.checkIfPaymentModeConfigurationsIsEnabled).toHaveBeenCalledTimes(1);
+        done();
+      });
+    });
+
+    it('getPaymentModes(): should get payment modes when orgSettings is null', (done) => {
+      component.etxn$ = of(unflattenedTxn);
+      accountsService.getEMyAccounts.and.returnValue(of(accountsData));
+      advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
+      orgSettingsService.get.and.returnValue(of(null));
+      orgUserSettingsService.getAllowedPaymentModes.and.returnValue(
+        of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY])
+      );
+      paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(of(true));
+      accountsService.getPaymentModes.and.returnValue(paymentModesData);
+      fixture.detectChanges();
+
+      component.getPaymentModes().subscribe((res) => {
+        expect(res).toEqual(paymentModesData);
+        expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+        expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledTimes(1);
+        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+        expect(orgUserSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
+        expect(paymentModesService.checkIfPaymentModeConfigurationsIsEnabled).toHaveBeenCalledTimes(1);
         done();
       });
     });
