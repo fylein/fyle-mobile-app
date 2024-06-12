@@ -1,0 +1,12 @@
+name: jest-reports
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  compare-cov:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: vgrafe/jest-reports@v0.1.5
