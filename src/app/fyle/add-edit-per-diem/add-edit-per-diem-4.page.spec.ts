@@ -302,7 +302,7 @@ export function TestCases4(getTestBed) {
           advance_wallet_id: 'areq1234',
         };
         const etxn$ = of({
-          tx: tx,
+          tx,
           ou: transformedExpenseDataWithSubCategory.ou,
           dataUrls: [],
         });
