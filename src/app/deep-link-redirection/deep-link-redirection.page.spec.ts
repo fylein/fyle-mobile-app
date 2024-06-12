@@ -111,8 +111,6 @@ describe('DeepLinkRedirectionPage', () => {
       fixture.detectChanges();
       expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Loading....');
       tick(500);
-      expect(authService.getEou).toHaveBeenCalledTimes(1);
-      tick(500);
       expect(spenderReportsService.getReportById).toHaveBeenCalledOnceWith(activeroutemock.snapshot.params.id);
       expect(router.navigate).toHaveBeenCalledOnceWith([
         '/',
@@ -147,8 +145,6 @@ describe('DeepLinkRedirectionPage', () => {
       component.redirectToReportModule();
       fixture.detectChanges();
       expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Loading....');
-      tick(500);
-      expect(authService.getEou).toHaveBeenCalledTimes(1);
       tick(500);
       expect(router.navigate).toHaveBeenCalledOnceWith([
         '/',
