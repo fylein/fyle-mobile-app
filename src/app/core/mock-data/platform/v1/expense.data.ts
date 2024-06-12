@@ -2761,6 +2761,11 @@ export const platformExpenseDataWithSubCategory: Expense = deepFreeze({
   verifier_comments: [],
 });
 
+export const platformExpenseDataForAdvanceWallet: Expense = deepFreeze({
+  ...platformExpenseDataWithSubCategory,
+  id: 'txD5hIQgLuR5',
+});
+
 export const platformExpenseDataWithReportId: Expense = deepFreeze({
   ...platformExpenseDataWithSubCategory,
   report_id: 'rpbNc3kn5baq',

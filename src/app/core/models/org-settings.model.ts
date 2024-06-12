@@ -171,6 +171,7 @@ export interface AdminEmailSettings extends CommonOrgSettings {
 
 export interface AdvancesSettings extends CommonOrgSettings {
   advance_requests_enabled?: boolean;
+  advance_wallets_enabled?: boolean;
 }
 
 export interface OrgMileageSettings extends CommonOrgSettings {
@@ -489,7 +490,7 @@ export interface OrgSettings {
   org_id?: string;
   mileage?: MileageDetails;
   commute_deduction_settings?: CommonOrgSettings;
-  advances?: CommonOrgSettings;
+  advances?: AdvancesSettings;
   projects?: CommonOrgSettings;
   advanced_projects?: AdvancedProjectSettings;
   advance_requests?: CommonOrgSettings;
