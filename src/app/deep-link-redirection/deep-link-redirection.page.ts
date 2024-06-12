@@ -129,10 +129,6 @@ export class DeepLinkRedirectionPage {
 
     const spenderReport$ = this.spenderReportsService.getReportById(this.activatedRoute.snapshot.params.id as string);
     const approverReport$ = this.approverReportsService.getReportById(this.activatedRoute.snapshot.params.id as string);
-    const rptObservables$ = [];
-    if (currentEou.ou.roles.includes('APPROVER')) {
-      rptObservables$.push(this.approverReportsService.getReportById(this.activatedRoute.snapshot.params.id as string));
-    }
     spenderReport$.subscribe(
       (spenderReport) => {
         if (spenderReport) {
