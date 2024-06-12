@@ -47,5 +47,10 @@ jobs:
                 $(echo "$branches < 91.10" | bc -l) || \
                 $(echo "$functions < 94.0" | bc -l) )); then
             echo "Code Coverage Percentage is below 95%"
+            - name: Comment PR
+              uses: thollander/actions-comment-pull-request@v2
+              with:
+                message: |
+                  Hello world ! :wave:
             exit 1
           fi
