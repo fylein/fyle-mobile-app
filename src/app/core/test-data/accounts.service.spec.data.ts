@@ -8,6 +8,35 @@ import { AllowedPaymentModes } from '../models/allowed-payment-modes.enum';
 import { ExtendedAccount } from '../models/extended-account.model';
 import { OrgSettings } from '../models/org-settings.model';
 import { UnflattenedTransaction } from '../models/unflattened-transaction.model';
+import { AdvanceWallet } from '../models/platform/v1/advance-wallet.model';
+
+export const advanceWallet1Data: AdvanceWallet[] = deepFreeze([
+  {
+    currency: 'USD',
+    balance_amount: 1500,
+    id: 'areq1234',
+    org_id: 'orNVthTo2Zyo',
+    user_id: 'usvKA4X8Ugcr',
+    created_at: new Date('2021-03-14T06:07:39.652664+00:00'),
+    updated_at: new Date('2022-05-05T17:45:12.393241+00:00'),
+    type: 'PERSONAL_ADVANCE_ACCOUNT',
+    isReimbursable: false,
+  },
+]);
+
+export const advanceWallet1DataZeroBalance = deepFreeze([
+  {
+    currency: 'USD',
+    balance_amount: 0,
+    id: 'areq1234',
+    org_id: 'orNVthTo2Zyo',
+    user_id: 'usvKA4X8Ugcr',
+    created_at: new Date('2021-03-14T06:07:39.652664+00:00'),
+    updated_at: new Date('2022-05-05T17:45:12.393241+00:00'),
+    type: 'PERSONAL_ADVANCE_ACCOUNT',
+    isReimbursable: false,
+  },
+]);
 
 export const account1Data = deepFreeze({
   acc_id: 'accfziaxbGFVW',
@@ -421,6 +450,174 @@ export const paymentModeDataPersonal2 = deepFreeze({
   amount: null,
 });
 
+export const unflattenedTransactionAdvanceWallet: UnflattenedTransaction = deepFreeze({
+  tx: {
+    risk_state: null,
+    is_duplicate_expense: null,
+    duplicates: null,
+    id: 'txbiYbxQUcBv',
+    org_user_id: 'ouX8dwsbLCLv',
+    created_at: new Date('2022-02-17T09:06:55.065Z'),
+    receipt_required: false,
+    user_can_delete: true,
+    txn_dt: new Date('2018-06-25T04:30:00.000Z'),
+    category: null,
+    amount: 141.96,
+    user_amount: 141.96,
+    policy_amount: null,
+    admin_amount: null,
+    tax: null,
+    tax_amount: null,
+    tax_group_id: null,
+    currency: 'INR',
+    report_id: null,
+    reported_at: null,
+    state: 'COMPLETE',
+    num_files: 0,
+    invoice_number: null,
+    purpose: 'AMAZON.COM, SEATTLE, WA (Card Transaction)',
+    source: 'MOBILE',
+    billable: false,
+    orig_amount: null,
+    orig_currency: null,
+    project_id: 3943,
+    project_name: 'Staging Project',
+    project_code: null,
+    skip_reimbursement: false,
+    creator_id: 'usvKA4X8Ugcr',
+    user_reason_for_duplicate_expenses: null,
+    external_id: null,
+    cost_center_name: null,
+    cost_center_code: null,
+    cost_center_id: null,
+    source_account_id: null,
+    advance_wallet_id: 'areq1234',
+    transcription_state: null,
+    verification_state: null,
+    policy_state: null,
+    manual_flag: null,
+    policy_flag: false,
+    vendor: 'AMAZON.COM',
+    vendor_id: 26355,
+    platform_vendor: null,
+    platform_vendor_id: null,
+    org_category: 'Unspecified',
+    sub_category: 'Unspecified',
+    fyle_category: 'Unspecified',
+    org_category_code: null,
+    org_category_id: 16582,
+    expense_number: 'E/2022/02/T/1362',
+    corporate_credit_card_expense_group_id: 'cccekLD25dsJET',
+    split_group_id: 'txbiYbxQUcBv',
+    split_group_user_amount: 141.96,
+    extracted_data: null,
+    user_review_needed: null,
+    mandatory_fields_present: true,
+    distance: null,
+    distance_unit: null,
+    from_dt: null,
+    to_dt: null,
+    num_days: null,
+    mileage_calculated_distance: null,
+    mileage_calculated_amount: null,
+    mileage_vehicle_type: null,
+    mileage_rate: null,
+    mileage_is_round_trip: null,
+    hotel_is_breakfast_provided: null,
+    flight_journey_travel_class: null,
+    flight_return_travel_class: null,
+    train_travel_class: null,
+    bus_travel_class: null,
+    taxi_travel_class: null,
+    per_diem_rate_id: null,
+    activity_policy_pending: null,
+    activity_details: null,
+    locations: [],
+    custom_properties: [
+      {
+        name: 'userlist',
+        value: [],
+      },
+      {
+        name: 'User List',
+        value: [],
+      },
+      {
+        name: 'test',
+        value: [],
+      },
+      {
+        name: 'category2',
+        value: [],
+      },
+      {
+        name: 'pub create hola 1',
+        value: null,
+      },
+      {
+        name: 'test 112',
+        value: null,
+      },
+      {
+        name: '2232323',
+        value: null,
+      },
+      {
+        name: 'select all 2',
+        value: null,
+      },
+    ],
+    is_implicit_merge_blocked: false,
+    categoryDisplayName: 'Unspecified',
+    matchCCCId: 'cccekLD25dsJET',
+  },
+  ou: {
+    org_name: 'Staging Loaded',
+    id: 'ouX8dwsbLCLv',
+    org_id: 'orNVthTo2Zyo',
+    user_id: 'usvKA4X8Ugcr',
+    employee_id:
+      'A very long Employee ID A very long Employee ID A very long Employee ID A very long Employee ID A very long Employee ID',
+    location: null,
+    level: 123,
+    band: 'Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name',
+    rank: 1121212121,
+    business_unit:
+      'A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed',
+    department_id: 'deptpmQ0SsMO0S',
+    department: '0000000',
+    title:
+      'A very long title indeed A very long title indeed A very long title indeed A very long title indeed A very long title indeed',
+    mobile: '+918080913866',
+    sub_department: null,
+    joining_dt: new Date('2017-07-25T00:00:00.000+0000'),
+  },
+  tg: {
+    name: null,
+    percentage: null,
+  },
+  rp: {
+    purpose: null,
+    approved_at: null,
+    reimbursed_at: null,
+    claim_number: null,
+  },
+  us: {
+    full_name: 'Abhishekkk',
+    email: 'ajain@fyle.in',
+  },
+  source: {
+    account_type: null,
+    account_id: null,
+  },
+  external: {
+    expense_id: null,
+  },
+  is: {
+    test_call: null,
+  },
+});
+
 export const unflattenedTransactionCCC: UnflattenedTransaction = deepFreeze({
   tx: {
     risk_state: null,
@@ -586,6 +783,18 @@ export const unflattenedTransactionCCC: UnflattenedTransaction = deepFreeze({
   is: {
     test_call: null,
   },
+});
+
+export const paymentModeDataAdvanceWallet = deepFreeze({
+  currency: 'USD',
+  balance_amount: 1500,
+  id: 'areq1234',
+  org_id: 'orNVthTo2Zyo',
+  user_id: 'usvKA4X8Ugcr',
+  created_at: new Date('2021-03-14T06:07:39.652664+00:00'),
+  updated_at: new Date('2022-05-05T17:45:12.393241+00:00'),
+  type: 'PERSONAL_ADVANCE_ACCOUNT',
+  isReimbursable: false,
 });
 
 export const paymentModeDataCCC = deepFreeze({
@@ -1064,6 +1273,7 @@ export const multiplePaymentModesData: ExtendedAccount[] = deepFreeze([
       current_balance_amount: 0,
       tentative_balance_amount: 159097.536645,
       category: null,
+      isReimbursable: true,
     },
     ou: {
       id: 'ouvyOFOSx5bh',
@@ -1741,6 +1951,24 @@ export const etxnObjWithAdvSourceData = deepFreeze({
   },
 });
 
+export const etxnObjWithAdvanceWalletSource = deepFreeze({
+  tx: {
+    skip_reimbursement: true,
+    source: 'MOBILE',
+    txn_dt: new Date('2022-12-20T20:41:40.771Z'),
+    currency: 'USD',
+    amount: null,
+    orig_currency: null,
+    orig_amount: null,
+    policy_amount: null,
+    custom_properties: [],
+    num_files: 0,
+    org_user_id: 'ouvyOFOSx5bh',
+    advance_wallet_id: 'areq1234',
+  },
+  dataUrls: [],
+});
+
 export const orgSettingsData: OrgSettings = deepFreeze({
   org_id: 'orrb8EW1zZsy',
   mileage: {
@@ -1776,6 +2004,7 @@ export const orgSettingsData: OrgSettings = deepFreeze({
   advances: {
     allowed: true,
     enabled: true,
+    advance_wallets_enabled: false,
   },
   projects: {
     allowed: true,
@@ -2532,6 +2761,292 @@ export const orgSettingsAdvDisabledData: OrgSettings = deepFreeze({
     virtual_card_settings_enabled: true,
   },
 });
+
+export const paymentModesWithAdvanceWalletsResData = deepFreeze([
+  {
+    label: 'Corporate Card',
+    value: {
+      acc: {
+        id: 'accYoo40xd0C1',
+        created_at: new Date('2018-08-05T08:32:51.583Z'),
+        updated_at: new Date('2022-12-23T08:34:46.658Z'),
+        name: 'Corporate Credit Card Account',
+        type: AccountType.CCC,
+        currency: 'USD',
+        target_balance_amount: 0,
+        current_balance_amount: 107069.2181,
+        tentative_balance_amount: -379832.039763,
+        category: null,
+        displayName: 'Corporate Card',
+        isReimbursable: false,
+      },
+      ou: {
+        id: 'ouvyOFOSx5bh',
+        org_id: 'orrb8EW1zZsy',
+      },
+      us: {
+        email: 'ajain@fyle.in',
+        full_name: 'Abhishek Jain',
+      },
+      org: {
+        id: null,
+        domain: null,
+      },
+      advance: {
+        purpose: null,
+        number: null,
+        id: null,
+      },
+      orig: {
+        currency: null,
+        amount: null,
+      },
+      currency: null,
+      amount: null,
+    },
+  },
+  {
+    label: 'Personal Card/Cash',
+    value: {
+      acc: {
+        id: 'accWUsrRlinFb',
+        created_at: new Date('2018-08-05T06:02:11.742Z'),
+        updated_at: new Date('2022-12-23T08:32:19.246Z'),
+        name: 'Personal Account',
+        type: AccountType.PERSONAL,
+        currency: 'USD',
+        target_balance_amount: 0,
+        current_balance_amount: 0,
+        tentative_balance_amount: 159640.246645,
+        category: null,
+        displayName: 'Personal Card/Cash',
+        isReimbursable: true,
+      },
+      ou: {
+        id: 'ouvyOFOSx5bh',
+        org_id: 'orrb8EW1zZsy',
+      },
+      us: {
+        email: 'ajain@fyle.in',
+        full_name: 'Abhishek Jain',
+      },
+      org: {
+        id: null,
+        domain: null,
+      },
+      advance: {
+        purpose: null,
+        number: null,
+        id: null,
+      },
+      orig: {
+        currency: null,
+        amount: null,
+      },
+      currency: null,
+      amount: null,
+    },
+  },
+  {
+    label: 'Paid by Company',
+    value: {
+      acc: {
+        id: 'accWUsrRlinFb',
+        created_at: new Date('2018-08-05T06:02:11.742Z'),
+        updated_at: new Date('2022-12-23T08:32:19.246Z'),
+        name: 'Personal Account',
+        type: AccountType.PERSONAL,
+        currency: 'USD',
+        target_balance_amount: 0,
+        current_balance_amount: 0,
+        tentative_balance_amount: 159640.246645,
+        category: null,
+        displayName: 'Paid by Company',
+        isReimbursable: false,
+      },
+      ou: {
+        id: 'ouvyOFOSx5bh',
+        org_id: 'orrb8EW1zZsy',
+      },
+      us: {
+        email: 'ajain@fyle.in',
+        full_name: 'Abhishek Jain',
+      },
+      org: {
+        id: null,
+        domain: null,
+      },
+      advance: {
+        purpose: null,
+        number: null,
+        id: null,
+      },
+      orig: {
+        currency: null,
+        amount: null,
+      },
+      currency: null,
+      amount: null,
+    },
+  },
+  {
+    label: 'Advance Wallet (Balance: $1500)',
+    value: {
+      type: 'PERSONAL_ADVANCE_ACCOUNT',
+      isReimbursable: false,
+      currency: 'USD',
+      balance_amount: 1500,
+      id: 'areq1234',
+      org_id: 'orNVthTo2Zyo',
+      user_id: 'usvKA4X8Ugcr',
+      created_at: new Date('2021-03-14T06:07:39.652664+00:00'),
+      updated_at: new Date('2022-05-05T17:45:12.393241+00:00'),
+    },
+  },
+]);
+
+export const paymentModesWithZeroAdvanceWalletBalanceResData = deepFreeze([
+  {
+    label: 'Corporate Card',
+    value: {
+      acc: {
+        id: 'accYoo40xd0C1',
+        created_at: new Date('2018-08-05T08:32:51.583Z'),
+        updated_at: new Date('2022-12-23T08:34:46.658Z'),
+        name: 'Corporate Credit Card Account',
+        type: AccountType.CCC,
+        currency: 'USD',
+        target_balance_amount: 0,
+        current_balance_amount: 107069.2181,
+        tentative_balance_amount: -379832.039763,
+        category: null,
+        displayName: 'Corporate Card',
+        isReimbursable: false,
+      },
+      ou: {
+        id: 'ouvyOFOSx5bh',
+        org_id: 'orrb8EW1zZsy',
+      },
+      us: {
+        email: 'ajain@fyle.in',
+        full_name: 'Abhishek Jain',
+      },
+      org: {
+        id: null,
+        domain: null,
+      },
+      advance: {
+        purpose: null,
+        number: null,
+        id: null,
+      },
+      orig: {
+        currency: null,
+        amount: null,
+      },
+      currency: null,
+      amount: null,
+    },
+  },
+  {
+    label: 'Personal Card/Cash',
+    value: {
+      acc: {
+        id: 'accWUsrRlinFb',
+        created_at: new Date('2018-08-05T06:02:11.742Z'),
+        updated_at: new Date('2022-12-23T08:32:19.246Z'),
+        name: 'Personal Account',
+        type: AccountType.PERSONAL,
+        currency: 'USD',
+        target_balance_amount: 0,
+        current_balance_amount: 0,
+        tentative_balance_amount: 159640.246645,
+        category: null,
+        displayName: 'Personal Card/Cash',
+        isReimbursable: true,
+      },
+      ou: {
+        id: 'ouvyOFOSx5bh',
+        org_id: 'orrb8EW1zZsy',
+      },
+      us: {
+        email: 'ajain@fyle.in',
+        full_name: 'Abhishek Jain',
+      },
+      org: {
+        id: null,
+        domain: null,
+      },
+      advance: {
+        purpose: null,
+        number: null,
+        id: null,
+      },
+      orig: {
+        currency: null,
+        amount: null,
+      },
+      currency: null,
+      amount: null,
+    },
+  },
+  {
+    label: 'Paid by Company',
+    value: {
+      acc: {
+        id: 'accWUsrRlinFb',
+        created_at: new Date('2018-08-05T06:02:11.742Z'),
+        updated_at: new Date('2022-12-23T08:32:19.246Z'),
+        name: 'Personal Account',
+        type: AccountType.PERSONAL,
+        currency: 'USD',
+        target_balance_amount: 0,
+        current_balance_amount: 0,
+        tentative_balance_amount: 159640.246645,
+        category: null,
+        displayName: 'Paid by Company',
+        isReimbursable: false,
+      },
+      ou: {
+        id: 'ouvyOFOSx5bh',
+        org_id: 'orrb8EW1zZsy',
+      },
+      us: {
+        email: 'ajain@fyle.in',
+        full_name: 'Abhishek Jain',
+      },
+      org: {
+        id: null,
+        domain: null,
+      },
+      advance: {
+        purpose: null,
+        number: null,
+        id: null,
+      },
+      orig: {
+        currency: null,
+        amount: null,
+      },
+      currency: null,
+      amount: null,
+    },
+  },
+  {
+    label: 'Advance Wallet (Balance: $0)',
+    value: {
+      type: 'PERSONAL_ADVANCE_ACCOUNT',
+      isReimbursable: false,
+      currency: 'USD',
+      balance_amount: 0,
+      id: 'areq1234',
+      org_id: 'orNVthTo2Zyo',
+      user_id: 'usvKA4X8Ugcr',
+      created_at: new Date('2021-03-14T06:07:39.652664+00:00'),
+      updated_at: new Date('2022-05-05T17:45:12.393241+00:00'),
+    },
+  },
+]);
 
 export const paymentModesResData = deepFreeze([
   {

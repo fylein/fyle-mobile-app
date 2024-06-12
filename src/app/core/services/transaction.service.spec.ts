@@ -49,7 +49,7 @@ import { accountsData } from '../test-data/accounts.service.spec.data';
 import { currencySummaryData } from '../mock-data/currency-summary.data';
 import { platformPolicyExpenseData1 } from '../mock-data/platform-policy-expense.data';
 import { expensePolicyData } from '../mock-data/expense-policy.data';
-import { txnAccountData } from '../mock-data/txn-account.data';
+import { txnAccountData, personalAccountData } from '../mock-data/txn-account.data';
 import { txnCustomPropertiesData2, txnCustomPropertiesData6 } from '../mock-data/txn-custom-properties.data';
 import { FilterQueryParams } from '../models/filter-query-params.model';
 import {
@@ -1180,6 +1180,21 @@ describe('TransactionService', () => {
     });
   });
 
+  it('getPersonalAccount(): should get the personal account', (done) => {
+    accountsService.getEMyAccounts.and.returnValue(of(accountsData));
+
+    const expectedResult = {
+      source_account_id: 'acc5APeygFjRd',
+    };
+
+    // @ts-ignore
+    transactionService.getPersonalAccount().subscribe((res) => {
+      expect(res).toEqual(expectedResult);
+      expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
   describe('isMergeAllowed():', () => {
     it('should return false if the expenses list length is not equal to 2', () => {
       expect(transactionService.isMergeAllowed(apiExpenseRes)).toBeFalse();
@@ -1273,6 +1288,8 @@ describe('TransactionService', () => {
     orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData3));
     // @ts-ignore
     spyOn(transactionService, 'getTxnAccount').and.returnValue(of(txnAccountData));
+    // @ts-ignore
+    spyOn(transactionService, 'getPersonalAccount').and.returnValue(of(personalAccountData));
     timezoneService.convertAllDatesToProperLocale.and.returnValue(txnCustomPropertiesData2);
     apiService.post.and.returnValue(of(txnData4));
     utilityService.discardRedundantCharacters.and.returnValue(txnDataPayload);
@@ -1286,6 +1303,34 @@ describe('TransactionService', () => {
       expect(timezoneService.convertToUtc).toHaveBeenCalledTimes(3);
       // @ts-ignore
       expect(transactionService.getTxnAccount).toHaveBeenCalledTimes(1);
+      // @ts-ignore
+      expect(transactionService.getPersonalAccount).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  it('upsert(): should upsert transaction', (done) => {
+    const offset = orgUserSettingsData3.locale.offset;
+    orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData3));
+    // @ts-ignore
+    spyOn(transactionService, 'getTxnAccount').and.returnValue(of(txnAccountData));
+    // @ts-ignore
+    spyOn(transactionService, 'getPersonalAccount').and.returnValue(of(personalAccountData));
+    timezoneService.convertAllDatesToProperLocale.and.returnValue(txnCustomPropertiesData2);
+    apiService.post.and.returnValue(of(txnData4));
+    utilityService.discardRedundantCharacters.and.returnValue(txnDataPayload);
+
+    const mockUpsertTxnParam = cloneDeep(upsertTxnParam);
+    transactionService.upsert(mockUpsertTxnParam).subscribe((res) => {
+      expect(res).toEqual(txnData4);
+      expect(apiService.post).toHaveBeenCalledOnceWith('/transactions', txnDataPayload);
+      expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+      expect(timezoneService.convertAllDatesToProperLocale).toHaveBeenCalledOnceWith(txnCustomPropertiesData6, offset);
+      expect(timezoneService.convertToUtc).toHaveBeenCalledTimes(3);
+      // @ts-ignore
+      expect(transactionService.getTxnAccount).toHaveBeenCalledTimes(1);
+      // @ts-ignore
+      expect(transactionService.getPersonalAccount).toHaveBeenCalledTimes(1);
       done();
     });
   });

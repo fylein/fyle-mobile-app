@@ -28,6 +28,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
+import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
 
 import { FormArray, FormBuilder, Validators } from '@angular/forms';
 import { ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
@@ -59,6 +60,8 @@ import {
   paymentModeDataCCC,
   paymentModesData,
   unflattenedAccount2Data,
+  advanceWallet1Data,
+  multiplePaymentModesWithoutAdvData,
 } from 'src/app/core/test-data/accounts.service.spec.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import { expectedReportsPaginated, expectedSingleReport } from 'src/app/core/mock-data/platform-report.data';
@@ -74,6 +77,7 @@ import {
   orgSettingsParamsWithSimplifiedReport,
   orgSettingsRes,
   orgSettingsWoTax,
+  orgSettingsParamsWithAdvanceWallet,
 } from 'src/app/core/mock-data/org-settings.data';
 import { TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
 import { OrgCategory } from 'src/app/core/models/v1/org-category.model';
@@ -133,6 +137,7 @@ export function TestCases2(getTestBed) {
     let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
     let storageService: jasmine.SpyObj<StorageService>;
     let perDiemService: jasmine.SpyObj<PerDiemService>;
+    let advanceWalletsService: jasmine.SpyObj<AdvanceWalletsService>;
 
     beforeEach(waitForAsync(() => {
       const TestBed = getTestBed();
@@ -175,6 +180,7 @@ export function TestCases2(getTestBed) {
       orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       perDiemService = TestBed.inject(PerDiemService) as jasmine.SpyObj<PerDiemService>;
+      advanceWalletsService = TestBed.inject(AdvanceWalletsService) as jasmine.SpyObj<AdvanceWalletsService>;
       component.fg = formBuilder.group({
         currencyObj: [
           {
@@ -376,6 +382,131 @@ export function TestCases2(getTestBed) {
       });
     });
 
+    describe('checkAdvanceAccountAndBalance():', () => {
+      it('should return false if account is not present', () => {
+        const result = component.checkAdvanceAccountAndBalance(null);
+
+        expect(result).toBeFalse();
+      });
+
+      it('should return true if account is of type advance', () => {
+        const result = component.checkAdvanceAccountAndBalance(multiplePaymentModesData[2]);
+
+        expect(result).toBeTrue();
+      });
+    });
+
+    describe('checkAdvanceWalletsWithSufficientBalance():', () => {
+      it('should return false if advance wallet is not present', () => {
+        const result = component.checkAdvanceWalletsWithSufficientBalance(null);
+
+        expect(result).toBeFalse();
+      });
+
+      it('should return true if advance wallet has balance', () => {
+        const result = component.checkAdvanceWalletsWithSufficientBalance(advanceWallet1Data);
+
+        expect(result).toBeTrue();
+      });
+    });
+
+    describe('setupBalanceFlag():', () => {
+      it('should setup balance available flag', fakeAsync(() => {
+        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
+        advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
+        orgSettingsService.get.and.returnValue(of(orgSettingsData));
+        component.setupBalanceFlag();
+        tick(500);
+
+        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
+          expect(res).toBeTrue();
+          expect(accountsService.getEMyAccounts).toHaveBeenCalledOnceWith();
+          expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledOnceWith();
+          expect(orgSettingsService.get).toHaveBeenCalledOnceWith();
+        });
+        component.fg.controls.paymentMode.setValue(multiplePaymentModesWithoutAdvData[0]);
+        fixture.detectChanges();
+
+        tick(500);
+      }));
+
+      it('should return false in advance balance if payment mode is not personal', fakeAsync(() => {
+        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
+        advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
+        orgSettingsService.get.and.returnValue(of(orgSettingsData));
+        component.setupBalanceFlag();
+        tick(500);
+
+        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
+          expect(res).toBeFalse();
+          expect(accountsService.getEMyAccounts).toHaveBeenCalledOnceWith();
+          expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledOnceWith();
+          expect(orgSettingsService.get).toHaveBeenCalledOnceWith();
+        });
+        component.fg.controls.paymentMode.setValue(multiplePaymentModesWithoutAdvData[1]);
+        fixture.detectChanges();
+
+        tick(500);
+      }));
+
+      it('should return false when account changes to null', fakeAsync(() => {
+        accountsService.getEMyAccounts.and.returnValue(of(null));
+        advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
+        orgSettingsService.get.and.returnValue(of(orgSettingsData));
+        component.setupBalanceFlag();
+        tick(500);
+
+        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
+          expect(res).toBeFalse();
+          expect(accountsService.getEMyAccounts).toHaveBeenCalledOnceWith();
+          expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledOnceWith();
+          expect(orgSettingsService.get).toHaveBeenCalledOnceWith();
+        });
+        component.fg.controls.paymentMode.setValue(null);
+        fixture.detectChanges();
+
+        tick(500);
+      }));
+
+      it('should return false when orgSettings is null', fakeAsync(() => {
+        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
+        advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
+        orgSettingsService.get.and.returnValue(of(null));
+        component.setupBalanceFlag();
+        tick(500);
+
+        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
+          expect(res).toBeTrue();
+          expect(accountsService.getEMyAccounts).toHaveBeenCalledOnceWith();
+          expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledOnceWith();
+          expect(orgSettingsService.get).toHaveBeenCalledOnceWith();
+        });
+        component.fg.controls.paymentMode.setValue(multiplePaymentModesWithoutAdvData[0]);
+        fixture.detectChanges();
+
+        tick(500);
+      }));
+
+      it('should return true for advance wallets', fakeAsync(() => {
+        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesWithoutAdvData));
+        advanceWalletsService.getAllAdvanceWallets.and.returnValue(of(advanceWallet1Data));
+        orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithAdvanceWallet));
+        component.setupBalanceFlag();
+        tick(500);
+
+        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
+          expect(res).toBeTrue();
+          expect(accountsService.getEMyAccounts).toHaveBeenCalledOnceWith();
+          expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledOnceWith();
+          expect(orgSettingsService.get).toHaveBeenCalledOnceWith();
+        });
+        component.fg.controls.paymentMode.setValue(multiplePaymentModesWithoutAdvData[0]);
+        fixture.detectChanges();
+
+        tick(500);
+      }));
+    });
+
     describe('ionViewWillEnter():', () => {
       beforeEach(() => {
         activatedRoute.snapshot.params = {
@@ -487,7 +618,7 @@ export function TestCases2(getTestBed) {
       it('should call orgSettingsService.get, orgUserSettingsService.get, perDiemService.getRates and reportService.getAutoSubmissionReportName once and update isNewReportsFlowEnabled', () => {
         orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithSimplifiedReport));
         component.ionViewWillEnter();
-        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+        expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
         expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
         expect(perDiemService.getRates).toHaveBeenCalledTimes(1);
         expect(reportService.getAutoSubmissionReportName).toHaveBeenCalledTimes(1);
@@ -818,65 +949,6 @@ export function TestCases2(getTestBed) {
         expect(currencyService.getAmountWithCurrencyFraction).toHaveBeenCalledWith(10800, 'USD');
         expect(currencyService.getAmountWithCurrencyFraction).toHaveBeenCalledWith(900, 'INR');
         done();
-      });
-
-      it('should set isBalanceAvailableInAnyAdvanceAccount$ correctly if paymentMode changed and paymentMode.acc.type equals PERSONAL account', (done) => {
-        accountsService.getEtxnSelectedPaymentMode.and.returnValue(accountsData[0]);
-        accountsService.getEMyAccounts.and.returnValue(of(accountsData));
-        component.ionViewWillEnter();
-        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
-          expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
-          expect(res).toBeTrue();
-          done();
-        });
-      });
-
-      it('should set isBalanceAvailableInAnyAdvanceAccount$ to true if paymentMode changed and paymentMode.acc.type equals PERSONAL account and account.acc is undefined', (done) => {
-        accountsService.getEtxnSelectedPaymentMode.and.returnValue(accountsData[0]);
-        const mockAccountsData = cloneDeep(accountsData);
-        mockAccountsData[0].acc = undefined;
-        accountsService.getEMyAccounts.and.returnValue(of(mockAccountsData));
-        component.ionViewWillEnter();
-        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
-          expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
-          expect(res).toBeTrue();
-          done();
-        });
-      });
-
-      it('should set isBalanceAvailableInAnyAdvanceAccount$ to true if paymentMode changed and paymentMode.acc.type equals PERSONAL account and account is undefined', (done) => {
-        accountsService.getEtxnSelectedPaymentMode.and.returnValue(accountsData[0]);
-        const mockAccountsData = cloneDeep(accountsData);
-        mockAccountsData[0] = undefined;
-        accountsService.getEMyAccounts.and.returnValue(of(mockAccountsData));
-        component.ionViewWillEnter();
-        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
-          expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
-          expect(res).toBeTrue();
-          done();
-        });
-      });
-
-      it('should set isBalanceAvailableInAnyAdvanceAccount$ to false if paymentMode changed and paymentMode.acc is undefined', (done) => {
-        const mockAccountsData = cloneDeep(accountsData[0]);
-        mockAccountsData.acc = undefined;
-        accountsService.getEtxnSelectedPaymentMode.and.returnValue(mockAccountsData);
-        component.ionViewWillEnter();
-        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
-          expect(accountsService.getEMyAccounts).not.toHaveBeenCalled();
-          expect(res).toBeFalse();
-          done();
-        });
-      });
-
-      it('should set isBalanceAvailableInAnyAdvanceAccount$ to false if paymentMode changed and paymentMode is undefined', (done) => {
-        accountsService.getEtxnSelectedPaymentMode.and.returnValue(undefined);
-        component.ionViewWillEnter();
-        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
-          expect(accountsService.getEMyAccounts).not.toHaveBeenCalled();
-          expect(res).toBeFalse();
-          done();
-        });
       });
 
       it('should autofill the per diem form', fakeAsync(() => {
