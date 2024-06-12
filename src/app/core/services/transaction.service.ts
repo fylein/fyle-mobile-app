@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { DateService } from './date.service';
-import { map, switchMap, concatMap, reduce } from 'rxjs/operators';
+import { map, switchMap, concatMap, reduce, tap } from 'rxjs/operators';
 import { StorageService } from './storage.service';
 import { from, Observable, range, forkJoin, of } from 'rxjs';
 import { ApiV2Service } from './api-v2.service';
@@ -58,6 +58,8 @@ type PaymentMode = {
   providedIn: 'root',
 })
 export class TransactionService {
+  private clearTaskCache = true;
+
   constructor(
     @Inject(PAGINATION_SIZE) private paginationSize: number,
     private storageService: StorageService,
@@ -77,7 +79,9 @@ export class TransactionService {
     private ldService: LaunchDarklyService
   ) {
     expensesCacheBuster$.subscribe(() => {
-      this.userEventService.clearTaskCache();
+      if (this.clearTaskCache) {
+        this.userEventService.clearTaskCache();
+      }
     });
   }
 
@@ -90,8 +94,12 @@ export class TransactionService {
     cacheBusterNotifier: expensesCacheBuster$,
     isInstant: true,
   })
-  clearCache(): Observable<null> {
-    return of(null);
+  clearCache(clearTaskCache: boolean = true): Observable<null> {
+    return of(null).pipe(
+      tap(() => {
+        this.clearTaskCache = clearTaskCache;
+      })
+    );
   }
 
   @CacheBuster({

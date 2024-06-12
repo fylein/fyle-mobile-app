@@ -763,7 +763,7 @@ export class MyExpensesPage implements OnInit {
     }
     const params = this.loadExpenses$.getValue();
     params.pageNumber = this.currentPageNumber;
-    this.transactionService.clearCache().subscribe(() => {
+    this.transactionService.clearCache(false).subscribe(() => {
       this.loadExpenses$.next(params);
       if (event) {
         setTimeout(() => {
