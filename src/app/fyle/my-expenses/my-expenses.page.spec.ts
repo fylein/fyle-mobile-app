@@ -134,6 +134,7 @@ import {
   expectedReportsSinglePageWithApproval,
 } from 'src/app/core/mock-data/platform-report.data';
 import { corporateCardsResponseData } from 'src/app/core/mock-data/corporate-card-response.data';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 describe('MyExpensesV2Page', () => {
   let component: MyExpensesPage;
@@ -170,6 +171,7 @@ describe('MyExpensesV2Page', () => {
   let sharedExpenseService: jasmine.SpyObj<SharedExpenseService>;
   let expensesService: jasmine.SpyObj<ExpensesService>;
   let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
+  let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
 
   beforeEach(waitForAsync(() => {
     const tasksServiceSpy = jasmine.createSpyObj('TasksService', ['getReportsTaskCount', 'getExpensesTaskCount']);
@@ -297,6 +299,9 @@ describe('MyExpensesV2Page', () => {
       'restrictPendingTransactionsEnabled',
       'doesExpenseHavePendingCardTransaction',
     ]);
+    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', [
+      'checkIfManualFlaggingFeatureIsEnabled',
+    ]);
 
     TestBed.configureTestingModule({
       declarations: [MyExpensesPage, ReportState, MaskNumber],
@@ -406,6 +411,7 @@ describe('MyExpensesV2Page', () => {
           provide: SpenderReportsService,
           useValue: spenderReportsServiceSpy,
         },
+        { provide: LaunchDarklyService, useValue: launchDarklyServiceSpy },
         ReportState,
         MaskNumber,
       ],
@@ -451,6 +457,7 @@ describe('MyExpensesV2Page', () => {
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     sharedExpenseService = TestBed.inject(SharedExpenseService) as jasmine.SpyObj<SharedExpenseService>;
     spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
+    launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
 
     component.loadExpenses$ = new BehaviorSubject({});
   }));
@@ -487,6 +494,7 @@ describe('MyExpensesV2Page', () => {
       expensesService.getExpenseStats.and.returnValue(of(completeStats));
       expensesService.getExpensesCount.and.returnValue(of(10));
       expensesService.getExpenses.and.returnValue(of(apiExpenses1));
+      launchDarklyService.checkIfManualFlaggingFeatureIsEnabled.and.returnValue(of({ value: true }));
 
       spenderReportsService.getAllReportsByParams.and.returnValue(of(expectedReportsSinglePageWithApproval));
       spyOn(component, 'doRefresh');
@@ -497,6 +505,14 @@ describe('MyExpensesV2Page', () => {
       spyOn(component, 'generateFilterPills').and.returnValue(creditTxnFilterPill);
       component.simpleSearchInput = getElementRef(fixture, '.my-expenses--simple-search-input');
       inputElement = component.simpleSearchInput.nativeElement;
+    });
+
+    it('should initialize isManualFlagFeatureEnabled', (done) => {
+      component.ionViewWillEnter();
+      component.isManualFlagFeatureEnabled$.subscribe((res) => {
+        expect(res.value).toBeTrue();
+        done();
+      });
     });
 
     it('should set isNewReportsFlowEnabled, isInstaFyleEnabled, isBulkFyleEnabled, isMileageEnabled and isPerDiemEnabled to true if orgSettings and orgUserSettings properties are enabled', fakeAsync(() => {
