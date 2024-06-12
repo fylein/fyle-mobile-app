@@ -125,7 +125,6 @@ export class DeepLinkRedirectionPage {
 
   async redirectToReportModule(): Promise<void> {
     await this.loaderService.showLoader('Loading....');
-    const currentEou = await this.authService.getEou();
 
     const spenderReport$ = this.spenderReportsService.getReportById(this.activatedRoute.snapshot.params.id as string);
     const approverReport$ = this.approverReportsService.getReportById(this.activatedRoute.snapshot.params.id as string);
