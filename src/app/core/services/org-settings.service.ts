@@ -142,6 +142,7 @@ export class OrgSettingsService {
         advance_wallets_enabled:
           incoming.advances_settings &&
           incoming.advances_settings.allowed &&
+          incoming.advances_settings.enabled &&
           incoming.advances_settings.advance_wallets_enabled,
       },
       projects: {
