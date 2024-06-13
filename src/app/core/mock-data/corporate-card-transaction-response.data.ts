@@ -20,7 +20,6 @@ export const ccTransactionResponseData: CorporateCardTransactionRes = deepFreeze
         masked_number: '7620',
         user_email: 'devendra.r@fyle.in',
         user_full_name: 'Devendra Singh Rana',
-        nickname: 'Business Card',
       },
       corporate_card_id: 'bacck9WlgA11Uh',
       created_at: '2024-01-23T12:17:34.473632+00:00',
@@ -102,6 +101,18 @@ export const ccTransactionResponseData1: CorporateCardTransactionRes = deepFreez
     {
       ...ccTransactionResponseData.data[0],
       id: 'btxnSte7sVQCM8',
+    },
+  ],
+});
+
+export const ccTransactionResponseData2: CorporateCardTransactionRes = deepFreeze({
+  data: [
+    {
+      ...ccTransactionResponseData.data[0],
+      corporate_card: {
+        ...ccTransactionResponseData.data[0].corporate_card,
+        nickname: 'Business Card',
+      },
     },
   ],
 });
