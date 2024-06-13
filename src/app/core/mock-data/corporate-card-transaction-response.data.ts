@@ -20,6 +20,7 @@ export const ccTransactionResponseData: CorporateCardTransactionRes = deepFreeze
         masked_number: '7620',
         user_email: 'devendra.r@fyle.in',
         user_full_name: 'Devendra Singh Rana',
+        nickname: 'Business Card',
       },
       corporate_card_id: 'bacck9WlgA11Uh',
       created_at: '2024-01-23T12:17:34.473632+00:00',
