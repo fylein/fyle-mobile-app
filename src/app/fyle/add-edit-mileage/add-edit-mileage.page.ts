@@ -477,7 +477,9 @@ export class AddEditMileagePage implements OnInit {
         )
       ),
       map((categories) =>
-        categories.map((category: OrgCategory) => ({ label: category.sub_category, value: category }))
+        categories
+          .map((category: OrgCategory) => ({ label: category.sub_category, value: category }))
+          .filter((category) => category.value.name !== 'Unspecified')
       )
     );
 
