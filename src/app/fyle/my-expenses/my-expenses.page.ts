@@ -200,8 +200,6 @@ export class MyExpensesPage implements OnInit {
 
   navigationSubscription: Subscription;
 
-  hideOptInModal = false;
-
   constructor(
     private networkService: NetworkService,
     private loaderService: LoaderService,
@@ -433,8 +431,8 @@ export class MyExpensesPage implements OnInit {
 
   ionViewWillLeave(): void {
     clearTimeout(this.optInShowTimer as number);
-    this.navigationSubscription.unsubscribe();
-    this.hideOptInModal = false;
+    this.navigationSubscription?.unsubscribe();
+    this.utilityService.toggleShowOptInAfterExpenseCreation(false);
     this.hardwareBackButton.unsubscribe();
     this.onPageExit$.next(null);
   }
@@ -735,17 +733,20 @@ export class MyExpensesPage implements OnInit {
 
     this.utilityService.canShowOptInModal(optInModalPostExpenseCreationFeatureConfig).subscribe((canShowOptInModal) => {
       if (canShowOptInModal && isRedirectedFromAddExpense) {
+        this.utilityService.toggleShowOptInAfterExpenseCreation(true);
         this.setModalDelay();
       }
     });
 
-    this.setNavigationSubscription();
+    if (isRedirectedFromAddExpense) {
+      this.setNavigationSubscription();
+    }
   }
 
   onPageClick(): void {
     if (this.optInShowTimer) {
       clearTimeout(this.optInShowTimer as number);
-      this.hideOptInModal = true;
+      this.utilityService.toggleShowOptInAfterExpenseCreation(false);
     }
   }
 
@@ -797,13 +798,14 @@ export class MyExpensesPage implements OnInit {
 
         const isRedirectedFromAddExpense = this.activatedRoute.snapshot.params.redirected_from_add_expense as string;
 
-        this.utilityService
-          .canShowOptInModal(optInModalPostExpenseCreationFeatureConfig)
-          .subscribe((canShowOptInModal) => {
-            if (canShowOptInModal && isRedirectedFromAddExpense) {
-              this.showPromoteOptInModal();
-            }
-          });
+        forkJoin({
+          isAttemptLeft: this.utilityService.canShowOptInModal(optInModalPostExpenseCreationFeatureConfig),
+          canShowOptInModal: this.utilityService.canShowOptInAfterExpenseCreation(),
+        }).subscribe((canShowOptInModal) => {
+          if (canShowOptInModal && isRedirectedFromAddExpense) {
+            this.showPromoteOptInModal();
+          }
+        });
       }
     });
   }

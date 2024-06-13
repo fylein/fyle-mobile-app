@@ -1,11 +1,11 @@
 import { Component, EventEmitter, ViewChild } from '@angular/core';
-import { concat, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
+import { concat, forkJoin, noop, Observable, of, Subject, Subscription } from 'rxjs';
 import { shareReplay, switchMap, takeUntil } from 'rxjs/operators';
-import { ActionSheetButton, ActionSheetController, NavController, Platform } from '@ionic/angular';
+import { ActionSheetButton, ActionSheetController, ModalController, NavController, Platform } from '@ionic/angular';
 import { NetworkService } from '../../core/services/network.service';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { StatsComponent } from './stats/stats.component';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { ActivatedRoute, NavigationStart, Params, Router } from '@angular/router';
 import { FooterState } from '../../shared/components/footer/footer-state';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TasksComponent } from './tasks/tasks.component';
@@ -21,6 +21,10 @@ import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pil
 import { CardStatsComponent } from './card-stats/card-stats.component';
 import { PlatformCategory } from 'src/app/core/models/platform/platform-category.model';
 import { CategoriesService } from 'src/app/core/services/categories.service';
+import { UtilityService } from 'src/app/core/services/utility.service';
+import { FeatureConfigService } from 'src/app/core/services/platform/v1/spender/feature-config.service';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { PromoteOptInModalComponent } from 'src/app/shared/components/promote-opt-in-modal/promote-opt-in-modal.component';
 
 enum DashboardState {
   home,
@@ -59,6 +63,10 @@ export class DashboardPage {
 
   hardwareBackButtonAction: Subscription;
 
+  optInShowTimer;
+
+  navigationSubscription: Subscription;
+
   constructor(
     private currencyService: CurrencyService,
     private networkService: NetworkService,
@@ -73,7 +81,11 @@ export class DashboardPage {
     private categoriesService: CategoriesService,
     private platform: Platform,
     private backButtonService: BackButtonService,
-    private navController: NavController
+    private navController: NavController,
+    private modalController: ModalController,
+    private utilityService: UtilityService,
+    private featureConfigService: FeatureConfigService,
+    private modalProperties: ModalPropertiesService
   ) {}
 
   get displayedTaskCount(): number {
@@ -93,6 +105,9 @@ export class DashboardPage {
   }
 
   ionViewWillLeave(): void {
+    clearTimeout(this.optInShowTimer as number);
+    this.navigationSubscription?.unsubscribe();
+    this.utilityService.toggleShowOptInAfterAddingCard(false);
     this.onPageExit$.next(null);
     this.hardwareBackButtonAction.unsubscribe();
   }
@@ -290,5 +305,77 @@ export class DashboardPage {
       buttons: that.actionSheetButtons,
     });
     await actionSheet.present();
+  }
+
+  async showPromoteOptInModal(): Promise<void> {
+    this.trackingService.showOptInModalPostCardAdditionInDashboard();
+
+    const optInPromotionalModal = await this.modalController.create({
+      component: PromoteOptInModalComponent,
+      mode: 'ios',
+      ...this.modalProperties.getModalDefaultProperties('promote-opt-in-modal'),
+    });
+
+    await optInPromotionalModal.present();
+
+    const optInModalFeatureConfig = {
+      feature: 'OPT_IN_POPUP_POST_CARD_ADDITION',
+      key: 'OPT_IN_POPUP_SHOWN_COUNT',
+      value: {
+        count: 1,
+      },
+    };
+
+    this.featureConfigService.saveConfiguration(optInModalFeatureConfig).subscribe(noop);
+
+    const { data } = await optInPromotionalModal.onDidDismiss<{ skipOptIn: boolean }>();
+
+    if (data && data.skipOptIn) {
+      this.trackingService.skipOptInModalPostCardAdditionInDashboard();
+    } else {
+      this.trackingService.optInFromPostPostCardAdditionInDashboard();
+    }
+  }
+
+  setModalDelay(): void {
+    this.optInShowTimer = setTimeout(async () => {
+      await this.showPromoteOptInModal();
+    }, 2000);
+  }
+
+  setNavigationSubscription(): void {
+    this.navigationSubscription = this.router.events.subscribe((event) => {
+      if (event instanceof NavigationStart) {
+        clearTimeout(this.optInShowTimer as number);
+
+        const optInModalFeatureConfig = {
+          feature: 'OPT_IN_POPUP_POST_CARD_ADDITION',
+          key: 'OPT_IN_POPUP_SHOWN_COUNT',
+        };
+
+        this.utilityService.canShowOptInModal(optInModalFeatureConfig).subscribe((canShowOptInModal) => {
+          if (canShowOptInModal) {
+            this.showPromoteOptInModal();
+          }
+        });
+      }
+    });
+  }
+
+  onCardAdded(): void {
+    const optInModalFeatureConfig = {
+      feature: 'OPT_IN_POPUP_POST_CARD_ADDITION',
+      key: 'OPT_IN_POPUP_SHOWN_COUNT',
+    };
+
+    this.utilityService.canShowOptInModal(optInModalFeatureConfig).subscribe((canShowOptInModal) => {
+      if (canShowOptInModal) {
+        this.setModalDelay();
+      }
+    });
+
+    this.setNavigationSubscription();
+
+    this.utilityService.toggleShowOptInAfterAddingCard(true);
   }
 }
