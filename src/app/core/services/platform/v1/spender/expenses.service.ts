@@ -76,6 +76,9 @@ export class ExpensesService {
     );
   }
 
+  @Cacheable({
+    cacheBusterObserver: expensesCacheBuster$,
+  })
   getExpenseById(id: string): Observable<Expense> {
     const data = {
       params: {
@@ -86,12 +89,18 @@ export class ExpensesService {
     return this.spenderService.get<PlatformApiResponse<Expense[]>>('/expenses', data).pipe(map((res) => res.data[0]));
   }
 
+  @Cacheable({
+    cacheBusterObserver: expensesCacheBuster$,
+  })
   getExpensesCount(params: ExpensesQueryParams): Observable<number> {
     return this.spenderService
       .get<PlatformApiResponse<Expense[]>>('/expenses', { params })
       .pipe(map((response) => response.count));
   }
 
+  @Cacheable({
+    cacheBusterObserver: expensesCacheBuster$,
+  })
   getExpenses(params: ExpensesQueryParams): Observable<Expense[]> {
     return this.spenderService
       .get<PlatformApiResponse<Expense[]>>('/expenses', { params })
