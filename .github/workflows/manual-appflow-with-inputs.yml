@@ -15,6 +15,9 @@ on:
           - staging
           - production
           - blackwidow
+          - thanos
+          - thor
+          - drstrange
 
 jobs:
   build-android:
