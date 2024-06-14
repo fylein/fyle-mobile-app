@@ -1,9 +1,9 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { ActionSheetController, IonicModule, NavController, Platform } from '@ionic/angular';
+import { ActionSheetController, IonicModule, ModalController, NavController, Platform } from '@ionic/angular';
 
 import { DashboardPage } from './dashboard.page';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, NavigationStart, Router } from '@angular/router';
 import { BackButtonService } from 'src/app/core/services/back-button.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
@@ -27,6 +27,12 @@ import { creditTxnFilterPill } from 'src/app/core/mock-data/filter-pills.data';
 import { allowedExpenseTypes } from 'src/app/core/mock-data/allowed-expense-types.data';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { mileagePerDiemPlatformCategoryData } from 'src/app/core/mock-data/org-category.data';
+import { UtilityService } from 'src/app/core/services/utility.service';
+import { FeatureConfigService } from 'src/app/core/services/platform/v1/spender/feature-config.service';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { AuthService } from 'src/app/core/services/auth.service';
+import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
+import { properties } from 'src/app/core/mock-data/modal-properties.data';
 
 describe('DashboardPage', () => {
   let component: DashboardPage;
@@ -45,6 +51,11 @@ describe('DashboardPage', () => {
   let backButtonService: jasmine.SpyObj<BackButtonService>;
   let platform: Platform;
   let navController: jasmine.SpyObj<NavController>;
+  let utilityService: jasmine.SpyObj<UtilityService>;
+  let featureConfigService: jasmine.SpyObj<FeatureConfigService>;
+  let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
+  let authService: jasmine.SpyObj<AuthService>;
+  let modalController: jasmine.SpyObj<ModalController>;
 
   beforeEach(waitForAsync(() => {
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
@@ -55,6 +66,9 @@ describe('DashboardPage', () => {
       'footerHomeTabClicked',
       'dashboardActionSheetButtonClicked',
       'dashboardActionSheetOpened',
+      'showOptInModalPostCardAdditionInDashboard',
+      'skipOptInModalPostCardAdditionInDashboard',
+      'optInFromPostPostCardAdditionInDashboard',
     ]);
     const actionSheetControllerSpy = jasmine.createSpyObj('ActionSheetController', ['create']);
     const tasksServiceSpy = jasmine.createSpyObj('TasksService', ['getTotalTaskCount']);
@@ -64,6 +78,15 @@ describe('DashboardPage', () => {
     const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', ['getMileageOrPerDiemCategories']);
     const backButtonServiceSpy = jasmine.createSpyObj('BackButtonService', ['showAppCloseAlert']);
     const navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
+    const utilityServiceSpy = jasmine.createSpyObj('UtilityService', [
+      'toggleShowOptInAfterAddingCard',
+      'canShowOptInModal',
+      'toggleShowOptInAfterAddingCard',
+    ]);
+    const featureConfigServiceSpy = jasmine.createSpyObj('FeatureConfigService', ['saveConfiguration']);
+    const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
+    const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
+    const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
 
     TestBed.configureTestingModule({
       declarations: [DashboardPage],
@@ -92,6 +115,11 @@ describe('DashboardPage', () => {
             },
           },
         },
+        { provide: UtilityService, useValue: utilityServiceSpy },
+        { provide: FeatureConfigService, useValue: featureConfigServiceSpy },
+        { provide: ModalPropertiesService, useValue: modalPropertiesSpy },
+        { provide: AuthService, useValue: authServiceSpy },
+        { provide: ModalController, useValue: modalControllerSpy },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -113,6 +141,11 @@ describe('DashboardPage', () => {
     platform = TestBed.inject(Platform);
     navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
     activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
+    utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
+    featureConfigService = TestBed.inject(FeatureConfigService) as jasmine.SpyObj<FeatureConfigService>;
+    modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
+    authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
+    modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     fixture.detectChanges();
   }));
 
@@ -160,13 +193,27 @@ describe('DashboardPage', () => {
     expect(component.filterPills).toBeUndefined();
   });
 
-  it('ionViewWillLeave(): should call unsubscribe hardware back button and set onPageExit to null', () => {
-    spyOn(component.onPageExit$, 'next');
-    component.hardwareBackButtonAction = new Subscription();
-    spyOn(component.hardwareBackButtonAction, 'unsubscribe');
-    component.ionViewWillLeave();
-    expect(component.onPageExit$.next).toHaveBeenCalledWith(null);
-    expect(component.hardwareBackButtonAction.unsubscribe).toHaveBeenCalledTimes(1);
+  describe('ionViewWillLeave():', () => {
+    it('should call unsubscribe hardware back button and set onPageExit to null', () => {
+      spyOn(component.onPageExit$, 'next');
+      component.hardwareBackButtonAction = new Subscription();
+      spyOn(component.hardwareBackButtonAction, 'unsubscribe');
+      component.ionViewWillLeave();
+      expect(component.onPageExit$.next).toHaveBeenCalledWith(null);
+      expect(component.hardwareBackButtonAction.unsubscribe).toHaveBeenCalledTimes(1);
+    });
+
+    it('should unsubscribe navigation subscription', () => {
+      spyOn(component.onPageExit$, 'next');
+      component.hardwareBackButtonAction = new Subscription();
+      component.navigationSubscription = new Subscription();
+      spyOn(component.hardwareBackButtonAction, 'unsubscribe');
+      spyOn(component.navigationSubscription, 'unsubscribe');
+      component.ionViewWillLeave();
+      expect(component.onPageExit$.next).toHaveBeenCalledWith(null);
+      expect(component.hardwareBackButtonAction.unsubscribe).toHaveBeenCalledTimes(1);
+      expect(component.navigationSubscription.unsubscribe).toHaveBeenCalledTimes(1);
+    });
   });
 
   it('setupNetworkWatcher(): should setup network watching', (done) => {
@@ -478,4 +525,99 @@ describe('DashboardPage', () => {
       buttons: expectedActionSheetButtonRes,
     });
   }));
+
+  describe('showPromoteOptInModal():', () => {
+    beforeEach(() => {
+      authService.getEou.and.resolveTo(apiEouRes);
+      modalProperties.getModalDefaultProperties.and.returnValue(properties);
+      featureConfigService.saveConfiguration.and.returnValue(of(null));
+    });
+
+    it('should show promote opt-in modal and track skip event if user skipped opt-in', fakeAsync(() => {
+      const modal = jasmine.createSpyObj('HTMLIonModalElement', ['present', 'onDidDismiss']);
+      modal.onDidDismiss.and.resolveTo({ data: { skipOptIn: true } });
+      modalController.create.and.resolveTo(modal);
+
+      component.showPromoteOptInModal();
+      tick(100);
+
+      expect(trackingService.showOptInModalPostCardAdditionInDashboard).toHaveBeenCalledTimes(1);
+      expect(authService.getEou).toHaveBeenCalledTimes(1);
+      expect(modal.present).toHaveBeenCalledTimes(1);
+      expect(modal.onDidDismiss).toHaveBeenCalledTimes(1);
+      expect(featureConfigService.saveConfiguration).toHaveBeenCalledOnceWith({
+        feature: 'OPT_IN_POPUP_POST_CARD_ADDITION',
+        key: 'OPT_IN_POPUP_SHOWN_COUNT',
+        value: {
+          count: 1,
+        },
+      });
+      expect(trackingService.skipOptInModalPostCardAdditionInDashboard).toHaveBeenCalledTimes(1);
+      expect(trackingService.optInFromPostPostCardAdditionInDashboard).not.toHaveBeenCalled();
+    }));
+
+    it('should show promote opt-in modal and track opt-in event if user opted in', fakeAsync(() => {
+      const modal = jasmine.createSpyObj('HTMLIonModalElement', ['present', 'onDidDismiss']);
+      modal.onDidDismiss.and.resolveTo({ data: { skipOptIn: false } });
+      modalController.create.and.resolveTo(modal);
+
+      component.showPromoteOptInModal();
+      tick(100);
+
+      expect(trackingService.showOptInModalPostCardAdditionInDashboard).toHaveBeenCalledTimes(1);
+      expect(authService.getEou).toHaveBeenCalledTimes(1);
+      expect(modal.present).toHaveBeenCalledTimes(1);
+      expect(modal.onDidDismiss).toHaveBeenCalledTimes(1);
+      expect(featureConfigService.saveConfiguration).toHaveBeenCalledOnceWith({
+        feature: 'OPT_IN_POPUP_POST_CARD_ADDITION',
+        key: 'OPT_IN_POPUP_SHOWN_COUNT',
+        value: {
+          count: 1,
+        },
+      });
+      expect(trackingService.skipOptInModalPostCardAdditionInDashboard).not.toHaveBeenCalled();
+      expect(trackingService.optInFromPostPostCardAdditionInDashboard).toHaveBeenCalledTimes(1);
+    }));
+  });
+
+  it('setModalDelay(): should set optInShowTimer and call showPromoteOptInModal after 2 seconds', fakeAsync(() => {
+    spyOn(component, 'showPromoteOptInModal');
+
+    component.setModalDelay();
+    tick(2000);
+
+    expect(component.showPromoteOptInModal).toHaveBeenCalledTimes(1);
+  }));
+
+  it('setNavigationSubscription(): should clear timeout and show promote opt-in modal if user navigates to manage corporate cards page', fakeAsync(() => {
+    spyOn(component, 'showPromoteOptInModal');
+    const navigationEvent = new NavigationStart(1, 'my_dashboard');
+    utilityService.canShowOptInModal.and.returnValue(of(true));
+    Object.defineProperty(router, 'events', { value: of(navigationEvent) });
+
+    component.setNavigationSubscription();
+    tick(100);
+
+    expect(utilityService.canShowOptInModal).toHaveBeenCalledOnceWith({
+      feature: 'OPT_IN_POPUP_POST_CARD_ADDITION',
+      key: 'OPT_IN_POPUP_SHOWN_COUNT',
+    });
+    expect(component.showPromoteOptInModal).toHaveBeenCalledTimes(1);
+  }));
+
+  it('onCardAdded(): should setup navigation subscription and modal delay', () => {
+    spyOn(component, 'setNavigationSubscription');
+    spyOn(component, 'setModalDelay');
+    utilityService.canShowOptInModal.and.returnValue(of(true));
+
+    component.onCardAdded();
+
+    expect(component.setNavigationSubscription).toHaveBeenCalledTimes(1);
+    expect(component.setModalDelay).toHaveBeenCalledTimes(1);
+    expect(utilityService.canShowOptInModal).toHaveBeenCalledOnceWith({
+      feature: 'OPT_IN_POPUP_POST_CARD_ADDITION',
+      key: 'OPT_IN_POPUP_SHOWN_COUNT',
+    });
+    expect(utilityService.toggleShowOptInAfterAddingCard).toHaveBeenCalledOnceWith(true);
+  });
 });
