@@ -1,5 +1,5 @@
 import { Component, EventEmitter, ViewChild } from '@angular/core';
-import { concat, forkJoin, noop, Observable, of, Subject, Subscription } from 'rxjs';
+import { concat, forkJoin, from, noop, Observable, of, Subject, Subscription } from 'rxjs';
 import { shareReplay, switchMap, takeUntil } from 'rxjs/operators';
 import { ActionSheetButton, ActionSheetController, ModalController, NavController, Platform } from '@ionic/angular';
 import { NetworkService } from '../../core/services/network.service';
@@ -25,6 +25,7 @@ import { UtilityService } from 'src/app/core/services/utility.service';
 import { FeatureConfigService } from 'src/app/core/services/platform/v1/spender/feature-config.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { PromoteOptInModalComponent } from 'src/app/shared/components/promote-opt-in-modal/promote-opt-in-modal.component';
+import { AuthService } from 'src/app/core/services/auth.service';
 
 enum DashboardState {
   home,
@@ -85,7 +86,8 @@ export class DashboardPage {
     private modalController: ModalController,
     private utilityService: UtilityService,
     private featureConfigService: FeatureConfigService,
-    private modalProperties: ModalPropertiesService
+    private modalProperties: ModalPropertiesService,
+    private authService: AuthService
   ) {}
 
   get displayedTaskCount(): number {
@@ -310,31 +312,36 @@ export class DashboardPage {
   async showPromoteOptInModal(): Promise<void> {
     this.trackingService.showOptInModalPostCardAdditionInDashboard();
 
-    const optInPromotionalModal = await this.modalController.create({
-      component: PromoteOptInModalComponent,
-      mode: 'ios',
-      ...this.modalProperties.getModalDefaultProperties('promote-opt-in-modal'),
+    from(this.authService.getEou()).subscribe(async (eou) => {
+      const optInPromotionalModal = await this.modalController.create({
+        component: PromoteOptInModalComponent,
+        mode: 'ios',
+        componentProps: {
+          extendedOrgUser: eou,
+        },
+        ...this.modalProperties.getModalDefaultProperties('promote-opt-in-modal'),
+      });
+
+      await optInPromotionalModal.present();
+
+      const optInModalFeatureConfig = {
+        feature: 'OPT_IN_POPUP_POST_CARD_ADDITION',
+        key: 'OPT_IN_POPUP_SHOWN_COUNT',
+        value: {
+          count: 1,
+        },
+      };
+
+      this.featureConfigService.saveConfiguration(optInModalFeatureConfig).subscribe(noop);
+
+      const { data } = await optInPromotionalModal.onDidDismiss<{ skipOptIn: boolean }>();
+
+      if (data && data.skipOptIn) {
+        this.trackingService.skipOptInModalPostCardAdditionInDashboard();
+      } else {
+        this.trackingService.optInFromPostPostCardAdditionInDashboard();
+      }
     });
-
-    await optInPromotionalModal.present();
-
-    const optInModalFeatureConfig = {
-      feature: 'OPT_IN_POPUP_POST_CARD_ADDITION',
-      key: 'OPT_IN_POPUP_SHOWN_COUNT',
-      value: {
-        count: 1,
-      },
-    };
-
-    this.featureConfigService.saveConfiguration(optInModalFeatureConfig).subscribe(noop);
-
-    const { data } = await optInPromotionalModal.onDidDismiss<{ skipOptIn: boolean }>();
-
-    if (data && data.skipOptIn) {
-      this.trackingService.skipOptInModalPostCardAdditionInDashboard();
-    } else {
-      this.trackingService.optInFromPostPostCardAdditionInDashboard();
-    }
   }
 
   setModalDelay(): void {

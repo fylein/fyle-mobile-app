@@ -4,6 +4,7 @@ import {
   ActionSheetController,
   IonRefresher,
   IonicModule,
+  ModalController,
   PopoverController,
   RefresherCustomEvent,
   SegmentCustomEvent,
@@ -11,12 +12,12 @@ import {
 
 import { ManageCorporateCardsPage } from './manage-corporate-cards.page';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
-import { Router } from '@angular/router';
+import { NavigationStart, Router } from '@angular/router';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { RealTimeFeedService } from 'src/app/core/services/real-time-feed.service';
-import { NEVER, of } from 'rxjs';
+import { NEVER, Observable, Subscription, of } from 'rxjs';
 import { orgSettingsCCCEnabled } from 'src/app/core/mock-data/org-settings.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import {
@@ -39,6 +40,13 @@ import { VirtualCardsService } from 'src/app/core/services/virtual-cards.service
 import { ManageCardsPageSegment } from 'src/app/core/enums/manage-cards-page-segment.enum';
 import { virtualCardCombinedResponse } from 'src/app/core/mock-data/virtual-card-combined-response.data';
 import { virtualCardDetailsCombined } from 'src/app/core/mock-data/platform-corporate-card-detail.data';
+import { UtilityService } from 'src/app/core/services/utility.service';
+import { FeatureConfigService } from 'src/app/core/services/platform/v1/spender/feature-config.service';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { AuthService } from 'src/app/core/services/auth.service';
+import { PromoteOptInModalComponent } from 'src/app/shared/components/promote-opt-in-modal/promote-opt-in-modal.component';
+import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
+import { properties } from 'src/app/core/mock-data/modal-properties.data';
 
 @Component({
   selector: 'app-corporate-card',
@@ -65,6 +73,11 @@ describe('ManageCorporateCardsPage', () => {
   let realTimeFeedService: jasmine.SpyObj<RealTimeFeedService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
   let virtualCardsService: jasmine.SpyObj<VirtualCardsService>;
+  let utilityService: jasmine.SpyObj<UtilityService>;
+  let featureConfigService: jasmine.SpyObj<FeatureConfigService>;
+  let modalController: jasmine.SpyObj<ModalController>;
+  let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
+  let authService: jasmine.SpyObj<AuthService>;
 
   beforeEach(waitForAsync(() => {
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
@@ -77,8 +90,22 @@ describe('ManageCorporateCardsPage', () => {
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
     const realTimeFeedServiceSpy = jasmine.createSpyObj('RealTimeFeedService', ['getCardType', 'unenroll']);
-    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['cardUnenrolled']);
+    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
+      'cardUnenrolled',
+      'showOptInModalPostCardAdditionInSettings',
+      'skipOptInModalPostCardAdditionInSettings',
+      'optInFromPostPostCardAdditionInSettings',
+    ]);
     const virtualCardsServiceSpy = jasmine.createSpyObj('TrackingService', ['getCardDetailsMap']);
+    const utilityServiceSpy = jasmine.createSpyObj('UtilityService', [
+      'canShowOptInAfterAddingCard',
+      'toggleShowOptInAfterAddingCard',
+      'canShowOptInModal',
+    ]);
+    const featureConfigServiceSpy = jasmine.createSpyObj('FeatureConfigService', ['saveConfiguration']);
+    const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
+    const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
+    const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
 
     TestBed.configureTestingModule({
       declarations: [ManageCorporateCardsPage, MockCorporateCardComponent],
@@ -120,6 +147,26 @@ describe('ManageCorporateCardsPage', () => {
           provide: VirtualCardsService,
           useValue: virtualCardsServiceSpy,
         },
+        {
+          provide: UtilityService,
+          useValue: utilityServiceSpy,
+        },
+        {
+          provide: FeatureConfigService,
+          useValue: featureConfigServiceSpy,
+        },
+        {
+          provide: ModalController,
+          useValue: modalControllerSpy,
+        },
+        {
+          provide: ModalPropertiesService,
+          useValue: modalPropertiesSpy,
+        },
+        {
+          provide: AuthService,
+          useValue: authServiceSpy,
+        },
       ],
     }).compileComponents();
 
@@ -137,6 +184,11 @@ describe('ManageCorporateCardsPage', () => {
     realTimeFeedService = TestBed.inject(RealTimeFeedService) as jasmine.SpyObj<RealTimeFeedService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     virtualCardsService = TestBed.inject(VirtualCardsService) as jasmine.SpyObj<VirtualCardsService>;
+    utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
+    featureConfigService = TestBed.inject(FeatureConfigService) as jasmine.SpyObj<FeatureConfigService>;
+    modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
+    modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
+    authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
 
     // Default return values
     orgSettingsService.get.and.returnValue(of(orgSettingsCCCEnabled));
@@ -236,7 +288,7 @@ describe('ManageCorporateCardsPage', () => {
 
   it('areVirtualCardsPresent(): check in corporateCards list if any of the cards is a virtual card', () => {
     const response = component.areVirtualCardsPresent([virtualCard]);
-    expect(response).toEqual(true);
+    expect(response).toBeTrue();
   });
 
   describe('add card flow', () => {
@@ -254,6 +306,7 @@ describe('ManageCorporateCardsPage', () => {
         Promise.resolve(addCardPopoverSpy),
         Promise.resolve(cardAddedPopoverSpy)
       );
+      spyOn(component, 'onCardAdded');
 
       component.ionViewWillEnter();
       fixture.detectChanges();
@@ -545,5 +598,119 @@ describe('ManageCorporateCardsPage', () => {
     expect(corporateCreditCardExpenseService.clearCache).toHaveBeenCalledTimes(1);
     expect(component.loadCorporateCards$.next).toHaveBeenCalledTimes(1);
     expect(refresherCustomEvent.target.complete).toHaveBeenCalledTimes(1);
+  });
+
+  describe('showPromoteOptInModal():', () => {
+    beforeEach(() => {
+      authService.getEou.and.resolveTo(apiEouRes);
+      modalProperties.getModalDefaultProperties.and.returnValue(properties);
+      featureConfigService.saveConfiguration.and.returnValue(of(null));
+    });
+
+    it('should show promote opt-in modal and track skip event if user skipped opt-in', fakeAsync(() => {
+      const modal = jasmine.createSpyObj('HTMLIonModalElement', ['present', 'onDidDismiss']);
+      modal.onDidDismiss.and.resolveTo({ data: { skipOptIn: true } });
+      modalController.create.and.resolveTo(modal);
+
+      component.showPromoteOptInModal();
+      tick(100);
+
+      expect(trackingService.showOptInModalPostCardAdditionInSettings).toHaveBeenCalledTimes(1);
+      expect(authService.getEou).toHaveBeenCalledTimes(1);
+      expect(modal.present).toHaveBeenCalledTimes(1);
+      expect(modal.onDidDismiss).toHaveBeenCalledTimes(1);
+      expect(featureConfigService.saveConfiguration).toHaveBeenCalledOnceWith({
+        feature: 'OPT_IN_POPUP_POST_CARD_ADDITION',
+        key: 'OPT_IN_POPUP_SHOWN_COUNT',
+        value: {
+          count: 1,
+        },
+      });
+      expect(trackingService.skipOptInModalPostCardAdditionInSettings).toHaveBeenCalledTimes(1);
+      expect(trackingService.optInFromPostPostCardAdditionInSettings).not.toHaveBeenCalled();
+    }));
+
+    it('should show promote opt-in modal and track opt-in event if user opted in', fakeAsync(() => {
+      const modal = jasmine.createSpyObj('HTMLIonModalElement', ['present', 'onDidDismiss']);
+      modal.onDidDismiss.and.resolveTo({ data: { skipOptIn: false } });
+      modalController.create.and.resolveTo(modal);
+
+      component.showPromoteOptInModal();
+      tick(100);
+
+      expect(trackingService.showOptInModalPostCardAdditionInSettings).toHaveBeenCalledTimes(1);
+      expect(authService.getEou).toHaveBeenCalledTimes(1);
+      expect(modal.present).toHaveBeenCalledTimes(1);
+      expect(modal.onDidDismiss).toHaveBeenCalledTimes(1);
+      expect(featureConfigService.saveConfiguration).toHaveBeenCalledOnceWith({
+        feature: 'OPT_IN_POPUP_POST_CARD_ADDITION',
+        key: 'OPT_IN_POPUP_SHOWN_COUNT',
+        value: {
+          count: 1,
+        },
+      });
+      expect(trackingService.skipOptInModalPostCardAdditionInSettings).not.toHaveBeenCalled();
+      expect(trackingService.optInFromPostPostCardAdditionInSettings).toHaveBeenCalledTimes(1);
+    }));
+  });
+
+  it('setNavigationSubscription(): should clear timeout and show promote opt-in modal if user navigates to manage corporate cards page', fakeAsync(() => {
+    spyOn(component, 'showPromoteOptInModal');
+    const navigationEvent = new NavigationStart(1, 'manage_corporate_cards');
+    utilityService.canShowOptInModal.and.returnValue(of(true));
+    Object.defineProperty(router, 'events', { value: of(navigationEvent) });
+
+    component.setNavigationSubscription();
+    tick(100);
+
+    expect(utilityService.canShowOptInModal).toHaveBeenCalledOnceWith({
+      feature: 'OPT_IN_POPUP_POST_CARD_ADDITION',
+      key: 'OPT_IN_POPUP_SHOWN_COUNT',
+    });
+    expect(component.showPromoteOptInModal).toHaveBeenCalledTimes(1);
+  }));
+
+  it('onCardAdded(): should setup navigation subscription and modal delay', () => {
+    spyOn(component, 'setNavigationSubscription');
+    spyOn(component, 'setModalDelay');
+    utilityService.canShowOptInModal.and.returnValue(of(true));
+
+    component.onCardAdded();
+
+    expect(component.setNavigationSubscription).toHaveBeenCalledTimes(1);
+    expect(component.setModalDelay).toHaveBeenCalledTimes(1);
+    expect(utilityService.canShowOptInModal).toHaveBeenCalledOnceWith({
+      feature: 'OPT_IN_POPUP_POST_CARD_ADDITION',
+      key: 'OPT_IN_POPUP_SHOWN_COUNT',
+    });
+    expect(utilityService.toggleShowOptInAfterAddingCard).toHaveBeenCalledOnceWith(true);
+  });
+
+  it('setModalDelay(): should set optInShowTimer and call showPromoteOptInModal after 2 seconds', fakeAsync(() => {
+    spyOn(component, 'showPromoteOptInModal');
+
+    component.setModalDelay();
+    tick(2000);
+
+    expect(component.showPromoteOptInModal).toHaveBeenCalledTimes(1);
+  }));
+
+  describe('ionViewWillLeave():', () => {
+    it('should unsubscribe from navigationSubscription if it is defined', () => {
+      component.navigationSubscription = new Subscription();
+      spyOn(component.navigationSubscription, 'unsubscribe');
+
+      component.ionViewWillLeave();
+
+      expect(component.navigationSubscription.unsubscribe).toHaveBeenCalledTimes(1);
+    });
+
+    it('should toggle optInAfterAddingCard flag to false', () => {
+      component.navigationSubscription = null;
+
+      component.ionViewWillLeave();
+
+      expect(utilityService.toggleShowOptInAfterAddingCard).toHaveBeenCalledOnceWith(false);
+    });
   });
 });
