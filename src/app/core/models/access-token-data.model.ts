@@ -12,3 +12,7 @@ export interface AccessTokenData {
   cluster_domain: string;
   exp: number;
 }
+
+export interface lolSobtesting {
+  name: string;
+}
