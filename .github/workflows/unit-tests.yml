@@ -9,7 +9,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    if: ${{ !startsWith(github.event.pull_request.title, 'p0') }}
     strategy:
       matrix:
         node-version: [12.x]
