@@ -2,6 +2,8 @@ name: Unit Tests
 
 on:
   push:
+    tags-ignore:
+      - 'p0' # Ignore tags with 'p0' prefix
     branches: [master]
   pull_request:
     types: [opened, synchronize, edited]
@@ -14,12 +16,6 @@ jobs:
         node-version: [12.x]
 
     steps:
-      - name: Check PR name
-        run: |
-          if [[ "${{ github.event.pull_request.title }}" =~ ^p0 ]]; then
-            echo "PR name does not start with 'p0'. Exiting."
-            exit 1
-          fi
       - name: Check out Git repository
         uses: actions/checkout@v2
 
