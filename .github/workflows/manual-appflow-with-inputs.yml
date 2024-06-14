@@ -18,6 +18,7 @@ on:
           - thanos
           - thor
           - drstrange
+          - hulk
 
 jobs:
   build-android:
