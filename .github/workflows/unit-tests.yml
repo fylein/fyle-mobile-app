@@ -18,7 +18,7 @@ jobs:
         run: |
           if [[ "${{ github.event.pull_request.title }}" =~ ^p0 ]]; then
             echo "PR name does not start with 'p0'. Exiting."
-            exit 0
+            exit 1
           fi
       - name: Check out Git repository
         uses: actions/checkout@v2
