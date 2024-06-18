@@ -172,6 +172,24 @@ export const transformedExpenseDataWithSubCategory: Partial<UnflattenedTransacti
   },
 });
 
+export const transformedExpenseDataWithAdvanceWallet: Partial<UnflattenedTransaction> = deepFreeze({
+  ...transformedExpenseDataWithSubCategory,
+  tx: {
+    ...transformedExpenseDataWithSubCategory.tx,
+    source_account_id: null,
+    skip_reimbursement: true,
+    advance_wallet_id: 'areq1234',
+  },
+});
+
+export const transformedExpenseDataWithoutAdvanceWallet: Partial<UnflattenedTransaction> = deepFreeze({
+  ...transformedExpenseDataWithAdvanceWallet,
+  tx: {
+    ...transformedExpenseDataWithAdvanceWallet.tx,
+    advance_wallet_id: null,
+  },
+});
+
 export const transformedExpenseDataWithReportId: Partial<UnflattenedTransaction> = deepFreeze({
   ...transformedExpenseDataWithSubCategory,
   tx: {

@@ -7,6 +7,7 @@ import { CostCenter } from './v1/cost-center.model';
 import { OrgCategory } from './v1/org-category.model';
 import { ProjectV2 } from './v2/project-v2.model';
 import { Report } from '../models/platform/v1/report.model';
+import { AdvanceWallet } from '../models/platform/v1/advance-wallet.model';
 
 export interface MileageFormValue {
   route: {
@@ -17,7 +18,7 @@ export interface MileageFormValue {
   category: OrgCategory;
   sub_category: OrgCategory;
   report: Report;
-  paymentMode: ExtendedAccount;
+  paymentMode: ExtendedAccount | AdvanceWallet;
   custom_inputs: CustomInput[];
   mileage_rate_name: PlatformMileageRates;
   vehicle_type: string;
