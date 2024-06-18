@@ -6,11 +6,3 @@ export enum TaskIcon {
   LOCATION = 'location',
   STARS = 'stars-filled',
 }
-
-export enum lolSob {
-  REPORT = 'list',
-  WARNING = 'warning-outline',
-  ADVANCE = 'wallet',
-  MOBILE = 'phone',
-  LOCATION = 'location',
-}
