@@ -186,6 +186,7 @@ export class MyProfilePage {
     this.loadEou$ = new BehaviorSubject<null>(null);
     this.eou$ = this.loadEou$.pipe(switchMap(() => from(this.authService.getEou())));
     this.isUserFromINCluster$ = from(this.utilityService.isUserFromINCluster());
+    console.log('trigger');
 
     this.reset();
     from(this.tokenService.getClusterDomain()).subscribe((clusterDomain) => {
