@@ -6,7 +6,6 @@ import {
   ExpenseProperties,
   IdentifyProperties,
   SplittingExpenseProperties,
-  TrackingMethods,
   PolicyCorrectionProperties,
   AddAttachmentProperties,
   CommentHistoryActionProperties,
@@ -39,6 +38,7 @@ import { ExpenseFilters } from '../models/expense-filters.model';
 import { ReportFilters } from '../models/report-filters.model';
 import { CommuteDetailsResponse } from '../models/platform/commute-details-response.model';
 import { HttpErrorResponse } from '@angular/common/http';
+import { AnalyticsBrowser } from '@segment/analytics-next';
 
 @Injectable({
   providedIn: 'root',
@@ -48,8 +48,8 @@ export class TrackingService {
 
   constructor(private authService: AuthService, private deviceService: DeviceService) {}
 
-  get tracking(): TrackingMethods {
-    return (window as typeof window & { analytics: TrackingMethods }).analytics;
+  get tracking(): AnalyticsBrowser {
+    return AnalyticsBrowser.load({ writeKey: 'HLAIx2uwpdglrMKhUV9rREAr9ADpeJ48' });
   }
 
   async updateIdentity(): Promise<void> {

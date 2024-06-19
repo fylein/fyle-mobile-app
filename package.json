@@ -62,6 +62,7 @@
     "@ionic/angular": "^6.1.5",
     "@ionic/core": "^6.1.5",
     "@ionic/pwa-elements": "^3.1.1",
+    "@segment/analytics-next": "^1.70.0",
     "@sentry/angular": "^7.1.1",
     "@sentry/cli": "^2.1.0",
     "@sentry/tracing": "^7.1.1",
