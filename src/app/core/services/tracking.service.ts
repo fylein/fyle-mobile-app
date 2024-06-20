@@ -788,4 +788,12 @@ export class TrackingService {
   optInFromPostPostCardAdditionInSettings(): void {
     this.eventTrack('Opt In From Post Card Addition in Settings');
   }
+
+  optedInFromDashboardBanner(): void {
+    this.eventTrack('Opted In From Dashboard Banner');
+  }
+
+  skipOptInFromDashboardBanner(): void {
+    this.eventTrack('Skip Opt In From Dashboard Banner');
+  }
 }
