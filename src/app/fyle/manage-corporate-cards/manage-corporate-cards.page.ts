@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { NavigationStart, Router } from '@angular/router';
 import { ActionSheetButton, ActionSheetController, ModalController, PopoverController } from '@ionic/angular';
-import { BehaviorSubject, Observable, Subscription, filter, forkJoin, map, noop, switchMap } from 'rxjs';
+import { BehaviorSubject, Observable, Subscription, filter, forkJoin, from, map, noop, switchMap } from 'rxjs';
 import { DataFeedSource } from 'src/app/core/enums/data-feed-source.enum';
 import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
@@ -22,6 +22,7 @@ import { UtilityService } from 'src/app/core/services/utility.service';
 import { FeatureConfigService } from 'src/app/core/services/platform/v1/spender/feature-config.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { PromoteOptInModalComponent } from 'src/app/shared/components/promote-opt-in-modal/promote-opt-in-modal.component';
+import { AuthService } from 'src/app/core/services/auth.service';
 @Component({
   selector: 'app-manage-corporate-cards',
   templateUrl: './manage-corporate-cards.page.html',
@@ -61,7 +62,8 @@ export class ManageCorporateCardsPage {
     private utilityService: UtilityService,
     private featureConfigService: FeatureConfigService,
     private modalController: ModalController,
-    private modalProperties: ModalPropertiesService
+    private modalProperties: ModalPropertiesService,
+    private authService: AuthService
   ) {}
 
   get Segment(): typeof ManageCardsPageSegment {
@@ -234,31 +236,36 @@ export class ManageCorporateCardsPage {
   async showPromoteOptInModal(): Promise<void> {
     this.trackingService.showOptInModalPostCardAdditionInSettings();
 
-    const optInPromotionalModal = await this.modalController.create({
-      component: PromoteOptInModalComponent,
-      mode: 'ios',
-      ...this.modalProperties.getModalDefaultProperties('promote-opt-in-modal'),
+    from(this.authService.getEou()).subscribe(async (eou) => {
+      const optInPromotionalModal = await this.modalController.create({
+        component: PromoteOptInModalComponent,
+        componentProps: {
+          extendedOrgUser: eou,
+        },
+        mode: 'ios',
+        ...this.modalProperties.getModalDefaultProperties('promote-opt-in-modal'),
+      });
+
+      await optInPromotionalModal.present();
+
+      const optInModalFeatureConfig = {
+        feature: 'OPT_IN_POPUP_POST_CARD_ADDITION',
+        key: 'OPT_IN_POPUP_SHOWN_COUNT',
+        value: {
+          count: 1,
+        },
+      };
+
+      this.featureConfigService.saveConfiguration(optInModalFeatureConfig).subscribe(noop);
+
+      const { data } = await optInPromotionalModal.onDidDismiss<{ skipOptIn: boolean }>();
+
+      if (data && data.skipOptIn) {
+        this.trackingService.skipOptInModalPostCardAdditionInSettings();
+      } else {
+        this.trackingService.optInFromPostPostCardAdditionInSettings();
+      }
     });
-
-    await optInPromotionalModal.present();
-
-    const optInModalFeatureConfig = {
-      feature: 'OPT_IN_POPUP_POST_CARD_ADDITION',
-      key: 'OPT_IN_POPUP_SHOWN_COUNT',
-      value: {
-        count: 1,
-      },
-    };
-
-    this.featureConfigService.saveConfiguration(optInModalFeatureConfig).subscribe(noop);
-
-    const { data } = await optInPromotionalModal.onDidDismiss<{ skipOptIn: boolean }>();
-
-    if (data && data.skipOptIn) {
-      this.trackingService.skipOptInModalPostCardAdditionInSettings();
-    } else {
-      this.trackingService.optInFromPostPostCardAdditionInSettings();
-    }
   }
 
   setModalDelay(): void {

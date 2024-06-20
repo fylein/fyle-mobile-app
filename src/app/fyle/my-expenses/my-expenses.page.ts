@@ -753,31 +753,36 @@ export class MyExpensesPage implements OnInit {
   async showPromoteOptInModal(): Promise<void> {
     this.trackingService.showOptInModalPostExpenseCreation();
 
-    const optInPromotionalModal = await this.modalController.create({
-      component: PromoteOptInModalComponent,
-      mode: 'ios',
-      ...this.modalProperties.getModalDefaultProperties('promote-opt-in-modal'),
+    from(this.authService.getEou()).subscribe(async (eou) => {
+      const optInPromotionalModal = await this.modalController.create({
+        component: PromoteOptInModalComponent,
+        componentProps: {
+          extendedOrgUser: eou,
+        },
+        mode: 'ios',
+        ...this.modalProperties.getModalDefaultProperties('promote-opt-in-modal'),
+      });
+
+      await optInPromotionalModal.present();
+
+      const optInModalPostExpenseCreationFeatureConfig = {
+        feature: 'OPT_IN_POPUP_POST_EXPENSE_CREATION',
+        key: 'OPT_IN_POPUP_SHOWN_COUNT',
+        value: {
+          count: 1,
+        },
+      };
+
+      this.featureConfigService.saveConfiguration(optInModalPostExpenseCreationFeatureConfig).subscribe(noop);
+
+      const { data } = await optInPromotionalModal.onDidDismiss<{ skipOptIn: boolean }>();
+
+      if (data && data.skipOptIn) {
+        this.trackingService.skipOptInModalPostExpenseCreation();
+      } else {
+        this.trackingService.optInFromPostExpenseCreationModal();
+      }
     });
-
-    await optInPromotionalModal.present();
-
-    const optInModalPostExpenseCreationFeatureConfig = {
-      feature: 'OPT_IN_POPUP_POST_EXPENSE_CREATION',
-      key: 'OPT_IN_POPUP_SHOWN_COUNT',
-      value: {
-        count: 1,
-      },
-    };
-
-    this.featureConfigService.saveConfiguration(optInModalPostExpenseCreationFeatureConfig).subscribe(noop);
-
-    const { data } = await optInPromotionalModal.onDidDismiss<{ skipOptIn: boolean }>();
-
-    if (data && data.skipOptIn) {
-      this.trackingService.skipOptInModalPostExpenseCreation();
-    } else {
-      this.trackingService.optInFromPostExpenseCreationModal();
-    }
   }
 
   setModalDelay(): void {

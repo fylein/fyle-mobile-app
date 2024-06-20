@@ -422,6 +422,7 @@ export class MyProfilePage {
     if (data) {
       if (data.action === 'SUCCESS') {
         this.eou$ = from(this.authService.refreshEou());
+        this.showToastMessage('Opted in successfully', 'success');
       } else if (data.action === 'ERROR') {
         this.showToastMessage('Something went wrong. Please try again later.', 'failure');
       }
@@ -494,6 +495,7 @@ export class MyProfilePage {
       .subscribe(() => {
         this.trackingService.optedOut();
         this.eou$ = from(this.authService.refreshEou());
+        this.showToastMessage('Opted out of text messages successfully', 'success');
       });
   }
 
