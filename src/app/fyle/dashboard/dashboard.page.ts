@@ -1,6 +1,6 @@
 import { Component, EventEmitter, ViewChild } from '@angular/core';
 import { concat, forkJoin, from, noop, Observable, of, Subject, Subscription } from 'rxjs';
-import { shareReplay, switchMap, takeUntil } from 'rxjs/operators';
+import { map, shareReplay, switchMap, takeUntil } from 'rxjs/operators';
 import { ActionSheetButton, ActionSheetController, ModalController, NavController, Platform } from '@ionic/angular';
 import { NetworkService } from '../../core/services/network.service';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
@@ -26,6 +26,7 @@ import { FeatureConfigService } from 'src/app/core/services/platform/v1/spender/
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { PromoteOptInModalComponent } from 'src/app/shared/components/promote-opt-in-modal/promote-opt-in-modal.component';
 import { AuthService } from 'src/app/core/services/auth.service';
+import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 
 enum DashboardState {
   home,
@@ -67,6 +68,12 @@ export class DashboardPage {
   optInShowTimer;
 
   navigationSubscription: Subscription;
+
+  canShowOptInBanner$: Observable<boolean>;
+
+  eou$: Observable<ExtendedOrgUser>;
+
+  isUserFromINCluster$: Observable<boolean>;
 
   constructor(
     private currencyService: CurrencyService,
@@ -123,6 +130,33 @@ export class DashboardPage {
     );
   }
 
+  setShowOptInBanner(): void {
+    const optInBannerConfig = {
+      feature: 'DASHBOARD_OPT_IN_BANNER',
+      key: 'OPT_IN_BANNER_SHOWN',
+    };
+
+    const isBannerShown$ = this.featureConfigService
+      .getConfiguration(optInBannerConfig)
+      .pipe(map((config) => config?.value));
+
+    this.canShowOptInBanner$ = forkJoin({
+      isBannerShown: isBannerShown$,
+      eou: this.eou$,
+    }).pipe(
+      map(({ isBannerShown, eou }) => {
+        const isUSDorCADCurrency = ['USD', 'CAD'].includes(eou.org.currency);
+        const isInvalidUSMobileNumber = eou.ou.mobile && !eou.ou.mobile.startsWith('+1');
+
+        if (eou.ou.mobile_verified || !isUSDorCADCurrency || isInvalidUSMobileNumber || isBannerShown) {
+          return false;
+        }
+
+        return true;
+      })
+    );
+  }
+
   ionViewWillEnter(): void {
     this.setupNetworkWatcher();
     this.registerBackButtonAction();
@@ -140,6 +174,10 @@ export class DashboardPage {
     this.orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
     this.specialCategories$ = this.categoriesService.getMileageOrPerDiemCategories().pipe(shareReplay(1));
     this.homeCurrency$ = this.currencyService.getHomeCurrency().pipe(shareReplay(1));
+    this.eou$ = from(this.authService.getEou());
+    this.isUserFromINCluster$ = from(this.utilityService.isUserFromINCluster());
+
+    this.setShowOptInBanner();
 
     forkJoin({
       orgSettings: this.orgSettings$,
@@ -384,5 +422,24 @@ export class DashboardPage {
     this.setNavigationSubscription();
 
     this.utilityService.toggleShowOptInAfterAddingCard(true);
+  }
+
+  toggleOptInBanner(isOptedIn: boolean): void {
+    this.canShowOptInBanner$ = of(false);
+
+    const optInBannerConfig = {
+      feature: 'DASHBOARD_OPT_IN_BANNER',
+      key: 'OPT_IN_BANNER_SHOWN',
+      value: true,
+    };
+
+    this.featureConfigService.saveConfiguration(optInBannerConfig).subscribe(noop);
+
+    if (isOptedIn) {
+      this.trackingService.optedInFromDashboardBanner();
+      this.eou$ = this.authService.refreshEou();
+    } else {
+      this.trackingService.skipOptInFromDashboardBanner();
+    }
   }
 }

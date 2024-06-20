@@ -33,6 +33,7 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { AuthService } from 'src/app/core/services/auth.service';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
+import { featureConfigOptInData } from 'src/app/core/mock-data/feature-config.data';
 
 describe('DashboardPage', () => {
   let component: DashboardPage;
@@ -69,6 +70,8 @@ describe('DashboardPage', () => {
       'showOptInModalPostCardAdditionInDashboard',
       'skipOptInModalPostCardAdditionInDashboard',
       'optInFromPostPostCardAdditionInDashboard',
+      'optedInFromDashboardBanner',
+      'skipOptInFromDashboardBanner',
     ]);
     const actionSheetControllerSpy = jasmine.createSpyObj('ActionSheetController', ['create']);
     const tasksServiceSpy = jasmine.createSpyObj('TasksService', ['getTotalTaskCount']);
@@ -82,10 +85,14 @@ describe('DashboardPage', () => {
       'toggleShowOptInAfterAddingCard',
       'canShowOptInModal',
       'toggleShowOptInAfterAddingCard',
+      'isUserFromINCluster',
     ]);
-    const featureConfigServiceSpy = jasmine.createSpyObj('FeatureConfigService', ['saveConfiguration']);
+    const featureConfigServiceSpy = jasmine.createSpyObj('FeatureConfigService', [
+      'saveConfiguration',
+      'getConfiguration',
+    ]);
     const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
-    const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
+    const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou', 'refreshEou']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
 
     TestBed.configureTestingModule({
@@ -246,6 +253,9 @@ describe('DashboardPage', () => {
       component.tasksComponent = tasksComponentSpy;
       tasksService.getTotalTaskCount.and.returnValue(of(4));
       component.isConnected$ = of(true);
+      authService.getEou.and.resolveTo(apiEouRes);
+      utilityService.isUserFromINCluster.and.resolveTo(false);
+      spyOn(component, 'setShowOptInBanner');
     });
 
     it('should call setupNetworkWatcher, registerBackButtonAction and smartlookService.init once', () => {
@@ -327,6 +337,19 @@ describe('DashboardPage', () => {
           queryParams: { state: 'home' },
         },
       ]);
+    });
+
+    it('should set eou$, isUserFromINCluster$ and call setShowOptInBanner once', () => {
+      component.ionViewWillEnter();
+      component.eou$.subscribe((res) => {
+        expect(authService.getEou).toHaveBeenCalledTimes(1);
+        expect(res).toEqual(apiEouRes);
+      });
+      component.isUserFromINCluster$.subscribe((res) => {
+        expect(utilityService.isUserFromINCluster).toHaveBeenCalledTimes(1);
+        expect(res).toBeFalse();
+      });
+      expect(component.setShowOptInBanner).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -619,5 +642,138 @@ describe('DashboardPage', () => {
       key: 'OPT_IN_POPUP_SHOWN_COUNT',
     });
     expect(utilityService.toggleShowOptInAfterAddingCard).toHaveBeenCalledOnceWith(true);
+  });
+
+  describe('setShowOptInBanner():', () => {
+    beforeEach(() => {
+      featureConfigService.getConfiguration.and.returnValue(of(featureConfigOptInData));
+    });
+
+    it('should set canShowOptInBanner to false if user is verified', () => {
+      const mockEou = cloneDeep(apiEouRes);
+      mockEou.ou.mobile_verified = true;
+      component.eou$ = of(mockEou);
+
+      component.setShowOptInBanner();
+
+      component.canShowOptInBanner$.subscribe((res) => {
+        expect(featureConfigService.getConfiguration).toHaveBeenCalledOnceWith({
+          feature: 'DASHBOARD_OPT_IN_BANNER',
+          key: 'OPT_IN_BANNER_SHOWN',
+        });
+        expect(res).toBeFalse();
+      });
+    });
+
+    it('should set canShowOptInBanner to false if user currency is not USD or CAD', () => {
+      const mockEou = cloneDeep(apiEouRes);
+      mockEou.ou.mobile_verified = false;
+      mockEou.org.currency = 'INR';
+      component.eou$ = of(mockEou);
+
+      component.setShowOptInBanner();
+
+      component.canShowOptInBanner$.subscribe((res) => {
+        expect(featureConfigService.getConfiguration).toHaveBeenCalledOnceWith({
+          feature: 'DASHBOARD_OPT_IN_BANNER',
+          key: 'OPT_IN_BANNER_SHOWN',
+        });
+        expect(res).toBeFalse();
+      });
+    });
+
+    it('should set canShowOptInBanner to false if user mobile number does not start with +1', () => {
+      const mockEou = cloneDeep(apiEouRes);
+      mockEou.ou.mobile_verified = false;
+      mockEou.org.currency = 'USD';
+      mockEou.ou.mobile = '+911234567890';
+      component.eou$ = of(mockEou);
+
+      component.setShowOptInBanner();
+
+      component.canShowOptInBanner$.subscribe((res) => {
+        expect(featureConfigService.getConfiguration).toHaveBeenCalledOnceWith({
+          feature: 'DASHBOARD_OPT_IN_BANNER',
+          key: 'OPT_IN_BANNER_SHOWN',
+        });
+        expect(res).toBeFalse();
+      });
+    });
+
+    it('should set canShowOptInBanner to false if feature config value is greater than 0', () => {
+      const mockEou = cloneDeep(apiEouRes);
+      mockEou.ou.mobile_verified = false;
+      mockEou.org.currency = 'USD';
+      mockEou.ou.mobile = '+911234567890';
+      component.eou$ = of(mockEou);
+      const mockFeatureConfig = cloneDeep(featureConfigOptInData);
+      mockFeatureConfig.value.count = 1;
+      featureConfigService.getConfiguration.and.returnValue(of(mockFeatureConfig));
+
+      component.setShowOptInBanner();
+
+      component.canShowOptInBanner$.subscribe((res) => {
+        expect(featureConfigService.getConfiguration).toHaveBeenCalledOnceWith({
+          feature: 'DASHBOARD_OPT_IN_BANNER',
+          key: 'OPT_IN_BANNER_SHOWN',
+        });
+        expect(res).toBeFalse();
+      });
+    });
+
+    it('should set canShowOptInBanner to true if feature config data is null', () => {
+      const mockEou = cloneDeep(apiEouRes);
+      mockEou.ou.mobile_verified = false;
+      mockEou.org.currency = 'USD';
+      mockEou.ou.mobile = '+11234567890';
+      featureConfigService.getConfiguration.and.returnValue(of(null));
+
+      component.eou$ = of(mockEou);
+
+      component.setShowOptInBanner();
+
+      component.canShowOptInBanner$.subscribe((res) => {
+        expect(featureConfigService.getConfiguration).toHaveBeenCalledOnceWith({
+          feature: 'DASHBOARD_OPT_IN_BANNER',
+          key: 'OPT_IN_BANNER_SHOWN',
+        });
+        expect(res).toBeTrue();
+      });
+    });
+  });
+
+  describe('toggleOptInBanner():', () => {
+    beforeEach(() => {
+      authService.refreshEou.and.returnValue(of(apiEouRes));
+      featureConfigService.saveConfiguration.and.returnValue(of(null));
+    });
+
+    it('should set canShowOptInBanner$ to false and save feature config value as true', () => {
+      component.toggleOptInBanner(true);
+
+      expect(featureConfigService.saveConfiguration).toHaveBeenCalledOnceWith({
+        feature: 'DASHBOARD_OPT_IN_BANNER',
+        key: 'OPT_IN_BANNER_SHOWN',
+        value: true,
+      });
+
+      component.canShowOptInBanner$.subscribe((res) => {
+        expect(res).toBeFalse();
+      });
+    });
+
+    it('should refresh eou and track opt in event if user opted in', () => {
+      component.toggleOptInBanner(true);
+
+      expect(authService.refreshEou).toHaveBeenCalledTimes(1);
+      expect(trackingService.optedInFromDashboardBanner).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not refresh eou and track skip opt in event if user skipped opt in', () => {
+      component.toggleOptInBanner(false);
+
+      expect(authService.refreshEou).not.toHaveBeenCalled();
+      expect(trackingService.skipOptInFromDashboardBanner).toHaveBeenCalledTimes(1);
+    });
   });
 });
