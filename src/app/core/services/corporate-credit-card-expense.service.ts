@@ -232,6 +232,7 @@ export class CorporateCreditCardExpenseService {
       vendor: ccTransaction.merchant,
       corporate_credit_card_account_number: ccTransaction.corporate_card?.card_number,
       status: ccTransaction.transaction_status,
+      nickname: ccTransaction.corporate_card?.nickname,
     };
     return updatedCCTransaction;
   }

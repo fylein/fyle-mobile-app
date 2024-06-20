@@ -76,7 +76,7 @@
               {{ projectFieldName | titlecase }}: {{ expense.project?.name || '-' }}
             </div>
             <div *ngIf="isCCCTransaction && cardNumber">
-              Card Number: {{ cardNumber | maskNumber }} <span *ngIf="cardNickname">{{'(' + cardNickname + ')'}}</span>
+              Card: {{ cardNumber | maskNumber }} <span *ngIf="cardNickname">{{'(' + cardNickname + ')'}}</span>
             </div>
           </div>
 
