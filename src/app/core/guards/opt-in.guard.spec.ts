@@ -54,7 +54,7 @@ describe('OptInGuard', () => {
       } as RouterStateSnapshot) as Observable<boolean>;
       canActivate.subscribe((res) => {
         expect(utilityService.canShowOptInAfterExpenseCreation).toHaveBeenCalledTimes(1);
-        expect(utilityService.canShowOptInModal).toHaveBeenCalledTimes(0);
+        expect(utilityService.canShowOptInModal).not.toHaveBeenCalled();
         expect(res).toBeTrue();
         done();
       });
@@ -97,7 +97,7 @@ describe('OptInGuard', () => {
       } as RouterStateSnapshot) as Observable<boolean>;
       canActivate.subscribe((res) => {
         expect(utilityService.canShowOptInAfterAddingCard).toHaveBeenCalledTimes(1);
-        expect(utilityService.canShowOptInModal).toHaveBeenCalledTimes(0);
+        expect(utilityService.canShowOptInModal).not.toHaveBeenCalled();
         expect(res).toBeTrue();
         done();
       });
@@ -140,7 +140,7 @@ describe('OptInGuard', () => {
       } as RouterStateSnapshot) as Observable<boolean>;
       canActivate.subscribe((res) => {
         expect(utilityService.canShowOptInAfterAddingCard).toHaveBeenCalledTimes(1);
-        expect(utilityService.canShowOptInModal).toHaveBeenCalledTimes(0);
+        expect(utilityService.canShowOptInModal).not.toHaveBeenCalled();
         expect(res).toBeTrue();
         done();
       });
