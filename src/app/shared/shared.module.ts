@@ -147,7 +147,9 @@ import { TransactionStatusComponent } from './components/transaction-status/tran
 import { FySelectCommuteDetailsComponent } from './components/fy-select-commute-details/fy-select-commute-details.component';
 import { FyOptInComponent } from './components/fy-opt-in/fy-opt-in.component';
 import { NgOtpInputModule } from 'ng-otp-input';
+import { PromoteOptInModalComponent } from './components/promote-opt-in-modal/promote-opt-in-modal.component';
 import { ProfileOptInCardComponent } from '../app/shared/components/profile-opt-in-card/profile-opt-in-card.component';
+import { DashboardOptInComponent } from './components/dashboard-opt-in/dashboard-opt-in.component';
 
 @NgModule({
   declarations: [
@@ -271,7 +273,9 @@ import { ProfileOptInCardComponent } from '../app/shared/components/profile-opt-
     VirtualCardComponent,
     FySelectCommuteDetailsComponent,
     FyOptInComponent,
+    PromoteOptInModalComponent,
     ProfileOptInCardComponent,
+    DashboardOptInComponent,
   ],
   imports: [
     CommonModule,
@@ -401,7 +405,9 @@ import { ProfileOptInCardComponent } from '../app/shared/components/profile-opt-
     VirtualCardComponent,
     FySelectCommuteDetailsComponent,
     FyOptInComponent,
+    PromoteOptInModalComponent,
     ProfileOptInCardComponent,
+    DashboardOptInComponent,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker, FyCurrencyPipe, ReportState],
 })

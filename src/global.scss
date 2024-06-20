@@ -1017,6 +1017,18 @@ ion-modal.add-location-modal {
   }
 }
 
+ion-modal.promote-opt-in-modal {
+  &::part(content) {
+    border-radius: 32px 32px 0 0 !important;
+    position: absolute;
+    max-height: 60%;
+    @media (max-height: 700px) {
+      max-height: 70%;
+    }
+    bottom: 0;
+  }
+}
+
 .mat-chip.mat-standard-chip {
   background-color: $pure-white;
   border: 1px solid $grey-lighter;
