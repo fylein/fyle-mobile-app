@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { map, switchMap } from 'rxjs/operators';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { cloneDeep, isArray } from 'lodash';
 import { SortingParam } from '../models/sorting-param.model';
 import { SortingDirection } from '../models/sorting-direction.model';
@@ -205,7 +205,8 @@ export class UtilityService {
             key: featureConfig.key,
           })
           .pipe(map((config) => !(config?.value?.count > 0)));
-      })
+      }),
+      catchError(() => of(false))
     );
   }
 
