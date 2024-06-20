@@ -6,7 +6,7 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { MatBottomSheet, MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, NavigationStart, Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { clone, cloneDeep } from 'lodash';
 import { BehaviorSubject, Subscription, finalize, noop, of, tap, throwError } from 'rxjs';
@@ -135,8 +135,13 @@ import {
   expectedReportsSinglePageWithApproval,
 } from 'src/app/core/mock-data/platform-report.data';
 import { corporateCardsResponseData } from 'src/app/core/mock-data/corporate-card-response.data';
+import { FeatureConfigService } from 'src/app/core/services/platform/v1/spender/feature-config.service';
+import { UtilityService } from 'src/app/core/services/utility.service';
+import { AuthService } from 'src/app/core/services/auth.service';
+import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
+import { properties } from 'src/app/core/mock-data/modal-properties.data';
 
-describe('MyExpensesV2Page', () => {
+describe('MyExpensesPage', () => {
   let component: MyExpensesPage;
   let fixture: ComponentFixture<MyExpensesPage>;
   let tasksService: jasmine.SpyObj<TasksService>;
@@ -171,6 +176,9 @@ describe('MyExpensesV2Page', () => {
   let sharedExpenseService: jasmine.SpyObj<SharedExpenseService>;
   let expensesService: jasmine.SpyObj<ExpensesService>;
   let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
+  let utilityService: jasmine.SpyObj<UtilityService>;
+  let featureConfigService: jasmine.SpyObj<FeatureConfigService>;
+  let authService: jasmine.SpyObj<AuthService>;
 
   beforeEach(waitForAsync(() => {
     const tasksServiceSpy = jasmine.createSpyObj('TasksService', ['getReportsTaskCount', 'getExpensesTaskCount']);
@@ -262,6 +270,9 @@ describe('MyExpensesV2Page', () => {
       'clickCreateReport',
       'myExpensesBulkDeleteExpenses',
       'spenderSelectedPendingTxnFromMyExpenses',
+      'showOptInModalPostExpenseCreation',
+      'skipOptInModalPostExpenseCreation',
+      'optInFromPostExpenseCreationModal',
     ]);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
@@ -298,6 +309,13 @@ describe('MyExpensesV2Page', () => {
       'restrictPendingTransactionsEnabled',
       'doesExpenseHavePendingCardTransaction',
     ]);
+    const utilityServiceSpy = jasmine.createSpyObj('UtilityService', [
+      'canShowOptInAfterExpenseCreation',
+      'toggleShowOptInAfterExpenseCreation',
+      'canShowOptInModal',
+    ]);
+    const featureConfigServiceSpy = jasmine.createSpyObj('FeatureConfigService', ['saveConfiguration']);
+    const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
 
     TestBed.configureTestingModule({
       declarations: [MyExpensesPage, ReportState, MaskNumber],
@@ -407,6 +425,18 @@ describe('MyExpensesV2Page', () => {
           provide: SpenderReportsService,
           useValue: spenderReportsServiceSpy,
         },
+        {
+          provide: UtilityService,
+          useValue: utilityServiceSpy,
+        },
+        {
+          provide: FeatureConfigService,
+          useValue: featureConfigServiceSpy,
+        },
+        {
+          provide: AuthService,
+          useValue: authServiceSpy,
+        },
         ReportState,
         MaskNumber,
       ],
@@ -452,6 +482,9 @@ describe('MyExpensesV2Page', () => {
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     sharedExpenseService = TestBed.inject(SharedExpenseService) as jasmine.SpyObj<SharedExpenseService>;
     spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
+    utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
+    featureConfigService = TestBed.inject(FeatureConfigService) as jasmine.SpyObj<FeatureConfigService>;
+    authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
 
     component.loadExpenses$ = new BehaviorSubject({});
   }));
@@ -496,6 +529,10 @@ describe('MyExpensesV2Page', () => {
       spyOn(component, 'formatTransactions').and.returnValue(apiExpenseRes);
       spyOn(component, 'addNewFiltersToParams').and.returnValue({ pageNumber: 1, sortDir: 'desc' });
       spyOn(component, 'generateFilterPills').and.returnValue(creditTxnFilterPill);
+      utilityService.canShowOptInModal.and.returnValue(of(true));
+      spyOn(component, 'setModalDelay');
+      spyOn(component, 'setNavigationSubscription');
+      activatedRoute.snapshot.params.redirected_from_add_expense = 'true';
       component.simpleSearchInput = getElementRef(fixture, '.my-expenses--simple-search-input');
       inputElement = component.simpleSearchInput.nativeElement;
     });
@@ -1330,13 +1367,28 @@ describe('MyExpensesV2Page', () => {
     expect(corporateCreditCardService.getCorporateCards).toHaveBeenCalledTimes(1);
   });
 
-  it('ionViewWillLeave(): should unsubscribe hardwareBackButton and update onPageExit', () => {
-    component.hardwareBackButton = new Subscription();
-    const unsubscribeSpy = spyOn(component.hardwareBackButton, 'unsubscribe');
-    const onPageNextSpy = spyOn(component.onPageExit$, 'next');
-    component.ionViewWillLeave();
-    expect(unsubscribeSpy).toHaveBeenCalledTimes(1);
-    expect(onPageNextSpy).toHaveBeenCalledOnceWith(null);
+  describe('ionViewWillLeave():', () => {
+    it('should unsubscribe hardwareBackButton and update onPageExit', () => {
+      component.hardwareBackButton = new Subscription();
+      const unsubscribeSpy = spyOn(component.hardwareBackButton, 'unsubscribe');
+      const onPageNextSpy = spyOn(component.onPageExit$, 'next');
+      component.ionViewWillLeave();
+      expect(unsubscribeSpy).toHaveBeenCalledTimes(1);
+      expect(onPageNextSpy).toHaveBeenCalledOnceWith(null);
+    });
+
+    it('should unsubscribe navigationSubscription', () => {
+      component.navigationSubscription = new Subscription();
+      component.hardwareBackButton = new Subscription();
+      const navigationUnsubscribeSpy = spyOn(component.navigationSubscription, 'unsubscribe');
+      const unsubscribeSpy = spyOn(component.hardwareBackButton, 'unsubscribe');
+      const onPageNextSpy = spyOn(component.onPageExit$, 'next');
+
+      component.ionViewWillLeave();
+      expect(navigationUnsubscribeSpy).toHaveBeenCalledTimes(1);
+      expect(onPageNextSpy).toHaveBeenCalledOnceWith(null);
+      expect(unsubscribeSpy).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe('backButtonAction(): ', () => {
@@ -3136,5 +3188,92 @@ describe('MyExpensesV2Page', () => {
         done();
       });
     });
+  });
+
+  describe('showPromoteOptInModal():', () => {
+    beforeEach(() => {
+      authService.getEou.and.resolveTo(apiEouRes);
+      modalProperties.getModalDefaultProperties.and.returnValue(properties);
+      featureConfigService.saveConfiguration.and.returnValue(of(null));
+    });
+
+    it('should show promote opt-in modal and track skip event if user skipped opt-in', fakeAsync(() => {
+      const modal = jasmine.createSpyObj('HTMLIonModalElement', ['present', 'onDidDismiss']);
+      modal.onDidDismiss.and.resolveTo({ data: { skipOptIn: true } });
+      modalController.create.and.resolveTo(modal);
+
+      component.showPromoteOptInModal();
+      tick(100);
+
+      expect(trackingService.showOptInModalPostExpenseCreation).toHaveBeenCalledTimes(1);
+      expect(authService.getEou).toHaveBeenCalledTimes(1);
+      expect(modal.present).toHaveBeenCalledTimes(1);
+      expect(modal.onDidDismiss).toHaveBeenCalledTimes(1);
+      expect(featureConfigService.saveConfiguration).toHaveBeenCalledOnceWith({
+        feature: 'OPT_IN_POPUP_POST_EXPENSE_CREATION',
+        key: 'OPT_IN_POPUP_SHOWN_COUNT',
+        value: {
+          count: 1,
+        },
+      });
+      expect(trackingService.skipOptInModalPostExpenseCreation).toHaveBeenCalledTimes(1);
+      expect(trackingService.optInFromPostExpenseCreationModal).not.toHaveBeenCalled();
+    }));
+
+    it('should show promote opt-in modal and track opt-in event if user opted in', fakeAsync(() => {
+      const modal = jasmine.createSpyObj('HTMLIonModalElement', ['present', 'onDidDismiss']);
+      modal.onDidDismiss.and.resolveTo({ data: { skipOptIn: false } });
+      modalController.create.and.resolveTo(modal);
+
+      component.showPromoteOptInModal();
+      tick(100);
+
+      expect(trackingService.showOptInModalPostExpenseCreation).toHaveBeenCalledTimes(1);
+      expect(authService.getEou).toHaveBeenCalledTimes(1);
+      expect(modal.present).toHaveBeenCalledTimes(1);
+      expect(modal.onDidDismiss).toHaveBeenCalledTimes(1);
+      expect(featureConfigService.saveConfiguration).toHaveBeenCalledOnceWith({
+        feature: 'OPT_IN_POPUP_POST_EXPENSE_CREATION',
+        key: 'OPT_IN_POPUP_SHOWN_COUNT',
+        value: {
+          count: 1,
+        },
+      });
+      expect(trackingService.skipOptInModalPostExpenseCreation).not.toHaveBeenCalled();
+      expect(trackingService.optInFromPostExpenseCreationModal).toHaveBeenCalledTimes(1);
+    }));
+  });
+
+  it('setNavigationSubscription(): should clear timeout and show promote opt-in modal if user navigates to manage corporate cards page', fakeAsync(() => {
+    spyOn(component, 'showPromoteOptInModal');
+    const navigationEvent = new NavigationStart(1, 'my_expenses');
+    utilityService.canShowOptInModal.and.returnValue(of(true));
+    activatedRoute.snapshot.params.redirected_from_add_expense = 'true';
+    utilityService.canShowOptInAfterExpenseCreation.and.returnValue(of(true));
+    Object.defineProperty(router, 'events', { value: of(navigationEvent) });
+
+    component.setNavigationSubscription();
+    tick(100);
+
+    expect(utilityService.canShowOptInModal).toHaveBeenCalledOnceWith({
+      feature: 'OPT_IN_POPUP_POST_EXPENSE_CREATION',
+      key: 'OPT_IN_POPUP_SHOWN_COUNT',
+    });
+    expect(component.showPromoteOptInModal).toHaveBeenCalledTimes(1);
+  }));
+
+  it('setModalDelay(): should set optInShowTimer and call showPromoteOptInModal after 2 seconds', fakeAsync(() => {
+    spyOn(component, 'showPromoteOptInModal');
+
+    component.setModalDelay();
+    tick(2000);
+
+    expect(component.showPromoteOptInModal).toHaveBeenCalledTimes(1);
+  }));
+
+  it('onPageClick(): should toggle showOptInAfterExpenseCreation flag', () => {
+    component.optInShowTimer = setTimeout(() => {}, 2000);
+    component.onPageClick();
+    expect(utilityService.toggleShowOptInAfterExpenseCreation).toHaveBeenCalledTimes(1);
   });
 });
