@@ -16,7 +16,7 @@ export class OptInGuard implements CanActivate {
     const currentRoute = this.router.routerState.snapshot.url;
     const nextRoute = state.url;
 
-    if (currentRoute.includes('my_expenses;redirected_from_add_expense=true') && !nextRoute.includes('add_edit')) {
+    if (currentRoute.includes('my_expenses') && !nextRoute.includes('add_edit')) {
       const canShowOptInPostExpenseCreation = this.utilityService.canShowOptInAfterExpenseCreation();
 
       if (!canShowOptInPostExpenseCreation) {

@@ -735,7 +735,7 @@ export class MyExpensesPage implements OnInit {
       key: 'OPT_IN_POPUP_SHOWN_COUNT',
     };
 
-    const isRedirectedFromAddExpense = this.activatedRoute.snapshot.params.redirected_from_add_expense as string;
+    const isRedirectedFromAddExpense = this.activatedRoute.snapshot.queryParams.redirected_from_add_expense as string;
 
     this.utilityService.canShowOptInModal(optInModalPostExpenseCreationFeatureConfig).subscribe((canShowOptInModal) => {
       if (canShowOptInModal && isRedirectedFromAddExpense) {
@@ -804,7 +804,8 @@ export class MyExpensesPage implements OnInit {
           key: 'OPT_IN_POPUP_SHOWN_COUNT',
         };
 
-        const isRedirectedFromAddExpense = this.activatedRoute.snapshot.params.redirected_from_add_expense as string;
+        const isRedirectedFromAddExpense = this.activatedRoute.snapshot.queryParams
+          .redirected_from_add_expense as string;
 
         this.utilityService.canShowOptInModal(optInModalPostExpenseCreationFeatureConfig).subscribe((isAttemptLeft) => {
           const canShowOptInModal = this.utilityService.canShowOptInAfterExpenseCreation();

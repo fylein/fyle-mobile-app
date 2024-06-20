@@ -224,6 +224,7 @@ describe('MyExpensesPage', () => {
         params: {
           navigateBack: false,
         },
+        queryParams: {},
       },
     };
     const transactionOutboxServiceSpy = jasmine.createSpyObj('TransactionOutboxService', [
@@ -539,7 +540,7 @@ describe('MyExpensesPage', () => {
       utilityService.canShowOptInModal.and.returnValue(of(true));
       spyOn(component, 'setModalDelay');
       spyOn(component, 'setNavigationSubscription');
-      activatedRoute.snapshot.params.redirected_from_add_expense = 'true';
+      activatedRoute.snapshot.queryParams.redirected_from_add_expense = 'true';
       component.simpleSearchInput = getElementRef(fixture, '.my-expenses--simple-search-input');
       inputElement = component.simpleSearchInput.nativeElement;
     });
@@ -3286,7 +3287,7 @@ describe('MyExpensesPage', () => {
     spyOn(component, 'showPromoteOptInModal');
     const navigationEvent = new NavigationStart(1, 'my_expenses');
     utilityService.canShowOptInModal.and.returnValue(of(true));
-    activatedRoute.snapshot.params.redirected_from_add_expense = 'true';
+    activatedRoute.snapshot.queryParams.redirected_from_add_expense = 'true';
     utilityService.canShowOptInAfterExpenseCreation.and.returnValue(true);
     Object.defineProperty(router, 'events', { value: of(navigationEvent) });
 

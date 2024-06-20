@@ -524,7 +524,9 @@ export class AddEditExpensePage implements OnInit {
       this.navController.back();
     } else {
       if (this.mode === 'add') {
-        this.router.navigate(['/', 'enterprise', 'my_expenses', { redirected_from_add_expense: true }]);
+        this.router.navigate(['/', 'enterprise', 'my_expenses'], {
+          queryParams: { redirected_from_add_expense: true },
+        });
       } else {
         this.router.navigate(['/', 'enterprise', 'my_expenses']);
       }
