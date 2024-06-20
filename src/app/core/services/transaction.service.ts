@@ -838,6 +838,7 @@ export class TransactionService {
               orig_amount: transaction.foreign_amount,
               orig_currency: transaction.foreign_currency,
               status: transaction.status,
+              corporate_card_nickname: transaction?.corporate_card_nickname,
             }))
           : null,
         source_account_id: expense.source_account_id,

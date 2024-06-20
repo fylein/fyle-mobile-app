@@ -105,6 +105,18 @@ export const ccTransactionResponseData1: CorporateCardTransactionRes = deepFreez
   ],
 });
 
+export const ccTransactionResponseData2: CorporateCardTransactionRes = deepFreeze({
+  data: [
+    {
+      ...ccTransactionResponseData.data[0],
+      corporate_card: {
+        ...ccTransactionResponseData.data[0].corporate_card,
+        nickname: 'Business Card',
+      },
+    },
+  ],
+});
+
 export const unmatchCCCExpenseResponseData: CorporateCardTransactionRes = deepFreeze({
   data: [
     {

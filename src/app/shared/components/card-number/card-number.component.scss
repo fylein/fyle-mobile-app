@@ -1,5 +1,10 @@
 @import '../../../../theme/colors.scss';
 
+.card-nickname {
+  color: $black;
+  font-size: 12px;
+}
+
 .card-number {
   display: flex;
   align-items: center;
@@ -23,7 +28,14 @@
   &__unmasked-digits {
     font-size: 16px;
     font-weight: 500;
-    line-height: 1.25;
     color: $blue-black;
+
+    &__with-nickname {
+      line-height: 1.25;
+    }
+
+    &__without-nickname {
+      line-height: 2.5;
+    }
   }
 }
