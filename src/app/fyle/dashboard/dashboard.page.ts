@@ -383,8 +383,8 @@ export class DashboardPage {
   }
 
   setModalDelay(): void {
-    this.optInShowTimer = setTimeout(async () => {
-      await this.showPromoteOptInModal();
+    this.optInShowTimer = setTimeout(() => {
+      this.showPromoteOptInModal();
     }, 2000);
   }
 
@@ -416,12 +416,10 @@ export class DashboardPage {
     this.utilityService.canShowOptInModal(optInModalFeatureConfig).subscribe((canShowOptInModal) => {
       if (canShowOptInModal) {
         this.setModalDelay();
+        this.setNavigationSubscription();
+        this.utilityService.toggleShowOptInAfterAddingCard(true);
       }
     });
-
-    this.setNavigationSubscription();
-
-    this.utilityService.toggleShowOptInAfterAddingCard(true);
   }
 
   toggleOptInBanner(isOptedIn: boolean): void {

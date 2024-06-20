@@ -269,8 +269,8 @@ export class ManageCorporateCardsPage {
   }
 
   setModalDelay(): void {
-    this.optInShowTimer = setTimeout(async () => {
-      await this.showPromoteOptInModal();
+    this.optInShowTimer = setTimeout(() => {
+      this.showPromoteOptInModal();
     }, 2000);
   }
 
@@ -302,12 +302,10 @@ export class ManageCorporateCardsPage {
     this.utilityService.canShowOptInModal(optInModalFeatureConfig).subscribe((canShowOptInModal) => {
       if (canShowOptInModal) {
         this.setModalDelay();
+        this.setNavigationSubscription();
+        this.utilityService.toggleShowOptInAfterAddingCard(true);
       }
     });
-
-    this.setNavigationSubscription();
-
-    this.utilityService.toggleShowOptInAfterAddingCard(true);
   }
 
   private handleEnrollmentSuccess(): void {

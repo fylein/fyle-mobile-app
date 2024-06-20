@@ -29,16 +29,16 @@ export class UtilityService {
     private featureConfigService: FeatureConfigService
   ) {}
 
-  canShowOptInAfterAddingCard(): Observable<boolean> {
-    return this.canShowOptInAfterAddingCard$.asObservable();
+  canShowOptInAfterAddingCard(): boolean {
+    return this.canShowOptInAfterAddingCard$.value;
   }
 
   toggleShowOptInAfterAddingCard(value: boolean): void {
     this.canShowOptInAfterAddingCard$.next(value);
   }
 
-  canShowOptInAfterExpenseCreation(): Observable<boolean> {
-    return this.canShowOptInAfterExpenseCreation$.asObservable();
+  canShowOptInAfterExpenseCreation(): boolean {
+    return this.canShowOptInAfterExpenseCreation$.value;
   }
 
   toggleShowOptInAfterExpenseCreation(value: boolean): void {
