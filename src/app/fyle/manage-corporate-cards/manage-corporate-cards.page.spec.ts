@@ -652,6 +652,29 @@ describe('ManageCorporateCardsPage', () => {
       expect(trackingService.skipOptInModalPostCardAdditionInSettings).not.toHaveBeenCalled();
       expect(trackingService.optInFromPostPostCardAdditionInSettings).toHaveBeenCalledTimes(1);
     }));
+
+    it('should show promote opt-in modal and track opt-in event if data is undefined', fakeAsync(() => {
+      const modal = jasmine.createSpyObj('HTMLIonModalElement', ['present', 'onDidDismiss']);
+      modal.onDidDismiss.and.resolveTo({ data: undefined });
+      modalController.create.and.resolveTo(modal);
+
+      component.showPromoteOptInModal();
+      tick(100);
+
+      expect(trackingService.showOptInModalPostCardAdditionInSettings).toHaveBeenCalledTimes(1);
+      expect(authService.getEou).toHaveBeenCalledTimes(1);
+      expect(modal.present).toHaveBeenCalledTimes(1);
+      expect(modal.onDidDismiss).toHaveBeenCalledTimes(1);
+      expect(featureConfigService.saveConfiguration).toHaveBeenCalledOnceWith({
+        feature: 'OPT_IN_POPUP_POST_CARD_ADDITION',
+        key: 'OPT_IN_POPUP_SHOWN_COUNT',
+        value: {
+          count: 1,
+        },
+      });
+      expect(trackingService.skipOptInModalPostCardAdditionInSettings).not.toHaveBeenCalled();
+      expect(trackingService.optInFromPostPostCardAdditionInSettings).toHaveBeenCalledTimes(1);
+    }));
   });
 
   it('setNavigationSubscription(): should clear timeout and show promote opt-in modal if user navigates to manage corporate cards page', fakeAsync(() => {

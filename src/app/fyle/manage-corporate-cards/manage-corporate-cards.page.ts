@@ -260,7 +260,7 @@ export class ManageCorporateCardsPage {
 
       const { data } = await optInPromotionalModal.onDidDismiss<{ skipOptIn: boolean }>();
 
-      if (data && data.skipOptIn) {
+      if (data?.skipOptIn) {
         this.trackingService.skipOptInModalPostCardAdditionInSettings();
       } else {
         this.trackingService.optInFromPostPostCardAdditionInSettings();

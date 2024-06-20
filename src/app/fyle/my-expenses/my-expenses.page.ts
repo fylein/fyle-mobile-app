@@ -777,7 +777,7 @@ export class MyExpensesPage implements OnInit {
 
       const { data } = await optInPromotionalModal.onDidDismiss<{ skipOptIn: boolean }>();
 
-      if (data && data.skipOptIn) {
+      if (data?.skipOptIn) {
         this.trackingService.skipOptInModalPostExpenseCreation();
       } else {
         this.trackingService.optInFromPostExpenseCreationModal();

@@ -374,7 +374,7 @@ export class DashboardPage {
 
       const { data } = await optInPromotionalModal.onDidDismiss<{ skipOptIn: boolean }>();
 
-      if (data && data.skipOptIn) {
+      if (data?.skipOptIn) {
         this.trackingService.skipOptInModalPostCardAdditionInDashboard();
       } else {
         this.trackingService.optInFromPostPostCardAdditionInDashboard();

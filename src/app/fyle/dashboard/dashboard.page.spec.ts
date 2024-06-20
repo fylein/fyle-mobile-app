@@ -601,6 +601,29 @@ describe('DashboardPage', () => {
       expect(trackingService.skipOptInModalPostCardAdditionInDashboard).not.toHaveBeenCalled();
       expect(trackingService.optInFromPostPostCardAdditionInDashboard).toHaveBeenCalledTimes(1);
     }));
+
+    it('should show promote opt-in modal and track opt-in event if data is undefined', fakeAsync(() => {
+      const modal = jasmine.createSpyObj('HTMLIonModalElement', ['present', 'onDidDismiss']);
+      modal.onDidDismiss.and.resolveTo({ data: undefined });
+      modalController.create.and.resolveTo(modal);
+
+      component.showPromoteOptInModal();
+      tick(100);
+
+      expect(trackingService.showOptInModalPostCardAdditionInDashboard).toHaveBeenCalledTimes(1);
+      expect(authService.getEou).toHaveBeenCalledTimes(1);
+      expect(modal.present).toHaveBeenCalledTimes(1);
+      expect(modal.onDidDismiss).toHaveBeenCalledTimes(1);
+      expect(featureConfigService.saveConfiguration).toHaveBeenCalledOnceWith({
+        feature: 'OPT_IN_POPUP_POST_CARD_ADDITION',
+        key: 'OPT_IN_POPUP_SHOWN_COUNT',
+        value: {
+          count: 1,
+        },
+      });
+      expect(trackingService.skipOptInModalPostCardAdditionInDashboard).not.toHaveBeenCalled();
+      expect(trackingService.optInFromPostPostCardAdditionInDashboard).toHaveBeenCalledTimes(1);
+    }));
   });
 
   it('setModalDelay(): should set optInShowTimer and call showPromoteOptInModal after 2 seconds', fakeAsync(() => {
