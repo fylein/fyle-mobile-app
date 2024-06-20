@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing';
+import { TestBed, fakeAsync } from '@angular/core/testing';
 import * as dayjs from 'dayjs';
 import * as lodash from 'lodash';
 import { customFieldData1, customFieldData2 } from '../mock-data/custom-field.data';
@@ -14,13 +14,22 @@ import { SortingParam } from '../models/sorting-param.model';
 import { UtilityService } from './utility.service';
 import { cloneDeep } from 'lodash';
 import { TokenService } from './token.service';
+import { AuthService } from './auth.service';
+import { FeatureConfigService } from './platform/v1/spender/feature-config.service';
+import { BehaviorSubject, of } from 'rxjs';
+import { apiEouRes } from '../mock-data/extended-org-user.data';
+import { featureConfigOptInData } from '../mock-data/feature-config.data';
 
 describe('UtilityService', () => {
   let utilityService: UtilityService;
   let tokenService: jasmine.SpyObj<TokenService>;
+  let authService: jasmine.SpyObj<AuthService>;
+  let featureConfigService: jasmine.SpyObj<FeatureConfigService>;
 
   beforeEach(() => {
     const tokenServiceSpy = jasmine.createSpyObj('TokenService', ['getClusterDomain']);
+    const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
+    const featureConfigServiceSpy = jasmine.createSpyObj('FeatureConfigService', ['getConfiguration']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -29,10 +38,20 @@ describe('UtilityService', () => {
           provide: TokenService,
           useValue: tokenServiceSpy,
         },
+        {
+          provide: AuthService,
+          useValue: authServiceSpy,
+        },
+        {
+          provide: FeatureConfigService,
+          useValue: featureConfigServiceSpy,
+        },
       ],
     });
     utilityService = TestBed.inject(UtilityService);
     tokenService = TestBed.inject(TokenService) as jasmine.SpyObj<TokenService>;
+    authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
+    featureConfigService = TestBed.inject(FeatureConfigService) as jasmine.SpyObj<FeatureConfigService>;
   });
 
   it('should be created', () => {
@@ -189,6 +208,166 @@ describe('UtilityService', () => {
       tokenService.getClusterDomain.and.resolveTo('us1.fylehq.com');
       const result = await utilityService.isUserFromINCluster();
       expect(result).toBeFalse();
+    });
+  });
+
+  it('canShowOptInAfterAddingCard(): should return canShowOptInAfterAddingCard$ as observable', (done) => {
+    utilityService.canShowOptInAfterAddingCard$ = new BehaviorSubject<boolean>(true);
+
+    const canShowOptIn = utilityService.canShowOptInAfterAddingCard();
+
+    canShowOptIn.subscribe((result) => {
+      expect(result).toBeTrue();
+      done();
+    });
+  });
+
+  it('toggleShowOptInAfterAddingCard(): should change the value of canShowOptInAfterAddingCard$', () => {
+    utilityService.canShowOptInAfterAddingCard$ = new BehaviorSubject<boolean>(true);
+
+    utilityService.toggleShowOptInAfterAddingCard(false);
+
+    expect(utilityService.canShowOptInAfterAddingCard$.value).toBeFalse();
+  });
+
+  it('canShowOptInAfterExpenseCreation(): should return canShowOptInAfterExpenseCreation$ as observable', (done) => {
+    utilityService.canShowOptInAfterExpenseCreation$ = new BehaviorSubject<boolean>(true);
+
+    const canShowOptIn = utilityService.canShowOptInAfterExpenseCreation();
+
+    canShowOptIn.subscribe((result) => {
+      expect(result).toBeTrue();
+      done();
+    });
+  });
+
+  it('toggleShowOptInAfterExpenseCreation(): should change the value of canShowOptInAfterExpenseCreation$', () => {
+    utilityService.canShowOptInAfterExpenseCreation$ = new BehaviorSubject<boolean>(true);
+
+    utilityService.toggleShowOptInAfterExpenseCreation(false);
+
+    expect(utilityService.canShowOptInAfterExpenseCreation$.value).toBeFalse();
+  });
+
+  describe('canShowOptInModal():', () => {
+    beforeEach(() => {
+      authService.getEou.and.resolveTo(apiEouRes);
+    });
+
+    it('should return false if user is present in IN cluster', (done) => {
+      const featureConfig = {
+        feature: 'OPT_IN',
+        key: 'SHOW_OPT_IN_AFTER_ADDING_CARD',
+      };
+      spyOn(utilityService, 'isUserFromINCluster').and.resolveTo(true);
+
+      utilityService.canShowOptInModal(featureConfig).subscribe((result) => {
+        expect(result).toBeFalse();
+        done();
+      });
+    });
+
+    it('should return false if org has currency other than USD or CAD', (done) => {
+      const featureConfig = {
+        feature: 'OPT_IN',
+        key: 'SHOW_OPT_IN_AFTER_ADDING_CARD',
+      };
+      spyOn(utilityService, 'isUserFromINCluster').and.resolveTo(false);
+      const mockEou = cloneDeep(apiEouRes);
+      mockEou.org.currency = 'INR';
+      authService.getEou.and.resolveTo(mockEou);
+
+      utilityService.canShowOptInModal(featureConfig).subscribe((result) => {
+        expect(result).toBeFalse();
+        done();
+      });
+    });
+
+    it('should return false if number is added but does not contain +1 at start', (done) => {
+      const featureConfig = {
+        feature: 'OPT_IN',
+        key: 'SHOW_OPT_IN_AFTER_ADDING_CARD',
+      };
+      spyOn(utilityService, 'isUserFromINCluster').and.resolveTo(false);
+      const mockEou = cloneDeep(apiEouRes);
+      mockEou.ou.mobile = '+911234567890';
+      authService.getEou.and.resolveTo(mockEou);
+
+      utilityService.canShowOptInModal(featureConfig).subscribe((result) => {
+        expect(result).toBeFalse();
+        done();
+      });
+    });
+
+    it('should check feature config and return true if count shown is 0', (done) => {
+      const featureConfig = {
+        feature: 'OPT_IN',
+        key: 'SHOW_OPT_IN_AFTER_ADDING_CARD',
+      };
+      spyOn(utilityService, 'isUserFromINCluster').and.resolveTo(false);
+      const mockEou = cloneDeep(apiEouRes);
+      mockEou.ou.mobile = '+11234567890';
+      authService.getEou.and.resolveTo(mockEou);
+      featureConfigService.getConfiguration.and.returnValue(of(featureConfigOptInData));
+
+      utilityService.canShowOptInModal(featureConfig).subscribe((result) => {
+        expect(result).toBeTrue();
+        done();
+      });
+    });
+
+    it('should check feature config and return true if value is null', (done) => {
+      const featureConfig = {
+        feature: 'OPT_IN',
+        key: 'SHOW_OPT_IN_AFTER_ADDING_CARD',
+      };
+      spyOn(utilityService, 'isUserFromINCluster').and.resolveTo(false);
+      const mockEou = cloneDeep(apiEouRes);
+      mockEou.ou.mobile = '+11234567890';
+      authService.getEou.and.resolveTo(mockEou);
+      const mockFeatureConfig = cloneDeep(featureConfigOptInData);
+      mockFeatureConfig.value = null;
+      featureConfigService.getConfiguration.and.returnValue(of(mockFeatureConfig));
+
+      utilityService.canShowOptInModal(featureConfig).subscribe((result) => {
+        expect(result).toBeTrue();
+        done();
+      });
+    });
+
+    it('should check feature config and return true if API returns undefined', (done) => {
+      const featureConfig = {
+        feature: 'OPT_IN',
+        key: 'SHOW_OPT_IN_AFTER_ADDING_CARD',
+      };
+      spyOn(utilityService, 'isUserFromINCluster').and.resolveTo(false);
+      const mockEou = cloneDeep(apiEouRes);
+      mockEou.ou.mobile = '+11234567890';
+      authService.getEou.and.resolveTo(mockEou);
+      featureConfigService.getConfiguration.and.returnValue(of(undefined));
+
+      utilityService.canShowOptInModal(featureConfig).subscribe((result) => {
+        expect(result).toBeTrue();
+        done();
+      });
+    });
+
+    it('should return false if API call fails', (done) => {
+      const error = new Error('unhandledError');
+      const featureConfig = {
+        feature: 'OPT_IN',
+        key: 'SHOW_OPT_IN_AFTER_ADDING_CARD',
+      };
+      spyOn(utilityService, 'isUserFromINCluster').and.resolveTo(false);
+      const mockEou = cloneDeep(apiEouRes);
+      mockEou.ou.mobile = '+11234567890';
+      authService.getEou.and.resolveTo(mockEou);
+      featureConfigService.getConfiguration.and.throwError(error);
+
+      utilityService.canShowOptInModal(featureConfig).subscribe((result) => {
+        expect(result).toBeFalse();
+        done();
+      });
     });
   });
 });
