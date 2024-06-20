@@ -2,7 +2,6 @@ import { Component, Input } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { FyOptInComponent } from '../fy-opt-in/fy-opt-in.component';
-import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 
 @Component({
   selector: 'app-promote-opt-in-modal',
@@ -18,7 +17,7 @@ export class PromoteOptInModalComponent {
     const optInModal = await this.modalController.create({
       component: FyOptInComponent,
       componentProps: {
-        extendedOrgUser: apiEouRes,
+        extendedOrgUser: this.extendedOrgUser,
       },
     });
 

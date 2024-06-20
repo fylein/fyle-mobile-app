@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
-import { ActionSheetButton, ActionSheetController, PopoverController } from '@ionic/angular';
-import { BehaviorSubject, Observable, filter, forkJoin, map, switchMap } from 'rxjs';
+import { NavigationStart, Router } from '@angular/router';
+import { ActionSheetButton, ActionSheetController, ModalController, PopoverController } from '@ionic/angular';
+import { BehaviorSubject, Observable, Subscription, filter, forkJoin, from, map, noop, switchMap } from 'rxjs';
 import { DataFeedSource } from 'src/app/core/enums/data-feed-source.enum';
 import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
@@ -17,8 +17,12 @@ import { CardNetworkType } from 'src/app/core/enums/card-network-type';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ManageCardsPageSegment } from 'src/app/core/enums/manage-cards-page-segment.enum';
 import { VirtualCardsService } from 'src/app/core/services/virtual-cards.service';
-import { VirtualCardsCombinedRequest } from 'src/app/core/models/virtual-cards-combined-request.model';
 import { CardDetailsCombinedResponse } from 'src/app/core/models/card-details-combined-response.model';
+import { UtilityService } from 'src/app/core/services/utility.service';
+import { FeatureConfigService } from 'src/app/core/services/platform/v1/spender/feature-config.service';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { PromoteOptInModalComponent } from 'src/app/shared/components/promote-opt-in-modal/promote-opt-in-modal.component';
+import { AuthService } from 'src/app/core/services/auth.service';
 @Component({
   selector: 'app-manage-corporate-cards',
   templateUrl: './manage-corporate-cards.page.html',
@@ -41,6 +45,10 @@ export class ManageCorporateCardsPage {
 
   segmentValue = ManageCardsPageSegment.CORPORATE_CARDS;
 
+  optInShowTimer;
+
+  navigationSubscription: Subscription;
+
   constructor(
     private router: Router,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
@@ -50,7 +58,12 @@ export class ManageCorporateCardsPage {
     private orgUserSettingsService: OrgUserSettingsService,
     private realTimeFeedService: RealTimeFeedService,
     private trackingService: TrackingService,
-    private virtualCardsService: VirtualCardsService
+    private virtualCardsService: VirtualCardsService,
+    private utilityService: UtilityService,
+    private featureConfigService: FeatureConfigService,
+    private modalController: ModalController,
+    private modalProperties: ModalPropertiesService,
+    private authService: AuthService
   ) {}
 
   get Segment(): typeof ManageCardsPageSegment {
@@ -63,7 +76,7 @@ export class ManageCorporateCardsPage {
     }
   }
 
-  areVirtualCardsPresent(corporateCards: PlatformCorporateCard[]) {
+  areVirtualCardsPresent(corporateCards: PlatformCorporateCard[]): boolean {
     return corporateCards.filter((corporateCard) => corporateCard.virtual_card_id).length > 0;
   }
 
@@ -78,10 +91,12 @@ export class ManageCorporateCardsPage {
     this.router.navigate(['/', 'enterprise', 'my_profile']);
   }
 
-  getVirtualCardDetails() {
+  getVirtualCardDetails(): Observable<{
+    [id: string]: CardDetailsCombinedResponse;
+  }> {
     return this.isVirtualCardsEnabled$.pipe(
       filter((virtualCardEnabled) => virtualCardEnabled.enabled),
-      switchMap((_) => this.corporateCards$),
+      switchMap(() => this.corporateCards$),
       switchMap((corporateCards) => {
         const virtualCardIds = corporateCards
           .filter((card) => card.virtual_card_id)
@@ -132,7 +147,13 @@ export class ManageCorporateCardsPage {
     );
   }
 
-  getCorporateCardsLength(corporateCards): number {
+  ionViewWillLeave(): void {
+    clearTimeout(this.optInShowTimer as number);
+    this.navigationSubscription?.unsubscribe();
+    this.utilityService.toggleShowOptInAfterAddingCard(false);
+  }
+
+  getCorporateCardsLength(corporateCards: PlatformCorporateCard[]): number {
     return corporateCards.filter((card) => !card.virtual_card_id).length;
   }
 
@@ -212,6 +233,83 @@ export class ManageCorporateCardsPage {
     );
   }
 
+  async showPromoteOptInModal(): Promise<void> {
+    this.trackingService.showOptInModalPostCardAdditionInSettings();
+
+    from(this.authService.getEou()).subscribe(async (eou) => {
+      const optInPromotionalModal = await this.modalController.create({
+        component: PromoteOptInModalComponent,
+        componentProps: {
+          extendedOrgUser: eou,
+        },
+        mode: 'ios',
+        ...this.modalProperties.getModalDefaultProperties('promote-opt-in-modal'),
+      });
+
+      await optInPromotionalModal.present();
+
+      const optInModalFeatureConfig = {
+        feature: 'OPT_IN_POPUP_POST_CARD_ADDITION',
+        key: 'OPT_IN_POPUP_SHOWN_COUNT',
+        value: {
+          count: 1,
+        },
+      };
+
+      this.featureConfigService.saveConfiguration(optInModalFeatureConfig).subscribe(noop);
+
+      const { data } = await optInPromotionalModal.onDidDismiss<{ skipOptIn: boolean }>();
+
+      if (data?.skipOptIn) {
+        this.trackingService.skipOptInModalPostCardAdditionInSettings();
+      } else {
+        this.trackingService.optInFromPostPostCardAdditionInSettings();
+      }
+    });
+  }
+
+  setModalDelay(): void {
+    this.optInShowTimer = setTimeout(async () => {
+      await this.showPromoteOptInModal();
+    }, 2000);
+  }
+
+  setNavigationSubscription(): void {
+    this.navigationSubscription = this.router.events.subscribe((event) => {
+      if (event instanceof NavigationStart) {
+        clearTimeout(this.optInShowTimer as number);
+
+        const optInModalFeatureConfig = {
+          feature: 'OPT_IN_POPUP_POST_CARD_ADDITION',
+          key: 'OPT_IN_POPUP_SHOWN_COUNT',
+        };
+
+        this.utilityService.canShowOptInModal(optInModalFeatureConfig).subscribe((canShowOptInModal) => {
+          if (canShowOptInModal) {
+            this.showPromoteOptInModal();
+          }
+        });
+      }
+    });
+  }
+
+  onCardAdded(): void {
+    const optInModalFeatureConfig = {
+      feature: 'OPT_IN_POPUP_POST_CARD_ADDITION',
+      key: 'OPT_IN_POPUP_SHOWN_COUNT',
+    };
+
+    this.utilityService.canShowOptInModal(optInModalFeatureConfig).subscribe((canShowOptInModal) => {
+      if (canShowOptInModal) {
+        this.setModalDelay();
+      }
+    });
+
+    this.setNavigationSubscription();
+
+    this.utilityService.toggleShowOptInAfterAddingCard(true);
+  }
+
   private handleEnrollmentSuccess(): void {
     this.corporateCreditCardExpenseService.clearCache().subscribe(async () => {
       const cardAddedModal = await this.popoverController.create({
@@ -221,6 +319,8 @@ export class ManageCorporateCardsPage {
 
       await cardAddedModal.present();
       await cardAddedModal.onDidDismiss();
+
+      this.onCardAdded();
 
       this.loadCorporateCards$.next();
     });
