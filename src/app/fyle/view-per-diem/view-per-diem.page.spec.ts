@@ -44,6 +44,7 @@ import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { CustomInput } from 'src/app/core/models/custom-input.model';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-report.data';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 describe('ViewPerDiemPage', () => {
   let component: ViewPerDiemPage;
@@ -66,6 +67,7 @@ describe('ViewPerDiemPage', () => {
   let spenderExpensesService: jasmine.SpyObj<SpenderExpensesService>;
   let approverExpensesService: jasmine.SpyObj<ApproverExpensesService>;
   let activatedRoute: ActivatedRoute;
+  let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
 
   beforeEach(waitForAsync(() => {
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['manualUnflag', 'manualFlag']);
@@ -101,6 +103,10 @@ describe('ViewPerDiemPage', () => {
       'ejectExpenses',
       'getReportById',
     ]);
+    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', [
+      'checkIfManualFlaggingFeatureIsEnabled',
+    ]);
+
     TestBed.configureTestingModule({
       declarations: [ViewPerDiemPage],
       imports: [IonicModule.forRoot()],
@@ -135,6 +141,7 @@ describe('ViewPerDiemPage', () => {
             },
           },
         },
+        { provide: LaunchDarklyService, useValue: launchDarklyServiceSpy },
       ],
     }).compileComponents();
 
@@ -158,6 +165,8 @@ describe('ViewPerDiemPage', () => {
     spenderExpensesService = TestBed.inject(SpenderExpensesService) as jasmine.SpyObj<SpenderExpensesService>;
     approverExpensesService = TestBed.inject(ApproverExpensesService) as jasmine.SpyObj<ApproverExpensesService>;
     activatedRoute = TestBed.inject(ActivatedRoute);
+    launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
+
     fixture.detectChanges();
   }));
 
@@ -297,8 +306,17 @@ describe('ViewPerDiemPage', () => {
       approverReportsService.getReportById.and.returnValue(of(expectedReportsSinglePage[0]));
       policyService.getApproverExpensePolicyViolations.and.returnValue(of(individualExpPolicyStateData2));
       policyService.getSpenderExpensePolicyViolations.and.returnValue(of(individualExpPolicyStateData3));
+      launchDarklyService.checkIfManualFlaggingFeatureIsEnabled.and.returnValue(of({ value: true }));
       statusService.find.and.returnValue(of(estatusData1));
       spyOn(component, 'getPolicyDetails');
+    });
+
+    it('should initialize isManualFlagFeatureEnabled', (done) => {
+      component.ionViewWillEnter();
+      component.isManualFlagFeatureEnabled$.subscribe((res) => {
+        expect(res.value).toBeTrue();
+        done();
+      });
     });
 
     it('should set extendedPerDiem$ and txnFields$ correctly', (done) => {
@@ -321,6 +339,8 @@ describe('ViewPerDiemPage', () => {
         done();
       });
     });
+
+    it('should set ');
 
     it('should set projectDependentCustomProperties$ and costCenterDependentCustomProperties$ correctly', (done) => {
       component.ionViewWillEnter();

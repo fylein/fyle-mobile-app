@@ -55,6 +55,7 @@ import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/fi
 import { ApproverFileService } from 'src/app/core/services/platform/v1/approver/file.service';
 import { generateUrlsBulkData1 } from 'src/app/core/mock-data/generate-urls-bulk-response.data';
 import { receiptInfoData1 } from 'src/app/core/mock-data/receipt-info.data';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 describe('ViewMileagePage', () => {
   let component: ViewMileagePage;
@@ -81,6 +82,7 @@ describe('ViewMileagePage', () => {
   let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
   let spenderFileService: jasmine.SpyObj<SpenderFileService>;
   let approverFileService: jasmine.SpyObj<ApproverFileService>;
+  let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
 
   beforeEach(waitForAsync(() => {
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['hideLoader', 'showLoader']);
@@ -131,6 +133,9 @@ describe('ViewMileagePage', () => {
     ]);
     const spenderFileServiceSpy = jasmine.createSpyObj('SpenderFileService', ['generateUrls']);
     const approverFileServiceSpy = jasmine.createSpyObj('ApproverFileService', ['generateUrls']);
+    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', [
+      'checkIfManualFlaggingFeatureIsEnabled',
+    ]);
 
     TestBed.configureTestingModule({
       declarations: [ViewMileagePage],
@@ -233,6 +238,7 @@ describe('ViewMileagePage', () => {
             },
           },
         },
+        { provide: LaunchDarklyService, useValue: launchDarklyServiceSpy },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(ViewMileagePage);
@@ -258,6 +264,7 @@ describe('ViewMileagePage', () => {
     approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
     spenderFileService = TestBed.inject(SpenderFileService) as jasmine.SpyObj<SpenderFileService>;
     approverFileService = TestBed.inject(ApproverFileService) as jasmine.SpyObj<ApproverFileService>;
+    launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
     activateRouteMock = TestBed.inject(ActivatedRoute);
 
     fixture.detectChanges();
@@ -524,6 +531,15 @@ describe('ViewMileagePage', () => {
 
       customInputsService.fillCustomProperties.and.returnValue(of(filledCustomProperties));
       statusService.find.and.returnValue(of(getEstatusApiResponse));
+      launchDarklyService.checkIfManualFlaggingFeatureIsEnabled.and.returnValue(of({ value: true }));
+    });
+
+    it('should initialize isManualFlagFeatureEnabled', (done) => {
+      component.ionViewWillEnter();
+      component.isManualFlagFeatureEnabled$.subscribe((res) => {
+        expect(res.value).toBeTrue();
+        done();
+      });
     });
 
     it('should get all the data for extended mileage and expense fields', fakeAsync(() => {

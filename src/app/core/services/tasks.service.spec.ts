@@ -90,10 +90,7 @@ describe('TasksService', () => {
   const homeCurrency = 'INR';
 
   beforeEach(() => {
-    const reportServiceSpy = jasmine.createSpyObj('ReportService', [
-      'getReportAutoSubmissionDetails',
-      'getAllExtendedReports',
-    ]);
+    const reportServiceSpy = jasmine.createSpyObj('ReportService', ['getReportAutoSubmissionDetails']);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseStats', 'getDuplicateSets']);
     const userEventServiceSpy = jasmine.createSpyObj('UserEventService', ['onTaskCacheClear']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
@@ -247,8 +244,6 @@ describe('TasksService', () => {
         and: '(or(matched_corporate_card_transactions.eq.[],matched_corporate_card_transactions->0->status.neq.PENDING))',
       })
       .and.returnValue(of(completeStats));
-
-    reportService.getAllExtendedReports.and.returnValue(of(allExtendedReportsResponse));
   }
 
   it('should be able to fetch unreported expenses tasks', () => {

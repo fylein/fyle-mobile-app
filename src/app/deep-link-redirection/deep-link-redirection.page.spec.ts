@@ -16,6 +16,10 @@ import { singleErqUnflattened } from '../core/mock-data/extended-advance-request
 import { DeepLinkService } from '../core/services/deep-link.service';
 import { platformExpenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { transformedExpenseData } from '../core/mock-data/transformed-expense.data';
+import { ApproverReportsService } from '../core/services/platform/v1/approver/reports.service';
+import { SpenderReportsService } from '../core/services/platform/v1/spender/reports.service';
+import { Approver } from '../core/models/approver.model';
+import { platformReportData } from '../core/mock-data/platform-report.data';
 
 describe('DeepLinkRedirectionPage', () => {
   let component: DeepLinkRedirectionPage;
@@ -28,6 +32,8 @@ describe('DeepLinkRedirectionPage', () => {
   let reportService: jasmine.SpyObj<ReportService>;
   let authService: jasmine.SpyObj<AuthService>;
   let deepLinkService: jasmine.SpyObj<DeepLinkService>;
+  let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
+  let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
   let activeroutemock: ActivatedRoute;
 
   beforeEach(waitForAsync(() => {
@@ -39,6 +45,8 @@ describe('DeepLinkRedirectionPage', () => {
     const reportServiceSpy = jasmine.createSpyObj('ReportService', ['getERpt']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const deepLinkServiceSpy = jasmine.createSpyObj('DeepLinkService', ['getExpenseRoute']);
+    const approverReportsServiceSpy = jasmine.createSpyObj('ApproverReportsService', ['getReportById']);
+    const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', ['getReportById']);
 
     TestBed.configureTestingModule({
       declarations: [DeepLinkRedirectionPage],
@@ -52,6 +60,8 @@ describe('DeepLinkRedirectionPage', () => {
         { provide: ReportService, useValue: reportServiceSpy },
         { provide: AuthService, useValue: authServiceSpy },
         { provide: DeepLinkService, useValue: deepLinkServiceSpy },
+        { provide: SpenderReportsService, useValue: spenderReportsServiceSpy },
+        { provide: ApproverReportsService, useValue: approverReportsServiceSpy },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -74,9 +84,10 @@ describe('DeepLinkRedirectionPage', () => {
     reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     deepLinkService = TestBed.inject(DeepLinkService) as jasmine.SpyObj<DeepLinkService>;
+    approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
+    spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
     activeroutemock = TestBed.inject(ActivatedRoute);
 
-    reportService.getERpt.and.returnValue(of(expectedSingleErpt));
     authService.getEou.and.resolveTo(apiEouRes);
     fixture = TestBed.createComponent(DeepLinkRedirectionPage);
     component = fixture.componentInstance;
@@ -89,6 +100,8 @@ describe('DeepLinkRedirectionPage', () => {
 
   describe('redirectToReportModule', () => {
     it('should redirect to report module', fakeAsync(() => {
+      spenderReportsService.getReportById.and.returnValue(of(platformReportData));
+      approverReportsService.getReportById.and.returnValue(of(platformReportData));
       activeroutemock.snapshot.params = {
         sub_module: 'report',
         id: 'rprAfNrce73O',
@@ -98,9 +111,7 @@ describe('DeepLinkRedirectionPage', () => {
       fixture.detectChanges();
       expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Loading....');
       tick(500);
-      expect(authService.getEou).toHaveBeenCalledTimes(1);
-      tick(500);
-      expect(reportService.getERpt).toHaveBeenCalledOnceWith(activeroutemock.snapshot.params.id);
+      expect(spenderReportsService.getReportById).toHaveBeenCalledOnceWith(activeroutemock.snapshot.params.id);
       expect(router.navigate).toHaveBeenCalledOnceWith([
         '/',
         'enterprise',
@@ -109,7 +120,9 @@ describe('DeepLinkRedirectionPage', () => {
       ]);
     }));
 
-    it('should redirect to team reports when ids do not match', fakeAsync(() => {
+    it('should redirect to team reports when there is no spender report', fakeAsync(() => {
+      spenderReportsService.getReportById.and.returnValue(of(null));
+      approverReportsService.getReportById.and.returnValue(of(platformReportData));
       activeroutemock.snapshot.params = {
         sub_module: 'report',
         id: 'rprAfNrce75O',
@@ -122,8 +135,6 @@ describe('DeepLinkRedirectionPage', () => {
         },
       };
 
-      authService.getEou.and.resolveTo(updatedApiEouRes);
-
       const updatedErpt = {
         ...expectedSingleErpt,
         rp: {
@@ -131,14 +142,10 @@ describe('DeepLinkRedirectionPage', () => {
           org_user_id: 'rprAfNrce75O',
         },
       };
-      reportService.getERpt.and.returnValue(of(updatedErpt));
       component.redirectToReportModule();
       fixture.detectChanges();
       expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Loading....');
       tick(500);
-      expect(authService.getEou).toHaveBeenCalledTimes(1);
-      tick(500);
-      expect(reportService.getERpt).toHaveBeenCalledOnceWith(activeroutemock.snapshot.params.id);
       expect(router.navigate).toHaveBeenCalledOnceWith([
         '/',
         'enterprise',
@@ -159,8 +166,8 @@ describe('DeepLinkRedirectionPage', () => {
 
       spyOn(component, 'switchOrg');
       const error = 'Something went wrong';
-      authService.getEou.and.resolveTo(updatedApiEouRes);
-      reportService.getERpt.and.returnValue(throwError(() => error));
+      spenderReportsService.getReportById.and.returnValue(throwError(() => error));
+      approverReportsService.getReportById.and.returnValue(throwError(() => error));
       component.redirectToReportModule();
       fixture.detectChanges();
       tick(500);

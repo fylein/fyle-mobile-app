@@ -86,7 +86,6 @@ import {
   snackbarPropertiesRes3,
   snackbarPropertiesRes4,
 } from 'src/app/core/mock-data/snackbar-properties.data';
-import { transactionDatum1, transactionDatum3 } from 'src/app/core/mock-data/stats-response.data';
 import { txnList } from 'src/app/core/mock-data/transaction.data';
 import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
 import { unformattedTxnData } from 'src/app/core/mock-data/unformatted-transaction.data';
@@ -140,6 +139,7 @@ import { UtilityService } from 'src/app/core/services/utility.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 describe('MyExpensesPage', () => {
   let component: MyExpensesPage;
@@ -179,6 +179,7 @@ describe('MyExpensesPage', () => {
   let utilityService: jasmine.SpyObj<UtilityService>;
   let featureConfigService: jasmine.SpyObj<FeatureConfigService>;
   let authService: jasmine.SpyObj<AuthService>;
+  let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
 
   beforeEach(waitForAsync(() => {
     const tasksServiceSpy = jasmine.createSpyObj('TasksService', ['getReportsTaskCount', 'getExpensesTaskCount']);
@@ -316,6 +317,9 @@ describe('MyExpensesPage', () => {
     ]);
     const featureConfigServiceSpy = jasmine.createSpyObj('FeatureConfigService', ['saveConfiguration']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
+    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', [
+      'checkIfManualFlaggingFeatureIsEnabled',
+    ]);
 
     TestBed.configureTestingModule({
       declarations: [MyExpensesPage, ReportState, MaskNumber],
@@ -437,6 +441,7 @@ describe('MyExpensesPage', () => {
           provide: AuthService,
           useValue: authServiceSpy,
         },
+        { provide: LaunchDarklyService, useValue: launchDarklyServiceSpy },
         ReportState,
         MaskNumber,
       ],
@@ -485,6 +490,7 @@ describe('MyExpensesPage', () => {
     utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
     featureConfigService = TestBed.inject(FeatureConfigService) as jasmine.SpyObj<FeatureConfigService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
+    launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
 
     component.loadExpenses$ = new BehaviorSubject({});
   }));
@@ -521,6 +527,7 @@ describe('MyExpensesPage', () => {
       expensesService.getExpenseStats.and.returnValue(of(completeStats));
       expensesService.getExpensesCount.and.returnValue(of(10));
       expensesService.getExpenses.and.returnValue(of(apiExpenses1));
+      launchDarklyService.checkIfManualFlaggingFeatureIsEnabled.and.returnValue(of({ value: true }));
 
       spenderReportsService.getAllReportsByParams.and.returnValue(of(expectedReportsSinglePageWithApproval));
       spyOn(component, 'doRefresh');
@@ -535,6 +542,14 @@ describe('MyExpensesPage', () => {
       activatedRoute.snapshot.params.redirected_from_add_expense = 'true';
       component.simpleSearchInput = getElementRef(fixture, '.my-expenses--simple-search-input');
       inputElement = component.simpleSearchInput.nativeElement;
+    });
+
+    it('should initialize isManualFlagFeatureEnabled', (done) => {
+      component.ionViewWillEnter();
+      component.isManualFlagFeatureEnabled$.subscribe((res) => {
+        expect(res.value).toBeTrue();
+        done();
+      });
     });
 
     it('should set isNewReportsFlowEnabled, isInstaFyleEnabled, isBulkFyleEnabled, isMileageEnabled and isPerDiemEnabled to true if orgSettings and orgUserSettings properties are enabled', fakeAsync(() => {

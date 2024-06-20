@@ -7,7 +7,6 @@ import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
-
 import * as dayjs from 'dayjs';
 import { cloneDeep, isEqual, isNull, isNumber, mergeWith } from 'lodash';
 import {
@@ -131,6 +130,8 @@ import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-d
 import { InstaFyleImageData } from 'src/app/core/models/insta-fyle-image-data.model';
 import { Expense as PlatformExpense, TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { AdvanceWallet } from 'src/app/core/models/platform/v1/advance-wallet.model';
+import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
 import { TransactionStatusInfoPopoverComponent } from 'src/app/shared/components/transaction-status-info-popover/transaction-status-info-popover.component';
 import { CorporateCardTransactionRes } from 'src/app/core/models/platform/v1/corporate-card-transaction-res.model';
 import { corporateCardTransaction } from 'src/app/core/models/platform/v1/cc-transaction.model';
@@ -428,6 +429,10 @@ export class AddEditExpensePage implements OnInit {
 
   pendingTransactionAllowedToReportAndSplit = true;
 
+  activeCategories$: Observable<OrgCategory[]>;
+
+  selectedCategory$: Observable<OrgCategory>;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -475,7 +480,8 @@ export class AddEditExpensePage implements OnInit {
     private storageService: StorageService,
     private launchDarklyService: LaunchDarklyService,
     private platformHandlerService: PlatformHandlerService,
-    private expensesService: ExpensesService
+    private expensesService: ExpensesService,
+    private advanceWalletsService: AdvanceWalletsService
   ) {}
 
   get isExpandedView(): boolean {
@@ -632,21 +638,37 @@ export class AddEditExpensePage implements OnInit {
 
   checkIfInvalidPaymentMode(): Observable<boolean> {
     const formValues = this.getFormValues();
-    return this.etxn$.pipe(
-      map((etxn) => {
-        const paymentAccount = formValues.paymentMode;
+    return forkJoin({
+      etxn: this.etxn$,
+      orgSettings: this.orgSettingsService.get(),
+    }).pipe(
+      map(({ etxn, orgSettings }) => {
+        const paymentMode: ExtendedAccount | AdvanceWallet = formValues.paymentMode;
+        const isAdvanceWalletEnabled = orgSettings?.advances?.advance_wallets_enabled;
         const originalSourceAccountId = etxn && etxn.tx && etxn.tx.source_account_id;
+        const originalAdvanceWalletId = etxn && etxn.tx && etxn.tx.advance_wallet_id;
         let isPaymentModeInvalid = false;
-        if (paymentAccount && paymentAccount.acc && paymentAccount.acc.type === AccountType.ADVANCE) {
-          if (paymentAccount.acc.id !== originalSourceAccountId) {
+        if (!isAdvanceWalletEnabled && paymentMode && paymentMode.acc && paymentMode.acc.type === AccountType.ADVANCE) {
+          if (paymentMode.acc.id !== originalSourceAccountId) {
             isPaymentModeInvalid =
-              paymentAccount.acc.tentative_balance_amount < (formValues.currencyObj && formValues.currencyObj.amount);
+              paymentMode.acc.tentative_balance_amount < (formValues.currencyObj && formValues.currencyObj.amount);
           } else {
             isPaymentModeInvalid =
-              paymentAccount.acc.tentative_balance_amount + etxn.tx.amount <
+              paymentMode.acc.tentative_balance_amount + etxn.tx.amount <
               (formValues.currencyObj && formValues.currencyObj.amount);
           }
         }
+
+        if (isAdvanceWalletEnabled && paymentMode?.id) {
+          if (etxn.tx.id && paymentMode.id === originalAdvanceWalletId) {
+            isPaymentModeInvalid =
+              paymentMode.balance_amount + etxn.tx.amount < (formValues.currencyObj && formValues.currencyObj.amount);
+          } else {
+            isPaymentModeInvalid =
+              paymentMode.balance_amount < (formValues.currencyObj && formValues.currencyObj.amount);
+          }
+        }
+
         if (isPaymentModeInvalid) {
           this.paymentModesService.showInvalidPaymentModeToast();
         }
@@ -998,10 +1020,13 @@ export class AddEditExpensePage implements OnInit {
   }
 
   getActionSheetOptions(): Observable<{ text: string; handler: () => void }[]> {
+    const projects$ = this.activeCategories$.pipe(
+      switchMap((activeCategories) => this.projectsService.getAllActive(activeCategories))
+    );
     return forkJoin({
       orgSettings: this.orgSettingsService.get(),
       costCenters: this.costCenters$,
-      projects: this.projectsService.getAllActive(),
+      projects: projects$,
       txnFields: this.txnFields$.pipe(take(1)),
       filteredCategories: this.filteredCategories$.pipe(take(1)),
       showProjectMappedCategoriesInSplitExpense: this.launchDarklyService.getVariation(
@@ -1125,15 +1150,30 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
+  checkAdvanceWalletsWithSufficientBalance(advanceWallets: AdvanceWallet[]): boolean {
+    return !!advanceWallets?.some((advanceWallet) => advanceWallet.balance_amount > 0);
+  }
+
   checkAdvanceAccountAndBalance(account: ExtendedAccount): boolean {
     return account?.acc?.type === AccountType.ADVANCE && account.acc.tentative_balance_amount > 0;
   }
 
   setupBalanceFlag(): void {
     const accounts$ = this.accountsService.getEMyAccounts();
+    const advanceWallets$ = this.advanceWalletsService.getAllAdvanceWallets();
+    const orgSettings$ = this.orgSettingsService.get();
     this.isBalanceAvailableInAnyAdvanceAccount$ = this.fg.controls.paymentMode.valueChanges.pipe(
       switchMap((paymentMode: ExtendedAccount) => {
-        if (paymentMode?.acc?.type === AccountType.PERSONAL) {
+        // check both advance wallets and advance accounts
+        let isAdvanceWalletEnabled = false;
+        orgSettings$.pipe(map((orgSettings) => orgSettings?.advances?.advance_wallets_enabled)).subscribe((data) => {
+          isAdvanceWalletEnabled = data;
+        });
+        if (paymentMode?.acc?.type === AccountType.PERSONAL && !!isAdvanceWalletEnabled) {
+          return advanceWallets$.pipe(
+            map((advanceWallets) => this.checkAdvanceWalletsWithSufficientBalance(advanceWallets))
+          );
+        } else if (paymentMode?.acc?.type === AccountType.PERSONAL && !isAdvanceWalletEnabled) {
           return accounts$.pipe(
             map((accounts) => accounts.filter((account) => this.checkAdvanceAccountAndBalance(account)).length > 0)
           );
@@ -1150,26 +1190,39 @@ export class AddEditExpensePage implements OnInit {
   getPaymentModes(): Observable<AccountOption[]> {
     return forkJoin({
       accounts: this.accountsService.getEMyAccounts(),
+      advanceWallets: this.advanceWalletsService.getAllAdvanceWallets(),
       orgSettings: this.orgSettingsService.get(),
       etxn: this.etxn$,
       allowedPaymentModes: this.orgUserSettingsService.getAllowedPaymentModes(),
       isPaymentModeConfigurationsEnabled: this.paymentModesService.checkIfPaymentModeConfigurationsIsEnabled(),
     }).pipe(
-      map(({ accounts, orgSettings, etxn, allowedPaymentModes, isPaymentModeConfigurationsEnabled }) => {
-        const isCCCEnabled = this.getCCCSettings(orgSettings);
+      map(
+        ({ accounts, advanceWallets, orgSettings, etxn, allowedPaymentModes, isPaymentModeConfigurationsEnabled }) => {
+          const isCCCEnabled = this.getCCCSettings(orgSettings);
+          const isAdvanceWalletEnabled = orgSettings?.advances?.advance_wallets_enabled;
 
-        if (!isCCCEnabled && !etxn.tx.corporate_credit_card_expense_group_id) {
-          this.showCardTransaction = false;
+          if (!isCCCEnabled && !etxn.tx.corporate_credit_card_expense_group_id) {
+            this.showCardTransaction = false;
+          }
+          const config = {
+            etxn,
+            orgSettings,
+            expenseType: ExpenseType.EXPENSE,
+            isPaymentModeConfigurationsEnabled,
+          };
+
+          if (isAdvanceWalletEnabled) {
+            return this.accountsService.getPaymentModesWithAdvanceWallets(
+              accounts,
+              advanceWallets,
+              allowedPaymentModes,
+              config
+            );
+          }
+
+          return this.accountsService.getPaymentModes(accounts, allowedPaymentModes, config);
         }
-        const config = {
-          etxn,
-          orgSettings,
-          expenseType: ExpenseType.EXPENSE,
-          isPaymentModeConfigurationsEnabled,
-        };
-
-        return this.accountsService.getPaymentModes(accounts, allowedPaymentModes, config);
-      }),
+      ),
       shareReplay(1)
     );
   }
@@ -1469,7 +1522,9 @@ export class AddEditExpensePage implements OnInit {
       }),
       switchMap((projectId) => {
         if (projectId) {
-          return this.projectsService.getbyId(projectId);
+          return this.activeCategories$.pipe(
+            switchMap((allActiveCategories) => this.projectsService.getbyId(projectId, allActiveCategories))
+          );
         } else {
           return of(null);
         }
@@ -1527,14 +1582,14 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  getSelectedPaymentModes(): Observable<ExtendedAccount> {
+  getSelectedPaymentModes(): Observable<ExtendedAccount | AdvanceWallet> {
     return forkJoin({
       etxn: this.etxn$,
       paymentModes: this.paymentModes$,
     }).pipe(map(({ etxn, paymentModes }) => this.accountsService.getEtxnSelectedPaymentMode(etxn, paymentModes)));
   }
 
-  getDefaultPaymentModes(): Observable<ExtendedAccount> {
+  getDefaultPaymentModes(): Observable<ExtendedAccount | AdvanceWallet> {
     return forkJoin({
       paymentModes: this.paymentModes$,
       orgUserSettings: this.orgUserSettings$,
@@ -1543,7 +1598,9 @@ export class AddEditExpensePage implements OnInit {
       map(({ paymentModes }) => {
         //If the user is creating expense from Corporate cards page, the default payment mode should be CCC
         if (this.isCreatedFromCCC) {
-          const CCCAccount = paymentModes.find((paymentMode) => paymentMode.value.acc.type === AccountType.CCC);
+          const CCCAccount = paymentModes.find(
+            (paymentMode) => (paymentMode.value as ExtendedAccount).acc.type === AccountType.CCC
+          );
           return CCCAccount.value;
         }
 
@@ -1556,14 +1613,16 @@ export class AddEditExpensePage implements OnInit {
     return forkJoin({
       recentValues: this.recentlyUsedValues$,
       eou: this.authService.getEou(),
+      activeCategories: this.activeCategories$,
     }).pipe(
-      switchMap(({ recentValues, eou }) => {
+      switchMap(({ recentValues, eou, activeCategories }) => {
         const formControl = this.getFormControl('category') as { value: OrgCategory };
         const categoryId = formControl.value && (formControl.value.id as unknown as string[]);
         return this.recentlyUsedItemsService.getRecentlyUsedProjects({
           recentValues,
           eou,
           categoryIds: categoryId,
+          activeCategoryList: activeCategories,
         });
       })
     );
@@ -1635,7 +1694,7 @@ export class AddEditExpensePage implements OnInit {
 
   getReceiptCount(): Observable<number> {
     return this.etxn$.pipe(
-      switchMap((etxn) => (etxn.tx.id ? this.expensesService.getExpenseById(etxn.tx.id) : of({}))),
+      switchMap((etxn) => (etxn.tx.id ? this.platformExpense$ : of({}))),
       map((expense: PlatformExpense) => expense.file_ids?.length || 0)
     );
   }
@@ -1651,7 +1710,7 @@ export class AddEditExpensePage implements OnInit {
   setupFormInit(): void {
     const selectedProject$ = this.getSelectedProjects();
 
-    const selectedCategory$ = this.getSelectedCategory();
+    this.selectedCategory$ = this.getSelectedCategory().pipe(shareReplay(1));
 
     const selectedReport$ = this.getSelectedReport();
 
@@ -1678,7 +1737,7 @@ export class AddEditExpensePage implements OnInit {
             etxn: this.etxn$,
             paymentMode: selectedPaymentMode$,
             project: selectedProject$,
-            category: selectedCategory$,
+            category: this.selectedCategory$,
             report: selectedReport$,
             costCenter: selectedCostCenter$,
             customExpenseFields: customExpenseFields$,
@@ -2054,7 +2113,7 @@ export class AddEditExpensePage implements OnInit {
         }) => {
           const isExpenseCategoryUnspecified = etxn.tx.fyle_category?.toLowerCase() === 'unspecified';
           if (this.initialFetch && etxn.tx.org_category_id && !isExpenseCategoryUnspecified) {
-            return this.categoriesService.getCategoryById(etxn.tx.org_category_id).pipe(
+            return this.selectedCategory$.pipe(
               map((selectedCategory) => ({
                 orgUserSettings,
                 orgSettings,
@@ -2527,19 +2586,19 @@ export class AddEditExpensePage implements OnInit {
     this.updateFormForExpenseFields(txnFieldsMap$);
   }
 
-  setupFilteredCategories(activeCategories$: Observable<OrgCategory[]>): void {
+  setupFilteredCategories(): void {
     const projectControl = this.fg.controls.project as {
       value: {
         project_id: number;
       };
     };
 
-    this.filteredCategories$ = this.etxn$.pipe(
-      switchMap((etxn) => {
-        if (etxn.tx.project_id) {
-          return this.projectsService.getbyId(etxn.tx.project_id);
-        } else if (projectControl?.value?.project_id) {
-          return this.projectsService.getbyId(projectControl.value.project_id);
+    const projectId$ = this.etxn$.pipe(map((etxn) => etxn.tx.project_id || projectControl?.value?.project_id));
+
+    this.filteredCategories$ = combineLatest([projectId$, this.activeCategories$]).pipe(
+      switchMap(([projectId, allActiveCategories]) => {
+        if (projectId) {
+          return this.projectsService.getbyId(projectId, allActiveCategories);
         } else {
           return of(null);
         }
@@ -2555,7 +2614,7 @@ export class AddEditExpensePage implements OnInit {
           }),
           startWith(initialProject),
           concatMap((project: ProjectV2) =>
-            activeCategories$.pipe(
+            this.activeCategories$.pipe(
               map((activeCategories) => this.projectsService.getAllowedOrgCategoryIds(project, activeCategories))
             )
           ),
@@ -2594,7 +2653,10 @@ export class AddEditExpensePage implements OnInit {
   }
 
   getEditExpenseObservable(): Observable<Partial<UnflattenedTransaction>> {
-    return this.expensesService.getExpenseById(this.activatedRoute.snapshot.params.id as string).pipe(
+    this.platformExpense$ = this.expensesService
+      .getExpenseById(this.activatedRoute.snapshot.params.id as string)
+      .pipe(shareReplay(1));
+    return this.platformExpense$.pipe(
       switchMap((expense) => {
         const etxn = this.transactionService.transformExpense(expense);
         this.isIncompleteExpense = etxn.tx.state === 'DRAFT';
@@ -2866,6 +2928,8 @@ export class AddEditExpensePage implements OnInit {
   }
 
   ionViewWillEnter(): void {
+    this.activeCategories$ = this.getActiveCategories().pipe(shareReplay(1));
+
     this.initClassObservables();
 
     this.newExpenseDataUrls = [];
@@ -2992,10 +3056,14 @@ export class AddEditExpensePage implements OnInit {
       map((orgSettings) => orgSettings.advanced_projects && orgSettings.advanced_projects.enable_individual_projects)
     );
 
+    const projectCount$ = this.activeCategories$.pipe(
+      switchMap((allActiveCategories) => this.projectsService.getProjectCount({ categoryIds: [] }, allActiveCategories))
+    );
+
     this.isProjectsVisible$ = forkJoin({
       individualProjectIds: this.individualProjectIds$,
       isIndividualProjectsEnabled: this.isIndividualProjectsEnabled$,
-      projectsCount: this.projectsService.getProjectCount(),
+      projectsCount: projectCount$,
     }).pipe(
       map(({ individualProjectIds, isIndividualProjectsEnabled, projectsCount }) => {
         if (!isIndividualProjectsEnabled) {
@@ -3040,8 +3108,6 @@ export class AddEditExpensePage implements OnInit {
     this.minDate = dayjs(new Date('Jan 1, 2001')).format('YYYY-MM-D');
     this.maxDate = dayjs(this.dateService.addDaysToDate(today, 1)).format('YYYY-MM-D');
 
-    const activeCategories$ = this.getActiveCategories();
-
     this.paymentAccount$ = accounts$.pipe(
       map((accounts) => {
         if (!this.activatedRoute.snapshot.params.id && this.activatedRoute.snapshot.params.bankTxn) {
@@ -3074,8 +3140,6 @@ export class AddEditExpensePage implements OnInit {
      * Fetching the expense from platform APIs in edit case, this is required because corporate card transaction status (PENDING or POSTED) is not available in public transactions API
      */
     if (this.activatedRoute.snapshot.params.id) {
-      const id = this.activatedRoute.snapshot.params.id as string;
-      this.platformExpense$ = this.expensesService.getExpenseById(id);
       const pendingTxnRestrictionEnabled$ = this.orgSettingsService
         .get()
         .pipe(
@@ -3104,7 +3168,7 @@ export class AddEditExpensePage implements OnInit {
     this.attachments$ = this.loadAttachments$.pipe(
       switchMap(() =>
         this.etxn$.pipe(
-          switchMap((etxn) => (etxn.tx.id ? this.expensesService.getExpenseById(etxn.tx.id) : of({}))),
+          switchMap((etxn) => (etxn.tx.id ? this.platformExpense$ : of({}))),
           switchMap((expense: PlatformExpense) =>
             expense.file_ids?.length > 0 ? this.spenderFileService.generateUrlsBulk(expense.file_ids) : of([])
           ),
@@ -3137,7 +3201,7 @@ export class AddEditExpensePage implements OnInit {
 
     this.initSplitTxn(orgSettings$);
 
-    this.setupFilteredCategories(activeCategories$);
+    this.setupFilteredCategories();
 
     this.setupExpenseFields();
 
@@ -3165,13 +3229,9 @@ export class AddEditExpensePage implements OnInit {
         map((reports) =>
           reports.filter((report) => !report.approvals.some((approval) => approval.state === 'APPROVAL_DONE'))
         ),
-        map((reports: Report[]) => reports.map((report) => ({ label: report.purpose, value: report })))
-      ) as Observable<
-      {
-        label: string;
-        value: Report;
-      }[]
-    >;
+        map((reports: Report[]) => reports.map((report) => ({ label: report.purpose, value: report }))),
+        shareReplay(1)
+      );
 
     this.recentlyUsedCategories$ = forkJoin({
       filteredCategories: this.filteredCategories$.pipe(take(1)),
@@ -3224,7 +3284,7 @@ export class AddEditExpensePage implements OnInit {
     this.isIos = this.platform.is('ios');
   }
 
-  getExpenseAttachments(mode: string, txnId?: string): Observable<FileObject[]> {
+  getExpenseAttachments(mode: string): Observable<FileObject[]> {
     if (mode === 'add') {
       return of(
         this.newExpenseDataUrls.map((fileObj: FileObject) => {
@@ -3233,7 +3293,7 @@ export class AddEditExpensePage implements OnInit {
         })
       );
     } else {
-      return this.expensesService.getExpenseById(txnId).pipe(
+      return this.platformExpense$.pipe(
         switchMap((expense: PlatformExpense) =>
           expense.file_ids?.length > 0 ? this.spenderFileService.generateUrlsBulk(expense.file_ids) : of([])
         ),
@@ -3264,13 +3324,25 @@ export class AddEditExpensePage implements OnInit {
     return formValue?.paymentMode?.acc?.id;
   }
 
+  getAdvanceWalletId(isAdvanceWalletEnabled: boolean): string {
+    const formValue = this.getFormValues();
+    if (!formValue?.paymentMode?.acc?.id) {
+      return isAdvanceWalletEnabled && formValue?.paymentMode?.id;
+    }
+    // setting advance_wallet_id as null when the source account id is set.
+    return null;
+  }
+
   getBillable(): boolean {
     return this.getFormValues()?.billable;
   }
 
   getSkipRemibursement(): boolean {
     const formValue = this.getFormValues();
-    return formValue?.paymentMode?.acc?.type === AccountType.PERSONAL && !formValue.paymentMode.acc.isReimbursable;
+    return (
+      (formValue?.paymentMode?.acc?.type === AccountType.PERSONAL && !formValue.paymentMode.acc.isReimbursable) ||
+      !!formValue?.paymentMode?.id
+    );
   }
 
   getTxnDate(): Date {
@@ -3363,18 +3435,16 @@ export class AddEditExpensePage implements OnInit {
     standardisedCustomProperties$: Observable<TxnCustomProperties[]>,
     isPolicyEtxn = false
   ): Observable<Partial<UnflattenedTransaction>> {
-    let txId: string;
-    etxn$.subscribe((etxn) => {
-      txId = etxn.tx.id;
-    });
-    const attachements$ = this.getExpenseAttachments(this.mode, txId);
+    const attachements$ = this.getExpenseAttachments(this.mode);
     return forkJoin({
       etxn: etxn$,
       customProperties: standardisedCustomProperties$,
       attachments: attachements$,
+      orgSettings: this.orgSettingsService.get(),
     }).pipe(
       map((res) => {
         const etxn: Partial<UnflattenedTransaction> = res.etxn;
+        const isAdvanceWalletEnabled = res.orgSettings?.advances?.advance_wallets_enabled;
         let customProperties = res.customProperties;
         customProperties = customProperties.map((customProperty) => {
           if (customProperty.type === 'DATE') {
@@ -3424,6 +3494,7 @@ export class AddEditExpensePage implements OnInit {
             ...etxn.tx,
             source: this.source || etxn.tx.source,
             source_account_id: this.getSourceAccID(),
+            advance_wallet_id: this.getAdvanceWalletId(isAdvanceWalletEnabled),
             billable: this.getBillable(),
             skip_reimbursement: this.getSkipRemibursement(),
             txn_dt: this.getTxnDate(),
@@ -3954,6 +4025,17 @@ export class AddEditExpensePage implements OnInit {
                 } else {
                   return of(txn);
                 }
+              }),
+              switchMap((txn) => {
+                if (txn.id && txn.advance_wallet_id !== etxn.tx.advance_wallet_id) {
+                  const expense = {
+                    id: txn.id,
+                    advance_wallet_id: etxn.tx.advance_wallet_id,
+                  };
+                  return this.expensesService.post(expense).pipe(map(() => txn));
+                } else {
+                  return of(txn);
+                }
               })
             );
           })
@@ -4444,8 +4526,11 @@ export class AddEditExpensePage implements OnInit {
           }
         });
       } else {
-        const editExpenseAttachments$ = this.etxn$.pipe(
-          switchMap((etxn) => (etxn.tx.id ? this.expensesService.getExpenseById(etxn.tx.id) : of({}))),
+        this.platformExpense$ = this.etxn$.pipe(
+          switchMap((etxn) => this.expensesService.getExpenseById(etxn.tx.id).pipe(shareReplay(1)))
+        );
+
+        const editExpenseAttachments$ = this.platformExpense$.pipe(
           map((expense: PlatformExpense) => expense.file_ids?.length || 0)
         );
 
@@ -4623,12 +4708,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   viewAttachments(): void {
-    let txId: string;
-    this.etxn$.subscribe((etxn) => {
-      txId = etxn.tx.id;
-    });
-
-    const attachements$ = this.getExpenseAttachments(this.mode, txId);
+    const attachements$ = this.getExpenseAttachments(this.mode);
 
     from(this.loaderService.showLoader())
       .pipe(
@@ -4653,6 +4733,10 @@ export class AddEditExpensePage implements OnInit {
           };
         };
 
+        this.platformExpense$ = this.etxn$.pipe(
+          switchMap((etxn) => this.expensesService.getExpenseById(etxn.tx.id).pipe(shareReplay(1)))
+        );
+
         if (this.mode === 'add') {
           if (data && data.attachments) {
             this.newExpenseDataUrls = data.attachments;
@@ -4662,7 +4746,7 @@ export class AddEditExpensePage implements OnInit {
           if ((data && data.attachments.length !== this.attachedReceiptsCount) || !data) {
             this.etxn$
               .pipe(
-                switchMap((etxn) => this.expensesService.getExpenseById(etxn.tx.id)),
+                switchMap((etxn) => (etxn.tx.id ? this.platformExpense$ : of({}))),
                 map((expense: PlatformExpense) => expense.file_ids?.length || 0)
               )
               .subscribe((attachedReceipts) => {

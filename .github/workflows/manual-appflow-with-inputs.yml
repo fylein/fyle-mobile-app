@@ -14,6 +14,11 @@ on:
         options:
           - staging
           - production
+          - blackwidow
+          - thanos
+          - thor
+          - drstrange
+          - hulk
 
 jobs:
   build-android:

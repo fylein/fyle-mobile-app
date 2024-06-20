@@ -40,6 +40,7 @@ import { policyViolation1 } from 'src/app/core/mock-data/policy-violation.data';
 import { unflattenedExpData } from 'src/app/core/mock-data/unflattened-expense.data';
 import { expensePolicyData } from 'src/app/core/mock-data/expense-policy.data';
 import { txnCustomProperties4 } from 'src/app/core/mock-data/txn-custom-properties.data';
+import { txnCustomProperties } from 'src/app/core/test-data/dependent-fields.service.spec.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { perDiemFormValuesData10 } from 'src/app/core/mock-data/per-diem-form-value.data';
 import { expectedReportsPaginated } from 'src/app/core/mock-data/platform-report.data';
@@ -54,8 +55,17 @@ import { snackbarPropertiesRes2 } from 'src/app/core/mock-data/snackbar-properti
 import { ToastType } from 'src/app/core/enums/toast-type.enum';
 import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
 import { PerDiemRedirectedFrom } from 'src/app/core/models/per-diem-redirected-from.enum';
-import { platformExpenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
-import { transformedExpenseData } from 'src/app/core/mock-data/transformed-expense.data';
+import {
+  platformExpenseData,
+  platformExpenseDataForAdvanceWallet,
+} from 'src/app/core/mock-data/platform/v1/expense.data';
+import {
+  transformedExpenseData,
+  transformedExpenseDataWithSubCategory,
+  transformedExpenseDataWithoutAdvanceWallet,
+} from 'src/app/core/mock-data/transformed-expense.data';
+import { paymentModeDataAdvanceWallet } from 'src/app/core/test-data/accounts.service.spec.data';
+import { editUnflattenedTransactionPlatformWithAdvanceWallet } from 'src/app/core/mock-data/transaction.data';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 
 export function TestCases4(getTestBed) {
@@ -280,6 +290,57 @@ export function TestCases4(getTestBed) {
               done();
             },
           });
+      });
+    });
+
+    describe('editExpense(): for advance wallet', () => {
+      it('should update transaction with advance_wallet_id while editing expense', (done) => {
+        const tx = {
+          ...transformedExpenseDataWithSubCategory.tx,
+          source_account_id: null,
+          skip_reimbursement: true,
+          advance_wallet_id: 'areq1234',
+        };
+        const etxn$ = of({
+          tx,
+          ou: transformedExpenseDataWithSubCategory.ou,
+          dataUrls: [],
+        });
+        spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(etxn$);
+        spyOn(component, 'checkPolicyViolation').and.returnValue(of(expensePolicyData));
+        spyOn(component, 'trackPolicyCorrections');
+
+        component.etxn$ = etxn$;
+        component.fg.controls.paymentMode.setValue(paymentModeDataAdvanceWallet);
+        policyService.getCriticalPolicyRules.and.returnValue([]);
+        policyService.getPolicyRules.and.returnValue([]);
+        spenderReportsService.ejectExpenses.and.returnValue(of(undefined));
+        spenderReportsService.addExpenses.and.returnValue(of(undefined));
+        transactionService.upsert.and.returnValue(of(tx));
+        expensesService.getExpenseById.and.returnValue(of(platformExpenseDataForAdvanceWallet));
+        transactionService.transformExpense.and.returnValue(transformedExpenseDataWithoutAdvanceWallet);
+        expensesService.post.and.returnValue(of(null));
+        fixture.detectChanges();
+
+        component.editExpense(PerDiemRedirectedFrom.SAVE_PER_DIEM).subscribe((res) => {
+          expect(res).toEqual(editUnflattenedTransactionPlatformWithAdvanceWallet);
+          expect(component.getCustomFields).toHaveBeenCalledTimes(1);
+          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
+          expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(1);
+          expect(component.checkPolicyViolation).toHaveBeenCalledTimes(1);
+          expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(1);
+          expect(policyService.getPolicyRules).toHaveBeenCalledTimes(1);
+          expect(component.trackPolicyCorrections).toHaveBeenCalledTimes(1);
+          expect(transactionService.upsert).toHaveBeenCalledOnceWith(tx);
+          expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(tx.id);
+          expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseDataForAdvanceWallet);
+          expect(expensesService.post).toHaveBeenCalledOnceWith({
+            id: tx.id,
+            advance_wallet_id: 'areq1234',
+          });
+          done();
+        });
       });
     });
 

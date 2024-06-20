@@ -192,4 +192,10 @@ export class ExpensesService {
       .post<PlatformApiResponse<Expense[]>>('/expenses/attach_files/bulk', payload)
       .pipe(map((res) => res.data));
   }
+
+  post(expense: Partial<Expense>): Observable<void> {
+    return this.spenderService.post<void>('/expenses', {
+      data: expense,
+    });
+  }
 }

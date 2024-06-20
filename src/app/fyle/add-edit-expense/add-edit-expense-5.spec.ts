@@ -30,6 +30,7 @@ import {
   orgSettingsWoTaxAndRtf,
   taxSettingsData,
   taxSettingsData2,
+  orgSettingsParamsWithAdvanceWallet,
 } from 'src/app/core/mock-data/org-settings.data';
 import {
   orgUserSettingsData,
@@ -92,16 +93,22 @@ import { TaxGroupService } from 'src/app/core/services/tax-group.service';
 import { TokenService } from 'src/app/core/services/token.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
+import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import {
   multiplePaymentModesData,
   multiplePaymentModesWithoutAdvData,
   orgSettingsData,
   unflattenedAccount1Data,
+  advanceWallet1Data,
 } from 'src/app/core/test-data/accounts.service.spec.data';
 import { customInputData, filledCustomProperties } from 'src/app/core/test-data/custom-inputs.spec.data';
 import { txnCustomProperties, txnCustomProperties2 } from 'src/app/core/test-data/dependent-fields.service.spec.data';
-import { apiV2ResponseMultiple, expectedProjectsResponse } from 'src/app/core/test-data/projects.spec.data';
+import {
+  apiV2ResponseMultiple,
+  expectedProjectsResponse,
+  testActiveCategoryList,
+} from 'src/app/core/test-data/projects.spec.data';
 import { getEstatusApiResponse } from 'src/app/core/test-data/status.service.spec.data';
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { txnFieldsData2, txnFieldsFlightData } from 'src/app/core/mock-data/expense-fields-map.data';
@@ -168,6 +175,7 @@ export function TestCases5(getTestBed) {
     let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
     let platform: jasmine.SpyObj<Platform>;
     let expensesService: jasmine.SpyObj<ExpensesService>;
+    let advanceWalletsService: jasmine.SpyObj<AdvanceWalletsService>;
 
     beforeEach(() => {
       const TestBed = getTestBed();
@@ -223,6 +231,7 @@ export function TestCases5(getTestBed) {
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
       expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
+      advanceWalletsService = TestBed.inject(AdvanceWalletsService) as jasmine.SpyObj<AdvanceWalletsService>;
 
       component.fg = formBuilder.group({
         currencyObj: [, component.currencyObjValidator],
@@ -362,12 +371,16 @@ export function TestCases5(getTestBed) {
     describe('setupBalanceFlag():', () => {
       it('should setup balance available flag', fakeAsync(() => {
         accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
+        advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
+        orgSettingsService.get.and.returnValue(of(orgSettingsData));
         component.setupBalanceFlag();
         tick(500);
 
         component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
           expect(res).toBeTrue();
           expect(accountsService.getEMyAccounts).toHaveBeenCalledOnceWith();
+          expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledOnceWith();
+          expect(orgSettingsService.get).toHaveBeenCalledOnceWith();
         });
         component.fg.controls.paymentMode.setValue(multiplePaymentModesWithoutAdvData[0]);
         fixture.detectChanges();
@@ -377,12 +390,16 @@ export function TestCases5(getTestBed) {
 
       it('should return false in advance balance if payment mode is not personal', fakeAsync(() => {
         accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
+        advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
+        orgSettingsService.get.and.returnValue(of(orgSettingsData));
         component.setupBalanceFlag();
         tick(500);
 
         component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
           expect(res).toBeFalse();
           expect(accountsService.getEMyAccounts).toHaveBeenCalledOnceWith();
+          expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledOnceWith();
+          expect(orgSettingsService.get).toHaveBeenCalledOnceWith();
         });
         component.fg.controls.paymentMode.setValue(multiplePaymentModesWithoutAdvData[1]);
         fixture.detectChanges();
@@ -390,16 +407,58 @@ export function TestCases5(getTestBed) {
         tick(500);
       }));
 
-      it('should return false when account type changes to null', fakeAsync(() => {
+      it('should return false when account changes to null', fakeAsync(() => {
         accountsService.getEMyAccounts.and.returnValue(of(null));
+        advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
+        orgSettingsService.get.and.returnValue(of(orgSettingsData));
         component.setupBalanceFlag();
         tick(500);
 
         component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
           expect(res).toBeFalse();
           expect(accountsService.getEMyAccounts).toHaveBeenCalledOnceWith();
+          expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledOnceWith();
+          expect(orgSettingsService.get).toHaveBeenCalledOnceWith();
         });
         component.fg.controls.paymentMode.setValue(null);
+        fixture.detectChanges();
+
+        tick(500);
+      }));
+
+      it('should return false when orgSettings is null', fakeAsync(() => {
+        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
+        advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
+        orgSettingsService.get.and.returnValue(of(null));
+        component.setupBalanceFlag();
+        tick(500);
+
+        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
+          expect(res).toBeTrue();
+          expect(accountsService.getEMyAccounts).toHaveBeenCalledOnceWith();
+          expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledOnceWith();
+          expect(orgSettingsService.get).toHaveBeenCalledOnceWith();
+        });
+        component.fg.controls.paymentMode.setValue(multiplePaymentModesWithoutAdvData[0]);
+        fixture.detectChanges();
+
+        tick(500);
+      }));
+
+      it('should return true for advance wallets', fakeAsync(() => {
+        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesWithoutAdvData));
+        advanceWalletsService.getAllAdvanceWallets.and.returnValue(of(advanceWallet1Data));
+        orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithAdvanceWallet));
+        component.setupBalanceFlag();
+        tick(500);
+
+        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
+          expect(res).toBeTrue();
+          expect(accountsService.getEMyAccounts).toHaveBeenCalledOnceWith();
+          expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledOnceWith();
+          expect(orgSettingsService.get).toHaveBeenCalledOnceWith();
+        });
+        component.fg.controls.paymentMode.setValue(multiplePaymentModesWithoutAdvData[0]);
         fixture.detectChanges();
 
         tick(500);
@@ -409,9 +468,11 @@ export function TestCases5(getTestBed) {
     describe('setupFilteredCategories():', () => {
       it('should get filtered categories for a project', fakeAsync(() => {
         component.etxn$ = of(unflattenedTxnData);
+        component.activeCategories$ = of(sortedCategory);
+
         projectsService.getbyId.and.returnValue(of(apiV2ResponseMultiple[0]));
         projectsService.getAllowedOrgCategoryIds.and.returnValue(transformedOrgCategories);
-        component.setupFilteredCategories(of(sortedCategory));
+        component.setupFilteredCategories();
         tick(500);
 
         component.fg.controls.project.setValue(apiV2ResponseMultiple[1]);
@@ -419,33 +480,35 @@ export function TestCases5(getTestBed) {
         tick(500);
 
         expect(component.fg.controls.billable.value).toBeFalse();
-        expect(projectsService.getbyId).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.project_id);
+        expect(projectsService.getbyId).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.project_id, sortedCategory);
         expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledWith(apiV2ResponseMultiple[1], sortedCategory);
       }));
 
       it('should get updated filtered categories for changing an existing project', fakeAsync(() => {
         component.etxn$ = of(unflattenedExpWoProject);
+        component.activeCategories$ = of(sortedCategory);
         component.fg.controls.project.setValue(expectedProjectsResponse[0]);
         component.fg.controls.category.setValue(orgCategoryData);
         projectsService.getbyId.and.returnValue(of(apiV2ResponseMultiple[0]));
         projectsService.getAllowedOrgCategoryIds.and.returnValue(transformedOrgCategories);
-        component.setupFilteredCategories(of(sortedCategory));
+        component.setupFilteredCategories();
         tick(500);
 
         component.fg.controls.project.setValue(apiV2ResponseMultiple[1]);
         fixture.detectChanges();
         tick(500);
 
-        expect(projectsService.getbyId).toHaveBeenCalledOnceWith(257528);
+        expect(projectsService.getbyId).toHaveBeenCalledOnceWith(257528, sortedCategory);
         expect(component.fg.controls.billable.value).toBeFalse();
         expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledWith(apiV2ResponseMultiple[1], sortedCategory);
       }));
 
       it('should return null the expense does not have project id', fakeAsync(() => {
         component.etxn$ = of(unflattenedExpWoProject);
+        component.activeCategories$ = of(sortedCategory);
         component.fg.controls.project.reset();
         projectsService.getAllowedOrgCategoryIds.and.returnValue(transformedOrgCategories);
-        component.setupFilteredCategories(of(sortedCategory));
+        component.setupFilteredCategories();
         tick(500);
 
         component.fg.controls.project.setValue(null);
@@ -548,18 +611,20 @@ export function TestCases5(getTestBed) {
     describe('getSelectedProjects():', () => {
       it('should return the selected project from the expense', (done) => {
         component.etxn$ = of(unflattenedTxnData);
+        component.activeCategories$ = of(sortedCategory);
         projectsService.getbyId.and.returnValue(of(expectedProjectsResponse[0]));
         fixture.detectChanges();
 
         component.getSelectedProjects().subscribe((res) => {
           expect(res).toEqual(expectedProjectsResponse[0]);
-          expect(projectsService.getbyId).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.project_id);
+          expect(projectsService.getbyId).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.project_id, sortedCategory);
           done();
         });
       });
 
       it('should return project from the default ID specified in org', (done) => {
         component.etxn$ = of(unflattenedExpWoProject);
+        component.activeCategories$ = of(sortedCategory);
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         component.orgUserSettings$ = of(orgUserSettingsData);
         projectsService.getbyId.and.returnValue(of(expectedProjectsResponse[0]));
@@ -568,7 +633,10 @@ export function TestCases5(getTestBed) {
         component.getSelectedProjects().subscribe((res) => {
           expect(res).toEqual(expectedProjectsResponse[0]);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-          expect(projectsService.getbyId).toHaveBeenCalledOnceWith(orgUserSettingsData.preferences.default_project_id);
+          expect(projectsService.getbyId).toHaveBeenCalledOnceWith(
+            orgUserSettingsData.preferences.default_project_id,
+            sortedCategory
+          );
           done();
         });
       });
@@ -684,6 +752,7 @@ export function TestCases5(getTestBed) {
     });
 
     it('getRecentProjects(): should get recent projects', (done) => {
+      component.activeCategories$ = of(sortedCategory);
       component.recentlyUsedValues$ = of(recentlyUsedRes);
       authService.getEou.and.resolveTo(apiEouRes);
       component.fg.controls.category.setValue(orgCategoryData);
@@ -697,6 +766,7 @@ export function TestCases5(getTestBed) {
           recentValues: recentlyUsedRes,
           eou: apiEouRes,
           categoryIds: component.fg.controls.category.value && component.fg.controls.category.value.id,
+          activeCategoryList: sortedCategory,
         });
         done();
       });
@@ -773,24 +843,22 @@ export function TestCases5(getTestBed) {
     describe('getReceiptCount():', () => {
       it('should get receipt count', (done) => {
         component.etxn$ = of(unflattenedTxnData);
-        expensesService.getExpenseById.and.returnValue(of(platformExpenseWithExtractedData));
+        component.platformExpense$ = of(platformExpenseWithExtractedData);
         fixture.detectChanges();
 
         component.getReceiptCount().subscribe((res) => {
           expect(res).toEqual(1);
-          expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
           done();
         });
       });
 
       it('should return 0 if no receipts are returned', (done) => {
         component.etxn$ = of(unflattenedTxnData);
-        expensesService.getExpenseById.and.returnValue(of(platformExpenseData));
+        component.platformExpense$ = of(platformExpenseData);
         fixture.detectChanges();
 
         component.getReceiptCount().subscribe((res) => {
           expect(res).toEqual(0);
-          expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
           done();
         });
       });
@@ -1338,6 +1406,7 @@ export function TestCases5(getTestBed) {
         component.isConnected$ = of(true);
         component.txnFields$ = of(txnFieldsData2);
         component.filteredCategories$ = of();
+        component.platformExpense$ = of(expenseData);
 
         spyOn(component, 'initClassObservables').and.returnValue(null);
         tokenService.getClusterDomain.and.resolveTo('domain');
@@ -1365,7 +1434,6 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'getActiveCategories').and.returnValue(of(sortedCategory));
         spyOn(component, 'getNewExpenseObservable').and.returnValue(of(expectedExpenseObservable));
         spyOn(component, 'getEditExpenseObservable').and.returnValue(of(expectedUnflattendedTxnData1));
-        expensesService.getExpenseById.and.returnValue(of(expenseData));
         fileService.getReceiptsDetails.and.returnValue({
           type: 'pdf',
           thumbnail: 'img/fy-pdf.svg',
@@ -1488,11 +1556,8 @@ export function TestCases5(getTestBed) {
 
         expect(component.pendingTransactionAllowedToReportAndSplit).toBeTrue();
 
-        expect(expensesService.getExpenseById).toHaveBeenCalledWith(activatedRoute.snapshot.params.id);
-
         component.attachments$.subscribe((res) => {
           expect(res).toEqual(receiptInfoData2);
-          expect(expensesService.getExpenseById).toHaveBeenCalledWith(unflattenedTxnData.tx.id);
           expect(spenderFileService.generateUrlsBulk).toHaveBeenCalledOnceWith(expenseData.file_ids);
         });
 
@@ -1505,7 +1570,7 @@ export function TestCases5(getTestBed) {
           expect(res).toBeUndefined();
         });
 
-        expect(component.setupFilteredCategories).toHaveBeenCalledOnceWith(jasmine.any(Observable));
+        expect(component.setupFilteredCategories).toHaveBeenCalledTimes(1);
         expect(component.setupExpenseFields).toHaveBeenCalledTimes(1);
 
         component.taxSettings$.subscribe((res) => {
@@ -1790,7 +1855,7 @@ export function TestCases5(getTestBed) {
           expect(res).toBeUndefined();
         });
 
-        expect(component.setupFilteredCategories).toHaveBeenCalledOnceWith(jasmine.any(Observable));
+        expect(component.setupFilteredCategories).toHaveBeenCalledTimes(1);
         expect(component.setupExpenseFields).toHaveBeenCalledTimes(1);
 
         component.taxSettings$.subscribe((res) => {
