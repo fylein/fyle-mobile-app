@@ -1021,7 +1021,7 @@ ion-modal.promote-opt-in-modal {
   &::part(content) {
     border-radius: 32px 32px 0 0 !important;
     position: absolute;
-    max-height: 60%;
+    max-height: 65%;
     @media (max-height: 700px) {
       max-height: 70%;
     }
