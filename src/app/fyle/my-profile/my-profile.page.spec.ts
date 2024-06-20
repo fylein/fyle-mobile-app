@@ -772,6 +772,7 @@ describe('MyProfilePage', () => {
     loaderService.showLoader.and.resolveTo();
     loaderService.hideLoader.and.resolveTo();
     orgUserService.postOrgUser.and.returnValue(of(apiEouRes.us));
+    spyOn(component, 'showToastMessage');
 
     component.deleteMobileNumber();
     tick(500);
@@ -782,6 +783,7 @@ describe('MyProfilePage', () => {
     expect(orgUserService.postOrgUser).toHaveBeenCalledOnceWith({ ...mockEou.ou, mobile: '' });
     expect(authService.refreshEou).toHaveBeenCalledTimes(1);
     expect(trackingService.optedOut).toHaveBeenCalledTimes(1);
+    expect(component.showToastMessage).toHaveBeenCalledOnceWith('Opted out of text messages successfully', 'success');
     component.eou$.subscribe((eou) => {
       expect(eou.ou.mobile).toBe('');
     });
