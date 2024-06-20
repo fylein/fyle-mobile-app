@@ -764,4 +764,36 @@ export class TrackingService {
   optInFromPostExpenseCreationModal(): void {
     this.eventTrack('Opt In From Post Expense Creation Modal');
   }
+
+  showOptInModalPostCardAdditionInDashboard(): void {
+    this.eventTrack('Opt In Modal Post Card Addition Shown in Dashboard');
+  }
+
+  skipOptInModalPostCardAdditionInDashboard(): void {
+    this.eventTrack('Skip Opt In Modal Post Card Addition in Dashboard');
+  }
+
+  optInFromPostPostCardAdditionInDashboard(): void {
+    this.eventTrack('Opt In From Post Card Addition in Dashboard');
+  }
+
+  showOptInModalPostCardAdditionInSettings(): void {
+    this.eventTrack('Opt In Modal Post Card Addition Shown in Settings');
+  }
+
+  skipOptInModalPostCardAdditionInSettings(): void {
+    this.eventTrack('Skip Opt In Modal Post Card Addition in Settings');
+  }
+
+  optInFromPostPostCardAdditionInSettings(): void {
+    this.eventTrack('Opt In From Post Card Addition in Settings');
+  }
+
+  optedInFromDashboardBanner(): void {
+    this.eventTrack('Opted In From Dashboard Banner');
+  }
+
+  skipOptInFromDashboardBanner(): void {
+    this.eventTrack('Skip Opt In From Dashboard Banner');
+  }
 }

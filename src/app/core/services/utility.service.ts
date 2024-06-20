@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { map, switchMap } from 'rxjs/operators';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { cloneDeep, isArray } from 'lodash';
 import { SortingParam } from '../models/sorting-param.model';
 import { SortingDirection } from '../models/sorting-direction.model';
@@ -7,7 +7,7 @@ import * as dayjs from 'dayjs';
 import { CustomField } from '../models/custom_field.model';
 import { Transaction } from '../models/v1/transaction.model';
 import { TxnCustomProperties } from '../models/txn-custom-properties.model';
-import { Observable, OperatorFunction, forkJoin, from, of } from 'rxjs';
+import { BehaviorSubject, Observable, OperatorFunction, forkJoin, from, of } from 'rxjs';
 import { ExtendedAdvanceRequestPublic } from '../models/extended-advance-request-public.model';
 import { TokenService } from './token.service';
 import { AuthService } from './auth.service';
@@ -19,11 +19,31 @@ import { FeatureConfigService } from './platform/v1/spender/feature-config.servi
 export class UtilityService {
   readonly EPOCH = 19700101;
 
+  canShowOptInAfterAddingCard$ = new BehaviorSubject<boolean>(false);
+
+  canShowOptInAfterExpenseCreation$ = new BehaviorSubject<boolean>(false);
+
   constructor(
     private tokenService: TokenService,
     private authService: AuthService,
     private featureConfigService: FeatureConfigService
   ) {}
+
+  canShowOptInAfterAddingCard(): Observable<boolean> {
+    return this.canShowOptInAfterAddingCard$.asObservable();
+  }
+
+  toggleShowOptInAfterAddingCard(value: boolean): void {
+    this.canShowOptInAfterAddingCard$.next(value);
+  }
+
+  canShowOptInAfterExpenseCreation(): Observable<boolean> {
+    return this.canShowOptInAfterExpenseCreation$.asObservable();
+  }
+
+  toggleShowOptInAfterExpenseCreation(value: boolean): void {
+    this.canShowOptInAfterExpenseCreation$.next(value);
+  }
 
   discardNullChar(str: string): string {
     return str.replace(/[\u0000][\u0008-\u0009][\u000A-\u000C][\u005C]/g, '');
@@ -185,7 +205,8 @@ export class UtilityService {
             key: featureConfig.key,
           })
           .pipe(map((config) => !(config?.value?.count > 0)));
-      })
+      }),
+      catchError(() => of(false))
     );
   }
 
