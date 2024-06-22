@@ -38,7 +38,6 @@ import { ReportPermissions } from 'src/app/core/models/report-permissions.model'
 import { ExtendedComment } from 'src/app/core/models/platform/v1/extended-comment.model';
 import { Comment } from 'src/app/core/models/platform/v1/comment.model';
 
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 @Component({
   selector: 'app-my-view-report',
   templateUrl: './my-view-report.page.html',
@@ -113,8 +112,6 @@ export class MyViewReportPage {
 
   hardwareBackButtonAction: Subscription;
 
-  isManualFlagFeatureEnabled$: Observable<{ value: boolean }>;
-
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
@@ -133,8 +130,7 @@ export class MyViewReportPage {
     private refinerService: RefinerService,
     private orgSettingsService: OrgSettingsService,
     private platformHandlerService: PlatformHandlerService,
-    private spenderReportsService: SpenderReportsService,
-    private launchDarklyService: LaunchDarklyService
+    private spenderReportsService: SpenderReportsService
   ) {}
 
   get Segment(): typeof ReportPageSegment {
@@ -229,8 +225,6 @@ export class MyViewReportPage {
     this.setupNetworkWatcher();
     this.reportId = this.activatedRoute.snapshot.params.id as string;
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
-
-    this.isManualFlagFeatureEnabled$ = this.launchDarklyService.checkIfManualFlaggingFeatureIsEnabled();
 
     this.segmentValue = ReportPageSegment.EXPENSES;
 

@@ -68,8 +68,6 @@ export class ExpensesCardComponent implements OnInit {
 
   @Input() showDt = true;
 
-  @Input() isManualFlagFeatureEnabled = false;
-
   @Output() goToTransaction: EventEmitter<{ expense: Expense; expenseIndex: number }> = new EventEmitter<{
     expense: Expense;
     expenseIndex: number;
@@ -270,8 +268,7 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   setIsPolicyViolated(): void {
-    const isManualFlagEnabledAndFlagged = this.isManualFlagFeatureEnabled && this.expense.is_manually_flagged;
-    this.isPolicyViolated = isManualFlagEnabledAndFlagged || this.expense.is_policy_flagged;
+    this.isPolicyViolated = this.expense.is_policy_flagged;
   }
 
   ngOnInit(): void {

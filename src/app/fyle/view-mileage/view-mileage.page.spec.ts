@@ -423,84 +423,6 @@ describe('ViewMileagePage', () => {
     }));
   });
 
-  describe('flagUnflagExpense', () => {
-    it('should flag,unflagged expense', fakeAsync(() => {
-      activateRouteMock.snapshot.queryParams = {
-        id: 'tx5fBcPBAxLv',
-      };
-
-      loaderService.showLoader.and.resolveTo();
-      loaderService.hideLoader.and.resolveTo();
-
-      const title = 'Flag';
-      const flagPopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onWillDismiss']);
-      popoverController.create.and.returnValue(flagPopoverSpy);
-      const data = { comment: 'This is a comment for flagging' };
-      flagPopoverSpy.onWillDismiss.and.resolveTo({ data });
-      statusService.post.and.returnValue(of(txnStatusData));
-      transactionService.manualFlag.and.returnValue(of(expenseData2));
-
-      component.flagUnflagExpense(false);
-      tick(500);
-
-      expect(popoverController.create).toHaveBeenCalledOnceWith({
-        component: FyPopoverComponent,
-        componentProps: {
-          title,
-          formLabel: 'Reason for flaging expense',
-        },
-        cssClass: 'fy-dialog-popover',
-      });
-
-      expect(flagPopoverSpy.present).toHaveBeenCalledTimes(1);
-      expect(flagPopoverSpy.onWillDismiss).toHaveBeenCalledTimes(1);
-      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Please wait');
-      expect(statusService.post).toHaveBeenCalledOnceWith('transactions', component.expenseId, data, true);
-      expect(transactionService.manualFlag).toHaveBeenCalledOnceWith(component.expenseId);
-      tick(500);
-      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-      expect(trackingService.expenseFlagUnflagClicked).toHaveBeenCalledOnceWith({ action: title });
-    }));
-
-    it('should unflag,flagged expense', fakeAsync(() => {
-      activateRouteMock.snapshot.params = {
-        id: 'tx5fBcPBAxLv',
-      };
-
-      loaderService.showLoader.and.resolveTo();
-      loaderService.hideLoader.and.resolveTo();
-
-      const title = 'Unflag';
-      const flagPopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onWillDismiss']);
-      popoverController.create.and.returnValue(flagPopoverSpy);
-      const data = { comment: 'This is a comment for flagging' };
-      flagPopoverSpy.onWillDismiss.and.resolveTo({ data });
-      statusService.post.and.returnValue(of(txnStatusData));
-      transactionService.manualUnflag.and.returnValue(of(expenseData1));
-
-      component.flagUnflagExpense(true);
-      tick(500);
-
-      expect(popoverController.create).toHaveBeenCalledOnceWith({
-        component: FyPopoverComponent,
-        componentProps: {
-          title,
-          formLabel: 'Reason for unflaging expense',
-        },
-        cssClass: 'fy-dialog-popover',
-      });
-
-      expect(flagPopoverSpy.present).toHaveBeenCalledTimes(1);
-      expect(flagPopoverSpy.onWillDismiss).toHaveBeenCalledTimes(1);
-      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Please wait');
-      expect(statusService.post).toHaveBeenCalledOnceWith('transactions', component.expenseId, data, true);
-      expect(transactionService.manualUnflag).toHaveBeenCalledOnceWith(component.expenseId);
-      tick(500);
-      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-      expect(trackingService.expenseFlagUnflagClicked).toHaveBeenCalledOnceWith({ action: title });
-    }));
-  });
-
   describe('ionViewWillEnter', () => {
     beforeEach(() => {
       component.expenseId = 'tx5fBcPBAxLv';
@@ -531,15 +453,6 @@ describe('ViewMileagePage', () => {
 
       customInputsService.fillCustomProperties.and.returnValue(of(filledCustomProperties));
       statusService.find.and.returnValue(of(getEstatusApiResponse));
-      launchDarklyService.checkIfManualFlaggingFeatureIsEnabled.and.returnValue(of({ value: true }));
-    });
-
-    it('should initialize isManualFlagFeatureEnabled', (done) => {
-      component.ionViewWillEnter();
-      component.isManualFlagFeatureEnabled$.subscribe((res) => {
-        expect(res.value).toBeTrue();
-        done();
-      });
     });
 
     it('should get all the data for extended mileage and expense fields', fakeAsync(() => {
@@ -853,31 +766,6 @@ describe('ViewMileagePage', () => {
       component.mileageRate$.subscribe((mileageRate) => {
         expect(mileageRate).toEqual(platformMileageRatesSingleData.data[0]);
         expect(mileageRatesService.getApproverMileageRateById).toHaveBeenCalledOnceWith(mileageExpense.mileage_rate_id);
-        done();
-      });
-    });
-
-    it('should get the flag status when the expense can be flagged', (done) => {
-      activateRouteMock.snapshot.params.view = ExpenseView.team;
-      component.mileageExpense$ = of(mileageExpense);
-      component.ionViewWillEnter();
-      component.canFlagOrUnflag$.subscribe((res) => {
-        expect(mileageExpense.state).toEqual(ExpenseState.APPROVER_PENDING);
-        expect(res).toBeTrue();
-        done();
-      });
-    });
-
-    it('expense cannot be flagged when the view is set to indivivual', (done) => {
-      activateRouteMock.snapshot.params.view = ExpenseView.individual;
-      const mockMileageExpense: Expense = {
-        ...mileageExpense,
-        state: ExpenseState.PAID,
-      };
-      component.mileageExpense$ = of(mockMileageExpense);
-      component.ionViewWillEnter();
-      component.canFlagOrUnflag$.pipe(isEmpty()).subscribe((isEmpty) => {
-        expect(isEmpty).toBeTrue();
         done();
       });
     });
