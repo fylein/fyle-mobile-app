@@ -231,6 +231,7 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
     from(this.loaderService.showLoader('Verifying code...'))
       .pipe(
         switchMap(() => this.mobileNumberVerificationService.verifyOtp(otp)),
+        switchMap(() => this.authService.refreshEou()),
         finalize(() => this.loaderService.hideLoader())
       )
       .subscribe({

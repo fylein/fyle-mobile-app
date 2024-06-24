@@ -437,6 +437,7 @@ describe('FyOptInComponent', () => {
       loaderService.hideLoader.and.resolveTo();
       spyOn(component, 'toastWithoutCTA');
       component.optInFlowState = OptInFlowState.OTP_VERIFICATION;
+      authService.refreshEou.and.returnValue(of(eouRes2));
     });
 
     it('should show success screen and track event if otp is verified', fakeAsync(() => {
@@ -446,6 +447,7 @@ describe('FyOptInComponent', () => {
       expect(component.optInFlowState).toBe(OptInFlowState.SUCCESS);
       expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Verifying code...');
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+      expect(authService.refreshEou).toHaveBeenCalledTimes(1);
     }));
 
     it('should reset otp if API call fails', fakeAsync(() => {

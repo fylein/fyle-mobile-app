@@ -211,15 +211,12 @@ describe('UtilityService', () => {
     });
   });
 
-  it('canShowOptInAfterAddingCard(): should return canShowOptInAfterAddingCard$ as observable', (done) => {
+  it('canShowOptInAfterAddingCard(): should return canShowOptInAfterAddingCard$ as boolean value', () => {
     utilityService.canShowOptInAfterAddingCard$ = new BehaviorSubject<boolean>(true);
 
     const canShowOptIn = utilityService.canShowOptInAfterAddingCard();
 
-    canShowOptIn.subscribe((result) => {
-      expect(result).toBeTrue();
-      done();
-    });
+    expect(canShowOptIn).toBeTrue();
   });
 
   it('toggleShowOptInAfterAddingCard(): should change the value of canShowOptInAfterAddingCard$', () => {
@@ -230,15 +227,12 @@ describe('UtilityService', () => {
     expect(utilityService.canShowOptInAfterAddingCard$.value).toBeFalse();
   });
 
-  it('canShowOptInAfterExpenseCreation(): should return canShowOptInAfterExpenseCreation$ as observable', (done) => {
+  it('canShowOptInAfterExpenseCreation(): should return canShowOptInAfterExpenseCreation$ as boolean value', () => {
     utilityService.canShowOptInAfterExpenseCreation$ = new BehaviorSubject<boolean>(true);
 
     const canShowOptIn = utilityService.canShowOptInAfterExpenseCreation();
 
-    canShowOptIn.subscribe((result) => {
-      expect(result).toBeTrue();
-      done();
-    });
+    expect(canShowOptIn).toBeTrue();
   });
 
   it('toggleShowOptInAfterExpenseCreation(): should change the value of canShowOptInAfterExpenseCreation$', () => {

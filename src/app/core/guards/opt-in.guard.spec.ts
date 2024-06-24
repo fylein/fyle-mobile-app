@@ -40,13 +40,13 @@ describe('OptInGuard', () => {
   });
 
   describe('canActivate():', () => {
-    it('should return true if the current route includes "my_expenses;redirected_from_add_expense=true" and the next route does not include "add_edit" and canShowOptIn is false', (done) => {
-      const currentRoute = 'my_expenses;redirected_from_add_expense=true';
+    it('should return true if the current route includes "my_expenses" and the next route does not include "add_edit" and canShowOptIn is false', (done) => {
+      const currentRoute = 'my_expenses';
       const nextRoute = 'my_dashboard';
       const canShowOptIn = false;
       const canShowOptInModal = true;
       Object.defineProperty(router, 'routerState', { writable: true, value: { snapshot: { url: currentRoute } } });
-      utilityService.canShowOptInAfterExpenseCreation.and.returnValue(of(canShowOptIn));
+      utilityService.canShowOptInAfterExpenseCreation.and.returnValue(canShowOptIn);
       utilityService.canShowOptInModal.and.returnValue(of(canShowOptInModal));
 
       const canActivate = guard.canActivate(new ActivatedRoute().snapshot, {
@@ -60,13 +60,13 @@ describe('OptInGuard', () => {
       });
     });
 
-    it('should return true if the current route includes "my_expenses;redirected_from_add_expense=true" and the next route does not include "add_edit" and canShowOptIn is true', (done) => {
-      const currentRoute = 'my_expenses;redirected_from_add_expense=true';
+    it('should return true if the current route includes "my_expenses" and the next route does not include "add_edit" and canShowOptIn is true', (done) => {
+      const currentRoute = 'my_expenses';
       const nextRoute = 'my_dashboard';
       const canShowOptIn = true;
       const canShowOptInModal = true;
       Object.defineProperty(router, 'routerState', { writable: true, value: { snapshot: { url: currentRoute } } });
-      utilityService.canShowOptInAfterExpenseCreation.and.returnValue(of(canShowOptIn));
+      utilityService.canShowOptInAfterExpenseCreation.and.returnValue(canShowOptIn);
       utilityService.canShowOptInModal.and.returnValue(of(canShowOptInModal));
 
       const canActivate = guard.canActivate(new ActivatedRoute().snapshot, {
@@ -89,7 +89,7 @@ describe('OptInGuard', () => {
       const canShowOptIn = false;
       const canShowOptInModal = true;
       Object.defineProperty(router, 'routerState', { writable: true, value: { snapshot: { url: currentRoute } } });
-      utilityService.canShowOptInAfterAddingCard.and.returnValue(of(canShowOptIn));
+      utilityService.canShowOptInAfterAddingCard.and.returnValue(canShowOptIn);
       utilityService.canShowOptInModal.and.returnValue(of(canShowOptInModal));
 
       const canActivate = guard.canActivate(new ActivatedRoute().snapshot, {
@@ -109,7 +109,7 @@ describe('OptInGuard', () => {
       const canShowOptIn = true;
       const canShowOptInModal = true;
       Object.defineProperty(router, 'routerState', { writable: true, value: { snapshot: { url: currentRoute } } });
-      utilityService.canShowOptInAfterAddingCard.and.returnValue(of(canShowOptIn));
+      utilityService.canShowOptInAfterAddingCard.and.returnValue(canShowOptIn);
       utilityService.canShowOptInModal.and.returnValue(of(canShowOptInModal));
 
       const canActivate = guard.canActivate(new ActivatedRoute().snapshot, {
@@ -132,7 +132,7 @@ describe('OptInGuard', () => {
       const canShowOptIn = false;
       const canShowOptInModal = true;
       Object.defineProperty(router, 'routerState', { writable: true, value: { snapshot: { url: currentRoute } } });
-      utilityService.canShowOptInAfterAddingCard.and.returnValue(of(canShowOptIn));
+      utilityService.canShowOptInAfterAddingCard.and.returnValue(canShowOptIn);
       utilityService.canShowOptInModal.and.returnValue(of(canShowOptInModal));
 
       const canActivate = guard.canActivate(new ActivatedRoute().snapshot, {
@@ -152,7 +152,7 @@ describe('OptInGuard', () => {
       const canShowOptIn = true;
       const canShowOptInModal = true;
       Object.defineProperty(router, 'routerState', { writable: true, value: { snapshot: { url: currentRoute } } });
-      utilityService.canShowOptInAfterAddingCard.and.returnValue(of(canShowOptIn));
+      utilityService.canShowOptInAfterAddingCard.and.returnValue(canShowOptIn);
       utilityService.canShowOptInModal.and.returnValue(of(canShowOptInModal));
 
       const canActivate = guard.canActivate(new ActivatedRoute().snapshot, {

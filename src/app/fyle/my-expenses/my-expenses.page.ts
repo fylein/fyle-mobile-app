@@ -451,7 +451,7 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  async ionViewWillEnter(): Promise<void> {
+  ionViewWillEnter(): void {
     this.isNewReportsFlowEnabled = false;
     this.hardwareBackButton = this.platformHandlerService.registerBackButtonAction(
       BackButtonActionPriority.MEDIUM,
@@ -735,18 +735,15 @@ export class MyExpensesPage implements OnInit {
       key: 'OPT_IN_POPUP_SHOWN_COUNT',
     };
 
-    const isRedirectedFromAddExpense = this.activatedRoute.snapshot.params.redirected_from_add_expense as string;
+    const isRedirectedFromAddExpense = this.activatedRoute.snapshot.queryParams.redirected_from_add_expense as string;
 
     this.utilityService.canShowOptInModal(optInModalPostExpenseCreationFeatureConfig).subscribe((canShowOptInModal) => {
       if (canShowOptInModal && isRedirectedFromAddExpense) {
         this.utilityService.toggleShowOptInAfterExpenseCreation(true);
         this.setModalDelay();
+        this.setNavigationSubscription();
       }
     });
-
-    if (isRedirectedFromAddExpense) {
-      this.setNavigationSubscription();
-    }
   }
 
   onPageClick(): void {
@@ -792,8 +789,8 @@ export class MyExpensesPage implements OnInit {
   }
 
   setModalDelay(): void {
-    this.optInShowTimer = setTimeout(async () => {
-      await this.showPromoteOptInModal();
+    this.optInShowTimer = setTimeout(() => {
+      this.showPromoteOptInModal();
     }, 2000);
   }
 
@@ -807,13 +804,13 @@ export class MyExpensesPage implements OnInit {
           key: 'OPT_IN_POPUP_SHOWN_COUNT',
         };
 
-        const isRedirectedFromAddExpense = this.activatedRoute.snapshot.params.redirected_from_add_expense as string;
+        const isRedirectedFromAddExpense = this.activatedRoute.snapshot.queryParams
+          .redirected_from_add_expense as string;
 
-        forkJoin({
-          isAttemptLeft: this.utilityService.canShowOptInModal(optInModalPostExpenseCreationFeatureConfig),
-          canShowOptInModal: this.utilityService.canShowOptInAfterExpenseCreation(),
-        }).subscribe((canShowOptInModal) => {
-          if (canShowOptInModal && isRedirectedFromAddExpense) {
+        this.utilityService.canShowOptInModal(optInModalPostExpenseCreationFeatureConfig).subscribe((isAttemptLeft) => {
+          const canShowOptInModal = this.utilityService.canShowOptInAfterExpenseCreation();
+
+          if (isAttemptLeft && isRedirectedFromAddExpense && canShowOptInModal) {
             this.showPromoteOptInModal();
           }
         });
