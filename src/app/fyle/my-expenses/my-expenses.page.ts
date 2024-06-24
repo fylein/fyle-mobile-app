@@ -79,7 +79,6 @@ import { PromoteOptInModalComponent } from 'src/app/shared/components/promote-op
 import { AuthService } from 'src/app/core/services/auth.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
 import { FeatureConfigService } from 'src/app/core/services/platform/v1/spender/feature-config.service';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-my-expenses',
@@ -201,8 +200,6 @@ export class MyExpensesPage implements OnInit {
 
   navigationSubscription: Subscription;
 
-  isManualFlagFeatureEnabled$: Observable<{ value: boolean }>;
-
   constructor(
     private networkService: NetworkService,
     private loaderService: LoaderService,
@@ -237,8 +234,7 @@ export class MyExpensesPage implements OnInit {
     private spenderReportsService: SpenderReportsService,
     private authService: AuthService,
     private utilityService: UtilityService,
-    private featureConfigService: FeatureConfigService,
-    private launchDarklyService: LaunchDarklyService
+    private featureConfigService: FeatureConfigService
   ) {}
 
   get HeaderState(): typeof HeaderState {
@@ -457,8 +453,6 @@ export class MyExpensesPage implements OnInit {
       BackButtonActionPriority.MEDIUM,
       this.backButtonAction
     );
-
-    this.isManualFlagFeatureEnabled$ = this.launchDarklyService.checkIfManualFlaggingFeatureIsEnabled();
 
     this.tasksService.getExpensesTaskCount().subscribe((expensesTaskCount) => {
       this.expensesTaskCount = expensesTaskCount;

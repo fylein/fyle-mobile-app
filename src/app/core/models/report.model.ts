@@ -37,7 +37,6 @@ export interface ExtendedReport {
   rp_location4?: string;
   rp_location5?: string;
   rp_locations: string[];
-  rp_manual_flag: boolean;
   rp_num_transactions: number;
   rp_org_user_id: string;
   rp_policy_flag: boolean;

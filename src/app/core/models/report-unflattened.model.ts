@@ -30,7 +30,6 @@ export interface UnflattenedReport {
     location4: string;
     location5: string;
     locations: string[];
-    manual_flag: boolean;
     num_transactions: number;
     org_user_id: string;
     last_updated_by?: UserDetails;

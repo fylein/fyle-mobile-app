@@ -52,4 +52,5 @@ export const matchedCCTransactionData3: Partial<MatchedCCCTransaction> = deepFre
   orig_amount: null,
   orig_currency: null,
   status: undefined,
+  nickname: 'Business Card',
 });

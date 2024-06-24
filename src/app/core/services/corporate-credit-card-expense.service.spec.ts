@@ -22,6 +22,7 @@ import { bankFeedSourcesData } from '../mock-data/bank-feed-sources.data';
 import {
   ccTransactionResponseData,
   ccTransactionResponseData1,
+  ccTransactionResponseData2,
 } from '../mock-data/corporate-card-transaction-response.data';
 import { statementUploadedCardDetail } from '../mock-data/platform-corporate-card-detail.data';
 import { matchedCCTransactionData3 } from '../mock-data/matchedCCTransaction.data';
@@ -199,7 +200,7 @@ describe('CorporateCreditCardExpenseService', () => {
   });
 
   it('transformCCTransaction(): should transform the corporate card transaction response to matched corporate card transaction', () => {
-    const res = cccExpenseService.transformCCTransaction(ccTransactionResponseData.data[0]);
+    const res = cccExpenseService.transformCCTransaction(ccTransactionResponseData2.data[0]);
     expect(res).toEqual(matchedCCTransactionData3);
   });
 });

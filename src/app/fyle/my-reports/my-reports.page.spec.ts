@@ -85,7 +85,6 @@ import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-repor
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { ReportState as PlatformReportState } from 'src/app/core/models/platform/v1/report.model';
 import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 describe('MyReportsPage', () => {
   let component: MyReportsPage;
@@ -107,7 +106,6 @@ describe('MyReportsPage', () => {
   let modalController: jasmine.SpyObj<ModalController>;
   let inputElement: HTMLInputElement;
   let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
-  let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
 
   beforeEach(waitForAsync(() => {
     const tasksServiceSpy = jasmine.createSpyObj('TasksService', ['getReportsTaskCount']);
@@ -147,9 +145,6 @@ describe('MyReportsPage', () => {
     const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', [
       'getReportsCount',
       'getReportsByParams',
-    ]);
-    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', [
-      'checkIfManualFlaggingFeatureIsEnabled',
     ]);
 
     TestBed.configureTestingModule({
@@ -200,10 +195,6 @@ describe('MyReportsPage', () => {
           provide: SpenderReportsService,
           useValue: spenderReportsServiceSpy,
         },
-        {
-          provide: LaunchDarklyService,
-          useValue: launchDarklyServiceSpy,
-        },
         ReportState,
       ],
       schemas: [NO_ERRORS_SCHEMA],
@@ -231,7 +222,6 @@ describe('MyReportsPage', () => {
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
-    launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
   }));
 
   it('should create', () => {
@@ -259,7 +249,6 @@ describe('MyReportsPage', () => {
       spenderReportsService.getReportsByParams.and.returnValue(of(paginatedPipeValue));
       orgSettingsService.get.and.returnValue(of(orgSettingsRes));
       expensesService.getExpenseStats.and.returnValue(of(completeStats1));
-      launchDarklyService.checkIfManualFlaggingFeatureIsEnabled.and.returnValue(of({ value: true }));
 
       component.simpleSearchInput = fixture.debugElement.query(By.css('.my-reports--simple-search-input'));
 
@@ -283,10 +272,6 @@ describe('MyReportsPage', () => {
 
       component.homeCurrency$.subscribe((currency) => {
         expect(currency).toEqual('USD');
-      });
-
-      component.isManualFlagFeatureEnabled$.subscribe((res) => {
-        expect(res.value).toBeTrue();
       });
 
       expect(component.simpleSearchInput.nativeElement.value).toBe('');
