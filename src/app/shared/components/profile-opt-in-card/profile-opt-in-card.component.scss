@@ -124,4 +124,20 @@
     height: 24px;
     color: $brand-primary;
   }
+
+  &__non-us-number-card {
+    margin-top: 18px;
+    display: flex;
+    padding: 12px;
+    border-radius: 6px;
+    background-color: $alice-blue;
+    font-size: 12px;
+    gap: 8px;
+
+    &__cta {
+      white-space: nowrap;
+      color: $brand-primary;
+      font-weight: 500;
+    }
+  }
 }
