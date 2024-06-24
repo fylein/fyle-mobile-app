@@ -200,6 +200,14 @@ describe('FyOptInComponent', () => {
       expect(component.validateInput());
       expect(component.mobileNumberError).toBe('Please enter a Mobile Number');
     });
+
+    it('should set mobileNumberError if mobileNumberInputValue does not contain +1', () => {
+      component.mobileNumberInputValue = '+911234567890';
+      expect(component.validateInput());
+      expect(component.mobileNumberError).toBe(
+        'Only +1 country code numbers are allowed. Please re-enter your number.'
+      );
+    });
   });
 
   describe('saveMobileNumber():', () => {
