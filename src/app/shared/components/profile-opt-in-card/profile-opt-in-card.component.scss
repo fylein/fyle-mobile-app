@@ -21,6 +21,7 @@
     font-size: 14px;
     color: $brand-primary;
     white-space: nowrap;
+    font-weight: 500;
   }
 
   &__description {
@@ -54,6 +55,11 @@
       margin-right: 6px;
       flex-shrink: 0;
       background-color: $green;
+
+      &--inactive {
+        @extend .profile-opt-in-card__status__icon;
+        background-color: $red;
+      }
     }
 
     &__text {
@@ -92,6 +98,11 @@
       height: 24px;
       color: $brand-primary;
       margin-left: 12px;
+    }
+
+    &__delete-icon {
+      @extend .profile-opt-in-card__mobile__edit-icon;
+      color: $red;
     }
   }
 
