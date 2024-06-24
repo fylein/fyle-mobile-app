@@ -17,6 +17,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { BrowserHandlerService } from 'src/app/core/services/browser-handler.service';
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
+import { UserEventService } from 'src/app/core/services/user-event.service';
 
 @Component({
   selector: 'app-fy-opt-in',
@@ -73,7 +74,8 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
     private matSnackBar: MatSnackBar,
     private loaderService: LoaderService,
     private browserHandlerService: BrowserHandlerService,
-    private platformHandlerService: PlatformHandlerService
+    private platformHandlerService: PlatformHandlerService,
+    private userEventService: UserEventService
   ) {}
 
   get OptInFlowState(): typeof OptInFlowState {
@@ -238,6 +240,7 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
         complete: () => {
           this.optInFlowState = OptInFlowState.SUCCESS;
           this.verifyingOtp = false;
+          this.userEventService.clearTaskCache();
         },
         error: () => {
           this.toastWithoutCTA('Code is invalid', ToastType.FAILURE, 'msb-failure-with-camera-icon');
