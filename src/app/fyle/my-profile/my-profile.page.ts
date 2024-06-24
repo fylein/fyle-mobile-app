@@ -498,6 +498,7 @@ export class MyProfilePage {
         finalize(() => from(this.loaderService.hideLoader()))
       )
       .subscribe(() => {
+        this.trackingService.deleteMobileNumber();
         this.eou$ = from(this.authService.refreshEou());
         this.showToastMessage('Mobile number deleted successfully.', 'success');
       });
