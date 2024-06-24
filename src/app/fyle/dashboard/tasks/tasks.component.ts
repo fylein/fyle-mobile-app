@@ -410,6 +410,12 @@ export class TasksComponent implements OnInit {
       });
 
       await optInModal.present();
+
+      const { data } = await optInModal.onWillDismiss<{ action: string }>();
+
+      if (data && data.action === 'SUCCESS') {
+        this.doRefresh();
+      }
     });
   }
 

@@ -169,7 +169,6 @@ describe('FyOptInComponent', () => {
     });
 
     it('should dismiss modal if user clicked from success screen', () => {
-      authService.refreshEou.and.returnValue(of(eouRes2));
       component.optInFlowState = OptInFlowState.SUCCESS;
       component.goBack();
       expect(modalController.dismiss).toHaveBeenCalledOnceWith({
@@ -178,7 +177,6 @@ describe('FyOptInComponent', () => {
       expect(trackingService.optInFlowSuccess).toHaveBeenCalledOnceWith({
         message: 'SUCCESS',
       });
-      expect(authService.refreshEou).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -439,6 +437,7 @@ describe('FyOptInComponent', () => {
       loaderService.hideLoader.and.resolveTo();
       spyOn(component, 'toastWithoutCTA');
       component.optInFlowState = OptInFlowState.OTP_VERIFICATION;
+      authService.refreshEou.and.returnValue(of(eouRes2));
     });
 
     it('should show success screen and track event if otp is verified', fakeAsync(() => {
@@ -448,6 +447,7 @@ describe('FyOptInComponent', () => {
       expect(component.optInFlowState).toBe(OptInFlowState.SUCCESS);
       expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Verifying code...');
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+      expect(authService.refreshEou).toHaveBeenCalledTimes(1);
     }));
 
     it('should reset otp if API call fails', fakeAsync(() => {
@@ -513,7 +513,6 @@ describe('FyOptInComponent', () => {
   });
 
   it('onGotItClicked(): should dismiss the modal and track opt in event', () => {
-    authService.refreshEou.and.returnValue(of(eouRes2));
     component.onGotItClicked();
     expect(modalController.dismiss).toHaveBeenCalledOnceWith({
       action: 'SUCCESS',
@@ -521,7 +520,6 @@ describe('FyOptInComponent', () => {
     expect(trackingService.optInFlowSuccess).toHaveBeenCalledOnceWith({
       message: 'SUCCESS',
     });
-    expect(authService.refreshEou).toHaveBeenCalledTimes(1);
   });
 
   it('ionViewWillLeave(): should unsubscribe hardwareBackButtonAction', () => {

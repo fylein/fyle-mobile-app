@@ -184,8 +184,10 @@ export function TestCases2(getTestBed) {
 
     it('onMobileNumberVerificationTaskClick(): should open opt in modal', fakeAsync(() => {
       authService.getEou.and.resolveTo(apiEouRes);
-      const optInModalSpy = jasmine.createSpyObj('optInModal', ['present']);
+      const optInModalSpy = jasmine.createSpyObj('optInModal', ['present', 'onWillDismiss']);
+      optInModalSpy.onWillDismiss.and.resolveTo({ data: { action: 'SUCCESS' } });
       modalController.create.and.returnValue(optInModalSpy);
+      spyOn(component, 'doRefresh');
 
       component.onMobileNumberVerificationTaskClick();
       tick(100);
@@ -197,6 +199,8 @@ export function TestCases2(getTestBed) {
         },
       });
       expect(optInModalSpy.present).toHaveBeenCalledTimes(1);
+      expect(optInModalSpy.onWillDismiss).toHaveBeenCalledTimes(1);
+      expect(component.doRefresh).toHaveBeenCalledTimes(1);
     }));
 
     describe('onReviewExpensesTaskClick():', () => {

@@ -114,9 +114,7 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
       this.trackingService.optInFlowSuccess({
         message: 'SUCCESS',
       });
-      from(this.authService.refreshEou()).subscribe(() => {
-        this.modalController.dismiss({ action: 'SUCCESS' });
-      });
+      this.modalController.dismiss({ action: 'SUCCESS' });
     } else {
       this.trackingService.skipOptInFlow();
       this.modalController.dismiss();
@@ -233,6 +231,7 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
     from(this.loaderService.showLoader('Verifying code...'))
       .pipe(
         switchMap(() => this.mobileNumberVerificationService.verifyOtp(otp)),
+        switchMap(() => this.authService.refreshEou()),
         finalize(() => this.loaderService.hideLoader())
       )
       .subscribe({
@@ -288,9 +287,7 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
     this.trackingService.optInFlowSuccess({
       message: 'SUCCESS',
     });
-    from(this.authService.refreshEou()).subscribe(() => {
-      this.modalController.dismiss({ action: 'SUCCESS' });
-    });
+    this.modalController.dismiss({ action: 'SUCCESS' });
   }
 
   ionViewWillLeave(): void {
