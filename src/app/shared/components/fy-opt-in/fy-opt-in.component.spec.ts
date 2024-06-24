@@ -21,6 +21,7 @@ import { ToastType } from 'src/app/core/enums/toast-type.enum';
 import { HttpErrorResponse } from '@angular/common/http';
 import { snackbarPropertiesRes2 } from 'src/app/core/mock-data/snackbar-properties.data';
 import { ToastMessageComponent } from '../toast-message/toast-message.component';
+import { UserEventService } from 'src/app/core/services/user-event.service';
 
 describe('FyOptInComponent', () => {
   let component: FyOptInComponent;
@@ -35,6 +36,7 @@ describe('FyOptInComponent', () => {
   let loaderService: jasmine.SpyObj<LoaderService>;
   let browserHandlerService: jasmine.SpyObj<BrowserHandlerService>;
   let platformHandlerService: jasmine.SpyObj<PlatformHandlerService>;
+  let userEventService: jasmine.SpyObj<UserEventService>;
 
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
@@ -59,6 +61,7 @@ describe('FyOptInComponent', () => {
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const browserHandlerServiceSpy = jasmine.createSpyObj('BrowserHandlerService', ['openLinkWithToolbarColor']);
     const platformHandlerServiceSpy = jasmine.createSpyObj('PlatformHandlerService', ['registerBackButtonAction']);
+    const userEventServiceSpy = jasmine.createSpyObj('UserEventService', ['clearTaskCache']);
 
     TestBed.configureTestingModule({
       declarations: [FyOptInComponent],
@@ -74,6 +77,7 @@ describe('FyOptInComponent', () => {
         { provide: LoaderService, useValue: loaderServiceSpy },
         { provide: BrowserHandlerService, useValue: browserHandlerServiceSpy },
         { provide: PlatformHandlerService, useValue: platformHandlerServiceSpy },
+        { provide: UserEventService, useValue: userEventServiceSpy },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -92,6 +96,7 @@ describe('FyOptInComponent', () => {
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
     browserHandlerService = TestBed.inject(BrowserHandlerService) as jasmine.SpyObj<BrowserHandlerService>;
     platformHandlerService = TestBed.inject(PlatformHandlerService) as jasmine.SpyObj<PlatformHandlerService>;
+    userEventService = TestBed.inject(UserEventService) as jasmine.SpyObj<UserEventService>;
   }));
 
   it('should create', () => {
@@ -448,6 +453,7 @@ describe('FyOptInComponent', () => {
       expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Verifying code...');
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
       expect(authService.refreshEou).toHaveBeenCalledTimes(1);
+      expect(userEventService.clearTaskCache).toHaveBeenCalledTimes(1);
     }));
 
     it('should reset otp if API call fails', fakeAsync(() => {
