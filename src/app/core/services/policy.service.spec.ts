@@ -216,7 +216,7 @@ describe('PolicyService', () => {
 
   it('checkIfViolationsExist(): should check for policy violations', () => {
     spyOn(policyService, 'getPolicyRules').and.returnValue([]);
-    expect(policyService.checkIfViolationsExist(violations)).toBe(false);
+    expect(policyService.checkIfViolationsExist(violations)).toBeFalse();
     expect(policyService.getPolicyRules).toHaveBeenCalledOnceWith(policyViolationData);
   });
 
@@ -240,7 +240,7 @@ describe('PolicyService', () => {
       };
 
       policyService.prepareEtxnForPolicyCheck(etxn, null).subscribe((res) => {
-        expect(res.is_matching_ccc_expense).toBe(false);
+        expect(res.is_matching_ccc_expense).toBeFalse();
         done();
       });
     });
@@ -252,7 +252,7 @@ describe('PolicyService', () => {
       };
 
       policyService.prepareEtxnForPolicyCheck(etxn, eCCCData1.ccce).subscribe((res) => {
-        expect(res.is_matching_ccc_expense).toBe(true);
+        expect(res.is_matching_ccc_expense).toBeTrue();
         done();
       });
     });

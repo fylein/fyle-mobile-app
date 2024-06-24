@@ -24,7 +24,6 @@ export interface ReportV1 {
   verification_state?: string;
   trip_request_id?: string;
   exported: boolean;
-  manual_flag: boolean;
   policy_flag: boolean;
   claim_number: string;
   from_dt: Date;

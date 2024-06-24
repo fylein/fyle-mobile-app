@@ -59,7 +59,6 @@ export interface Expense {
   invoice_number?: string;
   is_billable: boolean;
   is_corporate_card_transaction_auto_matched: boolean;
-  is_manually_flagged: boolean;
   is_policy_flagged: boolean;
   is_receipt_mandatory: boolean;
   is_reimbursable: boolean;

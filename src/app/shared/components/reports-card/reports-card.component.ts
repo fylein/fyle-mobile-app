@@ -14,8 +14,6 @@ export class ReportsCardComponent implements OnInit {
 
   @Input() simplifyReportsEnabled: boolean;
 
-  @Input() isManualFlagFeatureEnabled = false;
-
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   @Output() deleteReport: EventEmitter<Report> = new EventEmitter();
 

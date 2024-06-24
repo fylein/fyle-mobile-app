@@ -229,28 +229,6 @@ describe('TransactionService', () => {
     });
   });
 
-  it('manualFlag(): should manually flag a transaction', (done) => {
-    const transactionID = 'tx5fBcPBAxLv';
-    apiService.post.and.returnValue(of(expenseData2));
-
-    transactionService.manualFlag(transactionID).subscribe((res) => {
-      expect(res).toEqual(expenseData2);
-      expect(apiService.post).toHaveBeenCalledOnceWith('/transactions/' + transactionID + '/manual_flag');
-      done();
-    });
-  });
-
-  it('manualUnflag(): should manually unflag a transaction', (done) => {
-    const transactionID = 'tx5fBcPBAxLv';
-    apiService.post.and.returnValue(of(expenseData1));
-
-    transactionService.manualUnflag(transactionID).subscribe((res) => {
-      expect(res).toEqual(expenseData1);
-      expect(apiService.post).toHaveBeenCalledOnceWith('/transactions/' + transactionID + '/manual_unflag');
-      done();
-    });
-  });
-
   it('delete(): should delete a transaction', (done) => {
     const transactionID = 'tx5fBcPBAxLv';
     apiService.delete.and.returnValue(of(expenseData1));

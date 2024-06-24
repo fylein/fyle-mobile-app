@@ -15,7 +15,6 @@ import { ViewCommentComponent } from 'src/app/shared/components/comments-history
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
-import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 import { getCurrencySymbol } from '@angular/common';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
@@ -38,7 +37,6 @@ import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/fi
 import { ApproverFileService } from 'src/app/core/services/platform/v1/approver/file.service';
 import { PlatformFileGenerateUrlsResponse } from 'src/app/core/models/platform/platform-file-generate-urls-response.model';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-view-expense',
@@ -59,8 +57,6 @@ export class ViewExpensePage {
   customProperties$: Observable<CustomField[]>;
 
   expenseWithoutCustomProperties$: Observable<Expense>;
-
-  canFlagOrUnflag$: Observable<boolean>;
 
   canDelete$: Observable<boolean>;
 
@@ -136,8 +132,6 @@ export class ViewExpensePage {
 
   isRTFEnabled: boolean;
 
-  isManualFlagFeatureEnabled$: Observable<{ value: boolean }>;
-
   constructor(
     private loaderService: LoaderService,
     private transactionService: TransactionService,
@@ -160,8 +154,7 @@ export class ViewExpensePage {
     private approverExpensesService: ApproverExpensesService,
     private spenderFileService: SpenderFileService,
     private approverFileService: ApproverFileService,
-    private approverReportsService: ApproverReportsService,
-    private launchDarklyService: LaunchDarklyService
+    private approverReportsService: ApproverReportsService
   ) {}
 
   get ExpenseView(): typeof ExpenseView {
@@ -266,8 +259,6 @@ export class ViewExpensePage {
   ionViewWillEnter(): void {
     this.setupNetworkWatcher();
 
-    this.isManualFlagFeatureEnabled$ = this.launchDarklyService.checkIfManualFlaggingFeatureIsEnabled();
-
     this.expenseId = this.activatedRoute.snapshot.params.id as string;
     this.view = this.activatedRoute.snapshot.params.view as ExpenseView;
 
@@ -371,18 +362,6 @@ export class ViewExpensePage {
     );
 
     this.comments$ = this.statusService.find('transactions', this.expenseId);
-
-    this.canFlagOrUnflag$ = this.expenseWithoutCustomProperties$.pipe(
-      filter(() => this.view === ExpenseView.team),
-      map((expense) =>
-        [
-          ExpenseState.COMPLETE,
-          ExpenseState.APPROVER_PENDING,
-          ExpenseState.APPROVED,
-          ExpenseState.PAYMENT_PENDING,
-        ].includes(expense.state)
-      )
-    );
 
     this.canDelete$ = this.expenseWithoutCustomProperties$.pipe(
       filter(() => this.view === ExpenseView.team),
@@ -504,44 +483,6 @@ export class ViewExpensePage {
       this.trackingService.expenseRemovedByApprover();
       this.router.navigate(['/', 'enterprise', 'view_team_report', { id: this.reportId, navigate_back: true }]);
     }
-  }
-
-  async flagUnflagExpense(isExpenseFlagged: boolean): Promise<void> {
-    const title = isExpenseFlagged ? 'Unflag' : 'Flag';
-    const flagUnflagModal = await this.popoverController.create({
-      component: FyPopoverComponent,
-      componentProps: {
-        title,
-        formLabel: `Reason for ${title.toLowerCase()}ing expense`,
-      },
-      cssClass: 'fy-dialog-popover',
-    });
-
-    await flagUnflagModal.present();
-    const { data } = (await flagUnflagModal.onWillDismiss()) as { data: { comment: string } };
-
-    if (data && data.comment) {
-      from(this.loaderService.showLoader('Please wait'))
-        .pipe(
-          switchMap(() => {
-            const comment = {
-              comment: data.comment,
-            };
-            return this.statusService.post('transactions', this.expenseId, comment, true);
-          }),
-          concatMap(() =>
-            isExpenseFlagged
-              ? this.transactionService.manualUnflag(this.expenseId)
-              : this.transactionService.manualFlag(this.expenseId)
-          ),
-          finalize(() => {
-            this.updateFlag$.next(null);
-            this.loaderService.hideLoader();
-          })
-        )
-        .subscribe(noop);
-    }
-    this.trackingService.expenseFlagUnflagClicked({ action: title });
   }
 
   viewAttachments(): void {

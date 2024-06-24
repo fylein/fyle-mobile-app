@@ -102,20 +102,6 @@ export class TransactionService {
     );
   }
 
-  @CacheBuster({
-    cacheBusterNotifier: expensesCacheBuster$,
-  })
-  manualFlag(txnId: string): Observable<Expense> {
-    return this.apiService.post('/transactions/' + txnId + '/manual_flag');
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: expensesCacheBuster$,
-  })
-  manualUnflag(txnId: string): Observable<Expense> {
-    return this.apiService.post('/transactions/' + txnId + '/manual_unflag');
-  }
-
   @Cacheable({
     cacheBusterObserver: expensesCacheBuster$,
   })
@@ -812,7 +798,6 @@ export class TransactionService {
         mileage_calculated_amount: expense.mileage_calculated_amount,
         commute_deduction: expense.commute_deduction,
         commute_deduction_id: expense.commute_details_id,
-        manual_flag: expense.is_manually_flagged,
         policy_flag: expense.is_policy_flagged,
         extracted_data: expense.extracted_data
           ? {
@@ -909,7 +894,6 @@ export class TransactionService {
       tx_mileage_is_round_trip: expense.mileage_is_round_trip,
       tx_mileage_calculated_distance: expense.mileage_calculated_distance,
       tx_mileage_calculated_amount: expense.mileage_calculated_amount,
-      tx_manual_flag: expense.is_manually_flagged,
       tx_policy_flag: expense.is_policy_flagged,
       tx_extracted_data: expense.extracted_data
         ? {
