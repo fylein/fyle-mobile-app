@@ -212,8 +212,6 @@ describe('MyProfilePage', () => {
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
     orgUserService = TestBed.inject(OrgUserService) as jasmine.SpyObj<OrgUserService>;
-
-    component.loadEou$ = new BehaviorSubject(null);
     component.eou$ = of(apiEouRes);
 
     fixture.detectChanges();
@@ -342,13 +340,11 @@ describe('MyProfilePage', () => {
   });
 
   describe('ionViewWillEnter():', () => {
-    it('should setup class observables and show update mobile number modal', fakeAsync(() => {
+    it('should setup class observables', fakeAsync(() => {
       spyOn(component, 'setupNetworkWatcher');
       authService.getEou.and.resolveTo(apiEouRes);
       tokenService.getClusterDomain.and.resolveTo('domain');
       spyOn(component, 'reset');
-      spyOn(component, 'updateMobileNumber');
-      activatedRoute.snapshot.params.openPopover = 'add_mobile_number';
       utilityService.isUserFromINCluster.and.resolveTo(false);
       fixture.detectChanges();
 
@@ -359,49 +355,6 @@ describe('MyProfilePage', () => {
       expect(authService.getEou).toHaveBeenCalledTimes(1);
       expect(tokenService.getClusterDomain).toHaveBeenCalledTimes(1);
       expect(component.reset).toHaveBeenCalledTimes(1);
-      expect(component.updateMobileNumber).toHaveBeenCalledOnceWith(apiEouRes);
-    }));
-
-    it('should setup class observables and show verify mobile number modal', fakeAsync(() => {
-      spyOn(component, 'setupNetworkWatcher');
-      authService.getEou.and.resolveTo(apiEouRes);
-      tokenService.getClusterDomain.and.resolveTo('domain');
-      spyOn(component, 'reset');
-      spyOn(component, 'verifyMobileNumber');
-      activatedRoute.snapshot.params.openPopover = 'verify_mobile_number';
-      utilityService.isUserFromINCluster.and.resolveTo(false);
-      fixture.detectChanges();
-
-      component.ionViewWillEnter();
-      tick(1000);
-
-      expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
-      expect(authService.getEou).toHaveBeenCalledTimes(1);
-      expect(tokenService.getClusterDomain).toHaveBeenCalledTimes(1);
-      expect(component.reset).toHaveBeenCalledTimes(1);
-      expect(component.verifyMobileNumber).toHaveBeenCalledOnceWith(apiEouRes);
-    }));
-
-    it('should not open any modal if open popover is not passed as a param', fakeAsync(() => {
-      spyOn(component, 'setupNetworkWatcher');
-      authService.getEou.and.resolveTo(apiEouRes);
-      tokenService.getClusterDomain.and.resolveTo('domain');
-      spyOn(component, 'reset');
-      spyOn(component, 'verifyMobileNumber');
-      spyOn(component, 'updateMobileNumber');
-      activatedRoute.snapshot.params.openPopover = null;
-      utilityService.isUserFromINCluster.and.resolveTo(true);
-      fixture.detectChanges();
-
-      component.ionViewWillEnter();
-      tick(1000);
-
-      expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
-      expect(authService.getEou).not.toHaveBeenCalled();
-      expect(tokenService.getClusterDomain).toHaveBeenCalledTimes(1);
-      expect(component.reset).toHaveBeenCalledTimes(1);
-      expect(component.verifyMobileNumber).not.toHaveBeenCalled();
-      expect(component.updateMobileNumber).not.toHaveBeenCalled();
     }));
   });
 
@@ -536,119 +489,7 @@ describe('MyProfilePage', () => {
     expect(popoverSpy.onWillDismiss).toHaveBeenCalledOnceWith();
   }));
 
-  describe('verifyMobileNumber():', () => {
-    it('should open update mobile number modal if user selects BACK', fakeAsync(() => {
-      const popoverSpy = jasmine.createSpyObj('verifyNumberPopoverComponent', ['present', 'onWillDismiss']);
-      popoverSpy.onWillDismiss.and.resolveTo({
-        data: {
-          action: 'BACK',
-        },
-      });
-
-      popoverController.create.and.resolveTo(popoverSpy);
-      spyOn(component, 'updateMobileNumber');
-      authService.refreshEou.and.returnValue(of(apiEouRes));
-      spyOn(component.loadEou$, 'next');
-
-      component.verifyMobileNumber(apiEouRes);
-      tick(500);
-
-      expect(popoverController.create).toHaveBeenCalledOnceWith({
-        component: VerifyNumberPopoverComponent,
-        componentProps: {
-          extendedOrgUser: apiEouRes,
-        },
-        cssClass: 'fy-dialog-popover',
-      });
-      expect(component.updateMobileNumber).toHaveBeenCalledOnceWith(apiEouRes);
-      expect(component.loadEou$.next).toHaveBeenCalledOnceWith(null);
-      expect(authService.refreshEou).toHaveBeenCalledTimes(1);
-      expect(trackingService.verifyMobileNumber).toHaveBeenCalledTimes(1);
-    }));
-
-    it('should show success popover if action is successful and home currency is USD', fakeAsync(() => {
-      const popoverSpy = jasmine.createSpyObj('verifyNumberPopoverComponent', ['present', 'onWillDismiss']);
-      popoverSpy.onWillDismiss.and.resolveTo({
-        data: {
-          action: 'SUCCESS',
-          homeCurrency: 'USD',
-        },
-      });
-      authService.refreshEou.and.returnValue(of(apiEouRes));
-      spyOn(component.loadEou$, 'next');
-
-      popoverController.create.and.resolveTo(popoverSpy);
-      spyOn(component, 'showSuccessPopover');
-
-      component.verifyMobileNumber(apiEouRes);
-      tick(500);
-
-      expect(popoverController.create).toHaveBeenCalledOnceWith({
-        component: VerifyNumberPopoverComponent,
-        componentProps: {
-          extendedOrgUser: apiEouRes,
-        },
-        cssClass: 'fy-dialog-popover',
-      });
-      expect(component.showSuccessPopover).toHaveBeenCalledTimes(1);
-      expect(component.loadEou$.next).toHaveBeenCalledOnceWith(null);
-      expect(authService.refreshEou).toHaveBeenCalledTimes(1);
-      expect(trackingService.verifyMobileNumber).toHaveBeenCalledTimes(1);
-    }));
-
-    it('should show toast is home currency is not USD', fakeAsync(() => {
-      const popoverSpy = jasmine.createSpyObj('verifyNumberPopoverComponent', ['present', 'onWillDismiss']);
-      popoverSpy.onWillDismiss.and.resolveTo({
-        data: {
-          action: 'SUCCESS',
-          homeCurrency: 'INR',
-        },
-      });
-      authService.refreshEou.and.returnValue(of(apiEouRes));
-      spyOn(component.loadEou$, 'next');
-
-      popoverController.create.and.resolveTo(popoverSpy);
-      spyOn(component, 'showToastMessage');
-
-      component.verifyMobileNumber(apiEouRes);
-      tick(500);
-
-      expect(popoverController.create).toHaveBeenCalledOnceWith({
-        component: VerifyNumberPopoverComponent,
-        componentProps: {
-          extendedOrgUser: apiEouRes,
-        },
-        cssClass: 'fy-dialog-popover',
-      });
-      expect(component.showToastMessage).toHaveBeenCalledOnceWith('Mobile Number Verified Successfully', 'success');
-      expect(component.loadEou$.next).toHaveBeenCalledOnceWith(null);
-      expect(authService.refreshEou).toHaveBeenCalledTimes(1);
-      expect(trackingService.verifyMobileNumber).toHaveBeenCalledTimes(1);
-    }));
-  });
-
-  describe('onVerifyCtaClicked():', () => {
-    it('should open verify mobile number modal if there are attempts left', () => {
-      spyOn(component, 'verifyMobileNumber');
-
-      component.onVerifyCtaClicked(apiEouRes);
-
-      expect(component.verifyMobileNumber).toHaveBeenCalledOnceWith(apiEouRes);
-    });
-
-    it('should show toast message if there are no attempt left', () => {
-      spyOn(component, 'showToastMessage');
-
-      component.onVerifyCtaClicked(eouWithNoAttempts);
-
-      expect(component.showToastMessage).toHaveBeenCalledOnceWith(
-        'You have reached the limit to request OTP. Retry after 24 hours.',
-        'failure'
-      );
-    });
-  });
-
-  describe('updateMobileNumber(): ', () => {
+  describe('optInMobileNumber(): ', () => {
     beforeEach(() => {
       authService.refreshEou.and.returnValue(of(apiEouRes));
       spyOn(component, 'showToastMessage');
@@ -659,7 +500,7 @@ describe('MyProfilePage', () => {
       popoverSpy.onWillDismiss.and.resolveTo({ data: { action: 'SUCCESS' } });
       modalController.create.and.resolveTo(popoverSpy);
 
-      component.updateMobileNumber(apiEouRes);
+      component.optInMobileNumber(apiEouRes);
       tick(500);
       fixture.detectChanges();
 
@@ -682,7 +523,7 @@ describe('MyProfilePage', () => {
       modalController.create.and.resolveTo(popoverSpy);
       fixture.detectChanges();
 
-      component.updateMobileNumber(eouWithNoAttempts);
+      component.optInMobileNumber(eouWithNoAttempts);
       tick(500);
 
       expect(modalController.create).toHaveBeenCalledOnceWith({
@@ -710,7 +551,7 @@ describe('MyProfilePage', () => {
         },
       };
 
-      component.updateMobileNumber(eouWithoutMobileNumber);
+      component.optInMobileNumber(eouWithoutMobileNumber);
       tick(500);
       fixture.detectChanges();
 
@@ -732,12 +573,12 @@ describe('MyProfilePage', () => {
   });
 
   describe('optOutClick():', () => {
-    it('should open a popover and call deleteMobileNumber if user confirms', fakeAsync(() => {
+    it('should open a popover and call optOut if user confirms', fakeAsync(() => {
       const popoverSpy = jasmine.createSpyObj('optOutPopover', ['present', 'onWillDismiss']);
       popoverSpy.onWillDismiss.and.resolveTo({ data: { action: 'continue' } });
       popoverController.create.and.resolveTo(popoverSpy);
 
-      spyOn(component, 'deleteMobileNumber');
+      spyOn(component, 'optOut');
 
       component.optOutClick();
       tick(100);
@@ -745,15 +586,15 @@ describe('MyProfilePage', () => {
       expect(popoverSpy.present).toHaveBeenCalledTimes(1);
       expect(popoverSpy.onWillDismiss).toHaveBeenCalledTimes(1);
 
-      expect(component.deleteMobileNumber).toHaveBeenCalledTimes(1);
+      expect(component.optOut).toHaveBeenCalledTimes(1);
     }));
 
-    it('should not call deleteMobileNumber if user cancels', fakeAsync(() => {
+    it('should not call optOut if user cancels', fakeAsync(() => {
       const popoverSpy = jasmine.createSpyObj('optOutPopover', ['present', 'onWillDismiss', 'dismiss']);
       popoverSpy.onWillDismiss.and.resolveTo({ data: { action: 'cancel' } });
       popoverController.create.and.resolveTo(popoverSpy);
 
-      spyOn(component, 'deleteMobileNumber');
+      spyOn(component, 'optOut');
 
       component.optOutClick();
       tick(100);
@@ -761,11 +602,11 @@ describe('MyProfilePage', () => {
       expect(popoverSpy.present).toHaveBeenCalledTimes(1);
       expect(popoverSpy.onWillDismiss).toHaveBeenCalledTimes(1);
 
-      expect(component.deleteMobileNumber).not.toHaveBeenCalled();
+      expect(component.optOut).not.toHaveBeenCalled();
     }));
   });
 
-  it('deleteMobileNumber(): should delete mobile number', fakeAsync(() => {
+  it('optOut(): should delete mobile number', fakeAsync(() => {
     const mockEou = cloneDeep(eouRes2);
     authService.getEou.and.resolveTo(mockEou);
     authService.refreshEou.and.returnValue(of({ ...mockEou, ou: { ...mockEou.ou, mobile: '' } }));
@@ -774,7 +615,7 @@ describe('MyProfilePage', () => {
     orgUserService.postOrgUser.and.returnValue(of(apiEouRes.us));
     spyOn(component, 'showToastMessage');
 
-    component.deleteMobileNumber();
+    component.optOut();
     tick(500);
 
     expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
