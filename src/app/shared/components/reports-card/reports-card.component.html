@@ -13,9 +13,6 @@
     <div class="reports-card--purpose-amount-block">
       <div class="reports-card--purpose">
         <span>{{ report.purpose | ellipsis : 40 }}</span>
-        <span *ngIf="(isManualFlagFeatureEnabled && report.is_manually_flagged) || report.is_policy_flagged">
-          <mat-icon class="reports-card--icon-policy-violation" svgIcon="warning-fill"></mat-icon>
-        </span>
       </div>
       <div class="reports-card--amount-block ion-text-nowrap">
         <span class="reports-card--currency">{{ reportCurrencySymbol }}</span>
@@ -40,7 +37,7 @@
 <div
   class="reports-card-menu"
   *ngIf="actionOpened"
-  [ngClass]="{ 'reports-card-menu__no-top-margin': report.is_manually_flagged || report.is_policy_flagged }"
+  [ngClass]="{ 'reports-card-menu__no-top-margin': report.is_policy_flagged }"
 >
   <div class="reports-card-menu--close">
     <div matRipple (click)="actionOpened = false" class="reports-card-menu--cancel">

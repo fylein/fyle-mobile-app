@@ -151,7 +151,7 @@ export function TestCases1(getTestBed) {
 
       expect(component.fg.value).toEqual(addEditAdvanceRequestFormValueData2);
       expect(component.fg.controls.currencyObj.validator).toEqual(component.currencyObjValidator);
-      expect(component.id).toEqual(undefined);
+      expect(component.id).toBeUndefined();
       expect(component.from).toEqual('TEAM_ADVANCE');
       expect(component.advanceActions).toEqual({
         can_save: true,
