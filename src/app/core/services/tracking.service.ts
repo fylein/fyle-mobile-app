@@ -403,10 +403,6 @@ export class TrackingService {
     this.eventTrack('Expense navigation clicked', properties);
   }
 
-  expenseFlagUnflagClicked(properties: { action: string }): void {
-    this.eventTrack('Expense flagged or unflagged', properties);
-  }
-
   expenseRemovedByApprover(properties = {}): void {
     this.eventTrack('Expense removed from report by approver', properties);
   }

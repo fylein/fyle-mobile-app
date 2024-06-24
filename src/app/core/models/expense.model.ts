@@ -103,7 +103,6 @@ export interface Expense {
   tx_location_column9?: Destination;
   tx_locations: Destination[];
   tx_mandatory_fields_present: boolean;
-  tx_manual_flag: boolean;
   tx_mileage_calculated_amount?: number;
   tx_mileage_calculated_distance?: number;
   tx_mileage_is_round_trip?: boolean;

@@ -306,17 +306,8 @@ describe('ViewPerDiemPage', () => {
       approverReportsService.getReportById.and.returnValue(of(expectedReportsSinglePage[0]));
       policyService.getApproverExpensePolicyViolations.and.returnValue(of(individualExpPolicyStateData2));
       policyService.getSpenderExpensePolicyViolations.and.returnValue(of(individualExpPolicyStateData3));
-      launchDarklyService.checkIfManualFlaggingFeatureIsEnabled.and.returnValue(of({ value: true }));
       statusService.find.and.returnValue(of(estatusData1));
       spyOn(component, 'getPolicyDetails');
-    });
-
-    it('should initialize isManualFlagFeatureEnabled', (done) => {
-      component.ionViewWillEnter();
-      component.isManualFlagFeatureEnabled$.subscribe((res) => {
-        expect(res.value).toBeTrue();
-        done();
-      });
     });
 
     it('should set extendedPerDiem$ and txnFields$ correctly', (done) => {
@@ -490,31 +481,6 @@ describe('ViewPerDiemPage', () => {
       });
     });
 
-    it('should set view and canFlagOrUnflag$ to true if expense state is APPROVER_PENDING', (done) => {
-      activatedRoute.snapshot.params.view = ExpenseView.team;
-
-      approverExpensesService.getExpenseById.and.returnValue(of(perDiemExpense));
-      component.ionViewWillEnter();
-      expect(component.view).toEqual(ExpenseView.team);
-      component.canFlagOrUnflag$.subscribe((canFlagOrUnflag) => {
-        expect(canFlagOrUnflag).toBeTrue();
-        done();
-      });
-    });
-
-    it('should set canFlagOrUnflag$ to false if state is PAID', (done) => {
-      activatedRoute.snapshot.params.view = ExpenseView.team;
-      const mockExpense = cloneDeep(perDiemExpense);
-      mockExpense.state = ExpenseState.PAID;
-
-      approverExpensesService.getExpenseById.and.returnValue(of(mockExpense));
-      component.ionViewWillEnter();
-      component.canFlagOrUnflag$.subscribe((canFlagOrUnflag) => {
-        expect(canFlagOrUnflag).toBeFalse();
-        done();
-      });
-    });
-
     it('should set canDelete$ to false if report transaction equals 1', (done) => {
       activatedRoute.snapshot.params.view = ExpenseView.team;
 
@@ -673,11 +639,10 @@ describe('ViewPerDiemPage', () => {
       });
     });
 
-    it('should set isExpenseFlagged to expense manual flag and updateFlag$ to null', fakeAsync(() => {
+    it('should set updateFlag$ to null', fakeAsync(() => {
       component.ionViewWillEnter();
       tick(100);
 
-      expect(component.isExpenseFlagged).toBeFalse();
       component.updateFlag$.subscribe((updateFlag) => {
         expect(updateFlag).toBeNull();
       });
@@ -717,80 +682,6 @@ describe('ViewPerDiemPage', () => {
       { id: component.reportId, navigate_back: true },
     ]);
   }));
-
-  describe('flagUnflagExpense', () => {
-    it('should flag unflagged expense', fakeAsync(() => {
-      loaderService.showLoader.and.resolveTo();
-      loaderService.hideLoader.and.resolveTo();
-      component.isExpenseFlagged = false;
-
-      const title = 'Flag';
-      const flagPopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onWillDismiss']);
-      popoverController.create.and.returnValue(flagPopoverSpy);
-      const data = { comment: 'This is a comment for flagging' };
-      flagPopoverSpy.onWillDismiss.and.resolveTo({ data });
-      statusService.post.and.returnValue(of(txnStatusData));
-      transactionService.manualFlag.and.returnValue(of(expenseData2));
-
-      component.flagUnflagExpense();
-      tick(100);
-
-      expect(popoverController.create).toHaveBeenCalledOnceWith({
-        component: FyPopoverComponent,
-        componentProps: {
-          title,
-          formLabel: 'Reason for flaging expense',
-        },
-        cssClass: 'fy-dialog-popover',
-      });
-
-      expect(flagPopoverSpy.present).toHaveBeenCalledTimes(1);
-      expect(flagPopoverSpy.onWillDismiss).toHaveBeenCalledTimes(1);
-      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Please wait');
-      expect(statusService.post).toHaveBeenCalledOnceWith('transactions', component.expenseId, data, true);
-      expect(transactionService.manualFlag).toHaveBeenCalledOnceWith(component.expenseId);
-      expect(transactionService.manualUnflag).not.toHaveBeenCalled();
-      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-      expect(trackingService.expenseFlagUnflagClicked).toHaveBeenCalledOnceWith({ action: title });
-      expect(component.isExpenseFlagged).toBeFalse();
-    }));
-
-    it('should unflag flagged expense', fakeAsync(() => {
-      loaderService.showLoader.and.resolveTo();
-      loaderService.hideLoader.and.resolveTo();
-      component.isExpenseFlagged = true;
-
-      const title = 'Unflag';
-      const flagPopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onWillDismiss']);
-      popoverController.create.and.returnValue(flagPopoverSpy);
-      const data = { comment: 'This is a comment for flagging' };
-      flagPopoverSpy.onWillDismiss.and.resolveTo({ data });
-      statusService.post.and.returnValue(of(txnStatusData));
-      transactionService.manualUnflag.and.returnValue(of(expenseData1));
-
-      component.flagUnflagExpense();
-      tick(100);
-
-      expect(popoverController.create).toHaveBeenCalledOnceWith({
-        component: FyPopoverComponent,
-        componentProps: {
-          title,
-          formLabel: 'Reason for unflaging expense',
-        },
-        cssClass: 'fy-dialog-popover',
-      });
-
-      expect(flagPopoverSpy.present).toHaveBeenCalledTimes(1);
-      expect(flagPopoverSpy.onWillDismiss).toHaveBeenCalledTimes(1);
-      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Please wait');
-      expect(statusService.post).toHaveBeenCalledOnceWith('transactions', component.expenseId, data, true);
-      expect(transactionService.manualUnflag).toHaveBeenCalledOnceWith(component.expenseId);
-      expect(transactionService.manualFlag).not.toHaveBeenCalled();
-      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-      expect(trackingService.expenseFlagUnflagClicked).toHaveBeenCalledOnceWith({ action: title });
-      expect(component.isExpenseFlagged).toBeTrue();
-    }));
-  });
 
   describe('getDisplayValue():', () => {
     it('should get the correct display value', () => {

@@ -33,7 +33,6 @@ export interface UnformattedTransaction {
   invoice_number: number;
   locations: [];
   mandatory_fields_present: boolean;
-  manual_flag: boolean;
   mileage_calculated_amount: number;
   mileage_calculated_distance: number;
   mileage_is_round_trip: boolean;

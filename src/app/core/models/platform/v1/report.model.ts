@@ -22,7 +22,6 @@ export interface Report {
   num_expenses: number;
   is_verified: boolean;
   settlement_id: string;
-  is_manually_flagged: boolean;
   is_policy_flagged: boolean;
   is_exported: boolean;
   last_paid_at: Date;
