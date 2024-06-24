@@ -2416,7 +2416,7 @@ export class AddEditMileagePage implements OnInit {
         });
         const calculatedDistance = +res.calculatedDistance;
 
-        const amount = res.amount;
+        const amount = parseFloat(res.amount.toFixed(2));
         const skipReimbursement =
           (formValue?.paymentMode?.acc?.type === AccountType.PERSONAL &&
             !formValue?.paymentMode?.acc?.isReimbursable) ||
@@ -2442,11 +2442,14 @@ export class AddEditMileagePage implements OnInit {
             orig_currency: null,
             orig_amount: null,
             mileage_calculated_distance: calculatedDistance,
-            mileage_calculated_amount:
-              (rate ||
-                etxn.tx.mileage_rate ||
-                this.getRateByVehicleType(res.mileageRates, formValue.mileage_rate_name?.vehicle_type)) *
-              calculatedDistance,
+            mileage_calculated_amount: parseFloat(
+              (
+                (rate ||
+                  etxn.tx.mileage_rate ||
+                  this.getRateByVehicleType(res.mileageRates, formValue.mileage_rate_name?.vehicle_type)) *
+                calculatedDistance
+              ).toFixed(2)
+            ),
             project_id: formValue.project && formValue.project.project_id,
             purpose: formValue.purpose,
             custom_properties: customProperties || [],
