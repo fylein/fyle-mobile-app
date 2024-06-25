@@ -85,11 +85,10 @@
   </ng-container>
   <ng-container *ngIf="optInFlowState === OptInFlowState.SUCCESS">
     <div class="opt-in--success">
-      <img
-        class="opt-in--success__image-container"
-        src="../../../../assets/images/opt-in-success.gif"
-        alt="Opted in successfully"
-      />
+      <ion-icon
+        class="fy-icon opt-in--success__image-container"
+        src="../../../assets/svg/check-circle-fill.svg"
+      ></ion-icon>
       <div class="opt-in--success__header">You are all set</div>
       <div class="opt-in--success__description">
         We have sent you a confirmation message. You can now use text messages to create and submit your next expense!
