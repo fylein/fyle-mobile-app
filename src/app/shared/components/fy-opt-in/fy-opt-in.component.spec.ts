@@ -189,21 +189,19 @@ describe('FyOptInComponent', () => {
     it('should set mobileNumberError if mobile number field is empty', () => {
       component.mobileNumberInputValue = '';
       expect(component.validateInput());
-      expect(component.mobileNumberError).toBe('Please enter a Mobile Number');
+      expect(component.mobileNumberError).toBe('Please enter mobile number');
     });
 
     it('should set mobileNumberError if mobile number is invalid', () => {
       component.mobileNumberInputValue = '1234567890';
       expect(component.validateInput());
-      expect(component.mobileNumberError).toBe(
-        'Please enter a valid mobile number with country code. e.g. +12025559975'
-      );
+      expect(component.mobileNumberError).toBe('Enter a valid mobile number with country code. e.g. +13024402921.');
     });
 
     it('should set mobileNumberError if mobileNumberInputValue is null', () => {
       component.mobileNumberInputValue = null;
       expect(component.validateInput());
-      expect(component.mobileNumberError).toBe('Please enter a Mobile Number');
+      expect(component.mobileNumberError).toBe('Please enter mobile number');
     });
   });
 

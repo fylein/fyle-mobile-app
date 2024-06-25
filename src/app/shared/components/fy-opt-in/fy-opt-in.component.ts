@@ -125,9 +125,9 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
 
   validateInput(): void {
     if (!this.mobileNumberInputValue?.length) {
-      this.mobileNumberError = 'Please enter a Mobile Number';
+      this.mobileNumberError = 'Please enter mobile number';
     } else if (!this.mobileNumberInputValue.match(/[+]\d{7,}$/)) {
-      this.mobileNumberError = 'Please enter a valid mobile number with country code. e.g. +12025559975';
+      this.mobileNumberError = 'Enter a valid mobile number with country code. e.g. +13024402921.';
     }
   }
 

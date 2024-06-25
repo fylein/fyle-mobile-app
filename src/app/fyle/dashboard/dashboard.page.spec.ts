@@ -630,7 +630,7 @@ describe('DashboardPage', () => {
     spyOn(component, 'showPromoteOptInModal');
 
     component.setModalDelay();
-    tick(2000);
+    tick(4000);
 
     expect(component.showPromoteOptInModal).toHaveBeenCalledTimes(1);
   }));

@@ -5,10 +5,9 @@
   [title]="'Expenses'"
   (simpleSearchCancel)="onSimpleSearchCancel()"
   (multiselectBack)="switchSelectionMode()"
-  (click)="onPageClick()"
 >
   <ng-container base>
-    <ion-buttons mode="md" slot="end">
+    <ion-buttons mode="md" slot="end" (click)="onPageClick()">
       <ion-button class="my-expenses--header-btn" (click)="searchClick()">
         <ion-icon slot="icon-only" src="../../../assets/svg/search.svg"></ion-icon>
       </ion-button>
