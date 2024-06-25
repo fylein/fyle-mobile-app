@@ -209,11 +209,18 @@
       margin-top: 16px;
       width: 95%;
       text-align: center;
+      padding: 0 24px;
     }
 
     &__footer {
       padding: 14px 16px;
       gap: 12px;
+
+      &--primary-cta-text,
+      &--secondary-cta-text {
+        font-weight: 500;
+        font-size: 14px;
+      }
     }
 
     &__help-article-icon {

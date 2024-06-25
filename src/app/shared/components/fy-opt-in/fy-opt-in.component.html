@@ -121,12 +121,14 @@
     <div>
       <ion-buttons class="opt-in--success__footer">
         <ion-button class="btn-outline-secondary" (click)="openHelpArticle()">
-          Read help article
+          <span class="opt-in--success__footer--secondary-cta-text"> Read help article </span>
           <span>
             <mat-icon class="fy-icon opt-in--success__help-article-icon" svgIcon="open-in-new-tab"></mat-icon>
           </span>
         </ion-button>
-        <ion-button class="btn-primary" (click)="onGotItClicked()"> Got it </ion-button>
+        <ion-button class="btn-primary" (click)="onGotItClicked()">
+          <span class="opt-in--success__footer--primary-cta-text">Got it</span>
+        </ion-button>
       </ion-buttons>
     </div>
   </ng-container>

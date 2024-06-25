@@ -2,11 +2,13 @@
   <div class="profile-opt-in-card__container">
     <div (click)="clickedOnOptIn()">
       <div class="profile-opt-in-card__title">
-        <span>Opt-in to text receipts</span>
+        <div>
+          <div>Opt-in to text receipts</div>
+          <div class="profile-opt-in-card__description">
+            Opt-in to activate text messages for instant expense submission.
+          </div>
+        </div>
         <span *ngIf="!isUserOptedIn" class="profile-opt-in-card__opt-in-btn">Opt in</span>
-      </div>
-      <div class="profile-opt-in-card__description">
-        Opt-in to activate text messages for instant expense submission.
       </div>
 
       <ng-container *ngIf="isUserOptedIn">
@@ -16,11 +18,11 @@
         </div>
         <div class="profile-opt-in-card__status__icon-container">
           <div class="profile-opt-in-card__status__icon"></div>
-          <div>Opted in</div>
+          <div class="profile-opt-in-card__status__text">Opted in</div>
         </div>
         <div class="profile-opt-in-card__divider"></div>
         <div class="profile-opt-in-card__mobile">
-          <span>Mobile Number</span>
+          <span class="profile-opt-in-card__mobile__text">Mobile Number</span>
           <div class="profile-opt-in-card__mobile__number-container">
             <span>
               {{ mobileNumber }}

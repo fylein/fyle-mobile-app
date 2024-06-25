@@ -53,7 +53,7 @@ export class PromoteOptInModalComponent {
           action: 'cancel',
         },
       },
-      cssClass: 'pop-up-in-center',
+      cssClass: 'skip-opt-in-popover',
     });
 
     await optOutPopover.present();
