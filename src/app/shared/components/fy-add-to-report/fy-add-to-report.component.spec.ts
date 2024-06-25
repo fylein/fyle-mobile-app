@@ -41,6 +41,7 @@ describe('FyAddToReportComponent', () => {
       'getReportsCount',
       'getReportsByParams',
       'createDraft',
+      'suggestPurpose',
     ]);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
@@ -169,7 +170,7 @@ describe('FyAddToReportComponent', () => {
       component.options = reportOptionsData;
       component.value = expectedReportsPaginated[0];
       modalProperties.getModalDefaultProperties.and.returnValue(properties);
-      reportService.getReportPurpose.and.returnValue(of('Client Meeting'));
+      platformSpenderReportsService.suggestPurpose.and.returnValue(of('Client Meeting'));
       const draftReportPopoverSpy = jasmine.createSpyObj('draftReportPopover', ['present', 'onWillDismiss']);
       draftReportPopoverSpy.onWillDismiss.and.resolveTo({
         data: {
@@ -224,7 +225,7 @@ describe('FyAddToReportComponent', () => {
       expect(selectionModalControllerSpy.onWillDismiss).toHaveBeenCalledTimes(1);
       expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
       expect(popoverController.create).toHaveBeenCalledOnceWith(popoverControllerParams3);
-      expect(reportService.getReportPurpose).toHaveBeenCalledOnceWith({ ids: null });
+      expect(platformSpenderReportsService.suggestPurpose).toHaveBeenCalledOnceWith([]);
       expect(platformSpenderReportsService.getAllReportsByParams).toHaveBeenCalledOnceWith({
         state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
       });

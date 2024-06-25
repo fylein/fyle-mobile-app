@@ -45,7 +45,11 @@ describe('CreateNewReportComponent', () => {
     refinerService = jasmine.createSpyObj('RefinerService', ['startSurvey']);
     currencyService = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     expenseFieldsService = jasmine.createSpyObj('ExpenseFieldsService', ['getAllMap']);
-    spenderReportsService = jasmine.createSpyObj('SpenderReportsService', ['addExpenses', 'createDraft']);
+    spenderReportsService = jasmine.createSpyObj('SpenderReportsService', [
+      'addExpenses',
+      'createDraft',
+      'suggestPurpose',
+    ]);
     const humanizeCurrencyPipeSpy = jasmine.createSpyObj('HumanizeCurrency', ['transform']);
     const fyCurrencyPipeSpy = jasmine.createSpyObj('FyCurrencyPipe', ['transform']);
 
@@ -100,32 +104,32 @@ describe('CreateNewReportComponent', () => {
     it('should get the report title', () => {
       const reportName = '#1:  Jul 2021';
       component.selectedElements = apiExpenses1;
-      reportService.getReportPurpose.and.returnValue(of(reportName));
+      spenderReportsService.suggestPurpose.and.returnValue(of(reportName));
       component.getReportTitle();
       fixture.detectChanges();
       expect(component.reportTitle).toEqual(reportName);
-      expect(reportService.getReportPurpose).toHaveBeenCalledOnceWith({ ids: ['txDDLtRaflUW', 'tx5WDG9lxBDT'] });
+      expect(spenderReportsService.suggestPurpose).toHaveBeenCalledOnceWith(['txDDLtRaflUW', 'tx5WDG9lxBDT']);
     });
 
     it('should not get the report title when the element is not in the selectedElements array', () => {
       const reportName = '#1:  Jul 2021';
       component.selectedElements = [apiExpenses1[0]];
-      reportService.getReportPurpose.and.returnValue(of(reportName));
+      spenderReportsService.suggestPurpose.and.returnValue(of(reportName));
       component.getReportTitle();
       fixture.detectChanges();
       expect(component.reportTitle).toEqual(reportName);
-      expect(reportService.getReportPurpose).toHaveBeenCalledOnceWith({ ids: ['txDDLtRaflUW'] });
+      expect(spenderReportsService.suggestPurpose).toHaveBeenCalledOnceWith(['txDDLtRaflUW']);
     });
 
     it('should get report title without reimbursable amount', () => {
       const reportName = '#1:  Jul 2021';
       component.selectedElements = [nonReimbursableExpense];
 
-      reportService.getReportPurpose.and.returnValue(of(reportName));
+      spenderReportsService.suggestPurpose.and.returnValue(of(reportName));
       component.getReportTitle();
       fixture.detectChanges();
       expect(component.reportTitle).toEqual(reportName);
-      expect(reportService.getReportPurpose).toHaveBeenCalledOnceWith({ ids: [nonReimbursableExpense.id] });
+      expect(spenderReportsService.suggestPurpose).toHaveBeenCalledOnceWith([nonReimbursableExpense.id]);
     });
   });
 
