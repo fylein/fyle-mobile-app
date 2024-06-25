@@ -150,6 +150,7 @@ import { NgOtpInputModule } from 'ng-otp-input';
 import { PromoteOptInModalComponent } from './components/promote-opt-in-modal/promote-opt-in-modal.component';
 import { ProfileOptInCardComponent } from '../app/shared/components/profile-opt-in-card/profile-opt-in-card.component';
 import { DashboardOptInComponent } from './components/dashboard-opt-in/dashboard-opt-in.component';
+import { MobileNumberCardComponent } from './components/mobile-number-card/mobile-number-card.component';
 
 @NgModule({
   declarations: [
@@ -276,6 +277,7 @@ import { DashboardOptInComponent } from './components/dashboard-opt-in/dashboard
     PromoteOptInModalComponent,
     ProfileOptInCardComponent,
     DashboardOptInComponent,
+    MobileNumberCardComponent,
   ],
   imports: [
     CommonModule,
@@ -408,6 +410,7 @@ import { DashboardOptInComponent } from './components/dashboard-opt-in/dashboard
     PromoteOptInModalComponent,
     ProfileOptInCardComponent,
     DashboardOptInComponent,
+    MobileNumberCardComponent,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker, FyCurrencyPipe, ReportState],
 })
