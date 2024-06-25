@@ -374,9 +374,10 @@ describe('MyCreateReportPage', () => {
 
     component.getReportTitle();
 
-    expect(spenderReportsService.suggestPurpose).toHaveBeenCalledOnceWith({
-      ids: [readyToReportExpensesData[0].id, readyToReportExpensesData[1].id],
-    });
+    expect(spenderReportsService.suggestPurpose).toHaveBeenCalledOnceWith([
+      readyToReportExpensesData[0].id,
+      readyToReportExpensesData[1].id,
+    ]);
     expect(component.reportTitle).toEqual('#Sept 24');
     expect(component.getTotalSelectedExpensesAmount).toHaveBeenCalledOnceWith(component.selectedElements);
   }));
