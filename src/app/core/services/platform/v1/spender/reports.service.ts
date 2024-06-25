@@ -99,7 +99,7 @@ export class SpenderReportsService {
 
   suggestPurpose(expenseIds: string[]): Observable<string> {
     return this.spenderPlatformV1ApiService
-      .post<PlatformApiPayload<Report>>('/reports/suggest_purpose', { data: { expense_ids: expenseIds } })
+      .post<PlatformApiPayload<{ purpose: string }>>('/reports/suggest_purpose', { data: { expense_ids: expenseIds } })
       .pipe(map((res) => res.data.purpose));
   }
 

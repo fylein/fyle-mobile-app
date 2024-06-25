@@ -82,6 +82,19 @@ describe('SpenderReportsService', () => {
     });
   });
 
+  it('suggestPurpose(): should get the purpose of the report', (done) => {
+    const reportData = { data: { purpose: ' #7:  Jan 2023' } };
+    spenderPlatformV1ApiService.post.and.returnValue(of(reportData));
+
+    spenderReportsService.suggestPurpose([]).subscribe((res) => {
+      expect(res).toEqual(reportData.data.purpose);
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/reports/suggest_purpose', {
+        data: { expense_ids: [] },
+      });
+      done();
+    });
+  });
+
   it('postComment(): should add a comment', (done) => {
     const expectedCommentData: Comment = platformReportData.comments[0];
     spenderPlatformV1ApiService.post.and.returnValue(of({ data: expectedCommentData }));
