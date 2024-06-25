@@ -201,7 +201,7 @@ describe('FyOptInComponent', () => {
     it('should set mobileNumberError if mobileNumberInputValue is null', () => {
       component.mobileNumberInputValue = null;
       expect(component.validateInput());
-      expect(component.mobileNumberError).toBe('Please enter a Mobile Number');
+      expect(component.mobileNumberError).toBe('Please enter mobile number');
     });
   });
 
