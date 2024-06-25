@@ -1052,11 +1052,11 @@ describe('TasksService', () => {
 
   describe('mapMobileNumberVerificationTask(): ', () => {
     it('should return correct task object with CTA as Opt in if user not opted in', () => {
-      expect(tasksService.mapMobileNumberVerificationTask(true)).toEqual([verifyMobileNumberTask]);
+      expect(tasksService.mapMobileNumberVerificationTask(false)).toEqual([verifyMobileNumberTask]);
     });
 
     it('should return correct task object with CTA as Update and Opt in if user added non +1 mobile number', () => {
-      expect(tasksService.mapMobileNumberVerificationTask(false)).toEqual([verifyMobileNumberTask2]);
+      expect(tasksService.mapMobileNumberVerificationTask(true)).toEqual([verifyMobileNumberTask2]);
     });
   });
 
