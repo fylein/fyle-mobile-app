@@ -232,4 +232,8 @@
       height: 14px;
     }
   }
+
+  &--footer {
+    margin-bottom: calc(env(safe-area-inset-bottom) + 12px);
+  }
 }
