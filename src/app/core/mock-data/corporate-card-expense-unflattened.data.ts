@@ -17,7 +17,6 @@ export const expectedECccResponse: CCCExpUnflattened[] = deepFreeze([
       description: 'AMAZON.COM, SEATTLE, WA',
       vendor: 'AMAZON.COM',
       payment_id: 'pay4KzfYhLEvS',
-      settlement_id: 'setxPixUhOPVL',
       state: 'IN_PROGRESS',
       group_id: 'ccceYIJhT8Aj6U',
       card_or_account_number: '869',
@@ -46,9 +45,6 @@ export const expectedECccResponse: CCCExpUnflattened[] = deepFreeze([
       full_name: 'Abhishek Jain',
       email: 'ajain@fyle.in',
     },
-    balance: {
-      transfer_settlement_id: null,
-    },
   },
 ]);
 
@@ -72,9 +68,6 @@ export const eCCCData2: CCCExpUnflattened = deepFreeze({
 
 export const eCCCData3: CCCExpUnflattened = deepFreeze({
   ...expectedECccResponse[0],
-  balance: {
-    transfer_settlement_id: 'setxPixUhOPVL',
-  },
   flow: 'newCCCFlow',
   ccce: {
     ...expectedECccResponse[0].ccce,

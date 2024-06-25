@@ -14,7 +14,6 @@ export interface ExtendedAdvance {
   adv_orig_currency: string;
   adv_purpose: string;
   adv_refcode: string;
-  adv_settlement_id: string;
   adv_source: string;
   areq_id: string;
   assignee_department_id: string;

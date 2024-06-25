@@ -12,7 +12,6 @@ export interface CCCExpUnflattened {
     description: string;
     vendor: string;
     payment_id: string;
-    settlement_id: string;
     state: string;
     group_id: string;
     card_or_account_number: string;
@@ -42,9 +41,6 @@ export interface CCCExpUnflattened {
     full_name: string;
     email: string;
   };
-  balance: {
-    transfer_settlement_id: string;
-  };
   flow?: string;
   org_category_id?: number;
 }
@@ -63,7 +59,6 @@ export interface CCCExpense {
   description: string;
   vendor: string;
   payment_id: string;
-  settlement_id: string;
   state: string;
   group_id: string;
   card_or_account_number: string;

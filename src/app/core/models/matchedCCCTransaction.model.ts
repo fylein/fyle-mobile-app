@@ -13,7 +13,6 @@ export interface MatchedCCCTransaction {
   orig_amount: number;
   orig_currency: string;
   payment_id: string;
-  settlement_id: string;
   state: string;
   txn_dt: string;
   updated_at: string;

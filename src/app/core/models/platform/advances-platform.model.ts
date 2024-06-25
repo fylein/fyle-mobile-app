@@ -30,7 +30,6 @@ export interface AdvancesPlatform {
   code: string;
   issued_at: Date;
   card_number: string;
-  settlement_id: string;
   is_exported: boolean;
   last_exported_at: Date;
   custom_fields: CustomFields[];

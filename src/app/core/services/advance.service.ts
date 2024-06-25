@@ -36,7 +36,6 @@ export class AdvanceService {
       adv_orig_currency: advancesPlatform.foreign_currency,
       adv_purpose: advancesPlatform.purpose,
       adv_refcode: advancesPlatform.code,
-      adv_settlement_id: advancesPlatform.settlement_id,
       adv_source: advancesPlatform.source,
       areq_id: advancesPlatform.advance_request_id,
       assignee_department_id: advancesPlatform.employee.department && advancesPlatform.employee.department.id,
