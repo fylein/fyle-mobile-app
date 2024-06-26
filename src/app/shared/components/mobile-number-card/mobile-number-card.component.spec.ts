@@ -5,7 +5,7 @@ import { MobileNumberCardComponent } from './mobile-number-card.component';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { cloneDeep } from 'lodash';
 
-fdescribe('MobileNumberCardComponent', () => {
+describe('MobileNumberCardComponent', () => {
   let component: MobileNumberCardComponent;
   let fixture: ComponentFixture<MobileNumberCardComponent>;
 

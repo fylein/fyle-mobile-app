@@ -38,7 +38,7 @@ import { AllowedPaymentModes } from 'src/app/core/models/allowed-payment-modes.e
 import { UtilityService } from 'src/app/core/services/utility.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 
-fdescribe('MyProfilePage', () => {
+describe('MyProfilePage', () => {
   let component: MyProfilePage;
   let fixture: ComponentFixture<MyProfilePage>;
   let authService: jasmine.SpyObj<AuthService>;

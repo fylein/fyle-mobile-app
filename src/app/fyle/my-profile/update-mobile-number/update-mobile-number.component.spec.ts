@@ -14,7 +14,7 @@ import { cloneDeep } from 'lodash';
 import { of, throwError } from 'rxjs';
 import { valueErrorMapping } from 'src/app/core/mock-data/value-error-mapping-for-update-mobile-number-popover.data';
 
-fdescribe('UpdateMobileNumberComponent', () => {
+describe('UpdateMobileNumberComponent', () => {
   let component: UpdateMobileNumberComponent;
   let fixture: ComponentFixture<UpdateMobileNumberComponent>;
   let popoverController: jasmine.SpyObj<PopoverController>;
