@@ -24,7 +24,7 @@
 </ion-header>
 
 <ion-header mode="md" class="dashboard--header" *ngIf="!(currentStateIndex === 1)">
-  <ion-toolbar class="stats--toolbar">
+  <ion-toolbar class="stats--toolbar" [ngClass]="{'dashboard--opt-in-gradient': canShowOptInBanner$ | async}">
     <ion-buttons slot="start">
       <app-fy-menu-icon></app-fy-menu-icon>
     </ion-buttons>
@@ -47,8 +47,18 @@
 <ion-content class="dashboard--body">
   <mat-tab-group animationDuration="0ms" class="dashboard--tabs" [selectedIndex]="currentStateIndex">
     <mat-tab label="stats">
+      <ng-container *ngIf="isConnected$ | async">
+        <ng-container *ngIf="!(isUserFromINCluster$ | async)">
+          <ng-container *ngIf="eou$ | async as eou">
+            <ng-container *ngIf="canShowOptInBanner$ | async">
+              <app-dashboard-opt-in [extendedOrgUser]="eou" (toggleOptInBanner)="toggleOptInBanner($event)">
+              </app-dashboard-opt-in>
+            </ng-container>
+          </ng-container>
+        </ng-container>
+      </ng-container>
       <app-stats></app-stats>
-      <app-card-stats></app-card-stats>
+      <app-card-stats (cardAdded)="onCardAdded()"></app-card-stats>
     </mat-tab>
     <mat-tab label="tasks">
       <app-tasks></app-tasks>

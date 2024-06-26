@@ -1,0 +1,116 @@
+@import '../../../../theme/colors.scss';
+
+.profile-opt-in-card {
+  &__container {
+    background-color: $pure-white;
+    border-radius: 8px;
+    margin-bottom: 24px;
+    padding: 16px;
+  }
+
+  &__title {
+    display: flex;
+    justify-content: space-between;
+    font-size: 16px;
+    gap: 27px;
+    font-weight: 500;
+    color: $pure-black;
+  }
+
+  &__opt-in-btn {
+    font-size: 14px;
+    color: $brand-primary;
+    white-space: nowrap;
+  }
+
+  &__description {
+    margin-top: 6px;
+    font-size: 14px;
+    color: $dark-grey;
+    line-height: 1.3;
+    font-weight: 400;
+  }
+
+  &__status {
+    &__label {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+      font-size: 14px;
+      font-weight: 400;
+      color: $black-light;
+    }
+
+    &__icon-container {
+      display: flex;
+      align-items: center;
+      margin-top: 4px;
+    }
+
+    &__icon {
+      border-radius: 100%;
+      height: 8px;
+      width: 8px;
+      margin-right: 6px;
+      flex-shrink: 0;
+      background-color: $green;
+    }
+
+    &__text {
+      font-weight: 500;
+    }
+  }
+
+  &__opt-out-btn {
+    @extend .profile-opt-in-card__opt-in-btn;
+    font-weight: 500;
+  }
+
+  &__divider {
+    border-bottom: 1px solid $border-tertiary;
+    margin-top: 16px;
+  }
+
+  &__mobile {
+    margin-top: 16px;
+    font-size: 14px;
+    font-weight: 400;
+    color: $black-light;
+
+    &__number-container {
+      margin-top: 4px;
+      font-size: 18px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: $black;
+    }
+
+    &__edit-icon {
+      width: 24px;
+      height: 24px;
+      color: $brand-primary;
+      margin-left: 12px;
+    }
+  }
+
+  &__usage-description {
+    margin-top: 16px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    font-weight: 400;
+    color: $black-light;
+
+    &__text {
+      width: 80%;
+    }
+  }
+
+  &__copy-icon {
+    width: 24px;
+    height: 24px;
+    color: $brand-primary;
+  }
+}

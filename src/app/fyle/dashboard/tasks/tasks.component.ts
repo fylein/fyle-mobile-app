@@ -35,6 +35,7 @@ import { ApproverReportsService } from 'src/app/core/services/platform/v1/approv
 import { Report, ReportState } from 'src/app/core/models/platform/v1/report.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { OrgService } from 'src/app/core/services/org.service';
+import { FyOptInComponent } from 'src/app/shared/components/fy-opt-in/fy-opt-in.component';
 
 @Component({
   selector: 'app-tasks',
@@ -385,7 +386,7 @@ export class TasksComponent implements OnInit {
         this.onSentBackAdvanceTaskClick(taskCta, task);
         break;
       case TASKEVENT.mobileNumberVerification:
-        this.onMobileNumberVerificationTaskClick(taskCta);
+        this.onMobileNumberVerificationTaskClick();
         break;
       case TASKEVENT.commuteDetails:
         this.onCommuteDetailsTaskClick();
@@ -395,15 +396,27 @@ export class TasksComponent implements OnInit {
     }
   }
 
-  onMobileNumberVerificationTaskClick(taskCta: TaskCta): void {
-    this.router.navigate([
-      '/',
-      'enterprise',
-      'my_profile',
-      {
-        openPopover: taskCta.content === 'Add' ? 'add_mobile_number' : 'verify_mobile_number',
-      },
-    ]);
+  onMobileNumberVerificationTaskClick(): void {
+    this.trackingService.clickedOnTask({
+      type: 'Opt in',
+    });
+
+    from(this.authService.getEou()).subscribe(async (eou) => {
+      const optInModal = await this.modalController.create({
+        component: FyOptInComponent,
+        componentProps: {
+          extendedOrgUser: eou,
+        },
+      });
+
+      await optInModal.present();
+
+      const { data } = await optInModal.onWillDismiss<{ action: string }>();
+
+      if (data && data.action === 'SUCCESS') {
+        this.doRefresh();
+      }
+    });
   }
 
   onReviewExpensesTaskClick(): void {
