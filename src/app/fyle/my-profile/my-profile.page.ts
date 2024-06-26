@@ -25,7 +25,6 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
 import { environment } from 'src/environments/environment';
 import { globalCacheBusterNotifier } from 'ts-cacheable';
 import { TrackingService } from '../../core/services/tracking.service';
-import { UpdateMobileNumberComponent } from './update-mobile-number/update-mobile-number.component';
 import { VerifyNumberPopoverComponent } from './verify-number-popover/verify-number-popover.component';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
@@ -40,7 +39,11 @@ import { ToastType } from 'src/app/core/enums/toast-type.enum';
 import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
 import { CommuteDetailsResponse } from 'src/app/core/models/platform/commute-details-response.model';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
+import { FyOptInComponent } from 'src/app/shared/components/fy-opt-in/fy-opt-in.component';
 import { UtilityService } from 'src/app/core/services/utility.service';
+import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
+import { OrgUser } from 'src/app/core/models/org-user.model';
+import { OrgUserService } from 'src/app/core/services/org-user.service';
 
 @Component({
   selector: 'app-my-profile',
@@ -96,6 +99,8 @@ export class MyProfilePage {
 
   defaultPaymentMode: string;
 
+  isUserFromINCluster$: Observable<boolean>;
+
   constructor(
     private authService: AuthService,
     private orgUserSettingsService: OrgUserSettingsService,
@@ -118,7 +123,8 @@ export class MyProfilePage {
     private modalProperties: ModalPropertiesService,
     private employeesService: EmployeesService,
     private paymentModeService: PaymentModesService,
-    private utilityService: UtilityService
+    private utilityService: UtilityService,
+    private orgUserService: OrgUserService
   ) {}
 
   setupNetworkWatcher(): void {
@@ -179,6 +185,8 @@ export class MyProfilePage {
     this.setupNetworkWatcher();
     this.loadEou$ = new BehaviorSubject<null>(null);
     this.eou$ = this.loadEou$.pipe(switchMap(() => from(this.authService.getEou())));
+    this.isUserFromINCluster$ = from(this.utilityService.isUserFromINCluster());
+
     this.reset();
     from(this.tokenService.getClusterDomain()).subscribe((clusterDomain) => {
       this.clusterDomain = clusterDomain;
@@ -207,12 +215,7 @@ export class MyProfilePage {
     this.org$ = this.orgService.getCurrentOrg();
     const orgSettings$ = this.orgSettingsService.get();
 
-    forkJoin({
-      eou: this.eou$.pipe(take(1)),
-      isUserFromINCluster: from(this.utilityService.isUserFromINCluster()),
-    }).subscribe(({ eou, isUserFromINCluster }) => {
-      this.setInfoCardsData(eou, isUserFromINCluster);
-    });
+    this.setInfoCardsData();
 
     from(this.loaderService.showLoader())
       .pipe(
@@ -303,18 +306,10 @@ export class MyProfilePage {
     this.preferenceSettings = allPreferenceSettings.filter((setting) => setting.isAllowed);
   }
 
-  setInfoCardsData(eou: ExtendedOrgUser, isUserFromINCluster: boolean): void {
-    const fyleMobileNumber = '(302) 440-2921';
+  setInfoCardsData(): void {
     const fyleEmail = 'receipts@fylehq.com';
 
     const allInfoCardsData: InfoCardData[] = [
-      {
-        title: 'Message Receipts',
-        content: `Message your receipts to Fyle at ${fyleMobileNumber}.`,
-        contentToCopy: fyleMobileNumber,
-        toastMessageContent: 'Phone Number Copied Successfully',
-        isShown: eou.org.currency === 'USD' && eou.ou.mobile_verified && !isUserFromINCluster,
-      },
       {
         title: 'Email Receipts',
         content: `Forward your receipts to Fyle at ${fyleEmail}.`,
@@ -413,16 +408,12 @@ export class MyProfilePage {
   }
 
   async updateMobileNumber(eou: ExtendedOrgUser): Promise<void> {
-    const updateMobileNumberPopover = await this.popoverController.create({
-      component: UpdateMobileNumberComponent,
+    const updateMobileNumberPopover = await this.modalController.create({
+      component: FyOptInComponent,
       componentProps: {
-        title: (eou.ou.mobile?.length ? 'Edit' : 'Add') + ' Mobile Number',
-        ctaText: eou.ou.mobile_verification_attempts_left !== 0 ? 'Next' : 'Save',
-        inputLabel: 'Mobile Number',
         extendedOrgUser: eou,
-        placeholder: 'Enter mobile number e.g. +129586736556',
       },
-      cssClass: 'fy-dialog-popover',
+      mode: 'ios',
     });
 
     await updateMobileNumberPopover.present();
@@ -430,14 +421,8 @@ export class MyProfilePage {
 
     if (data) {
       if (data.action === 'SUCCESS') {
-        this.loadEou$.next(null);
-        this.eou$.pipe(take(1)).subscribe((eou) => {
-          if (eou.ou.mobile_verification_attempts_left !== 0) {
-            this.verifyMobileNumber(eou);
-          } else {
-            this.showToastMessage('Mobile Number Updated Successfully', 'success');
-          }
-        });
+        this.eou$ = from(this.authService.refreshEou());
+        this.showToastMessage('Opted in successfully', 'success');
       } else if (data.action === 'ERROR') {
         this.showToastMessage('Something went wrong. Please try again later.', 'failure');
       }
@@ -483,6 +468,63 @@ export class MyProfilePage {
       }
       this.reset();
       this.showToastMessage('Commute details updated successfully', ToastType.SUCCESS);
+    }
+  }
+
+  getOptOutMessageBody(): string {
+    return `<div>
+              <p>You can't send receipts and expense details via text message if you opt out</p>
+              <p>Are you sure you want to continue?<p>  
+            </div>`;
+  }
+
+  deleteMobileNumber(): void {
+    from(this.loaderService.showLoader())
+      .pipe(
+        switchMap(() => this.authService.getEou()),
+        switchMap((eou) => {
+          const updatedOrgUserDetails: OrgUser = {
+            ...eou.ou,
+            mobile: '',
+          };
+
+          return this.orgUserService.postOrgUser(updatedOrgUserDetails);
+        }),
+        finalize(() => from(this.loaderService.hideLoader()))
+      )
+      .subscribe(() => {
+        this.trackingService.optedOut();
+        this.eou$ = from(this.authService.refreshEou());
+        this.showToastMessage('Opted out of text messages successfully', 'success');
+      });
+  }
+
+  async optOutClick(): Promise<void> {
+    const optOutPopover = await this.popoverController.create({
+      component: PopupAlertComponent,
+      componentProps: {
+        title: 'Opt out of text messages',
+        message: this.getOptOutMessageBody(),
+        primaryCta: {
+          text: 'Yes, opt out',
+          action: 'continue',
+        },
+        secondaryCta: {
+          text: 'No, go back',
+          action: 'cancel',
+        },
+      },
+      cssClass: 'pop-up-in-center',
+    });
+
+    await optOutPopover.present();
+
+    const { data } = await optOutPopover.onWillDismiss<{ action: string }>();
+
+    if (data && data.action === 'continue') {
+      this.deleteMobileNumber();
+    } else {
+      optOutPopover.dismiss();
     }
   }
 }
