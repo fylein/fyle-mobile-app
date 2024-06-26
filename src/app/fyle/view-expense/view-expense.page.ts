@@ -122,8 +122,6 @@ export class ViewExpensePage {
 
   systemCategoriesWithTaxi: string[];
 
-  isNewReportsFlowEnabled = false;
-
   expenseFields$: Observable<{ [key: string]: ExpenseField[] }>;
 
   projectDependentCustomProperties$: Observable<Partial<CustomInput>[]>;
@@ -384,7 +382,6 @@ export class ViewExpensePage {
       this.isRTFEnabled =
         (orgSettings.visa_enrollment_settings.allowed && orgSettings.visa_enrollment_settings.enabled) ||
         (orgSettings.mastercard_enrollment_settings.allowed && orgSettings.mastercard_enrollment_settings.enabled);
-      this.isNewReportsFlowEnabled = orgSettings.simplified_report_closure_settings?.enabled || false;
     });
 
     this.expenseFieldsService

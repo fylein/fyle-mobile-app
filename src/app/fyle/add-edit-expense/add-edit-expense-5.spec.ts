@@ -1499,7 +1499,6 @@ export function TestCases5(getTestBed) {
         });
 
         expect(component.isCorporateCreditCardEnabled).toBeTrue();
-        expect(component.isNewReportsFlowEnabled).toBeFalse();
         expect(component.isDraftExpenseEnabled).toBeTrue();
 
         expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
@@ -1789,7 +1788,6 @@ export function TestCases5(getTestBed) {
         });
 
         expect(component.isCorporateCreditCardEnabled).toBeTrue();
-        expect(component.isNewReportsFlowEnabled).toBeTrue();
         expect(component.isDraftExpenseEnabled).toBeTrue();
 
         expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);

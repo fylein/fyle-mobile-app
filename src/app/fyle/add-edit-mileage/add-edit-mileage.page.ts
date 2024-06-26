@@ -260,8 +260,6 @@ export class AddEditMileagePage implements OnInit {
 
   hardwareBackButtonAction: Subscription;
 
-  isNewReportsFlowEnabled = false;
-
   onPageExit$: Subject<void>;
 
   dependentFields$: Observable<ExpenseField[]>;
@@ -984,7 +982,6 @@ export class AddEditMileagePage implements OnInit {
   }
 
   initClassObservables(): void {
-    this.isNewReportsFlowEnabled = false;
     this.onPageExit$ = new Subject();
     this.projectDependentFieldsRef?.ngOnInit();
     this.costCenterDependentFieldsRef?.ngOnInit();
@@ -1091,12 +1088,6 @@ export class AddEditMileagePage implements OnInit {
     this.fg.controls.costCenter.valueChanges
       .pipe(takeUntil(this.onPageExit$))
       .subscribe((costCenter: CostCenter) => this.selectedCostCenter$.next(costCenter));
-  }
-
-  checkNewReportsFlow(orgSettings$: Observable<OrgSettings>): void {
-    orgSettings$.subscribe((orgSettings) => {
-      this.isNewReportsFlowEnabled = orgSettings?.simplified_report_closure_settings.enabled || false;
-    });
   }
 
   checkAdvanceEnabled(orgSettings$: Observable<OrgSettings>): Observable<boolean> {
@@ -1584,8 +1575,6 @@ export class AddEditMileagePage implements OnInit {
 
     this.mileageConfig$ = orgSettings$.pipe(map((orgSettings) => orgSettings.mileage));
     this.isAdvancesEnabled$ = this.checkAdvanceEnabled(orgSettings$);
-
-    this.checkNewReportsFlow(orgSettings$);
 
     this.setupNetworkWatcher();
 

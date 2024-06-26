@@ -20,7 +20,6 @@ import { reportParam } from 'src/app/core/mock-data/report.data';
 import { creditTxnFilterPill } from 'src/app/core/mock-data/filter-pills.data';
 import { getElementRef } from 'src/app/core/dom-helpers';
 import { cloneDeep } from 'lodash';
-import { orgSettingsParamsWithSimplifiedReport } from 'src/app/core/mock-data/org-settings.data';
 import {
   tasksQueryParamsWithFiltersData,
   tasksQueryParamsWithFiltersData2,

@@ -64,11 +64,7 @@ import {
 } from 'src/app/core/mock-data/modal-controller.data';
 import { fyModalProperties } from 'src/app/core/mock-data/model-properties.data';
 import { mileagePerDiemPlatformCategoryData } from 'src/app/core/mock-data/org-category.data';
-import {
-  orgSettingsParamsWithSimplifiedReport,
-  orgSettingsPendingRestrictions,
-  orgSettingsRes,
-} from 'src/app/core/mock-data/org-settings.data';
+import { orgSettingsPendingRestrictions, orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import {
   apiExpenses1,
@@ -499,11 +495,10 @@ describe('MyExpensesV2Page', () => {
       inputElement = component.simpleSearchInput.nativeElement;
     });
 
-    it('should set isNewReportsFlowEnabled, isInstaFyleEnabled, isBulkFyleEnabled, isMileageEnabled and isPerDiemEnabled to true if orgSettings and orgUserSettings properties are enabled', fakeAsync(() => {
+    it('should set isInstaFyleEnabled, isBulkFyleEnabled, isMileageEnabled and isPerDiemEnabled to true if orgSettings and orgUserSettings properties are enabled', fakeAsync(() => {
       component.ionViewWillEnter();
       tick(500);
       expect(component.expensesTaskCount).toBe(10);
-      expect(component.isNewReportsFlowEnabled).toBeFalse();
 
       expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
@@ -521,7 +516,7 @@ describe('MyExpensesV2Page', () => {
       });
     }));
 
-    it('should set isNewReportsFlowEnabled, isInstaFyleEnabled, isBulkFyleEnabled, isMileageEnabled and isPerDiemEnabled to false if orgSettings and orgUserSettings properties are disabled', fakeAsync(() => {
+    it('should set isInstaFyleEnabled, isBulkFyleEnabled, isMileageEnabled and isPerDiemEnabled to false if orgSettings and orgUserSettings properties are disabled', fakeAsync(() => {
       const mockOrgUserSettingsData = cloneDeep(orgUserSettingsData);
       const mockOrgSettingsData = cloneDeep(orgSettingsRes);
       mockOrgUserSettingsData.insta_fyle_settings.enabled = false;
@@ -534,7 +529,6 @@ describe('MyExpensesV2Page', () => {
       component.ionViewWillEnter();
       tick(500);
       expect(component.expensesTaskCount).toBe(10);
-      expect(component.isNewReportsFlowEnabled).toBeFalse();
 
       expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
@@ -552,7 +546,7 @@ describe('MyExpensesV2Page', () => {
       });
     }));
 
-    it('should set isNewReportsFlowEnabled, isInstaFyleEnabled, isBulkFyleEnabled, isMileageEnabled and isPerDiemEnabled to false if orgSettings and orgUserSettings properties are not allowed', fakeAsync(() => {
+    it('should set isInstaFyleEnabled, isBulkFyleEnabled, isMileageEnabled and isPerDiemEnabled to false if orgSettings and orgUserSettings properties are not allowed', fakeAsync(() => {
       const mockOrgUserSettingsData = cloneDeep(orgUserSettingsData);
       mockOrgUserSettingsData.insta_fyle_settings.allowed = false;
       mockOrgUserSettingsData.bulk_fyle_settings.allowed = false;
@@ -561,7 +555,6 @@ describe('MyExpensesV2Page', () => {
       component.ionViewWillEnter();
       tick(500);
       expect(component.expensesTaskCount).toBe(10);
-      expect(component.isNewReportsFlowEnabled).toBeFalse();
 
       expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
@@ -586,7 +579,6 @@ describe('MyExpensesV2Page', () => {
       component.ionViewWillEnter();
       tick(500);
       expect(component.expensesTaskCount).toBe(10);
-      expect(component.isNewReportsFlowEnabled).toBeFalse();
 
       expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
@@ -623,15 +615,6 @@ describe('MyExpensesV2Page', () => {
       tick(500);
 
       expect(component.restrictPendingTransactionsEnabled).toBeTrue();
-    }));
-
-    it('should set isNewReportFlowEnabled to true if simplified_report_closure_settings is defined ', fakeAsync(() => {
-      orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithSimplifiedReport));
-
-      component.ionViewWillEnter();
-      tick(500);
-
-      expect(component.isNewReportsFlowEnabled).toBeTrue();
     }));
 
     it('should call setupActionSheet once', fakeAsync(() => {
@@ -2526,7 +2509,6 @@ describe('MyExpensesV2Page', () => {
   describe('showOldReportsMatBottomSheet(): ', () => {
     beforeEach(() => {
       component.selectedElements = apiExpenses1;
-      component.isNewReportsFlowEnabled = true;
       component.openReports$ = of(expectedReportsSinglePage);
       sharedExpenseService.getReportableExpenses.and.returnValue(apiExpenses1);
       spyOn(component, 'showAddToReportSuccessToast');
@@ -2546,7 +2528,7 @@ describe('MyExpensesV2Page', () => {
       component.showOldReportsMatBottomSheet();
 
       expect(matBottomsheet.open).toHaveBeenCalledOnceWith(<any>AddTxnToReportDialogComponent, {
-        data: { openReports: expectedReportsSinglePageSubmitted, isNewReportsFlowEnabled: true },
+        data: { openReports: expectedReportsSinglePageSubmitted },
         panelClass: ['mat-bottom-sheet-1'],
       });
       expect(component.addTransactionsToReport).toHaveBeenCalledOnceWith(expectedReportsSinglePageSubmitted[2], [
@@ -2573,7 +2555,7 @@ describe('MyExpensesV2Page', () => {
 
       component.showOldReportsMatBottomSheet();
       expect(matBottomsheet.open).toHaveBeenCalledOnceWith(<any>AddTxnToReportDialogComponent, {
-        data: { openReports: mockReportData, isNewReportsFlowEnabled: true },
+        data: { openReports: mockReportData },
         panelClass: ['mat-bottom-sheet-1'],
       });
 
@@ -2598,7 +2580,7 @@ describe('MyExpensesV2Page', () => {
 
       component.showOldReportsMatBottomSheet();
       expect(matBottomsheet.open).toHaveBeenCalledOnceWith(<any>AddTxnToReportDialogComponent, {
-        data: { openReports: expectedReportsSinglePage, isNewReportsFlowEnabled: true },
+        data: { openReports: expectedReportsSinglePage },
         panelClass: ['mat-bottom-sheet-1'],
       });
 

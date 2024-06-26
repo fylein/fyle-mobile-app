@@ -447,7 +447,6 @@ export interface OrgSettingsResponse {
   company_expenses_beta_settings?: CommonOrgSettings;
   trip_request_settings?: CommonOrgSettings;
   xe_provider_settings?: XeProviderSettings;
-  simplified_report_closure_settings?: CommonOrgSettings;
   mobile_app_my_expenses_beta_enabled?: boolean;
   amex_feed_enrollment_settings?: AmexFeedEnrollmentSettings;
   pending_cct_expense_restriction?: CommonOrgSettings;
@@ -560,7 +559,6 @@ export interface OrgSettings {
   visa_enrollment_settings?: CommonOrgSettings;
   mastercard_enrollment_settings?: CommonOrgSettings;
   company_expenses_beta_settings?: CommonOrgSettings;
-  simplified_report_closure_settings?: CommonOrgSettings;
   mobile_app_my_expenses_beta_enabled?: boolean;
   amex_feed_enrollment_settings?: AmexFeedEnrollmentSettings;
   pending_cct_expense_restriction?: CommonOrgSettings;
