@@ -48,7 +48,6 @@ export interface ExtendedReport {
     moderate_risk?: number;
     no_risk?: number;
   };
-  rp_settlement_id?: string;
   rp_source?: string;
   rp_state: string;
   rp_submitted_at?: Date;

@@ -194,10 +194,13 @@
     justify-content: center;
     height: 90%;
     align-items: center;
+    margin-top: 24px;
 
     &__image-container {
-      width: 190px;
-      height: 190px;
+      width: 80px;
+      height: 80px;
+      margin-bottom: 24px;
+      color: $green;
     }
 
     &__header {
@@ -209,11 +212,18 @@
       margin-top: 16px;
       width: 95%;
       text-align: center;
+      padding: 0 24px;
     }
 
     &__footer {
       padding: 14px 16px;
       gap: 12px;
+
+      &--primary-cta-text,
+      &--secondary-cta-text {
+        font-weight: 500;
+        font-size: 14px;
+      }
     }
 
     &__help-article-icon {
@@ -221,5 +231,9 @@
       width: 14px;
       height: 14px;
     }
+  }
+
+  &--footer {
+    margin-bottom: calc(env(safe-area-inset-bottom));
   }
 }

@@ -4,10 +4,14 @@
   --background: linear-gradient(81.87deg, rgba(225, 238, 255, 0.21) 54.75%, rgba(255, 228, 251, 0.3) 86.07%);
 
   &__skip {
-    margin: 32px 24px 24px 32px;
+    margin: 32px 0px 24px 32px;
     text-decoration: underline;
     color: $dark-grey;
     text-align: end;
+
+    &--text {
+      padding: 32px;
+    }
   }
 
   &__demo-container {
@@ -21,7 +25,7 @@
   }
 
   &__try-ai-text-container {
-    margin-top: 24px;
+    margin-top: 32px;
   }
 
   &__try-ai-text {
@@ -60,6 +64,7 @@
     height: 45px;
     background: linear-gradient(313.56deg, #2c304e 45.19%, rgba(44, 48, 78, 0.4) 153.45%);
     z-index: 2;
+    top: 22px;
 
     &:before,
     &:after {

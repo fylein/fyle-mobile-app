@@ -11,7 +11,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="opt-in--content">
+<ion-content class="opt-in--content no-keyboard-adjust">
   <ng-container
     *ngIf="optInFlowState === OptInFlowState.MOBILE_INPUT || optInFlowState === OptInFlowState.OTP_VERIFICATION"
   >
@@ -85,11 +85,10 @@
   </ng-container>
   <ng-container *ngIf="optInFlowState === OptInFlowState.SUCCESS">
     <div class="opt-in--success">
-      <img
-        class="opt-in--success__image-container"
-        src="../../../../assets/images/opt-in-success.gif"
-        alt="Opted in successfully"
-      />
+      <ion-icon
+        class="fy-icon opt-in--success__image-container"
+        src="../../../assets/svg/check-circle-fill.svg"
+      ></ion-icon>
       <div class="opt-in--success__header">You are all set</div>
       <div class="opt-in--success__description">
         We have sent you a confirmation message. You can now use text messages to create and submit your next expense!
@@ -121,12 +120,14 @@
     <div>
       <ion-buttons class="opt-in--success__footer">
         <ion-button class="btn-outline-secondary" (click)="openHelpArticle()">
-          Read help article
+          <span class="opt-in--success__footer--secondary-cta-text"> Read help article </span>
           <span>
             <mat-icon class="fy-icon opt-in--success__help-article-icon" svgIcon="open-in-new-tab"></mat-icon>
           </span>
         </ion-button>
-        <ion-button class="btn-primary" (click)="onGotItClicked()"> Got it </ion-button>
+        <ion-button class="btn-primary" (click)="onGotItClicked()">
+          <span class="opt-in--success__footer--primary-cta-text">Got it</span>
+        </ion-button>
       </ion-buttons>
     </div>
   </ng-container>

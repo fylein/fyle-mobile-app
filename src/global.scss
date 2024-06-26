@@ -258,6 +258,16 @@ ion-popover.pop-up-in-center {
   }
 }
 
+ion-popover.skip-opt-in-popover {
+  background: rgba(22, 21, 40, 0.5);
+  &::part(content) {
+    border-radius: 16px;
+    --max-height: 80%;
+    --width: 90%;
+    left: 5%;
+  }
+}
+
 ion-popover.split-expense-popover {
   &::part(content) {
     top: auto !important;
@@ -1022,10 +1032,15 @@ ion-modal.promote-opt-in-modal {
     border-radius: 32px 32px 0 0 !important;
     position: absolute;
     max-height: 65%;
-    @media (max-height: 700px) {
+    bottom: 0;
+
+    @media (max-height: 750px) {
       max-height: 70%;
     }
-    bottom: 0;
+
+    @media (max-height: 700px) {
+      max-height: 80%;
+    }
   }
 }
 

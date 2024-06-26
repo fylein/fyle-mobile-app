@@ -785,7 +785,7 @@ export class MyExpensesPage implements OnInit {
   setModalDelay(): void {
     this.optInShowTimer = setTimeout(() => {
       this.showPromoteOptInModal();
-    }, 2000);
+    }, 4000);
   }
 
   setNavigationSubscription(): void {
