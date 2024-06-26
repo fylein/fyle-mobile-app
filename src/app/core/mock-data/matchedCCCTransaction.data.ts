@@ -4,7 +4,6 @@ import { MatchedCCCTransaction } from '../models/matchedCCCTransaction.model';
 
 export const matchedCCCTransactionData1: MatchedCCCTransaction = deepFreeze({
   amount: -680.62,
-  balance_transfer_id: null,
   card_or_account_number: '9880',
   created_at: '2023-05-17T23:17:19.230Z',
   creator_id: null,

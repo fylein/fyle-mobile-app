@@ -20,7 +20,6 @@ export const expectedECccResponse: CCCExpUnflattened[] = deepFreeze([
       state: 'IN_PROGRESS',
       group_id: 'ccceYIJhT8Aj6U',
       card_or_account_number: '869',
-      balance_transfer_id: null,
     },
     personal: false,
     matched: {

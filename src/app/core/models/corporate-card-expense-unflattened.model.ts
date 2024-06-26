@@ -15,7 +15,6 @@ export interface CCCExpUnflattened {
     state: string;
     group_id: string;
     card_or_account_number: string;
-    balance_transfer_id: string | number;
     corporate_credit_card_account_number?: string;
   };
   personal: boolean;
@@ -62,6 +61,5 @@ export interface CCCExpense {
   state: string;
   group_id: string;
   card_or_account_number: string;
-  balance_transfer_id: string | number;
   corporate_credit_card_account_number?: string;
 }

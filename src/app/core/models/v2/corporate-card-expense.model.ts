@@ -3,7 +3,6 @@ import { TxnDetail } from './txn-detail.model';
 export interface CorporateCardExpense {
   _search_document?: string;
   amount: number;
-  balance_transfer_id: string;
   bank_txn_id: string;
   corporate_credit_card_account_number: string;
   created_at: Date;
