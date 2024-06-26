@@ -378,6 +378,7 @@ export class DashboardPage {
         this.trackingService.skipOptInModalPostCardAdditionInDashboard();
       } else {
         this.trackingService.optInFromPostPostCardAdditionInDashboard();
+        this.tasksComponent.doRefresh();
       }
     });
   }
@@ -436,6 +437,7 @@ export class DashboardPage {
     if (isOptedIn) {
       this.trackingService.optedInFromDashboardBanner();
       this.eou$ = this.authService.refreshEou();
+      this.tasksComponent.doRefresh();
     } else {
       this.trackingService.skipOptInFromDashboardBanner();
     }
