@@ -554,6 +554,8 @@ describe('DashboardPage', () => {
       authService.getEou.and.resolveTo(apiEouRes);
       modalProperties.getModalDefaultProperties.and.returnValue(properties);
       featureConfigService.saveConfiguration.and.returnValue(of(null));
+      const tasksComponentSpy = jasmine.createSpyObj('TasksComponent', ['doRefresh']);
+      component.tasksComponent = tasksComponentSpy;
     });
 
     it('should show promote opt-in modal and track skip event if user skipped opt-in', fakeAsync(() => {
@@ -577,6 +579,7 @@ describe('DashboardPage', () => {
       });
       expect(trackingService.skipOptInModalPostCardAdditionInDashboard).toHaveBeenCalledTimes(1);
       expect(trackingService.optInFromPostPostCardAdditionInDashboard).not.toHaveBeenCalled();
+      expect(component.tasksComponent.doRefresh).not.toHaveBeenCalled();
     }));
 
     it('should show promote opt-in modal and track opt-in event if user opted in', fakeAsync(() => {
@@ -600,6 +603,7 @@ describe('DashboardPage', () => {
       });
       expect(trackingService.skipOptInModalPostCardAdditionInDashboard).not.toHaveBeenCalled();
       expect(trackingService.optInFromPostPostCardAdditionInDashboard).toHaveBeenCalledTimes(1);
+      expect(component.tasksComponent.doRefresh).toHaveBeenCalledTimes(1);
     }));
 
     it('should show promote opt-in modal and track opt-in event if data is undefined', fakeAsync(() => {
@@ -769,6 +773,8 @@ describe('DashboardPage', () => {
     beforeEach(() => {
       authService.refreshEou.and.returnValue(of(apiEouRes));
       featureConfigService.saveConfiguration.and.returnValue(of(null));
+      const tasksComponentSpy = jasmine.createSpyObj('TasksComponent', ['doRefresh']);
+      component.tasksComponent = tasksComponentSpy;
     });
 
     it('should set canShowOptInBanner$ to false and save feature config value as true', () => {
@@ -790,6 +796,7 @@ describe('DashboardPage', () => {
 
       expect(authService.refreshEou).toHaveBeenCalledTimes(1);
       expect(trackingService.optedInFromDashboardBanner).toHaveBeenCalledTimes(1);
+      expect(component.tasksComponent.doRefresh).toHaveBeenCalledTimes(1);
     });
 
     it('should not refresh eou and track skip opt in event if user skipped opt in', () => {
@@ -797,6 +804,7 @@ describe('DashboardPage', () => {
 
       expect(authService.refreshEou).not.toHaveBeenCalled();
       expect(trackingService.skipOptInFromDashboardBanner).toHaveBeenCalledTimes(1);
+      expect(component.tasksComponent.doRefresh).not.toHaveBeenCalled();
     });
   });
 });
