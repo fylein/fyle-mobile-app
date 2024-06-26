@@ -7,7 +7,7 @@
   (multiselectBack)="switchSelectionMode()"
 >
   <ng-container base>
-    <ion-buttons mode="md" slot="end">
+    <ion-buttons mode="md" slot="end" (click)="onPageClick()">
       <ion-button class="my-expenses--header-btn" (click)="searchClick()">
         <ion-icon slot="icon-only" src="../../../assets/svg/search.svg"></ion-icon>
       </ion-button>
@@ -89,7 +89,7 @@
   </ng-container>
 </app-fy-header>
 
-<ion-content [ngClass]="{'d-none': isCameraPreviewStarted}" class="my-expenses--content">
+<ion-content [ngClass]="{'d-none': isCameraPreviewStarted}" class="my-expenses--content" (click)="onPageClick()">
   <div
     class="my-expenses--body"
     [ngClass]="{'my-expenses--zero-states-body': (((count$ | async) === 0) && isConnected$|async) || (pendingTransactions.length === 0 && !(isConnected$|async))}"

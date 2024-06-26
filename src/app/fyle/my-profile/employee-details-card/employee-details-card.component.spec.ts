@@ -5,7 +5,6 @@ import { InitialsPipe } from 'src/app/shared/pipes/initials.pipe';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { getTextContent } from 'src/app/core/dom-helpers';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
-import { click } from 'src/app/core/dom-helpers';
 import { cloneDeep } from 'lodash';
 import { UtilityService } from 'src/app/core/services/utility.service';
 
@@ -50,36 +49,6 @@ describe('EmployeeDetailsCardComponent', () => {
     expect(getTextContent(getElementBySelector(fixture, '.employee-details-card__employee-id'))).toEqual(
       'Employee ID - 12345'
     );
-  });
-
-  it('onUpdateMobileNumber(): should emit updateMobileNumber event when add button is clicked', () => {
-    spyOn(component, 'onUpdateMobileNumber').and.callThrough();
-    spyOn(component.updateMobileNumber, 'emit');
-
-    const updateMobileNumberCard = getElementBySelector(
-      fixture,
-      '.employee-details-card__bottom-section__number-container'
-    ) as HTMLElement;
-
-    click(updateMobileNumberCard);
-    fixture.detectChanges();
-    expect(component.onUpdateMobileNumber).toHaveBeenCalledOnceWith(apiEouRes);
-    expect(component.updateMobileNumber.emit).toHaveBeenCalledOnceWith(apiEouRes);
-  });
-
-  it('onVerifyMobileNumber(): should emit verifyMobileNumber event when verify button is clicked', () => {
-    spyOn(component, 'onVerifyMobileNumber').and.callThrough();
-    spyOn(component.verifyMobileNumber, 'emit');
-
-    const verifyMobileNumberCta = getElementBySelector(
-      fixture,
-      '.employee-details-card__bottom-section__verify'
-    ) as HTMLElement;
-
-    click(verifyMobileNumberCta);
-    fixture.detectChanges();
-    expect(component.onVerifyMobileNumber).toHaveBeenCalledOnceWith(apiEouRes);
-    expect(component.verifyMobileNumber.emit).toHaveBeenCalledOnceWith(apiEouRes);
   });
 
   describe('ngOnInit()', () => {

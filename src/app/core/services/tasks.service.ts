@@ -425,24 +425,19 @@ export class TasksService {
   }
 
   getMobileNumberVerificationTasks(): Observable<DashboardTask[]> {
-    const rtfEnrolledCards$ = this.corporateCreditCardExpenseService
-      .getCorporateCards()
-      .pipe(map((cards) => cards.filter((card) => card.is_visa_enrolled || card.is_mastercard_enrolled)));
-
     return forkJoin({
-      rtfEnrolledCards: rtfEnrolledCards$,
       eou: from(this.authService.getEou()),
       isUserFromINCluster: from(this.utilityService.isUserFromINCluster()),
     }).pipe(
-      switchMap(({ rtfEnrolledCards, eou, isUserFromINCluster }) => {
+      switchMap(({ eou, isUserFromINCluster }) => {
         //Show this task only if mobile number is not verified and user is enrolled for RTF and user is not from IN cluster
         if (
+          (eou.org.currency === 'USD' || eou.org.currency === 'CAD') &&
           !eou.ou.mobile_verified &&
           eou.ou.mobile_verification_attempts_left !== 0 &&
-          rtfEnrolledCards.length &&
           !isUserFromINCluster
         ) {
-          return of(this.mapMobileNumberVerificationTask(eou.ou.mobile?.length ? 'Verify' : 'Add'));
+          return of(this.mapMobileNumberVerificationTask());
         }
         return of<DashboardTask[]>([]);
       })
@@ -544,17 +539,16 @@ export class TasksService {
     );
   }
 
-  mapMobileNumberVerificationTask(type: 'Add' | 'Verify'): DashboardTask[] {
-    const subheaderPrefixString = type === 'Add' ? 'Add and verify' : 'Verify';
+  mapMobileNumberVerificationTask(): DashboardTask[] {
     const task = [
       {
         hideAmount: true,
-        header: `${type} Mobile Number`,
-        subheader: `${subheaderPrefixString} your mobile number to text the receipts directly`,
-        icon: TaskIcon.MOBILE,
+        header: 'Opt in to text receipts',
+        subheader: 'Opt-in to activate text messages for instant expense submission',
+        icon: TaskIcon.STARS,
         ctas: [
           {
-            content: type,
+            content: 'Opt in',
             event: TASKEVENT.mobileNumberVerification,
           },
         ],

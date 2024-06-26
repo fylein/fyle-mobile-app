@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { DashboardService } from '../dashboard.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
@@ -14,7 +14,6 @@ import { CardAddedComponent } from '../../manage-corporate-cards/card-added/card
 import { NetworkService } from 'src/app/core/services/network.service';
 import { VirtualCardsService } from 'src/app/core/services/virtual-cards.service';
 import { CardStatus } from 'src/app/core/enums/card-status.enum';
-import { VirtualCardsCombinedRequest } from 'src/app/core/models/virtual-cards-combined-request.model';
 
 @Component({
   selector: 'app-card-stats',
@@ -22,6 +21,8 @@ import { VirtualCardsCombinedRequest } from 'src/app/core/models/virtual-cards-c
   styleUrls: ['./card-stats.component.scss'],
 })
 export class CardStatsComponent implements OnInit {
+  @Output() cardAdded = new EventEmitter<void>();
+
   cardDetails$: Observable<PlatformCorporateCardDetail[]>;
 
   virtualCardDetails$: Observable<PlatformCorporateCardDetail[]>;
@@ -81,10 +82,10 @@ export class CardStatsComponent implements OnInit {
     });
   }
 
-  getVirtualCardDetails() {
+  getVirtualCardDetails(): Observable<PlatformCorporateCardDetail[]> {
     return this.isVirtualCardsEnabled$.pipe(
       filter((virtualCardEnabled) => virtualCardEnabled.enabled),
-      switchMap((_) => this.cardDetails$),
+      switchMap(() => this.cardDetails$),
       switchMap((cardDetails) => {
         const virtualCardIds = cardDetails
           .filter((cardDetail) => cardDetail.card.virtual_card_id)
@@ -161,7 +162,7 @@ export class CardStatsComponent implements OnInit {
           this.dashboardService.getCCCDetails().pipe(map((details) => details.cardDetails)),
         ]).pipe(
           map(([corporateCards, corporateCardStats]) => {
-            let cardDetails = this.corporateCreditCardExpenseService.getPlatformCorporateCardDetails(
+            const cardDetails = this.corporateCreditCardExpenseService.getPlatformCorporateCardDetails(
               corporateCards,
               corporateCardStats
             );
@@ -206,6 +207,8 @@ export class CardStatsComponent implements OnInit {
 
       await cardAddedModal.present();
       await cardAddedModal.onDidDismiss();
+
+      this.cardAdded.emit();
 
       this.loadCardDetails$.next();
     });

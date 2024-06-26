@@ -21,9 +21,10 @@ import { HAMMER_GESTURE_CONFIG, HammerGestureConfig } from '@angular/platform-br
 import { PAGINATION_SIZE, DEVICE_PLATFORM } from './constants';
 import { Smartlook } from '@awesome-cordova-plugins/smartlook/ngx';
 import { Capacitor } from '@capacitor/core';
+import { NgOtpInputModule } from 'ng-otp-input';
 
 export class MyHammerConfig extends HammerGestureConfig {
-  overrides = <any>{
+  overrides = {
     pinch: { enable: false },
     rotate: { enable: false },
   };
@@ -46,6 +47,7 @@ export const MIN_SCREEN_WIDTH = new InjectionToken<number>(
     HttpClientJsonpModule,
     SharedModule,
     HammerModule,
+    NgOtpInputModule,
   ],
   providers: [
     GooglePlus,
@@ -74,7 +76,7 @@ export const MIN_SCREEN_WIDTH = new InjectionToken<number>(
     ConfigService,
     {
       provide: APP_INITIALIZER,
-      useFactory: (configService: ConfigService) => () => configService.loadConfigurationData(),
+      useFactory: (configService: ConfigService) => (): Promise<void> => configService.loadConfigurationData(),
       deps: [ConfigService, RouterAuthService, TokenService, SecureStorageService, StorageService, Sentry.TraceService],
       multi: true,
     },
