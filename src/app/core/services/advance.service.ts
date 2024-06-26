@@ -1,19 +1,15 @@
 import { Injectable } from '@angular/core';
-import { from, Observable, of, Subject } from 'rxjs';
-import { map, switchMap, tap } from 'rxjs/operators';
+import { Observable, of, Subject } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
 import { ApiV2Response } from '../models/api-v2.model';
 import { ExtendedAdvance } from '../models/extended_advance.model';
-import { ApiV2Service } from './api-v2.service';
-import { AuthService } from './auth.service';
 import { AdvancesPlatform } from '../models/platform/advances-platform.model';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { SpenderService } from './platform/v1/spender/spender.service';
 import { PlatformConfig } from '../models/platform/platform-config.model';
 
 const advancesCacheBuster$ = new Subject<void>();
-
-type Config = Partial<{ offset: number; limit: number; assignee_ou_id?: string; queryParams: Record<string, string> }>;
 
 @Injectable({
   providedIn: 'root',
