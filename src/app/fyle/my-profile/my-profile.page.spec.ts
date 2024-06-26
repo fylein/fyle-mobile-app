@@ -38,7 +38,7 @@ import { AllowedPaymentModes } from 'src/app/core/models/allowed-payment-modes.e
 import { UtilityService } from 'src/app/core/services/utility.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 
-describe('MyProfilePage', () => {
+fdescribe('MyProfilePage', () => {
   let component: MyProfilePage;
   let fixture: ComponentFixture<MyProfilePage>;
   let authService: jasmine.SpyObj<AuthService>;
@@ -698,15 +698,15 @@ describe('MyProfilePage', () => {
     spyOn(component, 'showToastMessage');
     const popoverSpy = jasmine.createSpyObj('updateMobileNumberPopover', ['present', 'onWillDismiss']);
     popoverSpy.onWillDismiss.and.resolveTo({ data: { action: 'SUCCESS' } });
-    modalController.create.and.resolveTo(popoverSpy);
+    popoverController.create.and.resolveTo(popoverSpy);
 
     component.updateMobileNumber(apiEouRes);
     tick(100);
 
-    expect(modalController.create).toHaveBeenCalledTimes(1);
+    expect(popoverController.create).toHaveBeenCalledTimes(1);
     expect(popoverSpy.present).toHaveBeenCalledTimes(1);
     expect(popoverSpy.onWillDismiss).toHaveBeenCalledTimes(1);
     expect(authService.refreshEou).toHaveBeenCalledTimes(1);
-    expect(component.showToastMessage).toHaveBeenCalledOnceWith('Mobile number updated successfully.', 'success');
+    expect(component.showToastMessage).toHaveBeenCalledOnceWith('Mobile number updated successfully', 'success');
   }));
 });

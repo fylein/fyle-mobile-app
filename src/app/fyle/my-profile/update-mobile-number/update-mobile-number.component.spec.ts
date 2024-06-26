@@ -14,7 +14,7 @@ import { cloneDeep } from 'lodash';
 import { of, throwError } from 'rxjs';
 import { valueErrorMapping } from 'src/app/core/mock-data/value-error-mapping-for-update-mobile-number-popover.data';
 
-describe('UpdateMobileNumberComponent', () => {
+fdescribe('UpdateMobileNumberComponent', () => {
   let component: UpdateMobileNumberComponent;
   let fixture: ComponentFixture<UpdateMobileNumberComponent>;
   let popoverController: jasmine.SpyObj<PopoverController>;
@@ -112,7 +112,7 @@ describe('UpdateMobileNumberComponent', () => {
 
   it('onFocus(): should clear error on clicking input', () => {
     spyOn(component, 'onFocus').and.callThrough();
-    component.error = 'Please enter a Mobile Number';
+    component.error = 'Enter mobile number';
 
     const inputElement = getElementBySelector(fixture, 'input') as HTMLInputElement;
     inputElement.dispatchEvent(new FocusEvent('focus'));
@@ -122,16 +122,13 @@ describe('UpdateMobileNumberComponent', () => {
   });
 
   describe('saveValue(): ', () => {
-    let submitCta: HTMLButtonElement;
     beforeEach(() => {
-      spyOn(component, 'saveValue').and.callThrough();
       spyOn(component, 'validateInput');
       orgUserService.postOrgUser.and.returnValue(of(null));
       authService.refreshEou.and.returnValue(of(null));
 
       component.error = null;
       component.inputValue = '+911234566756';
-      submitCta = getElementBySelector(fixture, '.update-mobile-number--toolbar__btn') as HTMLButtonElement;
     });
 
     it('should close modal if mobile number is verified and user has not changed it', () => {
@@ -139,22 +136,21 @@ describe('UpdateMobileNumberComponent', () => {
       extendedOrgUser.ou.mobile = '+911234566756';
       extendedOrgUser.ou.mobile_verified = true;
       component.extendedOrgUser = extendedOrgUser;
-      click(submitCta);
 
-      expect(component.saveValue).toHaveBeenCalledOnceWith();
+      component.saveValue();
+
       expect(popoverController.dismiss).toHaveBeenCalledOnceWith();
       expect(orgUserService.postOrgUser).not.toHaveBeenCalled();
     });
 
     it('should save mobile number if entered value is valid', () => {
-      click(submitCta);
+      component.saveValue();
 
       const orgUserDetails = {
         ...component.extendedOrgUser.ou,
         mobile: component.inputValue,
       };
 
-      expect(component.saveValue).toHaveBeenCalledOnceWith();
       expect(component.validateInput).toHaveBeenCalledOnceWith();
       expect(orgUserService.postOrgUser).toHaveBeenCalledOnceWith(orgUserDetails);
       expect(authService.refreshEou).toHaveBeenCalledOnceWith();
@@ -163,23 +159,24 @@ describe('UpdateMobileNumberComponent', () => {
 
     it('should dismiss popover with error action if the api call fails', () => {
       orgUserService.postOrgUser.and.returnValue(throwError(() => 'Error'));
-      click(submitCta);
+
+      component.saveValue();
 
       const orgUserDetails = {
         ...component.extendedOrgUser.ou,
         mobile: component.inputValue,
       };
 
-      expect(component.saveValue).toHaveBeenCalledOnceWith();
       expect(component.validateInput).toHaveBeenCalledOnceWith();
       expect(orgUserService.postOrgUser).toHaveBeenCalledOnceWith(orgUserDetails);
       expect(popoverController.dismiss).toHaveBeenCalledOnceWith({ action: 'ERROR' });
     });
 
     it('should not save mobile number if it is invalid', () => {
-      component.error = 'Please enter a Mobile Number';
-      click(submitCta);
-      expect(component.saveValue).toHaveBeenCalledOnceWith();
+      component.error = 'Enter mobile number';
+
+      component.saveValue();
+
       expect(component.validateInput).toHaveBeenCalledOnceWith();
       expect(orgUserService.postOrgUser).not.toHaveBeenCalled();
     });

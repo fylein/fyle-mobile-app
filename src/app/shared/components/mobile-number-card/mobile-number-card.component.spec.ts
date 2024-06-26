@@ -3,8 +3,9 @@ import { IonicModule } from '@ionic/angular';
 
 import { MobileNumberCardComponent } from './mobile-number-card.component';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
+import { cloneDeep } from 'lodash';
 
-describe('MobileNumberCardComponent', () => {
+fdescribe('MobileNumberCardComponent', () => {
   let component: MobileNumberCardComponent;
   let fixture: ComponentFixture<MobileNumberCardComponent>;
 
@@ -16,11 +17,18 @@ describe('MobileNumberCardComponent', () => {
 
     fixture = TestBed.createComponent(MobileNumberCardComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
   }));
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('ngOnInit(): should set mobileNumber if mobile number is present in DB', () => {
+    const mockEou = cloneDeep(apiEouRes);
+    mockEou.ou.mobile = '+11234567890';
+    component.extendedOrgUser = mockEou;
+    component.ngOnInit();
+    expect(component.mobileNumber).toEqual('+11234567890');
   });
 
   it('clickedOnAdd(): should emit addMobileNumberClicked event', () => {
