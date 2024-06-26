@@ -42,7 +42,6 @@ export interface UnflattenedReport {
     reimbursed_at: Date;
     risk_state: string;
     risk_state_expense_count: number;
-    settlement_id: string;
     source: string;
     state: string;
     submitted_at: Date;
