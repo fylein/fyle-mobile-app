@@ -247,7 +247,7 @@ describe('DashboardPage', () => {
       spyOn(component, 'setupActionSheet');
       const statsComponentSpy = jasmine.createSpyObj('StatsComponent', ['init']);
       const cardStatsComponentSpy = jasmine.createSpyObj('CardStatsComponent', ['init']);
-      const tasksComponentSpy = jasmine.createSpyObj('TasksComponent', ['init', 'doRefresh']);
+      const tasksComponentSpy = jasmine.createSpyObj('TasksComponent', ['init']);
       component.statsComponent = statsComponentSpy;
       component.cardStatsComponent = cardStatsComponentSpy;
       component.tasksComponent = tasksComponentSpy;
@@ -554,6 +554,8 @@ describe('DashboardPage', () => {
       authService.getEou.and.resolveTo(apiEouRes);
       modalProperties.getModalDefaultProperties.and.returnValue(properties);
       featureConfigService.saveConfiguration.and.returnValue(of(null));
+      const tasksComponentSpy = jasmine.createSpyObj('TasksComponent', ['doRefresh']);
+      component.tasksComponent = tasksComponentSpy;
     });
 
     it('should show promote opt-in modal and track skip event if user skipped opt-in', fakeAsync(() => {
@@ -771,6 +773,8 @@ describe('DashboardPage', () => {
     beforeEach(() => {
       authService.refreshEou.and.returnValue(of(apiEouRes));
       featureConfigService.saveConfiguration.and.returnValue(of(null));
+      const tasksComponentSpy = jasmine.createSpyObj('TasksComponent', ['doRefresh']);
+      component.tasksComponent = tasksComponentSpy;
     });
 
     it('should set canShowOptInBanner$ to false and save feature config value as true', () => {
