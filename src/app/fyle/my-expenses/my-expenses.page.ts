@@ -741,6 +741,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   onPageClick(): void {
+    console.log('onPageClick');
     if (this.optInShowTimer) {
       clearTimeout(this.optInShowTimer as number);
       this.utilityService.toggleShowOptInAfterExpenseCreation(false);
