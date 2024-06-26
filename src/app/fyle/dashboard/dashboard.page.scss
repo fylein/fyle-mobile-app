@@ -10,6 +10,10 @@
     border-bottom: 1px solid $grey-lightest;
   }
 
+  &--opt-in-gradient {
+    background: linear-gradient(80deg, rgb(236 245 255 / 21%) 54.75%, rgb(255 237 252 / 30%) 86.07%);
+  }
+
   &--background-container {
     position: absolute;
     top: 0;
