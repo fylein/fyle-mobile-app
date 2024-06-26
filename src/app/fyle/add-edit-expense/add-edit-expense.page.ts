@@ -521,7 +521,13 @@ export class AddEditExpensePage implements OnInit {
     if (this.activatedRoute.snapshot.params.persist_filters || this.isRedirectedFromReport) {
       this.navController.back();
     } else {
-      this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      if (this.mode === 'add') {
+        this.router.navigate(['/', 'enterprise', 'my_expenses'], {
+          queryParams: { redirected_from_add_expense: true },
+        });
+      } else {
+        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      }
     }
   }
 

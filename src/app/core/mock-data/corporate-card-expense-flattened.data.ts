@@ -30,7 +30,6 @@ export const eCCCApiResponse: CCCExpFlattened[] = deepFreeze([
     ou_org_id: 'orNVthTo2Zyo',
     us_full_name: 'Abhishek Jain',
     us_email: 'ajain@fyle.in',
-    ccce_balance_transfer_id: null,
     ou_department_id: 'deptpmQ0SsMO0S',
     tx_project_id: null,
   },

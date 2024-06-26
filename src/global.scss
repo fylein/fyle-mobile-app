@@ -258,6 +258,16 @@ ion-popover.pop-up-in-center {
   }
 }
 
+ion-popover.skip-opt-in-popover {
+  background: rgba(22, 21, 40, 0.5);
+  &::part(content) {
+    border-radius: 16px;
+    --max-height: 80%;
+    --width: 90%;
+    left: 5%;
+  }
+}
+
 ion-popover.split-expense-popover {
   &::part(content) {
     top: auto !important;
@@ -834,6 +844,12 @@ ref - https://stackoverflow.com/a/31162426
   letter-spacing: 0px !important;
 }
 
+.btn-outline-secondary {
+  @extend .btn-secondary;
+  border: 1px solid $grey;
+  border-radius: 4px;
+}
+
 .cta-footer {
   box-shadow: 0px -2px 40px rgb(215 215 215 / 40%);
 }
@@ -1008,6 +1024,23 @@ ion-modal.add-location-modal {
     position: absolute;
     max-height: 50%;
     bottom: 0;
+  }
+}
+
+ion-modal.promote-opt-in-modal {
+  &::part(content) {
+    border-radius: 32px 32px 0 0 !important;
+    position: absolute;
+    max-height: 65%;
+    bottom: 0;
+
+    @media (max-height: 750px) {
+      max-height: 70%;
+    }
+
+    @media (max-height: 700px) {
+      max-height: 80%;
+    }
   }
 }
 
