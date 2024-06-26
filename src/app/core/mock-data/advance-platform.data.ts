@@ -72,7 +72,6 @@ export const advancePlatform: PlatformApiResponse<AdvancesPlatform[]> = deepFree
       project_id: '317383',
       purpose: 'testing',
       seq_num: 'A/2024/03/T/1',
-      settlement_id: null,
       source: 'WEBAPP',
       updated_at: new Date('2024-03-11T08:32:40.861889+00:00'),
       user: {

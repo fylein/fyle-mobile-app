@@ -45,7 +45,6 @@ export interface corporateCardTransaction {
   matched_expense_ids: string[];
   matched_expenses: CCMatchedExpense[];
   last_user_matched_at: Date;
-  settlement_id: string;
   metadata?: CCTransactionMetadata;
   transaction_status?: TransactionStatus;
 }
