@@ -247,7 +247,7 @@ describe('DashboardPage', () => {
       spyOn(component, 'setupActionSheet');
       const statsComponentSpy = jasmine.createSpyObj('StatsComponent', ['init']);
       const cardStatsComponentSpy = jasmine.createSpyObj('CardStatsComponent', ['init']);
-      const tasksComponentSpy = jasmine.createSpyObj('TasksComponent', ['init']);
+      const tasksComponentSpy = jasmine.createSpyObj('TasksComponent', ['init', 'doRefresh']);
       component.statsComponent = statsComponentSpy;
       component.cardStatsComponent = cardStatsComponentSpy;
       component.tasksComponent = tasksComponentSpy;
@@ -577,6 +577,7 @@ describe('DashboardPage', () => {
       });
       expect(trackingService.skipOptInModalPostCardAdditionInDashboard).toHaveBeenCalledTimes(1);
       expect(trackingService.optInFromPostPostCardAdditionInDashboard).not.toHaveBeenCalled();
+      expect(component.tasksComponent.doRefresh).not.toHaveBeenCalled();
     }));
 
     it('should show promote opt-in modal and track opt-in event if user opted in', fakeAsync(() => {
@@ -600,6 +601,7 @@ describe('DashboardPage', () => {
       });
       expect(trackingService.skipOptInModalPostCardAdditionInDashboard).not.toHaveBeenCalled();
       expect(trackingService.optInFromPostPostCardAdditionInDashboard).toHaveBeenCalledTimes(1);
+      expect(component.tasksComponent.doRefresh).toHaveBeenCalledTimes(1);
     }));
 
     it('should show promote opt-in modal and track opt-in event if data is undefined', fakeAsync(() => {
@@ -790,6 +792,7 @@ describe('DashboardPage', () => {
 
       expect(authService.refreshEou).toHaveBeenCalledTimes(1);
       expect(trackingService.optedInFromDashboardBanner).toHaveBeenCalledTimes(1);
+      expect(component.tasksComponent.doRefresh).toHaveBeenCalledTimes(1);
     });
 
     it('should not refresh eou and track skip opt in event if user skipped opt in', () => {
@@ -797,6 +800,7 @@ describe('DashboardPage', () => {
 
       expect(authService.refreshEou).not.toHaveBeenCalled();
       expect(trackingService.skipOptInFromDashboardBanner).toHaveBeenCalledTimes(1);
+      expect(component.tasksComponent.doRefresh).not.toHaveBeenCalled();
     });
   });
 });
