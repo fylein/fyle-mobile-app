@@ -374,6 +374,8 @@ export class MyProfilePage {
       }
     }
 
+    this.eou$ = from(this.authService.getEou());
+
     this.trackingService.updateMobileNumber({
       popoverTitle: (eou.ou.mobile?.length ? 'Edit' : 'Add') + ' Mobile Number',
       isRtfEnabled: this.isRTFEnabled,
@@ -424,6 +426,13 @@ export class MyProfilePage {
             </div>`;
   }
 
+  getDeleteMobileMessageBody(): string {
+    return `<div>
+              <p>Your mobile number will be deleted once you delete mobile number.</p>
+              <p>Would you like to continue?<p>  
+            </div>`;
+  }
+
   optOut(): void {
     from(this.loaderService.showLoader())
       .pipe(
@@ -471,6 +480,55 @@ export class MyProfilePage {
       this.optOut();
     } else {
       optOutPopover.dismiss();
+    }
+  }
+
+  deleteMobileNumber(): void {
+    from(this.loaderService.showLoader())
+      .pipe(
+        switchMap(() => this.authService.getEou()),
+        switchMap((eou) => {
+          const updatedOrgUserDetails: OrgUser = {
+            ...eou.ou,
+            mobile: '',
+          };
+
+          return this.orgUserService.postOrgUser(updatedOrgUserDetails);
+        }),
+        finalize(() => from(this.loaderService.hideLoader()))
+      )
+      .subscribe(() => {
+        this.eou$ = from(this.authService.refreshEou());
+        this.showToastMessage('Mobile number deleted successfully.', 'success');
+      });
+  }
+
+  async onDeleteCTAClicked(): Promise<void> {
+    const deleteMobileNumberPopover = await this.popoverController.create({
+      component: PopupAlertComponent,
+      componentProps: {
+        title: 'Delete mobile number',
+        message: this.getDeleteMobileMessageBody(),
+        primaryCta: {
+          text: 'Yes, delete',
+          action: 'continue',
+        },
+        secondaryCta: {
+          text: 'No, go back',
+          action: 'cancel',
+        },
+      },
+      cssClass: 'pop-up-in-center',
+    });
+
+    await deleteMobileNumberPopover.present();
+
+    const { data } = await deleteMobileNumberPopover.onWillDismiss<{ action: string }>();
+
+    if (data && data.action === 'continue') {
+      this.deleteMobileNumber();
+    } else {
+      deleteMobileNumberPopover.dismiss();
     }
   }
 }
