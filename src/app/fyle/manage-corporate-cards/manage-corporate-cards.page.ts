@@ -271,7 +271,7 @@ export class ManageCorporateCardsPage {
   setModalDelay(): void {
     this.optInShowTimer = setTimeout(() => {
       this.showPromoteOptInModal();
-    }, 2000);
+    }, 4000);
   }
 
   setNavigationSubscription(): void {
