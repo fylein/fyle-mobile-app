@@ -71,13 +71,6 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$,
   })
-  resubmit(rptId: string): Observable<void> {
-    return this.apiService.post('/reports/' + rptId + '/resubmit');
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: reportsCacheBuster$,
-  })
   inquire(
     rptId: string,
     addStatusPayload: {
