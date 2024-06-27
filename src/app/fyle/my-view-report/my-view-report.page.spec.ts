@@ -131,6 +131,7 @@ describe('MyViewReportPage', () => {
       'getReportById',
       'permissions',
       'postComment',
+      'submit',
     ]);
 
     TestBed.configureTestingModule({
@@ -650,14 +651,14 @@ describe('MyViewReportPage', () => {
       },
       duration: 3000,
     };
-    reportService.submit.and.returnValue(of(null));
+    spenderReportsService.submit.and.returnValue(of(null));
     matSnackBar.openFromComponent.and.callThrough();
     snackbarProperties.setSnackbarProperties.and.returnValue(properties);
 
     const submitButton = getElementBySelector(fixture, '.fy-footer-cta--primary') as HTMLElement;
     click(submitButton);
 
-    expect(reportService.submit).toHaveBeenCalledWith(component.reportId);
+    expect(spenderReportsService.submit).toHaveBeenCalledWith(component.reportId);
     expect(refinerService.startSurvey).toHaveBeenCalledOnceWith({ actionName: 'Submit Report' });
     expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_reports']);
     expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {

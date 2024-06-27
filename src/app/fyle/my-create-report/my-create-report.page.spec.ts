@@ -55,7 +55,6 @@ describe('MyCreateReportPage', () => {
     const reportServiceSpy = jasmine.createSpyObj('ReportService', [
       'createDraft',
       'addTransactions',
-      'create',
       'getReportPurpose',
     ]);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
@@ -70,6 +69,7 @@ describe('MyCreateReportPage', () => {
       'createDraft',
       'getReportsCount',
       'suggestPurpose',
+      'create',
     ]);
 
     TestBed.configureTestingModule({
@@ -270,14 +270,14 @@ describe('MyCreateReportPage', () => {
     });
 
     it('should create report', () => {
-      reportService.create.and.returnValue(of(expectedReportsSinglePage[0]));
+      spenderReportsService.create.and.returnValue(of(expectedReportsSinglePage[0]));
       component.selectedElements = cloneDeep(readyToReportExpensesData);
       fixture.detectChanges();
 
       component.ctaClickedEvent('create_report');
 
       expect(component.sendFirstReportCreated).toHaveBeenCalledTimes(1);
-      expect(reportService.create).toHaveBeenCalledOnceWith(
+      expect(spenderReportsService.create).toHaveBeenCalledOnceWith(
         {
           purpose: component.reportTitle,
           source: 'MOBILE',

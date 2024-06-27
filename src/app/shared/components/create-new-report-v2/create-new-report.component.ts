@@ -148,7 +148,7 @@ export class CreateNewReportComponent implements OnInit {
         });
     } else {
       this.submitReportLoader = true;
-      this.reportService
+      this.spenderReportsService
         .create(report, txnIds)
         .pipe(
           tap(() => {

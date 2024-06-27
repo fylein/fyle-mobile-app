@@ -71,34 +71,6 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$,
   })
-  create(report: ReportPurpose, expenseIds: string[]): Observable<Report> {
-    return this.spenderReportsService.createDraft({ data: report }).pipe(
-      switchMap((newReport: Report) => {
-        const payload = {
-          data: {
-            id: newReport.id,
-            expense_ids: expenseIds,
-          },
-        };
-        return this.spenderPlatformV1ApiService
-          .post<Report>('/reports/add_expenses', payload)
-          .pipe(switchMap(() => this.submit(newReport.id).pipe(map(() => newReport))));
-      })
-    );
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: reportsCacheBuster$,
-  })
-  submit(rptId: string): Observable<void> {
-    return this.apiService
-      .post<void>('/reports/' + rptId + '/submit')
-      .pipe(switchMap((res) => this.clearTransactionCache().pipe(map(() => res))));
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: reportsCacheBuster$,
-  })
   resubmit(rptId: string): Observable<void> {
     return this.apiService.post('/reports/' + rptId + '/resubmit');
   }

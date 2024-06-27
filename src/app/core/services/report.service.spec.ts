@@ -198,19 +198,6 @@ describe('ReportService', () => {
     });
   });
 
-  it('submit(): should submit a report', (done) => {
-    spyOn(reportService, 'clearTransactionCache').and.returnValue(of(null));
-    apiService.post.and.returnValue(of(null));
-
-    const reportID = 'rpvcIMRMyM3A';
-
-    reportService.submit(reportID).subscribe(() => {
-      expect(apiService.post).toHaveBeenCalledOnceWith(`/reports/${reportID}/submit`);
-      expect(reportService.clearTransactionCache).toHaveBeenCalledTimes(1);
-      done();
-    });
-  });
-
   it('getExports(): should get export actions for a report', (done) => {
     apiService.get.and.returnValue(of([]));
 
@@ -218,33 +205,6 @@ describe('ReportService', () => {
 
     reportService.getExports(reportID).subscribe(() => {
       expect(apiService.get).toHaveBeenCalledOnceWith(`/reports/${reportID}/exports`);
-      done();
-    });
-  });
-
-  it('create(): should create a new report', (done) => {
-    spyOn(spenderReportsService, 'createDraft').and.returnValue(of(expectedReportsSinglePage[0]));
-    spenderPlatformV1ApiService.post.and.returnValue(of(null));
-    spyOn(reportService, 'submit').and.returnValue(of(null));
-
-    const reportPurpose = {
-      purpose: 'A new report',
-      source: 'MOBILE',
-    };
-    const expenseIds = ['tx6Oe6FaYDZl'];
-    const reportID = 'rprAfNrce73O';
-    const payload = {
-      data: {
-        id: reportID,
-        expense_ids: expenseIds,
-      },
-    };
-
-    reportService.create(reportPurpose, expenseIds).subscribe((res) => {
-      expect(res).toEqual(expectedReportsSinglePage[0]);
-      expect(spenderReportsService.createDraft).toHaveBeenCalledOnceWith({ data: reportPurpose });
-      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/reports/add_expenses', payload);
-      expect(reportService.submit).toHaveBeenCalledOnceWith(reportID);
       done();
     });
   });
