@@ -128,7 +128,7 @@ export class SpenderReportsService {
   }
 
   resubmit(reportId: string): Observable<void> {
-    return this.approverPlatformApiService.post<void>('/reports/resubmit', { data: { id: reportId } });
+    return this.spenderPlatformV1ApiService.post<void>('/reports/resubmit', { data: { id: reportId } });
   }
 
   getAllReportsByParams(queryParams: ReportsQueryParams): Observable<Report[]> {
