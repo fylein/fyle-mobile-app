@@ -4,7 +4,7 @@ import { Pipe, PipeTransform } from '@angular/core';
   name: 'expenseState',
 })
 export class ExpenseState implements PipeTransform {
-  transform(val: string, isNewReportsFlowEnabled = false): string {
+  transform(val: string): string {
     if (!val) {
       return val;
     }
@@ -12,11 +12,11 @@ export class ExpenseState implements PipeTransform {
     const states: Record<string, string> = {
       DRAFT: 'incomplete',
       COMPLETE: 'complete',
-      APPROVER_PENDING: isNewReportsFlowEnabled ? 'submitted' : 'reported',
+      APPROVER_PENDING: 'submitted',
       APPROVED: 'approved',
       PAYMENT_PENDING: 'payment_pending',
-      PAYMENT_PROCESSING: isNewReportsFlowEnabled ? 'processing' : 'payment_processing',
-      PAID: isNewReportsFlowEnabled ? 'closed' : 'paid',
+      PAYMENT_PROCESSING: 'processing',
+      PAID: 'closed',
     };
 
     return states[val];

@@ -80,9 +80,6 @@ export function TestCases4(getTestBed) {
     }));
 
     it('generateStateFilterPills(): should update filter pills', () => {
-      component.simplifyReportsSettings$ = of({
-        enabled: true,
-      });
       const filterPill: FilterPill[] = [];
       component.generateStateFilterPills(filterPill, teamReportsFiltersParams3);
       expect(filterPill).toEqual([
@@ -330,9 +327,6 @@ export function TestCases4(getTestBed) {
 
     describe('generateFilterPills(): ', () => {
       beforeEach(() => {
-        component.simplifyReportsSettings$ = of({
-          enabled: true,
-        });
         spyOn(component, 'generateSortRptDatePills').and.callThrough();
         spyOn(component, 'generateSortAmountPills').and.callThrough();
         spyOn(component, 'generateSortNamePills').and.callThrough();

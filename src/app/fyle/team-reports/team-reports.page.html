@@ -73,14 +73,9 @@
     </ng-template>
 
     <ng-container *ngIf="!isLoading; else loading">
-      <ng-container *ngIf="(simplifyReportsSettings$ | async) as simplifyReportsSettings; else loading">
+      <ng-container>
         <div *ngFor="let report of teamReports$ | async as list; let i = index">
-          <app-reports-card
-            [report]="report"
-            [prevDate]="list[i-1]?.created_at"
-            [simplifyReportsEnabled]="simplifyReportsSettings.enabled"
-            (gotoReport)="onReportClick($event)"
-          >
+          <app-reports-card [report]="report" [prevDate]="list[i-1]?.created_at" (gotoReport)="onReportClick($event)">
           </app-reports-card>
         </div>
       </ng-container>

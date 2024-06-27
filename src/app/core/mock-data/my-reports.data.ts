@@ -206,7 +206,6 @@ export const filterPopoverParams = {
   component: FyFiltersComponent,
   componentProps: {
     filterOptions: openFiltersOptions,
-    simplifyReportsSettings$: undefined,
     nonReimbursableOrg$: undefined,
     selectedFilterValues: [{ name: 'state', value: 'PENDING' }],
     activeFilterInitialName: 'State',

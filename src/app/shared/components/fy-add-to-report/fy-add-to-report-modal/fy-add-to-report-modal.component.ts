@@ -41,8 +41,6 @@ export class FyAddToReportModalComponent implements OnInit, AfterViewInit {
 
   @Input() autoSubmissionReportName: string;
 
-  @Input() isNewReportsFlowEnabled = false;
-
   reportCurrencySymbol: string;
 
   constructor(

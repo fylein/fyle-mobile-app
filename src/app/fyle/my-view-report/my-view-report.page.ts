@@ -100,8 +100,6 @@ export class MyViewReportPage {
 
   segmentValue = ReportPageSegment.EXPENSES;
 
-  simplifyReportsSettings$: Observable<{ enabled: boolean }>;
-
   eou: ExtendedOrgUser;
 
   reportNameChangeStartTime: number;
@@ -155,10 +153,6 @@ export class MyViewReportPage {
   ionViewWillLeave(): void {
     this.hardwareBackButtonAction.unsubscribe();
     this.onPageExit.next(null);
-  }
-
-  getSimplifyReportSettings(orgSettings: OrgSettings): boolean {
-    return orgSettings?.simplified_report_closure_settings?.enabled;
   }
 
   convertToEstatus(comments: ExtendedComment[]): ExtendedStatus[] {
@@ -305,9 +299,6 @@ export class MyViewReportPage {
       .subscribe(noop);
 
     const orgSettings$ = this.orgSettingsService.get();
-    this.simplifyReportsSettings$ = orgSettings$.pipe(
-      map((orgSettings) => ({ enabled: this.getSimplifyReportSettings(orgSettings) }))
-    );
 
     this.hardwareBackButtonAction = this.platformHandlerService.registerBackButtonAction(
       BackButtonActionPriority.MEDIUM,

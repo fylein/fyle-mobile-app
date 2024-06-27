@@ -97,8 +97,6 @@ export class ViewMileagePage {
 
   projectFieldName: string;
 
-  isNewReportsFlowEnabled = false;
-
   expenseFields$: Observable<{ [key: string]: ExpenseField[] }>;
 
   projectDependentCustomProperties$: Observable<Partial<CustomInput>[]>;
@@ -373,7 +371,6 @@ export class ViewMileagePage {
       .pipe(shareReplay(1))
       .subscribe((orgSettings) => {
         this.orgSettings = orgSettings;
-        this.isNewReportsFlowEnabled = orgSettings?.simplified_report_closure_settings?.enabled || false;
       });
 
     this.mileageCustomFields$ = this.mileageExpense$.pipe(

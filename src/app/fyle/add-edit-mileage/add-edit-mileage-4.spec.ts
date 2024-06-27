@@ -27,7 +27,6 @@ import {
 } from 'src/app/core/mock-data/org-category.data';
 import {
   orgSettingsCCDisabled,
-  orgSettingsParamsWithSimplifiedReport,
   orgSettingsRes,
   orgSettingsWoAdvance,
   orgSettingsWoMileage,
@@ -384,20 +383,6 @@ export function TestCases4(getTestBed) {
 
       expect(component.selectedCostCenter$.next).toHaveBeenCalledOnceWith(costCentersData[0]);
     }));
-
-    describe('checkNewReportsFlow():', () => {
-      it('should check if user is on new reports flow', () => {
-        component.checkNewReportsFlow(of(orgSettingsParamsWithSimplifiedReport));
-
-        expect(component.isNewReportsFlowEnabled).toBeTrue();
-      });
-
-      it('should return null if settings are not present', () => {
-        component.checkNewReportsFlow(of(null));
-
-        expect(component.isNewReportsFlowEnabled).toBeFalse();
-      });
-    });
 
     describe('checkIndividualMileageEnabled():', () => {
       it('should check if indvidual mileage is enabled', (done) => {

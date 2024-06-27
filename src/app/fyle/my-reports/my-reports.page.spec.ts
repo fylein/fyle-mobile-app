@@ -13,7 +13,7 @@ import { BehaviorSubject, of } from 'rxjs';
 import { By } from '@angular/platform-browser';
 import { RouterTestingModule } from '@angular/router/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { orgSettingsRes, orgSettingsParamsWithSimplifiedReport } from 'src/app/core/mock-data/org-settings.data';
+import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { cardAggregateStatParam, cardAggregateStatParam2 } from 'src/app/core/mock-data/card-aggregate-stats.data';
 import { AdvancesStates } from 'src/app/core/models/advances-states.model';
@@ -328,10 +328,6 @@ describe('MyReportsPage', () => {
 
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
 
-      component.simplifyReportsSettings$.subscribe((simplifyReportSetting) => {
-        expect(simplifyReportSetting).toEqual({ enabled: undefined });
-      });
-
       expect(router.navigate).toHaveBeenCalledTimes(2);
       expect(router.navigate).toHaveBeenCalledWith([], {
         relativeTo: activatedRoute,
@@ -455,10 +451,6 @@ describe('MyReportsPage', () => {
 
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
 
-      component.simplifyReportsSettings$.subscribe((simplifyReportSetting) => {
-        expect(simplifyReportSetting).toEqual({ enabled: undefined });
-      });
-
       expect(router.navigate).toHaveBeenCalledTimes(2);
       expect(router.navigate).toHaveBeenCalledWith([], {
         relativeTo: activatedRoute,
@@ -486,7 +478,7 @@ describe('MyReportsPage', () => {
       discardPeriodicTasks();
     }));
 
-    it('should initialize component properties and set simplifyReportsSetting$ to undefined if orgSetting$ is undefined', fakeAsync(() => {
+    it('should initialize component properties if orgSetting$ is undefined', fakeAsync(() => {
       tasksService.getReportsTaskCount.and.returnValue(of(5));
       apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
         state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
@@ -582,10 +574,6 @@ describe('MyReportsPage', () => {
 
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
 
-      component.simplifyReportsSettings$.subscribe((simplifyReportSetting) => {
-        expect(simplifyReportSetting).toEqual({ enabled: undefined });
-      });
-
       expect(router.navigate).toHaveBeenCalledTimes(2);
       expect(router.navigate).toHaveBeenCalledWith([], {
         relativeTo: activatedRoute,
@@ -613,7 +601,7 @@ describe('MyReportsPage', () => {
       discardPeriodicTasks();
     }));
 
-    it('should initialize component properties and set simplifyReportsSetting$ to false if orgSetting$.payment_mode_setting.payment_modes_order is not defined', fakeAsync(() => {
+    it('should initialize component properties if orgSetting$.payment_mode_setting.payment_modes_order is not defined', fakeAsync(() => {
       tasksService.getReportsTaskCount.and.returnValue(of(5));
       apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
         state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
@@ -708,10 +696,6 @@ describe('MyReportsPage', () => {
 
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
 
-      component.simplifyReportsSettings$.subscribe((simplifyReportSetting) => {
-        expect(simplifyReportSetting).toEqual({ enabled: undefined });
-      });
-
       expect(router.navigate).toHaveBeenCalledTimes(2);
       expect(router.navigate).toHaveBeenCalledWith([], {
         relativeTo: activatedRoute,
@@ -739,7 +723,7 @@ describe('MyReportsPage', () => {
       discardPeriodicTasks();
     }));
 
-    it('should initialize component properties and get report by order if sortParam and sortDir is defined, aggregates is empty array and simplified_report is enabled', fakeAsync(() => {
+    it('should initialize component properties and get report by order if sortParam and sortDir is defined, aggregates is empty array', fakeAsync(() => {
       tasksService.getReportsTaskCount.and.returnValue(of(5));
       apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
         state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
@@ -752,7 +736,7 @@ describe('MyReportsPage', () => {
       };
 
       spenderReportsService.getReportsCount.and.returnValue(of(0));
-      orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithSimplifiedReport));
+      orgSettingsService.get.and.returnValue(of(orgSettingsRes));
       expensesService.getExpenseStats.and.returnValue(of(emptyStats));
 
       component.simpleSearchInput = fixture.debugElement.query(By.css('.my-reports--simple-search-input'));
@@ -829,10 +813,6 @@ describe('MyReportsPage', () => {
       });
 
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-
-      component.simplifyReportsSettings$.subscribe((simplifyReportSetting) => {
-        expect(simplifyReportSetting).toEqual({ enabled: true });
-      });
 
       expect(router.navigate).toHaveBeenCalledTimes(3);
       expect(router.navigate).toHaveBeenCalledWith([], {
@@ -957,10 +937,6 @@ describe('MyReportsPage', () => {
       });
 
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-
-      component.simplifyReportsSettings$.subscribe((simplifyReportSetting) => {
-        expect(simplifyReportSetting).toEqual({ enabled: undefined });
-      });
 
       expect(router.navigate).toHaveBeenCalledTimes(3);
       expect(router.navigate).toHaveBeenCalledWith([], {
@@ -1113,10 +1089,6 @@ describe('MyReportsPage', () => {
       });
 
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-
-      component.simplifyReportsSettings$.subscribe((simplifyReportSetting) => {
-        expect(simplifyReportSetting).toEqual({ enabled: undefined });
-      });
 
       expect(router.navigate).toHaveBeenCalledTimes(3);
       expect(router.navigate).toHaveBeenCalledWith([], {
@@ -2085,15 +2057,9 @@ describe('MyReportsPage', () => {
   it('generateStateFilterPills(): should generate state filter pills', () => {
     const filterPills: FilterPill[] = [];
     const filter: Filters = { state: ['APPROVED', 'SUBMITTED'] };
-    const simplifyReportsSettings = { enabled: true };
-
-    component.simplifyReportsSettings$ = of(simplifyReportsSettings);
 
     component.generateStateFilterPills(filterPills, filter);
-
-    component.simplifyReportsSettings$.subscribe(() => {
-      expect(filterPills).toEqual(expectedFilterPill1);
-    });
+    expect(filterPills).toEqual(expectedFilterPill1);
   });
 
   describe('generateCustomDatePill(): ', () => {
