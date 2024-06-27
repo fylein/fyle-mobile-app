@@ -204,7 +204,7 @@ describe('FyOptInComponent', () => {
       expect(component.mobileNumberError).toBe('Please enter mobile number');
     });
 
-    it('should set mobileNumberError if mobileNumberInputValue does not contain +1', () => {
+    it('should set mobileNumberError if mobileNumberInputValue does not starts with +1', () => {
       component.mobileNumberInputValue = '+911234567890';
       expect(component.validateInput());
       expect(component.mobileNumberError).toBe(
