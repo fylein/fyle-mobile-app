@@ -133,6 +133,19 @@ describe('SpenderReportsService', () => {
     });
   });
 
+  it('resubmit(): should resubmit a report', (done) => {
+    spenderPlatformV1ApiService.post.and.returnValue(of(null));
+
+    const reportID = 'rpvcIMRMyM3A';
+
+    spenderReportsService.resubmit(reportID).subscribe(() => {
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith(`/reports/resubmit`, {
+        data: { id: reportID },
+      });
+      done();
+    });
+  });
+
   it('postComment(): should add a comment', (done) => {
     const expectedCommentData: Comment = platformReportData.comments[0];
     spenderPlatformV1ApiService.post.and.returnValue(of({ data: expectedCommentData }));

@@ -132,6 +132,7 @@ describe('MyViewReportPage', () => {
       'permissions',
       'postComment',
       'submit',
+      'resubmit',
     ]);
 
     TestBed.configureTestingModule({
@@ -616,14 +617,14 @@ describe('MyViewReportPage', () => {
       },
       duration: 3000,
     };
-    reportService.resubmit.and.returnValue(of(null));
+    spenderReportsService.resubmit.and.returnValue(of(null));
     matSnackBar.openFromComponent.and.callThrough();
     snackbarProperties.setSnackbarProperties.and.returnValue(properties);
 
     const resubmitButton = getElementBySelector(fixture, '.fy-footer-cta--primary') as HTMLElement;
     click(resubmitButton);
 
-    expect(reportService.resubmit).toHaveBeenCalledWith(component.reportId);
+    expect(spenderReportsService.resubmit).toHaveBeenCalledWith(component.reportId);
     expect(refinerService.startSurvey).toHaveBeenCalledOnceWith({ actionName: 'Resubmit Report ' });
     expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_reports']);
     expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {

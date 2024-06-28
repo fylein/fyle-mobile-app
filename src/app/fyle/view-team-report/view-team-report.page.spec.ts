@@ -29,7 +29,6 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
 import { StatusService } from 'src/app/core/services/status.service';
 import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
 import {
-  expectedNewStatusData,
   newEstatusData1,
   systemComments1,
   systemCommentsWithSt,
@@ -45,7 +44,6 @@ import { NetworkService } from '../../core/services/network.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { ShareReportComponent } from './share-report/share-report.component';
 import { ViewTeamReportPage } from './view-team-report.page';
-import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
 import { pdfExportData1, pdfExportData2 } from 'src/app/core/mock-data/pdf-export.data';
 import { EditReportNamePopoverComponent } from '../my-view-report/edit-report-name-popover/edit-report-name-popover.component';
 import { cloneDeep } from 'lodash';
