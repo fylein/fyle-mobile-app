@@ -79,6 +79,44 @@ export class ExpensesService {
     );
   }
 
+  fetchAndMapCCCTransactions(ids: string[], expenses: Expense[]): Observable<Expense[]> {
+    const params = {
+      id: `in.(${ids.join(',')})`,
+    };
+    return this.spenderService
+      .get<PlatformApiResponse<corporateCardTransaction[]>>('/corporate_card_transactions', { params })
+      .pipe(
+        map((res) => {
+          const formattedCCCTransaction = res.data.map((ccTransaction) => this.mapCCCEToExpense(ccTransaction));
+
+          expenses.forEach((expense) => {
+            if (
+              expense.matched_corporate_card_transaction_ids?.length > 0 &&
+              expense.matched_corporate_card_transactions?.length === 0
+            ) {
+              expense.matched_corporate_card_transactions = [
+                formattedCCCTransaction.find(
+                  (ccTransaction) => ccTransaction.id === expense.matched_corporate_card_transaction_ids[0]
+                ),
+              ];
+            }
+          });
+
+          return expenses;
+        })
+      );
+  }
+
+  getExpensesWithUnmatchedCCCTransactions(expenses: Expense[]): string[] {
+    return expenses
+      .filter(
+        (expense) =>
+          expense.matched_corporate_card_transaction_ids.length > 0 &&
+          expense.matched_corporate_card_transactions.length === 0
+      )
+      .map((expense) => expense.matched_corporate_card_transaction_ids[0]);
+  }
+
   getExpenseById(id: string): Observable<Expense> {
     const data = {
       params: {
@@ -86,8 +124,7 @@ export class ExpensesService {
       },
     };
 
-    //return this.spenderService.get<PlatformApiResponse<Expense[]>>('/expenses', data).pipe(map((res) => res.data[0]));
-
+    // TODO: Remove this extra call of corporate card transaction once the slow sync issue is fixed
     return this.spenderService.get<PlatformApiResponse<Expense[]>>('/expenses', data).pipe(
       map((res) => res.data[0]),
       switchMap((expense) => {
@@ -99,9 +136,7 @@ export class ExpensesService {
             .getMatchedTransactionById(expense.matched_corporate_card_transaction_ids[0])
             .pipe(
               map((res) => {
-                expense.matched_corporate_card_transactions = res
-                  ? [this.mapCCCEToExpense(res.data[0])]
-                  : expense.matched_corporate_card_transactions;
+                expense.matched_corporate_card_transactions = [this.mapCCCEToExpense(res.data[0])];
                 return expense;
               })
             );
@@ -145,41 +180,10 @@ export class ExpensesService {
     return this.spenderService.get<PlatformApiResponse<Expense[]>>('/expenses', { params }).pipe(
       map((expenses) => expenses.data),
       switchMap((expenses) => {
-        const idsOfExpenseWithNoMatchedCCCTransactions = expenses
-          .filter(
-            (expense) =>
-              expense.matched_corporate_card_transaction_ids?.length > 0 &&
-              expense.matched_corporate_card_transactions?.length === 0
-          )
-          .map((expense) => expense.matched_corporate_card_transaction_ids[0]);
+        const idsOfExpenseWithNoMatchedCCCTransactions = this.getExpensesWithUnmatchedCCCTransactions(expenses);
 
         if (idsOfExpenseWithNoMatchedCCCTransactions.length > 0) {
-          const params = {
-            id: `in.(${idsOfExpenseWithNoMatchedCCCTransactions.join(',')})`,
-          };
-
-          return this.spenderService
-            .get<PlatformApiResponse<corporateCardTransaction[]>>('/corporate_card_transactions', { params })
-            .pipe(
-              map((res) => {
-                const formattedCCCTransaction = res.data.map((ccTransaction) => this.mapCCCEToExpense(ccTransaction));
-
-                expenses.forEach((expense) => {
-                  if (
-                    expense.matched_corporate_card_transaction_ids?.length > 0 &&
-                    expense.matched_corporate_card_transactions?.length === 0
-                  ) {
-                    expense.matched_corporate_card_transactions = [
-                      formattedCCCTransaction.find(
-                        (ccTransaction) => ccTransaction.id === expense.matched_corporate_card_transaction_ids[0]
-                      ),
-                    ];
-                  }
-                });
-
-                return expenses;
-              })
-            );
+          return this.fetchAndMapCCCTransactions(idsOfExpenseWithNoMatchedCCCTransactions, expenses);
         } else {
           return of(expenses);
         }
