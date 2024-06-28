@@ -82,7 +82,8 @@
         "@typescript-eslint/no-empty-interface": ["error"],
         "@typescript-eslint/no-inferrable-types": ["error"],
         "no-unused-expressions": ["error"],
-        "no-console": ["error", { "allow": [""] }]
+        "no-console": ["error", { "allow": [""] }],
+        "custom-rules/one-interface-per-file": "error"
       }
     },
     {
