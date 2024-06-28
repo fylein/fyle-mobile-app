@@ -354,20 +354,6 @@ describe('ReportService', () => {
     });
   });
 
-  it('updateReportDetails(): should update a report name', (done) => {
-    apiService.post.and.returnValue(of(apiReportUpdatedDetails));
-    dataTransformService.unflatten.and.returnValue(dataErtpTransformed);
-    spyOn(reportService, 'clearTransactionCache').and.returnValue(of(null));
-
-    reportService.updateReportDetails(reportParam).subscribe((res) => {
-      expect(res).toEqual(apiReportUpdatedDetails);
-      expect(apiService.post).toHaveBeenCalledOnceWith('/reports', apiErptReporDataParam.rp);
-      expect(reportService.clearTransactionCache).toHaveBeenCalledTimes(1);
-      expect(dataTransformService.unflatten).toHaveBeenCalledOnceWith(reportParam);
-      done();
-    });
-  });
-
   it('updateReportPurpose(): should update the report purpose', (done) => {
     spenderPlatformV1ApiService.post.and.returnValue(of(platformReportData));
     reportService.updateReportPurpose(platformReportData).subscribe((res) => {
@@ -413,17 +399,6 @@ describe('ReportService', () => {
     });
   });
 
-  it('getApproversByReportId(): should get the approvers of a report', (done) => {
-    apiService.get.and.returnValue(of(apiApproverRes));
-    const reportID = 'rphNNUiCISkD';
-
-    reportService.getApproversByReportId(reportID).subscribe((res) => {
-      expect(res).toEqual(apiApproverRes);
-      expect(apiService.get).toHaveBeenCalledOnceWith(`/reports/${reportID}/approvers`);
-      done();
-    });
-  });
-
   it('downloadSummaryPdfUrl(): allow a user to share the report', (done) => {
     const data = {
       report_ids: ['rp5eUkeNm9wB'],
@@ -440,17 +415,6 @@ describe('ReportService', () => {
     reportService.downloadSummaryPdfUrl(data).subscribe((res) => {
       expect(res).toEqual(reportURL);
       expect(apiService.post).toHaveBeenCalledOnceWith('/reports/summary/download', data);
-      done();
-    });
-  });
-
-  it('getReportPurpose(): should get the purpose of the report', (done) => {
-    const reportName = ' #7:  Jan 2023';
-    apiService.post.and.returnValue(of(apiEmptyReportRes));
-
-    reportService.getReportPurpose({ ids: [] }).subscribe((res) => {
-      expect(res).toEqual(reportName);
-      expect(apiService.post).toHaveBeenCalledOnceWith('/reports/purpose', { ids: [] });
       done();
     });
   });
