@@ -83,7 +83,8 @@
         "@typescript-eslint/no-inferrable-types": ["error"],
         "no-unused-expressions": ["error"],
         "no-console": ["error", { "allow": [""] }],
-        "custom-rules/one-interface-per-file": "error"
+        "custom-rules/one-interface-per-file": "error",
+        "custom-rules/one-enum-per-file": "error"
       }
     },
     {
