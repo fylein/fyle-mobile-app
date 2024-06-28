@@ -22,15 +22,26 @@ import {
 import { splitPayloadData1 } from 'src/app/core/mock-data/split-payload.data';
 import { splitPolicyExp1 } from 'src/app/core/mock-data/split-expense-policy.data';
 import { SplitExpenseMissingFieldsData } from 'src/app/core/models/split-expense-missing-fields.data';
+import { CorporateCreditCardExpenseService } from '../../../corporate-credit-card-expense.service';
+import {
+  ccTransactionResponseData,
+  ccTransactionResponseData3,
+} from 'src/app/core/mock-data/corporate-card-transaction-response.data';
+import { cloneDeep } from 'lodash';
+import { TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
 
 describe('ExpensesService', () => {
   let service: ExpensesService;
   let spenderService: jasmine.SpyObj<SpenderService>;
   let sharedExpenseService: jasmine.SpyObj<SharedExpenseService>;
+  let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
 
   beforeEach(() => {
     const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['get', 'post']);
     const sharedExpenseServiceSpy = jasmine.createSpyObj('SharedExpenseService', ['generateStatsQueryParams']);
+    const corporateCreditCardExpenseServiceSpy = jasmine.createSpyObj('CorporateCreditCardExpenseService', [
+      'getMatchedTransactionById',
+    ]);
 
     TestBed.configureTestingModule({
       providers: [
@@ -40,31 +51,71 @@ describe('ExpensesService', () => {
           provide: PAGINATION_SIZE,
           useValue: 2,
         },
+        {
+          provide: CorporateCreditCardExpenseService,
+          useValue: corporateCreditCardExpenseServiceSpy,
+        },
       ],
     });
     service = TestBed.inject(ExpensesService);
     spenderService = TestBed.inject(SpenderService) as jasmine.SpyObj<SpenderService>;
     sharedExpenseService = TestBed.inject(SharedExpenseService) as jasmine.SpyObj<SharedExpenseService>;
+    corporateCreditCardExpenseService = TestBed.inject(
+      CorporateCreditCardExpenseService
+    ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
   });
 
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
 
-  it('getExpenseById(): should return expense with the given id', (done) => {
-    spenderService.get.and.returnValue(of({ data: [expenseData] }));
-    const expenseId = 'txOJVaaPxo9O';
+  describe('getExpenseById():', () => {
+    it('should return expense with the given id', (done) => {
+      spenderService.get.and.returnValue(of({ data: [expenseData] }));
+      const expenseId = 'txOJVaaPxo9O';
 
-    service.getExpenseById(expenseId).subscribe((response) => {
-      expect(response).toBeTruthy();
-      expect(response).toEqual(expenseData);
+      service.getExpenseById(expenseId).subscribe((response) => {
+        expect(response).toBeTruthy();
+        expect(response).toEqual(expenseData);
 
-      expect(spenderService.get).toHaveBeenCalledOnceWith(`/expenses`, {
-        params: {
-          id: `eq.${expenseId}`,
-        },
+        expect(spenderService.get).toHaveBeenCalledOnceWith(`/expenses`, {
+          params: {
+            id: `eq.${expenseId}`,
+          },
+        });
+        done();
       });
-      done();
+    });
+
+    it('should return expense with the given id and fill matched_corporate_card_transactions by making API call', (done) => {
+      const mockExpenseData = cloneDeep(expenseData);
+      mockExpenseData.matched_corporate_card_transactions = [];
+      mockExpenseData.matched_corporate_card_transaction_ids = ['btxnBdS2Kpvzhy'];
+      spenderService.get.and.returnValue(of({ data: [mockExpenseData] }));
+
+      const mockCCTransactionRes = cloneDeep(ccTransactionResponseData);
+      mockCCTransactionRes.data[0].transaction_status = TransactionStatus.PENDING;
+      corporateCreditCardExpenseService.getMatchedTransactionById.and.returnValue(of(mockCCTransactionRes));
+
+      const expenseId = 'txOJVaaPxo9O';
+
+      service.getExpenseById(expenseId).subscribe((response) => {
+        expect(response).toBeTruthy();
+
+        expect(spenderService.get).toHaveBeenCalledOnceWith(`/expenses`, {
+          params: {
+            id: `eq.${expenseId}`,
+          },
+        });
+
+        expect(corporateCreditCardExpenseService.getMatchedTransactionById).toHaveBeenCalledOnceWith('btxnBdS2Kpvzhy');
+
+        expect(response).toEqual(mockExpenseData);
+
+        expect(response.matched_corporate_card_transactions[0].status).toEqual(TransactionStatus.PENDING);
+
+        done();
+      });
     });
   });
 
@@ -82,17 +133,61 @@ describe('ExpensesService', () => {
     });
   });
 
-  it('getExpenses(): should return the expenses', (done) => {
-    spenderService.get.and.returnValue(of(expensesResponse));
+  describe('getExpenses():', () => {
+    it('should return the expenses', (done) => {
+      spenderService.get.and.returnValue(of(expensesResponse));
 
-    service.getExpenses(getExpensesQueryParams).subscribe((response) => {
-      expect(response).toBeTruthy();
-      expect(response).toEqual(expensesResponse.data);
+      service.getExpenses(getExpensesQueryParams).subscribe((response) => {
+        expect(response).toBeTruthy();
+        expect(response).toEqual(expensesResponse.data);
 
-      expect(spenderService.get).toHaveBeenCalledOnceWith('/expenses', {
-        params: getExpensesQueryParams,
+        expect(spenderService.get).toHaveBeenCalledOnceWith('/expenses', {
+          params: getExpensesQueryParams,
+        });
+        done();
       });
-      done();
+    });
+
+    it('should return expenses with matched_corporate_card_transactions filled by calling API', (done) => {
+      const mockExpensesResponse = cloneDeep(expensesResponse);
+
+      const expenseWithUnmatchedCCTransactions = cloneDeep(expenseData);
+      expenseWithUnmatchedCCTransactions.matched_corporate_card_transactions = [];
+
+      const expenseWithUnmatchedCCTransactions2 = cloneDeep(expenseData);
+      expenseWithUnmatchedCCTransactions2.matched_corporate_card_transaction_ids = ['btxnBdS2Kpvzhy'];
+      expenseWithUnmatchedCCTransactions2.matched_corporate_card_transactions = [];
+
+      mockExpensesResponse.data = [
+        expenseWithUnmatchedCCTransactions,
+        expenseData,
+        expenseWithUnmatchedCCTransactions2,
+      ];
+
+      spenderService.get.and.returnValues(of(mockExpensesResponse), of(ccTransactionResponseData3));
+
+      service.getExpenses(getExpensesQueryParams).subscribe((response) => {
+        expect(response).toBeTruthy();
+        expect(response).toEqual(mockExpensesResponse.data);
+
+        expect(spenderService.get).toHaveBeenCalledTimes(2);
+
+        expect(spenderService.get).toHaveBeenCalledWith('/expenses', {
+          params: getExpensesQueryParams,
+        });
+
+        expect(spenderService.get).toHaveBeenCalledWith('/corporate_card_transactions', {
+          params: {
+            id: 'in.(btxn7DbV1VYnmT,btxnBdS2Kpvzhy)',
+          },
+        });
+
+        expect(response[0].matched_corporate_card_transactions[0].status).toEqual(TransactionStatus.POSTED);
+        expect(response[1].matched_corporate_card_transactions[0].status).toEqual(TransactionStatus.PENDING);
+        expect(response[2].matched_corporate_card_transactions[0].status).toEqual(TransactionStatus.PENDING);
+
+        done();
+      });
     });
   });
 
