@@ -97,6 +97,12 @@ export class SpenderReportsService {
       .pipe(map((res) => res.data));
   }
 
+  suggestPurpose(expenseIds: string[]): Observable<string> {
+    return this.spenderPlatformV1ApiService
+      .post<PlatformApiPayload<{ purpose: string }>>('/reports/suggest_purpose', { data: { expense_ids: expenseIds } })
+      .pipe(map((res) => res.data.purpose));
+  }
+
   getAllReportsByParams(queryParams: ReportsQueryParams): Observable<Report[]> {
     return this.getReportsCount(queryParams).pipe(
       switchMap((count) => {

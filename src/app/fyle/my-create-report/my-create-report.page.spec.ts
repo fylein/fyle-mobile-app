@@ -69,6 +69,7 @@ describe('MyCreateReportPage', () => {
       'addExpenses',
       'createDraft',
       'getReportsCount',
+      'suggestPurpose',
     ]);
 
     TestBed.configureTestingModule({
@@ -359,7 +360,7 @@ describe('MyCreateReportPage', () => {
   it('getReportTitle(): get report title', fakeAsync(() => {
     component.selectedElements = cloneDeep(readyToReportExpensesData);
     spyOn(component, 'getTotalSelectedExpensesAmount').and.returnValue(150);
-    reportService.getReportPurpose.and.returnValue(of('#Sept 24'));
+    spenderReportsService.suggestPurpose.and.returnValue(of('#Sept 24'));
     const el = getElementBySelector(fixture, "[data-testid='report-name']") as HTMLInputElement;
     el.value = 'New Report';
     el.dispatchEvent(new Event('input'));
@@ -373,9 +374,10 @@ describe('MyCreateReportPage', () => {
 
     component.getReportTitle();
 
-    expect(reportService.getReportPurpose).toHaveBeenCalledOnceWith({
-      ids: [readyToReportExpensesData[0].id, readyToReportExpensesData[1].id],
-    });
+    expect(spenderReportsService.suggestPurpose).toHaveBeenCalledOnceWith([
+      readyToReportExpensesData[0].id,
+      readyToReportExpensesData[1].id,
+    ]);
     expect(component.reportTitle).toEqual('#Sept 24');
     expect(component.getTotalSelectedExpensesAmount).toHaveBeenCalledOnceWith(component.selectedElements);
   }));

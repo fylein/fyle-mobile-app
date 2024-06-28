@@ -193,7 +193,7 @@ export class MyCreateReportPage implements OnInit {
     this.selectedTotalAmount = this.getTotalSelectedExpensesAmount(this.selectedElements);
 
     if (this.reportTitleInput && !this.reportTitleInput.dirty) {
-      return this.reportService.getReportPurpose({ ids: expenseIDs }).subscribe((res) => {
+      return this.spenderReportsService.suggestPurpose(expenseIDs).subscribe((res) => {
         this.reportTitle = res;
       });
     }

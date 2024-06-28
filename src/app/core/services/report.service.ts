@@ -10,11 +10,7 @@ import { Report } from '../models/platform/v1/report.model';
 import { ReportAutoSubmissionDetails } from '../models/report-auto-submission-details.model';
 import { ReportPermission } from '../models/report-permission.model';
 import { ReportPurpose } from '../models/report-purpose.model';
-import { UnflattenedReport } from '../models/report-unflattened.model';
-import { ReportV1 } from '../models/report-v1.model';
 import { ApproverPlatformApiService } from './approver-platform-api.service';
-import { ExtendedReport } from '../models/report.model';
-import { Approver } from '../models/v1/approver.model';
 import { ApiV2Service } from './api-v2.service';
 import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
@@ -143,16 +139,6 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$,
   })
-  updateReportDetails(erpt: ExtendedReport): Observable<ReportV1> {
-    const reportData = this.dataTransformService.unflatten<UnflattenedReport, ExtendedReport>(erpt);
-    return this.apiService
-      .post<ReportV1>('/reports', reportData.rp)
-      .pipe(switchMap((res) => this.clearTransactionCache().pipe(map(() => res))));
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: reportsCacheBuster$,
-  })
   updateReportPurpose(report: Report): Observable<Report> {
     const params = {
       data: {
@@ -206,10 +192,6 @@ export class ReportService {
     return this.apiService.get<{ results: PdfExport[] }>('/reports/' + rptId + '/exports');
   }
 
-  getApproversByReportId(rptId: string): Observable<Approver[]> {
-    return this.apiService.get('/reports/' + rptId + '/approvers');
-  }
-
   delete(rptId: string): Observable<void> {
     return this.apiService
       .delete<void>('/reports/' + rptId)
@@ -218,10 +200,6 @@ export class ReportService {
 
   downloadSummaryPdfUrl(data: { report_ids: string[]; email: string }): Observable<{ report_url: string }> {
     return this.apiService.post('/reports/summary/download', data);
-  }
-
-  getReportPurpose(reportPurpose: { ids: string[] }): Observable<string> {
-    return this.apiService.post<ReportV1>('/reports/purpose', reportPurpose).pipe(map((res) => res.purpose));
   }
 
   approverUpdateReportPurpose(report: Report): Observable<Report> {
