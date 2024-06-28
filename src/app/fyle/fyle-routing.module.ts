@@ -1,5 +1,7 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
+import { OptInGuard } from '../core/guards/opt-in.guard';
 
 const routes: Routes = [
   {
@@ -136,6 +138,11 @@ const routes: Routes = [
       import('./manage-corporate-cards/manage-corporate-cards.module').then((m) => m.ManageCorporateCardsPageModule),
   },
 ];
+
+routes.forEach((route) => {
+  route.canActivate = route.canActivate || [];
+  route.canActivate.push(OptInGuard);
+});
 
 export const fyleRoutes = routes;
 

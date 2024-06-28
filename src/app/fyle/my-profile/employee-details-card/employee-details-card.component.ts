@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { UtilityService } from 'src/app/core/services/utility.service';
 
@@ -10,21 +10,9 @@ import { UtilityService } from 'src/app/core/services/utility.service';
 export class EmployeeDetailsCardComponent implements OnInit {
   @Input() eou: ExtendedOrgUser;
 
-  @Output() updateMobileNumber = new EventEmitter();
-
-  @Output() verifyMobileNumber = new EventEmitter();
-
   isMobileNumberSectionVisible: boolean;
 
   constructor(private utilityService: UtilityService) {}
-
-  onUpdateMobileNumber(eou: ExtendedOrgUser): void {
-    this.updateMobileNumber.emit(eou);
-  }
-
-  onVerifyMobileNumber(eou: ExtendedOrgUser): void {
-    this.verifyMobileNumber.emit(eou);
-  }
 
   ngOnInit(): void {
     this.utilityService
