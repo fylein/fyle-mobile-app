@@ -4571,6 +4571,7 @@ export class AddEditExpensePage implements OnInit {
           .subscribe(({ attachments, isConnected, expenseObj }) => {
             this.attachedReceiptsCount = attachments;
 
+            // checking if extraction is needed or not
             const isDataExtractionNeeded = !(
               expenseObj?.amount !== null &&
               expenseObj.currency &&
