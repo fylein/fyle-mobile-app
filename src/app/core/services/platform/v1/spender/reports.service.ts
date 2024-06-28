@@ -127,6 +127,10 @@ export class SpenderReportsService {
     return this.spenderPlatformV1ApiService.post<void>('/reports/submit', { data: { id: reportId } });
   }
 
+  resubmit(reportId: string): Observable<void> {
+    return this.spenderPlatformV1ApiService.post<void>('/reports/resubmit', { data: { id: reportId } });
+  }
+
   getAllReportsByParams(queryParams: ReportsQueryParams): Observable<Report[]> {
     return this.getReportsCount(queryParams).pipe(
       switchMap((count) => {
