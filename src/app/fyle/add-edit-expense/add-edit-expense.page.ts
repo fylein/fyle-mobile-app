@@ -138,6 +138,7 @@ import { corporateCardTransaction } from 'src/app/core/models/platform/v1/cc-tra
 import { PlatformFileGenerateUrlsResponse } from 'src/app/core/models/platform/platform-file-generate-urls-response.model';
 import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
 
+// eslint-disable-next-line
 type FormValue = {
   currencyObj: {
     currency: string;
