@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@angular/core';
 import { Observable, concatMap, map, of, range, reduce, switchMap } from 'rxjs';
 import { SpenderService } from '../spender/spender.service';
 import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
-import { Expense } from 'src/app/core/models/platform/v1/expense.model';
+import { Expense, MatchedCorporateCardTransaction } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpensesQueryParams } from 'src/app/core/models/platform/v1/expenses-query-params.model';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { CacheBuster, Cacheable } from 'ts-cacheable';
@@ -16,6 +16,8 @@ import { Transaction } from 'src/app/core/models/v1/transaction.model';
 import { SplitExpensePolicy } from 'src/app/core/models/platform/v1/split-expense-policy.model';
 import { SplitExpenseMissingFields } from 'src/app/core/models/platform/v1/split-expense-missing-fields.model';
 import { expensesCacheBuster$ } from 'src/app/core/cache-buster/expense-cache-buster';
+import { CorporateCreditCardExpenseService } from '../../../corporate-credit-card-expense.service';
+import { corporateCardTransaction } from 'src/app/core/models/platform/v1/cc-transaction.model';
 
 @Injectable({
   providedIn: 'root',
@@ -24,7 +26,8 @@ export class ExpensesService {
   constructor(
     @Inject(PAGINATION_SIZE) private paginationSize: number,
     private spenderService: SpenderService,
-    private sharedExpenseService: SharedExpenseService
+    private sharedExpenseService: SharedExpenseService,
+    private corporateCreditCardExpenseService: CorporateCreditCardExpenseService
   ) {}
 
   @CacheBuster({
@@ -76,6 +79,44 @@ export class ExpensesService {
     );
   }
 
+  fetchAndMapCCCTransactions(ids: string[], expenses: Expense[]): Observable<Expense[]> {
+    const params = {
+      id: `in.(${ids.join(',')})`,
+    };
+    return this.spenderService
+      .get<PlatformApiResponse<corporateCardTransaction[]>>('/corporate_card_transactions', { params })
+      .pipe(
+        map((res) => {
+          const formattedCCCTransaction = res.data.map((ccTransaction) => this.mapCCCEToExpense(ccTransaction));
+
+          expenses.forEach((expense) => {
+            if (
+              expense.matched_corporate_card_transaction_ids.length > 0 &&
+              expense.matched_corporate_card_transactions.length === 0
+            ) {
+              expense.matched_corporate_card_transactions = [
+                formattedCCCTransaction.find(
+                  (ccTransaction) => ccTransaction.id === expense.matched_corporate_card_transaction_ids[0]
+                ),
+              ];
+            }
+          });
+
+          return expenses;
+        })
+      );
+  }
+
+  getExpenseIdsWithUnmatchedCCCTransactions(expenses: Expense[]): string[] {
+    return expenses
+      .filter(
+        (expense) =>
+          expense.matched_corporate_card_transaction_ids.length > 0 &&
+          expense.matched_corporate_card_transactions.length === 0
+      )
+      .map((expense) => expense.matched_corporate_card_transaction_ids[0]);
+  }
+
   getExpenseById(id: string): Observable<Expense> {
     const data = {
       params: {
@@ -83,7 +124,50 @@ export class ExpensesService {
       },
     };
 
-    return this.spenderService.get<PlatformApiResponse<Expense[]>>('/expenses', data).pipe(map((res) => res.data[0]));
+    // TODO: Remove this extra call of corporate card transaction once the slow sync issue is fixed
+    return this.spenderService.get<PlatformApiResponse<Expense[]>>('/expenses', data).pipe(
+      map((res) => res.data[0]),
+      switchMap((expense) => {
+        if (
+          expense.matched_corporate_card_transaction_ids.length > 0 &&
+          expense.matched_corporate_card_transactions.length === 0
+        ) {
+          return this.corporateCreditCardExpenseService
+            .getMatchedTransactionById(expense.matched_corporate_card_transaction_ids[0])
+            .pipe(
+              map((res) => {
+                expense.matched_corporate_card_transactions = [this.mapCCCEToExpense(res.data[0])];
+                return expense;
+              })
+            );
+        } else {
+          return of(expense);
+        }
+      })
+    );
+  }
+
+  mapCCCEToExpense(ccTransaction: corporateCardTransaction): MatchedCorporateCardTransaction {
+    return {
+      id: ccTransaction.id,
+      corporate_card_id: ccTransaction.corporate_card_id,
+      corporate_card_number: ccTransaction.corporate_card.card_number,
+      corporate_card_nickname: ccTransaction.corporate_card.nickname,
+      masked_corporate_card_number: ccTransaction.corporate_card.masked_number,
+      bank_name: ccTransaction.corporate_card.bank_name,
+      corporate_card_user_full_name: ccTransaction.corporate_card.user_full_name,
+      amount: ccTransaction.amount,
+      currency: ccTransaction.currency,
+      category: ccTransaction.category,
+      spent_at: new Date(ccTransaction.spent_at),
+      posted_at: new Date(ccTransaction.post_date),
+      description: ccTransaction.description,
+      status: ccTransaction.transaction_status,
+      foreign_currency: ccTransaction.foreign_currency,
+      foreign_amount: ccTransaction.foreign_amount,
+      merchant: ccTransaction.merchant,
+      matched_by: null,
+    };
   }
 
   getExpensesCount(params: ExpensesQueryParams): Observable<number> {
@@ -93,9 +177,18 @@ export class ExpensesService {
   }
 
   getExpenses(params: ExpensesQueryParams): Observable<Expense[]> {
-    return this.spenderService
-      .get<PlatformApiResponse<Expense[]>>('/expenses', { params })
-      .pipe(map((expenses) => expenses.data));
+    return this.spenderService.get<PlatformApiResponse<Expense[]>>('/expenses', { params }).pipe(
+      map((expenses) => expenses.data),
+      switchMap((expenses) => {
+        const expenseIdsWithUnmatchedCCCTransactions = this.getExpenseIdsWithUnmatchedCCCTransactions(expenses);
+
+        if (expenseIdsWithUnmatchedCCCTransactions.length > 0) {
+          return this.fetchAndMapCCCTransactions(expenseIdsWithUnmatchedCCCTransactions, expenses);
+        } else {
+          return of(expenses);
+        }
+      })
+    );
   }
 
   getDuplicateSets(): Observable<ExpenseDuplicateSet[]> {
@@ -191,5 +284,11 @@ export class ExpensesService {
     return this.spenderService
       .post<PlatformApiResponse<Expense[]>>('/expenses/attach_files/bulk', payload)
       .pipe(map((res) => res.data));
+  }
+
+  post(expense: Partial<Expense>): Observable<void> {
+    return this.spenderService.post<void>('/expenses', {
+      data: expense,
+    });
   }
 }

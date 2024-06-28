@@ -11,7 +11,7 @@ import { ReportService } from 'src/app/core/services/report.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { StorageService } from '../../core/services/storage.service';
 import { TrackingService } from '../../core/services/tracking.service';
-import { Expense as PlatformExpense } from '../../core/models/platform/v1/expense.model';
+import { Expense as PlatformExpense, TransactionStatus } from '../../core/models/platform/v1/expense.model';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
@@ -147,7 +147,7 @@ export class MyCreateReportPage implements OnInit {
           .subscribe(noop);
       } else {
         this.saveReportLoading = true;
-        this.reportService
+        this.spenderReportsService
           .create(report, expenseIDs)
           .pipe(
             tap(() =>
@@ -193,7 +193,7 @@ export class MyCreateReportPage implements OnInit {
     this.selectedTotalAmount = this.getTotalSelectedExpensesAmount(this.selectedElements);
 
     if (this.reportTitleInput && !this.reportTitleInput.dirty) {
-      return this.reportService.getReportPurpose({ ids: expenseIDs }).subscribe((res) => {
+      return this.spenderReportsService.suggestPurpose(expenseIDs).subscribe((res) => {
         this.reportTitle = res;
       });
     }
@@ -215,12 +215,11 @@ export class MyCreateReportPage implements OnInit {
 
     this.checkTxnIds();
 
-    let queryParams = {
+    const queryParams = {
       report_id: 'is.null',
       state: 'in.(COMPLETE)',
       order: 'spent_at.desc',
       or: ['(policy_amount.is.null,policy_amount.gt.0.0001)'],
-      and: '()',
     };
 
     from(this.loaderService.showLoader())
@@ -236,14 +235,20 @@ export class MyCreateReportPage implements OnInit {
               )
             )
         ),
-        switchMap((filterPendingTxn: boolean) => {
-          if (filterPendingTxn) {
-            queryParams = {
-              ...queryParams,
-              and: '(or(matched_corporate_card_transactions.eq.[],matched_corporate_card_transactions->0->status.neq.PENDING))',
-            };
-          }
-          return this.expensesService.getAllExpenses({ queryParams }).pipe(
+        switchMap((filterPendingTxn: boolean) =>
+          this.expensesService.getAllExpenses({ queryParams }).pipe(
+            map((expenses) => {
+              if (filterPendingTxn) {
+                return expenses.filter((expense) => {
+                  if (filterPendingTxn && expense.matched_corporate_card_transaction_ids.length > 0) {
+                    return expense.matched_corporate_card_transactions[0].status !== TransactionStatus.PENDING;
+                  } else {
+                    return true;
+                  }
+                });
+              }
+              return expenses;
+            }),
             map((expenses) => {
               this.selectedElements = expenses;
               expenses.forEach((expense) => {
@@ -255,8 +260,8 @@ export class MyCreateReportPage implements OnInit {
               });
               return expenses;
             })
-          );
-        }),
+          )
+        ),
         finalize(() => from(this.loaderService.hideLoader())),
         shareReplay(1)
       )

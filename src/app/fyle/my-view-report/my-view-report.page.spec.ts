@@ -64,8 +64,8 @@ import { AddExpensesToReportComponent } from './add-expenses-to-report/add-expen
 import { ShareReportComponent } from './share-report/share-report.component';
 import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-report-name-popover.component';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
-import { expectedSentBackResponseSingularReport } from 'src/app/core/mock-data/report-stats.data';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { orgSettingsPendingRestrictions } from 'src/app/core/mock-data/org-settings.data';
+import { TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
 
 describe('MyViewReportPage', () => {
   let component: MyViewReportPage;
@@ -87,7 +87,6 @@ describe('MyViewReportPage', () => {
   let refinerService: jasmine.SpyObj<RefinerService>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
-  let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
 
   beforeEach(waitForAsync(() => {
     const reportServiceSpy = jasmine.createSpyObj('ReportService', [
@@ -134,9 +133,8 @@ describe('MyViewReportPage', () => {
       'getReportById',
       'permissions',
       'postComment',
-    ]);
-    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', [
-      'checkIfManualFlaggingFeatureIsEnabled',
+      'submit',
+      'resubmit',
     ]);
 
     TestBed.configureTestingModule({
@@ -229,7 +227,6 @@ describe('MyViewReportPage', () => {
           useValue: spenderReportsServiceSpy,
         },
         { provide: NavController, useValue: { push: NavController.prototype.back } },
-        { provide: LaunchDarklyService, useValue: launchDarklyServiceSpy },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -252,7 +249,6 @@ describe('MyViewReportPage', () => {
     refinerService = TestBed.inject(RefinerService) as jasmine.SpyObj<RefinerService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
-    launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
 
     component.report$ = of(platformReportData);
     component.canEdit$ = of(true);
@@ -335,7 +331,6 @@ describe('MyViewReportPage', () => {
       spenderReportsService.permissions.and.returnValue(of(apiReportPermissions));
       expensesService.getAllExpenses.and.returnValue(of([expenseData, expenseData]));
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
-      launchDarklyService.checkIfManualFlaggingFeatureIsEnabled.and.returnValue(of({ value: true }));
       spyOn(component, 'getSimplifyReportSettings').and.returnValue(true);
 
       component.ionViewWillEnter();
@@ -349,9 +344,6 @@ describe('MyViewReportPage', () => {
 
       component.report$.subscribe((res) => {
         expect(res).toEqual(report);
-      });
-      component.isManualFlagFeatureEnabled$.subscribe((res) => {
-        expect(res.value).toBeTrue();
       });
       expect(component.systemComments).toEqual(systemExtendedComments);
       expect(component.type).toEqual(component.objectType.substring(0, component.objectType.length - 1));
@@ -394,7 +386,6 @@ describe('MyViewReportPage', () => {
           state: 'in.(COMPLETE)',
           order: 'spent_at.desc',
           or: ['(policy_amount.is.null,policy_amount.gt.0.0001)'],
-          and: '()',
         },
       });
       expect(orgSettingsService.get).toHaveBeenCalled();
@@ -470,7 +461,6 @@ describe('MyViewReportPage', () => {
           state: 'in.(COMPLETE)',
           order: 'spent_at.desc',
           or: ['(policy_amount.is.null,policy_amount.gt.0.0001)'],
-          and: '()',
         },
       });
 
@@ -480,6 +470,32 @@ describe('MyViewReportPage', () => {
         expect(res).toEqual({ enabled: true });
       });
       expect(component.getSimplifyReportSettings).toHaveBeenCalledOnceWith(orgSettingsData);
+    }));
+
+    it('should should filter pending transactions and from unreportedExpenses', fakeAsync(() => {
+      spyOn(component, 'setupNetworkWatcher');
+      spyOn(component, 'getSimplifyReportSettings').and.returnValue(true);
+      component.objectType = 'transactions';
+      loaderService.showLoader.and.resolveTo();
+      authService.getEou.and.resolveTo(apiEouRes);
+      const mockStatusData = cloneDeep(newEstatusData1);
+      statusService.createStatusMap.and.returnValue(systemCommentsWithSt);
+      spenderReportsService.getReportById.and.returnValue(of(null));
+      expensesService.getReportExpenses.and.returnValue(of(expenseResponseData2));
+      spenderReportsService.permissions.and.returnValue(of(apiReportPermissions));
+      const mockExpenseData2 = cloneDeep(expenseData);
+      mockExpenseData2.matched_corporate_card_transaction_ids = [];
+      const mockExpenseData3 = cloneDeep(expenseData);
+      mockExpenseData3.matched_corporate_card_transaction_ids = ['txcSFe6efB6R'];
+      mockExpenseData3.matched_corporate_card_transactions[0].status = TransactionStatus.PENDING;
+      expensesService.getAllExpenses.and.returnValue(of([expenseData, mockExpenseData2, mockExpenseData3]));
+      orgSettingsService.get.and.returnValue(of(orgSettingsPendingRestrictions));
+      fixture.detectChanges();
+
+      component.ionViewWillEnter();
+      tick(2000);
+
+      expect(component.unreportedExpenses).toEqual([mockExpenseData2]);
     }));
   });
 
@@ -627,14 +643,14 @@ describe('MyViewReportPage', () => {
       },
       duration: 3000,
     };
-    reportService.resubmit.and.returnValue(of(null));
+    spenderReportsService.resubmit.and.returnValue(of(null));
     matSnackBar.openFromComponent.and.callThrough();
     snackbarProperties.setSnackbarProperties.and.returnValue(properties);
 
     const resubmitButton = getElementBySelector(fixture, '.fy-footer-cta--primary') as HTMLElement;
     click(resubmitButton);
 
-    expect(reportService.resubmit).toHaveBeenCalledWith(component.reportId);
+    expect(spenderReportsService.resubmit).toHaveBeenCalledWith(component.reportId);
     expect(refinerService.startSurvey).toHaveBeenCalledOnceWith({ actionName: 'Resubmit Report ' });
     expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_reports']);
     expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
@@ -662,14 +678,14 @@ describe('MyViewReportPage', () => {
       },
       duration: 3000,
     };
-    reportService.submit.and.returnValue(of(null));
+    spenderReportsService.submit.and.returnValue(of(null));
     matSnackBar.openFromComponent.and.callThrough();
     snackbarProperties.setSnackbarProperties.and.returnValue(properties);
 
     const submitButton = getElementBySelector(fixture, '.fy-footer-cta--primary') as HTMLElement;
     click(submitButton);
 
-    expect(reportService.submit).toHaveBeenCalledWith(component.reportId);
+    expect(spenderReportsService.submit).toHaveBeenCalledWith(component.reportId);
     expect(refinerService.startSurvey).toHaveBeenCalledOnceWith({ actionName: 'Submit Report' });
     expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_reports']);
     expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {

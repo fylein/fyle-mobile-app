@@ -1,5 +1,3 @@
-import { User } from './platform/v1/user.model';
-
 export interface ExtendedAdvance {
   adv_advance_number: string;
   adv_amount: number;
@@ -14,7 +12,6 @@ export interface ExtendedAdvance {
   adv_orig_currency: string;
   adv_purpose: string;
   adv_refcode: string;
-  adv_settlement_id: string;
   adv_source: string;
   areq_id: string;
   assignee_department_id: string;

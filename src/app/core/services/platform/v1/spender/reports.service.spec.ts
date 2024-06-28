@@ -82,6 +82,70 @@ describe('SpenderReportsService', () => {
     });
   });
 
+  it('suggestPurpose(): should get the purpose of the report', (done) => {
+    const reportData = { data: { purpose: ' #7:  Jan 2023' } };
+    spenderPlatformV1ApiService.post.and.returnValue(of(reportData));
+
+    spenderReportsService.suggestPurpose([]).subscribe((res) => {
+      expect(res).toEqual(reportData.data.purpose);
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/reports/suggest_purpose', {
+        data: { expense_ids: [] },
+      });
+      done();
+    });
+  });
+
+  it('create(): should create a new report', (done) => {
+    spyOn(spenderReportsService, 'createDraft').and.returnValue(of(expectedReportsSinglePage[0]));
+    spenderPlatformV1ApiService.post.and.returnValue(of(null));
+    spyOn(spenderReportsService, 'submit').and.returnValue(of(null));
+
+    const reportPurpose = {
+      purpose: 'A new report',
+      source: 'MOBILE',
+    };
+    const expenseIds = ['tx6Oe6FaYDZl'];
+    const reportID = 'rprAfNrce73O';
+    const payload = {
+      data: {
+        id: reportID,
+        expense_ids: expenseIds,
+      },
+    };
+
+    spenderReportsService.create(reportPurpose, expenseIds).subscribe((res) => {
+      expect(res).toEqual(expectedReportsSinglePage[0]);
+      expect(spenderReportsService.createDraft).toHaveBeenCalledOnceWith({ data: reportPurpose });
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/reports/add_expenses', payload);
+      expect(spenderReportsService.submit).toHaveBeenCalledOnceWith(reportID);
+      done();
+    });
+  });
+
+  it('submit(): should submit a report', (done) => {
+    spenderPlatformV1ApiService.post.and.returnValue(of(null));
+
+    const reportID = 'rpvcIMRMyM3A';
+
+    spenderReportsService.submit(reportID).subscribe(() => {
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith(`/reports/submit`, { data: { id: reportID } });
+      done();
+    });
+  });
+
+  it('resubmit(): should resubmit a report', (done) => {
+    spenderPlatformV1ApiService.post.and.returnValue(of(null));
+
+    const reportID = 'rpvcIMRMyM3A';
+
+    spenderReportsService.resubmit(reportID).subscribe(() => {
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith(`/reports/resubmit`, {
+        data: { id: reportID },
+      });
+      done();
+    });
+  });
+
   it('postComment(): should add a comment', (done) => {
     const expectedCommentData: Comment = platformReportData.comments[0];
     spenderPlatformV1ApiService.post.and.returnValue(of({ data: expectedCommentData }));

@@ -59,7 +59,6 @@ export interface Expense {
   invoice_number?: string;
   is_billable: boolean;
   is_corporate_card_transaction_auto_matched: boolean;
-  is_manually_flagged: boolean;
   is_policy_flagged: boolean;
   is_receipt_mandatory: boolean;
   is_reimbursable: boolean;
@@ -89,11 +88,11 @@ export interface Expense {
   purpose: string;
   report: Report;
   report_id: string;
-  report_settlement_id: string;
   seq_num: string;
   source: string;
   source_account: Pick<Account, 'id' | 'type'>;
   source_account_id: string;
+  advance_wallet_id?: string;
   spent_at: Date;
   split_group_amount: number;
   split_group_id: string;
@@ -185,7 +184,6 @@ export interface Report {
   last_submitted_at: Date;
   seq_num: string;
   state: ReportState;
-  settlement_id: string;
   last_verified_at: Date;
   reimbursement_id: string;
   reimbursement_seq_num: string;

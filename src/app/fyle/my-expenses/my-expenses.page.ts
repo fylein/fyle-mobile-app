@@ -2,7 +2,7 @@ import { getCurrencySymbol } from '@angular/common';
 import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { ActivatedRoute, NavigationStart, Params, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, PopoverController } from '@ionic/angular';
 import { cloneDeep, isEqual } from 'lodash';
 import {
@@ -75,7 +75,10 @@ import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog/add-tx
 import { MyExpensesService } from './my-expenses.service';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { PromoteOptInModalComponent } from 'src/app/shared/components/promote-opt-in-modal/promote-opt-in-modal.component';
+import { AuthService } from 'src/app/core/services/auth.service';
+import { UtilityService } from 'src/app/core/services/utility.service';
+import { FeatureConfigService } from 'src/app/core/services/platform/v1/spender/feature-config.service';
 
 @Component({
   selector: 'app-my-expenses',
@@ -193,7 +196,9 @@ export class MyExpensesPage implements OnInit {
 
   restrictPendingTransactionsEnabled = false;
 
-  isManualFlagFeatureEnabled$: Observable<{ value: boolean }>;
+  optInShowTimer;
+
+  navigationSubscription: Subscription;
 
   constructor(
     private networkService: NetworkService,
@@ -227,7 +232,9 @@ export class MyExpensesPage implements OnInit {
     private expenseService: ExpensesService,
     private sharedExpenseService: SharedExpenseService,
     private spenderReportsService: SpenderReportsService,
-    private launchDarklyService: LaunchDarklyService
+    private authService: AuthService,
+    private utilityService: UtilityService,
+    private featureConfigService: FeatureConfigService
   ) {}
 
   get HeaderState(): typeof HeaderState {
@@ -423,6 +430,9 @@ export class MyExpensesPage implements OnInit {
   }
 
   ionViewWillLeave(): void {
+    clearTimeout(this.optInShowTimer as number);
+    this.navigationSubscription?.unsubscribe();
+    this.utilityService.toggleShowOptInAfterExpenseCreation(false);
     this.hardwareBackButton.unsubscribe();
     this.onPageExit$.next(null);
   }
@@ -443,8 +453,6 @@ export class MyExpensesPage implements OnInit {
       BackButtonActionPriority.MEDIUM,
       this.backButtonAction
     );
-
-    this.isManualFlagFeatureEnabled$ = this.launchDarklyService.checkIfManualFlaggingFeatureIsEnabled();
 
     this.tasksService.getExpensesTaskCount().subscribe((expensesTaskCount) => {
       this.expensesTaskCount = expensesTaskCount;
@@ -715,6 +723,94 @@ export class MyExpensesPage implements OnInit {
     this.doRefresh();
 
     this.checkDeleteDisabled();
+
+    const optInModalPostExpenseCreationFeatureConfig = {
+      feature: 'OPT_IN_POPUP_POST_EXPENSE_CREATION',
+      key: 'OPT_IN_POPUP_SHOWN_COUNT',
+    };
+
+    const isRedirectedFromAddExpense = this.activatedRoute.snapshot.queryParams.redirected_from_add_expense as string;
+
+    this.utilityService.canShowOptInModal(optInModalPostExpenseCreationFeatureConfig).subscribe((canShowOptInModal) => {
+      if (canShowOptInModal && isRedirectedFromAddExpense) {
+        this.utilityService.toggleShowOptInAfterExpenseCreation(true);
+        this.setModalDelay();
+        this.setNavigationSubscription();
+      }
+    });
+  }
+
+  onPageClick(): void {
+    if (this.optInShowTimer) {
+      clearTimeout(this.optInShowTimer as number);
+      this.utilityService.toggleShowOptInAfterExpenseCreation(false);
+    }
+  }
+
+  async showPromoteOptInModal(): Promise<void> {
+    this.trackingService.showOptInModalPostExpenseCreation();
+
+    from(this.authService.getEou()).subscribe(async (eou) => {
+      const optInPromotionalModal = await this.modalController.create({
+        component: PromoteOptInModalComponent,
+        componentProps: {
+          extendedOrgUser: eou,
+        },
+        mode: 'ios',
+        ...this.modalProperties.getModalDefaultProperties('promote-opt-in-modal'),
+      });
+
+      await optInPromotionalModal.present();
+
+      const optInModalPostExpenseCreationFeatureConfig = {
+        feature: 'OPT_IN_POPUP_POST_EXPENSE_CREATION',
+        key: 'OPT_IN_POPUP_SHOWN_COUNT',
+        value: {
+          count: 1,
+        },
+      };
+
+      this.featureConfigService.saveConfiguration(optInModalPostExpenseCreationFeatureConfig).subscribe(noop);
+
+      const { data } = await optInPromotionalModal.onDidDismiss<{ skipOptIn: boolean }>();
+
+      if (data?.skipOptIn) {
+        this.trackingService.skipOptInModalPostExpenseCreation();
+      } else {
+        this.trackingService.optInFromPostExpenseCreationModal();
+      }
+    });
+  }
+
+  setModalDelay(): void {
+    this.optInShowTimer = setTimeout(() => {
+      this.showPromoteOptInModal();
+    }, 4000);
+  }
+
+  setNavigationSubscription(): void {
+    this.navigationSubscription = this.router.events.subscribe((event) => {
+      if (event instanceof NavigationStart) {
+        clearTimeout(this.optInShowTimer as number);
+
+        const optInModalPostExpenseCreationFeatureConfig = {
+          feature: 'OPT_IN_POPUP_POST_EXPENSE_CREATION',
+          key: 'OPT_IN_POPUP_SHOWN_COUNT',
+        };
+
+        const isRedirectedFromAddExpense = this.activatedRoute.snapshot.queryParams
+          .redirected_from_add_expense as string;
+
+        this.utilityService.canShowOptInModal(optInModalPostExpenseCreationFeatureConfig).subscribe((isAttemptLeft) => {
+          const canShowOptInModal = this.utilityService.canShowOptInAfterExpenseCreation();
+
+          if (isAttemptLeft && isRedirectedFromAddExpense && canShowOptInModal) {
+            this.showPromoteOptInModal();
+            this.utilityService.toggleShowOptInAfterExpenseCreation(false);
+          }
+        });
+      }
+    });
   }
 
   setupNetworkWatcher(): void {
@@ -763,7 +859,7 @@ export class MyExpensesPage implements OnInit {
     }
     const params = this.loadExpenses$.getValue();
     params.pageNumber = this.currentPageNumber;
-    this.transactionService.clearCache().subscribe(() => {
+    this.transactionService.clearCache(false).subscribe(() => {
       this.loadExpenses$.next(params);
       if (event) {
         setTimeout(() => {
@@ -1530,7 +1626,10 @@ export class MyExpensesPage implements OnInit {
             }
             this.allExpensesCount = this.selectedElements.length;
             this.isReportableExpensesSelected =
-              this.sharedExpenseService.getReportableExpenses(this.selectedElements).length > 0;
+              this.sharedExpenseService.getReportableExpenses(
+                this.selectedElements,
+                this.restrictPendingTransactionsEnabled
+              ).length > 0;
             this.setExpenseStatsOnSelect();
           });
       }

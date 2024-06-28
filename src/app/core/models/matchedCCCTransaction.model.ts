@@ -2,7 +2,6 @@ import { TransactionStatus } from './platform/v1/expense.model';
 
 export interface MatchedCCCTransaction {
   amount: number;
-  balance_transfer_id: number | string;
   card_or_account_number: string;
   created_at: string;
   creator_id: number | string;
@@ -13,7 +12,6 @@ export interface MatchedCCCTransaction {
   orig_amount: number;
   orig_currency: string;
   payment_id: string;
-  settlement_id: string;
   state: string;
   txn_dt: string;
   updated_at: string;

@@ -29,7 +29,6 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
 import { StatusService } from 'src/app/core/services/status.service';
 import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
 import {
-  expectedNewStatusData,
   newEstatusData1,
   systemComments1,
   systemCommentsWithSt,
@@ -45,7 +44,6 @@ import { NetworkService } from '../../core/services/network.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { ShareReportComponent } from './share-report/share-report.component';
 import { ViewTeamReportPage } from './view-team-report.page';
-import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
 import { pdfExportData1, pdfExportData2 } from 'src/app/core/mock-data/pdf-export.data';
 import { EditReportNamePopoverComponent } from '../my-view-report/edit-report-name-popover/edit-report-name-popover.component';
 import { cloneDeep } from 'lodash';
@@ -66,7 +64,6 @@ import {
 import { ExpensesService as ApproverExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
 import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 describe('ViewTeamReportPageV2', () => {
   let component: ViewTeamReportPage;
@@ -90,7 +87,6 @@ describe('ViewTeamReportPageV2', () => {
   let humanizeCurrency: jasmine.SpyObj<HumanizeCurrencyPipe>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
-  let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
 
   beforeEach(waitForAsync(() => {
     const approverExpensesServiceSpy = jasmine.createSpyObj('ApproverExpensesService', [
@@ -134,9 +130,6 @@ describe('ViewTeamReportPageV2', () => {
       'getReportById',
       'permissions',
       'postComment',
-    ]);
-    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', [
-      'checkIfManualFlaggingFeatureIsEnabled',
     ]);
 
     TestBed.configureTestingModule({
@@ -228,10 +221,6 @@ describe('ViewTeamReportPageV2', () => {
           provide: ApproverReportsService,
           useValue: approverReportsServiceSpy,
         },
-        {
-          provide: LaunchDarklyService,
-          useValue: launchDarklyServiceSpy,
-        },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
@@ -257,7 +246,6 @@ describe('ViewTeamReportPageV2', () => {
     humanizeCurrency = TestBed.inject(HumanizeCurrencyPipe) as jasmine.SpyObj<HumanizeCurrencyPipe>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
-    launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
 
     fixture.detectChanges();
   }));
@@ -356,17 +344,12 @@ describe('ViewTeamReportPageV2', () => {
       );
       approverExpensesService.getReportExpenses.and.returnValue(of(expenseResponseData2));
       approverReportsService.permissions.and.returnValue(of(apiReportPermissions));
-      launchDarklyService.checkIfManualFlaggingFeatureIsEnabled.and.returnValue(of({ value: true }));
 
       component.ionViewWillEnter();
       tick(2000);
 
       component.eou$.subscribe((res) => {
         expect(res).toEqual(apiEouRes);
-      });
-
-      component.isManualFlagFeatureEnabled$.subscribe((res) => {
-        expect(res.value).toBeTrue();
       });
 
       expect(loaderService.showLoader).toHaveBeenCalledTimes(1);

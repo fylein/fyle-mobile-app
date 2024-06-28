@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { DateService } from './date.service';
-import { map, switchMap, concatMap, reduce } from 'rxjs/operators';
+import { map, switchMap, concatMap, reduce, tap } from 'rxjs/operators';
 import { StorageService } from './storage.service';
 import { from, Observable, range, forkJoin, of } from 'rxjs';
 import { ApiV2Service } from './api-v2.service';
@@ -58,6 +58,8 @@ type PaymentMode = {
   providedIn: 'root',
 })
 export class TransactionService {
+  private clearTaskCache = true;
+
   constructor(
     @Inject(PAGINATION_SIZE) private paginationSize: number,
     private storageService: StorageService,
@@ -77,7 +79,9 @@ export class TransactionService {
     private ldService: LaunchDarklyService
   ) {
     expensesCacheBuster$.subscribe(() => {
-      this.userEventService.clearTaskCache();
+      if (this.clearTaskCache) {
+        this.userEventService.clearTaskCache();
+      }
     });
   }
 
@@ -90,22 +94,12 @@ export class TransactionService {
     cacheBusterNotifier: expensesCacheBuster$,
     isInstant: true,
   })
-  clearCache(): Observable<null> {
-    return of(null);
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: expensesCacheBuster$,
-  })
-  manualFlag(txnId: string): Observable<Expense> {
-    return this.apiService.post('/transactions/' + txnId + '/manual_flag');
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: expensesCacheBuster$,
-  })
-  manualUnflag(txnId: string): Observable<Expense> {
-    return this.apiService.post('/transactions/' + txnId + '/manual_unflag');
+  clearCache(clearTaskCache: boolean = true): Observable<null> {
+    return of(null).pipe(
+      tap(() => {
+        this.clearTaskCache = clearTaskCache;
+      })
+    );
   }
 
   @Cacheable({
@@ -222,8 +216,9 @@ export class TransactionService {
     return forkJoin({
       orgUserSettings: this.orgUserSettingsService.get(),
       txnAccount: this.getTxnAccount(),
+      personalAccount: this.getPersonalAccount(),
     }).pipe(
-      switchMap(({ orgUserSettings, txnAccount }) => {
+      switchMap(({ orgUserSettings, txnAccount, personalAccount }) => {
         const offset = orgUserSettings.locale.offset;
 
         transaction.custom_properties = <TxnCustomProperties[]>(
@@ -259,9 +254,15 @@ export class TransactionService {
           transaction.to_dt = this.timezoneService.convertToUtc(transaction.to_dt, offset);
         }
 
-        if (!transaction.source_account_id) {
+        if (!transaction.source_account_id && !transaction.advance_wallet_id) {
           transaction.source_account_id = txnAccount.source_account_id;
           transaction.skip_reimbursement = txnAccount.skip_reimbursement;
+        }
+
+        if (transaction.advance_wallet_id) {
+          // this is required as a failsafe to make sue that the source_account_id is not set as any other account other than Personal account.
+          transaction.skip_reimbursement = true;
+          transaction.source_account_id = personalAccount?.source_account_id || null;
         }
 
         const transactionCopy = this.utilityService.discardRedundantCharacters(transaction, fieldsToCheck);
@@ -797,7 +798,6 @@ export class TransactionService {
         mileage_calculated_amount: expense.mileage_calculated_amount,
         commute_deduction: expense.commute_deduction,
         commute_deduction_id: expense.commute_details_id,
-        manual_flag: expense.is_manually_flagged,
         policy_flag: expense.is_policy_flagged,
         extracted_data: expense.extracted_data
           ? {
@@ -823,9 +823,11 @@ export class TransactionService {
               orig_amount: transaction.foreign_amount,
               orig_currency: transaction.foreign_currency,
               status: transaction.status,
+              corporate_card_nickname: transaction?.corporate_card_nickname,
             }))
           : null,
         source_account_id: expense.source_account_id,
+        advance_wallet_id: expense.advance_wallet_id,
         org_category_code: expense.category?.code,
         project_code: expense.project?.code,
       },
@@ -892,7 +894,6 @@ export class TransactionService {
       tx_mileage_is_round_trip: expense.mileage_is_round_trip,
       tx_mileage_calculated_distance: expense.mileage_calculated_distance,
       tx_mileage_calculated_amount: expense.mileage_calculated_amount,
-      tx_manual_flag: expense.is_manually_flagged,
       tx_policy_flag: expense.is_policy_flagged,
       tx_extracted_data: expense.extracted_data
         ? {
@@ -919,10 +920,22 @@ export class TransactionService {
         : null,
       tx_org_category_code: expense.category?.code,
       tx_project_code: expense.project?.code,
+      tx_advance_wallet_id: expense.advance_wallet_id,
       source_account_id: expense.source_account_id,
       source_account_type: this.sourceAccountTypePublicMapping(expense.source_account?.type),
     };
     return updatedExpense;
+  }
+
+  private getPersonalAccount(): Observable<{ source_account_id: string }> {
+    return this.accountsService.getEMyAccounts().pipe(
+      map((accounts) => {
+        const account = accounts?.find((account) => account?.acc?.type === 'PERSONAL_ACCOUNT');
+        return {
+          source_account_id: account?.acc?.id,
+        };
+      })
+    );
   }
 
   private getTxnAccount(): Observable<{ source_account_id: string; skip_reimbursement: boolean }> {

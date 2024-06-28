@@ -20,11 +20,9 @@ export interface ReportV1 {
   approved_at?: Date;
   reimbursed_at?: Date;
   submitted_at?: Date;
-  settlement_id?: string;
   verification_state?: string;
   trip_request_id?: string;
   exported: boolean;
-  manual_flag: boolean;
   policy_flag: boolean;
   claim_number: string;
   from_dt: Date;

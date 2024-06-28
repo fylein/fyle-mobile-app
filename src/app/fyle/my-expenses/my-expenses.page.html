@@ -7,7 +7,7 @@
   (multiselectBack)="switchSelectionMode()"
 >
   <ng-container base>
-    <ion-buttons mode="md" slot="end">
+    <ion-buttons mode="md" slot="end" (click)="onPageClick()">
       <ion-button class="my-expenses--header-btn" (click)="searchClick()">
         <ion-icon slot="icon-only" src="../../../assets/svg/search.svg"></ion-icon>
       </ion-button>
@@ -89,7 +89,7 @@
   </ng-container>
 </app-fy-header>
 
-<ion-content [ngClass]="{'d-none': isCameraPreviewStarted}" class="my-expenses--content">
+<ion-content [ngClass]="{'d-none': isCameraPreviewStarted}" class="my-expenses--content" (click)="onPageClick()">
   <div
     class="my-expenses--body"
     [ngClass]="{'my-expenses--zero-states-body': (((count$ | async) === 0) && isConnected$|async) || (pendingTransactions.length === 0 && !(isConnected$|async))}"
@@ -185,23 +185,20 @@
     </div>
 
     <ng-container *ngIf="isConnected$|async">
-      <ng-container *ngIf="(isManualFlagFeatureEnabled$|async) as isManualFlagFeatureEnabled">
-        <div *ngFor="let expense of myExpenses$ | async as list; let i = index">
-          <app-expense-card-v2
-            [expense]="expense"
-            [previousExpenseTxnDate]="list[i-1]?.spent_at"
-            [previousExpenseCreatedAt]="list[i-1]?.created_at"
-            [isSelectionModeEnabled]="selectionMode"
-            [selectedElements]="selectedElements"
-            (goToTransaction)="goToTransaction($event)"
-            (setMultiselectMode)="switchSelectionMode($event)"
-            (cardClickedForSelection)="selectExpense($event)"
-            (showCamera)="showCamera($event)"
-            [isManualFlagFeatureEnabled]="isManualFlagFeatureEnabled.value"
-          >
-          </app-expense-card-v2>
-        </div>
-      </ng-container>
+      <div *ngFor="let expense of myExpenses$ | async as list; let i = index">
+        <app-expense-card-v2
+          [expense]="expense"
+          [previousExpenseTxnDate]="list[i-1]?.spent_at"
+          [previousExpenseCreatedAt]="list[i-1]?.created_at"
+          [isSelectionModeEnabled]="selectionMode"
+          [selectedElements]="selectedElements"
+          (goToTransaction)="goToTransaction($event)"
+          (setMultiselectMode)="switchSelectionMode($event)"
+          (cardClickedForSelection)="selectExpense($event)"
+          (showCamera)="showCamera($event)"
+        >
+        </app-expense-card-v2>
+      </div>
     </ng-container>
     <ng-container *ngIf="isConnected$|async">
       <ng-container *ngIf="isLoadingDataInInfiniteScroll">

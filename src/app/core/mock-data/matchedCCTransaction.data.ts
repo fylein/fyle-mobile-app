@@ -40,7 +40,6 @@ export const matchedCCTransactionData3: Partial<MatchedCCCTransaction> = deepFre
   group_id: 'btxnBdS2Kpvzhy',
   created_at: '2024-01-23T12:17:34.473632+00:00',
   creator_id: 'usvMoPfCC9Xw',
-  settlement_id: null,
   updated_at: '2024-02-12T12:36:16.437742+00:00',
   amount: 205.21,
   vendor: 'test description',
@@ -52,4 +51,5 @@ export const matchedCCTransactionData3: Partial<MatchedCCCTransaction> = deepFre
   orig_amount: null,
   orig_currency: null,
   status: undefined,
+  nickname: 'Business Card',
 });

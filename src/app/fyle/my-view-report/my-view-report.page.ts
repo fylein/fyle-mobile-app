@@ -20,7 +20,7 @@ import { StatusService } from 'src/app/core/services/status.service';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { cloneDeep } from 'lodash';
 import { RefinerService } from 'src/app/core/services/refiner.service';
-import { Expense } from 'src/app/core/models/platform/v1/expense.model';
+import { Expense, TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { ReportPageSegment } from 'src/app/core/enums/report-page-segment.enum';
@@ -38,7 +38,6 @@ import { ReportPermissions } from 'src/app/core/models/report-permissions.model'
 import { ExtendedComment } from 'src/app/core/models/platform/v1/extended-comment.model';
 import { Comment } from 'src/app/core/models/platform/v1/comment.model';
 
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 @Component({
   selector: 'app-my-view-report',
   templateUrl: './my-view-report.page.html',
@@ -113,8 +112,6 @@ export class MyViewReportPage {
 
   hardwareBackButtonAction: Subscription;
 
-  isManualFlagFeatureEnabled$: Observable<{ value: boolean }>;
-
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
@@ -133,8 +130,7 @@ export class MyViewReportPage {
     private refinerService: RefinerService,
     private orgSettingsService: OrgSettingsService,
     private platformHandlerService: PlatformHandlerService,
-    private spenderReportsService: SpenderReportsService,
-    private launchDarklyService: LaunchDarklyService
+    private spenderReportsService: SpenderReportsService
   ) {}
 
   get Segment(): typeof ReportPageSegment {
@@ -230,8 +226,6 @@ export class MyViewReportPage {
     this.reportId = this.activatedRoute.snapshot.params.id as string;
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
 
-    this.isManualFlagFeatureEnabled$ = this.launchDarklyService.checkIfManualFlaggingFeatureIsEnabled();
-
     this.segmentValue = ReportPageSegment.EXPENSES;
 
     this.report$ = this.loadReportDetails$.pipe(
@@ -277,12 +271,11 @@ export class MyViewReportPage {
 
     this.expenses$.subscribe((expenses) => (this.reportExpenseIds = expenses.map((expense) => expense.id)));
 
-    let queryParams = {
+    const queryParams = {
       report_id: 'is.null',
       state: 'in.(COMPLETE)',
       order: 'spent_at.desc',
       or: ['(policy_amount.is.null,policy_amount.gt.0.0001)'],
-      and: '()',
     };
 
     this.orgSettingsService
@@ -294,15 +287,22 @@ export class MyViewReportPage {
             orgSetting.corporate_credit_card_settings?.enabled &&
             orgSetting.pending_cct_expense_restriction?.enabled
         ),
-        switchMap((filterPendingTxn: boolean) => {
-          if (filterPendingTxn) {
-            queryParams = {
-              ...queryParams,
-              and: '(or(matched_corporate_card_transactions.eq.[],matched_corporate_card_transactions->0->status.neq.PENDING))',
-            };
-          }
-          return this.expensesService.getAllExpenses({ queryParams });
-        }),
+        switchMap((filterPendingTxn: boolean) =>
+          this.expensesService.getAllExpenses({ queryParams }).pipe(
+            map((expenses) => {
+              if (filterPendingTxn) {
+                return expenses.filter((expense) => {
+                  if (filterPendingTxn && expense.matched_corporate_card_transaction_ids.length > 0) {
+                    return expense.matched_corporate_card_transactions[0].status !== TransactionStatus.PENDING;
+                  } else {
+                    return true;
+                  }
+                });
+              }
+              return expenses;
+            })
+          )
+        ),
         map((expenses) => cloneDeep(expenses)),
         map((expenses: Expense[]) => {
           this.unreportedExpenses = expenses;
@@ -433,7 +433,7 @@ export class MyViewReportPage {
   }
 
   resubmitReport(): void {
-    this.reportService.resubmit(this.reportId).subscribe(() => {
+    this.spenderReportsService.resubmit(this.reportId).subscribe(() => {
       this.refinerService.startSurvey({ actionName: 'Resubmit Report ' });
       this.router.navigate(['/', 'enterprise', 'my_reports']);
       const message = `Report resubmitted successfully.`;
@@ -446,7 +446,7 @@ export class MyViewReportPage {
   }
 
   submitReport(): void {
-    this.reportService.submit(this.reportId).subscribe(() => {
+    this.spenderReportsService.submit(this.reportId).subscribe(() => {
       this.refinerService.startSurvey({ actionName: 'Submit Report' });
       this.router.navigate(['/', 'enterprise', 'my_reports']);
       const message = `Report submitted successfully.`;

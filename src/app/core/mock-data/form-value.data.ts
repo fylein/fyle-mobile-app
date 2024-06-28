@@ -1,7 +1,7 @@
 import deepFreeze from 'deep-freeze-strict';
 
 import { CommuteDeduction } from '../enums/commute-deduction.enum';
-import { paymentModeDataPersonal } from '../test-data/accounts.service.spec.data';
+import { paymentModeDataPersonal, paymentModeDataAdvanceWallet } from '../test-data/accounts.service.spec.data';
 import { expectedProjectsResponse } from '../test-data/projects.spec.data';
 import { costCentersData } from './cost-centers.data';
 import { locationData1, locationData2 } from './location.data';
@@ -16,6 +16,22 @@ export const formValue1 = deepFreeze({
     distance: 10,
   },
   paymentMode: paymentModeDataPersonal,
+  sub_category: orgCategoryData,
+  dateOfSpend: new Date('2022-08-12T00:00:00'),
+  project: expectedProjectsResponse[0],
+  purpose: 'travel',
+  costCenter: costCentersData[0],
+  commuteDeduction: CommuteDeduction.ONE_WAY,
+});
+
+export const formValueForAdvanceWalletExpense = deepFreeze({
+  mileage_rate_name: unfilteredMileageRatesData[0],
+  route: {
+    mileageLocations: [locationData1, locationData2],
+    roundTrip: true,
+    distance: 10,
+  },
+  paymentMode: paymentModeDataAdvanceWallet,
   sub_category: orgCategoryData,
   dateOfSpend: new Date('2022-08-12T00:00:00'),
   project: expectedProjectsResponse[0],

@@ -27,7 +27,6 @@ import {
 import { tasksQueryParamsParams } from 'src/app/core/mock-data/get-tasks-query-params.data';
 import { getTeamReportsParams1, getTeamReportsParams2 } from 'src/app/core/mock-data/api-params.data';
 import { GetTasksQueryParamsWithFilters } from 'src/app/core/models/get-tasks-query-params-with-filters.model';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-report.data';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
@@ -54,7 +53,6 @@ export function TestCases1(getTestBed) {
     let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
     let authService: jasmine.SpyObj<AuthService>;
     let inputElement: HTMLInputElement;
-    let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
 
     beforeEach(waitForAsync(() => {
       const TestBed = getTestBed();
@@ -73,7 +71,6 @@ export function TestCases1(getTestBed) {
       apiV2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
       tasksService = TestBed.inject(TasksService) as jasmine.SpyObj<TasksService>;
       orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
-      launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
       approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
       authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
       component.eou$ = of(apiEouRes);
@@ -116,20 +113,12 @@ export function TestCases1(getTestBed) {
         mockAddNewFiltersToParams.and.returnValue(mockTasksQuery);
         spyOn(component, 'generateFilterPills').and.returnValue(creditTxnFilterPill);
         spyOn(component, 'clearFilters');
-        launchDarklyService.checkIfManualFlaggingFeatureIsEnabled.and.returnValue(of({ value: true }));
       });
 
       it('should set navigateBack to true if navigate_back is defined in activatedRoute.snapshot.params', () => {
         component.navigateBack = false;
         component.ionViewWillEnter();
         expect(component.navigateBack).toBeTrue();
-      });
-
-      it('should set isManualFlagFeatureEnabled$ from launchDarklyService ', () => {
-        component.ionViewWillEnter();
-        component.isManualFlagFeatureEnabled$.subscribe((res) => {
-          expect(res.value).toBeTrue();
-        });
       });
 
       it('should set navigateBack to false if navigate_back is undefined in activatedRoute.snapshot.params', () => {

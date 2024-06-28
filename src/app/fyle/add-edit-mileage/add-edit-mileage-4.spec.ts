@@ -14,7 +14,7 @@ import {
   expenseFieldResponse,
   expenseFieldWithBillable,
 } from 'src/app/core/mock-data/expense-field.data';
-import { formValue1, formValue2 } from 'src/app/core/mock-data/form-value.data';
+import { formValue1, formValue2, formValueForAdvanceWalletExpense } from 'src/app/core/mock-data/form-value.data';
 import { locationData1, locationData2 } from 'src/app/core/mock-data/location.data';
 import { filterEnabledMileageRatesData, unfilteredMileageRatesData } from 'src/app/core/mock-data/mileage-rate.data';
 import {
@@ -31,6 +31,7 @@ import {
   orgSettingsRes,
   orgSettingsWoAdvance,
   orgSettingsWoMileage,
+  orgSettingsParamsWithAdvanceWallet,
 } from 'src/app/core/mock-data/org-settings.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import { recentlyUsedRes } from 'src/app/core/mock-data/recently-used.data';
@@ -45,6 +46,7 @@ import {
   newExpenseMileageData2,
   newMileageExpFromForm,
   newMileageExpFromForm2,
+  newMileageExpFromFgWithAdvanceWallet,
   newUnflattenedTxn,
   unflattenedTxnData,
   unflattenedTxnWithCC,
@@ -496,6 +498,7 @@ export function TestCases4(getTestBed) {
       it('should return project from ID specified in the expense', (done) => {
         component.etxn$ = of(unflattenedTxnData);
         component.subCategories$ = of(sortedCategory);
+        component.projectCategories$ = of(sortedCategory);
         projectsService.getbyId.and.returnValue(of(expectedProjectsResponse[0]));
         fixture.detectChanges();
 
@@ -508,6 +511,7 @@ export function TestCases4(getTestBed) {
 
       it('should get default project ID and return the project if not provided in the expense', (done) => {
         component.etxn$ = of(newUnflattenedTxn);
+        component.projectCategories$ = of(sortedCategory);
         component.subCategories$ = of(sortedCategory);
         orgSettingsService.get.and.returnValue(of(orgSettingsRes));
         orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
@@ -685,12 +689,50 @@ export function TestCases4(getTestBed) {
       expect(result).toEqual([]);
     });
 
+    describe('getAdvanceWalletId():', () => {
+      it('should get advance wallet id', () => {
+        const paymentModeFormValue = {
+          id: 'areq1234',
+        };
+        component.fg.controls.paymentMode.setValue(paymentModeFormValue);
+
+        const result = component.getAdvanceWalletId(true);
+        expect(result).toEqual('areq1234');
+      });
+
+      it('should return null', () => {
+        component.fg.controls.paymentMode.setValue(null);
+
+        const result = component.getAdvanceWalletId(true);
+        expect(result).toBeUndefined();
+      });
+
+      it('should return null when advance wallet setting is disabled', () => {
+        component.fg.controls.paymentMode.setValue(null);
+
+        const result = component.getAdvanceWalletId(false);
+        expect(result).toBeFalse();
+      });
+
+      it('should return null', () => {
+        component.fg.controls.paymentMode.setValue({
+          acc: {
+            id: 'id',
+          },
+        });
+
+        const result = component.getAdvanceWalletId(true);
+        expect(result).toBeNull();
+      });
+    });
+
     describe('generateEtxnFromFg():', () => {
       beforeEach(() => {
         component.amount$ = of(100);
         component.homeCurrency$ = of('USD');
         component.mileageRates$ = of(unfilteredMileageRatesData);
         component.rate$ = of(null);
+        orgSettingsService.get.and.returnValue(of(orgSettingsRes));
       });
 
       it('should generate an expense from form', (done) => {
@@ -707,6 +749,49 @@ export function TestCases4(getTestBed) {
           .generateEtxnFromFg(of(unflattenedTxnWithReportID3), of(mockTxnCustomProperties), of(10))
           .subscribe((res) => {
             expect(res).toEqual(newMileageExpFromForm);
+            expect(component.getFormValues).toHaveBeenCalledTimes(2);
+            expect(dateService.getUTCDate).toHaveBeenCalledTimes(2);
+            done();
+          });
+      });
+
+      it('should generate an expense from form when orgSettings is null', (done) => {
+        orgSettingsService.get.and.returnValue(of(null));
+        dateService.getUTCDate.and.returnValue(new Date('2023-02-13T01:00:00.000Z'));
+        spyOn(component, 'getFormValues').and.returnValue(formValue1);
+        spyOn(component, 'getRateByVehicleType').and.returnValue(10);
+        component.showCommuteDeductionField = true;
+        component.commuteDetails = commuteDetailsData;
+        component.fg.patchValue({ commuteDeduction: CommuteDeduction.ONE_WAY });
+        fixture.detectChanges();
+        const mockTxnCustomProperties = cloneDeep(txnCustomProperties4);
+
+        component
+          .generateEtxnFromFg(of(unflattenedTxnWithReportID3), of(mockTxnCustomProperties), of(10))
+          .subscribe((res) => {
+            expect(res).toEqual(newMileageExpFromForm);
+            expect(component.getFormValues).toHaveBeenCalledTimes(2);
+            expect(dateService.getUTCDate).toHaveBeenCalledTimes(2);
+            done();
+          });
+      });
+
+      it('should generate an expense from form when advance wallets is enabled', (done) => {
+        orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithAdvanceWallet));
+        dateService.getUTCDate.and.returnValue(new Date('2023-02-13T01:00:00.000Z'));
+        spyOn(component, 'getFormValues').and.returnValue(formValueForAdvanceWalletExpense);
+        spyOn(component, 'getRateByVehicleType').and.returnValue(10);
+        spyOn(component, 'getAdvanceWalletId').and.returnValue('areq1234');
+        component.showCommuteDeductionField = true;
+        component.commuteDetails = commuteDetailsData;
+        component.fg.patchValue({ commuteDeduction: CommuteDeduction.ONE_WAY });
+        fixture.detectChanges();
+        const mockTxnCustomProperties = cloneDeep(txnCustomProperties4);
+
+        component
+          .generateEtxnFromFg(of(unflattenedTxnWithReportID3), of(mockTxnCustomProperties), of(10))
+          .subscribe((res) => {
+            expect(res).toEqual(newMileageExpFromFgWithAdvanceWallet);
             expect(component.getFormValues).toHaveBeenCalledTimes(1);
             expect(dateService.getUTCDate).toHaveBeenCalledTimes(2);
             done();
@@ -719,7 +804,7 @@ export function TestCases4(getTestBed) {
 
         component.generateEtxnFromFg(of(unflattenedTxnWithReportID3), of(null), of(10)).subscribe((res) => {
           expect(res).toEqual(newMileageExpFromForm2);
-          expect(component.getFormValues).toHaveBeenCalledTimes(1);
+          expect(component.getFormValues).toHaveBeenCalledTimes(2);
           expect(dateService.getUTCDate).toHaveBeenCalledTimes(1);
           done();
         });

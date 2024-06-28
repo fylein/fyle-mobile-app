@@ -272,7 +272,7 @@ export class ExpensesCardComponent implements OnInit {
 
     this.category = this.expense.tx_org_category?.toLowerCase();
     this.expense.isDraft = this.transactionService.getIsDraft(this.expense);
-    this.expense.isPolicyViolated = this.expense.tx_manual_flag || this.expense.tx_policy_flag;
+    this.expense.isPolicyViolated = this.expense.tx_policy_flag;
     this.expense.isCriticalPolicyViolated = this.transactionService.getIsCriticalPolicyViolated(this.expense);
     this.expense.vendorDetails = this.transactionService.getVendorDetails(this.expense);
     this.expenseFieldsService.getAllMap().subscribe((expenseFields) => {

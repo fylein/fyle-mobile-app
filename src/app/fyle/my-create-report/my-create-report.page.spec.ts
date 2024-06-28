@@ -29,9 +29,10 @@ import { TrackingService } from '../../core/services/tracking.service';
 import { MyCreateReportPage } from './my-create-report.page';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { orgSettingsPendingRestrictions } from 'src/app/core/mock-data/org-settings.data';
+import { orgSettingsPendingRestrictions, orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { expectedReportsSinglePage } from '../../core/mock-data/platform-report.data';
+import { TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
 
 describe('MyCreateReportPage', () => {
   let component: MyCreateReportPage;
@@ -55,7 +56,6 @@ describe('MyCreateReportPage', () => {
     const reportServiceSpy = jasmine.createSpyObj('ReportService', [
       'createDraft',
       'addTransactions',
-      'create',
       'getReportPurpose',
     ]);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
@@ -69,6 +69,8 @@ describe('MyCreateReportPage', () => {
       'addExpenses',
       'createDraft',
       'getReportsCount',
+      'suggestPurpose',
+      'create',
     ]);
 
     TestBed.configureTestingModule({
@@ -269,14 +271,14 @@ describe('MyCreateReportPage', () => {
     });
 
     it('should create report', () => {
-      reportService.create.and.returnValue(of(expectedReportsSinglePage[0]));
+      spenderReportsService.create.and.returnValue(of(expectedReportsSinglePage[0]));
       component.selectedElements = cloneDeep(readyToReportExpensesData);
       fixture.detectChanges();
 
       component.ctaClickedEvent('create_report');
 
       expect(component.sendFirstReportCreated).toHaveBeenCalledTimes(1);
-      expect(reportService.create).toHaveBeenCalledOnceWith(
+      expect(spenderReportsService.create).toHaveBeenCalledOnceWith(
         {
           purpose: component.reportTitle,
           source: 'MOBILE',
@@ -359,7 +361,7 @@ describe('MyCreateReportPage', () => {
   it('getReportTitle(): get report title', fakeAsync(() => {
     component.selectedElements = cloneDeep(readyToReportExpensesData);
     spyOn(component, 'getTotalSelectedExpensesAmount').and.returnValue(150);
-    reportService.getReportPurpose.and.returnValue(of('#Sept 24'));
+    spenderReportsService.suggestPurpose.and.returnValue(of('#Sept 24'));
     const el = getElementBySelector(fixture, "[data-testid='report-name']") as HTMLInputElement;
     el.value = 'New Report';
     el.dispatchEvent(new Event('input'));
@@ -373,9 +375,10 @@ describe('MyCreateReportPage', () => {
 
     component.getReportTitle();
 
-    expect(reportService.getReportPurpose).toHaveBeenCalledOnceWith({
-      ids: [readyToReportExpensesData[0].id, readyToReportExpensesData[1].id],
-    });
+    expect(spenderReportsService.suggestPurpose).toHaveBeenCalledOnceWith([
+      readyToReportExpensesData[0].id,
+      readyToReportExpensesData[1].id,
+    ]);
     expect(component.reportTitle).toEqual('#Sept 24');
     expect(component.getTotalSelectedExpensesAmount).toHaveBeenCalledOnceWith(component.selectedElements);
   }));
@@ -430,7 +433,6 @@ describe('MyCreateReportPage', () => {
         state: 'in.(COMPLETE)',
         order: 'spent_at.desc',
         or: ['(policy_amount.is.null,policy_amount.gt.0.0001)'],
-        and: '(or(matched_corporate_card_transactions.eq.[],matched_corporate_card_transactions->0->status.neq.PENDING))',
       },
     });
     expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
@@ -438,6 +440,66 @@ describe('MyCreateReportPage', () => {
 
     expect(component.checkTxnIds).toHaveBeenCalledTimes(1);
   }));
+
+  describe('ionViewWillEnter():', () => {
+    beforeEach(() => {
+      loaderService.showLoader.and.resolveTo();
+      loaderService.hideLoader.and.resolveTo();
+      transactionService.getAllExpenses.and.returnValue(of(cloneDeep(selectedExpenses)));
+      const mockSelectedExpense = cloneDeep(readyToReportExpensesData);
+      mockSelectedExpense[0].matched_corporate_card_transaction_ids = [];
+      mockSelectedExpense[1].matched_corporate_card_transactions[0].status = TransactionStatus.PENDING;
+      expensesService.getAllExpenses.and.returnValue(of(mockSelectedExpense));
+      orgSettingsService.get.and.returnValue(of(orgSettingsPendingRestrictions));
+      spyOn(component, 'getReportTitle').and.returnValue(null);
+      spyOn(component, 'checkTxnIds');
+      component.selectedExpenseIDs = [mockSelectedExpense[0].id, mockSelectedExpense[1].id];
+      fixture.detectChanges();
+    });
+
+    it('ionViewWillEnter(): should setup expenses', fakeAsync(() => {
+      component.ionViewWillEnter();
+      tick(500);
+
+      expect(expensesService.getAllExpenses).toHaveBeenCalledOnceWith({
+        queryParams: {
+          report_id: 'is.null',
+          state: 'in.(COMPLETE)',
+          order: 'spent_at.desc',
+          or: ['(policy_amount.is.null,policy_amount.gt.0.0001)'],
+        },
+      });
+      expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+      expect(component.getReportTitle).toHaveBeenCalledTimes(1);
+
+      expect(component.checkTxnIds).toHaveBeenCalledTimes(1);
+      // Should filter out the pending expenses
+      expect(component.selectedElements.length).toEqual(1);
+    }));
+
+    it('ionViewWillEnter(): should not filter expense if pending restriction is disabled', fakeAsync(() => {
+      orgSettingsService.get.and.returnValue(of(orgSettingsRes));
+
+      component.ionViewWillEnter();
+      tick(500);
+
+      expect(expensesService.getAllExpenses).toHaveBeenCalledOnceWith({
+        queryParams: {
+          report_id: 'is.null',
+          state: 'in.(COMPLETE)',
+          order: 'spent_at.desc',
+          or: ['(policy_amount.is.null,policy_amount.gt.0.0001)'],
+        },
+      });
+      expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+      expect(component.getReportTitle).toHaveBeenCalledTimes(1);
+
+      expect(component.checkTxnIds).toHaveBeenCalledTimes(1);
+
+      // Should not filter out the pending expenses
+      expect(component.selectedElements.length).toEqual(2);
+    }));
+  });
 
   describe('getTotalSelectedExpensesAmount()', () => {
     it('should return total amount', () => {

@@ -37,7 +37,7 @@ import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { ExtendedComment } from 'src/app/core/models/platform/v1/extended-comment.model';
 import { Comment } from 'src/app/core/models/platform/v1/comment.model';
 import { ApprovalState, ReportApprovals } from 'src/app/core/models/platform/report-approvals.model';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+
 @Component({
   selector: 'app-view-team-report',
   templateUrl: './view-team-report.page.html',
@@ -134,8 +134,6 @@ export class ViewTeamReportPage {
 
   approvals: ReportApprovals[];
 
-  isManualFlagFeatureEnabled$: Observable<{ value: boolean }>;
-
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
@@ -155,8 +153,7 @@ export class ViewTeamReportPage {
     private statusService: StatusService,
     private humanizeCurrency: HumanizeCurrencyPipe,
     private orgSettingsService: OrgSettingsService,
-    private approverReportsService: ApproverReportsService,
-    private launchDarklyService: LaunchDarklyService
+    private approverReportsService: ApproverReportsService
   ) {}
 
   ionViewWillLeave(): void {
@@ -264,8 +261,6 @@ export class ViewTeamReportPage {
   ionViewWillEnter(): void {
     this.isExpensesLoading = true;
     this.setupNetworkWatcher();
-
-    this.isManualFlagFeatureEnabled$ = this.launchDarklyService.checkIfManualFlaggingFeatureIsEnabled();
 
     const navigateBack = this.activatedRoute.snapshot.params?.navigate_back as string | null;
     if (navigateBack && typeof navigateBack == 'string') {
@@ -400,9 +395,7 @@ export class ViewTeamReportPage {
       const expenses = await this.expenses$.toPromise();
 
       const rpAmount = this.humanizeCurrency.transform(report.amount, report.currency, false);
-      const flaggedExpensesCount = expenses.filter(
-        (expense) => expense.is_policy_flagged || expense.is_manually_flagged
-      ).length;
+      const flaggedExpensesCount = expenses.filter((expense) => expense.is_policy_flagged).length;
       const popover = await this.popoverController.create({
         componentProps: {
           flaggedExpensesCount,
