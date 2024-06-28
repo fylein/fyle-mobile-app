@@ -29,9 +29,10 @@ import { TrackingService } from '../../core/services/tracking.service';
 import { MyCreateReportPage } from './my-create-report.page';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { orgSettingsPendingRestrictions } from 'src/app/core/mock-data/org-settings.data';
+import { orgSettingsPendingRestrictions, orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { expectedReportsSinglePage } from '../../core/mock-data/platform-report.data';
+import { TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
 
 describe('MyCreateReportPage', () => {
   let component: MyCreateReportPage;
@@ -430,7 +431,6 @@ describe('MyCreateReportPage', () => {
         state: 'in.(COMPLETE)',
         order: 'spent_at.desc',
         or: ['(policy_amount.is.null,policy_amount.gt.0.0001)'],
-        and: '(or(matched_corporate_card_transactions.eq.[],matched_corporate_card_transactions->0->status.neq.PENDING))',
       },
     });
     expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
@@ -438,6 +438,66 @@ describe('MyCreateReportPage', () => {
 
     expect(component.checkTxnIds).toHaveBeenCalledTimes(1);
   }));
+
+  describe('ionViewWillEnter():', () => {
+    beforeEach(() => {
+      loaderService.showLoader.and.resolveTo();
+      loaderService.hideLoader.and.resolveTo();
+      transactionService.getAllExpenses.and.returnValue(of(cloneDeep(selectedExpenses)));
+      const mockSelectedExpense = cloneDeep(readyToReportExpensesData);
+      mockSelectedExpense[0].matched_corporate_card_transaction_ids = [];
+      mockSelectedExpense[1].matched_corporate_card_transactions[0].status = TransactionStatus.PENDING;
+      expensesService.getAllExpenses.and.returnValue(of(mockSelectedExpense));
+      orgSettingsService.get.and.returnValue(of(orgSettingsPendingRestrictions));
+      spyOn(component, 'getReportTitle').and.returnValue(null);
+      spyOn(component, 'checkTxnIds');
+      component.selectedExpenseIDs = [mockSelectedExpense[0].id, mockSelectedExpense[1].id];
+      fixture.detectChanges();
+    });
+
+    it('ionViewWillEnter(): should setup expenses', fakeAsync(() => {
+      component.ionViewWillEnter();
+      tick(500);
+
+      expect(expensesService.getAllExpenses).toHaveBeenCalledOnceWith({
+        queryParams: {
+          report_id: 'is.null',
+          state: 'in.(COMPLETE)',
+          order: 'spent_at.desc',
+          or: ['(policy_amount.is.null,policy_amount.gt.0.0001)'],
+        },
+      });
+      expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+      expect(component.getReportTitle).toHaveBeenCalledTimes(1);
+
+      expect(component.checkTxnIds).toHaveBeenCalledTimes(1);
+      // Should filter out the pending expenses
+      expect(component.selectedElements.length).toEqual(1);
+    }));
+
+    it('ionViewWillEnter(): should not filter expense if pending restriction is disabled', fakeAsync(() => {
+      orgSettingsService.get.and.returnValue(of(orgSettingsRes));
+
+      component.ionViewWillEnter();
+      tick(500);
+
+      expect(expensesService.getAllExpenses).toHaveBeenCalledOnceWith({
+        queryParams: {
+          report_id: 'is.null',
+          state: 'in.(COMPLETE)',
+          order: 'spent_at.desc',
+          or: ['(policy_amount.is.null,policy_amount.gt.0.0001)'],
+        },
+      });
+      expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+      expect(component.getReportTitle).toHaveBeenCalledTimes(1);
+
+      expect(component.checkTxnIds).toHaveBeenCalledTimes(1);
+
+      // Should not filter out the pending expenses
+      expect(component.selectedElements.length).toEqual(2);
+    }));
+  });
 
   describe('getTotalSelectedExpensesAmount()', () => {
     it('should return total amount', () => {
