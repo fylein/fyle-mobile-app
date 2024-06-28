@@ -107,7 +107,7 @@ export class ExpensesService {
       );
   }
 
-  getExpensesWithUnmatchedCCCTransactions(expenses: Expense[]): string[] {
+  getExpenseIdsWithUnmatchedCCCTransactions(expenses: Expense[]): string[] {
     return expenses
       .filter(
         (expense) =>
@@ -180,10 +180,10 @@ export class ExpensesService {
     return this.spenderService.get<PlatformApiResponse<Expense[]>>('/expenses', { params }).pipe(
       map((expenses) => expenses.data),
       switchMap((expenses) => {
-        const idsOfExpenseWithNoMatchedCCCTransactions = this.getExpensesWithUnmatchedCCCTransactions(expenses);
+        const expenseIdsWithUnmatchedCCCTransactions = this.getExpenseIdsWithUnmatchedCCCTransactions(expenses);
 
-        if (idsOfExpenseWithNoMatchedCCCTransactions.length > 0) {
-          return this.fetchAndMapCCCTransactions(idsOfExpenseWithNoMatchedCCCTransactions, expenses);
+        if (expenseIdsWithUnmatchedCCCTransactions.length > 0) {
+          return this.fetchAndMapCCCTransactions(expenseIdsWithUnmatchedCCCTransactions, expenses);
         } else {
           return of(expenses);
         }
