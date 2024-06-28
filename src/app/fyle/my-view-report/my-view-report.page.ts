@@ -440,7 +440,7 @@ export class MyViewReportPage {
   }
 
   submitReport(): void {
-    this.reportService.submit(this.reportId).subscribe(() => {
+    this.spenderReportsService.submit(this.reportId).subscribe(() => {
       this.refinerService.startSurvey({ actionName: 'Submit Report' });
       this.router.navigate(['/', 'enterprise', 'my_reports']);
       const message = `Report submitted successfully.`;

@@ -9,7 +9,6 @@ import { PdfExport } from '../models/pdf-exports.model';
 import { Report } from '../models/platform/v1/report.model';
 import { ReportAutoSubmissionDetails } from '../models/report-auto-submission-details.model';
 import { ReportPermission } from '../models/report-permission.model';
-import { ReportPurpose } from '../models/report-purpose.model';
 import { ApproverPlatformApiService } from './approver-platform-api.service';
 import { ApiV2Service } from './api-v2.service';
 import { ApiService } from './api.service';
@@ -66,34 +65,6 @@ export class ReportService {
   })
   clearTransactionCache(): Observable<null> {
     return this.transactionService.clearCache();
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: reportsCacheBuster$,
-  })
-  create(report: ReportPurpose, expenseIds: string[]): Observable<Report> {
-    return this.spenderReportsService.createDraft({ data: report }).pipe(
-      switchMap((newReport: Report) => {
-        const payload = {
-          data: {
-            id: newReport.id,
-            expense_ids: expenseIds,
-          },
-        };
-        return this.spenderPlatformV1ApiService
-          .post<Report>('/reports/add_expenses', payload)
-          .pipe(switchMap(() => this.submit(newReport.id).pipe(map(() => newReport))));
-      })
-    );
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: reportsCacheBuster$,
-  })
-  submit(rptId: string): Observable<void> {
-    return this.apiService
-      .post<void>('/reports/' + rptId + '/submit')
-      .pipe(switchMap((res) => this.clearTransactionCache().pipe(map(() => res))));
   }
 
   @CacheBuster({

@@ -147,7 +147,7 @@ export class MyCreateReportPage implements OnInit {
           .subscribe(noop);
       } else {
         this.saveReportLoading = true;
-        this.reportService
+        this.spenderReportsService
           .create(report, expenseIDs)
           .pipe(
             tap(() =>
