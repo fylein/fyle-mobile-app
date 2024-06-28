@@ -129,7 +129,7 @@ export class FyAddToReportComponent implements OnInit, OnChanges, ControlValueAc
       this.trackingService.addToReportFromExpense();
     }
     if (data && data.createDraftReport) {
-      const reportTitle = await this.reportService.getReportPurpose({ ids: null }).toPromise();
+      const reportTitle = await this.platformReportService.suggestPurpose([]).toPromise();
 
       const draftReportPopover = await this.popoverController.create({
         component: FyInputPopoverComponent,
