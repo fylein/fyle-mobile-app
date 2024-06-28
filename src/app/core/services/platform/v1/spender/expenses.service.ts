@@ -91,8 +91,8 @@ export class ExpensesService {
 
           expenses.forEach((expense) => {
             if (
-              expense.matched_corporate_card_transaction_ids?.length > 0 &&
-              expense.matched_corporate_card_transactions?.length === 0
+              expense.matched_corporate_card_transaction_ids.length > 0 &&
+              expense.matched_corporate_card_transactions.length === 0
             ) {
               expense.matched_corporate_card_transactions = [
                 formattedCCCTransaction.find(
@@ -129,8 +129,8 @@ export class ExpensesService {
       map((res) => res.data[0]),
       switchMap((expense) => {
         if (
-          expense.matched_corporate_card_transaction_ids?.length > 0 &&
-          expense.matched_corporate_card_transactions?.length === 0
+          expense.matched_corporate_card_transaction_ids.length > 0 &&
+          expense.matched_corporate_card_transactions.length === 0
         ) {
           return this.corporateCreditCardExpenseService
             .getMatchedTransactionById(expense.matched_corporate_card_transaction_ids[0])
