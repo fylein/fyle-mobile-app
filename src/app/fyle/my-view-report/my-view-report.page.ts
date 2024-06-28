@@ -427,7 +427,7 @@ export class MyViewReportPage {
   }
 
   resubmitReport(): void {
-    this.reportService.resubmit(this.reportId).subscribe(() => {
+    this.spenderReportsService.resubmit(this.reportId).subscribe(() => {
       this.refinerService.startSurvey({ actionName: 'Resubmit Report ' });
       this.router.navigate(['/', 'enterprise', 'my_reports']);
       const message = `Report resubmitted successfully.`;
@@ -440,7 +440,7 @@ export class MyViewReportPage {
   }
 
   submitReport(): void {
-    this.reportService.submit(this.reportId).subscribe(() => {
+    this.spenderReportsService.submit(this.reportId).subscribe(() => {
       this.refinerService.startSurvey({ actionName: 'Submit Report' });
       this.router.navigate(['/', 'enterprise', 'my_reports']);
       const message = `Report submitted successfully.`;
