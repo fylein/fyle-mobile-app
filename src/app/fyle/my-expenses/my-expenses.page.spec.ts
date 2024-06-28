@@ -3283,6 +3283,7 @@ describe('MyExpensesPage', () => {
       key: 'OPT_IN_POPUP_SHOWN_COUNT',
     });
     expect(component.showPromoteOptInModal).toHaveBeenCalledTimes(1);
+    expect(utilityService.toggleShowOptInAfterExpenseCreation).toHaveBeenCalledOnceWith(false);
   }));
 
   it('setModalDelay(): should set optInShowTimer and call showPromoteOptInModal after 2 seconds', fakeAsync(() => {
