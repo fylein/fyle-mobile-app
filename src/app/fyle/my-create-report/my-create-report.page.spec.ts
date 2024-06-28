@@ -56,7 +56,6 @@ describe('MyCreateReportPage', () => {
     const reportServiceSpy = jasmine.createSpyObj('ReportService', [
       'createDraft',
       'addTransactions',
-      'create',
       'getReportPurpose',
     ]);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
@@ -70,6 +69,8 @@ describe('MyCreateReportPage', () => {
       'addExpenses',
       'createDraft',
       'getReportsCount',
+      'suggestPurpose',
+      'create',
     ]);
 
     TestBed.configureTestingModule({
@@ -270,14 +271,14 @@ describe('MyCreateReportPage', () => {
     });
 
     it('should create report', () => {
-      reportService.create.and.returnValue(of(expectedReportsSinglePage[0]));
+      spenderReportsService.create.and.returnValue(of(expectedReportsSinglePage[0]));
       component.selectedElements = cloneDeep(readyToReportExpensesData);
       fixture.detectChanges();
 
       component.ctaClickedEvent('create_report');
 
       expect(component.sendFirstReportCreated).toHaveBeenCalledTimes(1);
-      expect(reportService.create).toHaveBeenCalledOnceWith(
+      expect(spenderReportsService.create).toHaveBeenCalledOnceWith(
         {
           purpose: component.reportTitle,
           source: 'MOBILE',
@@ -360,7 +361,7 @@ describe('MyCreateReportPage', () => {
   it('getReportTitle(): get report title', fakeAsync(() => {
     component.selectedElements = cloneDeep(readyToReportExpensesData);
     spyOn(component, 'getTotalSelectedExpensesAmount').and.returnValue(150);
-    reportService.getReportPurpose.and.returnValue(of('#Sept 24'));
+    spenderReportsService.suggestPurpose.and.returnValue(of('#Sept 24'));
     const el = getElementBySelector(fixture, "[data-testid='report-name']") as HTMLInputElement;
     el.value = 'New Report';
     el.dispatchEvent(new Event('input'));
@@ -374,9 +375,10 @@ describe('MyCreateReportPage', () => {
 
     component.getReportTitle();
 
-    expect(reportService.getReportPurpose).toHaveBeenCalledOnceWith({
-      ids: [readyToReportExpensesData[0].id, readyToReportExpensesData[1].id],
-    });
+    expect(spenderReportsService.suggestPurpose).toHaveBeenCalledOnceWith([
+      readyToReportExpensesData[0].id,
+      readyToReportExpensesData[1].id,
+    ]);
     expect(component.reportTitle).toEqual('#Sept 24');
     expect(component.getTotalSelectedExpensesAmount).toHaveBeenCalledOnceWith(component.selectedElements);
   }));
