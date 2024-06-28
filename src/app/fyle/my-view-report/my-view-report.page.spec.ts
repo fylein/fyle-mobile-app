@@ -64,6 +64,8 @@ import { AddExpensesToReportComponent } from './add-expenses-to-report/add-expen
 import { ShareReportComponent } from './share-report/share-report.component';
 import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-report-name-popover.component';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { orgSettingsPendingRestrictions } from 'src/app/core/mock-data/org-settings.data';
+import { TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
 
 describe('MyViewReportPage', () => {
   let component: MyViewReportPage;
@@ -384,7 +386,6 @@ describe('MyViewReportPage', () => {
           state: 'in.(COMPLETE)',
           order: 'spent_at.desc',
           or: ['(policy_amount.is.null,policy_amount.gt.0.0001)'],
-          and: '()',
         },
       });
       expect(orgSettingsService.get).toHaveBeenCalled();
@@ -460,7 +461,6 @@ describe('MyViewReportPage', () => {
           state: 'in.(COMPLETE)',
           order: 'spent_at.desc',
           or: ['(policy_amount.is.null,policy_amount.gt.0.0001)'],
-          and: '()',
         },
       });
 
@@ -470,6 +470,32 @@ describe('MyViewReportPage', () => {
         expect(res).toEqual({ enabled: true });
       });
       expect(component.getSimplifyReportSettings).toHaveBeenCalledOnceWith(orgSettingsData);
+    }));
+
+    it('should should filter pending transactions and from unreportedExpenses', fakeAsync(() => {
+      spyOn(component, 'setupNetworkWatcher');
+      spyOn(component, 'getSimplifyReportSettings').and.returnValue(true);
+      component.objectType = 'transactions';
+      loaderService.showLoader.and.resolveTo();
+      authService.getEou.and.resolveTo(apiEouRes);
+      const mockStatusData = cloneDeep(newEstatusData1);
+      statusService.createStatusMap.and.returnValue(systemCommentsWithSt);
+      spenderReportsService.getReportById.and.returnValue(of(null));
+      expensesService.getReportExpenses.and.returnValue(of(expenseResponseData2));
+      spenderReportsService.permissions.and.returnValue(of(apiReportPermissions));
+      const mockExpenseData2 = cloneDeep(expenseData);
+      mockExpenseData2.matched_corporate_card_transaction_ids = [];
+      const mockExpenseData3 = cloneDeep(expenseData);
+      mockExpenseData3.matched_corporate_card_transaction_ids = ['txcSFe6efB6R'];
+      mockExpenseData3.matched_corporate_card_transactions[0].status = TransactionStatus.PENDING;
+      expensesService.getAllExpenses.and.returnValue(of([expenseData, mockExpenseData2, mockExpenseData3]));
+      orgSettingsService.get.and.returnValue(of(orgSettingsPendingRestrictions));
+      fixture.detectChanges();
+
+      component.ionViewWillEnter();
+      tick(2000);
+
+      expect(component.unreportedExpenses).toEqual([mockExpenseData2]);
     }));
   });
 
