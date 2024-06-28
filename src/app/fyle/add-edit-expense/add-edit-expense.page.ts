@@ -4553,12 +4553,13 @@ export class AddEditExpensePage implements OnInit {
               });
               return this.expensesService.attachReceiptToExpense(expenseId, fileObj.id);
             }),
-            switchMap(() =>
+            switchMap((expenseObj: PlatformExpense) =>
               editExpenseAttachments$.pipe(
                 withLatestFrom(this.isConnected$),
                 map(([attachments, isConnected]) => ({
                   attachments,
                   isConnected,
+                  expenseObj,
                 }))
               )
             ),
@@ -4567,9 +4568,19 @@ export class AddEditExpensePage implements OnInit {
               this.attachmentUploadInProgress = false;
             })
           )
-          .subscribe(({ attachments, isConnected }) => {
+          .subscribe(({ attachments, isConnected, expenseObj }) => {
             this.attachedReceiptsCount = attachments;
-            if (isConnected && this.attachedReceiptsCount === 1) {
+
+            const isDataExtractionNeeded = !(
+              expenseObj?.amount !== null &&
+              expenseObj.currency &&
+              expenseObj.spent_at &&
+              expenseObj.category_id &&
+              expenseObj.category.name !== 'Unspecified' &&
+              expenseObj.merchant
+            );
+
+            if (isConnected && this.attachedReceiptsCount === 1 && isDataExtractionNeeded) {
               this.parseFile(
                 fileInfo as {
                   type: string;
