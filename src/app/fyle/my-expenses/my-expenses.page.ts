@@ -806,6 +806,7 @@ export class MyExpensesPage implements OnInit {
 
           if (isAttemptLeft && isRedirectedFromAddExpense && canShowOptInModal) {
             this.showPromoteOptInModal();
+            this.utilityService.toggleShowOptInAfterExpenseCreation(false);
           }
         });
       }
