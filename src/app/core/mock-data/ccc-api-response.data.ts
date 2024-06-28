@@ -9,8 +9,6 @@ export const apiCardV2Transactions: ApiV2Response<CorporateCardExpense> = deepFr
     {
       _search_document: "'57.69':1,2 'adobe':4 'cloud':6 'creative':5 'inr':3 'office':7 'shipping':8",
       amount: 57.69,
-      balance_transfer_id: null,
-      balance_transfer_settlement_id: null,
       bank_txn_id: 'btxnSrrehKHsAg',
       corporate_credit_card_account_number: '9301',
       created_at: new Date('2022-07-06T10:07:22.811065'),
@@ -31,7 +29,6 @@ export const apiCardV2Transactions: ApiV2Response<CorporateCardExpense> = deepFr
       payment_id: 'paySBEQRu6LyW',
       personal: false,
       reversed: false,
-      settlement_id: null,
       state: 'IN_PROGRESS',
       transaction_type: 'debit',
       tx_split_group_id: 'txhLBlo6XN4k',
@@ -62,8 +59,6 @@ export const apiCardV2Transactions: ApiV2Response<CorporateCardExpense> = deepFr
     {
       _search_document: "'19202.0':1 '19202.00':2 'inr':3 'merchant':5 'test':4",
       amount: 19202,
-      balance_transfer_id: null,
-      balance_transfer_settlement_id: null,
       bank_txn_id: 'btxnByM07Fbm0e',
       corporate_credit_card_account_number: 'XXXXXXXXXXXX8090',
       created_at: new Date('2022-12-08T17:38:04.561422'),
@@ -84,7 +79,6 @@ export const apiCardV2Transactions: ApiV2Response<CorporateCardExpense> = deepFr
       payment_id: 'paysAflHgG1Jk',
       personal: false,
       reversed: false,
-      settlement_id: null,
       state: 'INITIALIZED',
       transaction_type: 'debit',
       tx_split_group_id: null,
