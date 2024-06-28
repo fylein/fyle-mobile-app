@@ -31,6 +31,7 @@ import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filt
 import { taskModalControllerParams, taskModalControllerParams2 } from 'src/app/core/mock-data/modal-controller.data';
 import {
   taskCtaData,
+  taskCtaData10,
   taskCtaData2,
   taskCtaData3,
   taskCtaData4,
@@ -328,6 +329,7 @@ export function TestCases1(getTestBed) {
         spyOn(component, 'onPotentialDuplicatesTaskClick');
         spyOn(component, 'onSentBackAdvanceTaskClick');
         spyOn(component, 'onMobileNumberVerificationTaskClick');
+        spyOn(component, 'onCommuteDetailsTaskClick');
       });
 
       it('should call onExpensesToReportTaskClick if clicked on expensesAddToReport', () => {
@@ -448,7 +450,24 @@ export function TestCases1(getTestBed) {
         expect(component.onTeamReportsTaskClick).not.toHaveBeenCalled();
         expect(component.onPotentialDuplicatesTaskClick).not.toHaveBeenCalled();
         expect(component.onSentBackAdvanceTaskClick).not.toHaveBeenCalled();
-        expect(component.onMobileNumberVerificationTaskClick).toHaveBeenCalledOnceWith(taskCtaData9);
+        expect(component.onMobileNumberVerificationTaskClick).toHaveBeenCalledTimes(1);
+      });
+
+      it('should call onMobileNumberVerificationTaskClick if clicked on mobileNumberVerification', () => {
+        component.onTaskClicked(taskCtaData10, dashboardTasksData[0]);
+        expect(trackingService.tasksClicked).toHaveBeenCalledOnceWith({
+          Asset: 'Mobile',
+          header: dashboardTasksData[0].header,
+        });
+        expect(component.onExpensesToReportTaskClick).not.toHaveBeenCalled();
+        expect(component.onOpenDraftReportsTaskClick).not.toHaveBeenCalled();
+        expect(component.onSentBackReportTaskClick).not.toHaveBeenCalled();
+        expect(component.onReviewExpensesTaskClick).not.toHaveBeenCalled();
+        expect(component.onTeamReportsTaskClick).not.toHaveBeenCalled();
+        expect(component.onPotentialDuplicatesTaskClick).not.toHaveBeenCalled();
+        expect(component.onSentBackAdvanceTaskClick).not.toHaveBeenCalled();
+        expect(component.onMobileNumberVerificationTaskClick).not.toHaveBeenCalled();
+        expect(component.onCommuteDetailsTaskClick).toHaveBeenCalledTimes(1);
       });
 
       it('should only call trackingService.tasksClicked if none of them matches', () => {
