@@ -9,7 +9,6 @@ import { PdfExport } from '../models/pdf-exports.model';
 import { Report } from '../models/platform/v1/report.model';
 import { ReportAutoSubmissionDetails } from '../models/report-auto-submission-details.model';
 import { ReportPermission } from '../models/report-permission.model';
-import { ReportPurpose } from '../models/report-purpose.model';
 import { ApproverPlatformApiService } from './approver-platform-api.service';
 import { ApiV2Service } from './api-v2.service';
 import { ApiService } from './api.service';

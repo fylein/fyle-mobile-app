@@ -112,6 +112,9 @@ export class IconModule {
     'arrow-up.svg',
     'check-circle-outline.svg',
     'question-square-outline.svg',
+    'sparkle.svg',
+    'arrow-tail-right.svg',
+    'stars-filled.svg',
   ];
 
   constructor(private domSanitizer: DomSanitizer, private matIconRegistry: MatIconRegistry) {
