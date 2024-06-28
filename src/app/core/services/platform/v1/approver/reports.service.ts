@@ -81,6 +81,10 @@ export class ApproverReportsService {
     return this.getReportsByParams(queryParams).pipe(map((res: PlatformApiResponse<Report[]>) => res.data[0]));
   }
 
+  sendBack(id: string, comment: string): Observable<void> {
+    return this.approverPlatformApiService.post('/reports/send_back', { data: { id, comment } });
+  }
+
   permissions(id: string): Observable<ReportPermissions> {
     return this.approverPlatformApiService
       .post<PlatformApiPayload<ReportPermissions>>('/reports/permissions', { data: { id } })

@@ -71,21 +71,6 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$,
   })
-  inquire(
-    rptId: string,
-    addStatusPayload: {
-      status: {
-        comment: string;
-      };
-      notify: boolean;
-    }
-  ): Observable<void> {
-    return this.apiService.post('/reports/' + rptId + '/inquire', addStatusPayload);
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: reportsCacheBuster$,
-  })
   approve(rptId: string): Observable<void> {
     return this.apiService.post('/reports/' + rptId + '/approve');
   }
