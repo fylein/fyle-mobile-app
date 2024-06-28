@@ -84,7 +84,8 @@
         "no-unused-expressions": ["error"],
         "no-console": ["error", { "allow": [""] }],
         "custom-rules/one-interface-per-file": "error",
-        "custom-rules/one-enum-per-file": "error"
+        "custom-rules/one-enum-per-file": "error",
+        "custom-rules/prefer-semantic-extension-name": "error"
       }
     },
     {
