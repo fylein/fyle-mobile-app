@@ -20,7 +20,7 @@ import { StatusService } from 'src/app/core/services/status.service';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { cloneDeep } from 'lodash';
 import { RefinerService } from 'src/app/core/services/refiner.service';
-import { Expense } from 'src/app/core/models/platform/v1/expense.model';
+import { Expense, TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { ReportPageSegment } from 'src/app/core/enums/report-page-segment.enum';
@@ -271,12 +271,11 @@ export class MyViewReportPage {
 
     this.expenses$.subscribe((expenses) => (this.reportExpenseIds = expenses.map((expense) => expense.id)));
 
-    let queryParams = {
+    const queryParams = {
       report_id: 'is.null',
       state: 'in.(COMPLETE)',
       order: 'spent_at.desc',
       or: ['(policy_amount.is.null,policy_amount.gt.0.0001)'],
-      and: '()',
     };
 
     this.orgSettingsService
@@ -288,15 +287,22 @@ export class MyViewReportPage {
             orgSetting.corporate_credit_card_settings?.enabled &&
             orgSetting.pending_cct_expense_restriction?.enabled
         ),
-        switchMap((filterPendingTxn: boolean) => {
-          if (filterPendingTxn) {
-            queryParams = {
-              ...queryParams,
-              and: '(or(matched_corporate_card_transactions.eq.[],matched_corporate_card_transactions->0->status.neq.PENDING))',
-            };
-          }
-          return this.expensesService.getAllExpenses({ queryParams });
-        }),
+        switchMap((filterPendingTxn: boolean) =>
+          this.expensesService.getAllExpenses({ queryParams }).pipe(
+            map((expenses) => {
+              if (filterPendingTxn) {
+                return expenses.filter((expense) => {
+                  if (filterPendingTxn && expense.matched_corporate_card_transaction_ids.length > 0) {
+                    return expense.matched_corporate_card_transactions[0].status !== TransactionStatus.PENDING;
+                  } else {
+                    return true;
+                  }
+                });
+              }
+              return expenses;
+            })
+          )
+        ),
         map((expenses) => cloneDeep(expenses)),
         map((expenses: Expense[]) => {
           this.unreportedExpenses = expenses;
