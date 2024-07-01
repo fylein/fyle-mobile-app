@@ -186,6 +186,20 @@ describe('ApproverReportsService', () => {
     });
   });
 
+  it('sendBack(): should send back a report', (done) => {
+    approverPlatformApiService.post.and.returnValue(of(null));
+
+    const reportID = 'rpvcIMRMyM3A';
+    const comment = 'testing';
+
+    approverReportsService.sendBack(reportID, comment).subscribe(() => {
+      expect(approverPlatformApiService.post).toHaveBeenCalledOnceWith(`/reports/send_back`, {
+        data: { id: reportID, comment },
+      });
+      done();
+    });
+  });
+
   it('getReportById(): should get a report by id', () => {
     spyOn(approverReportsService, 'getReportsByParams').and.returnValue(of(allReportsPaginated1));
     const queryParams = {

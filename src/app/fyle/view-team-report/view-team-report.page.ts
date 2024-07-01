@@ -493,23 +493,17 @@ export class ViewTeamReportPage {
     const { data } = (await popover.onWillDismiss()) as { data: { comment: string } };
 
     if (data && data.comment) {
-      const status = {
-        comment: data.comment,
-      };
-      const statusPayload = {
-        status,
-        notify: false,
-      };
-
-      this.reportService.inquire(this.activatedRoute.snapshot.params.id as string, statusPayload).subscribe(() => {
-        const message = 'Report Sent Back successfully';
-        this.matSnackBar.openFromComponent(ToastMessageComponent, {
-          ...this.snackbarProperties.setSnackbarProperties('success', { message }),
-          panelClass: ['msb-success-with-camera-icon'],
+      this.approverReportsService
+        .sendBack(this.activatedRoute.snapshot.params.id as string, data.comment)
+        .subscribe(() => {
+          const message = 'Report Sent Back successfully';
+          this.matSnackBar.openFromComponent(ToastMessageComponent, {
+            ...this.snackbarProperties.setSnackbarProperties('success', { message }),
+            panelClass: ['msb-success-with-camera-icon'],
+          });
+          this.trackingService.showToastMessage({ ToastContent: message });
+          this.refinerService.startSurvey({ actionName: 'Send Back Report' });
         });
-        this.trackingService.showToastMessage({ ToastContent: message });
-        this.refinerService.startSurvey({ actionName: 'Send Back Report' });
-      });
       this.router.navigate(['/', 'enterprise', 'team_reports']);
     }
   }
