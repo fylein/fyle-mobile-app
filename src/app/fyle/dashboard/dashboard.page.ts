@@ -375,6 +375,7 @@ export class DashboardPage {
       } else {
         this.trackingService.optInFromPostPostCardAdditionInDashboard();
         this.tasksComponent.doRefresh();
+        this.canShowOptInBanner$ = of(false);
       }
     });
   }
@@ -437,5 +438,9 @@ export class DashboardPage {
     } else {
       this.trackingService.skipOptInFromDashboardBanner();
     }
+  }
+
+  hideOptInDashboardBanner(): void {
+    this.canShowOptInBanner$ = of(false);
   }
 }
