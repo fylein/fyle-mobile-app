@@ -753,6 +753,10 @@ export class TrackingService {
     this.eventTrack('Opted Out');
   }
 
+  deleteMobileNumber(): void {
+    this.eventTrack('Delete Mobile Number');
+  }
+
   showOptInModalPostExpenseCreation(): void {
     this.eventTrack('Opt In Modal Post Expense Creation Shown');
   }

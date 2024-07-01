@@ -1,0 +1,41 @@
+<ng-container>
+  <div class="mobile-number-card__container">
+    <div>
+      <div (click)="clickedOnAdd()" class="mobile-number-card__title">
+        <div>
+          <div>Add mobile number</div>
+          <div class="mobile-number-card__description">
+            Add your mobile number to keep your profile information updated.
+          </div>
+        </div>
+        <span *ngIf="!mobileNumber" class="mobile-number-card__add-btn">Add</span>
+      </div>
+
+      <ng-container *ngIf="mobileNumber">
+        <div class="mobile-number-card__divider"></div>
+        <div class="mobile-number-card__mobile">
+          <span class="mobile-number-card__mobile__text">Mobile Number</span>
+          <div class="mobile-number-card__mobile__number-container">
+            <span>
+              {{ mobileNumber }}
+            </span>
+            <span>
+              <ion-icon
+                (click)="editMobileNumber()"
+                src="../../../../assets/svg/edit.svg"
+                slot="icon-only"
+                class="fy-icon mobile-number-card__mobile__edit-icon"
+              ></ion-icon>
+              <ion-icon
+                (click)="deleteMobileNumber()"
+                src="../../../../assets/svg/bin.svg"
+                slot="icon-only"
+                class="fy-icon mobile-number-card__mobile__delete-icon"
+              ></ion-icon>
+            </span>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</ng-container>

@@ -1,6 +1,6 @@
 @import '../../../../theme/colors.scss';
 
-.profile-opt-in-card {
+.mobile-number-card {
   &__container {
     background-color: $pure-white;
     border-radius: 8px;
@@ -17,11 +17,11 @@
     color: $pure-black;
   }
 
-  &__opt-in-btn {
+  &__add-btn {
     font-size: 14px;
     color: $brand-primary;
-    white-space: nowrap;
     font-weight: 500;
+    white-space: nowrap;
   }
 
   &__description {
@@ -56,20 +56,10 @@
       flex-shrink: 0;
       background-color: $green;
 
-      &--inactive {
-        @extend .profile-opt-in-card__status__icon;
-        background-color: $red;
+      &__text {
+        font-weight: 500;
       }
     }
-
-    &__text {
-      font-weight: 500;
-    }
-  }
-
-  &__opt-out-btn {
-    @extend .profile-opt-in-card__opt-in-btn;
-    font-weight: 500;
   }
 
   &__divider {
@@ -81,7 +71,6 @@
     margin-top: 16px;
     font-size: 14px;
     font-weight: 400;
-    color: $black-light;
 
     &__number-container {
       margin-top: 4px;
@@ -93,51 +82,15 @@
       color: $black;
     }
 
-    &__edit-icon {
+    &__delete-icon {
       width: 24px;
       height: 24px;
-      color: $brand-primary;
-      margin-left: 12px;
+      color: $blue-black;
     }
 
-    &__delete-icon {
-      @extend .profile-opt-in-card__mobile__edit-icon;
-      color: $red;
-    }
-  }
-
-  &__usage-description {
-    margin-top: 16px;
-    display: flex;
-    justify-content: space-between;
-    font-size: 14px;
-    font-weight: 400;
-    color: $black-light;
-
-    &__text {
-      width: 80%;
-    }
-  }
-
-  &__copy-icon {
-    width: 24px;
-    height: 24px;
-    color: $brand-primary;
-  }
-
-  &__non-us-number-card {
-    margin-top: 18px;
-    display: flex;
-    padding: 12px;
-    border-radius: 6px;
-    background-color: $alice-blue;
-    font-size: 12px;
-    gap: 8px;
-
-    &__cta {
-      white-space: nowrap;
-      color: $brand-primary;
-      font-weight: 500;
+    &__edit-icon {
+      @extend .mobile-number-card__mobile__delete-icon;
+      margin-right: 16px;
     }
   }
 }
