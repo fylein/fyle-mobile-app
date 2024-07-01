@@ -249,7 +249,7 @@ describe('FyOptInComponent', () => {
       component.saveMobileNumber();
       expect(orgUserService.postOrgUser).not.toHaveBeenCalled();
       expect(authService.refreshEou).not.toHaveBeenCalled();
-      expect(component.resendOtp).toHaveBeenCalledOnceWith('INITIAL');
+      expect(component.resendOtp).not.toHaveBeenCalled();
     });
 
     it('should set sendCodeLoading to false if API call fails', () => {

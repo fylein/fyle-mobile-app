@@ -79,6 +79,9 @@ describe('MyProfilePage', () => {
       'verifyMobileNumber',
       'optedOut',
       'deleteMobileNumber',
+      'optInClickedFromProfile',
+      'updateMobileNumberClicked',
+      'optedInFromProfile',
     ]);
     const orgServiceSpy = jasmine.createSpyObj('OrgService', ['getCurrentOrg']);
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
@@ -517,6 +520,7 @@ describe('MyProfilePage', () => {
       expect(popoverSpy.onWillDismiss).toHaveBeenCalledTimes(1);
       expect(authService.refreshEou).toHaveBeenCalledTimes(1);
       expect(authService.getEou).toHaveBeenCalledTimes(1);
+      expect(trackingService.optedInFromProfile).toHaveBeenCalledTimes(1);
     }));
 
     it('should should show success toast message if there are no more attempts left', fakeAsync(() => {
@@ -540,6 +544,7 @@ describe('MyProfilePage', () => {
       expect(popoverSpy.onWillDismiss).toHaveBeenCalledTimes(1);
       expect(authService.refreshEou).toHaveBeenCalledTimes(1);
       expect(authService.getEou).toHaveBeenCalledTimes(1);
+      expect(trackingService.optedInFromProfile).toHaveBeenCalledTimes(1);
     }));
 
     it('should open add number popover and show error toast message if api returns error', fakeAsync(() => {
