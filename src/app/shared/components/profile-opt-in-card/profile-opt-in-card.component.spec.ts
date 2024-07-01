@@ -113,6 +113,6 @@ describe('ProfileOptInCardComponent', () => {
     spyOn(component.deleteMobileNumberClicked, 'emit');
     component.deleteMobileNumber();
     expect(trackingService.clickedOnDeleteNumber).toHaveBeenCalledTimes(1);
-    expect(component.deleteMobileNumberClicked.emit).toHaveBeenCalledOnceWith(component.extendedOrgUser);
+    expect(component.deleteMobileNumberClicked.emit).toHaveBeenCalledTimes(1);
   });
 });

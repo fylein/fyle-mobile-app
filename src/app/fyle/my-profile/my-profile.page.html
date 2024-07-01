@@ -23,7 +23,7 @@
               (optInClicked)="optInMobileNumber($event)"
               (optOutClicked)="optOutClick()"
               (editMobileNumberClicked)="optInMobileNumber($event)"
-              (deleteMobileNumberClicked)="onDeleteCTAClicked($event)"
+              (deleteMobileNumberClicked)="onDeleteCTAClicked()"
             ></app-profile-opt-in-card>
           </ng-container>
         </ng-container>
@@ -33,7 +33,7 @@
           <app-mobile-number-card
             [extendedOrgUser]="eou"
             (addMobileNumberClicked)="updateMobileNumber($event)"
-            (deleteMobileNumberClicked)="onDeleteCTAClicked($event)"
+            (deleteMobileNumberClicked)="onDeleteCTAClicked()"
             (editMobileNumberClicked)="updateMobileNumber($event)"
           ></app-mobile-number-card>
         </ng-container>

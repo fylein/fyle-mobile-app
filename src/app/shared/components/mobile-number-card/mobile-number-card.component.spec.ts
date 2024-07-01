@@ -40,7 +40,14 @@ describe('MobileNumberCardComponent', () => {
 
   it('editMobileNumber(): should emit editMobileNumberClicked event', () => {
     spyOn(component.editMobileNumberClicked, 'emit');
+    component.extendedOrgUser = apiEouRes;
     component.editMobileNumber();
-    expect(component.editMobileNumberClicked.emit).toHaveBeenCalled();
+    expect(component.editMobileNumberClicked.emit).toHaveBeenCalledOnceWith(apiEouRes);
+  });
+
+  it('deleteMobileNumber(): should emit deleteMobileNumberClicked event', () => {
+    spyOn(component.deleteMobileNumberClicked, 'emit');
+    component.deleteMobileNumber();
+    expect(component.deleteMobileNumberClicked.emit).toHaveBeenCalledTimes(1);
   });
 });

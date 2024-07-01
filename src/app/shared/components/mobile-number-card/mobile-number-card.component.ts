@@ -11,7 +11,7 @@ export class MobileNumberCardComponent implements OnInit {
 
   @Output() addMobileNumberClicked = new EventEmitter<ExtendedOrgUser>();
 
-  @Output() deleteMobileNumberClicked = new EventEmitter<ExtendedOrgUser>();
+  @Output() deleteMobileNumberClicked = new EventEmitter<void>();
 
   @Output() editMobileNumberClicked = new EventEmitter<ExtendedOrgUser>();
 
@@ -30,6 +30,6 @@ export class MobileNumberCardComponent implements OnInit {
   }
 
   deleteMobileNumber(): void {
-    this.deleteMobileNumberClicked.emit(this.extendedOrgUser);
+    this.deleteMobileNumberClicked.emit();
   }
 }
