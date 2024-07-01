@@ -437,7 +437,7 @@ export class MyProfilePage {
   optOut(): void {
     from(this.loaderService.showLoader())
       .pipe(
-        switchMap(() => this.authService.getEou()),
+        switchMap(() => from(this.authService.getEou())),
         switchMap((eou) => {
           const updatedOrgUserDetails: OrgUser = {
             ...eou.ou,
