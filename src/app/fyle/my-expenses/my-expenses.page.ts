@@ -806,6 +806,7 @@ export class MyExpensesPage implements OnInit {
 
           if (isAttemptLeft && isRedirectedFromAddExpense && canShowOptInModal) {
             this.showPromoteOptInModal();
+            this.utilityService.toggleShowOptInAfterExpenseCreation(false);
           }
         });
       }
@@ -1625,7 +1626,10 @@ export class MyExpensesPage implements OnInit {
             }
             this.allExpensesCount = this.selectedElements.length;
             this.isReportableExpensesSelected =
-              this.sharedExpenseService.getReportableExpenses(this.selectedElements).length > 0;
+              this.sharedExpenseService.getReportableExpenses(
+                this.selectedElements,
+                this.restrictPendingTransactionsEnabled
+              ).length > 0;
             this.setExpenseStatsOnSelect();
           });
       }

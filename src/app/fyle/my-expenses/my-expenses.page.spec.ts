@@ -308,6 +308,7 @@ describe('MyExpensesPage', () => {
       'getDeleteDialogBody',
       'restrictPendingTransactionsEnabled',
       'doesExpenseHavePendingCardTransaction',
+      'getReportableExpenses',
     ]);
     const utilityServiceSpy = jasmine.createSpyObj('UtilityService', [
       'canShowOptInAfterExpenseCreation',
@@ -2914,6 +2915,10 @@ describe('MyExpensesPage', () => {
         queryParams: { report_id: 'is.null', state: 'in.(COMPLETE,DRAFT)', q: 'Bus:*' },
       });
       expect(sharedExpenseService.excludeCCCExpenses).toHaveBeenCalledOnceWith(apiExpenses1);
+      expect(sharedExpenseService.getReportableExpenses).toHaveBeenCalledOnceWith(
+        component.selectedElements,
+        component.restrictPendingTransactionsEnabled
+      );
       expect(component.cccExpenses).toBe(0);
       expect(component.selectedElements).toEqual([...apiExpenses1]);
       expect(component.allExpensesCount).toBe(2);
@@ -3283,6 +3288,7 @@ describe('MyExpensesPage', () => {
       key: 'OPT_IN_POPUP_SHOWN_COUNT',
     });
     expect(component.showPromoteOptInModal).toHaveBeenCalledTimes(1);
+    expect(utilityService.toggleShowOptInAfterExpenseCreation).toHaveBeenCalledOnceWith(false);
   }));
 
   it('setModalDelay(): should set optInShowTimer and call showPromoteOptInModal after 2 seconds', fakeAsync(() => {
