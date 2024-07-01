@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -44,6 +44,8 @@ import { TransactionStatus } from 'src/app/core/models/platform/v1/expense.model
   styleUrls: ['./tasks.component.scss'],
 })
 export class TasksComponent implements OnInit {
+  @Output() optedIn = new EventEmitter<void>();
+
   tasks$: Observable<DashboardTask[]>;
 
   loadData$: BehaviorSubject<TaskFilters> = new BehaviorSubject({
@@ -416,6 +418,7 @@ export class TasksComponent implements OnInit {
 
       if (data && data.action === 'SUCCESS') {
         this.doRefresh();
+        this.optedIn.emit();
       }
     });
   }

@@ -807,4 +807,11 @@ describe('DashboardPage', () => {
       expect(component.tasksComponent.doRefresh).not.toHaveBeenCalled();
     });
   });
+
+  it('hideOptInDashboardBanner(): should set canShowOptInBanner$ to false', () => {
+    component.hideOptInDashboardBanner();
+    component.canShowOptInBanner$.subscribe((res) => {
+      expect(res).toBeFalse();
+    });
+  });
 });
