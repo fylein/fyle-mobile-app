@@ -8,19 +8,19 @@ interface ValueErrorMapping {
 export const valueErrorMapping: ValueErrorMapping[] = deepFreeze([
   {
     value: null,
-    error: 'Please enter a Mobile Number',
+    error: 'Enter mobile number',
   },
   {
     value: '',
-    error: 'Please enter a Mobile Number',
+    error: 'Enter mobile number',
   },
   {
     value: '123+98',
-    error: 'Please enter a valid mobile number with country code. e.g. +12025559975',
+    error: 'Enter mobile number with country code',
   },
   {
     value: '8080913866',
-    error: 'Please enter a valid mobile number with country code. e.g. +12025559975',
+    error: 'Enter mobile number with country code',
   },
   {
     value: '+918080913866',

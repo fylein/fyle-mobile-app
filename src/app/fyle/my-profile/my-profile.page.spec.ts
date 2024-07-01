@@ -692,4 +692,21 @@ describe('MyProfilePage', () => {
       expect(eou.ou.mobile).toBe('');
     });
   }));
+
+  it('updateMobileNumber(): should open update mobile number popover', fakeAsync(() => {
+    authService.refreshEou.and.returnValue(of(apiEouRes));
+    spyOn(component, 'showToastMessage');
+    const popoverSpy = jasmine.createSpyObj('updateMobileNumberPopover', ['present', 'onWillDismiss']);
+    popoverSpy.onWillDismiss.and.resolveTo({ data: { action: 'SUCCESS' } });
+    popoverController.create.and.resolveTo(popoverSpy);
+
+    component.updateMobileNumber(apiEouRes);
+    tick(100);
+
+    expect(popoverController.create).toHaveBeenCalledTimes(1);
+    expect(popoverSpy.present).toHaveBeenCalledTimes(1);
+    expect(popoverSpy.onWillDismiss).toHaveBeenCalledTimes(1);
+    expect(authService.refreshEou).toHaveBeenCalledTimes(1);
+    expect(component.showToastMessage).toHaveBeenCalledOnceWith('Mobile number updated successfully', 'success');
+  }));
 });
