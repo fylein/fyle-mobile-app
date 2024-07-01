@@ -19,7 +19,7 @@ export class ProfileOptInCardComponent implements OnInit {
 
   @Output() editMobileNumberClicked = new EventEmitter<ExtendedOrgUser>();
 
-  @Output() deleteMobileNumberClicked = new EventEmitter<ExtendedOrgUser>();
+  @Output() deleteMobileNumberClicked = new EventEmitter<void>();
 
   isUserOptedIn = false;
 
@@ -57,7 +57,7 @@ export class ProfileOptInCardComponent implements OnInit {
 
   deleteMobileNumber(): void {
     this.trackingService.clickedOnDeleteNumber();
-    this.deleteMobileNumberClicked.emit(this.extendedOrgUser);
+    this.deleteMobileNumberClicked.emit();
   }
 
   async copyToClipboard(): Promise<void> {
