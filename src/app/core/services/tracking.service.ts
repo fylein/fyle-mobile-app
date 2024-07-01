@@ -621,8 +621,12 @@ export class TrackingService {
     this.eventTrack('Popover shown since receipt limit exceeded', properties);
   }
 
-  updateMobileNumber(properties = {}): void {
-    this.eventTrack('Update Mobile Number', properties);
+  updateMobileNumberClicked(properties = {}): void {
+    this.eventTrack('Update Mobile Number Clicked', properties);
+  }
+
+  updateMobileNumber(): void {
+    this.eventTrack('Update Mobile Number');
   }
 
   verifyMobileNumber(): void {
@@ -799,5 +803,17 @@ export class TrackingService {
 
   skipOptInFromDashboardBanner(): void {
     this.eventTrack('Skip Opt In From Dashboard Banner');
+  }
+
+  optInClickedFromProfile(): void {
+    this.eventTrack('Opt in Clicked From Profile');
+  }
+
+  optedInFromProfile(): void {
+    this.eventTrack('Opted In From Profile');
+  }
+
+  clickedOnDashboardBanner(): void {
+    this.eventTrack('Clicked On Dashboard Banner');
   }
 }

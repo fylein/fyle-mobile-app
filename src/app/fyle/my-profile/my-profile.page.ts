@@ -355,6 +355,8 @@ export class MyProfilePage {
   }
 
   async optInMobileNumber(eou: ExtendedOrgUser): Promise<void> {
+    this.trackingService.optInClickedFromProfile();
+
     const optInMobileNumberPopover = await this.modalController.create({
       component: FyOptInComponent,
       componentProps: {
@@ -370,18 +372,13 @@ export class MyProfilePage {
       if (data.action === 'SUCCESS') {
         this.eou$ = from(this.authService.refreshEou());
         this.showToastMessage('Opted in successfully', 'success');
+        this.trackingService.optedInFromProfile();
       } else if (data.action === 'ERROR') {
         this.showToastMessage('Something went wrong. Please try again later.', 'failure');
       }
     }
 
     this.eou$ = from(this.authService.getEou());
-
-    this.trackingService.updateMobileNumber({
-      popoverTitle: (eou.ou.mobile?.length ? 'Edit' : 'Add') + ' Mobile Number',
-      isRtfEnabled: this.isRTFEnabled,
-      defaultPaymentMode: this.defaultPaymentMode,
-    });
   }
 
   async openCommuteDetailsModal(): Promise<void> {
@@ -535,6 +532,10 @@ export class MyProfilePage {
   }
 
   async updateMobileNumber(eou: ExtendedOrgUser): Promise<void> {
+    this.trackingService.updateMobileNumberClicked({
+      popoverTitle: (eou.ou.mobile?.length ? 'Edit' : 'Add') + ' Mobile Number',
+    });
+
     const updateMobileNumberPopover = await this.popoverController.create({
       component: UpdateMobileNumberComponent,
       componentProps: {
@@ -552,6 +553,7 @@ export class MyProfilePage {
     if (data && data.action === 'SUCCESS') {
       this.eou$ = from(this.authService.refreshEou());
       this.showToastMessage('Mobile number updated successfully', 'success');
+      this.trackingService.updateMobileNumber();
     }
   }
 }

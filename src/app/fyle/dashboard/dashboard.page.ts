@@ -27,11 +27,7 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { PromoteOptInModalComponent } from 'src/app/shared/components/promote-opt-in-modal/promote-opt-in-modal.component';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
-
-enum DashboardState {
-  home,
-  tasks,
-}
+import { DashboardState } from 'src/app/core/enums/dashboard-state.enum';
 
 @Component({
   selector: 'app-dashboard',
@@ -423,7 +419,7 @@ export class DashboardPage {
     });
   }
 
-  toggleOptInBanner(isOptedIn: boolean): void {
+  toggleOptInBanner(data: { isOptedIn: boolean }): void {
     this.canShowOptInBanner$ = of(false);
 
     const optInBannerConfig = {
@@ -434,7 +430,7 @@ export class DashboardPage {
 
     this.featureConfigService.saveConfiguration(optInBannerConfig).subscribe(noop);
 
-    if (isOptedIn) {
+    if (data.isOptedIn) {
       this.trackingService.optedInFromDashboardBanner();
       this.eou$ = this.authService.refreshEou();
       this.tasksComponent.doRefresh();

@@ -3,6 +3,7 @@ import { ModalController, PopoverController } from '@ionic/angular';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { FyOptInComponent } from '../fy-opt-in/fy-opt-in.component';
 import { PopupAlertComponent } from '../popup-alert/popup-alert.component';
+import { TrackingService } from 'src/app/core/services/tracking.service';
 
 @Component({
   selector: 'app-dashboard-opt-in',
@@ -14,9 +15,15 @@ export class DashboardOptInComponent {
 
   @Output() toggleOptInBanner = new EventEmitter<{ optedIn: boolean }>();
 
-  constructor(private modalController: ModalController, private popoverController: PopoverController) {}
+  constructor(
+    private modalController: ModalController,
+    private popoverController: PopoverController,
+    private trackingService: TrackingService
+  ) {}
 
   async optInClick(): Promise<void> {
+    this.trackingService.clickedOnDashboardBanner();
+
     const optInModal = await this.modalController.create({
       component: FyOptInComponent,
       componentProps: {
