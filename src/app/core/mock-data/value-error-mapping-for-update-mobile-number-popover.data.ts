@@ -1,9 +1,5 @@
 import deepFreeze from 'deep-freeze-strict';
-
-interface ValueErrorMapping {
-  value: string | null;
-  error: string | null;
-}
+import { ValueErrorMapping } from '../models/mobile-number-value-error-mapping.model';
 
 export const valueErrorMapping: ValueErrorMapping[] = deepFreeze([
   {
