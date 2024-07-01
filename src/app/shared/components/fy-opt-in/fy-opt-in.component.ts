@@ -149,9 +149,6 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
           .pipe(switchMap(() => this.authService.refreshEou()))
           .subscribe({
             complete: () => {
-              this.trackingService.updateMobileNumber({
-                popoverTitle: (this.extendedOrgUser.ou.mobile?.length ? 'Edit' : 'Add') + ' Mobile Number',
-              });
               this.resendOtp('INITIAL');
             },
             error: () => {

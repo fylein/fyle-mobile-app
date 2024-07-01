@@ -241,9 +241,6 @@ describe('FyOptInComponent', () => {
         mobile: '123456',
       });
       expect(authService.refreshEou).toHaveBeenCalledTimes(1);
-      expect(trackingService.updateMobileNumber).toHaveBeenCalledOnceWith({
-        popoverTitle: 'Edit Mobile Number',
-      });
       expect(component.resendOtp).toHaveBeenCalledOnceWith('INITIAL');
     });
 
@@ -252,16 +249,7 @@ describe('FyOptInComponent', () => {
       component.saveMobileNumber();
       expect(orgUserService.postOrgUser).not.toHaveBeenCalled();
       expect(authService.refreshEou).not.toHaveBeenCalled();
-    });
-
-    it('should track add mobile number instead of edit if mobile number is null', () => {
-      const mockEou = cloneDeep(eouRes2);
-      mockEou.ou.mobile = null;
-      component.extendedOrgUser = mockEou;
-      component.saveMobileNumber();
-      expect(trackingService.updateMobileNumber).toHaveBeenCalledOnceWith({
-        popoverTitle: 'Add Mobile Number',
-      });
+      expect(component.resendOtp).not.toHaveBeenCalled();
     });
 
     it('should set sendCodeLoading to false if API call fails', () => {
