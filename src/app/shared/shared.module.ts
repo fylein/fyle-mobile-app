@@ -145,6 +145,12 @@ import { AutofocusDirective } from './directive/autofocus.directive';
 import { TransactionStatusInfoPopoverComponent } from './components/transaction-status-info-popover/transaction-status-info-popover.component';
 import { TransactionStatusComponent } from './components/transaction-status/transaction-status.component';
 import { FySelectCommuteDetailsComponent } from './components/fy-select-commute-details/fy-select-commute-details.component';
+import { FyOptInComponent } from './components/fy-opt-in/fy-opt-in.component';
+import { NgOtpInputModule } from 'ng-otp-input';
+import { PromoteOptInModalComponent } from './components/promote-opt-in-modal/promote-opt-in-modal.component';
+import { ProfileOptInCardComponent } from './components/profile-opt-in-card/profile-opt-in-card.component';
+import { DashboardOptInComponent } from './components/dashboard-opt-in/dashboard-opt-in.component';
+import { MobileNumberCardComponent } from './components/mobile-number-card/mobile-number-card.component';
 
 @NgModule({
   declarations: [
@@ -267,6 +273,11 @@ import { FySelectCommuteDetailsComponent } from './components/fy-select-commute-
     TransactionStatusInfoPopoverComponent,
     VirtualCardComponent,
     FySelectCommuteDetailsComponent,
+    FyOptInComponent,
+    PromoteOptInModalComponent,
+    ProfileOptInCardComponent,
+    DashboardOptInComponent,
+    MobileNumberCardComponent,
   ],
   imports: [
     CommonModule,
@@ -293,6 +304,7 @@ import { FySelectCommuteDetailsComponent } from './components/fy-select-commute-
     MatBottomSheetModule,
     ImageCropperModule,
     ScrollingModule,
+    NgOtpInputModule,
   ],
   exports: [
     EllipsisPipe,
@@ -394,6 +406,11 @@ import { FySelectCommuteDetailsComponent } from './components/fy-select-commute-
     TransactionStatusInfoPopoverComponent,
     VirtualCardComponent,
     FySelectCommuteDetailsComponent,
+    FyOptInComponent,
+    PromoteOptInModalComponent,
+    ProfileOptInCardComponent,
+    DashboardOptInComponent,
+    MobileNumberCardComponent,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker, FyCurrencyPipe, ReportState],
 })

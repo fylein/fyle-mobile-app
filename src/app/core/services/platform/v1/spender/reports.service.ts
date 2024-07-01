@@ -15,6 +15,7 @@ import { TransactionService } from '../../../transaction.service';
 import { PlatformReportsStatsResponse } from 'src/app/core/models/platform/v1/report-stats-response.model';
 import { ReportPermissions } from 'src/app/core/models/report-permissions.model';
 import { Comment } from 'src/app/core/models/platform/v1/comment.model';
+import { ReportPurpose } from 'src/app/core/models/report-purpose.model';
 
 const reportsCacheBuster$ = new Subject<void>();
 
@@ -38,6 +39,25 @@ export class SpenderReportsService {
   })
   clearTransactionCache(): Observable<null> {
     return this.transactionService.clearCache();
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$,
+  })
+  create(report: ReportPurpose, expenseIds: string[]): Observable<Report> {
+    return this.createDraft({ data: report }).pipe(
+      switchMap((newReport: Report) => {
+        const payload = {
+          data: {
+            id: newReport.id,
+            expense_ids: expenseIds,
+          },
+        };
+        return this.spenderPlatformV1ApiService
+          .post<Report>('/reports/add_expenses', payload)
+          .pipe(switchMap(() => this.submit(newReport.id).pipe(map(() => newReport))));
+      })
+    );
   }
 
   @CacheBuster({
@@ -95,6 +115,20 @@ export class SpenderReportsService {
     return this.spenderPlatformV1ApiService
       .post<PlatformApiPayload<Comment>>('/reports/comments', { data: { id, comment } })
       .pipe(map((res) => res.data));
+  }
+
+  suggestPurpose(expenseIds: string[]): Observable<string> {
+    return this.spenderPlatformV1ApiService
+      .post<PlatformApiPayload<{ purpose: string }>>('/reports/suggest_purpose', { data: { expense_ids: expenseIds } })
+      .pipe(map((res) => res.data.purpose));
+  }
+
+  submit(reportId: string): Observable<void> {
+    return this.spenderPlatformV1ApiService.post<void>('/reports/submit', { data: { id: reportId } });
+  }
+
+  resubmit(reportId: string): Observable<void> {
+    return this.spenderPlatformV1ApiService.post<void>('/reports/resubmit', { data: { id: reportId } });
   }
 
   getAllReportsByParams(queryParams: ReportsQueryParams): Observable<Report[]> {
