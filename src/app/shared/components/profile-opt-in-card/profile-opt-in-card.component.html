@@ -1,14 +1,16 @@
 <ng-container>
   <div class="profile-opt-in-card__container">
-    <div (click)="clickedOnOptIn()">
-      <div class="profile-opt-in-card__title">
-        <div>
-          <div>Opt-in to text receipts</div>
-          <div class="profile-opt-in-card__description">
-            Opt-in to activate text messages for instant expense submission.
-          </div>
+    <div>
+      <div (click)="clickedOnOptIn()">
+        <div class="profile-opt-in-card__title">
+          <span>Opt-in to text receipts</span>
+          <span *ngIf="!isUserOptedIn && !isMobileAddedButNotVerified" class="profile-opt-in-card__opt-in-btn"
+            >Opt in</span
+          >
         </div>
-        <span *ngIf="!isUserOptedIn" class="profile-opt-in-card__opt-in-btn">Opt in</span>
+        <div class="profile-opt-in-card__description">
+          Opt-in to activate text messages for instant expense submission.
+        </div>
       </div>
 
       <ng-container *ngIf="isUserOptedIn">
@@ -48,6 +50,43 @@
             </div>
           </div>
         </div>
+      </ng-container>
+
+      <ng-container *ngIf="isMobileAddedButNotVerified">
+        <div (click)="clickedOnOptIn()">
+          <div class="profile-opt-in-card__status__label">
+            <span>Status</span>
+            <span class="profile-opt-in-card__opt-in-btn"> Opt in </span>
+          </div>
+          <div class="profile-opt-in-card__status__icon-container">
+            <div class="profile-opt-in-card__status__icon--inactive"></div>
+            <div>Not Opted in</div>
+          </div>
+        </div>
+        <div class="profile-opt-in-card__divider"></div>
+        <div class="profile-opt-in-card__mobile">
+          <span>Mobile Number</span>
+          <div class="profile-opt-in-card__mobile__number-container">
+            <span>
+              {{ mobileNumber }}
+            </span>
+            <ion-icon
+              (click)="deleteMobileNumber()"
+              src="../../../../assets/svg/bin.svg"
+              slot="icon-only"
+              class="fy-icon profile-opt-in-card__mobile__delete-icon"
+            ></ion-icon>
+          </div>
+        </div>
+        <ng-container *ngIf="isInvalidUSNumber">
+          <div class="profile-opt-in-card__divider"></div>
+          <div>
+            <div class="profile-opt-in-card__non-us-number-card" (click)="editMobileNumber()">
+              <span> By updating to a +1 mobile number, you will be eligible to opt into text messages. </span>
+              <span class="profile-opt-in-card__non-us-number-card__cta"> Update and Opt in </span>
+            </div>
+          </div>
+        </ng-container>
       </ng-container>
     </div>
   </div>

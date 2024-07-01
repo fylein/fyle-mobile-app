@@ -19,7 +19,13 @@ export class ProfileOptInCardComponent implements OnInit {
 
   @Output() editMobileNumberClicked = new EventEmitter<ExtendedOrgUser>();
 
+  @Output() deleteMobileNumberClicked = new EventEmitter<ExtendedOrgUser>();
+
   isUserOptedIn = false;
+
+  isMobileAddedButNotVerified = false;
+
+  isInvalidUSNumber = false;
 
   mobileNumber: string;
 
@@ -28,6 +34,8 @@ export class ProfileOptInCardComponent implements OnInit {
   ngOnInit(): void {
     this.isUserOptedIn = this.extendedOrgUser.ou.mobile && this.extendedOrgUser.ou.mobile_verified;
     this.mobileNumber = this.extendedOrgUser.ou.mobile;
+    this.isMobileAddedButNotVerified = this.extendedOrgUser.ou.mobile && !this.extendedOrgUser.ou.mobile_verified;
+    this.isInvalidUSNumber = this.isMobileAddedButNotVerified && !this.extendedOrgUser.ou.mobile.startsWith('+1');
   }
 
   clickedOnOptIn(): void {
@@ -45,6 +53,11 @@ export class ProfileOptInCardComponent implements OnInit {
   editMobileNumber(): void {
     this.trackingService.clickedOnEditNumber();
     this.editMobileNumberClicked.emit(this.extendedOrgUser);
+  }
+
+  deleteMobileNumber(): void {
+    this.trackingService.clickedOnDeleteNumber();
+    this.deleteMobileNumberClicked.emit(this.extendedOrgUser);
   }
 
   async copyToClipboard(): Promise<void> {

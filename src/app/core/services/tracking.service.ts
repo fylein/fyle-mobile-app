@@ -741,12 +741,20 @@ export class TrackingService {
     this.eventTrack('Edit Mobile Number Clicked');
   }
 
+  clickedOnDeleteNumber(): void {
+    this.eventTrack('Delete Mobile Number Clicked');
+  }
+
   clickedOnOptOut(): void {
     this.eventTrack('Opt Out Clicked');
   }
 
   optedOut(): void {
     this.eventTrack('Opted Out');
+  }
+
+  deleteMobileNumber(): void {
+    this.eventTrack('Delete Mobile Number');
   }
 
   showOptInModalPostExpenseCreation(): void {
