@@ -8,17 +8,6 @@
         <mat-icon class="fy-icon-close" svgIcon="cross"></mat-icon>
       </ion-button>
     </ion-buttons>
-    <ion-buttons slot="end">
-      <button
-        appFormButtonValidation
-        [loading]="updatingMobileNumber"
-        loadingText=" "
-        class="update-mobile-number--toolbar__btn"
-        (click)="saveValue()"
-      >
-        {{ ctaText }}
-      </button>
-    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
@@ -40,4 +29,15 @@
     [minlength]="7"
   />
   <span *ngIf="error?.length" class="update-mobile-number--input-container__error">{{ error }}</span>
+  <ion-buttons class="update-mobile-number--cta">
+    <ion-button
+      (click)="saveValue()"
+      [loadingText]="'Saving'"
+      [loading]="updatingMobileNumber"
+      appFormButtonValidation
+      class="btn-primary"
+    >
+      Save
+    </ion-button>
+  </ion-buttons>
 </div>

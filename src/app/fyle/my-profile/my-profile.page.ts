@@ -43,6 +43,7 @@ import { UtilityService } from 'src/app/core/services/utility.service';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { OrgUser } from 'src/app/core/models/org-user.model';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
+import { UpdateMobileNumberComponent } from './update-mobile-number/update-mobile-number.component';
 
 @Component({
   selector: 'app-my-profile',
@@ -530,6 +531,27 @@ export class MyProfilePage {
       this.deleteMobileNumber();
     } else {
       deleteMobileNumberPopover.dismiss();
+    }
+  }
+
+  async updateMobileNumber(eou: ExtendedOrgUser): Promise<void> {
+    const updateMobileNumberPopover = await this.popoverController.create({
+      component: UpdateMobileNumberComponent,
+      componentProps: {
+        title: (eou.ou.mobile?.length ? 'Edit' : 'Add') + ' Mobile Number',
+        inputLabel: 'Mobile Number',
+        extendedOrgUser: eou,
+        placeholder: 'Enter mobile number',
+      },
+      cssClass: 'fy-dialog-popover',
+    });
+
+    await updateMobileNumberPopover.present();
+    const { data } = (await updateMobileNumberPopover.onWillDismiss()) as OverlayResponse<{ action: string }>;
+
+    if (data && data.action === 'SUCCESS') {
+      this.eou$ = from(this.authService.refreshEou());
+      this.showToastMessage('Mobile number updated successfully', 'success');
     }
   }
 }
