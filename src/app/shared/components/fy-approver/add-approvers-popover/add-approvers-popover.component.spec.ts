@@ -139,7 +139,7 @@ describe('AddApproversPopoverComponent', () => {
     expect(popoverController.dismiss).toHaveBeenCalledOnceWith({ reload: true });
   }));
 
-  it('should call reportService.addApprover() for other request types', fakeAsync(() => {
+  it('should call approverReportsService.addApprover() for other request types', fakeAsync(() => {
     fixture.detectChanges();
     component.type = 'report';
     component.id = 'repP09oaYXAf';
