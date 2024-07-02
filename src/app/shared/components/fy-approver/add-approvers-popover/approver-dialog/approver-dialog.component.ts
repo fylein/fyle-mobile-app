@@ -7,11 +7,8 @@ import { ModalController } from '@ionic/angular';
 import { Employee } from 'src/app/core/models/spender/employee.model';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MatChipInputEvent } from '@angular/material/chips';
-
-type Approver = {
-  name: string;
-  email: string;
-};
+import { Approver } from '../models/approver.model';
+import { EmployeeParams } from 'src/app/core/models/employee-params.model';
 
 @Component({
   selector: 'app-approver-dialog',
@@ -19,7 +16,7 @@ type Approver = {
   styleUrls: ['./approver-dialog.component.scss'],
 })
 export class ApproverDialogComponent implements AfterViewInit, OnInit {
-  @ViewChild('searchBar') searchBarRef: ElementRef;
+  @ViewChild('searchBar') searchBarRef: ElementRef<HTMLElement>;
 
   @Input() approverEmailsList: string[];
 
@@ -33,9 +30,7 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
 
   value: string;
 
-  approverList$: Observable<any>;
-
-  searchedApprovers$: Observable<Partial<Employee>[]>;
+  searchedApprovers$: Observable<Employee | Partial<Employee>[]>;
 
   selectedApproversList: Approver[] = [];
 
@@ -59,19 +54,19 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
     private modalController: ModalController
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.selectedApproversList = this.initialApproverList;
     this.selectedApproversDict = this.getSelectedApproversDict();
   }
 
-  getSelectedApproversDict() {
+  getSelectedApproversDict(): Record<string, boolean> {
     return this.selectedApproversList.reduce((acc, curr) => {
       acc[curr.email] = true;
       return acc;
     }, {});
   }
 
-  clearValue() {
+  clearValue(): void {
     this.value = '';
     const searchInput = this.searchBarRef.nativeElement as HTMLInputElement;
     searchInput.value = '';
@@ -79,26 +74,26 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
     this.getSearchedUsersList();
   }
 
-  getSeparatorKeysCodes() {
+  getSeparatorKeysCodes(): number[] {
     return [ENTER, COMMA];
   }
 
-  addChip(event: MatChipInputEvent) {
+  addChip(event: MatChipInputEvent): void {
     if (event && event.chipInput) {
       event.chipInput.clear();
     }
     this.clearValue();
   }
 
-  closeApproverModal() {
+  closeApproverModal(): void {
     this.modalController.dismiss();
   }
 
-  async saveUpdatedApproveList() {
+  async saveUpdatedApproveList(): Promise<void> {
     this.modalController.dismiss({ selectedApproversList: this.selectedApproversList });
   }
 
-  onSelectApprover(approver: Employee, event: { checked: boolean }) {
+  onSelectApprover(approver: Employee, event: { checked: boolean }): void {
     if (event.checked) {
       this.selectedApproversList.push({ name: approver.us_full_name, email: approver.us_email });
     } else {
@@ -110,7 +105,7 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
     this.selectedApproversDict = this.getSelectedApproversDict();
   }
 
-  removeApprover(approver) {
+  removeApprover(approver: Approver): void {
     this.selectedApproversList = this.selectedApproversList.filter(
       (selectedApprover) => selectedApprover.email !== approver.email
     );
@@ -118,8 +113,8 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
     this.selectedApproversDict = this.getSelectedApproversDict();
   }
 
-  getDefaultUsersList() {
-    const params: any = {
+  getDefaultUsersList(): Observable<Partial<Employee>[]> {
+    const params: Partial<EmployeeParams> = {
       order: 'us_full_name.asc,us_email.asc,ou_id',
     };
 
@@ -130,6 +125,7 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
     }
 
     return from(this.loaderService.showLoader('Loading...')).pipe(
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       switchMap((_) => this.orgUserService.getEmployeesBySearch(params)),
       map((approvers) =>
         approvers.map((approver) => {
@@ -141,8 +137,8 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
     );
   }
 
-  getSearchedUsersList(searchText?: string) {
-    const params: any = {
+  getSearchedUsersList(searchText?: string): Observable<Partial<Employee>[]> {
+    const params: Partial<EmployeeParams> = {
       limit: 20,
       order: 'us_full_name.asc,us_email.asc,ou_id',
     };
@@ -164,7 +160,7 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
     );
   }
 
-  getUsersList(searchText) {
+  getUsersList(searchText: string): Employee[] | Observable<Partial<Employee>[]> {
     if (searchText) {
       return this.getSearchedUsersList(searchText);
     } else {
@@ -172,7 +168,7 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
         switchMap((employees) => {
           employees = employees.filter((employee) => this.approverEmailsList.indexOf(employee.us_email) === -1);
           return this.getSearchedUsersList(null).pipe(
-            map((searchedEmployees) => {
+            map((searchedEmployees: Partial<Employee>[]) => {
               searchedEmployees = this.getSearchedEmployees(searchedEmployees, employees);
               return employees.concat(searchedEmployees);
             })
@@ -182,19 +178,20 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
     }
   }
 
-  getSearchedEmployees(searchedEmployees: Partial<Employee>[], employees: Partial<Employee>[]) {
+  getSearchedEmployees(searchedEmployees: Partial<Employee>[], employees: Partial<Employee>[]): Partial<Employee>[] {
     searchedEmployees = searchedEmployees.filter(
       (searchedEmployee) => !employees.find((employee) => employee.us_email === searchedEmployee.us_email)
     );
     return searchedEmployees;
   }
 
-  ngAfterViewInit() {
+  ngAfterViewInit(): void {
     this.searchedApprovers$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-explicit-any
       map((event: any) => event.srcElement.value),
       startWith(''),
       distinctUntilChanged(),
-      switchMap((searchText: any) => this.getUsersList(searchText))
+      switchMap((searchText: string) => this.getUsersList(searchText))
     );
   }
 }
