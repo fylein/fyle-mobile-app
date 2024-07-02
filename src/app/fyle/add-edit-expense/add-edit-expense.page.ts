@@ -2388,8 +2388,10 @@ export class AddEditExpensePage implements OnInit {
               control.value !== ''
             ) {
               this.taxGroups$.subscribe((taxGroups) => {
-                const tg = taxGroups.find((tg) => (tg.name = defaultValues[defaultValueColumn]));
-                control.patchValue(tg);
+                if (taxGroups) {
+                  const tg = taxGroups.find((tg) => (tg.name = defaultValues[defaultValueColumn]));
+                  control.patchValue(tg);
+                }
               });
             }
           }
