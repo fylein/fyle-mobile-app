@@ -56,7 +56,7 @@
         <div (click)="clickedOnOptIn()">
           <div class="profile-opt-in-card__status__label">
             <span>Status</span>
-            <span class="profile-opt-in-card__opt-in-btn"> Opt in </span>
+            <span *ngIf="!isInvalidUSNumber" class="profile-opt-in-card__opt-in-btn"> Opt in </span>
           </div>
           <div class="profile-opt-in-card__status__icon-container">
             <div class="profile-opt-in-card__status__icon--inactive"></div>
