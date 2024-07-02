@@ -7,6 +7,7 @@ import { ApproverDialogComponent } from './approver-dialog/approver-dialog.compo
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { ReportService } from 'src/app/core/services/report.service';
+import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 
 @Component({
   selector: 'app-add-approvers-popover',
@@ -34,7 +35,8 @@ export class AddApproversPopoverComponent {
     private popoverController: PopoverController,
     private advanceRequestService: AdvanceRequestService,
     private reportService: ReportService,
-    private loaderService: LoaderService
+    private loaderService: LoaderService,
+    private approverReportsService: ApproverReportsService
   ) {}
 
   async openModal() {
@@ -67,7 +69,7 @@ export class AddApproversPopoverComponent {
     }
   }
 
-  saveUpdatedApproversList() {
+  saveUpdatedApproversList(): void {
     from(this.loaderService.showLoader())
       .pipe(
         switchMap(() => from(this.selectedApproversList.map((selectedApprover) => selectedApprover.email))),
@@ -75,7 +77,7 @@ export class AddApproversPopoverComponent {
           if (this.type === 'ADVANCE_REQUEST') {
             return this.advanceRequestService.addApprover(this.id, approver, this.confirmationMessage);
           } else {
-            return this.reportService.addApprover(this.id, approver, this.confirmationMessage);
+            return this.approverReportsService.addApprover(this.id, approver, this.confirmationMessage);
           }
         }),
         reduce((acc, curr) => acc.concat(curr), []),
