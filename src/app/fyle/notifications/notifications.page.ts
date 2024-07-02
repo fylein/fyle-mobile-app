@@ -169,7 +169,7 @@ export class NotificationsPage implements OnInit {
         map((setting) => {
           if (setting.admin_email_settings.unsubscribed_events.length) {
             this.notificationEvents.events = this.notificationEvents.events.filter((notificationEvent) => {
-              const emailEvents = this.orgSettings.admin_email_settings.unsubscribed_events as string[];
+              const emailEvents = setting.admin_email_settings.unsubscribed_events as string[];
               return emailEvents.indexOf(notificationEvent.eventType.toUpperCase()) === -1;
             });
           }
