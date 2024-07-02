@@ -77,17 +77,6 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$,
   })
-  addApprover(rptId: string, approverEmail: string, comment: string): Observable<void> {
-    const data = {
-      approver_email: approverEmail,
-      comment,
-    };
-    return this.apiService.post('/reports/' + rptId + '/approvals', data);
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: reportsCacheBuster$,
-  })
   updateReportPurpose(report: Report): Observable<Report> {
     const params = {
       data: {
