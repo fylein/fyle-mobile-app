@@ -11,7 +11,6 @@ export interface CCCExpFlattened {
   ccce_description: string;
   ccce_vendor: string;
   ccce_payment_id: string;
-  ccce_settlement_id: string;
   ccce_state: string;
   personal: boolean;
   matched_by: string;
@@ -26,8 +25,6 @@ export interface CCCExpFlattened {
   ou_org_id: string;
   us_full_name: string;
   us_email: string;
-  ccce_balance_transfer_id: string;
-  balance_transfer_settlement_id: string;
   ou_department_id: string;
   tx_project_id: string;
 }

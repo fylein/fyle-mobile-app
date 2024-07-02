@@ -621,8 +621,12 @@ export class TrackingService {
     this.eventTrack('Popover shown since receipt limit exceeded', properties);
   }
 
-  updateMobileNumber(properties = {}): void {
-    this.eventTrack('Update Mobile Number', properties);
+  updateMobileNumberClicked(properties = {}): void {
+    this.eventTrack('Update Mobile Number Clicked', properties);
+  }
+
+  updateMobileNumber(): void {
+    this.eventTrack('Update Mobile Number');
   }
 
   verifyMobileNumber(): void {
@@ -703,5 +707,113 @@ export class TrackingService {
 
   statsClicked(properties: { event: string }): void {
     this.eventTrack('Dashboard Stats Clicked', properties);
+  }
+
+  openOptInDialog(properties): void {
+    this.eventTrack('Open Opt In Dialog', properties);
+  }
+
+  optInFlowSuccess(properties): void {
+    this.eventTrack('Opt In Flow Success', properties);
+  }
+
+  optInFlowError(properties): void {
+    this.eventTrack('Opt In Flow Error', properties);
+  }
+
+  optInFlowRetry(properties): void {
+    this.eventTrack('Opt In Flow Retry', properties);
+  }
+
+  clickedOnHelpArticle(): void {
+    this.eventTrack('Clicked on help article link for Opt-in Dialog');
+  }
+
+  skipOptInFlow(): void {
+    this.eventTrack('Skip Opt-in');
+  }
+
+  clickedOnTask(properties): void {
+    this.eventTrack('Clicked On Task', properties);
+  }
+
+  clickedOptInFromProfile(): void {
+    this.eventTrack('Click On Opt in CTA in Profile page');
+  }
+
+  clickedOnEditNumber(): void {
+    this.eventTrack('Edit Mobile Number Clicked');
+  }
+
+  clickedOnDeleteNumber(): void {
+    this.eventTrack('Delete Mobile Number Clicked');
+  }
+
+  clickedOnOptOut(): void {
+    this.eventTrack('Opt Out Clicked');
+  }
+
+  optedOut(): void {
+    this.eventTrack('Opted Out');
+  }
+
+  deleteMobileNumber(): void {
+    this.eventTrack('Delete Mobile Number');
+  }
+
+  showOptInModalPostExpenseCreation(): void {
+    this.eventTrack('Opt In Modal Post Expense Creation Shown');
+  }
+
+  skipOptInModalPostExpenseCreation(): void {
+    this.eventTrack('Skip Opt In Modal Post Expense Creation');
+  }
+
+  optInFromPostExpenseCreationModal(): void {
+    this.eventTrack('Opt In From Post Expense Creation Modal');
+  }
+
+  showOptInModalPostCardAdditionInDashboard(): void {
+    this.eventTrack('Opt In Modal Post Card Addition Shown in Dashboard');
+  }
+
+  skipOptInModalPostCardAdditionInDashboard(): void {
+    this.eventTrack('Skip Opt In Modal Post Card Addition in Dashboard');
+  }
+
+  optInFromPostPostCardAdditionInDashboard(): void {
+    this.eventTrack('Opt In From Post Card Addition in Dashboard');
+  }
+
+  showOptInModalPostCardAdditionInSettings(): void {
+    this.eventTrack('Opt In Modal Post Card Addition Shown in Settings');
+  }
+
+  skipOptInModalPostCardAdditionInSettings(): void {
+    this.eventTrack('Skip Opt In Modal Post Card Addition in Settings');
+  }
+
+  optInFromPostPostCardAdditionInSettings(): void {
+    this.eventTrack('Opt In From Post Card Addition in Settings');
+  }
+
+  optedInFromDashboardBanner(): void {
+    this.eventTrack('Opted In From Dashboard Banner');
+  }
+
+  skipOptInFromDashboardBanner(): void {
+    this.eventTrack('Skip Opt In From Dashboard Banner');
+  }
+
+  optInClickedFromProfile(): void {
+    this.eventTrack('Opt in Clicked From Profile');
+  }
+
+  optedInFromProfile(): void {
+    this.eventTrack('Opted In From Profile');
+  }
+
+  clickedOnDashboardBanner(): void {
+    this.eventTrack('Clicked On Dashboard Banner');
   }
 }

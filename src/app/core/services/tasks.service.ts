@@ -425,24 +425,20 @@ export class TasksService {
   }
 
   getMobileNumberVerificationTasks(): Observable<DashboardTask[]> {
-    const rtfEnrolledCards$ = this.corporateCreditCardExpenseService
-      .getCorporateCards()
-      .pipe(map((cards) => cards.filter((card) => card.is_visa_enrolled || card.is_mastercard_enrolled)));
-
     return forkJoin({
-      rtfEnrolledCards: rtfEnrolledCards$,
       eou: from(this.authService.getEou()),
       isUserFromINCluster: from(this.utilityService.isUserFromINCluster()),
     }).pipe(
-      switchMap(({ rtfEnrolledCards, eou, isUserFromINCluster }) => {
+      switchMap(({ eou, isUserFromINCluster }) => {
         //Show this task only if mobile number is not verified and user is enrolled for RTF and user is not from IN cluster
         if (
+          (eou.org.currency === 'USD' || eou.org.currency === 'CAD') &&
           !eou.ou.mobile_verified &&
           eou.ou.mobile_verification_attempts_left !== 0 &&
-          rtfEnrolledCards.length &&
           !isUserFromINCluster
         ) {
-          return of(this.mapMobileNumberVerificationTask(eou.ou.mobile?.length ? 'Verify' : 'Add'));
+          const isInvalidUSNumber = eou.ou.mobile && !eou.ou.mobile.startsWith('+1');
+          return of(this.mapMobileNumberVerificationTask(isInvalidUSNumber));
         }
         return of<DashboardTask[]>([]);
       })
@@ -544,17 +540,18 @@ export class TasksService {
     );
   }
 
-  mapMobileNumberVerificationTask(type: 'Add' | 'Verify'): DashboardTask[] {
-    const subheaderPrefixString = type === 'Add' ? 'Add and verify' : 'Verify';
+  mapMobileNumberVerificationTask(isInvalidUSNumber: boolean): DashboardTask[] {
     const task = [
       {
         hideAmount: true,
-        header: `${type} Mobile Number`,
-        subheader: `${subheaderPrefixString} your mobile number to text the receipts directly`,
-        icon: TaskIcon.MOBILE,
+        header: isInvalidUSNumber ? 'Update phone number to opt in to text receipts' : 'Opt in to text receipts',
+        subheader: isInvalidUSNumber
+          ? 'By updating mobile number to a +1 number, you will be eligible for opting into text messages.'
+          : 'Opt-in to activate text messages for instant expense submission',
+        icon: TaskIcon.STARS,
         ctas: [
           {
-            content: type,
+            content: isInvalidUSNumber ? 'Update and Opt in' : 'Opt in',
             event: TASKEVENT.mobileNumberVerification,
           },
         ],

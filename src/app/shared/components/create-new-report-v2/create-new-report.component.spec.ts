@@ -35,17 +35,17 @@ describe('CreateNewReportComponent', () => {
 
   beforeEach(waitForAsync(() => {
     modalController = jasmine.createSpyObj('ModalController', ['dismiss']);
-    reportService = jasmine.createSpyObj('ReportService', [
-      'getReportPurpose',
-      'createDraft',
-      'addTransactions',
-      'create',
-    ]);
+    reportService = jasmine.createSpyObj('ReportService', ['getReportPurpose', 'createDraft', 'addTransactions']);
     trackingService = jasmine.createSpyObj('TrackingService', ['createReport']);
     refinerService = jasmine.createSpyObj('RefinerService', ['startSurvey']);
     currencyService = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     expenseFieldsService = jasmine.createSpyObj('ExpenseFieldsService', ['getAllMap']);
-    spenderReportsService = jasmine.createSpyObj('SpenderReportsService', ['addExpenses', 'createDraft']);
+    spenderReportsService = jasmine.createSpyObj('SpenderReportsService', [
+      'addExpenses',
+      'createDraft',
+      'suggestPurpose',
+      'create',
+    ]);
     const humanizeCurrencyPipeSpy = jasmine.createSpyObj('HumanizeCurrency', ['transform']);
     const fyCurrencyPipeSpy = jasmine.createSpyObj('FyCurrencyPipe', ['transform']);
 
@@ -100,32 +100,32 @@ describe('CreateNewReportComponent', () => {
     it('should get the report title', () => {
       const reportName = '#1:  Jul 2021';
       component.selectedElements = apiExpenses1;
-      reportService.getReportPurpose.and.returnValue(of(reportName));
+      spenderReportsService.suggestPurpose.and.returnValue(of(reportName));
       component.getReportTitle();
       fixture.detectChanges();
       expect(component.reportTitle).toEqual(reportName);
-      expect(reportService.getReportPurpose).toHaveBeenCalledOnceWith({ ids: ['txDDLtRaflUW', 'tx5WDG9lxBDT'] });
+      expect(spenderReportsService.suggestPurpose).toHaveBeenCalledOnceWith(['txDDLtRaflUW', 'tx5WDG9lxBDT']);
     });
 
     it('should not get the report title when the element is not in the selectedElements array', () => {
       const reportName = '#1:  Jul 2021';
       component.selectedElements = [apiExpenses1[0]];
-      reportService.getReportPurpose.and.returnValue(of(reportName));
+      spenderReportsService.suggestPurpose.and.returnValue(of(reportName));
       component.getReportTitle();
       fixture.detectChanges();
       expect(component.reportTitle).toEqual(reportName);
-      expect(reportService.getReportPurpose).toHaveBeenCalledOnceWith({ ids: ['txDDLtRaflUW'] });
+      expect(spenderReportsService.suggestPurpose).toHaveBeenCalledOnceWith(['txDDLtRaflUW']);
     });
 
     it('should get report title without reimbursable amount', () => {
       const reportName = '#1:  Jul 2021';
       component.selectedElements = [nonReimbursableExpense];
 
-      reportService.getReportPurpose.and.returnValue(of(reportName));
+      spenderReportsService.suggestPurpose.and.returnValue(of(reportName));
       component.getReportTitle();
       fixture.detectChanges();
       expect(component.reportTitle).toEqual(reportName);
-      expect(reportService.getReportPurpose).toHaveBeenCalledOnceWith({ ids: [nonReimbursableExpense.id] });
+      expect(spenderReportsService.suggestPurpose).toHaveBeenCalledOnceWith([nonReimbursableExpense.id]);
     });
   });
 
@@ -259,13 +259,13 @@ describe('CreateNewReportComponent', () => {
 
       const txnIds = ['txDDLtRaflUW', 'tx5WDG9lxBDT'];
       const report = expectedReportsSinglePage[0];
-      reportService.create.and.returnValue(of(expectedReportsSinglePage[0]));
+      spenderReportsService.create.and.returnValue(of(expectedReportsSinglePage[0]));
       component.ctaClickedEvent('submit_report');
       fixture.detectChanges();
       tick(500);
       expect(component.submitReportLoader).toBeFalse();
       expect(component.showReportNameError).toBeFalse();
-      expect(reportService.create).toHaveBeenCalledOnceWith(reportPurpose, txnIds);
+      expect(spenderReportsService.create).toHaveBeenCalledOnceWith(reportPurpose, txnIds);
       expect(refinerService.startSurvey).toHaveBeenCalledOnceWith({ actionName: 'Submit Newly Created Report' });
       expect(component.submitReportLoader).toBeFalse();
       expect(modalController.dismiss).toHaveBeenCalledOnceWith({

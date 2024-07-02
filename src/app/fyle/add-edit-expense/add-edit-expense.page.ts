@@ -138,6 +138,7 @@ import { corporateCardTransaction } from 'src/app/core/models/platform/v1/cc-tra
 import { PlatformFileGenerateUrlsResponse } from 'src/app/core/models/platform/platform-file-generate-urls-response.model';
 import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
 
+// eslint-disable-next-line
 type FormValue = {
   currencyObj: {
     currency: string;
@@ -523,7 +524,13 @@ export class AddEditExpensePage implements OnInit {
     if (this.activatedRoute.snapshot.params.persist_filters || this.isRedirectedFromReport) {
       this.navController.back();
     } else {
-      this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      if (this.mode === 'add') {
+        this.router.navigate(['/', 'enterprise', 'my_expenses'], {
+          queryParams: { redirected_from_add_expense: true },
+        });
+      } else {
+        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      }
     }
   }
 
@@ -2381,8 +2388,10 @@ export class AddEditExpensePage implements OnInit {
               control.value !== ''
             ) {
               this.taxGroups$.subscribe((taxGroups) => {
-                const tg = taxGroups.find((tg) => (tg.name = defaultValues[defaultValueColumn]));
-                control.patchValue(tg);
+                if (taxGroups) {
+                  const tg = taxGroups.find((tg) => (tg.name = defaultValues[defaultValueColumn]));
+                  control.patchValue(tg);
+                }
               });
             }
           }
@@ -4547,12 +4556,13 @@ export class AddEditExpensePage implements OnInit {
               });
               return this.expensesService.attachReceiptToExpense(expenseId, fileObj.id);
             }),
-            switchMap(() =>
+            switchMap((expenseObj: PlatformExpense) =>
               editExpenseAttachments$.pipe(
                 withLatestFrom(this.isConnected$),
                 map(([attachments, isConnected]) => ({
                   attachments,
                   isConnected,
+                  expenseObj,
                 }))
               )
             ),
@@ -4561,9 +4571,20 @@ export class AddEditExpensePage implements OnInit {
               this.attachmentUploadInProgress = false;
             })
           )
-          .subscribe(({ attachments, isConnected }) => {
+          .subscribe(({ attachments, isConnected, expenseObj }) => {
             this.attachedReceiptsCount = attachments;
-            if (isConnected && this.attachedReceiptsCount === 1) {
+
+            // checking if extraction is needed or not
+            const isDataExtractionNeeded = !(
+              expenseObj?.amount !== null &&
+              expenseObj.currency &&
+              expenseObj.spent_at &&
+              expenseObj.category_id &&
+              expenseObj.category.name !== 'Unspecified' &&
+              expenseObj.merchant
+            );
+
+            if (isConnected && this.attachedReceiptsCount === 1 && isDataExtractionNeeded) {
               this.parseFile(
                 fileInfo as {
                   type: string;
