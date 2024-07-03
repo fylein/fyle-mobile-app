@@ -8,7 +8,8 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 import { Approver } from './models/approver.model';
-
+import { AdvanceRequests } from 'src/app/core/models/advance-requests.model';
+import { Report } from 'src/app/core/models/platform/v1/report.model';
 @Component({
   selector: 'app-add-approvers-popover',
   templateUrl: './add-approvers-popover.component.html',
@@ -79,8 +80,13 @@ export class AddApproversPopoverComponent {
             return this.approverReportsService.addApprover(this.id, approver, this.confirmationMessage);
           }
         }),
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-        reduce((acc: any, curr: any) => acc.concat(curr), []),
+        reduce((acc: AdvanceRequests[] | Report[], curr: AdvanceRequests | Report) => {
+          if (this.type === 'ADVANCE_REQUEST') {
+            (acc as AdvanceRequests[]).concat(curr as AdvanceRequests);
+          } else {
+            (acc as Report[]).concat(curr as Report);
+          }
+        }, []),
         finalize(() => from(this.loaderService.hideLoader()))
       )
       .subscribe(() => {
