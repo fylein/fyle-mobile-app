@@ -186,9 +186,11 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
   }
 
   ngAfterViewInit(): void {
-    this.searchedApprovers$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-explicit-any
-      map((event: any) => event.srcElement.value),
+    this.searchedApprovers$ = fromEvent<{ srcElement: { value: string } }>(
+      this.searchBarRef.nativeElement,
+      'keyup'
+    ).pipe(
+      map((event) => event.srcElement.value),
       startWith(''),
       distinctUntilChanged(),
       switchMap((searchText: string) => this.getUsersList(searchText))

@@ -85,7 +85,7 @@ export class ApproverReportsService {
     return this.approverPlatformApiService.post('/reports/send_back', { data: { id, comment } });
   }
 
-  addApprover(rptId: string, approverEmail: string, comment: string): Observable<void> {
+  addApprover(rptId: string, approverEmail: string, comment: string): Observable<Report> {
     const data = {
       id: rptId,
       approver_email: approverEmail,
