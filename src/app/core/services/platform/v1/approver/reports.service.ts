@@ -92,7 +92,7 @@ export class ApproverReportsService {
       comment,
     };
 
-    return this.approverPlatformApiService.post('/reports/add_approver', { data });
+    return this.approverPlatformApiService.post('/reports/add_approver', data);
   }
 
   permissions(id: string): Observable<ReportPermissions> {

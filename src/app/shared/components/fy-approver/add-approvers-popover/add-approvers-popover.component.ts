@@ -6,8 +6,8 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { ApproverDialogComponent } from './approver-dialog/approver-dialog.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
+import { ReportService } from 'src/app/core/services/report.service';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
-import { Approver } from './models/approver.model';
 
 @Component({
   selector: 'app-add-approvers-popover',
@@ -15,15 +15,15 @@ import { Approver } from './models/approver.model';
   styleUrls: ['./add-approvers-popover.component.scss'],
 })
 export class AddApproversPopoverComponent {
-  @Input() approverEmailsList: string[];
+  @Input() approverEmailsList;
 
   @Input() id: string;
 
   @Input() ownerEmail: string;
 
-  @Input() type: string;
+  @Input() type;
 
-  selectedApproversList: Approver[] = [];
+  selectedApproversList = [];
 
   displayValue: string;
 
@@ -34,11 +34,12 @@ export class AddApproversPopoverComponent {
     private modalProperties: ModalPropertiesService,
     private popoverController: PopoverController,
     private advanceRequestService: AdvanceRequestService,
+    private reportService: ReportService,
     private loaderService: LoaderService,
     private approverReportsService: ApproverReportsService
   ) {}
 
-  async openModal(): Promise<void> {
+  async openModal() {
     const approversListModal = await this.modalController.create({
       component: ApproverDialogComponent,
       componentProps: {
@@ -54,7 +55,7 @@ export class AddApproversPopoverComponent {
 
     await approversListModal.present();
 
-    const { data } = await approversListModal.onWillDismiss<{ selectedApproversList: Approver[] }>();
+    const { data } = await approversListModal.onWillDismiss();
 
     if (data && data.selectedApproversList) {
       this.selectedApproversList = data.selectedApproversList;
@@ -79,8 +80,7 @@ export class AddApproversPopoverComponent {
             return this.approverReportsService.addApprover(this.id, approver, this.confirmationMessage);
           }
         }),
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-        reduce((acc: any, curr: any) => acc.concat(curr), []),
+        reduce((acc, curr) => acc.concat(curr), []),
         finalize(() => from(this.loaderService.hideLoader()))
       )
       .subscribe(() => {
@@ -88,7 +88,7 @@ export class AddApproversPopoverComponent {
       });
   }
 
-  closeAddApproversPopover(): void {
+  closeAddApproversPopover() {
     this.popoverController.dismiss();
   }
 }
