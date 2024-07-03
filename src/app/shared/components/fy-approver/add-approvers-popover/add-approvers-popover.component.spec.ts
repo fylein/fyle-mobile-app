@@ -97,7 +97,9 @@ describe('AddApproversPopoverComponent', () => {
       component: ApproverDialogComponent,
       componentProps: {
         approverEmailsList: component.approverEmailsList,
-        initialApproverList: selectedApproversList,
+        initialApproverList: selectedApproversList.map((email) => {
+          return { email };
+        }),
         id: component.id,
         type: component.type,
         ownerEmail: component.ownerEmail,

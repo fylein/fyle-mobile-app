@@ -209,9 +209,11 @@ describe('ApproverReportsService', () => {
 
     approverReportsService.addApprover(reportID, approverEmail, comment).subscribe(() => {
       expect(approverPlatformApiService.post).toHaveBeenCalledOnceWith(`/reports/add_approver`, {
-        id: reportID,
-        approver_email: approverEmail,
-        comment,
+        data: {
+          id: reportID,
+          approver_email: approverEmail,
+          comment,
+        },
       });
       done();
     });
