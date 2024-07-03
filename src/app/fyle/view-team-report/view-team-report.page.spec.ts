@@ -601,7 +601,7 @@ describe('ViewTeamReportPageV2', () => {
       });
 
       popoverController.create.and.resolveTo(popoverSpy);
-      reportService.approve.and.returnValue(of(undefined));
+      approverReportsService.approve.and.returnValue(of(undefined));
       refinerService.startSurvey.and.returnValue(null);
 
       component.report$ = of(reportWithExpenses);
