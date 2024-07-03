@@ -107,6 +107,14 @@ export class ApproverReportsService {
       .pipe(map((res) => res.data));
   }
 
+  approve(rptId: string): Observable<Report> {
+    const data = {
+      id: rptId,
+    };
+
+    return this.approverPlatformApiService.post('/reports/partially_approve', { data });
+  }
+
   ejectExpenses(rptId: string, expenseId: string, comment?: string[]): Observable<void> {
     const payload = {
       data: {

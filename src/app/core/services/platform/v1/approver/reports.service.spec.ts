@@ -228,6 +228,19 @@ describe('ApproverReportsService', () => {
     });
   });
 
+  it('approve(): should approve a report', (done) => {
+    approverPlatformApiService.post.and.returnValue(of(null));
+
+    const reportID = 'rpShFuVCUIXk';
+    const data = {
+      id: reportID,
+    };
+    approverReportsService.approve(reportID).subscribe(() => {
+      expect(approverPlatformApiService.post).toHaveBeenCalledOnceWith(`/reports/partially_approve`, { data });
+      done();
+    });
+  });
+
   it('getReportsStats(): should get advance request stats', (done) => {
     approverPlatformApiService.post.and.returnValue(of({ data: expectedReportStats.draft }));
 
