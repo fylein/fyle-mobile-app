@@ -85,7 +85,9 @@ describe('AddApproversPopoverComponent', () => {
     component.type = 'report';
     component.ownerEmail = 'jay.b@fyle.in';
     const selectedApproversList = ['ajain@fyle.in', 'aiyush.dhar@fylein', 'chethan.m+90@fyle.in', 'ashutosh.m@fyle.in'];
-    component.selectedApproversList = selectedApproversList;
+    component.selectedApproversList = selectedApproversList.map((email) => {
+      return { email };
+    });
     modalController.create.and.resolveTo(modalSpy);
     modalSpy.onWillDismiss.and.resolveTo({ data: { selectedApproversList } } as any);
 
@@ -169,7 +171,10 @@ describe('AddApproversPopoverComponent', () => {
   });
 
   it('should display the "+n more" chip when there are more than 3 selected approvers', () => {
-    component.selectedApproversList = ['ajain@fyle.in', 'aiyush.dhar@fyle.in', 'chetan.m@fyle.in', 'john.d@fyle.in'];
+    const selectedApproversList = ['ajain@fyle.in', 'aiyush.dhar@fyle.in', 'chetan.m@fyle.in', 'john.d@fyle.in'];
+    component.selectedApproversList = selectedApproversList.map((email) => {
+      return { email };
+    });
     fixture.detectChanges();
     const moreChip = getElementBySelector(fixture, '.add-approvers-popover--input-container__chip');
     expect(moreChip).toBeTruthy();
