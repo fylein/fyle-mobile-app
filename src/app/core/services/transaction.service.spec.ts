@@ -95,6 +95,7 @@ describe('TransactionService', () => {
       'getThisMonthRange',
       'getThisWeekRange',
       'getLastMonthRange',
+      'getUTCMidAfternoonDate',
     ]);
     const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
     const timezoneServiceSpy = jasmine.createSpyObj('TimezoneService', [
@@ -1278,7 +1279,7 @@ describe('TransactionService', () => {
       expect(apiService.post).toHaveBeenCalledOnceWith('/transactions', txnDataPayload);
       expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
       expect(timezoneService.convertAllDatesToProperLocale).toHaveBeenCalledOnceWith(txnCustomPropertiesData6, offset);
-      expect(timezoneService.convertToUtc).toHaveBeenCalledTimes(3);
+      expect(timezoneService.convertToUtc).toHaveBeenCalledTimes(2);
       // @ts-ignore
       expect(transactionService.getTxnAccount).toHaveBeenCalledTimes(1);
       // @ts-ignore
@@ -1304,7 +1305,7 @@ describe('TransactionService', () => {
       expect(apiService.post).toHaveBeenCalledOnceWith('/transactions', txnDataPayload);
       expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
       expect(timezoneService.convertAllDatesToProperLocale).toHaveBeenCalledOnceWith(txnCustomPropertiesData6, offset);
-      expect(timezoneService.convertToUtc).toHaveBeenCalledTimes(3);
+      expect(timezoneService.convertToUtc).toHaveBeenCalledTimes(2);
       // @ts-ignore
       expect(transactionService.getTxnAccount).toHaveBeenCalledTimes(1);
       // @ts-ignore
