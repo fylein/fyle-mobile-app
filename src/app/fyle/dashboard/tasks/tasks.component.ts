@@ -417,6 +417,7 @@ export class TasksComponent implements OnInit {
       const { data } = await optInModal.onWillDismiss<{ action: string }>();
 
       if (data && data.action === 'SUCCESS') {
+        this.trackingService.optedInFromTasks();
         this.doRefresh();
         this.optedIn.emit();
       }
