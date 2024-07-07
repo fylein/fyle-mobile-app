@@ -813,6 +813,10 @@ export class TrackingService {
     this.eventTrack('Opted In From Profile');
   }
 
+  optedInFromTasks(): void {
+    this.eventTrack('Opted In From Tasks');
+  }
+
   clickedOnDashboardBanner(): void {
     this.eventTrack('Clicked On Dashboard Banner');
   }
