@@ -126,8 +126,8 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
   validateInput(): void {
     if (!this.mobileNumberInputValue?.length) {
       this.mobileNumberError = 'Please enter mobile number';
-    } else if (!this.mobileNumberInputValue.match(/[+]\d{7,}$/)) {
-      this.mobileNumberError = 'Enter a valid mobile number with country code. e.g. +13024402921.';
+    } else if (!this.mobileNumberInputValue.match(/^\+1\d{10}$/)) {
+      this.mobileNumberError = 'Please enter a valid number with +1 country code. Try re-entering your number.';
     }
   }
 
@@ -149,9 +149,6 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
           .pipe(switchMap(() => this.authService.refreshEou()))
           .subscribe({
             complete: () => {
-              this.trackingService.updateMobileNumber({
-                popoverTitle: (this.extendedOrgUser.ou.mobile?.length ? 'Edit' : 'Add') + ' Mobile Number',
-              });
               this.resendOtp('INITIAL');
             },
             error: () => {

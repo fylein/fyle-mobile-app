@@ -778,7 +778,7 @@ describe('DashboardPage', () => {
     });
 
     it('should set canShowOptInBanner$ to false and save feature config value as true', () => {
-      component.toggleOptInBanner(true);
+      component.toggleOptInBanner({ isOptedIn: true });
 
       expect(featureConfigService.saveConfiguration).toHaveBeenCalledOnceWith({
         feature: 'DASHBOARD_OPT_IN_BANNER',
@@ -792,7 +792,7 @@ describe('DashboardPage', () => {
     });
 
     it('should refresh eou and track opt in event if user opted in', () => {
-      component.toggleOptInBanner(true);
+      component.toggleOptInBanner({ isOptedIn: true });
 
       expect(authService.refreshEou).toHaveBeenCalledTimes(1);
       expect(trackingService.optedInFromDashboardBanner).toHaveBeenCalledTimes(1);
@@ -800,11 +800,18 @@ describe('DashboardPage', () => {
     });
 
     it('should not refresh eou and track skip opt in event if user skipped opt in', () => {
-      component.toggleOptInBanner(false);
+      component.toggleOptInBanner({ isOptedIn: false });
 
       expect(authService.refreshEou).not.toHaveBeenCalled();
       expect(trackingService.skipOptInFromDashboardBanner).toHaveBeenCalledTimes(1);
       expect(component.tasksComponent.doRefresh).not.toHaveBeenCalled();
+    });
+  });
+
+  it('hideOptInDashboardBanner(): should set canShowOptInBanner$ to false', () => {
+    component.hideOptInDashboardBanner();
+    component.canShowOptInBanner$.subscribe((res) => {
+      expect(res).toBeFalse();
     });
   });
 });

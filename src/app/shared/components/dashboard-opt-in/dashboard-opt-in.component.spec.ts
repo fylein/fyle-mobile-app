@@ -3,16 +3,19 @@ import { IonicModule, ModalController, PopoverController } from '@ionic/angular'
 
 import { DashboardOptInComponent } from './dashboard-opt-in.component';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { TrackingService } from 'src/app/core/services/tracking.service';
 
 describe('DashboardOptInComponent', () => {
   let component: DashboardOptInComponent;
   let fixture: ComponentFixture<DashboardOptInComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
   let popoverController: jasmine.SpyObj<PopoverController>;
+  let trackingService: jasmine.SpyObj<TrackingService>;
 
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create', 'dismiss', 'onWillDismiss']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
+    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['clickedOnDashboardBanner']);
 
     TestBed.configureTestingModule({
       declarations: [DashboardOptInComponent],
@@ -26,6 +29,10 @@ describe('DashboardOptInComponent', () => {
           provide: PopoverController,
           useValue: popoverControllerSpy,
         },
+        {
+          provide: TrackingService,
+          useValue: trackingServiceSpy,
+        },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -34,6 +41,7 @@ describe('DashboardOptInComponent', () => {
     component = fixture.componentInstance;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
+    trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     fixture.detectChanges();
   }));
 
@@ -52,6 +60,7 @@ describe('DashboardOptInComponent', () => {
       modal.onWillDismiss.and.resolveTo({ data: { action: 'SUCCESS' } });
 
       await component.optInClick();
+      expect(trackingService.clickedOnDashboardBanner).toHaveBeenCalledTimes(1);
       expect(component.toggleOptInBanner.emit).toHaveBeenCalledWith({ optedIn: true });
     });
 
@@ -61,6 +70,7 @@ describe('DashboardOptInComponent', () => {
       modal.onWillDismiss.and.resolveTo({});
 
       await component.optInClick();
+      expect(trackingService.clickedOnDashboardBanner).toHaveBeenCalledTimes(1);
       expect(component.toggleOptInBanner.emit).not.toHaveBeenCalled();
     });
   });

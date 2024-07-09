@@ -201,6 +201,7 @@ export function TestCases2(getTestBed) {
       expect(optInModalSpy.present).toHaveBeenCalledTimes(1);
       expect(optInModalSpy.onWillDismiss).toHaveBeenCalledTimes(1);
       expect(component.doRefresh).toHaveBeenCalledTimes(1);
+      expect(trackingService.optedInFromTasks).toHaveBeenCalledTimes(1);
     }));
 
     describe('onReviewExpensesTaskClick():', () => {

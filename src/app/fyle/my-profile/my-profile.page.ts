@@ -2,8 +2,8 @@ import { Component, EventEmitter } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
 import { ModalController, PopoverController } from '@ionic/angular';
-import { BehaviorSubject, Observable, Subscription, concat, forkJoin, from, noop } from 'rxjs';
-import { finalize, shareReplay, switchMap, take } from 'rxjs/operators';
+import { Observable, Subscription, concat, forkJoin, from, noop } from 'rxjs';
+import { finalize, shareReplay, switchMap } from 'rxjs/operators';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { InfoCardData } from 'src/app/core/models/info-card-data.model';
 import { Org } from 'src/app/core/models/org.model';
@@ -25,7 +25,6 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
 import { environment } from 'src/environments/environment';
 import { globalCacheBusterNotifier } from 'ts-cacheable';
 import { TrackingService } from '../../core/services/tracking.service';
-import { VerifyNumberPopoverComponent } from './verify-number-popover/verify-number-popover.component';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
 import { EventData } from 'src/app/core/models/event-data.model';
@@ -44,6 +43,7 @@ import { UtilityService } from 'src/app/core/services/utility.service';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { OrgUser } from 'src/app/core/models/org-user.model';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
+import { UpdateMobileNumberComponent } from './update-mobile-number/update-mobile-number.component';
 
 @Component({
   selector: 'app-my-profile',
@@ -64,8 +64,6 @@ export class MyProfilePage {
   ROUTER_API_ENDPOINT: string;
 
   isConnected$: Observable<boolean>;
-
-  loadEou$: BehaviorSubject<null>;
 
   settingsMap: {
     [key: string]: keyof OrgUserSettings;
@@ -183,8 +181,7 @@ export class MyProfilePage {
 
   ionViewWillEnter(): void {
     this.setupNetworkWatcher();
-    this.loadEou$ = new BehaviorSubject<null>(null);
-    this.eou$ = this.loadEou$.pipe(switchMap(() => from(this.authService.getEou())));
+    this.eou$ = from(this.authService.getEou());
     this.isUserFromINCluster$ = from(this.utilityService.isUserFromINCluster());
 
     this.reset();
@@ -192,17 +189,6 @@ export class MyProfilePage {
       this.clusterDomain = clusterDomain;
     });
     this.ROUTER_API_ENDPOINT = environment.ROUTER_API_ENDPOINT;
-
-    const popover = this.activatedRoute.snapshot.params.openPopover as string;
-    if (popover) {
-      this.eou$.pipe(take(1)).subscribe((eou) => {
-        if (popover === 'add_mobile_number') {
-          this.updateMobileNumber(eou);
-        } else if (popover === 'verify_mobile_number') {
-          this.verifyMobileNumber(eou);
-        }
-      });
-    }
   }
 
   getDefaultPaymentMode(): string {
@@ -368,47 +354,10 @@ export class MyProfilePage {
     });
   }
 
-  async verifyMobileNumber(eou: ExtendedOrgUser): Promise<void> {
-    const verifyNumberPopoverComponent = await this.popoverController.create({
-      component: VerifyNumberPopoverComponent,
-      componentProps: {
-        extendedOrgUser: eou,
-      },
-      cssClass: 'fy-dialog-popover',
-    });
+  async optInMobileNumber(eou: ExtendedOrgUser): Promise<void> {
+    this.trackingService.optInClickedFromProfile();
 
-    await verifyNumberPopoverComponent.present();
-    const { data } = (await verifyNumberPopoverComponent.onWillDismiss()) as OverlayResponse<{
-      action: string;
-      homeCurrency: string;
-    }>;
-
-    if (data) {
-      if (data.action === 'BACK') {
-        this.updateMobileNumber(eou);
-      } else if (data.action === 'SUCCESS') {
-        if (data.homeCurrency === 'USD') {
-          this.showSuccessPopover();
-        } else {
-          this.showToastMessage('Mobile Number Verified Successfully', 'success');
-        }
-      }
-    }
-    //This is needed to refresh the attempts_at and disable verify cta everytime user opens the dialog
-    this.authService.refreshEou().subscribe(() => this.loadEou$.next(null));
-    this.trackingService.verifyMobileNumber();
-  }
-
-  onVerifyCtaClicked(eou: ExtendedOrgUser): void {
-    if (eou.ou.mobile_verification_attempts_left !== 0) {
-      this.verifyMobileNumber(eou);
-    } else {
-      this.showToastMessage('You have reached the limit to request OTP. Retry after 24 hours.', 'failure');
-    }
-  }
-
-  async updateMobileNumber(eou: ExtendedOrgUser): Promise<void> {
-    const updateMobileNumberPopover = await this.modalController.create({
+    const optInMobileNumberPopover = await this.modalController.create({
       component: FyOptInComponent,
       componentProps: {
         extendedOrgUser: eou,
@@ -416,23 +365,20 @@ export class MyProfilePage {
       mode: 'ios',
     });
 
-    await updateMobileNumberPopover.present();
-    const { data } = (await updateMobileNumberPopover.onWillDismiss()) as OverlayResponse<{ action: string }>;
+    await optInMobileNumberPopover.present();
+    const { data } = (await optInMobileNumberPopover.onWillDismiss()) as OverlayResponse<{ action: string }>;
 
     if (data) {
       if (data.action === 'SUCCESS') {
         this.eou$ = from(this.authService.refreshEou());
         this.showToastMessage('Opted in successfully', 'success');
+        this.trackingService.optedInFromProfile();
       } else if (data.action === 'ERROR') {
         this.showToastMessage('Something went wrong. Please try again later.', 'failure');
       }
     }
 
-    this.trackingService.updateMobileNumber({
-      popoverTitle: (eou.ou.mobile?.length ? 'Edit' : 'Add') + ' Mobile Number',
-      isRtfEnabled: this.isRTFEnabled,
-      defaultPaymentMode: this.defaultPaymentMode,
-    });
+    this.eou$ = from(this.authService.getEou());
   }
 
   async openCommuteDetailsModal(): Promise<void> {
@@ -473,15 +419,22 @@ export class MyProfilePage {
 
   getOptOutMessageBody(): string {
     return `<div>
-              <p>You can't send receipts and expense details via text message if you opt out</p>
-              <p>Are you sure you want to continue?<p>  
+              <p>Once you opt out, you can't send receipts and expense details via text message. Your mobile number will be deleted</p>
+              <p>Would you like to continue?<p>  
             </div>`;
   }
 
-  deleteMobileNumber(): void {
+  getDeleteMobileMessageBody(): string {
+    return `<div>
+              <p>Your mobile number will be deleted.</p>
+              <p>Would you like to continue?<p>  
+            </div>`;
+  }
+
+  optOut(): void {
     from(this.loaderService.showLoader())
       .pipe(
-        switchMap(() => this.authService.getEou()),
+        switchMap(() => from(this.authService.getEou())),
         switchMap((eou) => {
           const updatedOrgUserDetails: OrgUser = {
             ...eou.ou,
@@ -522,9 +475,85 @@ export class MyProfilePage {
     const { data } = await optOutPopover.onWillDismiss<{ action: string }>();
 
     if (data && data.action === 'continue') {
-      this.deleteMobileNumber();
+      this.optOut();
     } else {
       optOutPopover.dismiss();
+    }
+  }
+
+  deleteMobileNumber(): void {
+    from(this.loaderService.showLoader())
+      .pipe(
+        switchMap(() => this.authService.getEou()),
+        switchMap((eou) => {
+          const updatedOrgUserDetails: OrgUser = {
+            ...eou.ou,
+            mobile: '',
+          };
+
+          return this.orgUserService.postOrgUser(updatedOrgUserDetails);
+        }),
+        finalize(() => from(this.loaderService.hideLoader()))
+      )
+      .subscribe(() => {
+        this.trackingService.deleteMobileNumber();
+        this.eou$ = from(this.authService.refreshEou());
+        this.showToastMessage('Mobile number deleted successfully.', 'success');
+      });
+  }
+
+  async onDeleteCTAClicked(): Promise<void> {
+    const deleteMobileNumberPopover = await this.popoverController.create({
+      component: PopupAlertComponent,
+      componentProps: {
+        title: 'Delete mobile number',
+        message: this.getDeleteMobileMessageBody(),
+        primaryCta: {
+          text: 'Yes, delete',
+          action: 'continue',
+        },
+        secondaryCta: {
+          text: 'No, go back',
+          action: 'cancel',
+        },
+      },
+      cssClass: 'pop-up-in-center',
+    });
+
+    await deleteMobileNumberPopover.present();
+
+    const { data } = await deleteMobileNumberPopover.onWillDismiss<{ action: string }>();
+
+    if (data && data.action === 'continue') {
+      this.deleteMobileNumber();
+    } else {
+      deleteMobileNumberPopover.dismiss();
+    }
+  }
+
+  async updateMobileNumber(eou: ExtendedOrgUser): Promise<void> {
+    this.trackingService.updateMobileNumberClicked({
+      popoverTitle: (eou.ou.mobile?.length ? 'Edit' : 'Add') + ' Mobile Number',
+    });
+
+    const updateMobileNumberPopover = await this.popoverController.create({
+      component: UpdateMobileNumberComponent,
+      componentProps: {
+        title: (eou.ou.mobile?.length ? 'Edit' : 'Add') + ' Mobile Number',
+        inputLabel: 'Mobile Number',
+        extendedOrgUser: eou,
+        placeholder: 'Enter mobile number',
+      },
+      cssClass: 'fy-dialog-popover',
+    });
+
+    await updateMobileNumberPopover.present();
+    const { data } = (await updateMobileNumberPopover.onWillDismiss()) as OverlayResponse<{ action: string }>;
+
+    if (data && data.action === 'SUCCESS') {
+      this.eou$ = from(this.authService.refreshEou());
+      this.showToastMessage('Mobile number updated successfully', 'success');
+      this.trackingService.updateMobileNumber();
     }
   }
 }
