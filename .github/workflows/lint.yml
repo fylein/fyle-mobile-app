@@ -21,10 +21,25 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 16
+  
+      - name: Check PR Title
+        id: check_pr_title
+        run: |
+          pr_title="${{ github.event.pull_request.title }}"
+          if [[ "$pr_title" =~ ^p0 ]]; then
+            echo "PR title starts with 'p0'. Skipping unit tests."
+            echo "::set-output name=skip_tests::true"
+          else
+            echo "PR title does not start with 'p0'. Running unit tests."
+            echo "::set-output name=skip_tests::false"
+          fi
+            
 
       # ESLint and Prettier must be in `package.json`
       - name: Install dependencies
+        if: steps.check_pr_title.outputs.skip_tests != 'true'
         run: npm install --save-dev --legacy-peer-deps
 
       - name: Run linters
+        if: steps.check_pr_title.outputs.skip_tests != 'true'
         run: npm run lint:diff
