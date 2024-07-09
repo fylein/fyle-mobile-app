@@ -28,7 +28,7 @@ jobs:
         run: |
           changedFiles="${{ steps.changed_files.outputs.all_changed_files }}"
           echo "Changed files: $changedFiles"
-          if [[ $changedFiles =~ \.tsx?$|\.jsx?$ ]]; then
+          if [[ $changedFiles =~ \.ts?$|\.js?$ ]]; then
             echo "JS/TS files are modified."
             echo "::set-output name=js_ts_changed::true"
           else
