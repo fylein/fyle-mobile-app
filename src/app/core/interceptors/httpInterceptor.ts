@@ -150,6 +150,8 @@ export class HttpConfigInterceptor implements HttpInterceptor {
           },
         });
 
+        console.log('lol');
+
         return next.handle(request).pipe(
           catchError((error) => {
             if (error instanceof HttpErrorResponse) {
