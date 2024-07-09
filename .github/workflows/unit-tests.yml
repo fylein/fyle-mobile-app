@@ -23,19 +23,32 @@ jobs:
             package*.json
             app-v2/package*.json
 
-      - name: Check if JS/TS files are modified
+      - name: Check if JS/TS/HTML files are modified
         id: check_js_ts_files
         run: |
           changedFiles="${{ steps.changed_files.outputs.all_changed_files }}"
           echo "Changed files: $changedFiles"
-          if [[ $changedFiles =~ \.ts?$|\.js?$ ]]; then
-            echo "JS/TS files are modified."
+          if [[ $changedFiles =~ \.ts?$|\.js?$|\.html?$ ]]; then
+            echo "JS/TS/HTML files are modified."
             echo "::set-output name=js_ts_changed::true"
           else
-            echo "No JS/TS files modified."
+            echo "No JS/TS/HTML files modified."
             echo "::set-output name=js_ts_changed::false"
           fi
 
+      - name: Check PR Title
+        id: check_pr_title
+        if: ${{ github.event_name == 'pull_request' }}
+        run: |
+          pr_title="${{ github.event.pull_request.title }}"
+          if [[ "$pr_title" =~ ^p0 ]]; then
+            echo "PR title starts with 'p0'. Skipping unit tests."
+            echo "::set-output name=skip_tests::true"
+          else
+            echo "PR title does not start with 'p0'. Running unit tests."
+            echo "::set-output name=skip_tests::false"
+          fi
+          
       - name: Check out Git repository
         uses: actions/checkout@v2
 
