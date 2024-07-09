@@ -38,7 +38,6 @@ jobs:
 
       - name: Check PR Title
         id: check_pr_title
-        if: ${{ github.event_name == 'pull_request' }}
         run: |
           pr_title="${{ github.event.pull_request.title }}"
           if [[ "$pr_title" =~ ^p0 ]]; then
@@ -61,11 +60,11 @@ jobs:
         run: npm install --save-dev --legacy-peer-deps
 
       - name: Run Tests
-        if: steps.check_js_ts_files.outputs.js_ts_changed == 'true'
+        if: steps.check_js_ts_files.outputs.js_ts_changed == 'true' && steps.check_pr_title.outputs.skip_tests != 'true'
         run: npm run test
 
       - name: Unit Test Coverage
-        if: steps.check_js_ts_files.outputs.js_ts_changed == 'true'
+        if: steps.check_js_ts_files.outputs.js_ts_changed == 'true' && steps.check_pr_title.outputs.skip_tests != 'true'
         uses: fylein/comment-test-coverage@master
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -73,7 +72,7 @@ jobs:
           title: Unit Test Coverage
 
       - name: Check Coverage Percentage
-        if: steps.check_js_ts_files.outputs.js_ts_changed == 'true'
+        if: steps.check_js_ts_files.outputs.js_ts_changed == 'true' && steps.check_pr_title.outputs.skip_tests != 'true'
         run: |
           lines=$(jq '.total.lines.pct' < coverage/coverage-summary.json)
           statements=$(jq '.total.statements.pct' < coverage/coverage-summary.json)
