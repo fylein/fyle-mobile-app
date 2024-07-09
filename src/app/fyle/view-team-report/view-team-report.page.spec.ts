@@ -130,6 +130,7 @@ describe('ViewTeamReportPageV2', () => {
       'getReportById',
       'permissions',
       'postComment',
+      'sendBack',
     ]);
 
     TestBed.configureTestingModule({
@@ -775,7 +776,7 @@ describe('ViewTeamReportPageV2', () => {
     });
 
     popoverController.create.and.resolveTo(popoverSpy);
-    reportService.inquire.and.returnValue(of(undefined));
+    approverReportsService.sendBack.and.returnValue(of(undefined));
     snackbarProperties.setSnackbarProperties.and.returnValue(properties);
 
     await component.sendBack();
@@ -794,12 +795,7 @@ describe('ViewTeamReportPageV2', () => {
       ...properties,
       panelClass: ['msb-success-with-camera-icon'],
     });
-    expect(reportService.inquire).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id, {
-      status: {
-        comment: 'comment',
-      },
-      notify: false,
-    });
+    expect(approverReportsService.sendBack).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id, 'comment');
     expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
       ToastContent: 'Report Sent Back successfully',
     });
