@@ -1,16 +1,16 @@
 <ng-container>
   <div class="profile-opt-in-card__container">
     <div>
-      <div (click)="clickedOnOptIn()">
+      <div (click)="clickedOnOptIn()" class="profile-opt-in-card__title-container">
         <div class="profile-opt-in-card__title">
           <span>Opt-in to text receipts</span>
-          <span *ngIf="!isUserOptedIn && !isMobileAddedButNotVerified" class="profile-opt-in-card__opt-in-btn"
-            >Opt in</span
-          >
+          <div class="profile-opt-in-card__description">
+            Opt-in to activate text messages for instant expense submission.
+          </div>
         </div>
-        <div class="profile-opt-in-card__description">
-          Opt-in to activate text messages for instant expense submission.
-        </div>
+        <span *ngIf="!isUserOptedIn && !isMobileAddedButNotVerified" class="profile-opt-in-card__opt-in-btn"
+          >Opt in</span
+        >
       </div>
 
       <ng-container *ngIf="isUserOptedIn">

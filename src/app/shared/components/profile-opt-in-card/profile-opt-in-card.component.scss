@@ -8,11 +8,14 @@
     padding: 16px;
   }
 
-  &__title {
+  &__title-container {
     display: flex;
     justify-content: space-between;
-    font-size: 16px;
     gap: 27px;
+  }
+
+  &__title {
+    font-size: 16px;
     font-weight: 500;
     color: $pure-black;
   }
@@ -94,8 +97,8 @@
     }
 
     &__edit-icon {
-      width: 24px;
-      height: 24px;
+      width: 20px;
+      height: 20px;
       color: $brand-primary;
       margin-left: 12px;
     }
