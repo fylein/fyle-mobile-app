@@ -57,6 +57,7 @@ jobs:
           node-version: 16
 
       - name: Install dependencies
+        if: steps.check_js_ts_files.outputs.js_ts_changed == 'true' && steps.check_pr_title.outputs.skip_tests != 'true'
         run: npm install --save-dev --legacy-peer-deps
 
       - name: Run Tests
