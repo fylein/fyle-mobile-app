@@ -1,7 +1,7 @@
 pr_checks:
   title:
     - name: 'prefix_check'
-      regex: '^(fix|feat|test):'
+      regex: '^(fix|feat|test|p0):'
       message_if_not_matching: 'PR title must start with "fix:" or "feat:" or "test:"'
 
   description:
