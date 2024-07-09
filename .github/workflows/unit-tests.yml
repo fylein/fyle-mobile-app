@@ -14,21 +14,21 @@ jobs:
         node-version: [12.x]
 
     steps:
-      - name: Check if files are modified
-        id: check_files
-        run: |
-          if [[ ${{ github.event_name }} == 'pull_request' ]]; then
-            changed_files=$(git diff --name-only HEAD^ HEAD)
-          else
-            changed_files=$(git diff --name-only origin/master HEAD)
-          fi
-          echo "::set-output name=changed_files::$changed_files"
+      - name: Check for changed files
+        id: changed_files
+        uses: tj-actions/changed-files@v41
+        with:
+          separator: ','
+          files_ignore: |
+            package*.json
+            app-v2/package*.json
 
-      - name: Check if TS/JS files are modified
+      - name: Check if JS/TS files are modified
         id: check_js_ts_files
         run: |
-          echo "${{ steps.check_files.outputs.changed_files }}"
-          if [[ "${{ steps.check_files.outputs.changed_files }}" =~ \.tsx?$|\.jsx?$ ]]; then
+          changedFiles="${{ steps.changed_files.outputs.all_changed_files }}"
+          echo "Changed files: $changedFiles"
+          if [[ $changedFiles =~ \.tsx?$|\.jsx?$ ]]; then
             echo "JS/TS files are modified."
             echo "::set-output name=js_ts_changed::true"
           else
