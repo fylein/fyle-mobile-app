@@ -150,6 +150,8 @@ export class HttpConfigInterceptor implements HttpInterceptor {
           },
         });
 
+        console.log('testing workflow');
+
         return next.handle(request).pipe(
           catchError((error) => {
             if (error instanceof HttpErrorResponse) {
