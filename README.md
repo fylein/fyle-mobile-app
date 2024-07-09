@@ -35,7 +35,7 @@ ionic serve -c staging
 
 ## For creating pull requests
 
-  - Ping mobile app team for write access to the repository
+  - Ping mobile app team for write access to the repository.
 
 ## Running unit tests
 
