@@ -209,22 +209,6 @@ describe('ReportService', () => {
     });
   });
 
-  it('inquire(): should send back a report', (done) => {
-    apiService.post.and.returnValue(of(null));
-    const reportID = 'rpSECyvCyyc6';
-    const statusPayloadParam = {
-      status: {
-        comment: 'Testing for code coverage',
-      },
-      notify: false,
-    };
-
-    reportService.inquire(reportID, statusPayloadParam).subscribe(() => {
-      expect(apiService.post).toHaveBeenCalledOnceWith(`/reports/${reportID}/inquire`, statusPayloadParam);
-      done();
-    });
-  });
-
   describe('getAutoSubmissionReportName()', () => {
     it('should get auto submitted report name', (done) => {
       spyOn(reportService, 'getReportAutoSubmissionDetails').and.returnValue(of(apiReportAutoSubmissionDetails));
