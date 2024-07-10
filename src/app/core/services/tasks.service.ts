@@ -546,7 +546,7 @@ export class TasksService {
         hideAmount: true,
         header: isInvalidUSNumber ? 'Update phone number to opt in to text receipts' : 'Opt in to text receipts',
         subheader: isInvalidUSNumber
-          ? 'By updating mobile number to a +1 number, you will be eligible for opting into text messages.'
+          ? 'Add a +1 country code to your mobile number to receive text message receipts.'
           : 'Opt-in to activate text messages for instant expense submission',
         icon: TaskIcon.STARS,
         ctas: [
