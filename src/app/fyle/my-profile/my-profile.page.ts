@@ -542,7 +542,7 @@ export class MyProfilePage {
         title: (eou.ou.mobile?.length ? 'Edit' : 'Add') + ' Mobile Number',
         inputLabel: 'Mobile Number',
         extendedOrgUser: eou,
-        placeholder: 'Enter mobile number',
+        placeholder: 'Enter mobile number e.g. +129586736556',
       },
       cssClass: 'fy-dialog-popover',
     });
