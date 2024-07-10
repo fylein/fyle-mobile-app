@@ -4,7 +4,6 @@
   &--toolbar {
     &__title {
       color: $black;
-      margin-left: 20px;
     }
 
     &__btn {
@@ -32,17 +31,23 @@
       color: $red;
     }
 
+    &__input::placeholder {
+      font-size: 14px;
+      font-weight: 400;
+    }
+
     &__input {
       border: 0;
       border-radius: 0;
-      font-weight: 400;
+      font-weight: 600;
       line-height: 1.3;
       color: $blue-black;
       width: 100%;
       padding: 6px 0;
       border-bottom: 1px solid $grey-lighter;
+      font-size: 20px;
 
-      &__error {
+      &--error {
         border-bottom: 1px solid $red;
       }
     }

@@ -61,7 +61,7 @@ export class UpdateMobileNumberComponent implements OnInit, AfterViewInit {
 
   saveValue(): void {
     //If user has not changed the verified mobile number, close the popover
-    if (this.inputValue === this.extendedOrgUser.ou.mobile) {
+    if (this.inputValue && this.inputValue === this.extendedOrgUser.ou.mobile) {
       this.popoverController.dismiss();
     } else {
       this.validateInput();
