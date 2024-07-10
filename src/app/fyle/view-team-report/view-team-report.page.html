@@ -79,7 +79,9 @@
               <div>
                 <div class="view-reports--submitted-date">
                   <div>
-                    <span class="view-reports--submitted-date__text">Submitted on: </span>
+                    <span class="view-reports--submitted-date__text"
+                      >report.last_resubmitted_at ? "Resubmitted on : " : "Submitted on : "
+                    </span>
                     <span class="view-reports--submitted-date__date"
                       >{{(report.last_resubmitted_at || report.last_submitted_at) | date: 'MMM dd, YYYY'}}</span
                     >
