@@ -437,7 +437,8 @@ export class TasksService {
           eou.ou.mobile_verification_attempts_left !== 0 &&
           !isUserFromINCluster
         ) {
-          return of(this.mapMobileNumberVerificationTask());
+          const isInvalidUSNumber = eou.ou.mobile && !eou.ou.mobile.startsWith('+1');
+          return of(this.mapMobileNumberVerificationTask(isInvalidUSNumber));
         }
         return of<DashboardTask[]>([]);
       })
@@ -539,16 +540,18 @@ export class TasksService {
     );
   }
 
-  mapMobileNumberVerificationTask(): DashboardTask[] {
+  mapMobileNumberVerificationTask(isInvalidUSNumber: boolean): DashboardTask[] {
     const task = [
       {
         hideAmount: true,
-        header: 'Opt in to text receipts',
-        subheader: 'Opt-in to activate text messages for instant expense submission',
+        header: isInvalidUSNumber ? 'Update phone number to opt in to text receipts' : 'Opt in to text receipts',
+        subheader: isInvalidUSNumber
+          ? 'Add a +1 country code to your mobile number to receive text message receipts.'
+          : 'Opt-in to activate text messages for instant expense submission',
         icon: TaskIcon.STARS,
         ctas: [
           {
-            content: 'Opt in',
+            content: isInvalidUSNumber ? 'Update and Opt in' : 'Opt in',
             event: TASKEVENT.mobileNumberVerification,
           },
         ],

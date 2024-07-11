@@ -125,23 +125,4 @@ describe('LaunchDarklyService', () => {
       expect(() => launchDarklyService.shutDownClient()).not.toThrow();
     });
   });
-
-  it('getImmediate: should immediately return a value', () => {
-    launchDarklyService.initializeUser({
-      key: '123',
-    });
-    spyOn(launchDarklyService.ldClient, 'variation').and.returnValue(of(true));
-
-    launchDarklyService.getImmediate('timezone_fix', true);
-
-    expect(launchDarklyService.ldClient.variation).toHaveBeenCalledOnceWith('timezone_fix', true);
-  });
-
-  it('getImmediate: should return default value if ldclient is not present', () => {
-    launchDarklyService.ldClient = null;
-
-    const value = launchDarklyService.getImmediate('timezone_fix', true);
-
-    expect(value).toBeTrue();
-  });
 });

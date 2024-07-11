@@ -41,18 +41,8 @@ import { ExpenseFilters } from '../models/expense-filters.model';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { expensesCacheBuster$ } from '../cache-buster/expense-cache-buster';
 import { LaunchDarklyService } from './launch-darkly.service';
-
-enum FilterState {
-  READY_TO_REPORT = 'READY_TO_REPORT',
-  POLICY_VIOLATED = 'POLICY_VIOLATED',
-  CANNOT_REPORT = 'CANNOT_REPORT',
-  DRAFT = 'DRAFT',
-}
-
-type PaymentMode = {
-  name: string;
-  key: string;
-};
+import { FilterState } from '../enums/filter-state.enum';
+import { PaymentMode } from '../models/payment-mode.model';
 
 @Injectable({
   providedIn: 'root',
@@ -231,11 +221,7 @@ export class TransactionService {
           transaction.txn_dt.setSeconds(0);
           transaction.txn_dt.setMilliseconds(0);
 
-          if (this.ldService.getImmediate('timezone_fix', false)) {
-            transaction.txn_dt = this.dateService.getUTCMidAfternoonDate(transaction.txn_dt);
-          } else {
-            transaction.txn_dt = this.timezoneService.convertToUtc(transaction.txn_dt, offset);
-          }
+          transaction.txn_dt = this.dateService.getUTCMidAfternoonDate(transaction.txn_dt);
         }
 
         if (transaction.from_dt) {

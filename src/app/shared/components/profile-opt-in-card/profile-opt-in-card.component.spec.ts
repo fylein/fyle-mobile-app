@@ -20,6 +20,7 @@ describe('ProfileOptInCardComponent', () => {
       'clickedOptInFromProfile',
       'clickedOnOptOut',
       'clickedOnEditNumber',
+      'clickedOnDeleteNumber',
     ]);
 
     TestBed.configureTestingModule({
@@ -106,5 +107,12 @@ describe('ProfileOptInCardComponent', () => {
     await component.copyToClipboard();
     expect(clipboardService.writeString).toHaveBeenCalledOnceWith('(302) 440-2921');
     expect(component.copiedText.emit).toHaveBeenCalledOnceWith('Phone Number Copied Successfully');
+  });
+
+  it('deleteMobileNumber(): should track event and emit deleteMobileNumberClicked', () => {
+    spyOn(component.deleteMobileNumberClicked, 'emit');
+    component.deleteMobileNumber();
+    expect(trackingService.clickedOnDeleteNumber).toHaveBeenCalledTimes(1);
+    expect(component.deleteMobileNumberClicked.emit).toHaveBeenCalledTimes(1);
   });
 });

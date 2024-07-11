@@ -62,6 +62,7 @@ describe('TasksComponent', () => {
       'commuteDeductionTaskClicked',
       'commuteDeductionDetailsAddedFromSpenderTask',
       'clickedOnTask',
+      'optedInFromTasks',
     ]);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const matBottomSheetSpy = jasmine.createSpyObj('MatBottomSheet', ['open']);
