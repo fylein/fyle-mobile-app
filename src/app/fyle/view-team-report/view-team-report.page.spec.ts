@@ -14,7 +14,6 @@ import {
 } from '@ionic/angular';
 import { finalize, of } from 'rxjs';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
-import { approversData1, approversData4, approversData5, approversData6 } from 'src/app/core/mock-data/approver.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { apiReportPermissions } from 'src/app/core/mock-data/report-permissions.data';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
@@ -131,6 +130,7 @@ describe('ViewTeamReportPageV2', () => {
       'permissions',
       'postComment',
       'sendBack',
+      'approve',
     ]);
 
     TestBed.configureTestingModule({
@@ -601,7 +601,7 @@ describe('ViewTeamReportPageV2', () => {
       });
 
       popoverController.create.and.resolveTo(popoverSpy);
-      reportService.approve.and.returnValue(of(undefined));
+      approverReportsService.approve.and.returnValue(of(undefined));
       refinerService.startSurvey.and.returnValue(null);
 
       component.report$ = of(reportWithExpenses);
@@ -632,7 +632,7 @@ describe('ViewTeamReportPageV2', () => {
         reportWithExpenses.currency,
         false
       );
-      expect(reportService.approve).toHaveBeenCalledOnceWith(platformReportData.id);
+      expect(approverReportsService.approve).toHaveBeenCalledOnceWith(platformReportData.id);
       expect(refinerService.startSurvey).toHaveBeenCalledOnceWith({ actionName: 'Approve Report' });
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'team_reports']);
     });

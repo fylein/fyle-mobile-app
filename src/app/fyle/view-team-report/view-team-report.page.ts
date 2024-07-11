@@ -419,7 +419,7 @@ export class ViewTeamReportPage {
       const { data } = (await popover.onWillDismiss()) as { data: { action: string } };
 
       if (data && data.action === 'approve') {
-        this.reportService.approve(report.id).subscribe(() => {
+        this.approverReportsService.approve(report.id).subscribe(() => {
           this.refinerService.startSurvey({ actionName: 'Approve Report' });
           this.router.navigate(['/', 'enterprise', 'team_reports']);
         });
