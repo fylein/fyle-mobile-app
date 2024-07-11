@@ -200,6 +200,25 @@ describe('ApproverReportsService', () => {
     });
   });
 
+  it('addApprover(): should add approver to a report', (done) => {
+    approverPlatformApiService.post.and.returnValue(of(null));
+
+    const reportID = 'rprj1zHHpW2W';
+    const approverEmail = 'asilk@akls.in';
+    const comment = 'comment';
+
+    approverReportsService.addApprover(reportID, approverEmail, comment).subscribe(() => {
+      expect(approverPlatformApiService.post).toHaveBeenCalledOnceWith(`/reports/add_approver`, {
+        data: {
+          id: reportID,
+          approver_email: approverEmail,
+          comment,
+        },
+      });
+      done();
+    });
+  });
+
   it('getReportById(): should get a report by id', () => {
     spyOn(approverReportsService, 'getReportsByParams').and.returnValue(of(allReportsPaginated1));
     const queryParams = {
