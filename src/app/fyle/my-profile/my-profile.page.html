@@ -9,26 +9,35 @@
 
 <ion-content class="my-profile__content-container">
   <ng-container *ngIf="eou$ | async as eou">
-    <app-employee-details-card
-      [eou]="eou"
-      (updateMobileNumber)="updateMobileNumber($event)"
-      (verifyMobileNumber)="onVerifyCtaClicked($event)"
-    ></app-employee-details-card>
+    <app-employee-details-card [eou]="eou"></app-employee-details-card>
   </ng-container>
   <div class="my-profile__content-container__content">
     <ng-container *ngIf="isConnected$ | async">
       <!-- Hide Opt in flow for IN cluster -->
-      <ng-container *ngIf="!(isUserFromINCluster$ | async)">
+      <ng-container *ngIf="!(isUserFromINCluster$ | async); else isNonUSOrg">
         <ng-container *ngIf="eou$ | async as eou">
-          <app-profile-opt-in-card
-            [extendedOrgUser]="eou"
-            (copiedText)="showToastMessage($event, 'success')"
-            (optInClicked)="updateMobileNumber($event)"
-            (optOutClicked)="optOutClick()"
-            (editMobileNumberClicked)="updateMobileNumber($event)"
-          ></app-profile-opt-in-card>
+          <ng-container *ngIf="(eou.org.currency === 'CAD' || eou.org.currency === 'USD'); else isNonUSOrg">
+            <app-profile-opt-in-card
+              [extendedOrgUser]="eou"
+              (copiedText)="showToastMessage($event, 'success')"
+              (optInClicked)="optInMobileNumber($event)"
+              (optOutClicked)="optOutClick()"
+              (editMobileNumberClicked)="optInMobileNumber($event)"
+              (deleteMobileNumberClicked)="onDeleteCTAClicked()"
+            ></app-profile-opt-in-card>
+          </ng-container>
         </ng-container>
       </ng-container>
+      <ng-template #isNonUSOrg>
+        <ng-container *ngIf="eou$ | async as eou">
+          <app-mobile-number-card
+            [extendedOrgUser]="eou"
+            (addMobileNumberClicked)="updateMobileNumber($event)"
+            (deleteMobileNumberClicked)="onDeleteCTAClicked()"
+            (editMobileNumberClicked)="updateMobileNumber($event)"
+          ></app-mobile-number-card>
+        </ng-container>
+      </ng-template>
       <ng-container *ngIf="infoCardsData?.length">
         <div class="my-profile__info-card-container">
           <div matRipple *ngFor="let infoCardData of infoCardsData;let isLast=last">

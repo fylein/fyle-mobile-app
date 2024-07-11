@@ -38,6 +38,7 @@ import {
   unreportedExpenseTaskSample2,
   commuteDeductionTask,
   sentBackReportTaskSingularSample,
+  verifyMobileNumberTask2,
 } from '../mock-data/task.data';
 import { mastercardRTFCard } from '../mock-data/platform-corporate-card.data';
 import { OrgSettingsService } from './org-settings.service';
@@ -1050,8 +1051,12 @@ describe('TasksService', () => {
   });
 
   describe('mapMobileNumberVerificationTask(): ', () => {
-    it('should return correct task object for verify mobile number', () => {
-      expect(tasksService.mapMobileNumberVerificationTask()).toEqual([verifyMobileNumberTask]);
+    it('should return correct task object with CTA as Opt in if user not opted in', () => {
+      expect(tasksService.mapMobileNumberVerificationTask(false)).toEqual([verifyMobileNumberTask]);
+    });
+
+    it('should return correct task object with CTA as Update and Opt in if user added non +1 mobile number', () => {
+      expect(tasksService.mapMobileNumberVerificationTask(true)).toEqual([verifyMobileNumberTask2]);
     });
   });
 

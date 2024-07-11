@@ -195,13 +195,23 @@ describe('FyOptInComponent', () => {
     it('should set mobileNumberError if mobile number is invalid', () => {
       component.mobileNumberInputValue = '1234567890';
       expect(component.validateInput());
-      expect(component.mobileNumberError).toBe('Enter a valid mobile number with country code. e.g. +13024402921.');
+      expect(component.mobileNumberError).toBe(
+        'Please enter a valid number with +1 country code. Try re-entering your number.'
+      );
     });
 
     it('should set mobileNumberError if mobileNumberInputValue is null', () => {
       component.mobileNumberInputValue = null;
       expect(component.validateInput());
       expect(component.mobileNumberError).toBe('Please enter mobile number');
+    });
+
+    it('should set mobileNumberError if mobileNumberInputValue does not starts with +1', () => {
+      component.mobileNumberInputValue = '+911234567890';
+      expect(component.validateInput());
+      expect(component.mobileNumberError).toBe(
+        'Please enter a valid number with +1 country code. Try re-entering your number.'
+      );
     });
   });
 
@@ -231,9 +241,6 @@ describe('FyOptInComponent', () => {
         mobile: '123456',
       });
       expect(authService.refreshEou).toHaveBeenCalledTimes(1);
-      expect(trackingService.updateMobileNumber).toHaveBeenCalledOnceWith({
-        popoverTitle: 'Edit Mobile Number',
-      });
       expect(component.resendOtp).toHaveBeenCalledOnceWith('INITIAL');
     });
 
@@ -242,16 +249,7 @@ describe('FyOptInComponent', () => {
       component.saveMobileNumber();
       expect(orgUserService.postOrgUser).not.toHaveBeenCalled();
       expect(authService.refreshEou).not.toHaveBeenCalled();
-    });
-
-    it('should track add mobile number instead of edit if mobile number is null', () => {
-      const mockEou = cloneDeep(eouRes2);
-      mockEou.ou.mobile = null;
-      component.extendedOrgUser = mockEou;
-      component.saveMobileNumber();
-      expect(trackingService.updateMobileNumber).toHaveBeenCalledOnceWith({
-        popoverTitle: 'Add Mobile Number',
-      });
+      expect(component.resendOtp).not.toHaveBeenCalled();
     });
 
     it('should set sendCodeLoading to false if API call fails', () => {

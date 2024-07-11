@@ -4,7 +4,6 @@ import { ChangeDetectorRef, Component, ElementRef, EventEmitter, HostListener, O
 import { AbstractControl, FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Position } from '@capacitor/geolocation';
 import { ModalController, NavController, PopoverController } from '@ionic/angular';
 import * as dayjs from 'dayjs';
 import { cloneDeep, intersection, isEmpty, isEqual, isNumber } from 'lodash';
@@ -43,7 +42,6 @@ import { CostCenterOptions } from 'src/app/core/models/cost-center-options.model
 import { Destination } from 'src/app/core/models/destination.model';
 import { Expense } from 'src/app/core/models/expense.model';
 import { ExtendedAccount } from 'src/app/core/models/extended-account.model';
-import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { Location } from 'src/app/core/models/location.model';
@@ -113,6 +111,7 @@ import { MileageFormValue } from 'src/app/core/models/mileage-form-value.model';
 import { CommuteDetailsResponse } from 'src/app/core/models/platform/commute-details-response.model';
 import { AdvanceWallet } from 'src/app/core/models/platform/v1/advance-wallet.model';
 import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
+import { LocationInfo } from 'src/app/core/models/location-info.model';
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -832,8 +831,6 @@ export class AddEditMileagePage implements OnInit {
       mileageRates: this.mileageRates$,
     }).pipe(map(({ defaultVehicle, mileageRates }) => this.getMileageByVehicleType(mileageRates, defaultVehicle)));
 
-    type locationInfo = { recentStartLocation: string; eou: ExtendedOrgUser; currentLocation: Position };
-
     const autofillLocation$ = forkJoin({
       eou: this.authService.getEou(),
       currentLocation: this.locationService.getCurrentLocation(),
@@ -862,7 +859,7 @@ export class AddEditMileagePage implements OnInit {
           return of(null);
         }
       }),
-      concatMap((info: locationInfo) => {
+      concatMap((info: LocationInfo) => {
         if (info && info.recentStartLocation && info.eou && info.currentLocation) {
           return this.locationService.getAutocompletePredictions(
             info.recentStartLocation,
@@ -2416,7 +2413,7 @@ export class AddEditMileagePage implements OnInit {
         });
         const calculatedDistance = +res.calculatedDistance;
 
-        const amount = res.amount;
+        const amount = parseFloat(res.amount.toFixed(2));
         const skipReimbursement =
           (formValue?.paymentMode?.acc?.type === AccountType.PERSONAL &&
             !formValue?.paymentMode?.acc?.isReimbursable) ||
@@ -2442,11 +2439,14 @@ export class AddEditMileagePage implements OnInit {
             orig_currency: null,
             orig_amount: null,
             mileage_calculated_distance: calculatedDistance,
-            mileage_calculated_amount:
-              (rate ||
-                etxn.tx.mileage_rate ||
-                this.getRateByVehicleType(res.mileageRates, formValue.mileage_rate_name?.vehicle_type)) *
-              calculatedDistance,
+            mileage_calculated_amount: parseFloat(
+              (
+                (rate ||
+                  etxn.tx.mileage_rate ||
+                  this.getRateByVehicleType(res.mileageRates, formValue.mileage_rate_name?.vehicle_type)) *
+                calculatedDistance
+              ).toFixed(2)
+            ),
             project_id: formValue.project && formValue.project.project_id,
             purpose: formValue.purpose,
             custom_properties: customProperties || [],

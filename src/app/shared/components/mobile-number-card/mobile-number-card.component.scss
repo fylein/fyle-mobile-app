@@ -1,6 +1,6 @@
 @import '../../../../theme/colors.scss';
 
-.profile-opt-in-card {
+.mobile-number-card {
   &__container {
     background-color: $pure-white;
     border-radius: 8px;
@@ -8,23 +8,20 @@
     padding: 16px;
   }
 
-  &__title-container {
+  &__title {
     display: flex;
     justify-content: space-between;
-    gap: 27px;
-  }
-
-  &__title {
     font-size: 16px;
+    gap: 27px;
     font-weight: 500;
     color: $pure-black;
   }
 
-  &__opt-in-btn {
+  &__add-btn {
     font-size: 14px;
     color: $brand-primary;
-    white-space: nowrap;
     font-weight: 500;
+    white-space: nowrap;
   }
 
   &__description {
@@ -59,20 +56,10 @@
       flex-shrink: 0;
       background-color: $green;
 
-      &--inactive {
-        @extend .profile-opt-in-card__status__icon;
-        background-color: $red;
+      &__text {
+        font-weight: 500;
       }
     }
-
-    &__text {
-      font-weight: 500;
-    }
-  }
-
-  &__opt-out-btn {
-    @extend .profile-opt-in-card__opt-in-btn;
-    font-weight: 500;
   }
 
   &__divider {
@@ -84,7 +71,6 @@
     margin-top: 16px;
     font-size: 14px;
     font-weight: 400;
-    color: $black-light;
 
     &__number-container {
       margin-top: 4px;
@@ -96,51 +82,15 @@
       color: $black;
     }
 
-    &__edit-icon {
-      width: 20px;
-      height: 20px;
-      color: $brand-primary;
-      margin-left: 12px;
-    }
-
     &__delete-icon {
-      @extend .profile-opt-in-card__mobile__edit-icon;
-      color: $red;
+      width: 24px;
+      height: 24px;
+      color: $blue-black;
     }
-  }
 
-  &__usage-description {
-    margin-top: 16px;
-    display: flex;
-    justify-content: space-between;
-    font-size: 14px;
-    font-weight: 400;
-    color: $black-light;
-
-    &__text {
-      width: 80%;
-    }
-  }
-
-  &__copy-icon {
-    width: 24px;
-    height: 24px;
-    color: $brand-primary;
-  }
-
-  &__non-us-number-card {
-    margin-top: 18px;
-    display: flex;
-    padding: 12px;
-    border-radius: 6px;
-    background-color: $alice-blue;
-    font-size: 12px;
-    gap: 8px;
-
-    &__cta {
-      white-space: nowrap;
-      color: $brand-primary;
-      font-weight: 500;
+    &__edit-icon {
+      @extend .mobile-number-card__mobile__delete-icon;
+      margin-right: 16px;
     }
   }
 }
