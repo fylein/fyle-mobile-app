@@ -230,7 +230,6 @@ export function TestCases5(getTestBed) {
       spyOn(component, 'initClassObservables');
       spyOn(component, 'setupSelectedProjects');
       spyOn(component, 'setupSelectedCostCenters');
-      spyOn(component, 'checkNewReportsFlow');
       spyOn(component, 'setupNetworkWatcher');
       spyOn(component, 'setupTfcDefaultValues');
       spyOn(component, 'getMileageRatesOptions');
@@ -301,7 +300,6 @@ export function TestCases5(getTestBed) {
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
       expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
       expect(component.checkAdvanceEnabled).toHaveBeenCalledOnceWith(jasmine.any(Observable));
-      expect(component.checkNewReportsFlow).toHaveBeenCalledOnceWith(jasmine.any(Observable));
       expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
       expect(component.getTransactionFields).toHaveBeenCalledTimes(1);
       expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);

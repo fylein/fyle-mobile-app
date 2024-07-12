@@ -12,8 +12,6 @@ export class ReportsCardComponent implements OnInit {
 
   @Input() prevDate: Date;
 
-  @Input() simplifyReportsEnabled: boolean;
-
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   @Output() deleteReport: EventEmitter<Report> = new EventEmitter();
 

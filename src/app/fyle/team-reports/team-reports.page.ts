@@ -84,8 +84,6 @@ export class TeamReportsPage implements OnInit {
 
   teamReportsTaskCount = 0;
 
-  simplifyReportsSettings$: Observable<{ enabled: boolean }>;
-
   eou$: Observable<ExtendedOrgUser>;
 
   constructor(
@@ -129,9 +127,6 @@ export class TeamReportsPage implements OnInit {
     });
 
     const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
-    this.simplifyReportsSettings$ = orgSettings$.pipe(
-      map((orgSettings) => ({ enabled: orgSettings?.simplified_report_closure_settings?.enabled }))
-    );
 
     this.eou$.subscribe((eou: ExtendedOrgUser) => {
       this.loadData$ = new BehaviorSubject({
@@ -585,14 +580,12 @@ export class TeamReportsPage implements OnInit {
   }
 
   generateStateFilterPills(filterPills: FilterPill[], filter: Partial<TeamReportsFilters>): void {
-    this.simplifyReportsSettings$.subscribe((simplifyReportsSettings) => {
-      filterPills.push({
-        label: 'State',
-        type: 'state',
-        value: (filter.state as string[])
-          .map((state) => this.reportStatePipe.transform(state, simplifyReportsSettings.enabled))
-          .reduce((state1, state2) => `${state1}, ${state2}`),
-      });
+    filterPills.push({
+      label: 'State',
+      type: 'state',
+      value: (filter.state as string[])
+        .map((state) => this.reportStatePipe.transform(state))
+        .reduce((state1, state2) => `${state1}, ${state2}`),
     });
   }
 
@@ -852,7 +845,6 @@ export class TeamReportsPage implements OnInit {
             ],
           } as FilterOptions<string>,
         ],
-        simplifyReportsSettings$: this.simplifyReportsSettings$,
         selectedFilterValues: this.generateSelectedFilters(this.filters),
         activeFilterInitialName,
       },

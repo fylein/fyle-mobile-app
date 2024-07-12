@@ -410,8 +410,6 @@ export class AddEditExpensePage implements OnInit {
 
   hardwareBackButtonAction: Subscription;
 
-  isNewReportsFlowEnabled = false;
-
   onPageExit$: Subject<void>;
 
   dependentFields$: Observable<ExpenseField[]>;
@@ -2786,7 +2784,6 @@ export class AddEditExpensePage implements OnInit {
   }
 
   initClassObservables(): void {
-    this.isNewReportsFlowEnabled = false;
     this.onPageExit$ = new Subject();
     this.projectDependentFieldsRef?.ngOnInit();
     this.costCenterDependentFieldsRef?.ngOnInit();
@@ -3029,8 +3026,6 @@ export class AddEditExpensePage implements OnInit {
 
     orgSettings$.subscribe((orgSettings) => {
       this.isCorporateCreditCardEnabled = this.getCCCSettings(orgSettings);
-
-      this.isNewReportsFlowEnabled = orgSettings?.simplified_report_closure_settings?.enabled || false;
 
       this.isDraftExpenseEnabled =
         orgSettings.ccc_draft_expense_settings &&

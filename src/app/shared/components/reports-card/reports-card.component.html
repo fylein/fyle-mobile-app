@@ -29,7 +29,7 @@
         <span>{{ report.num_expenses === 1 ? 'Expense' : 'Expenses' }}</span>
       </div>
       <div class="state-pill state-{{ report.state | reportState }}">
-        {{ report.state | reportState : simplifyReportsEnabled | snakeCaseToSpaceCase }}
+        {{ report.state | reportState | snakeCaseToSpaceCase }}
       </div>
     </div>
   </div>

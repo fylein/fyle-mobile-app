@@ -240,8 +240,6 @@ export class AddEditPerDiemPage implements OnInit {
 
   hardwareBackButtonAction: Subscription;
 
-  isNewReportsFlowEnabled = false;
-
   onPageExit$: Subject<void>;
 
   dependentFields$: Observable<ExpenseField[]>;
@@ -915,7 +913,6 @@ export class AddEditPerDiemPage implements OnInit {
 
   ionViewWillEnter(): void {
     this.subCategories$ = this.getSubCategories().pipe(shareReplay(1));
-    this.isNewReportsFlowEnabled = false;
     this.onPageExit$ = new Subject();
     this.projectDependentFieldsRef?.ngOnInit();
     this.costCenterDependentFieldsRef?.ngOnInit();
@@ -1002,10 +999,6 @@ export class AddEditPerDiemPage implements OnInit {
     this.individualPerDiemRatesEnabled$ = orgSettings$.pipe(
       map((orgSettings) => orgSettings.per_diem.enable_individual_per_diem_rates)
     );
-
-    orgSettings$.subscribe((orgSettings) => {
-      this.isNewReportsFlowEnabled = orgSettings?.simplified_report_closure_settings?.enabled || false;
-    });
 
     this.setupNetworkWatcher();
 

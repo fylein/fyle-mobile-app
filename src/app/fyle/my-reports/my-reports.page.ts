@@ -108,8 +108,6 @@ export class MyReportsPage {
 
   filterPills = [];
 
-  simplifyReportsSettings$: Observable<{ enabled: boolean }>;
-
   nonReimbursableOrg$: Observable<boolean>;
 
   constructor(
@@ -255,11 +253,6 @@ export class MyReportsPage {
     );
 
     const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
-    this.simplifyReportsSettings$ = orgSettings$.pipe(
-      map((orgSettings) => ({
-        enabled: orgSettings?.simplified_report_closure_settings?.enabled,
-      }))
-    );
     this.nonReimbursableOrg$ = orgSettings$.pipe(
       map(
         (orgSettings) =>
@@ -760,14 +753,12 @@ export class MyReportsPage {
   }
 
   generateStateFilterPills(filterPills: FilterPill[], filter: Filters): void {
-    this.simplifyReportsSettings$.subscribe((simplifyReportsSettings) => {
-      filterPills.push({
-        label: 'State',
-        type: 'state',
-        value: (<string[]>filter.state)
-          .map((state) => this.reportStatePipe.transform(state, simplifyReportsSettings.enabled))
-          .reduce((state1, state2) => `${state1}, ${state2}`),
-      });
+    filterPills.push({
+      label: 'State',
+      type: 'state',
+      value: (<string[]>filter.state)
+        .map((state) => this.reportStatePipe.transform(state))
+        .reduce((state1, state2) => `${state1}, ${state2}`),
     });
   }
 
@@ -1076,7 +1067,6 @@ export class MyReportsPage {
             ],
           } as FilterOptions<string>,
         ],
-        simplifyReportsSettings$: this.simplifyReportsSettings$,
         nonReimbursableOrg$: this.nonReimbursableOrg$,
         selectedFilterValues: this.generateSelectedFilters(this.filters),
         activeFilterInitialName,
