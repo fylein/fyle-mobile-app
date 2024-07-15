@@ -249,9 +249,9 @@ export class DateService {
   getUTCMidAfternoonDate(date: Date): Date {
     const userTimezoneOffset = date.getTimezoneOffset() * 60000;
     const newDate = new Date(date.getTime() + userTimezoneOffset + 12 * 60 * 60 * 1000);
-    newDate.setUTCDate(date.getDate());
-    newDate.setUTCMonth(date.getMonth());
     newDate.setUTCFullYear(date.getFullYear());
+    newDate.setUTCMonth(date.getMonth());
+    newDate.setUTCDate(date.getDate());
     return newDate;
   }
 }
