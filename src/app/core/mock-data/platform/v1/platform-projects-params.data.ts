@@ -7,7 +7,6 @@ export const ProjectPlatformParams: PlatformProjectParams = deepFreeze({
   limit: 10,
   offset: 0,
   is_enabled: 'eq.true',
-  or: '(category_ids.is.null, category_ids.ov.{122269,122270,122271,122272,122273})',
+  or: '(category_ids.is.null, category_ids.ov.{122269,122270,122271,122272,122273},name.ilike."%search%",sub_project.ilike."%search%")',
   id: 'in.(3943,305792,148971,247936)',
-  name: 'ilike.%search%',
 });
