@@ -32,7 +32,7 @@ export class ProjectsService {
     // eslint-disable-next-line prefer-const
     let { orgId, isEnabled, orgCategoryIds, searchNameText, limit, offset, sortOrder, sortDirection, projectIds } =
       projectParams;
-    sortOrder = sortOrder || 'project_updated_at';
+    sortOrder = sortOrder || 'updated_at';
     sortDirection = sortDirection || 'desc';
 
     const params: PlatformProjectParams = {
