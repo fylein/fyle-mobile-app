@@ -82,9 +82,9 @@ export class AddApproversPopoverComponent {
         }),
         reduce((acc: AdvanceRequests[] | Report[], curr: AdvanceRequests | Report) => {
           if (this.type === 'ADVANCE_REQUEST') {
-            (acc as AdvanceRequests[]).concat(curr as AdvanceRequests);
+            return (acc as AdvanceRequests[]).concat(curr as AdvanceRequests);
           } else {
-            (acc as Report[]).concat(curr as Report);
+            return (acc as Report[]).concat(curr as Report);
           }
         }, []),
         finalize(() => from(this.loaderService.hideLoader()))
