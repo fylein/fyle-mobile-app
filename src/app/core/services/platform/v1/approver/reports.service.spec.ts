@@ -201,7 +201,7 @@ describe('ApproverReportsService', () => {
   });
 
   it('addApprover(): should add approver to a report', (done) => {
-    approverPlatformApiService.post.and.returnValue(of(null));
+    approverPlatformApiService.post.and.returnValue(of({ data: platformReportData }));
 
     const reportID = 'rprj1zHHpW2W';
     const approverEmail = 'asilk@akls.in';
