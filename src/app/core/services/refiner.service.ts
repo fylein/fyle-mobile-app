@@ -245,34 +245,34 @@ export class RefinerService {
       homeCurrency: this.currencyService.getHomeCurrency(),
       deviceInfo: Device.getInfo(),
     }).subscribe(({ isConnected, eou, homeCurrency, deviceInfo }) => {
-      if (this.canStartSurvey(homeCurrency, eou) && isConnected) {
-        let device = '';
-        if (deviceInfo.operatingSystem === 'ios') {
-          device = 'IOS';
-        } else if (deviceInfo.operatingSystem === 'android') {
-          device = 'ANDROID';
-        }
-        (window as typeof window & { _refiner: (eventName: string, payload: IdentifyUserPayload) => void })._refiner(
-          'identifyUser',
-          {
-            id: eou.us.id, // Replace with your user ID
-            email: eou.us.email, // Replace with user Email
-            name: eou.us.full_name, // Replace with user name
-            account: {
-              company_id: eou.ou.org_id,
-              company_name: eou.ou.org_name,
-              region: this.getRegion(homeCurrency) + ' - ' + homeCurrency,
-            },
-            source: 'Mobile' + ' - ' + device,
-            is_admin: eou && eou.ou && eou.ou.roles && eou.ou.roles.indexOf('ADMIN') > -1 ? 'T' : 'F',
-            action_name: properties.actionName,
-          }
-        );
-        (window as typeof window & { _refiner: (eventName: string, payload: string) => void })._refiner(
-          'showForm',
-          environment.REFINER_NPS_FORM_ID
-        );
-      }
+      // if (this.canStartSurvey(homeCurrency, eou) && isConnected) {
+      //   let device = '';
+      //   if (deviceInfo.operatingSystem === 'ios') {
+      //     device = 'IOS';
+      //   } else if (deviceInfo.operatingSystem === 'android') {
+      //     device = 'ANDROID';
+      //   }
+      //   (window as typeof window & { _refiner: (eventName: string, payload: IdentifyUserPayload) => void })._refiner(
+      //     'identifyUser',
+      //     {
+      //       id: eou.us.id, // Replace with your user ID
+      //       email: eou.us.email, // Replace with user Email
+      //       name: eou.us.full_name, // Replace with user name
+      //       account: {
+      //         company_id: eou.ou.org_id,
+      //         company_name: eou.ou.org_name,
+      //         region: this.getRegion(homeCurrency) + ' - ' + homeCurrency,
+      //       },
+      //       source: 'Mobile' + ' - ' + device,
+      //       is_admin: eou && eou.ou && eou.ou.roles && eou.ou.roles.indexOf('ADMIN') > -1 ? 'T' : 'F',
+      //       action_name: properties.actionName,
+      //     }
+      //   );
+      //   (window as typeof window & { _refiner: (eventName: string, payload: string) => void })._refiner(
+      //     'showForm',
+      //     environment.REFINER_NPS_FORM_ID
+      //   );
+      // }
     });
   }
 }
