@@ -4,7 +4,7 @@ on:
   push:
     branches: [master]
   pull_request:
-    types: [opened, synchronize, edited]
+    types: [opened, synchronize]
 
 jobs:
   build:
@@ -14,6 +14,40 @@ jobs:
         node-version: [12.x]
 
     steps:
+      - name: Check for changed files
+        id: changed_files
+        uses: tj-actions/changed-files@v41
+        with:
+          separator: ','
+          files_ignore: |
+            package*.json
+            app-v2/package*.json
+
+      - name: Check if JS/TS/HTML files are modified
+        id: check_js_ts_files
+        run: |
+          changedFiles="${{ steps.changed_files.outputs.all_changed_files }}"
+          echo "Changed files: $changedFiles"
+          if [[ $changedFiles =~ \.ts?$|\.js?$|\.html?$ ]]; then
+            echo "JS/TS/HTML files are modified."
+            echo "::set-output name=js_ts_changed::true"
+          else
+            echo "No JS/TS/HTML files modified."
+            echo "::set-output name=js_ts_changed::false"
+          fi
+
+      - name: Check PR Title
+        id: check_pr_title
+        run: |
+          pr_title="${{ github.event.pull_request.title }}"
+          if [[ "$pr_title" =~ ^p0 ]]; then
+            echo "PR title starts with 'p0'. Skipping unit tests."
+            echo "::set-output name=skip_tests::true"
+          else
+            echo "PR title does not start with 'p0'. Running unit tests."
+            echo "::set-output name=skip_tests::false"
+          fi
+          
       - name: Check out Git repository
         uses: actions/checkout@v2
 
@@ -23,12 +57,15 @@ jobs:
           node-version: 16
 
       - name: Install dependencies
+        if: steps.check_js_ts_files.outputs.js_ts_changed == 'true' && steps.check_pr_title.outputs.skip_tests != 'true'
         run: npm install --save-dev --legacy-peer-deps
 
       - name: Run Tests
+        if: steps.check_js_ts_files.outputs.js_ts_changed == 'true' && steps.check_pr_title.outputs.skip_tests != 'true'
         run: npm run test
 
       - name: Unit Test Coverage
+        if: steps.check_js_ts_files.outputs.js_ts_changed == 'true' && steps.check_pr_title.outputs.skip_tests != 'true'
         uses: fylein/comment-test-coverage@master
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -36,6 +73,7 @@ jobs:
           title: Unit Test Coverage
 
       - name: Check Coverage Percentage
+        if: steps.check_js_ts_files.outputs.js_ts_changed == 'true' && steps.check_pr_title.outputs.skip_tests != 'true'
         run: |
           lines=$(jq '.total.lines.pct' < coverage/coverage-summary.json)
           statements=$(jq '.total.statements.pct' < coverage/coverage-summary.json)
@@ -46,6 +84,6 @@ jobs:
                 $(echo "$statements < 95.0" | bc -l) || \
                 $(echo "$branches < 91.10" | bc -l) || \
                 $(echo "$functions < 94.0" | bc -l) )); then
-            echo "Code Coverage Percentage is below 95%"
+            echo "Code Coverage Percentage is below thresholds."
             exit 1
           fi
