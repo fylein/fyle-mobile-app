@@ -5,7 +5,7 @@
 >
   <ng-container *ngIf="{ isConnected: isConnected$ | async } as data">
     <ng-container *ngIf="expense.id && data.isConnected; else isOffline">
-      {{ expense.spent_at || expense.created_at | dateFormat }}
+      {{ expense.spent_at || expense.created_at | dateFormat | async }}
     </ng-container>
 
     <ng-template #isOffline> Offline Expenses </ng-template>

@@ -2,12 +2,14 @@
 
 import { Directive, ElementRef, OnInit, HostListener, Renderer2 } from '@angular/core';
 import * as dayjs from 'dayjs';
+import { from } from 'rxjs';
+import { AuthService } from 'src/app/core/services/auth.service';
 
 @Directive({
   selector: '[appFormatDate]',
 })
 export class FormatDateDirective implements OnInit {
-  constructor(private elementRef: ElementRef, private renderer: Renderer2) {}
+  constructor(private elementRef: ElementRef, private renderer: Renderer2, private authService: AuthService) {}
 
   get selectedElement(): HTMLElement & { name?: string } {
     return this.elementRef?.nativeElement as HTMLElement & { name?: string };
@@ -21,7 +23,7 @@ export class FormatDateDirective implements OnInit {
     if (this.elementRef && this.selectedElement) {
       if (value) {
         this.renderer.removeClass(this.selectedElement, 'date-input__placeholder');
-        this.selectedElement.setAttribute('data-date', dayjs(value).format('MMM DD, YYYY'));
+        this.setDateFormat(value);
       } else {
         this.renderer.addClass(this.selectedElement, 'date-input__placeholder');
         if (this.selectedElement.name) {
@@ -33,8 +35,30 @@ export class FormatDateDirective implements OnInit {
     }
   }
 
+  setDateFormat(value: string): void {
+    let dateFormat = 'MMM DD, YYYY';
+
+    from(this.authService.getEou()).subscribe((eou) => {
+      dateFormat = this.getCurrencyToDateFormatMapping(eou.org.currency);
+
+      this.selectedElement.setAttribute('data-date', dayjs(value).format(dateFormat));
+    });
+  }
+
   ngOnInit(): void {
     const initalValue = this.elementRef.nativeElement as HTMLInputElement;
     this.modifyDisplayValue(initalValue.value);
+  }
+
+  getCurrencyToDateFormatMapping(currency: string): string {
+    const currencyToDateFormatMapping: Record<string, string> = {
+      USD: 'MM/DD/YYYY',
+      INR: 'DD/MM/YYYY',
+      AUD: 'DD/MM/YYYY',
+      CAD: 'YYYY/MM/DD',
+      EUR: 'DD/MM/YYYY',
+    };
+
+    return currencyToDateFormatMapping[currency] || 'MMM DD, YYYY';
   }
 }
