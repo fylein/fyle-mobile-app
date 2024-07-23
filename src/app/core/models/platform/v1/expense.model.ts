@@ -64,7 +64,6 @@ export interface Expense {
   is_reimbursable: boolean;
   is_split: boolean;
   is_verified: boolean;
-  is_weekend_spend: boolean;
   last_settled_at: Date;
   last_verified_at: Date;
   locations: Location[];
