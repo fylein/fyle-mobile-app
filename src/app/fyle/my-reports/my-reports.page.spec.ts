@@ -1504,7 +1504,7 @@ describe('MyReportsPage', () => {
   it('getDeleteReportPopoverParams(): should get delete report popup props', (done) => {
     const result = component.getDeleteReportPopoverParams(expectedReportsSinglePage[0]);
 
-    reportService.delete.and.returnValue(of(undefined));
+    spenderReportsService.delete.and.returnValue(of(undefined));
 
     expect(result).toEqual({
       component: FyDeleteDialogComponent,
@@ -1519,7 +1519,7 @@ describe('MyReportsPage', () => {
     });
 
     result.componentProps.deleteMethod().subscribe(() => {
-      expect(reportService.delete).toHaveBeenCalledOnceWith(expectedReportsSinglePage[0].id);
+      expect(spenderReportsService.delete).toHaveBeenCalledOnceWith(expectedReportsSinglePage[0].id);
       done();
     });
   });
@@ -1545,10 +1545,10 @@ describe('MyReportsPage', () => {
       popoverController.create.and.resolveTo(deleteReportPopoverSpy);
       spyOn(component, 'doRefresh');
       spyOn(component, 'getDeleteReportPopoverParams').and.returnValue(deletePopoverParamsRes);
-      reportService.delete.and.returnValue(of(null));
+      spenderReportsService.delete.and.returnValue(of(null));
       loaderService.showLoader.and.resolveTo(null);
       loaderService.hideLoader.and.resolveTo(null);
-      reportService.delete.and.returnValue(of(null));
+      spenderReportsService.delete.and.returnValue(of(null));
 
       component.onDeleteReportClick(expectedReportsSinglePage[0]);
       tick(200);

@@ -135,6 +135,7 @@ describe('MyViewReportPage', () => {
       'postComment',
       'submit',
       'resubmit',
+      'delete',
     ]);
 
     TestBed.configureTestingModule({
@@ -591,23 +592,23 @@ describe('MyViewReportPage', () => {
 
   describe('getDeleteReportPopupParams(): ', () => {
     it('should get delete report popup props', (done) => {
-      reportService.delete.and.returnValue(of(undefined));
+      spenderReportsService.delete.and.returnValue(of(undefined));
       const props = component.getDeleteReportPopupParams(paidReportData);
       props.componentProps.deleteMethod().subscribe(() => {
-        expect(reportService.delete).toHaveBeenCalledOnceWith(component.reportId);
+        expect(spenderReportsService.delete).toHaveBeenCalledOnceWith(component.reportId);
         expect(trackingService.deleteReport).toHaveBeenCalledTimes(1);
         done();
       });
     });
 
     it('should return null info message if number of txns is 0', (done) => {
-      reportService.delete.and.returnValue(of(undefined));
+      spenderReportsService.delete.and.returnValue(of(undefined));
       const props = component.getDeleteReportPopupParams(
         cloneDeep({ ...expectedReportsSinglePage[0], num_expenses: 0, state: 'DRAFT' })
       );
       expect(props.componentProps.infoMessage).toBeNull();
       props.componentProps.deleteMethod().subscribe(() => {
-        expect(reportService.delete).toHaveBeenCalledOnceWith(component.reportId);
+        expect(spenderReportsService.delete).toHaveBeenCalledOnceWith(component.reportId);
         expect(trackingService.deleteReport).toHaveBeenCalledTimes(1);
         done();
       });

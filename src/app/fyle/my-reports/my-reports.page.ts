@@ -482,7 +482,7 @@ export class MyReportsPage {
         header: 'Delete Report',
         body: 'Are you sure you want to delete this report?',
         infoMessage: 'Deleting the report will not delete any of the expenses.',
-        deleteMethod: (): Observable<void> => this.reportService.delete(report.id),
+        deleteMethod: (): Observable<void> => this.spenderReportsService.delete(report.id),
       },
     };
   }
