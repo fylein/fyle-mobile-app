@@ -2,26 +2,14 @@ import { Component, EventEmitter, ViewChild, ElementRef } from '@angular/core';
 import { concat, Observable, Subject, from, noop, BehaviorSubject, fromEvent, of } from 'rxjs';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { NetworkService } from 'src/app/core/services/network.service';
-import {
-  switchMap,
-  finalize,
-  map,
-  shareReplay,
-  distinctUntilChanged,
-  tap,
-  debounceTime,
-  takeUntil,
-} from 'rxjs/operators';
+import { switchMap, map, shareReplay, distinctUntilChanged, debounceTime, takeUntil } from 'rxjs/operators';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { DateService } from 'src/app/core/services/date.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
-import { capitalize, replace } from 'lodash';
 import { TrackingService } from '../../core/services/tracking.service';
 import { ApiV2Service } from 'src/app/core/services/api-v2.service';
-import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
-import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { HeaderState } from '../../shared/components/fy-header/header-state.enum';
 import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
@@ -34,7 +22,6 @@ import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pil
 import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
 import * as dayjs from 'dayjs';
 import { AllowedPaymentModes } from 'src/app/core/models/allowed-payment-modes.enum';
-import { DeletePopoverParams } from 'src/app/core/models/delete-popover-params.model';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { ReportsQueryParams } from 'src/app/core/models/platform/v1/reports-query-params.model';
