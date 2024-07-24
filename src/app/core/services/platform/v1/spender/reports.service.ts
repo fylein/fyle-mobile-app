@@ -131,6 +131,27 @@ export class SpenderReportsService {
     return this.spenderPlatformV1ApiService.post<void>('/reports/submit', { data: { id: reportId } });
   }
 
+  export(reportId: string, email: string): Observable<void> {
+    const payload = {
+      data: {
+        query_params: `id=in.[${reportId}]`,
+        notify_emails: [email],
+        config: {
+          type: 'pdf',
+          include_receipts: true,
+          is_header_visible: true,
+          separate_line_items_entry: {
+            enabled: false,
+            debit_entries_only: ['debit_amount'],
+            credit_entries_only: ['credit_amount'],
+          },
+          columns: [],
+        },
+      },
+    };
+    return this.spenderPlatformV1ApiService.post<void>('/reports/exports', payload);
+  }
+
   resubmit(reportId: string): Observable<void> {
     return this.spenderPlatformV1ApiService.post<void>('/reports/resubmit', { data: { id: reportId } });
   }

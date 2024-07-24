@@ -532,11 +532,7 @@ export class MyViewReportPage {
     const { data } = (await shareReportModal.onWillDismiss()) as { data: { email: string } };
 
     if (data && data.email) {
-      const params = {
-        report_ids: [this.reportId],
-        email: data.email,
-      };
-      this.reportService.downloadSummaryPdfUrl(params).subscribe(() => {
+      this.spenderReportsService.export(this.reportId, data.email).subscribe(() => {
         const message = `PDF download link has been emailed to ${data.email}`;
         this.matSnackBar.openFromComponent(ToastMessageComponent, {
           ...this.snackbarProperties.setSnackbarProperties('success', { message }),
