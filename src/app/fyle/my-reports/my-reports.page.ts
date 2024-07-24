@@ -473,56 +473,6 @@ export class MyReportsPage {
     this.router.navigate(['/', 'enterprise', 'my_view_report', { id: report.id, navigateBack: true }]);
   }
 
-  getDeleteReportPopoverParams(report: Report): DeletePopoverParams {
-    return {
-      component: FyDeleteDialogComponent,
-      cssClass: 'delete-dialog',
-      backdropDismiss: false,
-      componentProps: {
-        header: 'Delete Report',
-        body: 'Are you sure you want to delete this report?',
-        infoMessage: 'Deleting the report will not delete any of the expenses.',
-        deleteMethod: (): Observable<void> => this.spenderReportsService.delete(report.id),
-      },
-    };
-  }
-
-  async onDeleteReportClick(report: Report): Promise<void> {
-    if (['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'].indexOf(report.state) === -1) {
-      const cannotDeleteReportPopOver = await this.popoverController.create({
-        component: PopupAlertComponent,
-        componentProps: {
-          title: 'Cannot Delete Report',
-          message: `${capitalize(replace(report.state, '_', ' '))} report cannot be deleted.`,
-          primaryCta: {
-            text: 'Close',
-            action: 'continue',
-          },
-        },
-        cssClass: 'pop-up-in-center',
-      });
-
-      await cannotDeleteReportPopOver.present();
-    } else {
-      const deleteReportPopover = await this.popoverController.create(this.getDeleteReportPopoverParams(report));
-
-      await deleteReportPopover.present();
-      const { data } = (await deleteReportPopover.onDidDismiss()) as { data: { status: string } };
-
-      if (data && data.status === 'success') {
-        from(this.loaderService.showLoader())
-          .pipe(
-            tap(() => this.trackingService.deleteReport()),
-            finalize(async () => {
-              await this.loaderService.hideLoader();
-              this.doRefresh();
-            })
-          )
-          .subscribe(noop);
-      }
-    }
-  }
-
   onHomeClicked(): void {
     const queryParams: Params = { state: 'home' };
     this.router.navigate(['/', 'enterprise', 'my_dashboard'], {

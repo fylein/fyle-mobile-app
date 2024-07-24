@@ -123,12 +123,6 @@ export class ReportService {
     return this.apiService.get<{ results: PdfExport[] }>('/reports/' + rptId + '/exports');
   }
 
-  delete(rptId: string): Observable<void> {
-    return this.apiService
-      .delete<void>('/reports/' + rptId)
-      .pipe(switchMap((res) => this.clearTransactionCache().pipe(map(() => res))));
-  }
-
   downloadSummaryPdfUrl(data: { report_ids: string[]; email: string }): Observable<{ report_url: string }> {
     return this.apiService.post('/reports/summary/download', data);
   }

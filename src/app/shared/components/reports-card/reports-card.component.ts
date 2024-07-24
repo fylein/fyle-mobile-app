@@ -42,10 +42,6 @@ export class ReportsCardComponent implements OnInit {
     this.reportCurrencySymbol = getCurrencySymbol(this.report.currency, 'wide');
   }
 
-  onDeleteReport(): void {
-    this.deleteReport.emit(this.report);
-  }
-
   onGoToReport(): void {
     this.gotoReport.emit(this.report);
   }
