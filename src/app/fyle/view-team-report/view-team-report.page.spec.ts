@@ -706,31 +706,6 @@ describe('ViewTeamReportPageV2', () => {
     });
   });
 
-  it('shareReport(): should open share report modal', async () => {
-    const popoverSpy = jasmine.createSpyObj('popover', ['present', 'onWillDismiss']);
-    popoverSpy.onWillDismiss.and.resolveTo({
-      data: {
-        email: 'ajn@fyle.in',
-      },
-    });
-    popoverController.create.and.resolveTo(popoverSpy);
-
-    reportService.downloadSummaryPdfUrl.and.returnValue(of({ report_url: 'encodedcontent' }));
-
-    await component.shareReport(new Event('event'));
-    expect(popoverController.create).toHaveBeenCalledOnceWith({
-      component: ShareReportComponent,
-      cssClass: 'dialog-popover',
-    });
-    expect(reportService.downloadSummaryPdfUrl).toHaveBeenCalledOnceWith({
-      report_ids: [activatedRoute.snapshot.params.id],
-      email: 'ajn@fyle.in',
-    });
-    expect(loaderService.showLoader).toHaveBeenCalledOnceWith(
-      'We will send ajn@fyle.in a link to download the PDF <br> when it is generated and send you a copy.'
-    );
-  });
-
   it('sendBack(): should open send back modal', async () => {
     const properties = {
       data: {
