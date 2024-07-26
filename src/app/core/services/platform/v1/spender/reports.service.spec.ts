@@ -145,7 +145,7 @@ describe('SpenderReportsService', () => {
     });
   });
 
-  fit('export(): should export a report PDF', (done) => {
+  it('export(): should export a report PDF', (done) => {
     spenderPlatformV1ApiService.post.and.returnValue(of(reportExportResponse));
 
     const id = 'rpShFuVCUIXk';
