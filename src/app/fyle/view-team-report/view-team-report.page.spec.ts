@@ -101,7 +101,6 @@ describe('ViewTeamReportPageV2', () => {
       'actions',
       'delete',
       'approve',
-      'downloadSummaryPdfUrl',
       'inquire',
       'approverUpdateReportPurpose',
     ]);

@@ -123,10 +123,6 @@ export class ReportService {
     return this.apiService.get<{ results: PdfExport[] }>('/reports/' + rptId + '/exports');
   }
 
-  downloadSummaryPdfUrl(data: { report_ids: string[]; email: string }): Observable<{ report_url: string }> {
-    return this.apiService.post('/reports/summary/download', data);
-  }
-
   approverUpdateReportPurpose(report: Report): Observable<Report> {
     const params: { data: Pick<Report, 'id' | 'source' | 'purpose'> } = {
       data: {
