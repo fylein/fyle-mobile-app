@@ -16,6 +16,7 @@ import { PlatformReportsStatsResponse } from 'src/app/core/models/platform/v1/re
 import { ReportPermissions } from 'src/app/core/models/report-permissions.model';
 import { Comment } from 'src/app/core/models/platform/v1/comment.model';
 import { ReportPurpose } from 'src/app/core/models/report-purpose.model';
+import { ExportPayload } from 'src/app/core/models/platform/export-payload.model';
 
 const reportsCacheBuster$ = new Subject<void>();
 
@@ -132,24 +133,15 @@ export class SpenderReportsService {
   }
 
   export(reportId: string, email: string): Observable<void> {
-    const payload = {
-      data: {
-        query_params: `id=in.[${reportId}]`,
-        notify_emails: [email],
-        config: {
-          type: 'pdf',
-          include_receipts: true,
-          is_header_visible: true,
-          separate_line_items_entry: {
-            enabled: false,
-            debit_entries_only: ['debit_amount'],
-            credit_entries_only: ['credit_amount'],
-          },
-          columns: [],
-        },
+    const payload: ExportPayload = {
+      query_params: `id=in.[${reportId}]`,
+      notify_emails: [email],
+      config: {
+        type: 'pdf',
+        include_receipts: true,
       },
     };
-    return this.spenderPlatformV1ApiService.post<void>('/reports/exports', payload);
+    return this.spenderPlatformV1ApiService.post<void>('/reports/exports', { data: payload });
   }
 
   resubmit(reportId: string): Observable<void> {
