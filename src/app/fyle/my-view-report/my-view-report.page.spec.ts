@@ -859,7 +859,7 @@ describe('MyViewReportPage', () => {
       },
     });
     modalController.create.and.resolveTo(shareReportModalSpy);
-    spenderReportsService.export.and.returnValue(of(reportExportResponse));
+    spenderReportsService.export.and.returnValue(of(null));
     matSnackBar.openFromComponent.and.callThrough();
     modalProperties.getModalDefaultProperties.and.returnValue(shareReportModalProperties);
     snackbarProperties.setSnackbarProperties.and.returnValue(snackbarPropertiesData);
