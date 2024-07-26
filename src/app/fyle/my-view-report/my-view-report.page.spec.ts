@@ -48,6 +48,7 @@ import {
   expectedReportsSinglePage,
   paidReportData,
   platformReportData,
+  reportExportResponse,
   sentBackReportData,
 } from 'src/app/core/mock-data/platform-report.data';
 import {
@@ -98,7 +99,6 @@ describe('MyViewReportPage', () => {
       'delete',
       'submit',
       'resubmit',
-      'downloadSummaryPdfUrl',
       'addTransactions',
     ]);
     const expnesesServicespy = jasmine.createSpyObj('ExpensesService', [
@@ -136,6 +136,7 @@ describe('MyViewReportPage', () => {
       'submit',
       'resubmit',
       'delete',
+      'export',
     ]);
 
     TestBed.configureTestingModule({
@@ -858,7 +859,7 @@ describe('MyViewReportPage', () => {
       },
     });
     modalController.create.and.resolveTo(shareReportModalSpy);
-    reportService.downloadSummaryPdfUrl.and.returnValue(of(null));
+    spenderReportsService.export.and.returnValue(of(reportExportResponse));
     matSnackBar.openFromComponent.and.callThrough();
     modalProperties.getModalDefaultProperties.and.returnValue(shareReportModalProperties);
     snackbarProperties.setSnackbarProperties.and.returnValue(snackbarPropertiesData);
@@ -872,10 +873,7 @@ describe('MyViewReportPage', () => {
       ...shareReportModalProperties,
       cssClass: 'share-report-modal',
     });
-    expect(reportService.downloadSummaryPdfUrl).toHaveBeenCalledOnceWith({
-      report_ids: [component.reportId],
-      email: 'aj@fyle.com',
-    });
+    expect(spenderReportsService.export).toHaveBeenCalledOnceWith(component.reportId, 'aj@fyle.com');
     expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
       ...snackbarPropertiesData,
       panelClass: ['msb-success-with-report-btn'],
