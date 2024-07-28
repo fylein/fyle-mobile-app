@@ -3,7 +3,7 @@ import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NavController } from '@ionic/angular';
 import { Observable, from, noop, zip } from 'rxjs';
-import { finalize, map } from 'rxjs/operators';
+import { finalize, map, switchMap } from 'rxjs/operators';
 import {
   EmailEvents,
   NotificationEventFeatures,
@@ -14,6 +14,7 @@ import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
 
 @Component({
   selector: 'app-notifications',
@@ -54,7 +55,8 @@ export class NotificationsPage implements OnInit {
     private formBuilder: FormBuilder,
     private orgSettingsService: OrgSettingsService,
     private router: Router,
-    private navController: NavController
+    private navController: NavController,
+    private employeesService: EmployeesService
   ) {}
 
   get pushEvents(): FormArray {
@@ -78,10 +80,7 @@ export class NotificationsPage implements OnInit {
           ouSetting.notification_settings.notify_user === true
         ) {
           return this.delegationOptions[0];
-        } else if (
-          ouSetting.notification_settings.notify_delegatee === false &&
-          ouSetting.notification_settings.notify_user === true
-        ) {
+        } else {
           return this.delegationOptions[2];
         }
       })
@@ -282,7 +281,10 @@ export class NotificationsPage implements OnInit {
       this.notificationForm.controls.notifyOption.setValue(notifyOption);
     });
 
-    this.isDelegateePresent$ = from(this.authService.getEou()).pipe(map((eou) => eou.ou.delegatee_id !== null));
+    this.isDelegateePresent$ = from(this.authService.getEou()).pipe(
+      switchMap((res) => from(this.employeesService.getByParams({ user_id: `eq.${res.us.id}` }))),
+      map((employee) => employee.data.delegatees.length > 0)
+    );
 
     this.orgSettings$ = this.orgSettingsService.get();
     this.notificationEvents$ = this.orgUserSettingsService.getNotificationEvents();
