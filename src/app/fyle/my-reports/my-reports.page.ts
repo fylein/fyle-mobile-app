@@ -1,5 +1,5 @@
 import { Component, EventEmitter, ViewChild, ElementRef } from '@angular/core';
-import { concat, Observable, Subject, from, noop, BehaviorSubject, fromEvent, of } from 'rxjs';
+import { concat, Observable, Subject, noop, BehaviorSubject, fromEvent, of } from 'rxjs';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { switchMap, map, shareReplay, distinctUntilChanged, debounceTime, takeUntil } from 'rxjs/operators';
@@ -27,15 +27,8 @@ import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender
 import { ReportsQueryParams } from 'src/app/core/models/platform/v1/reports-query-params.model';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
+import { MyReportsFilters } from 'src/app/core/models/my-reports-filters.model';
 
-type Filters = Partial<{
-  state: string | string[];
-  date: string;
-  customDateStart: Date;
-  customDateEnd: Date;
-  sortParam: string;
-  sortDir: string;
-}>;
 @Component({
   selector: 'app-my-reports',
   templateUrl: './my-reports.page.html',
@@ -66,7 +59,7 @@ export class MyReportsPage {
 
   acc: Report[] = [];
 
-  filters: Filters;
+  filters: Partial<MyReportsFilters>;
 
   homeCurrency$: Observable<string>;
 
@@ -266,7 +259,7 @@ export class MyReportsPage {
       this.filters = Object.assign(
         {},
         this.filters,
-        JSON.parse(this.activatedRoute.snapshot.queryParams.filters as string) as Filters
+        JSON.parse(this.activatedRoute.snapshot.queryParams.filters as string) as Partial<MyReportsFilters>
       );
       this.currentPageNumber = 1;
       const params = this.addNewFiltersToParams();
@@ -588,7 +581,7 @@ export class MyReportsPage {
     this.convertNameSortToSelectedFilters(filter, generatedFilters);
   }
 
-  generateSelectedFilters(filter: Filters): SelectedFilters<string>[] {
+  generateSelectedFilters(filter: Partial<MyReportsFilters>): SelectedFilters<string>[] {
     const generatedFilters: SelectedFilters<string>[] = [];
 
     if (filter.state) {
@@ -674,8 +667,8 @@ export class MyReportsPage {
     }
   }
 
-  convertFilters(selectedFilters: SelectedFilters<string>[]): Filters {
-    const generatedFilters: Filters = {};
+  convertFilters(selectedFilters: SelectedFilters<string>[]): Partial<MyReportsFilters> {
+    const generatedFilters: Partial<MyReportsFilters> = {};
 
     const stateFilter = selectedFilters.find((filter) => filter.name === 'State');
     if (stateFilter) {
@@ -696,7 +689,7 @@ export class MyReportsPage {
     return generatedFilters;
   }
 
-  generateStateFilterPills(filterPills: FilterPill[], filter: Filters): void {
+  generateStateFilterPills(filterPills: FilterPill[], filter: Partial<MyReportsFilters>): void {
     this.simplifyReportsSettings$.subscribe((simplifyReportsSettings) => {
       filterPills.push({
         label: 'State',
@@ -708,7 +701,7 @@ export class MyReportsPage {
     });
   }
 
-  generateCustomDatePill(filter: Filters, filterPills: FilterPill[]): void {
+  generateCustomDatePill(filter: Partial<MyReportsFilters>, filterPills: FilterPill[]): void {
     const startDate = filter.customDateStart && dayjs(filter.customDateStart).format('YYYY-MM-D');
     const endDate = filter.customDateEnd && dayjs(filter.customDateEnd).format('YYYY-MM-D');
 
@@ -733,7 +726,7 @@ export class MyReportsPage {
     }
   }
 
-  generateDateFilterPills(filter: Filters, filterPills: FilterPill[]): void {
+  generateDateFilterPills(filter: Partial<MyReportsFilters>, filterPills: FilterPill[]): void {
     if (filter.date === DateFilters.thisWeek) {
       filterPills.push({
         label: 'Date',
@@ -771,7 +764,7 @@ export class MyReportsPage {
     }
   }
 
-  generateSortRptDatePills(filter: Filters, filterPills: FilterPill[]): void {
+  generateSortRptDatePills(filter: Partial<MyReportsFilters>, filterPills: FilterPill[]): void {
     if (filter.sortParam === 'created_at' && filter.sortDir === 'asc') {
       filterPills.push({
         label: 'Sort By',
@@ -787,7 +780,7 @@ export class MyReportsPage {
     }
   }
 
-  generateSortAmountPills(filter: Filters, filterPills: FilterPill[]): void {
+  generateSortAmountPills(filter: Partial<MyReportsFilters>, filterPills: FilterPill[]): void {
     if (filter.sortParam === 'amount' && filter.sortDir === 'desc') {
       filterPills.push({
         label: 'Sort By',
@@ -803,7 +796,7 @@ export class MyReportsPage {
     }
   }
 
-  generateSortNamePills(filter: Filters, filterPills: FilterPill[]): void {
+  generateSortNamePills(filter: Partial<MyReportsFilters>, filterPills: FilterPill[]): void {
     if (filter.sortParam === 'purpose' && filter.sortDir === 'asc') {
       filterPills.push({
         label: 'Sort By',
@@ -819,7 +812,7 @@ export class MyReportsPage {
     }
   }
 
-  generateSortFilterPills(filter: Filters, filterPills: FilterPill[]): void {
+  generateSortFilterPills(filter: Partial<MyReportsFilters>, filterPills: FilterPill[]): void {
     this.generateSortRptDatePills(filter, filterPills);
 
     this.generateSortAmountPills(filter, filterPills);
@@ -827,7 +820,7 @@ export class MyReportsPage {
     this.generateSortNamePills(filter, filterPills);
   }
 
-  generateFilterPills(filter: Filters): FilterPill[] {
+  generateFilterPills(filter: Partial<MyReportsFilters>): FilterPill[] {
     const filterPills: FilterPill[] = [];
 
     if (filter.state && filter.state.length) {
