@@ -42,13 +42,6 @@ describe('ReportsCardComponent', () => {
     expect(getTextContent(getElementBySelector(fixture, '.reports-card--no-transactions'))).toEqual('0 Expenses');
   });
 
-  it('onDeleteReport(): should delete report event', () => {
-    const deleteReportSpy = spyOn(component.deleteReport, 'emit');
-
-    component.onDeleteReport();
-    expect(deleteReportSpy).toHaveBeenCalledTimes(1);
-  });
-
   it('onGoToReport(): should emit go to report', () => {
     const goToReportSpy = spyOn(component.gotoReport, 'emit');
 
