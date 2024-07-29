@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
+import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
 
 @Component({
   selector: 'app-transaction-status',
@@ -7,11 +7,11 @@ import { TransactionStatus } from 'src/app/core/models/platform/v1/expense.model
   styleUrls: ['./transaction-status.component.scss'],
 })
 export class TransactionStatusComponent {
-  @Input() transactionStatus: TransactionStatus;
+  @Input() transactionStatus: ExpenseTransactionStatus;
 
-  @Output() statusClick: EventEmitter<TransactionStatus> = new EventEmitter<TransactionStatus>();
+  @Output() statusClick: EventEmitter<ExpenseTransactionStatus> = new EventEmitter<ExpenseTransactionStatus>();
 
-  get TransactionStatus(): typeof TransactionStatus {
-    return TransactionStatus;
+  get TransactionStatus(): typeof ExpenseTransactionStatus {
+    return ExpenseTransactionStatus;
   }
 }

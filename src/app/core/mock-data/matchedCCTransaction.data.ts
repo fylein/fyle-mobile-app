@@ -1,7 +1,7 @@
 import deepFreeze from 'deep-freeze-strict';
 
 import { MatchedCCCTransaction } from '../models/matchedCCCTransaction.model';
-import { TransactionStatus } from '../models/platform/v1/expense.model';
+import { ExpenseTransactionStatus } from '../enums/platform/v1/expense-transaction-status.enum';
 
 export const matchedCCTransactionData: Partial<MatchedCCCTransaction> = deepFreeze({
   id: 'btxnSte7sVQCM8',
@@ -15,7 +15,7 @@ export const matchedCCTransactionData: Partial<MatchedCCCTransaction> = deepFree
   corporate_credit_card_account_number: '7620',
   orig_amount: null,
   orig_currency: null,
-  status: TransactionStatus.PENDING,
+  status: ExpenseTransactionStatus.PENDING,
   displayObject: 'Jul 3, 2018 - test description260.37',
 });
 
@@ -31,7 +31,7 @@ export const matchedCCTransactionData2: Partial<MatchedCCCTransaction> = deepFre
   corporate_credit_card_account_number: '9891',
   orig_amount: null,
   orig_currency: null,
-  status: TransactionStatus.PENDING,
+  status: ExpenseTransactionStatus.PENDING,
   displayObject: 'Jun 6, 2018 - test description205.21',
 });
 

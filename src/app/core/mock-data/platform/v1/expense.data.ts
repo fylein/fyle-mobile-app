@@ -7,10 +7,11 @@ import { MileageUnitEnum } from 'src/app/core/models/platform/platform-mileage-r
 import { ReportState } from 'src/app/core/models/platform/v1/report.model';
 import { ApprovalState } from 'src/app/core/models/platform/report-approvals.model';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
-import { Expense, TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
+import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { FileType } from 'src/app/core/models/platform/v1/file.model';
 import { CustomFieldTypes } from 'src/app/core/enums/platform/v1/custom-fields-type.enum';
 import { CommuteDeduction } from 'src/app/core/enums/commute-deduction.enum';
+import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
 
 export const expenseData: Expense = deepFreeze({
   accounting_export_summary: {},
@@ -142,7 +143,7 @@ export const expenseData: Expense = deepFreeze({
       merchant: 'Merchant1',
       posted_at: null,
       spent_at: new Date('2023-10-15T00:00:00+00:00'),
-      status: TransactionStatus?.PENDING,
+      status: ExpenseTransactionStatus?.PENDING,
     },
   ],
   merchant: null,
@@ -3055,7 +3056,7 @@ export const platformExpenseWithMatchCCC: Expense = deepFreeze({
       merchant: 'test description',
       posted_at: null,
       spent_at: new Date('2018-07-03T18:30:00.000Z'),
-      status: TransactionStatus.PENDING,
+      status: ExpenseTransactionStatus.PENDING,
     },
   ],
   merchant: 'test description',
