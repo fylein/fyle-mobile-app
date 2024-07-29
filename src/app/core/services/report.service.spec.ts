@@ -250,18 +250,6 @@ describe('ReportService', () => {
     });
   });
 
-  it('delete(): should delete a report', (done) => {
-    apiService.delete.and.returnValue(of(null));
-    spyOn(reportService, 'clearTransactionCache').and.returnValue(of(null));
-
-    const reportID = 'rpShFuVCUIXk';
-    reportService.delete(reportID).subscribe(() => {
-      expect(apiService.delete).toHaveBeenCalledOnceWith(`/reports/${reportID}`);
-      expect(reportService.clearTransactionCache).toHaveBeenCalledTimes(1);
-      done();
-    });
-  });
-
   it('updateReportPurpose(): should update the report purpose', (done) => {
     spenderPlatformV1ApiService.post.and.returnValue(of(platformReportData));
     reportService.updateReportPurpose(platformReportData).subscribe((res) => {

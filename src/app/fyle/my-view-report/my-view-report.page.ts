@@ -416,7 +416,7 @@ export class MyViewReportPage {
             ? null
             : 'Deleting the report will not delete any of the expenses.',
         deleteMethod: (): Observable<void> =>
-          this.reportService.delete(this.reportId).pipe(tap(() => this.trackingService.deleteReport())),
+          this.spenderReportsService.delete(this.reportId).pipe(tap(() => this.trackingService.deleteReport())),
       },
     };
   }

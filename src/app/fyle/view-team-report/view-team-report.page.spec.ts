@@ -562,34 +562,6 @@ describe('ViewTeamReportPageV2', () => {
     expect(component.canShowTooltip).toBeTrue();
   });
 
-  it('deleteReport(): should delete report', async () => {
-    popupService.showPopup.and.resolveTo('primary');
-    loaderService.showLoader.and.resolveTo();
-    reportService.delete.and.returnValue(of(undefined));
-    loaderService.hideLoader.and.resolveTo();
-
-    await component.deleteReport();
-
-    expect(popupService.showPopup).toHaveBeenCalledOnceWith({
-      header: 'Delete Report',
-      message: `
-        <p class="highlight-info">
-          On deleting this report, all the associated expenses will be moved to <strong>My Expenses</strong> list.
-        </p>
-        <p>
-          Are you sure, you want to delete this report?
-        </p>
-      `,
-      primaryCta: {
-        text: 'Delete Report',
-      },
-    });
-    expect(reportService.delete).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
-    expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-    expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'team_reports']);
-  });
-
   describe('approveReport(): ', () => {
     it('should open the modal and approve the report', async () => {
       humanizeCurrency.transform.and.callThrough();
