@@ -106,9 +106,7 @@ export class SidemenuComponent implements OnInit {
     const primaryOrg$ = this.orgService.getPrimaryOrg().pipe(shareReplay(1));
     const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
     const orgUserSettings$ = this.orgUserSettingsService.get();
-    const delegatedAccounts$ = this.orgUserService
-      .findDelegatedAccounts()
-      .pipe(map((res) => this.orgUserService.excludeByStatus(res, 'DISABLED')));
+    const delegatedAccounts$ = this.orgUserService.findDelegatedAccounts();
     const deviceInfo$ = this.deviceService.getDeviceInfo().pipe(shareReplay(1));
     const isSwitchedToDelegator$ = from(this.orgUserService.isSwitchedToDelegator());
     const allowedActions$ = this.sidemenuService.getAllowedActions();

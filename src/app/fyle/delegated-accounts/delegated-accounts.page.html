@@ -31,9 +31,7 @@
             <ion-col size="10">
               <div class="delegated--org-element-name">{{acc?.us?.full_name}}</div>
               <div class="delegated--org-element-us-details">{{acc?.us?.email}}</div>
-              <div *ngIf="acc?.ou.org_id === currentOrg.id" class="delegated--org-element-us-details">
-                {{currentOrg.name}}
-              </div>
+              <div class="delegated--org-element-us-details">{{currentOrg.name}}</div>
             </ion-col>
           </ion-row>
         </ion-grid>

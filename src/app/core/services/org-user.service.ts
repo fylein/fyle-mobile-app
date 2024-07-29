@@ -17,6 +17,9 @@ import { JwtHelperService } from './jwt-helper.service';
 import { TokenService } from './token.service';
 import { TrackingService } from './tracking.service';
 import { AccessTokenData } from '../models/access-token-data.model';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
+import { Delegator } from '../models/platform/delegator.model';
+import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 
 const orgUsersCacheBuster$ = new Subject<void>();
 
@@ -31,7 +34,8 @@ export class OrgUserService {
     private authService: AuthService,
     private dataTransformService: DataTransformService,
     private trackingService: TrackingService,
-    private apiV2Service: ApiV2Service
+    private apiV2Service: ApiV2Service,
+    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService
   ) {}
 
   @Cacheable()
@@ -56,16 +60,10 @@ export class OrgUserService {
   }
 
   @Cacheable()
-  findDelegatedAccounts(): Observable<ExtendedOrgUser[]> {
-    return this.apiService.get<ExtendedOrgUser[]>('/eous/current/delegated_eous').pipe(
-      map((delegatedAccounts) => {
-        delegatedAccounts = delegatedAccounts.map((delegatedAccount) =>
-          this.dataTransformService.unflatten(delegatedAccount)
-        );
-
-        return delegatedAccounts;
-      })
-    );
+  findDelegatedAccounts(): Observable<Delegator[]> {
+    return this.spenderPlatformV1ApiService
+      .get<PlatformApiResponse<Delegator[]>>('/employee/delegators')
+      .pipe(map((response) => response.data));
   }
 
   postUser(user: User): Observable<User> {
