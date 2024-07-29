@@ -123,6 +123,10 @@ export class SpenderReportsService {
       .pipe(map((res) => res.data.purpose));
   }
 
+  delete(id: string): Observable<void> {
+    return this.spenderPlatformV1ApiService.post<void>('/reports/delete/bulk', { data: [{ id }] });
+  }
+
   submit(reportId: string): Observable<void> {
     return this.spenderPlatformV1ApiService.post<void>('/reports/submit', { data: { id: reportId } });
   }

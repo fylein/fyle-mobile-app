@@ -1,27 +1,15 @@
 import { Component, EventEmitter, ViewChild, ElementRef } from '@angular/core';
-import { concat, Observable, Subject, from, noop, BehaviorSubject, fromEvent, of } from 'rxjs';
+import { concat, Observable, Subject, noop, BehaviorSubject, fromEvent, of } from 'rxjs';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { NetworkService } from 'src/app/core/services/network.service';
-import {
-  switchMap,
-  finalize,
-  map,
-  shareReplay,
-  distinctUntilChanged,
-  tap,
-  debounceTime,
-  takeUntil,
-} from 'rxjs/operators';
+import { switchMap, map, shareReplay, distinctUntilChanged, debounceTime, takeUntil } from 'rxjs/operators';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { DateService } from 'src/app/core/services/date.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
-import { capitalize, replace } from 'lodash';
 import { TrackingService } from '../../core/services/tracking.service';
 import { ApiV2Service } from 'src/app/core/services/api-v2.service';
-import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
-import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { HeaderState } from '../../shared/components/fy-header/header-state.enum';
 import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
@@ -34,21 +22,13 @@ import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pil
 import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
 import * as dayjs from 'dayjs';
 import { AllowedPaymentModes } from 'src/app/core/models/allowed-payment-modes.enum';
-import { DeletePopoverParams } from 'src/app/core/models/delete-popover-params.model';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { ReportsQueryParams } from 'src/app/core/models/platform/v1/reports-query-params.model';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
+import { MyReportsFilters } from 'src/app/core/models/my-reports-filters.model';
 
-type Filters = Partial<{
-  state: string | string[];
-  date: string;
-  customDateStart: Date;
-  customDateEnd: Date;
-  sortParam: string;
-  sortDir: string;
-}>;
 @Component({
   selector: 'app-my-reports',
   templateUrl: './my-reports.page.html',
@@ -79,7 +59,7 @@ export class MyReportsPage {
 
   acc: Report[] = [];
 
-  filters: Filters;
+  filters: Partial<MyReportsFilters>;
 
   homeCurrency$: Observable<string>;
 
@@ -279,7 +259,7 @@ export class MyReportsPage {
       this.filters = Object.assign(
         {},
         this.filters,
-        JSON.parse(this.activatedRoute.snapshot.queryParams.filters as string) as Filters
+        JSON.parse(this.activatedRoute.snapshot.queryParams.filters as string) as Partial<MyReportsFilters>
       );
       this.currentPageNumber = 1;
       const params = this.addNewFiltersToParams();
@@ -473,56 +453,6 @@ export class MyReportsPage {
     this.router.navigate(['/', 'enterprise', 'my_view_report', { id: report.id, navigateBack: true }]);
   }
 
-  getDeleteReportPopoverParams(report: Report): DeletePopoverParams {
-    return {
-      component: FyDeleteDialogComponent,
-      cssClass: 'delete-dialog',
-      backdropDismiss: false,
-      componentProps: {
-        header: 'Delete Report',
-        body: 'Are you sure you want to delete this report?',
-        infoMessage: 'Deleting the report will not delete any of the expenses.',
-        deleteMethod: (): Observable<void> => this.reportService.delete(report.id),
-      },
-    };
-  }
-
-  async onDeleteReportClick(report: Report): Promise<void> {
-    if (['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'].indexOf(report.state) === -1) {
-      const cannotDeleteReportPopOver = await this.popoverController.create({
-        component: PopupAlertComponent,
-        componentProps: {
-          title: 'Cannot Delete Report',
-          message: `${capitalize(replace(report.state, '_', ' '))} report cannot be deleted.`,
-          primaryCta: {
-            text: 'Close',
-            action: 'continue',
-          },
-        },
-        cssClass: 'pop-up-in-center',
-      });
-
-      await cannotDeleteReportPopOver.present();
-    } else {
-      const deleteReportPopover = await this.popoverController.create(this.getDeleteReportPopoverParams(report));
-
-      await deleteReportPopover.present();
-      const { data } = (await deleteReportPopover.onDidDismiss()) as { data: { status: string } };
-
-      if (data && data.status === 'success') {
-        from(this.loaderService.showLoader())
-          .pipe(
-            tap(() => this.trackingService.deleteReport()),
-            finalize(async () => {
-              await this.loaderService.hideLoader();
-              this.doRefresh();
-            })
-          )
-          .subscribe(noop);
-      }
-    }
-  }
-
   onHomeClicked(): void {
     const queryParams: Params = { state: 'home' };
     this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
@@ -651,7 +581,7 @@ export class MyReportsPage {
     this.convertNameSortToSelectedFilters(filter, generatedFilters);
   }
 
-  generateSelectedFilters(filter: Filters): SelectedFilters<string>[] {
+  generateSelectedFilters(filter: Partial<MyReportsFilters>): SelectedFilters<string>[] {
     const generatedFilters: SelectedFilters<string>[] = [];
 
     if (filter.state) {
@@ -737,8 +667,8 @@ export class MyReportsPage {
     }
   }
 
-  convertFilters(selectedFilters: SelectedFilters<string>[]): Filters {
-    const generatedFilters: Filters = {};
+  convertFilters(selectedFilters: SelectedFilters<string>[]): Partial<MyReportsFilters> {
+    const generatedFilters: Partial<MyReportsFilters> = {};
 
     const stateFilter = selectedFilters.find((filter) => filter.name === 'State');
     if (stateFilter) {
@@ -759,7 +689,7 @@ export class MyReportsPage {
     return generatedFilters;
   }
 
-  generateStateFilterPills(filterPills: FilterPill[], filter: Filters): void {
+  generateStateFilterPills(filterPills: FilterPill[], filter: Partial<MyReportsFilters>): void {
     this.simplifyReportsSettings$.subscribe((simplifyReportsSettings) => {
       filterPills.push({
         label: 'State',
@@ -771,7 +701,7 @@ export class MyReportsPage {
     });
   }
 
-  generateCustomDatePill(filter: Filters, filterPills: FilterPill[]): void {
+  generateCustomDatePill(filter: Partial<MyReportsFilters>, filterPills: FilterPill[]): void {
     const startDate = filter.customDateStart && dayjs(filter.customDateStart).format('YYYY-MM-D');
     const endDate = filter.customDateEnd && dayjs(filter.customDateEnd).format('YYYY-MM-D');
 
@@ -796,7 +726,7 @@ export class MyReportsPage {
     }
   }
 
-  generateDateFilterPills(filter: Filters, filterPills: FilterPill[]): void {
+  generateDateFilterPills(filter: Partial<MyReportsFilters>, filterPills: FilterPill[]): void {
     if (filter.date === DateFilters.thisWeek) {
       filterPills.push({
         label: 'Date',
@@ -834,7 +764,7 @@ export class MyReportsPage {
     }
   }
 
-  generateSortRptDatePills(filter: Filters, filterPills: FilterPill[]): void {
+  generateSortRptDatePills(filter: Partial<MyReportsFilters>, filterPills: FilterPill[]): void {
     if (filter.sortParam === 'created_at' && filter.sortDir === 'asc') {
       filterPills.push({
         label: 'Sort By',
@@ -850,7 +780,7 @@ export class MyReportsPage {
     }
   }
 
-  generateSortAmountPills(filter: Filters, filterPills: FilterPill[]): void {
+  generateSortAmountPills(filter: Partial<MyReportsFilters>, filterPills: FilterPill[]): void {
     if (filter.sortParam === 'amount' && filter.sortDir === 'desc') {
       filterPills.push({
         label: 'Sort By',
@@ -866,7 +796,7 @@ export class MyReportsPage {
     }
   }
 
-  generateSortNamePills(filter: Filters, filterPills: FilterPill[]): void {
+  generateSortNamePills(filter: Partial<MyReportsFilters>, filterPills: FilterPill[]): void {
     if (filter.sortParam === 'purpose' && filter.sortDir === 'asc') {
       filterPills.push({
         label: 'Sort By',
@@ -882,7 +812,7 @@ export class MyReportsPage {
     }
   }
 
-  generateSortFilterPills(filter: Filters, filterPills: FilterPill[]): void {
+  generateSortFilterPills(filter: Partial<MyReportsFilters>, filterPills: FilterPill[]): void {
     this.generateSortRptDatePills(filter, filterPills);
 
     this.generateSortAmountPills(filter, filterPills);
@@ -890,7 +820,7 @@ export class MyReportsPage {
     this.generateSortNamePills(filter, filterPills);
   }
 
-  generateFilterPills(filter: Filters): FilterPill[] {
+  generateFilterPills(filter: Partial<MyReportsFilters>): FilterPill[] {
     const filterPills: FilterPill[] = [];
 
     if (filter.state && filter.state.length) {

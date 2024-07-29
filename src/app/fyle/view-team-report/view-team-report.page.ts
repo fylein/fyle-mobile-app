@@ -359,34 +359,6 @@ export class ViewTeamReportPage {
     this.canShowTooltip = !this.canShowTooltip;
   }
 
-  async deleteReport(): Promise<void> {
-    const popupResult = await this.popupService.showPopup({
-      header: 'Delete Report',
-      message: `
-        <p class="highlight-info">
-          On deleting this report, all the associated expenses will be moved to <strong>My Expenses</strong> list.
-        </p>
-        <p>
-          Are you sure, you want to delete this report?
-        </p>
-      `,
-      primaryCta: {
-        text: 'Delete Report',
-      },
-    });
-
-    if (popupResult === 'primary') {
-      from(this.loaderService.showLoader())
-        .pipe(
-          switchMap(() => this.reportService.delete(this.activatedRoute.snapshot.params.id as string)),
-          finalize(() => from(this.loaderService.hideLoader()))
-        )
-        .subscribe(() => {
-          this.router.navigate(['/', 'enterprise', 'team_reports']);
-        });
-    }
-  }
-
   async approveReport(): Promise<void> {
     if (!this.canApprove) {
       this.toggleTooltip();
