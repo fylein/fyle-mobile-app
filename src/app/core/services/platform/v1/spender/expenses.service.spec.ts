@@ -28,7 +28,7 @@ import {
   ccTransactionResponseData3,
 } from 'src/app/core/mock-data/corporate-card-transaction-response.data';
 import { cloneDeep } from 'lodash';
-import { TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
+import { ExpenseTransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
 
 describe('ExpensesService', () => {
   let service: ExpensesService;
@@ -94,7 +94,7 @@ describe('ExpensesService', () => {
       spenderService.get.and.returnValue(of({ data: [mockExpenseData] }));
 
       const mockCCTransactionRes = cloneDeep(ccTransactionResponseData);
-      mockCCTransactionRes.data[0].transaction_status = TransactionStatus.PENDING;
+      mockCCTransactionRes.data[0].transaction_status = ExpenseTransactionStatus.PENDING;
       corporateCreditCardExpenseService.getMatchedTransactionById.and.returnValue(of(mockCCTransactionRes));
 
       const expenseId = 'txOJVaaPxo9O';
@@ -182,9 +182,9 @@ describe('ExpensesService', () => {
           },
         });
 
-        expect(response[0].matched_corporate_card_transactions[0].status).toEqual(TransactionStatus.POSTED);
-        expect(response[1].matched_corporate_card_transactions[0].status).toEqual(TransactionStatus.PENDING);
-        expect(response[2].matched_corporate_card_transactions[0].status).toEqual(TransactionStatus.PENDING);
+        expect(response[0].matched_corporate_card_transactions[0].status).toEqual(ExpenseTransactionStatus.POSTED);
+        expect(response[1].matched_corporate_card_transactions[0].status).toEqual(ExpenseTransactionStatus.PENDING);
+        expect(response[2].matched_corporate_card_transactions[0].status).toEqual(ExpenseTransactionStatus.PENDING);
 
         done();
       });

@@ -2,8 +2,8 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
 import { TransactionStatusComponent } from './transaction-status.component';
-import { TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
+import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
 
 describe('TransactionStatusComponent', () => {
   let component: TransactionStatusComponent;
@@ -35,7 +35,7 @@ describe('TransactionStatusComponent', () => {
 
   describe('template', () => {
     it('should display the transaction status value properly when pending', () => {
-      component.transactionStatus = TransactionStatus.PENDING;
+      component.transactionStatus = ExpenseTransactionStatus.PENDING;
 
       fixture.detectChanges();
 
@@ -44,7 +44,7 @@ describe('TransactionStatusComponent', () => {
     });
 
     it('should display the transaction status value properly when posted', () => {
-      component.transactionStatus = TransactionStatus.POSTED;
+      component.transactionStatus = ExpenseTransactionStatus.POSTED;
 
       fixture.detectChanges();
 
