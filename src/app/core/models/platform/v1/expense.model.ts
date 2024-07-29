@@ -20,8 +20,6 @@ import { ExpenseMissingMandatoryFields } from './expense-missing-mandatory-field
 import { PolicyChecks } from './policy-checks.model';
 import { ExpenseRuleData } from './expense-rule-data.model';
 import { AccountingExportSummary } from './accounting-export-summary.model';
-import { PlatformEmployee } from '../platform-employee.model';
-import { Report } from './report.model';
 import { ExpenseReport } from './expense-report.model';
 import { ExpenseEmployee } from 'src/app/core/mock-data/platform/v1/expense-employee.model';
 
