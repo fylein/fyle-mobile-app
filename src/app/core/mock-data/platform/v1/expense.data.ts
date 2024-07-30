@@ -7,10 +7,11 @@ import { MileageUnitEnum } from 'src/app/core/models/platform/platform-mileage-r
 import { ReportState } from 'src/app/core/models/platform/v1/report.model';
 import { ApprovalState } from 'src/app/core/models/platform/report-approvals.model';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
-import { Expense, TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
+import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { FileType } from 'src/app/core/models/platform/v1/file.model';
 import { CustomFieldTypes } from 'src/app/core/enums/platform/v1/custom-fields-type.enum';
 import { CommuteDeduction } from 'src/app/core/enums/commute-deduction.enum';
+import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
 
 export const expenseData: Expense = deepFreeze({
   accounting_export_summary: {},
@@ -119,7 +120,6 @@ export const expenseData: Expense = deepFreeze({
   is_reimbursable: false,
   is_split: false,
   is_verified: true,
-  is_weekend_spend: false,
   last_exported_at: null,
   last_settled_at: null,
   last_verified_at: new Date('2023-10-31T18:15:25.494224+00:00'),
@@ -143,7 +143,7 @@ export const expenseData: Expense = deepFreeze({
       merchant: 'Merchant1',
       posted_at: null,
       spent_at: new Date('2023-10-15T00:00:00+00:00'),
-      status: TransactionStatus?.PENDING,
+      status: ExpenseTransactionStatus?.PENDING,
     },
   ],
   merchant: null,
@@ -532,7 +532,6 @@ export const mileageExpense: Expense = deepFreeze({
   is_reimbursable: true,
   is_split: false,
   is_verified: false,
-  is_weekend_spend: false,
   last_exported_at: null,
   last_settled_at: null,
   last_verified_at: null,
@@ -889,7 +888,6 @@ export const perDiemExpense: Expense = deepFreeze({
   is_reimbursable: true,
   is_split: false,
   is_verified: false,
-  is_weekend_spend: false,
   last_exported_at: null,
   last_settled_at: null,
   last_verified_at: null,
@@ -1022,6 +1020,7 @@ export const criticalPolicyViolatedExpense: Expense = deepFreeze({
   policy_amount: 0.00009,
 });
 
+// eslint-disable-next-line custom-rules/prefer-semantic-extension-name
 type Category = Pick<PlatformCategory, 'code' | 'id' | 'display_name' | 'name' | 'sub_category' | 'system_category'>;
 
 const mileageCategory: Category = deepFreeze({
@@ -1292,7 +1291,6 @@ export const apiExpenses1: Expense[] = deepFreeze([
     is_reimbursable: true,
     is_split: true,
     is_verified: false,
-    is_weekend_spend: false,
     last_exported_at: null,
     last_settled_at: null,
     last_verified_at: null,
@@ -1646,7 +1644,6 @@ export const apiExpenses1: Expense[] = deepFreeze([
     is_reimbursable: true,
     is_split: true,
     is_verified: false,
-    is_weekend_spend: false,
     last_exported_at: null,
     last_settled_at: null,
     last_verified_at: null,
@@ -1861,7 +1858,6 @@ export const splitExpensesData: Expense[] = deepFreeze([
     is_reimbursable: false,
     is_split: true,
     is_verified: false,
-    is_weekend_spend: false,
     last_exported_at: null,
     last_settled_at: null,
     last_verified_at: null,
@@ -2006,7 +2002,6 @@ export const splitExpensesData: Expense[] = deepFreeze([
     is_reimbursable: false,
     is_split: true,
     is_verified: false,
-    is_weekend_spend: false,
     last_exported_at: null,
     last_settled_at: null,
     last_verified_at: null,
@@ -2156,7 +2151,6 @@ export const apiExpenses3: Expense[] = deepFreeze([
     is_reimbursable: false,
     is_split: true,
     is_verified: false,
-    is_weekend_spend: false,
     last_exported_at: null,
     last_settled_at: null,
     last_verified_at: null,
@@ -2301,7 +2295,6 @@ export const apiExpenses3: Expense[] = deepFreeze([
     is_reimbursable: false,
     is_split: true,
     is_verified: false,
-    is_weekend_spend: false,
     last_exported_at: null,
     last_settled_at: null,
     last_verified_at: null,
@@ -2461,7 +2454,6 @@ export const platformExpenseData: Expense = deepFreeze({
   is_reimbursable: true,
   is_split: false,
   is_verified: false,
-  is_weekend_spend: false,
   last_exported_at: null,
   last_settled_at: null,
   last_verified_at: null,
@@ -2640,7 +2632,6 @@ export const platformExpenseDataWithSubCategory: Expense = deepFreeze({
   is_reimbursable: true,
   is_split: false,
   is_verified: false,
-  is_weekend_spend: false,
   last_exported_at: null,
   last_settled_at: null,
   last_verified_at: null,
@@ -2881,7 +2872,6 @@ export const platformExpenseWithExtractedData: Expense = deepFreeze({
   is_reimbursable: true,
   is_split: false,
   is_verified: false,
-  is_weekend_spend: false,
   last_exported_at: null,
   last_settled_at: null,
   last_verified_at: null,
@@ -3044,7 +3034,6 @@ export const platformExpenseWithMatchCCC: Expense = deepFreeze({
   is_reimbursable: false,
   is_split: false,
   is_verified: null,
-  is_weekend_spend: false,
   last_exported_at: null,
   last_settled_at: null,
   last_verified_at: null,
@@ -3068,7 +3057,7 @@ export const platformExpenseWithMatchCCC: Expense = deepFreeze({
       merchant: 'test description',
       posted_at: null,
       spent_at: new Date('2018-07-03T18:30:00.000Z'),
-      status: TransactionStatus.PENDING,
+      status: ExpenseTransactionStatus.PENDING,
     },
   ],
   merchant: 'test description',
