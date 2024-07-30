@@ -1020,6 +1020,7 @@ export const criticalPolicyViolatedExpense: Expense = deepFreeze({
   policy_amount: 0.00009,
 });
 
+// eslint-disable-next-line custom-rules/prefer-semantic-extension-name
 type Category = Pick<PlatformCategory, 'code' | 'id' | 'display_name' | 'name' | 'sub_category' | 'system_category'>;
 
 const mileageCategory: Category = deepFreeze({
