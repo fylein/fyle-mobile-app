@@ -1,7 +1,6 @@
 import deepFreeze from 'deep-freeze-strict';
 
 import { CorporateCardTransactionRes } from '../models/platform/v1/corporate-card-transaction-res.model';
-import {} from '../models/platform/v1/expense.model';
 import { ExpenseTransactionStatus } from '../enums/platform/v1/expense-transaction-status.enum';
 
 export const ccTransactionResponseData: CorporateCardTransactionRes = deepFreeze({
