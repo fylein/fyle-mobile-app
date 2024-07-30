@@ -112,7 +112,7 @@ describe('ExpensesService', () => {
 
         expect(response).toEqual(mockExpenseData);
 
-        expect(response.matched_corporate_card_transactions[0].status).toEqual(TransactionStatus.PENDING);
+        expect(response.matched_corporate_card_transactions[0].status).toEqual(ExpenseTransactionStatus.PENDING);
 
         done();
       });
