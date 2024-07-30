@@ -128,7 +128,7 @@ import { TrackingService } from '../../core/services/tracking.service';
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
 import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
 import { InstaFyleImageData } from 'src/app/core/models/insta-fyle-image-data.model';
-import { Expense as PlatformExpense, TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
+import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { AdvanceWallet } from 'src/app/core/models/platform/v1/advance-wallet.model';
 import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
@@ -137,6 +137,7 @@ import { CorporateCardTransactionRes } from 'src/app/core/models/platform/v1/cor
 import { corporateCardTransaction } from 'src/app/core/models/platform/v1/cc-transaction.model';
 import { PlatformFileGenerateUrlsResponse } from 'src/app/core/models/platform/platform-file-generate-urls-response.model';
 import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
+import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
 
 // eslint-disable-next-line
 type FormValue = {
@@ -3163,7 +3164,7 @@ export class AddEditExpensePage implements OnInit {
           if (
             config.pendingTxnRestrictionEnabled &&
             config.platformExpense.matched_corporate_card_transactions?.length &&
-            config.platformExpense.matched_corporate_card_transactions[0]?.status === TransactionStatus.PENDING
+            config.platformExpense.matched_corporate_card_transactions[0]?.status === ExpenseTransactionStatus.PENDING
           ) {
             this.pendingTransactionAllowedToReportAndSplit = false;
           }
@@ -5149,7 +5150,7 @@ export class AddEditExpensePage implements OnInit {
     await sizeLimitExceededPopover.present();
   }
 
-  async openTransactionStatusInfoModal(transactionStatus: TransactionStatus): Promise<void> {
+  async openTransactionStatusInfoModal(transactionStatus: ExpenseTransactionStatus): Promise<void> {
     const popover = await this.popoverController.create({
       component: TransactionStatusInfoPopoverComponent,
       componentProps: {

@@ -1,7 +1,7 @@
 import deepFreeze from 'deep-freeze-strict';
 
 import { corporateCardTransaction } from '../models/platform/v1/cc-transaction.model';
-import { TransactionStatus } from '../models/platform/v1/expense.model';
+import { ExpenseTransactionStatus } from '../enums/platform/v1/expense-transaction-status.enum';
 
 export const ccTransactionData: corporateCardTransaction = deepFreeze({
   amount: 260.37,
@@ -97,7 +97,7 @@ export const ccTransactionData: corporateCardTransaction = deepFreeze({
   post_date: null,
   spent_at: '2018-07-04T00:00:00+00:00',
   statement_id: 'stmt2K9aLunGU4',
-  transaction_status: TransactionStatus.PENDING,
+  transaction_status: ExpenseTransactionStatus.PENDING,
   updated_at: '2024-02-13T03:10:49.432028+00:00',
   user: {
     email: 'devendra.r@fyle.in',

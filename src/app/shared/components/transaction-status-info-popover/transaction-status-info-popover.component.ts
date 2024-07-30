@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
-import { TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
+import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
 
 @Component({
   selector: 'app-transaction-status-info-popover',
@@ -8,12 +8,12 @@ import { TransactionStatus } from 'src/app/core/models/platform/v1/expense.model
   styleUrls: ['./transaction-status-info-popover.component.scss'],
 })
 export class TransactionStatusInfoPopoverComponent {
-  @Input() transactionStatus: TransactionStatus;
+  @Input() transactionStatus: ExpenseTransactionStatus;
 
   constructor(private popoverController: PopoverController) {}
 
-  get TransactionStatus(): typeof TransactionStatus {
-    return TransactionStatus;
+  get TransactionStatus(): typeof ExpenseTransactionStatus {
+    return ExpenseTransactionStatus;
   }
 
   closePopover(): void {

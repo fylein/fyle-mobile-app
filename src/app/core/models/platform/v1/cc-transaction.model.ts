@@ -2,7 +2,7 @@ import { AssignorUser } from './assignor-user.model';
 import { CorporateCard } from './corporate-card.model';
 import { CCMatchedExpense } from './cc-matched-expense.model';
 import { CCTransactionMetadata } from './cc-transaction-metadata';
-import { TransactionStatus } from './expense.model';
+import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
 
 export interface corporateCardTransaction {
   id: string;
@@ -46,5 +46,5 @@ export interface corporateCardTransaction {
   matched_expenses: CCMatchedExpense[];
   last_user_matched_at: Date;
   metadata?: CCTransactionMetadata;
-  transaction_status?: TransactionStatus;
+  transaction_status?: ExpenseTransactionStatus;
 }
