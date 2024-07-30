@@ -40,7 +40,7 @@ export class DelegatedAccountsPage {
         concatMap(() => {
           globalCacheBusterNotifier.next();
           this.recentLocalStorageItemsService.clearRecentLocalStorageCache();
-          return this.orgUserService.switchToDelegator(eou.ou);
+          return this.orgUserService.switchToDelegator(eou.us.id, eou.ou.org_id);
         }),
         finalize(async () => {
           await this.loaderService.hideLoader();
