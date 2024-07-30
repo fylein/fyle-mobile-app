@@ -28,7 +28,7 @@ import {
   ccTransactionResponseData3,
 } from 'src/app/core/mock-data/corporate-card-transaction-response.data';
 import { cloneDeep } from 'lodash';
-import { ExpenseTransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
+import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
 
 describe('ExpensesService', () => {
   let service: ExpensesService;
