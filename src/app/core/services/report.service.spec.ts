@@ -250,44 +250,6 @@ describe('ReportService', () => {
     });
   });
 
-  it('approve(): should approve a report', (done) => {
-    apiService.post.and.returnValue(of(null));
-
-    const reportID = 'rpShFuVCUIXk';
-    reportService.approve(reportID).subscribe(() => {
-      expect(apiService.post).toHaveBeenCalledOnceWith(`/reports/${reportID}/approve`);
-      done();
-    });
-  });
-
-  it('addApprover(): should add approver to a report', (done) => {
-    apiService.post.and.returnValue(of(null));
-
-    const reportID = 'rprj1zHHpW2W';
-    const approverEmail = 'asilk@akls.in';
-    const comment = 'comment';
-
-    reportService.addApprover(reportID, approverEmail, comment).subscribe(() => {
-      expect(apiService.post).toHaveBeenCalledOnceWith(`/reports/${reportID}/approvals`, {
-        approver_email: approverEmail,
-        comment,
-      });
-      done();
-    });
-  });
-
-  it('delete(): should delete a report', (done) => {
-    apiService.delete.and.returnValue(of(null));
-    spyOn(reportService, 'clearTransactionCache').and.returnValue(of(null));
-
-    const reportID = 'rpShFuVCUIXk';
-    reportService.delete(reportID).subscribe(() => {
-      expect(apiService.delete).toHaveBeenCalledOnceWith(`/reports/${reportID}`);
-      expect(reportService.clearTransactionCache).toHaveBeenCalledTimes(1);
-      done();
-    });
-  });
-
   it('updateReportPurpose(): should update the report purpose', (done) => {
     spenderPlatformV1ApiService.post.and.returnValue(of(platformReportData));
     reportService.updateReportPurpose(platformReportData).subscribe((res) => {

@@ -65,7 +65,7 @@ import { ShareReportComponent } from './share-report/share-report.component';
 import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-report-name-popover.component';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { orgSettingsPendingRestrictions } from 'src/app/core/mock-data/org-settings.data';
-import { TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
+import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
 
 describe('MyViewReportPage', () => {
   let component: MyViewReportPage;
@@ -135,6 +135,7 @@ describe('MyViewReportPage', () => {
       'postComment',
       'submit',
       'resubmit',
+      'delete',
     ]);
 
     TestBed.configureTestingModule({
@@ -487,7 +488,7 @@ describe('MyViewReportPage', () => {
       mockExpenseData2.matched_corporate_card_transaction_ids = [];
       const mockExpenseData3 = cloneDeep(expenseData);
       mockExpenseData3.matched_corporate_card_transaction_ids = ['txcSFe6efB6R'];
-      mockExpenseData3.matched_corporate_card_transactions[0].status = TransactionStatus.PENDING;
+      mockExpenseData3.matched_corporate_card_transactions[0].status = ExpenseTransactionStatus.PENDING;
       expensesService.getAllExpenses.and.returnValue(of([expenseData, mockExpenseData2, mockExpenseData3]));
       orgSettingsService.get.and.returnValue(of(orgSettingsPendingRestrictions));
       fixture.detectChanges();
@@ -591,23 +592,23 @@ describe('MyViewReportPage', () => {
 
   describe('getDeleteReportPopupParams(): ', () => {
     it('should get delete report popup props', (done) => {
-      reportService.delete.and.returnValue(of(undefined));
+      spenderReportsService.delete.and.returnValue(of(undefined));
       const props = component.getDeleteReportPopupParams(paidReportData);
       props.componentProps.deleteMethod().subscribe(() => {
-        expect(reportService.delete).toHaveBeenCalledOnceWith(component.reportId);
+        expect(spenderReportsService.delete).toHaveBeenCalledOnceWith(component.reportId);
         expect(trackingService.deleteReport).toHaveBeenCalledTimes(1);
         done();
       });
     });
 
     it('should return null info message if number of txns is 0', (done) => {
-      reportService.delete.and.returnValue(of(undefined));
+      spenderReportsService.delete.and.returnValue(of(undefined));
       const props = component.getDeleteReportPopupParams(
         cloneDeep({ ...expectedReportsSinglePage[0], num_expenses: 0, state: 'DRAFT' })
       );
       expect(props.componentProps.infoMessage).toBeNull();
       props.componentProps.deleteMethod().subscribe(() => {
-        expect(reportService.delete).toHaveBeenCalledOnceWith(component.reportId);
+        expect(spenderReportsService.delete).toHaveBeenCalledOnceWith(component.reportId);
         expect(trackingService.deleteReport).toHaveBeenCalledTimes(1);
         done();
       });

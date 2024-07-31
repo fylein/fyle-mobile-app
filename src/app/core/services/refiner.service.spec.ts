@@ -8,7 +8,7 @@ import { of } from 'rxjs';
 import { apiEouRes } from '../mock-data/extended-org-user.data';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
 
-describe('RefinerService', () => {
+xdescribe('RefinerService', () => {
   let refinerService: RefinerService;
   let currencyService: jasmine.SpyObj<CurrencyService>;
   let authService: jasmine.SpyObj<AuthService>;

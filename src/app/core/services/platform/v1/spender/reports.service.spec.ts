@@ -133,6 +133,16 @@ describe('SpenderReportsService', () => {
     });
   });
 
+  it('delete(): should delete a report', (done) => {
+    spenderPlatformV1ApiService.post.and.returnValue(of(null));
+
+    const id = 'rpShFuVCUIXk';
+    spenderReportsService.delete(id).subscribe(() => {
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith(`/reports/delete/bulk`, { data: [{ id }] });
+      done();
+    });
+  });
+
   it('resubmit(): should resubmit a report', (done) => {
     spenderPlatformV1ApiService.post.and.returnValue(of(null));
 

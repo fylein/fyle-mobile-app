@@ -32,7 +32,7 @@ export class ProjectsService {
     // eslint-disable-next-line prefer-const
     let { orgId, isEnabled, orgCategoryIds, searchNameText, limit, offset, sortOrder, sortDirection, projectIds } =
       projectParams;
-    sortOrder = sortOrder || 'project_updated_at';
+    sortOrder = sortOrder || 'updated_at';
     sortDirection = sortDirection || 'desc';
 
     const params: PlatformProjectParams = {
@@ -48,11 +48,11 @@ export class ProjectsService {
     // `orgCategoryIds` can be optional
     this.addOrgCategoryIdsFilter(orgCategoryIds, params);
 
-    // `projectIds` can be optional
-    this.addProjectIdsFilter(projectIds, params);
-
     // `searchNameText` can be optional
     this.addNameSearchFilter(searchNameText, params);
+
+    // `projectIds` can be optional
+    this.addProjectIdsFilter(projectIds, params);
 
     return this.spenderPlatformV1ApiService
       .get<PlatformApiResponse<PlatformProject[]>>('/projects', {
@@ -82,8 +82,9 @@ export class ProjectsService {
   }
 
   addNameSearchFilter(searchNameText: string, params: PlatformProjectParams): void {
-    if (typeof searchNameText !== 'undefined' && searchNameText !== null) {
-      params.name = 'ilike.%' + searchNameText + '%';
+    if (typeof searchNameText !== 'undefined' && searchNameText) {
+      params.or = params.or ? `${params.or.slice(0, -1)},` : '(';
+      params.or += `name.ilike."%${searchNameText}%",sub_project.ilike."%${searchNameText}%")`;
     }
   }
 

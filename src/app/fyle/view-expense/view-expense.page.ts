@@ -29,7 +29,7 @@ import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { ExpensesService as ApproverExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
 import { ExpensesService as SpenderExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
-import { Expense, TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
+import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { TransactionStatusInfoPopoverComponent } from 'src/app/shared/components/transaction-status-info-popover/transaction-status-info-popover.component';
@@ -37,6 +37,7 @@ import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/fi
 import { ApproverFileService } from 'src/app/core/services/platform/v1/approver/file.service';
 import { PlatformFileGenerateUrlsResponse } from 'src/app/core/models/platform/platform-file-generate-urls-response.model';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
+import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
 
 @Component({
   selector: 'app-view-expense',
@@ -504,7 +505,7 @@ export class ViewExpensePage {
       });
   }
 
-  async openTransactionStatusInfoModal(transactionStatus: TransactionStatus): Promise<void> {
+  async openTransactionStatusInfoModal(transactionStatus: ExpenseTransactionStatus): Promise<void> {
     const popover = await this.popoverController.create({
       component: TransactionStatusInfoPopoverComponent,
       componentProps: {

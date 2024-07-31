@@ -12,6 +12,7 @@ import { FormsModule } from '@angular/forms';
 import { pullBackAdvancedRequests } from 'src/app/core/mock-data/advance-requests.data';
 import { getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { of } from 'rxjs';
+import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 
 describe('AddApproversPopoverComponent', () => {
   let component: AddApproversPopoverComponent;
@@ -20,7 +21,7 @@ describe('AddApproversPopoverComponent', () => {
   let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
   let popoverController: jasmine.SpyObj<PopoverController>;
   let advanceRequestService: jasmine.SpyObj<AdvanceRequestService>;
-  let reportService: jasmine.SpyObj<ReportService>;
+  let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
   let loaderService: jasmine.SpyObj<LoaderService>;
 
   beforeEach(waitForAsync(() => {
@@ -28,7 +29,7 @@ describe('AddApproversPopoverComponent', () => {
     const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['dismiss']);
     const advanceRequestServiceSpy = jasmine.createSpyObj('AdvanceRequestService', ['addApprover']);
-    const reportServiceSpy = jasmine.createSpyObj('ReportService', ['addApprover']);
+    const approverReportsServiceSpy = jasmine.createSpyObj('ApproverReportsService', ['addApprover']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
 
     TestBed.configureTestingModule({
@@ -52,8 +53,8 @@ describe('AddApproversPopoverComponent', () => {
           useValue: advanceRequestServiceSpy,
         },
         {
-          provide: ReportService,
-          useValue: reportServiceSpy,
+          provide: ApproverReportsService,
+          useValue: approverReportsServiceSpy,
         },
         {
           provide: LoaderService,
@@ -65,7 +66,7 @@ describe('AddApproversPopoverComponent', () => {
     modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     advanceRequestService = TestBed.inject(AdvanceRequestService) as jasmine.SpyObj<AdvanceRequestService>;
-    reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
+    approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
 
     fixture = TestBed.createComponent(AddApproversPopoverComponent);
@@ -84,9 +85,11 @@ describe('AddApproversPopoverComponent', () => {
     component.type = 'report';
     component.ownerEmail = 'jay.b@fyle.in';
     const selectedApproversList = ['ajain@fyle.in', 'aiyush.dhar@fylein', 'chethan.m+90@fyle.in', 'ashutosh.m@fyle.in'];
-    component.selectedApproversList = selectedApproversList;
-    modalController.create.and.returnValue(Promise.resolve(modalSpy));
-    modalSpy.onWillDismiss.and.returnValue(Promise.resolve({ data: { selectedApproversList } } as any));
+    component.selectedApproversList = selectedApproversList.map((email) => {
+      return { email };
+    });
+    modalController.create.and.resolveTo(modalSpy);
+    modalSpy.onWillDismiss.and.resolveTo({ data: { selectedApproversList } } as any);
 
     component.openModal();
     tick();
@@ -94,7 +97,9 @@ describe('AddApproversPopoverComponent', () => {
       component: ApproverDialogComponent,
       componentProps: {
         approverEmailsList: component.approverEmailsList,
-        initialApproverList: selectedApproversList,
+        initialApproverList: selectedApproversList.map((email) => {
+          return { email };
+        }),
         id: component.id,
         type: component.type,
         ownerEmail: component.ownerEmail,
@@ -107,7 +112,7 @@ describe('AddApproversPopoverComponent', () => {
   }));
 
   it('closeAddApproversPopover(): should close popover', fakeAsync(() => {
-    popoverController.dismiss.and.returnValue(Promise.resolve(true));
+    popoverController.dismiss.and.resolveTo(true);
 
     tick();
     component.closeAddApproversPopover();
@@ -121,9 +126,9 @@ describe('AddApproversPopoverComponent', () => {
     component.confirmationMessage = 'The request is approved';
     component.selectedApproversList = [{ email: 'john.doe@fyle.in' }];
     advanceRequestService.addApprover.and.returnValue(of(pullBackAdvancedRequests));
-    loaderService.showLoader.and.returnValue(Promise.resolve());
-    loaderService.hideLoader.and.returnValue(Promise.resolve());
-    popoverController.dismiss.and.returnValue(Promise.resolve(true));
+    loaderService.showLoader.and.resolveTo();
+    loaderService.hideLoader.and.resolveTo();
+    popoverController.dismiss.and.resolveTo(true);
 
     component.saveUpdatedApproversList();
 
@@ -138,22 +143,22 @@ describe('AddApproversPopoverComponent', () => {
     expect(popoverController.dismiss).toHaveBeenCalledOnceWith({ reload: true });
   }));
 
-  it('should call reportService.addApprover() for other request types', fakeAsync(() => {
+  it('should call approverReportsService.addApprover() for other request types', fakeAsync(() => {
     fixture.detectChanges();
     component.type = 'report';
     component.id = 'repP09oaYXAf';
     component.confirmationMessage = 'The request is approved';
     component.selectedApproversList = [{ email: 'ajain@fyle.in' }];
-    reportService.addApprover.and.returnValue(of(null));
-    loaderService.showLoader.and.returnValue(Promise.resolve());
-    loaderService.hideLoader.and.returnValue(Promise.resolve());
-    popoverController.dismiss.and.returnValue(Promise.resolve(true));
+    approverReportsService.addApprover.and.returnValue(of(null));
+    loaderService.showLoader.and.resolveTo();
+    loaderService.hideLoader.and.resolveTo();
+    popoverController.dismiss.and.resolveTo(true);
 
     component.saveUpdatedApproversList();
 
     expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
     tick();
-    expect(reportService.addApprover).toHaveBeenCalledOnceWith(
+    expect(approverReportsService.addApprover).toHaveBeenCalledOnceWith(
       'repP09oaYXAf',
       'ajain@fyle.in',
       'The request is approved'
@@ -168,7 +173,10 @@ describe('AddApproversPopoverComponent', () => {
   });
 
   it('should display the "+n more" chip when there are more than 3 selected approvers', () => {
-    component.selectedApproversList = ['ajain@fyle.in', 'aiyush.dhar@fyle.in', 'chetan.m@fyle.in', 'john.d@fyle.in'];
+    const selectedApproversList = ['ajain@fyle.in', 'aiyush.dhar@fyle.in', 'chetan.m@fyle.in', 'john.d@fyle.in'];
+    component.selectedApproversList = selectedApproversList.map((email) => {
+      return { email };
+    });
     fixture.detectChanges();
     const moreChip = getElementBySelector(fixture, '.add-approvers-popover--input-container__chip');
     expect(moreChip).toBeTruthy();
