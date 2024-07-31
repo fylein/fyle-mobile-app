@@ -1,5 +1,5 @@
+import { ExpenseTransactionStatus } from '../../enums/platform/v1/expense-transaction-status.enum';
 import { Destination } from '../destination.model';
-import { TransactionStatus } from '../platform/v1/expense.model';
 import { TxnCustomProperties } from '../txn-custom-properties.model';
 
 export interface Transaction {
@@ -133,7 +133,7 @@ export interface Transaction {
     displayObject?: string;
     orig_amount: number;
     orig_currency: string;
-    status: TransactionStatus;
+    status: ExpenseTransactionStatus;
     corporate_card_nickname?: string;
   }[];
 }

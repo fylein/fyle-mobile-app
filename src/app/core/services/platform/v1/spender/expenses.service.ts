@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@angular/core';
 import { Observable, concatMap, map, of, range, reduce, switchMap } from 'rxjs';
 import { SpenderService } from '../spender/spender.service';
 import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
-import { Expense, MatchedCorporateCardTransaction } from 'src/app/core/models/platform/v1/expense.model';
+import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpensesQueryParams } from 'src/app/core/models/platform/v1/expenses-query-params.model';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { CacheBuster, Cacheable } from 'ts-cacheable';
@@ -18,6 +18,7 @@ import { SplitExpenseMissingFields } from 'src/app/core/models/platform/v1/split
 import { expensesCacheBuster$ } from 'src/app/core/cache-buster/expense-cache-buster';
 import { CorporateCreditCardExpenseService } from '../../../corporate-credit-card-expense.service';
 import { corporateCardTransaction } from 'src/app/core/models/platform/v1/cc-transaction.model';
+import { MatchedCorporateCardTransaction } from 'src/app/core/models/platform/v1/matched-corpporate-card-transaction.model';
 
 @Injectable({
   providedIn: 'root',

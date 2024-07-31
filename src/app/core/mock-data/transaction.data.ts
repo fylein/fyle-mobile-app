@@ -1,9 +1,8 @@
 import deepFreeze from 'deep-freeze-strict';
-
-import { TransactionStatus } from '../models/platform/v1/expense.model';
 import { Transaction } from '../models/v1/transaction.model';
 import { optionsData15, optionsData33 } from './merge-expenses-options-data.data';
 import { expectedTxnCustomProperties, txnCustomPropertiesData } from './txn-custom-properties.data';
+import { ExpenseTransactionStatus } from '../enums/platform/v1/expense-transaction-status.enum';
 
 export const txnList: Transaction[] = deepFreeze([
   {
@@ -4130,7 +4129,7 @@ export const editUnflattenedTransactionWithMatchCCCPlatform: Partial<Transaction
       corporate_credit_card_account_number: '7620',
       orig_amount: null,
       orig_currency: null,
-      status: TransactionStatus.PENDING,
+      status: ExpenseTransactionStatus.PENDING,
       displayObject: 'Jul 4, 2018 - test description260.37',
     },
   ],
