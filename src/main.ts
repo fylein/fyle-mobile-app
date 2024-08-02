@@ -8,7 +8,6 @@ import { defineCustomElements } from '@ionic/pwa-elements/loader';
 import * as Sentry from '@sentry/angular';
 import 'hammerjs';
 
-import { Integrations as TracingIntegrations } from '@sentry/tracing';
 import { GlobalCacheConfig } from 'ts-cacheable';
 
 // Global cache config
@@ -17,11 +16,7 @@ GlobalCacheConfig.maxCacheCount = 100;
 
 Sentry.init({
   dsn: environment.SENTRY_DSN,
-  integrations: [
-    new TracingIntegrations.BrowserTracing({
-      routingInstrumentation: Sentry.routingInstrumentation,
-    }),
-  ],
+  integrations: [],
   tracesSampleRate: 0.1,
   release: 'please-replace-your-git-commit-version',
   ignoreErrors: ['Non-Error exception captured', 'Non-Error promise rejection captured'],
