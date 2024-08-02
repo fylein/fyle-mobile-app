@@ -731,7 +731,11 @@ export class AddEditPerDiemPage implements OnInit {
           )
         )
       ),
-      map((categories) => categories.map((category) => ({ label: category.sub_category, value: category })))
+      map((categories) =>
+        categories
+          .map((category) => ({ label: category.sub_category, value: category }))
+          .filter((category) => category.value.name !== 'Unspecified')
+      )
     );
 
     this.filteredCategories$.subscribe((categories) => {
