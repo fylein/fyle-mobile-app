@@ -11,4 +11,5 @@ export interface PlatformProjectParams {
   org_id?: string;
   name?: string;
   or?: string;
+  display_name?: string;
 }
