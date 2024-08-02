@@ -83,7 +83,7 @@ export class ProjectsService {
 
   addNameSearchFilter(searchNameText: string, params: PlatformProjectParams): void {
     if (typeof searchNameText !== 'undefined' && searchNameText) {
-      params.display_name = `ilike."${searchNameText}"`;
+      params.display_name = `ilike."%${searchNameText}%"`;
     }
   }
 
