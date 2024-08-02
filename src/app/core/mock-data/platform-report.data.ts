@@ -855,6 +855,22 @@ export const reportWithExpenses: Report = deepFreeze({
   amount: 100,
 });
 
+export const reportExportResponse = deepFreeze({
+  config: {
+    include_receipts: true,
+    type: 'pdf',
+  },
+  created_at: '2024-07-26T07:45:20.280083+00:00',
+  file_id: null,
+  id: 'relLVJ1B9hv8',
+  notify_emails: ['aastha.b@fyle.in'],
+  org_id: 'orrb8EW1zZsy',
+  query_params: 'id=in.[rp1R44UBo7ms]',
+  state: 'PENDING',
+  updated_at: '2024-07-26T07:45:20.280083+00:00',
+  user_id: 'usRjTPO4r69K',
+});
+
 export const expectedReportsSinglePageWithApproval: Report[] = deepFreeze([...allReportsPaginatedWithApproval.data]);
 
 export const expectedReportsSinglePageFiltered: Report[] = deepFreeze([...filteredReportsData.data]);

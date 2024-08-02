@@ -12,6 +12,7 @@ import {
   mockQueryParams,
   mockQueryParamsForCount,
   platformReportData,
+  reportExportResponse,
 } from 'src/app/core/mock-data/platform-report.data';
 import { ReportsQueryParams } from 'src/app/core/models/platform/v1/reports-query-params.model';
 import { expectedReportStats } from 'src/app/core/mock-data/report-stats.data';
@@ -19,6 +20,7 @@ import { UserEventService } from '../../../user-event.service';
 import { TransactionService } from '../../../transaction.service';
 import { apiReportPermissions } from 'src/app/core/mock-data/report-permissions.data';
 import { Comment } from 'src/app/core/models/platform/v1/comment.model';
+import { exportPayload } from 'src/app/core/mock-data/export-payload.data';
 
 describe('SpenderReportsService', () => {
   let spenderReportsService: SpenderReportsService;
@@ -139,6 +141,17 @@ describe('SpenderReportsService', () => {
     const id = 'rpShFuVCUIXk';
     spenderReportsService.delete(id).subscribe(() => {
       expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith(`/reports/delete/bulk`, { data: [{ id }] });
+      done();
+    });
+  });
+
+  it('export(): should export a report PDF', (done) => {
+    spenderPlatformV1ApiService.post.and.returnValue(of(reportExportResponse));
+
+    const id = 'rpShFuVCUIXk';
+    const email = 'aastha.b@fyle.in';
+    spenderReportsService.export(id, email).subscribe(() => {
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith(`/reports/exports`, { data: exportPayload });
       done();
     });
   });
