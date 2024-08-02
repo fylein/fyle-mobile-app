@@ -3,7 +3,7 @@ import { IonicModule, PopoverController } from '@ionic/angular';
 
 import { TransactionStatusInfoPopoverComponent } from './transaction-status-info-popover.component';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
-import { TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
+import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
 
 describe('TransactionStatusInfoComponent', () => {
   let component: TransactionStatusInfoPopoverComponent;
@@ -46,7 +46,7 @@ describe('TransactionStatusInfoComponent', () => {
   describe('template', () => {
     describe('title', () => {
       it('should display the correct title when transaction status is PENDING', () => {
-        component.transactionStatus = TransactionStatus.PENDING;
+        component.transactionStatus = ExpenseTransactionStatus.PENDING;
 
         fixture.detectChanges();
 
@@ -55,7 +55,7 @@ describe('TransactionStatusInfoComponent', () => {
       });
 
       it('should display the correct title when transaction status is POSTED', () => {
-        component.transactionStatus = TransactionStatus.POSTED;
+        component.transactionStatus = ExpenseTransactionStatus.POSTED;
 
         fixture.detectChanges();
 
@@ -66,7 +66,7 @@ describe('TransactionStatusInfoComponent', () => {
 
     describe('content', () => {
       it('should display the correct content when transaction status is PENDING', () => {
-        component.transactionStatus = TransactionStatus.PENDING;
+        component.transactionStatus = ExpenseTransactionStatus.PENDING;
 
         fixture.detectChanges();
 
@@ -77,7 +77,7 @@ describe('TransactionStatusInfoComponent', () => {
       });
 
       it('should display the correct content when transaction status is POSTED', () => {
-        component.transactionStatus = TransactionStatus.POSTED;
+        component.transactionStatus = ExpenseTransactionStatus.POSTED;
 
         fixture.detectChanges();
 

@@ -16,7 +16,6 @@ import {
   readyToReportExpensesData,
   readyToReportExpensesData2,
 } from 'src/app/core/mock-data/platform/v1/expense.data';
-import { reportUnflattenedData } from 'src/app/core/mock-data/report-v1.data';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { RefinerService } from 'src/app/core/services/refiner.service';
@@ -32,7 +31,7 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { orgSettingsPendingRestrictions, orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { expectedReportsSinglePage } from '../../core/mock-data/platform-report.data';
-import { TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
+import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
 
 describe('MyCreateReportPage', () => {
   let component: MyCreateReportPage;
@@ -448,7 +447,7 @@ describe('MyCreateReportPage', () => {
       transactionService.getAllExpenses.and.returnValue(of(cloneDeep(selectedExpenses)));
       const mockSelectedExpense = cloneDeep(readyToReportExpensesData);
       mockSelectedExpense[0].matched_corporate_card_transaction_ids = [];
-      mockSelectedExpense[1].matched_corporate_card_transactions[0].status = TransactionStatus.PENDING;
+      mockSelectedExpense[1].matched_corporate_card_transactions[0].status = ExpenseTransactionStatus.PENDING;
       expensesService.getAllExpenses.and.returnValue(of(mockSelectedExpense));
       orgSettingsService.get.and.returnValue(of(orgSettingsPendingRestrictions));
       spyOn(component, 'getReportTitle').and.returnValue(null);

@@ -1,7 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { Inject, Injectable } from '@angular/core';
 import { Observable, Subject, of } from 'rxjs';
-import { catchError, map, switchMap } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { CacheBuster, Cacheable } from 'ts-cacheable';
 import { OrgSettings } from '../models/org-settings.model';
@@ -121,16 +121,6 @@ export class ReportService {
 
   getExports(rptId: string): Observable<{ results: PdfExport[] }> {
     return this.apiService.get<{ results: PdfExport[] }>('/reports/' + rptId + '/exports');
-  }
-
-  delete(rptId: string): Observable<void> {
-    return this.apiService
-      .delete<void>('/reports/' + rptId)
-      .pipe(switchMap((res) => this.clearTransactionCache().pipe(map(() => res))));
-  }
-
-  downloadSummaryPdfUrl(data: { report_ids: string[]; email: string }): Observable<{ report_url: string }> {
-    return this.apiService.post('/reports/summary/download', data);
   }
 
   approverUpdateReportPurpose(report: Report): Observable<Report> {

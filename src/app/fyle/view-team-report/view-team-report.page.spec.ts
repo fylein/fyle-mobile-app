@@ -101,7 +101,6 @@ describe('ViewTeamReportPageV2', () => {
       'actions',
       'delete',
       'approve',
-      'downloadSummaryPdfUrl',
       'inquire',
       'approverUpdateReportPurpose',
     ]);
@@ -562,34 +561,6 @@ describe('ViewTeamReportPageV2', () => {
     expect(component.canShowTooltip).toBeTrue();
   });
 
-  it('deleteReport(): should delete report', async () => {
-    popupService.showPopup.and.resolveTo('primary');
-    loaderService.showLoader.and.resolveTo();
-    reportService.delete.and.returnValue(of(undefined));
-    loaderService.hideLoader.and.resolveTo();
-
-    await component.deleteReport();
-
-    expect(popupService.showPopup).toHaveBeenCalledOnceWith({
-      header: 'Delete Report',
-      message: `
-        <p class="highlight-info">
-          On deleting this report, all the associated expenses will be moved to <strong>My Expenses</strong> list.
-        </p>
-        <p>
-          Are you sure, you want to delete this report?
-        </p>
-      `,
-      primaryCta: {
-        text: 'Delete Report',
-      },
-    });
-    expect(reportService.delete).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
-    expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-    expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'team_reports']);
-  });
-
   describe('approveReport(): ', () => {
     it('should open the modal and approve the report', async () => {
       humanizeCurrency.transform.and.callThrough();
@@ -732,31 +703,6 @@ describe('ViewTeamReportPageV2', () => {
         },
       ]);
     });
-  });
-
-  it('shareReport(): should open share report modal', async () => {
-    const popoverSpy = jasmine.createSpyObj('popover', ['present', 'onWillDismiss']);
-    popoverSpy.onWillDismiss.and.resolveTo({
-      data: {
-        email: 'ajn@fyle.in',
-      },
-    });
-    popoverController.create.and.resolveTo(popoverSpy);
-
-    reportService.downloadSummaryPdfUrl.and.returnValue(of({ report_url: 'encodedcontent' }));
-
-    await component.shareReport(new Event('event'));
-    expect(popoverController.create).toHaveBeenCalledOnceWith({
-      component: ShareReportComponent,
-      cssClass: 'dialog-popover',
-    });
-    expect(reportService.downloadSummaryPdfUrl).toHaveBeenCalledOnceWith({
-      report_ids: [activatedRoute.snapshot.params.id],
-      email: 'ajn@fyle.in',
-    });
-    expect(loaderService.showLoader).toHaveBeenCalledOnceWith(
-      'We will send ajn@fyle.in a link to download the PDF <br> when it is generated and send you a copy.'
-    );
   });
 
   it('sendBack(): should open send back modal', async () => {

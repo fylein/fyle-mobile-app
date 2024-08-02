@@ -28,7 +28,6 @@ import { PdfExport } from 'src/app/core/models/pdf-exports.model';
 import { EditReportNamePopoverComponent } from '../my-view-report/edit-report-name-popover/edit-report-name-popover.component';
 import { ExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
-import { ShareReportComponent } from './share-report/share-report.component';
 import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
@@ -359,34 +358,6 @@ export class ViewTeamReportPage {
     this.canShowTooltip = !this.canShowTooltip;
   }
 
-  async deleteReport(): Promise<void> {
-    const popupResult = await this.popupService.showPopup({
-      header: 'Delete Report',
-      message: `
-        <p class="highlight-info">
-          On deleting this report, all the associated expenses will be moved to <strong>My Expenses</strong> list.
-        </p>
-        <p>
-          Are you sure, you want to delete this report?
-        </p>
-      `,
-      primaryCta: {
-        text: 'Delete Report',
-      },
-    });
-
-    if (popupResult === 'primary') {
-      from(this.loaderService.showLoader())
-        .pipe(
-          switchMap(() => this.reportService.delete(this.activatedRoute.snapshot.params.id as string)),
-          finalize(() => from(this.loaderService.hideLoader()))
-        )
-        .subscribe(() => {
-          this.router.navigate(['/', 'enterprise', 'team_reports']);
-        });
-    }
-  }
-
   async approveReport(): Promise<void> {
     if (!this.canApprove) {
       this.toggleTooltip();
@@ -454,29 +425,6 @@ export class ViewTeamReportPage {
         view: ExpenseView.team,
       },
     ]);
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async shareReport(event): Promise<void> {
-    const popover = await this.popoverController.create({
-      component: ShareReportComponent,
-      cssClass: 'dialog-popover',
-    });
-
-    await popover.present();
-
-    const { data } = (await popover.onWillDismiss()) as { data: { email: string } };
-
-    if (data.email) {
-      const params = {
-        report_ids: [this.activatedRoute.snapshot.params.id],
-        email: data.email,
-      };
-      this.reportService.downloadSummaryPdfUrl(params).subscribe(async () => {
-        const message = `We will send ${data.email} a link to download the PDF <br> when it is generated and send you a copy.`;
-        await this.loaderService.showLoader(message);
-      });
-    }
   }
 
   async sendBack(): Promise<void> {

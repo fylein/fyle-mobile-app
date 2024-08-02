@@ -1,7 +1,7 @@
 import deepFreeze from 'deep-freeze-strict';
 
 import { CorporateCardTransactionRes } from '../models/platform/v1/corporate-card-transaction-res.model';
-import { TransactionStatus } from '../models/platform/v1/expense.model';
+import { ExpenseTransactionStatus } from '../enums/platform/v1/expense-transaction-status.enum';
 
 export const ccTransactionResponseData: CorporateCardTransactionRes = deepFreeze({
   data: [
@@ -212,7 +212,7 @@ export const unmatchCCCExpenseResponseData: CorporateCardTransactionRes = deepFr
       post_date: null,
       spent_at: '2018-07-04T00:00:00+00:00',
       statement_id: 'stmt2K9aLunGU4',
-      transaction_status: TransactionStatus.PENDING,
+      transaction_status: ExpenseTransactionStatus.PENDING,
       updated_at: '2024-02-13T03:10:49.432028+00:00',
       user: {
         email: 'devendra.r@fyle.in',
@@ -267,7 +267,7 @@ export const matchCCCExpenseResponseData: CorporateCardTransactionRes = deepFree
       post_date: null,
       spent_at: '2018-07-04T00:00:00+00:00',
       statement_id: 'stmt2K9aLunGU4',
-      transaction_status: TransactionStatus.PENDING,
+      transaction_status: ExpenseTransactionStatus.PENDING,
       updated_at: '2024-02-13T03:10:48.454767+00:00',
       user: {
         email: 'devendra.r@fyle.in',
@@ -367,7 +367,7 @@ export const ccTransactionResponseData3: CorporateCardTransactionRes = deepFreez
         id: 'usvMoPfCC9Xw',
       },
       user_id: 'usvMoPfCC9Xw',
-      transaction_status: TransactionStatus.POSTED,
+      transaction_status: ExpenseTransactionStatus.POSTED,
     },
     {
       amount: 205.21,
@@ -455,7 +455,7 @@ export const ccTransactionResponseData3: CorporateCardTransactionRes = deepFreez
         id: 'usvMoPfCC9Xw',
       },
       user_id: 'usvMoPfCC9Xw',
-      transaction_status: TransactionStatus.PENDING,
+      transaction_status: ExpenseTransactionStatus.PENDING,
     },
   ],
 });
