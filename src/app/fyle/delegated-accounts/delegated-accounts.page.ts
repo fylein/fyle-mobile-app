@@ -87,9 +87,8 @@ export class DelegatedAccountsPage {
             delegatedAccList$.pipe(
               map(({ delegatedAcc }) =>
                 delegatedAcc.filter((delegator: Delegator) =>
-                  Object.values(delegator).some(
-                    (delegatorProp: string) =>
-                      delegatorProp && delegatorProp.toString().toLowerCase().includes(searchText.toLowerCase())
+                  Object.values(delegator).some((delegatorProp: string) =>
+                    delegatorProp?.toString().toLowerCase().includes(searchText.toLowerCase())
                   )
                 )
               )

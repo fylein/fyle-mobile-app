@@ -10,5 +10,5 @@ export interface PlatformEmployee {
   department?: Department;
   department_id?: string;
   org_id: string;
-  delegatees?: Delegatee[];
+  delegatees: Delegatee[];
 }
