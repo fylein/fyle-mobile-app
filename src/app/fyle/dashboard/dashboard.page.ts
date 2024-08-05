@@ -170,6 +170,15 @@ export class DashboardPage {
     return await optInModal.present();
   }
 
+  showInfoToastMessage(message: string): void {
+    const panelClass = 'msb-info';
+    this.matSnackBar.openFromComponent(ToastMessageComponent, {
+      ...this.snackbarProperties.setSnackbarProperties('information', { message }),
+      panelClass,
+    });
+    this.trackingService.showToastMessage({ ToastContent: message });
+  }
+
   ionViewWillEnter(): void {
     this.setupNetworkWatcher();
     this.registerBackButtonAction();
@@ -192,22 +201,13 @@ export class DashboardPage {
 
     this.setShowOptInBanner();
 
-    const showToastMessage = (message: string, type: 'information'): void => {
-      const panelClass = 'msb-info';
-      this.matSnackBar.openFromComponent(ToastMessageComponent, {
-        ...this.snackbarProperties.setSnackbarProperties(type, { message }),
-        panelClass,
-      });
-      this.trackingService.showToastMessage({ ToastContent: message });
-    };
-
     const openSMSOptInDialog = this.activatedRoute.snapshot.params.openSMSOptInDialog as string;
     if (openSMSOptInDialog === 'true') {
       this.eou$
         .pipe(
           map((eou) => {
             if (eou.ou.mobile_verified) {
-              showToastMessage('You are already opted into text messaging!', 'information');
+              this.showInfoToastMessage('You are already opted into text messaging!');
             } else {
               this.openSMSOptInDialog(eou);
             }
