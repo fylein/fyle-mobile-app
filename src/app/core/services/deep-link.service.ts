@@ -31,8 +31,6 @@ export class DeepLinkService {
     const verificationCode: string = redirectionParam.verification_code;
     const orgId: string = redirectionParam.org_id;
     const refreshToken: string = redirectionParam.refresh_token;
-    const referrer = redirectionParam.referrer;
-    const openSMSOptInDialog = redirectionParam.open_sms_dialog;
 
     if (redirectUri) {
       if (redirectUri.match('verify')) {
@@ -111,7 +109,10 @@ export class DeepLinkService {
           orgId,
           txnId,
         });
-      } else if (redirectUri.match('my_dashboard') && openSMSOptInDialog === 'true') {
+      } else if (redirectUri.match('my_dashboard')) {
+        // https://staging1.fyle.tech/app/main/#/my_dashboard?org_id=oroX1Q9TTEOg&open_sms_dialog=true&referrer=transactional_email
+        const referrer = redirectUri.match(/referrer=(\w+)/)?.[1];
+        const openSMSOptInDialog = redirectUri.includes('open_sms_dialog=true');
         const properties = {
           sub_module: 'my_dashboard',
           openSMSOptInDialog,
