@@ -3,12 +3,19 @@ import { Router } from '@angular/router';
 import { Redirect } from '../models/redirect.model';
 import { UnflattenedTransaction } from '../models/unflattened-transaction.model';
 import { TrackingService } from './tracking.service';
+import { OrgService } from './org.service';
+import { ModalController } from '@ionic/angular';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DeepLinkService {
-  constructor(private router: Router, private trackingService: TrackingService) {}
+  constructor(
+    private router: Router,
+    private trackingService: TrackingService,
+    private orgService: OrgService,
+    private modalController: ModalController
+  ) {}
 
   getJsonFromUrl(url?: string): Redirect {
     const query = url?.split('?')[1];
@@ -31,6 +38,8 @@ export class DeepLinkService {
     const verificationCode: string = redirectionParam.verification_code;
     const orgId: string = redirectionParam.org_id;
     const refreshToken: string = redirectionParam.refresh_token;
+    const referrer = redirectionParam.referrer;
+    const openSMSOptInDialog = redirectionParam.open_sms_dialog;
 
     if (redirectUri) {
       if (redirectUri.match('verify')) {
@@ -109,6 +118,15 @@ export class DeepLinkService {
           orgId,
           txnId,
         });
+      } else if (redirectUri.match('dashboard') && openSMSOptInDialog === 'true') {
+        const properties = {
+          sub_module: 'my_dashboard',
+          openSMSOptInDialog,
+          orgId,
+          referrer,
+        };
+        this.trackingService.smsDeepLinkOpened(properties);
+        this.router.navigate(['/', 'deep_link_redirection', properties]);
       } else {
         this.router.navigate(['/', 'auth', 'switch_org', { choose: true }]);
       }

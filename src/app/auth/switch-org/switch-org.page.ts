@@ -117,6 +117,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       (JSON.parse(that.activatedRoute.snapshot.params.invite_link as string) as boolean);
     const orgId = that.activatedRoute.snapshot.params.orgId as string;
     const txnId = this.activatedRoute.snapshot.params.txnId as string;
+    const openSMSOptInDialog = this.activatedRoute.snapshot.params.openSMSOptInDialog as string;
 
     if (orgId && txnId) {
       return this.redirectToExpensePage(orgId, txnId);
@@ -132,6 +133,10 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
             .subscribe(noop);
         }
       });
+    }
+
+    if (openSMSOptInDialog === 'true' && orgId) {
+      return this.redirectToDashboard(orgId);
     }
     this.activeOrg$ = this.orgService.getCurrentOrg();
     this.primaryOrg$ = this.orgService.getPrimaryOrg();
@@ -185,6 +190,36 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       panelClass: ['msb-info'],
     });
     this.trackingService.showToastMessage({ ToastContent: toastMessageData.message });
+  }
+
+  redirectToDashboard(orgId: string): void {
+    from(this.loaderService.showLoader('Please wait...', 2000))
+      .pipe(
+        switchMap(() => this.orgService.switchOrg(orgId)),
+        switchMap(() => {
+          globalCacheBusterNotifier.next();
+          this.userEventService.clearTaskCache();
+          this.recentLocalStorageItemsService.clearRecentLocalStorageCache();
+          return from(this.authService.getEou());
+        }),
+        map((eou) => {
+          this.setSentryUser(eou);
+        }),
+        finalize(() => this.loaderService.hideLoader())
+      )
+      .subscribe({
+        next: () => {
+          this.router.navigate([
+            '/',
+            'enterprise',
+            'my_dashboard',
+            {
+              openSMSOptInDialog: true,
+            },
+          ]);
+        },
+        error: () => this.router.navigate(['/', 'auth', 'switch_org']),
+      });
   }
 
   redirectToExpensePage(orgId: string, txnId: string): void {

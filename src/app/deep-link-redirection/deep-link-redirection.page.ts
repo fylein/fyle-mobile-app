@@ -5,11 +5,15 @@ import { AdvanceRequestService } from '../core/services/advance-request.service'
 import { AuthService } from '../core/services/auth.service';
 import { TransactionService } from '../core/services/transaction.service';
 import { ReportService } from '../core/services/report.service';
-import { EMPTY, catchError, filter, finalize, from, shareReplay, switchMap, map } from 'rxjs';
+import { EMPTY, catchError, filter, finalize, from, shareReplay, switchMap, map, of, Observable } from 'rxjs';
 import { DeepLinkService } from '../core/services/deep-link.service';
 import { ExpensesService } from '../core/services/platform/v1/spender/expenses.service';
 import { SpenderReportsService } from '../core/services/platform/v1/spender/reports.service';
 import { ApproverReportsService } from '../core/services/platform/v1/approver/reports.service';
+import { OrgService } from '../core/services/org.service';
+import { UserEventService } from '../core/services/user-event.service';
+import { RecentLocalStorageItemsService } from '../core/services/recent-local-storage-items.service';
+import { ModalController } from '@ionic/angular';
 
 @Component({
   selector: 'app-deep-link-redirection',
@@ -28,7 +32,11 @@ export class DeepLinkRedirectionPage {
     private deepLinkService: DeepLinkService,
     private expensesService: ExpensesService,
     private approverReportsService: ApproverReportsService,
-    private spenderReportsService: SpenderReportsService
+    private spenderReportsService: SpenderReportsService,
+    private orgService: OrgService,
+    private userEventService: UserEventService,
+    private recentLocalStorageItemsService: RecentLocalStorageItemsService,
+    private modalController: ModalController
   ) {}
 
   ionViewWillEnter(): void {
@@ -40,7 +48,64 @@ export class DeepLinkRedirectionPage {
       this.redirectToExpenseModule();
     } else if (subModule === 'advReq') {
       this.redirectToAdvReqModule();
+    } else if (subModule === 'my_dashboard') {
+      this.redirectToDashboardModule();
     }
+  }
+
+  async redirectToDashboardModule(): Promise<void> {
+    const openSMSOptInDialog = this.activatedRoute.snapshot.params.openSMSOptInDialog as string;
+    const orgId = this.activatedRoute.snapshot.params.orgId as string;
+
+    const eou$ = from(this.loaderService.showLoader('Loading....')).pipe(
+      switchMap(() => from(this.authService.getEou())),
+      catchError(() => {
+        this.switchOrg();
+        return EMPTY;
+      }),
+      shareReplay(1)
+    );
+
+    // If orgId is the same as the current user orgId, then redirect to the dashboard page
+    eou$
+      .pipe(
+        filter((eou) => orgId === eou.ou.org_id),
+        finalize(() => from(this.loaderService.hideLoader()))
+      )
+      .subscribe({
+        next: () => {
+          this.router.navigate([
+            '/',
+            'enterprise',
+            'my_dashboard',
+            {
+              openSMSOptInDialog,
+            },
+          ]);
+        },
+        error: () => this.switchOrg(),
+      });
+
+    // If orgId is the diferent from the current user orgId, then redirect to switch org with orgId and openSMSOptInDialog
+    eou$
+      .pipe(
+        filter((eou) => orgId !== eou.ou.org_id),
+        finalize(() => from(this.loaderService.hideLoader()))
+      )
+      .subscribe({
+        next: () => {
+          this.router.navigate([
+            '/',
+            'auth',
+            'switch_org',
+            {
+              openSMSOptInDialog,
+              orgId,
+            },
+          ]);
+        },
+        error: () => this.switchOrg(),
+      });
   }
 
   async redirectToAdvReqModule(): Promise<void> {
