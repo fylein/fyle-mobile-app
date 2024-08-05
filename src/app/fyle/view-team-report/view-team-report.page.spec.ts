@@ -144,6 +144,10 @@ describe('ViewTeamReportPageV2', () => {
           useValue: approverExpensesServiceSpy,
         },
         {
+          provide: ReportService,
+          useValue: reportServiceSpy,
+        },
+        {
           provide: AuthService,
           useValue: authServiceSpy,
         },
@@ -217,6 +221,7 @@ describe('ViewTeamReportPageV2', () => {
     approverExpensesService = TestBed.inject(ApproverExpensesService) as jasmine.SpyObj<ApproverExpensesService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
+    reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
