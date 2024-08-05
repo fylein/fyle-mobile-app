@@ -10,10 +10,6 @@ import { DeepLinkService } from '../core/services/deep-link.service';
 import { ExpensesService } from '../core/services/platform/v1/spender/expenses.service';
 import { SpenderReportsService } from '../core/services/platform/v1/spender/reports.service';
 import { ApproverReportsService } from '../core/services/platform/v1/approver/reports.service';
-import { OrgService } from '../core/services/org.service';
-import { UserEventService } from '../core/services/user-event.service';
-import { RecentLocalStorageItemsService } from '../core/services/recent-local-storage-items.service';
-import { ModalController } from '@ionic/angular';
 
 @Component({
   selector: 'app-deep-link-redirection',
@@ -32,11 +28,7 @@ export class DeepLinkRedirectionPage {
     private deepLinkService: DeepLinkService,
     private expensesService: ExpensesService,
     private approverReportsService: ApproverReportsService,
-    private spenderReportsService: SpenderReportsService,
-    private orgService: OrgService,
-    private userEventService: UserEventService,
-    private recentLocalStorageItemsService: RecentLocalStorageItemsService,
-    private modalController: ModalController
+    private spenderReportsService: SpenderReportsService
   ) {}
 
   ionViewWillEnter(): void {
