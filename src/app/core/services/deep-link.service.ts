@@ -3,19 +3,12 @@ import { Router } from '@angular/router';
 import { Redirect } from '../models/redirect.model';
 import { UnflattenedTransaction } from '../models/unflattened-transaction.model';
 import { TrackingService } from './tracking.service';
-import { OrgService } from './org.service';
-import { ModalController } from '@ionic/angular';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DeepLinkService {
-  constructor(
-    private router: Router,
-    private trackingService: TrackingService,
-    private orgService: OrgService,
-    private modalController: ModalController
-  ) {}
+  constructor(private router: Router, private trackingService: TrackingService) {}
 
   getJsonFromUrl(url?: string): Redirect {
     const query = url?.split('?')[1];
