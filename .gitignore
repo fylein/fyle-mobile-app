@@ -40,3 +40,7 @@ package-lock.json
 setup.sh
 .env
 .angular
+
+# Sentry Config File
+.sentryclirc
+
