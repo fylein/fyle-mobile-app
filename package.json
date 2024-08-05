@@ -6,7 +6,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "build": "ng build && npm run sentry:sourcemaps",
     "appflow": "sh build_appflow.sh",
     "test": "ng test --watch=false --browsers=ChromeHeadless",
     "test-basic": "ng test",
@@ -17,7 +17,8 @@
     "format:check": "prettier --write ./src",
     "prepare": "husky install",
     "lint:diff": "eslint -c .eslintrc.json $(git diff --name-only --diff-filter=ACMRTUXB origin/$GITHUB_BASE_REF | grep  -E \"(.js$|.ts$|.tsx$)\")",
-    "lint:diff:local": "eslint --fix -c .eslintrc.json $(git diff --name-only --diff-filter=ACMRTUXB origin/master | grep  -E '(.js$|.ts$|.tsx$)')"
+    "lint:diff:local": "eslint --fix -c .eslintrc.json $(git diff --name-only --diff-filter=ACMRTUXB origin/master | grep  -E '(.js$|.ts$|.tsx$)')",
+    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org fyle-technologies-private-limi --project fyle-mobile-app-prod ./www && sentry-cli sourcemaps upload --org fyle-technologies-private-limi --project fyle-mobile-app-prod ./www"
   },
   "resolutions": {
     "webpack": "^5.0.0"
@@ -62,8 +63,8 @@
     "@ionic/angular": "^6.1.5",
     "@ionic/core": "^6.1.5",
     "@ionic/pwa-elements": "^3.1.1",
-    "@sentry/angular": "^7.1.1",
-    "@sentry/cli": "^2.1.0",
+    "@sentry/angular": "^7.118.0",
+    "@sentry/cli": "^2.33.0",
     "@sentry/tracing": "^7.1.1",
     "@types/google.maps": "^3.49.2",
     "@types/hammerjs": "^2.0.41",
