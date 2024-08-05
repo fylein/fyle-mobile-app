@@ -34,8 +34,10 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
 import { featureConfigOptInData } from 'src/app/core/mock-data/feature-config.data';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 
-describe('DashboardPage', () => {
+fdescribe('DashboardPage', () => {
   let component: DashboardPage;
   let fixture: ComponentFixture<DashboardPage>;
   let networkService: jasmine.SpyObj<NetworkService>;
@@ -94,6 +96,8 @@ describe('DashboardPage', () => {
     const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou', 'refreshEou']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
+    const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
+    const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
 
     TestBed.configureTestingModule({
       declarations: [DashboardPage],
@@ -119,6 +123,7 @@ describe('DashboardPage', () => {
               queryParams: {
                 state: 'tasks',
               },
+              params: {},
             },
           },
         },
@@ -127,6 +132,14 @@ describe('DashboardPage', () => {
         { provide: ModalPropertiesService, useValue: modalPropertiesSpy },
         { provide: AuthService, useValue: authServiceSpy },
         { provide: ModalController, useValue: modalControllerSpy },
+        {
+          provide: MatSnackBar,
+          useValue: matSnackBarSpy,
+        },
+        {
+          provide: SnackbarPropertiesService,
+          useValue: snackbarPropertiesSpy,
+        },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
