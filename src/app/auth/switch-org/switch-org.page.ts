@@ -208,7 +208,6 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       )
       .subscribe({
         next: () => {
-          console.log('navigation to dashboard from switch org');
           this.router.navigate([
             '/',
             'enterprise',

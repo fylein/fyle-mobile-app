@@ -159,11 +159,11 @@ export class DashboardPage {
     );
   }
 
-  async openSMSOptInDialog(extendedOrgUser: ExtendedOrgUser) {
+  async openSMSOptInDialog(extendedOrgUser: ExtendedOrgUser): Promise<void> {
     const optInModal = await this.modalController.create({
       component: FyOptInComponent,
       componentProps: {
-        extendedOrgUser: extendedOrgUser,
+        extendedOrgUser,
       },
     });
 
