@@ -121,6 +121,8 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
 
     if (orgId && txnId) {
       return this.redirectToExpensePage(orgId, txnId);
+    } else if (openSMSOptInDialog === 'true' && orgId) {
+      return this.redirectToDashboard(orgId);
     } else if (!choose) {
       from(that.loaderService.showLoader())
         .pipe(switchMap(() => from(that.proceed(isFromInviteLink))))
@@ -135,9 +137,6 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       });
     }
 
-    if (openSMSOptInDialog === 'true' && orgId) {
-      return this.redirectToDashboard(orgId);
-    }
     this.activeOrg$ = this.orgService.getCurrentOrg();
     this.primaryOrg$ = this.orgService.getPrimaryOrg();
 
@@ -209,6 +208,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       )
       .subscribe({
         next: () => {
+          console.log('navigation to dashboard from switch org');
           this.router.navigate([
             '/',
             'enterprise',
