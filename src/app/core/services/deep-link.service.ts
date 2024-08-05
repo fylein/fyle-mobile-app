@@ -111,7 +111,7 @@ export class DeepLinkService {
           orgId,
           txnId,
         });
-      } else if (redirectUri.match('dashboard') && openSMSOptInDialog === 'true') {
+      } else if (redirectUri.match('my_dashboard') && openSMSOptInDialog === 'true') {
         const properties = {
           sub_module: 'my_dashboard',
           openSMSOptInDialog,
