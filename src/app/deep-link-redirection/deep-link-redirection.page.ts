@@ -24,7 +24,6 @@ export class DeepLinkRedirectionPage {
     private advanceRequestService: AdvanceRequestService,
     private transactionService: TransactionService,
     private authService: AuthService,
-    private reportService: ReportService,
     private deepLinkService: DeepLinkService,
     private expensesService: ExpensesService,
     private approverReportsService: ApproverReportsService,

@@ -6,7 +6,6 @@ import { ModalController, PopoverController } from '@ionic/angular';
 import { isEqual } from 'lodash';
 import { FyAddToReportModalComponent } from './fy-add-to-report-modal/fy-add-to-report-modal.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
-import { ReportService } from 'src/app/core/services/report.service';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { FyInputPopoverComponent } from '../fy-input-popover/fy-input-popover.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -64,7 +63,6 @@ export class FyAddToReportComponent implements OnInit, OnChanges, ControlValueAc
     private modalProperties: ModalPropertiesService,
     private injector: Injector,
     private popoverController: PopoverController,
-    private reportService: ReportService,
     private platformReportService: SpenderReportsService,
     private trackingService: TrackingService
   ) {}

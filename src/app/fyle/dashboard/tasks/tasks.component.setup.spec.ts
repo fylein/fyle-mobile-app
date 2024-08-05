@@ -41,13 +41,7 @@ describe('TasksComponent', () => {
     ]);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById', 'getAllExpenses']);
-    const reportServiceSpy = jasmine.createSpyObj('ReportService', [
-      'getReportAutoSubmissionDetails',
-      'clearCache',
-      'getMyReports',
-      'getTeamReports',
-      'addTransactions',
-    ]);
+    const reportServiceSpy = jasmine.createSpyObj('ReportService', ['getReportAutoSubmissionDetails', 'clearCache']);
     const advanceRequestServiceSpy = jasmine.createSpyObj('AdvanceRequestService', ['getSpenderAdvanceRequests']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', [

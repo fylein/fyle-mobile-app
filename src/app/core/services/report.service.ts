@@ -119,10 +119,6 @@ export class ReportService {
     );
   }
 
-  getExports(rptId: string): Observable<{ results: PdfExport[] }> {
-    return this.apiService.get<{ results: PdfExport[] }>('/reports/' + rptId + '/exports');
-  }
-
   approverUpdateReportPurpose(report: Report): Observable<Report> {
     const params: { data: Pick<Report, 'id' | 'source' | 'purpose'> } = {
       data: {

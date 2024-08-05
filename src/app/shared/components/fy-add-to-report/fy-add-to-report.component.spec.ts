@@ -22,7 +22,6 @@ import { cloneDeep } from 'lodash';
 describe('FyAddToReportComponent', () => {
   let component: FyAddToReportComponent;
   let fixture: ComponentFixture<FyAddToReportComponent>;
-  let reportService: jasmine.SpyObj<ReportService>;
   let platformSpenderReportsService: jasmine.SpyObj<SpenderReportsService>;
   let modalController: jasmine.SpyObj<ModalController>;
   let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
@@ -31,11 +30,6 @@ describe('FyAddToReportComponent', () => {
 
   beforeEach(waitForAsync(() => {
     const injectorSpy = jasmine.createSpyObj('Injector', ['get']);
-    const reportServiceSpy = jasmine.createSpyObj('ReportService', [
-      'getReportPurpose',
-      'createDraft',
-      'getFilteredPendingReports',
-    ]);
     const platformSpenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', [
       'getAllReportsByParams',
       'getReportsCount',
@@ -68,10 +62,6 @@ describe('FyAddToReportComponent', () => {
           },
         },
         {
-          provide: ReportService,
-          useValue: reportServiceSpy,
-        },
-        {
           provide: SpenderReportsService,
           useValue: platformSpenderReportsServiceSpy,
         },
@@ -98,7 +88,6 @@ describe('FyAddToReportComponent', () => {
     fixture = TestBed.createComponent(FyAddToReportComponent);
     component = fixture.componentInstance;
     fixture.debugElement.injector.get(NG_VALUE_ACCESSOR);
-    reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
     platformSpenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;

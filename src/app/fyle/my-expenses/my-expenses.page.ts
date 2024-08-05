@@ -215,7 +215,6 @@ export class MyExpensesPage implements OnInit {
     private tokenService: TokenService,
     private apiV2Service: ApiV2Service,
     private modalProperties: ModalPropertiesService,
-    private reportService: ReportService,
     private matBottomSheet: MatBottomSheet,
     private matSnackBar: MatSnackBar,
     private actionSheetController: ActionSheetController,

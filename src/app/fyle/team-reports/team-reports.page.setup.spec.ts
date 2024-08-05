@@ -25,7 +25,6 @@ describe('TeamReportsPage', () => {
   const getTestBed = () => {
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
-    const reportServiceSpy = jasmine.createSpyObj('ReportService', ['getTeamReports', 'getTeamReportsCount', 'delete']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const dateServiceSpy = jasmine.createSpyObj('DateService', [
       'getThisMonthRange',
@@ -63,7 +62,6 @@ describe('TeamReportsPage', () => {
       providers: [
         { provide: NetworkService, useValue: networkServiceSpy },
         { provide: LoaderService, useValue: loaderServiceSpy },
-        { provide: ReportService, useValue: reportServiceSpy },
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: DateService, useValue: dateServiceSpy },
         { provide: Router, useValue: routerSpy },

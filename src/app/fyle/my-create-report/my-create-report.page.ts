@@ -54,7 +54,6 @@ export class MyCreateReportPage implements OnInit {
   constructor(
     private transactionService: TransactionService,
     private activatedRoute: ActivatedRoute,
-    private reportService: ReportService,
     private currencyService: CurrencyService,
     private loaderService: LoaderService,
     private router: Router,

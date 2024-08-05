@@ -198,17 +198,6 @@ describe('ReportService', () => {
     });
   });
 
-  it('getExports(): should get export actions for a report', (done) => {
-    apiService.get.and.returnValue(of([]));
-
-    const reportID = 'rphLXGFVbDaJ';
-
-    reportService.getExports(reportID).subscribe(() => {
-      expect(apiService.get).toHaveBeenCalledOnceWith(`/reports/${reportID}/exports`);
-      done();
-    });
-  });
-
   describe('getAutoSubmissionReportName()', () => {
     it('should get auto submitted report name', (done) => {
       spyOn(reportService, 'getReportAutoSubmissionDetails').and.returnValue(of(apiReportAutoSubmissionDetails));

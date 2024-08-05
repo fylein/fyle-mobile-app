@@ -43,7 +43,6 @@ export class CreateNewReportComponent implements OnInit {
 
   constructor(
     private modalController: ModalController,
-    private reportService: ReportService,
     private trackingService: TrackingService,
     private refinerService: RefinerService,
     private currencyService: CurrencyService,

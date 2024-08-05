@@ -94,11 +94,7 @@ describe('AddEditExpensePage', () => {
       'getAllowedOrgCategoryIds',
       'getProjectCount',
     ]);
-    const reportServiceSpy = jasmine.createSpyObj('ReportService', [
-      'getAutoSubmissionReportName',
-      'getFilteredPendingReports',
-      'addTransactions',
-    ]);
+    const reportServiceSpy = jasmine.createSpyObj('ReportService', ['getAutoSubmissionReportName']);
     const reportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', [
       'getAllReportsByParams',
       'ejectExpenses',
