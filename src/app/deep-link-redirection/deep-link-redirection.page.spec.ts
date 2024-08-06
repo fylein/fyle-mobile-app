@@ -410,6 +410,19 @@ describe('DeepLinkRedirectionPage', () => {
       tick(500);
       expect(component.redirectToAdvReqModule).toHaveBeenCalledTimes(1);
     }));
+
+    it('should call redirectToDashboardModule() if the sub_module is my_dashboard', fakeAsync(() => {
+      activeroutemock.snapshot.params = {
+        sub_module: 'my_dashboard',
+        orgId: 'oroX1Q9TTEO',
+        referrer: 'transactional_email',
+      };
+      spyOn(component, 'redirectToDashboardModule').and.stub();
+      component.ionViewWillEnter();
+      fixture.detectChanges();
+      tick(500);
+      expect(component.redirectToDashboardModule).toHaveBeenCalledTimes(1);
+    }));
   });
 
   it('should call switchOrg method of authService', () => {
