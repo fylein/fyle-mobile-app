@@ -39,6 +39,7 @@ import { ExpenseFilters } from '../models/expense-filters.model';
 import { ReportFilters } from '../models/report-filters.model';
 import { CommuteDetailsResponse } from '../models/platform/commute-details-response.model';
 import { HttpErrorResponse } from '@angular/common/http';
+import mixpanel from 'mixpanel-browser';
 
 @Injectable({
   providedIn: 'root',
@@ -46,7 +47,16 @@ import { HttpErrorResponse } from '@angular/common/http';
 export class TrackingService {
   identityEmail = null;
 
-  constructor(private authService: AuthService, private deviceService: DeviceService) {}
+  constructor(private authService: AuthService, private deviceService: DeviceService) {
+    try {
+      mixpanel?.init(environment.MIXPANEL_PROJECT_TOKEN, {
+        debug: false,
+        track_pageview: true,
+        persistence: 'localStorage',
+      });
+      mixpanel?.reset();
+    } catch (e) {}
+  }
 
   get tracking(): TrackingMethods {
     return (window as typeof window & { analytics: TrackingMethods }).analytics;
@@ -54,13 +64,12 @@ export class TrackingService {
 
   async updateIdentity(): Promise<void> {
     const eou = await this.authService.getEou();
-    const email = eou && eou.us && eou.us.email;
+    const email = eou?.us?.email;
     if (email && email !== this.identityEmail) {
-      if (this.tracking) {
-        this.tracking.identify(email, {
-          $email: email,
-        });
-      }
+      try {
+        mixpanel?.identify(email);
+      } catch (e) {}
+
       this.identityEmail = email;
     }
   }
@@ -69,10 +78,21 @@ export class TrackingService {
     const properties: IdentifyProperties = {};
     try {
       const eou = await this.authService.getEou();
-      if (eou && eou.us && eou && eou.ou) {
-        properties['User Name'] = eou.us.full_name;
-        properties['User Org Name'] = eou.ou.org_name;
-        properties['User Org ID'] = eou.ou.org_id;
+      if (eou?.us && eou?.ou) {
+        try {
+          const distinctId = mixpanel?.get_distinct_id();
+          if (distinctId !== eou.us.email) {
+            mixpanel?.identify(eou.us.email);
+            mixpanel?.people?.set({
+              $name: eou.us.full_name,
+              $email: eou.us.email,
+            });
+          }
+
+          properties['User Name'] = eou.us.full_name;
+          properties['User Org Name'] = eou.ou.org_name;
+          properties['User Org ID'] = eou.ou.org_id;
+        } catch (e) {}
       }
     } catch (error) {}
     return properties;
@@ -86,9 +106,10 @@ export class TrackingService {
 
   // new function name
   updateSegmentProfile(data: IdentifyProperties): void {
-    if (this.tracking) {
-      this.tracking.identify(data);
-    }
+    try {
+      // ASSUMPTION: we are assuming that user is already identified via onSignin()
+      mixpanel?.people?.set(data);
+    } catch (e) {}
   }
 
   eventTrack<T>(action: string, properties = {} as T): void {
@@ -112,22 +133,22 @@ export class TrackingService {
         appVersion: environment.LIVE_UPDATE_APP_VERSION,
       };
 
-      if (this.tracking) {
-        this.tracking.track(action, properties);
-      }
+      try {
+        mixpanel?.track(action, properties);
+      } catch (e) {}
     });
   }
 
   // external APIs
   onSignin(email: string, properties: { label?: string } = {}): void {
-    if (this.tracking) {
-      this.tracking.identify(email, {
+    try {
+      mixpanel?.identify(email);
+      mixpanel?.people?.set({
         $email: email,
       });
+    } catch (e) {}
 
-      this.identityEmail = email;
-    }
-
+    this.identityEmail = email;
     this.eventTrack('Signin', properties);
   }
 
