@@ -37,7 +37,7 @@ import { featureConfigOptInData } from 'src/app/core/mock-data/feature-config.da
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 
-fdescribe('DashboardPage', () => {
+describe('DashboardPage', () => {
   let component: DashboardPage;
   let fixture: ComponentFixture<DashboardPage>;
   let networkService: jasmine.SpyObj<NetworkService>;
