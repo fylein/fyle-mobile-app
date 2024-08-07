@@ -4,7 +4,6 @@ import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
 import { IonicModule, ModalController } from '@ionic/angular';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { ReportService } from 'src/app/core/services/report.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CurrencyService } from 'src/app/core/services/currency.service';
