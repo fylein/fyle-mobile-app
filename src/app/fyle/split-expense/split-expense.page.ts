@@ -12,7 +12,6 @@ import { FileService } from 'src/app/core/services/file.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { SplitExpenseService } from 'src/app/core/services/split-expense.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { ReportService } from 'src/app/core/services/report.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
@@ -130,7 +129,6 @@ export class SplitExpensePage {
     private navController: NavController,
     private router: Router,
     private transactionsOutboxService: TransactionsOutboxService,
-    private reportService: ReportService,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
     private trackingService: TrackingService,

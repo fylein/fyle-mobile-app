@@ -4,7 +4,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { HumanizeCurrencyPipe } from '../../pipes/humanize-currency.pipe';
 import { ModalController } from '@ionic/angular';
-import { ReportService } from 'src/app/core/services/report.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { RefinerService } from 'src/app/core/services/refiner.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -26,7 +25,6 @@ describe('CreateNewReportComponent', () => {
   let component: CreateNewReportComponent;
   let fixture: ComponentFixture<CreateNewReportComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
-  let reportService: jasmine.SpyObj<ReportService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
   let refinerService: jasmine.SpyObj<RefinerService>;
   let currencyService: jasmine.SpyObj<CurrencyService>;
@@ -35,7 +33,6 @@ describe('CreateNewReportComponent', () => {
 
   beforeEach(waitForAsync(() => {
     modalController = jasmine.createSpyObj('ModalController', ['dismiss']);
-    reportService = jasmine.createSpyObj('ReportService', ['getReportPurpose', 'createDraft', 'addTransactions']);
     trackingService = jasmine.createSpyObj('TrackingService', ['createReport']);
     refinerService = jasmine.createSpyObj('RefinerService', ['startSurvey']);
     currencyService = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
@@ -61,7 +58,6 @@ describe('CreateNewReportComponent', () => {
       ],
       providers: [
         { provide: ModalController, useValue: modalController },
-        { provide: ReportService, useValue: reportService },
         { provide: TrackingService, useValue: trackingService },
         { provide: RefinerService, useValue: refinerService },
         { provide: CurrencyService, useValue: currencyService },
@@ -73,7 +69,6 @@ describe('CreateNewReportComponent', () => {
       schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
     }).compileComponents();
 
-    reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     refinerService = TestBed.inject(RefinerService) as jasmine.SpyObj<RefinerService>;
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;

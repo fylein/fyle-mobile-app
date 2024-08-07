@@ -90,17 +90,7 @@ describe('MyViewReportPage', () => {
   let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
 
   beforeEach(waitForAsync(() => {
-    const reportServiceSpy = jasmine.createSpyObj('ReportService', [
-      'getReport',
-      'getApproversByReportId',
-      'actions',
-      'updateReportDetails',
-      'updateReportPurpose',
-      'delete',
-      'submit',
-      'resubmit',
-      'addTransactions',
-    ]);
+    const reportServiceSpy = jasmine.createSpyObj('ReportService', ['updateReportPurpose']);
     const expnesesServicespy = jasmine.createSpyObj('ExpensesService', [
       'getReportExpenses',
       'getExpenses',

@@ -108,7 +108,6 @@ import { PlatformHandlerService } from 'src/app/core/services/platform-handler.s
 import { ExpensesService as SharedExpenseService } from 'src/app/core/services/platform/v1/shared/expenses.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { PopupService } from 'src/app/core/services/popup.service';
-import { ReportService } from 'src/app/core/services/report.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
@@ -145,7 +144,6 @@ describe('MyExpensesPage', () => {
   let fixture: ComponentFixture<MyExpensesPage>;
   let tasksService: jasmine.SpyObj<TasksService>;
   let currencyService: jasmine.SpyObj<CurrencyService>;
-  let reportService: jasmine.SpyObj<ReportService>;
   let apiV2Service: jasmine.SpyObj<ApiV2Service>;
   let transactionService: jasmine.SpyObj<TransactionService>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
@@ -182,13 +180,6 @@ describe('MyExpensesPage', () => {
   beforeEach(waitForAsync(() => {
     const tasksServiceSpy = jasmine.createSpyObj('TasksService', ['getReportsTaskCount', 'getExpensesTaskCount']);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
-    const reportServiceSpy = jasmine.createSpyObj('ReportService', [
-      'getMyReportsCount',
-      'getMyReports',
-      'clearTransactionCache',
-      'getAllExtendedReports',
-      'addTransactions',
-    ]);
     const apiV2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['extendQueryParamsForTextSearch']);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', [
       'getMyExpensesCount',
@@ -324,7 +315,6 @@ describe('MyExpensesPage', () => {
       providers: [
         { provide: TasksService, useValue: tasksServiceSpy },
         { provide: CurrencyService, useValue: currencyServiceSpy },
-        { provide: ReportService, useValue: reportServiceSpy },
         { provide: ApiV2Service, useValue: apiV2ServiceSpy },
         { provide: TransactionService, useValue: transactionServiceSpy },
         { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
@@ -337,10 +327,6 @@ describe('MyExpensesPage', () => {
         {
           provide: NetworkService,
           useValue: networkServiceSpy,
-        },
-        {
-          provide: ReportService,
-          useValue: reportServiceSpy,
         },
         {
           provide: TransactionsOutboxService,
@@ -453,14 +439,12 @@ describe('MyExpensesPage', () => {
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
-    reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
     tasksService = TestBed.inject(TasksService) as jasmine.SpyObj<TasksService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
     apiV2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
     transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
     networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
-    reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
     transactionOutboxService = TestBed.inject(TransactionsOutboxService) as jasmine.SpyObj<TransactionsOutboxService>;
     matBottomsheet = TestBed.inject(MatBottomSheet) as jasmine.SpyObj<MatBottomSheet>;
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
@@ -2556,7 +2540,7 @@ describe('MyExpensesPage', () => {
     });
   });
 
-  it('addTransactionsToReport(): should show loader call reportService and hide the loader', (done) => {
+  it('addTransactionsToReport(): should show loader call for spenderReportsService and hide the loader', (done) => {
     loaderService.showLoader.and.resolveTo();
     loaderService.hideLoader.and.resolveTo(true);
 

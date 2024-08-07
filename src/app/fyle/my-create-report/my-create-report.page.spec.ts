@@ -19,7 +19,6 @@ import {
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { RefinerService } from 'src/app/core/services/refiner.service';
-import { ReportService } from 'src/app/core/services/report.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
@@ -38,7 +37,6 @@ describe('MyCreateReportPage', () => {
   let fixture: ComponentFixture<MyCreateReportPage>;
   let transactionService: jasmine.SpyObj<TransactionService>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
-  let reportService: jasmine.SpyObj<ReportService>;
   let currencyService: jasmine.SpyObj<CurrencyService>;
   let loaderService: jasmine.SpyObj<LoaderService>;
   let router: jasmine.SpyObj<Router>;
@@ -52,11 +50,6 @@ describe('MyCreateReportPage', () => {
   beforeEach(waitForAsync(() => {
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['getAllExpenses']);
-    const reportServiceSpy = jasmine.createSpyObj('ReportService', [
-      'createDraft',
-      'addTransactions',
-      'getReportPurpose',
-    ]);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
@@ -95,10 +88,6 @@ describe('MyCreateReportPage', () => {
         {
           provide: TransactionService,
           useValue: transactionServiceSpy,
-        },
-        {
-          provide: ReportService,
-          useValue: reportServiceSpy,
         },
         {
           provide: CurrencyService,
@@ -140,7 +129,6 @@ describe('MyCreateReportPage', () => {
 
     activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
     transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
-    reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
