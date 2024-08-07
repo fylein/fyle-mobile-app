@@ -80,7 +80,7 @@ export class TrackingService {
       const eou = await this.authService.getEou();
       if (eou?.us && eou?.ou) {
         try {
-          const distinctId = mixpanel?.get_distinct_id();
+          const distinctId = mixpanel?.get_distinct_id() as string;
           if (distinctId !== eou.us.email) {
             mixpanel?.identify(eou.us.email);
             mixpanel?.people?.set({
