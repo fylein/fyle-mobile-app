@@ -4,7 +4,6 @@ import { LoaderService } from '../core/services/loader.service';
 import { AdvanceRequestService } from '../core/services/advance-request.service';
 import { AuthService } from '../core/services/auth.service';
 import { TransactionService } from '../core/services/transaction.service';
-import { ReportService } from '../core/services/report.service';
 import { EMPTY, catchError, filter, finalize, from, shareReplay, switchMap, map } from 'rxjs';
 import { DeepLinkService } from '../core/services/deep-link.service';
 import { ExpensesService } from '../core/services/platform/v1/spender/expenses.service';
@@ -24,7 +23,6 @@ export class DeepLinkRedirectionPage {
     private advanceRequestService: AdvanceRequestService,
     private transactionService: TransactionService,
     private authService: AuthService,
-    private reportService: ReportService,
     private deepLinkService: DeepLinkService,
     private expensesService: ExpensesService,
     private approverReportsService: ApproverReportsService,
@@ -40,7 +38,64 @@ export class DeepLinkRedirectionPage {
       this.redirectToExpenseModule();
     } else if (subModule === 'advReq') {
       this.redirectToAdvReqModule();
+    } else if (subModule === 'my_dashboard') {
+      this.redirectToDashboardModule();
     }
+  }
+
+  async redirectToDashboardModule(): Promise<void> {
+    const openSMSOptInDialog = this.activatedRoute.snapshot.params.openSMSOptInDialog as string;
+    const orgId = this.activatedRoute.snapshot.params.orgId as string;
+
+    const eou$ = from(this.loaderService.showLoader('Loading....')).pipe(
+      switchMap(() => from(this.authService.getEou())),
+      catchError(() => {
+        this.switchOrg();
+        return EMPTY;
+      }),
+      shareReplay(1)
+    );
+
+    // If orgId is the same as the current user orgId, then redirect to the dashboard page
+    eou$
+      .pipe(
+        filter((eou) => orgId === eou.ou.org_id),
+        finalize(() => from(this.loaderService.hideLoader()))
+      )
+      .subscribe({
+        next: () => {
+          this.router.navigate([
+            '/',
+            'enterprise',
+            'my_dashboard',
+            {
+              openSMSOptInDialog,
+            },
+          ]);
+        },
+        error: () => this.switchOrg(),
+      });
+
+    // If orgId is the diferent from the current user orgId, then redirect to switch org with orgId and openSMSOptInDialog
+    eou$
+      .pipe(
+        filter((eou) => orgId !== eou.ou.org_id),
+        finalize(() => from(this.loaderService.hideLoader()))
+      )
+      .subscribe({
+        next: () => {
+          this.router.navigate([
+            '/',
+            'auth',
+            'switch_org',
+            {
+              openSMSOptInDialog,
+              orgId,
+            },
+          ]);
+        },
+        error: () => this.switchOrg(),
+      });
   }
 
   async redirectToAdvReqModule(): Promise<void> {

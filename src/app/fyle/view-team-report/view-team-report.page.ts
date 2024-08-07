@@ -24,7 +24,6 @@ import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { PdfExport } from 'src/app/core/models/pdf-exports.model';
 import { EditReportNamePopoverComponent } from '../my-view-report/edit-report-name-popover/edit-report-name-popover.component';
 import { ExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
@@ -51,15 +50,11 @@ export class ViewTeamReportPage {
 
   expenses$: Observable<Expense[]>;
 
-  sharedWith$: Observable<string[]>;
-
   refreshApprovals$ = new Subject();
 
   permissions$: Observable<ReportPermissions>;
 
   hideAllExpenses = true;
-
-  sharedWithLimit = 3;
 
   canEdit$: Observable<boolean>;
 
@@ -308,15 +303,6 @@ export class ViewTeamReportPage {
         this.isReportReported = ['APPROVER_PENDING'].indexOf(report.state) > -1;
       }
     });
-
-    this.sharedWith$ = this.reportService.getExports(this.activatedRoute.snapshot.params.id as string).pipe(
-      map((pdfExports: { results: PdfExport[] }) =>
-        pdfExports.results
-          .sort((a, b) => (a.created_at < b.created_at ? 1 : b.created_at < a.created_at ? -1 : 0))
-          .map((pdfExport) => pdfExport.sent_to)
-          .filter((item, index, inputArray) => inputArray.indexOf(item) === index)
-      )
-    );
 
     this.expenses$ = this.expensesService.getReportExpenses(this.activatedRoute.snapshot.params.id as string).pipe(
       shareReplay(1),
