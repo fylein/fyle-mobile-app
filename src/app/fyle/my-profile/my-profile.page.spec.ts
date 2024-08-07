@@ -356,7 +356,7 @@ describe('MyProfilePage', () => {
       tick(500);
 
       expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
-      expect(authService.getEou).toHaveBeenCalledTimes(1);
+      expect(authService.refreshEou).toHaveBeenCalledTimes(1);
       expect(tokenService.getClusterDomain).toHaveBeenCalledTimes(1);
       expect(component.reset).toHaveBeenCalledTimes(1);
     }));
