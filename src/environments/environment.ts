@@ -17,6 +17,7 @@ export const environment = {
   LAUNCH_DARKLY_CLIENT_ID: '',
   LIVE_UPDATE_APP_VERSION: '',
   SMARTLOOK_API_KEY: '',
+  MIXPANEL_PROJECT_TOKEN: '',
 };
 
 /*
