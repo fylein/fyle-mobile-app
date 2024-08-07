@@ -28,6 +28,10 @@ import { PromoteOptInModalComponent } from 'src/app/shared/components/promote-op
 import { AuthService } from 'src/app/core/services/auth.service';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { DashboardState } from 'src/app/core/enums/dashboard-state.enum';
+import { FyOptInComponent } from 'src/app/shared/components/fy-opt-in/fy-opt-in.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -90,7 +94,9 @@ export class DashboardPage {
     private utilityService: UtilityService,
     private featureConfigService: FeatureConfigService,
     private modalProperties: ModalPropertiesService,
-    private authService: AuthService
+    private authService: AuthService,
+    private matSnackBar: MatSnackBar,
+    private snackbarProperties: SnackbarPropertiesService
   ) {}
 
   get displayedTaskCount(): number {
@@ -153,6 +159,26 @@ export class DashboardPage {
     );
   }
 
+  async openSMSOptInDialog(extendedOrgUser: ExtendedOrgUser): Promise<void> {
+    const optInModal = await this.modalController.create({
+      component: FyOptInComponent,
+      componentProps: {
+        extendedOrgUser,
+      },
+    });
+
+    return await optInModal.present();
+  }
+
+  showInfoToastMessage(message: string): void {
+    const panelClass = 'msb-info';
+    this.matSnackBar.openFromComponent(ToastMessageComponent, {
+      ...this.snackbarProperties.setSnackbarProperties('information', { message }),
+      panelClass,
+    });
+    this.trackingService.showToastMessage({ ToastContent: message });
+  }
+
   ionViewWillEnter(): void {
     this.setupNetworkWatcher();
     this.registerBackButtonAction();
@@ -170,10 +196,25 @@ export class DashboardPage {
     this.orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
     this.specialCategories$ = this.categoriesService.getMileageOrPerDiemCategories().pipe(shareReplay(1));
     this.homeCurrency$ = this.currencyService.getHomeCurrency().pipe(shareReplay(1));
-    this.eou$ = from(this.authService.getEou());
+    this.eou$ = from(this.authService.getEou()).pipe(shareReplay(1));
     this.isUserFromINCluster$ = from(this.utilityService.isUserFromINCluster());
 
     this.setShowOptInBanner();
+
+    const openSMSOptInDialog = this.activatedRoute.snapshot.params.openSMSOptInDialog as string;
+    if (openSMSOptInDialog === 'true') {
+      this.eou$
+        .pipe(
+          map((eou) => {
+            if (eou.ou.mobile_verified) {
+              this.showInfoToastMessage('You are already opted into text messaging!');
+            } else {
+              this.openSMSOptInDialog(eou);
+            }
+          })
+        )
+        .subscribe();
+    }
 
     forkJoin({
       orgSettings: this.orgSettings$,
