@@ -5,7 +5,6 @@ import { catchError, map } from 'rxjs/operators';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { CacheBuster, Cacheable } from 'ts-cacheable';
 import { OrgSettings } from '../models/org-settings.model';
-import { PdfExport } from '../models/pdf-exports.model';
 import { Report } from '../models/platform/v1/report.model';
 import { ReportAutoSubmissionDetails } from '../models/report-auto-submission-details.model';
 import { ReportPermission } from '../models/report-permission.model';
