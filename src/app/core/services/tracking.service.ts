@@ -6,7 +6,6 @@ import {
   ExpenseProperties,
   IdentifyProperties,
   SplittingExpenseProperties,
-  TrackingMethods,
   PolicyCorrectionProperties,
   AddAttachmentProperties,
   CommentHistoryActionProperties,
@@ -56,10 +55,6 @@ export class TrackingService {
       });
       mixpanel?.reset();
     } catch (e) {}
-  }
-
-  get tracking(): TrackingMethods {
-    return (window as typeof window & { analytics: TrackingMethods }).analytics;
   }
 
   async updateIdentity(): Promise<void> {
