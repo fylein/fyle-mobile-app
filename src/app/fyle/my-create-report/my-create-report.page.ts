@@ -7,7 +7,6 @@ import { Expense } from 'src/app/core/models/expense.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { RefinerService } from 'src/app/core/services/refiner.service';
-import { ReportService } from 'src/app/core/services/report.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { StorageService } from '../../core/services/storage.service';
 import { TrackingService } from '../../core/services/tracking.service';
