@@ -5,6 +5,7 @@ import { CommuteDetails } from 'src/app/core/models/platform/v1/commute-details.
 import { CommuteDetailsResponse } from 'src/app/core/models/platform/commute-details-response.model';
 import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
+import { PlatformEmployee } from 'src/app/core/models/platform/platform-employee.model';
 
 @Injectable({
   providedIn: 'root',
@@ -26,5 +27,9 @@ export class EmployeesService {
         commute_details: commuteDetails,
       },
     });
+  }
+
+  getByParams(params: Partial<PlatformEmployee>): Observable<PlatformApiResponse<PlatformEmployee>> {
+    return this.spenderService.get(`/employees`, { params });
   }
 }
