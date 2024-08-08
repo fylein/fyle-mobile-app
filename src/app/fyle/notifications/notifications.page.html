@@ -5,7 +5,7 @@
         <mat-icon>keyboard_backspace</mat-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title class="notifications--title" mode="md">Notifications</ion-title>
+    <ion-title class="notifications--title" mode="md">Email Notifications</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -36,7 +36,6 @@
                     [checked]="isAllSelected.emailEvents"
                     (change)="toggleAllSelected('email')"
                   ></mat-checkbox>
-                  <mat-icon svgIcon="envelope" class="notifications--notif-type-icon"></mat-icon>
                 </ion-col>
               </ion-row>
             </ion-grid>
