@@ -2,7 +2,6 @@ import { Component, OnInit, ViewChild, ElementRef, EventEmitter } from '@angular
 import { Observable, BehaviorSubject, fromEvent, noop, concat, Subject, from } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { ReportService } from 'src/app/core/services/report.service';
 import { ModalController } from '@ionic/angular';
 import { DateService } from 'src/app/core/services/date.service';
 import { ActivatedRoute, Params, Router } from '@angular/router';
@@ -91,7 +90,6 @@ export class TeamReportsPage implements OnInit {
   constructor(
     private networkService: NetworkService,
     private loaderService: LoaderService,
-    private reportService: ReportService,
     private modalController: ModalController,
     private dateService: DateService,
     private router: Router,

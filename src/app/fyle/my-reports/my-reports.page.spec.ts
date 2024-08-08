@@ -110,12 +110,7 @@ describe('MyReportsPage', () => {
   beforeEach(waitForAsync(() => {
     const tasksServiceSpy = jasmine.createSpyObj('TasksService', ['getReportsTaskCount']);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
-    const reportServiceSpy = jasmine.createSpyObj('ReportService', [
-      'getMyReportsCount',
-      'getMyReports',
-      'clearTransactionCache',
-      'delete',
-    ]);
+    const reportServiceSpy = jasmine.createSpyObj('ReportService', ['clearTransactionCache']);
     const apiV2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['extendQueryParamsForTextSearch']);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseStats']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
@@ -215,7 +210,6 @@ describe('MyReportsPage', () => {
     apiV2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
-    reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
     dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;

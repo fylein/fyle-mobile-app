@@ -6,7 +6,6 @@ import { FileService } from 'src/app/core/services/file.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { SplitExpenseService } from 'src/app/core/services/split-expense.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { ReportService } from 'src/app/core/services/report.service';
 import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -186,7 +185,6 @@ describe('SplitExpensePage', () => {
   let navController: jasmine.SpyObj<NavController>;
   let router: jasmine.SpyObj<Router>;
   let transactionsOutboxService: jasmine.SpyObj<TransactionsOutboxService>;
-  let reportService: jasmine.SpyObj<ReportService>;
   let matSnackBar: jasmine.SpyObj<MatSnackBar>;
   let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
@@ -225,7 +223,6 @@ describe('SplitExpensePage', () => {
     const fileServiceSpy = jasmine.createSpyObj('FileService', ['findByTransactionId']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const transactionsOutboxServiceSpy = jasmine.createSpyObj('TransactionsOutboxService', ['fileUpload']);
-    const reportServiceSpy = jasmine.createSpyObj('ReportService', ['addTransactions']);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
@@ -282,7 +279,6 @@ describe('SplitExpensePage', () => {
         { provide: FileService, useValue: fileServiceSpy },
         { provide: Router, useValue: routerSpy },
         { provide: TransactionsOutboxService, useValue: transactionsOutboxServiceSpy },
-        { provide: ReportService, useValue: reportServiceSpy },
         { provide: MatSnackBar, useValue: matSnackBarSpy },
         { provide: SnackbarPropertiesService, useValue: snackbarPropertiesSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },
@@ -336,7 +332,6 @@ describe('SplitExpensePage', () => {
     fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     transactionsOutboxService = TestBed.inject(TransactionsOutboxService) as jasmine.SpyObj<TransactionsOutboxService>;
-    reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
     snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;

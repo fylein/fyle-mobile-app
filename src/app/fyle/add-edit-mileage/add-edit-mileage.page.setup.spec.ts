@@ -98,11 +98,7 @@ describe('AddEditMileagePage', () => {
       'getAllowedOrgCategoryIds',
       'getProjectCount',
     ]);
-    const reportServiceSpy = jasmine.createSpyObj('ReportService', [
-      'getAutoSubmissionReportName',
-      'getFilteredPendingReports',
-      'addTransactions',
-    ]);
+    const reportServiceSpy = jasmine.createSpyObj('ReportService', ['getAutoSubmissionReportName']);
     const platformSpenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', [
       'getAllReportsByParams',
       'ejectExpenses',
