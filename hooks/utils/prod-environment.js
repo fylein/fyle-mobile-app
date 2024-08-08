@@ -15,6 +15,7 @@ export const environment = {
   REFINER_NPS_FORM_ID: '${process.env.REFINER_NPS_FORM_ID}',
   LAUNCH_DARKLY_CLIENT_ID: '${process.env.LAUNCH_DARKLY_CLIENT_ID}',
   LIVE_UPDATE_APP_VERSION: '${process.env.LIVE_UPDATE_APP_VERSION}',
-  SMARTLOOK_API_KEY: '${process.env.SMARTLOOK_API_KEY}'
+  SMARTLOOK_API_KEY: '${process.env.SMARTLOOK_API_KEY}',
+  MIXPANEL_PROJECT_TOKEN: '${process.env.MIXPANEL_PROJECT_TOKEN}'
 };
 `
