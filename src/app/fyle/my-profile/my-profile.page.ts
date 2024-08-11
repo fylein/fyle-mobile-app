@@ -181,7 +181,7 @@ export class MyProfilePage {
 
   ionViewWillEnter(): void {
     this.setupNetworkWatcher();
-    this.eou$ = this.authService.refreshEou();
+    this.eou$ = from(this.authService.getEou());
     this.isUserFromINCluster$ = from(this.utilityService.isUserFromINCluster());
 
     this.reset();

@@ -81,7 +81,7 @@ export class AppVersionService {
     return forkJoin({
       appSupportDetails: this.isSupported(deviceInfo),
       lastLoggedInVersion: this.loginInfoService.getLastLoggedInVersion(),
-      eou: from(this.authService.getEou()),
+      eou: this.authService.refreshEou(),
     }).pipe(
       filter(
         (appVersionDetails: {
