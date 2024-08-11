@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { filter, map, switchMap } from 'rxjs/operators';
 import { ApiService } from './api.service';
-import { forkJoin, noop, of, from, Observable } from 'rxjs';
+import { forkJoin, noop, of, Observable } from 'rxjs';
 import { RouterApiService } from './router-api.service';
 import { AppVersion } from '../models/app_version.model';
 import { environment } from 'src/environments/environment';
