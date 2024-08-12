@@ -19,7 +19,7 @@ describe('AppVersionService', () => {
 
   beforeEach(() => {
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post']);
-    const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
+    const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou', 'refreshEou']);
     const routerApiServiceSpy = jasmine.createSpyObj('RouterApiService', ['post']);
     const loginInfoServiceSpy = jasmine.createSpyObj('LoginInfoService', ['getLastLoggedInVersion']);
     TestBed.configureTestingModule({
@@ -161,14 +161,14 @@ describe('AppVersionService', () => {
     beforeEach(() => {
       spyOn(appVersionService, 'isSupported').and.returnValue(of({ supported: true }));
       loginInfoService.getLastLoggedInVersion.and.returnValue(of('5.50.0'));
-      authService.getEou.and.resolveTo(apiEouRes);
+      authService.refreshEou.and.returnValue(of(apiEouRes));
     });
 
     it("getUserAppVersionDetails(): should get user's app version details", (done) => {
       appVersionService.getUserAppVersionDetails(extendedDeviceInfoMockData).subscribe(() => {
         expect(appVersionService.isSupported).toHaveBeenCalledOnceWith(extendedDeviceInfoMockData);
         expect(loginInfoService.getLastLoggedInVersion).toHaveBeenCalledTimes(1);
-        expect(authService.getEou).toHaveBeenCalledTimes(1);
+        expect(authService.refreshEou).toHaveBeenCalledTimes(1);
       });
       done();
     });
@@ -178,7 +178,7 @@ describe('AppVersionService', () => {
       appVersionService.getUserAppVersionDetails(extendedDeviceInfoMockData).subscribe(() => {
         expect(appVersionService.isSupported).toHaveBeenCalledOnceWith(extendedDeviceInfoMockData);
         expect(loginInfoService.getLastLoggedInVersion).toHaveBeenCalledTimes(1);
-        expect(authService.getEou).toHaveBeenCalledTimes(1);
+        expect(authService.refreshEou).toHaveBeenCalledTimes(1);
       });
       done();
     });
