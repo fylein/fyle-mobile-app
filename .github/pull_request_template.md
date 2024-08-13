@@ -1,11 +1,3 @@
-### Description
-copilot:summary
-
-copilot:poem
-
-### Walkthrough
-copilot:walkthrough
-
 ## Clickup
 Please add link here
 
