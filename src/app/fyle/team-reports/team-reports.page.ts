@@ -252,7 +252,11 @@ export class TeamReportsPage implements OnInit {
     params.pageNumber = this.currentPageNumber;
     this.loadData$.next(params);
     setTimeout(() => {
-      event?.target?.complete();
+      if (typeof event?.target?.complete === 'function') {
+        event.target.complete();
+      } else {
+        console.error('complete() method is not available on the target element');
+      }
     }, 1000);
   }
 
