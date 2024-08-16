@@ -9,6 +9,7 @@ import { OrgService } from 'src/app/core/services/org.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { globalCacheBusterNotifier } from 'ts-cacheable';
 import { User } from 'src/app/core/models/user.model';
+import { Delegator } from 'src/app/core/models/platform/delegator.model';
 
 @Component({
   selector: 'app-delegated-accounts',
@@ -84,14 +85,10 @@ export class DelegatedAccountsPage {
           distinctUntilChanged(),
           switchMap((searchText) =>
             delegatedAccList$.pipe(
-              map(({ delegatedAcc }) => this.orgUserService.excludeByStatus(delegatedAcc, 'DISABLED')),
-              map((delegatees: ExtendedOrgUser[]) =>
-                delegatees?.filter((delegatee: ExtendedOrgUser) =>
-                  Object.values(delegatee.us).some(
-                    (delegateeProp: User) =>
-                      delegateeProp &&
-                      delegateeProp.toString() &&
-                      delegateeProp.toString().toLowerCase().includes(searchText.toLowerCase())
+              map(({ delegatedAcc }) =>
+                delegatedAcc.filter((delegator: Delegator) =>
+                  Object.values(delegator).some((delegatorProp: string) =>
+                    delegatorProp?.toString().toLowerCase().includes(searchText.toLowerCase())
                   )
                 )
               )
