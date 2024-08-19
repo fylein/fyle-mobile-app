@@ -1,0 +1,30 @@
+<div class="dismiss-dialog">
+  <ion-content>
+    <ion-grid class="dismiss-dialog--grid">
+      <ion-row>
+        <ion-col>
+          <div class="dismiss-dialog--header">Dismiss duplicate expenses</div>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col>
+          <div class="dismiss-dialog--body">Are you sure you want to take this action?</div>
+        </ion-col>
+      </ion-row>
+      <ion-row class="dismiss-dialog--cta-container">
+        <ion-col size="6">
+          <div
+            [ngClass]="{ 'dismiss-dialog--cancel__disabled': dismissCallInProgress }"
+            class="dismiss-dialog--cancel"
+            (click)="cancel()"
+          >
+            No, go back
+          </div>
+        </ion-col>
+        <ion-col size="6">
+          <div class="dismiss-dialog--dismiss" (click)="dismiss()" appFormButtonValidation>Yes, Dismiss</div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </ion-content>
+</div>
