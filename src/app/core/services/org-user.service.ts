@@ -62,7 +62,7 @@ export class OrgUserService {
   @Cacheable()
   findDelegatedAccounts(): Observable<Delegator[]> {
     return this.spenderPlatformV1ApiService
-      .get<PlatformApiResponse<Delegator[]>>('/employee/delegators')
+      .get<PlatformApiResponse<Delegator[]>>('/employees/delegators')
       .pipe(map((response) => response.data));
   }
 
