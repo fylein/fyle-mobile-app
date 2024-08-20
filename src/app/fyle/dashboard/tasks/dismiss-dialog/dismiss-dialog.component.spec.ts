@@ -59,7 +59,7 @@ describe('DismissDialogComponent', () => {
   });
 
   describe('dismiss():', () => {
-    it('should dismiss item', (done) => {
+    it('should dismiss expense', (done) => {
       popoverController.dismiss.and.callThrough();
       component.dismissCallInProgress = false;
       component.dismissMethod = dismissMethod;
@@ -70,7 +70,7 @@ describe('DismissDialogComponent', () => {
       done();
     });
 
-    it('should not dismiss item if dismiss method throws error', (done) => {
+    it('should not dismiss expenses if dismiss method throws error', (done) => {
       popoverController.dismiss.and.callThrough();
       component.dismissCallInProgress = false;
       component.dismissMethod = errMethod;
