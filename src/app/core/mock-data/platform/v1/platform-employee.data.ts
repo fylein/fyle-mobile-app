@@ -1,8 +1,9 @@
+import deepFreeze from 'deep-freeze-strict';
 import { DelegationType } from 'src/app/core/models/platform/delegation-type.enum';
 import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
 import { PlatformEmployee } from 'src/app/core/models/platform/platform-employee.model';
 
-export const platformEmployeeData: PlatformEmployee = {
+export const platformEmployeeData: PlatformEmployee = deepFreeze({
   code: null,
   department: {
     code: null,
@@ -31,16 +32,16 @@ export const platformEmployeeData: PlatformEmployee = {
       end_at: null,
     },
   ],
-};
+});
 
-export const platformEmployeeResponse: PlatformApiResponse<PlatformEmployee> = {
+export const platformEmployeeResponse: PlatformApiResponse<PlatformEmployee> = deepFreeze({
   count: 1,
   offset: 10,
   data: platformEmployeeData,
-};
+});
 
-export const platformEmployeeEmptyResponse: PlatformApiResponse<PlatformEmployee> = {
+export const platformEmployeeEmptyResponse: PlatformApiResponse<PlatformEmployee> = deepFreeze({
   count: 1,
   offset: 10,
   data: null,
-};
+});
