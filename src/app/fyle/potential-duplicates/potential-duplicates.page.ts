@@ -10,7 +10,9 @@ import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expen
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { DismissDialogComponent } from '../dashboard/tasks/dismiss-dialog/dismiss-dialog.component';
 import { PopoverController } from '@ionic/angular';
+import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
 
+// eslint-disable-next-line
 type Expenses = Expense[];
 
 @Component({
@@ -118,15 +120,15 @@ export class PotentialDuplicatesPage {
       cssClass: 'dismiss-dialog',
       backdropDismiss: false,
       componentProps: {
-        dismissMethod: this.dismissDuplicates(duplicateExpenseIds, targetExpenseIds),
+        dismissMethod: () => this.dismissDuplicates(duplicateExpenseIds, targetExpenseIds),
       },
     });
 
     await popover.present();
 
-    const { data } = await popover.onDidDismiss();
+    const popoverResponse = (await popover.onDidDismiss()) as OverlayResponse<{ status: string }>;
 
-    if (data && data.status === 'success') {
+    if (popoverResponse.data?.status === 'success') {
       this.trackingService.dismissedIndividualExpenses();
       this.showDismissedSuccessToast();
       this.duplicateSetData[this.selectedSet] = this.duplicateSetData[this.selectedSet].filter(
@@ -146,15 +148,15 @@ export class PotentialDuplicatesPage {
       cssClass: 'dismiss-dialog',
       backdropDismiss: false,
       componentProps: {
-        dismissMethod: this.dismissDuplicates(expenseIds, expenseIds),
+        dismissMethod: () => this.dismissDuplicates(expenseIds, expenseIds),
       },
     });
 
     await popover.present();
 
-    const { data } = await popover.onDidDismiss();
+    const popoverResponse = (await popover.onDidDismiss()) as OverlayResponse<{ status: string }>;
 
-    if (data && data.status === 'success') {
+    if (popoverResponse.data?.status === 'success') {
       if (this.selectedSet !== 0) {
         this.selectedSet--;
       }

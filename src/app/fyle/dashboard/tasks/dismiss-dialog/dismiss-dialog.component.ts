@@ -10,25 +10,28 @@ import { of } from 'rxjs';
   styleUrls: ['./dismiss-dialog.component.scss'],
 })
 export class DismissDialogComponent implements OnInit {
+  // eslint-disable-next-line
   @Input() dismissMethod: () => Observable<any>;
 
-  dismissCallInProgress = false;
+  dismissCallInProgress: boolean;
 
   constructor(private popoverController: PopoverController) {}
 
-  ngOnInit() {}
+  ngOnInit(): void {
+    this.dismissCallInProgress = false;
+  }
 
-  cancel() {
+  cancel(): void {
     if (!this.dismissCallInProgress) {
       this.popoverController.dismiss();
     }
   }
 
-  dismiss() {
+  dismiss(): void {
     this.dismissCallInProgress = true;
     this.dismissMethod()
       .pipe(
-        map((res) => ({ status: 'success' })),
+        map(() => ({ status: 'success' })),
         catchError(() =>
           of({
             status: 'error',
