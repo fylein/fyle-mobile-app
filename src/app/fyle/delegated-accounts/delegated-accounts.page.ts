@@ -20,7 +20,7 @@ import { EouApiResponse } from 'src/app/core/models/eou-api-response.model';
 export class DelegatedAccountsPage {
   @ViewChild('searchDelegatees') searchDelegatees: ElementRef<HTMLInputElement>;
 
-  delegatedAccList;
+  delegatedAccList = [];
 
   currentOrg;
 
