@@ -13,6 +13,7 @@ import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { OrgService } from 'src/app/core/services/org.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { DelegatedAccountsPage } from './delegated-accounts.page';
+import { delegatorData } from 'src/app/core/mock-data/platform/v1/delegator.data';
 
 describe('DelegatedAccountsPage', () => {
   let component: DelegatedAccountsPage;
@@ -132,21 +133,19 @@ describe('DelegatedAccountsPage', () => {
       component.searchDelegatees = getElementRef(fixture, '.delegated--search-input');
       const input = component.searchDelegatees.nativeElement as HTMLInputElement;
       activatedRoute.snapshot.params.switchToOwn = null;
-      orgUserService.findDelegatedAccounts.and.returnValue(of([apiEouRes, eouRes2, eouRes3]));
+      orgUserService.findDelegatedAccounts.and.returnValue(of([delegatorData]));
       orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
-      orgUserService.excludeByStatus.and.returnValue([eouRes2, eouRes3]);
 
       component.ionViewWillEnter();
       tick(500);
 
-      input.value = 'ajain@fyle.in';
+      input.value = 'test@mail.com';
       input.dispatchEvent(new Event('keyup'));
       tick(500);
 
-      expect(component.delegatedAccList).toEqual([eouRes2, eouRes3]);
+      expect(component.delegatedAccList).toEqual([delegatorData]);
       expect(orgUserService.findDelegatedAccounts).toHaveBeenCalledTimes(1);
       expect(orgService.getCurrentOrg).toHaveBeenCalledTimes(1);
-      expect(orgUserService.excludeByStatus).toHaveBeenCalledWith([apiEouRes, eouRes2, eouRes3], 'DISABLED');
     }));
 
     it('should set delegatee acc list to empty array if no accounts are provided', fakeAsync(() => {
@@ -167,7 +166,6 @@ describe('DelegatedAccountsPage', () => {
       expect(component.delegatedAccList).toEqual([]);
       expect(orgUserService.findDelegatedAccounts).toHaveBeenCalledTimes(1);
       expect(orgService.getCurrentOrg).toHaveBeenCalledTimes(1);
-      expect(orgUserService.excludeByStatus).toHaveBeenCalledWith([], 'DISABLED');
     }));
   });
 });

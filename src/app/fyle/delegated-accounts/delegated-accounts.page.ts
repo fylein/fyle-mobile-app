@@ -8,7 +8,6 @@ import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { OrgService } from 'src/app/core/services/org.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { globalCacheBusterNotifier } from 'ts-cacheable';
-import { User } from 'src/app/core/models/user.model';
 import { Delegator } from 'src/app/core/models/platform/delegator.model';
 
 @Component({

@@ -33,6 +33,7 @@ import {
   getSecondarySidemenuOptionsRes1,
   setSideMenuRes,
 } from 'src/app/core/mock-data/sidemenu.data';
+import { delegatorData } from 'src/app/core/mock-data/platform/v1/delegator.data';
 
 describe('SidemenuComponent', () => {
   let component: SidemenuComponent;
@@ -509,16 +510,12 @@ describe('SidemenuComponent', () => {
       orgService.getPrimaryOrg.and.returnValue(of(orgData1[0]));
       orgSettingsService.get.and.returnValue(of(orgSettingsRes));
       orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
-      orgUserService.findDelegatedAccounts.and.returnValue(of([currentEouRes]));
+      orgUserService.findDelegatedAccounts.and.returnValue(of([delegatorData]));
       deviceService.getDeviceInfo.and.returnValue(of(extendedDeviceInfoMockData));
       orgUserService.isSwitchedToDelegator.and.resolveTo(false);
       orgUserService.getCurrent.and.returnValue(of(currentEouRes));
 
       sidemenuService.getAllowedActions.and.returnValue(of(sidemenuAllowedActions));
-
-      const status = 'DISABLED';
-      const eousFiltered = eouListWithDisabledUser.filter((eou) => status.indexOf(eou.ou.status) === -1);
-      orgUserService.excludeByStatus.and.returnValue(eousFiltered);
 
       component.showSideMenuOnline();
       tick(500);
@@ -531,7 +528,6 @@ describe('SidemenuComponent', () => {
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
       expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
       expect(orgUserService.findDelegatedAccounts).toHaveBeenCalledTimes(1);
-      expect(orgUserService.excludeByStatus).toHaveBeenCalledOnceWith([currentEouRes], 'DISABLED');
       expect(deviceService.getDeviceInfo).toHaveBeenCalledTimes(1);
     }));
   });
