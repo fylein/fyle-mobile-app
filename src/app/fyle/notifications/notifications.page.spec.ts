@@ -21,6 +21,7 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
 import { NotificationsPage } from './notifications.page';
+import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
 
 export class NavMock {
   public navigateBack: Function = (url: string | any[], options: any) => {};
@@ -33,6 +34,7 @@ describe('NotificationsPage', () => {
   let fixture: ComponentFixture<NotificationsPage>;
   let authService: jasmine.SpyObj<AuthService>;
   let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
+  let employeesService: jasmine.SpyObj<EmployeesService>;
   let fb: FormBuilder;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let router: jasmine.SpyObj<Router>;
@@ -46,6 +48,7 @@ describe('NotificationsPage', () => {
       'get',
       'getNotificationEvents',
     ]);
+    const employeesServiceSpy = jasmine.createSpyObj('EmployeesService', ['getByParams']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
@@ -61,6 +64,10 @@ describe('NotificationsPage', () => {
         {
           provide: OrgUserSettingsService,
           useValue: orgUserSettingsServiceSpy,
+        },
+        {
+          provide: EmployeesService,
+          useValue: employeesServiceSpy,
         },
         {
           provide: OrgSettingsService,
@@ -83,6 +90,7 @@ describe('NotificationsPage', () => {
 
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
+    employeesService = TestBed.inject(EmployeesService) as jasmine.SpyObj<EmployeesService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
@@ -95,6 +103,7 @@ describe('NotificationsPage', () => {
     });
 
     orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+    employeesService.getByParams.and.returnValue(of(null));
     authService.getEou.and.resolveTo(apiEouRes);
     orgSettingsService.get.and.returnValue(of(orgSettingsData));
     orgUserSettingsService.getNotificationEvents.and.returnValue(of(notificationEventsData));
