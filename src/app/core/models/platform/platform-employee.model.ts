@@ -1,4 +1,5 @@
 import { User } from '../user.model';
+import { Delegatee } from './delegatee.model';
 import { Department } from './v1/department.model';
 
 export interface PlatformEmployee {
@@ -9,4 +10,5 @@ export interface PlatformEmployee {
   department?: Department;
   department_id?: string;
   org_id: string;
+  delegatees?: Delegatee[];
 }

@@ -9,4 +9,5 @@ export interface EmployeeParams {
   order: string;
   limit: number;
   us_email?: string;
+  us_id: string;
 }

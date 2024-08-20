@@ -8,7 +8,9 @@ import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { OrgService } from 'src/app/core/services/org.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { globalCacheBusterNotifier } from 'ts-cacheable';
-import { User } from 'src/app/core/models/user.model';
+import { Delegator } from 'src/app/core/models/platform/delegator.model';
+import { DataTransformService } from 'src/app/core/services/data-transform.service';
+import { EouApiResponse } from 'src/app/core/models/eou-api-response.model';
 
 @Component({
   selector: 'app-delegated-accounts',
@@ -18,7 +20,7 @@ import { User } from 'src/app/core/models/user.model';
 export class DelegatedAccountsPage {
   @ViewChild('searchDelegatees') searchDelegatees: ElementRef<HTMLInputElement>;
 
-  delegatedAccList;
+  delegatedAccList = [];
 
   currentOrg;
 
@@ -27,16 +29,27 @@ export class DelegatedAccountsPage {
   constructor(
     private orgUserService: OrgUserService,
     private orgService: OrgService,
+    private dataTransformService: DataTransformService,
     private router: Router,
     private loaderService: LoaderService,
     private activatedRoute: ActivatedRoute,
     private recentLocalStorageItemsService: RecentLocalStorageItemsService
   ) {}
 
-  switchToDelegatee(eou: ExtendedOrgUser): void {
+  switchToDelegatee(delegator: Delegator): void {
+    const params = {
+      us_id: `eq.${delegator.user_id}`,
+    };
+
     from(this.loaderService.showLoader('Switching Account'))
       .pipe(
-        concatMap(() => {
+        concatMap(() => this.orgUserService.getEmployeesByParams(params)),
+        concatMap((employee) =>
+          this.orgUserService
+            .getUserById(employee.data[0].ou_id)
+            .pipe(map((res) => this.dataTransformService.unflatten<ExtendedOrgUser, EouApiResponse>(res)))
+        ),
+        concatMap((eou) => {
           globalCacheBusterNotifier.next();
           this.recentLocalStorageItemsService.clearRecentLocalStorageCache();
           return this.orgUserService.switchToDelegator(eou.ou);
@@ -84,14 +97,10 @@ export class DelegatedAccountsPage {
           distinctUntilChanged(),
           switchMap((searchText) =>
             delegatedAccList$.pipe(
-              map(({ delegatedAcc }) => this.orgUserService.excludeByStatus(delegatedAcc, 'DISABLED')),
-              map((delegatees: ExtendedOrgUser[]) =>
-                delegatees?.filter((delegatee: ExtendedOrgUser) =>
-                  Object.values(delegatee.us).some(
-                    (delegateeProp: User) =>
-                      delegateeProp &&
-                      delegateeProp.toString() &&
-                      delegateeProp.toString().toLowerCase().includes(searchText.toLowerCase())
+              map(({ delegatedAcc }) =>
+                delegatedAcc.filter((delegator: Delegator) =>
+                  Object.values(delegator).some((delegatorProp: string) =>
+                    delegatorProp?.toString().toLowerCase().includes(searchText.toLowerCase())
                   )
                 )
               )
