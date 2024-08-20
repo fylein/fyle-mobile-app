@@ -103,7 +103,7 @@ describe('NotificationsPage', () => {
     });
 
     orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
-    employeesService.getByParams.and.returnValue(of());
+    employeesService.getByParams.and.returnValue(of(null));
     authService.getEou.and.resolveTo(apiEouRes);
     orgSettingsService.get.and.returnValue(of(orgSettingsData));
     orgUserSettingsService.getNotificationEvents.and.returnValue(of(notificationEventsData));

@@ -6,7 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
 import { getElementRef } from 'src/app/core/dom-helpers';
-import { apiEouRes, eouRes2, eouRes3 } from 'src/app/core/mock-data/extended-org-user.data';
+import { apiEouRes, eouFlattended, eouRes2, eouUnFlattended } from 'src/app/core/mock-data/extended-org-user.data';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
@@ -14,6 +14,7 @@ import { OrgService } from 'src/app/core/services/org.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { DelegatedAccountsPage } from './delegated-accounts.page';
 import { delegatorData } from 'src/app/core/mock-data/platform/v1/delegator.data';
+import { employeesParamsRes } from 'src/app/core/test-data/org-user.service.spec.data';
 
 describe('DelegatedAccountsPage', () => {
   let component: DelegatedAccountsPage;
@@ -31,6 +32,8 @@ describe('DelegatedAccountsPage', () => {
       'switchToDelegatee',
       'findDelegatedAccounts',
       'excludeByStatus',
+      'getEmployeesByParams',
+      'getUserById',
     ]);
     const orgServiceSpy = jasmine.createSpyObj('OrgService', ['getCurrentOrg']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
@@ -100,15 +103,17 @@ describe('DelegatedAccountsPage', () => {
     loaderService.showLoader.and.resolveTo();
     loaderService.hideLoader.and.resolveTo();
     recentLocalStorageItemsService.clearRecentLocalStorageCache.and.returnValue(null);
-    orgUserService.switchToDelegator.and.returnValue(of(apiEouRes));
+    orgUserService.getEmployeesByParams.and.returnValue(of(employeesParamsRes));
+    orgUserService.getUserById.and.returnValue(of(eouFlattended));
+    orgUserService.switchToDelegator.and.returnValue(of(eouUnFlattended));
 
-    component.switchToDelegatee(eouRes2);
+    component.switchToDelegatee(delegatorData);
     tick(500);
 
     expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
     expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
     expect(recentLocalStorageItemsService.clearRecentLocalStorageCache).toHaveBeenCalledTimes(1);
-    expect(orgUserService.switchToDelegator).toHaveBeenCalledOnceWith(eouRes2.ou);
+    expect(orgUserService.switchToDelegator).toHaveBeenCalledOnceWith(eouUnFlattended.ou);
     expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard']);
   }));
 
