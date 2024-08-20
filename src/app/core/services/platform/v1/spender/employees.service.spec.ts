@@ -5,6 +5,11 @@ import { SpenderService } from './spender.service';
 import { commuteDetailsResponseData } from 'src/app/core/mock-data/commute-details-response.data';
 import { of } from 'rxjs';
 import { extendedOrgUserResponse } from 'src/app/core/test-data/tasks.service.spec.data';
+import {
+  platformEmployeeData,
+  platformEmployeeResponse,
+} from 'src/app/core/mock-data/platform/v1/platform-employee.data';
+import { PlatformEmployee } from 'src/app/core/models/platform/platform-employee.model';
 
 describe('EmployeesService', () => {
   let service: EmployeesService;
@@ -48,6 +53,17 @@ describe('EmployeesService', () => {
         },
       });
       done();
+    });
+  });
+
+  it('getByParams(): should get employees by params', () => {
+    spenderService.get.and.returnValue(of(platformEmployeeResponse));
+    const params: Partial<PlatformEmployee> = {
+      user_id: 'usJZ9bgfNB5n',
+    };
+
+    service.getByParams(params).subscribe((res) => {
+      expect(res).toBe(platformEmployeeResponse);
     });
   });
 });
