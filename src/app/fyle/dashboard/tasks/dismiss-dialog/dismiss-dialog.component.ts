@@ -10,8 +10,7 @@ import { of } from 'rxjs';
   styleUrls: ['./dismiss-dialog.component.scss'],
 })
 export class DismissDialogComponent implements OnInit {
-  // eslint-disable-next-line
-  @Input() dismissMethod: () => Observable<any>;
+  @Input() dismissMethod: () => Observable<{}>;
 
   dismissCallInProgress: boolean;
 
