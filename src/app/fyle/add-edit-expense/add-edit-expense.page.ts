@@ -3063,8 +3063,6 @@ export class AddEditExpensePage implements OnInit {
         orgSettings.ccc_draft_expense_settings &&
         orgSettings.ccc_draft_expense_settings.allowed &&
         orgSettings.ccc_draft_expense_settings.enabled;
-
-      // this.isProjectCategoryRestrictionsEnabled = orgSettings.advanced_projects.allowed && orgSettings.advanced_projects.enable_category_restriction;
     });
 
     this.setupNetworkWatcher();
