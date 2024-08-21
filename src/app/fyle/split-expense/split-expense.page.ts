@@ -501,7 +501,7 @@ export class SplitExpensePage {
           const splitForm = this.splitExpensesFormArray.at(index);
           this.setupCategoryAndProject(txn, splitForm.value as SplitExpense, isProjectCategoryRestrictionsEnabled);
         }
-        this.splitExpenseTxn = txns.map((txn) => txn);
+        this.splitExpenseTxn = txns;
         return of(this.splitExpenseTxn);
       })
     );
