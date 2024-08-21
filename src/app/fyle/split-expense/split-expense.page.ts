@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, NavController } from '@ionic/angular';
 import { isEmpty, isNumber } from 'lodash';
 import * as dayjs from 'dayjs';
-import { forkJoin, from, iif, Observable, of, throwError } from 'rxjs';
+import { combineLatest, forkJoin, from, iif, Observable, of, throwError } from 'rxjs';
 import { catchError, concatMap, finalize, map, switchMap } from 'rxjs/operators';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { DateService } from 'src/app/core/services/date.service';
@@ -78,6 +78,8 @@ export class SplitExpensePage {
   costCenters$: Observable<CostCenters[]>;
 
   isCorporateCardsEnabled$: Observable<boolean>;
+
+  isProjectCategoryRestrictionsEnabled$: Observable<boolean>;
 
   transaction: Transaction;
 
@@ -844,14 +846,30 @@ export class SplitExpensePage {
     // This method is used for setting the header of split expense page
     this.getSplitExpenseHeader();
 
+    this.isProjectCategoryRestrictionsEnabled$ = orgSettings$.pipe(
+      map(
+        (orgSettings) =>
+          orgSettings.advanced_projects.allowed && orgSettings.advanced_projects.enable_category_restriction
+      )
+    );
+
     this.categories$ = this.getActiveCategories().pipe(
       switchMap((activeCategories) =>
         this.launchDarklyService.getVariation('show_project_mapped_categories_in_split_expense', false).pipe(
           switchMap((showProjectMappedCategories) => {
             if (showProjectMappedCategories && this.transaction.project_id) {
-              return this.projectsService
-                .getbyId(this.transaction.project_id)
-                .pipe(map((project) => this.projectsService.getAllowedOrgCategoryIds(project, activeCategories)));
+              return combineLatest([
+                this.projectsService.getbyId(this.transaction.project_id),
+                this.isProjectCategoryRestrictionsEnabled$,
+              ]).pipe(
+                map(([project, isProjectCategoryRestrictionsEnabled]) =>
+                  this.projectsService.getAllowedOrgCategoryIds(
+                    project,
+                    activeCategories,
+                    isProjectCategoryRestrictionsEnabled
+                  )
+                )
+              );
             }
 
             return of(activeCategories);

@@ -164,6 +164,8 @@ export class AddEditPerDiemPage implements OnInit {
 
   isProjectsEnabled$: Observable<boolean>;
 
+  isProjectCategoryRestrictionsEnabled$: Observable<boolean>;
+
   isCostCentersEnabled$: Observable<boolean>;
 
   customInputs$: Observable<PerDiemCustomInputs[]>;
@@ -725,9 +727,13 @@ export class AddEditPerDiemPage implements OnInit {
       }),
       startWith(this.fg.controls.project.value),
       concatMap((project: ProjectV2) =>
-        this.subCategories$.pipe(
-          map((allActiveSubCategories: OrgCategory[]) =>
-            this.projectsService.getAllowedOrgCategoryIds(project, allActiveSubCategories)
+        combineLatest([this.subCategories$, this.isProjectCategoryRestrictionsEnabled$]).pipe(
+          map(([allActiveSubCategories, isProjectCategoryRestrictionsEnabled]) =>
+            this.projectsService.getAllowedOrgCategoryIds(
+              project,
+              allActiveSubCategories,
+              isProjectCategoryRestrictionsEnabled
+            )
           )
         )
       ),
@@ -1118,6 +1124,13 @@ export class AddEditPerDiemPage implements OnInit {
 
     this.isProjectsEnabled$ = orgSettings$.pipe(
       map((orgSettings) => orgSettings.projects && orgSettings.projects.enabled)
+    );
+
+    this.isProjectCategoryRestrictionsEnabled$ = orgSettings$.pipe(
+      map(
+        (orgSettings) =>
+          orgSettings.advanced_projects.allowed && orgSettings.advanced_projects.enable_category_restriction
+      )
     );
 
     this.customInputs$ = this.getCustomInputs();

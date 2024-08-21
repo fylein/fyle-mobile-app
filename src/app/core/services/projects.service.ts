@@ -105,9 +105,13 @@ export class ProjectsService {
     }
   }
 
-  getAllowedOrgCategoryIds(project: ProjectParams | ProjectV2, activeCategoryList: OrgCategory[]): OrgCategory[] {
+  getAllowedOrgCategoryIds(
+    project: ProjectParams | ProjectV2,
+    activeCategoryList: OrgCategory[],
+    isProjectCategoryRestrictionsEnabled: boolean
+  ): OrgCategory[] {
     let categoryList: OrgCategory[] = [];
-    if (project) {
+    if (project && isProjectCategoryRestrictionsEnabled) {
       categoryList = activeCategoryList.filter((category: OrgCategory) => {
         const catId = category.id;
         return project.project_org_category_ids.indexOf(catId as never) > -1;
