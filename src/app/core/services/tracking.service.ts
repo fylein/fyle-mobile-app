@@ -53,7 +53,6 @@ export class TrackingService {
         track_pageview: true,
         persistence: 'localStorage',
       });
-      mixpanel?.reset();
     } catch (e) {}
   }
 
@@ -78,10 +77,6 @@ export class TrackingService {
           const distinctId = mixpanel?.get_distinct_id() as string;
           if (distinctId !== eou.us.email) {
             mixpanel?.identify(eou.us.email);
-            mixpanel?.people?.set({
-              $name: eou.us.full_name,
-              $email: eou.us.email,
-            });
           }
 
           properties['User Name'] = eou.us.full_name;
@@ -138,9 +133,6 @@ export class TrackingService {
   onSignin(email: string, properties: { label?: string } = {}): void {
     try {
       mixpanel?.identify(email);
-      mixpanel?.people?.set({
-        $email: email,
-      });
     } catch (e) {}
 
     this.identityEmail = email;
