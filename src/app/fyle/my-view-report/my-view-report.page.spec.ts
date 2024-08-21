@@ -48,6 +48,7 @@ import {
   expectedReportsSinglePage,
   paidReportData,
   platformReportData,
+  reportExportResponse,
   sentBackReportData,
 } from 'src/app/core/mock-data/platform-report.data';
 import {
@@ -65,7 +66,7 @@ import { ShareReportComponent } from './share-report/share-report.component';
 import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-report-name-popover.component';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { orgSettingsPendingRestrictions } from 'src/app/core/mock-data/org-settings.data';
-import { TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
+import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
 
 describe('MyViewReportPage', () => {
   let component: MyViewReportPage;
@@ -89,18 +90,7 @@ describe('MyViewReportPage', () => {
   let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
 
   beforeEach(waitForAsync(() => {
-    const reportServiceSpy = jasmine.createSpyObj('ReportService', [
-      'getReport',
-      'getApproversByReportId',
-      'actions',
-      'updateReportDetails',
-      'updateReportPurpose',
-      'delete',
-      'submit',
-      'resubmit',
-      'downloadSummaryPdfUrl',
-      'addTransactions',
-    ]);
+    const reportServiceSpy = jasmine.createSpyObj('ReportService', ['updateReportPurpose']);
     const expnesesServicespy = jasmine.createSpyObj('ExpensesService', [
       'getReportExpenses',
       'getExpenses',
@@ -135,6 +125,8 @@ describe('MyViewReportPage', () => {
       'postComment',
       'submit',
       'resubmit',
+      'delete',
+      'export',
     ]);
 
     TestBed.configureTestingModule({
@@ -487,7 +479,7 @@ describe('MyViewReportPage', () => {
       mockExpenseData2.matched_corporate_card_transaction_ids = [];
       const mockExpenseData3 = cloneDeep(expenseData);
       mockExpenseData3.matched_corporate_card_transaction_ids = ['txcSFe6efB6R'];
-      mockExpenseData3.matched_corporate_card_transactions[0].status = TransactionStatus.PENDING;
+      mockExpenseData3.matched_corporate_card_transactions[0].status = ExpenseTransactionStatus.PENDING;
       expensesService.getAllExpenses.and.returnValue(of([expenseData, mockExpenseData2, mockExpenseData3]));
       orgSettingsService.get.and.returnValue(of(orgSettingsPendingRestrictions));
       fixture.detectChanges();
@@ -591,23 +583,23 @@ describe('MyViewReportPage', () => {
 
   describe('getDeleteReportPopupParams(): ', () => {
     it('should get delete report popup props', (done) => {
-      reportService.delete.and.returnValue(of(undefined));
+      spenderReportsService.delete.and.returnValue(of(undefined));
       const props = component.getDeleteReportPopupParams(paidReportData);
       props.componentProps.deleteMethod().subscribe(() => {
-        expect(reportService.delete).toHaveBeenCalledOnceWith(component.reportId);
+        expect(spenderReportsService.delete).toHaveBeenCalledOnceWith(component.reportId);
         expect(trackingService.deleteReport).toHaveBeenCalledTimes(1);
         done();
       });
     });
 
     it('should return null info message if number of txns is 0', (done) => {
-      reportService.delete.and.returnValue(of(undefined));
+      spenderReportsService.delete.and.returnValue(of(undefined));
       const props = component.getDeleteReportPopupParams(
         cloneDeep({ ...expectedReportsSinglePage[0], num_expenses: 0, state: 'DRAFT' })
       );
       expect(props.componentProps.infoMessage).toBeNull();
       props.componentProps.deleteMethod().subscribe(() => {
-        expect(reportService.delete).toHaveBeenCalledOnceWith(component.reportId);
+        expect(spenderReportsService.delete).toHaveBeenCalledOnceWith(component.reportId);
         expect(trackingService.deleteReport).toHaveBeenCalledTimes(1);
         done();
       });
@@ -857,7 +849,7 @@ describe('MyViewReportPage', () => {
       },
     });
     modalController.create.and.resolveTo(shareReportModalSpy);
-    reportService.downloadSummaryPdfUrl.and.returnValue(of(null));
+    spenderReportsService.export.and.returnValue(of(null));
     matSnackBar.openFromComponent.and.callThrough();
     modalProperties.getModalDefaultProperties.and.returnValue(shareReportModalProperties);
     snackbarProperties.setSnackbarProperties.and.returnValue(snackbarPropertiesData);
@@ -871,10 +863,7 @@ describe('MyViewReportPage', () => {
       ...shareReportModalProperties,
       cssClass: 'share-report-modal',
     });
-    expect(reportService.downloadSummaryPdfUrl).toHaveBeenCalledOnceWith({
-      report_ids: [component.reportId],
-      email: 'aj@fyle.com',
-    });
+    expect(spenderReportsService.export).toHaveBeenCalledOnceWith(component.reportId, 'aj@fyle.com');
     expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
       ...snackbarPropertiesData,
       panelClass: ['msb-success-with-report-btn'],

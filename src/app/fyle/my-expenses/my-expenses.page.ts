@@ -51,7 +51,6 @@ import { PlatformHandlerService } from 'src/app/core/services/platform-handler.s
 import { ExpensesService as SharedExpenseService } from 'src/app/core/services/platform/v1/shared/expenses.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { PopupService } from 'src/app/core/services/popup.service';
-import { ReportService } from 'src/app/core/services/report.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { TokenService } from 'src/app/core/services/token.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
@@ -215,7 +214,6 @@ export class MyExpensesPage implements OnInit {
     private tokenService: TokenService,
     private apiV2Service: ApiV2Service,
     private modalProperties: ModalPropertiesService,
-    private reportService: ReportService,
     private matBottomSheet: MatBottomSheet,
     private matSnackBar: MatSnackBar,
     private actionSheetController: ActionSheetController,
@@ -827,7 +825,7 @@ export class MyExpensesPage implements OnInit {
     this.loadExpenses$.next(params);
 
     setTimeout(() => {
-      event?.target?.complete();
+      event?.target?.complete?.();
     }, 1000);
   }
 

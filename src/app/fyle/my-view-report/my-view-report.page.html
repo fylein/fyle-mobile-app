@@ -33,7 +33,7 @@
             <ion-col size="8">
               <div class="view-reports--purpose-amount-block">
                 <div class="view-reports--purpose-amount-block__purpose">
-                  {{report.purpose | ellipsis: 35}}
+                  {{report.purpose | ellipsis: 15}}
                   <ion-icon
                     *ngIf="(canEdit$|async) && report && (report.state === 'DRAFT' || report.state === 'APPROVER_INQUIRY' || report.state === 'APPROVER_PENDING')"
                     [src]="'../../../../assets/svg/edit.svg'"

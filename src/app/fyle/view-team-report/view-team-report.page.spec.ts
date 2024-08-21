@@ -93,18 +93,7 @@ describe('ViewTeamReportPageV2', () => {
       'getExpenses',
       'getExpensesCount',
     ]);
-    const reportServiceSpy = jasmine.createSpyObj('ReportService', [
-      'getReport',
-      'getTeamReport',
-      'getExports',
-      'getApproversByReportId',
-      'actions',
-      'delete',
-      'approve',
-      'downloadSummaryPdfUrl',
-      'inquire',
-      'approverUpdateReportPurpose',
-    ]);
+    const reportServiceSpy = jasmine.createSpyObj('ReportService', ['approverUpdateReportPurpose']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
@@ -151,12 +140,12 @@ describe('ViewTeamReportPageV2', () => {
           },
         },
         {
-          provide: ReportService,
-          useValue: reportServiceSpy,
-        },
-        {
           provide: ApproverExpensesService,
           useValue: approverExpensesServiceSpy,
+        },
+        {
+          provide: ReportService,
+          useValue: reportServiceSpy,
         },
         {
           provide: AuthService,
@@ -229,10 +218,10 @@ describe('ViewTeamReportPageV2', () => {
     component = fixture.componentInstance;
 
     activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
-    reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
     approverExpensesService = TestBed.inject(ApproverExpensesService) as jasmine.SpyObj<ApproverExpensesService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
+    reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
@@ -338,11 +327,7 @@ describe('ViewTeamReportPageV2', () => {
       statusService.createStatusMap.and.returnValue(systemCommentsWithSt);
       approverReportsService.getReportById.and.returnValues(of(expectedReportsSinglePage[0]));
       const mockPdfExportData = cloneDeep(pdfExportData1);
-      reportService.getExports.and.returnValue(
-        of({
-          results: mockPdfExportData,
-        })
-      );
+
       approverExpensesService.getReportExpenses.and.returnValue(of(expenseResponseData2));
       approverReportsService.permissions.and.returnValue(of(apiReportPermissions));
 
@@ -384,16 +369,10 @@ describe('ViewTeamReportPageV2', () => {
 
       expect(component.systemEstatuses).toEqual(systemCommentsWithSt);
 
-      expect(reportService.getExports).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
-
       expect(approverExpensesService.getReportExpenses).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
 
       component.expensesAmountSum$.subscribe((res) => {
         expect(res).toEqual(20);
-      });
-
-      component.sharedWith$.subscribe((res) => {
-        expect(res).toEqual(['ajain@fyle.in', 'arjun.m@fyle.in']);
       });
 
       component.report$.subscribe((res) => {
@@ -438,11 +417,6 @@ describe('ViewTeamReportPageV2', () => {
       statusService.createStatusMap.and.returnValue(systemCommentsWithSt);
       approverReportsService.getReportById.and.returnValue(of(expectedReportsSinglePage[0]));
       const mockPdfExportData = cloneDeep(pdfExportData2);
-      reportService.getExports.and.returnValue(
-        of({
-          results: mockPdfExportData,
-        })
-      );
       approverExpensesService.getReportExpenses.and.returnValue(of(expenseResponseData2));
       approverReportsService.permissions.and.returnValue(of(apiReportPermissions));
       fixture.detectChanges();
@@ -486,16 +460,10 @@ describe('ViewTeamReportPageV2', () => {
 
       expect(component.userComments).toEqual(userComments);
 
-      expect(reportService.getExports).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
-
       expect(approverExpensesService.getReportExpenses).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
 
       component.expensesAmountSum$.subscribe((res) => {
         expect(res).toEqual(20);
-      });
-
-      component.sharedWith$.subscribe((res) => {
-        expect(res).toEqual(['arjun.m@fyle.in', 'ajain@fyle.in']);
       });
 
       component.permissions$.subscribe((res) => {
@@ -560,34 +528,6 @@ describe('ViewTeamReportPageV2', () => {
 
     component.toggleTooltip();
     expect(component.canShowTooltip).toBeTrue();
-  });
-
-  it('deleteReport(): should delete report', async () => {
-    popupService.showPopup.and.resolveTo('primary');
-    loaderService.showLoader.and.resolveTo();
-    reportService.delete.and.returnValue(of(undefined));
-    loaderService.hideLoader.and.resolveTo();
-
-    await component.deleteReport();
-
-    expect(popupService.showPopup).toHaveBeenCalledOnceWith({
-      header: 'Delete Report',
-      message: `
-        <p class="highlight-info">
-          On deleting this report, all the associated expenses will be moved to <strong>My Expenses</strong> list.
-        </p>
-        <p>
-          Are you sure, you want to delete this report?
-        </p>
-      `,
-      primaryCta: {
-        text: 'Delete Report',
-      },
-    });
-    expect(reportService.delete).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
-    expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-    expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'team_reports']);
   });
 
   describe('approveReport(): ', () => {
@@ -732,31 +672,6 @@ describe('ViewTeamReportPageV2', () => {
         },
       ]);
     });
-  });
-
-  it('shareReport(): should open share report modal', async () => {
-    const popoverSpy = jasmine.createSpyObj('popover', ['present', 'onWillDismiss']);
-    popoverSpy.onWillDismiss.and.resolveTo({
-      data: {
-        email: 'ajn@fyle.in',
-      },
-    });
-    popoverController.create.and.resolveTo(popoverSpy);
-
-    reportService.downloadSummaryPdfUrl.and.returnValue(of({ report_url: 'encodedcontent' }));
-
-    await component.shareReport(new Event('event'));
-    expect(popoverController.create).toHaveBeenCalledOnceWith({
-      component: ShareReportComponent,
-      cssClass: 'dialog-popover',
-    });
-    expect(reportService.downloadSummaryPdfUrl).toHaveBeenCalledOnceWith({
-      report_ids: [activatedRoute.snapshot.params.id],
-      email: 'ajn@fyle.in',
-    });
-    expect(loaderService.showLoader).toHaveBeenCalledOnceWith(
-      'We will send ajn@fyle.in a link to download the PDF <br> when it is generated and send you a copy.'
-    );
   });
 
   it('sendBack(): should open send back modal', async () => {

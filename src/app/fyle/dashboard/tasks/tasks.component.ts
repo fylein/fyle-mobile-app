@@ -36,7 +36,7 @@ import { Report, ReportState } from 'src/app/core/models/platform/v1/report.mode
 import { AuthService } from '../../../core/services/auth.service';
 import { OrgService } from 'src/app/core/services/org.service';
 import { FyOptInComponent } from 'src/app/shared/components/fy-opt-in/fy-opt-in.component';
-import { TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
+import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
 
 @Component({
   selector: 'app-tasks',
@@ -220,7 +220,7 @@ export class TasksComponent implements OnInit {
       this.loadData$.next(this.loadData$.getValue());
       if (event) {
         setTimeout(() => {
-          event.target?.complete();
+          event.target?.complete?.();
         }, 1500);
       }
     });
@@ -642,7 +642,7 @@ export class TasksComponent implements OnInit {
             expenses
               .filter((expense) => {
                 if (filterPendingTxn && expense.matched_corporate_card_transaction_ids.length > 0) {
-                  return expense.matched_corporate_card_transactions[0].status !== TransactionStatus.PENDING;
+                  return expense.matched_corporate_card_transactions[0].status !== ExpenseTransactionStatus.PENDING;
                 } else {
                   return true;
                 }

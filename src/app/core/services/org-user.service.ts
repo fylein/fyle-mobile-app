@@ -17,8 +17,8 @@ import { JwtHelperService } from './jwt-helper.service';
 import { TokenService } from './token.service';
 import { TrackingService } from './tracking.service';
 import { AccessTokenData } from '../models/access-token-data.model';
-import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { Delegator } from '../models/platform/delegator.model';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 
 const orgUsersCacheBuster$ = new Subject<void>();
@@ -67,7 +67,7 @@ export class OrgUserService {
   @Cacheable()
   findDelegatedAccounts(): Observable<Delegator[]> {
     return this.spenderPlatformV1ApiService
-      .get<PlatformApiResponse<Delegator[]>>('/employee/delegators')
+      .get<PlatformApiResponse<Delegator[]>>('/employees/delegators')
       .pipe(map((response) => response.data));
   }
 

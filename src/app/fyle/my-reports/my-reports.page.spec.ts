@@ -110,12 +110,7 @@ describe('MyReportsPage', () => {
   beforeEach(waitForAsync(() => {
     const tasksServiceSpy = jasmine.createSpyObj('TasksService', ['getReportsTaskCount']);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
-    const reportServiceSpy = jasmine.createSpyObj('ReportService', [
-      'getMyReportsCount',
-      'getMyReports',
-      'clearTransactionCache',
-      'delete',
-    ]);
+    const reportServiceSpy = jasmine.createSpyObj('ReportService', ['clearTransactionCache']);
     const apiV2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['extendQueryParamsForTextSearch']);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseStats']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
@@ -215,7 +210,6 @@ describe('MyReportsPage', () => {
     apiV2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
-    reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
     dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
@@ -1499,67 +1493,6 @@ describe('MyReportsPage', () => {
       'my_view_report',
       { id: report.id, navigateBack: true },
     ]);
-  });
-
-  it('getDeleteReportPopoverParams(): should get delete report popup props', (done) => {
-    const result = component.getDeleteReportPopoverParams(expectedReportsSinglePage[0]);
-
-    reportService.delete.and.returnValue(of(undefined));
-
-    expect(result).toEqual({
-      component: FyDeleteDialogComponent,
-      cssClass: 'delete-dialog',
-      backdropDismiss: false,
-      componentProps: {
-        header: 'Delete Report',
-        body: 'Are you sure you want to delete this report?',
-        infoMessage: 'Deleting the report will not delete any of the expenses.',
-        deleteMethod: jasmine.any(Function),
-      },
-    });
-
-    result.componentProps.deleteMethod().subscribe(() => {
-      expect(reportService.delete).toHaveBeenCalledOnceWith(expectedReportsSinglePage[0].id);
-      done();
-    });
-  });
-
-  describe('onDeleteReportClick(): ', () => {
-    it('should present the popover in case if state is not amongst DRAFT, APPROVER_PENDING, APPROVER_INQUIRY', fakeAsync(() => {
-      const cannotDeleteReportPopOverSpy = jasmine.createSpyObj('cannotDeleteReportPopOver', [
-        'present',
-        'onWillDismiss',
-      ]);
-      popoverController.create.and.resolveTo(cannotDeleteReportPopOverSpy);
-      const mockReport = cloneDeep({ ...expectedReportsSinglePage[0], state: 'APPROVED' });
-
-      component.onDeleteReportClick(mockReport);
-      tick(200);
-
-      expect(popoverController.create).toHaveBeenCalledOnceWith(popoverControllerParams);
-    }));
-
-    it('should call the deleteReport and do a refresh if state consist any of DRAFT, APPROVER_PENDING, APPROVER_INQUIRY', fakeAsync(() => {
-      const deleteReportPopoverSpy = jasmine.createSpyObj('deleteReportPopover', ['present', 'onDidDismiss']);
-      deleteReportPopoverSpy.onDidDismiss.and.resolveTo({ data: { status: 'success' } });
-      popoverController.create.and.resolveTo(deleteReportPopoverSpy);
-      spyOn(component, 'doRefresh');
-      spyOn(component, 'getDeleteReportPopoverParams').and.returnValue(deletePopoverParamsRes);
-      reportService.delete.and.returnValue(of(null));
-      loaderService.showLoader.and.resolveTo(null);
-      loaderService.hideLoader.and.resolveTo(null);
-      reportService.delete.and.returnValue(of(null));
-
-      component.onDeleteReportClick(expectedReportsSinglePage[0]);
-      tick(200);
-
-      expect(popoverController.create).toHaveBeenCalledOnceWith(deletePopoverParamsRes);
-      expect(component.getDeleteReportPopoverParams).toHaveBeenCalledOnceWith(expectedReportsSinglePage[0]);
-      expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-      expect(trackingService.deleteReport).toHaveBeenCalledTimes(1);
-      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-      expect(component.doRefresh).toHaveBeenCalledTimes(1);
-    }));
   });
 
   it('onHomeClicked(): should navigate to home dashboard and track event', () => {

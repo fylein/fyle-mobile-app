@@ -4,7 +4,6 @@ import { ModalController, RefresherCustomEvent } from '@ionic/angular';
 import { TeamReportsPage } from './team-reports.page';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { ReportService } from 'src/app/core/services/report.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -46,7 +45,6 @@ export function TestCases2(getTestBed) {
     let fixture: ComponentFixture<TeamReportsPage>;
     let networkService: jasmine.SpyObj<NetworkService>;
     let loaderService: jasmine.SpyObj<LoaderService>;
-    let reportService: jasmine.SpyObj<ReportService>;
     let modalController: jasmine.SpyObj<ModalController>;
     let dateService: jasmine.SpyObj<DateService>;
     let router: jasmine.SpyObj<Router>;
@@ -65,7 +63,6 @@ export function TestCases2(getTestBed) {
       component = fixture.componentInstance;
       networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
       loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
-      reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
       modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
       dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
       router = TestBed.inject(Router) as jasmine.SpyObj<Router>;

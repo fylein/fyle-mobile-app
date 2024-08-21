@@ -20,7 +20,7 @@ import { StatusService } from 'src/app/core/services/status.service';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { cloneDeep } from 'lodash';
 import { RefinerService } from 'src/app/core/services/refiner.service';
-import { Expense, TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
+import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { ReportPageSegment } from 'src/app/core/enums/report-page-segment.enum';
@@ -37,6 +37,7 @@ import { Report, ReportState } from 'src/app/core/models/platform/v1/report.mode
 import { ReportPermissions } from 'src/app/core/models/report-permissions.model';
 import { ExtendedComment } from 'src/app/core/models/platform/v1/extended-comment.model';
 import { Comment } from 'src/app/core/models/platform/v1/comment.model';
+import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
 
 @Component({
   selector: 'app-my-view-report',
@@ -293,7 +294,7 @@ export class MyViewReportPage {
               if (filterPendingTxn) {
                 return expenses.filter((expense) => {
                   if (filterPendingTxn && expense.matched_corporate_card_transaction_ids.length > 0) {
-                    return expense.matched_corporate_card_transactions[0].status !== TransactionStatus.PENDING;
+                    return expense.matched_corporate_card_transactions[0].status !== ExpenseTransactionStatus.PENDING;
                   } else {
                     return true;
                   }
@@ -415,7 +416,7 @@ export class MyViewReportPage {
             ? null
             : 'Deleting the report will not delete any of the expenses.',
         deleteMethod: (): Observable<void> =>
-          this.reportService.delete(this.reportId).pipe(tap(() => this.trackingService.deleteReport())),
+          this.spenderReportsService.delete(this.reportId).pipe(tap(() => this.trackingService.deleteReport())),
       },
     };
   }
@@ -532,11 +533,7 @@ export class MyViewReportPage {
     const { data } = (await shareReportModal.onWillDismiss()) as { data: { email: string } };
 
     if (data && data.email) {
-      const params = {
-        report_ids: [this.reportId],
-        email: data.email,
-      };
-      this.reportService.downloadSummaryPdfUrl(params).subscribe(() => {
+      this.spenderReportsService.export(this.reportId, data.email).subscribe(() => {
         const message = `PDF download link has been emailed to ${data.email}`;
         this.matSnackBar.openFromComponent(ToastMessageComponent, {
           ...this.snackbarProperties.setSnackbarProperties('success', { message }),

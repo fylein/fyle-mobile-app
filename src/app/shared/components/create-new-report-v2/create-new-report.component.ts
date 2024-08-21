@@ -5,7 +5,6 @@ import { Observable, Subscription, of } from 'rxjs';
 import { finalize, map, switchMap, tap } from 'rxjs/operators';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpenseFieldsMap } from 'src/app/core/models/v1/expense-fields-map.model';
-import { ReportService } from 'src/app/core/services/report.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { RefinerService } from 'src/app/core/services/refiner.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -43,7 +42,6 @@ export class CreateNewReportComponent implements OnInit {
 
   constructor(
     private modalController: ModalController,
-    private reportService: ReportService,
     private trackingService: TrackingService,
     private refinerService: RefinerService,
     private currencyService: CurrencyService,

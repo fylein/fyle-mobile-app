@@ -7,15 +7,15 @@ import { Expense } from 'src/app/core/models/expense.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { RefinerService } from 'src/app/core/services/refiner.service';
-import { ReportService } from 'src/app/core/services/report.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { StorageService } from '../../core/services/storage.service';
 import { TrackingService } from '../../core/services/tracking.service';
-import { Expense as PlatformExpense, TransactionStatus } from '../../core/models/platform/v1/expense.model';
+import { Expense as PlatformExpense } from '../../core/models/platform/v1/expense.model';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { Report } from '../../core/models/platform/v1/report.model';
+import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
 @Component({
   selector: 'app-my-create-report',
   templateUrl: './my-create-report.page.html',
@@ -53,7 +53,6 @@ export class MyCreateReportPage implements OnInit {
   constructor(
     private transactionService: TransactionService,
     private activatedRoute: ActivatedRoute,
-    private reportService: ReportService,
     private currencyService: CurrencyService,
     private loaderService: LoaderService,
     private router: Router,
@@ -241,7 +240,7 @@ export class MyCreateReportPage implements OnInit {
               if (filterPendingTxn) {
                 return expenses.filter((expense) => {
                   if (filterPendingTxn && expense.matched_corporate_card_transaction_ids.length > 0) {
-                    return expense.matched_corporate_card_transactions[0].status !== TransactionStatus.PENDING;
+                    return expense.matched_corporate_card_transactions[0].status !== ExpenseTransactionStatus.PENDING;
                   } else {
                     return true;
                   }

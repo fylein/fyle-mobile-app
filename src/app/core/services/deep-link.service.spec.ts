@@ -163,6 +163,27 @@ describe('DeepLinkService', () => {
       ]);
     });
 
+    it('should navigate to the dashboard when the URI contains "/my_dashboard" along with advance request ID', () => {
+      const orgId = 'oroX1Q9TTEO';
+      const referrer = 'transactional_email';
+      const openSMSOptInDialog = true;
+
+      deepLinkService.redirect({
+        redirect_uri: `${baseURL}/my_dashboard?org_id=${orgId}&open_sms_dialog=${openSMSOptInDialog}&referrer=${referrer}`,
+      });
+
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'deep_link_redirection',
+        {
+          sub_module: 'my_dashboard',
+          openSMSOptInDialog,
+          orgId,
+          referrer,
+        },
+      ]);
+    });
+
     it('should redirect to deep link redirection page with correct orgId and txnId', () => {
       deepLinkService.redirect({
         redirect_uri: `${baseURL}/orOTDe765hQp/txMLI4Cc5zY5`,

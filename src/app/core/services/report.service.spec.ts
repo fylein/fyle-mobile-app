@@ -198,17 +198,6 @@ describe('ReportService', () => {
     });
   });
 
-  it('getExports(): should get export actions for a report', (done) => {
-    apiService.get.and.returnValue(of([]));
-
-    const reportID = 'rphLXGFVbDaJ';
-
-    reportService.getExports(reportID).subscribe(() => {
-      expect(apiService.get).toHaveBeenCalledOnceWith(`/reports/${reportID}/exports`);
-      done();
-    });
-  });
-
   describe('getAutoSubmissionReportName()', () => {
     it('should get auto submitted report name', (done) => {
       spyOn(reportService, 'getReportAutoSubmissionDetails').and.returnValue(of(apiReportAutoSubmissionDetails));
@@ -247,18 +236,6 @@ describe('ReportService', () => {
         });
         done();
       });
-    });
-  });
-
-  it('delete(): should delete a report', (done) => {
-    apiService.delete.and.returnValue(of(null));
-    spyOn(reportService, 'clearTransactionCache').and.returnValue(of(null));
-
-    const reportID = 'rpShFuVCUIXk';
-    reportService.delete(reportID).subscribe(() => {
-      expect(apiService.delete).toHaveBeenCalledOnceWith(`/reports/${reportID}`);
-      expect(reportService.clearTransactionCache).toHaveBeenCalledTimes(1);
-      done();
     });
   });
 
@@ -304,26 +281,6 @@ describe('ReportService', () => {
         );
         done();
       });
-    });
-  });
-
-  it('downloadSummaryPdfUrl(): allow a user to share the report', (done) => {
-    const data = {
-      report_ids: ['rp5eUkeNm9wB'],
-      email: 'jay.b@fyle.in',
-    };
-
-    const reportURL = {
-      report_url:
-        'https://fyle-storage-mumbai-3.s3.amazonaws.com/2023-01-22/orrjqbDbeP9p/reports/fiivx1vS2PR7.C_2023_01_R_42%2520-%25207%2520Jan%25202023%2520-%2520Abhishek%2520Jain.pdf?response-content-disposition=attachment%3B%20filename%3DC_2023_01_R_42%20-%207%20Jan%202023%20-%20Abhishek%20Jain.pdf&response-content-type=application%2Fpdf&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20230122T080023Z&X-Amz-SignedHeaders=host&X-Amz-Expires=518400&X-Amz-Credential=AKIA54Z3LIXTX6CFH4VG%2F20230122%2Fap-south-1%2Fs3%2Faws4_request&X-Amz-Signature=118a187917956a158589462bbe3a2d4b3f7bc755fba7587ea67e119a15590a28',
-    };
-
-    apiService.post.and.returnValue(of(reportURL));
-
-    reportService.downloadSummaryPdfUrl(data).subscribe((res) => {
-      expect(res).toEqual(reportURL);
-      expect(apiService.post).toHaveBeenCalledOnceWith('/reports/summary/download', data);
-      done();
     });
   });
 });
