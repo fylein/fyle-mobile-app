@@ -11,7 +11,6 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
 import { DismissDialogComponent } from '../dashboard/tasks/dismiss-dialog/dismiss-dialog.component';
 import { PopoverController } from '@ionic/angular';
 import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
-import { Expenses } from 'src/app/core/models/platform/v1/expenses.model';
 
 @Component({
   selector: 'app-potential-duplicates',
@@ -19,7 +18,7 @@ import { Expenses } from 'src/app/core/models/platform/v1/expenses.model';
   styleUrls: ['./potential-duplicates.page.scss'],
 })
 export class PotentialDuplicatesPage {
-  duplicateSets$: Observable<Expenses[]>;
+  duplicateSets$: Observable<Expense[][]>;
 
   loadData$ = new BehaviorSubject<void>(null);
 
@@ -27,7 +26,7 @@ export class PotentialDuplicatesPage {
 
   duplicateSetData: string[][];
 
-  duplicateExpenses: Expenses[];
+  duplicateExpenses: Expense[][];
 
   isLoading = true;
 
