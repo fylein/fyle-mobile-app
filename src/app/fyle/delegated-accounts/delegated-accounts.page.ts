@@ -39,13 +39,9 @@ export class DelegatedAccountsPage {
   ) {}
 
   switchToDelegatee(delegator: Delegator): void {
-    const params = {
-      us_id: `eq.${delegator.user_id}`,
-    };
-
     from(this.loaderService.showLoader('Switching Account'))
       .pipe(
-        concatMap(() => this.authService.getEou()),
+        concatMap(() => from(this.authService.getEou())),
         concatMap((eou) => {
           globalCacheBusterNotifier.next();
           this.recentLocalStorageItemsService.clearRecentLocalStorageCache();
