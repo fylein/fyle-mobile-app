@@ -30,7 +30,6 @@ export class DelegatedAccountsPage {
   constructor(
     private orgUserService: OrgUserService,
     private orgService: OrgService,
-    private dataTransformService: DataTransformService,
     private router: Router,
     private loaderService: LoaderService,
     private activatedRoute: ActivatedRoute,
