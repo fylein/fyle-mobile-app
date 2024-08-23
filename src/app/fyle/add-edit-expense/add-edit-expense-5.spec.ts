@@ -531,7 +531,6 @@ export function TestCases5(getTestBed) {
       }));
 
       it('should filter recentCategories based on project_org_category_ids when restrictions are enabled', fakeAsync(() => {
-        // Arrange
         component.isProjectCategoryRestrictionsEnabled$ = of(true);
         component.etxn$ = of(unflattenedTxnData);
         component.activeCategories$ = of(sortedCategory);
@@ -547,7 +546,6 @@ export function TestCases5(getTestBed) {
           projectWithRestrictions.project_org_category_ids.includes(category.value.id)
         );
 
-        // Act
         component.setupFilteredCategories();
         tick(500);
 
@@ -555,7 +553,6 @@ export function TestCases5(getTestBed) {
         fixture.detectChanges();
         tick(500);
 
-        // Assert
         expect(component.recentCategories).toEqual(expectedRecentCategories);
       }));
 

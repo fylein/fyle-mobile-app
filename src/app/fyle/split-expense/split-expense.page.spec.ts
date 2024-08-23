@@ -137,7 +137,7 @@ import { unflattenedAccount2Data, unflattenedAccount3Data } from 'src/app/core/t
 import { categorieListRes } from 'src/app/core/mock-data/org-category-list-item.data';
 import * as dayjs from 'dayjs';
 import { expenseList2 } from 'src/app/core/mock-data/expense.data';
-import { cloneDeep, split } from 'lodash';
+import { cloneDeep } from 'lodash';
 import {
   splitExpenseFormData1,
   splitExpenseFormData2,
