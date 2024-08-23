@@ -278,14 +278,10 @@ export class ExpensesService {
     filters: Partial<ExpenseFilters>
   ): Record<string, string | string[] | boolean> {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
-    if (filters.potentialDuplicates) {
-      if (filters.potentialDuplicates === 'YES') {
-        newQueryParamsCopy.is_duplicate_present = 'eq.true';
-      }
-
-      if (filters.potentialDuplicates === 'NO') {
-        newQueryParamsCopy.is_duplicate_present = 'eq.false';
-      }
+    if (filters.potentialDuplicates === 'YES') {
+      newQueryParamsCopy.is_duplicate_present = 'eq.true';
+    } else if (filters.potentialDuplicates === 'NO') {
+      newQueryParamsCopy.is_duplicate_present = 'eq.false';
     }
     return newQueryParamsCopy;
   }
