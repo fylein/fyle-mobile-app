@@ -171,6 +171,7 @@
   }
 
   &--category-icon-container {
+    max-width: 170px;
     width: 100%;
   }
 
@@ -182,6 +183,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    max-width: 126px;
   }
 
   &--icons {
@@ -201,6 +203,13 @@
       width: 16px;
       height: 16px;
       color: $brand-primary-light;
+    }
+
+    &__duplicate-icon {
+      width: 16px;
+      height: 16px;
+      margin-left: 4px;
+      color: $dark-yellow;
     }
   }
 
