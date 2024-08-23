@@ -273,6 +273,23 @@ export class ExpensesService {
     return newQueryParamsCopy;
   }
 
+  generatePotentialDuplicatesParams(
+    newQueryParams: Record<string, string | string[] | boolean>,
+    filters: Partial<ExpenseFilters>
+  ): Record<string, string | string[] | boolean> {
+    const newQueryParamsCopy = cloneDeep(newQueryParams);
+    if (filters.potentialDuplicates) {
+      if (filters.potentialDuplicates === 'YES') {
+        newQueryParamsCopy.is_duplicate_present = 'eq.true';
+      }
+
+      if (filters.potentialDuplicates === 'NO') {
+        newQueryParamsCopy.is_duplicate_present = 'eq.false';
+      }
+    }
+    return newQueryParamsCopy;
+  }
+
   generateStateFilters(
     newQueryParams: Record<string, string | string[] | boolean>,
     filters: Partial<ExpenseFilters>

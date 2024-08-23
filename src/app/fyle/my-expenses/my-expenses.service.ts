@@ -46,6 +46,12 @@ export class MyExpensesService {
       generatedFilters.receiptsAttached = <string>receiptAttachedFilter.value;
     }
 
+    const potentialDuplicatesFilter = selectedFilters.find((filter) => filter.name === 'Potential Duplicates');
+
+    if (potentialDuplicatesFilter) {
+      generatedFilters.potentialDuplicates = <string>potentialDuplicatesFilter.value;
+    }
+
     const expenseTypeFilter = selectedFilters.find((filter) => filter.name === 'Expense Type');
 
     if (expenseTypeFilter) {
@@ -200,6 +206,14 @@ export class MyExpensesService {
     });
   }
 
+  generatePotentialDuplicatesFilterPills(filterPills: FilterPill[], filter: Partial<ExpenseFilters>): void {
+    filterPills.push({
+      label: 'Potential Duplicates',
+      type: 'potentialDuplicates',
+      value: filter.potentialDuplicates.toLowerCase(),
+    });
+  }
+
   generateSplitExpenseFilterPills(filterPills: FilterPill[], filter: Partial<ExpenseFilters>): void {
     filterPills.push({
       label: 'Split Expense',
@@ -348,6 +362,20 @@ export class MyExpensesService {
         ],
       } as FilterOptions<string>,
       {
+        name: 'Potential Duplicates',
+        optionType: FilterOptionType.singleselect,
+        options: [
+          {
+            label: 'Yes',
+            value: 'YES',
+          },
+          {
+            label: 'No',
+            value: 'NO',
+          },
+        ],
+      } as FilterOptions<string>,
+      {
         name: 'Sort By',
         optionType: FilterOptionType.singleselect,
         options: [
@@ -408,6 +436,13 @@ export class MyExpensesService {
       generatedFilters.push({
         name: 'Receipts Attached',
         value: filter.receiptsAttached,
+      });
+    }
+
+    if (filter.potentialDuplicates) {
+      generatedFilters.push({
+        name: 'Potential Duplicates',
+        value: filter.potentialDuplicates,
       });
     }
 
