@@ -95,6 +95,7 @@ describe('FySelectProjectComponent', () => {
         defaultValue: component.defaultValue,
         recentlyUsed: component.recentlyUsed,
         label: component.label,
+        isProjectCategoryRestrictionsEnabled: component.isProjectCategoryRestrictionsEnabled,
       },
       mode: 'ios',
       cssClass: 'fy-modal',

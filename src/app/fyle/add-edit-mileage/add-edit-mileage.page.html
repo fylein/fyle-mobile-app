@@ -366,6 +366,7 @@
                             formControlName="project"
                             [validInParent]="fg.controls.project.valid"
                             [touchedInParent]="fg.controls.project.touched"
+                            [isProjectCategoryRestrictionsEnabled]="isProjectCategoryRestrictionsEnabled$ | async"
                           ></app-fy-select-project>
                         </div>
                       </ng-container>

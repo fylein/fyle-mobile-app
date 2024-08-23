@@ -813,6 +813,7 @@ export function TestCases5(getTestBed) {
     it('getRecentProjects(): should get recent projects', (done) => {
       component.activeCategories$ = of(sortedCategory);
       component.recentlyUsedValues$ = of(recentlyUsedRes);
+      component.isProjectCategoryRestrictionsEnabled$ = of(true);
       authService.getEou.and.resolveTo(apiEouRes);
       component.fg.controls.category.setValue(orgCategoryData);
       recentlyUsedItemsService.getRecentlyUsedProjects.and.returnValue(of(recentlyUsedProjectRes));
@@ -825,6 +826,7 @@ export function TestCases5(getTestBed) {
           recentValues: recentlyUsedRes,
           eou: apiEouRes,
           categoryIds: component.fg.controls.category.value && component.fg.controls.category.value.id,
+          isProjectCategoryRestrictionsEnabled: true,
           activeCategoryList: sortedCategory,
         });
         done();
