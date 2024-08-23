@@ -31,6 +31,7 @@ import {
   taxSettingsData,
   taxSettingsData2,
   orgSettingsParamsWithAdvanceWallet,
+  orgSettingsWithProjectCategoryRestrictions,
 } from 'src/app/core/mock-data/org-settings.data';
 import {
   orgUserSettingsData,
@@ -466,6 +467,8 @@ export function TestCases5(getTestBed) {
     });
 
     describe('setupFilteredCategories():', () => {
+      beforeEach(() => (component.isProjectCategoryRestrictionsEnabled$ = of(true)));
+
       it('should get filtered categories for a project', fakeAsync(() => {
         component.etxn$ = of(unflattenedTxnData);
         component.activeCategories$ = of(sortedCategory);
@@ -481,7 +484,11 @@ export function TestCases5(getTestBed) {
 
         expect(component.fg.controls.billable.value).toBeFalse();
         expect(projectsService.getbyId).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.project_id, sortedCategory);
-        expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledWith(apiV2ResponseMultiple[1], sortedCategory);
+        expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledWith(
+          apiV2ResponseMultiple[1],
+          sortedCategory,
+          true
+        );
       }));
 
       it('should get updated filtered categories for changing an existing project', fakeAsync(() => {
@@ -500,7 +507,11 @@ export function TestCases5(getTestBed) {
 
         expect(projectsService.getbyId).toHaveBeenCalledOnceWith(257528, sortedCategory);
         expect(component.fg.controls.billable.value).toBeFalse();
-        expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledWith(apiV2ResponseMultiple[1], sortedCategory);
+        expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledWith(
+          apiV2ResponseMultiple[1],
+          sortedCategory,
+          true
+        );
       }));
 
       it('should return null the expense does not have project id', fakeAsync(() => {
@@ -516,7 +527,58 @@ export function TestCases5(getTestBed) {
         tick(500);
 
         expect(component.fg.controls.billable.value).toBeFalse();
-        expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledWith(null, sortedCategory);
+        expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledWith(null, sortedCategory, true);
+      }));
+
+      it('should filter recentCategories based on project_org_category_ids when restrictions are enabled', fakeAsync(() => {
+        // Arrange
+        component.isProjectCategoryRestrictionsEnabled$ = of(true);
+        component.etxn$ = of(unflattenedTxnData);
+        component.activeCategories$ = of(sortedCategory);
+        component.recentCategoriesOriginal = recentUsedCategoriesRes;
+        projectsService.getbyId.and.returnValue(of(apiV2ResponseMultiple[0]));
+        projectsService.getAllowedOrgCategoryIds.and.returnValue(transformedOrgCategories);
+
+        const projectWithRestrictions = {
+          project_org_category_ids: [89469, 16576],
+        };
+
+        const expectedRecentCategories = recentUsedCategoriesRes.filter((category) =>
+          projectWithRestrictions.project_org_category_ids.includes(category.value.id)
+        );
+
+        // Act
+        component.setupFilteredCategories();
+        tick(500);
+
+        component.fg.controls.project.setValue(projectWithRestrictions);
+        fixture.detectChanges();
+        tick(500);
+
+        // Assert
+        expect(component.recentCategories).toEqual(expectedRecentCategories);
+      }));
+
+      it('should set recentCategories to undefined if recentCategoriesOriginal is not present when restrictions are enabled', fakeAsync(() => {
+        component.isProjectCategoryRestrictionsEnabled$ = of(true);
+        component.etxn$ = of(unflattenedTxnData);
+        component.activeCategories$ = of(sortedCategory);
+        component.recentCategoriesOriginal = null;
+        projectsService.getbyId.and.returnValue(of(apiV2ResponseMultiple[0]));
+        projectsService.getAllowedOrgCategoryIds.and.returnValue(transformedOrgCategories);
+
+        const projectWithRestrictions = {
+          project_org_category_ids: [89469, 16576],
+        };
+
+        component.setupFilteredCategories();
+        tick(500);
+
+        component.fg.controls.project.setValue(projectWithRestrictions);
+        fixture.detectChanges();
+        tick(500);
+
+        expect(component.recentCategories).toBeUndefined();
       }));
     });
 
@@ -1085,7 +1147,7 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'getSelectedCostCenters').and.returnValue(of(costCentersData[0]));
         spyOn(component, 'getReceiptCount').and.returnValue(of(1));
         currencyService.getHomeCurrency.and.returnValue(of('USD'));
-        orgSettingsService.get.and.returnValue(of(orgSettingsData));
+        orgSettingsService.get.and.returnValue(of(orgSettingsWithProjectCategoryRestrictions));
         customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
         loaderService.hideLoader.and.resolveTo();
         loaderService.showLoader.and.resolveTo();

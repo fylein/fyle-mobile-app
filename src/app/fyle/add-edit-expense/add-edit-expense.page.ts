@@ -1921,8 +1921,6 @@ export class AddEditExpensePage implements OnInit {
 
                   // Only if the most recent category is allowed for the auto-filled project, category field can be auto-filled
                   canAutofillCategory = isAllowedRecentCategories[0];
-                } else {
-                  canAutofillCategory = true;
                 }
               }
 

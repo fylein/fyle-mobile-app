@@ -274,13 +274,18 @@ describe('ProjectsService', () => {
   });
 
   describe('getAllowedOrgCategoryIds():', () => {
-    it('should category list after filter as per project passed', () => {
-      const result = projectsService.getAllowedOrgCategoryIds(testProjectV2, testActiveCategoryList);
+    it('should return category list after filter as per project passed and if isProjectCategoryRestrictionsEnabled is true', () => {
+      const result = projectsService.getAllowedOrgCategoryIds(testProjectV2, testActiveCategoryList, true);
       expect(result).toEqual(allowedActiveCategories);
     });
 
+    it('should return whole category list if project passed is restricted but isProjectCategoryRestrictionsEnabled is false', () => {
+      const result = projectsService.getAllowedOrgCategoryIds(testProjectV2, testActiveCategoryList, false);
+      expect(result).toEqual(testActiveCategoryList);
+    });
+
     it('should return whole category list if project passed is not present', () => {
-      const result = projectsService.getAllowedOrgCategoryIds(null, testActiveCategoryList);
+      const result = projectsService.getAllowedOrgCategoryIds(null, testActiveCategoryList, true);
       expect(result).toEqual(testActiveCategoryList);
     });
   });
