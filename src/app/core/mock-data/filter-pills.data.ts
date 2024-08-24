@@ -116,6 +116,12 @@ export const receiptsAttachedFilterPill: FilterPill = deepFreeze({
   value: 'yes',
 });
 
+export const potentialDuplicatesFilterPill: FilterPill = deepFreeze({
+  label: 'Potential duplicates',
+  type: 'potentialDuplicates',
+  value: 'yes',
+});
+
 export const dateFilterPill: FilterPill[] = deepFreeze([
   {
     label: 'Date',

@@ -11,6 +11,8 @@ import {
   expenseFiltersDataWoCards,
   expenseFiltersDataWoReceipts,
   expenseFiltersDataWoSplit,
+  expenseWithoutPotentialDuplicateFilterData,
+  expenseWithPotentialDuplicateFilterData,
 } from 'src/app/core/mock-data/expense-filters.data';
 import {
   apiExpenses1,
@@ -564,6 +566,24 @@ describe('ExpensesService', () => {
 
       expect(result).toEqual({
         file_ids: 'like.[]',
+      });
+    });
+  });
+
+  describe('generatePotentialDuplicatesParams():', () => {
+    it('should generate params for potential duplicates expenses ', () => {
+      const result = service.generatePotentialDuplicatesParams({}, expenseWithPotentialDuplicateFilterData);
+
+      expect(result).toEqual({
+        is_duplicate_present: 'eq.true',
+      });
+    });
+
+    it('should generate params no potential duplicate expenses', () => {
+      const result = service.generatePotentialDuplicatesParams({}, expenseWithoutPotentialDuplicateFilterData);
+
+      expect(result).toEqual({
+        is_duplicate_present: 'eq.false',
       });
     });
   });

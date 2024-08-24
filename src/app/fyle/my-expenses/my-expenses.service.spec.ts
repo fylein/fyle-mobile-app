@@ -6,12 +6,14 @@ import {
   expenseFiltersData4,
   expenseFiltersData5,
   expenseFiltersData6,
+  expenseWithPotentialDuplicateFilterData,
 } from 'src/app/core/mock-data/expense-filters.data';
 import {
   cardFilterPill,
   creditTxnFilterPill,
   expectedDateFilterPill,
   expectedFilterPill2,
+  potentialDuplicatesFilterPill,
   receiptsAttachedFilterPill,
   sortByAscFilterPill,
   sortByDateAscFilterPill,
@@ -238,6 +240,12 @@ describe('MyExpensesService', () => {
     const filterPill = [];
     myExpensesService.generateReceiptsAttachedFilterPills(filterPill, expenseFiltersData1);
     expect(filterPill).toEqual([receiptsAttachedFilterPill]);
+  });
+
+  it('generatePotentialDuplicatesFilterPills(): should add potential duplicates filter pill', () => {
+    const filterPill = [];
+    myExpensesService.generatePotentialDuplicatesFilterPills(filterPill, expenseWithPotentialDuplicateFilterData);
+    expect(filterPill).toEqual([potentialDuplicatesFilterPill]);
   });
 
   it('generateSplitExpenseFilterPills(): should add split expense filter pill', () => {

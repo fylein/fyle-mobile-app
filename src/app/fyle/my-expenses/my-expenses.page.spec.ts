@@ -41,6 +41,7 @@ import {
   expectedFilterPill1,
   expectedFilterPill2,
   filterTypeMappings,
+  potentialDuplicatesFilterPill,
   receiptsAttachedFilterPill,
   sortFilterPill,
   splitExpenseFilterPill,
@@ -236,6 +237,7 @@ describe('MyExpensesPage', () => {
       'generateSelectedFilters',
       'getFilters',
       'convertSelectedOptionsToExpenseFilters',
+      'generatePotentialDuplicatesFilterPills',
     ]);
     const tokenServiceSpy = jasmine.createSpyObj('TokenService', ['getClusterDomain']);
     const actionSheetControllerSpy = jasmine.createSpyObj('ActionSheetController', ['create']);
@@ -300,6 +302,7 @@ describe('MyExpensesPage', () => {
       'restrictPendingTransactionsEnabled',
       'doesExpenseHavePendingCardTransaction',
       'getReportableExpenses',
+      'generatePotentialDuplicatesParams',
     ]);
     const utilityServiceSpy = jasmine.createSpyObj('UtilityService', [
       'canShowOptInAfterExpenseCreation',
@@ -1549,6 +1552,9 @@ describe('MyExpensesPage', () => {
       myExpenseService.generateSplitExpenseFilterPills.and.callFake((filterPill, filters) => {
         filterPill.push(splitExpenseFilterPill);
       });
+      myExpenseService.generatePotentialDuplicatesFilterPills.and.callFake((filterPill, filters) => {
+        filterPill.push(potentialDuplicatesFilterPill);
+      });
     });
 
     it('should return filterPills based on the properties present in filters', () => {
@@ -1574,6 +1580,11 @@ describe('MyExpensesPage', () => {
         or: [],
       });
       sharedExpenseService.generateReceiptAttachedParams.and.returnValue({
+        'matched_corporate_card_transactions->0->corporate_card_number': 'in.(789)',
+        and: '(spent_at.gte.March,spent_at.lt.April)',
+        or: [],
+      });
+      sharedExpenseService.generatePotentialDuplicatesParams.and.returnValue({
         'matched_corporate_card_transactions->0->corporate_card_number': 'in.(789)',
         and: '(spent_at.gte.March,spent_at.lt.April)',
         or: [],
@@ -1607,6 +1618,14 @@ describe('MyExpensesPage', () => {
         component.filters
       );
       expect(sharedExpenseService.generateReceiptAttachedParams).toHaveBeenCalledOnceWith(
+        {
+          'matched_corporate_card_transactions->0->corporate_card_number': 'in.(789)',
+          and: '(spent_at.gte.March,spent_at.lt.April)',
+          or: [],
+        },
+        component.filters
+      );
+      expect(sharedExpenseService.generatePotentialDuplicatesParams).toHaveBeenCalledOnceWith(
         {
           'matched_corporate_card_transactions->0->corporate_card_number': 'in.(789)',
           and: '(spent_at.gte.March,spent_at.lt.April)',
@@ -1664,6 +1683,14 @@ describe('MyExpensesPage', () => {
         },
         component.filters
       );
+      expect(sharedExpenseService.generatePotentialDuplicatesParams).toHaveBeenCalledOnceWith(
+        {
+          'matched_corporate_card_transactions->0->corporate_card_number': 'in.(789)',
+          and: '(spent_at.gte.March,spent_at.lt.April)',
+          or: [],
+        },
+        component.filters
+      );
       expect(sharedExpenseService.generateStateFilters).toHaveBeenCalledOnceWith(
         {
           'matched_corporate_card_transactions->0->corporate_card_number': 'in.(789)',
@@ -1714,6 +1741,14 @@ describe('MyExpensesPage', () => {
         },
         component.filters
       );
+      expect(sharedExpenseService.generatePotentialDuplicatesParams).toHaveBeenCalledOnceWith(
+        {
+          'matched_corporate_card_transactions->0->corporate_card_number': 'in.(789)',
+          and: '(spent_at.gte.March,spent_at.lt.April)',
+          or: [],
+        },
+        component.filters
+      );
       expect(sharedExpenseService.generateStateFilters).toHaveBeenCalledOnceWith(
         {
           'matched_corporate_card_transactions->0->corporate_card_number': 'in.(789)',
@@ -1757,6 +1792,14 @@ describe('MyExpensesPage', () => {
         component.filters
       );
       expect(sharedExpenseService.generateReceiptAttachedParams).toHaveBeenCalledOnceWith(
+        {
+          'matched_corporate_card_transactions->0->corporate_card_number': 'in.(789)',
+          and: '(spent_at.gte.March,spent_at.lt.April)',
+          or: [],
+        },
+        component.filters
+      );
+      expect(sharedExpenseService.generatePotentialDuplicatesParams).toHaveBeenCalledOnceWith(
         {
           'matched_corporate_card_transactions->0->corporate_card_number': 'in.(789)',
           and: '(spent_at.gte.March,spent_at.lt.April)',
