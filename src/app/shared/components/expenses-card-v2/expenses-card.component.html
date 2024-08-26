@@ -188,6 +188,11 @@
                   class="expenses-card--icons__policy-violated-icon"
                   >error</mat-icon
                 >
+                <mat-icon
+                  *ngIf="expense.is_duplicate_present"
+                  class="expenses-card--icons__duplicate-icon"
+                  svgIcon="duplicate"
+                ></mat-icon>
                 <mat-icon *ngIf="expense.is_split" class="expenses-card--icons__split-icon" svgIcon="split"></mat-icon>
               </div>
             </div>
