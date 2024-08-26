@@ -1106,17 +1106,6 @@ describe('TransactionService', () => {
     });
   });
 
-  it('review(): should return transaction response on review', (done) => {
-    apiService.post.and.returnValue(of(null));
-    const transactionId = 'tx3qHxFNgRcZ';
-
-    transactionService.review(transactionId).subscribe((res) => {
-      expect(res).toBeNull();
-      expect(apiService.post).toHaveBeenCalledOnceWith('/transactions/' + transactionId + '/review');
-      done();
-    });
-  });
-
   it('uploadBase64(): should uploadBase64 and return file object response', (done) => {
     const transactionID = 'txdzGV1TZEg3';
     const fileName = '000.jpeg';

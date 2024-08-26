@@ -136,30 +136,6 @@ export class TransactionService {
   @Cacheable({
     cacheBusterObserver: expensesCacheBuster$,
   })
-
-  // TODO: Remove/Update method once we remove older my-expenses-page completely
-  getAllExpenses(config: Partial<{ order: string; queryParams: EtxnParams }>): Observable<Expense[]> {
-    return this.getMyExpensesCount(config.queryParams).pipe(
-      switchMap((count) => {
-        count = count > this.paginationSize ? count / this.paginationSize : 1;
-        return range(0, count);
-      }),
-      concatMap((page) =>
-        this.getMyExpenses({
-          offset: this.paginationSize * page,
-          limit: this.paginationSize,
-          queryParams: config.queryParams,
-          order: config.order,
-        })
-      ),
-      map((res) => res.data),
-      reduce((acc, curr) => acc.concat(curr), [] as Expense[])
-    );
-  }
-
-  @Cacheable({
-    cacheBusterObserver: expensesCacheBuster$,
-  })
   @CacheBuster({
     cacheBusterNotifier: expensesCacheBuster$,
   })
@@ -348,10 +324,6 @@ export class TransactionService {
     };
 
     return this.spenderPlatformV1ApiService.post('/corporate_card_transactions/match', { data: payload });
-  }
-
-  review(txnId: string): Observable<null> {
-    return this.apiService.post('/transactions/' + txnId + '/review');
   }
 
   getDefaultVehicleType(): Observable<string> {
