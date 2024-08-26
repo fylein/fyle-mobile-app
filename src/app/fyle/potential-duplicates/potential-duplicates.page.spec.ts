@@ -14,6 +14,8 @@ import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expen
 import { cloneDeep } from 'lodash';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { expenseDuplicateSet } from 'src/app/core/mock-data/platform/v1/expense-duplicate-sets.data';
+import { PopoverController } from '@ionic/angular';
+import { DismissDialogComponent } from '../dashboard/tasks/dismiss-dialog/dismiss-dialog.component';
 
 describe('PotentialDuplicatesPage', () => {
   let component: PotentialDuplicatesPage;
@@ -23,6 +25,7 @@ describe('PotentialDuplicatesPage', () => {
   let matSnackBar: jasmine.SpyObj<MatSnackBar>;
   let trackingService: jasmine.SpyObj<TrackingService>;
   let expensesService: jasmine.SpyObj<ExpensesService>;
+  let popoverController: jasmine.SpyObj<PopoverController>;
 
   beforeEach(waitForAsync(() => {
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
@@ -39,6 +42,7 @@ describe('PotentialDuplicatesPage', () => {
       'dismissDuplicates',
     ]);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
 
     TestBed.configureTestingModule({
       declarations: [PotentialDuplicatesPage],
@@ -68,6 +72,10 @@ describe('PotentialDuplicatesPage', () => {
           provide: OrgSettingsService,
           useValue: orgSettingsServiceSpy,
         },
+        {
+          provide: PopoverController,
+          useValue: popoverControllerSpy,
+        },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
@@ -81,6 +89,7 @@ describe('PotentialDuplicatesPage', () => {
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
+    popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
 
     component.loadData$ = new BehaviorSubject<void>(null);
     component.duplicateSets$ = of([]);
@@ -166,38 +175,125 @@ describe('PotentialDuplicatesPage', () => {
       expensesService.dismissDuplicates.and.returnValue(of(null));
     });
 
-    it('should dismiss a duplicate expense', () => {
-      component.dismiss(apiExpenses1[0]);
+    it('should dismiss a duplicate expense and show the dialog', async () => {
+      const popoverResponse = { data: { status: 'success' } };
+      const popoverSpy = jasmine.createSpyObj('Popover', ['present', 'onDidDismiss']);
+      popoverSpy.onDidDismiss.and.resolveTo(popoverResponse);
+      popoverController.create.and.resolveTo(popoverSpy);
 
-      expect(component.duplicateExpenses[0].length).toEqual(1);
-      expect(expensesService.dismissDuplicates).toHaveBeenCalledOnceWith(
-        ['txcSFe6efB6R', 'txDDLtRaflUW'],
-        ['txDDLtRaflUW']
-      );
-      expect(component.showDismissedSuccessToast).toHaveBeenCalledTimes(1);
+      await component.dismiss(apiExpenses1[0]);
+
+      expect(popoverController.create).toHaveBeenCalledWith({
+        component: DismissDialogComponent,
+        cssClass: 'dismiss-dialog',
+        backdropDismiss: false,
+        componentProps: {
+          dismissMethod: jasmine.any(Function),
+        },
+      });
+
+      expect(popoverSpy.present).toHaveBeenCalledTimes(1);
+      expect(popoverSpy.onDidDismiss).toHaveBeenCalledTimes(1);
+
+      if (popoverResponse.data?.status === 'success') {
+        expect(component.duplicateExpenses[0].length).toEqual(1);
+        expect(component.showDismissedSuccessToast).toHaveBeenCalledTimes(1);
+      }
+    });
+
+    it('should not dismiss a duplicate expense if popover is dismissed without success status', async () => {
+      const popoverResponse = { data: { status: 'error' } };
+      const popoverSpy = jasmine.createSpyObj('Popover', ['present', 'onDidDismiss']);
+      popoverSpy.onDidDismiss.and.resolveTo(popoverResponse);
+      popoverController.create.and.resolveTo(popoverSpy);
+
+      await component.dismiss(apiExpenses1[0]);
+
+      expect(popoverController.create).toHaveBeenCalledWith({
+        component: DismissDialogComponent,
+        cssClass: 'dismiss-dialog',
+        backdropDismiss: false,
+        componentProps: {
+          dismissMethod: jasmine.any(Function),
+        },
+      });
+
+      expect(popoverSpy.present).toHaveBeenCalledTimes(1);
+      expect(popoverSpy.onDidDismiss).toHaveBeenCalledTimes(1);
+      expect(component.duplicateExpenses[0].length).toEqual(2);
+      expect(component.showDismissedSuccessToast).not.toHaveBeenCalled();
     });
   });
 
   describe('dismissAll(): ', () => {
-    it('should dismiss all transactions', () => {
+    it('should dismiss all transactions and show the dialog', async () => {
       component.duplicateSetData = [['tx5fBcPBAxLv'], ['tx5fBcPBAxLv', 'tx3nHShG60zq']];
       component.selectedSet = 1;
+      const popoverResponse = { data: { status: 'success' } };
+
       expensesService.dismissDuplicates.and.returnValue(of(null));
       spyOn(component, 'showDismissedSuccessToast');
       spyOn(component.loadData$, 'next');
       expensesService.getExpenses.and.returnValue(of([apiExpenses1[0], expenseData]));
       component.duplicateSets$ = of([[apiExpenses1[0]], [expenseData]]);
 
-      component.dismissAll();
+      const popoverSpy = jasmine.createSpyObj('Popover', ['present', 'onDidDismiss']);
+      popoverSpy.onDidDismiss.and.resolveTo(popoverResponse);
+      popoverController.create.and.resolveTo(popoverSpy);
 
-      expect(expensesService.dismissDuplicates).toHaveBeenCalledOnceWith(
-        ['tx5fBcPBAxLv', 'tx3nHShG60zq'],
-        ['tx5fBcPBAxLv', 'tx3nHShG60zq']
-      );
-      expect(component.selectedSet).toEqual(0);
-      expect(trackingService.dismissedDuplicateSet).toHaveBeenCalledTimes(1);
-      expect(component.showDismissedSuccessToast).toHaveBeenCalledTimes(1);
-      expect(component.loadData$.next).toHaveBeenCalledTimes(1);
+      await component.dismissAll();
+
+      expect(popoverController.create).toHaveBeenCalledWith({
+        component: DismissDialogComponent,
+        cssClass: 'dismiss-dialog',
+        backdropDismiss: false,
+        componentProps: {
+          dismissMethod: jasmine.any(Function),
+        },
+      });
+
+      expect(popoverSpy.present).toHaveBeenCalledTimes(1);
+      expect(popoverSpy.onDidDismiss).toHaveBeenCalledTimes(1);
+
+      if (popoverResponse.data?.status === 'success') {
+        expect(component.selectedSet).toEqual(0);
+        expect(trackingService.dismissedDuplicateSet).toHaveBeenCalledTimes(1);
+        expect(component.showDismissedSuccessToast).toHaveBeenCalledTimes(1);
+        expect(component.loadData$.next).toHaveBeenCalledTimes(1);
+      }
+    });
+
+    it('should not perform actions if popover is dismissed without success status', async () => {
+      component.duplicateSetData = [['tx5fBcPBAxLv'], ['tx5fBcPBAxLv', 'tx3nHShG60zq']];
+      component.selectedSet = 1;
+      const popoverResponse = { data: { status: 'error' } };
+
+      spyOn(component, 'showDismissedSuccessToast');
+      spyOn(component.loadData$, 'next');
+      expensesService.getExpenses.and.returnValue(of([apiExpenses1[0], expenseData]));
+      component.duplicateSets$ = of([[apiExpenses1[0]], [expenseData]]);
+
+      const popoverSpy = jasmine.createSpyObj('Popover', ['present', 'onDidDismiss']);
+      popoverSpy.onDidDismiss.and.resolveTo(popoverResponse);
+      popoverController.create.and.resolveTo(popoverSpy);
+
+      await component.dismissAll();
+
+      expect(popoverController.create).toHaveBeenCalledWith({
+        component: DismissDialogComponent,
+        cssClass: 'dismiss-dialog',
+        backdropDismiss: false,
+        componentProps: {
+          dismissMethod: jasmine.any(Function),
+        },
+      });
+
+      expect(popoverSpy.present).toHaveBeenCalledTimes(1);
+      expect(popoverSpy.onDidDismiss).toHaveBeenCalledTimes(1);
+      expect(component.selectedSet).toEqual(1);
+      expect(trackingService.dismissedDuplicateSet).not.toHaveBeenCalled();
+      expect(component.showDismissedSuccessToast).not.toHaveBeenCalled();
+      expect(component.loadData$.next).not.toHaveBeenCalled();
     });
   });
 
