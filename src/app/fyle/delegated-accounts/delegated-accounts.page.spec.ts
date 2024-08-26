@@ -15,6 +15,7 @@ import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-loc
 import { DelegatedAccountsPage } from './delegated-accounts.page';
 import { delegatorData } from 'src/app/core/mock-data/platform/v1/delegator.data';
 import { employeesParamsRes } from 'src/app/core/test-data/org-user.service.spec.data';
+import { AuthService } from 'src/app/core/services/auth.service';
 
 describe('DelegatedAccountsPage', () => {
   let component: DelegatedAccountsPage;
@@ -22,6 +23,7 @@ describe('DelegatedAccountsPage', () => {
   let orgUserService: jasmine.SpyObj<OrgUserService>;
   let orgService: jasmine.SpyObj<OrgService>;
   let router: jasmine.SpyObj<Router>;
+  let authService: jasmine.SpyObj<AuthService>;
   let loaderService: jasmine.SpyObj<LoaderService>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
   let recentLocalStorageItemsService: jasmine.SpyObj<RecentLocalStorageItemsService>;
@@ -37,6 +39,7 @@ describe('DelegatedAccountsPage', () => {
     ]);
     const orgServiceSpy = jasmine.createSpyObj('OrgService', ['getCurrentOrg']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['hideLoader', 'showLoader']);
     const recentLocalStorageItemsServiceSpy = jasmine.createSpyObj('RecentLocalStorageItemsService', [
       'clearRecentLocalStorageCache',
@@ -65,6 +68,10 @@ describe('DelegatedAccountsPage', () => {
           useValue: orgServiceSpy,
         },
         {
+          provide: AuthService,
+          useValue: authServiceSpy,
+        },
+        {
           provide: Router,
           useValue: routerSpy,
         },
@@ -87,6 +94,7 @@ describe('DelegatedAccountsPage', () => {
     orgService = TestBed.inject(OrgService) as jasmine.SpyObj<OrgService>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
+    authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     recentLocalStorageItemsService = TestBed.inject(
       RecentLocalStorageItemsService
     ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
@@ -103,9 +111,8 @@ describe('DelegatedAccountsPage', () => {
     loaderService.showLoader.and.resolveTo();
     loaderService.hideLoader.and.resolveTo();
     recentLocalStorageItemsService.clearRecentLocalStorageCache.and.returnValue(null);
-    orgUserService.getEmployeesByParams.and.returnValue(of(employeesParamsRes));
-    orgUserService.getUserById.and.returnValue(of(eouFlattended));
     orgUserService.switchToDelegator.and.returnValue(of(eouUnFlattended));
+    authService.getEou.and.returnValue(Promise.resolve(eouUnFlattended));
 
     component.switchToDelegatee(delegatorData);
     tick(500);
@@ -113,7 +120,7 @@ describe('DelegatedAccountsPage', () => {
     expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
     expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
     expect(recentLocalStorageItemsService.clearRecentLocalStorageCache).toHaveBeenCalledTimes(1);
-    expect(orgUserService.switchToDelegator).toHaveBeenCalledOnceWith(eouUnFlattended.ou);
+    expect(orgUserService.switchToDelegator).toHaveBeenCalledOnceWith(delegatorData.user_id, eouUnFlattended.ou.org_id);
     expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard']);
   }));
 
