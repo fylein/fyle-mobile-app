@@ -38,7 +38,7 @@ import { ExpenseFilters } from '../models/expense-filters.model';
 import { ReportFilters } from '../models/report-filters.model';
 import { CommuteDetailsResponse } from '../models/platform/commute-details-response.model';
 import { HttpErrorResponse } from '@angular/common/http';
-import mixpanel from 'mixpanel-browser';
+import mixpanel, { Config } from 'mixpanel-browser';
 
 @Injectable({
   providedIn: 'root',
@@ -48,11 +48,17 @@ export class TrackingService {
 
   constructor(private authService: AuthService, private deviceService: DeviceService) {
     try {
-      mixpanel?.init(environment.MIXPANEL_PROJECT_TOKEN, {
+      const config: Partial<Config> = {
         debug: false,
         track_pageview: true,
         persistence: 'localStorage',
-      });
+      };
+
+      if (environment.MIXPANEL_PROXY_URL) {
+        config.api_host = environment.MIXPANEL_PROXY_URL;
+      }
+
+      mixpanel.init(environment.MIXPANEL_PROJECT_TOKEN, config);
     } catch (e) {}
   }
 

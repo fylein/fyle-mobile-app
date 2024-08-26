@@ -18,6 +18,7 @@ export const environment = {
   LIVE_UPDATE_APP_VERSION: '',
   SMARTLOOK_API_KEY: '',
   MIXPANEL_PROJECT_TOKEN: '',
+  MIXPANEL_PROXY_URL: '',
 };
 
 /*
