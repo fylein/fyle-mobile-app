@@ -137,6 +137,20 @@ export const filterOptions2: FilterOptions<string>[] = deepFreeze([
     ],
   },
   {
+    name: 'Potential duplicates',
+    optionType: FilterOptionType.singleselect,
+    options: [
+      {
+        label: 'Yes',
+        value: 'YES',
+      },
+      {
+        label: 'No',
+        value: 'NO',
+      },
+    ],
+  },
+  {
     name: 'Sort By',
     optionType: FilterOptionType.singleselect,
     options: [
