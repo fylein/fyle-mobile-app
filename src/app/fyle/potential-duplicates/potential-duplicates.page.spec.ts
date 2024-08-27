@@ -166,11 +166,23 @@ describe('PotentialDuplicatesPage', () => {
     expect(component.selectedSet).toEqual(0);
   });
 
+  it('dismissDuplicates(): should call dismissDuplicates on expensesService with the expenses ids', () => {
+    const duplicateExpenseIds = ['txDDLtRaflUW'];
+    const targetExpenseIds = ['txcSFe6efB6R'];
+
+    expensesService.dismissDuplicates.and.returnValue(of(null));
+
+    component.dismissDuplicates(duplicateExpenseIds, targetExpenseIds).subscribe(() => {
+      expect(expensesService.dismissDuplicates).toHaveBeenCalledOnceWith(duplicateExpenseIds, targetExpenseIds);
+    });
+  });
+
   describe('dismiss():', () => {
     beforeEach(() => {
       component.duplicateSetData = cloneDeep([['txcSFe6efB6R', 'txDDLtRaflUW']]);
       component.selectedSet = 0;
       spyOn(component, 'showDismissedSuccessToast');
+      spyOn(component, 'dismissDuplicates');
       component.duplicateExpenses = [[apiExpenses1[0], expenseData]];
       expensesService.dismissDuplicates.and.returnValue(of(null));
     });
@@ -194,6 +206,11 @@ describe('PotentialDuplicatesPage', () => {
 
       expect(popoverSpy.present).toHaveBeenCalledTimes(1);
       expect(popoverSpy.onDidDismiss).toHaveBeenCalledTimes(1);
+
+      const dismissMethod = popoverController.create.calls.mostRecent().args[0].componentProps.dismissMethod;
+      await dismissMethod();
+
+      expect(component.dismissDuplicates).toHaveBeenCalledWith(['txcSFe6efB6R', 'txDDLtRaflUW'], ['txDDLtRaflUW']);
 
       if (popoverResponse.data?.status === 'success') {
         expect(component.duplicateExpenses[0].length).toEqual(1);
@@ -234,6 +251,7 @@ describe('PotentialDuplicatesPage', () => {
       expensesService.dismissDuplicates.and.returnValue(of(null));
       spyOn(component, 'showDismissedSuccessToast');
       spyOn(component.loadData$, 'next');
+      spyOn(component, 'dismissDuplicates');
       expensesService.getExpenses.and.returnValue(of([apiExpenses1[0], expenseData]));
       component.duplicateSets$ = of([[apiExpenses1[0]], [expenseData]]);
 
@@ -251,6 +269,14 @@ describe('PotentialDuplicatesPage', () => {
           dismissMethod: jasmine.any(Function),
         },
       });
+
+      const dismissMethod = popoverController.create.calls.mostRecent().args[0].componentProps.dismissMethod;
+      await dismissMethod();
+
+      expect(component.dismissDuplicates).toHaveBeenCalledWith(
+        ['tx5fBcPBAxLv', 'tx3nHShG60zq'],
+        ['tx5fBcPBAxLv', 'tx3nHShG60zq']
+      );
 
       expect(popoverSpy.present).toHaveBeenCalledTimes(1);
       expect(popoverSpy.onDidDismiss).toHaveBeenCalledTimes(1);
