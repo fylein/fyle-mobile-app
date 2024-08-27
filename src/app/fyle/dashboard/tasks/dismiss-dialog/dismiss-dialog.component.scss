@@ -1,0 +1,43 @@
+@import '../../../../../theme/colors.scss';
+
+.dismiss-dialog {
+  &--header {
+    font-size: 16px;
+    line-height: 20px;
+    color: $black;
+    font-weight: 500;
+  }
+
+  &--body {
+    font-size: 14px;
+    line-height: 18px;
+    color: $blue-black;
+    font-weight: 400;
+    margin-top: 16px;
+  }
+
+  &--cta-container {
+    margin-top: 16px;
+  }
+
+  &--dismiss {
+    display: flex;
+    padding: 12px 16px;
+    justify-content: center;
+    color: $pure-white;
+    align-items: center;
+    border-radius: 4px;
+    background: $pink-gradient;
+  }
+
+  &--cancel {
+    display: flex;
+    padding: 12px 16px;
+    justify-content: center;
+    align-items: center;
+    color: $blue-black;
+    &__disabled {
+      opacity: 0.2;
+    }
+  }
+}

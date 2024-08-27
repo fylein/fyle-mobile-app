@@ -53,6 +53,7 @@ export const orgSettingsGetData: OrgSettings = deepFreeze({
     allowed: true,
     enabled: true,
     enable_individual_projects: true,
+    enable_category_restriction: true,
   },
   advance_requests: {
     allowed: true,
@@ -457,6 +458,7 @@ export const orgSettingsPostData: OrgSettingsResponse = deepFreeze({
     allowed: true,
     enabled: true,
     enable_individual_projects: true,
+    enable_category_restriction: true,
   },
   org_cost_center_settings: {
     allowed: true,

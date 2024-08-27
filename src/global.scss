@@ -952,6 +952,17 @@ ion-modal.flag-unflag-modal {
   padding-top: 0 !important;
 }
 
+ion-popover.dismiss-dialog {
+  --width: 298px;
+
+  &::part(content) {
+    border-radius: 8px;
+    padding: 24px;
+  }
+
+  background: rgba(0, 0, 0, 0.6);
+}
+
 ion-popover.delete-dialog {
   --width: 296px;
   --max-height: 346px;

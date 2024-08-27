@@ -80,10 +80,7 @@ export class NotificationsPage implements OnInit {
           ouSetting.notification_settings.notify_user === true
         ) {
           return this.delegationOptions[0];
-        } else if (
-          ouSetting.notification_settings.notify_delegatee === false &&
-          ouSetting.notification_settings.notify_user === true
-        ) {
+        } else {
           return this.delegationOptions[2];
         }
       })

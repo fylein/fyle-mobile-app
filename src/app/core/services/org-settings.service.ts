@@ -154,6 +154,8 @@ export class OrgSettingsService {
         enabled: incoming.advanced_project_settings && incoming.advanced_project_settings.enabled,
         enable_individual_projects:
           incoming.advanced_project_settings && incoming.advanced_project_settings.enable_individual_projects,
+        enable_category_restriction:
+          incoming.advanced_project_settings && incoming.advanced_project_settings.enable_category_restriction,
       },
       advance_requests: {
         allowed: incoming.advances_settings && incoming.advances_settings.allowed,
@@ -443,6 +445,7 @@ export class OrgSettingsService {
         allowed: outgoing.advanced_projects.allowed,
         enabled: outgoing.advanced_projects.enabled,
         enable_individual_projects: outgoing.advanced_projects.enable_individual_projects,
+        enable_category_restriction: outgoing.advanced_projects.enable_category_restriction,
       },
       org_cost_center_settings: {
         allowed: outgoing.cost_centers.allowed,

@@ -16,6 +16,7 @@ import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog/add-tx
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { DismissDialogComponent } from '../dashboard/tasks/dismiss-dialog/dismiss-dialog.component';
 
 @NgModule({
   imports: [
@@ -40,6 +41,6 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     SharedModule,
     MatCheckboxModule,
   ],
-  declarations: [MyExpensesPage, AddTxnToReportDialogComponent],
+  declarations: [MyExpensesPage, AddTxnToReportDialogComponent, DismissDialogComponent],
 })
 export class MyExpensesPageModule {}

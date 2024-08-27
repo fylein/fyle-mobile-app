@@ -164,6 +164,8 @@ export class AddEditPerDiemPage implements OnInit {
 
   isProjectsEnabled$: Observable<boolean>;
 
+  isProjectCategoryRestrictionsEnabled$: Observable<boolean>;
+
   isCostCentersEnabled$: Observable<boolean>;
 
   customInputs$: Observable<PerDiemCustomInputs[]>;
@@ -725,9 +727,13 @@ export class AddEditPerDiemPage implements OnInit {
       }),
       startWith(this.fg.controls.project.value),
       concatMap((project: ProjectV2) =>
-        this.subCategories$.pipe(
-          map((allActiveSubCategories: OrgCategory[]) =>
-            this.projectsService.getAllowedOrgCategoryIds(project, allActiveSubCategories)
+        combineLatest([this.subCategories$, this.isProjectCategoryRestrictionsEnabled$]).pipe(
+          map(([allActiveSubCategories, isProjectCategoryRestrictionsEnabled]) =>
+            this.projectsService.getAllowedOrgCategoryIds(
+              project,
+              allActiveSubCategories,
+              isProjectCategoryRestrictionsEnabled
+            )
           )
         )
       ),
@@ -1120,6 +1126,13 @@ export class AddEditPerDiemPage implements OnInit {
       map((orgSettings) => orgSettings.projects && orgSettings.projects.enabled)
     );
 
+    this.isProjectCategoryRestrictionsEnabled$ = orgSettings$.pipe(
+      map(
+        (orgSettings) =>
+          orgSettings.advanced_projects.allowed && orgSettings.advanced_projects.enable_category_restriction
+      )
+    );
+
     this.customInputs$ = this.getCustomInputs();
 
     this.isCostCentersEnabled$ = orgSettings$.pipe(map((orgSettings) => orgSettings.cost_centers.enabled));
@@ -1395,12 +1408,14 @@ export class AddEditPerDiemPage implements OnInit {
       perDiemCategoryIds: this.projectCategoryIds$,
       perDiemCategories: this.projectCategories$,
       eou: this.authService.getEou(),
+      isProjectCategoryRestrictionsEnabled: this.isProjectCategoryRestrictionsEnabled$,
     }).pipe(
-      switchMap(({ recentValues, perDiemCategoryIds, perDiemCategories, eou }) =>
+      switchMap(({ recentValues, perDiemCategoryIds, perDiemCategories, eou, isProjectCategoryRestrictionsEnabled }) =>
         this.recentlyUsedItemsService.getRecentlyUsedProjects({
           recentValues,
           eou,
           categoryIds: perDiemCategoryIds,
+          isProjectCategoryRestrictionsEnabled,
           activeCategoryList: perDiemCategories,
         })
       )
