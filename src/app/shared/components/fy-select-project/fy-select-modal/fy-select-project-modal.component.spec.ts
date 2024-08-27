@@ -146,6 +146,7 @@ describe('FyProjectSelectModalComponent', () => {
 
     component.cacheName = 'projects';
     component.defaultValue = true;
+    component.isProjectCategoryRestrictionsEnabled = true;
     component.searchBarRef = fixture.debugElement.query(By.css('.selection-modal--search-input'));
     recentLocalStorageItemsService.get.and.resolveTo([testProjectV2]);
     utilityService.searchArrayStream.and.returnValue(() => of([{ label: '', value: '' }]));
@@ -181,6 +182,7 @@ describe('FyProjectSelectModalComponent', () => {
             offset: 0,
             limit: 20,
           },
+          component.isProjectCategoryRestrictionsEnabled,
           undefined
         );
         expect(projectsService.getbyId).toHaveBeenCalledWith(3943, undefined);
@@ -210,6 +212,7 @@ describe('FyProjectSelectModalComponent', () => {
             offset: 0,
             limit: 20,
           },
+          component.isProjectCategoryRestrictionsEnabled,
           undefined
         );
         expect(projectsService.getbyId).toHaveBeenCalledWith(3943, undefined);
@@ -240,6 +243,7 @@ describe('FyProjectSelectModalComponent', () => {
             offset: 0,
             limit: 20,
           },
+          component.isProjectCategoryRestrictionsEnabled,
           undefined
         );
         expect(projectsService.getbyId).toHaveBeenCalledWith(3943, undefined);
@@ -274,6 +278,7 @@ describe('FyProjectSelectModalComponent', () => {
             offset: 0,
             limit: 20,
           },
+          component.isProjectCategoryRestrictionsEnabled,
           []
         );
         done();

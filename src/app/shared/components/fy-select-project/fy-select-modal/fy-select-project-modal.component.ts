@@ -39,6 +39,8 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
 
   @Input() label: string;
 
+  @Input() isProjectCategoryRestrictionsEnabled: boolean;
+
   recentrecentlyUsedItems$: Observable<ProjectOption[]>;
 
   value: string;
@@ -107,6 +109,7 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
             offset: 0,
             limit: 20,
           },
+          this.isProjectCategoryRestrictionsEnabled,
           activeCategories
         )
       ),

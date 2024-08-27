@@ -25,6 +25,7 @@ import {
   platformAPIResponseNullCategories,
 } from '../mock-data/platform/v1/platform-project.data';
 import { ProjectPlatformParams } from '../mock-data/platform/v1/platform-projects-params.data';
+import { cloneDeep } from 'lodash';
 
 const fixDate = (data) =>
   data.map((datum) => ({
@@ -189,7 +190,7 @@ describe('ProjectsService', () => {
       spenderPlatformV1ApiService.get.and.returnValue(of(platformAPIResponseMultiple));
       spyOn(projectsService, 'transformToV2Response').and.returnValue(expectedProjectsResponse);
 
-      projectsService.getByParamsUnformatted({}).subscribe((res) => {
+      projectsService.getByParamsUnformatted({}, true).subscribe((res) => {
         expect(projectsService.transformToV2Response).toHaveBeenCalledOnceWith(
           platformAPIResponseMultiple.data,
           undefined
@@ -203,7 +204,7 @@ describe('ProjectsService', () => {
       spenderPlatformV1ApiService.get.and.returnValue(of(platformAPIResponseMultiple));
       spyOn(projectsService, 'transformToV2Response').and.returnValue(expectedProjectsResponse);
 
-      projectsService.getByParamsUnformatted({}, testActiveCategoryList).subscribe((res) => {
+      projectsService.getByParamsUnformatted({}, true, testActiveCategoryList).subscribe((res) => {
         expect(projectsService.transformToV2Response).toHaveBeenCalledOnceWith(
           platformAPIResponseMultiple.data,
           testActiveCategoryList
@@ -217,7 +218,7 @@ describe('ProjectsService', () => {
       spenderPlatformV1ApiService.get.and.returnValue(of(platformAPIResponseMultiple));
       spyOn(projectsService, 'transformToV2Response').and.returnValue(expectedProjectsResponse);
 
-      projectsService.getByParamsUnformatted({}, null).subscribe((res) => {
+      projectsService.getByParamsUnformatted({}, true, null).subscribe((res) => {
         expect(projectsService.transformToV2Response).toHaveBeenCalledOnceWith(platformAPIResponseMultiple.data, null);
         expect(res).toEqual(fixDate(apiV2ResponseMultiple.data));
         done();
@@ -228,7 +229,7 @@ describe('ProjectsService', () => {
       spenderPlatformV1ApiService.get.and.returnValue(of(platformAPIResponseMultiple));
       spyOn(projectsService, 'transformToV2Response').and.returnValue(expectedProjectsResponse);
 
-      projectsService.getByParamsUnformatted(testProjectParams, null).subscribe((res) => {
+      projectsService.getByParamsUnformatted(testProjectParams, true, null).subscribe((res) => {
         expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/projects', {
           params: ProjectPlatformParams,
         });
@@ -242,7 +243,7 @@ describe('ProjectsService', () => {
       spenderPlatformV1ApiService.get.and.returnValue(of(platformAPIResponseMultiple));
       spyOn(projectsService, 'transformToV2Response').and.returnValue(expectedProjectsResponse);
 
-      projectsService.getByParamsUnformatted(testProjectParams).subscribe((res) => {
+      projectsService.getByParamsUnformatted(testProjectParams, true).subscribe((res) => {
         expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/projects', {
           params: ProjectPlatformParams,
         });
@@ -259,9 +260,28 @@ describe('ProjectsService', () => {
       spenderPlatformV1ApiService.get.and.returnValue(of(platformAPIResponseMultiple));
       spyOn(projectsService, 'transformToV2Response').and.returnValue(expectedProjectsResponse);
 
-      projectsService.getByParamsUnformatted(testProjectParams, testActiveCategoryList).subscribe((res) => {
+      projectsService.getByParamsUnformatted(testProjectParams, true, testActiveCategoryList).subscribe((res) => {
         expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/projects', {
           params: ProjectPlatformParams,
+        });
+        expect(projectsService.transformToV2Response).toHaveBeenCalledOnceWith(
+          platformAPIResponseMultiple.data,
+          testActiveCategoryList
+        );
+        expect(res).toEqual(expectedProjectsResponse);
+        done();
+      });
+    });
+
+    it('should not pass any or param of category_ids when activeCategoryList are provided and isProjectCategoryRestrictionsEnabled is false', (done) => {
+      spenderPlatformV1ApiService.get.and.returnValue(of(platformAPIResponseMultiple));
+      spyOn(projectsService, 'transformToV2Response').and.returnValue(expectedProjectsResponse);
+      const expectedParams = cloneDeep(ProjectPlatformParams);
+      delete expectedParams.or;
+
+      projectsService.getByParamsUnformatted(testProjectParams, false, testActiveCategoryList).subscribe((res) => {
+        expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/projects', {
+          params: expectedParams,
         });
         expect(projectsService.transformToV2Response).toHaveBeenCalledOnceWith(
           platformAPIResponseMultiple.data,
@@ -274,13 +294,18 @@ describe('ProjectsService', () => {
   });
 
   describe('getAllowedOrgCategoryIds():', () => {
-    it('should category list after filter as per project passed', () => {
-      const result = projectsService.getAllowedOrgCategoryIds(testProjectV2, testActiveCategoryList);
+    it('should return category list after filter as per project passed and if isProjectCategoryRestrictionsEnabled is true', () => {
+      const result = projectsService.getAllowedOrgCategoryIds(testProjectV2, testActiveCategoryList, true);
       expect(result).toEqual(allowedActiveCategories);
     });
 
+    it('should return whole category list if project passed is restricted but isProjectCategoryRestrictionsEnabled is false', () => {
+      const result = projectsService.getAllowedOrgCategoryIds(testProjectV2, testActiveCategoryList, false);
+      expect(result).toEqual(testActiveCategoryList);
+    });
+
     it('should return whole category list if project passed is not present', () => {
-      const result = projectsService.getAllowedOrgCategoryIds(null, testActiveCategoryList);
+      const result = projectsService.getAllowedOrgCategoryIds(null, testActiveCategoryList, true);
       expect(result).toEqual(testActiveCategoryList);
     });
   });

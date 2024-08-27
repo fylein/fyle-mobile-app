@@ -1620,14 +1620,16 @@ export class AddEditExpensePage implements OnInit {
       recentValues: this.recentlyUsedValues$,
       eou: this.authService.getEou(),
       activeCategories: this.activeCategories$,
+      isProjectCategoryRestrictionsEnabled: this.isProjectCategoryRestrictionsEnabled$,
     }).pipe(
-      switchMap(({ recentValues, eou, activeCategories }) => {
+      switchMap(({ recentValues, eou, activeCategories, isProjectCategoryRestrictionsEnabled }) => {
         const formControl = this.getFormControl('category') as { value: OrgCategory };
         const categoryId = formControl.value && (formControl.value.id as unknown as string[]);
         return this.recentlyUsedItemsService.getRecentlyUsedProjects({
           recentValues,
           eou,
           categoryIds: categoryId,
+          isProjectCategoryRestrictionsEnabled,
           activeCategoryList: activeCategories,
         });
       })
@@ -1921,8 +1923,6 @@ export class AddEditExpensePage implements OnInit {
 
                   // Only if the most recent category is allowed for the auto-filled project, category field can be auto-filled
                   canAutofillCategory = isAllowedRecentCategories[0];
-                } else {
-                  canAutofillCategory = true;
                 }
               }
 
