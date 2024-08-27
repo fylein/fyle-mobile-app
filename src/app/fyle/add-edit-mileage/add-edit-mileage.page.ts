@@ -1664,7 +1664,7 @@ export class AddEditMileagePage implements OnInit {
     this.isProjectCategoryRestrictionsEnabled$ = orgSettings$.pipe(
       map(
         (orgSettings) =>
-          orgSettings.advanced_projects.allowed && orgSettings.advanced_projects.enable_category_restriction
+          orgSettings.advanced_projects?.allowed && orgSettings.advanced_projects.enable_category_restriction
       )
     );
 
@@ -1746,12 +1746,14 @@ export class AddEditMileagePage implements OnInit {
       mileageCategoryIds: this.projectCategoryIds$,
       eou: eou$,
       projectCategories: this.projectCategories$,
+      isProjectCategoryRestrictionsEnabled: this.isProjectCategoryRestrictionsEnabled$,
     }).pipe(
-      switchMap(({ recentValues, mileageCategoryIds, eou, projectCategories }) =>
+      switchMap(({ recentValues, mileageCategoryIds, eou, projectCategories, isProjectCategoryRestrictionsEnabled }) =>
         this.recentlyUsedItemsService.getRecentlyUsedProjects({
           recentValues,
           eou,
           categoryIds: mileageCategoryIds,
+          isProjectCategoryRestrictionsEnabled,
           activeCategoryList: projectCategories,
         })
       )
