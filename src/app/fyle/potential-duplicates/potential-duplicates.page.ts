@@ -8,8 +8,9 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-
-type Expenses = Expense[];
+import { DismissDialogComponent } from '../dashboard/tasks/dismiss-dialog/dismiss-dialog.component';
+import { PopoverController } from '@ionic/angular';
+import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
 
 @Component({
   selector: 'app-potential-duplicates',
@@ -17,7 +18,7 @@ type Expenses = Expense[];
   styleUrls: ['./potential-duplicates.page.scss'],
 })
 export class PotentialDuplicatesPage {
-  duplicateSets$: Observable<Expenses[]>;
+  duplicateSets$: Observable<Expense[][]>;
 
   loadData$ = new BehaviorSubject<void>(null);
 
@@ -25,7 +26,7 @@ export class PotentialDuplicatesPage {
 
   duplicateSetData: string[][];
 
-  duplicateExpenses: Expenses[];
+  duplicateExpenses: Expense[][];
 
   isLoading = true;
 
@@ -34,7 +35,8 @@ export class PotentialDuplicatesPage {
     private router: Router,
     private snackbarProperties: SnackbarPropertiesService,
     private matSnackBar: MatSnackBar,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private popoverController: PopoverController
   ) {}
 
   ionViewWillEnter(): void {
@@ -106,11 +108,24 @@ export class PotentialDuplicatesPage {
     return this.expensesService.dismissDuplicates(duplicateExpenseIds, targetExpenseIds);
   }
 
-  dismiss(expense: Expense): void {
-    const transactionIds = [expense.id];
-    const duplicateTxnIds = this.duplicateSetData[this.selectedSet];
+  async dismiss(expense: Expense): Promise<void> {
+    const targetExpenseIds = [expense.id];
+    const duplicateExpenseIds = this.duplicateSetData[this.selectedSet];
 
-    this.dismissDuplicates(duplicateTxnIds, transactionIds).subscribe(() => {
+    const popover = await this.popoverController.create({
+      component: DismissDialogComponent,
+      cssClass: 'dismiss-dialog',
+      backdropDismiss: false,
+      componentProps: {
+        dismissMethod: () => this.dismissDuplicates(duplicateExpenseIds, targetExpenseIds),
+      },
+    });
+
+    await popover.present();
+
+    const popoverResponse = (await popover.onDidDismiss()) as OverlayResponse<{ status: string }>;
+
+    if (popoverResponse.data?.status === 'success') {
       this.trackingService.dismissedIndividualExpenses();
       this.showDismissedSuccessToast();
       this.duplicateSetData[this.selectedSet] = this.duplicateSetData[this.selectedSet].filter(
@@ -119,12 +134,26 @@ export class PotentialDuplicatesPage {
       this.duplicateExpenses[this.selectedSet] = this.duplicateExpenses[this.selectedSet].filter(
         (exp) => exp.id !== expense.id
       );
-    });
+    }
   }
 
-  dismissAll(): void {
-    const txnIds = this.duplicateSetData[this.selectedSet];
-    this.dismissDuplicates(txnIds, txnIds).subscribe(() => {
+  async dismissAll(): Promise<void> {
+    const expenseIds = this.duplicateSetData[this.selectedSet];
+
+    const popover = await this.popoverController.create({
+      component: DismissDialogComponent,
+      cssClass: 'dismiss-dialog',
+      backdropDismiss: false,
+      componentProps: {
+        dismissMethod: () => this.dismissDuplicates(expenseIds, expenseIds),
+      },
+    });
+
+    await popover.present();
+
+    const popoverResponse = (await popover.onDidDismiss()) as OverlayResponse<{ status: string }>;
+
+    if (popoverResponse.data?.status === 'success') {
       if (this.selectedSet !== 0) {
         this.selectedSet--;
       }
@@ -134,7 +163,7 @@ export class PotentialDuplicatesPage {
       this.duplicateSets$.subscribe((duplicateExpenses) => {
         this.duplicateExpenses = duplicateExpenses;
       });
-    });
+    }
   }
 
   mergeExpense(): void {
