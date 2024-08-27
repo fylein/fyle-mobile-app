@@ -397,6 +397,8 @@ export class AddEditExpensePage implements OnInit {
 
   isCorporateCreditCardEnabled: boolean;
 
+  isProjectCategoryRestrictionsEnabled$: Observable<boolean>;
+
   corporateCreditCardExpenseGroupId: string;
 
   showPaymentMode = true;
@@ -1618,14 +1620,16 @@ export class AddEditExpensePage implements OnInit {
       recentValues: this.recentlyUsedValues$,
       eou: this.authService.getEou(),
       activeCategories: this.activeCategories$,
+      isProjectCategoryRestrictionsEnabled: this.isProjectCategoryRestrictionsEnabled$,
     }).pipe(
-      switchMap(({ recentValues, eou, activeCategories }) => {
+      switchMap(({ recentValues, eou, activeCategories, isProjectCategoryRestrictionsEnabled }) => {
         const formControl = this.getFormControl('category') as { value: OrgCategory };
         const categoryId = formControl.value && (formControl.value.id as unknown as string[]);
         return this.recentlyUsedItemsService.getRecentlyUsedProjects({
           recentValues,
           eou,
           categoryIds: categoryId,
+          isProjectCategoryRestrictionsEnabled,
           activeCategoryList: activeCategories,
         });
       })
@@ -1904,18 +1908,22 @@ export class AddEditExpensePage implements OnInit {
               this.presetProjectId = project.project_id;
 
               if (recentCategories?.length) {
-                // Check if the recent categories are allowed for the project auto-filled
-                const isAllowedRecentCategories = recentCategories.map((category) =>
-                  project.project_org_category_ids.includes(category.value.id)
-                );
+                const isProjectCategoryRestrictionsEnabled =
+                  orgSettings.advanced_projects.allowed && orgSettings.advanced_projects.enable_category_restriction;
 
-                // Set the updated allowed recent categories
-                this.recentCategories = recentCategories.filter((category) =>
-                  project.project_org_category_ids.includes(category.value.id)
-                );
+                if (isProjectCategoryRestrictionsEnabled) {
+                  const isAllowedRecentCategories = recentCategories.map((category) =>
+                    project.project_org_category_ids.includes(category.value.id)
+                  );
 
-                // Only if the most recent category is allowed for the auto-filled project, category field can be auto-filled
-                canAutofillCategory = isAllowedRecentCategories[0];
+                  // Set the updated allowed recent categories
+                  this.recentCategories = recentCategories.filter((category) =>
+                    project.project_org_category_ids.includes(category.value.id)
+                  );
+
+                  // Only if the most recent category is allowed for the auto-filled project, category field can be auto-filled
+                  canAutofillCategory = isAllowedRecentCategories[0];
+                }
               }
 
               // Set the project preset value to the formGroup to trigger filtering of all allowed categories
@@ -2620,8 +2628,14 @@ export class AddEditExpensePage implements OnInit {
           }),
           startWith(initialProject),
           concatMap((project: ProjectV2) =>
-            this.activeCategories$.pipe(
-              map((activeCategories) => this.projectsService.getAllowedOrgCategoryIds(project, activeCategories))
+            forkJoin([this.activeCategories$, this.isProjectCategoryRestrictionsEnabled$]).pipe(
+              map(([activeCategories, isProjectCategoryRestrictionsEnabled]) =>
+                this.projectsService.getAllowedOrgCategoryIds(
+                  project,
+                  activeCategories,
+                  isProjectCategoryRestrictionsEnabled
+                )
+              )
             )
           ),
           map((categories) => categories.map((category) => ({ label: category.displayName, value: category })))
@@ -2630,15 +2644,20 @@ export class AddEditExpensePage implements OnInit {
       shareReplay(1)
     );
 
-    this.fg.controls.project.valueChanges.subscribe((project: { project_org_category_ids: number[] }) => {
-      if (project && project.project_org_category_ids.length !== 0) {
-        this.recentCategories = this.recentCategoriesOriginal?.filter((originalCategory) =>
-          project.project_org_category_ids.includes(originalCategory.value.id)
-        );
-      } else {
-        this.recentCategories = this.recentCategoriesOriginal;
-      }
-    });
+    this.fg.controls.project.valueChanges
+      .pipe(
+        withLatestFrom(this.isProjectCategoryRestrictionsEnabled$),
+        tap(([project, isProjectCategoryRestrictionsEnabled]: [{ project_org_category_ids: number[] }, boolean]) => {
+          if (project && project.project_org_category_ids.length !== 0 && isProjectCategoryRestrictionsEnabled) {
+            this.recentCategories = this.recentCategoriesOriginal?.filter((originalCategory) =>
+              project.project_org_category_ids.includes(originalCategory.value.id)
+            );
+          } else {
+            this.recentCategories = this.recentCategoriesOriginal;
+          }
+        })
+      )
+      .subscribe(noop);
 
     this.filteredCategories$.subscribe((categories) => {
       const formValue = this.fg.value as {
@@ -3011,6 +3030,13 @@ export class AddEditExpensePage implements OnInit {
         (orgSettings) =>
           (orgSettings.advances && orgSettings.advances.enabled) ||
           (orgSettings.advance_requests && orgSettings.advance_requests.enabled)
+      )
+    );
+
+    this.isProjectCategoryRestrictionsEnabled$ = orgSettings$.pipe(
+      map(
+        (orgSettings) =>
+          orgSettings.advanced_projects.allowed && orgSettings.advanced_projects.enable_category_restriction
       )
     );
 

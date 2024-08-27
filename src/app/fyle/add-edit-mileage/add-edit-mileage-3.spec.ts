@@ -489,6 +489,8 @@ export function TestCases3(getTestBed) {
     });
 
     describe('setupFilteredCategories():', () => {
+      beforeEach(() => (component.isProjectCategoryRestrictionsEnabled$ = of(true)));
+
       it('should set up filtered categories', fakeAsync(() => {
         component.subCategories$ = of(sortedCategory);
         projectsService.getAllowedOrgCategoryIds.and.returnValue(transformedOrgCategories);
