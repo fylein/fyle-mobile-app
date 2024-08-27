@@ -25,7 +25,11 @@ import {
   expectedCriticalPolicyViolationPopoverParams2,
   expectedCriticalPolicyViolationPopoverParams3,
 } from 'src/app/core/mock-data/critical-policy-violation-popover.data';
-import { expenseFiltersData1, expenseFiltersData2 } from 'src/app/core/mock-data/expense-filters.data';
+import {
+  expenseFiltersData1,
+  expenseFiltersData2,
+  expenseWithPotentialDuplicateFilterData,
+} from 'src/app/core/mock-data/expense-filters.data';
 import {
   apiExpenseRes,
   expectedFormattedTransaction,
@@ -41,6 +45,7 @@ import {
   expectedFilterPill1,
   expectedFilterPill2,
   filterTypeMappings,
+  potentialDuplicatesFilterPill,
   receiptsAttachedFilterPill,
   sortFilterPill,
   splitExpenseFilterPill,
@@ -236,6 +241,7 @@ describe('MyExpensesPage', () => {
       'generateSelectedFilters',
       'getFilters',
       'convertSelectedOptionsToExpenseFilters',
+      'generatePotentialDuplicatesFilterPills',
     ]);
     const tokenServiceSpy = jasmine.createSpyObj('TokenService', ['getClusterDomain']);
     const actionSheetControllerSpy = jasmine.createSpyObj('ActionSheetController', ['create']);
@@ -300,6 +306,7 @@ describe('MyExpensesPage', () => {
       'restrictPendingTransactionsEnabled',
       'doesExpenseHavePendingCardTransaction',
       'getReportableExpenses',
+      'generatePotentialDuplicatesParams',
     ]);
     const utilityServiceSpy = jasmine.createSpyObj('UtilityService', [
       'canShowOptInAfterExpenseCreation',
@@ -1033,6 +1040,36 @@ describe('MyExpensesPage', () => {
     });
   });
 
+  describe('isSelectionContainsException', () => {
+    it('should return true when policyViolationsCount is greater than 0', () => {
+      const result = component.isSelectionContainsException(1, 0, 0);
+      expect(result).toBeTrue();
+    });
+
+    it('should return true when draftCount is greater than 0', () => {
+      const result = component.isSelectionContainsException(0, 1, 0);
+      expect(result).toBeTrue();
+    });
+
+    it('should return true when pendingTransactionsCount is greater than 0 and restrictPendingTransactionsEnabled is true', () => {
+      component.restrictPendingTransactionsEnabled = true;
+      const result = component.isSelectionContainsException(0, 0, 1);
+      expect(result).toBeTrue();
+    });
+
+    it('should return false when all counts are 0 and restrictPendingTransactionsEnabled is false', () => {
+      component.restrictPendingTransactionsEnabled = false;
+      const result = component.isSelectionContainsException(0, 0, 0);
+      expect(result).toBeFalse();
+    });
+
+    it('should return false when pendingTransactionsCount is greater than 0 but restrictPendingTransactionsEnabled is false', () => {
+      component.restrictPendingTransactionsEnabled = false;
+      const result = component.isSelectionContainsException(0, 0, 1);
+      expect(result).toBeFalse();
+    });
+  });
+
   it('onSearchBarFocus(): should set isSearchBarFocused to true', () => {
     component.isSearchBarFocused = false;
     component.simpleSearchInput = getElementRef(fixture, '.my-expenses--simple-search-input');
@@ -1549,10 +1586,13 @@ describe('MyExpensesPage', () => {
       myExpenseService.generateSplitExpenseFilterPills.and.callFake((filterPill, filters) => {
         filterPill.push(splitExpenseFilterPill);
       });
+      myExpenseService.generatePotentialDuplicatesFilterPills.and.callFake((filterPill, filters) => {
+        filterPill.push(potentialDuplicatesFilterPill);
+      });
     });
 
     it('should return filterPills based on the properties present in filters', () => {
-      const filterPillRes = component.generateFilterPills(expenseFiltersData1);
+      const filterPillRes = component.generateFilterPills(expenseWithPotentialDuplicateFilterData);
       expect(filterPillRes).toEqual(expectedFilterPill1);
     });
 
@@ -1574,6 +1614,11 @@ describe('MyExpensesPage', () => {
         or: [],
       });
       sharedExpenseService.generateReceiptAttachedParams.and.returnValue({
+        'matched_corporate_card_transactions->0->corporate_card_number': 'in.(789)',
+        and: '(spent_at.gte.March,spent_at.lt.April)',
+        or: [],
+      });
+      sharedExpenseService.generatePotentialDuplicatesParams.and.returnValue({
         'matched_corporate_card_transactions->0->corporate_card_number': 'in.(789)',
         and: '(spent_at.gte.March,spent_at.lt.April)',
         or: [],
@@ -1607,6 +1652,14 @@ describe('MyExpensesPage', () => {
         component.filters
       );
       expect(sharedExpenseService.generateReceiptAttachedParams).toHaveBeenCalledOnceWith(
+        {
+          'matched_corporate_card_transactions->0->corporate_card_number': 'in.(789)',
+          and: '(spent_at.gte.March,spent_at.lt.April)',
+          or: [],
+        },
+        component.filters
+      );
+      expect(sharedExpenseService.generatePotentialDuplicatesParams).toHaveBeenCalledOnceWith(
         {
           'matched_corporate_card_transactions->0->corporate_card_number': 'in.(789)',
           and: '(spent_at.gte.March,spent_at.lt.April)',
@@ -1664,6 +1717,14 @@ describe('MyExpensesPage', () => {
         },
         component.filters
       );
+      expect(sharedExpenseService.generatePotentialDuplicatesParams).toHaveBeenCalledOnceWith(
+        {
+          'matched_corporate_card_transactions->0->corporate_card_number': 'in.(789)',
+          and: '(spent_at.gte.March,spent_at.lt.April)',
+          or: [],
+        },
+        component.filters
+      );
       expect(sharedExpenseService.generateStateFilters).toHaveBeenCalledOnceWith(
         {
           'matched_corporate_card_transactions->0->corporate_card_number': 'in.(789)',
@@ -1714,6 +1775,14 @@ describe('MyExpensesPage', () => {
         },
         component.filters
       );
+      expect(sharedExpenseService.generatePotentialDuplicatesParams).toHaveBeenCalledOnceWith(
+        {
+          'matched_corporate_card_transactions->0->corporate_card_number': 'in.(789)',
+          and: '(spent_at.gte.March,spent_at.lt.April)',
+          or: [],
+        },
+        component.filters
+      );
       expect(sharedExpenseService.generateStateFilters).toHaveBeenCalledOnceWith(
         {
           'matched_corporate_card_transactions->0->corporate_card_number': 'in.(789)',
@@ -1757,6 +1826,14 @@ describe('MyExpensesPage', () => {
         component.filters
       );
       expect(sharedExpenseService.generateReceiptAttachedParams).toHaveBeenCalledOnceWith(
+        {
+          'matched_corporate_card_transactions->0->corporate_card_number': 'in.(789)',
+          and: '(spent_at.gte.March,spent_at.lt.April)',
+          or: [],
+        },
+        component.filters
+      );
+      expect(sharedExpenseService.generatePotentialDuplicatesParams).toHaveBeenCalledOnceWith(
         {
           'matched_corporate_card_transactions->0->corporate_card_number': 'in.(789)',
           and: '(spent_at.gte.March,spent_at.lt.April)',

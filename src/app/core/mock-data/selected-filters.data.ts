@@ -198,6 +198,10 @@ export const selectedFilters9: SelectedFilters<string | string[]>[] = deepFreeze
     value: 'YES',
   },
   {
+    name: 'Potential duplicates',
+    value: 'YES',
+  },
+  {
     name: 'Date',
     value: 'thisWeek',
     associatedData: {

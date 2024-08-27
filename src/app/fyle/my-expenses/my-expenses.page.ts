@@ -878,6 +878,10 @@ export class MyExpensesPage implements OnInit {
       this.myExpensesService.generateReceiptsAttachedFilterPills(filterPills, filter);
     }
 
+    if (filter.potentialDuplicates) {
+      this.myExpensesService.generatePotentialDuplicatesFilterPills(filterPills, filter);
+    }
+
     if (filter.date) {
       this.myExpensesService.generateDateFilterPills(filter, filterPills);
     }
@@ -913,6 +917,8 @@ export class MyExpensesPage implements OnInit {
     newQueryParams = this.sharedExpenseService.generateDateParams(newQueryParams, this.filters);
 
     newQueryParams = this.sharedExpenseService.generateReceiptAttachedParams(newQueryParams, this.filters);
+
+    newQueryParams = this.sharedExpenseService.generatePotentialDuplicatesParams(newQueryParams, this.filters);
 
     newQueryParams = this.sharedExpenseService.generateStateFilters(newQueryParams, this.filters);
 

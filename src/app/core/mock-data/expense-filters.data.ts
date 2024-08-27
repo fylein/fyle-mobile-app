@@ -14,6 +14,24 @@ export const expenseFiltersData1: Partial<ExpenseFilters> = deepFreeze({
   sortDir: 'asc',
   cardNumbers: ['1234', '5678'],
   splitExpense: 'YES',
+  potentialDuplicates: 'YES',
+});
+
+export const expenseWithPotentialDuplicateFilterData: Partial<ExpenseFilters> = deepFreeze({
+  state: ['DRAFT', 'READY_TO_REPORT'],
+  date: DateFilters.thisWeek,
+  receiptsAttached: 'YES',
+  type: ['PerDiem', 'Mileage'],
+  sortParam: 'category->name',
+  sortDir: 'asc',
+  cardNumbers: ['1234', '5678'],
+  splitExpense: 'YES',
+  potentialDuplicates: 'YES',
+});
+
+export const expenseWithoutPotentialDuplicateFilterData: Partial<ExpenseFilters> = deepFreeze({
+  ...expenseWithPotentialDuplicateFilterData,
+  potentialDuplicates: 'NO',
 });
 
 export const expenseFiltersDataWoCards: Partial<ExpenseFilters> = deepFreeze({
