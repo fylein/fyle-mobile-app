@@ -2628,7 +2628,7 @@ export class AddEditExpensePage implements OnInit {
           }),
           startWith(initialProject),
           concatMap((project: ProjectV2) =>
-            combineLatest([this.activeCategories$, this.isProjectCategoryRestrictionsEnabled$]).pipe(
+            forkJoin([this.activeCategories$, this.isProjectCategoryRestrictionsEnabled$]).pipe(
               map(([activeCategories, isProjectCategoryRestrictionsEnabled]) =>
                 this.projectsService.getAllowedOrgCategoryIds(
                   project,
@@ -2657,7 +2657,7 @@ export class AddEditExpensePage implements OnInit {
           }
         })
       )
-      .subscribe();
+      .subscribe(noop);
 
     this.filteredCategories$.subscribe((categories) => {
       const formValue = this.fg.value as {
