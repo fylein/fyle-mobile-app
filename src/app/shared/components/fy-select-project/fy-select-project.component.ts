@@ -40,6 +40,8 @@ export class FySelectProjectComponent implements ControlValueAccessor, OnDestroy
 
   @Input() validInParent: boolean;
 
+  @Input() isProjectCategoryRestrictionsEnabled: boolean;
+
   displayValue: string;
 
   innerValue: ProjectV2;
@@ -91,6 +93,7 @@ export class FySelectProjectComponent implements ControlValueAccessor, OnDestroy
         defaultValue: this.defaultValue,
         recentlyUsed: this.recentlyUsed,
         label: this.label,
+        isProjectCategoryRestrictionsEnabled: this.isProjectCategoryRestrictionsEnabled,
       },
       mode: 'ios',
       ...this.modalProperties.getModalDefaultProperties(),

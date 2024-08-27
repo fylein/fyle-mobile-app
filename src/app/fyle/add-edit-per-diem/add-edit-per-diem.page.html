@@ -315,24 +315,29 @@
                         >
                           <ng-container *ngIf="projectCategoryIds$|async as projectCategoryIds">
                             <ng-container *ngIf="isProjectVisible$|async">
-                              <div
-                                [ngClass]="{'add-edit-per-diem--no-project': fg.controls.project.touched && !fg.controls.project.valid}"
-                                class="add-edit-per-diem--internal-block add-edit-per-diem--project-block"
+                              <ng-container
+                                *ngIf="{value: isProjectCategoryRestrictionsEnabled$ | async}; let isProjectCategoryRestrictionsEnabled"
                               >
-                                <app-fy-select-project
-                                  [categoryIds]="projectCategoryIds"
-                                  [cacheName]="'perDiemProjectCache'"
-                                  [defaultValue]="true"
-                                  [label]="txnFields?.project_id?.field_name"
-                                  [placeholder]="txnFields?.project_id?.placeholder"
-                                  [mandatory]="txnFields?.project_id?.is_mandatory"
-                                  [recentlyUsed]="recentProjects"
-                                  formControlName="project"
-                                  [validInParent]="fg.controls.project.valid"
-                                  [touchedInParent]="fg.controls.project.touched"
+                                <div
+                                  [ngClass]="{'add-edit-per-diem--no-project': fg.controls.project.touched && !fg.controls.project.valid}"
+                                  class="add-edit-per-diem--internal-block add-edit-per-diem--project-block"
                                 >
-                                </app-fy-select-project>
-                              </div>
+                                  <app-fy-select-project
+                                    [categoryIds]="projectCategoryIds"
+                                    [cacheName]="'perDiemProjectCache'"
+                                    [defaultValue]="true"
+                                    [label]="txnFields?.project_id?.field_name"
+                                    [placeholder]="txnFields?.project_id?.placeholder"
+                                    [mandatory]="txnFields?.project_id?.is_mandatory"
+                                    [recentlyUsed]="recentProjects"
+                                    formControlName="project"
+                                    [validInParent]="fg.controls.project.valid"
+                                    [touchedInParent]="fg.controls.project.touched"
+                                    [isProjectCategoryRestrictionsEnabled]="isProjectCategoryRestrictionsEnabled.value"
+                                  >
+                                  </app-fy-select-project>
+                                </div>
+                              </ng-container>
                             </ng-container>
                           </ng-container>
                         </ng-container>
