@@ -11,6 +11,7 @@ import { globalCacheBusterNotifier } from 'ts-cacheable';
 import { Delegator } from 'src/app/core/models/platform/delegator.model';
 import { DataTransformService } from 'src/app/core/services/data-transform.service';
 import { EouApiResponse } from 'src/app/core/models/eou-api-response.model';
+import { AuthService } from 'src/app/core/services/auth.service';
 
 @Component({
   selector: 'app-delegated-accounts',
@@ -29,30 +30,21 @@ export class DelegatedAccountsPage {
   constructor(
     private orgUserService: OrgUserService,
     private orgService: OrgService,
-    private dataTransformService: DataTransformService,
     private router: Router,
     private loaderService: LoaderService,
     private activatedRoute: ActivatedRoute,
-    private recentLocalStorageItemsService: RecentLocalStorageItemsService
+    private recentLocalStorageItemsService: RecentLocalStorageItemsService,
+    private authService: AuthService
   ) {}
 
   switchToDelegatee(delegator: Delegator): void {
-    const params = {
-      us_id: `eq.${delegator.user_id}`,
-    };
-
     from(this.loaderService.showLoader('Switching Account'))
       .pipe(
-        concatMap(() => this.orgUserService.getEmployeesByParams(params)),
-        concatMap((employee) =>
-          this.orgUserService
-            .getUserById(employee.data[0].ou_id)
-            .pipe(map((res) => this.dataTransformService.unflatten<ExtendedOrgUser, EouApiResponse>(res)))
-        ),
+        concatMap(() => from(this.authService.getEou())),
         concatMap((eou) => {
           globalCacheBusterNotifier.next();
           this.recentLocalStorageItemsService.clearRecentLocalStorageCache();
-          return this.orgUserService.switchToDelegator(eou.ou);
+          return this.orgUserService.switchToDelegator(delegator.user_id, eou.ou.org_id);
         }),
         finalize(async () => {
           await this.loaderService.hideLoader();

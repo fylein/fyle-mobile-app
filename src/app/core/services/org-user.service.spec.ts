@@ -186,7 +186,7 @@ describe('OrgUserService', () => {
     apiService.post.and.returnValue(of(extendedOrgUserResponse));
     authService.newRefreshToken.and.returnValue(of(extendedOrgUserResponse));
 
-    orgUserService.switchToDelegator(switchToDelegatorParams).subscribe((res) => {
+    orgUserService.switchToDelegator(delegatorData.user_id, switchToDelegatorParams.org_id).subscribe((res) => {
       expect(res).toEqual(extendedOrgUserResponse);
       done();
     });

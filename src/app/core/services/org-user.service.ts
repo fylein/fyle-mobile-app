@@ -53,9 +53,14 @@ export class OrgUserService {
   @CacheBuster({
     cacheBusterNotifier: orgUsersCacheBuster$,
   })
-  switchToDelegator(orgUser: OrgUser): Observable<ExtendedOrgUser> {
+  switchToDelegator(user_id: string, org_id: string): Observable<ExtendedOrgUser> {
+    const params = {
+      user_id: user_id,
+      org_id: org_id,
+    };
+
     return this.apiService
-      .post<AuthResponse>('/orgusers/delegator_refresh_token', orgUser)
+      .post<AuthResponse>('/orgusers/delegator_refresh_token', params)
       .pipe(switchMap((data) => this.authService.newRefreshToken(data.refresh_token)));
   }
 
