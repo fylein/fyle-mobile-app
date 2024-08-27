@@ -23,6 +23,7 @@ export class RecentlyUsedItemsService {
     recentValues: RecentlyUsed;
     eou: ExtendedOrgUser;
     categoryIds: string[];
+    isProjectCategoryRestrictionsEnabled: boolean;
     activeCategoryList?: OrgCategory[];
   }): Observable<ProjectV2[]> {
     if (
@@ -43,6 +44,7 @@ export class RecentlyUsedItemsService {
             offset: 0,
             limit: 10,
           },
+          config.isProjectCategoryRestrictionsEnabled,
           config.activeCategoryList
         )
         .pipe(
