@@ -579,7 +579,7 @@ describe('ExpensesService', () => {
       });
     });
 
-    it('should generate params no potential duplicate expenses', () => {
+    it('should generate params for non-potential duplicate expenses', () => {
       const result = service.generatePotentialDuplicatesParams({}, expenseWithoutPotentialDuplicateFilterData);
 
       expect(result).toEqual({

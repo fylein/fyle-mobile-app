@@ -25,7 +25,11 @@ import {
   expectedCriticalPolicyViolationPopoverParams2,
   expectedCriticalPolicyViolationPopoverParams3,
 } from 'src/app/core/mock-data/critical-policy-violation-popover.data';
-import { expenseFiltersData1, expenseFiltersData2 } from 'src/app/core/mock-data/expense-filters.data';
+import {
+  expenseFiltersData1,
+  expenseFiltersData2,
+  expenseWithPotentialDuplicateFilterData,
+} from 'src/app/core/mock-data/expense-filters.data';
 import {
   apiExpenseRes,
   expectedFormattedTransaction,
@@ -1036,6 +1040,36 @@ describe('MyExpensesPage', () => {
     });
   });
 
+  describe('isSelectionContainsException', () => {
+    it('should return true when policyViolationsCount is greater than 0', () => {
+      const result = component.isSelectionContainsException(1, 0, 0);
+      expect(result).toBeTrue();
+    });
+
+    it('should return true when draftCount is greater than 0', () => {
+      const result = component.isSelectionContainsException(0, 1, 0);
+      expect(result).toBeTrue();
+    });
+
+    it('should return true when pendingTransactionsCount is greater than 0 and restrictPendingTransactionsEnabled is true', () => {
+      component.restrictPendingTransactionsEnabled = true;
+      const result = component.isSelectionContainsException(0, 0, 1);
+      expect(result).toBeTrue();
+    });
+
+    it('should return false when all counts are 0 and restrictPendingTransactionsEnabled is false', () => {
+      component.restrictPendingTransactionsEnabled = false;
+      const result = component.isSelectionContainsException(0, 0, 0);
+      expect(result).toBeFalse();
+    });
+
+    it('should return false when pendingTransactionsCount is greater than 0 but restrictPendingTransactionsEnabled is false', () => {
+      component.restrictPendingTransactionsEnabled = false;
+      const result = component.isSelectionContainsException(0, 0, 1);
+      expect(result).toBeFalse();
+    });
+  });
+
   it('onSearchBarFocus(): should set isSearchBarFocused to true', () => {
     component.isSearchBarFocused = false;
     component.simpleSearchInput = getElementRef(fixture, '.my-expenses--simple-search-input');
@@ -1558,7 +1592,7 @@ describe('MyExpensesPage', () => {
     });
 
     it('should return filterPills based on the properties present in filters', () => {
-      const filterPillRes = component.generateFilterPills(expenseFiltersData1);
+      const filterPillRes = component.generateFilterPills(expenseWithPotentialDuplicateFilterData);
       expect(filterPillRes).toEqual(expectedFilterPill1);
     });
 

@@ -65,6 +65,11 @@ export const expectedFilterPill1: FilterPill[] = deepFreeze([
     value: 'yes',
   },
   {
+    label: 'Potential duplicates',
+    type: 'potentialDuplicates',
+    value: 'yes',
+  },
+  {
     label: 'Expense Type',
     type: 'type',
     value: 'Per Diem, Mileage',
