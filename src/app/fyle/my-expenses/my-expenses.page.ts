@@ -825,7 +825,7 @@ export class MyExpensesPage implements OnInit {
     this.loadExpenses$.next(params);
 
     setTimeout(() => {
-      event?.target?.complete();
+      event?.target?.complete?.();
     }, 1000);
   }
 

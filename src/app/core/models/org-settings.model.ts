@@ -1,3 +1,8 @@
+// TODO: Clean up the file as per the rules mentioned in the eslint file:
+
+/* eslint-disable custom-rules/one-enum-per-file */
+/* eslint-disable custom-rules/prefer-semantic-extension-name */
+/* eslint-disable custom-rules/one-interface-per-file */
 import { AllowedPaymentModes } from './allowed-payment-modes.enum';
 import { MileageDetails } from './mileage.model';
 import { TaxGroup } from './tax-group.model';
@@ -180,6 +185,7 @@ export interface OrgMileageSettings extends CommonOrgSettings {
 
 export interface AdvancedProjectSettings extends CommonOrgSettings {
   enable_individual_projects?: boolean;
+  enable_category_restriction?: boolean;
 }
 
 export interface SSOIntegrationSettings extends CommonOrgSettings {

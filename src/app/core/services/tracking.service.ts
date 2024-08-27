@@ -38,7 +38,7 @@ import { ExpenseFilters } from '../models/expense-filters.model';
 import { ReportFilters } from '../models/report-filters.model';
 import { CommuteDetailsResponse } from '../models/platform/commute-details-response.model';
 import { HttpErrorResponse } from '@angular/common/http';
-import mixpanel from 'mixpanel-browser';
+import mixpanel, { Config } from 'mixpanel-browser';
 
 @Injectable({
   providedIn: 'root',
@@ -48,12 +48,17 @@ export class TrackingService {
 
   constructor(private authService: AuthService, private deviceService: DeviceService) {
     try {
-      mixpanel?.init(environment.MIXPANEL_PROJECT_TOKEN, {
+      const config: Partial<Config> = {
         debug: false,
         track_pageview: true,
         persistence: 'localStorage',
-      });
-      mixpanel?.reset();
+      };
+
+      if (environment.MIXPANEL_PROXY_URL) {
+        config.api_host = environment.MIXPANEL_PROXY_URL;
+      }
+
+      mixpanel.init(environment.MIXPANEL_PROJECT_TOKEN, config);
     } catch (e) {}
   }
 
@@ -78,10 +83,6 @@ export class TrackingService {
           const distinctId = mixpanel?.get_distinct_id() as string;
           if (distinctId !== eou.us.email) {
             mixpanel?.identify(eou.us.email);
-            mixpanel?.people?.set({
-              $name: eou.us.full_name,
-              $email: eou.us.email,
-            });
           }
 
           properties['User Name'] = eou.us.full_name;
@@ -138,9 +139,6 @@ export class TrackingService {
   onSignin(email: string, properties: { label?: string } = {}): void {
     try {
       mixpanel?.identify(email);
-      mixpanel?.people?.set({
-        $email: email,
-      });
     } catch (e) {}
 
     this.identityEmail = email;

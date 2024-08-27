@@ -73,12 +73,14 @@ describe('RecentlyUsedItemsService', () => {
         recentValues: recentlyUsedRes,
         eou: apiEouRes,
         categoryIds: ['16558', '16559', '16560', '16561', '16562'],
+        isProjectCategoryRestrictionsEnabled: true,
         activeCategoryList: testActiveCategoryList,
       };
 
       recentlyUsedItemsService.getRecentlyUsedProjects(config).subscribe((res) => {
         expect(projectsService.getByParamsUnformatted).toHaveBeenCalledOnceWith(
           platformProjectsArgs1,
+          true,
           testActiveCategoryList
         );
         expect(res).toEqual(recentlyUsedProjectRes);
@@ -93,6 +95,7 @@ describe('RecentlyUsedItemsService', () => {
         recentValues: null,
         eou: apiEouRes,
         categoryIds: ['16558', '16559', '16560', '16561', '16562'],
+        isProjectCategoryRestrictionsEnabled: true,
         activeCategoryList: testActiveCategoryList,
       };
       recentlyUsedItemsService.getRecentlyUsedProjects(config).subscribe((res) => {

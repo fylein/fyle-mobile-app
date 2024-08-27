@@ -27,6 +27,7 @@ export class ProjectsService {
   @Cacheable()
   getByParamsUnformatted(
     projectParams: PlatformProjectArgs,
+    isProjectCategoryRestrictionsEnabled: boolean,
     activeCategoryList?: OrgCategory[]
   ): Observable<ProjectV2[]> {
     // eslint-disable-next-line prefer-const
@@ -46,7 +47,7 @@ export class ProjectsService {
     this.addActiveFilter(isEnabled, params);
 
     // `orgCategoryIds` can be optional
-    this.addOrgCategoryIdsFilter(orgCategoryIds, params);
+    this.addOrgCategoryIdsFilter(orgCategoryIds, params, isProjectCategoryRestrictionsEnabled);
 
     // `searchNameText` can be optional
     this.addNameSearchFilter(searchNameText, params);
@@ -93,8 +94,12 @@ export class ProjectsService {
     }
   }
 
-  addOrgCategoryIdsFilter(orgCategoryIds: string[], params: PlatformProjectParams): void {
-    if (typeof orgCategoryIds !== 'undefined' && orgCategoryIds !== null) {
+  addOrgCategoryIdsFilter(
+    orgCategoryIds: string[],
+    params: PlatformProjectParams,
+    isProjectCategoryRestrictionsEnabled: boolean
+  ): void {
+    if (typeof orgCategoryIds !== 'undefined' && orgCategoryIds !== null && isProjectCategoryRestrictionsEnabled) {
       params.or = '(category_ids.is.null, ' + 'category_ids.ov.{' + orgCategoryIds.join(',') + '}' + ')';
     }
   }
@@ -105,9 +110,13 @@ export class ProjectsService {
     }
   }
 
-  getAllowedOrgCategoryIds(project: ProjectParams | ProjectV2, activeCategoryList: OrgCategory[]): OrgCategory[] {
+  getAllowedOrgCategoryIds(
+    project: ProjectParams | ProjectV2,
+    activeCategoryList: OrgCategory[],
+    isProjectCategoryRestrictionsEnabled: boolean
+  ): OrgCategory[] {
     let categoryList: OrgCategory[] = [];
-    if (project) {
+    if (project && isProjectCategoryRestrictionsEnabled) {
       categoryList = activeCategoryList.filter((category: OrgCategory) => {
         const catId = category.id;
         return project.project_org_category_ids.indexOf(catId as never) > -1;

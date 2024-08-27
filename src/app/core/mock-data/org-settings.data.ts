@@ -1423,3 +1423,13 @@ export const orgSettingsWithCommuteDeductionsDisabled: OrgSettings = deepFreeze(
     allowed: false,
   },
 });
+
+export const orgSettingsWithProjectCategoryRestrictions: OrgSettings = deepFreeze({
+  ...orgSettingsData,
+  advanced_projects: {
+    allowed: true,
+    enabled: true,
+    enable_individual_projects: true,
+    enable_category_restriction: true,
+  },
+});

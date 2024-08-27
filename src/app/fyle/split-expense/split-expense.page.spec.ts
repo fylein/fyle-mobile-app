@@ -170,6 +170,7 @@ import { splitPolicyExp1 } from 'src/app/core/mock-data/split-expense-policy.dat
 import { SplitExpenseMissingFieldsData } from 'src/app/core/models/split-expense-missing-fields.data';
 import { splitPayloadData1 } from 'src/app/core/mock-data/split-payload.data';
 import { platformExpenseData, platformExpenseWithExtractedData } from 'src/app/core/mock-data/platform/v1/expense.data';
+import { orgSettingsWithProjectCategoryRestrictions } from 'src/app/core/mock-data/org-settings.data';
 
 describe('SplitExpensePage', () => {
   let component: SplitExpensePage;
@@ -798,7 +799,7 @@ describe('SplitExpensePage', () => {
       projectsService.getbyId.and.returnValue(of(testProjectV2));
       projectsService.getAllowedOrgCategoryIds.and.returnValue(allowedActiveCategories);
 
-      orgSettingsService.get.and.returnValue(of(orgSettingsGetData));
+      orgSettingsService.get.and.returnValue(of(orgSettingsWithProjectCategoryRestrictions));
       orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
 
       dependentFieldsService.getDependentFieldValuesForBaseField.and.returnValue(of(dependentFieldValues));
@@ -844,7 +845,11 @@ describe('SplitExpensePage', () => {
       expect(component.getActiveCategories).toHaveBeenCalledTimes(1);
 
       expect(projectsService.getbyId).toHaveBeenCalledOnceWith(component.transaction.project_id);
-      expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledOnceWith(testProjectV2, testActiveCategoryList);
+      expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledOnceWith(
+        testProjectV2,
+        testActiveCategoryList,
+        true
+      );
 
       component.categories$.subscribe((categories) => {
         expect(categories).toEqual(allowedActiveCategoriesListOptions);
@@ -1508,8 +1513,20 @@ describe('SplitExpensePage', () => {
     });
   });
 
+  it('setSplitExpenseValuesBasedOnProject(): should set project_id, project_name and category id in split expense', () => {
+    const mockTransaction = cloneDeep(txnData4);
+    mockTransaction.org_category_id = 122269;
+    component.transaction = mockTransaction;
+    const splitTxn = cloneDeep(txnData4);
+    const project = cloneDeep(expectedProjectsResponse[0]);
+    component.setSplitExpenseValuesBasedOnProject(splitTxn, project, true);
+    expect(splitTxn.project_id).toEqual(project.project_id);
+    expect(splitTxn.project_name).toEqual(project.project_name);
+  });
+
   describe('setSplitExpenseProjectHelper():', () => {
-    it('should set project_id, project_name and category id in split expense if project is present in split expense form and the category is mapped to that project', () => {
+    it('should call setSplitExpenseValuesBasedOnProject() if project is present in split expense form', () => {
+      spyOn(component, 'setSplitExpenseValuesBasedOnProject');
       const mockTransaction = cloneDeep(txnData4);
       mockTransaction.org_category_id = 122269;
       component.transaction = mockTransaction;
@@ -1517,12 +1534,13 @@ describe('SplitExpensePage', () => {
       const splitTxn = cloneDeep(txnData4);
       const project = cloneDeep(expectedProjectsResponse[0]);
       const costCenter = cloneDeep(costCenterExpenseField);
-      component.setSplitExpenseProjectHelper(mockSplitExpenseForm, splitTxn, project, costCenter);
-      expect(splitTxn.project_id).toEqual(project.project_id);
-      expect(splitTxn.project_name).toEqual(project.project_name);
+      component.setSplitExpenseProjectHelper(mockSplitExpenseForm, splitTxn, { project, costCenter }, true);
+
+      expect(component.setSplitExpenseValuesBasedOnProject).toHaveBeenCalledOnceWith(splitTxn, project, true);
     });
 
-    it('should not modify project details in split expense if project is not present in split expense form', () => {
+    it('should not call setSplitExpenseValuesBasedOnProject() if project is not present in split expense form', () => {
+      spyOn(component, 'setSplitExpenseValuesBasedOnProject');
       const mockTransaction = cloneDeep(txnData4);
       mockTransaction.org_category_id = 122269;
       component.transaction = mockTransaction;
@@ -1530,9 +1548,8 @@ describe('SplitExpensePage', () => {
       const splitTxn = cloneDeep(txnData4);
       const project = cloneDeep(expectedProjectsResponse[0]);
       const costCenter = cloneDeep(costCenterExpenseField);
-      component.setSplitExpenseProjectHelper(mockSplitExpenseForm, splitTxn, project, costCenter);
-      expect(splitTxn.project_id).toBeNull();
-      expect(splitTxn.project_name).toBeNull();
+      component.setSplitExpenseProjectHelper(mockSplitExpenseForm, splitTxn, { project, costCenter }, false);
+      expect(component.setSplitExpenseValuesBasedOnProject).not.toHaveBeenCalled();
     });
 
     it('should set cost center to null in split expense if category is present in split expense form and category is not mapped to that cost center', () => {
@@ -1543,7 +1560,7 @@ describe('SplitExpensePage', () => {
       const splitTxn = cloneDeep(txnData4);
       const project = cloneDeep(expectedProjectsResponse[0]);
       const costCenter = cloneDeep(costCenterExpenseField);
-      component.setSplitExpenseProjectHelper(mockSplitExpenseForm, splitTxn, project, costCenter);
+      component.setSplitExpenseProjectHelper(mockSplitExpenseForm, splitTxn, { project, costCenter }, true);
       expect(splitTxn.cost_center_id).toBeNull();
       expect(splitTxn.cost_center_name).toBeNull();
     });
@@ -1555,7 +1572,7 @@ describe('SplitExpensePage', () => {
       const mockSplitExpenseForm = cloneDeep(splitExpenseDataWithCostCenter);
       const splitTxn = cloneDeep(txnData4);
       const project = cloneDeep(expectedProjectsResponse[0]);
-      component.setSplitExpenseProjectHelper(mockSplitExpenseForm, splitTxn, project, null);
+      component.setSplitExpenseProjectHelper(mockSplitExpenseForm, splitTxn, { project, costCenter: null }, true);
       expect(splitTxn.cost_center_id).toBeNull();
       expect(splitTxn.cost_center_name).toBeNull();
     });
@@ -1568,7 +1585,7 @@ describe('SplitExpensePage', () => {
       const splitTxn = cloneDeep(txnData4);
       const project = cloneDeep(expectedProjectsResponse[0]);
       const costCenter = cloneDeep(costCenterExpenseField);
-      component.setSplitExpenseProjectHelper(mockSplitExpenseForm, splitTxn, project, costCenter);
+      component.setSplitExpenseProjectHelper(mockSplitExpenseForm, splitTxn, { project, costCenter }, true);
       expect(splitTxn.org_category_id).toEqual(mockSplitExpenseForm.category.id);
       expect(splitTxn.org_category).toEqual(mockSplitExpenseForm.category.name);
     });
@@ -1581,11 +1598,25 @@ describe('SplitExpensePage', () => {
       const project = cloneDeep(expectedProjectsResponse[0]);
       project.project_org_category_ids = [184692];
       const costCenter = cloneDeep(costCenterExpenseField);
-      component.setSplitExpenseProjectHelper(mockSplitExpenseForm, splitTxn, project, costCenter);
+      component.setSplitExpenseProjectHelper(mockSplitExpenseForm, splitTxn, { project, costCenter }, true);
       expect(splitTxn.org_category_id).toEqual(mockSplitExpenseForm.category.id);
       expect(splitTxn.org_category).toEqual(mockSplitExpenseForm.category.name);
       expect(splitTxn.project_id).toEqual(project.project_id);
       expect(splitTxn.project_name).toEqual(project.project_name);
+    });
+
+    it('should not set category_id in split expense if category is not present in transaction and split expense form', () => {
+      const mockTransaction = cloneDeep(txnData4);
+      mockTransaction.org_category_id = null;
+      component.transaction = mockTransaction;
+      const mockSplitExpenseForm = cloneDeep(splitExpenseDataWithCostCenter);
+      mockSplitExpenseForm.category = null;
+      const splitTxn = cloneDeep(txnData4);
+      splitTxn.org_category_id = null;
+      const project = cloneDeep(expectedProjectsResponse[0]);
+      component.setSplitExpenseProjectHelper(mockSplitExpenseForm, splitTxn, { project, costCenter: null }, true);
+
+      expect(splitTxn.org_category_id).toBeNull();
     });
   });
 
@@ -1610,12 +1641,12 @@ describe('SplitExpensePage', () => {
       const splitTxn = cloneDeep(txnData4);
       const project = cloneDeep(expectedProjectsResponse[0]);
       const costCenter = cloneDeep(costCenterExpenseField);
-      component.setCategoryAndProjectHelper(mockSplitExpenseForm, splitTxn, project, costCenter);
+      component.setCategoryAndProjectHelper(mockSplitExpenseForm, splitTxn, { project, costCenter }, true);
       expect(component.setSplitExpenseProjectHelper).toHaveBeenCalledOnceWith(
         mockSplitExpenseForm,
         splitTxn,
-        project,
-        costCenter
+        { project, costCenter },
+        true
       );
     });
 
@@ -1628,7 +1659,7 @@ describe('SplitExpensePage', () => {
       const splitTxn = cloneDeep(txnData4);
       const project = cloneDeep(expectedProjectsResponse[0]);
       const costCenter = cloneDeep(costCenterExpenseField);
-      component.setCategoryAndProjectHelper(mockSplitExpenseForm, splitTxn, project, costCenter);
+      component.setCategoryAndProjectHelper(mockSplitExpenseForm, splitTxn, { project, costCenter }, true);
       expect(splitTxn.org_category_id).toEqual(mockSplitExpenseForm.category.id);
       expect(splitTxn.project_id).toBeNull();
     });
@@ -1642,9 +1673,21 @@ describe('SplitExpensePage', () => {
       const splitTxn = cloneDeep(txnData4);
       const project = cloneDeep(expectedProjectsResponse[0]);
       const costCenter = cloneDeep(costCenterExpenseField);
-      component.setCategoryAndProjectHelper(mockSplitExpenseForm, splitTxn, project, costCenter);
+      component.setCategoryAndProjectHelper(mockSplitExpenseForm, splitTxn, { project, costCenter }, true);
       expect(splitTxn.org_category_id).toEqual(mockTransaction.org_category_id);
       expect(splitTxn.project_id).toEqual(mockTransaction.project_id);
+    });
+
+    it('should set cost center if present in split expense form or in transaction', () => {
+      const mockTransaction = cloneDeep(txnData4);
+      component.transaction = mockTransaction;
+      const mockSplitExpenseForm = cloneDeep(splitExpenseDataWithCostCenter);
+      const splitTxn = cloneDeep(txnData4);
+      splitTxn.cost_center_id = null;
+      const project = cloneDeep(expectedProjectsResponse[0]);
+      const costCenter = cloneDeep(costCenterExpenseField);
+      component.setCategoryAndProjectHelper(mockSplitExpenseForm, splitTxn, { project, costCenter }, true);
+      expect(splitTxn.cost_center_id).toEqual(mockSplitExpenseForm.cost_center.id);
     });
   });
 
@@ -1670,12 +1713,12 @@ describe('SplitExpensePage', () => {
       component.transaction = mockTransaction;
       const mockSplitExpenseForm = cloneDeep(splitExpenseDataWithCostCenter2);
       const splitTxn = cloneDeep(txnData4);
-      component.setupCategoryAndProject(splitTxn, mockSplitExpenseForm);
+      component.setupCategoryAndProject(splitTxn, mockSplitExpenseForm, true);
       expect(component.setCategoryAndProjectHelper).toHaveBeenCalledOnceWith(
         mockSplitExpenseForm,
         splitTxn,
-        null,
-        expenseFieldObjData.cost_center_id
+        { project: null, costCenter: expenseFieldObjData.cost_center_id },
+        true
       );
     });
 
@@ -1685,12 +1728,12 @@ describe('SplitExpensePage', () => {
       component.transaction = mockTransaction;
       const mockSplitExpenseForm = cloneDeep(splitExpenseDataWithProject);
       const splitTxn = cloneDeep(txnData4);
-      component.setupCategoryAndProject(splitTxn, mockSplitExpenseForm);
+      component.setupCategoryAndProject(splitTxn, mockSplitExpenseForm, true);
       expect(component.setCategoryAndProjectHelper).toHaveBeenCalledOnceWith(
         mockSplitExpenseForm,
         splitTxn,
-        mockSplitExpenseForm.project,
-        expenseFieldObjData.cost_center_id
+        { project: mockSplitExpenseForm.project, costCenter: expenseFieldObjData.cost_center_id },
+        true
       );
     });
 
@@ -1701,12 +1744,12 @@ describe('SplitExpensePage', () => {
       const mockSplitExpenseForm = cloneDeep(splitExpenseDataWithProject);
       mockSplitExpenseForm.project = null;
       const splitTxn = cloneDeep(txnData4);
-      component.setupCategoryAndProject(splitTxn, mockSplitExpenseForm);
+      component.setupCategoryAndProject(splitTxn, mockSplitExpenseForm, true);
       expect(component.setCategoryAndProjectHelper).toHaveBeenCalledOnceWith(
         mockSplitExpenseForm,
         splitTxn,
-        component.selectedProject,
-        expenseFieldObjData.cost_center_id
+        { project: component.selectedProject, costCenter: expenseFieldObjData.cost_center_id },
+        true
       );
     });
 
@@ -1717,12 +1760,12 @@ describe('SplitExpensePage', () => {
       const mockSplitExpenseForm = cloneDeep(splitExpenseDataWithProject);
       mockSplitExpenseForm.project.project_org_category_ids = null;
       const splitTxn = cloneDeep(txnData4);
-      component.setupCategoryAndProject(splitTxn, mockSplitExpenseForm);
+      component.setupCategoryAndProject(splitTxn, mockSplitExpenseForm, true);
       expect(component.setCategoryAndProjectHelper).toHaveBeenCalledOnceWith(
         mockSplitExpenseForm,
         splitTxn,
-        mockSplitExpenseForm.project,
-        expenseFieldObjData.cost_center_id
+        { project: mockSplitExpenseForm.project, costCenter: expenseFieldObjData.cost_center_id },
+        true
       );
     });
   });
@@ -1731,6 +1774,7 @@ describe('SplitExpensePage', () => {
     beforeEach(() => {
       splitExpenseService.createSplitTxns.and.returnValue(of(txnList));
       spyOn(component, 'setupCategoryAndProject');
+      component.isProjectCategoryRestrictionsEnabled$ = of(true);
     });
 
     it('should call createSplitTxns method and return the transactions created by split API', () => {
@@ -1761,8 +1805,8 @@ describe('SplitExpensePage', () => {
           component.expenseFields
         );
         expect(component.setupCategoryAndProject).toHaveBeenCalledTimes(2);
-        expect(component.setupCategoryAndProject).toHaveBeenCalledWith(txnList[0], splitExpenseForm1.value);
-        expect(component.setupCategoryAndProject).toHaveBeenCalledWith(txnList[1], otherSplitExpenseForm.value);
+        expect(component.setupCategoryAndProject).toHaveBeenCalledWith(txnList[0], splitExpenseForm1.value, true);
+        expect(component.setupCategoryAndProject).toHaveBeenCalledWith(txnList[1], otherSplitExpenseForm.value, true);
       });
     });
   });

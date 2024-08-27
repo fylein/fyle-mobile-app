@@ -237,6 +237,7 @@ export function TestCases2(getTestBed) {
 
     it('setupFilteredCategories(): should setup filteredCategories$', () => {
       component.subCategories$ = of(orgCategoryData1);
+      component.isProjectCategoryRestrictionsEnabled$ = of(true);
       component.fg.patchValue({
         sub_category: {
           id: 247980,
@@ -246,7 +247,7 @@ export function TestCases2(getTestBed) {
       projectsService.getAllowedOrgCategoryIds.and.returnValue([orgCategoryData]);
       spyOn(component.fg.controls.sub_category, 'reset');
       component.setupFilteredCategories();
-      expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledOnceWith(projects[0], orgCategoryData1);
+      expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledOnceWith(projects[0], orgCategoryData1, true);
       expect(component.fg.controls.sub_category.reset).toHaveBeenCalledTimes(1);
     });
 
