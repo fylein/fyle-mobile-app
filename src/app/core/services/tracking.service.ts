@@ -50,7 +50,7 @@ export class TrackingService {
     try {
       const config: Partial<Config> = {
         debug: false,
-        track_pageview: true,
+        track_pageview: false,
         persistence: 'localStorage',
       };
 
