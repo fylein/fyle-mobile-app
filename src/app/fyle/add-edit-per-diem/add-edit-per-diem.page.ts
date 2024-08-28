@@ -1005,6 +1005,13 @@ export class AddEditPerDiemPage implements OnInit {
       )
     );
 
+    this.isProjectCategoryRestrictionsEnabled$ = orgSettings$.pipe(
+      map(
+        (orgSettings) =>
+          orgSettings.advanced_projects.allowed && orgSettings.advanced_projects.enable_category_restriction
+      )
+    );
+
     this.individualPerDiemRatesEnabled$ = orgSettings$.pipe(
       map((orgSettings) => orgSettings.per_diem.enable_individual_per_diem_rates)
     );
@@ -1124,13 +1131,6 @@ export class AddEditPerDiemPage implements OnInit {
 
     this.isProjectsEnabled$ = orgSettings$.pipe(
       map((orgSettings) => orgSettings.projects && orgSettings.projects.enabled)
-    );
-
-    this.isProjectCategoryRestrictionsEnabled$ = orgSettings$.pipe(
-      map(
-        (orgSettings) =>
-          orgSettings.advanced_projects.allowed && orgSettings.advanced_projects.enable_category_restriction
-      )
     );
 
     this.customInputs$ = this.getCustomInputs();
