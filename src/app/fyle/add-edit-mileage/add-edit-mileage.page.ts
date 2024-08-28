@@ -1587,6 +1587,12 @@ export class AddEditMileagePage implements OnInit {
 
     this.mileageConfig$ = orgSettings$.pipe(map((orgSettings) => orgSettings.mileage));
     this.isAdvancesEnabled$ = this.checkAdvanceEnabled(orgSettings$);
+    this.isProjectCategoryRestrictionsEnabled$ = orgSettings$.pipe(
+      map(
+        (orgSettings) =>
+          orgSettings.advanced_projects?.allowed && orgSettings.advanced_projects.enable_category_restriction
+      )
+    );
 
     this.checkNewReportsFlow(orgSettings$);
 
@@ -1660,13 +1666,6 @@ export class AddEditMileagePage implements OnInit {
     );
 
     this.isProjectsEnabled$ = orgSettings$.pipe(map((orgSettings) => !!orgSettings.projects?.enabled));
-
-    this.isProjectCategoryRestrictionsEnabled$ = orgSettings$.pipe(
-      map(
-        (orgSettings) =>
-          orgSettings.advanced_projects?.allowed && orgSettings.advanced_projects.enable_category_restriction
-      )
-    );
 
     this.customInputs$ = this.getCustomInputs();
 
