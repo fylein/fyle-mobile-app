@@ -811,7 +811,7 @@ export function TestCases5(getTestBed) {
       });
     });
 
-    fit('getRecentProjects(): should get recent projects', (done) => {
+    it('getRecentProjects(): should get recent projects', (done) => {
       component.activeCategories$ = of(sortedCategory);
       component.recentlyUsedValues$ = of(recentlyUsedRes);
       component.isProjectCategoryRestrictionsEnabled$ = of(true);
