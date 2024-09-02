@@ -14,7 +14,7 @@ import { BehaviorSubject, of, throwError } from 'rxjs';
 import { extendedDeviceInfoMockData, extendedDeviceInfoMockDataWoApp } from '../mock-data/extended-device-info.data';
 import { HttpErrorResponse, HttpHeaders, HttpRequest } from '@angular/common/http';
 
-fdescribe('HttpConfigInterceptor', () => {
+describe('HttpConfigInterceptor', () => {
   let httpInterceptor: HttpConfigInterceptor;
   let jwtHelperService: jasmine.SpyObj<JwtHelperService>;
   let tokenService: jasmine.SpyObj<TokenService>;
