@@ -21,9 +21,9 @@ import { TokenService } from '../services/token.service';
 import { UserEventService } from '../services/user-event.service';
 @Injectable()
 export class HttpConfigInterceptor implements HttpInterceptor {
-  private accessTokenCallInProgress = false;
-  // This BehaviorSubject coordinates access token updates across multiple requests
-  private accessTokenSubject = new BehaviorSubject<string | null>(null);
+  public accessTokenCallInProgress = false;
+
+  public accessTokenSubject = new BehaviorSubject<string | null>(null);
   constructor(
     private jwtHelperService: JwtHelperService,
     private tokenService: TokenService,
@@ -45,7 +45,7 @@ export class HttpConfigInterceptor implements HttpInterceptor {
     }
     return false;
   }
-  private expiringSoon(accessToken: string): boolean {
+  expiringSoon(accessToken: string): boolean {
     try {
       const expiryDate = dayjs(this.jwtHelperService.getExpirationDate(accessToken));
       const now = dayjs();
@@ -56,30 +56,22 @@ export class HttpConfigInterceptor implements HttpInterceptor {
       return true;
     }
   }
-  private refreshAccessToken(): Observable<string | null> {
+  refreshAccessToken(): Observable<string | null> {
     return from(this.tokenService.getRefreshToken()).pipe(
       switchMap((refreshToken) => {
         if (refreshToken) {
-          // Fetch the new access token using the refresh token
           return from(this.routerAuthService.fetchAccessToken(refreshToken)).pipe(
-            switchMap((authResponse) =>
-              // Set the new access token and then return it
-              from(this.routerAuthService.newAccessToken(authResponse.access_token))
-            ),
-            switchMap(() =>
-              // Retrieve and return the new access token
-              from(this.tokenService.getAccessToken())
-            ),
+            switchMap((authResponse) => from(this.routerAuthService.newAccessToken(authResponse.access_token))),
+            switchMap(() => from(this.tokenService.getAccessToken())),
             catchError((error) => this.handleError(error)) // Handle refresh errors
           );
         } else {
-          return of(null); // If no refresh token is available, return null
+          return of(null);
         }
       })
     );
   }
-  private handleError(error: HttpErrorResponse): Observable<never> {
-    // Handle 401 Unauthorized errors by logging out the user and clearing storage
+  handleError(error: HttpErrorResponse): Observable<never> {
     if (error.status === 401) {
       this.userEventService.logout();
       this.secureStorageService.clearAll();
@@ -95,7 +87,7 @@ export class HttpConfigInterceptor implements HttpInterceptor {
    * If multiple API call initiated then `this.accessTokenCallInProgress` will block multiple access_token call
    * Reference: https://stackoverflow.com/a/57638101
    */
-  private getAccessToken(): Observable<string | null> {
+  getAccessToken(): Observable<string | null> {
     return from(this.tokenService.getAccessToken()).pipe(
       switchMap((accessToken) => {
         if (accessToken && !this.expiringSoon(accessToken)) {
@@ -114,15 +106,15 @@ export class HttpConfigInterceptor implements HttpInterceptor {
         } else {
           // If a refresh is already in progress, wait for it to complete
           return this.accessTokenSubject.pipe(
-            filter((result) => result !== null), // Wait until the token is available
+            filter((result) => result !== null),
             take(1),
-            switchMap(() => from(this.tokenService.getAccessToken())) // Convert the Promise to an Observable
+            switchMap(() => from(this.tokenService.getAccessToken()))
           );
         }
       })
     );
   }
-  private getUrlWithoutQueryParam(url: string): string {
+  getUrlWithoutQueryParam(url: string): string {
     // Remove query parameters from the URL
     return url.split('?')[0].split(';')[0].substring(0, 200);
   }
@@ -133,7 +125,6 @@ export class HttpConfigInterceptor implements HttpInterceptor {
           if (!accessToken) {
             return this.handleError({ status: 401, error: 'Unauthorized' } as HttpErrorResponse);
           }
-          // Proceed with the request, including the access token
           return this.executeHttpRequest(request, next, accessToken);
         })
       );
@@ -141,8 +132,7 @@ export class HttpConfigInterceptor implements HttpInterceptor {
       return next.handle(request);
     }
   }
-  private executeHttpRequest(request: HttpRequest<any>, next: HttpHandler, accessToken: string) {
-    // Adding device and app information to the headers
+  executeHttpRequest(request: HttpRequest<any>, next: HttpHandler, accessToken: string) {
     return from(this.deviceService.getDeviceInfo()).pipe(
       switchMap((deviceInfo) => {
         const appVersion = deviceInfo.appVersion || '0.0.0';
