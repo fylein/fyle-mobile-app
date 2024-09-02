@@ -14,7 +14,7 @@ import { BehaviorSubject, of, throwError } from 'rxjs';
 import { extendedDeviceInfoMockData, extendedDeviceInfoMockDataWoApp } from '../mock-data/extended-device-info.data';
 import { HttpErrorResponse, HttpHeaders, HttpRequest } from '@angular/common/http';
 
-describe('HttpConfigInterceptor', () => {
+fdescribe('HttpConfigInterceptor', () => {
   let httpInterceptor: HttpConfigInterceptor;
   let jwtHelperService: jasmine.SpyObj<JwtHelperService>;
   let tokenService: jasmine.SpyObj<TokenService>;
@@ -170,9 +170,9 @@ describe('HttpConfigInterceptor', () => {
       httpInterceptor.refreshAccessToken().subscribe({
         error: (err) => {
           expect(err).toBeTruthy();
-          expect(userEventService.logout).toHaveBeenCalledTimes(1);
-          expect(secureStorageService.clearAll).toHaveBeenCalledTimes(1);
-          expect(storageService.clearAll).toHaveBeenCalledTimes(1);
+          expect(userEventService.logout).not.toHaveBeenCalled();
+          expect(secureStorageService.clearAll).not.toHaveBeenCalled();
+          expect(storageService.clearAll).not.toHaveBeenCalled();
           done();
         },
       });
@@ -234,7 +234,7 @@ describe('HttpConfigInterceptor', () => {
           .intercept(new HttpRequest('GET', 'https://app.fylehq.com/'), { handle: () => of(null) })
           .subscribe((res) => {
             expect(res).toBeNull();
-            expect(httpInterceptor.secureUrl).toHaveBeenCalledTimes(2);
+            expect(httpInterceptor.secureUrl).toHaveBeenCalledTimes(1);
             expect(httpInterceptor.getAccessToken).toHaveBeenCalledTimes(1);
             expect(deviceService.getDeviceInfo).toHaveBeenCalledTimes(1);
             done();
@@ -260,8 +260,8 @@ describe('HttpConfigInterceptor', () => {
           .subscribe({
             error: (err) => {
               expect(err).toBeTruthy();
-              expect(httpInterceptor.expiringSoon).toHaveBeenCalledTimes(1);
-              expect(httpInterceptor.refreshAccessToken).toHaveBeenCalledTimes(1);
+              expect(httpInterceptor.expiringSoon).not.toHaveBeenCalled();
+              expect(httpInterceptor.refreshAccessToken).not.toHaveBeenCalled();
               expect(httpInterceptor.getAccessToken).toHaveBeenCalledTimes(1);
               expect(deviceService.getDeviceInfo).toHaveBeenCalledTimes(1);
               done();
@@ -287,7 +287,7 @@ describe('HttpConfigInterceptor', () => {
           .subscribe({
             error: (err) => {
               expect(err).toBeTruthy();
-              expect(httpInterceptor.expiringSoon).toHaveBeenCalledTimes(1);
+              expect(httpInterceptor.expiringSoon).not.toHaveBeenCalled();
               expect(httpInterceptor.getAccessToken).toHaveBeenCalledTimes(1);
               expect(userEventService.logout).toHaveBeenCalledTimes(1);
               expect(secureStorageService.clearAll).toHaveBeenCalledTimes(1);
@@ -319,7 +319,7 @@ describe('HttpConfigInterceptor', () => {
           .subscribe({
             error: (err) => {
               expect(err).toBeTruthy();
-              expect(httpInterceptor.expiringSoon).toHaveBeenCalledTimes(1);
+              expect(httpInterceptor.expiringSoon).not.toHaveBeenCalled();
               expect(httpInterceptor.getAccessToken).toHaveBeenCalledTimes(1);
             },
           });

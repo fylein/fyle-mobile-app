@@ -1,10 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   HttpErrorResponse,
   HttpEvent,
   HttpHandler,
   HttpInterceptor,
   HttpParameterCodec,
-  HttpParams,
   HttpRequest,
 } from '@angular/common/http';
 import { Injectable } from '@angular/core';
@@ -24,6 +24,7 @@ export class HttpConfigInterceptor implements HttpInterceptor {
   public accessTokenCallInProgress = false;
 
   public accessTokenSubject = new BehaviorSubject<string | null>(null);
+
   constructor(
     private jwtHelperService: JwtHelperService,
     private tokenService: TokenService,
@@ -33,6 +34,7 @@ export class HttpConfigInterceptor implements HttpInterceptor {
     private storageService: StorageService,
     private secureStorageService: SecureStorageService
   ) {}
+
   secureUrl(url: string): boolean {
     if (url.indexOf('localhost') >= 0 || url.indexOf('.fylehq.com') >= 0 || url.indexOf('.fyle.tech') >= 0) {
       if (url.indexOf('/api/auth/') >= 0 || url.indexOf('routerapi/auth/') >= 0) {
@@ -45,6 +47,7 @@ export class HttpConfigInterceptor implements HttpInterceptor {
     }
     return false;
   }
+
   expiringSoon(accessToken: string): boolean {
     try {
       const expiryDate = dayjs(this.jwtHelperService.getExpirationDate(accessToken));
@@ -56,6 +59,7 @@ export class HttpConfigInterceptor implements HttpInterceptor {
       return true;
     }
   }
+
   refreshAccessToken(): Observable<string | null> {
     return from(this.tokenService.getRefreshToken()).pipe(
       switchMap((refreshToken) => {
@@ -63,7 +67,7 @@ export class HttpConfigInterceptor implements HttpInterceptor {
           return from(this.routerAuthService.fetchAccessToken(refreshToken)).pipe(
             switchMap((authResponse) => from(this.routerAuthService.newAccessToken(authResponse.access_token))),
             switchMap(() => from(this.tokenService.getAccessToken())),
-            catchError((error) => this.handleError(error)) // Handle refresh errors
+            catchError((error: HttpErrorResponse) => this.handleError(error)) // Handle refresh errors
           );
         } else {
           return of(null);
@@ -71,6 +75,7 @@ export class HttpConfigInterceptor implements HttpInterceptor {
       })
     );
   }
+
   handleError(error: HttpErrorResponse): Observable<never> {
     if (error.status === 401) {
       this.userEventService.logout();
@@ -114,10 +119,12 @@ export class HttpConfigInterceptor implements HttpInterceptor {
       })
     );
   }
+
   getUrlWithoutQueryParam(url: string): string {
     // Remove query parameters from the URL
     return url.split('?')[0].split(';')[0].substring(0, 200);
   }
+
   intercept(request: HttpRequest<string>, next: HttpHandler): Observable<HttpEvent<string>> {
     if (this.secureUrl(request.url)) {
       return this.getAccessToken().pipe(
@@ -132,7 +139,8 @@ export class HttpConfigInterceptor implements HttpInterceptor {
       return next.handle(request);
     }
   }
-  executeHttpRequest(request: HttpRequest<any>, next: HttpHandler, accessToken: string) {
+
+  executeHttpRequest(request: HttpRequest<any>, next: HttpHandler, accessToken: string): Observable<HttpEvent<any>> {
     return from(this.deviceService.getDeviceInfo()).pipe(
       switchMap((deviceInfo) => {
         const appVersion = deviceInfo.appVersion || '0.0.0';
@@ -156,12 +164,15 @@ export class CustomEncoder implements HttpParameterCodec {
   encodeKey(key: string): string {
     return encodeURIComponent(key);
   }
+
   encodeValue(value: string): string {
     return encodeURIComponent(value);
   }
+
   decodeKey(key: string): string {
     return decodeURIComponent(key);
   }
+
   decodeValue(value: string): string {
     return decodeURIComponent(value);
   }
