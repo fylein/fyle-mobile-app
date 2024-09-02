@@ -1621,14 +1621,14 @@ export class AddEditExpensePage implements OnInit {
       eou: this.authService.getEou(),
       activeCategories: this.activeCategories$,
       isProjectCategoryRestrictionsEnabled: this.isProjectCategoryRestrictionsEnabled$,
+      selectedCategoryId: this.etxn$.pipe(map((etxn) => etxn.tx.org_category_id)),
     }).pipe(
-      switchMap(({ recentValues, eou, activeCategories, isProjectCategoryRestrictionsEnabled }) => {
-        const formControl = this.getFormControl('category') as { value: OrgCategory };
-        const categoryId = formControl.value && (formControl.value.id as unknown as string[]);
+      switchMap(({ recentValues, eou, activeCategories, isProjectCategoryRestrictionsEnabled, selectedCategoryId }) => {
+        const categoryId = `${selectedCategoryId}` || null;
         return this.recentlyUsedItemsService.getRecentlyUsedProjects({
           recentValues,
           eou,
-          categoryIds: categoryId,
+          categoryIds: [categoryId],
           isProjectCategoryRestrictionsEnabled,
           activeCategoryList: activeCategories,
         });
