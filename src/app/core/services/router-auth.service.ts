@@ -17,6 +17,7 @@ import { SpenderService } from './platform/v1/spender/spender.service';
 import { ApproverService } from './platform/v1/approver/approver.service';
 import { EmailExistsResponse } from '../models/email-exists-response.model';
 import { ResendEmailVerification } from '../models/resend-email-verification.model';
+import { TrackingService } from './tracking.service';
 
 @Injectable({
   providedIn: 'root',
@@ -35,7 +36,8 @@ export class RouterAuthService {
     private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
     private expenseAggregationService: ExpenseAggregationService,
     private spenderService: SpenderService,
-    private approverService: ApproverService
+    private approverService: ApproverService,
+    private trackingService: TrackingService
   ) {}
 
   checkEmailExists(email: string): Observable<EmailExistsResponse> {
@@ -66,6 +68,7 @@ export class RouterAuthService {
     this.expenseAggregationService.setRoot(domain);
     this.spenderService.setRoot(domain);
     this.approverService.setRoot(domain);
+    this.trackingService.setRoot(domain);
 
     await this.tokenService.setClusterDomain(domain);
   }

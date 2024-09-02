@@ -17,6 +17,7 @@ export const environment = {
   LIVE_UPDATE_APP_VERSION: '${process.env.LIVE_UPDATE_APP_VERSION}',
   SMARTLOOK_API_KEY: '${process.env.SMARTLOOK_API_KEY}',
   MIXPANEL_PROJECT_TOKEN: '${process.env.MIXPANEL_PROJECT_TOKEN}',
-  MIXPANEL_PROXY_URL: '${process.env.MIXPANEL_PROXY_URL}',
+  USE_MIXPANEL_PROXY: '${process.env.USE_MIXPANEL_PROXY}',
+  ENABLE_MIXPANEL: '${process.env.ENABLE_MIXPANEL}'
 };
 `
