@@ -15,6 +15,7 @@ import { apiAuthRes, authResData1 } from '../mock-data/auth-reponse.data';
 import { ExpenseAggregationService } from './expense-aggregation.service';
 import { SpenderService } from './platform/v1/spender/spender.service';
 import { ApproverService } from './platform/v1/approver/approver.service';
+import { TrackingService } from './tracking.service';
 
 describe('RouterAuthService', () => {
   let routerAuthService: RouterAuthService;
@@ -31,6 +32,7 @@ describe('RouterAuthService', () => {
   let expenseAggregationService: jasmine.SpyObj<ExpenseAggregationService>;
   let spenderService: jasmine.SpyObj<SpenderService>;
   let approverService: jasmine.SpyObj<ApproverService>;
+  let trackingService: jasmine.SpyObj<TrackingService>;
 
   const access_token =
     'eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2Nzk5MDQ0NTQsImlzcyI6IkZ5bGVBcHAiLCJ1c2VyX2lkIjoidXN2S0E0WDhVZ2NyIiwib3JnX3VzZXJfaWQiOiJvdVg4ZHdzYkxDTHYiLCJvcmdfaWQiOiJvck5WdGhUbzJaeW8iLCJyb2xlcyI6IltcIkFETUlOXCIsXCJBUFBST1ZFUlwiLFwiRllMRVJcIixcIkhPUFwiLFwiSE9EXCIsXCJPV05FUlwiXSIsInNjb3BlcyI6IltdIiwiYWxsb3dlZF9DSURScyI6IltdIiwidmVyc2lvbiI6IjMiLCJjbHVzdGVyX2RvbWFpbiI6IlwiaHR0cHM6Ly9zdGFnaW5nLmZ5bGUudGVjaFwiIiwiZXhwIjoxNjc5OTA4MDU0fQ.z3i-MqE3NNyxPEvWFCSr3q58rLXn3LZcIBskW9BLN48';
@@ -59,6 +61,7 @@ describe('RouterAuthService', () => {
     const expenseAggregationServiceSpy = jasmine.createSpyObj('ExpenseAggregationService', ['setRoot']);
     const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['setRoot']);
     const approverServiceSpy = jasmine.createSpyObj('ApproverService', ['setRoot']);
+    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['setRoot']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -115,6 +118,10 @@ describe('RouterAuthService', () => {
           provide: ApproverService,
           useValue: approverServiceSpy,
         },
+        {
+          provide: TrackingService,
+          useValue: trackingServiceSpy,
+        },
       ],
     });
     routerAuthService = TestBed.inject(RouterAuthService);
@@ -135,6 +142,7 @@ describe('RouterAuthService', () => {
     expenseAggregationService = TestBed.inject(ExpenseAggregationService) as jasmine.SpyObj<ExpenseAggregationService>;
     spenderService = TestBed.inject(SpenderService) as jasmine.SpyObj<SpenderService>;
     approverService = TestBed.inject(ApproverService) as jasmine.SpyObj<ApproverService>;
+    trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
   });
 
   it('should be created', () => {
@@ -169,6 +177,7 @@ describe('RouterAuthService', () => {
       expect(expenseAggregationService.setRoot).toHaveBeenCalledOnceWith(domain);
       expect(spenderService.setRoot).toHaveBeenCalledOnceWith(domain);
       expect(approverService.setRoot).toHaveBeenCalledOnceWith(domain);
+      expect(trackingService.setRoot).toHaveBeenCalledOnceWith(domain);
       done();
     });
   });
