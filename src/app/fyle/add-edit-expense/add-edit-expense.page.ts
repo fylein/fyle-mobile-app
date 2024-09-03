@@ -1624,11 +1624,11 @@ export class AddEditExpensePage implements OnInit {
       selectedCategoryId: this.etxn$.pipe(map((etxn) => etxn.tx.org_category_id)),
     }).pipe(
       switchMap(({ recentValues, eou, activeCategories, isProjectCategoryRestrictionsEnabled, selectedCategoryId }) => {
-        const categoryId = `${selectedCategoryId}` || null;
+        const categoryIds = selectedCategoryId ? [`${selectedCategoryId}`] : null;
         return this.recentlyUsedItemsService.getRecentlyUsedProjects({
           recentValues,
           eou,
-          categoryIds: [categoryId],
+          categoryIds,
           isProjectCategoryRestrictionsEnabled,
           activeCategoryList: activeCategories,
         });
