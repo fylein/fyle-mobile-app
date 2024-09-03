@@ -46,19 +46,32 @@ import mixpanel, { Config } from 'mixpanel-browser';
 export class TrackingService {
   identityEmail = null;
 
-  constructor(private authService: AuthService, private deviceService: DeviceService) {
+  ROOT_ENDPOINT: string;
+
+  constructor(private authService: AuthService, private deviceService: DeviceService) {}
+
+  setRoot(rootUrl: string): void {
+    this.ROOT_ENDPOINT = rootUrl;
+    this.initializeMixpanel();
+  }
+
+  initializeMixpanel(): void {
     try {
-      const config: Partial<Config> = {
-        debug: false,
-        track_pageview: false,
-        persistence: 'localStorage',
-      };
+      const enableMixpanel = environment.ENABLE_MIXPANEL;
+      if (enableMixpanel === 'true') {
+        const config: Partial<Config> = {
+          debug: false,
+          track_pageview: false,
+          persistence: 'localStorage',
+        };
 
-      if (environment.MIXPANEL_PROXY_URL) {
-        config.api_host = environment.MIXPANEL_PROXY_URL;
+        const useMixpanelProxy = environment.USE_MIXPANEL_PROXY;
+        if (useMixpanelProxy === 'true' && this.ROOT_ENDPOINT) {
+          config.api_host = this.ROOT_ENDPOINT + '/mixpanel';
+        }
+
+        mixpanel.init(environment.MIXPANEL_PROJECT_TOKEN, config);
       }
-
-      mixpanel.init(environment.MIXPANEL_PROJECT_TOKEN, config);
     } catch (e) {}
   }
 
