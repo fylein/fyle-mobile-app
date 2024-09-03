@@ -45,11 +45,12 @@ import mixpanel, { Config } from 'mixpanel-browser';
 })
 export class TrackingService {
   identityEmail = null;
+
   ROOT_ENDPOINT: string;
 
   constructor(private authService: AuthService, private deviceService: DeviceService) {}
 
-  setRoot(rootUrl: string) {
+  setRoot(rootUrl: string): void {
     this.ROOT_ENDPOINT = rootUrl;
     this.initializeMixpanel();
   }
