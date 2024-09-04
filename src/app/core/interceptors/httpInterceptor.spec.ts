@@ -139,11 +139,20 @@ describe('HttpConfigInterceptor', () => {
     });
   });
 
-  it('expiringSoon(): should check if token is expiring soon', () => {
-    jwtHelperService.getExpirationDate.and.returnValue(new Date('2023-03-03T06:50:11.644Z'));
+  describe('expiringSoon():', () => {
+    it('should return true if token is expiring soon', () => {
+      jwtHelperService.getExpirationDate.and.returnValue(new Date('2023-03-03T06:50:11.644Z'));
 
-    const result = httpInterceptor.expiringSoon(authResData2.accessToken);
-    expect(result).toBeTrue();
+      const result = httpInterceptor.expiringSoon(authResData2.accessToken);
+      expect(result).toBeTrue();
+    });
+
+    it('should return true if an error occurs while checking token expiration', () => {
+      jwtHelperService.getExpirationDate.and.throwError('Error in getting expiration date');
+
+      const result = httpInterceptor.expiringSoon(authResData2.accessToken);
+      expect(result).toBeTrue();
+    });
   });
 
   describe('refreshAccessToken():', () => {
@@ -175,6 +184,19 @@ describe('HttpConfigInterceptor', () => {
           expect(storageService.clearAll).not.toHaveBeenCalled();
           done();
         },
+      });
+    });
+
+    it('should return null if refresh token is null or undefined', (done) => {
+      tokenService.getRefreshToken.and.resolveTo(null); // Simulate a null refresh token
+
+      httpInterceptor.refreshAccessToken().subscribe((res) => {
+        expect(res).toBeNull();
+        expect(tokenService.getRefreshToken).toHaveBeenCalledTimes(1);
+        expect(routerAuthService.fetchAccessToken).not.toHaveBeenCalled();
+        expect(routerAuthService.newAccessToken).not.toHaveBeenCalled();
+        expect(tokenService.getAccessToken).not.toHaveBeenCalled();
+        done();
       });
     });
   });
@@ -241,60 +263,37 @@ describe('HttpConfigInterceptor', () => {
           });
       });
 
-      it('should refresh token if the next handler errors out', (done) => {
-        spyOn(httpInterceptor, 'expiringSoon').and.returnValue(true);
-        spyOn(httpInterceptor, 'refreshAccessToken').and.returnValue(of(authResData2.refresh_token));
-        spyOn(httpInterceptor, 'getAccessToken').and.returnValue(of(authResData2.accessToken));
-        deviceService.getDeviceInfo.and.returnValue(of(extendedDeviceInfoMockData));
+      it('should handle unauthorized error if no access token is available', (done) => {
+        spyOn(httpInterceptor, 'secureUrl').and.returnValue(true);
+        spyOn(httpInterceptor, 'getAccessToken').and.returnValue(of(null)); // Simulate no access token
 
         httpInterceptor
-          .intercept(new HttpRequest('GET', 'https://app.fylehq.com/'), {
-            handle: () =>
-              throwError(
-                () =>
-                  new HttpErrorResponse({
-                    status: 200,
-                  })
-              ),
-          })
+          .intercept(new HttpRequest('GET', 'https://app.fylehq.com/'), { handle: () => of(null) })
           .subscribe({
+            next: () => fail('Expected an error, but got a success response'),
             error: (err) => {
-              expect(err).toBeTruthy();
-              expect(httpInterceptor.expiringSoon).not.toHaveBeenCalled();
-              expect(httpInterceptor.refreshAccessToken).not.toHaveBeenCalled();
+              expect(err.status).toBe(401);
+              expect(err.error).toBe('Unauthorized');
+              expect(httpInterceptor.secureUrl).toHaveBeenCalledTimes(1);
               expect(httpInterceptor.getAccessToken).toHaveBeenCalledTimes(1);
-              expect(deviceService.getDeviceInfo).toHaveBeenCalledTimes(1);
               done();
             },
           });
       });
 
-      it('should clear cache if the next handler error out but the token is not expiring soon', (done) => {
-        spyOn(httpInterceptor, 'expiringSoon').and.returnValue(false);
-        spyOn(httpInterceptor, 'getAccessToken').and.returnValue(of(authResData2.accessToken));
-        deviceService.getDeviceInfo.and.returnValue(of(extendedDeviceInfoMockData));
+      it('should pass through requests for non-secure URLs', (done) => {
+        spyOn(httpInterceptor, 'secureUrl').and.returnValue(false);
+
+        const nextHandleSpy = jasmine.createSpy().and.returnValue(of(null));
 
         httpInterceptor
-          .intercept(new HttpRequest('GET', 'https://app.fylehq.com/'), {
-            handle: () =>
-              throwError(
-                () =>
-                  new HttpErrorResponse({
-                    status: 401,
-                  })
-              ),
-          })
-          .subscribe({
-            error: (err) => {
-              expect(err).toBeTruthy();
-              expect(httpInterceptor.expiringSoon).not.toHaveBeenCalled();
-              expect(httpInterceptor.getAccessToken).toHaveBeenCalledTimes(1);
-              expect(userEventService.logout).toHaveBeenCalledTimes(1);
-              expect(secureStorageService.clearAll).toHaveBeenCalledTimes(1);
-              expect(storageService.clearAll).toHaveBeenCalledTimes(1);
-            },
+          .intercept(new HttpRequest('GET', 'http://example.com'), { handle: nextHandleSpy })
+          .subscribe((res) => {
+            expect(res).toBeNull();
+            expect(httpInterceptor.secureUrl).toHaveBeenCalledTimes(1);
+            expect(nextHandleSpy).toHaveBeenCalled();
+            done();
           });
-        done();
       });
 
       it('should throw an error if the next handler returns a 404 and device information could be retrived', (done) => {
