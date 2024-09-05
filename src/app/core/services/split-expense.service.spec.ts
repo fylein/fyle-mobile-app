@@ -92,7 +92,6 @@ describe('SplitExpenseService', () => {
 
   beforeEach(() => {
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', [
-      'uploadBase64File',
       'checkPolicy',
       'upsert',
       'transformRawExpense',
