@@ -21,6 +21,10 @@
     </div>
   </form>
 </div>
+<div class="fy-currency--auto-coded" *ngIf="autoCodeMessage">
+  <mat-icon class="fy-currency--stars-filled-icon" svgIcon="stars-filled"></mat-icon>
+  {{ autoCodeMessage }}
+</div>
 <ng-container *ngIf="value?.currency && value?.orig_currency">
   <div class="fy-currency--exchange-rate-container" [ngClass]="{ expanded: expanded }">
     <mat-icon class="fy-currency--exchange-rate-icon" svgIcon="info-circle-fill"></mat-icon>

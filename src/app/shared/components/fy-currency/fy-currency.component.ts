@@ -9,6 +9,7 @@ import { isEqual } from 'lodash';
 import { concatMap, map, switchMap } from 'rxjs/operators';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { ParsedResponse } from 'src/app/core/models/parsed_response.model';
 
 @Component({
   selector: 'app-currency',
@@ -34,6 +35,10 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
   @Input() touchedInParent = false;
 
   @Input() validInParent = true;
+
+  @Input() autoCodedData: ParsedResponse;
+
+  autoCodeMessage = '';
 
   exchangeRate = 1;
 
@@ -141,6 +146,7 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
         if (!isEqual(value, this.innerValue)) {
           this.value = value;
         }
+        this.showAutoCodeMessage();
       });
   }
 
@@ -163,6 +169,26 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
           }
         });
     }
+
+    this.showAutoCodeMessage();
+  }
+
+  showAutoCodeMessage() {
+    const { currency, amount } = this.autoCodedData || {};
+    const formCurrency = this.fg?.value.currency;
+    const formAmount = this.fg?.value.amount;
+
+    const isCurrencyAutoCoded = currency === formCurrency;
+    const isAmountAutoCoded = amount === formAmount;
+
+    this.autoCodeMessage =
+      isCurrencyAutoCoded && isAmountAutoCoded
+        ? 'Currency and Amount are auto coded.'
+        : isCurrencyAutoCoded
+        ? 'Currency is auto coded.'
+        : isAmountAutoCoded
+        ? 'Amount is auto coded.'
+        : ''; // Empty string if neither are auto-coded
   }
 
   convertInnerValueToFormValue(innerVal) {

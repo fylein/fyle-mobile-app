@@ -306,6 +306,9 @@
     &__invalid {
       margin-bottom: 0px;
     }
+    &__auto-coded {
+      margin-bottom: 0px;
+    }
   }
 
   &--split-expense-container {
@@ -733,5 +736,20 @@
     color: $red;
     line-height: 16px;
     font-size: 12px;
+  }
+
+  &--auto-coded {
+    display: flex;
+    align-items: center;
+    height: 12px;
+    font-size: 12px;
+    color: $black-light;
+    margin-top: 4px;
+  }
+
+  &--stars-filled-icon {
+    width: 12px;
+    color: $brand-primary;
+    margin-right: 4px;
   }
 }
