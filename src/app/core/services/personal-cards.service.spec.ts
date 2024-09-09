@@ -814,22 +814,6 @@ describe('PersonalCardsService', () => {
     });
   });
 
-  it('getExpenseDetails(): should get expense details', (done) => {
-    apiV2Service.get.and.returnValue(of(etxncData));
-
-    const txnSplitGroupID = 'txOJVaaPxo9O';
-
-    personalCardsService.getExpenseDetails(txnSplitGroupID).subscribe((res) => {
-      expect(res).toEqual(etxncData.data[0]);
-      expect(apiV2Service.get).toHaveBeenCalledOnceWith('/expenses', {
-        params: {
-          tx_split_group_id: `eq.${txnSplitGroupID}`,
-        },
-      });
-      done();
-    });
-  });
-
   it('fetchTransactions(): should fetch transactions', (done) => {
     expenseAggregationService.post.and.returnValue(of(apiPersonalCardTxnsRes));
     const accountId = 'baccLesaRlyvLY';

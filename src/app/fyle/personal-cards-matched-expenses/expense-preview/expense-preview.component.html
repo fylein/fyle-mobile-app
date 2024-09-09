@@ -24,7 +24,7 @@
         </ion-col>
         <ion-col size="7" (click)="editExpense()">
           <div class="expense-preview--body-container__value expense-preview--link">
-            {{ expenseDetails.tx_expense_number }}
+            {{ expenseDetails.seq_num }}
           </div>
         </ion-col>
       </ion-row>
@@ -34,7 +34,7 @@
         </ion-col>
         <ion-col size="7">
           <div class="expense-preview--body-container__value">
-            {{ expenseDetails.tx_amount | currency : expenseDetails.tx_currency : 'symbol-narrow' }}
+            {{ expenseDetails.amount | currency : expenseDetails.currency : 'symbol-narrow' }}
           </div>
         </ion-col>
       </ion-row>
@@ -44,7 +44,7 @@
         </ion-col>
         <ion-col size="7">
           <div class="expense-preview--body-container__value">
-            {{ expenseDetails.tx_created_at | date : 'MMM dd, YYYY' }}
+            {{ expenseDetails.created_at | date : 'MMM dd, YYYY' }}
           </div>
         </ion-col>
       </ion-row>
@@ -54,7 +54,7 @@
         </ion-col>
         <ion-col size="7">
           <div class="expense-preview--body-container__value">
-            {{ expenseDetails.tx_txn_dt | date : 'MMM dd, YYYY' }}
+            {{ expenseDetails.spent_at | date : 'MMM dd, YYYY' }}
           </div>
         </ion-col>
       </ion-row>
@@ -64,8 +64,8 @@
         </ion-col>
         <ion-col size="7">
           <div class="expense-preview--body-container__value">
-            {{ expenseDetails.tx_vendor }}
-            <ng-container *ngIf="!expenseDetails.tx_vendor">-</ng-container>
+            {{ expenseDetails.merchant }}
+            <ng-container *ngIf="!expenseDetails.merchant">-</ng-container>
           </div>
         </ion-col>
       </ion-row>
@@ -75,7 +75,7 @@
         </ion-col>
         <ion-col size="7">
           <div class="expense-preview--body-container__value">
-            {{ expenseDetails.tx_org_category }}
+            {{ expenseDetails.category.name }}
           </div>
         </ion-col>
       </ion-row>
@@ -95,7 +95,7 @@
         </ion-col>
         <ion-col size="7">
           <div class="expense-preview--body-container__value">
-            <ng-container *ngIf="!expenseDetails.tx_file_ids"
+            <ng-container *ngIf="!expenseDetails.file_ids?.length"
               >Not Attached
               <ion-icon
                 [src]="'assets/svg/attachment-none.svg'"
@@ -103,7 +103,7 @@
                 slot="icon-only"
               ></ion-icon>
             </ng-container>
-            <ng-container *ngIf="expenseDetails.tx_file_ids"
+            <ng-container *ngIf="expenseDetails.file_ids?.length"
               >Attached
               <ion-icon [src]="'assets/svg/attachment.svg'" class="expense-preview--icon" slot="icon-only"></ion-icon>
             </ng-container>

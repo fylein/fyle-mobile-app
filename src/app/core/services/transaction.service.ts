@@ -22,8 +22,6 @@ import { AccountsService } from './accounts.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformPolicyExpense } from '../models/platform/platform-policy-expense.model';
 import { ExpensePolicy } from '../models/platform/platform-expense-policy.model';
-import { EtxnParams } from '../models/etxn-params.model';
-import { ApiV2Response } from '../models/v2/api-v2-response.model';
 import { Transaction } from '../models/v1/transaction.model';
 import { FileObject } from '../models/file-obj.model';
 import { UnflattenedTransaction } from '../models/unflattened-transaction.model';
@@ -54,9 +52,7 @@ export class TransactionService {
     @Inject(PAGINATION_SIZE) private paginationSize: number,
     private storageService: StorageService,
     private apiService: ApiService,
-    private apiV2Service: ApiV2Service,
     private dateService: DateService,
-    private authService: AuthService,
     private orgUserSettingsService: OrgUserSettingsService,
     private timezoneService: TimezoneService,
     private utilityService: UtilityService,
@@ -65,8 +61,7 @@ export class TransactionService {
     private paymentModesService: PaymentModesService,
     private orgSettingsService: OrgSettingsService,
     private accountsService: AccountsService,
-    private expensesService: ExpensesService,
-    private ldService: LaunchDarklyService
+    private expensesService: ExpensesService
   ) {
     expensesCacheBuster$.subscribe(() => {
       if (this.clearTaskCache) {
@@ -89,71 +84,6 @@ export class TransactionService {
       tap(() => {
         this.clearTaskCache = clearTaskCache;
       })
-    );
-  }
-
-  @Cacheable({
-    cacheBusterObserver: expensesCacheBuster$,
-  })
-
-  // TODO: Remove/Update method once we remove older my-expenses-page completely
-  getMyExpenses(
-    config: Partial<{ offset: number; limit: number; order: string; queryParams: EtxnParams }> = {
-      offset: 0,
-      limit: 10,
-      queryParams: {},
-    }
-  ): Observable<ApiV2Response<Expense>> {
-    return from(this.authService.getEou()).pipe(
-      switchMap((eou) =>
-        this.apiV2Service.get('/expenses', {
-          params: {
-            offset: config.offset,
-            limit: config.limit,
-            order: `${config.order || 'tx_txn_dt.desc'},tx_created_at.desc,tx_id.desc`,
-            tx_org_user_id: 'eq.' + eou.ou.id,
-            ...config.queryParams,
-          },
-        })
-      ),
-      map(
-        (res) =>
-          res as {
-            count: number;
-            data: Expense[];
-            limit: number;
-            offset: number;
-            url: string;
-          }
-      ),
-      map((res) => ({
-        ...res,
-        data: res.data.map((datum: Expense) => this.dateService.fixDatesV2(datum)),
-      }))
-    );
-  }
-
-  @Cacheable({
-    cacheBusterObserver: expensesCacheBuster$,
-  })
-
-  // TODO: Remove/Update method once we remove older my-expenses-page completely
-  getAllExpenses(config: Partial<{ order: string; queryParams: EtxnParams }>): Observable<Expense[]> {
-    return this.getMyExpensesCount(config.queryParams).pipe(
-      switchMap((count) => {
-        count = count > this.paginationSize ? count / this.paginationSize : 1;
-        return range(0, count);
-      }),
-      concatMap((page) =>
-        this.getMyExpenses({
-          offset: this.paginationSize * page,
-          limit: this.paginationSize,
-          queryParams: config.queryParams,
-          order: config.order,
-        })
-      ),
-      map((res) => res.data),
-      reduce((acc, curr) => acc.concat(curr), [] as Expense[])
     );
   }
 
@@ -276,15 +206,6 @@ export class TransactionService {
         }
       })
     );
-  }
-
-  // TODO: Remove/Update method once we remove older my-expenses-page completely
-  getMyExpensesCount(queryParams: EtxnParams): Observable<number> {
-    return this.getMyExpenses({
-      offset: 0,
-      limit: 1,
-      queryParams,
-    }).pipe(map((res) => res.count));
   }
 
   checkMandatoryFields(platformPolicyExpense: PlatformPolicyExpense): Observable<PlatformMissingMandatoryFields> {
