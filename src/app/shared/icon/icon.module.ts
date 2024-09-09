@@ -115,6 +115,7 @@ export class IconModule {
     'sparkle.svg',
     'arrow-tail-right.svg',
     'stars-filled.svg',
+    'stars-color-filled.svg',
   ];
 
   constructor(private domSanitizer: DomSanitizer, private matIconRegistry: MatIconRegistry) {

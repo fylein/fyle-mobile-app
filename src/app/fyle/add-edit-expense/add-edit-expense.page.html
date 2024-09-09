@@ -321,8 +321,11 @@
                       [name]="txnFields.txn_dt?.field_name || 'Date of Spend'"
                     />
                   </div>
-                  <div class="add-edit-expense--auto-coded" *ngIf="isDateAutoCoded()">
-                    <mat-icon class="add-edit-expense--stars-filled-icon" svgIcon="stars-filled"></mat-icon>
+                  <div
+                    class="add-edit-expense--auto-coded"
+                    *ngIf="this.inpageExtractedData && this.inpageExtractedData?.date === this.fg.controls.dateOfSpend.value"
+                  >
+                    <mat-icon class="add-edit-expense--stars-color-filled-icon" svgIcon="stars-color-filled"></mat-icon>
                     Date is auto coded.
                   </div>
                   <div
@@ -497,7 +500,10 @@
                       class="add-edit-expense--auto-coded"
                       *ngIf="inpageExtractedData && inpageExtractedData?.category === fg.controls.category.value?.displayName"
                     >
-                      <mat-icon class="add-edit-expense--stars-filled-icon" svgIcon="stars-filled"></mat-icon>
+                      <mat-icon
+                        class="add-edit-expense--stars-color-filled-icon"
+                        svgIcon="stars-color-filled"
+                      ></mat-icon>
                       Category is auto coded.
                     </div>
                   </div>
@@ -920,7 +926,7 @@
                 class="add-edit-expense--auto-coded"
                 *ngIf="inpageExtractedData && inpageExtractedData?.vendor_name === fg.controls.vendor_id.value?.display_name"
               >
-                <mat-icon class="add-edit-expense--stars-filled-icon" svgIcon="stars-filled"></mat-icon>
+                <mat-icon class="add-edit-expense--stars-color-filled-icon" svgIcon="stars-color-filled"></mat-icon>
                 Merchant is auto coded.
               </div>
             </div>

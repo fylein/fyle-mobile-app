@@ -5187,8 +5187,4 @@ export class AddEditExpensePage implements OnInit {
 
     await popover.present();
   }
-
-  isDateAutoCoded() {
-    return this.inpageExtractedData && this.inpageExtractedData?.date === this.fg.controls.dateOfSpend.value;
-  }
 }
