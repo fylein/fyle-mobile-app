@@ -55,6 +55,7 @@ import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-f
 import { Expense } from 'src/app/core/models/expense.model';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 
+// eslint-disable-next-line custom-rules/prefer-semantic-extension-name
 type Filters = Partial<{
   amount: number;
   createdOn: Partial<{
@@ -471,7 +472,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     if (this.selectionMode) {
       this.switchSelectionMode();
     }
-    this.selectedTrasactionType = event.detail.value as string;
+    this.selectedTrasactionType = event.detail.value;
     this.acc = [];
     const params = this.loadData$.getValue();
     const queryParams = params.queryParams || {};

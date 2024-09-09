@@ -61,6 +61,7 @@ import {
   unflattenedExpWoProject,
   unflattenedExpenseWithCCCGroupId2,
   unflattenedTxnData,
+  unflattenedTxnWithCategory,
 } from 'src/app/core/mock-data/unflattened-txn.data';
 import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
 import { AccountsService } from 'src/app/core/services/accounts.service';
@@ -814,8 +815,8 @@ export function TestCases5(getTestBed) {
       component.activeCategories$ = of(sortedCategory);
       component.recentlyUsedValues$ = of(recentlyUsedRes);
       component.isProjectCategoryRestrictionsEnabled$ = of(true);
+      component.etxn$ = of(unflattenedTxnWithCategory);
       authService.getEou.and.resolveTo(apiEouRes);
-      component.fg.controls.category.setValue(orgCategoryData);
       recentlyUsedItemsService.getRecentlyUsedProjects.and.returnValue(of(recentlyUsedProjectRes));
       fixture.detectChanges();
 
@@ -825,7 +826,7 @@ export function TestCases5(getTestBed) {
         expect(recentlyUsedItemsService.getRecentlyUsedProjects).toHaveBeenCalledOnceWith({
           recentValues: recentlyUsedRes,
           eou: apiEouRes,
-          categoryIds: component.fg.controls.category.value && component.fg.controls.category.value.id,
+          categoryIds: [`${unflattenedTxnWithCategory.tx.org_category_id}`],
           isProjectCategoryRestrictionsEnabled: true,
           activeCategoryList: sortedCategory,
         });

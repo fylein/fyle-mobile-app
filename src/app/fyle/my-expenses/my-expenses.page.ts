@@ -1669,6 +1669,8 @@ export class MyExpensesPage implements OnInit {
       await this.openFilters('Sort By');
     } else if (filterType === 'splitExpense') {
       await this.openFilters('Split Expense');
+    } else if (filterType === 'potentialDuplicates') {
+      await this.openFilters('Potential duplicates');
     }
   }
 
