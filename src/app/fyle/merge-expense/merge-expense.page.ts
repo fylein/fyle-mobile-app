@@ -327,7 +327,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
     expenses$.subscribe((expenses) => {
       this.expenses = expenses;
       // Set receipts from expenses if the merge form is having one or more expenses without receipts
-      this.setupDefaultReceipts(this.expenses);
+      this.setupDefaultReceipts(expenses);
       this.loadGenericFieldsOptions();
     });
 
