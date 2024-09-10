@@ -265,7 +265,7 @@ describe('PersonalCardsPage', () => {
           data: {
             icon: 'check-square-fill',
             showCloseButton: false,
-            message: message,
+            message,
           },
           duration: 3000,
         };
@@ -296,7 +296,7 @@ describe('PersonalCardsPage', () => {
           data: {
             icon: 'check-square-fill',
             showCloseButton: false,
-            message: message,
+            message,
           },
           duration: 3000,
         };

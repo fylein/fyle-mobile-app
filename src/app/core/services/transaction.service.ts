@@ -4,8 +4,6 @@ import { DateService } from './date.service';
 import { map, switchMap, concatMap, reduce, tap } from 'rxjs/operators';
 import { StorageService } from './storage.service';
 import { from, Observable, range, forkJoin, of } from 'rxjs';
-import { ApiV2Service } from './api-v2.service';
-import { AuthService } from './auth.service';
 import { OrgUserSettingsService } from './org-user-settings.service';
 import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
