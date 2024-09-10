@@ -246,7 +246,7 @@ export class PersonalCardsService {
     }
 
     if (filter?.createdOn) {
-      const dateFilter = filter as Partial<PersonalCardFilter>;
+      const dateFilter = filter;
       generatedFilters.push({
         name: 'Created On',
         value: dateFilter.createdOn.name,
