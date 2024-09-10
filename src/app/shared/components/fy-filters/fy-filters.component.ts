@@ -38,11 +38,11 @@ export class FyFiltersComponent implements OnInit {
 
   constructor(private modalController: ModalController) {}
 
-  get FilterOptionType(): typeof FilterOptionType {
+  get FilterOptionType() {
     return FilterOptionType;
   }
 
-  ngOnInit(): void {
+  ngOnInit() {
     const activeFilterInitialIndex =
       (this.activeFilterInitialName &&
         this.filterOptions.findIndex((option) => option.name === this.activeFilterInitialName)) ||
