@@ -218,7 +218,14 @@
                   </div>
                 </ion-col>
                 <ion-col class="view-expense--content-container">
-                  <div class="view-expense--label">Spend Date</div>
+                  <div class="view-expense--auto-coded">
+                    <div class="view-expense--label">Spend Date</div>
+                    <ion-icon
+                      *ngIf="(expense.spent_at | date:'MMM dd, YYYY') === (expense.extracted_data.date | date:'MMM dd, YYYY')"
+                      class="view-expense--stars-color-filled-icon"
+                      src="../../../assets/svg/stars-color-filled.svg"
+                    ></ion-icon>
+                  </div>
                   <div class="view-expense--value">{{ expense.spent_at | date: 'MMM dd, YYYY' }}</div>
                 </ion-col>
               </ion-row>
