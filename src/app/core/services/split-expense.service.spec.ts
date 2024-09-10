@@ -92,7 +92,6 @@ describe('SplitExpenseService', () => {
 
   beforeEach(() => {
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', [
-      'uploadBase64File',
       'checkPolicy',
       'upsert',
       'transformRawExpense',
@@ -187,7 +186,7 @@ describe('SplitExpenseService', () => {
     });
   });
 
-  describe('formatDisplayName(): ', () => {
+  describe('formatDisplayName():', () => {
     it('should get display name from list of categories', () => {
       categoriesService.filterByOrgCategoryId.and.returnValue(transformedOrgCategories[0]);
       const model = 141295;
@@ -197,11 +196,12 @@ describe('SplitExpenseService', () => {
       );
       expect(categoriesService.filterByOrgCategoryId).toHaveBeenCalledOnceWith(model, transformedOrgCategories);
     });
+
     it('should return undefined if filterByOrgCategoryId returns undefined', () => {
       categoriesService.filterByOrgCategoryId.and.returnValue(undefined);
       const model = 141295;
 
-      expect(splitExpenseService.formatDisplayName(model, transformedOrgCategories)).toEqual(undefined);
+      expect(splitExpenseService.formatDisplayName(model, transformedOrgCategories)).toBeUndefined();
       expect(categoriesService.filterByOrgCategoryId).toHaveBeenCalledOnceWith(model, transformedOrgCategories);
     });
   });
@@ -503,7 +503,7 @@ describe('SplitExpenseService', () => {
     splitExpenseService
       .handleSplitPolicyCheck(txnList, fileObject4, txnDataPayload, {
         reportId: null,
-        unspecifiedCategory: unspecifiedCategory,
+        unspecifiedCategory,
       })
       .subscribe((res) => {
         expect(res).toEqual(splitPolicyExp1);
@@ -514,7 +514,7 @@ describe('SplitExpenseService', () => {
           ['fijCeF0G0jTl'],
           {
             reportId: null,
-            unspecifiedCategory: unspecifiedCategory,
+            unspecifiedCategory,
           }
         );
         expect(expensesService.splitExpenseCheckPolicies).toHaveBeenCalledOnceWith(splitPayloadData1);
@@ -606,7 +606,7 @@ describe('SplitExpenseService', () => {
       const mockPlatformPayload = cloneDeep(splitPayloadData2);
       const reportAndUnspecifiedCategoryParams = {
         reportId: 'rp0AGAoeQfQX',
-        unspecifiedCategory: unspecifiedCategory,
+        unspecifiedCategory,
       };
       const res = splitExpenseService.transformSplitTo(
         mockSplitTxn,
@@ -630,7 +630,7 @@ describe('SplitExpenseService', () => {
       const mockPlatformPayload = cloneDeep(splitPayloadData3);
       const reportAndUnspecifiedCategoryParams = {
         reportId: 'rp0AGAoeQfQX',
-        unspecifiedCategory: unspecifiedCategory,
+        unspecifiedCategory,
       };
       const mockTxn = cloneDeep(txnDataPayload);
       mockTxn.org_category_id = null;
@@ -668,7 +668,7 @@ describe('SplitExpenseService', () => {
       splitExpenseService
         .handleSplitMissingFieldsCheck(txnList, fileObject4, txnDataPayload, {
           reportId: 'rp0AGAoeQfQX',
-          unspecifiedCategory: unspecifiedCategory,
+          unspecifiedCategory,
         })
         .subscribe((res) => {
           expect(res).toEqual(SplitExpenseMissingFieldsData);
@@ -679,7 +679,7 @@ describe('SplitExpenseService', () => {
             ['fijCeF0G0jTl'],
             {
               reportId: 'rp0AGAoeQfQX',
-              unspecifiedCategory: unspecifiedCategory,
+              unspecifiedCategory,
             }
           );
           expect(expensesService.splitExpenseCheckMissingFields).toHaveBeenCalledOnceWith(splitPayloadData1);
@@ -691,7 +691,7 @@ describe('SplitExpenseService', () => {
       splitExpenseService
         .handleSplitMissingFieldsCheck(txnList, fileObject4, txnDataPayload, {
           reportId: null,
-          unspecifiedCategory: unspecifiedCategory,
+          unspecifiedCategory,
         })
         .subscribe((res) => {
           expect(res).toEqual({});
@@ -708,12 +708,12 @@ describe('SplitExpenseService', () => {
     spyOn(splitExpenseService, 'handleSplitMissingFieldsCheck').and.returnValue(of(SplitExpenseMissingFieldsData));
     const reportAndUnspecifiedCategoryParams = {
       reportId: 'rp0AGAoeQfQX',
-      unspecifiedCategory: unspecifiedCategory,
+      unspecifiedCategory,
     };
     splitExpenseService
       .handlePolicyAndMissingFieldsCheck(txnList, fileObject4, txnDataPayload, {
         reportId: 'rp0AGAoeQfQX',
-        unspecifiedCategory: unspecifiedCategory,
+        unspecifiedCategory,
       })
       .subscribe((res) => {
         expect(res).toEqual({
@@ -794,12 +794,12 @@ describe('SplitExpenseService', () => {
     expensesService.splitExpense.and.returnValue(of({ data: txnList }));
     const reportAndUnspecifiedCategoryParams = {
       reportId: 'rp0AGAoeQfQX',
-      unspecifiedCategory: unspecifiedCategory,
+      unspecifiedCategory,
     };
     splitExpenseService
       .splitExpense(txnList, fileObject4, txnDataPayload, {
         reportId: 'rp0AGAoeQfQX',
-        unspecifiedCategory: unspecifiedCategory,
+        unspecifiedCategory,
       })
       .subscribe((res) => {
         expect(res).toEqual({ data: txnList });

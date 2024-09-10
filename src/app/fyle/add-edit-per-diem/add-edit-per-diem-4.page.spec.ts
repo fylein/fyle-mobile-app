@@ -371,7 +371,6 @@ export function TestCases4(getTestBed) {
         transactionService.transformExpense.and.returnValue(transformedExpenseData);
         spenderReportsService.addExpenses.and.returnValue(of(undefined));
         spenderReportsService.ejectExpenses.and.returnValue(of(undefined));
-        transactionService.review.and.returnValue(of(null));
         statusService.findLatestComment.and.returnValue(of('comment1'));
         statusService.post.and.returnValue(of(expenseStatusData));
         component.etxn$ = of(transformedExpenseData);
@@ -736,7 +735,7 @@ export function TestCases4(getTestBed) {
           });
       });
 
-      it('should throw policyViolations error and save the edited expense and should not call transactionService.review if critical policy is violated', (done) => {
+      it('should throw policyViolations error and save the edited expense', (done) => {
         policyService.getCriticalPolicyRules.and.returnValue([]);
         const mockTxnData = cloneDeep(transformedExpenseData);
         mockTxnData.tx.policy_amount = 0.00009;
