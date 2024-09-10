@@ -9,7 +9,7 @@ import { ApiService } from './api.service';
 import { ExpenseAggregationService } from './expense-aggregation.service';
 import { Expense } from '../models/expense.model';
 import { DateService } from './date.service';
-import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.model';
+import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import * as dayjs from 'dayjs';

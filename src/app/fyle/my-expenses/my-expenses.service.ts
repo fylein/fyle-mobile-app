@@ -4,7 +4,7 @@ import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pil
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-option-type.enum';
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
-import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.model';
+import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 import { MaskNumber } from 'src/app/shared/pipes/mask-number.pipe';
 import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
 import { ExpenseFilters } from 'src/app/core/models/platform/expense-filters.model';

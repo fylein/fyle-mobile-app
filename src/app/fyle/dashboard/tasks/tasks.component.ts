@@ -23,7 +23,7 @@ import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filt
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { AddTxnToReportDialogComponent } from '../../my-expenses/add-txn-to-report-dialog/add-txn-to-report-dialog.component';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
-import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.model';
+import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { ExpensesQueryParams } from 'src/app/core/models/platform/v1/expenses-query-params.model';
 import { FySelectCommuteDetailsComponent } from 'src/app/shared/components/fy-select-commute-details/fy-select-commute-details.component';

@@ -50,7 +50,7 @@ import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.e
 import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-option-type.enum';
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
 import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
-import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.model';
+import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 import { Expense } from 'src/app/core/models/expense.model';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SortFiltersParams } from 'src/app/core/models/sort-filters-params.model';

@@ -10,7 +10,7 @@ import { ModalController } from '@ionic/angular';
 import { TitleCasePipe } from '@angular/common';
 import { SortingDirection } from '../models/sorting-direction.model';
 import { SortingParam } from '../models/sorting-param.model';
-import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.model';
+import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 
 describe('FiltersHelperService', () => {
   let filterHelperService: FiltersHelperService;

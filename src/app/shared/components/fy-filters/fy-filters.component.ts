@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FilterOptions } from './filter-options.interface';
-import { SelectedFilters } from './selected-filters.model';
+import { SelectedFilters } from './selected-filters.interface';
 import { FilterOptionType } from './filter-option-type.enum';
 import { ModalController } from '@ionic/angular';
 import { forkJoin, Observable, of } from 'rxjs';
@@ -38,11 +38,11 @@ export class FyFiltersComponent implements OnInit {
 
   constructor(private modalController: ModalController) {}
 
-  get FilterOptionType() {
+  get FilterOptionType(): typeof FilterOptionType {
     return FilterOptionType;
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     const activeFilterInitialIndex =
       (this.activeFilterInitialName &&
         this.filterOptions.findIndex((option) => option.name === this.activeFilterInitialName)) ||
