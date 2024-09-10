@@ -1,4 +1,4 @@
-export interface SelectedFilters<T = void> {
+export interface SelectedFilters<T> {
   name: string;
   value: T;
   associatedData?: {
