@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FilterOptions } from './filter-options.interface';
-import { SelectedFilters } from './selected-filters.interface';
+import { SelectedFilters } from './selected-filters.model';
 import { FilterOptionType } from './filter-option-type.enum';
 import { ModalController } from '@ionic/angular';
 import { forkJoin, Observable, of } from 'rxjs';

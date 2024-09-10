@@ -9,22 +9,12 @@ import { ApiService } from './api.service';
 import { ExpenseAggregationService } from './expense-aggregation.service';
 import { Expense } from '../models/expense.model';
 import { DateService } from './date.service';
-import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
+import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.model';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import * as dayjs from 'dayjs';
 import { ApiV2Response } from '../models/api-v2.model';
 import { PersonalCardTxn } from '../models/personal_card_txn.model';
-
-type matchExpenseResponse = Partial<{
-  external_expense_id: string;
-  id: string;
-  transaction_split_group_id: string;
-}>;
-
-type QueryParam = { ba_id?: string; btxn_status?: string; or?: string };
-
-type Params = { pageNumber: number; queryParams: QueryParam; sortParam: string; sortDir: string; searchString: string };
 
 @Injectable({
   providedIn: 'root',
@@ -48,7 +38,7 @@ export class PersonalCardsService {
   }
 
   getToken(): Observable<YodleeAccessToken> {
-    return this.expenseAggregationService.get('/yodlee/personal/access_token');
+    return this.expenseAggregationService.get('/yodlee/personal/access_token') as Observable<YodleeAccessToken>;
   }
 
   htmlFormUrl(url: string, accessToken: string): string {
@@ -68,7 +58,7 @@ export class PersonalCardsService {
     return this.expenseAggregationService.post('/yodlee/personal/bank_accounts', {
       aggregator: 'yodlee',
       request_ids: requestIds,
-    });
+    }) as Observable<string[]>;
   }
 
   getLinkedAccountsCount(): Observable<number> {
@@ -91,7 +81,7 @@ export class PersonalCardsService {
   }
 
   deleteAccount(accountId: string): Observable<PersonalCard> {
-    return this.expenseAggregationService.delete('/bank_accounts/' + accountId);
+    return this.expenseAggregationService.delete('/bank_accounts/' + accountId) as Observable<PersonalCard>;
   }
 
   getBankTransactions(
@@ -129,7 +119,14 @@ export class PersonalCardsService {
     return this.getMatchedExpenses(amount, txnDate).pipe(map((res) => res.length));
   }
 
-  matchExpense(transactionSplitGroupId: string, externalExpenseId: string): Observable<matchExpenseResponse> {
+  matchExpense(
+    transactionSplitGroupId: string,
+    externalExpenseId: string
+  ): Observable<{
+    external_expense_id: string;
+    id: string;
+    transaction_split_group_id: string;
+  }> {
     return this.apiService.post('/transactions/external_expense/match', {
       transaction_split_group_id: transactionSplitGroupId,
       external_expense_id: externalExpenseId,
@@ -148,23 +145,32 @@ export class PersonalCardsService {
   fetchTransactions(accountId: string): Observable<ApiV2Response<PersonalCardTxn>> {
     return this.expenseAggregationService.post(`/bank_accounts/${accountId}/sync`, {
       owner_type: 'org_user',
-    });
+    }) as Observable<ApiV2Response<PersonalCardTxn>>;
   }
 
   hideTransactions(txnIds: string[]): Observable<Expense[]> {
     return this.expenseAggregationService.post('/bank_transactions/hide/bulk', {
       bank_transaction_ids: txnIds,
-    });
+    }) as Observable<Expense[]>;
   }
 
-  unmatchExpense(transactionSplitGroupId: string, externalExpenseId: string) {
+  unmatchExpense(transactionSplitGroupId: string, externalExpenseId: string): Observable<void> {
     return this.apiService.post('/transactions/external_expense/unmatch', {
       transaction_split_group_id: transactionSplitGroupId,
       external_expense_id: externalExpenseId,
     });
   }
 
-  generateDateParams(data: { range: string; endDate?: string; startDate?: string }, currentParams: Partial<Params>) {
+  generateDateParams(
+    data: { range: string; endDate?: string; startDate?: string },
+    currentParams: Partial<{
+      pageNumber: number;
+      queryParams: { ba_id?: string; btxn_status?: string; or?: string };
+      sortParam: string;
+      sortDir: string;
+      searchString: string;
+    }>
+  ): void {
     if (data.range === 'This Month') {
       const thisMonth = this.dateService.getThisMonthRange();
       currentParams.queryParams.or = `(and(btxn_transaction_dt.gte.${thisMonth.from.toISOString()},btxn_transaction_dt.lt.${thisMonth.to.toISOString()}))`;
@@ -199,7 +205,7 @@ export class PersonalCardsService {
     return currentParams;
   }
 
-  convertFilters(selectedFilters: SelectedFilters<any>[]): PersonalCardFilter {
+  convertFilters(selectedFilters: SelectedFilters<string>[]): PersonalCardFilter {
     const generatedFilters: PersonalCardFilter = {};
     const createdOnDateFilter = selectedFilters.find((filter) => filter.name === 'Created On');
     if (createdOnDateFilter) {
@@ -263,7 +269,7 @@ export class PersonalCardsService {
     return generatedFilters;
   }
 
-  generateTxnDateParams(newQueryParams, filters, type) {
+  generateTxnDateParams(newQueryParams: { or: string[] }, filters: PersonalCardFilter, type: string): void {
     let queryType;
     if (type === 'createdOn') {
       queryType = 'btxn_created_at';
@@ -303,7 +309,7 @@ export class PersonalCardsService {
     filters: PersonalCardFilter,
     type: string,
     queryType: string
-  ) {
+  ): void {
     if (filters[type].name === DateFilters.custom) {
       const startDate = filters[type].customDateStart?.toISOString();
       const endDate = filters[type].customDateEnd?.toISOString();
@@ -391,7 +397,7 @@ export class PersonalCardsService {
     }
   }
 
-  private generateCreatedOnCustomDatePill(filters: PersonalCardFilter, filterPills: FilterPill[]) {
+  private generateCreatedOnCustomDatePill(filters: PersonalCardFilter, filterPills: FilterPill[]): void {
     const startDate = filters.createdOn.customDateStart && dayjs(filters.createdOn.customDateStart).format('YYYY-MM-D');
     const endDate = filters.createdOn.customDateEnd && dayjs(filters.createdOn.customDateEnd).format('YYYY-MM-D');
 
@@ -416,7 +422,7 @@ export class PersonalCardsService {
     }
   }
 
-  private generateDateFilterPills(type, filters, filterPills: FilterPill[]) {
+  private generateDateFilterPills(type: string, filters: PersonalCardFilter, filterPills: FilterPill[]): void {
     if (filters[type].name === DateFilters.thisWeek) {
       filterPills.push({
         label: 'Created On',
