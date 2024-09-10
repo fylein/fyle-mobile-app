@@ -350,20 +350,8 @@ export class TransactionService {
     return this.spenderPlatformV1ApiService.post('/corporate_card_transactions/match', { data: payload });
   }
 
-  review(txnId: string): Observable<null> {
-    return this.apiService.post('/transactions/' + txnId + '/review');
-  }
-
   getDefaultVehicleType(): Observable<string> {
     return from(this.storageService.get<string>('vehicle_preference'));
-  }
-
-  uploadBase64File(txnId: string, name: string, base64Content: string): Observable<FileObject> {
-    const data = {
-      content: base64Content,
-      name,
-    };
-    return this.apiService.post('/transactions/' + txnId + '/upload_b64', data);
   }
 
   unmatchCCCExpense(id: string, expenseId: string): Observable<CorporateCardTransactionRes> {
