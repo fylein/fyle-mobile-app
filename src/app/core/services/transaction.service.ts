@@ -38,7 +38,6 @@ import { CorporateCardTransactionRes } from '../models/platform/v1/corporate-car
 import { ExpenseFilters } from '../models/expense-filters.model';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { expensesCacheBuster$ } from '../cache-buster/expense-cache-buster';
-import { LaunchDarklyService } from './launch-darkly.service';
 import { FilterState } from '../enums/filter-state.enum';
 import { PaymentMode } from '../models/payment-mode.model';
 
@@ -408,7 +407,7 @@ export class TransactionService {
     if (stateOrFilter.length > 0) {
       let combinedStateOrFilter = stateOrFilter.reduce((param1, param2) => `${param1}, ${param2}`);
       combinedStateOrFilter = `(${combinedStateOrFilter})`;
-      newQueryParamsCopy.or.push(combinedStateOrFilter);
+      (newQueryParamsCopy.or as string[]).push(combinedStateOrFilter);
     }
 
     return newQueryParamsCopy;
@@ -449,11 +448,11 @@ export class TransactionService {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     if (filters.splitExpense) {
       if (filters.splitExpense === 'YES') {
-        newQueryParamsCopy.or.push('(tx_is_split_expense.eq.true)');
+        (newQueryParamsCopy.or as string[]).push('(tx_is_split_expense.eq.true)');
       }
 
       if (filters.splitExpense === 'NO') {
-        newQueryParamsCopy.or.push('(tx_is_split_expense.eq.false)');
+        (newQueryParamsCopy.or as string[]).push('(tx_is_split_expense.eq.false)');
       }
     }
 
@@ -493,7 +492,7 @@ export class TransactionService {
     if (typeOrFilter.length > 0) {
       let combinedTypeOrFilter = typeOrFilter.reduce((param1, param2) => `${param1}, ${param2}`);
       combinedTypeOrFilter = `(${combinedTypeOrFilter})`;
-      newQueryParamsCopy.or.push(combinedTypeOrFilter);
+      (newQueryParamsCopy.or as string[]).push(combinedTypeOrFilter);
     }
 
     return newQueryParamsCopy;

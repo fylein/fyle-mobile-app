@@ -46,30 +46,18 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExpensePreviewComponent } from '../personal-cards-matched-expenses/expense-preview/expense-preview.component';
 import { MatCheckboxChange } from '@angular/material/checkbox';
-import { GetTasksQueryParamsWithFilters } from 'src/app/core/models/get-tasks-query-params-with-filters.model';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-option-type.enum';
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
 import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
-import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
+import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.model';
 import { Expense } from 'src/app/core/models/expense.model';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { SortFiltersParams } from 'src/app/core/models/sort-filters-params.model';
+import { PersonalCardFilter } from 'src/app/core/models/personal-card-filters.model';
 
 // eslint-disable-next-line custom-rules/prefer-semantic-extension-name
-type Filters = Partial<{
-  amount: number;
-  createdOn: Partial<{
-    name?: string;
-    customDateStart?: Date;
-    customDateEnd?: Date;
-  }>;
-  updatedOn: Partial<{
-    name?: string;
-    customDateStart?: Date;
-    customDateEnd?: Date;
-  }>;
-  transactionType: string;
-}>;
+type Filters = Partial<PersonalCardFilter>;
 
 @Component({
   selector: 'app-personal-cards',
@@ -89,15 +77,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
   loadCardData$: BehaviorSubject<{}> = new BehaviorSubject({});
 
-  loadData$: BehaviorSubject<
-    Partial<{
-      pageNumber: number;
-      queryParams: Record<string, string | string[]>;
-      sortParam: string;
-      sortDir: string;
-      searchString: string;
-    }>
-  > = new BehaviorSubject({
+  loadData$: BehaviorSubject<Partial<SortFiltersParams>> = new BehaviorSubject({
     pageNumber: 1,
   });
 
@@ -666,11 +646,11 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     }, 500);
   }
 
-  addNewFiltersToParams(): Partial<GetTasksQueryParamsWithFilters> {
+  addNewFiltersToParams(): Partial<SortFiltersParams> {
     const currentParams = this.loadData$.getValue();
 
     currentParams.pageNumber = 1;
-    const newQueryParams: Record<string, string | string[]> = {
+    const newQueryParams: { or: string[]; btxn_status?: string; ba_id?: string } = {
       or: [],
     };
     newQueryParams.btxn_status = `in.(${this.selectedTrasactionType})`;
@@ -741,7 +721,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
   }
 
   clearFilters(): void {
-    this.filters = {};
+    this.filters = {} as PersonalCardFilter;
     this.currentPageNumber = 1;
     const params = this.addNewFiltersToParams();
     this.loadData$.next(params);

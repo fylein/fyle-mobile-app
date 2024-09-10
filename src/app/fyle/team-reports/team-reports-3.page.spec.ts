@@ -24,7 +24,7 @@ import {
   teamReportsFiltersParams,
   teamReportsFiltersParams2,
 } from 'src/app/core/mock-data/team-reports-filters.data';
-import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
+import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.model';
 import {
   selectedFilters6,
   selectedFiltersParams,

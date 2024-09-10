@@ -282,8 +282,8 @@ describe('PersonalCardsService', () => {
       const filters = {
         createdOn: {
           name: 'custom',
-          customDateStart: '2023-02-21T00:00:00.000Z',
-          customDateEnd: '2023-02-23T00:00:00.000Z',
+          customDateStart: new Date('2023-02-21T00:00:00.000Z'),
+          customDateEnd: new Date('2023-02-23T00:00:00.000Z'),
         },
       };
 
@@ -785,9 +785,9 @@ describe('PersonalCardsService', () => {
 
       const filters = {
         updatedOn: {
-          name: DateFilters.lastMonth,
-          customDateStart: '2023-02-21T00:00:00.000Z',
-          customDateEnd: '2023-02-23T00:00:00.000Z',
+          name: DateFilters.lastMonth as string,
+          customDateStart: new Date('2023-02-21T00:00:00.000Z'),
+          customDateEnd: new Date('2023-02-23T00:00:00.000Z'),
         },
       };
 

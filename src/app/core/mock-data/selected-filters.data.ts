@@ -1,6 +1,6 @@
 import deepFreeze from 'deep-freeze-strict';
 
-import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
+import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.model';
 
 export const selectedFilters1: SelectedFilters<string>[] = deepFreeze([
   {
