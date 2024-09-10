@@ -17,11 +17,11 @@ import { Expense } from 'src/app/core/models/platform/v1/expense.model';
   styleUrls: ['./expense-preview.component.scss'],
 })
 export class ExpensePreviewComponent implements OnInit {
-  @Input() expenseId;
+  @Input() expenseId: string;
 
-  @Input() card;
+  @Input() card: string;
 
-  @Input() cardTxnId;
+  @Input() cardTxnId: string;
 
   expenseDetails$: Observable<Expense>;
 
@@ -48,7 +48,7 @@ export class ExpensePreviewComponent implements OnInit {
     this.isIos = this.platform.is('ios');
   }
 
-  ionViewWillEnter() {
+  ionViewWillEnter(): void {
     const params = {
       split_group_id: `eq.${this.expenseId}`,
     };
@@ -56,11 +56,11 @@ export class ExpensePreviewComponent implements OnInit {
     this.expenseDetails$ = this.expensesService.getExpenses(params).pipe(map((res) => res[0]));
   }
 
-  closeModal() {
+  closeModal(): void {
     this.modalController.dismiss();
   }
 
-  matchExpense() {
+  matchExpense(): void {
     this.loading = true;
     this.personalCardsService
       .matchExpense(this.expenseId, this.cardTxnId)
@@ -76,7 +76,7 @@ export class ExpensePreviewComponent implements OnInit {
       });
   }
 
-  unmatchExpense() {
+  unmatchExpense(): void {
     this.unMatching = true;
     this.personalCardsService
       .unmatchExpense(this.expenseId, this.cardTxnId)
@@ -94,7 +94,7 @@ export class ExpensePreviewComponent implements OnInit {
       });
   }
 
-  editExpense() {
+  editExpense(): void {
     this.modalController.dismiss();
     this.router.navigate([
       '/',
