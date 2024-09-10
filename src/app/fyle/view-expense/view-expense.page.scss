@@ -194,15 +194,10 @@
     border-bottom: 1px solid $grey;
   }
 
-  &--auto-coded {
-    display: flex;
-  }
-
   &--stars-color-filled-icon {
     width: 12px;
     height: 12px;
-    margin: 2px 0px;
-    margin-left: 2px;
+    margin: 2px 0px 2px 2px;
     color: $brand-primary;
   }
 }
