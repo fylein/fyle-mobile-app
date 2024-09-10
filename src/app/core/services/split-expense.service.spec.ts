@@ -196,6 +196,7 @@ describe('SplitExpenseService', () => {
       );
       expect(categoriesService.filterByOrgCategoryId).toHaveBeenCalledOnceWith(model, transformedOrgCategories);
     });
+
     it('should return undefined if filterByOrgCategoryId returns undefined', () => {
       categoriesService.filterByOrgCategoryId.and.returnValue(undefined);
       const model = 141295;
@@ -793,7 +794,7 @@ describe('SplitExpenseService', () => {
     expensesService.splitExpense.and.returnValue(of({ data: txnList }));
     const reportAndUnspecifiedCategoryParams = {
       reportId: 'rp0AGAoeQfQX',
-      unspecifiedCategory: unspecifiedCategory,
+      unspecifiedCategory,
     };
     splitExpenseService
       .splitExpense(txnList, fileObject4, txnDataPayload, {
