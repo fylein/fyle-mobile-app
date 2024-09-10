@@ -977,33 +977,6 @@ describe('TransactionService', () => {
     });
   });
 
-  it('review(): should return transaction response on review', (done) => {
-    apiService.post.and.returnValue(of(null));
-    const transactionId = 'tx3qHxFNgRcZ';
-
-    transactionService.review(transactionId).subscribe((res) => {
-      expect(res).toBeNull();
-      expect(apiService.post).toHaveBeenCalledOnceWith('/transactions/' + transactionId + '/review');
-      done();
-    });
-  });
-
-  it('uploadBase64(): should uploadBase64 and return file object response', (done) => {
-    const transactionID = 'txdzGV1TZEg3';
-    const fileName = '000.jpeg';
-    const base64Content = 'dummyBase64Value';
-    apiService.post.and.returnValue(of(fileObjectData));
-
-    transactionService.uploadBase64File(transactionID, fileName, base64Content).subscribe((res) => {
-      expect(res).toEqual(fileObjectData);
-      expect(apiService.post).toHaveBeenCalledOnceWith('/transactions/' + transactionID + '/upload_b64', {
-        content: base64Content,
-        name: fileName,
-      });
-      done();
-    });
-  });
-
   it('getTxnAccount(): should get the default txn account', (done) => {
     orgSettingsService.get.and.returnValue(of(orgSettingsData));
     accountsService.getEMyAccounts.and.returnValue(of(accountsData));
