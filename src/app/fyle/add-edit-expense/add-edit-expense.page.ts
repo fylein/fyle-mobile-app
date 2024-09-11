@@ -4395,6 +4395,12 @@ export class AddEditExpensePage implements OnInit {
   }
 
   async getParsedReceipt(base64Image: string, fileType: string): Promise<ParsedReceipt> {
+    await this.loaderService.showLoader(
+      'Scanning information from the receipt...',
+      15000,
+      'assets/images/scanning.gif'
+    );
+
     const parsedData: ParsedReceipt = await this.transactionOutboxService.parseReceipt(base64Image, fileType);
     const homeCurrency = await this.currencyService.getHomeCurrency().toPromise();
 
@@ -4413,6 +4419,7 @@ export class AddEditExpensePage implements OnInit {
         .toPromise();
     }
 
+    await this.loaderService.hideLoader();
     return parsedData;
   }
 
