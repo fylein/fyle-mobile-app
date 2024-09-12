@@ -6,7 +6,7 @@ import { ModalController } from '@ionic/angular';
 import { FyCurrencyChooseCurrencyComponent } from './fy-currency-choose-currency/fy-currency-choose-currency.component';
 import { FyCurrencyExchangeRateComponent } from './fy-currency-exchange-rate/fy-currency-exchange-rate.component';
 import { isEqual } from 'lodash';
-import { concatMap, map, switchMap } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { ParsedResponse } from 'src/app/core/models/parsed_response.model';
@@ -181,10 +181,15 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
     const isCurrencyAutoCoded = currency === formCurrency;
     const isAmountAutoCoded = amount === formAmount;
 
-    if (isCurrencyAutoCoded && isAmountAutoCoded) this.autoCodeMessage = 'Currency and Amount are auto coded.';
-    else if (isCurrencyAutoCoded) this.autoCodeMessage = 'Currency is auto coded.';
-    else if (isAmountAutoCoded) this.autoCodeMessage = 'Amount is auto coded.';
-    else this.autoCodeMessage = '';
+    if (isCurrencyAutoCoded && isAmountAutoCoded) {
+      this.autoCodeMessage = 'Currency and Amount are auto coded.';
+    } else if (isCurrencyAutoCoded) {
+      this.autoCodeMessage = 'Currency is auto coded.';
+    } else if (isAmountAutoCoded) {
+      this.autoCodeMessage = 'Amount is auto coded.';
+    } else {
+      this.autoCodeMessage = '';
+    }
   }
 
   convertInnerValueToFormValue(innerVal) {
