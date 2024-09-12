@@ -403,7 +403,6 @@ describe('MyCreateReportPage', () => {
   it('ionViewWillEnter(): should setup expenses', fakeAsync(() => {
     loaderService.showLoader.and.resolveTo();
     loaderService.hideLoader.and.resolveTo();
-    transactionService.getAllExpenses.and.returnValue(of(cloneDeep(selectedExpenses)));
     expensesService.getAllExpenses.and.returnValue(of(readyToReportExpensesData));
     orgSettingsService.get.and.returnValue(of(orgSettingsPendingRestrictions));
     spyOn(component, 'getReportTitle').and.returnValue(null);
@@ -432,7 +431,6 @@ describe('MyCreateReportPage', () => {
     beforeEach(() => {
       loaderService.showLoader.and.resolveTo();
       loaderService.hideLoader.and.resolveTo();
-      transactionService.getAllExpenses.and.returnValue(of(cloneDeep(selectedExpenses)));
       const mockSelectedExpense = cloneDeep(readyToReportExpensesData);
       mockSelectedExpense[0].matched_corporate_card_transaction_ids = [];
       mockSelectedExpense[1].matched_corporate_card_transactions[0].status = ExpenseTransactionStatus.PENDING;

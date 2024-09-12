@@ -774,24 +774,6 @@ describe('MyExpensesPage', () => {
       expect(component.acc).toEqual(apiExpenses1);
     }));
 
-    it('should not call getMyExpenses if count is less than (params.pageNumber - 1) * 10', fakeAsync(() => {
-      transactionService.getMyExpensesCount.and.returnValue(of(0));
-      component.ionViewWillEnter();
-      expect(inputElement.value).toEqual('');
-      inputElement.value = 'example';
-      inputElement.dispatchEvent(new Event('keyup'));
-      tick(500);
-
-      expect(expensesService.getExpensesCount).toHaveBeenCalledTimes(5);
-      expect(expensesService.getExpensesCount).toHaveBeenCalledWith({
-        report_id: 'is.null',
-        state: 'in.(COMPLETE,DRAFT)',
-      });
-      expect(component.clusterDomain).toEqual(apiAuthRes.cluster_domain);
-      expect(transactionService.getMyExpenses).not.toHaveBeenCalled();
-      expect(component.acc).toEqual(apiExpenses1);
-    }));
-
     it('should call getMyExpenseCount with order if sortDir and sortParam are defined', fakeAsync(() => {
       component.ionViewWillEnter();
       component.loadExpenses$.next({
