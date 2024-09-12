@@ -36,6 +36,8 @@ describe('LoaderService', () => {
       expect(loadingController.create).toHaveBeenCalledOnceWith({
         message,
         duration,
+        spinner: 'crescent',
+        cssClass: '',
       });
       expect(loadingElementSpy.present).toHaveBeenCalledTimes(1);
     }));

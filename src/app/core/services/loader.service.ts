@@ -8,7 +8,7 @@ import { noop } from 'rxjs';
 export class LoaderService {
   constructor(private loadingController: LoadingController) {}
 
-  async showLoader(message = 'Please wait...', duration = 1000, customLoaderUrl?: string) {
+  async showLoader(message = 'Please wait...', duration = 1000, customLoaderUrl?: string): Promise<void> {
     const loading = await this.loadingController.create({
       message,
       duration,
@@ -27,7 +27,7 @@ export class LoaderService {
     return await loading.present();
   }
 
-  hideLoader() {
+  hideLoader(): Promise<boolean | void> {
     return this.loadingController.dismiss().catch(noop);
   }
 }
