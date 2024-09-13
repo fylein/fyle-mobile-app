@@ -42,7 +42,6 @@ jobs:
         id: download
         with:
           name: 'Android'
-          run-id: ${{ github.event.workflow_run.id }}
           path: ./
 
       - name: Rename file
@@ -76,7 +75,6 @@ jobs:
         id: ios
         with:
           name: 'ios'
-          run-id: ${{ github.event.workflow_run.id }}
           path: ./
 
       - name: Rename file
