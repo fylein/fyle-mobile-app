@@ -203,16 +203,23 @@ export class ExpensesCardComponent implements OnInit {
    *
    * @param callback Callback method to be fired when item has finished scanning
    */
-  pollDataExtractionStatus(callback: Function): void {
+  pollDataExtractionStatus(): void {
     const that = this;
     setTimeout(() => {
-      const isPresentInQueue = that.transactionOutboxService.isDataExtractionPending(that.expense.tx_id);
-      if (!isPresentInQueue) {
-        callback();
-      } else {
-        that.pollDataExtractionStatus(callback);
-      }
-    }, 1000);
+      that.expensesService.getExpenseById(that.expense.tx_id).subscribe((expense) => {
+        const etxn = that.transactionService.transformRawExpense(expense);
+        const extractedData = etxn.tx_extracted_data;
+        if (!!extractedData) {
+          that.isScanCompleted = true;
+          that.isScanInProgress = false;
+          that.expense.tx_extracted_data = extractedData;
+          that.expense = etxn as Expense;
+          this.expense.isDraft = this.transactionService.getIsDraft(this.expense);
+        } else {
+          that.pollDataExtractionStatus();
+        }
+      });
+    }, 5000);
   }
 
   handleScanStatus(): void {
@@ -228,23 +235,9 @@ export class ExpensesCardComponent implements OnInit {
           (that.homeCurrency === 'USD' || that.homeCurrency === 'INR')
         ) {
           that.isScanCompleted = that.checkIfScanIsCompleted();
-          that.isScanInProgress =
-            !that.isScanCompleted && that.transactionOutboxService.isDataExtractionPending(that.expense.tx_id);
+          that.isScanInProgress = !that.isScanCompleted;
           if (that.isScanInProgress) {
-            that.pollDataExtractionStatus(function () {
-              that.expensesService.getExpenseById(that.expense.tx_id).subscribe((expense) => {
-                const etxn = that.transactionService.transformExpense(expense);
-                const extractedData = etxn.tx.extracted_data;
-                if (!!extractedData) {
-                  that.isScanCompleted = true;
-                  that.isScanInProgress = false;
-                  that.expense.tx_extracted_data = extractedData;
-                } else {
-                  that.isScanInProgress = false;
-                  that.isScanCompleted = false;
-                }
-              });
-            });
+            that.pollDataExtractionStatus();
           }
         } else {
           that.isScanCompleted = true;

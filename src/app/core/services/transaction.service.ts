@@ -187,7 +187,10 @@ export class TransactionService {
   @CacheBuster({
     cacheBusterNotifier: expensesCacheBuster$,
   })
-  upsert(transaction: Partial<Transaction>): Observable<Partial<Transaction>> {
+  upsert(
+    transaction: Partial<Transaction>,
+    fileIds: string[] = []
+  ): Observable<Partial<Transaction | PlatformExpense>> {
     /** Only these fields will be of type text & custom fields */
     const fieldsToCheck = ['purpose', 'vendor', 'train_travel_class', 'bus_travel_class'];
 
@@ -253,9 +256,63 @@ export class TransactionService {
 
         const transactionCopy = this.utilityService.discardRedundantCharacters(transaction, fieldsToCheck);
 
-        return this.apiService.post<Transaction>('/transactions', transactionCopy);
+        // return this.apiService.post<Transaction>('/transactions', transactionCopy);
+        const expense = this.changeToPlatformExpense(transactionCopy, fileIds);
+        return this.expensesService.post(expense).pipe(map((result) => result.data));
       })
     );
+  }
+
+  changeToPlatformExpense(transaction: Partial<Transaction>, fileIds: string[]): PlatformExpense {
+    const expense: any = {
+      id: transaction.id,
+      spent_at: transaction.txn_dt,
+      category_id: transaction.org_category_id,
+      purpose: transaction.purpose,
+      source_account_id: transaction.source_account_id,
+      merchant: transaction.vendor,
+      project_id: transaction.project_id,
+      cost_center_id: transaction.cost_center_id,
+      foreign_currency: transaction.orig_currency,
+      foreign_amount: transaction.orig_amount,
+      source: transaction.source,
+      is_reimbursable: !transaction.skip_reimbursement,
+      tax_amount: transaction.tax_amount,
+      tax_group_id: transaction.tax_group_id,
+      is_billable: transaction.billable,
+      distance: transaction.distance,
+      distance_unit: transaction.distance_unit,
+      started_at: transaction.from_dt,
+      ended_at: transaction.to_dt,
+      locations: transaction.locations,
+      custom_fields: transaction.custom_properties,
+      per_diem_rate_id: transaction.per_diem_rate_id,
+      per_diem_num_days: transaction.num_days || 0,
+      mileage_rate_id: transaction.mileage_rate_id,
+      advance_wallet_id: transaction.advance_wallet_id,
+
+      // directly attach file instead of making additional API call
+      file_ids: fileIds,
+
+      report_id: transaction.report_id,
+    };
+
+    const travelClass1 =
+      transaction.taxi_travel_class ||
+      transaction.bus_travel_class ||
+      transaction.train_travel_class ||
+      transaction.flight_journey_travel_class;
+    if (travelClass1) {
+      expense.travel_classes = [travelClass1];
+    }
+
+    if (transaction.flight_return_travel_class) {
+      expense.travel_classes.push(transaction.flight_return_travel_class);
+    }
+
+    expense.claim_amount = transaction.amount;
+
+    return expense;
   }
 
   @CacheBuster({
@@ -264,16 +321,22 @@ export class TransactionService {
   createTxnWithFiles(
     txn: Partial<Transaction>,
     fileUploads$: Observable<FileObject[]>
-  ): Observable<Partial<Transaction>> {
-    const upsertTxn$ = this.upsert(txn);
-    return forkJoin([fileUploads$, upsertTxn$]).pipe(
-      switchMap(([fileObjs, transaction]) => {
+  ): Observable<Partial<Transaction | PlatformExpense>> {
+    if (Object.keys(txn).length === 1 && txn.source) {
+      return fileUploads$.pipe(
+        switchMap((fileObjs) => {
+          const fileIds = fileObjs.map((fileObj) => fileObj.id);
+          if (fileIds.length > 0) {
+            return this.expensesService.createFromFile(fileIds[0], 'TPA').pipe(map((result) => result.data[0]));
+          }
+        })
+      );
+    }
+
+    return forkJoin([fileUploads$]).pipe(
+      switchMap(([fileObjs]) => {
         const fileIds = fileObjs.map((fileObj) => fileObj.id);
-        if (fileIds.length > 0) {
-          return this.expensesService.attachReceiptsToExpense(transaction.id, fileIds).pipe(map(() => transaction));
-        } else {
-          return of(transaction);
-        }
+        return this.upsert(txn, fileIds);
       })
     );
   }

@@ -287,9 +287,20 @@ export class ExpensesService {
       .pipe(map((res) => res.data));
   }
 
-  post(expense: Partial<Expense>): Observable<void> {
-    return this.spenderService.post<void>('/expenses', {
+  post(expense: Partial<Expense>): Observable<PlatformApiResponse<Expense>> {
+    return this.spenderService.post<PlatformApiResponse<Expense>>('/expenses', {
       data: expense,
+    });
+  }
+
+  createFromFile(fileId: string, source: string): Observable<PlatformApiResponse<Expense[]>> {
+    return this.spenderService.post<PlatformApiResponse<Expense[]>>('/expenses/create_from_file/bulk', {
+      data: [
+        {
+          file_id: fileId,
+          source,
+        },
+      ],
     });
   }
 }
