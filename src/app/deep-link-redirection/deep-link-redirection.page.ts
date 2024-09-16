@@ -35,6 +35,7 @@ export class DeepLinkRedirectionPage {
     switch (subModule) {
       case 'report':
         this.redirectToReportModule();
+        break;
 
       case 'expense':
         this.redirectToExpenseModule();
