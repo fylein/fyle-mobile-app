@@ -148,7 +148,6 @@ export class TransactionsOutboxService {
     comments?: string[],
     reportId?: string
   ): Promise<void> {
-    console.log('Adding entry', { ...dataUrls });
     this.queue.push({
       transaction,
       dataUrls,
@@ -209,7 +208,9 @@ export class TransactionsOutboxService {
     const that = this;
     const fileObjPromiseArray: Promise<FileObject>[] = [];
     const reportId = entry.reportId;
-    entry.transaction.report_id = reportId;
+    if (reportId) {
+      entry.transaction.report_id = reportId;
+    }
 
     if (!entry.fileUploadCompleted) {
       if (entry.dataUrls && entry.dataUrls.length > 0) {
