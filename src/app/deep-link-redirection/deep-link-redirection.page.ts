@@ -32,14 +32,21 @@ export class DeepLinkRedirectionPage {
   ionViewWillEnter(): void {
     const subModule = this.activatedRoute.snapshot.params.sub_module as string;
 
-    if (subModule === 'report') {
-      this.redirectToReportModule();
-    } else if (subModule === 'expense') {
-      this.redirectToExpenseModule();
-    } else if (subModule === 'advReq') {
-      this.redirectToAdvReqModule();
-    } else if (subModule === 'my_dashboard') {
-      this.redirectToDashboardModule();
+    switch (subModule) {
+      case 'report':
+        this.redirectToReportModule();
+
+      case 'expense':
+        this.redirectToExpenseModule();
+      
+      case 'advReq':
+        this.redirectToAdvReqModule();
+
+      case 'my_dashboard':
+        this.redirectToDashboardModule();
+
+      default:
+        break;
     }
   }
 
