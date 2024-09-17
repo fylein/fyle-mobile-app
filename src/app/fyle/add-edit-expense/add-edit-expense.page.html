@@ -323,7 +323,7 @@
                   </div>
                   <div
                     class="add-edit-expense--auto-coded"
-                    *ngIf="(this.inpageExtractedData?.date && this.fg.controls.dateOfSpend?.value) && this.inpageExtractedData.date === this.fg.controls.dateOfSpend.value"
+                    *ngIf="(inpageExtractedData?.date && fg.controls.dateOfSpend?.value) && inpageExtractedData.date === fg.controls.dateOfSpend.value"
                   >
                     <mat-icon class="add-edit-expense--sparkle-icon" svgIcon="sparkle"></mat-icon>
                     Date is auto coded.
@@ -498,7 +498,7 @@
                     </app-virtual-select>
                     <div
                       class="add-edit-expense--auto-coded"
-                      *ngIf="(this.inpageExtractedData?.category && this.fg.controls.category?.value?.displayName) && inpageExtractedData.category === fg.controls.category.value.displayName"
+                      *ngIf="(inpageExtractedData?.category && fg.controls.category?.value?.displayName) && inpageExtractedData.category === fg.controls.category.value.displayName"
                     >
                       <mat-icon class="add-edit-expense--sparkle-icon" svgIcon="sparkle"></mat-icon>
                       Category is auto coded.
@@ -921,7 +921,7 @@
               </app-virtual-select>
               <div
                 class="add-edit-expense--auto-coded"
-                *ngIf="(this.inpageExtractedData?.vendor_name && this.fg.controls.vendor_id?.value?.display_name) && inpageExtractedData.vendor_name === fg.controls.vendor_id.value.display_name"
+                *ngIf="(inpageExtractedData?.vendor_name && fg.controls.vendor_id?.value?.display_name) && inpageExtractedData.vendor_name === fg.controls.vendor_id.value.display_name"
               >
                 <mat-icon class="add-edit-expense--sparkle-icon" svgIcon="sparkle"></mat-icon>
                 Merchant is auto coded.
