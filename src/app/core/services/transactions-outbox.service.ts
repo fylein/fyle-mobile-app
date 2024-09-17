@@ -116,6 +116,7 @@ export class TransactionsOutboxService {
         .toPromise()
         .then((fileObj: PlatformFile) => {
           const uploadUrl = fileObj.upload_url;
+          console.log('uploadUrl', uploadUrl);
           // check from here
           return fetch(dataUrl)
             .then((res) => res.blob())
@@ -166,6 +167,7 @@ export class TransactionsOutboxService {
     comments: string[],
     reportId: string
   ): Promise<OutboxQueue> {
+    console.log('addEntryAndSync', transaction, dataUrls, comments, reportId);
     this.addEntry(transaction, dataUrls, comments, reportId);
     return this.syncEntry(this.queue.pop());
   }
@@ -205,6 +207,7 @@ export class TransactionsOutboxService {
   }
 
   syncEntry(entry: OutboxQueue): Promise<OutboxQueue> {
+    console.log('syncEntry', entry);
     const that = this;
     const fileObjPromiseArray: Promise<FileObject>[] = [];
     const reportId = entry.reportId;
@@ -262,6 +265,7 @@ export class TransactionsOutboxService {
   }
 
   sync(): Promise<void> {
+    console.log('sync');
     const that = this;
 
     if (that.syncDeferred) {

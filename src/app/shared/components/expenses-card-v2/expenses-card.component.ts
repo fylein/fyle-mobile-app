@@ -231,7 +231,6 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   handleScanStatus(): void {
-    console.log('handleScanStatus()');
     const that = this;
     that.isScanInProgress = false;
     that.isScanCompleted = false;
@@ -246,7 +245,7 @@ export class ExpensesCardComponent implements OnInit {
           that.isScanCompleted = that.checkIfScanIsCompleted();
           that.isScanInProgress = !that.isScanCompleted;
           if (that.isScanInProgress) {
-            that.pollDataExtractionStatus();
+            // that.pollDataExtractionStatus();
           }
         } else {
           that.isScanCompleted = true;

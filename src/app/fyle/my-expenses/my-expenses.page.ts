@@ -4,7 +4,7 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, NavigationStart, Params, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, PopoverController } from '@ionic/angular';
-import { cloneDeep, isEqual } from 'lodash';
+import { cloneDeep, isEqual, isNumber } from 'lodash';
 import {
   BehaviorSubject,
   Observable,
@@ -17,17 +17,22 @@ import {
   iif,
   noop,
   of,
+  timer,
 } from 'rxjs';
 import {
   debounceTime,
   distinctUntilChanged,
+  exhaustMap,
   filter,
   finalize,
   map,
   shareReplay,
+  startWith,
   switchMap,
   take,
   takeUntil,
+  takeWhile,
+  timeout,
 } from 'rxjs/operators';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { Expense } from 'src/app/core/models/expense.model';
@@ -78,6 +83,8 @@ import { PromoteOptInModalComponent } from 'src/app/shared/components/promote-op
 import { AuthService } from 'src/app/core/services/auth.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
 import { FeatureConfigService } from 'src/app/core/services/platform/v1/spender/feature-config.service';
+import dayjs from 'dayjs';
+import { ExpensesQueryParams } from 'src/app/core/models/platform/v1/expenses-query-params.model';
 
 @Component({
   selector: 'app-my-expenses',
@@ -445,6 +452,80 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
+  isZeroAmountPerDiemOrMileage(expense: PlatformExpense): boolean {
+    return (
+      (expense?.category?.name?.toLowerCase() === 'per diem' || expense?.category?.name?.toLowerCase() === 'mileage') &&
+      (expense.amount === 0 || expense.claim_amount === 0)
+    );
+  }
+
+  checkIfScanIsCompleted(expense: PlatformExpense): boolean {
+    const isZeroAmountPerDiemOrMileage = this.isZeroAmountPerDiemOrMileage(expense);
+
+    const hasUserManuallyEnteredData =
+      isZeroAmountPerDiemOrMileage ||
+      ((expense.amount || expense.claim_amount) && isNumber(expense.amount || expense.claim_amount));
+    const isRequiredExtractedDataPresent = expense.extracted_data?.amount;
+
+    // this is to prevent the scan failed from being shown from an indefinite amount of time.
+    // also transcription kicks in within 15-24 hours, so only post that we should revert to default state
+    const hasScanExpired = expense.created_at && dayjs(expense.created_at).diff(Date.now(), 'day') < 0;
+    return !!(hasUserManuallyEnteredData || isRequiredExtractedDataPresent || hasScanExpired);
+  }
+
+  // Function to filter incomplete expenses
+  private filterIncompleteExpenses(expenses: PlatformExpense[]): string[] {
+    return expenses.filter((expense) => !this.checkIfScanIsCompleted(expense)).map((expense) => expense.id);
+  }
+
+  // Function to update expenses from polling results
+  private updateExpenses(
+    initialExpenses: PlatformExpense[],
+    updatedExpenses: PlatformExpense[],
+    incompleteExpenseIds: string[]
+  ): PlatformExpense[] {
+    let anyUpdated = false;
+
+    const updatedExpensesMap = new Map(updatedExpenses.map((expense) => [expense.id, expense]));
+
+    const newExpenses = initialExpenses.map((expense) => {
+      if (incompleteExpenseIds.includes(expense.id)) {
+        const updatedExpense = updatedExpensesMap.get(expense.id);
+        if (updatedExpense && updatedExpense.extracted_data != null) {
+          incompleteExpenseIds.splice(incompleteExpenseIds.indexOf(expense.id), 1);
+          anyUpdated = true;
+          return updatedExpense;
+        }
+      }
+      return expense;
+    });
+
+    if (anyUpdated) {
+      initialExpenses = newExpenses;
+    }
+
+    return newExpenses;
+  }
+
+  // Function to poll for incomplete expenses
+  private pollIncompleteExpenses(
+    incompleteExpenseIds: string[],
+    initialExpenses: PlatformExpense[]
+  ): Observable<PlatformExpense[]> {
+    return timer(5000, 5000).pipe(
+      startWith(initialExpenses),
+      exhaustMap(() => {
+        const params: ExpensesQueryParams = { queryParams: { id: `in.(${incompleteExpenseIds.join(',')})` } };
+        return this.expenseService
+          .getExpenses({ ...params.queryParams })
+          .pipe(map((updatedExpenses) => this.updateExpenses(initialExpenses, updatedExpenses, incompleteExpenseIds)));
+      }),
+      takeWhile(() => incompleteExpenseIds.length > 0, true),
+      takeUntil(this.onPageExit$),
+      timeout(30000)
+    );
+  }
+
   ionViewWillEnter(): void {
     this.isNewReportsFlowEnabled = false;
     this.hardwareBackButton = this.platformHandlerService.registerBackButtonAction(
@@ -536,8 +617,6 @@ export class MyExpensesPage implements OnInit {
     this.selectionMode = false;
     this.selectedElements = [];
 
-    this.syncOutboxExpenses();
-
     this.isConnected$.pipe(takeUntil(this.onPageExit$.asObservable())).subscribe((connected) => {
       if (connected) {
         this.syncOutboxExpenses();
@@ -612,7 +691,20 @@ export class MyExpensesPage implements OnInit {
       })
     );
 
-    this.myExpenses$ = paginatedPipe.pipe(shareReplay(1));
+    // this.myExpenses$ = paginatedPipe.pipe(shareReplay(1));
+    // Main logic
+    this.myExpenses$ = paginatedPipe.pipe(
+      switchMap((expenses) => {
+        const incompleteExpenseIds = this.filterIncompleteExpenses(expenses);
+
+        if (incompleteExpenseIds.length === 0) {
+          return of(expenses); // All scans are completed
+        } else {
+          return this.pollIncompleteExpenses(incompleteExpenseIds, expenses);
+        }
+      }),
+      shareReplay(1)
+    );
 
     this.count$ = this.loadExpenses$.pipe(
       switchMap((params) => {
@@ -830,6 +922,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   syncOutboxExpenses(): void {
+    console.log('Syncing outbox expenses');
     this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
     if (this.pendingTransactions.length > 0) {
       this.syncing = true;
