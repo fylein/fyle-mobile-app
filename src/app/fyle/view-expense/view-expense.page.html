@@ -222,8 +222,8 @@
                     <div class="view-expense--label">Spend Date</div>
                     <ion-icon
                       *ngIf="expense.extracted_data && (expense.spent_at | date:'MMM dd, YYYY') === (expense.extracted_data.date | date:'MMM dd, YYYY')"
-                      class="view-expense--stars-color-filled-icon"
-                      src="../../../assets/svg/stars-color-filled.svg"
+                      class="view-expense--sparkle-icon"
+                      src="../../../assets/svg/sparkle.svg"
                     ></ion-icon>
                   </div>
                   <div class="view-expense--value">{{ expense.spent_at | date: 'MMM dd, YYYY' }}</div>
