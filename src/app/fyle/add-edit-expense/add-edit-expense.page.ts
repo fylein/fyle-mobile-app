@@ -1738,7 +1738,15 @@ export class AddEditExpensePage implements OnInit {
 
     const txnReceiptsCount$ = this.getReceiptCount();
 
-    from(this.loaderService.showLoader('Loading expense...', 15000))
+    // To conditionally change the loader for add and edit expense
+    const currentUrl = this.router.url;
+    const loader$ = currentUrl.includes('add_edit_expense;dataUrl')
+      ? from(
+          this.loaderService.showLoader('Scanning information from the receipt...', 15000, 'assets/images/scanning.gif')
+        )
+      : from(this.loaderService.showLoader('Loading expense...', 15000));
+
+    loader$
       .pipe(
         switchMap(() =>
           forkJoin({
