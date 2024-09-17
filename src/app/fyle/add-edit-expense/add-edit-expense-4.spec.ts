@@ -1102,7 +1102,7 @@ export function TestCases4(getTestBed) {
         );
         component.etxn$ = of(transformedExpenseDataWithSubCategory);
         authService.getEou.and.resolveTo(apiEouRes);
-        transactionService.review.and.returnValue(of(null));
+
         transactionService.upsert.and.returnValue(of(transformedExpenseDataWithSubCategory.tx));
         expensesService.getExpenseById.and.returnValue(of(platformExpenseDataWithSubCategory));
         transactionService.transformExpense.and.returnValue(transformedExpenseDataWithSubCategory);
@@ -1222,7 +1222,6 @@ export function TestCases4(getTestBed) {
         );
         component.etxn$ = of(transformedExpenseDataWithReportId2);
         authService.getEou.and.resolveTo(apiEouRes);
-        transactionService.review.and.returnValue(of(null));
         transactionService.upsert.and.returnValue(of(transformedExpenseDataWithReportId2.tx));
         expensesService.getExpenseById.and.returnValue(of(platformExpenseDataWithReportId2));
         transactionService.transformExpense.and.returnValue(transformedExpenseDataWithReportId2);

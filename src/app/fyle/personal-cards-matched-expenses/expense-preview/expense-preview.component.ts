@@ -1,12 +1,15 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ModalController, Platform } from '@ionic/angular';
-import { finalize } from 'rxjs/operators';
+import { finalize, map } from 'rxjs/operators';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { Observable } from 'rxjs';
+import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 
 @Component({
   selector: 'app-expense-preview',
@@ -14,13 +17,13 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
   styleUrls: ['./expense-preview.component.scss'],
 })
 export class ExpensePreviewComponent implements OnInit {
-  @Input() expenseId;
+  @Input() expenseId: string;
 
-  @Input() card;
+  @Input() card: string;
 
-  @Input() cardTxnId;
+  @Input() cardTxnId: string;
 
-  expenseDetails$;
+  expenseDetails$: Observable<Expense>;
 
   loading = false;
 
@@ -37,22 +40,27 @@ export class ExpensePreviewComponent implements OnInit {
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
     private platform: Platform,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private expensesService: ExpensesService
   ) {}
 
   ngOnInit(): void {
     this.isIos = this.platform.is('ios');
   }
 
-  ionViewWillEnter() {
-    this.expenseDetails$ = this.personalCardsService.getExpenseDetails(this.expenseId);
+  ionViewWillEnter(): void {
+    const params = {
+      split_group_id: `eq.${this.expenseId}`,
+    };
+
+    this.expenseDetails$ = this.expensesService.getExpenses(params).pipe(map((res) => res[0]));
   }
 
-  closeModal() {
+  closeModal(): void {
     this.modalController.dismiss();
   }
 
-  matchExpense() {
+  matchExpense(): void {
     this.loading = true;
     this.personalCardsService
       .matchExpense(this.expenseId, this.cardTxnId)
@@ -68,7 +76,7 @@ export class ExpensePreviewComponent implements OnInit {
       });
   }
 
-  unmatchExpense() {
+  unmatchExpense(): void {
     this.unMatching = true;
     this.personalCardsService
       .unmatchExpense(this.expenseId, this.cardTxnId)
@@ -86,7 +94,7 @@ export class ExpensePreviewComponent implements OnInit {
       });
   }
 
-  editExpense() {
+  editExpense(): void {
     this.modalController.dismiss();
     this.router.navigate([
       '/',

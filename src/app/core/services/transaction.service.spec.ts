@@ -60,7 +60,6 @@ import { cloneDeep } from 'lodash';
 import { expensesCacheBuster$ } from '../cache-buster/expense-cache-buster';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { expenseData } from '../mock-data/platform/v1/expense.data';
-import { LaunchDarklyService } from './launch-darkly.service';
 
 describe('TransactionService', () => {
   let transactionService: TransactionService;
@@ -85,9 +84,7 @@ describe('TransactionService', () => {
   beforeEach(() => {
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['isOnline']);
     const storageServiceSpy = jasmine.createSpyObj('StorageService', ['get', 'set']);
-    const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post', 'delete']);
-    const apiV2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['get', 'getStats']);
     const dataTransformServiceSpy = jasmine.createSpyObj('DataTransformService', ['unflatten']);
     const dateServiceSpy = jasmine.createSpyObj('DateService', [
       'fixDates',
@@ -111,26 +108,13 @@ describe('TransactionService', () => {
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const accountsServiceSpy = jasmine.createSpyObj('AccountsService', ['getEMyAccounts']);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['attachReceiptsToExpense']);
-    const ldServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getImmediate']);
 
     TestBed.configureTestingModule({
       providers: [
         TransactionService,
         {
-          provide: LaunchDarklyService,
-          useValue: ldServiceSpy,
-        },
-        {
           provide: ApiService,
           useValue: apiServiceSpy,
-        },
-        {
-          provide: ApiV2Service,
-          useValue: apiV2ServiceSpy,
-        },
-        {
-          provide: AuthService,
-          useValue: authServiceSpy,
         },
         {
           provide: DataTransformService,
@@ -198,9 +182,7 @@ describe('TransactionService', () => {
     transactionService = TestBed.inject(TransactionService);
     networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
     storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
-    authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
-    apiV2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
     dataTransformService = TestBed.inject(DataTransformService) as jasmine.SpyObj<DataTransformService>;
     dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
     orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
@@ -847,117 +829,6 @@ describe('TransactionService', () => {
     });
   });
 
-  it('getMyExpenses(): should return my expenses with order', (done) => {
-    authService.getEou.and.resolveTo(eouRes2);
-    apiV2Service.get.and.returnValue(of(expenseV2Data));
-    dateService.fixDatesV2.and.returnValue(expenseV2Data.data[0]);
-
-    const params = {
-      offset: 0,
-      limit: 1,
-      queryParams: {
-        or: [],
-        tx_report_id: 'is.null',
-        tx_state: 'in.(COMPLETE,DRAFT)',
-      },
-      order: 'tx_txn_dt.desc',
-    };
-
-    transactionService.getMyExpenses(params).subscribe((res) => {
-      expect(res).toEqual(expenseV2Data);
-      expect(apiV2Service.get).toHaveBeenCalledOnceWith('/expenses', {
-        params: {
-          offset: params.offset,
-          limit: params.limit,
-          order: `${params.order || 'tx_txn_dt.desc'},tx_created_at.desc,tx_id.desc`,
-          tx_org_user_id: 'eq.' + eouRes2.ou.id,
-          ...params.queryParams,
-        },
-      });
-      expect(authService.getEou).toHaveBeenCalledTimes(1);
-      expect(dateService.fixDatesV2).toHaveBeenCalledOnceWith(res.data[0]);
-      done();
-    });
-  });
-
-  it('getMyExpenses(): should return my expenses without order using default date order', (done) => {
-    authService.getEou.and.resolveTo(eouRes2);
-    apiV2Service.get.and.returnValue(of(expenseV2Data));
-    dateService.fixDatesV2.and.returnValue(expenseV2Data.data[0]);
-
-    const params2 = {
-      offset: 0,
-      limit: 1,
-      queryParams: {
-        or: [],
-        tx_report_id: 'is.null',
-        tx_state: 'in.(COMPLETE,DRAFT)',
-      },
-    };
-
-    transactionService.getMyExpenses(params2).subscribe((res) => {
-      expect(res).toEqual(expenseV2Data);
-      expect(apiV2Service.get).toHaveBeenCalledOnceWith('/expenses', {
-        params: {
-          offset: params2.offset,
-          limit: params2.limit,
-          // eslint-disable-next-line @typescript-eslint/dot-notation
-          order: `${params2['order'] || 'tx_txn_dt.desc'},tx_created_at.desc,tx_id.desc`,
-          tx_org_user_id: 'eq.' + eouRes2.ou.id,
-          ...params2.queryParams,
-        },
-      });
-      expect(authService.getEou).toHaveBeenCalledTimes(1);
-      expect(dateService.fixDatesV2).toHaveBeenCalledOnceWith(res.data[0]);
-      done();
-    });
-  });
-
-  it('getMyExpensesCount(): should return my expenses count', (done) => {
-    spyOn(transactionService, 'getMyExpenses').and.returnValue(of(expenseV2Data));
-
-    const params = {
-      tx_report_id: 'is.null',
-      tx_state: 'in.(COMPLETE,DRAFT)',
-    };
-
-    transactionService.getMyExpensesCount(params).subscribe((res) => {
-      expect(res).toEqual(expenseV2Data.count);
-      expect(transactionService.getMyExpenses).toHaveBeenCalledOnceWith({
-        offset: 0,
-        limit: 1,
-        queryParams: params,
-      });
-      done();
-    });
-  });
-
-  it('getAllExpenses(): should return all expenses', (done) => {
-    spyOn(transactionService, 'getMyExpensesCount').and.returnValue(of(2));
-    spyOn(transactionService, 'getMyExpenses').and.returnValue(of(expenseV2DataMultiple));
-
-    const params = {
-      queryParams: {
-        tx_report_id: 'is.null',
-        tx_state: 'in.(COMPLETE)',
-        order: 'tx_txn_dt.desc',
-        or: ['(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)'],
-      },
-    };
-
-    transactionService.getAllExpenses(params).subscribe((res) => {
-      expect(res).toEqual(expenseV2DataMultiple.data);
-      expect(transactionService.getMyExpensesCount).toHaveBeenCalledOnceWith(params.queryParams);
-      expect(transactionService.getMyExpenses).toHaveBeenCalledOnceWith({
-        offset: 0,
-        limit: 2,
-        queryParams: params.queryParams,
-        order: undefined,
-      });
-      done();
-    });
-  });
-
   it('unmatchCCCExpense(): should unmatch ccc expense', (done) => {
     spenderPlatformV1ApiService.post.and.returnValue(of(unmatchCCCExpenseResponseData));
 
@@ -1103,33 +974,6 @@ describe('TransactionService', () => {
 
       expect(transactionService.generateCardNumberParams(params, filters)).toEqual(cardNumberParams);
       expect(lodash.cloneDeep).toHaveBeenCalledOnceWith(params);
-    });
-  });
-
-  it('review(): should return transaction response on review', (done) => {
-    apiService.post.and.returnValue(of(null));
-    const transactionId = 'tx3qHxFNgRcZ';
-
-    transactionService.review(transactionId).subscribe((res) => {
-      expect(res).toBeNull();
-      expect(apiService.post).toHaveBeenCalledOnceWith('/transactions/' + transactionId + '/review');
-      done();
-    });
-  });
-
-  it('uploadBase64(): should uploadBase64 and return file object response', (done) => {
-    const transactionID = 'txdzGV1TZEg3';
-    const fileName = '000.jpeg';
-    const base64Content = 'dummyBase64Value';
-    apiService.post.and.returnValue(of(fileObjectData));
-
-    transactionService.uploadBase64File(transactionID, fileName, base64Content).subscribe((res) => {
-      expect(res).toEqual(fileObjectData);
-      expect(apiService.post).toHaveBeenCalledOnceWith('/transactions/' + transactionID + '/upload_b64', {
-        content: base64Content,
-        name: fileName,
-      });
-      done();
     });
   });
 
