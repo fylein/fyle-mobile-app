@@ -40,6 +40,7 @@ import { SnackbarPropertiesService } from '../../core/services/snackbar-properti
 import { ExpensePreviewComponent } from '../personal-cards-matched-expenses/expense-preview/expense-preview.component';
 import { DateRangeModalComponent } from './date-range-modal/date-range-modal.component';
 import { PersonalCardsPage } from './personal-cards.page';
+import { PersonalCardFilter } from 'src/app/core/models/personal-card-filters.model';
 
 describe('PersonalCardsPage', () => {
   let component: PersonalCardsPage;
@@ -264,7 +265,7 @@ describe('PersonalCardsPage', () => {
           data: {
             icon: 'check-square-fill',
             showCloseButton: false,
-            message: message,
+            message,
           },
           duration: 3000,
         };
@@ -295,7 +296,7 @@ describe('PersonalCardsPage', () => {
           data: {
             icon: 'check-square-fill',
             showCloseButton: false,
-            message: message,
+            message,
           },
           duration: 3000,
         };
@@ -815,7 +816,7 @@ describe('PersonalCardsPage', () => {
       });
       modalController.create.and.resolveTo(modalSpy);
       personalCardsService.generateSelectedFilters.and.returnValue(selectedFilters1);
-      personalCardsService.convertFilters.and.returnValue({});
+      personalCardsService.convertFilters.and.returnValue({} as PersonalCardFilter);
       spyOn(component, 'addNewFiltersToParams').and.returnValue(tasksQueryParamsWithFiltersData3);
       personalCardsService.generateFilterPills.and.returnValue(creditTxnFilterPill);
       spyOn(component.loadData$, 'next');
