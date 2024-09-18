@@ -359,6 +359,8 @@ export class AddEditExpensePage implements OnInit {
 
   inpageExtractedData: ParsedResponse;
 
+  autoCodedData: ParsedResponse;
+
   actionSheetOptions$: Observable<{ text: string; handler: () => void }[]>;
 
   billableDefaultValue: boolean;
@@ -1265,6 +1267,7 @@ export class AddEditExpensePage implements OnInit {
           };
 
           const details = extractedDetails.parsedResponse as ParsedResponse;
+          this.autoCodedData = details;
 
           if (details) {
             return this.currencyService.getHomeCurrency().pipe(
@@ -1739,8 +1742,7 @@ export class AddEditExpensePage implements OnInit {
     const txnReceiptsCount$ = this.getReceiptCount();
 
     // To conditionally change the loader for add and edit expense
-    const currentUrl = this.router.url;
-    const loader$ = currentUrl.includes('add_edit_expense;dataUrl')
+    const loader$ = this.activatedRoute.snapshot.params.dataUrl
       ? from(
           this.loaderService.showLoader('Scanning information from the receipt...', 15000, 'assets/images/scanning.gif')
         )
@@ -2692,6 +2694,10 @@ export class AddEditExpensePage implements OnInit {
     return this.platformExpense$.pipe(
       switchMap((expense) => {
         const etxn = this.transactionService.transformExpense(expense);
+
+        this.autoCodedData = etxn.tx.extracted_data;
+        // this.autoCodedData.vendor_name = etxn.tx.extracted_data?.vendor;
+
         this.isIncompleteExpense = etxn.tx.state === 'DRAFT';
         this.source = etxn.tx.source || 'MOBILE';
         if (etxn.tx.state === 'DRAFT' && etxn.tx.extracted_data) {
@@ -4469,6 +4475,7 @@ export class AddEditExpensePage implements OnInit {
 
         if (!this.inpageExtractedData) {
           this.inpageExtractedData = imageData.data;
+          this.autoCodedData = this.inpageExtractedData;
         } else {
           this.inpageExtractedData = mergeWith(
             {},

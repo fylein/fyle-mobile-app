@@ -252,7 +252,7 @@
                   [expanded]="attachedReceiptsCount === 0"
                   [touchedInParent]="fg?.controls?.currencyObj?.touched"
                   [validInParent]="fg?.controls?.currencyObj?.valid"
-                  [autoCodedData]="inpageExtractedData"
+                  [autoCodedData]="autoCodedData"
                 >
                 </app-currency>
                 <div
@@ -323,7 +323,7 @@
                   </div>
                   <div
                     class="add-edit-expense--auto-coded"
-                    *ngIf="(inpageExtractedData?.date && fg.controls.dateOfSpend?.value) && inpageExtractedData.date === fg.controls.dateOfSpend.value"
+                    *ngIf="(autoCodedData?.date && fg.controls.dateOfSpend?.value) && (autoCodedData.date | date:'MMM dd, YYYY') === (fg.controls.dateOfSpend.value | date:'MMM dd, YYYY')"
                   >
                     <mat-icon class="add-edit-expense--sparkle-icon" svgIcon="sparkle"></mat-icon>
                     Date is auto coded.
@@ -498,7 +498,7 @@
                     </app-virtual-select>
                     <div
                       class="add-edit-expense--auto-coded"
-                      *ngIf="(inpageExtractedData?.category && fg.controls.category?.value?.displayName) && inpageExtractedData.category === fg.controls.category.value.displayName"
+                      *ngIf="(autoCodedData?.category && fg.controls.category?.value?.displayName) && autoCodedData.category === fg.controls.category.value.displayName"
                     >
                       <mat-icon class="add-edit-expense--sparkle-icon" svgIcon="sparkle"></mat-icon>
                       Category is auto coded.
@@ -921,7 +921,7 @@
               </app-virtual-select>
               <div
                 class="add-edit-expense--auto-coded"
-                *ngIf="(inpageExtractedData?.vendor_name && fg.controls.vendor_id?.value?.display_name) && inpageExtractedData.vendor_name === fg.controls.vendor_id.value.display_name"
+                *ngIf="(autoCodedData?.vendor_name && fg.controls.vendor_id?.value?.display_name) && autoCodedData.vendor_name === fg.controls.vendor_id.value.display_name"
               >
                 <mat-icon class="add-edit-expense--sparkle-icon" svgIcon="sparkle"></mat-icon>
                 Merchant is auto coded.

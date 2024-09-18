@@ -200,6 +200,8 @@ describe('FyCurrencyComponent', () => {
 
     // Test case 2: inner value with same currency
     const innerValue2 = {
+      orig_amount: null,
+      orig_currency: null,
       amount: 50,
       currency: 'USD',
     };
