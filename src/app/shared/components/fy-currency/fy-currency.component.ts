@@ -167,8 +167,8 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
           this.exchangeRate = newExchangeRate;
           if (this.innerValue.orig_amount && this.innerValue.orig_currency !== this.homeCurrency) {
             this.innerValue.amount = this.innerValue.orig_amount * this.exchangeRate;
-            (this.fg.value as CurrencyAmountFormValues).amount = this.innerValue.orig_amount;
-            (this.fg.value as CurrencyAmountFormValues).homeCurrencyAmount = this.innerValue.amount;
+            this.fg.controls.amount.setValue(this.innerValue.orig_amount);
+            this.fg.controls.homeCurrencyAmount.setValue(this.innerValue.amount);
           }
         });
     }

@@ -1267,7 +1267,9 @@ export class AddEditExpensePage implements OnInit {
           };
 
           const details = extractedDetails.parsedResponse as ParsedResponse;
-          this.autoCodedData = details;
+          if (details) {
+            this.autoCodedData = details;
+          }
 
           if (details) {
             return this.currencyService.getHomeCurrency().pipe(
@@ -1772,7 +1774,9 @@ export class AddEditExpensePage implements OnInit {
             taxGroups: this.taxGroups$,
           })
         ),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => {
+          this.loaderService.hideLoader();
+        })
       )
       .subscribe(
         ({
@@ -2695,8 +2699,10 @@ export class AddEditExpensePage implements OnInit {
       switchMap((expense) => {
         const etxn = this.transactionService.transformExpense(expense);
 
-        this.autoCodedData = etxn.tx.extracted_data;
-        // this.autoCodedData.vendor_name = etxn.tx.extracted_data?.vendor;
+        if (etxn && etxn.tx.extracted_data) {
+          this.autoCodedData = etxn.tx.extracted_data;
+          this.autoCodedData.vendor_name = etxn.tx.extracted_data.vendor;
+        }
 
         this.isIncompleteExpense = etxn.tx.state === 'DRAFT';
         this.source = etxn.tx.source || 'MOBILE';
@@ -4475,7 +4481,9 @@ export class AddEditExpensePage implements OnInit {
 
         if (!this.inpageExtractedData) {
           this.inpageExtractedData = imageData.data;
-          this.autoCodedData = this.inpageExtractedData;
+          if (this.inpageExtractedData) {
+            this.autoCodedData = this.inpageExtractedData;
+          }
         } else {
           this.inpageExtractedData = mergeWith(
             {},
@@ -4779,7 +4787,9 @@ export class AddEditExpensePage implements OnInit {
     from(this.loaderService.showLoader())
       .pipe(
         switchMap(() => attachements$),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => {
+          this.loaderService.hideLoader();
+        })
       )
       .subscribe(async (attachments) => {
         const attachmentsModal = await this.modalController.create({

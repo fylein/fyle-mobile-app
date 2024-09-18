@@ -62,6 +62,7 @@ describe('FyCurrencyComponent', () => {
     component.validInParent = true;
     fixture.detectChanges();
   }));
+
   it('should create', () => {
     expect(component).toBeTruthy();
   });
@@ -148,7 +149,7 @@ describe('FyCurrencyComponent', () => {
 
     expect(currencyService.getExchangeRate).toHaveBeenCalledWith('EUR', 'USD', previousTxnDt);
     expect(component.exchangeRate).toEqual(exchangeRate);
-    expect(component.innerValue.amount).toEqual(null);
+    expect(component.innerValue.amount).toBeNull();
   }));
 
   it('ngOnChanges(): should update the exchange rate and inner value even if txnDt is undefined', fakeAsync(() => {
@@ -268,12 +269,10 @@ describe('FyCurrencyComponent', () => {
     };
     component.txnDt = new Date();
     fixture.detectChanges();
-    modalController.create.and.returnValue(
-      Promise.resolve({
-        present: () => {},
-        onWillDismiss: () => Promise.resolve({ data: { amount: 100, homeCurrencyAmount: 500 } }),
-      } as any)
-    );
+    modalController.create.and.resolveTo({
+      present: () => {},
+      onWillDismiss: () => Promise.resolve({ data: { amount: 100, homeCurrencyAmount: 500 } }),
+    } as any);
     component.setExchangeRate('USD');
     tick();
     expect(modalController.create).toHaveBeenCalledOnceWith({
@@ -310,12 +309,10 @@ describe('FyCurrencyComponent', () => {
     };
     component.txnDt = new Date();
     fixture.detectChanges();
-    modalController.create.and.returnValue(
-      Promise.resolve({
-        present: () => {},
-        onWillDismiss: () => Promise.resolve({ data: { amount: 100, homeCurrencyAmount: 500 } }),
-      } as any)
-    );
+    modalController.create.and.resolveTo({
+      present: () => {},
+      onWillDismiss: () => Promise.resolve({ data: { amount: 100, homeCurrencyAmount: 500 } }),
+    } as any);
     component.setExchangeRate();
     tick();
     expect(modalController.create).toHaveBeenCalledOnceWith({
@@ -358,12 +355,10 @@ describe('FyCurrencyComponent', () => {
     };
     component.txnDt = new Date();
     fixture.detectChanges();
-    modalController.create.and.returnValue(
-      Promise.resolve({
-        present: () => {},
-        onWillDismiss: () => Promise.resolve({ data: { amount: 100, homeCurrencyAmount: 500 } }),
-      } as any)
-    );
+    modalController.create.and.resolveTo({
+      present: () => {},
+      onWillDismiss: () => Promise.resolve({ data: { amount: 100, homeCurrencyAmount: 500 } }),
+    } as any);
     component.setExchangeRate('EUR');
     tick();
     expect(modalController.create).toHaveBeenCalledOnceWith({
@@ -392,12 +387,10 @@ describe('FyCurrencyComponent', () => {
       homeCurrencyAmount: new FormControl(50),
     });
     spyOn(component, 'setExchangeRate');
-    modalController.create.and.returnValue(
-      Promise.resolve({
-        present: () => {},
-        onWillDismiss: () => Promise.resolve({ data: { currency: { shortCode: 'USD' } } }),
-      } as any)
-    );
+    modalController.create.and.resolveTo({
+      present: () => {},
+      onWillDismiss: () => Promise.resolve({ data: { currency: { shortCode: 'USD' } } }),
+    } as any);
     component.homeCurrency = 'EUR';
     component.value = {
       currency: 'EUR',
@@ -429,12 +422,10 @@ describe('FyCurrencyComponent', () => {
       homeCurrencyAmount: new FormControl(50),
     });
     spyOn(component, 'setExchangeRate');
-    modalController.create.and.returnValue(
-      Promise.resolve({
-        present: () => {},
-        onWillDismiss: () => Promise.resolve({ data: { currency: { shortCode: 'USD' } } }),
-      } as any)
-    );
+    modalController.create.and.resolveTo({
+      present: () => {},
+      onWillDismiss: () => Promise.resolve({ data: { currency: { shortCode: 'USD' } } }),
+    } as any);
     component.homeCurrency = 'EUR';
     component.value = {
       currency: 'EUR',
@@ -464,12 +455,10 @@ describe('FyCurrencyComponent', () => {
       homeCurrencyAmount: new FormControl(50),
     });
     spyOn(component, 'setExchangeRate');
-    modalController.create.and.returnValue(
-      Promise.resolve({
-        present: () => {},
-        onWillDismiss: () => Promise.resolve({ data: { currency: { shortCode: 'USD' } } }),
-      } as any)
-    );
+    modalController.create.and.resolveTo({
+      present: () => {},
+      onWillDismiss: () => Promise.resolve({ data: { currency: { shortCode: 'USD' } } }),
+    } as any);
     component.homeCurrency = 'USD';
     component.openCurrencyModal();
     tick(1000);
@@ -489,6 +478,6 @@ describe('FyCurrencyComponent', () => {
   it('getValid(): should return true if touchedInParent is true', () => {
     component.touchedInParent = true;
     fixture.detectChanges();
-    expect(component.valid).toBe(true);
+    expect(component.valid).toBeTrue();
   });
 });

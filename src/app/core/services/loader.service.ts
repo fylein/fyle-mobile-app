@@ -13,13 +13,13 @@ export class LoaderService {
       message,
       duration,
       spinner: customLoaderUrl ? null : 'crescent',
-      cssClass: customLoaderUrl ? 'custom-loader' : '',
+      cssClass: customLoaderUrl ? 'custom-loading' : '',
     });
 
     if (customLoaderUrl) {
       loading.message = `
         <div class="custom-loading">
-          <img src="${customLoaderUrl}" class="custom-loader-gif"/>
+          <img src="${customLoaderUrl}" class="custom-loading-gif"/>
           <span>${message}</span>
         </div>
       `;
