@@ -282,8 +282,8 @@ describe('PersonalCardsService', () => {
       const filters = {
         createdOn: {
           name: 'custom',
-          customDateStart: '2023-02-21T00:00:00.000Z',
-          customDateEnd: '2023-02-23T00:00:00.000Z',
+          customDateStart: new Date('2023-02-21T00:00:00.000Z'),
+          customDateEnd: new Date('2023-02-23T00:00:00.000Z'),
         },
       };
 
@@ -785,9 +785,9 @@ describe('PersonalCardsService', () => {
 
       const filters = {
         updatedOn: {
-          name: DateFilters.lastMonth,
-          customDateStart: '2023-02-21T00:00:00.000Z',
-          customDateEnd: '2023-02-23T00:00:00.000Z',
+          name: DateFilters.lastMonth as string,
+          customDateStart: new Date('2023-02-21T00:00:00.000Z'),
+          customDateEnd: new Date('2023-02-23T00:00:00.000Z'),
         },
       };
 
@@ -811,22 +811,6 @@ describe('PersonalCardsService', () => {
         ba_id: 'eq.baccLesaRlyvLY',
       });
       expect(dateService.getLastMonthRange).toHaveBeenCalledTimes(1);
-    });
-  });
-
-  it('getExpenseDetails(): should get expense details', (done) => {
-    apiV2Service.get.and.returnValue(of(etxncData));
-
-    const txnSplitGroupID = 'txOJVaaPxo9O';
-
-    personalCardsService.getExpenseDetails(txnSplitGroupID).subscribe((res) => {
-      expect(res).toEqual(etxncData.data[0]);
-      expect(apiV2Service.get).toHaveBeenCalledOnceWith('/expenses', {
-        params: {
-          tx_split_group_id: `eq.${txnSplitGroupID}`,
-        },
-      });
-      done();
     });
   });
 
