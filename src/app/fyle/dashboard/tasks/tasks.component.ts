@@ -508,7 +508,9 @@ export class TasksComponent implements OnInit {
           finalize(() => this.loaderService.hideLoader())
         )
         .subscribe((res) => {
-          this.router.navigate(['/', 'enterprise', 'my_view_report', { id: res[0].id }]);
+          if (res[0]?.id) {
+            this.router.navigate(['/', 'enterprise', 'my_view_report', { id: res[0].id }]);
+          }
         });
     } else {
       this.router.navigate(['/', 'enterprise', 'my_reports'], {
@@ -555,7 +557,9 @@ export class TasksComponent implements OnInit {
             finalize(() => this.loaderService.hideLoader())
           )
           .subscribe((res) => {
-            this.router.navigate(['/', 'enterprise', 'view_team_report', { id: res[0].id, navigate_back: true }]);
+            if (res[0]?.id) {
+              this.router.navigate(['/', 'enterprise', 'view_team_report', { id: res[0].id, navigate_back: true }]);
+            }
           });
       });
     } else {
@@ -581,7 +585,9 @@ export class TasksComponent implements OnInit {
           finalize(() => this.loaderService.hideLoader())
         )
         .subscribe((res) => {
-          this.router.navigate(['/', 'enterprise', 'my_view_report', { id: res[0].id }]);
+          if (res[0]?.id) {
+            this.router.navigate(['/', 'enterprise', 'my_view_report', { id: res[0].id }]);
+          }
         });
     } else {
       this.router.navigate(['/', 'enterprise', 'my_reports'], {
