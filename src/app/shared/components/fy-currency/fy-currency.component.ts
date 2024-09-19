@@ -181,8 +181,8 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
     const formCurrency = (this.fg?.value as CurrencyAmountFormValues).currency;
     const formAmount = (this.fg?.value as CurrencyAmountFormValues).amount;
 
-    const isCurrencyAutoCoded = currency === formCurrency;
-    const isAmountAutoCoded = amount === formAmount;
+    const isCurrencyAutoCoded = currency && currency === formCurrency;
+    const isAmountAutoCoded = amount && amount === formAmount;
 
     if (isCurrencyAutoCoded && isAmountAutoCoded) {
       this.autoCodeMessage = 'Currency and Amount are auto coded.';

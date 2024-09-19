@@ -21,8 +21,8 @@
     </div>
   </form>
 </div>
-<div class="fy-currency--auto-coded" *ngIf="autoCodeMessage">
-  <mat-icon class="fy-currency--sparkle-icon" svgIcon="sparkle"></mat-icon>
+<div class="fy-currency__auto-coded" *ngIf="autoCodeMessage">
+  <mat-icon class="fy-currency__sparkle-icon" svgIcon="sparkle"></mat-icon>
   {{ autoCodeMessage }}
 </div>
 <ng-container *ngIf="value?.currency && value?.orig_currency">

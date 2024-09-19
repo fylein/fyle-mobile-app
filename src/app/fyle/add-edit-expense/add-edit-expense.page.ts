@@ -3532,6 +3532,7 @@ export class AddEditExpensePage implements OnInit {
 
         if (this.inpageExtractedData) {
           etxn.tx.extracted_data = this.inpageExtractedData;
+          this.autoCodedData = this.inpageExtractedData;
         }
 
         // If user has not edited the amount, then send user_amount to check_policies

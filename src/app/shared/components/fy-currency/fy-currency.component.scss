@@ -59,7 +59,7 @@
     width: 70%;
   }
 
-  &--auto-coded {
+  &__auto-coded {
     display: flex;
     align-items: center;
     height: 12px;
@@ -67,7 +67,7 @@
     color: $black-light;
   }
 
-  &--sparkle-icon {
+  &__sparkle-icon {
     width: 12px;
     margin-right: 4px;
   }
