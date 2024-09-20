@@ -239,6 +239,12 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
   }
 
   async setExchangeRate(shortCode?: string): Promise<void> {
+    let exchangeRate: number | null = null;
+    if (this.fg.value.amount !== 0 && this.value.orig_currency === (shortCode || this.fg.controls.currency.value)) {
+      const formValues = this.fg.value as CurrencyAmountFormValues;
+      exchangeRate = formValues.homeCurrencyAmount / formValues.amount;
+    }
+
     const exchangeRateModal = await this.modalController.create({
       component: FyCurrencyExchangeRateComponent,
       componentProps: {
@@ -246,11 +252,7 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
         currentCurrency: this.homeCurrency,
         newCurrency: shortCode || (this.fg.controls.currency.value as string),
         txnDt: this.txnDt,
-        exchangeRate:
-          this.value.orig_currency === (shortCode || this.fg.controls.currency.value)
-            ? (this.fg.value as CurrencyAmountFormValues).homeCurrencyAmount /
-              (this.fg.value as CurrencyAmountFormValues).amount
-            : null,
+        exchangeRate: exchangeRate,
       },
       mode: 'ios',
       ...this.modalProperties.getModalDefaultProperties('fy-modal stack-modal'),
@@ -300,7 +302,7 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
     await currencyModal.present();
 
     const { data }: { data?: { currency: { shortCode: string } } } = await currencyModal.onWillDismiss();
-    if (data && data.currency && data.currency.shortCode) {
+    if (data?.currency?.shortCode) {
       const shortCode: string = data.currency.shortCode;
       if (shortCode === this.homeCurrency) {
         this.fg.controls.currency.patchValue(shortCode);

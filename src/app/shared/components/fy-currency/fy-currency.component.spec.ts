@@ -272,7 +272,7 @@ describe('FyCurrencyComponent', () => {
     modalController.create.and.resolveTo({
       present: () => {},
       onWillDismiss: () => Promise.resolve({ data: { amount: 100, homeCurrencyAmount: 500 } }),
-    } as any);
+    } as HTMLIonModalElement);
     component.setExchangeRate('USD');
     tick();
     expect(modalController.create).toHaveBeenCalledOnceWith({
@@ -312,7 +312,7 @@ describe('FyCurrencyComponent', () => {
     modalController.create.and.resolveTo({
       present: () => {},
       onWillDismiss: () => Promise.resolve({ data: { amount: 100, homeCurrencyAmount: 500 } }),
-    } as any);
+    } as HTMLIonModalElement);
     component.setExchangeRate();
     tick();
     expect(modalController.create).toHaveBeenCalledOnceWith({
@@ -358,7 +358,7 @@ describe('FyCurrencyComponent', () => {
     modalController.create.and.resolveTo({
       present: () => {},
       onWillDismiss: () => Promise.resolve({ data: { amount: 100, homeCurrencyAmount: 500 } }),
-    } as any);
+    } as HTMLIonModalElement);
     component.setExchangeRate('EUR');
     tick();
     expect(modalController.create).toHaveBeenCalledOnceWith({
@@ -390,7 +390,7 @@ describe('FyCurrencyComponent', () => {
     modalController.create.and.resolveTo({
       present: () => {},
       onWillDismiss: () => Promise.resolve({ data: { currency: { shortCode: 'USD' } } }),
-    } as any);
+    } as HTMLIonModalElement);
     component.homeCurrency = 'EUR';
     component.value = {
       currency: 'EUR',
@@ -425,7 +425,7 @@ describe('FyCurrencyComponent', () => {
     modalController.create.and.resolveTo({
       present: () => {},
       onWillDismiss: () => Promise.resolve({ data: { currency: { shortCode: 'USD' } } }),
-    } as any);
+    } as HTMLIonModalElement);
     component.homeCurrency = 'EUR';
     component.value = {
       currency: 'EUR',
@@ -458,7 +458,7 @@ describe('FyCurrencyComponent', () => {
     modalController.create.and.resolveTo({
       present: () => {},
       onWillDismiss: () => Promise.resolve({ data: { currency: { shortCode: 'USD' } } }),
-    } as any);
+    } as HTMLIonModalElement);
     component.homeCurrency = 'USD';
     component.openCurrencyModal();
     tick(1000);
