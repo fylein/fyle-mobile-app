@@ -193,4 +193,11 @@
     margin-top: 16px;
     border-bottom: 1px solid $grey;
   }
+
+  &--sparkle-icon {
+    width: 12px;
+    height: 12px;
+    margin: 2px 0px 2px 2px;
+    color: $brand-primary;
+  }
 }

@@ -359,6 +359,8 @@ export class AddEditExpensePage implements OnInit {
 
   inpageExtractedData: ParsedResponse;
 
+  autoCodedData: ParsedResponse;
+
   actionSheetOptions$: Observable<{ text: string; handler: () => void }[]>;
 
   billableDefaultValue: boolean;
@@ -1265,6 +1267,9 @@ export class AddEditExpensePage implements OnInit {
           };
 
           const details = extractedDetails.parsedResponse as ParsedResponse;
+          if (details) {
+            this.autoCodedData = details;
+          }
 
           if (details) {
             return this.currencyService.getHomeCurrency().pipe(
@@ -1738,7 +1743,14 @@ export class AddEditExpensePage implements OnInit {
 
     const txnReceiptsCount$ = this.getReceiptCount();
 
-    from(this.loaderService.showLoader('Loading expense...', 15000))
+    // To conditionally change the loader for add and edit expense
+    const loader$ = this.activatedRoute.snapshot.params.dataUrl
+      ? from(
+          this.loaderService.showLoader('Scanning information from the receipt...', 15000, 'assets/images/scanning.gif')
+        )
+      : from(this.loaderService.showLoader('Loading expense...', 15000));
+
+    loader$
       .pipe(
         switchMap(() =>
           forkJoin({
@@ -1762,7 +1774,9 @@ export class AddEditExpensePage implements OnInit {
             taxGroups: this.taxGroups$,
           })
         ),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => {
+          this.loaderService.hideLoader();
+        })
       )
       .subscribe(
         ({
@@ -2684,6 +2698,12 @@ export class AddEditExpensePage implements OnInit {
     return this.platformExpense$.pipe(
       switchMap((expense) => {
         const etxn = this.transactionService.transformExpense(expense);
+
+        if (etxn && etxn.tx.extracted_data) {
+          this.autoCodedData = etxn.tx.extracted_data;
+          this.autoCodedData.vendor_name = etxn.tx.extracted_data.vendor;
+        }
+
         this.isIncompleteExpense = etxn.tx.state === 'DRAFT';
         this.source = etxn.tx.source || 'MOBILE';
         if (etxn.tx.state === 'DRAFT' && etxn.tx.extracted_data) {
@@ -3512,6 +3532,7 @@ export class AddEditExpensePage implements OnInit {
 
         if (this.inpageExtractedData) {
           etxn.tx.extracted_data = this.inpageExtractedData;
+          this.autoCodedData = this.inpageExtractedData;
         }
 
         // If user has not edited the amount, then send user_amount to check_policies
@@ -4395,6 +4416,12 @@ export class AddEditExpensePage implements OnInit {
   }
 
   async getParsedReceipt(base64Image: string, fileType: string): Promise<ParsedReceipt> {
+    await this.loaderService.showLoader(
+      'Scanning information from the receipt...',
+      15000,
+      'assets/images/scanning.gif'
+    );
+
     const parsedData: ParsedReceipt = await this.transactionOutboxService.parseReceipt(base64Image, fileType);
     const homeCurrency = await this.currencyService.getHomeCurrency().toPromise();
 
@@ -4413,6 +4440,7 @@ export class AddEditExpensePage implements OnInit {
         .toPromise();
     }
 
+    await this.loaderService.hideLoader();
     return parsedData;
   }
 
@@ -4454,6 +4482,9 @@ export class AddEditExpensePage implements OnInit {
 
         if (!this.inpageExtractedData) {
           this.inpageExtractedData = imageData.data;
+          if (this.inpageExtractedData) {
+            this.autoCodedData = this.inpageExtractedData;
+          }
         } else {
           this.inpageExtractedData = mergeWith(
             {},
@@ -4757,7 +4788,9 @@ export class AddEditExpensePage implements OnInit {
     from(this.loaderService.showLoader())
       .pipe(
         switchMap(() => attachements$),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => {
+          this.loaderService.hideLoader();
+        })
       )
       .subscribe(async (attachments) => {
         const attachmentsModal = await this.modalController.create({
