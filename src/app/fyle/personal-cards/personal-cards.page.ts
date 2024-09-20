@@ -56,8 +56,25 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
 import { SortFiltersParams } from 'src/app/core/models/sort-filters-params.model';
 import { PersonalCardFilter } from 'src/app/core/models/personal-card-filters.model';
 
+<<<<<<< HEAD
 // eslint-disable-next-line custom-rules/prefer-semantic-extension-name
 type Filters = Partial<PersonalCardFilter>;
+=======
+type Filters = Partial<{
+  amount: number;
+  createdOn: Partial<{
+    name?: string;
+    customDateStart?: Date;
+    customDateEnd?: Date;
+  }>;
+  updatedOn: Partial<{
+    name?: string;
+    customDateStart?: Date;
+    customDateEnd?: Date;
+  }>;
+  transactionType: string;
+}>;
+>>>>>>> parent of e79923727 (fix: httpInterceptor behavioural bug (#3193))
 
 @Component({
   selector: 'app-personal-cards',
@@ -452,7 +469,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     if (this.selectionMode) {
       this.switchSelectionMode();
     }
-    this.selectedTrasactionType = event.detail.value;
+    this.selectedTrasactionType = event.detail.value as string;
     this.acc = [];
     const params = this.loadData$.getValue();
     const queryParams = params.queryParams || {};
