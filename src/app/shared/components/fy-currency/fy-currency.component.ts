@@ -300,7 +300,7 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
     await currencyModal.present();
 
     const { data }: { data?: { currency: { shortCode: string } } } = await currencyModal.onWillDismiss();
-    if (data) {
+    if (data && data.currency && data.currency.shortCode) {
       const shortCode: string = data.currency.shortCode;
       if (shortCode === this.homeCurrency) {
         this.fg.controls.currency.patchValue(shortCode);
