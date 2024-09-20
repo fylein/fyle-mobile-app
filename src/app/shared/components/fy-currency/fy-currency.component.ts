@@ -240,7 +240,10 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
 
   async setExchangeRate(shortCode?: string): Promise<void> {
     let exchangeRate: number | null = null;
-    if (this.fg.value.amount !== 0 && this.value.orig_currency === (shortCode || this.fg.controls.currency.value)) {
+    if (
+      (this.fg.value as CurrencyAmountFormValues).amount !== 0 &&
+      this.value.orig_currency === (shortCode || this.fg.controls.currency.value)
+    ) {
       const formValues = this.fg.value as CurrencyAmountFormValues;
       exchangeRate = formValues.homeCurrencyAmount / formValues.amount;
     }
