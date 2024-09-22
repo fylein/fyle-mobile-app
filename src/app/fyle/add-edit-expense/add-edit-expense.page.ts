@@ -4525,8 +4525,14 @@ export class AddEditExpensePage implements OnInit {
         }
 
         if (!this.fg.controls.vendor_id.value && extractedData.vendor) {
-          this.fg.patchValue({
-            vendor_id: { display_name: extractedData.vendor },
+          this.txnFields$.subscribe((res) => {
+            res.vendor_id.options.map((merchant) => {
+              if (merchant.label.toLowerCase() === extractedData.vendor.toLowerCase()) {
+                this.fg.patchValue({
+                  vendor_id: { display_name: merchant.value.display_name },
+                });
+              }
+            });
           });
         }
 
