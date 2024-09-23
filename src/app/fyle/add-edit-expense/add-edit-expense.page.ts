@@ -1485,7 +1485,11 @@ export class AddEditExpensePage implements OnInit {
             }
 
             if (extractedData.vendor) {
-              etxn.tx.vendor = extractedData.vendor;
+              this.filterVendor(extractedData).subscribe((vendor) => {
+                if (vendor) {
+                  etxn.tx.vendor = extractedData.vendor;
+                }
+              });
             }
 
             if (extractedCategory) {
@@ -2724,7 +2728,11 @@ export class AddEditExpensePage implements OnInit {
           }
 
           if (etxn.tx.extracted_data.vendor && !etxn.tx.vendor) {
-            etxn.tx.vendor = etxn.tx.extracted_data.vendor;
+            this.filterVendor(etxn.tx.extracted_data).subscribe((vendor) => {
+              if (vendor) {
+                etxn.tx.vendor = etxn.tx.extracted_data.vendor;
+              }
+            });
           }
 
           if (
@@ -4525,30 +4533,17 @@ export class AddEditExpensePage implements OnInit {
         }
 
         if (!this.fg.controls.vendor_id.value && extractedData.vendor) {
-          this.txnFields$
-            .pipe(
-              map((res) => res.vendor_id.options),
-              filter((options) => !!options && options.length > 0),
-              map((options) =>
-                options.find(
-                  (merchant) =>
-                    (typeof merchant === 'object' && merchant.label.toLowerCase()) ===
-                    extractedData.vendor.toLowerCase()
-                )
-              ),
-              filter((merchant) => !!merchant)
-            )
-            .subscribe((merchant) => {
-              if (typeof merchant === 'object' && typeof merchant.value === 'object') {
-                this.fg.patchValue({
-                  vendor_id: { display_name: merchant.value.display_name },
-                });
-              } else {
-                this.fg.patchValue({
-                  vendor_id: null,
-                });
-              }
-            });
+          this.filterVendor(extractedData).subscribe((merchant) => {
+            if (typeof merchant === 'object' && typeof merchant.value === 'object') {
+              this.fg.patchValue({
+                vendor_id: { display_name: merchant.value.display_name },
+              });
+            } else {
+              this.fg.patchValue({
+                vendor_id: null,
+              });
+            }
+          });
         }
 
         // If category is auto-filled and there exists extracted category, priority is given to extracted category
@@ -4568,6 +4563,26 @@ export class AddEditExpensePage implements OnInit {
         }
       });
   }
+
+  filterVendor = (extractedData) => {
+    return this.txnFields$.pipe(
+      map((res) => res.vendor_id.options),
+      filter((options) => !!options && options.length > 0),
+      map((options) => {
+        if (Array.isArray(options) && typeof options[0] === 'object' && 'label' in options[0]) {
+          const merchantOptions = (options as { label: string; value: any }[]).filter(
+            (option) => typeof option === 'object' && 'label' in option
+          );
+
+          return merchantOptions.find(
+            (merchant) => merchant.label.toLowerCase() === extractedData.vendor.toLowerCase()
+          );
+        }
+        return null;
+      }),
+      filter((merchant) => !!merchant)
+    );
+  };
 
   attachReceipts(data: { type: string; dataUrl: string | ArrayBuffer; actionSource?: string }): void {
     if (data) {
