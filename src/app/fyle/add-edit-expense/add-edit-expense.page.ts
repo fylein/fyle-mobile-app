@@ -4525,15 +4525,30 @@ export class AddEditExpensePage implements OnInit {
         }
 
         if (!this.fg.controls.vendor_id.value && extractedData.vendor) {
-          this.txnFields$.subscribe((res) => {
-            res.vendor_id.options.map((merchant) => {
-              if (merchant.label.toLowerCase() === extractedData.vendor.toLowerCase()) {
+          this.txnFields$
+            .pipe(
+              map((res) => res.vendor_id.options),
+              filter((options) => !!options && options.length > 0),
+              map((options) =>
+                options.find(
+                  (merchant) =>
+                    (typeof merchant === 'object' && merchant.label.toLowerCase()) ===
+                    extractedData.vendor.toLowerCase()
+                )
+              ),
+              filter((merchant) => !!merchant)
+            )
+            .subscribe((merchant) => {
+              if (typeof merchant === 'object' && typeof merchant.value === 'object') {
                 this.fg.patchValue({
                   vendor_id: { display_name: merchant.value.display_name },
                 });
+              } else {
+                this.fg.patchValue({
+                  vendor_id: null,
+                });
               }
             });
-          });
         }
 
         // If category is auto-filled and there exists extracted category, priority is given to extracted category
