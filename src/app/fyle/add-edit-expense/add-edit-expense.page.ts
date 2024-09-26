@@ -439,6 +439,8 @@ export class AddEditExpensePage implements OnInit {
 
   selectedCategory$: Observable<OrgCategory>;
 
+  vendorOptions: string[];
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -1485,11 +1487,8 @@ export class AddEditExpensePage implements OnInit {
             }
 
             if (extractedData.vendor) {
-              this.filterVendor(extractedData).subscribe((vendor) => {
-                if (vendor) {
-                  etxn.tx.vendor = extractedData.vendor;
-                }
-              });
+              const vendor = this.filterVendor(etxn.tx.extracted_data.vendor);
+              etxn.tx.vendor = vendor;
             }
 
             if (extractedCategory) {
@@ -2438,6 +2437,7 @@ export class AddEditExpensePage implements OnInit {
             const ifOptions = expenseField.options && expenseField.options.length > 0;
             if (ifOptions) {
               if (tfc === 'vendor_id') {
+                this.vendorOptions = options;
                 expenseField.options = options.map((value) => ({
                   label: value,
                   value: {
@@ -2728,11 +2728,8 @@ export class AddEditExpensePage implements OnInit {
           }
 
           if (etxn.tx.extracted_data.vendor && !etxn.tx.vendor) {
-            this.filterVendor(etxn.tx.extracted_data).subscribe((vendor) => {
-              if (vendor) {
-                etxn.tx.vendor = etxn.tx.extracted_data.vendor;
-              }
-            });
+            const vendor = this.filterVendor(etxn.tx.extracted_data.vendor);
+            etxn.tx.vendor = vendor;
           }
 
           if (
@@ -4533,16 +4530,10 @@ export class AddEditExpensePage implements OnInit {
         }
 
         if (!this.fg.controls.vendor_id.value && extractedData.vendor) {
-          this.filterVendor(extractedData).subscribe((merchant) => {
-            if (typeof merchant === 'object' && typeof merchant.value === 'object') {
-              this.fg.patchValue({
-                vendor_id: { display_name: merchant.value.display_name },
-              });
-            } else {
-              this.fg.patchValue({
-                vendor_id: null,
-              });
-            }
+          const vendor = this.filterVendor(extractedData.vendor);
+
+          this.fg.patchValue({
+            vendor_id: { display_name: vendor },
           });
         }
 
@@ -4564,25 +4555,9 @@ export class AddEditExpensePage implements OnInit {
       });
   }
 
-  filterVendor = (extractedData) => {
-    return this.txnFields$.pipe(
-      map((res) => res.vendor_id.options),
-      filter((options) => !!options && options.length > 0),
-      map((options) => {
-        if (Array.isArray(options) && typeof options[0] === 'object' && 'label' in options[0]) {
-          const merchantOptions = (options as { label: string; value: any }[]).filter(
-            (option) => typeof option === 'object' && 'label' in option
-          );
-
-          return merchantOptions.find(
-            (merchant) => merchant.label.toLowerCase() === extractedData.vendor.toLowerCase()
-          );
-        }
-        return null;
-      }),
-      filter((merchant) => !!merchant)
-    );
-  };
+  private filterVendor(vendor: string): string | null {
+    return this.vendorOptions?.find((option) => option.toLowerCase() === vendor.toLowerCase()) || null;
+  }
 
   attachReceipts(data: { type: string; dataUrl: string | ArrayBuffer; actionSource?: string }): void {
     if (data) {
