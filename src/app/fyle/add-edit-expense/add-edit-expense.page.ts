@@ -1487,7 +1487,7 @@ export class AddEditExpensePage implements OnInit {
             }
 
             if (extractedData.vendor) {
-              const vendor = this.filterVendor(etxn.tx.extracted_data.vendor);
+              const vendor = this.filterVendor(extractedData.vendor);
               etxn.tx.vendor = vendor;
             }
 
