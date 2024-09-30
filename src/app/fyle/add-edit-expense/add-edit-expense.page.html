@@ -921,7 +921,7 @@
               </app-virtual-select>
               <div
                 class="add-edit-expense--auto-coded"
-                *ngIf="(autoCodedData?.vendor_name && fg.controls.vendor_id?.value?.display_name) && autoCodedData.vendor_name === fg.controls.vendor_id.value.display_name"
+                *ngIf="(autoCodedData?.vendor_name && fg.controls.vendor_id?.value?.display_name) && autoCodedData.vendor_name?.toLowerCase() === fg.controls.vendor_id.value.display_name?.toLowerCase()"
               >
                 <mat-icon class="add-edit-expense--sparkle-icon" svgIcon="sparkle"></mat-icon>
                 Merchant is auto coded.

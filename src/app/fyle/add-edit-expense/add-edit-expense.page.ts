@@ -439,6 +439,8 @@ export class AddEditExpensePage implements OnInit {
 
   selectedCategory$: Observable<OrgCategory>;
 
+  vendorOptions: string[];
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -1485,7 +1487,8 @@ export class AddEditExpensePage implements OnInit {
             }
 
             if (extractedData.vendor) {
-              etxn.tx.vendor = extractedData.vendor;
+              const vendor = this.filterVendor(extractedData.vendor);
+              etxn.tx.vendor = vendor;
             }
 
             if (extractedCategory) {
@@ -2434,6 +2437,7 @@ export class AddEditExpensePage implements OnInit {
             const ifOptions = expenseField.options && expenseField.options.length > 0;
             if (ifOptions) {
               if (tfc === 'vendor_id') {
+                this.vendorOptions = options;
                 expenseField.options = options.map((value) => ({
                   label: value,
                   value: {
@@ -2724,7 +2728,8 @@ export class AddEditExpensePage implements OnInit {
           }
 
           if (etxn.tx.extracted_data.vendor && !etxn.tx.vendor) {
-            etxn.tx.vendor = etxn.tx.extracted_data.vendor;
+            const vendor = this.filterVendor(etxn.tx.extracted_data.vendor);
+            etxn.tx.vendor = vendor;
           }
 
           if (
@@ -4525,8 +4530,10 @@ export class AddEditExpensePage implements OnInit {
         }
 
         if (!this.fg.controls.vendor_id.value && extractedData.vendor) {
+          const vendor = this.filterVendor(extractedData.vendor);
+
           this.fg.patchValue({
-            vendor_id: { display_name: extractedData.vendor },
+            vendor_id: { display_name: vendor },
           });
         }
 
@@ -4546,6 +4553,10 @@ export class AddEditExpensePage implements OnInit {
           });
         }
       });
+  }
+
+  private filterVendor(vendor: string): string | null {
+    return this.vendorOptions?.find((option) => option.toLowerCase() === vendor.toLowerCase()) || null;
   }
 
   attachReceipts(data: { type: string; dataUrl: string | ArrayBuffer; actionSource?: string }): void {
