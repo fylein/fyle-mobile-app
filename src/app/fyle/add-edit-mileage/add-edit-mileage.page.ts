@@ -671,7 +671,7 @@ export class AddEditMileagePage implements OnInit {
         const parentCategoryName = 'mileage';
         return categories.filter(
           (orgCategory) =>
-            parentCategoryName.toLowerCase() === orgCategory.name?.toLowerCase() &&
+            parentCategoryName.toLowerCase() === orgCategory.fyle_category?.toLowerCase() &&
             parentCategoryName.toLowerCase() !== orgCategory.sub_category?.toLowerCase()
         );
       }),
