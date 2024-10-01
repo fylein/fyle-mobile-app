@@ -254,6 +254,7 @@ export function TestCases3(getTestBed) {
       component._isExpandedView = true;
       component.navigateBack = true;
       component.hardwareBackButtonAction = new Subscription();
+      component.vendorOptions = ['vendor'];
       fixture.detectChanges();
     });
 
