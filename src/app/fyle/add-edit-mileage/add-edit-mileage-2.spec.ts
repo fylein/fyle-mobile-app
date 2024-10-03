@@ -250,7 +250,7 @@ export function TestCases2(getTestBed) {
       component.getMileageCategories().subscribe((res) => {
         expect(res).toEqual({
           defaultMileageCategory: mileageCategories2[0],
-          mileageCategories: [mileageCategories2[1]],
+          mileageCategories: [mileageCategories2[0], mileageCategories2[1]],
         });
         expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
         done();
@@ -262,7 +262,7 @@ export function TestCases2(getTestBed) {
         categoriesService.getAll.and.returnValue(of(mileageCategories2));
 
         component.getSubCategories().subscribe((res) => {
-          expect(res).toEqual([mileageCategories2[0]]);
+          expect(res).toEqual([mileageCategories2[0], mileageCategories2[1]]);
           expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
           done();
         });
