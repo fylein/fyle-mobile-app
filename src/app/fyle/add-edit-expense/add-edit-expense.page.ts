@@ -439,7 +439,7 @@ export class AddEditExpensePage implements OnInit {
 
   selectedCategory$: Observable<OrgCategory>;
 
-  vendorOptions: string[];
+  vendorOptions: string[] = [];
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -4556,6 +4556,9 @@ export class AddEditExpensePage implements OnInit {
   }
 
   private filterVendor(vendor: string): string | null {
+    if (!vendor || this.vendorOptions?.length === 0) {
+      return vendor;
+    }
     return this.vendorOptions?.find((option) => option.toLowerCase() === vendor.toLowerCase()) || null;
   }
 
