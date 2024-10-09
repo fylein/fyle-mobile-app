@@ -51,7 +51,7 @@ export class CurrencyService {
         this.platformCommonApiService
           .get<PlatformApiResponse<CurrencyName>>('/currency/list', {
             params: {
-              org_id: currentEou && currentEou.ou && currentEou.ou.org_id,
+              org_id: currentEou?.ou?.org_id,
             },
           })
           .pipe(map((response) => response.data))
