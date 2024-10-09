@@ -6,7 +6,7 @@ import { catchError, map, switchMap } from 'rxjs/operators';
 import { Cacheable } from 'ts-cacheable';
 import { CurrencyName } from '../models/currency.model';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
-import { PublicPolicyExpense } from '../models/public-policy-expense.model';
+import { ExchangeRateResponse } from '../models/exchange-rate-response.model';
 import { AuthService } from './auth.service';
 import { OrgService } from './org.service';
 import { PlatformCommonApiService } from './platform-common-api.service';
@@ -35,7 +35,7 @@ export class CurrencyService {
     }
 
     return this.platformCommonApiService
-      .get<PlatformApiResponse<Partial<PublicPolicyExpense>>>('/currency/exchange_rate', {
+      .get<PlatformApiResponse<ExchangeRateResponse>>('/currency/exchange_rate', {
         params: queryParams,
       })
       .pipe(
