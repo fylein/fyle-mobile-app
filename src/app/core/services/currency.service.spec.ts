@@ -49,13 +49,13 @@ describe('CurrencyService', () => {
 
   it('getAll(): should return all currencies', (done) => {
     authService.getEou.and.resolveTo(apiEouRes);
-    platformCommonApiService.get.and.returnValue(of(apiAllCurrencies));
+    platformCommonApiService.get.and.returnValue(of({ data: apiAllCurrencies }));
 
     currencyService.getAll().subscribe((res) => {
       expect(res).toEqual(apiAllCurrencies);
       expect(platformCommonApiService.get).toHaveBeenCalledOnceWith('/currency/list', {
         params: {
-          org_id: apiEouRes && apiEouRes.ou && apiEouRes.ou.org_id,
+          org_id: apiEouRes?.ou?.org_id,
         },
       });
       expect(authService.getEou).toHaveBeenCalledTimes(1);
@@ -81,7 +81,7 @@ describe('CurrencyService', () => {
     it('should get the exchange rate', (done) => {
       platformCommonApiService.get.and.returnValue(
         of({
-          exchange_rate: 82.708499,
+          data: { exchange_rate: 82.708499 },
         })
       );
 
@@ -104,7 +104,7 @@ describe('CurrencyService', () => {
     it('should get the exchange rate when date and transaction ID not specified', (done) => {
       platformCommonApiService.get.and.returnValue(
         of({
-          exchange_rate: 82.708499,
+          data: { exchange_rate: 82.708499 },
         })
       );
 
