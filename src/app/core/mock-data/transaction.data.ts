@@ -2585,7 +2585,7 @@ export const txnAmount1: Transaction = deepFreeze({
   categoryDisplayName: 'Bus',
 });
 
-export const transformedExpensePayload: Partial<Expense> = {
+export const transformedExpensePayload: Partial<Expense> = deepFreeze({
   id: txnAmount1.id,
   spent_at: txnAmount1.txn_dt,
   category_id: txnAmount1.org_category_id,
@@ -2614,7 +2614,7 @@ export const transformedExpensePayload: Partial<Expense> = {
   report_id: txnAmount1.report_id,
   travel_classes: [],
   locations: [],
-};
+});
 
 export const splitExpenseTxn2: Transaction = deepFreeze({
   skip_reimbursement: false,
