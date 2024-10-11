@@ -33,7 +33,7 @@ import { Transaction } from 'src/app/core/models/v1/transaction.model';
 import { transformedExpensePayload, txnAmount1 } from 'src/app/core/mock-data/transaction.data';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 
-fdescribe('ExpensesService', () => {
+describe('ExpensesService', () => {
   let service: ExpensesService;
   let spenderService: jasmine.SpyObj<SpenderService>;
   let sharedExpenseService: jasmine.SpyObj<SharedExpenseService>;
