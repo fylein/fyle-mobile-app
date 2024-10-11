@@ -24,7 +24,11 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { CameraService } from 'src/app/core/services/camera.service';
 import { CameraPreviewService } from 'src/app/core/services/camera-preview.service';
 import { ReceiptPreviewData } from 'src/app/core/models/receipt-preview-data.model';
-import { Image } from 'src/app/core/models/image.model';
+
+type Image = Partial<{
+  source: string;
+  base64Image: string;
+}>;
 
 @Component({
   selector: 'app-capture-receipt',
