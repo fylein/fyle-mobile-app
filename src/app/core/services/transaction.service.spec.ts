@@ -65,7 +65,7 @@ import { expensesCacheBuster$ } from '../cache-buster/expense-cache-buster';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { expenseData } from '../mock-data/platform/v1/expense.data';
 
-fdescribe('TransactionService', () => {
+describe('TransactionService', () => {
   let transactionService: TransactionService;
   let networkService: jasmine.SpyObj<NetworkService>;
   let storageService: jasmine.SpyObj<StorageService>;
