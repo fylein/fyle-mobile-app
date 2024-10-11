@@ -345,4 +345,15 @@ export class ExpensesService {
       data: expense,
     });
   }
+
+  createFromFile(fileId: string, source: string): Observable<PlatformApiResponse<Expense[]>> {
+    return this.spenderService.post<PlatformApiResponse<Expense[]>>('/expenses/create_from_file/bulk', {
+      data: [
+        {
+          file_id: fileId,
+          source,
+        },
+      ],
+    });
+  }
 }
