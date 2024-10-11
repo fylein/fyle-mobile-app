@@ -19,6 +19,8 @@ import { expensesCacheBuster$ } from 'src/app/core/cache-buster/expense-cache-bu
 import { CorporateCreditCardExpenseService } from '../../../corporate-credit-card-expense.service';
 import { corporateCardTransaction } from 'src/app/core/models/platform/v1/cc-transaction.model';
 import { MatchedCorporateCardTransaction } from 'src/app/core/models/platform/v1/matched-corpporate-card-transaction.model';
+import { MileageUnitEnum } from 'src/app/core/models/platform/platform-mileage-rates.model';
+import { Location } from 'src/app/core/models/location.model';
 
 @Injectable({
   providedIn: 'root',
@@ -289,7 +291,7 @@ export class ExpensesService {
 
   // transform public transaction to expense payload for /post expenses
   transformTo(transaction: Partial<Transaction>, fileIds: string[]): Partial<Expense> {
-    const expense: any = {
+    const expense: Partial<Expense> = {
       id: transaction.id,
       spent_at: transaction.txn_dt,
       category_id: transaction.org_category_id,
@@ -307,10 +309,10 @@ export class ExpensesService {
       tax_group_id: transaction.tax_group_id,
       is_billable: transaction.billable,
       distance: transaction.distance,
-      distance_unit: transaction.distance_unit,
+      distance_unit: transaction.distance_unit as MileageUnitEnum,
       started_at: transaction.from_dt,
       ended_at: transaction.to_dt,
-      locations: transaction.locations,
+      locations: transaction.locations as unknown as Location[],
       custom_fields: transaction.custom_properties,
       per_diem_rate_id: transaction.per_diem_rate_id,
       per_diem_num_days: transaction.num_days || 0,
