@@ -29,8 +29,11 @@ import {
 } from 'src/app/core/mock-data/corporate-card-transaction-response.data';
 import { cloneDeep } from 'lodash';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
+import { Transaction } from 'src/app/core/models/v1/transaction.model';
+import { transformedExpensePayload, txnAmount1 } from 'src/app/core/mock-data/transaction.data';
+import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 
-describe('ExpensesService', () => {
+fdescribe('ExpensesService', () => {
   let service: ExpensesService;
   let spenderService: jasmine.SpyObj<SpenderService>;
   let sharedExpenseService: jasmine.SpyObj<SharedExpenseService>;
@@ -387,6 +390,92 @@ describe('ExpensesService', () => {
         data: splitPayloadData1,
       });
       done();
+    });
+  });
+
+  describe('transformTo', () => {
+    let transaction: Partial<Transaction>;
+    let expensePayload: Partial<Expense>;
+    let fileIds: string[];
+
+    beforeEach(() => {
+      fileIds = ['file1', 'file2'];
+      transaction = cloneDeep(txnAmount1);
+      expensePayload = {
+        ...transformedExpensePayload,
+        file_ids: fileIds,
+      };
+    });
+
+    it('should transform a Transaction to Expense payload', () => {
+      const result = service.transformTo(txnAmount1, fileIds);
+      expect(result).toEqual(expensePayload);
+    });
+
+    it('should include flight travel classes if category is flight or airlines', () => {
+      transaction.fyle_category = 'Airlines';
+      transaction.flight_journey_travel_class = 'Economy';
+      transaction.flight_return_travel_class = 'Business';
+      expensePayload.travel_classes = ['Economy', 'Business'];
+
+      const result = service.transformTo(transaction, fileIds);
+      expect(result.travel_classes).toEqual(['Economy', 'Business']);
+    });
+
+    it('should only include flight_journey_travel_class when return class is not present', () => {
+      transaction.fyle_category = 'Airlines';
+      transaction.flight_journey_travel_class = 'Economy';
+      transaction.flight_return_travel_class = null;
+      expensePayload.travel_classes = ['Economy'];
+
+      const result = service.transformTo(transaction, fileIds);
+      expect(result.travel_classes).toEqual(['Economy']);
+    });
+
+    it('should include bus travel class if category is bus', () => {
+      transaction.fyle_category = 'bus';
+      transaction.bus_travel_class = 'Luxury';
+      expensePayload.travel_classes = ['Luxury'];
+
+      const result = service.transformTo(transaction, fileIds);
+      expect(result.travel_classes).toEqual(['Luxury']);
+    });
+
+    it('should include train travel class if category is train', () => {
+      transaction.fyle_category = 'train';
+      transaction.train_travel_class = 'First Class';
+      expensePayload.travel_classes = ['First Class'];
+
+      const result = service.transformTo(transaction, fileIds);
+      expect(result.travel_classes).toEqual(['First Class']);
+    });
+
+    it('should not include any travel classes if category is not flight, bus, or train', () => {
+      transaction.fyle_category = 'taxi';
+      expensePayload.travel_classes = [];
+
+      const result = service.transformTo(transaction, fileIds);
+      expect(result.travel_classes).toEqual([]);
+    });
+
+    it('should include multiple travel classes when both journey and return classes are present for flight', () => {
+      transaction.fyle_category = 'Airlines';
+      transaction.flight_journey_travel_class = 'Premium Economy';
+      transaction.flight_return_travel_class = 'Economy';
+      expensePayload.travel_classes = ['Premium Economy', 'Economy'];
+
+      const result = service.transformTo(transaction, fileIds);
+      expect(result.travel_classes).toEqual(['Premium Economy', 'Economy']);
+    });
+
+    it('should not add travel class if travel class fields are undefined for flight', () => {
+      transaction.fyle_category = 'Airlines';
+      transaction.flight_journey_travel_class = undefined;
+      transaction.flight_return_travel_class = undefined;
+      expensePayload.travel_classes = [];
+
+      const result = service.transformTo(transaction, fileIds);
+      expect(result.travel_classes).toEqual([]);
     });
   });
 

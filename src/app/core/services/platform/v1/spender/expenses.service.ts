@@ -287,6 +287,59 @@ export class ExpensesService {
       .pipe(map((res) => res.data));
   }
 
+  // transform public transaction to expense payload for /post expenses
+  transformTo(transaction: Partial<Transaction>, fileIds: string[]): Partial<Expense> {
+    const expense: any = {
+      id: transaction.id,
+      spent_at: transaction.txn_dt,
+      category_id: transaction.org_category_id,
+      purpose: transaction.purpose,
+      source_account_id: transaction.source_account_id,
+      claim_amount: transaction.amount,
+      merchant: transaction.vendor,
+      project_id: transaction.project_id,
+      cost_center_id: transaction.cost_center_id,
+      foreign_currency: transaction.orig_currency,
+      foreign_amount: transaction.orig_amount,
+      source: transaction.source,
+      is_reimbursable: !transaction.skip_reimbursement,
+      tax_amount: transaction.tax_amount,
+      tax_group_id: transaction.tax_group_id,
+      is_billable: transaction.billable,
+      distance: transaction.distance,
+      distance_unit: transaction.distance_unit,
+      started_at: transaction.from_dt,
+      ended_at: transaction.to_dt,
+      locations: transaction.locations,
+      custom_fields: transaction.custom_properties,
+      per_diem_rate_id: transaction.per_diem_rate_id,
+      per_diem_num_days: transaction.num_days || 0,
+      mileage_rate_id: transaction.mileage_rate_id,
+      advance_wallet_id: transaction.advance_wallet_id,
+      file_ids: fileIds,
+      report_id: transaction.report_id,
+      travel_classes: [],
+    };
+
+    if (
+      transaction.fyle_category?.toLowerCase() === 'flight' ||
+      transaction.fyle_category?.toLowerCase() === 'airlines'
+    ) {
+      if (transaction.flight_journey_travel_class) {
+        expense.travel_classes.push(transaction.flight_journey_travel_class);
+      }
+      if (transaction.flight_return_travel_class) {
+        expense.travel_classes.push(transaction.flight_return_travel_class);
+      }
+    } else if (transaction.fyle_category?.toLowerCase() === 'bus' && transaction.bus_travel_class) {
+      expense.travel_classes.push(transaction.bus_travel_class);
+    } else if (transaction.fyle_category?.toLowerCase() === 'train' && transaction.train_travel_class) {
+      expense.travel_classes.push(transaction.train_travel_class);
+    }
+
+    return expense;
+  }
+
   post(expense: Partial<Expense>): Observable<void> {
     return this.spenderService.post<void>('/expenses', {
       data: expense,
