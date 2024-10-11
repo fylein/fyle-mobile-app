@@ -5,6 +5,7 @@ import { expectedTxnCustomProperties, txnCustomPropertiesData } from './txn-cust
 import { ExpenseTransactionStatus } from '../enums/platform/v1/expense-transaction-status.enum';
 import { Expense } from '../models/platform/v1/expense.model';
 import { MileageUnitEnum } from '../models/platform/platform-mileage-rates.model';
+import deepFreezeStrict from 'deep-freeze-strict';
 
 export const txnList: Transaction[] = deepFreeze([
   {
@@ -2585,7 +2586,7 @@ export const txnAmount1: Transaction = deepFreeze({
   categoryDisplayName: 'Bus',
 });
 
-export const transformedExpensePayload: Partial<Expense> = deepFreeze({
+export const transformedExpensePayload: Partial<Expense> = deepFreezeStrict({
   id: txnAmount1.id,
   spent_at: txnAmount1.txn_dt,
   category_id: txnAmount1.org_category_id,
