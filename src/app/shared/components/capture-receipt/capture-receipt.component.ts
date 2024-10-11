@@ -110,9 +110,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
     return forkJoin({
       isOffline: this.isOffline$.pipe(take(1)),
-      eou: this.authService.getEou(),
     }).pipe(
-      switchMap(({ eou, isOffline }) => {
+      switchMap(({ isOffline }) => {
         if (isOffline) {
           source += '_OFFLINE';
         }

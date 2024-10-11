@@ -252,7 +252,6 @@ describe('CaptureReceiptComponent', () => {
 
   describe('addExpenseToQueue():', () => {
     it('should add entry to expense queue', (done) => {
-      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
       transactionsOutboxService.addEntry.and.returnValue(Promise.resolve(null));
       fixture.detectChanges();
 
@@ -262,14 +261,12 @@ describe('CaptureReceiptComponent', () => {
           base64Image: 'base64encodedcontent',
         })
         .subscribe(() => {
-          expect(authService.getEou).toHaveBeenCalledTimes(1);
           expect(transactionsOutboxService.addEntry).toHaveBeenCalledTimes(1);
           done();
         });
     });
 
     it('should add entry to expense queue if offline', (done) => {
-      authService.getEou.and.returnValue(Promise.resolve(null));
       transactionsOutboxService.addEntry.and.returnValue(Promise.resolve(null));
       component.isOffline$ = of(true);
       fixture.detectChanges();
@@ -280,7 +277,6 @@ describe('CaptureReceiptComponent', () => {
           base64Image: 'base64encodedcontent',
         })
         .subscribe(() => {
-          expect(authService.getEou).toHaveBeenCalledTimes(1);
           expect(transactionsOutboxService.addEntry).toHaveBeenCalledTimes(1);
           done();
         });
