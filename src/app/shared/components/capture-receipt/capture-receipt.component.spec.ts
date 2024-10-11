@@ -252,7 +252,7 @@ describe('CaptureReceiptComponent', () => {
 
   describe('addExpenseToQueue():', () => {
     it('should add entry to expense queue', (done) => {
-      transactionsOutboxService.addEntry.and.returnValue(Promise.resolve(null));
+      transactionsOutboxService.addEntry.and.resolveTo(null);
       fixture.detectChanges();
 
       component
@@ -267,7 +267,7 @@ describe('CaptureReceiptComponent', () => {
     });
 
     it('should add entry to expense queue if offline', (done) => {
-      transactionsOutboxService.addEntry.and.returnValue(Promise.resolve(null));
+      transactionsOutboxService.addEntry.and.resolveTo(null);
       component.isOffline$ = of(true);
       fixture.detectChanges();
 
@@ -481,12 +481,12 @@ describe('CaptureReceiptComponent', () => {
       component.openReceiptPreviewModal();
       expect(component.showReceiptPreview).toHaveBeenCalledTimes(1);
       expect(component.setUpAndStartCamera).toHaveBeenCalledTimes(1);
-      expect(component.lastCapturedReceipt).toEqual(undefined);
+      expect(component.lastCapturedReceipt).toBeUndefined();
     });
   });
 
   it('createReceiptPreviewModal(): should create receipt preview modal', () => {
-    modalController.create.and.returnValue(Promise.resolve(null));
+    modalController.create.and.resolveTo(null);
 
     component.createReceiptPreviewModal('bulk');
     expect(modalController.create).toHaveBeenCalledOnceWith({
@@ -690,8 +690,8 @@ describe('CaptureReceiptComponent', () => {
 
   xdescribe('onGalleryUpload():', () => {
     it('should upload images to gallery if permission graneted', () => {
-      imagePicker.hasReadPermission.and.returnValue(Promise.resolve(true));
-      imagePicker.getPictures.and.returnValue(Promise.resolve(['encodedcontent1', 'encodedcontent2']));
+      imagePicker.hasReadPermission.and.resolveTo(true);
+      imagePicker.getPictures.and.resolveTo(['encodedcontent1', 'encodedcontent2']);
 
       fixture.detectChanges();
 
@@ -706,7 +706,7 @@ describe('CaptureReceiptComponent', () => {
         camera: 'denied',
       });
       spyOn(component, 'showPermissionDeniedPopover');
-      imagePicker.hasReadPermission.and.returnValue(Promise.resolve(false));
+      imagePicker.hasReadPermission.and.resolveTo(false);
 
       fixture.detectChanges();
 
@@ -728,7 +728,7 @@ describe('CaptureReceiptComponent', () => {
     component.setUpAndStartCamera();
     expect(component.cameraPreview.setUpAndStartCamera).toHaveBeenCalledTimes(1);
     expect(component.showBulkModeToastMessage).toHaveBeenCalledTimes(1);
-    expect(component.isBulkModePromptShown).toEqual(true);
+    expect(component.isBulkModePromptShown).toBeTrue();
   });
 
   describe('onSingleCapture(): ', () => {
@@ -748,7 +748,7 @@ describe('CaptureReceiptComponent', () => {
               },
             })
           );
-          popOverSpy.onDidDismiss.and.returnValue(Promise.resolve({ data: 'value' }));
+          popOverSpy.onDidDismiss.and.resolveTo({ data: 'value' });
           resolve(popOverSpy);
         })
       );
