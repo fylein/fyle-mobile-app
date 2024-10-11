@@ -348,8 +348,8 @@ export class ExpensesService {
     });
   }
 
-  createFromFile(fileId: string, source: string): Observable<PlatformApiResponse<Expense[]>> {
-    return this.spenderService.post<PlatformApiResponse<Expense[]>>('/expenses/create_from_file/bulk', {
+  createFromFile(fileId: string, source: string): Observable<{ data: Expense[] }> {
+    return this.spenderService.post<{ data: Expense[] }>('/expenses/create_from_file/bulk', {
       data: [
         {
           file_id: fileId,

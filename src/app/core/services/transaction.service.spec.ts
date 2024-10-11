@@ -65,7 +65,7 @@ import { expensesCacheBuster$ } from '../cache-buster/expense-cache-buster';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { expenseData } from '../mock-data/platform/v1/expense.data';
 
-describe('TransactionService', () => {
+fdescribe('TransactionService', () => {
   let transactionService: TransactionService;
   let networkService: jasmine.SpyObj<NetworkService>;
   let storageService: jasmine.SpyObj<StorageService>;
@@ -111,11 +111,7 @@ describe('TransactionService', () => {
     const paymentModesServiceSpy = jasmine.createSpyObj('PaymentModesService', ['getDefaultAccount']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const accountsServiceSpy = jasmine.createSpyObj('AccountsService', ['getEMyAccounts']);
-    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', [
-      'attachReceiptsToExpense',
-      'transformTo',
-      'post',
-    ]);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['transformTo', 'post', 'createFromFile']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -1099,14 +1095,31 @@ describe('TransactionService', () => {
     });
   });
 
-  it('createTxnWithFiles(): should create transaction with files', (done) => {
-    spyOn(transactionService, 'upsert').and.returnValue(of(txnData2));
+  describe('createTxnWithFiles():', () => {
+    it('should create transaction with files', (done) => {
+      const mockFileObject = cloneDeep(fileObjectData1);
 
-    const mockFileObject = cloneDeep(fileObjectData1);
-    transactionService.createTxnWithFiles(txnData, of(mockFileObject)).subscribe((res) => {
-      expect(res).toEqual(txnData2);
-      expect(transactionService.upsert).toHaveBeenCalledOnceWith(txnData, [fileObjectData1[0].id]);
-      done();
+      spyOn(transactionService, 'upsert').and.returnValue(of(txnData2));
+      transactionService.createTxnWithFiles(txnData, of(mockFileObject)).subscribe((res) => {
+        expect(res).toEqual(txnData2);
+        expect(transactionService.upsert).toHaveBeenCalledOnceWith(txnData, [fileObjectData1[0].id]);
+        done();
+      });
+    });
+
+    it('should create transaction from file when txn contains only source', (done) => {
+      const mockFileObject = cloneDeep(fileObjectData1);
+      const txnWithSourceOnly = { source: 'MOBILE_DASHCAM' };
+
+      expensesService.createFromFile.and.returnValue(of({ data: [expenseData] }));
+      spyOn(transactionService, 'transformExpense').and.returnValue({ tx: txnData2 });
+
+      transactionService.createTxnWithFiles(txnWithSourceOnly, of(mockFileObject)).subscribe((res) => {
+        expect(expensesService.createFromFile).toHaveBeenCalledOnceWith(mockFileObject[0].id, 'TPA');
+        expect(transactionService.transformExpense).toHaveBeenCalled();
+        expect(res).toEqual(txnData2);
+        done();
+      });
     });
   });
 
