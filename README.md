@@ -39,7 +39,7 @@ ionic serve -c staging
 
 ## Running unit tests
 
-  - Run `ng test`
+  - Run `npm run test`
   - Run `npm run test:no-parallel` to run tests without sharding (without parallel browsers). This is useful to avoid parallel execution and to prevent excessive CPU utilization and memory hogging.
 
 ## Viewing coverage report

@@ -405,7 +405,7 @@ export class TransactionsOutboxService {
 
             isInstafyleEnabled$.subscribe((isInstafyleEnabled) => {
               if (isInstafyleEnabled) {
-                that.addDataExtractionEntry(resp, entry.dataUrls);
+                // that.addDataExtractionEntry(resp, entry.dataUrls);
               }
             });
           }

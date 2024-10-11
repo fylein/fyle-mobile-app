@@ -342,8 +342,8 @@ export class ExpensesService {
     return expense;
   }
 
-  post(expense: Partial<Expense>): Observable<void> {
-    return this.spenderService.post<void>('/expenses', {
+  post(expense: Partial<Expense>): Observable<PlatformApiResponse<Expense>> {
+    return this.spenderService.post<PlatformApiResponse<Expense>>('/expenses', {
       data: expense,
     });
   }
