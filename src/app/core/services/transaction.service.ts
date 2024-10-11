@@ -199,9 +199,12 @@ export class TransactionService {
         if (txn.hasOwnProperty('source') && Object.keys(txn).length === 1) {
           const fileIds = fileObjs.map((fileObj) => fileObj.id);
           if (fileIds.length > 0) {
-            return this.expensesService
-              .createFromFile(fileIds[0], 'TPA')
-              .pipe(map((result) => this.transformExpense(result.data[0]).tx));
+            return (
+              this.expensesService
+                // todo @arjun to change the source to txn.source later when the backend changes are live
+                .createFromFile(fileIds[0], 'TPA')
+                .pipe(map((result) => this.transformExpense(result.data[0]).tx))
+            );
           }
         } else {
           const fileIds = fileObjs.map((fileObj) => fileObj.id);
