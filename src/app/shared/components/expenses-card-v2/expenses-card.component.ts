@@ -214,7 +214,8 @@ export class ExpensesCardComponent implements OnInit {
   pollDataExtractionStatus(callback: Function): void {
     const that = this;
     setTimeout(() => {
-      const isPresentInQueue = that.transactionOutboxService.isDataExtractionPending(that.expense.id);
+      const isPresentInQueue = false;
+      // that.transactionOutboxService.isDataExtractionPending(that.expense.id);
       if (!isPresentInQueue) {
         callback();
       } else {
@@ -236,8 +237,8 @@ export class ExpensesCardComponent implements OnInit {
           (that.homeCurrency === 'USD' || that.homeCurrency === 'INR')
         ) {
           that.isScanCompleted = that.checkIfScanIsCompleted();
-          that.isScanInProgress =
-            !that.isScanCompleted && that.transactionOutboxService.isDataExtractionPending(that.expense.id);
+          that.isScanInProgress = !that.isScanCompleted;
+          // && that.transactionOutboxService.isDataExtractionPending(that.expense.id);
           if (that.isScanInProgress) {
             that.pollDataExtractionStatus(function () {
               that.expensesService.getExpenseById(that.expense.id).subscribe((expense) => {
