@@ -32,6 +32,7 @@ import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense
 import { Transaction } from 'src/app/core/models/v1/transaction.model';
 import { transformedExpensePayload, txnAmount1 } from 'src/app/core/mock-data/transaction.data';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
+import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
 
 describe('ExpensesService', () => {
   let service: ExpensesService;
@@ -490,6 +491,25 @@ describe('ExpensesService', () => {
     service.post(expenseWithAdvanceWalletId).subscribe(() => {
       expect(spenderService.post).toHaveBeenCalledOnceWith('/expenses', {
         data: expenseWithAdvanceWalletId,
+      });
+      done();
+    });
+  });
+
+  it('createFromFile(): should post fileId, source to create expense', (done) => {
+    spenderService.post.and.returnValue(of({}));
+
+    const fileId = 'file123';
+    const source = 'email';
+
+    service.createFromFile(fileId, source).subscribe((response) => {
+      expect(spenderService.post).toHaveBeenCalledOnceWith('/expenses/create_from_file/bulk', {
+        data: [
+          {
+            file_id: fileId,
+            source,
+          },
+        ],
       });
       done();
     });

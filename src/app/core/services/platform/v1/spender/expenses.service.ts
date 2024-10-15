@@ -342,9 +342,20 @@ export class ExpensesService {
     return expense;
   }
 
-  post(expense: Partial<Expense>): Observable<void> {
-    return this.spenderService.post<void>('/expenses', {
+  post(expense: Partial<Expense>): Observable<{ data: Expense }> {
+    return this.spenderService.post<{ data: Expense }>('/expenses', {
       data: expense,
+    });
+  }
+
+  createFromFile(fileId: string, source: string): Observable<{ data: Expense[] }> {
+    return this.spenderService.post<{ data: Expense[] }>('/expenses/create_from_file/bulk', {
+      data: [
+        {
+          file_id: fileId,
+          source,
+        },
+      ],
     });
   }
 }
