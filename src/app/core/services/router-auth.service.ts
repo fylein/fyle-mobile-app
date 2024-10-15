@@ -11,6 +11,7 @@ import { LocationService } from './location.service';
 import { TransactionsOutboxService } from './transactions-outbox.service';
 import { VendorService } from './vendor.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
+import { PlatformCommonApiService } from './platform-common-api.service';
 import { ApproverPlatformApiService } from './approver-platform-api.service';
 import { ExpenseAggregationService } from './expense-aggregation.service';
 import { SpenderService } from './platform/v1/spender/spender.service';
@@ -34,6 +35,7 @@ export class RouterAuthService {
     private vendorService: VendorService,
     private approverPlatformApiService: ApproverPlatformApiService,
     private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
+    private platformCommonApiService: PlatformCommonApiService,
     private expenseAggregationService: ExpenseAggregationService,
     private spenderService: SpenderService,
     private approverService: ApproverService,
@@ -65,6 +67,7 @@ export class RouterAuthService {
     this.spenderPlatformV1ApiService.setRoot(domain);
     this.approverPlatformApiService.setRoot(domain);
     this.spenderPlatformV1ApiService.setRoot(domain);
+    this.platformCommonApiService.setRoot(domain);
     this.expenseAggregationService.setRoot(domain);
     this.spenderService.setRoot(domain);
     this.approverService.setRoot(domain);

@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { CurrencyService } from './currency.service';
-import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
+import { PlatformCommonApiService } from './platform-common-api.service';
 import { OrgService } from './org.service';
 import { apiEouRes } from '../mock-data/extended-org-user.data';
 import { apiAllCurrencies } from '../mock-data/currency.data';
@@ -11,13 +11,13 @@ import * as dayjs from 'dayjs';
 
 describe('CurrencyService', () => {
   let currencyService: CurrencyService;
-  let apiService: jasmine.SpyObj<ApiService>;
+  let platformCommonApiService: jasmine.SpyObj<PlatformCommonApiService>;
   let authService: jasmine.SpyObj<AuthService>;
   let orgService: jasmine.SpyObj<OrgService>;
   const dt = new Date();
 
   beforeEach(() => {
-    const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get']);
+    const platformCommonApiServiceSpy = jasmine.createSpyObj('PlatformCommonApiService', ['get']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const orgServiceSpy = jasmine.createSpyObj('OrgService', ['getCurrentOrg']);
     TestBed.configureTestingModule({
@@ -28,8 +28,8 @@ describe('CurrencyService', () => {
           useValue: authServiceSpy,
         },
         {
-          provide: ApiService,
-          useValue: apiServiceSpy,
+          provide: PlatformCommonApiService,
+          useValue: platformCommonApiServiceSpy,
         },
         {
           provide: OrgService,
@@ -39,7 +39,7 @@ describe('CurrencyService', () => {
     });
     currencyService = TestBed.inject(CurrencyService);
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-    apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
+    platformCommonApiService = TestBed.inject(PlatformCommonApiService) as jasmine.SpyObj<PlatformCommonApiService>;
     orgService = TestBed.inject(OrgService) as jasmine.SpyObj<OrgService>;
   });
 
@@ -49,13 +49,13 @@ describe('CurrencyService', () => {
 
   it('getAll(): should return all currencies', (done) => {
     authService.getEou.and.resolveTo(apiEouRes);
-    apiService.get.and.returnValue(of(apiAllCurrencies));
+    platformCommonApiService.get.and.returnValue(of({ data: apiAllCurrencies }));
 
     currencyService.getAll().subscribe((res) => {
       expect(res).toEqual(apiAllCurrencies);
-      expect(apiService.get).toHaveBeenCalledOnceWith('/currency/all', {
+      expect(platformCommonApiService.get).toHaveBeenCalledOnceWith('/currency/list', {
         params: {
-          org_id: apiEouRes && apiEouRes.ou && apiEouRes.ou.org_id,
+          org_id: apiEouRes?.ou?.org_id,
         },
       });
       expect(authService.getEou).toHaveBeenCalledTimes(1);
@@ -79,9 +79,9 @@ describe('CurrencyService', () => {
 
   describe('getExchangeRate():', () => {
     it('should get the exchange rate', (done) => {
-      apiService.get.and.returnValue(
+      platformCommonApiService.get.and.returnValue(
         of({
-          exchange_rate: 82.708499,
+          data: { exchange_rate: 82.708499 },
         })
       );
 
@@ -89,11 +89,11 @@ describe('CurrencyService', () => {
 
       currencyService.getExchangeRate('USD', 'INR', new Date(), txnID).subscribe((res) => {
         expect(res).toEqual(82.708499);
-        expect(apiService.get).toHaveBeenCalledOnceWith('/currency/exchange', {
+        expect(platformCommonApiService.get).toHaveBeenCalledOnceWith('/currency/exchange_rate', {
           params: {
             from: 'USD',
             to: 'INR',
-            dt: dayjs(dt).format('YYYY-MM-D'),
+            date: dayjs(dt).format('YYYY-MM-D'),
             tx6Oe6FaYDZl: 'tx6Oe6FaYDZl',
           },
         });
@@ -102,19 +102,19 @@ describe('CurrencyService', () => {
     });
 
     it('should get the exchange rate when date and transaction ID not specified', (done) => {
-      apiService.get.and.returnValue(
+      platformCommonApiService.get.and.returnValue(
         of({
-          exchange_rate: 82.708499,
+          data: { exchange_rate: 82.708499 },
         })
       );
 
       currencyService.getExchangeRate('USD', 'INR').subscribe((res) => {
         expect(res).toEqual(82.708499);
-        expect(apiService.get).toHaveBeenCalledOnceWith('/currency/exchange', {
+        expect(platformCommonApiService.get).toHaveBeenCalledOnceWith('/currency/exchange_rate', {
           params: {
             from: 'USD',
             to: 'INR',
-            dt: dayjs(dt).format('YYYY-MM-D'),
+            date: dayjs(dt).format('YYYY-MM-D'),
           },
         });
         done();
