@@ -195,26 +195,6 @@ export class ExpensesCardComponent implements OnInit {
     return !!(hasUserManuallyEnteredData || isRequiredExtractedDataPresent || hasScanExpired);
   }
 
-  /**
-   * This is to check if the expense is currently in data extraction queue. If the item is not in data extraction queue anymore,
-   * a callback method is fired.
-   *
-   * The reasoning behind this is to check if scanning expenses have finished scanning
-   *
-   * @param callback Callback method to be fired when item has finished scanning
-   */
-  pollDataExtractionStatus(callback: Function): void {
-    const that = this;
-    setTimeout(() => {
-      const isPresentInQueue = that.transactionOutboxService.isDataExtractionPending(that.expense.tx_id);
-      if (!isPresentInQueue) {
-        callback();
-      } else {
-        that.pollDataExtractionStatus(callback);
-      }
-    }, 1000);
-  }
-
   handleScanStatus(): void {
     const that = this;
     that.isScanInProgress = false;
@@ -228,24 +208,7 @@ export class ExpensesCardComponent implements OnInit {
           (that.homeCurrency === 'USD' || that.homeCurrency === 'INR')
         ) {
           that.isScanCompleted = that.checkIfScanIsCompleted();
-          that.isScanInProgress =
-            !that.isScanCompleted && that.transactionOutboxService.isDataExtractionPending(that.expense.tx_id);
-          if (that.isScanInProgress) {
-            that.pollDataExtractionStatus(function () {
-              that.expensesService.getExpenseById(that.expense.tx_id).subscribe((expense) => {
-                const etxn = that.transactionService.transformExpense(expense);
-                const extractedData = etxn.tx.extracted_data;
-                if (!!extractedData) {
-                  that.isScanCompleted = true;
-                  that.isScanInProgress = false;
-                  that.expense.tx_extracted_data = extractedData;
-                } else {
-                  that.isScanInProgress = false;
-                  that.isScanCompleted = false;
-                }
-              });
-            });
-          }
+          that.isScanInProgress = !that.isScanCompleted;
         } else {
           that.isScanCompleted = true;
           that.isScanInProgress = false;

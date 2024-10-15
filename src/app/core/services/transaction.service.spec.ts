@@ -15,7 +15,6 @@ import {
   expenseData3,
   expenseList3,
   expenseList4,
-  expenseDataWithDateString,
 } from '../mock-data/expense.data';
 import { UndoMergeData } from '../mock-data/undo-merge.data';
 import { AccountsService } from './accounts.service';
@@ -36,12 +35,17 @@ import { TransactionService } from './transaction.service';
 import { UserEventService } from './user-event.service';
 import { UtilityService } from './utility.service';
 import * as dayjs from 'dayjs';
-import { eouRes2 } from '../mock-data/extended-org-user.data';
-import { expenseV2Data, expenseV2DataMultiple } from '../mock-data/expense-v2.data';
 import * as lodash from 'lodash';
-import { txnData, txnData2, txnData4, txnDataPayload, txnList, upsertTxnParam } from '../mock-data/transaction.data';
-import { unflattenedTxnData, unflattenedTxnDataWithSubCategory } from '../mock-data/unflattened-txn.data';
-import { fileObjectData, fileObjectData1, fileObjectData2 } from '../mock-data/file-object.data';
+import {
+  transformedExpensePayload,
+  txnData,
+  txnData2,
+  txnData4,
+  txnDataPayload,
+  txnList,
+  upsertTxnParam,
+} from '../mock-data/transaction.data';
+import { fileObjectData1 } from '../mock-data/file-object.data';
 import { AccountType } from '../enums/account-type.enum';
 import { orgUserSettingsData, orgUserSettingsData2, orgUserSettingsData3 } from '../mock-data/org-user-settings.data';
 import { orgSettingsData } from '../test-data/org-settings.service.spec.data';
@@ -107,7 +111,7 @@ describe('TransactionService', () => {
     const paymentModesServiceSpy = jasmine.createSpyObj('PaymentModesService', ['getDefaultAccount']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const accountsServiceSpy = jasmine.createSpyObj('AccountsService', ['getEMyAccounts']);
-    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['attachReceiptsToExpense']);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['transformTo', 'post', 'createFromFile']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -1091,18 +1095,31 @@ describe('TransactionService', () => {
     });
   });
 
-  it('createTxnWithFiles(): should create transaction with files', (done) => {
-    spyOn(transactionService, 'upsert').and.returnValue(of(txnData2));
-    expensesService.attachReceiptsToExpense.and.returnValue(of([expenseData]));
+  describe('createTxnWithFiles():', () => {
+    it('should create transaction with files', (done) => {
+      const mockFileObject = cloneDeep(fileObjectData1);
 
-    const mockFileObject = cloneDeep(fileObjectData1);
-    transactionService.createTxnWithFiles(txnData, of(mockFileObject)).subscribe((res) => {
-      expect(res).toEqual(txnData2);
-      expect(transactionService.upsert).toHaveBeenCalledOnceWith(txnData);
-      expect(expensesService.attachReceiptsToExpense).toHaveBeenCalledOnceWith(mockFileObject[0].transaction_id, [
-        mockFileObject[0].id,
-      ]);
-      done();
+      spyOn(transactionService, 'upsert').and.returnValue(of(txnData2));
+      transactionService.createTxnWithFiles(txnData, of(mockFileObject)).subscribe((res) => {
+        expect(res).toEqual(txnData2);
+        expect(transactionService.upsert).toHaveBeenCalledOnceWith(txnData, [fileObjectData1[0].id]);
+        done();
+      });
+    });
+
+    it('should create transaction from file when txn contains only source', (done) => {
+      const mockFileObject = cloneDeep(fileObjectData1);
+      const txnWithSourceOnly = { source: 'MOBILE_DASHCAM' };
+
+      expensesService.createFromFile.and.returnValue(of({ data: [expenseData] }));
+      spyOn(transactionService, 'transformExpense').and.returnValue({ tx: txnData2 });
+
+      transactionService.createTxnWithFiles(txnWithSourceOnly, of(mockFileObject)).subscribe((res) => {
+        expect(expensesService.createFromFile).toHaveBeenCalledOnceWith(mockFileObject[0].id, 'TPA');
+        expect(transactionService.transformExpense).toHaveBeenCalled();
+        expect(res).toEqual(txnData2);
+        done();
+      });
     });
   });
 
@@ -1113,14 +1130,17 @@ describe('TransactionService', () => {
     spyOn(transactionService, 'getTxnAccount').and.returnValue(of(txnAccountData));
     // @ts-ignore
     spyOn(transactionService, 'getPersonalAccount').and.returnValue(of(personalAccountData));
+    spyOn(transactionService, 'transformExpense').and.returnValue({ tx: txnData4 });
     timezoneService.convertAllDatesToProperLocale.and.returnValue(txnCustomPropertiesData2);
-    apiService.post.and.returnValue(of(txnData4));
     utilityService.discardRedundantCharacters.and.returnValue(txnDataPayload);
+    expensesService.transformTo.and.returnValue(transformedExpensePayload);
+    expensesService.post.and.returnValue(of({ data: expenseData }));
 
     const mockUpsertTxnParam = cloneDeep(upsertTxnParam);
     transactionService.upsert(mockUpsertTxnParam).subscribe((res) => {
       expect(res).toEqual(txnData4);
-      expect(apiService.post).toHaveBeenCalledOnceWith('/transactions', txnDataPayload);
+      expect(expensesService.transformTo).toHaveBeenCalledOnceWith(txnDataPayload, []);
+      expect(expensesService.post).toHaveBeenCalledOnceWith(transformedExpensePayload);
       expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
       expect(timezoneService.convertAllDatesToProperLocale).toHaveBeenCalledOnceWith(txnCustomPropertiesData6, offset);
       expect(timezoneService.convertToUtc).toHaveBeenCalledTimes(2);
@@ -1139,14 +1159,17 @@ describe('TransactionService', () => {
     spyOn(transactionService, 'getTxnAccount').and.returnValue(of(txnAccountData));
     // @ts-ignore
     spyOn(transactionService, 'getPersonalAccount').and.returnValue(of(personalAccountData));
+    spyOn(transactionService, 'transformExpense').and.returnValue({ tx: txnData4 });
     timezoneService.convertAllDatesToProperLocale.and.returnValue(txnCustomPropertiesData2);
-    apiService.post.and.returnValue(of(txnData4));
     utilityService.discardRedundantCharacters.and.returnValue(txnDataPayload);
+    expensesService.transformTo.and.returnValue(transformedExpensePayload);
+    expensesService.post.and.returnValue(of({ data: expenseData }));
 
     const mockUpsertTxnParam = cloneDeep(upsertTxnParam);
     transactionService.upsert(mockUpsertTxnParam).subscribe((res) => {
       expect(res).toEqual(txnData4);
-      expect(apiService.post).toHaveBeenCalledOnceWith('/transactions', txnDataPayload);
+      expect(expensesService.transformTo).toHaveBeenCalledOnceWith(txnDataPayload, []);
+      expect(expensesService.post).toHaveBeenCalledOnceWith(transformedExpensePayload);
       expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
       expect(timezoneService.convertAllDatesToProperLocale).toHaveBeenCalledOnceWith(txnCustomPropertiesData6, offset);
       expect(timezoneService.convertToUtc).toHaveBeenCalledTimes(2);
