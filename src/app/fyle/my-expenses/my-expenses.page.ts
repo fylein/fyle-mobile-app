@@ -219,7 +219,6 @@ export class MyExpensesPage implements OnInit {
     private trackingService: TrackingService,
     private storageService: StorageService,
     private tokenService: TokenService,
-    private apiV2Service: ApiV2Service,
     private modalProperties: ModalPropertiesService,
     private matBottomSheet: MatBottomSheet,
     private matSnackBar: MatSnackBar,
@@ -454,7 +453,7 @@ export class MyExpensesPage implements OnInit {
 
   private isZeroAmountPerDiemOrMileage(expense: PlatformExpense): boolean {
     return (
-      (expense?.category?.name?.toLowerCase() === 'per diem' || expense?.category?.name?.toLowerCase() === 'mileage') &&
+      (expense.category.name?.toLowerCase() === 'per diem' || expense.category.name?.toLowerCase() === 'mileage') &&
       (expense.amount === 0 || expense.claim_amount === 0)
     );
   }
@@ -482,7 +481,7 @@ export class MyExpensesPage implements OnInit {
    * @param {PlatformExpense[]} expenses - The list of expenses to check.
    * @returns {string[]} - Array of expense IDs that have incomplete scans.
    */
-  private filterIncompleteExpenses(expenses: PlatformExpense[]): string[] {
+  private filterDEIncompleteExpenses(expenses: PlatformExpense[]): string[] {
     return expenses.filter((expense) => !this.isExpenseScanComplete(expense)).map((expense) => expense.id);
   }
 
@@ -490,18 +489,18 @@ export class MyExpensesPage implements OnInit {
    * Updates the expenses with polling results.
    * @param {PlatformExpense[]} initialExpenses - The initial list of expenses.
    * @param {PlatformExpense[]} updatedExpenses - The updated expenses after polling.
-   * @param {string[]} incompleteExpenseIds - Array of expense IDs with incomplete scans.
+   * @param {string[]} dEincompleteExpenseIds - Array of expense IDs with incomplete scans.
    * @returns {PlatformExpense[]} - Updated list of expenses.
    */
   private updateExpensesList(
     initialExpenses: PlatformExpense[],
     updatedExpenses: PlatformExpense[],
-    incompleteExpenseIds: string[]
+    dEincompleteExpenseIds: string[]
   ): PlatformExpense[] {
     const updatedExpensesMap = new Map(updatedExpenses.map((expense) => [expense.id, expense]));
 
     const newExpensesList = initialExpenses.map((expense) => {
-      if (incompleteExpenseIds.includes(expense.id)) {
+      if (dEincompleteExpenseIds.includes(expense.id)) {
         const updatedExpense = updatedExpensesMap.get(expense.id);
         if (this.isExpenseScanComplete(updatedExpense)) {
           return updatedExpense;
@@ -515,12 +514,12 @@ export class MyExpensesPage implements OnInit {
 
   /**
    * Polls for expenses that have incomplete scan data.
-   * @param {string[]} incompleteExpenseIds - Array of expense IDs with incomplete scans.
+   * @param {string[]} dEincompleteExpenseIds - Array of expense IDs with incomplete scans.
    * @param {PlatformExpense[]} initialExpenses - The initial list of expenses.
    * @returns {Observable<PlatformExpense[]>} - Observable that emits updated expenses.
    */
-  private pollIncompleteExpenses(
-    incompleteExpenseIds: string[],
+  private pollDEIncompleteExpenses(
+    dEincompleteExpenseIds: string[],
     expenses: PlatformExpense[]
   ): Observable<PlatformExpense[]> {
     let updatedExpensesList = expenses;
@@ -528,16 +527,16 @@ export class MyExpensesPage implements OnInit {
     const stopPolling$ = timer(30000);
     return timer(5000, 5000).pipe(
       exhaustMap(() => {
-        const params: ExpensesQueryParams = { queryParams: { id: `in.(${incompleteExpenseIds.join(',')})` } };
+        const params: ExpensesQueryParams = { queryParams: { id: `in.(${dEincompleteExpenseIds.join(',')})` } };
         return this.expenseService.getExpenses({ ...params.queryParams }).pipe(
           map((updatedExpenses) => {
-            updatedExpensesList = this.updateExpensesList(updatedExpensesList, updatedExpenses, incompleteExpenseIds);
-            incompleteExpenseIds = this.filterIncompleteExpenses(updatedExpenses);
+            updatedExpensesList = this.updateExpensesList(updatedExpensesList, updatedExpenses, dEincompleteExpenseIds);
+            dEincompleteExpenseIds = this.filterDEIncompleteExpenses(updatedExpenses);
             return updatedExpensesList;
           })
         );
       }),
-      takeWhile(() => incompleteExpenseIds.length > 0, true),
+      takeWhile(() => dEincompleteExpenseIds.length > 0, true),
       takeUntil(stopPolling$),
       takeUntil(this.onPageExit$)
     );
@@ -715,12 +714,15 @@ export class MyExpensesPage implements OnInit {
      */
     this.myExpenses$ = paginatedPipe.pipe(
       switchMap((expenses) => {
-        const incompleteExpenseIds = this.filterIncompleteExpenses(expenses);
+        const dEincompleteExpenseIds = this.filterDEIncompleteExpenses(expenses);
 
-        if (incompleteExpenseIds.length === 0) {
+        if (dEincompleteExpenseIds.length === 0) {
           return of(expenses); // All scans are completed
         } else {
-          return this.pollIncompleteExpenses(incompleteExpenseIds, expenses).pipe(startWith(expenses), timeout(30000));
+          return this.pollDEIncompleteExpenses(dEincompleteExpenseIds, expenses).pipe(
+            startWith(expenses),
+            timeout(30000)
+          );
         }
       }),
       shareReplay(1)
