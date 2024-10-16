@@ -208,7 +208,7 @@ export class ExpensesCardComponent implements OnInit {
           (that.homeCurrency === 'USD' || that.homeCurrency === 'INR')
         ) {
           that.isScanCompleted = that.checkIfScanIsCompleted();
-          that.isScanInProgress = !that.isScanCompleted;
+          that.isScanInProgress = !that.isScanCompleted && !this.expense.tx_extracted_data;
         } else {
           that.isScanCompleted = true;
           that.isScanInProgress = false;
