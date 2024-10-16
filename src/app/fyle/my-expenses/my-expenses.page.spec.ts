@@ -996,6 +996,7 @@ describe('MyExpensesPage', () => {
       //@ts-ignore
       spyOn(component, 'updateExpensesList').and.returnValue(apiExpenses1);
     });
+
     it('should call expenseService.getExpenses for dE incomplete expenses and return updated expenses', fakeAsync(() => {
       const dEincompleteExpenseIds = ['txfCdl3TEZ7K', 'txfCdl3TEZ7l', 'txfCdl3TEZ7m'];
       const dEincompleteExpenseIdParams: ExpensesQueryParams = {
