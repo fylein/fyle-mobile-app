@@ -20,6 +20,7 @@ Sentry.init({
   tracesSampleRate: 0.1,
   release: 'please-replace-your-git-commit-version',
   ignoreErrors: ['Non-Error exception captured', 'Non-Error promise rejection captured'],
+  environment: 'test-aniruddha',
 });
 
 if (environment.production) {
