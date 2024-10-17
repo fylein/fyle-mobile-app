@@ -415,7 +415,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.loadData$.next(params);
 
     setTimeout(() => {
-      event?.target?.complete();
+      event?.target?.complete?.();
     }, 1000);
   }
 
