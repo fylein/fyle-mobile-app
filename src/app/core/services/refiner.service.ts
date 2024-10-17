@@ -3,7 +3,7 @@ import { EventEmitter, Injectable } from '@angular/core';
 import { AuthService } from './auth.service';
 import { Device } from '@capacitor/device';
 import { NetworkService } from './network.service';
-import { concat, forkJoin, from, Observable } from 'rxjs';
+import { concat, forkJoin, from, Observable, Subscription } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
 import { map, take } from 'rxjs/operators';
@@ -205,14 +205,14 @@ export class RefinerService {
     this.setupNetworkWatcher();
   }
 
-  setupNetworkWatcher() {
+  setupNetworkWatcher(): void {
     const that = this;
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(that.networkService.isOnline(), networkWatcherEmitter.asObservable());
   }
 
-  getRegion(homeCurrency: string) {
+  getRegion(homeCurrency: string): string {
     if (homeCurrency === 'INR') {
       return 'India';
     } else if (this.americasCurrencyList.includes(homeCurrency)) {
@@ -228,7 +228,7 @@ export class RefinerService {
     }
   }
 
-  isNonDemoOrg(orgName: string) {
+  isNonDemoOrg(orgName: string): boolean {
     return orgName.toLowerCase().indexOf('fyle for') === -1;
   }
 
@@ -238,41 +238,41 @@ export class RefinerService {
     return isSwitchedToDelegator$.pipe(map((isSwitchedToDelegator) => isNonDemoOrg && !isSwitchedToDelegator));
   }
 
-  startSurvey(properties: RefinerProperties) {
+  startSurvey(properties: RefinerProperties): Subscription {
     return forkJoin({
       isConnected: this.isConnected$.pipe(take(1)),
       eou: this.authService.getEou(),
       homeCurrency: this.currencyService.getHomeCurrency(),
       deviceInfo: Device.getInfo(),
     }).subscribe(({ isConnected, eou, homeCurrency, deviceInfo }) => {
-      // if (this.canStartSurvey(homeCurrency, eou) && isConnected) {
-      //   let device = '';
-      //   if (deviceInfo.operatingSystem === 'ios') {
-      //     device = 'IOS';
-      //   } else if (deviceInfo.operatingSystem === 'android') {
-      //     device = 'ANDROID';
-      //   }
-      //   (window as typeof window & { _refiner: (eventName: string, payload: IdentifyUserPayload) => void })._refiner(
-      //     'identifyUser',
-      //     {
-      //       id: eou.us.id, // Replace with your user ID
-      //       email: eou.us.email, // Replace with user Email
-      //       name: eou.us.full_name, // Replace with user name
-      //       account: {
-      //         company_id: eou.ou.org_id,
-      //         company_name: eou.ou.org_name,
-      //         region: this.getRegion(homeCurrency) + ' - ' + homeCurrency,
-      //       },
-      //       source: 'Mobile' + ' - ' + device,
-      //       is_admin: eou && eou.ou && eou.ou.roles && eou.ou.roles.indexOf('ADMIN') > -1 ? 'T' : 'F',
-      //       action_name: properties.actionName,
-      //     }
-      //   );
-      //   (window as typeof window & { _refiner: (eventName: string, payload: string) => void })._refiner(
-      //     'showForm',
-      //     environment.REFINER_NPS_FORM_ID
-      //   );
-      // }
+      if (this.canStartSurvey(homeCurrency, eou) && isConnected) {
+        let device = '';
+        if (deviceInfo.operatingSystem === 'ios') {
+          device = 'IOS';
+        } else if (deviceInfo.operatingSystem === 'android') {
+          device = 'ANDROID';
+        }
+        (window as typeof window & { _refiner: (eventName: string, payload: IdentifyUserPayload) => void })._refiner(
+          'identifyUser',
+          {
+            id: eou.us.id, // Replace with your user ID
+            email: eou.us.email, // Replace with user Email
+            name: eou.us.full_name, // Replace with user name
+            account: {
+              company_id: eou.ou.org_id,
+              company_name: eou.ou.org_name,
+              region: this.getRegion(homeCurrency) + ' - ' + homeCurrency,
+            },
+            source: 'Mobile' + ' - ' + device,
+            is_admin: eou && eou.ou && eou.ou.roles && eou.ou.roles.indexOf('ADMIN') > -1 ? 'T' : 'F',
+            action_name: properties.actionName,
+          }
+        );
+        (window as typeof window & { _refiner: (eventName: string, payload: string) => void })._refiner(
+          'showForm',
+          environment.REFINER_NPS_FORM_ID
+        );
+      }
     });
   }
 }

@@ -22,7 +22,6 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { PopupService } from 'src/app/core/services/popup.service';
-import { RefinerService } from 'src/app/core/services/refiner.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { StatusService } from 'src/app/core/services/status.service';
@@ -81,7 +80,6 @@ describe('ViewTeamReportPageV2', () => {
   let trackingService: jasmine.SpyObj<TrackingService>;
   let matSnackBar: jasmine.SpyObj<MatSnackBar>;
   let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
-  let refinerService: jasmine.SpyObj<RefinerService>;
   let statusService: jasmine.SpyObj<StatusService>;
   let humanizeCurrency: jasmine.SpyObj<HumanizeCurrencyPipe>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
@@ -110,7 +108,6 @@ describe('ViewTeamReportPageV2', () => {
     ]);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
-    const refinerServiceSpy = jasmine.createSpyObj('RefinerService', ['startSurvey', '']);
     const statusServiceSpy = jasmine.createSpyObj('StatusService', ['find', 'createStatusMap', 'post']);
     const humanizeCurrencySpy = jasmine.createSpyObj('HumanizeCurrencyPipe', ['transform']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
@@ -192,10 +189,6 @@ describe('ViewTeamReportPageV2', () => {
           useValue: snackbarPropertiesSpy,
         },
         {
-          provide: RefinerService,
-          useValue: refinerServiceSpy,
-        },
-        {
           provide: StatusService,
           useValue: statusServiceSpy,
         },
@@ -231,7 +224,6 @@ describe('ViewTeamReportPageV2', () => {
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
     snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
-    refinerService = TestBed.inject(RefinerService) as jasmine.SpyObj<RefinerService>;
     statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
     humanizeCurrency = TestBed.inject(HumanizeCurrencyPipe) as jasmine.SpyObj<HumanizeCurrencyPipe>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
@@ -542,7 +534,6 @@ describe('ViewTeamReportPageV2', () => {
 
       popoverController.create.and.resolveTo(popoverSpy);
       approverReportsService.approve.and.returnValue(of(undefined));
-      refinerService.startSurvey.and.returnValue(null);
 
       component.report$ = of(reportWithExpenses);
       component.expenses$ = of(expenseResponseData);
@@ -573,7 +564,6 @@ describe('ViewTeamReportPageV2', () => {
         false
       );
       expect(approverReportsService.approve).toHaveBeenCalledOnceWith(platformReportData.id);
-      expect(refinerService.startSurvey).toHaveBeenCalledOnceWith({ actionName: 'Approve Report' });
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'team_reports']);
     });
 
@@ -714,7 +704,6 @@ describe('ViewTeamReportPageV2', () => {
     expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
       ToastContent: 'Report Sent Back successfully',
     });
-    expect(refinerService.startSurvey).toHaveBeenCalledOnceWith({ actionName: 'Send Back Report' });
     expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'team_reports']);
   });
 

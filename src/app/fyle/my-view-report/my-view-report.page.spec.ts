@@ -21,7 +21,6 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { RefinerService } from 'src/app/core/services/refiner.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { StatusService } from 'src/app/core/services/status.service';
@@ -85,7 +84,6 @@ describe('MyViewReportPage', () => {
   let matSnackBar: jasmine.SpyObj<MatSnackBar>;
   let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
   let statusService: jasmine.SpyObj<StatusService>;
-  let refinerService: jasmine.SpyObj<RefinerService>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
 
@@ -116,7 +114,6 @@ describe('MyViewReportPage', () => {
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     const statusServiceSpy = jasmine.createSpyObj('StatusService', ['find', 'createStatusMap', 'post']);
-    const refinerServiceSpy = jasmine.createSpyObj('RefinerService', ['startSurvey']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', [
       'addExpenses',
@@ -207,10 +204,6 @@ describe('MyViewReportPage', () => {
           useValue: statusServiceSpy,
         },
         {
-          provide: RefinerService,
-          useValue: refinerServiceSpy,
-        },
-        {
           provide: OrgSettingsService,
           useValue: orgSettingsServiceSpy,
         },
@@ -238,7 +231,6 @@ describe('MyViewReportPage', () => {
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
     statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
-    refinerService = TestBed.inject(RefinerService) as jasmine.SpyObj<RefinerService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
 
@@ -643,7 +635,6 @@ describe('MyViewReportPage', () => {
     click(resubmitButton);
 
     expect(spenderReportsService.resubmit).toHaveBeenCalledWith(component.reportId);
-    expect(refinerService.startSurvey).toHaveBeenCalledOnceWith({ actionName: 'Resubmit Report ' });
     expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_reports']);
     expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
       ...properties,
@@ -678,7 +669,6 @@ describe('MyViewReportPage', () => {
     click(submitButton);
 
     expect(spenderReportsService.submit).toHaveBeenCalledWith(component.reportId);
-    expect(refinerService.startSurvey).toHaveBeenCalledOnceWith({ actionName: 'Submit Report' });
     expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_reports']);
     expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
       ...properties,

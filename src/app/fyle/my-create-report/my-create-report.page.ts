@@ -6,7 +6,6 @@ import { finalize, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { Expense } from 'src/app/core/models/expense.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { RefinerService } from 'src/app/core/services/refiner.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { StorageService } from '../../core/services/storage.service';
 import { TrackingService } from '../../core/services/tracking.service';
@@ -58,7 +57,6 @@ export class MyCreateReportPage implements OnInit {
     private router: Router,
     private trackingService: TrackingService,
     private storageService: StorageService,
-    private refinerService: RefinerService,
     private expensesService: ExpensesService,
     private orgSettingsService: OrgSettingsService,
     private spenderReportsService: SpenderReportsService
@@ -158,8 +156,6 @@ export class MyCreateReportPage implements OnInit {
             finalize(() => {
               this.saveReportLoading = false;
               this.router.navigate(['/', 'enterprise', 'my_reports']);
-
-              this.refinerService.startSurvey({ actionName: 'Submit Newly Created Report' });
             })
           )
           .subscribe(noop);

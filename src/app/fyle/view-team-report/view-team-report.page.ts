@@ -14,7 +14,6 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
-import { RefinerService } from 'src/app/core/services/refiner.service';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { getCurrencySymbol } from '@angular/common';
 import * as dayjs from 'dayjs';
@@ -143,7 +142,6 @@ export class ViewTeamReportPage {
     private trackingService: TrackingService,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
-    private refinerService: RefinerService,
     private statusService: StatusService,
     private humanizeCurrency: HumanizeCurrencyPipe,
     private orgSettingsService: OrgSettingsService,
@@ -377,7 +375,6 @@ export class ViewTeamReportPage {
 
       if (data && data.action === 'approve') {
         this.approverReportsService.approve(report.id).subscribe(() => {
-          this.refinerService.startSurvey({ actionName: 'Approve Report' });
           this.router.navigate(['/', 'enterprise', 'team_reports']);
         });
       }
@@ -436,7 +433,6 @@ export class ViewTeamReportPage {
             panelClass: ['msb-success-with-camera-icon'],
           });
           this.trackingService.showToastMessage({ ToastContent: message });
-          this.refinerService.startSurvey({ actionName: 'Send Back Report' });
         });
       this.router.navigate(['/', 'enterprise', 'team_reports']);
     }
