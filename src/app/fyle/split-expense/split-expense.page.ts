@@ -8,8 +8,6 @@ import { combineLatest, forkJoin, from, iif, Observable, of, throwError } from '
 import { catchError, concatMap, finalize, map, switchMap } from 'rxjs/operators';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { DateService } from 'src/app/core/services/date.service';
-import { FileService } from 'src/app/core/services/file.service';
-import { TransactionService } from 'src/app/core/services/transaction.service';
 import { SplitExpenseService } from 'src/app/core/services/split-expense.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -126,8 +124,6 @@ export class SplitExpensePage {
     private dateService: DateService,
     private splitExpenseService: SplitExpenseService,
     private currencyService: CurrencyService,
-    private transactionService: TransactionService,
-    private fileService: FileService,
     private navController: NavController,
     private router: Router,
     private transactionsOutboxService: TransactionsOutboxService,

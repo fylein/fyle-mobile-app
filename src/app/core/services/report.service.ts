@@ -1,27 +1,17 @@
 import { DatePipe } from '@angular/common';
-import { Inject, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Observable, Subject, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import { PAGINATION_SIZE } from 'src/app/constants';
 import { CacheBuster, Cacheable } from 'ts-cacheable';
 import { OrgSettings } from '../models/org-settings.model';
 import { Report } from '../models/platform/v1/report.model';
 import { ReportAutoSubmissionDetails } from '../models/report-auto-submission-details.model';
 import { ReportPermission } from '../models/report-permission.model';
 import { ApproverPlatformApiService } from './approver-platform-api.service';
-import { ApiV2Service } from './api-v2.service';
-import { ApiService } from './api.service';
-import { AuthService } from './auth.service';
-import { DataTransformService } from './data-transform.service';
-import { DateService } from './date.service';
-import { LaunchDarklyService } from './launch-darkly.service';
-import { NetworkService } from './network.service';
 import { PermissionsService } from './permissions.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
-import { StorageService } from './storage.service';
 import { TransactionService } from './transaction.service';
 import { UserEventService } from './user-event.service';
-import { SpenderReportsService } from './platform/v1/spender/reports.service';
 
 const reportsCacheBuster$ = new Subject<void>();
 
@@ -30,22 +20,12 @@ const reportsCacheBuster$ = new Subject<void>();
 })
 export class ReportService {
   constructor(
-    @Inject(PAGINATION_SIZE) private paginationSize: number,
-    private networkService: NetworkService,
-    private storageService: StorageService,
-    private apiService: ApiService,
-    private authService: AuthService,
-    private apiv2Service: ApiV2Service,
-    private dateService: DateService,
-    private dataTransformService: DataTransformService,
     private transactionService: TransactionService,
     private userEventService: UserEventService,
     private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
     private approverPlatformApiService: ApproverPlatformApiService,
     private datePipe: DatePipe,
-    private launchDarklyService: LaunchDarklyService,
-    private permissionsService: PermissionsService,
-    private spenderReportsService: SpenderReportsService
+    private permissionsService: PermissionsService
   ) {
     reportsCacheBuster$.subscribe(() => {
       this.userEventService.clearTaskCache();
