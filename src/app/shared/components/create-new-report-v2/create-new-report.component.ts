@@ -5,6 +5,7 @@ import { Observable, Subscription, of } from 'rxjs';
 import { finalize, map, switchMap, tap } from 'rxjs/operators';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpenseFieldsMap } from 'src/app/core/models/v1/expense-fields-map.model';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { RefinerService } from 'src/app/core/services/refiner.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -41,6 +42,7 @@ export class CreateNewReportComponent implements OnInit {
   showReportNameError: boolean;
 
   constructor(
+    private launchDarklyService: LaunchDarklyService,
     private modalController: ModalController,
     private trackingService: TrackingService,
     private refinerService: RefinerService,
@@ -154,7 +156,11 @@ export class CreateNewReportComponent implements OnInit {
               Expense_Count: txnIds.length,
               Report_Value: this.selectedTotalAmount,
             });
-            this.refinerService.startSurvey({ actionName: 'Submit Newly Created Report' });
+            this.launchDarklyService.getVariation('nps_survey', false).subscribe((showNpsSurvey) => {
+              if (showNpsSurvey) {
+                this.refinerService.startSurvey({ actionName: 'Submit Newly Created Report' });
+              }
+            });
           }),
           finalize(() => {
             this.submitReportLoader = false;
