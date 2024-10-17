@@ -12,12 +12,8 @@ import {
   splitPurposeTxn,
   splitTxn,
   sourceSplitTxn,
-  sourceTxn2,
-  splitTxns,
   createSourceTxn,
   splitTxn2,
-  txnParam1,
-  txnParam2,
   createSourceTxn2,
   txnData2,
   txnList,
@@ -34,33 +30,13 @@ import {
   txnData10,
   txnData11,
   txnData12,
-  upsertTxnParam,
   txnDataPayload,
 } from '../mock-data/transaction.data';
 import { of } from 'rxjs';
-import { splitExpFileObj, splitExpFile2, splitExpFile3, fileObject4 } from '../mock-data/file-object.data';
-import { fileTxns } from '../mock-data/file-txn.data';
-import { splitExpensePolicyExp } from '../mock-data/platform-policy-expense.data';
-import { splitExpPolicyData } from '../mock-data/expense-policy.data';
-import { splitPolicyExp } from '../mock-data/public-policy-expense.data';
-import {
-  policyViolation1,
-  policyViolationData3,
-  policyViolationData4,
-  policyVoilationData2,
-  splitPolicyExp4,
-} from '../mock-data/policy-violation.data';
-import { splitExpData, splitExpData2, splitExpTransformedData } from '../mock-data/expense.data';
-import { formattedTxnViolations, formattedTxnViolations2 } from '../mock-data/formatted-policy-violation.data';
-import { txnStatusData, txnStatusData1, txnStatusData2 } from '../mock-data/transaction-status.data';
-import {
-  violationComment1,
-  violationComment2,
-  violationComment3,
-  violationComment4,
-  violationComment5,
-} from '../mock-data/policy-violcation-comment.data';
-import { unflattenExp1, unflattenExp2 } from '../mock-data/unflattened-expense.data';
+import { fileObject4 } from '../mock-data/file-object.data';
+import { splitPolicyExp4 } from '../mock-data/policy-violation.data';
+import { txnStatusData } from '../mock-data/transaction-status.data';
+import { violationComment1, violationComment4, violationComment5 } from '../mock-data/policy-violcation-comment.data';
 import { criticalPolicyViolation1, criticalPolicyViolation2 } from '../mock-data/crtical-policy-violations.data';
 import { UtilityService } from './utility.service';
 import { cloneDeep, split } from 'lodash';
@@ -68,16 +44,10 @@ import { expenseFieldResponse } from '../mock-data/expense-field.data';
 import { splitPayloadData1, splitPayloadData2, splitPayloadData3 } from '../mock-data/split-payload.data';
 import { splitPolicyExp1 } from '../mock-data/split-expense-policy.data';
 import { splitData2, splitsData1 } from '../mock-data/splits.data';
-import { SplitExpenseMissingFieldsData } from '../models/split-expense-missing-fields.data';
-import {
-  transformedSplitExpenseMissingFieldsData,
-  transformedSplitExpenseMissingFieldsData2,
-} from '../mock-data/transformed-split-expense-missing-fields.data';
+import { SplitExpenseMissingFieldsData } from '../mock-data/split-expense-missing-fields.data';
+import { transformedSplitExpenseMissingFieldsData2 } from '../mock-data/transformed-split-expense-missing-fields.data';
 import { filteredSplitPolicyViolationsData2 } from '../mock-data/filtered-split-policy-violations.data';
-import {
-  filteredMissingFieldsViolationsData,
-  filteredMissingFieldsViolationsData2,
-} from '../mock-data/filtered-missing-fields-violations.data';
+import { filteredMissingFieldsViolationsData2 } from '../mock-data/filtered-missing-fields-violations.data';
 
 describe('SplitExpenseService', () => {
   let splitExpenseService: SplitExpenseService;

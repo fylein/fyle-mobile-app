@@ -1,5 +1,5 @@
-import { ComponentFixture, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { ModalController, RefresherCustomEvent } from '@ionic/angular';
+import { ComponentFixture, waitForAsync } from '@angular/core/testing';
+import { ModalController } from '@ionic/angular';
 
 import { TeamReportsPage } from './team-reports.page';
 import { NetworkService } from 'src/app/core/services/network.service';
@@ -12,30 +12,20 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ApiV2Service } from 'src/app/core/services/api-v2.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { HeaderState } from 'src/app/shared/components/fy-header/header-state.enum';
 import { BehaviorSubject, of } from 'rxjs';
-import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
-import { reportParam } from 'src/app/core/mock-data/report.data';
-import { creditTxnFilterPill } from 'src/app/core/mock-data/filter-pills.data';
 import { getElementRef } from 'src/app/core/dom-helpers';
 import { cloneDeep } from 'lodash';
-import { orgSettingsParamsWithSimplifiedReport } from 'src/app/core/mock-data/org-settings.data';
 import {
   tasksQueryParamsWithFiltersData,
-  tasksQueryParamsWithFiltersData2,
   tasksQueryParamsWithFiltersData3,
 } from 'src/app/core/mock-data/get-tasks-query-params-with-filters.data';
 import {
-  tasksQueryParamsParams,
   teamReportsQueryParams,
   teamReportsQueryParams2,
   teamReportsQueryParams3,
 } from 'src/app/core/mock-data/get-tasks-query-params.data';
-import { getTeamReportsParams1, getTeamReportsParams2 } from 'src/app/core/mock-data/api-params.data';
-import { GetTasksQueryParamsWithFilters } from 'src/app/core/models/get-tasks-query-params-with-filters.model';
 import { GetTasksQueryParams } from 'src/app/core/models/get-tasks.query-params.model';
 import * as dayjs from 'dayjs';
-import { popupConfigData, popupConfigData2 } from 'src/app/core/mock-data/popup.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-report.data';
 

@@ -22,9 +22,10 @@ import { By } from '@angular/platform-browser';
 })
 class MockCardNumberComponent {
   @Input() cardNumber: string;
+  @Input() cardNickname: string;
 }
 
-describe('CorporateCardComponent', () => {
+fdescribe('CorporateCardComponent', () => {
   let component: CorporateCardComponent;
   let fixture: ComponentFixture<CorporateCardComponent>;
 

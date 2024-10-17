@@ -126,8 +126,6 @@ export class SplitExpensePage {
     private dateService: DateService,
     private splitExpenseService: SplitExpenseService,
     private currencyService: CurrencyService,
-    private transactionService: TransactionService,
-    private fileService: FileService,
     private navController: NavController,
     private router: Router,
     private transactionsOutboxService: TransactionsOutboxService,

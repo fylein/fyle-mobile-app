@@ -6,7 +6,7 @@ import { FileService } from 'src/app/core/services/file.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { SplitExpenseService } from 'src/app/core/services/split-expense.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
@@ -18,7 +18,6 @@ import { DependentFieldsService } from 'src/app/core/services/dependent-fields.s
 import { SplitExpensePage } from './split-expense.page';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import {
-  AbstractControlOptions,
   FormArray,
   FormBuilder,
   FormControl,
@@ -41,7 +40,6 @@ import {
   expectedFilterOrgCategory,
   expectedOrgCategoriesPaginated,
   filterOrgCategoryParam,
-  orgCategoryData,
   transformedOrgCategories,
   unspecifiedCategory,
 } from 'src/app/core/mock-data/org-category.data';
@@ -49,54 +47,29 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { FyAlertInfoComponent } from 'src/app/shared/components/fy-alert-info/fy-alert-info.component';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import {
-  amtTxn3,
   modifiedTxnData4,
   modifiedTxnData5,
   modifiedTxnData6,
   modifiedTxnData7,
   sourceTxn2,
-  splitExpenseTxn1,
-  splitExpenseTxn1_1,
-  splitExpenseTxn2,
-  splitExpenseTxn2_2,
-  splitExpenseTxn2_3,
-  splitExpenseTxn3,
-  splitPurposeTxn,
-  splitTxn2,
   splitTxns,
-  txnAmount1,
-  txnAmount2,
   txnData,
   txnData4,
   txnData6,
   txnList,
 } from 'src/app/core/mock-data/transaction.data';
-import { splitTransactionData1 } from 'src/app/core/mock-data/public-policy-expense.data';
-import { ExpenseFieldsObj } from 'src/app/core/models/v1/expense-fields-obj.model';
 import { expenseFieldObjData, txnFieldData } from 'src/app/core/mock-data/expense-field-obj.data';
 import {
   fileObjectData5,
   fileObject6,
-  fileObject7,
   fileObject8,
   fileObjectAdv,
   fileObjectAdv1,
   fileObjectData4,
-  splitExpFile2,
-  splitExpFile3,
-  splitExpFileObj,
   fileUrlMockData,
   fileObjectData1,
 } from 'src/app/core/mock-data/file-object.data';
-import {
-  fileTxns,
-  fileTxns2,
-  fileTxns3,
-  fileTxns4,
-  fileTxns5,
-  fileTxns6,
-  fileTxns7,
-} from 'src/app/core/mock-data/file-txn.data';
+
 import {
   splitExpense1,
   splitExpense2,
@@ -113,7 +86,7 @@ import {
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
-import { dependentFieldValues, txnCustomProperties } from 'src/app/core/test-data/dependent-fields.service.spec.data';
+import { dependentFieldValues } from 'src/app/core/test-data/dependent-fields.service.spec.data';
 import {
   allowedActiveCategories,
   allowedActiveCategoriesListOptions,
@@ -122,21 +95,12 @@ import {
   testActiveCategoryListOptions,
   testProjectV2,
 } from 'src/app/core/test-data/projects.spec.data';
-import { fileData2 } from 'src/app/core/mock-data/file.data';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { formattedTxnViolations } from 'src/app/core/mock-data/formatted-policy-violation.data';
 import { SplitExpensePolicyViolationComponent } from 'src/app/shared/components/split-expense-policy-violation/split-expense-policy-violation.component';
-import {
-  policyViolation1,
-  policyViolationData3,
-  policyViolationData5,
-  policyVoilationData2,
-} from 'src/app/core/mock-data/policy-violation.data';
+import { policyViolation1, policyViolationData5 } from 'src/app/core/mock-data/policy-violation.data';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
-import { unflattenedAccount2Data, unflattenedAccount3Data } from 'src/app/core/test-data/accounts.service.spec.data';
+import { unflattenedAccount3Data } from 'src/app/core/test-data/accounts.service.spec.data';
 import { categorieListRes } from 'src/app/core/mock-data/org-category-list-item.data';
-import * as dayjs from 'dayjs';
-import { expenseList2 } from 'src/app/core/mock-data/expense.data';
 import { cloneDeep } from 'lodash';
 import {
   splitExpenseFormData1,
@@ -146,7 +110,6 @@ import {
   splitExpenseFormData6,
   splitExpenseFormData7,
 } from 'src/app/core/mock-data/split-expense-form.data';
-import { customInputData1 } from 'src/app/core/mock-data/custom-input.data';
 import { costCentersData3, expectedCCdata } from 'src/app/core/mock-data/cost-centers.data';
 import {
   currencyObjData1,
@@ -154,12 +117,10 @@ import {
   currencyObjData3,
   currencyObjData4,
 } from 'src/app/core/mock-data/currency-obj.data';
-import { matchedCCCTransactionData1 } from 'src/app/core/mock-data/matchedCCCTransaction.data';
 import { ToastType } from 'src/app/core/enums/toast-type.enum';
 import { costCenterExpenseField, expenseFieldResponse } from 'src/app/core/mock-data/expense-field.data';
 import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { txnCustomPropertiesData } from 'src/app/core/mock-data/txn-custom-properties.data';
-import { expectedProjects4 } from 'src/app/core/mock-data/extended-projects.data';
 import { filteredSplitPolicyViolationsData } from 'src/app/core/mock-data/filtered-split-policy-violations.data';
 import { filteredMissingFieldsViolationsData } from 'src/app/core/mock-data/filtered-missing-fields-violations.data';
 import {
@@ -167,9 +128,9 @@ import {
   transformedSplitExpenseMissingFieldsData2,
 } from 'src/app/core/mock-data/transformed-split-expense-missing-fields.data';
 import { splitPolicyExp1 } from 'src/app/core/mock-data/split-expense-policy.data';
-import { SplitExpenseMissingFieldsData } from 'src/app/core/models/split-expense-missing-fields.data';
+import { SplitExpenseMissingFieldsData } from 'src/app/core/mock-data/split-expense-missing-fields.data';
 import { splitPayloadData1 } from 'src/app/core/mock-data/split-payload.data';
-import { platformExpenseData, platformExpenseWithExtractedData } from 'src/app/core/mock-data/platform/v1/expense.data';
+import { platformExpenseWithExtractedData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { orgSettingsWithProjectCategoryRestrictions } from 'src/app/core/mock-data/org-settings.data';
 
 describe('SplitExpensePage', () => {
@@ -180,8 +141,6 @@ describe('SplitExpensePage', () => {
   let dateService: jasmine.SpyObj<DateService>;
   let splitExpenseService: jasmine.SpyObj<SplitExpenseService>;
   let currencyService: jasmine.SpyObj<CurrencyService>;
-  let transactionService: jasmine.SpyObj<TransactionService>;
-  let fileService: jasmine.SpyObj<FileService>;
   let expensesService: jasmine.SpyObj<ExpensesService>;
   let navController: jasmine.SpyObj<NavController>;
   let router: jasmine.SpyObj<Router>;
@@ -219,9 +178,7 @@ describe('SplitExpensePage', () => {
       'transformSplitTo',
     ]);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
-    const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['delete', 'matchCCCExpense']);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById']);
-    const fileServiceSpy = jasmine.createSpyObj('FileService', ['findByTransactionId']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const transactionsOutboxServiceSpy = jasmine.createSpyObj('TransactionsOutboxService', ['fileUpload']);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
@@ -275,9 +232,7 @@ describe('SplitExpensePage', () => {
         },
         { provide: SplitExpenseService, useValue: splitExpenseServiceSpy },
         { provide: CurrencyService, useValue: currencyServiceSpy },
-        { provide: TransactionService, useValue: transactionServiceSpy },
         { provide: ExpensesService, useValue: expensesServiceSpy },
-        { provide: FileService, useValue: fileServiceSpy },
         { provide: Router, useValue: routerSpy },
         { provide: TransactionsOutboxService, useValue: transactionsOutboxServiceSpy },
         { provide: MatSnackBar, useValue: matSnackBarSpy },
@@ -328,9 +283,7 @@ describe('SplitExpensePage', () => {
     dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
     splitExpenseService = TestBed.inject(SplitExpenseService) as jasmine.SpyObj<SplitExpenseService>;
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
-    transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
-    fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     transactionsOutboxService = TestBed.inject(TransactionsOutboxService) as jasmine.SpyObj<TransactionsOutboxService>;
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;

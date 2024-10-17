@@ -1,4 +1,4 @@
-import { SplitExpenseMissingFields } from './platform/v1/split-expense-missing-fields.model';
+import { SplitExpenseMissingFields } from '../models/platform/v1/split-expense-missing-fields.model';
 
 export const SplitExpenseMissingFieldsData: SplitExpenseMissingFields = {
   data: [
