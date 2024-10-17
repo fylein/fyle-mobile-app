@@ -1,6 +1,7 @@
+import deepFreezeStrict from 'deep-freeze-strict';
 import { SplitExpenseMissingFields } from '../models/platform/v1/split-expense-missing-fields.model';
 
-export const SplitExpenseMissingFieldsData: SplitExpenseMissingFields = {
+export const SplitExpenseMissingFieldsData: SplitExpenseMissingFields = deepFreezeStrict({
   data: [
     {
       missing_amount: false,
@@ -9,4 +10,4 @@ export const SplitExpenseMissingFieldsData: SplitExpenseMissingFields = {
       missing_expense_field_ids: [],
     },
   ],
-};
+});
