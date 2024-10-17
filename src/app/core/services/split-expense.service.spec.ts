@@ -1,10 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { SplitExpenseService } from './split-expense.service';
-import { TransactionService } from './transaction.service';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { PolicyService } from './policy.service';
-import { DataTransformService } from './data-transform.service';
-import { FileService } from './file.service';
 import { StatusService } from './status.service';
 import { CategoriesService } from './categories.service';
 import { transformedOrgCategories, unspecifiedCategory } from '../mock-data/org-category.data';
@@ -51,28 +48,18 @@ import { filteredMissingFieldsViolationsData2 } from '../mock-data/filtered-miss
 
 describe('SplitExpenseService', () => {
   let splitExpenseService: SplitExpenseService;
-  let transactionService: jasmine.SpyObj<TransactionService>;
   let expensesService: jasmine.SpyObj<ExpensesService>;
   let policyService: jasmine.SpyObj<PolicyService>;
-  let dataTransformService: jasmine.SpyObj<DataTransformService>;
-  let fileService: jasmine.SpyObj<FileService>;
   let statusService: jasmine.SpyObj<StatusService>;
   let categoriesService: jasmine.SpyObj<CategoriesService>;
   let utilityService: jasmine.SpyObj<UtilityService>;
 
   beforeEach(() => {
-    const transactionServiceSpy = jasmine.createSpyObj('TransactionService', [
-      'checkPolicy',
-      'upsert',
-      'transformRawExpense',
-    ]);
     const policyServiceSpy = jasmine.createSpyObj('PolicyService', [
       'transformTo',
       'getPolicyRules',
       'getCriticalPolicyRules',
     ]);
-    const dataTransformServiceSpy = jasmine.createSpyObj('DataTransformService', ['unflatten']);
-    const fileServiceSpy = jasmine.createSpyObj('FileService', ['base64Download']);
     const statusServiceSpy = jasmine.createSpyObj('StatusService', ['post']);
     const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', ['filterByOrgCategoryId']);
     const utilityServiceSpy = jasmine.createSpyObj('UtiltyService', ['generateRandomString']);
@@ -87,10 +74,6 @@ describe('SplitExpenseService', () => {
       providers: [
         SplitExpenseService,
         {
-          provide: TransactionService,
-          useValue: transactionServiceSpy,
-        },
-        {
           provide: ExpensesService,
           useValue: expensesServiceSpy,
         },
@@ -103,16 +86,8 @@ describe('SplitExpenseService', () => {
           useValue: statusServiceSpy,
         },
         {
-          provide: FileService,
-          useValue: fileServiceSpy,
-        },
-        {
           provide: CategoriesService,
           useValue: categoriesServiceSpy,
-        },
-        {
-          provide: DataTransformService,
-          useValue: dataTransformServiceSpy,
         },
         {
           provide: UtilityService,
@@ -126,13 +101,10 @@ describe('SplitExpenseService', () => {
     });
 
     splitExpenseService = TestBed.inject(SplitExpenseService);
-    transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     policyService = TestBed.inject(PolicyService) as jasmine.SpyObj<PolicyService>;
-    fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
     statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
     categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
-    dataTransformService = TestBed.inject(DataTransformService) as jasmine.SpyObj<DataTransformService>;
     utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
   });

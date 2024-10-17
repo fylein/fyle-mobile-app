@@ -34,12 +34,9 @@ export class SplitExpenseService {
   prependPolicyViolationMessage = 'Policy violation explanation: ';
 
   constructor(
-    private transactionService: TransactionService,
-    private fileService: FileService,
     private policyService: PolicyService,
     private statusService: StatusService,
     private categoriesService: CategoriesService,
-    private dataTransformService: DataTransformService,
     private utilityService: UtilityService,
     private expensesService: ExpensesService
   ) {}
