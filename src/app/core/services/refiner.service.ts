@@ -3,10 +3,10 @@ import { EventEmitter, Injectable } from '@angular/core';
 import { AuthService } from './auth.service';
 import { Device } from '@capacitor/device';
 import { NetworkService } from './network.service';
-import { concat, forkJoin, from, Observable, Subscription } from 'rxjs';
+import { concat, forkJoin, from, Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
-import { map, take } from 'rxjs/operators';
+import { map, switchMap, take } from 'rxjs/operators';
 import { OrgUserService } from './org-user.service';
 import { IdentifyUserPayload, RefinerProperties } from '../models/refiner_properties.model';
 import { CurrencyService } from './currency.service';
@@ -237,16 +237,15 @@ export class RefinerService {
     return isSwitchedToDelegator$.pipe(map((isSwitchedToDelegator) => isNonDemoOrg && !isSwitchedToDelegator));
   }
 
-  startSurvey(properties: RefinerProperties): Subscription {
-    return forkJoin({
+  async startSurvey(properties: RefinerProperties): Promise<void> {
+    forkJoin({
       isConnected: this.isConnected$.pipe(take(1)),
       eou: this.authService.getEou(),
       homeCurrency: this.currencyService.getHomeCurrency(),
       deviceInfo: Device.getInfo(),
     }).subscribe(({ isConnected, eou, homeCurrency, deviceInfo }) => {
       if (this.canStartSurvey(homeCurrency, eou) && isConnected) {
-        let device = '';
-        device = deviceInfo.operatingSystem.toUpperCase();
+        const device = deviceInfo.operatingSystem.toUpperCase();
         (window as typeof window & { _refiner: (eventName: string, payload: IdentifyUserPayload) => void })._refiner(
           'identifyUser',
           {

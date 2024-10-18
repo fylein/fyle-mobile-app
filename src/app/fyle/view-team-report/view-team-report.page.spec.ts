@@ -62,6 +62,8 @@ import {
 import { ExpensesService as ApproverExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
 import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { RefinerService } from 'src/app/core/services/refiner.service';
 
 describe('ViewTeamReportPageV2', () => {
   let component: ViewTeamReportPage;
@@ -84,6 +86,8 @@ describe('ViewTeamReportPageV2', () => {
   let humanizeCurrency: jasmine.SpyObj<HumanizeCurrencyPipe>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
+  let refinerService: jasmine.SpyObj<RefinerService>;
+  let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
 
   beforeEach(waitForAsync(() => {
     const approverExpensesServiceSpy = jasmine.createSpyObj('ApproverExpensesService', [
@@ -118,6 +122,8 @@ describe('ViewTeamReportPageV2', () => {
       'sendBack',
       'approve',
     ]);
+    launchDarklyService = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
+    refinerService = jasmine.createSpyObj('RefinerService', ['startSurvey']);
 
     TestBed.configureTestingModule({
       declarations: [ViewTeamReportPage, EllipsisPipe, HumanizeCurrencyPipe],
@@ -181,6 +187,14 @@ describe('ViewTeamReportPageV2', () => {
           useValue: trackingServiceSpy,
         },
         {
+          provide: LaunchDarklyService,
+          useValue: launchDarklyService,
+        },
+        {
+          provide: RefinerService,
+          useValue: refinerService,
+        },
+        {
           provide: MatSnackBar,
           useValue: matSnackBarSpy,
         },
@@ -228,6 +242,8 @@ describe('ViewTeamReportPageV2', () => {
     humanizeCurrency = TestBed.inject(HumanizeCurrencyPipe) as jasmine.SpyObj<HumanizeCurrencyPipe>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
+    launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
+    refinerService = TestBed.inject(RefinerService) as jasmine.SpyObj<RefinerService>;
 
     fixture.detectChanges();
   }));
@@ -537,6 +553,7 @@ describe('ViewTeamReportPageV2', () => {
 
       component.report$ = of(reportWithExpenses);
       component.expenses$ = of(expenseResponseData);
+      launchDarklyService.getVariation.and.returnValue(of(true));
       fixture.detectChanges();
 
       await component.approveReport();
@@ -565,6 +582,8 @@ describe('ViewTeamReportPageV2', () => {
       );
       expect(approverReportsService.approve).toHaveBeenCalledOnceWith(platformReportData.id);
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'team_reports']);
+      expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith('nps_survey', false);
+      expect(refinerService.startSurvey).toHaveBeenCalledOnceWith({ actionName: 'Approve Report' });
     });
 
     it('should toggle tooltip if approval priviledge is not provided', async () => {
