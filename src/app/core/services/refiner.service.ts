@@ -246,11 +246,7 @@ export class RefinerService {
     }).subscribe(({ isConnected, eou, homeCurrency, deviceInfo }) => {
       if (this.canStartSurvey(homeCurrency, eou) && isConnected) {
         let device = '';
-        if (deviceInfo.operatingSystem === 'ios') {
-          device = 'IOS';
-        } else if (deviceInfo.operatingSystem === 'android') {
-          device = 'ANDROID';
-        }
+        device = deviceInfo.operatingSystem.toUpperCase();
         (window as typeof window & { _refiner: (eventName: string, payload: IdentifyUserPayload) => void })._refiner(
           'identifyUser',
           {
@@ -263,7 +259,7 @@ export class RefinerService {
               region: `${this.getRegion(homeCurrency)} - ${homeCurrency}`,
             },
             source: `Mobile - ${device}`,
-            is_admin: eou?.ou?.roles?.indexOf('ADMIN') > -1 ? 'T' : 'F',
+            is_admin: eou?.ou?.roles?.includes('ADMIN') ? 'T' : 'F',
             action_name: properties.actionName,
           }
         );

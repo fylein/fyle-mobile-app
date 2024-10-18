@@ -1,7 +1,7 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { NgModel } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
-import { Observable, Subscription, firstValueFrom, of } from 'rxjs';
+import { Observable, Subscription, of } from 'rxjs';
 import { finalize, map, switchMap, tap } from 'rxjs/operators';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpenseFieldsMap } from 'src/app/core/models/v1/expense-fields-map.model';
@@ -40,6 +40,8 @@ export class CreateNewReportComponent implements OnInit {
   isSelectedAll: boolean;
 
   showReportNameError: boolean;
+
+  showNpsSurvey: boolean;
 
   constructor(
     private launchDarklyService: LaunchDarklyService,
@@ -105,7 +107,7 @@ export class CreateNewReportComponent implements OnInit {
     this.modalController.dismiss();
   }
 
-  async ctaClickedEvent(reportActionType): Promise<void> {
+  ctaClickedEvent(reportActionType: string): Subscription {
     this.showReportNameError = false;
     if (this.reportTitle.trim().length <= 0) {
       this.showReportNameError = true;
@@ -120,7 +122,7 @@ export class CreateNewReportComponent implements OnInit {
     const txnIds = this.selectedElements.map((expense) => expense.id);
     if (reportActionType === 'create_draft_report') {
       this.saveDraftReportLoader = true;
-      this.spenderReportsService
+      return this.spenderReportsService
         .createDraft({ data: report })
         .pipe(
           tap(() =>
@@ -151,13 +153,15 @@ export class CreateNewReportComponent implements OnInit {
       this.spenderReportsService
         .create(report, txnIds)
         .pipe(
-          tap(async () => {
+          tap(() => {
             this.trackingService.createReport({
               Expense_Count: txnIds.length,
               Report_Value: this.selectedTotalAmount,
             });
-            const showNpsSurvey = await firstValueFrom(this.launchDarklyService.getVariation('nps_survey', false));
-            if (showNpsSurvey) {
+            this.launchDarklyService.getVariation('nps_survey', false).subscribe((variation) => {
+              this.showNpsSurvey = variation;
+            });
+            if (this.showNpsSurvey) {
               this.refinerService.startSurvey({ actionName: 'Submit Newly Created Report' });
             }
           }),

@@ -262,7 +262,7 @@ describe('CreateNewReportComponent', () => {
       spenderReportsService.create.and.returnValue(of(report));
 
       // Test when nps_survey is true
-      launchDarklyService.getVariation.and.returnValue(of(true));
+      launchDarklyService.getVariation.and.returnValue(of(false));
       component.ctaClickedEvent('submit_report');
       fixture.detectChanges();
       tick(500);
