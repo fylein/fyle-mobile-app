@@ -20,6 +20,7 @@ import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
 import { apiExpenses1, nonReimbursableExpense } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-report.data';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 describe('CreateNewReportComponent', () => {
   let component: CreateNewReportComponent;
@@ -30,10 +31,12 @@ describe('CreateNewReportComponent', () => {
   let currencyService: jasmine.SpyObj<CurrencyService>;
   let expenseFieldsService: jasmine.SpyObj<ExpenseFieldsService>;
   let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
+  let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
 
   beforeEach(waitForAsync(() => {
     modalController = jasmine.createSpyObj('ModalController', ['dismiss']);
     trackingService = jasmine.createSpyObj('TrackingService', ['createReport']);
+    launchDarklyService = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
     refinerService = jasmine.createSpyObj('RefinerService', ['startSurvey']);
     currencyService = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     expenseFieldsService = jasmine.createSpyObj('ExpenseFieldsService', ['getAllMap']);
@@ -59,6 +62,7 @@ describe('CreateNewReportComponent', () => {
       providers: [
         { provide: ModalController, useValue: modalController },
         { provide: TrackingService, useValue: trackingService },
+        { provide: LaunchDarklyService, useValue: launchDarklyService },
         { provide: RefinerService, useValue: refinerService },
         { provide: CurrencyService, useValue: currencyService },
         { provide: ExpenseFieldsService, useValue: expenseFieldsService },
@@ -70,6 +74,7 @@ describe('CreateNewReportComponent', () => {
     }).compileComponents();
 
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
+    launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
     refinerService = TestBed.inject(RefinerService) as jasmine.SpyObj<RefinerService>;
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
     expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
@@ -251,16 +256,20 @@ describe('CreateNewReportComponent', () => {
         purpose: '#3 : Mar 2023',
         source: 'MOBILE',
       };
-
       const txnIds = ['txDDLtRaflUW', 'tx5WDG9lxBDT'];
       const report = expectedReportsSinglePage[0];
-      spenderReportsService.create.and.returnValue(of(expectedReportsSinglePage[0]));
+
+      spenderReportsService.create.and.returnValue(of(report));
+
+      // Test when nps_survey is true
+      launchDarklyService.getVariation.and.returnValue(of(true));
       component.ctaClickedEvent('submit_report');
       fixture.detectChanges();
       tick(500);
       expect(component.submitReportLoader).toBeFalse();
       expect(component.showReportNameError).toBeFalse();
       expect(spenderReportsService.create).toHaveBeenCalledOnceWith(reportPurpose, txnIds);
+      expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith('nps_survey', false);
       expect(refinerService.startSurvey).toHaveBeenCalledOnceWith({ actionName: 'Submit Newly Created Report' });
       expect(component.submitReportLoader).toBeFalse();
       expect(modalController.dismiss).toHaveBeenCalledOnceWith({

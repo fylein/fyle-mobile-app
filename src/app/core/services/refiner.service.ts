@@ -206,10 +206,9 @@ export class RefinerService {
   }
 
   setupNetworkWatcher(): void {
-    const that = this;
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
-    this.isConnected$ = concat(that.networkService.isOnline(), networkWatcherEmitter.asObservable());
+    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable());
   }
 
   getRegion(homeCurrency: string): string {
@@ -261,10 +260,10 @@ export class RefinerService {
             account: {
               company_id: eou.ou.org_id,
               company_name: eou.ou.org_name,
-              region: this.getRegion(homeCurrency) + ' - ' + homeCurrency,
+              region: `${this.getRegion(homeCurrency)} - ${homeCurrency}`,
             },
-            source: 'Mobile' + ' - ' + device,
-            is_admin: eou && eou.ou && eou.ou.roles && eou.ou.roles.indexOf('ADMIN') > -1 ? 'T' : 'F',
+            source: `Mobile - ${device}`,
+            is_admin: eou?.ou?.roles?.indexOf('ADMIN') > -1 ? 'T' : 'F',
             action_name: properties.actionName,
           }
         );
