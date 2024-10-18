@@ -237,7 +237,7 @@ export class RefinerService {
     return isSwitchedToDelegator$.pipe(map((isSwitchedToDelegator) => isNonDemoOrg && !isSwitchedToDelegator));
   }
 
-  async startSurvey(properties: RefinerProperties): Promise<void> {
+  startSurvey(properties: RefinerProperties): void {
     forkJoin({
       isConnected: this.isConnected$.pipe(take(1)),
       eou: this.authService.getEou(),

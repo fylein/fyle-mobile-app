@@ -1,17 +1,11 @@
 import { CurrencyPipe } from '@angular/common';
 import { CUSTOM_ELEMENTS_SCHEMA, EventEmitter } from '@angular/core';
-import { ComponentFixture, TestBed, fakeAsync, flushMicrotasks, tick, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
-import {
-  IonicModule,
-  ModalController,
-  PopoverController,
-  SegmentChangeEventDetail,
-  SegmentCustomEvent,
-} from '@ionic/angular';
+import { IonicModule, ModalController, PopoverController } from '@ionic/angular';
 import { finalize, of } from 'rxjs';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
@@ -40,7 +34,6 @@ import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 import { NetworkService } from '../../core/services/network.service';
 import { TrackingService } from '../../core/services/tracking.service';
-import { ShareReportComponent } from './share-report/share-report.component';
 import { ViewTeamReportPage } from './view-team-report.page';
 import { pdfExportData1, pdfExportData2 } from 'src/app/core/mock-data/pdf-export.data';
 import { EditReportNamePopoverComponent } from '../my-view-report/edit-report-name-popover/edit-report-name-popover.component';
@@ -593,6 +586,83 @@ describe('ViewTeamReportPageV2', () => {
 
       await component.approveReport();
       expect(component.toggleTooltip).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not approve report if user cancels the popover', async () => {
+      const popoverSpy = jasmine.createSpyObj('popover', ['present', 'onWillDismiss']);
+      popoverSpy.onWillDismiss.and.resolveTo({
+        data: {
+          action: 'cancel',
+        },
+      });
+
+      popoverController.create.and.resolveTo(popoverSpy);
+
+      component.report$ = of(reportWithExpenses);
+      component.expenses$ = of(expenseResponseData);
+      fixture.detectChanges();
+
+      await component.approveReport();
+
+      expect(popoverController.create).toHaveBeenCalledOnceWith(jasmine.any(Object));
+      expect(approverReportsService.approve).not.toHaveBeenCalled();
+      expect(router.navigate).not.toHaveBeenCalled();
+      expect(launchDarklyService.getVariation).not.toHaveBeenCalled();
+      expect(refinerService.startSurvey).not.toHaveBeenCalled();
+    });
+
+    it('should handle approval even when there are flagged expenses', async () => {
+      const flaggedExpenseResponseData = expenseResponseData.map((expense) => ({
+        ...expense,
+        is_policy_flagged: true,
+      }));
+
+      const popoverSpy = jasmine.createSpyObj('popover', ['present', 'onWillDismiss']);
+      popoverSpy.onWillDismiss.and.resolveTo({
+        data: {
+          action: 'approve',
+        },
+      });
+
+      popoverController.create.and.resolveTo(popoverSpy);
+      approverReportsService.approve.and.returnValue(of(undefined));
+
+      component.report$ = of(reportWithExpenses);
+      component.expenses$ = of(flaggedExpenseResponseData);
+      fixture.detectChanges();
+
+      await component.approveReport();
+
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        componentProps: jasmine.objectContaining({
+          flaggedExpensesCount: flaggedExpenseResponseData.length,
+        }),
+        component: PopupAlertComponent,
+        cssClass: 'pop-up-in-center',
+      });
+      expect(approverReportsService.approve).toHaveBeenCalledOnceWith(reportWithExpenses.id);
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'team_reports']);
+    });
+
+    it('should not start NPS survey if feature flag is disabled', async () => {
+      const popoverSpy = jasmine.createSpyObj('popover', ['present', 'onWillDismiss']);
+      popoverSpy.onWillDismiss.and.resolveTo({
+        data: {
+          action: 'approve',
+        },
+      });
+
+      popoverController.create.and.resolveTo(popoverSpy);
+      approverReportsService.approve.and.returnValue(of(undefined));
+      launchDarklyService.getVariation.and.returnValue(of(false));
+
+      component.report$ = of(reportWithExpenses);
+      component.expenses$ = of(expenseResponseData);
+      fixture.detectChanges();
+
+      await component.approveReport();
+      expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith('nps_survey', false);
+      expect(refinerService.startSurvey).not.toHaveBeenCalled();
     });
   });
 
