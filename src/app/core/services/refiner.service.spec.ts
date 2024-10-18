@@ -46,17 +46,39 @@ xdescribe('RefinerService', () => {
     emitterSpy.asObservable.and.returnValue(of(true));
     refinerService.setupNetworkWatcher();
     networkService.isOnline.and.returnValue(of(true));
+
     expect(networkService.connectivityWatcher).toHaveBeenCalledTimes(2);
     expect(networkService.isOnline).toHaveBeenCalledTimes(2);
   });
 
-  it('getRegion(): should return region', () => {
-    expect(refinerService.getRegion('INR')).toEqual('India');
-    expect(refinerService.getRegion('USD')).toEqual('International Americas');
-    expect(refinerService.getRegion('EUR')).toEqual('Europe');
-    expect(refinerService.getRegion('AUD')).toEqual('International APAC');
-    expect(refinerService.getRegion('AED')).toEqual('International Africa');
-    expect(refinerService.getRegion('')).toEqual('Undefined');
+  describe('getRegion(): should return region', () => {
+    it('should return "India" for INR currency', () => {
+      expect(refinerService.getRegion('INR')).toEqual('India');
+    });
+
+    it('should return "International Americas" for USD', () => {
+      expect(refinerService.getRegion('USD')).toEqual('International Americas');
+    });
+
+    it('should return correct region for APAC currency', () => {
+      expect(refinerService.getRegion('AUD')).toEqual('International APAC');
+    });
+
+    it('should return correct region for Middle East Africa currency', () => {
+      expect(refinerService.getRegion('AED')).toEqual('International Africa');
+    });
+
+    it('should return correct region for Europe currency', () => {
+      expect(refinerService.getRegion('EUR')).toEqual('Europe');
+    });
+
+    it('should return "Undefined" for unsupported currency', () => {
+      expect(refinerService.getRegion('XYZ')).toEqual('Undefined');
+    });
+
+    it('should return "Undefined" for empty currency', () => {
+      expect(refinerService.getRegion('')).toEqual('Undefined');
+    });
   });
 
   describe('isNonDemoOrg():', () => {
@@ -69,6 +91,11 @@ xdescribe('RefinerService', () => {
       const orgName = 'Fyle for Acme Corp';
       expect(refinerService.isNonDemoOrg(orgName)).toBeFalse();
     });
+
+    it('should be case insensitive', () => {
+      const orgName = 'Fyle For Test Corp';
+      expect(refinerService.isNonDemoOrg(orgName)).toBeFalse();
+    });
   });
 
   describe('canStartSurvey():', () => {
@@ -78,10 +105,44 @@ xdescribe('RefinerService', () => {
       orgUserService.isSwitchedToDelegator.and.resolveTo(switchedToDelegator);
       const homeCurrency = 'INR';
       const eou = apiEouRes;
+
       refinerService.canStartSurvey(homeCurrency, eou).subscribe((res) => {
         expect(res).toBeTrue();
         expect(orgUserService.isSwitchedToDelegator).toHaveBeenCalledTimes(1);
         expect(refinerService.isNonDemoOrg).toHaveBeenCalledOnceWith('Staging Loaded');
+        done();
+      });
+    });
+
+    it('should return false for demo orgs', (done) => {
+      const switchedToDelegator = false;
+      const demoOrgRes: ExtendedOrgUser = {
+        ...apiEouRes,
+        ou: {
+          ...apiEouRes.ou,
+          org_name: 'Fyle for Acme Corp',
+        },
+      };
+      const homeCurrency = 'INR';
+      const eou = demoOrgRes;
+      spyOn(refinerService, 'isNonDemoOrg').and.returnValue(false);
+      orgUserService.isSwitchedToDelegator.and.resolveTo(switchedToDelegator);
+
+      refinerService.canStartSurvey(homeCurrency, eou).subscribe((res) => {
+        expect(res).toBeFalse();
+        done();
+      });
+    });
+
+    it('should return false when switched to delegator', (done) => {
+      const switchedToDelegator = true;
+      const homeCurrency = 'INR';
+      const eou = apiEouRes;
+      spyOn(refinerService, 'isNonDemoOrg').and.returnValue(true);
+      orgUserService.isSwitchedToDelegator.and.resolveTo(switchedToDelegator);
+
+      refinerService.canStartSurvey(homeCurrency, eou).subscribe((res) => {
+        expect(res).toBeFalse();
         done();
       });
     });

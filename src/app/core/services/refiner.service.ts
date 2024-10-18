@@ -6,7 +6,7 @@ import { NetworkService } from './network.service';
 import { concat, forkJoin, from, Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
-import { map, switchMap, take } from 'rxjs/operators';
+import { map, take } from 'rxjs/operators';
 import { OrgUserService } from './org-user.service';
 import { IdentifyUserPayload, RefinerProperties } from '../models/refiner_properties.model';
 import { CurrencyService } from './currency.service';
