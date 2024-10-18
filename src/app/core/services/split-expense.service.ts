@@ -8,11 +8,8 @@ import { TransactionStatus } from '../models/transaction-status.model';
 import { OrgCategory } from '../models/v1/org-category.model';
 import { Transaction } from '../models/v1/transaction.model';
 import { CategoriesService } from './categories.service';
-import { DataTransformService } from './data-transform.service';
-import { FileService } from './file.service';
 import { PolicyService } from './policy.service';
 import { StatusService } from './status.service';
-import { TransactionService } from './transaction.service';
 import { UtilityService } from './utility.service';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { ExpenseField } from '../models/v1/expense-field.model';
@@ -34,12 +31,9 @@ export class SplitExpenseService {
   prependPolicyViolationMessage = 'Policy violation explanation: ';
 
   constructor(
-    private transactionService: TransactionService,
-    private fileService: FileService,
     private policyService: PolicyService,
     private statusService: StatusService,
     private categoriesService: CategoriesService,
-    private dataTransformService: DataTransformService,
     private utilityService: UtilityService,
     private expensesService: ExpensesService
   ) {}
