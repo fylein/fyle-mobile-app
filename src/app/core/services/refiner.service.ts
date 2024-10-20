@@ -228,7 +228,7 @@ export class RefinerService {
   }
 
   isNonDemoOrg(orgName: string): boolean {
-    return orgName.toLowerCase().indexOf('fyle for') === -1;
+    return !orgName.toLowerCase().includes('fyle for');
   }
 
   canStartSurvey(homeCurrency: string, eou: ExtendedOrgUser): Observable<boolean> {

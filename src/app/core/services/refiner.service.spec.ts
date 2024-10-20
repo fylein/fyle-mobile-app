@@ -72,6 +72,10 @@ xdescribe('RefinerService', () => {
       expect(refinerService.getRegion('EUR')).toEqual('Europe');
     });
 
+    it('should return "International Africa" for another Middle East Africa currency', () => {
+      expect(refinerService.getRegion('ZAR')).toEqual('International Africa');
+    });
+
     it('should return "Undefined" for unsupported currency', () => {
       expect(refinerService.getRegion('XYZ')).toEqual('Undefined');
     });

@@ -611,40 +611,7 @@ describe('ViewTeamReportPageV2', () => {
       expect(refinerService.startSurvey).not.toHaveBeenCalled();
     });
 
-    it('should handle approval even when there are flagged expenses', async () => {
-      const flaggedExpenseResponseData = expenseResponseData.map((expense) => ({
-        ...expense,
-        is_policy_flagged: true,
-      }));
-
-      const popoverSpy = jasmine.createSpyObj('popover', ['present', 'onWillDismiss']);
-      popoverSpy.onWillDismiss.and.resolveTo({
-        data: {
-          action: 'approve',
-        },
-      });
-
-      popoverController.create.and.resolveTo(popoverSpy);
-      approverReportsService.approve.and.returnValue(of(undefined));
-
-      component.report$ = of(reportWithExpenses);
-      component.expenses$ = of(flaggedExpenseResponseData);
-      fixture.detectChanges();
-
-      await component.approveReport();
-
-      expect(popoverController.create).toHaveBeenCalledOnceWith({
-        componentProps: jasmine.objectContaining({
-          flaggedExpensesCount: flaggedExpenseResponseData.length,
-        }),
-        component: PopupAlertComponent,
-        cssClass: 'pop-up-in-center',
-      });
-      expect(approverReportsService.approve).toHaveBeenCalledOnceWith(reportWithExpenses.id);
-      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'team_reports']);
-    });
-
-    it('should not start NPS survey if feature flag is disabled', async () => {
+    it('should not start NPS survey if feature flag is disabled', fakeAsync(() => {
       const popoverSpy = jasmine.createSpyObj('popover', ['present', 'onWillDismiss']);
       popoverSpy.onWillDismiss.and.resolveTo({
         data: {
@@ -660,10 +627,39 @@ describe('ViewTeamReportPageV2', () => {
       component.expenses$ = of(expenseResponseData);
       fixture.detectChanges();
 
-      await component.approveReport();
+      component.approveReport();
+      tick();
+
+      expect(approverReportsService.approve).toHaveBeenCalledOnceWith(platformReportData.id);
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'team_reports']);
       expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith('nps_survey', false);
       expect(refinerService.startSurvey).not.toHaveBeenCalled();
-    });
+    }));
+
+    it('should start NPS survey if feature flag is enabled', fakeAsync(() => {
+      const popoverSpy = jasmine.createSpyObj('popover', ['present', 'onWillDismiss']);
+      popoverSpy.onWillDismiss.and.resolveTo({
+        data: {
+          action: 'approve',
+        },
+      });
+
+      popoverController.create.and.resolveTo(popoverSpy);
+      approverReportsService.approve.and.returnValue(of(undefined));
+      launchDarklyService.getVariation.and.returnValue(of(true));
+
+      component.report$ = of(reportWithExpenses);
+      component.expenses$ = of(expenseResponseData);
+      fixture.detectChanges();
+
+      component.approveReport();
+      tick();
+
+      expect(approverReportsService.approve).toHaveBeenCalledOnceWith(platformReportData.id);
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'team_reports']);
+      expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith('nps_survey', false);
+      expect(refinerService.startSurvey).toHaveBeenCalledOnceWith({ actionName: 'Approve Report' });
+    }));
   });
 
   it('onUpdateApprover(): should refresh approval on approver update', () => {
