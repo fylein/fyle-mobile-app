@@ -35,6 +35,7 @@ import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { ExtendedComment } from 'src/app/core/models/platform/v1/extended-comment.model';
 import { Comment } from 'src/app/core/models/platform/v1/comment.model';
 import { ApprovalState, ReportApprovals } from 'src/app/core/models/platform/report-approvals.model';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-view-team-report',
@@ -143,6 +144,7 @@ export class ViewTeamReportPage {
     private trackingService: TrackingService,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
+    private launchDarklyService: LaunchDarklyService,
     private refinerService: RefinerService,
     private statusService: StatusService,
     private humanizeCurrency: HumanizeCurrencyPipe,
@@ -377,8 +379,12 @@ export class ViewTeamReportPage {
 
       if (data && data.action === 'approve') {
         this.approverReportsService.approve(report.id).subscribe(() => {
-          this.refinerService.startSurvey({ actionName: 'Approve Report' });
           this.router.navigate(['/', 'enterprise', 'team_reports']);
+          this.launchDarklyService.getVariation('nps_survey', false).subscribe((showNpsSurvey) => {
+            if (showNpsSurvey) {
+              this.refinerService.startSurvey({ actionName: 'Approve Report' });
+            }
+          });
         });
       }
     }
@@ -436,7 +442,6 @@ export class ViewTeamReportPage {
             panelClass: ['msb-success-with-camera-icon'],
           });
           this.trackingService.showToastMessage({ ToastContent: message });
-          this.refinerService.startSurvey({ actionName: 'Send Back Report' });
         });
       this.router.navigate(['/', 'enterprise', 'team_reports']);
     }
