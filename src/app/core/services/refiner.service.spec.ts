@@ -222,6 +222,8 @@ describe('RefinerService', () => {
 
       refinerService.canStartSurvey('INR', eou).subscribe((res) => {
         expect(res).toBeFalse();
+        expect(orgUserService.isSwitchedToDelegator).toHaveBeenCalledTimes(1);
+        expect(refinerService.isNonDemoOrg).toHaveBeenCalledWith('Acme Corp');
         done();
       });
     });

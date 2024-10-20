@@ -79,8 +79,8 @@ describe('ViewTeamReportPageV2', () => {
   let humanizeCurrency: jasmine.SpyObj<HumanizeCurrencyPipe>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
-  let refinerService: jasmine.SpyObj<RefinerService>;
   let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
+  let refinerService: jasmine.SpyObj<RefinerService>;
 
   beforeEach(waitForAsync(() => {
     const approverExpensesServiceSpy = jasmine.createSpyObj('ApproverExpensesService', [
@@ -565,7 +565,7 @@ describe('ViewTeamReportPageV2', () => {
   });
 
   describe('approveReport(): ', () => {
-    it('should open the modal and approve the report', async () => {
+    it('should open the modal and approve the report', fakeAsync(() => {
       humanizeCurrency.transform.and.callThrough();
       const popoverSpy = jasmine.createSpyObj('popover', ['present', 'onWillDismiss']);
       popoverSpy.onWillDismiss.and.resolveTo({
@@ -582,7 +582,8 @@ describe('ViewTeamReportPageV2', () => {
       launchDarklyService.getVariation.and.returnValue(of(true));
       fixture.detectChanges();
 
-      await component.approveReport();
+      component.approveReport();
+      tick();
 
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         componentProps: {
@@ -610,25 +611,28 @@ describe('ViewTeamReportPageV2', () => {
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'team_reports']);
       expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith('nps_survey', false);
       expect(refinerService.startSurvey).toHaveBeenCalledOnceWith({ actionName: 'Approve Report' });
-    });
+    }));
 
-    it('should toggle tooltip if approval priviledge is not provided', async () => {
+    it('should toggle tooltip if approval privilege is not provided', fakeAsync(() => {
       spyOn(component, 'toggleTooltip');
       component.canApprove = false;
       fixture.detectChanges();
 
-      await component.approveReport();
-      expect(component.toggleTooltip).toHaveBeenCalledTimes(1);
-    });
+      component.approveReport();
+      tick();
 
-    it('should not approve report if user does not have approval privileges', async () => {
+      expect(component.toggleTooltip).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should not approve report if user does not have approval privileges', fakeAsync(() => {
       component.canApprove = false;
-      await component.approveReport();
+      component.approveReport();
+      tick();
 
       expect(router.navigate).not.toHaveBeenCalled();
-    });
+    }));
 
-    it('should not approve report if user cancels the popover', async () => {
+    it('should not approve report if user cancels the popover', fakeAsync(() => {
       const popoverSpy = jasmine.createSpyObj('popover', ['present', 'onWillDismiss']);
       popoverSpy.onWillDismiss.and.resolveTo({
         data: {
@@ -642,14 +646,15 @@ describe('ViewTeamReportPageV2', () => {
       component.expenses$ = of(expenseResponseData);
       fixture.detectChanges();
 
-      await component.approveReport();
+      component.approveReport();
+      tick();
 
       expect(popoverController.create).toHaveBeenCalledOnceWith(jasmine.any(Object));
       expect(approverReportsService.approve).not.toHaveBeenCalled();
       expect(router.navigate).not.toHaveBeenCalled();
       expect(launchDarklyService.getVariation).not.toHaveBeenCalled();
       expect(refinerService.startSurvey).not.toHaveBeenCalled();
-    });
+    }));
 
     it('should not start NPS survey if feature flag is disabled', fakeAsync(() => {
       const popoverSpy = jasmine.createSpyObj('popover', ['present', 'onWillDismiss']);
