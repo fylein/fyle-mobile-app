@@ -14,7 +14,6 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
-import { RefinerService } from 'src/app/core/services/refiner.service';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { getCurrencySymbol } from '@angular/common';
 import * as dayjs from 'dayjs';
@@ -35,6 +34,8 @@ import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { ExtendedComment } from 'src/app/core/models/platform/v1/extended-comment.model';
 import { Comment } from 'src/app/core/models/platform/v1/comment.model';
 import { ApprovalState, ReportApprovals } from 'src/app/core/models/platform/report-approvals.model';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { RefinerService } from 'src/app/core/services/refiner.service';
 
 @Component({
   selector: 'app-view-team-report',
@@ -142,8 +143,9 @@ export class ViewTeamReportPage {
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService,
     private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService,
+    private launchDarklyService: LaunchDarklyService,
     private refinerService: RefinerService,
+    private snackbarProperties: SnackbarPropertiesService,
     private statusService: StatusService,
     private humanizeCurrency: HumanizeCurrencyPipe,
     private orgSettingsService: OrgSettingsService,
@@ -377,8 +379,12 @@ export class ViewTeamReportPage {
 
       if (data && data.action === 'approve') {
         this.approverReportsService.approve(report.id).subscribe(() => {
-          this.refinerService.startSurvey({ actionName: 'Approve Report' });
           this.router.navigate(['/', 'enterprise', 'team_reports']);
+          this.launchDarklyService.getVariation('nps_survey', false).subscribe((showNpsSurvey) => {
+            if (showNpsSurvey) {
+              this.refinerService.startSurvey({ actionName: 'Approve Report' });
+            }
+          });
         });
       }
     }
@@ -436,7 +442,6 @@ export class ViewTeamReportPage {
             panelClass: ['msb-success-with-camera-icon'],
           });
           this.trackingService.showToastMessage({ ToastContent: message });
-          this.refinerService.startSurvey({ actionName: 'Send Back Report' });
         });
       this.router.navigate(['/', 'enterprise', 'team_reports']);
     }
