@@ -272,21 +272,25 @@ describe('ViewExpensePage', () => {
     expect(component).toBeTruthy();
   });
 
-  it('ionViewWillLeave(): should execute the on page exit next function', () => {
-    spyOn(component.onPageExit, 'next');
+  describe('ionViewWillLeave', () => {
+    it('should execute the on page exit next function', () => {
+      spyOn(component.onPageExit, 'next');
 
-    component.ionViewWillLeave();
-    expect(component.onPageExit.next).toHaveBeenCalledOnceWith(null);
+      component.ionViewWillLeave();
+      expect(component.onPageExit.next).toHaveBeenCalledOnceWith(null);
+    });
   });
 
-  it('setupNetworkWatcher(): should setup network watcher', () => {
-    networkService.connectivityWatcher.and.returnValue(new EventEmitter(true));
-    networkService.isOnline.and.returnValue(of(false));
+  describe('setupNetworkWatcher', () => {
+    it('should setup network watcher', () => {
+      networkService.connectivityWatcher.and.returnValue(new EventEmitter(true));
+      networkService.isOnline.and.returnValue(of(false));
 
-    component.setupNetworkWatcher();
-    expect(networkService.isOnline).toHaveBeenCalledTimes(1);
-    expect(networkService.connectivityWatcher).toHaveBeenCalledTimes(1);
-    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard']);
+      component.setupNetworkWatcher();
+      expect(networkService.isOnline).toHaveBeenCalledTimes(1);
+      expect(networkService.connectivityWatcher).toHaveBeenCalledTimes(1);
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard']);
+    });
   });
 
   describe('isNumber', () => {
@@ -988,10 +992,12 @@ describe('ViewExpensePage', () => {
     });
   });
 
-  it('getDeleteDialogProps(): should return the props', () => {
-    const props = component.getDeleteDialogProps();
-    props.componentProps.deleteMethod();
-    expect(approverReportsService.ejectExpenses).toHaveBeenCalledOnceWith(component.reportId, component.expenseId);
+  describe('getDeleteDialogProps', () => {
+    it('should return the props', () => {
+      const props = component.getDeleteDialogProps();
+      props.componentProps.deleteMethod();
+      expect(approverReportsService.ejectExpenses).toHaveBeenCalledOnceWith(component.reportId, component.expenseId);
+    });
   });
 
   describe('removeExpenseFromReport', () => {
@@ -1060,21 +1066,23 @@ describe('ViewExpensePage', () => {
     }));
   });
 
-  it('openTransactionStatusInfoModal(): should open the transaction status info modal', fakeAsync(() => {
-    const popoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present']);
-    popoverController.create.and.resolveTo(popoverSpy);
+  describe('openTransactionStatusInfoModal', () => {
+    it('should open the transaction status info modal', fakeAsync(() => {
+      const popoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present']);
+      popoverController.create.and.resolveTo(popoverSpy);
 
-    component.openTransactionStatusInfoModal(ExpenseTransactionStatus.PENDING);
+      component.openTransactionStatusInfoModal(ExpenseTransactionStatus.PENDING);
 
-    tick();
+      tick();
 
-    expect(popoverController.create).toHaveBeenCalledOnceWith({
-      component: TransactionStatusInfoPopoverComponent,
-      componentProps: {
-        transactionStatus: ExpenseTransactionStatus.PENDING,
-      },
-      cssClass: 'fy-dialog-popover',
-    });
-    expect(popoverSpy.present).toHaveBeenCalledTimes(1);
-  }));
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        component: TransactionStatusInfoPopoverComponent,
+        componentProps: {
+          transactionStatus: ExpenseTransactionStatus.PENDING,
+        },
+        cssClass: 'fy-dialog-popover',
+      });
+      expect(popoverSpy.present).toHaveBeenCalledTimes(1);
+    }));
+  });
 });

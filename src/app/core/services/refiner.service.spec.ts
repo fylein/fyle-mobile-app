@@ -41,17 +41,19 @@ xdescribe('RefinerService', () => {
     expect(refinerService).toBeTruthy();
   });
 
-  it('setupNetworkWatcher(): should setup a network watcher', () => {
-    const emitterSpy = jasmine.createSpyObj('EventEmitter', ['asObservable']);
-    emitterSpy.asObservable.and.returnValue(of(true));
-    refinerService.setupNetworkWatcher();
-    networkService.isOnline.and.returnValue(of(true));
+  describe('setupNetworkWatcher', () => {
+    it('should setup a network watcher', () => {
+      const emitterSpy = jasmine.createSpyObj('EventEmitter', ['asObservable']);
+      emitterSpy.asObservable.and.returnValue(of(true));
+      refinerService.setupNetworkWatcher();
+      networkService.isOnline.and.returnValue(of(true));
 
-    expect(networkService.connectivityWatcher).toHaveBeenCalledTimes(2);
-    expect(networkService.isOnline).toHaveBeenCalledTimes(2);
+      expect(networkService.connectivityWatcher).toHaveBeenCalledTimes(2);
+      expect(networkService.isOnline).toHaveBeenCalledTimes(2);
+    });
   });
 
-  describe('getRegion(): should return region', () => {
+  describe('getRegion', () => {
     it('should return "India" for INR currency', () => {
       expect(refinerService.getRegion('INR')).toEqual('India');
     });
