@@ -21,7 +21,7 @@ import {
 } from 'src/app/core/mock-data/platform/v1/attach-receipt-payload.data';
 import { splitPayloadData1 } from 'src/app/core/mock-data/split-payload.data';
 import { splitPolicyExp1 } from 'src/app/core/mock-data/split-expense-policy.data';
-import { SplitExpenseMissingFieldsData } from 'src/app/core/models/split-expense-missing-fields.data';
+import { SplitExpenseMissingFieldsData } from 'src/app/core/mock-data/split-expense-missing-fields.data';
 import { CorporateCreditCardExpenseService } from '../../../corporate-credit-card-expense.service';
 import {
   ccTransactionResponseData,

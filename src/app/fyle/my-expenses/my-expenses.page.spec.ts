@@ -18,22 +18,14 @@ import {
 } from 'src/app/core/mock-data/action-sheet-options.data';
 import { allowedExpenseTypes } from 'src/app/core/mock-data/allowed-expense-types.data';
 import { apiAuthRes } from 'src/app/core/mock-data/auth-reponse.data';
-import { cardAggregateStatParam } from 'src/app/core/mock-data/card-aggregate-stats.data';
 import { expectedAssignedCCCStats } from 'src/app/core/mock-data/ccc-expense.details.data';
 import {
-  expectedCriticalPolicyViolationPopoverParams,
-  expectedCriticalPolicyViolationPopoverParams2,
-  expectedCriticalPolicyViolationPopoverParams3,
-} from 'src/app/core/mock-data/critical-policy-violation-popover.data';
-import {
-  expenseFiltersData1,
   expenseFiltersData2,
   expenseWithPotentialDuplicateFilterData,
 } from 'src/app/core/mock-data/expense-filters.data';
 import {
   apiExpenseRes,
   expectedFormattedTransaction,
-  expenseData1,
   expenseData2,
   expenseList4,
   expenseListwithoutID,
@@ -77,13 +69,10 @@ import {
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import {
   apiExpenses1,
-  apiExpenses2,
   expenseData,
   mileageExpenseWithDistance,
   perDiemExpenseWithSingleNumDays,
 } from 'src/app/core/mock-data/platform/v1/expense.data';
-import { reportUnflattenedData } from 'src/app/core/mock-data/report-v1.data';
-import { expectedReportSingleResponse } from 'src/app/core/mock-data/report.data';
 import { selectedFilters1, selectedFilters2 } from 'src/app/core/mock-data/selected-filters.data';
 import {
   snackbarPropertiesRes,
@@ -92,13 +81,10 @@ import {
   snackbarPropertiesRes4,
 } from 'src/app/core/mock-data/snackbar-properties.data';
 import { txnList } from 'src/app/core/mock-data/transaction.data';
-import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
 import { unformattedTxnData } from 'src/app/core/mock-data/unformatted-transaction.data';
-import { expectedUniqueCardStats } from 'src/app/core/mock-data/unique-cards-stats.data';
 import { uniqueCardsData } from 'src/app/core/mock-data/unique-cards.data';
 import { AdvancesStates } from 'src/app/core/models/advances-states.model';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
-import { Expense } from 'src/app/core/models/expense.model';
 import { ExtendedReport } from 'src/app/core/models/report.model';
 import { ApiV2Service } from 'src/app/core/services/api-v2.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
