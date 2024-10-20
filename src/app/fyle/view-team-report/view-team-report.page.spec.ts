@@ -278,6 +278,22 @@ describe('ViewTeamReportPageV2', () => {
       expect(result).toBeFalse();
     });
 
+    it('should return true if approval settings are enabled', () => {
+      const result = component.getApprovalSettings({
+        ...orgSettingsData,
+        approval_settings: { enable_sequential_approvers: true },
+      });
+      expect(result).toBeTrue();
+    });
+
+    it('should return false if approval settings are disabled', () => {
+      const result = component.getApprovalSettings({
+        ...orgSettingsData,
+        approval_settings: { enable_sequential_approvers: false },
+      });
+      expect(result).toBeFalse();
+    });
+
     it('should return undefined if approval settings not present', () => {
       const result = component.getApprovalSettings({ ...orgSettingsData, approval_settings: undefined });
       expect(result).toBeUndefined();
@@ -505,6 +521,23 @@ describe('ViewTeamReportPageV2', () => {
       component.setupComments({ ...platformReportData, comments: null });
       expect(component.estatuses).toEqual([]);
     });
+
+    it('should handle comments when user is not present', () => {
+      component.eou$ = of(null); // Simulate no user
+      component.setupComments({
+        ...platformReportData,
+        comments: [
+          {
+            creator_user_id: 'other',
+            comment: '',
+            created_at: undefined,
+            creator_user: null,
+            id: '',
+          },
+        ],
+      });
+      expect(component.estatuses.length).toBe(1); // Check that it processes correctly
+    });
   });
 
   it('setupNetworkWatcher(): should setup network watcher', () => {
@@ -586,6 +619,13 @@ describe('ViewTeamReportPageV2', () => {
 
       await component.approveReport();
       expect(component.toggleTooltip).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not approve report if user does not have approval privileges', async () => {
+      component.canApprove = false;
+      await component.approveReport();
+
+      expect(router.navigate).not.toHaveBeenCalled();
     });
 
     it('should not approve report if user cancels the popover', async () => {

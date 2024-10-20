@@ -105,6 +105,13 @@ xdescribe('RefinerService', () => {
   });
 
   describe('canStartSurvey():', () => {
+    it('should return false if eou is undefined', (done) => {
+      refinerService.canStartSurvey('INR', undefined).subscribe((res) => {
+        expect(res).toBeFalse();
+        done();
+      });
+    });
+
     it('should return true for non-demo orgs and when not switched to delegator', (done) => {
       spyOn(refinerService, 'isNonDemoOrg').and.returnValue(true);
       const switchedToDelegator = false;
@@ -170,6 +177,27 @@ xdescribe('RefinerService', () => {
         expect(res).toBeFalse();
         expect(orgUserService.isSwitchedToDelegator).toHaveBeenCalledTimes(1);
         expect(refinerService.isNonDemoOrg).toHaveBeenCalledOnceWith('Fyle for Acme Corp');
+        done();
+      });
+    });
+
+    it('should return false for non-demo orgs but switched to delegator', (done) => {
+      const eou = { ou: { org_name: 'Acme Corp' } } as ExtendedOrgUser;
+      spyOn(refinerService, 'isNonDemoOrg').and.returnValue(true);
+      orgUserService.isSwitchedToDelegator.and.resolveTo(true);
+
+      refinerService.canStartSurvey('INR', eou).subscribe((res) => {
+        expect(res).toBeFalse();
+        done();
+      });
+    });
+
+    it('should return false for demo orgs regardless of switched to delegator', (done) => {
+      const eou = { ou: { org_name: 'Demo Org' } } as ExtendedOrgUser;
+      spyOn(refinerService, 'isNonDemoOrg').and.returnValue(false);
+
+      refinerService.canStartSurvey('INR', eou).subscribe((res) => {
+        expect(res).toBeFalse();
         done();
       });
     });
