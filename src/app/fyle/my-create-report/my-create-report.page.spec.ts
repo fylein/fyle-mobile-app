@@ -18,7 +18,6 @@ import {
 } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { RefinerService } from 'src/app/core/services/refiner.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
@@ -42,7 +41,6 @@ describe('MyCreateReportPage', () => {
   let router: jasmine.SpyObj<Router>;
   let trackingService: jasmine.SpyObj<TrackingService>;
   let storageService: jasmine.SpyObj<StorageService>;
-  let refinerService: jasmine.SpyObj<RefinerService>;
   let expensesService: jasmine.SpyObj<ExpensesService>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
@@ -55,7 +53,6 @@ describe('MyCreateReportPage', () => {
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['createFirstReport', 'createReport']);
     const storageServiceSpy = jasmine.createSpyObj('StorageService', ['get', 'set']);
-    const refinerServiceSpy = jasmine.createSpyObj('RefinerService', ['startSurvey']);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getAllExpenses']);
     const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', [
       'addExpenses',
@@ -110,10 +107,6 @@ describe('MyCreateReportPage', () => {
           useValue: storageServiceSpy,
         },
         {
-          provide: RefinerService,
-          useValue: refinerServiceSpy,
-        },
-        {
           provide: ExpensesService,
           useValue: expensesServiceSpy,
         },
@@ -134,7 +127,6 @@ describe('MyCreateReportPage', () => {
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
-    refinerService = TestBed.inject(RefinerService) as jasmine.SpyObj<RefinerService>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
 
@@ -277,7 +269,6 @@ describe('MyCreateReportPage', () => {
         Report_Value: component.selectedTotalAmount,
       });
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_reports']);
-      expect(refinerService.startSurvey).toHaveBeenCalledOnceWith({ actionName: 'Submit Newly Created Report' });
     });
 
     it('show report name error if there is no name', fakeAsync(() => {

@@ -11,25 +11,20 @@ import { cloneDeep } from 'lodash';
 import { Subscription, of } from 'rxjs';
 import { click, getElementBySelector } from 'src/app/core/dom-helpers';
 import { ReportPageSegment } from 'src/app/core/enums/report-page-segment.enum';
-import { approversData1 } from 'src/app/core/mock-data/approver.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { fyModalProperties, shareReportModalProperties } from 'src/app/core/mock-data/model-properties.data';
 import { apiReportPermissions } from 'src/app/core/mock-data/report-permissions.data';
-import { expectedAllReports } from 'src/app/core/mock-data/report.data';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { RefinerService } from 'src/app/core/services/refiner.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { StatusService } from 'src/app/core/services/status.service';
 import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
 import {
-  expectedNewStatusData,
   newEstatusData1,
-  systemComments1,
   systemCommentsWithSt,
   systemExtendedComments,
   userComments,
@@ -42,13 +37,11 @@ import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
 import { SnakeCaseToSpaceCase } from 'src/app/shared/pipes/snake-case-to-space-case.pipe';
 import { NetworkService } from '../../core/services/network.service';
 import { TrackingService } from '../../core/services/tracking.service';
-import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
 import {
   allReportsPaginated1,
   expectedReportsSinglePage,
   paidReportData,
   platformReportData,
-  reportExportResponse,
   sentBackReportData,
 } from 'src/app/core/mock-data/platform-report.data';
 import {
@@ -57,7 +50,6 @@ import {
   mileageExpense,
   perDiemExpense,
 } from 'src/app/core/mock-data/platform/v1/expense.data';
-import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
 import { MyViewReportPage } from './my-view-report.page';
@@ -85,7 +77,6 @@ describe('MyViewReportPage', () => {
   let matSnackBar: jasmine.SpyObj<MatSnackBar>;
   let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
   let statusService: jasmine.SpyObj<StatusService>;
-  let refinerService: jasmine.SpyObj<RefinerService>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
 
@@ -116,7 +107,6 @@ describe('MyViewReportPage', () => {
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     const statusServiceSpy = jasmine.createSpyObj('StatusService', ['find', 'createStatusMap', 'post']);
-    const refinerServiceSpy = jasmine.createSpyObj('RefinerService', ['startSurvey']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', [
       'addExpenses',
@@ -207,10 +197,6 @@ describe('MyViewReportPage', () => {
           useValue: statusServiceSpy,
         },
         {
-          provide: RefinerService,
-          useValue: refinerServiceSpy,
-        },
-        {
           provide: OrgSettingsService,
           useValue: orgSettingsServiceSpy,
         },
@@ -238,7 +224,6 @@ describe('MyViewReportPage', () => {
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
     statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
-    refinerService = TestBed.inject(RefinerService) as jasmine.SpyObj<RefinerService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
 
@@ -643,7 +628,6 @@ describe('MyViewReportPage', () => {
     click(resubmitButton);
 
     expect(spenderReportsService.resubmit).toHaveBeenCalledWith(component.reportId);
-    expect(refinerService.startSurvey).toHaveBeenCalledOnceWith({ actionName: 'Resubmit Report ' });
     expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_reports']);
     expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
       ...properties,
@@ -678,7 +662,6 @@ describe('MyViewReportPage', () => {
     click(submitButton);
 
     expect(spenderReportsService.submit).toHaveBeenCalledWith(component.reportId);
-    expect(refinerService.startSurvey).toHaveBeenCalledOnceWith({ actionName: 'Submit Report' });
     expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_reports']);
     expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
       ...properties,
