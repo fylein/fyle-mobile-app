@@ -3,7 +3,7 @@ import { EventEmitter, Injectable } from '@angular/core';
 import { AuthService } from './auth.service';
 import { Device } from '@capacitor/device';
 import { NetworkService } from './network.service';
-import { concat, forkJoin, from, Observable } from 'rxjs';
+import { concat, forkJoin, from, Observable, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
 import { map, take } from 'rxjs/operators';
@@ -232,7 +232,11 @@ export class RefinerService {
   }
 
   canStartSurvey(homeCurrency: string, eou: ExtendedOrgUser): Observable<boolean> {
-    const isNonDemoOrg = eou && eou.ou && eou.ou.org_name && this.isNonDemoOrg(eou.ou.org_name);
+    if (!eou?.ou?.org_name) {
+      return of(false);
+    }
+
+    const isNonDemoOrg = this.isNonDemoOrg(eou.ou.org_name);
     const isSwitchedToDelegator$ = from(this.orgUserService.isSwitchedToDelegator());
     return isSwitchedToDelegator$.pipe(map((isSwitchedToDelegator) => isNonDemoOrg && !isSwitchedToDelegator));
   }

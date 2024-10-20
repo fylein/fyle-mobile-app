@@ -8,7 +8,7 @@ import { of } from 'rxjs';
 import { apiEouRes } from '../mock-data/extended-org-user.data';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
 
-xdescribe('RefinerService', () => {
+describe('RefinerService', () => {
   let refinerService: RefinerService;
   let currencyService: jasmine.SpyObj<CurrencyService>;
   let authService: jasmine.SpyObj<AuthService>;
@@ -82,6 +82,14 @@ xdescribe('RefinerService', () => {
       expect(refinerService.getRegion('XYZ')).toEqual('Undefined');
     });
 
+    it('should return "Undefined" for null currency', () => {
+      expect(refinerService.getRegion(null)).toEqual('Undefined');
+    });
+
+    it('should return "Undefined" for undefined currency', () => {
+      expect(refinerService.getRegion(undefined)).toEqual('Undefined');
+    });
+
     it('should return "Undefined" for empty currency', () => {
       expect(refinerService.getRegion('')).toEqual('Undefined');
     });
@@ -106,7 +114,33 @@ xdescribe('RefinerService', () => {
 
   describe('canStartSurvey():', () => {
     it('should return false if eou is undefined', (done) => {
-      refinerService.canStartSurvey('INR', undefined).subscribe((res) => {
+      const demoOrgRes: ExtendedOrgUser = undefined;
+      const homeCurrency = 'INR';
+      const eou = demoOrgRes;
+
+      refinerService.canStartSurvey(homeCurrency, eou).subscribe((res) => {
+        expect(res).toBeFalse();
+        done();
+      });
+    });
+
+    it('should return false if ou is undefined', (done) => {
+      const demoOrgRes: ExtendedOrgUser = { ...apiEouRes, ou: undefined };
+      const homeCurrency = 'INR';
+      const eou = demoOrgRes;
+
+      refinerService.canStartSurvey(homeCurrency, eou).subscribe((res) => {
+        expect(res).toBeFalse();
+        done();
+      });
+    });
+
+    it('should return false if org_name is undefined', (done) => {
+      const demoOrgRes: ExtendedOrgUser = { ...apiEouRes, ou: { ...apiEouRes.ou, org_name: undefined } };
+      const homeCurrency = 'INR';
+      const eou = demoOrgRes;
+
+      refinerService.canStartSurvey(homeCurrency, eou).subscribe((res) => {
         expect(res).toBeFalse();
         done();
       });
@@ -185,16 +219,6 @@ xdescribe('RefinerService', () => {
       const eou = { ou: { org_name: 'Acme Corp' } } as ExtendedOrgUser;
       spyOn(refinerService, 'isNonDemoOrg').and.returnValue(true);
       orgUserService.isSwitchedToDelegator.and.resolveTo(true);
-
-      refinerService.canStartSurvey('INR', eou).subscribe((res) => {
-        expect(res).toBeFalse();
-        done();
-      });
-    });
-
-    it('should return false for demo orgs regardless of switched to delegator', (done) => {
-      const eou = { ou: { org_name: 'Demo Org' } } as ExtendedOrgUser;
-      spyOn(refinerService, 'isNonDemoOrg').and.returnValue(false);
 
       refinerService.canStartSurvey('INR', eou).subscribe((res) => {
         expect(res).toBeFalse();
