@@ -95,6 +95,7 @@ import { AddEditMileagePage } from './add-edit-mileage.page';
 import { commuteDetailsData } from 'src/app/core/mock-data/commute-details.data';
 import { CommuteDeduction } from 'src/app/core/enums/commute-deduction.enum';
 import { cloneDeep } from 'lodash';
+import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 
 export function TestCases4(getTestBed) {
   return describe('AddEditMileage-4', () => {
@@ -140,6 +141,7 @@ export function TestCases4(getTestBed) {
     let titleCasePipe: jasmine.SpyObj<TitleCasePipe>;
     let paymentModesService: jasmine.SpyObj<PaymentModesService>;
     let taxGroupService: jasmine.SpyObj<TaxGroupService>;
+    let costCentersService: jasmine.SpyObj<CostCentersService>;
     let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
     let storageService: jasmine.SpyObj<StorageService>;
     let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
@@ -198,6 +200,7 @@ export function TestCases4(getTestBed) {
       titleCasePipe = TestBed.inject(TitleCasePipe) as jasmine.SpyObj<TitleCasePipe>;
       paymentModesService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
       taxGroupService = TestBed.inject(TaxGroupService) as jasmine.SpyObj<TaxGroupService>;
+      costCentersService = TestBed.inject(CostCentersService) as jasmine.SpyObj<CostCentersService>;
       orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
@@ -611,16 +614,16 @@ export function TestCases4(getTestBed) {
 
     describe('getCostCenters():', () => {
       it('should get cost center if enabled', (done) => {
-        orgUserSettingsService.getAllowedCostCenters.and.returnValue(of(costCentersData));
-        component.getCostCenters(of(orgSettingsData), of(orgUserSettingsData)).subscribe((res) => {
+        costCentersService.getAllActive.and.returnValue(of(costCentersData));
+        component.getCostCenters(of(orgSettingsData)).subscribe((res) => {
           expect(res).toEqual(costCenterOptions2);
-          expect(orgUserSettingsService.getAllowedCostCenters).toHaveBeenCalledOnceWith(orgUserSettingsData);
+          expect(costCentersService.getAllActive).toHaveBeenCalledTimes(1);
           done();
         });
       });
 
       it('should return empty array if cost centers are disabled', (done) => {
-        component.getCostCenters(of(orgSettingsCCDisabled), of(orgUserSettingsData)).subscribe((res) => {
+        component.getCostCenters(of(orgSettingsCCDisabled)).subscribe((res) => {
           expect(res).toEqual([]);
           done();
         });

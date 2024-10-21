@@ -1,3 +1,4 @@
+import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 // TODO: Very hard to fix this file without making massive changes
 /* eslint-disable complexity */
 import { ChangeDetectorRef, Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } from '@angular/core';
@@ -324,6 +325,7 @@ export class AddEditMileagePage implements OnInit {
     private currencyService: CurrencyService,
     private mileageRateService: MileageRatesService,
     private orgUserSettingsService: OrgUserSettingsService,
+    private costCentersService: CostCentersService,
     private categoriesService: CategoriesService,
     private orgSettingsService: OrgSettingsService,
     private platformHandlerService: PlatformHandlerService,
@@ -1227,17 +1229,11 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
-  getCostCenters(
-    orgSettings$: Observable<OrgSettings>,
-    orgUserSettings$: Observable<OrgUserSettings>
-  ): Observable<CostCenterOptions[]> {
-    return forkJoin({
-      orgSettings: orgSettings$,
-      orgUserSettings: orgUserSettings$,
-    }).pipe(
-      switchMap(({ orgSettings, orgUserSettings }) => {
+  getCostCenters(orgSettings$: Observable<OrgSettings>): Observable<CostCenterOptions[]> {
+    return orgSettings$.pipe(
+      switchMap((orgSettings) => {
         if (orgSettings.cost_centers.enabled) {
-          return this.orgUserSettingsService.getAllowedCostCenters(orgUserSettings);
+          return this.costCentersService.getAllActive();
         } else {
           return of([]);
         }
@@ -1673,7 +1669,7 @@ export class AddEditMileagePage implements OnInit {
 
     this.paymentModes$ = this.getPaymentModes();
 
-    this.costCenters$ = this.getCostCenters(orgSettings$, orgUserSettings$);
+    this.costCenters$ = this.getCostCenters(orgSettings$);
 
     this.recentlyUsedCostCenters$ = forkJoin({
       costCenters: this.costCenters$,

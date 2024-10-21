@@ -111,6 +111,7 @@ import { PerDiemRedirectedFrom } from 'src/app/core/models/per-diem-redirected-f
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { AdvanceWallet } from 'src/app/core/models/platform/v1/advance-wallet.model';
 import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
+import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -287,6 +288,7 @@ export class AddEditPerDiemPage implements OnInit {
     private paymentModesService: PaymentModesService,
     private perDiemService: PerDiemService,
     private categoriesService: CategoriesService,
+    private costCentersService: CostCentersService,
     private orgUserSettingsService: OrgUserSettingsService,
     private orgSettingsService: OrgSettingsService,
     private platform: Platform,
@@ -1139,13 +1141,10 @@ export class AddEditPerDiemPage implements OnInit {
 
     this.paymentModes$ = this.getPaymentModes();
 
-    this.costCenters$ = forkJoin({
-      orgSettings: orgSettings$,
-      orgUserSettings: orgUserSettings$,
-    }).pipe(
-      switchMap(({ orgSettings, orgUserSettings }) => {
+    this.costCenters$ = orgSettings$.pipe(
+      switchMap((orgSettings) => {
         if (orgSettings.cost_centers.enabled) {
-          return this.orgUserSettingsService.getAllowedCostCenters(orgUserSettings);
+          return this.costCentersService.getAllActive();
         } else {
           return of([]);
         }

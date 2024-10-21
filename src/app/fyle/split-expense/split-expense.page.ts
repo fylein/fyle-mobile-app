@@ -1,3 +1,4 @@
+import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 import { Component } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -133,6 +134,7 @@ export class SplitExpensePage {
     private policyService: PolicyService,
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
+    private costCentersService: CostCentersService,
     private orgUserSettingsService: OrgUserSettingsService,
     private orgSettingsService: OrgSettingsService,
     private dependentFieldsService: DependentFieldsService,
@@ -927,14 +929,10 @@ export class SplitExpensePage {
     );
 
     if (this.splitType === 'cost centers') {
-      const orgUserSettings$ = this.orgUserSettingsService.get();
-      this.costCenters$ = forkJoin({
-        orgSettings: orgSettings$,
-        orgUserSettings: orgUserSettings$,
-      }).pipe(
-        switchMap(({ orgSettings, orgUserSettings }) => {
+      this.costCenters$ = orgSettings$.pipe(
+        switchMap((orgSettings) => {
           if (orgSettings.cost_centers.enabled) {
-            return this.orgUserSettingsService.getAllowedCostCenters(orgUserSettings);
+            return this.costCentersService.getAllActive();
           } else {
             return of([]);
           }
