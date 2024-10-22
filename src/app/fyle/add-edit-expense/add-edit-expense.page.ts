@@ -2247,6 +2247,7 @@ export class AddEditExpensePage implements OnInit {
     this.initialFetch = true;
 
     const customExpenseFields$ = this.customInputsService.getAll(true).pipe(shareReplay(1));
+
     const categoryControl = this.getFormControl('category');
 
     const customInputsFeilds$: Observable<TxnCustomProperties[]> = categoryControl.valueChanges.pipe(
