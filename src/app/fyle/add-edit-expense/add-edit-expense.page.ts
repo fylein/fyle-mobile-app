@@ -485,7 +485,7 @@ export class AddEditExpensePage implements OnInit {
     private titleCasePipe: TitleCasePipe,
     private paymentModesService: PaymentModesService,
     private taxGroupService: TaxGroupService,
-    private costCenterService: CostCentersService,
+    private costCentersService: CostCentersService,
     private orgUserSettingsService: OrgUserSettingsService,
     private storageService: StorageService,
     private launchDarklyService: LaunchDarklyService,
@@ -1145,7 +1145,7 @@ export class AddEditExpensePage implements OnInit {
     this.costCenters$ = orgSettings$.pipe(
       switchMap((orgSettings) => {
         if (orgSettings.cost_centers.enabled) {
-          return this.costCenterService.getAllActive();
+          return this.costCentersService.getAllActive();
         } else {
           return of([]);
         }
