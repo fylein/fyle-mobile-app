@@ -294,6 +294,7 @@ describe('SplitExpensePage', () => {
     policyService = TestBed.inject(PolicyService) as jasmine.SpyObj<PolicyService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
+    costCentersService = TestBed.inject(CostCentersService) as jasmine.SpyObj<CostCentersService>;
     orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     dependentFieldsService = TestBed.inject(DependentFieldsService) as jasmine.SpyObj<DependentFieldsService>;
