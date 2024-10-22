@@ -750,10 +750,7 @@ export class AddEditExpensePage implements OnInit {
     forkJoin({
       generatedEtxn: this.generateEtxnFromFg(this.etxn$, customFields$),
       txnFields: this.txnFields$.pipe(take(1)),
-      expenseFields: this.customInputsService.getAll(true).pipe(
-        map((fields) => fields.filter((field) => field.is_enabled)),
-        shareReplay(1)
-      ),
+      expenseFields: this.customInputsService.getAll(true).pipe(shareReplay(1)),
     }).subscribe(
       (res: { generatedEtxn: UnflattenedTransaction; txnFields: ExpenseFieldsObj; expenseFields: ExpenseField[] }) => {
         if (res.generatedEtxn.tx.report_id && !formValue.report?.id) {
@@ -1745,10 +1742,7 @@ export class AddEditExpensePage implements OnInit {
 
     const selectedCostCenter$ = this.getSelectedCostCenters();
 
-    const customExpenseFields$ = this.customInputsService.getAll(true).pipe(
-      map((fields) => fields.filter((field) => field.is_enabled)),
-      shareReplay(1)
-    );
+    const customExpenseFields$ = this.customInputsService.getAll(true).pipe(shareReplay(1));
 
     const txnReceiptsCount$ = this.getReceiptCount();
 
@@ -2252,11 +2246,7 @@ export class AddEditExpensePage implements OnInit {
   setupCustomFields(): void {
     this.initialFetch = true;
 
-    const customExpenseFields$ = this.customInputsService.getAll(true).pipe(
-      // Filter the results based on the is_enabled property
-      map((fields) => fields.filter((field) => field.is_enabled)),
-      shareReplay(1)
-    );
+    const customExpenseFields$ = this.customInputsService.getAll(true).pipe(shareReplay(1));
     const categoryControl = this.getFormControl('category');
 
     const customInputsFeilds$: Observable<TxnCustomProperties[]> = categoryControl.valueChanges.pipe(
