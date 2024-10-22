@@ -43,7 +43,6 @@ import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expe
 import { GetExpenseQueryParam } from 'src/app/core/models/platform/v1/get-expenses-query.model';
 import { UniqueCards } from 'src/app/core/models/unique-cards.model';
 import { Transaction } from 'src/app/core/models/v1/transaction.model';
-import { ApiV2Service } from 'src/app/core/services/api-v2.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -219,7 +218,6 @@ export class MyExpensesPage implements OnInit {
     private trackingService: TrackingService,
     private storageService: StorageService,
     private tokenService: TokenService,
-    private apiV2Service: ApiV2Service,
     private modalProperties: ModalPropertiesService,
     private matBottomSheet: MatBottomSheet,
     private matSnackBar: MatSnackBar,
@@ -452,97 +450,6 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  private isZeroAmountPerDiemOrMileage(expense: PlatformExpense): boolean {
-    return (
-      (expense?.category?.name?.toLowerCase() === 'per diem' || expense?.category?.name?.toLowerCase() === 'mileage') &&
-      (expense.amount === 0 || expense.claim_amount === 0)
-    );
-  }
-
-  /**
-   * Checks if the scan process for an expense has been completed.
-   * @param {PlatformExpense} expense - The expense to check.
-   * @returns {boolean} - True if the scan is complete or if data is manually entered.
-   */
-  private isExpenseScanComplete(expense: PlatformExpense): boolean {
-    const isZeroAmountPerDiemOrMileage = this.isZeroAmountPerDiemOrMileage(expense);
-
-    const hasUserManuallyEnteredData =
-      isZeroAmountPerDiemOrMileage ||
-      ((expense.amount || expense.claim_amount) && isNumber(expense.amount || expense.claim_amount));
-    const isDataExtracted = !!expense.extracted_data;
-
-    // this is to prevent the scan failed from being shown from an indefinite amount of time.
-    const hasScanExpired = expense.created_at && dayjs(expense.created_at).diff(Date.now(), 'day') < 0;
-    return !!(hasUserManuallyEnteredData || isDataExtracted || hasScanExpired);
-  }
-
-  /**
-   * Filters the list of expenses to get only those with incomplete scans.
-   * @param {PlatformExpense[]} expenses - The list of expenses to check.
-   * @returns {string[]} - Array of expense IDs that have incomplete scans.
-   */
-  private filterIncompleteExpenses(expenses: PlatformExpense[]): string[] {
-    return expenses.filter((expense) => !this.isExpenseScanComplete(expense)).map((expense) => expense.id);
-  }
-
-  /**
-   * Updates the expenses with polling results.
-   * @param {PlatformExpense[]} initialExpenses - The initial list of expenses.
-   * @param {PlatformExpense[]} updatedExpenses - The updated expenses after polling.
-   * @param {string[]} incompleteExpenseIds - Array of expense IDs with incomplete scans.
-   * @returns {PlatformExpense[]} - Updated list of expenses.
-   */
-  private updateExpensesList(
-    initialExpenses: PlatformExpense[],
-    updatedExpenses: PlatformExpense[],
-    incompleteExpenseIds: string[]
-  ): PlatformExpense[] {
-    const updatedExpensesMap = new Map(updatedExpenses.map((expense) => [expense.id, expense]));
-
-    const newExpensesList = initialExpenses.map((expense) => {
-      if (incompleteExpenseIds.includes(expense.id)) {
-        const updatedExpense = updatedExpensesMap.get(expense.id);
-        if (this.isExpenseScanComplete(updatedExpense)) {
-          return updatedExpense;
-        }
-      }
-      return expense;
-    });
-
-    return newExpensesList;
-  }
-
-  /**
-   * Polls for expenses that have incomplete scan data.
-   * @param {string[]} incompleteExpenseIds - Array of expense IDs with incomplete scans.
-   * @param {PlatformExpense[]} initialExpenses - The initial list of expenses.
-   * @returns {Observable<PlatformExpense[]>} - Observable that emits updated expenses.
-   */
-  private pollIncompleteExpenses(
-    incompleteExpenseIds: string[],
-    expenses: PlatformExpense[]
-  ): Observable<PlatformExpense[]> {
-    let updatedExpensesList = expenses;
-    // Create a stop signal that emits after 30 seconds
-    const stopPolling$ = timer(30000);
-    return timer(5000, 5000).pipe(
-      exhaustMap(() => {
-        const params: ExpensesQueryParams = { queryParams: { id: `in.(${incompleteExpenseIds.join(',')})` } };
-        return this.expenseService.getExpenses({ ...params.queryParams }).pipe(
-          map((updatedExpenses) => {
-            updatedExpensesList = this.updateExpensesList(updatedExpensesList, updatedExpenses, incompleteExpenseIds);
-            incompleteExpenseIds = this.filterIncompleteExpenses(updatedExpenses);
-            return updatedExpensesList;
-          })
-        );
-      }),
-      takeWhile(() => incompleteExpenseIds.length > 0, true),
-      takeUntil(stopPolling$),
-      takeUntil(this.onPageExit$)
-    );
-  }
-
   ionViewWillEnter(): void {
     this.isNewReportsFlowEnabled = false;
     this.hardwareBackButton = this.platformHandlerService.registerBackButtonAction(
@@ -715,12 +622,15 @@ export class MyExpensesPage implements OnInit {
      */
     this.myExpenses$ = paginatedPipe.pipe(
       switchMap((expenses) => {
-        const incompleteExpenseIds = this.filterIncompleteExpenses(expenses);
+        const dEincompleteExpenseIds = this.filterDEIncompleteExpenses(expenses);
 
-        if (incompleteExpenseIds.length === 0) {
+        if (dEincompleteExpenseIds.length === 0) {
           return of(expenses); // All scans are completed
         } else {
-          return this.pollIncompleteExpenses(incompleteExpenseIds, expenses).pipe(startWith(expenses), timeout(30000));
+          return this.pollDEIncompleteExpenses(dEincompleteExpenseIds, expenses).pipe(
+            startWith(expenses),
+            timeout(30000)
+          );
         }
       }),
       shareReplay(1)
@@ -1869,6 +1779,97 @@ export class MyExpensesPage implements OnInit {
           this.isDisabled = this.selectedOutboxExpenses.length === 0 || !this.outboxExpensesToBeDeleted;
         }
       })
+    );
+  }
+
+  private isZeroAmountPerDiemOrMileage(expense: PlatformExpense): boolean {
+    return (
+      (expense.category.name?.toLowerCase() === 'per diem' || expense.category.name?.toLowerCase() === 'mileage') &&
+      (expense.amount === 0 || expense.claim_amount === 0)
+    );
+  }
+
+  /**
+   * Checks if the scan process for an expense has been completed.
+   * @param {PlatformExpense} expense - The expense to check.
+   * @returns {boolean} - True if the scan is complete or if data is manually entered.
+   */
+  private isExpenseScanComplete(expense: PlatformExpense): boolean {
+    const isZeroAmountPerDiemOrMileage = this.isZeroAmountPerDiemOrMileage(expense);
+
+    const hasUserManuallyEnteredData =
+      isZeroAmountPerDiemOrMileage ||
+      ((expense.amount || expense.claim_amount) && isNumber(expense.amount || expense.claim_amount));
+    const isDataExtracted = !!expense.extracted_data;
+
+    // this is to prevent the scan failed from being shown from an indefinite amount of time.
+    const hasScanExpired = expense.created_at && dayjs(expense.created_at).diff(Date.now(), 'day') < 0;
+    return !!(hasUserManuallyEnteredData || isDataExtracted || hasScanExpired);
+  }
+
+  /**
+   * Filters the list of expenses to get only those with incomplete scans.
+   * @param {PlatformExpense[]} expenses - The list of expenses to check.
+   * @returns {string[]} - Array of expense IDs that have incomplete scans.
+   */
+  private filterDEIncompleteExpenses(expenses: PlatformExpense[]): string[] {
+    return expenses.filter((expense) => !this.isExpenseScanComplete(expense)).map((expense) => expense.id);
+  }
+
+  /**
+   * Updates the expenses with polling results.
+   * @param {PlatformExpense[]} initialExpenses - The initial list of expenses.
+   * @param {PlatformExpense[]} updatedExpenses - The updated expenses after polling.
+   * @param {string[]} dEincompleteExpenseIds - Array of expense IDs with incomplete scans.
+   * @returns {PlatformExpense[]} - Updated list of expenses.
+   */
+  private updateExpensesList(
+    initialExpenses: PlatformExpense[],
+    updatedExpenses: PlatformExpense[],
+    dEincompleteExpenseIds: string[]
+  ): PlatformExpense[] {
+    const updatedExpensesMap = new Map(updatedExpenses.map((expense) => [expense.id, expense]));
+
+    const newExpensesList = initialExpenses.map((expense) => {
+      if (dEincompleteExpenseIds.includes(expense.id)) {
+        const updatedExpense = updatedExpensesMap.get(expense.id);
+        if (this.isExpenseScanComplete(updatedExpense)) {
+          return updatedExpense;
+        }
+      }
+      return expense;
+    });
+
+    return newExpensesList;
+  }
+
+  /**
+   * Polls for expenses that have incomplete scan data.
+   * @param dEincompleteExpenseIds - Array of expense IDs with incomplete scans.
+   * @param initialExpenses - The initial list of expenses.
+   * @returns - Observable that emits updated expenses.
+   */
+  private pollDEIncompleteExpenses(
+    dEincompleteExpenseIds: string[],
+    expenses: PlatformExpense[]
+  ): Observable<PlatformExpense[]> {
+    let updatedExpensesList = expenses;
+    // Create a stop signal that emits after 30 seconds
+    const stopPolling$ = timer(30000);
+    return timer(5000, 5000).pipe(
+      exhaustMap(() => {
+        const params: ExpensesQueryParams = { queryParams: { id: `in.(${dEincompleteExpenseIds.join(',')})` } };
+        return this.expenseService.getExpenses({ ...params.queryParams }).pipe(
+          map((updatedExpenses) => {
+            updatedExpensesList = this.updateExpensesList(updatedExpensesList, updatedExpenses, dEincompleteExpenseIds);
+            dEincompleteExpenseIds = this.filterDEIncompleteExpenses(updatedExpenses);
+            return updatedExpensesList;
+          })
+        );
+      }),
+      takeWhile(() => dEincompleteExpenseIds.length > 0, true),
+      takeUntil(stopPolling$),
+      takeUntil(this.onPageExit$)
     );
   }
 }
