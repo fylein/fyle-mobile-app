@@ -35,7 +35,6 @@ export class CustomInputsService {
         this.spenderPlatformV1ApiService.get<PlatformApiResponse<PlatformExpenseField[]>>('/expense_fields', {
           params: {
             org_id: `eq.${eou.ou.org_id}`,
-            is_enabled: `eq.${active}`,
             is_custom: 'eq.true',
           },
         })
@@ -72,21 +71,28 @@ export class CustomInputsService {
       map((allCustomInputs) => {
         const customInputs = this.filterByCategory(allCustomInputs, orgCategoryId);
 
-        // this should be by rank eventually
+        // Sort by rank eventually
         customInputs.sort(this.sortByRank);
 
         const filledCustomProperties: CustomField[] = [];
-        // eslint-disable-next-line @typescript-eslint/prefer-for-of
+
+        // Iterate through all custom inputs
         for (let i = 0; i < customInputs.length; i++) {
           const customInput = customInputs[i];
+
+          // Add 'disabled' text to field name if the field is not enabled
+          const fieldName =
+            customInput.is_enabled === false ? `${customInput.field_name} (disabled)` : customInput.field_name;
+
           const property = {
-            name: customInput.field_name,
+            name: fieldName,
             value: null,
             type: customInput.type,
             mandatory: customInput.is_mandatory,
             options: customInput.options,
           };
-          // defaults for types
+
+          // Default values for certain types
           if (customInput.type === 'BOOLEAN') {
             property.value = false;
           }
@@ -98,8 +104,7 @@ export class CustomInputsService {
           }
 
           if (customProperties) {
-            // see if value is available
-            // eslint-disable-next-line @typescript-eslint/prefer-for-of
+            // Check if a value is available in customProperties
             for (let j = 0; j < customProperties.length; j++) {
               if (customProperties[j].name === customInput.field_name) {
                 this.setCustomPropertyValue(property, customProperties, j);
@@ -107,10 +112,17 @@ export class CustomInputsService {
               }
             }
           }
-          filledCustomProperties.push({
-            ...property,
-            displayValue: this.getCustomPropertyDisplayValue(property),
-          });
+
+          // Get the display value
+          const displayValue = this.getCustomPropertyDisplayValue(property);
+
+          // Only add the property if the display value is not a hyphen
+          if (displayValue !== '-') {
+            filledCustomProperties.push({
+              ...property,
+              displayValue: displayValue,
+            });
+          }
         }
 
         return filledCustomProperties;
