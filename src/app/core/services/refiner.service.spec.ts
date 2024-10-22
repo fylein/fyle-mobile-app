@@ -54,44 +54,23 @@ describe('RefinerService', () => {
   });
 
   describe('getRegion', () => {
-    it('should return "India" for INR currency', () => {
-      expect(refinerService.getRegion('INR')).toEqual('India');
-    });
+    const testCases = [
+      { currency: 'INR', expected: 'India' },
+      { currency: 'USD', expected: 'International Americas' },
+      { currency: 'AUD', expected: 'International APAC' },
+      { currency: 'AED', expected: 'International Africa' },
+      { currency: 'EUR', expected: 'Europe' },
+      { currency: 'ZAR', expected: 'International Africa' },
+      { currency: 'XYZ', expected: 'Undefined' },
+      { currency: null, expected: 'Undefined' },
+      { currency: undefined, expected: 'Undefined' },
+      { currency: '', expected: 'Undefined' },
+    ];
 
-    it('should return "International Americas" for USD', () => {
-      expect(refinerService.getRegion('USD')).toEqual('International Americas');
-    });
-
-    it('should return correct region for APAC currency', () => {
-      expect(refinerService.getRegion('AUD')).toEqual('International APAC');
-    });
-
-    it('should return correct region for Middle East Africa currency', () => {
-      expect(refinerService.getRegion('AED')).toEqual('International Africa');
-    });
-
-    it('should return correct region for Europe currency', () => {
-      expect(refinerService.getRegion('EUR')).toEqual('Europe');
-    });
-
-    it('should return "International Africa" for another Middle East Africa currency', () => {
-      expect(refinerService.getRegion('ZAR')).toEqual('International Africa');
-    });
-
-    it('should return "Undefined" for unsupported currency', () => {
-      expect(refinerService.getRegion('XYZ')).toEqual('Undefined');
-    });
-
-    it('should return "Undefined" for null currency', () => {
-      expect(refinerService.getRegion(null)).toEqual('Undefined');
-    });
-
-    it('should return "Undefined" for undefined currency', () => {
-      expect(refinerService.getRegion(undefined)).toEqual('Undefined');
-    });
-
-    it('should return "Undefined" for empty currency', () => {
-      expect(refinerService.getRegion('')).toEqual('Undefined');
+    testCases.forEach(({ currency, expected }) => {
+      it(`should return "${expected}" for currency "${currency}"`, () => {
+        expect(refinerService.getRegion(currency)).toEqual(expected);
+      });
     });
   });
 

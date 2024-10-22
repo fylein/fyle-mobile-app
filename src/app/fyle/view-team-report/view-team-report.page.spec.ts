@@ -523,7 +523,7 @@ describe('ViewTeamReportPageV2', () => {
     });
 
     it('should handle comments when user is not present', () => {
-      component.eou$ = of(null); // Simulate no user
+      component.eou$ = of(null);
       component.setupComments({
         ...platformReportData,
         comments: [
@@ -536,7 +536,7 @@ describe('ViewTeamReportPageV2', () => {
           },
         ],
       });
-      expect(component.estatuses.length).toBe(1); // Check that it processes correctly
+      expect(component.estatuses.length).toBe(1);
     });
   });
 
