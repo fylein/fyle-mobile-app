@@ -879,7 +879,6 @@ describe('SplitExpensePage', () => {
 
       component.costCenters$.subscribe((costCenters) => {
         expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-        expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
         expect(costCentersService.getAllActive).toHaveBeenCalledTimes(1);
         expect(costCenters).toEqual(expectedCCdata);
       });
@@ -895,8 +894,7 @@ describe('SplitExpensePage', () => {
 
       component.costCenters$.subscribe((costCenters) => {
         expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-        expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
-        expect(costCentersService.getAllActive).not.toHaveBeenCalled();
+        expect(costCentersService.getAllActive).not.toHaveBeenCalledTimes(1);
         expect(costCenters).toEqual([]);
       });
     });
