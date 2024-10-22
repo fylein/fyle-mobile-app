@@ -67,23 +67,23 @@ export class CustomInputsService {
     active: boolean
   ): Observable<CustomField[]> {
     return this.getAll(active).pipe(
+      // Filter out dependent selects
       map((allCustomInputs) => allCustomInputs.filter((customInput) => customInput.type !== 'DEPENDENT_SELECT')),
       map((allCustomInputs) => {
         const customInputs = this.filterByCategory(allCustomInputs, orgCategoryId);
 
-        // Sort by rank eventually
+        // Sort custom inputs by rank
         customInputs.sort(this.sortByRank);
 
         const filledCustomProperties: CustomField[] = [];
 
-        // Iterate through all custom inputs
-        for (let i = 0; i < customInputs.length; i++) {
-          const customInput = customInputs[i];
-
-          // Add 'disabled' text to field name if the field is not enabled
+        // Iterate through custom inputs and process each one
+        customInputs.forEach((customInput) => {
+          // Set the field name, appending "(Deleted)" if the field is disabled
           const fieldName =
-            customInput.is_enabled === false ? `${customInput.field_name} (disabled)` : customInput.field_name;
+            customInput.is_enabled === false ? `${customInput.field_name} (Deleted)` : customInput.field_name;
 
+          // Initialize the property object
           const property = {
             name: fieldName,
             value: null,
@@ -92,39 +92,38 @@ export class CustomInputsService {
             options: customInput.options,
           };
 
-          // Default values for certain types
+          // Set default values based on the custom input type
           if (customInput.type === 'BOOLEAN') {
             property.value = false;
           }
-
-          this.setSelectMultiselectValue(customInput, property);
-
           if (customInput.type === 'USER_LIST') {
             property.value = [];
           }
 
+          // Handle select/multiselect values
+          this.setSelectMultiselectValue(customInput, property);
+
+          // Check if a value exists in `customProperties` and assign it
           if (customProperties) {
-            // Check if a value is available in customProperties
-            for (let j = 0; j < customProperties.length; j++) {
-              if (customProperties[j].name === customInput.field_name) {
-                this.setCustomPropertyValue(property, customProperties, j);
-                break;
-              }
+            const matchingCustomProperty = customProperties.find((cp) => cp.name === customInput.field_name);
+            if (matchingCustomProperty) {
+              this.setCustomPropertyValue(property, customProperties, customProperties.indexOf(matchingCustomProperty));
             }
           }
 
-          // Get the display value
-          const displayValue = this.getCustomPropertyDisplayValue(property);
-
-          // Only add the property if the display value is not a hyphen
-          if (displayValue !== '-') {
+          // Add the property to `filledCustomProperties` based on new logic
+          if (
+            property.type === 'BOOLEAN' || // Always include BOOLEAN fields
+            (property.type === 'USER_LIST' && Array.isArray(property.value) && property.value.length > 0) || // Include USER_LIST if it has values
+            (customInput.is_enabled && property.value !== null && property.value !== undefined) || // Include active fields with values
+            (customInput.is_enabled && this.getCustomPropertyDisplayValue(property) === '-') // Include active fields with a hyphen value
+          ) {
             filledCustomProperties.push({
               ...property,
-              displayValue: displayValue,
+              displayValue: this.getCustomPropertyDisplayValue(property),
             });
           }
-        }
-
+        });
         return filledCustomProperties;
       })
     );
