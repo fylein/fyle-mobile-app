@@ -346,6 +346,17 @@ fdescribe('ManageCorporateCardsPage', () => {
         done();
       });
     });
+
+    it('should return true when multiple flags are true', (done) => {
+      component.isVisaRTFEnabled$ = of(true);
+      component.isMastercardRTFEnabled$ = of(true);
+      component.isYodleeEnabled$ = of(false);
+
+      component.checkAddCorporateCardVisibility().subscribe((result) => {
+        expect(result).toBeTrue();
+        done();
+      });
+    });
   });
 
   describe('add card flow', () => {
