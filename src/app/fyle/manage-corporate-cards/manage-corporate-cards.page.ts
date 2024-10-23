@@ -371,7 +371,7 @@ export class ManageCorporateCardsPage {
       this.showSegment = false;
       return;
     }
-    
+
     const virtualCards = corporateCards.filter((corporateCard) => corporateCard.virtual_card_id);
     this.showSegment = virtualCards.length > 0;
   }
