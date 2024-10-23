@@ -346,6 +346,7 @@ export class ManageCorporateCardsPage {
   }
 
   private checkCardsAvailabilityAndSetupSegment(corporateCards: PlatformCorporateCard[]): void {
+    // segment will only be made visible if there are virtual cards present
     this.showSegment = corporateCards.filter((corporateCard) => corporateCard.virtual_card_id).length > 0;
   }
 
