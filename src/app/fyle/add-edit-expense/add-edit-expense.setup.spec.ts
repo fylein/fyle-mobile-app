@@ -64,6 +64,7 @@ import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { SpenderService } from 'src/app/core/services/platform/v1/spender/spender.service';
 import { HttpClientModule } from '@angular/common/http';
+import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 
 export function setFormValid(component) {
   Object.defineProperty(component.fg, 'valid', {
@@ -209,11 +210,8 @@ describe('AddEditExpensePage', () => {
       'checkIfPaymentModeConfigurationsIsEnabled',
     ]);
     const taxGroupServiceSpy = jasmine.createSpyObj('TaxGroupService', ['get']);
-    const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', [
-      'getAllowedCostCenters',
-      'getAllowedPaymentModes',
-      'get',
-    ]);
+    const costCentersServiceSpy = jasmine.createSpyObj('CostCentersService', ['getAllActive']);
+    const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['getAllowedPaymentModes', 'get']);
     const storageServiceSpy = jasmine.createSpyObj('StorageService', ['set', 'get']);
     const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
     const platformSpy = jasmine.createSpyObj('Platform', ['is']);
@@ -402,6 +400,10 @@ describe('AddEditExpensePage', () => {
         {
           provide: TaxGroupService,
           useValue: taxGroupServiceSpy,
+        },
+        {
+          provide: CostCentersService,
+          useValue: costCentersServiceSpy,
         },
         {
           provide: OrgUserSettingsService,

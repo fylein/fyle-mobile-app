@@ -139,6 +139,7 @@ import { PlatformFileGenerateUrlsResponse } from 'src/app/core/models/platform/p
 import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
 import { RefinerService } from 'src/app/core/services/refiner.service';
+import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 
 // eslint-disable-next-line
 type FormValue = {
@@ -485,6 +486,7 @@ export class AddEditExpensePage implements OnInit {
     private titleCasePipe: TitleCasePipe,
     private paymentModesService: PaymentModesService,
     private taxGroupService: TaxGroupService,
+    private costCentersService: CostCentersService,
     private orgUserSettingsService: OrgUserSettingsService,
     private storageService: StorageService,
     private launchDarklyService: LaunchDarklyService,
@@ -1142,13 +1144,10 @@ export class AddEditExpensePage implements OnInit {
 
     this.isCostCentersEnabled$ = orgSettings$.pipe(map((orgSettings) => orgSettings.cost_centers.enabled));
 
-    this.costCenters$ = forkJoin({
-      orgSettings: orgSettings$,
-      orgUserSettings: this.orgUserSettings$,
-    }).pipe(
-      switchMap(({ orgSettings, orgUserSettings }) => {
+    this.costCenters$ = orgSettings$.pipe(
+      switchMap((orgSettings) => {
         if (orgSettings.cost_centers.enabled) {
-          return this.orgUserSettingsService.getAllowedCostCenters(orgUserSettings);
+          return this.costCentersService.getAllActive();
         } else {
           return of([]);
         }
