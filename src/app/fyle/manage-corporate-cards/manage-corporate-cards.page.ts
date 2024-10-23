@@ -364,9 +364,13 @@ export class ManageCorporateCardsPage {
 
   private checkCardsAvailabilityAndSetupSegment(corporateCards: PlatformCorporateCard[]): void {
     // segment will only be made visible if there are virtual cards present
-    this.showSegment = Array.isArray(corporateCards)
-      ? corporateCards.filter((corporateCard) => corporateCard.virtual_card_id).length > 0
-      : false;
+    if (!Array.isArray(corporateCards)) {
+      this.showSegment = false;
+      return;
+    }
+    
+    const virtualCards = corporateCards.filter((corporateCard) => corporateCard.virtual_card_id);
+    this.showSegment = virtualCards.length > 0;
   }
 
   private async unenrollCard(card: PlatformCorporateCard): Promise<void> {
