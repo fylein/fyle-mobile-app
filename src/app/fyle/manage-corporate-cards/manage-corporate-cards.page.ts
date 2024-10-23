@@ -49,6 +49,8 @@ export class ManageCorporateCardsPage {
 
   navigationSubscription: Subscription;
 
+  showSegment: boolean;
+
   constructor(
     private router: Router,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
@@ -74,12 +76,6 @@ export class ManageCorporateCardsPage {
     if (event.detail.value) {
       this.segmentValue = parseInt(event.detail.value, 10);
     }
-  }
-
-  checkCardsAvailabilityAndSetupSegment(corporateCards: PlatformCorporateCard[]): boolean {
-    const areCorporateCardsAvailable = this.getCorporateCardsLength(corporateCards) > 0;
-    const areVirtualCardsAvailable = corporateCards.filter((corporateCard) => corporateCard.virtual_card_id).length > 0;
-    return areVirtualCardsAvailable && areCorporateCardsAvailable;
   }
 
   refresh(event: RefresherCustomEvent): void {
@@ -114,7 +110,11 @@ export class ManageCorporateCardsPage {
 
   ionViewWillEnter(): void {
     this.corporateCards$ = this.loadCorporateCards$.pipe(
-      switchMap(() => this.corporateCreditCardExpenseService.getCorporateCards())
+      switchMap(() => this.corporateCreditCardExpenseService.getCorporateCards()),
+      map((corporateCards) => {
+        this.checkCardsAvailabilityAndSetupSegment(corporateCards);
+        return corporateCards;
+      })
     );
 
     const orgSettings$ = this.orgSettingsService.get();
@@ -329,6 +329,15 @@ export class ManageCorporateCardsPage {
 
       this.loadCorporateCards$.next();
     });
+  }
+
+  private checkCardsAvailabilityAndSetupSegment(corporateCards: PlatformCorporateCard[]): void {
+    const areCorporateCardsAvailable = this.getCorporateCardsLength(corporateCards) > 0;
+    const areVirtualCardsAvailable = corporateCards.filter((corporateCard) => corporateCard.virtual_card_id).length > 0;
+    this.segmentValue = areVirtualCardsAvailable
+      ? ManageCardsPageSegment.VIRTUAL_CARDS
+      : ManageCardsPageSegment.CORPORATE_CARDS;
+    this.showSegment = areVirtualCardsAvailable && areCorporateCardsAvailable;
   }
 
   private async unenrollCard(card: PlatformCorporateCard): Promise<void> {
