@@ -1,7 +1,6 @@
 import { ComponentFixture, fakeAsync, TestBed, tick, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { TransactionService } from 'src/app/core/services/transaction.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { NetworkService } from '../../core/services/network.service';
@@ -17,7 +16,6 @@ import { PopoverController, ModalController } from '@ionic/angular';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { EventEmitter } from '@angular/core';
 import { of } from 'rxjs';
-import { expenseData1, expenseData2 } from 'src/app/core/mock-data/expense.data';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { individualExpPolicyStateData3 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
 import {
@@ -25,7 +23,6 @@ import {
   expensePolicyStatesData,
 } from 'src/app/core/mock-data/platform-policy-expense.data';
 import { dependentFieldValues } from 'src/app/core/test-data/dependent-fields.service.spec.data';
-import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { FileService } from 'src/app/core/services/file.service';
@@ -35,8 +32,7 @@ import { filledCustomProperties } from 'src/app/core/test-data/custom-inputs.spe
 import { getEstatusApiResponse } from 'src/app/core/test-data/status.service.spec.data';
 import { cloneDeep, slice } from 'lodash';
 import { isEmpty } from 'rxjs/operators';
-import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
-import { mileageExpense, platformExpenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
+import { mileageExpense } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
@@ -46,22 +42,16 @@ import { MileageRatesService } from 'src/app/core/services/mileage-rates.service
 import { platformMileageRatesSingleData } from 'src/app/core/mock-data/platform-mileage-rate.data';
 import { CustomInput } from 'src/app/core/models/custom-input.model';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
-import {
-  expectedReportsSinglePage,
-  expectedReportsSinglePageSubmitted,
-  paidReportData,
-} from '../../core/mock-data/platform-report.data';
+import { expectedReportsSinglePageSubmitted, paidReportData } from '../../core/mock-data/platform-report.data';
 import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
 import { ApproverFileService } from 'src/app/core/services/platform/v1/approver/file.service';
 import { generateUrlsBulkData1 } from 'src/app/core/mock-data/generate-urls-bulk-response.data';
 import { receiptInfoData1 } from 'src/app/core/mock-data/receipt-info.data';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 describe('ViewMileagePage', () => {
   let component: ViewMileagePage;
   let fixture: ComponentFixture<ViewMileagePage>;
   let loaderService: jasmine.SpyObj<LoaderService>;
-  let transactionService: jasmine.SpyObj<TransactionService>;
   let customInputsService: jasmine.SpyObj<CustomInputsService>;
   let policyService: jasmine.SpyObj<PolicyService>;
   let popoverController: jasmine.SpyObj<PopoverController>;
@@ -82,11 +72,9 @@ describe('ViewMileagePage', () => {
   let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
   let spenderFileService: jasmine.SpyObj<SpenderFileService>;
   let approverFileService: jasmine.SpyObj<ApproverFileService>;
-  let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
 
   beforeEach(waitForAsync(() => {
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['hideLoader', 'showLoader']);
-    const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['manualUnflag', 'manualFlag']);
     const customInputsServiceSpy = jasmine.createSpyObj('CustomInputsService', [
       'getCustomPropertyDisplayValue',
       'fillCustomProperties',
@@ -133,9 +121,6 @@ describe('ViewMileagePage', () => {
     ]);
     const spenderFileServiceSpy = jasmine.createSpyObj('SpenderFileService', ['generateUrls']);
     const approverFileServiceSpy = jasmine.createSpyObj('ApproverFileService', ['generateUrls']);
-    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', [
-      'checkIfManualFlaggingFeatureIsEnabled',
-    ]);
 
     TestBed.configureTestingModule({
       declarations: [ViewMileagePage],
@@ -144,10 +129,6 @@ describe('ViewMileagePage', () => {
         {
           useValue: loaderServiceSpy,
           provide: LoaderService,
-        },
-        {
-          useValue: transactionServiceSpy,
-          provide: TransactionService,
         },
         {
           useValue: customInputsServiceSpy,
@@ -238,13 +219,11 @@ describe('ViewMileagePage', () => {
             },
           },
         },
-        { provide: LaunchDarklyService, useValue: launchDarklyServiceSpy },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(ViewMileagePage);
     component = fixture.componentInstance;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
-    transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
     customInputsService = TestBed.inject(CustomInputsService) as jasmine.SpyObj<CustomInputsService>;
     statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
@@ -264,7 +243,6 @@ describe('ViewMileagePage', () => {
     approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
     spenderFileService = TestBed.inject(SpenderFileService) as jasmine.SpyObj<SpenderFileService>;
     approverFileService = TestBed.inject(ApproverFileService) as jasmine.SpyObj<ApproverFileService>;
-    launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
     activateRouteMock = TestBed.inject(ActivatedRoute);
 
     fixture.detectChanges();

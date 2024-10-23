@@ -101,7 +101,7 @@ export const apiAllCurrencies: CurrencyName = deepFreeze({
   MMK: 'Myanma Kyat',
   MNT: 'Mongolian Tugrik',
   MOP: 'Macanese Pataca',
-  MRO: 'Mauritanian Ouguiya',
+  MRU: 'Mauritanian Ouguiya',
   MUR: 'Mauritian Rupee',
   MVR: 'Maldivian Rufiyaa',
   MWK: 'Malawian Kwacha',
@@ -130,7 +130,7 @@ export const apiAllCurrencies: CurrencyName = deepFreeze({
   SAR: 'Saudi Riyal',
   SBD: 'Solomon Islands Dollar',
   SCR: 'Seychellois Rupee',
-  SDG: 'Sudanese Pound',
+  SDG: 'South Sudanese Pound',
   SEK: 'Swedish Krona',
   SGD: 'Singapore Dollar',
   SHP: 'Saint Helena Pound',
@@ -173,6 +173,7 @@ export const apiAllCurrencies: CurrencyName = deepFreeze({
   ZMK: 'Zambian Kwacha (pre-2013)',
   ZMW: 'Zambian Kwacha',
   ZWL: 'Zimbabwean Dollar',
+  CNH: 'Chinese Yuan Offshore',
 });
 
 export const apiAllCurrencies2: CurrencyName = deepFreeze({

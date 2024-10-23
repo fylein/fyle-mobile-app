@@ -6,16 +6,20 @@ import { catchError, map, switchMap } from 'rxjs/operators';
 import { Cacheable } from 'ts-cacheable';
 import { CurrencyName } from '../models/currency.model';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
-import { PublicPolicyExpense } from '../models/public-policy-expense.model';
-import { ApiService } from './api.service';
+import { ExchangeRateResponse } from '../models/exchange-rate-response.model';
 import { AuthService } from './auth.service';
 import { OrgService } from './org.service';
-
+import { PlatformCommonApiService } from './platform-common-api.service';
+import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 @Injectable({
   providedIn: 'root',
 })
 export class CurrencyService {
-  constructor(private orgService: OrgService, private authService: AuthService, private apiService: ApiService) {}
+  constructor(
+    private orgService: OrgService,
+    private authService: AuthService,
+    private platformCommonApiService: PlatformCommonApiService
+  ) {}
 
   @Cacheable()
   getExchangeRate(fromCurrency: string, toCurrency: string, dt = new Date(), txnId?: string): Observable<number> {
@@ -23,19 +27,19 @@ export class CurrencyService {
     const queryParams = {
       from: fromCurrency,
       to: toCurrency,
-      dt: txnDt,
+      date: txnDt,
     };
 
     if (txnId) {
       queryParams[txnId] = txnId;
     }
 
-    return this.apiService
-      .get<Partial<PublicPolicyExpense>>('/currency/exchange', {
+    return this.platformCommonApiService
+      .get<PlatformApiResponse<ExchangeRateResponse>>('/currency/exchange_rate', {
         params: queryParams,
       })
       .pipe(
-        map((res) => parseFloat(res.exchange_rate.toFixed(7))),
+        map((res) => parseFloat(res.data.exchange_rate.toFixed(7))),
         catchError(() => of(1))
       );
   }
@@ -44,11 +48,13 @@ export class CurrencyService {
   getAll(): Observable<CurrencyName> {
     return from(this.authService.getEou()).pipe(
       switchMap((currentEou: ExtendedOrgUser) =>
-        this.apiService.get<CurrencyName>('/currency/all', {
-          params: {
-            org_id: currentEou && currentEou.ou && currentEou.ou.org_id,
-          },
-        })
+        this.platformCommonApiService
+          .get<PlatformApiResponse<CurrencyName>>('/currency/list', {
+            params: {
+              org_id: currentEou?.ou?.org_id,
+            },
+          })
+          .pipe(map((response) => response.data))
       )
     );
   }

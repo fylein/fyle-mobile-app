@@ -2,12 +2,7 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule, ModalController } from '@ionic/angular';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { SplitExpensePolicyViolationComponent } from './split-expense-policy-violation.component';
-import {
-  formattedPolicyViolation1,
-  formattedPolicyViolation2,
-} from 'src/app/core/mock-data/formatted-policy-violation.data';
 import { FormArray, FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { of } from 'rxjs';
 import { cloneDeep } from 'lodash';
 import {
   filteredSplitPolicyViolationsData,

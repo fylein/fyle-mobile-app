@@ -3,7 +3,6 @@ import { Observable, from, Subject, concat, noop, of, forkJoin } from 'rxjs';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { TransactionService } from 'src/app/core/services/transaction.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { switchMap, finalize, shareReplay, map, takeUntil, take, filter } from 'rxjs/operators';
@@ -114,7 +113,6 @@ export class ViewMileagePage {
   constructor(
     private activatedRoute: ActivatedRoute,
     private loaderService: LoaderService,
-    private transactionService: TransactionService,
     private customInputsService: CustomInputsService,
     private policyService: PolicyService,
     private popoverController: PopoverController,

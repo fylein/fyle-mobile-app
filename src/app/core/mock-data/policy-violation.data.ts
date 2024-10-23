@@ -1,7 +1,6 @@
 import deepFreeze from 'deep-freeze-strict';
 
 import { PolicyViolation } from '../models/policy-violation.model';
-import { PolicyViolationTxn } from '../models/policy-violation-txn.model';
 export const policyViolation1: PolicyViolation = deepFreeze({
   data: {
     final_desired_state: {
@@ -53,11 +52,6 @@ export const splitPolicyExp3: PolicyViolation = deepFreeze({
   currency: 'USD',
   name: 'Food / Travelling - Inland',
   type: 'category',
-});
-
-export const policyVoilationData2: PolicyViolationTxn = deepFreeze({
-  txVHydZVrGYC: splitPolicyExp2,
-  tx4QhcvNHpuh: splitPolicyExp3,
 });
 
 export const splitPolicyExp4: PolicyViolation = deepFreeze({
@@ -148,16 +142,6 @@ export const splitPolicyExp5: PolicyViolation = deepFreeze({
   currency: 'INR',
   name: '1 / sd',
   type: 'category',
-});
-
-export const policyViolationData3: PolicyViolationTxn = deepFreeze({
-  txc2KIogxUAy: splitPolicyExp4,
-  txgfkvuYteta: splitPolicyExp5,
-});
-
-export const policyViolationData4: PolicyViolationTxn = deepFreeze({
-  txSEM4DtjyKR: splitPolicyExp4,
-  txNyI8ot5CuJ: splitPolicyExp5,
 });
 
 export const policyViolationData5: PolicyViolation = deepFreeze({
