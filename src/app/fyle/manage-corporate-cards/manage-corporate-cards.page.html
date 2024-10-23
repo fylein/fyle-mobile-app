@@ -93,9 +93,7 @@
   </div>
 </ion-content>
 
-<ion-footer
-  *ngIf="(isAddCorporateCardVisible$ | async) && segmentValue === Segment.CORPORATE_CARDS && isAddCorporateCardVisible"
->
+<ion-footer *ngIf="(isAddCorporateCardVisible$ | async) && segmentValue === Segment.CORPORATE_CARDS">
   <ion-toolbar mode="md">
     <div class="manage-corporate-cards__footer-toolbar">
       <ion-button
