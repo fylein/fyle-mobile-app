@@ -53,6 +53,8 @@ export class ManageCorporateCardsPage {
 
   showSegment: boolean;
 
+  filteredCorporateCards: PlatformCorporateCard[];
+
   constructor(
     private router: Router,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
@@ -114,6 +116,7 @@ export class ManageCorporateCardsPage {
       switchMap(() => this.corporateCreditCardExpenseService.getCorporateCards()),
       map((corporateCards) => {
         this.checkCardsAvailabilityAndSetupSegment(corporateCards);
+        this.filteredCorporateCards = this.filterVirtualCards(corporateCards);
         return corporateCards;
       })
     );
