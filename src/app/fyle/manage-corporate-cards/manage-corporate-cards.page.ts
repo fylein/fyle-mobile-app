@@ -343,7 +343,10 @@ export class ManageCorporateCardsPage {
   }
 
   filterVirtualCards(corporateCards: PlatformCorporateCard[]): PlatformCorporateCard[] {
-    return Array.isArray(corporateCards) ? corporateCards.filter((card) => !card.virtual_card_id) : [];
+    if (!Array.isArray(corporateCards)) {
+      return [];
+    }
+    return corporateCards.filter((card) => !card.virtual_card_id);
   }
 
   private handleEnrollmentSuccess(): void {
