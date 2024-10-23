@@ -76,11 +76,10 @@ export class ManageCorporateCardsPage {
     }
   }
 
-  checkCardsAvailability(corporateCards: PlatformCorporateCard[]): boolean {
-    return (
-      corporateCards.filter((corporateCard) => corporateCard.virtual_card_id).length > 0 &&
-      this.getCorporateCardsLength(corporateCards) > 0
-    );
+  checkCardsAvailabilityAndSetupSegment(corporateCards: PlatformCorporateCard[]): boolean {
+    const areCorporateCardsAvailable = this.getCorporateCardsLength(corporateCards) > 0;
+    const areVirtualCardsAvailable = corporateCards.filter((corporateCard) => corporateCard.virtual_card_id).length > 0;
+    return areVirtualCardsAvailable && areCorporateCardsAvailable;
   }
 
   refresh(event: RefresherCustomEvent): void {
@@ -107,6 +106,8 @@ export class ManageCorporateCardsPage {
         const virtualCardsParams = {
           virtualCardIds,
         };
+        this.segmentValue =
+          virtualCardIds.length > 0 ? ManageCardsPageSegment.VIRTUAL_CARDS : ManageCardsPageSegment.CORPORATE_CARDS;
         return this.virtualCardsService.getCardDetailsMap(virtualCardsParams);
       })
     );
