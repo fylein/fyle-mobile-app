@@ -63,9 +63,9 @@ export class ManageCorporateCardsPage {
 
   navigationSubscription: Subscription;
 
-  showSegment: boolean;
+  showSegment = false;
 
-  filteredCorporateCards: PlatformCorporateCard[];
+  filteredCorporateCards: PlatformCorporateCard[] = [];
 
   constructor(
     private router: Router,

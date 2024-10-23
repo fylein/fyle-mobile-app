@@ -297,7 +297,7 @@ describe('ManageCorporateCardsPage', () => {
       component.isYodleeEnabled$ = of(false);
     });
 
-    it('should return true when isVisaRTFEnabled$ is true', (done) => {
+    it('should return true when only isVisaRTFEnabled$ is true', (done) => {
       component.isVisaRTFEnabled$ = of(true);
 
       component.checkAddCorporateCardVisibility().subscribe((result) => {
@@ -306,7 +306,7 @@ describe('ManageCorporateCardsPage', () => {
       });
     });
 
-    it('should return true when isMastercardRTFEnabled$ is true', (done) => {
+    it('should return true when only isMastercardRTFEnabled$ is true', (done) => {
       component.isMastercardRTFEnabled$ = of(true);
 
       component.checkAddCorporateCardVisibility().subscribe((result) => {
@@ -315,7 +315,7 @@ describe('ManageCorporateCardsPage', () => {
       });
     });
 
-    it('should return true when isYodleeEnabled$ is true', (done) => {
+    it('should return true when only isYodleeEnabled$ is true', (done) => {
       component.isYodleeEnabled$ = of(true);
 
       component.checkAddCorporateCardVisibility().subscribe((result) => {
@@ -342,7 +342,7 @@ describe('ManageCorporateCardsPage', () => {
       });
     });
 
-    it('should return true when multiple flags are true', (done) => {
+    it('should return true when all flags are true', (done) => {
       component.isVisaRTFEnabled$ = of(true);
       component.isMastercardRTFEnabled$ = of(true);
       component.isYodleeEnabled$ = of(false);
