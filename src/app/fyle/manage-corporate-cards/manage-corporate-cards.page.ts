@@ -131,7 +131,10 @@ export class ManageCorporateCardsPage {
         this.filteredCorporateCards = this.filterVirtualCards(corporateCards);
         return corporateCards;
       }),
-      catchError(() => of([]))
+      catchError(() => {
+        this.filteredCorporateCards = [];
+        return of([]);
+      })
     );
 
     const orgSettings$ = this.orgSettingsService.get();
