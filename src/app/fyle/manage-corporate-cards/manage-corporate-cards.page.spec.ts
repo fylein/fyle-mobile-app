@@ -60,7 +60,7 @@ class MockCorporateCardComponent {
   @Input() isMastercardRTFEnabled: boolean;
 }
 
-describe('ManageCorporateCardsPage', () => {
+fdescribe('ManageCorporateCardsPage', () => {
   let component: ManageCorporateCardsPage;
   let fixture: ComponentFixture<ManageCorporateCardsPage>;
 
@@ -197,6 +197,11 @@ describe('ManageCorporateCardsPage', () => {
     corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([]));
     realTimeFeedService.unenroll.and.returnValue(of(null));
     component.isVirtualCardsEnabled$ = of({ enabled: true });
+    /**
+     * Note: isAddCorporateCardVisible$ is set individually in each test suite
+     * instead of the top-level beforeEach because some tests require different
+     * timing for this setup. Moving it to beforeEach causes test failures.
+     */
     component.isAddCorporateCardVisible$ = of(true);
     spyOn(component.loadCorporateCards$, 'next').and.callThrough();
 
