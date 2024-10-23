@@ -35,6 +35,8 @@ export class ManageCorporateCardsPage {
 
   isVisaRTFEnabled$: Observable<boolean>;
 
+  isAddCorporateCardVisible$: Observable<boolean>;
+
   isVirtualCardsEnabled$: Observable<{ enabled: boolean }>;
 
   isMastercardRTFEnabled$: Observable<boolean>;
@@ -129,6 +131,7 @@ export class ManageCorporateCardsPage {
     );
 
     this.virtualCardDetails$ = this.getVirtualCardDetails();
+    this.isAddCorporateCardVisible$ = this.checkAddCorporateCardVisibility();
     this.isVisaRTFEnabled$ = orgSettings$.pipe(
       map((orgSettings) => orgSettings.visa_enrollment_settings.allowed && orgSettings.visa_enrollment_settings.enabled)
     );
@@ -158,10 +161,6 @@ export class ManageCorporateCardsPage {
 
   getCorporateCardsLength(corporateCards: PlatformCorporateCard[]): number {
     return corporateCards.filter((card) => !card.virtual_card_id).length;
-  }
-
-  filterVirtualCards(corporateCards: PlatformCorporateCard[]): PlatformCorporateCard[] {
-    return corporateCards.filter((card) => !card.virtual_card_id);
   }
 
   setActionSheetButtons(card: PlatformCorporateCard): Observable<ActionSheetButton[]> {
@@ -237,6 +236,15 @@ export class ManageCorporateCardsPage {
           this.handleEnrollmentSuccess();
         }
       }
+    );
+  }
+
+  checkAddCorporateCardVisibility(): Observable<boolean> {
+    return forkJoin([this.isVisaRTFEnabled$, this.isMastercardRTFEnabled$, this.isYodleeEnabled$]).pipe(
+      map(
+        ([isVisaRTFEnabled, isMastercardRTFEnabled, isYodleeEnabled]) =>
+          isVisaRTFEnabled || isMastercardRTFEnabled || isYodleeEnabled
+      )
     );
   }
 
@@ -332,12 +340,11 @@ export class ManageCorporateCardsPage {
   }
 
   private checkCardsAvailabilityAndSetupSegment(corporateCards: PlatformCorporateCard[]): void {
-    const areCorporateCardsAvailable = this.getCorporateCardsLength(corporateCards) > 0;
-    const areVirtualCardsAvailable = corporateCards.filter((corporateCard) => corporateCard.virtual_card_id).length > 0;
-    this.segmentValue = areVirtualCardsAvailable
-      ? ManageCardsPageSegment.VIRTUAL_CARDS
-      : ManageCardsPageSegment.CORPORATE_CARDS;
-    this.showSegment = areVirtualCardsAvailable && areCorporateCardsAvailable;
+    this.showSegment = corporateCards.filter((corporateCard) => corporateCard.virtual_card_id).length > 0;
+  }
+
+  private filterVirtualCards(corporateCards: PlatformCorporateCard[]): PlatformCorporateCard[] {
+    return corporateCards.filter((card) => !card.virtual_card_id);
   }
 
   private async unenrollCard(card: PlatformCorporateCard): Promise<void> {

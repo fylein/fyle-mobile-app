@@ -93,15 +93,17 @@
   </div>
 </ion-content>
 
-<ion-footer *ngIf="segmentValue === Segment.CORPORATE_CARDS">
-  <ion-toolbar mode="md">
-    <div class="manage-corporate-cards__footer-toolbar">
-      <ion-button
-        data-testid="add-button"
-        class="fy-footer-cta fy-footer-cta--primary"
-        (click)="openAddCorporateCardPopover()"
-        >Add Corporate Card</ion-button
-      >
-    </div>
-  </ion-toolbar>
-</ion-footer>
+<div *ngIf="isAddCorporateCardVisible$ | async as isAddCorporateCardVisible">
+  <ion-footer *ngIf="segmentValue === Segment.CORPORATE_CARDS && isAddCorporateCardVisible">
+    <ion-toolbar mode="md">
+      <div class="manage-corporate-cards__footer-toolbar">
+        <ion-button
+          data-testid="add-button"
+          class="fy-footer-cta fy-footer-cta--primary"
+          (click)="openAddCorporateCardPopover()"
+          >Add Corporate Card</ion-button
+        >
+      </div>
+    </ion-toolbar>
+  </ion-footer>
+</div>
