@@ -104,7 +104,6 @@ export class ManageCorporateCardsPage {
         const virtualCardsParams = {
           virtualCardIds,
         };
-        this.segmentValue = ManageCardsPageSegment.VIRTUAL_CARDS;
         return this.virtualCardsService.getCardDetailsMap(virtualCardsParams);
       })
     );
