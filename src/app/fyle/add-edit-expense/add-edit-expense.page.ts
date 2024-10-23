@@ -3621,8 +3621,6 @@ export class AddEditExpensePage implements OnInit {
     this.saveAndNewExpenseLoader = false;
     this.saveAndNextExpenseLoader = false;
     this.saveAndPrevExpenseLoader = false;
-
-    this.triggerNpsSurvey();
   }
 
   checkIfReceiptIsMissingAndMandatory(redirectedFrom: string): Observable<boolean> {
@@ -3658,6 +3656,7 @@ export class AddEditExpensePage implements OnInit {
       }),
       finalize(() => {
         this.hideSaveExpenseLoader();
+        this.triggerNpsSurvey();
       })
     );
   }
@@ -4163,6 +4162,7 @@ export class AddEditExpensePage implements OnInit {
       }),
       finalize(() => {
         this.hideSaveExpenseLoader();
+        this.triggerNpsSurvey();
       })
     );
   }
@@ -4432,6 +4432,7 @@ export class AddEditExpensePage implements OnInit {
       ),
       finalize(() => {
         this.hideSaveExpenseLoader();
+        this.triggerNpsSurvey();
       })
     );
   }

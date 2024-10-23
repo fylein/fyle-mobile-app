@@ -79,7 +79,7 @@ describe('AddEditExpensePage', () => {
       'getPaymentModesWithAdvanceWallets',
       'getEtxnSelectedPaymentMode',
     ]);
-    const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
+    const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou', 'getRoles']);
     const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', [
       'getAll',
       'filterRequired',
