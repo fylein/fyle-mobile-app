@@ -1,7 +1,19 @@
 import { Component } from '@angular/core';
 import { NavigationStart, Router } from '@angular/router';
 import { ActionSheetButton, ActionSheetController, ModalController, PopoverController } from '@ionic/angular';
-import { BehaviorSubject, Observable, Subscription, filter, forkJoin, from, map, noop, switchMap } from 'rxjs';
+import {
+  BehaviorSubject,
+  Observable,
+  Subscription,
+  catchError,
+  filter,
+  forkJoin,
+  from,
+  map,
+  noop,
+  of,
+  switchMap,
+} from 'rxjs';
 import { DataFeedSource } from 'src/app/core/enums/data-feed-source.enum';
 import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
@@ -246,7 +258,8 @@ export class ManageCorporateCardsPage {
       map(
         ([isVisaRTFEnabled, isMastercardRTFEnabled, isYodleeEnabled]) =>
           isVisaRTFEnabled || isMastercardRTFEnabled || isYodleeEnabled
-      )
+      ),
+      catchError(() => of(false))
     );
   }
 
