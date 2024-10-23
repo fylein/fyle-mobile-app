@@ -17,7 +17,7 @@ import { CorporateCreditCardExpenseService } from 'src/app/core/services/corpora
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { RealTimeFeedService } from 'src/app/core/services/real-time-feed.service';
-import { NEVER, Observable, Subscription, of } from 'rxjs';
+import { NEVER, Observable, Subscription, of, throwError } from 'rxjs';
 import { orgSettingsCCCEnabled } from 'src/app/core/mock-data/org-settings.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import {
@@ -288,6 +288,59 @@ describe('ManageCorporateCardsPage', () => {
     component.virtualCardDetails$.subscribe((virtualCardDetailsRes) => {
       expect(virtualCardDetailsRes).toBeDefined();
       expect(virtualCardDetailsRes).toEqual(virtualCardDetailsRes);
+    });
+  });
+
+  describe('checkAddCorporateCardVisibility(): ', () => {
+    beforeEach(() => {
+      component.isVisaRTFEnabled$ = of(false);
+      component.isMastercardRTFEnabled$ = of(false);
+      component.isYodleeEnabled$ = of(false);
+    });
+
+    it('should return true when isVisaRTFEnabled$ is true', (done) => {
+      component.isVisaRTFEnabled$ = of(true);
+
+      component.checkAddCorporateCardVisibility().subscribe((result) => {
+        expect(result).toBeTrue();
+        done();
+      });
+    });
+
+    it('should return true when isMastercardRTFEnabled$ is true', (done) => {
+      component.isMastercardRTFEnabled$ = of(true);
+
+      component.checkAddCorporateCardVisibility().subscribe((result) => {
+        expect(result).toBeTrue();
+        done();
+      });
+    });
+
+    it('should return true when isYodleeEnabled$ is true', (done) => {
+      component.isYodleeEnabled$ = of(true);
+
+      component.checkAddCorporateCardVisibility().subscribe((result) => {
+        expect(result).toBeTrue();
+        done();
+      });
+    });
+
+    it('should return false when all flags are false', (done) => {
+      component.checkAddCorporateCardVisibility().subscribe((result) => {
+        expect(result).toBeFalse();
+        done();
+      });
+    });
+
+    it('should return false when there is an error', (done) => {
+      component.isVisaRTFEnabled$ = throwError('Error occurred');
+      component.isMastercardRTFEnabled$ = of(false);
+      component.isYodleeEnabled$ = of(false);
+
+      component.checkAddCorporateCardVisibility().subscribe((result) => {
+        expect(result).toBeFalse();
+        done();
+      });
     });
   });
 
