@@ -96,7 +96,7 @@ export class ManageCorporateCardsPage {
   }> {
     return this.isVirtualCardsEnabled$.pipe(
       filter((virtualCardEnabled) => virtualCardEnabled.enabled),
-      switchMap((_) => this.corporateCards$),
+      switchMap(() => this.corporateCards$),
       switchMap((corporateCards) => {
         const virtualCardIds = corporateCards
           .filter((card) => card.virtual_card_id)

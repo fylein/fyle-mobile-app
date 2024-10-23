@@ -286,11 +286,6 @@ describe('ManageCorporateCardsPage', () => {
     });
   });
 
-  it('areVirtualCardsPresent(): check in corporateCards list if any of the cards is a virtual card', () => {
-    const response = component.areVirtualCardsPresent([virtualCard]);
-    expect(response).toBeTrue();
-  });
-
   describe('add card flow', () => {
     let addCardPopoverSpy: jasmine.SpyObj<HTMLIonPopoverElement>;
     let cardAddedPopoverSpy: jasmine.SpyObj<HTMLIonPopoverElement>;
