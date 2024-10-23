@@ -267,6 +267,10 @@ export class RefinerService {
           }
         );
         (window as typeof window & { _refiner: (eventName: string, payload: string) => void })._refiner(
+          'setProject',
+          environment.REFINER_NPS_PROJECT_ID
+        );
+        (window as typeof window & { _refiner: (eventName: string, payload: string) => void })._refiner(
           'showForm',
           environment.REFINER_NPS_FORM_ID
         );

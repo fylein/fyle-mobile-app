@@ -583,7 +583,7 @@ describe('ViewTeamReportPageV2', () => {
       fixture.detectChanges();
 
       component.approveReport();
-      tick();
+      tick(1000);
 
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         componentProps: {

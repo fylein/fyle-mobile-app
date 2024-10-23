@@ -113,6 +113,7 @@ import { receiptInfoData2 } from 'src/app/core/mock-data/receipt-info.data';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
 import { platformExpenseWithExtractedData } from 'src/app/core/mock-data/platform/v1/expense.data';
+import { RefinerService } from 'src/app/core/services/refiner.service';
 
 export function TestCases3(getTestBed) {
   return describe('AddEditExpensePage-3', () => {
@@ -164,6 +165,7 @@ export function TestCases3(getTestBed) {
     let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
     let expensesService: jasmine.SpyObj<ExpensesService>;
     let advanceWalletsService: jasmine.SpyObj<AdvanceWalletsService>;
+    let refinerService: jasmine.SpyObj<RefinerService>;
 
     beforeEach(() => {
       const TestBed = getTestBed();
@@ -221,6 +223,7 @@ export function TestCases3(getTestBed) {
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
       expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
+      refinerService = TestBed.inject(RefinerService) as jasmine.SpyObj<RefinerService>;
 
       component.fg = formBuilder.group({
         currencyObj: [, component.currencyObjValidator],
@@ -908,6 +911,38 @@ export function TestCases3(getTestBed) {
           expect(component.getAmount).toHaveBeenCalledTimes(1);
           done();
         });
+      });
+    });
+
+    describe('triggerNpsSurvey', () => {
+      it('should start survey if nps_survey feature flag is enabled and user is not an ADMIN', () => {
+        const roles = ['USER'];
+        authService.getRoles.and.returnValue(of(roles));
+        launchDarklyService.getVariation.and.returnValue(of(true));
+
+        component.triggerNpsSurvey();
+
+        expect(refinerService.startSurvey).toHaveBeenCalledWith({ actionName: 'Save Expense' });
+      });
+
+      it('should not start survey if nps_survey feature flag is disabled', () => {
+        const roles = ['USER'];
+        authService.getRoles.and.returnValue(of(roles));
+        launchDarklyService.getVariation.and.returnValue(of(false));
+
+        component.triggerNpsSurvey();
+
+        expect(refinerService.startSurvey).not.toHaveBeenCalled();
+      });
+
+      it('should not start survey if user is an ADMIN', () => {
+        const roles = ['ADMIN'];
+        authService.getRoles.and.returnValue(of(roles));
+        launchDarklyService.getVariation.and.returnValue(of(true));
+
+        component.triggerNpsSurvey();
+
+        expect(refinerService.startSurvey).not.toHaveBeenCalled();
       });
     });
 

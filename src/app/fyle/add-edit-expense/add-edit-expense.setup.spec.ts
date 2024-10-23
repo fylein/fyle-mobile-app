@@ -63,8 +63,8 @@ import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/fi
 import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { SpenderService } from 'src/app/core/services/platform/v1/spender/spender.service';
-import { HttpClientModule } from '@angular/common/http';
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 export function setFormValid(component) {
   Object.defineProperty(component.fg, 'valid', {
@@ -229,7 +229,7 @@ describe('AddEditExpensePage', () => {
 
     TestBed.configureTestingModule({
       declarations: [AddEditExpensePage, MaskNumber, FySelectComponent, EllipsisPipe, DependentFieldComponent],
-      imports: [HttpClientModule, IonicModule.forRoot(), RouterTestingModule, RouterModule],
+      imports: [HttpClientTestingModule, IonicModule.forRoot(), RouterTestingModule, RouterModule],
       providers: [
         FormBuilder,
         {
