@@ -130,6 +130,7 @@ import { SplitExpenseMissingFieldsData } from 'src/app/core/mock-data/split-expe
 import { splitPayloadData1 } from 'src/app/core/mock-data/split-payload.data';
 import { platformExpenseWithExtractedData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { orgSettingsWithProjectCategoryRestrictions } from 'src/app/core/mock-data/org-settings.data';
+import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 
 describe('SplitExpensePage', () => {
   let component: SplitExpensePage;
@@ -149,6 +150,7 @@ describe('SplitExpensePage', () => {
   let policyService: jasmine.SpyObj<PolicyService>;
   let modalController: jasmine.SpyObj<ModalController>;
   let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
+  let costCentersService: jasmine.SpyObj<CostCentersService>;
   let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let dependentFieldsService: jasmine.SpyObj<DependentFieldsService>;
@@ -192,6 +194,7 @@ describe('SplitExpensePage', () => {
     const policyServiceSpy = jasmine.createSpyObj('PolicyService', ['checkIfViolationsExist']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create', 'getTop']);
     const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
+    const costCentersServiceSpy = jasmine.createSpyObj('CostCentersService', ['getAllActive']);
     const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['getAllowedCostCenters', 'get']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const dependentFieldsServiceSpy = jasmine.createSpyObj('DependentFieldsService', [
@@ -239,6 +242,7 @@ describe('SplitExpensePage', () => {
         { provide: PolicyService, useValue: policyServiceSpy },
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: ModalPropertiesService, useValue: modalPropertiesSpy },
+        { provide: CostCentersService, useValue: costCentersServiceSpy },
         { provide: OrgUserSettingsService, useValue: orgUserSettingsServiceSpy },
         { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
         { provide: DependentFieldsService, useValue: dependentFieldsServiceSpy },
@@ -290,6 +294,7 @@ describe('SplitExpensePage', () => {
     policyService = TestBed.inject(PolicyService) as jasmine.SpyObj<PolicyService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
+    costCentersService = TestBed.inject(CostCentersService) as jasmine.SpyObj<CostCentersService>;
     orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     dependentFieldsService = TestBed.inject(DependentFieldsService) as jasmine.SpyObj<DependentFieldsService>;
@@ -868,15 +873,14 @@ describe('SplitExpensePage', () => {
 
     it('should set costCenters$ correctly if splitType is cost centers', () => {
       const mockCostCenters = costCentersData3.slice(0, 2);
-      orgUserSettingsService.getAllowedCostCenters.and.returnValue(of(mockCostCenters));
+      costCentersService.getAllActive.and.returnValue(of(mockCostCenters));
       activateRouteMock.snapshot.params.splitType = 'cost centers';
 
       component.ionViewWillEnter();
 
       component.costCenters$.subscribe((costCenters) => {
         expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-        expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
-        expect(orgUserSettingsService.getAllowedCostCenters).toHaveBeenCalledOnceWith(orgUserSettingsData);
+        expect(costCentersService.getAllActive).toHaveBeenCalledTimes(1);
         expect(costCenters).toEqual(expectedCCdata);
       });
     });
@@ -891,8 +895,7 @@ describe('SplitExpensePage', () => {
 
       component.costCenters$.subscribe((costCenters) => {
         expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-        expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
-        expect(orgUserSettingsService.getAllowedCostCenters).not.toHaveBeenCalled();
+        expect(costCentersService.getAllActive).not.toHaveBeenCalledTimes(1);
         expect(costCenters).toEqual([]);
       });
     });
