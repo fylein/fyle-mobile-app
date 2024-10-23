@@ -98,7 +98,7 @@ export class ManageCorporateCardsPage {
   }> {
     return this.isVirtualCardsEnabled$.pipe(
       filter((virtualCardEnabled) => virtualCardEnabled.enabled),
-      switchMap(() => this.corporateCards$),
+      switchMap((_) => this.corporateCards$),
       switchMap((corporateCards) => {
         const virtualCardIds = corporateCards
           .filter((card) => card.virtual_card_id)
@@ -106,8 +106,7 @@ export class ManageCorporateCardsPage {
         const virtualCardsParams = {
           virtualCardIds,
         };
-        this.segmentValue =
-          virtualCardIds.length > 0 ? ManageCardsPageSegment.VIRTUAL_CARDS : ManageCardsPageSegment.CORPORATE_CARDS;
+        this.segmentValue = ManageCardsPageSegment.VIRTUAL_CARDS;
         return this.virtualCardsService.getCardDetailsMap(virtualCardsParams);
       })
     );
