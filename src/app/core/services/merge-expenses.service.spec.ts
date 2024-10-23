@@ -87,8 +87,7 @@ import {
   optionsData8,
   optionsData9,
 } from '../mock-data/merge-expenses-options-data.data';
-import { fileObject11, fileObject5 } from '../mock-data/file-object.data';
-import { mergeExpenesesCustomInputsData } from '../mock-data/merge-expenses-custom-inputs.data';
+import { fileObject11 } from '../mock-data/file-object.data';
 import * as lodash from 'lodash';
 import { projectsV1Data } from '../test-data/projects.spec.data';
 import { corporateCardExpenseData } from '../mock-data/corporate-card-expense.data';

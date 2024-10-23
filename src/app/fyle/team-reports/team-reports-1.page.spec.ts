@@ -1,5 +1,5 @@
 import { ComponentFixture, discardPeriodicTasks, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { ModalController, RefresherCustomEvent } from '@ionic/angular';
+import { ModalController } from '@ionic/angular';
 
 import { TeamReportsPage } from './team-reports.page';
 import { NetworkService } from 'src/app/core/services/network.service';
@@ -14,7 +14,6 @@ import { TasksService } from 'src/app/core/services/tasks.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { HeaderState } from 'src/app/shared/components/fy-header/header-state.enum';
 import { BehaviorSubject, of } from 'rxjs';
-import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
 import { creditTxnFilterPill } from 'src/app/core/mock-data/filter-pills.data';
 import { getElementRef } from 'src/app/core/dom-helpers';
 import { cloneDeep } from 'lodash';
@@ -23,11 +22,9 @@ import {
   tasksQueryParamsWithFiltersData,
   tasksQueryParamsWithFiltersData2,
 } from 'src/app/core/mock-data/get-tasks-query-params-with-filters.data';
-import { tasksQueryParamsParams } from 'src/app/core/mock-data/get-tasks-query-params.data';
 import { getTeamReportsParams1, getTeamReportsParams2 } from 'src/app/core/mock-data/api-params.data';
 import { GetTasksQueryParamsWithFilters } from 'src/app/core/models/get-tasks-query-params-with-filters.model';
 import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-report.data';
-import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';

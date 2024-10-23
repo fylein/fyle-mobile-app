@@ -1,3 +1,4 @@
+import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 import { Component } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -8,8 +9,6 @@ import { combineLatest, forkJoin, from, iif, Observable, of, throwError } from '
 import { catchError, concatMap, finalize, map, switchMap } from 'rxjs/operators';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { DateService } from 'src/app/core/services/date.service';
-import { FileService } from 'src/app/core/services/file.service';
-import { TransactionService } from 'src/app/core/services/transaction.service';
 import { SplitExpenseService } from 'src/app/core/services/split-expense.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -126,8 +125,6 @@ export class SplitExpensePage {
     private dateService: DateService,
     private splitExpenseService: SplitExpenseService,
     private currencyService: CurrencyService,
-    private transactionService: TransactionService,
-    private fileService: FileService,
     private navController: NavController,
     private router: Router,
     private transactionsOutboxService: TransactionsOutboxService,
@@ -137,6 +134,7 @@ export class SplitExpensePage {
     private policyService: PolicyService,
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
+    private costCentersService: CostCentersService,
     private orgUserSettingsService: OrgUserSettingsService,
     private orgSettingsService: OrgSettingsService,
     private dependentFieldsService: DependentFieldsService,
@@ -931,14 +929,10 @@ export class SplitExpensePage {
     );
 
     if (this.splitType === 'cost centers') {
-      const orgUserSettings$ = this.orgUserSettingsService.get();
-      this.costCenters$ = forkJoin({
-        orgSettings: orgSettings$,
-        orgUserSettings: orgUserSettings$,
-      }).pipe(
-        switchMap(({ orgSettings, orgUserSettings }) => {
+      this.costCenters$ = orgSettings$.pipe(
+        switchMap((orgSettings) => {
           if (orgSettings.cost_centers.enabled) {
-            return this.orgUserSettingsService.getAllowedCostCenters(orgUserSettings);
+            return this.costCentersService.getAllActive();
           } else {
             return of([]);
           }

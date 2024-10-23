@@ -66,6 +66,7 @@ import { EmployeesService } from 'src/app/core/services/platform/v1/spender/empl
 import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { SpenderService } from 'src/app/core/services/platform/v1/spender/spender.service';
+import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 
 export function setFormValid(component) {
   Object.defineProperty(component.fg, 'valid', {
@@ -210,6 +211,7 @@ describe('AddEditMileagePage', () => {
       'checkIfPaymentModeConfigurationsIsEnabled',
     ]);
     const taxGroupServiceSpy = jasmine.createSpyObj('TaxGroupService', ['get']);
+    const costCentersServiceSpy = jasmine.createSpyObj('CostCentersService', ['getAllActive']);
     const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', [
       'getAllowedCostCenters',
       'getAllowedPaymentModes',
@@ -417,6 +419,10 @@ describe('AddEditMileagePage', () => {
         {
           provide: TaxGroupService,
           useValue: taxGroupServiceSpy,
+        },
+        {
+          provide: CostCentersService,
+          useValue: costCentersServiceSpy,
         },
         {
           provide: OrgUserSettingsService,
