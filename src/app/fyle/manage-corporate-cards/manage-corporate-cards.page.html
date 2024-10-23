@@ -12,7 +12,7 @@
 <div *ngIf="isVirtualCardsEnabled$ | async as isVirtualCardsEnabled">
   <div *ngIf="corporateCards$ | async as corporateCards">
     <div
-      *ngIf="isVirtualCardsEnabled.enabled && areVirtualCardsPresent(corporateCards)"
+      *ngIf="isVirtualCardsEnabled.enabled && checkCardsAvailability(corporateCards); else zeroState"
       class="manage-corporate-cards__segment-container"
     >
       <ion-segment (ionChange)="segmentChanged($event)" [value]="segmentValue" class="manage-corporate-cards__segment">
@@ -34,7 +34,7 @@
   <div class="manage-corporate-cards__cards">
     <ng-container *ngIf="corporateCards$ | async as corporateCards; else shimmers">
       <div *ngIf="getCorporateCardsLength(corporateCards); else zeroState" class="manage-corporate-cards__cards-list">
-        <div *ngFor="let corporateCard of corporateCards" class="manage-corporate-cards__card">
+        <div *ngFor="let corporateCard of filterVirtualCards(corporateCards)" class="manage-corporate-cards__card">
           <app-corporate-card
             *ngIf="!corporateCard.virtual_card_id"
             [card]="corporateCard"

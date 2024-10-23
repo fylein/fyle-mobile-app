@@ -89,6 +89,8 @@ export class MyProfilePage {
 
   isAmexFeedEnabled: boolean;
 
+  isVirtualCardsEnabled: boolean;
+
   isMileageEnabled: boolean;
 
   isCommuteDeductionEnabled: boolean;
@@ -257,6 +259,9 @@ export class MyProfilePage {
 
     this.isAmexFeedEnabled =
       this.orgSettings.amex_feed_enrollment_settings.allowed && this.orgSettings.amex_feed_enrollment_settings.enabled;
+
+    this.isVirtualCardsEnabled =
+      this.isAmexFeedEnabled && this.orgSettings.amex_feed_enrollment_settings.virtual_card_settings_enabled;
 
     this.isRTFEnabled = this.isVisaRTFEnabled || this.isMastercardRTFEnabled || this.isAmexFeedEnabled;
   }
