@@ -322,6 +322,10 @@ export class ManageCorporateCardsPage {
     });
   }
 
+  filterVirtualCards(corporateCards: PlatformCorporateCard[]): PlatformCorporateCard[] {
+    return corporateCards.filter((card) => !card.virtual_card_id);
+  }
+
   private handleEnrollmentSuccess(): void {
     this.corporateCreditCardExpenseService.clearCache().subscribe(async () => {
       const cardAddedModal = await this.popoverController.create({
@@ -340,10 +344,6 @@ export class ManageCorporateCardsPage {
 
   private checkCardsAvailabilityAndSetupSegment(corporateCards: PlatformCorporateCard[]): void {
     this.showSegment = corporateCards.filter((corporateCard) => corporateCard.virtual_card_id).length > 0;
-  }
-
-  private filterVirtualCards(corporateCards: PlatformCorporateCard[]): PlatformCorporateCard[] {
-    return corporateCards.filter((card) => !card.virtual_card_id);
   }
 
   private async unenrollCard(card: PlatformCorporateCard): Promise<void> {
