@@ -197,6 +197,7 @@ describe('ManageCorporateCardsPage', () => {
     corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([]));
     realTimeFeedService.unenroll.and.returnValue(of(null));
     component.isVirtualCardsEnabled$ = of({ enabled: true });
+    component.isAddCorporateCardVisible$ = of(true);
     spyOn(component.loadCorporateCards$, 'next').and.callThrough();
 
     fixture.detectChanges();
@@ -207,6 +208,10 @@ describe('ManageCorporateCardsPage', () => {
   });
 
   describe('template', () => {
+    beforeEach(() => {
+      component.isAddCorporateCardVisible$ = of(true);
+    });
+
     it('should show a zero state if there are no corporate cards', () => {
       component.ionViewWillEnter();
       fixture.detectChanges();
@@ -304,6 +309,7 @@ describe('ManageCorporateCardsPage', () => {
       spyOn(component, 'onCardAdded');
 
       component.ionViewWillEnter();
+      component.isAddCorporateCardVisible$ = of(true);
       fixture.detectChanges();
     });
 
@@ -374,6 +380,7 @@ describe('ManageCorporateCardsPage', () => {
       popoverController.create.and.resolveTo(disconnectPopoverSpy);
 
       component.ionViewWillEnter();
+      component.isAddCorporateCardVisible$ = of(true);
       fixture.detectChanges();
 
       component.setActionSheetButtons(visaRTFCard).subscribe((actionSheetButtonsRes) => {
@@ -455,6 +462,7 @@ describe('ManageCorporateCardsPage', () => {
       actionSheetController.create.and.resolveTo(actionSheetSpy);
 
       component.ionViewWillEnter();
+      component.isAddCorporateCardVisible$ = of(true);
       fixture.detectChanges();
 
       const card = fixture.debugElement.query(By.directive(MockCorporateCardComponent));
@@ -488,6 +496,7 @@ describe('ManageCorporateCardsPage', () => {
       actionSheetController.create.and.resolveTo(actionSheetSpy);
 
       component.ionViewWillEnter();
+      component.isAddCorporateCardVisible$ = of(true);
       fixture.detectChanges();
 
       const card = fixture.debugElement.query(By.directive(MockCorporateCardComponent));
@@ -526,6 +535,7 @@ describe('ManageCorporateCardsPage', () => {
       corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([statementUploadedCard]));
 
       component.ionViewWillEnter();
+      component.isAddCorporateCardVisible$ = of(true);
       fixture.detectChanges();
 
       component.setActionSheetButtons(statementUploadedCard).subscribe((actionSheetButtonsRes) => {
@@ -673,6 +683,7 @@ describe('ManageCorporateCardsPage', () => {
   });
 
   it('setNavigationSubscription(): should clear timeout and show promote opt-in modal if user navigates to manage corporate cards page', fakeAsync(() => {
+    component.isAddCorporateCardVisible$ = of(true);
     spyOn(component, 'showPromoteOptInModal');
     const navigationEvent = new NavigationStart(1, 'manage_corporate_cards');
     utilityService.canShowOptInModal.and.returnValue(of(true));
