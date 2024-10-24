@@ -11,10 +11,7 @@
 
 <div *ngIf="isVirtualCardsEnabled$ | async as isVirtualCardsEnabled">
   <div *ngIf="corporateCards$ | async as corporateCards">
-    <div
-      *ngIf="isVirtualCardsEnabled.enabled && areVirtualCardsPresent(corporateCards)"
-      class="manage-corporate-cards__segment-container"
-    >
+    <div *ngIf="isVirtualCardsEnabled.enabled && showSegment" class="manage-corporate-cards__segment-container">
       <ion-segment (ionChange)="segmentChanged($event)" [value]="segmentValue" class="manage-corporate-cards__segment">
         <ion-segment-button [value]="Segment.CORPORATE_CARDS" class="text-capitalize"
           >Corporate Cards</ion-segment-button
@@ -34,7 +31,7 @@
   <div class="manage-corporate-cards__cards">
     <ng-container *ngIf="corporateCards$ | async as corporateCards; else shimmers">
       <div *ngIf="getCorporateCardsLength(corporateCards); else zeroState" class="manage-corporate-cards__cards-list">
-        <div *ngFor="let corporateCard of corporateCards" class="manage-corporate-cards__card">
+        <div *ngFor="let corporateCard of filteredCorporateCards" class="manage-corporate-cards__card">
           <app-corporate-card
             *ngIf="!corporateCard.virtual_card_id"
             [card]="corporateCard"
@@ -96,7 +93,7 @@
   </div>
 </ion-content>
 
-<ion-footer *ngIf="segmentValue === Segment.CORPORATE_CARDS">
+<ion-footer *ngIf="(isAddCorporateCardVisible$ | async) && segmentValue === Segment.CORPORATE_CARDS">
   <ion-toolbar mode="md">
     <div class="manage-corporate-cards__footer-toolbar">
       <ion-button
