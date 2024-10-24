@@ -415,7 +415,7 @@ export function TestCases5(getTestBed) {
           expect(res).toBeTrue();
         });
 
-        expect(component.getCostCenters).toHaveBeenCalledOnceWith(jasmine.any(Observable), jasmine.any(Observable));
+        expect(component.getCostCenters).toHaveBeenCalledOnceWith(jasmine.any(Observable));
 
         component.reports$.subscribe((res) => {
           expect(res).toEqual(reportOptionsData3);
