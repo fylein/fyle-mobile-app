@@ -6,7 +6,6 @@ import { finalize, map, switchMap, tap } from 'rxjs/operators';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpenseFieldsMap } from 'src/app/core/models/v1/expense-fields-map.model';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { RefinerService } from 'src/app/core/services/refiner.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
@@ -43,7 +42,6 @@ export class CreateNewReportComponent implements OnInit {
   constructor(
     private modalController: ModalController,
     private trackingService: TrackingService,
-    private refinerService: RefinerService,
     private currencyService: CurrencyService,
     private expenseFieldsService: ExpenseFieldsService,
     private spenderReportsService: SpenderReportsService
@@ -103,7 +101,7 @@ export class CreateNewReportComponent implements OnInit {
     this.modalController.dismiss();
   }
 
-  ctaClickedEvent(reportActionType): Subscription {
+  async ctaClickedEvent(reportActionType: string): Promise<void> {
     this.showReportNameError = false;
     if (this.reportTitle.trim().length <= 0) {
       this.showReportNameError = true;
@@ -118,7 +116,7 @@ export class CreateNewReportComponent implements OnInit {
     const txnIds = this.selectedElements.map((expense) => expense.id);
     if (reportActionType === 'create_draft_report') {
       this.saveDraftReportLoader = true;
-      return this.spenderReportsService
+      this.spenderReportsService
         .createDraft({ data: report })
         .pipe(
           tap(() =>
@@ -154,7 +152,6 @@ export class CreateNewReportComponent implements OnInit {
               Expense_Count: txnIds.length,
               Report_Value: this.selectedTotalAmount,
             });
-            this.refinerService.startSurvey({ actionName: 'Submit Newly Created Report' });
           }),
           finalize(() => {
             this.submitReportLoader = false;

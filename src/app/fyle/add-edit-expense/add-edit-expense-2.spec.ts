@@ -582,6 +582,24 @@ export function TestCases2(getTestBed) {
           done();
         });
       });
+
+      it('should update txn date with invoice_dt', (done) => {
+        const mockedTxn = cloneDeep(transformedExpenseWithExtractedData2);
+        const extractedDate = new Date('2023-01-24');
+
+        mockedTxn.tx.txn_dt = new Date('2023-01-23');
+        mockedTxn.tx.extracted_data.invoice_dt = new Date('2023-01-23');
+        mockedTxn.tx.extracted_data.date = extractedDate;
+        expensesService.getExpenseById.and.returnValue(of(platformExpenseWithExtractedData2));
+        transactionService.transformExpense.and.returnValue(mockedTxn);
+        dateService.getUTCDate.and.returnValue(mockedTxn.tx.extracted_data.invoice_dt);
+
+        component.getEditExpenseObservable().subscribe((res) => {
+          expect(res).toEqual(mockedTxn);
+          expect(mockedTxn.tx.txn_dt).toEqual(mockedTxn.tx.extracted_data.invoice_dt);
+          done();
+        });
+      });
     });
 
     it('goToPrev(): should go to the previous txn', () => {

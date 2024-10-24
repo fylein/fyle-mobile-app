@@ -1154,6 +1154,34 @@ export function TestCases3(getTestBed) {
             },
           });
       });
+
+      it('should set default comment if user wants to continue with violations but does not provide a comment', (done) => {
+        loaderService.hideLoader.and.resolveTo();
+        loaderService.showLoader.and.resolveTo();
+        component.etxn$ = of(unflattenedTxnData2);
+        spyOn(component, 'continueWithPolicyViolations').and.resolveTo({ comment: '' });
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(unflattenedExpData));
+
+        component
+          .policyViolationErrorHandler(
+            {
+              policyViolations: criticalPolicyViolation1,
+              policyAction: policyViolation1.data.final_desired_state,
+            },
+            of(customFieldData2)
+          )
+          .subscribe((result) => {
+            expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+            expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+            expect(component.continueWithPolicyViolations).toHaveBeenCalledOnceWith(
+              criticalPolicyViolation1,
+              policyViolation1.data.final_desired_state
+            );
+            expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(1);
+            expect(result.comment).toBe('No policy violation explanation provided');
+            done();
+          });
+      });
     });
 
     describe('viewAttachments():', () => {

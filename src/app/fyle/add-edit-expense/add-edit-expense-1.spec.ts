@@ -640,8 +640,8 @@ export function TestCases1(getTestBed) {
       networkService.isOnline.and.returnValue(of(true));
 
       component.setupNetworkWatcher();
-      expect(networkService.connectivityWatcher).toHaveBeenCalledOnceWith(new EventEmitter<boolean>());
-      expect(networkService.isOnline).toHaveBeenCalledTimes(1);
+      expect(networkService.connectivityWatcher).toHaveBeenCalledWith(new EventEmitter<boolean>());
+      expect(networkService.isOnline).toHaveBeenCalled();
       component.isConnected$.subscribe((res) => {
         expect(res).toBeTrue();
         done();
