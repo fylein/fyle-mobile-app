@@ -25,6 +25,7 @@ import { CameraService } from 'src/app/core/services/camera.service';
 import { CameraPreviewService } from 'src/app/core/services/camera-preview.service';
 import { ReceiptPreviewData } from 'src/app/core/models/receipt-preview-data.model';
 
+// eslint-disable-next-line custom-rules/prefer-semantic-extension-name
 type Image = Partial<{
   source: string;
   base64Image: string;
