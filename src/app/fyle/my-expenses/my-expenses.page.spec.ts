@@ -515,7 +515,7 @@ describe('MyExpensesPage', () => {
       inputElement = component.simpleSearchInput.nativeElement;
     });
 
-    it('should set isNewReportsFlowEnabled, isInstaFyleEnabled, isBulkFyleEnabled, isMileageEnabled and isPerDiemEnabled to true if orgSettings and orgUserSettings properties are enabled', fakeAsync(() => {
+    it('should set isNewReportsFlowEnabled, isInstaFyleEnabled, isMileageEnabled and isPerDiemEnabled to true if orgSettings and orgUserSettings properties are enabled', fakeAsync(() => {
       component.ionViewWillEnter();
       tick(500);
       expect(component.expensesTaskCount).toBe(10);
@@ -526,9 +526,6 @@ describe('MyExpensesPage', () => {
       component.isInstaFyleEnabled$.subscribe((isInstaFyleEnabled) => {
         expect(isInstaFyleEnabled).toBeTrue();
       });
-      component.isBulkFyleEnabled$.subscribe((isBulkFyleEnabled) => {
-        expect(isBulkFyleEnabled).toBeTrue();
-      });
       component.isMileageEnabled$.subscribe((isMileageEnabled) => {
         expect(isMileageEnabled).toBeTrue();
       });
@@ -537,7 +534,7 @@ describe('MyExpensesPage', () => {
       });
     }));
 
-    it('should set isNewReportsFlowEnabled, isInstaFyleEnabled, isBulkFyleEnabled, isMileageEnabled and isPerDiemEnabled to false if orgSettings and orgUserSettings properties are disabled', fakeAsync(() => {
+    it('should set isNewReportsFlowEnabled, isInstaFyleEnabled, isMileageEnabled and isPerDiemEnabled to false if orgSettings and orgUserSettings properties are disabled', fakeAsync(() => {
       const mockOrgUserSettingsData = cloneDeep(orgUserSettingsData);
       const mockOrgSettingsData = cloneDeep(orgSettingsRes);
       mockOrgUserSettingsData.insta_fyle_settings.enabled = false;
@@ -557,9 +554,6 @@ describe('MyExpensesPage', () => {
       component.isInstaFyleEnabled$.subscribe((isInstaFyleEnabled) => {
         expect(isInstaFyleEnabled).toBeFalse();
       });
-      component.isBulkFyleEnabled$.subscribe((isBulkFyleEnabled) => {
-        expect(isBulkFyleEnabled).toBeFalse();
-      });
       component.isMileageEnabled$.subscribe((isMileageEnabled) => {
         expect(isMileageEnabled).toBeFalse();
       });
@@ -568,7 +562,7 @@ describe('MyExpensesPage', () => {
       });
     }));
 
-    it('should set isNewReportsFlowEnabled, isInstaFyleEnabled, isBulkFyleEnabled, isMileageEnabled and isPerDiemEnabled to false if orgSettings and orgUserSettings properties are not allowed', fakeAsync(() => {
+    it('should set isNewReportsFlowEnabled, isInstaFyleEnabled, isMileageEnabled and isPerDiemEnabled to false if orgSettings and orgUserSettings properties are not allowed', fakeAsync(() => {
       const mockOrgUserSettingsData = cloneDeep(orgUserSettingsData);
       mockOrgUserSettingsData.insta_fyle_settings.allowed = false;
       mockOrgUserSettingsData.bulk_fyle_settings.allowed = false;
@@ -584,9 +578,6 @@ describe('MyExpensesPage', () => {
       component.isInstaFyleEnabled$.subscribe((isInstaFyleEnabled) => {
         expect(isInstaFyleEnabled).toBeFalse();
       });
-      component.isBulkFyleEnabled$.subscribe((isBulkFyleEnabled) => {
-        expect(isBulkFyleEnabled).toBeTrue();
-      });
       component.isMileageEnabled$.subscribe((isMileageEnabled) => {
         expect(isMileageEnabled).toBeTrue();
       });
@@ -595,7 +586,7 @@ describe('MyExpensesPage', () => {
       });
     }));
 
-    it('should set isInstaFyleEnabled, isBulkFyleEnabled, isMileageEnabled and isPerDiemEnabled to undefined if orgUserSettings and orgSettings are undefined', fakeAsync(() => {
+    it('should set isInstaFyleEnabled, isMileageEnabled and isPerDiemEnabled to undefined if orgUserSettings and orgSettings are undefined', fakeAsync(() => {
       orgUserSettingsService.get.and.returnValue(of(undefined));
       orgSettingsService.get.and.returnValue(of(undefined));
 
@@ -608,9 +599,6 @@ describe('MyExpensesPage', () => {
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
       component.isInstaFyleEnabled$.subscribe((isInstaFyleEnabled) => {
         expect(isInstaFyleEnabled).toBeUndefined();
-      });
-      component.isBulkFyleEnabled$.subscribe((isBulkFyleEnabled) => {
-        expect(isBulkFyleEnabled).toBeUndefined();
       });
       component.isMileageEnabled$.subscribe((isMileageEnabled) => {
         expect(isMileageEnabled).toBeUndefined();

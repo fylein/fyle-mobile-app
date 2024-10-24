@@ -111,8 +111,6 @@ export class MyExpensesPage implements OnInit {
 
   isInstaFyleEnabled$: Observable<boolean>;
 
-  isBulkFyleEnabled$: Observable<boolean>;
-
   isMileageEnabled$: Observable<boolean>;
 
   isPerDiemEnabled$: Observable<boolean>;
@@ -463,10 +461,6 @@ export class MyExpensesPage implements OnInit {
         (orgUserSettings) =>
           orgUserSettings?.insta_fyle_settings?.allowed && orgUserSettings.insta_fyle_settings.enabled
       )
-    );
-
-    this.isBulkFyleEnabled$ = getOrgUserSettingsService$.pipe(
-      map((orgUserSettings) => orgUserSettings?.bulk_fyle_settings?.enabled)
     );
 
     this.orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));

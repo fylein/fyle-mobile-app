@@ -1,3 +1,4 @@
+/* eslint-disable custom-rules/prefer-resolve-to-reject-with */
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { CameraPreviewComponent } from './camera-preview.component';
@@ -88,6 +89,17 @@ describe('CameraPreviewComponent', () => {
       tick(1000);
       expect(component.permissionDenied.emit).toHaveBeenCalledTimes(1);
       expect(cameraService.requestCameraPermissions).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should start camera preview if device platform is web', fakeAsync(() => {
+      (component as any).devicePlatform = 'web';
+      spyOn(component, 'startCameraPreview');
+
+      fixture.detectChanges();
+      component.setUpAndStartCamera();
+
+      expect(component.startCameraPreview).toHaveBeenCalledTimes(1);
+      expect(cameraService.requestCameraPermissions).not.toHaveBeenCalled();
     }));
   });
 
@@ -211,16 +223,16 @@ describe('CameraPreviewComponent', () => {
         isBulkMode: new SimpleChange(false, true, true),
       });
 
-      expect(component.showModeChangedMessage).toEqual(true);
+      expect(component.showModeChangedMessage).toBeTrue();
       tick(1500);
-      expect(component.showModeChangedMessage).toEqual(false);
+      expect(component.showModeChangedMessage).toBeFalse();
     }));
 
     it('should not change state if no change detected', () => {
       component.showModeChangedMessage = false;
 
       component.ngOnChanges({});
-      expect(component.showModeChangedMessage).toEqual(false);
+      expect(component.showModeChangedMessage).toBeFalse();
     });
   });
 });
