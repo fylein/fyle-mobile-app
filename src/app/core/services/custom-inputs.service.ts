@@ -35,7 +35,6 @@ export class CustomInputsService {
         this.spenderPlatformV1ApiService.get<PlatformApiResponse<PlatformExpenseField[]>>('/expense_fields', {
           params: {
             org_id: `eq.${eou.ou.org_id}`,
-            is_enabled: `eq.${active}`,
             is_custom: 'eq.true',
           },
         })
@@ -68,51 +67,63 @@ export class CustomInputsService {
     active: boolean
   ): Observable<CustomField[]> {
     return this.getAll(active).pipe(
+      // Filter out dependent selects
       map((allCustomInputs) => allCustomInputs.filter((customInput) => customInput.type !== 'DEPENDENT_SELECT')),
       map((allCustomInputs) => {
         const customInputs = this.filterByCategory(allCustomInputs, orgCategoryId);
 
-        // this should be by rank eventually
+        // Sort custom inputs by rank
         customInputs.sort(this.sortByRank);
 
         const filledCustomProperties: CustomField[] = [];
-        // eslint-disable-next-line @typescript-eslint/prefer-for-of
-        for (let i = 0; i < customInputs.length; i++) {
-          const customInput = customInputs[i];
+
+        // Iterate through custom inputs and process each one
+        customInputs.forEach((customInput) => {
+          // Set the field name, appending "(Deleted)" if the field is disabled
+          const fieldName =
+            customInput.is_enabled === false ? `${customInput.field_name} (Deleted)` : customInput.field_name;
+
+          // Initialize the property object
           const property = {
-            name: customInput.field_name,
+            name: fieldName,
             value: null,
             type: customInput.type,
             mandatory: customInput.is_mandatory,
             options: customInput.options,
           };
-          // defaults for types
+
+          // Set default values based on the custom input type
           if (customInput.type === 'BOOLEAN') {
             property.value = false;
           }
-
-          this.setSelectMultiselectValue(customInput, property);
-
           if (customInput.type === 'USER_LIST') {
             property.value = [];
           }
 
+          // Handle select/multiselect values
+          this.setSelectMultiselectValue(customInput, property);
+
+          // Check if a value exists in `customProperties` and assign it
           if (customProperties) {
-            // see if value is available
-            // eslint-disable-next-line @typescript-eslint/prefer-for-of
-            for (let j = 0; j < customProperties.length; j++) {
-              if (customProperties[j].name === customInput.field_name) {
-                this.setCustomPropertyValue(property, customProperties, j);
-                break;
-              }
+            const matchingCustomPropertyIndex = customProperties.findIndex((cp) => cp.name === customInput.field_name);
+            if (matchingCustomPropertyIndex >= 0) {
+              this.setCustomPropertyValue(property, customProperties, matchingCustomPropertyIndex);
             }
           }
-          filledCustomProperties.push({
-            ...property,
-            displayValue: this.getCustomPropertyDisplayValue(property),
-          });
-        }
 
+          // Add the property to `filledCustomProperties` based on new logic
+          if (
+            property.type === 'BOOLEAN' || // Always include BOOLEAN fields
+            (property.type === 'USER_LIST' && Array.isArray(property.value) && property.value.length > 0) || // Include USER_LIST if it has values
+            (customInput.is_enabled && property.value !== null && property.value !== undefined) || // Include active fields with values
+            (customInput.is_enabled && this.getCustomPropertyDisplayValue(property) === '-') // Include active fields with a hyphen value
+          ) {
+            filledCustomProperties.push({
+              ...property,
+              displayValue: this.getCustomPropertyDisplayValue(property),
+            });
+          }
+        });
         return filledCustomProperties;
       })
     );
