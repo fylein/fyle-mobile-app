@@ -1,3 +1,4 @@
+/* eslint-disable custom-rules/prefer-resolve-to-reject-with */
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { CameraPreviewComponent } from './camera-preview.component';
@@ -222,16 +223,16 @@ describe('CameraPreviewComponent', () => {
         isBulkMode: new SimpleChange(false, true, true),
       });
 
-      expect(component.showModeChangedMessage).toEqual(true);
+      expect(component.showModeChangedMessage).toBeTrue();
       tick(1500);
-      expect(component.showModeChangedMessage).toEqual(false);
+      expect(component.showModeChangedMessage).toBeFalse();
     }));
 
     it('should not change state if no change detected', () => {
       component.showModeChangedMessage = false;
 
       component.ngOnChanges({});
-      expect(component.showModeChangedMessage).toEqual(false);
+      expect(component.showModeChangedMessage).toBeFalse();
     });
   });
 });
