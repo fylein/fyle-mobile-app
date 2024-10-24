@@ -1791,8 +1791,8 @@ export class MyExpensesPage implements OnInit {
 
   /**
    * Checks if the scan process for an expense has been completed.
-   * @param {PlatformExpense} expense - The expense to check.
-   * @returns {boolean} - True if the scan is complete or if data is manually entered.
+   * @param PlatformExpense expense - The expense to check.
+   * @returns boolean - True if the scan is complete or if data is manually entered.
    */
   private isExpenseScanComplete(expense: PlatformExpense): boolean {
     const isZeroAmountPerDiemOrMileage = this.isZeroAmountPerDiemOrMileage(expense);
@@ -1809,8 +1809,8 @@ export class MyExpensesPage implements OnInit {
 
   /**
    * Filters the list of expenses to get only those with incomplete scans.
-   * @param {PlatformExpense[]} expenses - The list of expenses to check.
-   * @returns {string[]} - Array of expense IDs that have incomplete scans.
+   * @param PlatformExpense[] expenses - The list of expenses to check.
+   * @returns string[] - Array of expense IDs that have incomplete scans.
    */
   private filterDEIncompleteExpenses(expenses: PlatformExpense[]): string[] {
     return expenses.filter((expense) => !this.isExpenseScanComplete(expense)).map((expense) => expense.id);
@@ -1818,10 +1818,10 @@ export class MyExpensesPage implements OnInit {
 
   /**
    * Updates the expenses with polling results.
-   * @param {PlatformExpense[]} initialExpenses - The initial list of expenses.
-   * @param {PlatformExpense[]} updatedExpenses - The updated expenses after polling.
-   * @param {string[]} dEincompleteExpenseIds - Array of expense IDs with incomplete scans.
-   * @returns {PlatformExpense[]} - Updated list of expenses.
+   * @param PlatformExpense[] initialExpenses - The initial list of expenses.
+   * @param PlatformExpense[] updatedExpenses - The updated expenses after polling.
+   * @param string[] dEincompleteExpenseIds - Array of expense IDs with incomplete scans.
+   * @returns PlatformExpense[] - Updated list of expenses.
    */
   private updateExpensesList(
     initialExpenses: PlatformExpense[],
