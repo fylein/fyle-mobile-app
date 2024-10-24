@@ -101,6 +101,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
   ngOnInit() {
     this.intialSelectedEmployees = cloneDeep(this.currentSelections);
     this.intialSelectedEmployees.sort((a, b) => (a < b ? -1 : 1));
+    this.selectedItemDict = this.getSelectedItemDict();
   }
 
   clearValue() {
