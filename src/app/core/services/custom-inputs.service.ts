@@ -105,9 +105,9 @@ export class CustomInputsService {
 
           // Check if a value exists in `customProperties` and assign it
           if (customProperties) {
-            const matchingCustomProperty = customProperties.find((cp) => cp.name === customInput.field_name);
-            if (matchingCustomProperty) {
-              this.setCustomPropertyValue(property, customProperties, customProperties.indexOf(matchingCustomProperty));
+            const matchingCustomPropertyIndex = customProperties.findIndex((cp) => cp.name === customInput.field_name);
+            if (matchingCustomPropertyIndex >= 0) {
+              this.setCustomPropertyValue(property, customProperties, matchingCustomPropertyIndex);
             }
           }
 
