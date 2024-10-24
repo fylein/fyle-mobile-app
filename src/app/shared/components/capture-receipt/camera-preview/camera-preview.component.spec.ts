@@ -89,6 +89,17 @@ describe('CameraPreviewComponent', () => {
       expect(component.permissionDenied.emit).toHaveBeenCalledTimes(1);
       expect(cameraService.requestCameraPermissions).toHaveBeenCalledTimes(1);
     }));
+
+    it('should start camera preview if device platform is web', fakeAsync(() => {
+      (component as any).devicePlatform = 'web';
+      spyOn(component, 'startCameraPreview');
+
+      fixture.detectChanges();
+      component.setUpAndStartCamera();
+
+      expect(component.startCameraPreview).toHaveBeenCalledTimes(1);
+      expect(cameraService.requestCameraPermissions).not.toHaveBeenCalled();
+    }));
   });
 
   it('startCameraPreview(): should start camera preview', fakeAsync(() => {
