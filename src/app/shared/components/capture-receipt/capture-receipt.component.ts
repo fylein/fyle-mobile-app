@@ -118,7 +118,6 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         }
         const transaction = {
           source,
-          currency: eou?.org?.currency,
         };
 
         const attachmentUrls = [
@@ -128,7 +127,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
             url: base64ImagesWithSource.base64Image,
           },
         ];
-        return this.transactionsOutboxService.addEntry(transaction, attachmentUrls, null, null, true);
+        return this.transactionsOutboxService.addEntry(transaction, attachmentUrls, null, null);
       })
     );
   }
