@@ -1115,7 +1115,7 @@ describe('TransactionService', () => {
       spyOn(transactionService, 'transformExpense').and.returnValue({ tx: txnData2 });
 
       transactionService.createTxnWithFiles(txnWithSourceOnly, of(mockFileObject)).subscribe((res) => {
-        expect(expensesService.createFromFile).toHaveBeenCalledOnceWith(mockFileObject[0].id, 'TPA');
+        expect(expensesService.createFromFile).toHaveBeenCalledOnceWith(mockFileObject[0].id, 'MOBILE_DASHCAM');
         expect(transactionService.transformExpense).toHaveBeenCalled();
         expect(res).toEqual(txnData2);
         done();
