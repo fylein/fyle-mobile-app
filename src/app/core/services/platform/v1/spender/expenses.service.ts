@@ -291,7 +291,7 @@ export class ExpensesService {
   }
 
   // transform public transaction to expense payload for /post expenses
-  transformTo(transaction: Partial<Transaction>, fileIds: string[]): Partial<Expense> {
+  transformTo(transaction: Partial<Transaction>): Partial<Expense> {
     const expense: Partial<Expense> = {
       id: transaction.id,
       spent_at: transaction.txn_dt,
@@ -323,7 +323,7 @@ export class ExpensesService {
       commute_details_id: transaction.commute_details_id,
       hotel_is_breakfast_provided: transaction.hotel_is_breakfast_provided,
       advance_wallet_id: transaction.advance_wallet_id,
-      file_ids: fileIds,
+      file_ids: transaction.file_ids,
       report_id: transaction.report_id,
       travel_classes: [],
     };

@@ -4038,8 +4038,6 @@ export class AddEditExpensePage implements OnInit {
 
             // NOTE: This double call is done as certain fields will not be present in return of upsert call. policy_amount in this case.
             return this.transactionService.upsert(etxn.tx as Transaction).pipe(
-              switchMap((txn) => this.expensesService.getExpenseById(txn.id)),
-              map((expense) => this.transactionService.transformExpense(expense).tx),
               switchMap((tx) => {
                 const selectedReportId = reportControl.report?.id;
                 const criticalPolicyViolated = this.getIsPolicyExpense(etxn as unknown as Expense);
@@ -4079,17 +4077,6 @@ export class AddEditExpensePage implements OnInit {
                       }
                     })
                   );
-                } else {
-                  return of(txn);
-                }
-              }),
-              switchMap((txn) => {
-                if (txn.id && txn.advance_wallet_id !== etxn.tx.advance_wallet_id) {
-                  const expense = {
-                    id: txn.id,
-                    advance_wallet_id: etxn.tx.advance_wallet_id,
-                  };
-                  return this.expensesService.post(expense).pipe(map(() => txn));
                 } else {
                   return of(txn);
                 }
