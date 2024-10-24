@@ -203,7 +203,6 @@ export class TransactionsOutboxService {
   syncEntry(entry: OutboxQueue): Promise<OutboxQueue> {
     const that = this;
     const fileObjPromiseArray: Promise<FileObject>[] = [];
-    const reportId = entry.reportId;
 
     if (!entry.fileUploadCompleted) {
       if (entry.dataUrls && entry.dataUrls.length > 0) {
