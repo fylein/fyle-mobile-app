@@ -613,7 +613,7 @@ describe('ViewTeamReportPageV2', () => {
       expect(refinerService.startSurvey).toHaveBeenCalledOnceWith({ actionName: 'Approve Report' });
     }));
 
-    it('should toggle tooltip if approval privilege is not provided', fakeAsync(() => {
+    it('should toggle tooltip if approval permission is not provided', fakeAsync(() => {
       spyOn(component, 'toggleTooltip');
       component.canApprove = false;
       fixture.detectChanges();
@@ -624,7 +624,7 @@ describe('ViewTeamReportPageV2', () => {
       expect(component.toggleTooltip).toHaveBeenCalledTimes(1);
     }));
 
-    it('should not approve report if user does not have approval privileges', fakeAsync(() => {
+    it('should not approve report if user does not have approval permissions', fakeAsync(() => {
       component.canApprove = false;
       component.approveReport();
       tick();
