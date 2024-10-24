@@ -110,15 +110,13 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
     return forkJoin({
       isOffline: this.isOffline$.pipe(take(1)),
-      eou: this.authService.getEou(),
     }).pipe(
-      switchMap(({ eou, isOffline }) => {
+      switchMap(({ isOffline }) => {
         if (isOffline) {
           source += '_OFFLINE';
         }
         const transaction = {
           source,
-          currency: eou?.org?.currency,
         };
 
         const attachmentUrls = [
@@ -128,7 +126,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
             url: base64ImagesWithSource.base64Image,
           },
         ];
-        return this.transactionsOutboxService.addEntry(transaction, attachmentUrls, null, null, true);
+        return this.transactionsOutboxService.addEntry(transaction, attachmentUrls, null, null);
       })
     );
   }

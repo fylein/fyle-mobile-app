@@ -3,6 +3,9 @@ import { Transaction } from '../models/v1/transaction.model';
 import { optionsData15, optionsData33 } from './merge-expenses-options-data.data';
 import { expectedTxnCustomProperties, txnCustomPropertiesData } from './txn-custom-properties.data';
 import { ExpenseTransactionStatus } from '../enums/platform/v1/expense-transaction-status.enum';
+import { Expense } from '../models/platform/v1/expense.model';
+import { MileageUnitEnum } from '../models/platform/platform-mileage-rates.model';
+import deepFreezeStrict from 'deep-freeze-strict';
 
 export const txnList: Transaction[] = deepFreeze([
   {
@@ -2581,6 +2584,37 @@ export const txnAmount1: Transaction = deepFreeze({
   custom_properties: [],
   is_implicit_merge_blocked: false,
   categoryDisplayName: 'Bus',
+});
+
+export const transformedExpensePayload: Partial<Expense> = deepFreezeStrict({
+  id: txnAmount1.id,
+  spent_at: txnAmount1.txn_dt,
+  category_id: txnAmount1.org_category_id,
+  purpose: txnAmount1.purpose,
+  source_account_id: txnAmount1.source_account_id,
+  claim_amount: txnAmount1.amount,
+  merchant: txnAmount1.vendor,
+  project_id: txnAmount1.project_id,
+  cost_center_id: txnAmount1.cost_center_id,
+  foreign_currency: txnAmount1.orig_currency,
+  foreign_amount: txnAmount1.orig_amount,
+  source: txnAmount1.source,
+  is_reimbursable: !txnAmount1.skip_reimbursement,
+  tax_amount: txnAmount1.tax_amount,
+  tax_group_id: txnAmount1.tax_group_id,
+  is_billable: txnAmount1.billable,
+  distance: txnAmount1.distance,
+  distance_unit: txnAmount1.distance_unit as MileageUnitEnum,
+  started_at: txnAmount1.from_dt,
+  ended_at: txnAmount1.to_dt,
+  custom_fields: txnAmount1.custom_properties,
+  per_diem_rate_id: txnAmount1.per_diem_rate_id,
+  per_diem_num_days: 0,
+  mileage_rate_id: txnAmount1.mileage_rate_id,
+  advance_wallet_id: txnAmount1.advance_wallet_id,
+  report_id: txnAmount1.report_id,
+  travel_classes: [],
+  locations: [],
 });
 
 export const splitExpenseTxn2: Transaction = deepFreeze({
