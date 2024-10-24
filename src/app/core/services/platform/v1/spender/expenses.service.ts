@@ -21,6 +21,7 @@ import { corporateCardTransaction } from 'src/app/core/models/platform/v1/cc-tra
 import { MatchedCorporateCardTransaction } from 'src/app/core/models/platform/v1/matched-corpporate-card-transaction.model';
 import { MileageUnitEnum } from 'src/app/core/models/platform/platform-mileage-rates.model';
 import { Location } from 'src/app/core/models/location.model';
+import { CommuteDeduction } from 'src/app/core/enums/commute-deduction.enum';
 
 @Injectable({
   providedIn: 'root',
@@ -316,7 +317,11 @@ export class ExpensesService {
       custom_fields: transaction.custom_properties,
       per_diem_rate_id: transaction.per_diem_rate_id,
       per_diem_num_days: transaction.num_days || 0,
-      mileage_rate_id: transaction.mileage_rate_id,
+      mileage_rate_id: transaction.mileage_rate_id, // @arjun check if this is present
+      commute_deduction: transaction.commute_deduction as CommuteDeduction,
+      mileage_is_round_trip: transaction.mileage_is_round_trip,
+      commute_details_id: transaction.commute_details_id,
+      hotel_is_breakfast_provided: transaction.hotel_is_breakfast_provided,
       advance_wallet_id: transaction.advance_wallet_id,
       file_ids: fileIds,
       report_id: transaction.report_id,

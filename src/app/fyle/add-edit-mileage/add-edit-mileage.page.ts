@@ -2335,7 +2335,7 @@ export class AddEditMileagePage implements OnInit {
       switchMap((rates) => {
         const transactionCopy = cloneDeep(etxn.tx) as PublicPolicyExpense;
         const selectedMileageRate = this.getMileageByVehicleType(rates, etxn.tx.mileage_vehicle_type);
-        transactionCopy.mileage_rate_id = selectedMileageRate.id;
+        transactionCopy.mileage_rate_id = selectedMileageRate?.id;
 
         /* Expense creation has not moved to platform yet and since policy is moved to platform,
          * it expects the expense object in terms of platform world. Until then, the method
