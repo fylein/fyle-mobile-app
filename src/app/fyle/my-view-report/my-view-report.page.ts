@@ -19,7 +19,6 @@ import * as dayjs from 'dayjs';
 import { StatusService } from 'src/app/core/services/status.service';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { cloneDeep } from 'lodash';
-import { RefinerService } from 'src/app/core/services/refiner.service';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
@@ -128,7 +127,6 @@ export class MyViewReportPage {
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
     private statusService: StatusService,
-    private refinerService: RefinerService,
     private orgSettingsService: OrgSettingsService,
     private platformHandlerService: PlatformHandlerService,
     private spenderReportsService: SpenderReportsService
@@ -435,7 +433,6 @@ export class MyViewReportPage {
 
   resubmitReport(): void {
     this.spenderReportsService.resubmit(this.reportId).subscribe(() => {
-      this.refinerService.startSurvey({ actionName: 'Resubmit Report ' });
       this.router.navigate(['/', 'enterprise', 'my_reports']);
       const message = `Report resubmitted successfully.`;
       this.matSnackBar.openFromComponent(ToastMessageComponent, {
@@ -448,7 +445,6 @@ export class MyViewReportPage {
 
   submitReport(): void {
     this.spenderReportsService.submit(this.reportId).subscribe(() => {
-      this.refinerService.startSurvey({ actionName: 'Submit Report' });
       this.router.navigate(['/', 'enterprise', 'my_reports']);
       const message = `Report submitted successfully.`;
       this.matSnackBar.openFromComponent(ToastMessageComponent, {

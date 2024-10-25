@@ -16,7 +16,6 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { PopupService } from 'src/app/core/services/popup.service';
-import { RefinerService } from 'src/app/core/services/refiner.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { StatusService } from 'src/app/core/services/status.service';
@@ -56,6 +55,8 @@ import {
 import { ExpensesService as ApproverExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
 import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { RefinerService } from 'src/app/core/services/refiner.service';
 
 describe('ViewTeamReportPageV2', () => {
   let component: ViewTeamReportPage;
@@ -74,11 +75,12 @@ describe('ViewTeamReportPageV2', () => {
   let trackingService: jasmine.SpyObj<TrackingService>;
   let matSnackBar: jasmine.SpyObj<MatSnackBar>;
   let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
-  let refinerService: jasmine.SpyObj<RefinerService>;
   let statusService: jasmine.SpyObj<StatusService>;
   let humanizeCurrency: jasmine.SpyObj<HumanizeCurrencyPipe>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
+  let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
+  let refinerService: jasmine.SpyObj<RefinerService>;
 
   beforeEach(waitForAsync(() => {
     const approverExpensesServiceSpy = jasmine.createSpyObj('ApproverExpensesService', [
@@ -103,7 +105,6 @@ describe('ViewTeamReportPageV2', () => {
     ]);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
-    const refinerServiceSpy = jasmine.createSpyObj('RefinerService', ['startSurvey', '']);
     const statusServiceSpy = jasmine.createSpyObj('StatusService', ['find', 'createStatusMap', 'post']);
     const humanizeCurrencySpy = jasmine.createSpyObj('HumanizeCurrencyPipe', ['transform']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
@@ -114,6 +115,8 @@ describe('ViewTeamReportPageV2', () => {
       'sendBack',
       'approve',
     ]);
+    launchDarklyService = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
+    refinerService = jasmine.createSpyObj('RefinerService', ['startSurvey']);
 
     TestBed.configureTestingModule({
       declarations: [ViewTeamReportPage, EllipsisPipe, HumanizeCurrencyPipe],
@@ -177,16 +180,20 @@ describe('ViewTeamReportPageV2', () => {
           useValue: trackingServiceSpy,
         },
         {
+          provide: LaunchDarklyService,
+          useValue: launchDarklyService,
+        },
+        {
+          provide: RefinerService,
+          useValue: refinerService,
+        },
+        {
           provide: MatSnackBar,
           useValue: matSnackBarSpy,
         },
         {
           provide: SnackbarPropertiesService,
           useValue: snackbarPropertiesSpy,
-        },
-        {
-          provide: RefinerService,
-          useValue: refinerServiceSpy,
         },
         {
           provide: StatusService,
@@ -224,11 +231,12 @@ describe('ViewTeamReportPageV2', () => {
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
     snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
-    refinerService = TestBed.inject(RefinerService) as jasmine.SpyObj<RefinerService>;
     statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
     humanizeCurrency = TestBed.inject(HumanizeCurrencyPipe) as jasmine.SpyObj<HumanizeCurrencyPipe>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
+    launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
+    refinerService = TestBed.inject(RefinerService) as jasmine.SpyObj<RefinerService>;
 
     fixture.detectChanges();
   }));
@@ -267,6 +275,22 @@ describe('ViewTeamReportPageV2', () => {
   describe('getApprovalSettings():', () => {
     it('should return approval_settings', () => {
       const result = component.getApprovalSettings(orgSettingsData);
+      expect(result).toBeFalse();
+    });
+
+    it('should return true if approval settings are enabled', () => {
+      const result = component.getApprovalSettings({
+        ...orgSettingsData,
+        approval_settings: { enable_sequential_approvers: true },
+      });
+      expect(result).toBeTrue();
+    });
+
+    it('should return false if approval settings are disabled', () => {
+      const result = component.getApprovalSettings({
+        ...orgSettingsData,
+        approval_settings: { enable_sequential_approvers: false },
+      });
       expect(result).toBeFalse();
     });
 
@@ -497,6 +521,23 @@ describe('ViewTeamReportPageV2', () => {
       component.setupComments({ ...platformReportData, comments: null });
       expect(component.estatuses).toEqual([]);
     });
+
+    it('should handle comments when user is not present', () => {
+      component.eou$ = of(null);
+      component.setupComments({
+        ...platformReportData,
+        comments: [
+          {
+            creator_user_id: 'other',
+            comment: '',
+            created_at: undefined,
+            creator_user: null,
+            id: '',
+          },
+        ],
+      });
+      expect(component.estatuses.length).toBe(1);
+    });
   });
 
   it('setupNetworkWatcher(): should setup network watcher', () => {
@@ -524,7 +565,7 @@ describe('ViewTeamReportPageV2', () => {
   });
 
   describe('approveReport(): ', () => {
-    it('should open the modal and approve the report', async () => {
+    it('should open the modal and approve the report', fakeAsync(() => {
       humanizeCurrency.transform.and.callThrough();
       const popoverSpy = jasmine.createSpyObj('popover', ['present', 'onWillDismiss']);
       popoverSpy.onWillDismiss.and.resolveTo({
@@ -535,13 +576,14 @@ describe('ViewTeamReportPageV2', () => {
 
       popoverController.create.and.resolveTo(popoverSpy);
       approverReportsService.approve.and.returnValue(of(undefined));
-      refinerService.startSurvey.and.returnValue(null);
 
       component.report$ = of(reportWithExpenses);
       component.expenses$ = of(expenseResponseData);
+      launchDarklyService.getVariation.and.returnValue(of(true));
       fixture.detectChanges();
 
-      await component.approveReport();
+      component.approveReport();
+      tick(1000);
 
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         componentProps: {
@@ -566,18 +608,103 @@ describe('ViewTeamReportPageV2', () => {
         false
       );
       expect(approverReportsService.approve).toHaveBeenCalledOnceWith(platformReportData.id);
-      expect(refinerService.startSurvey).toHaveBeenCalledOnceWith({ actionName: 'Approve Report' });
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'team_reports']);
-    });
+      expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith('nps_survey', false);
+      expect(refinerService.startSurvey).toHaveBeenCalledOnceWith({ actionName: 'Approve Report' });
+    }));
 
-    it('should toggle tooltip if approval priviledge is not provided', async () => {
+    it('should toggle tooltip if approval permission is not provided', fakeAsync(() => {
       spyOn(component, 'toggleTooltip');
       component.canApprove = false;
       fixture.detectChanges();
 
-      await component.approveReport();
+      component.approveReport();
+      tick();
+
       expect(component.toggleTooltip).toHaveBeenCalledTimes(1);
-    });
+    }));
+
+    it('should not approve report if user does not have approval permissions', fakeAsync(() => {
+      component.canApprove = false;
+      component.approveReport();
+      tick();
+
+      expect(router.navigate).not.toHaveBeenCalled();
+    }));
+
+    it('should not approve report if user cancels the popover', fakeAsync(() => {
+      const popoverSpy = jasmine.createSpyObj('popover', ['present', 'onWillDismiss']);
+      popoverSpy.onWillDismiss.and.resolveTo({
+        data: {
+          action: 'cancel',
+        },
+      });
+
+      popoverController.create.and.resolveTo(popoverSpy);
+
+      component.report$ = of(reportWithExpenses);
+      component.expenses$ = of(expenseResponseData);
+      fixture.detectChanges();
+
+      component.approveReport();
+      tick();
+
+      expect(popoverController.create).toHaveBeenCalledOnceWith(jasmine.any(Object));
+      expect(approverReportsService.approve).not.toHaveBeenCalled();
+      expect(router.navigate).not.toHaveBeenCalled();
+      expect(launchDarklyService.getVariation).not.toHaveBeenCalled();
+      expect(refinerService.startSurvey).not.toHaveBeenCalled();
+    }));
+
+    it('should not start NPS survey if feature flag is disabled', fakeAsync(() => {
+      const popoverSpy = jasmine.createSpyObj('popover', ['present', 'onWillDismiss']);
+      popoverSpy.onWillDismiss.and.resolveTo({
+        data: {
+          action: 'approve',
+        },
+      });
+
+      popoverController.create.and.resolveTo(popoverSpy);
+      approverReportsService.approve.and.returnValue(of(undefined));
+      launchDarklyService.getVariation.and.returnValue(of(false));
+
+      component.report$ = of(reportWithExpenses);
+      component.expenses$ = of(expenseResponseData);
+      fixture.detectChanges();
+
+      component.approveReport();
+      tick();
+
+      expect(approverReportsService.approve).toHaveBeenCalledOnceWith(platformReportData.id);
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'team_reports']);
+      expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith('nps_survey', false);
+      expect(refinerService.startSurvey).not.toHaveBeenCalled();
+    }));
+
+    it('should start NPS survey if feature flag is enabled', fakeAsync(() => {
+      const popoverSpy = jasmine.createSpyObj('popover', ['present', 'onWillDismiss']);
+      popoverSpy.onWillDismiss.and.resolveTo({
+        data: {
+          action: 'approve',
+        },
+      });
+
+      popoverController.create.and.resolveTo(popoverSpy);
+      approverReportsService.approve.and.returnValue(of(undefined));
+      launchDarklyService.getVariation.and.returnValue(of(true));
+
+      component.report$ = of(reportWithExpenses);
+      component.expenses$ = of(expenseResponseData);
+      fixture.detectChanges();
+
+      component.approveReport();
+      tick();
+
+      expect(approverReportsService.approve).toHaveBeenCalledOnceWith(platformReportData.id);
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'team_reports']);
+      expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith('nps_survey', false);
+      expect(refinerService.startSurvey).toHaveBeenCalledOnceWith({ actionName: 'Approve Report' });
+    }));
   });
 
   it('onUpdateApprover(): should refresh approval on approver update', () => {
@@ -707,7 +834,6 @@ describe('ViewTeamReportPageV2', () => {
     expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
       ToastContent: 'Report Sent Back successfully',
     });
-    expect(refinerService.startSurvey).toHaveBeenCalledOnceWith({ actionName: 'Send Back Report' });
     expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'team_reports']);
   });
 
