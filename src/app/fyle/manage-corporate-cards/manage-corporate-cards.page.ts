@@ -1,7 +1,19 @@
 import { Component } from '@angular/core';
 import { NavigationStart, Router } from '@angular/router';
 import { ActionSheetButton, ActionSheetController, ModalController, PopoverController } from '@ionic/angular';
-import { BehaviorSubject, Observable, Subscription, filter, forkJoin, from, map, noop, switchMap } from 'rxjs';
+import {
+  BehaviorSubject,
+  Observable,
+  Subscription,
+  catchError,
+  filter,
+  forkJoin,
+  from,
+  map,
+  noop,
+  of,
+  switchMap,
+} from 'rxjs';
 import { DataFeedSource } from 'src/app/core/enums/data-feed-source.enum';
 import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
@@ -35,6 +47,8 @@ export class ManageCorporateCardsPage {
 
   isVisaRTFEnabled$: Observable<boolean>;
 
+  isAddCorporateCardVisible$: Observable<boolean>;
+
   isVirtualCardsEnabled$: Observable<{ enabled: boolean }>;
 
   isMastercardRTFEnabled$: Observable<boolean>;
@@ -48,6 +62,10 @@ export class ManageCorporateCardsPage {
   optInShowTimer;
 
   navigationSubscription: Subscription;
+
+  showSegment = false;
+
+  filteredCorporateCards: PlatformCorporateCard[] = [];
 
   constructor(
     private router: Router,
@@ -74,10 +92,6 @@ export class ManageCorporateCardsPage {
     if (event.detail.value) {
       this.segmentValue = parseInt(event.detail.value, 10);
     }
-  }
-
-  areVirtualCardsPresent(corporateCards: PlatformCorporateCard[]): boolean {
-    return corporateCards.filter((corporateCard) => corporateCard.virtual_card_id).length > 0;
   }
 
   refresh(event: RefresherCustomEvent): void {
@@ -111,7 +125,16 @@ export class ManageCorporateCardsPage {
 
   ionViewWillEnter(): void {
     this.corporateCards$ = this.loadCorporateCards$.pipe(
-      switchMap(() => this.corporateCreditCardExpenseService.getCorporateCards())
+      switchMap(() => this.corporateCreditCardExpenseService.getCorporateCards()),
+      map((corporateCards) => {
+        this.checkCardsAvailabilityAndSetupSegment(corporateCards);
+        this.filteredCorporateCards = this.filterVirtualCards(corporateCards);
+        return corporateCards;
+      }),
+      catchError(() => {
+        this.filteredCorporateCards = [];
+        return of([]);
+      })
     );
 
     const orgSettings$ = this.orgSettingsService.get();
@@ -145,6 +168,7 @@ export class ManageCorporateCardsPage {
           orgUserSettings.bank_data_aggregation_settings.enabled
       )
     );
+    this.isAddCorporateCardVisible$ = this.checkAddCorporateCardVisibility();
   }
 
   ionViewWillLeave(): void {
@@ -233,6 +257,16 @@ export class ManageCorporateCardsPage {
     );
   }
 
+  checkAddCorporateCardVisibility(): Observable<boolean> {
+    return forkJoin([this.isVisaRTFEnabled$, this.isMastercardRTFEnabled$, this.isYodleeEnabled$]).pipe(
+      map(
+        ([isVisaRTFEnabled, isMastercardRTFEnabled, isYodleeEnabled]) =>
+          isVisaRTFEnabled || isMastercardRTFEnabled || isYodleeEnabled
+      ),
+      catchError(() => of(false))
+    );
+  }
+
   async showPromoteOptInModal(): Promise<void> {
     this.trackingService.showOptInModalPostCardAdditionInSettings();
 
@@ -308,6 +342,13 @@ export class ManageCorporateCardsPage {
     });
   }
 
+  filterVirtualCards(corporateCards: PlatformCorporateCard[]): PlatformCorporateCard[] {
+    if (!Array.isArray(corporateCards)) {
+      return [];
+    }
+    return corporateCards.filter((card) => !card.virtual_card_id);
+  }
+
   private handleEnrollmentSuccess(): void {
     this.corporateCreditCardExpenseService.clearCache().subscribe(async () => {
       const cardAddedModal = await this.popoverController.create({
@@ -322,6 +363,17 @@ export class ManageCorporateCardsPage {
 
       this.loadCorporateCards$.next();
     });
+  }
+
+  private checkCardsAvailabilityAndSetupSegment(corporateCards: PlatformCorporateCard[]): void {
+    // segment will only be made visible if there are virtual cards present
+    if (!Array.isArray(corporateCards)) {
+      this.showSegment = false;
+      return;
+    }
+
+    const virtualCards = corporateCards.filter((corporateCard) => corporateCard.virtual_card_id);
+    this.showSegment = virtualCards.length > 0;
   }
 
   private async unenrollCard(card: PlatformCorporateCard): Promise<void> {
