@@ -133,10 +133,7 @@ export class CustomInputsService {
           if (
             (customInput.is_enabled && property.value !== null && property.value !== undefined) ||
             (customInput.is_enabled && this.getCustomPropertyDisplayValue(property) === '-') ||
-            (!customInput.is_enabled &&
-              property.value !== null &&
-              property.value !== undefined &&
-              this.getCustomPropertyDisplayValue(property) !== '-')
+            (!customInput.is_enabled && property.value !== null && property.value !== undefined && this.getCustomPropertyDisplayValue(property) !== '-')
           ) {
             filledCustomProperties.push({
               ...property,
