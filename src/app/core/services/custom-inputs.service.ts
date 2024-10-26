@@ -127,15 +127,16 @@ export class CustomInputsService {
           }
 
           // Add the property to `filledCustomProperties` based on new logic
-          // Always include BOOLEAN properties since they represent essential true/false values.
-          // Include USER_LIST if it has values
           // Include active fields with values
           // Include active fields with a hyphen value
+          // Include Disabled fields which has Historical values
           if (
-            property.type === 'BOOLEAN' ||
-            (property.type === 'USER_LIST' && Array.isArray(property.value) && property.value.length > 0) ||
             (customInput.is_enabled && property.value !== null && property.value !== undefined) ||
-            (customInput.is_enabled && this.getCustomPropertyDisplayValue(property) === '-')
+            (customInput.is_enabled && this.getCustomPropertyDisplayValue(property) === '-') ||
+            (!customInput.is_enabled &&
+              property.value !== null &&
+              property.value !== undefined &&
+              this.getCustomPropertyDisplayValue(property) !== '-')
           ) {
             filledCustomProperties.push({
               ...property,
