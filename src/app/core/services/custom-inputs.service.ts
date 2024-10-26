@@ -35,6 +35,21 @@ export class CustomInputsService {
         this.spenderPlatformV1ApiService.get<PlatformApiResponse<PlatformExpenseField[]>>('/expense_fields', {
           params: {
             org_id: `eq.${eou.ou.org_id}`,
+            is_enabled: `eq.${active}`,
+            is_custom: 'eq.true',
+          },
+        })
+      ),
+      map((res) => this.expenseFieldsService.transformFrom(res.data))
+    );
+  }
+  // getAllinView is used to retrieve even disabled fields that has values to be displayed in view expense
+  getAllinView(active: boolean): Observable<ExpenseField[]> {
+    return from(this.authService.getEou()).pipe(
+      switchMap((eou) =>
+        this.spenderPlatformV1ApiService.get<PlatformApiResponse<PlatformExpenseField[]>>('/expense_fields', {
+          params: {
+            org_id: `eq.${eou.ou.org_id}`,
             is_custom: 'eq.true',
           },
         })
@@ -66,7 +81,7 @@ export class CustomInputsService {
     customProperties: Partial<CustomInput>[],
     active: boolean
   ): Observable<CustomField[]> {
-    return this.getAll(active).pipe(
+    return this.getAllinView(active).pipe(
       // Filter out dependent selects
       map((allCustomInputs) => allCustomInputs.filter((customInput) => customInput.type !== 'DEPENDENT_SELECT')),
       map((allCustomInputs) => {
@@ -112,11 +127,15 @@ export class CustomInputsService {
           }
 
           // Add the property to `filledCustomProperties` based on new logic
+          // Always include BOOLEAN properties since they represent essential true/false values.
+          // Include USER_LIST if it has values
+          // Include active fields with values
+          // Include active fields with a hyphen value
           if (
-            property.type === 'BOOLEAN' || // Always include BOOLEAN fields
-            (property.type === 'USER_LIST' && Array.isArray(property.value) && property.value.length > 0) || // Include USER_LIST if it has values
-            (customInput.is_enabled && property.value !== null && property.value !== undefined) || // Include active fields with values
-            (customInput.is_enabled && this.getCustomPropertyDisplayValue(property) === '-') // Include active fields with a hyphen value
+            property.type === 'BOOLEAN' ||
+            (property.type === 'USER_LIST' && Array.isArray(property.value) && property.value.length > 0) ||
+            (customInput.is_enabled && property.value !== null && property.value !== undefined) ||
+            (customInput.is_enabled && this.getCustomPropertyDisplayValue(property) === '-')
           ) {
             filledCustomProperties.push({
               ...property,
