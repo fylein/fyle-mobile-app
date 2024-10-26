@@ -127,12 +127,10 @@ export class CustomInputsService {
           }
 
           // Add the property to `filledCustomProperties` based on new logic
-          // Include active fields with values
-          // Include active fields with a hyphen value
+          // Include active fields
           // Include Disabled fields which has Historical values
           if (
-            (customInput.is_enabled && property.value !== null && property.value !== undefined) ||
-            (customInput.is_enabled && this.getCustomPropertyDisplayValue(property) === '-') ||
+            (customInput.is_enabled) ||
             (!customInput.is_enabled && property.value !== null && property.value !== undefined && this.getCustomPropertyDisplayValue(property) !== '-')
           ) {
             filledCustomProperties.push({
