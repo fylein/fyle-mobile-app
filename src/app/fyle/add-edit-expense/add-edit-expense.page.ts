@@ -3487,8 +3487,7 @@ export class AddEditExpensePage implements OnInit {
 
   generateEtxnFromFg(
     etxn$: Observable<Partial<UnflattenedTransaction>>,
-    standardisedCustomProperties$: Observable<TxnCustomProperties[]>,
-    isPolicyEtxn = false
+    standardisedCustomProperties$: Observable<TxnCustomProperties[]>
   ): Observable<Partial<UnflattenedTransaction>> {
     const attachements$ = this.getExpenseAttachments(this.mode);
     return forkJoin({
@@ -3531,20 +3530,17 @@ export class AddEditExpensePage implements OnInit {
         }
 
         const policyProps: { org_category?: string; sub_category?: string } = {};
-
-        if (isPolicyEtxn) {
-          policyProps.org_category = formValues.category && formValues.category.name;
-          policyProps.sub_category = formValues.category && formValues.category.sub_category;
-        }
+        policyProps.org_category = formValues.category && formValues.category.name;
+        policyProps.sub_category = formValues.category && formValues.category.sub_category;
 
         if (this.inpageExtractedData) {
           etxn.tx.extracted_data = this.inpageExtractedData;
           this.autoCodedData = this.inpageExtractedData;
         }
 
-        // If user has not edited the amount, then send user_amount to check_policies
+        // If user has not edited the amount, then send user_amount
         let amount = this.getAmount();
-        if (isPolicyEtxn && amount === etxn.tx.amount && etxn.tx.user_amount) {
+        if (amount === etxn.tx.amount && etxn.tx.user_amount) {
           amount = etxn.tx.user_amount;
         }
 
@@ -3573,7 +3569,7 @@ export class AddEditExpensePage implements OnInit {
             purpose: this.getPurpose(),
             locations: locations || [],
             custom_properties: customProperties || [],
-            num_files: isPolicyEtxn ? res.attachments?.length : this.activatedRoute.snapshot.params?.dataUrl ? 1 : 0,
+            num_files: res.attachments?.length,
             ...policyProps,
             org_user_id: etxn.tx.org_user_id,
             from_dt: this.getFromDt(),
@@ -3620,7 +3616,7 @@ export class AddEditExpensePage implements OnInit {
       switchMap((isConnected) => {
         if (isConnected) {
           const customFields$ = this.getCustomFields();
-          return this.generateEtxnFromFg(this.etxn$, customFields$, true).pipe(
+          return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
             switchMap((etxn) =>
               // TODO: We should not use as unknown, this needs to be removed everywhere
               this.policyService.getPlatformPolicyExpense(
@@ -3646,17 +3642,9 @@ export class AddEditExpensePage implements OnInit {
   }
 
   checkPolicyViolation(etxn: { tx: PublicPolicyExpense; dataUrls: Partial<FileObject>[] }): Observable<ExpensePolicy> {
-    return this.policyService.getPlatformPolicyExpense(etxn, this.selectedCCCTransaction).pipe(
-      switchMap((platformPolicyExpense) =>
-        /* Expense creation has not moved to platform yet and since policy is moved to platform,
-         * it expects the expense object in terms of platform world. Until then, the method
-         * `transformTo` act as a bridge by translating the public expense object to platform
-         * expense.
-         */
-
-        this.transactionService.checkPolicy(platformPolicyExpense)
-      )
-    );
+    return this.policyService
+      .getPlatformPolicyExpense(etxn, this.selectedCCCTransaction)
+      .pipe(switchMap((platformPolicyExpense) => this.transactionService.checkPolicy(platformPolicyExpense)));
   }
 
   getProjectDependentFields(): TxnCustomProperties[] {
@@ -3961,7 +3949,7 @@ export class AddEditExpensePage implements OnInit {
     this.trackPolicyCorrections();
     const customFields$ = this.getCustomFields();
 
-    return this.generateEtxnFromFg(this.etxn$, customFields$, true).pipe(
+    return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
       switchMap((etxn) => {
         const policyViolations$ = this.checkPolicyViolation(
           etxn as unknown as { tx: PublicPolicyExpense; dataUrls: Partial<FileObject>[] }
@@ -4254,7 +4242,7 @@ export class AddEditExpensePage implements OnInit {
 
     this.trackAddExpense();
 
-    return this.generateEtxnFromFg(this.etxn$, customFields$, true).pipe(
+    return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
       switchMap((etxn) =>
         this.isConnected$.pipe(
           take(1),
@@ -4977,7 +4965,7 @@ export class AddEditExpensePage implements OnInit {
   saveAndMatchWithPersonalCardTxn(): Subscription {
     this.saveExpenseLoader = true;
     const customFields$ = this.getCustomFields();
-    return this.generateEtxnFromFg(this.etxn$, customFields$, true)
+    return this.generateEtxnFromFg(this.etxn$, customFields$)
       .pipe(
         switchMap((etxn) =>
           this.isConnected$.pipe(
