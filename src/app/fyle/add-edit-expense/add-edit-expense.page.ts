@@ -436,6 +436,8 @@ export class AddEditExpensePage implements OnInit {
 
   pendingTransactionAllowedToReportAndSplit = true;
 
+  allCategories$: Observable<OrgCategory[]>;
+
   activeCategories$: Observable<OrgCategory[]>;
 
   selectedCategory$: Observable<OrgCategory>;
@@ -1234,12 +1236,6 @@ export class AddEditExpensePage implements OnInit {
       ),
       shareReplay(1)
     );
-  }
-
-  getActiveCategories(): Observable<OrgCategory[]> {
-    const allCategories$ = this.categoriesService.getAll();
-
-    return allCategories$.pipe(map((catogories) => this.categoriesService.filterRequired(catogories)));
   }
 
   getInstaFyleImageData(): Observable<Partial<InstaFyleImageData>> {
@@ -2977,7 +2973,10 @@ export class AddEditExpensePage implements OnInit {
   }
 
   ionViewWillEnter(): void {
-    this.activeCategories$ = this.getActiveCategories().pipe(shareReplay(1));
+    this.allCategories$ = this.categoriesService.getAll().pipe(shareReplay(1));
+    this.activeCategories$ = this.allCategories$
+      .pipe(map((catogories) => this.categoriesService.filterRequired(catogories)))
+      .pipe(shareReplay(1));
 
     this.initClassObservables();
 
@@ -3497,6 +3496,7 @@ export class AddEditExpensePage implements OnInit {
       customProperties: standardisedCustomProperties$,
       attachments: attachements$,
       orgSettings: this.orgSettingsService.get(),
+      allCategories: this.allCategories$,
     }).pipe(
       map((res) => {
         const etxn: Partial<UnflattenedTransaction> = res.etxn;
@@ -3509,6 +3509,9 @@ export class AddEditExpensePage implements OnInit {
           }
           return customProperty;
         });
+        const unspecifiedCategory = res.allCategories.find(
+          (category) => category.fyle_category?.toLowerCase() === 'unspecified'
+        );
 
         const formValues = this.getFormValues();
 
@@ -3545,7 +3548,8 @@ export class AddEditExpensePage implements OnInit {
           amount = etxn.tx.user_amount;
         }
 
-        //TODO: Add depenedent fields to custom_properties array once APIs are available
+        const category_id = this.getOrgCategoryID() || unspecifiedCategory.id;
+        //TODO: Add dependent fields to custom_properties array once APIs are available
         return {
           tx: {
             ...etxn.tx,
@@ -3562,7 +3566,7 @@ export class AddEditExpensePage implements OnInit {
             project_id: this.getProjectID(),
             tax_amount: this.getTaxAmount(),
             tax_group_id: this.getTaxGroupID(),
-            org_category_id: this.getOrgCategoryID(),
+            org_category_id: category_id,
             fyle_category: this.getFyleCategory(),
             policy_amount: null,
             vendor: this.getDisplayName(),
