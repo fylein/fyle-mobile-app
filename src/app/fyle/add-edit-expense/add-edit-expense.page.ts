@@ -4040,7 +4040,6 @@ export class AddEditExpensePage implements OnInit {
               report: Report;
             };
 
-            // NOTE: This double call is done as certain fields will not be present in return of upsert call. policy_amount in this case.
             return this.transactionService.upsert(etxn.tx as Transaction).pipe(
               switchMap((tx) => {
                 const selectedReportId = reportControl.report?.id;
