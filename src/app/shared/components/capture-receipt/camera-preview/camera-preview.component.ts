@@ -18,6 +18,8 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
 
   @Input() allowGalleryUploads = true;
 
+  @Input() allowBulkFyle = true;
+
   @Input() lastCapturedReceipt: string;
 
   @Input() noOfReceipts = 0;

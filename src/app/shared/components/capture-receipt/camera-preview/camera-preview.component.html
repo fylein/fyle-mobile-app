@@ -68,7 +68,7 @@
         {{ isBulkMode ? 'Bulk Mode' : 'Single Mode' }}
       </div>
     </div>
-    <div class="camera-preview__bottom-container__icon-block text-center">
+    <div *ngIf="allowBulkFyle" class="camera-preview__bottom-container__icon-block text-center">
       <ng-container *ngIf="noOfReceipts === 0; else receiptPreviewIcon">
         <div (click)="onSwitchMode()">
           <img
