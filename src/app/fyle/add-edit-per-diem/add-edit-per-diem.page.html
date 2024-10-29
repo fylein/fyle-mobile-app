@@ -417,7 +417,7 @@
 
                   <ng-container *ngIf="costCenters$|async as costCenters">
                     <ng-container *ngIf="txnFields$|async as txnFields">
-                      <ng-container *ngIf="txnFields.cost_center_id.is_mandatory || isExpandedView">
+                      <ng-container *ngIf="txnFields.cost_center_id?.is_mandatory || isExpandedView">
                         <div
                           *ngIf="costCenters.length > 0 && txnFields?.cost_center_id"
                           [ngClass]="{'add-edit-per-diem--internal-block__invalid': fg.controls.costCenter.touched && !fg.controls.costCenter.valid}"
