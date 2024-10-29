@@ -281,7 +281,7 @@ describe('CustomInputsService', () => {
   it('should fill custom properties', (done) => {
     authService.getEou.and.resolveTo(authRespone);
     spenderPlatformV1ApiService.get.and.returnValue(of(platformApiResponse));
-    const result = customInputsService.fillCustomProperties(orgCatId, customProperties, false);
+    const result = customInputsService.fillCustomProperties(orgCatId, customProperties);
     result.subscribe((res) => {
       expect(res).toEqual(filledCustomProperties);
       done();

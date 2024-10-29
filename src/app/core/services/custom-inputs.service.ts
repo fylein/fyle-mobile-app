@@ -43,6 +43,7 @@ export class CustomInputsService {
       map((res) => this.expenseFieldsService.transformFrom(res.data))
     );
   }
+
   // getAllinView is used to retrieve even disabled fields that has values to be displayed in view expense
   getAllinView(): Observable<ExpenseField[]> {
     return from(this.authService.getEou()).pipe(
