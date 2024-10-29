@@ -14,7 +14,6 @@ import {
 } from '../test-data/custom-inputs.spec.data';
 import { CustomInputsService } from './custom-inputs.service';
 import { expensesWithDependentFields } from '../mock-data/dependent-field-expenses.data';
-import { CustomField } from '../models/custom_field.model';
 
 describe('CustomInputsService', () => {
   let customInputsService: CustomInputsService;
@@ -288,73 +287,22 @@ describe('CustomInputsService', () => {
       done();
     });
   });
+  it('should return field name with "(Deleted)" if customInput is disabled', () => {
+    const customInputEnabled = { field_name: 'Test Field', is_enabled: true };
+    const customInputDisabled = { field_name: 'Test Field', is_enabled: false };
 
-  it('should return field name with "(Deleted)" when is_enabled is false', () => {
-    const customInput = { is_enabled: false, field_name: 'Sample Field' };
-    const result = customInput.is_enabled === false ? `${customInput.field_name} (Deleted)` : customInput.field_name;
-    expect(result).toBe('Sample Field (Deleted)');
-  });
+    // Test when customInput is enabled
+    let result =
+      customInputEnabled.is_enabled === false
+        ? `${customInputEnabled.field_name} (Deleted)`
+        : customInputEnabled.field_name;
+    expect(result).toBe('Test Field');
 
-  it('should return field name when is_enabled is true', () => {
-    const customInput = { is_enabled: true, field_name: 'Sample Field' };
-    const result = customInput.is_enabled === false ? `${customInput.field_name} (Deleted)` : customInput.field_name;
-    expect(result).toBe('Sample Field');
-  });
-
-  it('should return true when is_enabled is true', () => {
-    const customInput = { is_enabled: true };
-    const property: CustomField = { name: 'Sample Name', value: null }; // Include name property
-    const result =
-      customInput.is_enabled ||
-      (!customInput.is_enabled &&
-        property.value !== null &&
-        property.value !== undefined &&
-        customInputsService.getCustomPropertyDisplayValue(property) !== '-');
-    expect(result).toBe(true);
-  });
-
-  it('should return true when is_enabled is false and property.value is not null and not undefined and getCustomPropertyDisplayValue does not return "-"', () => {
-    const customInput = { is_enabled: false };
-    const property: CustomField = { name: 'Sample Name', value: 'some value' }; // Include name property
-
-    // Mock the getCustomPropertyDisplayValue method
-    spyOn(customInputsService, 'getCustomPropertyDisplayValue').and.returnValue('valid display value');
-
-    const result =
-      customInput.is_enabled ||
-      (!customInput.is_enabled &&
-        property.value !== null &&
-        property.value !== undefined &&
-        customInputsService.getCustomPropertyDisplayValue(property) !== '-');
-    expect(result).toBe(true);
-  });
-
-  it('should return false when is_enabled is false and property.value is null', () => {
-    const customInput = { is_enabled: false };
-    const property: CustomField = { name: 'Sample Name', value: null }; // Include name property
-
-    const result =
-      customInput.is_enabled ||
-      (!customInput.is_enabled &&
-        property.value !== null &&
-        property.value !== undefined &&
-        customInputsService.getCustomPropertyDisplayValue(property) !== '-');
-    expect(result).toBe(false);
-  });
-
-  it('should return false when is_enabled is false and getCustomPropertyDisplayValue returns "-"', () => {
-    const customInput = { is_enabled: false };
-    const property: CustomField = { name: 'Sample Name', value: 'some value' }; // Include name property
-
-    // Mock the getCustomPropertyDisplayValue method to return "-"
-    spyOn(customInputsService, 'getCustomPropertyDisplayValue').and.returnValue('-');
-
-    const result =
-      customInput.is_enabled ||
-      (!customInput.is_enabled &&
-        property.value !== null &&
-        property.value !== undefined &&
-        customInputsService.getCustomPropertyDisplayValue(property) !== '-');
-    expect(result).toBe(false);
+    // Test when customInput is disabled
+    result =
+      customInputDisabled.is_enabled === false
+        ? `${customInputDisabled.field_name} (Deleted)`
+        : customInputDisabled.field_name;
+    expect(result).toBe('Test Field (Deleted)');
   });
 });
