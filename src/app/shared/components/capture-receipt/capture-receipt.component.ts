@@ -43,6 +43,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   @Input() allowGalleryUploads = true;
 
+  @Input() allowBulkFyle = true;
+
   isBulkMode: boolean;
 
   noOfReceipts = 0;
