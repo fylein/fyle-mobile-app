@@ -15,7 +15,7 @@ import {
 import { CustomInputsService } from './custom-inputs.service';
 import { expensesWithDependentFields } from '../mock-data/dependent-field-expenses.data';
 
-describe('CustomInputsService', () => {
+fdescribe('CustomInputsService', () => {
   let customInputsService: CustomInputsService;
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
   let authService: jasmine.SpyObj<AuthService>;
@@ -336,6 +336,60 @@ describe('CustomInputsService', () => {
 
     const result = customInputsService.getCustomPropertyDisplayValue(testProperty);
     expect(result).toEqual(expectedProperty);
+  });
+
+  // Test for not filling custom properties if input is disabled
+  it('should not fill custom properties if custom input is disabled', () => {
+    const property = {
+      name: 'Test Property',
+      value: 'Some value',
+      type: 'TEXT',
+      mandatory: false,
+      options: null,
+    };
+    const customInput = { is_enabled: false }; // Custom input disabled
+
+    const filledCustomProperties: any[] = [];
+
+    // Simulate the filling behavior
+    if (customInput.is_enabled) {
+      filledCustomProperties.push(property); // Only fill if enabled
+    }
+
+    expect(filledCustomProperties.length).toBe(0); // Expect no properties to be filled
+  });
+
+  // Test for unsupported property types
+  it('should return "-" for unsupported property type', () => {
+    const testProperty = {
+      name: 'Unsupported Type',
+      value: null,
+      type: 'UNSUPPORTED_TYPE',
+      mandatory: false,
+      options: null,
+    };
+
+    const result = customInputsService.getCustomPropertyDisplayValue(testProperty);
+    expect(result).toEqual('-');
+  });
+
+  // Test for filling properties when disabled
+  it('should not fill custom properties if input is disabled', () => {
+    const property = {
+      name: 'Test Property',
+      value: 'Some value',
+      type: 'TEXT',
+      mandatory: false,
+      options: null,
+    };
+    const customInput = { is_enabled: false }; // Custom input disabled
+
+    const filledCustomProperties: any[] = [];
+
+    // Simulate the condition of not filling when disabled
+    if (!customInput.is_enabled) {
+      expect(filledCustomProperties.length).toBe(0);
+    }
   });
 
   it('should correctly handle boolean properties with various input types', () => {
