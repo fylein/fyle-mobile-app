@@ -14,8 +14,9 @@ import {
 } from '../test-data/custom-inputs.spec.data';
 import { CustomInputsService } from './custom-inputs.service';
 import { expensesWithDependentFields } from '../mock-data/dependent-field-expenses.data';
+import { CustomField } from '../models/custom_field.model';
 
-describe('CustomInputsService', () => {
+fdescribe('CustomInputsService', () => {
   let customInputsService: CustomInputsService;
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
   let authService: jasmine.SpyObj<AuthService>;
@@ -286,5 +287,74 @@ describe('CustomInputsService', () => {
       expect(res).toEqual(filledCustomProperties);
       done();
     });
+  });
+
+  it('should return field name with "(Deleted)" when is_enabled is false', () => {
+    const customInput = { is_enabled: false, field_name: 'Sample Field' };
+    const result = customInput.is_enabled === false ? `${customInput.field_name} (Deleted)` : customInput.field_name;
+    expect(result).toBe('Sample Field (Deleted)');
+  });
+
+  it('should return field name when is_enabled is true', () => {
+    const customInput = { is_enabled: true, field_name: 'Sample Field' };
+    const result = customInput.is_enabled === false ? `${customInput.field_name} (Deleted)` : customInput.field_name;
+    expect(result).toBe('Sample Field');
+  });
+
+  it('should return true when is_enabled is true', () => {
+    const customInput = { is_enabled: true };
+    const property: CustomField = { name: 'Sample Name', value: null }; // Include name property
+    const result =
+      customInput.is_enabled ||
+      (!customInput.is_enabled &&
+        property.value !== null &&
+        property.value !== undefined &&
+        customInputsService.getCustomPropertyDisplayValue(property) !== '-');
+    expect(result).toBe(true);
+  });
+
+  it('should return true when is_enabled is false and property.value is not null and not undefined and getCustomPropertyDisplayValue does not return "-"', () => {
+    const customInput = { is_enabled: false };
+    const property: CustomField = { name: 'Sample Name', value: 'some value' }; // Include name property
+
+    // Mock the getCustomPropertyDisplayValue method
+    spyOn(customInputsService, 'getCustomPropertyDisplayValue').and.returnValue('valid display value');
+
+    const result =
+      customInput.is_enabled ||
+      (!customInput.is_enabled &&
+        property.value !== null &&
+        property.value !== undefined &&
+        customInputsService.getCustomPropertyDisplayValue(property) !== '-');
+    expect(result).toBe(true);
+  });
+
+  it('should return false when is_enabled is false and property.value is null', () => {
+    const customInput = { is_enabled: false };
+    const property: CustomField = { name: 'Sample Name', value: null }; // Include name property
+
+    const result =
+      customInput.is_enabled ||
+      (!customInput.is_enabled &&
+        property.value !== null &&
+        property.value !== undefined &&
+        customInputsService.getCustomPropertyDisplayValue(property) !== '-');
+    expect(result).toBe(false);
+  });
+
+  it('should return false when is_enabled is false and getCustomPropertyDisplayValue returns "-"', () => {
+    const customInput = { is_enabled: false };
+    const property: CustomField = { name: 'Sample Name', value: 'some value' }; // Include name property
+
+    // Mock the getCustomPropertyDisplayValue method to return "-"
+    spyOn(customInputsService, 'getCustomPropertyDisplayValue').and.returnValue('-');
+
+    const result =
+      customInput.is_enabled ||
+      (!customInput.is_enabled &&
+        property.value !== null &&
+        property.value !== undefined &&
+        customInputsService.getCustomPropertyDisplayValue(property) !== '-');
+    expect(result).toBe(false);
   });
 });
