@@ -323,4 +323,39 @@ fdescribe('CustomInputsService', () => {
     expect(filledCustomProperties[0].name).toBe('Sample Property');
     expect(filledCustomProperties[0].displayValue).toBe('Some value');
   });
+  it('should return default display value for unsupported property type', () => {
+    const testProperty = {
+      name: 'Unsupported Type',
+      value: null,
+      type: 'UNSUPPORTED_TYPE', // New type not handled
+      mandatory: false,
+      options: null,
+    };
+
+    const expectedProperty = '-'; // Assuming the default return value
+
+    const result = customInputsService.getCustomPropertyDisplayValue(testProperty);
+    expect(result).toEqual(expectedProperty);
+  });
+
+  it('should correctly handle boolean properties with various input types', () => {
+    const trueProperty = {
+      name: 'Boolean True',
+      value: true,
+      type: 'BOOLEAN',
+      mandatory: false,
+      options: null,
+    };
+
+    const falseProperty = {
+      name: 'Boolean False',
+      value: false,
+      type: 'BOOLEAN',
+      mandatory: false,
+      options: null,
+    };
+
+    expect(customInputsService.getCustomPropertyDisplayValue(trueProperty)).toEqual('Yes');
+    expect(customInputsService.getCustomPropertyDisplayValue(falseProperty)).toEqual('No');
+  });
 });
