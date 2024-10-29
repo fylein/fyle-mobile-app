@@ -425,13 +425,13 @@
                         >
                           <app-virtual-select
                             [cacheName]="'perDiemCostCenterCache'"
-                            [label]="txnFields.cost_center_id.field_name  | ellipsis: 30"
-                            [mandatory]="txnFields.cost_center_id.is_mandatory"
+                            [label]="txnFields.cost_center_id?.field_name  | ellipsis: 30"
+                            [mandatory]="txnFields.cost_center_id?.is_mandatory"
                             [options]="costCenters"
                             [selectModalHeader]="'Select Cost Center'"
                             [recentlyUsed]="recentCostCenters"
                             formControlName="costCenter"
-                            [placeholder]="txnFields.cost_center_id.placeholder | ellipsis: 30"
+                            [placeholder]="txnFields.cost_center_id?.placeholder | ellipsis: 30"
                           >
                           </app-virtual-select>
                         </div>
