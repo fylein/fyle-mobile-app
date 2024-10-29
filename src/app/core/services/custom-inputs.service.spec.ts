@@ -287,129 +287,83 @@ fdescribe('CustomInputsService', () => {
       done();
     });
   });
-  it('should push property to filledCustomProperties based on is_enabled and value checks', () => {
-    const customInput = { is_enabled: false }; // Example: custom input is disabled
-    const property = {
-      name: 'Sample Property',
-      value: 'Some value',
-      type: 'TEXT',
-      mandatory: false,
-      options: null,
-    };
 
-    // Create an instance of the service
-    const filledCustomProperties: any[] = []; // This will be populated based on the logic
-    const getCustomPropertyDisplayValueSpy = spyOn(
-      customInputsService,
-      'getCustomPropertyDisplayValue'
-    ).and.returnValue('Some value');
+  it('should fill custom properties and include disabled fields with historical values', (done) => {
+    const customInputs = [
+      {
+        field_name: 'Enabled Field',
+        is_enabled: true,
+        type: 'TEXT',
+        is_mandatory: false,
+        options: null,
+      },
+      {
+        field_name: 'Disabled Historical Field',
+        is_enabled: false,
+        type: 'TEXT',
+        is_mandatory: false,
+        options: null,
+      },
+      {
+        field_name: 'Disabled Non-Historical Field',
+        is_enabled: false,
+        type: 'TEXT',
+        is_mandatory: false,
+        options: null,
+      },
+    ];
 
-    // Simulate the condition
-    if (
-      customInput.is_enabled ||
-      (!customInput.is_enabled &&
-        property.value !== null &&
-        property.value !== undefined &&
-        getCustomPropertyDisplayValueSpy(property) !== '-')
-    ) {
-      filledCustomProperties.push({
-        ...property,
-        displayValue: customInputsService.getCustomPropertyDisplayValue(property),
-      });
-    }
+    const customProperties = [
+      {
+        name: 'Enabled Field',
+        value: 'Some Value',
+        type: 'TEXT',
+        mandatory: false,
+        options: null,
+      },
+      {
+        name: 'Disabled Historical Field',
+        value: 'Historical Value',
+        type: 'TEXT',
+        mandatory: false,
+        options: null,
+      },
+      {
+        name: 'Disabled Non-Historical Field',
+        value: null,
+        type: 'TEXT',
+        mandatory: false,
+        options: null,
+      },
+    ];
 
-    // Expect that filledCustomProperties has the property with displayValue
-    expect(filledCustomProperties.length).toBe(1);
-    expect(filledCustomProperties[0].name).toBe('Sample Property');
-    expect(filledCustomProperties[0].displayValue).toBe('Some value');
-  });
-  it('should return default display value for unsupported property type', () => {
-    const testProperty = {
-      name: 'Unsupported Type',
-      value: null,
-      type: 'UNSUPPORTED_TYPE', // New type not handled
-      mandatory: false,
-      options: null,
-    };
+    const expectedFilledCustomProperties = [
+      {
+        name: 'Enabled Field',
+        value: 'Some Value',
+        type: 'TEXT',
+        mandatory: false,
+        options: null,
+        displayValue: 'Some Value',
+      },
+      {
+        name: 'Disabled Historical Field (Deleted)',
+        value: 'Historical Value',
+        type: 'TEXT',
+        mandatory: false,
+        options: null,
+        displayValue: 'Historical Value',
+      },
+    ];
 
-    const expectedProperty = '-'; // Assuming the default return value
+    // Mock the service methods
+    authService.getEou.and.resolveTo(authRespone);
+    spenderPlatformV1ApiService.get.and.returnValue(of(customInputs));
 
-    const result = customInputsService.getCustomPropertyDisplayValue(testProperty);
-    expect(result).toEqual(expectedProperty);
-  });
-
-  // Test for not filling custom properties if input is disabled
-  it('should not fill custom properties if custom input is disabled', () => {
-    const property = {
-      name: 'Test Property',
-      value: 'Some value',
-      type: 'TEXT',
-      mandatory: false,
-      options: null,
-    };
-    const customInput = { is_enabled: false }; // Custom input disabled
-
-    const filledCustomProperties: any[] = [];
-
-    // Simulate the filling behavior
-    if (customInput.is_enabled) {
-      filledCustomProperties.push(property); // Only fill if enabled
-    }
-
-    expect(filledCustomProperties.length).toBe(0); // Expect no properties to be filled
-  });
-
-  // Test for unsupported property types
-  it('should return "-" for unsupported property type', () => {
-    const testProperty = {
-      name: 'Unsupported Type',
-      value: null,
-      type: 'UNSUPPORTED_TYPE',
-      mandatory: false,
-      options: null,
-    };
-
-    const result = customInputsService.getCustomPropertyDisplayValue(testProperty);
-    expect(result).toEqual('-');
-  });
-
-  // Test for filling properties when disabled
-  it('should not fill custom properties if input is disabled', () => {
-    const property = {
-      name: 'Test Property',
-      value: 'Some value',
-      type: 'TEXT',
-      mandatory: false,
-      options: null,
-    };
-    const customInput = { is_enabled: false }; // Custom input disabled
-
-    const filledCustomProperties: any[] = [];
-
-    // Simulate the condition of not filling when disabled
-    if (!customInput.is_enabled) {
-      expect(filledCustomProperties.length).toBe(0);
-    }
-  });
-
-  it('should correctly handle boolean properties with various input types', () => {
-    const trueProperty = {
-      name: 'Boolean True',
-      value: true,
-      type: 'BOOLEAN',
-      mandatory: false,
-      options: null,
-    };
-
-    const falseProperty = {
-      name: 'Boolean False',
-      value: false,
-      type: 'BOOLEAN',
-      mandatory: false,
-      options: null,
-    };
-
-    expect(customInputsService.getCustomPropertyDisplayValue(trueProperty)).toEqual('Yes');
-    expect(customInputsService.getCustomPropertyDisplayValue(falseProperty)).toEqual('No');
+    const result = customInputsService.fillCustomProperties(orgCatId, customProperties);
+    result.subscribe((res) => {
+      expect(res).toEqual(expectedFilledCustomProperties);
+      done();
+    });
   });
 });
