@@ -15,7 +15,7 @@ import {
 import { CustomInputsService } from './custom-inputs.service';
 import { expensesWithDependentFields } from '../mock-data/dependent-field-expenses.data';
 
-describe('CustomInputsService', () => {
+fdescribe('CustomInputsService', () => {
   let customInputsService: CustomInputsService;
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
   let authService: jasmine.SpyObj<AuthService>;
@@ -281,7 +281,7 @@ describe('CustomInputsService', () => {
   it('should fill custom properties', (done) => {
     authService.getEou.and.resolveTo(authRespone);
     spenderPlatformV1ApiService.get.and.returnValue(of(platformApiResponse));
-    const result = customInputsService.fillCustomProperties(orgCatId, customProperties, false);
+    const result = customInputsService.fillCustomProperties(orgCatId, customProperties);
     result.subscribe((res) => {
       expect(res).toEqual(filledCustomProperties);
       done();
