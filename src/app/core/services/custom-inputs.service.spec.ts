@@ -281,28 +281,10 @@ describe('CustomInputsService', () => {
   it('should fill custom properties', (done) => {
     authService.getEou.and.resolveTo(authRespone);
     spenderPlatformV1ApiService.get.and.returnValue(of(platformApiResponse));
-    const result = customInputsService.fillCustomProperties(orgCatId, customProperties);
+    const result = customInputsService.fillCustomProperties(orgCatId, customProperties, false);
     result.subscribe((res) => {
       expect(res).toEqual(filledCustomProperties);
       done();
     });
-  });
-  it('should return field name with "(Deleted)" if customInput is disabled', () => {
-    const customInputEnabled = { field_name: 'Test Field', is_enabled: true };
-    const customInputDisabled = { field_name: 'Test Field', is_enabled: false };
-
-    // Test when customInput is enabled
-    let result =
-      customInputEnabled.is_enabled === false
-        ? `${customInputEnabled.field_name} (Deleted)`
-        : customInputEnabled.field_name;
-    expect(result).toBe('Test Field');
-
-    // Test when customInput is disabled
-    result =
-      customInputDisabled.is_enabled === false
-        ? `${customInputDisabled.field_name} (Deleted)`
-        : customInputDisabled.field_name;
-    expect(result).toBe('Test Field (Deleted)');
   });
 });

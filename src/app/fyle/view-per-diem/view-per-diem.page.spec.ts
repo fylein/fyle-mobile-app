@@ -464,7 +464,8 @@ describe('ViewPerDiemPage', () => {
       component.perDiemCustomFields$.subscribe((perDiemCustomFields) => {
         expect(customInputsService.fillCustomProperties).toHaveBeenCalledOnceWith(
           perDiemExpense.category_id,
-          perDiemExpense.custom_fields as Partial<CustomInput>[]
+          perDiemExpense.custom_fields as Partial<CustomInput>[],
+          true
         );
         // Called twice because of the two custom fields
         expect(customInputsService.getCustomPropertyDisplayValue).toHaveBeenCalledTimes(2);

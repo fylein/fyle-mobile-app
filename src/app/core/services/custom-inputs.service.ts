@@ -45,7 +45,7 @@ export class CustomInputsService {
   }
 
   // getAllinView is used to retrieve even disabled fields that has values to be displayed in view expense
-  getAllinView(): Observable<ExpenseField[]> {
+  getAllinView(active: boolean): Observable<ExpenseField[]> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
         this.spenderPlatformV1ApiService.get<PlatformApiResponse<PlatformExpenseField[]>>('/expense_fields', {
@@ -77,8 +77,12 @@ export class CustomInputsService {
     return 0;
   }
 
-  fillCustomProperties(orgCategoryId: number, customProperties: Partial<CustomInput>[]): Observable<CustomField[]> {
-    return this.getAllinView().pipe(
+  fillCustomProperties(
+    orgCategoryId: number,
+    customProperties: Partial<CustomInput>[],
+    active: boolean
+  ): Observable<CustomField[]> {
+    return this.getAllinView(active).pipe(
       // Filter out dependent selects
       map((allCustomInputs) => allCustomInputs.filter((customInput) => customInput.type !== 'DEPENDENT_SELECT')),
       map((allCustomInputs) => {

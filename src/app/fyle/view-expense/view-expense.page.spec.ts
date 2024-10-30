@@ -538,7 +538,8 @@ describe('ViewExpensePage', () => {
         expect(customProperties).toEqual(filledCustomProperties);
         expect(customInputsService.fillCustomProperties).toHaveBeenCalledOnceWith(
           expenseData.category_id,
-          expenseData.custom_fields as Partial<CustomInput>[]
+          expenseData.custom_fields as Partial<CustomInput>[],
+          true
         );
         done();
       });

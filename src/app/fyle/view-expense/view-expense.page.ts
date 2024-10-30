@@ -286,7 +286,8 @@ export class ViewExpensePage {
       concatMap((expense) =>
         this.customInputsService.fillCustomProperties(
           expense.category_id,
-          expense.custom_fields as Partial<CustomInput>[]
+          expense.custom_fields as Partial<CustomInput>[],
+          true
         )
       ),
       shareReplay(1)

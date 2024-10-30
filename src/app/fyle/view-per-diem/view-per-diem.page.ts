@@ -259,7 +259,8 @@ export class ViewPerDiemPage {
       switchMap((expense) =>
         this.customInputsService.fillCustomProperties(
           expense.category_id,
-          expense.custom_fields as Partial<CustomInput>[]
+          expense.custom_fields as Partial<CustomInput>[],
+          true
         )
       ),
       map((customProperties) =>

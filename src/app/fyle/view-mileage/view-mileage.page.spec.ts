@@ -713,7 +713,8 @@ describe('ViewMileagePage', () => {
         expect(data).toEqual(mockfilledCustomProperties);
         expect(customInputsService.fillCustomProperties).toHaveBeenCalledOnceWith(
           mileageExpense.category_id,
-          mileageExpense.custom_fields as Partial<CustomInput>[]
+          mileageExpense.custom_fields as Partial<CustomInput>[],
+          true
         );
         expect(customInputsService.getCustomPropertyDisplayValue).toHaveBeenCalledTimes(
           mockfilledCustomProperties.length
