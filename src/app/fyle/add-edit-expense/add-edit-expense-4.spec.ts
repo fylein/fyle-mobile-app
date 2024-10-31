@@ -465,7 +465,7 @@ export function TestCases4(getTestBed) {
           });
           expect(component.getCustomFields).toHaveBeenCalledOnceWith();
           expect(component.trackAddExpense).toHaveBeenCalledOnceWith();
-          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable), true);
+          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
           expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(2);
           expect(component.checkPolicyViolation).toHaveBeenCalledTimes(1);
           expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(1);
@@ -495,7 +495,7 @@ export function TestCases4(getTestBed) {
           expect(res).toBeNull();
           expect(component.getCustomFields).toHaveBeenCalledOnceWith();
           expect(component.trackAddExpense).toHaveBeenCalledTimes(1);
-          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable), true);
+          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
           expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(2);
           expect(authService.getEou).toHaveBeenCalledTimes(1);
           expect(transactionOutboxService.addEntry).toHaveBeenCalledOnceWith(
@@ -528,7 +528,7 @@ export function TestCases4(getTestBed) {
           expect(res).toBeNull();
           expect(component.getCustomFields).toHaveBeenCalledOnceWith();
           expect(component.trackAddExpense).toHaveBeenCalledOnceWith();
-          expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, jasmine.any(Observable), true);
+          expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, jasmine.any(Observable));
           expect(component.checkPolicyViolation).toHaveBeenCalledTimes(1);
           expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(1);
           expect(component.criticalPolicyViolationErrorHandler).toHaveBeenCalledOnceWith(
@@ -607,11 +607,7 @@ export function TestCases4(getTestBed) {
         component.addExpense('SAVE_EXPENSE').subscribe({
           next: () => {
             expect(component.getCustomFields).toHaveBeenCalledOnceWith();
-            expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(
-              component.etxn$,
-              jasmine.any(Observable),
-              true
-            );
+            expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, jasmine.any(Observable));
             expect(component.trackAddExpense).toHaveBeenCalledOnceWith();
           },
           error: (err) => expect(err).toBeTruthy(),
@@ -624,7 +620,7 @@ export function TestCases4(getTestBed) {
       it('should save an expense and match with personal card', () => {
         const generateEtxnSpy = spyOn(component, 'generateEtxnFromFg');
         generateEtxnSpy
-          .withArgs(component.etxn$, jasmine.any(Observable), true)
+          .withArgs(component.etxn$, jasmine.any(Observable))
           .and.returnValue(of({ ...expectedUnflattendedTxnData3, tx: unflattenedTransactionDataPersonalCard.tx }));
         generateEtxnSpy
           .withArgs(component.etxn$, jasmine.any(Observable))
@@ -648,7 +644,7 @@ export function TestCases4(getTestBed) {
 
         component.saveAndMatchWithPersonalCardTxn();
         expect(component.getCustomFields).toHaveBeenCalledOnceWith();
-        expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable), true);
+        expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
         expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
         expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(2);
         expect(component.checkPolicyViolation).toHaveBeenCalledTimes(1);
@@ -696,7 +692,7 @@ export function TestCases4(getTestBed) {
 
         component.saveAndMatchWithPersonalCardTxn();
         expect(component.getCustomFields).toHaveBeenCalledOnceWith();
-        expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, jasmine.any(Observable), true);
+        expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, jasmine.any(Observable));
         expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(1);
         expect(component.criticalPolicyViolationErrorHandler).toHaveBeenCalledOnceWith(
           {
@@ -750,7 +746,7 @@ export function TestCases4(getTestBed) {
 
         component.saveAndMatchWithPersonalCardTxn();
         expect(component.getCustomFields).toHaveBeenCalledOnceWith();
-        expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, jasmine.any(Observable), true);
+        expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, jasmine.any(Observable));
         expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(1);
         expect(policyService.getPolicyRules).toHaveBeenCalledTimes(1);
         expect(component.policyViolationErrorHandler).toHaveBeenCalledOnceWith(
@@ -784,7 +780,7 @@ export function TestCases4(getTestBed) {
       it('should match an expense while offline', () => {
         const generateEtxnSpy = spyOn(component, 'generateEtxnFromFg');
         generateEtxnSpy
-          .withArgs(component.etxn$, jasmine.any(Observable), true)
+          .withArgs(component.etxn$, jasmine.any(Observable))
           .and.returnValue(of({ ...expectedUnflattendedTxnData3, tx: unflattenedTransactionDataPersonalCard.tx }));
         generateEtxnSpy
           .withArgs(component.etxn$, jasmine.any(Observable))
@@ -808,7 +804,7 @@ export function TestCases4(getTestBed) {
 
         component.saveAndMatchWithPersonalCardTxn();
         expect(component.getCustomFields).toHaveBeenCalledOnceWith();
-        expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable), true);
+        expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
         expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
         expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(2);
         expect(transactionService.upsert).toHaveBeenCalledTimes(1);
@@ -831,7 +827,7 @@ export function TestCases4(getTestBed) {
       it('should generate an expense in offline mode and match with a card', () => {
         const generateEtxnSpy = spyOn(component, 'generateEtxnFromFg');
         generateEtxnSpy
-          .withArgs(component.etxn$, jasmine.any(Observable), true)
+          .withArgs(component.etxn$, jasmine.any(Observable))
           .and.returnValue(of({ ...expectedUnflattendedTxnData3, tx: unflattenedTransactionDataPersonalCard.tx }));
         generateEtxnSpy
           .withArgs(component.etxn$, jasmine.any(Observable))
@@ -855,7 +851,7 @@ export function TestCases4(getTestBed) {
 
         component.saveAndMatchWithPersonalCardTxn();
         expect(component.getCustomFields).toHaveBeenCalledOnceWith();
-        expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable), true);
+        expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
         expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
         expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(2);
         expect(transactionService.upsert).toHaveBeenCalledOnceWith(unflattenedTransactionDataPersonalCard.tx);
@@ -944,7 +940,7 @@ export function TestCases4(getTestBed) {
 
         component.editExpense('SAVE_AND_NEW_EXPENSE').subscribe(() => {
           expect(component.getCustomFields).toHaveBeenCalledTimes(1);
-          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable), true);
+          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
           expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
           expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(2);
           expect(component.checkPolicyViolation).toHaveBeenCalledTimes(1);
@@ -984,7 +980,7 @@ export function TestCases4(getTestBed) {
         component.editExpense('SAVE_AND_NEW_EXPENSE').subscribe((res) => {
           expect(res).toEqual(editUnflattenedTransactionPlatform2);
           expect(component.getCustomFields).toHaveBeenCalledTimes(1);
-          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable), true);
+          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
           expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
           expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(2);
           expect(component.checkPolicyViolation).toHaveBeenCalledTimes(1);
@@ -1025,7 +1021,7 @@ export function TestCases4(getTestBed) {
         component.editExpense('SAVE_EXPENSE').subscribe((res) => {
           expect(res).toEqual(editUnflattenedTransactionPlatformWithAdvanceWallet);
           expect(component.getCustomFields).toHaveBeenCalledTimes(1);
-          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable), true);
+          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
           expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
           expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(2);
           expect(component.checkPolicyViolation).toHaveBeenCalledTimes(1);
@@ -1047,7 +1043,7 @@ export function TestCases4(getTestBed) {
         });
       });
 
-      it('should remove expense from report while editing and and ask for review', (done) => {
+      it('should remove expense from report while editing and ask for review', (done) => {
         spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
         spyOn(component, 'generateEtxnFromFg').and.returnValue(of(transformedExpenseDataWithReportId2));
         spyOn(component, 'checkPolicyViolation').and.returnValue(of(expensePolicyData));
@@ -1068,7 +1064,7 @@ export function TestCases4(getTestBed) {
         component.editExpense('SAVE_AND_NEW_EXPENSE').subscribe((res) => {
           expect(res).toEqual(editUnflattenedTransactionPlatform3);
           expect(component.getCustomFields).toHaveBeenCalledTimes(1);
-          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable), true);
+          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
           expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
           expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(2);
           expect(component.checkPolicyViolation).toHaveBeenCalledTimes(1);
@@ -1112,7 +1108,7 @@ export function TestCases4(getTestBed) {
         component.editExpense('SAVE_AND_NEW_EXPENSE').subscribe((res) => {
           expect(res).toEqual(editUnflattenedTransactionPlatform);
           expect(component.getCustomFields).toHaveBeenCalledTimes(1);
-          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable), true);
+          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
           expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(1);
           expect(component.checkPolicyViolation).toHaveBeenCalledTimes(1);
           expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(1);
@@ -1166,7 +1162,7 @@ export function TestCases4(getTestBed) {
         component.editExpense('SAVE_AND_NEW_EXPENSE').subscribe((res) => {
           expect(res).toEqual(editUnflattenedTransactionPlatform2);
           expect(component.getCustomFields).toHaveBeenCalledTimes(1);
-          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable), true);
+          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
           expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(1);
           expect(component.checkPolicyViolation).toHaveBeenCalledTimes(1);
           expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(1);
@@ -1232,7 +1228,7 @@ export function TestCases4(getTestBed) {
         component.editExpense('SAVE_AND_NEW_EXPENSE').subscribe((res) => {
           expect(res).toEqual(editUnflattenedTransactionPlatform3);
           expect(component.getCustomFields).toHaveBeenCalledTimes(1);
-          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable), true);
+          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
           expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(1);
           expect(component.checkPolicyViolation).toHaveBeenCalledTimes(1);
           expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(1);
@@ -1299,7 +1295,7 @@ export function TestCases4(getTestBed) {
         component.editExpense('SAVE_AND_NEW_EXPENSE').subscribe((res) => {
           expect(res).toBe(transformedExpenseWithMatchCCCData2.tx);
           expect(component.getCustomFields).toHaveBeenCalledTimes(1);
-          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable), true);
+          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
           expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(2);
           expect(component.checkPolicyViolation).toHaveBeenCalledTimes(1);
           expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(1);
@@ -1336,7 +1332,7 @@ export function TestCases4(getTestBed) {
 
         component.editExpense('SAVE_AND_NEW_EXPENSE').subscribe((res) => {
           expect(res).toBe(transformedExpenseWithMatchCCCData.tx);
-          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable), true);
+          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
           expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(2);
           expect(component.getCustomFields).toHaveBeenCalledTimes(1);
           expect(component.checkPolicyViolation).toHaveBeenCalledTimes(1);
@@ -1374,7 +1370,7 @@ export function TestCases4(getTestBed) {
 
         component.editExpense('SAVE_AND_NEW_EXPENSE').subscribe((res) => {
           expect(res).toBe(transformedExpenseWithMatchCCCData.tx);
-          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable), true);
+          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
           expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(2);
           expect(component.getCustomFields).toHaveBeenCalledTimes(1);
           expect(component.checkPolicyViolation).toHaveBeenCalledTimes(1);

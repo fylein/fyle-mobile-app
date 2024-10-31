@@ -136,5 +136,5 @@ export interface Transaction {
     status: ExpenseTransactionStatus;
     corporate_card_nickname?: string;
   }[];
-  file_ids: string[];
+  file_ids?: string[];
 }

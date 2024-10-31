@@ -1100,9 +1100,9 @@ describe('TransactionService', () => {
       const mockFileObject = cloneDeep(fileObjectData1);
 
       spyOn(transactionService, 'upsert').and.returnValue(of(txnData2));
-      transactionService.createTxnWithFiles(txnData, of(mockFileObject)).subscribe((res) => {
+      transactionService.createTxnWithFiles({ ...txnData }, of(mockFileObject)).subscribe((res) => {
         expect(res).toEqual(txnData2);
-        expect(transactionService.upsert).toHaveBeenCalledOnceWith(txnData, [fileObjectData1[0].id]);
+        expect(transactionService.upsert).toHaveBeenCalledOnceWith({ ...txnData, file_ids: [fileObjectData1[0].id] });
         done();
       });
     });
@@ -1139,7 +1139,7 @@ describe('TransactionService', () => {
     const mockUpsertTxnParam = cloneDeep(upsertTxnParam);
     transactionService.upsert(mockUpsertTxnParam).subscribe((res) => {
       expect(res).toEqual(txnData4);
-      expect(expensesService.transformTo).toHaveBeenCalledOnceWith(txnDataPayload, []);
+      expect(expensesService.transformTo).toHaveBeenCalledOnceWith(txnDataPayload);
       expect(expensesService.post).toHaveBeenCalledOnceWith(transformedExpensePayload);
       expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
       expect(timezoneService.convertAllDatesToProperLocale).toHaveBeenCalledOnceWith(txnCustomPropertiesData6, offset);
@@ -1168,7 +1168,7 @@ describe('TransactionService', () => {
     const mockUpsertTxnParam = cloneDeep(upsertTxnParam);
     transactionService.upsert(mockUpsertTxnParam).subscribe((res) => {
       expect(res).toEqual(txnData4);
-      expect(expensesService.transformTo).toHaveBeenCalledOnceWith(txnDataPayload, []);
+      expect(expensesService.transformTo).toHaveBeenCalledOnceWith(txnDataPayload);
       expect(expensesService.post).toHaveBeenCalledOnceWith(transformedExpensePayload);
       expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
       expect(timezoneService.convertAllDatesToProperLocale).toHaveBeenCalledOnceWith(txnCustomPropertiesData6, offset);

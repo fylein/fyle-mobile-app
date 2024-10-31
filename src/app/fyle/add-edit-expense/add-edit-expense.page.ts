@@ -3529,10 +3529,6 @@ export class AddEditExpensePage implements OnInit {
           costCenter.cost_center_code = formValues.costCenter.code;
         }
 
-        const policyProps: { org_category?: string; sub_category?: string } = {};
-        policyProps.org_category = formValues.category && formValues.category.name;
-        policyProps.sub_category = formValues.category && formValues.category.sub_category;
-
         if (this.inpageExtractedData) {
           etxn.tx.extracted_data = this.inpageExtractedData;
           this.autoCodedData = this.inpageExtractedData;
@@ -3570,7 +3566,6 @@ export class AddEditExpensePage implements OnInit {
             locations: locations || [],
             custom_properties: customProperties || [],
             num_files: res.attachments?.length,
-            ...policyProps,
             org_user_id: etxn.tx.org_user_id,
             from_dt: this.getFromDt(),
             to_dt: this.getToDt(),

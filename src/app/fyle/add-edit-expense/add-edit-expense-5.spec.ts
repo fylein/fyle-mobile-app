@@ -1493,7 +1493,6 @@ export function TestCases5(getTestBed) {
         storageService.get.and.resolveTo(true);
         spyOn(component, 'setupBalanceFlag');
         statusService.find.and.returnValue(of(getEstatusApiResponse));
-        spyOn(component, 'getActiveCategories').and.returnValue(of(sortedCategory));
         spyOn(component, 'getNewExpenseObservable').and.returnValue(of(expectedExpenseObservable));
         spyOn(component, 'getEditExpenseObservable').and.returnValue(of(expectedUnflattendedTxnData1));
         fileService.getReceiptsDetails.and.returnValue({
@@ -1705,7 +1704,6 @@ export function TestCases5(getTestBed) {
         storageService.get.and.resolveTo(true);
         spyOn(component, 'setupBalanceFlag');
         statusService.find.and.returnValue(of(getEstatusApiResponse));
-        spyOn(component, 'getActiveCategories').and.returnValue(of(sortedCategory));
         spyOn(component, 'getNewExpenseObservable').and.returnValue(of(expectedExpenseObservable));
         spyOn(component, 'getEditExpenseObservable').and.returnValue(of(expectedUnflattendedTxnData1));
         fileService.findByTransactionId.and.returnValue(of(expectedFileData1));
@@ -1782,7 +1780,6 @@ export function TestCases5(getTestBed) {
         storageService.get.and.resolveTo(true);
         spyOn(component, 'setupBalanceFlag');
         statusService.find.and.returnValue(of(getEstatusApiResponse));
-        spyOn(component, 'getActiveCategories').and.returnValue(of(sortedCategory));
         spyOn(component, 'getNewExpenseObservable').and.returnValue(of(expectedExpenseObservable));
         spyOn(component, 'getEditExpenseObservable').and.returnValue(of(expectedUnflattendedTxnData1));
         expensesService.getSplitExpenses.and.returnValue(of(splitExpensesData));
