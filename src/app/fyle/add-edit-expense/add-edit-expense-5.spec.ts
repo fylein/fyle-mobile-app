@@ -22,6 +22,7 @@ import { categorieListRes, recentUsedCategoriesRes } from 'src/app/core/mock-dat
 import {
   filteredCategoriesData,
   orgCategoryData,
+  orgCategoryData1,
   sortedCategory,
   transformedOrgCategories,
 } from 'src/app/core/mock-data/org-category.data';
@@ -1464,6 +1465,9 @@ export function TestCases5(getTestBed) {
     });
 
     describe('ionViewWillEnter():', () => {
+      beforeEach(() => {
+        categoriesService.getAll.and.returnValue(of(orgCategoryData1));
+      });
       it('should setup class variables', (done) => {
         component.isConnected$ = of(true);
         component.txnFields$ = of(txnFieldsData2);
