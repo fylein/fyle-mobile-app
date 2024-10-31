@@ -931,11 +931,8 @@ export function TestCases4(getTestBed) {
         authService.getEou.and.resolveTo(apiEouRes);
         component.etxn$ = of(transformedExpenseData);
         transactionService.upsert.and.returnValue(of(transformedExpenseData.tx));
-        expensesService.getExpenseById.and.returnValue(of(platformExpenseData));
-        transactionService.transformExpense.and.returnValue(transformedExpenseData);
         component.fg.controls.report.setValue(expectedReportsPaginated[0]);
         spenderReportsService.addExpenses.and.returnValue(of(undefined));
-        expensesService.post.and.returnValue(of(null));
         fixture.detectChanges();
 
         component.editExpense('SAVE_AND_NEW_EXPENSE').subscribe(() => {
@@ -950,10 +947,7 @@ export function TestCases4(getTestBed) {
           expect(authService.getEou).toHaveBeenCalledTimes(1);
           expect(component.trackEditExpense).toHaveBeenCalledOnceWith(transformedExpenseData);
           expect(transactionService.upsert).toHaveBeenCalledOnceWith(transformedExpenseData.tx);
-          expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txvslh8aQMbu');
-          expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
           expect(spenderReportsService.addExpenses).toHaveBeenCalledOnceWith('rprAfNrce73O', ['txvslh8aQMbu']);
-          expect(expensesService.post).not.toHaveBeenCalled();
           done();
         });
       });
@@ -972,9 +966,6 @@ export function TestCases4(getTestBed) {
         spenderReportsService.addExpenses.and.returnValue(of(undefined));
         authService.getEou.and.resolveTo(apiEouRes);
         transactionService.upsert.and.returnValue(of(transformedExpenseDataWithReportId.tx));
-        expensesService.getExpenseById.and.returnValue(of(platformExpenseDataWithReportId));
-        transactionService.transformExpense.and.returnValue(transformedExpenseDataWithReportId);
-        expensesService.post.and.returnValue(of(null));
         fixture.detectChanges();
 
         component.editExpense('SAVE_AND_NEW_EXPENSE').subscribe((res) => {
@@ -990,11 +981,8 @@ export function TestCases4(getTestBed) {
           expect(authService.getEou).toHaveBeenCalledTimes(1);
           expect(component.trackEditExpense).toHaveBeenCalledOnceWith(transformedExpenseDataWithReportId);
           expect(transactionService.upsert).toHaveBeenCalledOnceWith(transformedExpenseDataWithReportId.tx);
-          expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txD5hIQgLuR5');
-          expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseDataWithReportId);
           expect(spenderReportsService.addExpenses).toHaveBeenCalledOnceWith('rprAfNrce73O', ['txD5hIQgLuR5']);
           expect(spenderReportsService.ejectExpenses).toHaveBeenCalledOnceWith('rpbNc3kn5baq', 'txD5hIQgLuR5');
-          expect(expensesService.post).not.toHaveBeenCalled();
           done();
         });
       });
@@ -1013,9 +1001,6 @@ export function TestCases4(getTestBed) {
         spenderReportsService.addExpenses.and.returnValue(of(undefined));
         authService.getEou.and.resolveTo(apiEouRes);
         transactionService.upsert.and.returnValue(of(transformedExpenseDataWithoutAdvanceWallet.tx));
-        expensesService.getExpenseById.and.returnValue(of(platformExpenseDataForAdvanceWallet));
-        transactionService.transformExpense.and.returnValue(transformedExpenseDataWithoutAdvanceWallet);
-        expensesService.post.and.returnValue(of(null));
         fixture.detectChanges();
 
         component.editExpense('SAVE_EXPENSE').subscribe((res) => {
@@ -1031,14 +1016,6 @@ export function TestCases4(getTestBed) {
           expect(authService.getEou).toHaveBeenCalledTimes(1);
           expect(component.trackEditExpense).toHaveBeenCalledOnceWith(transformedExpenseDataWithAdvanceWallet);
           expect(transactionService.upsert).toHaveBeenCalledOnceWith(transformedExpenseDataWithAdvanceWallet.tx);
-          expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(
-            transformedExpenseDataWithAdvanceWallet.tx.id
-          );
-          expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseDataForAdvanceWallet);
-          expect(expensesService.post).toHaveBeenCalledOnceWith({
-            id: transformedExpenseDataWithAdvanceWallet.tx.id,
-            advance_wallet_id: 'areq1234',
-          });
           done();
         });
       });
@@ -1056,9 +1033,6 @@ export function TestCases4(getTestBed) {
         spenderReportsService.ejectExpenses.and.returnValue(of(undefined));
         authService.getEou.and.resolveTo(apiEouRes);
         transactionService.upsert.and.returnValue(of(transformedExpenseDataWithReportId2.tx));
-        expensesService.getExpenseById.and.returnValue(of(platformExpenseDataWithReportId2));
-        transactionService.transformExpense.and.returnValue(transformedExpenseDataWithReportId2);
-        expensesService.post.and.returnValue(of(null));
         fixture.detectChanges();
 
         component.editExpense('SAVE_AND_NEW_EXPENSE').subscribe((res) => {
@@ -1076,9 +1050,6 @@ export function TestCases4(getTestBed) {
           expect(spenderReportsService.ejectExpenses).toHaveBeenCalledOnceWith('rplD17WeBlha', 'txD5hIQgLuR5');
           expect(trackingService.removeFromExistingReportEditExpense).toHaveBeenCalledTimes(1);
           expect(transactionService.upsert).toHaveBeenCalledOnceWith(transformedExpenseDataWithReportId2.tx);
-          expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txD5hIQgLuR5');
-          expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseDataWithReportId2);
-          expect(expensesService.post).not.toHaveBeenCalled();
           done();
         });
       });
@@ -1100,9 +1071,6 @@ export function TestCases4(getTestBed) {
         authService.getEou.and.resolveTo(apiEouRes);
 
         transactionService.upsert.and.returnValue(of(transformedExpenseDataWithSubCategory.tx));
-        expensesService.getExpenseById.and.returnValue(of(platformExpenseDataWithSubCategory));
-        transactionService.transformExpense.and.returnValue(transformedExpenseDataWithSubCategory);
-        expensesService.post.and.returnValue(of(null));
         fixture.detectChanges();
 
         component.editExpense('SAVE_AND_NEW_EXPENSE').subscribe((res) => {
@@ -1126,10 +1094,7 @@ export function TestCases4(getTestBed) {
           expect(authService.getEou).toHaveBeenCalledTimes(1);
           expect(component.trackEditExpense).toHaveBeenCalledOnceWith(transformedExpenseDataWithSubCategory);
           expect(transactionService.upsert).toHaveBeenCalledOnceWith(transformedExpenseDataWithSubCategory.tx);
-          expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txD5hIQgLuR5');
-          expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseDataWithSubCategory);
           expect(component.getIsPolicyExpense).toHaveBeenCalledTimes(1);
-          expect(expensesService.post).not.toHaveBeenCalled();
           done();
         });
       });
@@ -1154,9 +1119,6 @@ export function TestCases4(getTestBed) {
         transactionService.upsert.and.returnValue(of(transformedExpenseDataWithReportId.tx));
         statusService.findLatestComment.and.returnValue(of('a comment'));
         statusService.post.and.returnValue(of(expenseStatusData));
-        expensesService.getExpenseById.and.returnValue(of(platformExpenseDataWithReportId));
-        transactionService.transformExpense.and.returnValue(transformedExpenseDataWithReportId);
-        expensesService.post.and.returnValue(of(null));
         fixture.detectChanges();
 
         component.editExpense('SAVE_AND_NEW_EXPENSE').subscribe((res) => {
@@ -1182,8 +1144,6 @@ export function TestCases4(getTestBed) {
           expect(authService.getEou).toHaveBeenCalledTimes(1);
           expect(component.trackEditExpense).toHaveBeenCalledOnceWith(transformedExpenseDataWithReportId);
           expect(transactionService.upsert).toHaveBeenCalledOnceWith(transformedExpenseDataWithReportId.tx);
-          expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txD5hIQgLuR5');
-          expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseDataWithReportId);
 
           expect(statusService.findLatestComment).toHaveBeenCalledOnceWith(
             transformedExpenseDataWithReportId.tx.id,
@@ -1197,7 +1157,6 @@ export function TestCases4(getTestBed) {
             true
           );
           expect(component.getIsPolicyExpense).toHaveBeenCalledTimes(1);
-          expect(expensesService.post).not.toHaveBeenCalled();
           done();
         });
       });
@@ -1219,10 +1178,7 @@ export function TestCases4(getTestBed) {
         component.etxn$ = of(transformedExpenseDataWithReportId2);
         authService.getEou.and.resolveTo(apiEouRes);
         transactionService.upsert.and.returnValue(of(transformedExpenseDataWithReportId2.tx));
-        expensesService.getExpenseById.and.returnValue(of(platformExpenseDataWithReportId2));
-        transactionService.transformExpense.and.returnValue(transformedExpenseDataWithReportId2);
         statusService.findLatestComment.and.returnValue(of('comment'));
-        expensesService.post.and.returnValue(of(null));
         fixture.detectChanges();
 
         component.editExpense('SAVE_AND_NEW_EXPENSE').subscribe((res) => {
@@ -1248,15 +1204,11 @@ export function TestCases4(getTestBed) {
           expect(authService.getEou).toHaveBeenCalledTimes(1);
           expect(component.trackEditExpense).toHaveBeenCalledOnceWith(transformedExpenseDataWithReportId2);
           expect(transactionService.upsert).toHaveBeenCalledOnceWith(transformedExpenseDataWithReportId2.tx);
-          expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txD5hIQgLuR5');
-          expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseDataWithReportId2);
           expect(statusService.findLatestComment).toHaveBeenCalledOnceWith(
             transformedExpenseDataWithReportId2.tx.id,
             'transactions',
             transformedExpenseDataWithReportId2.tx.org_user_id
           );
-          expect(statusService.post).not.toHaveBeenCalled();
-          expect(expensesService.post).not.toHaveBeenCalled();
           done();
         });
       });
@@ -1284,12 +1236,9 @@ export function TestCases4(getTestBed) {
         component.etxn$ = of(transformedExpenseWithMatchCCCData2);
         authService.getEou.and.resolveTo(apiEouRes);
         transactionService.upsert.and.returnValue(of(transformedExpenseWithMatchCCCData2.tx));
-        expensesService.getExpenseById.and.returnValue(of(platformExpenseWithMatchCCC2));
-        transactionService.transformExpense.and.returnValue(transformedExpenseWithMatchCCCData2);
         component.selectedCCCTransaction = matchedCCTransactionData;
         component.matchedCCCTransaction = matchedCCTransactionData;
         transactionService.matchCCCExpense.and.returnValue(of(null));
-        expensesService.post.and.returnValue(of(null));
         fixture.detectChanges();
 
         component.editExpense('SAVE_AND_NEW_EXPENSE').subscribe((res) => {
@@ -1303,10 +1252,7 @@ export function TestCases4(getTestBed) {
           expect(component.trackPolicyCorrections).toHaveBeenCalledTimes(1);
           expect(authService.getEou).toHaveBeenCalledTimes(1);
           expect(transactionService.upsert).toHaveBeenCalledOnceWith(transformedExpenseWithMatchCCCData2.tx);
-          expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txmF3wgfj0Bs');
-          expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseWithMatchCCC2);
           expect(transactionService.matchCCCExpense).toHaveBeenCalledOnceWith('btxnSte7sVQCM8', 'txmF3wgfj0Bs');
-          expect(expensesService.post).not.toHaveBeenCalled();
           done();
         });
       });
@@ -1322,12 +1268,9 @@ export function TestCases4(getTestBed) {
         component.etxn$ = of(transformedExpenseWithMatchCCCData);
         authService.getEou.and.resolveTo(apiEouRes);
         transactionService.upsert.and.returnValue(of(transformedExpenseWithMatchCCCData.tx));
-        expensesService.getExpenseById.and.returnValue(of(platformExpenseWithMatchCCC));
-        transactionService.transformExpense.and.returnValue(transformedExpenseWithMatchCCCData);
         component.selectedCCCTransaction = null;
         component.matchedCCCTransaction = matchedCCTransactionData;
         transactionService.unmatchCCCExpense.and.returnValue(of(null));
-        expensesService.post.and.returnValue(of(null));
         fixture.detectChanges();
 
         component.editExpense('SAVE_AND_NEW_EXPENSE').subscribe((res) => {
@@ -1340,10 +1283,7 @@ export function TestCases4(getTestBed) {
           expect(policyService.getPolicyRules).toHaveBeenCalledTimes(1);
           expect(authService.getEou).toHaveBeenCalledTimes(1);
           expect(transactionService.upsert).toHaveBeenCalledOnceWith(transformedExpenseWithMatchCCCData.tx);
-          expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txmF3wgfj0Bs');
-          expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseWithMatchCCC);
           expect(transactionService.unmatchCCCExpense).toHaveBeenCalledOnceWith('btxnSte7sVQCM8', 'txmF3wgfj0Bs');
-          expect(expensesService.post).not.toHaveBeenCalled();
           done();
         });
       });
@@ -1359,13 +1299,10 @@ export function TestCases4(getTestBed) {
         component.etxn$ = of(transformedExpenseWithMatchCCCData);
         authService.getEou.and.resolveTo(apiEouRes);
         transactionService.upsert.and.returnValue(of(transformedExpenseWithMatchCCCData.tx));
-        expensesService.getExpenseById.and.returnValue(of(platformExpenseWithMatchCCC));
-        transactionService.transformExpense.and.returnValue(transformedExpenseWithMatchCCCData);
         component.selectedCCCTransaction = matchedCCTransactionData2;
         component.matchedCCCTransaction = matchedCCTransactionData2;
         transactionService.unmatchCCCExpense.and.returnValue(of(null));
         transactionService.matchCCCExpense.and.returnValue(of(null));
-        expensesService.post.and.returnValue(of(null));
         fixture.detectChanges();
 
         component.editExpense('SAVE_AND_NEW_EXPENSE').subscribe((res) => {
@@ -1378,11 +1315,8 @@ export function TestCases4(getTestBed) {
           expect(policyService.getPolicyRules).toHaveBeenCalledTimes(1);
           expect(authService.getEou).toHaveBeenCalledTimes(1);
           expect(transactionService.upsert).toHaveBeenCalledOnceWith(transformedExpenseWithMatchCCCData.tx);
-          expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txmF3wgfj0Bs');
-          expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseWithMatchCCC);
           expect(transactionService.unmatchCCCExpense).toHaveBeenCalledOnceWith('btxnBdS2Kpvzhy', 'txmF3wgfj0Bs');
           expect(transactionService.matchCCCExpense).toHaveBeenCalledOnceWith('btxnBdS2Kpvzhy', 'txmF3wgfj0Bs');
-          expect(expensesService.post).not.toHaveBeenCalled();
           done();
         });
       });
