@@ -40,6 +40,7 @@ Sentry.init({
   release: 'please-replace-your-git-commit-version',
   ignoreErrors: ['Non-Error exception captured', 'Non-Error promise rejection captured'],
   beforeSend(event) {
+    console.log('Logging: please-replace-your-git-commit-version');
     cleanHttpExceptionUrlsForSentryGrouping(event);
     return event;
   },
