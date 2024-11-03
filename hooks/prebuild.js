@@ -51,7 +51,7 @@ module.exports = function (ctx) {
   var mainPathContent = fs.readFileSync(mainPath).toString();
   fs.writeFileSync(
     mainPath,
-    mainPathContent.replace(/please-replace-your-git-commit-version/g, process.env.CI_GIT_COMMIT_SHA),
+    mainPathContent.replace(/please-replace-your-git-commit-version/g, ctx.env.FYLE_MOBILE_RELEASE_VERSION),
     'utf8'
   );
 

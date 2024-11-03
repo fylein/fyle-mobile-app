@@ -22,7 +22,7 @@ export class FeatureConfigService {
       switchMap((extendedOrgUser) => {
         const data = {
           params: {
-            target_client: 'eq.MOBILEAPP',
+            target_clientt: 'eq.MOBILEAPP',
             feature: `eq.${configuration.feature}`,
             key: `eq.${configuration.key}`,
             is_shared: `eq.${configuration.is_shared || false}`,
