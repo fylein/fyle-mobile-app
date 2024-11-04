@@ -2774,7 +2774,7 @@ describe('MyExpensesPage', () => {
       .addTransactionsToReport(expectedReportsSinglePage[0], ['tx5fBcPBAxLv'])
       .pipe(
         tap((updatedReport) => {
-          expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Adding transaction to report');
+          expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Adding expense to report');
           expect(spenderReportsService.addExpenses).toHaveBeenCalledOnceWith('rprAfNrce73O', ['tx5fBcPBAxLv']);
           expect(updatedReport).toEqual(expectedReportsSinglePage[0]);
         }),
