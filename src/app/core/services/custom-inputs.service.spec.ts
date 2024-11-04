@@ -17,7 +17,7 @@ import { expensesWithDependentFields } from '../mock-data/dependent-field-expens
 import { CustomInput } from '../models/custom-input.model';
 import { mockExpenseData } from '../mock-data/expense-field.data';
 
-fdescribe('CustomInputsService', () => {
+describe('CustomInputsService', () => {
   let customInputsService: CustomInputsService;
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
   let authService: jasmine.SpyObj<AuthService>;
