@@ -121,6 +121,13 @@ export class CustomInputsService {
     );
   }
 
+  /**
+  +   * Determines if a custom property should be included based on its enabled status and value.
+  +   * @param customInput - The custom input field.
+  +   * @param property - The custom field property.
+  +   * @returns A boolean indicating whether the property should be included.
+  */
+
   shouldIncludeProperty(customInput: ExpenseField, property: CustomField): boolean {
     return (
       customInput.is_enabled ||
