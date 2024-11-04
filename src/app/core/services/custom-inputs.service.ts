@@ -109,7 +109,7 @@ export class CustomInputsService {
           }
 
           // Add the property to filledCustomProperties based on new logic
-          if (this.shouldIncludeProperty(customInput as unknown as CustomInput, property)) {
+          if (this.shouldIncludeProperty(customInput, property)) {
             filledCustomProperties.push({
               ...property,
               displayValue: this.getCustomPropertyDisplayValue(property),
@@ -121,7 +121,7 @@ export class CustomInputsService {
     );
   }
 
-  shouldIncludeProperty(customInput: CustomInput, property: CustomField): boolean {
+  shouldIncludeProperty(customInput: ExpenseField, property: CustomField): boolean {
     return (
       customInput.is_enabled ||
       (!customInput.is_enabled &&
