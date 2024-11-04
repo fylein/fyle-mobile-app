@@ -149,7 +149,6 @@ export class ManageCorporateCardsPage {
     );
 
     this.virtualCardDetails$ = this.getVirtualCardDetails();
-    this.isAddCorporateCardVisible$ = this.checkAddCorporateCardVisibility();
     this.isVisaRTFEnabled$ = orgSettings$.pipe(
       map((orgSettings) => orgSettings.visa_enrollment_settings.allowed && orgSettings.visa_enrollment_settings.enabled)
     );
@@ -169,6 +168,7 @@ export class ManageCorporateCardsPage {
           orgUserSettings.bank_data_aggregation_settings.enabled
       )
     );
+    this.isAddCorporateCardVisible$ = this.checkAddCorporateCardVisibility();
   }
 
   ionViewWillLeave(): void {

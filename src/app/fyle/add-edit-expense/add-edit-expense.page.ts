@@ -138,6 +138,7 @@ import { corporateCardTransaction } from 'src/app/core/models/platform/v1/cc-tra
 import { PlatformFileGenerateUrlsResponse } from 'src/app/core/models/platform/platform-file-generate-urls-response.model';
 import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
+import { RefinerService } from 'src/app/core/services/refiner.service';
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 
 // eslint-disable-next-line
@@ -491,6 +492,7 @@ export class AddEditExpensePage implements OnInit {
     private orgUserSettingsService: OrgUserSettingsService,
     private storageService: StorageService,
     private launchDarklyService: LaunchDarklyService,
+    private refinerService: RefinerService,
     private platformHandlerService: PlatformHandlerService,
     private expensesService: ExpensesService,
     private advanceWalletsService: AdvanceWalletsService
@@ -3585,6 +3587,22 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
+  triggerNpsSurvey(): void {
+    const roles$ = from(this.authService.getRoles().pipe(shareReplay(1)));
+    const showNpsSurvey$ = this.launchDarklyService.getVariation('nps_survey', false);
+
+    forkJoin([roles$, showNpsSurvey$])
+      .pipe(
+        switchMap(([roles, showNpsSurvey]) => {
+          if (showNpsSurvey && !roles.includes('ADMIN')) {
+            this.refinerService.startSurvey({ actionName: 'Save Expense' });
+          }
+          return of(null);
+        })
+      )
+      .subscribe();
+  }
+
   showSaveExpenseLoader(redirectedFrom: string): void {
     this.saveExpenseLoader = redirectedFrom === 'SAVE_EXPENSE';
     this.saveAndNewExpenseLoader = redirectedFrom === 'SAVE_AND_NEW_EXPENSE';
@@ -3632,6 +3650,7 @@ export class AddEditExpensePage implements OnInit {
       }),
       finalize(() => {
         this.hideSaveExpenseLoader();
+        this.triggerNpsSurvey();
       })
     );
   }
@@ -4115,6 +4134,7 @@ export class AddEditExpensePage implements OnInit {
       }),
       finalize(() => {
         this.hideSaveExpenseLoader();
+        this.triggerNpsSurvey();
       })
     );
   }
@@ -4384,6 +4404,7 @@ export class AddEditExpensePage implements OnInit {
       ),
       finalize(() => {
         this.hideSaveExpenseLoader();
+        this.triggerNpsSurvey();
       })
     );
   }
@@ -4525,13 +4546,6 @@ export class AddEditExpensePage implements OnInit {
           });
         }
       });
-  }
-
-  private filterVendor(vendor: string): string | null {
-    if (!vendor || this.vendorOptions?.length === 0) {
-      return vendor;
-    }
-    return this.vendorOptions?.find((option) => option.toLowerCase() === vendor.toLowerCase()) || null;
   }
 
   attachReceipts(data: { type: string; dataUrl: string | ArrayBuffer; actionSource?: string }): void {
@@ -5205,5 +5219,12 @@ export class AddEditExpensePage implements OnInit {
     });
 
     await popover.present();
+  }
+
+  private filterVendor(vendor: string): string | null {
+    if (!vendor || this.vendorOptions?.length === 0) {
+      return vendor;
+    }
+    return this.vendorOptions?.find((option) => option.toLowerCase() === vendor.toLowerCase()) || null;
   }
 }

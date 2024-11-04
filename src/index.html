@@ -26,5 +26,21 @@
 
   <body class="mat-typography">
     <app-root></app-root>
+
+    <!-- refiner -->
+    <script type="text/javascript">
+      window._refinerQueue = window._refinerQueue || [];
+      function _refiner() {
+        _refinerQueue.push(arguments);
+      }
+      (function () {
+        var a = document.createElement('script');
+        a.type = 'text/javascript';
+        a.async = true;
+        a.src = 'https://js.refiner.io/v001/client.js';
+        var b = document.getElementsByTagName('script')[0];
+        b.parentNode.insertBefore(a, b);
+      })();
+    </script>
   </body>
 </html>

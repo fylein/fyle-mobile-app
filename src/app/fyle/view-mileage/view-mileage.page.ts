@@ -378,8 +378,7 @@ export class ViewMileagePage {
       switchMap((expense) =>
         this.customInputsService.fillCustomProperties(
           expense.category_id,
-          expense.custom_fields as Partial<CustomInput>[],
-          true
+          expense.custom_fields as Partial<CustomInput>[]
         )
       ),
       map((customProperties) =>
