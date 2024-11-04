@@ -23,9 +23,7 @@ export class CustomFieldsService {
   setDefaultValue(property: TxnCustomProperties, inputValue: string): TxnCustomProperties {
     if (inputValue === 'BOOLEAN') {
       property.value = false;
-    } else if (inputValue === 'SELECT' || inputValue === 'MULTI_SELECT') {
-      property.value = '';
-    } else if (inputValue === 'USER_LIST') {
+    } else if (inputValue === 'USER_LIST' || inputValue === 'MULTI_SELECT') {
       property.value = [];
     }
 
