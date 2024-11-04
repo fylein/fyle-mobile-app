@@ -289,26 +289,23 @@ describe('CustomInputsService', () => {
       done();
     });
   });
+
   it('should append "(Deleted)" to field name when custom input is disabled', (done) => {
     const orgCategoryId = 147791;
 
-    const customProperties: CustomInput[] = []; // Use an empty array for this test
+    const customProperties: CustomInput[] = [];
 
     // Mock getAllinView method to return an observable with the mock data
-    spyOn(customInputsService, 'getAllinView').and.returnValue(of(mockExpenseData)); // Use mockExpenseData here
+    spyOn(customInputsService, 'getAllinView').and.returnValue(of(mockExpenseData));
 
     // Mock filterByCategory to return the mock object as the filtered result
     spyOn(customInputsService, 'filterByCategory').and.callFake((inputs, id) => {
-      return inputs.filter((input) => input.org_category_ids.includes(id as number)); // Filtering logic
+      return inputs.filter((input) => input.org_category_ids.includes(id as number));
     });
 
     // Call fillCustomProperties and verify results
     customInputsService.fillCustomProperties(orgCategoryId, customProperties).subscribe((result) => {
-      // Debugging output
-      console.log('Result:', result);
-
-      // Expectations
-      expect(result.length).toBe(1); // Should contain one result
+      expect(result.length).toBe(1);
       expect(result[0].name).toBe('testttt (Deleted)'); // Check for "(Deleted)"
       done();
     });
