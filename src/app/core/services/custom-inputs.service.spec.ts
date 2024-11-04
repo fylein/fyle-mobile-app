@@ -14,6 +14,8 @@ import {
 } from '../test-data/custom-inputs.spec.data';
 import { CustomInputsService } from './custom-inputs.service';
 import { expensesWithDependentFields } from '../mock-data/dependent-field-expenses.data';
+import { ExpenseField } from '../models/v1/expense-field.model';
+import { CustomInput } from '../models/custom-input.model';
 
 describe('CustomInputsService', () => {
   let customInputsService: CustomInputsService;
@@ -284,6 +286,54 @@ describe('CustomInputsService', () => {
     const result = customInputsService.fillCustomProperties(orgCatId, customProperties);
     result.subscribe((res) => {
       expect(res).toEqual(filledCustomProperties);
+      done();
+    });
+  });
+  it('should append "(Deleted)" to field name when custom input is disabled', (done) => {
+    const orgCategoryId = 147791;
+    const expenseFieldMock: ExpenseField = {
+      code: null,
+      column_name: 'boolean_column2',
+      created_at: new Date('2024-11-03T12:12:33.265861+00:00'),
+      created_by: undefined,
+      default_value: null,
+      field_name: 'testttt',
+      id: 1259223,
+      is_custom: true,
+      is_enabled: false,
+      is_mandatory: false,
+      options: [],
+      org_category_ids: [147791],
+      org_id: 'orsO0VW86WLQ',
+      placeholder: 'testttt',
+      roles_editable: [],
+      seq: 1,
+      type: 'BOOLEAN',
+      updated_at: new Date('2024-11-03T12:53:23.450820+00:00'),
+      parent_field_id: null,
+      updated_by: undefined,
+      field: undefined,
+      input_type: undefined,
+    };
+
+    const customProperties: CustomInput[] = []; // Use an empty array for this test
+
+    // Mock getAllinView method to return an observable with the mock data
+    spyOn(customInputsService, 'getAllinView').and.returnValue(of([expenseFieldMock]));
+
+    // Mock filterByCategory to return the mock object as the filtered result
+    spyOn(customInputsService, 'filterByCategory').and.callFake((inputs, id) => {
+      return inputs.filter((input) => input.org_category_ids.includes(id as number)); // Filtering logic
+    });
+
+    // Call fillCustomProperties and verify results
+    customInputsService.fillCustomProperties(orgCategoryId, customProperties).subscribe((result) => {
+      // Debugging output
+      console.log('Result:', result);
+
+      // Expectations
+      expect(result.length).toBe(1); // Should contain one result
+      expect(result[0].name).toBe('testttt (Deleted)'); // Check for "(Deleted)"
       done();
     });
   });
