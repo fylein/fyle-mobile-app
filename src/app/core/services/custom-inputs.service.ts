@@ -79,7 +79,6 @@ export class CustomInputsService {
 
   fillCustomProperties(orgCategoryId: number, customProperties: Partial<CustomInput>[]): Observable<CustomField[]> {
     return this.getAllinView().pipe(
-      // Filter out dependent selects
       map((allCustomInputs) => allCustomInputs.filter((customInput) => customInput.type !== 'DEPENDENT_SELECT')),
       map((allCustomInputs) => {
         const customInputs = this.filterByCategory(allCustomInputs, orgCategoryId);
@@ -124,15 +123,7 @@ export class CustomInputsService {
           }
 
           // Add the property to `filledCustomProperties` based on new logic
-          // Include active fields
-          // Include Disabled fields which has Historical values
-          if (
-            customInput.is_enabled ||
-            (!customInput.is_enabled &&
-              property.value !== null &&
-              property.value !== undefined &&
-              this.getCustomPropertyDisplayValue(property) !== '-')
-          ) {
+          if (this.shouldIncludeProperty(customInput as unknown as CustomInput, property)) {
             filledCustomProperties.push({
               ...property,
               displayValue: this.getCustomPropertyDisplayValue(property),
@@ -141,6 +132,16 @@ export class CustomInputsService {
         });
         return filledCustomProperties;
       })
+    );
+  }
+
+  private shouldIncludeProperty(customInput: CustomInput, property: CustomField): boolean {
+    return (
+      customInput.is_enabled ||
+      (!customInput.is_enabled &&
+        property.value !== null &&
+        property.value !== undefined &&
+        this.getCustomPropertyDisplayValue(property) !== '-')
     );
   }
 
