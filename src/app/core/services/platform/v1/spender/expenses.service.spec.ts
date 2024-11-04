@@ -397,19 +397,16 @@ describe('ExpensesService', () => {
   describe('transformTo', () => {
     let transaction: Partial<Transaction>;
     let expensePayload: Partial<Expense>;
-    let fileIds: string[];
 
     beforeEach(() => {
-      fileIds = ['file1', 'file2'];
       transaction = cloneDeep(txnAmount1);
       expensePayload = {
         ...transformedExpensePayload,
-        file_ids: fileIds,
       };
     });
 
     it('should transform a Transaction to Expense payload', () => {
-      const result = service.transformTo(txnAmount1, fileIds);
+      const result = service.transformTo(txnAmount1);
       expect(result).toEqual(expensePayload);
     });
 
@@ -419,7 +416,7 @@ describe('ExpensesService', () => {
       transaction.flight_return_travel_class = 'Business';
       expensePayload.travel_classes = ['Economy', 'Business'];
 
-      const result = service.transformTo(transaction, fileIds);
+      const result = service.transformTo(transaction);
       expect(result.travel_classes).toEqual(['Economy', 'Business']);
     });
 
@@ -429,7 +426,7 @@ describe('ExpensesService', () => {
       transaction.flight_return_travel_class = null;
       expensePayload.travel_classes = ['Economy'];
 
-      const result = service.transformTo(transaction, fileIds);
+      const result = service.transformTo(transaction);
       expect(result.travel_classes).toEqual(['Economy']);
     });
 
@@ -438,7 +435,7 @@ describe('ExpensesService', () => {
       transaction.bus_travel_class = 'Luxury';
       expensePayload.travel_classes = ['Luxury'];
 
-      const result = service.transformTo(transaction, fileIds);
+      const result = service.transformTo(transaction);
       expect(result.travel_classes).toEqual(['Luxury']);
     });
 
@@ -447,7 +444,7 @@ describe('ExpensesService', () => {
       transaction.train_travel_class = 'First Class';
       expensePayload.travel_classes = ['First Class'];
 
-      const result = service.transformTo(transaction, fileIds);
+      const result = service.transformTo(transaction);
       expect(result.travel_classes).toEqual(['First Class']);
     });
 
@@ -455,7 +452,7 @@ describe('ExpensesService', () => {
       transaction.fyle_category = 'taxi';
       expensePayload.travel_classes = [];
 
-      const result = service.transformTo(transaction, fileIds);
+      const result = service.transformTo(transaction);
       expect(result.travel_classes).toEqual([]);
     });
 
@@ -465,7 +462,7 @@ describe('ExpensesService', () => {
       transaction.flight_return_travel_class = 'Economy';
       expensePayload.travel_classes = ['Premium Economy', 'Economy'];
 
-      const result = service.transformTo(transaction, fileIds);
+      const result = service.transformTo(transaction);
       expect(result.travel_classes).toEqual(['Premium Economy', 'Economy']);
     });
 
@@ -475,7 +472,7 @@ describe('ExpensesService', () => {
       transaction.flight_return_travel_class = undefined;
       expensePayload.travel_classes = [];
 
-      const result = service.transformTo(transaction, fileIds);
+      const result = service.transformTo(transaction);
       expect(result.travel_classes).toEqual([]);
     });
   });

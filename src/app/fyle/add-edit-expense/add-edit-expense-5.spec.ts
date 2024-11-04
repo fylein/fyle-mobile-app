@@ -22,6 +22,7 @@ import { categorieListRes, recentUsedCategoriesRes } from 'src/app/core/mock-dat
 import {
   filteredCategoriesData,
   orgCategoryData,
+  orgCategoryData1,
   sortedCategory,
   transformedOrgCategories,
 } from 'src/app/core/mock-data/org-category.data';
@@ -1464,6 +1465,9 @@ export function TestCases5(getTestBed) {
     });
 
     describe('ionViewWillEnter():', () => {
+      beforeEach(() => {
+        categoriesService.getAll.and.returnValue(of(orgCategoryData1));
+      });
       it('should setup class variables', (done) => {
         component.isConnected$ = of(true);
         component.txnFields$ = of(txnFieldsData2);
@@ -1493,7 +1497,6 @@ export function TestCases5(getTestBed) {
         storageService.get.and.resolveTo(true);
         spyOn(component, 'setupBalanceFlag');
         statusService.find.and.returnValue(of(getEstatusApiResponse));
-        spyOn(component, 'getActiveCategories').and.returnValue(of(sortedCategory));
         spyOn(component, 'getNewExpenseObservable').and.returnValue(of(expectedExpenseObservable));
         spyOn(component, 'getEditExpenseObservable').and.returnValue(of(expectedUnflattendedTxnData1));
         fileService.getReceiptsDetails.and.returnValue({
@@ -1705,7 +1708,6 @@ export function TestCases5(getTestBed) {
         storageService.get.and.resolveTo(true);
         spyOn(component, 'setupBalanceFlag');
         statusService.find.and.returnValue(of(getEstatusApiResponse));
-        spyOn(component, 'getActiveCategories').and.returnValue(of(sortedCategory));
         spyOn(component, 'getNewExpenseObservable').and.returnValue(of(expectedExpenseObservable));
         spyOn(component, 'getEditExpenseObservable').and.returnValue(of(expectedUnflattendedTxnData1));
         fileService.findByTransactionId.and.returnValue(of(expectedFileData1));
@@ -1782,7 +1784,6 @@ export function TestCases5(getTestBed) {
         storageService.get.and.resolveTo(true);
         spyOn(component, 'setupBalanceFlag');
         statusService.find.and.returnValue(of(getEstatusApiResponse));
-        spyOn(component, 'getActiveCategories').and.returnValue(of(sortedCategory));
         spyOn(component, 'getNewExpenseObservable').and.returnValue(of(expectedExpenseObservable));
         spyOn(component, 'getEditExpenseObservable').and.returnValue(of(expectedUnflattendedTxnData1));
         expensesService.getSplitExpenses.and.returnValue(of(splitExpensesData));
