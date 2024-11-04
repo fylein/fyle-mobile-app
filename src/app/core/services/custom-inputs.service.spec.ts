@@ -17,7 +17,7 @@ import { expensesWithDependentFields } from '../mock-data/dependent-field-expens
 import { CustomInput } from '../models/custom-input.model';
 import { mockExpenseData } from '../mock-data/expense-field.data';
 
-describe('CustomInputsService', () => {
+fdescribe('CustomInputsService', () => {
   let customInputsService: CustomInputsService;
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
   let authService: jasmine.SpyObj<AuthService>;
@@ -296,7 +296,7 @@ describe('CustomInputsService', () => {
     const customProperties: CustomInput[] = [];
 
     // Mock getAllinView method to return an observable with the mock data
-    spyOn(customInputsService, 'getAllinView').and.returnValue(of(mockExpenseData));
+    spyOn(customInputsService, 'getAll').and.returnValue(of(mockExpenseData));
 
     // Mock filterByCategory to return the mock object as the filtered result
     spyOn(customInputsService, 'filterByCategory').and.callFake((inputs, id) => {

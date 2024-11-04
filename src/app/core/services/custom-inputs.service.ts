@@ -12,6 +12,7 @@ import { PlatformApiResponse } from '../models/platform/platform-api-response.mo
 import { PlatformExpenseField } from '../models/platform/platform-expense-field.model';
 import { ExpenseFieldsService } from './expense-fields.service';
 import { CustomInput } from '../models/custom-input.model';
+
 const customInputssCacheBuster$ = new Subject<void>();
 
 @Injectable({
@@ -29,29 +30,14 @@ export class CustomInputsService {
   @Cacheable({
     cacheBusterObserver: customInputssCacheBuster$,
   })
-  getAll(active: boolean): Observable<ExpenseField[]> {
-    return from(this.authService.getEou()).pipe(
-      switchMap((eou) =>
-        this.spenderPlatformV1ApiService.get<PlatformApiResponse<PlatformExpenseField[]>>('/expense_fields', {
-          params: {
-            org_id: `eq.${eou.ou.org_id}`,
-            is_enabled: `eq.${active}`,
-            is_custom: 'eq.true',
-          },
-        })
-      ),
-      map((res) => this.expenseFieldsService.transformFrom(res.data))
-    );
-  }
-
-  // getAllinView is used to retrieve even disabled fields that has values to be displayed in view expense
-  getAllinView(): Observable<ExpenseField[]> {
+  getAll(active?: boolean): Observable<ExpenseField[]> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
         this.spenderPlatformV1ApiService.get<PlatformApiResponse<PlatformExpenseField[]>>('/expense_fields', {
           params: {
             org_id: `eq.${eou.ou.org_id}`,
             is_custom: 'eq.true',
+            ...(active !== undefined && { is_enabled: `eq.${active}` }), // Only add is_enabled if active is specified
           },
         })
       ),
@@ -78,7 +64,8 @@ export class CustomInputsService {
   }
 
   fillCustomProperties(orgCategoryId: number, customProperties: Partial<CustomInput>[]): Observable<CustomField[]> {
-    return this.getAllinView().pipe(
+    return this.getAll().pipe(
+      // Call getAll without any arguments
       map((allCustomInputs) => allCustomInputs.filter((customInput) => customInput.type !== 'DEPENDENT_SELECT')),
       map((allCustomInputs) => {
         const customInputs = this.filterByCategory(allCustomInputs, orgCategoryId);
@@ -89,8 +76,7 @@ export class CustomInputsService {
         const filledCustomProperties: CustomField[] = [];
 
         // Iterate through custom inputs and process each one
-        customInputs.forEach((customInput) => {
-          // Set the field name, appending "(Deleted)" if the field is disabled
+        for (const customInput of customInputs) {
           const fieldName =
             customInput.is_enabled === false ? `${customInput.field_name} (Deleted)` : customInput.field_name;
 
@@ -129,7 +115,7 @@ export class CustomInputsService {
               displayValue: this.getCustomPropertyDisplayValue(property),
             });
           }
-        });
+        }
         return filledCustomProperties;
       })
     );
