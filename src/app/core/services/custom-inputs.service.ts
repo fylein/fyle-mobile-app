@@ -122,7 +122,7 @@ export class CustomInputsService {
             }
           }
 
-          // Add the property to `filledCustomProperties` based on new logic
+          // Add the property to filledCustomProperties based on new logic
           if (this.shouldIncludeProperty(customInput as unknown as CustomInput, property)) {
             filledCustomProperties.push({
               ...property,
