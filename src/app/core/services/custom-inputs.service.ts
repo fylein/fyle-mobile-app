@@ -135,7 +135,7 @@ export class CustomInputsService {
     );
   }
 
-  private shouldIncludeProperty(customInput: CustomInput, property: CustomField): boolean {
+  shouldIncludeProperty(customInput: CustomInput, property: CustomField): boolean {
     return (
       customInput.is_enabled ||
       (!customInput.is_enabled &&
