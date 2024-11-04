@@ -114,7 +114,7 @@ export class TransactionService {
   @CacheBuster({
     cacheBusterNotifier: expensesCacheBuster$,
   })
-  upsert(transaction: Partial<Transaction>, fileIds: string[] = []): Observable<Partial<Transaction>> {
+  upsert(transaction: Partial<Transaction>): Observable<Partial<Transaction>> {
     /** Only these fields will be of type text & custom fields */
     const fieldsToCheck = ['purpose', 'vendor', 'train_travel_class', 'bus_travel_class'];
 
@@ -180,7 +180,7 @@ export class TransactionService {
 
         const transactionCopy = this.utilityService.discardRedundantCharacters(transaction, fieldsToCheck);
 
-        const expensePayload = this.expensesService.transformTo(transactionCopy, fileIds);
+        const expensePayload = this.expensesService.transformTo(transactionCopy);
         return this.expensesService.post(expensePayload).pipe(map((result) => this.transformExpense(result.data).tx));
       })
     );
@@ -205,7 +205,8 @@ export class TransactionService {
           }
         } else {
           const fileIds = fileObjs.map((fileObj) => fileObj.id);
-          return this.upsert(txn, fileIds);
+          txn.file_ids = fileIds;
+          return this.upsert(txn);
         }
       })
     );

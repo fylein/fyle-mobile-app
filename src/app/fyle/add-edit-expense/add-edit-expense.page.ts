@@ -436,6 +436,8 @@ export class AddEditExpensePage implements OnInit {
 
   pendingTransactionAllowedToReportAndSplit = true;
 
+  allCategories$: Observable<OrgCategory[]>;
+
   activeCategories$: Observable<OrgCategory[]>;
 
   selectedCategory$: Observable<OrgCategory>;
@@ -1234,12 +1236,6 @@ export class AddEditExpensePage implements OnInit {
       ),
       shareReplay(1)
     );
-  }
-
-  getActiveCategories(): Observable<OrgCategory[]> {
-    const allCategories$ = this.categoriesService.getAll();
-
-    return allCategories$.pipe(map((catogories) => this.categoriesService.filterRequired(catogories)));
   }
 
   getInstaFyleImageData(): Observable<Partial<InstaFyleImageData>> {
@@ -2977,7 +2973,10 @@ export class AddEditExpensePage implements OnInit {
   }
 
   ionViewWillEnter(): void {
-    this.activeCategories$ = this.getActiveCategories().pipe(shareReplay(1));
+    this.allCategories$ = this.categoriesService.getAll().pipe(shareReplay(1));
+    this.activeCategories$ = this.allCategories$
+      .pipe(map((catogories) => this.categoriesService.filterRequired(catogories)))
+      .pipe(shareReplay(1));
 
     this.initClassObservables();
 
@@ -3488,8 +3487,7 @@ export class AddEditExpensePage implements OnInit {
 
   generateEtxnFromFg(
     etxn$: Observable<Partial<UnflattenedTransaction>>,
-    standardisedCustomProperties$: Observable<TxnCustomProperties[]>,
-    isPolicyEtxn = false
+    standardisedCustomProperties$: Observable<TxnCustomProperties[]>
   ): Observable<Partial<UnflattenedTransaction>> {
     const attachements$ = this.getExpenseAttachments(this.mode);
     return forkJoin({
@@ -3497,6 +3495,7 @@ export class AddEditExpensePage implements OnInit {
       customProperties: standardisedCustomProperties$,
       attachments: attachements$,
       orgSettings: this.orgSettingsService.get(),
+      allCategories: this.allCategories$,
     }).pipe(
       map((res) => {
         const etxn: Partial<UnflattenedTransaction> = res.etxn;
@@ -3509,6 +3508,9 @@ export class AddEditExpensePage implements OnInit {
           }
           return customProperty;
         });
+        const unspecifiedCategory = res.allCategories.find(
+          (category) => category.fyle_category?.toLowerCase() === 'unspecified'
+        );
 
         const formValues = this.getFormValues();
 
@@ -3527,25 +3529,19 @@ export class AddEditExpensePage implements OnInit {
           costCenter.cost_center_code = formValues.costCenter.code;
         }
 
-        const policyProps: { org_category?: string; sub_category?: string } = {};
-
-        if (isPolicyEtxn) {
-          policyProps.org_category = formValues.category && formValues.category.name;
-          policyProps.sub_category = formValues.category && formValues.category.sub_category;
-        }
-
         if (this.inpageExtractedData) {
           etxn.tx.extracted_data = this.inpageExtractedData;
           this.autoCodedData = this.inpageExtractedData;
         }
 
-        // If user has not edited the amount, then send user_amount to check_policies
+        // If user has not edited the amount, then send user_amount
         let amount = this.getAmount();
-        if (isPolicyEtxn && amount === etxn.tx.amount && etxn.tx.user_amount) {
+        if (amount === etxn.tx.amount && etxn.tx.user_amount) {
           amount = etxn.tx.user_amount;
         }
 
-        //TODO: Add depenedent fields to custom_properties array once APIs are available
+        const category_id = this.getOrgCategoryID() || unspecifiedCategory.id;
+        //TODO: Add dependent fields to custom_properties array once APIs are available
         return {
           tx: {
             ...etxn.tx,
@@ -3562,15 +3558,14 @@ export class AddEditExpensePage implements OnInit {
             project_id: this.getProjectID(),
             tax_amount: this.getTaxAmount(),
             tax_group_id: this.getTaxGroupID(),
-            org_category_id: this.getOrgCategoryID(),
+            org_category_id: category_id,
             fyle_category: this.getFyleCategory(),
             policy_amount: null,
             vendor: this.getDisplayName(),
             purpose: this.getPurpose(),
             locations: locations || [],
             custom_properties: customProperties || [],
-            num_files: isPolicyEtxn ? res.attachments?.length : this.activatedRoute.snapshot.params?.dataUrl ? 1 : 0,
-            ...policyProps,
+            num_files: res.attachments?.length,
             org_user_id: etxn.tx.org_user_id,
             from_dt: this.getFromDt(),
             to_dt: this.getToDt(),
@@ -3616,7 +3611,7 @@ export class AddEditExpensePage implements OnInit {
       switchMap((isConnected) => {
         if (isConnected) {
           const customFields$ = this.getCustomFields();
-          return this.generateEtxnFromFg(this.etxn$, customFields$, true).pipe(
+          return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
             switchMap((etxn) =>
               // TODO: We should not use as unknown, this needs to be removed everywhere
               this.policyService.getPlatformPolicyExpense(
@@ -3642,17 +3637,9 @@ export class AddEditExpensePage implements OnInit {
   }
 
   checkPolicyViolation(etxn: { tx: PublicPolicyExpense; dataUrls: Partial<FileObject>[] }): Observable<ExpensePolicy> {
-    return this.policyService.getPlatformPolicyExpense(etxn, this.selectedCCCTransaction).pipe(
-      switchMap((platformPolicyExpense) =>
-        /* Expense creation has not moved to platform yet and since policy is moved to platform,
-         * it expects the expense object in terms of platform world. Until then, the method
-         * `transformTo` act as a bridge by translating the public expense object to platform
-         * expense.
-         */
-
-        this.transactionService.checkPolicy(platformPolicyExpense)
-      )
-    );
+    return this.policyService
+      .getPlatformPolicyExpense(etxn, this.selectedCCCTransaction)
+      .pipe(switchMap((platformPolicyExpense) => this.transactionService.checkPolicy(platformPolicyExpense)));
   }
 
   getProjectDependentFields(): TxnCustomProperties[] {
@@ -3957,7 +3944,7 @@ export class AddEditExpensePage implements OnInit {
     this.trackPolicyCorrections();
     const customFields$ = this.getCustomFields();
 
-    return this.generateEtxnFromFg(this.etxn$, customFields$, true).pipe(
+    return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
       switchMap((etxn) => {
         const policyViolations$ = this.checkPolicyViolation(
           etxn as unknown as { tx: PublicPolicyExpense; dataUrls: Partial<FileObject>[] }
@@ -4036,10 +4023,7 @@ export class AddEditExpensePage implements OnInit {
               report: Report;
             };
 
-            // NOTE: This double call is done as certain fields will not be present in return of upsert call. policy_amount in this case.
             return this.transactionService.upsert(etxn.tx as Transaction).pipe(
-              switchMap((txn) => this.expensesService.getExpenseById(txn.id)),
-              map((expense) => this.transactionService.transformExpense(expense).tx),
               switchMap((tx) => {
                 const selectedReportId = reportControl.report?.id;
                 const criticalPolicyViolated = this.getIsPolicyExpense(etxn as unknown as Expense);
@@ -4079,17 +4063,6 @@ export class AddEditExpensePage implements OnInit {
                       }
                     })
                   );
-                } else {
-                  return of(txn);
-                }
-              }),
-              switchMap((txn) => {
-                if (txn.id && txn.advance_wallet_id !== etxn.tx.advance_wallet_id) {
-                  const expense = {
-                    id: txn.id,
-                    advance_wallet_id: etxn.tx.advance_wallet_id,
-                  };
-                  return this.expensesService.post(expense).pipe(map(() => txn));
                 } else {
                   return of(txn);
                 }
@@ -4264,7 +4237,7 @@ export class AddEditExpensePage implements OnInit {
 
     this.trackAddExpense();
 
-    return this.generateEtxnFromFg(this.etxn$, customFields$, true).pipe(
+    return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
       switchMap((etxn) =>
         this.isConnected$.pipe(
           take(1),
@@ -4987,7 +4960,7 @@ export class AddEditExpensePage implements OnInit {
   saveAndMatchWithPersonalCardTxn(): Subscription {
     this.saveExpenseLoader = true;
     const customFields$ = this.getCustomFields();
-    return this.generateEtxnFromFg(this.etxn$, customFields$, true)
+    return this.generateEtxnFromFg(this.etxn$, customFields$)
       .pipe(
         switchMap((etxn) =>
           this.isConnected$.pipe(
