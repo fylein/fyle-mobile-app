@@ -1465,7 +1465,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   addTransactionsToReport(report: Report, selectedExpensesId: string[]): Observable<Report> {
-    return from(this.loaderService.showLoader('Adding transaction to report')).pipe(
+    return from(this.loaderService.showLoader('Adding expense to report')).pipe(
       switchMap(() => this.spenderReportsService.addExpenses(report.id, selectedExpensesId).pipe(map(() => report))),
       finalize(() => this.loaderService.hideLoader())
     );
