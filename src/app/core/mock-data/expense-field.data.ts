@@ -4,6 +4,28 @@ import { PlatformApiResponse } from '../models/platform/platform-api-response.mo
 import { PlatformExpenseField } from '../models/platform/platform-expense-field.model';
 import { ExpenseField } from '../models/v1/expense-field.model';
 
+export const mockExpenseData: ExpenseField[] = deepFreeze([
+  {
+    code: null,
+    column_name: 'boolean_column2',
+    created_at: new Date('2024-11-03T12:12:33.265861+00:00'),
+    default_value: null,
+    field_name: 'testttt',
+    id: 1259223,
+    is_custom: true,
+    is_enabled: false, // Disabled field
+    is_mandatory: false,
+    options: [],
+    org_category_ids: [147791],
+    org_id: 'orsO0VW86WLQ',
+    placeholder: 'testttt',
+    seq: 1,
+    type: 'BOOLEAN',
+    updated_at: new Date('2024-11-03T12:53:23.450820+00:00'),
+    parent_field_id: null,
+  },
+]);
+
 export const expenseFieldResponse: ExpenseField[] = deepFreeze([
   {
     id: 2,
