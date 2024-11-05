@@ -18,7 +18,7 @@ Sentry.init({
   dsn: environment.SENTRY_DSN,
   integrations: [],
   tracesSampleRate: 0.1,
-  release: 'please-replace-your-git-commit-version',
+  release: 'please-replace-your-mobile-app-version',
   ignoreErrors: ['Non-Error exception captured', 'Non-Error promise rejection captured'],
 });
 
