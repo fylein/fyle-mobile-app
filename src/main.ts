@@ -16,11 +16,12 @@ GlobalCacheConfig.maxCacheCount = 100;
 
 // To modify the exception values for Http errors to remove query params from the URL so that grouping is done properly in Sentry
 const cleanHttpExceptionUrlsForSentryGrouping = (event: Sentry.Event): void => {
+  // exceptionValue looks like: 'Http failure response for https://staging.fyle.tech/platform/v1/common/currency/exchange_rate?from=null&to=USD&date=2024-10-01: 400 OK'
+  const exceptionValue = event.exception?.values?.[0].value;
   const prefix = 'Http failure response for ';
   const suffixIndicator = ': ';
-  if (event.exception?.values?.[0].value?.startsWith(prefix)) {
-    // exceptionValue looks like: 'Http failure response for https://staging.fyle.tech/platform/v1/common/currency/exchange_rate?from=null&to=USD&date=2024-10-01: 400 OK'
-    const exceptionValue = event.exception?.values?.[0].value;
+
+  if (exceptionValue && exceptionValue.startsWith(prefix)) {
     // Finding the position of the last occurrence of ': '
     const suffixIndex = exceptionValue.lastIndexOf(suffixIndicator);
     if (suffixIndex !== -1) {
