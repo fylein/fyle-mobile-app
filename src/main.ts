@@ -14,12 +14,36 @@ import { GlobalCacheConfig } from 'ts-cacheable';
 GlobalCacheConfig.maxAge = 10 * 60 * 1000;
 GlobalCacheConfig.maxCacheCount = 100;
 
+// To modify the exception values for Http errors to remove query params from the URL so that grouping is done properly in Sentry
+const cleanHttpExceptionUrlsForSentryGrouping = (event: Sentry.Event): void => {
+  // exceptionValue looks like: 'Http failure response for https://staging.fyle.tech/platform/v1/common/currency/exchange_rate?from=null&to=USD&date=2024-10-01: 400 OK'
+  const exceptionValue = event.exception?.values?.[0].value;
+  const prefix = 'Http failure response for ';
+  const suffixIndicator = ': ';
+
+  if (exceptionValue && exceptionValue.startsWith(prefix)) {
+    // Finding the position of the last occurrence of ': '
+    const suffixIndex = exceptionValue.lastIndexOf(suffixIndicator);
+    if (suffixIndex !== -1) {
+      const urlWithQuery = exceptionValue.slice(prefix.length, suffixIndex);
+      const urlWithoutQuery = urlWithQuery.split('?')[0];
+      const suffix = exceptionValue.slice(suffixIndex + suffixIndicator.length);
+      // Updating the exception message
+      event.exception.values[0].value = `${prefix}${urlWithoutQuery}${suffixIndicator}${suffix}`;
+    }
+  }
+};
+
 Sentry.init({
   dsn: environment.SENTRY_DSN,
   integrations: [],
   tracesSampleRate: 0.1,
-  release: 'please-replace-your-git-commit-version',
+  release: 'please-replace-your-mobile-app-version',
   ignoreErrors: ['Non-Error exception captured', 'Non-Error promise rejection captured'],
+  beforeSend(event) {
+    cleanHttpExceptionUrlsForSentryGrouping(event);
+    return event;
+  },
 });
 
 if (environment.production) {

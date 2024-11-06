@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 
 @Component({
@@ -9,15 +9,21 @@ import { PopoverController } from '@ionic/angular';
 export class EditReportNamePopoverComponent implements OnInit {
   @Input() reportName: string;
 
+  @ViewChild('reportNameInput') reportNameInput: ElementRef<HTMLInputElement>;
+
   constructor(private popoverController: PopoverController) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    setTimeout(() => {
+      this.reportNameInput.nativeElement.focus();
+    }, 100);
+  }
 
-  closePopover() {
+  closePopover(): void {
     this.popoverController.dismiss();
   }
 
-  saveReportName() {
+  saveReportName(): void {
     this.popoverController.dismiss({ reportName: this.reportName });
   }
 }
