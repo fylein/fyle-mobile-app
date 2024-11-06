@@ -3505,8 +3505,11 @@ export class AddEditExpensePage implements OnInit {
         let customProperties = res.customProperties;
         customProperties = customProperties.map((customProperty) => {
           if (customProperty.type === 'DATE') {
-            customProperty.value =
-              customProperty.value && this.dateService.getUTCDate(new Date(customProperty.value as string));
+            customProperty.value = customProperty.value
+              ? this.dateService.getUTCDate(new Date(customProperty.value as string))
+              : null;
+          } else if (customProperty.type === 'LOCATION' && !customProperty.value) {
+            customProperty.value = {};
           }
           return customProperty;
         });
