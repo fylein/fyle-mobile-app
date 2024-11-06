@@ -1816,7 +1816,7 @@ export class AddEditExpensePage implements OnInit {
 
           const customInputValues: {
             name: string;
-            value: string | number | string[] | number[] | Date | boolean | { display: string };
+            value: string | number | string[] | number[] | Date | boolean | { display?: string };
           }[] = customInputs
             .filter((customInput) => customInput.type !== 'DEPENDENT_SELECT')
             .map((customInput) => {

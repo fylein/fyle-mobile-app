@@ -25,6 +25,8 @@ export class CustomFieldsService {
       property.value = false;
     } else if (inputValue === 'USER_LIST' || inputValue === 'MULTI_SELECT') {
       property.value = [];
+    } else if (inputValue === 'LOCATION') {
+      property.value = {};
     }
 
     return property;

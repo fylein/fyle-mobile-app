@@ -8,7 +8,7 @@ export interface CustomInput {
   placeholder: string;
   prefix: string;
   type: string;
-  value: string | string[] | boolean | Date | number | { display: string };
+  value: string | string[] | boolean | Date | number | { display?: string };
   parent_field_id: number;
   displayValue: string;
   areSameValues?: boolean;
