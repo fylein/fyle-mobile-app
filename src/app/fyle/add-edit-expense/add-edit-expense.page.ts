@@ -3510,6 +3510,8 @@ export class AddEditExpensePage implements OnInit {
               : null;
           } else if (customProperty.type === 'LOCATION' && !customProperty.value) {
             customProperty.value = {};
+          } else if (customProperty.type === 'BOOLEAN' && !customProperty.value) {
+            customProperty.value = false;
           }
           return customProperty;
         });
