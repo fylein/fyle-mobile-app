@@ -9,11 +9,11 @@ export interface PersonalCard {
   last_synced_at: Date;
   mask: string;
   mfa_enabled?: boolean;
-  nickname: string;
-  official_name: string;
-  sync_type: string;
+  nickname?: string;
+  official_name?: string;
+  sync_type?: string;
   update_credentials?: boolean;
-  unclassified_amount: number;
-  unclassified_count: number;
+  unclassified_amount?: number;
+  unclassified_count?: number;
   updated_at: Date;
 }

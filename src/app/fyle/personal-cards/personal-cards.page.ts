@@ -452,7 +452,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     if (this.selectionMode) {
       this.switchSelectionMode();
     }
-    this.selectedTrasactionType = event.detail.value as string;
+    this.selectedTrasactionType = event.detail.value;
     this.acc = [];
     const params = this.loadData$.getValue();
     const queryParams = params.queryParams || {};

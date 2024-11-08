@@ -17,19 +17,59 @@ import { ApiV2Response } from '../models/api-v2.model';
 import { PersonalCardTxn } from '../models/personal_card_txn.model';
 import { PersonalCardDateFilter } from '../models/personal-card-date-filter.model';
 import { SortFiltersParams } from '../models/sort-filters-params.model';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
+import { LaunchDarklyService } from './launch-darkly.service';
+import { PersonalCardPlatform } from '../models/personal_card_platform.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PersonalCardsService {
+  usePlatformApi = false;
+
   constructor(
     private apiv2Service: ApiV2Service,
     private expenseAggregationService: ExpenseAggregationService,
     private apiService: ApiService,
-    private dateService: DateService
-  ) {}
+    private dateService: DateService,
+    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
+    private launchDarklyService: LaunchDarklyService
+  ) {
+    this.launchDarklyService.getVariation('personal_cards_platform', false).subscribe((usePlatformApi) => {
+      this.usePlatformApi = usePlatformApi;
+    });
+  }
+
+  transformPersonalCardPlatformArray(cards: PersonalCardPlatform[]): PersonalCard[] {
+    return cards.map((card) => {
+      const personalCard: PersonalCard = {
+        id: card.id,
+        bank_name: card.bank_name,
+        account_number: card.card_number,
+        created_at: card.created_at,
+        updated_at: card.updated_at,
+        currency: card.currency,
+        fastlink_params: card.yodlee_fastlink_params,
+        mfa_enabled: card.yodlee_is_mfa_required,
+        update_credentials: card.yodlee_is_credential_update_required,
+        last_synced_at: card.yodlee_last_synced_at,
+        mask: card.card_number.slice(-4),
+        account_type: card.account_type,
+      };
+      return personalCard;
+    });
+  }
+
+  getLinkedAccountsPlatform(): Observable<PersonalCard[]> {
+    return this.spenderPlatformV1ApiService
+      .get<{ data: PersonalCardPlatform[] }>('/personal_cards')
+      .pipe(map((res) => this.transformPersonalCardPlatformArray(res.data)));
+  }
 
   getLinkedAccounts(): Observable<PersonalCard[]> {
+    if (this.usePlatformApi) {
+      return this.getLinkedAccountsPlatform();
+    }
     return this.apiv2Service
       .get<PersonalCard, { params: { order: string } }>('/personal_bank_accounts', {
         params: {
