@@ -5,7 +5,12 @@ import { ApiService } from './api.service';
 import { ExpenseAggregationService } from './expense-aggregation.service';
 import { DateService } from './date.service';
 import { allFilterPills, creditTxnFilterPill, debitTxnFilterPill } from '../mock-data/filter-pills.data';
-import { apiLinkedAccRes, deletePersonalCardRes } from '../mock-data/personal-cards.data';
+import {
+  apiLinkedAccRes,
+  deletePersonalCardRes,
+  linkedAccountRes2,
+  platformApiLinkedAccRes,
+} from '../mock-data/personal-cards.data';
 import { of } from 'rxjs';
 import { apiPersonalCardTxnsRes } from '../mock-data/personal-card-txns.data';
 import { selectedFilters1, selectedFilters2 } from '../mock-data/selected-filters.data';
@@ -14,18 +19,24 @@ import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.e
 import { apiExpenseRes, etxncData } from '../mock-data/expense.data';
 import { apiToken } from '../mock-data/yoodle-token.data';
 import * as dayjs from 'dayjs';
+import { LaunchDarklyService } from './launch-darkly.service';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 
 describe('PersonalCardsService', () => {
   let personalCardsService: PersonalCardsService;
   let apiV2Service: jasmine.SpyObj<ApiV2Service>;
   let apiService: jasmine.SpyObj<ApiService>;
   let expenseAggregationService: jasmine.SpyObj<ExpenseAggregationService>;
+  let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
+  let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
   let dateService: DateService;
 
   beforeEach(() => {
     const apiV2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['get']);
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['post', 'get']);
     const expenseAggregationServiceSpy = jasmine.createSpyObj('ExpenseAggregationService', ['get', 'post', 'delete']);
+    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
+    const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get']);
     TestBed.configureTestingModule({
       providers: [
         PersonalCardsService,
@@ -42,44 +53,93 @@ describe('PersonalCardsService', () => {
           provide: ExpenseAggregationService,
           useValue: expenseAggregationServiceSpy,
         },
+        {
+          provide: LaunchDarklyService,
+          useValue: launchDarklyServiceSpy,
+        },
+        {
+          provide: SpenderPlatformV1ApiService,
+          useValue: spenderPlatformV1ApiServiceSpy,
+        },
       ],
     });
+    launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
+    launchDarklyService.getVariation.and.returnValue(of(false));
     personalCardsService = TestBed.inject(PersonalCardsService);
     dateService = TestBed.inject(DateService);
     apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
     apiV2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
     expenseAggregationService = TestBed.inject(ExpenseAggregationService) as jasmine.SpyObj<ExpenseAggregationService>;
+    spenderPlatformV1ApiService = TestBed.inject(
+      SpenderPlatformV1ApiService
+    ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
   });
 
   it('should be created', () => {
     expect(personalCardsService).toBeTruthy();
   });
 
-  it('getLinkedAccounts(): should get linked personal cards', (done) => {
-    apiV2Service.get.and.returnValue(of(apiLinkedAccRes));
+  describe('getLinkedAccounts()', () => {
+    it('should get linked personal cards when using public api', (done) => {
+      personalCardsService.usePlatformApi = false;
+      apiV2Service.get.and.returnValue(of(apiLinkedAccRes));
 
-    personalCardsService.getLinkedAccounts().subscribe((res) => {
-      expect(res).toEqual(apiLinkedAccRes.data);
-      expect(apiV2Service.get).toHaveBeenCalledOnceWith('/personal_bank_accounts', {
-        params: {
-          order: 'last_synced_at.desc',
-        },
+      personalCardsService.getLinkedAccounts().subscribe((res) => {
+        expect(spenderPlatformV1ApiService.get).not.toHaveBeenCalled();
+        expect(res).toEqual(apiLinkedAccRes.data);
+        expect(apiV2Service.get).toHaveBeenCalledOnceWith('/personal_bank_accounts', {
+          params: {
+            order: 'last_synced_at.desc',
+          },
+        });
+        done();
       });
-      done();
+    });
+
+    it('should get linked personal cards when using platform api', (done) => {
+      personalCardsService.usePlatformApi = true;
+      spenderPlatformV1ApiService.get.and.returnValue(of(platformApiLinkedAccRes));
+      spyOn(personalCardsService, 'transformPersonalCardPlatformArray').and.callThrough();
+
+      personalCardsService.getLinkedAccounts().subscribe((res) => {
+        expect(res).toEqual(linkedAccountRes2);
+        expect(personalCardsService.transformPersonalCardPlatformArray).toHaveBeenCalledWith(
+          platformApiLinkedAccRes.data
+        );
+        expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/personal_cards');
+        expect(apiV2Service.get).not.toHaveBeenCalled();
+        done();
+      });
     });
   });
 
-  it('getLinkedAccountsCount(): should get linked cards count', (done) => {
-    apiV2Service.get.and.returnValue(of(apiLinkedAccRes));
+  describe('getLinkedAccountsCount()', () => {
+    it('should get linked personal cards count when using public api', (done) => {
+      personalCardsService.usePlatformApi = false;
+      apiV2Service.get.and.returnValue(of(apiLinkedAccRes));
 
-    personalCardsService.getLinkedAccountsCount().subscribe((res) => {
-      expect(res).toEqual(apiLinkedAccRes.count);
-      expect(apiV2Service.get).toHaveBeenCalledOnceWith('/personal_bank_accounts', {
-        params: {
-          order: 'last_synced_at.desc',
-        },
+      personalCardsService.getLinkedAccountsCount().subscribe((res) => {
+        expect(spenderPlatformV1ApiService.get).not.toHaveBeenCalled();
+        expect(res).toEqual(apiLinkedAccRes.count);
+        expect(apiV2Service.get).toHaveBeenCalledOnceWith('/personal_bank_accounts', {
+          params: {
+            order: 'last_synced_at.desc',
+          },
+        });
+        done();
       });
-      done();
+    });
+
+    it('should get linked personal cards count when using platform api', (done) => {
+      personalCardsService.usePlatformApi = true;
+      spenderPlatformV1ApiService.get.and.returnValue(of(platformApiLinkedAccRes));
+
+      personalCardsService.getLinkedAccountsCountPlatform().subscribe((res) => {
+        expect(res).toEqual(platformApiLinkedAccRes.count);
+        expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/personal_cards');
+        expect(apiV2Service.get).not.toHaveBeenCalled();
+        done();
+      });
     });
   });
 

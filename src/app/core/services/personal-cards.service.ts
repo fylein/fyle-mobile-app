@@ -20,6 +20,7 @@ import { SortFiltersParams } from '../models/sort-filters-params.model';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { LaunchDarklyService } from './launch-darkly.service';
 import { PersonalCardPlatform } from '../models/personal_card_platform.model';
+import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 
 @Injectable({
   providedIn: 'root',
@@ -62,7 +63,7 @@ export class PersonalCardsService {
 
   getLinkedAccountsPlatform(): Observable<PersonalCard[]> {
     return this.spenderPlatformV1ApiService
-      .get<{ data: PersonalCardPlatform[] }>('/personal_cards')
+      .get<PlatformApiResponse<PersonalCardPlatform[]>>('/personal_cards')
       .pipe(map((res) => this.transformPersonalCardPlatformArray(res.data)));
   }
 
@@ -103,7 +104,16 @@ export class PersonalCardsService {
     }) as Observable<string[]>;
   }
 
+  getLinkedAccountsCountPlatform(): Observable<number> {
+    return this.spenderPlatformV1ApiService
+      .get<PlatformApiResponse<PersonalCardPlatform[]>>('/personal_cards')
+      .pipe(map((res) => res.count));
+  }
+
   getLinkedAccountsCount(): Observable<number> {
+    if (this.usePlatformApi) {
+      return this.getLinkedAccountsCountPlatform();
+    }
     return this.apiv2Service
       .get('/personal_bank_accounts', {
         params: {
