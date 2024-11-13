@@ -1816,7 +1816,7 @@ export class AddEditExpensePage implements OnInit {
 
           const customInputValues: {
             name: string;
-            value: string | number | string[] | number[] | Date | boolean | { display: string };
+            value: string | number | string[] | number[] | Date | boolean | { display?: string };
           }[] = customInputs
             .filter((customInput) => customInput.type !== 'DEPENDENT_SELECT')
             .map((customInput) => {
@@ -3505,8 +3505,13 @@ export class AddEditExpensePage implements OnInit {
         let customProperties = res.customProperties;
         customProperties = customProperties.map((customProperty) => {
           if (customProperty.type === 'DATE') {
-            customProperty.value =
-              customProperty.value && this.dateService.getUTCDate(new Date(customProperty.value as string));
+            customProperty.value = customProperty.value
+              ? this.dateService.getUTCDate(new Date(customProperty.value as string))
+              : null;
+          } else if (customProperty.type === 'LOCATION' && !customProperty.value) {
+            customProperty.value = {};
+          } else if (customProperty.type === 'BOOLEAN' && !customProperty.value) {
+            customProperty.value = false;
           }
           return customProperty;
         });
