@@ -82,8 +82,8 @@ export class CustomFieldsService {
     return property;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   standardizeCustomFields(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     customProperties: CustomProperty<any>[],
     customInputs: ExpenseField[]
   ): TxnCustomProperties[] {
