@@ -49,10 +49,7 @@ export class CreateNewReportComponent implements OnInit {
 
   getReportTitle(): Subscription {
     const txnIds = this.selectedElements.map((etxn) => etxn.id);
-    this.selectedTotalAmount = this.selectedElements.reduce(
-      (acc, obj) => acc + (obj.is_reimbursable ? obj.amount : 0),
-      0
-    );
+    this.selectedTotalAmount = this.selectedElements.reduce((acc, obj) => acc + obj.amount, 0);
 
     if (this.reportTitleInput && !this.reportTitleInput.dirty && txnIds.length > 0) {
       return this.spenderReportsService.suggestPurpose(txnIds).subscribe((res) => {
