@@ -43,7 +43,7 @@ import { PersonalCardsPage } from './personal-cards.page';
 import { PersonalCardFilter } from 'src/app/core/models/personal-card-filters.model';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
-fdescribe('PersonalCardsPage', () => {
+describe('PersonalCardsPage', () => {
   let component: PersonalCardsPage;
   let fixture: ComponentFixture<PersonalCardsPage>;
   let personalCardsService: jasmine.SpyObj<PersonalCardsService>;

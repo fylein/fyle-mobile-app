@@ -21,7 +21,7 @@ import { apiToken } from '../mock-data/yoodle-token.data';
 import * as dayjs from 'dayjs';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 
-fdescribe('PersonalCardsService', () => {
+describe('PersonalCardsService', () => {
   let personalCardsService: PersonalCardsService;
   let apiV2Service: jasmine.SpyObj<ApiV2Service>;
   let apiService: jasmine.SpyObj<ApiService>;
