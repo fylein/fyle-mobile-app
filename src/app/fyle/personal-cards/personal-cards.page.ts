@@ -104,7 +104,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
   isInfiniteScrollRequired$: Observable<boolean>;
 
-  selectedTrasactionType = 'INITIALIZED';
+  selectedTransactionType = 'INITIALIZED';
 
   selectedAccount: string;
 
@@ -187,7 +187,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.linkedAccounts$ = this.loadCardData$.pipe(
       tap(() => (this.isLoading = true)),
       switchMap(() =>
-        this.personalCardsService.getLinkedAccounts(this.usePlatformApi).pipe(
+        this.personalCardsService.getPersonalCards(this.usePlatformApi).pipe(
           tap(() => {
             this.isCardsLoaded = true;
           }),
@@ -219,7 +219,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
   loadAccountCount(): void {
     this.linkedAccountsCount$ = this.loadCardData$.pipe(
-      switchMap(() => this.personalCardsService.getLinkedAccountsCount(this.usePlatformApi)),
+      switchMap(() => this.personalCardsService.getPersonalCardsCount(this.usePlatformApi)),
       tap((count) => {
         if (count === 0) {
           this.clearFilters();
@@ -407,7 +407,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.acc = [];
     const params = this.loadData$.getValue();
     const queryParams = params.queryParams || {};
-    queryParams.btxn_status = `in.(${this.selectedTrasactionType})`;
+    queryParams.btxn_status = `in.(${this.selectedTransactionType})`;
     queryParams.ba_id = 'eq.' + this.selectedAccount;
     params.queryParams = queryParams;
     params.pageNumber = 1;
@@ -463,11 +463,11 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     if (this.selectionMode) {
       this.switchSelectionMode();
     }
-    this.selectedTrasactionType = event.detail.value;
+    this.selectedTransactionType = event.detail.value;
     this.acc = [];
     const params = this.loadData$.getValue();
     const queryParams = params.queryParams || {};
-    queryParams.btxn_status = `in.(${this.selectedTrasactionType})`;
+    queryParams.btxn_status = `in.(${this.selectedTransactionType})`;
     params.queryParams = queryParams;
     params.pageNumber = 1;
     this.zone.run(() => {
@@ -528,7 +528,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
   }
 
   switchSelectionMode(txnId?: string): void {
-    if (this.selectedTrasactionType === 'INITIALIZED') {
+    if (this.selectedTransactionType === 'INITIALIZED') {
       this.selectionMode = !this.selectionMode;
       this.selectedElements = [];
       if (txnId) {
@@ -664,7 +664,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     const newQueryParams: { or: string[]; btxn_status?: string; ba_id?: string } = {
       or: [],
     };
-    newQueryParams.btxn_status = `in.(${this.selectedTrasactionType})`;
+    newQueryParams.btxn_status = `in.(${this.selectedTransactionType})`;
     newQueryParams.ba_id = 'eq.' + this.selectedAccount;
     const filters = this.filters;
     this.personalCardsService.generateTxnDateParams(newQueryParams, filters, 'createdOn');

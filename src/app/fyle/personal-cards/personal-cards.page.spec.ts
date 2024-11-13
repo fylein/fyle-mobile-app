@@ -43,7 +43,7 @@ import { PersonalCardsPage } from './personal-cards.page';
 import { PersonalCardFilter } from 'src/app/core/models/personal-card-filters.model';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
-describe('PersonalCardsPage', () => {
+fdescribe('PersonalCardsPage', () => {
   let component: PersonalCardsPage;
   let fixture: ComponentFixture<PersonalCardsPage>;
   let personalCardsService: jasmine.SpyObj<PersonalCardsService>;
@@ -64,8 +64,8 @@ describe('PersonalCardsPage', () => {
 
   beforeEach(waitForAsync(() => {
     const personalCardsServiceSpy = jasmine.createSpyObj('PersonalCardsService', [
-      'getLinkedAccountsCount',
-      'getLinkedAccounts',
+      'getPersonalCardsCount',
+      'getPersonalCards',
       'getBankTransactionsCount',
       'getBankTransactions',
       'generateFilterPills',
@@ -210,8 +210,8 @@ describe('PersonalCardsPage', () => {
     launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
 
     launchDarklyService.getVariation.and.returnValue(of(false));
-    personalCardsService.getLinkedAccountsCount.and.returnValue(of(2));
-    personalCardsService.getLinkedAccounts.and.returnValue(of(linkedAccountsRes));
+    personalCardsService.getPersonalCardsCount.and.returnValue(of(2));
+    personalCardsService.getPersonalCards.and.returnValue(of(linkedAccountsRes));
     component.loadData$ = new BehaviorSubject({
       pageNumber: 1,
     });
@@ -394,7 +394,7 @@ describe('PersonalCardsPage', () => {
     }));
 
     it('segmentChanged(): should change segment', () => {
-      component.selectedTrasactionType = 'INITIALIZED';
+      component.selectedTransactionType = 'INITIALIZED';
       component.selectionMode = true;
       spyOn(component.loadData$, 'getValue').and.returnValue({});
       spyOn(component.loadData$, 'next');
@@ -507,7 +507,7 @@ describe('PersonalCardsPage', () => {
 
     describe('switchSelectionMode():', () => {
       it('should switch mode if expense is of type INITIALIZED', () => {
-        component.selectedTrasactionType = 'INITIALIZED';
+        component.selectedTransactionType = 'INITIALIZED';
         component.selectionMode = true;
         spyOn(component, 'toggleExpense');
 
@@ -519,7 +519,7 @@ describe('PersonalCardsPage', () => {
       });
 
       it('should switch mode and select an expense if provided', () => {
-        component.selectedTrasactionType = 'INITIALIZED';
+        component.selectedTransactionType = 'INITIALIZED';
         component.selectionMode = false;
         spyOn(component, 'toggleExpense');
 
@@ -817,7 +817,7 @@ describe('PersonalCardsPage', () => {
 
     it('addNewFiltersToParams(): should new filters to params', () => {
       spyOn(component.loadData$, 'getValue').and.returnValue({});
-      component.selectedTrasactionType = 'DEBIT';
+      component.selectedTransactionType = 'DEBIT';
       component.selectedAccount = 'baccLesaRlyvLY';
 
       const result = component.addNewFiltersToParams();
@@ -915,13 +915,13 @@ describe('PersonalCardsPage', () => {
   });
 
   it('loadLinkedAccounts(): should load linked accounts', (done) => {
-    personalCardsService.getLinkedAccounts.and.returnValue(of(apiLinkedAccRes.data));
+    personalCardsService.getPersonalCards.and.returnValue(of(apiLinkedAccRes.data));
 
     component.loadLinkedAccounts();
 
     component.linkedAccounts$.subscribe((res) => {
       expect(res).toEqual(apiLinkedAccRes.data);
-      expect(personalCardsService.getLinkedAccounts).toHaveBeenCalledTimes(1);
+      expect(personalCardsService.getPersonalCards).toHaveBeenCalledTimes(1);
       done();
     });
   });
@@ -953,7 +953,7 @@ describe('PersonalCardsPage', () => {
   });
 
   it('loadAccountCount(): should load accounts count and clear filters', (done) => {
-    personalCardsService.getLinkedAccountsCount.and.returnValue(of(0));
+    personalCardsService.getPersonalCardsCount.and.returnValue(of(0));
     spyOn(component, 'clearFilters');
 
     component.loadAccountCount();

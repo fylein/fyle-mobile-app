@@ -53,15 +53,15 @@ export class PersonalCardsService {
     });
   }
 
-  getLinkedAccountsPlatform(): Observable<PersonalCard[]> {
+  getPersonalCardsPlatform(): Observable<PersonalCard[]> {
     return this.spenderPlatformV1ApiService
       .get<PlatformApiResponse<PersonalCardPlatform[]>>('/personal_cards')
       .pipe(map((res) => this.transformPersonalCardPlatformArray(res.data)));
   }
 
-  getLinkedAccounts(usePlatformApi: boolean): Observable<PersonalCard[]> {
+  getPersonalCards(usePlatformApi: boolean): Observable<PersonalCard[]> {
     if (usePlatformApi) {
-      return this.getLinkedAccountsPlatform();
+      return this.getPersonalCardsPlatform();
     }
     return this.apiv2Service
       .get<PersonalCard, { params: { order: string } }>('/personal_bank_accounts', {
@@ -96,15 +96,15 @@ export class PersonalCardsService {
     }) as Observable<string[]>;
   }
 
-  getLinkedAccountsCountPlatform(): Observable<number> {
+  getPersonalCardsCountPlatform(): Observable<number> {
     return this.spenderPlatformV1ApiService
       .get<PlatformApiResponse<PersonalCardPlatform[]>>('/personal_cards')
       .pipe(map((res) => res.count));
   }
 
-  getLinkedAccountsCount(usePlatformApi: boolean): Observable<number> {
+  getPersonalCardsCount(usePlatformApi: boolean): Observable<number> {
     if (usePlatformApi) {
-      return this.getLinkedAccountsCountPlatform();
+      return this.getPersonalCardsCountPlatform();
     }
     return this.apiv2Service
       .get('/personal_bank_accounts', {

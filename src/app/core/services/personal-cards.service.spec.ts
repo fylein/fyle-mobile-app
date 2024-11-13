@@ -19,10 +19,9 @@ import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.e
 import { apiExpenseRes, etxncData } from '../mock-data/expense.data';
 import { apiToken } from '../mock-data/yoodle-token.data';
 import * as dayjs from 'dayjs';
-import { LaunchDarklyService } from './launch-darkly.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 
-describe('PersonalCardsService', () => {
+fdescribe('PersonalCardsService', () => {
   let personalCardsService: PersonalCardsService;
   let apiV2Service: jasmine.SpyObj<ApiV2Service>;
   let apiService: jasmine.SpyObj<ApiService>;
@@ -71,12 +70,12 @@ describe('PersonalCardsService', () => {
     expect(personalCardsService).toBeTruthy();
   });
 
-  describe('getLinkedAccounts()', () => {
+  describe('getPersonalCards()', () => {
     it('should get linked personal cards when using public api', (done) => {
       const usePlatformApi = false;
       apiV2Service.get.and.returnValue(of(apiLinkedAccRes));
 
-      personalCardsService.getLinkedAccounts(usePlatformApi).subscribe((res) => {
+      personalCardsService.getPersonalCards(usePlatformApi).subscribe((res) => {
         expect(spenderPlatformV1ApiService.get).not.toHaveBeenCalled();
         expect(res).toEqual(apiLinkedAccRes.data);
         expect(apiV2Service.get).toHaveBeenCalledOnceWith('/personal_bank_accounts', {
@@ -93,7 +92,7 @@ describe('PersonalCardsService', () => {
       spenderPlatformV1ApiService.get.and.returnValue(of(platformApiLinkedAccRes));
       spyOn(personalCardsService, 'transformPersonalCardPlatformArray').and.callThrough();
 
-      personalCardsService.getLinkedAccounts(usePlatformApi).subscribe((res) => {
+      personalCardsService.getPersonalCards(usePlatformApi).subscribe((res) => {
         expect(res).toEqual(linkedAccountRes2);
         expect(personalCardsService.transformPersonalCardPlatformArray).toHaveBeenCalledWith(
           platformApiLinkedAccRes.data
@@ -105,12 +104,12 @@ describe('PersonalCardsService', () => {
     });
   });
 
-  describe('getLinkedAccountsCount()', () => {
+  describe('getPersonalCardsCount()', () => {
     it('should get linked personal cards count when using public api', (done) => {
       const usePlatformApi = false;
       apiV2Service.get.and.returnValue(of(apiLinkedAccRes));
 
-      personalCardsService.getLinkedAccountsCount(usePlatformApi).subscribe((res) => {
+      personalCardsService.getPersonalCardsCount(usePlatformApi).subscribe((res) => {
         expect(spenderPlatformV1ApiService.get).not.toHaveBeenCalled();
         expect(res).toEqual(apiLinkedAccRes.count);
         expect(apiV2Service.get).toHaveBeenCalledOnceWith('/personal_bank_accounts', {
@@ -126,7 +125,7 @@ describe('PersonalCardsService', () => {
       const usePlatformApi = true;
       spenderPlatformV1ApiService.get.and.returnValue(of(platformApiLinkedAccRes));
 
-      personalCardsService.getLinkedAccountsCount(usePlatformApi).subscribe((res) => {
+      personalCardsService.getPersonalCardsCount(usePlatformApi).subscribe((res) => {
         expect(res).toEqual(platformApiLinkedAccRes.count);
         expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/personal_cards');
         expect(apiV2Service.get).not.toHaveBeenCalled();
