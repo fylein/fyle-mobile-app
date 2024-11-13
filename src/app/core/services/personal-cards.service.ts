@@ -17,6 +17,9 @@ import { ApiV2Response } from '../models/api-v2.model';
 import { PersonalCardTxn } from '../models/personal_card_txn.model';
 import { PersonalCardDateFilter } from '../models/personal-card-date-filter.model';
 import { SortFiltersParams } from '../models/sort-filters-params.model';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
+import { PersonalCardPlatform } from '../models/personal_card_platform.model';
+import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 
 @Injectable({
   providedIn: 'root',
@@ -26,10 +29,40 @@ export class PersonalCardsService {
     private apiv2Service: ApiV2Service,
     private expenseAggregationService: ExpenseAggregationService,
     private apiService: ApiService,
-    private dateService: DateService
+    private dateService: DateService,
+    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService
   ) {}
 
-  getLinkedAccounts(): Observable<PersonalCard[]> {
+  transformPersonalCardPlatformArray(cards: PersonalCardPlatform[]): PersonalCard[] {
+    return cards.map((card) => {
+      const personalCard: PersonalCard = {
+        id: card.id,
+        bank_name: card.bank_name,
+        account_number: card.card_number,
+        created_at: card.created_at,
+        updated_at: card.updated_at,
+        currency: card.currency,
+        fastlink_params: card.yodlee_fastlink_params,
+        mfa_enabled: card.yodlee_is_mfa_required,
+        update_credentials: card.yodlee_is_credential_update_required,
+        last_synced_at: card.yodlee_last_synced_at,
+        mask: card.card_number.slice(-4),
+        account_type: card.account_type,
+      };
+      return personalCard;
+    });
+  }
+
+  getPersonalCardsPlatform(): Observable<PersonalCard[]> {
+    return this.spenderPlatformV1ApiService
+      .get<PlatformApiResponse<PersonalCardPlatform[]>>('/personal_cards')
+      .pipe(map((res) => this.transformPersonalCardPlatformArray(res.data)));
+  }
+
+  getPersonalCards(usePlatformApi: boolean): Observable<PersonalCard[]> {
+    if (usePlatformApi) {
+      return this.getPersonalCardsPlatform();
+    }
     return this.apiv2Service
       .get<PersonalCard, { params: { order: string } }>('/personal_bank_accounts', {
         params: {
@@ -63,7 +96,16 @@ export class PersonalCardsService {
     }) as Observable<string[]>;
   }
 
-  getLinkedAccountsCount(): Observable<number> {
+  getPersonalCardsCountPlatform(): Observable<number> {
+    return this.spenderPlatformV1ApiService
+      .get<PlatformApiResponse<PersonalCardPlatform[]>>('/personal_cards')
+      .pipe(map((res) => res.count));
+  }
+
+  getPersonalCardsCount(usePlatformApi: boolean): Observable<number> {
+    if (usePlatformApi) {
+      return this.getPersonalCardsCountPlatform();
+    }
     return this.apiv2Service
       .get('/personal_bank_accounts', {
         params: {

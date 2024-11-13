@@ -21,6 +21,7 @@ export const environment = {
   MIXPANEL_PROJECT_TOKEN: '',
   USE_MIXPANEL_PROXY: '',
   ENABLE_MIXPANEL: '',
+  YODLEE_FAST_LINK_URL: '',
 };
 
 /*
