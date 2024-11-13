@@ -1,14 +1,13 @@
 import { Injectable } from '@angular/core';
 import { CustomProperty } from '../models/custom-properties.model';
-import { CustomInputsOption, TxnCustomProperties } from '../models/txn-custom-properties.model';
+import { TxnCustomProperties } from '../models/txn-custom-properties.model';
 import { ExpenseField } from '../models/v1/expense-field.model';
+import { CustomInputsOption } from '../models/custom-inputs-option.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CustomFieldsService {
-  constructor() {}
-
   sortcustomFieldsByType(customField1: TxnCustomProperties, customField2: TxnCustomProperties): 1 | -1 | 0 {
     if (customField1.type > customField2.type) {
       return -1;
@@ -32,6 +31,7 @@ export class CustomFieldsService {
     return property;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setProperty(prefix: string, customInput: ExpenseField, customProperties: CustomProperty<any>[]): TxnCustomProperties {
     /* Setting the name and mandatory based on the custom input key
      * Reason: Same method is used for expense custom fields and transport/advance request custom fields
@@ -82,6 +82,7 @@ export class CustomFieldsService {
     return property;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   standardizeCustomFields(
     customProperties: CustomProperty<any>[],
     customInputs: ExpenseField[]

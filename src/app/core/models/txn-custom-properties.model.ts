@@ -1,4 +1,5 @@
 import { AbstractControl } from '@angular/forms';
+import { CustomInputsOption } from './custom-inputs-option.model';
 
 export interface TxnCustomProperties {
   id?: number;
@@ -13,16 +14,4 @@ export interface TxnCustomProperties {
   label?: string;
   control?: AbstractControl;
   is_enabled?: boolean;
-}
-
-export interface CustomInputsOption {
-  id?: number;
-  mandatory?: boolean;
-  name?: string;
-  options?: string[];
-  placeholder?: string;
-  prefix?: string;
-  type?: string;
-  label: string;
-  value: string;
 }
