@@ -53,23 +53,39 @@ export const apiLinkedAccRes: ApiV2Response<PersonalCard> = deepFreeze({
 });
 
 export const deletePersonalCardRes: PersonalCard = deepFreeze({
-  account_number: 'xxxx9806',
-  account_type: 'CREDIT',
-  bank_name: 'Dag Site yodlee',
-  created_at: new Date('2021-11-11T06:42:15.853187'),
+  id: 'bacc0By33NqhnS',
+  bank_name: 'Dag Site',
+  account_number: 'xxxx8791',
+  created_at: new Date('2024-11-11T09:43:39.518Z'),
+  updated_at: new Date('2024-11-11T09:43:39.518Z'),
   currency: 'USD',
   fastlink_params: null,
-  id: 'bacc0By33NqhnS',
-  last_synced_at: new Date('2022-07-27T09:41:26.827626'),
-  mask: '9806',
   mfa_enabled: false,
-  nickname: 'Robin',
-  official_name: 'Dag Credit Card',
-  sync_type: 'YODLEE',
-  unclassified_amount: 0,
-  unclassified_count: 0,
   update_credentials: false,
-  updated_at: new Date('2022-05-31T07:40:58.190907'),
+  last_synced_at: null,
+  mask: '8791',
+  account_type: 'SAVINGS',
+});
+
+export const deletePersonalCardPlatformRes: PlatformApiResponse<PersonalCardPlatform> = deepFreeze({
+  data: {
+    account_type: 'SAVINGS',
+    bank_name: 'Dag Site',
+    card_number: 'xxxx8791',
+    created_at: new Date('2024-11-11T09:43:39.518572+00:00'),
+    currency: 'USD',
+    id: 'bacc0By33NqhnS',
+    org_id: 'orrb8EW1zZsy',
+    updated_at: new Date('2024-11-11T09:43:39.518572+00:00'),
+    user_id: 'us2KhpQLpzX4',
+    yodlee_account_id: 'yacOjVeY4Ex0s',
+    yodlee_fastlink_params: null,
+    yodlee_is_credential_update_required: false,
+    yodlee_is_mfa_required: false,
+    yodlee_last_synced_at: null,
+    yodlee_login_id: 'ou6kAM3CXV7d',
+    yodlee_provider_account_id: '10287109',
+  },
 });
 
 export const linkedAccountsRes: PersonalCard[] = deepFreeze([

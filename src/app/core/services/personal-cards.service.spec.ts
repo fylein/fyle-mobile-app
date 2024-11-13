@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing';
+import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { PersonalCardsService } from './personal-cards.service';
 import { ApiV2Service } from './api-v2.service';
 import { ApiService } from './api.service';
@@ -7,6 +7,7 @@ import { DateService } from './date.service';
 import { allFilterPills, creditTxnFilterPill, debitTxnFilterPill } from '../mock-data/filter-pills.data';
 import {
   apiLinkedAccRes,
+  deletePersonalCardPlatformRes,
   deletePersonalCardRes,
   linkedAccountRes2,
   platformApiLinkedAccRes,
@@ -21,6 +22,7 @@ import { apiToken } from '../mock-data/yoodle-token.data';
 import * as dayjs from 'dayjs';
 import { LaunchDarklyService } from './launch-darkly.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
+import { PersonalCard } from '../models/personal_card.model';
 
 describe('PersonalCardsService', () => {
   let personalCardsService: PersonalCardsService;
@@ -36,7 +38,7 @@ describe('PersonalCardsService', () => {
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['post', 'get']);
     const expenseAggregationServiceSpy = jasmine.createSpyObj('ExpenseAggregationService', ['get', 'post', 'delete']);
     const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
-    const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get']);
+    const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get', 'post']);
     TestBed.configureTestingModule({
       providers: [
         PersonalCardsService,
@@ -189,16 +191,47 @@ describe('PersonalCardsService', () => {
     });
   });
 
-  it('deleteAccount(): should delete a personal card', (done) => {
-    expenseAggregationService.delete.and.returnValue(of(deletePersonalCardRes));
+  describe('deleteAccount()', () => {
+    it('should delete a personal card when using public API', fakeAsync(() => {
+      personalCardsService.usePlatformApi = false;
+      expenseAggregationService.delete.and.returnValue(of(deletePersonalCardRes));
+      spyOn(personalCardsService, 'deleteAccountPlatform');
 
-    const accountId = 'bacc0By33NqhnS';
+      const accountId = 'bacc0By33NqhnS';
 
-    personalCardsService.deleteAccount(accountId).subscribe((res) => {
-      expect(res).toEqual(deletePersonalCardRes);
+      let response: PersonalCard;
+      personalCardsService.deleteAccount(accountId).subscribe((res) => (response = res));
+      tick();
+
+      expect(response).toEqual(deletePersonalCardRes);
       expect(expenseAggregationService.delete).toHaveBeenCalledOnceWith(`/bank_accounts/${accountId}`);
-      done();
-    });
+      expect(personalCardsService.deleteAccountPlatform).not.toHaveBeenCalled();
+    }));
+
+    it('should delete a personal card when using platform API', fakeAsync(() => {
+      personalCardsService.usePlatformApi = true;
+      spenderPlatformV1ApiService.post.and.returnValue(of(deletePersonalCardPlatformRes));
+      spyOn(personalCardsService, 'deleteAccountPlatform').and.callThrough();
+      spyOn(personalCardsService, 'transformPersonalCardPlatformArray').and.callThrough();
+
+      const accountId = 'bacc0By33NqhnS';
+      const payload = {
+        data: {
+          id: accountId,
+        },
+      };
+
+      let response: PersonalCard;
+      personalCardsService.deleteAccount(accountId).subscribe((res) => (response = res));
+      tick();
+
+      expect(response).toEqual(deletePersonalCardRes);
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/personal_cards/delete', payload);
+      expect(personalCardsService.deleteAccountPlatform).toHaveBeenCalledOnceWith(accountId);
+      expect(personalCardsService.transformPersonalCardPlatformArray).toHaveBeenCalledOnceWith([
+        deletePersonalCardPlatformRes.data,
+      ]);
+    }));
   });
 
   it('convertFilters(): should convert selected filters', () => {
