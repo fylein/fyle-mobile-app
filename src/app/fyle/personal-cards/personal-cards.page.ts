@@ -55,6 +55,7 @@ import { Expense } from 'src/app/core/models/expense.model';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SortFiltersParams } from 'src/app/core/models/sort-filters-params.model';
 import { PersonalCardFilter } from 'src/app/core/models/personal-card-filters.model';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 // eslint-disable-next-line custom-rules/prefer-semantic-extension-name
 type Filters = Partial<PersonalCardFilter>;
@@ -135,6 +136,8 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
   scrolled = false;
 
+  usePlatformApi = false;
+
   constructor(
     private personalCardsService: PersonalCardsService,
     private networkService: NetworkService,
@@ -151,10 +154,12 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     private spinnerDialog: SpinnerDialog,
     private trackingService: TrackingService,
     private modalProperties: ModalPropertiesService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private launchDarklyService: LaunchDarklyService
   ) {}
 
   ngOnInit(): void {
+    this.initializeLdFlag();
     this.setupNetworkWatcher();
     const isIos = this.platform.is('ios');
     if (isIos) {
@@ -162,6 +167,12 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     } else {
       this.mode = 'md';
     }
+  }
+
+  initializeLdFlag(): void {
+    this.launchDarklyService.getVariation('personal_cards_platform', false).subscribe((usePlatformApi) => {
+      this.usePlatformApi = usePlatformApi;
+    });
   }
 
   ionViewWillEnter(): void {
@@ -176,7 +187,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.linkedAccounts$ = this.loadCardData$.pipe(
       tap(() => (this.isLoading = true)),
       switchMap(() =>
-        this.personalCardsService.getLinkedAccounts().pipe(
+        this.personalCardsService.getLinkedAccounts(this.usePlatformApi).pipe(
           tap(() => {
             this.isCardsLoaded = true;
           }),
@@ -208,7 +219,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
   loadAccountCount(): void {
     this.linkedAccountsCount$ = this.loadCardData$.pipe(
-      switchMap(() => this.personalCardsService.getLinkedAccountsCount()),
+      switchMap(() => this.personalCardsService.getLinkedAccountsCount(this.usePlatformApi)),
       tap((count) => {
         if (count === 0) {
           this.clearFilters();

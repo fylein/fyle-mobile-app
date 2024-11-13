@@ -27,7 +27,6 @@ describe('PersonalCardsService', () => {
   let apiV2Service: jasmine.SpyObj<ApiV2Service>;
   let apiService: jasmine.SpyObj<ApiService>;
   let expenseAggregationService: jasmine.SpyObj<ExpenseAggregationService>;
-  let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
   let dateService: DateService;
 
@@ -35,7 +34,6 @@ describe('PersonalCardsService', () => {
     const apiV2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['get']);
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['post', 'get']);
     const expenseAggregationServiceSpy = jasmine.createSpyObj('ExpenseAggregationService', ['get', 'post', 'delete']);
-    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
     const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get']);
     TestBed.configureTestingModule({
       providers: [
@@ -54,17 +52,11 @@ describe('PersonalCardsService', () => {
           useValue: expenseAggregationServiceSpy,
         },
         {
-          provide: LaunchDarklyService,
-          useValue: launchDarklyServiceSpy,
-        },
-        {
           provide: SpenderPlatformV1ApiService,
           useValue: spenderPlatformV1ApiServiceSpy,
         },
       ],
     });
-    launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
-    launchDarklyService.getVariation.and.returnValue(of(false));
     personalCardsService = TestBed.inject(PersonalCardsService);
     dateService = TestBed.inject(DateService);
     apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
@@ -81,10 +73,10 @@ describe('PersonalCardsService', () => {
 
   describe('getLinkedAccounts()', () => {
     it('should get linked personal cards when using public api', (done) => {
-      personalCardsService.usePlatformApi = false;
+      const usePlatformApi = false;
       apiV2Service.get.and.returnValue(of(apiLinkedAccRes));
 
-      personalCardsService.getLinkedAccounts().subscribe((res) => {
+      personalCardsService.getLinkedAccounts(usePlatformApi).subscribe((res) => {
         expect(spenderPlatformV1ApiService.get).not.toHaveBeenCalled();
         expect(res).toEqual(apiLinkedAccRes.data);
         expect(apiV2Service.get).toHaveBeenCalledOnceWith('/personal_bank_accounts', {
@@ -97,11 +89,11 @@ describe('PersonalCardsService', () => {
     });
 
     it('should get linked personal cards when using platform api', (done) => {
-      personalCardsService.usePlatformApi = true;
+      const usePlatformApi = true;
       spenderPlatformV1ApiService.get.and.returnValue(of(platformApiLinkedAccRes));
       spyOn(personalCardsService, 'transformPersonalCardPlatformArray').and.callThrough();
 
-      personalCardsService.getLinkedAccounts().subscribe((res) => {
+      personalCardsService.getLinkedAccounts(usePlatformApi).subscribe((res) => {
         expect(res).toEqual(linkedAccountRes2);
         expect(personalCardsService.transformPersonalCardPlatformArray).toHaveBeenCalledWith(
           platformApiLinkedAccRes.data
@@ -115,10 +107,10 @@ describe('PersonalCardsService', () => {
 
   describe('getLinkedAccountsCount()', () => {
     it('should get linked personal cards count when using public api', (done) => {
-      personalCardsService.usePlatformApi = false;
+      const usePlatformApi = false;
       apiV2Service.get.and.returnValue(of(apiLinkedAccRes));
 
-      personalCardsService.getLinkedAccountsCount().subscribe((res) => {
+      personalCardsService.getLinkedAccountsCount(usePlatformApi).subscribe((res) => {
         expect(spenderPlatformV1ApiService.get).not.toHaveBeenCalled();
         expect(res).toEqual(apiLinkedAccRes.count);
         expect(apiV2Service.get).toHaveBeenCalledOnceWith('/personal_bank_accounts', {
@@ -131,10 +123,10 @@ describe('PersonalCardsService', () => {
     });
 
     it('should get linked personal cards count when using platform api', (done) => {
-      personalCardsService.usePlatformApi = true;
+      const usePlatformApi = true;
       spenderPlatformV1ApiService.get.and.returnValue(of(platformApiLinkedAccRes));
 
-      personalCardsService.getLinkedAccountsCountPlatform().subscribe((res) => {
+      personalCardsService.getLinkedAccountsCount(usePlatformApi).subscribe((res) => {
         expect(res).toEqual(platformApiLinkedAccRes.count);
         expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/personal_cards');
         expect(apiV2Service.get).not.toHaveBeenCalled();

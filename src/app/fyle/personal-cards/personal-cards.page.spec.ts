@@ -41,6 +41,7 @@ import { ExpensePreviewComponent } from '../personal-cards-matched-expenses/expe
 import { DateRangeModalComponent } from './date-range-modal/date-range-modal.component';
 import { PersonalCardsPage } from './personal-cards.page';
 import { PersonalCardFilter } from 'src/app/core/models/personal-card-filters.model';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 describe('PersonalCardsPage', () => {
   let component: PersonalCardsPage;
@@ -59,6 +60,7 @@ describe('PersonalCardsPage', () => {
   let spinnerDialog: jasmine.SpyObj<SpinnerDialog>;
   let trackingService: jasmine.SpyObj<TrackingService>;
   let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
+  let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
 
   beforeEach(waitForAsync(() => {
     const personalCardsServiceSpy = jasmine.createSpyObj('PersonalCardsService', [
@@ -98,6 +100,7 @@ describe('PersonalCardsPage', () => {
       'transactionsHiddenOnPersonalCards',
     ]);
     const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
+    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
 
     TestBed.configureTestingModule({
       declarations: [PersonalCardsPage],
@@ -180,6 +183,10 @@ describe('PersonalCardsPage', () => {
           provide: ModalPropertiesService,
           useValue: modalPropertiesSpy,
         },
+        {
+          provide: LaunchDarklyService,
+          useValue: launchDarklyServiceSpy,
+        },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -200,7 +207,9 @@ describe('PersonalCardsPage', () => {
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
     activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
+    launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
 
+    launchDarklyService.getVariation.and.returnValue(of(false));
     personalCardsService.getLinkedAccountsCount.and.returnValue(of(2));
     personalCardsService.getLinkedAccounts.and.returnValue(of(linkedAccountsRes));
     component.loadData$ = new BehaviorSubject({
@@ -231,6 +240,15 @@ describe('PersonalCardsPage', () => {
       spyOn(component, 'ngOnInit');
       spyOn(component, 'ionViewWillEnter');
       spyOn(component, 'ngAfterViewInit');
+    });
+
+    it('initializeLdFlag(): should initialize usePlatformApi', () => {
+      launchDarklyService.getVariation.and.returnValue(of(true));
+
+      component.initializeLdFlag();
+
+      expect(launchDarklyService.getVariation).toHaveBeenCalledTimes(1);
+      expect(component.usePlatformApi).toBeTrue();
     });
 
     it('setupNetworkWatcher(): should setup network watcher', () => {

@@ -18,7 +18,6 @@ import { PersonalCardTxn } from '../models/personal_card_txn.model';
 import { PersonalCardDateFilter } from '../models/personal-card-date-filter.model';
 import { SortFiltersParams } from '../models/sort-filters-params.model';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
-import { LaunchDarklyService } from './launch-darkly.service';
 import { PersonalCardPlatform } from '../models/personal_card_platform.model';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 
@@ -26,20 +25,13 @@ import { PlatformApiResponse } from '../models/platform/platform-api-response.mo
   providedIn: 'root',
 })
 export class PersonalCardsService {
-  usePlatformApi = false;
-
   constructor(
     private apiv2Service: ApiV2Service,
     private expenseAggregationService: ExpenseAggregationService,
     private apiService: ApiService,
     private dateService: DateService,
-    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
-    private launchDarklyService: LaunchDarklyService
-  ) {
-    this.launchDarklyService.getVariation('personal_cards_platform', false).subscribe((usePlatformApi) => {
-      this.usePlatformApi = usePlatformApi;
-    });
-  }
+    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService
+  ) {}
 
   transformPersonalCardPlatformArray(cards: PersonalCardPlatform[]): PersonalCard[] {
     return cards.map((card) => {
@@ -67,8 +59,8 @@ export class PersonalCardsService {
       .pipe(map((res) => this.transformPersonalCardPlatformArray(res.data)));
   }
 
-  getLinkedAccounts(): Observable<PersonalCard[]> {
-    if (this.usePlatformApi) {
+  getLinkedAccounts(usePlatformApi: boolean): Observable<PersonalCard[]> {
+    if (usePlatformApi) {
       return this.getLinkedAccountsPlatform();
     }
     return this.apiv2Service
@@ -110,8 +102,8 @@ export class PersonalCardsService {
       .pipe(map((res) => res.count));
   }
 
-  getLinkedAccountsCount(): Observable<number> {
-    if (this.usePlatformApi) {
+  getLinkedAccountsCount(usePlatformApi: boolean): Observable<number> {
+    if (usePlatformApi) {
       return this.getLinkedAccountsCountPlatform();
     }
     return this.apiv2Service
