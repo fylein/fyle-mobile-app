@@ -464,6 +464,7 @@ export function TestCases3(getTestBed) {
       beforeEach(() => {
         component.allCategories$ = of(orgCategoryData1);
       });
+
       it('should generate expense object from input in the form', (done) => {
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
 

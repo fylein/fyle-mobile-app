@@ -26,12 +26,8 @@ import { TrackingService } from '../../../core/services/tracking.service';
 import { PopupAlertComponent } from '../popup-alert/popup-alert.component';
 import { ExpensesService as SharedExpenseService } from 'src/app/core/services/platform/v1/shared/expenses.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { ReceiptDetail } from 'src/app/core/models/receipt-detail.model';
 
-type ReceiptDetail = {
-  dataUrl: string;
-  type: string;
-  actionSource: string;
-};
 @Component({
   selector: 'app-expense-card-v2',
   templateUrl: './expenses-card.component.html',
@@ -234,7 +230,7 @@ export class ExpensesCardComponent implements OnInit {
     this.isPolicyViolated = this.expense.is_policy_flagged;
   }
 
-  setExpenseDetails() {
+  setExpenseDetails(): void {
     this.category = this.expense?.category?.name && this.expense?.category?.name.toLowerCase();
     this.isMileageExpense = this.category === 'mileage';
     this.isPerDiem = this.category === 'per diem';

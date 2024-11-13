@@ -1468,6 +1468,7 @@ export function TestCases5(getTestBed) {
       beforeEach(() => {
         categoriesService.getAll.and.returnValue(of(orgCategoryData1));
       });
+
       it('should setup class variables', (done) => {
         component.isConnected$ = of(true);
         component.txnFields$ = of(txnFieldsData2);

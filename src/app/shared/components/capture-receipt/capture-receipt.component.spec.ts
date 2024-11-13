@@ -499,15 +499,13 @@ describe('CaptureReceiptComponent', () => {
   });
 
   it('showReceiptPreview(): should show receipt preview', (done) => {
-    spyOn(component, 'createReceiptPreviewModal').and.returnValue(
-      Promise.resolve({
-        data: {
-          base64ImagesWithSource: images,
-        },
-        onWillDismiss: () => Promise.resolve(true),
-        present: () => Promise.resolve(true),
-      } as any)
-    );
+    spyOn(component, 'createReceiptPreviewModal').and.resolveTo({
+      data: {
+        base64ImagesWithSource: images,
+      },
+      onWillDismiss: () => Promise.resolve(true),
+      present: () => Promise.resolve(true),
+    } as any);
 
     component.showReceiptPreview().subscribe(() => {
       expect(component.createReceiptPreviewModal).toHaveBeenCalledOnceWith('bulk');
@@ -551,11 +549,9 @@ describe('CaptureReceiptComponent', () => {
     it('should capture receipt if bulk mode is disabled', async () => {
       spyOn(component, 'onSingleCapture').and.returnValue(null);
       spyOn(component, 'stopCamera').and.returnValue(null);
-      cameraPreviewService.capture.and.returnValue(
-        Promise.resolve({
-          value: 'value',
-        })
-      );
+      cameraPreviewService.capture.and.resolveTo({
+        value: 'value',
+      });
 
       component.isBulkMode = false;
       const len = component.base64ImagesWithSource.length;
@@ -571,11 +567,9 @@ describe('CaptureReceiptComponent', () => {
     it('should capture multiple receipts if bulk mode is enabled', async () => {
       component.isBulkMode = true;
       spyOn(component, 'onBulkCapture').and.returnValue(null);
-      cameraPreviewService.capture.and.returnValue(
-        Promise.resolve({
-          value: 'value',
-        })
-      );
+      cameraPreviewService.capture.and.resolveTo({
+        value: 'value',
+      });
 
       const len = component.base64ImagesWithSource.length;
       fixture.detectChanges();
@@ -741,13 +735,11 @@ describe('CaptureReceiptComponent', () => {
       spyOn(component, 'createReceiptPreviewModal').and.returnValue(
         new Promise((resolve) => {
           const popOverSpy = jasmine.createSpyObj('receiptPreviewModal', ['present', 'onWillDismiss', 'onDidDismiss']);
-          popOverSpy.onWillDismiss.and.returnValue(
-            Promise.resolve({
-              data: {
-                base64ImagesWithSource: images,
-              },
-            })
-          );
+          popOverSpy.onWillDismiss.and.resolve({
+            data: {
+              base64ImagesWithSource: images,
+            },
+          });
           popOverSpy.onDidDismiss.and.resolveTo({ data: 'value' });
           resolve(popOverSpy);
         })

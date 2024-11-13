@@ -25,12 +25,8 @@ import { SnackbarPropertiesService } from '../../../core/services/snackbar-prope
 import { TrackingService } from '../../../core/services/tracking.service';
 import { PopupAlertComponent } from '../popup-alert/popup-alert.component';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { ReceiptDetail } from 'src/app/core/models/receipt-detail.model';
 
-type ReceiptDetail = {
-  dataUrl: string;
-  type: string;
-  actionSource: string;
-};
 @Component({
   selector: 'app-expense-card',
   templateUrl: './expenses-card.component.html',
