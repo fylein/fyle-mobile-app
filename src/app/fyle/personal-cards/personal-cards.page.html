@@ -37,7 +37,7 @@
       <ion-segment
         class="personal-cards-segment-block"
         (ionChange)="segmentChanged($event)"
-        value="{{selectedTrasactionType}}"
+        value="{{selectedTransactionType}}"
       >
         <ion-segment-button value="INITIALIZED" class="personal-cards--segment-block__btn">
           Transactions
@@ -200,7 +200,7 @@
               [previousTxnDate]="transactions[i-1]?.btxn_transaction_dt"
               [txnId]="transaction.btxn_id"
               [isMatchedCountLoading]="transaction.btxn_id === loadingTxnId"
-              [status]="selectedTrasactionType"
+              [status]="selectedTransactionType"
               [isSelectionModeEnabled]="selectionMode"
               [selectedElements]="selectedElements"
               (setMultiselectMode)="switchSelectionMode($event)"
