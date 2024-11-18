@@ -9,7 +9,7 @@
     <ion-title>
       <div class="expense-preview--toolbar__title">
         <ng-container *ngIf="type === 'match'"> Confirm Matching Expense </ng-container>
-        <ng-container *ngIf="type === 'preview'"> View matching Expense </ng-container>
+        <ng-container *ngIf="type === 'edit'"> View matching Expense </ng-container>
       </div>
     </ion-title>
   </ion-toolbar>
@@ -134,7 +134,7 @@
           Confirm Match
         </ion-button>
       </ion-buttons>
-      <ion-buttons *ngIf="type === 'preview'">
+      <ion-buttons *ngIf="type === 'edit'">
         <ion-button (click)="editExpense()" appFormButtonValidation class="btn-primary"> Edit </ion-button>
       </ion-buttons>
     </div>
