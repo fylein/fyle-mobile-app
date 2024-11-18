@@ -132,7 +132,7 @@ export class PersonalCardsService {
     };
     return this.spenderPlatformV1ApiService
       .post<PlatformApiResponse<PersonalCardPlatform>>('/personal_cards/delete', payload)
-      .pipe(map((res) => res.data));
+      .pipe(map((response) => response.data));
   }
 
   deleteAccount(accountId: string, usePlatformApi: boolean): Observable<PersonalCard | PersonalCardPlatform> {

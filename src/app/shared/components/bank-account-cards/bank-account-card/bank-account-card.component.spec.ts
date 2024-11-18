@@ -15,7 +15,7 @@ import { DeleteButtonComponent } from './delete-button/delete-button-component';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
-fdescribe('BankAccountCardComponent', () => {
+describe('BankAccountCardComponent', () => {
   let component: BankAccountCardComponent;
   let fixture: ComponentFixture<BankAccountCardComponent>;
   let personalCardsService: jasmine.SpyObj<PersonalCardsService>;
