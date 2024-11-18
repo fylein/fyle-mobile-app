@@ -168,7 +168,7 @@ describe('HttpConfigInterceptor', () => {
       routerAuthService.fetchAccessToken.and.rejectWith(new Error('error'));
 
       httpInterceptor.refreshAccessToken().subscribe({
-        error: () => {
+        complete: () => {
           expect(userEventService.logout).toHaveBeenCalledTimes(1);
           expect(secureStorageService.clearAll).toHaveBeenCalledTimes(1);
           expect(storageService.clearAll).toHaveBeenCalledTimes(1);
