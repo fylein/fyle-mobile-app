@@ -72,6 +72,27 @@ export const deletePersonalCardRes: PersonalCard = deepFreeze({
   updated_at: new Date('2022-05-31T07:40:58.190907'),
 });
 
+export const deletePersonalCardPlatformRes: PlatformApiResponse<PersonalCardPlatform> = deepFreeze({
+  data: {
+    account_type: 'SAVINGS',
+    bank_name: 'Dag Site',
+    card_number: 'xxxx3235',
+    created_at: new Date('2024-11-11T06:20:18.061281+00:00'),
+    currency: 'USD',
+    id: 'bacc0By33NqhnS',
+    org_id: 'orrb8EW1zZsy',
+    updated_at: new Date('2024-11-11T06:20:18.061281+00:00'),
+    user_id: 'us2KhpQLpzX4',
+    yodlee_account_id: 'yacQm13ONl3q1',
+    yodlee_fastlink_params: null,
+    yodlee_is_credential_update_required: false,
+    yodlee_is_mfa_required: false,
+    yodlee_last_synced_at: null,
+    yodlee_login_id: 'ou6kAM3CXV7d',
+    yodlee_provider_account_id: '10287107',
+  },
+});
+
 export const linkedAccountsRes: PersonalCard[] = deepFreeze([
   {
     account_number: 'xxxx4227',

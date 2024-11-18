@@ -11,6 +11,7 @@ import { SnackbarPropertiesService } from '../../../../core/services/snackbar-pr
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { DeleteButtonComponent } from './delete-button/delete-button-component';
 import { DateService } from 'src/app/core/services/date.service';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 @Component({
   selector: 'app-bank-account-card',
   templateUrl: './bank-account-card.component.html',
@@ -33,7 +34,8 @@ export class BankAccountCardComponent implements OnInit {
     private popoverController: PopoverController,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
-    private dateService: DateService
+    private dateService: DateService,
+    private launchDarklyService: LaunchDarklyService
   ) {}
 
   ngOnInit(): void {
@@ -42,7 +44,7 @@ export class BankAccountCardComponent implements OnInit {
     }
   }
 
-  async presentPopover(ev: any) {
+  async presentPopover(ev: PointerEvent): Promise<void> {
     const deleteCardPopOver = await this.popoverController.create({
       component: DeleteButtonComponent,
       cssClass: 'delete-button-class',
@@ -50,17 +52,25 @@ export class BankAccountCardComponent implements OnInit {
     });
     await deleteCardPopOver.present();
 
-    const { data } = await deleteCardPopOver.onDidDismiss();
+    const { data } = await deleteCardPopOver.onDidDismiss<string>();
 
     if (data === 'delete') {
       this.confirmPopup();
     }
   }
 
-  async deleteAccount() {
+  async deleteAccount(): Promise<void> {
     from(this.loaderService.showLoader('Deleting your card...', 5000))
       .pipe(
-        switchMap(() => this.personalCardsService.deleteAccount(this.accountDetails.id)),
+        switchMap(() =>
+          this.launchDarklyService
+            .getVariation('personal_cards_platform', false)
+            .pipe(
+              switchMap((usePlatformApi) =>
+                this.personalCardsService.deleteAccount(this.accountDetails.id, usePlatformApi)
+              )
+            )
+        ),
         finalize(async () => {
           await this.loaderService.hideLoader();
           const message = 'Card successfully deleted.';
@@ -73,7 +83,7 @@ export class BankAccountCardComponent implements OnInit {
       .subscribe(() => this.deleted.emit());
   }
 
-  async confirmPopup() {
+  async confirmPopup(): Promise<void> {
     const deleteCardPopOver = await this.popoverController.create({
       component: PopupAlertComponent,
       componentProps: {
@@ -93,7 +103,7 @@ export class BankAccountCardComponent implements OnInit {
 
     await deleteCardPopOver.present();
 
-    const { data } = await deleteCardPopOver.onWillDismiss();
+    const { data } = await deleteCardPopOver.onWillDismiss<{ action: string }>();
 
     if (data && data.action === 'delete') {
       this.deleteAccount();

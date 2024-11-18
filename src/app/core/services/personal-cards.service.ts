@@ -124,7 +124,21 @@ export class PersonalCardsService {
     });
   }
 
-  deleteAccount(accountId: string): Observable<PersonalCard> {
+  deleteAccountPlatform(accountId: string): Observable<PersonalCardPlatform> {
+    const payload = {
+      data: {
+        id: accountId,
+      },
+    };
+    return this.spenderPlatformV1ApiService
+      .post<PlatformApiResponse<PersonalCardPlatform>>('/personal_cards/delete', payload)
+      .pipe(map((response) => response.data));
+  }
+
+  deleteAccount(accountId: string, usePlatformApi: boolean): Observable<PersonalCard | PersonalCardPlatform> {
+    if (usePlatformApi) {
+      return this.deleteAccountPlatform(accountId);
+    }
     return this.expenseAggregationService.delete('/bank_accounts/' + accountId) as Observable<PersonalCard>;
   }
 
