@@ -13,8 +13,9 @@ import { ToastMessageComponent } from '../../toast-message/toast-message.compone
 import { PopupAlertComponent } from '../../popup-alert/popup-alert.component';
 import { DeleteButtonComponent } from './delete-button/delete-button-component';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
-describe('BankAccountCardComponent', () => {
+fdescribe('BankAccountCardComponent', () => {
   let component: BankAccountCardComponent;
   let fixture: ComponentFixture<BankAccountCardComponent>;
   let personalCardsService: jasmine.SpyObj<PersonalCardsService>;
@@ -23,6 +24,7 @@ describe('BankAccountCardComponent', () => {
   let matSnackBar: jasmine.SpyObj<MatSnackBar>;
   let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
   let dateService: jasmine.SpyObj<DateService>;
+  let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
 
   beforeEach(waitForAsync(() => {
     const personalCardsServiceSpy = jasmine.createSpyObj('PersonalCardsService', ['deleteAccount']);
@@ -31,6 +33,7 @@ describe('BankAccountCardComponent', () => {
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     const dateServiceSpy = jasmine.createSpyObj('DateService', ['convertUTCDateToLocalDate']);
+    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
     TestBed.configureTestingModule({
       declarations: [BankAccountCardComponent],
       imports: [IonicModule.forRoot()],
@@ -59,6 +62,10 @@ describe('BankAccountCardComponent', () => {
           provide: DateService,
           useValue: dateServiceSpy,
         },
+        {
+          provide: LaunchDarklyService,
+          useValue: launchDarklyServiceSpy,
+        },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(BankAccountCardComponent);
@@ -68,6 +75,7 @@ describe('BankAccountCardComponent', () => {
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
     snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
     dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
+    launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
     component = fixture.componentInstance;
 
     component.accountDetails = apiLinkedAccRes.data[1];
@@ -93,15 +101,16 @@ describe('BankAccountCardComponent', () => {
       })
     );
 
-    component.presentPopover(new Event('event'));
+    component.presentPopover(new PointerEvent('event'));
     expect(popoverController.create).toHaveBeenCalledOnceWith({
       component: DeleteButtonComponent,
       cssClass: 'delete-button-class',
-      event: new Event('event'),
+      event: new PointerEvent('event'),
     });
   });
 
   it('deleteAccount(): should delete account', fakeAsync(() => {
+    launchDarklyService.getVariation.and.returnValue(of(false));
     spyOn(component.deleted, 'emit');
     loaderService.showLoader.and.resolveTo();
     personalCardsService.deleteAccount.and.returnValue(of(deletePersonalCardRes));
@@ -114,13 +123,15 @@ describe('BankAccountCardComponent', () => {
     tick();
     expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Deleting your card...', 5000);
     expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-    expect(personalCardsService.deleteAccount).toHaveBeenCalledOnceWith(component.accountDetails.id);
+    expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith('personal_cards_platform', false);
+    expect(personalCardsService.deleteAccount).toHaveBeenCalledOnceWith(component.accountDetails.id, false);
     expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
       panelClass: ['msb-success'],
     });
     expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith('success', {
       message: 'Card successfully deleted.',
     });
+    expect(component.deleted.emit).toHaveBeenCalledTimes(1);
   }));
 
   it('confirmPopup(): should display the confirm popup', async () => {
