@@ -7,6 +7,7 @@ import { DateService } from './date.service';
 import { allFilterPills, creditTxnFilterPill, debitTxnFilterPill } from '../mock-data/filter-pills.data';
 import {
   apiLinkedAccRes,
+  deletePersonalCardPlatformRes,
   deletePersonalCardRes,
   linkedAccountRes2,
   platformApiLinkedAccRes,
@@ -33,7 +34,7 @@ describe('PersonalCardsService', () => {
     const apiV2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['get']);
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['post', 'get']);
     const expenseAggregationServiceSpy = jasmine.createSpyObj('ExpenseAggregationService', ['get', 'post', 'delete']);
-    const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get']);
+    const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get', 'post']);
     TestBed.configureTestingModule({
       providers: [
         PersonalCardsService,
@@ -134,6 +135,40 @@ describe('PersonalCardsService', () => {
     });
   });
 
+  describe('deleteAccount()', () => {
+    it('should delete personal card when using public api', (done) => {
+      const usePlatformApi = false;
+      expenseAggregationService.delete.and.returnValue(of(deletePersonalCardRes));
+
+      const accountId = 'bacc0By33NqhnS';
+
+      personalCardsService.deleteAccount(accountId, usePlatformApi).subscribe((res) => {
+        expect(res).toEqual(deletePersonalCardRes);
+        expect(expenseAggregationService.delete).toHaveBeenCalledOnceWith(`/bank_accounts/${accountId}`);
+        done();
+      });
+    });
+
+    it('should delete personal card when using platform api', (done) => {
+      const usePlatformApi = true;
+      spenderPlatformV1ApiService.post.and.returnValue(of(deletePersonalCardPlatformRes));
+
+      const accountId = 'bacc0By33NqhnS';
+      const payload = {
+        data: {
+          id: accountId,
+        },
+      };
+
+      personalCardsService.deleteAccount(accountId, usePlatformApi).subscribe((res) => {
+        expect(res).toEqual(deletePersonalCardPlatformRes.data);
+        expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/personal_cards/delete', payload);
+        expect(apiV2Service.get).not.toHaveBeenCalled();
+        done();
+      });
+    });
+  });
+
   it('getBankTransactions(): should get bank transactions', (done) => {
     apiV2Service.get.and.returnValue(of(apiPersonalCardTxnsRes));
 
@@ -176,18 +211,6 @@ describe('PersonalCardsService', () => {
     personalCardsService.getBankTransactionsCount(queryParams).subscribe((res) => {
       expect(res).toEqual(apiPersonalCardTxnsRes.count);
       expect(personalCardsService.getBankTransactions).toHaveBeenCalledOnceWith(config);
-      done();
-    });
-  });
-
-  it('deleteAccount(): should delete a personal card', (done) => {
-    expenseAggregationService.delete.and.returnValue(of(deletePersonalCardRes));
-
-    const accountId = 'bacc0By33NqhnS';
-
-    personalCardsService.deleteAccount(accountId).subscribe((res) => {
-      expect(res).toEqual(deletePersonalCardRes);
-      expect(expenseAggregationService.delete).toHaveBeenCalledOnceWith(`/bank_accounts/${accountId}`);
       done();
     });
   });
