@@ -748,7 +748,7 @@ describe('PersonalCardsPage', () => {
           expenseId: matchedPersonalCardTxn.txn_details[0]?.id,
           card: matchedPersonalCardTxn.ba_account_number,
           cardTxnId: matchedPersonalCardTxn.btxn_id,
-          type: 'unmatch',
+          type: 'preview',
         },
         ...properties,
       });

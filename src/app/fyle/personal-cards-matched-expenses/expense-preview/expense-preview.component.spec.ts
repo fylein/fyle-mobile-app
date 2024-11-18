@@ -32,16 +32,9 @@ describe('ExpensePreviewComponent', () => {
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesServiceSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    const personalCardsServiceSpy = jasmine.createSpyObj('PersonalCardsService', [
-      'getExpenseDetails',
-      'matchExpense',
-      'unmatchExpense',
-    ]);
+    const personalCardsServiceSpy = jasmine.createSpyObj('PersonalCardsService', ['getExpenseDetails', 'matchExpense']);
     const platformSpy = jasmine.createSpyObj('Platform', ['is']);
-    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
-      'oldExpensematchedFromPersonalCard',
-      'unmatchedExpensesFromPersonalCard',
-    ]);
+    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['oldExpensematchedFromPersonalCard']);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenses']);
     TestBed.configureTestingModule({
       declarations: [ExpensePreviewComponent, ExpensePreviewShimmerComponent],
@@ -137,25 +130,5 @@ describe('ExpensePreviewComponent', () => {
     expect(modalController.dismiss).toHaveBeenCalledTimes(1);
     expect(router.navigate).toHaveBeenCalledWith(['/', 'enterprise', 'personal_cards']);
     expect(trackingService.oldExpensematchedFromPersonalCard).toHaveBeenCalledTimes(1);
-  });
-
-  it('unmatchExpense(): should unmatch the expenses', () => {
-    component.unMatching = true;
-    personalCardsService.unmatchExpense.and.returnValue(of(null));
-    component.expenseId = 'tx2ZttMRItRx';
-    component.cardTxnId = 'btxntEdVJeYyyx';
-
-    component.unmatchExpense();
-    expect(component.unMatching).toBeFalsy();
-
-    fixture.detectChanges();
-    expect(personalCardsService.unmatchExpense).toHaveBeenCalledOnceWith(component.expenseId, component.cardTxnId);
-    expect(modalController.dismiss).toHaveBeenCalledTimes(1);
-    expect(matSnackBar.openFromComponent).toHaveBeenCalledWith(ToastMessageComponent, {
-      ...snackbarProperties.setSnackbarProperties('success', { message: 'Successfully unmatched the expense.' }),
-      panelClass: ['msb-success'],
-    });
-    expect(router.navigate).toHaveBeenCalledWith(['/', 'enterprise', 'personal_cards']);
-    expect(trackingService.unmatchedExpensesFromPersonalCard).toHaveBeenCalledTimes(1);
   });
 });

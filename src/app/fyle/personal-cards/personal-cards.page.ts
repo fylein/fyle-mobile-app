@@ -776,7 +776,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
         expenseId: txn_details[0]?.id,
         card: txnDetails.ba_account_number,
         cardTxnId: txnDetails.btxn_id,
-        type: 'unmatch',
+        type: 'preview',
       },
       ...this.modalProperties.getModalDefaultProperties('expense-preview-modal'),
     });

@@ -198,13 +198,6 @@ export class PersonalCardsService {
     }) as Observable<Expense[]>;
   }
 
-  unmatchExpense(transactionSplitGroupId: string, externalExpenseId: string): Observable<void> {
-    return this.apiService.post('/transactions/external_expense/unmatch', {
-      transaction_split_group_id: transactionSplitGroupId,
-      external_expense_id: externalExpenseId,
-    });
-  }
-
   generateDateParams(
     data: { range: string; endDate?: string; startDate?: string },
     currentParams: Partial<SortFiltersParams>

@@ -928,22 +928,6 @@ describe('PersonalCardsService', () => {
     });
   });
 
-  it('unmatchExpense(): should unmatch an expense', (done) => {
-    apiService.post.and.returnValue(of(null));
-
-    const txnSplitGroupID = 'tx2ZttMRItRx';
-    const externalId = 'btxntEdVJeYyyx';
-
-    personalCardsService.unmatchExpense(txnSplitGroupID, externalId).subscribe((res) => {
-      expect(res).toBeNull();
-      expect(apiService.post).toHaveBeenCalledOnceWith('/transactions/external_expense/unmatch', {
-        transaction_split_group_id: txnSplitGroupID,
-        external_expense_id: externalId,
-      });
-      done();
-    });
-  });
-
   it('hideTransactions(): should hide transactions', (done) => {
     expenseAggregationService.post.and.returnValue(of(apiExpenseRes));
 
