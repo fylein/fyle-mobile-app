@@ -168,7 +168,7 @@ export class HttpConfigInterceptor implements HttpInterceptor {
                 this.secureStorageService.clearAll();
                 this.storageService.clearAll();
                 globalCacheBusterNotifier.next();
-                return EMPTY;
+                return throwError(error);
               }
             }
             return throwError(error);
