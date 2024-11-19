@@ -312,7 +312,7 @@ describe('SidemenuComponent', () => {
       component.orgSettings.advance_requests.enabled = true;
       const resData = [
         {
-          title: 'Dashboard',
+          title: 'Home',
           isVisible: true,
           icon: 'dashboard',
           route: ['/', 'enterprise', 'my_dashboard'],

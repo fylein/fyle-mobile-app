@@ -1,7 +1,7 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import * as Sentry from '@sentry/angular';
 import { Observable, from, forkJoin, concat, combineLatest } from 'rxjs';
-import { map, shareReplay } from 'rxjs/operators';
+import { shareReplay } from 'rxjs/operators';
 import { DeviceService } from 'src/app/core/services/device.service';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
@@ -217,7 +217,7 @@ export class SidemenuComponent implements OnInit {
 
     const primaryOptions = [
       {
-        title: 'Dashboard',
+        title: 'Home',
         isVisible: true,
         icon: 'dashboard',
         route: ['/', 'enterprise', 'my_dashboard'],
@@ -296,7 +296,7 @@ export class SidemenuComponent implements OnInit {
   getPrimarySidemenuOptionsOffline(): Partial<SidemenuItem>[] {
     return [
       {
-        title: 'Dashboard',
+        title: 'Home',
         isVisible: true,
         icon: 'dashboard',
         route: ['/', 'enterprise', 'my_dashboard'],
