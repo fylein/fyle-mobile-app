@@ -42,13 +42,12 @@ Sentry.init({
   ignoreErrors: [
     'Non-Error exception captured',
     'Non-Error promise rejection captured',
-    'Could not load "geocoder"',
+    'unhandledError',
     /Could not load "geocoder"/,
     /ChunkLoadError: Loading chunk \d+ failed/,
-    /Http failure response for .*: 0 Unknown Error/,
-    /unhandledError/,
+    /0 Unknown Error/,
     /The Google Maps JavaScript API could not load/,
-    /The operation couldn’t be completed\. \(kCLErrorDomain error \d+\)/,
+    /kCLErrorDomain error/,
   ],
   beforeSend(event) {
     cleanHttpExceptionUrlsForSentryGrouping(event);
