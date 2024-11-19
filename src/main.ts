@@ -48,6 +48,7 @@ Sentry.init({
     /Http failure response for .*: 0 Unknown Error/,
     /unhandledError/,
     /The Google Maps JavaScript API could not load/,
+    /The operation couldn’t be completed\. \(kCLErrorDomain error \d+\)/,
   ],
   beforeSend(event) {
     cleanHttpExceptionUrlsForSentryGrouping(event);
