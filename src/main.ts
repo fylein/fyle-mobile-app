@@ -39,7 +39,16 @@ Sentry.init({
   integrations: [],
   tracesSampleRate: 0.1,
   release: environment.LIVE_UPDATE_APP_VERSION,
-  ignoreErrors: ['Non-Error exception captured', 'Non-Error promise rejection captured'],
+  ignoreErrors: [
+    'Non-Error exception captured',
+    'Non-Error promise rejection captured',
+    'Could not load "geocoder"',
+    /Could not load "geocoder"/,
+    /ChunkLoadError: Loading chunk \d+ failed/,
+    /Http failure response for .*: 0 Unknown Error/,
+    /unhandledError/,
+    /The Google Maps JavaScript API could not load/,
+  ],
   beforeSend(event) {
     cleanHttpExceptionUrlsForSentryGrouping(event);
     return event;
