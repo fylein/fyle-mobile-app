@@ -18,7 +18,7 @@ import { PersonalCardTxn } from '../models/personal_card_txn.model';
 import { PersonalCardDateFilter } from '../models/personal-card-date-filter.model';
 import { SortFiltersParams } from '../models/sort-filters-params.model';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
-import { PersonalCardPlatform } from '../models/personal_card_platform.model';
+import { PlatformPersonalCard } from '../models/platform/platform-personal-card.model';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 
 @Injectable({
@@ -33,7 +33,7 @@ export class PersonalCardsService {
     private spenderPlatformV1ApiService: SpenderPlatformV1ApiService
   ) {}
 
-  transformPersonalCardPlatformArray(cards: PersonalCardPlatform[]): PersonalCard[] {
+  transformPersonalCardPlatformArray(cards: PlatformPersonalCard[]): PersonalCard[] {
     return cards.map((card) => {
       const personalCard: PersonalCard = {
         id: card.id,
@@ -55,7 +55,7 @@ export class PersonalCardsService {
 
   getPersonalCardsPlatform(): Observable<PersonalCard[]> {
     return this.spenderPlatformV1ApiService
-      .get<PlatformApiResponse<PersonalCardPlatform[]>>('/personal_cards')
+      .get<PlatformApiResponse<PlatformPersonalCard[]>>('/personal_cards')
       .pipe(map((res) => this.transformPersonalCardPlatformArray(res.data)));
   }
 
@@ -98,7 +98,7 @@ export class PersonalCardsService {
 
   getPersonalCardsCountPlatform(): Observable<number> {
     return this.spenderPlatformV1ApiService
-      .get<PlatformApiResponse<PersonalCardPlatform[]>>('/personal_cards')
+      .get<PlatformApiResponse<PlatformPersonalCard[]>>('/personal_cards')
       .pipe(map((res) => res.count));
   }
 
@@ -124,18 +124,18 @@ export class PersonalCardsService {
     });
   }
 
-  deleteAccountPlatform(accountId: string): Observable<PersonalCardPlatform> {
+  deleteAccountPlatform(accountId: string): Observable<PlatformPersonalCard> {
     const payload = {
       data: {
         id: accountId,
       },
     };
     return this.spenderPlatformV1ApiService
-      .post<PlatformApiResponse<PersonalCardPlatform>>('/personal_cards/delete', payload)
+      .post<PlatformApiResponse<PlatformPersonalCard>>('/personal_cards/delete', payload)
       .pipe(map((response) => response.data));
   }
 
-  deleteAccount(accountId: string, usePlatformApi: boolean): Observable<PersonalCard | PersonalCardPlatform> {
+  deleteAccount(accountId: string, usePlatformApi: boolean): Observable<PersonalCard | PlatformPersonalCard> {
     if (usePlatformApi) {
       return this.deleteAccountPlatform(accountId);
     }
