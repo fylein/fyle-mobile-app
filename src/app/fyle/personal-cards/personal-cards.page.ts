@@ -325,6 +325,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
   ionViewWillLeave(): void {
     this.onPageExit$.next(null);
+    this.onPageExit$.complete();
   }
 
   setupNetworkWatcher(): void {

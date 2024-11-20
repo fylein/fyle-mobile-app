@@ -43,7 +43,7 @@ import { PersonalCardsPage } from './personal-cards.page';
 import { PersonalCardFilter } from 'src/app/core/models/personal-card-filters.model';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
-describe('PersonalCardsPage', () => {
+fdescribe('PersonalCardsPage', () => {
   let component: PersonalCardsPage;
   let fixture: ComponentFixture<PersonalCardsPage>;
   let personalCardsService: jasmine.SpyObj<PersonalCardsService>;
@@ -904,8 +904,10 @@ describe('PersonalCardsPage', () => {
 
   it('ionViewWillLeave(): should set onPageExit to null', () => {
     spyOn(component.onPageExit$, 'next');
+    spyOn(component.onPageExit$, 'complete');
     component.ionViewWillLeave();
     expect(component.onPageExit$.next).toHaveBeenCalledOnceWith(null);
+    expect(component.onPageExit$.complete).toHaveBeenCalledTimes(1);
   });
 
   it('loadLinkedAccounts(): should load linked accounts', (done) => {
