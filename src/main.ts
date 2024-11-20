@@ -38,8 +38,17 @@ Sentry.init({
   dsn: environment.SENTRY_DSN,
   integrations: [],
   tracesSampleRate: 0.1,
-  release: 'please-replace-your-mobile-app-version',
-  ignoreErrors: ['Non-Error exception captured', 'Non-Error promise rejection captured'],
+  release: environment.LIVE_UPDATE_APP_VERSION,
+  ignoreErrors: [
+    'Non-Error exception captured',
+    'Non-Error promise rejection captured',
+    'unhandledError', // "title": "<unknown>"
+    /Could not load "geocoder"/, // "title": "Error: Uncaught (in promise): Error: Could not load \"geocoder\".",
+    /ChunkLoadError: Loading chunk \d+ failed/, // "title": "Error: Uncaught (in promise): Error: The Google Maps JavaScript API could not load.",
+    /0 Unknown Error/, // "title": "<unknown>"
+    /The Google Maps JavaScript API could not load/, // "title": "Error: Uncaught (in promise): Error: The Google Maps JavaScript API could not load."
+    /kCLErrorDomain error/, // "title": "Error: Uncaught (in promise): Error: The operation couldn’t be completed. (kCLErrorDomain error 1.)",
+  ],
   beforeSend(event) {
     cleanHttpExceptionUrlsForSentryGrouping(event);
     return event;

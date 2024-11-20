@@ -5,7 +5,13 @@ import { ApiService } from './api.service';
 import { ExpenseAggregationService } from './expense-aggregation.service';
 import { DateService } from './date.service';
 import { allFilterPills, creditTxnFilterPill, debitTxnFilterPill } from '../mock-data/filter-pills.data';
-import { apiLinkedAccRes, deletePersonalCardRes } from '../mock-data/personal-cards.data';
+import {
+  apiLinkedAccRes,
+  deletePersonalCardPlatformRes,
+  deletePersonalCardRes,
+  linkedAccountRes2,
+  platformApiLinkedAccRes,
+} from '../mock-data/personal-cards.data';
 import { of } from 'rxjs';
 import { apiPersonalCardTxnsRes } from '../mock-data/personal-card-txns.data';
 import { selectedFilters1, selectedFilters2 } from '../mock-data/selected-filters.data';
@@ -14,18 +20,21 @@ import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.e
 import { apiExpenseRes, etxncData } from '../mock-data/expense.data';
 import { apiToken } from '../mock-data/yoodle-token.data';
 import * as dayjs from 'dayjs';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 
 describe('PersonalCardsService', () => {
   let personalCardsService: PersonalCardsService;
   let apiV2Service: jasmine.SpyObj<ApiV2Service>;
   let apiService: jasmine.SpyObj<ApiService>;
   let expenseAggregationService: jasmine.SpyObj<ExpenseAggregationService>;
+  let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
   let dateService: DateService;
 
   beforeEach(() => {
     const apiV2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['get']);
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['post', 'get']);
     const expenseAggregationServiceSpy = jasmine.createSpyObj('ExpenseAggregationService', ['get', 'post', 'delete']);
+    const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get', 'post']);
     TestBed.configureTestingModule({
       providers: [
         PersonalCardsService,
@@ -42,6 +51,10 @@ describe('PersonalCardsService', () => {
           provide: ExpenseAggregationService,
           useValue: expenseAggregationServiceSpy,
         },
+        {
+          provide: SpenderPlatformV1ApiService,
+          useValue: spenderPlatformV1ApiServiceSpy,
+        },
       ],
     });
     personalCardsService = TestBed.inject(PersonalCardsService);
@@ -49,37 +62,110 @@ describe('PersonalCardsService', () => {
     apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
     apiV2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
     expenseAggregationService = TestBed.inject(ExpenseAggregationService) as jasmine.SpyObj<ExpenseAggregationService>;
+    spenderPlatformV1ApiService = TestBed.inject(
+      SpenderPlatformV1ApiService
+    ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
   });
 
   it('should be created', () => {
     expect(personalCardsService).toBeTruthy();
   });
 
-  it('getLinkedAccounts(): should get linked personal cards', (done) => {
-    apiV2Service.get.and.returnValue(of(apiLinkedAccRes));
+  describe('getPersonalCards()', () => {
+    it('should get linked personal cards when using public api', (done) => {
+      const usePlatformApi = false;
+      apiV2Service.get.and.returnValue(of(apiLinkedAccRes));
 
-    personalCardsService.getLinkedAccounts().subscribe((res) => {
-      expect(res).toEqual(apiLinkedAccRes.data);
-      expect(apiV2Service.get).toHaveBeenCalledOnceWith('/personal_bank_accounts', {
-        params: {
-          order: 'last_synced_at.desc',
-        },
+      personalCardsService.getPersonalCards(usePlatformApi).subscribe((res) => {
+        expect(spenderPlatformV1ApiService.get).not.toHaveBeenCalled();
+        expect(res).toEqual(apiLinkedAccRes.data);
+        expect(apiV2Service.get).toHaveBeenCalledOnceWith('/personal_bank_accounts', {
+          params: {
+            order: 'last_synced_at.desc',
+          },
+        });
+        done();
       });
-      done();
+    });
+
+    it('should get linked personal cards when using platform api', (done) => {
+      const usePlatformApi = true;
+      spenderPlatformV1ApiService.get.and.returnValue(of(platformApiLinkedAccRes));
+      spyOn(personalCardsService, 'transformPersonalCardPlatformArray').and.callThrough();
+
+      personalCardsService.getPersonalCards(usePlatformApi).subscribe((res) => {
+        expect(res).toEqual(linkedAccountRes2);
+        expect(personalCardsService.transformPersonalCardPlatformArray).toHaveBeenCalledWith(
+          platformApiLinkedAccRes.data
+        );
+        expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/personal_cards');
+        expect(apiV2Service.get).not.toHaveBeenCalled();
+        done();
+      });
     });
   });
 
-  it('getLinkedAccountsCount(): should get linked cards count', (done) => {
-    apiV2Service.get.and.returnValue(of(apiLinkedAccRes));
+  describe('getPersonalCardsCount()', () => {
+    it('should get linked personal cards count when using public api', (done) => {
+      const usePlatformApi = false;
+      apiV2Service.get.and.returnValue(of(apiLinkedAccRes));
 
-    personalCardsService.getLinkedAccountsCount().subscribe((res) => {
-      expect(res).toEqual(apiLinkedAccRes.count);
-      expect(apiV2Service.get).toHaveBeenCalledOnceWith('/personal_bank_accounts', {
-        params: {
-          order: 'last_synced_at.desc',
-        },
+      personalCardsService.getPersonalCardsCount(usePlatformApi).subscribe((res) => {
+        expect(spenderPlatformV1ApiService.get).not.toHaveBeenCalled();
+        expect(res).toEqual(apiLinkedAccRes.count);
+        expect(apiV2Service.get).toHaveBeenCalledOnceWith('/personal_bank_accounts', {
+          params: {
+            order: 'last_synced_at.desc',
+          },
+        });
+        done();
       });
-      done();
+    });
+
+    it('should get linked personal cards count when using platform api', (done) => {
+      const usePlatformApi = true;
+      spenderPlatformV1ApiService.get.and.returnValue(of(platformApiLinkedAccRes));
+
+      personalCardsService.getPersonalCardsCount(usePlatformApi).subscribe((res) => {
+        expect(res).toEqual(platformApiLinkedAccRes.count);
+        expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/personal_cards');
+        expect(apiV2Service.get).not.toHaveBeenCalled();
+        done();
+      });
+    });
+  });
+
+  describe('deleteAccount()', () => {
+    it('should delete personal card when using public api', (done) => {
+      const usePlatformApi = false;
+      expenseAggregationService.delete.and.returnValue(of(deletePersonalCardRes));
+
+      const accountId = 'bacc0By33NqhnS';
+
+      personalCardsService.deleteAccount(accountId, usePlatformApi).subscribe((res) => {
+        expect(res).toEqual(deletePersonalCardRes);
+        expect(expenseAggregationService.delete).toHaveBeenCalledOnceWith(`/bank_accounts/${accountId}`);
+        done();
+      });
+    });
+
+    it('should delete personal card when using platform api', (done) => {
+      const usePlatformApi = true;
+      spenderPlatformV1ApiService.post.and.returnValue(of(deletePersonalCardPlatformRes));
+
+      const accountId = 'bacc0By33NqhnS';
+      const payload = {
+        data: {
+          id: accountId,
+        },
+      };
+
+      personalCardsService.deleteAccount(accountId, usePlatformApi).subscribe((res) => {
+        expect(res).toEqual(deletePersonalCardPlatformRes.data);
+        expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/personal_cards/delete', payload);
+        expect(apiV2Service.get).not.toHaveBeenCalled();
+        done();
+      });
     });
   });
 
@@ -125,18 +211,6 @@ describe('PersonalCardsService', () => {
     personalCardsService.getBankTransactionsCount(queryParams).subscribe((res) => {
       expect(res).toEqual(apiPersonalCardTxnsRes.count);
       expect(personalCardsService.getBankTransactions).toHaveBeenCalledOnceWith(config);
-      done();
-    });
-  });
-
-  it('deleteAccount(): should delete a personal card', (done) => {
-    expenseAggregationService.delete.and.returnValue(of(deletePersonalCardRes));
-
-    const accountId = 'bacc0By33NqhnS';
-
-    personalCardsService.deleteAccount(accountId).subscribe((res) => {
-      expect(res).toEqual(deletePersonalCardRes);
-      expect(expenseAggregationService.delete).toHaveBeenCalledOnceWith(`/bank_accounts/${accountId}`);
       done();
     });
   });
@@ -872,22 +946,6 @@ describe('PersonalCardsService', () => {
       expect(apiService.post).toHaveBeenCalledOnceWith('/transactions/external_expense/match', {
         transaction_split_group_id: txnSplitGrp,
         external_expense_id: null,
-      });
-      done();
-    });
-  });
-
-  it('unmatchExpense(): should unmatch an expense', (done) => {
-    apiService.post.and.returnValue(of(null));
-
-    const txnSplitGroupID = 'tx2ZttMRItRx';
-    const externalId = 'btxntEdVJeYyyx';
-
-    personalCardsService.unmatchExpense(txnSplitGroupID, externalId).subscribe((res) => {
-      expect(res).toBeNull();
-      expect(apiService.post).toHaveBeenCalledOnceWith('/transactions/external_expense/unmatch', {
-        transaction_split_group_id: txnSplitGroupID,
-        external_expense_id: externalId,
       });
       done();
     });

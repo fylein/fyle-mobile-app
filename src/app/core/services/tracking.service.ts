@@ -563,10 +563,6 @@ export class TrackingService {
     this.eventTrack('Expense matched created from personal card transaction', properties);
   }
 
-  unmatchedExpensesFromPersonalCard(properties = {}): void {
-    this.eventTrack('Expense matched created from personal card transaction', properties);
-  }
-
   transactionsHiddenOnPersonalCards(properties = {}): void {
     this.eventTrack('Transactions hidden on personal cards', properties);
   }

@@ -27,8 +27,6 @@ export class ExpensePreviewComponent implements OnInit {
 
   loading = false;
 
-  unMatching = false;
-
   type: string;
 
   isIos = false;
@@ -73,24 +71,6 @@ export class ExpensePreviewComponent implements OnInit {
         });
         this.router.navigate(['/', 'enterprise', 'personal_cards']);
         this.trackingService.oldExpensematchedFromPersonalCard();
-      });
-  }
-
-  unmatchExpense(): void {
-    this.unMatching = true;
-    this.personalCardsService
-      .unmatchExpense(this.expenseId, this.cardTxnId)
-      .pipe(finalize(() => (this.unMatching = false)))
-      .subscribe(() => {
-        this.modalController.dismiss();
-        this.matSnackBar.openFromComponent(ToastMessageComponent, {
-          ...this.snackbarProperties.setSnackbarProperties('success', {
-            message: 'Successfully unmatched the expense.',
-          }),
-          panelClass: ['msb-success'],
-        });
-        this.router.navigate(['/', 'enterprise', 'personal_cards']);
-        this.trackingService.unmatchedExpensesFromPersonalCard();
       });
   }
 
