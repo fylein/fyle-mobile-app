@@ -735,7 +735,7 @@ describe('CaptureReceiptComponent', () => {
       spyOn(component, 'createReceiptPreviewModal').and.returnValue(
         new Promise((resolve) => {
           const popOverSpy = jasmine.createSpyObj('receiptPreviewModal', ['present', 'onWillDismiss', 'onDidDismiss']);
-          popOverSpy.onWillDismiss.and.resolve({
+          popOverSpy.onWillDismiss.and.resolveTo({
             data: {
               base64ImagesWithSource: images,
             },
