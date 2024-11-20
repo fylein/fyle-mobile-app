@@ -381,7 +381,7 @@ export interface OrgSettingsResponse {
   default_ou_settings?: DefaultOrgUserSettings;
   org_personal_cards_settings?: CommonOrgSettings;
   bank_data_aggregation_settings?: OrgBankDataAggregationSettings;
-  per_diem_settings?: CommonOrgSettings;
+  per_diem_settings?: PerDiemSettings;
   advanced_per_diems_settings?: AdvancedPerDiemsSettings;
   accounting_export_settings?: AccountingExportSettings;
   activity_settings?: ActivitySettings;
