@@ -24,6 +24,8 @@ import {
   map,
   of,
   shareReplay,
+  Subject,
+  takeUntil,
 } from 'rxjs';
 import { PersonalCard } from 'src/app/core/models/personal_card.model';
 import { PersonalCardTxn } from 'src/app/core/models/personal_card_txn.model';
@@ -138,6 +140,8 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
   usePlatformApi = false;
 
+  onPageExit$ = new Subject();
+
   constructor(
     private personalCardsService: PersonalCardsService,
     private networkService: NetworkService,
@@ -161,6 +165,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.initializeLdFlag();
     this.setupNetworkWatcher();
+    this.trackingService.personalCardsViewed();
     const isIos = this.platform.is('ios');
     if (isIos) {
       this.mode = 'ios';
@@ -175,12 +180,35 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     });
   }
 
-  ionViewWillEnter(): void {
-    if (this.isCardsLoaded) {
-      const currentParams = this.loadData$.getValue();
-      this.loadData$.next(currentParams);
-    }
-    this.trackingService.personalCardsViewed();
+  setupViewIfLinkedAccountsExist(): void {
+    this.loadLinkedAccounts();
+    this.linkedAccounts$.subscribe((linkedAccounts) => {
+      // Initializing the selectedAccount to First account on page load
+      this.onCardChanged(linkedAccounts[0].id);
+      const paginatedPipe = this.loadPersonalTxns();
+
+      this.transactions$ = paginatedPipe.pipe(shareReplay(1));
+      this.filterPills = this.personalCardsService.generateFilterPills(this.filters);
+
+      this.loadTransactionCount();
+
+      this.loadInfiniteScroll();
+    });
+
+    this.simpleSearchInput.nativeElement.value = '';
+    fromEvent<{ srcElement: { value: string } }>(this.simpleSearchInput.nativeElement, 'keyup')
+      .pipe(
+        map((event) => event.srcElement.value),
+        distinctUntilChanged(),
+        debounceTime(400)
+      )
+      .subscribe((searchString) => {
+        const currentParams = this.loadData$.getValue();
+        currentParams.searchString = searchString;
+        this.currentPageNumber = 1;
+        currentParams.pageNumber = this.currentPageNumber;
+        this.loadData$.next(currentParams);
+      });
   }
 
   loadLinkedAccounts(): void {
@@ -286,43 +314,27 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.loadCardData$ = new BehaviorSubject({});
 
     this.loadAccountCount();
-
-    this.loadLinkedAccounts();
-
-    this.loadData$ = new BehaviorSubject({
-      pageNumber: 1,
+    this.linkedAccountsCount$.pipe(takeUntil(this.onPageExit$)).subscribe((accountsCount) => {
+      if (accountsCount > 0) {
+        this.setupViewIfLinkedAccountsExist();
+      }
     });
 
-    const paginatedPipe = this.loadPersonalTxns();
-
-    this.transactions$ = paginatedPipe.pipe(shareReplay(1));
-    this.filterPills = this.personalCardsService.generateFilterPills(this.filters);
-
-    this.loadTransactionCount();
-
-    this.loadInfiniteScroll();
-
-    this.simpleSearchInput.nativeElement.value = '';
-    fromEvent<{ srcElement: { value: string } }>(this.simpleSearchInput.nativeElement, 'keyup')
-      .pipe(
-        map((event) => event.srcElement.value),
-        distinctUntilChanged(),
-        debounceTime(400)
-      )
-      .subscribe((searchString) => {
-        const currentParams = this.loadData$.getValue();
-        currentParams.searchString = searchString;
-        this.currentPageNumber = 1;
-        currentParams.pageNumber = this.currentPageNumber;
-        this.loadData$.next(currentParams);
-      });
     this.cdr.detectChanges();
+  }
+
+  ionViewWillLeave(): void {
+    this.onPageExit$.next(null);
+    this.onPageExit$.complete();
   }
 
   setupNetworkWatcher(): void {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
-    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable());
+    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
+      takeUntil(this.onPageExit$),
+      shareReplay(1)
+    );
 
     this.isConnected$.subscribe((isOnline) => {
       if (!isOnline) {
