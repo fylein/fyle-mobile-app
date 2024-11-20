@@ -2248,7 +2248,6 @@ export class AddEditExpensePage implements OnInit {
     const categoryControl = this.getFormControl('category');
 
     const customInputsFeilds$: Observable<TxnCustomProperties[]> = categoryControl.valueChanges.pipe(
-      filter((category) => !!category),
       startWith({}),
       distinctUntilChanged(),
       switchMap((category) =>
@@ -2258,6 +2257,21 @@ export class AddEditExpensePage implements OnInit {
           this.getCategoryOnEdit(category as OrgCategory)
         )
       ),
+      switchMap((category: OrgCategory) => {
+        if (!category) {
+          // set to unspecified category if no category is selected
+          return this.allCategories$.pipe(
+            map((categories) => {
+              const unspecifiedCategory = categories.find(
+                (category) => category.fyle_category?.toLowerCase() === 'unspecified'
+              );
+              return unspecifiedCategory;
+            })
+          );
+        } else {
+          return of(category);
+        }
+      }),
       switchMap((category: OrgCategory) => {
         const formValue = this.fg.value as {
           custom_inputs: CustomInput[];
