@@ -59,6 +59,11 @@ export const orgSettingsGetData: OrgSettings = deepFreeze({
     allowed: true,
     enabled: true,
   },
+  advanced_per_diems_settings: {
+    allowed: true,
+    enabled: true,
+    enable_employee_restriction: false,
+  },
   cost_centers: {
     allowed: true,
     enabled: true,
@@ -1166,6 +1171,11 @@ export const orgSettingsData: OrgSettings = deepFreeze({
     allowed: true,
     enabled: true,
     enable_individual_per_diem_rates: true,
+  },
+  advanced_per_diems_settings: {
+    allowed: true,
+    enabled: true,
+    enable_employee_restriction: false,
   },
   payment_mode_settings: {
     allowed: true,

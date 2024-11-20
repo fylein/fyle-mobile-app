@@ -82,6 +82,10 @@ export interface PerDiemSettings extends CommonOrgSettings {
   enable_individual_per_diem_rates?: boolean;
 }
 
+export interface AdvancedPerDiemsSettings extends CommonOrgSettings {
+  enable_employee_restriction?: boolean;
+}
+
 export interface ReceiptSettings extends CommonOrgSettings {
   enable_magnifier?: boolean;
 }
@@ -377,8 +381,8 @@ export interface OrgSettingsResponse {
   default_ou_settings?: DefaultOrgUserSettings;
   org_personal_cards_settings?: CommonOrgSettings;
   bank_data_aggregation_settings?: OrgBankDataAggregationSettings;
-  per_diem_settings?: PerDiemSettings;
-  advanced_per_diems_settings?: CommonOrgSettings;
+  per_diem_settings?: CommonOrgSettings;
+  advanced_per_diems_settings?: AdvancedPerDiemsSettings;
   accounting_export_settings?: AccountingExportSettings;
   activity_settings?: ActivitySettings;
   tax_settings?: TaxSettings;
@@ -499,6 +503,7 @@ export interface OrgSettings {
   advances?: AdvancesSettings;
   projects?: CommonOrgSettings;
   advanced_projects?: AdvancedProjectSettings;
+  advanced_per_diems_settings?: AdvancedPerDiemsSettings;
   advance_requests?: CommonOrgSettings;
   cost_centers?: CommonOrgSettings;
   policies?: UiPolicySettings;

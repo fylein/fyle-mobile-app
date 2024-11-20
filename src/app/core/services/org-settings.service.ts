@@ -157,6 +157,11 @@ export class OrgSettingsService {
         enable_category_restriction:
           incoming.advanced_project_settings && incoming.advanced_project_settings.enable_category_restriction,
       },
+      advanced_per_diems_settings: {
+        allowed: incoming.advanced_per_diems_settings?.allowed,
+        enabled: incoming.advanced_per_diems_settings?.enabled,
+        enable_employee_restriction: incoming.advanced_per_diems_settings?.enable_employee_restriction,
+      },
       advance_requests: {
         allowed: incoming.advances_settings && incoming.advances_settings.allowed,
         enabled: incoming.advances_settings && incoming.advances_settings.advance_requests_enabled,
