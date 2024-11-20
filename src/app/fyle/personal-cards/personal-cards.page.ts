@@ -24,6 +24,8 @@ import {
   map,
   of,
   shareReplay,
+  Subject,
+  takeUntil,
 } from 'rxjs';
 import { PersonalCard } from 'src/app/core/models/personal_card.model';
 import { PersonalCardTxn } from 'src/app/core/models/personal_card_txn.model';
@@ -138,6 +140,8 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
   usePlatformApi = false;
 
+  onPageExit$ = new Subject();
+
   constructor(
     private personalCardsService: PersonalCardsService,
     private networkService: NetworkService,
@@ -161,6 +165,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.initializeLdFlag();
     this.setupNetworkWatcher();
+    this.trackingService.personalCardsViewed();
     const isIos = this.platform.is('ios');
     if (isIos) {
       this.mode = 'ios';
@@ -173,14 +178,6 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.launchDarklyService.getVariation('personal_cards_platform', false).subscribe((usePlatformApi) => {
       this.usePlatformApi = usePlatformApi;
     });
-  }
-
-  ionViewWillEnter(): void {
-    if (this.isCardsLoaded) {
-      const currentParams = this.loadData$.getValue();
-      this.loadData$.next(currentParams);
-    }
-    this.trackingService.personalCardsViewed();
   }
 
   setupViewIfLinkedAccountsExist(): void {
@@ -317,7 +314,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.loadCardData$ = new BehaviorSubject({});
 
     this.loadAccountCount();
-    this.linkedAccountsCount$.subscribe((accountsCount) => {
+    this.linkedAccountsCount$.pipe(takeUntil(this.onPageExit$)).subscribe((accountsCount) => {
       if (accountsCount > 0) {
         this.setupViewIfLinkedAccountsExist();
       }
@@ -326,10 +323,17 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.cdr.detectChanges();
   }
 
+  ionViewWillLeave(): void {
+    this.onPageExit$.next(null);
+  }
+
   setupNetworkWatcher(): void {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
-    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable());
+    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
+      takeUntil(this.onPageExit$),
+      shareReplay(1)
+    );
 
     this.isConnected$.subscribe((isOnline) => {
       if (!isOnline) {

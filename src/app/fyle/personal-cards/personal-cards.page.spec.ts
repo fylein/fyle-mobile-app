@@ -238,7 +238,6 @@ describe('PersonalCardsPage', () => {
   describe('mocked lifecycle', () => {
     beforeEach(() => {
       spyOn(component, 'ngOnInit');
-      spyOn(component, 'ionViewWillEnter');
       spyOn(component, 'ngAfterViewInit');
     });
 
@@ -889,6 +888,7 @@ describe('PersonalCardsPage', () => {
 
       expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
       expect(component.mode).toEqual('ios');
+      expect(trackingService.personalCardsViewed).toHaveBeenCalledTimes(1);
     });
 
     it('should set mode to material design and network watcher', () => {
@@ -902,16 +902,10 @@ describe('PersonalCardsPage', () => {
     });
   });
 
-  it('ionViewWillEnter(): should setup class variables', () => {
-    component.isCardsLoaded = true;
-    spyOn(component.loadData$, 'getValue').and.returnValue({});
-    spyOn(component.loadData$, 'next');
-
-    component.ionViewWillEnter();
-
-    expect(component.loadData$.next).toHaveBeenCalledTimes(1);
-    expect(component.loadData$.getValue).toHaveBeenCalledTimes(1);
-    expect(trackingService.personalCardsViewed).toHaveBeenCalledTimes(1);
+  it('ionViewWillLeave(): should set onPageExit to null', () => {
+    spyOn(component.onPageExit$, 'next');
+    component.ionViewWillLeave();
+    expect(component.onPageExit$.next).toHaveBeenCalledOnceWith(null);
   });
 
   it('loadLinkedAccounts(): should load linked accounts', (done) => {
