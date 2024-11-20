@@ -647,16 +647,6 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     }
   }
 
-  async setState(): Promise<void> {
-    this.isLoading = true;
-    this.currentPageNumber = 1;
-    const params = this.addNewFiltersToParams();
-    this.loadData$.next(params);
-    setTimeout(() => {
-      this.isLoading = false;
-    }, 500);
-  }
-
   addNewFiltersToParams(): Partial<SortFiltersParams> {
     const currentParams = this.loadData$.getValue();
 

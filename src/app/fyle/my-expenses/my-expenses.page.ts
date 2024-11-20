@@ -991,16 +991,6 @@ export class MyExpensesPage implements OnInit {
     this.filterPills = this.generateFilterPills(this.filters);
   }
 
-  async setState(): Promise<void> {
-    this.isLoading = true;
-    this.currentPageNumber = 1;
-    const params = this.addNewFiltersToParams();
-    this.loadExpenses$.next(params);
-    setTimeout(() => {
-      this.isLoading = false;
-    }, 500);
-  }
-
   setExpenseStatsOnSelect(): void {
     this.allExpensesStats$ = of({
       count: this.selectedElements.length,

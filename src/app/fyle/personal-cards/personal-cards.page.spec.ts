@@ -556,17 +556,6 @@ describe('PersonalCardsPage', () => {
       expect(component.selectedElements).toEqual([apiPersonalCardTxnsRes.data[0].btxn_id]);
     });
 
-    it('setState(): should set state', fakeAsync(() => {
-      spyOn(component, 'addNewFiltersToParams').and.returnValue(tasksQueryParamsWithFiltersData);
-      spyOn(component.loadData$, 'next');
-
-      component.setState();
-      tick(1000);
-
-      expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);
-      expect(component.loadData$.next).toHaveBeenCalledOnceWith(tasksQueryParamsWithFiltersData);
-    }));
-
     it('onSearchBarFocus(): should set focus on bar', () => {
       component.onSearchBarFocus();
 
