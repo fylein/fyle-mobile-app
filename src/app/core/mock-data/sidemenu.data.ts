@@ -4,7 +4,7 @@ import { SidemenuItem } from '../models/sidemenu-item.model';
 
 export const sidemenuData1 = deepFreeze([
   {
-    title: 'Dashboard',
+    title: 'Home',
     isVisible: true,
     icon: 'dashboard',
     route: ['/', 'enterprise', 'my_dashboard'],
@@ -25,7 +25,7 @@ export const sidemenuData1 = deepFreeze([
 
 export const PrimaryOptionsRes1: Partial<SidemenuItem>[] = deepFreeze([
   {
-    title: 'Dashboard',
+    title: 'Home',
     isVisible: true,
     icon: 'dashboard',
     route: ['/', 'enterprise', 'my_dashboard'],
@@ -91,7 +91,7 @@ export const PrimaryOptionsRes2: Partial<SidemenuItem>[] = deepFreeze([
 
 export const getPrimarySidemenuOptionsRes1 = deepFreeze([
   {
-    title: 'Dashboard',
+    title: 'Home',
     isVisible: true,
     icon: 'dashboard',
     route: ['/', 'enterprise', 'my_dashboard'],
@@ -158,7 +158,7 @@ export const getSecondarySidemenuOptionsRes1 = deepFreeze([
 
 export const setSideMenuRes: Partial<SidemenuItem>[] = deepFreeze([
   {
-    title: 'Dashboard',
+    title: 'Home',
     isVisible: true,
     icon: 'dashboard',
     route: ['/', 'enterprise', 'my_dashboard'],
