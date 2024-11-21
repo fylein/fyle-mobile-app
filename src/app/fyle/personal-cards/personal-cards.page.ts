@@ -163,7 +163,6 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit(): void {
-    this.initializeLdFlag();
     this.setupNetworkWatcher();
     this.trackingService.personalCardsViewed();
     const isIos = this.platform.is('ios');
@@ -172,12 +171,6 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     } else {
       this.mode = 'md';
     }
-  }
-
-  initializeLdFlag(): void {
-    this.launchDarklyService.getVariation('personal_cards_platform', false).subscribe((usePlatformApi) => {
-      this.usePlatformApi = usePlatformApi;
-    });
   }
 
   loadLinkedAccounts(): void {
@@ -201,7 +194,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.transactionsCount$ = this.loadData$.pipe(
       switchMap((params) => {
         const queryParams = this.apiV2Service.extendQueryParamsForTextSearch(params.queryParams, params.searchString);
-        return this.personalCardsService.getBankTransactionsCount(queryParams);
+        return this.personalCardsService.getBankTransactionsCount(queryParams, this.usePlatformApi);
       }),
       shareReplay(1)
     );
@@ -242,15 +235,18 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
           queryParams = params.queryParams as Record<string, string>;
         }
         queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams as {}, params.searchString);
-        return this.personalCardsService.getBankTransactionsCount(queryParams).pipe(
+        return this.personalCardsService.getBankTransactionsCount(queryParams, this.usePlatformApi).pipe(
           switchMap((count) => {
             if (count > (params.pageNumber - 1) * 10) {
               return this.personalCardsService
-                .getBankTransactions({
-                  offset: (params.pageNumber - 1) * 10,
-                  limit: 10,
-                  queryParams,
-                })
+                .getBankTransactions(
+                  {
+                    offset: (params.pageNumber - 1) * 10,
+                    limit: 10,
+                    queryParams,
+                  },
+                  this.usePlatformApi
+                )
                 .pipe(
                   finalize(() => {
                     this.isTrasactionsLoading = false;
@@ -282,22 +278,25 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
     this.loadCardData$ = new BehaviorSubject({});
 
-    this.loadAccountCount();
-    this.loadLinkedAccounts();
+    this.launchDarklyService.getVariation('personal_cards_platform', false).subscribe((usePlatformApi) => {
+      this.usePlatformApi = usePlatformApi;
+      this.loadAccountCount();
+      this.loadLinkedAccounts();
 
-    this.linkedAccounts$.subscribe((linkedAccounts) => {
-      if (linkedAccounts.length > 0) {
-        // Initializing the selectedAccount to First account on page load
-        this.onCardChanged(linkedAccounts[0].id);
-      }
+      this.linkedAccounts$.subscribe((linkedAccounts) => {
+        if (linkedAccounts.length > 0) {
+          // Initializing the selectedAccount to First account on page load
+          this.onCardChanged(linkedAccounts[0].id);
+        }
+      });
+
+      const paginatedPipe = this.loadPersonalTxns();
+      this.transactions$ = paginatedPipe.pipe(shareReplay(1));
+      this.filterPills = this.personalCardsService.generateFilterPills(this.filters);
+
+      this.loadTransactionCount();
+      this.loadInfiniteScroll();
     });
-
-    const paginatedPipe = this.loadPersonalTxns();
-    this.transactions$ = paginatedPipe.pipe(shareReplay(1));
-    this.filterPills = this.personalCardsService.generateFilterPills(this.filters);
-
-    this.loadTransactionCount();
-    this.loadInfiniteScroll();
 
     this.simpleSearchInput.nativeElement.value = '';
     fromEvent<{ srcElement: { value: string } }>(this.simpleSearchInput.nativeElement, 'keyup')

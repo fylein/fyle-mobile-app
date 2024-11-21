@@ -23,6 +23,7 @@ import { PlatformApiResponse } from '../models/platform/platform-api-response.mo
 import { PlatformPersonalCardTxn } from '../models/platform/platform-personal-card-txn.model';
 import { PlatformPersonalCardMatchedExpense } from '../models/platform/platform-personal-card-matched-expense.model';
 import { TxnDetail } from '../models/v2/txn-detail.model';
+import { PlatformPersonalCardQueryParams } from '../models/platform/platform-personal-card-query-params.model';
 
 @Injectable({
   providedIn: 'root',
@@ -78,12 +79,15 @@ export class PersonalCardsService {
 
   transformPlatformPersonalCardTxn(txns: PlatformPersonalCardTxn[]): PersonalCardTxn[] {
     return txns.map((txn) => {
+      const amount = txn.amount < 0 ? txn.amount * -1 : txn.amount;
+      const txnType = txn.amount < 0 ? 'credit' : 'debit';
+      const txnSplitGroupId = txn.matched_expense_ids.length > 0 ? txn.matched_expense_ids[0] : null;
       const personalCardTxn: PersonalCardTxn = {
         btxn_id: txn.id,
         btxn_created_at: txn.created_at,
         btxn_updated_at: txn.updated_at,
         ba_id: txn.personal_card_id,
-        btxn_amount: txn.amount,
+        btxn_amount: amount,
         btxn_currency: txn.currency,
         btxn_description: txn.description,
         btxn_external_id: txn.external_transaction_id,
@@ -92,26 +96,38 @@ export class PersonalCardsService {
         btxn_orig_currency: txn.foreign_currency,
         btxn_status: txn.state,
         btxn_vendor: txn.merchant,
-        tx_split_group_id: '1st elem of matched expense ids',
-        btxn_transaction_type: 'manually add based on amount',
-        ba_account_number: 'manually add',
-        ba_bank_name: 'manually add',
-        ba_mask: 'pepe',
-        ba_nickname: 'pepe',
+        tx_split_group_id: txnSplitGroupId,
+        btxn_transaction_type: txnType,
+        ba_account_number: 'manually add', // TODO: sumrender to handle this
         txn_details: this.transformMatchedExpensesToTxnDetails(txn.matched_expenses),
       };
       return personalCardTxn;
     });
   }
 
-  mapPublicQueryParamsToPlatform(queryParams: { btxn_status?: string; ba_id?: string }): {
-    state?: string;
-    personal_card_id?: string;
-  } {
-    return {
+  mapPublicQueryParamsToPlatform(queryParams: {
+    btxn_status?: string;
+    ba_id?: string;
+    _search_document?: string;
+  }): PlatformPersonalCardQueryParams {
+    let q: string | undefined;
+    if (queryParams._search_document) {
+      q = queryParams._search_document.split('fts.')[1];
+    }
+
+    const platformQueryParams: PlatformPersonalCardQueryParams = {
       state: queryParams.btxn_status,
       personal_card_id: queryParams.ba_id,
+      q,
     };
+
+    const platformQueryParamsAfterFiltering: PlatformPersonalCardQueryParams = {};
+    Object.keys(platformQueryParams).forEach((key: keyof PlatformPersonalCardQueryParams) => {
+      if (platformQueryParams[key]) {
+        platformQueryParamsAfterFiltering[key] = platformQueryParams[key];
+      }
+    });
+    return platformQueryParamsAfterFiltering;
   }
 
   getPersonalCardsPlatform(): Observable<PersonalCard[]> {
