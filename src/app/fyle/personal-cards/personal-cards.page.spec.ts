@@ -241,15 +241,6 @@ describe('PersonalCardsPage', () => {
       spyOn(component, 'ngAfterViewInit');
     });
 
-    it('initializeLdFlag(): should initialize usePlatformApi', () => {
-      launchDarklyService.getVariation.and.returnValue(of(true));
-
-      component.initializeLdFlag();
-
-      expect(launchDarklyService.getVariation).toHaveBeenCalledTimes(1);
-      expect(component.usePlatformApi).toBeTrue();
-    });
-
     it('setupNetworkWatcher(): should setup network watcher', () => {
       networkService.isOnline.and.returnValue(of(false));
 

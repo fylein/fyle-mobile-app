@@ -201,7 +201,7 @@ describe('PersonalCardsService', () => {
       btxn_status: 'in.(MATCHED)',
       ba_id: 'eq.baccLesaRlyvLY',
     };
-
+    const usePlatformApi = false;
     const config = {
       offset: 0,
       limit: 10,
@@ -210,7 +210,7 @@ describe('PersonalCardsService', () => {
 
     personalCardsService.getBankTransactionsCount(queryParams).subscribe((res) => {
       expect(res).toEqual(apiPersonalCardTxnsRes.count);
-      expect(personalCardsService.getBankTransactions).toHaveBeenCalledOnceWith(config);
+      expect(personalCardsService.getBankTransactions).toHaveBeenCalledOnceWith(config, usePlatformApi);
       done();
     });
   });
