@@ -341,41 +341,38 @@ export class PersonalCardsService {
     currentParams: Partial<SortFiltersParams>,
     usePlatformApi = false
   ): Partial<SortFiltersParams> {
-    let query: string;
     const propertyName = usePlatformApi ? 'spent_at' : 'btxn_transaction_dt';
     if (data.range === 'This Month') {
       const thisMonth = this.dateService.getThisMonthRange();
-      query = `(and(${propertyName}.gte.${thisMonth.from.toISOString()},${propertyName}.lt.${thisMonth.to.toISOString()}))`;
+      currentParams.queryParams.or = `(and(${propertyName}.gte.${thisMonth.from.toISOString()},${propertyName}.lt.${thisMonth.to.toISOString()}))`;
     }
 
     if (data.range === 'Last Month') {
       const lastMonth = this.dateService.getLastMonthRange();
-      query = `(and(${propertyName}.gte.${lastMonth.from.toISOString()},${propertyName}.lt.${lastMonth.to.toISOString()}))`;
+      currentParams.queryParams.or = `(and(${propertyName}.gte.${lastMonth.from.toISOString()},${propertyName}.lt.${lastMonth.to.toISOString()}))`;
     }
 
     if (data.range === 'Last 30 Days') {
       const last30Days = this.dateService.getLastDaysRange(30);
-      query = `(and(${propertyName}.gte.${last30Days.from.toISOString()},${propertyName}.lt.${last30Days.to.toISOString()}))`;
+      currentParams.queryParams.or = `(and(${propertyName}.gte.${last30Days.from.toISOString()},${propertyName}.lt.${last30Days.to.toISOString()}))`;
     }
 
     if (data.range === 'Last 60 Days') {
       const last60Days = this.dateService.getLastDaysRange(60);
-      query = `(and(${propertyName}.gte.${last60Days.from.toISOString()},${propertyName}.lt.${last60Days.to.toISOString()}))`;
+      currentParams.queryParams.or = `(and(${propertyName}.gte.${last60Days.from.toISOString()},${propertyName}.lt.${last60Days.to.toISOString()}))`;
     }
 
     if (data.range === 'All Time') {
       const last90Days = this.dateService.getLastDaysRange(90);
-      query = `(and(${propertyName}.gte.${last90Days.from.toISOString()},${propertyName}.lt.${last90Days.to.toISOString()}))`;
+      currentParams.queryParams.or = `(and(${propertyName}.gte.${last90Days.from.toISOString()},${propertyName}.lt.${last90Days.to.toISOString()}))`;
     }
 
     if (data.range === 'Custom Range') {
-      query = `(and(${propertyName}.gte.${new Date(data.startDate).toISOString()},${propertyName}.lt.${new Date(
-        data.endDate
-      ).toISOString()}))`;
+      currentParams.queryParams.or = `(and(${propertyName}.gte.${new Date(
+        data.startDate
+      ).toISOString()},${propertyName}.lt.${new Date(data.endDate).toISOString()}))`;
     }
 
-    currentParams.queryParams.or = [];
-    currentParams.queryParams.or.push(query);
     return currentParams;
   }
 
