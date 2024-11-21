@@ -1015,7 +1015,7 @@ export class AddEditPerDiemPage implements OnInit {
     );
 
     this.individualPerDiemRatesEnabled$ = orgSettings$.pipe(
-      map((orgSettings) => orgSettings.advanced_per_diems_settings.enable_employee_restriction)
+      map((orgSettings) => orgSettings.advanced_per_diems_settings?.enable_employee_restriction)
     );
 
     orgSettings$.subscribe((orgSettings) => {
@@ -1050,7 +1050,8 @@ export class AddEditPerDiemPage implements OnInit {
       .pipe(
         switchMap(({ orgSettings, allowedPerDiemRates }) =>
           iif(
-            () => allowedPerDiemRates.length > 0 || orgSettings.advanced_per_diems_settings.enable_employee_restriction,
+            () =>
+              allowedPerDiemRates.length > 0 || orgSettings.advanced_per_diems_settings?.enable_employee_restriction,
             of(allowedPerDiemRates),
             perDiemRates$
           )
@@ -1077,7 +1078,7 @@ export class AddEditPerDiemPage implements OnInit {
       )
       .pipe(
         map(({ orgSettings, perDiemRates, allowedPerDiemRates }) => {
-          if (orgSettings.advanced_per_diems_settings.enable_employee_restriction) {
+          if (orgSettings.advanced_per_diems_settings?.enable_employee_restriction) {
             if (allowedPerDiemRates.length > 0 && perDiemRates.length > 0) {
               return true;
             } else {

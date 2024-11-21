@@ -452,6 +452,7 @@ export class OrgSettingsService {
         enable_individual_projects: outgoing.advanced_projects.enable_individual_projects,
         enable_category_restriction: outgoing.advanced_projects.enable_category_restriction,
       },
+      advanced_per_diems_settings: outgoing.advanced_per_diems_settings,
       org_cost_center_settings: {
         allowed: outgoing.cost_centers.allowed,
         enabled: outgoing.cost_centers.enabled,

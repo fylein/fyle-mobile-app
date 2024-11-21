@@ -465,6 +465,11 @@ export const orgSettingsPostData: OrgSettingsResponse = deepFreeze({
     enable_individual_projects: true,
     enable_category_restriction: true,
   },
+  advanced_per_diems_settings: {
+    allowed: true,
+    enabled: true,
+    enable_employee_restriction: false,
+  },
   org_cost_center_settings: {
     allowed: true,
     enabled: true,
