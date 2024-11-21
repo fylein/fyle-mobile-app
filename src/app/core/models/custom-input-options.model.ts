@@ -1,4 +1,4 @@
 export interface CustomInputOptions {
   label: string;
-  value: string | string[] | boolean | Date | number | { display: string };
+  value: string | string[] | boolean | Date | number | { display?: string };
 }

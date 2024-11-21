@@ -180,7 +180,8 @@ export class TransactionService {
 
         const transactionCopy = this.utilityService.discardRedundantCharacters(transaction, fieldsToCheck);
 
-        return this.apiService.post<Transaction>('/transactions', transactionCopy);
+        const expensePayload = this.expensesService.transformTo(transactionCopy);
+        return this.expensesService.post(expensePayload).pipe(map((result) => this.transformExpense(result.data).tx));
       })
     );
   }
@@ -192,14 +193,20 @@ export class TransactionService {
     txn: Partial<Transaction>,
     fileUploads$: Observable<FileObject[]>
   ): Observable<Partial<Transaction>> {
-    const upsertTxn$ = this.upsert(txn);
-    return forkJoin([fileUploads$, upsertTxn$]).pipe(
-      switchMap(([fileObjs, transaction]) => {
-        const fileIds = fileObjs.map((fileObj) => fileObj.id);
-        if (fileIds.length > 0) {
-          return this.expensesService.attachReceiptsToExpense(transaction.id, fileIds).pipe(map(() => transaction));
+    return fileUploads$.pipe(
+      switchMap((fileObjs) => {
+        // txn contains only source key when capturing receipt
+        if (txn.hasOwnProperty('source') && Object.keys(txn).length === 1) {
+          const fileIds = fileObjs.map((fileObj) => fileObj.id);
+          if (fileIds.length > 0) {
+            return this.expensesService
+              .createFromFile(fileIds[0], txn.source)
+              .pipe(map((result) => this.transformExpense(result.data[0]).tx));
+          }
         } else {
-          return of(transaction);
+          const fileIds = fileObjs.map((fileObj) => fileObj.id);
+          txn.file_ids = fileIds;
+          return this.upsert(txn);
         }
       })
     );
