@@ -43,6 +43,7 @@ Sentry.init({
     'Non-Error exception captured',
     'Non-Error promise rejection captured',
     'unhandledError', // "title": "<unknown>"
+    'plugin is not implemented on web', // Few plugins are not implemented for web - this error occurs when running the app on local, ignoring those errors
     /Could not load "geocoder"/, // "title": "Error: Uncaught (in promise): Error: Could not load \"geocoder\".",
     /ChunkLoadError: Loading chunk \d+ failed/, // "title": "Error: Uncaught (in promise): Error: The Google Maps JavaScript API could not load.",
     /0 Unknown Error/, // "title": "<unknown>"
