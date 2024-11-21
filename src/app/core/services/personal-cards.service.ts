@@ -109,6 +109,7 @@ export class PersonalCardsService {
     btxn_status?: string;
     ba_id?: string;
     _search_document?: string;
+    amount?: string;
   }): PlatformPersonalCardQueryParams {
     let q: string | undefined;
     if (queryParams._search_document) {
@@ -118,6 +119,7 @@ export class PersonalCardsService {
     const platformQueryParams: PlatformPersonalCardQueryParams = {
       state: queryParams.btxn_status,
       personal_card_id: queryParams.ba_id,
+      amount: queryParams.amount,
       q,
     };
 
@@ -494,15 +496,22 @@ export class PersonalCardsService {
   }
 
   generateCreditParams(
-    newQueryParams: { ba_id?: string; btxn_status?: string; or?: string[] },
-    filters: Partial<PersonalCardFilter>
+    newQueryParams: { ba_id?: string; btxn_status?: string; or?: string[]; amount?: string },
+    filters: Partial<PersonalCardFilter>,
+    usePlatformApi = false
   ): void {
-    const transactionTypeMap: { [key: string]: string } = {
-      credit: '(btxn_transaction_type.in.(credit))',
-      debit: '(btxn_transaction_type.in.(debit))',
-    };
-    if (filters.transactionType) {
-      newQueryParams.or.push(transactionTypeMap[filters.transactionType.toLowerCase()]);
+    if (usePlatformApi) {
+      const txnType = filters.transactionType.toLowerCase();
+      const amountParam = txnType === 'credit' ? 'lte.0' : 'gte.0';
+      newQueryParams.amount = amountParam;
+    } else {
+      const transactionTypeMap: { [key: string]: string } = {
+        credit: '(btxn_transaction_type.in.(credit))',
+        debit: '(btxn_transaction_type.in.(debit))',
+      };
+      if (filters.transactionType) {
+        newQueryParams.or.push(transactionTypeMap[filters.transactionType.toLowerCase()]);
+      }
     }
   }
 

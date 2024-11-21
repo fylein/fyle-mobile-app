@@ -673,7 +673,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     const filters = this.filters;
     this.personalCardsService.generateTxnDateParams(newQueryParams, filters, 'createdOn');
     this.personalCardsService.generateTxnDateParams(newQueryParams, filters, 'updatedOn');
-    this.personalCardsService.generateCreditParams(newQueryParams, filters);
+    this.personalCardsService.generateCreditParams(newQueryParams, filters, this.usePlatformApi);
     currentParams.queryParams = newQueryParams;
     this.filters = filters;
     return currentParams;
