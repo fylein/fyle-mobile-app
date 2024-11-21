@@ -180,37 +180,6 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     });
   }
 
-  setupViewIfLinkedAccountsExist(): void {
-    this.loadLinkedAccounts();
-    this.linkedAccounts$.subscribe((linkedAccounts) => {
-      // Initializing the selectedAccount to First account on page load
-      this.onCardChanged(linkedAccounts[0].id);
-      const paginatedPipe = this.loadPersonalTxns();
-
-      this.transactions$ = paginatedPipe.pipe(shareReplay(1));
-      this.filterPills = this.personalCardsService.generateFilterPills(this.filters);
-
-      this.loadTransactionCount();
-
-      this.loadInfiniteScroll();
-    });
-
-    this.simpleSearchInput.nativeElement.value = '';
-    fromEvent<{ srcElement: { value: string } }>(this.simpleSearchInput.nativeElement, 'keyup')
-      .pipe(
-        map((event) => event.srcElement.value),
-        distinctUntilChanged(),
-        debounceTime(400)
-      )
-      .subscribe((searchString) => {
-        const currentParams = this.loadData$.getValue();
-        currentParams.searchString = searchString;
-        this.currentPageNumber = 1;
-        currentParams.pageNumber = this.currentPageNumber;
-        this.loadData$.next(currentParams);
-      });
-  }
-
   loadLinkedAccounts(): void {
     this.linkedAccounts$ = this.loadCardData$.pipe(
       tap(() => (this.isLoading = true)),
@@ -314,12 +283,36 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.loadCardData$ = new BehaviorSubject({});
 
     this.loadAccountCount();
-    this.linkedAccountsCount$.pipe(takeUntil(this.onPageExit$)).subscribe((accountsCount) => {
-      if (accountsCount > 0) {
-        this.setupViewIfLinkedAccountsExist();
+    this.loadLinkedAccounts();
+
+    this.linkedAccounts$.subscribe((linkedAccounts) => {
+      if (linkedAccounts.length > 0) {
+        // Initializing the selectedAccount to First account on page load
+        this.onCardChanged(linkedAccounts[0].id);
       }
     });
 
+    const paginatedPipe = this.loadPersonalTxns();
+    this.transactions$ = paginatedPipe.pipe(shareReplay(1));
+    this.filterPills = this.personalCardsService.generateFilterPills(this.filters);
+
+    this.loadTransactionCount();
+    this.loadInfiniteScroll();
+
+    this.simpleSearchInput.nativeElement.value = '';
+    fromEvent<{ srcElement: { value: string } }>(this.simpleSearchInput.nativeElement, 'keyup')
+      .pipe(
+        map((event) => event.srcElement.value),
+        distinctUntilChanged(),
+        debounceTime(400)
+      )
+      .subscribe((searchString) => {
+        const currentParams = this.loadData$.getValue();
+        currentParams.searchString = searchString;
+        this.currentPageNumber = 1;
+        currentParams.pageNumber = this.currentPageNumber;
+        this.loadData$.next(currentParams);
+      });
     this.cdr.detectChanges();
   }
 

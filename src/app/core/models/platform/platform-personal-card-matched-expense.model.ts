@@ -2,7 +2,7 @@ export interface PlatformPersonalCardMatchedExpense {
   id: string;
   currency: string;
   amount: number;
-  spent_at: string;
+  spent_at: Date;
   merchant: string;
   foreign_currency: string | null;
   foreign_amount: number | null;

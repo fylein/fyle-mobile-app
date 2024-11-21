@@ -7,9 +7,9 @@ export interface PlatformPersonalCardTxn {
   personal_card_id: string;
   amount: number;
   currency: string;
-  foreign_amount: number | null;
+  foreign_amount: string | null;
   foreign_currency: string | null;
-  spent_at: string;
+  spent_at: Date;
   category: string;
   merchant: string;
   state: string;
@@ -17,6 +17,6 @@ export interface PlatformPersonalCardTxn {
   external_transaction_id: string;
   matched_expense_ids: string[];
   matched_expenses: PlatformPersonalCardMatchedExpense[];
-  created_at: string;
-  updated_at: string;
+  created_at: Date;
+  updated_at: Date;
 }
