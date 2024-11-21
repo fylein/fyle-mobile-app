@@ -2247,7 +2247,6 @@ export class AddEditPerDiemPage implements OnInit {
 
   savePerDiem(): void {
     const that = this;
-    console.log(that.fg);
     that
       .checkIfInvalidPaymentMode()
       .pipe(take(1))
