@@ -671,8 +671,8 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     newQueryParams.btxn_status = `in.(${this.selectedTransactionType})`;
     newQueryParams.ba_id = 'eq.' + this.selectedAccount;
     const filters = this.filters;
-    this.personalCardsService.generateTxnDateParams(newQueryParams, filters, 'createdOn');
-    this.personalCardsService.generateTxnDateParams(newQueryParams, filters, 'updatedOn');
+    this.personalCardsService.generateTxnDateParams(newQueryParams, filters, 'createdOn', this.usePlatformApi);
+    this.personalCardsService.generateTxnDateParams(newQueryParams, filters, 'updatedOn', this.usePlatformApi);
     this.personalCardsService.generateCreditParams(newQueryParams, filters, this.usePlatformApi);
     currentParams.queryParams = newQueryParams;
     this.filters = filters;
@@ -815,7 +815,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
         }
       });
       let currentParams = this.loadData$.getValue();
-      currentParams = this.personalCardsService.generateDateParams(data, currentParams);
+      currentParams = this.personalCardsService.generateDateParams(data, currentParams, this.usePlatformApi);
 
       this.loadData$.next(currentParams);
     }

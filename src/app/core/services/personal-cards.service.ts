@@ -110,6 +110,7 @@ export class PersonalCardsService {
     ba_id?: string;
     _search_document?: string;
     amount?: string;
+    or?: string[];
   }): PlatformPersonalCardQueryParams {
     let q: string | undefined;
     if (queryParams._search_document) {
@@ -120,16 +121,16 @@ export class PersonalCardsService {
       state: queryParams.btxn_status,
       personal_card_id: queryParams.ba_id,
       amount: queryParams.amount,
+      or: queryParams.or,
       q,
     };
 
-    const platformQueryParamsAfterFiltering: PlatformPersonalCardQueryParams = {};
-    Object.keys(platformQueryParams).forEach((key: keyof PlatformPersonalCardQueryParams) => {
-      if (platformQueryParams[key]) {
-        platformQueryParamsAfterFiltering[key] = platformQueryParams[key];
+    return Object.entries(platformQueryParams).reduce((filteredParams, [key, value]) => {
+      if (value !== undefined) {
+        filteredParams[key as keyof PlatformPersonalCardQueryParams] = value as string & string[];
       }
-    });
-    return platformQueryParamsAfterFiltering;
+      return filteredParams;
+    }, {} as PlatformPersonalCardQueryParams);
   }
 
   getPersonalCardsPlatform(): Observable<PersonalCard[]> {
@@ -337,39 +338,44 @@ export class PersonalCardsService {
 
   generateDateParams(
     data: { range: string; endDate?: string; startDate?: string },
-    currentParams: Partial<SortFiltersParams>
+    currentParams: Partial<SortFiltersParams>,
+    usePlatformApi = false
   ): Partial<SortFiltersParams> {
+    let query: string;
+    const propertyName = usePlatformApi ? 'spent_at' : 'btxn_transaction_dt';
     if (data.range === 'This Month') {
       const thisMonth = this.dateService.getThisMonthRange();
-      currentParams.queryParams.or = `(and(btxn_transaction_dt.gte.${thisMonth.from.toISOString()},btxn_transaction_dt.lt.${thisMonth.to.toISOString()}))`;
+      query = `(and(${propertyName}.gte.${thisMonth.from.toISOString()},${propertyName}.lt.${thisMonth.to.toISOString()}))`;
     }
 
     if (data.range === 'Last Month') {
       const lastMonth = this.dateService.getLastMonthRange();
-      currentParams.queryParams.or = `(and(btxn_transaction_dt.gte.${lastMonth.from.toISOString()},btxn_transaction_dt.lt.${lastMonth.to.toISOString()}))`;
+      query = `(and(${propertyName}.gte.${lastMonth.from.toISOString()},${propertyName}.lt.${lastMonth.to.toISOString()}))`;
     }
 
     if (data.range === 'Last 30 Days') {
       const last30Days = this.dateService.getLastDaysRange(30);
-      currentParams.queryParams.or = `(and(btxn_transaction_dt.gte.${last30Days.from.toISOString()},btxn_transaction_dt.lt.${last30Days.to.toISOString()}))`;
+      query = `(and(${propertyName}.gte.${last30Days.from.toISOString()},${propertyName}.lt.${last30Days.to.toISOString()}))`;
     }
 
     if (data.range === 'Last 60 Days') {
       const last60Days = this.dateService.getLastDaysRange(60);
-      currentParams.queryParams.or = `(and(btxn_transaction_dt.gte.${last60Days.from.toISOString()},btxn_transaction_dt.lt.${last60Days.to.toISOString()}))`;
+      query = `(and(${propertyName}.gte.${last60Days.from.toISOString()},${propertyName}.lt.${last60Days.to.toISOString()}))`;
     }
 
     if (data.range === 'All Time') {
       const last90Days = this.dateService.getLastDaysRange(90);
-      currentParams.queryParams.or = `(and(btxn_transaction_dt.gte.${last90Days.from.toISOString()},btxn_transaction_dt.lt.${last90Days.to.toISOString()}))`;
+      query = `(and(${propertyName}.gte.${last90Days.from.toISOString()},${propertyName}.lt.${last90Days.to.toISOString()}))`;
     }
 
     if (data.range === 'Custom Range') {
-      currentParams.queryParams.or = `(and(btxn_transaction_dt.gte.${new Date(
-        data.startDate
-      ).toISOString()},btxn_transaction_dt.lt.${new Date(data.endDate).toISOString()}))`;
+      query = `(and(${propertyName}.gte.${new Date(data.startDate).toISOString()},${propertyName}.lt.${new Date(
+        data.endDate
+      ).toISOString()}))`;
     }
 
+    currentParams.queryParams.or = [];
+    currentParams.queryParams.or.push(query);
     return currentParams;
   }
 
@@ -439,12 +445,17 @@ export class PersonalCardsService {
     return generatedFilters;
   }
 
-  generateTxnDateParams(newQueryParams: { or: string[] }, filters: Partial<PersonalCardFilter>, type: string): void {
+  generateTxnDateParams(
+    newQueryParams: { or: string[] },
+    filters: Partial<PersonalCardFilter>,
+    type: string,
+    usePlatformApi = false
+  ): void {
     let queryType: string;
     if (type === 'createdOn') {
-      queryType = 'btxn_created_at';
+      queryType = usePlatformApi ? 'created_at' : 'btxn_created_at';
     } else {
-      queryType = 'btxn_updated_at';
+      queryType = usePlatformApi ? 'updated_at' : 'btxn_updated_at';
     }
     if (filters[type]) {
       const dateFilter = filters[type] as PersonalCardDateFilter;
@@ -500,7 +511,7 @@ export class PersonalCardsService {
     filters: Partial<PersonalCardFilter>,
     usePlatformApi = false
   ): void {
-    if (usePlatformApi) {
+    if (usePlatformApi && filters.transactionType) {
       const txnType = filters.transactionType.toLowerCase();
       const amountParam = txnType === 'credit' ? 'lte.0' : 'gte.0';
       newQueryParams.amount = amountParam;

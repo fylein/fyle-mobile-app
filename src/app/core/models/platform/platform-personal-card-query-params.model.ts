@@ -3,4 +3,5 @@ export interface PlatformPersonalCardQueryParams {
   personal_card_id?: string;
   q?: string;
   amount?: string;
+  or?: string[];
 }
