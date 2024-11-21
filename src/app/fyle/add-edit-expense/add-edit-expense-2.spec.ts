@@ -8,21 +8,11 @@ import { ActionSheetController, ModalController, NavController, Platform, Popove
 import { Observable, Subscription, finalize, of, throwError } from 'rxjs';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { criticalPolicyViolation2 } from 'src/app/core/mock-data/crtical-policy-violations.data';
-import {
-  duplicateSetData1,
-  duplicateSetData4,
-  duplicateSetData5,
-  duplicateSetData6,
-} from 'src/app/core/mock-data/duplicate-sets.data';
-import {
-  expenseData1,
-  expenseData2,
-  splitExpTransformedData,
-  transformedPlatformedExpense,
-} from 'src/app/core/mock-data/expense.data';
+import { duplicateSetData1, duplicateSetData6 } from 'src/app/core/mock-data/duplicate-sets.data';
+import { expenseData1, expenseData2, transformedPlatformedExpense } from 'src/app/core/mock-data/expense.data';
 import { fileObject7, fileObjectData } from 'src/app/core/mock-data/file-object.data';
 import { individualExpPolicyStateData2 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
-import { filterOrgCategoryParam, orgCategoryData } from 'src/app/core/mock-data/org-category.data';
+import { orgCategoryData } from 'src/app/core/mock-data/org-category.data';
 import {
   orgSettingsCCCDisabled,
   orgSettingsCCCEnabled,
@@ -42,12 +32,7 @@ import {
 } from 'src/app/core/mock-data/parsed-receipt.data';
 import { splitPolicyExp4 } from 'src/app/core/mock-data/policy-violation.data';
 import { editExpTxn, txnData2 } from 'src/app/core/mock-data/transaction.data';
-import {
-  expectedUnflattendedTxnData1,
-  unflattenedTxnData,
-  unflattenedTxnWithExtractedData,
-  unflattenedTxnWithExtractedData2,
-} from 'src/app/core/mock-data/unflattened-txn.data';
+import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
@@ -393,18 +378,6 @@ export function TestCases2(getTestBed) {
           expect(component.getCCCSettings).toHaveBeenCalledTimes(1);
           done();
         });
-      });
-    });
-
-    it('getActiveCategories(): should get active categories', (done) => {
-      categoriesService.getAll.and.returnValue(of(filterOrgCategoryParam));
-      categoriesService.filterRequired.and.returnValue([filterOrgCategoryParam[0]]);
-
-      component.getActiveCategories().subscribe((res) => {
-        expect(res).toEqual([filterOrgCategoryParam[0]]);
-        expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
-        expect(categoriesService.filterRequired).toHaveBeenCalledOnceWith(filterOrgCategoryParam);
-        done();
       });
     });
 
@@ -881,7 +854,7 @@ export function TestCases2(getTestBed) {
         component.checkIfReceiptIsMissingAndMandatory('SAVE_EXPENSE').subscribe((isReceiptMissingAndMandatory) => {
           expect(isReceiptMissingAndMandatory).toBeTrue();
           expect(component.getCustomFields).toHaveBeenCalledTimes(1);
-          expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, customFields$, true);
+          expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, customFields$);
           expect(policyService.getPlatformPolicyExpense).toHaveBeenCalledOnceWith(
             unflattenedTxnData as unknown as { tx: PublicPolicyExpense; dataUrls: Partial<FileObject>[] },
             component.selectedCCCTransaction
@@ -918,7 +891,7 @@ export function TestCases2(getTestBed) {
         component.checkIfReceiptIsMissingAndMandatory('SAVE_EXPENSE').subscribe((isReceiptMissingAndMandatory) => {
           expect(isReceiptMissingAndMandatory).toBeFalse();
           expect(component.getCustomFields).toHaveBeenCalledTimes(1);
-          expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, customFields$, true);
+          expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, customFields$);
           expect(policyService.getPlatformPolicyExpense).toHaveBeenCalledOnceWith(
             unflattenedTxnData as unknown as { tx: PublicPolicyExpense; dataUrls: Partial<FileObject>[] },
             component.selectedCCCTransaction
@@ -960,7 +933,7 @@ export function TestCases2(getTestBed) {
         component.checkIfReceiptIsMissingAndMandatory('SAVE_EXPENSE').subscribe((isReceiptMissingAndMandatory) => {
           expect(isReceiptMissingAndMandatory).toBeFalse();
           expect(component.getCustomFields).toHaveBeenCalledTimes(1);
-          expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, customFields$, true);
+          expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, customFields$);
           expect(policyService.getPlatformPolicyExpense).toHaveBeenCalledOnceWith(
             unflattenedTxnData as unknown as { tx: PublicPolicyExpense; dataUrls: Partial<FileObject>[] },
             component.selectedCCCTransaction
