@@ -66,8 +66,10 @@
     <ng-container *ngIf="homeCurrency$ | async as homeCurrency">
       <ng-container *ngIf="allExpensesStats$ | async as allExpensesStats">
         <ion-title class="my-expenses--multiselect-title page-title">
-          {{allExpensesStats?.count}} {{(allExpensesStats?.count > 1) ? 'expenses' : 'expense'}} worth
-          {{(allExpensesStats.amount || 0) | humanizeCurrency: homeCurrency }}
+          {{allExpensesStats?.count}} {{(allExpensesStats?.count > 1) ? 'expenses' : 'expense'}}
+          <span class="my-expenses--multiselect-amount">
+            ({{(allExpensesStats.amount || 0) | humanizeCurrency: homeCurrency }})
+          </span>
         </ion-title>
       </ng-container>
     </ng-container>

@@ -41,6 +41,11 @@
     padding-right: 0px;
   }
 
+  &--multiselect-amount {
+    font-size: 16px;
+    font-weight: 400;
+  }
+
   &--content {
     --background: #{$white};
     --padding-bottom: 82px;
