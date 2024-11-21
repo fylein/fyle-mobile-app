@@ -788,7 +788,8 @@ describe('PersonalCardsPage', () => {
           startDate: '2023-02-20T00:00:00.000Z',
           endDate: '2023-02-24T00:00:00.000Z',
         },
-        {}
+        {},
+        false
       );
     }));
 
