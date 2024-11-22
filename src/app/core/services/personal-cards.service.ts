@@ -79,7 +79,7 @@ export class PersonalCardsService {
 
   transformPlatformPersonalCardTxn(txns: PlatformPersonalCardTxn[]): PersonalCardTxn[] {
     return txns.map((txn) => {
-      const amount = txn.amount < 0 ? txn.amount * -1 : txn.amount;
+      const amount = Math.abs(txn.amount);
       const txnType = txn.amount < 0 ? 'credit' : 'debit';
       const txnSplitGroupId = txn.matched_expense_ids?.length > 0 ? txn.matched_expense_ids[0] : null;
       const personalCardTxn: PersonalCardTxn = {
@@ -113,7 +113,7 @@ export class PersonalCardsService {
     or?: string[];
   }): PlatformPersonalCardQueryParams {
     let q: string | undefined;
-    if (queryParams._search_document && queryParams._search_document.includes('fts.')) {
+    if (queryParams?._search_document.includes('fts.')) {
       q = queryParams._search_document.split('fts.')[1];
     }
 

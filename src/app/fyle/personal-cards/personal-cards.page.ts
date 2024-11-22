@@ -94,7 +94,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
   isCardsLoaded = false;
 
-  isTrasactionsLoading = true;
+  isTransactionsLoading = true;
 
   isHiding = false;
 
@@ -249,12 +249,12 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
                 )
                 .pipe(
                   finalize(() => {
-                    this.isTrasactionsLoading = false;
+                    this.isTransactionsLoading = false;
                     this.isLoadingDataInfiniteScroll = false;
                   })
                 );
             } else {
-              this.isTrasactionsLoading = false;
+              this.isTransactionsLoading = false;
               return of({
                 data: [],
               });
@@ -263,7 +263,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
         );
       }),
       map((res) => {
-        this.isTrasactionsLoading = false;
+        this.isTransactionsLoading = false;
         this.isLoadingDataInfiniteScroll = false;
         if (this.currentPageNumber === 1) {
           this.acc = [];
@@ -417,7 +417,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     params.queryParams = queryParams;
     params.pageNumber = 1;
     this.zone.run(() => {
-      this.isTrasactionsLoading = true;
+      this.isTransactionsLoading = true;
       this.loadData$.next(params);
     });
   }
@@ -476,14 +476,14 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     params.queryParams = queryParams;
     params.pageNumber = 1;
     this.zone.run(() => {
-      this.isTrasactionsLoading = true;
+      this.isTransactionsLoading = true;
       this.loadData$.next(params);
     });
   }
 
   fetchNewTransactions(): void {
     this.isfetching = true;
-    this.isTrasactionsLoading = true;
+    this.isTransactionsLoading = true;
     if (this.selectionMode) {
       this.switchSelectionMode();
     }
