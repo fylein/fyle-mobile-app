@@ -283,7 +283,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       this.loadAccountCount();
       this.loadLinkedAccounts();
 
-      this.linkedAccounts$.subscribe((linkedAccounts) => {
+      this.linkedAccounts$.pipe(takeUntil(this.onPageExit$)).subscribe((linkedAccounts) => {
         if (linkedAccounts.length > 0) {
           // Initializing the selectedAccount to First account on page load
           this.onCardChanged(linkedAccounts[0].id);
@@ -303,7 +303,8 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       .pipe(
         map((event) => event.srcElement.value),
         distinctUntilChanged(),
-        debounceTime(400)
+        debounceTime(400),
+        takeUntil(this.onPageExit$)
       )
       .subscribe((searchString) => {
         const currentParams = this.loadData$.getValue();

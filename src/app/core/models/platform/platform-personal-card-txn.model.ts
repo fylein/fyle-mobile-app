@@ -1,4 +1,5 @@
 import { PlatformPersonalCardMatchedExpense } from './platform-personal-card-matched-expense.model';
+import { PlatformPersonalCardTxnState } from './platform-personal-card-txn-state.enum';
 
 export interface PlatformPersonalCardTxn {
   id: string;
@@ -12,7 +13,7 @@ export interface PlatformPersonalCardTxn {
   spent_at: Date;
   category: string;
   merchant: string;
-  state: string;
+  state: PlatformPersonalCardTxnState;
   description: string;
   external_transaction_id: string;
   matched_expense_ids: string[];
