@@ -48,10 +48,9 @@
       fill: $pure-white;
       height: 28px;
       width: 28px;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+      position: relative;
+      top: 1px;
+      left: 0;
     }
   }
 
@@ -82,7 +81,6 @@
     max-width: 77px;
     line-height: 1.2;
     background: $pink-gradient;
-    // box-shadow: 0 4px 30px $pure-white;
     border: 6px solid $pure-white;
   }
 
