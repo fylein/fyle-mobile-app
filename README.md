@@ -210,11 +210,12 @@ After running the tests, you can view the test coverage report by following thes
 
 - Open the generated `index.html` file present in the `app/coverage/index.html`.
 - Metrics Explanation:
-  In this file, you will see 4 metrics for the files you have changed:
-  - Statements: Percentage of executed statements.
-  - Branches: Percentage of executed branches (e.g., conditions in if, else, switch statements, `&&`, `||`, `?` operators used).
-  - Functions: Percentage of executed functions.
-  - Lines: Percentage of executed lines of code.
+In this file, you will see 4 metrics for the files you have changed:
+
+* **Statements**: Percentage of executed statements
+* **Branches**: Percentage of executed branches (e.g., conditions in if, else, switch statements, `&&`, `||`, `?` operators)
+* **Functions**: Percentage of executed functions
+* **Lines**: Percentage of executed lines of code
 - To increase code coverage, write additional test cases to cover the missing metrics.
 
 <br/>
