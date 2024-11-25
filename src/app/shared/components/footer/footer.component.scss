@@ -46,11 +46,12 @@
     fill: $black-2;
     &__primary {
       fill: $pure-white;
-      height: 36px;
-      width: 36px;
-      position: relative;
-      top: 1px;
-      left: 0;
+      height: 28px;
+      width: 28px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
     }
   }
 
@@ -71,17 +72,18 @@
   }
 
   &--primary-button-container {
-    padding: 18px 21px;
+    padding: 18px;
     border-radius: 50%;
     position: relative;
-    top: -44px;
+    top: -24px;
     max-height: 77px;
     min-height: 77px;
     min-width: 77px;
     max-width: 77px;
     line-height: 1.2;
     background: $pink-gradient;
-    box-shadow: 0 4px 30px $primary-shadow;
+    // box-shadow: 0 4px 30px $pure-white;
+    border: 6px solid $pure-white;
   }
 
   &--primary-icon {
