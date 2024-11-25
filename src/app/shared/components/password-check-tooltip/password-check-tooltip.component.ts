@@ -1,4 +1,5 @@
-import { Component, OnInit, Input, Output, EventEmitter, OnChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges } from '@angular/core';
+import { PasswordChecks } from './password-checks.model';
 
 @Component({
   selector: 'app-password-check-tooltip',
@@ -10,7 +11,7 @@ export class PasswordCheckTooltipComponent implements OnChanges {
 
   @Output() isPasswordValid = new EventEmitter<boolean>();
 
-  passwordChecks = {
+  passwordChecks: PasswordChecks = {
     lengthValid: false,
     uppercaseValid: false,
     lowercaseValid: false,
@@ -23,7 +24,7 @@ export class PasswordCheckTooltipComponent implements OnChanges {
   }
 
   validatePassword(): void {
-    const specialCharRegex = /[!@#$%^&*(),.?":{}|<>]/g;
+    const specialCharRegex = /[!@#$%^&*()+\-:;<=>{}|~?]/;
 
     this.passwordChecks.lengthValid = this.password.length >= 12 && this.password.length <= 32;
     this.passwordChecks.uppercaseValid = /[A-Z]/.test(this.password);
