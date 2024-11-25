@@ -9,7 +9,7 @@ This repository holds the codebase for the Fyle Mobile App. This document provid
 - [👀 Environment Setup](#-environment-setup)
 - [❓ Troubleshooting](#-troubleshooting)
 - [📂 Project Structure](#-project-structure)
-- [🛠️ Testing](#-testing)
+- [🧪 Testing](#-testing)
   - [Viewing Coverage Reports](#viewing-coverage-reports)
 - [📱 Running on Devices](#-running-on-devices)
   - [Android](#android)
@@ -51,7 +51,7 @@ cd fyle-mobile-app
 npm install
 ```
 
-3. **Set Environment Variables**: Add the environment files corresponding to the build you want in the environment folder. ([Follow Environment Setup]())
+3. **Set Environment Variables**: Add the environment files corresponding to the build you want in the environment folder. ([Follow Environment Setup](#-environment-setup))
 
 4. **Run Locally**: Use the following command to run the application locally:
 
@@ -72,11 +72,11 @@ ionic serve -c [env_name]
 
 For setting environment variables
 
-- **Environment Files:** Ping mobile app team and get the necessary environment files (environment.[env_name].ts).
+- **Environment Files:** Ping the mobile app team and get the necessary environment files (environment.[env_name].ts).
 - Place them inside the `/src/environments` folder
 
 > [!IMPORTANT]
-> Do not make any changes to the `environment.ts` file - this is a template folder for creating > configurations. Also, make sure not to put staging envs in this file.
+> Do not make any changes to the `environment.ts` file - this is a template folder for creating > configurations. Also, make sure not to put staging environments in this file.
 
 <br/>
 
@@ -84,7 +84,7 @@ For setting environment variables
 
 Here are some common issues and how to fix them:
 
-1. If you encounter the any similar error like this:
+1. If you encounter any similar error like this:
    `Property 'LIVE_UPDATE_APP_VERSION' does not exist on type ...`
 
 ```bash
@@ -122,7 +122,7 @@ This will ensure that all required packages are correctly installed, resolving t
 
 **Solution**:
 
-- Ping mobile app team for write access to the repository
+- Ping the mobile app team for write access to the repository
 
 <br/>
 
@@ -156,8 +156,8 @@ This will ensure that all required packages are correctly installed, resolving t
 │   │   ├── app.component.ts         # Main app component logic
 │   │   ├── app.module.ts            # Root module of the app
 │   │   ├── constants.ts             # Application-wide constants
-│   ├── assets/                      # Static assets like images, icons, font setc.
-│   ├── environments/                # Environment file specific configuration
+│   ├── assets/                      # Static assets like images, icons, font, etc.
+│   ├── environments/                # Environment file-specific configuration
 │   ├── theme/                       # Application themes (scss)
 │   ├── global.scss                  # Global styles for the app
 │   ├── index.html                   # Main HTML file of the application
@@ -190,7 +190,7 @@ This will ensure that all required packages are correctly installed, resolving t
 
 <br/>
 
-## 🛠️ Testing
+## 🧪 Testing
 
 - Run unit tests:
 
@@ -198,7 +198,7 @@ This will ensure that all required packages are correctly installed, resolving t
 npm run test
 ```
 
-- For non-parallel execution (Recommended method for prevent excessive CPU utilization and memory hogging.):
+- For non-parallel execution (Recommended method for preventing excessive CPU utilization and memory hogging.):
 
 ```bash
 npm run test:no-parallel
@@ -208,14 +208,14 @@ npm run test:no-parallel
 
 After running the tests, you can view the test coverage report by following these steps:
 
-- Open generated `index.html` file present in the `app/coverage/index.html`.
+- Open the generated `index.html` file present in the `app/coverage/index.html`.
 - Metrics Explanation:
-  In this file you would see 4 metrics for the files you have changed
+  In this file, you will see 4 metrics for the files you have changed:
   - Statements: Percentage of executed statements.
   - Branches: Percentage of executed branches (e.g., conditions in if, else, switch statements, `&&`, `||`, `?` operators used).
   - Functions: Percentage of executed functions.
   - Lines: Percentage of executed lines of code.
-- To increase code coverage write additional test cases to cover the missing Metrics.
+- To increase code coverage, write additional test cases to cover the missing metrics.
 
 <br/>
 
@@ -223,7 +223,7 @@ After running the tests, you can view the test coverage report by following thes
 
 ### Android
 
-For running app directly in android device for staging
+For running the app directly on an Android device for staging
 
 1. Build and sync the app:
 
@@ -232,14 +232,14 @@ ionic capacitor run android -l --external --configuration=staging
 
 ```
 
-2. It will open android studio, let it build index file and Gradle build for sometime. Then check that studio recognized the right device in the top bar. Press the run button. After every change, you make in the `src` directory. It will automatically build the app on the device.
+2. It will open Android Studio, and let it build index files and Gradle build for some time. Then check that the studio recognized the right device in the top bar. Press the run button. After every change, you make in the `src` directory. It will automatically build the app on the device.
 
 ### iOS
 
-For running app directly in ios device for staging
+For running the app directly on an ios device for staging
 
 - Add .env file to project (ping mobile app team for the file)
-- Install Xcode from App store
+- Install Xcode from the App Store
 - Build and sync:
 
 ```bash
@@ -248,7 +248,7 @@ npx cap sync
 npx cap open ios
 ```
 
-- Open Xcode, select the connected device from the top bar and click on run button.
+- Open Xcode, select the connected device from the top bar and click on the run button.
 
 <br/>
 
@@ -258,7 +258,7 @@ npx cap open ios
 
 1. Update the Podfile:
 
-- Add this line `ios/App/Podfile` file (open via code editor, not xcode)
+- Add this line `ios/App/Podfile` file (open via code editor, not Xcode)
 - (After this line -> `# Add your Pods here`)
 
 ```bash
@@ -325,11 +325,11 @@ func application(
 
 - Go to the [GitHub Actions tab](https://github.com/fylein/fyle-mobile-app2/actions).
 - From Workflows List, Select `Manual Workflow - Appflow`
-- On the right hand side you can see the list of workflow run.
+- On the right-hand side, you can see the list of workflow runs.
 - In the list view you can see a `Run Workflow` button. Click on that button
 - Select the branch on which you want to run the workflow from the dropdown available for `Use workflow from`
 - Click on `Run Workflow`
-- This will now run the workflow on your private branch and the diawi apk link and ipa links will be shared on slack
+- This will now run the workflow on your private branch, and the Diawi APK and IPA links will be shared on Slack
 
 <br/>
 
