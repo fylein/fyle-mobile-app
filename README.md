@@ -63,7 +63,7 @@ ionic serve -c [env_name]
 > Replace env_name with the name of the environment file you want to use. For example, if you > have an environment file named staging, you would run:
 >
 > ```bash
->  ionic serve -c staging
+> ionic serve -c staging
 > ```
 
 <br/>
