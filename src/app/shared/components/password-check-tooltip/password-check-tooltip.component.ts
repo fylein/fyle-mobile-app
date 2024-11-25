@@ -32,6 +32,7 @@ export class PasswordCheckTooltipComponent implements OnChanges {
     this.passwordChecks.numberValid = /[0-9]/.test(this.password);
     this.passwordChecks.specialCharValid = specialCharRegex.test(this.password);
 
+    // Boolean() returns true for true values
     const allValid = Object.values(this.passwordChecks).every(Boolean);
     this.isPasswordValid.emit(allValid);
   }
