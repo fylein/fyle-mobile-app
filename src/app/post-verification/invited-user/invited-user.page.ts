@@ -79,7 +79,6 @@ export class InvitedUserPage implements OnInit {
   }
 
   onPasswordValid(isValid: boolean): void {
-    console.log(isValid);
     this.isPasswordValid = isValid;
   }
 

@@ -53,6 +53,7 @@
             <app-password-check-tooltip
               *ngIf="showPasswordTooltip"
               [password]="fg.controls.password.value"
+              (isPasswordValid)="onPasswordValid($event)"
             ></app-password-check-tooltip>
           </div>
           <div
@@ -84,11 +85,6 @@
                 ></ion-icon>
               </div>
             </div>
-            <app-password-check-tooltip
-              *ngIf="false"
-              [password]="fg.controls.password.value"
-              (isPasswordValid)="onPasswordValid($event)"
-            ></app-password-check-tooltip>
           </div>
         </form>
       </div>
