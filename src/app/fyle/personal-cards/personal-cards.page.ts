@@ -431,7 +431,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.loadData$.next(params);
 
     setTimeout(() => {
-      event?.target?.complete();
+      event.target?.complete();
     }, 1000);
   }
 
@@ -774,11 +774,11 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
   }
 
   async openExpensePreview(txnDetails: PersonalCardTxn): Promise<void> {
-    const txn_details = txnDetails?.txn_details;
+    const txn_details = txnDetails.txn_details;
     const expenseDetailsModal = await this.modalController.create({
       component: ExpensePreviewComponent,
       componentProps: {
-        expenseId: txn_details[0]?.id,
+        expenseId: txn_details[0].id,
         card: txnDetails.ba_account_number,
         cardTxnId: txnDetails.btxn_id,
         type: 'edit',
@@ -822,13 +822,13 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     }
   }
 
-  doRefresh(event?: InfiniteScrollCustomEvent): void {
+  doRefresh(event: InfiniteScrollCustomEvent): void {
     const currentParams = this.loadData$.getValue();
     this.currentPageNumber = 1;
     currentParams.pageNumber = this.currentPageNumber;
     this.loadData$.next(currentParams);
     if (event) {
-      event?.target?.complete();
+      event.target?.complete();
     }
   }
 }

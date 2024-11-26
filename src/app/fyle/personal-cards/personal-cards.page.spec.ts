@@ -12,7 +12,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { SpinnerDialog } from '@awesome-cordova-plugins/spinner-dialog/ngx';
 import { InfiniteScrollCustomEvent, IonicModule, ModalController, Platform, SegmentCustomEvent } from '@ionic/angular';
 import { IonInfiniteScrollCustomEvent } from '@ionic/core';
-import { BehaviorSubject, of } from 'rxjs';
+import { BehaviorSubject, of, Subject } from 'rxjs';
 import { getElementRef } from 'src/app/core/dom-helpers';
 import { apiExpenseRes, expenseList2 } from 'src/app/core/mock-data/expense.data';
 import { allFilterPills, creditTxnFilterPill } from 'src/app/core/mock-data/filter-pills.data';
@@ -42,6 +42,7 @@ import { DateRangeModalComponent } from './date-range-modal/date-range-modal.com
 import { PersonalCardsPage } from './personal-cards.page';
 import { PersonalCardFilter } from 'src/app/core/models/personal-card-filters.model';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { PersonalCard } from 'src/app/core/models/personal_card.model';
 
 describe('PersonalCardsPage', () => {
   let component: PersonalCardsPage;
@@ -370,18 +371,50 @@ describe('PersonalCardsPage', () => {
       });
     });
 
-    it('loadData(): should load data', fakeAsync(() => {
-      spyOn(component.loadData$, 'getValue').and.returnValue({});
-      spyOn(component.loadData$, 'next');
+    describe('loadData()', () => {
+      let mockEvent: InfiniteScrollCustomEvent;
 
-      component.loadData(new Event('') as InfiniteScrollCustomEvent);
-      tick(1500);
+      beforeEach(() => {
+        mockEvent = {
+          target: {
+            complete: jasmine.createSpy('complete'),
+          },
+        } as unknown as InfiniteScrollCustomEvent;
 
-      expect(component.loadData$.getValue).toHaveBeenCalledTimes(1);
-      expect(component.loadData$.next).toHaveBeenCalledOnceWith({
-        pageNumber: 2,
+        spyOn(component.loadData$, 'getValue').and.returnValue({ pageNumber: 1 });
+        spyOn(component.loadData$, 'next');
       });
-    }));
+
+      it('should increment currentPageNumber, update loadData$, and call complete when event.target exists', fakeAsync(() => {
+        component.loadData(mockEvent);
+
+        expect(component.currentPageNumber).toBe(2);
+        expect(component.isLoadingDataInfiniteScroll).toBeTrue();
+        expect(component.loadData$.next).toHaveBeenCalledWith({
+          pageNumber: 2,
+        });
+
+        tick(1000);
+        expect(mockEvent.target.complete).toHaveBeenCalledTimes(1);
+      }));
+
+      it('should increment currentPageNumber and update loadData$ without errors when event.target is undefined', fakeAsync(() => {
+        mockEvent = {
+          target: undefined,
+        } as unknown as InfiniteScrollCustomEvent;
+
+        component.loadData(mockEvent);
+
+        expect(component.currentPageNumber).toBe(2);
+        expect(component.isLoadingDataInfiniteScroll).toBeTrue();
+        expect(component.loadData$.next).toHaveBeenCalledWith({
+          pageNumber: 2,
+        });
+
+        tick(1000);
+        expect(mockEvent.target?.complete).toBeUndefined();
+      }));
+    });
 
     it('segmentChanged(): should change segment', () => {
       component.selectedTransactionType = 'INITIALIZED';
@@ -986,26 +1019,74 @@ describe('PersonalCardsPage', () => {
     });
   });
 
-  it('ngAfterViewInit(): should setup search and load data', () => {
-    spyOn(component, 'loadAccountCount');
-    spyOn(component, 'loadLinkedAccounts');
-    spyOn(component, 'loadPersonalTxns').and.returnValue(of(apiPersonalCardTxnsRes.data));
-    personalCardsService.generateFilterPills.and.returnValue(allFilterPills);
-    spyOn(component, 'loadTransactionCount');
-    spyOn(component, 'loadInfiniteScroll');
+  describe('ngAfterViewInit()', () => {
+    beforeEach(() => {
+      spyOn(component, 'loadAccountCount');
+      spyOn(component, 'loadLinkedAccounts');
+      spyOn(component, 'onCardChanged');
+      spyOn(component, 'loadPersonalTxns').and.returnValue(of(apiPersonalCardTxnsRes.data));
+      spyOn(component, 'loadTransactionCount');
+      spyOn(component, 'loadInfiniteScroll');
+      personalCardsService.generateFilterPills.and.returnValue(allFilterPills);
 
-    component.simpleSearchInput = fixture.debugElement.query(By.css('.personal-cards--simple-search-input'));
-    const inputElement = component.simpleSearchInput.nativeElement as HTMLInputElement;
+      component.simpleSearchInput = fixture.debugElement.query(By.css('.personal-cards--simple-search-input'));
+    });
 
-    component.ngAfterViewInit();
+    it('should set navigateBack based on activatedRoute params', () => {
+      // @ts-ignore
+      component.activatedRoute.snapshot.params = { navigateBack: 'true' };
+      component.ngAfterViewInit();
+      expect(component.navigateBack).toBeTrue();
+    });
 
-    inputElement.value = '';
-    inputElement.dispatchEvent(new Event('keyup'));
+    it('should initialize loadCardData$', () => {
+      component.ngAfterViewInit();
+      expect(component.loadCardData$).toBeDefined();
+      expect(component.loadCardData$.getValue()).toEqual({});
+    });
 
-    expect(component.loadAccountCount).toHaveBeenCalledTimes(1);
-    expect(component.loadLinkedAccounts).toHaveBeenCalledTimes(1);
-    expect(component.loadPersonalTxns).toHaveBeenCalledTimes(1);
-    expect(component.loadTransactionCount).toHaveBeenCalledTimes(1);
-    expect(component.loadInfiniteScroll).toHaveBeenCalledTimes(1);
+    it('should set usePlatformApi based on feature flag', () => {
+      launchDarklyService.getVariation.and.returnValue(of(true));
+      component.ngAfterViewInit();
+      expect(component.usePlatformApi).toBeTrue();
+    });
+
+    it('should call onCardChanged when linkedAccounts$ emits a non-empty value', (done) => {
+      const subject = new BehaviorSubject<PersonalCard[]>([]);
+      component.linkedAccounts$ = subject.asObservable();
+
+      component.ngAfterViewInit();
+      subject.next(linkedAccountsRes);
+
+      component.linkedAccounts$.subscribe(() => {
+        expect(component.onCardChanged).toHaveBeenCalledWith(linkedAccountsRes[0].id);
+        done();
+      });
+    });
+
+    it('should not call onCardChanged if linkedAccounts$ emits an empty array', (done) => {
+      const subject = new BehaviorSubject<PersonalCard[]>([]);
+      component.linkedAccounts$ = subject.asObservable();
+
+      component.ngAfterViewInit();
+      subject.next([]);
+
+      component.linkedAccounts$.subscribe(() => {
+        expect(component.onCardChanged).not.toHaveBeenCalled();
+        done();
+      });
+    });
+
+    it('should generate filter pills based on filters', () => {
+      personalCardsService.generateFilterPills.and.returnValue(allFilterPills);
+      component.ngAfterViewInit();
+      expect(component.filterPills).toEqual(allFilterPills);
+    });
+
+    it('should call loadTransactionCount and loadInfiniteScroll', () => {
+      component.ngAfterViewInit();
+      expect(component.loadTransactionCount).toHaveBeenCalledTimes(1);
+      expect(component.loadInfiniteScroll).toHaveBeenCalledTimes(1);
+    });
   });
 });
