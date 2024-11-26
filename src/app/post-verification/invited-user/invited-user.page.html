@@ -6,12 +6,12 @@
       [routerLink]="['/','auth','sign_in']"
     ></ion-icon>
     <div>
-      <div class="invited-user--form-header">Join "{{ orgName }}" on Fyle</div>
+      <div class="invited-user__form-header">Join "{{ orgName }}" on Fyle</div>
       <div>
         <form [formGroup]="fg">
           <div
             class="invited-user__text invited-user__text-block"
-            [ngClass]="{'invited-user__text__invalid': fg.controls.fullName.touched && !fg.controls.fullNamevalid}"
+            [ngClass]="{'invited-user__text__invalid': fg.controls.fullName.touched && !fg.controls.fullName.valid}"
           >
             <div class="invited-user__text-label">
               Full Name
@@ -29,7 +29,7 @@
             </div>
             <div class="invited-user__password-container">
               <input
-                placeholder="Enter Password"
+                placeholder="Enter password"
                 [required]="true"
                 [type]="hide ? 'text': 'password'"
                 class="invited-user__text-input smartlook-show"
@@ -57,7 +57,7 @@
           </div>
           <div
             class="invited-user__text invited-user__text-block"
-            [ngClass]="{'invited-user__text__invalid': fg.controls.confirmPasswordouched && !fg.controls.confirmPassword.valid}"
+            [ngClass]="{'invited-user__text__invalid': fg.controls.confirmPassword.touched && !fg.controls.confirmPassword.valid}"
           >
             <div class="invited-user__text-label">
               Confirm Password
@@ -65,7 +65,7 @@
             </div>
             <div class="invited-user__password-container">
               <input
-                placeholder="Confirm Password"
+                placeholder="Re-enter password"
                 [required]="true"
                 [type]="hideConfirmPassword ? 'text': 'password'"
                 class="invited-user__text-input smartlook-show"
@@ -73,12 +73,12 @@
               />
               <div matSuffix (click)="hideConfirmPassword = !hideConfirmPassword">
                 <ion-icon
-                  *ngIf="!hide"
+                  *ngIf="!hideConfirmPassword"
                   class="fy-icon invited-user__password-icon"
                   src="../../../assets/svg/eye-slash.svg"
                 ></ion-icon>
                 <ion-icon
-                  *ngIf="hide"
+                  *ngIf="hideConfirmPassword"
                   class="fy-icon invited-user__password-icon"
                   src="../../../assets/svg/eye.svg"
                 ></ion-icon>
@@ -87,6 +87,7 @@
             <app-password-check-tooltip
               *ngIf="false"
               [password]="fg.controls.password.value"
+              (isPasswordValid)="onPasswordValid($event)"
             ></app-password-check-tooltip>
           </div>
         </form>

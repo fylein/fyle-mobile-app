@@ -64,16 +64,11 @@ export class InvitedUserPage implements OnInit {
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable());
     this.isConnected$.subscribe(noop);
 
-    this.fg = this.fb.group(
-      {
-        fullName: ['', Validators.compose([Validators.required, Validators.pattern(/[A-Za-z]/)])],
-        password: ['', [Validators.required, this.customPasswordValidator()]],
-        confirmPassword: ['', Validators.required],
-      },
-      {
-        validators: this.passwordMatchValidator(),
-      }
-    );
+    this.fg = this.fb.group({
+      fullName: ['', Validators.compose([Validators.required, Validators.pattern(/[A-Za-z]/)])],
+      password: ['', [Validators.required, this.customPasswordValidator()]],
+      confirmPassword: ['', [Validators.required, this.passwordMatchValidator()]],
+    });
 
     this.eou$ = from(this.authService.getEou());
 
@@ -84,6 +79,7 @@ export class InvitedUserPage implements OnInit {
   }
 
   onPasswordValid(isValid: boolean): void {
+    console.log(isValid);
     this.isPasswordValid = isValid;
   }
 
@@ -129,8 +125,8 @@ export class InvitedUserPage implements OnInit {
 
   private passwordMatchValidator(): ValidatorFn {
     return (): ValidationErrors | null => {
-      const password = this.fg.controls.password.value;
-      const confirmPassword = this.fg.controls.confirmPassword.value;
+      const password = this.fg?.controls.password.value;
+      const confirmPassword = this.fg?.controls.confirmPassword.value;
 
       // Check if passwords match
       if (password && confirmPassword && password !== confirmPassword) {
