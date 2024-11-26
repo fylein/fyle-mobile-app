@@ -50,7 +50,7 @@ export class VerifyPage implements OnInit {
     } else if (err.status === 440) {
       this.router.navigate(['/', 'auth', 'pending_verification', { hasTokenExpired: true, orgId }]);
     } else {
-      this.currentPageState = VerifyPageState.error;
+      this.router.navigate(['/', 'auth', 'pending_verification', { orgId }]);
     }
   }
 }
