@@ -128,39 +128,43 @@ export const platformPersonalCardTxns: PlatformApiResponse<PlatformPersonalCardT
   offset: 0,
 });
 
-export const transformedPlatformPersonalCardTxns: PersonalCardTxn[] = deepFreeze([
-  {
-    btxn_id: 'btxndbZdAth0x4',
-    btxn_created_at: new Date('2024-11-21T05:27:51.863Z'),
-    btxn_updated_at: new Date('2024-11-26T04:44:17.825Z'),
-    ba_id: 'bacczUA0bUKVTD',
-    btxn_amount: 200,
-    btxn_currency: 'USD',
-    btxn_description: 'mocha',
-    btxn_external_id: '57690734',
-    btxn_transaction_dt: new Date('2024-09-22T00:00:00.000Z'),
-    btxn_orig_amount: null,
-    btxn_orig_currency: null,
-    btxn_status: 'MATCHED',
-    btxn_vendor: 'Mocha',
-    tx_split_group_id: 'txjhfqMX9YuB',
-    btxn_transaction_type: 'debit',
-    ba_account_number: 'manually add',
-    txn_details: [
-      {
-        amount: 200,
-        currency: 'USD',
-        expense_number: 'E/2024/11/T/7',
-        category_display_name: 'Unspecified',
-        id: 'txjhfqMX9YuB',
-        num_files: 0,
-        purpose: 'mocha',
-        state: 'COMPLETE',
-        txn_dt: new Date('2024-09-22T00:00:00.000Z'),
-      },
-    ],
-  },
-]);
+export const transformedPlatformPersonalCardTxns: Partial<ApiV2Response<PersonalCardTxn>> = deepFreeze({
+  count: 2,
+  offset: 0,
+  data: [
+    {
+      btxn_id: 'btxndbZdAth0x4',
+      btxn_created_at: new Date('2024-11-21T05:27:51.863Z'),
+      btxn_updated_at: new Date('2024-11-26T04:44:17.825Z'),
+      ba_id: 'bacczUA0bUKVTD',
+      btxn_amount: 200,
+      btxn_currency: 'USD',
+      btxn_description: 'mocha',
+      btxn_external_id: '57690734',
+      btxn_transaction_dt: new Date('2024-09-22T00:00:00.000Z'),
+      btxn_orig_amount: null,
+      btxn_orig_currency: null,
+      btxn_status: 'MATCHED',
+      btxn_vendor: 'Mocha',
+      tx_split_group_id: 'txjhfqMX9YuB',
+      btxn_transaction_type: 'debit',
+      ba_account_number: 'manually add',
+      txn_details: [
+        {
+          amount: 200,
+          currency: 'USD',
+          expense_number: 'E/2024/11/T/7',
+          category_display_name: 'Unspecified',
+          id: 'txjhfqMX9YuB',
+          num_files: 0,
+          purpose: 'mocha',
+          state: 'COMPLETE',
+          txn_dt: new Date('2024-09-22T00:00:00.000Z'),
+        },
+      ],
+    },
+  ],
+});
 
 export const matchedExpensesPlatform: PlatformPersonalCardMatchedExpense[] = deepFreeze([
   {
@@ -207,4 +211,22 @@ export const platformQueryParams: PlatformPersonalCardQueryParams = deepFreeze({
   amount: '100',
   or: ['amount', 'state'],
   q: 'query',
+});
+
+export const publicTxnsConfig = deepFreeze({
+  offset: 0,
+  limit: 10,
+  queryParams: {
+    btxn_status: 'in.(MATCHED)',
+    ba_id: 'eq.baccLesaRlyvLY',
+  },
+});
+
+export const platformTxnsConfig = deepFreeze({
+  offset: 0,
+  limit: 10,
+  queryParams: {
+    state: 'in.(MATCHED)',
+    personal_card_id: 'eq.baccLesaRlyvLY',
+  },
 });

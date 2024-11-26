@@ -18,7 +18,9 @@ import {
   matchedExpensesPlatform,
   platformPersonalCardTxns,
   platformQueryParams,
+  platformTxnsConfig,
   publicQueryParams,
+  publicTxnsConfig,
   transformedMatchedExpenses,
   transformedPlatformPersonalCardTxns,
 } from '../mock-data/personal-card-txns.data';
@@ -104,7 +106,7 @@ describe('PersonalCardsService', () => {
 
     it('transformPlatformPersonalCardTxn: should transform PlatformPersonalCardTxn array to PersonalCardTxn array', () => {
       expect(personalCardsService.transformPlatformPersonalCardTxn(platformPersonalCardTxns.data)).toEqual(
-        transformedPlatformPersonalCardTxns
+        transformedPlatformPersonalCardTxns.data
       );
     });
 
@@ -233,28 +235,48 @@ describe('PersonalCardsService', () => {
     });
   });
 
-  it('getBankTransactions(): should get bank transactions', (done) => {
-    apiV2Service.get.and.returnValue(of(apiPersonalCardTxnsRes));
+  describe('getBankTransactions()', () => {
+    it('should get bank transactions when using public api', (done) => {
+      apiV2Service.get.and.returnValue(of(apiPersonalCardTxnsRes));
 
-    const config = {
-      offset: 0,
-      limit: 10,
-      queryParams: {
-        btxn_status: 'in.(MATCHED)',
-        ba_id: 'eq.baccLesaRlyvLY',
-      },
-    };
-
-    personalCardsService.getBankTransactions(config).subscribe((res) => {
-      expect(res).toEqual(apiPersonalCardTxnsRes);
-      expect(apiV2Service.get).toHaveBeenCalledOnceWith('/personal_bank_transactions', {
-        params: {
-          limit: config.limit,
-          offset: config.offset,
-          ...config.queryParams,
+      const usePlatformApi = false;
+      const config = {
+        offset: 0,
+        limit: 10,
+        queryParams: {
+          btxn_status: 'in.(MATCHED)',
+          ba_id: 'eq.baccLesaRlyvLY',
         },
+      };
+
+      personalCardsService.getBankTransactions(config, usePlatformApi).subscribe((res) => {
+        expect(res).toEqual(apiPersonalCardTxnsRes);
+        expect(apiV2Service.get).toHaveBeenCalledOnceWith('/personal_bank_transactions', {
+          params: {
+            limit: config.limit,
+            offset: config.offset,
+            ...config.queryParams,
+          },
+        });
+        done();
       });
-      done();
+    });
+
+    it('should get bank transactions when using platform api', (done) => {
+      spenderPlatformV1ApiService.get.and.returnValue(of(platformPersonalCardTxns));
+
+      const usePlatformApi = true;
+      personalCardsService.getBankTransactions(publicTxnsConfig, usePlatformApi).subscribe((res) => {
+        expect(res).toEqual(transformedPlatformPersonalCardTxns);
+        expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/personal_card_transactions', {
+          params: {
+            limit: platformTxnsConfig.limit,
+            offset: platformTxnsConfig.offset,
+            ...platformTxnsConfig.queryParams,
+          },
+        });
+        done();
+      });
     });
   });
 
