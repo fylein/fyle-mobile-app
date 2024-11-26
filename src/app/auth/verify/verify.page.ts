@@ -12,8 +12,6 @@ import { VerifyPageState } from './verify.enum';
   styleUrls: ['./verify.page.scss'],
 })
 export class VerifyPage implements OnInit {
-  currentPageState: VerifyPageState = VerifyPageState.verifying;
-
   constructor(
     private activatedRoute: ActivatedRoute,
     private routerAuthService: RouterAuthService,
@@ -22,11 +20,7 @@ export class VerifyPage implements OnInit {
     private trackingService: TrackingService
   ) {}
 
-  get PageStates() {
-    return VerifyPageState;
-  }
-
-  ngOnInit() {
+  ngOnInit(): void {
     const verificationCode = this.activatedRoute.snapshot.params.verification_code;
     this.routerAuthService
       .emailVerify(verificationCode)
