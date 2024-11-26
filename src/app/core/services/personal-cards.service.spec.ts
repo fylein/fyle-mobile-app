@@ -287,7 +287,7 @@ describe('PersonalCardsService', () => {
         queryParams,
       };
 
-      personalCardsService.getBankTransactionsCount(queryParams).subscribe((res) => {
+      personalCardsService.getBankTransactionsCount(queryParams, usePlatformApi).subscribe((res) => {
         expect(res).toEqual(apiPersonalCardTxnsRes.count);
         expect(personalCardsService.getBankTransactions).toHaveBeenCalledOnceWith(config, usePlatformApi);
         done();
