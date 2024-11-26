@@ -330,10 +330,24 @@ export class PersonalCardsService {
     }) as Observable<ApiV2Response<PersonalCardTxn>>;
   }
 
-  hideTransactions(txnIds: string[]): Observable<Expense[]> {
-    return this.expenseAggregationService.post('/bank_transactions/hide/bulk', {
-      bank_transaction_ids: txnIds,
-    }) as Observable<Expense[]>;
+  hideTransactionsPlatform(txnIds: string[]): Observable<number> {
+    const payload = {
+      data: txnIds.map((txnId) => ({ id: txnId })),
+    };
+    return this.spenderPlatformV1ApiService
+      .post<void>('/personal_card_transactions/hide/bulk', payload)
+      .pipe(map(() => txnIds.length));
+  }
+
+  hideTransactions(txnIds: string[], usePlatformApi = false): Observable<number> {
+    if (usePlatformApi) {
+      return this.hideTransactionsPlatform(txnIds);
+    }
+    return this.expenseAggregationService
+      .post('/bank_transactions/hide/bulk', {
+        bank_transaction_ids: txnIds,
+      })
+      .pipe(map(() => txnIds.length));
   }
 
   generateDateParams(
