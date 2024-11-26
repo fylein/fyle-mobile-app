@@ -13,7 +13,15 @@ import {
   platformApiLinkedAccRes,
 } from '../mock-data/personal-cards.data';
 import { of } from 'rxjs';
-import { apiPersonalCardTxnsRes } from '../mock-data/personal-card-txns.data';
+import {
+  apiPersonalCardTxnsRes,
+  matchedExpensesPlatform,
+  platformPersonalCardTxns,
+  platformQueryParams,
+  publicQueryParams,
+  transformedMatchedExpenses,
+  transformedPlatformPersonalCardTxns,
+} from '../mock-data/personal-card-txns.data';
 import { selectedFilters1, selectedFilters2 } from '../mock-data/selected-filters.data';
 import { filterData1 } from '../mock-data/filter.data';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
@@ -21,6 +29,7 @@ import { apiExpenseRes, etxncData } from '../mock-data/expense.data';
 import { apiToken } from '../mock-data/yoodle-token.data';
 import * as dayjs from 'dayjs';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
+import { PlatformPersonalCardQueryParams } from '../models/platform/platform-personal-card-query-params.model';
 
 describe('PersonalCardsService', () => {
   let personalCardsService: PersonalCardsService;
@@ -69,6 +78,61 @@ describe('PersonalCardsService', () => {
 
   it('should be created', () => {
     expect(personalCardsService).toBeTruthy();
+  });
+
+  describe('helper functions', () => {
+    it('transformPersonalCardPlatformArray: should transform PlatformPersonalCard array to PersonalCard array', () => {
+      const platformPersonalCardArray = platformApiLinkedAccRes.data;
+      const personalCardArray = linkedAccountRes2;
+
+      expect(personalCardsService.transformPersonalCardPlatformArray(platformPersonalCardArray)).toEqual(
+        personalCardArray
+      );
+    });
+
+    describe('transformMatchedExpensesToTxnDetails', () => {
+      it('it should transform matched expenses to transaction details', () => {
+        expect(personalCardsService.transformMatchedExpensesToTxnDetails(matchedExpensesPlatform)).toEqual(
+          transformedMatchedExpenses
+        );
+      });
+
+      it('it should return an empty array if matchedExpenses is undefined', () => {
+        expect(personalCardsService.transformMatchedExpensesToTxnDetails(undefined)).toEqual([]);
+      });
+    });
+
+    it('transformPlatformPersonalCardTxn: should transform PlatformPersonalCardTxn array to PersonalCardTxn array', () => {
+      expect(personalCardsService.transformPlatformPersonalCardTxn(platformPersonalCardTxns.data)).toEqual(
+        transformedPlatformPersonalCardTxns
+      );
+    });
+
+    describe('mapPublicQueryParamsToPlatform', () => {
+      it('should map public query params to platform query params', () => {
+        const result = personalCardsService.mapPublicQueryParamsToPlatform(publicQueryParams);
+        expect(result).toEqual(platformQueryParams);
+      });
+
+      it('should filter out undefined values in the query params', () => {
+        const queryParams = {
+          ba_id: undefined,
+          _search_document: 'fts.query',
+        };
+
+        const expected: PlatformPersonalCardQueryParams = {
+          q: 'query',
+        };
+
+        const result = personalCardsService.mapPublicQueryParamsToPlatform(queryParams);
+        expect(result).toEqual(expected);
+      });
+
+      it('should handle cases where _search_document is not provided', () => {
+        const result = personalCardsService.mapPublicQueryParamsToPlatform({ btxn_status: 'MATCHED' });
+        expect(result).toEqual({ state: 'MATCHED' });
+      });
+    });
   });
 
   describe('getPersonalCards()', () => {

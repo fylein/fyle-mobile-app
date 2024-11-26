@@ -113,7 +113,7 @@ export class PersonalCardsService {
     or?: string[];
   }): PlatformPersonalCardQueryParams {
     let q: string | undefined;
-    if (queryParams?._search_document.includes('fts.')) {
+    if (queryParams._search_document?.includes('fts.')) {
       q = queryParams._search_document.split('fts.')[1];
     }
 
