@@ -19,8 +19,10 @@ export class PasswordCheckTooltipComponent implements OnChanges {
     specialCharValid: false,
   };
 
-  ngOnChanges(): void {
-    this.validatePassword();
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['password'] && changes['password'].currentValue !== changes['password'].previousValue) {
+      this.validatePassword();
+    }
   }
 
   validatePassword(): void {
