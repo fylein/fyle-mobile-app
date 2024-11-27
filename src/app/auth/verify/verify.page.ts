@@ -4,7 +4,6 @@ import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { switchMap, tap } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { TrackingService } from '../../core/services/tracking.service';
-import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-verify',
