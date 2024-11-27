@@ -1,12 +1,13 @@
-import { Component, Input, Output, EventEmitter, OnChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, OnInit } from '@angular/core';
 import { PasswordChecks } from './password-checks.model';
+import { PasswordCriteria } from './password-criteria.model';
 
 @Component({
   selector: 'app-password-check-tooltip',
   templateUrl: './password-check-tooltip.component.html',
   styleUrls: ['./password-check-tooltip.component.scss'],
 })
-export class PasswordCheckTooltipComponent implements OnChanges {
+export class PasswordCheckTooltipComponent implements OnChanges, OnInit {
   @Input() password: string;
 
   @Output() isPasswordValid = new EventEmitter<boolean>();
@@ -19,10 +20,35 @@ export class PasswordCheckTooltipComponent implements OnChanges {
     specialCharValid: false,
   };
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['password'] && changes['password'].currentValue !== changes['password'].previousValue) {
-      this.validatePassword();
-    }
+  passwordCriteria: PasswordCriteria[] = [
+    {
+      isValid: this.passwordChecks.lengthValid,
+      message: '12 to 32 characters',
+    },
+    {
+      isValid: this.passwordChecks.uppercaseValid,
+      message: '1 uppercase character',
+    },
+    {
+      isValid: this.passwordChecks.lowercaseValid,
+      message: '1 lowercase character',
+    },
+    {
+      isValid: this.passwordChecks.numberValid,
+      message: '1 number',
+    },
+    {
+      isValid: this.passwordChecks.specialCharValid,
+      message: '1 special character',
+    },
+  ];
+
+  ngOnChanges(): void {
+    this.validatePassword();
+  }
+
+  ngOnInit(): void {
+    this.validatePassword();
   }
 
   validatePassword(): void {
