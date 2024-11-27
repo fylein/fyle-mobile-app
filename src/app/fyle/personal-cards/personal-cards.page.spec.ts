@@ -489,7 +489,7 @@ describe('PersonalCardsPage', () => {
     describe('hideSelectedTransactions():', () => {
       it('should hide selected transactions in selection mode for multiple expenses', () => {
         component.selectionMode = true;
-        personalCardsService.hideTransactions.and.returnValue(of(apiExpenseRes));
+        personalCardsService.hideTransactions.and.returnValue(of(apiExpenseRes.length));
         spyOn(component, 'switchSelectionMode');
         snackbarProperties.setSnackbarProperties.and.returnValue(snackbarPropertiesRes6);
 
@@ -509,7 +509,7 @@ describe('PersonalCardsPage', () => {
 
       it('should hide selected transactions for multiple expenses', () => {
         component.selectionMode = false;
-        personalCardsService.hideTransactions.and.returnValue(of(expenseList2));
+        personalCardsService.hideTransactions.and.returnValue(of(expenseList2.length));
         spyOn(component, 'switchSelectionMode');
         snackbarProperties.setSnackbarProperties.and.returnValue(snackbarPropertiesRes7);
 

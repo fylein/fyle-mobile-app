@@ -1422,17 +1422,33 @@ describe('PersonalCardsService', () => {
     });
   });
 
-  it('hideTransactions(): should hide transactions', (done) => {
-    expenseAggregationService.post.and.returnValue(of(apiExpenseRes));
+  describe('hideTransactions()', () => {
+    it('should hide transactions using public api', (done) => {
+      expenseAggregationService.post.and.returnValue(of(apiExpenseRes));
+      const usePlatformApi = false;
+      const txnIds = ['tx3nHShG60zq'];
 
-    const txn_ids = ['tx3nHShG60zq'];
-
-    personalCardsService.hideTransactions(txn_ids).subscribe((res) => {
-      expect(res).toEqual(apiExpenseRes);
-      expect(expenseAggregationService.post).toHaveBeenCalledOnceWith('/bank_transactions/hide/bulk', {
-        bank_transaction_ids: txn_ids,
+      personalCardsService.hideTransactions(txnIds, usePlatformApi).subscribe((res) => {
+        expect(res).toEqual(txnIds.length);
+        expect(expenseAggregationService.post).toHaveBeenCalledOnceWith('/bank_transactions/hide/bulk', {
+          bank_transaction_ids: txnIds,
+        });
+        done();
       });
-      done();
+    });
+
+    it('should hide transactions using platform api', (done) => {
+      spenderPlatformV1ApiService.post.and.returnValue(of({}));
+      const usePlatformApi = true;
+      const txnIds = ['tx3nHShG60zq', 'tx3nHShG60zw'];
+
+      personalCardsService.hideTransactions(txnIds, usePlatformApi).subscribe((res) => {
+        expect(res).toEqual(txnIds.length);
+        expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/personal_card_transactions/hide/bulk', {
+          data: txnIds.map((txnId) => ({ id: txnId })),
+        });
+        done();
+      });
     });
   });
 
