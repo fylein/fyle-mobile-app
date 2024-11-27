@@ -2190,6 +2190,11 @@ export const orgSettingsData: OrgSettings = deepFreeze({
     enabled: true,
     org_user_mandatory_fields: null,
   },
+  advanced_per_diems_settings: {
+    allowed: true,
+    enabled: true,
+    enable_employee_restriction: false,
+  },
   advance_request_fields_settings: {
     allowed: true,
     enabled: true,
@@ -2410,6 +2415,11 @@ export const orgSettingsAdvDisabledData: OrgSettings = deepFreeze({
     allowed: true,
     enabled: true,
     enable_individual_projects: false,
+  },
+  advanced_per_diems_settings: {
+    allowed: true,
+    enabled: true,
+    enable_employee_restriction: false,
   },
   advance_requests: {
     allowed: true,
