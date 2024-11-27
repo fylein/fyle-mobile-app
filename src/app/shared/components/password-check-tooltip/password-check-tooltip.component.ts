@@ -20,28 +20,32 @@ export class PasswordCheckTooltipComponent implements OnChanges, OnInit {
     specialCharValid: false,
   };
 
-  passwordCriteria: PasswordCriteria[] = [
-    {
-      isValid: this.passwordChecks.lengthValid,
-      message: '12 to 32 characters',
-    },
-    {
-      isValid: this.passwordChecks.uppercaseValid,
-      message: '1 uppercase character',
-    },
-    {
-      isValid: this.passwordChecks.lowercaseValid,
-      message: '1 lowercase character',
-    },
-    {
-      isValid: this.passwordChecks.numberValid,
-      message: '1 number',
-    },
-    {
-      isValid: this.passwordChecks.specialCharValid,
-      message: '1 special character',
-    },
-  ];
+  passwordCriteria: PasswordCriteria[];
+
+  updatePasswordCriteria(): void {
+    this.passwordCriteria = [
+      {
+        isValid: this.passwordChecks.lengthValid,
+        message: '12 to 32 characters',
+      },
+      {
+        isValid: this.passwordChecks.uppercaseValid,
+        message: '1 uppercase character',
+      },
+      {
+        isValid: this.passwordChecks.lowercaseValid,
+        message: '1 lowercase character',
+      },
+      {
+        isValid: this.passwordChecks.numberValid,
+        message: '1 number',
+      },
+      {
+        isValid: this.passwordChecks.specialCharValid,
+        message: '1 special character',
+      },
+    ];
+  }
 
   ngOnChanges(): void {
     this.validatePassword();
@@ -59,6 +63,7 @@ export class PasswordCheckTooltipComponent implements OnChanges, OnInit {
     this.passwordChecks.lowercaseValid = /[a-z]/.test(this.password);
     this.passwordChecks.numberValid = /[0-9]/.test(this.password);
     this.passwordChecks.specialCharValid = specialCharRegex.test(this.password);
+    this.updatePasswordCriteria();
 
     // Boolean() returns true for true values
     const allValid = Object.values(this.passwordChecks).every(Boolean);

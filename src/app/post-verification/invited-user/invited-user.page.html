@@ -1,10 +1,14 @@
 <div class="invited-user" *ngIf="(isConnected$|async)">
   <div>
-    <ion-icon class="fy-icon back-icon" src="../../../assets/svg/arrow-tail-left.svg"></ion-icon>
+    <ion-icon
+      class="fy-icon back-icon"
+      src="../../../assets/svg/arrow-tail-left.svg"
+      (click)="redirectToSignIn()"
+    ></ion-icon>
     <div>
       <div class="invited-user__form-header">Join "{{ orgName }}" on Fyle</div>
       <div>
-        <form [formGroup]="fg">
+        <form *ngIf="fg" [formGroup]="fg">
           <div
             class="invited-user__text invited-user__text-block"
             [ngClass]="{'invited-user__text__invalid': fg.controls.fullName.touched && !fg.controls.fullName.valid}"
@@ -67,6 +71,7 @@
                 [type]="hideConfirmPassword ? 'text': 'password'"
                 class="invited-user__text-input smartlook-show"
                 formControlName="confirmPassword"
+                (change)="checkPasswordEquality()"
               />
               <div matSuffix (click)="hideConfirmPassword = !hideConfirmPassword">
                 <ion-icon
@@ -86,7 +91,7 @@
       </div>
     </div>
   </div>
-  <div>
+  <div *ngIf="fg">
     <button
       [ngClass]="{'invited-user--save__disabled': !fg.valid}"
       class="invited-user--save"

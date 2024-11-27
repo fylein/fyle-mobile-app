@@ -1,9 +1,8 @@
 import { Component, OnInit, EventEmitter } from '@angular/core';
 import { Observable, noop, concat, from } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
-import { map, switchMap, finalize, tap } from 'rxjs/operators';
-import { ToastController } from '@ionic/angular';
+import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
+import { switchMap, finalize, tap } from 'rxjs/operators';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -46,10 +45,11 @@ export class InvitedUserPage implements OnInit {
 
   showPasswordTooltip = false;
 
+  arePasswordsEqual: boolean;
+
   constructor(
     private networkService: NetworkService,
     private fb: FormBuilder,
-    private toastController: ToastController,
     private orgUserService: OrgUserService,
     private loaderService: LoaderService,
     private authService: AuthService,
@@ -67,7 +67,7 @@ export class InvitedUserPage implements OnInit {
     this.fg = this.fb.group({
       fullName: ['', Validators.compose([Validators.required, Validators.pattern(/[A-Za-z]/)])],
       password: ['', [Validators.required, this.customPasswordValidator()]],
-      confirmPassword: ['', [Validators.required, this.passwordMatchValidator()]],
+      confirmPassword: ['', [Validators.required, this.validatePasswordEquality()]],
     });
 
     this.eou$ = from(this.authService.getEou());
@@ -94,8 +94,8 @@ export class InvitedUserPage implements OnInit {
           switchMap(() => this.eou$),
           switchMap((eou) => {
             const user = eou.us;
-            user.full_name = this.fg.controls.fullName.value;
-            user.password = this.fg.controls.password.value;
+            user.full_name = this.fg.controls.fullName.value as string;
+            user.password = this.fg.controls.password.value as string;
             return this.orgUserService.postUser(user);
           }),
           tap(() => this.trackingService.setupComplete()),
@@ -118,20 +118,25 @@ export class InvitedUserPage implements OnInit {
     }
   }
 
-  private customPasswordValidator(): ValidatorFn {
+  checkPasswordEquality(): void {
+    if (!this.fg || !this.fg.controls) {
+      return null;
+    }
+    const password = this.fg?.controls.password.value as string;
+    const confirmPassword = this.fg?.controls.confirmPassword.value as string;
+    this.arePasswordsEqual = password && confirmPassword && password === confirmPassword;
+    return null;
+  }
+
+  redirectToSignIn(): void {
+    this.router.navigate(['/', 'auth', 'sign_in']);
+  }
+
+  customPasswordValidator(): ValidationErrors {
     return (): ValidationErrors | null => (this.isPasswordValid ? null : { invalidPassword: true });
   }
 
-  private passwordMatchValidator(): ValidatorFn {
-    return (): ValidationErrors | null => {
-      const password = this.fg?.controls.password.value;
-      const confirmPassword = this.fg?.controls.confirmPassword.value;
-
-      // Check if passwords match
-      if (password && confirmPassword && password !== confirmPassword) {
-        return { passwordsMismatch: true };
-      }
-      return null;
-    };
+  validatePasswordEquality(): ValidationErrors {
+    return (): ValidationErrors | null => (this.arePasswordsEqual ? null : { passwordMismatch: true });
   }
 }
