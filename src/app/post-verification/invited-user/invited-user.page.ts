@@ -45,7 +45,7 @@ export class InvitedUserPage implements OnInit {
 
   showPasswordTooltip = false;
 
-  arePasswordsEqual: boolean;
+  arePasswordsEqual = false;
 
   constructor(
     private networkService: NetworkService,
@@ -66,8 +66,8 @@ export class InvitedUserPage implements OnInit {
 
     this.fg = this.fb.group({
       fullName: ['', Validators.compose([Validators.required, Validators.pattern(/[A-Za-z]/)])],
-      password: ['', [Validators.required, this.customPasswordValidator()]],
-      confirmPassword: ['', [Validators.required, this.validatePasswordEquality()]],
+      password: ['', [Validators.required, this.customPasswordValidator]],
+      confirmPassword: ['', [Validators.required, this.validatePasswordEquality]],
     });
 
     this.eou$ = from(this.authService.getEou());
@@ -122,21 +122,23 @@ export class InvitedUserPage implements OnInit {
     if (!this.fg || !this.fg.controls) {
       return null;
     }
-    const password = this.fg?.controls.password.value as string;
-    const confirmPassword = this.fg?.controls.confirmPassword.value as string;
-    this.arePasswordsEqual = password && confirmPassword && password === confirmPassword;
-    return null;
+    const password = this.fg.controls.password.value as string;
+    const confirmPassword = this.fg.controls.confirmPassword.value as string;
+    this.arePasswordsEqual = password === confirmPassword;
   }
 
   redirectToSignIn(): void {
     this.router.navigate(['/', 'auth', 'sign_in']);
   }
 
-  customPasswordValidator(): ValidationErrors {
-    return (): ValidationErrors | null => (this.isPasswordValid ? null : { invalidPassword: true });
-  }
+  customPasswordValidator = (): ValidationErrors => (this.isPasswordValid ? null : { invalidPassword: true });
 
-  validatePasswordEquality(): ValidationErrors {
-    return (): ValidationErrors | null => (this.arePasswordsEqual ? null : { passwordMismatch: true });
-  }
+  validatePasswordEquality = (): ValidationErrors => {
+    if (!this.fg) {
+      return null;
+    }
+    const password = this.fg.controls.password.value as string;
+    const confirmPassword = this.fg.controls.confirmPassword.value as string;
+    return password === confirmPassword ? null : { passwordMismatch: true };
+  };
 }

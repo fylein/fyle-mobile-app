@@ -25,7 +25,7 @@ import { OrgService } from 'src/app/core/services/org.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { RouterTestingModule } from '@angular/router/testing';
 
-fdescribe('InvitedUserPage', () => {
+describe('InvitedUserPage', () => {
   let component: InvitedUserPage;
   let fixture: ComponentFixture<InvitedUserPage>;
   let networkService: jasmine.SpyObj<NetworkService>;
@@ -109,9 +109,103 @@ fdescribe('InvitedUserPage', () => {
     expect(component.fg.controls.fullName.value).toEqual(currentEouRes.us.full_name);
   }));
 
-  describe('saveData', () => {
+  describe('customPasswordValidator():', () => {
+    it('should return null when isPasswordValid is true', () => {
+      component.isPasswordValid = true;
+
+      const result = component.customPasswordValidator();
+
+      expect(result).toBeNull(); // No errors
+    });
+
+    it('should return an error object when isPasswordValid is false', () => {
+      component.isPasswordValid = false;
+
+      const result = component.customPasswordValidator();
+
+      expect(result).toEqual({ invalidPassword: true }); // Error object
+    });
+  });
+
+  describe('validatePasswordEquality():', () => {
+    it('should return null when password and confirmPassword match', () => {
+      component.fg.controls.password.setValue('StrongPassword@123');
+      component.fg.controls.confirmPassword.setValue('StrongPassword@123');
+
+      const result = component.validatePasswordEquality();
+
+      expect(result).toBeNull(); // No errors
+    });
+
+    it('should return an error object when password and confirmPassword do not match', () => {
+      component.fg.controls.password.setValue('StrongPassword@123');
+      component.fg.controls.confirmPassword.setValue('DifferentPassword@123');
+
+      const result = component.validatePasswordEquality();
+
+      expect(result).toEqual({ passwordMismatch: true });
+    });
+
+    it('should return null when password or confirmPassword is empty', () => {
+      component.fg.controls.password.setValue('');
+      component.fg.controls.confirmPassword.setValue('');
+
+      const result = component.validatePasswordEquality();
+
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('checkPasswordEquality()', () => {
+    it('should set arePasswordsEqual to true when password and confirmPassword match', () => {
+      component.fg.controls.password.setValue('StrongPassword@123');
+      component.fg.controls.confirmPassword.setValue('StrongPassword@123');
+
+      component.checkPasswordEquality();
+
+      expect(component.arePasswordsEqual).toBeTrue(); // Passwords match
+    });
+
+    it('should set arePasswordsEqual to false when password and confirmPassword do not match', () => {
+      component.fg.controls.password.setValue('StrongPassword@123');
+      component.fg.controls.confirmPassword.setValue('DifferentPassword@123');
+
+      component.checkPasswordEquality();
+
+      expect(component.arePasswordsEqual).toBeFalse(); // Passwords do not match
+    });
+
+    it('should set arePasswordsEqual to false when password is empty', () => {
+      component.fg.controls.password.setValue('');
+      component.fg.controls.confirmPassword.setValue('StrongPassword@123');
+
+      component.checkPasswordEquality();
+
+      expect(component.arePasswordsEqual).toBeFalse(); // Password is empty
+    });
+
+    it('should set arePasswordsEqual to false when confirmPassword is empty', () => {
+      component.fg.controls.password.setValue('StrongPassword@123');
+      component.fg.controls.confirmPassword.setValue('');
+
+      component.checkPasswordEquality();
+
+      expect(component.arePasswordsEqual).toBeFalse(); // ConfirmPassword is empty
+    });
+
+    it('should do nothing if form group is not initialized', () => {
+      component.fg = null;
+
+      expect(() => component.checkPasswordEquality()).not.toThrow();
+      expect(component.arePasswordsEqual).toBeFalse(); // Default value
+    });
+  });
+
+  describe('saveData():', () => {
     it('should navigate to dashboard when form fields are valid', fakeAsync(() => {
       spyOn(component.fg, 'markAllAsTouched');
+      component.isPasswordValid = true;
+      component.arePasswordsEqual = true;
       component.fg.controls.fullName.setValue('John Doe');
       component.fg.controls.password.setValue('StrongPassword@123');
       component.fg.controls.confirmPassword.setValue('StrongPassword@123');
@@ -186,5 +280,35 @@ fdescribe('InvitedUserPage', () => {
       });
       expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({ ToastContent: message });
     }));
+  });
+
+  describe('onPasswordValid():', () => {
+    it('should set isPasswordValid to true when called with true', () => {
+      component.onPasswordValid(true);
+      expect(component.isPasswordValid).toBeTrue();
+    });
+
+    it('should set isPasswordValid to false when called with false', () => {
+      component.onPasswordValid(false);
+      expect(component.isPasswordValid).toBeFalse();
+    });
+  });
+
+  describe('setPasswordTooltip():', () => {
+    it('should set showPasswordTooltip to true when called with true', () => {
+      component.setPasswordTooltip(true);
+      expect(component.showPasswordTooltip).toBeTrue();
+    });
+
+    it('should set showPasswordTooltip to false when called with false', () => {
+      component.setPasswordTooltip(false);
+      expect(component.showPasswordTooltip).toBeFalse();
+    });
+  });
+
+  it('redirectToSignIn(): should navigate to the sign-in page', () => {
+    component.redirectToSignIn();
+    // @ts-ignore
+    expect(component.router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'sign_in']); // Should navigate to the correct route
   });
 });
