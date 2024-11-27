@@ -698,7 +698,7 @@ export function TestCases2(getTestBed) {
 
       it('should update canCreatePerDiem$ to true if enable_individual_per_diem_rates is enabled in orgSettings and allowedPerDiemRates and perDiemRates are not empty', (done) => {
         const mockOrgSettings = cloneDeep(orgSettingsRes);
-        mockOrgSettings.per_diem.enable_individual_per_diem_rates = true;
+        mockOrgSettings.advanced_per_diems_settings.enable_employee_restriction = true;
         orgSettingsService.get.and.returnValue(of(mockOrgSettings));
         component.ionViewWillEnter();
         component.canCreatePerDiem$
@@ -719,7 +719,7 @@ export function TestCases2(getTestBed) {
         perDiemService.getAllowedPerDiems.and.returnValue(of([]));
         perDiemService.getRates.and.returnValue(of([]));
         const mockOrgSettings = cloneDeep(orgSettingsRes);
-        mockOrgSettings.per_diem.enable_individual_per_diem_rates = true;
+        mockOrgSettings.advanced_per_diems_settings.enable_employee_restriction = true;
         orgSettingsService.get.and.returnValue(of(mockOrgSettings));
         component.ionViewWillEnter();
         component.canCreatePerDiem$

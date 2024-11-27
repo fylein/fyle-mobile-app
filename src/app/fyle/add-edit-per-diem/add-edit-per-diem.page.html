@@ -240,10 +240,18 @@
                         ></app-fy-number>
                       </div>
                       <div
-                        *ngIf="fg.controls.num_days.touched && !fg.controls.num_days.valid"
+                        *ngIf="fg.controls.num_days.touched && !fg.controls.num_days.valid && !fg.controls.num_days.errors.pattern"
                         class="add-edit-per-diem--error add-edit-per-diem--num-days-error"
                       >
                         Please select {{txnFields?.num_days.field_name }}
+                      </div>
+                      <div
+                        *ngIf="fg.controls.num_days.touched && fg.controls.num_days.errors"
+                        class="add-edit-per-diem--error add-edit-per-diem--num-days-error"
+                      >
+                        <ng-container *ngIf="fg.controls.num_days.errors.pattern">
+                          Please enter a valid whole number without decimals.
+                        </ng-container>
                       </div>
                     </ng-container>
                   </ng-container>

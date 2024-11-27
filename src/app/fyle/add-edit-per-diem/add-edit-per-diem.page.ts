@@ -959,7 +959,7 @@ export class AddEditPerDiemPage implements OnInit {
       sub_category: [],
       per_diem_rate: [, Validators.required],
       purpose: [],
-      num_days: [, Validators.compose([Validators.required, Validators.min(0)])],
+      num_days: [null, [Validators.required, Validators.min(0), Validators.pattern(/^\d+$/)]],
       report: [],
       from_dt: [],
       to_dt: [, this.customDateValidator.bind(this)],
@@ -1015,7 +1015,7 @@ export class AddEditPerDiemPage implements OnInit {
     );
 
     this.individualPerDiemRatesEnabled$ = orgSettings$.pipe(
-      map((orgSettings) => orgSettings.per_diem.enable_individual_per_diem_rates)
+      map((orgSettings) => orgSettings.advanced_per_diems_settings?.enable_employee_restriction)
     );
 
     orgSettings$.subscribe((orgSettings) => {
@@ -1050,7 +1050,8 @@ export class AddEditPerDiemPage implements OnInit {
       .pipe(
         switchMap(({ orgSettings, allowedPerDiemRates }) =>
           iif(
-            () => allowedPerDiemRates.length > 0 || orgSettings.per_diem.enable_individual_per_diem_rates,
+            () =>
+              allowedPerDiemRates.length > 0 || orgSettings.advanced_per_diems_settings?.enable_employee_restriction,
             of(allowedPerDiemRates),
             perDiemRates$
           )
@@ -1077,7 +1078,7 @@ export class AddEditPerDiemPage implements OnInit {
       )
       .pipe(
         map(({ orgSettings, perDiemRates, allowedPerDiemRates }) => {
-          if (orgSettings.per_diem.enable_individual_per_diem_rates) {
+          if (orgSettings.advanced_per_diems_settings?.enable_employee_restriction) {
             if (allowedPerDiemRates.length > 0 && perDiemRates.length > 0) {
               return true;
             } else {
@@ -1224,7 +1225,7 @@ export class AddEditPerDiemPage implements OnInit {
 
             if (expenseField.is_mandatory) {
               if (txnFieldKey === 'num_days') {
-                control.setValidators(Validators.compose([Validators.required, Validators.min(0)]));
+                control.setValidators([Validators.required, Validators.min(0), Validators.pattern(/^\d+$/)]);
               } else if (txnFieldKey === 'to_dt') {
                 control.setValidators(
                   isConnected
@@ -1246,7 +1247,7 @@ export class AddEditPerDiemPage implements OnInit {
               }
             } else {
               if (txnFieldKey === 'num_days') {
-                control.setValidators(Validators.compose([Validators.required, Validators.min(0)]));
+                control.setValidators([Validators.required, Validators.min(0), Validators.pattern(/^\d+$/)]);
               }
               if (txnFieldKey === 'to_dt') {
                 control.setValidators(isConnected ? (this.customDateValidator.bind(this) as ValidatorFn) : null);
@@ -2243,7 +2244,6 @@ export class AddEditPerDiemPage implements OnInit {
 
   savePerDiem(): void {
     const that = this;
-
     that
       .checkIfInvalidPaymentMode()
       .pipe(take(1))
