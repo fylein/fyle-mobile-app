@@ -38,79 +38,85 @@
     </div>
     <div class="invited-user--password-rules">
       <div>
-        <span>
-          <ion-icon
-            *ngIf="lengthValidationDisplay$|async"
-            class="invited-user--validation__correct"
-            name="checkmark-outline"
-          ></ion-icon>
-          <ion-icon
-            *ngIf="!(lengthValidationDisplay$|async)"
-            class="invited-user--validation__incorrect"
-            name="close-outline"
-          ></ion-icon>
-        </span>
-        <span> Is between 12 to 32 characters </span>
-      </div>
-      <div>
-        <span>
-          <ion-icon
-            *ngIf="uppercaseValidationDisplay$|async"
-            class="invited-user--validation__correct"
-            name="checkmark-outline"
-          ></ion-icon>
-          <ion-icon
-            *ngIf="!(uppercaseValidationDisplay$|async)"
-            class="invited-user--validation__incorrect"
-            name="close-outline"
-          ></ion-icon>
-        </span>
-        <span> Contains atleast 1 uppercase character </span>
-      </div>
-      <div>
-        <span>
-          <ion-icon
-            *ngIf="lowercaseValidationDisplay$|async"
-            class="invited-user--validation__correct"
-            name="checkmark-outline"
-          ></ion-icon>
-          <ion-icon
-            *ngIf="!(lowercaseValidationDisplay$|async)"
-            class="invited-user--validation__incorrect"
-            name="close-outline"
-          ></ion-icon>
-        </span>
-        <span> Contains atleast 1 lowercase character </span>
-      </div>
-      <div>
-        <span>
-          <ion-icon
-            *ngIf="numberValidationDisplay$|async"
-            class="invited-user--validation__correct"
-            name="checkmark-outline"
-          ></ion-icon>
-          <ion-icon
-            *ngIf="!(numberValidationDisplay$|async)"
-            class="invited-user--validation__incorrect"
-            name="close-outline"
-          ></ion-icon>
-        </span>
-        <span> Contains atleast 1 number </span>
-      </div>
-      <div>
-        <span>
-          <ion-icon
-            *ngIf="specialCharValidationDisplay$|async"
-            class="invited-user--validation__correct"
-            name="checkmark-outline"
-          ></ion-icon>
-          <ion-icon
-            *ngIf="!(specialCharValidationDisplay$|async)"
-            class="invited-user--validation__incorrect"
-            name="close-outline"
-          ></ion-icon>
-        </span>
-        <span> Contains atleast 1 special character </span>
+        <form [formGroup]="fg">
+          <div
+            class="invited-user__text invited-user__text-block"
+            [ngClass]="{'invited-user__text__invalid': fg.controls.fullName.touched && !fg.controls.fullName.valid}"
+          >
+            <div class="invited-user__text-label">
+              Full Name
+              <span class="invited-user__mandatory"> * </span>
+            </div>
+            <input [required]="true" class="invited-user__text-input smartlook-show" formControlName="fullName" />
+          </div>
+          <div
+            class="invited-user__text invited-user__text-block"
+            [ngClass]="{'invited-user__text__invalid': fg.controls.password.touched && !fg.controls.password.invalidPassword}"
+          >
+            <div class="invited-user__text-label">
+              Password
+              <span class="invited-user__mandatory"> * </span>
+            </div>
+            <div class="invited-user__password-container">
+              <input
+                placeholder="Enter password"
+                [required]="true"
+                [type]="hide ? 'text': 'password'"
+                class="invited-user__text-input smartlook-show"
+                formControlName="password"
+                (focus)="setPasswordTooltip(true)"
+                (blur)="setPasswordTooltip(false)"
+              />
+              <div matSuffix (click)="hide = !hide">
+                <ion-icon
+                  *ngIf="!hide"
+                  class="fy-icon invited-user__password-icon"
+                  src="../../../assets/svg/eye-slash.svg"
+                ></ion-icon>
+                <ion-icon
+                  *ngIf="hide"
+                  class="fy-icon invited-user__password-icon"
+                  src="../../../assets/svg/eye.svg"
+                ></ion-icon>
+              </div>
+            </div>
+            <app-password-check-tooltip
+              *ngIf="showPasswordTooltip"
+              [password]="fg.controls.password.value"
+              (isPasswordValid)="onPasswordValid($event)"
+            ></app-password-check-tooltip>
+          </div>
+          <div
+            class="invited-user__text invited-user__text-block"
+            [ngClass]="{'invited-user__text__invalid': fg.controls.confirmPassword.touched && !fg.controls.confirmPassword.valid}"
+          >
+            <div class="invited-user__text-label">
+              Confirm Password
+              <span class="invited-user__mandatory"> * </span>
+            </div>
+            <div class="invited-user__password-container">
+              <input
+                placeholder="Re-enter password"
+                [required]="true"
+                [type]="hideConfirmPassword ? 'text': 'password'"
+                class="invited-user__text-input smartlook-show"
+                formControlName="confirmPassword"
+              />
+              <div matSuffix (click)="hideConfirmPassword = !hideConfirmPassword">
+                <ion-icon
+                  *ngIf="!hideConfirmPassword"
+                  class="fy-icon invited-user__password-icon"
+                  src="../../../assets/svg/eye-slash.svg"
+                ></ion-icon>
+                <ion-icon
+                  *ngIf="hideConfirmPassword"
+                  class="fy-icon invited-user__password-icon"
+                  src="../../../assets/svg/eye.svg"
+                ></ion-icon>
+              </div>
+            </div>
+          </div>
+        </form>
       </div>
     </div>
     <div>

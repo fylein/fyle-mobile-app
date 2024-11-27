@@ -1,8 +1,8 @@
 import { Component, OnInit, EventEmitter } from '@angular/core';
 import { Observable, noop, concat, from } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { map, switchMap, finalize, tap } from 'rxjs/operators';
+import { FormBuilder, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { switchMap, finalize, tap } from 'rxjs/operators';
 import { ToastController } from '@ionic/angular';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -58,38 +58,9 @@ export class InvitedUserPage implements OnInit {
 
     this.fg = this.fb.group({
       fullName: ['', Validators.compose([Validators.required, Validators.pattern(/[A-Za-z]/)])],
-      password: [
-        '',
-        Validators.compose([
-          Validators.required,
-          Validators.minLength(12),
-          Validators.maxLength(32),
-          Validators.pattern(/[A-Z]/),
-          Validators.pattern(/[a-z]/),
-          Validators.pattern(/[0-9]/),
-          Validators.pattern(/[!@#$%^&*()+\-:;<=>{}|~?]/),
-        ]),
-      ],
+      password: ['', [Validators.required, this.validatePasswordContent()]],
+      confirmPassword: ['', [Validators.required, this.passwordMatchValidator()]],
     });
-
-    this.lengthValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(
-      map((password) => password && password.length >= 12 && password.length <= 32)
-    );
-
-    this.uppercaseValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(
-      map((password) => /[A-Z]/.test(password))
-    );
-
-    this.numberValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(
-      map((password) => /[0-9]/.test(password))
-    );
-    this.specialCharValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(
-      map((password) => /[!@#$%^&*()+\-:;<=>{}|~?]/.test(password))
-    );
-
-    this.lowercaseValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(
-      map((password) => /[a-z]/.test(password))
-    );
 
     this.eou$ = from(this.authService.getEou());
 
@@ -128,5 +99,22 @@ export class InvitedUserPage implements OnInit {
       });
       this.trackingService.showToastMessage({ ToastContent: message });
     }
+  }
+
+  private validatePasswordContent(): ValidatorFn {
+    return (): ValidationErrors | null => (this.isPasswordValid ? null : { invalidPassword: true });
+  }
+
+  private passwordMatchValidator(): ValidatorFn {
+    return (): ValidationErrors | null => {
+      const password = this.fg?.controls.password.value;
+      const confirmPassword = this.fg?.controls.confirmPassword.value;
+
+      // Check if passwords match
+      if (password && confirmPassword && password !== confirmPassword) {
+        return { passwordsMismatch: true };
+      }
+      return null;
+    };
   }
 }

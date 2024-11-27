@@ -4,8 +4,32 @@ $name: #aaa;
 $header-text: #aaa;
 
 .invited-user {
-  padding: 36px;
-  &--full-name {
+  display: flex;
+  flex-direction: column;
+  padding: 24px 20px;
+  height: 100%;
+  justify-content: space-between;
+
+  &__error {
+    color: $red;
+  }
+
+  &__password-container {
+    display: flex;
+  }
+
+  &__text {
+    border-bottom: 1px solid $grey-lighter;
+    margin-bottom: 24px;
+
+    &__invalid {
+      border-bottom: 1px solid $red;
+    }
+  }
+
+  &__mandatory {
+    color: $brand-primary;
+    display: inline-block;
     font-size: 14px;
     color: $header-text;
     line-height: 1.5;
