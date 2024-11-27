@@ -16,6 +16,7 @@ import { of } from 'rxjs';
 import {
   apiPersonalCardTxnsRes,
   matchedExpensesPlatform,
+  platformMatchExpenseResponse,
   platformPersonalCardTxns,
   platformQueryParams,
   platformTxnsConfig,
@@ -1403,22 +1404,48 @@ describe('PersonalCardsService', () => {
     });
   });
 
-  it('matchExpense(): should match an expense', (done) => {
-    const response = {
-      id: 'tx3nHShG60zq',
-      transaction_split_group_id: 'tx3nHShG60zq',
-    };
+  describe('matchExpense()', () => {
+    it('should match an expense using public api', (done) => {
+      const usePlatformApi = false;
+      const response = {
+        external_expense_id: 'tx3nHShG60zz',
+        transaction_split_group_id: 'tx3nHShG60zq',
+      };
 
-    apiService.post.and.returnValue(of(response));
-    const txnSplitGrp = 'tx3nHShG60zq';
+      apiService.post.and.returnValue(of(response));
+      const externalExpenseId = 'tx3nHShG60zz';
+      const txnSplitGroupId = 'tx3nHShG60zq';
 
-    personalCardsService.matchExpense(txnSplitGrp, null).subscribe((res) => {
-      expect(res).toEqual(response);
-      expect(apiService.post).toHaveBeenCalledOnceWith('/transactions/external_expense/match', {
-        transaction_split_group_id: txnSplitGrp,
-        external_expense_id: null,
+      personalCardsService.matchExpense(txnSplitGroupId, externalExpenseId, usePlatformApi).subscribe((res) => {
+        expect(res).toEqual(response);
+        expect(apiService.post).toHaveBeenCalledOnceWith('/transactions/external_expense/match', {
+          transaction_split_group_id: txnSplitGroupId,
+          external_expense_id: externalExpenseId,
+        });
+        done();
       });
-      done();
+    });
+
+    it('should match an expense using platform api', (done) => {
+      const response = {
+        external_expense_id: 'btxndbZdAth0x4',
+        transaction_split_group_id: 'tx3nHShG60zq',
+      };
+      spenderPlatformV1ApiService.post.and.returnValue(of(platformMatchExpenseResponse));
+      const usePlatformApi = true;
+      const externalExpenseId = 'btxndbZdAth0x4';
+      const txnSplitGroupId = 'tx3nHShG60zq';
+
+      personalCardsService.matchExpense(txnSplitGroupId, externalExpenseId, usePlatformApi).subscribe((res) => {
+        expect(res).toEqual(response);
+        expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/personal_card_transactions/match', {
+          data: {
+            id: externalExpenseId,
+            expense_split_group_id: txnSplitGroupId,
+          },
+        });
+        done();
+      });
     });
   });
 
