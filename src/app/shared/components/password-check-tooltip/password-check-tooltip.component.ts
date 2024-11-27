@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { PasswordChecks } from './password-checks.model';
 
 @Component({
@@ -20,7 +20,7 @@ export class PasswordCheckTooltipComponent implements OnChanges {
   };
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['password'] && changes['password'].currentValue !== changes['password'].previousValue) {
+    if (changes.password && changes.password.currentValue !== changes.password.previousValue) {
       this.validatePassword();
     }
   }
