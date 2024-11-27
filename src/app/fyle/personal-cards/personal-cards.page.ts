@@ -53,7 +53,6 @@ import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-op
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
 import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
-import { Expense } from 'src/app/core/models/expense.model';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SortFiltersParams } from 'src/app/core/models/sort-filters-params.model';
 import { PersonalCardFilter } from 'src/app/core/models/personal-card-filters.model';
@@ -505,13 +504,13 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
   hideSelectedTransactions(): void {
     this.isHiding = true;
     this.personalCardsService
-      .hideTransactions(this.selectedElements)
+      .hideTransactions(this.selectedElements, this.usePlatformApi)
       .pipe(
-        tap((data: Expense[]) => {
+        tap((txnsHiddenCount: number) => {
           const message =
-            data.length === 1
+            txnsHiddenCount === 1
               ? '1 Transaction successfully hidden!'
-              : `${data.length} Transactions successfully hidden!`;
+              : `${txnsHiddenCount} Transactions successfully hidden!`;
           this.matSnackBar.openFromComponent(ToastMessageComponent, {
             ...this.snackbarProperties.setSnackbarProperties('success', { message }),
             panelClass: ['msb-success'],
@@ -650,16 +649,6 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       this.loadData$.next(params);
       this.filterPills = this.personalCardsService.generateFilterPills(this.filters);
     }
-  }
-
-  async setState(): Promise<void> {
-    this.isLoading = true;
-    this.currentPageNumber = 1;
-    const params = this.addNewFiltersToParams();
-    this.loadData$.next(params);
-    setTimeout(() => {
-      this.isLoading = false;
-    }, 500);
   }
 
   addNewFiltersToParams(): Partial<SortFiltersParams> {

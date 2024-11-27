@@ -489,7 +489,7 @@ describe('PersonalCardsPage', () => {
     describe('hideSelectedTransactions():', () => {
       it('should hide selected transactions in selection mode for multiple expenses', () => {
         component.selectionMode = true;
-        personalCardsService.hideTransactions.and.returnValue(of(apiExpenseRes));
+        personalCardsService.hideTransactions.and.returnValue(of(apiExpenseRes.length));
         spyOn(component, 'switchSelectionMode');
         snackbarProperties.setSnackbarProperties.and.returnValue(snackbarPropertiesRes6);
 
@@ -509,7 +509,7 @@ describe('PersonalCardsPage', () => {
 
       it('should hide selected transactions for multiple expenses', () => {
         component.selectionMode = false;
-        personalCardsService.hideTransactions.and.returnValue(of(expenseList2));
+        personalCardsService.hideTransactions.and.returnValue(of(expenseList2.length));
         spyOn(component, 'switchSelectionMode');
         snackbarProperties.setSnackbarProperties.and.returnValue(snackbarPropertiesRes7);
 
@@ -578,17 +578,6 @@ describe('PersonalCardsPage', () => {
 
       expect(component.selectedElements).toEqual([apiPersonalCardTxnsRes.data[0].btxn_id]);
     });
-
-    it('setState(): should set state', fakeAsync(() => {
-      spyOn(component, 'addNewFiltersToParams').and.returnValue(tasksQueryParamsWithFiltersData);
-      spyOn(component.loadData$, 'next');
-
-      component.setState();
-      tick(1000);
-
-      expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);
-      expect(component.loadData$.next).toHaveBeenCalledOnceWith(tasksQueryParamsWithFiltersData);
-    }));
 
     it('onSearchBarFocus(): should set focus on bar', () => {
       component.onSearchBarFocus();
