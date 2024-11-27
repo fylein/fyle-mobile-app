@@ -1,5 +1,6 @@
 import { Component, Input, Output, EventEmitter, OnChanges, OnInit } from '@angular/core';
 import { PasswordChecks } from './password-checks.model';
+import { PasswordCriteria } from './password-criteria.model';
 
 @Component({
   selector: 'app-password-check-tooltip',
@@ -19,7 +20,7 @@ export class PasswordCheckTooltipComponent implements OnChanges, OnInit {
     specialCharValid: false,
   };
 
-  passwordCriteria = [
+  passwordCriteria: PasswordCriteria[] = [
     {
       isValid: this.passwordChecks.lengthValid,
       message: '12 to 32 characters',
