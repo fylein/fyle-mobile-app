@@ -33,11 +33,11 @@ export class VerifyPage implements OnInit {
       )
       .subscribe({
         next: () => this.router.navigate(['/', 'auth', 'switch_org', { invite_link: true }]),
-        error: (err: HttpErrorResponse) => this.handleError(err),
+        error: (err: { status: number }) => this.handleError(err),
       });
   }
 
-  handleError(err: HttpErrorResponse): void {
+  handleError(err: { status: number }): void {
     const orgId = this.activatedRoute.snapshot.params.org_id as string;
     if (err.status === 422) {
       this.router.navigate(['/', 'auth', 'disabled']);
