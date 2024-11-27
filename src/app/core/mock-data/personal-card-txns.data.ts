@@ -128,6 +128,44 @@ export const platformPersonalCardTxns: PlatformApiResponse<PlatformPersonalCardT
   offset: 0,
 });
 
+export const platformMatchExpenseResponse: PlatformApiResponse<PlatformPersonalCardTxn> = deepFreeze({
+  data: {
+    amount: 200.0,
+    category: 'Restaurants/Dining',
+    created_at: new Date('2024-11-21T05:27:51.863181+00:00'),
+    currency: 'USD',
+    description: 'mocha',
+    external_transaction_id: '57690734',
+    foreign_amount: null,
+    foreign_currency: null,
+    id: 'btxndbZdAth0x4',
+    matched_expense_ids: ['tx3nHShG60zq'],
+    matched_expenses: [
+      {
+        amount: 200,
+        category_display_name: 'Unspecified',
+        currency: 'USD',
+        foreign_amount: null,
+        foreign_currency: null,
+        id: 'tx3nHShG60zq',
+        merchant: 'Mocha',
+        no_of_files: 0,
+        purpose: 'mocha',
+        seq_num: 'E/2024/11/T/7',
+        spent_at: new Date('2024-09-22T00:00:00+00:00'),
+        state: 'COMPLETE',
+      },
+    ],
+    merchant: 'Mocha',
+    org_id: 'orrb8EW1zZsy',
+    personal_card_id: 'bacczUA0bUKVTD',
+    spent_at: new Date('2024-09-22T00:00:00+00:00'),
+    state: 'MATCHED' as PlatformPersonalCardTxnState,
+    updated_at: new Date('2024-11-26T04:44:17.825002+00:00'),
+    user_id: 'us2KhpQLpzX4',
+  },
+});
+
 export const transformedPlatformPersonalCardTxns: Partial<ApiV2Response<PersonalCardTxn>> = deepFreeze({
   count: 2,
   offset: 0,
