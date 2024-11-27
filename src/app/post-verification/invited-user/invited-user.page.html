@@ -1,10 +1,6 @@
 <div class="invited-user" *ngIf="(isConnected$|async)">
   <div>
-    <ion-icon
-      class="fy-icon back-icon"
-      src="../../../assets/svg/arrow-tail-left.svg"
-      [routerLink]="['/','auth','sign_in']"
-    ></ion-icon>
+    <ion-icon class="fy-icon back-icon" src="../../../assets/svg/arrow-tail-left.svg"></ion-icon>
     <div>
       <div class="invited-user__form-header">Join "{{ orgName }}" on Fyle</div>
       <div>
