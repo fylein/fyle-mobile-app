@@ -297,14 +297,40 @@ export class PersonalCardsService {
     return this.getMatchedExpenses(amount, txnDate).pipe(map((res) => res.length));
   }
 
-  matchExpense(
+  matchExpensePlatform(
     transactionSplitGroupId: string,
     externalExpenseId: string
   ): Observable<{
-    external_expense_id?: string;
-    id: string;
+    external_expense_id: string;
     transaction_split_group_id: string;
   }> {
+    const payload = {
+      data: {
+        id: externalExpenseId,
+        expense_split_group_id: transactionSplitGroupId,
+      },
+    };
+    return this.spenderPlatformV1ApiService
+      .post<PlatformApiResponse<PlatformPersonalCardTxn>>('/personal_card_transactions/match', payload)
+      .pipe(
+        map((res) => ({
+          transaction_split_group_id: res.data.matched_expense_ids[0],
+          external_expense_id: res.data.id,
+        }))
+      );
+  }
+
+  matchExpense(
+    transactionSplitGroupId: string,
+    externalExpenseId: string,
+    usePlatformApi = false
+  ): Observable<{
+    external_expense_id?: string;
+    transaction_split_group_id: string;
+  }> {
+    if (usePlatformApi) {
+      return this.matchExpensePlatform(transactionSplitGroupId, externalExpenseId);
+    }
     return this.apiService.post('/transactions/external_expense/match', {
       transaction_split_group_id: transactionSplitGroupId,
       external_expense_id: externalExpenseId,
