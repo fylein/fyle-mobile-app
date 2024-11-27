@@ -4,7 +4,7 @@ import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { switchMap, tap } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { TrackingService } from '../../core/services/tracking.service';
-import { VerifyPageState } from './verify.enum';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-verify',
@@ -21,7 +21,7 @@ export class VerifyPage implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const verificationCode = this.activatedRoute.snapshot.params.verification_code;
+    const verificationCode = this.activatedRoute.snapshot.params.verification_code as string;
     this.routerAuthService
       .emailVerify(verificationCode)
       .pipe(
@@ -33,12 +33,12 @@ export class VerifyPage implements OnInit {
       )
       .subscribe({
         next: () => this.router.navigate(['/', 'auth', 'switch_org', { invite_link: true }]),
-        error: (err) => this.handleError(err),
+        error: (err: HttpErrorResponse) => this.handleError(err),
       });
   }
 
-  handleError(err: any) {
-    const orgId = this.activatedRoute.snapshot.params.org_id;
+  handleError(err: HttpErrorResponse): void {
+    const orgId = this.activatedRoute.snapshot.params.org_id as string;
     if (err.status === 422) {
       this.router.navigate(['/', 'auth', 'disabled']);
     } else if (err.status === 440) {
