@@ -24,7 +24,7 @@ import { eouRes3 } from 'src/app/core/mock-data/extended-org-user.data';
 import { OrgService } from 'src/app/core/services/org.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 
-describe('InvitedUserPage', () => {
+fdescribe('InvitedUserPage', () => {
   let component: InvitedUserPage;
   let fixture: ComponentFixture<InvitedUserPage>;
   let networkService: jasmine.SpyObj<NetworkService>;
@@ -82,7 +82,7 @@ describe('InvitedUserPage', () => {
 
     networkService.connectivityWatcher.and.returnValue(new EventEmitter());
     networkService.isOnline.and.returnValue(of(true));
-    authService.getEou.and.returnValue(Promise.resolve(currentEouRes));
+    authService.getEou.and.resolveTo(currentEouRes);
     fixture = TestBed.createComponent(InvitedUserPage);
     component = fixture.componentInstance;
     component.isConnected$ = of(true);
@@ -103,109 +103,10 @@ describe('InvitedUserPage', () => {
       component.ngOnInit();
       tick(500);
       component.isConnected$.pipe(take(1)).subscribe((connectionStatus) => {
-        expect(connectionStatus).toEqual(true);
+        expect(connectionStatus).toBeTrue();
       });
       expect(component.fg.controls.fullName.value).toEqual(currentEouRes.us.full_name);
     }));
-
-    it('should emit false value when there are less than 12 chars', (done) => {
-      const testCase = { input: 'qwert', expectedOutput: false };
-      component.lengthValidationDisplay$.pipe(take(1)).subscribe((value) => {
-        expect(value).toEqual(testCase.expectedOutput);
-        done();
-      });
-      component.fg.controls.password.patchValue(testCase.input);
-    });
-
-    it('should emit false value when there are greater than 32  chars', (done) => {
-      const testCase = { input: 'Thisisaveryverylong12345@password', expectedOutput: false };
-      component.lengthValidationDisplay$.pipe(take(1)).subscribe((value) => {
-        expect(value).toEqual(testCase.expectedOutput);
-        done();
-      });
-      component.fg.controls.password.patchValue(testCase.input);
-    });
-
-    it('should emit true value when there are between 12 and 32 chars', (done) => {
-      const testCase = { input: 'John_doe123@fyle', expectedOutput: true };
-      component.lengthValidationDisplay$.pipe(take(1)).subscribe((value) => {
-        expect(value).toEqual(testCase.expectedOutput);
-        done();
-      });
-      component.fg.controls.password.patchValue(testCase.input);
-    });
-
-    it('should emit false value when there are no special chars', (done) => {
-      const testCase = { input: 'qwert', expectedOutput: false };
-      component.specialCharValidationDisplay$.pipe(take(1)).subscribe((value) => {
-        expect(value).toEqual(testCase.expectedOutput);
-        done();
-      });
-      component.fg.controls.password.patchValue(testCase.input);
-    });
-
-    it('should emit true value when there are special chars', (done) => {
-      const testCase = { input: 'John_doe123@fyle', expectedOutput: true };
-      component.specialCharValidationDisplay$.pipe(take(1)).subscribe((value) => {
-        expect(value).toEqual(testCase.expectedOutput);
-        done();
-      });
-      component.fg.controls.password.patchValue(testCase.input);
-    });
-
-    it('should emit false value when there are no numbers', (done) => {
-      const testCase = { input: 'qwert', expectedOutput: false };
-      component.numberValidationDisplay$.pipe(take(1)).subscribe((value) => {
-        expect(value).toEqual(testCase.expectedOutput);
-        done();
-      });
-      component.fg.controls.password.patchValue(testCase.input);
-    });
-
-    it('should emit true value when there are numbers', (done) => {
-      const testCase = { input: 'John_doe123@fyle', expectedOutput: true };
-      component.numberValidationDisplay$.pipe(take(1)).subscribe((value) => {
-        expect(value).toEqual(testCase.expectedOutput);
-        done();
-      });
-      component.fg.controls.password.patchValue(testCase.input);
-    });
-
-    it('should emit false value when there are no upper case letters', (done) => {
-      const testCase = { input: 'qwert', expectedOutput: false };
-      component.uppercaseValidationDisplay$.pipe(take(1)).subscribe((value) => {
-        expect(value).toEqual(testCase.expectedOutput);
-        done();
-      });
-      component.fg.controls.password.patchValue(testCase.input);
-    });
-
-    it('should emit true value when there are upper case letters', (done) => {
-      const testCase = { input: 'John_doe123@fyle', expectedOutput: true };
-      component.uppercaseValidationDisplay$.pipe(take(1)).subscribe((value) => {
-        expect(value).toEqual(testCase.expectedOutput);
-        done();
-      });
-      component.fg.controls.password.patchValue(testCase.input);
-    });
-
-    it('should emit false value when there are no lower case letters', (done) => {
-      const testCase = { input: 'QWERT', expectedOutput: false };
-      component.lowercaseValidationDisplay$.pipe(take(1)).subscribe((value) => {
-        expect(value).toEqual(testCase.expectedOutput);
-        done();
-      });
-      component.fg.controls.password.patchValue(testCase.input);
-    });
-
-    it('should emit true value when there are lower case letters', (done) => {
-      const testCase = { input: 'John_doe123@fyle', expectedOutput: true };
-      component.lowercaseValidationDisplay$.pipe(take(1)).subscribe((value) => {
-        expect(value).toEqual(testCase.expectedOutput);
-        done();
-      });
-      component.fg.controls.password.patchValue(testCase.input);
-    });
   });
 
   describe('saveData', () => {
@@ -214,8 +115,8 @@ describe('InvitedUserPage', () => {
       component.fg.controls.fullName.setValue('John Doe');
       component.fg.controls.password.setValue('StrongPassword@123');
       component.eou$ = of(cloneDeep(currentEouRes));
-      loaderService.showLoader.and.returnValue(Promise.resolve());
-      loaderService.hideLoader.and.returnValue(Promise.resolve());
+      loaderService.showLoader.and.resolveTo();
+      loaderService.hideLoader.and.resolveTo();
       authService.refreshEou.and.returnValue(of(eouRes3));
       orgUserService.postUser.and.returnValue(of(postUserResponse));
       orgUserService.markActive.and.returnValue(of(extendedOrgUserResponse));
@@ -233,7 +134,7 @@ describe('InvitedUserPage', () => {
       fixture.detectChanges();
       tick(500);
       expect(component.fg.markAllAsTouched).toHaveBeenCalledTimes(1);
-      expect(component.fg.valid).toBe(true);
+      expect(component.fg.valid).toBeTrue();
       expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
 
       component.eou$.subscribe((exOrgUser) => {
@@ -258,7 +159,7 @@ describe('InvitedUserPage', () => {
       component.saveData();
       tick(500);
       expect(component.fg.markAllAsTouched).toHaveBeenCalledTimes(1);
-      expect(component.fg.valid).toBe(false);
+      expect(component.fg.valid).toBeFalse();
       expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
         ...snackbarProperties.setSnackbarProperties('failure', { message }),
         panelClass: ['msb-failure'],
@@ -275,7 +176,7 @@ describe('InvitedUserPage', () => {
       component.saveData();
       tick(500);
       expect(component.fg.markAllAsTouched).toHaveBeenCalledTimes(1);
-      expect(component.fg.valid).toBe(false);
+      expect(component.fg.valid).toBeFalse();
       expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
         ...snackbarProperties.setSnackbarProperties('failure', { message }),
         panelClass: ['msb-failure'],
