@@ -15,6 +15,10 @@ $header-text: #aaa;
     display: flex;
   }
 
+  &__error {
+    color: $red;
+  }
+
   &__text {
     border-bottom: 1px solid $grey-lighter;
     margin-bottom: 24px;
