@@ -1,4 +1,4 @@
-export interface PersonalCardPlatform {
+export interface PlatformPersonalCard {
   account_type: string;
   bank_name: string;
   card_number: string;

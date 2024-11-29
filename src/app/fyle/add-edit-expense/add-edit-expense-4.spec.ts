@@ -15,38 +15,27 @@ import { fileObject4 } from 'src/app/core/mock-data/file-object.data';
 import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
 import { apiPersonalCardTxnsRes } from 'src/app/core/mock-data/personal-card-txns.data';
 import { expectedReportsPaginated } from 'src/app/core/mock-data/platform-report.data';
-import { expectedErpt, expectedErptPlatform } from 'src/app/core/mock-data/report-unflattened.data';
 import {
   createExpenseProperties,
   createExpenseProperties2,
 } from 'src/app/core/mock-data/track-expense-properties.data';
-import { expenseStatusData, txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
+import { expenseStatusData } from 'src/app/core/mock-data/transaction-status.data';
 import { paymentModeDataAdvanceWallet } from 'src/app/core/test-data/accounts.service.spec.data';
 import {
-  editExpTxn2,
-  editExpTxn3,
-  editExpTxn4,
-  editExpTxn5,
   editUnflattenedTransactionPlatform,
   editUnflattenedTransactionPlatform2,
   editUnflattenedTransactionPlatform3,
   personalCardTxn,
-  txnData2,
   editUnflattenedTransactionPlatformWithAdvanceWallet,
 } from 'src/app/core/mock-data/transaction.data';
 import {
   expectedUnflattendedTxnData3,
   expectedUnflattendedTxnData4,
-  newUnflattenedTxn,
   trackAddExpenseWoCurrency,
   trackCreateExpData,
   trackCreateExpDataWoCurrency,
-  unflattenedExpenseWithCCCGroupId,
   unflattenedTransactionDataPersonalCard,
   unflattenedTxnData,
-  unflattenedTxnDataWithReportID,
-  unflattenedTxnDataWithReportID2,
-  unflattenedTxnDataWithViolationUserReview,
 } from 'src/app/core/mock-data/unflattened-txn.data';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -86,15 +75,6 @@ import { txnCustomProperties } from 'src/app/core/test-data/dependent-fields.ser
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
-import {
-  platformExpenseWithMatchCCC,
-  platformExpenseData,
-  platformExpenseDataWithReportId,
-  platformExpenseDataWithReportId2,
-  platformExpenseDataWithSubCategory,
-  platformExpenseWithMatchCCC2,
-  platformExpenseDataForAdvanceWallet,
-} from 'src/app/core/mock-data/platform/v1/expense.data';
 import {
   transformedExpenseData,
   transformedExpenseDataWithReportId,
@@ -617,6 +597,10 @@ export function TestCases4(getTestBed) {
     });
 
     describe('saveAndMatchWithPersonalCardTxn():', () => {
+      beforeEach(() => {
+        launchDarklyService.getVariation.and.returnValue(of(false));
+      });
+
       it('should save an expense and match with personal card', () => {
         const generateEtxnSpy = spyOn(component, 'generateEtxnFromFg');
         generateEtxnSpy
@@ -640,6 +624,7 @@ export function TestCases4(getTestBed) {
         );
         spyOn(component, 'uploadAttachments').and.returnValue(of(fileObject4));
         spyOn(component, 'showSnackBarToast');
+        const usePlatformApi = false;
         fixture.detectChanges();
 
         component.saveAndMatchWithPersonalCardTxn();
@@ -653,7 +638,8 @@ export function TestCases4(getTestBed) {
         expect(transactionService.upsert).toHaveBeenCalledTimes(1);
         expect(personalCardsService.matchExpense).toHaveBeenCalledOnceWith(
           unflattenedTransactionDataPersonalCard.tx.split_group_id,
-          apiPersonalCardTxnsRes.data[0].btxn_id
+          apiPersonalCardTxnsRes.data[0].btxn_id,
+          usePlatformApi
         );
         expect(component.uploadAttachments).toHaveBeenCalledOnceWith(
           unflattenedTransactionDataPersonalCard.tx.split_group_id
@@ -688,6 +674,7 @@ export function TestCases4(getTestBed) {
         );
         spyOn(component, 'uploadAttachments').and.returnValue(of(fileObject4));
         spyOn(component, 'showSnackBarToast');
+        const usePlatformApi = false;
         fixture.detectChanges();
 
         component.saveAndMatchWithPersonalCardTxn();
@@ -707,7 +694,8 @@ export function TestCases4(getTestBed) {
         expect(transactionService.upsert).toHaveBeenCalledTimes(1);
         expect(personalCardsService.matchExpense).toHaveBeenCalledOnceWith(
           unflattenedTransactionDataPersonalCard.tx.split_group_id,
-          apiPersonalCardTxnsRes.data[0].btxn_id
+          apiPersonalCardTxnsRes.data[0].btxn_id,
+          usePlatformApi
         );
         expect(component.uploadAttachments).toHaveBeenCalledOnceWith(
           unflattenedTransactionDataPersonalCard.tx.split_group_id
@@ -742,6 +730,7 @@ export function TestCases4(getTestBed) {
         );
         spyOn(component, 'uploadAttachments').and.returnValue(of(fileObject4));
         spyOn(component, 'showSnackBarToast');
+        const usePlatformApi = false;
         fixture.detectChanges();
 
         component.saveAndMatchWithPersonalCardTxn();
@@ -763,7 +752,8 @@ export function TestCases4(getTestBed) {
         expect(transactionService.upsert).toHaveBeenCalledTimes(1);
         expect(personalCardsService.matchExpense).toHaveBeenCalledOnceWith(
           unflattenedTransactionDataPersonalCard.tx.split_group_id,
-          apiPersonalCardTxnsRes.data[0].btxn_id
+          apiPersonalCardTxnsRes.data[0].btxn_id,
+          usePlatformApi
         );
         expect(component.uploadAttachments).toHaveBeenCalledOnceWith(
           unflattenedTransactionDataPersonalCard.tx.split_group_id
@@ -800,6 +790,7 @@ export function TestCases4(getTestBed) {
         );
         spyOn(component, 'uploadAttachments').and.returnValue(of(fileObject4));
         spyOn(component, 'showSnackBarToast');
+        const usePlatformApi = false;
         fixture.detectChanges();
 
         component.saveAndMatchWithPersonalCardTxn();
@@ -810,7 +801,8 @@ export function TestCases4(getTestBed) {
         expect(transactionService.upsert).toHaveBeenCalledTimes(1);
         expect(personalCardsService.matchExpense).toHaveBeenCalledOnceWith(
           unflattenedTransactionDataPersonalCard.tx.split_group_id,
-          apiPersonalCardTxnsRes.data[0].btxn_id
+          apiPersonalCardTxnsRes.data[0].btxn_id,
+          usePlatformApi
         );
         expect(component.uploadAttachments).toHaveBeenCalledOnceWith(
           unflattenedTransactionDataPersonalCard.tx.split_group_id
@@ -847,6 +839,7 @@ export function TestCases4(getTestBed) {
         );
         spyOn(component, 'uploadAttachments').and.returnValue(of(fileObject4));
         spyOn(component, 'showSnackBarToast');
+        const usePlatformApi = false;
         fixture.detectChanges();
 
         component.saveAndMatchWithPersonalCardTxn();
@@ -857,7 +850,8 @@ export function TestCases4(getTestBed) {
         expect(transactionService.upsert).toHaveBeenCalledOnceWith(unflattenedTransactionDataPersonalCard.tx);
         expect(personalCardsService.matchExpense).toHaveBeenCalledOnceWith(
           unflattenedTransactionDataPersonalCard.tx.split_group_id,
-          apiPersonalCardTxnsRes.data[0].btxn_id
+          apiPersonalCardTxnsRes.data[0].btxn_id,
+          usePlatformApi
         );
         expect(component.uploadAttachments).toHaveBeenCalledOnceWith(
           unflattenedTransactionDataPersonalCard.tx.split_group_id
