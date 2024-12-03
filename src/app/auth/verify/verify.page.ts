@@ -4,6 +4,7 @@ import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { switchMap, tap } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { TrackingService } from '../../core/services/tracking.service';
+import { VerifyPageState } from './verify.enum';
 
 @Component({
   selector: 'app-verify',
@@ -11,6 +12,8 @@ import { TrackingService } from '../../core/services/tracking.service';
   styleUrls: ['./verify.page.scss'],
 })
 export class VerifyPage implements OnInit {
+  currentPageState: VerifyPageState = VerifyPageState.verifying;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private routerAuthService: RouterAuthService,
@@ -19,8 +22,12 @@ export class VerifyPage implements OnInit {
     private trackingService: TrackingService
   ) {}
 
-  ngOnInit(): void {
-    const verificationCode = this.activatedRoute.snapshot.params.verification_code as string;
+  get PageStates() {
+    return VerifyPageState;
+  }
+
+  ngOnInit() {
+    const verificationCode = this.activatedRoute.snapshot.params.verification_code;
     this.routerAuthService
       .emailVerify(verificationCode)
       .pipe(
@@ -32,18 +39,18 @@ export class VerifyPage implements OnInit {
       )
       .subscribe({
         next: () => this.router.navigate(['/', 'auth', 'switch_org', { invite_link: true }]),
-        error: (err: { status: number }) => this.handleError(err),
+        error: (err) => this.handleError(err),
       });
   }
 
-  handleError(err: { status: number }): void {
-    const orgId = this.activatedRoute.snapshot.params.org_id as string;
+  handleError(err: any) {
+    const orgId = this.activatedRoute.snapshot.params.org_id;
     if (err.status === 422) {
       this.router.navigate(['/', 'auth', 'disabled']);
     } else if (err.status === 440) {
       this.router.navigate(['/', 'auth', 'pending_verification', { hasTokenExpired: true, orgId }]);
     } else {
-      this.router.navigate(['/', 'auth', 'pending_verification', { orgId }]);
+      this.currentPageState = VerifyPageState.error;
     }
   }
 }
