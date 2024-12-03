@@ -338,7 +338,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
   linkAccount(): void {
     from(this.loaderService.showLoader('Redirecting you to our banking partner...', 10000))
       .pipe(
-        switchMap(() => this.personalCardsService.getToken()),
+        switchMap(() => this.personalCardsService.getToken(this.usePlatformApi)),
         finalize(async () => {
           await this.loaderService.hideLoader();
         })
