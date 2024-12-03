@@ -1,93 +1,76 @@
-$disabled-header: #220033;
-$body-header: #000;
-$body-subheader: #4a4a4a;
-$password-icon: #b9beba;
-$secondary-cta-border: #e0e0e0;
+@import '../../../theme/colors.scss';
 
-.disabled {
-  &--header {
-    min-height: 140px;
+.disabled-user {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+
+  &__content-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 2;
   }
 
-  &--header-container {
-    min-height: 140px;
-    background-color: $disabled-header;
+  &__arrow-icon {
+    fill: $pure-white;
+    margin-right: 8px;
   }
 
-  &--header-logo-container {
+  &__cta-text {
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  &__cta {
+    margin: 0 20px 24px 20px;
+  }
+
+  &__cta-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__error-icon-container {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    background: $pale-pink;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+
+  &__error-icon {
+    width: 45px;
+    height: 45px;
+  }
+
+  &__text {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-direction: column;
+  }
+
+  &__header {
+    color: $black;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+  }
+
+  &__content {
+    color: $black-light;
     text-align: center;
-  }
-
-  &--header-logo {
-    max-width: 100px;
-  }
-
-  &--body {
-    padding: 24px;
-    text-align: center;
-  }
-
-  &--body-field {
-    width: 100%;
-  }
-
-  &--body-header {
-    font-size: 24px;
-    margin-top: 16px;
-    margin-bottom: 8px;
-    color: $body-header;
-    font-weight: 700;
-  }
-
-  &--image {
-    max-width: 125px;
-    padding: 12px;
-  }
-
-  &--subtext {
-    font-size: 16px;
-    color: $body-subheader;
-    margin-top: 8px;
-    margin-bottom: 24px;
-  }
-
-  &--primary-cta {
-    .mat-button-base {
-      width: 100%;
-      font-weight: 700;
-      min-height: 47px;
-    }
-  }
-
-  &--password-visibility-icon {
-    color: $password-icon;
-  }
-
-  &--secondary-cta {
-    .mat-button-base {
-      width: 100%;
-      font-weight: 700;
-      min-height: 47px;
-      letter-spacing: 1.6px;
-      border: 1px solid $secondary-cta-border;
-    }
-    margin-top: 24px;
-  }
-
-  &--redirect {
-    margin: 16px;
-    text-align: center;
-    font-size: 16px;
-    a {
-      text-decoration: none;
-    }
-  }
-
-  &--edit-email {
-    text-align: end;
-  }
-
-  &--greyed {
-    color: grey;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 1.25;
   }
 }
