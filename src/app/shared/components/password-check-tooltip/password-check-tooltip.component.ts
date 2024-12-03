@@ -22,20 +22,29 @@ export class PasswordCheckTooltipComponent implements OnChanges {
 
   passwordCriteria: PasswordCriteria[];
 
-  const PASSWORD_CRITERIA_MESSAGES = {
-    lengthValid: '12 to 32 characters',
-    uppercaseValid: '1 uppercase character',
-    lowercaseValid: '1 lowercase character',
-    numberValid: '1 number',
-    specialCharValid: '1 special character',
-  } as const;
-
   updatePasswordCriteria(): void {
-    this.passwordCriteria = Object.entries(PASSWORD_CRITERIA_MESSAGES).map(([key, message]) => ({
-      isValid: this.passwordChecks[key as keyof PasswordChecks],
-      message,
-    }));
-  }
+    this.passwordCriteria = [
+      {
+        isValid: this.passwordChecks.lengthValid,
+        message: '12 to 32 characters',
+      },
+      {
+        isValid: this.passwordChecks.uppercaseValid,
+        message: '1 uppercase character',
+      },
+      {
+        isValid: this.passwordChecks.lowercaseValid,
+        message: '1 lowercase character',
+      },
+      {
+        isValid: this.passwordChecks.numberValid,
+        message: '1 number',
+      },
+      {
+        isValid: this.passwordChecks.specialCharValid,
+        message: '1 special character',
+      },
+    ];
   }
 
   ngOnChanges(): void {
@@ -44,7 +53,9 @@ export class PasswordCheckTooltipComponent implements OnChanges {
 
   validatePassword(): void {
     if (!this.password) {
-      Object.keys(this.passwordChecks).forEach(key => this.passwordChecks[key as keyof PasswordChecks] = false);
+      Object.keys(this.passwordChecks).forEach((key) => {
+        this.passwordChecks[key as keyof PasswordChecks] = false;
+      });
       this.isPasswordValid.emit(false);
       return;
     }
