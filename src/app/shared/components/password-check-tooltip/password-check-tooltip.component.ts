@@ -49,7 +49,6 @@ export class PasswordCheckTooltipComponent implements OnChanges, OnInit {
 
   ngOnChanges(): void {
     this.validatePassword();
-    console.log('ngoNCHANGES');
   }
 
   ngOnInit(): void {
