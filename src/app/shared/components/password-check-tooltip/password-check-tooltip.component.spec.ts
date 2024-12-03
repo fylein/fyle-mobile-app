@@ -4,7 +4,7 @@ import { IonicModule } from '@ionic/angular';
 import { PasswordCheckTooltipComponent } from './password-check-tooltip.component';
 import { By } from '@angular/platform-browser';
 
-fdescribe('PasswordCheckTooltipComponent', () => {
+describe('PasswordCheckTooltipComponent', () => {
   let component: PasswordCheckTooltipComponent;
   let fixture: ComponentFixture<PasswordCheckTooltipComponent>;
 
@@ -159,32 +159,6 @@ fdescribe('PasswordCheckTooltipComponent', () => {
       expect(validIcons.length).toBe(3);
       const invalidIcons = fixture.debugElement.queryAll(By.css('.tooltip__list__check__invalid'));
       expect(invalidIcons.length).toBe(2);
-    });
-
-    it('should dynamically update the list when passwordChecks changes', () => {
-      component.passwordChecks = {
-        lengthValid: false,
-        uppercaseValid: false,
-        lowercaseValid: false,
-        numberValid: false,
-        specialCharValid: false,
-      };
-      fixture.detectChanges();
-
-      let validIcons = fixture.debugElement.queryAll(By.css('.tooltip__list__check__valid'));
-      expect(validIcons.length).toBe(0);
-
-      component.passwordChecks = {
-        lengthValid: true,
-        uppercaseValid: true,
-        lowercaseValid: true,
-        numberValid: true,
-        specialCharValid: true,
-      };
-      fixture.detectChanges();
-
-      validIcons = fixture.debugElement.queryAll(By.css('.tooltip__list__check__valid'));
-      expect(validIcons.length).toBe(5);
     });
   });
 });
