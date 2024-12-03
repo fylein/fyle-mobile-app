@@ -1,21 +1,8 @@
 <ion-content>
-  <ion-grid class="verify--header-container">
-    <ion-row class="verify--header ion-align-items-center">
-      <ion-col class="verify--header-logo-container">
-        <img class="verify--header-logo" src="../../../assets/svg/fyle-logo-light.svg" alt="fyle-logo-light" />
-      </ion-col>
-    </ion-row>
-  </ion-grid>
-  <div class="verify--form">
-    <div id="verify--header" class="verify--form-header">
-      <span *ngIf="currentPageState === PageStates.verifying"> Verifying Identity </span>
-      <span *ngIf="currentPageState === PageStates.error"> Verification Failed </span>
+  <div class="verify">
+    <div class="verify__verifying-loader">
+      <ion-icon src="../../../assets/svg/loader.svg" class="verify__verifying-loader__icon"></ion-icon>
     </div>
-    <div *ngIf="currentPageState === PageStates.verifying" class="verify--form-subheader">
-      Checking your credentials..
-    </div>
-    <div *ngIf="currentPageState === PageStates.error" class="verify--form-subheader">
-      Unable to verify your Fyle account. Please contact support by sending an email to support@fylehq.com
-    </div>
+    <div class="verify__verifying-loader__text">Accepting the invite...</div>
   </div>
 </ion-content>
