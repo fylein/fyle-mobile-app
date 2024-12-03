@@ -12,13 +12,13 @@ export class PasswordCheckTooltipComponent implements OnChanges {
 
   @Output() isPasswordValid = new EventEmitter<boolean>();
 
-  passwordChecks: PasswordChecks = {
+  passwordChecks: PasswordChecks = Object.freeze({
     lengthValid: false,
     uppercaseValid: false,
     lowercaseValid: false,
     numberValid: false,
     specialCharValid: false,
-  };
+  });
 
   passwordCriteria: PasswordCriteria[];
 
