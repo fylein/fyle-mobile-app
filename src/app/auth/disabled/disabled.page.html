@@ -4,7 +4,7 @@
       <div class="disabled-user__error-icon-container">
         <ion-icon
           class="disabled-user__error-icon"
-          [src]="'../../../../assets/svg/error-outlined.svg'"
+          [src]="'/assets/svg/error-outlined.svg'"
           slot="icon-only"
         ></ion-icon>
       </div>
@@ -16,12 +16,13 @@
       </div>
     </div>
     <div class="disabled-user__cta">
-      <button 
-        mat-flat-button 
-        (click)="onGotoSignInClick()" 
+      <button
+        mat-flat-button
+        (click)="onGotoSignInClick()"
         class="btn-primary"
         aria-label="Navigate back to sign in page"
-        role="button">
+        role="button"
+      >
         <div class="disabled-user__cta-content">
           <ion-icon class="disabled-user__arrow-icon" [src]="'/assets/svg/arrow-left.svg'" slot="icon-only"></ion-icon>
           <span class="disabled-user__cta-text">Back to Sign In</span>
