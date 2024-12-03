@@ -145,13 +145,8 @@ describe('PasswordCheckTooltipComponent', () => {
     });
 
     it('should display valid icons for valid password checks', () => {
-      component.passwordChecks = {
-        lengthValid: true,
-        uppercaseValid: true,
-        lowercaseValid: false,
-        numberValid: false,
-        specialCharValid: true,
-      };
+      component.password = 'Somepass1';
+      component.ngOnChanges();
       fixture.detectChanges();
 
       const validIcons = fixture.debugElement.queryAll(By.css('.tooltip__list__check__valid'));
