@@ -69,7 +69,7 @@ export class PasswordCheckTooltipComponent implements OnChanges {
     this.passwordChecks.specialCharValid = specialCharRegex.test(this.password);
 
     this.updatePasswordCriteria();
-    // Boolean() returns true for true values
+    // Using Boolean() with every() ensures strict boolean comparison for all password criteria
     const allValid = Object.values(this.passwordChecks).every(Boolean);
     this.isPasswordValid.emit(allValid);
   }
