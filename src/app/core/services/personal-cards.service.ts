@@ -350,7 +350,22 @@ export class PersonalCardsService {
     return this.getBankTransactions(params, usePlatformApi).pipe(map((res) => res.count));
   }
 
-  fetchTransactions(accountId: string): Observable<ApiV2Response<PersonalCardTxn>> {
+  fetchTransactionsPlatform(accountId: string): Observable<PlatformApiResponse<{}>> {
+    const payload = {
+      data: {
+        personal_card_id: accountId,
+      },
+    };
+    return this.spenderPlatformV1ApiService.post('/personal_card_transactions', payload);
+  }
+
+  fetchTransactions(
+    accountId: string,
+    usePlatformApi: boolean
+  ): Observable<ApiV2Response<PersonalCardTxn> | PlatformApiResponse<{}>> {
+    if (usePlatformApi) {
+      return this.fetchTransactionsPlatform(accountId);
+    }
     return this.expenseAggregationService.post(`/bank_accounts/${accountId}/sync`, {
       owner_type: 'org_user',
     }) as Observable<ApiV2Response<PersonalCardTxn>>;

@@ -487,7 +487,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       this.switchSelectionMode();
     }
     this.personalCardsService
-      .fetchTransactions(this.selectedAccount)
+      .fetchTransactions(this.selectedAccount, this.usePlatformApi)
       .pipe(
         finalize(() => {
           this.acc = [];
