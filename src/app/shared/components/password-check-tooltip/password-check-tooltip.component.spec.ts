@@ -38,7 +38,6 @@ describe('PasswordCheckTooltipComponent', () => {
         message: '1 special character',
       },
     ];
-    component.password = 'SomePassword';
     fixture.detectChanges();
   }));
 
