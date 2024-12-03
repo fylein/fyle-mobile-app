@@ -153,7 +153,7 @@ export class PersonalCardsService {
       .pipe(map((res) => res.data));
   }
 
-  getTokenPlatform(): Observable<YodleeAccessToken> {
+  getPlatformToken(): Observable<YodleeAccessToken> {
     return this.spenderPlatformV1ApiService
       .post<PlatformApiResponse<Omit<YodleeAccessToken, 'fast_link_url'>>>('/personal_cards/access_token')
       .pipe(
@@ -169,7 +169,7 @@ export class PersonalCardsService {
 
   getToken(usePlatformApi: boolean): Observable<YodleeAccessToken> {
     if (usePlatformApi) {
-      return this.getTokenPlatform();
+      return this.getPlatformToken();
     }
     return this.expenseAggregationService.get('/yodlee/personal/access_token') as Observable<YodleeAccessToken>;
   }
