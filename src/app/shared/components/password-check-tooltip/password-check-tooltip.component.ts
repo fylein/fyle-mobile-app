@@ -44,9 +44,7 @@ export class PasswordCheckTooltipComponent implements OnChanges {
 
   validatePassword(): void {
     if (!this.password) {
-      Object.keys(this.passwordChecks).forEach((key) => {
-        this.passwordChecks[key as keyof PasswordChecks] = false;
-      });
+      Object.keys(this.passwordChecks).forEach(key => this.passwordChecks[key as keyof PasswordChecks] = false);
       this.isPasswordValid.emit(false);
       return;
     }
