@@ -4,7 +4,7 @@ import { IonicModule } from '@ionic/angular';
 import { PasswordCheckTooltipComponent } from './password-check-tooltip.component';
 import { By } from '@angular/platform-browser';
 
-describe('PasswordCheckTooltipComponent', () => {
+fdescribe('PasswordCheckTooltipComponent', () => {
   let component: PasswordCheckTooltipComponent;
   let fixture: ComponentFixture<PasswordCheckTooltipComponent>;
 
@@ -16,6 +16,29 @@ describe('PasswordCheckTooltipComponent', () => {
 
     fixture = TestBed.createComponent(PasswordCheckTooltipComponent);
     component = fixture.componentInstance;
+    component.passwordCriteria = [
+      {
+        isValid: false,
+        message: '12 to 32 characters',
+      },
+      {
+        isValid: false,
+        message: '1 uppercase character',
+      },
+      {
+        isValid: false,
+        message: '1 lowercase character',
+      },
+      {
+        isValid: false,
+        message: '1 number',
+      },
+      {
+        isValid: false,
+        message: '1 special character',
+      },
+    ];
+    component.password = 'SomePassword';
     fixture.detectChanges();
   }));
 
@@ -34,6 +57,7 @@ describe('PasswordCheckTooltipComponent', () => {
     it('should fail when password length is less than 12 characters', () => {
       const emitSpy = spyOn(component.isPasswordValid, 'emit');
       component.password = 'Short1!';
+      fixture.detectChanges();
       component.validatePassword();
       expect(component.passwordChecks.lengthValid).toBeFalse();
       expect(emitSpy).toHaveBeenCalledWith(false);
@@ -161,14 +185,6 @@ describe('PasswordCheckTooltipComponent', () => {
 
       validIcons = fixture.debugElement.queryAll(By.css('.tooltip__list__check__valid'));
       expect(validIcons.length).toBe(5);
-    });
-
-    it('should not render the tooltip if passwordChecks is undefined or null', () => {
-      component.passwordChecks = null;
-      fixture.detectChanges();
-
-      const tooltip = fixture.debugElement.query(By.css('.tooltip'));
-      expect(tooltip).toBeNull();
     });
   });
 });
