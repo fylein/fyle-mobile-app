@@ -16,7 +16,12 @@
       </div>
     </div>
     <div class="disabled-user__cta">
-      <button mat-flat-button (click)="onGotoSignInClick()" class="btn-primary">
+      <button 
+        mat-flat-button 
+        (click)="onGotoSignInClick()" 
+        class="btn-primary"
+        aria-label="Navigate back to sign in page"
+        role="button">
         <div class="disabled-user__cta-content">
           <ion-icon
             class="disabled-user__arrow-icon"
