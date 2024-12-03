@@ -22,7 +22,7 @@ export class VerifyPage implements OnInit {
     private trackingService: TrackingService
   ) {}
 
-  get PageStates(): void {
+  get PageStates(): typeof VerifyPageState {
     return VerifyPageState;
   }
 
