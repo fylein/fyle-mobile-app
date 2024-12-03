@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnChanges, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges } from '@angular/core';
 import { PasswordChecks } from './password-checks.model';
 import { PasswordCriteria } from './password-criteria.model';
 
