@@ -43,6 +43,7 @@ import { PersonalCardsPage } from './personal-cards.page';
 import { PersonalCardFilter } from 'src/app/core/models/personal-card-filters.model';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { PersonalCard } from 'src/app/core/models/personal_card.model';
+import { publicPersonalCardTxnExpenseSuggestionsRes } from 'src/app/core/mock-data/personal-card-txn-expense-suggestions.data';
 
 describe('PersonalCardsPage', () => {
   let component: PersonalCardsPage;
@@ -79,8 +80,8 @@ describe('PersonalCardsPage', () => {
       'convertFilters',
       'generateTxnDateParams',
       'generateCreditParams',
-      'getMatchedExpensesCount',
       'generateDateParams',
+      'getMatchedExpensesSuggestions',
     ]);
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
@@ -690,13 +691,15 @@ describe('PersonalCardsPage', () => {
       it('should create an expense and navigate to add edit expense if count is 0', () => {
         component.selectionMode = false;
         component.loadingMatchedExpenseCount = false;
-        personalCardsService.getMatchedExpensesCount.and.returnValue(of(0));
+        const usePlatformApi = false;
+        personalCardsService.getMatchedExpensesSuggestions.and.returnValue(of([]));
 
         component.createExpense(apiPersonalCardTxnsRes.data[0]);
 
-        expect(personalCardsService.getMatchedExpensesCount).toHaveBeenCalledOnceWith(
+        expect(personalCardsService.getMatchedExpensesSuggestions).toHaveBeenCalledOnceWith(
           apiPersonalCardTxnsRes.data[0].btxn_amount,
-          '2021-09-19'
+          '2021-09-19',
+          usePlatformApi
         );
         expect(router.navigate).toHaveBeenCalledOnceWith([
           '/',
@@ -709,16 +712,23 @@ describe('PersonalCardsPage', () => {
       it('should create an expense and navigate to personal cards page if count is more than 0', () => {
         component.selectionMode = false;
         component.loadingMatchedExpenseCount = false;
-        personalCardsService.getMatchedExpensesCount.and.returnValue(of(1));
+        const usePlatformApi = false;
+        personalCardsService.getMatchedExpensesSuggestions.and.returnValue(
+          of(publicPersonalCardTxnExpenseSuggestionsRes)
+        );
 
         component.createExpense(apiPersonalCardTxnsRes.data[0]);
 
-        expect(personalCardsService.getMatchedExpensesCount).toHaveBeenCalledOnceWith(
+        expect(personalCardsService.getMatchedExpensesSuggestions).toHaveBeenCalledOnceWith(
           apiPersonalCardTxnsRes.data[0].btxn_amount,
-          '2021-09-19'
+          '2021-09-19',
+          usePlatformApi
         );
         expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'personal_cards_matched_expenses'], {
-          state: { txnDetails: apiPersonalCardTxnsRes.data[0] },
+          state: {
+            txnDetails: apiPersonalCardTxnsRes.data[0],
+            expenseSuggestions: publicPersonalCardTxnExpenseSuggestionsRes,
+          },
         });
       });
 
@@ -728,7 +738,7 @@ describe('PersonalCardsPage', () => {
 
         component.createExpense(matchedPersonalCardTxn);
 
-        expect(personalCardsService.getMatchedExpensesCount).not.toHaveBeenCalled();
+        expect(personalCardsService.getMatchedExpensesSuggestions).not.toHaveBeenCalled();
       });
 
       it('should open expense if the expense has been matched', () => {
