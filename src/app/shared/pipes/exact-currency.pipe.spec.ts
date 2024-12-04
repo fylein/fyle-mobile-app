@@ -2,7 +2,7 @@ import { CurrencyPipeConfig } from 'src/app/core/models/currency-pipe-config.mod
 import { ExactCurrencyPipe } from './exact-currency.pipe';
 import { FyCurrencyPipe } from './fy-currency.pipe';
 
-fdescribe('ExactCurrencyPipe', () => {
+describe('ExactCurrencyPipe', () => {
   let fyCurrencyPipeSpy: jasmine.SpyObj<FyCurrencyPipe>;
   let exactCurrencyPipe: ExactCurrencyPipe;
 
