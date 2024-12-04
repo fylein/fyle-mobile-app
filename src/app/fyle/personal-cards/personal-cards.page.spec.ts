@@ -270,6 +270,7 @@ describe('PersonalCardsPage', () => {
 
     describe('postAccounts():', () => {
       it('should post account data with 1 card', fakeAsync(() => {
+        const usePlatformApi = false;
         const message = '1 card successfully added to Fyle!';
         const props = {
           data: {
@@ -290,7 +291,7 @@ describe('PersonalCardsPage', () => {
 
         expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
         expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-        expect(personalCardsService.postBankAccounts).toHaveBeenCalledOnceWith(['id123']);
+        expect(personalCardsService.postBankAccounts).toHaveBeenCalledOnceWith(['id123'], usePlatformApi);
         expect(component.loadCardData$.next).toHaveBeenCalledOnceWith({});
         expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
           ...props,
@@ -301,6 +302,7 @@ describe('PersonalCardsPage', () => {
       }));
 
       it('should post account data for multiple cards', fakeAsync(() => {
+        const usePlatformApi = false;
         const message = '2 cards successfully added to Fyle!';
         const props = {
           data: {
@@ -321,7 +323,7 @@ describe('PersonalCardsPage', () => {
 
         expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
         expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-        expect(personalCardsService.postBankAccounts).toHaveBeenCalledOnceWith(['id123']);
+        expect(personalCardsService.postBankAccounts).toHaveBeenCalledOnceWith(['id123'], usePlatformApi);
         expect(component.loadCardData$.next).toHaveBeenCalledOnceWith({});
         expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
           ...props,
