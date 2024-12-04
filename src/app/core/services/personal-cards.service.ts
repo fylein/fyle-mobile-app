@@ -24,6 +24,7 @@ import { PlatformPersonalCardTxn } from '../models/platform/platform-personal-ca
 import { PlatformPersonalCardMatchedExpense } from '../models/platform/platform-personal-card-matched-expense.model';
 import { TxnDetail } from '../models/v2/txn-detail.model';
 import { PlatformPersonalCardQueryParams } from '../models/platform/platform-personal-card-query-params.model';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -152,7 +153,24 @@ export class PersonalCardsService {
       .pipe(map((res) => res.data));
   }
 
-  getToken(): Observable<YodleeAccessToken> {
+  getPlatformToken(): Observable<YodleeAccessToken> {
+    return this.spenderPlatformV1ApiService
+      .post<PlatformApiResponse<Omit<YodleeAccessToken, 'fast_link_url'>>>('/personal_cards/access_token')
+      .pipe(
+        map(
+          (res) =>
+            ({
+              access_token: res.data.access_token,
+              fast_link_url: environment.YODLEE_FAST_LINK_URL,
+            } as YodleeAccessToken)
+        )
+      );
+  }
+
+  getToken(usePlatformApi: boolean): Observable<YodleeAccessToken> {
+    if (usePlatformApi) {
+      return this.getPlatformToken();
+    }
     return this.expenseAggregationService.get('/yodlee/personal/access_token') as Observable<YodleeAccessToken>;
   }
 
