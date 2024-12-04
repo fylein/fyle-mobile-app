@@ -73,7 +73,7 @@ describe('PersonalCardsPage', () => {
       'getToken',
       'htmlFormUrl',
       'postBankAccounts',
-      'fetchTransactions',
+      'syncTransactions',
       'hideTransactions',
       'generateSelectedFilters',
       'convertFilters',
@@ -477,12 +477,12 @@ describe('PersonalCardsPage', () => {
     it('fetchNewTransactions(): should fetch new transactions', () => {
       component.selectionMode = true;
       spyOn(component, 'switchSelectionMode');
-      personalCardsService.fetchTransactions.and.returnValue(of(apiPersonalCardTxnsRes));
+      personalCardsService.syncTransactions.and.returnValue(of(apiPersonalCardTxnsRes));
 
       component.fetchNewTransactions();
 
       expect(component.switchSelectionMode).toHaveBeenCalledTimes(1);
-      expect(personalCardsService.fetchTransactions).toHaveBeenCalledTimes(1);
+      expect(personalCardsService.syncTransactions).toHaveBeenCalledTimes(1);
       expect(trackingService.transactionsFetchedOnPersonalCards).toHaveBeenCalledTimes(1);
     });
 

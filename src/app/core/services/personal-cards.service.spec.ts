@@ -1360,13 +1360,13 @@ describe('PersonalCardsService', () => {
     });
   });
 
-  describe('fetchTransactions()', () => {
+  describe('syncTransactions()', () => {
     it('should fetch transactions using public api', (done) => {
       expenseAggregationService.post.and.returnValue(of(apiPersonalCardTxnsRes));
       const accountId = 'baccLesaRlyvLY';
       const usePlatformApi = false;
 
-      personalCardsService.fetchTransactions(accountId, usePlatformApi).subscribe((res) => {
+      personalCardsService.syncTransactions(accountId, usePlatformApi).subscribe((res) => {
         expect(res).toEqual(apiPersonalCardTxnsRes);
         expect(expenseAggregationService.post).toHaveBeenCalledOnceWith(`/bank_accounts/${accountId}/sync`, {
           owner_type: 'org_user',
@@ -1385,7 +1385,7 @@ describe('PersonalCardsService', () => {
         },
       };
 
-      personalCardsService.fetchTransactions(accountId, usePlatformApi).subscribe((res) => {
+      personalCardsService.syncTransactions(accountId, usePlatformApi).subscribe((res) => {
         expect(res).toEqual({ data: {} });
         expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/personal_card_transactions', payload);
         done();

@@ -24,6 +24,7 @@ import { PlatformPersonalCardTxn } from '../models/platform/platform-personal-ca
 import { PlatformPersonalCardMatchedExpense } from '../models/platform/platform-personal-card-matched-expense.model';
 import { TxnDetail } from '../models/v2/txn-detail.model';
 import { PlatformPersonalCardQueryParams } from '../models/platform/platform-personal-card-query-params.model';
+import { PersonalCardSyncTxns } from '../models/platform/platform-personal-card-syn-txns.model';
 
 @Injectable({
   providedIn: 'root',
@@ -350,7 +351,7 @@ export class PersonalCardsService {
     return this.getBankTransactions(params, usePlatformApi).pipe(map((res) => res.count));
   }
 
-  fetchTransactionsPlatform(accountId: string): Observable<PlatformApiResponse<{}>> {
+  syncTransactionsPlatform(accountId: string): Observable<PlatformApiResponse<PersonalCardSyncTxns>> {
     const payload = {
       data: {
         personal_card_id: accountId,
@@ -359,12 +360,12 @@ export class PersonalCardsService {
     return this.spenderPlatformV1ApiService.post('/personal_card_transactions', payload);
   }
 
-  fetchTransactions(
+  syncTransactions(
     accountId: string,
     usePlatformApi: boolean
-  ): Observable<ApiV2Response<PersonalCardTxn> | PlatformApiResponse<{}>> {
+  ): Observable<ApiV2Response<PersonalCardTxn> | PlatformApiResponse<PersonalCardSyncTxns>> {
     if (usePlatformApi) {
-      return this.fetchTransactionsPlatform(accountId);
+      return this.syncTransactionsPlatform(accountId);
     }
     return this.expenseAggregationService.post(`/bank_accounts/${accountId}/sync`, {
       owner_type: 'org_user',
