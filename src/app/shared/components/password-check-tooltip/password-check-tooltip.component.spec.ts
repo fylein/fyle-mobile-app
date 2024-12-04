@@ -16,28 +16,6 @@ describe('PasswordCheckTooltipComponent', () => {
 
     fixture = TestBed.createComponent(PasswordCheckTooltipComponent);
     component = fixture.componentInstance;
-    component.passwordCriteria = [
-      {
-        isValid: false,
-        message: '12 to 32 characters',
-      },
-      {
-        isValid: false,
-        message: '1 uppercase character',
-      },
-      {
-        isValid: false,
-        message: '1 lowercase character',
-      },
-      {
-        isValid: false,
-        message: '1 number',
-      },
-      {
-        isValid: false,
-        message: '1 special character',
-      },
-    ];
     fixture.detectChanges();
   }));
 
