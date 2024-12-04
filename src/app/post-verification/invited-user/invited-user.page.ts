@@ -118,15 +118,6 @@ export class InvitedUserPage implements OnInit {
     }
   }
 
-  checkPasswordEquality(): void {
-    if (!this.fg || !this.fg.controls) {
-      return null;
-    }
-    const password = this.fg.controls.password.value as string;
-    const confirmPassword = this.fg.controls.confirmPassword.value as string;
-    this.arePasswordsEqual = password === confirmPassword;
-  }
-
   redirectToSignIn(): void {
     this.router.navigate(['/', 'auth', 'sign_in']);
   }
