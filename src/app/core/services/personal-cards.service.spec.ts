@@ -310,6 +310,35 @@ describe('PersonalCardsService', () => {
     });
   });
 
+  describe('postBankAccounts()', () => {
+    it('should link personal cards using public api', (done) => {
+      const requestIds = ['bacc0dtQ3ESjjQ'];
+      const usePlatformApi = false;
+      expenseAggregationService.post.and.returnValue(of(requestIds));
+
+      personalCardsService.postBankAccounts(requestIds, usePlatformApi).subscribe((res) => {
+        expect(res).toEqual(requestIds);
+        expect(expenseAggregationService.post).toHaveBeenCalledOnceWith('/yodlee/personal/bank_accounts', {
+          aggregator: 'yodlee',
+          request_ids: requestIds,
+        });
+        done();
+      });
+    });
+
+    it('should link personal cards using platform api', (done) => {
+      const requestIds = ['bacc0dtQ3ESjjQ'];
+      const usePlatformApi = true;
+      spenderPlatformV1ApiService.post.and.returnValue(of(platformApiLinkedAccRes));
+
+      personalCardsService.postBankAccounts(requestIds, usePlatformApi).subscribe((res) => {
+        expect(res).toEqual(platformApiLinkedAccRes.data);
+        expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/personal_cards', { data: {} });
+        done();
+      });
+    });
+  });
+
   it('convertFilters(): should convert selected filters', () => {
     expect(personalCardsService.convertFilters(selectedFilters1)).toEqual(filterData1);
   });
