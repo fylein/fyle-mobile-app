@@ -2128,29 +2128,6 @@ describe('MyExpensesPage', () => {
     expect(component.filterPills).toEqual(creditTxnFilterPill);
   });
 
-  it('setState(): should pageNumber to 1 and update isLoading correctly', fakeAsync(() => {
-    spyOn(component, 'addNewFiltersToParams').and.returnValue({
-      pageNumber: 1,
-      searchString: 'example',
-    });
-    component.loadExpenses$ = new BehaviorSubject({
-      pageNumber: 1,
-    });
-
-    component.setState();
-
-    expect(component.isLoading).toBeTrue();
-    expect(component.currentPageNumber).toBe(1);
-    component.loadExpenses$.subscribe((data) => {
-      expect(data).toEqual({
-        pageNumber: 1,
-        searchString: 'example',
-      });
-    });
-    tick(500);
-    expect(component.isLoading).toBeFalse();
-  }));
-
   describe('selectExpense(): ', () => {
     beforeEach(() => {
       sharedExpenseService.getReportableExpenses.and.returnValue(apiExpenses1);

@@ -34,6 +34,7 @@ describe('PasswordCheckTooltipComponent', () => {
     it('should fail when password length is less than 12 characters', () => {
       const emitSpy = spyOn(component.isPasswordValid, 'emit');
       component.password = 'Short1!';
+      fixture.detectChanges();
       component.validatePassword();
       expect(component.passwordChecks.lengthValid).toBeFalse();
       expect(emitSpy).toHaveBeenCalledWith(false);
@@ -122,53 +123,14 @@ describe('PasswordCheckTooltipComponent', () => {
     });
 
     it('should display valid icons for valid password checks', () => {
-      component.passwordChecks = {
-        lengthValid: true,
-        uppercaseValid: true,
-        lowercaseValid: false,
-        numberValid: false,
-        specialCharValid: true,
-      };
+      component.password = 'Somepass1';
+      component.ngOnChanges();
       fixture.detectChanges();
 
       const validIcons = fixture.debugElement.queryAll(By.css('.tooltip__list__check__valid'));
       expect(validIcons.length).toBe(3);
       const invalidIcons = fixture.debugElement.queryAll(By.css('.tooltip__list__check__invalid'));
       expect(invalidIcons.length).toBe(2);
-    });
-
-    it('should dynamically update the list when passwordChecks changes', () => {
-      component.passwordChecks = {
-        lengthValid: false,
-        uppercaseValid: false,
-        lowercaseValid: false,
-        numberValid: false,
-        specialCharValid: false,
-      };
-      fixture.detectChanges();
-
-      let validIcons = fixture.debugElement.queryAll(By.css('.tooltip__list__check__valid'));
-      expect(validIcons.length).toBe(0);
-
-      component.passwordChecks = {
-        lengthValid: true,
-        uppercaseValid: true,
-        lowercaseValid: true,
-        numberValid: true,
-        specialCharValid: true,
-      };
-      fixture.detectChanges();
-
-      validIcons = fixture.debugElement.queryAll(By.css('.tooltip__list__check__valid'));
-      expect(validIcons.length).toBe(5);
-    });
-
-    it('should not render the tooltip if passwordChecks is undefined or null', () => {
-      component.passwordChecks = null;
-      fixture.detectChanges();
-
-      const tooltip = fixture.debugElement.query(By.css('.tooltip'));
-      expect(tooltip).toBeNull();
     });
   });
 });

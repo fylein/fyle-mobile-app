@@ -166,7 +166,7 @@
       <ng-container>
         <div
           class="personal-cards--zero-state personal-cards--transactions-zero-state"
-          *ngIf="((transactionsCount$ | async) === 0) && !isTrasactionsLoading"
+          *ngIf="((transactionsCount$ | async) === 0) && !isTransactionsLoading"
         >
           <app-fy-zero-state
             class="stats--zero-state"
@@ -191,7 +191,7 @@
           <ng-container *ngFor="let transaction of transactions; let i = index">
             <app-personal-card-transaction
               (click)="createExpense(transaction)"
-              *ngIf="!isTrasactionsLoading"
+              *ngIf="!isTransactionsLoading"
               [description]="transaction.btxn_description"
               [amount]="transaction.btxn_amount"
               [currency]="transaction.btxn_currency"
@@ -212,7 +212,7 @@
       </ng-container>
     </ng-container>
   </ng-container>
-  <ng-container *ngIf="((linkedAccountsCount$ | async) !== 0) && isTrasactionsLoading || isLoadingDataInfiniteScroll">
+  <ng-container *ngIf="((linkedAccountsCount$ | async) !== 0) && isTransactionsLoading || isLoadingDataInfiniteScroll">
     <app-transactions-shimmer> </app-transactions-shimmer>
   </ng-container>
 

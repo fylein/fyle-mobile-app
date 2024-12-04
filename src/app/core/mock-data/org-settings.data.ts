@@ -138,6 +138,11 @@ export const orgSettingsRes: OrgSettings = deepFreeze({
     enabled: true,
     enable_individual_per_diem_rates: false,
   },
+  advanced_per_diems_settings: {
+    allowed: true,
+    enabled: true,
+    enable_employee_restriction: false,
+  },
   payment_mode_settings: {
     allowed: true,
     enabled: true,
@@ -457,6 +462,11 @@ export const orgSettingsParams2: OrgSettings = deepFreeze({
     allowed: true,
     enabled: true,
     enable_individual_projects: true,
+  },
+  advanced_per_diems_settings: {
+    allowed: true,
+    enabled: true,
+    enable_employee_restriction: false,
   },
   advance_requests: {
     allowed: false,
@@ -930,6 +940,11 @@ export const orgSettingsParamWoCCC: OrgSettings = deepFreeze({
     allowed: true,
     enabled: true,
     enable_individual_per_diem_rates: false,
+  },
+  advanced_per_diems_settings: {
+    allowed: true,
+    enabled: true,
+    enable_employee_restriction: false,
   },
   payment_mode_settings: {
     allowed: true,
