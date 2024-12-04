@@ -1,0 +1,21 @@
+import { Pipe, PipeTransform } from '@angular/core';
+import { FyCurrencyPipe } from './fy-currency.pipe';
+import { CurrencyPipeConfig } from 'src/app/core/models/currency-pipe-config.model';
+
+@Pipe({
+  name: 'exactCurrency',
+})
+export class ExactCurrencyPipe implements PipeTransform {
+  constructor(private fyCurrencyPipe: FyCurrencyPipe) {}
+
+  transform(config: CurrencyPipeConfig): string {
+    const { value, currencyCode, skipSymbol = false, fraction } = config;
+    const sign = value < 0 ? '-' : '';
+    const amount = Math.abs(value) || 0;
+    const symbolType = skipSymbol ? '' : 'symbol';
+    const digitsInfo = fraction && `1.${fraction}-${fraction}`;
+    // Format the exact amount
+    const formattedValue = this.fyCurrencyPipe.transform(amount, currencyCode, symbolType, digitsInfo);
+    return sign + formattedValue;
+  }
+}
