@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, OnInit } from '@angular/core';
 import { PasswordChecks } from './password-checks.model';
 import { PasswordCriteria } from './password-criteria.model';
 
@@ -7,7 +7,7 @@ import { PasswordCriteria } from './password-criteria.model';
   templateUrl: './password-check-tooltip.component.html',
   styleUrls: ['./password-check-tooltip.component.scss'],
 })
-export class PasswordCheckTooltipComponent implements OnChanges {
+export class PasswordCheckTooltipComponent implements OnChanges, OnInit {
   @Input() password: string;
 
   @Output() isPasswordValid = new EventEmitter<boolean>();
@@ -49,6 +49,10 @@ export class PasswordCheckTooltipComponent implements OnChanges {
 
   ngOnChanges(): void {
     this.validatePassword();
+  }
+
+  ngOnInit(): void {
+    this.updatePasswordCriteria();
   }
 
   validatePassword(): void {
