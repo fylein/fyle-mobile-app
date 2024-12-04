@@ -151,6 +151,7 @@ import { PromoteOptInModalComponent } from './components/promote-opt-in-modal/pr
 import { ProfileOptInCardComponent } from './components/profile-opt-in-card/profile-opt-in-card.component';
 import { DashboardOptInComponent } from './components/dashboard-opt-in/dashboard-opt-in.component';
 import { MobileNumberCardComponent } from './components/mobile-number-card/mobile-number-card.component';
+import { PasswordCheckTooltipComponent } from './components/password-check-tooltip/password-check-tooltip.component';
 
 @NgModule({
   declarations: [
@@ -200,6 +201,7 @@ import { MobileNumberCardComponent } from './components/mobile-number-card/mobil
     FyConnectionComponent,
     FyCriticalPolicyViolationComponent,
     PopupAlertComponent,
+    PasswordCheckTooltipComponent,
     CreateNewReportComponentV2,
     ExpensesCardComponent,
     ExpensesCardComponentV2,
@@ -346,6 +348,7 @@ import { MobileNumberCardComponent } from './components/mobile-number-card/mobil
     FyConnectionComponent,
     FyCriticalPolicyViolationComponent,
     PopupAlertComponent,
+    PasswordCheckTooltipComponent,
     CreateNewReportComponentV2,
     ExpensesCardComponent,
     ExpensesCardComponentV2,
