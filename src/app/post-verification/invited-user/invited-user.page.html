@@ -114,6 +114,7 @@
     <ion-button
       fill="clear"
       [ngClass]="{'invited-user__save__disabled': !fg.valid}"
+      [disabled]="!fg.valid"
       class="btn-primary invited-user__save"
       (click)="saveData()"
       mat-flat-button
