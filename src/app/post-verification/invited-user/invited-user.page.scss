@@ -1,8 +1,4 @@
 @import '../../../theme/colors.scss';
-$offline-title: #4a4a4a;
-$offline-sub-title: #ababab;
-$name: #aaa;
-$header-text: #aaa;
 
 .invited-user {
   display: flex;
@@ -15,13 +11,21 @@ $header-text: #aaa;
     display: flex;
   }
 
+  &__input-container {
+    margin-bottom: 24px;
+  }
+
   &__error {
     color: $red;
+    font-size: 12px;
   }
 
   &__text {
     border-bottom: 1px solid $grey-lighter;
-    margin-bottom: 24px;
+
+    &:focus {
+      border-bottom: 1px solid $blue-black !important;
+    }
 
     &__invalid {
       border-bottom: 1px solid $red;
@@ -33,10 +37,6 @@ $header-text: #aaa;
     display: inline-block;
     font-size: 14px;
     font-weight: 400;
-  }
-
-  &__text-block {
-    margin-bottom: 12px;
   }
 
   &__text-label {
@@ -65,10 +65,12 @@ $header-text: #aaa;
   &__password-icon {
     width: 20px;
     height: 20px;
+    fill: $black-light;
   }
 
-  &--form-header-container {
-    margin-left: 20px;
+  &__password-icon-container {
+    display: flex;
+    align-items: center;
   }
 
   &__form-header {
@@ -78,51 +80,10 @@ $header-text: #aaa;
     margin-bottom: 24px;
   }
 
-  &--form-sub-header {
-    color: $header-text;
-    margin: 0 0 10px;
-  }
-
-  &--form-label {
-    margin-top: 14px;
-    margin-left: 20px;
-    display: block;
-    margin-bottom: 8px;
-    font-size: 14px;
-    width: 100%;
-    color: $header-text;
-    &::after {
-      content: '*';
-      position: relative;
-      left: -4px;
-    }
-    &__invalid {
-      color: red;
-    }
-  }
-
-  &--form-field {
-    width: 100%;
-  }
-
-  &--password-rules {
-    padding: 14px 0;
-  }
-
-  &--save {
+  &__save {
     width: 100%;
     &__disabled {
       opacity: 0.2;
-    }
-  }
-
-  &--validation {
-    &__correct {
-      color: green;
-    }
-
-    &__incorrect {
-      color: red;
     }
   }
 }
@@ -130,20 +91,20 @@ $header-text: #aaa;
 .invited-user-offline {
   margin-top: 75px;
   padding: 15px;
-  &--image {
+  &__image {
     max-width: 125px;
   }
-  &--title {
+  &__title {
     font-size: 16px;
     display: block;
     margin-bottom: 16px;
-    color: $offline-title;
+    color: $grey-light-2;
     line-height: 1.5;
     font-weight: 500;
     margin-bottom: 16px;
   }
-  &--sub-title {
-    color: $offline-sub-title;
+  &__sub-title {
+    color: $gray-3;
     display: block;
     font-size: 16px;
     font-weight: 300;

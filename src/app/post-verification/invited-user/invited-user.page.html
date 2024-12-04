@@ -9,17 +9,25 @@
       <div class="invited-user__form-header">Join "{{ orgName }}" on Fyle</div>
       <div>
         <form *ngIf="fg" [formGroup]="fg">
-          <div
-            class="invited-user__text invited-user__text-block"
-            [ngClass]="{'invited-user__text__invalid': fg.controls.fullName.touched && !fg.controls.fullName.valid}"
-          >
-            <div class="invited-user__text-label">
-              Full Name
-              <span class="invited-user__mandatory"> * </span>
+          <div class="invited-user__input-container">
+            <div
+              class="invited-user__text invited-user__text-block"
+              [ngClass]="{'invited-user__text__invalid': fg.controls.fullName.touched && !fg.controls.fullName.valid}"
+            >
+              <div class="invited-user__text-label">
+                Full Name
+                <span class="invited-user__mandatory"> * </span>
+              </div>
+              <input [required]="true" class="invited-user__text-input smartlook-show" formControlName="fullName" />
             </div>
-            <input [required]="true" class="invited-user__text-input smartlook-show" formControlName="fullName" />
+            <div
+              *ngIf="fg.controls.fullName.touched && fg.controls.fullName.invalid && fg.controls.password.errors.required"
+              class="invited-user__error"
+            >
+              Please enter your name
+            </div>
           </div>
-          <div>
+          <div class="invited-user__input-container">
             <div
               class="invited-user__text invited-user__text-block"
               [ngClass]="{'invited-user__text__invalid': fg.controls.password.touched && !fg.controls.password.valid}"
@@ -38,16 +46,10 @@
                   (focus)="setPasswordTooltip(true)"
                   (blur)="setPasswordTooltip(false)"
                 />
-                <div matSuffix (click)="hide = !hide">
+                <div class="invited-user__password-icon-container" matSuffix (click)="hide = !hide">
                   <ion-icon
-                    *ngIf="!hide"
                     class="fy-icon invited-user__password-icon"
-                    src="../../../assets/svg/eye-slash.svg"
-                  ></ion-icon>
-                  <ion-icon
-                    *ngIf="hide"
-                    class="fy-icon invited-user__password-icon"
-                    src="../../../assets/svg/eye.svg"
+                    src="{{hide ? '/assets/svg/eye.svg' : '/assets/svg/eye-slash.svg'}}"
                   ></ion-icon>
                 </div>
               </div>
@@ -58,16 +60,19 @@
               ></app-password-check-tooltip>
             </div>
             <div
-              *ngIf="fg.controls.password.touched && !fg.controls.password.valid && !fg.controls.password.errors.required"
+              *ngIf="fg.controls.password.touched && fg.controls.password.invalid && fg.controls.password.errors.required"
               class="invited-user__error"
             >
               Password cannot be empty
             </div>
-            <div *ngIf="fg.controls.password.touched && !fg.controls.password.valid" class="invited-user__error">
+            <div
+              *ngIf="fg.controls.password.touched && fg.controls.password.invalid && fg.controls.password.errors.invalidPassword && !fg.controls.password.errors.required"
+              class="invited-user__error"
+            >
               Please enter a valid password.
             </div>
           </div>
-          <div>
+          <div class="invited-user__input-container">
             <div
               class="invited-user__text invited-user__text-block"
               [ngClass]="{'invited-user__text__invalid': fg.controls.confirmPassword.touched && !fg.controls.confirmPassword.valid}"
@@ -85,28 +90,26 @@
                   formControlName="confirmPassword"
                   (change)="checkPasswordEquality()"
                 />
-                <div matSuffix (click)="hideConfirmPassword = !hideConfirmPassword">
+                <div
+                  class="invited-user__password-icon-container"
+                  matSuffix
+                  (click)="hideConfirmPassword = !hideConfirmPassword"
+                >
                   <ion-icon
-                    *ngIf="!hideConfirmPassword"
                     class="fy-icon invited-user__password-icon"
-                    src="../../../assets/svg/eye-slash.svg"
-                  ></ion-icon>
-                  <ion-icon
-                    *ngIf="hideConfirmPassword"
-                    class="fy-icon invited-user__password-icon"
-                    src="../../../assets/svg/eye.svg"
+                    src="{{hideConfirmPassword ? '/assets/svg/eye.svg' : '/assets/svg/eye-slash.svg'}}"
                   ></ion-icon>
                 </div>
               </div>
             </div>
             <div
-              *ngIf="fg.controls.confirmPassword.touched && !fg.controls.confirmPassword.valid && !fg.controls.confirmPassword.errors.required"
+              *ngIf="fg.controls.confirmPassword.touched && fg.controls.confirmPassword.invalid && fg.controls.confirmPassword.errors.required"
               class="invited-user__error"
             >
               Password cannot be empty
             </div>
             <div
-              *ngIf="fg.controls.confirmPassword.touched && !fg.controls.confirmPassword.valid && !fg.controls.confirmPassword.errors.passwordMismatch"
+              *ngIf="fg.controls.confirmPassword.touched && fg.controls.confirmPassword.invalid && fg.controls.confirmPassword.errors.passwordMismatch"
               class="invited-user__error"
             >
               Passwords do not match
@@ -117,25 +120,25 @@
     </div>
   </div>
   <div *ngIf="fg">
-    <button
-      [ngClass]="{'invited-user--save__disabled': !fg.valid}"
-      class="invited-user--save"
+    <ion-button
+      fill="clear"
+      [ngClass]="{'invited-user__save__disabled': !fg.valid}"
+      class="btn-primary invited-user__save"
       (click)="saveData()"
       mat-flat-button
-      color="primary"
     >
       Join
-    </button>
+    </ion-button>
   </div>
 </div>
 <div class="invited-user-offline ion-text-center" *ngIf="!(isConnected$|async)">
   <img
-    class="invited-user-offline--image"
+    class="invited-user-offline__image"
     alt="offline-zer-state"
     src="../../../assets/images/zero-states/offline.svg"
   />
-  <div class="invited-user-offline--title">Looks like you are offline</div>
-  <div class="invited-user-offline--sub-title">
+  <div class="invited-user-offline__title">Looks like you are offline</div>
+  <div class="invited-user-offline__sub-title">
     You need to be connected to Internet to be able to login to the app. Please check if your Internet connection is
     working.
   </div>
