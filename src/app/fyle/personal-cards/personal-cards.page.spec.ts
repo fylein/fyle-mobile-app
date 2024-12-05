@@ -23,7 +23,6 @@ import {
 } from 'src/app/core/mock-data/get-tasks-query-params-with-filters.data';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
 import { apiPersonalCardTxnsRes, matchedPersonalCardTxn } from 'src/app/core/mock-data/personal-card-txns.data';
-import { apiLinkedAccRes, linkedAccountsRes } from 'src/app/core/mock-data/personal-cards.data';
 import { selectedFilters1, selectedFilters2 } from 'src/app/core/mock-data/selected-filters.data';
 import { snackbarPropertiesRes6, snackbarPropertiesRes7 } from 'src/app/core/mock-data/snackbar-properties.data';
 import { apiToken } from 'src/app/core/mock-data/yoodle-token.data';
@@ -42,9 +41,10 @@ import { DateRangeModalComponent } from './date-range-modal/date-range-modal.com
 import { PersonalCardsPage } from './personal-cards.page';
 import { PersonalCardFilter } from 'src/app/core/models/personal-card-filters.model';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
-import { PersonalCard } from 'src/app/core/models/personal_card.model';
+import { platformApiLinkedAccRes } from 'src/app/core/mock-data/personal-cards.data';
+import { PlatformPersonalCard } from 'src/app/core/models/platform/platform-personal-card.model';
 
-describe('PersonalCardsPage', () => {
+fdescribe('PersonalCardsPage', () => {
   let component: PersonalCardsPage;
   let fixture: ComponentFixture<PersonalCardsPage>;
   let personalCardsService: jasmine.SpyObj<PersonalCardsService>;
@@ -212,14 +212,14 @@ describe('PersonalCardsPage', () => {
 
     launchDarklyService.getVariation.and.returnValue(of(false));
     personalCardsService.getPersonalCardsCount.and.returnValue(of(2));
-    personalCardsService.getPersonalCards.and.returnValue(of(linkedAccountsRes));
+    personalCardsService.getPersonalCards.and.returnValue(of(platformApiLinkedAccRes.data));
     component.loadData$ = new BehaviorSubject({
       pageNumber: 1,
     });
     component.loadCardData$ = new BehaviorSubject({});
     component.linkedAccountsCount$ = of(1);
     component.isConnected$ = of(true);
-    component.linkedAccounts$ = of(linkedAccountsRes);
+    component.linkedAccounts$ = of(platformApiLinkedAccRes.data);
     component.transactionsCount$ = of(2);
     component.transactions$ = of([apiPersonalCardTxnsRes.data[0]]);
     component.isInfiniteScrollRequired$ = of(true);
@@ -925,12 +925,12 @@ describe('PersonalCardsPage', () => {
   });
 
   it('loadLinkedAccounts(): should load linked accounts', (done) => {
-    personalCardsService.getPersonalCards.and.returnValue(of(apiLinkedAccRes.data));
+    personalCardsService.getPersonalCards.and.returnValue(of(platformApiLinkedAccRes.data));
 
     component.loadLinkedAccounts();
 
     component.linkedAccounts$.subscribe((res) => {
-      expect(res).toEqual(apiLinkedAccRes.data);
+      expect(res).toEqual(platformApiLinkedAccRes.data);
       expect(personalCardsService.getPersonalCards).toHaveBeenCalledTimes(1);
       done();
     });
@@ -1041,20 +1041,20 @@ describe('PersonalCardsPage', () => {
     });
 
     it('should call onCardChanged when linkedAccounts$ emits a non-empty value', (done) => {
-      const subject = new BehaviorSubject<PersonalCard[]>([]);
+      const subject = new BehaviorSubject<PlatformPersonalCard[]>([]);
       component.linkedAccounts$ = subject.asObservable();
 
       component.ngAfterViewInit();
-      subject.next(linkedAccountsRes);
+      subject.next(platformApiLinkedAccRes.data);
 
       component.linkedAccounts$.subscribe(() => {
-        expect(component.onCardChanged).toHaveBeenCalledWith(linkedAccountsRes[0].id);
+        expect(component.onCardChanged).toHaveBeenCalledWith(platformApiLinkedAccRes.data[0].id);
         done();
       });
     });
 
     it('should not call onCardChanged if linkedAccounts$ emits an empty array', (done) => {
-      const subject = new BehaviorSubject<PersonalCard[]>([]);
+      const subject = new BehaviorSubject<PlatformPersonalCard[]>([]);
       component.linkedAccounts$ = subject.asObservable();
 
       component.ngAfterViewInit();

@@ -1,5 +1,4 @@
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
-import { PersonalCard } from 'src/app/core/models/personal_card.model';
 import { PopoverController } from '@ionic/angular';
 import { PopupAlertComponent } from '../../popup-alert/popup-alert.component';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
@@ -12,13 +11,14 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
 import { DeleteButtonComponent } from './delete-button/delete-button-component';
 import { DateService } from 'src/app/core/services/date.service';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { PlatformPersonalCard } from 'src/app/core/models/platform/platform-personal-card.model';
 @Component({
   selector: 'app-bank-account-card',
   templateUrl: './bank-account-card.component.html',
   styleUrls: ['./bank-account-card.component.scss'],
 })
 export class BankAccountCardComponent implements OnInit {
-  @Input() accountDetails: PersonalCard;
+  @Input() accountDetails: PlatformPersonalCard;
 
   @Input() minimal: boolean;
 
@@ -39,8 +39,10 @@ export class BankAccountCardComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    if (this.accountDetails.last_synced_at) {
-      this.lastSyncedAt = this.dateService.convertUTCDateToLocalDate(new Date(this.accountDetails.last_synced_at));
+    if (this.accountDetails.yodlee_last_synced_at) {
+      this.lastSyncedAt = this.dateService.convertUTCDateToLocalDate(
+        new Date(this.accountDetails.yodlee_last_synced_at)
+      );
     }
   }
 
@@ -62,15 +64,7 @@ export class BankAccountCardComponent implements OnInit {
   async deleteAccount(): Promise<void> {
     from(this.loaderService.showLoader('Deleting your card...', 5000))
       .pipe(
-        switchMap(() =>
-          this.launchDarklyService
-            .getVariation('personal_cards_platform', false)
-            .pipe(
-              switchMap((usePlatformApi) =>
-                this.personalCardsService.deleteAccount(this.accountDetails.id, usePlatformApi)
-              )
-            )
-        ),
+        switchMap(() => this.personalCardsService.deleteAccount(this.accountDetails.id)),
         finalize(async () => {
           await this.loaderService.hideLoader();
           const message = 'Card successfully deleted.';
@@ -88,7 +82,7 @@ export class BankAccountCardComponent implements OnInit {
       component: PopupAlertComponent,
       componentProps: {
         title: 'Delete Card',
-        message: `Are you sure want to delete this card <b> (${this.accountDetails.bank_name} ${this.accountDetails.account_number}) </b>?`,
+        message: `Are you sure want to delete this card <b> (${this.accountDetails.bank_name} ${this.accountDetails.card_number}) </b>?`,
         primaryCta: {
           text: 'Delete',
           action: 'delete',

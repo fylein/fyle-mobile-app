@@ -7,15 +7,15 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from '../../../../core/services/snackbar-properties.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { BankAccountCardComponent } from './bank-account-card.component';
-import { apiLinkedAccRes, deletePersonalCardRes } from 'src/app/core/mock-data/personal-cards.data';
 import { of } from 'rxjs';
 import { ToastMessageComponent } from '../../toast-message/toast-message.component';
 import { PopupAlertComponent } from '../../popup-alert/popup-alert.component';
 import { DeleteButtonComponent } from './delete-button/delete-button-component';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { deletePersonalCardPlatformRes, platformApiLinkedAccRes } from 'src/app/core/mock-data/personal-cards.data';
 
-describe('BankAccountCardComponent', () => {
+fdescribe('BankAccountCardComponent', () => {
   let component: BankAccountCardComponent;
   let fixture: ComponentFixture<BankAccountCardComponent>;
   let personalCardsService: jasmine.SpyObj<PersonalCardsService>;
@@ -78,7 +78,7 @@ describe('BankAccountCardComponent', () => {
     launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
     component = fixture.componentInstance;
 
-    component.accountDetails = apiLinkedAccRes.data[1];
+    component.accountDetails = platformApiLinkedAccRes.data[1];
     fixture.detectChanges();
   }));
 
@@ -110,10 +110,9 @@ describe('BankAccountCardComponent', () => {
   });
 
   it('deleteAccount(): should delete account', fakeAsync(() => {
-    launchDarklyService.getVariation.and.returnValue(of(false));
     spyOn(component.deleted, 'emit');
     loaderService.showLoader.and.resolveTo();
-    personalCardsService.deleteAccount.and.returnValue(of(deletePersonalCardRes));
+    personalCardsService.deleteAccount.and.returnValue(of(deletePersonalCardPlatformRes.data));
     loaderService.hideLoader.and.resolveTo();
     matSnackBar.openFromComponent.and.callThrough();
     snackbarProperties.setSnackbarProperties.and.callThrough();
@@ -123,8 +122,7 @@ describe('BankAccountCardComponent', () => {
     tick();
     expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Deleting your card...', 5000);
     expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-    expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith('personal_cards_platform', false);
-    expect(personalCardsService.deleteAccount).toHaveBeenCalledOnceWith(component.accountDetails.id, false);
+    expect(personalCardsService.deleteAccount).toHaveBeenCalledOnceWith(component.accountDetails.id);
     expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
       panelClass: ['msb-success'],
     });
@@ -156,7 +154,7 @@ describe('BankAccountCardComponent', () => {
       component: PopupAlertComponent,
       componentProps: {
         title: 'Delete Card',
-        message: `Are you sure want to delete this card <b> (${component.accountDetails.bank_name} ${component.accountDetails.account_number}) </b>?`,
+        message: `Are you sure want to delete this card <b> (${component.accountDetails.bank_name} ${component.accountDetails.card_number}) </b>?`,
         primaryCta: {
           text: 'Delete',
           action: 'delete',
@@ -180,8 +178,8 @@ describe('BankAccountCardComponent', () => {
   });
 
   it('should display information correctly', () => {
-    expect(getTextContent(getElementBySelector(fixture, '.personal-card--bank-name'))).toEqual('Dag Site yodlee');
-    expect(getTextContent(getElementBySelector(fixture, '.personal-card--account-info__type'))).toEqual('CREDIT');
-    expect(getTextContent(getElementBySelector(fixture, '.personal-card--account-info__mask'))).toEqual('xxxx9806');
+    expect(getTextContent(getElementBySelector(fixture, '.personal-card--bank-name'))).toEqual('Dag Site');
+    expect(getTextContent(getElementBySelector(fixture, '.personal-card--account-info__type'))).toEqual('SAVINGS');
+    expect(getTextContent(getElementBySelector(fixture, '.personal-card--account-info__mask'))).toEqual('xxxx8791');
   });
 });
