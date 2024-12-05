@@ -338,7 +338,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
   linkAccount(): void {
     from(this.loaderService.showLoader('Redirecting you to our banking partner...', 10000))
       .pipe(
-        switchMap(() => this.personalCardsService.getToken()),
+        switchMap(() => this.personalCardsService.getToken(this.usePlatformApi)),
         finalize(async () => {
           await this.loaderService.hideLoader();
         })
@@ -384,7 +384,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
   postAccounts(requestIds: string[]): void {
     from(this.loaderService.showLoader('Linking your card with Fyle...', 30000))
       .pipe(
-        switchMap(() => this.personalCardsService.postBankAccounts(requestIds)),
+        switchMap(() => this.personalCardsService.postBankAccounts(requestIds, this.usePlatformApi)),
         finalize(async () => {
           await this.loaderService.hideLoader();
         })

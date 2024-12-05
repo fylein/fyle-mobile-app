@@ -33,6 +33,7 @@ import { apiToken } from '../mock-data/yoodle-token.data';
 import * as dayjs from 'dayjs';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformPersonalCardQueryParams } from '../models/platform/platform-personal-card-query-params.model';
+import { personalCardAccessTokenResponse } from '../mock-data/personal-cards-access-token.data';
 
 describe('PersonalCardsService', () => {
   let personalCardsService: PersonalCardsService;
@@ -304,6 +305,35 @@ describe('PersonalCardsService', () => {
       personalCardsService.getBankTransactionsCount(publicQueryParams, usePlatformApi).subscribe((res) => {
         expect(res).toEqual(transformedPlatformPersonalCardTxns.count);
         expect(personalCardsService.getBankTransactionsPlatform).toHaveBeenCalledTimes(1);
+        done();
+      });
+    });
+  });
+
+  describe('postBankAccounts()', () => {
+    it('should link personal cards using public api', (done) => {
+      const requestIds = ['bacc0dtQ3ESjjQ'];
+      const usePlatformApi = false;
+      expenseAggregationService.post.and.returnValue(of(requestIds));
+
+      personalCardsService.postBankAccounts(requestIds, usePlatformApi).subscribe((res) => {
+        expect(res).toEqual(requestIds);
+        expect(expenseAggregationService.post).toHaveBeenCalledOnceWith('/yodlee/personal/bank_accounts', {
+          aggregator: 'yodlee',
+          request_ids: requestIds,
+        });
+        done();
+      });
+    });
+
+    it('should link personal cards using platform api', (done) => {
+      const requestIds = ['bacc0dtQ3ESjjQ'];
+      const usePlatformApi = true;
+      spenderPlatformV1ApiService.post.and.returnValue(of(platformApiLinkedAccRes));
+
+      personalCardsService.postBankAccounts(requestIds, usePlatformApi).subscribe((res) => {
+        expect(res).toEqual(platformApiLinkedAccRes.data);
+        expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/personal_cards', { data: {} });
         done();
       });
     });
@@ -1507,13 +1537,27 @@ describe('PersonalCardsService', () => {
     );
   });
 
-  it('getToken(): should get access token', (done) => {
-    expenseAggregationService.get.and.returnValue(of(apiToken));
+  describe('getToken()', () => {
+    it('should get access token using public api', (done) => {
+      expenseAggregationService.get.and.returnValue(of(apiToken));
+      const usePlatformApi = false;
 
-    personalCardsService.getToken().subscribe((res) => {
-      expect(res).toEqual(apiToken);
-      expect(expenseAggregationService.get).toHaveBeenCalledOnceWith('/yodlee/personal/access_token');
-      done();
+      personalCardsService.getToken(usePlatformApi).subscribe((res) => {
+        expect(res).toEqual(apiToken);
+        expect(expenseAggregationService.get).toHaveBeenCalledOnceWith('/yodlee/personal/access_token');
+        done();
+      });
+    });
+
+    it('should get access token using platform api', (done) => {
+      spenderPlatformV1ApiService.post.and.returnValue(of(personalCardAccessTokenResponse));
+      const usePlatformApi = true;
+
+      personalCardsService.getToken(usePlatformApi).subscribe((res) => {
+        expect(res.access_token).toEqual(personalCardAccessTokenResponse.data.access_token);
+        expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/personal_cards/access_token');
+        done();
+      });
     });
   });
 });

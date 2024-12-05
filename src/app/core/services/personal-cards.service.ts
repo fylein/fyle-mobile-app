@@ -25,6 +25,7 @@ import { PlatformPersonalCardMatchedExpense } from '../models/platform/platform-
 import { TxnDetail } from '../models/v2/txn-detail.model';
 import { PlatformPersonalCardQueryParams } from '../models/platform/platform-personal-card-query-params.model';
 import { PersonalCardSyncTxns } from '../models/platform/platform-personal-card-syn-txns.model';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -153,7 +154,24 @@ export class PersonalCardsService {
       .pipe(map((res) => res.data));
   }
 
-  getToken(): Observable<YodleeAccessToken> {
+  getPlatformToken(): Observable<YodleeAccessToken> {
+    return this.spenderPlatformV1ApiService
+      .post<PlatformApiResponse<Omit<YodleeAccessToken, 'fast_link_url'>>>('/personal_cards/access_token')
+      .pipe(
+        map(
+          (res) =>
+            ({
+              access_token: res.data.access_token,
+              fast_link_url: environment.YODLEE_FAST_LINK_URL,
+            } as YodleeAccessToken)
+        )
+      );
+  }
+
+  getToken(usePlatformApi: boolean): Observable<YodleeAccessToken> {
+    if (usePlatformApi) {
+      return this.getPlatformToken();
+    }
     return this.expenseAggregationService.get('/yodlee/personal/access_token') as Observable<YodleeAccessToken>;
   }
 
@@ -170,7 +188,16 @@ export class PersonalCardsService {
     return pageContentUrl;
   }
 
-  postBankAccounts(requestIds: string[]): Observable<string[]> {
+  postBankAccountsPlatform(): Observable<PlatformPersonalCard[]> {
+    return this.spenderPlatformV1ApiService
+      .post<PlatformApiResponse<PlatformPersonalCard[]>>('/personal_cards', { data: {} })
+      .pipe(map((res) => res.data));
+  }
+
+  postBankAccounts(requestIds: string[], usePlatformApi: boolean): Observable<string[] | PlatformPersonalCard[]> {
+    if (usePlatformApi) {
+      return this.postBankAccountsPlatform();
+    }
     return this.expenseAggregationService.post('/yodlee/personal/bank_accounts', {
       aggregator: 'yodlee',
       request_ids: requestIds,
