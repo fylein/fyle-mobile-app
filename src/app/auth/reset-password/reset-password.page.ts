@@ -4,13 +4,16 @@ import { tap } from 'rxjs/operators';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { PageState } from 'src/app/core/models/page-state.enum';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 
 @Component({
   selector: 'app-reset-password',
   templateUrl: './reset-password.page.html',
   styleUrls: ['./reset-password.page.scss'],
 })
-export class ResetPasswordPage implements OnInit {
+export class ResetPasswordPage {
   currentPageState: PageState;
 
   isLoading = false;
@@ -27,14 +30,13 @@ export class ResetPasswordPage implements OnInit {
     private formBuilder: FormBuilder,
     private routerAuthService: RouterAuthService,
     private router: Router,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private matSnackBar: MatSnackBar,
+    private snackbarProperties: SnackbarPropertiesService
   ) {}
 
   ionViewWillEnter(): void {
     this.currentPageState = PageState.notSent;
-  }
-
-  ngOnInit(): void {
     const email = (this.activatedRoute.snapshot.params.email as string) || '';
     this.fg = this.formBuilder.group({
       email: [email, Validators.compose([Validators.required, Validators.pattern('\\S+@\\S+\\.\\S{2,}')])],
@@ -62,6 +64,14 @@ export class ResetPasswordPage implements OnInit {
     if (err.status === 422) {
       this.router.navigate(['/', 'auth', 'disabled']);
     } else {
+      const toastMessageData = {
+        message: 'Something went wrong. Please try after some time.',
+      };
+
+      this.matSnackBar.openFromComponent(ToastMessageComponent, {
+        ...this.snackbarProperties.setSnackbarProperties('success', toastMessageData),
+        panelClass: ['msb-info'],
+      });
     }
   }
 
