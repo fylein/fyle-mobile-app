@@ -313,6 +313,7 @@ import { ExactCurrencyPipe } from './pipes/exact-currency.pipe';
   exports: [
     EllipsisPipe,
     HumanizeCurrencyPipe,
+    ExactCurrencyPipe,
     ReportState,
     DateFormatPipe,
     FySelectComponent,
