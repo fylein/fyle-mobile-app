@@ -7,7 +7,6 @@ describe('ExactCurrencyPipe', () => {
   let exactCurrencyPipe: ExactCurrencyPipe;
 
   beforeEach(() => {
-    // Create a spy object for FyCurrencyPipe
     fyCurrencyPipeSpy = jasmine.createSpyObj('FyCurrencyPipe', ['transform']);
     exactCurrencyPipe = new ExactCurrencyPipe(fyCurrencyPipeSpy);
   });
@@ -42,11 +41,11 @@ describe('ExactCurrencyPipe', () => {
     });
 
     it('should format a value with custom fraction digits', () => {
-      fyCurrencyPipeSpy.transform.and.returnValue('$100.1234');
-      const config: CurrencyPipeConfig = { value: 100.1234, currencyCode: 'USD', fraction: 4 };
+      fyCurrencyPipeSpy.transform.and.returnValue('$100.12');
+      const config: CurrencyPipeConfig = { value: 100.1234, currencyCode: 'USD', fraction: 2 };
       const result = exactCurrencyPipe.transform(config);
-      expect(fyCurrencyPipeSpy.transform).toHaveBeenCalledWith(100.1234, 'USD', 'symbol', '1.4-4');
-      expect(result).toEqual('$100.1234');
+      expect(fyCurrencyPipeSpy.transform).toHaveBeenCalledWith(100.1234, 'USD', 'symbol', '1.2-2');
+      expect(result).toEqual('$100.12');
     });
 
     it('should handle a value of 0 correctly', () => {
@@ -78,6 +77,30 @@ describe('ExactCurrencyPipe', () => {
       const config: CurrencyPipeConfig = { value: -100, currencyCode: 'USD', skipSymbol: true };
       const result = exactCurrencyPipe.transform(config);
       expect(fyCurrencyPipeSpy.transform).toHaveBeenCalledWith(100, 'USD', '', undefined);
+      expect(result).toEqual('-100.00');
+    });
+
+    it('should format a positive decimal with single fraction digit', () => {
+      fyCurrencyPipeSpy.transform.and.returnValue('$123.40');
+      const config: CurrencyPipeConfig = { value: 123.4, currencyCode: 'USD', fraction: 2 };
+      const result = exactCurrencyPipe.transform(config);
+      expect(fyCurrencyPipeSpy.transform).toHaveBeenCalledWith(123.4, 'USD', 'symbol', '1.2-2');
+      expect(result).toEqual('$123.40');
+    });
+
+    it('should format a value without decimal digits, when skipSymbol is true and fraction is set to 2', () => {
+      fyCurrencyPipeSpy.transform.and.returnValue('100.00');
+      const config: CurrencyPipeConfig = { value: 100, currencyCode: 'USD', skipSymbol: true, fraction: 2 };
+      const result = exactCurrencyPipe.transform(config);
+      expect(fyCurrencyPipeSpy.transform).toHaveBeenCalledWith(100, 'USD', '', '1.2-2');
+      expect(result).toEqual('100.00');
+    });
+
+    it('should format a negative integer with fraction digits', () => {
+      fyCurrencyPipeSpy.transform.and.returnValue('100.00');
+      const config: CurrencyPipeConfig = { value: -100, currencyCode: 'USD', fraction: 2 };
+      const result = exactCurrencyPipe.transform(config);
+      expect(fyCurrencyPipeSpy.transform).toHaveBeenCalledWith(100, 'USD', 'symbol', '1.2-2');
       expect(result).toEqual('-100.00');
     });
   });
