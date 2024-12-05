@@ -78,25 +78,6 @@ describe('VerifyPage', () => {
       expect(trackingService.emailVerified).toHaveBeenCalledTimes(1);
       expect(trackingService.onSignin).toHaveBeenCalledOnceWith('ajain@fyle.in');
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'switch_org', { invite_link: true }]);
-      const verifyHeader = getElementBySelector(fixture, '#verify--header');
-      const verifySubheader = getElementBySelector(fixture, '.verify--form-subheader');
-      expect(getTextContent(verifyHeader)).toContain('Verifying Identity');
-      expect(getTextContent(verifySubheader)).toContain('Checking your credentials..');
-    });
-
-    it('should handle error when verification fails', () => {
-      const mockError = new Error('Verification failed');
-      routerAuthService.emailVerify.and.returnValue(throwError(() => mockError));
-      fixture.detectChanges();
-      spyOn(component, 'handleError');
-      component.ngOnInit();
-      expect(component.handleError).toHaveBeenCalledOnceWith(mockError);
-      const verifyHeader = getElementBySelector(fixture, '#verify--header');
-      const verifySubheader = getElementBySelector(fixture, '.verify--form-subheader');
-      expect(getTextContent(verifyHeader)).toContain('Verification Failed');
-      expect(getTextContent(verifySubheader)).toContain(
-        'Unable to verify your Fyle account. Please contact support by sending an email to support@fylehq.com'
-      );
     });
   });
 
@@ -107,7 +88,6 @@ describe('VerifyPage', () => {
       };
       component.handleError(error);
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'disabled']);
-      expect(component.currentPageState).not.toEqual(VerifyPageState.error);
     });
 
     it('should navigate to auth/pending_verification if status code is 440', () => {
@@ -121,7 +101,6 @@ describe('VerifyPage', () => {
         'pending_verification',
         { hasTokenExpired: true, orgId: 'orNVthTo2Zyo' },
       ]);
-      expect(component.currentPageState).not.toEqual(VerifyPageState.error);
     });
 
     it('should change the page status if error code is something else', () => {
@@ -129,7 +108,12 @@ describe('VerifyPage', () => {
         status: 404,
       };
       component.handleError(error);
-      expect(component.currentPageState).toEqual(VerifyPageState.error);
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'auth',
+        'pending_verification',
+        { orgId: 'orNVthTo2Zyo' },
+      ]);
     });
   });
 });

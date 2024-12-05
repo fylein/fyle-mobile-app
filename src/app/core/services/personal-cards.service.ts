@@ -187,7 +187,16 @@ export class PersonalCardsService {
     return pageContentUrl;
   }
 
-  postBankAccounts(requestIds: string[]): Observable<string[]> {
+  postBankAccountsPlatform(): Observable<PlatformPersonalCard[]> {
+    return this.spenderPlatformV1ApiService
+      .post<PlatformApiResponse<PlatformPersonalCard[]>>('/personal_cards', { data: {} })
+      .pipe(map((res) => res.data));
+  }
+
+  postBankAccounts(requestIds: string[], usePlatformApi: boolean): Observable<string[] | PlatformPersonalCard[]> {
+    if (usePlatformApi) {
+      return this.postBankAccountsPlatform();
+    }
     return this.expenseAggregationService.post('/yodlee/personal/bank_accounts', {
       aggregator: 'yodlee',
       request_ids: requestIds,
