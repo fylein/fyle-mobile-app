@@ -3,10 +3,10 @@ import { TxnDetail } from './v2/txn-detail.model';
 export interface PersonalCardTxn {
   _search_document?: string;
   ba_account_number: string;
-  ba_bank_name: string;
+  ba_bank_name?: string;
   ba_id: string;
   ba_mask?: string;
-  ba_nickname: string;
+  ba_nickname?: string;
   btxn_amount: number;
   btxn_created_at: Date;
   btxn_currency: string;

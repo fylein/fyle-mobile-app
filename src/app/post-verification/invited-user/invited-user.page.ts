@@ -1,7 +1,7 @@
 import { Component, OnInit, EventEmitter } from '@angular/core';
 import { Observable, noop, concat, from } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { switchMap, finalize, tap } from 'rxjs/operators';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -116,15 +116,6 @@ export class InvitedUserPage implements OnInit {
       });
       this.trackingService.showToastMessage({ ToastContent: message });
     }
-  }
-
-  checkPasswordEquality(): void {
-    if (!this.fg || !this.fg.controls) {
-      return null;
-    }
-    const password = this.fg.controls.password.value as string;
-    const confirmPassword = this.fg.controls.confirmPassword.value as string;
-    this.arePasswordsEqual = password === confirmPassword;
   }
 
   redirectToSignIn(): void {

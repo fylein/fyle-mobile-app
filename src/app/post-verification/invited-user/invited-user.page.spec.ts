@@ -156,56 +156,10 @@ describe('InvitedUserPage', () => {
     });
   });
 
-  describe('checkPasswordEquality()', () => {
-    it('should set arePasswordsEqual to true when password and confirmPassword match', () => {
-      component.fg.controls.password.setValue('StrongPassword@123');
-      component.fg.controls.confirmPassword.setValue('StrongPassword@123');
-
-      component.checkPasswordEquality();
-
-      expect(component.arePasswordsEqual).toBeTrue(); // Passwords match
-    });
-
-    it('should set arePasswordsEqual to false when password and confirmPassword do not match', () => {
-      component.fg.controls.password.setValue('StrongPassword@123');
-      component.fg.controls.confirmPassword.setValue('DifferentPassword@123');
-
-      component.checkPasswordEquality();
-
-      expect(component.arePasswordsEqual).toBeFalse(); // Passwords do not match
-    });
-
-    it('should set arePasswordsEqual to false when password is empty', () => {
-      component.fg.controls.password.setValue('');
-      component.fg.controls.confirmPassword.setValue('StrongPassword@123');
-
-      component.checkPasswordEquality();
-
-      expect(component.arePasswordsEqual).toBeFalse(); // Password is empty
-    });
-
-    it('should set arePasswordsEqual to false when confirmPassword is empty', () => {
-      component.fg.controls.password.setValue('StrongPassword@123');
-      component.fg.controls.confirmPassword.setValue('');
-
-      component.checkPasswordEquality();
-
-      expect(component.arePasswordsEqual).toBeFalse(); // ConfirmPassword is empty
-    });
-
-    it('should do nothing if form group is not initialized', () => {
-      component.fg = null;
-
-      expect(() => component.checkPasswordEquality()).not.toThrow();
-      expect(component.arePasswordsEqual).toBeFalse(); // Default value
-    });
-  });
-
   describe('saveData():', () => {
     it('should navigate to dashboard when form fields are valid', fakeAsync(() => {
       spyOn(component.fg, 'markAllAsTouched');
       component.isPasswordValid = true;
-      component.arePasswordsEqual = true;
       component.fg.controls.fullName.setValue('John Doe');
       component.fg.controls.password.setValue('StrongPassword@123');
       component.fg.controls.confirmPassword.setValue('StrongPassword@123');
