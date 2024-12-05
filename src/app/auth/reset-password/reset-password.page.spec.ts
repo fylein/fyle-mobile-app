@@ -87,7 +87,7 @@ describe('ResetPasswordPage', () => {
 
       const email = 'jay.b@fyle.in';
       component.sendResetLink(email);
-      expect(component.isLoading).toEqual(false);
+      expect(component.isLoading).toBeFalse();
       expect(component.currentPageState).toEqual(PageState.success);
     });
 
@@ -97,7 +97,7 @@ describe('ResetPasswordPage', () => {
 
       const email = 'jay.b@fyle.in';
       component.sendResetLink(email);
-      expect(component.isLoading).toEqual(true);
+      expect(component.isLoading).toBeTrue();
       expect(component.handleError).toHaveBeenCalledTimes(1);
     });
   });
