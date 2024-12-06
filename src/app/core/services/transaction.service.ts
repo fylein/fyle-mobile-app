@@ -199,14 +199,14 @@ export class TransactionService {
         if (fileIds.length > 0) {
           return this.expensesService.createFromFile(fileIds[0], txn.source).pipe(
             switchMap((result) => {
-              // txn contains only source key when capturing receipt
+              // txn contains only source key when capturing receipt in bulk mode
               if (txn.hasOwnProperty('source') && Object.keys(txn).length === 1) {
                 return of(this.transformExpense(result.data[0]).tx);
               } else {
-                const fileIds = fileObjs.map((fileObj) => fileObj.id);
+                // capture receipt flow: patching the expense with any of the form values.
                 txn.file_ids = fileIds;
                 txn.id = result.data[0].id;
-                return this.upsert(this.cleanupExpenseCreatePayload(txn));
+                return this.upsert(this.cleanupExpensePayload(txn));
               }
             })
           );
@@ -925,7 +925,8 @@ export class TransactionService {
     return typeOrFilter;
   }
 
-  private cleanupExpenseCreatePayload(txn: Partial<Transaction>) {
+  // to be used only when updating created expense with form values during capture recept flow
+  private cleanupExpensePayload(txn: Partial<Transaction>) {
     const newTxn = {};
     for (const key in txn) {
       if (txn[key] !== null && txn[key] !== undefined) {
