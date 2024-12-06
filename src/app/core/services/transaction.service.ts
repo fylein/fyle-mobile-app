@@ -195,17 +195,22 @@ export class TransactionService {
   ): Observable<Partial<Transaction>> {
     return fileUploads$.pipe(
       switchMap((fileObjs) => {
-        // txn contains only source key when capturing receipt
-        if (txn.hasOwnProperty('source') && Object.keys(txn).length === 1) {
-          const fileIds = fileObjs.map((fileObj) => fileObj.id);
-          if (fileIds.length > 0) {
-            return this.expensesService
-              .createFromFile(fileIds[0], txn.source)
-              .pipe(map((result) => this.transformExpense(result.data[0]).tx));
-          }
+        const fileIds = fileObjs.map((fileObj) => fileObj.id);
+        if (fileIds.length > 0) {
+          return this.expensesService.createFromFile(fileIds[0], txn.source).pipe(
+            switchMap((result) => {
+              // txn contains only source key when capturing receipt
+              if (txn.hasOwnProperty('source') && Object.keys(txn).length === 1) {
+                return of(this.transformExpense(result.data[0]).tx);
+              } else {
+                const fileIds = fileObjs.map((fileObj) => fileObj.id);
+                txn.file_ids = fileIds;
+                txn.id = result.data[0].id;
+                return this.upsert(this.cleanupExpenseCreatePayload(txn));
+              }
+            })
+          );
         } else {
-          const fileIds = fileObjs.map((fileObj) => fileObj.id);
-          txn.file_ids = fileIds;
           return this.upsert(txn);
         }
       })
@@ -918,5 +923,15 @@ export class TransactionService {
     }
 
     return typeOrFilter;
+  }
+
+  private cleanupExpenseCreatePayload(txn: Partial<Transaction>) {
+    const result = {};
+    for (const key in txn) {
+      if (txn[key] !== null && txn[key] !== undefined) {
+        result[key] = txn[key];
+      }
+    }
+    return result;
   }
 }
