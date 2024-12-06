@@ -27,7 +27,6 @@ import {
   Subject,
   takeUntil,
 } from 'rxjs';
-import { PersonalCard } from 'src/app/core/models/personal_card.model';
 import { PersonalCardTxn } from 'src/app/core/models/personal_card_txn.model';
 import { HeaderState } from 'src/app/shared/components/fy-header/header-state.enum';
 
@@ -57,6 +56,7 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
 import { SortFiltersParams } from 'src/app/core/models/sort-filters-params.model';
 import { PersonalCardFilter } from 'src/app/core/models/personal-card-filters.model';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { PlatformPersonalCard } from 'src/app/core/models/platform/platform-personal-card.model';
 
 // eslint-disable-next-line custom-rules/prefer-semantic-extension-name
 type Filters = Partial<PersonalCardFilter>;
@@ -75,7 +75,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
   linkedAccountsCount$: Observable<number>;
 
-  linkedAccounts$: Observable<PersonalCard[]>;
+  linkedAccounts$: Observable<PlatformPersonalCard[]>;
 
   loadCardData$: BehaviorSubject<{}> = new BehaviorSubject({});
 
@@ -176,7 +176,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.linkedAccounts$ = this.loadCardData$.pipe(
       tap(() => (this.isLoading = true)),
       switchMap(() =>
-        this.personalCardsService.getPersonalCards(this.usePlatformApi).pipe(
+        this.personalCardsService.getPersonalCards().pipe(
           tap(() => {
             this.isCardsLoaded = true;
           }),
@@ -208,7 +208,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
   loadAccountCount(): void {
     this.linkedAccountsCount$ = this.loadCardData$.pipe(
-      switchMap(() => this.personalCardsService.getPersonalCardsCount(this.usePlatformApi)),
+      switchMap(() => this.personalCardsService.getPersonalCardsCount()),
       tap((count) => {
         if (count === 0) {
           this.clearFilters();
