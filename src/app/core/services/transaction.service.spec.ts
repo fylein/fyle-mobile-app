@@ -1100,6 +1100,7 @@ describe('TransactionService', () => {
       const mockFileObject = cloneDeep(fileObjectData1);
 
       spyOn(transactionService, 'upsert').and.returnValue(of(txnData2));
+      expensesService.createFromFile.and.returnValue(of({ data: [expenseData] }));
       transactionService.createTxnWithFiles({ ...txnData }, of(mockFileObject)).subscribe((res) => {
         expect(res).toEqual(txnData2);
         expect(transactionService.upsert).toHaveBeenCalledOnceWith({ ...txnData, file_ids: [fileObjectData1[0].id] });

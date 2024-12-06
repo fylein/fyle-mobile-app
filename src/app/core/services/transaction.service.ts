@@ -926,8 +926,8 @@ export class TransactionService {
   }
 
   // to be used only when updating created expense with form values during capture recept flow
-  private cleanupExpensePayload(txn: Partial<Transaction>) {
-    const newTxn = {};
+  private cleanupExpensePayload(txn: Partial<Transaction>): Partial<Transaction> {
+    const newTxn: Partial<Transaction> = {};
     for (const key in txn) {
       if (txn[key] !== null && txn[key] !== undefined) {
         newTxn[key] = txn[key];
