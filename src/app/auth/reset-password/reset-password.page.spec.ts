@@ -20,7 +20,7 @@ describe('ResetPasswordPage', () => {
   let router: jasmine.SpyObj<Router>;
   let routerAuthService: jasmine.SpyObj<RouterAuthService>;
   let matSnackBar: jasmine.SpyObj<MatSnackBar>;
-  let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
+  let snackbarPropertiesService: jasmine.SpyObj<SnackbarPropertiesService>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
   let formBuilder: jasmine.SpyObj<FormBuilder>;
   let fb: FormBuilder;
@@ -29,7 +29,7 @@ describe('ResetPasswordPage', () => {
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const routerAuthServiceSpy = jasmine.createSpyObj('RouterAuthService', ['sendResetPassword']);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
-    const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
+    const snackbarPropertiesServiceSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     TestBed.configureTestingModule({
       declarations: [ResetPasswordPage],
       imports: [IonicModule.forRoot(), RouterTestingModule, RouterModule, FormsModule, ReactiveFormsModule],
@@ -49,7 +49,7 @@ describe('ResetPasswordPage', () => {
         },
         {
           provide: SnackbarPropertiesService,
-          useValue: snackbarPropertiesSpy,
+          useValue: snackbarPropertiesServiceSpy,
         },
         {
           provide: ActivatedRoute,
@@ -63,7 +63,7 @@ describe('ResetPasswordPage', () => {
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     routerAuthService = TestBed.inject(RouterAuthService) as jasmine.SpyObj<RouterAuthService>;
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
-    snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
+    snackbarPropertiesService = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
     activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
     fb = TestBed.inject(FormBuilder);
     component.fg = fb.group({
@@ -197,7 +197,7 @@ describe('ResetPasswordPage', () => {
         ...props,
         panelClass: ['msb-info'],
       });
-      expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledTimes(1);
+      expect(snackbarPropertiesService.setSnackbarProperties).toHaveBeenCalledTimes(1);
     });
   });
 
