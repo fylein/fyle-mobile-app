@@ -69,8 +69,8 @@ export class ResetPasswordPage {
       };
 
       this.matSnackBar.openFromComponent(ToastMessageComponent, {
-        ...this.snackbarProperties.setSnackbarProperties('success', toastMessageData),
-        panelClass: ['msb-info'],
+        ...this.snackbarProperties.setSnackbarProperties('failure', toastMessageData),
+        panelClass: ['msb-failure'],
       });
     }
   }
