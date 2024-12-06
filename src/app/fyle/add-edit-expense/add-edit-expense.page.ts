@@ -3765,16 +3765,11 @@ export class AddEditExpensePage implements OnInit {
       invalidPaymentMode: that.checkIfInvalidPaymentMode().pipe(take(1)),
       isReceiptMissingAndMandatory: that.checkIfReceiptIsMissingAndMandatory('SAVE_EXPENSE'),
     }).subscribe(({ invalidPaymentMode, isReceiptMissingAndMandatory }) => {
-      const saveIncompleteExpense = that.activatedRoute.snapshot.params.dataUrl && !formValues.report?.id;
-      if (saveIncompleteExpense || (that.fg.valid && !invalidPaymentMode && !isReceiptMissingAndMandatory)) {
+      if (that.fg.valid && !invalidPaymentMode && !isReceiptMissingAndMandatory) {
         if (that.mode === 'add') {
           if (that.isCreatedFromPersonalCard) {
             that.saveAndMatchWithPersonalCardTxn();
           } else {
-            if (saveIncompleteExpense && !that.fg.valid) {
-              this.trackingService.saveReceiptWithInvalidForm();
-            }
-
             that
               .addExpense('SAVE_EXPENSE')
               .pipe(

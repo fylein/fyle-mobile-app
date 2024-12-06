@@ -575,10 +575,6 @@ export class TrackingService {
     this.eventTrack('Receipt Cropped', properties);
   }
 
-  saveReceiptWithInvalidForm(properties = {}): void {
-    this.eventTrack('Save receipt with invalid form', properties);
-  }
-
   // Merge related trackings
   expensesMerged(properties = {}): void {
     this.eventTrack('Expenses merged successfully', properties);
