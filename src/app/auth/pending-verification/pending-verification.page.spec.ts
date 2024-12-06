@@ -1,80 +1,81 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 
 import { PendingVerificationPage } from './pending-verification.page';
-import { PageState } from 'src/app/core/models/page-state.enum';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { of, throwError } from 'rxjs';
 import { authResData1 } from 'src/app/core/mock-data/auth-reponse.data';
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { By } from '@angular/platform-browser';
+import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { RouterTestingModule } from '@angular/router/testing';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { HttpErrorResponse } from '@angular/common/http';
+import { getElementRef } from 'src/app/core/dom-helpers';
 
 describe('PendingVerificationPage', () => {
   let component: PendingVerificationPage;
   let fixture: ComponentFixture<PendingVerificationPage>;
   let router: jasmine.SpyObj<Router>;
-  let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
   let routerAuthService: jasmine.SpyObj<RouterAuthService>;
+  let matSnackBar: jasmine.SpyObj<MatSnackBar>;
+  let snackbarPropertiesService: jasmine.SpyObj<SnackbarPropertiesService>;
+  let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
+  let formBuilder: jasmine.SpyObj<FormBuilder>;
+  let fb: FormBuilder;
 
   beforeEach(waitForAsync(() => {
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const routerAuthServiceSpy = jasmine.createSpyObj('RouterAuthService', ['resendVerificationLink']);
-
+    const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
+    const snackbarPropertiesServiceSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     TestBed.configureTestingModule({
       declarations: [PendingVerificationPage],
-      imports: [IonicModule.forRoot()],
+      imports: [IonicModule.forRoot(), RouterTestingModule, RouterModule, FormsModule, ReactiveFormsModule],
       providers: [
-        { provide: Router, useValue: routerSpy },
-        {
-          provide: ActivatedRoute,
-          useValue: { snapshot: { params: { orgId: 'orNVthTo2Zyo' } } },
-        },
+        FormBuilder,
         {
           provide: RouterAuthService,
           useValue: routerAuthServiceSpy,
         },
+        {
+          provide: Router,
+          useValue: routerSpy,
+        },
+        {
+          provide: MatSnackBar,
+          useValue: matSnackBarSpy,
+        },
+        {
+          provide: SnackbarPropertiesService,
+          useValue: snackbarPropertiesServiceSpy,
+        },
+        {
+          provide: ActivatedRoute,
+          useValue: { snapshot: { params: { email: 'aastha.b@fyle.in' } } },
+        },
       ],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
 
     fixture = TestBed.createComponent(PendingVerificationPage);
     component = fixture.componentInstance;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
-    activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
     routerAuthService = TestBed.inject(RouterAuthService) as jasmine.SpyObj<RouterAuthService>;
+    matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
+    snackbarPropertiesService = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
+    activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
+    fb = TestBed.inject(FormBuilder);
+    activatedRoute.snapshot.params.orgId = 'orNVthTo2Zyo';
+    component.fg = fb.group({
+      email: [Validators.compose([Validators.required, Validators.pattern('\\S+@\\S+\\.\\S{2,}')])],
+    });
     fixture.detectChanges();
   }));
 
   it('should create', () => {
     expect(component).toBeTruthy();
-  });
-
-  it('should set hasTokenExpired to true if snapshot.params.hasTokenExpired is defined and true on ionViewWillEnter()', () => {
-    activatedRoute.snapshot.params.hasTokenExpired = true;
-    component.ionViewWillEnter();
-    fixture.detectChanges();
-    const pageTitle = fixture.debugElement.query(By.css('app-send-email')).nativeElement.title;
-    expect(component.hasTokenExpired).toBe(true);
-    expect(pageTitle).toEqual('Verification link expired');
-  });
-
-  it('should set hasTokenExpired to false if snapshot.params.hasTokenExpired is defined and false on ionViewWillEnter()', () => {
-    activatedRoute.snapshot.params.hasTokenExpired = false;
-    component.ionViewWillEnter();
-    fixture.detectChanges();
-    const pageTitle = fixture.debugElement.query(By.css('app-send-email')).nativeElement.title;
-    expect(component.hasTokenExpired).toBe(false);
-    expect(pageTitle).toEqual('Please verify your email');
-  });
-
-  it('should set hasTokenExpired to false and currentPageState to notSent if snapshot.params.hasTokenExpired is not defined on ionViewWillEnter()', () => {
-    component.ionViewWillEnter();
-    fixture.detectChanges();
-    const pageTitle = fixture.debugElement.query(By.css('app-send-email')).nativeElement.title;
-    expect(component.hasTokenExpired).toBe(false);
-    expect(component.currentPageState).toEqual(PageState.notSent);
-    expect(pageTitle).toEqual('Please verify your email');
   });
 
   it('resendVerificationLink(): should call routerAuthService and set PageState to success if API is successful', fakeAsync(() => {
@@ -86,36 +87,80 @@ describe('PendingVerificationPage', () => {
     tick(1000);
     expect(routerAuthService.resendVerificationLink).toHaveBeenCalledOnceWith('ajain@fyle.in', 'orNVthTo2Zyo');
     expect(component.isLoading).toBeFalse();
-    expect(component.currentPageState).toEqual(PageState.success);
   }));
 
   it('resendVerificationLink(): should call routerAuthService and call handleError if API is unsuccessful', fakeAsync(() => {
-    const error = new Error('An Error Occured');
+    const error = { status: 500 } as HttpErrorResponse;
     routerAuthService.resendVerificationLink.and.returnValue(throwError(() => error));
     spyOn(component, 'handleError');
     component.resendVerificationLink('ajain@fyle.in');
     tick(1000);
     expect(routerAuthService.resendVerificationLink).toHaveBeenCalledOnceWith('ajain@fyle.in', 'orNVthTo2Zyo');
     expect(component.isLoading).toBeTrue();
-    expect(component.currentPageState).not.toEqual(PageState.success);
     expect(component.handleError).toHaveBeenCalledOnceWith(error);
   }));
 
-  it('handleError(); should navigate to auth/disabled if status code is 422', () => {
-    const error = {
-      status: 422,
-    };
-    component.handleError(error);
-    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'disabled']);
-    expect(component.currentPageState).not.toEqual(PageState.failure);
+  describe('handleError():', () => {
+    it('handleError(); should navigate to auth/disabled if status code is 422', () => {
+      const error = {
+        status: 422,
+      } as HttpErrorResponse;
+      component.handleError(error);
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'disabled']);
+    });
+
+    it('should display error message on other errors', () => {
+      const error = { status: 401 } as HttpErrorResponse;
+      const props = {
+        panelClass: ['msb-failure'],
+      };
+
+      matSnackBar.openFromComponent.and.callThrough();
+
+      component.handleError(error);
+      expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
+        ...props,
+        panelClass: ['msb-failure'],
+      });
+      expect(snackbarPropertiesService.setSnackbarProperties).toHaveBeenCalledTimes(1);
+    });
   });
 
-  it('handleError(); should set pagestate to failure if status code', () => {
-    const error = {
-      status: 422,
-    };
-    component.handleError(error);
-    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'disabled']);
-    expect(component.currentPageState).not.toEqual(PageState.failure);
+  it('onGotoSignInClick(): should navigate to sign-in page', () => {
+    component.onGotoSignInClick();
+    expect(router.navigate).toHaveBeenCalledWith(['/', 'auth', 'sign_in']);
+  });
+
+  describe('template', () => {
+    it('should render the form in "notSent" state', () => {
+      component.isInvitationLinkSent = false;
+      fixture.detectChanges();
+
+      const formElement = fixture.debugElement.query(By.css('.pending-verification__form-container'));
+      expect(formElement).toBeTruthy();
+    });
+
+    it('should display validation error for invalid email input', () => {
+      component.isInvitationLinkSent = false;
+      const emailControl = component.fg.controls.email;
+      emailControl.setValue('invalid-email');
+      emailControl.markAsTouched();
+      fixture.detectChanges();
+
+      const errorElement = getElementRef(fixture, '.pending-verification__error-message');
+      expect(errorElement.nativeElement.textContent).toContain('Please enter a valid email.');
+    });
+
+    it('should call sendResetLink with correct email when button is clicked', () => {
+      component.isInvitationLinkSent = false;
+      spyOn(component, 'resendVerificationLink');
+      component.fg.controls.email.setValue('test@example.com');
+      fixture.detectChanges();
+
+      const buttonElement = fixture.debugElement.query(By.css('ion-button'));
+      buttonElement.triggerEventHandler('click', null);
+
+      expect(component.resendVerificationLink).toHaveBeenCalledWith('test@example.com');
+    });
   });
 });

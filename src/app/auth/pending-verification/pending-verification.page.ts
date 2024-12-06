@@ -7,6 +7,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-pending-verification',
@@ -14,8 +15,6 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
   styleUrls: ['./pending-verification.page.scss'],
 })
 export class PendingVerificationPage implements OnInit {
-  currentPageState: PageState;
-
   isLoading = false;
 
   isInvitationLinkSent = false;
@@ -48,11 +47,11 @@ export class PendingVerificationPage implements OnInit {
         next: () => {
           this.isInvitationLinkSent = true;
         },
-        error: (err: { status: number }) => this.handleError(err),
+        error: (err: HttpErrorResponse) => this.handleError(err),
       });
   }
 
-  handleError(err: { status: number }): void {
+  handleError(err: HttpErrorResponse): void {
     if (err.status === 422) {
       this.router.navigate(['/', 'auth', 'disabled']);
     } else {
