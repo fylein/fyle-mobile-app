@@ -41,6 +41,7 @@ import {
   txnData,
   txnData2,
   txnData4,
+  txnDataCleaned,
   txnDataPayload,
   txnList,
   upsertTxnParam,
@@ -1103,7 +1104,12 @@ describe('TransactionService', () => {
       expensesService.createFromFile.and.returnValue(of({ data: [expenseData] }));
       transactionService.createTxnWithFiles({ ...txnData }, of(mockFileObject)).subscribe((res) => {
         expect(res).toEqual(txnData2);
-        expect(transactionService.upsert).toHaveBeenCalledOnceWith({ ...txnData, file_ids: [fileObjectData1[0].id] });
+        expect(expensesService.createFromFile).toHaveBeenCalledOnceWith(mockFileObject[0].id, 'MOBILE_DASHCAM_BULK');
+        expect(transactionService.upsert).toHaveBeenCalledOnceWith({
+          ...txnDataCleaned,
+          file_ids: [fileObjectData1[0].id],
+          id: expenseData.id,
+        });
         done();
       });
     });

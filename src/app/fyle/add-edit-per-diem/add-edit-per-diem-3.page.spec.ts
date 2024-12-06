@@ -672,8 +672,7 @@ export function TestCases3(getTestBed) {
             expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
               unflattenedTxnData.tx,
               undefined,
-              [],
-              'rprAfNrce73O'
+              []
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
@@ -715,8 +714,7 @@ export function TestCases3(getTestBed) {
             expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
               unflattenedTxnData.tx,
               undefined,
-              ['comment'],
-              'rprAfNrce73O'
+              ['comment']
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
@@ -761,8 +759,7 @@ export function TestCases3(getTestBed) {
             expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
               unflattenedTxnData.tx,
               undefined,
-              ['comment'],
-              'rprAfNrce73O'
+              ['comment']
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
@@ -805,8 +802,7 @@ export function TestCases3(getTestBed) {
             expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
               unflattenedTxnData.tx,
               undefined,
-              ['comment'],
-              'rprAfNrce73O'
+              ['comment']
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
@@ -845,8 +841,7 @@ export function TestCases3(getTestBed) {
               expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
                 unflattenedTxnData.tx,
                 undefined,
-                ['comment'],
-                'rprAfNrce73O'
+                ['comment']
               );
               expect(res).toEqual(outboxQueueData1[0]);
             },
@@ -887,12 +882,7 @@ export function TestCases3(getTestBed) {
             expect(authService.getEou).toHaveBeenCalledTimes(1);
 
             expect(trackingService.createExpense).toHaveBeenCalledOnceWith(createExpenseProperties3);
-            expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
-              unflattenedTxnData.tx,
-              [],
-              [],
-              'rprAfNrce73O'
-            );
+            expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(unflattenedTxnData.tx, [], []);
             expect(res).toEqual(outboxQueueData1[0]);
             done();
           });
@@ -922,12 +912,7 @@ export function TestCases3(getTestBed) {
             expect(authService.getEou).toHaveBeenCalledTimes(1);
 
             expect(trackingService.createExpense).toHaveBeenCalledOnceWith(createExpenseProperties3);
-            expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
-              unflattenedTxnData.tx,
-              [],
-              [],
-              'rprAfNrce73O'
-            );
+            expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(unflattenedTxnData.tx, [], []);
             expect(res).toEqual(outboxQueueData1[0]);
             done();
           });
@@ -967,12 +952,7 @@ export function TestCases3(getTestBed) {
             expect(authService.getEou).toHaveBeenCalledTimes(1);
 
             expect(trackingService.createExpense).toHaveBeenCalledOnceWith(createExpenseProperties3);
-            expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
-              mockTxnData.tx,
-              [],
-              [],
-              'rprAfNrce73O'
-            );
+            expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(mockTxnData.tx, [], []);
             expect(res).toEqual(outboxQueueData1[0]);
             done();
           });

@@ -930,7 +930,7 @@ export class TransactionService {
     const newTxn: Partial<Transaction> = {};
     for (const key in txn) {
       if (txn[key] !== null && txn[key] !== undefined) {
-        newTxn[key] = txn[key];
+        newTxn[key] = txn[key] as Transaction[keyof Transaction];
       }
     }
     return newTxn;

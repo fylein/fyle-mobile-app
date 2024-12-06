@@ -276,8 +276,7 @@ export function TestCases3(getTestBed) {
           expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
             unflattenedTxnData.tx,
             unflattenedTxnData.dataUrls as any,
-            [],
-            expectedReportsPaginated[0].id
+            []
           );
           done();
         });
@@ -318,8 +317,7 @@ export function TestCases3(getTestBed) {
           expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
             unflattenedMileageDataWithPolicyAmount.tx,
             unflattenedTxnData.dataUrls as any,
-            [],
-            undefined
+            []
           );
           done();
         });
@@ -369,8 +367,7 @@ export function TestCases3(getTestBed) {
           expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
             unflattenedTxnData.tx,
             unflattenedTxnData.dataUrls as any,
-            [],
-            undefined
+            []
           );
           done();
         });
@@ -422,8 +419,7 @@ export function TestCases3(getTestBed) {
           expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
             unflattendedTxnWithPolicyAmount.tx,
             unflattendedTxnWithPolicyAmount.dataUrls as any,
-            ['A comment'],
-            undefined
+            ['A comment']
           );
           done();
         });
@@ -458,8 +454,7 @@ export function TestCases3(getTestBed) {
           expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
             unflattenedTxnData.tx,
             unflattenedTxnData.dataUrls as any,
-            [],
-            expectedReportsPaginated[0].id
+            []
           );
           done();
         });
