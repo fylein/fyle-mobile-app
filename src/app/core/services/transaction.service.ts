@@ -926,12 +926,12 @@ export class TransactionService {
   }
 
   private cleanupExpenseCreatePayload(txn: Partial<Transaction>) {
-    const result = {};
+    const newTxn = {};
     for (const key in txn) {
       if (txn[key] !== null && txn[key] !== undefined) {
-        result[key] = txn[key];
+        newTxn[key] = txn[key];
       }
     }
-    return result;
+    return newTxn;
   }
 }
