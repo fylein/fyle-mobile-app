@@ -132,7 +132,7 @@ describe('PendingVerificationPage', () => {
   });
 
   describe('template', () => {
-    it('should render the form in "notSent" state', () => {
+    it('should render the form for entering email', () => {
       component.isInvitationLinkSent = false;
       fixture.detectChanges();
 
@@ -151,7 +151,7 @@ describe('PendingVerificationPage', () => {
       expect(errorElement.nativeElement.textContent).toContain('Please enter a valid email.');
     });
 
-    it('should call sendResetLink with correct email when button is clicked', () => {
+    it('should call resendVerificationLink with correct email when button is clicked', () => {
       component.isInvitationLinkSent = false;
       spyOn(component, 'resendVerificationLink');
       component.fg.controls.email.setValue('test@example.com');
