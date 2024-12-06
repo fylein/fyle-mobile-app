@@ -66,4 +66,8 @@ export class PendingVerificationPage implements OnInit {
       });
     }
   }
+
+  onGotoSignInClick(): void {
+    this.router.navigate(['/', 'auth', 'sign_in']);
+  }
 }

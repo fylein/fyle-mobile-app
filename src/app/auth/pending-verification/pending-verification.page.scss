@@ -189,4 +189,17 @@
       font-weight: 500;
     }
   }
+  &__cta-secondary {
+    display: flex;
+    padding-top: 12px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 24px;
+    align-self: stretch;
+    color: $blue-black;
+    display: flex;
+    flex-direction: row;
+    gap: 6px;
+  }
 }

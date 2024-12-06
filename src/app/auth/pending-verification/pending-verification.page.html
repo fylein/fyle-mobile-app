@@ -9,9 +9,9 @@
         ></ion-icon>
       </div>
       <div>
-        <div class="pending-verification__page-header">Forgot Password</div>
+        <div class="pending-verification__page-header">The invitation has expired</div>
         <div class="pending-verification__sub-header">
-          Please enter your registered email address to receive instructions for resetting your password
+          Enter your registered email address to receive a new invitation and set up your account on Fyle.
         </div>
       </div>
       <form [formGroup]="fg" class="pending-verification__input-container">
@@ -34,20 +34,14 @@
       <ion-button (click)="resendVerificationLink(fg.controls.email.value)" class="btn-primary" fill="clear">
         Send invite
       </ion-button>
-      <ion-button
-        (click)="resendVerificationLink(fg.controls.email.value)"
-        class="pending-verification__btn-text"
-        fill="clear"
-      >
-        <div class="pending-verification__cta-content">
-          <ion-icon
-            class="pending-verification__arrow-icon"
-            [src]="'/assets/svg/arrow-left.svg'"
-            slot="icon-only"
-          ></ion-icon>
-          <span class="pending-verification__cta-text">Back to Sign In</span>
-        </div>
-      </ion-button>
+      <div class="pending-verification__cta-secondary" (click)="onGotoSignInClick()">
+        <ion-icon
+          class="pending-verification__arrow-icon"
+          [src]="'/assets/svg/arrow-left.svg'"
+          slot="icon-only"
+        ></ion-icon>
+        <span class="pending-verification__cta-text">Back to Sign In</span>
+      </div>
     </div>
   </div>
   <div *ngIf="isInvitationLinkSent">
