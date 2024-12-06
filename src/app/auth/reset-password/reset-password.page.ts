@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { tap } from 'rxjs/operators';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
@@ -69,8 +69,8 @@ export class ResetPasswordPage {
       };
 
       this.matSnackBar.openFromComponent(ToastMessageComponent, {
-        ...this.snackbarProperties.setSnackbarProperties('success', toastMessageData),
-        panelClass: ['msb-info'],
+        ...this.snackbarProperties.setSnackbarProperties('failure', toastMessageData),
+        panelClass: ['msb-failure'],
       });
     }
   }

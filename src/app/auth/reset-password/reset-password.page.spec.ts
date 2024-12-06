@@ -184,10 +184,9 @@ describe('ResetPasswordPage', () => {
     });
 
     it('should display error message on other errors', () => {
-      const msg = 'Something went wrong. Please try after some time.';
       const error = { status: 401 };
       const props = {
-        panelClass: ['msb-info'],
+        panelClass: ['msb-failure'],
       };
 
       matSnackBar.openFromComponent.and.callThrough();
@@ -195,7 +194,7 @@ describe('ResetPasswordPage', () => {
       component.handleError(error);
       expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
         ...props,
-        panelClass: ['msb-info'],
+        panelClass: ['msb-failure'],
       });
       expect(snackbarPropertiesService.setSnackbarProperties).toHaveBeenCalledTimes(1);
     });
