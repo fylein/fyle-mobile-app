@@ -1,12 +1,11 @@
 import { Component } from '@angular/core';
 import { HeaderState } from '../../shared/components/fy-header/header-state.enum';
-import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
 import { ExpensePreviewComponent } from './expense-preview/expense-preview.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
-import * as dayjs from 'dayjs';
 import { PersonalCardTxn } from 'src/app/core/models/personal_card_txn.model';
+import { PersonalCardTxnExpenseSuggestion } from 'src/app/core/models/personal-card-txn-expense-suggestion.model';
 @Component({
   selector: 'app-personal-cards-matched-expenses',
   templateUrl: './personal-cards-matched-expenses.page.html',
@@ -19,20 +18,16 @@ export class PersonalCardsMatchedExpensesPage {
 
   txnDetails: PersonalCardTxn;
 
-  matchedExpenses$;
+  expenseSuggestions: PersonalCardTxnExpenseSuggestion[];
 
   constructor(
-    private personalCardsService: PersonalCardsService,
     private router: Router,
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService
   ) {
     this.txnDetails = this.router.getCurrentNavigation().extras.state.txnDetails as PersonalCardTxn;
-  }
-
-  ionViewWillEnter(): void {
-    const txnDate = dayjs(this.txnDetails.btxn_transaction_dt).format('YYYY-MM-DD');
-    this.matchedExpenses$ = this.personalCardsService.getMatchedExpenses(this.txnDetails.btxn_amount, txnDate);
+    this.expenseSuggestions = this.router.getCurrentNavigation().extras.state
+      .expenseSuggestions as PersonalCardTxnExpenseSuggestion[];
   }
 
   createExpense(): void {
