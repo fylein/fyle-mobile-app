@@ -152,6 +152,7 @@ import { ProfileOptInCardComponent } from './components/profile-opt-in-card/prof
 import { DashboardOptInComponent } from './components/dashboard-opt-in/dashboard-opt-in.component';
 import { MobileNumberCardComponent } from './components/mobile-number-card/mobile-number-card.component';
 import { PasswordCheckTooltipComponent } from './components/password-check-tooltip/password-check-tooltip.component';
+import { ExactCurrencyPipe } from './pipes/exact-currency.pipe';
 
 @NgModule({
   declarations: [
@@ -280,6 +281,7 @@ import { PasswordCheckTooltipComponent } from './components/password-check-toolt
     ProfileOptInCardComponent,
     DashboardOptInComponent,
     MobileNumberCardComponent,
+    ExactCurrencyPipe,
   ],
   imports: [
     CommonModule,
@@ -311,6 +313,7 @@ import { PasswordCheckTooltipComponent } from './components/password-check-toolt
   exports: [
     EllipsisPipe,
     HumanizeCurrencyPipe,
+    ExactCurrencyPipe,
     ReportState,
     DateFormatPipe,
     FySelectComponent,
