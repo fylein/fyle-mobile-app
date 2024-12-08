@@ -247,7 +247,7 @@ export function TestCases3(getTestBed) {
         spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomPropertiesData4));
         spyOn(component, 'getCalculatedDistance').and.returnValue(of('10'));
         component.isConnected$ = of(true);
-        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(unflattenedTxnData));
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(cloneDeep(unflattenedTxnData)));
         spyOn(component, 'checkPolicyViolation').and.returnValue(of(expensePolicyDataWoData));
         policyService.getCriticalPolicyRules.and.returnValue([]);
         policyService.getPolicyRules.and.returnValue([]);
@@ -256,11 +256,18 @@ export function TestCases3(getTestBed) {
         spyOn(component, 'getFormValues').and.returnValue({
           report: expectedReportsPaginated[0],
         });
+        const expectedEtxnData = {
+          ...unflattenedTxnData,
+          tx: {
+            ...unflattenedTxnData.tx,
+            report_id: expectedReportsPaginated[0].id,
+          },
+        };
         transactionOutboxService.addEntryAndSync.and.resolveTo(outboxQueueData1[0]);
         fixture.detectChanges();
 
         component.addExpense('SAVE_MILEAGE').subscribe((res) => {
-          expect(res).toEqual(unflattenedTxnData);
+          expect(res).toEqual(expectedEtxnData);
           expect(component.getCustomFields).toHaveBeenCalledTimes(1);
           expect(component.getCalculatedDistance).toHaveBeenCalledTimes(1);
           expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(
@@ -274,7 +281,7 @@ export function TestCases3(getTestBed) {
           expect(component.trackCreateExpense).toHaveBeenCalledTimes(1);
           expect(component.getFormValues).toHaveBeenCalledTimes(1);
           expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
-            unflattenedTxnData.tx,
+            expectedEtxnData.tx,
             unflattenedTxnData.dataUrls as any,
             []
           );
@@ -429,18 +436,25 @@ export function TestCases3(getTestBed) {
         component.isConnected$ = of(false);
         spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomPropertiesData4));
         spyOn(component, 'getCalculatedDistance').and.returnValue(of('10'));
-        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(unflattenedTxnData));
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(cloneDeep(unflattenedTxnData)));
         spyOn(component, 'checkPolicyViolation').and.returnValue(of(expensePolicyDataWoData));
         spyOn(component, 'trackCreateExpense');
         authService.getEou.and.resolveTo(apiEouRes);
         spyOn(component, 'getFormValues').and.returnValue({
           report: expectedReportsPaginated[0],
         });
+        const expectedEtxnData = {
+          ...unflattenedTxnData,
+          tx: {
+            ...unflattenedTxnData.tx,
+            report_id: expectedReportsPaginated[0].id,
+          },
+        };
         transactionOutboxService.addEntryAndSync.and.resolveTo(outboxQueueData1[0]);
         fixture.detectChanges();
 
         component.addExpense('SAVE_MILEAGE').subscribe((res) => {
-          expect(res).toEqual(unflattenedTxnData);
+          expect(res).toEqual(expectedEtxnData);
           expect(component.getCustomFields).toHaveBeenCalledTimes(1);
           expect(component.getCalculatedDistance).toHaveBeenCalledTimes(1);
           expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(
@@ -452,7 +466,7 @@ export function TestCases3(getTestBed) {
           expect(component.trackCreateExpense).toHaveBeenCalledTimes(1);
           expect(component.getFormValues).toHaveBeenCalledTimes(1);
           expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
-            unflattenedTxnData.tx,
+            expectedEtxnData.tx,
             unflattenedTxnData.dataUrls as any,
             []
           );

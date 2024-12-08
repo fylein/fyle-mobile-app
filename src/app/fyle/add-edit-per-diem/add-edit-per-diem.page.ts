@@ -1971,15 +1971,16 @@ export class AddEditPerDiemPage implements OnInit {
             }
 
             const formValue = this.getFormValues();
+            const transaction = cloneDeep(etxn.tx);
             if (
               formValue.report &&
               (etxn.tx.policy_amount === null || (etxn.tx.policy_amount && !(etxn.tx.policy_amount < 0.0001)))
             ) {
-              etxn.tx.report_id = formValue.report.id;
+              transaction.report_id = formValue.report.id;
             }
             return of(
               this.transactionsOutboxService.addEntryAndSync(
-                etxn.tx,
+                transaction,
                 etxn.dataUrls as { url: string; type: string }[],
                 comments
               )

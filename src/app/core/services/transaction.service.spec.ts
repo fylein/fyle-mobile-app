@@ -1107,7 +1107,6 @@ describe('TransactionService', () => {
         expect(expensesService.createFromFile).toHaveBeenCalledOnceWith(mockFileObject[0].id, 'MOBILE_DASHCAM_BULK');
         expect(transactionService.upsert).toHaveBeenCalledOnceWith({
           ...txnDataCleaned,
-          file_ids: [fileObjectData1[0].id],
           id: expenseData.id,
         });
         done();

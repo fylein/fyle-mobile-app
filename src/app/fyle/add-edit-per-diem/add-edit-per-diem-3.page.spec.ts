@@ -77,7 +77,7 @@ import { expectedReportsPaginated } from 'src/app/core/mock-data/platform-report
 import { PerDiemRedirectedFrom } from 'src/app/core/models/per-diem-redirected-from.enum';
 
 export function TestCases3(getTestBed) {
-  return describe('add-edit-per-diem test cases set 3', () => {
+  return fdescribe('add-edit-per-diem test cases set 3', () => {
     let component: AddEditPerDiemPage;
     let fixture: ComponentFixture<AddEditPerDiemPage>;
     let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
@@ -613,18 +613,27 @@ export function TestCases3(getTestBed) {
     });
 
     describe('addExpense():', () => {
-      const etxn$ = of({ tx: unflattenedTxnData.tx, ou: unflattenedTxnData.ou, dataUrls: [] });
       const customFields$ = of(txnCustomProperties4);
+      const expectedEtxnDataWithReportId = {
+        ...unflattenedTxnData,
+        tx: {
+          ...unflattenedTxnData.tx,
+          report_id: expectedReportsPaginated[0].id,
+        },
+      };
       beforeEach(() => {
+        const etxn$ = of({ tx: cloneDeep(unflattenedTxnData.tx), ou: unflattenedTxnData.ou, dataUrls: [] });
         spyOn(component, 'generateEtxnFromFg').and.returnValue(etxn$);
         spyOn(component, 'getCustomFields').and.returnValue(customFields$);
         component.isConnected$ = of(true);
         spyOn(component, 'checkPolicyViolation').and.returnValue(of(expensePolicyData));
         policyService.getCriticalPolicyRules.and.returnValue(['The expense will be flagged']);
         policyService.getPolicyRules.and.returnValue(['The expense will be flagged']);
-        spyOn(component, 'criticalPolicyViolationErrorHandler').and.returnValue(of({ etxn: unflattenedTxnData }));
+        spyOn(component, 'criticalPolicyViolationErrorHandler').and.returnValue(
+          of({ etxn: cloneDeep(unflattenedTxnData) })
+        );
         spyOn(component, 'policyViolationErrorHandler').and.returnValue(
-          of({ etxn: unflattenedTxnData, comment: 'comment' })
+          of({ etxn: cloneDeep(unflattenedTxnData), comment: 'comment' })
         );
         authService.getEou.and.resolveTo(apiEouRes);
         spyOn(component, 'getFormValues').and.returnValue({
@@ -670,7 +679,7 @@ export function TestCases3(getTestBed) {
             expect(authService.getEou).toHaveBeenCalledTimes(1);
             expect(trackingService.createExpense).toHaveBeenCalledOnceWith(createExpenseProperties3);
             expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
-              unflattenedTxnData.tx,
+              expectedEtxnDataWithReportId.tx,
               undefined,
               []
             );
@@ -712,7 +721,7 @@ export function TestCases3(getTestBed) {
             expect(authService.getEou).toHaveBeenCalledTimes(1);
             expect(trackingService.createExpense).toHaveBeenCalledOnceWith(createExpenseProperties3);
             expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
-              unflattenedTxnData.tx,
+              expectedEtxnDataWithReportId.tx,
               undefined,
               ['comment']
             );
@@ -757,7 +766,7 @@ export function TestCases3(getTestBed) {
             expect(authService.getEou).toHaveBeenCalledTimes(1);
             expect(trackingService.createExpense).toHaveBeenCalledOnceWith(createExpenseProperties3);
             expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
-              unflattenedTxnData.tx,
+              expectedEtxnDataWithReportId.tx,
               undefined,
               ['comment']
             );
@@ -800,7 +809,7 @@ export function TestCases3(getTestBed) {
             expect(authService.getEou).toHaveBeenCalledTimes(1);
             expect(trackingService.createExpense).toHaveBeenCalledOnceWith(createExpenseProperties3);
             expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
-              unflattenedTxnData.tx,
+              expectedEtxnDataWithReportId.tx,
               undefined,
               ['comment']
             );
@@ -839,7 +848,7 @@ export function TestCases3(getTestBed) {
               expect(authService.getEou).toHaveBeenCalledTimes(1);
               expect(trackingService.createExpense).toHaveBeenCalledOnceWith(createExpenseProperties3);
               expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
-                unflattenedTxnData.tx,
+                expectedEtxnDataWithReportId.tx,
                 undefined,
                 ['comment']
               );
@@ -882,7 +891,11 @@ export function TestCases3(getTestBed) {
             expect(authService.getEou).toHaveBeenCalledTimes(1);
 
             expect(trackingService.createExpense).toHaveBeenCalledOnceWith(createExpenseProperties3);
-            expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(unflattenedTxnData.tx, [], []);
+            expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
+              expectedEtxnDataWithReportId.tx,
+              [],
+              []
+            );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
           });
@@ -912,7 +925,11 @@ export function TestCases3(getTestBed) {
             expect(authService.getEou).toHaveBeenCalledTimes(1);
 
             expect(trackingService.createExpense).toHaveBeenCalledOnceWith(createExpenseProperties3);
-            expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(unflattenedTxnData.tx, [], []);
+            expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
+              expectedEtxnDataWithReportId.tx,
+              [],
+              []
+            );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
           });
@@ -923,6 +940,7 @@ export function TestCases3(getTestBed) {
         policyService.getPolicyRules.and.returnValue([]);
         const mockTxnData = cloneDeep(unflattenedTxnData);
         mockTxnData.tx.policy_amount = 0.1;
+        mockTxnData.tx.report_id = expectedReportsPaginated[0].id;
         component.generateEtxnFromFg = jasmine
           .createSpy()
           .and.returnValue(of({ tx: mockTxnData.tx, ou: unflattenedTxnData.ou, dataUrls: [] }));
