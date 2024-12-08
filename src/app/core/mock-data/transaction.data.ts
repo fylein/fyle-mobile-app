@@ -186,6 +186,14 @@ export const txnData: Transaction = deepFreeze({
   skip_reimbursement: false,
 });
 
+export const txnDataCleaned: Partial<Transaction> = deepFreeze({
+  source: 'MOBILE_DASHCAM_BULK',
+  txn_dt: new Date('2023-02-08T17:00:00.000Z'),
+  currency: 'INR',
+  source_account_id: 'acc5APeygFjRd',
+  skip_reimbursement: false,
+});
+
 export const txnData2: Transaction = deepFreeze({
   created_at: new Date('2023-02-08T06:47:48.414Z'),
   updated_at: new Date('2023-02-08T06:47:48.414Z'),

@@ -141,14 +141,12 @@ export class TransactionsOutboxService {
   addEntry(
     transaction: Partial<Transaction>,
     dataUrls: { url: string; type: string }[],
-    comments?: string[],
-    reportId?: string
+    comments?: string[]
   ): Promise<void> {
     this.queue.push({
       transaction,
       dataUrls,
       comments,
-      reportId,
     });
 
     return this.saveQueue();
@@ -159,10 +157,9 @@ export class TransactionsOutboxService {
   addEntryAndSync(
     transaction: Partial<Transaction>,
     dataUrls: { url: string; type: string }[],
-    comments: string[],
-    reportId: string
+    comments: string[]
   ): Promise<OutboxQueue> {
-    this.addEntry(transaction, dataUrls, comments, reportId);
+    this.addEntry(transaction, dataUrls, comments);
     return this.syncEntry(this.queue.pop());
   }
 

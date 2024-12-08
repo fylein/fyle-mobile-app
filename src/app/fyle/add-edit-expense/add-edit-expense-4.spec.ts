@@ -481,8 +481,7 @@ export function TestCases4(getTestBed) {
           expect(transactionOutboxService.addEntry).toHaveBeenCalledOnceWith(
             mockEtxn.tx,
             [{ url: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.pdf', type: 'pdf' }],
-            [],
-            'rprAfNrce73O'
+            []
           );
           done();
         });
@@ -523,12 +522,7 @@ export function TestCases4(getTestBed) {
           );
           expect(authService.getEou).toHaveBeenCalledOnceWith();
           expect(component.trackCreateExpense).toHaveBeenCalledOnceWith(expectedUnflattendedTxnData3, false);
-          expect(transactionOutboxService.addEntry).toHaveBeenCalledOnceWith(
-            outboxQueueData1[0].transaction,
-            [],
-            [],
-            undefined
-          );
+          expect(transactionOutboxService.addEntry).toHaveBeenCalledOnceWith(outboxQueueData1[0].transaction, [], []);
           done();
         });
       });
@@ -574,7 +568,7 @@ export function TestCases4(getTestBed) {
           );
           expect(authService.getEou).toHaveBeenCalledOnceWith();
           expect(component.trackCreateExpense).toHaveBeenCalledOnceWith(expectedUnflattendedTxnData4, false);
-          expect(transactionOutboxService.addEntry).toHaveBeenCalledOnceWith(mockEtxn.tx, [], ['continue'], undefined);
+          expect(transactionOutboxService.addEntry).toHaveBeenCalledOnceWith(mockEtxn.tx, [], ['continue']);
           done();
         });
       });
