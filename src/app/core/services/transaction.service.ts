@@ -196,17 +196,17 @@ export class TransactionService {
     return fileUploads$.pipe(
       switchMap((fileObjs) => {
         const fileIds = fileObjs.map((fileObj) => fileObj.id);
-        if (fileIds.length > 0) {
+        const isReceiptUpload = txn.hasOwnProperty('source') && Object.keys(txn).length === 1;
+        const isAmountPresent = !!txn.amount;
+        if ((isReceiptUpload || !isAmountPresent) && fileIds.length > 0) {
           return this.expensesService.createFromFile(fileIds[0], txn.source).pipe(
             switchMap((result) => {
-              // txn contains only source key when capturing receipt in bulk mode
-              if (txn.hasOwnProperty('source') && Object.keys(txn).length === 1) {
-                return of(this.transformExpense(result.data[0]).tx);
-              } else {
-                // capture receipt flow: patching the expense with any of the form values.
-                txn.file_ids = fileIds;
+              // capture receipt flow: patching the expense in case of amount not present
+              if (!isReceiptUpload && !isAmountPresent) {
                 txn.id = result.data[0].id;
                 return this.upsert(this.cleanupExpensePayload(txn));
+              } else {
+                return of(this.transformExpense(result.data[0]).tx);
               }
             })
           );
