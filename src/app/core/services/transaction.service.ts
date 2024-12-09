@@ -211,6 +211,7 @@ export class TransactionService {
             })
           );
         } else {
+          txn.file_ids = fileIds;
           return this.upsert(txn);
         }
       })
