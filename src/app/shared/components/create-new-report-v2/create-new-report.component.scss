@@ -16,6 +16,16 @@
     font-size: 14px;
     line-height: 1.28;
     margin-top: 4px;
+    font-weight: 500;
+    color: $blue-black;
+  }
+
+  &--amount {
+    font-size: 12px;
+    line-height: 1.28;
+    margin-top: 4px;
+    font-weight: 400;
+    color: $blue-black;
   }
 
   &--body {
@@ -24,7 +34,7 @@
   }
 
   &--name {
-    padding: 16px;
+    padding: 20px 12px;
     background-color: $pure-white;
   }
 
@@ -69,16 +79,16 @@
   }
 
   &--heading {
-    color: $grey-light;
+    color: $black-light;
     font-size: 14px;
-    padding: 16px 16px;
+    padding: 12px;
     background-color: $white;
     font-weight: 500;
   }
 
   &--select-all-checkbox {
     font-size: 14px;
-    padding: 16px 16px;
+    padding: 12px;
     background-color: $pure-white;
   }
 
@@ -113,11 +123,12 @@
   &--cta-container {
     display: flex;
     justify-content: space-between;
-    padding: 14px 35.5px;
+    gap: 16px;
+    padding: 16px;
     bottom: 0;
     width: 100%;
     background-color: $pure-white;
-    box-shadow: 0 -2px 12px $pink-shadow;
+    box-shadow: 0px 2px 10px 0px rgba(44, 48, 78, 0.1);
     z-index: 999;
   }
 
@@ -129,9 +140,12 @@
     height: auto;
     background-color: transparent;
     color: $black;
-    font-size: 16px;
+    font-size: 14px;
     line-height: 1.25;
-    min-width: 40%;
+    flex: auto;
+    border-radius: 4px;
+    padding: 10px 12px;
+    border: 1px solid $grey;
 
     &__disabled {
       opacity: 0.2;
