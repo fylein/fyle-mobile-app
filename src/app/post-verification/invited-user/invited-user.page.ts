@@ -1,4 +1,4 @@
-import { Component, OnInit, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, OnInit } from '@angular/core';
 import { Observable, noop, concat, from } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
@@ -47,6 +47,8 @@ export class InvitedUserPage implements OnInit {
 
   arePasswordsEqual = false;
 
+  isLoading = false;
+
   constructor(
     private networkService: NetworkService,
     private fb: FormBuilder,
@@ -80,6 +82,7 @@ export class InvitedUserPage implements OnInit {
 
   onPasswordValid(isValid: boolean): void {
     this.isPasswordValid = isValid;
+    this.fg.updateValueAndValidity();
   }
 
   setPasswordTooltip(value: boolean): void {
@@ -87,6 +90,7 @@ export class InvitedUserPage implements OnInit {
   }
 
   async saveData(): Promise<void> {
+    this.isLoading = true;
     this.fg.markAllAsTouched();
     if (this.fg.valid) {
       from(this.loaderService.showLoader())
@@ -102,7 +106,10 @@ export class InvitedUserPage implements OnInit {
           switchMap(() => this.authService.refreshEou()),
           switchMap(() => this.orgUserService.markActive()),
           tap(() => this.trackingService.activated()),
-          finalize(async () => await this.loaderService.hideLoader())
+          finalize(async () => {
+            this.isLoading = false;
+            return await this.loaderService.hideLoader();
+          })
         )
         .subscribe(() => {
           this.router.navigate(['/', 'enterprise', 'my_dashboard']);
