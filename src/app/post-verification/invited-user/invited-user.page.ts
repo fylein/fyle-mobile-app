@@ -1,4 +1,4 @@
-import { Component, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, OnInit } from '@angular/core';
 import { Observable, noop, concat, from } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
@@ -18,7 +18,7 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
   templateUrl: './invited-user.page.html',
   styleUrls: ['./invited-user.page.scss'],
 })
-export class InvitedUserPage {
+export class InvitedUserPage implements OnInit {
   isConnected$: Observable<boolean>;
 
   fg: FormGroup;
@@ -61,7 +61,7 @@ export class InvitedUserPage {
     private snackbarProperties: SnackbarPropertiesService
   ) {}
 
-  ionViewWillEnter(): void {
+  ngOnInit(): void {
     const networkWatcherEmitter = this.networkService.connectivityWatcher(new EventEmitter<boolean>());
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable());
     this.isConnected$.subscribe(noop);

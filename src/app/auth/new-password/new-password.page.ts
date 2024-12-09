@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { finalize, switchMap, tap } from 'rxjs/operators';
 import { from, Observable } from 'rxjs';
@@ -18,7 +18,7 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
   templateUrl: './new-password.page.html',
   styleUrls: ['./new-password.page.scss'],
 })
-export class NewPasswordPage {
+export class NewPasswordPage implements OnInit {
   fg: FormGroup;
 
   lengthValidationDisplay$: Observable<boolean>;
@@ -53,7 +53,7 @@ export class NewPasswordPage {
     private snackbarPropertiesService: SnackbarPropertiesService
   ) {}
 
-  ionViewWillEnter(): void {
+  ngOnInit(): void {
     this.fg = this.fb.group({
       password: ['', [Validators.required, this.checkPasswordValidity]],
       confirmPassword: ['', [Validators.required, this.validatePasswordEquality]],

@@ -95,13 +95,13 @@ describe('InvitedUserPage', () => {
     expect(component).toBeTruthy();
   });
 
-  it('ionViewWillEnter(): should set the fullname value from eou$ and setup network watcher', fakeAsync(() => {
+  it('ngOnInit(): should set the fullname value from eou$ and setup network watcher', fakeAsync(() => {
     networkService.isOnline.and.returnValue(of(true));
     const eventEmitterMock = new EventEmitter<boolean>();
     networkService.connectivityWatcher.and.returnValue(eventEmitterMock);
     component.eou$ = of(currentEouRes);
     component.fg.controls.fullName.setValue('Abhishek Jain');
-    component.ionViewWillEnter();
+    component.ngOnInit();
     tick(500);
     component.isConnected$.pipe(take(1)).subscribe((connectionStatus) => {
       expect(connectionStatus).toBeTrue();
