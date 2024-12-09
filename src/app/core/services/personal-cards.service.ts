@@ -7,7 +7,7 @@ import { PersonalCardFilter } from '../models/personal-card-filters.model';
 import { ApiV2Service } from './api-v2.service';
 import { ApiService } from './api.service';
 import { ExpenseAggregationService } from './expense-aggregation.service';
-import { Expense } from '../models/expense.model';
+import { Expense } from '../models/platform/v1/expense.model';
 import { DateService } from './date.service';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
@@ -24,7 +24,9 @@ import { PlatformPersonalCardTxn } from '../models/platform/platform-personal-ca
 import { PlatformPersonalCardMatchedExpense } from '../models/platform/platform-personal-card-matched-expense.model';
 import { TxnDetail } from '../models/v2/txn-detail.model';
 import { PlatformPersonalCardQueryParams } from '../models/platform/platform-personal-card-query-params.model';
+import { PersonalCardSyncTxns } from '../models/platform/platform-personal-card-syn-txns.model';
 import { environment } from 'src/environments/environment';
+import { PersonalCardTxnExpenseSuggestion } from '../models/personal-card-txn-expense-suggestion.model';
 
 @Injectable({
   providedIn: 'root',
@@ -103,6 +105,20 @@ export class PersonalCardsService {
         txn_details: this.transformMatchedExpensesToTxnDetails(txn.matched_expenses),
       };
       return personalCardTxn;
+    });
+  }
+
+  transformPlatformPersonalCardTxnExpenseSuggestions(expenses: Expense[]): PersonalCardTxnExpenseSuggestion[] {
+    return expenses.map((expense) => {
+      const expenseSuggestion: PersonalCardTxnExpenseSuggestion = {
+        purpose: expense.purpose,
+        vendor: expense.merchant,
+        txn_dt: expense.spent_at,
+        currency: expense.currency,
+        amount: expense.amount,
+        split_group_id: expense.split_group_id,
+      };
+      return expenseSuggestion;
     });
   }
 
@@ -222,7 +238,28 @@ export class PersonalCardsService {
       .pipe(map((res) => res.count));
   }
 
-  getMatchedExpenses(amount: number, txnDate: string): Observable<Expense[]> {
+  getMatchedExpensesSuggestionsPlatform(
+    amount: number,
+    txnDate: string
+  ): Observable<PersonalCardTxnExpenseSuggestion[]> {
+    return this.spenderPlatformV1ApiService
+      .get<PlatformApiResponse<Expense[]>>('/personal_card_transactions/expense_suggestion', {
+        params: {
+          amount,
+          spent_at: txnDate,
+        },
+      })
+      .pipe(map((res) => this.transformPlatformPersonalCardTxnExpenseSuggestions(res.data)));
+  }
+
+  getMatchedExpensesSuggestions(
+    amount: number,
+    txnDate: string,
+    usePlatformApi: boolean
+  ): Observable<PersonalCardTxnExpenseSuggestion[]> {
+    if (usePlatformApi) {
+      return this.getMatchedExpensesSuggestionsPlatform(amount, txnDate);
+    }
     return this.apiService.get('/expense_suggestions/personal_cards', {
       params: {
         amount,
@@ -320,10 +357,6 @@ export class PersonalCardsService {
     });
   }
 
-  getMatchedExpensesCount(amount: number, txnDate: string): Observable<number> {
-    return this.getMatchedExpenses(amount, txnDate).pipe(map((res) => res.length));
-  }
-
   matchExpensePlatform(
     transactionSplitGroupId: string,
     externalExpenseId: string
@@ -377,7 +410,22 @@ export class PersonalCardsService {
     return this.getBankTransactions(params, usePlatformApi).pipe(map((res) => res.count));
   }
 
-  fetchTransactions(accountId: string): Observable<ApiV2Response<PersonalCardTxn>> {
+  syncTransactionsPlatform(accountId: string): Observable<PlatformApiResponse<PersonalCardSyncTxns>> {
+    const payload = {
+      data: {
+        personal_card_id: accountId,
+      },
+    };
+    return this.spenderPlatformV1ApiService.post('/personal_card_transactions', payload);
+  }
+
+  syncTransactions(
+    accountId: string,
+    usePlatformApi: boolean
+  ): Observable<ApiV2Response<PersonalCardTxn> | PlatformApiResponse<PersonalCardSyncTxns>> {
+    if (usePlatformApi) {
+      return this.syncTransactionsPlatform(accountId);
+    }
     return this.expenseAggregationService.post(`/bank_accounts/${accountId}/sync`, {
       owner_type: 'org_user',
     }) as Observable<ApiV2Response<PersonalCardTxn>>;
