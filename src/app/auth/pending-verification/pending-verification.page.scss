@@ -3,6 +3,7 @@
 .pending-verification {
   height: 100%;
   margin-top: 18px;
+  padding-top: 28px;
 
   &__send-invite {
     display: flex;
@@ -108,7 +109,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-top: 12px;
   }
 
   &__success-message {
@@ -186,15 +186,12 @@
   }
   &__cta-secondary {
     display: flex;
-    padding-top: 12px;
+    padding-top: 18px;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 24px;
-    align-self: stretch;
     color: $blue-black;
     display: flex;
     flex-direction: row;
-    gap: 6px;
   }
 }

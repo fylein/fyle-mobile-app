@@ -1,4 +1,4 @@
-<ion-content class="pending-verification">
+<div class="pending-verification" *ngIf="fg">
   <div class="pending-verification__send-invite" *ngIf="!isInvitationLinkSent">
     <div class="pending-verification__form-container" *ngIf="!isInvitationLinkSent">
       <div class="pending-verification__error-icon-container">
@@ -80,4 +80,4 @@
       </ion-button>
     </div>
   </div>
-</ion-content>
+</div>
