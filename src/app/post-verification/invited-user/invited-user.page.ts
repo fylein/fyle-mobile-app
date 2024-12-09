@@ -47,8 +47,6 @@ export class InvitedUserPage implements OnInit {
 
   arePasswordsEqual = false;
 
-  isLoading = false;
-
   constructor(
     private networkService: NetworkService,
     private fb: FormBuilder,
@@ -68,7 +66,7 @@ export class InvitedUserPage implements OnInit {
 
     this.fg = this.fb.group({
       fullName: ['', Validators.compose([Validators.required, Validators.pattern(/[A-Za-z]/)])],
-      password: ['', [Validators.required, this.customPasswordValidator]],
+      password: ['', [Validators.required, this.checkPasswordValidity]],
       confirmPassword: ['', [Validators.required, this.validatePasswordEquality]],
     });
 
@@ -82,7 +80,6 @@ export class InvitedUserPage implements OnInit {
 
   onPasswordValid(isValid: boolean): void {
     this.isPasswordValid = isValid;
-    this.fg.controls.password.updateValueAndValidity();
   }
 
   setPasswordTooltip(value: boolean): void {
@@ -92,7 +89,6 @@ export class InvitedUserPage implements OnInit {
   async saveData(): Promise<void> {
     this.fg.markAllAsTouched();
     if (this.fg.valid) {
-      this.isLoading = true;
       from(this.loaderService.showLoader())
         .pipe(
           switchMap(() => this.eou$),
@@ -109,7 +105,6 @@ export class InvitedUserPage implements OnInit {
           finalize(async () => await this.loaderService.hideLoader())
         )
         .subscribe(() => {
-          this.isLoading = false;
           this.router.navigate(['/', 'enterprise', 'my_dashboard']);
           // return $state.go('enterprise.my_dashboard');
         });
@@ -127,7 +122,7 @@ export class InvitedUserPage implements OnInit {
     this.router.navigate(['/', 'auth', 'sign_in']);
   }
 
-  customPasswordValidator = (): ValidationErrors => (this.isPasswordValid ? null : { invalidPassword: true });
+  checkPasswordValidity = (): ValidationErrors => (this.isPasswordValid ? null : { invalidPassword: true });
 
   validatePasswordEquality = (): ValidationErrors => {
     if (!this.fg) {
