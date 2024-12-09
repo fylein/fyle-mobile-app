@@ -9,14 +9,16 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { DeviceService } from 'src/app/core/services/device.service';
 import { LoginInfoService } from 'src/app/core/services/login-info.service';
 import { FormBuilder, FormControl, ReactiveFormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { extendedDeviceInfoMockData } from 'src/app/core/mock-data/extended-device-info.data';
 import { RouterTestingModule } from '@angular/router/testing';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { PopupComponent } from './popup/popup.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 
 describe('NewPasswordPage', () => {
   let component: NewPasswordPage;
@@ -27,6 +29,9 @@ describe('NewPasswordPage', () => {
   let trackingService: jasmine.SpyObj<TrackingService>;
   let deviceService: jasmine.SpyObj<DeviceService>;
   let loginInfoService: jasmine.SpyObj<LoginInfoService>;
+  let router: jasmine.SpyObj<Router>;
+  let matSnackBar: jasmine.SpyObj<MatSnackBar>;
+  let snackbarPropertiesService: jasmine.SpyObj<SnackbarPropertiesService>;
 
   beforeEach(waitForAsync(() => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['refreshEou']);
@@ -35,6 +40,9 @@ describe('NewPasswordPage', () => {
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['onSignin', 'resetPassword', 'eventTrack']);
     const deviceServiceSpy = jasmine.createSpyObj('DeviceService', ['getDeviceInfo']);
     const loginInfoServiceSpy = jasmine.createSpyObj('LoginInfoService', ['addLoginInfo']);
+    const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
+    const snackbarPropertiesServiceSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
 
     TestBed.configureTestingModule({
       declarations: [NewPasswordPage],
@@ -47,6 +55,9 @@ describe('NewPasswordPage', () => {
         { provide: TrackingService, useValue: trackingServiceSpy },
         { provide: DeviceService, useValue: deviceServiceSpy },
         { provide: LoginInfoService, useValue: loginInfoServiceSpy },
+        { provide: MatSnackBar, useValue: matSnackBarSpy },
+        { provide: SnackbarPropertiesService, useValue: snackbarPropertiesServiceSpy },
+        { provide: Router, useValue: routerSpy },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -67,120 +78,14 @@ describe('NewPasswordPage', () => {
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     deviceService = TestBed.inject(DeviceService) as jasmine.SpyObj<DeviceService>;
     loginInfoService = TestBed.inject(LoginInfoService) as jasmine.SpyObj<LoginInfoService>;
+    router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
+    matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
+    snackbarPropertiesService = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
     fixture.detectChanges();
   }));
 
   it('should create', () => {
     expect(component).toBeTruthy();
-  });
-
-  describe('ngOnInit():', () => {
-    it('should initialize the form and observables', () => {
-      component.ngOnInit();
-
-      expect(component.fg).toBeDefined();
-      expect(component.lengthValidationDisplay$).toBeDefined();
-      expect(component.uppercaseValidationDisplay$).toBeDefined();
-      expect(component.numberValidationDisplay$).toBeDefined();
-      expect(component.specialCharValidationDisplay$).toBeDefined();
-      expect(component.lowercaseValidationDisplay$).toBeDefined();
-    });
-
-    it('should validate password length of 12 characters', () => {
-      const checkmarkIcon = getElementBySelector(fixture, '[data-testid="lengthValidation_correct"]');
-      const passwordControl = component.fg.controls.password as FormControl;
-
-      passwordControl.setValue('123456789012');
-      expect(checkmarkIcon).toBeDefined();
-    });
-
-    it('should validate password length of 32 characters', () => {
-      const checkmarkIcon = getElementBySelector(fixture, '[data-testid="lengthValidation_correct"]');
-      const passwordControl = component.fg.controls.password as FormControl;
-
-      passwordControl.setValue('1234567890123456789012345678901');
-      expect(checkmarkIcon).toBeDefined();
-    });
-
-    it('should not validate password length of less 12 characters', () => {
-      const closeIcon = getElementBySelector(fixture, '[data-testid="lengthValidation_incorrect"]');
-      const passwordControl = component.fg.controls.password as FormControl;
-
-      passwordControl.setValue('12345');
-      expect(closeIcon).toBeDefined();
-    });
-
-    it('should not validate password length of more 32 characters', () => {
-      const closeIcon = getElementBySelector(fixture, '[data-testid="lengthValidation_incorrect"]');
-      const passwordControl = component.fg.controls.password as FormControl;
-
-      passwordControl.setValue('12345678901234567890123456789012');
-      expect(closeIcon).toBeDefined();
-    });
-
-    it('should validate the presence of an uppercase letter in password', () => {
-      const checkmarkIcon = getElementBySelector(fixture, '[data-testid="uppercaseValidation_correct"]');
-      const passwordControl = component.fg.controls.password as FormControl;
-
-      passwordControl.setValue('PasswordWithUpperCase');
-      expect(checkmarkIcon).toBeDefined();
-    });
-
-    it('should not validate the absence of an uppercase letter in password', () => {
-      const closeIcon = getElementBySelector(fixture, '[data-testid="uppercaseValidation_incorrect"]');
-      const passwordControl = component.fg.controls.password as FormControl;
-
-      passwordControl.setValue('passwordwithoutuppercase');
-      expect(closeIcon).toBeDefined();
-    });
-
-    it('should validate the presence of a number in password', () => {
-      const checkmarkIcon = getElementBySelector(fixture, '[data-testid="numberValidation_correct"]');
-      const passwordControl = component.fg.controls.password as FormControl;
-
-      passwordControl.setValue('PasswordWithNumber123');
-      expect(checkmarkIcon).toBeDefined();
-    });
-
-    it('should not validate the absence of a number in password', () => {
-      const closeIcon = getElementBySelector(fixture, '[data-testid="numberValidation_incorrect"]');
-      const passwordControl = component.fg.controls.password as FormControl;
-
-      passwordControl.setValue('PasswordWithoutNumber');
-      expect(closeIcon).toBeDefined();
-    });
-
-    it('should validate the presence of a special character in password', () => {
-      const checkmarkIcon = getElementBySelector(fixture, '[data-testid="specialcharValidation_correct"]');
-      const passwordControl = component.fg.controls.password as FormControl;
-
-      passwordControl.setValue('PasswordWith@Special#Char');
-      expect(checkmarkIcon).toBeDefined();
-    });
-
-    it('should not validate the absence of a special character in password', () => {
-      const closeIcon = getElementBySelector(fixture, '[data-testid="specialcharValidation_incorrect"]');
-      const passwordControl = component.fg.controls.password as FormControl;
-
-      passwordControl.setValue('PasswordWithoutSpecialChar');
-      expect(closeIcon).toBeDefined();
-    });
-
-    it('should validate the presence of a lowercase letter in password', () => {
-      const checkmarkIcon = getElementBySelector(fixture, '[data-testid="lowercaseValidation_correct"]');
-      const passwordControl = component.fg.controls.password as FormControl;
-
-      passwordControl.setValue('PasswordWithLowerCase');
-      expect(checkmarkIcon).toBeDefined();
-    });
-
-    it('should not validate the absence of a lowercase letter in password', () => {
-      const closeIcon = getElementBySelector(fixture, '[data-testid="lowercaseValidation_incorrect"]');
-      const passwordControl = component.fg.controls.password as FormControl;
-
-      passwordControl.setValue('PASSWORDWITHOUTLOWERCASE');
-      expect(closeIcon).toBeDefined();
-    });
   });
 
   describe('changePassword', () => {
@@ -189,6 +94,7 @@ describe('NewPasswordPage', () => {
     const resetPasswordRes = { ...apiEouRes, refresh_token: refreshToken };
 
     it('should change the password and show success message on success', fakeAsync(() => {
+      const message = 'Password changed successfully';
       spyOn(component, 'trackLoginInfo');
       routerAuthService.resetPassword.and.returnValue(of(resetPasswordRes));
       authService.refreshEou.and.returnValue(of(apiEouRes));
@@ -198,7 +104,7 @@ describe('NewPasswordPage', () => {
 
       component.fg.controls.password.setValue(passwordValue);
       fixture.detectChanges();
-      const newPasswordButton = getElementBySelector(fixture, '#new-password--btn-sign-in') as HTMLButtonElement;
+      const newPasswordButton = getElementBySelector(fixture, '.btn-primary') as HTMLButtonElement;
       newPasswordButton.click();
       tick(500);
 
@@ -209,9 +115,15 @@ describe('NewPasswordPage', () => {
       expect(trackingService.onSignin).toHaveBeenCalledOnceWith('ajain@fyle.in');
       expect(trackingService.resetPassword).toHaveBeenCalledTimes(1);
       expect(component.trackLoginInfo).toHaveBeenCalledTimes(1);
+      expect(snackbarPropertiesService.setSnackbarProperties).toHaveBeenCalledOnceWith('success', { message });
+      expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
+        ...snackbarPropertiesService.setSnackbarProperties('success', { message }),
+        panelClass: ['msb-success'],
+      });
     }));
 
     it('should show error message on failure', fakeAsync(() => {
+      const message = 'Something went wrong. Please try after some time.';
       spyOn(component, 'trackLoginInfo');
       routerAuthService.resetPassword.and.rejectWith();
       loaderService.showLoader.and.resolveTo();
@@ -219,7 +131,7 @@ describe('NewPasswordPage', () => {
 
       component.fg.controls.password.setValue(passwordValue);
       fixture.detectChanges();
-      const newPasswordButton = getElementBySelector(fixture, '#new-password--btn-sign-in') as HTMLButtonElement;
+      const newPasswordButton = getElementBySelector(fixture, '.btn-primary') as HTMLButtonElement;
       newPasswordButton.click();
       tick(500);
 
@@ -230,6 +142,10 @@ describe('NewPasswordPage', () => {
       expect(trackingService.onSignin).not.toHaveBeenCalled();
       expect(trackingService.resetPassword).not.toHaveBeenCalled();
       expect(component.trackLoginInfo).not.toHaveBeenCalled();
+      expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
+        ...snackbarPropertiesService.setSnackbarProperties('failure', { message }),
+        panelClass: ['msb-failure'],
+      });
     }));
   });
 
@@ -246,4 +162,81 @@ describe('NewPasswordPage', () => {
     expect(trackingService.eventTrack).toHaveBeenCalledOnceWith('Added Login Info', { label: '5.50.0' });
     expect(loginInfoService.addLoginInfo).toHaveBeenCalledOnceWith('5.50.0', mockDate);
   }));
+
+  it('redirectToSignIn(): should navigate to the sign-in page', () => {
+    component.redirectToSignIn();
+    // @ts-ignore
+    expect(component.router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'sign_in']); // Should navigate to the correct route
+  });
+
+  describe('checkPasswordValidity():', () => {
+    it('should return null when isPasswordValid is true', () => {
+      component.isPasswordValid = true;
+
+      const result = component.checkPasswordValidity();
+
+      expect(result).toBeNull(); // No errors
+    });
+
+    it('should return an error object when isPasswordValid is false', () => {
+      component.isPasswordValid = false;
+
+      const result = component.checkPasswordValidity();
+
+      expect(result).toEqual({ invalidPassword: true }); // Error object
+    });
+  });
+
+  describe('validatePasswordEquality():', () => {
+    it('should return null when password and confirmPassword match', () => {
+      component.fg.controls.password.setValue('StrongPassword@123');
+      component.fg.controls.confirmPassword.setValue('StrongPassword@123');
+
+      const result = component.validatePasswordEquality();
+
+      expect(result).toBeNull(); // No errors
+    });
+
+    it('should return an error object when password and confirmPassword do not match', () => {
+      component.fg.controls.password.setValue('StrongPassword@123');
+      component.fg.controls.confirmPassword.setValue('DifferentPassword@123');
+
+      const result = component.validatePasswordEquality();
+
+      expect(result).toEqual({ passwordMismatch: true });
+    });
+
+    it('should return null when password or confirmPassword is empty', () => {
+      component.fg.controls.password.setValue('');
+      component.fg.controls.confirmPassword.setValue('');
+
+      const result = component.validatePasswordEquality();
+
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('onPasswordValid():', () => {
+    it('should set isPasswordValid to true when called with true', () => {
+      component.onPasswordValid(true);
+      expect(component.isPasswordValid).toBeTrue();
+    });
+
+    it('should set isPasswordValid to false when called with false', () => {
+      component.onPasswordValid(false);
+      expect(component.isPasswordValid).toBeFalse();
+    });
+  });
+
+  describe('setPasswordTooltip():', () => {
+    it('should set showPasswordTooltip to true when called with true', () => {
+      component.setPasswordTooltip(true);
+      expect(component.showPasswordTooltip).toBeTrue();
+    });
+
+    it('should set showPasswordTooltip to false when called with false', () => {
+      component.setPasswordTooltip(false);
+      expect(component.showPasswordTooltip).toBeFalse();
+    });
+  });
 });

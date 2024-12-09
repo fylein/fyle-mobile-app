@@ -55,7 +55,7 @@ export class NewPasswordPage implements OnInit {
 
   ngOnInit(): void {
     this.fg = this.fb.group({
-      password: ['', [Validators.required, this.customPasswordValidator]],
+      password: ['', [Validators.required, this.checkPasswordValidity]],
       confirmPassword: ['', [Validators.required, this.validatePasswordEquality]],
     });
   }
@@ -119,7 +119,7 @@ export class NewPasswordPage implements OnInit {
     this.showPasswordTooltip = value;
   }
 
-  customPasswordValidator = (): ValidationErrors => (this.isPasswordValid ? null : { invalidPassword: true });
+  checkPasswordValidity = (): ValidationErrors => (this.isPasswordValid ? null : { invalidPassword: true });
 
   validatePasswordEquality = (): ValidationErrors => {
     if (!this.fg) {
