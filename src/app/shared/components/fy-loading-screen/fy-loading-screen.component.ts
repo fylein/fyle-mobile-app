@@ -8,6 +8,9 @@ import { Component, OnInit, Input } from '@angular/core';
 export class FyLoadingScreenComponent implements OnInit {
   @Input() isSelectionModeEnabled: boolean;
 
+  // TODO: Remove `isLegacyLoaderEnabled` input property once all list views are updated to the new designs as per the 'display_exact_amount_on_stats' specification.
+  @Input() isNewLoaderEnabled?: boolean;
+
   rows = [1, 2, 3, 4, 5];
 
   constructor() {}
