@@ -68,7 +68,7 @@
         <ion-title class="my-expenses--multiselect-title page-title">
           {{allExpensesStats?.count}} {{(allExpensesStats?.count > 1) ? 'expenses' : 'expense'}}
           <span class="my-expenses--multiselect-amount">
-            ({{(allExpensesStats.amount || 0) | humanizeCurrency: homeCurrency }})
+            ({{ { value: allExpensesStats.amount || 0, currencyCode: homeCurrency } | exactCurrency }})
           </span>
         </ion-title>
       </ng-container>
