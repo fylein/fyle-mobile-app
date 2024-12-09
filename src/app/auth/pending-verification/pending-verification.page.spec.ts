@@ -89,6 +89,15 @@ describe('PendingVerificationPage', () => {
     expect(component.isLoading).toBeFalse();
   }));
 
+  it('should disable submit button when form is invalid', () => {
+    component.isInvitationLinkSent = false;
+    component.fg.controls.email.setValue('');
+    fixture.detectChanges();
+  
+    const buttonElement = fixture.debugElement.query(By.css('ion-button'));
+    expect(buttonElement.nativeElement.disabled).toBeTrue();
+  });
+  
   it('resendVerificationLink(): should call routerAuthService and call handleError if API is unsuccessful', fakeAsync(() => {
     const error = { status: 500 } as HttpErrorResponse;
     routerAuthService.resendVerificationLink.and.returnValue(throwError(() => error));
