@@ -47,8 +47,8 @@
     <div class="matched-expenses--action-content">
       <div class="matched-expenses--action-title">SELECT A MATCHING EXPENSE</div>
       <div class="matched-expenses--expenses-preview">
-        <ng-container *ngIf="matchedExpenses$| async as matchedExpenses">
-          <ng-container *ngFor="let expense of matchedExpenses; let first = first;">
+        <ng-container *ngIf="expenseSuggestions && expenseSuggestions.length > 0">
+          <ng-container *ngFor="let expense of expenseSuggestions; let first = first;">
             <div class="matched-expenses--divider" *ngIf="!first"></div>
 
             <app-expense-card-lite [expense]="expense" (click)="openExpensePreview(expense.split_group_id)">
