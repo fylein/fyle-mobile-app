@@ -235,7 +235,7 @@
                 <mat-icon *ngIf="showPaymentModeIcon" class="expenses-card--icon" svgIcon="cash"></mat-icon>
               </div>
 
-              <div *ngIf="true" class="expenses-card--exchange-rate">
+              <div *ngIf="expense.foreign_currency && expense.foreign_amount" class="expenses-card--exchange-rate">
                 ({{ expense.foreign_amount | humanizeCurrency : expense.foreign_currency }} at
                 {{ expense.amount / expense.foreign_amount | currency : expense.currency : 'code' }})
               </div>
