@@ -487,7 +487,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       this.switchSelectionMode();
     }
     this.personalCardsService
-      .fetchTransactions(this.selectedAccount)
+      .syncTransactions(this.selectedAccount, this.usePlatformApi)
       .pipe(
         finalize(() => {
           this.acc = [];
@@ -746,20 +746,27 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
     this.loadingMatchedExpenseCount = true;
     this.loadingTxnId = txnDetails.btxn_id;
-    this.personalCardsService.getMatchedExpensesCount(txnDetails.btxn_amount, txnDate).subscribe((count) => {
-      this.loadingMatchedExpenseCount = false;
-      this.loadingTxnId = null;
-      if (count === 0) {
-        this.router.navigate([
-          '/',
-          'enterprise',
-          'add_edit_expense',
-          { personalCardTxn: JSON.stringify(txnDetails), navigate_back: true },
-        ]);
-      } else {
-        this.router.navigate(['/', 'enterprise', 'personal_cards_matched_expenses'], { state: { txnDetails } });
-      }
-    });
+    this.personalCardsService
+      .getMatchedExpensesSuggestions(txnDetails.btxn_amount, txnDate, this.usePlatformApi)
+      .subscribe((expenseSuggestions) => {
+        this.loadingMatchedExpenseCount = false;
+        this.loadingTxnId = null;
+        if (expenseSuggestions.length === 0) {
+          this.router.navigate([
+            '/',
+            'enterprise',
+            'add_edit_expense',
+            { personalCardTxn: JSON.stringify(txnDetails), navigate_back: true },
+          ]);
+        } else {
+          this.router.navigate(['/', 'enterprise', 'personal_cards_matched_expenses'], {
+            state: {
+              txnDetails,
+              expenseSuggestions,
+            },
+          });
+        }
+      });
   }
 
   async openExpensePreview(txnDetails: PersonalCardTxn): Promise<void> {

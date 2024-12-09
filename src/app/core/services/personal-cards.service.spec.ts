@@ -34,6 +34,11 @@ import * as dayjs from 'dayjs';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformPersonalCardQueryParams } from '../models/platform/platform-personal-card-query-params.model';
 import { personalCardAccessTokenResponse } from '../mock-data/personal-cards-access-token.data';
+import {
+  platformPersonalCardTxnExpenseSuggestions,
+  platformPersonalCardTxnExpenseSuggestionsRes,
+  publicPersonalCardTxnExpenseSuggestionsRes,
+} from '../mock-data/personal-card-txn-expense-suggestions.data';
 
 describe('PersonalCardsService', () => {
   let personalCardsService: PersonalCardsService;
@@ -1390,47 +1395,70 @@ describe('PersonalCardsService', () => {
     });
   });
 
-  it('fetchTransactions(): should fetch transactions', (done) => {
-    expenseAggregationService.post.and.returnValue(of(apiPersonalCardTxnsRes));
-    const accountId = 'baccLesaRlyvLY';
+  describe('syncTransactions()', () => {
+    it('should fetch transactions using public api', (done) => {
+      expenseAggregationService.post.and.returnValue(of(apiPersonalCardTxnsRes));
+      const accountId = 'baccLesaRlyvLY';
+      const usePlatformApi = false;
 
-    personalCardsService.fetchTransactions(accountId).subscribe((res) => {
-      expect(res).toEqual(apiPersonalCardTxnsRes);
-      expect(expenseAggregationService.post).toHaveBeenCalledOnceWith(`/bank_accounts/${accountId}/sync`, {
-        owner_type: 'org_user',
+      personalCardsService.syncTransactions(accountId, usePlatformApi).subscribe((res) => {
+        expect(res).toEqual(apiPersonalCardTxnsRes);
+        expect(expenseAggregationService.post).toHaveBeenCalledOnceWith(`/bank_accounts/${accountId}/sync`, {
+          owner_type: 'org_user',
+        });
+        done();
       });
-      done();
     });
-  });
 
-  it('getMatchedExpenses(): should get matched expenses', (done) => {
-    apiService.get.and.returnValue(of(apiExpenseRes));
-
-    const amount = 3;
-    const txnDate = '2021-07-29T06:30:00.000Z';
-
-    personalCardsService.getMatchedExpenses(amount, txnDate).subscribe((res) => {
-      expect(res).toEqual(apiExpenseRes);
-      expect(apiService.get).toHaveBeenCalledOnceWith('/expense_suggestions/personal_cards', {
-        params: {
-          amount,
-          txn_dt: txnDate,
+    it('should fetch transactions using platform api', (done) => {
+      spenderPlatformV1ApiService.post.and.returnValue(of({ data: {} }));
+      const accountId = 'baccLesaRlyvLY';
+      const usePlatformApi = true;
+      const payload = {
+        data: {
+          personal_card_id: accountId,
         },
+      };
+
+      personalCardsService.syncTransactions(accountId, usePlatformApi).subscribe((res) => {
+        expect(res).toEqual({ data: {} });
+        expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/personal_card_transactions', payload);
+        done();
       });
-      done();
     });
   });
 
-  it('getMatchedExpensesCount(): should get matched expenses count', (done) => {
-    spyOn(personalCardsService, 'getMatchedExpenses').and.returnValue(of(apiExpenseRes));
+  describe('getMatchedExpensesSuggestions()', () => {
+    it('should get expense suggestions using public api', (done) => {
+      apiService.get.and.returnValue(of(publicPersonalCardTxnExpenseSuggestionsRes));
 
-    const amount = 3;
-    const txnDate = '2021-07-29T06:30:00.000Z';
+      const amount = 3;
+      const txnDate = '2021-07-29T06:30:00.000Z';
+      const usePlatformApi = false;
 
-    personalCardsService.getMatchedExpensesCount(amount, txnDate).subscribe((res) => {
-      expect(res).toEqual(apiExpenseRes.length);
-      expect(personalCardsService.getMatchedExpenses).toHaveBeenCalledOnceWith(amount, txnDate);
-      done();
+      personalCardsService.getMatchedExpensesSuggestions(amount, txnDate, usePlatformApi).subscribe((res) => {
+        expect(res).toEqual(publicPersonalCardTxnExpenseSuggestionsRes);
+        expect(apiService.get).toHaveBeenCalledOnceWith('/expense_suggestions/personal_cards', {
+          params: {
+            amount,
+            txn_dt: txnDate,
+          },
+        });
+        done();
+      });
+    });
+
+    it('should get expense suggestions using platform api', (done) => {
+      spenderPlatformV1ApiService.get.and.returnValue(of(platformPersonalCardTxnExpenseSuggestionsRes));
+
+      const amount = 3;
+      const txnDate = '2021-07-29T06:30:00.000Z';
+      const usePlatformApi = true;
+
+      personalCardsService.getMatchedExpensesSuggestions(amount, txnDate, usePlatformApi).subscribe((res) => {
+        expect(res).toEqual(platformPersonalCardTxnExpenseSuggestions);
+        done();
+      });
     });
   });
 
