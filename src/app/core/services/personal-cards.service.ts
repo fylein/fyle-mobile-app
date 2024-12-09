@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { PersonalCard } from '../models/personal_card.model';
 import { YodleeAccessToken } from '../models/yoodle-token.model';
 import { PersonalCardFilter } from '../models/personal-card-filters.model';
 import { ApiV2Service } from './api-v2.service';
@@ -38,26 +37,6 @@ export class PersonalCardsService {
     private dateService: DateService,
     private spenderPlatformV1ApiService: SpenderPlatformV1ApiService
   ) {}
-
-  transformPersonalCardPlatformArray(cards: PlatformPersonalCard[]): PersonalCard[] {
-    return cards.map((card) => {
-      const personalCard: PersonalCard = {
-        id: card.id,
-        bank_name: card.bank_name,
-        account_number: card.card_number,
-        created_at: card.created_at,
-        updated_at: card.updated_at,
-        currency: card.currency,
-        fastlink_params: card.yodlee_fastlink_params,
-        mfa_enabled: card.yodlee_is_mfa_required,
-        update_credentials: card.yodlee_is_credential_update_required,
-        last_synced_at: card.yodlee_last_synced_at,
-        mask: card.card_number.slice(-4),
-        account_type: card.account_type,
-      };
-      return personalCard;
-    });
-  }
 
   transformMatchedExpensesToTxnDetails(matchedExpenses: PlatformPersonalCardMatchedExpense[] | undefined): TxnDetail[] {
     if (!matchedExpenses) {
@@ -135,22 +114,9 @@ export class PersonalCardsService {
     }, {} as PlatformPersonalCardQueryParams);
   }
 
-  getPersonalCardsPlatform(): Observable<PersonalCard[]> {
+  getPersonalCards(): Observable<PlatformPersonalCard[]> {
     return this.spenderPlatformV1ApiService
       .get<PlatformApiResponse<PlatformPersonalCard[]>>('/personal_cards')
-      .pipe(map((res) => this.transformPersonalCardPlatformArray(res.data)));
-  }
-
-  getPersonalCards(usePlatformApi: boolean): Observable<PersonalCard[]> {
-    if (usePlatformApi) {
-      return this.getPersonalCardsPlatform();
-    }
-    return this.apiv2Service
-      .get<PersonalCard, { params: { order: string } }>('/personal_bank_accounts', {
-        params: {
-          order: 'last_synced_at.desc',
-        },
-      })
       .pipe(map((res) => res.data));
   }
 
@@ -204,22 +170,9 @@ export class PersonalCardsService {
     }) as Observable<string[]>;
   }
 
-  getPersonalCardsCountPlatform(): Observable<number> {
+  getPersonalCardsCount(): Observable<number> {
     return this.spenderPlatformV1ApiService
       .get<PlatformApiResponse<PlatformPersonalCard[]>>('/personal_cards')
-      .pipe(map((res) => res.count));
-  }
-
-  getPersonalCardsCount(usePlatformApi: boolean): Observable<number> {
-    if (usePlatformApi) {
-      return this.getPersonalCardsCountPlatform();
-    }
-    return this.apiv2Service
-      .get('/personal_bank_accounts', {
-        params: {
-          order: 'last_synced_at.desc',
-        },
-      })
       .pipe(map((res) => res.count));
   }
 
@@ -232,7 +185,7 @@ export class PersonalCardsService {
     });
   }
 
-  deleteAccountPlatform(accountId: string): Observable<PlatformPersonalCard> {
+  deleteAccount(accountId: string): Observable<PlatformPersonalCard> {
     const payload = {
       data: {
         id: accountId,
@@ -241,13 +194,6 @@ export class PersonalCardsService {
     return this.spenderPlatformV1ApiService
       .post<PlatformApiResponse<PlatformPersonalCard>>('/personal_cards/delete', payload)
       .pipe(map((response) => response.data));
-  }
-
-  deleteAccount(accountId: string, usePlatformApi: boolean): Observable<PersonalCard | PlatformPersonalCard> {
-    if (usePlatformApi) {
-      return this.deleteAccountPlatform(accountId);
-    }
-    return this.expenseAggregationService.delete(`/bank_accounts/${accountId}`) as Observable<PersonalCard>;
   }
 
   getBankTransactionsPlatform(

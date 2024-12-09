@@ -1,8 +1,8 @@
-import { Component, Input, OnInit, Output, EventEmitter, ViewChild } from '@angular/core';
-import { PersonalCard } from 'src/app/core/models/personal_card.model';
+import { Component, Input, Output, EventEmitter, ViewChild } from '@angular/core';
 import { SwiperComponent } from 'swiper/angular';
 import SwiperCore, { Pagination } from 'swiper';
 import { Swiper } from 'swiper/types';
+import { PlatformPersonalCard } from 'src/app/core/models/platform/platform-personal-card.model';
 
 // install Swiper modules
 SwiperCore.use([Pagination]);
@@ -11,8 +11,8 @@ SwiperCore.use([Pagination]);
   templateUrl: './bank-account-cards.component.html',
   styleUrls: ['./bank-account-cards.component.scss'],
 })
-export class BankAccountCardsComponent implements OnInit {
-  @Input() linkedAccounts: PersonalCard[];
+export class BankAccountCardsComponent {
+  @Input() linkedAccounts: PlatformPersonalCard[];
 
   @Input() minimal: boolean;
 
@@ -27,10 +27,6 @@ export class BankAccountCardsComponent implements OnInit {
       return '<span class="fyle ' + className + '"> </span>';
     },
   };
-
-  constructor() {}
-
-  ngOnInit(): void {}
 
   onDeleted(): void {
     this.deleted.emit();
