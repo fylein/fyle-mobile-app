@@ -2,7 +2,6 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { Navigation, Router, RouterModule, UrlSerializer, UrlTree } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { IonicModule, ModalController } from '@ionic/angular';
-import { of } from 'rxjs';
 import { apiExpenseRes } from 'src/app/core/mock-data/expense.data';
 import { apiPersonalCardTxnsRes } from 'src/app/core/mock-data/personal-card-txns.data';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
@@ -10,7 +9,6 @@ import { PersonalCardsService } from 'src/app/core/services/personal-cards.servi
 import { PersonalCardsMatchedExpensesPage } from './personal-cards-matched-expenses.page';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { CurrencySymbolPipe } from 'src/app/shared/pipes/currency-symbol.pipe';
-import * as dayjs from 'dayjs';
 import { ExpensePreviewComponent } from './expense-preview/expense-preview.component';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 
@@ -23,7 +21,7 @@ describe('PersonalCardsMatchedExpensesPage', () => {
   let modalPropertiesService: jasmine.SpyObj<ModalPropertiesService>;
 
   const data: Navigation = {
-    extras: { state: { txnDetails: apiPersonalCardTxnsRes.data[0] } },
+    extras: { state: { txnDetails: apiPersonalCardTxnsRes.data[0], expenseSuggestions: apiExpenseRes } },
     id: 0,
     initialUrl: '',
     extractedUrl: new UrlTree(),
@@ -62,6 +60,7 @@ describe('PersonalCardsMatchedExpensesPage', () => {
     fixture = TestBed.createComponent(PersonalCardsMatchedExpensesPage);
     component = fixture.componentInstance;
     component.txnDetails = data.extras.state.txnDetails;
+    component.expenseSuggestions = data.extras.state.expenseSuggestions;
     fixture.detectChanges();
   }));
 
@@ -71,11 +70,8 @@ describe('PersonalCardsMatchedExpensesPage', () => {
 
   it('should set matched expenses and display information correctly', () => {
     component.txnDetails = data.extras.state.txnDetails;
-    const txnDate = dayjs(component.txnDetails.btxn_transaction_dt).format('YYYY-MM-DD');
-    personalCardsService.getMatchedExpenses.and.returnValue(of(apiExpenseRes));
+    component.expenseSuggestions = data.extras.state.expenseSuggestions;
     fixture.detectChanges();
-    component.ionViewWillEnter();
-    expect(personalCardsService.getMatchedExpenses).toHaveBeenCalledOnceWith(component.txnDetails.btxn_amount, txnDate);
 
     expect(getTextContent(getElementBySelector(fixture, '.matched-expenses--purpose'))).toEqual(
       component.txnDetails.btxn_description
