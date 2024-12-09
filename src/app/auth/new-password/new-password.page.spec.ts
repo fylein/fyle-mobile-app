@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule, PopoverController } from '@ionic/angular';
+import { IonicModule } from '@ionic/angular';
 
 import { NewPasswordPage } from './new-password.page';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -24,7 +24,6 @@ describe('NewPasswordPage', () => {
   let authService: jasmine.SpyObj<AuthService>;
   let routerAuthService: jasmine.SpyObj<RouterAuthService>;
   let loaderService: jasmine.SpyObj<LoaderService>;
-  let popoverController: jasmine.SpyObj<PopoverController>;
   let trackingService: jasmine.SpyObj<TrackingService>;
   let deviceService: jasmine.SpyObj<DeviceService>;
   let loginInfoService: jasmine.SpyObj<LoginInfoService>;
@@ -33,7 +32,6 @@ describe('NewPasswordPage', () => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['refreshEou']);
     const routerAuthServiceSpy = jasmine.createSpyObj('RouterAuthService', ['resetPassword']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
-    const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['onSignin', 'resetPassword', 'eventTrack']);
     const deviceServiceSpy = jasmine.createSpyObj('DeviceService', ['getDeviceInfo']);
     const loginInfoServiceSpy = jasmine.createSpyObj('LoginInfoService', ['addLoginInfo']);
@@ -46,7 +44,6 @@ describe('NewPasswordPage', () => {
         { provide: AuthService, useValue: authServiceSpy },
         { provide: RouterAuthService, useValue: routerAuthServiceSpy },
         { provide: LoaderService, useValue: loaderServiceSpy },
-        { provide: PopoverController, useValue: popoverControllerSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },
         { provide: DeviceService, useValue: deviceServiceSpy },
         { provide: LoginInfoService, useValue: loginInfoServiceSpy },
@@ -67,7 +64,6 @@ describe('NewPasswordPage', () => {
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     routerAuthService = TestBed.inject(RouterAuthService) as jasmine.SpyObj<RouterAuthService>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
-    popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     deviceService = TestBed.inject(DeviceService) as jasmine.SpyObj<DeviceService>;
     loginInfoService = TestBed.inject(LoginInfoService) as jasmine.SpyObj<LoginInfoService>;
@@ -196,8 +192,6 @@ describe('NewPasswordPage', () => {
       spyOn(component, 'trackLoginInfo');
       routerAuthService.resetPassword.and.returnValue(of(resetPasswordRes));
       authService.refreshEou.and.returnValue(of(apiEouRes));
-      const popoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present']);
-      popoverController.create.and.returnValue(popoverSpy);
       deviceService.getDeviceInfo.and.returnValue(of(extendedDeviceInfoMockData));
       loaderService.showLoader.and.resolveTo();
       loaderService.hideLoader.and.resolveTo();
@@ -215,21 +209,11 @@ describe('NewPasswordPage', () => {
       expect(trackingService.onSignin).toHaveBeenCalledOnceWith('ajain@fyle.in');
       expect(trackingService.resetPassword).toHaveBeenCalledTimes(1);
       expect(component.trackLoginInfo).toHaveBeenCalledTimes(1);
-      expect(popoverController.create).toHaveBeenCalledOnceWith({
-        component: PopupComponent,
-        componentProps: {
-          header: 'Password changed successfully',
-          route: ['/', 'auth', 'switch_org'],
-        },
-        cssClass: 'dialog-popover',
-      });
     }));
 
     it('should show error message on failure', fakeAsync(() => {
       spyOn(component, 'trackLoginInfo');
       routerAuthService.resetPassword.and.rejectWith();
-      const popoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present']);
-      popoverController.create.and.returnValue(popoverSpy);
       loaderService.showLoader.and.resolveTo();
       loaderService.hideLoader.and.resolveTo();
 
@@ -246,14 +230,6 @@ describe('NewPasswordPage', () => {
       expect(trackingService.onSignin).not.toHaveBeenCalled();
       expect(trackingService.resetPassword).not.toHaveBeenCalled();
       expect(component.trackLoginInfo).not.toHaveBeenCalled();
-      expect(popoverController.create).toHaveBeenCalledOnceWith({
-        component: PopupComponent,
-        componentProps: {
-          header: 'Setting new password failed. Please try again later.',
-          route: ['/', 'auth', 'sign_in'],
-        },
-        cssClass: 'dialog-popover',
-      });
     }));
   });
 
