@@ -1970,19 +1970,20 @@ export class AddEditPerDiemPage implements OnInit {
               comments.push(comment);
             }
 
+            let reportId: string;
             const formValue = this.getFormValues();
-            const transaction = cloneDeep(etxn.tx);
             if (
               formValue.report &&
               (etxn.tx.policy_amount === null || (etxn.tx.policy_amount && !(etxn.tx.policy_amount < 0.0001)))
             ) {
-              transaction.report_id = formValue.report.id;
+              reportId = formValue.report.id;
             }
             return of(
               this.transactionsOutboxService.addEntryAndSync(
-                transaction,
+                etxn.tx,
                 etxn.dataUrls as { url: string; type: string }[],
-                comments
+                comments,
+                reportId
               )
             ).pipe(switchMap((txnData) => from(txnData)));
           })

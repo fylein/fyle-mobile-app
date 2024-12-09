@@ -178,11 +178,13 @@ describe('TransactionsOutboxService', () => {
       transactionsOutboxService.addEntryAndSync(
         txnData2,
         [{ url: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.jpeg', type: 'image/jpeg' }],
+        null,
         null
       );
       expect(transactionsOutboxService.addEntry).toHaveBeenCalledOnceWith(
         txnData2,
         [{ url: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.jpeg', type: 'image/jpeg' }],
+        null,
         null
       );
       expect(transactionsOutboxService.syncEntry).toHaveBeenCalledOnceWith(outboxQueueData1[0]);
@@ -193,11 +195,13 @@ describe('TransactionsOutboxService', () => {
       transactionsOutboxService.addEntryAndSync(
         txnData2,
         [{ url: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.jpeg', type: 'image/jpeg' }],
+        null,
         null
       );
       expect(transactionsOutboxService.addEntry).toHaveBeenCalledOnceWith(
         txnData2,
         [{ url: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.jpeg', type: 'image/jpeg' }],
+        null,
         null
       );
       expect(transactionsOutboxService.syncEntry).toHaveBeenCalledOnceWith(outboxQueueData1[0]);

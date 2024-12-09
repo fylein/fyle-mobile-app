@@ -613,27 +613,18 @@ export function TestCases3(getTestBed) {
     });
 
     describe('addExpense():', () => {
+      const etxn$ = of({ tx: unflattenedTxnData.tx, ou: unflattenedTxnData.ou, dataUrls: [] });
       const customFields$ = of(txnCustomProperties4);
-      const expectedEtxnDataWithReportId = {
-        ...unflattenedTxnData,
-        tx: {
-          ...unflattenedTxnData.tx,
-          report_id: expectedReportsPaginated[0].id,
-        },
-      };
       beforeEach(() => {
-        const etxn$ = of({ tx: cloneDeep(unflattenedTxnData.tx), ou: unflattenedTxnData.ou, dataUrls: [] });
         spyOn(component, 'generateEtxnFromFg').and.returnValue(etxn$);
         spyOn(component, 'getCustomFields').and.returnValue(customFields$);
         component.isConnected$ = of(true);
         spyOn(component, 'checkPolicyViolation').and.returnValue(of(expensePolicyData));
         policyService.getCriticalPolicyRules.and.returnValue(['The expense will be flagged']);
         policyService.getPolicyRules.and.returnValue(['The expense will be flagged']);
-        spyOn(component, 'criticalPolicyViolationErrorHandler').and.returnValue(
-          of({ etxn: cloneDeep(unflattenedTxnData) })
-        );
+        spyOn(component, 'criticalPolicyViolationErrorHandler').and.returnValue(of({ etxn: unflattenedTxnData }));
         spyOn(component, 'policyViolationErrorHandler').and.returnValue(
-          of({ etxn: cloneDeep(unflattenedTxnData), comment: 'comment' })
+          of({ etxn: unflattenedTxnData, comment: 'comment' })
         );
         authService.getEou.and.resolveTo(apiEouRes);
         spyOn(component, 'getFormValues').and.returnValue({
@@ -679,9 +670,10 @@ export function TestCases3(getTestBed) {
             expect(authService.getEou).toHaveBeenCalledTimes(1);
             expect(trackingService.createExpense).toHaveBeenCalledOnceWith(createExpenseProperties3);
             expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
-              expectedEtxnDataWithReportId.tx,
+              unflattenedTxnData.tx,
               undefined,
-              []
+              [],
+              'rprAfNrce73O'
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
@@ -721,9 +713,10 @@ export function TestCases3(getTestBed) {
             expect(authService.getEou).toHaveBeenCalledTimes(1);
             expect(trackingService.createExpense).toHaveBeenCalledOnceWith(createExpenseProperties3);
             expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
-              expectedEtxnDataWithReportId.tx,
+              unflattenedTxnData.tx,
               undefined,
-              ['comment']
+              ['comment'],
+              'rprAfNrce73O'
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
@@ -766,9 +759,10 @@ export function TestCases3(getTestBed) {
             expect(authService.getEou).toHaveBeenCalledTimes(1);
             expect(trackingService.createExpense).toHaveBeenCalledOnceWith(createExpenseProperties3);
             expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
-              expectedEtxnDataWithReportId.tx,
+              unflattenedTxnData.tx,
               undefined,
-              ['comment']
+              ['comment'],
+              'rprAfNrce73O'
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
@@ -809,9 +803,10 @@ export function TestCases3(getTestBed) {
             expect(authService.getEou).toHaveBeenCalledTimes(1);
             expect(trackingService.createExpense).toHaveBeenCalledOnceWith(createExpenseProperties3);
             expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
-              expectedEtxnDataWithReportId.tx,
+              unflattenedTxnData.tx,
               undefined,
-              ['comment']
+              ['comment'],
+              'rprAfNrce73O'
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
@@ -848,9 +843,10 @@ export function TestCases3(getTestBed) {
               expect(authService.getEou).toHaveBeenCalledTimes(1);
               expect(trackingService.createExpense).toHaveBeenCalledOnceWith(createExpenseProperties3);
               expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
-                expectedEtxnDataWithReportId.tx,
+                unflattenedTxnData.tx,
                 undefined,
-                ['comment']
+                ['comment'],
+                'rprAfNrce73O'
               );
               expect(res).toEqual(outboxQueueData1[0]);
             },
@@ -892,9 +888,10 @@ export function TestCases3(getTestBed) {
 
             expect(trackingService.createExpense).toHaveBeenCalledOnceWith(createExpenseProperties3);
             expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
-              expectedEtxnDataWithReportId.tx,
+              unflattenedTxnData.tx,
               [],
-              []
+              [],
+              'rprAfNrce73O'
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
@@ -926,9 +923,10 @@ export function TestCases3(getTestBed) {
 
             expect(trackingService.createExpense).toHaveBeenCalledOnceWith(createExpenseProperties3);
             expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
-              expectedEtxnDataWithReportId.tx,
+              unflattenedTxnData.tx,
               [],
-              []
+              [],
+              'rprAfNrce73O'
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
@@ -940,7 +938,6 @@ export function TestCases3(getTestBed) {
         policyService.getPolicyRules.and.returnValue([]);
         const mockTxnData = cloneDeep(unflattenedTxnData);
         mockTxnData.tx.policy_amount = 0.1;
-        mockTxnData.tx.report_id = expectedReportsPaginated[0].id;
         component.generateEtxnFromFg = jasmine
           .createSpy()
           .and.returnValue(of({ tx: mockTxnData.tx, ou: unflattenedTxnData.ou, dataUrls: [] }));
@@ -970,7 +967,12 @@ export function TestCases3(getTestBed) {
             expect(authService.getEou).toHaveBeenCalledTimes(1);
 
             expect(trackingService.createExpense).toHaveBeenCalledOnceWith(createExpenseProperties3);
-            expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(mockTxnData.tx, [], []);
+            expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
+              mockTxnData.tx,
+              [],
+              [],
+              'rprAfNrce73O'
+            );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
           });

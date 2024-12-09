@@ -127,7 +127,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
             url: base64ImagesWithSource.base64Image,
           },
         ];
-        return this.transactionsOutboxService.addEntry(transaction, attachmentUrls, null);
+        return this.transactionsOutboxService.addEntry(transaction, attachmentUrls, null, null);
       })
     );
   }

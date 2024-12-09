@@ -2910,17 +2910,19 @@ export class AddEditMileagePage implements OnInit {
 
             const reportValue = this.getFormValues();
 
+            let reportId: string;
             if (
               reportValue?.report &&
               (etxn.tx.policy_amount === null || (etxn.tx.policy_amount && !(etxn.tx.policy_amount < 0.0001)))
             ) {
-              etxn.tx.report_id = reportValue.report?.id;
+              reportId = reportValue.report?.id;
             }
             return of(
               this.transactionsOutboxService.addEntryAndSync(
                 etxn.tx,
                 etxn.dataUrls as { url: string; type: string }[],
-                comments
+                comments,
+                reportId
               )
             ).pipe(
               switchMap((txnData: Promise<unknown>) => from(txnData)),

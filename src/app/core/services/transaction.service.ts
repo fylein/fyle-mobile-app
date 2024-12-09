@@ -195,22 +195,16 @@ export class TransactionService {
   ): Observable<Partial<Transaction>> {
     return fileUploads$.pipe(
       switchMap((fileObjs) => {
-        const fileIds = fileObjs.map((fileObj) => fileObj.id);
-        const isReceiptUpload = txn.hasOwnProperty('source') && Object.keys(txn).length === 1;
-        const isAmountPresent = !!txn.amount;
-        if ((isReceiptUpload || !isAmountPresent) && fileIds.length > 0) {
-          return this.expensesService.createFromFile(fileIds[0], txn.source).pipe(
-            switchMap((result) => {
-              // capture receipt flow: patching the expense in case of amount not present
-              if (!isReceiptUpload && !isAmountPresent) {
-                txn.id = result.data[0].id;
-                return this.upsert(this.cleanupExpensePayload(txn));
-              } else {
-                return of(this.transformExpense(result.data[0]).tx);
-              }
-            })
-          );
+        // txn contains only source key when capturing receipt
+        if (txn.hasOwnProperty('source') && Object.keys(txn).length === 1) {
+          const fileIds = fileObjs.map((fileObj) => fileObj.id);
+          if (fileIds.length > 0) {
+            return this.expensesService
+              .createFromFile(fileIds[0], txn.source)
+              .pipe(map((result) => this.transformExpense(result.data[0]).tx));
+          }
         } else {
+          const fileIds = fileObjs.map((fileObj) => fileObj.id);
           txn.file_ids = fileIds;
           return this.upsert(txn);
         }
@@ -924,16 +918,5 @@ export class TransactionService {
     }
 
     return typeOrFilter;
-  }
-
-  // to be used only when updating created expense with form values during capture recept flow
-  private cleanupExpensePayload(txn: Partial<Transaction>): Partial<Transaction> {
-    const newTxn: Partial<Transaction> = {};
-    for (const key in txn) {
-      if (txn[key] !== null && txn[key] !== undefined) {
-        newTxn[key] = txn[key] as Transaction[keyof Transaction];
-      }
-    }
-    return newTxn;
   }
 }
