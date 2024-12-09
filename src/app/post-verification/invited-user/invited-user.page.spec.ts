@@ -95,13 +95,13 @@ describe('InvitedUserPage', () => {
     expect(component).toBeTruthy();
   });
 
-  it('ngOnInit(): should set the fullname value from eou$ and setup network watcher', fakeAsync(() => {
+  it('ionViewWillEnter(): should set the fullname value from eou$ and setup network watcher', fakeAsync(() => {
     networkService.isOnline.and.returnValue(of(true));
     const eventEmitterMock = new EventEmitter<boolean>();
     networkService.connectivityWatcher.and.returnValue(eventEmitterMock);
     component.eou$ = of(currentEouRes);
     component.fg.controls.fullName.setValue('Abhishek Jain');
-    component.ngOnInit();
+    component.ionViewWillEnter();
     tick(500);
     component.isConnected$.pipe(take(1)).subscribe((connectionStatus) => {
       expect(connectionStatus).toBeTrue();
@@ -109,11 +109,11 @@ describe('InvitedUserPage', () => {
     expect(component.fg.controls.fullName.value).toEqual(currentEouRes.us.full_name);
   }));
 
-  describe('customPasswordValidator():', () => {
+  describe('checkPasswordValidity():', () => {
     it('should return null when isPasswordValid is true', () => {
       component.isPasswordValid = true;
 
-      const result = component.customPasswordValidator();
+      const result = component.checkPasswordValidity();
 
       expect(result).toBeNull(); // No errors
     });
@@ -121,7 +121,7 @@ describe('InvitedUserPage', () => {
     it('should return an error object when isPasswordValid is false', () => {
       component.isPasswordValid = false;
 
-      const result = component.customPasswordValidator();
+      const result = component.checkPasswordValidity();
 
       expect(result).toEqual({ invalidPassword: true }); // Error object
     });
