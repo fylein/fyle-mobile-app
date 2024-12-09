@@ -78,7 +78,7 @@ export class SignInPage implements OnInit {
         )
         .subscribe(() => {
           this.fg.reset();
-          this.router.navigate(['/', 'auth', 'new_password']);
+          this.router.navigate(['/', 'auth', 'pending_verification']);
         });
     }
   }
@@ -194,7 +194,7 @@ export class SignInPage implements OnInit {
         .subscribe({
           next: () => {
             this.fg.reset();
-            this.router.navigate(['/', 'auth', 'new_password']);
+            this.router.navigate(['/', 'auth', 'pending_verification']);
           },
           error: (err: HttpErrorResponse) => this.handleError(err),
         });
@@ -241,7 +241,7 @@ export class SignInPage implements OnInit {
       .subscribe({
         next: () => {
           this.fg.reset();
-          this.router.navigate(['/', 'auth', 'new_password']);
+          this.router.navigate(['/', 'auth', 'pending_verification']);
         },
         error: (err: HttpErrorResponse) => this.handleError(err),
       });
@@ -271,7 +271,7 @@ export class SignInPage implements OnInit {
       )
       .subscribe((isLoggedIn) => {
         if (isLoggedIn) {
-          this.router.navigate(['/', 'auth', 'new_password']);
+          this.router.navigate(['/', 'auth', 'pending_verification']);
         }
       });
   }
