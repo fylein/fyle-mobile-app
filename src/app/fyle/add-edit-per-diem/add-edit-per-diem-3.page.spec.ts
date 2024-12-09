@@ -77,7 +77,7 @@ import { expectedReportsPaginated } from 'src/app/core/mock-data/platform-report
 import { PerDiemRedirectedFrom } from 'src/app/core/models/per-diem-redirected-from.enum';
 
 export function TestCases3(getTestBed) {
-  return fdescribe('add-edit-per-diem test cases set 3', () => {
+  return describe('add-edit-per-diem test cases set 3', () => {
     let component: AddEditPerDiemPage;
     let fixture: ComponentFixture<AddEditPerDiemPage>;
     let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
