@@ -78,7 +78,7 @@ export class SignInPage implements OnInit {
         )
         .subscribe(() => {
           this.fg.reset();
-          this.router.navigate(['/', 'auth', 'switch_org', { choose: true }]);
+          this.router.navigate(['/', 'post_verification', 'invited_user']);
         });
     }
   }
@@ -194,7 +194,7 @@ export class SignInPage implements OnInit {
         .subscribe({
           next: () => {
             this.fg.reset();
-            this.router.navigate(['/', 'auth', 'switch_org', { choose: true }]);
+            this.router.navigate(['/', 'post_verification', 'invited_user']);
           },
           error: (err: HttpErrorResponse) => this.handleError(err),
         });
@@ -241,7 +241,7 @@ export class SignInPage implements OnInit {
       .subscribe({
         next: () => {
           this.fg.reset();
-          this.router.navigate(['/', 'auth', 'switch_org', { choose: true }]);
+          this.router.navigate(['/', 'post_verification', 'invited_user']);
         },
         error: (err: HttpErrorResponse) => this.handleError(err),
       });
@@ -271,7 +271,7 @@ export class SignInPage implements OnInit {
       )
       .subscribe((isLoggedIn) => {
         if (isLoggedIn) {
-          this.router.navigate(['/', 'auth', 'switch_org', { choose: false }]);
+          this.router.navigate(['/', 'post_verification', 'invited_user']);
         }
       });
   }
