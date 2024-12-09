@@ -69,7 +69,7 @@ describe('PendingVerificationPage', () => {
     fb = TestBed.inject(FormBuilder);
     activatedRoute.snapshot.params.orgId = 'orNVthTo2Zyo';
     component.fg = fb.group({
-      email: [Validators.compose([Validators.required, Validators.pattern('\\S+@\\S+\\.\\S{2,}')])],
+      email: ['', Validators.compose([Validators.required, Validators.pattern('\\S+@\\S+\\.\\S{2,}')])],
     });
     fixture.detectChanges();
   }));
