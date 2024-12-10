@@ -82,7 +82,8 @@ export class InvitedUserPage implements OnInit {
 
   onPasswordValid(isValid: boolean): void {
     this.isPasswordValid = isValid;
-    this.fg.updateValueAndValidity();
+    this.fg.controls.password.updateValueAndValidity();
+    this.fg.controls.confirmPassword.updateValueAndValidity();
   }
 
   setPasswordTooltip(value: boolean): void {
@@ -137,6 +138,8 @@ export class InvitedUserPage implements OnInit {
     }
     const password = this.fg.controls.password.value as string;
     const confirmPassword = this.fg.controls.confirmPassword.value as string;
-    return password === confirmPassword ? null : { passwordMismatch: true };
+    if (confirmPassword) {
+      return password === confirmPassword ? null : { passwordMismatch: true };
+    }
   };
 }

@@ -3,6 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { PasswordCheckTooltipComponent } from './password-check-tooltip.component';
 import { By } from '@angular/platform-browser';
+import { SimpleChanges } from '@angular/core';
 
 describe('PasswordCheckTooltipComponent', () => {
   let component: PasswordCheckTooltipComponent;
@@ -26,15 +27,19 @@ describe('PasswordCheckTooltipComponent', () => {
   it('ngOnChanges(): should call validatePassword when ngOnChanges is triggered', () => {
     spyOn(component, 'validatePassword');
     component.password = 'ValidPass123!';
-    component.ngOnChanges();
+    const changes: SimpleChanges = {
+      password: {
+        firstChange: false,
+        isFirstChange: () => false,
+        previousValue: '',
+        currentValue: 'ValidPass123!',
+      },
+    };
+    component.ngOnChanges(changes);
     expect(component.validatePassword).toHaveBeenCalledTimes(1);
   });
 
   describe('validatePassword(): ', () => {
-    beforeEach(() => {
-      component.previousValidityState = true;
-    });
-
     it('should fail when password length is less than 12 characters', () => {
       const emitSpy = spyOn(component.isPasswordValid, 'emit');
       component.password = 'Short1!';
@@ -85,7 +90,6 @@ describe('PasswordCheckTooltipComponent', () => {
     });
 
     it('should pass when password meets all criteria', () => {
-      component.previousValidityState = false;
       const emitSpy = spyOn(component.isPasswordValid, 'emit');
       component.password = 'ValidPass123!';
       component.validatePassword();
@@ -129,7 +133,15 @@ describe('PasswordCheckTooltipComponent', () => {
 
     it('should display valid icons for valid password checks', () => {
       component.password = 'Somepass1';
-      component.ngOnChanges();
+      const changes: SimpleChanges = {
+        password: {
+          firstChange: false,
+          isFirstChange: () => false,
+          previousValue: '',
+          currentValue: 'Somepass1',
+        },
+      };
+      component.ngOnChanges(changes);
       fixture.detectChanges();
 
       const validIcons = fixture.debugElement.queryAll(By.css('.tooltip__list__check__valid'));
