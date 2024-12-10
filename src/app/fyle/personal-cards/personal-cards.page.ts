@@ -344,12 +344,12 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
         })
       )
       .subscribe((yodleeConfig) => {
-        this.openYoodle(yodleeConfig.fast_link_url, yodleeConfig.access_token);
+        this.openYoodle(yodleeConfig.fast_link_url, yodleeConfig.access_token, false);
       });
   }
 
-  openYoodle(url: string, access_token: string): void {
-    const pageContentUrl = this.personalCardsService.htmlFormUrl(url, access_token);
+  openYoodle(url: string, access_token: string, isMfaFlow: boolean): void {
+    const pageContentUrl = this.personalCardsService.htmlFormUrl(url, access_token, isMfaFlow);
     const browser = this.inAppBrowserService.create(pageContentUrl, '_blank', 'location=no');
     this.spinnerDialog.show();
     /* added this for failsafe */
@@ -374,7 +374,11 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
             requestId: string;
           }[];
           if (decodedData && decodedData[0]) {
-            this.postAccounts([decodedData[0].requestId]);
+            if (isMfaFlow) {
+              this.syncTransactions();
+            } else {
+              this.postAccounts([decodedData[0].requestId]);
+            }
           }
         });
       }
@@ -480,25 +484,43 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     });
   }
 
+  fetchNewTransactionsWithMfa(): void {
+    from(this.loaderService.showLoader('Redirecting you to our banking partner...', 10000))
+      .pipe(
+        switchMap(() => this.personalCardsService.getToken(this.usePlatformApi)),
+        finalize(async () => {
+          await this.loaderService.hideLoader();
+        })
+      )
+      .subscribe((yodleeConfig) => {
+        this.openYoodle(yodleeConfig.fast_link_url, yodleeConfig.access_token, true);
+      });
+  }
+
   fetchNewTransactions(): void {
     this.isfetching = true;
     this.isTransactionsLoading = true;
     if (this.selectionMode) {
       this.switchSelectionMode();
     }
-    this.personalCardsService
-      .syncTransactions(this.selectedAccount, this.usePlatformApi)
-      .pipe(
-        finalize(() => {
-          this.acc = [];
-          this.isfetching = false;
-          const params = this.loadData$.getValue();
-          params.pageNumber = 1;
-          this.loadData$.next(params);
-          this.trackingService.transactionsFetchedOnPersonalCards();
-        })
-      )
-      .subscribe(noop);
+    this.personalCardsService.isMfaEnabled(this.selectedAccount, this.usePlatformApi).subscribe((isMfaEnabled) => {
+      if (isMfaEnabled) {
+        this.fetchNewTransactionsWithMfa();
+      } else {
+        this.syncTransactions();
+      }
+    });
+  }
+
+  syncTransactions(): void {
+    this.personalCardsService.syncTransactions(this.selectedAccount, this.usePlatformApi).subscribe(() => {
+      this.acc = [];
+      this.isfetching = false;
+      const params = this.loadData$.getValue();
+      params.pageNumber = 1;
+      this.loadData$.next(params);
+      this.trackingService.transactionsFetchedOnPersonalCards();
+    });
   }
 
   hideSelectedTransactions(): void {
