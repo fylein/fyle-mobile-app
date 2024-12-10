@@ -351,10 +351,10 @@ describe('PersonalCardsPage', () => {
         });
         spyOn(component.loadData$, 'next');
 
-        component.onCardChanged('eq.baccLesaRlyvLY');
+        component.onCardChanged(linkedAccountsRes[0]);
 
         expect(component.loadData$.next).toHaveBeenCalledOnceWith({
-          queryParams: { btxn_status: 'in.(INITIALIZED)', ba_id: 'eq.eq.baccLesaRlyvLY' },
+          queryParams: { btxn_status: 'in.(INITIALIZED)', ba_id: 'eq.baccY70V3Mz048' },
           pageNumber: 1,
         });
         expect(component.loadData$.getValue).toHaveBeenCalledTimes(1);
@@ -366,10 +366,10 @@ describe('PersonalCardsPage', () => {
         });
         spyOn(component.loadData$, 'next');
 
-        component.onCardChanged('eq.baccLesaRlyvLY');
+        component.onCardChanged(linkedAccountsRes[0]);
 
         expect(component.loadData$.next).toHaveBeenCalledOnceWith({
-          queryParams: { btxn_status: 'in.(INITIALIZED)', ba_id: 'eq.eq.baccLesaRlyvLY' },
+          queryParams: { btxn_status: 'in.(INITIALIZED)', ba_id: 'eq.baccY70V3Mz048' },
           pageNumber: 1,
         });
         expect(component.loadData$.getValue).toHaveBeenCalledTimes(1);
@@ -481,6 +481,7 @@ describe('PersonalCardsPage', () => {
 
     it('fetchNewTransactions(): should fetch new transactions', () => {
       component.selectionMode = true;
+      component.selectedAccount = linkedAccountsRes[0];
       spyOn(component, 'switchSelectionMode');
       personalCardsService.syncTransactions.and.returnValue(of(apiPersonalCardTxnsRes));
 
@@ -845,7 +846,7 @@ describe('PersonalCardsPage', () => {
     it('addNewFiltersToParams(): should new filters to params', () => {
       spyOn(component.loadData$, 'getValue').and.returnValue({});
       component.selectedTransactionType = 'DEBIT';
-      component.selectedAccount = 'baccLesaRlyvLY';
+      component.selectedAccount = linkedAccountsRes[0];
 
       const result = component.addNewFiltersToParams();
       expect(result).toEqual(personalCardQueryParamFiltersData);
@@ -881,6 +882,7 @@ describe('PersonalCardsPage', () => {
       let inappbrowserSpy: any;
 
       beforeEach(() => {
+        component.selectedAccount = linkedAccountsRes[0];
         inappbrowserSpy = jasmine.createSpyObj('InAppBrowserObject', ['on', 'close']);
       });
 
@@ -904,7 +906,7 @@ describe('PersonalCardsPage', () => {
         component.openYoodle(mockUrl, mockAccessToken, false);
         tick(20000);
 
-        expect(personalCardsService.htmlFormUrl).toHaveBeenCalledOnceWith(mockUrl, mockAccessToken, false);
+        expect(personalCardsService.htmlFormUrl).toHaveBeenCalledOnceWith(mockUrl, mockAccessToken, false, '10287109');
         expect(inAppBrowserService.create).toHaveBeenCalledOnceWith(mockHtmlContent, '_blank', 'location=no');
         expect(inappbrowserSpy.on).toHaveBeenCalledTimes(2);
         expect(window.decodeURIComponent).toHaveBeenCalledTimes(1);
@@ -932,7 +934,7 @@ describe('PersonalCardsPage', () => {
         component.openYoodle(mockUrl, mockAccessToken, true);
         tick(20000);
 
-        expect(personalCardsService.htmlFormUrl).toHaveBeenCalledOnceWith(mockUrl, mockAccessToken, true);
+        expect(personalCardsService.htmlFormUrl).toHaveBeenCalledOnceWith(mockUrl, mockAccessToken, true, '10287109');
         expect(inAppBrowserService.create).toHaveBeenCalledOnceWith(mockHtmlContent, '_blank', 'location=no');
         expect(inappbrowserSpy.on).toHaveBeenCalledTimes(2);
         expect(window.decodeURIComponent).toHaveBeenCalledTimes(1);
@@ -1097,7 +1099,7 @@ describe('PersonalCardsPage', () => {
       subject.next(linkedAccountsRes);
 
       component.linkedAccounts$.subscribe(() => {
-        expect(component.onCardChanged).toHaveBeenCalledWith(linkedAccountsRes[0].id);
+        expect(component.onCardChanged).toHaveBeenCalledWith(linkedAccountsRes[0]);
         done();
       });
     });

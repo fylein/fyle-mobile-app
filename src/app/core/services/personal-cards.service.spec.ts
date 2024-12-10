@@ -1559,12 +1559,13 @@ describe('PersonalCardsService', () => {
       expect(result).toEqual(expectedEncodedHtml);
     });
 
-    it('should generate the correct HTML for an MFA flow', () => {
-      const accessToken = '456';
+    it('should generate the correct HTML for an MFA flow with providerAccountId', () => {
+      const accessToken = '789';
       const isMfaFlow = true;
+      const providerAccountId = 'test-provider-id';
 
-      const result = personalCardsService.htmlFormUrl(baseUrl, accessToken, isMfaFlow);
-      const expectedExtraParams = 'configName=Aggregation&flow=refresh&callback=https://www.fylehq.com';
+      const result = personalCardsService.htmlFormUrl(baseUrl, accessToken, isMfaFlow, providerAccountId);
+      const expectedExtraParams = `configName=Aggregation&flow=refresh&providerAccountId=${providerAccountId}&callback=https://www.fylehq.com`;
       const expectedHtml = `<form id="fastlink-form" name="fastlink-form" action="${baseUrl}" method="POST">
                           <input name="accessToken" value="Bearer ${accessToken}" hidden="true" />
                           <input  name="extraParams" value="${expectedExtraParams}" hidden="true" />

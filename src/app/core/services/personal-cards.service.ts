@@ -55,6 +55,7 @@ export class PersonalCardsService {
         last_synced_at: card.yodlee_last_synced_at,
         mask: card.card_number.slice(-4),
         account_type: card.account_type,
+        yodlee_provider_account_id: card.yodlee_provider_account_id,
       };
       return personalCard;
     });
@@ -204,10 +205,10 @@ export class PersonalCardsService {
       .pipe(map((res) => res.data.is_mfa_enabled));
   }
 
-  htmlFormUrl(url: string, accessToken: string, isMfaFlow: boolean): string {
+  htmlFormUrl(url: string, accessToken: string, isMfaFlow: boolean, providerAccountId = ''): string {
     let extraParams = 'configName=Aggregation&callback=https://www.fylehq.com';
     if (isMfaFlow) {
-      extraParams = 'configName=Aggregation&flow=refresh&callback=https://www.fylehq.com';
+      extraParams = `configName=Aggregation&flow=refresh&providerAccountId=${providerAccountId}&callback=https://www.fylehq.com`;
     }
     const pageContent = `<form id="fastlink-form" name="fastlink-form" action="${url}" method="POST">
                           <input name="accessToken" value="Bearer ${accessToken}" hidden="true" />
@@ -217,6 +218,7 @@ export class PersonalCardsService {
                           document.getElementById("fastlink-form").submit();
                           </script>
                           `;
+    console.log('page content: ', pageContent);
     const pageContentUrl = 'data:text/html;base64,' + btoa(pageContent);
     return pageContentUrl;
   }
