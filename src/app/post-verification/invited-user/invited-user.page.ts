@@ -82,7 +82,8 @@ export class InvitedUserPage implements OnInit {
 
   onPasswordValid(isValid: boolean): void {
     this.isPasswordValid = isValid;
-    this.fg.updateValueAndValidity();
+    this.fg.controls.password.updateValueAndValidity();
+    this.fg.controls.confirmPassword.updateValueAndValidity();
   }
 
   setPasswordTooltip(value: boolean): void {
