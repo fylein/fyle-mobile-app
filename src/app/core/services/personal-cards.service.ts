@@ -218,7 +218,6 @@ export class PersonalCardsService {
                           document.getElementById("fastlink-form").submit();
                           </script>
                           `;
-    console.log('page content: ', pageContent);
     const pageContentUrl = 'data:text/html;base64,' + btoa(pageContent);
     return pageContentUrl;
   }
