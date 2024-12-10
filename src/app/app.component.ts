@@ -105,8 +105,6 @@ export class AppComponent implements OnInit {
         style: Style.Default,
       });
 
-      // setTimeout(async () => await SplashScreen.hide(), 1000);
-
       /*
        * Use the app's font size irrespective of the user's device font size.
        * This is to ensure that the app's UI is consistent across devices.
