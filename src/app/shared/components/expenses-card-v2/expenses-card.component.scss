@@ -182,7 +182,6 @@
   }
 
   &--category-icon-container {
-    max-width: 170px;
     width: 100%;
   }
 
@@ -195,11 +194,13 @@
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 164px;
+    padding-right: 4px;
   }
 
   &--icons {
     display: flex;
     align-items: center;
+    padding-right: 4px;
 
     &__policy-violated-icon {
       margin-left: 4px;
