@@ -2416,7 +2416,7 @@ export class AddEditMileagePage implements OnInit {
         let customProperties = res.customProperties;
         customProperties = customProperties?.map((customProperty) => {
           if (!customProperty.value) {
-            customProperty = this.customFieldsService.setDefaultValue(customProperty, customProperty.type);
+            this.customFieldsService.setDefaultValue(customProperty, customProperty.type);
           }
           if (customProperty.type === 'DATE') {
             customProperty.value =
