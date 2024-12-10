@@ -45,7 +45,7 @@ import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service
 import { PersonalCard } from 'src/app/core/models/personal_card.model';
 import { publicPersonalCardTxnExpenseSuggestionsRes } from 'src/app/core/mock-data/personal-card-txn-expense-suggestions.data';
 
-fdescribe('PersonalCardsPage', () => {
+describe('PersonalCardsPage', () => {
   let component: PersonalCardsPage;
   let fixture: ComponentFixture<PersonalCardsPage>;
   let personalCardsService: jasmine.SpyObj<PersonalCardsService>;
@@ -877,38 +877,69 @@ fdescribe('PersonalCardsPage', () => {
       expect(personalCardsService.generateFilterPills).toHaveBeenCalledOnceWith({});
     }));
 
-    it('openYoodle(): should open yoodle', fakeAsync(() => {
-      personalCardsService.htmlFormUrl.and.returnValue('<h1></h1>');
-      spyOn(window, 'decodeURIComponent').and.returnValue(
-        JSON.stringify([
-          {
-            requestId: 'tx3qHxFNgRcZ',
-          },
-        ])
-      );
-      const inappborwserSpy = jasmine.createSpyObj('InAppBrowserObject', ['on', 'close']);
-      inappborwserSpy.on.withArgs('loadstop').and.returnValue(of(null));
-      inappborwserSpy.on.withArgs('loadstart').and.returnValue(
-        of({
-          url: 'https://www.fylehq.com',
-        })
-      );
-      inAppBrowserService.create.and.returnValue(inappborwserSpy);
-      spyOn(component, 'postAccounts');
+    describe('openYoodle()', () => {
+      let inappbrowserSpy: any;
 
-      component.openYoodle(apiToken.fast_link_url, apiToken.access_token, false);
-      tick(20000);
+      beforeEach(() => {
+        inappbrowserSpy = jasmine.createSpyObj('InAppBrowserObject', ['on', 'close']);
+      });
 
-      expect(personalCardsService.htmlFormUrl).toHaveBeenCalledOnceWith(
-        apiToken.fast_link_url,
-        apiToken.access_token,
-        false
-      );
-      expect(inappborwserSpy.on).toHaveBeenCalledTimes(2);
-      expect(inAppBrowserService.create).toHaveBeenCalledTimes(1);
-      expect(window.decodeURIComponent).toHaveBeenCalledTimes(1);
-      expect(component.postAccounts).toHaveBeenCalledOnceWith(['tx3qHxFNgRcZ']);
-    }));
+      it('should open Yoodle with normal flow and handle success callback', fakeAsync(() => {
+        const mockUrl = 'https://mock-url.com';
+        const mockAccessToken = 'mock_access_token';
+        const mockHtmlContent = '<h1></h1>';
+        const mockDecodedData = JSON.stringify([{ requestId: 'tx3qHxFNgRcZ' }]);
+
+        personalCardsService.htmlFormUrl.and.returnValue(mockHtmlContent);
+        spyOn(window, 'decodeURIComponent').and.returnValue(mockDecodedData);
+        inappbrowserSpy.on.withArgs('loadstop').and.returnValue(of(null));
+        inappbrowserSpy.on.withArgs('loadstart').and.returnValue(
+          of({
+            url: 'https://www.fylehq.com',
+          })
+        );
+        inAppBrowserService.create.and.returnValue(inappbrowserSpy);
+        spyOn(component, 'postAccounts');
+
+        component.openYoodle(mockUrl, mockAccessToken, false);
+        tick(20000);
+
+        expect(personalCardsService.htmlFormUrl).toHaveBeenCalledOnceWith(mockUrl, mockAccessToken, false);
+        expect(inAppBrowserService.create).toHaveBeenCalledOnceWith(mockHtmlContent, '_blank', 'location=no');
+        expect(inappbrowserSpy.on).toHaveBeenCalledTimes(2);
+        expect(window.decodeURIComponent).toHaveBeenCalledTimes(1);
+        expect(component.postAccounts).toHaveBeenCalledOnceWith(['tx3qHxFNgRcZ']);
+        expect(inappbrowserSpy.close).toHaveBeenCalled();
+      }));
+
+      it('should handle MFA flow and sync transactions on success', fakeAsync(() => {
+        const mockUrl = 'https://mock-url.com';
+        const mockAccessToken = 'mock_access_token';
+        const mockHtmlContent = '<h1></h1>';
+        const mockDecodedData = JSON.stringify([{ requestId: 'tx3qHxFNgRcZ' }]);
+
+        personalCardsService.htmlFormUrl.and.returnValue(mockHtmlContent);
+        spyOn(window, 'decodeURIComponent').and.returnValue(mockDecodedData);
+        inappbrowserSpy.on.withArgs('loadstop').and.returnValue(of(null));
+        inappbrowserSpy.on.withArgs('loadstart').and.returnValue(
+          of({
+            url: 'https://www.fylehq.com',
+          })
+        );
+        inAppBrowserService.create.and.returnValue(inappbrowserSpy);
+        spyOn(component, 'syncTransactions');
+
+        component.openYoodle(mockUrl, mockAccessToken, true);
+        tick(20000);
+
+        expect(personalCardsService.htmlFormUrl).toHaveBeenCalledOnceWith(mockUrl, mockAccessToken, true);
+        expect(inAppBrowserService.create).toHaveBeenCalledOnceWith(mockHtmlContent, '_blank', 'location=no');
+        expect(inappbrowserSpy.on).toHaveBeenCalledTimes(2);
+        expect(window.decodeURIComponent).toHaveBeenCalledTimes(1);
+        expect(component.syncTransactions).toHaveBeenCalledTimes(1);
+        expect(inappbrowserSpy.close).toHaveBeenCalled();
+      }));
+    });
   });
 
   describe('ngOnInit():', () => {
