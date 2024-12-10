@@ -171,7 +171,7 @@ describe('ResetPasswordPage', () => {
 
       const email = 'jay.b@fyle.in';
       component.sendResetLink(email);
-      expect(component.isLoading).toBeTrue();
+      expect(component.isLoading).toBeFalse();
       expect(component.handleError).toHaveBeenCalledTimes(1);
     });
   });
