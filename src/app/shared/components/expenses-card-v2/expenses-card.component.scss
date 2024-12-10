@@ -182,7 +182,6 @@
   }
 
   &--category-icon-container {
-    max-width: 170px;
     width: 100%;
   }
 
@@ -195,14 +194,16 @@
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 164px;
+    padding-right: 4px;
   }
 
   &--icons {
     display: flex;
     align-items: center;
+    padding-right: 4px;
+    gap: 4px;
 
     &__policy-violated-icon {
-      margin-left: 4px;
       width: 16px;
       height: 16px;
       color: $red;
@@ -210,7 +211,6 @@
     }
 
     &__split-icon {
-      margin-left: 4px;
       width: 16px;
       height: 16px;
       color: $brand-primary-light;
@@ -219,7 +219,6 @@
     &__duplicate-icon {
       width: 16px;
       height: 16px;
-      margin-left: 4px;
       color: $dark-yellow;
     }
   }
