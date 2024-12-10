@@ -53,7 +53,11 @@ export class ResetPasswordPage {
 
     this.routerAuthService
       .sendResetPassword(email)
-      .pipe(finalize(() => (this.isLoading = false)))
+      .pipe(
+        finalize(() => {
+          this.isLoading = false;
+        })
+      )
       .subscribe({
         next: () => (this.currentPageState = PageState.success),
         error: (err: { status: number }) => this.handleError(err),
