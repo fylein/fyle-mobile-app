@@ -45,7 +45,7 @@ import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service
 import { PersonalCard } from 'src/app/core/models/personal_card.model';
 import { publicPersonalCardTxnExpenseSuggestionsRes } from 'src/app/core/mock-data/personal-card-txn-expense-suggestions.data';
 
-describe('PersonalCardsPage', () => {
+fdescribe('PersonalCardsPage', () => {
   let component: PersonalCardsPage;
   let fixture: ComponentFixture<PersonalCardsPage>;
   let personalCardsService: jasmine.SpyObj<PersonalCardsService>;
@@ -82,6 +82,7 @@ describe('PersonalCardsPage', () => {
       'generateCreditParams',
       'generateDateParams',
       'getMatchedExpensesSuggestions',
+      'isMfaEnabled',
     ]);
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
@@ -214,6 +215,7 @@ describe('PersonalCardsPage', () => {
     launchDarklyService.getVariation.and.returnValue(of(false));
     personalCardsService.getPersonalCardsCount.and.returnValue(of(2));
     personalCardsService.getPersonalCards.and.returnValue(of(linkedAccountsRes));
+    personalCardsService.isMfaEnabled.and.returnValue(of(false));
     component.loadData$ = new BehaviorSubject({
       pageNumber: 1,
     });
@@ -265,7 +267,7 @@ describe('PersonalCardsPage', () => {
       expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
       expect(personalCardsService.getToken).toHaveBeenCalledTimes(1);
-      expect(component.openYoodle).toHaveBeenCalledOnceWith(apiToken.fast_link_url, apiToken.access_token);
+      expect(component.openYoodle).toHaveBeenCalledOnceWith(apiToken.fast_link_url, apiToken.access_token, false);
     }));
 
     describe('postAccounts():', () => {
@@ -894,10 +896,14 @@ describe('PersonalCardsPage', () => {
       inAppBrowserService.create.and.returnValue(inappborwserSpy);
       spyOn(component, 'postAccounts');
 
-      component.openYoodle(apiToken.fast_link_url, apiToken.access_token);
+      component.openYoodle(apiToken.fast_link_url, apiToken.access_token, false);
       tick(20000);
 
-      expect(personalCardsService.htmlFormUrl).toHaveBeenCalledOnceWith(apiToken.fast_link_url, apiToken.access_token);
+      expect(personalCardsService.htmlFormUrl).toHaveBeenCalledOnceWith(
+        apiToken.fast_link_url,
+        apiToken.access_token,
+        false
+      );
       expect(inappborwserSpy.on).toHaveBeenCalledTimes(2);
       expect(inAppBrowserService.create).toHaveBeenCalledTimes(1);
       expect(window.decodeURIComponent).toHaveBeenCalledTimes(1);
