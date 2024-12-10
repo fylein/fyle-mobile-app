@@ -155,14 +155,15 @@ describe('ResetPasswordPage', () => {
       component.currentPageState = PageState.success;
     });
 
-    it('should send reset password link, change loading and page state', () => {
+    it('should send reset password link, change loading and page state to success', fakeAsync(() => {
       routerAuthService.sendResetPassword.and.returnValue(of({}));
 
       const email = 'jay.b@fyle.in';
       component.sendResetLink(email);
+      tick();
       expect(component.isLoading).toBeFalse();
       expect(component.currentPageState).toEqual(PageState.success);
-    });
+    }));
 
     it('should send reset password link, change loading and page state', () => {
       routerAuthService.sendResetPassword.and.returnValue(throwError(() => new Error('Error message')));
