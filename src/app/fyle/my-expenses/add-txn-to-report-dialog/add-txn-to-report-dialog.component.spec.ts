@@ -17,7 +17,7 @@ import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog.compon
 import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-report.data';
 import { ExactCurrencyPipe } from 'src/app/shared/pipes/exact-currency.pipe';
 
-fdescribe('AddTxnToReportDialogComponent', () => {
+describe('AddTxnToReportDialogComponent', () => {
   let component: AddTxnToReportDialogComponent;
   let fixture: ComponentFixture<AddTxnToReportDialogComponent>;
   let currencyService: jasmine.SpyObj<CurrencyService>;
