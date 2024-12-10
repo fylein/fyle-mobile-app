@@ -37,9 +37,13 @@
   }
 
   &--multiselect-title {
-    padding-left: 12px;
-    padding-right: 0px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    color: $blue-black;
+    padding: 20px 0px 20px 12px;
     font-size: 18px;
+    gap: 4px;
   }
 
   &--multiselect-amount {

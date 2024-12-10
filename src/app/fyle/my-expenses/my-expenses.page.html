@@ -65,12 +65,12 @@
   <ng-container multiselect>
     <ng-container *ngIf="homeCurrency$ | async as homeCurrency">
       <ng-container *ngIf="allExpensesStats$ | async as allExpensesStats">
-        <ion-title class="my-expenses--multiselect-title page-title">
-          {{allExpensesStats?.count}} {{(allExpensesStats?.count > 1) ? 'expenses' : 'expense'}}
+        <div class="my-expenses--multiselect-title page-title">
+          <span>{{allExpensesStats?.count}} {{(allExpensesStats?.count > 1) ? 'expenses' : 'expense'}}</span>
           <span class="my-expenses--multiselect-amount">
             ({{ { value: allExpensesStats.amount || 0, currencyCode: homeCurrency } | exactCurrency }})
           </span>
-        </ion-title>
+        </div>
       </ng-container>
     </ng-container>
     <ion-buttons mode="md" slot="end">
