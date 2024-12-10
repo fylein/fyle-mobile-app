@@ -294,8 +294,9 @@
   &--footer-conatiner {
     display: flex;
     justify-content: space-around;
-    padding: 14px 36px;
+    padding: 16px;
     position: fixed;
+    gap: 16px;
     bottom: 0;
     width: 100%;
     background-color: $pure-white;
@@ -312,10 +313,13 @@
     height: auto;
     background-color: transparent;
     color: $black;
-    font-size: 16px;
+    font-size: 14px;
     line-height: 1.25;
+    border: 1px solid $grey;
+    border-radius: 4px;
+
     &__disabled {
-      opacity: 0.2;
+      opacity: 0.6;
     }
   }
 
@@ -326,7 +330,6 @@
     font-size: 14px;
     line-height: 1.3;
     border-radius: 4px;
-    width: 100%;
 
     &__disabled {
       opacity: 0.8;

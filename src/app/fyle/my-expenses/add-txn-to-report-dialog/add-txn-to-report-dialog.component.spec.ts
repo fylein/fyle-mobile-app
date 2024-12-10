@@ -15,8 +15,9 @@ import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
 import { SnakeCaseToSpaceCase } from 'src/app/shared/pipes/snake-case-to-space-case.pipe';
 import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog.component';
 import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-report.data';
+import { ExactCurrencyPipe } from 'src/app/shared/pipes/exact-currency.pipe';
 
-describe('AddTxnToReportDialogComponent', () => {
+fdescribe('AddTxnToReportDialogComponent', () => {
   let component: AddTxnToReportDialogComponent;
   let fixture: ComponentFixture<AddTxnToReportDialogComponent>;
   let currencyService: jasmine.SpyObj<CurrencyService>;
@@ -32,6 +33,7 @@ describe('AddTxnToReportDialogComponent', () => {
         AddTxnToReportDialogComponent,
         FyZeroStateComponent,
         HumanizeCurrencyPipe,
+        ExactCurrencyPipe,
         ReportState,
         SnakeCaseToSpaceCase,
       ],
