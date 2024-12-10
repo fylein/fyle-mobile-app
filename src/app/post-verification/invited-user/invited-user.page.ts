@@ -138,8 +138,6 @@ export class InvitedUserPage implements OnInit {
     }
     const password = this.fg.controls.password.value as string;
     const confirmPassword = this.fg.controls.confirmPassword.value as string;
-    if (confirmPassword) {
-      return password === confirmPassword ? null : { passwordMismatch: true };
-    }
+    return password === confirmPassword ? null : { passwordMismatch: true };
   };
 }
