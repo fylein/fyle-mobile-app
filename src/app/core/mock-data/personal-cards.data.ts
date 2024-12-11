@@ -112,7 +112,6 @@ export const linkedAccountsRes: PersonalCard[] = deepFreeze([
     unclassified_count: 2,
     update_credentials: false,
     updated_at: new Date('2023-03-23T06:31:08.824707'),
-    yodlee_provider_account_id: '10287109',
   },
   {
     account_number: 'xxxx1069',
@@ -132,7 +131,6 @@ export const linkedAccountsRes: PersonalCard[] = deepFreeze([
     unclassified_count: 0,
     update_credentials: false,
     updated_at: new Date('2023-01-12T15:57:47.178727'),
-    yodlee_provider_account_id: '10287109',
   },
 ]);
 
@@ -150,7 +148,6 @@ export const linkedAccountRes2: PersonalCard[] = deepFreeze([
     last_synced_at: null,
     mask: '3201',
     account_type: 'SAVINGS',
-    yodlee_provider_account_id: '10287109',
   },
   {
     id: 'baccCqRv6YdSqZ',
@@ -165,7 +162,6 @@ export const linkedAccountRes2: PersonalCard[] = deepFreeze([
     last_synced_at: null,
     mask: '8791',
     account_type: 'SAVINGS',
-    yodlee_provider_account_id: '10287109',
   },
 ]);
 

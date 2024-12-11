@@ -16,5 +16,4 @@ export interface PersonalCard {
   unclassified_amount?: number;
   unclassified_count?: number;
   updated_at: Date;
-  yodlee_provider_account_id?: string;
 }
