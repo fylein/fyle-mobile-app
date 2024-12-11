@@ -1,81 +1,43 @@
-import { Component } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { tap } from 'rxjs/operators';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { PageState } from 'src/app/core/models/page-state.enum';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 
 @Component({
   selector: 'app-reset-password',
   templateUrl: './reset-password.page.html',
-  styleUrls: ['./reset-password.page.scss'],
 })
-export class ResetPasswordPage {
+export class ResetPasswordPage implements OnInit {
   currentPageState: PageState;
 
   isLoading = false;
 
-  fg: FormGroup;
+  constructor(private routerAuthService: RouterAuthService, private router: Router) {}
 
-  resetEmail: string;
-
-  isEmailSentOnce: boolean;
-
-  PageState: typeof PageState = PageState;
-
-  constructor(
-    private formBuilder: FormBuilder,
-    private routerAuthService: RouterAuthService,
-    private router: Router,
-    private activatedRoute: ActivatedRoute,
-    private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService
-  ) {}
-
-  ionViewWillEnter(): void {
+  ionViewWillEnter() {
     this.currentPageState = PageState.notSent;
-    const email = (this.activatedRoute.snapshot.params.email as string) || '';
-    this.fg = this.formBuilder.group({
-      email: [email, Validators.compose([Validators.required, Validators.pattern('\\S+@\\S+\\.\\S{2,}')])],
-    });
   }
 
-  sendResetLink(email: string): void {
-    this.isLoading = true;
-    this.resetEmail = email;
+  ngOnInit() {}
 
-    if (this.currentPageState === PageState.success) {
-      this.isEmailSentOnce = true;
-    }
+  sendResetLink(email: string) {
+    this.isLoading = true;
 
     this.routerAuthService
       .sendResetPassword(email)
       .pipe(tap(() => (this.isLoading = false)))
       .subscribe({
         next: () => (this.currentPageState = PageState.success),
-        error: (err: { status: number }) => this.handleError(err),
+        error: (err) => this.handleError(err),
       });
   }
 
-  handleError(err: { status: number }): void {
+  handleError(err) {
     if (err.status === 422) {
       this.router.navigate(['/', 'auth', 'disabled']);
     } else {
-      const toastMessageData = {
-        message: 'Something went wrong. Please try after some time.',
-      };
-
-      this.matSnackBar.openFromComponent(ToastMessageComponent, {
-        ...this.snackbarProperties.setSnackbarProperties('failure', toastMessageData),
-        panelClass: ['msb-failure'],
-      });
+      this.currentPageState = PageState.failure;
     }
-  }
-
-  onGotoSignInClick(): void {
-    this.router.navigate(['/', 'auth', 'sign_in']);
   }
 }
