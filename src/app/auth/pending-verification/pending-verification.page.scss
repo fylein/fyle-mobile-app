@@ -1,22 +1,49 @@
 @import '../../../theme/colors.scss';
 
-.forgot-password {
+.pending-verification {
   height: 100%;
   margin-top: 18px;
+  padding-top: 28px;
+
+  &__send-invite {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    padding: 0 20px 24px 20px;
+  }
 
   &__form-container {
     display: flex;
     flex-direction: column;
-    padding: 24px 20px;
-    justify-content: space-between;
+    padding-top: 24px;
+    justify-content: flex-start;
     height: 100%;
+  }
+
+  &__error-icon {
+    width: 45px;
+    height: 45px;
+    fill: $red;
+  }
+
+  &__error-icon-container {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: $pale-pink;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    padding: 10px;
   }
 
   &__page-header {
     font-size: 20px;
     margin: 0 0 10px;
     position: relative;
-    margin-bottom: 24px;
+    margin-bottom: 8px;
   }
 
   &__disabled {
@@ -27,8 +54,9 @@
     font-size: 14px;
     margin: 0 0 10px;
     position: relative;
-    margin-bottom: 24px;
+    margin-bottom: 32px;
     color: $black-light;
+    line-height: 1.28;
   }
 
   &__error-message {
@@ -70,16 +98,12 @@
 
   &__arrow-icon {
     fill: $pure-white;
-    margin-right: 8px;
+    margin-right: 6px;
   }
 
   &__cta-text {
     font-size: 14px;
     font-weight: 500;
-  }
-
-  &__cta {
-    margin: 0 20px 24px 20px;
   }
 
   &__cta-content {
@@ -161,10 +185,14 @@
       font-weight: 500;
     }
   }
-
-  &__back-icon {
-    margin-bottom: 16px;
-    width: 28px;
-    height: 28px;
+  &__cta-secondary {
+    display: flex;
+    padding-top: 18px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: $blue-black;
+    display: flex;
+    flex-direction: row;
   }
 }

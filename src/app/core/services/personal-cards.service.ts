@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { PersonalCard } from '../models/personal_card.model';
 import { YodleeAccessToken } from '../models/yoodle-token.model';
@@ -7,7 +7,7 @@ import { PersonalCardFilter } from '../models/personal-card-filters.model';
 import { ApiV2Service } from './api-v2.service';
 import { ApiService } from './api.service';
 import { ExpenseAggregationService } from './expense-aggregation.service';
-import { Expense } from '../models/expense.model';
+import { Expense } from '../models/platform/v1/expense.model';
 import { DateService } from './date.service';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
@@ -26,6 +26,7 @@ import { TxnDetail } from '../models/v2/txn-detail.model';
 import { PlatformPersonalCardQueryParams } from '../models/platform/platform-personal-card-query-params.model';
 import { PersonalCardSyncTxns } from '../models/platform/platform-personal-card-syn-txns.model';
 import { environment } from 'src/environments/environment';
+import { PersonalCardTxnExpenseSuggestion } from '../models/personal-card-txn-expense-suggestion.model';
 
 @Injectable({
   providedIn: 'root',
@@ -54,6 +55,7 @@ export class PersonalCardsService {
         last_synced_at: card.yodlee_last_synced_at,
         mask: card.card_number.slice(-4),
         account_type: card.account_type,
+        yodlee_provider_account_id: card.yodlee_provider_account_id,
       };
       return personalCard;
     });
@@ -104,6 +106,20 @@ export class PersonalCardsService {
         txn_details: this.transformMatchedExpensesToTxnDetails(txn.matched_expenses),
       };
       return personalCardTxn;
+    });
+  }
+
+  transformPlatformPersonalCardTxnExpenseSuggestions(expenses: Expense[]): PersonalCardTxnExpenseSuggestion[] {
+    return expenses.map((expense) => {
+      const expenseSuggestion: PersonalCardTxnExpenseSuggestion = {
+        purpose: expense.purpose,
+        vendor: expense.merchant,
+        txn_dt: expense.spent_at,
+        currency: expense.currency,
+        amount: expense.amount,
+        split_group_id: expense.split_group_id,
+      };
+      return expenseSuggestion;
     });
   }
 
@@ -175,10 +191,28 @@ export class PersonalCardsService {
     return this.expenseAggregationService.get('/yodlee/personal/access_token') as Observable<YodleeAccessToken>;
   }
 
-  htmlFormUrl(url: string, accessToken: string): string {
+  isMfaEnabled(personalCardId: string, usePlatformApi): Observable<boolean> {
+    if (!usePlatformApi) {
+      return of(false); // TODO sumrender: hack, this will be removed with old personalCards removal in next pr;
+    }
+    const payload = {
+      data: {
+        id: personalCardId,
+      },
+    };
+    return this.spenderPlatformV1ApiService
+      .post<PlatformApiResponse<{ is_mfa_enabled: boolean }>>('/personal_cards/mfa', payload)
+      .pipe(map((res) => res.data.is_mfa_enabled));
+  }
+
+  htmlFormUrl(url: string, accessToken: string, isMfaFlow: boolean, providerAccountId = ''): string {
+    let extraParams = 'configName=Aggregation&callback=https://www.fylehq.com';
+    if (isMfaFlow) {
+      extraParams = `configName=Aggregation&flow=refresh&providerAccountId=${providerAccountId}&callback=https://www.fylehq.com`;
+    }
     const pageContent = `<form id="fastlink-form" name="fastlink-form" action="${url}" method="POST">
                           <input name="accessToken" value="Bearer ${accessToken}" hidden="true" />
-                          <input  name="extraParams" value="configName=Aggregation&callback=https://www.fylehq.com" hidden="true" />
+                          <input  name="extraParams" value="${extraParams}" hidden="true" />
                           </form> 
                           <script type="text/javascript">
                           document.getElementById("fastlink-form").submit();
@@ -223,7 +257,28 @@ export class PersonalCardsService {
       .pipe(map((res) => res.count));
   }
 
-  getMatchedExpenses(amount: number, txnDate: string): Observable<Expense[]> {
+  getMatchedExpensesSuggestionsPlatform(
+    amount: number,
+    txnDate: string
+  ): Observable<PersonalCardTxnExpenseSuggestion[]> {
+    return this.spenderPlatformV1ApiService
+      .get<PlatformApiResponse<Expense[]>>('/personal_card_transactions/expense_suggestion', {
+        params: {
+          amount,
+          spent_at: txnDate,
+        },
+      })
+      .pipe(map((res) => this.transformPlatformPersonalCardTxnExpenseSuggestions(res.data)));
+  }
+
+  getMatchedExpensesSuggestions(
+    amount: number,
+    txnDate: string,
+    usePlatformApi: boolean
+  ): Observable<PersonalCardTxnExpenseSuggestion[]> {
+    if (usePlatformApi) {
+      return this.getMatchedExpensesSuggestionsPlatform(amount, txnDate);
+    }
     return this.apiService.get('/expense_suggestions/personal_cards', {
       params: {
         amount,
@@ -319,10 +374,6 @@ export class PersonalCardsService {
         ...config.queryParams,
       },
     });
-  }
-
-  getMatchedExpensesCount(amount: number, txnDate: string): Observable<number> {
-    return this.getMatchedExpenses(amount, txnDate).pipe(map((res) => res.length));
   }
 
   matchExpensePlatform(

@@ -34,6 +34,11 @@ import * as dayjs from 'dayjs';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformPersonalCardQueryParams } from '../models/platform/platform-personal-card-query-params.model';
 import { personalCardAccessTokenResponse } from '../mock-data/personal-cards-access-token.data';
+import {
+  platformPersonalCardTxnExpenseSuggestions,
+  platformPersonalCardTxnExpenseSuggestionsRes,
+  publicPersonalCardTxnExpenseSuggestionsRes,
+} from '../mock-data/personal-card-txn-expense-suggestions.data';
 
 describe('PersonalCardsService', () => {
   let personalCardsService: PersonalCardsService;
@@ -1423,34 +1428,37 @@ describe('PersonalCardsService', () => {
     });
   });
 
-  it('getMatchedExpenses(): should get matched expenses', (done) => {
-    apiService.get.and.returnValue(of(apiExpenseRes));
+  describe('getMatchedExpensesSuggestions()', () => {
+    it('should get expense suggestions using public api', (done) => {
+      apiService.get.and.returnValue(of(publicPersonalCardTxnExpenseSuggestionsRes));
 
-    const amount = 3;
-    const txnDate = '2021-07-29T06:30:00.000Z';
+      const amount = 3;
+      const txnDate = '2021-07-29T06:30:00.000Z';
+      const usePlatformApi = false;
 
-    personalCardsService.getMatchedExpenses(amount, txnDate).subscribe((res) => {
-      expect(res).toEqual(apiExpenseRes);
-      expect(apiService.get).toHaveBeenCalledOnceWith('/expense_suggestions/personal_cards', {
-        params: {
-          amount,
-          txn_dt: txnDate,
-        },
+      personalCardsService.getMatchedExpensesSuggestions(amount, txnDate, usePlatformApi).subscribe((res) => {
+        expect(res).toEqual(publicPersonalCardTxnExpenseSuggestionsRes);
+        expect(apiService.get).toHaveBeenCalledOnceWith('/expense_suggestions/personal_cards', {
+          params: {
+            amount,
+            txn_dt: txnDate,
+          },
+        });
+        done();
       });
-      done();
     });
-  });
 
-  it('getMatchedExpensesCount(): should get matched expenses count', (done) => {
-    spyOn(personalCardsService, 'getMatchedExpenses').and.returnValue(of(apiExpenseRes));
+    it('should get expense suggestions using platform api', (done) => {
+      spenderPlatformV1ApiService.get.and.returnValue(of(platformPersonalCardTxnExpenseSuggestionsRes));
 
-    const amount = 3;
-    const txnDate = '2021-07-29T06:30:00.000Z';
+      const amount = 3;
+      const txnDate = '2021-07-29T06:30:00.000Z';
+      const usePlatformApi = true;
 
-    personalCardsService.getMatchedExpensesCount(amount, txnDate).subscribe((res) => {
-      expect(res).toEqual(apiExpenseRes.length);
-      expect(personalCardsService.getMatchedExpenses).toHaveBeenCalledOnceWith(amount, txnDate);
-      done();
+      personalCardsService.getMatchedExpensesSuggestions(amount, txnDate, usePlatformApi).subscribe((res) => {
+        expect(res).toEqual(platformPersonalCardTxnExpenseSuggestions);
+        done();
+      });
     });
   });
 
@@ -1529,12 +1537,47 @@ describe('PersonalCardsService', () => {
     });
   });
 
-  it('htmlFormUrl(): get html from URL', () => {
-    const URL = 'https://repo1.maven.org/maven2';
+  describe('htmlFormUrl()', () => {
+    const baseUrl = 'https://repo1.maven.org/maven2';
 
-    expect(personalCardsService.htmlFormUrl(URL, '123')).toEqual(
-      'data:text/html;base64,PGZvcm0gaWQ9ImZhc3RsaW5rLWZvcm0iIG5hbWU9ImZhc3RsaW5rLWZvcm0iIGFjdGlvbj0iaHR0cHM6Ly9yZXBvMS5tYXZlbi5vcmcvbWF2ZW4yIiBtZXRob2Q9IlBPU1QiPgogICAgICAgICAgICAgICAgICAgICAgICAgIDxpbnB1dCBuYW1lPSJhY2Nlc3NUb2tlbiIgdmFsdWU9IkJlYXJlciAxMjMiIGhpZGRlbj0idHJ1ZSIgLz4KICAgICAgICAgICAgICAgICAgICAgICAgICA8aW5wdXQgIG5hbWU9ImV4dHJhUGFyYW1zIiB2YWx1ZT0iY29uZmlnTmFtZT1BZ2dyZWdhdGlvbiZjYWxsYmFjaz1odHRwczovL3d3dy5meWxlaHEuY29tIiBoaWRkZW49InRydWUiIC8+CiAgICAgICAgICAgICAgICAgICAgICAgICAgPC9mb3JtPiAKICAgICAgICAgICAgICAgICAgICAgICAgICA8c2NyaXB0IHR5cGU9InRleHQvamF2YXNjcmlwdCI+CiAgICAgICAgICAgICAgICAgICAgICAgICAgZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoImZhc3RsaW5rLWZvcm0iKS5zdWJtaXQoKTsKICAgICAgICAgICAgICAgICAgICAgICAgICA8L3NjcmlwdD4KICAgICAgICAgICAgICAgICAgICAgICAgICA='
-    );
+    it('should generate the correct HTML for a normal flow', () => {
+      const accessToken = '123';
+      const isMfaFlow = false;
+
+      const result = personalCardsService.htmlFormUrl(baseUrl, accessToken, isMfaFlow);
+      const expectedExtraParams = 'configName=Aggregation&callback=https://www.fylehq.com';
+      const expectedHtml = `<form id="fastlink-form" name="fastlink-form" action="${baseUrl}" method="POST">
+                          <input name="accessToken" value="Bearer ${accessToken}" hidden="true" />
+                          <input  name="extraParams" value="${expectedExtraParams}" hidden="true" />
+                          </form> 
+                          <script type="text/javascript">
+                          document.getElementById("fastlink-form").submit();
+                          </script>
+                          `;
+      const expectedEncodedHtml = 'data:text/html;base64,' + btoa(expectedHtml);
+
+      expect(result).toEqual(expectedEncodedHtml);
+    });
+
+    it('should generate the correct HTML for an MFA flow with providerAccountId', () => {
+      const accessToken = '789';
+      const isMfaFlow = true;
+      const providerAccountId = 'test-provider-id';
+
+      const result = personalCardsService.htmlFormUrl(baseUrl, accessToken, isMfaFlow, providerAccountId);
+      const expectedExtraParams = `configName=Aggregation&flow=refresh&providerAccountId=${providerAccountId}&callback=https://www.fylehq.com`;
+      const expectedHtml = `<form id="fastlink-form" name="fastlink-form" action="${baseUrl}" method="POST">
+                          <input name="accessToken" value="Bearer ${accessToken}" hidden="true" />
+                          <input  name="extraParams" value="${expectedExtraParams}" hidden="true" />
+                          </form> 
+                          <script type="text/javascript">
+                          document.getElementById("fastlink-form").submit();
+                          </script>
+                          `;
+      const expectedEncodedHtml = 'data:text/html;base64,' + btoa(expectedHtml);
+
+      expect(result).toEqual(expectedEncodedHtml);
+    });
   });
 
   describe('getToken()', () => {
@@ -1556,6 +1599,40 @@ describe('PersonalCardsService', () => {
       personalCardsService.getToken(usePlatformApi).subscribe((res) => {
         expect(res.access_token).toEqual(personalCardAccessTokenResponse.data.access_token);
         expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/personal_cards/access_token');
+        done();
+      });
+    });
+  });
+
+  describe('isMfaEnabled()', () => {
+    it('should return false when using public api', (done) => {
+      const personalCardId = '12345';
+      const usePlatformApi = false;
+
+      personalCardsService.isMfaEnabled(personalCardId, usePlatformApi).subscribe((res) => {
+        expect(res).toBeFalse();
+        expect(spenderPlatformV1ApiService.post).not.toHaveBeenCalled();
+        done();
+      });
+    });
+
+    it('should call platform API usePlatformApi is true', (done) => {
+      const personalCardId = '12345';
+      const usePlatformApi = true;
+      const mockApiResponse = {
+        data: {
+          is_mfa_enabled: true,
+        },
+      };
+      spenderPlatformV1ApiService.post.and.returnValue(of(mockApiResponse));
+
+      personalCardsService.isMfaEnabled(personalCardId, usePlatformApi).subscribe((res) => {
+        expect(res).toBeTrue();
+        expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/personal_cards/mfa', {
+          data: {
+            id: personalCardId,
+          },
+        });
         done();
       });
     });
