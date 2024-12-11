@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { PersonalCard } from '../models/personal_card.model';
 import { YodleeAccessToken } from '../models/yoodle-token.model';
@@ -55,7 +55,6 @@ export class PersonalCardsService {
         last_synced_at: card.yodlee_last_synced_at,
         mask: card.card_number.slice(-4),
         account_type: card.account_type,
-        yodlee_provider_account_id: card.yodlee_provider_account_id,
       };
       return personalCard;
     });
@@ -191,28 +190,10 @@ export class PersonalCardsService {
     return this.expenseAggregationService.get('/yodlee/personal/access_token') as Observable<YodleeAccessToken>;
   }
 
-  isMfaEnabled(personalCardId: string, usePlatformApi): Observable<boolean> {
-    if (!usePlatformApi) {
-      return of(false); // TODO sumrender: hack, this will be removed with old personalCards removal in next pr;
-    }
-    const payload = {
-      data: {
-        id: personalCardId,
-      },
-    };
-    return this.spenderPlatformV1ApiService
-      .post<PlatformApiResponse<{ is_mfa_enabled: boolean }>>('/personal_cards/mfa', payload)
-      .pipe(map((res) => res.data.is_mfa_enabled));
-  }
-
-  htmlFormUrl(url: string, accessToken: string, isMfaFlow: boolean, providerAccountId = ''): string {
-    let extraParams = 'configName=Aggregation&callback=https://www.fylehq.com';
-    if (isMfaFlow) {
-      extraParams = `configName=Aggregation&flow=refresh&providerAccountId=${providerAccountId}&callback=https://www.fylehq.com`;
-    }
+  htmlFormUrl(url: string, accessToken: string): string {
     const pageContent = `<form id="fastlink-form" name="fastlink-form" action="${url}" method="POST">
                           <input name="accessToken" value="Bearer ${accessToken}" hidden="true" />
-                          <input  name="extraParams" value="${extraParams}" hidden="true" />
+                          <input  name="extraParams" value="configName=Aggregation&callback=https://www.fylehq.com" hidden="true" />
                           </form> 
                           <script type="text/javascript">
                           document.getElementById("fastlink-form").submit();

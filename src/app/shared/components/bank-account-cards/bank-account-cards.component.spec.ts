@@ -40,7 +40,7 @@ describe('BankAccountCardsComponent', () => {
       spyOn(component.changed, 'emit');
       component.onCardChange([{ realIndex: 1 }] as Partial<Swiper[]>);
       fixture.detectChanges();
-      expect(component.changed.emit).toHaveBeenCalledOnceWith(linkedAccountsRes[1]);
+      expect(component.changed.emit).toHaveBeenCalledOnceWith('baccBlpSkgBbN0');
     });
   });
 
