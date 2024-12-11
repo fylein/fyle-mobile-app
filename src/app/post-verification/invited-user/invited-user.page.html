@@ -35,7 +35,7 @@
                   <input
                     placeholder="Enter password"
                     [required]="true"
-                    [type]="hide ? 'text': 'password'"
+                    [type]="hide ? 'password': 'text'"
                     class="invited-user__text-input smartlook-show"
                     formControlName="password"
                     (focus)="setPasswordTooltip(true)"
@@ -77,7 +77,7 @@
                   <input
                     placeholder="Re-enter password"
                     [required]="true"
-                    [type]="hideConfirmPassword ? 'text': 'password'"
+                    [type]="hideConfirmPassword ? 'password': 'text'"
                     class="invited-user__text-input smartlook-show"
                     formControlName="confirmPassword"
                   />
