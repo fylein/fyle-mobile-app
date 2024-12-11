@@ -103,7 +103,10 @@ describe('AddEditExpensePage', () => {
       'addExpenses',
     ]);
     const customInputsServiceSpy = jasmine.createSpyObj('CustomInputsService', ['getAll', 'filterByCategory']);
-    const customFieldsServiceSpy = jasmine.createSpyObj('CustomFieldsService', ['standardizeCustomFields']);
+    const customFieldsServiceSpy = jasmine.createSpyObj('CustomFieldsService', [
+      'standardizeCustomFields',
+      'setDefaultValue',
+    ]);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', [
       'delete',
       'getRemoveCardExpenseDialogBody',
