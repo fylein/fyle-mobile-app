@@ -109,11 +109,11 @@ describe('InvitedUserPage', () => {
     expect(component.fg.controls.fullName.value).toEqual(currentEouRes.us.full_name);
   }));
 
-  describe('checkPasswordValidity():', () => {
+  describe('customPasswordValidator():', () => {
     it('should return null when isPasswordValid is true', () => {
       component.isPasswordValid = true;
 
-      const result = component.checkPasswordValidity();
+      const result = component.customPasswordValidator();
 
       expect(result).toBeNull(); // No errors
     });
@@ -121,7 +121,7 @@ describe('InvitedUserPage', () => {
     it('should return an error object when isPasswordValid is false', () => {
       component.isPasswordValid = false;
 
-      const result = component.checkPasswordValidity();
+      const result = component.customPasswordValidator();
 
       expect(result).toEqual({ invalidPassword: true }); // Error object
     });
