@@ -107,7 +107,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
   selectedTransactionType = 'INITIALIZED';
 
-  selectedAccount: string;
+  selectedAccount: PersonalCard;
 
   isfetching = false;
 
@@ -285,7 +285,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       this.linkedAccounts$.pipe(takeUntil(this.onPageExit$)).subscribe((linkedAccounts) => {
         if (linkedAccounts.length > 0) {
           // Initializing the selectedAccount to First account on page load
-          this.onCardChanged(linkedAccounts[0].id);
+          this.onCardChanged(linkedAccounts[0]);
         }
       });
 
@@ -344,12 +344,17 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
         })
       )
       .subscribe((yodleeConfig) => {
-        this.openYoodle(yodleeConfig.fast_link_url, yodleeConfig.access_token);
+        this.openYoodle(yodleeConfig.fast_link_url, yodleeConfig.access_token, false);
       });
   }
 
-  openYoodle(url: string, access_token: string): void {
-    const pageContentUrl = this.personalCardsService.htmlFormUrl(url, access_token);
+  openYoodle(url: string, access_token: string, isMfaFlow: boolean): void {
+    const pageContentUrl = this.personalCardsService.htmlFormUrl(
+      url,
+      access_token,
+      isMfaFlow,
+      this.selectedAccount.yodlee_provider_account_id
+    );
     const browser = this.inAppBrowserService.create(pageContentUrl, '_blank', 'location=no');
     this.spinnerDialog.show();
     /* added this for failsafe */
@@ -374,7 +379,11 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
             requestId: string;
           }[];
           if (decodedData && decodedData[0]) {
-            this.postAccounts([decodedData[0].requestId]);
+            if (isMfaFlow) {
+              this.syncTransactions();
+            } else {
+              this.postAccounts([decodedData[0].requestId]);
+            }
           }
         });
       }
@@ -406,13 +415,13 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.trackingService.cardDeletedOnPersonalCards();
   }
 
-  onCardChanged(event: string): void {
-    this.selectedAccount = event;
+  onCardChanged(card: PersonalCard): void {
+    this.selectedAccount = card;
     this.acc = [];
     const params = this.loadData$.getValue();
     const queryParams = params.queryParams || {};
     queryParams.btxn_status = `in.(${this.selectedTransactionType})`;
-    queryParams.ba_id = 'eq.' + this.selectedAccount;
+    queryParams.ba_id = 'eq.' + this.selectedAccount.id;
     params.queryParams = queryParams;
     params.pageNumber = 1;
     this.zone.run(() => {
@@ -480,25 +489,43 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     });
   }
 
+  fetchNewTransactionsWithMfa(): void {
+    from(this.loaderService.showLoader('Redirecting you to our banking partner...', 10000))
+      .pipe(
+        switchMap(() => this.personalCardsService.getToken(this.usePlatformApi)),
+        finalize(async () => {
+          await this.loaderService.hideLoader();
+        })
+      )
+      .subscribe((yodleeConfig) => {
+        this.openYoodle(yodleeConfig.fast_link_url, yodleeConfig.access_token, true);
+      });
+  }
+
   fetchNewTransactions(): void {
     this.isfetching = true;
     this.isTransactionsLoading = true;
     if (this.selectionMode) {
       this.switchSelectionMode();
     }
-    this.personalCardsService
-      .syncTransactions(this.selectedAccount, this.usePlatformApi)
-      .pipe(
-        finalize(() => {
-          this.acc = [];
-          this.isfetching = false;
-          const params = this.loadData$.getValue();
-          params.pageNumber = 1;
-          this.loadData$.next(params);
-          this.trackingService.transactionsFetchedOnPersonalCards();
-        })
-      )
-      .subscribe(noop);
+    this.personalCardsService.isMfaEnabled(this.selectedAccount.id, this.usePlatformApi).subscribe((isMfaEnabled) => {
+      if (isMfaEnabled) {
+        this.fetchNewTransactionsWithMfa();
+      } else {
+        this.syncTransactions();
+      }
+    });
+  }
+
+  syncTransactions(): void {
+    this.personalCardsService.syncTransactions(this.selectedAccount.id, this.usePlatformApi).subscribe(() => {
+      this.acc = [];
+      this.isfetching = false;
+      const params = this.loadData$.getValue();
+      params.pageNumber = 1;
+      this.loadData$.next(params);
+      this.trackingService.transactionsFetchedOnPersonalCards();
+    });
   }
 
   hideSelectedTransactions(): void {
@@ -659,7 +686,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       or: [],
     };
     newQueryParams.btxn_status = `in.(${this.selectedTransactionType})`;
-    newQueryParams.ba_id = 'eq.' + this.selectedAccount;
+    newQueryParams.ba_id = 'eq.' + this.selectedAccount.id;
     const filters = this.filters;
     this.personalCardsService.generateTxnDateParams(newQueryParams, filters, 'createdOn', this.usePlatformApi);
     this.personalCardsService.generateTxnDateParams(newQueryParams, filters, 'updatedOn', this.usePlatformApi);
