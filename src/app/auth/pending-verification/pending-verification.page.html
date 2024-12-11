@@ -16,7 +16,7 @@
           </div>
         </div>
         <form [formGroup]="fg" class="pending-verification__input-container">
-          <div class="pending-verification__input-container__label">Registered Email</div>
+          <div class="pending-verification__input-container__label">Registered email</div>
           <input
             #simpleEmailInput
             matInput
@@ -30,6 +30,7 @@
             class="pending-verification__error-message"
             *ngIf="fg.controls.email.touched && !fg.controls.email.valid"
           >
+            <mat-icon class="pending-verification__error-message-icon" svgIcon="danger-fill"></mat-icon>
             Please enter a valid email.
           </div>
         </form>
@@ -84,7 +85,7 @@
               [src]="'/assets/svg/arrow-left.svg'"
               slot="icon-only"
             ></ion-icon>
-            <span class="pending-verification__cta-text">Back to Sign In</span>
+            <span class="pending-verification__cta-text">Back to sign in</span>
           </div>
         </ion-button>
       </div>

@@ -15,13 +15,14 @@
                 class="invited-user__text invited-user__text-block"
                 [ngClass]="{'invited-user__text__invalid': fg.controls.fullName.touched && !fg.controls.fullName.valid}"
               >
-                <div class="invited-user__text-label">Full Name</div>
+                <div class="invited-user__text-label">Full name</div>
                 <input [required]="true" class="invited-user__text-input smartlook-show" formControlName="fullName" />
               </div>
               <div
                 *ngIf="fg.controls.fullName.touched && fg.controls.fullName.invalid && fg.controls.fullName.errors.required"
                 class="invited-user__error"
               >
+                <mat-icon class="invited-user__error-message-icon" svgIcon="danger-fill"></mat-icon>
                 Please enter your name
               </div>
             </div>
@@ -58,12 +59,14 @@
                 *ngIf="fg.controls.password.touched && fg.controls.password.invalid && fg.controls.password.errors.required"
                 class="invited-user__error"
               >
+                <mat-icon class="invited-user__error-message-icon" svgIcon="danger-fill"></mat-icon>
                 Password cannot be empty
               </div>
               <div
                 *ngIf="fg.controls.password.touched && fg.controls.password.invalid && fg.controls.password.errors.invalidPassword && !fg.controls.password.errors.required"
                 class="invited-user__error"
               >
+                <mat-icon class="invited-user__error-message-icon" svgIcon="danger-fill"></mat-icon>
                 Please enter a valid password.
               </div>
             </div>
@@ -72,7 +75,7 @@
                 class="invited-user__text invited-user__text-block"
                 [ngClass]="{'invited-user__text__invalid': fg.controls.confirmPassword.touched && !fg.controls.confirmPassword.valid}"
               >
-                <div class="invited-user__text-label">Confirm Password</div>
+                <div class="invited-user__text-label">Confirm password</div>
                 <div class="invited-user__password-container">
                   <input
                     placeholder="Re-enter password"
@@ -97,12 +100,14 @@
                 *ngIf="fg.controls.confirmPassword.touched && fg.controls.confirmPassword.invalid && fg.controls.confirmPassword.errors.required"
                 class="invited-user__error"
               >
+                <mat-icon class="invited-user__error-message-icon" svgIcon="danger-fill"></mat-icon>
                 Password cannot be empty
               </div>
               <div
-                *ngIf="fg.controls.confirmPassword.touched && fg.controls.confirmPassword.invalid && fg.controls.confirmPassword.errors.passwordMismatch"
+                *ngIf="fg.controls.confirmPassword.touched && fg.controls.confirmPassword.invalid && fg.controls.confirmPassword.errors.passwordMismatch && !fg.controls.confirmPassword.errors.required"
                 class="invited-user__error"
               >
+                <mat-icon class="invited-user__error-message-icon" svgIcon="danger-fill"></mat-icon>
                 Passwords do not match
               </div>
             </div>

@@ -19,6 +19,14 @@
   &__error {
     color: $red;
     font-size: 12px;
+    display: flex;
+    align-items: center;
+  }
+
+  &__error-message-icon {
+    height: 14px;
+    width: 14px;
+    margin-right: 4px;
   }
 
   &__text {
@@ -76,6 +84,7 @@
     position: relative;
     margin-bottom: 24px;
     color: $black;
+    font-weight: 500;
   }
 
   &__save {
