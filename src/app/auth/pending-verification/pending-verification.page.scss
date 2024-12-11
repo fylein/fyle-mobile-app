@@ -43,7 +43,7 @@
     font-size: 20px;
     margin: 0 0 10px;
     position: relative;
-    margin-bottom: 8px;
+    margin-bottom: 24px;
   }
 
   &__disabled {
@@ -54,9 +54,8 @@
     font-size: 14px;
     margin: 0 0 10px;
     position: relative;
-    margin-bottom: 32px;
+    margin-bottom: 24px;
     color: $black-light;
-    line-height: 1.28;
   }
 
   &__error-message {

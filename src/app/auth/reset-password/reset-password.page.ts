@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { finalize } from 'rxjs/operators';
+import { tap } from 'rxjs/operators';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { PageState } from 'src/app/core/models/page-state.enum';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -53,11 +53,7 @@ export class ResetPasswordPage {
 
     this.routerAuthService
       .sendResetPassword(email)
-      .pipe(
-        finalize(() => {
-          this.isLoading = false;
-        })
-      )
+      .pipe(tap(() => (this.isLoading = false)))
       .subscribe({
         next: () => (this.currentPageState = PageState.success),
         error: (err: { status: number }) => this.handleError(err),

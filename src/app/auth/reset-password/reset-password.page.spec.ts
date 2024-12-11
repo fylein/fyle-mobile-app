@@ -155,15 +155,14 @@ describe('ResetPasswordPage', () => {
       component.currentPageState = PageState.success;
     });
 
-    it('should send reset password link, change loading and page state to success', fakeAsync(() => {
+    it('should send reset password link, change loading and page state', () => {
       routerAuthService.sendResetPassword.and.returnValue(of({}));
 
       const email = 'jay.b@fyle.in';
       component.sendResetLink(email);
-      tick();
       expect(component.isLoading).toBeFalse();
       expect(component.currentPageState).toEqual(PageState.success);
-    }));
+    });
 
     it('should send reset password link, change loading and page state', () => {
       routerAuthService.sendResetPassword.and.returnValue(throwError(() => new Error('Error message')));
@@ -171,7 +170,7 @@ describe('ResetPasswordPage', () => {
 
       const email = 'jay.b@fyle.in';
       component.sendResetLink(email);
-      expect(component.isLoading).toBeFalse();
+      expect(component.isLoading).toBeTrue();
       expect(component.handleError).toHaveBeenCalledTimes(1);
     });
   });

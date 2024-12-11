@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, OnInit } from '@angular/core';
 import { PasswordChecks } from './password-checks.model';
 import { PasswordCriteria } from './password-criteria.model';
 
@@ -11,6 +11,8 @@ export class PasswordCheckTooltipComponent implements OnChanges, OnInit {
   @Input() password: string;
 
   @Output() isPasswordValid = new EventEmitter<boolean>();
+
+  previousValidityState = false;
 
   passwordChecks: PasswordChecks = {
     lengthValid: false,
@@ -47,10 +49,8 @@ export class PasswordCheckTooltipComponent implements OnChanges, OnInit {
     ];
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes.password.currentValue !== changes.password.previousValue) {
-      this.validatePassword();
-    }
+  ngOnChanges(): void {
+    this.validatePassword();
   }
 
   ngOnInit(): void {
@@ -76,6 +76,9 @@ export class PasswordCheckTooltipComponent implements OnChanges, OnInit {
     this.updatePasswordCriteria();
     // Using Boolean() with every() ensures strict boolean comparison for all password criteria
     const allValid = Object.values(this.passwordChecks).every(Boolean);
-    this.isPasswordValid.emit(allValid);
+    if (allValid !== this.previousValidityState) {
+      this.isPasswordValid.emit(allValid);
+    }
+    this.previousValidityState = allValid;
   }
 }

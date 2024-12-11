@@ -109,8 +109,6 @@ export class NewPasswordPage implements OnInit {
 
   onPasswordValid(isValid: boolean): void {
     this.isPasswordValid = isValid;
-    this.fg.controls.password.updateValueAndValidity();
-    this.fg.controls.confirmPassword.updateValueAndValidity();
   }
 
   redirectToSignIn(): void {

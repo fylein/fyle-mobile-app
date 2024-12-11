@@ -31,12 +31,7 @@
       </form>
     </div>
     <div>
-      <ion-button
-        (click)="resendVerificationLink(fg.controls.email.value)"
-        class="btn-primary"
-        fill="clear"
-        [disabled]="!fg.valid"
-      >
+      <ion-button (click)="resendVerificationLink(fg.controls.email.value)" class="btn-primary" fill="clear">
         Send invite
       </ion-button>
       <div class="pending-verification__cta-secondary" (click)="onGotoSignInClick()">
