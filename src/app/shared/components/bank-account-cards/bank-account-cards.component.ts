@@ -18,7 +18,7 @@ export class BankAccountCardsComponent {
 
   @Output() deleted = new EventEmitter();
 
-  @Output() changed = new EventEmitter<PersonalCard>();
+  @Output() changed = new EventEmitter();
 
   @ViewChild('swiper', { static: false }) swiper?: SwiperComponent;
 
@@ -34,7 +34,7 @@ export class BankAccountCardsComponent {
 
   onCardChange(event: Swiper[]): void {
     if (!this.minimal && event.length && event[0].realIndex && this.linkedAccounts[event[0].realIndex]) {
-      this.changed.emit(this.linkedAccounts[event[0].realIndex]);
+      this.changed.emit(this.linkedAccounts[event[0].realIndex].id);
     }
   }
 }

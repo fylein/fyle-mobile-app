@@ -37,6 +37,6 @@ export const personalCardQueryParamFiltersData: Partial<GetTasksQueryParamsWithF
   queryParams: {
     or: [],
     btxn_status: 'in.(DEBIT)',
-    ba_id: 'eq.baccY70V3Mz048',
+    ba_id: 'eq.baccLesaRlyvLY',
   },
 });
