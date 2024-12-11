@@ -6,7 +6,7 @@ import { ToastController } from '@ionic/angular';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { Router, UrlSerializer } from '@angular/router';
+import { Router } from '@angular/router';
 import { TrackingService } from '../../core/services/tracking.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
@@ -23,7 +23,6 @@ import { cloneDeep } from 'lodash';
 import { eouRes3 } from 'src/app/core/mock-data/extended-org-user.data';
 import { OrgService } from 'src/app/core/services/org.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { RouterTestingModule } from '@angular/router/testing';
 
 describe('InvitedUserPage', () => {
   let component: InvitedUserPage;
@@ -54,10 +53,9 @@ describe('InvitedUserPage', () => {
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     TestBed.configureTestingModule({
       declarations: [InvitedUserPage],
-      imports: [IonicModule.forRoot(), MatIconTestingModule, RouterTestingModule],
+      imports: [IonicModule.forRoot(), MatIconTestingModule],
       providers: [
         FormBuilder,
-        UrlSerializer,
         { provide: NetworkService, useValue: networkServiceSpy },
         { provide: ToastController, useValue: toastController },
         { provide: OrgUserService, useValue: orgUserServiceSpy },
@@ -84,7 +82,7 @@ describe('InvitedUserPage', () => {
 
     networkService.connectivityWatcher.and.returnValue(new EventEmitter());
     networkService.isOnline.and.returnValue(of(true));
-    authService.getEou.and.resolveTo(currentEouRes);
+    authService.getEou.and.returnValue(Promise.resolve(currentEouRes));
     fixture = TestBed.createComponent(InvitedUserPage);
     component = fixture.componentInstance;
     component.isConnected$ = of(true);
@@ -95,77 +93,129 @@ describe('InvitedUserPage', () => {
     expect(component).toBeTruthy();
   });
 
-  it('ngOnInit(): should set the fullname value from eou$ and setup network watcher', fakeAsync(() => {
-    networkService.isOnline.and.returnValue(of(true));
-    const eventEmitterMock = new EventEmitter<boolean>();
-    networkService.connectivityWatcher.and.returnValue(eventEmitterMock);
-    component.eou$ = of(currentEouRes);
-    component.fg.controls.fullName.setValue('Abhishek Jain');
-    component.ngOnInit();
-    tick(500);
-    component.isConnected$.pipe(take(1)).subscribe((connectionStatus) => {
-      expect(connectionStatus).toBeTrue();
+  describe('ngOnInit():', () => {
+    it('should set the fullname value from eou$ and setup network watcher', fakeAsync(() => {
+      networkService.isOnline.and.returnValue(of(true));
+      const eventEmitterMock = new EventEmitter<boolean>();
+      networkService.connectivityWatcher.and.returnValue(eventEmitterMock);
+      component.eou$ = of(currentEouRes);
+      component.fg.controls.fullName.setValue('Abhishek Jain');
+      component.ngOnInit();
+      tick(500);
+      component.isConnected$.pipe(take(1)).subscribe((connectionStatus) => {
+        expect(connectionStatus).toEqual(true);
+      });
+      expect(component.fg.controls.fullName.value).toEqual(currentEouRes.us.full_name);
+    }));
+
+    it('should emit false value when there are less than 12 chars', (done) => {
+      const testCase = { input: 'qwert', expectedOutput: false };
+      component.lengthValidationDisplay$.pipe(take(1)).subscribe((value) => {
+        expect(value).toEqual(testCase.expectedOutput);
+        done();
+      });
+      component.fg.controls.password.patchValue(testCase.input);
     });
-    expect(component.fg.controls.fullName.value).toEqual(currentEouRes.us.full_name);
-  }));
 
-  describe('customPasswordValidator():', () => {
-    it('should return null when isPasswordValid is true', () => {
-      component.isPasswordValid = true;
-
-      const result = component.customPasswordValidator();
-
-      expect(result).toBeNull(); // No errors
+    it('should emit false value when there are greater than 32  chars', (done) => {
+      const testCase = { input: 'Thisisaveryverylong12345@password', expectedOutput: false };
+      component.lengthValidationDisplay$.pipe(take(1)).subscribe((value) => {
+        expect(value).toEqual(testCase.expectedOutput);
+        done();
+      });
+      component.fg.controls.password.patchValue(testCase.input);
     });
 
-    it('should return an error object when isPasswordValid is false', () => {
-      component.isPasswordValid = false;
+    it('should emit true value when there are between 12 and 32 chars', (done) => {
+      const testCase = { input: 'John_doe123@fyle', expectedOutput: true };
+      component.lengthValidationDisplay$.pipe(take(1)).subscribe((value) => {
+        expect(value).toEqual(testCase.expectedOutput);
+        done();
+      });
+      component.fg.controls.password.patchValue(testCase.input);
+    });
 
-      const result = component.customPasswordValidator();
+    it('should emit false value when there are no special chars', (done) => {
+      const testCase = { input: 'qwert', expectedOutput: false };
+      component.specialCharValidationDisplay$.pipe(take(1)).subscribe((value) => {
+        expect(value).toEqual(testCase.expectedOutput);
+        done();
+      });
+      component.fg.controls.password.patchValue(testCase.input);
+    });
 
-      expect(result).toEqual({ invalidPassword: true }); // Error object
+    it('should emit true value when there are special chars', (done) => {
+      const testCase = { input: 'John_doe123@fyle', expectedOutput: true };
+      component.specialCharValidationDisplay$.pipe(take(1)).subscribe((value) => {
+        expect(value).toEqual(testCase.expectedOutput);
+        done();
+      });
+      component.fg.controls.password.patchValue(testCase.input);
+    });
+
+    it('should emit false value when there are no numbers', (done) => {
+      const testCase = { input: 'qwert', expectedOutput: false };
+      component.numberValidationDisplay$.pipe(take(1)).subscribe((value) => {
+        expect(value).toEqual(testCase.expectedOutput);
+        done();
+      });
+      component.fg.controls.password.patchValue(testCase.input);
+    });
+
+    it('should emit true value when there are numbers', (done) => {
+      const testCase = { input: 'John_doe123@fyle', expectedOutput: true };
+      component.numberValidationDisplay$.pipe(take(1)).subscribe((value) => {
+        expect(value).toEqual(testCase.expectedOutput);
+        done();
+      });
+      component.fg.controls.password.patchValue(testCase.input);
+    });
+
+    it('should emit false value when there are no upper case letters', (done) => {
+      const testCase = { input: 'qwert', expectedOutput: false };
+      component.uppercaseValidationDisplay$.pipe(take(1)).subscribe((value) => {
+        expect(value).toEqual(testCase.expectedOutput);
+        done();
+      });
+      component.fg.controls.password.patchValue(testCase.input);
+    });
+
+    it('should emit true value when there are upper case letters', (done) => {
+      const testCase = { input: 'John_doe123@fyle', expectedOutput: true };
+      component.uppercaseValidationDisplay$.pipe(take(1)).subscribe((value) => {
+        expect(value).toEqual(testCase.expectedOutput);
+        done();
+      });
+      component.fg.controls.password.patchValue(testCase.input);
+    });
+
+    it('should emit false value when there are no lower case letters', (done) => {
+      const testCase = { input: 'QWERT', expectedOutput: false };
+      component.lowercaseValidationDisplay$.pipe(take(1)).subscribe((value) => {
+        expect(value).toEqual(testCase.expectedOutput);
+        done();
+      });
+      component.fg.controls.password.patchValue(testCase.input);
+    });
+
+    it('should emit true value when there are lower case letters', (done) => {
+      const testCase = { input: 'John_doe123@fyle', expectedOutput: true };
+      component.lowercaseValidationDisplay$.pipe(take(1)).subscribe((value) => {
+        expect(value).toEqual(testCase.expectedOutput);
+        done();
+      });
+      component.fg.controls.password.patchValue(testCase.input);
     });
   });
 
-  describe('validatePasswordEquality():', () => {
-    it('should return null when password and confirmPassword match', () => {
-      component.fg.controls.password.setValue('StrongPassword@123');
-      component.fg.controls.confirmPassword.setValue('StrongPassword@123');
-
-      const result = component.validatePasswordEquality();
-
-      expect(result).toBeNull(); // No errors
-    });
-
-    it('should return an error object when password and confirmPassword do not match', () => {
-      component.fg.controls.password.setValue('StrongPassword@123');
-      component.fg.controls.confirmPassword.setValue('DifferentPassword@123');
-
-      const result = component.validatePasswordEquality();
-
-      expect(result).toEqual({ passwordMismatch: true });
-    });
-
-    it('should return null when password or confirmPassword is empty', () => {
-      component.fg.controls.password.setValue('');
-      component.fg.controls.confirmPassword.setValue('');
-
-      const result = component.validatePasswordEquality();
-
-      expect(result).toBeNull();
-    });
-  });
-
-  describe('saveData():', () => {
+  describe('saveData', () => {
     it('should navigate to dashboard when form fields are valid', fakeAsync(() => {
       spyOn(component.fg, 'markAllAsTouched');
-      component.isPasswordValid = true;
       component.fg.controls.fullName.setValue('John Doe');
       component.fg.controls.password.setValue('StrongPassword@123');
-      component.fg.controls.confirmPassword.setValue('StrongPassword@123');
       component.eou$ = of(cloneDeep(currentEouRes));
-      loaderService.showLoader.and.resolveTo();
-      loaderService.hideLoader.and.resolveTo();
+      loaderService.showLoader.and.returnValue(Promise.resolve());
+      loaderService.hideLoader.and.returnValue(Promise.resolve());
       authService.refreshEou.and.returnValue(of(eouRes3));
       orgUserService.postUser.and.returnValue(of(postUserResponse));
       orgUserService.markActive.and.returnValue(of(extendedOrgUserResponse));
@@ -183,7 +233,7 @@ describe('InvitedUserPage', () => {
       fixture.detectChanges();
       tick(500);
       expect(component.fg.markAllAsTouched).toHaveBeenCalledTimes(1);
-      expect(component.fg.valid).toBeTrue();
+      expect(component.fg.valid).toBe(true);
       expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
 
       component.eou$.subscribe((exOrgUser) => {
@@ -203,13 +253,12 @@ describe('InvitedUserPage', () => {
       spyOn(component.fg, 'markAllAsTouched');
       component.fg.controls.fullName.setValue('John Doe');
       component.fg.controls.password.setValue('');
-      component.fg.controls.confirmPassword.setValue('');
       const message = 'Please enter a valid password';
 
       component.saveData();
       tick(500);
       expect(component.fg.markAllAsTouched).toHaveBeenCalledTimes(1);
-      expect(component.fg.valid).toBeFalse();
+      expect(component.fg.valid).toBe(false);
       expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
         ...snackbarProperties.setSnackbarProperties('failure', { message }),
         panelClass: ['msb-failure'],
@@ -221,48 +270,17 @@ describe('InvitedUserPage', () => {
       spyOn(component.fg, 'markAllAsTouched');
       component.fg.controls.fullName.setValue('');
       component.fg.controls.password.setValue('StrongPassword@123');
-      component.fg.controls.confirmPassword.setValue('StrongPassword@123');
       const message = 'Please enter a valid name';
 
       component.saveData();
       tick(500);
       expect(component.fg.markAllAsTouched).toHaveBeenCalledTimes(1);
-      expect(component.fg.valid).toBeFalse();
+      expect(component.fg.valid).toBe(false);
       expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
         ...snackbarProperties.setSnackbarProperties('failure', { message }),
         panelClass: ['msb-failure'],
       });
       expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({ ToastContent: message });
     }));
-  });
-
-  describe('onPasswordValid():', () => {
-    it('should set isPasswordValid to true when called with true', () => {
-      component.onPasswordValid(true);
-      expect(component.isPasswordValid).toBeTrue();
-    });
-
-    it('should set isPasswordValid to false when called with false', () => {
-      component.onPasswordValid(false);
-      expect(component.isPasswordValid).toBeFalse();
-    });
-  });
-
-  describe('setPasswordTooltip():', () => {
-    it('should set showPasswordTooltip to true when called with true', () => {
-      component.setPasswordTooltip(true);
-      expect(component.showPasswordTooltip).toBeTrue();
-    });
-
-    it('should set showPasswordTooltip to false when called with false', () => {
-      component.setPasswordTooltip(false);
-      expect(component.showPasswordTooltip).toBeFalse();
-    });
-  });
-
-  it('redirectToSignIn(): should navigate to the sign-in page', () => {
-    component.redirectToSignIn();
-    // @ts-ignore
-    expect(component.router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'sign_in']); // Should navigate to the correct route
   });
 });
