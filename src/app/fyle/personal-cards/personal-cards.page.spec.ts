@@ -1014,14 +1014,14 @@ describe('PersonalCardsPage', () => {
   });
 
   it('loadAccountCount(): should load accounts count and clear filters', (done) => {
-    personalCardsService.getPersonalCardsCount.and.returnValue(of(0));
+    personalCardsService.getPersonalCardsCount.and.returnValue(of(1));
     spyOn(component, 'clearFilters');
 
     component.loadAccountCount();
 
     component.linkedAccountsCount$.subscribe((res) => {
-      expect(res).toEqual(0);
-      expect(component.clearFilters).toHaveBeenCalledTimes(1);
+      expect(res).toEqual(1);
+      expect(personalCardsService.getPersonalCardsCount).toHaveBeenCalledTimes(1);
       done();
     });
   });
