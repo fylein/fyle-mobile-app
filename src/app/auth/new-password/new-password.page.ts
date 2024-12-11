@@ -33,9 +33,9 @@ export class NewPasswordPage implements OnInit {
 
   isPasswordValid = false;
 
-  hide = false;
+  hide = true;
 
-  hideConfirmPassword = false;
+  hideConfirmPassword = true;
 
   showPasswordTooltip = false;
 
