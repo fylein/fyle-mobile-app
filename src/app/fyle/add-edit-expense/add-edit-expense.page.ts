@@ -4275,7 +4275,6 @@ export class AddEditExpensePage implements OnInit {
     const customFields$ = this.getCustomFields();
 
     this.trackAddExpense();
-
     return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
       switchMap((etxn) =>
         this.isConnected$.pipe(
@@ -4361,13 +4360,12 @@ export class AddEditExpensePage implements OnInit {
               etxn.tx.matchCCCId = this.selectedCCCTransaction.id;
             }
 
-            let reportId: string;
             const formValues = this.getFormValues();
             if (
               formValues.report &&
               (etxn.tx.policy_amount === null || (etxn.tx.policy_amount && !(etxn.tx.policy_amount < 0.0001)))
             ) {
-              reportId = formValues.report.id;
+              etxn.tx.report_id = formValues.report.id;
             }
 
             etxn.dataUrls = etxn.dataUrls.map((data: FileObject) => {
@@ -4387,8 +4385,7 @@ export class AddEditExpensePage implements OnInit {
                 this.transactionOutboxService.addEntryAndSync(
                   etxn.tx,
                   etxn.dataUrls as { url: string; type: string }[],
-                  comments,
-                  reportId
+                  comments
                 )
               );
             } else {
@@ -4404,13 +4401,12 @@ export class AddEditExpensePage implements OnInit {
                       this.transactionOutboxService.addEntryAndSync(
                         etxn.tx,
                         etxn.dataUrls as { url: string; type: string }[],
-                        comments,
-                        reportId
+                        comments
                       )
                     );
                   } else {
                     this.transactionOutboxService
-                      .addEntry(etxn.tx, etxn.dataUrls as { url: string; type: string }[], comments, reportId)
+                      .addEntry(etxn.tx, etxn.dataUrls as { url: string; type: string }[], comments)
                       .then(noop);
 
                     return of(null);

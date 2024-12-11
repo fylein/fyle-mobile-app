@@ -1,4 +1,4 @@
-import { Component, OnInit, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, OnInit } from '@angular/core';
 import { Observable, noop, concat, from } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
@@ -68,7 +68,7 @@ export class InvitedUserPage implements OnInit {
 
     this.fg = this.fb.group({
       fullName: ['', Validators.compose([Validators.required, Validators.pattern(/[A-Za-z]/)])],
-      password: ['', [Validators.required, this.customPasswordValidator]],
+      password: ['', [Validators.required, this.checkPasswordValidity]],
       confirmPassword: ['', [Validators.required, this.validatePasswordEquality]],
     });
 
@@ -83,6 +83,7 @@ export class InvitedUserPage implements OnInit {
   onPasswordValid(isValid: boolean): void {
     this.isPasswordValid = isValid;
     this.fg.controls.password.updateValueAndValidity();
+    this.fg.controls.confirmPassword.updateValueAndValidity();
   }
 
   setPasswordTooltip(value: boolean): void {
@@ -90,9 +91,9 @@ export class InvitedUserPage implements OnInit {
   }
 
   async saveData(): Promise<void> {
+    this.isLoading = true;
     this.fg.markAllAsTouched();
     if (this.fg.valid) {
-      this.isLoading = true;
       from(this.loaderService.showLoader())
         .pipe(
           switchMap(() => this.eou$),
@@ -106,10 +107,12 @@ export class InvitedUserPage implements OnInit {
           switchMap(() => this.authService.refreshEou()),
           switchMap(() => this.orgUserService.markActive()),
           tap(() => this.trackingService.activated()),
-          finalize(async () => await this.loaderService.hideLoader())
+          finalize(async () => {
+            this.isLoading = false;
+            return await this.loaderService.hideLoader();
+          })
         )
         .subscribe(() => {
-          this.isLoading = false;
           this.router.navigate(['/', 'enterprise', 'my_dashboard']);
           // return $state.go('enterprise.my_dashboard');
         });
@@ -127,7 +130,7 @@ export class InvitedUserPage implements OnInit {
     this.router.navigate(['/', 'auth', 'sign_in']);
   }
 
-  customPasswordValidator = (): ValidationErrors => (this.isPasswordValid ? null : { invalidPassword: true });
+  checkPasswordValidity = (): ValidationErrors => (this.isPasswordValid ? null : { invalidPassword: true });
 
   validatePasswordEquality = (): ValidationErrors => {
     if (!this.fg) {

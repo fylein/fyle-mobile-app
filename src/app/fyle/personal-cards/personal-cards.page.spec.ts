@@ -43,6 +43,7 @@ import { PersonalCardsPage } from './personal-cards.page';
 import { PersonalCardFilter } from 'src/app/core/models/personal-card-filters.model';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { PersonalCard } from 'src/app/core/models/personal_card.model';
+import { publicPersonalCardTxnExpenseSuggestionsRes } from 'src/app/core/mock-data/personal-card-txn-expense-suggestions.data';
 
 describe('PersonalCardsPage', () => {
   let component: PersonalCardsPage;
@@ -79,8 +80,9 @@ describe('PersonalCardsPage', () => {
       'convertFilters',
       'generateTxnDateParams',
       'generateCreditParams',
-      'getMatchedExpensesCount',
       'generateDateParams',
+      'getMatchedExpensesSuggestions',
+      'isMfaEnabled',
     ]);
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
@@ -213,6 +215,7 @@ describe('PersonalCardsPage', () => {
     launchDarklyService.getVariation.and.returnValue(of(false));
     personalCardsService.getPersonalCardsCount.and.returnValue(of(2));
     personalCardsService.getPersonalCards.and.returnValue(of(linkedAccountsRes));
+    personalCardsService.isMfaEnabled.and.returnValue(of(false));
     component.loadData$ = new BehaviorSubject({
       pageNumber: 1,
     });
@@ -264,7 +267,7 @@ describe('PersonalCardsPage', () => {
       expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
       expect(personalCardsService.getToken).toHaveBeenCalledTimes(1);
-      expect(component.openYoodle).toHaveBeenCalledOnceWith(apiToken.fast_link_url, apiToken.access_token);
+      expect(component.openYoodle).toHaveBeenCalledOnceWith(apiToken.fast_link_url, apiToken.access_token, false);
     }));
 
     describe('postAccounts():', () => {
@@ -348,10 +351,10 @@ describe('PersonalCardsPage', () => {
         });
         spyOn(component.loadData$, 'next');
 
-        component.onCardChanged('eq.baccLesaRlyvLY');
+        component.onCardChanged(linkedAccountsRes[0]);
 
         expect(component.loadData$.next).toHaveBeenCalledOnceWith({
-          queryParams: { btxn_status: 'in.(INITIALIZED)', ba_id: 'eq.eq.baccLesaRlyvLY' },
+          queryParams: { btxn_status: 'in.(INITIALIZED)', ba_id: 'eq.baccY70V3Mz048' },
           pageNumber: 1,
         });
         expect(component.loadData$.getValue).toHaveBeenCalledTimes(1);
@@ -363,10 +366,10 @@ describe('PersonalCardsPage', () => {
         });
         spyOn(component.loadData$, 'next');
 
-        component.onCardChanged('eq.baccLesaRlyvLY');
+        component.onCardChanged(linkedAccountsRes[0]);
 
         expect(component.loadData$.next).toHaveBeenCalledOnceWith({
-          queryParams: { btxn_status: 'in.(INITIALIZED)', ba_id: 'eq.eq.baccLesaRlyvLY' },
+          queryParams: { btxn_status: 'in.(INITIALIZED)', ba_id: 'eq.baccY70V3Mz048' },
           pageNumber: 1,
         });
         expect(component.loadData$.getValue).toHaveBeenCalledTimes(1);
@@ -478,6 +481,7 @@ describe('PersonalCardsPage', () => {
 
     it('fetchNewTransactions(): should fetch new transactions', () => {
       component.selectionMode = true;
+      component.selectedAccount = linkedAccountsRes[0];
       spyOn(component, 'switchSelectionMode');
       personalCardsService.syncTransactions.and.returnValue(of(apiPersonalCardTxnsRes));
 
@@ -692,13 +696,15 @@ describe('PersonalCardsPage', () => {
       it('should create an expense and navigate to add edit expense if count is 0', () => {
         component.selectionMode = false;
         component.loadingMatchedExpenseCount = false;
-        personalCardsService.getMatchedExpensesCount.and.returnValue(of(0));
+        const usePlatformApi = false;
+        personalCardsService.getMatchedExpensesSuggestions.and.returnValue(of([]));
 
         component.createExpense(apiPersonalCardTxnsRes.data[0]);
 
-        expect(personalCardsService.getMatchedExpensesCount).toHaveBeenCalledOnceWith(
+        expect(personalCardsService.getMatchedExpensesSuggestions).toHaveBeenCalledOnceWith(
           apiPersonalCardTxnsRes.data[0].btxn_amount,
-          '2021-09-19'
+          '2021-09-19',
+          usePlatformApi
         );
         expect(router.navigate).toHaveBeenCalledOnceWith([
           '/',
@@ -711,16 +717,23 @@ describe('PersonalCardsPage', () => {
       it('should create an expense and navigate to personal cards page if count is more than 0', () => {
         component.selectionMode = false;
         component.loadingMatchedExpenseCount = false;
-        personalCardsService.getMatchedExpensesCount.and.returnValue(of(1));
+        const usePlatformApi = false;
+        personalCardsService.getMatchedExpensesSuggestions.and.returnValue(
+          of(publicPersonalCardTxnExpenseSuggestionsRes)
+        );
 
         component.createExpense(apiPersonalCardTxnsRes.data[0]);
 
-        expect(personalCardsService.getMatchedExpensesCount).toHaveBeenCalledOnceWith(
+        expect(personalCardsService.getMatchedExpensesSuggestions).toHaveBeenCalledOnceWith(
           apiPersonalCardTxnsRes.data[0].btxn_amount,
-          '2021-09-19'
+          '2021-09-19',
+          usePlatformApi
         );
         expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'personal_cards_matched_expenses'], {
-          state: { txnDetails: apiPersonalCardTxnsRes.data[0] },
+          state: {
+            txnDetails: apiPersonalCardTxnsRes.data[0],
+            expenseSuggestions: publicPersonalCardTxnExpenseSuggestionsRes,
+          },
         });
       });
 
@@ -730,7 +743,7 @@ describe('PersonalCardsPage', () => {
 
         component.createExpense(matchedPersonalCardTxn);
 
-        expect(personalCardsService.getMatchedExpensesCount).not.toHaveBeenCalled();
+        expect(personalCardsService.getMatchedExpensesSuggestions).not.toHaveBeenCalled();
       });
 
       it('should open expense if the expense has been matched', () => {
@@ -833,7 +846,7 @@ describe('PersonalCardsPage', () => {
     it('addNewFiltersToParams(): should new filters to params', () => {
       spyOn(component.loadData$, 'getValue').and.returnValue({});
       component.selectedTransactionType = 'DEBIT';
-      component.selectedAccount = 'baccLesaRlyvLY';
+      component.selectedAccount = linkedAccountsRes[0];
 
       const result = component.addNewFiltersToParams();
       expect(result).toEqual(personalCardQueryParamFiltersData);
@@ -865,34 +878,70 @@ describe('PersonalCardsPage', () => {
       expect(personalCardsService.generateFilterPills).toHaveBeenCalledOnceWith({});
     }));
 
-    it('openYoodle(): should open yoodle', fakeAsync(() => {
-      personalCardsService.htmlFormUrl.and.returnValue('<h1></h1>');
-      spyOn(window, 'decodeURIComponent').and.returnValue(
-        JSON.stringify([
-          {
-            requestId: 'tx3qHxFNgRcZ',
-          },
-        ])
-      );
-      const inappborwserSpy = jasmine.createSpyObj('InAppBrowserObject', ['on', 'close']);
-      inappborwserSpy.on.withArgs('loadstop').and.returnValue(of(null));
-      inappborwserSpy.on.withArgs('loadstart').and.returnValue(
-        of({
-          url: 'https://www.fylehq.com',
-        })
-      );
-      inAppBrowserService.create.and.returnValue(inappborwserSpy);
-      spyOn(component, 'postAccounts');
+    describe('openYoodle()', () => {
+      let inappbrowserSpy: any;
 
-      component.openYoodle(apiToken.fast_link_url, apiToken.access_token);
-      tick(20000);
+      beforeEach(() => {
+        component.selectedAccount = linkedAccountsRes[0];
+        inappbrowserSpy = jasmine.createSpyObj('InAppBrowserObject', ['on', 'close']);
+      });
 
-      expect(personalCardsService.htmlFormUrl).toHaveBeenCalledOnceWith(apiToken.fast_link_url, apiToken.access_token);
-      expect(inappborwserSpy.on).toHaveBeenCalledTimes(2);
-      expect(inAppBrowserService.create).toHaveBeenCalledTimes(1);
-      expect(window.decodeURIComponent).toHaveBeenCalledTimes(1);
-      expect(component.postAccounts).toHaveBeenCalledOnceWith(['tx3qHxFNgRcZ']);
-    }));
+      it('should open Yoodle with normal flow and handle success callback', fakeAsync(() => {
+        const mockUrl = 'https://mock-url.com';
+        const mockAccessToken = 'mock_access_token';
+        const mockHtmlContent = '<h1></h1>';
+        const mockDecodedData = JSON.stringify([{ requestId: 'tx3qHxFNgRcZ' }]);
+
+        personalCardsService.htmlFormUrl.and.returnValue(mockHtmlContent);
+        spyOn(window, 'decodeURIComponent').and.returnValue(mockDecodedData);
+        inappbrowserSpy.on.withArgs('loadstop').and.returnValue(of(null));
+        inappbrowserSpy.on.withArgs('loadstart').and.returnValue(
+          of({
+            url: 'https://www.fylehq.com',
+          })
+        );
+        inAppBrowserService.create.and.returnValue(inappbrowserSpy);
+        spyOn(component, 'postAccounts');
+
+        component.openYoodle(mockUrl, mockAccessToken, false);
+        tick(20000);
+
+        expect(personalCardsService.htmlFormUrl).toHaveBeenCalledOnceWith(mockUrl, mockAccessToken, false, '10287109');
+        expect(inAppBrowserService.create).toHaveBeenCalledOnceWith(mockHtmlContent, '_blank', 'location=no');
+        expect(inappbrowserSpy.on).toHaveBeenCalledTimes(2);
+        expect(window.decodeURIComponent).toHaveBeenCalledTimes(1);
+        expect(component.postAccounts).toHaveBeenCalledOnceWith(['tx3qHxFNgRcZ']);
+        expect(inappbrowserSpy.close).toHaveBeenCalled();
+      }));
+
+      it('should handle MFA flow and sync transactions on success', fakeAsync(() => {
+        const mockUrl = 'https://mock-url.com';
+        const mockAccessToken = 'mock_access_token';
+        const mockHtmlContent = '<h1></h1>';
+        const mockDecodedData = JSON.stringify([{ requestId: 'tx3qHxFNgRcZ' }]);
+
+        personalCardsService.htmlFormUrl.and.returnValue(mockHtmlContent);
+        spyOn(window, 'decodeURIComponent').and.returnValue(mockDecodedData);
+        inappbrowserSpy.on.withArgs('loadstop').and.returnValue(of(null));
+        inappbrowserSpy.on.withArgs('loadstart').and.returnValue(
+          of({
+            url: 'https://www.fylehq.com',
+          })
+        );
+        inAppBrowserService.create.and.returnValue(inappbrowserSpy);
+        spyOn(component, 'syncTransactions');
+
+        component.openYoodle(mockUrl, mockAccessToken, true);
+        tick(20000);
+
+        expect(personalCardsService.htmlFormUrl).toHaveBeenCalledOnceWith(mockUrl, mockAccessToken, true, '10287109');
+        expect(inAppBrowserService.create).toHaveBeenCalledOnceWith(mockHtmlContent, '_blank', 'location=no');
+        expect(inappbrowserSpy.on).toHaveBeenCalledTimes(2);
+        expect(window.decodeURIComponent).toHaveBeenCalledTimes(1);
+        expect(component.syncTransactions).toHaveBeenCalledTimes(1);
+        expect(inappbrowserSpy.close).toHaveBeenCalled();
+      }));
+    });
   });
 
   describe('ngOnInit():', () => {
@@ -1050,7 +1099,7 @@ describe('PersonalCardsPage', () => {
       subject.next(linkedAccountsRes);
 
       component.linkedAccounts$.subscribe(() => {
-        expect(component.onCardChanged).toHaveBeenCalledWith(linkedAccountsRes[0].id);
+        expect(component.onCardChanged).toHaveBeenCalledWith(linkedAccountsRes[0]);
         done();
       });
     });
