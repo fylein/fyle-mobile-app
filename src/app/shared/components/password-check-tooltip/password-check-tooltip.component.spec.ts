@@ -31,10 +31,6 @@ describe('PasswordCheckTooltipComponent', () => {
   });
 
   describe('validatePassword(): ', () => {
-    beforeEach(() => {
-      component.previousValidityState = true;
-    });
-
     it('should fail when password length is less than 12 characters', () => {
       const emitSpy = spyOn(component.isPasswordValid, 'emit');
       component.password = 'Short1!';
@@ -85,7 +81,6 @@ describe('PasswordCheckTooltipComponent', () => {
     });
 
     it('should pass when password meets all criteria', () => {
-      component.previousValidityState = false;
       const emitSpy = spyOn(component.isPasswordValid, 'emit');
       component.password = 'ValidPass123!';
       component.validatePassword();

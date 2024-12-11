@@ -12,8 +12,6 @@ export class PasswordCheckTooltipComponent implements OnChanges, OnInit {
 
   @Output() isPasswordValid = new EventEmitter<boolean>();
 
-  previousValidityState = false;
-
   passwordChecks: PasswordChecks = {
     lengthValid: false,
     uppercaseValid: false,
@@ -76,9 +74,6 @@ export class PasswordCheckTooltipComponent implements OnChanges, OnInit {
     this.updatePasswordCriteria();
     // Using Boolean() with every() ensures strict boolean comparison for all password criteria
     const allValid = Object.values(this.passwordChecks).every(Boolean);
-    if (allValid !== this.previousValidityState) {
-      this.isPasswordValid.emit(allValid);
-    }
-    this.previousValidityState = allValid;
+    this.isPasswordValid.emit(allValid);
   }
 }
