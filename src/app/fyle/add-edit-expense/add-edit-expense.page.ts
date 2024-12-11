@@ -3518,14 +3518,13 @@ export class AddEditExpensePage implements OnInit {
         const isAdvanceWalletEnabled = res.orgSettings?.advances?.advance_wallets_enabled;
         let customProperties = res.customProperties;
         customProperties = customProperties.map((customProperty) => {
+          if (!customProperty.value) {
+            this.customFieldsService.setDefaultValue(customProperty, customProperty.type);
+          }
           if (customProperty.type === 'DATE') {
             customProperty.value = customProperty.value
               ? this.dateService.getUTCDate(new Date(customProperty.value as string))
               : null;
-          } else if (customProperty.type === 'LOCATION' && !customProperty.value) {
-            customProperty.value = {};
-          } else if (customProperty.type === 'BOOLEAN' && !customProperty.value) {
-            customProperty.value = false;
           }
           return customProperty;
         });
