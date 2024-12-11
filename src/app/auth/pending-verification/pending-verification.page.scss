@@ -2,8 +2,6 @@
 
 .pending-verification {
   height: 100%;
-  margin-top: 18px;
-  padding-top: 28px;
 
   &__send-invite {
     display: flex;
@@ -97,7 +95,7 @@
 
   &__arrow-icon {
     fill: $pure-white;
-    margin-right: 6px;
+    margin-right: 8px;
   }
 
   &__cta-text {
@@ -186,12 +184,15 @@
   }
   &__cta-secondary {
     display: flex;
-    padding-top: 18px;
+    padding-top: 12px;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    gap: 24px;
+    align-self: stretch;
     color: $blue-black;
     display: flex;
     flex-direction: row;
+    gap: 6px;
   }
 }

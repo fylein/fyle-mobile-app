@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { tap } from 'rxjs/operators';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
@@ -13,7 +13,7 @@ import { HttpErrorResponse } from '@angular/common/http';
   templateUrl: './pending-verification.page.html',
   styleUrls: ['./pending-verification.page.scss'],
 })
-export class PendingVerificationPage {
+export class PendingVerificationPage implements OnInit {
   isLoading = false;
 
   isInvitationLinkSent = false;
@@ -29,7 +29,7 @@ export class PendingVerificationPage {
     private snackbarProperties: SnackbarPropertiesService
   ) {}
 
-  ionViewWillEnter(): void {
+  ngOnInit(): void {
     this.fg = this.formBuilder.group({
       email: ['', Validators.compose([Validators.required, Validators.pattern('\\S+@\\S+\\.\\S{2,}')])],
     });

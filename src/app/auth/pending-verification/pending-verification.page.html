@@ -1,4 +1,4 @@
-<div class="pending-verification" *ngIf="fg">
+<ion-content class="pending-verification">
   <div class="pending-verification__send-invite" *ngIf="!isInvitationLinkSent">
     <div class="pending-verification__form-container" *ngIf="!isInvitationLinkSent">
       <div class="pending-verification__error-icon-container">
@@ -20,7 +20,7 @@
           #simpleEmailInput
           matInput
           type="email"
-          placeholder="Enter registered email"
+          placeholder="Email ID"
           formControlName="email"
           pattern="\S+@\S+\.\S{2,}"
           class="pending-verification__input-container__input"
@@ -80,4 +80,4 @@
       </ion-button>
     </div>
   </div>
-</div>
+</ion-content>
