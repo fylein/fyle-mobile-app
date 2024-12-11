@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges } from '@angular/core';
 import { PasswordChecks } from './password-checks.model';
 import { PasswordCriteria } from './password-criteria.model';
 
@@ -7,7 +7,7 @@ import { PasswordCriteria } from './password-criteria.model';
   templateUrl: './password-check-tooltip.component.html',
   styleUrls: ['./password-check-tooltip.component.scss'],
 })
-export class PasswordCheckTooltipComponent implements OnChanges, OnInit {
+export class PasswordCheckTooltipComponent implements OnChanges {
   @Input() password: string;
 
   @Output() isPasswordValid = new EventEmitter<boolean>();
@@ -47,14 +47,8 @@ export class PasswordCheckTooltipComponent implements OnChanges, OnInit {
     ];
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes.password.currentValue !== changes.password.previousValue) {
-      this.validatePassword();
-    }
-  }
-
-  ngOnInit(): void {
-    this.updatePasswordCriteria();
+  ngOnChanges(): void {
+    this.validatePassword();
   }
 
   validatePassword(): void {
@@ -65,6 +59,7 @@ export class PasswordCheckTooltipComponent implements OnChanges, OnInit {
       this.isPasswordValid.emit(false);
       return;
     }
+
     const specialCharRegex = /[!@#$%^&*()+\-:;<=>{}|~?]/;
 
     this.passwordChecks.lengthValid = this.password.length >= 12 && this.password.length <= 32;
