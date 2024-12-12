@@ -41,6 +41,9 @@
           class="btn-primary"
           fill="clear"
           [disabled]="!fg.valid"
+          appFormButtonValidation
+          [loading]="isLoading"
+          [loadingText]="'Sending invite'"
         >
           Send invite
         </ion-button>

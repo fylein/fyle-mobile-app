@@ -94,7 +94,7 @@ export class InvitedUserPage implements OnInit {
     this.isLoading = true;
     this.fg.markAllAsTouched();
     if (this.fg.valid) {
-      from(this.loaderService.showLoader())
+      from(this.loaderService.showLoader('Signing in...', 20000000))
         .pipe(
           switchMap(() => this.eou$),
           switchMap((eou) => {
