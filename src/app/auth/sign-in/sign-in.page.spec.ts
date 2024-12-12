@@ -525,4 +525,64 @@ describe('SignInPage', () => {
       'Please enter a valid email.'
     );
   });
+
+  describe('template: ', () => {
+    it('should display the video container when currentStep is SELECT_SIGN_IN_METHOD', () => {
+      component.currentStep = component.signInPageState.SELECT_SIGN_IN_METHOD;
+      fixture.detectChanges();
+      const videoElement = getElementBySelector(fixture, '.sign-in__video-container');
+      expect(videoElement).toBeTruthy();
+    });
+
+    it('should display the email form when currentStep is ENTER_EMAIL', () => {
+      component.currentStep = component.signInPageState.ENTER_EMAIL;
+      fixture.detectChanges();
+      const emailForm = getElementBySelector(fixture, '.sign-in__enter-email__form-container');
+      expect(emailForm).toBeTruthy();
+    });
+
+    it('should disable the continue button if email is invalid', () => {
+      component.currentStep = component.signInPageState.ENTER_EMAIL;
+      component.fg.controls.email.setValue(null);
+      fixture.detectChanges();
+      const continueButton: HTMLButtonElement = getElementBySelector(
+        fixture,
+        '.sign-in__enter-email ion-button'
+      ) as HTMLButtonElement;
+      expect(continueButton.disabled).toBeTrue();
+    });
+
+    it('should display the password form when currentStep is ENTER_PASSWORD', () => {
+      component.currentStep = component.signInPageState.ENTER_PASSWORD;
+      fixture.detectChanges();
+      const passwordForm = getElementBySelector(fixture, '.sign-in__enter-password__form-container');
+      expect(passwordForm).toBeTruthy();
+    });
+
+    it('should toggle password visibility when icon is clicked', () => {
+      component.currentStep = component.signInPageState.ENTER_PASSWORD;
+      component.hidePassword = true;
+      fixture.detectChanges();
+
+      const toggleIcon = getElementBySelector(fixture, '.sign-in__enter-password__password-icon-container');
+      toggleIcon.dispatchEvent(new Event('click'));
+      fixture.detectChanges();
+
+      expect(component.hidePassword).toBeFalse();
+    });
+
+    it('should call googleSignIn method when Google sign-in button is clicked', () => {
+      spyOn(component, 'googleSignIn');
+      component.currentStep = component.signInPageState.SELECT_SIGN_IN_METHOD;
+      fixture.detectChanges();
+
+      const googleSignInButton: HTMLButtonElement = getElementBySelector(
+        fixture,
+        '.sign-in__secondary-cta__btn'
+      ) as HTMLButtonElement;
+      googleSignInButton.click();
+
+      expect(component.googleSignIn).toHaveBeenCalled();
+    });
+  });
 });
