@@ -10,6 +10,8 @@ export class PopupAlertComponent {
 
   @Input() message: string;
 
+  @Input() leftAlign: boolean;
+
   @Input() primaryCta: { text: string; action: string; type?: string };
 
   @Input() secondaryCta: { text: string; action: string; type?: string };
