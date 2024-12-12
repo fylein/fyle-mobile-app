@@ -8,7 +8,6 @@
     padding: 20px 20px 0 20px;
     margin-bottom: 24px;
     &__video {
-      max-height: 65vh;
       border-radius: 20px;
     }
   }
@@ -20,6 +19,7 @@
   &__cta-container {
     padding: 0 20px 44px 20px;
     position: relative;
+    height: 144px;
   }
 
   &__divider-container {
@@ -28,6 +28,7 @@
     margin: 12px 0;
     height: 20px;
     align-items: center;
+    color: $black;
   }
 
   &__divider {
