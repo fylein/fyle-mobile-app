@@ -20,7 +20,7 @@ export class PopupAlertComponent {
 
   constructor(private popoverController: PopoverController) {}
 
-  ctaClickedEvent(action) {
+  ctaClickedEvent(action: string): void {
     this.popoverController.dismiss({
       action,
     });
