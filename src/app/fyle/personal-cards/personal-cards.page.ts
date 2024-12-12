@@ -277,13 +277,6 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       this.loadAccountCount();
       this.loadLinkedAccounts();
 
-      this.linkedAccounts$.pipe(takeUntil(this.onPageExit$)).subscribe((linkedAccounts) => {
-        if (linkedAccounts.length > 0) {
-          // Initializing the selectedAccount to First account on page load
-          this.onCardChanged(linkedAccounts[0]);
-        }
-      });
-
       const paginatedPipe = this.loadPersonalTxns();
       this.transactions$ = paginatedPipe.pipe(shareReplay(1));
       this.filterPills = this.personalCardsService.generateFilterPills(this.filters);

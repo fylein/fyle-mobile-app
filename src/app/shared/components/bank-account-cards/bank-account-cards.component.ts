@@ -33,7 +33,7 @@ export class BankAccountCardsComponent {
   }
 
   onCardChange(event: Swiper[]): void {
-    if (!this.minimal && event.length && event[0].realIndex && this.linkedAccounts[event[0].realIndex]) {
+    if (!this.minimal && event.length && event[0].realIndex !== undefined && this.linkedAccounts[event[0].realIndex]) {
       this.changed.emit(this.linkedAccounts[event[0].realIndex]);
     }
   }
