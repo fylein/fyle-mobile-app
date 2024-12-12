@@ -59,7 +59,7 @@ import { ApproverReportsService } from 'src/app/core/services/platform/v1/approv
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { RefinerService } from 'src/app/core/services/refiner.service';
 
-fdescribe('ViewTeamReportPageV2', () => {
+describe('ViewTeamReportPageV2', () => {
   let component: ViewTeamReportPage;
   let fixture: ComponentFixture<ViewTeamReportPage>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
