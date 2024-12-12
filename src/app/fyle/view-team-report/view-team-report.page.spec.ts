@@ -32,6 +32,7 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
 import { EllipsisPipe } from 'src/app/shared/pipes/ellipses.pipe';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
+import { ExactCurrencyPipe } from 'src/app/shared/pipes/exact-currency.pipe';
 import { NetworkService } from '../../core/services/network.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { ViewTeamReportPage } from './view-team-report.page';
@@ -77,6 +78,7 @@ describe('ViewTeamReportPageV2', () => {
   let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
   let statusService: jasmine.SpyObj<StatusService>;
   let humanizeCurrency: jasmine.SpyObj<HumanizeCurrencyPipe>;
+  let exactCurrency: jasmine.SpyObj<ExactCurrencyPipe>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
   let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
@@ -107,6 +109,7 @@ describe('ViewTeamReportPageV2', () => {
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     const statusServiceSpy = jasmine.createSpyObj('StatusService', ['find', 'createStatusMap', 'post']);
     const humanizeCurrencySpy = jasmine.createSpyObj('HumanizeCurrencyPipe', ['transform']);
+    const exactCurrencySpy = jasmine.createSpyObj('ExactCurrencyPipe', ['transform']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const approverReportsServiceSpy = jasmine.createSpyObj('ApproverReportsService', [
       'getReportById',
@@ -119,7 +122,7 @@ describe('ViewTeamReportPageV2', () => {
     refinerService = jasmine.createSpyObj('RefinerService', ['startSurvey']);
 
     TestBed.configureTestingModule({
-      declarations: [ViewTeamReportPage, EllipsisPipe, HumanizeCurrencyPipe],
+      declarations: [ViewTeamReportPage, EllipsisPipe, HumanizeCurrencyPipe, ExactCurrencyPipe],
       imports: [IonicModule.forRoot(), FormsModule],
       providers: [
         FyCurrencyPipe,
@@ -204,6 +207,10 @@ describe('ViewTeamReportPageV2', () => {
           useValue: humanizeCurrencySpy,
         },
         {
+          provide: ExactCurrencyPipe,
+          useValue: exactCurrencySpy,
+        },
+        {
           provide: OrgSettingsService,
           useValue: orgSettingsServiceSpy,
         },
@@ -233,6 +240,7 @@ describe('ViewTeamReportPageV2', () => {
     snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
     statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
     humanizeCurrency = TestBed.inject(HumanizeCurrencyPipe) as jasmine.SpyObj<HumanizeCurrencyPipe>;
+    exactCurrency = TestBed.inject(ExactCurrencyPipe) as jasmine.SpyObj<ExactCurrencyPipe>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
     launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;

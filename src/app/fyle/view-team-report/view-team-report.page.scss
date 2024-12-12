@@ -33,9 +33,9 @@ $sent-back-color: #da1e28;
     background: url('../../../assets/images/card.png') no-repeat bottom;
     background-size: 100% 100%;
     margin: 12px 0;
-    padding: 8px;
+    padding: 0px 8px;
     border-radius: 16px;
-    height: 140px;
+    height: 150px;
     position: relative;
   }
 
@@ -71,6 +71,10 @@ $sent-back-color: #da1e28;
     height: 12px !important;
     width: 22px !important;
     color: $pure-white;
+  }
+
+  &--view-info-container {
+    padding: 0 5px;
   }
 
   &--view-info {
@@ -238,7 +242,13 @@ $sent-back-color: #da1e28;
 
   &--amount {
     color: $white;
-    float: right;
+    font-size: 18px;
+  }
+
+  &--purpose-state {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
 
   &--purpose-amount-block {
@@ -247,16 +257,20 @@ $sent-back-color: #da1e28;
     color: $pure-white;
 
     &__purpose {
-      font-size: 16px;
+      font-size: 14px;
       line-height: 18px;
       font-weight: 500;
-      max-width: 85%;
+      max-width: 100%;
     }
 
     &__amount {
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 500;
     }
+  }
+
+  &--submitted-date-container {
+    padding: 0 5px;
   }
 
   &--submitted-date {
@@ -274,7 +288,7 @@ $sent-back-color: #da1e28;
   }
 
   &--employee-name-block {
-    padding: 0 5px;
+    padding: 14px 5px 0 5px;
   }
 
   &--employee-name {
