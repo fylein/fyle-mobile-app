@@ -29,7 +29,7 @@ import { By } from '@angular/platform-browser';
 import { HttpErrorResponse } from '@angular/common/http';
 import { SignInPageState } from './sign-in-page-state.enum';
 
-fdescribe('SignInPage', () => {
+describe('SignInPage', () => {
   let component: SignInPage;
   let fixture: ComponentFixture<SignInPage>;
   let formBuilder: jasmine.SpyObj<FormBuilder>;
