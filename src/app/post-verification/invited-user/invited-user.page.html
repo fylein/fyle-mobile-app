@@ -22,7 +22,6 @@
                 *ngIf="fg.controls.fullName.touched && fg.controls.fullName.invalid && fg.controls.fullName.errors.required"
                 class="invited-user__error"
               >
-                <mat-icon class="invited-user__error-message-icon" svgIcon="danger-fill"></mat-icon>
                 Please enter your name
               </div>
             </div>
@@ -59,14 +58,12 @@
                 *ngIf="fg.controls.password.touched && fg.controls.password.invalid && fg.controls.password.errors.required"
                 class="invited-user__error"
               >
-                <mat-icon class="invited-user__error-message-icon" svgIcon="danger-fill"></mat-icon>
                 Password cannot be empty
               </div>
               <div
                 *ngIf="fg.controls.password.touched && fg.controls.password.invalid && fg.controls.password.errors.invalidPassword && !fg.controls.password.errors.required"
                 class="invited-user__error"
               >
-                <mat-icon class="invited-user__error-message-icon" svgIcon="danger-fill"></mat-icon>
                 Please enter a valid password.
               </div>
             </div>
@@ -100,14 +97,12 @@
                 *ngIf="fg.controls.confirmPassword.touched && fg.controls.confirmPassword.invalid && fg.controls.confirmPassword.errors.required"
                 class="invited-user__error"
               >
-                <mat-icon class="invited-user__error-message-icon" svgIcon="danger-fill"></mat-icon>
                 Password cannot be empty
               </div>
               <div
                 *ngIf="fg.controls.confirmPassword.touched && fg.controls.confirmPassword.invalid && fg.controls.confirmPassword.errors.passwordMismatch && !fg.controls.confirmPassword.errors.required"
                 class="invited-user__error"
               >
-                <mat-icon class="invited-user__error-message-icon" svgIcon="danger-fill"></mat-icon>
                 Passwords do not match
               </div>
             </div>
