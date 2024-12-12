@@ -1391,6 +1391,7 @@ ion-toggle.toggle-checked::before {
   padding: 2px 10px;
   text-align: center;
   text-transform: uppercase;
+  white-space: nowrap;
 
   //get state keys for generating state class
   @each $state in map-keys($states) {
