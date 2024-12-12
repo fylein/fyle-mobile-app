@@ -416,7 +416,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     const params = this.loadData$.getValue();
     const queryParams = params.queryParams || {};
     queryParams.btxn_status = `in.(${this.selectedTransactionType})`;
-    queryParams.ba_id = 'eq.' + this.selectedAccount.id;
+    queryParams.ba_id = `eq.${this.selectedAccount.id}`;
     params.queryParams = queryParams;
     params.pageNumber = 1;
     this.zone.run(() => {
@@ -681,7 +681,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       or: [],
     };
     newQueryParams.btxn_status = `in.(${this.selectedTransactionType})`;
-    newQueryParams.ba_id = 'eq.' + this.selectedAccount.id;
+    newQueryParams.ba_id = `eq.${this.selectedAccount.id}`;
     const filters = this.filters;
     this.personalCardsService.generateTxnDateParams(newQueryParams, filters, 'createdOn', this.usePlatformApi);
     this.personalCardsService.generateTxnDateParams(newQueryParams, filters, 'updatedOn', this.usePlatformApi);
