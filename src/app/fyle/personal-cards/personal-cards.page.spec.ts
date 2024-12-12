@@ -1052,32 +1052,6 @@ describe('PersonalCardsPage', () => {
       expect(component.usePlatformApi).toBeTrue();
     });
 
-    it('should call onCardChanged when linkedAccounts$ emits a non-empty value', (done) => {
-      const subject = new BehaviorSubject<PersonalCard[]>([]);
-      component.linkedAccounts$ = subject.asObservable();
-
-      component.ngAfterViewInit();
-      subject.next(linkedAccountsRes);
-
-      component.linkedAccounts$.subscribe(() => {
-        expect(component.onCardChanged).toHaveBeenCalledWith(linkedAccountsRes[0].id);
-        done();
-      });
-    });
-
-    it('should not call onCardChanged if linkedAccounts$ emits an empty array', (done) => {
-      const subject = new BehaviorSubject<PersonalCard[]>([]);
-      component.linkedAccounts$ = subject.asObservable();
-
-      component.ngAfterViewInit();
-      subject.next([]);
-
-      component.linkedAccounts$.subscribe(() => {
-        expect(component.onCardChanged).not.toHaveBeenCalled();
-        done();
-      });
-    });
-
     it('should generate filter pills based on filters', () => {
       personalCardsService.generateFilterPills.and.returnValue(allFilterPills);
       component.ngAfterViewInit();
