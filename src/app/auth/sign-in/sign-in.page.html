@@ -1,4 +1,4 @@
-<ion-content class="sign-in--page-container" class="no-keyboard-adjust">
+<ion-content class="sign-in--page-container" class="no-keyboard-adjust" scroll-y="false">
   <div class="sign-in__select-sign-in" *ngIf="currentStep === signInPageState.SELECT_SIGN_IN_METHOD">
     <video
       class="sign-in__video-container sign-in__video-container__video"
@@ -22,23 +22,23 @@
       <div class="sign-in__divider"></div>
     </div>
 
-    <ion-button
+    <button
       (click)="googleSignIn()"
       appFormButtonValidation
       [loading]="googleSignInLoading"
-      class="sign-in--secondary-cta-btn"
+      class="sign-in__secondary-cta__btn"
       fill="clear"
     >
-      <img class="sign-in--secondary-cta-btn-logo" src="../../../assets/svg/logo-google.svg" alt="fyle-logo" />
+      <img class="sign-in__secondary-cta__btn__logo" src="/assets/svg/logo-google.svg" alt="fyle-logo" />
       Sign in with Google
-    </ion-button>
+    </button>
   </div>
   <div class="sign-in__enter-email" *ngIf="currentStep === signInPageState.ENTER_EMAIL">
     <div>
       <ion-icon
         class="fy-icon sign-in__enter-email__back-icon"
         src="/assets/svg/arrow-tail-left.svg"
-        (click)="goToEnterPasswordStep()"
+        (click)="changeState(signInPageState.SELECT_SIGN_IN_METHOD)"
       ></ion-icon>
       <div class="sign-in__enter-email__form-container">
         <div>
