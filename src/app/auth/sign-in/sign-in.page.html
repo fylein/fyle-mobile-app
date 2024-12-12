@@ -1,4 +1,4 @@
-<ion-content class="sign-in--page-container" class="no-keyboard-adjust" scroll-y="false">
+<ion-content class="sign-in--page-container" class="no-keyboard-adjust">
   <div class="sign-in__select-sign-in" *ngIf="currentStep === signInPageState.SELECT_SIGN_IN_METHOD">
     <video
       class="sign-in__video-container sign-in__video-container__video"
@@ -68,6 +68,7 @@
     <div>
       <ion-button
         class="btn-primary"
+        id="sign-in__continue"
         fill="clear"
         [disabled]="!fg.controls.email.valid"
         (click)="checkIfEmailExists()"
