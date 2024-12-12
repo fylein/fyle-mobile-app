@@ -5,9 +5,26 @@ $form-subheader: #4a4a4a;
 $password-icon: #b9beba;
 
 .sign-in {
-  &--page-container {
-    --background: none;
-    background-image: $pink-gradient-3;
+  padding-bottom: 20%;
+  display: flex;
+  flex-direction: column;
+  &__video-container {
+    padding: 20px 20px 0 20px;
+    margin-bottom: 24px;
+    &__video {
+      height: inherit;
+      border-radius: 20px;
+      object-fit: fill;
+    }
+  }
+
+  &__select-sign-in {
+    position: relative;
+  }
+
+  &__cta-container {
+    padding: 0 20px 44px 20px;
+    position: relative;
   }
 
   &--header {
@@ -72,24 +89,235 @@ $password-icon: #b9beba;
     color: $password-icon;
   }
 
-  &--secondary-cta {
-    .mat-button-base {
-      width: 100%;
-      font-weight: 700;
-      min-height: 47px;
-      letter-spacing: 1.6px;
-      border: 1px solid $grey-light;
-      background-color: $white;
+  &__divider-container {
+    display: flex;
+    gap: 16px;
+    margin: 12px 0;
+    height: 20px;
+    align-items: center;
+  }
+
+  &__divider {
+    height: 1px;
+    background-color: $grey;
+    width: 100%;
+  }
+
+  &__enter-email {
+    height: 100%;
+    margin-top: 18px;
+    padding: 20px;
+    padding: 28px 20px 44px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    &__input-container {
+      &__label {
+        margin: 0 8px 0 0;
+        font-size: 12px;
+        color: $black-light;
+        line-height: 1.3;
+        font-weight: 400;
+      }
+
+      &__input {
+        border: 0;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 1.3;
+        color: $blue-black;
+        width: 100%;
+        padding: 6px 0;
+        border-bottom: 1px solid $grey-lighter;
+      }
+
+      &__input:focus {
+        border-bottom: 1px solid $blue-black;
+      }
     }
-    margin-top: 24px;
+
+    &__error-message {
+      color: $red;
+    }
+
+    &__disabled {
+      opacity: 0.2;
+    }
+
+    &__sub-header {
+      font-size: 14px;
+      margin: 0 0 10px;
+      position: relative;
+      margin-bottom: 32px;
+      color: $black-light;
+      line-height: 1.28;
+    }
+    &__page-header {
+      font-size: 20px;
+      margin: 0 0 10px;
+      position: relative;
+      margin-bottom: 8px;
+    }
+    &__back-icon {
+      margin-bottom: 20px;
+      width: 28px;
+      height: 28px;
+    }
+  }
+
+  &__enter-password {
+    height: 100%;
+    margin-top: 18px;
+    padding: 20px;
+    padding: 28px 20px 44px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    &__disabled-email {
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1.28;
+      color: $blue-black;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+    }
+
+    &__email-edit {
+      fill: $black-light;
+      height: 20px;
+      width: 20px;
+      margin-left: 8px;
+    }
+
+    &__password-icon {
+      width: 20px;
+      height: 20px;
+      fill: $black-light;
+    }
+
+    &__password-icon-container {
+      display: flex;
+      align-items: center;
+    }
+
+    &__text-input {
+      border: 0;
+      font-size: 14px;
+      font-weight: 400;
+      height: 18px;
+      line-height: 18px;
+      color: $blue-black;
+      width: 100%;
+      margin: 6px 0;
+      padding: 0;
+    }
+
+    &__text {
+      border-bottom: 1px solid $grey-lighter;
+
+      &__invalid {
+        border-bottom: 1px solid $red;
+      }
+    }
+
+    &__password-container {
+      display: flex;
+    }
+
+    &__text-label {
+      margin: 0 8px 0 0;
+      max-width: 90%;
+      min-width: 120px;
+      font-size: 12px;
+      color: $black-light;
+      line-height: 16px;
+      white-space: nowrap;
+      font-weight: 400;
+    }
+
+    &__input-container {
+      &__label {
+        margin: 0 8px 0 0;
+        font-size: 12px;
+        color: $black-light;
+        line-height: 1.3;
+        font-weight: 400;
+      }
+
+      &__input {
+        border: 0;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 1.3;
+        color: $blue-black;
+        width: 100%;
+        padding: 6px 0;
+        border-bottom: 1px solid $grey-lighter;
+      }
+
+      &__input:focus {
+        border-bottom: 1px solid $blue-black;
+      }
+    }
+
+    &__error-message {
+      color: $red;
+    }
+
+    &__disabled {
+      opacity: 0.2;
+    }
+
+    &__sub-header {
+      font-size: 14px;
+      margin: 0 0 10px;
+      position: relative;
+      margin-bottom: 32px;
+      color: $black-light;
+      line-height: 1.28;
+    }
+    &__page-header {
+      font-size: 20px;
+      margin: 0 0 10px;
+      position: relative;
+      margin-bottom: 8px;
+    }
+    &__back-icon {
+      margin-bottom: 20px;
+      width: 28px;
+      height: 28px;
+    }
+  }
+  &--secondary-cta {
+    background-color: $pure-white;
     &-btn {
-      display: inline-block;
+      display: flex;
+      height: 50px;
+      padding: 12px 16px;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      align-self: stretch;
+      border-radius: 4px;
+      border: 1px solid $grey;
+      background: $pure-white;
+      color: $black;
+      color: var(--buttons-secondary-outline-btn-outline-secondary-text-color, #2c304e);
+      text-align: center;
+
+      font-size: 14px;
+      font-style: normal;
+      font-weight: 500;
+      line-height: 18px;
       &-logo {
-        width: 10%;
-        min-width: 28px;
-        max-width: 34px;
+        height: 24px;
+        width: 24px;
         display: inline-block;
         vertical-align: middle;
+        margin-right: 8px;
       }
     }
   }
