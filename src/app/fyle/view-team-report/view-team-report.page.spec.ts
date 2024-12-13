@@ -122,7 +122,7 @@ describe('ViewTeamReportPageV2', () => {
     refinerService = jasmine.createSpyObj('RefinerService', ['startSurvey']);
 
     TestBed.configureTestingModule({
-      declarations: [ViewTeamReportPage, EllipsisPipe, HumanizeCurrencyPipe, HumanizeCurrencyPipe],
+      declarations: [ViewTeamReportPage, EllipsisPipe, HumanizeCurrencyPipe, ExactCurrencyPipe],
       imports: [IonicModule.forRoot(), FormsModule],
       providers: [
         FyCurrencyPipe,
