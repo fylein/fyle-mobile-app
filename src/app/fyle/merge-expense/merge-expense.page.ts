@@ -535,6 +535,9 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
   }
 
   onReceiptChanged(receipt_ids: string): void {
+    if (!receipt_ids) {
+      return;
+    }
     this.mergeExpensesService.getAttachements(receipt_ids).subscribe((receipts) => {
       this.selectedReceiptsId = receipts.map((receipt) => receipt.id);
       this.attachments = receipts;
