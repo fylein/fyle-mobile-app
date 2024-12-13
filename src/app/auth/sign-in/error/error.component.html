@@ -1,5 +1,5 @@
 <div class="error-internal">
-  <div class="error-internal__header" id="sign-in--error-msg">
+  <div class="error-internal__header" id="sign-in__error-msg">
     <ion-icon
       class="fy-icon-close error-internal__close-icon"
       [src]="'/assets/svg/cross.svg'"
@@ -9,10 +9,10 @@
       {{ header }}
     </div>
   </div>
-  <div *ngIf="error" class="error-internal--details">
+  <div *ngIf="error" class="error-internal__details">
     <div *ngIf="error.status === 401 && (error.data || error.message)">
-      This email address will be temporarily locked after 5 unsuccessful login attempts. Try
-      <a class="error-internal--redirect" (click)="routeTo(['/', 'auth', 'reset_password'])">resetting</a> your
+      This email address will be temporarily locked after 5 unsuccessful login attempts. Would you like to try
+      <a class="error-internal__redirect" (click)="routeTo(['/', 'auth', 'reset_password'])">resetting</a> your
       password?
     </div>
 

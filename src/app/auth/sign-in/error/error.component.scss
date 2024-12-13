@@ -29,13 +29,13 @@ $details-color: #ababab;
     padding: 0 16px 16px;
   }
 
-  &--details {
+  &__details {
     font-size: 16px;
     padding: 20px 16px;
     color: $black;
   }
 
-  &--redirect {
+  &__redirect {
     text-decoration: none;
   }
 }

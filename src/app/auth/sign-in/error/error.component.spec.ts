@@ -35,7 +35,7 @@ describe('ErrorComponent', () => {
   });
 
   it('should have a default header', () => {
-    expect(component.header).toEqual('Account does not Exist');
+    expect(component.header).toEqual('Account does not exist');
   });
 
   it('closePopover(): should dismiss the popover on try again button click', async () => {
@@ -59,8 +59,8 @@ describe('ErrorComponent', () => {
     it('should display the correct error message for status 401 and data is present', () => {
       component.error = { status: 401, data: { message: 'Invalid email or password' } };
       fixture.detectChanges();
-      const errorMessage = getElementBySelector(fixture, '.error-internal--details');
-      const resetLink = getElementBySelector(fixture, '.error-internal--redirect');
+      const errorMessage = getElementBySelector(fixture, '.error-internal__details');
+      const resetLink = getElementBySelector(fixture, '.error-internal__redirect');
       expect(getTextContent(errorMessage)).toContain(
         'This email address will be temporarily locked after 5 unsuccessful login attempts. Try resetting your password?'
       );
@@ -70,7 +70,7 @@ describe('ErrorComponent', () => {
     it('should display the correct error message for status 400', () => {
       component.error = { status: 400 };
       fixture.detectChanges();
-      const errorMessage = getElementBySelector(fixture, '.error-internal--details');
+      const errorMessage = getElementBySelector(fixture, '.error-internal__details');
       expect(getTextContent(errorMessage)).toContain(
         'Your account is not verified. Please request a verification link, if required'
       );
@@ -79,7 +79,7 @@ describe('ErrorComponent', () => {
     it('should display the correct error message for status 500', () => {
       component.error = { status: 500 };
       fixture.detectChanges();
-      const errorMessage = getElementBySelector(fixture, '.error-internal--details');
+      const errorMessage = getElementBySelector(fixture, '.error-internal__details');
       const supportLink = getElementBySelector(fixture, 'a');
       expect(getTextContent(errorMessage)).toContain(
         'Please retry in a while. Send us a note to support@fylehq.com if the problem persists.'
@@ -90,7 +90,7 @@ describe('ErrorComponent', () => {
     it('should display the correct error message for status 433', () => {
       component.error = { status: 433 };
       fixture.detectChanges();
-      const errorMessage = getElementBySelector(fixture, '.error-internal--details');
+      const errorMessage = getElementBySelector(fixture, '.error-internal__details');
       expect(getTextContent(errorMessage)).toContain(
         'This email address is locked temporarily, as there are too many unsuccessful login attempts recently. Please retry later.'
       );
@@ -99,7 +99,7 @@ describe('ErrorComponent', () => {
     it('should display the correct error message for status 401 and no data or message is present', () => {
       component.error = { status: 401 };
       fixture.detectChanges();
-      const errorMessage = getElementBySelector(fixture, '.error-internal--details');
+      const errorMessage = getElementBySelector(fixture, '.error-internal__details');
       expect(getTextContent(errorMessage)).toContain(
         'Your organization has restricted Fyle access to its corporate network.'
       );
