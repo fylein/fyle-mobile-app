@@ -524,7 +524,6 @@ describe('SignInPage', () => {
     expect(getTextContent(getElementBySelector(fixture, '.sign-in__enter-email__error-message'))).toEqual(
       'Please enter a valid email.'
     );
-
   });
 
   describe('template: ', () => {
