@@ -305,7 +305,7 @@ describe('SignInPage', () => {
       const errorPopoverSpy = jasmine.createSpyObj('errorPopover', ['present']);
       popoverController.create.and.returnValue(errorPopoverSpy);
 
-      const header = 'Incorrect Email or Password';
+      const header = 'Incorrect email or password';
 
       await component.handleError(null);
 
