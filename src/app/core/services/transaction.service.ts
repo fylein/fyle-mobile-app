@@ -776,7 +776,7 @@ export class TransactionService {
       tg_name: expense.tax_group?.name,
       tx_project_name: expense.project?.name,
       tx_project_id: expense.project_id,
-      tx_cost_center_name: expense.cost_center ? expense.cost_center.name : null,
+      tx_cost_center_name: expense.cost_center?.name || null,
       tx_cost_center_id: expense.cost_center_id,
       tx_corporate_credit_card_expense_group_id:
         expense.matched_corporate_card_transaction_ids?.length > 0
