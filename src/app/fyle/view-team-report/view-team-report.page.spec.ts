@@ -574,7 +574,7 @@ describe('ViewTeamReportPageV2', () => {
 
   describe('approveReport(): ', () => {
     it('should open the modal and approve the report', fakeAsync(() => {
-      humanizeCurrency.transform.and.callThrough();
+      exactCurrency.transform.and.callThrough();
       const popoverSpy = jasmine.createSpyObj('popover', ['present', 'onWillDismiss']);
       popoverSpy.onWillDismiss.and.resolveTo({
         data: {
@@ -597,6 +597,7 @@ describe('ViewTeamReportPageV2', () => {
         componentProps: {
           title: 'Approve Report',
           message: '3 expenses of amount undefined will be approved',
+          leftAlign: true,
           flaggedExpensesCount: 0,
           primaryCta: {
             text: 'Approve',
@@ -610,11 +611,11 @@ describe('ViewTeamReportPageV2', () => {
         component: PopupAlertComponent,
         cssClass: 'pop-up-in-center',
       });
-      expect(humanizeCurrency.transform).toHaveBeenCalledOnceWith(
-        reportWithExpenses.amount,
-        reportWithExpenses.currency,
-        false
-      );
+      expect(exactCurrency.transform).toHaveBeenCalledOnceWith({
+        value: reportWithExpenses.amount,
+        currencyCode: reportWithExpenses.currency,
+        skipSymbol: false,
+      });
       expect(approverReportsService.approve).toHaveBeenCalledOnceWith(platformReportData.id);
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'team_reports']);
       expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith('nps_survey', false);

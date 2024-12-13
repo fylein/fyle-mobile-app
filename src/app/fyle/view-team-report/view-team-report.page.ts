@@ -20,7 +20,7 @@ import * as dayjs from 'dayjs';
 import { StatusService } from 'src/app/core/services/status.service';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
-import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
+import { ExactCurrencyPipe } from 'src/app/shared/pipes/exact-currency.pipe';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { EditReportNamePopoverComponent } from '../my-view-report/edit-report-name-popover/edit-report-name-popover.component';
@@ -147,7 +147,7 @@ export class ViewTeamReportPage {
     private refinerService: RefinerService,
     private snackbarProperties: SnackbarPropertiesService,
     private statusService: StatusService,
-    private humanizeCurrency: HumanizeCurrencyPipe,
+    private exactCurrency: ExactCurrencyPipe,
     private orgSettingsService: OrgSettingsService,
     private approverReportsService: ApproverReportsService
   ) {}
@@ -353,13 +353,18 @@ export class ViewTeamReportPage {
       const report = await this.report$.pipe(take(1)).toPromise();
       const expenses = await this.expenses$.toPromise();
 
-      const rpAmount = this.humanizeCurrency.transform(report.amount, report.currency, false);
+      const rpAmount = this.exactCurrency.transform({
+        value: report.amount,
+        currencyCode: report.currency,
+        skipSymbol: false,
+      });
       const flaggedExpensesCount = expenses.filter((expense) => expense.is_policy_flagged).length;
       const popover = await this.popoverController.create({
         componentProps: {
           flaggedExpensesCount,
           title: 'Approve Report',
           message: report.num_expenses + ' expenses of amount ' + rpAmount + ' will be approved',
+          leftAlign: true,
           primaryCta: {
             text: 'Approve',
             action: 'approve',
