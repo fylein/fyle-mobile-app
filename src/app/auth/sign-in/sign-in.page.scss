@@ -119,13 +119,13 @@
       color: $black-light;
       font-size: 12px;
       font-style: normal;
-      font-weight: 500;
       line-height: 1.5;
       float: right;
       margin-top: 1px;
     }
 
     &__forgot-password_button {
+      font-weight: 500;
       background: $pure-white;
     }
 
