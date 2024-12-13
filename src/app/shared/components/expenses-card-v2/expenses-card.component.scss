@@ -193,7 +193,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 164px;
+    max-width: 80%;
     padding-right: 4px;
   }
 
@@ -233,7 +233,7 @@
 
   &--vendor {
     color: $dark-grey;
-    font-size: 14px;
+    font-size: 12px;
     line-height: 1.2;
     margin-top: 2px;
     white-space: nowrap;
@@ -275,7 +275,7 @@
   &--currency {
     color: $black;
     font-weight: 500;
-    font-size: 14px;
+    font-size: 16px;
     line-height: 1.25;
     margin-right: 1px;
   }
