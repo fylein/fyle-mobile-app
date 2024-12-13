@@ -257,7 +257,6 @@ describe('SignInPage', () => {
       fixture.detectChanges();
       const emailError = fixture.debugElement.query(By.css('.sign-in__enter-email__error-message'));
       expect(emailError).toBeDefined();
-      console.log(emailError);
       expect(getTextContent(emailError.nativeElement)).toEqual('Please enter a valid email.');
     });
   });
