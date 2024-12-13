@@ -15,7 +15,7 @@
                 class="invited-user__text invited-user__text-block"
                 [ngClass]="{'invited-user__text__invalid': fg.controls.fullName.touched && !fg.controls.fullName.valid}"
               >
-                <div class="invited-user__text-label">Full Name</div>
+                <div class="invited-user__text-label">Full name</div>
                 <input [required]="true" class="invited-user__text-input smartlook-show" formControlName="fullName" />
               </div>
               <div
@@ -44,7 +44,7 @@
                   <div class="invited-user__password-icon-container" matSuffix (click)="hide = !hide">
                     <ion-icon
                       class="fy-icon invited-user__password-icon"
-                      src="{{hide ? '/assets/svg/eye.svg' : '/assets/svg/eye-slash.svg'}}"
+                      src="{{hide ? '/assets/svg/eye-slash.svg' : '/assets/svg/eye.svg'}}"
                     ></ion-icon>
                   </div>
                 </div>
@@ -72,7 +72,7 @@
                 class="invited-user__text invited-user__text-block"
                 [ngClass]="{'invited-user__text__invalid': fg.controls.confirmPassword.touched && !fg.controls.confirmPassword.valid}"
               >
-                <div class="invited-user__text-label">Confirm Password</div>
+                <div class="invited-user__text-label">Confirm password</div>
                 <div class="invited-user__password-container">
                   <input
                     placeholder="Re-enter password"
@@ -88,7 +88,7 @@
                   >
                     <ion-icon
                       class="fy-icon invited-user__password-icon"
-                      src="{{hideConfirmPassword ? '/assets/svg/eye.svg' : '/assets/svg/eye-slash.svg'}}"
+                      src="{{hideConfirmPassword ? '/assets/svg/eye-slash.svg' : '/assets/svg/eye.svg'}}"
                     ></ion-icon>
                   </div>
                 </div>
@@ -100,7 +100,7 @@
                 Password cannot be empty
               </div>
               <div
-                *ngIf="fg.controls.confirmPassword.touched && fg.controls.confirmPassword.invalid && fg.controls.confirmPassword.errors.passwordMismatch"
+                *ngIf="fg.controls.confirmPassword.touched && fg.controls.confirmPassword.invalid && fg.controls.confirmPassword.errors.passwordMismatch && !fg.controls.confirmPassword.errors.required"
                 class="invited-user__error"
               >
                 Passwords do not match
