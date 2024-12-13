@@ -1,37 +1,39 @@
-<ion-content class="sign-in--page-container" class="no-keyboard-adjust">
+<ion-content class="sign-in" class="no-keyboard-adjust">
   <div class="sign-in__select-sign-in" *ngIf="currentStep === signInPageState.SELECT_SIGN_IN_METHOD">
-    <video
-      class="sign-in__video-container sign-in__video-container__video"
-      width="100%"
-      height="auto"
-      onloadedmetadata="this.muted = true"
-      oncanplay="this.play()"
-      loop
-    >
-      <source src="/assets/videos/mobile-onboarding.mp4" type="video/mp4" />
-    </video>
-  </div>
-  <div class="sign-in__cta-container" *ngIf="currentStep === signInPageState.SELECT_SIGN_IN_METHOD">
-    <ion-button (click)="changeState(signInPageState.ENTER_EMAIL)" class="btn-primary" fill="clear">
-      Sign in with email address
-    </ion-button>
-
-    <div class="sign-in__divider-container">
-      <div class="sign-in__divider"></div>
-      or
-      <div class="sign-in__divider"></div>
+    <div class="sign-in__video-container">
+      <video
+        class="sign-in__video-container__video"
+        width="100%"
+        height="auto"
+        onloadedmetadata="this.muted = true"
+        oncanplay="this.play()"
+        loop
+      >
+        <source src="/assets/videos/mobile-onboarding.mp4" type="video/mp4" />
+      </video>
     </div>
+    <div class="sign-in__cta-container">
+      <ion-button (click)="changeState(signInPageState.ENTER_EMAIL)" class="btn-primary" fill="clear">
+        Sign in with email address
+      </ion-button>
 
-    <button
-      (click)="googleSignIn()"
-      appFormButtonValidation
-      [loading]="googleSignInLoading"
-      class="sign-in__secondary-cta__btn"
-      fill="clear"
-    >
-      <img class="sign-in__secondary-cta__btn__logo" src="/assets/svg/logo-google.svg" alt="fyle-logo" />
-      Sign in with Google
-    </button>
+      <div class="sign-in__divider-container">
+        <div class="sign-in__divider"></div>
+        or
+        <div class="sign-in__divider"></div>
+      </div>
+
+      <button
+        (click)="googleSignIn()"
+        appFormButtonValidation
+        [loading]="googleSignInLoading"
+        class="sign-in__secondary-cta__btn"
+        fill="clear"
+      >
+        <img class="sign-in__secondary-cta__btn__logo" src="/assets/svg/logo-google.svg" alt="fyle-logo" />
+        Sign in with Google
+      </button>
+    </div>
   </div>
   <div class="sign-in__enter-email" *ngIf="currentStep === signInPageState.ENTER_EMAIL">
     <div>
@@ -134,6 +136,11 @@
             Please enter password
           </div>
         </form>
+        <div class="sign-in__enter-password__forgot-password">
+          <button class="sign-in__enter-password__forgot-password_button" (click)="goToForgotPasswordPage()">
+            Forgot Password?
+          </button>
+        </div>
       </div>
     </div>
     <div>

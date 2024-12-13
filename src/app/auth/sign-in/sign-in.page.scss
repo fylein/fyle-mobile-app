@@ -1,23 +1,29 @@
 @import '../../../theme/colors.scss';
 
 .sign-in {
-  padding-bottom: 20%;
-  display: flex;
-  flex-direction: column;
   &__video-container {
-    padding: 20px 20px 0 20px;
-    margin-bottom: 24px;
+    position: relative;
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    background: linear-gradient(to bottom, #fafafc, #f1f6ff);
+    border-radius: 20px;
     &__video {
-      border-radius: 20px;
+      width: auto;
+      height: 100%;
     }
   }
 
   &__select-sign-in {
-    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 96vh;
+    padding: 20px 20px 0 20px;
   }
 
   &__cta-container {
-    padding: 0 20px 44px 20px;
+    margin-top: 24px;
     position: relative;
     height: 144px;
   }
@@ -108,6 +114,20 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+
+    &__forgot-password {
+      color: $black-light;
+      font-size: 12px;
+      font-style: normal;
+      font-weight: 500;
+      line-height: 1.5;
+      float: right;
+      margin-top: 1px;
+    }
+
+    &__forgot-password_button {
+      background: $pure-white;
+    }
 
     &__disabled-email {
       font-size: 14px;
