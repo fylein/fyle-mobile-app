@@ -39,7 +39,7 @@ describe('ErrorComponent', () => {
   });
 
   it('closePopover(): should dismiss the popover on try again button click', async () => {
-    const tryAgainBtn = getElementBySelector(fixture, '.error-internal__primary-cta button') as HTMLButtonElement;
+    const tryAgainBtn = getElementBySelector(fixture, '.error-internal__primary-cta ion-button') as HTMLButtonElement;
     click(tryAgainBtn);
     fixture.detectChanges();
     await fixture.whenStable();
@@ -62,7 +62,7 @@ describe('ErrorComponent', () => {
       const errorMessage = getElementBySelector(fixture, '.error-internal__details');
       const resetLink = getElementBySelector(fixture, '.error-internal__redirect');
       expect(getTextContent(errorMessage)).toContain(
-        'This email address will be temporarily locked after 5 unsuccessful login attempts. Try resetting your password?'
+        'This email address will be temporarily locked after 5 unsuccessful login attempts. Would you like to try resetting your password?'
       );
       expect(resetLink).toBeTruthy();
     });
