@@ -27,6 +27,7 @@ import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { By } from '@angular/platform-browser';
 import { HttpErrorResponse } from '@angular/common/http';
+import { SignInPageState } from './sign-in-page-state.enum';
 
 describe('SignInPage', () => {
   let component: SignInPage;
@@ -233,7 +234,6 @@ describe('SignInPage', () => {
       fixture.detectChanges();
 
       component.checkIfEmailExists();
-      expect(component.emailSet).toBeTrue();
       expect(component.handleSamlSignIn).not.toHaveBeenCalled();
       done();
     });
@@ -250,12 +250,14 @@ describe('SignInPage', () => {
     });
 
     it('should mark form as touched if email field is not valid', () => {
-      component.fg.controls.email.setErrors(new Error('error'));
+      component.currentStep = SignInPageState.ENTER_EMAIL;
+      component.fg.controls.email.setValue('email.com'); // setting an invalid email
 
       component.checkIfEmailExists();
       fixture.detectChanges();
-      const emailError = fixture.debugElement.query(By.css('.sign-in--error'));
+      const emailError = fixture.debugElement.query(By.css('.sign-in__enter-email__error-message'));
       expect(emailError).toBeDefined();
+      console.log(emailError);
       expect(getTextContent(emailError.nativeElement)).toEqual('Please enter a valid email.');
     });
   });
@@ -483,47 +485,104 @@ describe('SignInPage', () => {
     }));
   });
 
-  it('should check if email exists on typing the input', () => {
+  it('should check if email exists on clicking the button', () => {
+    component.currentStep = SignInPageState.ENTER_EMAIL;
     spyOn(component, 'checkIfEmailExists');
-    component.emailSet = false;
-    component.fg.controls.email.setValue('ajain@fyle.in');
     fixture.detectChanges();
 
-    const emailField = getElementBySelector(fixture, '#sign-in--email');
-    emailField.dispatchEvent(new KeyboardEvent('keyup', { key: 'Enter' }));
-
-    expect(component.checkIfEmailExists).toHaveBeenCalledTimes(1);
-  });
-
-  it('should check if email exists on clicking the button', () => {
-    spyOn(component, 'checkIfEmailExists');
-
-    const contButton = getElementBySelector(fixture, '#sign-in--continue') as HTMLElement;
+    const contButton = getElementBySelector(fixture, '#sign-in__continue') as HTMLElement;
     click(contButton);
     expect(component.checkIfEmailExists).toHaveBeenCalledTimes(1);
   });
 
   it('should sign in with google when clicking on the SIGN IN WITH GOOGLE button', () => {
     spyOn(component, 'googleSignIn');
-    const googleButton = getElementBySelector(fixture, '.sign-in--secondary-cta-btn') as HTMLElement;
+    const googleButton = getElementBySelector(fixture, '.sign-in__secondary-cta__btn') as HTMLElement;
 
     click(googleButton);
     expect(component.googleSignIn).toHaveBeenCalledTimes(1);
   });
 
   it('should show error if email field is empty', () => {
+    component.currentStep = SignInPageState.ENTER_EMAIL;
     component.fg.controls.email.setValue(null);
     component.fg.markAllAsTouched();
     fixture.detectChanges();
 
-    expect(getTextContent(getElementBySelector(fixture, '.sign-in--error'))).toEqual('Please enter an email.');
+    expect(getTextContent(getElementBySelector(fixture, '.sign-in__enter-email__error-message'))).toEqual(
+      'Please enter a valid email.'
+    );
   });
 
   it('should show error if email is invalid', () => {
+    component.currentStep = SignInPageState.ENTER_EMAIL;
     component.fg.controls.email.setValue('email.com');
     component.fg.markAllAsTouched();
+    component.fg.controls.email.updateValueAndValidity();
     fixture.detectChanges();
 
-    expect(getTextContent(getElementBySelector(fixture, '.sign-in--error'))).toEqual('Please enter a valid email.');
+    expect(getTextContent(getElementBySelector(fixture, '.sign-in__enter-email__error-message'))).toEqual(
+      'Please enter a valid email.'
+    );
+  });
+
+  describe('template: ', () => {
+    it('should display the video container when currentStep is SELECT_SIGN_IN_METHOD', () => {
+      component.currentStep = component.signInPageState.SELECT_SIGN_IN_METHOD;
+      fixture.detectChanges();
+      const videoElement = getElementBySelector(fixture, '.sign-in__video-container');
+      expect(videoElement).toBeTruthy();
+    });
+
+    it('should display the email form when currentStep is ENTER_EMAIL', () => {
+      component.currentStep = component.signInPageState.ENTER_EMAIL;
+      fixture.detectChanges();
+      const emailForm = getElementBySelector(fixture, '.sign-in__enter-email__form-container');
+      expect(emailForm).toBeTruthy();
+    });
+
+    it('should disable the continue button if email is invalid', () => {
+      component.currentStep = component.signInPageState.ENTER_EMAIL;
+      component.fg.controls.email.setValue(null);
+      fixture.detectChanges();
+      const continueButton: HTMLButtonElement = getElementBySelector(
+        fixture,
+        '.sign-in__enter-email ion-button'
+      ) as HTMLButtonElement;
+      expect(continueButton.disabled).toBeTrue();
+    });
+
+    it('should display the password form when currentStep is ENTER_PASSWORD', () => {
+      component.currentStep = component.signInPageState.ENTER_PASSWORD;
+      fixture.detectChanges();
+      const passwordForm = getElementBySelector(fixture, '.sign-in__enter-password__form-container');
+      expect(passwordForm).toBeTruthy();
+    });
+
+    it('should toggle password visibility when icon is clicked', () => {
+      component.currentStep = component.signInPageState.ENTER_PASSWORD;
+      component.hidePassword = true;
+      fixture.detectChanges();
+
+      const toggleIcon = getElementBySelector(fixture, '.sign-in__enter-password__password-icon-container');
+      toggleIcon.dispatchEvent(new Event('click'));
+      fixture.detectChanges();
+
+      expect(component.hidePassword).toBeFalse();
+    });
+
+    it('should call googleSignIn method when Google sign-in button is clicked', () => {
+      spyOn(component, 'googleSignIn');
+      component.currentStep = component.signInPageState.SELECT_SIGN_IN_METHOD;
+      fixture.detectChanges();
+
+      const googleSignInButton: HTMLButtonElement = getElementBySelector(
+        fixture,
+        '.sign-in__secondary-cta__btn'
+      ) as HTMLButtonElement;
+      googleSignInButton.click();
+
+      expect(component.googleSignIn).toHaveBeenCalled();
+    });
   });
 });

@@ -45,6 +45,7 @@
     margin: 0 0 10px;
     position: relative;
     margin-bottom: 8px;
+    font-weight: 500;
   }
 
   &__disabled {
@@ -62,6 +63,9 @@
 
   &__error-message {
     color: $red;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
   }
 
   &__input-container {

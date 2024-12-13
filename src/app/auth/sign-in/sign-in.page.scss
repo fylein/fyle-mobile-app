@@ -1,119 +1,260 @@
 @import '../../../theme/colors.scss';
-$sign-in-header: #220033;
-$form-header: #000;
-$form-subheader: #4a4a4a;
-$password-icon: #b9beba;
 
 .sign-in {
-  &--page-container {
-    --background: none;
-    background-image: $pink-gradient-3;
+  padding-bottom: 20%;
+  display: flex;
+  flex-direction: column;
+  &__video-container {
+    padding: 20px 20px 0 20px;
+    margin-bottom: 24px;
+    &__video {
+      border-radius: 20px;
+    }
   }
 
-  &--header {
-    min-height: 180px;
+  &__select-sign-in {
+    position: relative;
   }
 
-  &--error {
-    color: #f00;
-    margin-top: 4px;
-    margin-bottom: 4px;
+  &__cta-container {
+    padding: 0 20px 44px 20px;
+    position: relative;
+    height: 144px;
   }
 
-  &--header-container {
-    min-height: 180px;
-    background-image: $pink-gradient-3;
+  &__divider-container {
+    display: flex;
+    gap: 16px;
+    margin: 12px 0;
+    height: 20px;
+    align-items: center;
+    color: $black;
   }
 
-  &--header-logo-container {
-    text-align: center;
-  }
-
-  &--header-logo {
-    max-width: 100px;
-  }
-
-  &--form {
-    padding: 40px 24px;
-    margin: 16px;
-    background-color: $white;
-    border-radius: 8px;
-  }
-
-  &--form-field {
+  &__divider {
+    height: 1px;
+    background-color: $grey;
     width: 100%;
   }
 
-  &--form-header {
-    font-size: 24px;
-    margin-top: 16px;
-    margin-bottom: 8px;
-    color: $form-header;
-    font-weight: 700;
-  }
+  &__enter-email {
+    height: 100%;
+    margin-top: 18px;
+    padding: 20px;
+    padding: 28px 20px 44px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 
-  &--form-subheader {
-    font-size: 16px;
-    color: $form-subheader;
-    margin-top: 8px;
-    margin-bottom: 24px;
-  }
+    &__input-container {
+      &__label {
+        margin: 0 8px 0 0;
+        font-size: 12px;
+        color: $black-light;
+        line-height: 1.3;
+        font-weight: 400;
+      }
 
-  &--primary-cta {
-    margin-top: 12px;
-    .mat-button-base {
-      width: 100%;
-      font-weight: 700;
-      min-height: 47px;
-    }
-  }
+      &__input {
+        border: 0;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 1.3;
+        color: $blue-black;
+        width: 100%;
+        padding: 6px 0;
+        border-bottom: 1px solid $grey-lighter;
+      }
 
-  &--password-visibility-icon {
-    color: $password-icon;
-  }
-
-  &--secondary-cta {
-    .mat-button-base {
-      width: 100%;
-      font-weight: 700;
-      min-height: 47px;
-      letter-spacing: 1.6px;
-      border: 1px solid $grey-light;
-      background-color: $white;
-    }
-    margin-top: 24px;
-    &-btn {
-      display: inline-block;
-      &-logo {
-        width: 10%;
-        min-width: 28px;
-        max-width: 34px;
-        display: inline-block;
-        vertical-align: middle;
+      &__input:focus {
+        border-bottom: 1px solid $blue-black;
       }
     }
-  }
 
-  &--redirect {
-    margin: 16px;
-    text-align: center;
-    font-size: 16px;
-    color: #ababab;
-    a {
-      text-decoration: none;
+    &__error-message {
+      color: $red;
+    }
+
+    &__disabled {
+      opacity: 0.2;
+    }
+
+    &__sub-header {
+      font-size: 14px;
+      margin: 0 0 10px;
+      position: relative;
+      margin-bottom: 32px;
+      color: $black-light;
+      line-height: 1.28;
+    }
+    &__page-header {
+      font-size: 20px;
+      margin: 0 0 10px;
+      position: relative;
+      margin-bottom: 8px;
+    }
+    &__back-icon {
+      margin-bottom: 20px;
+      width: 28px;
+      height: 28px;
     }
   }
 
-  &--edit-email {
-    text-align: end;
+  &__enter-password {
+    height: 100%;
+    margin-top: 18px;
+    padding: 20px;
+    padding: 28px 20px 44px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    &__disabled-email {
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1.28;
+      color: $blue-black;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+    }
+
+    &__email-edit {
+      fill: $black-light;
+      height: 20px;
+      width: 20px;
+      margin-left: 8px;
+    }
+
+    &__password-icon {
+      width: 20px;
+      height: 20px;
+      fill: $black-light;
+    }
+
+    &__password-icon-container {
+      display: flex;
+      align-items: center;
+    }
+
+    &__text-input {
+      border: 0;
+      font-size: 14px;
+      font-weight: 400;
+      height: 18px;
+      line-height: 18px;
+      color: $blue-black;
+      width: 100%;
+      margin: 6px 0;
+      padding: 0;
+    }
+
+    &__text {
+      border-bottom: 1px solid $grey-lighter;
+
+      &__invalid {
+        border-bottom: 1px solid $red;
+      }
+    }
+
+    &__password-container {
+      display: flex;
+    }
+
+    &__text-label {
+      margin: 0 8px 0 0;
+      max-width: 90%;
+      min-width: 120px;
+      font-size: 12px;
+      color: $black-light;
+      line-height: 16px;
+      white-space: nowrap;
+      font-weight: 400;
+    }
+
+    &__input-container {
+      &__label {
+        margin: 0 8px 0 0;
+        font-size: 12px;
+        color: $black-light;
+        line-height: 1.3;
+        font-weight: 400;
+      }
+
+      &__input {
+        border: 0;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 1.3;
+        color: $blue-black;
+        width: 100%;
+        padding: 6px 0;
+        border-bottom: 1px solid $grey-lighter;
+      }
+
+      &__input:focus {
+        border-bottom: 1px solid $blue-black;
+      }
+    }
+
+    &__error-message {
+      color: $red;
+    }
+
+    &__disabled {
+      opacity: 0.2;
+    }
+
+    &__sub-header {
+      font-size: 14px;
+      margin: 0 0 10px;
+      position: relative;
+      margin-bottom: 32px;
+      color: $black-light;
+      line-height: 1.28;
+    }
+    &__page-header {
+      font-size: 20px;
+      margin: 0 0 10px;
+      position: relative;
+      margin-bottom: 8px;
+    }
+    &__back-icon {
+      margin-bottom: 20px;
+      width: 28px;
+      height: 28px;
+    }
   }
 
-  &--email-frozen-text {
-    white-space: nowrap;
-    overflow: hidden;
-    display: block;
-    text-overflow: ellipsis;
-    font-weight: 500;
-    font-size: 16px;
+  &__secondary-cta {
+    background-color: $pure-white;
+    &__btn {
+      display: flex;
+      height: 50px;
+      padding: 12px 16px;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      align-self: stretch;
+      border-radius: 4px;
+      border: 1px solid $grey;
+      background: $pure-white;
+      color: $black;
+      color: var(--buttons-secondary-outline-btn-outline-secondary-text-color, #2c304e);
+      text-align: center;
+
+      font-size: 14px;
+      font-style: normal;
+      font-weight: 500;
+      line-height: 18px;
+      width: 100%;
+      &__logo {
+        height: 24px;
+        width: 24px;
+        display: inline-block;
+        vertical-align: middle;
+        margin-right: 8px;
+      }
+    }
   }
 }

@@ -59,7 +59,18 @@ export class ResetPasswordPage {
         })
       )
       .subscribe({
-        next: () => (this.currentPageState = PageState.success),
+        next: () => {
+          this.currentPageState = PageState.success;
+          if (this.isEmailSentOnce) {
+            const toastMessageData = {
+              message: ' Password recovery email sent successfully.',
+            };
+            this.matSnackBar.openFromComponent(ToastMessageComponent, {
+              ...this.snackbarProperties.setSnackbarProperties('success', toastMessageData),
+              panelClass: ['msb-success'],
+            });
+          }
+        },
         error: (err: { status: number }) => this.handleError(err),
       });
   }

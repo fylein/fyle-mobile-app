@@ -16,6 +16,7 @@ import { InAppBrowserService } from 'src/app/core/services/in-app-browser.servic
 import { HttpErrorResponse } from '@angular/common/http';
 import { EmailExistsResponse } from 'src/app/core/models/email-exists-response.model';
 import { SamlResponse } from 'src/app/core/models/saml-response.model';
+import { SignInPageState } from './sign-in-page-state.enum';
 
 @Component({
   selector: 'app-sign-in',
@@ -33,9 +34,13 @@ export class SignInPage implements OnInit {
 
   googleSignInLoading = false;
 
-  hide = true;
+  hidePassword = true;
 
   checkEmailExists$: Observable<EmailExistsResponse>;
+
+  currentStep: SignInPageState = SignInPageState.SELECT_SIGN_IN_METHOD;
+
+  signInPageState: typeof SignInPageState = SignInPageState;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -122,14 +127,14 @@ export class SignInPage implements OnInit {
         finalize(async () => {
           this.emailLoading = false;
         })
-      ) as Observable<EmailExistsResponse>;
+      );
 
       const saml$ = checkEmailExists$.pipe(filter((res) => (res.saml ? true : false)));
 
       const basicSignIn$ = checkEmailExists$.pipe(filter((res) => (!res.saml ? true : false)));
 
       basicSignIn$.subscribe({
-        next: () => (this.emailSet = true),
+        next: () => (this.currentStep = this.signInPageState.ENTER_PASSWORD),
         error: (err: HttpErrorResponse) => this.handleError(err),
       });
 
@@ -255,6 +260,10 @@ export class SignInPage implements OnInit {
 
   ionViewWillEnter(): void {
     this.emailSet = !!this.fg.controls.email.value;
+  }
+
+  changeState(state: SignInPageState): void {
+    this.currentStep = state;
   }
 
   ngOnInit(): void {
