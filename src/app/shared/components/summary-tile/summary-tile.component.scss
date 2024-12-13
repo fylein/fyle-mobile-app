@@ -4,7 +4,7 @@ $advance_pulled_back_color: #979797;
 $advance_pending_approval_color: #1ab6bb;
 $advance_paid_color: darken(#5cb85c, 15%);
 
-.summary-tile {
+.summary-title {
   &--card-container {
     padding: 14px 16px;
     margin-top: 16px;
@@ -19,50 +19,50 @@ $advance_paid_color: darken(#5cb85c, 15%);
 
     &__category {
       color: $black;
-      font-size: 18px;
+      font-size: 14px;
       font-weight: 500;
     }
 
     &__purpose {
       color: $black;
-      font-size: 18px;
+      font-size: 14px;
       font-weight: 500;
     }
 
     &__merchant {
       padding-top: 2px;
-      color: $blue-black;
+      font-size: 12px;
+      color: $dark-grey;
     }
 
     &__project {
-      padding-top: 8px;
-      color: $black-light;
+      font-size: 12px;
+      color: $dark-grey;
     }
 
     &__icon {
       vertical-align: text-bottom;
-      color: $grey-light;
-      height: 18px;
-      width: 18px;
+      color: $black;
+      height: 16px;
+      width: 16px;
+    }
+
+    &__amount_container {
+      margin-top: 10px;
     }
 
     &__amount {
-      font-size: 20px;
+      font-size: 16px;
       font-weight: 500;
-      color: $blue-black;
+      color: $black;
     }
 
     &__exchange-rate {
       color: $black-light;
     }
 
-    &__no-exchange {
-      padding-top: 20px;
-    }
-
     &__state-pill {
       display: inline-block;
-      margin-top: 6px;
       white-space: nowrap;
     }
   }
