@@ -38,8 +38,8 @@ describe('ErrorComponent', () => {
     expect(component.header).toEqual('Account does not Exist');
   });
 
-  it('tryAgainClicked(): should dismiss the popover on try again button click', async () => {
-    const tryAgainBtn = getElementBySelector(fixture, '.error-internal--primary-cta button') as HTMLButtonElement;
+  it('closePopover(): should dismiss the popover on try again button click', async () => {
+    const tryAgainBtn = getElementBySelector(fixture, '.error-internal__primary-cta button') as HTMLButtonElement;
     click(tryAgainBtn);
     fixture.detectChanges();
     await fixture.whenStable();

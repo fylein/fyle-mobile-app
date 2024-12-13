@@ -267,6 +267,7 @@ export class SignInPage implements OnInit {
   }
 
   ngOnInit(): void {
+    this.handleError({ status: 401, message: 'aaa' } as HttpErrorResponse);
     const presentEmail = this.activatedRoute.snapshot.params.email as string;
     this.fg = this.formBuilder.group({
       email: [presentEmail || '', Validators.compose([Validators.required, Validators.pattern('\\S+@\\S+\\.\\S{2,}')])],
