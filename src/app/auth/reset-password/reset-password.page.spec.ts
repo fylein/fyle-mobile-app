@@ -203,6 +203,6 @@ describe('ResetPasswordPage', () => {
 
   it('onGotoSignInClick(): should navigate to sign-in page', () => {
     component.onGotoSignInClick();
-    expect(router.navigate).toHaveBeenCalledWith(['/', 'auth', 'sign_in']);
+    expect(router.navigate).toHaveBeenCalledWith(['/', 'auth', 'sign_in', { email: 'aastha.b@fyle.in' }]);
   });
 });
