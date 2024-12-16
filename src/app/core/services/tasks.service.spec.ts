@@ -72,7 +72,7 @@ import { OrgService } from './org.service';
 import { orgData1 } from '../mock-data/org.data';
 import { UtilityService } from './utility.service';
 
-fdescribe('TasksService', () => {
+describe('TasksService', () => {
   let tasksService: TasksService;
   let reportService: jasmine.SpyObj<ReportService>;
   let userEventService: jasmine.SpyObj<UserEventService>;
