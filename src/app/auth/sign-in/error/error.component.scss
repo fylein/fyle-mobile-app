@@ -1,29 +1,39 @@
-$details-color: #ababab;
+@import '../../../../theme/colors.scss';
 
 .error-internal {
-  &--header {
+  &__header {
     font-size: 20px;
     padding: 16px;
-    font-weight: 700;
-  }
-
-  &--details {
-    font-size: 16px;
-    padding: 0 16px;
     font-weight: 500;
-    color: $details-color;
-  }
+    display: flex;
+    flex-direction: row;
+    border-bottom: 1px solid $grey-lighter;
+    gap: 12px;
 
-  &--primary-cta {
-    padding: 16px;
-    .mat-button-base {
+    &__header-text {
+      align-items: center;
+      justify-content: center;
       width: 100%;
-      font-weight: 700;
-      min-height: 47px;
+      display: flex;
+      flex-direction: row;
     }
   }
 
-  &--redirect {
+  &__close-icon {
+    align-self: flex-start;
+  }
+
+  &__primary-cta {
+    padding: 0 16px 16px;
+  }
+
+  &__details {
+    font-size: 16px;
+    padding: 20px 16px;
+    color: $black;
+  }
+
+  &__redirect {
     text-decoration: none;
   }
 }
