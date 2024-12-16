@@ -111,7 +111,7 @@
             <div class="sign-in__enter-password__input-container__label">Password</div>
             <div class="sign-in__enter-password__password-container">
               <input
-                placeholder="Re-enter password"
+                placeholder="Enter password"
                 [required]="true"
                 [type]="hidePassword ? 'password': 'text'"
                 class="sign-in__enter-password__text-input smartlook-show"
@@ -151,7 +151,7 @@
         (click)="signInUser()"
         appFormButtonValidation
         [loading]="passwordLoading"
-        [loadingText]="'Signing In'"
+        [loadingText]="'Signing in'"
       >
         Sign in
       </ion-button>
