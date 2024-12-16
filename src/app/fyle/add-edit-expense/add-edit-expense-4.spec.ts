@@ -15,38 +15,27 @@ import { fileObject4 } from 'src/app/core/mock-data/file-object.data';
 import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
 import { apiPersonalCardTxnsRes } from 'src/app/core/mock-data/personal-card-txns.data';
 import { expectedReportsPaginated } from 'src/app/core/mock-data/platform-report.data';
-import { expectedErpt, expectedErptPlatform } from 'src/app/core/mock-data/report-unflattened.data';
 import {
   createExpenseProperties,
   createExpenseProperties2,
 } from 'src/app/core/mock-data/track-expense-properties.data';
-import { expenseStatusData, txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
+import { expenseStatusData } from 'src/app/core/mock-data/transaction-status.data';
 import { paymentModeDataAdvanceWallet } from 'src/app/core/test-data/accounts.service.spec.data';
 import {
-  editExpTxn2,
-  editExpTxn3,
-  editExpTxn4,
-  editExpTxn5,
   editUnflattenedTransactionPlatform,
   editUnflattenedTransactionPlatform2,
   editUnflattenedTransactionPlatform3,
   personalCardTxn,
-  txnData2,
   editUnflattenedTransactionPlatformWithAdvanceWallet,
 } from 'src/app/core/mock-data/transaction.data';
 import {
   expectedUnflattendedTxnData3,
   expectedUnflattendedTxnData4,
-  newUnflattenedTxn,
   trackAddExpenseWoCurrency,
   trackCreateExpData,
   trackCreateExpDataWoCurrency,
-  unflattenedExpenseWithCCCGroupId,
   unflattenedTransactionDataPersonalCard,
   unflattenedTxnData,
-  unflattenedTxnDataWithReportID,
-  unflattenedTxnDataWithReportID2,
-  unflattenedTxnDataWithViolationUserReview,
 } from 'src/app/core/mock-data/unflattened-txn.data';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -86,15 +75,6 @@ import { txnCustomProperties } from 'src/app/core/test-data/dependent-fields.ser
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
-import {
-  platformExpenseWithMatchCCC,
-  platformExpenseData,
-  platformExpenseDataWithReportId,
-  platformExpenseDataWithReportId2,
-  platformExpenseDataWithSubCategory,
-  platformExpenseWithMatchCCC2,
-  platformExpenseDataForAdvanceWallet,
-} from 'src/app/core/mock-data/platform/v1/expense.data';
 import {
   transformedExpenseData,
   transformedExpenseDataWithReportId,
@@ -465,7 +445,7 @@ export function TestCases4(getTestBed) {
           });
           expect(component.getCustomFields).toHaveBeenCalledOnceWith();
           expect(component.trackAddExpense).toHaveBeenCalledOnceWith();
-          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable), true);
+          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
           expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(2);
           expect(component.checkPolicyViolation).toHaveBeenCalledTimes(1);
           expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(1);
@@ -495,14 +475,13 @@ export function TestCases4(getTestBed) {
           expect(res).toBeNull();
           expect(component.getCustomFields).toHaveBeenCalledOnceWith();
           expect(component.trackAddExpense).toHaveBeenCalledTimes(1);
-          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable), true);
+          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
           expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(2);
           expect(authService.getEou).toHaveBeenCalledTimes(1);
           expect(transactionOutboxService.addEntry).toHaveBeenCalledOnceWith(
             mockEtxn.tx,
             [{ url: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.pdf', type: 'pdf' }],
-            [],
-            'rprAfNrce73O'
+            []
           );
           done();
         });
@@ -528,7 +507,7 @@ export function TestCases4(getTestBed) {
           expect(res).toBeNull();
           expect(component.getCustomFields).toHaveBeenCalledOnceWith();
           expect(component.trackAddExpense).toHaveBeenCalledOnceWith();
-          expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, jasmine.any(Observable), true);
+          expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, jasmine.any(Observable));
           expect(component.checkPolicyViolation).toHaveBeenCalledTimes(1);
           expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(1);
           expect(component.criticalPolicyViolationErrorHandler).toHaveBeenCalledOnceWith(
@@ -543,12 +522,7 @@ export function TestCases4(getTestBed) {
           );
           expect(authService.getEou).toHaveBeenCalledOnceWith();
           expect(component.trackCreateExpense).toHaveBeenCalledOnceWith(expectedUnflattendedTxnData3, false);
-          expect(transactionOutboxService.addEntry).toHaveBeenCalledOnceWith(
-            outboxQueueData1[0].transaction,
-            [],
-            [],
-            undefined
-          );
+          expect(transactionOutboxService.addEntry).toHaveBeenCalledOnceWith(outboxQueueData1[0].transaction, [], []);
           done();
         });
       });
@@ -594,7 +568,7 @@ export function TestCases4(getTestBed) {
           );
           expect(authService.getEou).toHaveBeenCalledOnceWith();
           expect(component.trackCreateExpense).toHaveBeenCalledOnceWith(expectedUnflattendedTxnData4, false);
-          expect(transactionOutboxService.addEntry).toHaveBeenCalledOnceWith(mockEtxn.tx, [], ['continue'], undefined);
+          expect(transactionOutboxService.addEntry).toHaveBeenCalledOnceWith(mockEtxn.tx, [], ['continue']);
           done();
         });
       });
@@ -607,11 +581,7 @@ export function TestCases4(getTestBed) {
         component.addExpense('SAVE_EXPENSE').subscribe({
           next: () => {
             expect(component.getCustomFields).toHaveBeenCalledOnceWith();
-            expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(
-              component.etxn$,
-              jasmine.any(Observable),
-              true
-            );
+            expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, jasmine.any(Observable));
             expect(component.trackAddExpense).toHaveBeenCalledOnceWith();
           },
           error: (err) => expect(err).toBeTruthy(),
@@ -621,10 +591,14 @@ export function TestCases4(getTestBed) {
     });
 
     describe('saveAndMatchWithPersonalCardTxn():', () => {
+      beforeEach(() => {
+        launchDarklyService.getVariation.and.returnValue(of(false));
+      });
+
       it('should save an expense and match with personal card', () => {
         const generateEtxnSpy = spyOn(component, 'generateEtxnFromFg');
         generateEtxnSpy
-          .withArgs(component.etxn$, jasmine.any(Observable), true)
+          .withArgs(component.etxn$, jasmine.any(Observable))
           .and.returnValue(of({ ...expectedUnflattendedTxnData3, tx: unflattenedTransactionDataPersonalCard.tx }));
         generateEtxnSpy
           .withArgs(component.etxn$, jasmine.any(Observable))
@@ -644,11 +618,12 @@ export function TestCases4(getTestBed) {
         );
         spyOn(component, 'uploadAttachments').and.returnValue(of(fileObject4));
         spyOn(component, 'showSnackBarToast');
+        const usePlatformApi = false;
         fixture.detectChanges();
 
         component.saveAndMatchWithPersonalCardTxn();
         expect(component.getCustomFields).toHaveBeenCalledOnceWith();
-        expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable), true);
+        expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
         expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
         expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(2);
         expect(component.checkPolicyViolation).toHaveBeenCalledTimes(1);
@@ -657,7 +632,8 @@ export function TestCases4(getTestBed) {
         expect(transactionService.upsert).toHaveBeenCalledTimes(1);
         expect(personalCardsService.matchExpense).toHaveBeenCalledOnceWith(
           unflattenedTransactionDataPersonalCard.tx.split_group_id,
-          apiPersonalCardTxnsRes.data[0].btxn_id
+          apiPersonalCardTxnsRes.data[0].btxn_id,
+          usePlatformApi
         );
         expect(component.uploadAttachments).toHaveBeenCalledOnceWith(
           unflattenedTransactionDataPersonalCard.tx.split_group_id
@@ -692,11 +668,12 @@ export function TestCases4(getTestBed) {
         );
         spyOn(component, 'uploadAttachments').and.returnValue(of(fileObject4));
         spyOn(component, 'showSnackBarToast');
+        const usePlatformApi = false;
         fixture.detectChanges();
 
         component.saveAndMatchWithPersonalCardTxn();
         expect(component.getCustomFields).toHaveBeenCalledOnceWith();
-        expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, jasmine.any(Observable), true);
+        expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, jasmine.any(Observable));
         expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(1);
         expect(component.criticalPolicyViolationErrorHandler).toHaveBeenCalledOnceWith(
           {
@@ -711,7 +688,8 @@ export function TestCases4(getTestBed) {
         expect(transactionService.upsert).toHaveBeenCalledTimes(1);
         expect(personalCardsService.matchExpense).toHaveBeenCalledOnceWith(
           unflattenedTransactionDataPersonalCard.tx.split_group_id,
-          apiPersonalCardTxnsRes.data[0].btxn_id
+          apiPersonalCardTxnsRes.data[0].btxn_id,
+          usePlatformApi
         );
         expect(component.uploadAttachments).toHaveBeenCalledOnceWith(
           unflattenedTransactionDataPersonalCard.tx.split_group_id
@@ -746,11 +724,12 @@ export function TestCases4(getTestBed) {
         );
         spyOn(component, 'uploadAttachments').and.returnValue(of(fileObject4));
         spyOn(component, 'showSnackBarToast');
+        const usePlatformApi = false;
         fixture.detectChanges();
 
         component.saveAndMatchWithPersonalCardTxn();
         expect(component.getCustomFields).toHaveBeenCalledOnceWith();
-        expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, jasmine.any(Observable), true);
+        expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, jasmine.any(Observable));
         expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(1);
         expect(policyService.getPolicyRules).toHaveBeenCalledTimes(1);
         expect(component.policyViolationErrorHandler).toHaveBeenCalledOnceWith(
@@ -767,7 +746,8 @@ export function TestCases4(getTestBed) {
         expect(transactionService.upsert).toHaveBeenCalledTimes(1);
         expect(personalCardsService.matchExpense).toHaveBeenCalledOnceWith(
           unflattenedTransactionDataPersonalCard.tx.split_group_id,
-          apiPersonalCardTxnsRes.data[0].btxn_id
+          apiPersonalCardTxnsRes.data[0].btxn_id,
+          usePlatformApi
         );
         expect(component.uploadAttachments).toHaveBeenCalledOnceWith(
           unflattenedTransactionDataPersonalCard.tx.split_group_id
@@ -784,7 +764,7 @@ export function TestCases4(getTestBed) {
       it('should match an expense while offline', () => {
         const generateEtxnSpy = spyOn(component, 'generateEtxnFromFg');
         generateEtxnSpy
-          .withArgs(component.etxn$, jasmine.any(Observable), true)
+          .withArgs(component.etxn$, jasmine.any(Observable))
           .and.returnValue(of({ ...expectedUnflattendedTxnData3, tx: unflattenedTransactionDataPersonalCard.tx }));
         generateEtxnSpy
           .withArgs(component.etxn$, jasmine.any(Observable))
@@ -804,17 +784,19 @@ export function TestCases4(getTestBed) {
         );
         spyOn(component, 'uploadAttachments').and.returnValue(of(fileObject4));
         spyOn(component, 'showSnackBarToast');
+        const usePlatformApi = false;
         fixture.detectChanges();
 
         component.saveAndMatchWithPersonalCardTxn();
         expect(component.getCustomFields).toHaveBeenCalledOnceWith();
-        expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable), true);
+        expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
         expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
         expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(2);
         expect(transactionService.upsert).toHaveBeenCalledTimes(1);
         expect(personalCardsService.matchExpense).toHaveBeenCalledOnceWith(
           unflattenedTransactionDataPersonalCard.tx.split_group_id,
-          apiPersonalCardTxnsRes.data[0].btxn_id
+          apiPersonalCardTxnsRes.data[0].btxn_id,
+          usePlatformApi
         );
         expect(component.uploadAttachments).toHaveBeenCalledOnceWith(
           unflattenedTransactionDataPersonalCard.tx.split_group_id
@@ -831,7 +813,7 @@ export function TestCases4(getTestBed) {
       it('should generate an expense in offline mode and match with a card', () => {
         const generateEtxnSpy = spyOn(component, 'generateEtxnFromFg');
         generateEtxnSpy
-          .withArgs(component.etxn$, jasmine.any(Observable), true)
+          .withArgs(component.etxn$, jasmine.any(Observable))
           .and.returnValue(of({ ...expectedUnflattendedTxnData3, tx: unflattenedTransactionDataPersonalCard.tx }));
         generateEtxnSpy
           .withArgs(component.etxn$, jasmine.any(Observable))
@@ -851,17 +833,19 @@ export function TestCases4(getTestBed) {
         );
         spyOn(component, 'uploadAttachments').and.returnValue(of(fileObject4));
         spyOn(component, 'showSnackBarToast');
+        const usePlatformApi = false;
         fixture.detectChanges();
 
         component.saveAndMatchWithPersonalCardTxn();
         expect(component.getCustomFields).toHaveBeenCalledOnceWith();
-        expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable), true);
+        expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
         expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
         expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(2);
         expect(transactionService.upsert).toHaveBeenCalledOnceWith(unflattenedTransactionDataPersonalCard.tx);
         expect(personalCardsService.matchExpense).toHaveBeenCalledOnceWith(
           unflattenedTransactionDataPersonalCard.tx.split_group_id,
-          apiPersonalCardTxnsRes.data[0].btxn_id
+          apiPersonalCardTxnsRes.data[0].btxn_id,
+          usePlatformApi
         );
         expect(component.uploadAttachments).toHaveBeenCalledOnceWith(
           unflattenedTransactionDataPersonalCard.tx.split_group_id
@@ -935,16 +919,13 @@ export function TestCases4(getTestBed) {
         authService.getEou.and.resolveTo(apiEouRes);
         component.etxn$ = of(transformedExpenseData);
         transactionService.upsert.and.returnValue(of(transformedExpenseData.tx));
-        expensesService.getExpenseById.and.returnValue(of(platformExpenseData));
-        transactionService.transformExpense.and.returnValue(transformedExpenseData);
         component.fg.controls.report.setValue(expectedReportsPaginated[0]);
         spenderReportsService.addExpenses.and.returnValue(of(undefined));
-        expensesService.post.and.returnValue(of(null));
         fixture.detectChanges();
 
         component.editExpense('SAVE_AND_NEW_EXPENSE').subscribe(() => {
           expect(component.getCustomFields).toHaveBeenCalledTimes(1);
-          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable), true);
+          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
           expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
           expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(2);
           expect(component.checkPolicyViolation).toHaveBeenCalledTimes(1);
@@ -954,10 +935,7 @@ export function TestCases4(getTestBed) {
           expect(authService.getEou).toHaveBeenCalledTimes(1);
           expect(component.trackEditExpense).toHaveBeenCalledOnceWith(transformedExpenseData);
           expect(transactionService.upsert).toHaveBeenCalledOnceWith(transformedExpenseData.tx);
-          expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txvslh8aQMbu');
-          expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
           expect(spenderReportsService.addExpenses).toHaveBeenCalledOnceWith('rprAfNrce73O', ['txvslh8aQMbu']);
-          expect(expensesService.post).not.toHaveBeenCalled();
           done();
         });
       });
@@ -976,15 +954,12 @@ export function TestCases4(getTestBed) {
         spenderReportsService.addExpenses.and.returnValue(of(undefined));
         authService.getEou.and.resolveTo(apiEouRes);
         transactionService.upsert.and.returnValue(of(transformedExpenseDataWithReportId.tx));
-        expensesService.getExpenseById.and.returnValue(of(platformExpenseDataWithReportId));
-        transactionService.transformExpense.and.returnValue(transformedExpenseDataWithReportId);
-        expensesService.post.and.returnValue(of(null));
         fixture.detectChanges();
 
         component.editExpense('SAVE_AND_NEW_EXPENSE').subscribe((res) => {
           expect(res).toEqual(editUnflattenedTransactionPlatform2);
           expect(component.getCustomFields).toHaveBeenCalledTimes(1);
-          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable), true);
+          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
           expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
           expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(2);
           expect(component.checkPolicyViolation).toHaveBeenCalledTimes(1);
@@ -994,11 +969,8 @@ export function TestCases4(getTestBed) {
           expect(authService.getEou).toHaveBeenCalledTimes(1);
           expect(component.trackEditExpense).toHaveBeenCalledOnceWith(transformedExpenseDataWithReportId);
           expect(transactionService.upsert).toHaveBeenCalledOnceWith(transformedExpenseDataWithReportId.tx);
-          expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txD5hIQgLuR5');
-          expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseDataWithReportId);
           expect(spenderReportsService.addExpenses).toHaveBeenCalledOnceWith('rprAfNrce73O', ['txD5hIQgLuR5']);
           expect(spenderReportsService.ejectExpenses).toHaveBeenCalledOnceWith('rpbNc3kn5baq', 'txD5hIQgLuR5');
-          expect(expensesService.post).not.toHaveBeenCalled();
           done();
         });
       });
@@ -1017,15 +989,12 @@ export function TestCases4(getTestBed) {
         spenderReportsService.addExpenses.and.returnValue(of(undefined));
         authService.getEou.and.resolveTo(apiEouRes);
         transactionService.upsert.and.returnValue(of(transformedExpenseDataWithoutAdvanceWallet.tx));
-        expensesService.getExpenseById.and.returnValue(of(platformExpenseDataForAdvanceWallet));
-        transactionService.transformExpense.and.returnValue(transformedExpenseDataWithoutAdvanceWallet);
-        expensesService.post.and.returnValue(of(null));
         fixture.detectChanges();
 
         component.editExpense('SAVE_EXPENSE').subscribe((res) => {
           expect(res).toEqual(editUnflattenedTransactionPlatformWithAdvanceWallet);
           expect(component.getCustomFields).toHaveBeenCalledTimes(1);
-          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable), true);
+          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
           expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
           expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(2);
           expect(component.checkPolicyViolation).toHaveBeenCalledTimes(1);
@@ -1035,19 +1004,11 @@ export function TestCases4(getTestBed) {
           expect(authService.getEou).toHaveBeenCalledTimes(1);
           expect(component.trackEditExpense).toHaveBeenCalledOnceWith(transformedExpenseDataWithAdvanceWallet);
           expect(transactionService.upsert).toHaveBeenCalledOnceWith(transformedExpenseDataWithAdvanceWallet.tx);
-          expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(
-            transformedExpenseDataWithAdvanceWallet.tx.id
-          );
-          expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseDataForAdvanceWallet);
-          expect(expensesService.post).toHaveBeenCalledOnceWith({
-            id: transformedExpenseDataWithAdvanceWallet.tx.id,
-            advance_wallet_id: 'areq1234',
-          });
           done();
         });
       });
 
-      it('should remove expense from report while editing and and ask for review', (done) => {
+      it('should remove expense from report while editing and ask for review', (done) => {
         spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
         spyOn(component, 'generateEtxnFromFg').and.returnValue(of(transformedExpenseDataWithReportId2));
         spyOn(component, 'checkPolicyViolation').and.returnValue(of(expensePolicyData));
@@ -1060,15 +1021,12 @@ export function TestCases4(getTestBed) {
         spenderReportsService.ejectExpenses.and.returnValue(of(undefined));
         authService.getEou.and.resolveTo(apiEouRes);
         transactionService.upsert.and.returnValue(of(transformedExpenseDataWithReportId2.tx));
-        expensesService.getExpenseById.and.returnValue(of(platformExpenseDataWithReportId2));
-        transactionService.transformExpense.and.returnValue(transformedExpenseDataWithReportId2);
-        expensesService.post.and.returnValue(of(null));
         fixture.detectChanges();
 
         component.editExpense('SAVE_AND_NEW_EXPENSE').subscribe((res) => {
           expect(res).toEqual(editUnflattenedTransactionPlatform3);
           expect(component.getCustomFields).toHaveBeenCalledTimes(1);
-          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable), true);
+          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
           expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
           expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(2);
           expect(component.checkPolicyViolation).toHaveBeenCalledTimes(1);
@@ -1080,9 +1038,6 @@ export function TestCases4(getTestBed) {
           expect(spenderReportsService.ejectExpenses).toHaveBeenCalledOnceWith('rplD17WeBlha', 'txD5hIQgLuR5');
           expect(trackingService.removeFromExistingReportEditExpense).toHaveBeenCalledTimes(1);
           expect(transactionService.upsert).toHaveBeenCalledOnceWith(transformedExpenseDataWithReportId2.tx);
-          expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txD5hIQgLuR5');
-          expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseDataWithReportId2);
-          expect(expensesService.post).not.toHaveBeenCalled();
           done();
         });
       });
@@ -1104,15 +1059,12 @@ export function TestCases4(getTestBed) {
         authService.getEou.and.resolveTo(apiEouRes);
 
         transactionService.upsert.and.returnValue(of(transformedExpenseDataWithSubCategory.tx));
-        expensesService.getExpenseById.and.returnValue(of(platformExpenseDataWithSubCategory));
-        transactionService.transformExpense.and.returnValue(transformedExpenseDataWithSubCategory);
-        expensesService.post.and.returnValue(of(null));
         fixture.detectChanges();
 
         component.editExpense('SAVE_AND_NEW_EXPENSE').subscribe((res) => {
           expect(res).toEqual(editUnflattenedTransactionPlatform);
           expect(component.getCustomFields).toHaveBeenCalledTimes(1);
-          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable), true);
+          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
           expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(1);
           expect(component.checkPolicyViolation).toHaveBeenCalledTimes(1);
           expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(1);
@@ -1130,10 +1082,7 @@ export function TestCases4(getTestBed) {
           expect(authService.getEou).toHaveBeenCalledTimes(1);
           expect(component.trackEditExpense).toHaveBeenCalledOnceWith(transformedExpenseDataWithSubCategory);
           expect(transactionService.upsert).toHaveBeenCalledOnceWith(transformedExpenseDataWithSubCategory.tx);
-          expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txD5hIQgLuR5');
-          expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseDataWithSubCategory);
           expect(component.getIsPolicyExpense).toHaveBeenCalledTimes(1);
-          expect(expensesService.post).not.toHaveBeenCalled();
           done();
         });
       });
@@ -1158,15 +1107,12 @@ export function TestCases4(getTestBed) {
         transactionService.upsert.and.returnValue(of(transformedExpenseDataWithReportId.tx));
         statusService.findLatestComment.and.returnValue(of('a comment'));
         statusService.post.and.returnValue(of(expenseStatusData));
-        expensesService.getExpenseById.and.returnValue(of(platformExpenseDataWithReportId));
-        transactionService.transformExpense.and.returnValue(transformedExpenseDataWithReportId);
-        expensesService.post.and.returnValue(of(null));
         fixture.detectChanges();
 
         component.editExpense('SAVE_AND_NEW_EXPENSE').subscribe((res) => {
           expect(res).toEqual(editUnflattenedTransactionPlatform2);
           expect(component.getCustomFields).toHaveBeenCalledTimes(1);
-          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable), true);
+          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
           expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(1);
           expect(component.checkPolicyViolation).toHaveBeenCalledTimes(1);
           expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(1);
@@ -1186,8 +1132,6 @@ export function TestCases4(getTestBed) {
           expect(authService.getEou).toHaveBeenCalledTimes(1);
           expect(component.trackEditExpense).toHaveBeenCalledOnceWith(transformedExpenseDataWithReportId);
           expect(transactionService.upsert).toHaveBeenCalledOnceWith(transformedExpenseDataWithReportId.tx);
-          expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txD5hIQgLuR5');
-          expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseDataWithReportId);
 
           expect(statusService.findLatestComment).toHaveBeenCalledOnceWith(
             transformedExpenseDataWithReportId.tx.id,
@@ -1201,7 +1145,6 @@ export function TestCases4(getTestBed) {
             true
           );
           expect(component.getIsPolicyExpense).toHaveBeenCalledTimes(1);
-          expect(expensesService.post).not.toHaveBeenCalled();
           done();
         });
       });
@@ -1223,16 +1166,13 @@ export function TestCases4(getTestBed) {
         component.etxn$ = of(transformedExpenseDataWithReportId2);
         authService.getEou.and.resolveTo(apiEouRes);
         transactionService.upsert.and.returnValue(of(transformedExpenseDataWithReportId2.tx));
-        expensesService.getExpenseById.and.returnValue(of(platformExpenseDataWithReportId2));
-        transactionService.transformExpense.and.returnValue(transformedExpenseDataWithReportId2);
         statusService.findLatestComment.and.returnValue(of('comment'));
-        expensesService.post.and.returnValue(of(null));
         fixture.detectChanges();
 
         component.editExpense('SAVE_AND_NEW_EXPENSE').subscribe((res) => {
           expect(res).toEqual(editUnflattenedTransactionPlatform3);
           expect(component.getCustomFields).toHaveBeenCalledTimes(1);
-          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable), true);
+          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
           expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(1);
           expect(component.checkPolicyViolation).toHaveBeenCalledTimes(1);
           expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(1);
@@ -1252,15 +1192,11 @@ export function TestCases4(getTestBed) {
           expect(authService.getEou).toHaveBeenCalledTimes(1);
           expect(component.trackEditExpense).toHaveBeenCalledOnceWith(transformedExpenseDataWithReportId2);
           expect(transactionService.upsert).toHaveBeenCalledOnceWith(transformedExpenseDataWithReportId2.tx);
-          expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txD5hIQgLuR5');
-          expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseDataWithReportId2);
           expect(statusService.findLatestComment).toHaveBeenCalledOnceWith(
             transformedExpenseDataWithReportId2.tx.id,
             'transactions',
             transformedExpenseDataWithReportId2.tx.org_user_id
           );
-          expect(statusService.post).not.toHaveBeenCalled();
-          expect(expensesService.post).not.toHaveBeenCalled();
           done();
         });
       });
@@ -1288,18 +1224,15 @@ export function TestCases4(getTestBed) {
         component.etxn$ = of(transformedExpenseWithMatchCCCData2);
         authService.getEou.and.resolveTo(apiEouRes);
         transactionService.upsert.and.returnValue(of(transformedExpenseWithMatchCCCData2.tx));
-        expensesService.getExpenseById.and.returnValue(of(platformExpenseWithMatchCCC2));
-        transactionService.transformExpense.and.returnValue(transformedExpenseWithMatchCCCData2);
         component.selectedCCCTransaction = matchedCCTransactionData;
         component.matchedCCCTransaction = matchedCCTransactionData;
         transactionService.matchCCCExpense.and.returnValue(of(null));
-        expensesService.post.and.returnValue(of(null));
         fixture.detectChanges();
 
         component.editExpense('SAVE_AND_NEW_EXPENSE').subscribe((res) => {
           expect(res).toBe(transformedExpenseWithMatchCCCData2.tx);
           expect(component.getCustomFields).toHaveBeenCalledTimes(1);
-          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable), true);
+          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
           expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(2);
           expect(component.checkPolicyViolation).toHaveBeenCalledTimes(1);
           expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(1);
@@ -1307,10 +1240,7 @@ export function TestCases4(getTestBed) {
           expect(component.trackPolicyCorrections).toHaveBeenCalledTimes(1);
           expect(authService.getEou).toHaveBeenCalledTimes(1);
           expect(transactionService.upsert).toHaveBeenCalledOnceWith(transformedExpenseWithMatchCCCData2.tx);
-          expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txmF3wgfj0Bs');
-          expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseWithMatchCCC2);
           expect(transactionService.matchCCCExpense).toHaveBeenCalledOnceWith('btxnSte7sVQCM8', 'txmF3wgfj0Bs');
-          expect(expensesService.post).not.toHaveBeenCalled();
           done();
         });
       });
@@ -1326,17 +1256,14 @@ export function TestCases4(getTestBed) {
         component.etxn$ = of(transformedExpenseWithMatchCCCData);
         authService.getEou.and.resolveTo(apiEouRes);
         transactionService.upsert.and.returnValue(of(transformedExpenseWithMatchCCCData.tx));
-        expensesService.getExpenseById.and.returnValue(of(platformExpenseWithMatchCCC));
-        transactionService.transformExpense.and.returnValue(transformedExpenseWithMatchCCCData);
         component.selectedCCCTransaction = null;
         component.matchedCCCTransaction = matchedCCTransactionData;
         transactionService.unmatchCCCExpense.and.returnValue(of(null));
-        expensesService.post.and.returnValue(of(null));
         fixture.detectChanges();
 
         component.editExpense('SAVE_AND_NEW_EXPENSE').subscribe((res) => {
           expect(res).toBe(transformedExpenseWithMatchCCCData.tx);
-          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable), true);
+          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
           expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(2);
           expect(component.getCustomFields).toHaveBeenCalledTimes(1);
           expect(component.checkPolicyViolation).toHaveBeenCalledTimes(1);
@@ -1344,10 +1271,7 @@ export function TestCases4(getTestBed) {
           expect(policyService.getPolicyRules).toHaveBeenCalledTimes(1);
           expect(authService.getEou).toHaveBeenCalledTimes(1);
           expect(transactionService.upsert).toHaveBeenCalledOnceWith(transformedExpenseWithMatchCCCData.tx);
-          expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txmF3wgfj0Bs');
-          expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseWithMatchCCC);
           expect(transactionService.unmatchCCCExpense).toHaveBeenCalledOnceWith('btxnSte7sVQCM8', 'txmF3wgfj0Bs');
-          expect(expensesService.post).not.toHaveBeenCalled();
           done();
         });
       });
@@ -1363,18 +1287,15 @@ export function TestCases4(getTestBed) {
         component.etxn$ = of(transformedExpenseWithMatchCCCData);
         authService.getEou.and.resolveTo(apiEouRes);
         transactionService.upsert.and.returnValue(of(transformedExpenseWithMatchCCCData.tx));
-        expensesService.getExpenseById.and.returnValue(of(platformExpenseWithMatchCCC));
-        transactionService.transformExpense.and.returnValue(transformedExpenseWithMatchCCCData);
         component.selectedCCCTransaction = matchedCCTransactionData2;
         component.matchedCCCTransaction = matchedCCTransactionData2;
         transactionService.unmatchCCCExpense.and.returnValue(of(null));
         transactionService.matchCCCExpense.and.returnValue(of(null));
-        expensesService.post.and.returnValue(of(null));
         fixture.detectChanges();
 
         component.editExpense('SAVE_AND_NEW_EXPENSE').subscribe((res) => {
           expect(res).toBe(transformedExpenseWithMatchCCCData.tx);
-          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable), true);
+          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
           expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(2);
           expect(component.getCustomFields).toHaveBeenCalledTimes(1);
           expect(component.checkPolicyViolation).toHaveBeenCalledTimes(1);
@@ -1382,11 +1303,8 @@ export function TestCases4(getTestBed) {
           expect(policyService.getPolicyRules).toHaveBeenCalledTimes(1);
           expect(authService.getEou).toHaveBeenCalledTimes(1);
           expect(transactionService.upsert).toHaveBeenCalledOnceWith(transformedExpenseWithMatchCCCData.tx);
-          expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txmF3wgfj0Bs');
-          expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseWithMatchCCC);
           expect(transactionService.unmatchCCCExpense).toHaveBeenCalledOnceWith('btxnBdS2Kpvzhy', 'txmF3wgfj0Bs');
           expect(transactionService.matchCCCExpense).toHaveBeenCalledOnceWith('btxnBdS2Kpvzhy', 'txmF3wgfj0Bs');
-          expect(expensesService.post).not.toHaveBeenCalled();
           done();
         });
       });

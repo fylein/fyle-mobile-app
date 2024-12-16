@@ -2331,7 +2331,7 @@ export class AddEditMileagePage implements OnInit {
       switchMap((rates) => {
         const transactionCopy = cloneDeep(etxn.tx) as PublicPolicyExpense;
         const selectedMileageRate = this.getMileageByVehicleType(rates, etxn.tx.mileage_vehicle_type);
-        transactionCopy.mileage_rate_id = selectedMileageRate.id;
+        transactionCopy.mileage_rate_id = selectedMileageRate?.id;
 
         /* Expense creation has not moved to platform yet and since policy is moved to platform,
          * it expects the expense object in terms of platform world. Until then, the method
@@ -2415,6 +2415,9 @@ export class AddEditMileagePage implements OnInit {
         const formValue = this.getFormValues();
         let customProperties = res.customProperties;
         customProperties = customProperties?.map((customProperty) => {
+          if (!customProperty.value) {
+            this.customFieldsService.setDefaultValue(customProperty, customProperty.type);
+          }
           if (customProperty.type === 'DATE') {
             customProperty.value =
               customProperty.value && this.dateService.getUTCDate(new Date(customProperty.value as string));
@@ -2432,7 +2435,7 @@ export class AddEditMileagePage implements OnInit {
         return {
           tx: {
             ...etxn.tx,
-            mileage_vehicle_type: formValue.mileage_rate_name?.vehicle_type,
+            mileage_rate_id: formValue.mileage_rate_name?.id,
             mileage_is_round_trip: formValue.route.roundTrip,
             mileage_rate: rate || etxn.tx.mileage_rate,
             source_account_id: formValue?.paymentMode?.acc?.id,
@@ -2910,19 +2913,17 @@ export class AddEditMileagePage implements OnInit {
 
             const reportValue = this.getFormValues();
 
-            let reportId: string;
             if (
               reportValue?.report &&
               (etxn.tx.policy_amount === null || (etxn.tx.policy_amount && !(etxn.tx.policy_amount < 0.0001)))
             ) {
-              reportId = reportValue.report?.id;
+              etxn.tx.report_id = reportValue.report?.id;
             }
             return of(
               this.transactionsOutboxService.addEntryAndSync(
                 etxn.tx,
                 etxn.dataUrls as { url: string; type: string }[],
-                comments,
-                reportId
+                comments
               )
             ).pipe(
               switchMap((txnData: Promise<unknown>) => from(txnData)),

@@ -180,7 +180,8 @@ export class TransactionService {
 
         const transactionCopy = this.utilityService.discardRedundantCharacters(transaction, fieldsToCheck);
 
-        return this.apiService.post<Transaction>('/transactions', transactionCopy);
+        const expensePayload = this.expensesService.transformTo(transactionCopy);
+        return this.expensesService.post(expensePayload).pipe(map((result) => this.transformExpense(result.data).tx));
       })
     );
   }
@@ -192,14 +193,26 @@ export class TransactionService {
     txn: Partial<Transaction>,
     fileUploads$: Observable<FileObject[]>
   ): Observable<Partial<Transaction>> {
-    const upsertTxn$ = this.upsert(txn);
-    return forkJoin([fileUploads$, upsertTxn$]).pipe(
-      switchMap(([fileObjs, transaction]) => {
+    return fileUploads$.pipe(
+      switchMap((fileObjs) => {
         const fileIds = fileObjs.map((fileObj) => fileObj.id);
-        if (fileIds.length > 0) {
-          return this.expensesService.attachReceiptsToExpense(transaction.id, fileIds).pipe(map(() => transaction));
+        const isReceiptUpload = txn.hasOwnProperty('source') && Object.keys(txn).length === 1;
+        const isAmountPresent = !!txn.amount;
+        if ((isReceiptUpload || !isAmountPresent) && fileIds.length > 0) {
+          return this.expensesService.createFromFile(fileIds[0], txn.source).pipe(
+            switchMap((result) => {
+              // capture receipt flow: patching the expense in case of amount not present
+              if (!isReceiptUpload && !isAmountPresent) {
+                txn.id = result.data[0].id;
+                return this.upsert(this.cleanupExpensePayload(txn));
+              } else {
+                return of(this.transformExpense(result.data[0]).tx);
+              }
+            })
+          );
         } else {
-          return of(transaction);
+          txn.file_ids = fileIds;
+          return this.upsert(txn);
         }
       })
     );
@@ -645,6 +658,7 @@ export class TransactionService {
         orig_currency: expense.foreign_currency,
         from_dt: expense.started_at,
         to_dt: expense.ended_at,
+        tax: expense.tax_amount,
         vendor: expense.merchant,
         distance: expense.distance,
         distance_unit: expense.distance_unit,
@@ -754,11 +768,15 @@ export class TransactionService {
       tx_file_ids: expense.file_ids,
       tx_creator_id: expense.employee?.id,
       tx_state: expense.state,
-      tx_tax_org_id: expense.tax_group_id,
+      tx_org_category_id: expense.category_id,
+      tx_from_dt: expense.started_at,
+      tx_to_dt: expense.ended_at,
+      tx_tax_group_id: expense.tax_group_id,
+      tx_tax: expense.tax_amount,
       tg_name: expense.tax_group?.name,
       tx_project_name: expense.project?.name,
       tx_project_id: expense.project_id,
-      tx_cost_center_name: expense.cost_center?.name,
+      tx_cost_center_name: expense.cost_center?.name || null,
       tx_cost_center_id: expense.cost_center_id,
       tx_corporate_credit_card_expense_group_id:
         expense.matched_corporate_card_transaction_ids?.length > 0
@@ -911,5 +929,16 @@ export class TransactionService {
     }
 
     return typeOrFilter;
+  }
+
+  // to be used only when updating created expense with form values during capture recept flow
+  private cleanupExpensePayload(txn: Partial<Transaction>): Partial<Transaction> {
+    const newTxn: Partial<Transaction> = {};
+    for (const key in txn) {
+      if (txn[key] !== null && txn[key] !== undefined) {
+        newTxn[key] = txn[key] as Transaction[keyof Transaction];
+      }
+    }
+    return newTxn;
   }
 }

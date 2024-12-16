@@ -3,7 +3,7 @@ import deepFreeze from 'deep-freeze-strict';
 import { ApiV2Response } from '../models/api-v2.model';
 import { PersonalCard } from '../models/personal_card.model';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
-import { PersonalCardPlatform } from '../models/personal_card_platform.model';
+import { PlatformPersonalCard } from '../models/platform/platform-personal-card.model';
 
 export const apiLinkedAccRes: ApiV2Response<PersonalCard> = deepFreeze({
   count: 11,
@@ -72,7 +72,7 @@ export const deletePersonalCardRes: PersonalCard = deepFreeze({
   updated_at: new Date('2022-05-31T07:40:58.190907'),
 });
 
-export const deletePersonalCardPlatformRes: PlatformApiResponse<PersonalCardPlatform> = deepFreeze({
+export const deletePersonalCardPlatformRes: PlatformApiResponse<PlatformPersonalCard> = deepFreeze({
   data: {
     account_type: 'SAVINGS',
     bank_name: 'Dag Site',
@@ -112,6 +112,7 @@ export const linkedAccountsRes: PersonalCard[] = deepFreeze([
     unclassified_count: 2,
     update_credentials: false,
     updated_at: new Date('2023-03-23T06:31:08.824707'),
+    yodlee_provider_account_id: '10287109',
   },
   {
     account_number: 'xxxx1069',
@@ -131,6 +132,7 @@ export const linkedAccountsRes: PersonalCard[] = deepFreeze([
     unclassified_count: 0,
     update_credentials: false,
     updated_at: new Date('2023-01-12T15:57:47.178727'),
+    yodlee_provider_account_id: '10287109',
   },
 ]);
 
@@ -148,6 +150,7 @@ export const linkedAccountRes2: PersonalCard[] = deepFreeze([
     last_synced_at: null,
     mask: '3201',
     account_type: 'SAVINGS',
+    yodlee_provider_account_id: '10287109',
   },
   {
     id: 'baccCqRv6YdSqZ',
@@ -162,10 +165,11 @@ export const linkedAccountRes2: PersonalCard[] = deepFreeze([
     last_synced_at: null,
     mask: '8791',
     account_type: 'SAVINGS',
+    yodlee_provider_account_id: '10287109',
   },
 ]);
 
-export const platformApiLinkedAccRes: PlatformApiResponse<PersonalCardPlatform[]> = deepFreeze({
+export const platformApiLinkedAccRes: PlatformApiResponse<PlatformPersonalCard[]> = deepFreeze({
   count: 2,
   data: [
     {

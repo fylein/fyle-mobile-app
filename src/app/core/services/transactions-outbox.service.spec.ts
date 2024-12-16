@@ -1,8 +1,7 @@
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { expenseList2 } from '../mock-data/expense.data';
-import { fileObject4, fileObjectData1 } from '../mock-data/file-object.data';
-import { editUnflattenedTransaction, txnData2 } from '../mock-data/transaction.data';
+import { txnData2 } from '../mock-data/transaction.data';
 import { DateService } from './date.service';
 import { FileService } from './file.service';
 import { OrgUserSettingsService } from './org-user-settings.service';
@@ -11,13 +10,10 @@ import { StorageService } from './storage.service';
 import { TrackingService } from './tracking.service';
 import { TransactionService } from './transaction.service';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
-
 import { TransactionsOutboxService } from './transactions-outbox.service';
 import { outboxQueueData1 } from '../mock-data/outbox-queue.data';
 import { cloneDeep } from 'lodash';
 import { of } from 'rxjs';
-import { extractedData, parsedReceiptData1, parsedReceiptData2 } from '../mock-data/parsed-receipt.data';
-import { fileData1 } from '../mock-data/file.data';
 import { SpenderReportsService } from './platform/v1/spender/reports.service';
 import { parsedResponseData1 } from '../mock-data/parsed-response.data';
 
@@ -107,17 +103,6 @@ describe('TransactionsOutboxService', () => {
     expect(storageService.set).toHaveBeenCalledOnceWith('outbox', transactionsOutboxService.queue);
   });
 
-  it('saveDataExtractionQueue(): should save data extraction queue', () => {
-    const mockQueue = cloneDeep(outboxQueueData1);
-    transactionsOutboxService.dataExtractionQueue = mockQueue;
-    storageService.set.and.resolveTo(null);
-    transactionsOutboxService.saveDataExtractionQueue();
-    expect(storageService.set).toHaveBeenCalledOnceWith(
-      'data_extraction_queue',
-      transactionsOutboxService.dataExtractionQueue
-    );
-  });
-
   describe('isSyncInProgress', () => {
     it('should return true if sync is in progress', () => {
       transactionsOutboxService.syncInProgress = true;
@@ -144,42 +129,6 @@ describe('TransactionsOutboxService', () => {
       const res = transactionsOutboxService.isPDF(fileType);
       expect(res).toBeFalse();
     });
-  });
-
-  describe('isDataExtractionPending():', () => {
-    const txnId = 'tx3qHxFNgRcZ';
-    it('should return true if data extraction is pending', () => {
-      const mockQueue = cloneDeep(outboxQueueData1);
-      transactionsOutboxService.dataExtractionQueue = mockQueue;
-      const res = transactionsOutboxService.isDataExtractionPending(txnId);
-      expect(res).toBeTrue();
-    });
-
-    it('should return false if data extraction is not pending', () => {
-      transactionsOutboxService.dataExtractionQueue = [];
-      const res = transactionsOutboxService.isDataExtractionPending(txnId);
-      expect(res).toBeFalse();
-    });
-  });
-
-  it('removeDataExtractionEntry():', async () => {
-    const mockQueue = cloneDeep(outboxQueueData1);
-    transactionsOutboxService.dataExtractionQueue = mockQueue;
-    spyOn(transactionsOutboxService, 'saveDataExtractionQueue').and.resolveTo();
-    await transactionsOutboxService.removeDataExtractionEntry(txnData2, [
-      { url: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.jpeg', type: 'image/jpeg' },
-    ]);
-    expect(transactionsOutboxService.saveDataExtractionQueue).toHaveBeenCalledTimes(1);
-    expect(transactionsOutboxService.dataExtractionQueue.length).toEqual(0);
-  });
-
-  it('addDataExtractionEntry():', () => {
-    spyOn(transactionsOutboxService, 'saveDataExtractionQueue').and.resolveTo();
-    transactionsOutboxService.addDataExtractionEntry(txnData2, [
-      { url: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.jpeg', type: 'image/jpeg' },
-    ]);
-    expect(transactionsOutboxService.dataExtractionQueue.length).toEqual(1);
-    expect(transactionsOutboxService.saveDataExtractionQueue).toHaveBeenCalledTimes(1);
   });
 
   it('uploadData(): should upload data', (done) => {
@@ -229,16 +178,12 @@ describe('TransactionsOutboxService', () => {
       transactionsOutboxService.addEntryAndSync(
         txnData2,
         [{ url: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.jpeg', type: 'image/jpeg' }],
-        null,
-        null,
-        false
+        null
       );
       expect(transactionsOutboxService.addEntry).toHaveBeenCalledOnceWith(
         txnData2,
         [{ url: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.jpeg', type: 'image/jpeg' }],
-        null,
-        null,
-        false
+        null
       );
       expect(transactionsOutboxService.syncEntry).toHaveBeenCalledOnceWith(outboxQueueData1[0]);
       expect(transactionsOutboxService.queue.length).toEqual(0);
@@ -248,15 +193,12 @@ describe('TransactionsOutboxService', () => {
       transactionsOutboxService.addEntryAndSync(
         txnData2,
         [{ url: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.jpeg', type: 'image/jpeg' }],
-        null,
         null
       );
       expect(transactionsOutboxService.addEntry).toHaveBeenCalledOnceWith(
         txnData2,
         [{ url: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.jpeg', type: 'image/jpeg' }],
-        null,
-        null,
-        false
+        null
       );
       expect(transactionsOutboxService.syncEntry).toHaveBeenCalledOnceWith(outboxQueueData1[0]);
       expect(transactionsOutboxService.queue.length).toEqual(0);
@@ -317,9 +259,8 @@ describe('TransactionsOutboxService', () => {
       tick(100);
 
       expect(storageService.get).toHaveBeenCalledWith('outbox');
-      expect(storageService.get).toHaveBeenCalledWith('data_extraction_queue');
       expect(transactionsOutboxService.queue).toEqual(mockQueue);
-      expect(dateService.fixDates).toHaveBeenCalledTimes(2);
+      expect(dateService.fixDates).toHaveBeenCalledTimes(1);
       expect(dateService.fixDates).toHaveBeenCalledWith(mockQueue[0].transaction);
     }));
 
@@ -329,31 +270,10 @@ describe('TransactionsOutboxService', () => {
       tick(100);
 
       expect(storageService.get).toHaveBeenCalledWith('outbox');
-      expect(storageService.get).toHaveBeenCalledWith('data_extraction_queue');
       expect(transactionsOutboxService.queue).toEqual([]);
       expect(dateService.fixDates).not.toHaveBeenCalled();
     }));
   });
-
-  it('processDataExtractionEntry(): should process data extraction entry', fakeAsync(() => {
-    const mockQueue = cloneDeep([...outboxQueueData1, ...outboxQueueData1, ...outboxQueueData1]);
-    transactionsOutboxService.dataExtractionQueue = cloneDeep(mockQueue);
-    transactionService.upsert.and.returnValue(of(editUnflattenedTransaction));
-    spyOn(transactionsOutboxService, 'parseReceipt').and.returnValues(
-      Promise.resolve(parsedReceiptData1),
-      Promise.resolve({ data: undefined }),
-      Promise.resolve(parsedReceiptData2)
-    );
-    spyOn(transactionsOutboxService, 'removeDataExtractionEntry').and.resolveTo();
-    spyOn(transactionsOutboxService, 'addEntryAndSync').and.resolveTo(outboxQueueData1[0]);
-
-    transactionsOutboxService.processDataExtractionEntry();
-    tick(100);
-
-    expect(transactionsOutboxService.parseReceipt).toHaveBeenCalledTimes(3);
-    expect(transactionService.upsert).toHaveBeenCalledTimes(2);
-    expect(transactionsOutboxService.removeDataExtractionEntry).toHaveBeenCalledTimes(3);
-  }));
 
   describe('getExpenseDate():', () => {
     it('should return transaction date if txn_dt is present', () => {

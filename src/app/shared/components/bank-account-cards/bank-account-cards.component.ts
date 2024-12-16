@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ViewChild } from '@angular/core';
 import { PersonalCard } from 'src/app/core/models/personal_card.model';
 import { SwiperComponent } from 'swiper/angular';
 import SwiperCore, { Pagination } from 'swiper';
@@ -11,14 +11,14 @@ SwiperCore.use([Pagination]);
   templateUrl: './bank-account-cards.component.html',
   styleUrls: ['./bank-account-cards.component.scss'],
 })
-export class BankAccountCardsComponent implements OnInit {
+export class BankAccountCardsComponent {
   @Input() linkedAccounts: PersonalCard[];
 
   @Input() minimal: boolean;
 
   @Output() deleted = new EventEmitter();
 
-  @Output() changed = new EventEmitter();
+  @Output() changed = new EventEmitter<PersonalCard>();
 
   @ViewChild('swiper', { static: false }) swiper?: SwiperComponent;
 
@@ -28,17 +28,13 @@ export class BankAccountCardsComponent implements OnInit {
     },
   };
 
-  constructor() {}
-
-  ngOnInit(): void {}
-
   onDeleted(): void {
     this.deleted.emit();
   }
 
   onCardChange(event: Swiper[]): void {
-    if (!this.minimal && event.length && event[0].realIndex && this.linkedAccounts[event[0].realIndex]) {
-      this.changed.emit(this.linkedAccounts[event[0].realIndex].id);
+    if (!this.minimal && event.length && event[0].realIndex !== undefined && this.linkedAccounts[event[0].realIndex]) {
+      this.changed.emit(this.linkedAccounts[event[0].realIndex]);
     }
   }
 }

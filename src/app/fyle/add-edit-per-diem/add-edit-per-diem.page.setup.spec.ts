@@ -57,7 +57,10 @@ describe('AddEditPerDiemPage', () => {
     ]);
     const perDiemServiceSpy = jasmine.createSpyObj('PerDiemService', ['getRates', 'getAllowedPerDiems']);
     const customInputsServiceSpy = jasmine.createSpyObj('CustomInputsService', ['getAll', 'filterByCategory']);
-    const customFieldsServiceSpy = jasmine.createSpyObj('CustomFieldsService', ['standardizeCustomFields']);
+    const customFieldsServiceSpy = jasmine.createSpyObj('CustomFieldsService', [
+      'standardizeCustomFields',
+      'setDefaultValue',
+    ]);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', [
       'getHomeCurrency',
       'getAmountWithCurrencyFraction',

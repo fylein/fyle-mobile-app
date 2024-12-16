@@ -19,6 +19,9 @@ import { expensesCacheBuster$ } from 'src/app/core/cache-buster/expense-cache-bu
 import { CorporateCreditCardExpenseService } from '../../../corporate-credit-card-expense.service';
 import { corporateCardTransaction } from 'src/app/core/models/platform/v1/cc-transaction.model';
 import { MatchedCorporateCardTransaction } from 'src/app/core/models/platform/v1/matched-corpporate-card-transaction.model';
+import { MileageUnitEnum } from 'src/app/core/models/platform/platform-mileage-rates.model';
+import { Location } from 'src/app/core/models/location.model';
+import { CommuteDeduction } from 'src/app/core/enums/commute-deduction.enum';
 
 @Injectable({
   providedIn: 'root',
@@ -287,9 +290,77 @@ export class ExpensesService {
       .pipe(map((res) => res.data));
   }
 
-  post(expense: Partial<Expense>): Observable<void> {
-    return this.spenderService.post<void>('/expenses', {
+  // transform public transaction to expense payload for /post expenses
+  transformTo(transaction: Partial<Transaction>): Partial<Expense> {
+    const expense: Partial<Expense> = {
+      id: transaction.id,
+      spent_at: transaction.txn_dt,
+      category_id: transaction.org_category_id,
+      purpose: transaction.purpose,
+      source_account_id: transaction.source_account_id,
+      claim_amount: transaction.amount,
+      merchant: transaction.vendor,
+      project_id: transaction.project_id,
+      cost_center_id: transaction.cost_center_id,
+      foreign_currency: transaction.orig_currency,
+      foreign_amount: transaction.orig_amount,
+      source: transaction.source,
+      is_reimbursable: !transaction.skip_reimbursement,
+      tax_amount: transaction.tax_amount,
+      tax_group_id: transaction.tax_group_id,
+      is_billable: transaction.billable,
+      distance: transaction.distance,
+      distance_unit: transaction.distance_unit as MileageUnitEnum,
+      started_at: transaction.from_dt,
+      ended_at: transaction.to_dt,
+      locations: transaction.locations as unknown as Location[],
+      custom_fields: transaction.custom_properties,
+      per_diem_rate_id: transaction.per_diem_rate_id,
+      per_diem_num_days: transaction.num_days || 0,
+      mileage_rate_id: transaction.mileage_rate_id, // @arjun check if this is present
+      commute_deduction: transaction.commute_deduction as CommuteDeduction,
+      mileage_is_round_trip: transaction.mileage_is_round_trip,
+      commute_details_id: transaction.commute_details_id,
+      hotel_is_breakfast_provided: transaction.hotel_is_breakfast_provided,
+      advance_wallet_id: transaction.advance_wallet_id,
+      file_ids: transaction.file_ids,
+      report_id: transaction.report_id,
+      travel_classes: [],
+    };
+
+    if (
+      transaction.fyle_category?.toLowerCase() === 'flight' ||
+      transaction.fyle_category?.toLowerCase() === 'airlines'
+    ) {
+      if (transaction.flight_journey_travel_class) {
+        expense.travel_classes.push(transaction.flight_journey_travel_class);
+      }
+      if (transaction.flight_return_travel_class) {
+        expense.travel_classes.push(transaction.flight_return_travel_class);
+      }
+    } else if (transaction.fyle_category?.toLowerCase() === 'bus' && transaction.bus_travel_class) {
+      expense.travel_classes.push(transaction.bus_travel_class);
+    } else if (transaction.fyle_category?.toLowerCase() === 'train' && transaction.train_travel_class) {
+      expense.travel_classes.push(transaction.train_travel_class);
+    }
+
+    return expense;
+  }
+
+  post(expense: Partial<Expense>): Observable<{ data: Expense }> {
+    return this.spenderService.post<{ data: Expense }>('/expenses', {
       data: expense,
+    });
+  }
+
+  createFromFile(fileId: string, source: string): Observable<{ data: Expense[] }> {
+    return this.spenderService.post<{ data: Expense[] }>('/expenses/create_from_file/bulk', {
+      data: [
+        {
+          file_id: fileId,
+          source,
+        },
+      ],
     });
   }
 }

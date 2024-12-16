@@ -24,6 +24,8 @@ import {
   map,
   of,
   shareReplay,
+  Subject,
+  takeUntil,
 } from 'rxjs';
 import { PersonalCard } from 'src/app/core/models/personal_card.model';
 import { PersonalCardTxn } from 'src/app/core/models/personal_card_txn.model';
@@ -51,7 +53,6 @@ import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-op
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
 import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
-import { Expense } from 'src/app/core/models/expense.model';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SortFiltersParams } from 'src/app/core/models/sort-filters-params.model';
 import { PersonalCardFilter } from 'src/app/core/models/personal-card-filters.model';
@@ -92,7 +93,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
   isCardsLoaded = false;
 
-  isTrasactionsLoading = true;
+  isTransactionsLoading = true;
 
   isHiding = false;
 
@@ -106,7 +107,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
   selectedTransactionType = 'INITIALIZED';
 
-  selectedAccount: string;
+  selectedAccount: PersonalCard;
 
   isfetching = false;
 
@@ -138,6 +139,8 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
   usePlatformApi = false;
 
+  onPageExit$ = new Subject();
+
   constructor(
     private personalCardsService: PersonalCardsService,
     private networkService: NetworkService,
@@ -159,28 +162,14 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit(): void {
-    this.initializeLdFlag();
     this.setupNetworkWatcher();
+    this.trackingService.personalCardsViewed();
     const isIos = this.platform.is('ios');
     if (isIos) {
       this.mode = 'ios';
     } else {
       this.mode = 'md';
     }
-  }
-
-  initializeLdFlag(): void {
-    this.launchDarklyService.getVariation('personal_cards_platform', false).subscribe((usePlatformApi) => {
-      this.usePlatformApi = usePlatformApi;
-    });
-  }
-
-  ionViewWillEnter(): void {
-    if (this.isCardsLoaded) {
-      const currentParams = this.loadData$.getValue();
-      this.loadData$.next(currentParams);
-    }
-    this.trackingService.personalCardsViewed();
   }
 
   loadLinkedAccounts(): void {
@@ -204,7 +193,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.transactionsCount$ = this.loadData$.pipe(
       switchMap((params) => {
         const queryParams = this.apiV2Service.extendQueryParamsForTextSearch(params.queryParams, params.searchString);
-        return this.personalCardsService.getBankTransactionsCount(queryParams);
+        return this.personalCardsService.getBankTransactionsCount(queryParams, this.usePlatformApi);
       }),
       shareReplay(1)
     );
@@ -220,11 +209,6 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
   loadAccountCount(): void {
     this.linkedAccountsCount$ = this.loadCardData$.pipe(
       switchMap(() => this.personalCardsService.getPersonalCardsCount(this.usePlatformApi)),
-      tap((count) => {
-        if (count === 0) {
-          this.clearFilters();
-        }
-      }),
       shareReplay(1)
     );
   }
@@ -245,23 +229,26 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
           queryParams = params.queryParams as Record<string, string>;
         }
         queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams as {}, params.searchString);
-        return this.personalCardsService.getBankTransactionsCount(queryParams).pipe(
+        return this.personalCardsService.getBankTransactionsCount(queryParams, this.usePlatformApi).pipe(
           switchMap((count) => {
             if (count > (params.pageNumber - 1) * 10) {
               return this.personalCardsService
-                .getBankTransactions({
-                  offset: (params.pageNumber - 1) * 10,
-                  limit: 10,
-                  queryParams,
-                })
+                .getBankTransactions(
+                  {
+                    offset: (params.pageNumber - 1) * 10,
+                    limit: 10,
+                    queryParams,
+                  },
+                  this.usePlatformApi
+                )
                 .pipe(
                   finalize(() => {
-                    this.isTrasactionsLoading = false;
+                    this.isTransactionsLoading = false;
                     this.isLoadingDataInfiniteScroll = false;
                   })
                 );
             } else {
-              this.isTrasactionsLoading = false;
+              this.isTransactionsLoading = false;
               return of({
                 data: [],
               });
@@ -270,7 +257,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
         );
       }),
       map((res) => {
-        this.isTrasactionsLoading = false;
+        this.isTransactionsLoading = false;
         this.isLoadingDataInfiniteScroll = false;
         if (this.currentPageNumber === 1) {
           this.acc = [];
@@ -285,29 +272,26 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
     this.loadCardData$ = new BehaviorSubject({});
 
-    this.loadAccountCount();
+    this.launchDarklyService.getVariation('personal_cards_platform', false).subscribe((usePlatformApi) => {
+      this.usePlatformApi = usePlatformApi;
+      this.loadAccountCount();
+      this.loadLinkedAccounts();
 
-    this.loadLinkedAccounts();
+      const paginatedPipe = this.loadPersonalTxns();
+      this.transactions$ = paginatedPipe.pipe(shareReplay(1));
+      this.filterPills = this.personalCardsService.generateFilterPills(this.filters);
 
-    this.loadData$ = new BehaviorSubject({
-      pageNumber: 1,
+      this.loadTransactionCount();
+      this.loadInfiniteScroll();
     });
-
-    const paginatedPipe = this.loadPersonalTxns();
-
-    this.transactions$ = paginatedPipe.pipe(shareReplay(1));
-    this.filterPills = this.personalCardsService.generateFilterPills(this.filters);
-
-    this.loadTransactionCount();
-
-    this.loadInfiniteScroll();
 
     this.simpleSearchInput.nativeElement.value = '';
     fromEvent<{ srcElement: { value: string } }>(this.simpleSearchInput.nativeElement, 'keyup')
       .pipe(
         map((event) => event.srcElement.value),
         distinctUntilChanged(),
-        debounceTime(400)
+        debounceTime(400),
+        takeUntil(this.onPageExit$)
       )
       .subscribe((searchString) => {
         const currentParams = this.loadData$.getValue();
@@ -319,10 +303,18 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.cdr.detectChanges();
   }
 
+  ionViewWillLeave(): void {
+    this.onPageExit$.next(null);
+    this.onPageExit$.complete();
+  }
+
   setupNetworkWatcher(): void {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
-    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable());
+    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
+      takeUntil(this.onPageExit$),
+      shareReplay(1)
+    );
 
     this.isConnected$.subscribe((isOnline) => {
       if (!isOnline) {
@@ -334,18 +326,23 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
   linkAccount(): void {
     from(this.loaderService.showLoader('Redirecting you to our banking partner...', 10000))
       .pipe(
-        switchMap(() => this.personalCardsService.getToken()),
+        switchMap(() => this.personalCardsService.getToken(this.usePlatformApi)),
         finalize(async () => {
           await this.loaderService.hideLoader();
         })
       )
       .subscribe((yodleeConfig) => {
-        this.openYoodle(yodleeConfig.fast_link_url, yodleeConfig.access_token);
+        this.openYoodle(yodleeConfig.fast_link_url, yodleeConfig.access_token, false);
       });
   }
 
-  openYoodle(url: string, access_token: string): void {
-    const pageContentUrl = this.personalCardsService.htmlFormUrl(url, access_token);
+  openYoodle(url: string, access_token: string, isMfaFlow: boolean): void {
+    const pageContentUrl = this.personalCardsService.htmlFormUrl(
+      url,
+      access_token,
+      isMfaFlow,
+      this.selectedAccount.yodlee_provider_account_id
+    );
     const browser = this.inAppBrowserService.create(pageContentUrl, '_blank', 'location=no');
     this.spinnerDialog.show();
     /* added this for failsafe */
@@ -370,7 +367,11 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
             requestId: string;
           }[];
           if (decodedData && decodedData[0]) {
-            this.postAccounts([decodedData[0].requestId]);
+            if (isMfaFlow) {
+              this.syncTransactions();
+            } else {
+              this.postAccounts([decodedData[0].requestId]);
+            }
           }
         });
       }
@@ -380,7 +381,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
   postAccounts(requestIds: string[]): void {
     from(this.loaderService.showLoader('Linking your card with Fyle...', 30000))
       .pipe(
-        switchMap(() => this.personalCardsService.postBankAccounts(requestIds)),
+        switchMap(() => this.personalCardsService.postBankAccounts(requestIds, this.usePlatformApi)),
         finalize(async () => {
           await this.loaderService.hideLoader();
         })
@@ -402,17 +403,17 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.trackingService.cardDeletedOnPersonalCards();
   }
 
-  onCardChanged(event: string): void {
-    this.selectedAccount = event;
+  onCardChanged(card: PersonalCard): void {
+    this.selectedAccount = card;
     this.acc = [];
     const params = this.loadData$.getValue();
     const queryParams = params.queryParams || {};
     queryParams.btxn_status = `in.(${this.selectedTransactionType})`;
-    queryParams.ba_id = 'eq.' + this.selectedAccount;
+    queryParams.ba_id = `eq.${this.selectedAccount.id}`;
     params.queryParams = queryParams;
     params.pageNumber = 1;
     this.zone.run(() => {
-      this.isTrasactionsLoading = true;
+      this.isTransactionsLoading = true;
       this.loadData$.next(params);
     });
   }
@@ -426,7 +427,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.loadData$.next(params);
 
     setTimeout(() => {
-      event?.target?.complete();
+      event.target?.complete();
     }, 1000);
   }
 
@@ -471,42 +472,60 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     params.queryParams = queryParams;
     params.pageNumber = 1;
     this.zone.run(() => {
-      this.isTrasactionsLoading = true;
+      this.isTransactionsLoading = true;
       this.loadData$.next(params);
     });
   }
 
+  fetchNewTransactionsWithMfa(): void {
+    from(this.loaderService.showLoader('Redirecting you to our banking partner...', 10000))
+      .pipe(
+        switchMap(() => this.personalCardsService.getToken(this.usePlatformApi)),
+        finalize(async () => {
+          await this.loaderService.hideLoader();
+        })
+      )
+      .subscribe((yodleeConfig) => {
+        this.openYoodle(yodleeConfig.fast_link_url, yodleeConfig.access_token, true);
+      });
+  }
+
   fetchNewTransactions(): void {
     this.isfetching = true;
-    this.isTrasactionsLoading = true;
+    this.isTransactionsLoading = true;
     if (this.selectionMode) {
       this.switchSelectionMode();
     }
-    this.personalCardsService
-      .fetchTransactions(this.selectedAccount)
-      .pipe(
-        finalize(() => {
-          this.acc = [];
-          this.isfetching = false;
-          const params = this.loadData$.getValue();
-          params.pageNumber = 1;
-          this.loadData$.next(params);
-          this.trackingService.transactionsFetchedOnPersonalCards();
-        })
-      )
-      .subscribe(noop);
+    this.personalCardsService.isMfaEnabled(this.selectedAccount.id, this.usePlatformApi).subscribe((isMfaEnabled) => {
+      if (isMfaEnabled) {
+        this.fetchNewTransactionsWithMfa();
+      } else {
+        this.syncTransactions();
+      }
+    });
+  }
+
+  syncTransactions(): void {
+    this.personalCardsService.syncTransactions(this.selectedAccount.id, this.usePlatformApi).subscribe(() => {
+      this.acc = [];
+      this.isfetching = false;
+      const params = this.loadData$.getValue();
+      params.pageNumber = 1;
+      this.loadData$.next(params);
+      this.trackingService.transactionsFetchedOnPersonalCards();
+    });
   }
 
   hideSelectedTransactions(): void {
     this.isHiding = true;
     this.personalCardsService
-      .hideTransactions(this.selectedElements)
+      .hideTransactions(this.selectedElements, this.usePlatformApi)
       .pipe(
-        tap((data: Expense[]) => {
+        tap((txnsHiddenCount: number) => {
           const message =
-            data.length === 1
+            txnsHiddenCount === 1
               ? '1 Transaction successfully hidden!'
-              : `${data.length} Transactions successfully hidden!`;
+              : `${txnsHiddenCount} Transactions successfully hidden!`;
           this.matSnackBar.openFromComponent(ToastMessageComponent, {
             ...this.snackbarProperties.setSnackbarProperties('success', { message }),
             panelClass: ['msb-success'],
@@ -647,16 +666,6 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     }
   }
 
-  async setState(): Promise<void> {
-    this.isLoading = true;
-    this.currentPageNumber = 1;
-    const params = this.addNewFiltersToParams();
-    this.loadData$.next(params);
-    setTimeout(() => {
-      this.isLoading = false;
-    }, 500);
-  }
-
   addNewFiltersToParams(): Partial<SortFiltersParams> {
     const currentParams = this.loadData$.getValue();
 
@@ -665,11 +674,11 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       or: [],
     };
     newQueryParams.btxn_status = `in.(${this.selectedTransactionType})`;
-    newQueryParams.ba_id = 'eq.' + this.selectedAccount;
+    newQueryParams.ba_id = `eq.${this.selectedAccount.id}`;
     const filters = this.filters;
-    this.personalCardsService.generateTxnDateParams(newQueryParams, filters, 'createdOn');
-    this.personalCardsService.generateTxnDateParams(newQueryParams, filters, 'updatedOn');
-    this.personalCardsService.generateCreditParams(newQueryParams, filters);
+    this.personalCardsService.generateTxnDateParams(newQueryParams, filters, 'createdOn', this.usePlatformApi);
+    this.personalCardsService.generateTxnDateParams(newQueryParams, filters, 'updatedOn', this.usePlatformApi);
+    this.personalCardsService.generateCreditParams(newQueryParams, filters, this.usePlatformApi);
     currentParams.queryParams = newQueryParams;
     this.filters = filters;
     return currentParams;
@@ -752,28 +761,35 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
     this.loadingMatchedExpenseCount = true;
     this.loadingTxnId = txnDetails.btxn_id;
-    this.personalCardsService.getMatchedExpensesCount(txnDetails.btxn_amount, txnDate).subscribe((count) => {
-      this.loadingMatchedExpenseCount = false;
-      this.loadingTxnId = null;
-      if (count === 0) {
-        this.router.navigate([
-          '/',
-          'enterprise',
-          'add_edit_expense',
-          { personalCardTxn: JSON.stringify(txnDetails), navigate_back: true },
-        ]);
-      } else {
-        this.router.navigate(['/', 'enterprise', 'personal_cards_matched_expenses'], { state: { txnDetails } });
-      }
-    });
+    this.personalCardsService
+      .getMatchedExpensesSuggestions(txnDetails.btxn_amount, txnDate, this.usePlatformApi)
+      .subscribe((expenseSuggestions) => {
+        this.loadingMatchedExpenseCount = false;
+        this.loadingTxnId = null;
+        if (expenseSuggestions.length === 0) {
+          this.router.navigate([
+            '/',
+            'enterprise',
+            'add_edit_expense',
+            { personalCardTxn: JSON.stringify(txnDetails), navigate_back: true },
+          ]);
+        } else {
+          this.router.navigate(['/', 'enterprise', 'personal_cards_matched_expenses'], {
+            state: {
+              txnDetails,
+              expenseSuggestions,
+            },
+          });
+        }
+      });
   }
 
   async openExpensePreview(txnDetails: PersonalCardTxn): Promise<void> {
-    const txn_details = txnDetails?.txn_details;
+    const txn_details = txnDetails.txn_details;
     const expenseDetailsModal = await this.modalController.create({
       component: ExpensePreviewComponent,
       componentProps: {
-        expenseId: txn_details[0]?.id,
+        expenseId: txn_details[0].id,
         card: txnDetails.ba_account_number,
         cardTxnId: txnDetails.btxn_id,
         type: 'edit',
@@ -811,19 +827,19 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
         }
       });
       let currentParams = this.loadData$.getValue();
-      currentParams = this.personalCardsService.generateDateParams(data, currentParams);
+      currentParams = this.personalCardsService.generateDateParams(data, currentParams, this.usePlatformApi);
 
       this.loadData$.next(currentParams);
     }
   }
 
-  doRefresh(event?: InfiniteScrollCustomEvent): void {
+  doRefresh(event: InfiniteScrollCustomEvent): void {
     const currentParams = this.loadData$.getValue();
     this.currentPageNumber = 1;
     currentParams.pageNumber = this.currentPageNumber;
     this.loadData$.next(currentParams);
     if (event) {
-      event?.target?.complete();
+      event.target?.complete();
     }
   }
 }

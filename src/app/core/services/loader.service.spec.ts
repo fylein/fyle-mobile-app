@@ -37,7 +37,7 @@ describe('LoaderService', () => {
         message,
         duration,
         spinner: 'crescent',
-        cssClass: '',
+        cssClass: 'intermediate-loader',
       });
       expect(loadingElementSpy.present).toHaveBeenCalledTimes(1);
     }));

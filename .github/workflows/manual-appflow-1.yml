@@ -45,6 +45,7 @@ jobs:
           app-id: 32316914
           platform: iOS
           build-type: development
+          build-stack: macOS - 2024.04 - Apple silicon
           certificate: Fyle signing
           environment: staging
           native-config: prod
