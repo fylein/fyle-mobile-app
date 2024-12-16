@@ -38,14 +38,14 @@
   <div class="sign-in__enter-email" *ngIf="currentStep === signInPageState.ENTER_EMAIL">
     <div>
       <ion-icon
-        class="fy-icon sign-in__enter-email__back-icon"
+        class="fy-icon sign-in__back-icon"
         src="/assets/svg/arrow-tail-left.svg"
         (click)="changeState(signInPageState.SELECT_SIGN_IN_METHOD)"
       ></ion-icon>
       <div class="sign-in__enter-email__form-container">
         <div>
-          <div class="sign-in__enter-email__page-header">Sign in</div>
-          <div class="sign-in__enter-email__sub-header">Enter the credentials to access your account</div>
+          <div class="sign-in__page-header">Sign in</div>
+          <div class="sign-in__sub-header">Enter the credentials to access your account</div>
         </div>
         <form [formGroup]="fg" class="sign-in__enter-email__input-container">
           <div class="sign-in__enter-email__input-container__label">Registered email</div>
@@ -85,14 +85,14 @@
   <div class="sign-in__enter-password" *ngIf="currentStep === signInPageState.ENTER_PASSWORD">
     <div>
       <ion-icon
-        class="fy-icon sign-in__enter-email__back-icon"
+        class="fy-icon sign-in__back-icon"
         src="/assets/svg/arrow-tail-left.svg"
         (click)="changeState(signInPageState.ENTER_EMAIL)"
       ></ion-icon>
       <div class="sign-in__enter-password__form-container">
         <div>
-          <div class="sign-in__enter-password__page-header">Sign in</div>
-          <div class="sign-in__enter-password__sub-header">Enter the credentials to access your account</div>
+          <div class="sign-in__page-header">Sign in</div>
+          <div class="sign-in__sub-header">Enter the credentials to access your account</div>
         </div>
         <form [formGroup]="fg" class="sign-in__enter-password__input-container">
           <div class="sign-in__enter-password__input-container__label">Registered email</div>
