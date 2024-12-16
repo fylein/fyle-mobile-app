@@ -39,6 +39,8 @@ export class NewPasswordPage implements OnInit {
 
   showPasswordTooltip = false;
 
+  isLoading = false;
+
   constructor(
     private fb: FormBuilder,
     private activatedRoute: ActivatedRoute,
@@ -62,7 +64,7 @@ export class NewPasswordPage implements OnInit {
 
   changePassword(): void {
     const refreshToken = this.activatedRoute.snapshot.params.refreshToken as string;
-
+    this.isLoading = true;
     from(this.loaderService.showLoader())
       .pipe(
         switchMap(() => this.routerAuthService.resetPassword(refreshToken, this.fg.controls.password.value as string)),
@@ -73,7 +75,10 @@ export class NewPasswordPage implements OnInit {
           this.trackingService.resetPassword();
           await this.trackLoginInfo();
         }),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => {
+          this.isLoading = false;
+          return from(this.loaderService.hideLoader());
+        })
       )
       .subscribe(
         () => {
