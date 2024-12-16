@@ -147,6 +147,10 @@ export class SignInPage implements OnInit {
     }
   }
 
+  goToForgotPasswordPage(): void {
+    this.router.navigate(['/', 'auth', 'reset_password', { email: this.fg.controls.email.value as string }]);
+  }
+
   async handleError(error: HttpErrorResponse): Promise<void> {
     let header = 'Incorrect email or password';
 
