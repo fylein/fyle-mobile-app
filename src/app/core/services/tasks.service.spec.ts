@@ -257,7 +257,6 @@ describe('TasksService', () => {
   it('should be able to fetch unreported expenses tasks', () => {
     getUnreportedExpenses();
     currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
-    console.log(completeStats.data.total_amount);
     exactCurrencyPipe.transform
       .withArgs({ value: completeStats.data.total_amount, currencyCode: homeCurrency, skipSymbol: true })
       .and.returnValue('30.00');
