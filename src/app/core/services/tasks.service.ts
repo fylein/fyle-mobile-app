@@ -532,9 +532,10 @@ export class TasksService {
   }
 
   getAddCorporateCardTask(): Observable<DashboardTask[]> {
-    return this.orgSettingsService.get().pipe(
-      map((orgSettings) => {
-        if (orgSettings.visa_enrollment_settings.enabled || orgSettings.mastercard_enrollment_settings.enabled) {
+    return this.corporateCreditCardExpenseService.getCorporateCards().pipe(
+      map((cards) => {
+        const rtfCards = cards.filter((card) => card.is_visa_enrolled || card.is_mastercard_enrolled);
+        if (rtfCards.length === 0) {
           return this.mapAddCorporateCardTask();
         }
       })
