@@ -19,8 +19,6 @@
   &__error {
     color: $red;
     font-size: 12px;
-    display: flex;
-    align-items: center;
   }
 
   &__text {
@@ -78,7 +76,6 @@
     position: relative;
     margin-bottom: 24px;
     color: $black;
-    font-weight: 500;
   }
 
   &__save {

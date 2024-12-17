@@ -16,7 +16,7 @@
           </div>
         </div>
         <form [formGroup]="fg" class="pending-verification__input-container">
-          <div class="pending-verification__input-container__label">Registered email</div>
+          <div class="pending-verification__input-container__label">Registered Email</div>
           <input
             #simpleEmailInput
             matInput
@@ -40,9 +40,6 @@
           class="btn-primary"
           fill="clear"
           [disabled]="!fg.valid"
-          appFormButtonValidation
-          [loading]="isLoading"
-          [loadingText]="'Sending invite'"
         >
           Send invite
         </ion-button>
@@ -87,7 +84,7 @@
               [src]="'/assets/svg/arrow-left.svg'"
               slot="icon-only"
             ></ion-icon>
-            <span class="pending-verification__cta-text">Back to sign in</span>
+            <span class="pending-verification__cta-text">Back to Sign In</span>
           </div>
         </ion-button>
       </div>
