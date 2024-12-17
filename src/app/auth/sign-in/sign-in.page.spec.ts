@@ -257,6 +257,7 @@ describe('SignInPage', () => {
       fixture.detectChanges();
       const emailError = fixture.debugElement.query(By.css('.sign-in__enter-email__error-message'));
       expect(emailError).toBeDefined();
+      console.log(emailError);
       expect(getTextContent(emailError.nativeElement)).toEqual('Please enter a valid email.');
     });
   });
@@ -304,7 +305,7 @@ describe('SignInPage', () => {
       const errorPopoverSpy = jasmine.createSpyObj('errorPopover', ['present']);
       popoverController.create.and.returnValue(errorPopoverSpy);
 
-      const header = 'Incorrect email or password';
+      const header = 'Incorrect Email or Password';
 
       await component.handleError(null);
 

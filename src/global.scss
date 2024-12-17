@@ -194,8 +194,7 @@ ion-popover.dialog-popover {
     left: 0 !important;
     height: auto;
     width: 100%;
-    border-top-left-radius: 20px;
-    border-top-right-radius: 20px;
+    border-radius: 0;
   }
 
   .popover-viewport {
