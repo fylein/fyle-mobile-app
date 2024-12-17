@@ -17,7 +17,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 
 import { PopupComponent } from './popup/popup.component';
-import { SharedModule } from 'src/app/shared/shared.module';
 
 @NgModule({
   imports: [
@@ -31,7 +30,6 @@ import { SharedModule } from 'src/app/shared/shared.module';
     ReactiveFormsModule,
     MatIconModule,
     MatButtonModule,
-    SharedModule,
   ],
   declarations: [NewPasswordPage, PopupComponent],
 })

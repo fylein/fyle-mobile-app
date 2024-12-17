@@ -1,33 +1,25 @@
 <ion-content>
-  <div class="disabled-user">
-    <div class="disabled-user__content-container">
-      <div class="disabled-user__error-icon-container">
-        <ion-icon
-          class="disabled-user__error-icon"
-          [src]="'/assets/svg/error-outlined.svg'"
-          slot="icon-only"
-        ></ion-icon>
-      </div>
-      <section class="disabled-user__text">
-        <h1 class="disabled-user__header">Account disabled</h1>
-        <p class="disabled-user__content">
-          This account is no longer active. Please contact your company admin for details.
-        </p>
-      </section>
-    </div>
-    <div class="disabled-user__cta">
-      <ion-button
-        (click)="onGotoSignInClick()"
-        class="btn-primary"
-        fill="clear"
-        aria-label="Navigate back to sign in page"
-        role="button"
-      >
-        <div class="disabled-user__cta-content">
-          <ion-icon class="disabled-user__arrow-icon" [src]="'/assets/svg/arrow-left.svg'" slot="icon-only"></ion-icon>
-          <span class="disabled-user__cta-text">Back to Sign In</span>
-        </div>
-      </ion-button>
+  <ion-grid class="disabled--header-container">
+    <ion-row class="disabled--header ion-align-items-center">
+      <ion-col class="disabled--header-logo-container">
+        <img class="disabled--header-logo" src="../../../assets/svg/fyle-logo-light.svg" alt="fyle-logo-light" />
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+  <div class="disabled--body">
+    <div id="disabled--header" class="disabled--body-header">Account Disabled</div>
+    <img class="disabled--image" src="../../../assets/images/stop.svg" alt="Stop" />
+    <div class="disabled--subtext">
+      This account is no longer active. Please contact your company admin for details.
     </div>
   </div>
 </ion-content>
+
+<ion-footer>
+  <ion-toolbar mode="md">
+    <ion-button fill="clear" expand="full" (click)="onGotoSignInClick()">
+      <span class="disabled--greyed"> Incorrect Account? </span>
+      Try Signing in Again
+    </ion-button>
+  </ion-toolbar>
+</ion-footer>
