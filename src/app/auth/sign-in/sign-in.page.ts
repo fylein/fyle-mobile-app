@@ -16,7 +16,6 @@ import { InAppBrowserService } from 'src/app/core/services/in-app-browser.servic
 import { HttpErrorResponse } from '@angular/common/http';
 import { EmailExistsResponse } from 'src/app/core/models/email-exists-response.model';
 import { SamlResponse } from 'src/app/core/models/saml-response.model';
-import { SignInPageState } from './sign-in-page-state.enum';
 
 @Component({
   selector: 'app-sign-in',
@@ -34,13 +33,9 @@ export class SignInPage implements OnInit {
 
   googleSignInLoading = false;
 
-  hidePassword = true;
+  hide = true;
 
   checkEmailExists$: Observable<EmailExistsResponse>;
-
-  currentStep: SignInPageState = SignInPageState.SELECT_SIGN_IN_METHOD;
-
-  signInPageState: typeof SignInPageState = SignInPageState;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -127,14 +122,14 @@ export class SignInPage implements OnInit {
         finalize(async () => {
           this.emailLoading = false;
         })
-      );
+      ) as Observable<EmailExistsResponse>;
 
       const saml$ = checkEmailExists$.pipe(filter((res) => (res.saml ? true : false)));
 
       const basicSignIn$ = checkEmailExists$.pipe(filter((res) => (!res.saml ? true : false)));
 
       basicSignIn$.subscribe({
-        next: () => (this.currentStep = this.signInPageState.ENTER_PASSWORD),
+        next: () => (this.emailSet = true),
         error: (err: HttpErrorResponse) => this.handleError(err),
       });
 
@@ -147,12 +142,8 @@ export class SignInPage implements OnInit {
     }
   }
 
-  goToForgotPasswordPage(): void {
-    this.router.navigate(['/', 'auth', 'reset_password', { email: this.fg.controls.email.value as string }]);
-  }
-
   async handleError(error: HttpErrorResponse): Promise<void> {
-    let header = 'Incorrect email or password';
+    let header = 'Incorrect Email or Password';
 
     if (error?.status === 400) {
       this.router.navigate(['/', 'auth', 'pending_verification', { email: this.fg.controls.email.value as string }]);
@@ -264,10 +255,6 @@ export class SignInPage implements OnInit {
 
   ionViewWillEnter(): void {
     this.emailSet = !!this.fg.controls.email.value;
-  }
-
-  changeState(state: SignInPageState): void {
-    this.currentStep = state;
   }
 
   ngOnInit(): void {
