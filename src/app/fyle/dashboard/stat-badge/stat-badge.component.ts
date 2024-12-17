@@ -1,6 +1,5 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { ReportStates } from './report-states';
-import { HostListener } from '@angular/core';
 
 @Component({
   selector: 'app-stat-badge',
@@ -28,11 +27,6 @@ export class StatBadgeComponent implements OnInit {
 
   // To track if the screen is small (360px or below)
   isSmallScreen = false;
-
-  @HostListener('window:resize', ['$event'])
-  onResize(): void {
-    this.isSmallScreen = window.innerWidth <= 360;
-  }
 
   onBadgeClicked(): void {
     if (!this.loading) {
