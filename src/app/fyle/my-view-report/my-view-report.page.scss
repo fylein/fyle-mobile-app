@@ -56,6 +56,19 @@
     }
   }
 
+  &--footer-conatiner {
+    display: flex;
+    justify-content: space-between;
+    padding: 16px;
+    gap: 8px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background-color: $pure-white;
+    box-shadow: 0 -2px 12px $pink-shadow;
+    z-index: 999;
+  }
+
   &--card-body {
     font-size: 16px;
     color: $gray-3;
@@ -348,6 +361,20 @@
     color: $blue-black;
     line-height: 1.5;
     font-weight: 500;
+  }
+
+  &--zero-state-semibold-header {
+    font-size: 14px;
+    display: block;
+    color: $blue-black;
+    line-height: 1.5;
+    font-weight: 400;
+  }
+
+  &--zero-state-image-container {
+    height: 150px;
+    width: 150px;
+    overflow: hidden;
   }
 
   &--history-container {
