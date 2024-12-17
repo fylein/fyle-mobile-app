@@ -49,7 +49,6 @@ export class CardDetailComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.cardDetail.stats.totalAmountValue += 898989898;
     this.isSmallScreen = window.innerWidth <= 320;
   }
 }
