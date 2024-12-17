@@ -91,7 +91,14 @@
   </ng-container>
 </app-fy-header>
 
-<ion-content [ngClass]="{'d-none': isCameraPreviewStarted}" class="my-expenses--content" (click)="onPageClick()">
+<ion-content
+  [ngClass]="{
+  'd-none': isCameraPreviewStarted,
+  'my-expenses--content-zero-state': ((pendingTransactions.length === 0) && ((count$ | async) === 0) && isConnected$ | async)
+}"
+  class="my-expenses--content"
+  (click)="onPageClick()"
+>
   <div
     class="my-expenses--body"
     [ngClass]="{'my-expenses--zero-states-body': (((count$ | async) === 0) && isConnected$|async) || (pendingTransactions.length === 0 && !(isConnected$|async))}"
