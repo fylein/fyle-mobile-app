@@ -27,14 +27,14 @@ export class StatBadgeComponent implements OnInit {
   @Output() badgeClicked = new EventEmitter();
 
   // To track if the screen is small (360px or below)
-  isSmallScreen: boolean = false;
+  isSmallScreen = false;
 
   @HostListener('window:resize', ['$event'])
-  onResize(event: Event) {
+  onResize(): void {
     this.isSmallScreen = window.innerWidth <= 360;
   }
 
-  onBadgeClicked() {
+  onBadgeClicked(): void {
     if (!this.loading) {
       this.badgeClicked.emit(this.reportState);
       if (this.expenseState) {
@@ -43,7 +43,7 @@ export class StatBadgeComponent implements OnInit {
     }
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.isSmallScreen = window.innerWidth <= 360;
   }
 }
