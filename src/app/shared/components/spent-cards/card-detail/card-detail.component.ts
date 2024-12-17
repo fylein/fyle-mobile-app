@@ -16,14 +16,14 @@ export class CardDetailComponent implements OnInit {
 
   @Input() currencySymbol: string;
 
+  // To track if the screen is small (320px or below)
+  isSmallScreen = false;
+
   constructor(
     private router: Router,
     private trackingService: TrackingService,
     private orgSettingService: OrgSettingsService
   ) {}
-
-  // To track if the screen is small (320px or below)
-  isSmallScreen = false;
 
   goToExpensesPage(state: string, cardDetail: PlatformCorporateCardDetail): void {
     if (state === 'incompleteExpenses' && cardDetail.stats.totalDraftTxns && cardDetail.stats.totalDraftTxns > 0) {
