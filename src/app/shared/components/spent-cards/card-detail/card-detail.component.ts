@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, HostListener, Input, OnInit } from '@angular/core';
 import { Params, Router } from '@angular/router';
 import { PlatformCorporateCardDetail } from 'src/app/core/models/platform-corporate-card-detail.model';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
@@ -9,7 +9,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
   templateUrl: './card-detail.component.html',
   styleUrls: ['./card-detail.component.scss'],
 })
-export class CardDetailComponent {
+export class CardDetailComponent implements OnInit {
   @Input() cardDetail: PlatformCorporateCardDetail;
 
   @Input() homeCurrency: string;
@@ -21,6 +21,14 @@ export class CardDetailComponent {
     private trackingService: TrackingService,
     private orgSettingService: OrgSettingsService
   ) {}
+
+  // To track if the screen is small (320px or below)
+  isSmallScreen = false;
+
+  @HostListener('window:resize', ['$event'])
+  onResize(): void {
+    this.isSmallScreen = window.innerWidth <= 320;
+  }
 
   goToExpensesPage(state: string, cardDetail: PlatformCorporateCardDetail): void {
     if (state === 'incompleteExpenses' && cardDetail.stats.totalDraftTxns && cardDetail.stats.totalDraftTxns > 0) {
@@ -43,5 +51,9 @@ export class CardDetailComponent {
 
       this.trackingService.dashboardOnTotalCardExpensesClick();
     }
+  }
+
+  ngOnInit(): void {
+    this.isSmallScreen = window.innerWidth <= 320;
   }
 }
