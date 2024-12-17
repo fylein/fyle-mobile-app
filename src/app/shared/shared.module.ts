@@ -153,6 +153,7 @@ import { DashboardOptInComponent } from './components/dashboard-opt-in/dashboard
 import { MobileNumberCardComponent } from './components/mobile-number-card/mobile-number-card.component';
 import { PasswordCheckTooltipComponent } from './components/password-check-tooltip/password-check-tooltip.component';
 import { ExactCurrencyPipe } from './pipes/exact-currency.pipe';
+import { CcExpenseMerchantInfoPopoverComponent } from './components/cc-expense-merchant-info-popover/cc-expense-merchant-info-popover.component';
 
 @NgModule({
   declarations: [
@@ -282,6 +283,7 @@ import { ExactCurrencyPipe } from './pipes/exact-currency.pipe';
     DashboardOptInComponent,
     MobileNumberCardComponent,
     ExactCurrencyPipe,
+    CcExpenseMerchantInfoPopoverComponent,
   ],
   imports: [
     CommonModule,
@@ -417,6 +419,7 @@ import { ExactCurrencyPipe } from './pipes/exact-currency.pipe';
     ProfileOptInCardComponent,
     DashboardOptInComponent,
     MobileNumberCardComponent,
+    CcExpenseMerchantInfoPopoverComponent,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker, FyCurrencyPipe, ReportState],
 })

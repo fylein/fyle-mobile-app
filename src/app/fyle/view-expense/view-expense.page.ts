@@ -38,6 +38,7 @@ import { ApproverFileService } from 'src/app/core/services/platform/v1/approver/
 import { PlatformFileGenerateUrlsResponse } from 'src/app/core/models/platform/platform-file-generate-urls-response.model';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
+import { CcExpenseMerchantInfoPopoverComponent } from 'src/app/shared/components/cc-expense-merchant-info-popover/cc-expense-merchant-info-popover.component';
 
 @Component({
   selector: 'app-view-expense',
@@ -510,6 +511,15 @@ export class ViewExpensePage {
       componentProps: {
         transactionStatus,
       },
+      cssClass: 'fy-dialog-popover',
+    });
+
+    await popover.present();
+  }
+
+  async openCCExpenseMerchantInfoModal(): Promise<void> {
+    const popover = await this.popoverController.create({
+      component: CcExpenseMerchantInfoPopoverComponent,
       cssClass: 'fy-dialog-popover',
     });
 

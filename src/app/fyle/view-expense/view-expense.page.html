@@ -100,6 +100,21 @@
           </div>
         </div>
 
+        <ng-container *ngIf="isCCCTransaction">
+          <div class="view-expense--card-container__merchant_block">
+            <div class="view-expense--card-container__merchant_label">Merchant:</div>
+            <div class="view-expense--card-container__merchant_value">
+              <span> {{ selectedCCCTransaction?.vendor || 'Unavailable' }} </span>
+              <ion-icon
+                (click)="(openCCExpenseMerchantInfoModal())"
+                src="../../../assets/svg/info-circle-outline.svg"
+                class="view-expense--card-container__merchant_info_icon"
+                data-testid="merchant-info-icon"
+              ></ion-icon>
+            </div>
+          </div>
+        </ng-container>
+
         <ng-container *ngIf="isCCCTransaction && isRTFEnabled">
           <div
             *ngIf="expense.matched_corporate_card_transactions[0]?.status as transactionStatus"

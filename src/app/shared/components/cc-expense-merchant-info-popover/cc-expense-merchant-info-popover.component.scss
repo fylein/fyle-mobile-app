@@ -1,0 +1,26 @@
+@import '../../../../theme/colors.scss';
+
+.header {
+  border-radius: 10px;
+}
+
+.cc-expense-merchant-info-popover {
+  position: relative;
+
+  &__toolbar-title {
+    color: $black;
+    font-size: 18px;
+    line-height: normal;
+    font-weight: 500;
+  }
+
+  &__toolbar-close-btn {
+    position: absolute;
+  }
+
+  &__body {
+    font-size: 14px;
+    color: $black;
+    padding: 20px 16px;
+  }
+}
