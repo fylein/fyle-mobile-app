@@ -1,4 +1,4 @@
-import { Component, HostListener, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { Params, Router } from '@angular/router';
 import { PlatformCorporateCardDetail } from 'src/app/core/models/platform-corporate-card-detail.model';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
@@ -25,11 +25,6 @@ export class CardDetailComponent implements OnInit {
   // To track if the screen is small (320px or below)
   isSmallScreen = false;
 
-  @HostListener('window:resize', ['$event'])
-  onResize(): void {
-    this.isSmallScreen = window.innerWidth <= 320;
-  }
-
   goToExpensesPage(state: string, cardDetail: PlatformCorporateCardDetail): void {
     if (state === 'incompleteExpenses' && cardDetail.stats.totalDraftTxns && cardDetail.stats.totalDraftTxns > 0) {
       const queryParams: Params = {
@@ -54,6 +49,7 @@ export class CardDetailComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.cardDetail.stats.totalAmountValue += 898989898;
     this.isSmallScreen = window.innerWidth <= 320;
   }
 }
