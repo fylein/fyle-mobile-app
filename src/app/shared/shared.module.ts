@@ -418,6 +418,6 @@ import { ExactCurrencyPipe } from './pipes/exact-currency.pipe';
     DashboardOptInComponent,
     MobileNumberCardComponent,
   ],
-  providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker, FyCurrencyPipe, ReportState],
+  providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker, FyCurrencyPipe, ReportState, ExactCurrencyPipe],
 })
 export class SharedModule {}
