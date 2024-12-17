@@ -318,6 +318,7 @@ export class TasksService {
       sentBackAdvances: this.getSentBackAdvanceTasks(),
       setCommuteDetails: this.getCommuteDetailsTasks(),
       teamReports: this.getTeamReportsTasks(showTeamReportTask),
+      addCorporateCard: this.getAddCorporateCardTask(),
     }).pipe(
       map(
         ({
@@ -330,6 +331,7 @@ export class TasksService {
           teamReports,
           sentBackAdvances,
           setCommuteDetails,
+          addCorporateCard,
         }) => {
           this.totalTaskCount$.next(
             mobileNumberVerification.length +
@@ -340,7 +342,8 @@ export class TasksService {
               teamReports.length +
               potentialDuplicates.length +
               sentBackAdvances.length +
-              setCommuteDetails.length
+              setCommuteDetails.length +
+              addCorporateCard.length
           );
           this.expensesTaskCount$.next(draftExpenses.length + unreportedExpenses.length + potentialDuplicates.length);
           this.reportsTaskCount$.next(sentBackReports.length + unsubmittedReports.length);
@@ -364,7 +367,8 @@ export class TasksService {
               .concat(unsubmittedReports)
               .concat(unreportedExpenses)
               .concat(teamReports)
-              .concat(sentBackAdvances);
+              .concat(sentBackAdvances)
+              .concat(addCorporateCard);
           } else {
             return this.getFilteredTaskList(filters, {
               potentialDuplicates,
@@ -527,6 +531,16 @@ export class TasksService {
     }
   }
 
+  getAddCorporateCardTask(): Observable<DashboardTask[]> {
+    return this.orgSettingsService.get().pipe(
+      map((orgSettings) => {
+        if (orgSettings.visa_enrollment_settings.enabled || orgSettings.mastercard_enrollment_settings.enabled) {
+          return this.mapAddCorporateCardTask();
+        }
+      })
+    );
+  }
+
   getPotentialDuplicatesTasks(): Observable<DashboardTask[]> {
     return this.expensesService.getDuplicateSets().pipe(
       map((duplicateSets) => {
@@ -553,6 +567,24 @@ export class TasksService {
           {
             content: isInvalidUSNumber ? 'Update and Opt in' : 'Opt in',
             event: TASKEVENT.mobileNumberVerification,
+          },
+        ],
+      },
+    ];
+    return task;
+  }
+
+  mapAddCorporateCardTask(): DashboardTask[] {
+    const task = [
+      {
+        hideAmount: true,
+        header: 'Add Corporate Card',
+        subheader: 'Add your corporate card to track expenses.',
+        icon: TaskIcon.CARD,
+        ctas: [
+          {
+            content: 'Add Card',
+            event: TASKEVENT.addCorporateCard,
           },
         ],
       },
