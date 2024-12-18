@@ -13,7 +13,7 @@ export class LoaderService {
       message,
       duration,
       spinner: customLoaderUrl ? null : 'crescent',
-      cssClass: customLoaderUrl ? 'custom-loading' : '',
+      cssClass: customLoaderUrl ? 'custom-loading' : 'intermediate-loader',
     });
 
     if (customLoaderUrl) {
