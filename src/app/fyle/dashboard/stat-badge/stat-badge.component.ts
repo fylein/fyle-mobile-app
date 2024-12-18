@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { ReportStates } from './report-states';
 
 @Component({
@@ -6,7 +6,7 @@ import { ReportStates } from './report-states';
   templateUrl: './stat-badge.component.html',
   styleUrls: ['./stat-badge.component.scss'],
 })
-export class StatBadgeComponent implements OnInit {
+export class StatBadgeComponent {
   @Input() reportState: ReportStates;
 
   @Input() name: string;
@@ -25,8 +25,8 @@ export class StatBadgeComponent implements OnInit {
 
   @Output() badgeClicked = new EventEmitter();
 
-  // To track if the screen is small (360px or below)
-  isSmallScreen = false;
+  // To track if the screen is small (370px or below)
+  isSmallScreen = window.innerWidth <= 370;
 
   onBadgeClicked(): void {
     if (!this.loading) {
@@ -35,9 +35,5 @@ export class StatBadgeComponent implements OnInit {
         this.badgeClicked.emit(this.expenseState);
       }
     }
-  }
-
-  ngOnInit(): void {
-    this.isSmallScreen = window.innerWidth <= 360;
   }
 }
