@@ -1,5 +1,5 @@
 import { ComponentFixture, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { ModalController } from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular';
 
 import { TasksComponent } from './tasks.component';
 import { TasksService } from 'src/app/core/services/tasks.service';
@@ -48,6 +48,19 @@ import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { OrgService } from 'src/app/core/services/org.service';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
 import { FyOptInComponent } from 'src/app/shared/components/fy-opt-in/fy-opt-in.component';
+import { Component, Input } from '@angular/core';
+import { AddCorporateCardComponent } from '../../manage-corporate-cards/add-corporate-card/add-corporate-card.component';
+import { By } from '@angular/platform-browser';
+import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
+
+@Component({
+  selector: 'app-add-card',
+  template: '<div></div>',
+})
+class MockAddCardComponent {
+  @Input() showZeroStateMessage: boolean;
+}
 
 export function TestCases2(getTestBed) {
   return describe('test case set 2', () => {
@@ -71,6 +84,9 @@ export function TestCases2(getTestBed) {
     let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
     let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
     let orgService: jasmine.SpyObj<OrgService>;
+    let popoverController: jasmine.SpyObj<PopoverController>;
+    let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
+    let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
 
     beforeEach(waitForAsync(() => {
       const TestBed = getTestBed();
@@ -94,6 +110,13 @@ export function TestCases2(getTestBed) {
       spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
       approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
       orgService = TestBed.inject(OrgService) as jasmine.SpyObj<OrgService>;
+      popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
+      orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
+      corporateCreditCardExpenseService = TestBed.inject(
+        CorporateCreditCardExpenseService
+      ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
+      let addCardPopoverSpy: jasmine.SpyObj<HTMLIonPopoverElement>;
+      popoverController.create.and.returnValues(Promise.resolve(addCardPopoverSpy));
     }));
 
     describe('init():', () => {
@@ -181,6 +204,30 @@ export function TestCases2(getTestBed) {
         expect(component.filterPills).toEqual([typeFilterPill]);
       });
     });
+
+    it('onAddCorporateCardClick(): should open card popover', fakeAsync(() => {
+      let addCardPopoverSpy: jasmine.SpyObj<HTMLIonPopoverElement>;
+      addCardPopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onDidDismiss']);
+      // Returning empty object, because we don't want to trigger the success flow, we are just testing if the popover opens or not
+      addCardPopoverSpy.onDidDismiss.and.resolveTo({});
+
+      const addCardComponent = fixture.debugElement.query(By.directive(MockAddCardComponent));
+      addCardComponent.triggerEventHandler('addCardClick', null);
+
+      tick();
+
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        component: AddCorporateCardComponent,
+        cssClass: 'fy-dialog-popover',
+        componentProps: {
+          isVisaRTFEnabled: true,
+          isMastercardRTFEnabled: true,
+          isYodleeEnabled: true,
+        },
+      });
+
+      expect(addCardPopoverSpy.present).toHaveBeenCalledTimes(1);
+    }));
 
     it('onMobileNumberVerificationTaskClick(): should open opt in modal', fakeAsync(() => {
       authService.getEou.and.resolveTo(apiEouRes);

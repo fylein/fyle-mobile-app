@@ -400,11 +400,8 @@ export class TasksComponent implements OnInit {
     });
   }
 
-  onTaskClicked(taskCta: TaskCta, task: DashboardTask): void {
-    this.trackingService.tasksClicked({
-      Asset: 'Mobile',
-      header: task.header,
-    });
+  // eslint-disable-next-line complexity
+  loadTasksMap(taskCta: TaskCta, task: DashboardTask): void {
     switch (taskCta.event) {
       case TASKEVENT.expensesAddToReport:
         this.onExpensesToReportTaskClick();
@@ -439,6 +436,14 @@ export class TasksComponent implements OnInit {
       default:
         break;
     }
+  }
+
+  onTaskClicked(taskCta: TaskCta, task: DashboardTask): void {
+    this.trackingService.tasksClicked({
+      Asset: 'Mobile',
+      header: task.header,
+    });
+    this.loadTasksMap(taskCta, task);
   }
 
   onMobileNumberVerificationTaskClick(): void {

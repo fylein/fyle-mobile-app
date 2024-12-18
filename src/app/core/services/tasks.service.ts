@@ -537,6 +537,8 @@ export class TasksService {
         const rtfCards = cards.filter((card) => card.is_visa_enrolled || card.is_mastercard_enrolled);
         if (rtfCards.length === 0) {
           return this.mapAddCorporateCardTask();
+        } else {
+          return [] as DashboardTask[];
         }
       })
     );
