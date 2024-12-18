@@ -68,8 +68,13 @@
     margin-right: auto;
   }
 
+  &--vertical-dotted-border {
+    border-left: 2px dashed $border-tertiary;
+    height: auto;
+    margin: 0 8px;
+  }
+
   &--category-vendor-project-container {
-    padding-left: 8px;
     width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
