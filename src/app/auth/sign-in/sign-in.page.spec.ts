@@ -221,7 +221,6 @@ describe('SignInPage', () => {
       component.checkIfEmailExists();
       expect(component.handleSamlSignIn).toHaveBeenCalledOnceWith({ saml: true });
       expect(routerAuthService.checkEmailExists).toHaveBeenCalledOnceWith(component.fg.controls.email.value);
-      expect(component.emailSet).toBeFalse();
       expect(component.emailLoading).toBeFalse();
       done();
     });
@@ -441,15 +440,6 @@ describe('SignInPage', () => {
     expect(trackingService.eventTrack).toHaveBeenCalledOnceWith('Added Login Info', {
       label: extendedDeviceInfoMockData.appVersion,
     });
-  });
-
-  it('ionViewWillEnter(): should set email', () => {
-    expect(component.emailSet).toBeFalse();
-
-    component.fg.controls.email.setValue('email');
-
-    component.ionViewWillEnter();
-    expect(component.emailSet).toBeTrue();
   });
 
   describe('ngOnInit(): ', () => {
