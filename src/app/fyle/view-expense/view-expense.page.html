@@ -106,7 +106,7 @@
             <div class="view-expense--card-container__merchant_value">
               <span> {{ selectedCCCTransaction?.vendor || 'Unavailable' }} </span>
               <ion-icon
-                (click)="(openCCExpenseMerchantInfoModal())"
+                (click)="openCCExpenseMerchantInfoModal()"
                 src="../../../assets/svg/info-circle-outline.svg"
                 class="view-expense--card-container__merchant_info_icon"
                 data-testid="merchant-info-icon"
