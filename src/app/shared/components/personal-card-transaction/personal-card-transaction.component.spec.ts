@@ -10,7 +10,7 @@ import { CurrencyPipe } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 
-fdescribe('PersonalCardTransactionComponent', () => {
+describe('PersonalCardTransactionComponent', () => {
   let component: PersonalCardTransactionComponent;
   let fixture: ComponentFixture<PersonalCardTransactionComponent>;
 
