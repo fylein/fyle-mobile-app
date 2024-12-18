@@ -422,6 +422,7 @@ describe('TasksService', () => {
 
   describe('getAddCorporateCardTask(): ', () => {
     it('should return add corporate card task when no cards are enrolled', (done) => {
+      orgSettingsService.get.and.returnValue(of(orgSettingsRes));
       corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([statementUploadedCard]));
       const addCcSpy = spyOn(tasksService, 'mapAddCorporateCardTask');
 
