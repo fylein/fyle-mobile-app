@@ -1,39 +1,29 @@
-@import '../../../../theme/colors.scss';
+$details-color: #ababab;
 
 .error-internal {
-  &__header {
+  &--header {
     font-size: 20px;
     padding: 16px;
-    font-weight: 500;
-    display: flex;
-    flex-direction: row;
-    border-bottom: 1px solid $grey-lighter;
-    gap: 12px;
+    font-weight: 700;
+  }
 
-    &__header-text {
-      align-items: center;
-      justify-content: center;
+  &--details {
+    font-size: 16px;
+    padding: 0 16px;
+    font-weight: 500;
+    color: $details-color;
+  }
+
+  &--primary-cta {
+    padding: 16px;
+    .mat-button-base {
       width: 100%;
-      display: flex;
-      flex-direction: row;
+      font-weight: 700;
+      min-height: 47px;
     }
   }
 
-  &__close-icon {
-    align-self: flex-start;
-  }
-
-  &__primary-cta {
-    padding: 0 16px 16px;
-  }
-
-  &__details {
-    font-size: 16px;
-    padding: 20px 16px;
-    color: $black;
-  }
-
-  &__redirect {
+  &--redirect {
     text-decoration: none;
   }
 }

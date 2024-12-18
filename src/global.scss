@@ -194,8 +194,7 @@ ion-popover.dialog-popover {
     left: 0 !important;
     height: auto;
     width: 100%;
-    border-top-left-radius: 20px;
-    border-top-right-radius: 20px;
+    border-radius: 0;
   }
 
   .popover-viewport {
@@ -826,7 +825,7 @@ ref - https://stackoverflow.com/a/31162426
   font-size: 14px !important;
   line-height: 18px;
   color: $pure-white;
-  font-weight: 500 !important;
+  font-weight: 400 !important;
   height: 52px !important;
   text-transform: inherit;
   width: 100%;

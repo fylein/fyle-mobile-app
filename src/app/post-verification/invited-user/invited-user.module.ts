@@ -15,7 +15,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { SharedModule } from 'src/app/shared/shared.module';
 
 @NgModule({
   imports: [
@@ -29,7 +28,6 @@ import { SharedModule } from 'src/app/shared/shared.module';
     MatFormFieldModule,
     MatInputModule,
     MatSnackBarModule,
-    SharedModule,
   ],
   declarations: [InvitedUserPage],
 })
