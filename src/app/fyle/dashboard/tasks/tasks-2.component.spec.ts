@@ -53,6 +53,7 @@ import { AddCorporateCardComponent } from '../../manage-corporate-cards/add-corp
 import { By } from '@angular/platform-browser';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 
 @Component({
   selector: 'app-add-card',
@@ -87,6 +88,7 @@ export function TestCases2(getTestBed) {
     let popoverController: jasmine.SpyObj<PopoverController>;
     let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
     let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
+    let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
 
     beforeEach(waitForAsync(() => {
       const TestBed = getTestBed();
@@ -117,6 +119,7 @@ export function TestCases2(getTestBed) {
       ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
       let addCardPopoverSpy: jasmine.SpyObj<HTMLIonPopoverElement>;
       popoverController.create.and.returnValues(Promise.resolve(addCardPopoverSpy));
+      orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     }));
 
     describe('init():', () => {
@@ -207,6 +210,7 @@ export function TestCases2(getTestBed) {
 
     it('onAddCorporateCardClick(): should open card popover', fakeAsync(() => {
       let addCardPopoverSpy: jasmine.SpyObj<HTMLIonPopoverElement>;
+      // eslint-disable-next-line prefer-const
       addCardPopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onDidDismiss']);
       // Returning empty object, because we don't want to trigger the success flow, we are just testing if the popover opens or not
       addCardPopoverSpy.onDidDismiss.and.resolveTo({});
