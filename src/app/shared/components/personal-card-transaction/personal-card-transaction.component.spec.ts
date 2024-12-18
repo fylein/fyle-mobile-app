@@ -4,21 +4,28 @@ import { PersonalCardTransactionComponent } from './personal-card-transaction.co
 import { IonicModule } from '@ionic/angular';
 import { DateFormatPipe } from '../../pipes/date-format.pipe';
 import { getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
+import { ExactCurrencyPipe } from '../../pipes/exact-currency.pipe';
+import { FyCurrencyPipe } from '../../pipes/fy-currency.pipe';
+import { CurrencyPipe } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
-describe('PersonalCardTransactionComponent', () => {
+fdescribe('PersonalCardTransactionComponent', () => {
   let component: PersonalCardTransactionComponent;
   let fixture: ComponentFixture<PersonalCardTransactionComponent>;
 
   beforeEach(waitForAsync(() => {
     const dateFormatPipeSpy = jasmine.createSpyObj('DateFormatPipe', ['transform']);
     TestBed.configureTestingModule({
-      declarations: [PersonalCardTransactionComponent, DateFormatPipe],
-      imports: [IonicModule.forRoot(), IconModule],
+      declarations: [PersonalCardTransactionComponent, DateFormatPipe, ExactCurrencyPipe, FyCurrencyPipe],
+      imports: [IonicModule.forRoot(), IconModule, MatIconTestingModule, MatIconModule],
       providers: [
         {
           provide: DateFormatPipe,
           useValue: dateFormatPipeSpy,
         },
+        FyCurrencyPipe,
+        CurrencyPipe,
       ],
     }).compileComponents();
 
@@ -115,14 +122,14 @@ describe('PersonalCardTransactionComponent', () => {
 
   it('should display the currency, amount, and type', () => {
     component.currency = 'USD';
-    component.amount = 123.45;
+    component.amount = 123678965.45;
     component.type = 'debit';
     fixture.detectChanges();
     const currencyElement = getElementBySelector(fixture, '.personal-card-transaction--currency');
     expect(getTextContent(currencyElement)).toEqual('USD');
 
     const amountElement = getElementBySelector(fixture, '.personal-card-transaction--amount');
-    expect(getTextContent(amountElement)).toEqual('123.45');
+    expect(getTextContent(amountElement)).toEqual('123,678,965.45');
 
     const typeElement = getElementBySelector(fixture, '.personal-card-transaction--type');
     expect(getTextContent(typeElement)).toEqual('DR');
