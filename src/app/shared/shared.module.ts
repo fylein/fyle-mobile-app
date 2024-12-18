@@ -151,6 +151,7 @@ import { PromoteOptInModalComponent } from './components/promote-opt-in-modal/pr
 import { ProfileOptInCardComponent } from './components/profile-opt-in-card/profile-opt-in-card.component';
 import { DashboardOptInComponent } from './components/dashboard-opt-in/dashboard-opt-in.component';
 import { MobileNumberCardComponent } from './components/mobile-number-card/mobile-number-card.component';
+import { PasswordCheckTooltipComponent } from './components/password-check-tooltip/password-check-tooltip.component';
 import { ExactCurrencyPipe } from './pipes/exact-currency.pipe';
 
 @NgModule({
@@ -201,6 +202,7 @@ import { ExactCurrencyPipe } from './pipes/exact-currency.pipe';
     FyConnectionComponent,
     FyCriticalPolicyViolationComponent,
     PopupAlertComponent,
+    PasswordCheckTooltipComponent,
     CreateNewReportComponentV2,
     ExpensesCardComponent,
     ExpensesCardComponentV2,
@@ -349,6 +351,7 @@ import { ExactCurrencyPipe } from './pipes/exact-currency.pipe';
     FyConnectionComponent,
     FyCriticalPolicyViolationComponent,
     PopupAlertComponent,
+    PasswordCheckTooltipComponent,
     CreateNewReportComponentV2,
     ExpensesCardComponent,
     ExpensesCardComponentV2,

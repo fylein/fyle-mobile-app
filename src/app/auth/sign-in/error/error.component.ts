@@ -1,27 +1,24 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { Router } from '@angular/router';
-import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-error',
   templateUrl: './error.component.html',
   styleUrls: ['./error.component.scss'],
 })
-export class ErrorComponent implements OnInit {
-  @Input() header = 'Account does not Exist';
+export class ErrorComponent {
+  @Input() header = 'Account does not exist';
 
   @Input() error;
 
   constructor(private popoverController: PopoverController, private router: Router) {}
 
-  ngOnInit() {}
-
-  async tryAgainClicked() {
+  async closePopover(): Promise<void> {
     await this.popoverController.dismiss();
   }
 
-  async routeTo(route: string[]) {
+  async routeTo(route: string[]): Promise<void> {
     this.router.navigate(route);
     await this.popoverController.dismiss();
   }
