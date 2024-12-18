@@ -151,7 +151,6 @@ import { PromoteOptInModalComponent } from './components/promote-opt-in-modal/pr
 import { ProfileOptInCardComponent } from './components/profile-opt-in-card/profile-opt-in-card.component';
 import { DashboardOptInComponent } from './components/dashboard-opt-in/dashboard-opt-in.component';
 import { MobileNumberCardComponent } from './components/mobile-number-card/mobile-number-card.component';
-import { PasswordCheckTooltipComponent } from './components/password-check-tooltip/password-check-tooltip.component';
 import { ExactCurrencyPipe } from './pipes/exact-currency.pipe';
 import { CCExpenseMerchantInfoPopoverComponent } from './components/cc-expense-merchant-info-popover/cc-expense-merchant-info-popover.component';
 
@@ -203,7 +202,6 @@ import { CCExpenseMerchantInfoPopoverComponent } from './components/cc-expense-m
     FyConnectionComponent,
     FyCriticalPolicyViolationComponent,
     PopupAlertComponent,
-    PasswordCheckTooltipComponent,
     CreateNewReportComponentV2,
     ExpensesCardComponent,
     ExpensesCardComponentV2,
@@ -353,7 +351,6 @@ import { CCExpenseMerchantInfoPopoverComponent } from './components/cc-expense-m
     FyConnectionComponent,
     FyCriticalPolicyViolationComponent,
     PopupAlertComponent,
-    PasswordCheckTooltipComponent,
     CreateNewReportComponentV2,
     ExpensesCardComponent,
     ExpensesCardComponentV2,
