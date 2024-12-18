@@ -82,12 +82,12 @@ fdescribe('PersonalCardTransactionComponent', () => {
     it('should return true when the transaction is selected', () => {
       component.selectedElements = ['btxn4xVrxJS1Kz', 'btxnspKO99BGrB'];
       component.selectAll = true;
-      expect(component.isSelected).toBe(true);
+      expect(component.isSelected).toBeTrue();
     });
 
     it('should return false when the transaction is not selected', () => {
       component.txnId = 'some-other-txn-id';
-      expect(component.isSelected).toBe(false);
+      expect(component.isSelected).toBeFalse();
     });
   });
 
