@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
-import { from, throwError, Observable, of, noop } from 'rxjs';
+import { from, throwError, Observable, of, noop, Subscription } from 'rxjs';
 import { PopoverController } from '@ionic/angular';
 import { ErrorComponent } from './error/error.component';
 import { shareReplay, filter, finalize, switchMap, map, tap, take } from 'rxjs/operators';
@@ -17,6 +17,8 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { EmailExistsResponse } from 'src/app/core/models/email-exists-response.model';
 import { SamlResponse } from 'src/app/core/models/saml-response.model';
 import { SignInPageState } from './sign-in-page-state.enum';
+import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
+import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
 
 @Component({
   selector: 'app-sign-in',
@@ -42,6 +44,8 @@ export class SignInPage implements OnInit {
 
   signInPageState: typeof SignInPageState = SignInPageState;
 
+  hardwareBackButtonAction: Subscription;
+
   constructor(
     private formBuilder: FormBuilder,
     private routerAuthService: RouterAuthService,
@@ -54,7 +58,8 @@ export class SignInPage implements OnInit {
     private trackingService: TrackingService,
     private deviceService: DeviceService,
     private loginInfoService: LoginInfoService,
-    private inAppBrowserService: InAppBrowserService
+    private inAppBrowserService: InAppBrowserService,
+    private platformHandlerService: PlatformHandlerService
   ) {}
 
   async checkSAMLResponseAndSignInUser(data: SamlResponse): Promise<void> {
@@ -264,6 +269,15 @@ export class SignInPage implements OnInit {
 
   ionViewWillEnter(): void {
     this.emailSet = !!this.fg.controls.email.value;
+    const fn = (): void => {
+      if (this.currentStep === SignInPageState.ENTER_EMAIL) {
+        this.changeState(SignInPageState.SELECT_SIGN_IN_METHOD);
+      } else if (this.currentStep === SignInPageState.ENTER_PASSWORD) {
+        this.changeState(SignInPageState.ENTER_PASSWORD);
+      }
+    };
+    const priority = BackButtonActionPriority.MEDIUM;
+    this.hardwareBackButtonAction = this.platformHandlerService.registerBackButtonAction(priority, fn);
   }
 
   changeState(state: SignInPageState): void {
