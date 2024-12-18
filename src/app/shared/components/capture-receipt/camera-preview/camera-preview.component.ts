@@ -5,6 +5,7 @@ import { DEVICE_PLATFORM } from 'src/app/constants';
 import { CameraState } from 'src/app/core/enums/camera-state.enum';
 import { CameraPreviewService } from 'src/app/core/services/camera-preview.service';
 import { CameraService } from 'src/app/core/services/camera.service';
+import * as Sentry from '@sentry/angular';
 
 @Component({
   selector: 'app-camera-preview',
@@ -81,6 +82,7 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
 
   startCameraPreview(): void {
     if (![CameraState.STARTING, CameraState.RUNNING].includes(this.cameraState)) {
+      const currentCameraState = this.cameraState;
       this.cameraState = CameraState.STARTING;
       const cameraPreviewOptions: CameraPreviewOptions = {
         position: 'rear',
@@ -91,9 +93,24 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
         disableAudio: true,
       };
 
-      from(this.cameraPreviewService.start(cameraPreviewOptions)).subscribe(() => {
-        this.cameraState = CameraState.RUNNING;
-        this.getFlashModes();
+      from(this.cameraPreviewService.start(cameraPreviewOptions)).subscribe({
+        next: () => {
+          this.cameraState = CameraState.RUNNING;
+          this.getFlashModes();
+        },
+        error: (error) => {
+          Sentry.captureException(error, {
+            extra: {
+              errorResponse: error,
+              currentCameraState,
+              cameraState: this.cameraState,
+              navigationState: window.location.href,
+              options: cameraPreviewOptions,
+              platform: this.devicePlatform,
+              timestamp: new Date().toISOString(),
+            },
+          });
+        },
       });
     }
   }
