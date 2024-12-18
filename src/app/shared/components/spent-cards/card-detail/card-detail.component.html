@@ -26,7 +26,12 @@
             {{ currencySymbol }}
           </span>
           <ng-container
-            *ngIf="!isSmallScreen && cardDetail.stats.totalDraftValue < 1000000000; else humanizeDraftAmount"
+            *ngIf="
+              !isSmallScreen &&
+                cardDetail.stats.totalDraftValue > -1000000000 &&
+                cardDetail.stats.totalDraftValue < 1000000000;
+              else humanizeDraftAmount
+            "
           >
             {{
               { value: cardDetail.stats.totalDraftValue, currencyCode: homeCurrency, skipSymbol: true } | exactCurrency
@@ -53,7 +58,12 @@
             {{ currencySymbol }}
           </span>
           <ng-container
-            *ngIf="!isSmallScreen && cardDetail.stats.totalAmountValue < 1000000000; else humanizeTotalAmount"
+            *ngIf="
+              !isSmallScreen &&
+                cardDetail.stats.totalAmountValue > -1000000000 &&
+                cardDetail.stats.totalAmountValue < 1000000000;
+              else humanizeTotalAmount
+            "
           >
             {{
               { value: cardDetail.stats.totalAmountValue, currencyCode: homeCurrency, skipSymbol: true } | exactCurrency
