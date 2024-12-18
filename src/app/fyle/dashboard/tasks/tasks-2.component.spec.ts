@@ -55,14 +55,6 @@ import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 
-@Component({
-  selector: 'app-add-card',
-  template: '<div></div>',
-})
-class MockAddCardComponent {
-  @Input() showZeroStateMessage: boolean;
-}
-
 export function TestCases2(getTestBed) {
   return describe('test case set 2', () => {
     let component: TasksComponent;
@@ -209,17 +201,23 @@ export function TestCases2(getTestBed) {
     });
 
     it('onAddCorporateCardClick(): should open card popover', fakeAsync(() => {
-      let addCardPopoverSpy: jasmine.SpyObj<HTMLIonPopoverElement>;
-      // eslint-disable-next-line prefer-const
-      addCardPopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onDidDismiss']);
-      // Returning empty object, because we don't want to trigger the success flow, we are just testing if the popover opens or not
+      // Mock the observables
+      component.isVisaRTFEnabled$ = of(true);
+      component.isMastercardRTFEnabled$ = of(true);
+      component.isYodleeEnabled$ = of(true);
+
+      // Mock the PopoverController
+      const addCardPopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onDidDismiss']);
+      addCardPopoverSpy.present.and.resolveTo();
       addCardPopoverSpy.onDidDismiss.and.resolveTo({});
 
-      const addCardComponent = fixture.debugElement.query(By.directive(MockAddCardComponent));
-      addCardComponent.triggerEventHandler('addCardClick', null);
+      popoverController.create.and.resolveTo(addCardPopoverSpy);
 
+      // Call the method
+      component.onAddCorporateCardClick();
       tick();
 
+      // Assert popover creation
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         component: AddCorporateCardComponent,
         cssClass: 'fy-dialog-popover',

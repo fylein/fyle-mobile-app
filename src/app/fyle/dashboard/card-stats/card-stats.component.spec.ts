@@ -342,7 +342,6 @@ xdescribe('CardStatsComponent', () => {
 
     it('should open the add corporate card modal on addCardClick event', fakeAsync(() => {
       // Returning empty object, because we don't want to trigger the success flow, we are just testing if the popover opens or not
-      addCardPopoverSpy.onDidDismiss.and.resolveTo({});
       component.isVirtualCardsEnabled$ = of({ enabled: false });
       fixture.detectChanges();
 
