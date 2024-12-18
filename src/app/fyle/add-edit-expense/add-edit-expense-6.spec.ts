@@ -87,6 +87,7 @@ import { ccTransactionData, ccTransactionData1 } from 'src/app/core/mock-data/cc
 import { ccTransactionResponseData } from 'src/app/core/mock-data/corporate-card-transaction-response.data';
 import { cloneDeep } from 'lodash';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
+import { CCExpenseMerchantInfoPopoverComponent } from 'src/app/shared/components/cc-expense-merchant-info-popover/cc-expense-merchant-info-popover.component';
 
 export function TestCases6(getTestBed) {
   describe('AddEditExpensePage-6', () => {
@@ -1219,6 +1220,21 @@ export function TestCases6(getTestBed) {
         componentProps: {
           transactionStatus: ExpenseTransactionStatus.PENDING,
         },
+        cssClass: 'fy-dialog-popover',
+      });
+      expect(popoverSpy.present).toHaveBeenCalledTimes(1);
+    }));
+
+    it('openCCExpenseMerchantInfoModal(): should open the transaction status info modal', fakeAsync(() => {
+      const popoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present']);
+      popoverController.create.and.resolveTo(popoverSpy);
+
+      component.openCCExpenseMerchantInfoModal();
+
+      tick();
+
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        component: CCExpenseMerchantInfoPopoverComponent,
         cssClass: 'fy-dialog-popover',
       });
       expect(popoverSpy.present).toHaveBeenCalledTimes(1);
