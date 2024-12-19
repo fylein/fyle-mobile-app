@@ -284,10 +284,6 @@ export class SignInPage implements OnInit {
     this.currentStep = state;
   }
 
-  changeState(state: SignInPageState): void {
-    this.currentStep = state;
-  }
-
   ngOnInit(): void {
     const presentEmail = this.activatedRoute.snapshot.params.email as string;
     this.fg = this.formBuilder.group({
