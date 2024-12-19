@@ -55,7 +55,9 @@
         <div class="d-flex">
           <div class="view-expense--card-container__block">
             <div class="view-expense--card-container__category">{{ expense.category.display_name }}</div>
-            <div class="view-expense--card-container__merchant">{{ expense.merchant || '-' }}</div>
+            <div class="view-expense--card-container__merchant" *ngIf="!isCCCTransaction">
+              {{ expense.merchant || '-' }}
+            </div>
             <div *ngIf="isProjectShown" class="view-expense--card-container__project">
               {{ projectFieldName | titlecase }}: {{ expense.project?.name || '-' }}
             </div>
@@ -104,7 +106,7 @@
           <div class="view-expense--card-container__merchant_block">
             <div class="view-expense--card-container__merchant_label">Merchant:</div>
             <div class="view-expense--card-container__merchant_value">
-              <span> {{ selectedCCCTransaction?.vendor || 'Unavailable' }} </span>
+              <span> {{ expense.matched_corporate_card_transactions[0].merchant || 'Unavailable' }} </span>
               <ion-icon
                 (click)="openCCExpenseMerchantInfoModal()"
                 src="../../../assets/svg/info-circle-outline.svg"
