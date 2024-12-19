@@ -187,6 +187,10 @@ ion-popover.error-popover {
   stroke: $black-light;
 }
 
+.intermediate-loader .loading-wrapper .loading-spinner ion-spinner {
+  color: $brand-primary;
+}
+
 ion-popover.dialog-popover {
   &::part(content) {
     bottom: 0 !important;

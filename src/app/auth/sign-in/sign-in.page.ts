@@ -26,8 +26,6 @@ import { SignInPageState } from './sign-in-page-state.enum';
 export class SignInPage implements OnInit {
   fg: FormGroup;
 
-  emailSet = false;
-
   emailLoading = false;
 
   passwordLoading = false;
@@ -38,7 +36,7 @@ export class SignInPage implements OnInit {
 
   checkEmailExists$: Observable<EmailExistsResponse>;
 
-  currentStep: SignInPageState = SignInPageState.SELECT_SIGN_IN_METHOD;
+  currentStep: SignInPageState;
 
   signInPageState: typeof SignInPageState = SignInPageState;
 
@@ -263,7 +261,11 @@ export class SignInPage implements OnInit {
   }
 
   ionViewWillEnter(): void {
-    this.emailSet = !!this.fg.controls.email.value;
+    if (this.activatedRoute.snapshot.params.email) {
+      this.currentStep = SignInPageState.ENTER_PASSWORD;
+    } else {
+      this.currentStep = SignInPageState.SELECT_SIGN_IN_METHOD;
+    }
   }
 
   changeState(state: SignInPageState): void {
