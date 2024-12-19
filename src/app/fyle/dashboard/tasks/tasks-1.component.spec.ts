@@ -43,6 +43,7 @@ import {
 } from 'src/app/core/mock-data/task-cta.data';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { orgSettingsPendingRestrictions } from 'src/app/core/mock-data/org-settings.data';
+import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 
 export function TestCases1(getTestBed) {
   return describe('test case set 1', () => {
@@ -91,9 +92,6 @@ export function TestCases1(getTestBed) {
 
     it('ngOnInit(): should call setupNetworkWatcher once', () => {
       orgSettingsService.get.and.returnValue(of(orgSettingsPendingRestrictions));
-      component.isVisaRTFEnabled$ = of(true);
-      component.isMastercardRTFEnabled$ = of(true);
-      component.isYodleeEnabled$ = of(true);
       spyOn(component, 'setupNetworkWatcher');
       fixture.detectChanges();
 

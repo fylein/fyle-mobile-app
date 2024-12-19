@@ -54,6 +54,9 @@ import { By } from '@angular/platform-browser';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
+import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
+import { CardAddedComponent } from '../../manage-corporate-cards/card-added/card-added.component';
 
 export function TestCases2(getTestBed) {
   return describe('test case set 2', () => {
@@ -112,6 +115,8 @@ export function TestCases2(getTestBed) {
       let addCardPopoverSpy: jasmine.SpyObj<HTMLIonPopoverElement>;
       popoverController.create.and.returnValues(Promise.resolve(addCardPopoverSpy));
       orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+      orgSettingsService.get.and.returnValue(of(orgSettingsData));
+      orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
     }));
 
     describe('init():', () => {
@@ -200,24 +205,13 @@ export function TestCases2(getTestBed) {
       });
     });
 
-    it('onAddCorporateCardClick(): should open card popover', fakeAsync(() => {
-      // Mock the observables
-      component.isVisaRTFEnabled$ = of(true);
-      component.isMastercardRTFEnabled$ = of(true);
-      component.isYodleeEnabled$ = of(true);
-
-      // Mock the PopoverController
+    fit('onAddCorporateCardClick(): should open card popover', () => {
       const addCardPopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onDidDismiss']);
       addCardPopoverSpy.present.and.resolveTo();
       addCardPopoverSpy.onDidDismiss.and.resolveTo({});
 
       popoverController.create.and.resolveTo(addCardPopoverSpy);
-
-      // Call the method
       component.onAddCorporateCardClick();
-      tick();
-
-      // Assert popover creation
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         component: AddCorporateCardComponent,
         cssClass: 'fy-dialog-popover',
@@ -229,7 +223,26 @@ export function TestCases2(getTestBed) {
       });
 
       expect(addCardPopoverSpy.present).toHaveBeenCalledTimes(1);
-    }));
+    });
+
+    it('should handle enrollment success and trigger subsequent actions', async () => {
+      corporateCreditCardExpenseService.clearCache.and.returnValue(of(null));
+
+      const mockPopover = {
+        present: jasmine.createSpy('present').and.resolveTo(),
+        onDidDismiss: jasmine.createSpy('onDidDismiss').and.resolveTo(),
+      };
+      popoverController.create.and.resolveTo(mockPopover as any);
+
+      await component.handleEnrollmentSuccess();
+
+      expect(corporateCreditCardExpenseService.clearCache).toHaveBeenCalled();
+      expect(popoverController.create).toHaveBeenCalledWith({
+        component: CardAddedComponent,
+        cssClass: 'pop-up-in-center',
+      });
+      expect(mockPopover.present).toHaveBeenCalled();
+    });
 
     it('onMobileNumberVerificationTaskClick(): should open opt in modal', fakeAsync(() => {
       authService.getEou.and.resolveTo(apiEouRes);

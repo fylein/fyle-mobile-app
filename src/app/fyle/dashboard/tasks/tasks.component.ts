@@ -104,8 +104,6 @@ export class TasksComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.setupNetworkWatcher();
-
     this.isVisaRTFEnabled$ = this.orgSettingsService
       .get()
       .pipe(
@@ -131,6 +129,7 @@ export class TasksComponent implements OnInit {
           orgUserSettings.bank_data_aggregation_settings.enabled
       )
     );
+    this.setupNetworkWatcher();
   }
 
   trackTasks(tasks: DashboardTask[]): void {
