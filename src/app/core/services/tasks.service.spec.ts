@@ -40,7 +40,7 @@ import {
   sentBackReportTaskSingularSample,
   verifyMobileNumberTask2,
 } from '../mock-data/task.data';
-import { mastercardRTFCard } from '../mock-data/platform-corporate-card.data';
+import { mastercardRTFCard, statementUploadedCard, visaRTFCard } from '../mock-data/platform-corporate-card.data';
 import { OrgSettingsService } from './org-settings.service';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { expenseDuplicateSets } from '../mock-data/platform/v1/expense-duplicate-sets.data';
@@ -66,7 +66,6 @@ import {
   expectedSentBackResponse,
   expectedSentBackResponseSingularReport,
 } from '../mock-data/report-stats.data';
-import { expectedReportsSinglePage } from '../mock-data/platform-report.data';
 import { OrgService } from './org.service';
 import { orgData1 } from '../mock-data/org.data';
 import { UtilityService } from './utility.service';
@@ -419,6 +418,30 @@ describe('TasksService', () => {
         expect(count).toEqual(10);
         done();
       });
+  });
+
+  describe('getAddCorporateCardTask(): ', () => {
+    it('should return add corporate card task when no cards are enrolled', (done) => {
+      orgSettingsService.get.and.returnValue(of(orgSettingsRes));
+      corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([statementUploadedCard]));
+      const addCcSpy = spyOn(tasksService, 'mapAddCorporateCardTask');
+
+      tasksService.getAddCorporateCardTask().subscribe((tasks) => {
+        expect(corporateCreditCardExpenseService.getCorporateCards).toHaveBeenCalled();
+        expect(tasksService.mapAddCorporateCardTask).toHaveBeenCalled();
+        expect(addCcSpy).toHaveBeenCalledOnceWith();
+        done();
+      });
+    });
+
+    it('should return undefined when there are enrolled cards', (done) => {
+      corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([mastercardRTFCard, visaRTFCard]));
+      tasksService.getAddCorporateCardTask().subscribe((tasks) => {
+        expect(corporateCreditCardExpenseService.getCorporateCards).toHaveBeenCalled();
+        expect(tasks).toEqual([]);
+        done();
+      });
+    });
   });
 
   it('should be able to fetch advancesTaskCount', (done) => {
@@ -780,6 +803,7 @@ describe('TasksService', () => {
     corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([mastercardRTFCard]));
     orgSettingsService.get.and.returnValue(of(orgSettingsRes));
     employeesService.getCommuteDetails.and.returnValue(of(commuteDetailsResponseData));
+    corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([mastercardRTFCard]));
   }
 
   it('should be able to fetch tasks with no filters', (done) => {
