@@ -91,6 +91,6 @@ export class ResetPasswordPage {
   }
 
   onGotoSignInClick(): void {
-    this.router.navigate(['/', 'auth', 'sign_in', { email: (this.fg.controls.email.value as string) || '' }]);
+    this.router.navigate(['/', 'auth', 'sign_in', { email: this.fg.controls.email.value as string }]);
   }
 }
