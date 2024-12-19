@@ -87,21 +87,20 @@
 
     &__amount-section {
       display: flex;
-      justify-content: flex-end;
+      justify-content: flex-start;
       width: 90%;
-      margin-left: 16px;
+      padding-top: 10px;
       align-items: center;
     }
 
     &__category {
       color: $black;
-      font-size: 18px;
       font-weight: 500;
     }
 
     &__merchant {
-      padding-top: 2px;
-      color: $blue-black;
+      font-size: 12px;
+      color: $dark-grey;
     }
 
     &__project {
@@ -121,9 +120,9 @@
     }
 
     &__amount {
-      font-size: 20px;
+      font-size: 16px;
       font-weight: 500;
-      color: $blue-black;
+      color: $black;
       margin-right: 4px;
     }
 
@@ -135,13 +134,8 @@
       color: $black-light;
     }
 
-    &__no-exchange {
-      padding-top: 20px;
-    }
-
     &__state-pill {
       display: inline-block;
-      margin-top: 6px;
       white-space: nowrap;
     }
 
