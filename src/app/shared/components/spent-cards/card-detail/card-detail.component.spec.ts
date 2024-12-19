@@ -6,6 +6,7 @@ import { IonicModule } from '@ionic/angular';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
+import { ExactCurrencyPipe } from 'src/app/shared/pipes/exact-currency.pipe';
 import { MaskNumber } from 'src/app/shared/pipes/mask-number.pipe';
 import { CardDetailComponent } from './card-detail.component';
 import { cardDetailsRes } from 'src/app/core/mock-data/platform-corporate-card-detail.data';
@@ -41,7 +42,13 @@ describe('CardDetailComponent', () => {
     ]);
     const orgSettingServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     TestBed.configureTestingModule({
-      declarations: [CardDetailComponent, HumanizeCurrencyPipe, MaskNumber, MockCorporateCardComponent],
+      declarations: [
+        CardDetailComponent,
+        HumanizeCurrencyPipe,
+        ExactCurrencyPipe,
+        MaskNumber,
+        MockCorporateCardComponent,
+      ],
       imports: [IonicModule.forRoot(), RouterModule, RouterTestingModule],
       providers: [
         FyCurrencyPipe,
