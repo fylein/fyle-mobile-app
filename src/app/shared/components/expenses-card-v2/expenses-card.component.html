@@ -250,7 +250,7 @@
             </div>
 
             <div
-              *ngIf="isDraft && !isFromViewReports"
+              *ngIf="!isFromViewReports"
               class="expenses-card--state-container state-pill state-{{ expense.state | expenseState }}"
             >
               <span>
