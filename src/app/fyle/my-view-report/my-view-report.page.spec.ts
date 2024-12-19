@@ -930,9 +930,7 @@ describe('MyViewReportPage', () => {
     component.report$ = of(cloneDeep({ ...platformReportData, state: 'DRAFT' }));
     fixture.detectChanges();
 
-    const addExpenseButton = fixture.debugElement.nativeElement.querySelector(
-      '.view-reports--footer-conatiner .btn-outline-secondary'
-    ) as HTMLElement;
+    const addExpenseButton = getElementBySelector(fixture, '#add-expense') as HTMLElement;
     click(addExpenseButton);
 
     expect(router.navigate).toHaveBeenCalledOnceWith([

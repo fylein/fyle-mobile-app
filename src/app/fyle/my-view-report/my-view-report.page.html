@@ -176,7 +176,7 @@
               <div class="view-reports--zero-state-semibold-header">Looks like you’ve got</div>
               <div class="view-reports--zero-state-header">0 expense right now</div>
             </div>
-            <div class="view-reports--footer-conatiner">
+            <div class="view-reports--footer-container">
               <button
                 *ngIf="unreportedExpenses && unreportedExpenses.length > 0"
                 class="btn-primary"
@@ -186,6 +186,7 @@
               </button>
               <button
                 class="btn-outline-secondary"
+                id="add-expense"
                 [ngClass]="{'btn-primary': !(unreportedExpenses && unreportedExpenses.length > 0), 'btn-outline-secondary': unreportedExpenses && unreportedExpenses.length > 0}"
                 (click)="addExpense()"
               >
