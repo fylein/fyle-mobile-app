@@ -55,7 +55,7 @@
         <div class="d-flex">
           <div class="view-expense--card-container__block">
             <div class="view-expense--card-container__category">{{ expense.category.display_name }}</div>
-            <div class="view-expense--card-container__merchant" *ngIf="!isCCCTransaction">
+            <div class="view-expense--card-container__merchant" *ngIf="!expense.matched_corporate_card_transactions[0]">
               {{ expense.merchant || '-' }}
             </div>
             <div *ngIf="isProjectShown" class="view-expense--card-container__project">
@@ -102,7 +102,7 @@
           </div>
         </div>
 
-        <ng-container *ngIf="isCCCTransaction">
+        <ng-container *ngIf="expense.matched_corporate_card_transactions[0]">
           <div class="view-expense--card-container__merchant_block">
             <div class="view-expense--card-container__merchant_label">Merchant:</div>
             <div class="view-expense--card-container__merchant_value">
