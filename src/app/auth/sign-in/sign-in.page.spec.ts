@@ -485,9 +485,9 @@ describe('SignInPage', () => {
   });
 
   it('should sign in with google when clicking on the SIGN IN WITH GOOGLE button', () => {
+    component.currentStep = SignInPageState.SELECT_SIGN_IN_METHOD;
     spyOn(component, 'googleSignIn');
     const googleButton = getElementBySelector(fixture, '.sign-in__secondary-cta__btn') as HTMLElement;
-
     click(googleButton);
     expect(component.googleSignIn).toHaveBeenCalledTimes(1);
   });
