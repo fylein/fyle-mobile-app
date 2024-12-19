@@ -56,6 +56,35 @@
       width: 100%;
     }
 
+    &__merchant_block {
+      display: flex;
+      gap: 6px;
+      border-top: 1px solid $grey;
+      padding-top: 12px;
+      margin-top: 12px;
+      align-items: center;
+    }
+
+    &__merchant_label {
+      color: $black-light;
+      font-size: 12px;
+    }
+
+    &__merchant_value {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      color: $blue-black;
+      font-weight: 500;
+      font-size: 12px;
+    }
+
+    &__merchant_info_icon {
+      color: $blue-black;
+      width: 16px;
+      height: 16px;
+    }
+
     &__amount-section {
       display: flex;
       justify-content: flex-end;
