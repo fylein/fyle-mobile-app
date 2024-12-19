@@ -400,29 +400,35 @@ export class TasksComponent implements OnInit {
     });
   }
 
-  // eslint-disable-next-line complexity
-  loadTasksMap(taskCta: TaskCta, task: DashboardTask): void {
+  handleEventsWithTaskConfig(taskCta: TaskCta, task: DashboardTask): void {
     switch (taskCta.event) {
-      case TASKEVENT.expensesAddToReport:
-        this.onExpensesToReportTaskClick();
-        break;
       case TASKEVENT.openDraftReports:
         this.onOpenDraftReportsTaskClick(taskCta, task);
         break;
       case TASKEVENT.openSentBackReport:
         this.onSentBackReportTaskClick(taskCta, task);
         break;
-      case TASKEVENT.reviewExpenses:
-        this.onReviewExpensesTaskClick();
-        break;
       case TASKEVENT.openTeamReport:
         this.onTeamReportsTaskClick(taskCta, task);
         break;
-      case TASKEVENT.openPotentialDuplicates:
-        this.onPotentialDuplicatesTaskClick();
-        break;
       case TASKEVENT.openSentBackAdvance:
         this.onSentBackAdvanceTaskClick(taskCta, task);
+        break;
+      default:
+        break;
+    }
+  }
+
+  handleEventsWithoutTaskConfig(taskCtaEvent: TASKEVENT): void {
+    switch (taskCtaEvent) {
+      case TASKEVENT.expensesAddToReport:
+        this.onExpensesToReportTaskClick();
+        break;
+      case TASKEVENT.reviewExpenses:
+        this.onReviewExpensesTaskClick();
+        break;
+      case TASKEVENT.openPotentialDuplicates:
+        this.onPotentialDuplicatesTaskClick();
         break;
       case TASKEVENT.mobileNumberVerification:
         this.onMobileNumberVerificationTaskClick();
@@ -443,7 +449,8 @@ export class TasksComponent implements OnInit {
       Asset: 'Mobile',
       header: task.header,
     });
-    this.loadTasksMap(taskCta, task);
+    this.handleEventsWithTaskConfig(taskCta, task);
+    this.handleEventsWithoutTaskConfig(taskCta.event);
   }
 
   onMobileNumberVerificationTaskClick(): void {
