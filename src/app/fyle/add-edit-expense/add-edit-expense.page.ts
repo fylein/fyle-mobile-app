@@ -140,6 +140,7 @@ import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/fi
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
 import { RefinerService } from 'src/app/core/services/refiner.service';
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
+import { CCExpenseMerchantInfoPopoverComponent } from 'src/app/shared/components/cc-expense-merchant-info-popover/cc-expense-merchant-info-popover.component';
 
 // eslint-disable-next-line
 type FormValue = {
@@ -3518,14 +3519,13 @@ export class AddEditExpensePage implements OnInit {
         const isAdvanceWalletEnabled = res.orgSettings?.advances?.advance_wallets_enabled;
         let customProperties = res.customProperties;
         customProperties = customProperties.map((customProperty) => {
+          if (!customProperty.value) {
+            this.customFieldsService.setDefaultValue(customProperty, customProperty.type);
+          }
           if (customProperty.type === 'DATE') {
             customProperty.value = customProperty.value
               ? this.dateService.getUTCDate(new Date(customProperty.value as string))
               : null;
-          } else if (customProperty.type === 'LOCATION' && !customProperty.value) {
-            customProperty.value = {};
-          } else if (customProperty.type === 'BOOLEAN' && !customProperty.value) {
-            customProperty.value = false;
           }
           return customProperty;
         });
@@ -5236,6 +5236,15 @@ export class AddEditExpensePage implements OnInit {
       componentProps: {
         transactionStatus,
       },
+      cssClass: 'fy-dialog-popover',
+    });
+
+    await popover.present();
+  }
+
+  async openCCExpenseMerchantInfoModal(): Promise<void> {
+    const popover = await this.popoverController.create({
+      component: CCExpenseMerchantInfoPopoverComponent,
       cssClass: 'fy-dialog-popover',
     });
 

@@ -110,7 +110,7 @@ describe('ResetPasswordPage', () => {
       fixture.detectChanges();
 
       const errorElement = getElementRef(fixture, '.forgot-password__error-message');
-      expect(errorElement.nativeElement.textContent).toContain('Please enter a valid email.');
+      expect(errorElement.nativeElement.textContent).toContain(' Enter an email address. ');
     });
 
     it('should call sendResetLink with correct email when button is clicked', () => {
@@ -155,14 +155,15 @@ describe('ResetPasswordPage', () => {
       component.currentPageState = PageState.success;
     });
 
-    it('should send reset password link, change loading and page state', () => {
+    it('should send reset password link, change loading and page state to success', fakeAsync(() => {
       routerAuthService.sendResetPassword.and.returnValue(of({}));
 
       const email = 'jay.b@fyle.in';
       component.sendResetLink(email);
+      tick();
       expect(component.isLoading).toBeFalse();
       expect(component.currentPageState).toEqual(PageState.success);
-    });
+    }));
 
     it('should send reset password link, change loading and page state', () => {
       routerAuthService.sendResetPassword.and.returnValue(throwError(() => new Error('Error message')));
@@ -170,7 +171,7 @@ describe('ResetPasswordPage', () => {
 
       const email = 'jay.b@fyle.in';
       component.sendResetLink(email);
-      expect(component.isLoading).toBeTrue();
+      expect(component.isLoading).toBeFalse();
       expect(component.handleError).toHaveBeenCalledTimes(1);
     });
   });
@@ -202,6 +203,11 @@ describe('ResetPasswordPage', () => {
 
   it('onGotoSignInClick(): should navigate to sign-in page', () => {
     component.onGotoSignInClick();
-    expect(router.navigate).toHaveBeenCalledWith(['/', 'auth', 'sign_in']);
+    expect(router.navigate).toHaveBeenCalledWith([
+      '/',
+      'auth',
+      'sign_in',
+      { email: component.fg.controls.email.value },
+    ]);
   });
 });

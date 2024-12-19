@@ -11,6 +11,8 @@ import { CurrencyPipe, DatePipe } from '@angular/common';
 import { CurrencySymbolPipe } from 'src/app/shared/pipes/currency-symbol.pipe';
 import { ExpensePreviewComponent } from './expense-preview/expense-preview.component';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
+import { ExactCurrencyPipe } from 'src/app/shared/pipes/exact-currency.pipe';
+import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 
 describe('PersonalCardsMatchedExpensesPage', () => {
   let component: PersonalCardsMatchedExpensesPage;
@@ -34,7 +36,7 @@ describe('PersonalCardsMatchedExpensesPage', () => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
     TestBed.configureTestingModule({
-      declarations: [PersonalCardsMatchedExpensesPage, CurrencyPipe, DatePipe, CurrencySymbolPipe],
+      declarations: [PersonalCardsMatchedExpensesPage, CurrencyPipe, DatePipe, CurrencySymbolPipe, ExactCurrencyPipe],
       imports: [IonicModule.forRoot(), RouterTestingModule, RouterModule],
       providers: [
         UrlSerializer,
@@ -50,6 +52,8 @@ describe('PersonalCardsMatchedExpensesPage', () => {
           provide: ModalPropertiesService,
           useValue: modalPropertiesSpy,
         },
+        FyCurrencyPipe,
+        CurrencyPipe,
       ],
     }).compileComponents();
     personalCardsService = TestBed.inject(PersonalCardsService) as jasmine.SpyObj<PersonalCardsService>;

@@ -188,6 +188,21 @@
               </ion-row>
             </ng-container>
 
+            <ng-container>
+              <div class="add-edit-expense--card-container__merchant_block">
+                <div class="add-edit-expense--card-container__merchant_label">Merchant:</div>
+                <div class="add-edit-expense--card-container__merchant_value">
+                  <span> {{ selectedCCCTransaction?.vendor || 'Unavailable' }} </span>
+                  <ion-icon
+                    (click)="openCCExpenseMerchantInfoModal()"
+                    src="../../../assets/svg/info-circle-outline.svg"
+                    class="add-edit-expense--card-container__merchant_info_icon"
+                    data-testid="merchant-info-icon"
+                  ></ion-icon>
+                </div>
+              </div>
+            </ng-container>
+
             <ng-container *ngIf="isRTFEnabled$ | async">
               <ng-container *ngIf="platformExpense$ | async as expense">
                 <div

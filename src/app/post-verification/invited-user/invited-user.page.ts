@@ -82,7 +82,8 @@ export class InvitedUserPage implements OnInit {
 
   onPasswordValid(isValid: boolean): void {
     this.isPasswordValid = isValid;
-    this.fg.updateValueAndValidity();
+    this.fg.controls.password.updateValueAndValidity();
+    this.fg.controls.confirmPassword.updateValueAndValidity();
   }
 
   setPasswordTooltip(value: boolean): void {
@@ -93,7 +94,7 @@ export class InvitedUserPage implements OnInit {
     this.isLoading = true;
     this.fg.markAllAsTouched();
     if (this.fg.valid) {
-      from(this.loaderService.showLoader())
+      from(this.loaderService.showLoader('Signing in...'))
         .pipe(
           switchMap(() => this.eou$),
           switchMap((eou) => {

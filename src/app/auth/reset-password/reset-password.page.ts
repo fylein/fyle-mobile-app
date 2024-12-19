@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { tap } from 'rxjs/operators';
+import { finalize } from 'rxjs/operators';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { PageState } from 'src/app/core/models/page-state.enum';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -53,9 +53,24 @@ export class ResetPasswordPage {
 
     this.routerAuthService
       .sendResetPassword(email)
-      .pipe(tap(() => (this.isLoading = false)))
+      .pipe(
+        finalize(() => {
+          this.isLoading = false;
+        })
+      )
       .subscribe({
-        next: () => (this.currentPageState = PageState.success),
+        next: () => {
+          this.currentPageState = PageState.success;
+          if (this.isEmailSentOnce) {
+            const toastMessageData = {
+              message: ' Password recovery email sent successfully.',
+            };
+            this.matSnackBar.openFromComponent(ToastMessageComponent, {
+              ...this.snackbarProperties.setSnackbarProperties('success', toastMessageData),
+              panelClass: ['msb-success'],
+            });
+          }
+        },
         error: (err: { status: number }) => this.handleError(err),
       });
   }
@@ -76,6 +91,6 @@ export class ResetPasswordPage {
   }
 
   onGotoSignInClick(): void {
-    this.router.navigate(['/', 'auth', 'sign_in']);
+    this.router.navigate(['/', 'auth', 'sign_in', { email: this.fg.controls.email.value as string }]);
   }
 }

@@ -56,6 +56,10 @@
     --padding-bottom: 82px;
   }
 
+  &--content-zero-state {
+    --padding-bottom: 0;
+  }
+
   &--select-all-container {
     --border-style: none;
   }
@@ -285,6 +289,7 @@
 
   &--zero-states-body {
     height: 100%;
+    padding-top: 32px;
   }
 
   &--footer-toolbar {

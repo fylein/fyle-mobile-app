@@ -187,6 +187,10 @@ ion-popover.error-popover {
   stroke: $black-light;
 }
 
+.intermediate-loader .loading-wrapper .loading-spinner ion-spinner {
+  color: $brand-primary;
+}
+
 ion-popover.dialog-popover {
   &::part(content) {
     bottom: 0 !important;
@@ -194,7 +198,8 @@ ion-popover.dialog-popover {
     left: 0 !important;
     height: auto;
     width: 100%;
-    border-radius: 0;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
   }
 
   .popover-viewport {
@@ -1392,6 +1397,7 @@ ion-toggle.toggle-checked::before {
   text-align: center;
   text-transform: uppercase;
   white-space: nowrap;
+  height: max-content;
 
   //get state keys for generating state class
   @each $state in map-keys($states) {

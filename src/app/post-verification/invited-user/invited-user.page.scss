@@ -3,7 +3,7 @@
 .invited-user {
   display: flex;
   flex-direction: column;
-  padding: 24px 20px;
+  padding: 24px 20px 44px 20px;
   height: 100%;
   justify-content: space-between;
   margin-top: 18px;
@@ -19,6 +19,8 @@
   &__error {
     color: $red;
     font-size: 12px;
+    display: flex;
+    align-items: center;
   }
 
   &__text {
@@ -76,6 +78,7 @@
     position: relative;
     margin-bottom: 24px;
     color: $black;
+    font-weight: 500;
   }
 
   &__save {
@@ -86,7 +89,7 @@
   }
 
   &__back-icon {
-    margin-bottom: 20px;
+    margin-bottom: 16px;
     width: 28px;
     height: 28px;
   }

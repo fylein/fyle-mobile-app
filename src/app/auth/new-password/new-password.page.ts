@@ -33,11 +33,13 @@ export class NewPasswordPage implements OnInit {
 
   isPasswordValid = false;
 
-  hide = false;
+  hide = true;
 
-  hideConfirmPassword = false;
+  hideConfirmPassword = true;
 
   showPasswordTooltip = false;
+
+  isLoading = false;
 
   constructor(
     private fb: FormBuilder,
@@ -62,7 +64,7 @@ export class NewPasswordPage implements OnInit {
 
   changePassword(): void {
     const refreshToken = this.activatedRoute.snapshot.params.refreshToken as string;
-
+    this.isLoading = true;
     from(this.loaderService.showLoader())
       .pipe(
         switchMap(() => this.routerAuthService.resetPassword(refreshToken, this.fg.controls.password.value as string)),
@@ -73,7 +75,10 @@ export class NewPasswordPage implements OnInit {
           this.trackingService.resetPassword();
           await this.trackLoginInfo();
         }),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => {
+          this.isLoading = false;
+          return from(this.loaderService.hideLoader());
+        })
       )
       .subscribe(
         () => {
@@ -109,6 +114,8 @@ export class NewPasswordPage implements OnInit {
 
   onPasswordValid(isValid: boolean): void {
     this.isPasswordValid = isValid;
+    this.fg.controls.password.updateValueAndValidity();
+    this.fg.controls.confirmPassword.updateValueAndValidity();
   }
 
   redirectToSignIn(): void {
