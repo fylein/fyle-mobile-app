@@ -5,8 +5,10 @@
       <div *ngIf="selectedElements?.length === 0" class="report-list--title text-center">Add Expenses</div>
       <div *ngIf="selectedElements?.length > 0" class="add-expenses-to-report--title-container text-center">
         <div class="add-expenses-to-report--title">
-          {{ selectedElements?.length }} {{ selectedElements?.length > 1 ? 'Expenses' : 'Expense' }} -
-          {{ selectedTotalAmount || 0 | humanizeCurrency : homeCurrency }}
+          {{ selectedElements?.length }} {{ selectedElements?.length > 1 ? 'Expenses' : 'Expense' }}
+        </div>
+        <div class="add-expenses-to-report--total-amount">
+          {{ { value: selectedTotalAmount || 0, currencyCode: homeCurrency } | exactCurrency }}
         </div>
       </div>
     </ion-title>
