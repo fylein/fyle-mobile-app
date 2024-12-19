@@ -33,6 +33,7 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
 import { EllipsisPipe } from 'src/app/shared/pipes/ellipses.pipe';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
+import { ExactCurrencyPipe } from 'src/app/shared/pipes/exact-currency.pipe';
 import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
 import { SnakeCaseToSpaceCase } from 'src/app/shared/pipes/snake-case-to-space-case.pipe';
 import { NetworkService } from '../../core/services/network.service';
@@ -124,6 +125,7 @@ describe('MyViewReportPage', () => {
         MyViewReportPage,
         EllipsisPipe,
         HumanizeCurrencyPipe,
+        ExactCurrencyPipe,
         ReportState,
         SnakeCaseToSpaceCase,
         AsyncPipe,

@@ -421,6 +421,6 @@ import { CCExpenseMerchantInfoPopoverComponent } from './components/cc-expense-m
     MobileNumberCardComponent,
     CCExpenseMerchantInfoPopoverComponent,
   ],
-  providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker, FyCurrencyPipe, ReportState],
+  providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker, FyCurrencyPipe, ReportState, ExactCurrencyPipe],
 })
 export class SharedModule {}

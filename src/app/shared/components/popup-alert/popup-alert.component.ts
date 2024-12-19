@@ -10,6 +10,8 @@ export class PopupAlertComponent {
 
   @Input() message: string;
 
+  @Input() leftAlign = false;
+
   @Input() primaryCta: { text: string; action: string; type?: string };
 
   @Input() secondaryCta: { text: string; action: string; type?: string };
@@ -18,7 +20,7 @@ export class PopupAlertComponent {
 
   constructor(private popoverController: PopoverController) {}
 
-  ctaClickedEvent(action) {
+  ctaClickedEvent(action: string): void {
     this.popoverController.dismiss({
       action,
     });

@@ -6,6 +6,7 @@ import { AdvanceRequestService } from 'src/app/core/services/advance-request.ser
 import { EllipsisPipe } from 'src/app/shared/pipes/ellipses.pipe';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
+import { ExactCurrencyPipe } from 'src/app/shared/pipes/exact-currency.pipe';
 import { MyAdvancesCardComponent } from './my-advances-card.component';
 import * as dayjs from 'dayjs';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
@@ -19,7 +20,7 @@ describe('MyAdvancesCardComponent', () => {
   beforeEach(waitForAsync(() => {
     const advanceRequestServiceSpy = jasmine.createSpyObj('AdvanceRequestService', ['getInternalStateAndDisplayName']);
     TestBed.configureTestingModule({
-      declarations: [MyAdvancesCardComponent, EllipsisPipe, HumanizeCurrencyPipe, DatePipe],
+      declarations: [MyAdvancesCardComponent, EllipsisPipe, HumanizeCurrencyPipe, ExactCurrencyPipe, DatePipe],
       imports: [IonicModule.forRoot()],
       providers: [
         FyCurrencyPipe,

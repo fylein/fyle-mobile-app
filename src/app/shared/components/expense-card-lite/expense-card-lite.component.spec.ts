@@ -8,6 +8,9 @@ import { CurrencySymbolPipe } from '../../pipes/currency-symbol.pipe';
 import { getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { of } from 'rxjs';
 import { platformExpenseData, platformExpenseWithExtractedData } from 'src/app/core/mock-data/platform/v1/expense.data';
+import { ExactCurrencyPipe } from '../../pipes/exact-currency.pipe';
+import { FyCurrencyPipe } from '../../pipes/fy-currency.pipe';
+import { CurrencyPipe } from '@angular/common';
 
 describe('ExpenseCardLiteComponent', () => {
   let expenseCardLiteComponent: ExpenseCardLiteComponent;
@@ -18,13 +21,15 @@ describe('ExpenseCardLiteComponent', () => {
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById']);
 
     TestBed.configureTestingModule({
-      declarations: [ExpenseCardLiteComponent, CurrencySymbolPipe],
+      declarations: [ExpenseCardLiteComponent, CurrencySymbolPipe, ExactCurrencyPipe],
       imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule],
       providers: [
         {
           provide: ExpensesService,
           useValue: expensesServiceSpy,
         },
+        FyCurrencyPipe,
+        CurrencyPipe,
       ],
     }).compileComponents();
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;

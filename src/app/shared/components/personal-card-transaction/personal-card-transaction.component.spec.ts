@@ -4,6 +4,11 @@ import { PersonalCardTransactionComponent } from './personal-card-transaction.co
 import { IonicModule } from '@ionic/angular';
 import { DateFormatPipe } from '../../pipes/date-format.pipe';
 import { getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
+import { ExactCurrencyPipe } from '../../pipes/exact-currency.pipe';
+import { FyCurrencyPipe } from '../../pipes/fy-currency.pipe';
+import { CurrencyPipe } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('PersonalCardTransactionComponent', () => {
   let component: PersonalCardTransactionComponent;
@@ -12,13 +17,15 @@ describe('PersonalCardTransactionComponent', () => {
   beforeEach(waitForAsync(() => {
     const dateFormatPipeSpy = jasmine.createSpyObj('DateFormatPipe', ['transform']);
     TestBed.configureTestingModule({
-      declarations: [PersonalCardTransactionComponent, DateFormatPipe],
-      imports: [IonicModule.forRoot(), IconModule],
+      declarations: [PersonalCardTransactionComponent, DateFormatPipe, ExactCurrencyPipe, FyCurrencyPipe],
+      imports: [IonicModule.forRoot(), IconModule, MatIconTestingModule, MatIconModule],
       providers: [
         {
           provide: DateFormatPipe,
           useValue: dateFormatPipeSpy,
         },
+        FyCurrencyPipe,
+        CurrencyPipe,
       ],
     }).compileComponents();
 
@@ -75,12 +82,12 @@ describe('PersonalCardTransactionComponent', () => {
     it('should return true when the transaction is selected', () => {
       component.selectedElements = ['btxn4xVrxJS1Kz', 'btxnspKO99BGrB'];
       component.selectAll = true;
-      expect(component.isSelected).toBe(true);
+      expect(component.isSelected).toBeTrue();
     });
 
     it('should return false when the transaction is not selected', () => {
       component.txnId = 'some-other-txn-id';
-      expect(component.isSelected).toBe(false);
+      expect(component.isSelected).toBeFalse();
     });
   });
 
@@ -115,14 +122,14 @@ describe('PersonalCardTransactionComponent', () => {
 
   it('should display the currency, amount, and type', () => {
     component.currency = 'USD';
-    component.amount = 123.45;
+    component.amount = 123678965.45;
     component.type = 'debit';
     fixture.detectChanges();
     const currencyElement = getElementBySelector(fixture, '.personal-card-transaction--currency');
     expect(getTextContent(currencyElement)).toEqual('USD');
 
     const amountElement = getElementBySelector(fixture, '.personal-card-transaction--amount');
-    expect(getTextContent(amountElement)).toEqual('123.45');
+    expect(getTextContent(amountElement)).toEqual('123,678,965.45');
 
     const typeElement = getElementBySelector(fixture, '.personal-card-transaction--type');
     expect(getTextContent(typeElement)).toEqual('DR');

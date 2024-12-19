@@ -1,24 +1,27 @@
 <div class="summary-tile--card-container">
   <div class="d-flex">
     <div class="summary-tile--card-container__block">
-      <div *ngIf="category" class="summary-tile--card-container__category">{{ category }}</div>
+      <div *ngIf="category" class="summary-tile--card-container__category">
+        {{ category }}
+      </div>
+
       <div *ngIf="purpose" class="summary-tile--card-container__purpose">
-        {{ purpose | ellipsis: 25 }}
+        {{ purpose | ellipsis : 25 }}
       </div>
 
       <div *ngIf="merchant" class="summary-tile--card-container__merchant">
         {{ merchant }}
       </div>
+
       <div *ngIf="project" class="summary-tile--card-container__project">Project: {{ project }}</div>
-    </div>
-    <div class="ion-text-right summary-tile--card-container__block">
-      <div>
-        <span *ngIf="currency">{{ currency }}</span>
+
+      <div class="summary-tile--card-container__amount_container">
         <span class="summary-tile--card-container__amount">
-          {{ amount | humanizeCurrency: currency:true }}
+          {{ { value: amount, currencyCode: currency } | exactCurrency }}
         </span>
       </div>
-
+    </div>
+    <div class="ion-text-right summary-tile--card-container__block">
       <div
         class="ion-text-right"
         [ngClass]="{ 'summary-tile--card-container__no-exchange': !orig_currency && project }"
@@ -50,7 +53,7 @@
         <div class="summary-tile--approver-name">{{ ap.approver_name }}</div>
         <div class="summary-tile--approver-state-section">
           <div class="summary-tile--approver-state-section__date" *ngIf="ap.state === 'APPROVAL_DONE'">
-            <span>{{ ap.updated_at | date: 'MMM dd, YYYY' }}</span>
+            <span>{{ ap.updated_at | date : 'MMM dd, YYYY' }}</span>
           </div>
           <div
             class="summary-tile--approver-state-pill summary-tile--approver-state-pill__{{ ap.state | lowercase }}"

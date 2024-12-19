@@ -41,22 +41,29 @@
     margin-top: 16px;
     display: flex;
     justify-content: space-between;
+    align-items: center;
 
     &__margin-top {
       margin-top: 24px;
     }
   }
 
-  &--ccc-classified-count,
+  &--ccc-classified-count {
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 28px;
+    color: $black;
+  }
+
   &--ccc-classified-amount {
     font-weight: 500;
-    font-size: 18px;
+    font-size: 14px;
     line-height: 28px;
     color: $black;
   }
 
   &--ccc-stats-title {
-    font-size: 16px;
+    font-size: 14px;
     line-height: 20px;
     color: $black-2;
   }

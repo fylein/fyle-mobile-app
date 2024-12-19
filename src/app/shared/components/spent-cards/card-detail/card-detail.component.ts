@@ -16,6 +16,9 @@ export class CardDetailComponent {
 
   @Input() currencySymbol: string;
 
+  // To track if the screen is small (320px or below)
+  isSmallScreen = window.innerWidth <= 320;
+
   constructor(
     private router: Router,
     private trackingService: TrackingService,

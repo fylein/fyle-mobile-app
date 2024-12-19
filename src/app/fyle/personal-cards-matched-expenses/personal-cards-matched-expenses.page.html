@@ -10,53 +10,53 @@
 <ion-content class="matched-expenses">
   <div class="matched-expenses--body">
     <div class="matched-expenses--transaction">
-      <div class="matched-expenses--title">TRANSACTION DETAILS</div>
+      <div class="matched-expenses--title">Transaction Details</div>
       <div class="matched-expenses--transaction-details">
         <div class="matched-expenses--main-info">
           <div class="matched-expenses--purpose-amount-block">
             <div class="matched-expenses--purpose">
               <span>{{txnDetails.btxn_description}}</span>
             </div>
-            <div class="matched-expenses--amount-block">
-              <span
-                class="matched-expenses--currency"
-                [ngClass]="{'matched-expenses--green': txnDetails.btxn_transaction_type === 'credit'}"
-              >
-                {{ txnDetails.btxn_currency | currencySymbol }}
-              </span>
-              <span
-                class="matched-expenses--amount"
-                [ngClass]="{'matched-expenses--green': txnDetails.btxn_transaction_type === 'credit'}"
-              >
-                {{ txnDetails.btxn_amount | currency: txnDetails.btxn_currency: '' }}
-              </span>
-              <span
-                class="matched-expenses--type"
-                [ngClass]="{'matched-expenses--green': txnDetails.btxn_transaction_type === 'credit'}"
-              >
-                <ng-container *ngIf="txnDetails.btxn_transaction_type === 'debit'">DR</ng-container>
-                <ng-container *ngIf="txnDetails.btxn_transaction_type === 'credit'">CR</ng-container>
-              </span>
-            </div>
           </div>
         </div>
         <div class="matched-expenses--date">{{txnDetails.btxn_transaction_dt | date: 'MMM dd, YYYY'}}</div>
+        <div class="matched-expenses--amount-block">
+          <span
+            class="matched-expenses--currency"
+            [ngClass]="{'matched-expenses--green': txnDetails.btxn_transaction_type === 'credit'}"
+          >
+            {{ txnDetails.btxn_currency | currencySymbol }}
+          </span>
+          <span
+            class="matched-expenses--amount"
+            [ngClass]="{'matched-expenses--green': txnDetails.btxn_transaction_type === 'credit'}"
+          >
+            {{ { value: txnDetails.btxn_amount, currencyCode: txnDetails.btxn_currency, skipSymbol: true } |
+            exactCurrency }}
+          </span>
+          <span
+            class="matched-expenses--type"
+            [ngClass]="{'matched-expenses--green': txnDetails.btxn_transaction_type === 'credit'}"
+          >
+            <ng-container *ngIf="txnDetails.btxn_transaction_type === 'debit'">DR</ng-container>
+            <ng-container *ngIf="txnDetails.btxn_transaction_type === 'credit'">CR</ng-container>
+          </span>
+        </div>
       </div>
     </div>
 
     <div class="matched-expenses--action-content">
-      <div class="matched-expenses--action-title">SELECT A MATCHING EXPENSE</div>
+      <div class="matched-expenses--action-title">Select a matching expense</div>
       <div class="matched-expenses--expenses-preview">
         <ng-container *ngIf="expenseSuggestions && expenseSuggestions.length > 0">
           <ng-container *ngFor="let expense of expenseSuggestions; let first = first;">
             <div class="matched-expenses--divider" *ngIf="!first"></div>
-
             <app-expense-card-lite [expense]="expense" (click)="openExpensePreview(expense.split_group_id)">
             </app-expense-card-lite>
           </ng-container>
         </ng-container>
       </div>
-      <div class="matched-expenses--action-title">IN CASE THERE IS NO MATCH</div>
+      <div class="matched-expenses--action-title">In case there is no match</div>
       <div class="matched-expenses--action-container">
         <div class="matched-expenses--action-card" (click)="createExpense()">
           <div class="matched-expenses--block-action">

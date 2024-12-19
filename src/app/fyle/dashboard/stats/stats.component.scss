@@ -20,7 +20,7 @@ $ccc-bank-name: #c4cae8;
   &--header {
     font-size: 14px;
     line-height: 18px;
-    color: $grey-light;
+    color: $black-light;
     font-weight: 500;
   }
 
@@ -87,14 +87,12 @@ $ccc-bank-name: #c4cae8;
   }
 
   &--report-stats-row {
-    padding-bottom: 18px;
-    padding-top: 18px;
+    padding: 24px 0 20px 0;
     --ion-grid-column-padding: 0;
   }
 
   &--expenses-stats-row {
-    padding-bottom: 18px;
-    padding-top: 8px;
+    padding: 24px 0 20px 0;
     --ion-grid-column-padding: 0;
   }
 }

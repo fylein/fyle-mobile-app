@@ -100,7 +100,13 @@
 
   &--amount {
     color: $white;
-    float: right;
+    font-size: 18px;
+  }
+
+  &--purpose-state {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
 
   &--purpose-amount-block {
@@ -109,14 +115,14 @@
     color: $pure-white;
 
     &__purpose {
-      font-size: 16px;
+      font-size: 14px;
       line-height: 18px;
       font-weight: 500;
-      max-width: 85%;
+      max-width: 100%;
     }
 
     &__amount {
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 500;
     }
   }
