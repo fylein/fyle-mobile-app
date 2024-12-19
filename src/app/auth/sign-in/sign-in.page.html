@@ -1,5 +1,10 @@
-<ion-content class="sign-in" class="no-keyboard-adjust">
-  <div class="sign-in__select-sign-in" *ngIf="currentStep === signInPageState.SELECT_SIGN_IN_METHOD">
+<ion-content
+  class="sign-in"
+  class="no-keyboard-adjust"
+  scroll-y="false"
+  *ngIf="currentStep === signInPageState.SELECT_SIGN_IN_METHOD"
+>
+  <div class="sign-in__select-sign-in">
     <div class="sign-in__video-container">
       <video
         class="sign-in__video-container__video"
@@ -35,7 +40,14 @@
       </button>
     </div>
   </div>
-  <div class="sign-in__enter-email" *ngIf="currentStep === signInPageState.ENTER_EMAIL">
+</ion-content>
+<ion-content
+  class="sign-in"
+  class="no-keyboard-adjust"
+  scroll-y="false"
+  *ngIf="currentStep === signInPageState.ENTER_EMAIL"
+>
+  <div class="sign-in__enter-email fade-in">
     <div>
       <ion-icon
         class="fy-icon sign-in__enter-email__back-icon"
@@ -53,7 +65,7 @@
             #simpleEmailInput
             matInput
             type="email"
-            placeholder="Enter registered email"
+            placeholder="Enter email address"
             formControlName="email"
             pattern="\S+@\S+\.\S{2,}"
             class="sign-in__enter-email__input-container__input"
@@ -82,7 +94,14 @@
       </ion-button>
     </div>
   </div>
-  <div class="sign-in__enter-password" *ngIf="currentStep === signInPageState.ENTER_PASSWORD">
+</ion-content>
+<ion-content
+  class="sign-in"
+  class="no-keyboard-adjust"
+  scroll-y="false"
+  *ngIf="currentStep === signInPageState.ENTER_PASSWORD"
+>
+  <div class="sign-in__enter-password">
     <div>
       <ion-icon
         class="fy-icon sign-in__enter-email__back-icon"
