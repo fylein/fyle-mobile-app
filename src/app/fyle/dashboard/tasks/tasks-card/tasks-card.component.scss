@@ -87,6 +87,9 @@
     line-height: 28px;
     padding: 0;
     color: $dark-blue;
+    display: flex;
+    align-items: center;
+    gap: 2px;
   }
 
   &--header {

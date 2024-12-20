@@ -4,7 +4,7 @@
   &--date {
     color: $black-light;
     font-size: 14px;
-    padding: 12px 0 12px 12px;
+    padding: 24px 0 16px 12px;
     background-color: $white;
     font-weight: 500;
 
@@ -17,10 +17,7 @@
     background-color: $pure-white;
     min-height: 106px;
     padding: 12px;
-
-    &__with-border {
-      padding-top: 0;
-    }
+    margin-bottom: 6px;
   }
 
   &--deatils-block {
@@ -45,11 +42,6 @@
   &--checkbox {
     width: 20px;
     height: 20px;
-  }
-
-  &--divider {
-    border-bottom: 1px solid $grey-lighter;
-    margin-bottom: 16px;
   }
 
   &--edit-icon {
@@ -193,7 +185,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 80%;
+    max-width: 70%;
     padding-right: 4px;
   }
 
@@ -272,6 +264,11 @@
     flex-wrap: wrap;
   }
 
+  &--currency-amount-container {
+    display: flex;
+    gap: 2px;
+  }
+
   &--currency {
     color: $black;
     font-weight: 500;
@@ -284,8 +281,12 @@
     color: $black;
     font-size: 16px;
     line-height: 1.3;
-    margin-right: 6px;
+    margin-right: 2px;
     font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    white-space: nowrap;
   }
 
   &--icon {
