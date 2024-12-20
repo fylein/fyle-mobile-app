@@ -27,6 +27,9 @@ $advance_paid_color: darken(#5cb85c, 15%);
       color: $black;
       font-size: 14px;
       font-weight: 500;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     &__merchant {
