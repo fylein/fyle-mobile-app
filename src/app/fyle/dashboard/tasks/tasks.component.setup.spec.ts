@@ -27,7 +27,7 @@ import { OrgService } from 'src/app/core/services/org.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 
-fdescribe('TasksComponent', () => {
+describe('TasksComponent', () => {
   const getTestBed = () => {
     const tasksServiceSpy = jasmine.createSpyObj('TasksService', [
       'getTasks',
