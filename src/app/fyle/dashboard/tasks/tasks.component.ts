@@ -105,32 +105,6 @@ export class TasksComponent implements OnInit {
 
   ngOnInit(): void {
     this.setupNetworkWatcher();
-
-    this.isVisaRTFEnabled$ = this.orgSettingsService
-      .get()
-      .pipe(
-        map(
-          (orgSettings) => orgSettings.visa_enrollment_settings.allowed && orgSettings.visa_enrollment_settings.enabled
-        )
-      );
-
-    this.isMastercardRTFEnabled$ = this.orgSettingsService
-      .get()
-      .pipe(
-        map(
-          (orgSettings) =>
-            orgSettings.mastercard_enrollment_settings.allowed && orgSettings.mastercard_enrollment_settings.enabled
-        )
-      );
-
-    this.isYodleeEnabled$ = forkJoin([this.orgSettingsService.get(), this.orgUserSettingsService.get()]).pipe(
-      map(
-        ([orgSettings, orgUserSettings]) =>
-          orgSettings.bank_data_aggregation_settings.allowed &&
-          orgSettings.bank_data_aggregation_settings.enabled &&
-          orgUserSettings.bank_data_aggregation_settings.enabled
-      )
-    );
   }
 
   trackTasks(tasks: DashboardTask[]): void {
@@ -491,6 +465,26 @@ export class TasksComponent implements OnInit {
   }
 
   onAddCorporateCardClick(): void {
+    const orgSettings$ = this.orgSettingsService.get();
+    this.isVisaRTFEnabled$ = orgSettings$.pipe(
+      map((orgSettings) => orgSettings.visa_enrollment_settings.allowed && orgSettings.visa_enrollment_settings.enabled)
+    );
+
+    this.isMastercardRTFEnabled$ = orgSettings$.pipe(
+      map(
+        (orgSettings) =>
+          orgSettings.mastercard_enrollment_settings.allowed && orgSettings.mastercard_enrollment_settings.enabled
+      )
+    );
+
+    this.isYodleeEnabled$ = forkJoin([orgSettings$, this.orgUserSettingsService.get()]).pipe(
+      map(
+        ([orgSettings, orgUserSettings]) =>
+          orgSettings.bank_data_aggregation_settings.allowed &&
+          orgSettings.bank_data_aggregation_settings.enabled &&
+          orgUserSettings.bank_data_aggregation_settings.enabled
+      )
+    );
     forkJoin([this.isVisaRTFEnabled$, this.isMastercardRTFEnabled$, this.isYodleeEnabled$]).subscribe(
       async ([isVisaRTFEnabled, isMastercardRTFEnabled, isYodleeEnabled]) => {
         const addCorporateCardPopover = await this.popoverController.create({
