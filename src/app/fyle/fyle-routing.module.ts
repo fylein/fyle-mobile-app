@@ -46,6 +46,11 @@ const routes: Routes = [
     loadChildren: () => import('./add-edit-expense/add-edit-expense.module').then((m) => m.AddEditExpensePageModule),
   },
   {
+    path: 'spender_onboarding',
+    loadChildren: () =>
+      import('./spender-onboarding/spender-onboarding.module').then((m) => m.SpenderOnboardingPageModule),
+  },
+  {
     path: 'team_reports',
     loadChildren: () => import('./team-reports/team-reports.module').then((m) => m.TeamReportsPageModule),
   },
