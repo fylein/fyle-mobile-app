@@ -3,6 +3,7 @@ import { IonicModule } from '@ionic/angular';
 import { getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
+import { ExactCurrencyPipe } from 'src/app/shared/pipes/exact-currency.pipe';
 import { ReportStates } from './report-states';
 
 import { StatBadgeComponent } from './stat-badge.component';
@@ -14,7 +15,7 @@ describe('StatBadgeComponent', () => {
   beforeEach(waitForAsync(() => {
     const fyCurrencyPipeSpy = jasmine.createSpyObj('FyCurrencyPipe', ['transform']);
     TestBed.configureTestingModule({
-      declarations: [StatBadgeComponent, HumanizeCurrencyPipe, FyCurrencyPipe],
+      declarations: [StatBadgeComponent, HumanizeCurrencyPipe, ExactCurrencyPipe, FyCurrencyPipe],
       imports: [IonicModule.forRoot()],
       providers: [
         {

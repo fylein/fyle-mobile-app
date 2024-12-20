@@ -5,6 +5,7 @@ import { TeamAdvCardComponent } from './team-adv-card.component';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { EllipsisPipe } from 'src/app/shared/pipes/ellipses.pipe';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
+import { ExactCurrencyPipe } from 'src/app/shared/pipes/exact-currency.pipe';
 import { extendedAdvReqDraft } from 'src/app/core/mock-data/extended-advance-request.data';
 import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
@@ -25,7 +26,7 @@ describe('TeamAdvCardComponent', () => {
     });
 
     TestBed.configureTestingModule({
-      declarations: [TeamAdvCardComponent, HumanizeCurrencyPipe, EllipsisPipe, FyCurrencyPipe],
+      declarations: [TeamAdvCardComponent, HumanizeCurrencyPipe, ExactCurrencyPipe, EllipsisPipe, FyCurrencyPipe],
       imports: [IonicModule.forRoot(), MatRippleModule],
       providers: [
         { provide: AdvanceRequestService, useValue: advanceRequestServiceSpy },

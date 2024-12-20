@@ -12,6 +12,10 @@
     <div *ngIf="isReceiptPresent" class="expenses-card--receipt-image-container expenses-card--with-image">
       <img class="expenses-card--receipt-image" [src]="'../../../../assets/images/pdf-receipt-placeholder.png'" />
     </div>
+
+    <!-- Dashed Divider -->
+    <div class="expenses-card--vertical-dotted-border"></div>
+
     <div class="d-flex expenses-card--deatils-block">
       <div class="expenses-card--category-vendor-project-container">
         <div class="d-flex expenses-card--category-icon-container">
@@ -20,20 +24,20 @@
           </div>
         </div>
 
-        <div>
+        <div class="expenses-card--vendor">
           {{ expense.vendor }}
         </div>
 
-        <div>
+        <div class="expenses-card--date">
           {{ expense.txn_dt | date : 'MMM dd, YYYY' }}
         </div>
-      </div>
 
-      <div class="d-flex">
-        <div>
-          <div class="expenses-card--currency-amount-container ion-text-right">
+        <div class="d-flex">
+          <div class="expenses-card--currency-amount-container">
             <span class="expenses-card--currency">{{ expense.currency | currencySymbol }}</span>
-            <span class="expenses-card--amount"> {{ expense.amount }}</span>
+            <span class="expenses-card--amount">
+              {{ { value: expense.amount, currencyCode: expense.currency, skipSymbol: true } | exactCurrency }}
+            </span>
 
             <span>
               <ion-icon [src]="'assets/svg/arrow-right.svg'" class="expenses-card--icon" slot="icon-only"> </ion-icon>
