@@ -8,7 +8,7 @@ import { OnboardingStepStatus } from '../models/onboarding-step-status.model';
 @Injectable({
   providedIn: 'root',
 })
-export class OnboardingService {
+export class SpenderOnboardingService {
   constructor(private spenderPlatformV1ApiService: SpenderPlatformV1ApiService) {}
 
   getOnboardingStatus(): Observable<OnboardingStepStatus> {
