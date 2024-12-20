@@ -27,7 +27,7 @@ import { OrgService } from 'src/app/core/services/org.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 
-describe('TasksComponent', () => {
+fdescribe('TasksComponent', () => {
   const getTestBed = () => {
     const tasksServiceSpy = jasmine.createSpyObj('TasksService', [
       'getTasks',
@@ -70,6 +70,7 @@ describe('TasksComponent', () => {
     const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
     const corporateCreditCardExpenseServiceSpy = jasmine.createSpyObj('CorporateCreditCardExpenseService', [
       'getCorporateCards',
+      'clearCache',
     ]);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
@@ -86,7 +87,6 @@ describe('TasksComponent', () => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create', 'onDidDismiss']);
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
 
-    const addCardPopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onDidDismiss']);
     TestBed.configureTestingModule({
       declarations: [TasksComponent],
       imports: [IonicModule.forRoot(), RouterTestingModule],
