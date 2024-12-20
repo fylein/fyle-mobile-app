@@ -1,10 +1,5 @@
-<ion-content
-  class="sign-in"
-  class="no-keyboard-adjust"
-  scroll-y="false"
-  *ngIf="currentStep === signInPageState.SELECT_SIGN_IN_METHOD"
->
-  <div class="sign-in__select-sign-in">
+<ion-content class="sign-in" class="no-keyboard-adjust">
+  <div class="sign-in__select-sign-in" *ngIf="currentStep === signInPageState.SELECT_SIGN_IN_METHOD">
     <div class="sign-in__video-container">
       <video
         class="sign-in__video-container__video"
@@ -12,7 +7,7 @@
         height="auto"
         onloadedmetadata="this.muted = true"
         oncanplay="this.play()"
-        style="background: #fff"
+        poster="../../../assets/images/video-default-background.png"
         loop
       >
         <source src="/assets/videos/mobile-onboarding.mp4" type="video/mp4" />
@@ -41,14 +36,7 @@
       </button>
     </div>
   </div>
-</ion-content>
-<ion-content
-  class="sign-in"
-  class="no-keyboard-adjust"
-  scroll-y="false"
-  *ngIf="currentStep === signInPageState.ENTER_EMAIL"
->
-  <div class="sign-in__enter-email fade-in">
+  <div class="sign-in__enter-email" *ngIf="currentStep === signInPageState.ENTER_EMAIL">
     <div>
       <ion-icon
         class="fy-icon sign-in__enter-email__back-icon"
@@ -66,7 +54,7 @@
             #simpleEmailInput
             matInput
             type="email"
-            placeholder="Enter email address"
+            placeholder="Enter registered email"
             formControlName="email"
             pattern="\S+@\S+\.\S{2,}"
             class="sign-in__enter-email__input-container__input"
@@ -95,14 +83,7 @@
       </ion-button>
     </div>
   </div>
-</ion-content>
-<ion-content
-  class="sign-in"
-  class="no-keyboard-adjust"
-  scroll-y="false"
-  *ngIf="currentStep === signInPageState.ENTER_PASSWORD"
->
-  <div class="sign-in__enter-password">
+  <div class="sign-in__enter-password" *ngIf="currentStep === signInPageState.ENTER_PASSWORD">
     <div>
       <ion-icon
         class="fy-icon sign-in__enter-email__back-icon"
