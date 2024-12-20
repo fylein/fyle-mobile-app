@@ -19,6 +19,7 @@ import { SamlResponse } from 'src/app/core/models/saml-response.model';
 import { SignInPageState } from './sign-in-page-state.enum';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
+import { BackButtonService } from 'src/app/core/services/back-button.service';
 
 @Component({
   selector: 'app-sign-in',
@@ -59,7 +60,8 @@ export class SignInPage implements OnInit {
     private deviceService: DeviceService,
     private loginInfoService: LoginInfoService,
     private inAppBrowserService: InAppBrowserService,
-    private platformHandlerService: PlatformHandlerService
+    private platformHandlerService: PlatformHandlerService,
+    private backButtonService: BackButtonService
   ) {}
 
   async checkSAMLResponseAndSignInUser(data: SamlResponse): Promise<void> {
@@ -272,7 +274,9 @@ export class SignInPage implements OnInit {
       if (this.currentStep === SignInPageState.ENTER_EMAIL) {
         this.changeState(SignInPageState.SELECT_SIGN_IN_METHOD);
       } else if (this.currentStep === SignInPageState.ENTER_PASSWORD) {
-        this.changeState(SignInPageState.ENTER_PASSWORD);
+        this.changeState(SignInPageState.ENTER_EMAIL);
+      } else {
+        this.backButtonService.showAppCloseAlert();
       }
     };
     const priority = BackButtonActionPriority.MEDIUM;
