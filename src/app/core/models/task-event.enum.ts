@@ -9,4 +9,5 @@ export enum TASKEVENT {
   openSentBackAdvance = 7,
   mobileNumberVerification = 8,
   commuteDetails = 9,
+  addCorporateCard = 10,
 }

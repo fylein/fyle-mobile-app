@@ -41,6 +41,8 @@ import {
   taskCtaData8,
   taskCtaData9,
 } from 'src/app/core/mock-data/task-cta.data';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { orgSettingsPendingRestrictions } from 'src/app/core/mock-data/org-settings.data';
 
 export function TestCases1(getTestBed) {
   return describe('test case set 1', () => {
@@ -60,6 +62,7 @@ export function TestCases1(getTestBed) {
     let router: jasmine.SpyObj<Router>;
     let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
     let networkService: jasmine.SpyObj<NetworkService>;
+    let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
 
     beforeEach(waitForAsync(() => {
       const TestBed = getTestBed();
@@ -79,6 +82,7 @@ export function TestCases1(getTestBed) {
       router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
       activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
       networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
+      orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     }));
 
     it('should create', () => {
@@ -86,6 +90,10 @@ export function TestCases1(getTestBed) {
     });
 
     it('ngOnInit(): should call setupNetworkWatcher once', () => {
+      orgSettingsService.get.and.returnValue(of(orgSettingsPendingRestrictions));
+      component.isVisaRTFEnabled$ = of(true);
+      component.isMastercardRTFEnabled$ = of(true);
+      component.isYodleeEnabled$ = of(true);
       spyOn(component, 'setupNetworkWatcher');
       fixture.detectChanges();
 
