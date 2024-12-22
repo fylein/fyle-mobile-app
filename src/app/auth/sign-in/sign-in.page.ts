@@ -271,12 +271,15 @@ export class SignInPage implements OnInit {
   ionViewWillEnter(): void {
     this.emailSet = !!this.fg.controls.email.value;
     const fn = (): void => {
-      if (this.currentStep === SignInPageState.ENTER_EMAIL) {
-        this.changeState(SignInPageState.SELECT_SIGN_IN_METHOD);
-      } else if (this.currentStep === SignInPageState.ENTER_PASSWORD) {
-        this.changeState(SignInPageState.ENTER_EMAIL);
-      } else {
-        this.backButtonService.showAppCloseAlert();
+      switch (this.currentStep) {
+        case SignInPageState.ENTER_EMAIL:
+          this.changeState(SignInPageState.SELECT_SIGN_IN_METHOD);
+          break;
+        case SignInPageState.ENTER_PASSWORD:
+          this.changeState(SignInPageState.ENTER_EMAIL);
+          break;
+        default:
+          this.backButtonService.showAppCloseAlert();
       }
     };
     const priority = BackButtonActionPriority.MEDIUM;
