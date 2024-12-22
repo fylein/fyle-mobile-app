@@ -4,38 +4,35 @@
   background-color: $pure-white;
   &--icon {
     font-size: 24px;
+    padding-top: 4px;
+    color: $blue-black;
+
     &__warning {
-      font-size: 28px;
+      font-size: 20px;
       position: relative;
-      color: $grey-light;
       top: -2px;
       left: -5px;
     }
 
     &__expense {
-      color: $grey-light;
-      font-size: 32px;
+      font-size: 20px;
       position: relative;
       top: -6px;
       left: -8px;
     }
 
     &__advance {
-      color: $grey-light;
       position: relative;
       top: -6px;
       left: -8px;
-      height: 32px;
-      width: 32px;
+      font-size: 20px;
     }
 
     &__mobile {
-      color: $grey-light;
       position: relative;
       bottom: 4px;
       right: 6px;
-      height: 28px;
-      width: 28px;
+      font-size: 20px;
     }
   }
 
@@ -44,10 +41,18 @@
   }
 
   &--cta-row {
-    padding-top: 17px;
+    padding-top: 11px;
+    max-width: fit-content;
+    display: flex;
 
     &-icon {
       color: $black;
+      font-size: 14px;
+      padding: 0;
+    }
+
+    &-icon-container {
+      padding: 3px 0 0 2px;
     }
   }
 
@@ -62,7 +67,7 @@
   }
 
   &--header-col {
-    padding-top: 0;
+    padding: 0;
   }
 
   &--card {
@@ -78,31 +83,36 @@
   }
 
   &--amount {
-    font-size: 18px;
+    font-size: 12px;
     line-height: 28px;
-    font-weight: 500;
+    padding: 0;
     color: $dark-blue;
+    display: flex;
+    align-items: center;
+    gap: 2px;
   }
 
   &--header {
-    font-size: 18px;
+    font-size: 14px;
     line-height: 23px;
     font-weight: 500;
-    color: $dark-blue;
-    padding-top: 4px;
+    color: $blue-black;
+    padding: 4px 0 0 0;
   }
 
   &--subheader {
-    font-size: 16px;
+    font-size: 12px;
     line-height: 20px;
     color: $blue-black;
+    padding: 0;
   }
 
   &--cta {
     font-size: 14px;
     line-height: 20px;
     font-weight: 500;
-    color: $brand-primary;
+    color: $blue-black;
     white-space: nowrap;
+    padding: 0;
   }
 }

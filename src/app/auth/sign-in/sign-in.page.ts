@@ -29,8 +29,6 @@ import { BackButtonService } from 'src/app/core/services/back-button.service';
 export class SignInPage implements OnInit {
   fg: FormGroup;
 
-  emailSet = false;
-
   emailLoading = false;
 
   passwordLoading = false;
@@ -41,7 +39,7 @@ export class SignInPage implements OnInit {
 
   checkEmailExists$: Observable<EmailExistsResponse>;
 
-  currentStep: SignInPageState = SignInPageState.SELECT_SIGN_IN_METHOD;
+  currentStep: SignInPageState;
 
   signInPageState: typeof SignInPageState = SignInPageState;
 
@@ -269,7 +267,6 @@ export class SignInPage implements OnInit {
   }
 
   ionViewWillEnter(): void {
-    this.emailSet = !!this.fg.controls.email.value;
     const fn = (): void => {
       switch (this.currentStep) {
         case SignInPageState.ENTER_EMAIL:

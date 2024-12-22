@@ -1,6 +1,7 @@
 .shimmer {
   &--section {
     margin-bottom: 30px;
+    padding: 12px;
   }
 
   &--date {
@@ -15,16 +16,18 @@
   }
 
   &--desc {
-    width: 65%;
-    height: 22px;
+    width: 100%;
+    height: 20px;
   }
 
   &--amount {
-    width: 25%;
+    width: 35%;
+    height: 22px;
+    margin-bottom: 8px;
   }
 
   &--sub-header {
-    width: 35%;
+    width: 45%;
     height: 20px;
   }
 }

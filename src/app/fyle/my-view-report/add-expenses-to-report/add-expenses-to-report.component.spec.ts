@@ -8,6 +8,7 @@ import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-he
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
+import { ExactCurrencyPipe } from 'src/app/shared/pipes/exact-currency.pipe';
 import { AddExpensesToReportComponent } from './add-expenses-to-report.component';
 import { expenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 
@@ -28,7 +29,7 @@ describe('AddExpensesToReportComponent', () => {
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     TestBed.configureTestingModule({
-      declarations: [AddExpensesToReportComponent, HumanizeCurrencyPipe],
+      declarations: [AddExpensesToReportComponent, HumanizeCurrencyPipe, ExactCurrencyPipe],
       imports: [IonicModule.forRoot()],
       providers: [
         FyCurrencyPipe,
@@ -194,13 +195,18 @@ describe('AddExpensesToReportComponent', () => {
     expect(getTextContent(getElementBySelector(fixture, '.report-list--title'))).toEqual('Add Expenses');
   });
 
-  it('should show number of expenses and total amount', () => {
+  it('should show number of expenses', () => {
     component.selectedElements = [expense1, expense2];
     fixture.detectChanges();
 
-    expect(getTextContent(getElementBySelector(fixture, '.add-expenses-to-report--title'))).toEqual(
-      '2 Expenses - $500.00'
-    );
+    expect(getTextContent(getElementBySelector(fixture, '.add-expenses-to-report--title'))).toEqual('2 Expenses');
+  });
+
+  it('should show total amount', () => {
+    component.selectedElements = [expense1, expense2];
+    fixture.detectChanges();
+
+    expect(getTextContent(getElementBySelector(fixture, '.add-expenses-to-report--total-amount'))).toEqual('$500.00');
   });
 
   it('should zero state message if no unreported expense exist', () => {

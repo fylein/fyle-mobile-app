@@ -221,7 +221,6 @@ describe('SignInPage', () => {
       component.checkIfEmailExists();
       expect(component.handleSamlSignIn).toHaveBeenCalledOnceWith({ saml: true });
       expect(routerAuthService.checkEmailExists).toHaveBeenCalledOnceWith(component.fg.controls.email.value);
-      expect(component.emailSet).toBeFalse();
       expect(component.emailLoading).toBeFalse();
       done();
     });
@@ -443,15 +442,6 @@ describe('SignInPage', () => {
     });
   });
 
-  it('ionViewWillEnter(): should set email', () => {
-    expect(component.emailSet).toBeFalse();
-
-    component.fg.controls.email.setValue('email');
-
-    component.ionViewWillEnter();
-    expect(component.emailSet).toBeTrue();
-  });
-
   describe('ngOnInit(): ', () => {
     it('should navigate to switch org page if logged in ', fakeAsync(() => {
       loaderService.showLoader.and.resolveTo();
@@ -495,9 +485,11 @@ describe('SignInPage', () => {
   });
 
   it('should sign in with google when clicking on the SIGN IN WITH GOOGLE button', () => {
+    component.currentStep = SignInPageState.SELECT_SIGN_IN_METHOD;
     spyOn(component, 'googleSignIn');
-    const googleButton = getElementBySelector(fixture, '.sign-in__secondary-cta__btn') as HTMLElement;
+    fixture.detectChanges();
 
+    const googleButton = getElementBySelector(fixture, '.sign-in__secondary-cta__btn') as HTMLElement;
     click(googleButton);
     expect(component.googleSignIn).toHaveBeenCalledTimes(1);
   });
