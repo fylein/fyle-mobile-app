@@ -266,21 +266,22 @@ export class SignInPage implements OnInit {
     await this.loginInfoService.addLoginInfo(deviceInfo.appVersion, new Date());
   }
 
+  goBack(): void {
+    switch (this.currentStep) {
+      case SignInPageState.ENTER_EMAIL:
+        this.changeState(SignInPageState.SELECT_SIGN_IN_METHOD);
+        break;
+      case SignInPageState.ENTER_PASSWORD:
+        this.changeState(SignInPageState.ENTER_EMAIL);
+        break;
+      default:
+        this.backButtonService.showAppCloseAlert();
+    }
+  }
+
   ionViewWillEnter(): void {
-    const fn = (): void => {
-      switch (this.currentStep) {
-        case SignInPageState.ENTER_EMAIL:
-          this.changeState(SignInPageState.SELECT_SIGN_IN_METHOD);
-          break;
-        case SignInPageState.ENTER_PASSWORD:
-          this.changeState(SignInPageState.ENTER_EMAIL);
-          break;
-        default:
-          this.backButtonService.showAppCloseAlert();
-      }
-    };
     const priority = BackButtonActionPriority.MEDIUM;
-    this.hardwareBackButtonAction = this.platformHandlerService.registerBackButtonAction(priority, fn);
+    this.hardwareBackButtonAction = this.platformHandlerService.registerBackButtonAction(priority, this.goBack);
   }
 
   changeState(state: SignInPageState): void {
@@ -304,5 +305,9 @@ export class SignInPage implements OnInit {
           this.router.navigate(['/', 'auth', 'switch_org', { choose: false }]);
         }
       });
+  }
+
+  ionViewWillLeave(): void {
+    this.hardwareBackButtonAction.unsubscribe();
   }
 }
