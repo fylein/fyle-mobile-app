@@ -58,6 +58,7 @@ import {
   paidReportData,
 } from 'src/app/core/mock-data/platform-report.data';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
+import { CCExpenseMerchantInfoPopoverComponent } from 'src/app/shared/components/cc-expense-merchant-info-popover/cc-expense-merchant-info-popover.component';
 
 describe('ViewExpensePage', () => {
   let component: ViewExpensePage;
@@ -1072,6 +1073,21 @@ describe('ViewExpensePage', () => {
       componentProps: {
         transactionStatus: ExpenseTransactionStatus.PENDING,
       },
+      cssClass: 'fy-dialog-popover',
+    });
+    expect(popoverSpy.present).toHaveBeenCalledTimes(1);
+  }));
+
+  it('openCCExpenseMerchantInfoModal(): should open the transaction status info modal', fakeAsync(() => {
+    const popoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present']);
+    popoverController.create.and.resolveTo(popoverSpy);
+
+    component.openCCExpenseMerchantInfoModal();
+
+    tick();
+
+    expect(popoverController.create).toHaveBeenCalledOnceWith({
+      component: CCExpenseMerchantInfoPopoverComponent,
       cssClass: 'fy-dialog-popover',
     });
     expect(popoverSpy.present).toHaveBeenCalledTimes(1);

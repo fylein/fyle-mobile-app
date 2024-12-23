@@ -26,12 +26,19 @@
     align-items: center;
   }
 
+  &__status-label {
+    color: $black-light;
+    font-size: 12px;
+    margin-bottom: 2px;
+  }
+
   &__status-value {
     color: $blue-black;
     font-weight: 500;
     margin-left: 6px;
     margin-right: 2px;
     line-height: 1.4;
+    font-size: 12px;
   }
 
   &__info-icon {

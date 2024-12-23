@@ -341,7 +341,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       url,
       access_token,
       isMfaFlow,
-      this.selectedAccount.yodlee_provider_account_id
+      this.selectedAccount?.yodlee_provider_account_id
     );
     const browser = this.inAppBrowserService.create(pageContentUrl, '_blank', 'location=no');
     this.spinnerDialog.show();

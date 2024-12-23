@@ -65,12 +65,12 @@
   <ng-container multiselect>
     <ng-container *ngIf="homeCurrency$ | async as homeCurrency">
       <ng-container *ngIf="allExpensesStats$ | async as allExpensesStats">
-        <ion-title class="my-expenses--multiselect-title page-title">
-          {{allExpensesStats?.count}} {{(allExpensesStats?.count > 1) ? 'expenses' : 'expense'}}
+        <div class="my-expenses--multiselect-title page-title">
+          <span>{{allExpensesStats?.count}} {{(allExpensesStats?.count > 1) ? 'expenses' : 'expense'}}</span>
           <span class="my-expenses--multiselect-amount">
-            ({{(allExpensesStats.amount || 0) | humanizeCurrency: homeCurrency }})
+            ({{ { value: allExpensesStats.amount || 0, currencyCode: homeCurrency } | exactCurrency }})
           </span>
-        </ion-title>
+        </div>
       </ng-container>
     </ng-container>
     <ion-buttons mode="md" slot="end">
@@ -91,7 +91,14 @@
   </ng-container>
 </app-fy-header>
 
-<ion-content [ngClass]="{'d-none': isCameraPreviewStarted}" class="my-expenses--content" (click)="onPageClick()">
+<ion-content
+  [ngClass]="{
+  'd-none': isCameraPreviewStarted,
+  'my-expenses--content-zero-state': ((pendingTransactions.length === 0) && ((count$ | async) === 0) && isConnected$ | async)
+}"
+  class="my-expenses--content"
+  (click)="onPageClick()"
+>
   <div
     class="my-expenses--body"
     [ngClass]="{'my-expenses--zero-states-body': (((count$ | async) === 0) && isConnected$|async) || (pendingTransactions.length === 0 && !(isConnected$|async))}"
@@ -114,6 +121,7 @@
 
     <app-fy-loading-screen
       *ngIf="isLoading"
+      [isNewLoaderEnabled]="true"
       [isSelectionModeEnabled]="selectionMode"
       class="my-expenses--shimmers"
     ></app-fy-loading-screen>
@@ -205,6 +213,7 @@
     <ng-container *ngIf="isConnected$|async">
       <ng-container *ngIf="isLoadingDataInInfiniteScroll">
         <app-fy-loading-screen
+          [isNewLoaderEnabled]="true"
           [isSelectionModeEnabled]="selectionMode"
           class="my-expenses--shimmers"
         ></app-fy-loading-screen>

@@ -37,6 +37,7 @@ import { ReportPermissions } from 'src/app/core/models/report-permissions.model'
 import { ExtendedComment } from 'src/app/core/models/platform/v1/extended-comment.model';
 import { Comment } from 'src/app/core/models/platform/v1/comment.model';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
+import * as Sentry from '@sentry/angular';
 
 @Component({
   selector: 'app-my-view-report',
@@ -444,14 +445,25 @@ export class MyViewReportPage {
   }
 
   submitReport(): void {
-    this.spenderReportsService.submit(this.reportId).subscribe(() => {
-      this.router.navigate(['/', 'enterprise', 'my_reports']);
-      const message = `Report submitted successfully.`;
-      this.matSnackBar.openFromComponent(ToastMessageComponent, {
-        ...this.snackbarProperties.setSnackbarProperties('success', { message }),
-        panelClass: ['msb-success-with-camera-icon'],
-      });
-      this.trackingService.showToastMessage({ ToastContent: message });
+    this.spenderReportsService.submit(this.reportId).subscribe({
+      next: () => {
+        this.router.navigate(['/', 'enterprise', 'my_reports']);
+        const message = `Report submitted successfully.`;
+        this.matSnackBar.openFromComponent(ToastMessageComponent, {
+          ...this.snackbarProperties.setSnackbarProperties('success', { message }),
+          panelClass: ['msb-success-with-camera-icon'],
+        });
+        this.trackingService.showToastMessage({ ToastContent: message });
+      },
+      error: (error) => {
+        // Capture error with additional details in Sentry
+        Sentry.captureException(error, {
+          extra: {
+            reportId: this.reportId,
+            errorResponse: error,
+          },
+        });
+      },
     });
   }
 
