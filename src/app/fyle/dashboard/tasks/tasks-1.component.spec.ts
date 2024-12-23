@@ -32,6 +32,7 @@ import { taskModalControllerParams, taskModalControllerParams2 } from 'src/app/c
 import {
   taskCtaData,
   taskCtaData10,
+  taskCtaData11,
   taskCtaData2,
   taskCtaData3,
   taskCtaData4,
@@ -337,6 +338,7 @@ export function TestCases1(getTestBed) {
         spyOn(component, 'onPotentialDuplicatesTaskClick');
         spyOn(component, 'onSentBackAdvanceTaskClick');
         spyOn(component, 'onMobileNumberVerificationTaskClick');
+        spyOn(component, 'onAddCorporateCardClick');
         spyOn(component, 'onCommuteDetailsTaskClick');
       });
 
@@ -476,6 +478,24 @@ export function TestCases1(getTestBed) {
         expect(component.onSentBackAdvanceTaskClick).not.toHaveBeenCalled();
         expect(component.onMobileNumberVerificationTaskClick).not.toHaveBeenCalled();
         expect(component.onCommuteDetailsTaskClick).toHaveBeenCalledTimes(1);
+      });
+
+      it('should call onAddCorporateCardClick if clicked on addCorporateCard', () => {
+        component.onTaskClicked(taskCtaData11, dashboardTasksData[0]);
+        expect(trackingService.tasksClicked).toHaveBeenCalledOnceWith({
+          Asset: 'Mobile',
+          header: dashboardTasksData[0].header,
+        });
+        expect(component.onExpensesToReportTaskClick).not.toHaveBeenCalled();
+        expect(component.onOpenDraftReportsTaskClick).not.toHaveBeenCalled();
+        expect(component.onSentBackReportTaskClick).not.toHaveBeenCalled();
+        expect(component.onReviewExpensesTaskClick).not.toHaveBeenCalled();
+        expect(component.onTeamReportsTaskClick).not.toHaveBeenCalled();
+        expect(component.onPotentialDuplicatesTaskClick).not.toHaveBeenCalled();
+        expect(component.onSentBackAdvanceTaskClick).not.toHaveBeenCalled();
+        expect(component.onMobileNumberVerificationTaskClick).not.toHaveBeenCalled();
+        expect(component.onCommuteDetailsTaskClick).not.toHaveBeenCalledTimes(1);
+        expect(component.onAddCorporateCardClick).toHaveBeenCalledTimes(1);
       });
 
       it('should only call trackingService.tasksClicked if none of them matches', () => {
