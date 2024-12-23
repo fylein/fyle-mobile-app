@@ -4,6 +4,7 @@ import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { OnboardingWelcomeStepStatus } from '../models/onboarding-welcome-step-status.model';
 import { OnboardingStepStatus } from '../models/onboarding-step-status.model';
+import { OnboardingStatus } from '../models/onboarding-status.model';
 
 @Injectable({
   providedIn: 'root',
@@ -11,15 +12,15 @@ import { OnboardingStepStatus } from '../models/onboarding-step-status.model';
 export class SpenderOnboardingService {
   constructor(private spenderPlatformV1ApiService: SpenderPlatformV1ApiService) {}
 
-  getOnboardingStatus(): Observable<OnboardingStepStatus> {
+  getOnboardingStatus(): Observable<OnboardingStatus> {
     return this.spenderPlatformV1ApiService
-      .get<PlatformApiResponse<OnboardingStepStatus>>('/spender/onboarding')
+      .get<PlatformApiResponse<OnboardingStatus>>('/onboarding')
       .pipe(map((res) => res.data));
   }
 
   processConnectCardsStep(data: OnboardingStepStatus): Observable<OnboardingStepStatus> {
     return this.spenderPlatformV1ApiService
-      .post<PlatformApiResponse<OnboardingStepStatus>>('/spender/onboarding/process_step_connect_cards', {
+      .post<PlatformApiResponse<OnboardingStepStatus>>('/onboarding/process_step_connect_cards', {
         data,
       })
       .pipe(map((res) => res.data));
@@ -27,13 +28,13 @@ export class SpenderOnboardingService {
 
   processSmsOptInStep(data: OnboardingStepStatus): Observable<OnboardingStepStatus> {
     return this.spenderPlatformV1ApiService
-      .post<PlatformApiResponse<OnboardingStepStatus>>('/spender/onboarding/process_step_sms_opt_in', { data })
+      .post<PlatformApiResponse<OnboardingStepStatus>>('/onboarding/process_step_sms_opt_in', { data })
       .pipe(map((res) => res.data));
   }
 
   processWelcomeModalStep(data: OnboardingWelcomeStepStatus): Observable<OnboardingWelcomeStepStatus> {
     return this.spenderPlatformV1ApiService
-      .post<PlatformApiResponse<OnboardingWelcomeStepStatus>>('/spender/onboarding/process_step_show_welcome_modal', {
+      .post<PlatformApiResponse<OnboardingWelcomeStepStatus>>('/onboarding/process_step_show_welcome_modal', {
         data,
       })
       .pipe(map((res) => res.data));
