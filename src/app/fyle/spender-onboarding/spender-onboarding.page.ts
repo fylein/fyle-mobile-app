@@ -88,4 +88,5 @@ export class SpenderOnboardingPage {
       this.spenderOnboardingService.markSmsOptInStepAsComplete();
     }
   }
+
 }
