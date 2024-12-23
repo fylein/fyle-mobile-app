@@ -205,7 +205,7 @@ export function TestCases2(getTestBed) {
       });
     });
 
-    fit('onAddCorporateCardClick(): should open card popover', () => {
+    it('onAddCorporateCardClick(): should open card popover', () => {
       orgSettingsService.get.and.returnValue(of(orgSettingsPendingRestrictions));
       orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
       const addCardPopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onDidDismiss']);
