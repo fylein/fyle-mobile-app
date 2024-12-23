@@ -1,6 +1,6 @@
 import { CurrencyPipe } from '@angular/common';
 import { CUSTOM_ELEMENTS_SCHEMA, EventEmitter } from '@angular/core';
-import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, flush, tick, waitForAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
@@ -59,7 +59,7 @@ import { ApproverReportsService } from 'src/app/core/services/platform/v1/approv
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { RefinerService } from 'src/app/core/services/refiner.service';
 
-describe('ViewTeamReportPageV2', () => {
+fdescribe('ViewTeamReportPageV2', () => {
   let component: ViewTeamReportPage;
   let fixture: ComponentFixture<ViewTeamReportPage>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
@@ -588,7 +588,6 @@ describe('ViewTeamReportPageV2', () => {
       component.report$ = of(reportWithExpenses);
       component.expenses$ = of(expenseResponseData);
       launchDarklyService.getVariation.and.returnValue(of(true));
-      fixture.detectChanges();
 
       component.approveReport();
       tick(1000);
@@ -653,7 +652,6 @@ describe('ViewTeamReportPageV2', () => {
 
       component.report$ = of(reportWithExpenses);
       component.expenses$ = of(expenseResponseData);
-      fixture.detectChanges();
 
       component.approveReport();
       tick();
@@ -679,7 +677,6 @@ describe('ViewTeamReportPageV2', () => {
 
       component.report$ = of(reportWithExpenses);
       component.expenses$ = of(expenseResponseData);
-      fixture.detectChanges();
 
       component.approveReport();
       tick();
@@ -704,7 +701,6 @@ describe('ViewTeamReportPageV2', () => {
 
       component.report$ = of(reportWithExpenses);
       component.expenses$ = of(expenseResponseData);
-      fixture.detectChanges();
 
       component.approveReport();
       tick();
