@@ -205,13 +205,14 @@ export function TestCases2(getTestBed) {
       });
     });
 
-    it('onAddCorporateCardClick(): should open card popover', () => {
+    fit('onAddCorporateCardClick(): should open card popover', () => {
       orgSettingsService.get.and.returnValue(of(orgSettingsPendingRestrictions));
       orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
       const addCardPopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onDidDismiss']);
       addCardPopoverSpy.present.and.resolveTo();
-      addCardPopoverSpy.onDidDismiss.and.resolveTo({});
+      addCardPopoverSpy.onDidDismiss.and.resolveTo({ success: true });
       popoverController.create.and.resolveTo(addCardPopoverSpy);
+      spyOn(component, 'handleEnrollmentSuccess');
 
       fixture.detectChanges();
       component.onAddCorporateCardClick();

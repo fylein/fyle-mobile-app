@@ -494,7 +494,7 @@ export function TestCases1(getTestBed) {
         expect(component.onPotentialDuplicatesTaskClick).not.toHaveBeenCalled();
         expect(component.onSentBackAdvanceTaskClick).not.toHaveBeenCalled();
         expect(component.onMobileNumberVerificationTaskClick).not.toHaveBeenCalled();
-        expect(component.onCommuteDetailsTaskClick).not.toHaveBeenCalledTimes(1);
+        expect(component.onCommuteDetailsTaskClick).not.toHaveBeenCalled();
         expect(component.onAddCorporateCardClick).toHaveBeenCalledTimes(1);
       });
 
