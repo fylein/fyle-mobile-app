@@ -20,6 +20,10 @@ $toolbar-border: #ababab6b;
     padding: 20px 16px;
   }
 
+  &__component-container {
+    height: 75%;
+  }
+
   &__step-tracker {
     padding: 24px;
     border-radius: 32px 32px 0px 0px;
