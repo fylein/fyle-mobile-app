@@ -326,6 +326,8 @@ export class ExpensesService {
       file_ids: transaction.file_ids,
       report_id: transaction.report_id,
       travel_classes: [],
+      mileage_calculated_distance: transaction.mileage_calculated_distance,
+      mileage_calculated_amount: transaction.mileage_calculated_amount,
     };
 
     if (
