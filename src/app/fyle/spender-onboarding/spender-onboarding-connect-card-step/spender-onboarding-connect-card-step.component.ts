@@ -25,6 +25,7 @@ import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup
   templateUrl: './spender-onboarding-connect-card-step.component.html',
   styleUrls: ['./spender-onboarding-connect-card-step.component.scss'],
 })
+
 export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChanges {
   @Input() readOnly?: boolean = false;
 
@@ -187,7 +188,6 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
 
     // Set the formatted value back to the input
     input.setValue(value);
-  }
 
   private cardNumberValidator(control: AbstractControl): ValidationErrors {
     // Reactive forms are not strongly typed in Angular 13, so we need to cast the value to string
