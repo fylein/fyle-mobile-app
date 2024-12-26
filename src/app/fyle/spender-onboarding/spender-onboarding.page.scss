@@ -20,12 +20,17 @@ $toolbar-border: #ababab6b;
     padding: 20px 16px;
   }
 
+  &__component-container {
+    height: 75%;
+  }
+
   &__step-tracker {
     padding: 24px;
     border-radius: 32px 32px 0px 0px;
     border: 1px solid $border-info-lighter;
     background: $pure-white;
     box-shadow: -14px -6px 24px 0px #00000008;
+    height: 100%;
   }
 
   &__stepper-container {
