@@ -188,6 +188,7 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
 
     // Set the formatted value back to the input
     input.setValue(value);
+  }
 
   private cardNumberValidator(control: AbstractControl): ValidationErrors {
     // Reactive forms are not strongly typed in Angular 13, so we need to cast the value to string
