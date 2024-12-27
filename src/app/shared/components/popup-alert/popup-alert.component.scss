@@ -71,22 +71,6 @@ $small-screen: 700px;
     fill: $green;
   }
 
-  &--success-tick-container {
-    border-radius: 4px;
-    background: $success-bg;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  &--success-tick {
-    height: 14px;
-    width: 14px;
-    fill: $green;
-  }
-
   &--error-tick-container {
     border-radius: 4px;
     background: $pale-pink;
