@@ -33,7 +33,7 @@
     </div>
     <div class="spender-onboarding__component-container" *ngIf="true">
       <app-spender-onboarding-opt-in-step
-        [orgSettings]="orgSettings"
+        [eou]="eou"
         (isStepCompleted)="skipOnboardingStep()"
       ></app-spender-onboarding-opt-in-step>
     </div>

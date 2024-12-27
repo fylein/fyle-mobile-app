@@ -23,6 +23,8 @@ export class SpenderOnboardingPage {
 
   onboardingStep: typeof OnboardingStep = OnboardingStep;
 
+  eou: ExtendedOrgUser;
+
   constructor(
     private loaderService: LoaderService,
     private orgUserService: OrgUserService,
@@ -45,6 +47,7 @@ export class SpenderOnboardingPage {
           ])
         ),
         map(([eou, orgSettings, onboardingStatus, corporateCards]) => {
+          this.eou = eou;
           this.userFullName = eou.us.full_name;
           const isRtfEnabled =
             orgSettings.visa_enrollment_settings.enabled && orgSettings.mastercard_enrollment_settings.enabled;

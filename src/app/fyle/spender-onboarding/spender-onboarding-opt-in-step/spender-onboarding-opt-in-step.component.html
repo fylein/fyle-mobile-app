@@ -1,111 +1,98 @@
 <div class="opt-in-step__body">
   <div>
-    <div class="opt-in-step__heading">Opt in to send text receipts</div>
-    <div class="opt-in-step__sub-heading">This will help you send receipts via text message.</div>
-  </div>
+    <div>
+      <div class="opt-in-step__heading">Opt in to send text receipts</div>
+      <div class="opt-in-step__sub-heading">This will help you send receipts via text message.</div>
+    </div>
 
-  <ion-content class="opt-in-step--content no-keyboard-adjust">
-    <ng-container
-      *ngIf="optInFlowState === OptInFlowState.MOBILE_INPUT || optInFlowState === OptInFlowState.OTP_VERIFICATION"
-    >
-      <div class="opt-in-step--container">
-        <ng-container *ngIf="optInFlowState === OptInFlowState.MOBILE_INPUT">
-          <div class="opt-in-step--mobile-input-container">
+    <div class="opt-in-step--content no-keyboard-adjust">
+      <ng-container
+        *ngIf="optInFlowState === OptInFlowState.MOBILE_INPUT || optInFlowState === OptInFlowState.OTP_VERIFICATION"
+      >
+        <div class="opt-in-step--container">
+          <ng-container *ngIf="optInFlowState === OptInFlowState.MOBILE_INPUT">
+            <div class="opt-in-step--mobile-input-container">
+              <div class="opt-in-step--mobile-input-container__label">
+                <span> Mobile Number </span>
+              </div>
+              <input
+                #mobileInput
+                matInput
+                [(ngModel)]="mobileNumberInputValue"
+                class="opt-in-step--mobile-input-container__input"
+                [ngClass]="{ 'opt-in-step--mobile-input-container__input--error': mobileNumberError?.length }"
+                [placeholder]="'Enter mobile number with country code e.g +155512345..'"
+                type="tel"
+                [maxlength]="15"
+                [minlength]="7"
+              />
+              <span *ngIf="mobileNumberError?.length" class="opt-in-step--mobile-input-container__error">{{
+                mobileNumberError
+              }}</span>
+            </div>
+          </ng-container>
+          <ng-container *ngIf="optInFlowState === OptInFlowState.OTP_VERIFICATION">
             <div class="opt-in-step--mobile-input-container__label">
               <span> Mobile Number </span>
-              <span class="opt-in-step--mobile-input-container__mandatory"> * </span>
             </div>
-            <input
-              #mobileInput
-              matInput
-              [(ngModel)]="mobileNumberInputValue"
-              class="opt-in-step--mobile-input-container__input"
-              [ngClass]="{ 'opt-in-step--mobile-input-container__input--error': mobileNumberError?.length }"
-              [placeholder]="'Enter mobile number with country code e.g +155512345..'"
-              type="tel"
-              [maxlength]="15"
-              [minlength]="7"
-            />
-            <span *ngIf="mobileNumberError?.length" class="opt-in-step--mobile-input-container__error">{{
-              mobileNumberError
-            }}</span>
-          </div>
-        </ng-container>
-        <ng-container *ngIf="optInFlowState === OptInFlowState.OTP_VERIFICATION">
-          <div class="opt-in-step--description">
-            Enter 6 digit code sent to your phone {{ mobileNumberInputValue }}
-            <span (click)="goBack()">
-              <ion-icon class="opt-in-step--edit-icon" src="../../../assets/svg/edit.svg"></ion-icon>
-            </span>
-          </div>
-          <div class="opt-in-step--otp-container">
-            <ng-otp-input (onInputChange)="onOtpChange($event)" [config]="otpConfig"></ng-otp-input>
-          </div>
-          <ng-container *ngIf="showOtpTimer; else resendOtpCta">
-            <span class="opt-in-step--otp-container__label__otp-timer">
-              Resend code in
-              <span class="opt-in-step--otp-container__label__otp-timer--timer">
-                0:{{ otpTimer | number : '2.0' }}
+            <div class="opt-in-step--description">
+              {{ mobileNumberInputValue }}
+              <span (click)="goBack()">
+                <ion-icon class="opt-in-step--edit-icon" src="../../../assets/svg/edit.svg"></ion-icon>
               </span>
-              <span class="opt-in-step--otp-container__label__attempts"> ({{ otpAttemptsLeft }} attempts left) </span>
-            </span>
-          </ng-container>
-          <ng-template #resendOtpCta>
-            <ng-container *ngIf="!disableResendOtp">
-              <button
-                class="opt-in-step--otp-container__label__resend"
-                (click)="resendOtp('CLICK')"
-                appFormButtonValidation
-                buttonType="secondary"
-                [loading]="sendCodeLoading"
-                loadingText="Sending Code"
-              >
-                Resend Code
-              </button>
-              <span class="opt-in-step--otp-container__label__attempts">({{ otpAttemptsLeft }} attempts left)</span>
-            </ng-container>
-            <div *ngIf="disableResendOtp" class="opt-in-step--otp-container__label__resend--disabled-container">
-              <span class="opt-in-step--otp-container__label__resend--disabled"> Resend Code </span>
-              <span class="opt-in-step--otp-container__label__attempts">(0 attempts left)</span>
             </div>
-          </ng-template>
-        </ng-container>
-      </div>
-    </ng-container>
-    <ng-container *ngIf="optInFlowState === OptInFlowState.SUCCESS">
-      <div class="opt-in-step--success">
-        <ion-icon
-          class="fy-icon opt-in-step--success__image-container"
-          src="/assets/svg/check-circle-fill.svg"
-        ></ion-icon>
-        <div class="opt-in-step--success__header">You are all set</div>
-        <div class="opt-in-step--success__description">
-          We have sent you a confirmation message. You can now use text messages to create and submit your next expense!
+            <div class="opt-in-step--otp-container">
+              <ng-otp-input (onInputChange)="onOtpChange($event)" [config]="otpConfig"></ng-otp-input>
+            </div>
+            <ng-container *ngIf="showOtpTimer; else resendOtpCta">
+              <span class="opt-in-step--otp-container__label__otp-timer">
+                Resend code in
+                <span class="opt-in-step--otp-container__label__otp-timer--timer">
+                  0:{{ otpTimer | number : '2.0' }}
+                </span>
+                <span class="opt-in-step--otp-container__label__attempts"> ({{ otpAttemptsLeft }} attempts left) </span>
+              </span>
+            </ng-container>
+            <ng-template #resendOtpCta>
+              <ng-container *ngIf="!disableResendOtp">
+                <button
+                  class="opt-in-step--otp-container__label__resend"
+                  (click)="resendOtp('CLICK')"
+                  appFormButtonValidation
+                  buttonType="secondary"
+                  [loading]="sendCodeLoading"
+                  loadingText="Sending Code"
+                >
+                  Resend Code
+                </button>
+                <span class="opt-in-step--otp-container__label__attempts">({{ otpAttemptsLeft }} attempts left)</span>
+              </ng-container>
+              <div *ngIf="disableResendOtp" class="opt-in-step--otp-container__label__resend--disabled-container">
+                <span class="opt-in-step--otp-container__label__resend--disabled"> Resend Code </span>
+                <span class="opt-in-step--otp-container__label__attempts">(0 attempts left)</span>
+              </div>
+            </ng-template>
+          </ng-container>
         </div>
-      </div>
-    </ng-container>
-  </ion-content>
+      </ng-container>
+      <ng-container *ngIf="optInFlowState === OptInFlowState.SUCCESS">
+        <div class="opt-in-step--success">
+          <ion-icon
+            class="fy-icon opt-in-step--success__image-container"
+            src="/assets/svg/check-circle-fill.svg"
+          ></ion-icon>
+          <div class="opt-in-step--success__header">You are all set</div>
+          <div class="opt-in-step--success__description">
+            We have sent you a confirmation message. You can now use text messages to create and submit your next
+            expense!
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </div>
 
-  <div class="opt-in-step__primary-cta-container">
-    <ion-button
-      class="btn-primary opt-in-step__primary-cta"
-      fill="clear"
-      aria-label="Navigate back to sign in page"
-      role="button"
-    >
-      <ion-icon
-        class="pending-verification__arrow-icon"
-        [src]="'/assets/svg/arrow-left.svg'"
-        slot="icon-only"
-      ></ion-icon>
-      Go back
-    </ion-button>
-    <ion-button
-      class="btn-primary opt-in-step__primary-cta"
-      fill="clear"
-      aria-label="Navigate back to sign in page"
-      role="button"
-    >
+  <div class="opt-in-step__primary-cta-container" *ngIf="optInFlowState === OptInFlowState.MOBILE_INPUT">
+    <ion-button class="btn-primary opt-in-step__primary-cta" fill="clear" role="button" (click)="saveMobileNumber()">
       Continue
     </ion-button>
   </div>

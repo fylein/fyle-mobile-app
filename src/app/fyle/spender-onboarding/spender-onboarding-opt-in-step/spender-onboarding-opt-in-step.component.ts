@@ -10,39 +10,24 @@ import {
   SimpleChanges,
   ViewChild,
 } from '@angular/core';
-import {
-  AbstractControl,
-  FormArray,
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  ValidationErrors,
-  Validators,
-} from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ModalController, PopoverController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular';
 import { NgOtpInputComponent, NgOtpInputConfig } from 'ng-otp-input';
-import { catchError, concatMap, finalize, from, map, noop, of, Subscription, switchMap, tap } from 'rxjs';
+import { finalize, from, Subscription, switchMap } from 'rxjs';
 import { CardNetworkType } from 'src/app/core/enums/card-network-type';
 import { OptInFlowState } from 'src/app/core/enums/opt-in-flow-state.enum';
 import { ToastType } from 'src/app/core/enums/toast-type.enum';
-import { statementUploadedCard, visaRTFCard } from 'src/app/core/mock-data/platform-corporate-card.data';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
-import { OrgSettings } from 'src/app/core/models/org-settings.model';
-import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
 import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
 import { PopoverCardsList } from 'src/app/core/models/popover-cards-list.model';
-import { SnackbarProperties } from 'src/app/core/models/snackbar-properties.model';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { MobileNumberVerificationService } from 'src/app/core/services/mobile-number-verification.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
-import { RealTimeFeedService } from 'src/app/core/services/real-time-feed.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { UserEventService } from 'src/app/core/services/user-event.service';
-import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 
 @Component({
@@ -272,6 +257,7 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
         complete: () => {
           this.optInFlowState = OptInFlowState.SUCCESS;
           this.verifyingOtp = false;
+          this.isStepComplete.emit(true);
           this.userEventService.clearTaskCache();
         },
         error: () => {

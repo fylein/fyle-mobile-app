@@ -8,17 +8,19 @@ import { SpenderOnboardingRoutingModule } from './spender-onboarding-routing.mod
 import { MatButtonModule } from '@angular/material/button';
 import { SpenderOnboardingConnectCardStepComponent } from './spender-onboarding-connect-card-step/spender-onboarding-connect-card-step.component';
 import { SpenderOnboardingOptInStepComponent } from './spender-onboarding-opt-in-step/spender-onboarding-opt-in-step.component';
+import { NgOtpInputModule } from 'ng-otp-input';
 
 @NgModule({
   imports: [
-    SharedModule,
     CommonModule,
     FormsModule,
+    SharedModule,
     IonicModule,
     MatButtonModule,
     SpenderOnboardingRoutingModule,
     FormsModule,
     ReactiveFormsModule,
+    NgOtpInputModule,
   ],
   declarations: [SpenderOnboardingPage, SpenderOnboardingConnectCardStepComponent, SpenderOnboardingOptInStepComponent],
 })
