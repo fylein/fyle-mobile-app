@@ -89,7 +89,7 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
   generateMessage(): string {
     if (this.cardsList.successfulCards.length > 0) {
       return 'We ran into an issue while processing your request. You can cancel and retry connecting the failed card or proceed to the next step.';
-    } else if (this.cardsList.successfulCards.length > 0) {
+    } else if (this.cardsList.failedCards.length > 0) {
       return `
       We ran into an issue while processing your request for the card ${this.cardsList.failedCards[0]}.
       You can cancel and retry connecting the failed card or proceed to the next step.`;
