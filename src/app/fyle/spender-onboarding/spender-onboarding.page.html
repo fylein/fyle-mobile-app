@@ -25,13 +25,13 @@
       </div>
       <div class="spender-onboarding__skip-cta" (click)="skipConnectCardOnboardingStep()">Skip</div>
     </div>
-    <div class="spender-onboarding__component-container" *ngIf="false">
+    <div class="spender-onboarding__component-container" *ngIf="this.currentStep === 'CONNECT_CARD'">
       <app-spender-onboarding-connect-card-step
         [orgSettings]="orgSettings"
         (isStepCompleted)="skipOnboardingStep()"
       ></app-spender-onboarding-connect-card-step>
     </div>
-    <div class="spender-onboarding__component-container" *ngIf="true">
+    <div class="spender-onboarding__component-container" *ngIf="this.currentStep === 'OPT_IN'">
       <app-spender-onboarding-opt-in-step
         [eou]="eou"
         (isStepCompleted)="skipOnboardingStep()"
