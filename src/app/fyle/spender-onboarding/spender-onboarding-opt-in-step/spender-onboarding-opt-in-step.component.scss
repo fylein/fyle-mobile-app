@@ -65,9 +65,9 @@
   }
 
   &__content {
-    __padding-start: 16px;
-    __padding-end: 16px;
-    __padding-top: 16px;
+    --padding-start: 16px;
+    --padding-end: 16px;
+    --padding-top: 16px;
 
     max-height: 50vh;
   }
