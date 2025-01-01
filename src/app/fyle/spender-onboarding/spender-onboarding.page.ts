@@ -19,7 +19,7 @@ export class SpenderOnboardingPage {
 
   userFullName: string;
 
-  currentStep: OnboardingStep;
+  currentStep: OnboardingStep = OnboardingStep.CONNECT_CARD;
 
   onboardingStep: typeof OnboardingStep = OnboardingStep;
 

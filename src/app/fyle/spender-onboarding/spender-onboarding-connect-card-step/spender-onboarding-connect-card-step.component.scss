@@ -18,10 +18,23 @@
   }
 
   &__card-number-input {
-    width: fit-content !important;
     margin-right: 24px;
+    font-size: 18px;
+    font-weight: 500;
     &::placeholder {
+      font-size: 14px;
+      font-weight: 400;
       word-spacing: 24px;
+    }
+  }
+
+  &__card-number-input-singular {
+    border: 0;
+    font-size: 18px;
+    font-weight: 500;
+    &::placeholder {
+      font-size: 14px;
+      font-weight: 400;
     }
   }
 
@@ -91,6 +104,7 @@
   &__input-inner-container {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     border-bottom: 1px solid $grey;
     padding-bottom: 6px;
     margin-bottom: 2px;

@@ -23,7 +23,7 @@
           slot="icon-only"
         ></ion-icon>
       </div>
-      <div class="spender-onboarding__skip-cta" (click)="skipConnectCardOnboardingStep()">Skip</div>
+      <div class="spender-onboarding__skip-cta" (click)="skipOnboardingStep()">Skip</div>
     </div>
     <div class="spender-onboarding__component-container">
       <app-spender-onboarding-connect-card-step
@@ -31,6 +31,5 @@
         (isStepCompleted)="skipOnboardingStep()"
       ></app-spender-onboarding-connect-card-step>
     </div>
-
   </div>
 </div>
