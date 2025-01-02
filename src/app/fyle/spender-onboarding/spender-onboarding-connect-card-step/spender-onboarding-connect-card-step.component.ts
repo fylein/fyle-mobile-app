@@ -135,7 +135,7 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
   showErrorPopover(): void {
     const errorPopover = this.popoverController.create({
       componentProps: {
-        title: 'Status summary',
+        title: this.cardsList.successfulCards.length > 0 ? 'Status summary' : 'Failed connecting',
         message: this.generateMessage(),
         primaryCta: {
           text: 'Proceed anyway',
