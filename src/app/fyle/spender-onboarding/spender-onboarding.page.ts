@@ -21,6 +21,8 @@ export class SpenderOnboardingPage {
 
   currentStep: OnboardingStep = OnboardingStep.CONNECT_CARD;
 
+  onlyOptInEnabled = false;
+
   onboardingStep: typeof OnboardingStep = OnboardingStep;
 
   constructor(
@@ -52,6 +54,7 @@ export class SpenderOnboardingPage {
           const rtfCards = corporateCards.filter((card) => card.is_visa_enrolled || card.is_mastercard_enrolled);
           if (isAmexFeedEnabled && !isRtfEnabled) {
             this.currentStep = OnboardingStep.OPT_IN;
+            this.onlyOptInEnabled = true;
           } else if (isRtfEnabled) {
             // If Connect Card was skipped earlier or Cards are already enrolled, then go to OPT_IN step
             if (
@@ -60,6 +63,7 @@ export class SpenderOnboardingPage {
               rtfCards.length > 0
             ) {
               this.currentStep = OnboardingStep.OPT_IN;
+              this.onlyOptInEnabled = true;
             } else {
               this.currentStep = OnboardingStep.CONNECT_CARD;
             }

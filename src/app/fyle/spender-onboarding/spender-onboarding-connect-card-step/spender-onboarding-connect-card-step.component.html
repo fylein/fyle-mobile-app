@@ -60,7 +60,7 @@
 
           <div
             *ngIf="fg.controls['card_number_' + card.id]?.touched && fg.controls['card_number_' + card.id]?.invalid"
-            class="add-corporate-card__input-errors"
+            class="connect-card__input-errors"
             data-testid="error-message"
           >
             <span *ngIf="fg.controls['card_number_' + card.id]?.errors.invalidCardNumber"
@@ -141,7 +141,7 @@
 
         <div
           *ngIf="fg.controls.card_number?.touched && fg.controls.card_number?.invalid"
-          class="add-corporate-card__input-errors"
+          class="connect-card__input-errors"
           data-testid="error-message"
         >
           <span *ngIf="fg.controls.card_number.errors.invalidCardNumber">Please enter a valid card number.</span>
