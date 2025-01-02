@@ -13,21 +13,25 @@
 
           <div
             class="connect-card__input-inner-container"
-            [ngClass]="{ 'connect-card__input-inner-container--error': false }"
+            [ngClass]="{
+              'connect-card__input-inner-container--error':
+                fg.controls['card_number_' + card.id].touched && fg.controls['card_number_' + card.id].invalid
+            }"
           >
-            <input
-              class="smartlook-show connect-card__card-number-input pl-0"
-              inputmode="numeric"
-              placeholder="xxxx xxxx xxxx"
-              data-testid="card-number-input"
-              appAutofocus
-              [formControlName]="'card_number_' + card.id"
-              required
-              (input)="onCardNumberUpdate(card, 'card_number_' + card.id)"
-            />
+            <div class="connect-card__card-number-input-container">
+              <input
+                class="smartlook-show connect-card__card-number-input pl-0"
+                inputmode="numeric"
+                placeholder="xxxx xxxx xxxx"
+                data-testid="card-number-input"
+                formControlName="card_number_{{ card.id }}"
+                required
+                (input)="onCardNumberUpdate(card, 'card_number_' + card.id)"
+              />
 
-            <div>
-              {{ card?.last_four || '' }}
+              <div class="connect-card__card-last-four">
+                {{ cardValuesMap[card.id].last_four || '' }}
+              </div>
             </div>
 
             <ion-icon
@@ -96,7 +100,10 @@
 
         <div
           class="connect-card__input-inner-container"
-          [ngClass]="{ 'connect-card__input-inner-container--error': false }"
+          [ngClass]="{
+            'connect-card__input-inner-container--error':
+              fg.controls.card_number.touched && fg.controls.card_number.invalid
+          }"
         >
           <input
             class="smartlook-show connect-card__card-number-input-singular pl-0"
@@ -167,7 +174,7 @@
     <ion-button
       class="btn-primary connect-card__primary-cta"
       fill="clear"
-      aria-label="Navigate back to sign in page"
+      [disabled]="fg.invalid"
       role="button"
       (click)="enrollCards()"
     >
