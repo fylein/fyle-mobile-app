@@ -9,6 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { SpenderOnboardingConnectCardStepComponent } from './spender-onboarding-connect-card-step/spender-onboarding-connect-card-step.component';
 import { SpenderOnboardingOptInStepComponent } from './spender-onboarding-opt-in-step/spender-onboarding-opt-in-step.component';
 import { NgOtpInputModule } from 'ng-otp-input';
+import { NgxMaskModule } from 'ngx-mask';
 
 @NgModule({
   imports: [
@@ -21,6 +22,9 @@ import { NgOtpInputModule } from 'ng-otp-input';
     FormsModule,
     ReactiveFormsModule,
     NgOtpInputModule,
+    NgxMaskModule.forRoot({
+      validation: false,
+    }),
   ],
   declarations: [SpenderOnboardingPage, SpenderOnboardingConnectCardStepComponent, SpenderOnboardingOptInStepComponent],
 })

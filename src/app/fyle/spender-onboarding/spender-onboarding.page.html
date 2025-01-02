@@ -21,9 +21,10 @@
           class="spender-onboarding__progress-bar spender-onboarding__progress-bar-right"
           [src]="'/assets/svg/progress-bar.svg'"
           slot="icon-only"
+          [ngClass]="{'spender-onboarding__step-next': currentStep === 'CONNECT_CARD', 'spender-onboarding__step-hide': onlyOptInEnabled}"
         ></ion-icon>
       </div>
-      <div class="spender-onboarding__skip-cta" (click)="skipConnectCardOnboardingStep()">Skip</div>
+      <div class="spender-onboarding__skip-cta" (click)="skipOnboardingStep()">Skip</div>
     </div>
     <div class="spender-onboarding__component-container" *ngIf="this.currentStep === 'CONNECT_CARD'">
       <app-spender-onboarding-connect-card-step

@@ -1,4 +1,13 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  SimpleChanges,
+} from '@angular/core';
 import {
   AbstractControl,
   FormArray,
@@ -9,9 +18,8 @@ import {
   Validators,
 } from '@angular/forms';
 import { PopoverController } from '@ionic/angular';
-import { catchError, concatMap, finalize, from, map, noop, of, switchMap, tap } from 'rxjs';
+import { catchError, concatMap, from, map, noop, of, switchMap, tap } from 'rxjs';
 import { CardNetworkType } from 'src/app/core/enums/card-network-type';
-import { statementUploadedCard, visaRTFCard } from 'src/app/core/mock-data/platform-corporate-card.data';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
 import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
@@ -25,7 +33,6 @@ import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup
   templateUrl: './spender-onboarding-connect-card-step.component.html',
   styleUrls: ['./spender-onboarding-connect-card-step.component.scss'],
 })
-
 export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChanges {
   @Input() readOnly?: boolean = false;
 
@@ -41,11 +48,18 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
 
   cardType = CardNetworkType;
 
-  enrollableCards: PlatformCorporateCard[];
+  enrollableCards: PlatformCorporateCard[] = [];
 
-  cardValuesMap: Record<string, { card_type: string; card_number: string }> = {};
+  cardValuesMap: Record<string, { card_type: string; last_four: string }> = {};
 
   rtfCardType: CardNetworkType;
+
+  cardsLoading = true;
+
+  singleEnrollableCardDetails: { card_type: string; card_number: string } = {
+    card_type: '',
+    card_number: '',
+  };
 
   cardsList: PopoverCardsList = {
     successfulCards: [],
@@ -66,15 +80,17 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
     from(cards)
       .pipe(
         concatMap((card) =>
-          this.realTimeFeedService.enroll(card.card_number, card.id).pipe(
-            map(() => {
-              this.cardsList.successfulCards.push(`**** ${card.card_number.slice(-4)}`);
-            }),
-            catchError(() => {
-              this.cardsList.failedCards.push(`**** ${card.card_number.slice(-4)}`);
-              return of(null);
-            })
-          )
+          this.realTimeFeedService
+            .enroll(this.fg.controls[`card_number_${card.id}`].value + this.cardValuesMap[card.id].last_four, card.id)
+            .pipe(
+              map(() => {
+                this.cardsList.successfulCards.push(`**** ${card.card_number.slice(-4)}`);
+              }),
+              catchError(() => {
+                this.cardsList.failedCards.push(`**** ${card.card_number.slice(-4)}`);
+                return of(null);
+              })
+            )
         )
       )
       .subscribe(() => {
@@ -89,13 +105,13 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
   generateMessage(): string {
     if (this.cardsList.successfulCards.length > 0) {
       return 'We ran into an issue while processing your request. You can cancel and retry connecting the failed card or proceed to the next step.';
-    } else if (this.cardsList.successfulCards.length > 0) {
+    } else if (this.cardsList.failedCards.length > 0) {
       return `
       We ran into an issue while processing your request for the card ${this.cardsList.failedCards[0]}.
       You can cancel and retry connecting the failed card or proceed to the next step.`;
     } else {
       return `
-      We ran into an issue while processing your request for the card  ${this.cardsList.failedCards
+      We ran into an issue while processing your request for the cards  ${this.cardsList.failedCards
         .slice(this.cardsList.failedCards.length - 1)
         .join(', ')} and ${this.cardsList.failedCards.slice(-1)}.
       You can cancel and retry connecting the failed card or proceed to the next step.`;
@@ -105,7 +121,7 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
   showErrorPopover(): void {
     const errorPopover = this.popoverController.create({
       componentProps: {
-        title: 'Status summary',
+        title: this.cardsList.successfulCards.length > 0 ? 'Status summary' : 'Failed connecting',
         message: this.generateMessage(),
         primaryCta: {
           text: 'Proceed anyway',
@@ -141,60 +157,75 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
     }
   }
 
-  ngOnInit(): void {
-    this.fg = this.fb.group({});
+  setupForm(): void {
+    this.cardsLoading = true;
     this.corporateCreditCardExpensesService
       .getCorporateCards()
       .pipe(
         map((corporateCards) => {
-          // Filter enrollable cards
           this.enrollableCards = corporateCards.filter((card) => card.data_feed_source === 'STATEMENT_UPLOAD');
 
-          // Add form controls for each enrollable card
-          this.enrollableCards.forEach((card, index) => {
-            const controlName = `card_number_${index}`;
-            this.cardValuesMap[card.id] = {
-              card_number: card.card_number,
+          if (this.enrollableCards.length > 0) {
+            this.enrollableCards.forEach((card) => {
+              const controlName = `card_number_${card.id}`;
+              this.cardValuesMap[card.id] = {
+                last_four: card.card_number.slice(-4),
+                card_type: CardNetworkType.OTHERS,
+              };
+              this.fg.addControl(
+                controlName,
+                new FormControl('', [
+                  Validators.required,
+                  Validators.maxLength(12),
+                  this.cardNumberValidator.bind(this),
+                  this.cardNetworkValidator.bind(this),
+                ])
+              );
+            });
+          } else {
+            this.singleEnrollableCardDetails = {
+              card_number: null,
               card_type: CardNetworkType.OTHERS,
             };
             this.fg.addControl(
-              controlName,
-              this.fb.control('', [
+              'card_number',
+              new FormControl('', [
                 Validators.required,
-                Validators.maxLength(12),
+                Validators.maxLength(16),
                 this.cardNumberValidator.bind(this),
                 this.cardNetworkValidator.bind(this),
               ])
             );
-          });
+          }
+          this.cardsLoading = false;
         })
       )
       .subscribe();
   }
 
-  onCardNumberUpdate(card: PlatformCorporateCard, inputControlName: string): void {
-    this.formatCardNumber(this.fg.controls[inputControlName]);
-    this.cardValuesMap[card.id].card_type = this.realTimeFeedService.getCardTypeFromNumber(
-      this.cardValuesMap[card.id].card_number
-    );
+  ngOnInit(): void {
+    this.fg = this.fb.group({});
+    this.setupForm();
   }
 
-  formatCardNumber(input: AbstractControl): void {
-    // Remove all non-numeric characters
-    let value = (input.value as string).replace(/\D/g, '');
-
-    // Format the value in groups of 4
-    value = value.replace(/(\d{4})(?=\d)/g, '$1 ');
-
-    // Set the formatted value back to the input
-    input.setValue(value);
+  onCardNumberUpdate(card?: PlatformCorporateCard): void {
+    if (this.enrollableCards.length > 0) {
+      this.cardValuesMap[card.id].card_type = this.realTimeFeedService.getCardTypeFromNumber(
+        this.fg.controls[`card_number_${card.id}`].value as string
+      );
+    } else {
+      this.singleEnrollableCardDetails.card_type = this.realTimeFeedService.getCardTypeFromNumber(
+        this.fg.controls.card_number.value as string
+      );
+    }
+  }
 
   private cardNumberValidator(control: AbstractControl): ValidationErrors {
     // Reactive forms are not strongly typed in Angular 13, so we need to cast the value to string
     // TODO (Angular 14 >): Remove the type casting and directly use string type for the form control
     const cardNumber = control.value as string;
 
-    const isValid = this.realTimeFeedService.isCardNumberValid(cardNumber);
+    const isValid = this.realTimeFeedService.isCardNumberValid(cardNumber.replace(/ /g, ''));
     const cardType = this.realTimeFeedService.getCardTypeFromNumber(cardNumber);
 
     if (cardType === CardNetworkType.VISA || cardType === CardNetworkType.MASTERCARD) {

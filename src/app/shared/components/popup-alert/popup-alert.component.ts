@@ -1,6 +1,5 @@
 import { Component, Input } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
-import { CardNetworkType } from 'src/app/core/enums/card-network-type';
 import { PopoverCardsList } from 'src/app/core/models/popover-cards-list.model';
 @Component({
   selector: 'app-popup-alert',
