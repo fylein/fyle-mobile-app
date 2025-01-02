@@ -5,77 +5,94 @@
       This will help you bring your card transactions into Fyle as expenses instantly.
     </div>
 
-    <div class="connect-card__input-label">
-      <span>Corporate card</span>
-    </div>
+    <form formGroup="fg" *ngIf="fg">
+      <div *ngIf="enrollableCards?.length > 0">
+        <div *ngFor="let card of enrollableCards; let i = index">
+          <div class="connect-card__input-label">
+            <span>Corporate card</span>
+          </div>
 
-    <div
-      class="connect-card__input-inner-container"
-      [ngClass]="{ 'connect-card__input-inner-container--error': cardForm.touched && cardForm.invalid }"
-    >
-      <input
-        class="smartlook-show connect-card__card-number-input pl-0"
-        inputmode="numeric"
-        [formControl]="cardForm"
-        mask="0000 0000 0000 0000"
-        data-testid="card-number-input"
-        appAutofocus
-        [timeout]="500"
-        required
-        placeholder="Enter corporate card number"
-      />
-
-      <ion-icon
-        *ngIf="!cardType || cardType === cardNetworkTypes.OTHERS"
-        src="../../../../assets/svg/card.svg"
-        class="connect-card__input-default-icon"
-        data-testid="default-icon"
-      ></ion-icon>
-
-      <img
-        *ngIf="cardType === cardNetworkTypes.VISA"
-        src="../../../../assets/images/visa-logo.png"
-        class="connect-card__input-visa-icon"
-        data-testid="visa-icon"
-      />
-
-      <img
-        *ngIf="cardType === cardNetworkTypes.MASTERCARD"
-        src="../../../../assets/images/mastercard-logo.png"
-        class="connect-card__input-mastercard-icon"
-        data-testid="mastercard-icon"
-      />
-    </div>
-
-    <div class="connect-card__input-error-space"></div>
-
-    <div *ngIf="cardForm.touched && cardForm.invalid" class="connect-card__input-errors" data-testid="error-message">
-      <span *ngIf="cardForm.errors.invalidCardNumber">Please enter a valid card number.</span>
-
-      <ng-container *ngIf="cardForm.errors.invalidCardNetwork">
-        <span *ngIf="isVisaRTFEnabled && isMastercardRTFEnabled; else visaOnlyOrg"
-          >Enter a valid Visa or Mastercard number. If you have other cards, please contact your admin.</span
-        >
-
-        <ng-template #visaOnlyOrg>
-          <!-- Check if only visa is enabled -->
-          <span *ngIf="cardForm.errors.invalidCardNetwork && isVisaRTFEnabled; else mastercardOnlyOrg"
-            >Enter a valid Visa number. If you have other cards, please contact your admin.</span
+          <div
+            class="connect-card__input-inner-container"
+            [ngClass]="{ 'connect-card__input-inner-container--error': false }"
           >
-        </ng-template>
+            <input
+              class="smartlook-show connect-card__card-number-input pl-0"
+              inputmode="numeric"
+              placeholder="xxxx xxxx xxxx"
+              data-testid="card-number-input"
+              appAutofocus
+              [timeout]="500"
+              [formControlName]="'card_number_' + i"
+              required
+              (input)="onCardNumberUpdate(card, 'card_number_' + i)"
+            />
 
-        <ng-template #mastercardOnlyOrg>
-          <!-- Check if only mastercard is enabled -->
-          <span *ngIf="cardForm.errors.invalidCardNetwork && isMastercardRTFEnabled"
-            >Enter a valid Mastercard number. If you have other cards, please contact your admin.</span
+            <div>
+              {{ card?.card_number || '' }}
+            </div>
+
+            <ion-icon
+              *ngIf="cardValuesMap?.[card.id].card_type === 'Others'"
+              src="../../../../assets/svg/card.svg"
+              class="connect-card__input-default-icon"
+              data-testid="default-icon"
+            ></ion-icon>
+
+            <img
+              *ngIf="cardValuesMap?.[card.id].card_type === 'Visa'"
+              src="../../../../assets/images/visa-logo.png"
+              class="connect-card__input-visa-icon"
+              data-testid="visa-icon"
+            />
+
+            <img
+              *ngIf="cardValuesMap?.[card.id].card_type === 'Mastercard'"
+              src="../../../../assets/images/mastercard-logo.png"
+              class="connect-card__input-mastercard-icon"
+              data-testid="mastercard-icon"
+            />
+          </div>
+
+          <div class="connect-card__input-error-space"></div>
+
+          <div
+            *ngIf="fg.controls['card_number_' + i]?.touched && fg.controls['card_number_' + i]?.invalid"
+            class="add-corporate-card__input-errors"
+            data-testid="error-message"
           >
-        </ng-template>
-      </ng-container>
+            <span *ngIf="fg.controls['card_number_' + i]?.errors.invalidCardNumber"
+              >Please enter a valid card number.</span
+            >
 
-      <span *ngIf="cardForm.errors.enrollmentError">
-        {{ enrollmentFailureMessage }}
-      </span>
-    </div>
+            <ng-container *ngIf="fg.controls['card_number_' + i]?.errors.invalidCardNetwork">
+              <span *ngIf="isVisaRTFEnabled && isMastercardRTFEnabled; else visaOnlyOrg"
+                >Enter a valid Visa or Mastercard number. If you have other cards, please contact your admin.</span
+              >
+
+              <ng-template #visaOnlyOrg>
+                <!-- Check if only visa is enabled -->
+                <span
+                  *ngIf="
+                    fg.controls['card_number_' + i]?.errors.invalidCardNetwork && isVisaRTFEnabled;
+                    else mastercardOnlyOrg
+                  "
+                  >Enter a valid Visa number. If you have other cards, please contact your admin.</span
+                >
+              </ng-template>
+
+              <ng-template #mastercardOnlyOrg>
+                <!-- Check if only mastercard is enabled -->
+                <span *ngIf="fg.controls['card_number_' + i]?.errors.invalidCardNetwork && isMastercardRTFEnabled"
+                  >Enter a valid Mastercard number. If you have other cards, please contact your admin.</span
+                >
+              </ng-template>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="enrollableCards.length === 0"></div>
+    </form>
   </div>
   <div class="connect-card__primary-cta-container">
     <ion-button
@@ -83,6 +100,7 @@
       fill="clear"
       aria-label="Navigate back to sign in page"
       role="button"
+      (click)="enrollCards()"
     >
       Continue
     </ion-button>
