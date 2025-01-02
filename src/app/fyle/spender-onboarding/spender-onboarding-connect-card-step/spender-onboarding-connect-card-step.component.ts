@@ -224,7 +224,7 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
     // Reactive forms are not strongly typed in Angular 13, so we need to cast the value to string
     // TODO (Angular 14 >): Remove the type casting and directly use string type for the form control
     const cardNumber = control.value as string;
-
+    console.log(control);
     const isValid = this.realTimeFeedService.isCardNumberValid(cardNumber.replace(/ /g, ''));
     const cardType = this.realTimeFeedService.getCardTypeFromNumber(cardNumber);
 
