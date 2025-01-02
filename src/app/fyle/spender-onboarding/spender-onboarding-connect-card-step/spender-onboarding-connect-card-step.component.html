@@ -22,6 +22,7 @@
               <input
                 class="smartlook-show connect-card__card-number-input pl-0"
                 inputmode="numeric"
+                mask="0000 0000 0000 0000"
                 placeholder="xxxx xxxx xxxx"
                 data-testid="card-number-input"
                 formControlName="card_number_{{ card.id }}"
@@ -107,12 +108,14 @@
         >
           <input
             class="smartlook-show connect-card__card-number-input-singular pl-0"
+            inputmode="numeric"
+            mask="0000 0000 0000 0000"
             placeholder="Enter corporate card number"
             data-testid="card-number-input"
             appAutofocus
             formControlName="card_number"
             required
-            (input)="onCardNumberUpdate(card, 'card_number')"
+            (input)="onCardNumberUpdate()"
           />
 
           <ion-icon

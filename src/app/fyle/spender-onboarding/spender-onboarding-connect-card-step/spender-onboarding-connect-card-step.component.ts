@@ -18,21 +18,8 @@ import {
   Validators,
 } from '@angular/forms';
 import { PopoverController } from '@ionic/angular';
-import {
-  BehaviorSubject,
-  catchError,
-  concatMap,
-  finalize,
-  from,
-  map,
-  noop,
-  Observable,
-  of,
-  switchMap,
-  tap,
-} from 'rxjs';
+import { catchError, concatMap, from, map, noop, of, switchMap, tap } from 'rxjs';
 import { CardNetworkType } from 'src/app/core/enums/card-network-type';
-import { statementUploadedCard, visaRTFCard } from 'src/app/core/mock-data/platform-corporate-card.data';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
 import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
@@ -85,8 +72,7 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
     private corporateCreditCardExpensesService: CorporateCreditCardExpenseService,
     private realTimeFeedService: RealTimeFeedService,
     private fb: FormBuilder,
-    private popoverController: PopoverController,
-    private cdRef: ChangeDetectorRef
+    private popoverController: PopoverController
   ) {}
 
   enrollCards(): void {
@@ -222,9 +208,7 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
     this.setupForm();
   }
 
-  onCardNumberUpdate(card: PlatformCorporateCard, inputControlName: string): void {
-    this.cdRef.detectChanges();
-    this.formatCardNumber(this.fg.controls[inputControlName]);
+  onCardNumberUpdate(card?: PlatformCorporateCard): void {
     if (this.enrollableCards.length > 0) {
       this.cardValuesMap[card.id].card_type = this.realTimeFeedService.getCardTypeFromNumber(
         this.fg.controls[`card_number_${card.id}`].value as string
@@ -236,23 +220,12 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
     }
   }
 
-  formatCardNumber(input: AbstractControl): void {
-    // Remove all non-numeric characters
-    let value = (input.value as string).replace(/\D/g, '');
-
-    // Format the value in groups of 4
-    value = value.replace(/(\d{4})(?=\d)/g, '$1 ');
-
-    // Set the formatted value back to the input
-    input.setValue(value);
-  }
-
   private cardNumberValidator(control: AbstractControl): ValidationErrors {
     // Reactive forms are not strongly typed in Angular 13, so we need to cast the value to string
     // TODO (Angular 14 >): Remove the type casting and directly use string type for the form control
     const cardNumber = control.value as string;
 
-    const isValid = this.realTimeFeedService.isCardNumberValid(cardNumber);
+    const isValid = this.realTimeFeedService.isCardNumberValid(cardNumber.replace(/ /g, ''));
     const cardType = this.realTimeFeedService.getCardTypeFromNumber(cardNumber);
 
     if (cardType === CardNetworkType.VISA || cardType === CardNetworkType.MASTERCARD) {

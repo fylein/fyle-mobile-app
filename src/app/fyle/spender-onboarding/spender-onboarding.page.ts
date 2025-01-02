@@ -8,6 +8,7 @@ import { SpenderOnboardingService } from 'src/app/core/services/spender-onboardi
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { Router } from '@angular/router';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
+import { OrgSettings } from 'src/app/core/models/org-settings.model';
 
 @Component({
   selector: 'app-spender-onboarding',
@@ -24,6 +25,8 @@ export class SpenderOnboardingPage {
   onlyOptInEnabled = false;
 
   onboardingStep: typeof OnboardingStep = OnboardingStep;
+
+  orgSettings: OrgSettings;
 
   constructor(
     private loaderService: LoaderService,
@@ -48,6 +51,7 @@ export class SpenderOnboardingPage {
         ),
         map(([eou, orgSettings, onboardingStatus, corporateCards]) => {
           this.userFullName = eou.us.full_name;
+          this.orgSettings = orgSettings;
           const isRtfEnabled =
             orgSettings.visa_enrollment_settings.enabled && orgSettings.mastercard_enrollment_settings.enabled;
           const isAmexFeedEnabled = orgSettings.amex_feed_enrollment_settings.enabled;
