@@ -16,6 +16,14 @@ $toolbar-border: #ababab6b;
     margin-left: 4px;
   }
 
+  &__step-next {
+    opacity: 0.1;
+  }
+
+  &__step-hide {
+    display: none;
+  }
+
   &__menu-icon-container {
     padding: 20px 16px;
   }
