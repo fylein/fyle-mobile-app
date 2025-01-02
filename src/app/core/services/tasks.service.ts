@@ -320,7 +320,6 @@ export class TasksService {
       sentBackAdvances: this.getSentBackAdvanceTasks(),
       setCommuteDetails: this.getCommuteDetailsTasks(),
       teamReports: this.getTeamReportsTasks(showTeamReportTask),
-      addCorporateCard: this.getAddCorporateCardTask(),
     }).pipe(
       map(
         ({
@@ -333,7 +332,6 @@ export class TasksService {
           teamReports,
           sentBackAdvances,
           setCommuteDetails,
-          addCorporateCard,
         }) => {
           this.totalTaskCount$.next(
             mobileNumberVerification.length +
@@ -344,8 +342,7 @@ export class TasksService {
               teamReports.length +
               potentialDuplicates.length +
               sentBackAdvances.length +
-              setCommuteDetails.length +
-              addCorporateCard.length
+              setCommuteDetails.length
           );
           this.expensesTaskCount$.next(draftExpenses.length + unreportedExpenses.length + potentialDuplicates.length);
           this.reportsTaskCount$.next(sentBackReports.length + unsubmittedReports.length);
@@ -369,8 +366,7 @@ export class TasksService {
               .concat(unsubmittedReports)
               .concat(unreportedExpenses)
               .concat(teamReports)
-              .concat(sentBackAdvances)
-              .concat(addCorporateCard);
+              .concat(sentBackAdvances);
           } else {
             return this.getFilteredTaskList(filters, {
               potentialDuplicates,
@@ -533,24 +529,6 @@ export class TasksService {
     }
   }
 
-  getAddCorporateCardTask(): Observable<DashboardTask[]> {
-    return forkJoin([this.orgSettingsService.get(), this.corporateCreditCardExpenseService.getCorporateCards()]).pipe(
-      map(([orgSettings, cards]) => {
-        const isRtfEnabled =
-          (orgSettings.visa_enrollment_settings.allowed && orgSettings.visa_enrollment_settings.enabled) ||
-          (orgSettings.mastercard_enrollment_settings.allowed && orgSettings.mastercard_enrollment_settings.enabled);
-        const isCCCEnabled =
-          orgSettings.corporate_credit_card_settings.allowed && orgSettings.corporate_credit_card_settings.enabled;
-        const rtfCards = cards.filter((card) => card.is_visa_enrolled || card.is_mastercard_enrolled);
-        if (isRtfEnabled && isCCCEnabled && rtfCards.length === 0) {
-          return this.mapAddCorporateCardTask();
-        } else {
-          return [] as DashboardTask[];
-        }
-      })
-    );
-  }
-
   getPotentialDuplicatesTasks(): Observable<DashboardTask[]> {
     return this.expensesService.getDuplicateSets().pipe(
       map((duplicateSets) => {
@@ -577,24 +555,6 @@ export class TasksService {
           {
             content: isInvalidUSNumber ? 'Update and Opt in' : 'Opt in',
             event: TASKEVENT.mobileNumberVerification,
-          },
-        ],
-      },
-    ];
-    return task;
-  }
-
-  mapAddCorporateCardTask(): DashboardTask[] {
-    const task = [
-      {
-        hideAmount: true,
-        header: 'Add Corporate Card',
-        subheader: 'Add your corporate card to track expenses.',
-        icon: TaskIcon.CARD,
-        ctas: [
-          {
-            content: 'Add Card',
-            event: TASKEVENT.addCorporateCard,
           },
         ],
       },

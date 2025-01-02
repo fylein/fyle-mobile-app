@@ -32,7 +32,6 @@ import { taskModalControllerParams, taskModalControllerParams2 } from 'src/app/c
 import {
   taskCtaData,
   taskCtaData10,
-  taskCtaData11,
   taskCtaData2,
   taskCtaData3,
   taskCtaData4,
@@ -42,8 +41,6 @@ import {
   taskCtaData8,
   taskCtaData9,
 } from 'src/app/core/mock-data/task-cta.data';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { orgSettingsPendingRestrictions } from 'src/app/core/mock-data/org-settings.data';
 
 export function TestCases1(getTestBed) {
   return describe('test case set 1', () => {
@@ -63,7 +60,6 @@ export function TestCases1(getTestBed) {
     let router: jasmine.SpyObj<Router>;
     let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
     let networkService: jasmine.SpyObj<NetworkService>;
-    let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
 
     beforeEach(waitForAsync(() => {
       const TestBed = getTestBed();
@@ -83,7 +79,6 @@ export function TestCases1(getTestBed) {
       router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
       activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
       networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
-      orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     }));
 
     it('should create', () => {
@@ -91,10 +86,6 @@ export function TestCases1(getTestBed) {
     });
 
     it('ngOnInit(): should call setupNetworkWatcher once', () => {
-      orgSettingsService.get.and.returnValue(of(orgSettingsPendingRestrictions));
-      component.isVisaRTFEnabled$ = of(true);
-      component.isMastercardRTFEnabled$ = of(true);
-      component.isYodleeEnabled$ = of(true);
       spyOn(component, 'setupNetworkWatcher');
       fixture.detectChanges();
 
@@ -338,7 +329,6 @@ export function TestCases1(getTestBed) {
         spyOn(component, 'onPotentialDuplicatesTaskClick');
         spyOn(component, 'onSentBackAdvanceTaskClick');
         spyOn(component, 'onMobileNumberVerificationTaskClick');
-        spyOn(component, 'onAddCorporateCardClick');
         spyOn(component, 'onCommuteDetailsTaskClick');
       });
 
@@ -478,24 +468,6 @@ export function TestCases1(getTestBed) {
         expect(component.onSentBackAdvanceTaskClick).not.toHaveBeenCalled();
         expect(component.onMobileNumberVerificationTaskClick).not.toHaveBeenCalled();
         expect(component.onCommuteDetailsTaskClick).toHaveBeenCalledTimes(1);
-      });
-
-      it('should call onAddCorporateCardClick if clicked on addCorporateCard', () => {
-        component.onTaskClicked(taskCtaData11, dashboardTasksData[0]);
-        expect(trackingService.tasksClicked).toHaveBeenCalledOnceWith({
-          Asset: 'Mobile',
-          header: dashboardTasksData[0].header,
-        });
-        expect(component.onExpensesToReportTaskClick).not.toHaveBeenCalled();
-        expect(component.onOpenDraftReportsTaskClick).not.toHaveBeenCalled();
-        expect(component.onSentBackReportTaskClick).not.toHaveBeenCalled();
-        expect(component.onReviewExpensesTaskClick).not.toHaveBeenCalled();
-        expect(component.onTeamReportsTaskClick).not.toHaveBeenCalled();
-        expect(component.onPotentialDuplicatesTaskClick).not.toHaveBeenCalled();
-        expect(component.onSentBackAdvanceTaskClick).not.toHaveBeenCalled();
-        expect(component.onMobileNumberVerificationTaskClick).not.toHaveBeenCalled();
-        expect(component.onCommuteDetailsTaskClick).not.toHaveBeenCalled();
-        expect(component.onAddCorporateCardClick).toHaveBeenCalledTimes(1);
       });
 
       it('should only call trackingService.tasksClicked if none of them matches', () => {

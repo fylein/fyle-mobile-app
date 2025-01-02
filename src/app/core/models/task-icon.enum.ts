@@ -5,5 +5,4 @@ export enum TaskIcon {
   MOBILE = 'phone',
   LOCATION = 'location',
   STARS = 'stars-filled',
-  CARD = 'card',
 }

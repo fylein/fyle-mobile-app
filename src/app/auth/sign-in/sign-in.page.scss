@@ -41,7 +41,7 @@
   &__select-sign-in {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: 96vh;
     padding: 20px 20px 0 20px;
   }
 
@@ -49,7 +49,6 @@
     margin-top: 24px;
     position: relative;
     height: 144px;
-    margin-bottom: 24px;
   }
 
   &__divider-container {
@@ -63,7 +62,7 @@
 
   &__divider {
     height: 1px;
-    background-color: $border-tertiary;
+    background-color: $grey;
     width: 100%;
   }
 
@@ -71,7 +70,7 @@
     height: 96vh;
     margin-top: 18px;
     padding: 20px;
-    padding: 24px 20px 44px 20px;
+    padding: 28px 20px 44px 20px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -135,9 +134,8 @@
     &__disabled-email {
       font-size: 14px;
       font-weight: 500;
-      line-height: 1.3;
+      line-height: 1.28;
       color: $blue-black;
-      padding-top: 4px;
       margin-bottom: 24px;
       display: flex;
       align-items: center;
@@ -269,18 +267,5 @@
         margin-right: 8px;
       }
     }
-  }
-}
-
-.fade-in {
-  animation: fadeIn 0.5s ease-in-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
   }
 }
