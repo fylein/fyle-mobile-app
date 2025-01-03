@@ -4,6 +4,9 @@ $background-color: #fff;
 $menu-botton-color: #000;
 $toolbar-border: #ababab6b;
 
+.spender-onboarding-container {
+}
+
 .spender-onboarding {
   background: $border-info-lighter;
   height: 100%;
@@ -113,5 +116,63 @@ $toolbar-border: #ababab6b;
     font-style: normal;
     font-weight: 500;
     line-height: 1.3;
+  }
+}
+
+@mixin loader {
+  border-radius: 50%;
+  width: 14px;
+  height: 14px;
+  margin: 0 4px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.spender-onboarding-loader {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  &__redirection-loader {
+    &__icon {
+      @include loader;
+      fill: $brand-primary;
+      height: 40px;
+      width: 40px;
+    }
+
+    &__text {
+      margin-top: 8px;
+      color: $black;
+    }
+  }
+
+  &__header-text {
+    color: $black;
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 1.33;
+    margin-bottom: 12px;
+    margin-top: 16px;
+  }
+
+  &__description-text {
+    color: $black;
+    font-size: 14px;
+    font-style: normal;
+    line-height: 1.4;
+    margin-bottom: 12px;
+    margin-top: 16px;
   }
 }

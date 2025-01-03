@@ -21,6 +21,8 @@ import { Router } from '@angular/router';
 import { MenuController } from '@ionic/angular';
 import { SidemenuAllowedActions } from 'src/app/core/models/sidemenu-allowed-actions.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
+import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
+import { OnboardingState } from 'src/app/core/models/onboarding-state.enum';
 
 @Component({
   selector: 'app-sidemenu',
@@ -66,7 +68,8 @@ export class SidemenuComponent implements OnInit {
     private launchDarklyService: LaunchDarklyService,
     private orgService: OrgService,
     private authService: AuthService,
-    private orgUserSettingsService: OrgUserSettingsService
+    private orgUserSettingsService: OrgUserSettingsService,
+    private spenderOnboardingService: SpenderOnboardingService
   ) {}
 
   ngOnInit(): void {
@@ -178,14 +181,15 @@ export class SidemenuComponent implements OnInit {
     );
   }
 
-  getCardOptions(): Partial<SidemenuItem>[] {
+  getCardOptions(isOnboardingPending: boolean): Partial<SidemenuItem>[] {
     const cardOptions = [
       {
         title: 'Personal Cards',
         isVisible:
           this.orgSettings.org_personal_cards_settings.allowed &&
           this.orgSettings.org_personal_cards_settings.enabled &&
-          this.orgUserSettings.personal_cards_settings?.enabled,
+          this.orgUserSettings.personal_cards_settings?.enabled &&
+          !isOnboardingPending,
         route: ['/', 'enterprise', 'personal_cards'],
       },
     ];
@@ -211,26 +215,32 @@ export class SidemenuComponent implements OnInit {
     return teamOptions.filter((teamOption) => teamOption.isVisible);
   }
 
-  getPrimarySidemenuOptions(isConnected: boolean): Partial<SidemenuItem>[] {
+  getPrimarySidemenuOptions(isConnected: boolean, isOnboardingPending: boolean): Partial<SidemenuItem>[] {
     const teamOptions = this.getTeamOptions();
-    const cardOptions = this.getCardOptions();
+    const cardOptions = this.getCardOptions(isOnboardingPending);
 
     const primaryOptions = [
       {
         title: 'Home',
-        isVisible: true,
+        isVisible: !isOnboardingPending,
         icon: 'dashboard',
         route: ['/', 'enterprise', 'my_dashboard'],
       },
       {
+        title: 'Get started',
+        isVisible: isOnboardingPending,
+        icon: 'dashboard',
+        route: ['/', 'enterprise', 'spender_onboarding'],
+      },
+      {
         title: 'Expenses',
-        isVisible: true,
+        isVisible: !isOnboardingPending,
         icon: 'list',
         route: ['/', 'enterprise', 'my_expenses'],
       },
       {
         title: 'Cards',
-        isVisible: cardOptions.length ? true : false,
+        isVisible: (cardOptions.length ? true : false) && !isOnboardingPending,
         icon: 'card',
         disabled: !isConnected,
         isDropdownOpen: false,
@@ -238,21 +248,22 @@ export class SidemenuComponent implements OnInit {
       },
       {
         title: 'Reports',
-        isVisible: true,
+        isVisible: !isOnboardingPending,
         icon: 'folder',
         route: ['/', 'enterprise', 'my_reports'],
         disabled: !isConnected,
       },
       {
         title: 'Advances',
-        isVisible: this.orgSettings.advances.enabled || this.orgSettings.advance_requests.enabled,
+        isVisible:
+          (this.orgSettings.advances.enabled || this.orgSettings.advance_requests.enabled) && !isOnboardingPending,
         icon: 'wallet',
         route: ['/', 'enterprise', 'my_advances'],
         disabled: !isConnected,
       },
       {
         title: 'Team',
-        isVisible: teamOptions.length ? true : false,
+        isVisible: (teamOptions.length ? true : false) && !isOnboardingPending,
         icon: 'user-three',
         isDropdownOpen: false,
         disabled: !isConnected,
@@ -316,18 +327,23 @@ export class SidemenuComponent implements OnInit {
     ];
   }
 
-  getSecondarySidemenuOptions(orgs: Org[], isDelegatee: boolean, isConnected: boolean): Partial<SidemenuItem>[] {
+  getSecondarySidemenuOptions(
+    orgs: Org[],
+    isDelegatee: boolean,
+    isConnected: boolean,
+    isOnboardingPending: boolean
+  ): Partial<SidemenuItem>[] {
     return [
       {
         title: 'Delegated Accounts',
-        isVisible: isDelegatee && !this.isSwitchedToDelegator,
+        isVisible: isDelegatee && !this.isSwitchedToDelegator && !isOnboardingPending,
         icon: 'user-two',
         route: ['/', 'enterprise', 'delegated_accounts'],
         disabled: !isConnected,
       },
       {
         title: 'Switch back to my account',
-        isVisible: this.isSwitchedToDelegator,
+        isVisible: this.isSwitchedToDelegator && !isOnboardingPending,
         icon: 'fy-switch',
         route: ['/', 'enterprise', 'delegated_accounts', { switchToOwn: true }],
         disabled: !isConnected,
@@ -375,10 +391,13 @@ export class SidemenuComponent implements OnInit {
 
   setupSideMenu(isConnected?: boolean, orgs?: Org[], isDelegatee?: boolean): void {
     if (isConnected) {
-      this.filteredSidemenuList = [
-        ...this.getPrimarySidemenuOptions(isConnected),
-        ...this.getSecondarySidemenuOptions(orgs, isDelegatee, isConnected),
-      ];
+      this.spenderOnboardingService.getOnboardingStatus().subscribe((onboardingStatus) => {
+        const isOnboardingPending = onboardingStatus.state !== OnboardingState.COMPLETED;
+        this.filteredSidemenuList = [
+          ...this.getPrimarySidemenuOptions(isConnected, isOnboardingPending),
+          ...this.getSecondarySidemenuOptions(orgs, isDelegatee, isConnected, isOnboardingPending),
+        ];
+      });
     } else {
       this.filteredSidemenuList = [...this.getPrimarySidemenuOptionsOffline()];
     }

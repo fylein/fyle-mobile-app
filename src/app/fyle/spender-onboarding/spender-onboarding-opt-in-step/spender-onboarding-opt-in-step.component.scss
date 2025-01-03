@@ -17,14 +17,6 @@
     justify-content: flex-end;
   }
 
-  &__card-number-input {
-    width: fit-content !important;
-    margin-right: 24px;
-    &::placeholder {
-      word-spacing: 24px;
-    }
-  }
-
   &__heading {
     color: $black;
     font-size: 20px;
@@ -102,12 +94,6 @@
     &:focus-within:not(&__error) {
       border-bottom: 1px solid $black-light;
     }
-  }
-
-  &__card-number-input {
-    border: 0;
-    color: $blue-black;
-    width: 100%;
   }
 
   &__input-default-icon {

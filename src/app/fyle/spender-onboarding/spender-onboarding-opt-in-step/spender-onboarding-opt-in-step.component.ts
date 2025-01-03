@@ -118,6 +118,10 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.eou.currentValue !== changes.eou.previousValue) {
       this.mobileNumberInputValue = this.eou.ou.mobile;
+      if (this.eou.ou.mobile) {
+        this.optInFlowState = OptInFlowState.OTP_VERIFICATION;
+        this.resendOtp('INITIAL');
+      }
     }
   }
 
@@ -154,7 +158,7 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
   saveMobileNumber(): void {
     //If user has not changed the verified mobile number, close the popover
     if (this.mobileNumberInputValue === this.eou.ou.mobile && this.eou.ou.mobile_verified) {
-      this.modalController.dismiss();
+      this.optInFlowState = OptInFlowState.OTP_VERIFICATION;
     } else {
       this.validateInput();
       if (!this.mobileNumberError?.length) {
