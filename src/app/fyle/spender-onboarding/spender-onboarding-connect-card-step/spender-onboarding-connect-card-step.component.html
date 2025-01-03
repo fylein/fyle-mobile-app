@@ -174,7 +174,15 @@
     </form>
   </div>
   <div class="connect-card__primary-cta-container">
-    <ion-button class="btn-primary connect-card__primary-cta" fill="clear" role="button" (click)="enrollCards()">
+    <ion-button
+      class="btn-primary connect-card__primary-cta"
+      fill="clear"
+      role="button"
+      (click)="enrollCards()"
+      appFormButtonValidation
+      [loading]="cardsEnrolling"
+      [loadingText]="'Resetting'"
+    >
       Continue
     </ion-button>
   </div>
