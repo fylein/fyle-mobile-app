@@ -87,7 +87,7 @@ import { ccTransactionData, ccTransactionData1 } from 'src/app/core/mock-data/cc
 import { ccTransactionResponseData } from 'src/app/core/mock-data/corporate-card-transaction-response.data';
 import { cloneDeep } from 'lodash';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
-import { CCExpenseMerchantInfoPopoverComponent } from 'src/app/shared/components/cc-expense-merchant-info-popover/cc-expense-merchant-info-popover.component';
+import { CCExpenseMerchantInfoModalComponent } from 'src/app/shared/components/cc-expense-merchant-info-modal/cc-expense-merchant-info-modal.component';
 
 export function TestCases6(getTestBed) {
   describe('AddEditExpensePage-6', () => {
@@ -1226,18 +1226,39 @@ export function TestCases6(getTestBed) {
     }));
 
     it('openCCExpenseMerchantInfoModal(): should open the transaction status info modal', fakeAsync(() => {
-      const popoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present']);
-      popoverController.create.and.resolveTo(popoverSpy);
+      const modalSpy = jasmine.createSpyObj('modal', ['present']);
+      modalController.create.and.resolveTo(modalSpy);
+
+      modalProperties.getModalDefaultProperties.and.returnValue({
+        cssClass: 'fy-modal',
+        showBackdrop: true,
+        canDismiss: true,
+        backdropDismiss: true,
+        animated: true,
+        initialBreakpoint: 1,
+        breakpoints: [0, 1],
+        handle: false,
+      });
 
       component.openCCExpenseMerchantInfoModal();
 
       tick();
 
-      expect(popoverController.create).toHaveBeenCalledOnceWith({
-        component: CCExpenseMerchantInfoPopoverComponent,
-        cssClass: 'fy-dialog-popover',
+      expect(modalController.create).toHaveBeenCalledOnceWith({
+        component: CCExpenseMerchantInfoModalComponent,
+        mode: 'ios',
+        cssClass: 'fy-modal',
+        showBackdrop: true,
+        canDismiss: true,
+        backdropDismiss: true,
+        animated: true,
+        initialBreakpoint: 0.15,
+        breakpoints: [0, 0.15],
+        handle: false,
       });
-      expect(popoverSpy.present).toHaveBeenCalledTimes(1);
+
+      expect(modalSpy.present).toHaveBeenCalledTimes(1);
+      expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
     }));
   });
 }
