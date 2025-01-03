@@ -1395,7 +1395,7 @@ ion-toggle.toggle-checked::before {
   line-height: 18px;
   padding: 2px 10px;
   text-align: center;
-  text-transform: uppercase;
+  text-transform: capitalize;
   white-space: nowrap;
   height: max-content;
 

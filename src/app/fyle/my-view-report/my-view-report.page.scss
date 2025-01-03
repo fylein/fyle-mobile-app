@@ -101,6 +101,10 @@
   &--amount {
     color: $white;
     font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 1px;
   }
 
   &--purpose-state {
@@ -124,6 +128,11 @@
     &__amount {
       font-size: 18px;
       font-weight: 500;
+    }
+
+    &__currency {
+      font-size: 14px;
+      line-height: 1.5;
     }
   }
 

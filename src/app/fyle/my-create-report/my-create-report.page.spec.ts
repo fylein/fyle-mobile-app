@@ -21,6 +21,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
+import { ExactCurrencyPipe } from 'src/app/shared/pipes/exact-currency.pipe';
 import { StorageService } from '../../core/services/storage.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { MyCreateReportPage } from './my-create-report.page';
@@ -63,7 +64,7 @@ describe('MyCreateReportPage', () => {
     ]);
 
     TestBed.configureTestingModule({
-      declarations: [MyCreateReportPage, HumanizeCurrencyPipe],
+      declarations: [MyCreateReportPage, HumanizeCurrencyPipe, ExactCurrencyPipe],
       imports: [IonicModule.forRoot(), RouterTestingModule, FormsModule, MatCheckboxModule],
       providers: [
         FyCurrencyPipe,

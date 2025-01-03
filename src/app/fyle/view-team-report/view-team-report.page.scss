@@ -243,6 +243,10 @@ $sent-back-color: #da1e28;
   &--amount {
     color: $white;
     font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 1px;
   }
 
   &--purpose-state {
@@ -266,6 +270,10 @@ $sent-back-color: #da1e28;
     &__amount {
       font-size: 18px;
       font-weight: 500;
+    }
+
+    &__currency {
+      font-size: 14px;
     }
   }
 
