@@ -2,7 +2,7 @@ import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ModalController, RefresherEventDetail } from '@ionic/angular';
+import { ModalController, PopoverController, RefresherEventDetail } from '@ionic/angular';
 import { Observable, BehaviorSubject, forkJoin, from, of, concat, combineLatest } from 'rxjs';
 import { finalize, map, shareReplay, switchMap } from 'rxjs/operators';
 import { TaskCta } from 'src/app/core/models/task-cta.model';
@@ -37,6 +37,10 @@ import { AuthService } from '../../../core/services/auth.service';
 import { OrgService } from 'src/app/core/services/org.service';
 import { FyOptInComponent } from 'src/app/shared/components/fy-opt-in/fy-opt-in.component';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
+import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
+import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { AddCorporateCardComponent } from '../../manage-corporate-cards/add-corporate-card/add-corporate-card.component';
+import { CardAddedComponent } from '../../manage-corporate-cards/card-added/card-added.component';
 
 @Component({
   selector: 'app-tasks',
@@ -68,6 +72,12 @@ export class TasksComponent implements OnInit {
 
   autoSubmissionReportDate$: Observable<Date>;
 
+  isVisaRTFEnabled$: Observable<boolean>;
+
+  isMastercardRTFEnabled$: Observable<boolean>;
+
+  isYodleeEnabled$: Observable<boolean>;
+
   constructor(
     private taskService: TasksService,
     private transactionService: TransactionService,
@@ -86,8 +96,11 @@ export class TasksComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private networkService: NetworkService,
     private orgSettingsService: OrgSettingsService,
+    private orgUserSettingsService: OrgUserSettingsService,
     private authService: AuthService,
-    private orgService: OrgService
+    private orgService: OrgService,
+    private popoverController: PopoverController,
+    private corporateCreditCardExpenseService: CorporateCreditCardExpenseService
   ) {}
 
   ngOnInit(): void {
@@ -361,35 +374,41 @@ export class TasksComponent implements OnInit {
     });
   }
 
-  onTaskClicked(taskCta: TaskCta, task: DashboardTask): void {
-    this.trackingService.tasksClicked({
-      Asset: 'Mobile',
-      header: task.header,
-    });
+  handleEventsWithTaskConfig(taskCta: TaskCta, task: DashboardTask): void {
     switch (taskCta.event) {
-      case TASKEVENT.expensesAddToReport:
-        this.onExpensesToReportTaskClick();
-        break;
       case TASKEVENT.openDraftReports:
         this.onOpenDraftReportsTaskClick(taskCta, task);
         break;
       case TASKEVENT.openSentBackReport:
         this.onSentBackReportTaskClick(taskCta, task);
         break;
-      case TASKEVENT.reviewExpenses:
-        this.onReviewExpensesTaskClick();
-        break;
       case TASKEVENT.openTeamReport:
         this.onTeamReportsTaskClick(taskCta, task);
-        break;
-      case TASKEVENT.openPotentialDuplicates:
-        this.onPotentialDuplicatesTaskClick();
         break;
       case TASKEVENT.openSentBackAdvance:
         this.onSentBackAdvanceTaskClick(taskCta, task);
         break;
+      default:
+        break;
+    }
+  }
+
+  handleEventsWithoutTaskConfig(taskCtaEvent: TASKEVENT): void {
+    switch (taskCtaEvent) {
+      case TASKEVENT.expensesAddToReport:
+        this.onExpensesToReportTaskClick();
+        break;
+      case TASKEVENT.reviewExpenses:
+        this.onReviewExpensesTaskClick();
+        break;
+      case TASKEVENT.openPotentialDuplicates:
+        this.onPotentialDuplicatesTaskClick();
+        break;
       case TASKEVENT.mobileNumberVerification:
         this.onMobileNumberVerificationTaskClick();
+        break;
+      case TASKEVENT.addCorporateCard:
+        this.onAddCorporateCardClick();
         break;
       case TASKEVENT.commuteDetails:
         this.onCommuteDetailsTaskClick();
@@ -397,6 +416,15 @@ export class TasksComponent implements OnInit {
       default:
         break;
     }
+  }
+
+  onTaskClicked(taskCta: TaskCta, task: DashboardTask): void {
+    this.trackingService.tasksClicked({
+      Asset: 'Mobile',
+      header: task.header,
+    });
+    this.handleEventsWithTaskConfig(taskCta, task);
+    this.handleEventsWithoutTaskConfig(taskCta.event);
   }
 
   onMobileNumberVerificationTaskClick(): void {
@@ -422,6 +450,61 @@ export class TasksComponent implements OnInit {
         this.optedIn.emit();
       }
     });
+  }
+
+  handleEnrollmentSuccess(): void {
+    this.corporateCreditCardExpenseService.clearCache().subscribe(async () => {
+      const cardAddedModal = await this.popoverController.create({
+        component: CardAddedComponent,
+        cssClass: 'pop-up-in-center',
+      });
+
+      await cardAddedModal.present();
+      await cardAddedModal.onDidDismiss();
+    });
+  }
+
+  onAddCorporateCardClick(): void {
+    const orgSettings$ = this.orgSettingsService.get();
+    this.isVisaRTFEnabled$ = orgSettings$.pipe(
+      map((orgSettings) => orgSettings.visa_enrollment_settings.allowed && orgSettings.visa_enrollment_settings.enabled)
+    );
+
+    this.isMastercardRTFEnabled$ = orgSettings$.pipe(
+      map(
+        (orgSettings) =>
+          orgSettings.mastercard_enrollment_settings.allowed && orgSettings.mastercard_enrollment_settings.enabled
+      )
+    );
+
+    this.isYodleeEnabled$ = forkJoin([orgSettings$, this.orgUserSettingsService.get()]).pipe(
+      map(
+        ([orgSettings, orgUserSettings]) =>
+          orgSettings.bank_data_aggregation_settings.allowed &&
+          orgSettings.bank_data_aggregation_settings.enabled &&
+          orgUserSettings.bank_data_aggregation_settings.enabled
+      )
+    );
+    forkJoin([this.isVisaRTFEnabled$, this.isMastercardRTFEnabled$, this.isYodleeEnabled$]).subscribe(
+      async ([isVisaRTFEnabled, isMastercardRTFEnabled, isYodleeEnabled]) => {
+        const addCorporateCardPopover = await this.popoverController.create({
+          component: AddCorporateCardComponent,
+          cssClass: 'fy-dialog-popover',
+          componentProps: {
+            isVisaRTFEnabled,
+            isMastercardRTFEnabled,
+            isYodleeEnabled,
+          },
+        });
+
+        await addCorporateCardPopover.present();
+        const popoverResponse = (await addCorporateCardPopover.onDidDismiss()) as { success: boolean };
+
+        if (popoverResponse.success) {
+          this.handleEnrollmentSuccess();
+        }
+      }
+    );
   }
 
   onReviewExpensesTaskClick(): void {
