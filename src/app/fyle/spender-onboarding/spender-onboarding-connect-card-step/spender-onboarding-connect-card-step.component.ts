@@ -68,6 +68,8 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
 
   fg: FormGroup;
 
+  cardsEnrolling = false;
+
   constructor(
     private corporateCreditCardExpensesService: CorporateCreditCardExpenseService,
     private realTimeFeedService: RealTimeFeedService,
@@ -77,6 +79,7 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
 
   enrollCards(): void {
     const cards = this.enrollableCards;
+    this.cardsEnrolling = true;
     if (cards.length > 0) {
       from(cards)
         .pipe(
@@ -95,6 +98,7 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
           )
         )
         .subscribe(() => {
+          this.cardsEnrolling = false;
           if (this.cardsList.failedCards.length > 0) {
             this.showErrorPopover();
           } else {
@@ -114,6 +118,7 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
           })
         )
         .subscribe(() => {
+          this.cardsEnrolling = false;
           if (this.cardsList.failedCards.length > 0) {
             this.showErrorPopover();
           } else {

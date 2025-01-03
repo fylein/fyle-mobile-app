@@ -36,15 +36,14 @@ fdescribe('SpenderOnboardingConnectCardStepComponent', () => {
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(SpenderOnboardingConnectCardStepComponent);
-    component = fixture.componentInstance;
-
     realTimeFeedService = TestBed.inject(RealTimeFeedService) as jasmine.SpyObj<RealTimeFeedService>;
     corporateCreditCardExpenseService = TestBed.inject(
       CorporateCreditCardExpenseService
     ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
     fb = TestBed.inject(FormBuilder);
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
+    fixture = TestBed.createComponent(SpenderOnboardingConnectCardStepComponent);
+    component = fixture.componentInstance;
   });
 
   describe('template', () => {

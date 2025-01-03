@@ -321,7 +321,12 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
   navigateToDashboard(openOptInDialog?: boolean): void {
     forkJoin([this.orgSettingsService.get(), this.spenderOnboardingService.getOnboardingStatus()]).subscribe(
       ([orgSettings, onboardingStatus]) => {
-        if (onboardingStatus.state !== OnboardingState.COMPLETED) {
+        if (
+          (orgSettings.visa_enrollment_settings.enabled ||
+            orgSettings.mastercard_enrollment_settings.enabled ||
+            orgSettings.amex_feed_enrollment_settings.enabled) &&
+          onboardingStatus.state !== OnboardingState.COMPLETED
+        ) {
           this.router.navigate(['/', 'enterprise', 'spender_onboarding']);
         } else {
           this.router.navigate([

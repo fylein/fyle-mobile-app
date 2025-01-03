@@ -1,5 +1,5 @@
 import { Component, EventEmitter, OnInit } from '@angular/core';
-import { Observable, noop, concat, from } from 'rxjs';
+import { Observable, noop, concat, from, forkJoin } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { switchMap, finalize, tap } from 'rxjs/operators';
@@ -12,6 +12,8 @@ import { TrackingService } from '../../core/services/tracking.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
 
 @Component({
   selector: 'app-invited-user',
@@ -58,7 +60,9 @@ export class InvitedUserPage implements OnInit {
     private router: Router,
     private trackingService: TrackingService,
     private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService
+    private snackbarProperties: SnackbarPropertiesService,
+    private orgSettingsService: OrgSettingsService,
+    private spenderOnboardingService: SpenderOnboardingService
   ) {}
 
   ngOnInit(): void {
@@ -78,6 +82,23 @@ export class InvitedUserPage implements OnInit {
       this.fg.controls.fullName.setValue(eou?.us?.full_name);
       this.orgName = eou.ou.org_name;
     });
+  }
+
+  navigateToDashboard(): void {
+    forkJoin([this.orgSettingsService.get(), this.spenderOnboardingService.getOnboardingStatus()]).subscribe(
+      ([orgSettings, onboardingStatus]) => {
+        if (
+          (orgSettings.visa_enrollment_settings.enabled ||
+            orgSettings.mastercard_enrollment_settings.enabled ||
+            orgSettings.amex_feed_enrollment_settings.enabled) &&
+          onboardingStatus.state !== OnboardingState.COMPLETED
+        ) {
+          this.router.navigate(['/', 'enterprise', 'spender_onboarding']);
+        } else {
+          this.router.navigate(['/', 'enterprise', 'my_dashboard']);
+        }
+      }
+    );
   }
 
   onPasswordValid(isValid: boolean): void {
@@ -113,8 +134,7 @@ export class InvitedUserPage implements OnInit {
           })
         )
         .subscribe(() => {
-          this.router.navigate(['/', 'enterprise', 'my_dashboard']);
-          // return $state.go('enterprise.my_dashboard');
+          this.navigateToDashboard();
         });
     } else {
       const message = `Please enter a valid ${!this.fg.controls.fullName.valid ? 'name' : 'password'}`;
