@@ -280,6 +280,11 @@ export class SignInPage implements OnInit {
   }
 
   ionViewWillEnter(): void {
+    if (this.activatedRoute.snapshot.params.email) {
+      this.currentStep = SignInPageState.ENTER_PASSWORD;
+    } else {
+      this.currentStep = SignInPageState.SELECT_SIGN_IN_METHOD;
+    }
     const priority = BackButtonActionPriority.MEDIUM;
     this.hardwareBackButtonAction = this.platformHandlerService.registerBackButtonAction(priority, this.goBack);
   }
