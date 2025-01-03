@@ -26,6 +26,8 @@ export class SpenderOnboardingPage {
 
   onboardingStep: typeof OnboardingStep = OnboardingStep;
 
+  eou: ExtendedOrgUser;
+
   orgSettings: OrgSettings;
 
   constructor(
@@ -50,6 +52,7 @@ export class SpenderOnboardingPage {
           ])
         ),
         map(([eou, orgSettings, onboardingStatus, corporateCards]) => {
+          this.eou = eou;
           this.userFullName = eou.us.full_name;
           this.orgSettings = orgSettings;
           const isRtfEnabled =
