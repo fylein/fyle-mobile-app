@@ -258,10 +258,10 @@
 
                 <span class="expenses-card--amount">
                   <ng-container *ngIf="expense.currency">
-                    {{ expense.amount | humanizeCurrency : expense.currency : true }}
+                    {{ { value: expense.amount, currencyCode: expense.currency, skipSymbol: true } | exactCurrency }}
                   </ng-container>
                   <ng-container *ngIf="!expense.currency">
-                    {{ expense.amount | humanizeCurrency : homeCurrency : true }}
+                    {{ { value: expense.amount, currencyCode: homeCurrency, skipSymbol: true } | exactCurrency }}
                   </ng-container>
                 </span>
                 <mat-icon *ngIf="showPaymentModeIcon" class="expenses-card--icon" svgIcon="cash"></mat-icon>

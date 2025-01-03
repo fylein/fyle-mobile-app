@@ -9,7 +9,7 @@
     font-weight: 500;
 
     &__from-reports {
-      background-color: $pure-white;
+      background-color: $white;
     }
   }
 
@@ -24,7 +24,6 @@
     width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
-    padding: 4px 0;
   }
 
   &--vertical-dotted-border {
@@ -266,14 +265,13 @@
 
   &--currency-amount-container {
     display: flex;
-    gap: 2px;
   }
 
   &--currency {
     color: $black;
     font-weight: 500;
-    font-size: 16px;
-    line-height: 1.25;
+    font-size: 14px;
+    line-height: 1.5;
     margin-right: 1px;
   }
 
