@@ -1,6 +1,6 @@
 <div class="popup-alert">
   <ion-header>
-    <div class="popup-alert--header text-center">
+    <div class="popup-alert--header" [ngClass]="leftAlign ? 'text-left' : 'text-center'">
       {{ title }}
     </div>
   </ion-header>

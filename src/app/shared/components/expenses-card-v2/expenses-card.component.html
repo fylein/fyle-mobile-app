@@ -22,13 +22,15 @@
   <div class="expenses-card--divider" *ngIf="!showDt"></div>
   <ng-container>
     <div class="d-flex">
+      <!-- Expense select checkbox -->
       <div *ngIf="isSelectionModeEnabled" class="expenses-card--checkbox-container">
         <mat-checkbox class="custom-mat-checkbox expenses-card--checkbox" [checked]="isSelected" disabled>
         </mat-checkbox>
       </div>
+      <!-- Expense Icon -->
       <ng-container *ngIf="!isReceiptPresent && !attachmentUploadInProgress">
         <div
-          class="expenses-card--receipt-container"
+          class="expenses-card--receipt-container d-flex"
           *ngIf="!isOutboxExpense; else outboxExpenseDisplay"
           (click)="addAttachments($event)"
         >
@@ -51,6 +53,7 @@
         </div>
       </ng-container>
 
+      <!-- Expense Receipt -->
       <div
         class="expenses-card--receipt-image-container expenses-card--with-image"
         [ngStyle]="{
@@ -109,6 +112,10 @@
         </ng-template>
       </ng-template>
 
+      <!-- Dashed Divider -->
+      <div class="expenses-card--vertical-dotted-border"></div>
+
+      <!-- Expense sync loader -->
       <div class="d-flex expenses-card--deatils-block">
         <ng-container *ngIf="isConnected$ | async; else expenseCardDefaultView">
           <ng-container *ngIf="isSycing$ | async; else expenseCardScanning">
@@ -134,6 +141,7 @@
           </ng-container>
         </ng-container>
 
+        <!-- Scanning loader -->
         <ng-template #expenseCardScanning>
           <ng-container *ngIf="!isScanCompleted; else expenseCardDefaultView">
             <ng-container *ngIf="isScanInProgress; else scanFailed">
@@ -165,8 +173,10 @@
           </ng-container>
         </ng-template>
 
+        <!-- Expense details -->
         <ng-template #expenseCardDefaultView>
           <div *ngIf="!isDraft" class="expenses-card--category-vendor-project-container">
+            <!-- Category -->
             <div class="d-flex expenses-card--category-icon-container">
               <div
                 class="expenses-card--category"
@@ -197,6 +207,7 @@
               </div>
             </div>
 
+            <!-- Merchant -->
             <div
               class="expenses-card--vendor"
               [ngClass]="{
@@ -206,53 +217,66 @@
             >
               {{ vendorDetails }}
             </div>
-            <div
-              *ngIf="expenseFields && isProjectEnabled$ | async"
-              class="expenses-card--project"
-              [ngClass]="{ 'expenses-card--project__not-filled': !expense.project?.display_name }"
-            >
-              <div *ngIf="expense?.project?.display_name?.length > 0">
-                <span class="text-capitalize"> {{ expenseFields?.project_id[0]?.field_name }}: </span>
-                {{ expense?.project?.display_name ? expense?.project?.display_name : 'Unspecified' }}
+
+            <!-- Amount & Exchange rate -->
+            <div class="expenses-card--currency-amount-exchange-rate-container">
+              <div class="expenses-card--currency-amount-container">
+                <span class="expenses-card--currency">
+                  {{ (expense.currency | currencySymbol : 'wide') || (homeCurrency | currencySymbol : 'wide') }}
+                </span>
+                <span class="expenses-card--amount">
+                  <ng-container *ngIf="expense.currency">
+                    {{ { value: expense.amount, currencyCode: expense.currency, skipSymbol: true } | exactCurrency }}
+                  </ng-container>
+                  <ng-container *ngIf="!expense.currency">
+                    {{ { value: expense.amount, currencyCode: homeCurrency, skipSymbol: true } | exactCurrency }}
+                  </ng-container>
+                </span>
+                <mat-icon *ngIf="showPaymentModeIcon" class="expenses-card--icon" svgIcon="cash"></mat-icon>
+              </div>
+
+              <div *ngIf="expense.foreign_currency && expense.foreign_amount" class="expenses-card--exchange-rate">
+                ({{ expense.foreign_amount | humanizeCurrency : expense.foreign_currency }} at
+                {{ expense.amount / expense.foreign_amount | currency : expense.currency : 'code' }})
               </div>
             </div>
           </div>
+
+          <!-- Expense with missing info -->
           <div
             *ngIf="isDraft"
             class="expenses-card--category-vendor-project-container expenses-card--category-vendor-project-container__align-vertical-center expenses-card--category-vendor-project-container__error"
           >
-            <div>Expense information</div>
-            <div>missing</div>
+            <div>Expense information missing</div>
+
+            <!-- Amount & Exchange rate -->
+            <div class="expenses-card--currency-amount-exchange-rate-container">
+              <div class="expenses-card--currency-amount-container">
+                <span class="expenses-card--currency">
+                  {{ (expense.currency | currencySymbol : 'wide') || (homeCurrency | currencySymbol : 'wide') }}
+                </span>
+
+                <span class="expenses-card--amount">
+                  <ng-container *ngIf="expense.currency">
+                    {{ expense.amount | humanizeCurrency : expense.currency : true }}
+                  </ng-container>
+                  <ng-container *ngIf="!expense.currency">
+                    {{ expense.amount | humanizeCurrency : homeCurrency : true }}
+                  </ng-container>
+                </span>
+                <mat-icon *ngIf="showPaymentModeIcon" class="expenses-card--icon" svgIcon="cash"></mat-icon>
+              </div>
+
+              <div *ngIf="expense.foreign_currency && expense.foreign_amount" class="expenses-card--exchange-rate">
+                ({{ expense.foreign_amount | humanizeCurrency : expense.foreign_currency }} at
+                {{ expense.amount / expense.foreign_amount | currency : expense.currency : 'code' }})
+              </div>
+            </div>
           </div>
+
+          <!-- Expense state (Incomplete / Complete) & Critical policy violations-->
           <div class="expenses-card--default-view-container">
-            <div class="expenses-card--currency-amount-container ion-text-right">
-              <span class="expenses-card--currency">
-                {{ (expense.currency | currencySymbol : 'wide') || (homeCurrency | currencySymbol : 'wide') }}
-              </span>
-
-              <span class="expenses-card--amount">
-                <ng-container *ngIf="expense.currency">
-                  {{ expense.amount | humanizeCurrency : expense.currency : true }}
-                </ng-container>
-                <ng-container *ngIf="!expense.currency">
-                  {{ expense.amount | humanizeCurrency : homeCurrency : true }}
-                </ng-container>
-              </span>
-              <mat-icon *ngIf="showPaymentModeIcon" class="expenses-card--icon" svgIcon="cash"></mat-icon>
-            </div>
-
-            <div
-              *ngIf="expense.foreign_currency && expense.foreign_amount"
-              class="expenses-card--exchange-rate ion-text-right"
-            >
-              ({{ expense.foreign_amount | humanizeCurrency : expense.foreign_currency }} at
-              {{ expense.amount / expense.foreign_amount | currency : expense.currency : 'code' }})
-            </div>
-
-            <div
-              *ngIf="isDraft && !isFromViewReports"
-              class="expenses-card--state-container state-pill state-{{ expense.state | expenseState }}"
-            >
+            <div class="expenses-card--state-container state-pill state-{{ expense.state | expenseState }}">
               <span>
                 {{ expense.state | expenseState | titlecase }}
               </span>
