@@ -10,6 +10,7 @@
     min-height: 92px;
     padding: 12px;
     background: $pure-white;
+    position: relative;
   }
 
   &--deatils-block {
@@ -70,14 +71,21 @@
 
   &--vertical-dotted-border {
     border-left: 2px dashed $border-tertiary;
-    height: auto;
+    height: 90%;
     margin: 0 8px;
+    position: absolute;
+    top: 50%;
+    bottom: 0;
+    left: 68px;
+    transform: translate(-50%, -50%);
   }
 
   &--category-vendor-project-container {
     width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
+    margin-left: 16px;
+
     &__align-vertical-center {
       display: flex;
       flex-direction: column;
