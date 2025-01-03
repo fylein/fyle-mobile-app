@@ -27,6 +27,11 @@
     margin-top: 4px;
     font-weight: 500;
     color: $blue-black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
   }
 
   &--amount {

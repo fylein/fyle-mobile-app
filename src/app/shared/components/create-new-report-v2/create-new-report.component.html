@@ -6,9 +6,9 @@
         <div class="create-new-report--title">Create new report</div>
         <div class="create-new-report--sub-title">
           {{ selectedElements.length }} {{ selectedElements.length > 1 ? 'expenses' : 'expense' }}
-        </div>
-        <div class="create-new-report--amount">
-          {{ { value: selectedTotalAmount || 0, currencyCode: homeCurrency } | exactCurrency }}
+          <span class="create-new-report--amount">
+            ( {{ { value: selectedTotalAmount || 0, currencyCode: homeCurrency } | exactCurrency }} )
+          </span>
         </div>
       </div>
     </ion-title>
