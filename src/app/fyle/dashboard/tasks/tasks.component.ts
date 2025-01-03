@@ -498,9 +498,9 @@ export class TasksComponent implements OnInit {
         });
 
         await addCorporateCardPopover.present();
-        const popoverResponse = (await addCorporateCardPopover.onDidDismiss()) as { success: boolean };
+        const popoverResponse = (await addCorporateCardPopover.onDidDismiss()) as OverlayResponse<{ success: boolean }>;
 
-        if (popoverResponse.success) {
+        if (popoverResponse.data?.success) {
           this.handleEnrollmentSuccess();
         }
       }
