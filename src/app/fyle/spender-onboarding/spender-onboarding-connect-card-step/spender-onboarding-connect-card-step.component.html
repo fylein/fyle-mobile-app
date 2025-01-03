@@ -68,6 +68,10 @@
               >Please enter a valid card number.</span
             >
 
+            <span *ngIf="fg.controls['card_number_' + card.id]?.errors.enrollmentError">{{
+              cardValuesMap[id].enrollment_error
+            }}</span>
+
             <ng-container *ngIf="fg.controls['card_number_' + card.id]?.errors.invalidCardNetwork">
               <span *ngIf="isVisaRTFEnabled && isMastercardRTFEnabled; else visaOnlyOrg"
                 >Enter a valid Visa or Mastercard number. If you have other cards, please contact your admin.</span
@@ -148,6 +152,9 @@
           data-testid="error-message"
         >
           <span *ngIf="fg.controls.card_number.errors.invalidCardNumber">Please enter a valid card number.</span>
+          <span *ngIf="fg.controls.card_number.errors.enrollmentError">
+            {{ singularEnrollmentFailure }}
+          </span>
 
           <ng-container *ngIf="fg.controls.card_number?.errors.invalidCardNetwork">
             <span *ngIf="isVisaRTFEnabled && isMastercardRTFEnabled; else visaOnlyOrg"
@@ -181,7 +188,7 @@
       (click)="enrollCards()"
       appFormButtonValidation
       [loading]="cardsEnrolling"
-      [loadingText]="'Resetting'"
+      [loadingText]="'Continue'"
     >
       Continue
     </ion-button>

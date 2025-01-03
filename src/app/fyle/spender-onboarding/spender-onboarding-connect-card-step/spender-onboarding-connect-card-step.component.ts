@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectorRef,
   Component,
@@ -50,7 +51,7 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
 
   enrollableCards: PlatformCorporateCard[] = [];
 
-  cardValuesMap: Record<string, { card_type: string; last_four: string }> = {};
+  cardValuesMap: Record<string, { card_type: string; last_four: string; enrollment_error?: string }> = {};
 
   rtfCardType: CardNetworkType;
 
@@ -69,6 +70,8 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
   fg: FormGroup;
 
   cardsEnrolling = false;
+
+  singularEnrollmentFailure: string;
 
   constructor(
     private corporateCreditCardExpensesService: CorporateCreditCardExpenseService,
@@ -90,8 +93,9 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
                 map(() => {
                   this.cardsList.successfulCards.push(`**** ${card.card_number.slice(-4)}`);
                 }),
-                catchError(() => {
+                catchError((error: HttpErrorResponse) => {
                   this.cardsList.failedCards.push(`**** ${card.card_number.slice(-4)}`);
+                  this.handleEnrollmentFailures(error, card.id);
                   return of(null);
                 })
               )
@@ -112,8 +116,9 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
           map(() => {
             this.cardsList.successfulCards.push(`**** ${(this.fg.controls.card_number.value as string).slice(-4)}`);
           }),
-          catchError(() => {
+          catchError((error: HttpErrorResponse) => {
             this.cardsList.failedCards.push(`**** ${(this.fg.controls.card_number.value as string).slice(-4)}`);
+            this.handleEnrollmentFailures(error, 'card_number');
             return of(null);
           })
         )
@@ -243,6 +248,17 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
       this.singleEnrollableCardDetails.card_type = this.realTimeFeedService.getCardTypeFromNumber(
         this.fg.controls.card_number.value as string
       );
+    }
+  }
+
+  private handleEnrollmentFailures(error: Error, cardId: string): void {
+    const enrollmentFailureMessage = error.message || 'Something went wrong. Please try after some time.';
+    if (this.enrollableCards.length > 0) {
+      this.fg.controls[`card_number_${cardId}`].setErrors({ enrollmentError: true });
+      this.cardValuesMap[cardId].enrollment_error = enrollmentFailureMessage;
+    } else {
+      this.fg.controls.card_number.setErrors({ enrollmentError: true });
+      this.singularEnrollmentFailure = enrollmentFailureMessage;
     }
   }
 
