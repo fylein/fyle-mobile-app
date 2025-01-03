@@ -69,7 +69,7 @@
             >
 
             <span *ngIf="fg.controls['card_number_' + card.id]?.errors.enrollmentError">{{
-              cardValuesMap[id].enrollment_error
+              cardValuesMap[card.id].enrollment_error
             }}</span>
 
             <ng-container *ngIf="fg.controls['card_number_' + card.id]?.errors.invalidCardNetwork">
