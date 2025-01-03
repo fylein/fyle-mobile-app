@@ -102,9 +102,24 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
           }
         });
     } else {
-      this.realTimeFeedService.enroll(this.fg.controls.card_number.value as string).subscribe(() => {
-        this.isStepComplete.emit(true);
-      });
+      this.realTimeFeedService
+        .enroll(this.fg.controls.card_number.value as string)
+        .pipe(
+          map(() => {
+            this.cardsList.successfulCards.push(`**** ${(this.fg.controls.card_number.value as string).slice(-4)}`);
+          }),
+          catchError(() => {
+            this.cardsList.failedCards.push(`**** ${(this.fg.controls.card_number.value as string).slice(-4)}`);
+            return of(null);
+          })
+        )
+        .subscribe(() => {
+          if (this.cardsList.failedCards.length > 0) {
+            this.showErrorPopover();
+          } else {
+            this.isStepComplete.emit(true);
+          }
+        });
     }
   }
 
@@ -231,7 +246,7 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
     // TODO (Angular 14 >): Remove the type casting and directly use string type for the form control
     const cardNumber = control.value as string;
 
-    const isValid = this.realTimeFeedService.isCardNumberValid(cardNumber.replace(/ /g, ''));
+    const isValid = this.realTimeFeedService.isCardNumberValid(cardNumber);
     const cardType = this.realTimeFeedService.getCardTypeFromNumber(cardNumber);
 
     if (cardType === CardNetworkType.VISA || cardType === CardNetworkType.MASTERCARD) {

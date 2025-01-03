@@ -181,7 +181,7 @@ export class SidemenuComponent implements OnInit {
     );
   }
 
-  getCardOptions(isOnboardingPending: boolean): Partial<SidemenuItem>[] {
+  getCardOptions(isOnboardingPending?: boolean): Partial<SidemenuItem>[] {
     const cardOptions = [
       {
         title: 'Personal Cards',
@@ -215,7 +215,7 @@ export class SidemenuComponent implements OnInit {
     return teamOptions.filter((teamOption) => teamOption.isVisible);
   }
 
-  getPrimarySidemenuOptions(isConnected: boolean, isOnboardingPending: boolean): Partial<SidemenuItem>[] {
+  getPrimarySidemenuOptions(isConnected: boolean, isOnboardingPending?: boolean): Partial<SidemenuItem>[] {
     const teamOptions = this.getTeamOptions();
     const cardOptions = this.getCardOptions(isOnboardingPending);
 
@@ -331,7 +331,7 @@ export class SidemenuComponent implements OnInit {
     orgs: Org[],
     isDelegatee: boolean,
     isConnected: boolean,
-    isOnboardingPending: boolean
+    isOnboardingPending?: boolean
   ): Partial<SidemenuItem>[] {
     return [
       {

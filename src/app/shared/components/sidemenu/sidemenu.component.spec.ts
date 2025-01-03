@@ -460,8 +460,8 @@ describe('SidemenuComponent', () => {
       component.setupSideMenu(true, orgData1, true);
       fixture.detectChanges();
       expect(component.filteredSidemenuList).toEqual(resData);
-      expect(getPrimarySidemenuOptionsSpy).toHaveBeenCalledOnceWith(true);
-      expect(getSecondarySidemenuOptionsSpy).toHaveBeenCalledOnceWith(orgData1, true, true);
+      expect(getPrimarySidemenuOptionsSpy).toHaveBeenCalledOnceWith(true, false);
+      expect(getSecondarySidemenuOptionsSpy).toHaveBeenCalledOnceWith(orgData1, true, true, false);
     });
 
     it('should only get the primary options when there is no internet connection', () => {

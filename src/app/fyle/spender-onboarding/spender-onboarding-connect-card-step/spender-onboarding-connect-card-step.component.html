@@ -27,7 +27,7 @@
                 data-testid="card-number-input"
                 formControlName="card_number_{{ card.id }}"
                 required
-                (input)="onCardNumberUpdate(card, 'card_number_' + card.id)"
+                (input)="onCardNumberUpdate(card)"
               />
 
               <div class="connect-card__card-last-four">
@@ -174,13 +174,7 @@
     </form>
   </div>
   <div class="connect-card__primary-cta-container">
-    <ion-button
-      class="btn-primary connect-card__primary-cta"
-      fill="clear"
-      [disabled]="fg.invalid"
-      role="button"
-      (click)="enrollCards()"
-    >
+    <ion-button class="btn-primary connect-card__primary-cta" fill="clear" role="button" (click)="enrollCards()">
       Continue
     </ion-button>
   </div>
