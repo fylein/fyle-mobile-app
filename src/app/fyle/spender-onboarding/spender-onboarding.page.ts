@@ -115,7 +115,9 @@ export class SpenderOnboardingPage {
 
   markStepAsComplete(): void {
     if (this.currentStep === OnboardingStep.CONNECT_CARD) {
-      this.spenderOnboardingService.markConnectCardsStepAsComplete().subscribe();
+      this.spenderOnboardingService.markConnectCardsStepAsComplete().subscribe(() => {
+        this.currentStep = OnboardingStep.OPT_IN;
+      });
     }
     if (this.currentStep === OnboardingStep.OPT_IN) {
       this.onboardingInProgress = false;
