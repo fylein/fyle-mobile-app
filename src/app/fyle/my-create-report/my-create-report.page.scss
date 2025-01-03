@@ -14,17 +14,26 @@
     color: $black;
     font-weight: 500;
     margin-left: -10%;
+    padding: 12px;
   }
 
   &--title {
-    font-size: 20px;
-    line-height: 1.28;
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 27px;
   }
 
   &--sub-title {
-    font-size: 14px;
-    line-height: 1.28;
     margin-top: 4px;
+    font-weight: 500;
+    color: $blue-black;
+  }
+
+  &--amount {
+    font-size: 12px;
+    margin-top: 4px;
+    font-weight: 400;
+    color: $blue-black;
   }
 
   &--mandatory {
@@ -82,7 +91,7 @@
   }
 
   &--heading {
-    color: $grey-light;
+    color: $black-light;
     font-size: 14px;
     padding: 16px 16px;
     background-color: $white;
