@@ -1,30 +1,30 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule, PopoverController } from '@ionic/angular';
+import { IonicModule, ModalController } from '@ionic/angular';
 
-import { CCExpenseMerchantInfoPopoverComponent } from './cc-expense-merchant-info-popover.component';
+import { CCExpenseMerchantInfoModalComponent } from './cc-expense-merchant-info-modal.component';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
 
 describe('CCExpenseMerchantInfoComponent', () => {
-  let component: CCExpenseMerchantInfoPopoverComponent;
-  let popoverController: jasmine.SpyObj<PopoverController>;
-  let fixture: ComponentFixture<CCExpenseMerchantInfoPopoverComponent>;
+  let component: CCExpenseMerchantInfoModalComponent;
+  let modalController: jasmine.SpyObj<ModalController>;
+  let fixture: ComponentFixture<CCExpenseMerchantInfoModalComponent>;
 
   beforeEach(waitForAsync(() => {
-    const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['dismiss']);
+    const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
 
     TestBed.configureTestingModule({
-      declarations: [CCExpenseMerchantInfoPopoverComponent],
+      declarations: [CCExpenseMerchantInfoModalComponent],
       imports: [IonicModule.forRoot()],
       providers: [
         {
-          provide: PopoverController,
-          useValue: popoverControllerSpy,
+          provide: ModalController,
+          useValue: modalControllerSpy,
         },
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(CCExpenseMerchantInfoPopoverComponent);
-    popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
+    fixture = TestBed.createComponent(CCExpenseMerchantInfoModalComponent);
+    modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     component = fixture.componentInstance;
     fixture.detectChanges();
   }));
@@ -39,7 +39,7 @@ describe('CCExpenseMerchantInfoComponent', () => {
 
     fixture.detectChanges();
 
-    expect(popoverController.dismiss).toHaveBeenCalled();
+    expect(modalController.dismiss).toHaveBeenCalled();
   });
 
   describe('template', () => {

@@ -140,7 +140,7 @@ import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/fi
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
 import { RefinerService } from 'src/app/core/services/refiner.service';
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
-import { CCExpenseMerchantInfoPopoverComponent } from 'src/app/shared/components/cc-expense-merchant-info-popover/cc-expense-merchant-info-popover.component';
+import { CCExpenseMerchantInfoModalComponent } from 'src/app/shared/components/cc-expense-merchant-info-modal/cc-expense-merchant-info-modal.component';
 
 // eslint-disable-next-line
 type FormValue = {
@@ -5243,12 +5243,15 @@ export class AddEditExpensePage implements OnInit {
   }
 
   async openCCExpenseMerchantInfoModal(): Promise<void> {
-    const popover = await this.popoverController.create({
-      component: CCExpenseMerchantInfoPopoverComponent,
-      cssClass: 'fy-dialog-popover',
+    const modal = await this.modalController.create({
+      component: CCExpenseMerchantInfoModalComponent,
+      mode: 'ios',
+      ...this.modalProperties.getModalDefaultProperties(),
+      initialBreakpoint: 0.15,
+      breakpoints: [0, 0.15],
     });
 
-    await popover.present();
+    await modal.present();
   }
 
   private filterVendor(vendor: string): string | null {
