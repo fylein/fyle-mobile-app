@@ -11,7 +11,7 @@
         <div class="my-create-report--sub-title">
           {{ selectedElements?.length }} {{ selectedElements?.length > 1 ? 'Expenses' : 'Expense' }}
           <span class="my-create-report--amount">
-            ( {{ { value: selectedTotalAmount || 0, currencyCode: homeCurrency } | exactCurrency }} )
+            ({{ { value: selectedTotalAmount || 0, currencyCode: homeCurrency } | exactCurrency }})
           </span>
         </div>
       </div>
