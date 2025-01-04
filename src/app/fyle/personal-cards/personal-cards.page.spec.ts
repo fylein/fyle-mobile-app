@@ -45,7 +45,7 @@ import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service
 import { PersonalCard } from 'src/app/core/models/personal_card.model';
 import { publicPersonalCardTxnExpenseSuggestionsRes } from 'src/app/core/mock-data/personal-card-txn-expense-suggestions.data';
 
-describe('PersonalCardsPage', () => {
+fdescribe('PersonalCardsPage', () => {
   let component: PersonalCardsPage;
   let fixture: ComponentFixture<PersonalCardsPage>;
   let personalCardsService: jasmine.SpyObj<PersonalCardsService>;

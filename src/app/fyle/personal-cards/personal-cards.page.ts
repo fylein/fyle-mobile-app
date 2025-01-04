@@ -176,7 +176,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.linkedAccounts$ = this.loadCardData$.pipe(
       tap(() => (this.isLoading = true)),
       switchMap(() =>
-        this.personalCardsService.getPersonalCards(this.usePlatformApi).pipe(
+        this.personalCardsService.getPersonalCards().pipe(
           tap(() => {
             this.isCardsLoaded = true;
           }),

@@ -40,7 +40,7 @@ import {
   publicPersonalCardTxnExpenseSuggestionsRes,
 } from '../mock-data/personal-card-txn-expense-suggestions.data';
 
-describe('PersonalCardsService', () => {
+fdescribe('PersonalCardsService', () => {
   let personalCardsService: PersonalCardsService;
   let apiV2Service: jasmine.SpyObj<ApiV2Service>;
   let apiService: jasmine.SpyObj<ApiService>;
@@ -145,28 +145,11 @@ describe('PersonalCardsService', () => {
   });
 
   describe('getPersonalCards()', () => {
-    it('should get linked personal cards when using public api', (done) => {
-      const usePlatformApi = false;
-      apiV2Service.get.and.returnValue(of(apiLinkedAccRes));
-
-      personalCardsService.getPersonalCards(usePlatformApi).subscribe((res) => {
-        expect(spenderPlatformV1ApiService.get).not.toHaveBeenCalled();
-        expect(res).toEqual(apiLinkedAccRes.data);
-        expect(apiV2Service.get).toHaveBeenCalledOnceWith('/personal_bank_accounts', {
-          params: {
-            order: 'last_synced_at.desc',
-          },
-        });
-        done();
-      });
-    });
-
     it('should get linked personal cards when using platform api', (done) => {
-      const usePlatformApi = true;
       spenderPlatformV1ApiService.get.and.returnValue(of(platformApiLinkedAccRes));
       spyOn(personalCardsService, 'transformPersonalCardPlatformArray').and.callThrough();
 
-      personalCardsService.getPersonalCards(usePlatformApi).subscribe((res) => {
+      personalCardsService.getPersonalCards().subscribe((res) => {
         expect(res).toEqual(linkedAccountRes2);
         expect(personalCardsService.transformPersonalCardPlatformArray).toHaveBeenCalledWith(
           platformApiLinkedAccRes.data

@@ -151,23 +151,10 @@ export class PersonalCardsService {
     }, {} as PlatformPersonalCardQueryParams);
   }
 
-  getPersonalCardsPlatform(): Observable<PersonalCard[]> {
+  getPersonalCards(): Observable<PersonalCard[]> {
     return this.spenderPlatformV1ApiService
       .get<PlatformApiResponse<PlatformPersonalCard[]>>('/personal_cards')
       .pipe(map((res) => this.transformPersonalCardPlatformArray(res.data)));
-  }
-
-  getPersonalCards(usePlatformApi: boolean): Observable<PersonalCard[]> {
-    if (usePlatformApi) {
-      return this.getPersonalCardsPlatform();
-    }
-    return this.apiv2Service
-      .get<PersonalCard, { params: { order: string } }>('/personal_bank_accounts', {
-        params: {
-          order: 'last_synced_at.desc',
-        },
-      })
-      .pipe(map((res) => res.data));
   }
 
   getPlatformToken(): Observable<YodleeAccessToken> {
