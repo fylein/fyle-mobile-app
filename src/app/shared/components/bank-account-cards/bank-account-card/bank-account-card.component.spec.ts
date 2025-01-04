@@ -7,7 +7,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from '../../../../core/services/snackbar-properties.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { BankAccountCardComponent } from './bank-account-card.component';
-import { apiLinkedAccRes, deletePersonalCardRes } from 'src/app/core/mock-data/personal-cards.data';
+import { deletePersonalCardRes, linkedAccounts } from 'src/app/core/mock-data/personal-cards.data';
 import { of } from 'rxjs';
 import { ToastMessageComponent } from '../../toast-message/toast-message.component';
 import { PopupAlertComponent } from '../../popup-alert/popup-alert.component';
@@ -78,7 +78,7 @@ describe('BankAccountCardComponent', () => {
     launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
     component = fixture.componentInstance;
 
-    component.accountDetails = apiLinkedAccRes.data[1];
+    component.accountDetails = linkedAccounts[1];
     fixture.detectChanges();
   }));
 
@@ -156,7 +156,7 @@ describe('BankAccountCardComponent', () => {
       component: PopupAlertComponent,
       componentProps: {
         title: 'Delete Card',
-        message: `Are you sure want to delete this card <b> (${component.accountDetails.bank_name} ${component.accountDetails.account_number}) </b>?`,
+        message: `Are you sure want to delete this card <b> (${component.accountDetails.bank_name} ${component.accountDetails.card_number}) </b>?`,
         primaryCta: {
           text: 'Delete',
           action: 'delete',

@@ -23,7 +23,7 @@ import {
 } from 'src/app/core/mock-data/get-tasks-query-params-with-filters.data';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
 import { apiPersonalCardTxnsRes, matchedPersonalCardTxn } from 'src/app/core/mock-data/personal-card-txns.data';
-import { apiLinkedAccRes, linkedAccountsRes } from 'src/app/core/mock-data/personal-cards.data';
+import { linkedAccounts } from 'src/app/core/mock-data/personal-cards.data';
 import { selectedFilters1, selectedFilters2 } from 'src/app/core/mock-data/selected-filters.data';
 import { snackbarPropertiesRes6, snackbarPropertiesRes7 } from 'src/app/core/mock-data/snackbar-properties.data';
 import { apiToken } from 'src/app/core/mock-data/yoodle-token.data';
@@ -45,7 +45,7 @@ import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service
 import { PersonalCard } from 'src/app/core/models/personal_card.model';
 import { publicPersonalCardTxnExpenseSuggestionsRes } from 'src/app/core/mock-data/personal-card-txn-expense-suggestions.data';
 
-fdescribe('PersonalCardsPage', () => {
+describe('PersonalCardsPage', () => {
   let component: PersonalCardsPage;
   let fixture: ComponentFixture<PersonalCardsPage>;
   let personalCardsService: jasmine.SpyObj<PersonalCardsService>;
@@ -214,7 +214,7 @@ fdescribe('PersonalCardsPage', () => {
 
     launchDarklyService.getVariation.and.returnValue(of(false));
     personalCardsService.getPersonalCardsCount.and.returnValue(of(2));
-    personalCardsService.getPersonalCards.and.returnValue(of(linkedAccountsRes));
+    personalCardsService.getPersonalCards.and.returnValue(of(linkedAccounts));
     personalCardsService.isMfaEnabled.and.returnValue(of(false));
     component.loadData$ = new BehaviorSubject({
       pageNumber: 1,
@@ -222,7 +222,7 @@ fdescribe('PersonalCardsPage', () => {
     component.loadCardData$ = new BehaviorSubject({});
     component.linkedAccountsCount$ = of(1);
     component.isConnected$ = of(true);
-    component.linkedAccounts$ = of(linkedAccountsRes);
+    component.linkedAccounts$ = of(linkedAccounts);
     component.transactionsCount$ = of(2);
     component.transactions$ = of([apiPersonalCardTxnsRes.data[0]]);
     component.isInfiniteScrollRequired$ = of(true);
@@ -351,7 +351,7 @@ fdescribe('PersonalCardsPage', () => {
         });
         spyOn(component.loadData$, 'next');
 
-        component.onCardChanged(linkedAccountsRes[0]);
+        component.onCardChanged(linkedAccounts[0]);
 
         expect(component.loadData$.next).toHaveBeenCalledOnceWith({
           queryParams: { btxn_status: 'in.(INITIALIZED)', ba_id: 'eq.baccY70V3Mz048' },
@@ -366,7 +366,7 @@ fdescribe('PersonalCardsPage', () => {
         });
         spyOn(component.loadData$, 'next');
 
-        component.onCardChanged(linkedAccountsRes[0]);
+        component.onCardChanged(linkedAccounts[0]);
 
         expect(component.loadData$.next).toHaveBeenCalledOnceWith({
           queryParams: { btxn_status: 'in.(INITIALIZED)', ba_id: 'eq.baccY70V3Mz048' },
@@ -481,7 +481,7 @@ fdescribe('PersonalCardsPage', () => {
 
     it('fetchNewTransactions(): should fetch new transactions', () => {
       component.selectionMode = true;
-      component.selectedAccount = linkedAccountsRes[0];
+      component.selectedAccount = linkedAccounts[0];
       spyOn(component, 'switchSelectionMode');
       personalCardsService.syncTransactions.and.returnValue(of(apiPersonalCardTxnsRes));
 
@@ -846,7 +846,7 @@ fdescribe('PersonalCardsPage', () => {
     it('addNewFiltersToParams(): should new filters to params', () => {
       spyOn(component.loadData$, 'getValue').and.returnValue({});
       component.selectedTransactionType = 'DEBIT';
-      component.selectedAccount = linkedAccountsRes[0];
+      component.selectedAccount = linkedAccounts[0];
 
       const result = component.addNewFiltersToParams();
       expect(result).toEqual(personalCardQueryParamFiltersData);
@@ -882,7 +882,7 @@ fdescribe('PersonalCardsPage', () => {
       let inappbrowserSpy: any;
 
       beforeEach(() => {
-        component.selectedAccount = linkedAccountsRes[0];
+        component.selectedAccount = linkedAccounts[0];
         inappbrowserSpy = jasmine.createSpyObj('InAppBrowserObject', ['on', 'close']);
       });
 
@@ -976,12 +976,12 @@ fdescribe('PersonalCardsPage', () => {
   });
 
   it('loadLinkedAccounts(): should load linked accounts', (done) => {
-    personalCardsService.getPersonalCards.and.returnValue(of(apiLinkedAccRes.data));
+    personalCardsService.getPersonalCards.and.returnValue(of(linkedAccounts));
 
     component.loadLinkedAccounts();
 
     component.linkedAccounts$.subscribe((res) => {
-      expect(res).toEqual(apiLinkedAccRes.data);
+      expect(res).toEqual(linkedAccounts);
       expect(personalCardsService.getPersonalCards).toHaveBeenCalledTimes(1);
       done();
     });

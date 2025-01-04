@@ -27,7 +27,7 @@ import {
   Subject,
   takeUntil,
 } from 'rxjs';
-import { PersonalCard } from 'src/app/core/models/personal_card.model';
+import { PlatformPersonalCard } from 'src/app/core/models/platform/platform-personal-card.model';
 import { PersonalCardTxn } from 'src/app/core/models/personal_card_txn.model';
 import { HeaderState } from 'src/app/shared/components/fy-header/header-state.enum';
 
@@ -75,7 +75,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
   linkedAccountsCount$: Observable<number>;
 
-  linkedAccounts$: Observable<PersonalCard[]>;
+  linkedAccounts$: Observable<PlatformPersonalCard[]>;
 
   loadCardData$: BehaviorSubject<{}> = new BehaviorSubject({});
 
@@ -107,7 +107,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
   selectedTransactionType = 'INITIALIZED';
 
-  selectedAccount: PersonalCard;
+  selectedAccount: PlatformPersonalCard;
 
   isfetching = false;
 
@@ -403,7 +403,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.trackingService.cardDeletedOnPersonalCards();
   }
 
-  onCardChanged(card: PersonalCard): void {
+  onCardChanged(card: PlatformPersonalCard): void {
     this.selectedAccount = card;
     this.acc = [];
     const params = this.loadData$.getValue();

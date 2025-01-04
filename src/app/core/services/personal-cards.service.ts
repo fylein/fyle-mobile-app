@@ -40,27 +40,6 @@ export class PersonalCardsService {
     private spenderPlatformV1ApiService: SpenderPlatformV1ApiService
   ) {}
 
-  transformPersonalCardPlatformArray(cards: PlatformPersonalCard[]): PersonalCard[] {
-    return cards.map((card) => {
-      const personalCard: PersonalCard = {
-        id: card.id,
-        bank_name: card.bank_name,
-        account_number: card.card_number,
-        created_at: card.created_at,
-        updated_at: card.updated_at,
-        currency: card.currency,
-        fastlink_params: card.yodlee_fastlink_params,
-        mfa_enabled: card.yodlee_is_mfa_required,
-        update_credentials: card.yodlee_is_credential_update_required,
-        last_synced_at: card.yodlee_last_synced_at,
-        mask: card.card_number.slice(-4),
-        account_type: card.account_type,
-        yodlee_provider_account_id: card.yodlee_provider_account_id,
-      };
-      return personalCard;
-    });
-  }
-
   transformMatchedExpensesToTxnDetails(matchedExpenses: PlatformPersonalCardMatchedExpense[] | undefined): TxnDetail[] {
     if (!matchedExpenses) {
       return [];
@@ -151,10 +130,10 @@ export class PersonalCardsService {
     }, {} as PlatformPersonalCardQueryParams);
   }
 
-  getPersonalCards(): Observable<PersonalCard[]> {
+  getPersonalCards(): Observable<PlatformPersonalCard[]> {
     return this.spenderPlatformV1ApiService
       .get<PlatformApiResponse<PlatformPersonalCard[]>>('/personal_cards')
-      .pipe(map((res) => this.transformPersonalCardPlatformArray(res.data)));
+      .pipe(map((res) => res.data));
   }
 
   getPlatformToken(): Observable<YodleeAccessToken> {
