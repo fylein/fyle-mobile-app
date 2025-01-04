@@ -208,7 +208,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
   loadAccountCount(): void {
     this.linkedAccountsCount$ = this.loadCardData$.pipe(
-      switchMap(() => this.personalCardsService.getPersonalCardsCount(this.usePlatformApi)),
+      switchMap(() => this.personalCardsService.getPersonalCardsCount()),
       shareReplay(1)
     );
   }

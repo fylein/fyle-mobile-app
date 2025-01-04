@@ -179,27 +179,10 @@ describe('PersonalCardsService', () => {
   });
 
   describe('getPersonalCardsCount()', () => {
-    it('should get linked personal cards count when using public api', (done) => {
-      const usePlatformApi = false;
-      apiV2Service.get.and.returnValue(of(apiLinkedAccRes));
-
-      personalCardsService.getPersonalCardsCount(usePlatformApi).subscribe((res) => {
-        expect(spenderPlatformV1ApiService.get).not.toHaveBeenCalled();
-        expect(res).toEqual(apiLinkedAccRes.count);
-        expect(apiV2Service.get).toHaveBeenCalledOnceWith('/personal_bank_accounts', {
-          params: {
-            order: 'last_synced_at.desc',
-          },
-        });
-        done();
-      });
-    });
-
     it('should get linked personal cards count when using platform api', (done) => {
-      const usePlatformApi = true;
       spenderPlatformV1ApiService.get.and.returnValue(of(platformApiLinkedAccRes));
 
-      personalCardsService.getPersonalCardsCount(usePlatformApi).subscribe((res) => {
+      personalCardsService.getPersonalCardsCount().subscribe((res) => {
         expect(res).toEqual(platformApiLinkedAccRes.count);
         expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/personal_cards');
         expect(apiV2Service.get).not.toHaveBeenCalled();

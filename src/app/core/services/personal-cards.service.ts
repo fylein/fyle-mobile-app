@@ -238,22 +238,9 @@ export class PersonalCardsService {
     }) as Observable<string[]>;
   }
 
-  getPersonalCardsCountPlatform(): Observable<number> {
+  getPersonalCardsCount(): Observable<number> {
     return this.spenderPlatformV1ApiService
       .get<PlatformApiResponse<PlatformPersonalCard[]>>('/personal_cards')
-      .pipe(map((res) => res.count));
-  }
-
-  getPersonalCardsCount(usePlatformApi: boolean): Observable<number> {
-    if (usePlatformApi) {
-      return this.getPersonalCardsCountPlatform();
-    }
-    return this.apiv2Service
-      .get('/personal_bank_accounts', {
-        params: {
-          order: 'last_synced_at.desc',
-        },
-      })
       .pipe(map((res) => res.count));
   }
 
