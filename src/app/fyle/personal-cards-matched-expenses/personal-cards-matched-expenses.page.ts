@@ -5,7 +5,7 @@ import { ModalController } from '@ionic/angular';
 import { ExpensePreviewComponent } from './expense-preview/expense-preview.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { PersonalCardTxn } from 'src/app/core/models/personal_card_txn.model';
-import { PersonalCardTxnExpenseSuggestion } from 'src/app/core/models/personal-card-txn-expense-suggestion.model';
+import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 @Component({
   selector: 'app-personal-cards-matched-expenses',
   templateUrl: './personal-cards-matched-expenses.page.html',
@@ -18,7 +18,7 @@ export class PersonalCardsMatchedExpensesPage {
 
   txnDetails: PersonalCardTxn;
 
-  expenseSuggestions: PersonalCardTxnExpenseSuggestion[];
+  expenseSuggestions: Expense[];
 
   constructor(
     private router: Router,
@@ -26,8 +26,7 @@ export class PersonalCardsMatchedExpensesPage {
     private modalProperties: ModalPropertiesService
   ) {
     this.txnDetails = this.router.getCurrentNavigation().extras.state.txnDetails as PersonalCardTxn;
-    this.expenseSuggestions = this.router.getCurrentNavigation().extras.state
-      .expenseSuggestions as PersonalCardTxnExpenseSuggestion[];
+    this.expenseSuggestions = this.router.getCurrentNavigation().extras.state.expenseSuggestions as Expense[];
   }
 
   createExpense(): void {

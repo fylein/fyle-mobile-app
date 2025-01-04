@@ -762,7 +762,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.loadingMatchedExpenseCount = true;
     this.loadingTxnId = txnDetails.btxn_id;
     this.personalCardsService
-      .getMatchedExpensesSuggestions(txnDetails.btxn_amount, txnDate, this.usePlatformApi)
+      .getMatchedExpensesSuggestions(txnDetails.btxn_amount, txnDate)
       .subscribe((expenseSuggestions) => {
         this.loadingMatchedExpenseCount = false;
         this.loadingTxnId = null;

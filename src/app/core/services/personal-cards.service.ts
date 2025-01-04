@@ -25,7 +25,6 @@ import { TxnDetail } from '../models/v2/txn-detail.model';
 import { PlatformPersonalCardQueryParams } from '../models/platform/platform-personal-card-query-params.model';
 import { PersonalCardSyncTxns } from '../models/platform/platform-personal-card-syn-txns.model';
 import { environment } from 'src/environments/environment';
-import { PersonalCardTxnExpenseSuggestion } from '../models/personal-card-txn-expense-suggestion.model';
 
 @Injectable({
   providedIn: 'root',
@@ -84,20 +83,6 @@ export class PersonalCardsService {
         txn_details: this.transformMatchedExpensesToTxnDetails(txn.matched_expenses),
       };
       return personalCardTxn;
-    });
-  }
-
-  transformPlatformPersonalCardTxnExpenseSuggestions(expenses: Expense[]): PersonalCardTxnExpenseSuggestion[] {
-    return expenses.map((expense) => {
-      const expenseSuggestion: PersonalCardTxnExpenseSuggestion = {
-        purpose: expense.purpose,
-        vendor: expense.merchant,
-        txn_dt: expense.spent_at,
-        currency: expense.currency,
-        amount: expense.amount,
-        split_group_id: expense.split_group_id,
-      };
-      return expenseSuggestion;
     });
   }
 
@@ -209,10 +194,7 @@ export class PersonalCardsService {
       .pipe(map((res) => res.count));
   }
 
-  getMatchedExpensesSuggestionsPlatform(
-    amount: number,
-    txnDate: string
-  ): Observable<PersonalCardTxnExpenseSuggestion[]> {
+  getMatchedExpensesSuggestions(amount: number, txnDate: string): Observable<Expense[]> {
     return this.spenderPlatformV1ApiService
       .get<PlatformApiResponse<Expense[]>>('/personal_card_transactions/expense_suggestion', {
         params: {
@@ -220,23 +202,7 @@ export class PersonalCardsService {
           spent_at: txnDate,
         },
       })
-      .pipe(map((res) => this.transformPlatformPersonalCardTxnExpenseSuggestions(res.data)));
-  }
-
-  getMatchedExpensesSuggestions(
-    amount: number,
-    txnDate: string,
-    usePlatformApi: boolean
-  ): Observable<PersonalCardTxnExpenseSuggestion[]> {
-    if (usePlatformApi) {
-      return this.getMatchedExpensesSuggestionsPlatform(amount, txnDate);
-    }
-    return this.apiService.get('/expense_suggestions/personal_cards', {
-      params: {
-        amount,
-        txn_dt: txnDate,
-      },
-    });
+      .pipe(map((res) => res.data));
   }
 
   deleteAccount(accountId: string): Observable<PlatformPersonalCard> {

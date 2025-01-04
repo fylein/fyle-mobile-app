@@ -13,6 +13,8 @@ import { ExpensePreviewComponent } from './expense-preview/expense-preview.compo
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { ExactCurrencyPipe } from 'src/app/shared/pipes/exact-currency.pipe';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
+import { platformExpenseWithExtractedData } from 'src/app/core/mock-data/platform/v1/expense.data';
+import { platformPersonalCardTxnExpenseSuggestionsRes } from 'src/app/core/mock-data/personal-card-txn-expense-suggestions.data';
 
 describe('PersonalCardsMatchedExpensesPage', () => {
   let component: PersonalCardsMatchedExpensesPage;
@@ -23,7 +25,12 @@ describe('PersonalCardsMatchedExpensesPage', () => {
   let modalPropertiesService: jasmine.SpyObj<ModalPropertiesService>;
 
   const data: Navigation = {
-    extras: { state: { txnDetails: apiPersonalCardTxnsRes.data[0], expenseSuggestions: apiExpenseRes } },
+    extras: {
+      state: {
+        txnDetails: apiPersonalCardTxnsRes.data[0],
+        expenseSuggestions: [platformExpenseWithExtractedData, ...platformPersonalCardTxnExpenseSuggestionsRes.data],
+      },
+    },
     id: 0,
     initialUrl: '',
     extractedUrl: new UrlTree(),

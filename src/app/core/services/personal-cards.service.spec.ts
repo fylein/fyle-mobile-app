@@ -1362,34 +1362,14 @@ describe('PersonalCardsService', () => {
   });
 
   describe('getMatchedExpensesSuggestions()', () => {
-    it('should get expense suggestions using public api', (done) => {
-      apiService.get.and.returnValue(of(publicPersonalCardTxnExpenseSuggestionsRes));
-
-      const amount = 3;
-      const txnDate = '2021-07-29T06:30:00.000Z';
-      const usePlatformApi = false;
-
-      personalCardsService.getMatchedExpensesSuggestions(amount, txnDate, usePlatformApi).subscribe((res) => {
-        expect(res).toEqual(publicPersonalCardTxnExpenseSuggestionsRes);
-        expect(apiService.get).toHaveBeenCalledOnceWith('/expense_suggestions/personal_cards', {
-          params: {
-            amount,
-            txn_dt: txnDate,
-          },
-        });
-        done();
-      });
-    });
-
     it('should get expense suggestions using platform api', (done) => {
       spenderPlatformV1ApiService.get.and.returnValue(of(platformPersonalCardTxnExpenseSuggestionsRes));
 
       const amount = 3;
       const txnDate = '2021-07-29T06:30:00.000Z';
-      const usePlatformApi = true;
 
-      personalCardsService.getMatchedExpensesSuggestions(amount, txnDate, usePlatformApi).subscribe((res) => {
-        expect(res).toEqual(platformPersonalCardTxnExpenseSuggestions);
+      personalCardsService.getMatchedExpensesSuggestions(amount, txnDate).subscribe((res) => {
+        expect(res).toEqual(platformPersonalCardTxnExpenseSuggestionsRes.data);
         done();
       });
     });
