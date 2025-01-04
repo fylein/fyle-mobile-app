@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { PersonalCard } from '../models/personal_card.model';
 import { YodleeAccessToken } from '../models/yoodle-token.model';
 import { PersonalCardFilter } from '../models/personal-card-filters.model';
 import { ApiV2Service } from './api-v2.service';
@@ -240,7 +239,7 @@ export class PersonalCardsService {
     });
   }
 
-  deleteAccountPlatform(accountId: string): Observable<PlatformPersonalCard> {
+  deleteAccount(accountId: string): Observable<PlatformPersonalCard> {
     const payload = {
       data: {
         id: accountId,
@@ -249,13 +248,6 @@ export class PersonalCardsService {
     return this.spenderPlatformV1ApiService
       .post<PlatformApiResponse<PlatformPersonalCard>>('/personal_cards/delete', payload)
       .pipe(map((response) => response.data));
-  }
-
-  deleteAccount(accountId: string, usePlatformApi: boolean): Observable<PersonalCard | PlatformPersonalCard> {
-    if (usePlatformApi) {
-      return this.deleteAccountPlatform(accountId);
-    }
-    return this.expenseAggregationService.delete(`/bank_accounts/${accountId}`) as Observable<PersonalCard>;
   }
 
   getBankTransactionsPlatform(

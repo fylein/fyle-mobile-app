@@ -42,7 +42,6 @@ import { DateRangeModalComponent } from './date-range-modal/date-range-modal.com
 import { PersonalCardsPage } from './personal-cards.page';
 import { PersonalCardFilter } from 'src/app/core/models/personal-card-filters.model';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
-import { PersonalCard } from 'src/app/core/models/personal_card.model';
 import { publicPersonalCardTxnExpenseSuggestionsRes } from 'src/app/core/mock-data/personal-card-txn-expense-suggestions.data';
 
 describe('PersonalCardsPage', () => {

@@ -5,13 +5,7 @@ import { ApiService } from './api.service';
 import { ExpenseAggregationService } from './expense-aggregation.service';
 import { DateService } from './date.service';
 import { allFilterPills, creditTxnFilterPill, debitTxnFilterPill } from '../mock-data/filter-pills.data';
-import {
-  apiLinkedAccRes,
-  deletePersonalCardPlatformRes,
-  deletePersonalCardRes,
-  linkedAccountRes2,
-  platformApiLinkedAccRes,
-} from '../mock-data/personal-cards.data';
+import { deletePersonalCardPlatformRes, platformApiLinkedAccRes } from '../mock-data/personal-cards.data';
 import { of } from 'rxjs';
 import {
   apiPersonalCardTxnsRes,
@@ -162,21 +156,7 @@ describe('PersonalCardsService', () => {
   });
 
   describe('deleteAccount()', () => {
-    it('should delete personal card when using public api', (done) => {
-      const usePlatformApi = false;
-      expenseAggregationService.delete.and.returnValue(of(deletePersonalCardRes));
-
-      const accountId = 'bacc0By33NqhnS';
-
-      personalCardsService.deleteAccount(accountId, usePlatformApi).subscribe((res) => {
-        expect(res).toEqual(deletePersonalCardRes);
-        expect(expenseAggregationService.delete).toHaveBeenCalledOnceWith(`/bank_accounts/${accountId}`);
-        done();
-      });
-    });
-
     it('should delete personal card when using platform api', (done) => {
-      const usePlatformApi = true;
       spenderPlatformV1ApiService.post.and.returnValue(of(deletePersonalCardPlatformRes));
 
       const accountId = 'bacc0By33NqhnS';
@@ -186,7 +166,7 @@ describe('PersonalCardsService', () => {
         },
       };
 
-      personalCardsService.deleteAccount(accountId, usePlatformApi).subscribe((res) => {
+      personalCardsService.deleteAccount(accountId).subscribe((res) => {
         expect(res).toEqual(deletePersonalCardPlatformRes.data);
         expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/personal_cards/delete', payload);
         expect(apiV2Service.get).not.toHaveBeenCalled();
