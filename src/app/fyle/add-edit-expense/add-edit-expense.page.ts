@@ -5067,15 +5067,9 @@ export class AddEditExpensePage implements OnInit {
           const externalExpenseId = personalCardTxn.id;
           return this.transactionService.upsert(etxn.tx as Transaction).pipe(
             switchMap((txn) =>
-              this.launchDarklyService
-                .getVariation('personal_cards_platform', false)
-                .pipe(
-                  switchMap((usePlatformApi) =>
-                    this.personalCardsService
-                      .matchExpense(txn.split_group_id, externalExpenseId, usePlatformApi)
-                      .pipe(switchMap(() => this.uploadAttachments(txn.split_group_id)))
-                  )
-                )
+              this.personalCardsService
+                .matchExpense(txn.split_group_id, externalExpenseId)
+                .pipe(switchMap(() => this.uploadAttachments(txn.split_group_id)))
             ),
             finalize(() => {
               this.saveExpenseLoader = false;

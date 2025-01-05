@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { YodleeAccessToken } from '../models/yoodle-token.model';
 import { PersonalCardFilter } from '../models/personal-card-filters.model';
@@ -12,8 +12,6 @@ import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-f
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import * as dayjs from 'dayjs';
-import { ApiV2Response } from '../models/api-v2.model';
-import { PersonalCardTxn } from '../models/personal_card_txn.model';
 import { PersonalCardDateFilter } from '../models/personal-card-date-filter.model';
 import { PlatformPersonalCardFilterParams } from '../models/platform/platform-personal-card-filter-params.model';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
@@ -50,7 +48,7 @@ export class PersonalCardsService {
       .pipe(map((res) => res.data));
   }
 
-  getPlatformToken(): Observable<YodleeAccessToken> {
+  getToken(): Observable<YodleeAccessToken> {
     return this.spenderPlatformV1ApiService
       .post<PlatformApiResponse<Omit<YodleeAccessToken, 'fast_link_url'>>>('/personal_cards/access_token')
       .pipe(
@@ -64,17 +62,7 @@ export class PersonalCardsService {
       );
   }
 
-  getToken(usePlatformApi: boolean): Observable<YodleeAccessToken> {
-    if (usePlatformApi) {
-      return this.getPlatformToken();
-    }
-    return this.expenseAggregationService.get('/yodlee/personal/access_token') as Observable<YodleeAccessToken>;
-  }
-
-  isMfaEnabled(personalCardId: string, usePlatformApi): Observable<boolean> {
-    if (!usePlatformApi) {
-      return of(false); // TODO sumrender: hack, this will be removed with old personalCards removal in next pr;
-    }
+  isMfaEnabled(personalCardId: string): Observable<boolean> {
     const payload = {
       data: {
         id: personalCardId,
@@ -102,20 +90,10 @@ export class PersonalCardsService {
     return pageContentUrl;
   }
 
-  postBankAccountsPlatform(): Observable<PlatformPersonalCard[]> {
+  postBankAccounts(): Observable<PlatformPersonalCard[]> {
     return this.spenderPlatformV1ApiService
       .post<PlatformApiResponse<PlatformPersonalCard[]>>('/personal_cards', { data: {} })
       .pipe(map((res) => res.data));
-  }
-
-  postBankAccounts(requestIds: string[], usePlatformApi: boolean): Observable<string[] | PlatformPersonalCard[]> {
-    if (usePlatformApi) {
-      return this.postBankAccountsPlatform();
-    }
-    return this.expenseAggregationService.post('/yodlee/personal/bank_accounts', {
-      aggregator: 'yodlee',
-      request_ids: requestIds,
-    }) as Observable<string[]>;
   }
 
   getPersonalCardsCount(): Observable<number> {
@@ -174,7 +152,7 @@ export class PersonalCardsService {
       );
   }
 
-  matchExpensePlatform(
+  matchExpense(
     transactionSplitGroupId: string,
     externalExpenseId: string
   ): Observable<{
@@ -197,23 +175,6 @@ export class PersonalCardsService {
       );
   }
 
-  matchExpense(
-    transactionSplitGroupId: string,
-    externalExpenseId: string,
-    usePlatformApi = false
-  ): Observable<{
-    external_expense_id?: string;
-    transaction_split_group_id: string;
-  }> {
-    if (usePlatformApi) {
-      return this.matchExpensePlatform(transactionSplitGroupId, externalExpenseId);
-    }
-    return this.apiService.post('/transactions/external_expense/match', {
-      transaction_split_group_id: transactionSplitGroupId,
-      external_expense_id: externalExpenseId,
-    });
-  }
-
   getBankTransactionsCount(queryParams: Partial<PlatformPersonalCardQueryParams>): Observable<number> {
     const params = {
       limit: 10,
@@ -223,7 +184,7 @@ export class PersonalCardsService {
     return this.getBankTransactions(params).pipe(map((res) => res.count));
   }
 
-  syncTransactionsPlatform(accountId: string): Observable<PlatformApiResponse<PersonalCardSyncTxns>> {
+  syncTransactions(accountId: string): Observable<PlatformApiResponse<PersonalCardSyncTxns>> {
     const payload = {
       data: {
         personal_card_id: accountId,
@@ -232,35 +193,12 @@ export class PersonalCardsService {
     return this.spenderPlatformV1ApiService.post('/personal_card_transactions', payload);
   }
 
-  syncTransactions(
-    accountId: string,
-    usePlatformApi: boolean
-  ): Observable<ApiV2Response<PersonalCardTxn> | PlatformApiResponse<PersonalCardSyncTxns>> {
-    if (usePlatformApi) {
-      return this.syncTransactionsPlatform(accountId);
-    }
-    return this.expenseAggregationService.post(`/bank_accounts/${accountId}/sync`, {
-      owner_type: 'org_user',
-    }) as Observable<ApiV2Response<PersonalCardTxn>>;
-  }
-
-  hideTransactionsPlatform(txnIds: string[]): Observable<number> {
+  hideTransactions(txnIds: string[]): Observable<number> {
     const payload = {
       data: txnIds.map((txnId) => ({ id: txnId })),
     };
     return this.spenderPlatformV1ApiService
       .post<void>('/personal_card_transactions/hide/bulk', payload)
-      .pipe(map(() => txnIds.length));
-  }
-
-  hideTransactions(txnIds: string[], usePlatformApi = false): Observable<number> {
-    if (usePlatformApi) {
-      return this.hideTransactionsPlatform(txnIds);
-    }
-    return this.expenseAggregationService
-      .post('/bank_transactions/hide/bulk', {
-        bank_transaction_ids: txnIds,
-      })
       .pipe(map(() => txnIds.length));
   }
 
