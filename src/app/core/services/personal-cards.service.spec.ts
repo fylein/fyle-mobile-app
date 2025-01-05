@@ -29,7 +29,7 @@ import { personalCardAccessTokenResponse } from '../mock-data/personal-cards-acc
 import { platformPersonalCardTxnExpenseSuggestionsRes } from '../mock-data/personal-card-txn-expense-suggestions.data';
 import { PlatformPersonalCardFilterParams } from '../models/platform/platform-personal-card-filter-params.model';
 
-fdescribe('PersonalCardsService', () => {
+describe('PersonalCardsService', () => {
   let personalCardsService: PersonalCardsService;
   let apiV2Service: jasmine.SpyObj<ApiV2Service>;
   let apiService: jasmine.SpyObj<ApiService>;
@@ -79,21 +79,9 @@ fdescribe('PersonalCardsService', () => {
   });
 
   describe('helper functions', () => {
-    describe('transformMatchedExpensesToTxnDetails', () => {
-      it('it should transform matched expenses to transaction details', () => {
-        expect(personalCardsService.transformMatchedExpensesToTxnDetails(matchedExpensesPlatform)).toEqual(
-          transformedMatchedExpenses
-        );
-      });
-
-      it('it should return an empty array if matchedExpenses is undefined', () => {
-        expect(personalCardsService.transformMatchedExpensesToTxnDetails(undefined)).toEqual([]);
-      });
-    });
-
-    it('transformPlatformPersonalCardTxn: should transform PlatformPersonalCardTxn array to PersonalCardTxn array', () => {
-      expect(personalCardsService.transformPlatformPersonalCardTxn(platformPersonalCardTxns.data)).toEqual(
-        transformedPlatformPersonalCardTxns.data
+    it('addTransactionTypeToTxns: should add transactionType property to personal card txn.', () => {
+      expect(personalCardsService.addTransactionTypeToTxns(platformPersonalCardTxns.data)).toEqual(
+        platformPersonalCardTxns.data
       );
     });
   });
@@ -149,7 +137,7 @@ fdescribe('PersonalCardsService', () => {
       spenderPlatformV1ApiService.get.and.returnValue(of(platformPersonalCardTxns));
 
       personalCardsService.getBankTransactions(platformTxnsConfig).subscribe((res) => {
-        expect(res).toEqual(transformedPlatformPersonalCardTxns);
+        expect(res).toEqual(platformPersonalCardTxns);
         expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/personal_card_transactions', {
           params: {
             limit: platformTxnsConfig.limit,
@@ -166,7 +154,7 @@ fdescribe('PersonalCardsService', () => {
     it('should get bank transaction count using platform api', (done) => {
       spenderPlatformV1ApiService.get.and.returnValue(of(platformPersonalCardTxns));
       personalCardsService.getBankTransactionsCount(platformQueryParams).subscribe((res) => {
-        expect(res).toEqual(transformedPlatformPersonalCardTxns.count);
+        expect(res).toEqual(platformPersonalCardTxns.count);
         done();
       });
     });

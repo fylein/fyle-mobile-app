@@ -20,4 +20,5 @@ export interface PlatformPersonalCardTxn {
   matched_expenses: PlatformPersonalCardMatchedExpense[];
   created_at: Date;
   updated_at: Date;
+  transactionType?: 'credit' | 'debit';
 }

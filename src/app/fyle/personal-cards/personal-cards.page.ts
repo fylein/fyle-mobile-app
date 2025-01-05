@@ -28,7 +28,7 @@ import {
   takeUntil,
 } from 'rxjs';
 import { PlatformPersonalCard } from 'src/app/core/models/platform/platform-personal-card.model';
-import { PersonalCardTxn } from 'src/app/core/models/personal_card_txn.model';
+import { PlatformPersonalCardTxn } from 'src/app/core/models/platform/platform-personal-card-txn.model';
 import { HeaderState } from 'src/app/shared/components/fy-header/header-state.enum';
 
 import * as dayjs from 'dayjs';
@@ -85,7 +85,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     pageNumber: 1,
   });
 
-  transactions$: Observable<PersonalCardTxn[]>;
+  transactions$: Observable<PlatformPersonalCardTxn[]>;
 
   transactionsCount$: Observable<number>;
 
@@ -101,7 +101,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
   isLoadingDataInfiniteScroll = false;
 
-  acc: PersonalCardTxn[] = [];
+  acc: PlatformPersonalCardTxn[] = [];
 
   currentPageNumber = 1;
 
@@ -219,7 +219,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     );
   }
 
-  loadPersonalTxns(): Observable<PersonalCardTxn[]> {
+  loadPersonalTxns(): Observable<PlatformPersonalCardTxn[]> {
     return this.loadData$.pipe(
       switchMap((params) => {
         let queryParams: Record<string, string>;
@@ -253,7 +253,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
             } else {
               this.isTransactionsLoading = false;
               return of({
-                data: [],
+                data: [] as PlatformPersonalCardTxn[],
               });
             }
           })
@@ -572,7 +572,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.selectAll = event;
     this.selectedElements = [];
     if (this.selectAll) {
-      this.selectedElements = this.acc.map((txn) => txn.btxn_id);
+      this.selectedElements = this.acc.map((txn) => txn.id);
     }
   }
 
@@ -751,21 +751,21 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.filterPills = this.personalCardsService.generateFilterPills(this.filters);
   }
 
-  createExpense(txnDetails: PersonalCardTxn): void {
+  createExpense(txnDetails: PlatformPersonalCardTxn): void {
     if (this.selectionMode || this.loadingMatchedExpenseCount) {
       return;
     }
-    if (txnDetails.btxn_status === 'MATCHED') {
+    if (txnDetails.state === PlatformPersonalCardTxnState.MATCHED) {
       this.openExpensePreview(txnDetails);
       return;
     }
 
-    const txnDate = dayjs(txnDetails.btxn_transaction_dt).format('YYYY-MM-DD');
+    const txnDate = dayjs(txnDetails.spent_at).format('YYYY-MM-DD');
 
     this.loadingMatchedExpenseCount = true;
-    this.loadingTxnId = txnDetails.btxn_id;
+    this.loadingTxnId = txnDetails.id;
     this.personalCardsService
-      .getMatchedExpensesSuggestions(txnDetails.btxn_amount, txnDate)
+      .getMatchedExpensesSuggestions(txnDetails.amount, txnDate)
       .subscribe((expenseSuggestions) => {
         this.loadingMatchedExpenseCount = false;
         this.loadingTxnId = null;
@@ -779,6 +779,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
         } else {
           this.router.navigate(['/', 'enterprise', 'personal_cards_matched_expenses'], {
             state: {
+              personalCard: this.selectedAccount,
               txnDetails,
               expenseSuggestions,
             },
@@ -787,14 +788,14 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       });
   }
 
-  async openExpensePreview(txnDetails: PersonalCardTxn): Promise<void> {
-    const txn_details = txnDetails.txn_details;
+  async openExpensePreview(txnDetails: PlatformPersonalCardTxn): Promise<void> {
+    const txn_details = txnDetails.matched_expenses;
     const expenseDetailsModal = await this.modalController.create({
       component: ExpensePreviewComponent,
       componentProps: {
         expenseId: txn_details[0].id,
-        card: txnDetails.ba_account_number,
-        cardTxnId: txnDetails.btxn_id,
+        card: this.selectedAccount.card_number,
+        cardTxnId: txnDetails.id,
         type: 'edit',
       },
       ...this.modalProperties.getModalDefaultProperties('expense-preview-modal'),

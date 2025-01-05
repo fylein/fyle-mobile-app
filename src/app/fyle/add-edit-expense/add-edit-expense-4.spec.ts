@@ -13,7 +13,7 @@ import { expensePolicyData, expensePolicyDataWoData } from 'src/app/core/mock-da
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { fileObject4 } from 'src/app/core/mock-data/file-object.data';
 import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
-import { apiPersonalCardTxnsRes } from 'src/app/core/mock-data/personal-card-txns.data';
+import { platformPersonalCardTxns } from 'src/app/core/mock-data/personal-card-txns.data';
 import { expectedReportsPaginated } from 'src/app/core/mock-data/platform-report.data';
 import {
   createExpenseProperties,
@@ -608,7 +608,7 @@ export function TestCases4(getTestBed) {
         spyOn(component, 'checkPolicyViolation').and.returnValue(of(expensePolicyDataWoData));
         policyService.getCriticalPolicyRules.and.returnValue([]);
         policyService.getPolicyRules.and.returnValue([]);
-        activatedRoute.snapshot.params.personalCardTxn = JSON.stringify(apiPersonalCardTxnsRes.data[0]);
+        activatedRoute.snapshot.params.personalCardTxn = JSON.stringify(platformPersonalCardTxns.data[0]);
         transactionService.upsert.and.returnValue(of(personalCardTxn));
         personalCardsService.matchExpense.and.returnValue(
           of({
@@ -632,7 +632,7 @@ export function TestCases4(getTestBed) {
         expect(transactionService.upsert).toHaveBeenCalledTimes(1);
         expect(personalCardsService.matchExpense).toHaveBeenCalledOnceWith(
           unflattenedTransactionDataPersonalCard.tx.split_group_id,
-          apiPersonalCardTxnsRes.data[0].btxn_id,
+          platformPersonalCardTxns.data[0].id,
           usePlatformApi
         );
         expect(component.uploadAttachments).toHaveBeenCalledOnceWith(
@@ -658,7 +658,7 @@ export function TestCases4(getTestBed) {
 
         component.isConnected$ = of(true);
         spyOn(component, 'criticalPolicyViolationErrorHandler').and.returnValue(of({ etxn: expense, comment: null }));
-        activatedRoute.snapshot.params.personalCardTxn = JSON.stringify(apiPersonalCardTxnsRes.data[0]);
+        activatedRoute.snapshot.params.personalCardTxn = JSON.stringify(platformPersonalCardTxns.data[0]);
         transactionService.upsert.and.returnValue(of(personalCardTxn));
         personalCardsService.matchExpense.and.returnValue(
           of({
@@ -688,7 +688,7 @@ export function TestCases4(getTestBed) {
         expect(transactionService.upsert).toHaveBeenCalledTimes(1);
         expect(personalCardsService.matchExpense).toHaveBeenCalledOnceWith(
           unflattenedTransactionDataPersonalCard.tx.split_group_id,
-          apiPersonalCardTxnsRes.data[0].btxn_id,
+          platformPersonalCardTxns.data[0].id,
           usePlatformApi
         );
         expect(component.uploadAttachments).toHaveBeenCalledOnceWith(
@@ -714,7 +714,7 @@ export function TestCases4(getTestBed) {
         ]);
         component.isConnected$ = of(true);
         spyOn(component, 'policyViolationErrorHandler').and.returnValue(of({ etxn: expense, comment: 'comment' }));
-        activatedRoute.snapshot.params.personalCardTxn = JSON.stringify(apiPersonalCardTxnsRes.data[0]);
+        activatedRoute.snapshot.params.personalCardTxn = JSON.stringify(platformPersonalCardTxns.data[0]);
         transactionService.upsert.and.returnValue(of(personalCardTxn));
         personalCardsService.matchExpense.and.returnValue(
           of({
@@ -746,7 +746,7 @@ export function TestCases4(getTestBed) {
         expect(transactionService.upsert).toHaveBeenCalledTimes(1);
         expect(personalCardsService.matchExpense).toHaveBeenCalledOnceWith(
           unflattenedTransactionDataPersonalCard.tx.split_group_id,
-          apiPersonalCardTxnsRes.data[0].btxn_id,
+          platformPersonalCardTxns.data[0].id,
           usePlatformApi
         );
         expect(component.uploadAttachments).toHaveBeenCalledOnceWith(
@@ -774,7 +774,7 @@ export function TestCases4(getTestBed) {
         spyOn(component, 'checkPolicyViolation').and.returnValue(of(expensePolicyDataWoData));
         policyService.getCriticalPolicyRules.and.returnValue([]);
         policyService.getPolicyRules.and.returnValue([]);
-        activatedRoute.snapshot.params.personalCardTxn = JSON.stringify(apiPersonalCardTxnsRes.data[0]);
+        activatedRoute.snapshot.params.personalCardTxn = JSON.stringify(platformPersonalCardTxns.data[0]);
         transactionService.upsert.and.returnValue(of(personalCardTxn));
         personalCardsService.matchExpense.and.returnValue(
           of({
@@ -795,7 +795,7 @@ export function TestCases4(getTestBed) {
         expect(transactionService.upsert).toHaveBeenCalledTimes(1);
         expect(personalCardsService.matchExpense).toHaveBeenCalledOnceWith(
           unflattenedTransactionDataPersonalCard.tx.split_group_id,
-          apiPersonalCardTxnsRes.data[0].btxn_id,
+          platformPersonalCardTxns.data[0].id,
           usePlatformApi
         );
         expect(component.uploadAttachments).toHaveBeenCalledOnceWith(
@@ -823,7 +823,7 @@ export function TestCases4(getTestBed) {
         spyOn(component, 'checkPolicyViolation').and.returnValue(of(expensePolicyDataWoData));
         policyService.getCriticalPolicyRules.and.returnValue([]);
         policyService.getPolicyRules.and.returnValue([]);
-        activatedRoute.snapshot.params.personalCardTxn = JSON.stringify(apiPersonalCardTxnsRes.data[0]);
+        activatedRoute.snapshot.params.personalCardTxn = JSON.stringify(platformPersonalCardTxns.data[0]);
         transactionService.upsert.and.returnValue(of(unflattenedTransactionDataPersonalCard.tx));
         personalCardsService.matchExpense.and.returnValue(
           of({
@@ -844,7 +844,7 @@ export function TestCases4(getTestBed) {
         expect(transactionService.upsert).toHaveBeenCalledOnceWith(unflattenedTransactionDataPersonalCard.tx);
         expect(personalCardsService.matchExpense).toHaveBeenCalledOnceWith(
           unflattenedTransactionDataPersonalCard.tx.split_group_id,
-          apiPersonalCardTxnsRes.data[0].btxn_id,
+          platformPersonalCardTxns.data[0].id,
           usePlatformApi
         );
         expect(component.uploadAttachments).toHaveBeenCalledOnceWith(
