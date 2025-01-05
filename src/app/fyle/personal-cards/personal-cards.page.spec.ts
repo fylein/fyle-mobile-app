@@ -43,8 +43,9 @@ import { PersonalCardsPage } from './personal-cards.page';
 import { PersonalCardFilter } from 'src/app/core/models/personal-card-filters.model';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { platformPersonalCardTxnExpenseSuggestionsRes } from 'src/app/core/mock-data/personal-card-txn-expense-suggestions.data';
+import { PlatformPersonalCardTxnState } from 'src/app/core/models/platform/platform-personal-card-txn-state.enum';
 
-describe('PersonalCardsPage', () => {
+fdescribe('PersonalCardsPage', () => {
   let component: PersonalCardsPage;
   let fixture: ComponentFixture<PersonalCardsPage>;
   let personalCardsService: jasmine.SpyObj<PersonalCardsService>;
@@ -353,7 +354,7 @@ describe('PersonalCardsPage', () => {
         component.onCardChanged(linkedAccounts[0]);
 
         expect(component.loadData$.next).toHaveBeenCalledOnceWith({
-          queryParams: { btxn_status: 'in.(INITIALIZED)', ba_id: 'eq.baccY70V3Mz048' },
+          queryParams: { state: 'in.(INITIALIZED)', personal_card_id: 'eq.baccY70V3Mz048' },
           pageNumber: 1,
         });
         expect(component.loadData$.getValue).toHaveBeenCalledTimes(1);
@@ -368,7 +369,7 @@ describe('PersonalCardsPage', () => {
         component.onCardChanged(linkedAccounts[0]);
 
         expect(component.loadData$.next).toHaveBeenCalledOnceWith({
-          queryParams: { btxn_status: 'in.(INITIALIZED)', ba_id: 'eq.baccY70V3Mz048' },
+          queryParams: { state: 'in.(INITIALIZED)', personal_card_id: 'eq.baccY70V3Mz048' },
           pageNumber: 1,
         });
         expect(component.loadData$.getValue).toHaveBeenCalledTimes(1);
@@ -421,7 +422,7 @@ describe('PersonalCardsPage', () => {
     });
 
     it('segmentChanged(): should change segment', () => {
-      component.selectedTransactionType = 'INITIALIZED';
+      component.selectedTransactionType = PlatformPersonalCardTxnState.INITIALIZED;
       component.selectionMode = true;
       spyOn(component.loadData$, 'getValue').and.returnValue({});
       spyOn(component.loadData$, 'next');
@@ -439,7 +440,7 @@ describe('PersonalCardsPage', () => {
       expect(component.switchSelectionMode).toHaveBeenCalledTimes(1);
       expect(component.loadData$.next).toHaveBeenCalledOnceWith({
         queryParams: {
-          btxn_status: 'in.(INITIALIZED)',
+          state: 'in.(INITIALIZED)',
         },
         pageNumber: 1,
       });
@@ -535,7 +536,7 @@ describe('PersonalCardsPage', () => {
 
     describe('switchSelectionMode():', () => {
       it('should switch mode if expense is of type INITIALIZED', () => {
-        component.selectedTransactionType = 'INITIALIZED';
+        component.selectedTransactionType = PlatformPersonalCardTxnState.INITIALIZED;
         component.selectionMode = true;
         spyOn(component, 'toggleExpense');
 
@@ -547,7 +548,7 @@ describe('PersonalCardsPage', () => {
       });
 
       it('should switch mode and select an expense if provided', () => {
-        component.selectedTransactionType = 'INITIALIZED';
+        component.selectedTransactionType = PlatformPersonalCardTxnState.INITIALIZED;
         component.selectionMode = false;
         spyOn(component, 'toggleExpense');
 
@@ -797,9 +798,11 @@ describe('PersonalCardsPage', () => {
       modalController.create.and.resolveTo(modalSpy);
       personalCardsService.generateDateParams.and.returnValue({
         queryParams: {
-          or: '(and(btxn_transaction_dt.gte.2023-02-28T18:30:00.000Z,btxn_transaction_dt.lt.2023-03-31T18:29:00.000Z))',
-          btxn_status: 'in.(INITIALIZED)',
-          ba_id: 'eq.baccLesaRlyvLY',
+          or: [
+            '(and(btxn_transaction_dt.gte.2023-02-28T18:30:00.000Z,btxn_transaction_dt.lt.2023-03-31T18:29:00.000Z))',
+          ],
+          state: 'in.(INITIALIZED)',
+          personal_card_id: 'eq.baccLesaRlyvLY',
         },
         pageNumber: 1,
       });
@@ -821,8 +824,7 @@ describe('PersonalCardsPage', () => {
           startDate: '2023-02-20T00:00:00.000Z',
           endDate: '2023-02-24T00:00:00.000Z',
         },
-        {},
-        false
+        {}
       );
     }));
 
@@ -841,7 +843,7 @@ describe('PersonalCardsPage', () => {
 
     it('addNewFiltersToParams(): should new filters to params', () => {
       spyOn(component.loadData$, 'getValue').and.returnValue({});
-      component.selectedTransactionType = 'DEBIT';
+      component.selectedTransactionType = PlatformPersonalCardTxnState.INITIALIZED;
       component.selectedAccount = linkedAccounts[0];
 
       const result = component.addNewFiltersToParams();

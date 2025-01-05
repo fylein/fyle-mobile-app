@@ -15,7 +15,7 @@ import * as dayjs from 'dayjs';
 import { ApiV2Response } from '../models/api-v2.model';
 import { PersonalCardTxn } from '../models/personal_card_txn.model';
 import { PersonalCardDateFilter } from '../models/personal-card-date-filter.model';
-import { SortFiltersParams } from '../models/sort-filters-params.model';
+import { PlatformPersonalCardFilterParams } from '../models/platform/platform-personal-card-filter-params.model';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformPersonalCard } from '../models/platform/platform-personal-card.model';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
@@ -84,34 +84,6 @@ export class PersonalCardsService {
       };
       return personalCardTxn;
     });
-  }
-
-  mapPublicQueryParamsToPlatform(queryParams: {
-    btxn_status?: string;
-    ba_id?: string;
-    _search_document?: string;
-    amount?: string;
-    or?: string[];
-  }): PlatformPersonalCardQueryParams {
-    let q: string | undefined;
-    if (queryParams._search_document?.includes('fts.')) {
-      q = queryParams._search_document.split('fts.')[1];
-    }
-
-    const platformQueryParams: PlatformPersonalCardQueryParams = {
-      state: queryParams.btxn_status,
-      personal_card_id: queryParams.ba_id,
-      amount: queryParams.amount,
-      or: queryParams.or,
-      q,
-    };
-
-    return Object.entries(platformQueryParams).reduce((filteredParams, [key, value]) => {
-      if (value !== undefined) {
-        filteredParams[key as keyof PlatformPersonalCardQueryParams] = value as string & string[];
-      }
-      return filteredParams;
-    }, {} as PlatformPersonalCardQueryParams);
   }
 
   getPersonalCards(): Observable<PlatformPersonalCard[]> {
@@ -216,12 +188,12 @@ export class PersonalCardsService {
       .pipe(map((response) => response.data));
   }
 
-  getBankTransactionsPlatform(
+  getBankTransactions(
     config: Partial<{
       offset: number;
       limit: number;
       order: string;
-      queryParams: { state?: string; personal_card_id?: string };
+      queryParams: Partial<PlatformPersonalCardQueryParams>;
     }> = {
       offset: 0,
       limit: 10,
@@ -245,46 +217,6 @@ export class PersonalCardsService {
           };
         })
       );
-  }
-
-  getBankTransactions(
-    config: Partial<{
-      offset: number;
-      limit: number;
-      order: string;
-      queryParams: { btxn_status?: string; ba_id?: string };
-    }> = {
-      offset: 0,
-      limit: 10,
-      queryParams: {},
-    },
-    usePlatformApi = false
-  ): Observable<Partial<ApiV2Response<PersonalCardTxn>>> {
-    if (usePlatformApi) {
-      const transformedQueryParams = this.mapPublicQueryParamsToPlatform(config.queryParams);
-      const platformConfig = {
-        ...config,
-        queryParams: transformedQueryParams,
-      };
-      return this.getBankTransactionsPlatform(platformConfig);
-    }
-    return this.apiv2Service.get<
-      PersonalCardTxn,
-      {
-        params: Partial<{
-          offset: number;
-          limit: number;
-          order: string;
-          queryParams: { btxn_status?: string; ba_id?: string };
-        }>;
-      }
-    >('/personal_bank_transactions', {
-      params: {
-        limit: config.limit,
-        offset: config.offset,
-        ...config.queryParams,
-      },
-    });
   }
 
   matchExpensePlatform(
@@ -327,17 +259,13 @@ export class PersonalCardsService {
     });
   }
 
-  getBankTransactionsCount(
-    queryParams: { btxn_status?: string; ba_id?: string },
-    usePlatformApi = false
-  ): Observable<number> {
+  getBankTransactionsCount(queryParams: Partial<PlatformPersonalCardQueryParams>): Observable<number> {
     const params = {
       limit: 10,
       offset: 0,
       queryParams,
     };
-
-    return this.getBankTransactions(params, usePlatformApi).pipe(map((res) => res.count));
+    return this.getBankTransactions(params).pipe(map((res) => res.count));
   }
 
   syncTransactionsPlatform(accountId: string): Observable<PlatformApiResponse<PersonalCardSyncTxns>> {
@@ -383,41 +311,43 @@ export class PersonalCardsService {
 
   generateDateParams(
     data: { range: string; endDate?: string; startDate?: string },
-    currentParams: Partial<SortFiltersParams>,
-    usePlatformApi = false
-  ): Partial<SortFiltersParams> {
-    const propertyName = usePlatformApi ? 'spent_at' : 'btxn_transaction_dt';
+    currentParams: Partial<PlatformPersonalCardFilterParams>
+  ): Partial<PlatformPersonalCardFilterParams> {
+    let dateRangeQuickFilter = '';
     if (data.range === 'This Month') {
       const thisMonth = this.dateService.getThisMonthRange();
-      currentParams.queryParams.or = `(and(${propertyName}.gte.${thisMonth.from.toISOString()},${propertyName}.lt.${thisMonth.to.toISOString()}))`;
+      dateRangeQuickFilter = `(and(spent_at.gte.${thisMonth.from.toISOString()},spent_at.lt.${thisMonth.to.toISOString()}))`;
     }
 
     if (data.range === 'Last Month') {
       const lastMonth = this.dateService.getLastMonthRange();
-      currentParams.queryParams.or = `(and(${propertyName}.gte.${lastMonth.from.toISOString()},${propertyName}.lt.${lastMonth.to.toISOString()}))`;
+      dateRangeQuickFilter = `(and(spent_at.gte.${lastMonth.from.toISOString()},spent_at.lt.${lastMonth.to.toISOString()}))`;
     }
 
     if (data.range === 'Last 30 Days') {
       const last30Days = this.dateService.getLastDaysRange(30);
-      currentParams.queryParams.or = `(and(${propertyName}.gte.${last30Days.from.toISOString()},${propertyName}.lt.${last30Days.to.toISOString()}))`;
+      dateRangeQuickFilter = `(and(spent_at.gte.${last30Days.from.toISOString()},spent_at.lt.${last30Days.to.toISOString()}))`;
     }
 
     if (data.range === 'Last 60 Days') {
       const last60Days = this.dateService.getLastDaysRange(60);
-      currentParams.queryParams.or = `(and(${propertyName}.gte.${last60Days.from.toISOString()},${propertyName}.lt.${last60Days.to.toISOString()}))`;
+      dateRangeQuickFilter = `(and(spent_at.gte.${last60Days.from.toISOString()},spent_at.lt.${last60Days.to.toISOString()}))`;
     }
 
     if (data.range === 'All Time') {
       const last90Days = this.dateService.getLastDaysRange(90);
-      currentParams.queryParams.or = `(and(${propertyName}.gte.${last90Days.from.toISOString()},${propertyName}.lt.${last90Days.to.toISOString()}))`;
+      dateRangeQuickFilter = `(and(spent_at.gte.${last90Days.from.toISOString()},spent_at.lt.${last90Days.to.toISOString()}))`;
     }
 
     if (data.range === 'Custom Range') {
-      currentParams.queryParams.or = `(and(${propertyName}.gte.${new Date(
-        data.startDate
-      ).toISOString()},${propertyName}.lt.${new Date(data.endDate).toISOString()}))`;
+      dateRangeQuickFilter = `(and(spent_at.gte.${new Date(data.startDate).toISOString()},spent_at.lt.${new Date(
+        data.endDate
+      ).toISOString()}))`;
     }
-
+    if (!currentParams.queryParams) {
+      currentParams.queryParams = {};
+    }
+    currentParams.queryParams.or = [dateRangeQuickFilter];
     return currentParams;
   }
 
@@ -488,16 +418,15 @@ export class PersonalCardsService {
   }
 
   generateTxnDateParams(
-    newQueryParams: { or: string[] },
+    newQueryParams: Partial<PlatformPersonalCardQueryParams>,
     filters: Partial<PersonalCardFilter>,
-    type: string,
-    usePlatformApi = false
+    type: string
   ): void {
     let queryType: string;
     if (type === 'createdOn') {
-      queryType = usePlatformApi ? 'created_at' : 'btxn_created_at';
+      queryType = 'created_at';
     } else {
-      queryType = usePlatformApi ? 'updated_at' : 'btxn_updated_at';
+      queryType = 'updated_at';
     }
     if (filters[type]) {
       const dateFilter = filters[type] as PersonalCardDateFilter;
@@ -529,7 +458,7 @@ export class PersonalCardsService {
   }
 
   generateCustomDateParams(
-    newQueryParams: { ba_id?: string; btxn_status?: string; or?: string[] },
+    newQueryParams: Partial<PlatformPersonalCardQueryParams>,
     filters: Partial<PersonalCardFilter>,
     type: string,
     queryType: string
@@ -549,22 +478,13 @@ export class PersonalCardsService {
   }
 
   generateCreditParams(
-    newQueryParams: { ba_id?: string; btxn_status?: string; or?: string[]; amount?: string },
-    filters: Partial<PersonalCardFilter>,
-    usePlatformApi = false
+    newQueryParams: Partial<PlatformPersonalCardQueryParams>,
+    filters: Partial<PersonalCardFilter>
   ): void {
-    if (usePlatformApi && filters.transactionType) {
+    if (filters.transactionType) {
       const txnType = filters.transactionType.toLowerCase();
       const amountParam = txnType === 'credit' ? 'lte.0' : 'gte.0';
       newQueryParams.amount = amountParam;
-    } else {
-      const transactionTypeMap: { [key: string]: string } = {
-        credit: '(btxn_transaction_type.in.(credit))',
-        debit: '(btxn_transaction_type.in.(debit))',
-      };
-      if (filters.transactionType) {
-        newQueryParams.or.push(transactionTypeMap[filters.transactionType.toLowerCase()]);
-      }
     }
   }
 
