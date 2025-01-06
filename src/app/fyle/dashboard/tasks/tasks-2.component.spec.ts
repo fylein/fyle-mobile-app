@@ -205,25 +205,41 @@ export function TestCases2(getTestBed) {
       });
     });
 
-    it('onAddCorporateCardClick(): should open card popover', () => {
-      orgSettingsService.get.and.returnValue(of(orgSettingsPendingRestrictions));
-      orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
-      const addCardPopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onDidDismiss']);
-      addCardPopoverSpy.present.and.resolveTo();
-      addCardPopoverSpy.onDidDismiss.and.resolveTo({ success: true });
-      popoverController.create.and.resolveTo(addCardPopoverSpy);
-      spyOn(component, 'handleEnrollmentSuccess');
+    describe('onAddCorporateCardClick(): ', () => {
+      it('should open card popover', () => {
+        orgSettingsService.get.and.returnValue(of(orgSettingsPendingRestrictions));
+        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        const addCardPopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onDidDismiss']);
+        addCardPopoverSpy.present.and.resolveTo();
+        addCardPopoverSpy.onDidDismiss.and.resolveTo({ data: { success: true } });
+        popoverController.create.and.resolveTo(addCardPopoverSpy);
+        spyOn(component, 'handleEnrollmentSuccess');
 
-      fixture.detectChanges();
-      component.onAddCorporateCardClick();
-      expect(popoverController.create).toHaveBeenCalledOnceWith({
-        component: AddCorporateCardComponent,
-        cssClass: 'fy-dialog-popover',
-        componentProps: {
-          isVisaRTFEnabled: true,
-          isMastercardRTFEnabled: true,
-          isYodleeEnabled: true,
-        },
+        fixture.detectChanges();
+        component.onAddCorporateCardClick();
+        expect(popoverController.create).toHaveBeenCalledOnceWith({
+          component: AddCorporateCardComponent,
+          cssClass: 'fy-dialog-popover',
+          componentProps: {
+            isVisaRTFEnabled: true,
+            isMastercardRTFEnabled: true,
+            isYodleeEnabled: true,
+          },
+        });
+      });
+
+      it('should not open card popover when success is undefined', () => {
+        orgSettingsService.get.and.returnValue(of(orgSettingsPendingRestrictions));
+        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        const addCardPopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onDidDismiss']);
+        addCardPopoverSpy.present.and.resolveTo();
+        addCardPopoverSpy.onDidDismiss.and.resolveTo({ data: null });
+        popoverController.create.and.resolveTo(addCardPopoverSpy);
+        const enrollmentSuccessSpy = spyOn(component, 'handleEnrollmentSuccess');
+
+        fixture.detectChanges();
+        component.onAddCorporateCardClick();
+        expect(enrollmentSuccessSpy).not.toHaveBeenCalled();
       });
     });
 
