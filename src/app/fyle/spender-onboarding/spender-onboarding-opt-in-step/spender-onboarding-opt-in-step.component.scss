@@ -17,6 +17,14 @@
     justify-content: flex-end;
   }
 
+  &__card-number-input {
+    width: fit-content !important;
+    margin-right: 24px;
+    &::placeholder {
+      word-spacing: 24px;
+    }
+  }
+
   &__heading {
     color: $black;
     font-size: 20px;
@@ -65,7 +73,7 @@
   }
 
   &__input-container {
-    padding: 16px 16px 8px 16px;
+    padding: 16px 16px 8px;
     border-radius: 8px;
     border: 1px solid $grey;
 
