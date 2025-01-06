@@ -1,5 +1,6 @@
 import { getCurrencySymbol } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { PlatformPersonalCardTxn } from 'src/app/core/models/platform/platform-personal-card-txn.model';
 
 @Component({
   selector: 'app-personal-card-transaction',
@@ -7,19 +8,9 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
   styleUrls: ['./personal-card-transaction.component.scss'],
 })
 export class PersonalCardTransactionComponent implements OnInit {
-  @Input() txnId;
+  @Input() transaction: PlatformPersonalCardTxn;
 
-  @Input() description;
-
-  @Input() amount;
-
-  @Input() currency;
-
-  @Input() type;
-
-  @Input() txnDate;
-
-  @Input() previousTxnDate;
+  @Input() previousTxnDate: Date;
 
   @Input() status;
 
@@ -29,36 +20,36 @@ export class PersonalCardTransactionComponent implements OnInit {
 
   @Input() isMatchedCountLoading: boolean;
 
-  @Output() setMultiselectMode: EventEmitter<string> = new EventEmitter();
+  @Output() setMultiselectMode = new EventEmitter<string>();
 
-  @Output() cardClickedForSelection: EventEmitter<string> = new EventEmitter();
+  @Output() cardClickedForSelection = new EventEmitter<string>();
 
   showDt = true;
 
+  currency: string;
+
   selectAll = false;
 
-  constructor() {}
-
-  get isSelected() {
-    return this.selectedElements.some((txn) => this.txnId === txn);
+  get isSelected(): boolean {
+    return this.selectedElements.some((txn) => this.transaction.id === txn);
   }
 
   ngOnInit(): void {
-    this.currency = getCurrencySymbol(this.currency, 'wide');
-    const currentDate = new Date(this.txnDate).toDateString();
+    this.currency = getCurrencySymbol(this.transaction.currency, 'wide');
+    const currentDate = new Date(this.transaction.spent_at).toDateString();
     const previousDate = new Date(this.previousTxnDate).toDateString();
     this.showDt = currentDate !== previousDate;
   }
 
-  onSetMultiselectMode() {
+  onSetMultiselectMode(): void {
     if (!this.isSelectionModeEnabled) {
-      this.setMultiselectMode.emit(this.txnId);
+      this.setMultiselectMode.emit(this.transaction.id);
     }
   }
 
-  onTapTransaction() {
+  onTapTransaction(): void {
     if (this.isSelectionModeEnabled) {
-      this.cardClickedForSelection.emit(this.txnId);
+      this.cardClickedForSelection.emit(this.transaction.id);
     }
   }
 }

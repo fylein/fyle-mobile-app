@@ -11,7 +11,6 @@ import { SnackbarPropertiesService } from '../../../../core/services/snackbar-pr
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { DeleteButtonComponent } from './delete-button/delete-button-component';
 import { DateService } from 'src/app/core/services/date.service';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 @Component({
   selector: 'app-bank-account-card',
   templateUrl: './bank-account-card.component.html',
@@ -34,8 +33,7 @@ export class BankAccountCardComponent implements OnInit {
     private popoverController: PopoverController,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
-    private dateService: DateService,
-    private launchDarklyService: LaunchDarklyService
+    private dateService: DateService
   ) {}
 
   ngOnInit(): void {
@@ -64,15 +62,7 @@ export class BankAccountCardComponent implements OnInit {
   async deleteAccount(): Promise<void> {
     from(this.loaderService.showLoader('Deleting your card...', 5000))
       .pipe(
-        switchMap(() =>
-          this.launchDarklyService
-            .getVariation('personal_cards_platform', false)
-            .pipe(
-              switchMap((usePlatformApi) =>
-                this.personalCardsService.deleteAccount(this.accountDetails.id, usePlatformApi)
-              )
-            )
-        ),
+        switchMap(() => this.personalCardsService.deleteAccount(this.accountDetails.id)),
         finalize(async () => {
           await this.loaderService.hideLoader();
           const message = 'Card successfully deleted.';
