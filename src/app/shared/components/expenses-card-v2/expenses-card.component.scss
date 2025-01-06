@@ -9,7 +9,7 @@
     font-weight: 500;
 
     &__from-reports {
-      background-color: $pure-white;
+      background-color: $white;
     }
   }
 
@@ -18,19 +18,24 @@
     min-height: 106px;
     padding: 12px;
     margin-bottom: 6px;
+    position: relative;
   }
 
   &--deatils-block {
     width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
-    padding: 4px 0;
   }
 
   &--vertical-dotted-border {
     border-left: 2px dashed $border-tertiary;
-    height: auto;
+    height: 90%;
     margin: 0 8px;
+    position: absolute;
+    top: 50%;
+    bottom: 0;
+    left: 68px;
+    transform: translate(-50%, -50%);
   }
 
   &--checkbox-container {
@@ -159,6 +164,7 @@
     text-overflow: ellipsis;
     display: flex;
     flex-direction: column;
+    margin-left: 16px;
 
     &__align-vertical-center {
       display: flex;
@@ -266,14 +272,13 @@
 
   &--currency-amount-container {
     display: flex;
-    gap: 2px;
   }
 
   &--currency {
     color: $black;
     font-weight: 500;
-    font-size: 16px;
-    line-height: 1.25;
+    font-size: 14px;
+    line-height: 1.5;
     margin-right: 1px;
   }
 

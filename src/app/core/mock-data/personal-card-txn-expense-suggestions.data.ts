@@ -1,7 +1,11 @@
 import deepFreeze from 'deep-freeze-strict';
-import { PersonalCardTxnExpenseSuggestion } from '../models/personal-card-txn-expense-suggestion.model';
+import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
+import { Expense } from '../models/platform/v1/expense.model';
+import { ApprovalState } from '../models/platform/report-approvals.model';
+import { AccountType } from '../models/platform/v1/account.model';
+import { ExpenseState } from '../models/expense-state.enum';
 
-export const platformPersonalCardTxnExpenseSuggestionsRes = deepFreeze({
+export const platformPersonalCardTxnExpenseSuggestionsRes: PlatformApiResponse<Expense[]> = deepFreeze({
   data: [
     {
       accounting_export_summary: {},
@@ -18,7 +22,7 @@ export const platformPersonalCardTxnExpenseSuggestionsRes = deepFreeze({
             id: 'usRjTPO4r69K',
           },
           approver_user_id: 'usRjTPO4r69K',
-          state: 'APPROVAL_PENDING',
+          state: ApprovalState.APPROVAL_PENDING,
         },
       ],
       approver_comments: [],
@@ -42,7 +46,7 @@ export const platformPersonalCardTxnExpenseSuggestionsRes = deepFreeze({
         name: 'test-1',
       },
       cost_center_id: 6335,
-      created_at: '2024-10-24T10:34:31.922365+00:00',
+      created_at: new Date('2024-10-24T10:34:31.922365+00:00'),
       creator_user_id: 'us2KhpQLpzX4',
       currency: 'USD',
       custom_fields: [],
@@ -160,14 +164,14 @@ export const platformPersonalCardTxnExpenseSuggestionsRes = deepFreeze({
       source: 'WEBAPP',
       source_account: {
         id: 'acc8vyjNsN3zh',
-        type: 'PERSONAL_CASH_ACCOUNT',
+        type: AccountType.PERSONAL_CASH_ACCOUNT,
       },
       source_account_id: 'acc8vyjNsN3zh',
       spent_at: new Date('2024-09-11T00:00:00+00:00'),
       split_group_amount: null,
       split_group_id: 'txhoujHIA4OD',
       started_at: null,
-      state: 'DRAFT',
+      state: ExpenseState.DRAFT,
       state_display_name: 'Incomplete',
       tax_amount: 16.83,
       tax_group: {
@@ -176,7 +180,7 @@ export const platformPersonalCardTxnExpenseSuggestionsRes = deepFreeze({
       },
       tax_group_id: 'tg6RDX1flCnt',
       travel_classes: [],
-      updated_at: '2024-10-24T10:34:36.313431+00:00',
+      updated_at: new Date('2024-10-24T10:34:36.313431+00:00'),
       user: {
         email: 'kavya.hl@fyle.in',
         full_name: 'Kavya 2',
@@ -197,22 +201,5 @@ export const platformPersonalCardTxnExpenseSuggestions = deepFreeze([
     currency: 'USD',
     amount: 90,
     split_group_id: 'txhoujHIA4OD',
-  },
-]);
-
-export const publicPersonalCardTxnExpenseSuggestionsRes: PersonalCardTxnExpenseSuggestion[] = deepFreeze([
-  {
-    id: 'txsZt7eBrWHN',
-    txn_dt: new Date('2024-09-14T00:00:00.000Z'),
-    amount: 20,
-    currency: 'USD',
-    split_group_id: 'txsZt7eBrWHN',
-    split_group_user_amount: 20,
-    orig_amount: null,
-    orig_currency: null,
-    purpose: 'sumrender ONLINE SUBSCRIPTION',
-    vendor: 'ONLINE SUBSCRIPTION',
-    ranking: 1,
-    distance: 0.0,
   },
 ]);

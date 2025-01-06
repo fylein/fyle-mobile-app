@@ -3,37 +3,9 @@
 .task {
   background-color: $pure-white;
   &--icon {
-    font-size: 24px;
+    font-size: 20px;
     padding-top: 4px;
     color: $blue-black;
-
-    &__warning {
-      font-size: 20px;
-      position: relative;
-      top: -2px;
-      left: -5px;
-    }
-
-    &__expense {
-      font-size: 20px;
-      position: relative;
-      top: -6px;
-      left: -8px;
-    }
-
-    &__advance {
-      position: relative;
-      top: -6px;
-      left: -8px;
-      font-size: 20px;
-    }
-
-    &__mobile {
-      position: relative;
-      bottom: 4px;
-      right: 6px;
-      font-size: 20px;
-    }
   }
 
   &--row {
@@ -97,7 +69,7 @@
     line-height: 23px;
     font-weight: 500;
     color: $blue-black;
-    padding: 4px 0 0 0;
+    padding: 6px 0 0 0;
   }
 
   &--subheader {

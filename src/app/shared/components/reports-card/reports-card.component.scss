@@ -44,6 +44,7 @@
     width: 16px;
     height: 16px;
     padding-top: 2px;
+    color: $black-light;
   }
 
   &--icon-policy-violation {
@@ -67,8 +68,8 @@
   &--currency {
     color: $black-light;
     font-weight: 500;
-    font-size: 16px;
-    line-height: 1.25;
+    font-size: 14px;
+    line-height: 1.5;
     margin-right: -2px;
   }
 

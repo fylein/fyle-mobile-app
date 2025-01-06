@@ -1,6 +1,6 @@
 <div *ngIf="showDt; else divider" class="personal-card-transaction--date">
   <ng-container>
-    {{ txnDate | dateFormat }}
+    {{ transaction.spent_at | dateFormat }}
   </ng-container>
 </div>
 
@@ -14,34 +14,34 @@
   </div>
   <div class="personal-card-transaction--details">
     <!-- List Icon -->
-    <mat-icon class="personal-card-transaction--list-icon" svgIcon="list"></mat-icon>
+    <mat-icon class="personal-card-transaction--list-icon" svgIcon="list-new"></mat-icon>
 
     <!-- Txn details -->
     <div class="personal-card-transaction--vendor-amount-container">
       <!-- Vendor -->
       <div class="personal-card-transaction--vendor">
-        {{ description }}
+        {{ transaction.description }}
       </div>
 
       <!-- Amount -->
       <div class="personal-card-transaction--currency-amount-container">
         <span
           class="personal-card-transaction--currency"
-          [ngClass]="{ ' personal-card-transaction--green': type === 'credit' }"
+          [ngClass]="{ ' personal-card-transaction--green': transaction.transactionType === 'credit' }"
           >{{ currency }}
         </span>
         <span
           class="personal-card-transaction--amount"
-          [ngClass]="{ 'personal-card-transaction--green': type === 'credit' }"
+          [ngClass]="{ 'personal-card-transaction--green': transaction.transactionType === 'credit' }"
         >
-          {{ { value: amount, currencyCode: currency, skipSymbol: true } | exactCurrency }}
+          {{ { value: transaction.amount, currencyCode: currency, skipSymbol: true } | exactCurrency }}
         </span>
         <span
           class="personal-card-transaction--type"
-          [ngClass]="{ ' personal-card-transaction--green': type === 'credit' }"
+          [ngClass]="{ ' personal-card-transaction--green': transaction.transactionType === 'credit' }"
         >
-          <ng-container *ngIf="type === 'debit'">DR</ng-container>
-          <ng-container *ngIf="type === 'credit'">CR</ng-container>
+          <ng-container *ngIf="transaction.transactionType === 'debit'">DR</ng-container>
+          <ng-container *ngIf="transaction.transactionType === 'credit'">CR</ng-container>
         </span>
       </div>
 
