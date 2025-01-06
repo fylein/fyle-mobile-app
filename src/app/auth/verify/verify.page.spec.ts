@@ -115,8 +115,8 @@ describe('VerifyPage', () => {
       const error = {
         status: 404,
       };
-      component.handleError(error);
       const logoutSpy = spyOn(component, 'logout');
+      component.handleError(error);
       expect(logoutSpy).toHaveBeenCalledTimes(1);
     });
   });
