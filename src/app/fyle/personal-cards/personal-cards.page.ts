@@ -28,7 +28,7 @@ import {
   takeUntil,
 } from 'rxjs';
 import { PlatformPersonalCard } from 'src/app/core/models/platform/platform-personal-card.model';
-import { PersonalCardTxn } from 'src/app/core/models/personal_card_txn.model';
+import { PlatformPersonalCardTxn } from 'src/app/core/models/platform/platform-personal-card-txn.model';
 import { HeaderState } from 'src/app/shared/components/fy-header/header-state.enum';
 
 import * as dayjs from 'dayjs';
@@ -55,7 +55,6 @@ import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filt
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { PersonalCardFilter } from 'src/app/core/models/personal-card-filters.model';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { PlatformPersonalCardFilterParams } from 'src/app/core/models/platform/platform-personal-card-filter-params.model';
 import { PlatformPersonalCardTxnState } from 'src/app/core/models/platform/platform-personal-card-txn-state.enum';
 import { PlatformPersonalCardQueryParams } from 'src/app/core/models/platform/platform-personal-card-query-params.model';
@@ -85,7 +84,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     pageNumber: 1,
   });
 
-  transactions$: Observable<PersonalCardTxn[]>;
+  transactions$: Observable<PlatformPersonalCardTxn[]>;
 
   transactionsCount$: Observable<number>;
 
@@ -101,7 +100,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
   isLoadingDataInfiniteScroll = false;
 
-  acc: PersonalCardTxn[] = [];
+  acc: PlatformPersonalCardTxn[] = [];
 
   currentPageNumber = 1;
 
@@ -139,8 +138,6 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
   scrolled = false;
 
-  usePlatformApi = false;
-
   onPageExit$ = new Subject();
 
   constructor(
@@ -159,8 +156,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     private spinnerDialog: SpinnerDialog,
     private trackingService: TrackingService,
     private modalProperties: ModalPropertiesService,
-    private cdr: ChangeDetectorRef,
-    private launchDarklyService: LaunchDarklyService
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -219,7 +215,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     );
   }
 
-  loadPersonalTxns(): Observable<PersonalCardTxn[]> {
+  loadPersonalTxns(): Observable<PlatformPersonalCardTxn[]> {
     return this.loadData$.pipe(
       switchMap((params) => {
         let queryParams: Record<string, string>;
@@ -253,7 +249,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
             } else {
               this.isTransactionsLoading = false;
               return of({
-                data: [],
+                data: [] as PlatformPersonalCardTxn[],
               });
             }
           })
@@ -275,18 +271,15 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
     this.loadCardData$ = new BehaviorSubject({});
 
-    this.launchDarklyService.getVariation('personal_cards_platform', false).subscribe((usePlatformApi) => {
-      this.usePlatformApi = usePlatformApi;
-      this.loadAccountCount();
-      this.loadLinkedAccounts();
+    this.loadAccountCount();
+    this.loadLinkedAccounts();
 
-      const paginatedPipe = this.loadPersonalTxns();
-      this.transactions$ = paginatedPipe.pipe(shareReplay(1));
-      this.filterPills = this.personalCardsService.generateFilterPills(this.filters);
+    const paginatedPipe = this.loadPersonalTxns();
+    this.transactions$ = paginatedPipe.pipe(shareReplay(1));
+    this.filterPills = this.personalCardsService.generateFilterPills(this.filters);
 
-      this.loadTransactionCount();
-      this.loadInfiniteScroll();
-    });
+    this.loadTransactionCount();
+    this.loadInfiniteScroll();
 
     this.simpleSearchInput.nativeElement.value = '';
     fromEvent<{ srcElement: { value: string } }>(this.simpleSearchInput.nativeElement, 'keyup')
@@ -329,7 +322,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
   linkAccount(): void {
     from(this.loaderService.showLoader('Redirecting you to our banking partner...', 10000))
       .pipe(
-        switchMap(() => this.personalCardsService.getToken(this.usePlatformApi)),
+        switchMap(() => this.personalCardsService.getToken()),
         finalize(async () => {
           await this.loaderService.hideLoader();
         })
@@ -373,7 +366,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
             if (isMfaFlow) {
               this.syncTransactions();
             } else {
-              this.postAccounts([decodedData[0].requestId]);
+              this.postAccounts();
             }
           }
         });
@@ -381,10 +374,10 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     });
   }
 
-  postAccounts(requestIds: string[]): void {
+  postAccounts(): void {
     from(this.loaderService.showLoader('Linking your card with Fyle...', 30000))
       .pipe(
-        switchMap(() => this.personalCardsService.postBankAccounts(requestIds, this.usePlatformApi)),
+        switchMap(() => this.personalCardsService.postBankAccounts()),
         finalize(async () => {
           await this.loaderService.hideLoader();
         })
@@ -483,7 +476,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
   fetchNewTransactionsWithMfa(): void {
     from(this.loaderService.showLoader('Redirecting you to our banking partner...', 10000))
       .pipe(
-        switchMap(() => this.personalCardsService.getToken(this.usePlatformApi)),
+        switchMap(() => this.personalCardsService.getToken()),
         finalize(async () => {
           await this.loaderService.hideLoader();
         })
@@ -499,7 +492,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     if (this.selectionMode) {
       this.switchSelectionMode();
     }
-    this.personalCardsService.isMfaEnabled(this.selectedAccount.id, this.usePlatformApi).subscribe((isMfaEnabled) => {
+    this.personalCardsService.isMfaEnabled(this.selectedAccount.id).subscribe((isMfaEnabled) => {
       if (isMfaEnabled) {
         this.fetchNewTransactionsWithMfa();
       } else {
@@ -509,7 +502,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
   }
 
   syncTransactions(): void {
-    this.personalCardsService.syncTransactions(this.selectedAccount.id, this.usePlatformApi).subscribe(() => {
+    this.personalCardsService.syncTransactions(this.selectedAccount.id).subscribe(() => {
       this.acc = [];
       this.isfetching = false;
       const params = this.loadData$.getValue();
@@ -522,7 +515,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
   hideSelectedTransactions(): void {
     this.isHiding = true;
     this.personalCardsService
-      .hideTransactions(this.selectedElements, this.usePlatformApi)
+      .hideTransactions(this.selectedElements)
       .pipe(
         tap((txnsHiddenCount: number) => {
           const message =
@@ -572,7 +565,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.selectAll = event;
     this.selectedElements = [];
     if (this.selectAll) {
-      this.selectedElements = this.acc.map((txn) => txn.btxn_id);
+      this.selectedElements = this.acc.map((txn) => txn.id);
     }
   }
 
@@ -751,21 +744,21 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.filterPills = this.personalCardsService.generateFilterPills(this.filters);
   }
 
-  createExpense(txnDetails: PersonalCardTxn): void {
+  createExpense(txnDetails: PlatformPersonalCardTxn): void {
     if (this.selectionMode || this.loadingMatchedExpenseCount) {
       return;
     }
-    if (txnDetails.btxn_status === 'MATCHED') {
+    if (txnDetails.state === PlatformPersonalCardTxnState.MATCHED) {
       this.openExpensePreview(txnDetails);
       return;
     }
 
-    const txnDate = dayjs(txnDetails.btxn_transaction_dt).format('YYYY-MM-DD');
+    const txnDate = dayjs(txnDetails.spent_at).format('YYYY-MM-DD');
 
     this.loadingMatchedExpenseCount = true;
-    this.loadingTxnId = txnDetails.btxn_id;
+    this.loadingTxnId = txnDetails.id;
     this.personalCardsService
-      .getMatchedExpensesSuggestions(txnDetails.btxn_amount, txnDate)
+      .getMatchedExpensesSuggestions(txnDetails.amount, txnDate)
       .subscribe((expenseSuggestions) => {
         this.loadingMatchedExpenseCount = false;
         this.loadingTxnId = null;
@@ -779,6 +772,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
         } else {
           this.router.navigate(['/', 'enterprise', 'personal_cards_matched_expenses'], {
             state: {
+              personalCard: this.selectedAccount,
               txnDetails,
               expenseSuggestions,
             },
@@ -787,14 +781,14 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       });
   }
 
-  async openExpensePreview(txnDetails: PersonalCardTxn): Promise<void> {
-    const txn_details = txnDetails.txn_details;
+  async openExpensePreview(txnDetails: PlatformPersonalCardTxn): Promise<void> {
+    const txn_details = txnDetails.matched_expenses;
     const expenseDetailsModal = await this.modalController.create({
       component: ExpensePreviewComponent,
       componentProps: {
         expenseId: txn_details[0].id,
-        card: txnDetails.ba_account_number,
-        cardTxnId: txnDetails.btxn_id,
+        card: this.selectedAccount.card_number,
+        cardTxnId: txnDetails.id,
         type: 'edit',
       },
       ...this.modalProperties.getModalDefaultProperties('expense-preview-modal'),

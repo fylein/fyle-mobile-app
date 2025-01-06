@@ -8,14 +8,10 @@ import { allFilterPills, creditTxnFilterPill, debitTxnFilterPill } from '../mock
 import { deletePersonalCardPlatformRes, platformApiLinkedAccRes } from '../mock-data/personal-cards.data';
 import { of } from 'rxjs';
 import {
-  apiPersonalCardTxnsRes,
-  matchedExpensesPlatform,
   platformMatchExpenseResponse,
   platformPersonalCardTxns,
   platformQueryParams,
   platformTxnsConfig,
-  transformedMatchedExpenses,
-  transformedPlatformPersonalCardTxns,
 } from '../mock-data/personal-card-txns.data';
 import { selectedFilters1, selectedFilters2 } from '../mock-data/selected-filters.data';
 import { filterData1 } from '../mock-data/filter.data';
@@ -29,7 +25,7 @@ import { personalCardAccessTokenResponse } from '../mock-data/personal-cards-acc
 import { platformPersonalCardTxnExpenseSuggestionsRes } from '../mock-data/personal-card-txn-expense-suggestions.data';
 import { PlatformPersonalCardFilterParams } from '../models/platform/platform-personal-card-filter-params.model';
 
-fdescribe('PersonalCardsService', () => {
+describe('PersonalCardsService', () => {
   let personalCardsService: PersonalCardsService;
   let apiV2Service: jasmine.SpyObj<ApiV2Service>;
   let apiService: jasmine.SpyObj<ApiService>;
@@ -79,21 +75,9 @@ fdescribe('PersonalCardsService', () => {
   });
 
   describe('helper functions', () => {
-    describe('transformMatchedExpensesToTxnDetails', () => {
-      it('it should transform matched expenses to transaction details', () => {
-        expect(personalCardsService.transformMatchedExpensesToTxnDetails(matchedExpensesPlatform)).toEqual(
-          transformedMatchedExpenses
-        );
-      });
-
-      it('it should return an empty array if matchedExpenses is undefined', () => {
-        expect(personalCardsService.transformMatchedExpensesToTxnDetails(undefined)).toEqual([]);
-      });
-    });
-
-    it('transformPlatformPersonalCardTxn: should transform PlatformPersonalCardTxn array to PersonalCardTxn array', () => {
-      expect(personalCardsService.transformPlatformPersonalCardTxn(platformPersonalCardTxns.data)).toEqual(
-        transformedPlatformPersonalCardTxns.data
+    it('addTransactionTypeToTxns: should add transactionType property to personal card txn.', () => {
+      expect(personalCardsService.addTransactionTypeToTxns(platformPersonalCardTxns.data)).toEqual(
+        platformPersonalCardTxns.data
       );
     });
   });
@@ -149,7 +133,7 @@ fdescribe('PersonalCardsService', () => {
       spenderPlatformV1ApiService.get.and.returnValue(of(platformPersonalCardTxns));
 
       personalCardsService.getBankTransactions(platformTxnsConfig).subscribe((res) => {
-        expect(res).toEqual(transformedPlatformPersonalCardTxns);
+        expect(res).toEqual(platformPersonalCardTxns);
         expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/personal_card_transactions', {
           params: {
             limit: platformTxnsConfig.limit,
@@ -166,34 +150,17 @@ fdescribe('PersonalCardsService', () => {
     it('should get bank transaction count using platform api', (done) => {
       spenderPlatformV1ApiService.get.and.returnValue(of(platformPersonalCardTxns));
       personalCardsService.getBankTransactionsCount(platformQueryParams).subscribe((res) => {
-        expect(res).toEqual(transformedPlatformPersonalCardTxns.count);
+        expect(res).toEqual(platformPersonalCardTxns.count);
         done();
       });
     });
   });
 
   describe('postBankAccounts()', () => {
-    it('should link personal cards using public api', (done) => {
-      const requestIds = ['bacc0dtQ3ESjjQ'];
-      const usePlatformApi = false;
-      expenseAggregationService.post.and.returnValue(of(requestIds));
-
-      personalCardsService.postBankAccounts(requestIds, usePlatformApi).subscribe((res) => {
-        expect(res).toEqual(requestIds);
-        expect(expenseAggregationService.post).toHaveBeenCalledOnceWith('/yodlee/personal/bank_accounts', {
-          aggregator: 'yodlee',
-          request_ids: requestIds,
-        });
-        done();
-      });
-    });
-
     it('should link personal cards using platform api', (done) => {
-      const requestIds = ['bacc0dtQ3ESjjQ'];
-      const usePlatformApi = true;
       spenderPlatformV1ApiService.post.and.returnValue(of(platformApiLinkedAccRes));
 
-      personalCardsService.postBankAccounts(requestIds, usePlatformApi).subscribe((res) => {
+      personalCardsService.postBankAccounts().subscribe((res) => {
         expect(res).toEqual(platformApiLinkedAccRes.data);
         expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/personal_cards', { data: {} });
         done();
@@ -913,31 +880,16 @@ fdescribe('PersonalCardsService', () => {
   });
 
   describe('syncTransactions()', () => {
-    it('should fetch transactions using public api', (done) => {
-      expenseAggregationService.post.and.returnValue(of(apiPersonalCardTxnsRes));
-      const accountId = 'baccLesaRlyvLY';
-      const usePlatformApi = false;
-
-      personalCardsService.syncTransactions(accountId, usePlatformApi).subscribe((res) => {
-        expect(res).toEqual(apiPersonalCardTxnsRes);
-        expect(expenseAggregationService.post).toHaveBeenCalledOnceWith(`/bank_accounts/${accountId}/sync`, {
-          owner_type: 'org_user',
-        });
-        done();
-      });
-    });
-
     it('should fetch transactions using platform api', (done) => {
       spenderPlatformV1ApiService.post.and.returnValue(of({ data: {} }));
       const accountId = 'baccLesaRlyvLY';
-      const usePlatformApi = true;
       const payload = {
         data: {
           personal_card_id: accountId,
         },
       };
 
-      personalCardsService.syncTransactions(accountId, usePlatformApi).subscribe((res) => {
+      personalCardsService.syncTransactions(accountId).subscribe((res) => {
         expect(res).toEqual({ data: {} });
         expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/personal_card_transactions', payload);
         done();
@@ -960,38 +912,16 @@ fdescribe('PersonalCardsService', () => {
   });
 
   describe('matchExpense()', () => {
-    it('should match an expense using public api', (done) => {
-      const usePlatformApi = false;
-      const response = {
-        external_expense_id: 'tx3nHShG60zz',
-        transaction_split_group_id: 'tx3nHShG60zq',
-      };
-
-      apiService.post.and.returnValue(of(response));
-      const externalExpenseId = 'tx3nHShG60zz';
-      const txnSplitGroupId = 'tx3nHShG60zq';
-
-      personalCardsService.matchExpense(txnSplitGroupId, externalExpenseId, usePlatformApi).subscribe((res) => {
-        expect(res).toEqual(response);
-        expect(apiService.post).toHaveBeenCalledOnceWith('/transactions/external_expense/match', {
-          transaction_split_group_id: txnSplitGroupId,
-          external_expense_id: externalExpenseId,
-        });
-        done();
-      });
-    });
-
     it('should match an expense using platform api', (done) => {
       const response = {
         external_expense_id: 'btxndbZdAth0x4',
         transaction_split_group_id: 'tx3nHShG60zq',
       };
       spenderPlatformV1ApiService.post.and.returnValue(of(platformMatchExpenseResponse));
-      const usePlatformApi = true;
       const externalExpenseId = 'btxndbZdAth0x4';
       const txnSplitGroupId = 'tx3nHShG60zq';
 
-      personalCardsService.matchExpense(txnSplitGroupId, externalExpenseId, usePlatformApi).subscribe((res) => {
+      personalCardsService.matchExpense(txnSplitGroupId, externalExpenseId).subscribe((res) => {
         expect(res).toEqual(response);
         expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/personal_card_transactions/match', {
           data: {
@@ -1005,26 +935,11 @@ fdescribe('PersonalCardsService', () => {
   });
 
   describe('hideTransactions()', () => {
-    it('should hide transactions using public api', (done) => {
-      expenseAggregationService.post.and.returnValue(of(apiExpenseRes));
-      const usePlatformApi = false;
-      const txnIds = ['tx3nHShG60zq'];
-
-      personalCardsService.hideTransactions(txnIds, usePlatformApi).subscribe((res) => {
-        expect(res).toEqual(txnIds.length);
-        expect(expenseAggregationService.post).toHaveBeenCalledOnceWith('/bank_transactions/hide/bulk', {
-          bank_transaction_ids: txnIds,
-        });
-        done();
-      });
-    });
-
     it('should hide transactions using platform api', (done) => {
       spenderPlatformV1ApiService.post.and.returnValue(of({}));
-      const usePlatformApi = true;
       const txnIds = ['tx3nHShG60zq', 'tx3nHShG60zw'];
 
-      personalCardsService.hideTransactions(txnIds, usePlatformApi).subscribe((res) => {
+      personalCardsService.hideTransactions(txnIds).subscribe((res) => {
         expect(res).toEqual(txnIds.length);
         expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/personal_card_transactions/hide/bulk', {
           data: txnIds.map((txnId) => ({ id: txnId })),
@@ -1078,22 +993,10 @@ fdescribe('PersonalCardsService', () => {
   });
 
   describe('getToken()', () => {
-    it('should get access token using public api', (done) => {
-      expenseAggregationService.get.and.returnValue(of(apiToken));
-      const usePlatformApi = false;
-
-      personalCardsService.getToken(usePlatformApi).subscribe((res) => {
-        expect(res).toEqual(apiToken);
-        expect(expenseAggregationService.get).toHaveBeenCalledOnceWith('/yodlee/personal/access_token');
-        done();
-      });
-    });
-
     it('should get access token using platform api', (done) => {
       spenderPlatformV1ApiService.post.and.returnValue(of(personalCardAccessTokenResponse));
-      const usePlatformApi = true;
 
-      personalCardsService.getToken(usePlatformApi).subscribe((res) => {
+      personalCardsService.getToken().subscribe((res) => {
         expect(res.access_token).toEqual(personalCardAccessTokenResponse.data.access_token);
         expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/personal_cards/access_token');
         done();
@@ -1102,20 +1005,8 @@ fdescribe('PersonalCardsService', () => {
   });
 
   describe('isMfaEnabled()', () => {
-    it('should return false when using public api', (done) => {
+    it('should get is_mfa_enabled using platform api', (done) => {
       const personalCardId = '12345';
-      const usePlatformApi = false;
-
-      personalCardsService.isMfaEnabled(personalCardId, usePlatformApi).subscribe((res) => {
-        expect(res).toBeFalse();
-        expect(spenderPlatformV1ApiService.post).not.toHaveBeenCalled();
-        done();
-      });
-    });
-
-    it('should call platform API usePlatformApi is true', (done) => {
-      const personalCardId = '12345';
-      const usePlatformApi = true;
       const mockApiResponse = {
         data: {
           is_mfa_enabled: true,
@@ -1123,7 +1014,7 @@ fdescribe('PersonalCardsService', () => {
       };
       spenderPlatformV1ApiService.post.and.returnValue(of(mockApiResponse));
 
-      personalCardsService.isMfaEnabled(personalCardId, usePlatformApi).subscribe((res) => {
+      personalCardsService.isMfaEnabled(personalCardId).subscribe((res) => {
         expect(res).toBeTrue();
         expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/personal_cards/mfa', {
           data: {
