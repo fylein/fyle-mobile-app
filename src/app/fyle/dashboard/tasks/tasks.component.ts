@@ -501,6 +501,7 @@ export class TasksComponent implements OnInit {
         const popoverResponse = (await addCorporateCardPopover.onDidDismiss()) as OverlayResponse<{ success: boolean }>;
 
         if (popoverResponse.data?.success) {
+          this.doRefresh();
           this.handleEnrollmentSuccess();
         }
       }
