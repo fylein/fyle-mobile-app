@@ -203,7 +203,7 @@ describe('SidemenuComponent', () => {
       },
     };
 
-    const cardOpt = component.getCardOptions();
+    const cardOpt = component.getCardOptions(false);
     fixture.detectChanges();
     expect(cardOpt).toEqual([
       {
@@ -248,7 +248,7 @@ describe('SidemenuComponent', () => {
       const resData = primOpt.filter((option) => option.title !== 'Personal Cards');
       const cardOptSpy = spyOn(component, 'getCardOptions').and.returnValue([]);
       const teamOptSpy = spyOn(component, 'getTeamOptions').and.returnValue([]);
-      const result = component.getPrimarySidemenuOptions(true);
+      const result = component.getPrimarySidemenuOptions(true, false);
       fixture.detectChanges();
       expect(result.length).toBe(4);
       result.forEach((option, index) => {
@@ -271,7 +271,7 @@ describe('SidemenuComponent', () => {
           route: ['/', 'enterprise', 'personal_cards'],
         },
       ]);
-      const result = component.getPrimarySidemenuOptions(true);
+      const result = component.getPrimarySidemenuOptions(true, false);
       fixture.detectChanges();
       expect(result.length).toBe(5);
       result.forEach((option, index) => {
@@ -294,7 +294,7 @@ describe('SidemenuComponent', () => {
           route: ['/', 'enterprise', 'team_reports'],
         },
       ]);
-      const result = component.getPrimarySidemenuOptions(true);
+      const result = component.getPrimarySidemenuOptions(true, false);
       fixture.detectChanges();
       expect(result.length).toBe(5);
       result.forEach((option, index) => {
@@ -358,7 +358,7 @@ describe('SidemenuComponent', () => {
         },
       ];
 
-      const result = component.getPrimarySidemenuOptions(true);
+      const result = component.getPrimarySidemenuOptions(true, false);
       fixture.detectChanges();
       expect(result.length).toBe(5);
       result.forEach((option, index) => {
@@ -373,7 +373,7 @@ describe('SidemenuComponent', () => {
   describe('getSecondarySidemenuOptions():', () => {
     it('should get the secondary options', () => {
       const resData = getSecondarySidemenuOptionsRes1;
-      const result = component.getSecondarySidemenuOptions(orgData1, true, true);
+      const result = component.getSecondarySidemenuOptions(orgData1, true, true, false);
       fixture.detectChanges();
       expect(result.length).toBe(4);
       result.forEach((option, index) => {
@@ -386,7 +386,7 @@ describe('SidemenuComponent', () => {
 
     it('should not show the Delegated Accounts option when there is no delegatee', () => {
       const resData = getSecondarySidemenuOptionsRes1.filter((option) => option.title !== 'Delegated Accounts');
-      const result = component.getSecondarySidemenuOptions(orgData1, false, true);
+      const result = component.getSecondarySidemenuOptions(orgData1, false, true, false);
       fixture.detectChanges();
       expect(result.length).toBe(3);
       result.forEach((option, index) => {
@@ -436,7 +436,7 @@ describe('SidemenuComponent', () => {
           disabled: false,
         },
       ];
-      const result = component.getSecondarySidemenuOptions(orgData2, true, true);
+      const result = component.getSecondarySidemenuOptions(orgData2, true, true, false);
       fixture.detectChanges();
       expect(result.length).toBe(5);
       result.forEach((option, index) => {
@@ -460,8 +460,8 @@ describe('SidemenuComponent', () => {
       component.setupSideMenu(true, orgData1, true);
       fixture.detectChanges();
       expect(component.filteredSidemenuList).toEqual(resData);
-      expect(getPrimarySidemenuOptionsSpy).toHaveBeenCalledOnceWith(true);
-      expect(getSecondarySidemenuOptionsSpy).toHaveBeenCalledOnceWith(orgData1, true, true);
+      expect(getPrimarySidemenuOptionsSpy).toHaveBeenCalledOnceWith(true, false);
+      expect(getSecondarySidemenuOptionsSpy).toHaveBeenCalledOnceWith(orgData1, true, true, false);
     });
 
     it('should only get the primary options when there is no internet connection', () => {
