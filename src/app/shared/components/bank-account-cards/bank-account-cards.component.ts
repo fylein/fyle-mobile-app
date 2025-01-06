@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, ViewChild } from '@angular/core';
-import { PersonalCard } from 'src/app/core/models/personal_card.model';
+import { PlatformPersonalCard } from 'src/app/core/models/platform/platform-personal-card.model';
 import { SwiperComponent } from 'swiper/angular';
 import SwiperCore, { Pagination } from 'swiper';
 import { Swiper } from 'swiper/types';
@@ -12,13 +12,13 @@ SwiperCore.use([Pagination]);
   styleUrls: ['./bank-account-cards.component.scss'],
 })
 export class BankAccountCardsComponent {
-  @Input() linkedAccounts: PersonalCard[];
+  @Input() linkedAccounts: PlatformPersonalCard[];
 
   @Input() minimal: boolean;
 
   @Output() deleted = new EventEmitter();
 
-  @Output() changed = new EventEmitter<PersonalCard>();
+  @Output() changed = new EventEmitter<PlatformPersonalCard>();
 
   @ViewChild('swiper', { static: false }) swiper?: SwiperComponent;
 
