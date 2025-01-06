@@ -173,21 +173,9 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
   }
 
   onCardNumberUpdate(card: PlatformCorporateCard, inputControlName: string): void {
-    this.formatCardNumber(this.fg.controls[inputControlName]);
     this.cardValuesMap[card.id].card_type = this.realTimeFeedService.getCardTypeFromNumber(
       this.cardValuesMap[card.id].card_number
     );
-  }
-
-  formatCardNumber(input: AbstractControl): void {
-    // Remove all non-numeric characters
-    let value = (input.value as string).replace(/\D/g, '');
-
-    // Format the value in groups of 4
-    value = value.replace(/(\d{4})(?=\d)/g, '$1 ');
-
-    // Set the formatted value back to the input
-    input.setValue(value);
   }
 
   private cardNumberValidator(control: AbstractControl): ValidationErrors {
