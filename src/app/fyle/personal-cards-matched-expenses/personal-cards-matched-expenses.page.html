@@ -15,31 +15,30 @@
         <div class="matched-expenses--main-info">
           <div class="matched-expenses--purpose-amount-block">
             <div class="matched-expenses--purpose">
-              <span>{{txnDetails.btxn_description}}</span>
+              <span>{{txnDetails.description}}</span>
             </div>
           </div>
         </div>
-        <div class="matched-expenses--date">{{txnDetails.btxn_transaction_dt | date: 'MMM dd, YYYY'}}</div>
+        <div class="matched-expenses--date">{{txnDetails.spent_at | date: 'MMM dd, YYYY'}}</div>
         <div class="matched-expenses--amount-block">
           <span
             class="matched-expenses--currency"
-            [ngClass]="{'matched-expenses--green': txnDetails.btxn_transaction_type === 'credit'}"
+            [ngClass]="{'matched-expenses--green': txnDetails.transactionType === 'credit'}"
           >
-            {{ txnDetails.btxn_currency | currencySymbol }}
+            {{ txnDetails.currency | currencySymbol }}
           </span>
           <span
             class="matched-expenses--amount"
-            [ngClass]="{'matched-expenses--green': txnDetails.btxn_transaction_type === 'credit'}"
+            [ngClass]="{'matched-expenses--green': txnDetails.transactionType === 'credit'}"
           >
-            {{ { value: txnDetails.btxn_amount, currencyCode: txnDetails.btxn_currency, skipSymbol: true } |
-            exactCurrency }}
+            {{ { value: txnDetails.amount, currencyCode: txnDetails.currency, skipSymbol: true } | exactCurrency }}
           </span>
           <span
             class="matched-expenses--type"
-            [ngClass]="{'matched-expenses--green': txnDetails.btxn_transaction_type === 'credit'}"
+            [ngClass]="{'matched-expenses--green': txnDetails.transactionType === 'credit'}"
           >
-            <ng-container *ngIf="txnDetails.btxn_transaction_type === 'debit'">DR</ng-container>
-            <ng-container *ngIf="txnDetails.btxn_transaction_type === 'credit'">CR</ng-container>
+            <ng-container *ngIf="txnDetails.transactionType === 'debit'">DR</ng-container>
+            <ng-container *ngIf="txnDetails.transactionType === 'credit'">CR</ng-container>
           </span>
         </div>
       </div>

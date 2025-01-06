@@ -35,7 +35,7 @@ import {
 } from 'src/app/core/mock-data/org-category.data';
 import { orgUserSettingsData, orgUserSettingsWithCurrency } from 'src/app/core/mock-data/org-user-settings.data';
 import { extractedData, instaFyleData1, instaFyleData5 } from 'src/app/core/mock-data/parsed-receipt.data';
-import { apiPersonalCardTxnsRes } from 'src/app/core/mock-data/personal-card-txns.data';
+import { platformPersonalCardTxns } from 'src/app/core/mock-data/personal-card-txns.data';
 import { platformPolicyExpenseData1 } from 'src/app/core/mock-data/platform-policy-expense.data';
 import { policyViolation1 } from 'src/app/core/mock-data/policy-violation.data';
 import { expensePolicyData, publicPolicyExpenseData1 } from 'src/app/core/mock-data/public-policy-expense.data';
@@ -1498,7 +1498,7 @@ export function TestCases3(getTestBed) {
       });
 
       it('should get new expense observable from personal card txn and home currency does not match extracted data', (done) => {
-        activatedRoute.snapshot.params.personalCardTxn = JSON.stringify(apiPersonalCardTxnsRes.data);
+        activatedRoute.snapshot.params.personalCardTxn = JSON.stringify(platformPersonalCardTxns.data[0]);
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         authService.getEou.and.resolveTo(apiEouRes);
         component.orgUserSettings$ = of(orgUserSettingsData);
