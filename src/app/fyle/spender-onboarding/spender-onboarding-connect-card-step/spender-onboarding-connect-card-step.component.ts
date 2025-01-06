@@ -1,12 +1,4 @@
-import {
-  Component,
-  EventEmitter,
-  Input,
-  OnChanges,
-  OnInit,
-  Output,
-  SimpleChanges,
-} from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import {
   AbstractControl,
   FormArray,
@@ -37,7 +29,7 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
 
   @Input() orgSettings: OrgSettings;
 
-  @Output() isStepCompleted: EventEmitter<boolean> = new EventEmitter<boolean>();
+  @Output() isStepComplete: EventEmitter<boolean> = new EventEmitter<boolean>();
 
   cardForm: FormControl;
 
@@ -76,29 +68,35 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
 
   enrollCards(): void {
     const cards = this.enrollableCards;
-    from(cards)
-      .pipe(
-        concatMap((card) =>
-          this.realTimeFeedService
-            .enroll(this.fg.controls[`card_number_${card.id}`].value + this.cardValuesMap[card.id].last_four, card.id)
-            .pipe(
-              map(() => {
-                this.cardsList.successfulCards.push(`**** ${card.card_number.slice(-4)}`);
-              }),
-              catchError(() => {
-                this.cardsList.failedCards.push(`**** ${card.card_number.slice(-4)}`);
-                return of(null);
-              })
-            )
+    if (cards.length > 0) {
+      from(cards)
+        .pipe(
+          concatMap((card) =>
+            this.realTimeFeedService
+              .enroll(this.fg.controls[`card_number_${card.id}`].value + this.cardValuesMap[card.id].last_four, card.id)
+              .pipe(
+                map(() => {
+                  this.cardsList.successfulCards.push(`**** ${card.card_number.slice(-4)}`);
+                }),
+                catchError(() => {
+                  this.cardsList.failedCards.push(`**** ${card.card_number.slice(-4)}`);
+                  return of(null);
+                })
+              )
+          )
         )
-      )
-      .subscribe(() => {
-        if (this.cardsList.failedCards.length > 0) {
-          this.showErrorPopover();
-        } else {
-          this.isStepCompleted.emit(true);
-        }
+        .subscribe(() => {
+          if (this.cardsList.failedCards.length > 0) {
+            this.showErrorPopover();
+          } else {
+            this.isStepComplete.emit(true);
+          }
+        });
+    } else {
+      this.realTimeFeedService.enroll(this.fg.controls.card_number.value as string).subscribe(() => {
+        this.isStepComplete.emit(true);
       });
+    }
   }
 
   generateMessage(): string {
@@ -142,7 +140,7 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
         switchMap((errorPopover) => errorPopover.onWillDismiss()),
         map((response: OverlayResponse<{ action?: string }>) => {
           if (response?.data?.action === 'close') {
-            this.isStepCompleted.emit(true);
+            this.isStepComplete.emit(true);
           }
         })
       )

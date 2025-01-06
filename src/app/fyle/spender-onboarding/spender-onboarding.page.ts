@@ -30,13 +30,19 @@ export class SpenderOnboardingPage {
 
   orgSettings: OrgSettings;
 
+  onboardingComplete = false;
+
+  onboardingInProgress = true;
+
+  redirectionCount = 3;
+
   constructor(
     private loaderService: LoaderService,
     private orgUserService: OrgUserService,
     private spenderOnboardingService: SpenderOnboardingService,
     private orgSettingsService: OrgSettingsService,
-    private router: Router,
-    private corporateCreditCardExpenseService: CorporateCreditCardExpenseService
+    private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
+    private router: Router
   ) {}
 
   ionViewWillEnter(): void {
@@ -75,8 +81,8 @@ export class SpenderOnboardingPage {
               this.currentStep = OnboardingStep.CONNECT_CARD;
             }
           }
+          this.currentStep = OnboardingStep.OPT_IN;
           this.isLoading = false;
-          this.loaderService.hideLoader();
         })
       )
       .subscribe();
@@ -84,19 +90,57 @@ export class SpenderOnboardingPage {
 
   skipOnboardingStep(): void {
     if (this.currentStep === OnboardingStep.CONNECT_CARD) {
-      this.spenderOnboardingService.skipConnectCardsStep();
+      this.spenderOnboardingService
+        .skipConnectCardsStep()
+        .pipe(
+          map(() => {
+            this.currentStep = OnboardingStep.OPT_IN;
+          })
+        )
+        .subscribe();
     }
     if (this.currentStep === OnboardingStep.OPT_IN) {
-      this.spenderOnboardingService.skipSmsOptInStep();
+      this.onboardingInProgress = false;
+      this.spenderOnboardingService
+        .skipSmsOptInStep()
+        .pipe(
+          switchMap(() => this.spenderOnboardingService.markWelcomeModalStepAsComplete()),
+          map(() => {
+            this.onboardingComplete = true;
+            this.startCountdown();
+          })
+        )
+        .subscribe();
     }
   }
 
   markStepAsComplete(): void {
     if (this.currentStep === OnboardingStep.CONNECT_CARD) {
-      this.spenderOnboardingService.markConnectCardsStepAsComplete();
+      this.spenderOnboardingService.markConnectCardsStepAsComplete().subscribe();
     }
     if (this.currentStep === OnboardingStep.OPT_IN) {
-      this.spenderOnboardingService.markSmsOptInStepAsComplete();
+      this.onboardingInProgress = false;
+      this.spenderOnboardingService
+        .markSmsOptInStepAsComplete()
+        .pipe(
+          switchMap(() => this.spenderOnboardingService.markWelcomeModalStepAsComplete()),
+          map(() => {
+            this.onboardingComplete = true;
+            this.startCountdown();
+          })
+        )
+        .subscribe();
     }
+  }
+
+  startCountdown(): void {
+    const interval = setInterval(() => {
+      if (this.redirectionCount > 0) {
+        this.redirectionCount--;
+      } else {
+        clearInterval(interval);
+        this.router.navigate(['/', 'enterprise', 'my_dashboard']);
+      }
+    }, 1000);
   }
 }
