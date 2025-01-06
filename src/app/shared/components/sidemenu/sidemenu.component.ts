@@ -240,7 +240,7 @@ export class SidemenuComponent implements OnInit {
       },
       {
         title: 'Cards',
-        isVisible: (cardOptions.length ? true : false) && !isOnboardingPending,
+        isVisible: !!cardOptions.length && !isOnboardingPending,
         icon: 'card',
         disabled: !isConnected,
         isDropdownOpen: false,
@@ -263,7 +263,7 @@ export class SidemenuComponent implements OnInit {
       },
       {
         title: 'Team',
-        isVisible: (teamOptions.length ? true : false) && !isOnboardingPending,
+        isVisible: !!teamOptions.length && !isOnboardingPending,
         icon: 'user-three',
         isDropdownOpen: false,
         disabled: !isConnected,
