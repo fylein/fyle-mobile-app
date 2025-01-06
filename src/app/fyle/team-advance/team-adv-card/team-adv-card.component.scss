@@ -37,6 +37,7 @@ $advance_rejected_color: #d50000;
     width: 16px;
     height: 16px;
     padding-top: 2px;
+    color: $black-light;
   }
 
   &--purpose {
@@ -66,7 +67,7 @@ $advance_rejected_color: #d50000;
   &--currency {
     color: $black-light;
     font-weight: 500;
-    font-size: 16px;
+    font-size: 14px;
   }
 
   &--amount {
