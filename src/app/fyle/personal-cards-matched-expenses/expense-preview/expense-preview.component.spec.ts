@@ -11,10 +11,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { ExpensePreviewShimmerComponent } from '../expense-preview-shimmer/expense-preview-shimmer.component';
 import { of } from 'rxjs';
-import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { apiExpenses1 } from 'src/app/core/mock-data/platform/v1/expense.data';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 describe('ExpensePreviewComponent', () => {
   let component: ExpensePreviewComponent;
@@ -27,7 +25,6 @@ describe('ExpensePreviewComponent', () => {
   let platform: jasmine.SpyObj<Platform>;
   let trackingService: jasmine.SpyObj<TrackingService>;
   let expensesService: jasmine.SpyObj<ExpensesService>;
-  let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
 
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
@@ -38,7 +35,6 @@ describe('ExpensePreviewComponent', () => {
     const platformSpy = jasmine.createSpyObj('Platform', ['is']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['oldExpensematchedFromPersonalCard']);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenses']);
-    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
 
     TestBed.configureTestingModule({
       declarations: [ExpensePreviewComponent, ExpensePreviewShimmerComponent],
@@ -52,7 +48,6 @@ describe('ExpensePreviewComponent', () => {
         { provide: Platform, useValue: platformSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },
         { provide: ExpensesService, useValue: expensesServiceSpy },
-        { provide: LaunchDarklyService, useValue: launchDarklyServiceSpy },
       ],
     }).compileComponents();
 
@@ -64,7 +59,6 @@ describe('ExpensePreviewComponent', () => {
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
-    launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
 
     fixture = TestBed.createComponent(ExpensePreviewComponent);
     component = fixture.componentInstance;
@@ -120,13 +114,11 @@ describe('ExpensePreviewComponent', () => {
   });
 
   it('matchExpense(): should match the expenses', () => {
-    launchDarklyService.getVariation.and.returnValue(of(false));
     component.loading = true;
     const response = {
-      id: 'tx3nHShG60zq',
+      external_expense_id: 'tx3nHShG60zq',
       transaction_split_group_id: 'tx3nHShG60zq',
     };
-    const usePlatformApi = false;
     component.expenseId = 'testExpenseId';
     component.cardTxnId = 'testCardTxnId';
     personalCardsService.matchExpense.and.returnValue(of(response));
@@ -134,7 +126,7 @@ describe('ExpensePreviewComponent', () => {
     component.matchExpense();
     expect(component.loading).toBeFalsy();
 
-    expect(personalCardsService.matchExpense).toHaveBeenCalledWith('testExpenseId', 'testCardTxnId', usePlatformApi);
+    expect(personalCardsService.matchExpense).toHaveBeenCalledWith('testExpenseId', 'testCardTxnId');
     expect(modalController.dismiss).toHaveBeenCalledTimes(1);
     expect(router.navigate).toHaveBeenCalledWith(['/', 'enterprise', 'personal_cards']);
     expect(trackingService.oldExpensematchedFromPersonalCard).toHaveBeenCalledTimes(1);

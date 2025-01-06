@@ -612,13 +612,12 @@ export function TestCases4(getTestBed) {
         transactionService.upsert.and.returnValue(of(personalCardTxn));
         personalCardsService.matchExpense.and.returnValue(
           of({
-            id: expectedUnflattendedTxnData3.tx.id,
+            external_expense_id: expectedUnflattendedTxnData3.tx.id,
             transaction_split_group_id: expectedUnflattendedTxnData3.tx.split_group_id,
           })
         );
         spyOn(component, 'uploadAttachments').and.returnValue(of(fileObject4));
         spyOn(component, 'showSnackBarToast');
-        const usePlatformApi = false;
         fixture.detectChanges();
 
         component.saveAndMatchWithPersonalCardTxn();
@@ -632,8 +631,7 @@ export function TestCases4(getTestBed) {
         expect(transactionService.upsert).toHaveBeenCalledTimes(1);
         expect(personalCardsService.matchExpense).toHaveBeenCalledOnceWith(
           unflattenedTransactionDataPersonalCard.tx.split_group_id,
-          platformPersonalCardTxns.data[0].id,
-          usePlatformApi
+          platformPersonalCardTxns.data[0].id
         );
         expect(component.uploadAttachments).toHaveBeenCalledOnceWith(
           unflattenedTransactionDataPersonalCard.tx.split_group_id
@@ -662,13 +660,12 @@ export function TestCases4(getTestBed) {
         transactionService.upsert.and.returnValue(of(personalCardTxn));
         personalCardsService.matchExpense.and.returnValue(
           of({
-            id: expectedUnflattendedTxnData3.tx.id,
+            external_expense_id: expectedUnflattendedTxnData3.tx.id,
             transaction_split_group_id: expectedUnflattendedTxnData3.tx.split_group_id,
           })
         );
         spyOn(component, 'uploadAttachments').and.returnValue(of(fileObject4));
         spyOn(component, 'showSnackBarToast');
-        const usePlatformApi = false;
         fixture.detectChanges();
 
         component.saveAndMatchWithPersonalCardTxn();
@@ -688,8 +685,7 @@ export function TestCases4(getTestBed) {
         expect(transactionService.upsert).toHaveBeenCalledTimes(1);
         expect(personalCardsService.matchExpense).toHaveBeenCalledOnceWith(
           unflattenedTransactionDataPersonalCard.tx.split_group_id,
-          platformPersonalCardTxns.data[0].id,
-          usePlatformApi
+          platformPersonalCardTxns.data[0].id
         );
         expect(component.uploadAttachments).toHaveBeenCalledOnceWith(
           unflattenedTransactionDataPersonalCard.tx.split_group_id
@@ -718,13 +714,12 @@ export function TestCases4(getTestBed) {
         transactionService.upsert.and.returnValue(of(personalCardTxn));
         personalCardsService.matchExpense.and.returnValue(
           of({
-            id: expectedUnflattendedTxnData3.tx.id,
+            external_expense_id: expectedUnflattendedTxnData3.tx.id,
             transaction_split_group_id: expectedUnflattendedTxnData3.tx.split_group_id,
           })
         );
         spyOn(component, 'uploadAttachments').and.returnValue(of(fileObject4));
         spyOn(component, 'showSnackBarToast');
-        const usePlatformApi = false;
         fixture.detectChanges();
 
         component.saveAndMatchWithPersonalCardTxn();
@@ -746,8 +741,7 @@ export function TestCases4(getTestBed) {
         expect(transactionService.upsert).toHaveBeenCalledTimes(1);
         expect(personalCardsService.matchExpense).toHaveBeenCalledOnceWith(
           unflattenedTransactionDataPersonalCard.tx.split_group_id,
-          platformPersonalCardTxns.data[0].id,
-          usePlatformApi
+          platformPersonalCardTxns.data[0].id
         );
         expect(component.uploadAttachments).toHaveBeenCalledOnceWith(
           unflattenedTransactionDataPersonalCard.tx.split_group_id
@@ -778,13 +772,12 @@ export function TestCases4(getTestBed) {
         transactionService.upsert.and.returnValue(of(personalCardTxn));
         personalCardsService.matchExpense.and.returnValue(
           of({
-            id: expectedUnflattendedTxnData3.tx.id,
+            external_expense_id: expectedUnflattendedTxnData3.tx.id,
             transaction_split_group_id: expectedUnflattendedTxnData3.tx.split_group_id,
           })
         );
         spyOn(component, 'uploadAttachments').and.returnValue(of(fileObject4));
         spyOn(component, 'showSnackBarToast');
-        const usePlatformApi = false;
         fixture.detectChanges();
 
         component.saveAndMatchWithPersonalCardTxn();
@@ -795,8 +788,7 @@ export function TestCases4(getTestBed) {
         expect(transactionService.upsert).toHaveBeenCalledTimes(1);
         expect(personalCardsService.matchExpense).toHaveBeenCalledOnceWith(
           unflattenedTransactionDataPersonalCard.tx.split_group_id,
-          platformPersonalCardTxns.data[0].id,
-          usePlatformApi
+          platformPersonalCardTxns.data[0].id
         );
         expect(component.uploadAttachments).toHaveBeenCalledOnceWith(
           unflattenedTransactionDataPersonalCard.tx.split_group_id
@@ -827,13 +819,12 @@ export function TestCases4(getTestBed) {
         transactionService.upsert.and.returnValue(of(unflattenedTransactionDataPersonalCard.tx));
         personalCardsService.matchExpense.and.returnValue(
           of({
-            id: expectedUnflattendedTxnData3.tx.id,
+            external_expense_id: expectedUnflattendedTxnData3.tx.id,
             transaction_split_group_id: expectedUnflattendedTxnData3.tx.split_group_id,
           })
         );
         spyOn(component, 'uploadAttachments').and.returnValue(of(fileObject4));
         spyOn(component, 'showSnackBarToast');
-        const usePlatformApi = false;
         fixture.detectChanges();
 
         component.saveAndMatchWithPersonalCardTxn();
@@ -844,8 +835,7 @@ export function TestCases4(getTestBed) {
         expect(transactionService.upsert).toHaveBeenCalledOnceWith(unflattenedTransactionDataPersonalCard.tx);
         expect(personalCardsService.matchExpense).toHaveBeenCalledOnceWith(
           unflattenedTransactionDataPersonalCard.tx.split_group_id,
-          platformPersonalCardTxns.data[0].id,
-          usePlatformApi
+          platformPersonalCardTxns.data[0].id
         );
         expect(component.uploadAttachments).toHaveBeenCalledOnceWith(
           unflattenedTransactionDataPersonalCard.tx.split_group_id

@@ -22,7 +22,7 @@ import {
   tasksQueryParamsWithFiltersData3,
 } from 'src/app/core/mock-data/get-tasks-query-params-with-filters.data';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
-import { apiPersonalCardTxnsRes, platformPersonalCardTxns } from 'src/app/core/mock-data/personal-card-txns.data';
+import { platformPersonalCardTxns } from 'src/app/core/mock-data/personal-card-txns.data';
 import { linkedAccounts } from 'src/app/core/mock-data/personal-cards.data';
 import { selectedFilters1, selectedFilters2 } from 'src/app/core/mock-data/selected-filters.data';
 import { snackbarPropertiesRes6, snackbarPropertiesRes7 } from 'src/app/core/mock-data/snackbar-properties.data';
@@ -41,7 +41,6 @@ import { ExpensePreviewComponent } from '../personal-cards-matched-expenses/expe
 import { DateRangeModalComponent } from './date-range-modal/date-range-modal.component';
 import { PersonalCardsPage } from './personal-cards.page';
 import { PersonalCardFilter } from 'src/app/core/models/personal-card-filters.model';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { platformPersonalCardTxnExpenseSuggestionsRes } from 'src/app/core/mock-data/personal-card-txn-expense-suggestions.data';
 import { PlatformPersonalCardTxnState } from 'src/app/core/models/platform/platform-personal-card-txn-state.enum';
 
@@ -62,7 +61,6 @@ describe('PersonalCardsPage', () => {
   let spinnerDialog: jasmine.SpyObj<SpinnerDialog>;
   let trackingService: jasmine.SpyObj<TrackingService>;
   let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
-  let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
 
   beforeEach(waitForAsync(() => {
     const personalCardsServiceSpy = jasmine.createSpyObj('PersonalCardsService', [
@@ -103,7 +101,6 @@ describe('PersonalCardsPage', () => {
       'transactionsHiddenOnPersonalCards',
     ]);
     const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
-    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
 
     TestBed.configureTestingModule({
       declarations: [PersonalCardsPage],
@@ -186,10 +183,6 @@ describe('PersonalCardsPage', () => {
           provide: ModalPropertiesService,
           useValue: modalPropertiesSpy,
         },
-        {
-          provide: LaunchDarklyService,
-          useValue: launchDarklyServiceSpy,
-        },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -210,9 +203,7 @@ describe('PersonalCardsPage', () => {
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
     activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
-    launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
 
-    launchDarklyService.getVariation.and.returnValue(of(false));
     personalCardsService.getPersonalCardsCount.and.returnValue(of(2));
     personalCardsService.getPersonalCards.and.returnValue(of(linkedAccounts));
     personalCardsService.isMfaEnabled.and.returnValue(of(false));
@@ -272,7 +263,6 @@ describe('PersonalCardsPage', () => {
 
     describe('postAccounts():', () => {
       it('should post account data with 1 card', fakeAsync(() => {
-        const usePlatformApi = false;
         const message = '1 card successfully added to Fyle!';
         const props = {
           data: {
@@ -284,16 +274,16 @@ describe('PersonalCardsPage', () => {
         };
         loaderService.showLoader.and.resolveTo();
         loaderService.hideLoader.and.resolveTo();
-        personalCardsService.postBankAccounts.and.returnValue(of(['card123']));
+        personalCardsService.postBankAccounts.and.returnValue(of(linkedAccounts));
         spyOn(component.loadCardData$, 'next');
         snackbarProperties.setSnackbarProperties.and.returnValue(props);
 
-        component.postAccounts(['id123']);
+        component.postAccounts();
         tick(500);
 
         expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
         expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-        expect(personalCardsService.postBankAccounts).toHaveBeenCalledOnceWith(['id123'], usePlatformApi);
+        expect(personalCardsService.postBankAccounts).toHaveBeenCalledTimes(1);
         expect(component.loadCardData$.next).toHaveBeenCalledOnceWith({});
         expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
           ...props,
@@ -304,7 +294,6 @@ describe('PersonalCardsPage', () => {
       }));
 
       it('should post account data for multiple cards', fakeAsync(() => {
-        const usePlatformApi = false;
         const message = '2 cards successfully added to Fyle!';
         const props = {
           data: {
@@ -316,16 +305,16 @@ describe('PersonalCardsPage', () => {
         };
         loaderService.showLoader.and.resolveTo();
         loaderService.hideLoader.and.resolveTo();
-        personalCardsService.postBankAccounts.and.returnValue(of(['card123', 'card456']));
+        personalCardsService.postBankAccounts.and.returnValue(of(linkedAccounts));
         spyOn(component.loadCardData$, 'next');
         snackbarProperties.setSnackbarProperties.and.returnValue(props);
 
-        component.postAccounts(['id123']);
+        component.postAccounts();
         tick(500);
 
         expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
         expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-        expect(personalCardsService.postBankAccounts).toHaveBeenCalledOnceWith(['id123'], usePlatformApi);
+        expect(personalCardsService.postBankAccounts).toHaveBeenCalledTimes(1);
         expect(component.loadCardData$.next).toHaveBeenCalledOnceWith({});
         expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
           ...props,
@@ -483,7 +472,7 @@ describe('PersonalCardsPage', () => {
       component.selectionMode = true;
       component.selectedAccount = linkedAccounts[0];
       spyOn(component, 'switchSelectionMode');
-      personalCardsService.syncTransactions.and.returnValue(of(apiPersonalCardTxnsRes));
+      personalCardsService.syncTransactions.and.returnValue(of({ data: {} }));
 
       component.fetchNewTransactions();
 
@@ -911,7 +900,7 @@ describe('PersonalCardsPage', () => {
         expect(inAppBrowserService.create).toHaveBeenCalledOnceWith(mockHtmlContent, '_blank', 'location=no');
         expect(inappbrowserSpy.on).toHaveBeenCalledTimes(2);
         expect(window.decodeURIComponent).toHaveBeenCalledTimes(1);
-        expect(component.postAccounts).toHaveBeenCalledOnceWith(['tx3qHxFNgRcZ']);
+        expect(component.postAccounts).toHaveBeenCalledOnceWith();
         expect(inappbrowserSpy.close).toHaveBeenCalled();
       }));
 
@@ -1048,7 +1037,7 @@ describe('PersonalCardsPage', () => {
     it('should load personal cards without params', (done) => {
       activatedRoute.snapshot.queryParams.filters = null;
       personalCardsService.getBankTransactionsCount.and.returnValue(of(0));
-      personalCardsService.getBankTransactions.and.returnValue(of({ ...apiPersonalCardTxnsRes, data: [] }));
+      personalCardsService.getBankTransactions.and.returnValue(of({ ...platformPersonalCardTxns, data: [] }));
 
       component.loadPersonalTxns().subscribe((res) => {
         expect(res).toEqual([]);
@@ -1084,12 +1073,6 @@ describe('PersonalCardsPage', () => {
       component.ngAfterViewInit();
       expect(component.loadCardData$).toBeDefined();
       expect(component.loadCardData$.getValue()).toEqual({});
-    });
-
-    it('should set usePlatformApi based on feature flag', () => {
-      launchDarklyService.getVariation.and.returnValue(of(true));
-      component.ngAfterViewInit();
-      expect(component.usePlatformApi).toBeTrue();
     });
 
     it('should generate filter pills based on filters', () => {
