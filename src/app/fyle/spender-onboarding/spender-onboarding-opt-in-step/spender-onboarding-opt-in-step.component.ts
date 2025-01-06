@@ -135,7 +135,7 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
     this.fg = this.fb.group({});
     this.fg.addControl('mobile_number', this.fb.control('', [Validators.required, Validators.maxLength(10)]));
     this.spenderOnboardingService.getOnboardingStatus().subscribe((onboardingStatus) => {
-      if (onboardingStatus.step_connect_cards_is_skipped === false) {
+      if (onboardingStatus.step_connect_cards_is_skipped === true) {
         this.showGoBackCta = true;
       }
     });
