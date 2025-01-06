@@ -1,7 +1,17 @@
 <ion-content class="sign-in no-keyboard-adjust" scroll-y="false">
   <div class="sign-in__select-sign-in" *ngIf="currentStep === signInPageState.SELECT_SIGN_IN_METHOD">
     <div class="sign-in__video-container">
-      <img src="/assets/images/mobile-onboarding.gif" />
+      <video
+        class="sign-in__video-container__video"
+        width="100%"
+        height="auto"
+        onloadedmetadata="this.muted = true"
+        oncanplay="this.play()"
+        poster="../../../assets/images/video-default-background.png"
+        loop
+      >
+        <source src="/assets/videos/mobile-onboarding.webm" type="video/webm" />
+      </video>
     </div>
     <div class="sign-in__cta-container">
       <ion-button (click)="changeState(signInPageState.ENTER_EMAIL)" class="btn-primary" fill="clear">
