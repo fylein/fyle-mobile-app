@@ -25,11 +25,11 @@
         </div>
 
         <div class="expenses-card--vendor">
-          {{ expense.vendor }}
+          {{ expense.merchant }}
         </div>
 
         <div class="expenses-card--date">
-          {{ expense.txn_dt | date : 'MMM dd, YYYY' }}
+          {{ expense.spent_at | date : 'MMM dd, YYYY' }}
         </div>
 
         <div class="d-flex">

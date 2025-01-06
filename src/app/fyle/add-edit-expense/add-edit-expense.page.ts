@@ -63,7 +63,7 @@ import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { OutboxQueue } from 'src/app/core/models/outbox-queue.model';
 import { ParsedReceipt } from 'src/app/core/models/parsed_receipt.model';
 import { ParsedResponse } from 'src/app/core/models/parsed_response.model';
-import { PersonalCardTxn } from 'src/app/core/models/personal_card_txn.model';
+import { PlatformPersonalCardTxn } from 'src/app/core/models/platform/platform-personal-card-txn.model';
 import { ExpensePolicy } from 'src/app/core/models/platform/platform-expense-policy.model';
 import { FinalExpensePolicyState } from 'src/app/core/models/platform/platform-final-expense-policy-state.model';
 import { IndividualExpensePolicyState } from 'src/app/core/models/platform/platform-individual-expense-policy-state.model';
@@ -1359,7 +1359,7 @@ export class AddEditExpensePage implements OnInit {
             (JSON.parse(this.activatedRoute.snapshot.params.bankTxn as string) as CCCExpUnflattened);
           const personalCardTxn =
             this.activatedRoute.snapshot.params.personalCardTxn &&
-            (JSON.parse(this.activatedRoute.snapshot.params.personalCardTxn as string) as PersonalCardTxn);
+            (JSON.parse(this.activatedRoute.snapshot.params.personalCardTxn as string) as PlatformPersonalCardTxn);
           this.isExpenseBankTxn = !!bankTxn;
           const projectEnabled = orgSettings.projects && orgSettings.projects.enabled;
           let etxn: Partial<UnflattenedTransaction>;
@@ -1411,12 +1411,12 @@ export class AddEditExpensePage implements OnInit {
           } else if (personalCardTxn) {
             etxn = {
               tx: {
-                txn_dt: new Date(personalCardTxn.btxn_transaction_dt),
+                txn_dt: new Date(personalCardTxn.spent_at),
                 source: 'MOBILE',
-                currency: personalCardTxn.btxn_currency,
-                amount: personalCardTxn.btxn_amount,
-                vendor: personalCardTxn.btxn_vendor,
-                purpose: personalCardTxn.btxn_description,
+                currency: personalCardTxn.currency,
+                amount: personalCardTxn.amount,
+                vendor: personalCardTxn.merchant,
+                purpose: personalCardTxn.description,
                 skip_reimbursement: false,
                 locations: [],
                 num_files: 0,
@@ -5063,19 +5063,13 @@ export class AddEditExpensePage implements OnInit {
         switchMap(({ etxn }: { etxn: Partial<UnflattenedTransaction> }) => {
           const personalCardTxn =
             this.activatedRoute.snapshot.params.personalCardTxn &&
-            (JSON.parse(this.activatedRoute.snapshot.params.personalCardTxn as string) as PersonalCardTxn);
-          const externalExpenseId = personalCardTxn.btxn_id;
+            (JSON.parse(this.activatedRoute.snapshot.params.personalCardTxn as string) as PlatformPersonalCardTxn);
+          const externalExpenseId = personalCardTxn.id;
           return this.transactionService.upsert(etxn.tx as Transaction).pipe(
             switchMap((txn) =>
-              this.launchDarklyService
-                .getVariation('personal_cards_platform', false)
-                .pipe(
-                  switchMap((usePlatformApi) =>
-                    this.personalCardsService
-                      .matchExpense(txn.split_group_id, externalExpenseId, usePlatformApi)
-                      .pipe(switchMap(() => this.uploadAttachments(txn.split_group_id)))
-                  )
-                )
+              this.personalCardsService
+                .matchExpense(txn.split_group_id, externalExpenseId)
+                .pipe(switchMap(() => this.uploadAttachments(txn.split_group_id)))
             ),
             finalize(() => {
               this.saveExpenseLoader = false;
