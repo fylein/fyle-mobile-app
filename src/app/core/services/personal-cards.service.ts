@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { YodleeAccessToken } from '../models/yoodle-token.model';
 import { PersonalCardFilter } from '../models/personal-card-filters.model';
@@ -12,16 +12,12 @@ import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-f
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import * as dayjs from 'dayjs';
-import { ApiV2Response } from '../models/api-v2.model';
-import { PersonalCardTxn } from '../models/personal_card_txn.model';
 import { PersonalCardDateFilter } from '../models/personal-card-date-filter.model';
-import { SortFiltersParams } from '../models/sort-filters-params.model';
+import { PlatformPersonalCardFilterParams } from '../models/platform/platform-personal-card-filter-params.model';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformPersonalCard } from '../models/platform/platform-personal-card.model';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { PlatformPersonalCardTxn } from '../models/platform/platform-personal-card-txn.model';
-import { PlatformPersonalCardMatchedExpense } from '../models/platform/platform-personal-card-matched-expense.model';
-import { TxnDetail } from '../models/v2/txn-detail.model';
 import { PlatformPersonalCardQueryParams } from '../models/platform/platform-personal-card-query-params.model';
 import { PersonalCardSyncTxns } from '../models/platform/platform-personal-card-syn-txns.model';
 import { environment } from 'src/environments/environment';
@@ -38,80 +34,12 @@ export class PersonalCardsService {
     private spenderPlatformV1ApiService: SpenderPlatformV1ApiService
   ) {}
 
-  transformMatchedExpensesToTxnDetails(matchedExpenses: PlatformPersonalCardMatchedExpense[] | undefined): TxnDetail[] {
-    if (!matchedExpenses) {
-      return [];
-    }
-    return matchedExpenses.map((matchedExpense) => {
-      const txnDetail: TxnDetail = {
-        amount: matchedExpense.amount,
-        currency: matchedExpense.currency,
-        expense_number: matchedExpense.seq_num,
-        category_display_name: matchedExpense.category_display_name,
-        id: matchedExpense.id,
-        num_files: matchedExpense.no_of_files,
-        purpose: matchedExpense.purpose,
-        state: matchedExpense.state,
-        txn_dt: matchedExpense.spent_at,
-      };
-      return txnDetail;
-    });
-  }
-
-  transformPlatformPersonalCardTxn(txns: PlatformPersonalCardTxn[]): PersonalCardTxn[] {
-    return txns.map((txn) => {
-      const amount = Math.abs(txn.amount);
-      const txnType = txn.amount < 0 ? 'credit' : 'debit';
-      const txnSplitGroupId = txn.matched_expense_ids?.length > 0 ? txn.matched_expense_ids[0] : null;
-      const personalCardTxn: PersonalCardTxn = {
-        btxn_id: txn.id,
-        btxn_created_at: txn.created_at,
-        btxn_updated_at: txn.updated_at,
-        ba_id: txn.personal_card_id,
-        btxn_amount: amount,
-        btxn_currency: txn.currency,
-        btxn_description: txn.description,
-        btxn_external_id: txn.external_transaction_id,
-        btxn_transaction_dt: txn.spent_at,
-        btxn_orig_amount: txn.foreign_amount,
-        btxn_orig_currency: txn.foreign_currency,
-        btxn_status: txn.state,
-        btxn_vendor: txn.merchant,
-        tx_split_group_id: txnSplitGroupId,
-        btxn_transaction_type: txnType,
-        ba_account_number: 'manually add', // TODO: sumrender to handle this
-        txn_details: this.transformMatchedExpensesToTxnDetails(txn.matched_expenses),
-      };
-      return personalCardTxn;
-    });
-  }
-
-  mapPublicQueryParamsToPlatform(queryParams: {
-    btxn_status?: string;
-    ba_id?: string;
-    _search_document?: string;
-    amount?: string;
-    or?: string[];
-  }): PlatformPersonalCardQueryParams {
-    let q: string | undefined;
-    if (queryParams._search_document?.includes('fts.')) {
-      q = queryParams._search_document.split('fts.')[1];
-    }
-
-    const platformQueryParams: PlatformPersonalCardQueryParams = {
-      state: queryParams.btxn_status,
-      personal_card_id: queryParams.ba_id,
-      amount: queryParams.amount,
-      or: queryParams.or,
-      q,
-    };
-
-    return Object.entries(platformQueryParams).reduce((filteredParams, [key, value]) => {
-      if (value !== undefined) {
-        filteredParams[key as keyof PlatformPersonalCardQueryParams] = value as string & string[];
-      }
-      return filteredParams;
-    }, {} as PlatformPersonalCardQueryParams);
+  addTransactionTypeToTxns(txns: PlatformPersonalCardTxn[]): PlatformPersonalCardTxn[] {
+    return txns.map((txn) => ({
+      ...txn,
+      transactionType: txn.amount < 0 ? 'credit' : 'debit',
+      amount: Math.abs(txn.amount),
+    }));
   }
 
   getPersonalCards(): Observable<PlatformPersonalCard[]> {
@@ -120,7 +48,7 @@ export class PersonalCardsService {
       .pipe(map((res) => res.data));
   }
 
-  getPlatformToken(): Observable<YodleeAccessToken> {
+  getToken(): Observable<YodleeAccessToken> {
     return this.spenderPlatformV1ApiService
       .post<PlatformApiResponse<Omit<YodleeAccessToken, 'fast_link_url'>>>('/personal_cards/access_token')
       .pipe(
@@ -134,17 +62,7 @@ export class PersonalCardsService {
       );
   }
 
-  getToken(usePlatformApi: boolean): Observable<YodleeAccessToken> {
-    if (usePlatformApi) {
-      return this.getPlatformToken();
-    }
-    return this.expenseAggregationService.get('/yodlee/personal/access_token') as Observable<YodleeAccessToken>;
-  }
-
-  isMfaEnabled(personalCardId: string, usePlatformApi): Observable<boolean> {
-    if (!usePlatformApi) {
-      return of(false); // TODO sumrender: hack, this will be removed with old personalCards removal in next pr;
-    }
+  isMfaEnabled(personalCardId: string): Observable<boolean> {
     const payload = {
       data: {
         id: personalCardId,
@@ -172,20 +90,10 @@ export class PersonalCardsService {
     return pageContentUrl;
   }
 
-  postBankAccountsPlatform(): Observable<PlatformPersonalCard[]> {
+  postBankAccounts(): Observable<PlatformPersonalCard[]> {
     return this.spenderPlatformV1ApiService
       .post<PlatformApiResponse<PlatformPersonalCard[]>>('/personal_cards', { data: {} })
       .pipe(map((res) => res.data));
-  }
-
-  postBankAccounts(requestIds: string[], usePlatformApi: boolean): Observable<string[] | PlatformPersonalCard[]> {
-    if (usePlatformApi) {
-      return this.postBankAccountsPlatform();
-    }
-    return this.expenseAggregationService.post('/yodlee/personal/bank_accounts', {
-      aggregator: 'yodlee',
-      request_ids: requestIds,
-    }) as Observable<string[]>;
   }
 
   getPersonalCardsCount(): Observable<number> {
@@ -216,18 +124,18 @@ export class PersonalCardsService {
       .pipe(map((response) => response.data));
   }
 
-  getBankTransactionsPlatform(
+  getBankTransactions(
     config: Partial<{
       offset: number;
       limit: number;
       order: string;
-      queryParams: { state?: string; personal_card_id?: string };
+      queryParams: Partial<PlatformPersonalCardQueryParams>;
     }> = {
       offset: 0,
       limit: 10,
       queryParams: {},
     }
-  ): Observable<Partial<ApiV2Response<PersonalCardTxn>>> {
+  ): Observable<PlatformApiResponse<PlatformPersonalCardTxn[]>> {
     return this.spenderPlatformV1ApiService
       .get<PlatformApiResponse<PlatformPersonalCardTxn[]>>('/personal_card_transactions', {
         params: {
@@ -237,57 +145,14 @@ export class PersonalCardsService {
         },
       })
       .pipe(
-        map((res) => {
-          const transformedTxns = this.transformPlatformPersonalCardTxn(res.data);
-          return {
-            ...res,
-            data: transformedTxns,
-          };
-        })
+        map((res) => ({
+          ...res,
+          data: this.addTransactionTypeToTxns(res.data),
+        }))
       );
   }
 
-  getBankTransactions(
-    config: Partial<{
-      offset: number;
-      limit: number;
-      order: string;
-      queryParams: { btxn_status?: string; ba_id?: string };
-    }> = {
-      offset: 0,
-      limit: 10,
-      queryParams: {},
-    },
-    usePlatformApi = false
-  ): Observable<Partial<ApiV2Response<PersonalCardTxn>>> {
-    if (usePlatformApi) {
-      const transformedQueryParams = this.mapPublicQueryParamsToPlatform(config.queryParams);
-      const platformConfig = {
-        ...config,
-        queryParams: transformedQueryParams,
-      };
-      return this.getBankTransactionsPlatform(platformConfig);
-    }
-    return this.apiv2Service.get<
-      PersonalCardTxn,
-      {
-        params: Partial<{
-          offset: number;
-          limit: number;
-          order: string;
-          queryParams: { btxn_status?: string; ba_id?: string };
-        }>;
-      }
-    >('/personal_bank_transactions', {
-      params: {
-        limit: config.limit,
-        offset: config.offset,
-        ...config.queryParams,
-      },
-    });
-  }
-
-  matchExpensePlatform(
+  matchExpense(
     transactionSplitGroupId: string,
     externalExpenseId: string
   ): Observable<{
@@ -310,37 +175,16 @@ export class PersonalCardsService {
       );
   }
 
-  matchExpense(
-    transactionSplitGroupId: string,
-    externalExpenseId: string,
-    usePlatformApi = false
-  ): Observable<{
-    external_expense_id?: string;
-    transaction_split_group_id: string;
-  }> {
-    if (usePlatformApi) {
-      return this.matchExpensePlatform(transactionSplitGroupId, externalExpenseId);
-    }
-    return this.apiService.post('/transactions/external_expense/match', {
-      transaction_split_group_id: transactionSplitGroupId,
-      external_expense_id: externalExpenseId,
-    });
-  }
-
-  getBankTransactionsCount(
-    queryParams: { btxn_status?: string; ba_id?: string },
-    usePlatformApi = false
-  ): Observable<number> {
+  getBankTransactionsCount(queryParams: Partial<PlatformPersonalCardQueryParams>): Observable<number> {
     const params = {
       limit: 10,
       offset: 0,
       queryParams,
     };
-
-    return this.getBankTransactions(params, usePlatformApi).pipe(map((res) => res.count));
+    return this.getBankTransactions(params).pipe(map((res) => res.count));
   }
 
-  syncTransactionsPlatform(accountId: string): Observable<PlatformApiResponse<PersonalCardSyncTxns>> {
+  syncTransactions(accountId: string): Observable<PlatformApiResponse<PersonalCardSyncTxns>> {
     const payload = {
       data: {
         personal_card_id: accountId,
@@ -349,19 +193,7 @@ export class PersonalCardsService {
     return this.spenderPlatformV1ApiService.post('/personal_card_transactions', payload);
   }
 
-  syncTransactions(
-    accountId: string,
-    usePlatformApi: boolean
-  ): Observable<ApiV2Response<PersonalCardTxn> | PlatformApiResponse<PersonalCardSyncTxns>> {
-    if (usePlatformApi) {
-      return this.syncTransactionsPlatform(accountId);
-    }
-    return this.expenseAggregationService.post(`/bank_accounts/${accountId}/sync`, {
-      owner_type: 'org_user',
-    }) as Observable<ApiV2Response<PersonalCardTxn>>;
-  }
-
-  hideTransactionsPlatform(txnIds: string[]): Observable<number> {
+  hideTransactions(txnIds: string[]): Observable<number> {
     const payload = {
       data: txnIds.map((txnId) => ({ id: txnId })),
     };
@@ -370,54 +202,45 @@ export class PersonalCardsService {
       .pipe(map(() => txnIds.length));
   }
 
-  hideTransactions(txnIds: string[], usePlatformApi = false): Observable<number> {
-    if (usePlatformApi) {
-      return this.hideTransactionsPlatform(txnIds);
-    }
-    return this.expenseAggregationService
-      .post('/bank_transactions/hide/bulk', {
-        bank_transaction_ids: txnIds,
-      })
-      .pipe(map(() => txnIds.length));
-  }
-
   generateDateParams(
     data: { range: string; endDate?: string; startDate?: string },
-    currentParams: Partial<SortFiltersParams>,
-    usePlatformApi = false
-  ): Partial<SortFiltersParams> {
-    const propertyName = usePlatformApi ? 'spent_at' : 'btxn_transaction_dt';
+    currentParams: Partial<PlatformPersonalCardFilterParams>
+  ): Partial<PlatformPersonalCardFilterParams> {
+    let dateRangeQuickFilter = '';
     if (data.range === 'This Month') {
       const thisMonth = this.dateService.getThisMonthRange();
-      currentParams.queryParams.or = `(and(${propertyName}.gte.${thisMonth.from.toISOString()},${propertyName}.lt.${thisMonth.to.toISOString()}))`;
+      dateRangeQuickFilter = `(and(spent_at.gte.${thisMonth.from.toISOString()},spent_at.lt.${thisMonth.to.toISOString()}))`;
     }
 
     if (data.range === 'Last Month') {
       const lastMonth = this.dateService.getLastMonthRange();
-      currentParams.queryParams.or = `(and(${propertyName}.gte.${lastMonth.from.toISOString()},${propertyName}.lt.${lastMonth.to.toISOString()}))`;
+      dateRangeQuickFilter = `(and(spent_at.gte.${lastMonth.from.toISOString()},spent_at.lt.${lastMonth.to.toISOString()}))`;
     }
 
     if (data.range === 'Last 30 Days') {
       const last30Days = this.dateService.getLastDaysRange(30);
-      currentParams.queryParams.or = `(and(${propertyName}.gte.${last30Days.from.toISOString()},${propertyName}.lt.${last30Days.to.toISOString()}))`;
+      dateRangeQuickFilter = `(and(spent_at.gte.${last30Days.from.toISOString()},spent_at.lt.${last30Days.to.toISOString()}))`;
     }
 
     if (data.range === 'Last 60 Days') {
       const last60Days = this.dateService.getLastDaysRange(60);
-      currentParams.queryParams.or = `(and(${propertyName}.gte.${last60Days.from.toISOString()},${propertyName}.lt.${last60Days.to.toISOString()}))`;
+      dateRangeQuickFilter = `(and(spent_at.gte.${last60Days.from.toISOString()},spent_at.lt.${last60Days.to.toISOString()}))`;
     }
 
     if (data.range === 'All Time') {
       const last90Days = this.dateService.getLastDaysRange(90);
-      currentParams.queryParams.or = `(and(${propertyName}.gte.${last90Days.from.toISOString()},${propertyName}.lt.${last90Days.to.toISOString()}))`;
+      dateRangeQuickFilter = `(and(spent_at.gte.${last90Days.from.toISOString()},spent_at.lt.${last90Days.to.toISOString()}))`;
     }
 
     if (data.range === 'Custom Range') {
-      currentParams.queryParams.or = `(and(${propertyName}.gte.${new Date(
-        data.startDate
-      ).toISOString()},${propertyName}.lt.${new Date(data.endDate).toISOString()}))`;
+      dateRangeQuickFilter = `(and(spent_at.gte.${new Date(data.startDate).toISOString()},spent_at.lt.${new Date(
+        data.endDate
+      ).toISOString()}))`;
     }
-
+    if (!currentParams.queryParams) {
+      currentParams.queryParams = {};
+    }
+    currentParams.queryParams.or = [dateRangeQuickFilter];
     return currentParams;
   }
 
@@ -488,16 +311,15 @@ export class PersonalCardsService {
   }
 
   generateTxnDateParams(
-    newQueryParams: { or: string[] },
+    newQueryParams: Partial<PlatformPersonalCardQueryParams>,
     filters: Partial<PersonalCardFilter>,
-    type: string,
-    usePlatformApi = false
+    type: string
   ): void {
     let queryType: string;
     if (type === 'createdOn') {
-      queryType = usePlatformApi ? 'created_at' : 'btxn_created_at';
+      queryType = 'created_at';
     } else {
-      queryType = usePlatformApi ? 'updated_at' : 'btxn_updated_at';
+      queryType = 'updated_at';
     }
     if (filters[type]) {
       const dateFilter = filters[type] as PersonalCardDateFilter;
@@ -529,7 +351,7 @@ export class PersonalCardsService {
   }
 
   generateCustomDateParams(
-    newQueryParams: { ba_id?: string; btxn_status?: string; or?: string[] },
+    newQueryParams: Partial<PlatformPersonalCardQueryParams>,
     filters: Partial<PersonalCardFilter>,
     type: string,
     queryType: string
@@ -549,22 +371,13 @@ export class PersonalCardsService {
   }
 
   generateCreditParams(
-    newQueryParams: { ba_id?: string; btxn_status?: string; or?: string[]; amount?: string },
-    filters: Partial<PersonalCardFilter>,
-    usePlatformApi = false
+    newQueryParams: Partial<PlatformPersonalCardQueryParams>,
+    filters: Partial<PersonalCardFilter>
   ): void {
-    if (usePlatformApi && filters.transactionType) {
+    if (filters.transactionType) {
       const txnType = filters.transactionType.toLowerCase();
       const amountParam = txnType === 'credit' ? 'lte.0' : 'gte.0';
       newQueryParams.amount = amountParam;
-    } else {
-      const transactionTypeMap: { [key: string]: string } = {
-        credit: '(btxn_transaction_type.in.(credit))',
-        debit: '(btxn_transaction_type.in.(debit))',
-      };
-      if (filters.transactionType) {
-        newQueryParams.or.push(transactionTypeMap[filters.transactionType.toLowerCase()]);
-      }
     }
   }
 

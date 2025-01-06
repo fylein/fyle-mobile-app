@@ -4,8 +4,9 @@ import { Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
 import { ExpensePreviewComponent } from './expense-preview/expense-preview.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
-import { PersonalCardTxn } from 'src/app/core/models/personal_card_txn.model';
+import { PlatformPersonalCardTxn } from 'src/app/core/models/platform/platform-personal-card-txn.model';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
+import { PlatformPersonalCard } from 'src/app/core/models/platform/platform-personal-card.model';
 @Component({
   selector: 'app-personal-cards-matched-expenses',
   templateUrl: './personal-cards-matched-expenses.page.html',
@@ -16,7 +17,9 @@ export class PersonalCardsMatchedExpensesPage {
 
   navigateBack = true;
 
-  txnDetails: PersonalCardTxn;
+  personalCard: PlatformPersonalCard;
+
+  txnDetails: PlatformPersonalCardTxn;
 
   expenseSuggestions: Expense[];
 
@@ -25,7 +28,8 @@ export class PersonalCardsMatchedExpensesPage {
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService
   ) {
-    this.txnDetails = this.router.getCurrentNavigation().extras.state.txnDetails as PersonalCardTxn;
+    this.personalCard = this.router.getCurrentNavigation().extras.state.personalCard as PlatformPersonalCard;
+    this.txnDetails = this.router.getCurrentNavigation().extras.state.txnDetails as PlatformPersonalCardTxn;
     this.expenseSuggestions = this.router.getCurrentNavigation().extras.state.expenseSuggestions as Expense[];
   }
 
@@ -43,8 +47,8 @@ export class PersonalCardsMatchedExpensesPage {
       component: ExpensePreviewComponent,
       componentProps: {
         expenseId,
-        card: this.txnDetails.ba_account_number,
-        cardTxnId: this.txnDetails.btxn_id,
+        card: this.personalCard.card_number,
+        cardTxnId: this.txnDetails.id,
         type: 'match',
       },
       ...this.modalProperties.getModalDefaultProperties('expense-preview-modal'),

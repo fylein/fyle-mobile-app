@@ -9,6 +9,7 @@ import { FyCurrencyPipe } from '../../pipes/fy-currency.pipe';
 import { CurrencyPipe } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { platformPersonalCardTxns } from 'src/app/core/mock-data/personal-card-txns.data';
 
 describe('PersonalCardTransactionComponent', () => {
   let component: PersonalCardTransactionComponent;
@@ -31,8 +32,8 @@ describe('PersonalCardTransactionComponent', () => {
 
     fixture = TestBed.createComponent(PersonalCardTransactionComponent);
     component = fixture.componentInstance;
-    component.txnId = 'btxn4xVrxJS1Kz';
-    component.selectedElements = ['btxn4xVrxJS1Kz', 'btxnspKO99BGrB'];
+    component.transaction = platformPersonalCardTxns.data[0];
+    component.selectedElements = [platformPersonalCardTxns.data[0].id, platformPersonalCardTxns.data[1].id];
     fixture.detectChanges();
   }));
 
@@ -48,15 +49,13 @@ describe('PersonalCardTransactionComponent', () => {
     });
 
     it('should set the showDt property to true when the transaction dates are different', () => {
-      component.txnDate = '2023-02-08T00:00:00.000Z';
-      component.previousTxnDate = '1970-01-01T00:00:00.000Z';
+      component.previousTxnDate = new Date('1970-01-01T00:00:00.000Z');
       component.ngOnInit();
       expect(component.showDt).toBeTrue();
     });
 
     it('should set the showDt property to false when the transaction dates are the same', () => {
-      component.txnDate = '2023-02-16T00:00:00.000Z';
-      component.previousTxnDate = '2023-02-16T00:00:00.000Z';
+      component.previousTxnDate = new Date(platformPersonalCardTxns.data[0].spent_at);
       component.ngOnInit();
       expect(component.showDt).toBeFalse();
     });
@@ -65,7 +64,6 @@ describe('PersonalCardTransactionComponent', () => {
   it('should set the multi slect mode to true when not enabled', () => {
     const emitSpy = spyOn(component.setMultiselectMode, 'emit');
     component.isSelectionModeEnabled = false;
-    component.txnId = 'btxn4xVrxJS1Kz';
     component.onSetMultiselectMode();
     expect(emitSpy).toHaveBeenCalledTimes(1);
   });
@@ -73,30 +71,27 @@ describe('PersonalCardTransactionComponent', () => {
   it('should enable card selection when transaction is tapped', () => {
     const emitSpy = spyOn(component.cardClickedForSelection, 'emit');
     component.isSelectionModeEnabled = true;
-    component.txnId = 'btxn4xVrxJS1Kz';
     component.onTapTransaction();
     expect(emitSpy).toHaveBeenCalledTimes(1);
   });
 
   describe('isSelected():', () => {
     it('should return true when the transaction is selected', () => {
-      component.selectedElements = ['btxn4xVrxJS1Kz', 'btxnspKO99BGrB'];
       component.selectAll = true;
       expect(component.isSelected).toBeTrue();
     });
 
     it('should return false when the transaction is not selected', () => {
-      component.txnId = 'some-other-txn-id';
+      component.transaction = platformPersonalCardTxns.data[2];
       expect(component.isSelected).toBeFalse();
     });
   });
 
   it('should display the date in the correct format', () => {
     component.showDt = true;
-    component.txnDate = '2023-04-19T00:00:00Z';
     fixture.detectChanges();
     const dateElement = getElementBySelector(fixture, '.personal-card-transaction--date');
-    expect(getTextContent(dateElement)).toEqual('Apr 19, 2023');
+    expect(getTextContent(dateElement)).toEqual('Sep 22, 2024');
   });
 
   it('should display the "Create expense" button for INITIALIZED status', () => {
@@ -122,23 +117,20 @@ describe('PersonalCardTransactionComponent', () => {
 
   it('should display the currency, amount, and type', () => {
     component.currency = 'USD';
-    component.amount = 123678965.45;
-    component.type = 'debit';
     fixture.detectChanges();
     const currencyElement = getElementBySelector(fixture, '.personal-card-transaction--currency');
     expect(getTextContent(currencyElement)).toEqual('USD');
 
     const amountElement = getElementBySelector(fixture, '.personal-card-transaction--amount');
-    expect(getTextContent(amountElement)).toEqual('123,678,965.45');
+    expect(getTextContent(amountElement)).toEqual('200.00');
 
     const typeElement = getElementBySelector(fixture, '.personal-card-transaction--type');
     expect(getTextContent(typeElement)).toEqual('DR');
   });
 
   it('should display the vendor name', () => {
-    component.description = 'Starbucks';
     fixture.detectChanges();
     const vendorElement = getElementBySelector(fixture, '.personal-card-transaction--vendor');
-    expect(getTextContent(vendorElement)).toEqual('Starbucks');
+    expect(getTextContent(vendorElement)).toEqual('mocha');
   });
 });

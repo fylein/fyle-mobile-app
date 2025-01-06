@@ -8,16 +8,10 @@ import { allFilterPills, creditTxnFilterPill, debitTxnFilterPill } from '../mock
 import { deletePersonalCardPlatformRes, platformApiLinkedAccRes } from '../mock-data/personal-cards.data';
 import { of } from 'rxjs';
 import {
-  apiPersonalCardTxnsRes,
-  matchedExpensesPlatform,
   platformMatchExpenseResponse,
   platformPersonalCardTxns,
   platformQueryParams,
   platformTxnsConfig,
-  publicQueryParams,
-  publicTxnsConfig,
-  transformedMatchedExpenses,
-  transformedPlatformPersonalCardTxns,
 } from '../mock-data/personal-card-txns.data';
 import { selectedFilters1, selectedFilters2 } from '../mock-data/selected-filters.data';
 import { filterData1 } from '../mock-data/filter.data';
@@ -28,11 +22,8 @@ import * as dayjs from 'dayjs';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformPersonalCardQueryParams } from '../models/platform/platform-personal-card-query-params.model';
 import { personalCardAccessTokenResponse } from '../mock-data/personal-cards-access-token.data';
-import {
-  platformPersonalCardTxnExpenseSuggestions,
-  platformPersonalCardTxnExpenseSuggestionsRes,
-  publicPersonalCardTxnExpenseSuggestionsRes,
-} from '../mock-data/personal-card-txn-expense-suggestions.data';
+import { platformPersonalCardTxnExpenseSuggestionsRes } from '../mock-data/personal-card-txn-expense-suggestions.data';
+import { PlatformPersonalCardFilterParams } from '../models/platform/platform-personal-card-filter-params.model';
 
 describe('PersonalCardsService', () => {
   let personalCardsService: PersonalCardsService;
@@ -84,48 +75,10 @@ describe('PersonalCardsService', () => {
   });
 
   describe('helper functions', () => {
-    describe('transformMatchedExpensesToTxnDetails', () => {
-      it('it should transform matched expenses to transaction details', () => {
-        expect(personalCardsService.transformMatchedExpensesToTxnDetails(matchedExpensesPlatform)).toEqual(
-          transformedMatchedExpenses
-        );
-      });
-
-      it('it should return an empty array if matchedExpenses is undefined', () => {
-        expect(personalCardsService.transformMatchedExpensesToTxnDetails(undefined)).toEqual([]);
-      });
-    });
-
-    it('transformPlatformPersonalCardTxn: should transform PlatformPersonalCardTxn array to PersonalCardTxn array', () => {
-      expect(personalCardsService.transformPlatformPersonalCardTxn(platformPersonalCardTxns.data)).toEqual(
-        transformedPlatformPersonalCardTxns.data
+    it('addTransactionTypeToTxns: should add transactionType property to personal card txn.', () => {
+      expect(personalCardsService.addTransactionTypeToTxns(platformPersonalCardTxns.data)).toEqual(
+        platformPersonalCardTxns.data
       );
-    });
-
-    describe('mapPublicQueryParamsToPlatform', () => {
-      it('should map public query params to platform query params', () => {
-        const result = personalCardsService.mapPublicQueryParamsToPlatform(publicQueryParams);
-        expect(result).toEqual(platformQueryParams);
-      });
-
-      it('should filter out undefined values in the query params', () => {
-        const queryParams = {
-          ba_id: undefined,
-          _search_document: 'fts.query',
-        };
-
-        const expected: PlatformPersonalCardQueryParams = {
-          q: 'query',
-        };
-
-        const result = personalCardsService.mapPublicQueryParamsToPlatform(queryParams);
-        expect(result).toEqual(expected);
-      });
-
-      it('should handle cases where _search_document is not provided', () => {
-        const result = personalCardsService.mapPublicQueryParamsToPlatform({ btxn_status: 'MATCHED' });
-        expect(result).toEqual({ state: 'MATCHED' });
-      });
     });
   });
 
@@ -176,30 +129,11 @@ describe('PersonalCardsService', () => {
   });
 
   describe('getBankTransactions()', () => {
-    it('should get bank transactions when using public api', (done) => {
-      apiV2Service.get.and.returnValue(of(apiPersonalCardTxnsRes));
-
-      const usePlatformApi = false;
-
-      personalCardsService.getBankTransactions(publicTxnsConfig, usePlatformApi).subscribe((res) => {
-        expect(res).toEqual(apiPersonalCardTxnsRes);
-        expect(apiV2Service.get).toHaveBeenCalledOnceWith('/personal_bank_transactions', {
-          params: {
-            limit: publicTxnsConfig.limit,
-            offset: publicTxnsConfig.offset,
-            ...publicTxnsConfig.queryParams,
-          },
-        });
-        done();
-      });
-    });
-
     it('should get bank transactions when using platform api', (done) => {
       spenderPlatformV1ApiService.get.and.returnValue(of(platformPersonalCardTxns));
 
-      const usePlatformApi = true;
-      personalCardsService.getBankTransactions(publicTxnsConfig, usePlatformApi).subscribe((res) => {
-        expect(res).toEqual(transformedPlatformPersonalCardTxns);
+      personalCardsService.getBankTransactions(platformTxnsConfig).subscribe((res) => {
+        expect(res).toEqual(platformPersonalCardTxns);
         expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/personal_card_transactions', {
           params: {
             limit: platformTxnsConfig.limit,
@@ -213,63 +147,20 @@ describe('PersonalCardsService', () => {
   });
 
   describe('getBankTransactionsCount', () => {
-    it('should get bank transaction count using public api', (done) => {
-      spyOn(personalCardsService, 'getBankTransactions').and.returnValue(of(apiPersonalCardTxnsRes));
-
-      const queryParams = {
-        btxn_status: 'in.(MATCHED)',
-        ba_id: 'eq.baccLesaRlyvLY',
-      };
-      const usePlatformApi = false;
-      const config = {
-        offset: 0,
-        limit: 10,
-        queryParams,
-      };
-
-      personalCardsService.getBankTransactionsCount(queryParams, usePlatformApi).subscribe((res) => {
-        expect(res).toEqual(apiPersonalCardTxnsRes.count);
-        expect(personalCardsService.getBankTransactions).toHaveBeenCalledOnceWith(config, usePlatformApi);
-        done();
-      });
-    });
-
     it('should get bank transaction count using platform api', (done) => {
-      spyOn(personalCardsService, 'getBankTransactionsPlatform').and.returnValue(
-        of(transformedPlatformPersonalCardTxns)
-      );
-
-      const usePlatformApi = true;
-      personalCardsService.getBankTransactionsCount(publicQueryParams, usePlatformApi).subscribe((res) => {
-        expect(res).toEqual(transformedPlatformPersonalCardTxns.count);
-        expect(personalCardsService.getBankTransactionsPlatform).toHaveBeenCalledTimes(1);
+      spenderPlatformV1ApiService.get.and.returnValue(of(platformPersonalCardTxns));
+      personalCardsService.getBankTransactionsCount(platformQueryParams).subscribe((res) => {
+        expect(res).toEqual(platformPersonalCardTxns.count);
         done();
       });
     });
   });
 
   describe('postBankAccounts()', () => {
-    it('should link personal cards using public api', (done) => {
-      const requestIds = ['bacc0dtQ3ESjjQ'];
-      const usePlatformApi = false;
-      expenseAggregationService.post.and.returnValue(of(requestIds));
-
-      personalCardsService.postBankAccounts(requestIds, usePlatformApi).subscribe((res) => {
-        expect(res).toEqual(requestIds);
-        expect(expenseAggregationService.post).toHaveBeenCalledOnceWith('/yodlee/personal/bank_accounts', {
-          aggregator: 'yodlee',
-          request_ids: requestIds,
-        });
-        done();
-      });
-    });
-
     it('should link personal cards using platform api', (done) => {
-      const requestIds = ['bacc0dtQ3ESjjQ'];
-      const usePlatformApi = true;
       spenderPlatformV1ApiService.post.and.returnValue(of(platformApiLinkedAccRes));
 
-      personalCardsService.postBankAccounts(requestIds, usePlatformApi).subscribe((res) => {
+      personalCardsService.postBankAccounts().subscribe((res) => {
         expect(res).toEqual(platformApiLinkedAccRes.data);
         expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/personal_cards', { data: {} });
         done();
@@ -308,127 +199,78 @@ describe('PersonalCardsService', () => {
   });
 
   describe('generateCreditParams()', () => {
-    it('should generate credit params for public API with transactionType credit', () => {
-      const queryParam = {
-        or: ['(btxn_transaction_type.in.(credit))'],
-        btxn_status: 'in.(INITIALIZED)',
-        ba_id: 'eq.baccLesaRlyvLY',
-      };
-
-      const filter = {
-        transactionType: 'Credit',
-      };
-
-      personalCardsService.generateCreditParams(queryParam, filter);
-      expect(queryParam).toEqual({
-        or: ['(btxn_transaction_type.in.(credit))', '(btxn_transaction_type.in.(credit))'],
-        btxn_status: 'in.(INITIALIZED)',
-        ba_id: 'eq.baccLesaRlyvLY',
-      });
-    });
-
-    it('should generate debit params for public API with transactionType debit', () => {
-      const queryParam = {
-        or: ['(btxn_transaction_type.in.(credit))'],
-        btxn_status: 'in.(INITIALIZED)',
-        ba_id: 'eq.baccLesaRlyvLY',
-      };
-
-      const filter = {
-        transactionType: 'Debit',
-      };
-
-      personalCardsService.generateCreditParams(queryParam, filter);
-      expect(queryParam).toEqual({
-        or: ['(btxn_transaction_type.in.(credit))', '(btxn_transaction_type.in.(debit))'],
-        btxn_status: 'in.(INITIALIZED)',
-        ba_id: 'eq.baccLesaRlyvLY',
-      });
-    });
-
     it('should generate credit params for platform API with transactionType credit', () => {
       const queryParam = {
-        or: ['(btxn_transaction_type.in.(credit))'],
-        btxn_status: 'in.(INITIALIZED)',
-        ba_id: 'eq.baccLesaRlyvLY',
+        state: 'in.(INITIALIZED)',
+        personal_card_id: 'eq.baccLesaRlyvLY',
         amount: undefined,
       };
 
       const filter = {
         transactionType: 'Credit',
       };
-      const usePlatformApi = true;
-
-      personalCardsService.generateCreditParams(queryParam, filter, usePlatformApi);
+      personalCardsService.generateCreditParams(queryParam, filter);
       expect(queryParam).toEqual({
-        or: ['(btxn_transaction_type.in.(credit))'],
-        btxn_status: 'in.(INITIALIZED)',
-        ba_id: 'eq.baccLesaRlyvLY',
+        state: 'in.(INITIALIZED)',
+        personal_card_id: 'eq.baccLesaRlyvLY',
         amount: 'lte.0',
       });
     });
 
     it('should generate debit params for platform API with transactionType debit', () => {
       const queryParam = {
-        or: ['(btxn_transaction_type.in.(credit))'],
-        btxn_status: 'in.(INITIALIZED)',
-        ba_id: 'eq.baccLesaRlyvLY',
+        state: 'in.(INITIALIZED)',
+        personal_card_id: 'eq.baccLesaRlyvLY',
         amount: undefined,
       };
 
       const filter = {
         transactionType: 'Debit',
       };
-      const usePlatformApi = true;
 
-      personalCardsService.generateCreditParams(queryParam, filter, usePlatformApi);
+      personalCardsService.generateCreditParams(queryParam, filter);
       expect(queryParam).toEqual({
-        or: ['(btxn_transaction_type.in.(credit))'],
-        btxn_status: 'in.(INITIALIZED)',
-        ba_id: 'eq.baccLesaRlyvLY',
+        state: 'in.(INITIALIZED)',
+        personal_card_id: 'eq.baccLesaRlyvLY',
         amount: 'gte.0',
       });
     });
 
     it('should not modify queryParam if transactionType is not provided', () => {
       const queryParam = {
-        or: ['(btxn_transaction_type.in.(credit))'],
-        btxn_status: 'in.(INITIALIZED)',
-        ba_id: 'eq.baccLesaRlyvLY',
+        state: 'in.(INITIALIZED)',
+        personal_card_id: 'eq.baccLesaRlyvLY',
       };
 
       const filter = {};
 
       personalCardsService.generateCreditParams(queryParam, filter);
       expect(queryParam).toEqual({
-        or: ['(btxn_transaction_type.in.(credit))'],
-        btxn_status: 'in.(INITIALIZED)',
-        ba_id: 'eq.baccLesaRlyvLY',
+        state: 'in.(INITIALIZED)',
+        personal_card_id: 'eq.baccLesaRlyvLY',
       });
     });
 
     it('should not modify queryParam if filters are empty', () => {
       const queryParam = {
-        or: ['(btxn_transaction_type.in.(credit))'],
-        btxn_status: 'in.(INITIALIZED)',
-        ba_id: 'eq.baccLesaRlyvLY',
+        state: 'in.(INITIALIZED)',
+        personal_card_id: 'eq.baccLesaRlyvLY',
       };
 
       personalCardsService.generateCreditParams(queryParam, {});
       expect(queryParam).toEqual({
-        or: ['(btxn_transaction_type.in.(credit))'],
-        btxn_status: 'in.(INITIALIZED)',
-        ba_id: 'eq.baccLesaRlyvLY',
+        state: 'in.(INITIALIZED)',
+        personal_card_id: 'eq.baccLesaRlyvLY',
       });
     });
   });
 
   describe('generateCustomDateParams():', () => {
     it(' should generate custom date params with both start and end dates', () => {
-      const queryParam = {
-        or: ['(and(btxn_created_at.gte.2023-02-22T18:30:00.000Z,btxn_created_at.lt.2023-02-27T18:30:00.000Z))'],
-        btxn_status: 'in.(INITIALIZED)',
-        ba_id: 'eq.baccLesaRlyvLY',
+      const queryParam: Partial<PlatformPersonalCardQueryParams> = {
+        or: ['(and(created_at.gte.2023-02-22T18:30:00.000Z,created_at.lt.2023-02-27T18:30:00.000Z))'],
+        state: 'in.(INITIALIZED)',
+        personal_card_id: 'eq.baccLesaRlyvLY',
       };
 
       const filter = {
@@ -440,24 +282,24 @@ describe('PersonalCardsService', () => {
       };
 
       const type = 'createdOn';
-      const queryType = 'btxn_created_at';
+      const queryType = 'created_at';
 
       personalCardsService.generateCustomDateParams(queryParam, filter, type, queryType);
       expect(queryParam).toEqual({
         or: [
-          '(and(btxn_created_at.gte.2023-02-22T18:30:00.000Z,btxn_created_at.lt.2023-02-27T18:30:00.000Z))',
-          '(and(btxn_created_at.gte.2023-02-22T18:30:00.000Z,btxn_created_at.lt.2023-02-27T18:30:00.000Z))',
+          '(and(created_at.gte.2023-02-22T18:30:00.000Z,created_at.lt.2023-02-27T18:30:00.000Z))',
+          '(and(created_at.gte.2023-02-22T18:30:00.000Z,created_at.lt.2023-02-27T18:30:00.000Z))',
         ],
-        btxn_status: 'in.(INITIALIZED)',
-        ba_id: 'eq.baccLesaRlyvLY',
+        state: 'in.(INITIALIZED)',
+        personal_card_id: 'eq.baccLesaRlyvLY',
       });
     });
 
     it(' should generate custom date params with start date', () => {
-      const queryParam = {
-        or: ['(and(btxn_created_at.gte.2023-02-22T18:30:00.000Z,btxn_created_at.lt.2023-02-27T18:30:00.000Z))'],
-        btxn_status: 'in.(INITIALIZED)',
-        ba_id: 'eq.baccLesaRlyvLY',
+      const queryParam: Partial<PlatformPersonalCardQueryParams> = {
+        or: ['(and(created_at.gte.2023-02-22T18:30:00.000Z,created_at.lt.2023-02-27T18:30:00.000Z))'],
+        state: 'in.(INITIALIZED)',
+        personal_card_id: 'eq.baccLesaRlyvLY',
       };
 
       const filter = {
@@ -468,24 +310,24 @@ describe('PersonalCardsService', () => {
       };
 
       const type = 'createdOn';
-      const queryType = 'btxn_created_at';
+      const queryType = 'created_at';
 
       personalCardsService.generateCustomDateParams(queryParam, filter, type, queryType);
       expect(queryParam).toEqual({
         or: [
-          '(and(btxn_created_at.gte.2023-02-22T18:30:00.000Z,btxn_created_at.lt.2023-02-27T18:30:00.000Z))',
-          '(and(btxn_created_at.gte.2023-02-22T18:30:00.000Z))',
+          '(and(created_at.gte.2023-02-22T18:30:00.000Z,created_at.lt.2023-02-27T18:30:00.000Z))',
+          '(and(created_at.gte.2023-02-22T18:30:00.000Z))',
         ],
-        btxn_status: 'in.(INITIALIZED)',
-        ba_id: 'eq.baccLesaRlyvLY',
+        state: 'in.(INITIALIZED)',
+        personal_card_id: 'eq.baccLesaRlyvLY',
       });
     });
 
     it(' should generate custom date params with end date', () => {
-      const queryParam = {
-        or: ['(and(btxn_created_at.gte.2023-02-22T18:30:00.000Z,btxn_created_at.lt.2023-02-27T18:30:00.000Z))'],
-        btxn_status: 'in.(INITIALIZED)',
-        ba_id: 'eq.baccLesaRlyvLY',
+      const queryParam: Partial<PlatformPersonalCardQueryParams> = {
+        or: ['(and(created_at.gte.2023-02-22T18:30:00.000Z,created_at.lt.2023-02-27T18:30:00.000Z))'],
+        state: 'in.(INITIALIZED)',
+        personal_card_id: 'eq.baccLesaRlyvLY',
       };
 
       const filter = {
@@ -496,16 +338,16 @@ describe('PersonalCardsService', () => {
       };
 
       const type = 'createdOn';
-      const queryType = 'btxn_created_at';
+      const queryType = 'created_at';
 
       personalCardsService.generateCustomDateParams(queryParam, filter, type, queryType);
       expect(queryParam).toEqual({
         or: [
-          '(and(btxn_created_at.gte.2023-02-22T18:30:00.000Z,btxn_created_at.lt.2023-02-27T18:30:00.000Z))',
-          '(and(btxn_created_at.lt.2023-02-27T18:30:00.000Z))',
+          '(and(created_at.gte.2023-02-22T18:30:00.000Z,created_at.lt.2023-02-27T18:30:00.000Z))',
+          '(and(created_at.lt.2023-02-27T18:30:00.000Z))',
         ],
-        btxn_status: 'in.(INITIALIZED)',
-        ba_id: 'eq.baccLesaRlyvLY',
+        state: 'in.(INITIALIZED)',
+        personal_card_id: 'eq.baccLesaRlyvLY',
       });
     });
   });
@@ -770,204 +612,29 @@ describe('PersonalCardsService', () => {
     expect(personalCardsService.generateFilterPills(filterData1)).toEqual(allFilterPills);
   });
 
-  describe('generateDateParams(): when using public api', () => {
-    it('should generate date params when range is this month', () => {
-      spyOn(dateService, 'getThisMonthRange').and.returnValue({
-        from: new Date('2023-02-28T18:30:00.000Z'),
-        to: new Date('2023-03-31T18:29:00.000Z'),
-      });
-      const data = {
-        range: 'This Month',
-      };
-
-      const queryParams = {
-        queryParams: {
-          or: '(and(btxn_transaction_dt.gte.2023-02-28T18:30:00.000Z,btxn_transaction_dt.lt.2023-03-31T18:29:00.000Z))',
-          btxn_status: 'in.(INITIALIZED)',
-          ba_id: 'eq.baccLesaRlyvLY',
-        },
-        pageNumber: 1,
-      };
-
-      expect(personalCardsService.generateDateParams(data, queryParams)).toEqual({
-        queryParams: {
-          or: '(and(btxn_transaction_dt.gte.2023-02-28T18:30:00.000Z,btxn_transaction_dt.lt.2023-03-31T18:29:00.000Z))',
-          btxn_status: 'in.(INITIALIZED)',
-          ba_id: 'eq.baccLesaRlyvLY',
-        },
-        pageNumber: 1,
-      });
-      expect(dateService.getThisMonthRange).toHaveBeenCalledTimes(1);
-    });
-
-    it('should generate date params when range is last month', () => {
-      spyOn(dateService, 'getLastMonthRange').and.returnValue({
-        from: new Date('2023-01-31T18:30:00.000Z'),
-        to: new Date('2023-02-28T18:29:00.000Z'),
-      });
-      const data = {
-        range: 'Last Month',
-      };
-
-      const queryParams = {
-        queryParams: {
-          or: '(and(btxn_transaction_dt.gte.2023-02-28T18:30:00.000Z,btxn_transaction_dt.lt.2023-03-31T18:29:00.000Z))',
-          btxn_status: 'in.(INITIALIZED)',
-          ba_id: 'eq.baccLesaRlyvLY',
-        },
-        pageNumber: 1,
-      };
-
-      expect(personalCardsService.generateDateParams(data, queryParams)).toEqual({
-        queryParams: {
-          or: '(and(btxn_transaction_dt.gte.2023-01-31T18:30:00.000Z,btxn_transaction_dt.lt.2023-02-28T18:29:00.000Z))',
-          btxn_status: 'in.(INITIALIZED)',
-          ba_id: 'eq.baccLesaRlyvLY',
-        },
-        pageNumber: 1,
-      });
-      expect(dateService.getLastMonthRange).toHaveBeenCalledTimes(1);
-    });
-
-    it('should generate date params when range is last 30 days', () => {
-      spyOn(dateService, 'getLastDaysRange').and.returnValue({
-        from: new Date('2023-01-30T09:41:35.002Z'),
-        to: new Date('2023-03-01T09:41:35.002Z'),
-      });
-      const data = {
-        range: 'Last 30 Days',
-      };
-
-      const queryParams = {
-        queryParams: {
-          or: '(and(btxn_transaction_dt.gte.2023-02-28T18:30:00.000Z,btxn_transaction_dt.lt.2023-03-31T18:29:00.000Z))',
-          btxn_status: 'in.(INITIALIZED)',
-          ba_id: 'eq.baccLesaRlyvLY',
-        },
-        pageNumber: 1,
-      };
-
-      expect(personalCardsService.generateDateParams(data, queryParams)).toEqual({
-        queryParams: {
-          or: '(and(btxn_transaction_dt.gte.2023-01-30T09:41:35.002Z,btxn_transaction_dt.lt.2023-03-01T09:41:35.002Z))',
-          btxn_status: 'in.(INITIALIZED)',
-          ba_id: 'eq.baccLesaRlyvLY',
-        },
-        pageNumber: 1,
-      });
-      expect(dateService.getLastDaysRange).toHaveBeenCalledOnceWith(30);
-    });
-
-    it('should generate date params when range is last 60 days', () => {
-      spyOn(dateService, 'getLastDaysRange').and.returnValue({
-        from: new Date('2022-12-31T11:27:02.760Z'),
-        to: new Date('2023-03-01T11:27:02.760Z'),
-      });
-      const data = {
-        range: 'Last 60 Days',
-      };
-
-      const queryParams = {
-        queryParams: {
-          or: '(and(btxn_transaction_dt.gte.2023-02-28T18:30:00.000Z,btxn_transaction_dt.lt.2023-03-31T18:29:00.000Z))',
-          btxn_status: 'in.(INITIALIZED)',
-          ba_id: 'eq.baccLesaRlyvLY',
-        },
-        pageNumber: 1,
-      };
-
-      expect(personalCardsService.generateDateParams(data, queryParams)).toEqual({
-        queryParams: {
-          or: '(and(btxn_transaction_dt.gte.2022-12-31T11:27:02.760Z,btxn_transaction_dt.lt.2023-03-01T11:27:02.760Z))',
-          btxn_status: 'in.(INITIALIZED)',
-          ba_id: 'eq.baccLesaRlyvLY',
-        },
-        pageNumber: 1,
-      });
-      expect(dateService.getLastDaysRange).toHaveBeenCalledOnceWith(60);
-    });
-
-    it('should generate date params when range is all time', () => {
-      spyOn(dateService, 'getLastDaysRange').and.returnValue({
-        from: new Date('2022-12-01T11:32:26.779Z'),
-        to: new Date('2023-03-01T11:32:26.779Z'),
-      });
-      const data = {
-        range: 'All Time',
-      };
-
-      const queryParams = {
-        queryParams: {
-          or: '(and(btxn_transaction_dt.gte.2023-02-28T18:30:00.000Z,btxn_transaction_dt.lt.2023-03-31T18:29:00.000Z))',
-          btxn_status: 'in.(INITIALIZED)',
-          ba_id: 'eq.baccLesaRlyvLY',
-        },
-        pageNumber: 1,
-      };
-
-      expect(personalCardsService.generateDateParams(data, queryParams)).toEqual({
-        queryParams: {
-          or: '(and(btxn_transaction_dt.gte.2022-12-01T11:32:26.779Z,btxn_transaction_dt.lt.2023-03-01T11:32:26.779Z))',
-          btxn_status: 'in.(INITIALIZED)',
-          ba_id: 'eq.baccLesaRlyvLY',
-        },
-        pageNumber: 1,
-      });
-      expect(dateService.getLastDaysRange).toHaveBeenCalledOnceWith(90);
-    });
-
-    it('should generate date params when range is custom date', () => {
-      const data = {
-        range: 'Custom Range',
-        startDate: '2023-01-31T18:30:00.000Z',
-        endDate: '2023-02-28T18:29:00.000Z',
-      };
-
-      const queryParams = {
-        queryParams: {
-          or: '(and(btxn_transaction_dt.gte.2023-02-28T18:30:00.000Z,btxn_transaction_dt.lt.2023-03-31T18:29:00.000Z))',
-          btxn_status: 'in.(INITIALIZED)',
-          ba_id: 'eq.baccLesaRlyvLY',
-        },
-        pageNumber: 1,
-      };
-
-      expect(personalCardsService.generateDateParams(data, queryParams)).toEqual({
-        queryParams: {
-          or: '(and(btxn_transaction_dt.gte.2023-01-31T18:30:00.000Z,btxn_transaction_dt.lt.2023-02-28T18:29:00.000Z))',
-          btxn_status: 'in.(INITIALIZED)',
-          ba_id: 'eq.baccLesaRlyvLY',
-        },
-        pageNumber: 1,
-      });
-    });
-  });
-
   describe('generateDateParams(): when using platform api', () => {
     it('should generate date params when range is this month', () => {
       spyOn(dateService, 'getThisMonthRange').and.returnValue({
         from: new Date('2023-02-28T18:30:00.000Z'),
         to: new Date('2023-03-31T18:29:00.000Z'),
       });
-      const usePlatformApi = true;
       const data = {
         range: 'This Month',
       };
 
-      const queryParams = {
+      const queryParams: Partial<PlatformPersonalCardFilterParams> = {
         queryParams: {
-          or: '(and(spent_at.gte.2023-02-28T18:30:00.000Z,spent_at.lt.2023-03-31T18:29:00.000Z))',
-          btxn_status: 'in.(INITIALIZED)',
-          ba_id: 'eq.baccLesaRlyvLY',
+          state: 'in.(INITIALIZED)',
+          personal_card_id: 'eq.baccLesaRlyvLY',
         },
         pageNumber: 1,
       };
 
-      expect(personalCardsService.generateDateParams(data, queryParams, usePlatformApi)).toEqual({
+      expect(personalCardsService.generateDateParams(data, queryParams)).toEqual({
         queryParams: {
-          or: '(and(spent_at.gte.2023-02-28T18:30:00.000Z,spent_at.lt.2023-03-31T18:29:00.000Z))',
-          btxn_status: 'in.(INITIALIZED)',
-          ba_id: 'eq.baccLesaRlyvLY',
+          or: ['(and(spent_at.gte.2023-02-28T18:30:00.000Z,spent_at.lt.2023-03-31T18:29:00.000Z))'],
+          state: 'in.(INITIALIZED)',
+          personal_card_id: 'eq.baccLesaRlyvLY',
         },
         pageNumber: 1,
       });
@@ -982,21 +649,19 @@ describe('PersonalCardsService', () => {
       const data = {
         range: 'Last Month',
       };
-      const usePlatformApi = true;
-      const queryParams = {
+      const queryParams: Partial<PlatformPersonalCardFilterParams> = {
         queryParams: {
-          or: '(and(spent_at.gte.2023-02-28T18:30:00.000Z,spent_at.lt.2023-03-31T18:29:00.000Z))',
-          btxn_status: 'in.(INITIALIZED)',
-          ba_id: 'eq.baccLesaRlyvLY',
+          state: 'in.(INITIALIZED)',
+          personal_card_id: 'eq.baccLesaRlyvLY',
         },
         pageNumber: 1,
       };
 
-      expect(personalCardsService.generateDateParams(data, queryParams, usePlatformApi)).toEqual({
+      expect(personalCardsService.generateDateParams(data, queryParams)).toEqual({
         queryParams: {
-          or: '(and(spent_at.gte.2023-01-31T18:30:00.000Z,spent_at.lt.2023-02-28T18:29:00.000Z))',
-          btxn_status: 'in.(INITIALIZED)',
-          ba_id: 'eq.baccLesaRlyvLY',
+          or: ['(and(spent_at.gte.2023-01-31T18:30:00.000Z,spent_at.lt.2023-02-28T18:29:00.000Z))'],
+          state: 'in.(INITIALIZED)',
+          personal_card_id: 'eq.baccLesaRlyvLY',
         },
         pageNumber: 1,
       });
@@ -1011,21 +676,20 @@ describe('PersonalCardsService', () => {
       const data = {
         range: 'Last 30 Days',
       };
-      const usePlatformApi = true;
-      const queryParams = {
+
+      const queryParams: Partial<PlatformPersonalCardFilterParams> = {
         queryParams: {
-          or: '(and(spent_at.gte.2023-02-28T18:30:00.000Z,spent_at.lt.2023-03-31T18:29:00.000Z))',
-          btxn_status: 'in.(INITIALIZED)',
-          ba_id: 'eq.baccLesaRlyvLY',
+          state: 'in.(INITIALIZED)',
+          personal_card_id: 'eq.baccLesaRlyvLY',
         },
         pageNumber: 1,
       };
 
-      expect(personalCardsService.generateDateParams(data, queryParams, usePlatformApi)).toEqual({
+      expect(personalCardsService.generateDateParams(data, queryParams)).toEqual({
         queryParams: {
-          or: '(and(spent_at.gte.2023-01-30T09:41:35.002Z,spent_at.lt.2023-03-01T09:41:35.002Z))',
-          btxn_status: 'in.(INITIALIZED)',
-          ba_id: 'eq.baccLesaRlyvLY',
+          or: ['(and(spent_at.gte.2023-01-30T09:41:35.002Z,spent_at.lt.2023-03-01T09:41:35.002Z))'],
+          state: 'in.(INITIALIZED)',
+          personal_card_id: 'eq.baccLesaRlyvLY',
         },
         pageNumber: 1,
       });
@@ -1040,21 +704,19 @@ describe('PersonalCardsService', () => {
       const data = {
         range: 'Last 60 Days',
       };
-      const usePlatformApi = true;
-      const queryParams = {
+      const queryParams: Partial<PlatformPersonalCardFilterParams> = {
         queryParams: {
-          or: '(and(spent_at.gte.2023-02-28T18:30:00.000Z,spent_at.lt.2023-03-31T18:29:00.000Z))',
-          btxn_status: 'in.(INITIALIZED)',
-          ba_id: 'eq.baccLesaRlyvLY',
+          state: 'in.(INITIALIZED)',
+          personal_card_id: 'eq.baccLesaRlyvLY',
         },
         pageNumber: 1,
       };
 
-      expect(personalCardsService.generateDateParams(data, queryParams, usePlatformApi)).toEqual({
+      expect(personalCardsService.generateDateParams(data, queryParams)).toEqual({
         queryParams: {
-          or: '(and(spent_at.gte.2022-12-31T11:27:02.760Z,spent_at.lt.2023-03-01T11:27:02.760Z))',
-          btxn_status: 'in.(INITIALIZED)',
-          ba_id: 'eq.baccLesaRlyvLY',
+          or: ['(and(spent_at.gte.2022-12-31T11:27:02.760Z,spent_at.lt.2023-03-01T11:27:02.760Z))'],
+          state: 'in.(INITIALIZED)',
+          personal_card_id: 'eq.baccLesaRlyvLY',
         },
         pageNumber: 1,
       });
@@ -1069,21 +731,19 @@ describe('PersonalCardsService', () => {
       const data = {
         range: 'All Time',
       };
-      const usePlatformApi = true;
-      const queryParams = {
+      const queryParams: Partial<PlatformPersonalCardFilterParams> = {
         queryParams: {
-          or: '(and(spent_at.gte.2023-02-28T18:30:00.000Z,spent_at.lt.2023-03-31T18:29:00.000Z))',
-          btxn_status: 'in.(INITIALIZED)',
-          ba_id: 'eq.baccLesaRlyvLY',
+          state: 'in.(INITIALIZED)',
+          personal_card_id: 'eq.baccLesaRlyvLY',
         },
         pageNumber: 1,
       };
 
-      expect(personalCardsService.generateDateParams(data, queryParams, usePlatformApi)).toEqual({
+      expect(personalCardsService.generateDateParams(data, queryParams)).toEqual({
         queryParams: {
-          or: '(and(spent_at.gte.2022-12-01T11:32:26.779Z,spent_at.lt.2023-03-01T11:32:26.779Z))',
-          btxn_status: 'in.(INITIALIZED)',
-          ba_id: 'eq.baccLesaRlyvLY',
+          or: ['(and(spent_at.gte.2022-12-01T11:32:26.779Z,spent_at.lt.2023-03-01T11:32:26.779Z))'],
+          state: 'in.(INITIALIZED)',
+          personal_card_id: 'eq.baccLesaRlyvLY',
         },
         pageNumber: 1,
       });
@@ -1096,134 +756,27 @@ describe('PersonalCardsService', () => {
         startDate: '2023-01-31T18:30:00.000Z',
         endDate: '2023-02-28T18:29:00.000Z',
       };
-      const usePlatformApi = true;
-      const queryParams = {
+      const queryParams: Partial<PlatformPersonalCardFilterParams> = {
         queryParams: {
-          or: '(and(spent_at.gte.2023-02-28T18:30:00.000Z,spent_at.lt.2023-03-31T18:29:00.000Z))',
-          btxn_status: 'in.(INITIALIZED)',
-          ba_id: 'eq.baccLesaRlyvLY',
+          state: 'in.(INITIALIZED)',
+          personal_card_id: 'eq.baccLesaRlyvLY',
         },
         pageNumber: 1,
       };
 
-      expect(personalCardsService.generateDateParams(data, queryParams, usePlatformApi)).toEqual({
+      expect(personalCardsService.generateDateParams(data, queryParams)).toEqual({
         queryParams: {
-          or: '(and(spent_at.gte.2023-01-31T18:30:00.000Z,spent_at.lt.2023-02-28T18:29:00.000Z))',
-          btxn_status: 'in.(INITIALIZED)',
-          ba_id: 'eq.baccLesaRlyvLY',
+          or: ['(and(spent_at.gte.2023-01-31T18:30:00.000Z,spent_at.lt.2023-02-28T18:29:00.000Z))'],
+          state: 'in.(INITIALIZED)',
+          personal_card_id: 'eq.baccLesaRlyvLY',
         },
         pageNumber: 1,
       });
-    });
-  });
-
-  describe('generateTxnDateParams(): when using public api', () => {
-    it('should generate txn date param when range is this week', () => {
-      const thisWeek = {
-        from: dayjs().startOf('week'),
-        to: dayjs().startOf('week').add(7, 'days'),
-      };
-      spyOn(dateService, 'getThisWeekRange').and.returnValue(thisWeek);
-      const type = 'createdOn';
-
-      const filters = {
-        createdOn: {
-          name: DateFilters.thisWeek,
-        },
-      };
-
-      const queryParam = {
-        or: ['(and(btxn_created_at.gte.2023-02-28T18:30:00.000Z,btxn_created_at.lt.2023-03-31T18:29:00.000Z))'],
-        btxn_status: 'in.(INITIALIZED)',
-        ba_id: 'eq.baccLesaRlyvLY',
-      };
-
-      personalCardsService.generateTxnDateParams(queryParam, filters, type);
-      expect(queryParam).toEqual({
-        or: [
-          '(and(btxn_created_at.gte.2023-02-28T18:30:00.000Z,btxn_created_at.lt.2023-03-31T18:29:00.000Z))',
-          `(and(btxn_created_at.gte.${thisWeek.from.toISOString()},btxn_created_at.lt.${thisWeek.to.toISOString()}))`,
-        ],
-        btxn_status: 'in.(INITIALIZED)',
-        ba_id: 'eq.baccLesaRlyvLY',
-      });
-      expect(dateService.getThisWeekRange).toHaveBeenCalledTimes(1);
-    });
-
-    it('should generate txn date param when range is this month', () => {
-      const thisMonth = {
-        from: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1),
-        to: new Date(new Date().getFullYear(), new Date().getMonth(), 0, 23, 59),
-      };
-      spyOn(dateService, 'getThisMonthRange').and.returnValue(thisMonth);
-      const type = 'createdOn';
-
-      const filters = {
-        createdOn: {
-          name: DateFilters.thisMonth,
-        },
-      };
-
-      const queryParam = {
-        or: ['(and(btxn_updated_at.gte.2023-01-31T18:30:00.000Z,btxn_updated_at.lt.2023-02-28T18:29:00.000Z))'],
-        btxn_status: 'in.(INITIALIZED)',
-        ba_id: 'eq.baccLesaRlyvLY',
-      };
-
-      personalCardsService.generateTxnDateParams(queryParam, filters, type);
-      expect(queryParam).toEqual({
-        or: [
-          '(and(btxn_updated_at.gte.2023-01-31T18:30:00.000Z,btxn_updated_at.lt.2023-02-28T18:29:00.000Z))',
-          `(and(btxn_created_at.gte.${thisMonth.from.toISOString()},btxn_created_at.lt.${thisMonth.to.toISOString()}))`,
-        ],
-        btxn_status: 'in.(INITIALIZED)',
-        ba_id: 'eq.baccLesaRlyvLY',
-      });
-      expect(dateService.getThisMonthRange).toHaveBeenCalledTimes(1);
-    });
-
-    it('should generate txn date param when range is last month', () => {
-      const thisMonth = {
-        from: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1),
-        to: new Date(new Date().getFullYear(), new Date().getMonth(), 0, 23, 59),
-      };
-      spyOn(dateService, 'getLastMonthRange').and.returnValue(thisMonth);
-      const type = 'updatedOn';
-
-      const filters = {
-        updatedOn: {
-          name: DateFilters.lastMonth as string,
-          customDateStart: new Date('2023-02-21T00:00:00.000Z'),
-          customDateEnd: new Date('2023-02-23T00:00:00.000Z'),
-        },
-      };
-
-      const queryParam = {
-        or: [
-          '(and(btxn_created_at.gte.2023-02-28T18:30:00.000Z,btxn_created_at.lt.2023-03-31T18:29:00.000Z))',
-          `(and(btxn_updated_at.gte.2023-01-31T18:30:00.000Z,btxn_updated_at.lt.2023-02-28T18:29:00.000Z))`,
-        ],
-        btxn_status: 'in.(INITIALIZED)',
-        ba_id: 'eq.baccLesaRlyvLY',
-      };
-
-      personalCardsService.generateTxnDateParams(queryParam, filters, type);
-      expect(queryParam).toEqual({
-        or: [
-          '(and(btxn_created_at.gte.2023-02-28T18:30:00.000Z,btxn_created_at.lt.2023-03-31T18:29:00.000Z))',
-          '(and(btxn_updated_at.gte.2023-01-31T18:30:00.000Z,btxn_updated_at.lt.2023-02-28T18:29:00.000Z))',
-          `(and(btxn_updated_at.gte.${thisMonth.from.toISOString()},btxn_updated_at.lt.${thisMonth.to.toISOString()}))`,
-        ],
-        btxn_status: 'in.(INITIALIZED)',
-        ba_id: 'eq.baccLesaRlyvLY',
-      });
-      expect(dateService.getLastMonthRange).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('generateTxnDateParams(): when using platform api', () => {
     it('should generate txn date param when range is this week', () => {
-      const usePlatformApi = true;
       const thisWeek = {
         from: dayjs().startOf('week'),
         to: dayjs().startOf('week').add(7, 'days'),
@@ -1237,26 +790,25 @@ describe('PersonalCardsService', () => {
         },
       };
 
-      const queryParam = {
+      const queryParam: Partial<PlatformPersonalCardQueryParams> = {
         or: ['(and(created_at.gte.2023-02-28T18:30:00.000Z,created_at.lt.2023-03-31T18:29:00.000Z))'],
-        btxn_status: 'in.(INITIALIZED)',
-        ba_id: 'eq.baccLesaRlyvLY',
+        state: 'in.(INITIALIZED)',
+        personal_card_id: 'eq.baccLesaRlyvLY',
       };
 
-      personalCardsService.generateTxnDateParams(queryParam, filters, type, usePlatformApi);
+      personalCardsService.generateTxnDateParams(queryParam, filters, type);
       expect(queryParam).toEqual({
         or: [
           '(and(created_at.gte.2023-02-28T18:30:00.000Z,created_at.lt.2023-03-31T18:29:00.000Z))',
           `(and(created_at.gte.${thisWeek.from.toISOString()},created_at.lt.${thisWeek.to.toISOString()}))`,
         ],
-        btxn_status: 'in.(INITIALIZED)',
-        ba_id: 'eq.baccLesaRlyvLY',
+        state: 'in.(INITIALIZED)',
+        personal_card_id: 'eq.baccLesaRlyvLY',
       });
       expect(dateService.getThisWeekRange).toHaveBeenCalledTimes(1);
     });
 
     it('should generate txn date param when range is this month', () => {
-      const usePlatformApi = true;
       const thisMonth = {
         from: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1),
         to: new Date(new Date().getFullYear(), new Date().getMonth(), 0, 23, 59),
@@ -1270,26 +822,25 @@ describe('PersonalCardsService', () => {
         },
       };
 
-      const queryParam = {
+      const queryParam: Partial<PlatformPersonalCardQueryParams> = {
         or: ['(and(updated_at.gte.2023-01-31T18:30:00.000Z,updated_at.lt.2023-02-28T18:29:00.000Z))'],
-        btxn_status: 'in.(INITIALIZED)',
-        ba_id: 'eq.baccLesaRlyvLY',
+        state: 'in.(INITIALIZED)',
+        personal_card_id: 'eq.baccLesaRlyvLY',
       };
 
-      personalCardsService.generateTxnDateParams(queryParam, filters, type, usePlatformApi);
+      personalCardsService.generateTxnDateParams(queryParam, filters, type);
       expect(queryParam).toEqual({
         or: [
           '(and(updated_at.gte.2023-01-31T18:30:00.000Z,updated_at.lt.2023-02-28T18:29:00.000Z))',
           `(and(created_at.gte.${thisMonth.from.toISOString()},created_at.lt.${thisMonth.to.toISOString()}))`,
         ],
-        btxn_status: 'in.(INITIALIZED)',
-        ba_id: 'eq.baccLesaRlyvLY',
+        state: 'in.(INITIALIZED)',
+        personal_card_id: 'eq.baccLesaRlyvLY',
       });
       expect(dateService.getThisMonthRange).toHaveBeenCalledTimes(1);
     });
 
     it('should generate txn date param when range is last month', () => {
-      const usePlatformApi = true;
       const thisMonth = {
         from: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1),
         to: new Date(new Date().getFullYear(), new Date().getMonth(), 0, 23, 59),
@@ -1305,55 +856,40 @@ describe('PersonalCardsService', () => {
         },
       };
 
-      const queryParam = {
+      const queryParam: Partial<PlatformPersonalCardQueryParams> = {
         or: [
           '(and(created_at.gte.2023-02-28T18:30:00.000Z,created_at.lt.2023-03-31T18:29:00.000Z))',
           `(and(updated_at.gte.2023-01-31T18:30:00.000Z,updated_at.lt.2023-02-28T18:29:00.000Z))`,
         ],
-        btxn_status: 'in.(INITIALIZED)',
-        ba_id: 'eq.baccLesaRlyvLY',
+        state: 'in.(INITIALIZED)',
+        personal_card_id: 'eq.baccLesaRlyvLY',
       };
 
-      personalCardsService.generateTxnDateParams(queryParam, filters, type, usePlatformApi);
+      personalCardsService.generateTxnDateParams(queryParam, filters, type);
       expect(queryParam).toEqual({
         or: [
           '(and(created_at.gte.2023-02-28T18:30:00.000Z,created_at.lt.2023-03-31T18:29:00.000Z))',
           '(and(updated_at.gte.2023-01-31T18:30:00.000Z,updated_at.lt.2023-02-28T18:29:00.000Z))',
           `(and(updated_at.gte.${thisMonth.from.toISOString()},updated_at.lt.${thisMonth.to.toISOString()}))`,
         ],
-        btxn_status: 'in.(INITIALIZED)',
-        ba_id: 'eq.baccLesaRlyvLY',
+        state: 'in.(INITIALIZED)',
+        personal_card_id: 'eq.baccLesaRlyvLY',
       });
       expect(dateService.getLastMonthRange).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('syncTransactions()', () => {
-    it('should fetch transactions using public api', (done) => {
-      expenseAggregationService.post.and.returnValue(of(apiPersonalCardTxnsRes));
-      const accountId = 'baccLesaRlyvLY';
-      const usePlatformApi = false;
-
-      personalCardsService.syncTransactions(accountId, usePlatformApi).subscribe((res) => {
-        expect(res).toEqual(apiPersonalCardTxnsRes);
-        expect(expenseAggregationService.post).toHaveBeenCalledOnceWith(`/bank_accounts/${accountId}/sync`, {
-          owner_type: 'org_user',
-        });
-        done();
-      });
-    });
-
     it('should fetch transactions using platform api', (done) => {
       spenderPlatformV1ApiService.post.and.returnValue(of({ data: {} }));
       const accountId = 'baccLesaRlyvLY';
-      const usePlatformApi = true;
       const payload = {
         data: {
           personal_card_id: accountId,
         },
       };
 
-      personalCardsService.syncTransactions(accountId, usePlatformApi).subscribe((res) => {
+      personalCardsService.syncTransactions(accountId).subscribe((res) => {
         expect(res).toEqual({ data: {} });
         expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/personal_card_transactions', payload);
         done();
@@ -1376,38 +912,16 @@ describe('PersonalCardsService', () => {
   });
 
   describe('matchExpense()', () => {
-    it('should match an expense using public api', (done) => {
-      const usePlatformApi = false;
-      const response = {
-        external_expense_id: 'tx3nHShG60zz',
-        transaction_split_group_id: 'tx3nHShG60zq',
-      };
-
-      apiService.post.and.returnValue(of(response));
-      const externalExpenseId = 'tx3nHShG60zz';
-      const txnSplitGroupId = 'tx3nHShG60zq';
-
-      personalCardsService.matchExpense(txnSplitGroupId, externalExpenseId, usePlatformApi).subscribe((res) => {
-        expect(res).toEqual(response);
-        expect(apiService.post).toHaveBeenCalledOnceWith('/transactions/external_expense/match', {
-          transaction_split_group_id: txnSplitGroupId,
-          external_expense_id: externalExpenseId,
-        });
-        done();
-      });
-    });
-
     it('should match an expense using platform api', (done) => {
       const response = {
         external_expense_id: 'btxndbZdAth0x4',
         transaction_split_group_id: 'tx3nHShG60zq',
       };
       spenderPlatformV1ApiService.post.and.returnValue(of(platformMatchExpenseResponse));
-      const usePlatformApi = true;
       const externalExpenseId = 'btxndbZdAth0x4';
       const txnSplitGroupId = 'tx3nHShG60zq';
 
-      personalCardsService.matchExpense(txnSplitGroupId, externalExpenseId, usePlatformApi).subscribe((res) => {
+      personalCardsService.matchExpense(txnSplitGroupId, externalExpenseId).subscribe((res) => {
         expect(res).toEqual(response);
         expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/personal_card_transactions/match', {
           data: {
@@ -1421,26 +935,11 @@ describe('PersonalCardsService', () => {
   });
 
   describe('hideTransactions()', () => {
-    it('should hide transactions using public api', (done) => {
-      expenseAggregationService.post.and.returnValue(of(apiExpenseRes));
-      const usePlatformApi = false;
-      const txnIds = ['tx3nHShG60zq'];
-
-      personalCardsService.hideTransactions(txnIds, usePlatformApi).subscribe((res) => {
-        expect(res).toEqual(txnIds.length);
-        expect(expenseAggregationService.post).toHaveBeenCalledOnceWith('/bank_transactions/hide/bulk', {
-          bank_transaction_ids: txnIds,
-        });
-        done();
-      });
-    });
-
     it('should hide transactions using platform api', (done) => {
       spenderPlatformV1ApiService.post.and.returnValue(of({}));
-      const usePlatformApi = true;
       const txnIds = ['tx3nHShG60zq', 'tx3nHShG60zw'];
 
-      personalCardsService.hideTransactions(txnIds, usePlatformApi).subscribe((res) => {
+      personalCardsService.hideTransactions(txnIds).subscribe((res) => {
         expect(res).toEqual(txnIds.length);
         expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/personal_card_transactions/hide/bulk', {
           data: txnIds.map((txnId) => ({ id: txnId })),
@@ -1494,22 +993,10 @@ describe('PersonalCardsService', () => {
   });
 
   describe('getToken()', () => {
-    it('should get access token using public api', (done) => {
-      expenseAggregationService.get.and.returnValue(of(apiToken));
-      const usePlatformApi = false;
-
-      personalCardsService.getToken(usePlatformApi).subscribe((res) => {
-        expect(res).toEqual(apiToken);
-        expect(expenseAggregationService.get).toHaveBeenCalledOnceWith('/yodlee/personal/access_token');
-        done();
-      });
-    });
-
     it('should get access token using platform api', (done) => {
       spenderPlatformV1ApiService.post.and.returnValue(of(personalCardAccessTokenResponse));
-      const usePlatformApi = true;
 
-      personalCardsService.getToken(usePlatformApi).subscribe((res) => {
+      personalCardsService.getToken().subscribe((res) => {
         expect(res.access_token).toEqual(personalCardAccessTokenResponse.data.access_token);
         expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/personal_cards/access_token');
         done();
@@ -1518,20 +1005,8 @@ describe('PersonalCardsService', () => {
   });
 
   describe('isMfaEnabled()', () => {
-    it('should return false when using public api', (done) => {
+    it('should get is_mfa_enabled using platform api', (done) => {
       const personalCardId = '12345';
-      const usePlatformApi = false;
-
-      personalCardsService.isMfaEnabled(personalCardId, usePlatformApi).subscribe((res) => {
-        expect(res).toBeFalse();
-        expect(spenderPlatformV1ApiService.post).not.toHaveBeenCalled();
-        done();
-      });
-    });
-
-    it('should call platform API usePlatformApi is true', (done) => {
-      const personalCardId = '12345';
-      const usePlatformApi = true;
       const mockApiResponse = {
         data: {
           is_mfa_enabled: true,
@@ -1539,7 +1014,7 @@ describe('PersonalCardsService', () => {
       };
       spenderPlatformV1ApiService.post.and.returnValue(of(mockApiResponse));
 
-      personalCardsService.isMfaEnabled(personalCardId, usePlatformApi).subscribe((res) => {
+      personalCardsService.isMfaEnabled(personalCardId).subscribe((res) => {
         expect(res).toBeTrue();
         expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/personal_cards/mfa', {
           data: {
