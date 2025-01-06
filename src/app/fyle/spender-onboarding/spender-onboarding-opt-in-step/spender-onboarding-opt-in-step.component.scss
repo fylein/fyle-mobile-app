@@ -11,9 +11,16 @@
     height: 100%;
   }
 
-  &__primary-cta-container {
+  &__cta-container {
     display: flex;
     flex-direction: row;
+  }
+
+  &__with-go-back {
+    justify-content: space-between;
+  }
+
+  &__without-go-back {
     justify-content: flex-end;
   }
 
@@ -264,9 +271,9 @@
 
   &__otp-container {
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
-    margin-bottom: 32px;
+    margin-bottom: 16px;
 
     &__label {
       margin: 0 8px 0 0;
@@ -386,5 +393,24 @@
 
   &__footer {
     margin-bottom: calc(env(safe-area-inset-bottom));
+  }
+
+  &__cta-text {
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  &__arrow-icon {
+    margin-right: 6px;
+    height: 18px;
+    width: 18px;
+  }
+
+  &__cta-secondary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $blue-black;
+    flex-direction: row;
   }
 }

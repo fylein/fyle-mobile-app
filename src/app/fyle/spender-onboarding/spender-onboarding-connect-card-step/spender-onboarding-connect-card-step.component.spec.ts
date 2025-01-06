@@ -57,13 +57,14 @@ fdescribe('SpenderOnboardingConnectCardStepComponent', () => {
 
     fit('should enable Continue button when form is valid', () => {
       component.fg = fb.group({
-        // @ts-ignore
         card_number_bacc1234: [
           '',
           Validators.compose([
             Validators.required,
             Validators.maxLength(16),
+            // @ts-ignore
             component.cardNumberValidator.bind(this),
+            // @ts-ignore
             component.cardNetworkValidator.bind(this),
           ]),
         ],

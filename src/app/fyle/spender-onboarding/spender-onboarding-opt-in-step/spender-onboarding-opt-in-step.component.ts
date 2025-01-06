@@ -26,6 +26,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { MobileNumberVerificationService } from 'src/app/core/services/mobile-number-verification.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { UserEventService } from 'src/app/core/services/user-event.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
@@ -43,6 +44,8 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
   @Input() eou: ExtendedOrgUser;
 
   @Output() isStepComplete: EventEmitter<boolean> = new EventEmitter<boolean>();
+
+  @Output() goToConnectCard: EventEmitter<boolean> = new EventEmitter<boolean>();
 
   cardForm: FormControl;
 
@@ -87,6 +90,8 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
 
   hardwareBackButtonAction: Subscription;
 
+  showGoBackCta = false;
+
   otpConfig: NgOtpInputConfig = {
     allowNumbersOnly: true,
     length: 6,
@@ -108,7 +113,8 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
     private loaderService: LoaderService,
     private matSnackBar: MatSnackBar,
     private userEventService: UserEventService,
-    private snackbarProperties: SnackbarPropertiesService
+    private snackbarProperties: SnackbarPropertiesService,
+    private spenderOnboardingService: SpenderOnboardingService
   ) {}
 
   get OptInFlowState(): typeof OptInFlowState {
@@ -128,6 +134,11 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
   ngOnInit(): void {
     this.fg = this.fb.group({});
     this.fg.addControl('mobile_number', this.fb.control('', [Validators.required, Validators.maxLength(10)]));
+    this.spenderOnboardingService.getOnboardingStatus().subscribe((onboardingStatus) => {
+      if (onboardingStatus.step_connect_cards_is_skipped === false) {
+        this.showGoBackCta = true;
+      }
+    });
   }
 
   goBack(): void {
@@ -181,6 +192,10 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
           });
       }
     }
+  }
+
+  goBackToConnectCard(): void {
+    this.goToConnectCard.emit(true);
   }
 
   resendOtp(action: 'CLICK' | 'INITIAL'): void {

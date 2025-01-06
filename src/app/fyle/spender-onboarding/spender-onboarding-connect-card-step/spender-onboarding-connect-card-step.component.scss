@@ -4,6 +4,14 @@
   position: relative;
   height: 100%;
 
+  &__multiple-cards {
+    max-height: 200px;
+    overflow-y: scroll;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
   &__body {
     display: flex;
     flex-direction: column;

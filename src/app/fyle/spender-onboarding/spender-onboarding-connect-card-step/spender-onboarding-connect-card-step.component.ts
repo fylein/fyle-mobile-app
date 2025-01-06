@@ -138,13 +138,13 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
       return 'We ran into an issue while processing your request. You can cancel and retry connecting the failed card or proceed to the next step.';
     } else if (this.cardsList.failedCards.length > 0) {
       return `
-      We ran into an issue while processing your request for the card ${this.cardsList.failedCards[0]}.
+      We ran into an issue while processing your request for the cards  ${this.cardsList.failedCards
+        .slice(0, this.cardsList.failedCards.length - 1)
+        .join(', ')} and ${this.cardsList.failedCards.slice(-1)}.
       You can cancel and retry connecting the failed card or proceed to the next step.`;
     } else {
       return `
-      We ran into an issue while processing your request for the cards  ${this.cardsList.failedCards
-        .slice(this.cardsList.failedCards.length - 1)
-        .join(', ')} and ${this.cardsList.failedCards.slice(-1)}.
+      We ran into an issue while processing your request for the card ${this.cardsList.failedCards[0]}.
       You can cancel and retry connecting the failed card or proceed to the next step.`;
     }
   }

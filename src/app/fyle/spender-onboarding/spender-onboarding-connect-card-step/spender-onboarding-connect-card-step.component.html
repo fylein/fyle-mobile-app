@@ -5,7 +5,7 @@
       This will help you bring your card transactions into Fyle as expenses instantly.
     </div>
     <form [formGroup]="fg">
-      <div *ngIf="enrollableCards.length > 0">
+      <div *ngIf="enrollableCards.length > 0" class="connect-card__multiple-cards">
         <div *ngFor="let card of enrollableCards; let i = index">
           <div class="connect-card__input-label">
             <span>Corporate card</span>
