@@ -179,15 +179,14 @@
             <div class="view-reports--footer-container">
               <button
                 *ngIf="unreportedExpenses && unreportedExpenses.length > 0"
-                class="btn-primary"
+                class="btn-primary view-reports--cta"
                 (click)="showAddExpensesToReportModal()"
               >
                 Add complete expense
               </button>
               <button
-                class="btn-outline-secondary"
                 id="add-expense"
-                [ngClass]="{'btn-primary': !(unreportedExpenses && unreportedExpenses.length > 0), 'btn-outline-secondary': unreportedExpenses && unreportedExpenses.length > 0}"
+                [ngClass]="{'btn-primary': !(unreportedExpenses && unreportedExpenses.length > 0), 'btn-outline-secondary view-reports--cta': unreportedExpenses && unreportedExpenses.length > 0}"
                 (click)="addExpense()"
               >
                 Add new expense

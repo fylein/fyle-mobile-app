@@ -59,14 +59,22 @@
   &--footer-container {
     display: flex;
     justify-content: space-between;
-    padding: 16px;
+    padding: 12px 16px;
     gap: 8px;
+    text-wrap: nowrap;
     position: fixed;
     bottom: 0;
     width: 100%;
     background-color: $pure-white;
     box-shadow: 0 -2px 12px $pink-shadow;
     z-index: 999;
+  }
+
+  &--cta {
+    font-size: 14px !important;
+    @media (max-width: 350px) {
+      font-size: 12px !important;
+    }
   }
 
   &--card-body {
