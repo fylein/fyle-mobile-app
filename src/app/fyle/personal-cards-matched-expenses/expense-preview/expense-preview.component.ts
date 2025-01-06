@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ModalController, Platform } from '@ionic/angular';
-import { finalize, map, switchMap } from 'rxjs/operators';
+import { finalize, map } from 'rxjs/operators';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
@@ -10,7 +10,6 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { Observable } from 'rxjs';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-expense-preview',
@@ -40,8 +39,7 @@ export class ExpensePreviewComponent implements OnInit {
     private snackbarProperties: SnackbarPropertiesService,
     private platform: Platform,
     private trackingService: TrackingService,
-    private expensesService: ExpensesService,
-    private launchDarklyService: LaunchDarklyService
+    private expensesService: ExpensesService
   ) {}
 
   ngOnInit(): void {
@@ -62,14 +60,9 @@ export class ExpensePreviewComponent implements OnInit {
 
   matchExpense(): void {
     this.loading = true;
-    this.launchDarklyService
-      .getVariation('personal_cards_platform', false)
-      .pipe(
-        switchMap((usePlatformApi) =>
-          this.personalCardsService.matchExpense(this.expenseId, this.cardTxnId, usePlatformApi)
-        ),
-        finalize(() => (this.loading = false))
-      )
+    this.personalCardsService
+      .matchExpense(this.expenseId, this.cardTxnId)
+      .pipe(finalize(() => (this.loading = false)))
       .subscribe(() => {
         this.modalController.dismiss();
         this.matSnackBar.openFromComponent(ToastMessageComponent, {
