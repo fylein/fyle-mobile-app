@@ -11,6 +11,7 @@ import { of, throwError } from 'rxjs';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { VerifyPageState } from './verify.enum';
+import { UserEventService } from 'src/app/core/services/user-event.service';
 
 describe('VerifyPage', () => {
   let component: VerifyPage;
@@ -19,12 +20,14 @@ describe('VerifyPage', () => {
   let routerAuthService: jasmine.SpyObj<RouterAuthService>;
   let authService: jasmine.SpyObj<AuthService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
+  let userEventService: jasmine.SpyObj<UserEventService>;
 
   beforeEach(waitForAsync(() => {
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const routerAuthServiceSpy = jasmine.createSpyObj('RouterAuthService', ['emailVerify']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['newRefreshToken']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['emailVerified', 'onSignin']);
+    const userEventServiceSpy = jasmine.createSpyObj('UserEventService', ['logout']);
 
     TestBed.configureTestingModule({
       declarations: [VerifyPage],
@@ -54,6 +57,10 @@ describe('VerifyPage', () => {
             },
           },
         },
+        {
+          provide: UserEventService,
+          useValue: userEventServiceSpy,
+        },
       ],
     }).compileComponents();
 
@@ -63,6 +70,7 @@ describe('VerifyPage', () => {
     routerAuthService = TestBed.inject(RouterAuthService) as jasmine.SpyObj<RouterAuthService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
+    userEventService = TestBed.inject(UserEventService) as jasmine.SpyObj<UserEventService>;
   }));
 
   it('should create', () => {
@@ -108,12 +116,14 @@ describe('VerifyPage', () => {
         status: 404,
       };
       component.handleError(error);
-      expect(router.navigate).toHaveBeenCalledOnceWith([
-        '/',
-        'auth',
-        'pending_verification',
-        { orgId: 'orNVthTo2Zyo' },
-      ]);
+      const logoutSpy = spyOn(component, 'logout');
+      expect(logoutSpy).toHaveBeenCalledTimes(1);
     });
+  });
+
+  it('logout(): should log out the user', () => {
+    component.logout();
+    expect(userEventService.logout).toHaveBeenCalledTimes(1);
+    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'sign_in']);
   });
 });
