@@ -83,6 +83,11 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
   enrollCards(): void {
     const cards = this.enrollableCards;
     this.cardsEnrolling = true;
+    this.cardsList = {
+      successfulCards: [],
+      failedCards: [],
+    };
+
     if (cards.length > 0) {
       from(cards)
         .pipe(
