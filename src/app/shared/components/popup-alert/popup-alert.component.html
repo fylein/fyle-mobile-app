@@ -5,6 +5,30 @@
     </div>
   </ion-header>
 
+  <div *ngIf="cardsList?.successfulCards?.length > 0" class="popup-alert--card-details-container">
+    <div class="popup-alert--content-container">
+      <div class="popup-alert--success-tick-container">
+        <ion-icon class="popup-alert--success-tick" src="/assets/svg/check.svg"></ion-icon>
+      </div>
+      <div>
+        <div class="popup-alert--content-header">Successfully connected</div>
+        <div class="popup-alert--card-numbers">
+          {{ cardsList?.successfulCards?.join() }}
+        </div>
+      </div>
+    </div>
+    <div class="popup-alert--content-container">
+      <div class="popup-alert--error-tick-container">
+        <ion-icon class="popup-alert--error-icon" src="/assets/svg/error-outlined.svg"></ion-icon>
+      </div>
+      <div>
+        <div class="popup-alert--content-header">Failed Connecting</div>
+        <div class="popup-alert--card-numbers">
+          {{ cardsList?.failedCards?.join(', ') }}
+        </div>
+      </div>
+    </div>
+  </div>
   <div class="popup-alert--body ion-text-center" [innerHtml]="message"></div>
 
   <div class="popup-alert--info-container" *ngIf="flaggedExpensesCount">
