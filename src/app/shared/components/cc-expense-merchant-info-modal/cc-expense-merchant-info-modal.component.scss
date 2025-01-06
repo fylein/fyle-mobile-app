@@ -4,8 +4,10 @@
   border-radius: 10px;
 }
 
-.cc-expense-merchant-info-popover {
+.cc-expense-merchant-info-modal {
   position: relative;
+  height: auto;
+  min-height: auto;
 
   &__toolbar-title {
     color: $black;
@@ -21,6 +23,6 @@
   &__body {
     font-size: 14px;
     color: $black;
-    padding: 20px 16px;
+    padding: 12px 16px 20px 16px;
   }
 }
