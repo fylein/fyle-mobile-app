@@ -8,6 +8,7 @@ import { SpenderOnboardingService } from 'src/app/core/services/spender-onboardi
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { Router } from '@angular/router';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
+import { OrgSettings } from 'src/app/core/models/org-settings.model';
 
 @Component({
   selector: 'app-spender-onboarding',
@@ -19,9 +20,15 @@ export class SpenderOnboardingPage {
 
   userFullName: string;
 
-  currentStep: OnboardingStep;
+  currentStep: OnboardingStep = OnboardingStep.CONNECT_CARD;
+
+  onlyOptInEnabled = false;
 
   onboardingStep: typeof OnboardingStep = OnboardingStep;
+
+  eou: ExtendedOrgUser;
+
+  orgSettings: OrgSettings;
 
   constructor(
     private loaderService: LoaderService,
@@ -45,13 +52,16 @@ export class SpenderOnboardingPage {
           ])
         ),
         map(([eou, orgSettings, onboardingStatus, corporateCards]) => {
+          this.eou = eou;
           this.userFullName = eou.us.full_name;
+          this.orgSettings = orgSettings;
           const isRtfEnabled =
             orgSettings.visa_enrollment_settings.enabled && orgSettings.mastercard_enrollment_settings.enabled;
           const isAmexFeedEnabled = orgSettings.amex_feed_enrollment_settings.enabled;
           const rtfCards = corporateCards.filter((card) => card.is_visa_enrolled || card.is_mastercard_enrolled);
           if (isAmexFeedEnabled && !isRtfEnabled) {
             this.currentStep = OnboardingStep.OPT_IN;
+            this.onlyOptInEnabled = true;
           } else if (isRtfEnabled) {
             // If Connect Card was skipped earlier or Cards are already enrolled, then go to OPT_IN step
             if (
@@ -60,6 +70,7 @@ export class SpenderOnboardingPage {
               rtfCards.length > 0
             ) {
               this.currentStep = OnboardingStep.OPT_IN;
+              this.onlyOptInEnabled = true;
             } else {
               this.currentStep = OnboardingStep.CONNECT_CARD;
             }
