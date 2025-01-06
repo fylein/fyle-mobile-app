@@ -1083,7 +1083,7 @@ describe('ViewExpensePage', () => {
     modalController.create.and.resolveTo(modalSpy);
 
     modalProperties.getModalDefaultProperties.and.returnValue({
-      cssClass: 'fy-modal',
+      cssClass: 'merchant-info',
       showBackdrop: true,
       canDismiss: true,
       backdropDismiss: true,
@@ -1099,14 +1099,13 @@ describe('ViewExpensePage', () => {
 
     expect(modalController.create).toHaveBeenCalledOnceWith({
       component: CCExpenseMerchantInfoModalComponent,
-      mode: 'ios',
-      cssClass: 'fy-modal',
+      cssClass: 'merchant-info',
       showBackdrop: true,
       canDismiss: true,
       backdropDismiss: true,
       animated: true,
-      initialBreakpoint: 0.15,
-      breakpoints: [0, 0.15],
+      initialBreakpoint: 1,
+      breakpoints: [0, 1],
       handle: false,
     });
 

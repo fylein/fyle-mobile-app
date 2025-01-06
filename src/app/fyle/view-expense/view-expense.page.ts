@@ -520,10 +520,7 @@ export class ViewExpensePage {
   async openCCExpenseMerchantInfoModal(): Promise<void> {
     const modal = await this.modalController.create({
       component: CCExpenseMerchantInfoModalComponent,
-      mode: 'ios',
-      ...this.modalProperties.getModalDefaultProperties(),
-      initialBreakpoint: 0.15,
-      breakpoints: [0, 0.15],
+      ...this.modalProperties.getModalDefaultProperties('merchant-info'),
     });
 
     await modal.present();
