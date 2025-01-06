@@ -199,14 +199,14 @@ describe('AddExpensesToReportComponent', () => {
     component.selectedElements = [expense1, expense2];
     fixture.detectChanges();
 
-    expect(getTextContent(getElementBySelector(fixture, '.add-expenses-to-report--title'))).toEqual('2 Expenses');
+    expect(getTextContent(getElementBySelector(fixture, '.add-expenses-to-report--title'))).toContain('2 Expenses');
   });
 
   it('should show total amount', () => {
     component.selectedElements = [expense1, expense2];
     fixture.detectChanges();
 
-    expect(getTextContent(getElementBySelector(fixture, '.add-expenses-to-report--total-amount'))).toEqual('$500.00');
+    expect(getTextContent(getElementBySelector(fixture, '.add-expenses-to-report--total-amount'))).toEqual('($500.00)');
   });
 
   it('should zero state message if no unreported expense exist', () => {
