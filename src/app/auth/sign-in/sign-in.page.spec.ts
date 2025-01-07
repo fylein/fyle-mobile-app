@@ -239,7 +239,7 @@ describe('SignInPage', () => {
       spyOn(component, 'changeState');
 
       component.currentStep = SignInPageState.ENTER_PASSWORD;
-      component.goBack();
+      component.goBack(component.currentStep);
 
       expect(component.changeState).toHaveBeenCalledWith(SignInPageState.ENTER_EMAIL);
       expect(backButtonService.showAppCloseAlert).not.toHaveBeenCalled();
@@ -249,7 +249,7 @@ describe('SignInPage', () => {
       spyOn(component, 'changeState');
 
       component.currentStep = SignInPageState.SELECT_SIGN_IN_METHOD;
-      component.goBack();
+      component.goBack(component.currentStep);
 
       expect(backButtonService.showAppCloseAlert).toHaveBeenCalledTimes(1);
       expect(component.changeState).not.toHaveBeenCalled();
@@ -259,7 +259,7 @@ describe('SignInPage', () => {
       spyOn(component, 'changeState');
 
       component.currentStep = SignInPageState.ENTER_EMAIL;
-      component.goBack();
+      component.goBack(component.currentStep);
 
       expect(component.changeState).toHaveBeenCalledWith(SignInPageState.SELECT_SIGN_IN_METHOD);
     });
