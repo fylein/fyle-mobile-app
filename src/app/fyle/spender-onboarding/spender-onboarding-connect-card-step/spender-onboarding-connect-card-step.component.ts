@@ -88,7 +88,7 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
                 this.cardsList.successfulCards.push(`**** ${card.card_number.slice(-4)}`);
               }),
               catchError((error: HttpErrorResponse) => {
-                this.setupErrorMessages(error, this.fg.controls.card_number.value as string, card.id);
+                this.setupErrorMessages(error, this.fg.controls[`card_number_${card.id}`].value as string, card.id);
                 return of(error);
               })
             )

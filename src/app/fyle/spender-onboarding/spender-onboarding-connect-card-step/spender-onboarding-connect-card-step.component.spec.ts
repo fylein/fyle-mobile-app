@@ -51,8 +51,9 @@ fdescribe('SpenderOnboardingConnectCardStepComponent', () => {
     fb = TestBed.inject(FormBuilder);
     component.fg = fb.group({});
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
-    const cards = [statementUploadedCard, statementUploadedCard];
-    corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of(cards));
+    corporateCreditCardExpenseService.getCorporateCards.and.returnValue(null);
+    realTimeFeedService.isCardNumberValid.and.returnValue(true);
+    realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.VISA);
   }));
 
   it('setupErrorMessages(): should add card to failedCards and call handleEnrollmentFailures', () => {
@@ -68,19 +69,28 @@ fdescribe('SpenderOnboardingConnectCardStepComponent', () => {
     expect(component.handleEnrollmentFailures).toHaveBeenCalledWith(error, 'bacc1234');
   });
 
-  fdescribe('enrollMultipleCards(): ', () => {
-    beforeEach(() => {});
-
+  describe('enrollMultipleCards(): ', () => {
     it('should call enroll for each card and handle success and failure cases', fakeAsync(() => {
-      const cards = [statementUploadedCard, statementUploadedCard];
+      const cards = [statementUploadedCard, { ...statementUploadedCard, id: 'bacc15bbrRGWzg' }];
+      corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of(cards));
       component.cardsList = { failedCards: [], successfulCards: [] }; // Initialize card list
       component.cardValuesMap = {
-        bacc123456: { last_four: '1111', card_type: CardNetworkType.OTHERS },
-        bacc654321: { last_four: '0004', card_type: CardNetworkType.OTHERS },
+        bacc15bbrRGWzf: { last_four: '1111', card_type: CardNetworkType.OTHERS },
+        bacc15bbrRGWzg: { last_four: '0004', card_type: CardNetworkType.OTHERS },
       }; // Mock card values
       component.fg = new FormBuilder().group({
-        card_number_bacc123456: ['411111111111', Validators.required],
-        card_number_bacc654321: ['550000000000', Validators.required],
+        card_number_bacc15bbrRGWzf: [
+          '411111111111',
+          Validators.required,
+          component.cardNumberValidator.bind(component),
+          component.cardNetworkValidator.bind(component),
+        ],
+        card_number_bacc15bbrRGWzg: [
+          '550000000000',
+          Validators.required,
+          component.cardNumberValidator.bind(component),
+          component.cardNetworkValidator.bind(component),
+        ],
       });
 
       realTimeFeedService.enroll.and.returnValues(
@@ -104,7 +114,7 @@ fdescribe('SpenderOnboardingConnectCardStepComponent', () => {
     }));
   });
 
-  xdescribe('template', () => {
+  describe('template', () => {
     beforeEach(() => {
       realTimeFeedService.isCardNumberValid.and.returnValue(true);
       realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.VISA);

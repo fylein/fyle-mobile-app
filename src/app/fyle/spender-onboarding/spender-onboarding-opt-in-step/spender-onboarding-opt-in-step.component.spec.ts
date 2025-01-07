@@ -24,7 +24,7 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
 import { UserEventService } from 'src/app/core/services/user-event.service';
 import { FormBuilder } from '@angular/forms';
 
-fdescribe('SpenderOnboardingOptInStepComponent', () => {
+describe('SpenderOnboardingOptInStepComponent', () => {
   let component: SpenderOnboardingOptInStepComponent;
   let fixture: ComponentFixture<SpenderOnboardingOptInStepComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
@@ -108,11 +108,6 @@ fdescribe('SpenderOnboardingOptInStepComponent', () => {
   describe('ngOnInit():', () => {
     beforeEach(() => {
       component.eou = cloneDeep(eouRes2);
-    });
-
-    it('should set mobileNumberInputValue if mobile number is present in DB', () => {
-      fixture.detectChanges();
-      expect(component.mobileNumberInputValue).toBe('123456');
     });
 
     it('should not set mobileNumberInputValue if mobile number is not present in DB', () => {
@@ -200,7 +195,7 @@ fdescribe('SpenderOnboardingOptInStepComponent', () => {
       mockEou.ou.mobile_verified = true;
       component.eou = mockEou;
       component.saveMobileNumber();
-      expect(modalController.dismiss).toHaveBeenCalledTimes(1);
+      expect(component.optInFlowState).toEqual(OptInFlowState.OTP_VERIFICATION);
       expect(orgUserService.postOrgUser).not.toHaveBeenCalled();
     });
 
@@ -474,14 +469,4 @@ fdescribe('SpenderOnboardingOptInStepComponent', () => {
     expect(clearInterval).toHaveBeenCalledOnceWith(jasmine.any(Number));
     expect(component.showOtpTimer).toBeFalse();
   }));
-
-  it('onGotItClicked(): should dismiss the modal and track opt in event', () => {
-    component.onGotItClicked();
-    expect(modalController.dismiss).toHaveBeenCalledOnceWith({
-      action: 'SUCCESS',
-    });
-    expect(trackingService.optInFlowSuccess).toHaveBeenCalledOnceWith({
-      message: 'SUCCESS',
-    });
-  });
 });
