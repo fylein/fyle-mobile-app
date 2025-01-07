@@ -641,7 +641,9 @@ export function TestCases4(getTestBed) {
           'success',
           ['msb-success']
         );
-        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'personal_cards']);
+        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'personal_cards'], {
+          queryParams: { refresh: true },
+        });
         expect(trackingService.newExpenseCreatedFromPersonalCard).toHaveBeenCalledOnceWith();
       });
 
@@ -695,7 +697,9 @@ export function TestCases4(getTestBed) {
           'success',
           ['msb-success']
         );
-        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'personal_cards']);
+        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'personal_cards'], {
+          queryParams: { refresh: true },
+        });
         expect(trackingService.newExpenseCreatedFromPersonalCard).toHaveBeenCalledOnceWith();
       });
 
@@ -751,7 +755,9 @@ export function TestCases4(getTestBed) {
           'success',
           ['msb-success']
         );
-        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'personal_cards']);
+        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'personal_cards'], {
+          queryParams: { refresh: true },
+        });
         expect(trackingService.newExpenseCreatedFromPersonalCard).toHaveBeenCalledOnceWith();
       });
 
@@ -798,7 +804,9 @@ export function TestCases4(getTestBed) {
           'success',
           ['msb-success']
         );
-        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'personal_cards']);
+        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'personal_cards'], {
+          queryParams: { refresh: true },
+        });
         expect(trackingService.newExpenseCreatedFromPersonalCard).toHaveBeenCalledOnceWith();
       });
 
@@ -845,7 +853,9 @@ export function TestCases4(getTestBed) {
           'success',
           ['msb-success']
         );
-        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'personal_cards']);
+        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'personal_cards'], {
+          queryParams: { refresh: true },
+        });
         expect(trackingService.newExpenseCreatedFromPersonalCard).toHaveBeenCalledOnceWith();
       });
     });
