@@ -128,9 +128,9 @@ fdescribe('SpenderOnboardingConnectCardStepComponent', () => {
             Validators.required,
             Validators.maxLength(16),
             // @ts-ignore
-            component.cardNumberValidator.bind(this),
+            component.cardNumberValidator.bind(component),
             // @ts-ignore
-            component.cardNetworkValidator.bind(this),
+            component.cardNetworkValidator.bind(component),
           ]),
         ],
       });
@@ -149,9 +149,9 @@ fdescribe('SpenderOnboardingConnectCardStepComponent', () => {
             Validators.required,
             Validators.maxLength(16),
             // @ts-ignore
-            component.cardNumberValidator.bind(this),
+            component.cardNumberValidator.bind(component),
             // @ts-ignore
-            component.cardNetworkValidator.bind(this),
+            component.cardNetworkValidator.bind(component),
           ]),
         ],
       });
