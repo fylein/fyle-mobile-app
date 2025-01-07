@@ -172,21 +172,27 @@
           </div>
           <div class="view-reports--expenses-zero-state" *ngIf="!isExpensesLoading && report.num_expenses === 0">
             <div class="text-center">
-              <img src="../../../assets/images/zero-states/expenses.png" alt="No expense in this report" />
-              <div class="view-reports--zero-state-header">Looks like this report is empty.</div>
+              <div class="view-reports--zero-state-image-container">
+                <img src="../../../assets/images/zero-states/invoice.png" alt="No expense in this report" />
+              </div>
+              <div class="view-reports--zero-state-semibold-header">Looks like you’ve got</div>
+              <div class="view-reports--zero-state-header">0 expense right now</div>
+            </div>
+            <div class="view-reports--footer-container">
               <button
                 *ngIf="unreportedExpenses && unreportedExpenses.length > 0"
-                class="view-reports--unreported-cta"
+                class="btn-primary view-reports--cta"
                 (click)="showAddExpensesToReportModal()"
               >
-                Add complete expenses
+                Add complete expense
               </button>
-              <div class="view-reports--add-more-container" (click)="addExpense()">
-                <div class="view-reports--add-more-icon-container">
-                  <mat-icon class="view-reports--add-more-icon" svgIcon="plus-square"></mat-icon>
-                </div>
-                <div class="view-reports--add-more-text">Add Expenses</div>
-              </div>
+              <button
+                id="add-expense"
+                [ngClass]="{'btn-primary': !(unreportedExpenses && unreportedExpenses.length > 0), 'btn-outline-secondary view-reports--cta': unreportedExpenses && unreportedExpenses.length > 0}"
+                (click)="addExpense()"
+              >
+                Add new expense
+              </button>
             </div>
           </div>
         </ng-container>
