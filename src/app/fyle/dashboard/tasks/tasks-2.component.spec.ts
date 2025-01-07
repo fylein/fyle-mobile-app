@@ -244,6 +244,7 @@ export function TestCases2(getTestBed) {
     });
 
     it('handleEnrollmentSuccess(): should handle enrollment success and trigger subsequent actions', fakeAsync(() => {
+      spyOn(component, 'doRefresh');
       corporateCreditCardExpenseService.clearCache.and.returnValue(of(null));
 
       const mockPopover = {

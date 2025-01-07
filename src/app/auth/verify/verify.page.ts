@@ -4,6 +4,7 @@ import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { switchMap, tap } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { TrackingService } from '../../core/services/tracking.service';
+import { UserEventService } from 'src/app/core/services/user-event.service';
 
 @Component({
   selector: 'app-verify',
@@ -16,7 +17,8 @@ export class VerifyPage implements OnInit {
     private routerAuthService: RouterAuthService,
     private authService: AuthService,
     private router: Router,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private userEventService: UserEventService
   ) {}
 
   ngOnInit(): void {
@@ -43,7 +45,12 @@ export class VerifyPage implements OnInit {
     } else if (err.status === 440) {
       this.router.navigate(['/', 'auth', 'pending_verification', { hasTokenExpired: true, orgId }]);
     } else {
-      this.router.navigate(['/', 'auth', 'pending_verification', { orgId }]);
+      this.logout();
     }
+  }
+
+  logout(): void {
+    this.userEventService.logout();
+    this.router.navigate(['/', 'auth', 'sign_in']);
   }
 }

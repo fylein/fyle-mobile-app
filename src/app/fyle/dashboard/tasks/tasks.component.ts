@@ -461,6 +461,8 @@ export class TasksComponent implements OnInit {
 
       await cardAddedModal.present();
       await cardAddedModal.onDidDismiss();
+
+      this.doRefresh();
     });
   }
 
