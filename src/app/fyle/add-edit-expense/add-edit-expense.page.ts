@@ -5079,7 +5079,7 @@ export class AddEditExpensePage implements OnInit {
       )
       .subscribe(() => {
         this.showSnackBarToast({ message: 'Expense created successfully.' }, 'success', ['msb-success']);
-        this.router.navigate(['/', 'enterprise', 'personal_cards']);
+        this.router.navigate(['/', 'enterprise', 'personal_cards'], { queryParams: { refresh: true } });
         this.trackingService.newExpenseCreatedFromPersonalCard();
       });
   }

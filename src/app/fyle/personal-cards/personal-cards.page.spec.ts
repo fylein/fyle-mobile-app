@@ -790,9 +790,7 @@ describe('PersonalCardsPage', () => {
       modalController.create.and.resolveTo(modalSpy);
       personalCardsService.generateDateParams.and.returnValue({
         queryParams: {
-          or: [
-            '(and(btxn_transaction_dt.gte.2023-02-28T18:30:00.000Z,btxn_transaction_dt.lt.2023-03-31T18:29:00.000Z))',
-          ],
+          or: ['(and(spent_at.gte.2023-02-28T18:30:00.000Z,spent_at.lt.2023-03-31T18:29:00.000Z))'],
           state: 'in.(INITIALIZED)',
           personal_card_id: 'eq.baccLesaRlyvLY',
         },
