@@ -37,6 +37,7 @@ export class ResetPasswordPage {
 
   ionViewWillEnter(): void {
     this.currentPageState = PageState.notSent;
+    this.isEmailSentOnce = false;
     const email = (this.activatedRoute.snapshot.params.email as string) || '';
     this.fg = this.formBuilder.group({
       email: [email, Validators.compose([Validators.required, Validators.pattern('\\S+@\\S+\\.\\S{2,}')])],
@@ -91,6 +92,6 @@ export class ResetPasswordPage {
   }
 
   onGotoSignInClick(): void {
-    this.router.navigate(['/', 'auth', 'sign_in']);
+    this.router.navigate(['/', 'auth', 'sign_in', { email: this.fg.controls.email.value as string }]);
   }
 }

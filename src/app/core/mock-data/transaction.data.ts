@@ -2628,6 +2628,8 @@ export const transformedExpensePayload: Partial<Expense> = deepFreezeStrict({
   commute_details_id: undefined,
   hotel_is_breakfast_provided: null,
   file_ids: undefined,
+  mileage_calculated_distance: null,
+  mileage_calculated_amount: null,
 });
 
 export const splitExpenseTxn2: Transaction = deepFreeze({

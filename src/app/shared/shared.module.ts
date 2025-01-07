@@ -153,6 +153,7 @@ import { DashboardOptInComponent } from './components/dashboard-opt-in/dashboard
 import { MobileNumberCardComponent } from './components/mobile-number-card/mobile-number-card.component';
 import { PasswordCheckTooltipComponent } from './components/password-check-tooltip/password-check-tooltip.component';
 import { ExactCurrencyPipe } from './pipes/exact-currency.pipe';
+import { CCExpenseMerchantInfoModalComponent } from './components/cc-expense-merchant-info-modal/cc-expense-merchant-info-modal.component';
 
 @NgModule({
   declarations: [
@@ -282,6 +283,7 @@ import { ExactCurrencyPipe } from './pipes/exact-currency.pipe';
     DashboardOptInComponent,
     MobileNumberCardComponent,
     ExactCurrencyPipe,
+    CCExpenseMerchantInfoModalComponent,
   ],
   imports: [
     CommonModule,
@@ -417,7 +419,8 @@ import { ExactCurrencyPipe } from './pipes/exact-currency.pipe';
     ProfileOptInCardComponent,
     DashboardOptInComponent,
     MobileNumberCardComponent,
+    CCExpenseMerchantInfoModalComponent,
   ],
-  providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker, FyCurrencyPipe, ReportState],
+  providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker, FyCurrencyPipe, ReportState, ExactCurrencyPipe],
 })
 export class SharedModule {}

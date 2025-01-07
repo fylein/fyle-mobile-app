@@ -87,6 +87,7 @@ import { ccTransactionData, ccTransactionData1 } from 'src/app/core/mock-data/cc
 import { ccTransactionResponseData } from 'src/app/core/mock-data/corporate-card-transaction-response.data';
 import { cloneDeep } from 'lodash';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
+import { CCExpenseMerchantInfoModalComponent } from 'src/app/shared/components/cc-expense-merchant-info-modal/cc-expense-merchant-info-modal.component';
 
 export function TestCases6(getTestBed) {
   describe('AddEditExpensePage-6', () => {
@@ -1222,6 +1223,41 @@ export function TestCases6(getTestBed) {
         cssClass: 'fy-dialog-popover',
       });
       expect(popoverSpy.present).toHaveBeenCalledTimes(1);
+    }));
+
+    it('openCCExpenseMerchantInfoModal(): should open the transaction status info modal', fakeAsync(() => {
+      const modalSpy = jasmine.createSpyObj('modal', ['present']);
+      modalController.create.and.resolveTo(modalSpy);
+
+      modalProperties.getModalDefaultProperties.and.returnValue({
+        cssClass: 'merchant-info',
+        showBackdrop: true,
+        canDismiss: true,
+        backdropDismiss: true,
+        animated: true,
+        initialBreakpoint: 1,
+        breakpoints: [0, 1],
+        handle: false,
+      });
+
+      component.openCCExpenseMerchantInfoModal();
+
+      tick();
+
+      expect(modalController.create).toHaveBeenCalledOnceWith({
+        component: CCExpenseMerchantInfoModalComponent,
+        cssClass: 'merchant-info',
+        showBackdrop: true,
+        canDismiss: true,
+        backdropDismiss: true,
+        animated: true,
+        initialBreakpoint: 1,
+        breakpoints: [0, 1],
+        handle: false,
+      });
+
+      expect(modalSpy.present).toHaveBeenCalledTimes(1);
+      expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
     }));
   });
 }

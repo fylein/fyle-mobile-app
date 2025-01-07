@@ -1,4 +1,4 @@
-<ion-content class="sign-in" class="no-keyboard-adjust">
+<ion-content class="sign-in no-keyboard-adjust" scroll-y="false">
   <div class="sign-in__select-sign-in" *ngIf="currentStep === signInPageState.SELECT_SIGN_IN_METHOD">
     <div class="sign-in__video-container">
       <video
@@ -7,7 +7,10 @@
         height="auto"
         onloadedmetadata="this.muted = true"
         oncanplay="this.play()"
+        poster="../../../assets/images/video-default-background.png"
         loop
+        playsinline
+        autoplay
       >
         <source src="/assets/videos/mobile-onboarding.mp4" type="video/mp4" />
       </video>
@@ -38,14 +41,14 @@
   <div class="sign-in__enter-email" *ngIf="currentStep === signInPageState.ENTER_EMAIL">
     <div>
       <ion-icon
-        class="fy-icon sign-in__enter-email__back-icon"
+        class="fy-icon sign-in__back-icon"
         src="/assets/svg/arrow-tail-left.svg"
         (click)="changeState(signInPageState.SELECT_SIGN_IN_METHOD)"
       ></ion-icon>
       <div class="sign-in__enter-email__form-container">
         <div>
-          <div class="sign-in__enter-email__page-header">Sign in</div>
-          <div class="sign-in__enter-email__sub-header">Enter the credentials to access your account</div>
+          <div class="sign-in__page-header">Sign in</div>
+          <div class="sign-in__sub-header">Enter the credentials to access your account</div>
         </div>
         <form [formGroup]="fg" class="sign-in__enter-email__input-container">
           <div class="sign-in__enter-email__input-container__label">Registered email</div>
@@ -53,7 +56,7 @@
             #simpleEmailInput
             matInput
             type="email"
-            placeholder="Enter registered email"
+            placeholder="Enter email address"
             formControlName="email"
             pattern="\S+@\S+\.\S{2,}"
             class="sign-in__enter-email__input-container__input"
@@ -85,14 +88,14 @@
   <div class="sign-in__enter-password" *ngIf="currentStep === signInPageState.ENTER_PASSWORD">
     <div>
       <ion-icon
-        class="fy-icon sign-in__enter-email__back-icon"
+        class="fy-icon sign-in__back-icon"
         src="/assets/svg/arrow-tail-left.svg"
         (click)="changeState(signInPageState.ENTER_EMAIL)"
       ></ion-icon>
       <div class="sign-in__enter-password__form-container">
         <div>
-          <div class="sign-in__enter-password__page-header">Sign in</div>
-          <div class="sign-in__enter-password__sub-header">Enter the credentials to access your account</div>
+          <div class="sign-in__page-header">Sign in</div>
+          <div class="sign-in__sub-header">Enter the credentials to access your account</div>
         </div>
         <form [formGroup]="fg" class="sign-in__enter-password__input-container">
           <div class="sign-in__enter-password__input-container__label">Registered email</div>
@@ -111,7 +114,7 @@
             <div class="sign-in__enter-password__input-container__label">Password</div>
             <div class="sign-in__enter-password__password-container">
               <input
-                placeholder="Re-enter password"
+                placeholder="Enter password"
                 [required]="true"
                 [type]="hidePassword ? 'password': 'text'"
                 class="sign-in__enter-password__text-input smartlook-show"
@@ -151,7 +154,7 @@
         (click)="signInUser()"
         appFormButtonValidation
         [loading]="passwordLoading"
-        [loadingText]="'Signing In'"
+        [loadingText]="'Signing in'"
       >
         Sign in
       </ion-button>

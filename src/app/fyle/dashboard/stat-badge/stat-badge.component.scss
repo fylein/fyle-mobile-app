@@ -29,11 +29,6 @@
     --ion-grid-column-padding: 4px;
   }
 
-  &--count-col {
-    padding-left: 8px;
-    padding-right: 8px;
-  }
-
   &--count {
     min-width: 30px;
     min-height: 30px;
@@ -81,10 +76,12 @@
 
   &--amount {
     font-weight: 500;
+    font-size: 12px;
+    color: $black;
   }
 
   &--name {
-    font-size: 14px;
+    font-size: 12px;
     line-height: 18px;
     color: $blue-black;
     white-space: nowrap;
