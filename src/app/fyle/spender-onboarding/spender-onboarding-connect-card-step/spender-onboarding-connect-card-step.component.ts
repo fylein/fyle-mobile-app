@@ -9,15 +9,7 @@ import {
   Output,
   SimpleChanges,
 } from '@angular/core';
-import {
-  AbstractControl,
-  FormArray,
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  ValidationErrors,
-  Validators,
-} from '@angular/forms';
+import { AbstractControl, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { PopoverController } from '@ionic/angular';
 import { catchError, concatMap, from, map, noop, of, switchMap, tap } from 'rxjs';
 import { CardNetworkType } from 'src/app/core/enums/card-network-type';
@@ -80,56 +72,67 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
     private popoverController: PopoverController
   ) {}
 
+  setupErrorMessages(error: HttpErrorResponse, cardNumber: string, cardId?: string): void {
+    this.cardsList.failedCards.push(`**** ${cardNumber}`);
+    this.handleEnrollmentFailures(error, cardId);
+  }
+
+  enrollMultipleCards(cards: PlatformCorporateCard[]): void {
+    from(cards)
+      .pipe(
+        concatMap((card) =>
+          this.realTimeFeedService
+            .enroll(this.fg.controls[`card_number_${card.id}`].value + this.cardValuesMap[card.id].last_four, card.id)
+            .pipe(
+              map(() => {
+                this.cardsList.successfulCards.push(`**** ${card.card_number.slice(-4)}`);
+              }),
+              catchError((error: HttpErrorResponse) => {
+                this.setupErrorMessages(error, this.fg.controls.card_number.value as string, card.id);
+                return of(error);
+              })
+            )
+        )
+      )
+      .subscribe(() => {
+        this.cardsEnrolling = false;
+        if (this.cardsList.failedCards.length > 0) {
+          this.showErrorPopover();
+        } else {
+          this.isStepComplete.emit(true);
+        }
+      });
+  }
+
+  enrollSingularCard(): void {
+    this.realTimeFeedService
+      .enroll(this.fg.controls.card_number.value as string)
+      .pipe(
+        map(() => {
+          this.cardsList.successfulCards.push(`**** ${(this.fg.controls.card_number.value as string).slice(-4)}`);
+        }),
+        catchError((error: HttpErrorResponse) => {
+          this.setupErrorMessages(error, this.fg.controls.card_number.value as string);
+          return of(error);
+        })
+      )
+      .subscribe(() => {
+        this.cardsEnrolling = false;
+        if (this.cardsList.failedCards.length > 0) {
+          this.showErrorPopover();
+        } else {
+          this.isStepComplete.emit(true);
+        }
+      });
+  }
+
   enrollCards(): void {
     const cards = this.enrollableCards;
     this.cardsEnrolling = true;
     if (cards.length > 0) {
-      from(cards)
-        .pipe(
-          concatMap((card) =>
-            this.realTimeFeedService
-              .enroll(this.fg.controls[`card_number_${card.id}`].value + this.cardValuesMap[card.id].last_four, card.id)
-              .pipe(
-                map(() => {
-                  this.cardsList.successfulCards.push(`**** ${card.card_number.slice(-4)}`);
-                }),
-                catchError((error: HttpErrorResponse) => {
-                  this.cardsList.failedCards.push(`**** ${card.card_number.slice(-4)}`);
-                  this.handleEnrollmentFailures(error, card.id);
-                  return of(null);
-                })
-              )
-          )
-        )
-        .subscribe(() => {
-          this.cardsEnrolling = false;
-          if (this.cardsList.failedCards.length > 0) {
-            this.showErrorPopover();
-          } else {
-            this.isStepComplete.emit(true);
-          }
-        });
+      this.enrollMultipleCards(cards);
     } else {
-      this.realTimeFeedService
-        .enroll(this.fg.controls.card_number.value as string)
-        .pipe(
-          map(() => {
-            this.cardsList.successfulCards.push(`**** ${(this.fg.controls.card_number.value as string).slice(-4)}`);
-          }),
-          catchError((error: HttpErrorResponse) => {
-            this.cardsList.failedCards.push(`**** ${(this.fg.controls.card_number.value as string).slice(-4)}`);
-            this.handleEnrollmentFailures(error, 'card_number');
-            return of(null);
-          })
-        )
-        .subscribe(() => {
-          this.cardsEnrolling = false;
-          if (this.cardsList.failedCards.length > 0) {
-            this.showErrorPopover();
-          } else {
-            this.isStepComplete.emit(true);
-          }
-        });
+      this.enrollSingularCard();
     }
   }
 
@@ -208,8 +211,8 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
                 new FormControl('', [
                   Validators.required,
                   Validators.maxLength(12),
-                  this.cardNumberValidator.bind(this),
-                  this.cardNetworkValidator.bind(this),
+                  this.cardNumberValidator,
+                  this.cardNetworkValidator,
                 ])
               );
             });
