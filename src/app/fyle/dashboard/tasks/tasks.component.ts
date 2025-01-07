@@ -461,6 +461,8 @@ export class TasksComponent implements OnInit {
 
       await cardAddedModal.present();
       await cardAddedModal.onDidDismiss();
+
+      this.doRefresh();
     });
   }
 
@@ -501,7 +503,6 @@ export class TasksComponent implements OnInit {
         const popoverResponse = (await addCorporateCardPopover.onDidDismiss()) as OverlayResponse<{ success: boolean }>;
 
         if (popoverResponse.data?.success) {
-          this.doRefresh();
           this.handleEnrollmentSuccess();
         }
       }
