@@ -37,6 +37,7 @@ export class ResetPasswordPage {
 
   ionViewWillEnter(): void {
     this.currentPageState = PageState.notSent;
+    this.isEmailSentOnce = false;
     const email = (this.activatedRoute.snapshot.params.email as string) || '';
     this.fg = this.formBuilder.group({
       email: [email, Validators.compose([Validators.required, Validators.pattern('\\S+@\\S+\\.\\S{2,}')])],
