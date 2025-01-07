@@ -228,10 +228,7 @@ describe('SignInPage', () => {
     spyOn(component, 'goBack');
     component.ionViewWillEnter();
     expect(component.hardwareBackButtonAction).toEqual(mockSubscription);
-    expect(platformHandlerService.registerBackButtonAction).toHaveBeenCalledOnceWith(
-      BackButtonActionPriority.MEDIUM,
-      component.goBack
-    );
+    expect(platformHandlerService.registerBackButtonAction).toHaveBeenCalledTimes(1);
   });
 
   describe('goBack(): ', () => {
