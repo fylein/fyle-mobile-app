@@ -266,8 +266,8 @@ export class SignInPage implements OnInit {
     await this.loginInfoService.addLoginInfo(deviceInfo.appVersion, new Date());
   }
 
-  goBack(): void {
-    switch (this.currentStep) {
+  goBack(currentStep: SignInPageState): void {
+    switch (currentStep) {
       case SignInPageState.ENTER_EMAIL:
         this.changeState(SignInPageState.SELECT_SIGN_IN_METHOD);
         break;
@@ -285,8 +285,11 @@ export class SignInPage implements OnInit {
     } else {
       this.currentStep = SignInPageState.SELECT_SIGN_IN_METHOD;
     }
-    const priority = BackButtonActionPriority.ABSOLUTE;
-    this.hardwareBackButtonAction = this.platformHandlerService.registerBackButtonAction(priority, this.goBack);
+    const fn = (): void => {
+      this.goBack(this.currentStep);
+    };
+    const priority = BackButtonActionPriority.MEDIUM;
+    this.hardwareBackButtonAction = this.platformHandlerService.registerBackButtonAction(priority, fn);
   }
 
   changeState(state: SignInPageState): void {
