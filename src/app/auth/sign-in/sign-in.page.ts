@@ -285,7 +285,7 @@ export class SignInPage implements OnInit {
     } else {
       this.currentStep = SignInPageState.SELECT_SIGN_IN_METHOD;
     }
-    const priority = BackButtonActionPriority.MEDIUM;
+    const priority = BackButtonActionPriority.ABSOLUTE;
     this.hardwareBackButtonAction = this.platformHandlerService.registerBackButtonAction(priority, this.goBack);
   }
 

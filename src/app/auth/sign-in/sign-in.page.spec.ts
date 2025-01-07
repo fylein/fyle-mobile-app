@@ -229,7 +229,7 @@ describe('SignInPage', () => {
     component.ionViewWillEnter();
     expect(component.hardwareBackButtonAction).toEqual(mockSubscription);
     expect(platformHandlerService.registerBackButtonAction).toHaveBeenCalledOnceWith(
-      BackButtonActionPriority.MEDIUM,
+      BackButtonActionPriority.ABSOLUTE,
       component.goBack
     );
   });
