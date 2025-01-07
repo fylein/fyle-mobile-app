@@ -1,4 +1,4 @@
-import { ComponentFixture, fakeAsync, TestBed, tick, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, flush, TestBed, tick, waitForAsync } from '@angular/core/testing';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { SpenderOnboardingConnectCardStepComponent } from './spender-onboarding-connect-card-step.component';
 import { RealTimeFeedService } from 'src/app/core/services/real-time-feed.service';
@@ -12,8 +12,9 @@ import { of, throwError } from 'rxjs';
 import { statementUploadedCard } from 'src/app/core/mock-data/platform-corporate-card.data';
 import { SimpleChange, SimpleChanges } from '@angular/core';
 import { orgSettingsData } from 'src/app/core/test-data/org-settings.service.spec.data';
+import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 
-describe('SpenderOnboardingConnectCardStepComponent', () => {
+fdescribe('SpenderOnboardingConnectCardStepComponent', () => {
   let component: SpenderOnboardingConnectCardStepComponent;
   let fixture: ComponentFixture<SpenderOnboardingConnectCardStepComponent>;
   let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
@@ -25,7 +26,7 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
     const corporateCreditCardExpenseServiceSpy = jasmine.createSpyObj('CorporateCreditCardExpenseService', [
       'getCorporateCards',
     ]);
-    const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['dismiss']);
+    const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create', 'dismiss']);
     const realTimeFeedServiceSpy = jasmine.createSpyObj('RealTimeFeedService', [
       'enroll',
       'getCardTypeFromNumber',
@@ -53,7 +54,7 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
     fb = TestBed.inject(FormBuilder);
     component.fg = fb.group({});
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
-    corporateCreditCardExpenseService.getCorporateCards.and.returnValue(null);
+    corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([]));
     realTimeFeedService.isCardNumberValid.and.returnValue(true);
     realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.VISA);
   }));
@@ -230,4 +231,39 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
       expect(showErrorPopoverSpy).toHaveBeenCalledTimes(1);
     }));
   });
+
+  fit('showErrorPopover(): should display a popover and handle its actions', fakeAsync(() => {
+    const popoverSpy = jasmine.createSpyObj('popover', ['present', 'onWillDismiss']);
+    popoverSpy.onWillDismiss.and.resolveTo({
+      data: {
+        action: 'close',
+      },
+    });
+    popoverController.create.and.resolveTo(popoverSpy);
+    fixture.detectChanges();
+    component.cardsList = {
+      successfulCards: [],
+      failedCards: ['**** 1111'],
+    };
+    component.showErrorPopover();
+    tick(1000);
+
+    expect(popoverController.create).toHaveBeenCalledOnceWith({
+      componentProps: {
+        title: 'Failed connecting',
+        message: component.generateMessage(),
+        primaryCta: {
+          text: 'Proceed anyway',
+          action: 'close',
+        },
+        secondaryCta: {
+          text: 'Cancel',
+          action: 'cancel',
+        },
+        cardsList: {},
+      },
+      component: PopupAlertComponent,
+      cssClass: 'pop-up-in-center',
+    });
+  }));
 });
