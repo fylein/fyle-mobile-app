@@ -111,7 +111,7 @@ export class SpenderOnboardingPage {
           switchMap(() => this.spenderOnboardingService.markWelcomeModalStepAsComplete()),
           map(() => {
             this.onboardingComplete = true;
-            this.startCountdown();
+            this.router.navigate(['/', 'enterprise', 'my_dashboard']);
           })
         )
         .subscribe();
