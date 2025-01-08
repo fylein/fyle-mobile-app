@@ -2,19 +2,18 @@ import { ComponentFixture, fakeAsync, flush, TestBed, tick, waitForAsync } from 
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { SpenderOnboardingConnectCardStepComponent } from './spender-onboarding-connect-card-step.component';
 import { RealTimeFeedService } from 'src/app/core/services/real-time-feed.service';
-import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { IonicModule, PopoverController } from '@ionic/angular';
-import { By } from '@angular/platform-browser';
 import { CardNetworkType } from 'src/app/core/enums/card-network-type';
 import { NgxMaskModule } from 'ngx-mask';
 import { HttpErrorResponse } from '@angular/common/http';
 import { of, throwError } from 'rxjs';
 import { statementUploadedCard } from 'src/app/core/mock-data/platform-corporate-card.data';
-import { SimpleChange, SimpleChanges } from '@angular/core';
+import { SimpleChanges } from '@angular/core';
 import { orgSettingsData } from 'src/app/core/test-data/org-settings.service.spec.data';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 
-fdescribe('SpenderOnboardingConnectCardStepComponent', () => {
+describe('SpenderOnboardingConnectCardStepComponent', () => {
   let component: SpenderOnboardingConnectCardStepComponent;
   let fixture: ComponentFixture<SpenderOnboardingConnectCardStepComponent>;
   let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
@@ -59,9 +58,18 @@ fdescribe('SpenderOnboardingConnectCardStepComponent', () => {
     realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.VISA);
   }));
 
-  it('ngOnInit(): ', () => {
-    corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([]));
+  it('ngOnInit(): should setup card form controls', () => {
+    component.enrollableCards = [{ ...statementUploadedCard, card_number: '1111' }];
+    corporateCreditCardExpenseService.getCorporateCards.and.returnValue(
+      of([{ ...statementUploadedCard, card_number: '1111' }])
+    );
+    realTimeFeedService.isCardNumberValid.and.returnValue(false);
+    realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.OTHERS);
     component.ngOnInit();
+    component.fg.controls.card_number_bacc15bbrRGWzf.setValue('4111111111');
+    fixture.detectChanges();
+
+    expect(component.fg.controls.card_number_bacc15bbrRGWzf.errors.invalidCardNumber).toBeTrue();
   });
 
   it('ngOnChanges(): should update isVisaRTFEnabled and isMastercardRTFEnabled when orgSettings changes', () => {
@@ -124,6 +132,19 @@ fdescribe('SpenderOnboardingConnectCardStepComponent', () => {
     });
   });
 
+  it('handleEnrollmentFailures(): should set generic error message for no error message from API', () => {
+    const mockError = { status: 404 };
+
+    component.enrollableCards = [];
+    component.ngOnInit();
+    fixture.detectChanges();
+
+    //@ts-ignore
+    component.handleEnrollmentFailures(mockError);
+    expect(component.fg.controls.card_number.errors.enrollmentError).toBeTrue();
+    expect(component.singularEnrollmentFailure).toEqual('Something went wrong. Please try after some time.');
+  });
+
   describe('enrollCards(): ', () => {
     it('should call enrollMultipleCards if enrollableCards has items', () => {
       component.enrollableCards = [statementUploadedCard];
@@ -150,6 +171,46 @@ fdescribe('SpenderOnboardingConnectCardStepComponent', () => {
       expect(enrollSingularCardSpy).toHaveBeenCalled();
       expect(enrollMultipleCardsSpy).not.toHaveBeenCalled();
       expect(component.cardsEnrolling).toBeTrue();
+    });
+  });
+
+  describe('generateMessage(): ', () => {
+    beforeEach(() => {
+      component.cardsList = {
+        successfulCards: [],
+        failedCards: [],
+      };
+    });
+
+    it('should return the message for successful cards with failed cards present', () => {
+      component.cardsList.successfulCards = ['**** 5678'];
+      component.cardsList.failedCards = ['**** 1234'];
+
+      const message = component.generateMessage();
+
+      expect(message).toBe(
+        'We ran into an issue while processing your request. You can cancel and retry connecting the failed card or proceed to the next step.'
+      );
+    });
+
+    it('should return the message for multiple failed cards', () => {
+      component.cardsList.failedCards = ['**** 1234', '**** 5678', '**** 9012'];
+      fixture.detectChanges();
+      const message = component.generateMessage();
+      expect(message).toBe(
+        `We ran into an issue while processing your request for the cards  **** 1234, **** 5678 and **** 9012. You can cancel and retry connecting the failed card or proceed to the next step.`
+      );
+    });
+
+    it('should return the message for a single failed card', () => {
+      component.cardsList.failedCards = ['**** 1234'];
+
+      fixture.detectChanges();
+      const message = component.generateMessage();
+
+      expect(message).toBe(
+        `We ran into an issue while processing your request for the card **** 1234. You can cancel and retry connecting the failed card or proceed to the next step.`
+      );
     });
   });
 
@@ -232,26 +293,26 @@ fdescribe('SpenderOnboardingConnectCardStepComponent', () => {
     }));
   });
 
-  fit('showErrorPopover(): should display a popover and handle its actions', fakeAsync(() => {
+  it('showErrorPopover(): should display a popover and handle its actions', () => {
     const popoverSpy = jasmine.createSpyObj('popover', ['present', 'onWillDismiss']);
+    spyOn(component, 'generateMessage').and.returnValue('Error message');
     popoverSpy.onWillDismiss.and.resolveTo({
       data: {
         action: 'close',
       },
     });
     popoverController.create.and.resolveTo(popoverSpy);
-    fixture.detectChanges();
     component.cardsList = {
       successfulCards: [],
       failedCards: ['**** 1111'],
     };
+    fixture.detectChanges();
     component.showErrorPopover();
-    tick(1000);
 
     expect(popoverController.create).toHaveBeenCalledOnceWith({
       componentProps: {
         title: 'Failed connecting',
-        message: component.generateMessage(),
+        message: 'Error message',
         primaryCta: {
           text: 'Proceed anyway',
           action: 'close',
@@ -265,5 +326,33 @@ fdescribe('SpenderOnboardingConnectCardStepComponent', () => {
       component: PopupAlertComponent,
       cssClass: 'pop-up-in-center',
     });
-  }));
+  });
+
+  describe('onCardNumberUpdate(): ', () => {
+    it('should update card_type for the given card or singleEnrollableCardDetails', () => {
+      realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.VISA);
+      component.enrollableCards = [];
+      component.ngOnInit();
+      component.fg.controls.card_number.setValue('41111111111111111');
+
+      component.onCardNumberUpdate();
+      expect(component.singleEnrollableCardDetails.card_type).toBe(CardNetworkType.VISA);
+    });
+
+    it('should update card_type for the given card or singleEnrollableCardDetails', () => {
+      realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.VISA);
+      component.cardValuesMap.bacc15bbrRGWzf = {
+        last_four: '1111',
+        card_type: CardNetworkType.VISA,
+      };
+      component.enrollableCards = [statementUploadedCard, { ...statementUploadedCard, id: 'bacc15bbrRGWzg' }];
+      component.fg = fb.group({
+        card_number_bacc15bbrRGWzf: ['', Validators.required],
+      });
+      component.fg.controls.card_number_bacc15bbrRGWzf.setValue('41111111111111111');
+
+      component.onCardNumberUpdate(statementUploadedCard);
+      expect(component.cardValuesMap.bacc15bbrRGWzf.card_type).toBe(CardNetworkType.VISA);
+    });
+  });
 });
