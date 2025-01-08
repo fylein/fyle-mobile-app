@@ -5,7 +5,7 @@
       This will help you bring your card transactions into Fyle as expenses instantly.
     </div>
     <form [formGroup]="fg">
-      <div *ngIf="enrollableCards.length > 0">
+      <div *ngIf="enrollableCards.length > 0" class="connect-card__multiple-cards">
         <div *ngFor="let card of enrollableCards; let i = index">
           <div class="connect-card__input-label">
             <span>Corporate card</span>
@@ -27,7 +27,7 @@
                 data-testid="card-number-input"
                 formControlName="card_number_{{ card.id }}"
                 required
-                (input)="onCardNumberUpdate(card, 'card_number_' + card.id)"
+                (input)="onCardNumberUpdate(card)"
               />
 
               <div class="connect-card__card-last-four">
@@ -67,6 +67,10 @@
             <span *ngIf="fg.controls['card_number_' + card.id]?.errors.invalidCardNumber"
               >Please enter a valid card number.</span
             >
+
+            <span *ngIf="fg.controls['card_number_' + card.id]?.errors.enrollmentError">{{
+              cardValuesMap[card.id].enrollment_error
+            }}</span>
 
             <ng-container *ngIf="fg.controls['card_number_' + card.id]?.errors.invalidCardNetwork">
               <span *ngIf="isVisaRTFEnabled && isMastercardRTFEnabled; else visaOnlyOrg"
@@ -148,6 +152,9 @@
           data-testid="error-message"
         >
           <span *ngIf="fg.controls.card_number.errors.invalidCardNumber">Please enter a valid card number.</span>
+          <span *ngIf="fg.controls.card_number.errors.enrollmentError">
+            {{ singularEnrollmentFailure }}
+          </span>
 
           <ng-container *ngIf="fg.controls.card_number?.errors.invalidCardNetwork">
             <span *ngIf="isVisaRTFEnabled && isMastercardRTFEnabled; else visaOnlyOrg"
@@ -177,9 +184,11 @@
     <ion-button
       class="btn-primary connect-card__primary-cta"
       fill="clear"
-      [disabled]="fg.invalid"
       role="button"
       (click)="enrollCards()"
+      appFormButtonValidation
+      [loading]="cardsEnrolling"
+      [loadingText]="'Continue'"
     >
       Continue
     </ion-button>
