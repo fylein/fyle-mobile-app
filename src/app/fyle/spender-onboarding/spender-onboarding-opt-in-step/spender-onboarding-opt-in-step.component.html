@@ -13,7 +13,7 @@
           <ng-container *ngIf="optInFlowState === OptInFlowState.MOBILE_INPUT">
             <div class="opt-in-step__mobile-input-container">
               <div class="opt-in-step__mobile-input-container__label">
-                <span> Mobile number </span>
+                <span> Mobile Number </span>
               </div>
               <input
                 #mobileInput
@@ -91,8 +91,21 @@
     </div>
   </div>
 
-  <div class="opt-in-step__primary-cta-container" *ngIf="optInFlowState === OptInFlowState.MOBILE_INPUT">
-    <ion-button class="btn-primary opt-in-step__primary-cta" fill="clear" role="button" (click)="saveMobileNumber()">
+  <div
+    class="opt-in-step__cta-container"
+    [ngClass]="{ 'opt-in-step__without-go-back': !showGoBackCta, 'opt-in-step__with-go-back': showGoBackCta }"
+  >
+    <div fill="clear" class="opt-in-step__cta-secondary" (click)="goBackToConnectCard()" *ngIf="showGoBackCta">
+      <ion-icon class="opt-in-step__arrow-icon" [src]="'/assets/svg/arrow-left.svg'" slot="icon-only"></ion-icon>
+      <span class="opt-in-step__cta-text">Go back</span>
+    </div>
+    <ion-button
+      *ngIf="optInFlowState === OptInFlowState.MOBILE_INPUT"
+      class="btn-primary opt-in-step__primary-cta"
+      fill="clear"
+      role="button"
+      (click)="saveMobileNumber()"
+    >
       Continue
     </ion-button>
   </div>

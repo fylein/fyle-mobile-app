@@ -11,18 +11,17 @@
     height: 100%;
   }
 
-  &__primary-cta-container {
+  &__cta-container {
     display: flex;
     flex-direction: row;
-    justify-content: flex-end;
   }
 
-  &__card-number-input {
-    width: fit-content !important;
-    margin-right: 24px;
-    &::placeholder {
-      word-spacing: 24px;
-    }
+  &__with-go-back {
+    justify-content: space-between;
+  }
+
+  &__without-go-back {
+    justify-content: flex-end;
   }
 
   &__heading {
@@ -46,6 +45,7 @@
   &__primary-cta {
     width: 108px;
     align-self: flex-end;
+    margin-bottom: 20px;
   }
 
   &__toolbar-title {
@@ -73,7 +73,7 @@
   }
 
   &__input-container {
-    padding: 16px 16px 8px;
+    padding: 16px 16px 8px 16px;
     border-radius: 8px;
     border: 1px solid $grey;
 
@@ -269,22 +269,11 @@
     }
   }
 
-  &__primary-cta {
-    margin: 16px auto;
-    width: 90%;
-
-    .mat-button-base {
-      width: 100%;
-      font-weight: 700;
-      min-height: 47px;
-    }
-  }
-
   &__otp-container {
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
-    margin-bottom: 32px;
+    margin-bottom: 16px;
 
     &__label {
       margin: 0 8px 0 0;
@@ -400,15 +389,29 @@
         font-size: 14px;
       }
     }
-
-    &__help-article-icon {
-      margin: 4px 0px 0px 6px;
-      width: 14px;
-      height: 14px;
-    }
   }
 
   &__footer {
     margin-bottom: calc(env(safe-area-inset-bottom));
+  }
+
+  &__cta-text {
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  &__arrow-icon {
+    margin-right: 6px;
+    height: 18px;
+    width: 18px;
+  }
+
+  &__cta-secondary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $blue-black;
+    flex-direction: row;
+    padding: 16px 0;
   }
 }
