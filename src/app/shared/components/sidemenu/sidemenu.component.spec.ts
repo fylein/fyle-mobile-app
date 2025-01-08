@@ -34,6 +34,9 @@ import {
   setSideMenuRes,
 } from 'src/app/core/mock-data/sidemenu.data';
 import { delegatorData } from 'src/app/core/mock-data/platform/v1/delegator.data';
+import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
+import { onboardingStatusData } from 'src/app/core/mock-data/onboarding-status.data';
+import { OnboardingState } from 'src/app/core/models/onboarding-state.enum';
 
 describe('SidemenuComponent', () => {
   let component: SidemenuComponent;
@@ -50,6 +53,7 @@ describe('SidemenuComponent', () => {
   let orgService: jasmine.SpyObj<OrgService>;
   let authService: jasmine.SpyObj<AuthService>;
   let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
+  let spenderOnboardingService: jasmine.SpyObj<SpenderOnboardingService>;
 
   @Component({
     selector: 'app-sidemenu',
@@ -83,6 +87,7 @@ describe('SidemenuComponent', () => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     authServiceSpy.getEou.and.resolveTo(apiEouRes);
     const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
+    const spenderOnboardingServiceSpy = jasmine.createSpyObj('SpenderOnboardingService', ['getOnboardingStatus']);
 
     TestBed.configureTestingModule({
       declarations: [SidemenuComponent],
@@ -100,6 +105,7 @@ describe('SidemenuComponent', () => {
         { provide: OrgService, useValue: orgServiceSpy },
         { provide: AuthService, useValue: authServiceSpy },
         { provide: OrgUserSettingsService, useValue: orgUserSettingsServiceSpy },
+        { provide: SpenderOnboardingService, useValue: spenderOnboardingServiceSpy },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -116,6 +122,7 @@ describe('SidemenuComponent', () => {
     orgService = TestBed.inject(OrgService) as jasmine.SpyObj<OrgService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
+    spenderOnboardingService = TestBed.inject(SpenderOnboardingService) as jasmine.SpyObj<SpenderOnboardingService>;
 
     networkService.connectivityWatcher.and.returnValue(new EventEmitter());
 
@@ -448,8 +455,14 @@ describe('SidemenuComponent', () => {
     });
   });
 
-  describe('setupSideMenu()', () => {
-    it('should setup the side menu', () => {
+  describe('setupSideMenu(): ', () => {
+    beforeEach(() => {
+      spenderOnboardingService.getOnboardingStatus.and.returnValue(
+        of({ ...onboardingStatusData, state: OnboardingState.COMPLETED })
+      );
+    });
+
+    it('should setup the side menu', fakeAsync(() => {
       const getPrimarySidemenuOptionsSpy = spyOn(component, 'getPrimarySidemenuOptions').and.returnValue(
         getPrimarySidemenuOptionsRes1
       );
@@ -458,22 +471,24 @@ describe('SidemenuComponent', () => {
       );
       const resData = setSideMenuRes;
       component.setupSideMenu(true, orgData1, true);
+      tick();
       fixture.detectChanges();
       expect(component.filteredSidemenuList).toEqual(resData);
       expect(getPrimarySidemenuOptionsSpy).toHaveBeenCalledOnceWith(true, false);
       expect(getSecondarySidemenuOptionsSpy).toHaveBeenCalledOnceWith(orgData1, true, true, false);
-    });
+    }));
 
-    it('should only get the primary options when there is no internet connection', () => {
+    it('should only get the primary options when there is no internet connection', fakeAsync(() => {
       const getPrimarySidemenuOptionsOfflineSpy = spyOn(component, 'getPrimarySidemenuOptionsOffline').and.returnValue(
         sidemenuData1
       );
       const resData = sidemenuData1;
       component.setupSideMenu(false, orgData1, false);
       fixture.detectChanges();
+      tick();
       expect(component.filteredSidemenuList).toEqual(resData);
       expect(getPrimarySidemenuOptionsOfflineSpy).toHaveBeenCalledTimes(1);
-    });
+    }));
   });
 
   describe('goToProfile():', () => {
@@ -516,6 +531,9 @@ describe('SidemenuComponent', () => {
       orgUserService.getCurrent.and.returnValue(of(currentEouRes));
 
       sidemenuService.getAllowedActions.and.returnValue(of(sidemenuAllowedActions));
+      spenderOnboardingService.getOnboardingStatus.and.returnValue(
+        of({ ...onboardingStatusData, state: OnboardingState.COMPLETED })
+      );
 
       component.showSideMenuOnline();
       tick(500);

@@ -46,6 +46,8 @@ export class SpenderOnboardingPage {
   ) {}
 
   ionViewWillEnter(): void {
+    this.router.navigateByUrl('/enterprise/my_dashboard', { skipLocationChange: true });
+    this.router.navigate(['/', 'enterprise', 'my_dashboard']);
     this.isLoading = true;
     from(this.loaderService.showLoader())
       .pipe(
@@ -144,6 +146,7 @@ export class SpenderOnboardingPage {
       if (this.redirectionCount > 0) {
         this.redirectionCount--;
       } else {
+        this.router.navigateByUrl('/enterprise/my_dashboard', { skipLocationChange: true });
         this.router.navigate(['/', 'enterprise', 'my_dashboard']);
       }
     }, 1000);
