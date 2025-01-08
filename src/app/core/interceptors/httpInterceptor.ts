@@ -22,6 +22,7 @@ import { SecureStorageService } from '../services/secure-storage.service';
 import { StorageService } from '../services/storage.service';
 import { TokenService } from '../services/token.service';
 import { UserEventService } from '../services/user-event.service';
+import * as Sentry from '@sentry/angular';
 
 @Injectable()
 export class HttpConfigInterceptor implements HttpInterceptor {
@@ -153,6 +154,7 @@ export class HttpConfigInterceptor implements HttpInterceptor {
         return next.handle(request).pipe(
           catchError((error) => {
             if (error instanceof HttpErrorResponse) {
+              this.handleSentryError(error, request);
               if (this.expiringSoon(token)) {
                 return from(this.refreshAccessToken()).pipe(
                   mergeMap((newToken) => {
@@ -176,6 +178,44 @@ export class HttpConfigInterceptor implements HttpInterceptor {
         );
       })
     );
+  }
+
+  private handleSentryError(error: HttpErrorResponse, request: HttpRequest<string>): void {
+    if (error.status >= 500) {
+      const errorObject = new Error(`API ${error.status} Error: ${error.message || 'Server error'}`);
+
+      Object.assign(errorObject, {
+        status: error.status,
+        statusText: error.statusText,
+      });
+
+      Sentry.captureException(errorObject, {
+        tags: {
+          errorType: 'API_500',
+          apiEndpoint: error.url,
+        },
+        extra: {
+          requestUrl: request.url,
+          requestMethod: request.method,
+          requestHeaders: request.headers,
+          requestBody: request.body,
+          responseStatus: error.status,
+          responseStatusText: error.statusText,
+          responseData: error.error,
+        },
+      });
+
+      Sentry.addBreadcrumb({
+        category: 'api',
+        message: `API call failed with status ${error.status}`,
+        level: 'error',
+        data: {
+          url: request.url,
+          method: request.method,
+          status: error.status,
+        },
+      });
+    }
   }
 }
 

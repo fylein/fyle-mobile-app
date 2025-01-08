@@ -38,6 +38,7 @@ import { ExtendedComment } from 'src/app/core/models/platform/v1/extended-commen
 import { Comment } from 'src/app/core/models/platform/v1/comment.model';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
 import * as Sentry from '@sentry/angular';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-my-view-report',
@@ -455,12 +456,38 @@ export class MyViewReportPage {
         });
         this.trackingService.showToastMessage({ ToastContent: message });
       },
-      error: (error) => {
-        // Capture error with additional details in Sentry
-        Sentry.captureException(error, {
+      error: (error: HttpErrorResponse) => {
+        const errorObject = new Error(`Report Submission Failed: ${error.message || 'Unknown error'}`);
+        if (error.status) {
+          Object.assign(errorObject, {
+            status: error.status,
+            statusText: error.statusText,
+          });
+        }
+
+        Sentry.addBreadcrumb({
+          category: 'reports',
+          message: 'Failed to submit report',
+          level: 'error',
+          data: {
+            reportId: this.reportId,
+            errorStatus: error.status,
+            errorMessage: error.message,
+          },
+        });
+
+        Sentry.captureException(errorObject, {
+          tags: {
+            errorType: 'REPORT_SUBMISSION_FAILED',
+            reportId: this.reportId,
+          },
           extra: {
             reportId: this.reportId,
             errorResponse: error,
+            context: {
+              component: 'ReportSubmissionComponent',
+              action: 'submitReport',
+            },
           },
         });
       },
