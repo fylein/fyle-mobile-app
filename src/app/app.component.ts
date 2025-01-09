@@ -24,6 +24,7 @@ import { BackButtonActionPriority } from './core/models/back-button-action-prior
 import { BackButtonService } from './core/services/back-button.service';
 import { TextZoom } from '@capacitor/text-zoom';
 import { GmapsService } from './core/services/gmaps.service';
+import { SpenderOnboardingService } from './core/services/spender-onboarding.service';
 
 @Component({
   selector: 'app-root',
@@ -68,7 +69,8 @@ export class AppComponent implements OnInit {
     private loginInfoService: LoginInfoService,
     private navController: NavController,
     private backButtonService: BackButtonService,
-    private gmapsService: GmapsService
+    private gmapsService: GmapsService,
+    private spenderOnboardingService: SpenderOnboardingService
   ) {
     this.initializeApp();
     this.registerBackButtonAction();
@@ -190,6 +192,14 @@ export class AppComponent implements OnInit {
           this.sidemenuRef.showSideMenuOffline();
         }
       }, 500);
+    });
+
+    this.spenderOnboardingService.setOnboardingStatusAsComplete().subscribe(() => {
+      if (this.isOnline) {
+        this.sidemenuRef.showSideMenuOnline();
+      } else {
+        this.sidemenuRef.showSideMenuOffline();
+      }
     });
 
     this.userEventService.onLogout(() => {
