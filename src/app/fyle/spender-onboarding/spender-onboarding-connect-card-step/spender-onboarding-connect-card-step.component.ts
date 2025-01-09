@@ -42,7 +42,10 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
 
   enrollableCards: PlatformCorporateCard[] = [];
 
-  cardValuesMap: Record<string, { card_type: string; last_four: string; enrollment_error?: string }> = {};
+  cardValuesMap: Record<
+    string,
+    { card_type: string; last_four: string; enrollment_error?: string; enrollment_success?: boolean }
+  > = {};
 
   rtfCardType: CardNetworkType;
 
@@ -87,6 +90,7 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
           this.realTimeFeedService.enroll(this.getFullCardNumber(card.id), card.id).pipe(
             map(() => {
               this.cardsList.successfulCards.push(`**** ${card.card_number.slice(-4)}`);
+              this.cardValuesMap[card.id].enrollment_success = true;
             }),
             catchError((error: HttpErrorResponse) => {
               this.setupErrorMessages(error, `${card.card_number.slice(-4)}`, card.id);
@@ -132,7 +136,7 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
       successfulCards: [],
       failedCards: [],
     };
-    const cards = this.enrollableCards;
+    const cards = this.enrollableCards.filter((card) => !this.cardValuesMap[card.id]?.enrollment_success);
     this.cardsEnrolling = true;
     if (cards.length > 0) {
       this.enrollMultipleCards(cards);

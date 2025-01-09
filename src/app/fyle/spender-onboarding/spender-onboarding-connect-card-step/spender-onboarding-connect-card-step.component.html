@@ -28,7 +28,7 @@
                 formControlName="card_number_{{ card.id }}"
                 required
                 (input)="onCardNumberUpdate(card)"
-                [disabled]="true"
+                [readonly]="cardValuesMap[card.id].enrollment_success"
               />
 
               <div class="connect-card__card-last-four">
