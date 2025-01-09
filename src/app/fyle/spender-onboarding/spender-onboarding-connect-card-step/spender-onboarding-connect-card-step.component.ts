@@ -250,7 +250,7 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
       );
     } else {
       this.singleEnrollableCardDetails.card_type = this.realTimeFeedService.getCardTypeFromNumber(
-        this.fg.controls.card_number.value as string
+        this.fg.controls.card_number?.value as string
       );
     }
   }
@@ -270,7 +270,7 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
     return (): ValidationErrors | null => {
       // Reactive forms are not strongly typed in Angular 13, so we need to cast the value to string
       // TODO (Angular 14 >): Remove the type casting and directly use string type for the form control
-      const cardNumber = cardId ? this.getFullCardNumber(cardId) : (this.fg.controls.card_number.value as string);
+      const cardNumber = cardId ? this.getFullCardNumber(cardId) : (this.fg.controls.card_number?.value as string);
 
       const isValid = this.realTimeFeedService.isCardNumberValid(cardNumber);
       const cardType = this.realTimeFeedService.getCardTypeFromNumber(cardNumber);
@@ -285,7 +285,7 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
 
   private cardNetworkValidator(cardId?: string): ValidatorFn {
     return (): ValidationErrors | null => {
-      const cardNumber = cardId ? this.getFullCardNumber(cardId) : (this.fg.controls.card_number.value as string);
+      const cardNumber = cardId ? this.getFullCardNumber(cardId) : (this.fg.controls.card_number?.value as string);
       const cardType = this.realTimeFeedService.getCardTypeFromNumber(cardNumber);
 
       if (
