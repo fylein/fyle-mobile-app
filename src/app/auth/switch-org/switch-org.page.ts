@@ -31,7 +31,6 @@ import { TransactionService } from 'src/app/core/services/transaction.service';
 import { DeepLinkService } from 'src/app/core/services/deep-link.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
-import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
 import { OnboardingState } from 'src/app/core/models/onboarding-state.enum';
@@ -321,7 +320,12 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
   navigateToDashboard(openOptInDialog?: boolean): void {
     forkJoin([this.orgSettingsService.get(), this.spenderOnboardingService.getOnboardingStatus()]).subscribe(
       ([orgSettings, onboardingStatus]) => {
-        if (onboardingStatus.state !== OnboardingState.COMPLETED) {
+        if (
+          (orgSettings.visa_enrollment_settings.enabled ||
+            orgSettings.mastercard_enrollment_settings.enabled ||
+            orgSettings.amex_feed_enrollment_settings.enabled) &&
+          onboardingStatus.state !== OnboardingState.COMPLETED
+        ) {
           this.router.navigate(['/', 'enterprise', 'spender_onboarding']);
         } else {
           this.router.navigate([

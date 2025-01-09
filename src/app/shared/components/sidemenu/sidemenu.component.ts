@@ -389,6 +389,10 @@ export class SidemenuComponent implements OnInit {
     }
   }
 
+  reloadSidemenu(): void {
+    this.setupSideMenu();
+  }
+
   setupSideMenu(isConnected?: boolean, orgs?: Org[], isDelegatee?: boolean): void {
     if (isConnected) {
       this.spenderOnboardingService.getOnboardingStatus().subscribe((onboardingStatus) => {
