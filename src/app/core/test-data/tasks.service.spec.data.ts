@@ -1,4 +1,5 @@
 import deepFreeze from 'deep-freeze-strict';
+import { ExtendedOrgUser } from '../models/extended-org-user.model';
 
 export const potentialDuplicatesApiResponse = deepFreeze([
   { transaction_ids: ['tx3I0ccSGlhg', 'txvAmVCGZUZi'], fields: ['amount', 'currency', 'txn_dt'] },
@@ -22,16 +23,16 @@ export const potentialDuplicatesApiResponse = deepFreeze([
   { transaction_ids: ['txT0ZmCrVOiD', 'txzjWIcqYxa9'], fields: ['amount', 'currency', 'txn_dt'] },
 ]);
 
-export const extendedOrgUserResponse = deepFreeze({
+export const extendedOrgUserResponse: ExtendedOrgUser = deepFreeze({
   ou: {
     id: 'out3t2X258rd',
     created_at: new Date('2019-02-04T10:26:36.877Z'),
     org_id: 'orrjqbDbeP9p',
     user_id: 'usN0bYiJRI5V',
-    employee_id: null,
+    employee_id: 'ouE1vAIIxhaA',
     location: 'indiax',
     level: null,
-    level_id: null,
+    level_id: 'lvlPtroPaClQy',
     band: null,
     rank: null,
     business_unit: null,
@@ -171,6 +172,14 @@ export const extendedOrgUserResponse = deepFreeze({
   },
 });
 
+export const extendedOrgUserResponseSpender: ExtendedOrgUser = deepFreeze({
+  ...extendedOrgUserResponse,
+  ou: {
+    ...extendedOrgUserResponse.ou,
+    roles: ['FYLER'],
+  },
+});
+
 export const teamReportResponse = deepFreeze([
   {
     aggregates: [
@@ -260,14 +269,11 @@ export const allExtendedReportsResponse = deepFreeze([
     rp_manual_flag: false,
     rp_num_transactions: 2,
     rp_org_user_id: 'out3t2X258rd',
-    rp_physical_bill: false,
-    rp_physical_bill_at: null,
     rp_policy_flag: false,
     rp_purpose: '#1:  Oct 2022',
     rp_reimbursed_at: null,
     rp_risk_state: null,
     rp_risk_state_expense_count: null,
-    rp_settlement_id: null,
     rp_source: 'MOBILE',
     rp_state: 'APPROVER_INQUIRY',
     rp_submitted_at: new Date('2022-11-18T08:40:30.963'),
@@ -315,14 +321,11 @@ export const allExtendedReportsResponse = deepFreeze([
     rp_manual_flag: false,
     rp_num_transactions: 0,
     rp_org_user_id: 'out3t2X258rd',
-    rp_physical_bill: false,
-    rp_physical_bill_at: null,
     rp_policy_flag: false,
     rp_purpose: 'Trip #2: (Kolhapur), Nov 2021',
     rp_reimbursed_at: null,
     rp_risk_state: null,
     rp_risk_state_expense_count: null,
-    rp_settlement_id: null,
     rp_source: 'WEBAPP',
     rp_state: 'DRAFT',
     rp_submitted_at: null,
@@ -368,14 +371,11 @@ export const allExtendedReportsResponse = deepFreeze([
     rp_manual_flag: false,
     rp_num_transactions: 0,
     rp_org_user_id: 'out3t2X258rd',
-    rp_physical_bill: false,
-    rp_physical_bill_at: null,
     rp_policy_flag: false,
     rp_purpose: '#1:  Oct 2021',
     rp_reimbursed_at: null,
     rp_risk_state: null,
     rp_risk_state_expense_count: null,
-    rp_settlement_id: null,
     rp_source: 'WEBAPP',
     rp_state: 'DRAFT',
     rp_submitted_at: null,
@@ -421,8 +421,6 @@ export const allExtendedReportsResponse = deepFreeze([
     rp_manual_flag: false,
     rp_num_transactions: 0,
     rp_org_user_id: 'out3t2X258rd',
-    rp_physical_bill: true,
-    rp_physical_bill_at: new Date('2021-03-04T05:18:11.463'),
     rp_policy_flag: false,
     rp_purpose: '#1:  Mar 2021',
     rp_reimbursed_at: null,
@@ -432,7 +430,6 @@ export const allExtendedReportsResponse = deepFreeze([
       moderate_risk: 0,
       no_risk: 0,
     },
-    rp_settlement_id: null,
     rp_source: 'WEBAPP',
     rp_state: 'APPROVER_PENDING',
     rp_submitted_at: new Date('2021-03-04T05:18:11.809'),

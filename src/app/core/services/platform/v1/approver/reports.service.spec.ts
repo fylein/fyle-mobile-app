@@ -11,10 +11,14 @@ import {
   mockQueryParams,
   mockQueryParamsForCount,
   platformReportCountData,
+  platformReportData,
 } from 'src/app/core/mock-data/platform-report.data';
 import { ReportsQueryParams } from 'src/app/core/models/platform/v1/reports-query-params.model';
 import { StatsResponse } from 'src/app/core/models/platform/v1/stats-response.model';
 import { expectedReportStats } from 'src/app/core/mock-data/report-stats.data';
+import { ReportState } from '../../../../models/platform/v1/report.model';
+import { apiReportPermissions } from 'src/app/core/mock-data/report-permissions.data';
+import { Comment } from 'src/app/core/models/platform/v1/comment.model';
 
 describe('ApproverReportsService', () => {
   let approverReportsService: ApproverReportsService;
@@ -58,6 +62,15 @@ describe('ApproverReportsService', () => {
     });
   });
 
+  it('generateStatsQueryParams(): should generate stats query params', () => {
+    const queryParams = {
+      state: `eq.${ReportState.DRAFT}`,
+    };
+
+    const result = approverReportsService.generateStatsQueryParams(queryParams);
+    expect(result).toEqual('state=eq.DRAFT');
+  });
+
   it('getReportsCount(): should get a count of reports', (done) => {
     // Mock the response of getReportsByParams
     spyOn(approverReportsService, 'getReportsByParams').and.returnValue(of(platformReportCountData));
@@ -68,7 +81,7 @@ describe('ApproverReportsService', () => {
       offset: 0,
     };
 
-    approverReportsService.getReportsCount(mockQueryParams).subscribe((res) => {
+    approverReportsService.getReportsCount(mockQueryParamsForCount).subscribe((res) => {
       // Verify
       expect(res).toEqual(4); // Check if the count is as expected
       expect(approverReportsService.getReportsByParams).toHaveBeenCalledWith(expectedParams); // Check if the method is called with the expected params
@@ -103,6 +116,33 @@ describe('ApproverReportsService', () => {
       expect(getReportsByParams).toHaveBeenCalledWith(expectedParams1);
       expect(getReportsByParams).toHaveBeenCalledWith(expectedParams2);
       expect(getReportsByParams).toHaveBeenCalledTimes(2);
+      done();
+    });
+  });
+
+  it('permissions(): should get report permissions', (done) => {
+    approverPlatformApiService.post.and.returnValue(of({ data: apiReportPermissions }));
+
+    const id = 'rpxtbiLXQZUm';
+
+    approverReportsService.permissions(id).subscribe((res) => {
+      expect(res).toEqual(apiReportPermissions);
+      expect(approverPlatformApiService.post).toHaveBeenCalledOnceWith('/reports/permissions', { data: { id } });
+      done();
+    });
+  });
+
+  it('postComment(): should add a comment', (done) => {
+    const expectedCommentData: Comment = platformReportData.comments[0];
+    approverPlatformApiService.post.and.returnValue(of({ data: expectedCommentData }));
+
+    const id = 'rpxtbiLXQZUm';
+
+    approverReportsService.postComment(id, 'comment').subscribe((res) => {
+      expect(res).toEqual(expectedCommentData);
+      expect(approverPlatformApiService.post).toHaveBeenCalledOnceWith('/reports/comments', {
+        data: { id, comment: 'comment' },
+      });
       done();
     });
   });
@@ -146,6 +186,39 @@ describe('ApproverReportsService', () => {
     });
   });
 
+  it('sendBack(): should send back a report', (done) => {
+    approverPlatformApiService.post.and.returnValue(of(null));
+
+    const reportID = 'rpvcIMRMyM3A';
+    const comment = 'testing';
+
+    approverReportsService.sendBack(reportID, comment).subscribe(() => {
+      expect(approverPlatformApiService.post).toHaveBeenCalledOnceWith(`/reports/send_back`, {
+        data: { id: reportID, comment },
+      });
+      done();
+    });
+  });
+
+  it('addApprover(): should add approver to a report', (done) => {
+    approverPlatformApiService.post.and.returnValue(of({ data: platformReportData }));
+
+    const reportID = 'rprj1zHHpW2W';
+    const approverEmail = 'asilk@akls.in';
+    const comment = 'comment';
+
+    approverReportsService.addApprover(reportID, approverEmail, comment).subscribe(() => {
+      expect(approverPlatformApiService.post).toHaveBeenCalledOnceWith(`/reports/add_approver`, {
+        data: {
+          id: reportID,
+          approver_email: approverEmail,
+          comment,
+        },
+      });
+      done();
+    });
+  });
+
   it('getReportById(): should get a report by id', () => {
     spyOn(approverReportsService, 'getReportsByParams').and.returnValue(of(allReportsPaginated1));
     const queryParams = {
@@ -157,15 +230,24 @@ describe('ApproverReportsService', () => {
     });
   });
 
-  it('getReportsStats(): should get advance request stats', (done) => {
-    const statsResponse: StatsResponse = {
-      count: 2,
-      total_amount: 1200,
+  it('approve(): should approve a report', (done) => {
+    approverPlatformApiService.post.and.returnValue(of(null));
+
+    const reportID = 'rpShFuVCUIXk';
+    const data = {
+      id: reportID,
     };
+    approverReportsService.approve(reportID).subscribe(() => {
+      expect(approverPlatformApiService.post).toHaveBeenCalledOnceWith(`/reports/partially_approve`, { data });
+      done();
+    });
+  });
+
+  it('getReportsStats(): should get advance request stats', (done) => {
     approverPlatformApiService.post.and.returnValue(of({ data: expectedReportStats.draft }));
 
     const params = {
-      state: 'eq.DRAFT',
+      state: `eq.${ReportState.DRAFT}`,
     };
 
     approverReportsService.getReportsStats(params).subscribe((res) => {

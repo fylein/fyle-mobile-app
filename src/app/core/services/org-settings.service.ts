@@ -139,6 +139,11 @@ export class OrgSettingsService {
       advances: {
         allowed: incoming.advances_settings && incoming.advances_settings.allowed,
         enabled: incoming.advances_settings && incoming.advances_settings.enabled,
+        advance_wallets_enabled:
+          incoming.advances_settings &&
+          incoming.advances_settings.allowed &&
+          incoming.advances_settings.enabled &&
+          incoming.advances_settings.advance_wallets_enabled,
       },
       projects: {
         allowed: incoming.project_settings && incoming.project_settings.allowed,
@@ -149,6 +154,13 @@ export class OrgSettingsService {
         enabled: incoming.advanced_project_settings && incoming.advanced_project_settings.enabled,
         enable_individual_projects:
           incoming.advanced_project_settings && incoming.advanced_project_settings.enable_individual_projects,
+        enable_category_restriction:
+          incoming.advanced_project_settings && incoming.advanced_project_settings.enable_category_restriction,
+      },
+      advanced_per_diems_settings: {
+        allowed: incoming.advanced_per_diems_settings?.allowed,
+        enabled: incoming.advanced_per_diems_settings?.enabled,
+        enable_employee_restriction: incoming.advanced_per_diems_settings?.enable_employee_restriction,
       },
       advance_requests: {
         allowed: incoming.advances_settings && incoming.advances_settings.allowed,
@@ -438,7 +450,9 @@ export class OrgSettingsService {
         allowed: outgoing.advanced_projects.allowed,
         enabled: outgoing.advanced_projects.enabled,
         enable_individual_projects: outgoing.advanced_projects.enable_individual_projects,
+        enable_category_restriction: outgoing.advanced_projects.enable_category_restriction,
       },
+      advanced_per_diems_settings: outgoing.advanced_per_diems_settings,
       org_cost_center_settings: {
         allowed: outgoing.cost_centers.allowed,
         enabled: outgoing.cost_centers.enabled,
@@ -455,6 +469,7 @@ export class OrgSettingsService {
         allowed: outgoing.advances.allowed,
         enabled: outgoing.advances.enabled,
         advance_requests_enabled: outgoing.advance_requests.enabled,
+        advance_wallets_enabled: outgoing.advances.advance_wallets_enabled,
       },
       org_mileage_settings: {
         allowed: outgoing.mileage.allowed,

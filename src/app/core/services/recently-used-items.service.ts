@@ -7,7 +7,7 @@ import { ProjectsService } from 'src/app/core/services/projects.service';
 import { map } from 'rxjs/operators';
 import { ProjectV2 } from '../models/v2/project-v2.model';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
-import { OrgCategoryListItem } from '../models/v1/org-category.model';
+import { OrgCategory, OrgCategoryListItem } from '../models/v1/org-category.model';
 import { Currency, CurrencyName } from '../models/currency.model';
 @Injectable({
   providedIn: 'root',
@@ -23,6 +23,8 @@ export class RecentlyUsedItemsService {
     recentValues: RecentlyUsed;
     eou: ExtendedOrgUser;
     categoryIds: string[];
+    isProjectCategoryRestrictionsEnabled: boolean;
+    activeCategoryList?: OrgCategory[];
   }): Observable<ProjectV2[]> {
     if (
       config.recentValues &&
@@ -31,16 +33,20 @@ export class RecentlyUsedItemsService {
       config.eou
     ) {
       return this.projectsService
-        .getByParamsUnformatted({
-          orgId: config.eou.ou.org_id,
-          active: true,
-          sortDirection: 'asc',
-          sortOrder: 'project_name',
-          orgCategoryIds: config.categoryIds,
-          projectIds: config.recentValues.recent_project_ids,
-          offset: 0,
-          limit: 10,
-        })
+        .getByParamsUnformatted(
+          {
+            orgId: config.eou.ou.org_id,
+            isEnabled: true,
+            sortDirection: 'asc',
+            sortOrder: 'name',
+            orgCategoryIds: config.categoryIds,
+            projectIds: config.recentValues.recent_project_ids,
+            offset: 0,
+            limit: 10,
+          },
+          config.isProjectCategoryRestrictionsEnabled,
+          config.activeCategoryList
+        )
         .pipe(
           map((project) => {
             const projectsMap: { [key: string]: ProjectV2 } = {};

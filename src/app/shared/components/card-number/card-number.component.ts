@@ -8,5 +8,7 @@ import { Component, Input } from '@angular/core';
 export class CardNumberComponent {
   @Input() cardNumber: string;
 
+  @Input() cardNickname: string;
+
   maskedDots: number[] = Array<number>(12).fill(0);
 }

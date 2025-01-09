@@ -26,12 +26,8 @@ import { TrackingService } from '../../../core/services/tracking.service';
 import { PopupAlertComponent } from '../popup-alert/popup-alert.component';
 import { ExpensesService as SharedExpenseService } from 'src/app/core/services/platform/v1/shared/expenses.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { ReceiptDetail } from 'src/app/core/models/receipt-detail.model';
 
-type ReceiptDetail = {
-  dataUrl: string;
-  type: string;
-  actionSource: string;
-};
 @Component({
   selector: 'app-expense-card-v2',
   templateUrl: './expenses-card.component.html',
@@ -203,26 +199,6 @@ export class ExpensesCardComponent implements OnInit {
     return !!(hasUserManuallyEnteredData || isRequiredExtractedDataPresent || hasScanExpired);
   }
 
-  /**
-   * This is to check if the expense is currently in data extraction queue. If the item is not in data extraction queue anymore,
-   * a callback method is fired.
-   *
-   * The reasoning behind this is to check if scanning expenses have finished scanning
-   *
-   * @param callback Callback method to be fired when item has finished scanning
-   */
-  pollDataExtractionStatus(callback: Function): void {
-    const that = this;
-    setTimeout(() => {
-      const isPresentInQueue = that.transactionOutboxService.isDataExtractionPending(that.expense.id);
-      if (!isPresentInQueue) {
-        callback();
-      } else {
-        that.pollDataExtractionStatus(callback);
-      }
-    }, 1000);
-  }
-
   handleScanStatus(): void {
     const that = this;
     that.isScanInProgress = false;
@@ -236,24 +212,7 @@ export class ExpensesCardComponent implements OnInit {
           (that.homeCurrency === 'USD' || that.homeCurrency === 'INR')
         ) {
           that.isScanCompleted = that.checkIfScanIsCompleted();
-          that.isScanInProgress =
-            !that.isScanCompleted && that.transactionOutboxService.isDataExtractionPending(that.expense.id);
-          if (that.isScanInProgress) {
-            that.pollDataExtractionStatus(function () {
-              that.expensesService.getExpenseById(that.expense.id).subscribe((expense) => {
-                const etxn = that.transactionService.transformExpense(expense);
-                const extractedData = etxn.tx.extracted_data;
-                if (!!extractedData) {
-                  that.isScanCompleted = true;
-                  that.isScanInProgress = false;
-                  that.expense.extracted_data = extractedData;
-                } else {
-                  that.isScanInProgress = false;
-                  that.isScanCompleted = false;
-                }
-              });
-            });
-          }
+          that.isScanInProgress = !that.isScanCompleted && !this.expense.extracted_data;
         } else {
           that.isScanCompleted = true;
           that.isScanInProgress = false;
@@ -267,6 +226,38 @@ export class ExpensesCardComponent implements OnInit {
       this.expense.source_account?.type === AccountType.PERSONAL_CASH_ACCOUNT && this.expense.is_reimbursable;
   }
 
+  setIsPolicyViolated(): void {
+    this.isPolicyViolated = this.expense.is_policy_flagged;
+  }
+
+  setExpenseDetails(): void {
+    this.category = this.expense?.category?.name && this.expense?.category?.name.toLowerCase();
+    this.isMileageExpense = this.category === 'mileage';
+    this.isPerDiem = this.category === 'per diem';
+
+    this.isDraft = this.sharedExpenseService.isExpenseInDraft(this.expense);
+    this.isCriticalPolicyViolated = this.sharedExpenseService.isCriticalPolicyViolatedExpense(this.expense);
+    this.vendorDetails = this.sharedExpenseService.getVendorDetails(this.expense);
+
+    this.setIsPolicyViolated();
+
+    if (!this.expense.id) {
+      this.showDt = !!this.isFirstOfflineExpense;
+    } else if (this.previousExpenseTxnDate || this.previousExpenseCreatedAt) {
+      const currentDate = (this.expense.spent_at || this.expense.created_at).toDateString();
+      const previousDate = new Date(
+        (this.previousExpenseTxnDate || this.previousExpenseCreatedAt) as string
+      ).toDateString();
+      this.showDt = currentDate !== previousDate;
+    }
+
+    this.canShowPaymentModeIcon();
+
+    this.getReceipt();
+
+    this.setOtherData();
+  }
+
   ngOnInit(): void {
     this.setupNetworkWatcher();
     const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
@@ -274,15 +265,6 @@ export class ExpensesCardComponent implements OnInit {
     this.isSycing$ = this.isConnected$.pipe(
       map((isConnected) => isConnected && this.transactionOutboxService.isSyncInProgress() && this.isOutboxExpense)
     );
-
-    this.category = this.expense?.category?.name && this.expense?.category?.name.toLowerCase();
-    this.isMileageExpense = this.category === 'mileage';
-    this.isPerDiem = this.category === 'per diem';
-
-    this.isDraft = this.sharedExpenseService.isExpenseInDraft(this.expense);
-    this.isPolicyViolated = this.expense.is_manually_flagged || this.expense.is_policy_flagged;
-    this.isCriticalPolicyViolated = this.sharedExpenseService.isCriticalPolicyViolatedExpense(this.expense);
-    this.vendorDetails = this.sharedExpenseService.getVendorDetails(this.expense);
     this.expenseFieldsService.getAllMap().subscribe((expenseFields) => {
       this.expenseFields = expenseFields;
     });
@@ -301,23 +283,9 @@ export class ExpensesCardComponent implements OnInit {
       shareReplay(1)
     );
 
-    if (!this.expense.id) {
-      this.showDt = !!this.isFirstOfflineExpense;
-    } else if (this.previousExpenseTxnDate || this.previousExpenseCreatedAt) {
-      const currentDate = (this.expense.spent_at || this.expense.created_at).toDateString();
-      const previousDate = new Date(
-        (this.previousExpenseTxnDate || this.previousExpenseCreatedAt) as string
-      ).toDateString();
-      this.showDt = currentDate !== previousDate;
-    }
-
-    this.canShowPaymentModeIcon();
-
-    this.getReceipt();
+    this.setExpenseDetails();
 
     this.handleScanStatus();
-
-    this.setOtherData();
 
     this.isIos = this.platform.is('ios');
   }
@@ -464,7 +432,7 @@ export class ExpensesCardComponent implements OnInit {
       .pipe(
         switchMap((fileObj: FileObject) => {
           this.matchReceiptWithEtxn(fileObj);
-          return this.fileService.post(fileObj);
+          return this.expensesService.attachReceiptToExpense(this.expense.id, fileObj.id);
         }),
         finalize(() => {
           this.attachmentUploadInProgress = false;

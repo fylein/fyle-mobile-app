@@ -12,6 +12,7 @@ import { PlatformApiResponse } from '../models/platform/platform-api-response.mo
 import { PlatformExpenseField } from '../models/platform/platform-expense-field.model';
 import { ExpenseFieldsService } from './expense-fields.service';
 import { CustomInput } from '../models/custom-input.model';
+
 const customInputssCacheBuster$ = new Subject<void>();
 
 @Injectable({
@@ -29,14 +30,14 @@ export class CustomInputsService {
   @Cacheable({
     cacheBusterObserver: customInputssCacheBuster$,
   })
-  getAll(active: boolean): Observable<ExpenseField[]> {
+  getAll(active?: boolean): Observable<ExpenseField[]> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
         this.spenderPlatformV1ApiService.get<PlatformApiResponse<PlatformExpenseField[]>>('/expense_fields', {
           params: {
             org_id: `eq.${eou.ou.org_id}`,
-            is_enabled: `eq.${active}`,
             is_custom: 'eq.true',
+            ...(active !== undefined && { is_enabled: `eq.${active}` }), // Only add is_enabled if active is specified
           },
         })
       ),
@@ -62,59 +63,78 @@ export class CustomInputsService {
     return 0;
   }
 
-  fillCustomProperties(
-    orgCategoryId: number,
-    customProperties: Partial<CustomInput>[],
-    active: boolean
-  ): Observable<CustomField[]> {
-    return this.getAll(active).pipe(
+  fillCustomProperties(orgCategoryId: number, customProperties: Partial<CustomInput>[]): Observable<CustomField[]> {
+    return this.getAll().pipe(
+      // Call getAll without any arguments
       map((allCustomInputs) => allCustomInputs.filter((customInput) => customInput.type !== 'DEPENDENT_SELECT')),
       map((allCustomInputs) => {
         const customInputs = this.filterByCategory(allCustomInputs, orgCategoryId);
 
-        // this should be by rank eventually
+        // Sort custom inputs by rank
         customInputs.sort(this.sortByRank);
 
         const filledCustomProperties: CustomField[] = [];
-        // eslint-disable-next-line @typescript-eslint/prefer-for-of
-        for (let i = 0; i < customInputs.length; i++) {
-          const customInput = customInputs[i];
+
+        // Iterate through custom inputs and process each one
+        for (const customInput of customInputs) {
+          const fieldName =
+            customInput.is_enabled === false ? `${customInput.field_name} (Deleted)` : customInput.field_name;
+
+          // Initialize the property object
           const property = {
-            name: customInput.field_name,
+            name: fieldName,
             value: null,
             type: customInput.type,
             mandatory: customInput.is_mandatory,
             options: customInput.options,
           };
-          // defaults for types
+
+          // Set default values based on the custom input type
           if (customInput.type === 'BOOLEAN') {
             property.value = false;
           }
-
-          this.setSelectMultiselectValue(customInput, property);
-
           if (customInput.type === 'USER_LIST') {
             property.value = [];
           }
 
+          // Handle select/multiselect values
+          this.setSelectMultiselectValue(customInput, property);
+
+          // Check if a value exists in `customProperties` and assign it
           if (customProperties) {
-            // see if value is available
-            // eslint-disable-next-line @typescript-eslint/prefer-for-of
-            for (let j = 0; j < customProperties.length; j++) {
-              if (customProperties[j].name === customInput.field_name) {
-                this.setCustomPropertyValue(property, customProperties, j);
-                break;
-              }
+            const matchingCustomPropertyIndex = customProperties.findIndex((cp) => cp.name === customInput.field_name);
+            if (matchingCustomPropertyIndex >= 0) {
+              this.setCustomPropertyValue(property, customProperties, matchingCustomPropertyIndex);
             }
           }
-          filledCustomProperties.push({
-            ...property,
-            displayValue: this.getCustomPropertyDisplayValue(property),
-          });
-        }
 
+          // Add the property to filledCustomProperties based on new logic
+          if (this.shouldIncludeProperty(customInput, property)) {
+            filledCustomProperties.push({
+              ...property,
+              displayValue: this.getCustomPropertyDisplayValue(property),
+            });
+          }
+        }
         return filledCustomProperties;
       })
+    );
+  }
+
+  /**
+   * Determines if a custom property should be included based on its enabled status and value.
+   * @param customInput - The custom input field.
+   * @param property - The custom field property.
+   * @returns A boolean indicating whether the property should be included.
+   */
+
+  shouldIncludeProperty(customInput: ExpenseField, property: CustomField): boolean {
+    return (
+      customInput.is_enabled ||
+      (!customInput.is_enabled &&
+        property.value !== null &&
+        property.value !== undefined &&
+        this.getCustomPropertyDisplayValue(property) !== '-')
     );
   }
 
@@ -198,8 +218,6 @@ export class CustomInputsService {
     if (customProperty.value) {
       if (customProperty.value.hasOwnProperty('display')) {
         displayValue = (<{ display: string }>customProperty.value).display || '-';
-      } else {
-        displayValue = customProperty.value.toString();
       }
     }
     return displayValue;

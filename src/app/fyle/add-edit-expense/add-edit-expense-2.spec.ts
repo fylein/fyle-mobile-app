@@ -8,22 +8,16 @@ import { ActionSheetController, ModalController, NavController, Platform, Popove
 import { Observable, Subscription, finalize, of, throwError } from 'rxjs';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { criticalPolicyViolation2 } from 'src/app/core/mock-data/crtical-policy-violations.data';
-import {
-  duplicateSetData1,
-  duplicateSetData4,
-  duplicateSetData5,
-  duplicateSetData6,
-} from 'src/app/core/mock-data/duplicate-sets.data';
-import {
-  expenseData1,
-  expenseData2,
-  splitExpTransformedData,
-  transformedPlatformedExpense,
-} from 'src/app/core/mock-data/expense.data';
+import { duplicateSetData1, duplicateSetData6 } from 'src/app/core/mock-data/duplicate-sets.data';
+import { expenseData1, expenseData2, transformedPlatformedExpense } from 'src/app/core/mock-data/expense.data';
 import { fileObject7, fileObjectData } from 'src/app/core/mock-data/file-object.data';
 import { individualExpPolicyStateData2 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
-import { filterOrgCategoryParam, orgCategoryData } from 'src/app/core/mock-data/org-category.data';
-import { orgSettingsCCCDisabled, orgSettingsCCCEnabled } from 'src/app/core/mock-data/org-settings.data';
+import { orgCategoryData } from 'src/app/core/mock-data/org-category.data';
+import {
+  orgSettingsCCCDisabled,
+  orgSettingsCCCEnabled,
+  orgSettingsParamsWithAdvanceWallet,
+} from 'src/app/core/mock-data/org-settings.data';
 import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
 import {
   expectedInstaFyleData1,
@@ -38,12 +32,7 @@ import {
 } from 'src/app/core/mock-data/parsed-receipt.data';
 import { splitPolicyExp4 } from 'src/app/core/mock-data/policy-violation.data';
 import { editExpTxn, txnData2 } from 'src/app/core/mock-data/transaction.data';
-import {
-  expectedUnflattendedTxnData1,
-  unflattenedTxnData,
-  unflattenedTxnWithExtractedData,
-  unflattenedTxnWithExtractedData2,
-} from 'src/app/core/mock-data/unflattened-txn.data';
+import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
@@ -76,7 +65,13 @@ import { TokenService } from 'src/app/core/services/token.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { accountsData, orgSettingsData, paymentModesData } from 'src/app/core/test-data/accounts.service.spec.data';
+import {
+  accountsData,
+  orgSettingsData,
+  paymentModesData,
+  advanceWallet1Data,
+  paymentModesWithAdvanceWalletsResData,
+} from 'src/app/core/test-data/accounts.service.spec.data';
 import { estatusData1 } from 'src/app/core/test-data/status.service.spec.data';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
@@ -115,6 +110,7 @@ import {
 } from 'src/app/core/mock-data/transformed-expense.data';
 import { apiExpenses1, apiExpenses2, splitExpensesData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
 
 const properties = {
   cssClass: 'fy-modal',
@@ -176,9 +172,11 @@ export function TestCases2(getTestBed) {
     let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
     let expensesService: jasmine.SpyObj<ExpensesService>;
     let reportsService: jasmine.SpyObj<SpenderReportsService>;
+    let advanceWalletsService: jasmine.SpyObj<AdvanceWalletsService>;
 
     beforeEach(() => {
       const TestBed = getTestBed();
+      const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['get', 'post']);
       TestBed.compileComponents();
 
       fixture = TestBed.createComponent(AddEditExpensePage);
@@ -233,6 +231,7 @@ export function TestCases2(getTestBed) {
       launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
       expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
       reportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
+      advanceWalletsService = TestBed.inject(AdvanceWalletsService) as jasmine.SpyObj<AdvanceWalletsService>;
 
       component.fg = formBuilder.group({
         currencyObj: [, component.currencyObjValidator],
@@ -277,6 +276,7 @@ export function TestCases2(getTestBed) {
       it('should get payment modes', (done) => {
         component.etxn$ = of(unflattenedTxnData);
         accountsService.getEMyAccounts.and.returnValue(of(accountsData));
+        advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
         orgSettingsService.get.and.returnValue(of(orgSettingsCCCDisabled));
         orgUserSettingsService.getAllowedPaymentModes.and.returnValue(
           of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY])
@@ -291,6 +291,7 @@ export function TestCases2(getTestBed) {
           expect(res).toEqual(paymentModesData);
           expect(component.showCardTransaction).toBeFalse();
           expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+          expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledTimes(1);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
           expect(orgUserSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
           expect(paymentModesService.checkIfPaymentModeConfigurationsIsEnabled).toHaveBeenCalledTimes(1);
@@ -301,6 +302,7 @@ export function TestCases2(getTestBed) {
       it('should get payment modes in case org settings are not present', (done) => {
         component.etxn$ = of(unflattenedTxnData);
         accountsService.getEMyAccounts.and.returnValue(of(accountsData));
+        advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
         orgSettingsService.get.and.returnValue(of(null));
         orgUserSettingsService.getAllowedPaymentModes.and.returnValue(
           of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY])
@@ -315,6 +317,7 @@ export function TestCases2(getTestBed) {
           expect(res).toEqual(paymentModesData);
           expect(component.showCardTransaction).toBeFalse();
           expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+          expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledTimes(1);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
           expect(orgUserSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
           expect(paymentModesService.checkIfPaymentModeConfigurationsIsEnabled).toHaveBeenCalledTimes(1);
@@ -326,6 +329,7 @@ export function TestCases2(getTestBed) {
       it('should get payment modes if CCC expense is enabled', (done) => {
         component.etxn$ = of(unflattenedTxnData);
         accountsService.getEMyAccounts.and.returnValue(of(accountsData));
+        advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
         orgSettingsService.get.and.returnValue(of(orgSettingsCCCEnabled));
         orgUserSettingsService.getAllowedPaymentModes.and.returnValue(
           of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY])
@@ -340,6 +344,7 @@ export function TestCases2(getTestBed) {
           expect(res).toEqual(paymentModesData);
           expect(component.showCardTransaction).toBeTrue();
           expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+          expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledTimes(1);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
           expect(orgUserSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
           expect(paymentModesService.checkIfPaymentModeConfigurationsIsEnabled).toHaveBeenCalledTimes(1);
@@ -347,17 +352,32 @@ export function TestCases2(getTestBed) {
           done();
         });
       });
-    });
 
-    it('getActiveCategories(): should get active categories', (done) => {
-      categoriesService.getAll.and.returnValue(of(filterOrgCategoryParam));
-      categoriesService.filterRequired.and.returnValue([filterOrgCategoryParam[0]]);
+      it('should get payment modes with advance wallets if advance wallets are enabled', (done) => {
+        component.etxn$ = of(unflattenedTxnData);
+        accountsService.getEMyAccounts.and.returnValue(of(accountsData));
+        advanceWalletsService.getAllAdvanceWallets.and.returnValue(of(advanceWallet1Data));
+        orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithAdvanceWallet));
+        orgUserSettingsService.getAllowedPaymentModes.and.returnValue(
+          of([AccountType.ADVANCE, AccountType.PERSONAL, AccountType.COMPANY])
+        );
+        paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(
+          of(orgSettingsData.payment_mode_settings.enabled && orgSettingsData.payment_mode_settings.allowed)
+        );
+        spyOn(component, 'getCCCSettings').and.returnValue(false);
+        accountsService.getPaymentModesWithAdvanceWallets.and.returnValue(paymentModesWithAdvanceWalletsResData);
 
-      component.getActiveCategories().subscribe((res) => {
-        expect(res).toEqual([filterOrgCategoryParam[0]]);
-        expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
-        expect(categoriesService.filterRequired).toHaveBeenCalledOnceWith(filterOrgCategoryParam);
-        done();
+        component.getPaymentModes().subscribe((res) => {
+          expect(res).toEqual(paymentModesWithAdvanceWalletsResData);
+          expect(component.showCardTransaction).toBeFalse();
+          expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+          expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledTimes(1);
+          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(orgUserSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
+          expect(paymentModesService.checkIfPaymentModeConfigurationsIsEnabled).toHaveBeenCalledTimes(1);
+          expect(component.getCCCSettings).toHaveBeenCalledTimes(1);
+          done();
+        });
       });
     });
 
@@ -532,6 +552,24 @@ export function TestCases2(getTestBed) {
           expect(res).toEqual(mockedTxn);
           expect(dateService.getUTCDate).toHaveBeenCalledOnceWith(mockedTxn.tx.extracted_data.date);
           expect(mockedTxn.tx.txn_dt).toEqual(extractedDate);
+          done();
+        });
+      });
+
+      it('should update txn date with invoice_dt', (done) => {
+        const mockedTxn = cloneDeep(transformedExpenseWithExtractedData2);
+        const extractedDate = new Date('2023-01-24');
+
+        mockedTxn.tx.txn_dt = new Date('2023-01-23');
+        mockedTxn.tx.extracted_data.invoice_dt = new Date('2023-01-23');
+        mockedTxn.tx.extracted_data.date = extractedDate;
+        expensesService.getExpenseById.and.returnValue(of(platformExpenseWithExtractedData2));
+        transactionService.transformExpense.and.returnValue(mockedTxn);
+        dateService.getUTCDate.and.returnValue(mockedTxn.tx.extracted_data.invoice_dt);
+
+        component.getEditExpenseObservable().subscribe((res) => {
+          expect(res).toEqual(mockedTxn);
+          expect(mockedTxn.tx.txn_dt).toEqual(mockedTxn.tx.extracted_data.invoice_dt);
           done();
         });
       });
@@ -816,7 +854,7 @@ export function TestCases2(getTestBed) {
         component.checkIfReceiptIsMissingAndMandatory('SAVE_EXPENSE').subscribe((isReceiptMissingAndMandatory) => {
           expect(isReceiptMissingAndMandatory).toBeTrue();
           expect(component.getCustomFields).toHaveBeenCalledTimes(1);
-          expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, customFields$, true);
+          expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, customFields$);
           expect(policyService.getPlatformPolicyExpense).toHaveBeenCalledOnceWith(
             unflattenedTxnData as unknown as { tx: PublicPolicyExpense; dataUrls: Partial<FileObject>[] },
             component.selectedCCCTransaction
@@ -853,7 +891,7 @@ export function TestCases2(getTestBed) {
         component.checkIfReceiptIsMissingAndMandatory('SAVE_EXPENSE').subscribe((isReceiptMissingAndMandatory) => {
           expect(isReceiptMissingAndMandatory).toBeFalse();
           expect(component.getCustomFields).toHaveBeenCalledTimes(1);
-          expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, customFields$, true);
+          expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, customFields$);
           expect(policyService.getPlatformPolicyExpense).toHaveBeenCalledOnceWith(
             unflattenedTxnData as unknown as { tx: PublicPolicyExpense; dataUrls: Partial<FileObject>[] },
             component.selectedCCCTransaction
@@ -895,7 +933,7 @@ export function TestCases2(getTestBed) {
         component.checkIfReceiptIsMissingAndMandatory('SAVE_EXPENSE').subscribe((isReceiptMissingAndMandatory) => {
           expect(isReceiptMissingAndMandatory).toBeFalse();
           expect(component.getCustomFields).toHaveBeenCalledTimes(1);
-          expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, customFields$, true);
+          expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, customFields$);
           expect(policyService.getPlatformPolicyExpense).toHaveBeenCalledOnceWith(
             unflattenedTxnData as unknown as { tx: PublicPolicyExpense; dataUrls: Partial<FileObject>[] },
             component.selectedCCCTransaction
@@ -1455,35 +1493,27 @@ export function TestCases2(getTestBed) {
       });
     });
 
-    it('postToFileService(): should post files to file service', () => {
-      fileService.post.and.returnValue(of(null));
-
-      component.postToFileService(fileObjectData, 'tx5fBcPBAxLv');
-
-      expect(fileService.post).toHaveBeenCalledOnceWith({ ...fileObjectData, transaction_id: 'tx5fBcPBAxLv' });
-    });
-
-    it('uploadFileAndPostToFileService(): should upload to file service', (done) => {
+    it('uploadFileAndAttachToExpense(): should upload to file service', (done) => {
       transactionOutboxService.fileUpload.and.resolveTo(fileObjectData);
-      spyOn(component, 'postToFileService').and.returnValue(of(fileObjectData));
+      expensesService.attachReceiptToExpense.and.returnValue(of(platformExpenseWithExtractedData));
 
-      component.uploadFileAndPostToFileService(fileObjectData, 'tx5fBcPBAxLv').subscribe(() => {
+      component.uploadFileAndAttachToExpense(fileObjectData, 'tx5fBcPBAxLv').subscribe(() => {
         expect(transactionOutboxService.fileUpload).toHaveBeenCalledOnceWith(fileObjectData.url, fileObjectData.type);
-        expect(component.postToFileService).toHaveBeenCalledOnceWith(fileObjectData, 'tx5fBcPBAxLv');
+        expect(expensesService.attachReceiptToExpense).toHaveBeenCalledOnceWith('tx5fBcPBAxLv', fileObjectData.id);
         done();
       });
     });
 
     it('uploadMultipleFiles(): should upload multiple files', (done) => {
-      const uploadSpy = spyOn(component, 'uploadFileAndPostToFileService');
+      const uploadSpy = spyOn(component, 'uploadFileAndAttachToExpense');
       uploadSpy.withArgs(fileObject7[0], 'tx5fBcPBAxLv').and.returnValue(of(fileObject7[0]));
       uploadSpy.withArgs(fileObject7[1], 'tx5fBcPBAxLv').and.returnValue(of(fileObject7[1]));
 
       component.uploadMultipleFiles(fileObject7, 'tx5fBcPBAxLv').subscribe((res) => {
         expect(res).toEqual(fileObject7);
-        expect(component.uploadFileAndPostToFileService).toHaveBeenCalledTimes(2);
-        expect(component.uploadFileAndPostToFileService).toHaveBeenCalledWith(fileObject7[0], 'tx5fBcPBAxLv');
-        expect(component.uploadFileAndPostToFileService).toHaveBeenCalledWith(fileObject7[1], 'tx5fBcPBAxLv');
+        expect(component.uploadFileAndAttachToExpense).toHaveBeenCalledTimes(2);
+        expect(component.uploadFileAndAttachToExpense).toHaveBeenCalledWith(fileObject7[0], 'tx5fBcPBAxLv');
+        expect(component.uploadFileAndAttachToExpense).toHaveBeenCalledWith(fileObject7[1], 'tx5fBcPBAxLv');
         done();
       });
     });

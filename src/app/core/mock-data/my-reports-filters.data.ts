@@ -7,7 +7,7 @@ export const filter1 = deepFreeze({
   date: 'last_week',
   customDateStart: new Date('2023-01-01'),
   customDateEnd: new Date('2023-01-07'),
-  sortParam: 'rp_created_at',
+  sortParam: 'created_at',
   sortDir: 'asc',
 });
 
@@ -20,7 +20,7 @@ export const filter2 = deepFreeze({
 export const filter3 = deepFreeze({
   state: ['active', 'completed'],
   date: DateFilters.thisWeek,
-  sortParam: 'rp_created_at',
+  sortParam: 'created_at',
   sortDir: 'asc',
 });
 
@@ -84,6 +84,6 @@ export const filter13 = deepFreeze({
 
 export const filter14 = deepFreeze({
   sortDir: 'desc',
-  sortParam: 'rp_created_at',
-  rp_state: 'APPROVED',
+  sortParam: 'created_at',
+  state: 'APPROVED',
 });

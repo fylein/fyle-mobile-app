@@ -104,12 +104,14 @@ import { ExtendedAccount } from 'src/app/core/models/extended-account.model';
 import { OutboxQueue } from 'src/app/core/models/outbox-queue.model';
 import { AllowedPerDiemRateOptions } from 'src/app/core/models/allowed-per-diem-rate-options.model';
 import { PerDiemReports } from 'src/app/core/models/per-diem-reports.model';
-import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { TransactionState } from 'src/app/core/models/transaction-state.enum';
 import { ToastType } from 'src/app/core/enums/toast-type.enum';
 import { Expense } from 'src/app/core/models/expense.model';
 import { PerDiemRedirectedFrom } from 'src/app/core/models/per-diem-redirected-from.enum';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { AdvanceWallet } from 'src/app/core/models/platform/v1/advance-wallet.model';
+import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
+import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -163,6 +165,8 @@ export class AddEditPerDiemPage implements OnInit {
 
   isProjectsEnabled$: Observable<boolean>;
 
+  isProjectCategoryRestrictionsEnabled$: Observable<boolean>;
+
   isCostCentersEnabled$: Observable<boolean>;
 
   customInputs$: Observable<PerDiemCustomInputs[]>;
@@ -182,6 +186,8 @@ export class AddEditPerDiemPage implements OnInit {
   isCriticalPolicyViolated$: Observable<boolean>;
 
   projectCategoryIds$: Observable<string[]>;
+
+  projectCategories$: Observable<OrgCategory[]>;
 
   filteredCategories$: Observable<{ label: string; value: OrgCategory }[]>;
 
@@ -282,11 +288,13 @@ export class AddEditPerDiemPage implements OnInit {
     private paymentModesService: PaymentModesService,
     private perDiemService: PerDiemService,
     private categoriesService: CategoriesService,
+    private costCentersService: CostCentersService,
     private orgUserSettingsService: OrgUserSettingsService,
     private orgSettingsService: OrgSettingsService,
     private platform: Platform,
     private storageService: StorageService,
-    private expensesService: ExpensesService
+    private expensesService: ExpensesService,
+    private advanceWalletsService: AdvanceWalletsService
   ) {}
 
   get minPerDiemDate(): string {
@@ -461,22 +469,40 @@ export class AddEditPerDiemPage implements OnInit {
 
   checkIfInvalidPaymentMode(): Observable<boolean> {
     const formValues = this.getFormValues();
-    return this.etxn$.pipe(
-      map((etxn) => {
-        const paymentAccount = formValues.paymentMode;
+    return forkJoin({
+      etxn: this.etxn$,
+      orgSettings: this.orgSettingsService.get(),
+    }).pipe(
+      map(({ etxn, orgSettings }) => {
+        const paymentMode: ExtendedAccount | AdvanceWallet = formValues.paymentMode;
+        const isAdvanceWalletEnabled = orgSettings?.advances?.advance_wallets_enabled;
         const originalSourceAccountId = etxn && etxn.tx && etxn.tx.source_account_id;
+        const originalAdvanceWalletId = etxn && etxn.tx && etxn.tx.advance_wallet_id;
         let isPaymentModeInvalid = false;
-        if (paymentAccount?.acc?.type === AccountType.ADVANCE) {
-          if (paymentAccount.acc.id !== originalSourceAccountId) {
+        if (!isAdvanceWalletEnabled && paymentMode?.acc?.type === AccountType.ADVANCE) {
+          if (paymentMode.acc.id !== originalSourceAccountId) {
             isPaymentModeInvalid =
-              paymentAccount.acc.tentative_balance_amount <
+              paymentMode.acc.tentative_balance_amount <
               (this.fg.controls.currencyObj.value && (this.fg.controls.currencyObj.value as { amount: number }).amount);
           } else {
             isPaymentModeInvalid =
-              paymentAccount.acc.tentative_balance_amount + etxn.tx.amount <
+              paymentMode.acc.tentative_balance_amount + etxn.tx.amount <
               (this.fg.controls.currencyObj.value && (this.fg.controls.currencyObj.value as { amount: number }).amount);
           }
         }
+
+        if (isAdvanceWalletEnabled && paymentMode?.id) {
+          if (etxn.tx.id && paymentMode.id === originalAdvanceWalletId) {
+            isPaymentModeInvalid =
+              paymentMode.balance_amount + etxn.tx.amount <
+              (this.fg.controls.currencyObj.value && (this.fg.controls.currencyObj.value as { amount: number }).amount);
+          } else {
+            isPaymentModeInvalid =
+              paymentMode.balance_amount <
+              (this.fg.controls.currencyObj.value && (this.fg.controls.currencyObj.value as { amount: number }).amount);
+          }
+        }
+
         if (isPaymentModeInvalid) {
           this.paymentModesService.showInvalidPaymentModeToast();
         }
@@ -573,20 +599,33 @@ export class AddEditPerDiemPage implements OnInit {
   getPaymentModes(): Observable<AccountOption[]> {
     return forkJoin({
       accounts: this.accountsService.getEMyAccounts(),
+      advanceWallets: this.advanceWalletsService.getAllAdvanceWallets(),
       orgSettings: this.orgSettingsService.get(),
       etxn: this.etxn$,
       allowedPaymentModes: this.orgUserSettingsService.getAllowedPaymentModes(),
       isPaymentModeConfigurationsEnabled: this.paymentModesService.checkIfPaymentModeConfigurationsIsEnabled(),
     }).pipe(
-      map(({ accounts, orgSettings, etxn, allowedPaymentModes, isPaymentModeConfigurationsEnabled }) => {
-        const config = {
-          etxn,
-          orgSettings,
-          expenseType: ExpenseType.MILEAGE,
-          isPaymentModeConfigurationsEnabled,
-        };
-        return this.accountsService.getPaymentModes(accounts, allowedPaymentModes, config);
-      }),
+      map(
+        ({ accounts, advanceWallets, orgSettings, etxn, allowedPaymentModes, isPaymentModeConfigurationsEnabled }) => {
+          const isAdvanceWalletEnabled = orgSettings?.advances?.advance_wallets_enabled;
+          const config = {
+            etxn,
+            orgSettings,
+            expenseType: ExpenseType.MILEAGE,
+            isPaymentModeConfigurationsEnabled,
+          };
+
+          if (isAdvanceWalletEnabled) {
+            return this.accountsService.getPaymentModesWithAdvanceWallets(
+              accounts,
+              advanceWallets,
+              allowedPaymentModes,
+              config
+            );
+          }
+          return this.accountsService.getPaymentModes(accounts, allowedPaymentModes, config);
+        }
+      ),
       shareReplay(1)
     );
   }
@@ -597,7 +636,7 @@ export class AddEditPerDiemPage implements OnInit {
         const parentCategoryName = 'per diem';
         return categories.filter(
           (orgCategory) =>
-            parentCategoryName.toLowerCase() === orgCategory.name?.toLowerCase() &&
+            parentCategoryName.toLowerCase() === orgCategory.fyle_category?.toLowerCase() &&
             parentCategoryName.toLowerCase() !== orgCategory.sub_category?.toLowerCase()
         );
       }),
@@ -605,16 +644,18 @@ export class AddEditPerDiemPage implements OnInit {
     );
   }
 
-  getProjectCategoryIds(): Observable<string[]> {
+  getProjectCategories(): Observable<OrgCategory[]> {
     return this.categoriesService.getAll().pipe(
       map((categories) => {
-        const perDiemCategories = categories
-          .filter((category) => ['Per Diem'].indexOf(category.fyle_category) > -1)
-          .map((category) => category?.id?.toString());
+        const perDiemCategories = categories.filter((category) => category.fyle_category === 'Per Diem');
 
         return perDiemCategories;
       })
     );
+  }
+
+  getProjectCategoryIds(): Observable<string[]> {
+    return this.projectCategories$.pipe(map((categories) => categories.map((category) => category?.id?.toString())));
   }
 
   getPerDiemCategories(): Observable<{
@@ -677,7 +718,7 @@ export class AddEditPerDiemPage implements OnInit {
     );
   }
 
-  setupFilteredCategories(activeCategories$: Observable<OrgCategory[]>): void {
+  setupFilteredCategories(): void {
     this.filteredCategories$ = this.fg.controls.project.valueChanges.pipe(
       tap(() => {
         if (!this.fg.controls.project.value) {
@@ -688,8 +729,14 @@ export class AddEditPerDiemPage implements OnInit {
       }),
       startWith(this.fg.controls.project.value),
       concatMap((project: ProjectV2) =>
-        activeCategories$.pipe(
-          map((activeCategories) => this.projectsService.getAllowedOrgCategoryIds(project, activeCategories))
+        combineLatest([this.subCategories$, this.isProjectCategoryRestrictionsEnabled$]).pipe(
+          map(([allActiveSubCategories, isProjectCategoryRestrictionsEnabled]) =>
+            this.projectsService.getAllowedOrgCategoryIds(
+              project,
+              allActiveSubCategories,
+              isProjectCategoryRestrictionsEnabled
+            )
+          )
         )
       ),
       map((categories) => categories.map((category) => ({ label: category.sub_category, value: category })))
@@ -804,6 +851,39 @@ export class AddEditPerDiemPage implements OnInit {
     );
   }
 
+  checkAdvanceWalletsWithSufficientBalance(advanceWallets: AdvanceWallet[]): boolean {
+    return !!advanceWallets?.some((advanceWallet) => advanceWallet.balance_amount > 0);
+  }
+
+  checkAdvanceAccountAndBalance(account: ExtendedAccount): boolean {
+    return account?.acc?.type === AccountType.ADVANCE && account.acc.tentative_balance_amount > 0;
+  }
+
+  setupBalanceFlag(): void {
+    const accounts$ = this.accountsService.getEMyAccounts();
+    const advanceWallets$ = this.advanceWalletsService.getAllAdvanceWallets();
+    const orgSettings$ = this.orgSettingsService.get();
+    this.isBalanceAvailableInAnyAdvanceAccount$ = this.fg.controls.paymentMode.valueChanges.pipe(
+      switchMap((paymentMode: ExtendedAccount) => {
+        //check both advance wallets and advance accounts
+        let isAdvanceWalletEnabled = false;
+        orgSettings$.pipe(map((orgSettings) => orgSettings?.advances?.advance_wallets_enabled)).subscribe((data) => {
+          isAdvanceWalletEnabled = data;
+        });
+        if (paymentMode?.acc?.type === AccountType.PERSONAL && !!isAdvanceWalletEnabled) {
+          return advanceWallets$.pipe(
+            map((advanceWallets) => this.checkAdvanceWalletsWithSufficientBalance(advanceWallets))
+          );
+        } else if (paymentMode?.acc?.type === AccountType.PERSONAL && !isAdvanceWalletEnabled) {
+          return accounts$.pipe(
+            map((accounts) => accounts.filter((account) => this.checkAdvanceAccountAndBalance(account)).length > 0)
+          );
+        }
+        return of(false);
+      })
+    );
+  }
+
   customDateValidator(control: AbstractControl): ValidationErrors {
     if (!this.fg) {
       return;
@@ -842,6 +922,7 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   ionViewWillEnter(): void {
+    this.subCategories$ = this.getSubCategories().pipe(shareReplay(1));
     this.isNewReportsFlowEnabled = false;
     this.onPageExit$ = new Subject();
     this.projectDependentFieldsRef?.ngOnInit();
@@ -878,7 +959,7 @@ export class AddEditPerDiemPage implements OnInit {
       sub_category: [],
       per_diem_rate: [, Validators.required],
       purpose: [],
-      num_days: [, Validators.compose([Validators.required, Validators.min(0)])],
+      num_days: [null, [Validators.required, Validators.min(0), Validators.pattern(/^\d+$/)]],
       report: [],
       from_dt: [],
       to_dt: [, this.customDateValidator.bind(this)],
@@ -926,8 +1007,15 @@ export class AddEditPerDiemPage implements OnInit {
       )
     );
 
+    this.isProjectCategoryRestrictionsEnabled$ = orgSettings$.pipe(
+      map(
+        (orgSettings) =>
+          orgSettings.advanced_projects.allowed && orgSettings.advanced_projects.enable_category_restriction
+      )
+    );
+
     this.individualPerDiemRatesEnabled$ = orgSettings$.pipe(
-      map((orgSettings) => orgSettings.per_diem.enable_individual_per_diem_rates)
+      map((orgSettings) => orgSettings.advanced_per_diems_settings?.enable_employee_restriction)
     );
 
     orgSettings$.subscribe((orgSettings) => {
@@ -962,7 +1050,8 @@ export class AddEditPerDiemPage implements OnInit {
       .pipe(
         switchMap(({ orgSettings, allowedPerDiemRates }) =>
           iif(
-            () => allowedPerDiemRates.length > 0 || orgSettings.per_diem.enable_individual_per_diem_rates,
+            () =>
+              allowedPerDiemRates.length > 0 || orgSettings.advanced_per_diems_settings?.enable_employee_restriction,
             of(allowedPerDiemRates),
             perDiemRates$
           )
@@ -989,7 +1078,7 @@ export class AddEditPerDiemPage implements OnInit {
       )
       .pipe(
         map(({ orgSettings, perDiemRates, allowedPerDiemRates }) => {
-          if (orgSettings.per_diem.enable_individual_per_diem_rates) {
+          if (orgSettings.advanced_per_diems_settings?.enable_employee_restriction) {
             if (allowedPerDiemRates.length > 0 && perDiemRates.length > 0) {
               return true;
             } else {
@@ -1003,12 +1092,15 @@ export class AddEditPerDiemPage implements OnInit {
 
     this.txnFields$ = this.getTransactionFields();
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
-    this.subCategories$ = this.getSubCategories();
-    this.setupFilteredCategories(this.subCategories$);
+    this.setupFilteredCategories();
 
+    this.projectCategories$ = this.getProjectCategories();
     this.projectCategoryIds$ = this.getProjectCategoryIds();
-    this.isProjectVisible$ = this.projectCategoryIds$.pipe(
-      switchMap((projectCategoryIds) => this.projectsService.getProjectCount({ categoryIds: projectCategoryIds })),
+
+    this.isProjectVisible$ = combineLatest([this.projectCategoryIds$, this.projectCategories$]).pipe(
+      switchMap(([projectCategoryIds, projectCategories]) =>
+        this.projectsService.getProjectCount({ categoryIds: projectCategoryIds }, projectCategories)
+      ),
       map((projectCount) => projectCount > 0)
     );
     this.comments$ = this.statusService.find('transactions', this.activatedRoute.snapshot.params.id as string);
@@ -1050,13 +1142,10 @@ export class AddEditPerDiemPage implements OnInit {
 
     this.paymentModes$ = this.getPaymentModes();
 
-    this.costCenters$ = forkJoin({
-      orgSettings: orgSettings$,
-      orgUserSettings: orgUserSettings$,
-    }).pipe(
-      switchMap(({ orgSettings, orgUserSettings }) => {
+    this.costCenters$ = orgSettings$.pipe(
+      switchMap((orgSettings) => {
         if (orgSettings.cost_centers.enabled) {
-          return this.orgUserSettingsService.getAllowedCostCenters(orgUserSettings);
+          return this.costCentersService.getAllActive();
         } else {
           return of([]);
         }
@@ -1087,13 +1176,9 @@ export class AddEditPerDiemPage implements OnInit {
           reports
             .filter((report) => !report.approvals.some((approval) => approval.state === 'APPROVAL_DONE'))
             .map((report) => ({ label: report.purpose, value: report }))
-        )
-      ) as Observable<
-      {
-        label: string;
-        value: Report;
-      }[]
-    >;
+        ),
+        shareReplay(1)
+      );
 
     this.txnFields$
       .pipe(
@@ -1140,7 +1225,7 @@ export class AddEditPerDiemPage implements OnInit {
 
             if (expenseField.is_mandatory) {
               if (txnFieldKey === 'num_days') {
-                control.setValidators(Validators.compose([Validators.required, Validators.min(0)]));
+                control.setValidators([Validators.required, Validators.min(0), Validators.pattern(/^\d+$/)]);
               } else if (txnFieldKey === 'to_dt') {
                 control.setValidators(
                   isConnected
@@ -1162,7 +1247,7 @@ export class AddEditPerDiemPage implements OnInit {
               }
             } else {
               if (txnFieldKey === 'num_days') {
-                control.setValidators(Validators.compose([Validators.required, Validators.min(0)]));
+                control.setValidators([Validators.required, Validators.min(0), Validators.pattern(/^\d+$/)]);
               }
               if (txnFieldKey === 'to_dt') {
                 control.setValidators(isConnected ? (this.customDateValidator.bind(this) as ValidatorFn) : null);
@@ -1188,6 +1273,8 @@ export class AddEditPerDiemPage implements OnInit {
     );
 
     this.getPolicyDetails();
+
+    this.setupBalanceFlag();
 
     combineLatest(this.fg.controls.from_dt.valueChanges, this.fg.controls.to_dt.valueChanges)
       .pipe(distinctUntilChanged((a, b) => isEqual(a, b)))
@@ -1272,24 +1359,6 @@ export class AddEditPerDiemPage implements OnInit {
         });
       });
 
-    this.isBalanceAvailableInAnyAdvanceAccount$ = this.fg.controls.paymentMode.valueChanges.pipe(
-      switchMap((paymentMode: ExtendedAccount) => {
-        if (paymentMode?.acc?.type === AccountType.PERSONAL) {
-          return this.accountsService
-            .getEMyAccounts()
-            .pipe(
-              map(
-                (accounts) =>
-                  accounts.filter(
-                    (account) => account?.acc?.type === AccountType.ADVANCE && account.acc.tentative_balance_amount > 0
-                  ).length > 0
-              )
-            );
-        }
-        return of(false);
-      })
-    );
-
     const selectedProject$ = this.etxn$.pipe(
       switchMap((etxn) => {
         if (etxn.tx.project_id) {
@@ -1309,7 +1378,9 @@ export class AddEditPerDiemPage implements OnInit {
       }),
       switchMap((projectId) => {
         if (projectId) {
-          return this.projectsService.getbyId(projectId);
+          return this.projectCategories$.pipe(
+            switchMap((projectCategories) => this.projectsService.getbyId(projectId, projectCategories))
+          );
         } else {
           return of(null);
         }
@@ -1335,13 +1406,17 @@ export class AddEditPerDiemPage implements OnInit {
     this.recentlyUsedProjects$ = forkJoin({
       recentValues: this.recentlyUsedValues$,
       perDiemCategoryIds: this.projectCategoryIds$,
+      perDiemCategories: this.projectCategories$,
       eou: this.authService.getEou(),
+      isProjectCategoryRestrictionsEnabled: this.isProjectCategoryRestrictionsEnabled$,
     }).pipe(
-      switchMap(({ recentValues, perDiemCategoryIds, eou }) =>
+      switchMap(({ recentValues, perDiemCategoryIds, perDiemCategories, eou, isProjectCategoryRestrictionsEnabled }) =>
         this.recentlyUsedItemsService.getRecentlyUsedProjects({
           recentValues,
           eou,
           categoryIds: perDiemCategoryIds,
+          isProjectCategoryRestrictionsEnabled,
+          activeCategoryList: perDiemCategories,
         })
       )
     );
@@ -1351,7 +1426,9 @@ export class AddEditPerDiemPage implements OnInit {
         iif(
           () => !!etxn.tx.org_category_id,
           this.subCategories$.pipe(
-            map((subCategories) => subCategories.find((subCategory) => subCategory.id === etxn.tx.org_category_id))
+            map((allActiveSubCategories) =>
+              allActiveSubCategories.find((subCategory) => subCategory.id === etxn.tx.org_category_id)
+            )
           ),
           of(null)
         )
@@ -1596,6 +1673,15 @@ export class AddEditPerDiemPage implements OnInit {
     this.paymentModeInvalid$ = this.isPaymentModeValid();
   }
 
+  getAdvanceWalletId(isAdvanceWalletEnabled: boolean): string {
+    const formValue = this.getFormValues();
+    if (!formValue?.paymentMode?.acc?.id) {
+      return isAdvanceWalletEnabled && formValue?.paymentMode?.id;
+    }
+    // setting advance_wallet_id as null when the source account id is set.
+    return null;
+  }
+
   generateEtxnFromFg(
     etxn$: Observable<Partial<UnflattenedTransaction>>,
     standardisedCustomProperties$: Observable<TxnCustomProperties[]>
@@ -1603,12 +1689,17 @@ export class AddEditPerDiemPage implements OnInit {
     return forkJoin({
       etxn: etxn$,
       customProperties: standardisedCustomProperties$,
+      orgSettings: this.orgSettingsService.get(),
     }).pipe(
       map((res) => {
         const formValue = this.getFormValues();
         const etxn = res.etxn;
+        const isAdvanceWalletEnabled = res.orgSettings?.advances?.advance_wallets_enabled;
         let customProperties = res.customProperties;
         customProperties = customProperties.map((customProperty) => {
+          if (!customProperty.value) {
+            this.customFieldsService.setDefaultValue(customProperty, customProperty.type);
+          }
           if (customProperty.type === 'DATE') {
             customProperty.value =
               customProperty.value && this.dateService.getUTCDate(new Date(customProperty.value as string));
@@ -1616,7 +1707,8 @@ export class AddEditPerDiemPage implements OnInit {
           return customProperty;
         });
         const skipReimbursement =
-          formValue.paymentMode.acc.type === AccountType.PERSONAL && !formValue.paymentMode.acc.isReimbursable;
+          (formValue?.paymentMode?.acc?.type === AccountType.PERSONAL && !formValue.paymentMode.acc.isReimbursable) ||
+          !!formValue?.paymentMode?.id;
 
         const currencyObj = this.fg.controls.currencyObj.value as CurrencyObj;
         const amountData = {
@@ -1629,7 +1721,8 @@ export class AddEditPerDiemPage implements OnInit {
         return {
           tx: {
             ...etxn.tx,
-            source_account_id: formValue.paymentMode.acc.id,
+            source_account_id: formValue?.paymentMode?.acc?.id,
+            advance_wallet_id: this.getAdvanceWalletId(isAdvanceWalletEnabled),
             billable: formValue.billable,
             org_category_id: (formValue.sub_category && formValue.sub_category.id) || etxn.tx.org_category_id,
             skip_reimbursement: skipReimbursement,
@@ -1880,20 +1973,19 @@ export class AddEditPerDiemPage implements OnInit {
               comments.push(comment);
             }
 
-            let reportId: string;
             const formValue = this.getFormValues();
+            const transaction = cloneDeep(etxn.tx);
             if (
               formValue.report &&
               (etxn.tx.policy_amount === null || (etxn.tx.policy_amount && !(etxn.tx.policy_amount < 0.0001)))
             ) {
-              reportId = formValue.report.id;
+              transaction.report_id = formValue.report.id;
             }
             return of(
               this.transactionsOutboxService.addEntryAndSync(
-                etxn.tx,
+                transaction,
                 etxn.dataUrls as { url: string; type: string }[],
-                comments,
-                reportId
+                comments
               )
             ).pipe(switchMap((txnData) => from(txnData)));
           })
@@ -2101,6 +2193,17 @@ export class AddEditPerDiemPage implements OnInit {
             } else {
               return of(txn);
             }
+          }),
+          switchMap((txn) => {
+            if (txn.id && txn.advance_wallet_id !== etxn.tx.advance_wallet_id) {
+              const expense = {
+                id: txn.id,
+                advance_wallet_id: etxn.tx.advance_wallet_id,
+              };
+              return this.expensesService.post(expense).pipe(map(() => txn));
+            } else {
+              return of(txn);
+            }
           })
         )
       ),
@@ -2143,7 +2246,6 @@ export class AddEditPerDiemPage implements OnInit {
 
   savePerDiem(): void {
     const that = this;
-
     that
       .checkIfInvalidPaymentMode()
       .pipe(take(1))

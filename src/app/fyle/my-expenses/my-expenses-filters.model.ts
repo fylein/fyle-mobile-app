@@ -9,4 +9,5 @@ export type Filters = Partial<{
   sortDir: string;
   cardNumbers: string[];
   splitExpense: string;
+  potentialDuplicates: string;
 }>;

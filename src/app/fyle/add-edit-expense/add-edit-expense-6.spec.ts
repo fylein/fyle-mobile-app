@@ -66,12 +66,16 @@ import { TokenService } from 'src/app/core/services/token.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { multiplePaymentModesData, orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
+import {
+  multiplePaymentModesData,
+  orgSettingsData,
+  advanceWallet1Data,
+} from 'src/app/core/test-data/accounts.service.spec.data';
 import { expectedProjectsResponse } from 'src/app/core/test-data/projects.spec.data';
 import { AddEditExpensePage } from './add-edit-expense.page';
-import { TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
 import { TransactionStatusInfoPopoverComponent } from 'src/app/shared/components/transaction-status-info-popover/transaction-status-info-popover.component';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
 import { expenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import {
   transformedExpenseWithMatchCCCData,
@@ -82,6 +86,8 @@ import { matchedCCTransactionData, matchedCCTransactionData2 } from 'src/app/cor
 import { ccTransactionData, ccTransactionData1 } from 'src/app/core/mock-data/cc-transaction.data';
 import { ccTransactionResponseData } from 'src/app/core/mock-data/corporate-card-transaction-response.data';
 import { cloneDeep } from 'lodash';
+import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
+import { CCExpenseMerchantInfoModalComponent } from 'src/app/shared/components/cc-expense-merchant-info-modal/cc-expense-merchant-info-modal.component';
 
 export function TestCases6(getTestBed) {
   describe('AddEditExpensePage-6', () => {
@@ -132,6 +138,7 @@ export function TestCases6(getTestBed) {
     let platform: jasmine.SpyObj<Platform>;
     let platformHandlerService: jasmine.SpyObj<PlatformHandlerService>;
     let expensesService: jasmine.SpyObj<ExpensesService>;
+    let advanceWalletsService: jasmine.SpyObj<AdvanceWalletsService>;
 
     function setFormValueNull() {
       Object.defineProperty(component.fg, 'value', {
@@ -615,6 +622,42 @@ export function TestCases6(getTestBed) {
       });
     });
 
+    describe('getAdvanceWalletId():', () => {
+      it('should get advance wallet id', () => {
+        component.fg.controls.paymentMode.setValue({
+          id: 'areq1234',
+        });
+
+        const result = component.getAdvanceWalletId(true);
+        expect(result).toEqual('areq1234');
+      });
+
+      it('should return null', () => {
+        setFormValueNull();
+
+        const result = component.getAdvanceWalletId(true);
+        expect(result).toBeUndefined();
+      });
+
+      it('should return null when advance wallet setting is disabled', () => {
+        setFormValueNull();
+
+        const result = component.getAdvanceWalletId(false);
+        expect(result).toBeFalse();
+      });
+
+      it('should return null', () => {
+        component.fg.controls.paymentMode.setValue({
+          acc: {
+            id: 'id',
+          },
+        });
+
+        const result = component.getAdvanceWalletId(true);
+        expect(result).toBeNull();
+      });
+    });
+
     describe('getBillable():', () => {
       it('should get billable', () => {
         component.fg.controls.billable.setValue(true);
@@ -648,6 +691,15 @@ export function TestCases6(getTestBed) {
 
         const result = component.getSkipRemibursement();
         expect(result).toBeFalse();
+      });
+
+      it('should get reimbursement with paymentmode as advance wallet', () => {
+        component.fg.controls.paymentMode.setValue({
+          id: 'areq1234',
+        });
+
+        const result = component.getSkipRemibursement();
+        expect(result).toBeTrue();
       });
     });
 
@@ -1128,14 +1180,28 @@ export function TestCases6(getTestBed) {
     });
 
     describe('checkAdvanceAccountAndBalance():', () => {
-      it('should return false is account is not present', () => {
+      it('should return false if account is not present', () => {
         const result = component.checkAdvanceAccountAndBalance(null);
 
         expect(result).toBeFalse();
       });
 
-      it('should return true if account is of type advace', () => {
+      it('should return true if account is of type advance', () => {
         const result = component.checkAdvanceAccountAndBalance(multiplePaymentModesData[2]);
+
+        expect(result).toBeTrue();
+      });
+    });
+
+    describe('checkAdvanceWalletsWithSufficientBalance():', () => {
+      it('should return false if advance wallet is not present', () => {
+        const result = component.checkAdvanceWalletsWithSufficientBalance(null);
+
+        expect(result).toBeFalse();
+      });
+
+      it('should return true if account is of type advace', () => {
+        const result = component.checkAdvanceWalletsWithSufficientBalance(advanceWallet1Data);
 
         expect(result).toBeTrue();
       });
@@ -1145,18 +1211,53 @@ export function TestCases6(getTestBed) {
       const popoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present']);
       popoverController.create.and.resolveTo(popoverSpy);
 
-      component.openTransactionStatusInfoModal(TransactionStatus.PENDING);
+      component.openTransactionStatusInfoModal(ExpenseTransactionStatus.PENDING);
 
       tick();
 
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         component: TransactionStatusInfoPopoverComponent,
         componentProps: {
-          transactionStatus: TransactionStatus.PENDING,
+          transactionStatus: ExpenseTransactionStatus.PENDING,
         },
         cssClass: 'fy-dialog-popover',
       });
       expect(popoverSpy.present).toHaveBeenCalledTimes(1);
+    }));
+
+    it('openCCExpenseMerchantInfoModal(): should open the transaction status info modal', fakeAsync(() => {
+      const modalSpy = jasmine.createSpyObj('modal', ['present']);
+      modalController.create.and.resolveTo(modalSpy);
+
+      modalProperties.getModalDefaultProperties.and.returnValue({
+        cssClass: 'merchant-info',
+        showBackdrop: true,
+        canDismiss: true,
+        backdropDismiss: true,
+        animated: true,
+        initialBreakpoint: 1,
+        breakpoints: [0, 1],
+        handle: false,
+      });
+
+      component.openCCExpenseMerchantInfoModal();
+
+      tick();
+
+      expect(modalController.create).toHaveBeenCalledOnceWith({
+        component: CCExpenseMerchantInfoModalComponent,
+        cssClass: 'merchant-info',
+        showBackdrop: true,
+        canDismiss: true,
+        backdropDismiss: true,
+        animated: true,
+        initialBreakpoint: 1,
+        breakpoints: [0, 1],
+        handle: false,
+      });
+
+      expect(modalSpy.present).toHaveBeenCalledTimes(1);
+      expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
     }));
   });
 }

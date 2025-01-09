@@ -1,7 +1,7 @@
 import { Component, AfterViewInit, ViewChild, ElementRef, Input, ChangeDetectorRef, TemplateRef } from '@angular/core';
-import { Observable, fromEvent, iif, of, from } from 'rxjs';
+import { Observable, fromEvent, iif, of, from, forkJoin } from 'rxjs';
 import { ModalController } from '@ionic/angular';
-import { map, startWith, distinctUntilChanged, switchMap, concatMap, finalize } from 'rxjs/operators';
+import { map, startWith, distinctUntilChanged, switchMap, finalize, debounceTime, shareReplay } from 'rxjs/operators';
 import { isEqual } from 'lodash';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -12,6 +12,8 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { ProjectOption } from 'src/app/core/models/project-options.model';
+import { OrgCategory } from 'src/app/core/models/v1/org-category.model';
+import { CategoriesService } from 'src/app/core/services/categories.service';
 
 @Component({
   selector: 'app-fy-select-modal',
@@ -37,11 +39,15 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
 
   @Input() label: string;
 
+  @Input() isProjectCategoryRestrictionsEnabled: boolean;
+
   recentrecentlyUsedItems$: Observable<ProjectOption[]>;
 
   value: string;
 
   isLoading = false;
+
+  activeCategories$: Observable<OrgCategory[]>;
 
   constructor(
     private modalController: ModalController,
@@ -51,7 +57,8 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
     private recentLocalStorageItemsService: RecentLocalStorageItemsService,
     private utilityService: UtilityService,
     private orgUserSettingsService: OrgUserSettingsService,
-    private orgSettingsService: OrgSettingsService
+    private orgSettingsService: OrgSettingsService,
+    private categoriesService: CategoriesService
   ) {}
 
   getProjects(searchNameText: string): Observable<ProjectOption[]> {
@@ -60,41 +67,50 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
     // run ChangeDetectionRef.detectChanges to avoid 'expression has changed after it was checked error'.
     // More details about CDR: https://angular.io/api/core/ChangeDetectorRef
     this.cdr.detectChanges();
-    const defaultProject$ = this.orgUserSettingsService.get().pipe(
-      switchMap((orgUserSettings) => {
-        if (orgUserSettings && orgUserSettings.preferences && orgUserSettings.preferences.default_project_id) {
-          return this.projectsService.getbyId(orgUserSettings.preferences.default_project_id);
+    const defaultProject$ = forkJoin({
+      orgUserSettings: this.orgUserSettingsService.get(),
+      activeCategories: this.activeCategories$,
+    }).pipe(
+      switchMap(({ orgUserSettings, activeCategories }) => {
+        const defaultProjectId = orgUserSettings?.preferences?.default_project_id;
+        if (defaultProjectId) {
+          return this.projectsService.getbyId(defaultProjectId, activeCategories);
         } else {
           return of(null);
         }
       })
     );
-
     return this.orgSettingsService.get().pipe(
-      switchMap((orgSettings) =>
-        iif(
+      switchMap((orgSettings) => {
+        const allowedProjectIds$ = iif(
           () => orgSettings.advanced_projects.enable_individual_projects,
           this.orgUserSettingsService
             .get()
             .pipe(map((orgUserSettings: OrgUserSettings) => orgUserSettings.project_ids || [])),
           of(null)
-        )
-      ),
-      concatMap((allowedProjectIds) =>
-        from(this.authService.getEou()).pipe(
-          switchMap((eou) =>
-            this.projectsService.getByParamsUnformatted({
-              orgId: eou.ou.org_id,
-              active: true,
-              sortDirection: 'asc',
-              sortOrder: 'project_name',
-              orgCategoryIds: this.categoryIds,
-              projectIds: allowedProjectIds,
-              searchNameText,
-              offset: 0,
-              limit: 20,
-            })
-          )
+        );
+
+        return forkJoin({
+          allowedProjectIds: allowedProjectIds$,
+          eou: from(this.authService.getEou()),
+          activeCategories: this.activeCategories$,
+        });
+      }),
+      switchMap(({ allowedProjectIds, eou, activeCategories }) =>
+        this.projectsService.getByParamsUnformatted(
+          {
+            orgId: eou.ou.org_id,
+            isEnabled: true,
+            sortDirection: 'asc',
+            sortOrder: 'name',
+            orgCategoryIds: this.categoryIds,
+            projectIds: allowedProjectIds,
+            searchNameText,
+            offset: 0,
+            limit: 20,
+          },
+          this.isProjectCategoryRestrictionsEnabled,
+          activeCategories
         )
       ),
       switchMap((projects) => {
@@ -104,7 +120,6 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
               if (defaultProject && !projects.some((project) => project.project_id === defaultProject.project_id)) {
                 projects.push(defaultProject);
               }
-
               return projects;
             })
           );
@@ -129,10 +144,7 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
           .concat(projects.map((project) => ({ label: project.project_name, value: project })));
       }),
       finalize(() => {
-        // set isLoading to false
         this.isLoading = false;
-        // run ChangeDetectionRef.detectChanges to avoid 'expression has changed after it was checked error'.
-        // More details about CDR: https://angular.io/api/core/ChangeDetectorRef
         this.cdr.detectChanges();
       })
     );
@@ -160,11 +172,27 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
     }
   }
 
+  getActiveCategories(): Observable<OrgCategory[]> {
+    const allCategories$ = this.categoriesService.getAll();
+
+    return allCategories$.pipe(map((catogories) => this.categoriesService.filterRequired(catogories)));
+  }
+
   ngAfterViewInit(): void {
+    if (this.categoryIds?.length > 0) {
+      this.activeCategories$ = forkJoin(
+        this.categoryIds.map((id) => this.categoriesService.getCategoryById(parseInt(id, 10)))
+      ).pipe(shareReplay(1));
+    } else {
+      // Fallback if this.categoryIds is empty
+      this.activeCategories$ = this.getActiveCategories().pipe(shareReplay(1));
+    }
+
     this.filteredOptions$ = fromEvent<{ target: HTMLInputElement }>(this.searchBarRef.nativeElement, 'keyup').pipe(
       map((event) => event.target.value),
       startWith(''),
       distinctUntilChanged(),
+      debounceTime(300),
       switchMap((searchText: string) => this.getProjects(searchText)),
       map((projects) =>
         projects.map((project: { label: string; value: ProjectV2; selected?: boolean }) => {
@@ -183,6 +211,7 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
       map((event) => event.target.value),
       startWith(''),
       distinctUntilChanged(),
+      debounceTime(300),
       switchMap((searchText: string) =>
         this.getRecentlyUsedItems().pipe(
           // filtering of recently used items wrt searchText is taken care in service method

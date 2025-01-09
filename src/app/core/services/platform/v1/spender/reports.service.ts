@@ -12,7 +12,11 @@ import { PlatformStatsRequestParams } from 'src/app/core/models/platform/v1/plat
 import { CacheBuster } from 'ts-cacheable';
 import { UserEventService } from '../../../user-event.service';
 import { TransactionService } from '../../../transaction.service';
-import { ReportsStatsResponsePlatform } from 'src/app/core/models/platform/v1/report-stats-response.model';
+import { PlatformReportsStatsResponse } from 'src/app/core/models/platform/v1/report-stats-response.model';
+import { ReportPermissions } from 'src/app/core/models/report-permissions.model';
+import { Comment } from 'src/app/core/models/platform/v1/comment.model';
+import { ReportPurpose } from 'src/app/core/models/report-purpose.model';
+import { ExportPayload } from 'src/app/core/models/platform/export-payload.model';
 
 const reportsCacheBuster$ = new Subject<void>();
 
@@ -36,6 +40,25 @@ export class SpenderReportsService {
   })
   clearTransactionCache(): Observable<null> {
     return this.transactionService.clearCache();
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$,
+  })
+  create(report: ReportPurpose, expenseIds: string[]): Observable<Report> {
+    return this.createDraft({ data: report }).pipe(
+      switchMap((newReport: Report) => {
+        const payload = {
+          data: {
+            id: newReport.id,
+            expense_ids: expenseIds,
+          },
+        };
+        return this.spenderPlatformV1ApiService
+          .post<Report>('/reports/add_expenses', payload)
+          .pipe(switchMap(() => this.submit(newReport.id).pipe(map(() => newReport))));
+      })
+    );
   }
 
   @CacheBuster({
@@ -73,6 +96,58 @@ export class SpenderReportsService {
     );
   }
 
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$,
+  })
+  createDraft(data: CreateDraftParams): Observable<Report> {
+    return this.spenderPlatformV1ApiService.post<PlatformApiPayload<Report>>('/reports', data).pipe(
+      tap(() => this.clearTransactionCache()),
+      map((res: PlatformApiPayload<Report>) => res.data)
+    );
+  }
+
+  permissions(id: string): Observable<ReportPermissions> {
+    return this.spenderPlatformV1ApiService
+      .post<PlatformApiPayload<ReportPermissions>>('/reports/permissions', { data: { id } })
+      .pipe(map((res) => res.data));
+  }
+
+  postComment(id: string, comment: string): Observable<Comment> {
+    return this.spenderPlatformV1ApiService
+      .post<PlatformApiPayload<Comment>>('/reports/comments', { data: { id, comment } })
+      .pipe(map((res) => res.data));
+  }
+
+  suggestPurpose(expenseIds: string[]): Observable<string> {
+    return this.spenderPlatformV1ApiService
+      .post<PlatformApiPayload<{ purpose: string }>>('/reports/suggest_purpose', { data: { expense_ids: expenseIds } })
+      .pipe(map((res) => res.data.purpose));
+  }
+
+  delete(id: string): Observable<void> {
+    return this.spenderPlatformV1ApiService.post<void>('/reports/delete/bulk', { data: [{ id }] });
+  }
+
+  submit(reportId: string): Observable<void> {
+    return this.spenderPlatformV1ApiService.post<void>('/reports/submit', { data: { id: reportId } });
+  }
+
+  export(reportId: string, email: string): Observable<void> {
+    const payload: ExportPayload = {
+      query_params: `id=in.[${reportId}]`,
+      notify_emails: [email],
+      config: {
+        type: 'pdf',
+        include_receipts: true,
+      },
+    };
+    return this.spenderPlatformV1ApiService.post<void>('/reports/exports', { data: payload });
+  }
+
+  resubmit(reportId: string): Observable<void> {
+    return this.spenderPlatformV1ApiService.post<void>('/reports/resubmit', { data: { id: reportId } });
+  }
+
   getAllReportsByParams(queryParams: ReportsQueryParams): Observable<Report[]> {
     return this.getReportsCount(queryParams).pipe(
       switchMap((count) => {
@@ -94,7 +169,7 @@ export class SpenderReportsService {
 
   getReportsCount(queryParams: ReportsQueryParams): Observable<number> {
     const params = {
-      state: queryParams.state,
+      ...queryParams,
       limit: 1,
       offset: 0,
     };
@@ -115,20 +190,14 @@ export class SpenderReportsService {
     return this.getReportsByParams(queryParams).pipe(map((res: PlatformApiResponse<Report[]>) => res.data[0]));
   }
 
-  createDraft(data: CreateDraftParams): Observable<Report> {
-    return this.spenderPlatformV1ApiService
-      .post<PlatformApiPayload<Report>>('/reports', data)
-      .pipe(map((res) => res.data));
-  }
-
-  getReportsStats(params: PlatformStatsRequestParams): Observable<ReportsStatsResponsePlatform> {
+  getReportsStats(params: PlatformStatsRequestParams): Observable<PlatformReportsStatsResponse> {
     const queryParams = {
       data: {
         query_params: `state=${params.state}`,
       },
     };
     return this.spenderPlatformV1ApiService
-      .post<{ data: ReportsStatsResponsePlatform }>('/reports/stats', queryParams)
+      .post<{ data: PlatformReportsStatsResponse }>('/reports/stats', queryParams)
       .pipe(map((res) => res.data));
   }
 }

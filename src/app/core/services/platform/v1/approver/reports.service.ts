@@ -6,7 +6,10 @@ import { ReportsQueryParams } from 'src/app/core/models/platform/v1/reports-quer
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { PlatformStatsRequestParams } from 'src/app/core/models/platform/v1/platform-stats-request-param.model';
-import { StatsResponse } from 'src/app/core/models/platform/v1/stats-response.model';
+import { PlatformReportsStatsResponse } from 'src/app/core/models/platform/v1/report-stats-response.model';
+import { PlatformApiPayload } from 'src/app/core/models/platform/platform-api-payload.model';
+import { ReportPermissions } from 'src/app/core/models/report-permissions.model';
+import { Comment } from 'src/app/core/models/platform/v1/comment.model';
 
 @Injectable({
   providedIn: 'root',
@@ -37,7 +40,7 @@ export class ApproverReportsService {
 
   getReportsCount(queryParams: ReportsQueryParams): Observable<number> {
     const params = {
-      state: queryParams.state,
+      ...queryParams,
       limit: 1,
       offset: 0,
     };
@@ -53,20 +56,65 @@ export class ApproverReportsService {
     return this.approverPlatformApiService.get<PlatformApiResponse<Report[]>>('/reports', config);
   }
 
-  getReportsStats(params: PlatformStatsRequestParams): Observable<StatsResponse> {
-    const queryParams = {
-      data: {
-        query_params: `state=${params.state}`,
-      },
-    };
+  generateStatsQueryParams(params: PlatformStatsRequestParams): string {
+    const paramKeys = Object.keys(params);
+    const queryParams = [];
+    paramKeys.forEach((key) => {
+      queryParams.push(`${key}=${params[key]}`);
+    });
+
+    return queryParams.join('&');
+  }
+
+  getReportsStats(params: PlatformStatsRequestParams): Observable<PlatformReportsStatsResponse> {
     return this.approverPlatformApiService
-      .post<{ data: StatsResponse }>('/reports/stats', queryParams)
+      .post<{ data: PlatformReportsStatsResponse }>('/reports/stats', {
+        data: {
+          query_params: this.generateStatsQueryParams(params),
+        },
+      })
       .pipe(map((res) => res.data));
   }
 
   getReportById(id: string): Observable<Report> {
     const queryParams = { id: `eq.${id}` };
     return this.getReportsByParams(queryParams).pipe(map((res: PlatformApiResponse<Report[]>) => res.data[0]));
+  }
+
+  sendBack(id: string, comment: string): Observable<void> {
+    return this.approverPlatformApiService.post('/reports/send_back', { data: { id, comment } });
+  }
+
+  addApprover(rptId: string, approverEmail: string, comment: string): Observable<Report> {
+    const data = {
+      id: rptId,
+      approver_email: approverEmail,
+      comment,
+    };
+
+    return this.approverPlatformApiService
+      .post<{ data: Report }>('/reports/add_approver', { data })
+      .pipe(map((res) => res.data));
+  }
+
+  permissions(id: string): Observable<ReportPermissions> {
+    return this.approverPlatformApiService
+      .post<PlatformApiPayload<ReportPermissions>>('/reports/permissions', { data: { id } })
+      .pipe(map((res) => res.data));
+  }
+
+  postComment(id: string, comment: string): Observable<Comment> {
+    return this.approverPlatformApiService
+      .post<PlatformApiPayload<Comment>>('/reports/comments', { data: { id, comment } })
+      .pipe(map((res) => res.data));
+  }
+
+  approve(rptId: string): Observable<Report> {
+    const data = {
+      id: rptId,
+    };
+
+    return this.approverPlatformApiService.post('/reports/partially_approve', { data });
   }
 
   ejectExpenses(rptId: string, expenseId: string, comment?: string[]): Observable<void> {

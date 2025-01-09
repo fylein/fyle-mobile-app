@@ -14,6 +14,8 @@ import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pip
 import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
 import { SnakeCaseToSpaceCase } from 'src/app/shared/pipes/snake-case-to-space-case.pipe';
 import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog.component';
+import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-report.data';
+import { ExactCurrencyPipe } from 'src/app/shared/pipes/exact-currency.pipe';
 
 describe('AddTxnToReportDialogComponent', () => {
   let component: AddTxnToReportDialogComponent;
@@ -31,6 +33,7 @@ describe('AddTxnToReportDialogComponent', () => {
         AddTxnToReportDialogComponent,
         FyZeroStateComponent,
         HumanizeCurrencyPipe,
+        ExactCurrencyPipe,
         ReportState,
         SnakeCaseToSpaceCase,
       ],
@@ -52,7 +55,7 @@ describe('AddTxnToReportDialogComponent', () => {
         },
         {
           provide: MAT_BOTTOM_SHEET_DATA,
-          useValue: { openReports: apiExtendedReportRes, isNewReportsFlowEnabled: true },
+          useValue: { openReports: expectedReportsSinglePage, isNewReportsFlowEnabled: true },
         },
       ],
     }).compileComponents();
@@ -80,8 +83,8 @@ describe('AddTxnToReportDialogComponent', () => {
   it('addTransactionToReport(): should add txn to report', () => {
     matBottomsheet.dismiss.and.callThrough();
 
-    component.addTransactionToReport(apiExtendedReportRes[0]);
-    expect(matBottomsheet.dismiss).toHaveBeenCalledOnceWith({ report: apiExtendedReportRes[0] });
+    component.addTransactionToReport(expectedReportsSinglePage[0]);
+    expect(matBottomsheet.dismiss).toHaveBeenCalledOnceWith({ report: expectedReportsSinglePage[0] });
   });
 
   it('onClickCreateReportTask(): should navigate to create report page', () => {
@@ -94,23 +97,23 @@ describe('AddTxnToReportDialogComponent', () => {
   });
 
   it('should display report information correctly', () => {
-    component.openReports = [apiExtendedReportRes[0]];
+    component.openReports = [expectedReportsSinglePage[0]];
     fixture.detectChanges();
 
     expect(getTextContent(getElementBySelector(fixture, '.report-list--purpose'))).toEqual('#8:  Jan 2023');
-    expect(getTextContent(getElementBySelector(fixture, '.report-list--count'))).toEqual('1 Expense');
+    expect(getTextContent(getElementBySelector(fixture, '.report-list--count'))).toEqual('0 Expense');
     expect(getTextContent(getElementBySelector(fixture, '.report-list--currency'))).toEqual('$');
-    expect(getTextContent(getElementBySelector(fixture, '.report-list--amount'))).toEqual('116.90');
-    expect(getTextContent(getElementBySelector(fixture, '.report-list--state'))).toEqual('Submitted');
+    expect(getTextContent(getElementBySelector(fixture, '.report-list--amount'))).toEqual('100.00');
+    expect(getTextContent(getElementBySelector(fixture, '.report-list--state'))).toEqual('Draft');
   });
 
   it('should call addTransactionToReport() when clicked', () => {
     spyOn(component, 'addTransactionToReport');
-    component.openReports = [apiExtendedReportRes[0]];
+    component.openReports = [expectedReportsSinglePage];
 
     const reportCard = getElementBySelector(fixture, '[data-testid="report"]') as HTMLElement;
     click(reportCard);
-    expect(component.addTransactionToReport).toHaveBeenCalledOnceWith(apiExtendedReportRes[0]);
+    expect(component.addTransactionToReport).toHaveBeenCalledOnceWith(expectedReportsSinglePage[0]);
   });
 
   it('should call closeAddToReportModal() when clicked', () => {

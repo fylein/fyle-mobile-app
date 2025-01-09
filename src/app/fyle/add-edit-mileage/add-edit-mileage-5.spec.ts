@@ -236,7 +236,7 @@ export function TestCases5(getTestBed) {
       spyOn(component, 'getMileageRatesOptions');
       spyOn(component, 'setupTxnFields');
       spyOn(component, 'getPolicyDetails');
-      spyOn(component, 'checkAvailableAdvance');
+      spyOn(component, 'setupBalanceFlag');
       spyOn(component, 'checkIndividualMileageEnabled');
       spyOn(component, 'setupFilteredCategories');
     }
@@ -244,6 +244,7 @@ export function TestCases5(getTestBed) {
     function getClassValues() {
       spyOn(component, 'getTransactionFields').and.returnValue(of(expenseFieldObjData));
       spyOn(component, 'getSubCategories').and.returnValue(of(mileageCategories2));
+      spyOn(component, 'getProjectCategories').and.returnValue(of(mileageCategories2));
       spyOn(component, 'getProjectCategoryIds').and.returnValue(of(['141295', '141300']));
       spyOn(component, 'getNewExpense').and.returnValue(of(newExpenseMileageData1));
       spyOn(component, 'getCustomInputs').and.returnValue(of(null));
@@ -314,7 +315,7 @@ export function TestCases5(getTestBed) {
       expect(recentlyUsedItemsService.getRecentCostCenters).toHaveBeenCalledTimes(1);
       expect(component.setupTxnFields).toHaveBeenCalledTimes(1);
       expect(component.getPolicyDetails).toHaveBeenCalledTimes(1);
-      expect(component.checkAvailableAdvance).toHaveBeenCalledTimes(1);
+      expect(component.setupBalanceFlag).toHaveBeenCalledTimes(1);
       expect(component.getEditRates).toHaveBeenCalledTimes(1);
       expect(component.getAddRates).toHaveBeenCalledTimes(1);
       expect(component.getExpenseAmount).toHaveBeenCalledTimes(1);
@@ -414,7 +415,7 @@ export function TestCases5(getTestBed) {
           expect(res).toBeTrue();
         });
 
-        expect(component.getCostCenters).toHaveBeenCalledOnceWith(jasmine.any(Observable), jasmine.any(Observable));
+        expect(component.getCostCenters).toHaveBeenCalledOnceWith(jasmine.any(Observable));
 
         component.reports$.subscribe((res) => {
           expect(res).toEqual(reportOptionsData3);

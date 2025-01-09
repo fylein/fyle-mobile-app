@@ -61,7 +61,7 @@ describe('FySelectProjectComponent', () => {
     component.validInParent = false;
 
     const res = component.valid;
-    expect(res).toEqual(true);
+    expect(res).toBeTrue();
   });
 
   it('openModal(): should open select vendor modal', async () => {
@@ -76,14 +76,12 @@ describe('FySelectProjectComponent', () => {
       handle: false,
     });
     const projectModalSpy = jasmine.createSpyObj('projectModal', ['present', 'onWillDismiss']);
-    projectModalSpy.onWillDismiss.and.returnValue(
-      Promise.resolve({
-        data: {
-          value: testProjectV2,
-        },
-      })
-    );
-    modalController.create.and.returnValue(Promise.resolve(projectModalSpy));
+    projectModalSpy.onWillDismiss.and.resolveTo({
+      data: {
+        value: testProjectV2,
+      },
+    });
+    modalController.create.and.resolveTo(projectModalSpy);
 
     await component.openModal();
 
@@ -97,6 +95,7 @@ describe('FySelectProjectComponent', () => {
         defaultValue: component.defaultValue,
         recentlyUsed: component.recentlyUsed,
         label: component.label,
+        isProjectCategoryRestrictionsEnabled: component.isProjectCategoryRestrictionsEnabled,
       },
       mode: 'ios',
       cssClass: 'fy-modal',
@@ -148,14 +147,12 @@ describe('FySelectProjectComponent', () => {
     component.registerOnChange(callbackFn);
 
     const projectModalSpy = jasmine.createSpyObj('projectModal', ['present', 'onWillDismiss']);
-    projectModalSpy.onWillDismiss.and.returnValue(
-      Promise.resolve({
-        data: {
-          value: 'value1',
-        },
-      })
-    );
-    modalController.create.and.returnValue(Promise.resolve(projectModalSpy));
+    projectModalSpy.onWillDismiss.and.resolveTo({
+      data: {
+        value: 'value1',
+      },
+    });
+    modalController.create.and.resolveTo(projectModalSpy);
 
     modalProperties.getModalDefaultProperties.and.callThrough();
 

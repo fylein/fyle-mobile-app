@@ -4,7 +4,6 @@ import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
 import { IonicModule, ModalController } from '@ionic/angular';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { ReportService } from 'src/app/core/services/report.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -18,12 +17,13 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { TestCases2 } from './team-reports-2.page.spec';
 import { TestCases3 } from './team-reports-3.page.spec';
 import { TestCases4 } from './team-reports-4.page.spec';
+import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
+import { AuthService } from 'src/app/core/services/auth.service';
 
 describe('TeamReportsPage', () => {
   const getTestBed = () => {
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
-    const reportServiceSpy = jasmine.createSpyObj('ReportService', ['getTeamReports', 'getTeamReportsCount', 'delete']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const dateServiceSpy = jasmine.createSpyObj('DateService', [
       'getThisMonthRange',
@@ -49,6 +49,11 @@ describe('TeamReportsPage', () => {
     const apiV2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['extendQueryParamsForTextSearch']);
     const tasksServiceSpy = jasmine.createSpyObj('TasksService', ['getTeamReportsTaskCount']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const approverReportsServiceSpy = jasmine.createSpyObj('ApproverReportsService', [
+      'getReportsByParams',
+      'getReportsCount',
+    ]);
+    const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
 
     TestBed.configureTestingModule({
       declarations: [TeamReportsPage, ReportState],
@@ -56,7 +61,6 @@ describe('TeamReportsPage', () => {
       providers: [
         { provide: NetworkService, useValue: networkServiceSpy },
         { provide: LoaderService, useValue: loaderServiceSpy },
-        { provide: ReportService, useValue: reportServiceSpy },
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: DateService, useValue: dateServiceSpy },
         { provide: Router, useValue: routerSpy },
@@ -67,6 +71,8 @@ describe('TeamReportsPage', () => {
         { provide: ApiV2Service, useValue: apiV2ServiceSpy },
         { provide: TasksService, useValue: tasksServiceSpy },
         { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
+        { provide: ApproverReportsService, useValue: approverReportsServiceSpy },
+        { provide: AuthService, useValue: authServiceSpy },
         ReportState,
       ],
       schemas: [NO_ERRORS_SCHEMA],

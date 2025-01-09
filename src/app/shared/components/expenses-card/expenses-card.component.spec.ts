@@ -21,7 +21,7 @@ import { FormsModule } from '@angular/forms';
 import { ExpenseState } from '../../pipes/expense-state.pipe';
 import { orgSettingsGetData } from 'src/app/core/test-data/org-settings.service.spec.data';
 import { of, take } from 'rxjs';
-import { expenseData1 } from 'src/app/core/mock-data/expense.data';
+import { expenseData1, selectedExpense1 } from 'src/app/core/mock-data/expense.data';
 import { apiExpenseRes } from 'src/app/core/mock-data/expense.data';
 import { expenseFieldsMapResponse2 } from 'src/app/core/mock-data/expense-fields-map.data';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
@@ -70,7 +70,7 @@ describe('ExpensesCardComponent', () => {
       'getIsCriticalPolicyViolated',
       'getVendorDetails',
     ]);
-    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById']);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById', 'attachReceiptToExpense']);
     const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
     const fileServiceSpy = jasmine.createSpyObj('FileService', [
       'downloadUrl',
@@ -85,7 +85,6 @@ describe('ExpensesCardComponent', () => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
     const transactionsOutboxServiceSpy = jasmine.createSpyObj('TransactionsOutboxService', [
-      'isDataExtractionPending',
       'isSyncInProgress',
       'fileUpload',
     ]);
@@ -150,7 +149,6 @@ describe('ExpensesCardComponent', () => {
     transactionService.getIsCriticalPolicyViolated.and.returnValue(false);
     platform.is.and.returnValue(true);
     fileService.getReceiptDetails.and.returnValue(fileObjectAdv[0].type);
-    transactionsOutboxService.isDataExtractionPending.and.returnValue(true);
     expensesService.getExpenseById.and.returnValue(of(platformExpenseData));
     transactionService.transformExpense.and.returnValue(transformedExpenseData);
     networkService.isOnline.and.returnValue(of(true));
@@ -318,89 +316,37 @@ describe('ExpensesCardComponent', () => {
     });
   });
 
-  describe('pollDataExtractionStatus():', () => {
-    it('should call the callback when data extraction is not pending', fakeAsync(() => {
-      transactionsOutboxService.isDataExtractionPending.and.returnValue(false);
-      const callbackSpy = jasmine.createSpy('callback');
-      component.pollDataExtractionStatus(callbackSpy);
-      tick(5000);
-      expect(callbackSpy).toHaveBeenCalledTimes(1);
-    }));
-
-    it('should keep polling when data extraction is pending', fakeAsync(() => {
-      const callbackSpy = jasmine.createSpy('callback');
-
-      transactionsOutboxService.isDataExtractionPending.and.returnValue(true);
-
-      component.pollDataExtractionStatus(callbackSpy);
-      tick(1000); // wait for the initial setTimeout call
-
-      expect(transactionsOutboxService.isDataExtractionPending).toHaveBeenCalledTimes(1);
-      expect(callbackSpy).not.toHaveBeenCalledTimes(1);
-
-      // simulate data extraction not pending
-      transactionsOutboxService.isDataExtractionPending.and.returnValue(false);
-      tick(5000); // wait for the next setTimeout call
-
-      expect(transactionsOutboxService.isDataExtractionPending).toHaveBeenCalledTimes(2);
-      expect(callbackSpy).toHaveBeenCalledTimes(1);
-    }));
-  });
-
   describe('handleScanStatus():', () => {
     it('should handle status when the syncing is in progress and the extracted data is present', () => {
       component.isOutboxExpense = false;
       component.homeCurrency = 'INR';
-      component.expense.tx_id = 'txO6d6eiB4JF';
+      component.expense = selectedExpense1;
       orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
       const isScanCompletedSpy = spyOn(component, 'checkIfScanIsCompleted').and.returnValue(false);
-      expensesService.getExpenseById.and.returnValue(of(platformExpenseWithExtractedData));
-      transactionService.transformExpense.and.returnValue(transformedExpenseWithExtractedData);
       component.isScanInProgress = true;
-      spyOn(component, 'pollDataExtractionStatus').and.callFake((callback) => {
-        callback();
-      });
-
-      transactionsOutboxService.isDataExtractionPending.and.returnValue(true);
 
       component.handleScanStatus();
 
       expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
       expect(isScanCompletedSpy).toHaveBeenCalledTimes(1);
-      expect(transactionsOutboxService.isDataExtractionPending).toHaveBeenCalledOnceWith('txO6d6eiB4JF');
-      expect(component.pollDataExtractionStatus).toHaveBeenCalledTimes(1);
-      expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(component.expense.tx_id);
-      expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseWithExtractedData);
-      expect(component.isScanCompleted).toBeTrue();
+      expect(component.isScanCompleted).toBeFalse();
       expect(component.isScanInProgress).toBeFalse();
-      expect(component.expense.tx_extracted_data).toEqual(transformedExpenseWithExtractedData.tx.extracted_data);
     });
 
     it('should handle status when the sync is in progress and there is no extracted data present', () => {
       component.isOutboxExpense = false;
-      component.expense.tx_id = 'txvslh8aQMbu';
+      component.expense = expenseData1;
       orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
       const isScanCompletedSpy = spyOn(component, 'checkIfScanIsCompleted').and.returnValue(false);
-      expensesService.getExpenseById.and.returnValue(of(platformExpenseData));
-      transactionService.transformExpense.and.returnValue(transformedExpenseData);
       component.isScanInProgress = true;
-      const pollDataSpy = spyOn(component, 'pollDataExtractionStatus').and.callFake((callback) => {
-        callback();
-      });
-
-      transactionsOutboxService.isDataExtractionPending.and.returnValue(true);
 
       component.handleScanStatus();
 
       expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
       expect(component.checkIfScanIsCompleted).toHaveBeenCalledTimes(1);
       expect(isScanCompletedSpy).toHaveBeenCalledTimes(1);
-      expect(transactionsOutboxService.isDataExtractionPending).toHaveBeenCalledOnceWith('txvslh8aQMbu');
-      expect(pollDataSpy).toHaveBeenCalledTimes(1);
-      expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(component.expense.tx_id);
-      expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
       expect(component.isScanCompleted).toBeFalse();
-      expect(component.isScanInProgress).toBeFalse();
+      expect(component.isScanInProgress).toBeTrue();
     });
 
     it('should handle status when the scanning is not in progress', () => {
@@ -648,7 +594,7 @@ describe('ExpensesCardComponent', () => {
 
       fileService.getAttachmentType.and.returnValue(attachmentType);
       transactionsOutboxService.fileUpload.and.resolveTo(fileObj);
-      fileService.post.and.returnValue(of(fileObjectData));
+      expensesService.attachReceiptToExpense.and.returnValue(of(platformExpenseData));
 
       spyOn(component, 'matchReceiptWithEtxn').and.callThrough();
 
@@ -658,7 +604,7 @@ describe('ExpensesCardComponent', () => {
       expect(fileService.getAttachmentType).toHaveBeenCalledOnceWith(receiptDetailsaRes.type);
       expect(transactionsOutboxService.fileUpload).toHaveBeenCalledOnceWith(dataUrl, attachmentType);
       expect(component.matchReceiptWithEtxn).toHaveBeenCalledOnceWith(fileObj);
-      expect(fileService.post).toHaveBeenCalledOnceWith(fileObj);
+      expect(expensesService.attachReceiptToExpense).toHaveBeenCalledOnceWith(component.expense.tx_id, fileObj.id);
       expect(component.attachmentUploadInProgress).toBeFalse();
       tick(500);
     }));

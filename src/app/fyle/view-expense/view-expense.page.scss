@@ -56,23 +56,51 @@
       width: 100%;
     }
 
+    &__merchant_block {
+      display: flex;
+      gap: 6px;
+      border-top: 1px solid $grey;
+      padding-top: 12px;
+      margin-top: 12px;
+      align-items: center;
+    }
+
+    &__merchant_label {
+      color: $black-light;
+      font-size: 12px;
+    }
+
+    &__merchant_value {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      color: $blue-black;
+      font-weight: 500;
+      font-size: 12px;
+    }
+
+    &__merchant_info_icon {
+      color: $blue-black;
+      width: 16px;
+      height: 16px;
+    }
+
     &__amount-section {
       display: flex;
-      justify-content: flex-end;
+      justify-content: flex-start;
       width: 90%;
-      margin-left: 16px;
+      padding-top: 10px;
       align-items: center;
     }
 
     &__category {
       color: $black;
-      font-size: 18px;
       font-weight: 500;
     }
 
     &__merchant {
-      padding-top: 2px;
-      color: $blue-black;
+      font-size: 12px;
+      color: $dark-grey;
     }
 
     &__project {
@@ -92,9 +120,9 @@
     }
 
     &__amount {
-      font-size: 20px;
+      font-size: 16px;
       font-weight: 500;
-      color: $blue-black;
+      color: $black;
       margin-right: 4px;
     }
 
@@ -106,13 +134,8 @@
       color: $black-light;
     }
 
-    &__no-exchange {
-      padding-top: 20px;
-    }
-
     &__state-pill {
       display: inline-block;
-      margin-top: 6px;
       white-space: nowrap;
     }
 
@@ -192,5 +215,12 @@
   &--divider {
     margin-top: 16px;
     border-bottom: 1px solid $grey;
+  }
+
+  &--sparkle-icon {
+    width: 12px;
+    height: 12px;
+    margin: 2px 0px 2px 2px;
+    color: $brand-primary;
   }
 }

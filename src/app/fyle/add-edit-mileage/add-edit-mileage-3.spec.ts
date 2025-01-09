@@ -33,6 +33,7 @@ import {
   editUnflattenedTransaction,
   editUnflattenedTransactionPlatform,
   editUnflattenedTransactionPlatform2,
+  editUnflattenedTransactionPlatformWithAdvanceWallet,
 } from 'src/app/core/mock-data/transaction.data';
 import { txnCustomPropertiesData4 } from 'src/app/core/mock-data/txn-custom-properties.data';
 import {
@@ -90,11 +91,15 @@ import {
   platformExpenseData,
   platformExpenseDataWithReportId,
   platformExpenseDataWithSubCategory,
+  platformExpenseDataForAdvanceWallet,
 } from 'src/app/core/mock-data/platform/v1/expense.data';
+import { paymentModeDataAdvanceWallet } from 'src/app/core/test-data/accounts.service.spec.data';
 import {
   transformedExpenseData,
   transformedExpenseDataWithReportId,
   transformedExpenseDataWithSubCategory,
+  transformedExpenseDataWithAdvanceWallet,
+  transformedExpenseDataWithoutAdvanceWallet,
 } from 'src/app/core/mock-data/transformed-expense.data';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 
@@ -242,7 +247,7 @@ export function TestCases3(getTestBed) {
         spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomPropertiesData4));
         spyOn(component, 'getCalculatedDistance').and.returnValue(of('10'));
         component.isConnected$ = of(true);
-        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(unflattenedTxnData));
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(cloneDeep(unflattenedTxnData)));
         spyOn(component, 'checkPolicyViolation').and.returnValue(of(expensePolicyDataWoData));
         policyService.getCriticalPolicyRules.and.returnValue([]);
         policyService.getPolicyRules.and.returnValue([]);
@@ -251,11 +256,18 @@ export function TestCases3(getTestBed) {
         spyOn(component, 'getFormValues').and.returnValue({
           report: expectedReportsPaginated[0],
         });
+        const expectedEtxnData = {
+          ...unflattenedTxnData,
+          tx: {
+            ...unflattenedTxnData.tx,
+            report_id: expectedReportsPaginated[0].id,
+          },
+        };
         transactionOutboxService.addEntryAndSync.and.resolveTo(outboxQueueData1[0]);
         fixture.detectChanges();
 
         component.addExpense('SAVE_MILEAGE').subscribe((res) => {
-          expect(res).toEqual(unflattenedTxnData);
+          expect(res).toEqual(expectedEtxnData);
           expect(component.getCustomFields).toHaveBeenCalledTimes(1);
           expect(component.getCalculatedDistance).toHaveBeenCalledTimes(1);
           expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(
@@ -269,10 +281,9 @@ export function TestCases3(getTestBed) {
           expect(component.trackCreateExpense).toHaveBeenCalledTimes(1);
           expect(component.getFormValues).toHaveBeenCalledTimes(1);
           expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
-            unflattenedTxnData.tx,
+            expectedEtxnData.tx,
             unflattenedTxnData.dataUrls as any,
-            [],
-            expectedReportsPaginated[0].id
+            []
           );
           done();
         });
@@ -313,8 +324,7 @@ export function TestCases3(getTestBed) {
           expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
             unflattenedMileageDataWithPolicyAmount.tx,
             unflattenedTxnData.dataUrls as any,
-            [],
-            undefined
+            []
           );
           done();
         });
@@ -364,8 +374,7 @@ export function TestCases3(getTestBed) {
           expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
             unflattenedTxnData.tx,
             unflattenedTxnData.dataUrls as any,
-            [],
-            undefined
+            []
           );
           done();
         });
@@ -417,8 +426,7 @@ export function TestCases3(getTestBed) {
           expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
             unflattendedTxnWithPolicyAmount.tx,
             unflattendedTxnWithPolicyAmount.dataUrls as any,
-            ['A comment'],
-            undefined
+            ['A comment']
           );
           done();
         });
@@ -428,18 +436,25 @@ export function TestCases3(getTestBed) {
         component.isConnected$ = of(false);
         spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomPropertiesData4));
         spyOn(component, 'getCalculatedDistance').and.returnValue(of('10'));
-        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(unflattenedTxnData));
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(cloneDeep(unflattenedTxnData)));
         spyOn(component, 'checkPolicyViolation').and.returnValue(of(expensePolicyDataWoData));
         spyOn(component, 'trackCreateExpense');
         authService.getEou.and.resolveTo(apiEouRes);
         spyOn(component, 'getFormValues').and.returnValue({
           report: expectedReportsPaginated[0],
         });
+        const expectedEtxnData = {
+          ...unflattenedTxnData,
+          tx: {
+            ...unflattenedTxnData.tx,
+            report_id: expectedReportsPaginated[0].id,
+          },
+        };
         transactionOutboxService.addEntryAndSync.and.resolveTo(outboxQueueData1[0]);
         fixture.detectChanges();
 
         component.addExpense('SAVE_MILEAGE').subscribe((res) => {
-          expect(res).toEqual(unflattenedTxnData);
+          expect(res).toEqual(expectedEtxnData);
           expect(component.getCustomFields).toHaveBeenCalledTimes(1);
           expect(component.getCalculatedDistance).toHaveBeenCalledTimes(1);
           expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(
@@ -451,10 +466,9 @@ export function TestCases3(getTestBed) {
           expect(component.trackCreateExpense).toHaveBeenCalledTimes(1);
           expect(component.getFormValues).toHaveBeenCalledTimes(1);
           expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
-            unflattenedTxnData.tx,
+            expectedEtxnData.tx,
             unflattenedTxnData.dataUrls as any,
-            [],
-            expectedReportsPaginated[0].id
+            []
           );
           done();
         });
@@ -484,13 +498,16 @@ export function TestCases3(getTestBed) {
     });
 
     describe('setupFilteredCategories():', () => {
+      beforeEach(() => (component.isProjectCategoryRestrictionsEnabled$ = of(true)));
+
       it('should set up filtered categories', fakeAsync(() => {
+        component.subCategories$ = of(sortedCategory);
         projectsService.getAllowedOrgCategoryIds.and.returnValue(transformedOrgCategories);
         spyOn(component, 'getFormValues').and.returnValue({
           sub_category: orgCategoryData,
         });
 
-        component.setupFilteredCategories(of(sortedCategory));
+        component.setupFilteredCategories();
         tick(500);
 
         component.fg.controls.project.setValue(expectedProjectsResponse[0]);
@@ -507,12 +524,13 @@ export function TestCases3(getTestBed) {
       }));
 
       it('should set up filtered categories and set default billable value if project is removed', fakeAsync(() => {
+        component.subCategories$ = of(sortedCategory);
         projectsService.getAllowedOrgCategoryIds.and.returnValue(transformedOrgCategories);
         spyOn(component, 'getFormValues').and.returnValue({
           sub_category: orgCategoryData,
         });
 
-        component.setupFilteredCategories(of(sortedCategory));
+        component.setupFilteredCategories();
         tick(500);
 
         component.fg.controls.project.setValue(null);
@@ -734,6 +752,48 @@ export function TestCases3(getTestBed) {
             transformedExpenseDataWithReportId.tx.id
           );
           expect(trackingService.removeFromExistingReportEditExpense).toHaveBeenCalledTimes(1);
+          done();
+        });
+      });
+
+      it('should update transaction with advance_wallet_id while editing mileage', (done) => {
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(transformedExpenseDataWithAdvanceWallet));
+        component.isConnected$ = of(true);
+        spyOn(component, 'checkPolicyViolation').and.returnValue(of(null));
+        component.etxn$ = of(transformedExpenseDataWithAdvanceWallet);
+        component.fg.controls.paymentMode.setValue(paymentModeDataAdvanceWallet);
+        policyService.getCriticalPolicyRules.and.returnValue([]);
+        policyService.getPolicyRules.and.returnValue([]);
+        spenderReportsService.ejectExpenses.and.returnValue(of(undefined));
+        spenderReportsService.addExpenses.and.returnValue(of(undefined));
+        transactionService.upsert.and.returnValue(of(transformedExpenseDataWithoutAdvanceWallet.tx));
+        expensesService.getExpenseById.and.returnValue(of(platformExpenseDataForAdvanceWallet));
+        transactionService.transformExpense.and.returnValue(transformedExpenseDataWithoutAdvanceWallet);
+        expensesService.post.and.returnValue(of(null));
+        fixture.detectChanges();
+        component.editExpense('SAVE_MILEAGE').subscribe((res) => {
+          expect(res).toEqual(editUnflattenedTransactionPlatformWithAdvanceWallet);
+          expect(component.getCustomFields).toHaveBeenCalledTimes(1);
+          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(
+            component.etxn$,
+            jasmine.any(Observable),
+            jasmine.any(Observable)
+          );
+          expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(1);
+          expect(component.checkPolicyViolation).toHaveBeenCalledTimes(1);
+          expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(1);
+          expect(policyService.getPolicyRules).toHaveBeenCalledTimes(1);
+          expect(component.trackPolicyCorrections).toHaveBeenCalledTimes(1);
+          expect(component.trackEditExpense).toHaveBeenCalledOnceWith(transformedExpenseDataWithAdvanceWallet);
+          expect(transactionService.upsert).toHaveBeenCalledOnceWith(transformedExpenseDataWithAdvanceWallet.tx);
+          expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(
+            transformedExpenseDataWithAdvanceWallet.tx.id
+          );
+          expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseDataForAdvanceWallet);
+          expect(expensesService.post).toHaveBeenCalledOnceWith({
+            id: transformedExpenseDataWithAdvanceWallet.tx.id,
+            advance_wallet_id: 'areq1234',
+          });
           done();
         });
       });

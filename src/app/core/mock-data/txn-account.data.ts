@@ -6,3 +6,7 @@ export const txnAccountData: TransactionAccount = deepFreeze({
   source_account_id: 'acc5APeygFjRd',
   skip_reimbursement: false,
 });
+
+export const personalAccountData: Partial<TransactionAccount> = deepFreeze({
+  source_account_id: 'acc5APeygFjRd',
+});

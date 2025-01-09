@@ -1,6 +1,7 @@
 <ion-header>
   <div class="report-list--header">
-    <ion-grid>
+    <mat-icon class="fy-modal-top-bar report-list--header--handle-bar-icon" svgIcon="notch"></mat-icon>
+    <ion-grid class="report-list--header--top-nav-container">
       <ion-row>
         <ion-col size="1" class="report-list--header--row-icon-container">
           <ion-icon
@@ -9,7 +10,7 @@
             class="report-list--header--row-icon"
           ></ion-icon>
         </ion-col>
-        <ion-col size="10" class="text-center">Add to Report</ion-col>
+        <ion-col size="10" class="report-list--header--title text-center">Add to Report</ion-col>
         <ion-col size="1" class="report-list--header--row-icon-container">
           <ion-icon
             data-testid="addIcon"
@@ -28,23 +29,26 @@
       <div data-testid="report" mat-ripple (click)="addTransactionToReport(report)">
         <div *ngIf="i > 0" class="report-list--divider"></div>
         <ion-grid class="ion-no-padding">
-          <ion-row>
-            <ion-col size="8.5" class="ion-no-padding">
-              <div class="report-list--purpose">{{ report.rp_purpose }}</div>
-              <div class="report-list--count">
-                {{ report.rp_num_transactions }} Expense{{ report.rp_num_transactions > 1 ? 's' : '' }}
-              </div>
+          <ion-row class="report-list--report-card">
+            <ion-col size="0.75">
+              <mat-icon class="report-list--list-icon" svgIcon="list-new"></mat-icon>
             </ion-col>
-            <ion-col size="3.5" class="ion-no-padding ion-text-right">
+            <ion-col size="8.25" class="ion-no-padding">
+              <div class="report-list--purpose">{{ report.purpose }}</div>
+              <div class="report-list--count">
+                {{ report.num_expenses }} Expense{{ report.num_expenses > 1 ? 's' : '' }}
+              </div>
               <div class="report-list--currency-amount-container">
                 <span class="report-list--currency">{{ reportCurrencySymbol }}</span>
-                <span class="report-list--amount">{{
-                  report.rp_amount || 0 | humanizeCurrency : report.rp_currency : true
-                }}</span>
+                <span class="report-list--amount">
+                  {{ { value: report.amount || 0, currencyCode: report.currency, skipSymbol: true } | exactCurrency }}
+                </span>
               </div>
+            </ion-col>
+            <ion-col size="2.75" class="ion-no-padding ion-text-right">
               <div class="ion-text-right">
-                <div class="text-center report-list--state state-pill state-{{ report.rp_state | reportState }}">
-                  {{ report.rp_state | reportState : data.isNewReportsFlowEnabled | snakeCaseToSpaceCase | titlecase }}
+                <div class="text-center report-list--state state-pill state-{{ report.state | reportState }}">
+                  {{ report.state | reportState : data.isNewReportsFlowEnabled | snakeCaseToSpaceCase | titlecase }}
                 </div>
               </div>
             </ion-col>

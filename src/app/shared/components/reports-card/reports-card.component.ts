@@ -1,6 +1,6 @@
 import { getCurrencySymbol } from '@angular/common';
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { ExtendedReport } from 'src/app/core/models/report.model';
+import { Report } from 'src/app/core/models/platform/v1/report.model';
 
 @Component({
   selector: 'app-reports-card',
@@ -8,17 +8,17 @@ import { ExtendedReport } from 'src/app/core/models/report.model';
   styleUrls: ['./reports-card.component.scss'],
 })
 export class ReportsCardComponent implements OnInit {
-  @Input() erpt: ExtendedReport;
+  @Input() report: Report;
 
   @Input() prevDate: Date;
 
   @Input() simplifyReportsEnabled: boolean;
 
-  @Output() deleteReport: EventEmitter<ExtendedReport> = new EventEmitter();
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  @Output() gotoReport: EventEmitter<Report> = new EventEmitter();
 
-  @Output() gotoReport: EventEmitter<ExtendedReport> = new EventEmitter();
-
-  @Output() viewComments: EventEmitter<ExtendedReport> = new EventEmitter();
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  @Output() viewComments: EventEmitter<Report> = new EventEmitter();
 
   creationFullDate: string;
 
@@ -28,25 +28,22 @@ export class ReportsCardComponent implements OnInit {
 
   reportCurrencySymbol = '';
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   constructor() {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.showDate =
-      (this.erpt && new Date(this.erpt.rp_created_at).toDateString()) !==
+      (this.report && new Date(this.report.created_at as string).toDateString()) !==
       (this.prevDate && new Date(this.prevDate).toDateString());
 
-    this.reportCurrencySymbol = getCurrencySymbol(this.erpt.rp_currency, 'wide');
+    this.reportCurrencySymbol = getCurrencySymbol(this.report.currency, 'wide');
   }
 
-  onDeleteReport() {
-    this.deleteReport.emit(this.erpt);
+  onGoToReport(): void {
+    this.gotoReport.emit(this.report);
   }
 
-  onGoToReport() {
-    this.gotoReport.emit(this.erpt);
-  }
-
-  onViewComments() {
-    this.viewComments.emit(this.erpt);
+  onViewComments(): void {
+    this.viewComments.emit(this.report);
   }
 }

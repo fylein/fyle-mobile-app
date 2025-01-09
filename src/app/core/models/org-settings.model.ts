@@ -1,3 +1,8 @@
+// TODO: Clean up the file as per the rules mentioned in the eslint file:
+
+/* eslint-disable custom-rules/one-enum-per-file */
+/* eslint-disable custom-rules/prefer-semantic-extension-name */
+/* eslint-disable custom-rules/one-interface-per-file */
 import { AllowedPaymentModes } from './allowed-payment-modes.enum';
 import { MileageDetails } from './mileage.model';
 import { TaxGroup } from './tax-group.model';
@@ -75,6 +80,10 @@ export interface AdminAllowedIpSettings extends CommonOrgSettings {
 
 export interface PerDiemSettings extends CommonOrgSettings {
   enable_individual_per_diem_rates?: boolean;
+}
+
+export interface AdvancedPerDiemsSettings extends CommonOrgSettings {
+  enable_employee_restriction?: boolean;
 }
 
 export interface ReceiptSettings extends CommonOrgSettings {
@@ -171,6 +180,7 @@ export interface AdminEmailSettings extends CommonOrgSettings {
 
 export interface AdvancesSettings extends CommonOrgSettings {
   advance_requests_enabled?: boolean;
+  advance_wallets_enabled?: boolean;
 }
 
 export interface OrgMileageSettings extends CommonOrgSettings {
@@ -179,6 +189,7 @@ export interface OrgMileageSettings extends CommonOrgSettings {
 
 export interface AdvancedProjectSettings extends CommonOrgSettings {
   enable_individual_projects?: boolean;
+  enable_category_restriction?: boolean;
 }
 
 export interface SSOIntegrationSettings extends CommonOrgSettings {
@@ -371,7 +382,7 @@ export interface OrgSettingsResponse {
   org_personal_cards_settings?: CommonOrgSettings;
   bank_data_aggregation_settings?: OrgBankDataAggregationSettings;
   per_diem_settings?: PerDiemSettings;
-  advanced_per_diems_settings?: CommonOrgSettings;
+  advanced_per_diems_settings?: AdvancedPerDiemsSettings;
   accounting_export_settings?: AccountingExportSettings;
   activity_settings?: ActivitySettings;
   tax_settings?: TaxSettings;
@@ -489,9 +500,10 @@ export interface OrgSettings {
   org_id?: string;
   mileage?: MileageDetails;
   commute_deduction_settings?: CommonOrgSettings;
-  advances?: CommonOrgSettings;
+  advances?: AdvancesSettings;
   projects?: CommonOrgSettings;
   advanced_projects?: AdvancedProjectSettings;
+  advanced_per_diems_settings?: AdvancedPerDiemsSettings;
   advance_requests?: CommonOrgSettings;
   cost_centers?: CommonOrgSettings;
   policies?: UiPolicySettings;

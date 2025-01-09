@@ -19,18 +19,6 @@
         <ion-icon [src]="'../../../assets/svg/chat.svg'" slot="icon-only"></ion-icon>
       </ion-button>
 
-      <ng-container *ngIf="view === ExpenseView.team && canFlagOrUnflag$|async">
-        <ng-container *ngIf="expense$|async as expense">
-          <ion-button
-            class="view-expense--header-btn-container__btn"
-            (click)="flagUnflagExpense(expense.is_manually_flagged)"
-            [ngClass]="expense.is_manually_flagged ? 'icon--flagged' : 'icon--unflagged'"
-          >
-            <ion-icon [src]="'../../../assets/svg/flag-fill.svg'" slot="icon-only"></ion-icon>
-          </ion-button>
-        </ng-container>
-      </ng-container>
-
       <ng-container *ngIf="view === ExpenseView.team && canDelete$|async">
         <ion-button class="view-expense--header-btn-container__btn" (click)="removeExpenseFromReport()">
           <ion-icon [src]="'../../../assets/svg/bin.svg'" slot="icon-only"></ion-icon>
@@ -67,18 +55,22 @@
         <div class="d-flex">
           <div class="view-expense--card-container__block">
             <div class="view-expense--card-container__category">{{ expense.category.display_name }}</div>
-            <div class="view-expense--card-container__merchant">{{ expense.merchant || '-' }}</div>
+            <div class="view-expense--card-container__merchant" *ngIf="!expense.matched_corporate_card_transactions[0]">
+              {{ expense.merchant || '-' }}
+            </div>
             <div *ngIf="isProjectShown" class="view-expense--card-container__project">
               {{ projectFieldName | titlecase }}: {{ expense.project?.name || '-' }}
             </div>
-            <div *ngIf="isCCCTransaction && cardNumber">Card Number: {{ cardNumber | maskNumber }}</div>
+            <div *ngIf="isCCCTransaction && cardNumber">
+              Card: {{ cardNumber | maskNumber }} <span *ngIf="cardNickname">{{'(' + cardNickname + ')'}}</span>
+            </div>
           </div>
 
           <div class="ion-text-right view-expense--card-container__block">
             <div class="view-expense--card-container__amount-section">
               <span class="view-expense--card-container__currency">{{ expenseCurrencySymbol }}</span>
               <span class="view-expense--card-container__amount">
-                {{ expense.amount | humanizeCurrency: expense.currency:true }}
+                {{ { value: expense.amount, currencyCode: expense.currency , skipSymbol: true } | exactCurrency }}
               </span>
               <div *ngIf="isCCCTransaction">
                 <div
@@ -99,6 +91,15 @@
               expense.foreign_amount | currency: expense.currency: 'symbol-narrow' }}
             </div>
 
+            <div *ngIf="isProjectShown" class="view-expense--card-container__project">
+              {{ projectFieldName | titlecase }}: {{ expense.project?.name || '-' }}
+            </div>
+            <div *ngIf="isCCCTransaction && cardNumber">
+              Card: {{ cardNumber | maskNumber }} <span *ngIf="cardNickname">{{'(' + cardNickname + ')'}}</span>
+            </div>
+          </div>
+
+          <div class="ion-text-right view-expense--card-container__block">
             <div
               class="view-expense--card-container__state-pill ion-text-right"
               [ngClass]="{'view-expense--card-container__no-exchange': !foreignCurrencySymbol && isProjectShown}"
@@ -109,6 +110,21 @@
             </div>
           </div>
         </div>
+
+        <ng-container *ngIf="expense.matched_corporate_card_transactions[0]">
+          <div class="view-expense--card-container__merchant_block">
+            <div class="view-expense--card-container__merchant_label">Merchant:</div>
+            <div class="view-expense--card-container__merchant_value">
+              <span> {{ expense.matched_corporate_card_transactions[0].merchant || 'Unavailable' }} </span>
+              <ion-icon
+                (click)="openCCExpenseMerchantInfoModal()"
+                src="../../../assets/svg/info-circle-outline.svg"
+                class="view-expense--card-container__merchant_info_icon"
+                data-testid="merchant-info-icon"
+              ></ion-icon>
+            </div>
+          </div>
+        </ng-container>
 
         <ng-container *ngIf="isCCCTransaction && isRTFEnabled">
           <div
@@ -228,7 +244,14 @@
                   </div>
                 </ion-col>
                 <ion-col class="view-expense--content-container">
-                  <div class="view-expense--label">Spend Date</div>
+                  <div class="d-flex">
+                    <div class="view-expense--label">Spend Date</div>
+                    <ion-icon
+                      *ngIf="expense.extracted_data && (expense.spent_at | date:'MMM dd, YYYY') === (expense.extracted_data.date | date:'MMM dd, YYYY')"
+                      class="view-expense--sparkle-icon"
+                      src="../../../assets/svg/sparkle.svg"
+                    ></ion-icon>
+                  </div>
                   <div class="view-expense--value">{{ expense.spent_at | date: 'MMM dd, YYYY' }}</div>
                 </ion-col>
               </ion-row>

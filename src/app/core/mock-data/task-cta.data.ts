@@ -47,3 +47,13 @@ export const taskCtaData9: TaskCta = deepFreeze({
   event: TASKEVENT.mobileNumberVerification,
   content: 'Verify Mobile Number',
 });
+
+export const taskCtaData10: TaskCta = deepFreeze({
+  event: TASKEVENT.commuteDetails,
+  content: 'Add Commute Details',
+});
+
+export const taskCtaData11: TaskCta = deepFreeze({
+  event: TASKEVENT.addCorporateCard,
+  content: 'Add corporate card',
+});

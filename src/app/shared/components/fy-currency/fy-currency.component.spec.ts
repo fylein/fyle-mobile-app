@@ -62,6 +62,7 @@ describe('FyCurrencyComponent', () => {
     component.validInParent = true;
     fixture.detectChanges();
   }));
+
   it('should create', () => {
     expect(component).toBeTruthy();
   });
@@ -148,7 +149,7 @@ describe('FyCurrencyComponent', () => {
 
     expect(currencyService.getExchangeRate).toHaveBeenCalledWith('EUR', 'USD', previousTxnDt);
     expect(component.exchangeRate).toEqual(exchangeRate);
-    expect(component.innerValue.amount).toEqual(null);
+    expect(component.innerValue.amount).toBeNull();
   }));
 
   it('ngOnChanges(): should update the exchange rate and inner value even if txnDt is undefined', fakeAsync(() => {
@@ -200,6 +201,8 @@ describe('FyCurrencyComponent', () => {
 
     // Test case 2: inner value with same currency
     const innerValue2 = {
+      orig_amount: null,
+      orig_currency: null,
       amount: 50,
       currency: 'USD',
     };
@@ -266,12 +269,10 @@ describe('FyCurrencyComponent', () => {
     };
     component.txnDt = new Date();
     fixture.detectChanges();
-    modalController.create.and.returnValue(
-      Promise.resolve({
-        present: () => {},
-        onWillDismiss: () => Promise.resolve({ data: { amount: 100, homeCurrencyAmount: 500 } }),
-      } as any)
-    );
+    modalController.create.and.resolveTo({
+      present: () => {},
+      onWillDismiss: () => Promise.resolve({ data: { amount: 100, homeCurrencyAmount: 500 } }),
+    } as HTMLIonModalElement);
     component.setExchangeRate('USD');
     tick();
     expect(modalController.create).toHaveBeenCalledOnceWith({
@@ -308,12 +309,10 @@ describe('FyCurrencyComponent', () => {
     };
     component.txnDt = new Date();
     fixture.detectChanges();
-    modalController.create.and.returnValue(
-      Promise.resolve({
-        present: () => {},
-        onWillDismiss: () => Promise.resolve({ data: { amount: 100, homeCurrencyAmount: 500 } }),
-      } as any)
-    );
+    modalController.create.and.resolveTo({
+      present: () => {},
+      onWillDismiss: () => Promise.resolve({ data: { amount: 100, homeCurrencyAmount: 500 } }),
+    } as HTMLIonModalElement);
     component.setExchangeRate();
     tick();
     expect(modalController.create).toHaveBeenCalledOnceWith({
@@ -356,12 +355,10 @@ describe('FyCurrencyComponent', () => {
     };
     component.txnDt = new Date();
     fixture.detectChanges();
-    modalController.create.and.returnValue(
-      Promise.resolve({
-        present: () => {},
-        onWillDismiss: () => Promise.resolve({ data: { amount: 100, homeCurrencyAmount: 500 } }),
-      } as any)
-    );
+    modalController.create.and.resolveTo({
+      present: () => {},
+      onWillDismiss: () => Promise.resolve({ data: { amount: 100, homeCurrencyAmount: 500 } }),
+    } as HTMLIonModalElement);
     component.setExchangeRate('EUR');
     tick();
     expect(modalController.create).toHaveBeenCalledOnceWith({
@@ -390,12 +387,10 @@ describe('FyCurrencyComponent', () => {
       homeCurrencyAmount: new FormControl(50),
     });
     spyOn(component, 'setExchangeRate');
-    modalController.create.and.returnValue(
-      Promise.resolve({
-        present: () => {},
-        onWillDismiss: () => Promise.resolve({ data: { currency: { shortCode: 'USD' } } }),
-      } as any)
-    );
+    modalController.create.and.resolveTo({
+      present: () => {},
+      onWillDismiss: () => Promise.resolve({ data: { currency: { shortCode: 'USD' } } }),
+    } as HTMLIonModalElement);
     component.homeCurrency = 'EUR';
     component.value = {
       currency: 'EUR',
@@ -427,12 +422,10 @@ describe('FyCurrencyComponent', () => {
       homeCurrencyAmount: new FormControl(50),
     });
     spyOn(component, 'setExchangeRate');
-    modalController.create.and.returnValue(
-      Promise.resolve({
-        present: () => {},
-        onWillDismiss: () => Promise.resolve({ data: { currency: { shortCode: 'USD' } } }),
-      } as any)
-    );
+    modalController.create.and.resolveTo({
+      present: () => {},
+      onWillDismiss: () => Promise.resolve({ data: { currency: { shortCode: 'USD' } } }),
+    } as HTMLIonModalElement);
     component.homeCurrency = 'EUR';
     component.value = {
       currency: 'EUR',
@@ -462,12 +455,10 @@ describe('FyCurrencyComponent', () => {
       homeCurrencyAmount: new FormControl(50),
     });
     spyOn(component, 'setExchangeRate');
-    modalController.create.and.returnValue(
-      Promise.resolve({
-        present: () => {},
-        onWillDismiss: () => Promise.resolve({ data: { currency: { shortCode: 'USD' } } }),
-      } as any)
-    );
+    modalController.create.and.resolveTo({
+      present: () => {},
+      onWillDismiss: () => Promise.resolve({ data: { currency: { shortCode: 'USD' } } }),
+    } as HTMLIonModalElement);
     component.homeCurrency = 'USD';
     component.openCurrencyModal();
     tick(1000);
@@ -487,6 +478,50 @@ describe('FyCurrencyComponent', () => {
   it('getValid(): should return true if touchedInParent is true', () => {
     component.touchedInParent = true;
     fixture.detectChanges();
-    expect(component.valid).toBe(true);
+    expect(component.valid).toBeTrue();
+  });
+
+  it('should set autoCodeMessage to "Currency and Amount are auto coded." when both are auto coded', () => {
+    component.autoCodedData = { currency: 'USD', amount: 100 };
+    component.fg = new FormGroup({
+      currency: new FormControl('USD'),
+      amount: new FormControl(100),
+      homeCurrencyAmount: new FormControl(null),
+    });
+    component.showAutoCodeMessage();
+    expect(component.autoCodeMessage).toBe('Currency and Amount are auto coded.');
+  });
+
+  it('should set autoCodeMessage to "Currency is auto coded." when only currency is auto coded', () => {
+    component.autoCodedData = { currency: 'USD', amount: 100 };
+    component.fg = new FormGroup({
+      currency: new FormControl('USD'),
+      amount: new FormControl(200),
+      homeCurrencyAmount: new FormControl(null),
+    });
+    component.showAutoCodeMessage();
+    expect(component.autoCodeMessage).toBe('Currency is auto coded.');
+  });
+
+  it('should set autoCodeMessage to "Amount is auto coded." when only amount is auto coded', () => {
+    component.autoCodedData = { currency: 'USD', amount: 100 };
+    component.fg = new FormGroup({
+      currency: new FormControl('EUR'),
+      amount: new FormControl(100),
+      homeCurrencyAmount: new FormControl(null),
+    });
+    component.showAutoCodeMessage();
+    expect(component.autoCodeMessage).toBe('Amount is auto coded.');
+  });
+
+  it('should set autoCodeMessage to "" when neither currency nor amount is auto coded', () => {
+    component.autoCodedData = { currency: 'USD', amount: 100 };
+    component.fg = new FormGroup({
+      currency: new FormControl('EUR'),
+      amount: new FormControl(200),
+      homeCurrencyAmount: new FormControl(null),
+    });
+    component.showAutoCodeMessage();
+    expect(component.autoCodeMessage).toBe('');
   });
 });

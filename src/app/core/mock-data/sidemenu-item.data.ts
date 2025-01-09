@@ -3,7 +3,7 @@ import deepFreeze from 'deep-freeze-strict';
 import { SidemenuItem } from '../models/sidemenu-item.model';
 
 export const sidemenuItemData1: SidemenuItem = deepFreeze({
-  title: 'Dashboard',
+  title: 'Home',
   isVisible: true,
   icon: 'dashboard',
   route: ['/', 'enterprise', 'my_dashboard'],

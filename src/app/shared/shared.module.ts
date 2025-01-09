@@ -70,7 +70,6 @@ import { NavigationFooterComponent } from './components/navigation-footer/naviga
 import { FyConnectionComponent } from './components/fy-connection/fy-connection.component';
 import { FyCriticalPolicyViolationComponent } from './components/fy-critical-policy-violation/fy-critical-policy-violation.component';
 import { PopupAlertComponent } from './components/popup-alert/popup-alert.component';
-import { CreateNewReportComponent } from './components/create-new-report/create-new-report.component';
 import { CreateNewReportComponent as CreateNewReportComponentV2 } from './components/create-new-report-v2/create-new-report.component';
 import { ExpensesCardComponent } from './components/expenses-card/expenses-card.component';
 import { ExpensesCardComponent as ExpensesCardComponentV2 } from './components/expenses-card-v2/expenses-card.component';
@@ -146,6 +145,15 @@ import { AutofocusDirective } from './directive/autofocus.directive';
 import { TransactionStatusInfoPopoverComponent } from './components/transaction-status-info-popover/transaction-status-info-popover.component';
 import { TransactionStatusComponent } from './components/transaction-status/transaction-status.component';
 import { FySelectCommuteDetailsComponent } from './components/fy-select-commute-details/fy-select-commute-details.component';
+import { FyOptInComponent } from './components/fy-opt-in/fy-opt-in.component';
+import { NgOtpInputModule } from 'ng-otp-input';
+import { PromoteOptInModalComponent } from './components/promote-opt-in-modal/promote-opt-in-modal.component';
+import { ProfileOptInCardComponent } from './components/profile-opt-in-card/profile-opt-in-card.component';
+import { DashboardOptInComponent } from './components/dashboard-opt-in/dashboard-opt-in.component';
+import { MobileNumberCardComponent } from './components/mobile-number-card/mobile-number-card.component';
+import { PasswordCheckTooltipComponent } from './components/password-check-tooltip/password-check-tooltip.component';
+import { ExactCurrencyPipe } from './pipes/exact-currency.pipe';
+import { CCExpenseMerchantInfoModalComponent } from './components/cc-expense-merchant-info-modal/cc-expense-merchant-info-modal.component';
 
 @NgModule({
   declarations: [
@@ -195,7 +203,7 @@ import { FySelectCommuteDetailsComponent } from './components/fy-select-commute-
     FyConnectionComponent,
     FyCriticalPolicyViolationComponent,
     PopupAlertComponent,
-    CreateNewReportComponent,
+    PasswordCheckTooltipComponent,
     CreateNewReportComponentV2,
     ExpensesCardComponent,
     ExpensesCardComponentV2,
@@ -269,6 +277,13 @@ import { FySelectCommuteDetailsComponent } from './components/fy-select-commute-
     TransactionStatusInfoPopoverComponent,
     VirtualCardComponent,
     FySelectCommuteDetailsComponent,
+    FyOptInComponent,
+    PromoteOptInModalComponent,
+    ProfileOptInCardComponent,
+    DashboardOptInComponent,
+    MobileNumberCardComponent,
+    ExactCurrencyPipe,
+    CCExpenseMerchantInfoModalComponent,
   ],
   imports: [
     CommonModule,
@@ -295,10 +310,12 @@ import { FySelectCommuteDetailsComponent } from './components/fy-select-commute-
     MatBottomSheetModule,
     ImageCropperModule,
     ScrollingModule,
+    NgOtpInputModule,
   ],
   exports: [
     EllipsisPipe,
     HumanizeCurrencyPipe,
+    ExactCurrencyPipe,
     ReportState,
     DateFormatPipe,
     FySelectComponent,
@@ -336,7 +353,7 @@ import { FySelectCommuteDetailsComponent } from './components/fy-select-commute-
     FyConnectionComponent,
     FyCriticalPolicyViolationComponent,
     PopupAlertComponent,
-    CreateNewReportComponent,
+    PasswordCheckTooltipComponent,
     CreateNewReportComponentV2,
     ExpensesCardComponent,
     ExpensesCardComponentV2,
@@ -397,7 +414,13 @@ import { FySelectCommuteDetailsComponent } from './components/fy-select-commute-
     TransactionStatusInfoPopoverComponent,
     VirtualCardComponent,
     FySelectCommuteDetailsComponent,
+    FyOptInComponent,
+    PromoteOptInModalComponent,
+    ProfileOptInCardComponent,
+    DashboardOptInComponent,
+    MobileNumberCardComponent,
+    CCExpenseMerchantInfoModalComponent,
   ],
-  providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker, FyCurrencyPipe, ReportState],
+  providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker, FyCurrencyPipe, ReportState, ExactCurrencyPipe],
 })
 export class SharedModule {}

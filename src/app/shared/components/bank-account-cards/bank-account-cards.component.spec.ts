@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { SwiperModule } from 'swiper/angular';
 import { BankAccountCardsComponent } from './bank-account-cards.component';
-import { deletePersonalCardRes, linkedAccountsRes } from 'src/app/core/mock-data/personal-cards.data';
+import { linkedAccounts } from 'src/app/core/mock-data/personal-cards.data';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import Swiper from 'swiper';
 
@@ -19,7 +19,7 @@ describe('BankAccountCardsComponent', () => {
 
     fixture = TestBed.createComponent(BankAccountCardsComponent);
     component = fixture.componentInstance;
-    component.linkedAccounts = linkedAccountsRes;
+    component.linkedAccounts = linkedAccounts;
     component.minimal = false;
     fixture.detectChanges();
   }));
@@ -40,7 +40,7 @@ describe('BankAccountCardsComponent', () => {
       spyOn(component.changed, 'emit');
       component.onCardChange([{ realIndex: 1 }] as Partial<Swiper[]>);
       fixture.detectChanges();
-      expect(component.changed.emit).toHaveBeenCalledOnceWith('baccBlpSkgBbN0');
+      expect(component.changed.emit).toHaveBeenCalledOnceWith(linkedAccounts[1]);
     });
   });
 

@@ -6,7 +6,6 @@ import {
   ExpenseProperties,
   IdentifyProperties,
   SplittingExpenseProperties,
-  TrackingMethods,
   PolicyCorrectionProperties,
   AddAttachmentProperties,
   CommentHistoryActionProperties,
@@ -39,6 +38,7 @@ import { ExpenseFilters } from '../models/expense-filters.model';
 import { ReportFilters } from '../models/report-filters.model';
 import { CommuteDetailsResponse } from '../models/platform/commute-details-response.model';
 import { HttpErrorResponse } from '@angular/common/http';
+import mixpanel, { Config } from 'mixpanel-browser';
 
 @Injectable({
   providedIn: 'root',
@@ -46,21 +46,43 @@ import { HttpErrorResponse } from '@angular/common/http';
 export class TrackingService {
   identityEmail = null;
 
+  ROOT_ENDPOINT: string;
+
   constructor(private authService: AuthService, private deviceService: DeviceService) {}
 
-  get tracking(): TrackingMethods {
-    return (window as typeof window & { analytics: TrackingMethods }).analytics;
+  setRoot(rootUrl: string): void {
+    this.ROOT_ENDPOINT = rootUrl;
+    this.initializeMixpanel();
+  }
+
+  initializeMixpanel(): void {
+    try {
+      const enableMixpanel = environment.ENABLE_MIXPANEL;
+      if (enableMixpanel === 'true') {
+        const config: Partial<Config> = {
+          debug: false,
+          track_pageview: false,
+          persistence: 'localStorage',
+        };
+
+        const useMixpanelProxy = environment.USE_MIXPANEL_PROXY;
+        if (useMixpanelProxy === 'true' && this.ROOT_ENDPOINT) {
+          config.api_host = this.ROOT_ENDPOINT + '/mixpanel';
+        }
+
+        mixpanel.init(environment.MIXPANEL_PROJECT_TOKEN, config);
+      }
+    } catch (e) {}
   }
 
   async updateIdentity(): Promise<void> {
     const eou = await this.authService.getEou();
-    const email = eou && eou.us && eou.us.email;
+    const email = eou?.us?.email;
     if (email && email !== this.identityEmail) {
-      if (this.tracking) {
-        this.tracking.identify(email, {
-          $email: email,
-        });
-      }
+      try {
+        mixpanel?.identify(email);
+      } catch (e) {}
+
       this.identityEmail = email;
     }
   }
@@ -69,10 +91,17 @@ export class TrackingService {
     const properties: IdentifyProperties = {};
     try {
       const eou = await this.authService.getEou();
-      if (eou && eou.us && eou && eou.ou) {
-        properties['User Name'] = eou.us.full_name;
-        properties['User Org Name'] = eou.ou.org_name;
-        properties['User Org ID'] = eou.ou.org_id;
+      if (eou?.us && eou?.ou) {
+        try {
+          const distinctId = mixpanel?.get_distinct_id() as string;
+          if (distinctId !== eou.us.email) {
+            mixpanel?.identify(eou.us.email);
+          }
+
+          properties['User Name'] = eou.us.full_name;
+          properties['User Org Name'] = eou.ou.org_name;
+          properties['User Org ID'] = eou.ou.org_id;
+        } catch (e) {}
       }
     } catch (error) {}
     return properties;
@@ -86,9 +115,10 @@ export class TrackingService {
 
   // new function name
   updateSegmentProfile(data: IdentifyProperties): void {
-    if (this.tracking) {
-      this.tracking.identify(data);
-    }
+    try {
+      // ASSUMPTION: we are assuming that user is already identified via onSignin()
+      mixpanel?.people?.set(data);
+    } catch (e) {}
   }
 
   eventTrack<T>(action: string, properties = {} as T): void {
@@ -112,22 +142,19 @@ export class TrackingService {
         appVersion: environment.LIVE_UPDATE_APP_VERSION,
       };
 
-      if (this.tracking) {
-        this.tracking.track(action, properties);
-      }
+      try {
+        mixpanel?.track(action, properties);
+      } catch (e) {}
     });
   }
 
   // external APIs
   onSignin(email: string, properties: { label?: string } = {}): void {
-    if (this.tracking) {
-      this.tracking.identify(email, {
-        $email: email,
-      });
+    try {
+      mixpanel?.identify(email);
+    } catch (e) {}
 
-      this.identityEmail = email;
-    }
-
+    this.identityEmail = email;
     this.eventTrack('Signin', properties);
   }
 
@@ -386,24 +413,12 @@ export class TrackingService {
     this.eventTrack('dashboard action sheet button clicked', properties);
   }
 
-  dashboardOnUnreportedExpensesClick(properties = {}): void {
-    this.eventTrack('dashboard unreported expenses clicked', properties);
-  }
-
-  dashboardOnIncompleteExpensesClick(properties = {}): void {
-    this.eventTrack('dashboard incomplete expenses clicked', properties);
-  }
-
   dashboardOnIncompleteCardExpensesClick(properties = {}): void {
     this.eventTrack('dashboard incomplete corporate card expenses clicked', properties);
   }
 
   dashboardOnTotalCardExpensesClick(properties = {}): void {
     this.eventTrack('dashboard total corporate card expenses clicked', properties);
-  }
-
-  dashboardOnReportPillClick(properties: { State: string }): void {
-    this.eventTrack('dashboard report pill clicked', properties);
   }
 
   //View expenses
@@ -413,10 +428,6 @@ export class TrackingService {
 
   expenseNavClicked(properties: { to: string }): void {
     this.eventTrack('Expense navigation clicked', properties);
-  }
-
-  expenseFlagUnflagClicked(properties: { action: string }): void {
-    this.eventTrack('Expense flagged or unflagged', properties);
   }
 
   expenseRemovedByApprover(properties = {}): void {
@@ -552,10 +563,6 @@ export class TrackingService {
     this.eventTrack('Expense matched created from personal card transaction', properties);
   }
 
-  unmatchedExpensesFromPersonalCard(properties = {}): void {
-    this.eventTrack('Expense matched created from personal card transaction', properties);
-  }
-
   transactionsHiddenOnPersonalCards(properties = {}): void {
     this.eventTrack('Transactions hidden on personal cards', properties);
   }
@@ -637,8 +644,12 @@ export class TrackingService {
     this.eventTrack('Popover shown since receipt limit exceeded', properties);
   }
 
-  updateMobileNumber(properties = {}): void {
-    this.eventTrack('Update Mobile Number', properties);
+  updateMobileNumberClicked(properties = {}): void {
+    this.eventTrack('Update Mobile Number Clicked', properties);
+  }
+
+  updateMobileNumber(): void {
+    this.eventTrack('Update Mobile Number');
   }
 
   verifyMobileNumber(): void {
@@ -715,5 +726,121 @@ export class TrackingService {
 
   commuteDeductionDetailsError(properties: HttpErrorResponse): void {
     this.eventTrack('Commute Deduction - Details Error', properties);
+  }
+
+  statsClicked(properties: { event: string }): void {
+    this.eventTrack('Dashboard Stats Clicked', properties);
+  }
+
+  openOptInDialog(properties): void {
+    this.eventTrack('Open Opt In Dialog', properties);
+  }
+
+  optInFlowSuccess(properties): void {
+    this.eventTrack('Opt In Flow Success', properties);
+  }
+
+  optInFlowError(properties): void {
+    this.eventTrack('Opt In Flow Error', properties);
+  }
+
+  optInFlowRetry(properties): void {
+    this.eventTrack('Opt In Flow Retry', properties);
+  }
+
+  clickedOnHelpArticle(): void {
+    this.eventTrack('Clicked on help article link for Opt-in Dialog');
+  }
+
+  skipOptInFlow(): void {
+    this.eventTrack('Skip Opt-in');
+  }
+
+  clickedOnTask(properties): void {
+    this.eventTrack('Clicked On Task', properties);
+  }
+
+  clickedOptInFromProfile(): void {
+    this.eventTrack('Click On Opt in CTA in Profile page');
+  }
+
+  clickedOnEditNumber(): void {
+    this.eventTrack('Edit Mobile Number Clicked');
+  }
+
+  clickedOnDeleteNumber(): void {
+    this.eventTrack('Delete Mobile Number Clicked');
+  }
+
+  clickedOnOptOut(): void {
+    this.eventTrack('Opt Out Clicked');
+  }
+
+  optedOut(): void {
+    this.eventTrack('Opted Out');
+  }
+
+  deleteMobileNumber(): void {
+    this.eventTrack('Delete Mobile Number');
+  }
+
+  showOptInModalPostExpenseCreation(): void {
+    this.eventTrack('Opt In Modal Post Expense Creation Shown');
+  }
+
+  skipOptInModalPostExpenseCreation(): void {
+    this.eventTrack('Skip Opt In Modal Post Expense Creation');
+  }
+
+  optInFromPostExpenseCreationModal(): void {
+    this.eventTrack('Opt In From Post Expense Creation Modal');
+  }
+
+  showOptInModalPostCardAdditionInDashboard(): void {
+    this.eventTrack('Opt In Modal Post Card Addition Shown in Dashboard');
+  }
+
+  skipOptInModalPostCardAdditionInDashboard(): void {
+    this.eventTrack('Skip Opt In Modal Post Card Addition in Dashboard');
+  }
+
+  optInFromPostPostCardAdditionInDashboard(): void {
+    this.eventTrack('Opt In From Post Card Addition in Dashboard');
+  }
+
+  showOptInModalPostCardAdditionInSettings(): void {
+    this.eventTrack('Opt In Modal Post Card Addition Shown in Settings');
+  }
+
+  skipOptInModalPostCardAdditionInSettings(): void {
+    this.eventTrack('Skip Opt In Modal Post Card Addition in Settings');
+  }
+
+  optInFromPostPostCardAdditionInSettings(): void {
+    this.eventTrack('Opt In From Post Card Addition in Settings');
+  }
+
+  optedInFromDashboardBanner(): void {
+    this.eventTrack('Opted In From Dashboard Banner');
+  }
+
+  skipOptInFromDashboardBanner(): void {
+    this.eventTrack('Skip Opt In From Dashboard Banner');
+  }
+
+  optInClickedFromProfile(): void {
+    this.eventTrack('Opt in Clicked From Profile');
+  }
+
+  optedInFromProfile(): void {
+    this.eventTrack('Opted In From Profile');
+  }
+
+  optedInFromTasks(): void {
+    this.eventTrack('Opted In From Tasks');
+  }
+
+  clickedOnDashboardBanner(): void {
+    this.eventTrack('Clicked On Dashboard Banner');
   }
 }

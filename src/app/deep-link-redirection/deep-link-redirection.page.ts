@@ -4,10 +4,11 @@ import { LoaderService } from '../core/services/loader.service';
 import { AdvanceRequestService } from '../core/services/advance-request.service';
 import { AuthService } from '../core/services/auth.service';
 import { TransactionService } from '../core/services/transaction.service';
-import { ReportService } from '../core/services/report.service';
 import { EMPTY, catchError, filter, finalize, from, shareReplay, switchMap, map } from 'rxjs';
 import { DeepLinkService } from '../core/services/deep-link.service';
 import { ExpensesService } from '../core/services/platform/v1/spender/expenses.service';
+import { SpenderReportsService } from '../core/services/platform/v1/spender/reports.service';
+import { ApproverReportsService } from '../core/services/platform/v1/approver/reports.service';
 
 @Component({
   selector: 'app-deep-link-redirection',
@@ -22,13 +23,14 @@ export class DeepLinkRedirectionPage {
     private advanceRequestService: AdvanceRequestService,
     private transactionService: TransactionService,
     private authService: AuthService,
-    private reportService: ReportService,
     private deepLinkService: DeepLinkService,
-    private expensesService: ExpensesService
+    private expensesService: ExpensesService,
+    private approverReportsService: ApproverReportsService,
+    private spenderReportsService: SpenderReportsService
   ) {}
 
-  ionViewWillEnter() {
-    const subModule = this.activatedRoute.snapshot.params.sub_module;
+  ionViewWillEnter(): void {
+    const subModule = this.activatedRoute.snapshot.params.sub_module as string;
 
     if (subModule === 'report') {
       this.redirectToReportModule();
@@ -36,13 +38,70 @@ export class DeepLinkRedirectionPage {
       this.redirectToExpenseModule();
     } else if (subModule === 'advReq') {
       this.redirectToAdvReqModule();
+    } else if (subModule === 'my_dashboard') {
+      this.redirectToDashboardModule();
     }
   }
 
-  async redirectToAdvReqModule() {
+  async redirectToDashboardModule(): Promise<void> {
+    const openSMSOptInDialog = this.activatedRoute.snapshot.params.openSMSOptInDialog as string;
+    const orgId = this.activatedRoute.snapshot.params.orgId as string;
+
+    const eou$ = from(this.loaderService.showLoader('Loading....')).pipe(
+      switchMap(() => from(this.authService.getEou())),
+      catchError(() => {
+        this.switchOrg();
+        return EMPTY;
+      }),
+      shareReplay(1)
+    );
+
+    // If orgId is the same as the current user orgId, then redirect to the dashboard page
+    eou$
+      .pipe(
+        filter((eou) => orgId === eou.ou.org_id),
+        finalize(() => from(this.loaderService.hideLoader()))
+      )
+      .subscribe({
+        next: () => {
+          this.router.navigate([
+            '/',
+            'enterprise',
+            'my_dashboard',
+            {
+              openSMSOptInDialog,
+            },
+          ]);
+        },
+        error: () => this.switchOrg(),
+      });
+
+    // If orgId is the diferent from the current user orgId, then redirect to switch org with orgId and openSMSOptInDialog
+    eou$
+      .pipe(
+        filter((eou) => orgId !== eou.ou.org_id),
+        finalize(() => from(this.loaderService.hideLoader()))
+      )
+      .subscribe({
+        next: () => {
+          this.router.navigate([
+            '/',
+            'auth',
+            'switch_org',
+            {
+              openSMSOptInDialog,
+              orgId,
+            },
+          ]);
+        },
+        error: () => this.switchOrg(),
+      });
+  }
+
+  async redirectToAdvReqModule(): Promise<void> {
     await this.loaderService.showLoader('Loading....');
     const currentEou = await this.authService.getEou();
-    this.advanceRequestService.getEReq(this.activatedRoute.snapshot.params.id).subscribe(
+    this.advanceRequestService.getEReq(this.activatedRoute.snapshot.params.id as string).subscribe(
       (res) => {
         const id = res.advance.id || res.areq.id;
 
@@ -63,7 +122,7 @@ export class DeepLinkRedirectionPage {
     );
   }
 
-  async redirectToExpenseModule() {
+  async redirectToExpenseModule(): Promise<void> {
     const expenseOrgId = this.activatedRoute.snapshot.params.orgId as string;
     const txnId = this.activatedRoute.snapshot.params.id as string;
 
@@ -119,13 +178,14 @@ export class DeepLinkRedirectionPage {
     }
   }
 
-  async redirectToReportModule() {
+  async redirectToReportModule(): Promise<void> {
     await this.loaderService.showLoader('Loading....');
-    const currentEou = await this.authService.getEou();
 
-    this.reportService.getERpt(this.activatedRoute.snapshot.params.id as string).subscribe(
-      (res) => {
-        if (currentEou.ou.id === res.rp.org_user_id) {
+    const spenderReport$ = this.spenderReportsService.getReportById(this.activatedRoute.snapshot.params.id as string);
+    const approverReport$ = this.approverReportsService.getReportById(this.activatedRoute.snapshot.params.id as string);
+    spenderReport$.subscribe(
+      (spenderReport) => {
+        if (spenderReport) {
           this.router.navigate([
             '/',
             'enterprise',
@@ -133,12 +193,18 @@ export class DeepLinkRedirectionPage {
             { id: this.activatedRoute.snapshot.params.id as string },
           ]);
         } else {
-          this.router.navigate([
-            '/',
-            'enterprise',
-            'view_team_report',
-            { id: this.activatedRoute.snapshot.params.id as string },
-          ]);
+          approverReport$.subscribe((approverReport) => {
+            if (approverReport) {
+              this.router.navigate([
+                '/',
+                'enterprise',
+                'view_team_report',
+                { id: this.activatedRoute.snapshot.params.id as string },
+              ]);
+            } else {
+              this.switchOrg();
+            }
+          });
         }
       },
       () => {
@@ -150,7 +216,7 @@ export class DeepLinkRedirectionPage {
     );
   }
 
-  switchOrg() {
+  switchOrg(): void {
     this.router.navigate(['/', 'auth', 'switch_org']);
   }
 }

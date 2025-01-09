@@ -1,8 +1,7 @@
-import { TransactionStatus } from './platform/v1/expense.model';
+import { ExpenseTransactionStatus } from '../enums/platform/v1/expense-transaction-status.enum';
 
 export interface MatchedCCCTransaction {
   amount: number;
-  balance_transfer_id: number | string;
   card_or_account_number: string;
   created_at: string;
   creator_id: number | string;
@@ -13,12 +12,12 @@ export interface MatchedCCCTransaction {
   orig_amount: number;
   orig_currency: string;
   payment_id: string;
-  settlement_id: string;
   state: string;
   txn_dt: string;
   updated_at: string;
   vendor: string;
   corporate_credit_card_account_number?: string;
   displayObject?: string;
-  status?: TransactionStatus;
+  status?: ExpenseTransactionStatus;
+  corporate_card_nickname?: string;
 }

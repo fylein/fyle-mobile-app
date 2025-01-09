@@ -72,7 +72,7 @@
     </ng-container>
 
     <ng-template #loading>
-      <app-fy-loading-screen class="my-reports--shimmers"></app-fy-loading-screen>
+      <app-fy-loading-screen [isNewLoaderEnabled]="true" class="my-reports--shimmers"></app-fy-loading-screen>
     </ng-template>
     <div *ngIf="(count$ | async) === 0" class="my-reports--zero-state">
       <app-fy-zero-state
@@ -95,13 +95,12 @@
 
     <ng-container *ngIf="!isLoading; else loading">
       <ng-container *ngIf="(simplifyReportsSettings$ | async) as simplifyReportsSettings; else loading">
-        <div *ngFor="let erpt of myReports$ | async as list; let i = index">
+        <div *ngFor="let report of myReports$ | async as list; let i = index">
           <app-reports-card
-            [erpt]="erpt"
-            [prevDate]="list[i-1]?.rp_created_at"
+            [report]="report"
+            [prevDate]="list[i-1]?.created_at"
             [simplifyReportsEnabled]="simplifyReportsSettings.enabled"
             (gotoReport)="onReportClick($event)"
-            (deleteReport)="onDeleteReportClick($event)"
             (viewComments)="onViewCommentsClick()"
           ></app-reports-card>
         </div>

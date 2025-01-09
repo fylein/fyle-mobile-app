@@ -13,6 +13,15 @@ export class DateService {
     return new Date(date.getTime() + userTimezoneOffset);
   }
 
+  getUTCMidAfternoonDate(date: Date): Date {
+    const userTimezoneOffset = date.getTimezoneOffset() * 60000;
+    const newDate = new Date(date.getTime() + userTimezoneOffset + 12 * 60 * 60 * 1000);
+    newDate.setUTCFullYear(date.getFullYear());
+    newDate.setUTCMonth(date.getMonth());
+    newDate.setUTCDate(date.getDate());
+    return newDate;
+  }
+
   fixDates<T>(object: T): T {
     if (!object || typeof object !== 'object') {
       return object;

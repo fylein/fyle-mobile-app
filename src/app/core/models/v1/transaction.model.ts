@@ -1,5 +1,5 @@
+import { ExpenseTransactionStatus } from '../../enums/platform/v1/expense-transaction-status.enum';
 import { Destination } from '../destination.model';
-import { TransactionStatus } from '../platform/v1/expense.model';
 import { TxnCustomProperties } from '../txn-custom-properties.model';
 
 export interface Transaction {
@@ -42,7 +42,6 @@ export interface Transaction {
   invoice_number?: number;
   locations?: Destination[] | string[] | { display: string }[];
   mandatory_fields_present?: boolean;
-  manual_flag?: boolean;
   mileage_calculated_amount?: number;
   mileage_calculated_distance?: number;
   mileage_is_round_trip?: boolean;
@@ -56,8 +55,6 @@ export interface Transaction {
   orig_currency?: string;
   payment_id?: string;
   per_diem_rate_id?: number;
-  physical_bill?: boolean;
-  physical_bill_at?: Date;
   platform_vendor?: string;
   platform_vendor_id?: string;
   policy_amount: number;
@@ -71,6 +68,7 @@ export interface Transaction {
   skip_reimbursement: boolean;
   source: string;
   source_account_id?: string;
+  advance_wallet_id?: string;
   split_group_id?: string;
   split_group_user_amount?: number;
   state?: string;
@@ -135,6 +133,8 @@ export interface Transaction {
     displayObject?: string;
     orig_amount: number;
     orig_currency: string;
-    status: TransactionStatus;
+    status: ExpenseTransactionStatus;
+    corporate_card_nickname?: string;
   }[];
+  file_ids?: string[];
 }

@@ -7,7 +7,6 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
-import { ReportService } from 'src/app/core/services/report.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { StatusService } from 'src/app/core/services/status.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
@@ -33,7 +32,6 @@ import { customInputData1 } from 'src/app/core/mock-data/custom-input.data';
 import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
 import { customFieldData1, customFields } from 'src/app/core/mock-data/custom-field.data';
 import { perDiemRatesData1 } from 'src/app/core/mock-data/per-diem-rates.data';
-import { apiExtendedReportRes } from 'src/app/core/mock-data/report.data';
 import { estatusData1 } from 'src/app/core/test-data/status.service.spec.data';
 import { cloneDeep } from 'lodash';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
@@ -45,6 +43,8 @@ import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { CustomInput } from 'src/app/core/models/custom-input.model';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
+import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-report.data';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 describe('ViewPerDiemPage', () => {
   let component: ViewPerDiemPage;
@@ -54,7 +54,6 @@ describe('ViewPerDiemPage', () => {
   let customInputsService: jasmine.SpyObj<CustomInputsService>;
   let perDiemService: jasmine.SpyObj<PerDiemService>;
   let policyService: jasmine.SpyObj<PolicyService>;
-  let reportService: jasmine.SpyObj<ReportService>;
   let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
   let router: jasmine.SpyObj<Router>;
   let popoverController: jasmine.SpyObj<PopoverController>;
@@ -68,6 +67,7 @@ describe('ViewPerDiemPage', () => {
   let spenderExpensesService: jasmine.SpyObj<SpenderExpensesService>;
   let approverExpensesService: jasmine.SpyObj<ApproverExpensesService>;
   let activatedRoute: ActivatedRoute;
+  let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
 
   beforeEach(waitForAsync(() => {
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['manualUnflag', 'manualFlag']);
@@ -81,7 +81,6 @@ describe('ViewPerDiemPage', () => {
       'getApproverExpensePolicyViolations',
       'getSpenderExpensePolicyViolations',
     ]);
-    const reportServiceSpy = jasmine.createSpyObj('ReportService', ['getTeamReport']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const statusServiceSpy = jasmine.createSpyObj('StatusService', ['find', 'post']);
@@ -100,7 +99,14 @@ describe('ViewPerDiemPage', () => {
     ]);
     const spenderExpensesServiceSpy = jasmine.createSpyObj('SpenderExpensesService', ['getExpenseById']);
     const approverExpensesServiceSpy = jasmine.createSpyObj('ApproverExpensesService', ['getExpenseById']);
-    const approverReportsServiceSpy = jasmine.createSpyObj('ApproverReportsService', ['ejectExpenses']);
+    const approverReportsServiceSpy = jasmine.createSpyObj('ApproverReportsService', [
+      'ejectExpenses',
+      'getReportById',
+    ]);
+    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', [
+      'checkIfManualFlaggingFeatureIsEnabled',
+    ]);
+
     TestBed.configureTestingModule({
       declarations: [ViewPerDiemPage],
       imports: [IonicModule.forRoot()],
@@ -110,7 +116,6 @@ describe('ViewPerDiemPage', () => {
         { provide: CustomInputsService, useValue: customInputsServiceSpy },
         { provide: PerDiemService, useValue: perDiemServiceSpy },
         { provide: PolicyService, useValue: policyServiceSpy },
-        { provide: ReportService, useValue: reportServiceSpy },
         { provide: Router, useValue: routerSpy },
         { provide: PopoverController, useValue: popoverControllerSpy },
         { provide: StatusService, useValue: statusServiceSpy },
@@ -136,6 +141,7 @@ describe('ViewPerDiemPage', () => {
             },
           },
         },
+        { provide: LaunchDarklyService, useValue: launchDarklyServiceSpy },
       ],
     }).compileComponents();
 
@@ -146,7 +152,6 @@ describe('ViewPerDiemPage', () => {
     customInputsService = TestBed.inject(CustomInputsService) as jasmine.SpyObj<CustomInputsService>;
     perDiemService = TestBed.inject(PerDiemService) as jasmine.SpyObj<PerDiemService>;
     policyService = TestBed.inject(PolicyService) as jasmine.SpyObj<PolicyService>;
-    reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
     approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
@@ -160,6 +165,8 @@ describe('ViewPerDiemPage', () => {
     spenderExpensesService = TestBed.inject(SpenderExpensesService) as jasmine.SpyObj<SpenderExpensesService>;
     approverExpensesService = TestBed.inject(ApproverExpensesService) as jasmine.SpyObj<ApproverExpensesService>;
     activatedRoute = TestBed.inject(ActivatedRoute);
+    launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
+
     fixture.detectChanges();
   }));
 
@@ -296,7 +303,7 @@ describe('ViewPerDiemPage', () => {
       customInputsService.fillCustomProperties.and.returnValue(of(mockCustomFields));
       customInputsService.getCustomPropertyDisplayValue.and.returnValue('customPropertyDisplayValue');
       perDiemService.getRate.and.returnValue(of(perDiemRatesData1));
-      reportService.getTeamReport.and.returnValue(of(apiExtendedReportRes[0]));
+      approverReportsService.getReportById.and.returnValue(of(expectedReportsSinglePage[0]));
       policyService.getApproverExpensePolicyViolations.and.returnValue(of(individualExpPolicyStateData2));
       policyService.getSpenderExpensePolicyViolations.and.returnValue(of(individualExpPolicyStateData3));
       statusService.find.and.returnValue(of(estatusData1));
@@ -323,6 +330,8 @@ describe('ViewPerDiemPage', () => {
         done();
       });
     });
+
+    it('should set ');
 
     it('should set projectDependentCustomProperties$ and costCenterDependentCustomProperties$ correctly', (done) => {
       component.ionViewWillEnter();
@@ -455,8 +464,7 @@ describe('ViewPerDiemPage', () => {
       component.perDiemCustomFields$.subscribe((perDiemCustomFields) => {
         expect(customInputsService.fillCustomProperties).toHaveBeenCalledOnceWith(
           perDiemExpense.category_id,
-          perDiemExpense.custom_fields as Partial<CustomInput>[],
-          true
+          perDiemExpense.custom_fields as Partial<CustomInput>[]
         );
         // Called twice because of the two custom fields
         expect(customInputsService.getCustomPropertyDisplayValue).toHaveBeenCalledTimes(2);
@@ -472,38 +480,16 @@ describe('ViewPerDiemPage', () => {
       });
     });
 
-    it('should set view and canFlagOrUnflag$ to true if expense state is APPROVER_PENDING', (done) => {
-      activatedRoute.snapshot.params.view = ExpenseView.team;
-
-      approverExpensesService.getExpenseById.and.returnValue(of(perDiemExpense));
-      component.ionViewWillEnter();
-      expect(component.view).toEqual(ExpenseView.team);
-      component.canFlagOrUnflag$.subscribe((canFlagOrUnflag) => {
-        expect(canFlagOrUnflag).toBeTrue();
-        done();
-      });
-    });
-
-    it('should set canFlagOrUnflag$ to false if state is PAID', (done) => {
-      activatedRoute.snapshot.params.view = ExpenseView.team;
-      const mockExpense = cloneDeep(perDiemExpense);
-      mockExpense.state = ExpenseState.PAID;
-
-      approverExpensesService.getExpenseById.and.returnValue(of(mockExpense));
-      component.ionViewWillEnter();
-      component.canFlagOrUnflag$.subscribe((canFlagOrUnflag) => {
-        expect(canFlagOrUnflag).toBeFalse();
-        done();
-      });
-    });
-
     it('should set canDelete$ to false if report transaction equals 1', (done) => {
       activatedRoute.snapshot.params.view = ExpenseView.team;
 
       approverExpensesService.getExpenseById.and.returnValue(of(perDiemExpense));
+      const mockReport = cloneDeep(expectedReportsSinglePage[0]);
+      mockReport.num_expenses = 1;
+      approverReportsService.getReportById.and.returnValue(of(mockReport));
       component.ionViewWillEnter();
       component.canDelete$.subscribe((canDelete) => {
-        expect(reportService.getTeamReport).toHaveBeenCalledOnceWith('rpFvmTgyeBjN');
+        expect(approverReportsService.getReportById).toHaveBeenCalledOnceWith('rpFvmTgyeBjN');
         expect(canDelete).toBeFalse();
         done();
       });
@@ -514,15 +500,15 @@ describe('ViewPerDiemPage', () => {
 
       const mockExpense = cloneDeep(perDiemExpense);
       mockExpense.state = ExpenseState.APPROVER_PENDING;
-      const mockReport = cloneDeep(apiExtendedReportRes[0]);
-      mockReport.rp_num_transactions = 2;
+      const mockReport = cloneDeep(expectedReportsSinglePage[0]);
+      mockReport.num_expenses = 2;
 
-      reportService.getTeamReport.and.returnValue(of(mockReport));
+      approverReportsService.getReportById.and.returnValue(of(mockReport));
       approverExpensesService.getExpenseById.and.returnValue(of(mockExpense));
 
       component.ionViewWillEnter();
       component.canDelete$.subscribe((canDelete) => {
-        expect(reportService.getTeamReport).toHaveBeenCalledOnceWith('rpFvmTgyeBjN');
+        expect(approverReportsService.getReportById).toHaveBeenCalledOnceWith('rpFvmTgyeBjN');
         expect(canDelete).toBeTrue();
         done();
       });
@@ -652,11 +638,10 @@ describe('ViewPerDiemPage', () => {
       });
     });
 
-    it('should set isExpenseFlagged to expense manual flag and updateFlag$ to null', fakeAsync(() => {
+    it('should set updateFlag$ to null', fakeAsync(() => {
       component.ionViewWillEnter();
       tick(100);
 
-      expect(component.isExpenseFlagged).toBeFalse();
       component.updateFlag$.subscribe((updateFlag) => {
         expect(updateFlag).toBeNull();
       });
@@ -696,80 +681,6 @@ describe('ViewPerDiemPage', () => {
       { id: component.reportId, navigate_back: true },
     ]);
   }));
-
-  describe('flagUnflagExpense', () => {
-    it('should flag unflagged expense', fakeAsync(() => {
-      loaderService.showLoader.and.resolveTo();
-      loaderService.hideLoader.and.resolveTo();
-      component.isExpenseFlagged = false;
-
-      const title = 'Flag';
-      const flagPopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onWillDismiss']);
-      popoverController.create.and.returnValue(flagPopoverSpy);
-      const data = { comment: 'This is a comment for flagging' };
-      flagPopoverSpy.onWillDismiss.and.resolveTo({ data });
-      statusService.post.and.returnValue(of(txnStatusData));
-      transactionService.manualFlag.and.returnValue(of(expenseData2));
-
-      component.flagUnflagExpense();
-      tick(100);
-
-      expect(popoverController.create).toHaveBeenCalledOnceWith({
-        component: FyPopoverComponent,
-        componentProps: {
-          title,
-          formLabel: 'Reason for flaging expense',
-        },
-        cssClass: 'fy-dialog-popover',
-      });
-
-      expect(flagPopoverSpy.present).toHaveBeenCalledTimes(1);
-      expect(flagPopoverSpy.onWillDismiss).toHaveBeenCalledTimes(1);
-      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Please wait');
-      expect(statusService.post).toHaveBeenCalledOnceWith('transactions', component.expenseId, data, true);
-      expect(transactionService.manualFlag).toHaveBeenCalledOnceWith(component.expenseId);
-      expect(transactionService.manualUnflag).not.toHaveBeenCalled();
-      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-      expect(trackingService.expenseFlagUnflagClicked).toHaveBeenCalledOnceWith({ action: title });
-      expect(component.isExpenseFlagged).toBeFalse();
-    }));
-
-    it('should unflag flagged expense', fakeAsync(() => {
-      loaderService.showLoader.and.resolveTo();
-      loaderService.hideLoader.and.resolveTo();
-      component.isExpenseFlagged = true;
-
-      const title = 'Unflag';
-      const flagPopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onWillDismiss']);
-      popoverController.create.and.returnValue(flagPopoverSpy);
-      const data = { comment: 'This is a comment for flagging' };
-      flagPopoverSpy.onWillDismiss.and.resolveTo({ data });
-      statusService.post.and.returnValue(of(txnStatusData));
-      transactionService.manualUnflag.and.returnValue(of(expenseData1));
-
-      component.flagUnflagExpense();
-      tick(100);
-
-      expect(popoverController.create).toHaveBeenCalledOnceWith({
-        component: FyPopoverComponent,
-        componentProps: {
-          title,
-          formLabel: 'Reason for unflaging expense',
-        },
-        cssClass: 'fy-dialog-popover',
-      });
-
-      expect(flagPopoverSpy.present).toHaveBeenCalledTimes(1);
-      expect(flagPopoverSpy.onWillDismiss).toHaveBeenCalledTimes(1);
-      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Please wait');
-      expect(statusService.post).toHaveBeenCalledOnceWith('transactions', component.expenseId, data, true);
-      expect(transactionService.manualUnflag).toHaveBeenCalledOnceWith(component.expenseId);
-      expect(transactionService.manualFlag).not.toHaveBeenCalled();
-      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-      expect(trackingService.expenseFlagUnflagClicked).toHaveBeenCalledOnceWith({ action: title });
-      expect(component.isExpenseFlagged).toBeTrue();
-    }));
-  });
 
   describe('getDisplayValue():', () => {
     it('should get the correct display value', () => {

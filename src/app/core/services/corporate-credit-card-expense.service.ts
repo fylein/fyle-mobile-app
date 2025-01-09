@@ -226,12 +226,12 @@ export class CorporateCreditCardExpenseService {
       group_id: ccTransaction.id,
       orig_amount: ccTransaction.foreign_amount,
       orig_currency: ccTransaction.foreign_currency,
-      settlement_id: ccTransaction.settlement_id,
       txn_dt: ccTransaction.spent_at,
       updated_at: ccTransaction.updated_at,
       vendor: ccTransaction.merchant,
       corporate_credit_card_account_number: ccTransaction.corporate_card?.card_number,
       status: ccTransaction.transaction_status,
+      nickname: ccTransaction.corporate_card?.nickname,
     };
     return updatedCCTransaction;
   }

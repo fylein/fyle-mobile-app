@@ -59,6 +59,12 @@ import { TestCases5 } from './add-edit-expense-5.spec';
 import { TestCases6 } from './add-edit-expense-6.spec';
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
+import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
+import { PAGINATION_SIZE } from 'src/app/constants';
+import { SpenderService } from 'src/app/core/services/platform/v1/spender/spender.service';
+import { CostCentersService } from 'src/app/core/services/cost-centers.service';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 export function setFormValid(component) {
   Object.defineProperty(component.fg, 'valid', {
@@ -71,9 +77,10 @@ describe('AddEditExpensePage', () => {
     const accountsServiceSpy = jasmine.createSpyObj('AccountsService', [
       'getEMyAccounts',
       'getPaymentModes',
+      'getPaymentModesWithAdvanceWallets',
       'getEtxnSelectedPaymentMode',
     ]);
-    const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
+    const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou', 'getRoles']);
     const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', [
       'getAll',
       'filterRequired',
@@ -89,18 +96,17 @@ describe('AddEditExpensePage', () => {
       'getAllowedOrgCategoryIds',
       'getProjectCount',
     ]);
-    const reportServiceSpy = jasmine.createSpyObj('ReportService', [
-      'getAutoSubmissionReportName',
-      'getFilteredPendingReports',
-      'addTransactions',
-    ]);
+    const reportServiceSpy = jasmine.createSpyObj('ReportService', ['getAutoSubmissionReportName']);
     const reportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', [
       'getAllReportsByParams',
       'ejectExpenses',
       'addExpenses',
     ]);
     const customInputsServiceSpy = jasmine.createSpyObj('CustomInputsService', ['getAll', 'filterByCategory']);
-    const customFieldsServiceSpy = jasmine.createSpyObj('CustomFieldsService', ['standardizeCustomFields']);
+    const customFieldsServiceSpy = jasmine.createSpyObj('CustomFieldsService', [
+      'standardizeCustomFields',
+      'setDefaultValue',
+    ]);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', [
       'delete',
       'getRemoveCardExpenseDialogBody',
@@ -138,7 +144,9 @@ describe('AddEditExpensePage', () => {
       'post',
       'readFile',
       'getImageTypeFromDataUrl',
+      'getReceiptsDetails',
     ]);
+    const spenderFileServiceSpy = jasmine.createSpyObj('SpenderFileService', ['generateUrlsBulk']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', [
       'getAmountWithCurrencyFraction',
@@ -205,11 +213,8 @@ describe('AddEditExpensePage', () => {
       'checkIfPaymentModeConfigurationsIsEnabled',
     ]);
     const taxGroupServiceSpy = jasmine.createSpyObj('TaxGroupService', ['get']);
-    const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', [
-      'getAllowedCostCenters',
-      'getAllowedPaymentModes',
-      'get',
-    ]);
+    const costCentersServiceSpy = jasmine.createSpyObj('CostCentersService', ['getAllActive']);
+    const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['getAllowedPaymentModes', 'get']);
     const storageServiceSpy = jasmine.createSpyObj('StorageService', ['set', 'get']);
     const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
     const platformSpy = jasmine.createSpyObj('Platform', ['is']);
@@ -219,11 +224,15 @@ describe('AddEditExpensePage', () => {
       'getDuplicatesByExpense',
       'getAllExpenses',
       'getSplitExpenses',
+      'attachReceiptToExpense',
+      'post',
     ]);
+    const advanceWalletsServiceSpy = jasmine.createSpyObj('AdvanceWalletsService', ['getAllAdvanceWallets']);
+    const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['get', 'post']);
 
     TestBed.configureTestingModule({
       declarations: [AddEditExpensePage, MaskNumber, FySelectComponent, EllipsisPipe, DependentFieldComponent],
-      imports: [IonicModule.forRoot(), RouterTestingModule, RouterModule],
+      imports: [HttpClientTestingModule, IonicModule.forRoot(), RouterTestingModule, RouterModule],
       providers: [
         FormBuilder,
         {
@@ -238,6 +247,7 @@ describe('AddEditExpensePage', () => {
             },
           },
         },
+        { provide: PAGINATION_SIZE, useValue: 2 },
         {
           provide: AccountsService,
           useValue: accountsServiceSpy,
@@ -305,6 +315,10 @@ describe('AddEditExpensePage', () => {
         {
           provide: FileService,
           useValue: fileServiceSpy,
+        },
+        {
+          provide: SpenderFileService,
+          useValue: spenderFileServiceSpy,
         },
         {
           provide: PopoverController,
@@ -391,6 +405,10 @@ describe('AddEditExpensePage', () => {
           useValue: taxGroupServiceSpy,
         },
         {
+          provide: CostCentersService,
+          useValue: costCentersServiceSpy,
+        },
+        {
           provide: OrgUserSettingsService,
           useValue: orgUserSettingsServiceSpy,
         },
@@ -413,6 +431,10 @@ describe('AddEditExpensePage', () => {
         {
           provide: ExpensesService,
           useValue: expensesServiceSpy,
+        },
+        {
+          provide: AdvanceWalletsService,
+          useValue: advanceWalletsServiceSpy,
         },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],

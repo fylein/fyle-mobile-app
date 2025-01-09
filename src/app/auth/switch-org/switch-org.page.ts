@@ -29,8 +29,8 @@ import { ResendEmailVerification } from 'src/app/core/models/resend-email-verifi
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { DeepLinkService } from 'src/app/core/services/deep-link.service';
-import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transaction.model';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-switch-org',
@@ -38,11 +38,11 @@ import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expen
   styleUrls: ['./switch-org.page.scss'],
 })
 export class SwitchOrgPage implements OnInit, AfterViewChecked {
-  @ViewChild('search') searchRef: ElementRef;
+  @ViewChild('search') searchRef: ElementRef<HTMLElement>;
 
-  @ViewChild('content') contentRef: ElementRef;
+  @ViewChild('content') contentRef: ElementRef<HTMLElement>;
 
-  @ViewChild('searchOrgsInput') searchOrgsInput: ElementRef;
+  @ViewChild('searchOrgsInput') searchOrgsInput: ElementRef<HTMLInputElement>;
 
   orgs$: Observable<Org[]>;
 
@@ -85,18 +85,19 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     private routerAuthService: RouterAuthService,
     private transactionService: TransactionService,
     private deepLinkService: DeepLinkService,
-    private expensesService: ExpensesService
+    private expensesService: ExpensesService,
+    private launchDarklyService: LaunchDarklyService
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.isIos = this.platform.is('ios');
   }
 
-  ngAfterViewChecked() {
+  ngAfterViewChecked(): void {
     this.cdRef.detectChanges();
   }
 
-  ionViewWillEnter() {
+  ionViewWillEnter(): void {
     const that = this;
     that.searchInput = '';
     that.isLoading = true;
@@ -108,14 +109,20 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       that.cdRef.detectChanges();
     });
 
-    const choose = that.activatedRoute.snapshot.params.choose && JSON.parse(that.activatedRoute.snapshot.params.choose);
+    const choose =
+      that.activatedRoute.snapshot.params.choose &&
+      (JSON.parse(that.activatedRoute.snapshot.params.choose as string) as boolean);
     const isFromInviteLink: boolean =
-      that.activatedRoute.snapshot.params.invite_link && JSON.parse(that.activatedRoute.snapshot.params.invite_link);
-    const orgId = that.activatedRoute.snapshot.params.orgId;
-    const txnId = this.activatedRoute.snapshot.params.txnId;
+      that.activatedRoute.snapshot.params.invite_link &&
+      (JSON.parse(that.activatedRoute.snapshot.params.invite_link as string) as boolean);
+    const orgId = that.activatedRoute.snapshot.params.orgId as string;
+    const txnId = this.activatedRoute.snapshot.params.txnId as string;
+    const openSMSOptInDialog = this.activatedRoute.snapshot.params.openSMSOptInDialog as string;
 
     if (orgId && txnId) {
       return this.redirectToExpensePage(orgId, txnId);
+    } else if (openSMSOptInDialog === 'true' && orgId) {
+      return this.redirectToDashboard(orgId);
     } else if (!choose) {
       from(that.loaderService.showLoader())
         .pipe(switchMap(() => from(that.proceed(isFromInviteLink))))
@@ -129,6 +136,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
         }
       });
     }
+
     this.activeOrg$ = this.orgService.getCurrentOrg();
     this.primaryOrg$ = this.orgService.getPrimaryOrg();
 
@@ -148,15 +156,16 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       this.trackSwitchOrgLaunchTime();
     });
 
-    this.filteredOrgs$ = fromEvent(this.searchOrgsInput.nativeElement, 'keyup').pipe(
-      map((event: any) => event.srcElement.value),
+    // eslint-disable-next-line
+    this.filteredOrgs$ = fromEvent<{ srcElement: { value: string } }>(this.searchOrgsInput.nativeElement, 'keyup').pipe(
+      map((event) => event.srcElement.value),
       startWith(''),
       distinctUntilChanged(),
       switchMap((searchText) => currentOrgs$.pipe(map((orgs) => this.getOrgsWhichContainSearchText(orgs, searchText))))
     );
   }
 
-  setSentryUser(eou: ExtendedOrgUser) {
+  setSentryUser(eou: ExtendedOrgUser): void {
     if (eou) {
       Sentry.setUser({
         id: eou.us.email + ' - ' + eou.ou.id,
@@ -170,7 +179,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     return this.routerAuthService.resendVerificationLink(email, orgId);
   }
 
-  showToastNotification(msg: string) {
+  showToastNotification(msg: string): void {
     const toastMessageData = {
       message: msg,
     };
@@ -182,7 +191,37 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     this.trackingService.showToastMessage({ ToastContent: toastMessageData.message });
   }
 
-  redirectToExpensePage(orgId: string, txnId: string) {
+  redirectToDashboard(orgId: string): void {
+    from(this.loaderService.showLoader('Please wait...', 2000))
+      .pipe(
+        switchMap(() => this.orgService.switchOrg(orgId)),
+        switchMap(() => {
+          globalCacheBusterNotifier.next();
+          this.userEventService.clearTaskCache();
+          this.recentLocalStorageItemsService.clearRecentLocalStorageCache();
+          return from(this.authService.getEou());
+        }),
+        map((eou) => {
+          this.setSentryUser(eou);
+        }),
+        finalize(() => this.loaderService.hideLoader())
+      )
+      .subscribe({
+        next: () => {
+          this.router.navigate([
+            '/',
+            'enterprise',
+            'my_dashboard',
+            {
+              openSMSOptInDialog: true,
+            },
+          ]);
+        },
+        error: () => this.router.navigate(['/', 'auth', 'switch_org']),
+      });
+  }
+
+  redirectToExpensePage(orgId: string, txnId: string): void {
     from(this.loaderService.showLoader())
       .pipe(
         switchMap(() => this.orgService.switchOrg(orgId)),
@@ -208,7 +247,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       });
   }
 
-  logoutIfSingleOrg(orgs: Org[]) {
+  logoutIfSingleOrg(orgs: Org[]): void {
     /*
      * Case: When a user is added to an SSO org but hasn't verified their account through the link.
      * After showing the alert, the user will be redirected to the sign-in page since there is no other org they are a part of.
@@ -219,12 +258,12 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     }
   }
 
-  handleDismissPopup(action = 'cancel', email: string, orgId: string, orgs: Org[]) {
+  handleDismissPopup(action = 'cancel', email: string, orgId: string, orgs: Org[]): void {
     if (action === 'resend') {
       // If user clicks on resend Button, Resend Invite to the user and then logout if user have only one org.
       this.resendInvite(email, orgId)
         .pipe(
-          catchError((error) => {
+          catchError((error: Error) => {
             this.showToastNotification('Verification link could not be sent. Please try again!');
             return throwError(() => error);
           })
@@ -238,7 +277,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     }
   }
 
-  async showEmailNotVerifiedAlert() {
+  async showEmailNotVerifiedAlert(): Promise<void> {
     const eou$ = from(this.authService.getEou());
     forkJoin({
       eou: eou$,
@@ -266,13 +305,13 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       });
       await popover.present();
 
-      const { data } = await popover.onWillDismiss();
+      const { data } = await popover.onWillDismiss<{ action: string }>();
 
       this.handleDismissPopup(data?.action, email, orgId, orgs);
     });
   }
 
-  navigateToSetupPage(roles: string[]) {
+  navigateToSetupPage(roles: string[]): void {
     if (roles.includes('OWNER')) {
       this.router.navigate(['/', 'post_verification', 'setup_account']);
     } else {
@@ -338,7 +377,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     return of(null);
   }
 
-  async proceed(isFromInviteLink?: boolean) {
+  async proceed(isFromInviteLink?: boolean): Promise<void> {
     const pendingDetails$ = this.userService.isPendingDetails().pipe(shareReplay(1));
     const eou$ = from(this.authService.getEou());
     const roles$ = from(this.authService.getRoles().pipe(shareReplay(1)));
@@ -354,9 +393,29 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       .subscribe();
 
     this.checkUserAppVersion();
+    this.setupLD();
   }
 
-  checkUserAppVersion() {
+  setupLD(): void {
+    forkJoin({
+      currentOrg: this.orgService.getCurrentOrg(),
+      deviceInfo: this.deviceService.getDeviceInfo(),
+      eou: this.orgUserService.getCurrent(),
+    }).subscribe(({ currentOrg, deviceInfo, eou }) => {
+      this.launchDarklyService.initializeUser({
+        key: eou.ou.user_id,
+        custom: {
+          org_id: eou.ou.org_id,
+          org_user_id: eou.ou.id,
+          org_currency: currentOrg?.currency,
+          org_created_at: currentOrg?.created_at?.toString(),
+          asset: `MOBILE - ${deviceInfo?.platform.toUpperCase()}`,
+        },
+      });
+    });
+  }
+
+  checkUserAppVersion(): void {
     this.deviceService
       .getDeviceInfo()
       .pipe(
@@ -378,7 +437,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       });
   }
 
-  trackSwitchOrg(org: Org, originalEou) {
+  trackSwitchOrg(org: Org, originalEou: ExtendedOrgUser): void {
     const isDestinationOrgActive = originalEou.ou && originalEou.ou.org_id === org.id;
     const isCurrentOrgPrimary = originalEou.ou && originalEou.ou.is_primary;
     from(this.authService.getEou()).subscribe((currentEou) => {
@@ -398,7 +457,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     });
   }
 
-  async switchOrg(org: Org) {
+  async switchOrg(org: Org): Promise<void> {
     // Tracking the time on click of switch org
     performance.mark(PerfTrackers.onClickSwitchOrg);
     const originalEou = await this.authService.getEou();
@@ -414,7 +473,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
           this.recentLocalStorageItemsService.clearRecentLocalStorageCache();
           from(this.proceed()).subscribe(noop);
         },
-        async (err) => {
+        async () => {
           await this.secureStorageService.clearAll();
           await this.storageService.clearAll();
           this.userEventService.logout();
@@ -424,7 +483,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       );
   }
 
-  signOut() {
+  signOut(): void {
     try {
       forkJoin({
         device: this.deviceService.getDeviceInfo(),
@@ -452,36 +511,36 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     }
   }
 
-  getOrgsWhichContainSearchText(orgs: Org[], searchText: string) {
+  getOrgsWhichContainSearchText(orgs: Org[], searchText: string): Org[] {
     return orgs.filter((org) =>
       Object.values(org)
-        .map((value) => value && value.toString().toLowerCase())
+        .map((value: string | Date | number | boolean) => value && value.toString().toLowerCase())
         .filter((value) => !!value)
         .some((value) => value.toLowerCase().includes(searchText.toLowerCase()))
     );
   }
 
-  resetSearch() {
+  resetSearch(): void {
     this.searchInput = '';
-    const searchInputElement = this.searchOrgsInput.nativeElement as HTMLInputElement;
+    const searchInputElement = this.searchOrgsInput.nativeElement;
     searchInputElement.value = '';
     searchInputElement.dispatchEvent(new Event('keyup'));
   }
 
-  openSearchBar() {
+  openSearchBar(): void {
     this.contentRef.nativeElement.classList.add('switch-org__content-container__content-block--hide');
     this.searchRef.nativeElement.classList.add('switch-org__content-container__search-block--show');
     setTimeout(() => this.searchOrgsInput.nativeElement.focus(), 200);
   }
 
-  cancelSearch() {
+  cancelSearch(): void {
     this.resetSearch();
     this.searchOrgsInput.nativeElement.blur();
     this.contentRef.nativeElement.classList.remove('switch-org__content-container__content-block--hide');
     this.searchRef.nativeElement.classList.remove('switch-org__content-container__search-block--show');
   }
 
-  trackSwitchOrgLaunchTime() {
+  trackSwitchOrgLaunchTime(): void {
     try {
       if (performance.getEntriesByName('switch org launch time').length === 0) {
         // Time taken to land on switch org page after sign-in
@@ -492,7 +551,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
 
         const measureLaunchTime = performance.getEntriesByName('switch org launch time');
 
-        // eslint-disable-next-line @typescript-eslint/dot-notation
+        // eslint-disable-next-line
         const loginMethod = performance.getEntriesByName('login start time')[0]['detail'];
 
         // Converting the duration to seconds and fix it to 3 decimal places
@@ -500,9 +559,10 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
 
         this.trackingService.switchOrgLaunchTime({
           'Switch org launch time': launchTimeDuration,
+          // eslint-disable-next-line
           'Login method': loginMethod,
         });
       }
-    } catch (error) {}
+    } catch (_) {}
   }
 }

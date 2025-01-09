@@ -22,6 +22,7 @@ import { categorieListRes, recentUsedCategoriesRes } from 'src/app/core/mock-dat
 import {
   filteredCategoriesData,
   orgCategoryData,
+  orgCategoryData1,
   sortedCategory,
   transformedOrgCategories,
 } from 'src/app/core/mock-data/org-category.data';
@@ -30,6 +31,8 @@ import {
   orgSettingsWoTaxAndRtf,
   taxSettingsData,
   taxSettingsData2,
+  orgSettingsParamsWithAdvanceWallet,
+  orgSettingsWithProjectCategoryRestrictions,
 } from 'src/app/core/mock-data/org-settings.data';
 import {
   orgUserSettingsData,
@@ -59,6 +62,7 @@ import {
   unflattenedExpWoProject,
   unflattenedExpenseWithCCCGroupId2,
   unflattenedTxnData,
+  unflattenedTxnWithCategory,
 } from 'src/app/core/mock-data/unflattened-txn.data';
 import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
 import { AccountsService } from 'src/app/core/services/accounts.service';
@@ -92,23 +96,38 @@ import { TaxGroupService } from 'src/app/core/services/tax-group.service';
 import { TokenService } from 'src/app/core/services/token.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
+import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import {
   multiplePaymentModesData,
   multiplePaymentModesWithoutAdvData,
   orgSettingsData,
   unflattenedAccount1Data,
+  advanceWallet1Data,
 } from 'src/app/core/test-data/accounts.service.spec.data';
 import { customInputData, filledCustomProperties } from 'src/app/core/test-data/custom-inputs.spec.data';
 import { txnCustomProperties, txnCustomProperties2 } from 'src/app/core/test-data/dependent-fields.service.spec.data';
-import { apiV2ResponseMultiple, expectedProjectsResponse } from 'src/app/core/test-data/projects.spec.data';
+import {
+  apiV2ResponseMultiple,
+  expectedProjectsResponse,
+  testActiveCategoryList,
+} from 'src/app/core/test-data/projects.spec.data';
 import { getEstatusApiResponse } from 'src/app/core/test-data/status.service.spec.data';
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { txnFieldsData2, txnFieldsFlightData } from 'src/app/core/mock-data/expense-fields-map.data';
-import { apiExpenses2, expenseData, splitExpensesData } from 'src/app/core/mock-data/platform/v1/expense.data';
+import {
+  apiExpenses2,
+  expenseData,
+  platformExpenseData,
+  platformExpenseWithExtractedData,
+  splitExpensesData,
+} from 'src/app/core/mock-data/platform/v1/expense.data';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { matchedCCTransactionData } from 'src/app/core/mock-data/matchedCCTransaction.data';
 import { cloneDeep } from 'lodash';
+import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
+import { generateUrlsBulkData1 } from 'src/app/core/mock-data/generate-urls-bulk-response.data';
+import { receiptInfoData2 } from 'src/app/core/mock-data/receipt-info.data';
 
 export function TestCases5(getTestBed) {
   return describe('AddEditExpensePage-5', () => {
@@ -133,6 +152,7 @@ export function TestCases5(getTestBed) {
     let modalController: jasmine.SpyObj<ModalController>;
     let statusService: jasmine.SpyObj<StatusService>;
     let fileService: jasmine.SpyObj<FileService>;
+    let spenderFileService: jasmine.SpyObj<SpenderFileService>;
     let popoverController: jasmine.SpyObj<PopoverController>;
     let currencyService: jasmine.SpyObj<CurrencyService>;
     let networkService: jasmine.SpyObj<NetworkService>;
@@ -158,6 +178,7 @@ export function TestCases5(getTestBed) {
     let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
     let platform: jasmine.SpyObj<Platform>;
     let expensesService: jasmine.SpyObj<ExpensesService>;
+    let advanceWalletsService: jasmine.SpyObj<AdvanceWalletsService>;
 
     beforeEach(() => {
       const TestBed = getTestBed();
@@ -185,6 +206,7 @@ export function TestCases5(getTestBed) {
       modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
       statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
       fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
+      spenderFileService = TestBed.inject(SpenderFileService) as jasmine.SpyObj<SpenderFileService>;
       popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
       currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
       networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
@@ -212,6 +234,7 @@ export function TestCases5(getTestBed) {
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
       expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
+      advanceWalletsService = TestBed.inject(AdvanceWalletsService) as jasmine.SpyObj<AdvanceWalletsService>;
 
       component.fg = formBuilder.group({
         currencyObj: [, component.currencyObjValidator],
@@ -351,12 +374,16 @@ export function TestCases5(getTestBed) {
     describe('setupBalanceFlag():', () => {
       it('should setup balance available flag', fakeAsync(() => {
         accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
+        advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
+        orgSettingsService.get.and.returnValue(of(orgSettingsData));
         component.setupBalanceFlag();
         tick(500);
 
         component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
           expect(res).toBeTrue();
           expect(accountsService.getEMyAccounts).toHaveBeenCalledOnceWith();
+          expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledOnceWith();
+          expect(orgSettingsService.get).toHaveBeenCalledOnceWith();
         });
         component.fg.controls.paymentMode.setValue(multiplePaymentModesWithoutAdvData[0]);
         fixture.detectChanges();
@@ -366,12 +393,16 @@ export function TestCases5(getTestBed) {
 
       it('should return false in advance balance if payment mode is not personal', fakeAsync(() => {
         accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
+        advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
+        orgSettingsService.get.and.returnValue(of(orgSettingsData));
         component.setupBalanceFlag();
         tick(500);
 
         component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
           expect(res).toBeFalse();
           expect(accountsService.getEMyAccounts).toHaveBeenCalledOnceWith();
+          expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledOnceWith();
+          expect(orgSettingsService.get).toHaveBeenCalledOnceWith();
         });
         component.fg.controls.paymentMode.setValue(multiplePaymentModesWithoutAdvData[1]);
         fixture.detectChanges();
@@ -379,16 +410,58 @@ export function TestCases5(getTestBed) {
         tick(500);
       }));
 
-      it('should return false when account type changes to null', fakeAsync(() => {
+      it('should return false when account changes to null', fakeAsync(() => {
         accountsService.getEMyAccounts.and.returnValue(of(null));
+        advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
+        orgSettingsService.get.and.returnValue(of(orgSettingsData));
         component.setupBalanceFlag();
         tick(500);
 
         component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
           expect(res).toBeFalse();
           expect(accountsService.getEMyAccounts).toHaveBeenCalledOnceWith();
+          expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledOnceWith();
+          expect(orgSettingsService.get).toHaveBeenCalledOnceWith();
         });
         component.fg.controls.paymentMode.setValue(null);
+        fixture.detectChanges();
+
+        tick(500);
+      }));
+
+      it('should return false when orgSettings is null', fakeAsync(() => {
+        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
+        advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
+        orgSettingsService.get.and.returnValue(of(null));
+        component.setupBalanceFlag();
+        tick(500);
+
+        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
+          expect(res).toBeTrue();
+          expect(accountsService.getEMyAccounts).toHaveBeenCalledOnceWith();
+          expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledOnceWith();
+          expect(orgSettingsService.get).toHaveBeenCalledOnceWith();
+        });
+        component.fg.controls.paymentMode.setValue(multiplePaymentModesWithoutAdvData[0]);
+        fixture.detectChanges();
+
+        tick(500);
+      }));
+
+      it('should return true for advance wallets', fakeAsync(() => {
+        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesWithoutAdvData));
+        advanceWalletsService.getAllAdvanceWallets.and.returnValue(of(advanceWallet1Data));
+        orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithAdvanceWallet));
+        component.setupBalanceFlag();
+        tick(500);
+
+        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
+          expect(res).toBeTrue();
+          expect(accountsService.getEMyAccounts).toHaveBeenCalledOnceWith();
+          expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledOnceWith();
+          expect(orgSettingsService.get).toHaveBeenCalledOnceWith();
+        });
+        component.fg.controls.paymentMode.setValue(multiplePaymentModesWithoutAdvData[0]);
         fixture.detectChanges();
 
         tick(500);
@@ -396,11 +469,15 @@ export function TestCases5(getTestBed) {
     });
 
     describe('setupFilteredCategories():', () => {
+      beforeEach(() => (component.isProjectCategoryRestrictionsEnabled$ = of(true)));
+
       it('should get filtered categories for a project', fakeAsync(() => {
         component.etxn$ = of(unflattenedTxnData);
+        component.activeCategories$ = of(sortedCategory);
+
         projectsService.getbyId.and.returnValue(of(apiV2ResponseMultiple[0]));
         projectsService.getAllowedOrgCategoryIds.and.returnValue(transformedOrgCategories);
-        component.setupFilteredCategories(of(sortedCategory));
+        component.setupFilteredCategories();
         tick(500);
 
         component.fg.controls.project.setValue(apiV2ResponseMultiple[1]);
@@ -408,33 +485,43 @@ export function TestCases5(getTestBed) {
         tick(500);
 
         expect(component.fg.controls.billable.value).toBeFalse();
-        expect(projectsService.getbyId).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.project_id);
-        expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledWith(apiV2ResponseMultiple[1], sortedCategory);
+        expect(projectsService.getbyId).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.project_id, sortedCategory);
+        expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledWith(
+          apiV2ResponseMultiple[1],
+          sortedCategory,
+          true
+        );
       }));
 
       it('should get updated filtered categories for changing an existing project', fakeAsync(() => {
         component.etxn$ = of(unflattenedExpWoProject);
+        component.activeCategories$ = of(sortedCategory);
         component.fg.controls.project.setValue(expectedProjectsResponse[0]);
         component.fg.controls.category.setValue(orgCategoryData);
         projectsService.getbyId.and.returnValue(of(apiV2ResponseMultiple[0]));
         projectsService.getAllowedOrgCategoryIds.and.returnValue(transformedOrgCategories);
-        component.setupFilteredCategories(of(sortedCategory));
+        component.setupFilteredCategories();
         tick(500);
 
         component.fg.controls.project.setValue(apiV2ResponseMultiple[1]);
         fixture.detectChanges();
         tick(500);
 
-        expect(projectsService.getbyId).toHaveBeenCalledOnceWith(257528);
+        expect(projectsService.getbyId).toHaveBeenCalledOnceWith(257528, sortedCategory);
         expect(component.fg.controls.billable.value).toBeFalse();
-        expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledWith(apiV2ResponseMultiple[1], sortedCategory);
+        expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledWith(
+          apiV2ResponseMultiple[1],
+          sortedCategory,
+          true
+        );
       }));
 
       it('should return null the expense does not have project id', fakeAsync(() => {
         component.etxn$ = of(unflattenedExpWoProject);
+        component.activeCategories$ = of(sortedCategory);
         component.fg.controls.project.reset();
         projectsService.getAllowedOrgCategoryIds.and.returnValue(transformedOrgCategories);
-        component.setupFilteredCategories(of(sortedCategory));
+        component.setupFilteredCategories();
         tick(500);
 
         component.fg.controls.project.setValue(null);
@@ -442,7 +529,55 @@ export function TestCases5(getTestBed) {
         tick(500);
 
         expect(component.fg.controls.billable.value).toBeFalse();
-        expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledWith(null, sortedCategory);
+        expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledWith(null, sortedCategory, true);
+      }));
+
+      it('should filter recentCategories based on project_org_category_ids when restrictions are enabled', fakeAsync(() => {
+        component.isProjectCategoryRestrictionsEnabled$ = of(true);
+        component.etxn$ = of(unflattenedTxnData);
+        component.activeCategories$ = of(sortedCategory);
+        component.recentCategoriesOriginal = recentUsedCategoriesRes;
+        projectsService.getbyId.and.returnValue(of(apiV2ResponseMultiple[0]));
+        projectsService.getAllowedOrgCategoryIds.and.returnValue(transformedOrgCategories);
+
+        const projectWithRestrictions = {
+          project_org_category_ids: [89469, 16576],
+        };
+
+        const expectedRecentCategories = recentUsedCategoriesRes.filter((category) =>
+          projectWithRestrictions.project_org_category_ids.includes(category.value.id)
+        );
+
+        component.setupFilteredCategories();
+        tick(500);
+
+        component.fg.controls.project.setValue(projectWithRestrictions);
+        fixture.detectChanges();
+        tick(500);
+
+        expect(component.recentCategories).toEqual(expectedRecentCategories);
+      }));
+
+      it('should set recentCategories to undefined if recentCategoriesOriginal is not present when restrictions are enabled', fakeAsync(() => {
+        component.isProjectCategoryRestrictionsEnabled$ = of(true);
+        component.etxn$ = of(unflattenedTxnData);
+        component.activeCategories$ = of(sortedCategory);
+        component.recentCategoriesOriginal = null;
+        projectsService.getbyId.and.returnValue(of(apiV2ResponseMultiple[0]));
+        projectsService.getAllowedOrgCategoryIds.and.returnValue(transformedOrgCategories);
+
+        const projectWithRestrictions = {
+          project_org_category_ids: [89469, 16576],
+        };
+
+        component.setupFilteredCategories();
+        tick(500);
+
+        component.fg.controls.project.setValue(projectWithRestrictions);
+        fixture.detectChanges();
+        tick(500);
+
+        expect(component.recentCategories).toBeUndefined();
       }));
     });
 
@@ -537,18 +672,20 @@ export function TestCases5(getTestBed) {
     describe('getSelectedProjects():', () => {
       it('should return the selected project from the expense', (done) => {
         component.etxn$ = of(unflattenedTxnData);
+        component.activeCategories$ = of(sortedCategory);
         projectsService.getbyId.and.returnValue(of(expectedProjectsResponse[0]));
         fixture.detectChanges();
 
         component.getSelectedProjects().subscribe((res) => {
           expect(res).toEqual(expectedProjectsResponse[0]);
-          expect(projectsService.getbyId).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.project_id);
+          expect(projectsService.getbyId).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.project_id, sortedCategory);
           done();
         });
       });
 
       it('should return project from the default ID specified in org', (done) => {
         component.etxn$ = of(unflattenedExpWoProject);
+        component.activeCategories$ = of(sortedCategory);
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         component.orgUserSettings$ = of(orgUserSettingsData);
         projectsService.getbyId.and.returnValue(of(expectedProjectsResponse[0]));
@@ -557,7 +694,10 @@ export function TestCases5(getTestBed) {
         component.getSelectedProjects().subscribe((res) => {
           expect(res).toEqual(expectedProjectsResponse[0]);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-          expect(projectsService.getbyId).toHaveBeenCalledOnceWith(orgUserSettingsData.preferences.default_project_id);
+          expect(projectsService.getbyId).toHaveBeenCalledOnceWith(
+            orgUserSettingsData.preferences.default_project_id,
+            sortedCategory
+          );
           done();
         });
       });
@@ -673,9 +813,11 @@ export function TestCases5(getTestBed) {
     });
 
     it('getRecentProjects(): should get recent projects', (done) => {
+      component.activeCategories$ = of(sortedCategory);
       component.recentlyUsedValues$ = of(recentlyUsedRes);
+      component.isProjectCategoryRestrictionsEnabled$ = of(true);
+      component.etxn$ = of(unflattenedTxnWithCategory);
       authService.getEou.and.resolveTo(apiEouRes);
-      component.fg.controls.category.setValue(orgCategoryData);
       recentlyUsedItemsService.getRecentlyUsedProjects.and.returnValue(of(recentlyUsedProjectRes));
       fixture.detectChanges();
 
@@ -685,7 +827,9 @@ export function TestCases5(getTestBed) {
         expect(recentlyUsedItemsService.getRecentlyUsedProjects).toHaveBeenCalledOnceWith({
           recentValues: recentlyUsedRes,
           eou: apiEouRes,
-          categoryIds: component.fg.controls.category.value && component.fg.controls.category.value.id,
+          categoryIds: [`${unflattenedTxnWithCategory.tx.org_category_id}`],
+          isProjectCategoryRestrictionsEnabled: true,
+          activeCategoryList: sortedCategory,
         });
         done();
       });
@@ -762,24 +906,33 @@ export function TestCases5(getTestBed) {
     describe('getReceiptCount():', () => {
       it('should get receipt count', (done) => {
         component.etxn$ = of(unflattenedTxnData);
-        fileService.findByTransactionId.and.returnValue(of(fileObject4));
+        component.platformExpense$ = of(platformExpenseWithExtractedData);
         fixture.detectChanges();
 
         component.getReceiptCount().subscribe((res) => {
           expect(res).toEqual(1);
-          expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
           done();
         });
       });
 
       it('should return 0 if no receipts are returned', (done) => {
         component.etxn$ = of(unflattenedTxnData);
-        fileService.findByTransactionId.and.returnValue(of(null));
+        component.platformExpense$ = of(platformExpenseData);
         fixture.detectChanges();
 
         component.getReceiptCount().subscribe((res) => {
           expect(res).toEqual(0);
-          expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
+          done();
+        });
+      });
+
+      it('should return 0 if new expense is being created', (done) => {
+        component.etxn$ = of({ tx: {} });
+        fixture.detectChanges();
+
+        component.getReceiptCount().subscribe((res) => {
+          expect(res).toEqual(0);
+          expect(expensesService.getExpenseById).not.toHaveBeenCalled();
           done();
         });
       });
@@ -995,7 +1148,7 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'getSelectedCostCenters').and.returnValue(of(costCentersData[0]));
         spyOn(component, 'getReceiptCount').and.returnValue(of(1));
         currencyService.getHomeCurrency.and.returnValue(of('USD'));
-        orgSettingsService.get.and.returnValue(of(orgSettingsData));
+        orgSettingsService.get.and.returnValue(of(orgSettingsWithProjectCategoryRestrictions));
         customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
         loaderService.hideLoader.and.resolveTo();
         loaderService.showLoader.and.resolveTo();
@@ -1312,10 +1465,15 @@ export function TestCases5(getTestBed) {
     });
 
     describe('ionViewWillEnter():', () => {
+      beforeEach(() => {
+        categoriesService.getAll.and.returnValue(of(orgCategoryData1));
+      });
+
       it('should setup class variables', (done) => {
         component.isConnected$ = of(true);
         component.txnFields$ = of(txnFieldsData2);
         component.filteredCategories$ = of();
+        component.platformExpense$ = of(expenseData);
 
         spyOn(component, 'initClassObservables').and.returnValue(null);
         tokenService.getClusterDomain.and.resolveTo('domain');
@@ -1340,13 +1498,13 @@ export function TestCases5(getTestBed) {
         storageService.get.and.resolveTo(true);
         spyOn(component, 'setupBalanceFlag');
         statusService.find.and.returnValue(of(getEstatusApiResponse));
-        spyOn(component, 'getActiveCategories').and.returnValue(of(sortedCategory));
         spyOn(component, 'getNewExpenseObservable').and.returnValue(of(expectedExpenseObservable));
         spyOn(component, 'getEditExpenseObservable').and.returnValue(of(expectedUnflattendedTxnData1));
-        expensesService.getExpenseById.and.returnValue(of(expenseData));
-        const mockFileObject = cloneDeep(expectedFileData1);
-        fileService.findByTransactionId.and.returnValue(of(mockFileObject));
-        fileService.downloadUrl.and.returnValue(of('url'));
+        fileService.getReceiptsDetails.and.returnValue({
+          type: 'pdf',
+          thumbnail: 'img/fy-pdf.svg',
+        });
+        spenderFileService.generateUrlsBulk.and.returnValue(of(generateUrlsBulkData1));
         spyOn(component, 'getReceiptDetails').and.returnValue({
           type: 'jpeg',
           thumbnail: 'thumbnail',
@@ -1464,21 +1622,21 @@ export function TestCases5(getTestBed) {
 
         expect(component.pendingTransactionAllowedToReportAndSplit).toBeTrue();
 
-        expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txyeiYbLDSOy');
-
         component.attachments$.subscribe((res) => {
-          expect(res).toEqual(mockFileObject);
+          expect(res).toEqual(receiptInfoData2);
+          expect(spenderFileService.generateUrlsBulk).toHaveBeenCalledOnceWith(expenseData.file_ids);
         });
 
-        expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith('tx3qHxFNgRcZ');
-        expect(fileService.downloadUrl).toHaveBeenCalledOnceWith('fiV1gXpyCcbU');
-        expect(component.getReceiptDetails).toHaveBeenCalledOnceWith(mockFileObject[0]);
+        expect(fileService.getReceiptsDetails).toHaveBeenCalledOnceWith(
+          generateUrlsBulkData1[0].name,
+          generateUrlsBulkData1[0].download_url
+        );
 
         component.flightJourneyTravelClassOptions$.subscribe((res) => {
           expect(res).toBeUndefined();
         });
 
-        expect(component.setupFilteredCategories).toHaveBeenCalledOnceWith(jasmine.any(Observable));
+        expect(component.setupFilteredCategories).toHaveBeenCalledTimes(1);
         expect(component.setupExpenseFields).toHaveBeenCalledTimes(1);
 
         component.taxSettings$.subscribe((res) => {
@@ -1551,7 +1709,6 @@ export function TestCases5(getTestBed) {
         storageService.get.and.resolveTo(true);
         spyOn(component, 'setupBalanceFlag');
         statusService.find.and.returnValue(of(getEstatusApiResponse));
-        spyOn(component, 'getActiveCategories').and.returnValue(of(sortedCategory));
         spyOn(component, 'getNewExpenseObservable').and.returnValue(of(expectedExpenseObservable));
         spyOn(component, 'getEditExpenseObservable').and.returnValue(of(expectedUnflattendedTxnData1));
         fileService.findByTransactionId.and.returnValue(of(expectedFileData1));
@@ -1628,7 +1785,6 @@ export function TestCases5(getTestBed) {
         storageService.get.and.resolveTo(true);
         spyOn(component, 'setupBalanceFlag');
         statusService.find.and.returnValue(of(getEstatusApiResponse));
-        spyOn(component, 'getActiveCategories').and.returnValue(of(sortedCategory));
         spyOn(component, 'getNewExpenseObservable').and.returnValue(of(expectedExpenseObservable));
         spyOn(component, 'getEditExpenseObservable').and.returnValue(of(expectedUnflattendedTxnData1));
         expensesService.getSplitExpenses.and.returnValue(of(splitExpensesData));
@@ -1752,18 +1908,18 @@ export function TestCases5(getTestBed) {
         expect(expensesService.getExpenseById).not.toHaveBeenCalled();
 
         component.attachments$.subscribe((res) => {
-          expect(res).toEqual(mockFileObject);
+          expect(res).toEqual([]);
         });
 
-        expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith(undefined);
-        expect(fileService.downloadUrl).toHaveBeenCalledOnceWith('fiV1gXpyCcbU');
-        expect(component.getReceiptDetails).toHaveBeenCalledOnceWith(mockFileObject[0]);
+        expect(fileService.findByTransactionId).not.toHaveBeenCalled();
+        expect(spenderFileService.generateUrlsBulk).not.toHaveBeenCalled();
+        expect(fileService.getReceiptsDetails).not.toHaveBeenCalled();
 
         component.flightJourneyTravelClassOptions$.subscribe((res) => {
           expect(res).toBeUndefined();
         });
 
-        expect(component.setupFilteredCategories).toHaveBeenCalledOnceWith(jasmine.any(Observable));
+        expect(component.setupFilteredCategories).toHaveBeenCalledTimes(1);
         expect(component.setupExpenseFields).toHaveBeenCalledTimes(1);
 
         component.taxSettings$.subscribe((res) => {

@@ -48,8 +48,6 @@ export const unflattenExp1: { tx: PublicPolicyExpense } = deepFreeze({
     source_account_id: 'acc5APeygFjRd',
     transcription_state: null,
     verification_state: null,
-    physical_bill: null,
-    physical_bill_at: null,
     policy_state: null,
     manual_flag: null,
     policy_flag: false,
@@ -158,8 +156,6 @@ export const unflattenExp2: { tx: PublicPolicyExpense } = deepFreeze({
     source_account_id: 'acc5APeygFjRd',
     transcription_state: null,
     verification_state: null,
-    physical_bill: null,
-    physical_bill_at: null,
     policy_state: null,
     manual_flag: null,
     policy_flag: false,
@@ -272,8 +268,6 @@ export const unflattenedTxn: UnflattenedTransaction = deepFreeze({
     source_account_id: 'acc5APeygFjRd',
     transcription_state: null,
     verification_state: null,
-    physical_bill: null,
-    physical_bill_at: null,
     policy_state: null,
     manual_flag: null,
     policy_flag: false,
@@ -399,8 +393,6 @@ export const unflattenedExpData = deepFreeze({
     source_account_id: 'accZ1IWjhjLv4',
     transcription_state: null,
     verification_state: null,
-    physical_bill: null,
-    physical_bill_at: null,
     policy_state: null,
     manual_flag: null,
     policy_flag: true,
@@ -525,6 +517,22 @@ export const unflattenedExpData = deepFreeze({
     test_call: null,
   },
   dataUrls: [],
+});
+
+export const unflattenedExpDataWithAdvanceWallet = deepFreeze({
+  ...unflattenedExpData,
+  tx: {
+    ...unflattenedExpData.tx,
+    advance_wallet_id: 'areq1234',
+  },
+});
+
+export const unflattenedExpDataWithAdvanceWalletWithoutId = deepFreeze({
+  ...unflattenedExpDataWithAdvanceWallet,
+  tx: {
+    ...unflattenedExpDataWithAdvanceWallet.tx,
+    id: null,
+  },
 });
 
 export const draftUnflattendedTxn = deepFreeze({

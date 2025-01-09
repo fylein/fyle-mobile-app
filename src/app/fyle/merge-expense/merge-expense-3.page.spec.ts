@@ -16,56 +16,25 @@ import { cloneDeep } from 'lodash';
 import { apiExpenseRes, expenseList2 } from 'src/app/core/mock-data/expense.data';
 import { BehaviorSubject, Observable, Subscription, of, skip, take } from 'rxjs';
 import {
-  optionsData10,
-  optionsData11,
-  optionsData12,
-  optionsData13,
-  optionsData14,
   optionsData15,
   optionsData16,
   optionsData17,
   optionsData18,
   optionsData19,
-  optionsData2,
   optionsData20,
   optionsData21,
-  optionsData3,
   optionsData32,
   optionsData33,
-  optionsData6,
-  optionsData7,
-  optionsData8,
-  optionsData9,
   optionsDataMergeExpenses,
 } from 'src/app/core/mock-data/merge-expenses-options-data.data';
-import {
-  combinedOptionsData1,
-  combinedOptionsData2,
-  combinedOptionsData3,
-} from 'src/app/core/mock-data/combined-options.data';
-import { fileObject7 } from 'src/app/core/mock-data/file-object.data';
+import { combinedOptionsData2, combinedOptionsData3 } from 'src/app/core/mock-data/combined-options.data';
 import { projectDependentFieldsMappingData1 } from 'src/app/core/mock-data/project-dependent-fields-mapping.data';
 import { CostCenterDependentFieldsMappingData1 } from 'src/app/core/mock-data/cost-center-dependent-fields-mapping.data';
-import {
-  generatedFormPropertiesData1,
-  generatedFormPropertiesData2,
-  generatedFormPropertiesData3,
-  generatedFormPropertiesData4,
-} from 'src/app/core/mock-data/generated-form-properties.data';
-import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { snackbarPropertiesRes5 } from 'src/app/core/mock-data/snackbar-properties.data';
-import {
-  mergeExpenseFormData1,
-  mergeExpenseFormData2,
-  mergeExpenseFormData3,
-  mergeExpenseFormData4,
-  mergeExpenseFormData5,
-} from 'src/app/core/mock-data/merge-expense-form-data.data';
+import { mergeExpenseFormData1 } from 'src/app/core/mock-data/merge-expense-form-data.data';
 import { dependentCustomFields } from 'src/app/core/mock-data/expense-field.data';
 import {
   expectedTxnCustomProperties,
   txnCustomPropertiesData,
-  txnCustomPropertiesData2,
 } from 'src/app/core/mock-data/txn-custom-properties.data';
 import { filterTestData } from 'src/app/core/test-data/custom-inputs.spec.data';
 import { responseAfterAppliedFilter } from 'src/app/core/test-data/custom-inputs.spec.data';
@@ -428,7 +397,7 @@ export function TestCases3(getTestBed) {
         expect(component.expenseToKeepInfoText).toEqual(
           'You are required to keep the expense that has already been submitted.'
         );
-        expect(component.fg.controls.target_txn_id.value).toEqual('txB1rVZJ4Pxl');
+        expect(component.fg.controls.target_txn_id.value).toEqual('txLgXPnTDOGf');
       });
 
       it('should call mergeExpensesService.isMoreThanOneAdvancePresent once and modify showReceiptSelection and expenseToKeepInfoText', () => {
@@ -466,7 +435,7 @@ export function TestCases3(getTestBed) {
         expect(component.expenseToKeepInfoText).toEqual(
           'You are required to keep the expense paid from ‘advance’. Edit each expense separately if you wish to make any changes.'
         );
-        expect(component.fg.controls.target_txn_id.value).toEqual('txB1rVZJ4Pxl');
+        expect(component.fg.controls.target_txn_id.value).toEqual('txLgXPnTDOGf');
       });
 
       it('should call setAdvanceOrApprovedAndAbove once', () => {

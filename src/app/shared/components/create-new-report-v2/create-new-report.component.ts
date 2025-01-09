@@ -5,13 +5,11 @@ import { Observable, Subscription, of } from 'rxjs';
 import { finalize, map, switchMap, tap } from 'rxjs/operators';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpenseFieldsMap } from 'src/app/core/models/v1/expense-fields-map.model';
-import { ReportService } from 'src/app/core/services/report.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { RefinerService } from 'src/app/core/services/refiner.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
-import { ReportV1 } from 'src/app/core/models/report-v1.model';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { Report } from 'src/app/core/models/platform/v1/report.model';
 
 @Component({
   selector: 'app-create-new-report',
@@ -43,9 +41,7 @@ export class CreateNewReportComponent implements OnInit {
 
   constructor(
     private modalController: ModalController,
-    private reportService: ReportService,
     private trackingService: TrackingService,
-    private refinerService: RefinerService,
     private currencyService: CurrencyService,
     private expenseFieldsService: ExpenseFieldsService,
     private spenderReportsService: SpenderReportsService
@@ -53,13 +49,10 @@ export class CreateNewReportComponent implements OnInit {
 
   getReportTitle(): Subscription {
     const txnIds = this.selectedElements.map((etxn) => etxn.id);
-    this.selectedTotalAmount = this.selectedElements.reduce(
-      (acc, obj) => acc + (obj.is_reimbursable ? obj.amount : 0),
-      0
-    );
+    this.selectedTotalAmount = this.selectedElements.reduce((acc, obj) => acc + obj.amount, 0);
 
     if (this.reportTitleInput && !this.reportTitleInput.dirty && txnIds.length > 0) {
-      return this.reportService.getReportPurpose({ ids: txnIds }).subscribe((res) => {
+      return this.spenderReportsService.suggestPurpose(txnIds).subscribe((res) => {
         this.reportTitle = res;
       });
     }
@@ -105,7 +98,7 @@ export class CreateNewReportComponent implements OnInit {
     this.modalController.dismiss();
   }
 
-  ctaClickedEvent(reportActionType): Subscription {
+  async ctaClickedEvent(reportActionType: string): Promise<void> {
     this.showReportNameError = false;
     if (this.reportTitle.trim().length <= 0) {
       this.showReportNameError = true;
@@ -120,8 +113,8 @@ export class CreateNewReportComponent implements OnInit {
     const txnIds = this.selectedElements.map((expense) => expense.id);
     if (reportActionType === 'create_draft_report') {
       this.saveDraftReportLoader = true;
-      return this.reportService
-        .createDraft(report)
+      this.spenderReportsService
+        .createDraft({ data: report })
         .pipe(
           tap(() =>
             this.trackingService.createReport({
@@ -129,7 +122,7 @@ export class CreateNewReportComponent implements OnInit {
               Report_Value: this.selectedTotalAmount,
             })
           ),
-          switchMap((report: ReportV1) => {
+          switchMap((report: Report) => {
             if (txnIds.length > 0) {
               return this.spenderReportsService.addExpenses(report.id, txnIds).pipe(map(() => report));
             } else {
@@ -148,7 +141,7 @@ export class CreateNewReportComponent implements OnInit {
         });
     } else {
       this.submitReportLoader = true;
-      this.reportService
+      this.spenderReportsService
         .create(report, txnIds)
         .pipe(
           tap(() => {
@@ -156,7 +149,6 @@ export class CreateNewReportComponent implements OnInit {
               Expense_Count: txnIds.length,
               Report_Value: this.selectedTotalAmount,
             });
-            this.refinerService.startSurvey({ actionName: 'Submit Newly Created Report' });
           }),
           finalize(() => {
             this.submitReportLoader = false;

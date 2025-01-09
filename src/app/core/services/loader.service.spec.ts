@@ -29,20 +29,22 @@ describe('LoaderService', () => {
       const message = 'Please wait...';
       const duration = 1000;
       const loadingElementSpy = jasmine.createSpyObj('HTMLIonLoadingElement', ['present']);
-      loadingController.create.and.returnValue(Promise.resolve(loadingElementSpy));
+      loadingController.create.and.resolveTo(loadingElementSpy);
 
       loaderService.showLoader(message, duration);
       tick();
       expect(loadingController.create).toHaveBeenCalledOnceWith({
         message,
         duration,
+        spinner: 'crescent',
+        cssClass: 'intermediate-loader',
       });
       expect(loadingElementSpy.present).toHaveBeenCalledTimes(1);
     }));
 
     it('showLoader(): should show loader without args', fakeAsync(() => {
       const loadingElementSpy = jasmine.createSpyObj('HTMLIonLoadingElement', ['present']);
-      loadingController.create.and.returnValue(Promise.resolve(loadingElementSpy));
+      loadingController.create.and.resolveTo(loadingElementSpy);
 
       loaderService.showLoader();
       tick();
@@ -53,7 +55,7 @@ describe('LoaderService', () => {
 
   it('hideLoader(): should hide loader', fakeAsync(() => {
     const loadingElementSpy = jasmine.createSpyObj('HTMLIonLoadingElement', ['dismiss']);
-    loadingController.dismiss.and.returnValue(Promise.resolve(loadingElementSpy));
+    loadingController.dismiss.and.resolveTo(loadingElementSpy);
 
     loaderService.hideLoader();
     tick();
@@ -62,7 +64,7 @@ describe('LoaderService', () => {
 
   it('hideLoader(): should catch errors in hide loader', fakeAsync(() => {
     const error = 'Something went wrong';
-    loadingController.dismiss.and.returnValue(Promise.reject(error));
+    loadingController.dismiss.and.rejectWith(error);
 
     loaderService.hideLoader();
     tick();

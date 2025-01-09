@@ -1,17 +1,12 @@
 import { Inject, Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { DateService } from './date.service';
-import { map, switchMap, tap, concatMap, reduce } from 'rxjs/operators';
+import { map, switchMap, concatMap, reduce, tap } from 'rxjs/operators';
 import { StorageService } from './storage.service';
-import { NetworkService } from './network.service';
-import { from, Observable, range, forkJoin, Subject, of } from 'rxjs';
-import { ApiV2Service } from './api-v2.service';
-import { DataTransformService } from './data-transform.service';
-import { AuthService } from './auth.service';
+import { from, Observable, range, forkJoin, of } from 'rxjs';
 import { OrgUserSettingsService } from './org-user-settings.service';
 import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
-import { FileService } from 'src/app/core/services/file.service';
 import { Expense } from '../models/expense.model';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
 import { UserEventService } from './user-event.service';
@@ -25,8 +20,6 @@ import { AccountsService } from './accounts.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformPolicyExpense } from '../models/platform/platform-policy-expense.model';
 import { ExpensePolicy } from '../models/platform/platform-expense-policy.model';
-import { EtxnParams } from '../models/etxn-params.model';
-import { ApiV2Response } from '../models/v2/api-v2-response.model';
 import { Transaction } from '../models/v1/transaction.model';
 import { FileObject } from '../models/file-obj.model';
 import { UnflattenedTransaction } from '../models/unflattened-transaction.model';
@@ -41,46 +34,36 @@ import { AccountType } from '../enums/account-type.enum';
 import { Expense as PlatformExpense } from '../models/platform/v1/expense.model';
 import { CorporateCardTransactionRes } from '../models/platform/v1/corporate-card-transaction-res.model';
 import { ExpenseFilters } from '../models/expense-filters.model';
-
-enum FilterState {
-  READY_TO_REPORT = 'READY_TO_REPORT',
-  POLICY_VIOLATED = 'POLICY_VIOLATED',
-  CANNOT_REPORT = 'CANNOT_REPORT',
-  DRAFT = 'DRAFT',
-}
-
-export const expensesCacheBuster$ = new Subject<void>();
-
-type PaymentMode = {
-  name: string;
-  key: string;
-};
+import { ExpensesService } from './platform/v1/spender/expenses.service';
+import { expensesCacheBuster$ } from '../cache-buster/expense-cache-buster';
+import { FilterState } from '../enums/filter-state.enum';
+import { PaymentMode } from '../models/payment-mode.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class TransactionService {
+  private clearTaskCache = true;
+
   constructor(
     @Inject(PAGINATION_SIZE) private paginationSize: number,
-    private networkService: NetworkService,
     private storageService: StorageService,
     private apiService: ApiService,
-    private apiV2Service: ApiV2Service,
-    private dataTransformService: DataTransformService,
     private dateService: DateService,
-    private authService: AuthService,
     private orgUserSettingsService: OrgUserSettingsService,
     private timezoneService: TimezoneService,
     private utilityService: UtilityService,
-    private fileService: FileService,
     private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
     private userEventService: UserEventService,
     private paymentModesService: PaymentModesService,
     private orgSettingsService: OrgSettingsService,
-    private accountsService: AccountsService
+    private accountsService: AccountsService,
+    private expensesService: ExpensesService
   ) {
     expensesCacheBuster$.subscribe(() => {
-      this.userEventService.clearTaskCache();
+      if (this.clearTaskCache) {
+        this.userEventService.clearTaskCache();
+      }
     });
   }
 
@@ -93,86 +76,11 @@ export class TransactionService {
     cacheBusterNotifier: expensesCacheBuster$,
     isInstant: true,
   })
-  clearCache(): Observable<null> {
-    return of(null);
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: expensesCacheBuster$,
-  })
-  manualFlag(txnId: string): Observable<Expense> {
-    return this.apiService.post('/transactions/' + txnId + '/manual_flag');
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: expensesCacheBuster$,
-  })
-  manualUnflag(txnId: string): Observable<Expense> {
-    return this.apiService.post('/transactions/' + txnId + '/manual_unflag');
-  }
-
-  @Cacheable({
-    cacheBusterObserver: expensesCacheBuster$,
-  })
-
-  // TODO: Remove/Update method once we remove older my-expenses-page completely
-  getMyExpenses(
-    config: Partial<{ offset: number; limit: number; order: string; queryParams: EtxnParams }> = {
-      offset: 0,
-      limit: 10,
-      queryParams: {},
-    }
-  ): Observable<ApiV2Response<Expense>> {
-    return from(this.authService.getEou()).pipe(
-      switchMap((eou) =>
-        this.apiV2Service.get('/expenses', {
-          params: {
-            offset: config.offset,
-            limit: config.limit,
-            order: `${config.order || 'tx_txn_dt.desc'},tx_created_at.desc,tx_id.desc`,
-            tx_org_user_id: 'eq.' + eou.ou.id,
-            ...config.queryParams,
-          },
-        })
-      ),
-      map(
-        (res) =>
-          res as {
-            count: number;
-            data: Expense[];
-            limit: number;
-            offset: number;
-            url: string;
-          }
-      ),
-      map((res) => ({
-        ...res,
-        data: res.data.map((datum: Expense) => this.dateService.fixDatesV2(datum)),
-      }))
-    );
-  }
-
-  @Cacheable({
-    cacheBusterObserver: expensesCacheBuster$,
-  })
-
-  // TODO: Remove/Update method once we remove older my-expenses-page completely
-  getAllExpenses(config: Partial<{ order: string; queryParams: EtxnParams }>): Observable<Expense[]> {
-    return this.getMyExpensesCount(config.queryParams).pipe(
-      switchMap((count) => {
-        count = count > this.paginationSize ? count / this.paginationSize : 1;
-        return range(0, count);
-      }),
-      concatMap((page) =>
-        this.getMyExpenses({
-          offset: this.paginationSize * page,
-          limit: this.paginationSize,
-          queryParams: config.queryParams,
-          order: config.order,
-        })
-      ),
-      map((res) => res.data),
-      reduce((acc, curr) => acc.concat(curr), [] as Expense[])
+  clearCache(clearTaskCache: boolean = true): Observable<null> {
+    return of(null).pipe(
+      tap(() => {
+        this.clearTaskCache = clearTaskCache;
+      })
     );
   }
 
@@ -225,8 +133,9 @@ export class TransactionService {
     return forkJoin({
       orgUserSettings: this.orgUserSettingsService.get(),
       txnAccount: this.getTxnAccount(),
+      personalAccount: this.getPersonalAccount(),
     }).pipe(
-      switchMap(({ orgUserSettings, txnAccount }) => {
+      switchMap(({ orgUserSettings, txnAccount, personalAccount }) => {
         const offset = orgUserSettings.locale.offset;
 
         transaction.custom_properties = <TxnCustomProperties[]>(
@@ -238,7 +147,8 @@ export class TransactionService {
           transaction.txn_dt.setMinutes(0);
           transaction.txn_dt.setSeconds(0);
           transaction.txn_dt.setMilliseconds(0);
-          transaction.txn_dt = this.timezoneService.convertToUtc(transaction.txn_dt, offset);
+
+          transaction.txn_dt = this.dateService.getUTCMidAfternoonDate(transaction.txn_dt);
         }
 
         if (transaction.from_dt) {
@@ -257,14 +167,21 @@ export class TransactionService {
           transaction.to_dt = this.timezoneService.convertToUtc(transaction.to_dt, offset);
         }
 
-        if (!transaction.source_account_id) {
+        if (!transaction.source_account_id && !transaction.advance_wallet_id) {
           transaction.source_account_id = txnAccount.source_account_id;
           transaction.skip_reimbursement = txnAccount.skip_reimbursement;
         }
 
+        if (transaction.advance_wallet_id) {
+          // this is required as a failsafe to make sue that the source_account_id is not set as any other account other than Personal account.
+          transaction.skip_reimbursement = true;
+          transaction.source_account_id = personalAccount?.source_account_id || null;
+        }
+
         const transactionCopy = this.utilityService.discardRedundantCharacters(transaction, fieldsToCheck);
 
-        return this.apiService.post<Transaction>('/transactions', transactionCopy);
+        const expensePayload = this.expensesService.transformTo(transactionCopy);
+        return this.expensesService.post(expensePayload).pipe(map((result) => this.transformExpense(result.data).tx));
       })
     );
   }
@@ -277,32 +194,28 @@ export class TransactionService {
     fileUploads$: Observable<FileObject[]>
   ): Observable<Partial<Transaction>> {
     return fileUploads$.pipe(
-      switchMap((fileObjs: FileObject[]) =>
-        this.upsert(txn).pipe(
-          switchMap((transaction) =>
-            from(
-              fileObjs.map((fileObj) => {
-                fileObj.transaction_id = transaction.id;
-                return fileObj;
-              })
-            ).pipe(
-              concatMap((fileObj) => this.fileService.post(fileObj)),
-              reduce((acc: FileObject[], curr: FileObject) => acc.concat([curr]), []),
-              map(() => transaction)
-            )
-          )
-        )
-      )
+      switchMap((fileObjs) => {
+        const fileIds = fileObjs.map((fileObj) => fileObj.id);
+        const isReceiptUpload = txn.hasOwnProperty('source') && Object.keys(txn).length === 1;
+        const isAmountPresent = !!txn.amount;
+        if ((isReceiptUpload || !isAmountPresent) && fileIds.length > 0) {
+          return this.expensesService.createFromFile(fileIds[0], txn.source).pipe(
+            switchMap((result) => {
+              // capture receipt flow: patching the expense in case of amount not present
+              if (!isReceiptUpload && !isAmountPresent) {
+                txn.id = result.data[0].id;
+                return this.upsert(this.cleanupExpensePayload(txn));
+              } else {
+                return of(this.transformExpense(result.data[0]).tx);
+              }
+            })
+          );
+        } else {
+          txn.file_ids = fileIds;
+          return this.upsert(txn);
+        }
+      })
     );
-  }
-
-  // TODO: Remove/Update method once we remove older my-expenses-page completely
-  getMyExpensesCount(queryParams: EtxnParams): Observable<number> {
-    return this.getMyExpenses({
-      offset: 0,
-      limit: 1,
-      queryParams,
-    }).pipe(map((res) => res.count));
   }
 
   checkMandatoryFields(platformPolicyExpense: PlatformPolicyExpense): Observable<PlatformMissingMandatoryFields> {
@@ -368,20 +281,8 @@ export class TransactionService {
     return this.spenderPlatformV1ApiService.post('/corporate_card_transactions/match', { data: payload });
   }
 
-  review(txnId: string): Observable<null> {
-    return this.apiService.post('/transactions/' + txnId + '/review');
-  }
-
   getDefaultVehicleType(): Observable<string> {
     return from(this.storageService.get<string>('vehicle_preference'));
-  }
-
-  uploadBase64File(txnId: string, name: string, base64Content: string): Observable<FileObject> {
-    const data = {
-      content: base64Content,
-      name,
-    };
-    return this.apiService.post('/transactions/' + txnId + '/upload_b64', data);
   }
 
   unmatchCCCExpense(id: string, expenseId: string): Observable<CorporateCardTransactionRes> {
@@ -517,7 +418,7 @@ export class TransactionService {
     if (stateOrFilter.length > 0) {
       let combinedStateOrFilter = stateOrFilter.reduce((param1, param2) => `${param1}, ${param2}`);
       combinedStateOrFilter = `(${combinedStateOrFilter})`;
-      newQueryParamsCopy.or.push(combinedStateOrFilter);
+      (newQueryParamsCopy.or as string[]).push(combinedStateOrFilter);
     }
 
     return newQueryParamsCopy;
@@ -558,11 +459,11 @@ export class TransactionService {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     if (filters.splitExpense) {
       if (filters.splitExpense === 'YES') {
-        newQueryParamsCopy.or.push('(tx_is_split_expense.eq.true)');
+        (newQueryParamsCopy.or as string[]).push('(tx_is_split_expense.eq.true)');
       }
 
       if (filters.splitExpense === 'NO') {
-        newQueryParamsCopy.or.push('(tx_is_split_expense.eq.false)');
+        (newQueryParamsCopy.or as string[]).push('(tx_is_split_expense.eq.false)');
       }
     }
 
@@ -602,7 +503,7 @@ export class TransactionService {
     if (typeOrFilter.length > 0) {
       let combinedTypeOrFilter = typeOrFilter.reduce((param1, param2) => `${param1}, ${param2}`);
       combinedTypeOrFilter = `(${combinedTypeOrFilter})`;
-      newQueryParamsCopy.or.push(combinedTypeOrFilter);
+      (newQueryParamsCopy.or as string[]).push(combinedTypeOrFilter);
     }
 
     return newQueryParamsCopy;
@@ -757,6 +658,7 @@ export class TransactionService {
         orig_currency: expense.foreign_currency,
         from_dt: expense.started_at,
         to_dt: expense.ended_at,
+        tax: expense.tax_amount,
         vendor: expense.merchant,
         distance: expense.distance,
         distance_unit: expense.distance_unit,
@@ -802,7 +704,6 @@ export class TransactionService {
         mileage_calculated_amount: expense.mileage_calculated_amount,
         commute_deduction: expense.commute_deduction,
         commute_deduction_id: expense.commute_details_id,
-        manual_flag: expense.is_manually_flagged,
         policy_flag: expense.is_policy_flagged,
         extracted_data: expense.extracted_data
           ? {
@@ -828,13 +729,13 @@ export class TransactionService {
               orig_amount: transaction.foreign_amount,
               orig_currency: transaction.foreign_currency,
               status: transaction.status,
+              corporate_card_nickname: transaction?.corporate_card_nickname,
             }))
           : null,
         source_account_id: expense.source_account_id,
+        advance_wallet_id: expense.advance_wallet_id,
         org_category_code: expense.category?.code,
         project_code: expense.project?.code,
-        physical_bill: expense.is_physical_bill_submitted,
-        physical_bill_at: expense.physical_bill_submitted_at,
       },
       source: {
         account_id: expense.source_account?.id,
@@ -845,7 +746,7 @@ export class TransactionService {
         org_id: expense.employee?.org_id,
       },
     };
-    this.dateService.fixDates(updatedExpense.tx);
+
     return updatedExpense;
   }
 
@@ -867,11 +768,15 @@ export class TransactionService {
       tx_file_ids: expense.file_ids,
       tx_creator_id: expense.employee?.id,
       tx_state: expense.state,
-      tx_tax_org_id: expense.tax_group_id,
+      tx_org_category_id: expense.category_id,
+      tx_from_dt: expense.started_at,
+      tx_to_dt: expense.ended_at,
+      tx_tax_group_id: expense.tax_group_id,
+      tx_tax: expense.tax_amount,
       tg_name: expense.tax_group?.name,
       tx_project_name: expense.project?.name,
       tx_project_id: expense.project_id,
-      tx_cost_center_name: expense.cost_center?.name,
+      tx_cost_center_name: expense.cost_center?.name || null,
       tx_cost_center_id: expense.cost_center_id,
       tx_corporate_credit_card_expense_group_id:
         expense.matched_corporate_card_transaction_ids?.length > 0
@@ -899,7 +804,6 @@ export class TransactionService {
       tx_mileage_is_round_trip: expense.mileage_is_round_trip,
       tx_mileage_calculated_distance: expense.mileage_calculated_distance,
       tx_mileage_calculated_amount: expense.mileage_calculated_amount,
-      tx_manual_flag: expense.is_manually_flagged,
       tx_policy_flag: expense.is_policy_flagged,
       tx_extracted_data: expense.extracted_data
         ? {
@@ -926,12 +830,22 @@ export class TransactionService {
         : null,
       tx_org_category_code: expense.category?.code,
       tx_project_code: expense.project?.code,
-      tx_physical_bill: expense.is_physical_bill_submitted,
-      tx_physical_bill_at: expense.physical_bill_submitted_at,
+      tx_advance_wallet_id: expense.advance_wallet_id,
       source_account_id: expense.source_account_id,
       source_account_type: this.sourceAccountTypePublicMapping(expense.source_account?.type),
     };
     return updatedExpense;
+  }
+
+  private getPersonalAccount(): Observable<{ source_account_id: string }> {
+    return this.accountsService.getEMyAccounts().pipe(
+      map((accounts) => {
+        const account = accounts?.find((account) => account?.acc?.type === 'PERSONAL_ACCOUNT');
+        return {
+          source_account_id: account?.acc?.id,
+        };
+      })
+    );
   }
 
   private getTxnAccount(): Observable<{ source_account_id: string; skip_reimbursement: boolean }> {
@@ -951,24 +865,6 @@ export class TransactionService {
         return accountDetails;
       })
     );
-  }
-
-  private fixDates(data: Expense): Expense {
-    data.tx_created_at = new Date(data.tx_created_at);
-    if (data.tx_txn_dt) {
-      data.tx_txn_dt = new Date(data.tx_txn_dt);
-    }
-
-    if (data.tx_from_dt) {
-      data.tx_from_dt = new Date(data.tx_from_dt);
-    }
-
-    if (data.tx_to_dt) {
-      data.tx_to_dt = new Date(data.tx_to_dt);
-    }
-
-    data.tx_updated_at = new Date(data.tx_updated_at);
-    return data;
   }
 
   private generateStateOrFilter(filters: Partial<ExpenseFilters>, newQueryParamsCopy: FilterQueryParams): string[] {
@@ -1033,5 +929,16 @@ export class TransactionService {
     }
 
     return typeOrFilter;
+  }
+
+  // to be used only when updating created expense with form values during capture recept flow
+  private cleanupExpensePayload(txn: Partial<Transaction>): Partial<Transaction> {
+    const newTxn: Partial<Transaction> = {};
+    for (const key in txn) {
+      if (txn[key] !== null && txn[key] !== undefined) {
+        newTxn[key] = txn[key] as Transaction[keyof Transaction];
+      }
+    }
+    return newTxn;
   }
 }

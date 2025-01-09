@@ -1,21 +1,49 @@
 import { Injectable } from '@angular/core';
-import { map } from 'rxjs/operators';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { cloneDeep, isArray } from 'lodash';
 import { SortingParam } from '../models/sorting-param.model';
 import { SortingDirection } from '../models/sorting-direction.model';
 import * as dayjs from 'dayjs';
 import { CustomField } from '../models/custom_field.model';
 import { Transaction } from '../models/v1/transaction.model';
-import { ExtendedAdvanceRequest } from '../models/extended_advance_request.model';
 import { TxnCustomProperties } from '../models/txn-custom-properties.model';
-import { OperatorFunction } from 'rxjs';
+import { BehaviorSubject, Observable, OperatorFunction, forkJoin, from, of } from 'rxjs';
 import { ExtendedAdvanceRequestPublic } from '../models/extended-advance-request-public.model';
+import { TokenService } from './token.service';
+import { AuthService } from './auth.service';
+import { FeatureConfigService } from './platform/v1/spender/feature-config.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UtilityService {
   readonly EPOCH = 19700101;
+
+  canShowOptInAfterAddingCard$ = new BehaviorSubject<boolean>(false);
+
+  canShowOptInAfterExpenseCreation$ = new BehaviorSubject<boolean>(false);
+
+  constructor(
+    private tokenService: TokenService,
+    private authService: AuthService,
+    private featureConfigService: FeatureConfigService
+  ) {}
+
+  canShowOptInAfterAddingCard(): boolean {
+    return this.canShowOptInAfterAddingCard$.value;
+  }
+
+  toggleShowOptInAfterAddingCard(value: boolean): void {
+    this.canShowOptInAfterAddingCard$.next(value);
+  }
+
+  canShowOptInAfterExpenseCreation(): boolean {
+    return this.canShowOptInAfterExpenseCreation$.value;
+  }
+
+  toggleShowOptInAfterExpenseCreation(value: boolean): void {
+    this.canShowOptInAfterExpenseCreation$.next(value);
+  }
 
   discardNullChar(str: string): string {
     return str.replace(/[\u0000][\u0008-\u0009][\u000A-\u000C][\u005C]/g, '');
@@ -152,6 +180,34 @@ export class UtilityService {
       result += characters.charAt(Math.floor(Math.random() * characters.length));
     }
     return result;
+  }
+
+  isUserFromINCluster(): Promise<boolean> {
+    return this.tokenService.getClusterDomain().then((clusterDomain) => clusterDomain.includes('in1.fylehq.com'));
+  }
+
+  canShowOptInModal(featureConfig: { feature: string; key: string }): Observable<boolean> {
+    return forkJoin({
+      eou: from(this.authService.getEou()),
+      isUserFromINCluster: from(this.isUserFromINCluster()),
+    }).pipe(
+      switchMap(({ eou, isUserFromINCluster }) => {
+        const isUSDorCADCurrency = ['USD', 'CAD'].includes(eou.org.currency);
+        const isInvalidUSMobileNumber = eou.ou.mobile && !eou.ou.mobile.startsWith('+1');
+
+        if (eou.ou.mobile_verified || isUserFromINCluster || !isUSDorCADCurrency || isInvalidUSMobileNumber) {
+          return of(false);
+        }
+
+        return this.featureConfigService
+          .getConfiguration<{ count: number }>({
+            feature: featureConfig.feature,
+            key: featureConfig.key,
+          })
+          .pipe(map((config) => !(config?.value?.count > 0)));
+      }),
+      catchError(() => of(false))
+    );
   }
 
   private getSortingValue(advance: ExtendedAdvanceRequestPublic, sortParam: SortingParam): dayjs.Dayjs | string {

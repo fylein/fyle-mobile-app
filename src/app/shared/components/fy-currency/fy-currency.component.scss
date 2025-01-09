@@ -59,6 +59,19 @@
     width: 70%;
   }
 
+  &__auto-coded {
+    display: flex;
+    align-items: center;
+    height: 12px;
+    font-size: 12px;
+    color: $black-light;
+  }
+
+  &__sparkle-icon {
+    width: 12px;
+    margin-right: 4px;
+  }
+
   &__invalid {
     border-bottom: 1px solid $red;
   }

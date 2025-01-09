@@ -13,10 +13,8 @@ import { BehaviorSubject, of } from 'rxjs';
 import { By } from '@angular/platform-browser';
 import { RouterTestingModule } from '@angular/router/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
 import { orgSettingsRes, orgSettingsParamsWithSimplifiedReport } from 'src/app/core/mock-data/org-settings.data';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { apiExtendedReportRes } from 'src/app/core/mock-data/report.data';
 import { cardAggregateStatParam, cardAggregateStatParam2 } from 'src/app/core/mock-data/card-aggregate-stats.data';
 import { AdvancesStates } from 'src/app/core/models/advances-states.model';
 import { HeaderState } from 'src/app/shared/components/fy-header/header-state.enum';
@@ -83,6 +81,10 @@ import {
   expectedFilterPill9,
 } from 'src/app/core/mock-data/my-reports-filterpills.data';
 import { completeStats1, emptyStats } from 'src/app/core/mock-data/platform/v1/expenses-stats.data';
+import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-report.data';
+import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { ReportState as PlatformReportState } from 'src/app/core/models/platform/v1/report.model';
+import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
 
 describe('MyReportsPage', () => {
   let component: MyReportsPage;
@@ -103,16 +105,12 @@ describe('MyReportsPage', () => {
   let trackingService: jasmine.SpyObj<TrackingService>;
   let modalController: jasmine.SpyObj<ModalController>;
   let inputElement: HTMLInputElement;
+  let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
 
   beforeEach(waitForAsync(() => {
     const tasksServiceSpy = jasmine.createSpyObj('TasksService', ['getReportsTaskCount']);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
-    const reportServiceSpy = jasmine.createSpyObj('ReportService', [
-      'getMyReportsCount',
-      'getMyReports',
-      'clearTransactionCache',
-      'delete',
-    ]);
+    const reportServiceSpy = jasmine.createSpyObj('ReportService', ['clearTransactionCache']);
     const apiV2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['extendQueryParamsForTextSearch']);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseStats']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
@@ -139,6 +137,10 @@ describe('MyReportsPage', () => {
       'myReportsFilterApplied',
     ]);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
+    const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', [
+      'getReportsCount',
+      'getReportsByParams',
+    ]);
 
     TestBed.configureTestingModule({
       declarations: [MyReportsPage, ReportState],
@@ -184,6 +186,10 @@ describe('MyReportsPage', () => {
           provide: ModalController,
           useValue: modalControllerSpy,
         },
+        {
+          provide: SpenderReportsService,
+          useValue: spenderReportsServiceSpy,
+        },
         ReportState,
       ],
       schemas: [NO_ERRORS_SCHEMA],
@@ -204,12 +210,12 @@ describe('MyReportsPage', () => {
     apiV2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
-    reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
     dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
+    spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
   }));
 
   it('should create', () => {
@@ -219,6 +225,10 @@ describe('MyReportsPage', () => {
   describe('ionViewWillEnter(): ', () => {
     it('should initialize component properties and load data', fakeAsync(() => {
       tasksService.getReportsTaskCount.and.returnValue(of(5));
+      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
+        state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
+        q: 'example:*',
+      });
       const homeCurrency = 'USD';
       currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
 
@@ -226,15 +236,11 @@ describe('MyReportsPage', () => {
         state: [AdvancesStates.paid, AdvancesStates.cancelled],
       };
 
-      const paginatedPipeValue = { count: 2, offset: 0, data: apiExtendedReportRes };
+      const paginatedPipeValue = { count: 2, offset: 0, data: expectedReportsSinglePage };
 
-      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
-        rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
-      });
+      spenderReportsService.getReportsCount.and.returnValue(of(10));
 
-      reportService.getMyReportsCount.and.returnValue(of(10));
-
-      reportService.getMyReports.and.returnValue(of(paginatedPipeValue));
+      spenderReportsService.getReportsByParams.and.returnValue(of(paginatedPipeValue));
       orgSettingsService.get.and.returnValue(of(orgSettingsRes));
       expensesService.getExpenseStats.and.returnValue(of(completeStats1));
 
@@ -270,21 +276,12 @@ describe('MyReportsPage', () => {
 
       tick(1000);
 
-      expect(reportService.getMyReportsCount).toHaveBeenCalledTimes(4);
+      expect(spenderReportsService.getReportsCount).toHaveBeenCalledTimes(4);
       // It is called 6 times because loadData$ is behaviorSubject and next() is called 1 times
-      expect(reportService.getMyReportsCount).toHaveBeenCalledWith({
-        rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
+      expect(spenderReportsService.getReportsCount).toHaveBeenCalledWith({
+        state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
+        q: 'example:*',
       });
-
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledTimes(4);
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledWith(
-        { rp_state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)' },
-        undefined
-      );
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledWith(
-        { rp_state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)' },
-        'example'
-      );
 
       component.expensesAmountStats$.subscribe((expenseAmountStates) => {
         expect(expensesService.getExpenseStats).toHaveBeenCalledOnceWith({
@@ -303,19 +300,20 @@ describe('MyReportsPage', () => {
         expect(count).toBe(10);
       });
 
-      expect(reportService.getMyReports).toHaveBeenCalledTimes(2);
+      expect(spenderReportsService.getReportsByParams).toHaveBeenCalledTimes(2);
 
-      expect(reportService.getMyReports).toHaveBeenCalledWith({
+      expect(spenderReportsService.getReportsByParams).toHaveBeenCalledWith({
         offset: 0,
         limit: 10,
-        queryParams: { rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' },
-        order: null,
+        state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
+        order: 'created_at.desc,id.desc',
+        q: 'example:*',
       });
 
-      expect(component.acc).toEqual(apiExtendedReportRes);
+      expect(component.acc).toEqual(expectedReportsSinglePage);
 
       component.myReports$.subscribe((myReports) => {
-        expect(myReports).toEqual(apiExtendedReportRes);
+        expect(myReports).toEqual(expectedReportsSinglePage);
       });
 
       component.isInfiniteScrollRequired$.subscribe((isInfiniteScrollReq) => {
@@ -355,8 +353,138 @@ describe('MyReportsPage', () => {
       discardPeriodicTasks();
     }));
 
+    it('should initialize component properties and load data when search string is empty', fakeAsync(() => {
+      tasksService.getReportsTaskCount.and.returnValue(of(5));
+      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
+        state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
+      });
+      const homeCurrency = 'USD';
+      currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
+
+      component.filters = {
+        state: [PlatformReportState.PAID],
+      };
+
+      const paginatedPipeValue = { count: 2, offset: 0, data: expectedReportsSinglePage };
+
+      spenderReportsService.getReportsCount.and.returnValue(of(10));
+
+      spenderReportsService.getReportsByParams.and.returnValue(of(paginatedPipeValue));
+      orgSettingsService.get.and.returnValue(of(orgSettingsRes));
+      expensesService.getExpenseStats.and.returnValue(of(completeStats1));
+
+      component.simpleSearchInput = fixture.debugElement.query(By.css('.my-reports--simple-search-input'));
+
+      inputElement = component.simpleSearchInput.nativeElement;
+
+      spyOn(component, 'setupNetworkWatcher');
+
+      spyOn(component, 'clearFilters');
+
+      component.ionViewWillEnter();
+
+      expect(tasksService.getReportsTaskCount).toHaveBeenCalledTimes(1);
+
+      expect(component.reportsTaskCount).toBe(5);
+
+      expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
+
+      expect(component.searchText).toEqual('');
+
+      expect(component.navigateBack).toBeFalse();
+
+      component.homeCurrency$.subscribe((currency) => {
+        expect(currency).toEqual('USD');
+      });
+
+      expect(component.simpleSearchInput.nativeElement.value).toBe('');
+
+      inputElement.value = '';
+
+      inputElement.dispatchEvent(new Event('keyup'));
+
+      tick(1000);
+
+      expect(spenderReportsService.getReportsCount).toHaveBeenCalledTimes(4);
+      // It is called 6 times because loadData$ is behaviorSubject and next() is called 1 times
+      expect(spenderReportsService.getReportsCount).toHaveBeenCalledWith({
+        state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
+      });
+
+      component.expensesAmountStats$.subscribe((expenseAmountStates) => {
+        expect(expensesService.getExpenseStats).toHaveBeenCalledOnceWith({
+          state: 'in.(COMPLETE)',
+          or: '(policy_amount.is.null,policy_amount.gt.0.0001)',
+          report_id: 'is.null',
+        });
+
+        expect(expenseAmountStates).toEqual({
+          sum: 3494,
+          count: 4,
+        });
+      });
+
+      component.count$.subscribe((count) => {
+        expect(count).toBe(10);
+      });
+
+      expect(spenderReportsService.getReportsByParams).toHaveBeenCalledTimes(2);
+
+      expect(spenderReportsService.getReportsByParams).toHaveBeenCalledWith({
+        offset: 0,
+        limit: 10,
+        state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
+        order: 'created_at.desc,id.desc',
+      });
+
+      expect(component.acc).toEqual(expectedReportsSinglePage);
+
+      component.myReports$.subscribe((myReports) => {
+        expect(myReports).toEqual(expectedReportsSinglePage);
+      });
+
+      component.isInfiniteScrollRequired$.subscribe((isInfiniteScrollReq) => {
+        expect(isInfiniteScrollReq).toBeTrue();
+      });
+
+      expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+
+      component.simplifyReportsSettings$.subscribe((simplifyReportSetting) => {
+        expect(simplifyReportSetting).toEqual({ enabled: undefined });
+      });
+
+      expect(router.navigate).toHaveBeenCalledTimes(2);
+      expect(router.navigate).toHaveBeenCalledWith([], {
+        relativeTo: activatedRoute,
+        queryParams: { filters: '{"state":["PAID"]}' },
+        replaceUrl: true,
+      });
+
+      component.nonReimbursableOrg$.subscribe((nonReimbursableOrg) => {
+        expect(nonReimbursableOrg).toBeFalse();
+      });
+
+      expect(component.clearFilters).toHaveBeenCalledTimes(1);
+
+      component.loadData$.subscribe((data) => {
+        expect(data).toEqual({
+          pageNumber: 1,
+          searchString: '',
+        });
+      });
+
+      tick(500);
+
+      expect(component.isLoading).toBeFalse();
+
+      discardPeriodicTasks();
+    }));
+
     it('should initialize component properties and set simplifyReportsSetting$ to undefined if orgSetting$ is undefined', fakeAsync(() => {
       tasksService.getReportsTaskCount.and.returnValue(of(5));
+      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
+        state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
+      });
       const homeCurrency = 'USD';
       currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
 
@@ -364,15 +492,11 @@ describe('MyReportsPage', () => {
         state: [AdvancesStates.paid, AdvancesStates.cancelled],
       };
 
-      const paginatedPipeValue = { count: 2, offset: 0, data: apiExtendedReportRes };
+      const paginatedPipeValue = { count: 2, offset: 0, data: expectedReportsSinglePage };
 
-      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
-        rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
-      });
+      spenderReportsService.getReportsCount.and.returnValue(of(10));
 
-      reportService.getMyReportsCount.and.returnValue(of(10));
-
-      reportService.getMyReports.and.returnValue(of(paginatedPipeValue));
+      spenderReportsService.getReportsByParams.and.returnValue(of(paginatedPipeValue));
       orgSettingsService.get.and.returnValue(of(undefined));
       expensesService.getExpenseStats.and.returnValue(of(completeStats1));
 
@@ -408,21 +532,11 @@ describe('MyReportsPage', () => {
 
       tick(1000);
 
-      expect(reportService.getMyReportsCount).toHaveBeenCalledTimes(4);
+      expect(spenderReportsService.getReportsCount).toHaveBeenCalledTimes(4);
       // It is called 6 times because loadData$ is behaviorSubject and next() is called 1 times
-      expect(reportService.getMyReportsCount).toHaveBeenCalledWith({
-        rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
+      expect(spenderReportsService.getReportsCount).toHaveBeenCalledWith({
+        state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
       });
-
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledTimes(4);
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledWith(
-        { rp_state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)' },
-        undefined
-      );
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledWith(
-        { rp_state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)' },
-        'example'
-      );
 
       component.expensesAmountStats$.subscribe((expenseAmountStates) => {
         expect(expensesService.getExpenseStats).toHaveBeenCalledOnceWith({
@@ -441,19 +555,19 @@ describe('MyReportsPage', () => {
         expect(count).toBe(10);
       });
 
-      expect(reportService.getMyReports).toHaveBeenCalledTimes(2);
+      expect(spenderReportsService.getReportsByParams).toHaveBeenCalledTimes(2);
 
-      expect(reportService.getMyReports).toHaveBeenCalledWith({
+      expect(spenderReportsService.getReportsByParams).toHaveBeenCalledWith({
         offset: 0,
         limit: 10,
-        queryParams: { rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' },
-        order: null,
+        state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
+        order: 'created_at.desc,id.desc',
       });
 
-      expect(component.acc).toEqual(apiExtendedReportRes);
+      expect(component.acc).toEqual(expectedReportsSinglePage);
 
       component.myReports$.subscribe((myReports) => {
-        expect(myReports).toEqual(apiExtendedReportRes);
+        expect(myReports).toEqual(expectedReportsSinglePage);
       });
 
       component.isInfiniteScrollRequired$.subscribe((isInfiniteScrollReq) => {
@@ -495,6 +609,9 @@ describe('MyReportsPage', () => {
 
     it('should initialize component properties and set simplifyReportsSetting$ to false if orgSetting$.payment_mode_setting.payment_modes_order is not defined', fakeAsync(() => {
       tasksService.getReportsTaskCount.and.returnValue(of(5));
+      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
+        state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
+      });
       const homeCurrency = 'USD';
       currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
 
@@ -502,15 +619,10 @@ describe('MyReportsPage', () => {
         state: [AdvancesStates.paid, AdvancesStates.cancelled],
       };
 
-      const paginatedPipeValue = { count: 2, offset: 0, data: apiExtendedReportRes };
+      const paginatedPipeValue = { count: 2, offset: 0, data: expectedReportsSinglePage };
+      spenderReportsService.getReportsCount.and.returnValue(of(10));
 
-      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
-        rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
-      });
-
-      reportService.getMyReportsCount.and.returnValue(of(10));
-
-      reportService.getMyReports.and.returnValue(of(paginatedPipeValue));
+      spenderReportsService.getReportsByParams.and.returnValue(of(paginatedPipeValue));
       orgSettingsService.get.and.returnValue(of({ payment_mode_settings: { allowed: true, enabled: true } }));
       expensesService.getExpenseStats.and.returnValue(of(completeStats1));
 
@@ -546,21 +658,11 @@ describe('MyReportsPage', () => {
 
       tick(1000);
 
-      expect(reportService.getMyReportsCount).toHaveBeenCalledTimes(4);
+      expect(spenderReportsService.getReportsCount).toHaveBeenCalledTimes(4);
       // It is called 6 times because loadData$ is behaviorSubject and next() is called 1 times
-      expect(reportService.getMyReportsCount).toHaveBeenCalledWith({
-        rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
+      expect(spenderReportsService.getReportsCount).toHaveBeenCalledWith({
+        state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
       });
-
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledTimes(4);
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledWith(
-        { rp_state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)' },
-        undefined
-      );
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledWith(
-        { rp_state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)' },
-        'example'
-      );
 
       component.expensesAmountStats$.subscribe((expenseAmountStates) => {
         expect(expensesService.getExpenseStats).toHaveBeenCalledOnceWith({
@@ -579,19 +681,19 @@ describe('MyReportsPage', () => {
         expect(count).toBe(10);
       });
 
-      expect(reportService.getMyReports).toHaveBeenCalledTimes(2);
+      expect(spenderReportsService.getReportsByParams).toHaveBeenCalledTimes(2);
 
-      expect(reportService.getMyReports).toHaveBeenCalledWith({
+      expect(spenderReportsService.getReportsByParams).toHaveBeenCalledWith({
         offset: 0,
         limit: 10,
-        queryParams: { rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' },
-        order: null,
+        state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
+        order: 'created_at.desc,id.desc',
       });
 
-      expect(component.acc).toEqual(apiExtendedReportRes);
+      expect(component.acc).toEqual(expectedReportsSinglePage);
 
       component.myReports$.subscribe((myReports) => {
-        expect(myReports).toEqual(apiExtendedReportRes);
+        expect(myReports).toEqual(expectedReportsSinglePage);
       });
 
       component.isInfiniteScrollRequired$.subscribe((isInfiniteScrollReq) => {
@@ -633,6 +735,9 @@ describe('MyReportsPage', () => {
 
     it('should initialize component properties and get report by order if sortParam and sortDir is defined, aggregates is empty array and simplified_report is enabled', fakeAsync(() => {
       tasksService.getReportsTaskCount.and.returnValue(of(5));
+      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
+        state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
+      });
       const homeCurrency = 'USD';
       currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
 
@@ -640,11 +745,7 @@ describe('MyReportsPage', () => {
         state: [AdvancesStates.paid, AdvancesStates.cancelled],
       };
 
-      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
-        rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
-      });
-
-      reportService.getMyReportsCount.and.returnValue(of(0));
+      spenderReportsService.getReportsCount.and.returnValue(of(0));
       orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithSimplifiedReport));
       expensesService.getExpenseStats.and.returnValue(of(emptyStats));
 
@@ -686,21 +787,11 @@ describe('MyReportsPage', () => {
 
       tick(1000);
 
-      expect(reportService.getMyReportsCount).toHaveBeenCalledTimes(6);
+      expect(spenderReportsService.getReportsCount).toHaveBeenCalledTimes(6);
       // It is called 6 times because loadData$ is behaviorSubject and next() is called 2 times, 1 time in this test case
-      expect(reportService.getMyReportsCount).toHaveBeenCalledWith({
-        rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
+      expect(spenderReportsService.getReportsCount).toHaveBeenCalledWith({
+        state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
       });
-
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledTimes(6);
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledWith(
-        { rp_state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)' },
-        undefined
-      );
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledWith(
-        { rp_state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)' },
-        'example'
-      );
 
       component.expensesAmountStats$.subscribe((expenseAmountStates) => {
         expect(expensesService.getExpenseStats).toHaveBeenCalledOnceWith({
@@ -719,7 +810,7 @@ describe('MyReportsPage', () => {
         expect(count).toBe(0);
       });
 
-      expect(reportService.getMyReports).not.toHaveBeenCalled();
+      expect(spenderReportsService.getReportsByParams).not.toHaveBeenCalled();
 
       expect(component.acc).toEqual([]);
 
@@ -763,6 +854,9 @@ describe('MyReportsPage', () => {
 
     it('should initialize component properties and load data if filters is defined in activatedRoute.snapshot', fakeAsync(() => {
       tasksService.getReportsTaskCount.and.returnValue(of(5));
+      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
+        state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
+      });
       const homeCurrency = 'USD';
       currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
 
@@ -770,15 +864,11 @@ describe('MyReportsPage', () => {
         state: [AdvancesStates.paid, AdvancesStates.cancelled],
       };
 
-      const paginatedPipeValue = { count: 2, offset: 0, data: apiExtendedReportRes };
+      const paginatedPipeValue = { count: 2, offset: 0, data: expectedReportsSinglePage };
 
-      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
-        rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
-      });
+      spenderReportsService.getReportsCount.and.returnValue(of(10));
 
-      reportService.getMyReportsCount.and.returnValue(of(10));
-
-      reportService.getMyReports.and.returnValue(of(paginatedPipeValue));
+      spenderReportsService.getReportsByParams.and.returnValue(of(paginatedPipeValue));
       orgSettingsService.get.and.returnValue(of(orgSettingsRes));
       expensesService.getExpenseStats.and.returnValue(of(completeStats1));
 
@@ -818,21 +908,11 @@ describe('MyReportsPage', () => {
 
       tick(1000);
 
-      expect(reportService.getMyReportsCount).toHaveBeenCalledTimes(6);
+      expect(spenderReportsService.getReportsCount).toHaveBeenCalledTimes(6);
       // It is called 6 times because loadData$ is behaviorSubject and next() is called 1 times
-      expect(reportService.getMyReportsCount).toHaveBeenCalledWith({
-        rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
+      expect(spenderReportsService.getReportsCount).toHaveBeenCalledWith({
+        state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
       });
-
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledTimes(6);
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledWith(
-        { rp_state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)' },
-        undefined
-      );
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledWith(
-        { rp_state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)' },
-        'example'
-      );
 
       component.expensesAmountStats$.subscribe((expenseAmountStates) => {
         expect(expensesService.getExpenseStats).toHaveBeenCalledOnceWith({
@@ -851,19 +931,19 @@ describe('MyReportsPage', () => {
         expect(count).toBe(10);
       });
 
-      expect(reportService.getMyReports).toHaveBeenCalledTimes(3);
+      expect(spenderReportsService.getReportsByParams).toHaveBeenCalledTimes(3);
 
-      expect(reportService.getMyReports).toHaveBeenCalledWith({
+      expect(spenderReportsService.getReportsByParams).toHaveBeenCalledWith({
+        state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
         offset: 0,
         limit: 10,
-        queryParams: { rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' },
-        order: null,
+        order: 'created_at.desc,id.desc',
       });
 
-      expect(component.acc).toEqual(apiExtendedReportRes);
+      expect(component.acc).toEqual(expectedReportsSinglePage);
 
       component.myReports$.subscribe((myReports) => {
-        expect(myReports).toEqual(apiExtendedReportRes);
+        expect(myReports).toEqual(expectedReportsSinglePage);
       });
 
       component.isInfiniteScrollRequired$.subscribe((isInfiniteScrollReq) => {
@@ -914,6 +994,10 @@ describe('MyReportsPage', () => {
 
     it('should initialize component properties and load data if state is defined in activatedRoute.snapshot', fakeAsync(() => {
       tasksService.getReportsTaskCount.and.returnValue(of(5));
+      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
+        state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
+        q: 'example:*',
+      });
       const homeCurrency = 'USD';
       currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
 
@@ -921,15 +1005,10 @@ describe('MyReportsPage', () => {
         state: [AdvancesStates.paid, AdvancesStates.cancelled],
       };
 
-      const paginatedPipeValue = { count: 2, offset: 0, data: apiExtendedReportRes };
+      const paginatedPipeValue = { count: 2, offset: 0, data: expectedReportsSinglePage };
+      spenderReportsService.getReportsCount.and.returnValue(of(10));
 
-      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
-        rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
-      });
-
-      reportService.getMyReportsCount.and.returnValue(of(10));
-
-      reportService.getMyReports.and.returnValue(of(paginatedPipeValue));
+      spenderReportsService.getReportsByParams.and.returnValue(of(paginatedPipeValue));
       orgSettingsService.get.and.returnValue(of(orgSettingsRes));
       expensesService.getExpenseStats.and.returnValue(of(completeStats1));
 
@@ -969,21 +1048,12 @@ describe('MyReportsPage', () => {
 
       tick(1000);
 
-      expect(reportService.getMyReportsCount).toHaveBeenCalledTimes(6);
+      expect(spenderReportsService.getReportsCount).toHaveBeenCalledTimes(6);
       // It is called 6 times because loadData$ is behaviorSubject and next() is called 1 times
-      expect(reportService.getMyReportsCount).toHaveBeenCalledWith({
-        rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
+      expect(spenderReportsService.getReportsCount).toHaveBeenCalledWith({
+        state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
+        q: 'example:*',
       });
-
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledTimes(6);
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledWith(
-        { rp_state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)' },
-        undefined
-      );
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledWith(
-        { rp_state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)' },
-        'example'
-      );
 
       component.expensesAmountStats$.subscribe((expenseAmountStates) => {
         expect(expensesService.getExpenseStats).toHaveBeenCalledOnceWith({
@@ -1002,19 +1072,34 @@ describe('MyReportsPage', () => {
         expect(count).toBe(10);
       });
 
-      expect(reportService.getMyReports).toHaveBeenCalledTimes(3);
+      expect(spenderReportsService.getReportsByParams).toHaveBeenCalledTimes(3);
 
-      expect(reportService.getMyReports).toHaveBeenCalledWith({
+      expect(spenderReportsService.getReportsByParams).toHaveBeenCalledWith({
         offset: 0,
         limit: 10,
-        queryParams: { rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' },
-        order: null,
+        state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
+        order: 'created_at.desc,id.desc',
+        q: 'example:*',
+      });
+      expect(spenderReportsService.getReportsByParams).toHaveBeenCalledWith({
+        offset: 0,
+        limit: 10,
+        state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
+        order: 'created_at.desc,id.desc',
+        q: 'example:*',
+      });
+      expect(spenderReportsService.getReportsByParams).toHaveBeenCalledWith({
+        offset: 0,
+        limit: 10,
+        state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
+        order: 'created_at.desc,id.desc',
+        q: 'example:*',
       });
 
-      expect(component.acc).toEqual(apiExtendedReportRes);
+      expect(component.acc).toEqual(expectedReportsSinglePage);
 
       component.myReports$.subscribe((myReports) => {
-        expect(myReports).toEqual(apiExtendedReportRes);
+        expect(myReports).toEqual(expectedReportsSinglePage);
       });
 
       component.isInfiniteScrollRequired$.subscribe((isInfiniteScrollReq) => {
@@ -1038,17 +1123,7 @@ describe('MyReportsPage', () => {
         expect(nonReimbursableOrg).toBeFalse();
       });
 
-      expect(component.filters).toEqual({
-        state: 'NEEDSRECEIPT',
-        rp_state: 'in.(needsreceipt)',
-      });
-
       expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);
-
-      expect(component.generateFilterPills).toHaveBeenCalledOnceWith({
-        state: 'NEEDSRECEIPT',
-        rp_state: 'in.(needsreceipt)',
-      });
 
       expect(component.clearFilters).not.toHaveBeenCalled();
 
@@ -1182,7 +1257,7 @@ describe('MyReportsPage', () => {
 
   describe('generateCustomDateParams():', () => {
     it('should generate custom date params with start and end dates', () => {
-      const newQueryParams: { or: string[]; and?: string } = { or: [] };
+      const newQueryParams: { and?: string } = {};
       const startDate = new Date('2022-01-01');
       const endDate = new Date('2022-01-31');
 
@@ -1191,34 +1266,34 @@ describe('MyReportsPage', () => {
       component.generateCustomDateParams(newQueryParams);
 
       expect(newQueryParams.and).toBe(
-        `(rp_created_at.gte.${startDate.toISOString()},rp_created_at.lt.${endDate.toISOString()})`
+        `(created_at.gte.${startDate.toISOString()},created_at.lt.${endDate.toISOString()})`
       );
     });
 
     it('should generate custom date params with start date only', () => {
-      const newQueryParams: { or: string[]; and?: string } = { or: [] };
+      const newQueryParams: { and?: string } = {};
       const startDate = new Date('2022-01-01');
 
       component.filters = filter5;
 
       component.generateCustomDateParams(newQueryParams);
 
-      expect(newQueryParams.and).toBe(`(rp_created_at.gte.${startDate.toISOString()})`);
+      expect(newQueryParams.and).toBe(`(created_at.gte.${startDate.toISOString()})`);
     });
 
     it('should generate custom date params with end date only', () => {
-      const newQueryParams: { or: string[]; and?: string } = { or: [] };
+      const newQueryParams: { and?: string } = {};
       const endDate = new Date('2022-01-31');
 
       component.filters = filter6;
 
       component.generateCustomDateParams(newQueryParams);
 
-      expect(newQueryParams.and).toBe(`(rp_created_at.lt.${endDate.toISOString()})`);
+      expect(newQueryParams.and).toBe(`(created_at.lt.${endDate.toISOString()})`);
     });
 
     it('should not generate custom date params when date filter is not custom', () => {
-      const newQueryParams: { or: string[]; and?: string } = { or: [] };
+      const newQueryParams: { and?: string } = {};
       component.filters = filter7;
 
       component.generateCustomDateParams(newQueryParams);
@@ -1230,12 +1305,12 @@ describe('MyReportsPage', () => {
   describe('generateDateParams(): ', () => {
     it('should generate date params for this month', () => {
       spyOn(component, 'generateCustomDateParams');
-      const newQueryParams: { or: string[]; and?: string } = { or: [] };
+      const newQueryParams: { and?: string } = {};
       const thisMonthRange = {
         from: new Date('2022-01-01'),
         to: new Date('2022-01-31'),
       };
-      const expectedAndQuery = `(rp_created_at.gte.${thisMonthRange.from.toISOString()},rp_created_at.lt.${thisMonthRange.to.toISOString()})`;
+      const expectedAndQuery = `(created_at.gte.${thisMonthRange.from.toISOString()},created_at.lt.${thisMonthRange.to.toISOString()})`;
       dateService.getThisMonthRange.and.returnValue(thisMonthRange);
       const mockFilter = cloneDeep(filter8);
       component.filters = mockFilter;
@@ -1243,17 +1318,17 @@ describe('MyReportsPage', () => {
       component.generateDateParams(newQueryParams);
 
       expect(newQueryParams.and).toEqual(expectedAndQuery);
-      expect(component.generateCustomDateParams).toHaveBeenCalledOnceWith({ or: [], and: expectedAndQuery });
+      expect(component.generateCustomDateParams).toHaveBeenCalledOnceWith({ and: expectedAndQuery });
     });
 
     it('should generate date params for this week', () => {
       spyOn(component, 'generateCustomDateParams');
-      const newQueryParams: { or: string[]; and?: string } = { or: [] };
+      const newQueryParams: { and?: string } = {};
       const thisWeekRange = {
         from: dayjs('2022-01-01'),
         to: dayjs('2022-01-07'),
       };
-      const expectedAndQuery = `(rp_created_at.gte.${thisWeekRange.from.toISOString()},rp_created_at.lt.${thisWeekRange.to.toISOString()})`;
+      const expectedAndQuery = `(created_at.gte.${thisWeekRange.from.toISOString()},created_at.lt.${thisWeekRange.to.toISOString()})`;
       dateService.getThisWeekRange.and.returnValue(thisWeekRange);
       const mockFilter = cloneDeep(filter9);
       component.filters = mockFilter;
@@ -1261,17 +1336,17 @@ describe('MyReportsPage', () => {
       component.generateDateParams(newQueryParams);
 
       expect(newQueryParams.and).toEqual(expectedAndQuery);
-      expect(component.generateCustomDateParams).toHaveBeenCalledOnceWith({ or: [], and: expectedAndQuery });
+      expect(component.generateCustomDateParams).toHaveBeenCalledOnceWith({ and: expectedAndQuery });
     });
 
     it('should generate date params for last month', () => {
       spyOn(component, 'generateCustomDateParams');
-      const newQueryParams: { or: string[]; and?: string } = { or: [] };
+      const newQueryParams: { and?: string } = {};
       const lastMonthRange = {
         from: new Date('2021-12-01'),
         to: new Date('2021-12-31'),
       };
-      const expectedAndQuery = `(rp_created_at.gte.${lastMonthRange.from.toISOString()},rp_created_at.lt.${lastMonthRange.to.toISOString()})`;
+      const expectedAndQuery = `(created_at.gte.${lastMonthRange.from.toISOString()},created_at.lt.${lastMonthRange.to.toISOString()})`;
       dateService.getLastMonthRange.and.returnValue(lastMonthRange);
       const mockFilter = cloneDeep(filter10);
       component.filters = mockFilter;
@@ -1279,12 +1354,12 @@ describe('MyReportsPage', () => {
       component.generateDateParams(newQueryParams);
 
       expect(newQueryParams.and).toEqual(expectedAndQuery);
-      expect(component.generateCustomDateParams).toHaveBeenCalledOnceWith({ or: [], and: expectedAndQuery });
+      expect(component.generateCustomDateParams).toHaveBeenCalledOnceWith({ and: expectedAndQuery });
     });
 
     it('should not generate date params when date filter is not set', () => {
       spyOn(component, 'generateCustomDateParams');
-      const newQueryParams: { or: string[]; and?: string } = { or: [] };
+      const newQueryParams: { and?: string } = {};
       const mockFilter = cloneDeep(filter11);
       component.filters = mockFilter;
 
@@ -1298,7 +1373,7 @@ describe('MyReportsPage', () => {
       spyOn(component, 'generateCustomDateParams');
       const mockFilter = cloneDeep(filter12);
       component.filters = mockFilter;
-      const newQueryParams: { or: string[]; and?: string } = { or: [] };
+      const newQueryParams: { and?: string } = {};
 
       component.generateDateParams(newQueryParams);
       expect(newQueryParams.and).toBeUndefined();
@@ -1308,25 +1383,21 @@ describe('MyReportsPage', () => {
 
   describe('generateStateFilters(): ', () => {
     it('should update the newQueryParams if stateOrFilter length is greater than 0', () => {
-      const newQueryParams = { or: [] };
+      const newQueryParams = {};
       component.filters = filter13;
       component.generateStateFilters(newQueryParams);
       expect(newQueryParams).toEqual({
-        or: [
-          '(rp_state.in.(DRAFT), rp_state.in.(APPROVER_PENDING), rp_state.in.(APPROVER_INQUIRY), rp_state.in.(APPROVED), rp_state.in.(PAYMENT_PENDING), rp_state.in.(PAYMENT_PROCESSING), rp_state.in.(PAID))',
-        ],
+        state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY,APPROVED,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
       });
     });
 
     it('should not update the newQueryParams if stateOrFilter length is 0', () => {
-      const newQueryParams = { or: [] };
+      const newQueryParams = {};
       component.filters = {
         state: [],
       };
       component.generateStateFilters(newQueryParams);
-      expect(newQueryParams).toEqual({
-        or: [],
-      });
+      expect(newQueryParams).toEqual({});
     });
   });
 
@@ -1341,13 +1412,13 @@ describe('MyReportsPage', () => {
       }> = {};
 
       component.filters = {
-        sortParam: 'rp_amount',
+        sortParam: 'amount',
         sortDir: 'asc',
       };
 
       component.setSortParams(currentParams);
 
-      expect(currentParams.sortParam).toEqual('rp_amount');
+      expect(currentParams.sortParam).toEqual('amount');
       expect(currentParams.sortDir).toEqual('asc');
     });
 
@@ -1363,7 +1434,7 @@ describe('MyReportsPage', () => {
 
       component.setSortParams(currentParams);
 
-      expect(currentParams.sortParam).toEqual('rp_created_at');
+      expect(currentParams.sortParam).toEqual('created_at');
       expect(currentParams.sortDir).toEqual('desc');
     });
   });
@@ -1374,24 +1445,24 @@ describe('MyReportsPage', () => {
     });
 
     spyOn(component, 'generateDateParams').and.callFake((newQueryParams) => {
-      newQueryParams.and = '(rp_created_at.gte.january,rp_created_at.lt.march)';
+      newQueryParams.and = '(created_at.gte.january,created_at.lt.march)';
     });
 
     spyOn(component, 'generateStateFilters').and.callFake((newQueryParams) => {
-      newQueryParams.or.push('(rp_state.in.(DRAFT), rp_state.in.(APPROVER_PENDING))');
+      newQueryParams.state = 'in.(DRAFT,APPROVER_PENDING)';
     });
 
     spyOn(component, 'setSortParams').and.callFake((currentParams) => {
-      currentParams.sortParam = 'rp_created_at';
+      currentParams.sortParam = 'created_at';
       currentParams.sortDir = 'desc';
     });
 
     const result = component.addNewFiltersToParams();
 
     expect(result.pageNumber).toEqual(1);
-    expect(result.queryParams.and).toEqual('(rp_created_at.gte.january,rp_created_at.lt.march)');
-    expect(result.queryParams.or).toEqual(['(rp_state.in.(DRAFT), rp_state.in.(APPROVER_PENDING))']);
-    expect(result.sortParam).toEqual('rp_created_at');
+    expect(result.queryParams.and).toEqual('(created_at.gte.january,created_at.lt.march)');
+    expect(result.queryParams.state).toEqual('in.(DRAFT,APPROVER_PENDING)');
+    expect(result.sortParam).toEqual('created_at');
     expect(result.sortDir).toEqual('desc');
   });
 
@@ -1412,77 +1483,16 @@ describe('MyReportsPage', () => {
   });
 
   it('onReportClick(): should navigate to the view report page', () => {
-    const erpt = apiExtendedReportRes[0];
+    const report = expectedReportsSinglePage[0];
 
-    component.onReportClick(erpt);
+    component.onReportClick(report);
 
     expect(router.navigate).toHaveBeenCalledWith([
       '/',
       'enterprise',
       'my_view_report',
-      { id: erpt.rp_id, navigateBack: true },
+      { id: report.id, navigateBack: true },
     ]);
-  });
-
-  it('getDeleteReportPopoverParams(): should get delete report popup props', (done) => {
-    const result = component.getDeleteReportPopoverParams(apiExtendedReportRes[0]);
-
-    reportService.delete.and.returnValue(of(undefined));
-
-    expect(result).toEqual({
-      component: FyDeleteDialogComponent,
-      cssClass: 'delete-dialog',
-      backdropDismiss: false,
-      componentProps: {
-        header: 'Delete Report',
-        body: 'Are you sure you want to delete this report?',
-        infoMessage: 'Deleting the report will not delete any of the expenses.',
-        deleteMethod: jasmine.any(Function),
-      },
-    });
-
-    result.componentProps.deleteMethod().subscribe(() => {
-      expect(reportService.delete).toHaveBeenCalledOnceWith(apiExtendedReportRes[0].rp_id);
-      done();
-    });
-  });
-
-  describe('onDeleteReportClick(): ', () => {
-    it('should present the popover in case if rp_state is not amongst DRAFT, APPROVER_PENDING, APPROVER_INQUIRY', fakeAsync(() => {
-      const cannotDeleteReportPopOverSpy = jasmine.createSpyObj('cannotDeleteReportPopOver', [
-        'present',
-        'onWillDismiss',
-      ]);
-      popoverController.create.and.resolveTo(cannotDeleteReportPopOverSpy);
-      const mockErpt = cloneDeep({ ...apiExtendedReportRes[0], rp_state: 'APPROVED' });
-
-      component.onDeleteReportClick(mockErpt);
-      tick(200);
-
-      expect(popoverController.create).toHaveBeenCalledOnceWith(popoverControllerParams);
-    }));
-
-    it('should call the deleteReport and do a refresh if rp_state consist any of DRAFT, APPROVER_PENDING, APPROVER_INQUIRY', fakeAsync(() => {
-      const deleteReportPopoverSpy = jasmine.createSpyObj('deleteReportPopover', ['present', 'onDidDismiss']);
-      deleteReportPopoverSpy.onDidDismiss.and.resolveTo({ data: { status: 'success' } });
-      popoverController.create.and.resolveTo(deleteReportPopoverSpy);
-      spyOn(component, 'doRefresh');
-      spyOn(component, 'getDeleteReportPopoverParams').and.returnValue(deletePopoverParamsRes);
-      reportService.delete.and.returnValue(of(null));
-      loaderService.showLoader.and.resolveTo(null);
-      loaderService.hideLoader.and.resolveTo(null);
-      reportService.delete.and.returnValue(of(null));
-
-      component.onDeleteReportClick(apiExtendedReportRes[0]);
-      tick(200);
-
-      expect(popoverController.create).toHaveBeenCalledOnceWith(deletePopoverParamsRes);
-      expect(component.getDeleteReportPopoverParams).toHaveBeenCalledOnceWith(apiExtendedReportRes[0]);
-      expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-      expect(trackingService.deleteReport).toHaveBeenCalledTimes(1);
-      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-      expect(component.doRefresh).toHaveBeenCalledTimes(1);
-    }));
   });
 
   it('onHomeClicked(): should navigate to home dashboard and track event', () => {
@@ -1623,7 +1633,7 @@ describe('MyReportsPage', () => {
 
       expect(component.filters.sortDir).toBeUndefined();
       expect(component.filters.sortParam).toBeUndefined();
-      expect(component.filters.rp_state).toBeDefined();
+      expect(component.filters.state).toBeDefined();
       expect(component.currentPageNumber).toEqual(1);
       component.loadData$.subscribe((data) => {
         expect(data).toEqual({
@@ -1636,7 +1646,7 @@ describe('MyReportsPage', () => {
     });
 
     it('should remove other filters and update data when filterType is not "sort"', () => {
-      component.onFilterClose('rp_state');
+      component.onFilterClose('state');
 
       expect(component.currentPageNumber).toEqual(1);
       component.loadData$.subscribe((data) => {
@@ -1647,7 +1657,7 @@ describe('MyReportsPage', () => {
       });
       expect(component.filters.sortDir).toBeDefined();
       expect(component.filters.sortParam).toBeDefined();
-      expect(component.filters.rp_state).toBeUndefined();
+      expect(component.filters.state).toBeUndefined();
       expect(component.generateFilterPills).toHaveBeenCalledTimes(1);
       expect(component.filterPills).toEqual([{ label: 'Date', type: 'date', value: 'this Week' }]);
     });
@@ -1666,9 +1676,9 @@ describe('MyReportsPage', () => {
   }));
 
   describe('convertRptDtSortToSelectedFilters(): ', () => {
-    it('should add "dateOldToNew" to generatedFilters when sortParam is "rp_created_at" and sortDir is "asc"', () => {
+    it('should add "dateOldToNew" to generatedFilters when sortParam is "created_at" and sortDir is "asc"', () => {
       const filter = {
-        sortParam: 'rp_created_at',
+        sortParam: 'created_at',
         sortDir: 'asc',
       };
       const generatedFilters: SelectedFilters<string>[] = [];
@@ -1680,9 +1690,9 @@ describe('MyReportsPage', () => {
       expect(generatedFilters[0].value).toEqual('dateOldToNew');
     });
 
-    it('should add "dateNewToOld" to generatedFilters when sortParam is "rp_created_at" and sortDir is "desc"', () => {
+    it('should add "dateNewToOld" to generatedFilters when sortParam is "created_at" and sortDir is "desc"', () => {
       const filter = {
-        sortParam: 'rp_created_at',
+        sortParam: 'created_at',
         sortDir: 'desc',
       };
       const generatedFilters: SelectedFilters<string>[] = [];
@@ -1694,7 +1704,7 @@ describe('MyReportsPage', () => {
       expect(generatedFilters[0].value).toEqual('dateNewToOld');
     });
 
-    it('should not modify generatedFilters when sortParam and sortDir are not "rp_created_at" and "asc" or "desc"', () => {
+    it('should not modify generatedFilters when sortParam and sortDir are not "created_at" and "asc" or "desc"', () => {
       const filter = {
         sortParam: 'other_sort_param',
         sortDir: 'other_sort_dir',
@@ -1716,7 +1726,7 @@ describe('MyReportsPage', () => {
 
   it('addSortToGeneatedFilters(): should call convertRptDtSortToSelectedFilters, convertAmountSortToSelectedFilters, and convertNameSortToSelectedFilters', () => {
     const filter = {
-      sortParam: 'rp_created_at',
+      sortParam: 'created_at',
       sortDir: 'asc',
     };
     const generatedFilters: SelectedFilters<string>[] = [];
@@ -1754,9 +1764,9 @@ describe('MyReportsPage', () => {
   });
 
   describe('convertNameSortToSelectedFilters(): ', () => {
-    it('should add the corresponding name sort filter when sortParam is "rp_purpose" and sortDir is "asc"', () => {
+    it('should add the corresponding name sort filter when sortParam is "purpose" and sortDir is "asc"', () => {
       const filter = {
-        sortParam: 'rp_purpose',
+        sortParam: 'purpose',
         sortDir: 'asc',
       };
       const generatedFilters = [];
@@ -1771,9 +1781,9 @@ describe('MyReportsPage', () => {
       ]);
     });
 
-    it('should add the corresponding name sort filter when sortParam is "rp_purpose" and sortDir is "desc"', () => {
+    it('should add the corresponding name sort filter when sortParam is "purpose" and sortDir is "desc"', () => {
       const filter = {
-        sortParam: 'rp_purpose',
+        sortParam: 'purpose',
         sortDir: 'desc',
       };
       const generatedFilters = [];
@@ -1788,9 +1798,9 @@ describe('MyReportsPage', () => {
       ]);
     });
 
-    it('should not add name sort filters if sortParam is not "rp_purpose"', () => {
+    it('should not add name sort filters if sortParam is not "purpose"', () => {
       const filter = {
-        sortParam: 'rp_created_at',
+        sortParam: 'created_at',
         sortDir: 'asc',
       };
       const generatedFilters = [];
@@ -1802,7 +1812,7 @@ describe('MyReportsPage', () => {
 
     it('should not add name sort filters if sortDir is not "asc" or "desc"', () => {
       const filter = {
-        sortParam: 'rp_purpose',
+        sortParam: 'purpose',
         sortDir: 'invalid',
       };
       const generatedFilters = [];
@@ -1824,7 +1834,7 @@ describe('MyReportsPage', () => {
       component.convertSelectedSortFitlersToFilters(sortBy, generatedFilters);
 
       expect(generatedFilters).toEqual({
-        sortParam: 'rp_created_at',
+        sortParam: 'created_at',
         sortDir: 'desc',
       });
     });
@@ -1839,7 +1849,7 @@ describe('MyReportsPage', () => {
       component.convertSelectedSortFitlersToFilters(sortBy, generatedFilters);
 
       expect(generatedFilters).toEqual({
-        sortParam: 'rp_created_at',
+        sortParam: 'created_at',
         sortDir: 'asc',
       });
     });
@@ -1854,7 +1864,7 @@ describe('MyReportsPage', () => {
       component.convertSelectedSortFitlersToFilters(sortBy, generatedFilters);
 
       expect(generatedFilters).toEqual({
-        sortParam: 'rp_amount',
+        sortParam: 'amount',
         sortDir: 'desc',
       });
     });
@@ -1869,7 +1879,7 @@ describe('MyReportsPage', () => {
       component.convertSelectedSortFitlersToFilters(sortBy, generatedFilters);
 
       expect(generatedFilters).toEqual({
-        sortParam: 'rp_amount',
+        sortParam: 'amount',
         sortDir: 'asc',
       });
     });
@@ -1884,7 +1894,7 @@ describe('MyReportsPage', () => {
       component.convertSelectedSortFitlersToFilters(sortBy, generatedFilters);
 
       expect(generatedFilters).toEqual({
-        sortParam: 'rp_purpose',
+        sortParam: 'purpose',
         sortDir: 'asc',
       });
     });
@@ -1899,7 +1909,7 @@ describe('MyReportsPage', () => {
       component.convertSelectedSortFitlersToFilters(sortBy, generatedFilters);
 
       expect(generatedFilters).toEqual({
-        sortParam: 'rp_purpose',
+        sortParam: 'purpose',
         sortDir: 'desc',
       });
     });
@@ -1907,14 +1917,14 @@ describe('MyReportsPage', () => {
     it('should not modify generatedFilters if sortBy is not provided', () => {
       const sortBy = null;
       const generatedFilters = {
-        sortParam: 'rp_purpose',
+        sortParam: 'purpose',
         sortDir: 'asc',
       };
 
       component.convertSelectedSortFitlersToFilters(sortBy, generatedFilters);
 
       expect(generatedFilters).toEqual({
-        sortParam: 'rp_purpose',
+        sortParam: 'purpose',
         sortDir: 'asc',
       });
     });
@@ -1925,14 +1935,14 @@ describe('MyReportsPage', () => {
         value: 'invalid',
       };
       const generatedFilters = {
-        sortParam: 'rp_amount',
+        sortParam: 'amount',
         sortDir: 'desc',
       };
 
       component.convertSelectedSortFitlersToFilters(sortBy, generatedFilters);
 
       expect(generatedFilters).toEqual({
-        sortParam: 'rp_amount',
+        sortParam: 'amount',
         sortDir: 'desc',
       });
     });
@@ -2142,7 +2152,7 @@ describe('MyReportsPage', () => {
     it('should generate filter pill for "date - old to new"', () => {
       const filterPills: FilterPill[] = [];
       const filter = {
-        sortParam: 'rp_created_at',
+        sortParam: 'created_at',
         sortDir: 'asc',
       };
 
@@ -2154,7 +2164,7 @@ describe('MyReportsPage', () => {
     it('should generate filter pill for "date - new to old"', () => {
       const filterPills: FilterPill[] = [];
       const filter = {
-        sortParam: 'rp_created_at',
+        sortParam: 'created_at',
         sortDir: 'desc',
       };
 
@@ -2163,7 +2173,7 @@ describe('MyReportsPage', () => {
       expect(filterPills).toEqual(expectedFilterPill10);
     });
 
-    it('should not generate filter pill if sortParam is not "rp_created_at"', () => {
+    it('should not generate filter pill if sortParam is not "created_at"', () => {
       const filterPills: FilterPill[] = [];
       const filter = {
         sortParam: 'approvalDate',
@@ -2178,7 +2188,7 @@ describe('MyReportsPage', () => {
     it('should not generate filter pill if sortDir is not "asc" or "desc"', () => {
       const filterPills: FilterPill[] = [];
       const filter = {
-        sortParam: 'rp_created_at',
+        sortParam: 'created_at',
         sortDir: 'other_sort_dir',
       };
 
@@ -2192,7 +2202,7 @@ describe('MyReportsPage', () => {
     it('should generate filter pill for "amount - high to low"', () => {
       const filterPills: FilterPill[] = [];
       const filter = {
-        sortParam: 'rp_amount',
+        sortParam: 'amount',
         sortDir: 'desc',
       };
 
@@ -2204,7 +2214,7 @@ describe('MyReportsPage', () => {
     it('should generate filter pill for "amount - low to high"', () => {
       const filterPills: FilterPill[] = [];
       const filter = {
-        sortParam: 'rp_amount',
+        sortParam: 'amount',
         sortDir: 'asc',
       };
 
@@ -2213,10 +2223,10 @@ describe('MyReportsPage', () => {
       expect(filterPills).toEqual(expectedFilterPill12);
     });
 
-    it('should not generate filter pill if sortParam is not "rp_amount"', () => {
+    it('should not generate filter pill if sortParam is not "amount"', () => {
       const filterPills: FilterPill[] = [];
       const filter = {
-        sortParam: 'rp_created_at',
+        sortParam: 'created_at',
         sortDir: 'desc',
       };
 
@@ -2228,7 +2238,7 @@ describe('MyReportsPage', () => {
     it('should not generate filter pill if sortDir is not "asc" or "desc"', () => {
       const filterPills: FilterPill[] = [];
       const filter = {
-        sortParam: 'rp_amount',
+        sortParam: 'amount',
         sortDir: 'other_sort_dir',
       };
 
@@ -2242,7 +2252,7 @@ describe('MyReportsPage', () => {
     it('should generate filter pill for "Name - a to z"', () => {
       const filterPills: FilterPill[] = [];
       const filter = {
-        sortParam: 'rp_purpose',
+        sortParam: 'purpose',
         sortDir: 'asc',
       };
 
@@ -2254,7 +2264,7 @@ describe('MyReportsPage', () => {
     it('should generate filter pill for "Name - z to a"', () => {
       const filterPills: FilterPill[] = [];
       const filter = {
-        sortParam: 'rp_purpose',
+        sortParam: 'purpose',
         sortDir: 'desc',
       };
 
@@ -2263,7 +2273,7 @@ describe('MyReportsPage', () => {
       expect(filterPills).toEqual(expectedFilterPill14);
     });
 
-    it('should not generate filter pill if sortParam is not "rp_purpose"', () => {
+    it('should not generate filter pill if sortParam is not "purpose"', () => {
       const filterPills: FilterPill[] = [];
       const filter = {
         sortParam: 'some_other_param',
@@ -2278,7 +2288,7 @@ describe('MyReportsPage', () => {
     it('should not generate filter pill if sortDir is not "asc" or "desc"', () => {
       const filterPills: FilterPill[] = [];
       const filter = {
-        sortParam: 'rp_purpose',
+        sortParam: 'purpose',
         sortDir: 'invalid',
       };
 
@@ -2342,7 +2352,7 @@ describe('MyReportsPage', () => {
   describe('convertAmountSortToSelectedFilters(): ', () => {
     it('should convert amount sort to selected filters for descending sort', () => {
       const filter = {
-        sortParam: 'rp_amount',
+        sortParam: 'amount',
         sortDir: 'desc',
       };
       const generatedFilters = [];
@@ -2359,7 +2369,7 @@ describe('MyReportsPage', () => {
 
     it('should convert amount sort to selected filters for ascending sort', () => {
       const filter = {
-        sortParam: 'rp_amount',
+        sortParam: 'amount',
         sortDir: 'asc',
       };
       const generatedFilters = [];
@@ -2374,7 +2384,7 @@ describe('MyReportsPage', () => {
       ]);
     });
 
-    it('should not convert amount sort to selected filters if sortParam is not "rp_amount"', () => {
+    it('should not convert amount sort to selected filters if sortParam is not "amount"', () => {
       const filter = {
         sortParam: 'other_param',
         sortDir: 'asc',
@@ -2388,7 +2398,7 @@ describe('MyReportsPage', () => {
 
     it('should not convert amount sort to selected filters if sortDir is not "desc" or "asc"', () => {
       const filter = {
-        sortParam: 'rp_amount',
+        sortParam: 'amount',
         sortDir: 'invalid_dir',
       };
       const generatedFilters = [];

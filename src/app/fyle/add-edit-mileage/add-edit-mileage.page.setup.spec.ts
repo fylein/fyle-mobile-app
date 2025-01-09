@@ -63,6 +63,10 @@ import { TestCases3 } from '../add-edit-mileage/add-edit-mileage-3.spec';
 import { TestCases4 } from './add-edit-mileage-4.spec';
 import { TestCases5 } from './add-edit-mileage-5.spec';
 import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
+import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
+import { PAGINATION_SIZE } from 'src/app/constants';
+import { SpenderService } from 'src/app/core/services/platform/v1/spender/spender.service';
+import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 
 export function setFormValid(component) {
   Object.defineProperty(component.fg, 'valid', {
@@ -77,6 +81,7 @@ describe('AddEditMileagePage', () => {
       'getPaymentModes',
       'getEtxnSelectedPaymentMode',
       'getAccountTypeFromPaymentMode',
+      'getPaymentModesWithAdvanceWallets',
     ]);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', [
@@ -94,18 +99,19 @@ describe('AddEditMileagePage', () => {
       'getAllowedOrgCategoryIds',
       'getProjectCount',
     ]);
-    const reportServiceSpy = jasmine.createSpyObj('ReportService', [
-      'getAutoSubmissionReportName',
-      'getFilteredPendingReports',
-      'addTransactions',
-    ]);
+    const reportServiceSpy = jasmine.createSpyObj('ReportService', ['getAutoSubmissionReportName']);
     const platformSpenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', [
       'getAllReportsByParams',
       'ejectExpenses',
       'addExpenses',
     ]);
+    const advanceWalletsServiceSpy = jasmine.createSpyObj('AdvanceWalletsService', ['getAllAdvanceWallets']);
+    const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['get', 'post']);
     const customInputsServiceSpy = jasmine.createSpyObj('CustomInputsService', ['getAll', 'filterByCategory']);
-    const customFieldsServiceSpy = jasmine.createSpyObj('CustomFieldsService', ['standardizeCustomFields']);
+    const customFieldsServiceSpy = jasmine.createSpyObj('CustomFieldsService', [
+      'standardizeCustomFields',
+      'setDefaultValue',
+    ]);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', [
       'delete',
       'getRemoveCardExpenseDialogBody',
@@ -118,7 +124,7 @@ describe('AddEditMileagePage', () => {
       'matchCCCExpense',
       'getDefaultVehicleType',
     ]);
-    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById']);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById', 'post']);
     const policyServiceSpy = jasmine.createSpyObj('PolicyService', [
       'transformTo',
       'getCriticalPolicyRules',
@@ -208,6 +214,7 @@ describe('AddEditMileagePage', () => {
       'checkIfPaymentModeConfigurationsIsEnabled',
     ]);
     const taxGroupServiceSpy = jasmine.createSpyObj('TaxGroupService', ['get']);
+    const costCentersServiceSpy = jasmine.createSpyObj('CostCentersService', ['getAllActive']);
     const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', [
       'getAllowedCostCenters',
       'getAllowedPaymentModes',
@@ -263,6 +270,7 @@ describe('AddEditMileagePage', () => {
             },
           },
         },
+        { provide: PAGINATION_SIZE, useValue: 2 },
         {
           provide: AccountsService,
           useValue: accountsServiceSpy,
@@ -416,6 +424,10 @@ describe('AddEditMileagePage', () => {
           useValue: taxGroupServiceSpy,
         },
         {
+          provide: CostCentersService,
+          useValue: costCentersServiceSpy,
+        },
+        {
           provide: OrgUserSettingsService,
           useValue: orgUserSettingsServiceSpy,
         },
@@ -458,6 +470,10 @@ describe('AddEditMileagePage', () => {
         {
           provide: EmployeesService,
           useValue: employeesServiceSpy,
+        },
+        {
+          provide: AdvanceWalletsService,
+          useValue: advanceWalletsServiceSpy,
         },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],

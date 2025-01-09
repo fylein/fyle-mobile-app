@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { IonicModule, ModalController } from '@ionic/angular';
+import { IonicModule, ModalController, PopoverController } from '@ionic/angular';
 
 import { TasksComponent } from './tasks.component';
 import { TasksService } from 'src/app/core/services/tasks.service';
@@ -22,6 +22,10 @@ import { TestCases3 } from './tasks-3.component.spec';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
+import { OrgService } from 'src/app/core/services/org.service';
+import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 
 describe('TasksComponent', () => {
   const getTestBed = () => {
@@ -39,14 +43,7 @@ describe('TasksComponent', () => {
     ]);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById', 'getAllExpenses']);
-    const reportServiceSpy = jasmine.createSpyObj('ReportService', [
-      'getReportAutoSubmissionDetails',
-      'clearCache',
-      'getMyReports',
-      'getTeamReports',
-      'addTransactions',
-      'getAllExtendedReports',
-    ]);
+    const reportServiceSpy = jasmine.createSpyObj('ReportService', ['getReportAutoSubmissionDetails', 'clearCache']);
     const advanceRequestServiceSpy = jasmine.createSpyObj('AdvanceRequestService', ['getSpenderAdvanceRequests']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
@@ -60,12 +57,24 @@ describe('TasksComponent', () => {
       'autoSubmissionInfoCardClicked',
       'commuteDeductionTaskClicked',
       'commuteDeductionDetailsAddedFromSpenderTask',
+      'clickedOnTask',
+      'optedInFromTasks',
     ]);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const matBottomSheetSpy = jasmine.createSpyObj('MatBottomSheet', ['open']);
-    const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', ['addExpenses']);
+    const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', [
+      'addExpenses',
+      'getAllReportsByParams',
+    ]);
+    const approverReportsServiceSpy = jasmine.createSpyObj('ApproverReportsService', ['getAllReportsByParams']);
+    const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
+    const corporateCreditCardExpenseServiceSpy = jasmine.createSpyObj('CorporateCreditCardExpenseService', [
+      'getCorporateCards',
+      'clearCache',
+    ]);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
+    const orgServiceSpy = jasmine.createSpyObj('OrgService', ['getPrimaryOrg', 'getCurrentOrg']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const activatedRouteSpy = {
@@ -75,6 +84,7 @@ describe('TasksComponent', () => {
         },
       },
     };
+    const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create', 'onDidDismiss']);
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
 
     TestBed.configureTestingModule({
@@ -98,6 +108,11 @@ describe('TasksComponent', () => {
         { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
         { provide: ExpensesService, useValue: expensesServiceSpy },
         { provide: SpenderReportsService, useValue: spenderReportsServiceSpy },
+        { provide: ApproverReportsService, useValue: approverReportsServiceSpy },
+        { provide: OrgService, useValue: orgServiceSpy },
+        { provide: PopoverController, useValue: popoverControllerSpy },
+        { provide: OrgUserSettingsService, useValue: orgUserSettingsServiceSpy },
+        { provide: CorporateCreditCardExpenseService, useValue: corporateCreditCardExpenseServiceSpy },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();

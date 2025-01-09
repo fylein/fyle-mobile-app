@@ -6,9 +6,12 @@ import { ModalController } from '@ionic/angular';
 import { FyCurrencyChooseCurrencyComponent } from './fy-currency-choose-currency/fy-currency-choose-currency.component';
 import { FyCurrencyExchangeRateComponent } from './fy-currency-exchange-rate/fy-currency-exchange-rate.component';
 import { isEqual } from 'lodash';
-import { concatMap, map, switchMap } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { ParsedResponse } from 'src/app/core/models/parsed_response.model';
+import { CurrencyObj } from 'src/app/core/models/currency-obj.model';
+import { CurrencyAmountFormValues } from 'src/app/core/models/currency-amount-form-values.model';
 
 @Component({
   selector: 'app-currency',
@@ -35,20 +38,19 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
 
   @Input() validInParent = true;
 
+  @Input() autoCodedData: ParsedResponse;
+
+  autoCodeMessage = '';
+
   exchangeRate = 1;
 
   fg: FormGroup;
 
-  innerValue: {
-    amount: number;
-    currency: string;
-    orig_amount: number;
-    orig_currency: string;
-  };
+  innerValue: CurrencyObj;
 
   onTouchedCallback: () => void = noop;
 
-  onChangeCallback: (_: any) => void = noop;
+  onChangeCallback: (_: CurrencyObj) => void = noop;
 
   constructor(
     private fb: FormBuilder,
@@ -57,7 +59,7 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
     private modalProperties: ModalPropertiesService
   ) {}
 
-  get valid() {
+  get valid(): boolean {
     if (this.touchedInParent) {
       return this.validInParent;
     } else {
@@ -65,11 +67,11 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
     }
   }
 
-  get value(): any {
+  get value(): CurrencyObj {
     return this.innerValue;
   }
 
-  set value(v: any) {
+  set value(v: CurrencyObj) {
     if (this.fg) {
       if (v !== this.innerValue) {
         this.innerValue = v;
@@ -79,7 +81,7 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
     }
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.fg = this.fb.group({
       currency: [], // currency which is currently shown
       amount: [], // amount which is currently shown
@@ -88,7 +90,7 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
 
     this.fg.valueChanges
       .pipe(
-        switchMap((formValue) => {
+        switchMap((formValue: CurrencyAmountFormValues) => {
           if (!formValue.amount && !formValue.homeCurrencyAmount && formValue.currency !== this.homeCurrency) {
             return this.currencyService
               .getExchangeRate(formValue.currency, this.homeCurrency, this.txnDt || new Date())
@@ -98,12 +100,12 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
           }
         })
       )
-      .subscribe(({ formValue, exchangeRate }) => {
+      .subscribe(({ formValue, exchangeRate }: { formValue: CurrencyAmountFormValues; exchangeRate: number }) => {
         if (exchangeRate) {
           this.exchangeRate = exchangeRate;
         }
 
-        const value = {
+        const value: CurrencyObj = {
           amount: null,
           currency: null,
           orig_amount: null,
@@ -141,10 +143,11 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
         if (!isEqual(value, this.innerValue)) {
           this.value = value;
         }
+        this.showAutoCodeMessage();
       });
   }
 
-  ngOnChanges(changes: SimpleChanges) {
+  ngOnChanges(changes: SimpleChanges): void {
     if (
       this.fg &&
       changes.txnDt &&
@@ -152,20 +155,46 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
       changes.txnDt.currentValue &&
       !isEqual(changes.txnDt.previousValue, changes.txnDt.currentValue)
     ) {
-      from(this.currencyService.getExchangeRate(this.fg.value.currency, this.homeCurrency, this.txnDt || new Date()))
+      from(
+        this.currencyService.getExchangeRate(
+          (this.fg.value as CurrencyAmountFormValues).currency,
+          this.homeCurrency,
+          this.txnDt || new Date()
+        )
+      )
         .pipe()
         .subscribe((newExchangeRate) => {
           this.exchangeRate = newExchangeRate;
           if (this.innerValue.orig_amount && this.innerValue.orig_currency !== this.homeCurrency) {
             this.innerValue.amount = this.innerValue.orig_amount * this.exchangeRate;
-            this.fg.value.amount = this.innerValue.orig_amount;
-            this.fg.value.homeCurrencyAmount = this.innerValue.amount;
+            this.fg.controls.amount.setValue(this.innerValue.orig_amount);
+            this.fg.controls.homeCurrencyAmount.setValue(this.innerValue.amount);
           }
         });
     }
+
+    this.showAutoCodeMessage();
   }
 
-  convertInnerValueToFormValue(innerVal) {
+  showAutoCodeMessage(): void {
+    const { currency, amount } = this.autoCodedData || {};
+    const { currency: formCurrency, amount: formAmount } = (this.fg?.value as CurrencyAmountFormValues) || {};
+
+    const isCurrencyAutoCoded = currency && currency === formCurrency;
+    const isAmountAutoCoded = amount && amount === formAmount;
+
+    if (isCurrencyAutoCoded && isAmountAutoCoded) {
+      this.autoCodeMessage = 'Currency and Amount are auto coded.';
+    } else if (isCurrencyAutoCoded) {
+      this.autoCodeMessage = 'Currency is auto coded.';
+    } else if (isAmountAutoCoded) {
+      this.autoCodeMessage = 'Amount is auto coded.';
+    } else {
+      this.autoCodeMessage = '';
+    }
+  }
+
+  convertInnerValueToFormValue(innerVal: CurrencyObj): CurrencyAmountFormValues {
     if (innerVal && innerVal.orig_currency && innerVal.orig_currency !== this.homeCurrency) {
       return {
         amount: innerVal.orig_amount,
@@ -187,11 +216,11 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
     }
   }
 
-  onBlur() {
+  onBlur(): void {
     this.onTouchedCallback();
   }
 
-  writeValue(value: any) {
+  writeValue(value: CurrencyObj): void {
     if (this.fg) {
       if (value !== this.innerValue) {
         this.innerValue = value;
@@ -200,32 +229,35 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
     }
   }
 
-  registerOnChange(fn: any) {
+  registerOnChange(fn: (_: CurrencyObj) => void): void {
     this.onChangeCallback = fn;
   }
 
-  registerOnTouched(fn: any) {
+  registerOnTouched(fn: () => void): void {
     this.onTouchedCallback = fn;
   }
 
-  async setExchangeRate(shortCode?) {
+  async setExchangeRate(shortCode?: string): Promise<void> {
+    let exchangeRate: number | null = null;
+    const formValues = this.fg.value as CurrencyAmountFormValues;
+    if (formValues.amount !== 0 && this.value.orig_currency === (shortCode || this.fg.controls.currency.value)) {
+      exchangeRate = formValues.homeCurrencyAmount / formValues.amount;
+    }
+
     const exchangeRateModal = await this.modalController.create({
       component: FyCurrencyExchangeRateComponent,
       componentProps: {
-        amount: this.fg.controls.amount.value,
+        amount: this.fg.controls.amount.value as number,
         currentCurrency: this.homeCurrency,
-        newCurrency: shortCode || this.fg.controls.currency.value,
+        newCurrency: shortCode || (this.fg.controls.currency.value as string),
         txnDt: this.txnDt,
-        exchangeRate:
-          this.value.orig_currency === (shortCode || this.fg.controls.currency.value)
-            ? this.fg.value.homeCurrencyAmount / this.fg.value.amount
-            : null,
+        exchangeRate,
       },
       mode: 'ios',
       ...this.modalProperties.getModalDefaultProperties('fy-modal stack-modal'),
     });
     await exchangeRateModal.present();
-    const { data } = await exchangeRateModal.onWillDismiss();
+    const { data }: { data?: CurrencyAmountFormValues } = await exchangeRateModal.onWillDismiss();
     if (data) {
       if (shortCode) {
         this.fg.patchValue({
@@ -236,7 +268,7 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
       } else {
         this.fg.patchValue(
           {
-            currency: this.fg.controls.currency.value,
+            currency: this.fg.controls.currency.value as string,
             amount: data.amount,
             homeCurrencyAmount: data.homeCurrencyAmount,
           },
@@ -248,18 +280,18 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
         this.value = {
           currency: this.homeCurrency,
           orig_amount: +data.amount,
-          orig_currency: this.fg.controls.currency.value,
+          orig_currency: this.fg.controls.currency.value as string,
           amount: +data.homeCurrencyAmount,
         };
       }
     }
   }
 
-  async openCurrencyModal() {
+  async openCurrencyModal(): Promise<void> {
     const currencyModal = await this.modalController.create({
       component: FyCurrencyChooseCurrencyComponent,
       componentProps: {
-        currentSelection: this.fg.controls.currency.value,
+        currentSelection: this.fg.controls.currency.value as string,
         recentlyUsed: this.recentlyUsed,
       },
       mode: 'ios',
@@ -268,9 +300,9 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
 
     await currencyModal.present();
 
-    const { data } = await currencyModal.onWillDismiss();
-    if (data) {
-      const shortCode = data.currency.shortCode;
+    const { data }: { data?: { currency: { shortCode: string } } } = await currencyModal.onWillDismiss();
+    if (data?.currency?.shortCode) {
+      const shortCode: string = data.currency.shortCode;
       if (shortCode === this.homeCurrency) {
         this.fg.controls.currency.patchValue(shortCode);
       } else {

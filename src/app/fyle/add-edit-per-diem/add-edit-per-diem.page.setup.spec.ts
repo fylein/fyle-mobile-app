@@ -37,10 +37,14 @@ import { StorageService } from 'src/app/core/services/storage.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { TokenService } from 'src/app/core/services/token.service';
 import { DateService } from 'src/app/core/services/date.service';
+import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
+import { PAGINATION_SIZE } from 'src/app/constants';
+import { SpenderService } from 'src/app/core/services/platform/v1/spender/spender.service';
 import { TestCases2 } from './add-edit-per-diem-2.page.spec';
 import { TestCases3 } from './add-edit-per-diem-3.page.spec';
 import { TestCases4 } from './add-edit-per-diem-4.page.spec';
 import { TestCases5 } from './add-edit-per-diem-5.page.spec';
+import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 
 describe('AddEditPerDiemPage', () => {
   const getTestBed = () => {
@@ -49,21 +53,20 @@ describe('AddEditPerDiemPage', () => {
       'getPaymentModes',
       'getEtxnSelectedPaymentMode',
       'getAccountTypeFromPaymentMode',
+      'getPaymentModesWithAdvanceWallets',
     ]);
     const perDiemServiceSpy = jasmine.createSpyObj('PerDiemService', ['getRates', 'getAllowedPerDiems']);
     const customInputsServiceSpy = jasmine.createSpyObj('CustomInputsService', ['getAll', 'filterByCategory']);
-    const customFieldsServiceSpy = jasmine.createSpyObj('CustomFieldsService', ['standardizeCustomFields']);
+    const customFieldsServiceSpy = jasmine.createSpyObj('CustomFieldsService', [
+      'standardizeCustomFields',
+      'setDefaultValue',
+    ]);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', [
       'getHomeCurrency',
       'getAmountWithCurrencyFraction',
       'getExchangeRate',
     ]);
-    const reportServiceSpy = jasmine.createSpyObj('ReportService', [
-      'getAutoSubmissionReportName',
-      'getReportById',
-      'getFilteredPendingReports',
-      'addTransactions',
-    ]);
+    const reportServiceSpy = jasmine.createSpyObj('ReportService', ['getAutoSubmissionReportName']);
     const platformSpenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', [
       'getAllReportsByParams',
       'ejectExpenses',
@@ -82,7 +85,7 @@ describe('AddEditPerDiemPage', () => {
       'review',
       'delete',
     ]);
-    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById']);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById', 'post']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const policyServiceSpy = jasmine.createSpyObj('PolicyService', [
       'transformTo',
@@ -96,6 +99,8 @@ describe('AddEditPerDiemPage', () => {
     const statusServiceSpy = jasmine.createSpyObj('StatusService', ['find', 'findLatestComment', 'post']);
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
     const navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
+    const advanceWalletsServiceSpy = jasmine.createSpyObj('AdvanceWalletsService', ['getAllAdvanceWallets']);
+    const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['get', 'post']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
       'addPageView',
       'addPageViewWithParams',
@@ -131,6 +136,7 @@ describe('AddEditPerDiemPage', () => {
       'checkIfPaymentModeConfigurationsIsEnabled',
     ]);
     const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', ['getAll']);
+    const costCentersServiceSpy = jasmine.createSpyObj('CostCentersService', ['getAllActive']);
     const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', [
       'getAllowedPaymentModes',
       'get',
@@ -148,6 +154,7 @@ describe('AddEditPerDiemPage', () => {
         FormBuilder,
         FyCurrencyPipe,
         CurrencyPipe,
+        { provide: PAGINATION_SIZE, useValue: 2 },
         {
           provide: AccountsService,
           useValue: accountsServiceSpy,
@@ -249,6 +256,10 @@ describe('AddEditPerDiemPage', () => {
           useValue: categoriesServiceSpy,
         },
         {
+          provide: CostCentersService,
+          useValue: costCentersServiceSpy,
+        },
+        {
           provide: OrgUserSettingsService,
           useValue: orgUserSettingsServiceSpy,
         },
@@ -294,6 +305,10 @@ describe('AddEditPerDiemPage', () => {
         {
           provide: ExpensesService,
           useValue: expensesServiceSpy,
+        },
+        {
+          provide: AdvanceWalletsService,
+          useValue: advanceWalletsServiceSpy,
         },
       ],
       schemas: [NO_ERRORS_SCHEMA],

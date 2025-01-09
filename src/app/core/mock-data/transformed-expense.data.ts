@@ -1,7 +1,6 @@
 import deepFreeze from 'deep-freeze-strict';
-
-import { TransactionStatus } from '../models/platform/v1/expense.model';
 import { UnflattenedTransaction } from '../models/unflattened-transaction.model';
+import { ExpenseTransactionStatus } from '../enums/platform/v1/expense-transaction-status.enum';
 
 export const transformedExpenseData: Partial<UnflattenedTransaction> = deepFreeze({
   tx: {
@@ -66,8 +65,6 @@ export const transformedExpenseData: Partial<UnflattenedTransaction> = deepFreez
     matched_corporate_card_transactions: [],
     source_account_id: 'accO6abI7gZ6T',
     org_category_code: null,
-    physical_bill: null,
-    physical_bill_at: null,
   },
   source: {
     account_id: 'accO6abI7gZ6T',
@@ -163,8 +160,6 @@ export const transformedExpenseDataWithSubCategory: Partial<UnflattenedTransacti
     source_account_id: 'accO6abI7gZ6T',
     org_category_code: null,
     project_code: null,
-    physical_bill: null,
-    physical_bill_at: null,
   },
   source: {
     account_id: 'accO6abI7gZ6T',
@@ -173,6 +168,24 @@ export const transformedExpenseDataWithSubCategory: Partial<UnflattenedTransacti
   ou: {
     id: 'ou6cE4dCLH8d',
     org_id: 'orNbIQloYtfa',
+  },
+});
+
+export const transformedExpenseDataWithAdvanceWallet: Partial<UnflattenedTransaction> = deepFreeze({
+  ...transformedExpenseDataWithSubCategory,
+  tx: {
+    ...transformedExpenseDataWithSubCategory.tx,
+    source_account_id: null,
+    skip_reimbursement: true,
+    advance_wallet_id: 'areq1234',
+  },
+});
+
+export const transformedExpenseDataWithoutAdvanceWallet: Partial<UnflattenedTransaction> = deepFreeze({
+  ...transformedExpenseDataWithAdvanceWallet,
+  tx: {
+    ...transformedExpenseDataWithAdvanceWallet.tx,
+    advance_wallet_id: null,
   },
 });
 
@@ -281,8 +294,6 @@ export const transformedExpenseWithExtractedData: Partial<UnflattenedTransaction
     source_account_id: 'accO6abI7gZ6T',
     org_category_code: null,
     project_code: null,
-    physical_bill: null,
-    physical_bill_at: null,
   },
   source: {
     account_id: 'accO6abI7gZ6T',
@@ -378,13 +389,11 @@ export const transformedExpenseWithMatchCCCData: Partial<UnflattenedTransaction>
         corporate_credit_card_account_number: '7620',
         orig_amount: null,
         orig_currency: null,
-        status: TransactionStatus.PENDING,
+        status: ExpenseTransactionStatus.PENDING,
       },
     ],
     source_account_id: 'acc7F6bwRa52p',
     org_category_code: null,
-    physical_bill: null,
-    physical_bill_at: null,
   },
   source: {
     account_id: 'acc7F6bwRa52p',
@@ -425,7 +434,7 @@ export const transformedExpenseWithMatchCCCData3: Partial<UnflattenedTransaction
         corporate_credit_card_account_number: '9891',
         orig_amount: null,
         orig_currency: null,
-        status: TransactionStatus.PENDING,
+        status: ExpenseTransactionStatus.PENDING,
         displayObject: 'Jun 6, 2018 - test description205.21',
       },
     ],
@@ -487,8 +496,6 @@ export const transformedExpenseWithMatchCCCData4: Partial<UnflattenedTransaction
     matched_corporate_card_transactions: [],
     source_account_id: 'acc7F6bwRa52p',
     org_category_code: null,
-    physical_bill: null,
-    physical_bill_at: null,
   },
   source: {
     account_id: 'acc7F6bwRa52p',

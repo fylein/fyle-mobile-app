@@ -43,6 +43,7 @@ import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expen
 import { DeepLinkService } from 'src/app/core/services/deep-link.service';
 import { platformExpenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { transformedExpenseData } from 'src/app/core/mock-data/transformed-expense.data';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 const roles = ['OWNER', 'USER', 'FYLER'];
 const email = 'ajain@fyle.in';
@@ -100,7 +101,7 @@ describe('SwitchOrgPage', () => {
     ]);
     const deviceServiceSpy = jasmine.createSpyObj('DeviceService', ['getDeviceInfo']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
-    const orgUserServiceSpy = jasmine.createSpyObj('OrgUserService', ['markActive']);
+    const orgUserServiceSpy = jasmine.createSpyObj('OrgUserService', ['markActive', 'getCurrent']);
     const appVersionServiceSpy = jasmine.createSpyObj('AppVersionService', ['load', 'getUserAppVersionDetails']);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
@@ -108,6 +109,7 @@ describe('SwitchOrgPage', () => {
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['transformExpense']);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById']);
     const deepLinkServiceSpy = jasmine.createSpyObj('DeepLinkService', ['getExpenseRoute']);
+    const ldSpy = jasmine.createSpyObj('LaunchDarklyService', ['initializeUser']);
 
     TestBed.configureTestingModule({
       declarations: [SwitchOrgPage, ActiveOrgCardComponent, OrgCardComponent, FyZeroStateComponent],
@@ -135,6 +137,10 @@ describe('SwitchOrgPage', () => {
               },
             },
           },
+        },
+        {
+          provide: LaunchDarklyService,
+          useValue: ldSpy,
         },
         {
           provide: Platform,
@@ -265,11 +271,11 @@ describe('SwitchOrgPage', () => {
     beforeEach(() => {
       orgService.getOrgs.and.returnValue(of(orgData1));
       spyOn(component, 'getOrgsWhichContainSearchText').and.returnValue(orgData1);
-      spyOn(component, 'proceed').and.returnValue(Promise.resolve());
+      spyOn(component, 'proceed').and.resolveTo();
       spyOn(component, 'redirectToExpensePage').and.returnValue();
       orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
       orgService.getPrimaryOrg.and.returnValue(of(orgData2[1]));
-      loaderService.showLoader.and.returnValue(Promise.resolve());
+      loaderService.showLoader.and.resolveTo();
       spyOn(component, 'trackSwitchOrgLaunchTime').and.returnValue(null);
     });
 
@@ -474,15 +480,13 @@ describe('SwitchOrgPage', () => {
     it('should show email not verified alert', fakeAsync(() => {
       spyOn(component, 'handleDismissPopup').and.returnValue(null);
       const popoverSpy = jasmine.createSpyObj('popover', ['present', 'onWillDismiss']);
-      popoverSpy.onWillDismiss.and.returnValue(
-        Promise.resolve({
-          data: {
-            action: 'action',
-          },
-        })
-      );
-      popoverController.create.and.returnValue(Promise.resolve(popoverSpy));
-      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+      popoverSpy.onWillDismiss.and.resolveTo({
+        data: {
+          action: 'action',
+        },
+      });
+      popoverController.create.and.resolveTo(popoverSpy);
+      authService.getEou.and.resolveTo(apiEouRes);
       component.orgs$ = of(orgData1);
       fixture.detectChanges();
 
@@ -512,13 +516,11 @@ describe('SwitchOrgPage', () => {
     it('should show appropiate popup if action is not provided', fakeAsync(() => {
       spyOn(component, 'handleDismissPopup').and.returnValue(null);
       const popoverSpy = jasmine.createSpyObj('popover', ['present', 'onWillDismiss']);
-      popoverSpy.onWillDismiss.and.returnValue(
-        Promise.resolve({
-          data: undefined,
-        })
-      );
-      popoverController.create.and.returnValue(Promise.resolve(popoverSpy));
-      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+      popoverSpy.onWillDismiss.and.resolveTo({
+        data: undefined,
+      });
+      popoverController.create.and.resolveTo(popoverSpy);
+      authService.getEou.and.resolveTo(apiEouRes);
       component.orgs$ = of(orgData1);
       fixture.detectChanges();
 
@@ -561,8 +563,8 @@ describe('SwitchOrgPage', () => {
   });
 
   it('markUserActive(): should mark the user as active and return the org', (done) => {
-    loaderService.showLoader.and.returnValue(Promise.resolve());
-    loaderService.hideLoader.and.returnValue(Promise.resolve());
+    loaderService.showLoader.and.resolveTo();
+    loaderService.hideLoader.and.resolveTo();
     orgUserService.markActive.and.returnValue(of(apiEouRes));
 
     component
@@ -629,7 +631,7 @@ describe('SwitchOrgPage', () => {
     });
 
     it('should show email verification alert if the user has not come through invite link', (done) => {
-      spyOn(component, 'showEmailNotVerifiedAlert').and.returnValue(Promise.resolve());
+      spyOn(component, 'showEmailNotVerifiedAlert').and.resolveTo();
 
       component.handlePendingDetails(roles, false).subscribe((res) => {
         expect(res).toBeNull();
@@ -687,8 +689,10 @@ describe('SwitchOrgPage', () => {
 
   it('proceed(): should proceed to other page as per user status', fakeAsync(() => {
     userService.isPendingDetails.and.returnValue(of(true));
-    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+    authService.getEou.and.resolveTo(apiEouRes);
     authService.getRoles.and.returnValue(of(roles));
+    orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
+    orgUserService.getCurrent.and.returnValue(of(apiEouRes));
     spyOn(component, 'setSentryUser').and.callThrough();
     spyOn(component, 'navigateBasedOnUserStatus').and.returnValue(of(apiEouRes));
     loaderService.hideLoader.and.returnValue(new Promise(() => {}));
@@ -719,7 +723,7 @@ describe('SwitchOrgPage', () => {
       isFromInviteLink: undefined,
     });
     expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-    expect(deviceService.getDeviceInfo).toHaveBeenCalledTimes(1);
+    expect(deviceService.getDeviceInfo).toHaveBeenCalledTimes(2);
     expect(appVersionService.load).toHaveBeenCalledOnceWith(extendedDeviceInfoMockData);
     expect(appVersionService.getUserAppVersionDetails).toHaveBeenCalledOnceWith(extendedDeviceInfoMockData);
     expect(trackingService.eventTrack).toHaveBeenCalledOnceWith('Auto Logged out', {
@@ -731,7 +735,7 @@ describe('SwitchOrgPage', () => {
   }));
 
   it('trackSwitchOrg(): tracking switch orgs', fakeAsync(() => {
-    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+    authService.getEou.and.resolveTo(apiEouRes);
 
     component.trackSwitchOrg(orgData1[0], apiEouRes);
     tick(500);
@@ -753,12 +757,12 @@ describe('SwitchOrgPage', () => {
 
   describe('switchOrg(): ', () => {
     it('should catch error and clear all caches', fakeAsync(() => {
-      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
-      loaderService.showLoader.and.returnValue(Promise.resolve());
+      authService.getEou.and.resolveTo(apiEouRes);
+      loaderService.showLoader.and.resolveTo();
       orgService.switchOrg.and.returnValue(throwError(() => {}));
-      secureStorageService.clearAll.and.returnValue(Promise.resolve({ value: true }));
-      storageService.clearAll.and.returnValue(Promise.resolve());
-      loaderService.hideLoader.and.returnValue(Promise.resolve());
+      secureStorageService.clearAll.and.resolveTo({ value: true });
+      storageService.clearAll.and.resolveTo();
+      loaderService.hideLoader.and.resolveTo();
       userEventService.logout.and.returnValue(null);
       spyOn(globalCacheBusterNotifier, 'next');
 
@@ -777,11 +781,11 @@ describe('SwitchOrgPage', () => {
     }));
 
     it('should switch org', fakeAsync(() => {
-      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
-      loaderService.showLoader.and.returnValue(Promise.resolve());
+      authService.getEou.and.resolveTo(apiEouRes);
+      loaderService.showLoader.and.resolveTo();
       orgService.switchOrg.and.returnValue(of(apiEouRes));
       spyOn(component, 'trackSwitchOrg').and.returnValue(null);
-      spyOn(component, 'proceed').and.returnValue(Promise.resolve(null));
+      spyOn(component, 'proceed').and.resolveTo(null);
       spyOn(globalCacheBusterNotifier, 'next');
 
       component.switchOrg(orgData1[0]);
@@ -800,7 +804,7 @@ describe('SwitchOrgPage', () => {
   describe('signOut(): ', () => {
     it('should sign out the user', fakeAsync(() => {
       deviceService.getDeviceInfo.and.returnValue(of(extendedDeviceInfoMockData));
-      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+      authService.getEou.and.resolveTo(apiEouRes);
       authService.logout.and.returnValue(of(null));
       spyOn(globalCacheBusterNotifier, 'next');
 

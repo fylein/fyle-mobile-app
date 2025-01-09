@@ -22,6 +22,39 @@ export const platformProjectSingleRes: PlatformApiResponse<PlatformProject[]> = 
   offset: 0,
 });
 
+export const platformAPIResponseMultiple: PlatformApiResponse<PlatformProject[]> = deepFreeze({
+  count: 2,
+  data: [
+    {
+      is_enabled: true,
+      code: '1184',
+      created_at: new Date('2021-05-12T10:28:40.834844'),
+      description: 'Sage Intacct Project - Customer Mapped Project, Id - 1184',
+      id: 257528,
+      display_name: 'Customer Mapped Project',
+      category_ids: [122269, 122270, 122271, null],
+      org_id: 'orFdTTTNcyye',
+      updated_at: new Date('2021-07-08T10:28:27.686886'),
+      name: 'Customer Mapped Project',
+      sub_project: null,
+    },
+    {
+      is_enabled: true,
+      code: '1182',
+      created_at: new Date('2021-05-12T10:28:40.834844'),
+      description: 'Sage Intacct Project - Fyle Engineering, Id - 1182',
+      id: 257529,
+      display_name: 'Fyle Engineering',
+      category_ids: [122269, 122270, 122271],
+      org_id: 'orFdTTTNcyye',
+      updated_at: new Date('2021-07-08T10:28:27.686886'),
+      name: 'Fyle Engineering',
+      sub_project: null,
+    },
+  ],
+  offset: 0,
+});
+
 export const platformAPIResponseActiveOnly: PlatformApiResponse<PlatformProject[]> = deepFreeze({
   count: 4,
   data: [
@@ -60,6 +93,26 @@ export const platformAPIResponseActiveOnly: PlatformApiResponse<PlatformProject[
       code: '1183',
       org_id: 'orFdTTTNcyye',
       description: 'Sage Intacct Project - Fyle Team Integrations, Id - 1183',
+      is_enabled: true,
+      category_ids: null,
+      display_name: 'Customer Mapped Project',
+    },
+  ],
+  offset: 0,
+});
+
+export const platformAPIResponseNullCategories: PlatformApiResponse<PlatformProject[]> = deepFreeze({
+  count: 4,
+  data: [
+    {
+      id: 257528,
+      created_at: new Date('2021-05-12T10:28:40.834Z'),
+      updated_at: new Date('2021-07-08T10:28:27.686Z'),
+      name: 'Customer Mapped Project',
+      sub_project: null,
+      code: '1184',
+      org_id: 'orFdTTTNcyye',
+      description: 'Sage Intacct Project - Customer Mapped Project, Id - 1184',
       is_enabled: true,
       category_ids: null,
       display_name: 'Customer Mapped Project',

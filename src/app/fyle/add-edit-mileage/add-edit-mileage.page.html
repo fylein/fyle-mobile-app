@@ -299,7 +299,7 @@
                         <ng-template #paymentMode let-label="label" let-paymentMode="value" let-selected="selected">
                           <div>
                             <div class="add-edit-mileage--payment-mode-header">{{label}}</div>
-                            <ng-container *ngIf="paymentMode">
+                            <ng-container *ngIf="paymentMode?.acc">
                               <ng-container *ngIf="paymentMode.acc.type === 'PERSONAL_ADVANCE_ACCOUNT'">
                                 <div class="add-edit-mileage--payment-mode-section">
                                   {{paymentMode.advance.purpose}}
@@ -351,23 +351,28 @@
                   >
                     <ng-container *ngIf="projectCategoryIds$|async as projectCategoryIds">
                       <ng-container *ngIf="isProjectVisible$|async">
-                        <div
-                          class="add-edit-mileage--internal-block add-edit-mileage--project-block"
-                          [ngClass]="{'add-edit-mileage--no-project': !fg.controls.project.value}"
+                        <ng-container
+                          *ngIf="{value: isProjectCategoryRestrictionsEnabled$ | async}; let isProjectCategoryRestrictionsEnabled"
                         >
-                          <app-fy-select-project
-                            [cacheName]="'mileageProjectCache'"
-                            [categoryIds]="projectCategoryIds"
-                            [label]="txnFields.project_id?.field_name"
-                            [placeholder]="txnFields.project_id?.placeholder"
-                            [mandatory]="txnFields.project_id?.is_mandatory"
-                            [defaultValue]="true"
-                            [recentlyUsed]="recentProjects"
-                            formControlName="project"
-                            [validInParent]="fg.controls.project.valid"
-                            [touchedInParent]="fg.controls.project.touched"
-                          ></app-fy-select-project>
-                        </div>
+                          <div
+                            class="add-edit-mileage--internal-block add-edit-mileage--project-block"
+                            [ngClass]="{'add-edit-mileage--no-project': !fg.controls.project.value}"
+                          >
+                            <app-fy-select-project
+                              [cacheName]="'mileageProjectCache'"
+                              [categoryIds]="projectCategoryIds"
+                              [label]="txnFields.project_id?.field_name"
+                              [placeholder]="txnFields.project_id?.placeholder"
+                              [mandatory]="txnFields.project_id?.is_mandatory"
+                              [defaultValue]="true"
+                              [recentlyUsed]="recentProjects"
+                              formControlName="project"
+                              [validInParent]="fg.controls.project.valid"
+                              [touchedInParent]="fg.controls.project.touched"
+                              [isProjectCategoryRestrictionsEnabled]="isProjectCategoryRestrictionsEnabled.value"
+                            ></app-fy-select-project>
+                          </div>
+                        </ng-container>
                       </ng-container>
                     </ng-container>
                   </ng-container>

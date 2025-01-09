@@ -25,12 +25,8 @@ import { SnackbarPropertiesService } from '../../../core/services/snackbar-prope
 import { TrackingService } from '../../../core/services/tracking.service';
 import { PopupAlertComponent } from '../popup-alert/popup-alert.component';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { ReceiptDetail } from 'src/app/core/models/receipt-detail.model';
 
-type ReceiptDetail = {
-  dataUrl: string;
-  type: string;
-  actionSource: string;
-};
 @Component({
   selector: 'app-expense-card',
   templateUrl: './expenses-card.component.html',
@@ -195,26 +191,6 @@ export class ExpensesCardComponent implements OnInit {
     return !!(hasUserManuallyEnteredData || isRequiredExtractedDataPresent || hasScanExpired);
   }
 
-  /**
-   * This is to check if the expense is currently in data extraction queue. If the item is not in data extraction queue anymore,
-   * a callback method is fired.
-   *
-   * The reasoning behind this is to check if scanning expenses have finished scanning
-   *
-   * @param callback Callback method to be fired when item has finished scanning
-   */
-  pollDataExtractionStatus(callback: Function): void {
-    const that = this;
-    setTimeout(() => {
-      const isPresentInQueue = that.transactionOutboxService.isDataExtractionPending(that.expense.tx_id);
-      if (!isPresentInQueue) {
-        callback();
-      } else {
-        that.pollDataExtractionStatus(callback);
-      }
-    }, 1000);
-  }
-
   handleScanStatus(): void {
     const that = this;
     that.isScanInProgress = false;
@@ -228,24 +204,7 @@ export class ExpensesCardComponent implements OnInit {
           (that.homeCurrency === 'USD' || that.homeCurrency === 'INR')
         ) {
           that.isScanCompleted = that.checkIfScanIsCompleted();
-          that.isScanInProgress =
-            !that.isScanCompleted && that.transactionOutboxService.isDataExtractionPending(that.expense.tx_id);
-          if (that.isScanInProgress) {
-            that.pollDataExtractionStatus(function () {
-              that.expensesService.getExpenseById(that.expense.tx_id).subscribe((expense) => {
-                const etxn = that.transactionService.transformExpense(expense);
-                const extractedData = etxn.tx.extracted_data;
-                if (!!extractedData) {
-                  that.isScanCompleted = true;
-                  that.isScanInProgress = false;
-                  that.expense.tx_extracted_data = extractedData;
-                } else {
-                  that.isScanInProgress = false;
-                  that.isScanCompleted = false;
-                }
-              });
-            });
-          }
+          that.isScanInProgress = !that.isScanCompleted && !this.expense.tx_extracted_data;
         } else {
           that.isScanCompleted = true;
           that.isScanInProgress = false;
@@ -272,7 +231,7 @@ export class ExpensesCardComponent implements OnInit {
 
     this.category = this.expense.tx_org_category?.toLowerCase();
     this.expense.isDraft = this.transactionService.getIsDraft(this.expense);
-    this.expense.isPolicyViolated = this.expense.tx_manual_flag || this.expense.tx_policy_flag;
+    this.expense.isPolicyViolated = this.expense.tx_policy_flag;
     this.expense.isCriticalPolicyViolated = this.transactionService.getIsCriticalPolicyViolated(this.expense);
     this.expense.vendorDetails = this.transactionService.getVendorDetails(this.expense);
     this.expenseFieldsService.getAllMap().subscribe((expenseFields) => {
@@ -451,7 +410,7 @@ export class ExpensesCardComponent implements OnInit {
       .pipe(
         switchMap((fileObj: FileObject) => {
           this.matchReceiptWithEtxn(fileObj);
-          return this.fileService.post(fileObj);
+          return this.expensesService.attachReceiptToExpense(this.expense.tx_id, fileObj.id);
         }),
         finalize(() => {
           this.attachmentUploadInProgress = false;

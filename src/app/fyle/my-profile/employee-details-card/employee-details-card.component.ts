@@ -1,26 +1,22 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
+import { UtilityService } from 'src/app/core/services/utility.service';
 
 @Component({
   selector: 'app-employee-details-card',
   templateUrl: './employee-details-card.component.html',
   styleUrls: ['./employee-details-card.component.scss'],
 })
-export class EmployeeDetailsCardComponent {
+export class EmployeeDetailsCardComponent implements OnInit {
   @Input() eou: ExtendedOrgUser;
 
-  @Output() updateMobileNumber = new EventEmitter();
+  isMobileNumberSectionVisible: boolean;
 
-  @Output() verifyMobileNumber = new EventEmitter();
+  constructor(private utilityService: UtilityService) {}
 
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  constructor() {}
-
-  onUpdateMobileNumber(eou: ExtendedOrgUser): void {
-    this.updateMobileNumber.emit(eou);
-  }
-
-  onVerifyMobileNumber(eou: ExtendedOrgUser): void {
-    this.verifyMobileNumber.emit(eou);
+  ngOnInit(): void {
+    this.utilityService
+      .isUserFromINCluster()
+      .then((isUserFromINCluster) => (this.isMobileNumberSectionVisible = !isUserFromINCluster));
   }
 }

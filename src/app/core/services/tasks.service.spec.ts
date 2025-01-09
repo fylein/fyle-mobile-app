@@ -2,11 +2,13 @@ import { TestBed } from '@angular/core/testing';
 import { cloneDeep } from 'lodash';
 import { filter, of, reduce, Subject, switchMap, take } from 'rxjs';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
+import { ExactCurrencyPipe } from 'src/app/shared/pipes/exact-currency.pipe';
 import { TASKEVENT } from '../models/task-event.enum';
 import { TaskIcon } from '../models/task-icon.enum';
 import {
   allExtendedReportsResponse,
   extendedOrgUserResponse,
+  extendedOrgUserResponseSpender,
   incompleteExpensesResponse,
   potentialDuplicatesApiResponse,
   sentBackAdvancesResponse,
@@ -36,8 +38,10 @@ import {
   draftExpenseTaskSample2,
   unreportedExpenseTaskSample2,
   commuteDeductionTask,
+  sentBackReportTaskSingularSample,
+  verifyMobileNumberTask2,
 } from '../mock-data/task.data';
-import { mastercardRTFCard } from '../mock-data/platform-corporate-card.data';
+import { mastercardRTFCard, statementUploadedCard, visaRTFCard } from '../mock-data/platform-corporate-card.data';
 import { OrgSettingsService } from './org-settings.service';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { expenseDuplicateSets } from '../mock-data/platform/v1/expense-duplicate-sets.data';
@@ -55,6 +59,17 @@ import {
   commuteDetailsResponseData3,
 } from '../mock-data/commute-details-response.data';
 import { orgSettingsPendingRestrictions } from '../mock-data/org-settings.data';
+import { SpenderReportsService } from './platform/v1/spender/reports.service';
+import { ApproverReportsService } from './platform/v1/approver/reports.service';
+import { PlatformReportsStatsResponse } from '../models/platform/v1/report-stats-response.model';
+import {
+  expectedReportStats,
+  expectedSentBackResponse,
+  expectedSentBackResponseSingularReport,
+} from '../mock-data/report-stats.data';
+import { OrgService } from './org.service';
+import { orgData1 } from '../mock-data/org.data';
+import { UtilityService } from './utility.service';
 
 describe('TasksService', () => {
   let tasksService: TasksService;
@@ -65,18 +80,19 @@ describe('TasksService', () => {
   let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
   let currencyService: jasmine.SpyObj<CurrencyService>;
   let humanizeCurrencyPipe: jasmine.SpyObj<HumanizeCurrencyPipe>;
+  let exactCurrencyPipe: jasmine.SpyObj<ExactCurrencyPipe>;
   let expensesService: jasmine.SpyObj<ExpensesService>;
   let employeesService: jasmine.SpyObj<EmployeesService>;
+  let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
+  let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let orgService: jasmine.SpyObj<OrgService>;
+  let utilityService: jasmine.SpyObj<UtilityService>;
   const mockTaskClearSubject = new Subject();
   const homeCurrency = 'INR';
 
   beforeEach(() => {
-    const reportServiceSpy = jasmine.createSpyObj('ReportService', [
-      'getReportAutoSubmissionDetails',
-      'getReportStatsData',
-      'getAllExtendedReports',
-    ]);
+    const reportServiceSpy = jasmine.createSpyObj('ReportService', ['getReportAutoSubmissionDetails']);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseStats', 'getDuplicateSets']);
     const userEventServiceSpy = jasmine.createSpyObj('UserEventService', ['onTaskCacheClear']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
@@ -86,8 +102,13 @@ describe('TasksService', () => {
     ]);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     const humanizeCurrencyPipeSpy = jasmine.createSpyObj('HumanizeCurrencyPipe', ['transform']);
+    const exactCurrencyPipeSpy = jasmine.createSpyObj('ExactCurrencyPipe', ['transform']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const employeesServiceSpy = jasmine.createSpyObj('EmployeesService', ['getCommuteDetails']);
+    const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', ['getReportsStats']);
+    const approverReportsServiceSpy = jasmine.createSpyObj('ApproverReportsService', ['getReportsStats']);
+    const orgServiceSpy = jasmine.createSpyObj('OrgService', ['getCurrentOrg', 'getPrimaryOrg']);
+    const utilityServiceSpy = jasmine.createSpyObj('UtilityService', ['isUserFromINCluster']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -99,6 +120,10 @@ describe('TasksService', () => {
         {
           provide: HumanizeCurrencyPipe,
           useValue: humanizeCurrencyPipeSpy,
+        },
+        {
+          provide: ExactCurrencyPipe,
+          useValue: exactCurrencyPipeSpy,
         },
         {
           provide: UserEventService,
@@ -132,6 +157,22 @@ describe('TasksService', () => {
           provide: OrgSettingsService,
           useValue: orgSettingsServiceSpy,
         },
+        {
+          provide: SpenderReportsService,
+          useValue: spenderReportsServiceSpy,
+        },
+        {
+          provide: ApproverReportsService,
+          useValue: approverReportsServiceSpy,
+        },
+        {
+          provide: OrgService,
+          useValue: orgServiceSpy,
+        },
+        {
+          provide: UtilityService,
+          useValue: utilityServiceSpy,
+        },
       ],
     });
     tasksService = TestBed.inject(TasksService);
@@ -145,10 +186,16 @@ describe('TasksService', () => {
     ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
     humanizeCurrencyPipe = TestBed.inject(HumanizeCurrencyPipe) as jasmine.SpyObj<HumanizeCurrencyPipe>;
+    exactCurrencyPipe = TestBed.inject(ExactCurrencyPipe) as jasmine.SpyObj<ExactCurrencyPipe>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     employeesService = TestBed.inject(EmployeesService) as jasmine.SpyObj<EmployeesService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
+    approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
+    orgService = TestBed.inject(OrgService) as jasmine.SpyObj<OrgService>;
+    utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
     orgSettingsService.get.and.returnValue(of(orgSettingsPendingRestrictions));
+    utilityService.isUserFromINCluster.and.resolveTo(false);
   });
 
   it('should be created', () => {
@@ -158,12 +205,12 @@ describe('TasksService', () => {
   it('should be able to fetch tasks related to sent back advances', (done) => {
     currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
     advanceRequestService.getAdvanceRequestStats.and.returnValue(of(sentBackAdvancesResponse));
-    humanizeCurrencyPipe.transform
-      .withArgs(sentBackAdvancesResponse.total_amount, homeCurrency, true)
-      .and.returnValue('123.37M');
-    humanizeCurrencyPipe.transform
-      .withArgs(sentBackAdvancesResponse.total_amount, homeCurrency)
-      .and.returnValue('₹123.37M');
+    exactCurrencyPipe.transform
+      .withArgs({ value: sentBackAdvancesResponse.total_amount, currencyCode: homeCurrency, skipSymbol: true })
+      .and.returnValue('123370000.00');
+    exactCurrencyPipe.transform
+      .withArgs({ value: sentBackAdvancesResponse.total_amount, currencyCode: homeCurrency })
+      .and.returnValue('₹123370000.00');
 
     tasksService.getSentBackAdvanceTasks().subscribe((sentBackAdvancesData) => {
       expect(sentBackAdvancesData).toEqual([sentBackAdvanceTaskSample]);
@@ -171,22 +218,15 @@ describe('TasksService', () => {
     });
   });
 
-  function setupUnsibmittedReportsResponse() {
-    reportService.getReportStatsData
-      .withArgs({
-        scalar: true,
-        aggregates: 'count(rp_id),sum(rp_amount)',
-        rp_state: 'in.(DRAFT)',
-      })
-      .and.returnValue(of(unsubmittedReportsResponse));
-  }
-
   it('should be able to fetch unsubmitted reports', (done) => {
-    setupUnsibmittedReportsResponse();
+    spenderReportsService.getReportsStats.and.returnValue(of(expectedReportStats.draft));
     currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
-    humanizeCurrencyPipe.transform
-      .withArgs(unsubmittedReportsResponse[0].aggregates[1].function_value, homeCurrency, true)
-      .and.returnValue('0.00');
+    exactCurrencyPipe.transform
+      .withArgs({ value: expectedReportStats.draft.total_amount, currencyCode: homeCurrency, skipSymbol: true })
+      .and.returnValue('93165.91');
+    exactCurrencyPipe.transform
+      .withArgs({ value: expectedReportStats.draft.total_amount, currencyCode: homeCurrency })
+      .and.returnValue('₹93165.91');
     tasksService.getUnsubmittedReportsTasks().subscribe((unsubmittedReportsTasks) => {
       expect(unsubmittedReportsTasks).toEqual([unsubmittedReportTaskSample]);
       done();
@@ -211,39 +251,37 @@ describe('TasksService', () => {
         and: '(or(matched_corporate_card_transactions.eq.[],matched_corporate_card_transactions->0->status.neq.PENDING))',
       })
       .and.returnValue(of(completeStats));
-
-    reportService.getAllExtendedReports.and.returnValue(of(allExtendedReportsResponse));
   }
 
   it('should be able to fetch unreported expenses tasks', () => {
     getUnreportedExpenses();
     currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
-    humanizeCurrencyPipe.transform
-      .withArgs(completeStats.data.total_amount, homeCurrency, true)
-      .and.returnValue('142.26K');
-    humanizeCurrencyPipe.transform.withArgs(completeStats.data.total_amount, homeCurrency).and.returnValue('₹142.26K');
+    exactCurrencyPipe.transform
+      .withArgs({ value: completeStats.data.total_amount, currencyCode: homeCurrency, skipSymbol: true })
+      .and.returnValue('30.00');
+    exactCurrencyPipe.transform
+      .withArgs({ value: completeStats.data.total_amount, currencyCode: homeCurrency })
+      .and.returnValue('₹30.00');
     tasksService.getUnreportedExpensesTasks().subscribe((unrepotedExpensesTasks) => {
       expect(unrepotedExpensesTasks).toEqual([unreportedExpenseTaskSample2]);
     });
   });
 
   it('should be able to fetch Sent Back Report Tasks', (done) => {
-    reportService.getReportStatsData
+    spenderReportsService.getReportsStats
       .withArgs({
-        scalar: true,
-        aggregates: 'count(rp_id),sum(rp_amount)',
-        rp_state: 'in.(APPROVER_INQUIRY)',
+        state: 'eq.APPROVER_INQUIRY',
       })
-      .and.returnValue(of(sentBackResponse));
+      .and.returnValue(of(expectedSentBackResponse));
 
     currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
 
-    humanizeCurrencyPipe.transform
-      .withArgs(sentBackResponse[0].aggregates[1].function_value, homeCurrency, true)
-      .and.returnValue('44.53');
-    humanizeCurrencyPipe.transform
-      .withArgs(sentBackResponse[0].aggregates[1].function_value, homeCurrency)
-      .and.returnValue('₹44.53');
+    exactCurrencyPipe.transform
+      .withArgs({ value: expectedSentBackResponse.total_amount, currencyCode: homeCurrency, skipSymbol: true })
+      .and.returnValue('4500.00');
+    exactCurrencyPipe.transform
+      .withArgs({ value: expectedSentBackResponse.total_amount, currencyCode: homeCurrency })
+      .and.returnValue('₹4500.00');
 
     tasksService.getSentBackReportTasks().subscribe((sentBackReportsTasks) => {
       expect(sentBackReportsTasks).toEqual([sentBackReportTaskSample]);
@@ -251,33 +289,65 @@ describe('TasksService', () => {
     });
   });
 
-  it('should be able to fetch team reports tasks', (done) => {
+  it('should show proper content for singular sent back report', (done) => {
+    spenderReportsService.getReportsStats
+      .withArgs({
+        state: 'eq.APPROVER_INQUIRY',
+      })
+      .and.returnValue(of(expectedSentBackResponseSingularReport));
+
+    currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
+
+    exactCurrencyPipe.transform
+      .withArgs({ value: expectedSentBackResponse.total_amount, currencyCode: homeCurrency, skipSymbol: true })
+      .and.returnValue('4500.00');
+    exactCurrencyPipe.transform
+      .withArgs({ value: expectedSentBackResponse.total_amount, currencyCode: homeCurrency })
+      .and.returnValue('₹4500.00');
+
+    tasksService.getSentBackReportTasks().subscribe((sentBackReportsTasks) => {
+      expect(sentBackReportsTasks).toEqual([sentBackReportTaskSingularSample]);
+      done();
+    });
+  });
+
+  it('should be able to fetch team reports tasks is role is APPROVER, and the current org is primary', (done) => {
     authService.getEou.and.returnValue(new Promise((resolve) => resolve(extendedOrgUserResponse)));
     currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
 
-    humanizeCurrencyPipe.transform
-      .withArgs(teamReportResponse[0].aggregates[1].function_value, homeCurrency, true)
-      .and.returnValue('733.48K');
-    humanizeCurrencyPipe.transform
-      .withArgs(teamReportResponse[0].aggregates[1].function_value, homeCurrency)
-      .and.returnValue('₹733.48K');
+    exactCurrencyPipe.transform
+      .withArgs({ value: expectedReportStats.report.total_amount, currencyCode: homeCurrency, skipSymbol: true })
+      .and.returnValue('5177243929.65');
+    exactCurrencyPipe.transform
+      .withArgs({ value: expectedReportStats.report.total_amount, currencyCode: homeCurrency })
+      .and.returnValue('₹5177243929.65');
 
-    reportService.getReportStatsData
-      .withArgs(
-        {
-          approved_by: 'cs.{' + extendedOrgUserResponse.ou.id + '}',
-          rp_approval_state: ['in.(APPROVAL_PENDING)'],
-          rp_state: ['in.(APPROVER_PENDING)'],
-          sequential_approval_turn: ['in.(true)'],
-          aggregates: 'count(rp_id),sum(rp_amount)',
-          scalar: true,
-        },
-        false
-      )
-      .and.returnValue(of(teamReportResponse));
+    approverReportsService.getReportsStats
+      .withArgs({
+        next_approver_user_ids: `cs.[${extendedOrgUserResponse.us.id}]`,
+        state: 'eq.APPROVER_PENDING',
+      })
+      .and.returnValue(of(expectedReportStats.report));
+
+    tasksService.getTeamReportsTasks(true).subscribe((teamReportsTasks) => {
+      expect(teamReportsTasks).toEqual([teamReportTaskSample]);
+      done();
+    });
+  });
+
+  it('should be able to return dummy team reports tasks is role is not APPROVER', (done) => {
+    authService.getEou.and.returnValue(new Promise((resolve) => resolve(extendedOrgUserResponseSpender)));
+    currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
+
+    exactCurrencyPipe.transform
+      .withArgs({ value: expectedReportStats.report.total_amount, currencyCode: homeCurrency, skipSymbol: true })
+      .and.returnValue('5177243929.65');
+    exactCurrencyPipe.transform
+      .withArgs({ value: expectedReportStats.report.total_amount, currencyCode: homeCurrency })
+      .and.returnValue('₹5177243929.65');
 
     tasksService.getTeamReportsTasks().subscribe((teamReportsTasks) => {
-      expect(teamReportsTasks).toEqual([teamReportTaskSample]);
+      expect(teamReportsTasks).toEqual([]);
       done();
     });
   });
@@ -301,12 +371,12 @@ describe('TasksService', () => {
 
     currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
 
-    humanizeCurrencyPipe.transform
-      .withArgs(incompleteStats.data.total_amount, homeCurrency, true)
-      .and.returnValue('132.57B');
-    humanizeCurrencyPipe.transform
-      .withArgs(incompleteStats.data.total_amount, homeCurrency)
-      .and.returnValue('₹132.57B');
+    exactCurrencyPipe.transform
+      .withArgs({ value: incompleteStats.data.total_amount, currencyCode: homeCurrency, skipSymbol: true })
+      .and.returnValue('76234.47');
+    exactCurrencyPipe.transform
+      .withArgs({ value: incompleteStats.data.total_amount, currencyCode: homeCurrency })
+      .and.returnValue('₹76234.47');
 
     tasksService.getDraftExpensesTasks().subscribe((draftExpensesTasks) => {
       expect(draftExpensesTasks).toEqual([draftExpenseTaskSample2]);
@@ -357,6 +427,30 @@ describe('TasksService', () => {
         expect(count).toEqual(10);
         done();
       });
+  });
+
+  describe('getAddCorporateCardTask(): ', () => {
+    it('should return add corporate card task when no cards are enrolled', (done) => {
+      orgSettingsService.get.and.returnValue(of(orgSettingsRes));
+      corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([statementUploadedCard]));
+      const addCcSpy = spyOn(tasksService, 'mapAddCorporateCardTask');
+
+      tasksService.getAddCorporateCardTask().subscribe((tasks) => {
+        expect(corporateCreditCardExpenseService.getCorporateCards).toHaveBeenCalled();
+        expect(tasksService.mapAddCorporateCardTask).toHaveBeenCalled();
+        expect(addCcSpy).toHaveBeenCalledOnceWith();
+        done();
+      });
+    });
+
+    it('should return undefined when there are enrolled cards', (done) => {
+      corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([mastercardRTFCard, visaRTFCard]));
+      tasksService.getAddCorporateCardTask().subscribe((tasks) => {
+        expect(corporateCreditCardExpenseService.getCorporateCards).toHaveBeenCalled();
+        expect(tasks).toEqual([]);
+        done();
+      });
+    });
   });
 
   it('should be able to fetch advancesTaskCount', (done) => {
@@ -589,8 +683,10 @@ describe('TasksService', () => {
 
   it('should be able to generate unreported expenses tasks when no reports present', () => {
     const totalCount = incompleteStats.data.count;
-    humanizeCurrencyPipe.transform.withArgs(totalCount, homeCurrency, true).and.returnValue('142.26K');
-    humanizeCurrencyPipe.transform.withArgs(totalCount, homeCurrency).and.returnValue('₹142.26K');
+    exactCurrencyPipe.transform
+      .withArgs({ value: totalCount, currencyCode: homeCurrency, skipSymbol: true })
+      .and.returnValue('339.00');
+    exactCurrencyPipe.transform.withArgs({ value: totalCount, currencyCode: homeCurrency }).and.returnValue('₹339.00');
 
     const tasks = tasksService.mapAggregateToUnreportedExpensesTask(
       {
@@ -599,7 +695,7 @@ describe('TasksService', () => {
       },
       homeCurrency
     );
-    expect(tasks[0].subheader).toEqual('1 expense  worth ₹142.26K  can be added to a report');
+    expect(tasks[0].subheader).toEqual('1 expense  worth ₹339.00  can be added to a report');
   });
 
   it('should not be generating tasks when no corresponding data is present', () => {
@@ -615,9 +711,9 @@ describe('TasksService', () => {
 
     const tasks2 = tasksService.mapAggregateToTeamReportTask(
       {
-        totalAmount: 0,
-        totalCount: 0,
-      },
+        total_amount: 0,
+        count: 0,
+      } as PlatformReportsStatsResponse,
       homeCurrency
     );
 
@@ -625,9 +721,9 @@ describe('TasksService', () => {
 
     const tasks3 = tasksService.mapAggregateToUnsubmittedReportTask(
       {
-        totalAmount: 0,
-        totalCount: 0,
-      },
+        total_amount: 0,
+        count: 0,
+      } as PlatformReportsStatsResponse,
       homeCurrency
     );
 
@@ -645,9 +741,9 @@ describe('TasksService', () => {
 
     const tasks5 = tasksService.mapSentBackReportsToTasks(
       {
-        totalAmount: 0,
-        totalCount: 0,
-      },
+        total_amount: 0,
+        count: 0,
+      } as PlatformReportsStatsResponse,
       homeCurrency
     );
 
@@ -690,30 +786,23 @@ describe('TasksService', () => {
   function setupData() {
     currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
     advanceRequestService.getAdvanceRequestStats.and.returnValue(of(sentBackAdvancesResponse));
-    setupUnsibmittedReportsResponse();
+    spenderReportsService.getReportsStats.and.returnValue(of(expectedReportStats.draft));
     getUnreportedExpenses();
-    reportService.getReportStatsData
+    spenderReportsService.getReportsStats
       .withArgs({
-        scalar: true,
-        aggregates: 'count(rp_id),sum(rp_amount)',
-        rp_state: 'in.(APPROVER_INQUIRY)',
+        state: 'eq.APPROVER_INQUIRY',
       })
-      .and.returnValue(of(sentBackResponse));
+      .and.returnValue(of(expectedSentBackResponse));
     authService.getEou.and.returnValue(new Promise((resolve) => resolve(extendedOrgUserResponse)));
+    orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
+    orgService.getPrimaryOrg.and.returnValue(of(orgData1[0]));
     currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
-    reportService.getReportStatsData
-      .withArgs(
-        {
-          approved_by: 'cs.{' + extendedOrgUserResponse.ou.id + '}',
-          rp_approval_state: ['in.(APPROVAL_PENDING)'],
-          rp_state: ['in.(APPROVER_PENDING)'],
-          sequential_approval_turn: ['in.(true)'],
-          aggregates: 'count(rp_id),sum(rp_amount)',
-          scalar: true,
-        },
-        false
-      )
-      .and.returnValue(of(teamReportResponse));
+    approverReportsService.getReportsStats
+      .withArgs({
+        next_approver_user_ids: `cs.[${extendedOrgUserResponse.us.id}]`,
+        state: 'eq.APPROVER_PENDING',
+      })
+      .and.returnValue(of(expectedReportStats.report));
     expensesService.getDuplicateSets.and.returnValue(of(expenseDuplicateSets));
     expensesService.getExpenseStats
       .withArgs({
@@ -725,14 +814,15 @@ describe('TasksService', () => {
     corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([mastercardRTFCard]));
     orgSettingsService.get.and.returnValue(of(orgSettingsRes));
     employeesService.getCommuteDetails.and.returnValue(of(commuteDetailsResponseData));
+    corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([mastercardRTFCard]));
   }
 
   it('should be able to fetch tasks with no filters', (done) => {
     setupData();
-    tasksService.getTasks().subscribe((tasks) => {
+    tasksService.getTasks(false, undefined, true).subscribe((tasks) => {
       expect(tasks.map((task) => task.header)).toEqual([
         '34 Potential Duplicates',
-        'Report sent back!',
+        'Reports sent back!',
         'Incomplete expenses',
         'Unsubmitted reports',
         'Expenses are ready to report',
@@ -766,20 +856,11 @@ describe('TasksService', () => {
     tasksService.getTasks(true).subscribe((tasks) => {
       expect(tasks.map((task) => task.header)).toEqual([
         '34 Potential Duplicates',
-        'Report sent back!',
+        'Reports sent back!',
         'Incomplete expenses',
-        'Reports to be approved',
         'Advances sent back!',
       ]);
       done();
-    });
-  });
-
-  it('should make sure that stats dont fail even if aggregates are not present in response', () => {
-    const mappedStatsReponse = tasksService.getStatsFromResponse([], 'count(rp_id)', 'sum(rp_amount)');
-    expect(mappedStatsReponse).toEqual({
-      totalCount: 0,
-      totalAmount: 0,
     });
   });
 
@@ -817,12 +898,12 @@ describe('TasksService', () => {
   });
 
   it('should generate proper content in all cases for sent back advances', () => {
-    humanizeCurrencyPipe.transform
-      .withArgs(sentBackAdvancesResponse.total_amount, homeCurrency, true)
-      .and.returnValue('123.37M');
-    humanizeCurrencyPipe.transform
-      .withArgs(sentBackAdvancesResponse.total_amount, homeCurrency)
-      .and.returnValue('₹123.37M');
+    exactCurrencyPipe.transform
+      .withArgs({ value: sentBackAdvancesResponse.total_amount, currencyCode: homeCurrency, skipSymbol: true })
+      .and.returnValue('123370000.00');
+    exactCurrencyPipe.transform
+      .withArgs({ value: sentBackAdvancesResponse.total_amount, currencyCode: homeCurrency })
+      .and.returnValue('₹123370000.00');
 
     const sentBackAdvanceTask = tasksService.mapSentBackAdvancesToTasks(
       {
@@ -834,10 +915,10 @@ describe('TasksService', () => {
 
     expect(sentBackAdvanceTask).toEqual([
       {
-        amount: '123.37M',
+        amount: '123370000.00',
         count: 1,
         header: 'Advance sent back!',
-        subheader: '1 advance worth ₹123.37M  was sent back by your approver',
+        subheader: '1 advance worth ₹123370000.00  was sent back by your approver',
         icon: TaskIcon.ADVANCE,
         ctas: [
           {
@@ -850,18 +931,25 @@ describe('TasksService', () => {
   });
 
   it('should generate proper content in all cases for sent back reports', () => {
-    humanizeCurrencyPipe.transform
-      .withArgs(sentBackResponse[0].aggregates[1].function_value, homeCurrency, true)
+    exactCurrencyPipe.transform
+      .withArgs({
+        value: sentBackResponse[0].aggregates[1].function_value,
+        currencyCode: homeCurrency,
+        skipSymbol: true,
+      })
       .and.returnValue('44.53');
-    humanizeCurrencyPipe.transform
-      .withArgs(sentBackResponse[0].aggregates[1].function_value, homeCurrency)
+    exactCurrencyPipe.transform
+      .withArgs({
+        value: sentBackResponse[0].aggregates[1].function_value,
+        currencyCode: homeCurrency,
+      })
       .and.returnValue('₹44.53');
 
     const sentBackReportTask = tasksService.mapSentBackReportsToTasks(
       {
-        totalCount: 2,
-        totalAmount: sentBackResponse[0].aggregates[1].function_value,
-      },
+        count: 2,
+        total_amount: sentBackResponse[0].aggregates[1].function_value,
+      } as PlatformReportsStatsResponse,
       homeCurrency
     );
 
@@ -883,12 +971,16 @@ describe('TasksService', () => {
   });
 
   it('should generate proper content in all cases of draft expenses tasks', () => {
-    humanizeCurrencyPipe.transform
-      .withArgs(incompleteExpensesResponse[0].aggregates[1].function_value, homeCurrency, true)
-      .and.returnValue('132.57B');
-    humanizeCurrencyPipe.transform
-      .withArgs(incompleteExpensesResponse[0].aggregates[1].function_value, homeCurrency)
-      .and.returnValue('₹132.57B');
+    exactCurrencyPipe.transform
+      .withArgs({
+        value: incompleteExpensesResponse[0].aggregates[1].function_value,
+        currencyCode: homeCurrency,
+        skipSymbol: true,
+      })
+      .and.returnValue('132573333762.37');
+    exactCurrencyPipe.transform
+      .withArgs({ value: incompleteExpensesResponse[0].aggregates[1].function_value, currencyCode: homeCurrency })
+      .and.returnValue('₹132573333762.37');
 
     const tasks = tasksService.mapAggregateToDraftExpensesTask(
       {
@@ -900,10 +992,10 @@ describe('TasksService', () => {
 
     expect(tasks).toEqual([
       {
-        amount: '132.57B',
+        amount: '132573333762.37',
         count: 1,
         header: 'Incomplete expense',
-        subheader: '1 expense worth ₹132.57B  require additional information',
+        subheader: '1 expense worth ₹132573333762.37  require additional information',
         icon: TaskIcon.WARNING,
         ctas: [
           {
@@ -915,16 +1007,20 @@ describe('TasksService', () => {
     ]);
   });
 
-  it('should generate proper content in all cases of unsibmitted report tasks', () => {
-    humanizeCurrencyPipe.transform
-      .withArgs(unsubmittedReportsResponse[0].aggregates[1].function_value, homeCurrency, true)
+  it('should generate proper content in all cases of unsubmitted report tasks', () => {
+    exactCurrencyPipe.transform
+      .withArgs({
+        value: unsubmittedReportsResponse[0].aggregates[1].function_value,
+        currencyCode: homeCurrency,
+        skipSymbol: true,
+      })
       .and.returnValue('0.00');
 
     const tasks = tasksService.mapAggregateToUnsubmittedReportTask(
       {
-        totalAmount: unsubmittedReportsResponse[0].aggregates[1].function_value,
-        totalCount: 1,
-      },
+        total_amount: unsubmittedReportsResponse[0].aggregates[1].function_value,
+        count: 1,
+      } as PlatformReportsStatsResponse,
       homeCurrency
     );
 
@@ -946,27 +1042,34 @@ describe('TasksService', () => {
   });
 
   it('should be able to generate proper content in all cases of team report tasks', () => {
-    humanizeCurrencyPipe.transform
-      .withArgs(teamReportResponse[0].aggregates[1].function_value, homeCurrency, true)
-      .and.returnValue('733.48K');
-    humanizeCurrencyPipe.transform
-      .withArgs(teamReportResponse[0].aggregates[1].function_value, homeCurrency)
-      .and.returnValue('₹733.48K');
+    exactCurrencyPipe.transform
+      .withArgs({
+        value: teamReportResponse[0].aggregates[1].function_value,
+        currencyCode: homeCurrency,
+        skipSymbol: true,
+      })
+      .and.returnValue('733479.83');
+    exactCurrencyPipe.transform
+      .withArgs({
+        value: teamReportResponse[0].aggregates[1].function_value,
+        currencyCode: homeCurrency,
+      })
+      .and.returnValue('₹733479.83');
 
     const tasks = tasksService.mapAggregateToTeamReportTask(
       {
-        totalAmount: teamReportResponse[0].aggregates[1].function_value,
-        totalCount: 1,
-      },
+        total_amount: teamReportResponse[0].aggregates[1].function_value,
+        count: 1,
+      } as PlatformReportsStatsResponse,
       homeCurrency
     );
 
     expect(tasks).toEqual([
       {
-        amount: '733.48K',
+        amount: '733479.83',
         count: 1,
         header: 'Report to be approved',
-        subheader: '1 report worth ₹733.48K  requires your approval',
+        subheader: '1 report worth ₹733479.83  requires your approval',
         icon: TaskIcon.REPORT,
         ctas: [
           {
@@ -1005,22 +1108,20 @@ describe('TasksService', () => {
   });
 
   describe('mapMobileNumberVerificationTask(): ', () => {
-    it('should return correct task object for add mobile number', () => {
-      expect(tasksService.mapMobileNumberVerificationTask('Add')).toEqual([addMobileNumberTask]);
+    it('should return correct task object with CTA as Opt in if user not opted in', () => {
+      expect(tasksService.mapMobileNumberVerificationTask(false)).toEqual([verifyMobileNumberTask]);
     });
 
-    it('should return correct task object for verify mobile number', () => {
-      expect(tasksService.mapMobileNumberVerificationTask('Verify')).toEqual([verifyMobileNumberTask]);
+    it('should return correct task object with CTA as Update and Opt in if user added non +1 mobile number', () => {
+      expect(tasksService.mapMobileNumberVerificationTask(true)).toEqual([verifyMobileNumberTask2]);
     });
   });
 
   describe('getMobileNumberVerificationTasks(): ', () => {
     it('should not return any task if user has verified mobile number', (done) => {
-      authService.getEou.and.returnValue(Promise.resolve(extendedOrgUserResponse));
-      corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([mastercardRTFCard]));
+      authService.getEou.and.resolveTo(extendedOrgUserResponse);
       const mapMobileNumberVerificationTaskSpy = spyOn(tasksService, 'mapMobileNumberVerificationTask');
       tasksService.getMobileNumberVerificationTasks().subscribe((res) => {
-        expect(corporateCreditCardExpenseService.getCorporateCards).toHaveBeenCalledOnceWith();
         expect(authService.getEou).toHaveBeenCalledOnceWith();
         expect(res).toEqual([]);
         expect(mapMobileNumberVerificationTaskSpy).not.toHaveBeenCalled();
@@ -1028,50 +1129,50 @@ describe('TasksService', () => {
       });
     });
 
-    it('should not return any task if user has not enrolled for RTF', (done) => {
+    it('should not return any task if user is from IN cluster', (done) => {
       const eou = cloneDeep(extendedOrgUserResponse);
       eou.ou.mobile_verified = false;
-      authService.getEou.and.returnValue(Promise.resolve(eou));
-      corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([]));
+      authService.getEou.and.resolveTo(eou);
+      utilityService.isUserFromINCluster.and.resolveTo(true);
       const mapMobileNumberVerificationTaskSpy = spyOn(tasksService, 'mapMobileNumberVerificationTask');
       tasksService.getMobileNumberVerificationTasks().subscribe((res) => {
-        expect(corporateCreditCardExpenseService.getCorporateCards).toHaveBeenCalledOnceWith();
         expect(authService.getEou).toHaveBeenCalledOnceWith();
+        expect(utilityService.isUserFromINCluster).toHaveBeenCalledOnceWith();
         expect(res).toEqual([]);
         expect(mapMobileNumberVerificationTaskSpy).not.toHaveBeenCalled();
         done();
       });
     });
 
-    it('should return add number task if user has not added mobile number', (done) => {
+    it('should return opt in task if user has not added mobile number and currency is CAD', (done) => {
       const eou = cloneDeep(extendedOrgUserResponse);
       eou.ou.mobile_verified = false;
       eou.ou.mobile = null;
-      authService.getEou.and.returnValue(Promise.resolve(eou));
-      corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([mastercardRTFCard]));
+      eou.org.currency = 'CAD';
+      authService.getEou.and.resolveTo(eou);
       const mapMobileNumberVerificationTaskSpy = spyOn(tasksService, 'mapMobileNumberVerificationTask').and.returnValue(
         [addMobileNumberTask]
       );
-      tasksService.getMobileNumberVerificationTasks().subscribe(() => {
-        expect(corporateCreditCardExpenseService.getCorporateCards).toHaveBeenCalledOnceWith();
-        expect(authService.getEou).toHaveBeenCalledOnceWith();
-        expect(mapMobileNumberVerificationTaskSpy).toHaveBeenCalledOnceWith('Add');
+      tasksService.getMobileNumberVerificationTasks().subscribe((res) => {
+        expect(authService.getEou).toHaveBeenCalledTimes(1);
+        expect(mapMobileNumberVerificationTaskSpy).toHaveBeenCalledTimes(1);
+        expect(res).toEqual([addMobileNumberTask]);
         done();
       });
     });
 
-    it('should return verify number task if user has verified mobile number', (done) => {
+    it('should return opt in task if user has not verified mobile number', (done) => {
       const eou = cloneDeep(extendedOrgUserResponse);
       eou.ou.mobile_verified = false;
-      authService.getEou.and.returnValue(Promise.resolve(eou));
-      corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([mastercardRTFCard]));
+      eou.org.currency = 'USD';
+      authService.getEou.and.resolveTo(eou);
       const mapMobileNumberVerificationTaskSpy = spyOn(tasksService, 'mapMobileNumberVerificationTask').and.returnValue(
         [addMobileNumberTask]
       );
-      tasksService.getMobileNumberVerificationTasks().subscribe(() => {
-        expect(corporateCreditCardExpenseService.getCorporateCards).toHaveBeenCalledOnceWith();
-        expect(authService.getEou).toHaveBeenCalledOnceWith();
-        expect(mapMobileNumberVerificationTaskSpy).toHaveBeenCalledOnceWith('Verify');
+      tasksService.getMobileNumberVerificationTasks().subscribe((res) => {
+        expect(authService.getEou).toHaveBeenCalledTimes(1);
+        expect(mapMobileNumberVerificationTaskSpy).toHaveBeenCalledTimes(1);
+        expect(res).toEqual([addMobileNumberTask]);
         done();
       });
     });
@@ -1080,7 +1181,7 @@ describe('TasksService', () => {
   describe('getCommuteDetailsTasks():', () => {
     it('should return commute details task if commute details response data is not defined', (done) => {
       employeesService.getCommuteDetails.and.returnValue(of(commuteDetailsResponseData2));
-      authService.getEou.and.returnValue(Promise.resolve(extendedOrgUserResponse));
+      authService.getEou.and.resolveTo(extendedOrgUserResponse);
       orgSettingsService.get.and.returnValue(of(orgSettingsWithCommuteDeductionsEnabled));
 
       tasksService.getCommuteDetailsTasks().subscribe((res) => {
@@ -1094,7 +1195,7 @@ describe('TasksService', () => {
 
     it('should return commute details task if home location is not present', (done) => {
       employeesService.getCommuteDetails.and.returnValue(of(commuteDetailsResponseData3));
-      authService.getEou.and.returnValue(Promise.resolve(extendedOrgUserResponse));
+      authService.getEou.and.resolveTo(extendedOrgUserResponse);
       orgSettingsService.get.and.returnValue(of(orgSettingsWithCommuteDeductionsEnabled));
 
       tasksService.getCommuteDetailsTasks().subscribe((res) => {
@@ -1108,7 +1209,7 @@ describe('TasksService', () => {
 
     it('should not return commute details task if mileage is disabled for org', (done) => {
       employeesService.getCommuteDetails.and.returnValue(of(commuteDetailsResponseData3));
-      authService.getEou.and.returnValue(Promise.resolve(extendedOrgUserResponse));
+      authService.getEou.and.resolveTo(extendedOrgUserResponse);
       orgSettingsService.get.and.returnValue(of(orgSettingsWoMileage));
 
       tasksService.getCommuteDetailsTasks().subscribe((res) => {
@@ -1122,7 +1223,7 @@ describe('TasksService', () => {
 
     it('should not return commute details task if commute deduction settings is disabled for org', (done) => {
       employeesService.getCommuteDetails.and.returnValue(of(commuteDetailsResponseData3));
-      authService.getEou.and.returnValue(Promise.resolve(extendedOrgUserResponse));
+      authService.getEou.and.resolveTo(extendedOrgUserResponse);
       orgSettingsService.get.and.returnValue(of(orgSettingsRes));
 
       tasksService.getCommuteDetailsTasks().subscribe((res) => {
@@ -1136,7 +1237,7 @@ describe('TasksService', () => {
 
     it('should not return commute details task if home location is present in commute details', (done) => {
       employeesService.getCommuteDetails.and.returnValue(of(commuteDetailsResponseData));
-      authService.getEou.and.returnValue(Promise.resolve(extendedOrgUserResponse));
+      authService.getEou.and.resolveTo(extendedOrgUserResponse);
       orgSettingsService.get.and.returnValue(of(orgSettingsWithCommuteDeductionsDisabled));
 
       tasksService.getCommuteDetailsTasks().subscribe((res) => {

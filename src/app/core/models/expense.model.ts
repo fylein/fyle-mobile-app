@@ -33,6 +33,7 @@ export interface Expense {
   rp_purpose?: string;
   rp_reimbursed_at?: Date;
   source_account_id: string;
+  advance_wallet_id?: string;
   source_account_type: string;
   transaction_approvals?: string[];
   tx_admin_amount?: number;
@@ -102,7 +103,6 @@ export interface Expense {
   tx_location_column9?: Destination;
   tx_locations: Destination[];
   tx_mandatory_fields_present: boolean;
-  tx_manual_flag: boolean;
   tx_mileage_calculated_amount?: number;
   tx_mileage_calculated_distance?: number;
   tx_mileage_is_round_trip?: boolean;
@@ -119,8 +119,6 @@ export interface Expense {
   tx_orig_currency?: string;
   tx_payment_id?: string;
   tx_per_diem_rate_id?: string;
-  tx_physical_bill: boolean;
-  tx_physical_bill_at?: Date;
   tx_policy_amount?: number;
   tx_policy_flag: boolean;
   tx_policy_state?: string;
@@ -135,6 +133,7 @@ export interface Expense {
   tx_skip_reimbursement: boolean;
   tx_source: string;
   tx_source_account_id: string;
+  tx_advance_wallet_id?: string;
   tx_split_group_id: string;
   tx_split_group_user_amount?: number;
   tx_state: string;

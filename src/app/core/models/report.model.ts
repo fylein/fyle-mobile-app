@@ -37,11 +37,8 @@ export interface ExtendedReport {
   rp_location4?: string;
   rp_location5?: string;
   rp_locations: string[];
-  rp_manual_flag: boolean;
   rp_num_transactions: number;
   rp_org_user_id: string;
-  rp_physical_bill: boolean;
-  rp_physical_bill_at?: Date;
   rp_policy_flag: boolean;
   rp_purpose: string;
   rp_reimbursed_at?: Date;
@@ -51,7 +48,6 @@ export interface ExtendedReport {
     moderate_risk?: number;
     no_risk?: number;
   };
-  rp_settlement_id?: string;
   rp_source?: string;
   rp_state: string;
   rp_submitted_at?: Date;

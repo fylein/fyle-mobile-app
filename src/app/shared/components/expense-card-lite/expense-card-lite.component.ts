@@ -1,6 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { FileObject } from 'src/app/core/models/file-obj.model';
-import { FileService } from 'src/app/core/services/file.service';
+import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 
 @Component({
   selector: 'app-expense-card-lite',
@@ -8,19 +7,15 @@ import { FileService } from 'src/app/core/services/file.service';
   styleUrls: ['./expense-card-lite.component.scss'],
 })
 export class ExpenseCardLiteComponent implements OnInit {
-  @Input() expense;
+  @Input() expense: Expense;
 
   isReceiptPresent: boolean;
-
-  constructor(private fileService: FileService) {}
 
   ngOnInit(): void {
     this.getReceipt();
   }
 
-  getReceipt() {
-    this.fileService.findByTransactionId(this.expense.id).subscribe((files: FileObject[]) => {
-      this.isReceiptPresent = files.length > 0;
-    });
+  getReceipt(): void {
+    this.isReceiptPresent = this.expense.file_ids?.length > 0;
   }
 }

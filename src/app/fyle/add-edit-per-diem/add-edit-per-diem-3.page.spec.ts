@@ -32,7 +32,11 @@ import { ModalController, NavController, Platform, PopoverController } from '@io
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
 import { multiplePaymentModesData, unflattenedAccount2Data } from 'src/app/core/test-data/accounts.service.spec.data';
-import { unflattenedTxnData, unflattenedTxnData2 } from 'src/app/core/mock-data/unflattened-txn.data';
+import {
+  unflattenedTxnData,
+  unflattenedTxnData2,
+  unflattenedTxnWithAdvanceWallet,
+} from 'src/app/core/mock-data/unflattened-txn.data';
 import { finalize, of, throwError } from 'rxjs';
 import { currencyObjData5, currencyObjData6 } from 'src/app/core/mock-data/currency-obj.data';
 import { before, cloneDeep } from 'lodash';
@@ -40,13 +44,15 @@ import {
   perDiemFormValuesData10,
   perDiemFormValuesData8,
   perDiemFormValuesData9,
+  perDiemFormValuesWithAdvanceWalletData,
 } from 'src/app/core/mock-data/per-diem-form-value.data';
+import { orgSettingsRes, orgSettingsParamsWithAdvanceWallet } from 'src/app/core/mock-data/org-settings.data';
 import {
   expectedTxnCustomProperties,
   txnCustomProperties4,
   txnCustomPropertiesData5,
 } from 'src/app/core/mock-data/txn-custom-properties.data';
-import { perDiemTransaction } from 'src/app/core/mock-data/transaction.data';
+import { perDiemTransaction, perDiemTransactionWithAdvanceWallet } from 'src/app/core/mock-data/transaction.data';
 import { perDiemCustomInputsData2 } from 'src/app/core/mock-data/per-diem-custom-inputs.data';
 import { expenseFieldResponse } from 'src/app/core/mock-data/expense-field.data';
 import { platformPolicyExpenseData1 } from 'src/app/core/mock-data/platform-policy-expense.data';
@@ -243,10 +249,47 @@ export function TestCases3(getTestBed) {
       });
     });
 
+    describe('getAdvanceWalletId():', () => {
+      it('should get advance wallet id', () => {
+        component.fg.controls.paymentMode.setValue({
+          id: 'areq1234',
+        });
+
+        const result = component.getAdvanceWalletId(true);
+        expect(result).toEqual('areq1234');
+      });
+
+      it('should return null', () => {
+        component.fg.controls.paymentMode.setValue(null);
+
+        const result = component.getAdvanceWalletId(true);
+        expect(result).toBeUndefined();
+      });
+
+      it('should return null when advance wallet setting is disabled', () => {
+        component.fg.controls.paymentMode.setValue(null);
+
+        const result = component.getAdvanceWalletId(false);
+        expect(result).toBeFalse();
+      });
+
+      it('should return null', () => {
+        component.fg.controls.paymentMode.setValue({
+          acc: {
+            id: 'id',
+          },
+        });
+
+        const result = component.getAdvanceWalletId(true);
+        expect(result).toBeNull();
+      });
+    });
+
     describe('generateEtxnFromFg():', () => {
       beforeEach(() => {
         spyOn(component, 'getFormValues').and.returnValue(perDiemFormValuesData8);
         component.fg.controls.currencyObj.setValue(currencyObjData6);
+        orgSettingsService.get.and.returnValue(of(orgSettingsRes));
       });
 
       it('should return etxn object from form data', (done) => {
@@ -266,7 +309,59 @@ export function TestCases3(getTestBed) {
           expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-08-01'));
           expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-08-03'));
           expect(res.tx).toEqual({ ...unflattenedTxnData.tx, ...perDiemTransaction });
+          expect(res.tx.skip_reimbursement).toBeFalse();
           expect(res.ou).toEqual(unflattenedTxnData.ou);
+          expect(res.dataUrls).toEqual([]);
+          done();
+        });
+      });
+
+      it('should return etxn object from form data when orgSettings is null', (done) => {
+        const etxn = of(unflattenedTxnData);
+        const customProperties = of(cloneDeep(expectedTxnCustomProperties));
+        orgSettingsService.get.and.returnValue(of(null));
+        dateService.getUTCDate.and.returnValues(
+          new Date('2023-02-13T17:00:00.000Z'),
+          new Date('2023-08-01T17:00:00.000Z'),
+          new Date('2023-08-03T17:00:00.000Z')
+        );
+
+        const expectedEtxn$ = component.generateEtxnFromFg(etxn, customProperties);
+
+        expectedEtxn$.subscribe((res) => {
+          expect(dateService.getUTCDate).toHaveBeenCalledTimes(3);
+          expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-02-13T17:00:00.000Z'));
+          expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-08-01'));
+          expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-08-03'));
+          expect(res.tx).toEqual({ ...unflattenedTxnData.tx, ...perDiemTransaction });
+          expect(res.ou).toEqual(unflattenedTxnData.ou);
+          expect(res.dataUrls).toEqual([]);
+          done();
+        });
+      });
+
+      it('should return etxn object from form data when advance wallets is enabled', (done) => {
+        component.getFormValues = jasmine.createSpy().and.returnValue(perDiemFormValuesWithAdvanceWalletData);
+        const etxn = of(unflattenedTxnWithAdvanceWallet);
+        const customProperties = of(cloneDeep(expectedTxnCustomProperties));
+        orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithAdvanceWallet));
+        dateService.getUTCDate.and.returnValues(
+          new Date('2023-02-13T17:00:00.000Z'),
+          new Date('2023-08-01T17:00:00.000Z'),
+          new Date('2023-08-03T17:00:00.000Z')
+        );
+        spyOn(component, 'getAdvanceWalletId').and.returnValue('areq1234');
+
+        const expectedEtxn$ = component.generateEtxnFromFg(etxn, customProperties);
+
+        expectedEtxn$.subscribe((res) => {
+          expect(dateService.getUTCDate).toHaveBeenCalledTimes(3);
+          expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-02-13T17:00:00.000Z'));
+          expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-08-01'));
+          expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-08-03'));
+          expect(res.tx).toEqual({ ...unflattenedTxnWithAdvanceWallet.tx, ...perDiemTransactionWithAdvanceWallet });
+          expect(res.tx.skip_reimbursement).toBeTrue();
+          expect(res.ou).toEqual(unflattenedTxnWithAdvanceWallet.ou);
           expect(res.dataUrls).toEqual([]);
           done();
         });
@@ -518,18 +613,27 @@ export function TestCases3(getTestBed) {
     });
 
     describe('addExpense():', () => {
-      const etxn$ = of({ tx: unflattenedTxnData.tx, ou: unflattenedTxnData.ou, dataUrls: [] });
       const customFields$ = of(txnCustomProperties4);
+      const expectedEtxnDataWithReportId = {
+        ...unflattenedTxnData,
+        tx: {
+          ...unflattenedTxnData.tx,
+          report_id: expectedReportsPaginated[0].id,
+        },
+      };
       beforeEach(() => {
+        const etxn$ = of({ tx: cloneDeep(unflattenedTxnData.tx), ou: unflattenedTxnData.ou, dataUrls: [] });
         spyOn(component, 'generateEtxnFromFg').and.returnValue(etxn$);
         spyOn(component, 'getCustomFields').and.returnValue(customFields$);
         component.isConnected$ = of(true);
         spyOn(component, 'checkPolicyViolation').and.returnValue(of(expensePolicyData));
         policyService.getCriticalPolicyRules.and.returnValue(['The expense will be flagged']);
         policyService.getPolicyRules.and.returnValue(['The expense will be flagged']);
-        spyOn(component, 'criticalPolicyViolationErrorHandler').and.returnValue(of({ etxn: unflattenedTxnData }));
+        spyOn(component, 'criticalPolicyViolationErrorHandler').and.returnValue(
+          of({ etxn: cloneDeep(unflattenedTxnData) })
+        );
         spyOn(component, 'policyViolationErrorHandler').and.returnValue(
-          of({ etxn: unflattenedTxnData, comment: 'comment' })
+          of({ etxn: cloneDeep(unflattenedTxnData), comment: 'comment' })
         );
         authService.getEou.and.resolveTo(apiEouRes);
         spyOn(component, 'getFormValues').and.returnValue({
@@ -575,10 +679,9 @@ export function TestCases3(getTestBed) {
             expect(authService.getEou).toHaveBeenCalledTimes(1);
             expect(trackingService.createExpense).toHaveBeenCalledOnceWith(createExpenseProperties3);
             expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
-              unflattenedTxnData.tx,
+              expectedEtxnDataWithReportId.tx,
               undefined,
-              [],
-              'rprAfNrce73O'
+              []
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
@@ -618,10 +721,9 @@ export function TestCases3(getTestBed) {
             expect(authService.getEou).toHaveBeenCalledTimes(1);
             expect(trackingService.createExpense).toHaveBeenCalledOnceWith(createExpenseProperties3);
             expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
-              unflattenedTxnData.tx,
+              expectedEtxnDataWithReportId.tx,
               undefined,
-              ['comment'],
-              'rprAfNrce73O'
+              ['comment']
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
@@ -664,10 +766,9 @@ export function TestCases3(getTestBed) {
             expect(authService.getEou).toHaveBeenCalledTimes(1);
             expect(trackingService.createExpense).toHaveBeenCalledOnceWith(createExpenseProperties3);
             expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
-              unflattenedTxnData.tx,
+              expectedEtxnDataWithReportId.tx,
               undefined,
-              ['comment'],
-              'rprAfNrce73O'
+              ['comment']
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
@@ -708,10 +809,9 @@ export function TestCases3(getTestBed) {
             expect(authService.getEou).toHaveBeenCalledTimes(1);
             expect(trackingService.createExpense).toHaveBeenCalledOnceWith(createExpenseProperties3);
             expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
-              unflattenedTxnData.tx,
+              expectedEtxnDataWithReportId.tx,
               undefined,
-              ['comment'],
-              'rprAfNrce73O'
+              ['comment']
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
@@ -748,10 +848,9 @@ export function TestCases3(getTestBed) {
               expect(authService.getEou).toHaveBeenCalledTimes(1);
               expect(trackingService.createExpense).toHaveBeenCalledOnceWith(createExpenseProperties3);
               expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
-                unflattenedTxnData.tx,
+                expectedEtxnDataWithReportId.tx,
                 undefined,
-                ['comment'],
-                'rprAfNrce73O'
+                ['comment']
               );
               expect(res).toEqual(outboxQueueData1[0]);
             },
@@ -793,10 +892,9 @@ export function TestCases3(getTestBed) {
 
             expect(trackingService.createExpense).toHaveBeenCalledOnceWith(createExpenseProperties3);
             expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
-              unflattenedTxnData.tx,
+              expectedEtxnDataWithReportId.tx,
               [],
-              [],
-              'rprAfNrce73O'
+              []
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
@@ -828,10 +926,9 @@ export function TestCases3(getTestBed) {
 
             expect(trackingService.createExpense).toHaveBeenCalledOnceWith(createExpenseProperties3);
             expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
-              unflattenedTxnData.tx,
+              expectedEtxnDataWithReportId.tx,
               [],
-              [],
-              'rprAfNrce73O'
+              []
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
@@ -843,6 +940,7 @@ export function TestCases3(getTestBed) {
         policyService.getPolicyRules.and.returnValue([]);
         const mockTxnData = cloneDeep(unflattenedTxnData);
         mockTxnData.tx.policy_amount = 0.1;
+        mockTxnData.tx.report_id = expectedReportsPaginated[0].id;
         component.generateEtxnFromFg = jasmine
           .createSpy()
           .and.returnValue(of({ tx: mockTxnData.tx, ou: unflattenedTxnData.ou, dataUrls: [] }));
@@ -872,12 +970,7 @@ export function TestCases3(getTestBed) {
             expect(authService.getEou).toHaveBeenCalledTimes(1);
 
             expect(trackingService.createExpense).toHaveBeenCalledOnceWith(createExpenseProperties3);
-            expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
-              mockTxnData.tx,
-              [],
-              [],
-              'rprAfNrce73O'
-            );
+            expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(mockTxnData.tx, [], []);
             expect(res).toEqual(outboxQueueData1[0]);
             done();
           });

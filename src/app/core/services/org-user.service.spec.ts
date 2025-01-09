@@ -21,6 +21,8 @@ import { DataTransformService } from './data-transform.service';
 import { of } from 'rxjs';
 import { OrgUserService } from './org-user.service';
 import { TokenService } from './token.service';
+import { delegatorData } from '../mock-data/platform/v1/delegator.data';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 
 describe('OrgUserService', () => {
   let orgUserService: OrgUserService;
@@ -30,10 +32,12 @@ describe('OrgUserService', () => {
   let authService: jasmine.SpyObj<AuthService>;
   let dataTransformService: jasmine.SpyObj<DataTransformService>;
   let apiV2Service: jasmine.SpyObj<ApiV2Service>;
+  let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
 
   beforeEach(() => {
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post']);
     const apiv2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['get']);
+    const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('spenderPlatformV1ApiService', ['get']);
     const jwtHelperServiceSpy = jasmine.createSpyObj('JwtHelperService', ['decodeToken']);
     const tokenServiceSpy = jasmine.createSpyObj('TokenService', ['getAccessToken']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['newRefreshToken', 'refreshEou']);
@@ -49,6 +53,10 @@ describe('OrgUserService', () => {
         {
           provide: ApiV2Service,
           useValue: apiv2ServiceSpy,
+        },
+        {
+          provide: SpenderPlatformV1ApiService,
+          useValue: spenderPlatformV1ApiServiceSpy,
         },
         {
           provide: JwtHelperService,
@@ -71,6 +79,9 @@ describe('OrgUserService', () => {
     orgUserService = TestBed.inject(OrgUserService);
     apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
     apiV2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
+    spenderPlatformV1ApiService = TestBed.inject(
+      SpenderPlatformV1ApiService
+    ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     jwtHelperService = TestBed.inject(JwtHelperService) as jasmine.SpyObj<JwtHelperService>;
     tokenService = TestBed.inject(TokenService) as jasmine.SpyObj<TokenService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
@@ -162,14 +173,11 @@ describe('OrgUserService', () => {
   });
 
   it('should be able to find delegated accounts', (done) => {
-    const eouList = [currentEouUnflatted];
-    apiService.get.and.returnValue(of(eouList));
-    eouList.map((delegatedAccount) =>
-      dataTransformService.unflatten.withArgs(delegatedAccount).and.returnValue(currentEouRes)
-    );
+    const delegatorList = { data: [delegatorData] };
+    spenderPlatformV1ApiService.get.and.returnValue(of(delegatorList));
 
     orgUserService.findDelegatedAccounts().subscribe((res) => {
-      expect(res).toEqual([currentEouRes]);
+      expect(res).toEqual([delegatorData]);
       done();
     });
   });
@@ -178,7 +186,7 @@ describe('OrgUserService', () => {
     apiService.post.and.returnValue(of(extendedOrgUserResponse));
     authService.newRefreshToken.and.returnValue(of(extendedOrgUserResponse));
 
-    orgUserService.switchToDelegator(switchToDelegatorParams).subscribe((res) => {
+    orgUserService.switchToDelegator(delegatorData.user_id, switchToDelegatorParams.org_id).subscribe((res) => {
       expect(res).toEqual(extendedOrgUserResponse);
       done();
     });
@@ -224,10 +232,10 @@ describe('OrgUserService', () => {
     // This token contains the user details such as user id, org id, org user id, roles, scopes, etc.
     const token =
       'eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2NzI5MTcyMDAsImlzcyI6IkZ5bGVBcHAiLCJ1c2VyX2lkIjoidXNNakxpYm15ZTdzIiwib3JnX3VzZXJfaWQiOiJvdXJ3N0hpNG1tcE8iLCJvcmdfaWQiOiJvck5WdGhUbzJaeW8iLCJyb2xlcyI6IltcIkZZTEVSXCIsXCJGSU5BTkNFXCIsXCJBRE1JTlwiLFwiQVBQUk9WRVJcIixcIlZFUklGSUVSXCIsXCJQQVlNRU5UX1BST0NFU1NPUlwiLFwiSE9QXCJdIiwic2NvcGVzIjoiW10iLCJhbGxvd2VkX0NJRFJzIjoiW10iLCJ2ZXJzaW9uIjoiMyIsImNsdXN0ZXJfZG9tYWluIjoiXCJodHRwczovL3N0YWdpbmcuZnlsZS50ZWNoXCIiLCJleHAiOjE2NzI5MjA4MDB9.hTMJ56cPH_HgKhZSKNCOIEGAzaAXCfIgbEYcaudhXwk';
-    tokenService.getAccessToken.and.returnValue(Promise.resolve(token));
+    tokenService.getAccessToken.and.resolveTo(token);
 
     orgUserService.isSwitchedToDelegator().then((res) => {
-      expect(res).toEqual(false);
+      expect(res).toBeFalse();
       done();
     });
   });
@@ -237,10 +245,10 @@ describe('OrgUserService', () => {
     // This token contains the user details such as user id, org id, org user id, roles, scopes, etc.
     const token =
       'eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2NzI5MTcxNTgsImlzcyI6IkZ5bGVBcHAiLCJ1c2VyX2lkIjoidXNCa0pEMVVtMTc0Iiwib3JnX3VzZXJfaWQiOiJvdTVxclBKYkdmV00iLCJvcmdfaWQiOiJvck5WdGhUbzJaeW8iLCJyb2xlcyI6IltcIkZZTEVSXCIsXCJWRVJJRklFUlwiXSIsInNjb3BlcyI6IltdIiwicHJveHlfb3JnX3VzZXJfaWQiOiJvdXJ3N0hpNG1tcE8iLCJhbGxvd2VkX0NJRFJzIjoiW10iLCJ2ZXJzaW9uIjoiMyIsImNsdXN0ZXJfZG9tYWluIjoiXCJodHRwczovL3N0YWdpbmcuZnlsZS50ZWNoXCIiLCJleHAiOjE2NzI5MjA3NTh9.VqpiTmEd_Kp-fK11gBV-VfjEkPhCja-diu-TGDGPeKA';
-    tokenService.getAccessToken.and.returnValue(Promise.resolve(token));
+    tokenService.getAccessToken.and.resolveTo(token);
 
     orgUserService.isSwitchedToDelegator().then((res) => {
-      expect(res).toEqual(true);
+      expect(res).toBeTrue();
       done();
     });
   });

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
-import { from, throwError, Observable, of, noop } from 'rxjs';
+import { from, throwError, Observable, of, noop, Subscription } from 'rxjs';
 import { PopoverController } from '@ionic/angular';
 import { ErrorComponent } from './error/error.component';
 import { shareReplay, filter, finalize, switchMap, map, tap, take } from 'rxjs/operators';
@@ -16,6 +16,10 @@ import { InAppBrowserService } from 'src/app/core/services/in-app-browser.servic
 import { HttpErrorResponse } from '@angular/common/http';
 import { EmailExistsResponse } from 'src/app/core/models/email-exists-response.model';
 import { SamlResponse } from 'src/app/core/models/saml-response.model';
+import { SignInPageState } from './sign-in-page-state.enum';
+import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
+import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
+import { BackButtonService } from 'src/app/core/services/back-button.service';
 
 @Component({
   selector: 'app-sign-in',
@@ -25,17 +29,21 @@ import { SamlResponse } from 'src/app/core/models/saml-response.model';
 export class SignInPage implements OnInit {
   fg: FormGroup;
 
-  emailSet = false;
-
   emailLoading = false;
 
   passwordLoading = false;
 
   googleSignInLoading = false;
 
-  hide = true;
+  hidePassword = true;
 
   checkEmailExists$: Observable<EmailExistsResponse>;
+
+  currentStep: SignInPageState;
+
+  signInPageState: typeof SignInPageState = SignInPageState;
+
+  hardwareBackButtonAction: Subscription;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -49,7 +57,9 @@ export class SignInPage implements OnInit {
     private trackingService: TrackingService,
     private deviceService: DeviceService,
     private loginInfoService: LoginInfoService,
-    private inAppBrowserService: InAppBrowserService
+    private inAppBrowserService: InAppBrowserService,
+    private platformHandlerService: PlatformHandlerService,
+    private backButtonService: BackButtonService
   ) {}
 
   async checkSAMLResponseAndSignInUser(data: SamlResponse): Promise<void> {
@@ -122,14 +132,14 @@ export class SignInPage implements OnInit {
         finalize(async () => {
           this.emailLoading = false;
         })
-      ) as Observable<EmailExistsResponse>;
+      );
 
       const saml$ = checkEmailExists$.pipe(filter((res) => (res.saml ? true : false)));
 
       const basicSignIn$ = checkEmailExists$.pipe(filter((res) => (!res.saml ? true : false)));
 
       basicSignIn$.subscribe({
-        next: () => (this.emailSet = true),
+        next: () => (this.currentStep = this.signInPageState.ENTER_PASSWORD),
         error: (err: HttpErrorResponse) => this.handleError(err),
       });
 
@@ -142,8 +152,12 @@ export class SignInPage implements OnInit {
     }
   }
 
+  goToForgotPasswordPage(): void {
+    this.router.navigate(['/', 'auth', 'reset_password', { email: this.fg.controls.email.value as string }]);
+  }
+
   async handleError(error: HttpErrorResponse): Promise<void> {
-    let header = 'Incorrect Email or Password';
+    let header = 'Incorrect email or password';
 
     if (error?.status === 400) {
       this.router.navigate(['/', 'auth', 'pending_verification', { email: this.fg.controls.email.value as string }]);
@@ -243,7 +257,6 @@ export class SignInPage implements OnInit {
           this.fg.reset();
           this.router.navigate(['/', 'auth', 'switch_org', { choose: true }]);
         },
-        error: (err: HttpErrorResponse) => this.handleError(err),
       });
   }
 
@@ -253,8 +266,34 @@ export class SignInPage implements OnInit {
     await this.loginInfoService.addLoginInfo(deviceInfo.appVersion, new Date());
   }
 
+  goBack(currentStep: SignInPageState): void {
+    switch (currentStep) {
+      case SignInPageState.ENTER_EMAIL:
+        this.changeState(SignInPageState.SELECT_SIGN_IN_METHOD);
+        break;
+      case SignInPageState.ENTER_PASSWORD:
+        this.changeState(SignInPageState.ENTER_EMAIL);
+        break;
+      default:
+        this.backButtonService.showAppCloseAlert();
+    }
+  }
+
   ionViewWillEnter(): void {
-    this.emailSet = !!this.fg.controls.email.value;
+    if (this.activatedRoute.snapshot.params.email) {
+      this.currentStep = SignInPageState.ENTER_PASSWORD;
+    } else {
+      this.currentStep = SignInPageState.SELECT_SIGN_IN_METHOD;
+    }
+    const fn = (): void => {
+      this.goBack(this.currentStep);
+    };
+    const priority = BackButtonActionPriority.MEDIUM;
+    this.hardwareBackButtonAction = this.platformHandlerService.registerBackButtonAction(priority, fn);
+  }
+
+  changeState(state: SignInPageState): void {
+    this.currentStep = state;
   }
 
   ngOnInit(): void {
@@ -274,5 +313,9 @@ export class SignInPage implements OnInit {
           this.router.navigate(['/', 'auth', 'switch_org', { choose: false }]);
         }
       });
+  }
+
+  ionViewWillLeave(): void {
+    this.hardwareBackButtonAction.unsubscribe();
   }
 }

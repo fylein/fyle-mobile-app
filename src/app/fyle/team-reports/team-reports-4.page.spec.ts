@@ -4,7 +4,6 @@ import { ModalController } from '@ionic/angular';
 import { TeamReportsPage } from './team-reports.page';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { ReportService } from 'src/app/core/services/report.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -35,6 +34,8 @@ import {
 } from 'src/app/core/mock-data/get-tasks-query-params-with-filters.data';
 import { creditTxnFilterPill } from 'src/app/core/mock-data/filter-pills.data';
 import { teamReportsModalControllerParams } from 'src/app/core/mock-data/modal-controller.data';
+import { AuthService } from 'src/app/core/services/auth.service';
+import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 
 export function TestCases4(getTestBed) {
   return describe('test cases set 3', () => {
@@ -42,7 +43,6 @@ export function TestCases4(getTestBed) {
     let fixture: ComponentFixture<TeamReportsPage>;
     let networkService: jasmine.SpyObj<NetworkService>;
     let loaderService: jasmine.SpyObj<LoaderService>;
-    let reportService: jasmine.SpyObj<ReportService>;
     let modalController: jasmine.SpyObj<ModalController>;
     let dateService: jasmine.SpyObj<DateService>;
     let router: jasmine.SpyObj<Router>;
@@ -54,6 +54,7 @@ export function TestCases4(getTestBed) {
     let tasksService: jasmine.SpyObj<TasksService>;
     let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
     let inputElement: HTMLInputElement;
+    let authService: jasmine.SpyObj<AuthService>;
 
     beforeEach(waitForAsync(() => {
       const TestBed = getTestBed();
@@ -61,7 +62,6 @@ export function TestCases4(getTestBed) {
       component = fixture.componentInstance;
       networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
       loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
-      reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
       modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
       dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
       router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
@@ -72,6 +72,8 @@ export function TestCases4(getTestBed) {
       apiV2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
       tasksService = TestBed.inject(TasksService) as jasmine.SpyObj<TasksService>;
       orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+      authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
+      component.eou$ = of(apiEouRes);
     }));
 
     it('generateStateFilterPills(): should update filter pills', () => {

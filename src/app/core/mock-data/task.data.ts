@@ -18,10 +18,10 @@ export const draftExpenseTaskSample = deepFreeze({
 });
 
 export const draftExpenseTaskSample2 = deepFreeze({
-  amount: '132.57B',
+  amount: '76234.47',
   count: 339,
   header: 'Incomplete expenses',
-  subheader: '339 expenses worth ₹132.57B  require additional information',
+  subheader: '339 expenses worth ₹76234.47  require additional information',
   icon: TaskIcon.WARNING,
   ctas: [
     {
@@ -46,10 +46,10 @@ export const potentailDuplicateTaskSample = deepFreeze({
 });
 
 export const teamReportTaskSample = deepFreeze({
-  amount: '733.48K',
+  amount: '5177243929.65',
   count: 2,
   header: 'Reports to be approved',
-  subheader: '2 reports worth ₹733.48K  require your approval',
+  subheader: '2 reports worth ₹5177243929.65  require your approval',
   icon: TaskIcon.REPORT,
   ctas: [
     {
@@ -60,10 +60,24 @@ export const teamReportTaskSample = deepFreeze({
 });
 
 export const sentBackReportTaskSample = deepFreeze({
-  amount: '44.53',
+  amount: '4500.00',
+  count: 2,
+  header: 'Reports sent back!',
+  subheader: '2 reports worth ₹4500.00  were sent back by your approver',
+  icon: TaskIcon.REPORT,
+  ctas: [
+    {
+      content: 'View Reports',
+      event: TASKEVENT.openSentBackReport,
+    },
+  ],
+});
+
+export const sentBackReportTaskSingularSample = deepFreeze({
+  amount: '4500.00',
   count: 1,
   header: 'Report sent back!',
-  subheader: '1 report worth ₹44.53  was sent back by your approver',
+  subheader: '1 report worth ₹4500.00  was sent back by your approver',
   icon: TaskIcon.REPORT,
   ctas: [
     {
@@ -88,10 +102,10 @@ export const unreportedExpenseTaskSample = deepFreeze({
 });
 
 export const unreportedExpenseTaskSample2 = deepFreeze({
-  amount: '142.26K',
+  amount: '30.00',
   count: 3,
   header: 'Expenses are ready to report',
-  subheader: '3 expenses  worth ₹142.26K  can be added to a report',
+  subheader: '3 expenses  worth ₹30.00  can be added to a report',
   icon: TaskIcon.REPORT,
   ctas: [
     {
@@ -102,10 +116,10 @@ export const unreportedExpenseTaskSample2 = deepFreeze({
 });
 
 export const unsubmittedReportTaskSample = deepFreeze({
-  amount: '0.00',
+  amount: '93165.91',
   count: 2,
   header: 'Unsubmitted reports',
-  subheader: '2 reports remain in draft state',
+  subheader: '2 reports worth ₹93165.91  remain in draft state',
   icon: TaskIcon.REPORT,
   ctas: [
     {
@@ -116,10 +130,10 @@ export const unsubmittedReportTaskSample = deepFreeze({
 });
 
 export const sentBackAdvanceTaskSample = deepFreeze({
-  amount: '123.37M',
+  amount: '123370000.00',
   count: 5,
   header: 'Advances sent back!',
-  subheader: '5 advances worth ₹123.37M  were sent back by your approver',
+  subheader: '5 advances worth ₹123370000.00  were sent back by your approver',
   icon: TaskIcon.ADVANCE,
   ctas: [
     {
@@ -144,12 +158,25 @@ export const addMobileNumberTask = deepFreeze({
 
 export const verifyMobileNumberTask = deepFreeze({
   hideAmount: true,
-  header: 'Verify Mobile Number',
-  subheader: 'Verify your mobile number to text the receipts directly',
-  icon: TaskIcon.MOBILE,
+  header: 'Opt in to text receipts',
+  subheader: 'Opt-in to activate text messages for instant expense submission',
+  icon: TaskIcon.STARS,
   ctas: [
     {
-      content: 'Verify',
+      content: 'Opt in',
+      event: TASKEVENT.mobileNumberVerification,
+    },
+  ],
+});
+
+export const verifyMobileNumberTask2 = deepFreeze({
+  hideAmount: true,
+  header: 'Update phone number to opt in to text receipts',
+  subheader: 'Add a +1 country code to your mobile number to receive text message receipts.',
+  icon: TaskIcon.STARS,
+  ctas: [
+    {
+      content: 'Update and Opt in',
       event: TASKEVENT.mobileNumberVerification,
     },
   ],

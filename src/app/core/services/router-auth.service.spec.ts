@@ -10,11 +10,13 @@ import { TransactionsOutboxService } from './transactions-outbox.service';
 import { VendorService } from './vendor.service';
 import { ApproverPlatformApiService } from './approver-platform-api.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
+import { PlatformCommonApiService } from './platform-common-api.service';
 import { of } from 'rxjs';
 import { apiAuthRes, authResData1 } from '../mock-data/auth-reponse.data';
 import { ExpenseAggregationService } from './expense-aggregation.service';
 import { SpenderService } from './platform/v1/spender/spender.service';
 import { ApproverService } from './platform/v1/approver/approver.service';
+import { TrackingService } from './tracking.service';
 
 describe('RouterAuthService', () => {
   let routerAuthService: RouterAuthService;
@@ -28,9 +30,11 @@ describe('RouterAuthService', () => {
   let vendorService: jasmine.SpyObj<VendorService>;
   let approverPlatformApiService: jasmine.SpyObj<ApproverPlatformApiService>;
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
+  let platformCommonApiService: jasmine.SpyObj<PlatformCommonApiService>;
   let expenseAggregationService: jasmine.SpyObj<ExpenseAggregationService>;
   let spenderService: jasmine.SpyObj<SpenderService>;
   let approverService: jasmine.SpyObj<ApproverService>;
+  let trackingService: jasmine.SpyObj<TrackingService>;
 
   const access_token =
     'eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2Nzk5MDQ0NTQsImlzcyI6IkZ5bGVBcHAiLCJ1c2VyX2lkIjoidXN2S0E0WDhVZ2NyIiwib3JnX3VzZXJfaWQiOiJvdVg4ZHdzYkxDTHYiLCJvcmdfaWQiOiJvck5WdGhUbzJaeW8iLCJyb2xlcyI6IltcIkFETUlOXCIsXCJBUFBST1ZFUlwiLFwiRllMRVJcIixcIkhPUFwiLFwiSE9EXCIsXCJPV05FUlwiXSIsInNjb3BlcyI6IltdIiwiYWxsb3dlZF9DSURScyI6IltdIiwidmVyc2lvbiI6IjMiLCJjbHVzdGVyX2RvbWFpbiI6IlwiaHR0cHM6Ly9zdGFnaW5nLmZ5bGUudGVjaFwiIiwiZXhwIjoxNjc5OTA4MDU0fQ.z3i-MqE3NNyxPEvWFCSr3q58rLXn3LZcIBskW9BLN48';
@@ -55,10 +59,12 @@ describe('RouterAuthService', () => {
     const transactionOutboxServiceSpy = jasmine.createSpyObj('TransactionsOutboxService', ['setRoot']);
     const vendorServiceSpy = jasmine.createSpyObj('VendorService', ['setRoot']);
     const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['setRoot']);
+    const platformCommonApiServiceSpy = jasmine.createSpyObj('PlatformCommonApiService', ['setRoot']);
     const approverPlatformApiServiceSpy = jasmine.createSpyObj('ApproverPlatformApiService', ['setRoot']);
     const expenseAggregationServiceSpy = jasmine.createSpyObj('ExpenseAggregationService', ['setRoot']);
     const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['setRoot']);
     const approverServiceSpy = jasmine.createSpyObj('ApproverService', ['setRoot']);
+    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['setRoot']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -100,6 +106,10 @@ describe('RouterAuthService', () => {
           useValue: spenderPlatformV1ApiServiceSpy,
         },
         {
+          provide: PlatformCommonApiService,
+          useValue: platformCommonApiServiceSpy,
+        },
+        {
           provide: ApproverPlatformApiService,
           useValue: approverPlatformApiServiceSpy,
         },
@@ -115,6 +125,10 @@ describe('RouterAuthService', () => {
           provide: ApproverService,
           useValue: approverServiceSpy,
         },
+        {
+          provide: TrackingService,
+          useValue: trackingServiceSpy,
+        },
       ],
     });
     routerAuthService = TestBed.inject(RouterAuthService);
@@ -129,12 +143,14 @@ describe('RouterAuthService', () => {
     spenderPlatformV1ApiService = TestBed.inject(
       SpenderPlatformV1ApiService
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
+    platformCommonApiService = TestBed.inject(PlatformCommonApiService) as jasmine.SpyObj<PlatformCommonApiService>;
     approverPlatformApiService = TestBed.inject(
       ApproverPlatformApiService
     ) as jasmine.SpyObj<ApproverPlatformApiService>;
     expenseAggregationService = TestBed.inject(ExpenseAggregationService) as jasmine.SpyObj<ExpenseAggregationService>;
     spenderService = TestBed.inject(SpenderService) as jasmine.SpyObj<SpenderService>;
     approverService = TestBed.inject(ApproverService) as jasmine.SpyObj<ApproverService>;
+    trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
   });
 
   it('should be created', () => {
@@ -164,18 +180,20 @@ describe('RouterAuthService', () => {
       expect(vendorService.setRoot).toHaveBeenCalledOnceWith(domain);
       expect(approverPlatformApiService.setRoot).toHaveBeenCalledOnceWith(domain);
       expect(spenderPlatformV1ApiService.setRoot).toHaveBeenCalledWith(domain);
+      expect(platformCommonApiService.setRoot).toHaveBeenCalledWith(domain);
       expect(spenderPlatformV1ApiService.setRoot).toHaveBeenCalledTimes(2);
       expect(tokenService.setClusterDomain).toHaveBeenCalledOnceWith(domain);
       expect(expenseAggregationService.setRoot).toHaveBeenCalledOnceWith(domain);
       expect(spenderService.setRoot).toHaveBeenCalledOnceWith(domain);
       expect(approverService.setRoot).toHaveBeenCalledOnceWith(domain);
+      expect(trackingService.setRoot).toHaveBeenCalledOnceWith(domain);
       done();
     });
   });
 
   it('isLoggedIn(): should check if user is logged in', (done) => {
-    tokenService.getAccessToken.and.returnValue(Promise.resolve(access_token));
-    tokenService.getRefreshToken.and.returnValue(Promise.resolve(refresh_token));
+    tokenService.getAccessToken.and.resolveTo(access_token);
+    tokenService.getRefreshToken.and.resolveTo(refresh_token);
 
     routerAuthService.isLoggedIn().then((res) => {
       expect(res).toBeTrue();
@@ -186,7 +204,7 @@ describe('RouterAuthService', () => {
   });
 
   it('newRefreshToken(): should set new refresh token', async () => {
-    tokenService.setRefreshToken.and.returnValue(Promise.resolve(null));
+    tokenService.setRefreshToken.and.resolveTo(null);
     const deleteUser = await storageService.delete('user');
     const deleteRole = await storageService.delete('role');
 
@@ -198,7 +216,7 @@ describe('RouterAuthService', () => {
   });
 
   it('newAccessToken(): should set new access token', fakeAsync(() => {
-    tokenService.setAccessToken.and.returnValue(Promise.resolve(null));
+    tokenService.setAccessToken.and.resolveTo(null);
 
     tick();
     routerAuthService.newAccessToken(access_token).then((res) => {
@@ -211,7 +229,7 @@ describe('RouterAuthService', () => {
 
   it('fetchAccessToken(): should fetch access token', fakeAsync(() => {
     routerApiService.post.and.returnValue(of(apiAuthRes));
-    tokenService.getAccessToken.and.returnValue(Promise.resolve(access_token));
+    tokenService.getAccessToken.and.resolveTo(access_token);
 
     tick();
 
@@ -227,7 +245,7 @@ describe('RouterAuthService', () => {
   it('handleSignInResponse(): should handle sign in response', (done) => {
     spyOn(routerAuthService, 'newRefreshToken').and.callThrough();
     spyOn(routerAuthService, 'setClusterDomain').and.callThrough();
-    spyOn(routerAuthService, 'fetchAccessToken').and.returnValue(Promise.resolve(apiAuthRes));
+    spyOn(routerAuthService, 'fetchAccessToken').and.resolveTo(apiAuthRes);
     spyOn(routerAuthService, 'newAccessToken').and.callThrough();
 
     routerAuthService.handleSignInResponse(authResData1).then((res) => {
@@ -258,7 +276,7 @@ describe('RouterAuthService', () => {
 
   it('basicSignin(): should sign in the user with email and password', (done) => {
     routerApiService.post.and.returnValue(of(authResData1));
-    spyOn(routerAuthService, 'handleSignInResponse').and.returnValue(Promise.resolve(authResData1));
+    spyOn(routerAuthService, 'handleSignInResponse').and.resolveTo(authResData1);
     const password = 'KalaChashma';
 
     routerAuthService.basicSignin(email, password).subscribe((res) => {
@@ -274,7 +292,7 @@ describe('RouterAuthService', () => {
 
   it('googleSignin(): should sign in the user with google', (done) => {
     routerApiService.post.and.returnValue(of(authResData1));
-    spyOn(routerAuthService, 'handleSignInResponse').and.returnValue(Promise.resolve(authResData1));
+    spyOn(routerAuthService, 'handleSignInResponse').and.resolveTo(authResData1);
 
     routerAuthService.googleSignin(access_token).subscribe((res) => {
       expect(res).toEqual(authResData1);
@@ -288,7 +306,7 @@ describe('RouterAuthService', () => {
 
   it('resetPassword(): should reset user passord', (done) => {
     routerApiService.post.and.returnValue(of(authResData1));
-    spyOn(routerAuthService, 'handleSignInResponse').and.returnValue(Promise.resolve(authResData1));
+    spyOn(routerAuthService, 'handleSignInResponse').and.resolveTo(authResData1);
 
     const newPassword = 'New_Password';
 
@@ -305,7 +323,7 @@ describe('RouterAuthService', () => {
 
   it('emailVerify(): should verify email', (done) => {
     routerApiService.post.and.returnValue(of(authResData1));
-    spyOn(routerAuthService, 'handleSignInResponse').and.returnValue(Promise.resolve(authResData1));
+    spyOn(routerAuthService, 'handleSignInResponse').and.resolveTo(authResData1);
 
     const verification_code = 'orNVthTo2Zyo';
 

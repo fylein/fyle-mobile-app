@@ -40,7 +40,6 @@ export interface PublicPolicyExpense {
   invoice_number: number;
   locations?: Destination[] | string[];
   mandatory_fields_present: boolean;
-  manual_flag: boolean;
   mileage_calculated_amount: number;
   mileage_calculated_distance: number;
   mileage_is_round_trip: boolean;
@@ -54,8 +53,6 @@ export interface PublicPolicyExpense {
   orig_currency: string;
   payment_id: string;
   per_diem_rate_id: number;
-  physical_bill: boolean;
-  physical_bill_at: Date;
   platform_vendor: string;
   platform_vendor_id: string;
   policy_amount: number;

@@ -2,12 +2,9 @@ import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angul
 import { IonicModule } from '@ionic/angular';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { DateService } from 'src/app/core/services/date.service';
-import { FileService } from 'src/app/core/services/file.service';
-import { TransactionService } from 'src/app/core/services/transaction.service';
 import { SplitExpenseService } from 'src/app/core/services/split-expense.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { ReportService } from 'src/app/core/services/report.service';
-import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
@@ -17,8 +14,8 @@ import { CurrencyService } from 'src/app/core/services/currency.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { SplitExpensePage } from './split-expense.page';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import {
-  AbstractControlOptions,
   FormArray,
   FormBuilder,
   FormControl,
@@ -41,7 +38,6 @@ import {
   expectedFilterOrgCategory,
   expectedOrgCategoriesPaginated,
   filterOrgCategoryParam,
-  orgCategoryData,
   transformedOrgCategories,
   unspecifiedCategory,
 } from 'src/app/core/mock-data/org-category.data';
@@ -49,54 +45,29 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { FyAlertInfoComponent } from 'src/app/shared/components/fy-alert-info/fy-alert-info.component';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import {
-  amtTxn3,
   modifiedTxnData4,
   modifiedTxnData5,
   modifiedTxnData6,
   modifiedTxnData7,
   sourceTxn2,
-  splitExpenseTxn1,
-  splitExpenseTxn1_1,
-  splitExpenseTxn2,
-  splitExpenseTxn2_2,
-  splitExpenseTxn2_3,
-  splitExpenseTxn3,
-  splitPurposeTxn,
-  splitTxn2,
   splitTxns,
-  txnAmount1,
-  txnAmount2,
   txnData,
   txnData4,
   txnData6,
   txnList,
 } from 'src/app/core/mock-data/transaction.data';
-import { splitTransactionData1 } from 'src/app/core/mock-data/public-policy-expense.data';
-import { ExpenseFieldsObj } from 'src/app/core/models/v1/expense-fields-obj.model';
 import { expenseFieldObjData, txnFieldData } from 'src/app/core/mock-data/expense-field-obj.data';
 import {
   fileObjectData5,
   fileObject6,
-  fileObject7,
   fileObject8,
   fileObjectAdv,
   fileObjectAdv1,
   fileObjectData4,
-  splitExpFile2,
-  splitExpFile3,
-  splitExpFileObj,
   fileUrlMockData,
   fileObjectData1,
 } from 'src/app/core/mock-data/file-object.data';
-import {
-  fileTxns,
-  fileTxns2,
-  fileTxns3,
-  fileTxns4,
-  fileTxns5,
-  fileTxns6,
-  fileTxns7,
-} from 'src/app/core/mock-data/file-txn.data';
+
 import {
   splitExpense1,
   splitExpense2,
@@ -113,7 +84,7 @@ import {
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
-import { dependentFieldValues, txnCustomProperties } from 'src/app/core/test-data/dependent-fields.service.spec.data';
+import { dependentFieldValues } from 'src/app/core/test-data/dependent-fields.service.spec.data';
 import {
   allowedActiveCategories,
   allowedActiveCategoriesListOptions,
@@ -122,21 +93,12 @@ import {
   testActiveCategoryListOptions,
   testProjectV2,
 } from 'src/app/core/test-data/projects.spec.data';
-import { fileData2 } from 'src/app/core/mock-data/file.data';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { formattedTxnViolations } from 'src/app/core/mock-data/formatted-policy-violation.data';
 import { SplitExpensePolicyViolationComponent } from 'src/app/shared/components/split-expense-policy-violation/split-expense-policy-violation.component';
-import {
-  policyViolation1,
-  policyViolationData3,
-  policyViolationData5,
-  policyVoilationData2,
-} from 'src/app/core/mock-data/policy-violation.data';
+import { policyViolation1, policyViolationData5 } from 'src/app/core/mock-data/policy-violation.data';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
-import { unflattenedAccount2Data, unflattenedAccount3Data } from 'src/app/core/test-data/accounts.service.spec.data';
+import { unflattenedAccount3Data } from 'src/app/core/test-data/accounts.service.spec.data';
 import { categorieListRes } from 'src/app/core/mock-data/org-category-list-item.data';
-import * as dayjs from 'dayjs';
-import { expenseList2 } from 'src/app/core/mock-data/expense.data';
 import { cloneDeep } from 'lodash';
 import {
   splitExpenseFormData1,
@@ -146,7 +108,6 @@ import {
   splitExpenseFormData6,
   splitExpenseFormData7,
 } from 'src/app/core/mock-data/split-expense-form.data';
-import { customInputData1 } from 'src/app/core/mock-data/custom-input.data';
 import { costCentersData3, expectedCCdata } from 'src/app/core/mock-data/cost-centers.data';
 import {
   currencyObjData1,
@@ -154,12 +115,10 @@ import {
   currencyObjData3,
   currencyObjData4,
 } from 'src/app/core/mock-data/currency-obj.data';
-import { matchedCCCTransactionData1 } from 'src/app/core/mock-data/matchedCCCTransaction.data';
 import { ToastType } from 'src/app/core/enums/toast-type.enum';
 import { costCenterExpenseField, expenseFieldResponse } from 'src/app/core/mock-data/expense-field.data';
 import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { txnCustomPropertiesData } from 'src/app/core/mock-data/txn-custom-properties.data';
-import { expectedProjects4 } from 'src/app/core/mock-data/extended-projects.data';
 import { filteredSplitPolicyViolationsData } from 'src/app/core/mock-data/filtered-split-policy-violations.data';
 import { filteredMissingFieldsViolationsData } from 'src/app/core/mock-data/filtered-missing-fields-violations.data';
 import {
@@ -167,8 +126,11 @@ import {
   transformedSplitExpenseMissingFieldsData2,
 } from 'src/app/core/mock-data/transformed-split-expense-missing-fields.data';
 import { splitPolicyExp1 } from 'src/app/core/mock-data/split-expense-policy.data';
-import { SplitExpenseMissingFieldsData } from 'src/app/core/models/split-expense-missing-fields.data';
+import { SplitExpenseMissingFieldsData } from 'src/app/core/mock-data/split-expense-missing-fields.data';
 import { splitPayloadData1 } from 'src/app/core/mock-data/split-payload.data';
+import { platformExpenseWithExtractedData } from 'src/app/core/mock-data/platform/v1/expense.data';
+import { orgSettingsWithProjectCategoryRestrictions } from 'src/app/core/mock-data/org-settings.data';
+import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 
 describe('SplitExpensePage', () => {
   let component: SplitExpensePage;
@@ -178,18 +140,17 @@ describe('SplitExpensePage', () => {
   let dateService: jasmine.SpyObj<DateService>;
   let splitExpenseService: jasmine.SpyObj<SplitExpenseService>;
   let currencyService: jasmine.SpyObj<CurrencyService>;
-  let transactionService: jasmine.SpyObj<TransactionService>;
-  let fileService: jasmine.SpyObj<FileService>;
+  let expensesService: jasmine.SpyObj<ExpensesService>;
   let navController: jasmine.SpyObj<NavController>;
   let router: jasmine.SpyObj<Router>;
   let transactionsOutboxService: jasmine.SpyObj<TransactionsOutboxService>;
-  let reportService: jasmine.SpyObj<ReportService>;
   let matSnackBar: jasmine.SpyObj<MatSnackBar>;
   let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
   let policyService: jasmine.SpyObj<PolicyService>;
   let modalController: jasmine.SpyObj<ModalController>;
   let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
+  let costCentersService: jasmine.SpyObj<CostCentersService>;
   let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let dependentFieldsService: jasmine.SpyObj<DependentFieldsService>;
@@ -217,11 +178,9 @@ describe('SplitExpensePage', () => {
       'transformSplitTo',
     ]);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
-    const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['delete', 'matchCCCExpense']);
-    const fileServiceSpy = jasmine.createSpyObj('FileService', ['findByTransactionId']);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const transactionsOutboxServiceSpy = jasmine.createSpyObj('TransactionsOutboxService', ['fileUpload']);
-    const reportServiceSpy = jasmine.createSpyObj('ReportService', ['addTransactions']);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
@@ -235,6 +194,7 @@ describe('SplitExpensePage', () => {
     const policyServiceSpy = jasmine.createSpyObj('PolicyService', ['checkIfViolationsExist']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create', 'getTop']);
     const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
+    const costCentersServiceSpy = jasmine.createSpyObj('CostCentersService', ['getAllActive']);
     const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['getAllowedCostCenters', 'get']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const dependentFieldsServiceSpy = jasmine.createSpyObj('DependentFieldsService', [
@@ -273,17 +233,16 @@ describe('SplitExpensePage', () => {
         },
         { provide: SplitExpenseService, useValue: splitExpenseServiceSpy },
         { provide: CurrencyService, useValue: currencyServiceSpy },
-        { provide: TransactionService, useValue: transactionServiceSpy },
-        { provide: FileService, useValue: fileServiceSpy },
+        { provide: ExpensesService, useValue: expensesServiceSpy },
         { provide: Router, useValue: routerSpy },
         { provide: TransactionsOutboxService, useValue: transactionsOutboxServiceSpy },
-        { provide: ReportService, useValue: reportServiceSpy },
         { provide: MatSnackBar, useValue: matSnackBarSpy },
         { provide: SnackbarPropertiesService, useValue: snackbarPropertiesSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },
         { provide: PolicyService, useValue: policyServiceSpy },
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: ModalPropertiesService, useValue: modalPropertiesSpy },
+        { provide: CostCentersService, useValue: costCentersServiceSpy },
         { provide: OrgUserSettingsService, useValue: orgUserSettingsServiceSpy },
         { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
         { provide: DependentFieldsService, useValue: dependentFieldsServiceSpy },
@@ -326,17 +285,16 @@ describe('SplitExpensePage', () => {
     dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
     splitExpenseService = TestBed.inject(SplitExpenseService) as jasmine.SpyObj<SplitExpenseService>;
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
-    transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
-    fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
+    expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     transactionsOutboxService = TestBed.inject(TransactionsOutboxService) as jasmine.SpyObj<TransactionsOutboxService>;
-    reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
     snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     policyService = TestBed.inject(PolicyService) as jasmine.SpyObj<PolicyService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
+    costCentersService = TestBed.inject(CostCentersService) as jasmine.SpyObj<CostCentersService>;
     orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     dependentFieldsService = TestBed.inject(DependentFieldsService) as jasmine.SpyObj<DependentFieldsService>;
@@ -744,12 +702,12 @@ describe('SplitExpensePage', () => {
   });
 
   it('getAttachedFiles(): should get all the attached files', (done) => {
-    const transactionId = 'fizBwnXhyZTp';
-    fileService.findByTransactionId.and.returnValue(of(fileObject8));
-    component.getAttachedFiles(transactionId).subscribe((result) => {
-      expect(result).toEqual(fileObject8);
-      expect(component.fileObjs).toEqual(fileObject8);
-      expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith(transactionId);
+    const expenseId = 'fizBwnXhyZTp';
+    expensesService.getExpenseById.and.returnValue(of(platformExpenseWithExtractedData));
+    component.getAttachedFiles(expenseId).subscribe((result) => {
+      expect(result).toEqual(platformExpenseWithExtractedData.files);
+      expect(component.fileObjs).toEqual(platformExpenseWithExtractedData.files);
+      expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(expenseId);
       done();
     });
   });
@@ -797,7 +755,7 @@ describe('SplitExpensePage', () => {
       projectsService.getbyId.and.returnValue(of(testProjectV2));
       projectsService.getAllowedOrgCategoryIds.and.returnValue(allowedActiveCategories);
 
-      orgSettingsService.get.and.returnValue(of(orgSettingsGetData));
+      orgSettingsService.get.and.returnValue(of(orgSettingsWithProjectCategoryRestrictions));
       orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
 
       dependentFieldsService.getDependentFieldValuesForBaseField.and.returnValue(of(dependentFieldValues));
@@ -843,7 +801,11 @@ describe('SplitExpensePage', () => {
       expect(component.getActiveCategories).toHaveBeenCalledTimes(1);
 
       expect(projectsService.getbyId).toHaveBeenCalledOnceWith(component.transaction.project_id);
-      expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledOnceWith(testProjectV2, testActiveCategoryList);
+      expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledOnceWith(
+        testProjectV2,
+        testActiveCategoryList,
+        true
+      );
 
       component.categories$.subscribe((categories) => {
         expect(categories).toEqual(allowedActiveCategoriesListOptions);
@@ -911,15 +873,14 @@ describe('SplitExpensePage', () => {
 
     it('should set costCenters$ correctly if splitType is cost centers', () => {
       const mockCostCenters = costCentersData3.slice(0, 2);
-      orgUserSettingsService.getAllowedCostCenters.and.returnValue(of(mockCostCenters));
+      costCentersService.getAllActive.and.returnValue(of(mockCostCenters));
       activateRouteMock.snapshot.params.splitType = 'cost centers';
 
       component.ionViewWillEnter();
 
       component.costCenters$.subscribe((costCenters) => {
         expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-        expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
-        expect(orgUserSettingsService.getAllowedCostCenters).toHaveBeenCalledOnceWith(orgUserSettingsData);
+        expect(costCentersService.getAllActive).toHaveBeenCalledTimes(1);
         expect(costCenters).toEqual(expectedCCdata);
       });
     });
@@ -934,8 +895,7 @@ describe('SplitExpensePage', () => {
 
       component.costCenters$.subscribe((costCenters) => {
         expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-        expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
-        expect(orgUserSettingsService.getAllowedCostCenters).not.toHaveBeenCalled();
+        expect(costCentersService.getAllActive).not.toHaveBeenCalledTimes(1);
         expect(costCenters).toEqual([]);
       });
     });
@@ -1043,7 +1003,7 @@ describe('SplitExpensePage', () => {
 
     it('should return an error object when the date is after the upper bound of the valid range', () => {
       const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 2);
+      tomorrow.setDate(tomorrow.getDate() + 3);
       const control = new FormControl(tomorrow.toISOString().substring(0, 10));
       const result = component.customDateValidator(control);
       expect(result).toEqual({ invalidDateSelection: true });
@@ -1507,8 +1467,20 @@ describe('SplitExpensePage', () => {
     });
   });
 
+  it('setSplitExpenseValuesBasedOnProject(): should set project_id, project_name and category id in split expense', () => {
+    const mockTransaction = cloneDeep(txnData4);
+    mockTransaction.org_category_id = 122269;
+    component.transaction = mockTransaction;
+    const splitTxn = cloneDeep(txnData4);
+    const project = cloneDeep(expectedProjectsResponse[0]);
+    component.setSplitExpenseValuesBasedOnProject(splitTxn, project, true);
+    expect(splitTxn.project_id).toEqual(project.project_id);
+    expect(splitTxn.project_name).toEqual(project.project_name);
+  });
+
   describe('setSplitExpenseProjectHelper():', () => {
-    it('should set project_id, project_name and category id in split expense if project is present in split expense form and the category is mapped to that project', () => {
+    it('should call setSplitExpenseValuesBasedOnProject() if project is present in split expense form', () => {
+      spyOn(component, 'setSplitExpenseValuesBasedOnProject');
       const mockTransaction = cloneDeep(txnData4);
       mockTransaction.org_category_id = 122269;
       component.transaction = mockTransaction;
@@ -1516,12 +1488,13 @@ describe('SplitExpensePage', () => {
       const splitTxn = cloneDeep(txnData4);
       const project = cloneDeep(expectedProjectsResponse[0]);
       const costCenter = cloneDeep(costCenterExpenseField);
-      component.setSplitExpenseProjectHelper(mockSplitExpenseForm, splitTxn, project, costCenter);
-      expect(splitTxn.project_id).toEqual(project.project_id);
-      expect(splitTxn.project_name).toEqual(project.project_name);
+      component.setSplitExpenseProjectHelper(mockSplitExpenseForm, splitTxn, { project, costCenter }, true);
+
+      expect(component.setSplitExpenseValuesBasedOnProject).toHaveBeenCalledOnceWith(splitTxn, project, true);
     });
 
-    it('should not modify project details in split expense if project is not present in split expense form', () => {
+    it('should not call setSplitExpenseValuesBasedOnProject() if project is not present in split expense form', () => {
+      spyOn(component, 'setSplitExpenseValuesBasedOnProject');
       const mockTransaction = cloneDeep(txnData4);
       mockTransaction.org_category_id = 122269;
       component.transaction = mockTransaction;
@@ -1529,9 +1502,8 @@ describe('SplitExpensePage', () => {
       const splitTxn = cloneDeep(txnData4);
       const project = cloneDeep(expectedProjectsResponse[0]);
       const costCenter = cloneDeep(costCenterExpenseField);
-      component.setSplitExpenseProjectHelper(mockSplitExpenseForm, splitTxn, project, costCenter);
-      expect(splitTxn.project_id).toBeNull();
-      expect(splitTxn.project_name).toBeNull();
+      component.setSplitExpenseProjectHelper(mockSplitExpenseForm, splitTxn, { project, costCenter }, false);
+      expect(component.setSplitExpenseValuesBasedOnProject).not.toHaveBeenCalled();
     });
 
     it('should set cost center to null in split expense if category is present in split expense form and category is not mapped to that cost center', () => {
@@ -1542,7 +1514,7 @@ describe('SplitExpensePage', () => {
       const splitTxn = cloneDeep(txnData4);
       const project = cloneDeep(expectedProjectsResponse[0]);
       const costCenter = cloneDeep(costCenterExpenseField);
-      component.setSplitExpenseProjectHelper(mockSplitExpenseForm, splitTxn, project, costCenter);
+      component.setSplitExpenseProjectHelper(mockSplitExpenseForm, splitTxn, { project, costCenter }, true);
       expect(splitTxn.cost_center_id).toBeNull();
       expect(splitTxn.cost_center_name).toBeNull();
     });
@@ -1554,7 +1526,7 @@ describe('SplitExpensePage', () => {
       const mockSplitExpenseForm = cloneDeep(splitExpenseDataWithCostCenter);
       const splitTxn = cloneDeep(txnData4);
       const project = cloneDeep(expectedProjectsResponse[0]);
-      component.setSplitExpenseProjectHelper(mockSplitExpenseForm, splitTxn, project, null);
+      component.setSplitExpenseProjectHelper(mockSplitExpenseForm, splitTxn, { project, costCenter: null }, true);
       expect(splitTxn.cost_center_id).toBeNull();
       expect(splitTxn.cost_center_name).toBeNull();
     });
@@ -1567,7 +1539,7 @@ describe('SplitExpensePage', () => {
       const splitTxn = cloneDeep(txnData4);
       const project = cloneDeep(expectedProjectsResponse[0]);
       const costCenter = cloneDeep(costCenterExpenseField);
-      component.setSplitExpenseProjectHelper(mockSplitExpenseForm, splitTxn, project, costCenter);
+      component.setSplitExpenseProjectHelper(mockSplitExpenseForm, splitTxn, { project, costCenter }, true);
       expect(splitTxn.org_category_id).toEqual(mockSplitExpenseForm.category.id);
       expect(splitTxn.org_category).toEqual(mockSplitExpenseForm.category.name);
     });
@@ -1580,11 +1552,25 @@ describe('SplitExpensePage', () => {
       const project = cloneDeep(expectedProjectsResponse[0]);
       project.project_org_category_ids = [184692];
       const costCenter = cloneDeep(costCenterExpenseField);
-      component.setSplitExpenseProjectHelper(mockSplitExpenseForm, splitTxn, project, costCenter);
+      component.setSplitExpenseProjectHelper(mockSplitExpenseForm, splitTxn, { project, costCenter }, true);
       expect(splitTxn.org_category_id).toEqual(mockSplitExpenseForm.category.id);
       expect(splitTxn.org_category).toEqual(mockSplitExpenseForm.category.name);
       expect(splitTxn.project_id).toEqual(project.project_id);
       expect(splitTxn.project_name).toEqual(project.project_name);
+    });
+
+    it('should not set category_id in split expense if category is not present in transaction and split expense form', () => {
+      const mockTransaction = cloneDeep(txnData4);
+      mockTransaction.org_category_id = null;
+      component.transaction = mockTransaction;
+      const mockSplitExpenseForm = cloneDeep(splitExpenseDataWithCostCenter);
+      mockSplitExpenseForm.category = null;
+      const splitTxn = cloneDeep(txnData4);
+      splitTxn.org_category_id = null;
+      const project = cloneDeep(expectedProjectsResponse[0]);
+      component.setSplitExpenseProjectHelper(mockSplitExpenseForm, splitTxn, { project, costCenter: null }, true);
+
+      expect(splitTxn.org_category_id).toBeNull();
     });
   });
 
@@ -1609,12 +1595,12 @@ describe('SplitExpensePage', () => {
       const splitTxn = cloneDeep(txnData4);
       const project = cloneDeep(expectedProjectsResponse[0]);
       const costCenter = cloneDeep(costCenterExpenseField);
-      component.setCategoryAndProjectHelper(mockSplitExpenseForm, splitTxn, project, costCenter);
+      component.setCategoryAndProjectHelper(mockSplitExpenseForm, splitTxn, { project, costCenter }, true);
       expect(component.setSplitExpenseProjectHelper).toHaveBeenCalledOnceWith(
         mockSplitExpenseForm,
         splitTxn,
-        project,
-        costCenter
+        { project, costCenter },
+        true
       );
     });
 
@@ -1627,7 +1613,7 @@ describe('SplitExpensePage', () => {
       const splitTxn = cloneDeep(txnData4);
       const project = cloneDeep(expectedProjectsResponse[0]);
       const costCenter = cloneDeep(costCenterExpenseField);
-      component.setCategoryAndProjectHelper(mockSplitExpenseForm, splitTxn, project, costCenter);
+      component.setCategoryAndProjectHelper(mockSplitExpenseForm, splitTxn, { project, costCenter }, true);
       expect(splitTxn.org_category_id).toEqual(mockSplitExpenseForm.category.id);
       expect(splitTxn.project_id).toBeNull();
     });
@@ -1641,9 +1627,21 @@ describe('SplitExpensePage', () => {
       const splitTxn = cloneDeep(txnData4);
       const project = cloneDeep(expectedProjectsResponse[0]);
       const costCenter = cloneDeep(costCenterExpenseField);
-      component.setCategoryAndProjectHelper(mockSplitExpenseForm, splitTxn, project, costCenter);
+      component.setCategoryAndProjectHelper(mockSplitExpenseForm, splitTxn, { project, costCenter }, true);
       expect(splitTxn.org_category_id).toEqual(mockTransaction.org_category_id);
       expect(splitTxn.project_id).toEqual(mockTransaction.project_id);
+    });
+
+    it('should set cost center if present in split expense form or in transaction', () => {
+      const mockTransaction = cloneDeep(txnData4);
+      component.transaction = mockTransaction;
+      const mockSplitExpenseForm = cloneDeep(splitExpenseDataWithCostCenter);
+      const splitTxn = cloneDeep(txnData4);
+      splitTxn.cost_center_id = null;
+      const project = cloneDeep(expectedProjectsResponse[0]);
+      const costCenter = cloneDeep(costCenterExpenseField);
+      component.setCategoryAndProjectHelper(mockSplitExpenseForm, splitTxn, { project, costCenter }, true);
+      expect(splitTxn.cost_center_id).toEqual(mockSplitExpenseForm.cost_center.id);
     });
   });
 
@@ -1669,12 +1667,12 @@ describe('SplitExpensePage', () => {
       component.transaction = mockTransaction;
       const mockSplitExpenseForm = cloneDeep(splitExpenseDataWithCostCenter2);
       const splitTxn = cloneDeep(txnData4);
-      component.setupCategoryAndProject(splitTxn, mockSplitExpenseForm);
+      component.setupCategoryAndProject(splitTxn, mockSplitExpenseForm, true);
       expect(component.setCategoryAndProjectHelper).toHaveBeenCalledOnceWith(
         mockSplitExpenseForm,
         splitTxn,
-        null,
-        expenseFieldObjData.cost_center_id
+        { project: null, costCenter: expenseFieldObjData.cost_center_id },
+        true
       );
     });
 
@@ -1684,12 +1682,12 @@ describe('SplitExpensePage', () => {
       component.transaction = mockTransaction;
       const mockSplitExpenseForm = cloneDeep(splitExpenseDataWithProject);
       const splitTxn = cloneDeep(txnData4);
-      component.setupCategoryAndProject(splitTxn, mockSplitExpenseForm);
+      component.setupCategoryAndProject(splitTxn, mockSplitExpenseForm, true);
       expect(component.setCategoryAndProjectHelper).toHaveBeenCalledOnceWith(
         mockSplitExpenseForm,
         splitTxn,
-        mockSplitExpenseForm.project,
-        expenseFieldObjData.cost_center_id
+        { project: mockSplitExpenseForm.project, costCenter: expenseFieldObjData.cost_center_id },
+        true
       );
     });
 
@@ -1700,12 +1698,12 @@ describe('SplitExpensePage', () => {
       const mockSplitExpenseForm = cloneDeep(splitExpenseDataWithProject);
       mockSplitExpenseForm.project = null;
       const splitTxn = cloneDeep(txnData4);
-      component.setupCategoryAndProject(splitTxn, mockSplitExpenseForm);
+      component.setupCategoryAndProject(splitTxn, mockSplitExpenseForm, true);
       expect(component.setCategoryAndProjectHelper).toHaveBeenCalledOnceWith(
         mockSplitExpenseForm,
         splitTxn,
-        component.selectedProject,
-        expenseFieldObjData.cost_center_id
+        { project: component.selectedProject, costCenter: expenseFieldObjData.cost_center_id },
+        true
       );
     });
 
@@ -1716,12 +1714,12 @@ describe('SplitExpensePage', () => {
       const mockSplitExpenseForm = cloneDeep(splitExpenseDataWithProject);
       mockSplitExpenseForm.project.project_org_category_ids = null;
       const splitTxn = cloneDeep(txnData4);
-      component.setupCategoryAndProject(splitTxn, mockSplitExpenseForm);
+      component.setupCategoryAndProject(splitTxn, mockSplitExpenseForm, true);
       expect(component.setCategoryAndProjectHelper).toHaveBeenCalledOnceWith(
         mockSplitExpenseForm,
         splitTxn,
-        mockSplitExpenseForm.project,
-        expenseFieldObjData.cost_center_id
+        { project: mockSplitExpenseForm.project, costCenter: expenseFieldObjData.cost_center_id },
+        true
       );
     });
   });
@@ -1730,6 +1728,7 @@ describe('SplitExpensePage', () => {
     beforeEach(() => {
       splitExpenseService.createSplitTxns.and.returnValue(of(txnList));
       spyOn(component, 'setupCategoryAndProject');
+      component.isProjectCategoryRestrictionsEnabled$ = of(true);
     });
 
     it('should call createSplitTxns method and return the transactions created by split API', () => {
@@ -1760,8 +1759,8 @@ describe('SplitExpensePage', () => {
           component.expenseFields
         );
         expect(component.setupCategoryAndProject).toHaveBeenCalledTimes(2);
-        expect(component.setupCategoryAndProject).toHaveBeenCalledWith(txnList[0], splitExpenseForm1.value);
-        expect(component.setupCategoryAndProject).toHaveBeenCalledWith(txnList[1], otherSplitExpenseForm.value);
+        expect(component.setupCategoryAndProject).toHaveBeenCalledWith(txnList[0], splitExpenseForm1.value, true);
+        expect(component.setupCategoryAndProject).toHaveBeenCalledWith(txnList[1], otherSplitExpenseForm.value, true);
       });
     });
   });

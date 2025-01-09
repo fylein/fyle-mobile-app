@@ -1,10 +1,8 @@
 import { ComponentFixture, fakeAsync, TestBed, tick, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { TransactionService } from 'src/app/core/services/transaction.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
-import { ReportService } from 'src/app/core/services/report.service';
 import { NetworkService } from '../../core/services/network.service';
 import { StatusService } from 'src/app/core/services/status.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
@@ -18,7 +16,6 @@ import { PopoverController, ModalController } from '@ionic/angular';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { EventEmitter } from '@angular/core';
 import { of } from 'rxjs';
-import { expenseData1, expenseData2 } from 'src/app/core/mock-data/expense.data';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { individualExpPolicyStateData3 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
 import {
@@ -26,7 +23,6 @@ import {
   expensePolicyStatesData,
 } from 'src/app/core/mock-data/platform-policy-expense.data';
 import { dependentFieldValues } from 'src/app/core/test-data/dependent-fields.service.spec.data';
-import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { FileService } from 'src/app/core/services/file.service';
@@ -34,10 +30,8 @@ import { expenseFieldsMapResponse, expenseFieldsMapResponse4 } from 'src/app/cor
 import { orgSettingsGetData } from 'src/app/core/test-data/org-settings.service.spec.data';
 import { filledCustomProperties } from 'src/app/core/test-data/custom-inputs.spec.data';
 import { getEstatusApiResponse } from 'src/app/core/test-data/status.service.spec.data';
-import { apiTeamRptSingleRes, expectedReports } from 'src/app/core/mock-data/api-reports.data';
 import { cloneDeep, slice } from 'lodash';
 import { isEmpty } from 'rxjs/operators';
-import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
 import { mileageExpense } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
@@ -48,15 +42,18 @@ import { MileageRatesService } from 'src/app/core/services/mileage-rates.service
 import { platformMileageRatesSingleData } from 'src/app/core/mock-data/platform-mileage-rate.data';
 import { CustomInput } from 'src/app/core/models/custom-input.model';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
+import { expectedReportsSinglePageSubmitted, paidReportData } from '../../core/mock-data/platform-report.data';
+import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
+import { ApproverFileService } from 'src/app/core/services/platform/v1/approver/file.service';
+import { generateUrlsBulkData1 } from 'src/app/core/mock-data/generate-urls-bulk-response.data';
+import { receiptInfoData1 } from 'src/app/core/mock-data/receipt-info.data';
 
 describe('ViewMileagePage', () => {
   let component: ViewMileagePage;
   let fixture: ComponentFixture<ViewMileagePage>;
   let loaderService: jasmine.SpyObj<LoaderService>;
-  let transactionService: jasmine.SpyObj<TransactionService>;
   let customInputsService: jasmine.SpyObj<CustomInputsService>;
   let policyService: jasmine.SpyObj<PolicyService>;
-  let reportService: jasmine.SpyObj<ReportService>;
   let popoverController: jasmine.SpyObj<PopoverController>;
   let router: jasmine.SpyObj<Router>;
   let networkService: jasmine.SpyObj<NetworkService>;
@@ -73,11 +70,11 @@ describe('ViewMileagePage', () => {
   let mileageRatesService: jasmine.SpyObj<MileageRatesService>;
   let activateRouteMock: ActivatedRoute;
   let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
+  let spenderFileService: jasmine.SpyObj<SpenderFileService>;
+  let approverFileService: jasmine.SpyObj<ApproverFileService>;
 
   beforeEach(waitForAsync(() => {
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['hideLoader', 'showLoader']);
-    const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['manualUnflag', 'manualFlag']);
-    const reportServiceSpy = jasmine.createSpyObj('ReportService', ['getTeamReport']);
     const customInputsServiceSpy = jasmine.createSpyObj('CustomInputsService', [
       'getCustomPropertyDisplayValue',
       'fillCustomProperties',
@@ -107,14 +104,23 @@ describe('ViewMileagePage', () => {
     const dependentFieldsServiceSpy = jasmine.createSpyObj('DependentFieldsService', [
       'getDependentFieldValuesForBaseField',
     ]);
-    const fileServiceSpy = jasmine.createSpyObj('FileService', ['findByTransactionId', 'downloadUrl']);
+    const fileServiceSpy = jasmine.createSpyObj('FileService', [
+      'findByTransactionId',
+      'downloadUrl',
+      'getReceiptsDetails',
+    ]);
     const spenderExpensesServiceSpy = jasmine.createSpyObj('SpenderExpensesService', ['getExpenseById']);
     const approverExpensesServiceSpy = jasmine.createSpyObj('ApproverExpensesService', ['getExpenseById']);
     const mileageRatesServiceSpy = jasmine.createSpyObj('MileageRatesService', [
       'getSpenderMileageRateById',
       'getApproverMileageRateById',
     ]);
-    const approverReportsServiceSpy = jasmine.createSpyObj('ApproverReportsService', ['ejectExpenses']);
+    const approverReportsServiceSpy = jasmine.createSpyObj('ApproverReportsService', [
+      'ejectExpenses',
+      'getReportById',
+    ]);
+    const spenderFileServiceSpy = jasmine.createSpyObj('SpenderFileService', ['generateUrls']);
+    const approverFileServiceSpy = jasmine.createSpyObj('ApproverFileService', ['generateUrls']);
 
     TestBed.configureTestingModule({
       declarations: [ViewMileagePage],
@@ -123,14 +129,6 @@ describe('ViewMileagePage', () => {
         {
           useValue: loaderServiceSpy,
           provide: LoaderService,
-        },
-        {
-          useValue: transactionServiceSpy,
-          provide: TransactionService,
-        },
-        {
-          useValue: reportServiceSpy,
-          provide: ReportService,
         },
         {
           useValue: customInputsServiceSpy,
@@ -201,6 +199,14 @@ describe('ViewMileagePage', () => {
           useValue: approverReportsServiceSpy,
         },
         {
+          provide: SpenderFileService,
+          useValue: spenderFileServiceSpy,
+        },
+        {
+          provide: ApproverFileService,
+          useValue: approverFileServiceSpy,
+        },
+        {
           provide: ActivatedRoute,
           useValue: {
             snapshot: {
@@ -218,8 +224,6 @@ describe('ViewMileagePage', () => {
     fixture = TestBed.createComponent(ViewMileagePage);
     component = fixture.componentInstance;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
-    transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
-    reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
     customInputsService = TestBed.inject(CustomInputsService) as jasmine.SpyObj<CustomInputsService>;
     statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
@@ -237,6 +241,8 @@ describe('ViewMileagePage', () => {
     approverExpensesService = TestBed.inject(ApproverExpensesService) as jasmine.SpyObj<ApproverExpensesService>;
     mileageRatesService = TestBed.inject(MileageRatesService) as jasmine.SpyObj<MileageRatesService>;
     approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
+    spenderFileService = TestBed.inject(SpenderFileService) as jasmine.SpyObj<SpenderFileService>;
+    approverFileService = TestBed.inject(ApproverFileService) as jasmine.SpyObj<ApproverFileService>;
     activateRouteMock = TestBed.inject(ActivatedRoute);
 
     fixture.detectChanges();
@@ -392,84 +398,6 @@ describe('ViewMileagePage', () => {
         'view_team_report',
         { id: component.reportId, navigate_back: true },
       ]);
-    }));
-  });
-
-  describe('flagUnflagExpense', () => {
-    it('should flag,unflagged expense', fakeAsync(() => {
-      activateRouteMock.snapshot.queryParams = {
-        id: 'tx5fBcPBAxLv',
-      };
-
-      loaderService.showLoader.and.resolveTo();
-      loaderService.hideLoader.and.resolveTo();
-
-      const title = 'Flag';
-      const flagPopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onWillDismiss']);
-      popoverController.create.and.returnValue(flagPopoverSpy);
-      const data = { comment: 'This is a comment for flagging' };
-      flagPopoverSpy.onWillDismiss.and.resolveTo({ data });
-      statusService.post.and.returnValue(of(txnStatusData));
-      transactionService.manualFlag.and.returnValue(of(expenseData2));
-
-      component.flagUnflagExpense(false);
-      tick(500);
-
-      expect(popoverController.create).toHaveBeenCalledOnceWith({
-        component: FyPopoverComponent,
-        componentProps: {
-          title,
-          formLabel: 'Reason for flaging expense',
-        },
-        cssClass: 'fy-dialog-popover',
-      });
-
-      expect(flagPopoverSpy.present).toHaveBeenCalledTimes(1);
-      expect(flagPopoverSpy.onWillDismiss).toHaveBeenCalledTimes(1);
-      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Please wait');
-      expect(statusService.post).toHaveBeenCalledOnceWith('transactions', component.expenseId, data, true);
-      expect(transactionService.manualFlag).toHaveBeenCalledOnceWith(component.expenseId);
-      tick(500);
-      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-      expect(trackingService.expenseFlagUnflagClicked).toHaveBeenCalledOnceWith({ action: title });
-    }));
-
-    it('should unflag,flagged expense', fakeAsync(() => {
-      activateRouteMock.snapshot.params = {
-        id: 'tx5fBcPBAxLv',
-      };
-
-      loaderService.showLoader.and.resolveTo();
-      loaderService.hideLoader.and.resolveTo();
-
-      const title = 'Unflag';
-      const flagPopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onWillDismiss']);
-      popoverController.create.and.returnValue(flagPopoverSpy);
-      const data = { comment: 'This is a comment for flagging' };
-      flagPopoverSpy.onWillDismiss.and.resolveTo({ data });
-      statusService.post.and.returnValue(of(txnStatusData));
-      transactionService.manualUnflag.and.returnValue(of(expenseData1));
-
-      component.flagUnflagExpense(true);
-      tick(500);
-
-      expect(popoverController.create).toHaveBeenCalledOnceWith({
-        component: FyPopoverComponent,
-        componentProps: {
-          title,
-          formLabel: 'Reason for unflaging expense',
-        },
-        cssClass: 'fy-dialog-popover',
-      });
-
-      expect(flagPopoverSpy.present).toHaveBeenCalledTimes(1);
-      expect(flagPopoverSpy.onWillDismiss).toHaveBeenCalledTimes(1);
-      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Please wait');
-      expect(statusService.post).toHaveBeenCalledOnceWith('transactions', component.expenseId, data, true);
-      expect(transactionService.manualUnflag).toHaveBeenCalledOnceWith(component.expenseId);
-      tick(500);
-      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-      expect(trackingService.expenseFlagUnflagClicked).toHaveBeenCalledOnceWith({ action: title });
     }));
   });
 
@@ -785,8 +713,7 @@ describe('ViewMileagePage', () => {
         expect(data).toEqual(mockfilledCustomProperties);
         expect(customInputsService.fillCustomProperties).toHaveBeenCalledOnceWith(
           mileageExpense.category_id,
-          mileageExpense.custom_fields as Partial<CustomInput>[],
-          true
+          mileageExpense.custom_fields as Partial<CustomInput>[]
         );
         expect(customInputsService.getCustomPropertyDisplayValue).toHaveBeenCalledTimes(
           mockfilledCustomProperties.length
@@ -820,31 +747,6 @@ describe('ViewMileagePage', () => {
       });
     });
 
-    it('should get the flag status when the expense can be flagged', (done) => {
-      activateRouteMock.snapshot.params.view = ExpenseView.team;
-      component.mileageExpense$ = of(mileageExpense);
-      component.ionViewWillEnter();
-      component.canFlagOrUnflag$.subscribe((res) => {
-        expect(mileageExpense.state).toEqual(ExpenseState.APPROVER_PENDING);
-        expect(res).toBeTrue();
-        done();
-      });
-    });
-
-    it('expense cannot be flagged when the view is set to indivivual', (done) => {
-      activateRouteMock.snapshot.params.view = ExpenseView.individual;
-      const mockMileageExpense: Expense = {
-        ...mileageExpense,
-        state: ExpenseState.PAID,
-      };
-      component.mileageExpense$ = of(mockMileageExpense);
-      component.ionViewWillEnter();
-      component.canFlagOrUnflag$.pipe(isEmpty()).subscribe((isEmpty) => {
-        expect(isEmpty).toBeTrue();
-        done();
-      });
-    });
-
     it('should return false if there is only one transaction in the report and the state is PAID', (done) => {
       const mockMileageExpense: Expense = {
         ...mileageExpense,
@@ -852,7 +754,7 @@ describe('ViewMileagePage', () => {
         report_id: 'rphNNUiCISkD',
         custom_fields: null,
       };
-      reportService.getTeamReport.and.returnValue(of(apiTeamRptSingleRes.data[0]));
+      approverReportsService.getReportById.and.returnValue(of(paidReportData));
       spenderExpensesService.getExpenseById.and.returnValue(of(mockMileageExpense));
       component.mileageExpense$ = of(mockMileageExpense);
       component.expenseFields$ = of(expenseFieldsMapResponse4);
@@ -873,7 +775,7 @@ describe('ViewMileagePage', () => {
         report_id: 'rphNNUiCISkD',
         custom_fields: null,
       };
-      reportService.getTeamReport.and.returnValue(of(expectedReports.data[3]));
+      approverReportsService.getReportById.and.returnValue(of(expectedReportsSinglePageSubmitted[2]));
       approverExpensesService.getExpenseById.and.returnValue(of(mockMileageExpense));
       component.mileageExpense$ = of(mockMileageExpense);
       component.expenseFields$ = of(expenseFieldsMapResponse4);
@@ -894,7 +796,7 @@ describe('ViewMileagePage', () => {
         report_id: 'rphNNUiCISkD',
         custom_fields: null,
       };
-      reportService.getTeamReport.and.returnValue(of(expectedReports.data[3]));
+      approverReportsService.getReportById.and.returnValue(of(expectedReportsSinglePageSubmitted[2]));
       spenderExpensesService.getExpenseById.and.returnValue(of(mockMileageExpense));
       component.mileageExpense$ = of(mockMileageExpense);
       component.expenseFields$ = of(expenseFieldsMapResponse4);
@@ -1049,6 +951,43 @@ describe('ViewMileagePage', () => {
       expect(component.updateFlag$.next).toHaveBeenCalledOnceWith(null);
       expect(component.reportExpenseCount).toEqual(3);
       expect(component.activeExpenseIndex).toEqual(2);
+    });
+
+    it('should call spender file service to get map attachment details', (done) => {
+      component.mileageExpense$ = of(mileageExpense);
+      component.view = ExpenseView.individual;
+      spenderFileService.generateUrls.and.returnValue(of(generateUrlsBulkData1[0]));
+      fileService.getReceiptsDetails.and.returnValue(receiptInfoData1);
+
+      component.ionViewWillEnter();
+
+      component.mapAttachment$.subscribe((res) => {
+        expect(res).toEqual(receiptInfoData1);
+        expect(spenderFileService.generateUrls).toHaveBeenCalledOnceWith(mileageExpense.file_ids[0]);
+        expect(fileService.getReceiptsDetails).toHaveBeenCalledOnceWith(
+          generateUrlsBulkData1[0].name,
+          generateUrlsBulkData1[0].download_url
+        );
+        done();
+      });
+    });
+
+    it('should call approver file service to get map attachments', (done) => {
+      component.mileageExpense$ = of(mileageExpense);
+      activateRouteMock.snapshot.params.view = ExpenseView.team;
+      approverFileService.generateUrls.and.returnValue(of(generateUrlsBulkData1[0]));
+      fileService.getReceiptsDetails.and.returnValue(receiptInfoData1);
+
+      component.ionViewWillEnter();
+      component.mapAttachment$.subscribe((res) => {
+        expect(res).toEqual(receiptInfoData1);
+        expect(approverFileService.generateUrls).toHaveBeenCalledOnceWith(mileageExpense.file_ids[0]);
+        expect(fileService.getReceiptsDetails).toHaveBeenCalledOnceWith(
+          generateUrlsBulkData1[0].name,
+          generateUrlsBulkData1[0].download_url
+        );
+        done();
+      });
     });
   });
 

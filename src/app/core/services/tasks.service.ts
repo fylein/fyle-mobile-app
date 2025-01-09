@@ -4,6 +4,7 @@ import { map, switchMap } from 'rxjs/operators';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
+import { ExactCurrencyPipe } from 'src/app/shared/pipes/exact-currency.pipe';
 import { TASKEVENT } from '../models/task-event.enum';
 import { TaskFilters } from '../models/task-filters.model';
 import { TaskIcon } from '../models/task-icon.enum';
@@ -15,11 +16,16 @@ import { UserEventService } from './user-event.service';
 import { CurrencyService } from './currency.service';
 import { TaskDictionary } from '../models/task-dictionary.model';
 import { CorporateCreditCardExpenseService } from './corporate-credit-card-expense.service';
-import { Datum } from '../models/v2/stats-response.model';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { OrgSettingsService } from './org-settings.service';
 import { EmployeesService } from './platform/v1/spender/employees.service';
 import { StatsResponse } from '../models/platform/v1/stats-response.model';
+import { SpenderReportsService } from './platform/v1/spender/reports.service';
+import { PlatformReportsStatsResponse } from '../models/platform/v1/report-stats-response.model';
+import { ApproverReportsService } from './platform/v1/approver/reports.service';
+import { ReportState } from '../models/platform/v1/report.model';
+import { OrgService } from './org.service';
+import { UtilityService } from './utility.service';
 
 @Injectable({
   providedIn: 'root',
@@ -38,6 +44,7 @@ export class TasksService {
   constructor(
     private reportService: ReportService,
     private humanizeCurrency: HumanizeCurrencyPipe,
+    private exactCurrency: ExactCurrencyPipe,
     private userEventService: UserEventService,
     private authService: AuthService,
     private advancesRequestService: AdvanceRequestService,
@@ -45,16 +52,25 @@ export class TasksService {
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
     private expensesService: ExpensesService,
     private orgSettingsService: OrgSettingsService,
-    private employeesService: EmployeesService
+    private employeesService: EmployeesService,
+    private spenderReportsService: SpenderReportsService,
+    private approverReportsService: ApproverReportsService,
+    private orgService: OrgService,
+    private utilityService: UtilityService
   ) {
     this.refreshOnTaskClear();
   }
 
   refreshOnTaskClear(): void {
     this.userEventService.onTaskCacheClear(() => {
-      this.reportService.getReportAutoSubmissionDetails().subscribe((autoSubmissionReportDetails) => {
+      forkJoin([
+        this.reportService.getReportAutoSubmissionDetails(),
+        this.orgService.getCurrentOrg(),
+        this.orgService.getPrimaryOrg(),
+      ]).subscribe(([autoSubmissionReportDetails, currentOrg, primaryOrg]) => {
         const isReportAutoSubmissionScheduled = !!autoSubmissionReportDetails?.data?.next_at;
-        this.getTasks(isReportAutoSubmissionScheduled).subscribe(noop);
+        const showTeamReportTask = currentOrg.id === primaryOrg.id;
+        this.getTasks(isReportAutoSubmissionScheduled, undefined, showTeamReportTask).subscribe(noop);
       });
     });
   }
@@ -289,7 +305,11 @@ export class TasksService {
     return filterPills;
   }
 
-  getTasks(isReportAutoSubmissionScheduled = false, filters?: TaskFilters): Observable<DashboardTask[]> {
+  getTasks(
+    isReportAutoSubmissionScheduled = false,
+    filters?: TaskFilters,
+    showTeamReportTask?: boolean
+  ): Observable<DashboardTask[]> {
     return forkJoin({
       mobileNumberVerification: this.getMobileNumberVerificationTasks(),
       potentialDuplicates: this.getPotentialDuplicatesTasks(),
@@ -297,9 +317,10 @@ export class TasksService {
       unreportedExpenses: this.getUnreportedExpensesTasks(isReportAutoSubmissionScheduled),
       unsubmittedReports: this.getUnsubmittedReportsTasks(isReportAutoSubmissionScheduled),
       draftExpenses: this.getDraftExpensesTasks(),
-      teamReports: this.getTeamReportsTasks(),
       sentBackAdvances: this.getSentBackAdvanceTasks(),
       setCommuteDetails: this.getCommuteDetailsTasks(),
+      teamReports: this.getTeamReportsTasks(showTeamReportTask),
+      addCorporateCard: this.getAddCorporateCardTask(),
     }).pipe(
       map(
         ({
@@ -312,6 +333,7 @@ export class TasksService {
           teamReports,
           sentBackAdvances,
           setCommuteDetails,
+          addCorporateCard,
         }) => {
           this.totalTaskCount$.next(
             mobileNumberVerification.length +
@@ -322,7 +344,8 @@ export class TasksService {
               teamReports.length +
               potentialDuplicates.length +
               sentBackAdvances.length +
-              setCommuteDetails.length
+              setCommuteDetails.length +
+              addCorporateCard.length
           );
           this.expensesTaskCount$.next(draftExpenses.length + unreportedExpenses.length + potentialDuplicates.length);
           this.reportsTaskCount$.next(sentBackReports.length + unsubmittedReports.length);
@@ -346,7 +369,8 @@ export class TasksService {
               .concat(unsubmittedReports)
               .concat(unreportedExpenses)
               .concat(teamReports)
-              .concat(sentBackAdvances);
+              .concat(sentBackAdvances)
+              .concat(addCorporateCard);
           } else {
             return this.getFilteredTaskList(filters, {
               potentialDuplicates,
@@ -407,29 +431,29 @@ export class TasksService {
   }
 
   getMobileNumberVerificationTasks(): Observable<DashboardTask[]> {
-    const rtfEnrolledCards$ = this.corporateCreditCardExpenseService
-      .getCorporateCards()
-      .pipe(map((cards) => cards.filter((card) => card.is_visa_enrolled || card.is_mastercard_enrolled)));
-
     return forkJoin({
-      rtfEnrolledCards: rtfEnrolledCards$,
       eou: from(this.authService.getEou()),
+      isUserFromINCluster: from(this.utilityService.isUserFromINCluster()),
     }).pipe(
-      switchMap(({ rtfEnrolledCards, eou }) => {
-        //Show this task only if mobile number is not verified and user is enrolled for RTF
-        if (!eou.ou.mobile_verified && eou.ou.mobile_verification_attempts_left !== 0 && rtfEnrolledCards.length) {
-          return of(this.mapMobileNumberVerificationTask(eou.ou.mobile?.length ? 'Verify' : 'Add'));
+      switchMap(({ eou, isUserFromINCluster }) => {
+        //Show this task only if mobile number is not verified and user is enrolled for RTF and user is not from IN cluster
+        if (
+          (eou.org.currency === 'USD' || eou.org.currency === 'CAD') &&
+          !eou.ou.mobile_verified &&
+          eou.ou.mobile_verification_attempts_left !== 0 &&
+          !isUserFromINCluster
+        ) {
+          const isInvalidUSNumber = eou.ou.mobile && !eou.ou.mobile.startsWith('+1');
+          return of(this.mapMobileNumberVerificationTask(isInvalidUSNumber));
         }
         return of<DashboardTask[]>([]);
       })
     );
   }
 
-  getSentBackReports(): Observable<Datum[]> {
-    return this.reportService.getReportStatsData({
-      scalar: true,
-      aggregates: 'count(rp_id),sum(rp_amount)',
-      rp_state: 'in.(APPROVER_INQUIRY)',
+  getSentBackReports(): Observable<PlatformReportsStatsResponse> {
+    return this.spenderReportsService.getReportsStats({
+      state: `eq.${ReportState.APPROVER_INQUIRY}`,
     });
   }
 
@@ -438,23 +462,21 @@ export class TasksService {
       reportsStats: this.getSentBackReports(),
       homeCurrency: this.currencyService.getHomeCurrency(),
     }).pipe(
-      map(({ reportsStats, homeCurrency }: { reportsStats: Datum[]; homeCurrency: string }) =>
-        this.mapSentBackReportsToTasks(this.mapScalarReportStatsResponse(reportsStats), homeCurrency)
+      map(({ reportsStats, homeCurrency }: { reportsStats: PlatformReportsStatsResponse; homeCurrency: string }) =>
+        this.mapSentBackReportsToTasks(reportsStats, homeCurrency)
       )
     );
   }
 
-  getUnsubmittedReportsStats(): Observable<Datum[]> {
-    return this.reportService.getReportStatsData({
-      scalar: true,
-      aggregates: 'count(rp_id),sum(rp_amount)',
-      rp_state: 'in.(DRAFT)',
+  getUnsubmittedReportsStats(): Observable<PlatformReportsStatsResponse> {
+    return this.spenderReportsService.getReportsStats({
+      state: `eq.${ReportState.DRAFT}`,
     });
   }
 
   getSentBackAdvancesStats(): Observable<StatsResponse> {
     return this.advancesRequestService.getAdvanceRequestStats({
-      state: 'eq.SENT_BACK',
+      state: `eq.SENT_BACK`,
     });
   }
 
@@ -473,32 +495,59 @@ export class TasksService {
     );
   }
 
-  getTeamReportsStats(): Observable<Datum[]> {
+  getTeamReportsStats(): Observable<PlatformReportsStatsResponse> {
     return from(this.authService.getEou()).pipe(
-      switchMap((eou) =>
-        this.reportService.getReportStatsData(
-          {
-            approved_by: 'cs.{' + eou.ou.id + '}',
-            rp_approval_state: ['in.(APPROVAL_PENDING)'],
-            rp_state: ['in.(APPROVER_PENDING)'],
-            sequential_approval_turn: ['in.(true)'],
-            aggregates: 'count(rp_id),sum(rp_amount)',
-            scalar: true,
-          },
-          false
-        )
-      )
+      switchMap((eou) => {
+        if (eou.ou.roles.includes('APPROVER')) {
+          return this.approverReportsService.getReportsStats({
+            next_approver_user_ids: `cs.[${eou.us.id}]`,
+            state: `eq.${ReportState.APPROVER_PENDING}`,
+          });
+        }
+        const zeroResponse: PlatformReportsStatsResponse = {
+          count: 0,
+          failed_amount: null,
+          failed_count: null,
+          processing_amount: 0,
+          processing_count: 0,
+          reimbursable_amount: 0,
+          total_amount: 0,
+        };
+        return of(zeroResponse);
+      })
     );
   }
 
-  getTeamReportsTasks(): Observable<DashboardTask[]> {
-    return forkJoin({
-      reportsStats: this.getTeamReportsStats(),
-      homeCurrency: this.currencyService.getHomeCurrency(),
-    }).pipe(
-      map(({ reportsStats, homeCurrency }: { reportsStats: Datum[]; homeCurrency: string }) =>
-        this.mapAggregateToTeamReportTask(this.mapScalarReportStatsResponse(reportsStats), homeCurrency)
-      )
+  getTeamReportsTasks(showTeamReportTask?: boolean): Observable<DashboardTask[]> {
+    if (showTeamReportTask) {
+      return forkJoin({
+        reportsStats: this.getTeamReportsStats(),
+        homeCurrency: this.currencyService.getHomeCurrency(),
+      }).pipe(
+        map(({ reportsStats, homeCurrency }: { reportsStats: PlatformReportsStatsResponse; homeCurrency: string }) =>
+          this.mapAggregateToTeamReportTask(reportsStats, homeCurrency)
+        )
+      );
+    } else {
+      return of([] as DashboardTask[]);
+    }
+  }
+
+  getAddCorporateCardTask(): Observable<DashboardTask[]> {
+    return forkJoin([this.orgSettingsService.get(), this.corporateCreditCardExpenseService.getCorporateCards()]).pipe(
+      map(([orgSettings, cards]) => {
+        const isRtfEnabled =
+          (orgSettings.visa_enrollment_settings.allowed && orgSettings.visa_enrollment_settings.enabled) ||
+          (orgSettings.mastercard_enrollment_settings.allowed && orgSettings.mastercard_enrollment_settings.enabled);
+        const isCCCEnabled =
+          orgSettings.corporate_credit_card_settings.allowed && orgSettings.corporate_credit_card_settings.enabled;
+        const rtfCards = cards.filter((card) => card.is_visa_enrolled || card.is_mastercard_enrolled);
+        if (isRtfEnabled && isCCCEnabled && rtfCards.length === 0) {
+          return this.mapAddCorporateCardTask();
+        } else {
+          return [] as DashboardTask[];
+        }
+      })
     );
   }
 
@@ -515,18 +564,37 @@ export class TasksService {
     );
   }
 
-  mapMobileNumberVerificationTask(type: 'Add' | 'Verify'): DashboardTask[] {
-    const subheaderPrefixString = type === 'Add' ? 'Add and verify' : 'Verify';
+  mapMobileNumberVerificationTask(isInvalidUSNumber: boolean): DashboardTask[] {
     const task = [
       {
         hideAmount: true,
-        header: `${type} Mobile Number`,
-        subheader: `${subheaderPrefixString} your mobile number to text the receipts directly`,
-        icon: TaskIcon.MOBILE,
+        header: isInvalidUSNumber ? 'Update phone number to opt in to text receipts' : 'Opt in to text receipts',
+        subheader: isInvalidUSNumber
+          ? 'Add a +1 country code to your mobile number to receive text message receipts.'
+          : 'Opt-in to activate text messages for instant expense submission',
+        icon: TaskIcon.STARS,
         ctas: [
           {
-            content: type,
+            content: isInvalidUSNumber ? 'Update and Opt in' : 'Opt in',
             event: TASKEVENT.mobileNumberVerification,
+          },
+        ],
+      },
+    ];
+    return task;
+  }
+
+  mapAddCorporateCardTask(): DashboardTask[] {
+    const task = [
+      {
+        hideAmount: true,
+        header: 'Add Corporate Card',
+        subheader: 'Add your corporate card to track expenses.',
+        icon: TaskIcon.CARD,
+        ctas: [
+          {
+            content: 'Add Card',
+            event: TASKEVENT.addCorporateCard,
           },
         ],
       },
@@ -569,8 +637,8 @@ export class TasksService {
       reportsStats: this.getUnsubmittedReportsStats(),
       homeCurrency: this.currencyService.getHomeCurrency(),
     }).pipe(
-      map(({ reportsStats, homeCurrency }: { reportsStats: Datum[]; homeCurrency: string }) =>
-        this.mapAggregateToUnsubmittedReportTask(this.mapScalarReportStatsResponse(reportsStats), homeCurrency)
+      map(({ reportsStats, homeCurrency }: { reportsStats: PlatformReportsStatsResponse; homeCurrency: string }) =>
+        this.mapAggregateToUnsubmittedReportTask(reportsStats, homeCurrency)
       )
     );
   }
@@ -585,7 +653,7 @@ export class TasksService {
     return this.orgSettingsService.get().pipe(
       map(
         (orgSetting) =>
-          orgSetting?.corporate_credit_card_settings?.enabled && orgSetting?.pending_cct_expense_restriction?.enabled
+          orgSetting.corporate_credit_card_settings?.enabled && orgSetting.pending_cct_expense_restriction?.enabled
       ),
       switchMap((filterPendingTxn: boolean) => {
         if (filterPendingTxn) {
@@ -658,27 +726,28 @@ export class TasksService {
   }
 
   getAmountString(amount: number, currency: string): string {
-    return amount > 0 ? ` worth ${this.humanizeCurrency.transform(amount, currency)} ` : '';
+    return amount > 0 ? ` worth ${this.exactCurrency.transform({ value: amount, currencyCode: currency })} ` : '';
   }
 
-  mapSentBackReportsToTasks(
-    aggregate: { totalCount: number; totalAmount: number },
-    homeCurrency: string
-  ): DashboardTask[] {
-    if (aggregate.totalCount > 0) {
+  mapSentBackReportsToTasks(aggregate: PlatformReportsStatsResponse, homeCurrency: string): DashboardTask[] {
+    if (aggregate.count > 0) {
       return [
         {
-          amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, true),
-          count: aggregate.totalCount,
-          header: `Report${aggregate.totalCount === 1 ? '' : 's'} sent back!`,
-          subheader: `${aggregate.totalCount} report${aggregate.totalCount === 1 ? '' : 's'}${this.getAmountString(
-            aggregate.totalAmount,
+          amount: this.exactCurrency.transform({
+            value: aggregate.total_amount,
+            currencyCode: homeCurrency,
+            skipSymbol: true,
+          }),
+          count: aggregate.count,
+          header: `Report${aggregate.count === 1 ? '' : 's'} sent back!`,
+          subheader: `${aggregate.count} report${aggregate.count === 1 ? '' : 's'}${this.getAmountString(
+            aggregate.total_amount,
             homeCurrency
-          )} ${aggregate.totalCount === 1 ? 'was' : 'were'} sent back by your approver`,
+          )} ${aggregate.count === 1 ? 'was' : 'were'} sent back by your approver`,
           icon: TaskIcon.REPORT,
           ctas: [
             {
-              content: `View Report${aggregate.totalCount === 1 ? '' : 's'}`,
+              content: `View Report${aggregate.count === 1 ? '' : 's'}`,
               event: TASKEVENT.openSentBackReport,
             },
           ],
@@ -702,7 +771,11 @@ export class TasksService {
       } sent back by your approver`;
       return [
         {
-          amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, true),
+          amount: this.exactCurrency.transform({
+            value: aggregate.totalAmount,
+            currencyCode: homeCurrency,
+            skipSymbol: true,
+          }),
           count: aggregate.totalCount,
           header: headerMessage,
           subheader: subheaderMessage,
@@ -720,24 +793,25 @@ export class TasksService {
     }
   }
 
-  mapAggregateToUnsubmittedReportTask(
-    aggregate: { totalCount: number; totalAmount: number },
-    homeCurrency: string
-  ): DashboardTask[] {
-    if (aggregate.totalCount > 0) {
+  mapAggregateToUnsubmittedReportTask(aggregate: PlatformReportsStatsResponse, homeCurrency: string): DashboardTask[] {
+    if (aggregate.count > 0) {
       return [
         {
-          amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, true),
-          count: aggregate.totalCount,
-          header: `Unsubmitted report${aggregate.totalCount === 1 ? '' : 's'}`,
-          subheader: `${aggregate.totalCount} report${aggregate.totalCount === 1 ? '' : 's'}${this.getAmountString(
-            aggregate.totalAmount,
+          amount: this.exactCurrency.transform({
+            value: aggregate.total_amount,
+            currencyCode: homeCurrency,
+            skipSymbol: true,
+          }),
+          count: aggregate.count,
+          header: `Unsubmitted report${aggregate.count === 1 ? '' : 's'}`,
+          subheader: `${aggregate.count} report${aggregate.count === 1 ? '' : 's'}${this.getAmountString(
+            aggregate.total_amount,
             homeCurrency
-          )} remain${aggregate.totalCount === 1 ? 's' : ''} in draft state`,
+          )} remain${aggregate.count === 1 ? 's' : ''} in draft state`,
           icon: TaskIcon.REPORT,
           ctas: [
             {
-              content: `Submit Report${aggregate.totalCount === 1 ? '' : 's'}`,
+              content: `Submit Report${aggregate.count === 1 ? '' : 's'}`,
               event: TASKEVENT.openDraftReports,
             },
           ],
@@ -748,24 +822,25 @@ export class TasksService {
     }
   }
 
-  mapAggregateToTeamReportTask(
-    aggregate: { totalCount: number; totalAmount: number },
-    homeCurrency: string
-  ): DashboardTask[] {
-    if (aggregate.totalCount > 0) {
+  mapAggregateToTeamReportTask(aggregate: PlatformReportsStatsResponse, homeCurrency: string): DashboardTask[] {
+    if (aggregate.count > 0) {
       return [
         {
-          amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, true),
-          count: aggregate.totalCount,
-          header: `Report${aggregate.totalCount === 1 ? '' : 's'} to be approved`,
-          subheader: `${aggregate.totalCount} report${aggregate.totalCount === 1 ? '' : 's'}${this.getAmountString(
-            aggregate.totalAmount,
+          amount: this.exactCurrency.transform({
+            value: aggregate.total_amount,
+            currencyCode: homeCurrency,
+            skipSymbol: true,
+          }),
+          count: aggregate.count,
+          header: `Report${aggregate.count === 1 ? '' : 's'} to be approved`,
+          subheader: `${aggregate.count} report${aggregate.count === 1 ? '' : 's'}${this.getAmountString(
+            aggregate.total_amount,
             homeCurrency
-          )} require${aggregate.totalCount === 1 ? 's' : ''} your approval`,
+          )} require${aggregate.count === 1 ? 's' : ''} your approval`,
           icon: TaskIcon.REPORT,
           ctas: [
             {
-              content: `Show Report${aggregate.totalCount === 1 ? '' : 's'}`,
+              content: `Show Report${aggregate.count === 1 ? '' : 's'}`,
               event: TASKEVENT.openTeamReport,
             },
           ],
@@ -783,7 +858,11 @@ export class TasksService {
     if (aggregate.totalCount > 0) {
       return [
         {
-          amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, true),
+          amount: this.exactCurrency.transform({
+            value: aggregate.totalAmount,
+            currencyCode: homeCurrency,
+            skipSymbol: true,
+          }),
           count: aggregate.totalCount,
           header: `Incomplete expense${aggregate.totalCount === 1 ? '' : 's'}`,
           subheader: `${aggregate.totalCount} expense${aggregate.totalCount === 1 ? '' : 's'}${this.getAmountString(
@@ -810,7 +889,11 @@ export class TasksService {
   ): DashboardTask[] {
     if (aggregate.totalCount > 0) {
       const task = {
-        amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, true),
+        amount: this.exactCurrency.transform({
+          value: aggregate.totalAmount,
+          currencyCode: homeCurrency,
+          skipSymbol: true,
+        }),
         count: aggregate.totalCount,
         header: 'Expenses are ready to report',
         subheader: `${aggregate.totalCount} expense${aggregate.totalCount === 1 ? '' : 's'} ${this.getAmountString(
@@ -829,23 +912,6 @@ export class TasksService {
     } else {
       return [];
     }
-  }
-
-  getStatsFromResponse(
-    statsResponse: Datum[],
-    countName: string,
-    sumName: string
-  ): { totalCount: number; totalAmount: number } {
-    const countAggregate = statsResponse[0]?.aggregates.find((aggregate) => aggregate.function_name === countName) || 0;
-    const amountAggregate = statsResponse[0]?.aggregates.find((aggregate) => aggregate.function_name === sumName) || 0;
-    return {
-      totalCount: countAggregate && countAggregate.function_value,
-      totalAmount: amountAggregate && amountAggregate.function_value,
-    };
-  }
-
-  mapScalarReportStatsResponse(statsResponse: Datum[]): { totalCount: number; totalAmount: number } {
-    return this.getStatsFromResponse(statsResponse, 'count(rp_id)', 'sum(rp_amount)');
   }
 
   getCommuteDetailsTasks(): Observable<DashboardTask[]> {

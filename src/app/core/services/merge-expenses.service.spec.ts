@@ -87,8 +87,7 @@ import {
   optionsData8,
   optionsData9,
 } from '../mock-data/merge-expenses-options-data.data';
-import { fileObject5 } from '../mock-data/file-object.data';
-import { mergeExpenesesCustomInputsData } from '../mock-data/merge-expenses-custom-inputs.data';
+import { fileObject11 } from '../mock-data/file-object.data';
 import * as lodash from 'lodash';
 import { projectsV1Data } from '../test-data/projects.spec.data';
 import { corporateCardExpenseData } from '../mock-data/corporate-card-expense.data';
@@ -97,6 +96,10 @@ import * as dayjs from 'dayjs';
 import { expectedOrgCategoryByName2, orgCategoryData1 } from '../mock-data/org-category.data';
 import { taxGroupData } from '../mock-data/tax-group.data';
 import { cloneDeep } from 'lodash';
+import { ExpensesService } from './platform/v1/spender/expenses.service';
+import { SpenderFileService } from './platform/v1/spender/file.service';
+import { platformExpenseData, platformExpenseWithExtractedData } from '../mock-data/platform/v1/expense.data';
+import { generateUrlsBulkData1 } from '../mock-data/generate-urls-bulk-response.data';
 
 describe('MergeExpensesService', () => {
   let mergeExpensesService: MergeExpensesService;
@@ -109,6 +112,8 @@ describe('MergeExpensesService', () => {
   let categoriesService: jasmine.SpyObj<CategoriesService>;
   let dateService: jasmine.SpyObj<DateService>;
   let taxGroupService: jasmine.SpyObj<TaxGroupService>;
+  let expensesService: jasmine.SpyObj<ExpensesService>;
+  let spenderFileService: jasmine.SpyObj<SpenderFileService>;
 
   beforeEach(() => {
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['post']);
@@ -126,6 +131,8 @@ describe('MergeExpensesService', () => {
     const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', ['getAll', 'filterRequired']);
     const dateServiceSpy = jasmine.createSpyObj('DateService', ['isValidDate']);
     const taxGroupServiceSpy = jasmine.createSpyObj('TaxGroupService', ['get']);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById']);
+    const spenderFileServiceSpy = jasmine.createSpyObj('SpenderFileService', ['generateUrlsBulk']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -139,6 +146,8 @@ describe('MergeExpensesService', () => {
         { provide: CategoriesService, useValue: categoriesServiceSpy },
         { provide: DateService, useValue: dateServiceSpy },
         { provide: TaxGroupService, useValue: taxGroupServiceSpy },
+        { provide: ExpensesService, useValue: expensesServiceSpy },
+        { provide: SpenderFileService, useValue: spenderFileServiceSpy },
       ],
     });
     mergeExpensesService = TestBed.inject(MergeExpensesService);
@@ -153,6 +162,8 @@ describe('MergeExpensesService', () => {
     categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
     dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
     taxGroupService = TestBed.inject(TaxGroupService) as jasmine.SpyObj<TaxGroupService>;
+    expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
+    spenderFileService = TestBed.inject(SpenderFileService) as jasmine.SpyObj<SpenderFileService>;
   });
 
   it('should be created', () => {
@@ -372,20 +383,35 @@ describe('MergeExpensesService', () => {
   });
 
   it('getAttachements(): should return the attachments', (done) => {
-    const mockFileObject = cloneDeep(fileObject5);
-    fileService.findByTransactionId.and.returnValue(of(mockFileObject));
-    fileService.downloadUrl.and.returnValue(of('mock-url'));
+    expensesService.getExpenseById.and.returnValue(of(platformExpenseWithExtractedData));
+    spenderFileService.generateUrlsBulk.and.returnValue(of(generateUrlsBulkData1));
     fileService.getReceiptsDetails.and.returnValue({
-      thumbnail: mockFileObject[0].thumbnail,
-      type: mockFileObject[0].type,
+      type: 'pdf',
+      thumbnail: 'img/fy-pdf.svg',
     });
 
     const transactionId = 'txz2vohKxBXu';
     mergeExpensesService.getAttachements(transactionId).subscribe((res) => {
-      expect(res).toEqual(mockFileObject);
-      expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith(transactionId);
-      expect(fileService.downloadUrl).toHaveBeenCalledOnceWith(mockFileObject[0].id);
-      expect(fileService.getReceiptsDetails).toHaveBeenCalledOnceWith(mockFileObject[0].name, 'mock-url');
+      expect(res).toEqual(fileObject11);
+      expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(transactionId);
+      expect(spenderFileService.generateUrlsBulk).toHaveBeenCalledOnceWith(platformExpenseWithExtractedData.file_ids);
+      expect(fileService.getReceiptsDetails).toHaveBeenCalledOnceWith(
+        generateUrlsBulkData1[0].name,
+        generateUrlsBulkData1[0].download_url
+      );
+      done();
+    });
+  });
+
+  it('getAttachements(): should return empty array when there are no attachments', (done) => {
+    expensesService.getExpenseById.and.returnValue(of(platformExpenseData));
+
+    const transactionId = 'txz2vohKxBXu';
+    mergeExpensesService.getAttachements(transactionId).subscribe((res) => {
+      expect(res).toEqual([]);
+      expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(transactionId);
+      expect(spenderFileService.generateUrlsBulk).not.toHaveBeenCalled();
+      expect(fileService.getReceiptsDetails).not.toHaveBeenCalled();
       done();
     });
   });

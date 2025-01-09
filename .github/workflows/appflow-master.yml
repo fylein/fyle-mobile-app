@@ -19,7 +19,7 @@ jobs:
           native-config: staging
           upload-artifact: Android
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         id: download
         with:
           name: 'Android'
@@ -42,12 +42,13 @@ jobs:
           app-id: 32316914
           platform: iOS
           build-type: development
+          build-stack: macOS - 2024.04 - Apple silicon
           certificate: Fyle signing
           environment: staging
           native-config: prod
           upload-artifact: ios
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         id: ios
         with:
           name: 'ios'

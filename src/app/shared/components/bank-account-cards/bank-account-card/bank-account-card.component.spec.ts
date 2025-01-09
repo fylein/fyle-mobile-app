@@ -7,7 +7,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from '../../../../core/services/snackbar-properties.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { BankAccountCardComponent } from './bank-account-card.component';
-import { apiLinkedAccRes, deletePersonalCardRes } from 'src/app/core/mock-data/personal-cards.data';
+import { deletePersonalCardPlatformRes, linkedAccounts } from 'src/app/core/mock-data/personal-cards.data';
 import { of } from 'rxjs';
 import { ToastMessageComponent } from '../../toast-message/toast-message.component';
 import { PopupAlertComponent } from '../../popup-alert/popup-alert.component';
@@ -70,7 +70,7 @@ describe('BankAccountCardComponent', () => {
     dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
     component = fixture.componentInstance;
 
-    component.accountDetails = apiLinkedAccRes.data[1];
+    component.accountDetails = linkedAccounts[1];
     fixture.detectChanges();
   }));
 
@@ -86,26 +86,26 @@ describe('BankAccountCardComponent', () => {
 
         deleteCardPopOverSpy.onDidDismiss.and.returnValue(
           new Promise((resInt) => {
-            resInt('delete');
+            resInt({ data: 'delete' });
           })
         );
         resolve(deleteCardPopOverSpy);
       })
     );
 
-    component.presentPopover(new Event('event'));
+    component.presentPopover(new PointerEvent('event'));
     expect(popoverController.create).toHaveBeenCalledOnceWith({
       component: DeleteButtonComponent,
       cssClass: 'delete-button-class',
-      event: new Event('event'),
+      event: new PointerEvent('event'),
     });
   });
 
   it('deleteAccount(): should delete account', fakeAsync(() => {
     spyOn(component.deleted, 'emit');
-    loaderService.showLoader.and.returnValue(Promise.resolve());
-    personalCardsService.deleteAccount.and.returnValue(of(deletePersonalCardRes));
-    loaderService.hideLoader.and.returnValue(Promise.resolve());
+    loaderService.showLoader.and.resolveTo();
+    personalCardsService.deleteAccount.and.returnValue(of(deletePersonalCardPlatformRes.data));
+    loaderService.hideLoader.and.resolveTo();
     matSnackBar.openFromComponent.and.callThrough();
     snackbarProperties.setSnackbarProperties.and.callThrough();
     fixture.detectChanges();
@@ -121,6 +121,7 @@ describe('BankAccountCardComponent', () => {
     expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith('success', {
       message: 'Card successfully deleted.',
     });
+    expect(component.deleted.emit).toHaveBeenCalledTimes(1);
   }));
 
   it('confirmPopup(): should display the confirm popup', async () => {
@@ -145,7 +146,7 @@ describe('BankAccountCardComponent', () => {
       component: PopupAlertComponent,
       componentProps: {
         title: 'Delete Card',
-        message: `Are you sure want to delete this card <b> (${component.accountDetails.bank_name} ${component.accountDetails.account_number}) </b>?`,
+        message: `Are you sure want to delete this card <b> (${component.accountDetails.bank_name} ${component.accountDetails.card_number}) </b>?`,
         primaryCta: {
           text: 'Delete',
           action: 'delete',

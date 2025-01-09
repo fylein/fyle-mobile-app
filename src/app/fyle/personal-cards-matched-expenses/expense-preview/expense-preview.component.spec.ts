@@ -11,8 +11,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { ExpensePreviewShimmerComponent } from '../expense-preview-shimmer/expense-preview-shimmer.component';
 import { of } from 'rxjs';
-import { etxncData } from 'src/app/core/mock-data/expense.data';
-import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { apiExpenses1 } from 'src/app/core/mock-data/platform/v1/expense.data';
 
 describe('ExpensePreviewComponent', () => {
   let component: ExpensePreviewComponent;
@@ -24,22 +24,17 @@ describe('ExpensePreviewComponent', () => {
   let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
   let platform: jasmine.SpyObj<Platform>;
   let trackingService: jasmine.SpyObj<TrackingService>;
+  let expensesService: jasmine.SpyObj<ExpensesService>;
 
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesServiceSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    const personalCardsServiceSpy = jasmine.createSpyObj('PersonalCardsService', [
-      'getExpenseDetails',
-      'matchExpense',
-      'unmatchExpense',
-    ]);
+    const personalCardsServiceSpy = jasmine.createSpyObj('PersonalCardsService', ['getExpenseDetails', 'matchExpense']);
     const platformSpy = jasmine.createSpyObj('Platform', ['is']);
-    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
-      'oldExpensematchedFromPersonalCard',
-      'unmatchedExpensesFromPersonalCard',
-    ]);
+    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['oldExpensematchedFromPersonalCard']);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenses']);
 
     TestBed.configureTestingModule({
       declarations: [ExpensePreviewComponent, ExpensePreviewShimmerComponent],
@@ -52,6 +47,7 @@ describe('ExpensePreviewComponent', () => {
         { provide: PersonalCardsService, useValue: personalCardsServiceSpy },
         { provide: Platform, useValue: platformSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },
+        { provide: ExpensesService, useValue: expensesServiceSpy },
       ],
     }).compileComponents();
 
@@ -61,45 +57,46 @@ describe('ExpensePreviewComponent', () => {
     personalCardsService = TestBed.inject(PersonalCardsService) as jasmine.SpyObj<PersonalCardsService>;
     platform = TestBed.inject(Platform) as jasmine.SpyObj<Platform>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
+    expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
 
     fixture = TestBed.createComponent(ExpensePreviewComponent);
     component = fixture.componentInstance;
-    const expense = { id: 'txOJVaaPxo9O' };
-    component.expenseId = expense;
+    component.expenseId = 'txOJVaaPxo9O';
     fixture.detectChanges();
   }));
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
   describe('onInit():', () => {
     it('should set isIos to true if the platform is iOS', () => {
       platform.is.and.returnValue(true);
       component.ngOnInit();
-      expect(component.isIos).toBe(true);
+      expect(component.isIos).toBeTrue();
     });
 
     it('should set isIos to false if the platform is not iOS', () => {
       platform.is.and.returnValue(false);
       component.ngOnInit();
-      expect(component.isIos).toBe(false);
+      expect(component.isIos).toBeFalse();
     });
   });
 
   it('ionViewWillEnter(): should get personal card expense details', (done) => {
-    personalCardsService.getExpenseDetails.and.returnValue(of(etxncData.data[0]));
+    expensesService.getExpenses.and.returnValue(of(apiExpenses1));
     component.ionViewWillEnter();
 
     component.expenseDetails$.subscribe((result) => {
-      expect(result).toEqual(etxncData.data[0]);
-      expect(personalCardsService.getExpenseDetails).toHaveBeenCalledOnceWith(component.expenseId);
+      expect(result).toEqual(apiExpenses1[0]);
+      expect(expensesService.getExpenses).toHaveBeenCalledOnceWith({ split_group_id: `eq.${component.expenseId}` });
       done();
     });
   });
 
   it('editExpense(): should navigate to the add-edit-expense page and edit expense', () => {
-    const modalControllerDismissSpy = modalController.dismiss.and.returnValue(Promise.resolve(true));
+    const modalControllerDismissSpy = modalController.dismiss.and.resolveTo(true);
     component.editExpense();
     expect(router.navigate).toHaveBeenCalledOnceWith([
       '/',
@@ -111,7 +108,7 @@ describe('ExpensePreviewComponent', () => {
   });
 
   it('closeModal(): should dismiss the modal', () => {
-    const modalControllerDismissSpy = modalController.dismiss.and.returnValue(Promise.resolve(true));
+    const modalControllerDismissSpy = modalController.dismiss.and.resolveTo(true);
     component.closeModal();
     expect(modalControllerDismissSpy).toHaveBeenCalledTimes(1);
   });
@@ -119,7 +116,7 @@ describe('ExpensePreviewComponent', () => {
   it('matchExpense(): should match the expenses', () => {
     component.loading = true;
     const response = {
-      id: 'tx3nHShG60zq',
+      external_expense_id: 'tx3nHShG60zq',
       transaction_split_group_id: 'tx3nHShG60zq',
     };
     component.expenseId = 'testExpenseId';
@@ -133,25 +130,5 @@ describe('ExpensePreviewComponent', () => {
     expect(modalController.dismiss).toHaveBeenCalledTimes(1);
     expect(router.navigate).toHaveBeenCalledWith(['/', 'enterprise', 'personal_cards']);
     expect(trackingService.oldExpensematchedFromPersonalCard).toHaveBeenCalledTimes(1);
-  });
-
-  it('unmatchExpense(): should unmatch the expenses', () => {
-    component.unMatching = true;
-    personalCardsService.unmatchExpense.and.returnValue(of(null));
-    component.expenseId = 'tx2ZttMRItRx';
-    component.cardTxnId = 'btxntEdVJeYyyx';
-
-    component.unmatchExpense();
-    expect(component.unMatching).toBeFalsy();
-
-    fixture.detectChanges();
-    expect(personalCardsService.unmatchExpense).toHaveBeenCalledOnceWith(component.expenseId, component.cardTxnId);
-    expect(modalController.dismiss).toHaveBeenCalledTimes(1);
-    expect(matSnackBar.openFromComponent).toHaveBeenCalledWith(ToastMessageComponent, {
-      ...snackbarProperties.setSnackbarProperties('success', { message: 'Successfully unmatched the expense.' }),
-      panelClass: ['msb-success'],
-    });
-    expect(router.navigate).toHaveBeenCalledWith(['/', 'enterprise', 'personal_cards']);
-    expect(trackingService.unmatchedExpensesFromPersonalCard).toHaveBeenCalledTimes(1);
   });
 });

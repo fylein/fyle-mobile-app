@@ -87,7 +87,7 @@ ion-popover.error-popover {
 }
 
 .mat-bottom-sheet-1 {
-  padding: 24px 16px !important;
+  padding: 16px 12px 12px 12px !important;
   border-radius: 16px 16px 0px 0px !important;
 }
 
@@ -187,6 +187,10 @@ ion-popover.error-popover {
   stroke: $black-light;
 }
 
+.intermediate-loader .loading-wrapper .loading-spinner ion-spinner {
+  color: $brand-primary;
+}
+
 ion-popover.dialog-popover {
   &::part(content) {
     bottom: 0 !important;
@@ -194,7 +198,8 @@ ion-popover.dialog-popover {
     left: 0 !important;
     height: auto;
     width: 100%;
-    border-radius: 0;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
   }
 
   .popover-viewport {
@@ -255,6 +260,16 @@ ion-popover.pop-up-in-center {
     --max-height: 80%;
     --width: 80%;
     left: 10%;
+  }
+}
+
+ion-popover.skip-opt-in-popover {
+  background: rgba(22, 21, 40, 0.5);
+  &::part(content) {
+    border-radius: 16px;
+    --max-height: 80%;
+    --width: 90%;
+    left: 5%;
   }
 }
 
@@ -513,9 +528,9 @@ mat-checkbox {
   }
 
   .mat-checkbox-label {
-    margin-left: 10px !important;
     font-size: 14px;
-    color: $black;
+    font-weight: 400;
+    color: $blue-black;
   }
 }
 
@@ -815,7 +830,7 @@ ref - https://stackoverflow.com/a/31162426
   font-size: 14px !important;
   line-height: 18px;
   color: $pure-white;
-  font-weight: 400 !important;
+  font-weight: 500 !important;
   height: 52px !important;
   text-transform: inherit;
   width: 100%;
@@ -832,6 +847,12 @@ ref - https://stackoverflow.com/a/31162426
   text-transform: inherit;
   width: 100%;
   letter-spacing: 0px !important;
+}
+
+.btn-outline-secondary {
+  @extend .btn-secondary;
+  border: 1px solid $grey;
+  border-radius: 4px;
 }
 
 .cta-footer {
@@ -936,6 +957,17 @@ ion-modal.flag-unflag-modal {
   padding-top: 0 !important;
 }
 
+ion-popover.dismiss-dialog {
+  --width: 298px;
+
+  &::part(content) {
+    border-radius: 8px;
+    padding: 24px;
+  }
+
+  background: rgba(0, 0, 0, 0.6);
+}
+
 ion-popover.delete-dialog {
   --width: 296px;
   --max-height: 346px;
@@ -1011,6 +1043,23 @@ ion-modal.add-location-modal {
   }
 }
 
+ion-modal.promote-opt-in-modal {
+  &::part(content) {
+    border-radius: 32px 32px 0 0 !important;
+    position: absolute;
+    max-height: 65%;
+    bottom: 0;
+
+    @media (max-height: 750px) {
+      max-height: 70%;
+    }
+
+    @media (max-height: 700px) {
+      max-height: 80%;
+    }
+  }
+}
+
 .mat-chip.mat-standard-chip {
   background-color: $pure-white;
   border: 1px solid $grey-lighter;
@@ -1053,6 +1102,27 @@ ion-modal.auto-height {
   }
 
   --height: auto;
+
+  .ion-page {
+    position: relative;
+    display: block;
+    contain: content;
+
+    .inner-content {
+      max-height: 60vh;
+      overflow: auto;
+    }
+  }
+}
+
+ion-modal.merchant-info {
+  &::part(content) {
+    border-radius: 16px 16px 0 0 !important;
+    position: absolute;
+    bottom: 0;
+  }
+
+  --height: 120px;
 
   .ion-page {
     position: relative;
@@ -1296,6 +1366,24 @@ ion-toggle.toggle-checked::before {
   }
 }
 
+.custom-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 400;
+  margin: 0;
+}
+
+.custom-loading > *:not(:last-child) {
+  margin-right: 8px;
+}
+
+.custom-loading .custom-loading-gif {
+  width: 40px;
+  height: 40px;
+}
+
 .deprecate-msg {
   & > div {
     margin: 16px;
@@ -1322,13 +1410,15 @@ ion-toggle.toggle-checked::before {
   border: 1px solid $brand-primary;
   border-radius: 14px;
   color: $brand-primary;
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 500;
   display: inline-block;
-  line-height: 1;
-  padding: 5px 12px;
+  line-height: 18px;
+  padding: 2px 10px;
   text-align: center;
-  text-transform: uppercase;
+  text-transform: capitalize;
+  white-space: nowrap;
+  height: max-content;
 
   //get state keys for generating state class
   @each $state in map-keys($states) {

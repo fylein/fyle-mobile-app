@@ -240,10 +240,18 @@
                         ></app-fy-number>
                       </div>
                       <div
-                        *ngIf="fg.controls.num_days.touched && !fg.controls.num_days.valid"
+                        *ngIf="fg.controls.num_days.touched && !fg.controls.num_days.valid && !fg.controls.num_days.errors.pattern"
                         class="add-edit-per-diem--error add-edit-per-diem--num-days-error"
                       >
                         Please select {{txnFields?.num_days.field_name }}
+                      </div>
+                      <div
+                        *ngIf="fg.controls.num_days.touched && fg.controls.num_days.errors"
+                        class="add-edit-per-diem--error add-edit-per-diem--num-days-error"
+                      >
+                        <ng-container *ngIf="fg.controls.num_days.errors.pattern">
+                          Please enter a valid whole number without decimals.
+                        </ng-container>
                       </div>
                     </ng-container>
                   </ng-container>
@@ -270,7 +278,7 @@
                       <ng-template #paymentMode let-label="label" let-paymentMode="value" let-selected="selected">
                         <div>
                           <div class="add-edit-per-diem--payment-mode-header">{{label}}</div>
-                          <ng-container *ngIf="paymentMode">
+                          <ng-container *ngIf="paymentMode?.acc">
                             <ng-container *ngIf="paymentMode.acc.type === 'PERSONAL_ADVANCE_ACCOUNT'">
                               <div class="add-edit-per-diem--payment-mode-section">{{paymentMode.advance.purpose}}</div>
                             </ng-container>
@@ -315,24 +323,29 @@
                         >
                           <ng-container *ngIf="projectCategoryIds$|async as projectCategoryIds">
                             <ng-container *ngIf="isProjectVisible$|async">
-                              <div
-                                [ngClass]="{'add-edit-per-diem--no-project': fg.controls.project.touched && !fg.controls.project.valid}"
-                                class="add-edit-per-diem--internal-block add-edit-per-diem--project-block"
+                              <ng-container
+                                *ngIf="{value: isProjectCategoryRestrictionsEnabled$ | async}; let isProjectCategoryRestrictionsEnabled"
                               >
-                                <app-fy-select-project
-                                  [categoryIds]="projectCategoryIds"
-                                  [cacheName]="'perDiemProjectCache'"
-                                  [defaultValue]="true"
-                                  [label]="txnFields?.project_id?.field_name"
-                                  [placeholder]="txnFields?.project_id?.placeholder"
-                                  [mandatory]="txnFields?.project_id?.is_mandatory"
-                                  [recentlyUsed]="recentProjects"
-                                  formControlName="project"
-                                  [validInParent]="fg.controls.project.valid"
-                                  [touchedInParent]="fg.controls.project.touched"
+                                <div
+                                  [ngClass]="{'add-edit-per-diem--no-project': fg.controls.project.touched && !fg.controls.project.valid}"
+                                  class="add-edit-per-diem--internal-block add-edit-per-diem--project-block"
                                 >
-                                </app-fy-select-project>
-                              </div>
+                                  <app-fy-select-project
+                                    [categoryIds]="projectCategoryIds"
+                                    [cacheName]="'perDiemProjectCache'"
+                                    [defaultValue]="true"
+                                    [label]="txnFields?.project_id?.field_name"
+                                    [placeholder]="txnFields?.project_id?.placeholder"
+                                    [mandatory]="txnFields?.project_id?.is_mandatory"
+                                    [recentlyUsed]="recentProjects"
+                                    formControlName="project"
+                                    [validInParent]="fg.controls.project.valid"
+                                    [touchedInParent]="fg.controls.project.touched"
+                                    [isProjectCategoryRestrictionsEnabled]="isProjectCategoryRestrictionsEnabled.value"
+                                  >
+                                  </app-fy-select-project>
+                                </div>
+                              </ng-container>
                             </ng-container>
                           </ng-container>
                         </ng-container>
@@ -412,7 +425,7 @@
 
                   <ng-container *ngIf="costCenters$|async as costCenters">
                     <ng-container *ngIf="txnFields$|async as txnFields">
-                      <ng-container *ngIf="txnFields.cost_center_id.is_mandatory || isExpandedView">
+                      <ng-container *ngIf="txnFields.cost_center_id?.is_mandatory || isExpandedView">
                         <div
                           *ngIf="costCenters.length > 0 && txnFields?.cost_center_id"
                           [ngClass]="{'add-edit-per-diem--internal-block__invalid': fg.controls.costCenter.touched && !fg.controls.costCenter.valid}"
@@ -420,13 +433,13 @@
                         >
                           <app-virtual-select
                             [cacheName]="'perDiemCostCenterCache'"
-                            [label]="txnFields.cost_center_id.field_name  | ellipsis: 30"
-                            [mandatory]="txnFields.cost_center_id.is_mandatory"
+                            [label]="txnFields.cost_center_id?.field_name  | ellipsis: 30"
+                            [mandatory]="txnFields.cost_center_id?.is_mandatory"
                             [options]="costCenters"
                             [selectModalHeader]="'Select Cost Center'"
                             [recentlyUsed]="recentCostCenters"
                             formControlName="costCenter"
-                            [placeholder]="txnFields.cost_center_id.placeholder | ellipsis: 30"
+                            [placeholder]="txnFields.cost_center_id?.placeholder | ellipsis: 30"
                           >
                           </app-virtual-select>
                         </div>

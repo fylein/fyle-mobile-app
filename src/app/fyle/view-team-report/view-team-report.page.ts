@@ -1,13 +1,12 @@
 import { Component, ElementRef, EventEmitter, ViewChild } from '@angular/core';
 import { Observable, from, Subject, concat, forkJoin, BehaviorSubject } from 'rxjs';
-import { ExtendedReport } from 'src/app/core/models/report.model';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ReportService } from 'src/app/core/services/report.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { PopoverController, ModalController, IonContent } from '@ionic/angular';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
-import { switchMap, finalize, map, shareReplay, tap, startWith, take, takeUntil, filter } from 'rxjs/operators';
+import { switchMap, finalize, map, shareReplay, tap, take, takeUntil, filter } from 'rxjs/operators';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { NetworkService } from '../../core/services/network.service';
 import { TrackingService } from '../../core/services/tracking.service';
@@ -15,23 +14,29 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
-import { RefinerService } from 'src/app/core/services/refiner.service';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { getCurrencySymbol } from '@angular/common';
 import * as dayjs from 'dayjs';
 import { StatusService } from 'src/app/core/services/status.service';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
-import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
+import { ExactCurrencyPipe } from 'src/app/shared/pipes/exact-currency.pipe';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
-import { Approver } from 'src/app/core/models/v1/approver.model';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { PdfExport } from 'src/app/core/models/pdf-exports.model';
 import { EditReportNamePopoverComponent } from '../my-view-report/edit-report-name-popover/edit-report-name-popover.component';
 import { ExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
-import { ShareReportComponent } from './share-report/share-report.component';
 import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
+import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
+import { Report } from 'src/app/core/models/platform/v1/report.model';
+import { ReportPermissions } from 'src/app/core/models/report-permissions.model';
+import { OrgSettings } from 'src/app/core/models/org-settings.model';
+import { ExtendedComment } from 'src/app/core/models/platform/v1/extended-comment.model';
+import { Comment } from 'src/app/core/models/platform/v1/comment.model';
+import { ApprovalState, ReportApprovals } from 'src/app/core/models/platform/report-approvals.model';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { RefinerService } from 'src/app/core/services/refiner.service';
+
 @Component({
   selector: 'app-view-team-report',
   templateUrl: './view-team-report.page.html',
@@ -42,21 +47,15 @@ export class ViewTeamReportPage {
 
   @ViewChild(IonContent, { static: false }) content: IonContent;
 
-  erpt$: Observable<ExtendedReport>;
+  report$: Observable<Report>;
 
   expenses$: Observable<Expense[]>;
 
-  sharedWith$: Observable<any[]>;
-
-  reportApprovals$: Observable<any>;
-
   refreshApprovals$ = new Subject();
 
-  actions$: Observable<any>;
+  permissions$: Observable<ReportPermissions>;
 
   hideAllExpenses = true;
-
-  sharedWithLimit = 3;
 
   canEdit$: Observable<boolean>;
 
@@ -82,29 +81,27 @@ export class ViewTeamReportPage {
 
   isExpensesView = true;
 
-  estatuses$: Observable<ExtendedStatus[]>;
+  estatuses: ExtendedComment[];
 
-  refreshEstatuses$: Subject<void> = new Subject();
-
-  systemComments: ExtendedStatus[];
+  systemComments: ExtendedComment[];
 
   type: string;
 
   systemEstatuses: ExtendedStatus[];
 
-  userComments: any;
+  userComments: ExtendedComment[];
 
-  totalCommentsCount$: Observable<number>;
+  totalCommentsCount: number;
 
   newComment: string;
 
   objectType = 'reports';
 
-  objectId = this.activatedRoute.snapshot.params.id;
+  objectId = this.activatedRoute.snapshot.params.id as string;
 
   isCommentAdded: boolean;
 
-  expensesAmountSum$: Observable<any>;
+  expensesAmountSum$: Observable<number>;
 
   reportExpensesIds: string[];
 
@@ -130,6 +127,8 @@ export class ViewTeamReportPage {
 
   timeSpentOnEditingReportName: number;
 
+  approvals: ReportApprovals[];
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
@@ -144,18 +143,20 @@ export class ViewTeamReportPage {
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService,
     private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService,
+    private launchDarklyService: LaunchDarklyService,
     private refinerService: RefinerService,
+    private snackbarProperties: SnackbarPropertiesService,
     private statusService: StatusService,
-    private humanizeCurrency: HumanizeCurrencyPipe,
-    private orgSettingsService: OrgSettingsService
+    private exactCurrency: ExactCurrencyPipe,
+    private orgSettingsService: OrgSettingsService,
+    private approverReportsService: ApproverReportsService
   ) {}
 
-  ionViewWillLeave() {
+  ionViewWillLeave(): void {
     this.onPageExit.next(null);
   }
 
-  setupNetworkWatcher() {
+  setupNetworkWatcher(): void {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
@@ -170,83 +171,80 @@ export class ViewTeamReportPage {
     });
   }
 
-  getApproverEmails(reportApprovals) {
-    return reportApprovals.map((approver) => approver.approver_email);
+  getApproverEmails(reportApprovals: ReportApprovals[]): string[] {
+    return reportApprovals.map((approver) => approver.approver_user.email);
   }
 
-  loadReports(): Observable<ExtendedReport> {
+  loadReports(): Observable<Report> {
     return this.loadReportDetails$.pipe(
       tap(() => this.loaderService.showLoader()),
       switchMap(() =>
-        this.reportService
-          .getReport(this.activatedRoute.snapshot.params.id)
+        this.approverReportsService
+          .getReportById(this.activatedRoute.snapshot.params.id as string)
           .pipe(finalize(() => this.loaderService.hideLoader()))
       ),
       shareReplay(1)
     );
   }
 
-  getApprovalSettings(orgSettings) {
+  getApprovalSettings(orgSettings: OrgSettings): boolean {
     return orgSettings?.approval_settings?.enable_sequential_approvers;
   }
 
-  getReportClosureSettings(orgSettings) {
+  getReportClosureSettings(orgSettings: OrgSettings): boolean {
     return orgSettings?.simplified_report_closure_settings?.enabled;
   }
 
-  ionViewWillEnter() {
-    this.isExpensesLoading = true;
-    this.setupNetworkWatcher();
+  convertToEstatus(comments: ExtendedComment[]): ExtendedStatus[] {
+    return comments.map((comment) => {
+      const status: ExtendedStatus = {
+        st_comment: comment.comment,
+        isSelfComment: comment.isSelfComment,
+        isBotComment: comment.isBotComment,
+        isOthersComment: comment.isOthersComment,
+        st_created_at: comment.created_at,
+        st_id: comment.id,
+        st_diff: null,
+      };
+      return status;
+    });
+  }
 
-    this.navigateBack = this.activatedRoute.snapshot.params.navigate_back;
+  setupComments(report: Report): void {
+    this.eou$.subscribe((eou) => {
+      this.estatuses =
+        report?.comments?.map((comment: Comment) => {
+          const extendedComment: ExtendedComment = {
+            ...comment,
+            isBotComment: ['SYSTEM', 'POLICY'].includes(comment.creator_user_id),
+            isSelfComment: eou && eou.us && eou.us.id && comment.creator_user_id === eou.us.id,
+            isOthersComment: eou && eou.us && eou.us.id && comment.creator_user_id !== eou.us.id,
+          };
+          return extendedComment;
+        }) || [];
 
-    this.erpt$ = this.loadReports();
-    this.eou$ = from(this.authService.getEou());
+      this.totalCommentsCount = this.estatuses.filter((estatus) => estatus.creator_user_id !== 'SYSTEM').length;
 
-    this.eou$.subscribe((eou) => (this.eou = eou));
-
-    this.estatuses$ = this.refreshEstatuses$.pipe(
-      startWith(0),
-      switchMap(() => this.eou$),
-      switchMap((eou) =>
-        this.statusService.find(this.objectType, this.objectId).pipe(
-          map((estatus) =>
-            estatus.map((status) => {
-              status.isBotComment = status && ['SYSTEM', 'POLICY'].indexOf(status.st_org_user_id) > -1;
-              status.isSelfComment = status && eou && eou.ou && status.st_org_user_id === eou.ou.id;
-              status.isOthersComment = status && eou && eou.ou && status.st_org_user_id !== eou.ou.id;
-              return status;
-            })
-          ),
-          map((res) => res.sort((a, b) => a.st_created_at.valueOf() - b.st_created_at.valueOf()))
-        )
-      )
-    );
-
-    const orgSettings$ = this.orgSettingsService.get();
-    this.simplifyReportsSettings$ = orgSettings$.pipe(
-      map((orgSettings) => ({ enabled: this.getReportClosureSettings(orgSettings) }))
-    );
-
-    this.estatuses$.subscribe((estatuses) => {
-      const reversalStatus = estatuses.filter(
-        (status) => status.st_comment.indexOf('created') > -1 && status.st_comment.indexOf('reversal') > -1
+      this.systemComments = this.estatuses.filter(
+        (status) => ['SYSTEM', 'POLICY'].indexOf(status.creator_user_id) > -1 || !status.creator_user_id
       );
-
-      this.systemComments = estatuses.filter((status) => ['SYSTEM', 'POLICY'].indexOf(status.st_org_user_id) > -1);
 
       this.type =
         this.objectType.toLowerCase() === 'transactions'
           ? 'Expense'
           : this.objectType.substring(0, this.objectType.length - 1);
 
-      this.systemEstatuses = this.statusService.createStatusMap(this.systemComments, this.type);
+      this.systemEstatuses = this.statusService.createStatusMap(this.convertToEstatus(this.systemComments), this.type);
 
-      this.userComments = estatuses.filter((status) => status.us_full_name);
+      this.userComments = this.estatuses.filter(
+        (status) => !!status.creator_user_id && !['SYSTEM', 'POLICY'].includes(status.creator_user_id)
+      );
+
+      this.userComments.sort((a, b) => (a.created_at > b.created_at ? 1 : -1));
 
       for (let i = 0; i < this.userComments.length; i++) {
-        const prevCommentDt = dayjs(this.userComments[i - 1] && this.userComments[i - 1].st_created_at);
-        const currentCommentDt = dayjs(this.userComments[i] && this.userComments[i].st_created_at);
+        const prevCommentDt = dayjs(this.userComments[i - 1] && this.userComments[i - 1].created_at);
+        const currentCommentDt = dayjs(this.userComments[i] && this.userComments[i].created_at);
         if (dayjs(prevCommentDt).isSame(currentCommentDt, 'day')) {
           this.userComments[i].show_dt = false;
         } else {
@@ -254,54 +252,61 @@ export class ViewTeamReportPage {
         }
       }
     });
+  }
 
-    this.totalCommentsCount$ = this.estatuses$.pipe(
-      map((res) => res.filter((estatus) => estatus.st_org_user_id !== 'SYSTEM').length)
+  ionViewWillEnter(): void {
+    this.isExpensesLoading = true;
+    this.setupNetworkWatcher();
+
+    const navigateBack = this.activatedRoute.snapshot.params?.navigate_back as string | null;
+    if (navigateBack && typeof navigateBack == 'string') {
+      this.navigateBack = JSON.parse(navigateBack) as boolean;
+    }
+
+    this.report$ = this.loadReports();
+    this.eou$ = from(this.authService.getEou());
+
+    this.eou$.subscribe((eou) => (this.eou = eou));
+
+    const orgSettings$ = this.orgSettingsService.get();
+    this.simplifyReportsSettings$ = orgSettings$.pipe(
+      map((orgSettings) => ({ enabled: this.getReportClosureSettings(orgSettings) }))
     );
 
-    this.erpt$ = this.refreshApprovals$.pipe(
+    this.report$ = this.refreshApprovals$.pipe(
       switchMap(() =>
         from(this.loaderService.showLoader()).pipe(
-          switchMap(() => this.reportService.getTeamReport(this.activatedRoute.snapshot.params.id))
+          switchMap(() => this.approverReportsService.getReportById(this.activatedRoute.snapshot.params.id as string)),
+          map((report) => {
+            this.approvals = report.approvals.filter((approval) =>
+              [ApprovalState.APPROVAL_PENDING, ApprovalState.APPROVAL_DONE].includes(approval.state)
+            );
+            return report;
+          })
         )
       ),
-      shareReplay(1),
-      finalize(() => from(this.loaderService.hideLoader()))
+      map((report) => {
+        this.setupComments(report);
+        return report;
+      }),
+      finalize(() => from(this.loaderService.hideLoader())),
+      shareReplay(1)
     );
 
-    this.erpt$.pipe(filter((erpt) => !!erpt)).subscribe((erpt: ExtendedReport) => {
-      this.reportCurrencySymbol = getCurrencySymbol(erpt.rp_currency, 'wide');
-      this.reportName = erpt.rp_purpose;
+    this.report$.pipe(filter((report) => !!report)).subscribe((report: Report) => {
+      this.reportCurrencySymbol = getCurrencySymbol(report.currency, 'wide');
+      this.reportName = report.purpose;
       /**
-       * if current user is remove from approver, erpt call will go again to fetch current report details
-       * so checking if report details are available in erpt than continue execution
+       * if current user is remove from approver, report call will go again to fetch current report details
+       * so checking if report details are available in report than continue execution
        * else redirect them to team reports
        */
-      if (erpt) {
-        this.isReportReported = ['APPROVER_PENDING'].indexOf(erpt.rp_state) > -1;
+      if (report) {
+        this.isReportReported = ['APPROVER_PENDING'].indexOf(report.state) > -1;
       }
     });
 
-    this.sharedWith$ = this.reportService.getExports(this.activatedRoute.snapshot.params.id).pipe(
-      map((pdfExports: { results: PdfExport[] }) =>
-        pdfExports.results
-          .sort((a, b) => (a.created_at < b.created_at ? 1 : b.created_at < a.created_at ? -1 : 0))
-          .map((pdfExport) => pdfExport.sent_to)
-          .filter((item, index, inputArray) => inputArray.indexOf(item) === index)
-      )
-    );
-
-    this.reportApprovals$ = this.refreshApprovals$.pipe(
-      startWith(true),
-      switchMap(() => this.reportService.getApproversByReportId(this.activatedRoute.snapshot.params.id)),
-      map((reportApprovals) =>
-        reportApprovals
-          .filter((approval) => ['APPROVAL_PENDING', 'APPROVAL_DONE'].indexOf(approval.state) > -1)
-          .map((approval) => approval)
-      )
-    );
-
-    this.expenses$ = this.expensesService.getReportExpenses(this.activatedRoute.snapshot.params.id).pipe(
+    this.expenses$ = this.expensesService.getReportExpenses(this.activatedRoute.snapshot.params.id as string).pipe(
       shareReplay(1),
       finalize(() => (this.isExpensesLoading = false))
     );
@@ -310,22 +315,26 @@ export class ViewTeamReportPage {
       map((expenses) => expenses.reduce((acc, curr) => acc + curr.amount, 0))
     );
 
-    this.actions$ = this.reportService.actions(this.activatedRoute.snapshot.params.id).pipe(shareReplay(1));
+    this.permissions$ = this.approverReportsService
+      .permissions(this.activatedRoute.snapshot.params.id as string)
+      .pipe(shareReplay(1));
 
-    this.canEdit$ = this.actions$.pipe(map((actions) => actions.can_edit));
-    this.canDelete$ = this.actions$.pipe(map((actions) => actions.can_delete));
-    this.canResubmitReport$ = this.actions$.pipe(map((actions) => actions.can_resubmit));
+    this.canEdit$ = this.permissions$.pipe(map((permissions) => permissions.can_edit));
+    this.canDelete$ = this.permissions$.pipe(map((permissions) => permissions.can_delete));
+    this.canResubmitReport$ = this.permissions$.pipe(map((permissions) => permissions.can_resubmit));
 
     forkJoin({
       expenses: this.expenses$,
       eou: this.eou$,
-      approvals: this.reportApprovals$.pipe(take(1)),
+      report: this.report$.pipe(take(1)),
       orgSettings: this.orgSettingsService.get(),
-    }).subscribe(({ expenses, eou, approvals, orgSettings }) => {
+    }).subscribe(({ expenses, eou, report, orgSettings }) => {
       this.reportExpensesIds = expenses.map((expense) => expense.id);
       this.isSequentialApprovalEnabled = this.getApprovalSettings(orgSettings);
       this.canApprove = this.isSequentialApprovalEnabled
-        ? this.isUserActiveInCurrentSeqApprovalQueue(eou, approvals)
+        ? report.next_approver_user_ids &&
+          report.next_approver_user_ids.length > 0 &&
+          report.next_approver_user_ids.includes(eou.us.id)
         : true;
       this.canShowTooltip = true;
     });
@@ -333,69 +342,29 @@ export class ViewTeamReportPage {
     this.refreshApprovals$.next(null);
   }
 
-  toggleTooltip() {
+  toggleTooltip(): void {
     this.canShowTooltip = !this.canShowTooltip;
   }
 
-  isUserActiveInCurrentSeqApprovalQueue(eou: ExtendedOrgUser, approvers: Approver[]): boolean {
-    const currentApproverRank = approvers.find((approver) => approver.approver_id === eou.ou.id)?.rank;
-
-    const approverRanks = approvers
-      .filter((approver) => approver.state === 'APPROVAL_PENDING')
-      .map((approver) => approver.rank);
-
-    if (approverRanks.length > 0) {
-      const minRank = approverRanks.reduce((prev, curr) => (prev < curr ? prev : curr));
-      return currentApproverRank === minRank;
-    }
-
-    return false;
-  }
-
-  async deleteReport() {
-    const popupResult = await this.popupService.showPopup({
-      header: 'Delete Report',
-      message: `
-        <p class="highlight-info">
-          On deleting this report, all the associated expenses will be moved to <strong>My Expenses</strong> list.
-        </p>
-        <p>
-          Are you sure, you want to delete this report?
-        </p>
-      `,
-      primaryCta: {
-        text: 'Delete Report',
-      },
-    });
-
-    if (popupResult === 'primary') {
-      from(this.loaderService.showLoader())
-        .pipe(
-          switchMap(() => this.reportService.delete(this.activatedRoute.snapshot.params.id)),
-          finalize(() => from(this.loaderService.hideLoader()))
-        )
-        .subscribe(() => {
-          this.router.navigate(['/', 'enterprise', 'team_reports']);
-        });
-    }
-  }
-
-  async approveReport() {
+  async approveReport(): Promise<void> {
     if (!this.canApprove) {
       this.toggleTooltip();
     } else {
-      const erpt = await this.erpt$.pipe(take(1)).toPromise();
+      const report = await this.report$.pipe(take(1)).toPromise();
       const expenses = await this.expenses$.toPromise();
 
-      const rpAmount = this.humanizeCurrency.transform(erpt.rp_amount, erpt.rp_currency, false);
-      const flaggedExpensesCount = expenses.filter(
-        (expense) => expense.is_policy_flagged || expense.is_manually_flagged
-      ).length;
+      const rpAmount = this.exactCurrency.transform({
+        value: report.amount,
+        currencyCode: report.currency,
+        skipSymbol: false,
+      });
+      const flaggedExpensesCount = expenses.filter((expense) => expense.is_policy_flagged).length;
       const popover = await this.popoverController.create({
         componentProps: {
           flaggedExpensesCount,
           title: 'Approve Report',
-          message: erpt.rp_num_transactions + ' expenses of amount ' + rpAmount + ' will be approved',
+          message: report.num_expenses + ' expenses of amount ' + rpAmount + ' will be approved',
+          leftAlign: true,
           primaryCta: {
             text: 'Approve',
             action: 'approve',
@@ -411,24 +380,28 @@ export class ViewTeamReportPage {
 
       await popover.present();
 
-      const { data } = await popover.onWillDismiss();
+      const { data } = (await popover.onWillDismiss()) as { data: { action: string } };
 
       if (data && data.action === 'approve') {
-        this.reportService.approve(erpt.rp_id).subscribe(() => {
-          this.refinerService.startSurvey({ actionName: 'Approve Report' });
+        this.approverReportsService.approve(report.id).subscribe(() => {
           this.router.navigate(['/', 'enterprise', 'team_reports']);
+          this.launchDarklyService.getVariation('nps_survey', false).subscribe((showNpsSurvey) => {
+            if (showNpsSurvey) {
+              this.refinerService.startSurvey({ actionName: 'Approve Report' });
+            }
+          });
         });
       }
     }
   }
 
-  onUpdateApprover(message: boolean) {
+  onUpdateApprover(message: boolean): void {
     if (message) {
       this.refreshApprovals$.next(null);
     }
   }
 
-  goToTransaction({ expense, expenseIndex }: { expense: Expense; expenseIndex: number }) {
+  goToTransaction({ expense, expenseIndex }: { expense: Expense; expenseIndex: number }): void {
     const category = expense.category && expense.category.name.toLowerCase();
 
     let route: string;
@@ -451,29 +424,7 @@ export class ViewTeamReportPage {
     ]);
   }
 
-  async shareReport(event) {
-    const popover = await this.popoverController.create({
-      component: ShareReportComponent,
-      cssClass: 'dialog-popover',
-    });
-
-    await popover.present();
-
-    const { data } = await popover.onWillDismiss();
-
-    if (data.email) {
-      const params = {
-        report_ids: [this.activatedRoute.snapshot.params.id],
-        email: data.email,
-      };
-      this.reportService.downloadSummaryPdfUrl(params).subscribe(async () => {
-        const message = `We will send ${data.email} a link to download the PDF <br> when it is generated and send you a copy.`;
-        await this.loaderService.showLoader(message);
-      });
-    }
-  }
-
-  async sendBack() {
+  async sendBack(): Promise<void> {
     const popover = await this.popoverController.create({
       component: FyPopoverComponent,
       componentProps: {
@@ -484,35 +435,28 @@ export class ViewTeamReportPage {
     });
 
     await popover.present();
-    const { data } = await popover.onWillDismiss();
+    const { data } = (await popover.onWillDismiss()) as { data: { comment: string } };
 
     if (data && data.comment) {
-      const status = {
-        comment: data.comment,
-      };
-      const statusPayload = {
-        status,
-        notify: false,
-      };
-
-      this.reportService.inquire(this.activatedRoute.snapshot.params.id, statusPayload).subscribe(() => {
-        const message = 'Report Sent Back successfully';
-        this.matSnackBar.openFromComponent(ToastMessageComponent, {
-          ...this.snackbarProperties.setSnackbarProperties('success', { message }),
-          panelClass: ['msb-success-with-camera-icon'],
+      this.approverReportsService
+        .sendBack(this.activatedRoute.snapshot.params.id as string, data.comment)
+        .subscribe(() => {
+          const message = 'Report Sent Back successfully';
+          this.matSnackBar.openFromComponent(ToastMessageComponent, {
+            ...this.snackbarProperties.setSnackbarProperties('success', { message }),
+            panelClass: ['msb-success-with-camera-icon'],
+          });
+          this.trackingService.showToastMessage({ ToastContent: message });
         });
-        this.trackingService.showToastMessage({ ToastContent: message });
-        this.refinerService.startSurvey({ actionName: 'Send Back Report' });
-      });
       this.router.navigate(['/', 'enterprise', 'team_reports']);
     }
   }
 
-  async openViewReportInfoModal() {
+  async openViewReportInfoModal(): Promise<void> {
     const viewInfoModal = await this.modalController.create({
       component: FyViewReportInfoComponent,
       componentProps: {
-        erpt$: this.erpt$,
+        report$: this.report$,
         expenses$: this.expenses$,
         view: ExpenseView.team,
       },
@@ -525,7 +469,7 @@ export class ViewTeamReportPage {
     this.trackingService.clickViewReportInfo({ view: ExpenseView.team });
   }
 
-  segmentChanged(event) {
+  segmentChanged(event: { detail: { value: string } }): void {
     if (event && event.detail && event.detail.value) {
       if (event.detail.value === 'expenses') {
         this.isExpensesView = true;
@@ -546,18 +490,16 @@ export class ViewTeamReportPage {
     }
   }
 
-  addComment() {
+  addComment(): void {
     if (this.newComment) {
-      const data = {
-        comment: this.newComment,
-      };
+      const comment = this.newComment;
 
       this.newComment = null;
-      this.commentInput.nativeElement.focus();
+      (this.commentInput.nativeElement as HTMLElement).focus();
       this.isCommentAdded = true;
 
-      this.statusService.post(this.objectType, this.objectId, data).subscribe((res) => {
-        this.refreshEstatuses$.next(null);
+      this.approverReportsService.postComment(this.objectId, comment).subscribe(() => {
+        this.refreshApprovals$.next(null);
         setTimeout(() => {
           this.content.scrollToBottom(500);
         }, 500);
@@ -570,7 +512,7 @@ export class ViewTeamReportPage {
     this.timeSpentOnEditingReportName = (this.reportNameChangeEndTime - this.reportNameChangeStartTime) / 1000;
     this.trackingService.reportNameChange({
       Time_spent: this.timeSpentOnEditingReportName,
-      Roles: this.eou?.ou.roles,
+      Roles: this.eou && this.eou.ou.roles,
     });
   }
 
@@ -584,12 +526,12 @@ export class ViewTeamReportPage {
   }
 
   updateReportName(reportName: string): void {
-    this.erpt$
+    this.report$
       .pipe(
         take(1),
-        switchMap((erpt) => {
-          erpt.rp_purpose = reportName;
-          return this.reportService.approverUpdateReportPurpose(erpt);
+        switchMap((report) => {
+          report.purpose = reportName;
+          return this.reportService.approverUpdateReportPurpose(report);
         })
       )
       .subscribe(() => {
@@ -601,14 +543,14 @@ export class ViewTeamReportPage {
 
   editReportName(): void {
     this.reportNameChangeStartTime = new Date().getTime();
-    this.erpt$
+    this.report$
       .pipe(take(1))
       .pipe(
-        switchMap((erpt) => {
+        switchMap((report) => {
           const editReportNamePopover = this.popoverController.create({
             component: EditReportNamePopoverComponent,
             componentProps: {
-              reportName: erpt.rp_purpose,
+              reportName: report.purpose,
             },
             cssClass: 'fy-dialog-popover',
           });

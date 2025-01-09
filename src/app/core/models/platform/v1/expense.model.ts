@@ -1,6 +1,5 @@
 import { ExpenseState } from '../../expense-state.enum';
 import { Location } from '../../location.model';
-import { NameValuePair } from '../../name-value-pair.model';
 import { ParsedResponse } from '../../parsed_response.model';
 import { PlatformCategory } from '../platform-category.model';
 import { PlatformCostCenter } from '../platform-cost-center.model';
@@ -11,14 +10,18 @@ import { PlatformTaxGroup } from '../platform-tax-group.model';
 import { User } from './user.model';
 import { ReportApprovals } from '../report-approvals.model';
 import { PlatformPerDiemRates } from '../platform-per-diem-rates.model';
-import { Level } from './level.model';
-import { Department } from './department.model';
-import { ReportState } from './report.model';
 import { Account } from './account.model';
 import { CustomFields } from '../custom-fields.model';
 import { CustomInput } from '../../custom-input.model';
 import { CommuteDetails } from './commute-details.model';
 import { CommuteDeduction } from 'src/app/core/enums/commute-deduction.enum';
+import { MatchedCorporateCardTransaction } from './matched-corpporate-card-transaction.model';
+import { ExpenseMissingMandatoryFields } from './expense-missing-mandatory-fields.model';
+import { PolicyChecks } from './policy-checks.model';
+import { ExpenseRuleData } from './expense-rule-data.model';
+import { AccountingExportSummary } from './accounting-export-summary.model';
+import { ExpenseReport } from './expense-report.model';
+import { ExpenseEmployee } from 'src/app/core/mock-data/platform/v1/expense-employee.model';
 
 export interface Expense {
   // `activity_details` is not added on purpose
@@ -44,7 +47,7 @@ export interface Expense {
   custom_fields_flattened: Record<string, any>;
   distance: number;
   distance_unit: MileageUnitEnum;
-  employee: Employee;
+  employee: ExpenseEmployee;
   employee_id: string;
   ended_at: Date;
   expense_rule_data: ExpenseRuleData;
@@ -59,14 +62,12 @@ export interface Expense {
   invoice_number?: string;
   is_billable: boolean;
   is_corporate_card_transaction_auto_matched: boolean;
-  is_manually_flagged: boolean;
-  is_physical_bill_submitted: boolean;
   is_policy_flagged: boolean;
   is_receipt_mandatory: boolean;
   is_reimbursable: boolean;
   is_split: boolean;
   is_verified: boolean;
-  is_weekend_spend: boolean;
+  is_duplicate_present?: boolean;
   last_settled_at: Date;
   last_verified_at: Date;
   locations: Location[];
@@ -78,24 +79,23 @@ export interface Expense {
   mileage_is_round_trip: boolean;
   mileage_rate: Partial<PlatformMileageRates>;
   mileage_rate_id: number;
-  missing_mandatory_fields: MissingMandatoryFields;
+  missing_mandatory_fields: ExpenseMissingMandatoryFields;
   org_id: string;
   per_diem_num_days: number;
   per_diem_rate: Pick<PlatformPerDiemRates, 'id' | 'code' | 'name'>;
   per_diem_rate_id: number;
-  physical_bill_submitted_at: Date;
   policy_checks: PolicyChecks;
   policy_amount: number;
   project_id: number;
   project: Pick<Project, 'id' | 'name' | 'sub_project' | 'code' | 'display_name'>;
   purpose: string;
-  report: Report;
+  report: ExpenseReport;
   report_id: string;
-  report_settlement_id: string;
   seq_num: string;
   source: string;
   source_account: Pick<Account, 'id' | 'type'>;
   source_account_id: string;
+  advance_wallet_id?: string;
   spent_at: Date;
   split_group_amount: number;
   split_group_id: string;
@@ -116,103 +116,4 @@ export interface Expense {
   commute_deduction?: CommuteDeduction;
   commute_details?: CommuteDetails;
   commute_details_id?: number;
-}
-
-export interface Employee {
-  business_unit: string;
-  code: string;
-  custom_fields: NameValuePair[];
-  department: Pick<Department, 'id' | 'code' | 'display_name' | 'sub_department' | 'name'>;
-  department_id: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  flattened_custom_field: Record<string, any>;
-  has_accepted_invite: boolean;
-  id: string;
-  is_enabled: boolean;
-  joined_at?: Date;
-  mobile?: string;
-  level: Pick<Level, 'id' | 'name' | 'band'>;
-  location: string;
-  org_id: string;
-  org_name: string;
-  title: string;
-  user: User;
-  user_id: string;
-}
-
-export interface MatchedCorporateCardTransaction {
-  id: string;
-  corporate_card_id: string;
-  corporate_card_number: string;
-  masked_corporate_card_number: string;
-  corporate_card_user_full_name: string;
-  bank_name: string;
-  amount: number;
-  currency: string;
-  spent_at: Date;
-  posted_at: Date;
-  description: string;
-  foreign_currency: string;
-  status: TransactionStatus;
-  foreign_amount: number;
-  merchant: string;
-  category: string;
-  matched_by: string;
-}
-
-export enum TransactionStatus {
-  PENDING = 'PENDING',
-  POSTED = 'POSTED',
-}
-
-export interface PolicyChecks {
-  are_approvers_added: boolean;
-  is_amount_limit_applied: boolean;
-  is_flagged_ever: boolean;
-  violations: Violation[];
-}
-
-export interface Violation {
-  policy_rule_description: string;
-  policy_rule_id: string;
-}
-
-export interface Report {
-  amount: number;
-  approvals: ReportApprovals[];
-  id: string;
-  last_approved_at: Date;
-  last_paid_at: Date;
-  last_submitted_at: Date;
-  seq_num: string;
-  state: ReportState;
-  settlement_id: string;
-  last_verified_at: Date;
-  reimbursement_id: string;
-  reimbursement_seq_num: string;
-  title: string;
-}
-
-export interface ExpenseRuleData {
-  merchant: string;
-  is_billable: boolean;
-  purpose: string;
-  category_id: number;
-  project_id: number;
-  cost_center_id: number;
-  custom_fields: NameValuePair[];
-}
-
-export interface MissingMandatoryFields {
-  expense_field_ids: number[];
-  amount: boolean;
-  currency: boolean;
-  receipt: boolean;
-}
-
-export interface AccountingExportSummary {
-  state: string;
-  error_type: string;
-  url: string;
-  tpa_id: string;
 }

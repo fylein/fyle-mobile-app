@@ -1,119 +1,286 @@
 @import '../../../theme/colors.scss';
-$sign-in-header: #220033;
-$form-header: #000;
-$form-subheader: #4a4a4a;
-$password-icon: #b9beba;
 
 .sign-in {
-  &--page-container {
-    --background: none;
-    background-image: $pink-gradient-3;
+  &__video-container {
+    position: relative;
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    background: linear-gradient(to bottom, #fafafc, #f1f6ff);
+    border-radius: 20px;
+    &__video {
+      width: auto;
+      height: 100%;
+    }
   }
 
-  &--header {
-    min-height: 180px;
+  &__page-header {
+    font-size: 20px;
+    margin: 0 0 10px;
+    position: relative;
+    margin-bottom: 6px;
+    font-weight: 500;
   }
 
-  &--error {
-    color: #f00;
-    margin-top: 4px;
-    margin-bottom: 4px;
+  &__back-icon {
+    margin-bottom: 16px;
+    width: 28px;
+    height: 28px;
   }
 
-  &--header-container {
-    min-height: 180px;
-    background-image: $pink-gradient-3;
+  &__sub-header {
+    font-size: 14px;
+    margin: 0 0 10px;
+    position: relative;
+    margin-bottom: 32px;
+    color: $black-light;
+    line-height: 1.28;
   }
 
-  &--header-logo-container {
-    text-align: center;
+  &__select-sign-in {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    padding: 20px 20px 0 20px;
   }
 
-  &--header-logo {
-    max-width: 100px;
-  }
-
-  &--form {
-    padding: 40px 24px;
-    margin: 16px;
-    background-color: $white;
-    border-radius: 8px;
-  }
-
-  &--form-field {
-    width: 100%;
-  }
-
-  &--form-header {
-    font-size: 24px;
-    margin-top: 16px;
-    margin-bottom: 8px;
-    color: $form-header;
-    font-weight: 700;
-  }
-
-  &--form-subheader {
-    font-size: 16px;
-    color: $form-subheader;
-    margin-top: 8px;
+  &__cta-container {
+    margin-top: 24px;
+    position: relative;
+    height: 144px;
     margin-bottom: 24px;
   }
 
-  &--primary-cta {
-    margin-top: 12px;
-    .mat-button-base {
-      width: 100%;
-      font-weight: 700;
-      min-height: 47px;
+  &__divider-container {
+    display: flex;
+    gap: 16px;
+    margin: 12px 0;
+    height: 20px;
+    align-items: center;
+    color: $black;
+  }
+
+  &__divider {
+    height: 1px;
+    background-color: $border-tertiary;
+    width: 100%;
+  }
+
+  &__enter-email {
+    height: 96vh;
+    margin-top: 18px;
+    padding: 20px;
+    padding: 24px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    &__input-container {
+      &__label {
+        margin: 0 8px 0 0;
+        font-size: 12px;
+        color: $black-light;
+        line-height: 1.3;
+        font-weight: 400;
+      }
+
+      &__input {
+        border: 0;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 1.3;
+        color: $blue-black;
+        width: 100%;
+        padding: 6px 0;
+        border-bottom: 1px solid $grey-lighter;
+      }
+
+      &__input:focus {
+        border-bottom: 1px solid $blue-black;
+      }
+    }
+
+    &__error-message {
+      color: $red;
+    }
+
+    &__disabled {
+      opacity: 0.2;
     }
   }
 
-  &--password-visibility-icon {
-    color: $password-icon;
+  &__enter-password {
+    height: 96vh;
+    margin-top: 18px;
+    padding: 20px;
+    padding: 24px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    &__forgot-password {
+      line-height: 1.5;
+      float: right;
+      margin-top: 1px;
+    }
+
+    &__forgot-password_button {
+      font-weight: 500;
+      background: $pure-white;
+      color: $black-light;
+      font-size: 12px;
+    }
+
+    &__disabled-email {
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1.3;
+      color: $blue-black;
+      padding-top: 4px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+    }
+
+    &__email-edit {
+      fill: $black-light;
+      height: 20px;
+      width: 20px;
+      margin-left: 8px;
+    }
+
+    &__password-icon {
+      width: 20px;
+      height: 20px;
+      fill: $black-light;
+    }
+
+    &__password-icon-container {
+      display: flex;
+      align-items: center;
+    }
+
+    &__text-input {
+      border: 0;
+      font-size: 14px;
+      font-weight: 400;
+      height: 18px;
+      line-height: 18px;
+      color: $blue-black;
+      width: 100%;
+      margin: 6px 0;
+      padding: 0;
+    }
+
+    &__text {
+      border-bottom: 1px solid $grey-lighter;
+
+      &__invalid {
+        border-bottom: 1px solid $red;
+      }
+    }
+
+    &__password-container {
+      display: flex;
+    }
+
+    &__text-label {
+      margin: 0 8px 0 0;
+      max-width: 90%;
+      min-width: 120px;
+      font-size: 12px;
+      color: $black-light;
+      line-height: 16px;
+      white-space: nowrap;
+      font-weight: 400;
+    }
+
+    &__input-container {
+      &__label {
+        margin: 0 8px 0 0;
+        font-size: 12px;
+        color: $black-light;
+        line-height: 1.3;
+        font-weight: 400;
+      }
+
+      &__input {
+        border: 0;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 1.3;
+        color: $blue-black;
+        width: 100%;
+        padding: 6px 0;
+        border-bottom: 1px solid $grey-lighter;
+      }
+
+      &__input:focus {
+        border-bottom: 1px solid $blue-black;
+      }
+    }
+
+    &__error-message {
+      color: $red;
+    }
+
+    &__disabled {
+      opacity: 0.2;
+    }
+
+    &__sub-header {
+      font-size: 14px;
+      margin: 0 0 10px;
+      position: relative;
+      margin-bottom: 32px;
+      color: $black-light;
+      line-height: 1.28;
+    }
   }
 
-  &--secondary-cta {
-    .mat-button-base {
+  &__secondary-cta {
+    background-color: $pure-white;
+    &__btn {
+      display: flex;
+      height: 50px;
+      padding: 12px 16px;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      align-self: stretch;
+      border-radius: 4px;
+      border: 1px solid $grey;
+      background: $pure-white;
+      color: $black;
+      color: var(--buttons-secondary-outline-btn-outline-secondary-text-color, #2c304e);
+      text-align: center;
+
+      font-size: 14px;
+      font-style: normal;
+      font-weight: 500;
+      line-height: 18px;
       width: 100%;
-      font-weight: 700;
-      min-height: 47px;
-      letter-spacing: 1.6px;
-      border: 1px solid $grey-light;
-      background-color: $white;
-    }
-    margin-top: 24px;
-    &-btn {
-      display: inline-block;
-      &-logo {
-        width: 10%;
-        min-width: 28px;
-        max-width: 34px;
+      &__logo {
+        height: 24px;
+        width: 24px;
         display: inline-block;
         vertical-align: middle;
+        margin-right: 8px;
       }
     }
   }
+}
 
-  &--redirect {
-    margin: 16px;
-    text-align: center;
-    font-size: 16px;
-    color: #ababab;
-    a {
-      text-decoration: none;
-    }
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
   }
-
-  &--edit-email {
-    text-align: end;
-  }
-
-  &--email-frozen-text {
-    white-space: nowrap;
-    overflow: hidden;
-    display: block;
-    text-overflow: ellipsis;
-    font-weight: 500;
-    font-size: 16px;
+  to {
+    opacity: 1;
   }
 }
