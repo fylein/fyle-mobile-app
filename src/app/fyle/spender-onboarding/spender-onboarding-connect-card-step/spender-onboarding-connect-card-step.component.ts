@@ -32,6 +32,8 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
 
   @Output() isStepComplete: EventEmitter<boolean> = new EventEmitter<boolean>();
 
+  @Output() isStepSkipped: EventEmitter<boolean> = new EventEmitter<boolean>();
+
   cardForm: FormControl;
 
   isVisaRTFEnabled = false;
@@ -185,7 +187,7 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
     }>;
 
     if (data?.action === 'close') {
-      this.isStepComplete.emit(true);
+      this.isStepSkipped.emit(true);
     }
   }
 

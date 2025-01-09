@@ -31,6 +31,7 @@
         <app-spender-onboarding-connect-card-step
           [orgSettings]="orgSettings"
           (isStepComplete)="markStepAsComplete()"
+          (isStepSkipped)="skipOnboardingStep()"
         ></app-spender-onboarding-connect-card-step>
       </div>
       <div class="spender-onboarding__component-container" *ngIf="this.currentStep === 'OPT_IN'">
