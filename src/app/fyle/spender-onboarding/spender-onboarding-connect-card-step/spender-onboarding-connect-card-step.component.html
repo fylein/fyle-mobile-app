@@ -188,6 +188,7 @@
       role="button"
       (click)="enrollCards()"
       appFormButtonValidation
+      [disabled]="!fg.valid"
       [loading]="cardsEnrolling"
       [loadingText]="'Continue'"
     >
