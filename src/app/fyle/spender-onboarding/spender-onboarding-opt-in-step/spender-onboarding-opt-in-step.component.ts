@@ -331,11 +331,4 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
       }
     }, 1000);
   }
-
-  onGotItClicked(): void {
-    this.trackingService.optInFlowSuccess({
-      message: 'SUCCESS',
-    });
-    this.modalController.dismiss({ action: 'SUCCESS' });
-  }
 }
