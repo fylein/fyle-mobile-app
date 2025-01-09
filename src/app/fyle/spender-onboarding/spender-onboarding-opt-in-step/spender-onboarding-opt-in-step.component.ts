@@ -93,6 +93,8 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
 
   showGoBackCta = false;
 
+  savingMobileNumber = false;
+
   otpConfig: NgOtpInputConfig = {
     allowNumbersOnly: true,
     length: 6,
@@ -168,6 +170,7 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
   }
 
   saveMobileNumber(): void {
+    this.savingMobileNumber = true;
     //If user has not changed the verified mobile number, close the popover
     if (this.mobileNumberInputValue === this.eou.ou.mobile && this.eou.ou.mobile_verified) {
       this.optInFlowState = OptInFlowState.OTP_VERIFICATION;
@@ -182,7 +185,12 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
         };
         this.orgUserService
           .postOrgUser(updatedOrgUserDetails)
-          .pipe(switchMap(() => this.authService.refreshEou()))
+          .pipe(
+            switchMap(() => this.authService.refreshEou()),
+            finalize(() => {
+              this.savingMobileNumber = false;
+            })
+          )
           .subscribe({
             complete: () => {
               this.resendOtp('INITIAL');

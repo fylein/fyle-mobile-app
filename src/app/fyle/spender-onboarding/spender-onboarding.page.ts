@@ -109,6 +109,7 @@ export class SpenderOnboardingPage {
         .pipe(
           switchMap(() => this.spenderOnboardingService.markWelcomeModalStepAsComplete()),
           map(() => {
+            this.spenderOnboardingService.setOnboardingStatusEvent();
             this.onboardingComplete = true;
             this.router.navigate(['/', 'enterprise', 'my_dashboard']);
           })
@@ -130,6 +131,7 @@ export class SpenderOnboardingPage {
         .pipe(
           switchMap(() => this.spenderOnboardingService.markWelcomeModalStepAsComplete()),
           map(() => {
+            this.spenderOnboardingService.setOnboardingStatusEvent();
             this.onboardingComplete = true;
             this.startCountdown();
           })

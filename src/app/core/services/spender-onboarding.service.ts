@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { map, Observable } from 'rxjs';
+import { BehaviorSubject, map, Observable } from 'rxjs';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { OnboardingWelcomeStepStatus } from '../models/onboarding-welcome-step-status.model';
@@ -10,6 +10,8 @@ import { OnboardingStatus } from '../models/onboarding-status.model';
   providedIn: 'root',
 })
 export class SpenderOnboardingService {
+  onboardingComplete$: BehaviorSubject<boolean> = new BehaviorSubject(true);
+
   constructor(private spenderPlatformV1ApiService: SpenderPlatformV1ApiService) {}
 
   getOnboardingStatus(): Observable<OnboardingStatus> {
@@ -77,5 +79,15 @@ export class SpenderOnboardingService {
       is_skipped: true,
     };
     return this.processSmsOptInStep(data);
+  }
+
+  setOnboardingStatusAsComplete(): Observable<boolean> {
+    return this.onboardingComplete$.asObservable();
+  }
+
+  // Emit a new event
+  setOnboardingStatusEvent(): void {
+    this.onboardingComplete$.next(true);
+    console.log('event set');
   }
 }
