@@ -1,6 +1,9 @@
+<!-- Report Date -->
 <div *ngIf="showDate" class="reports-card--date">
   {{ report.created_at | date : 'MMM dd, YYYY' }}
 </div>
+
+<!-- Report cards -->
 <div
   class="reports-card"
   [ngClass]="{ 'reports-card__with-border': !showDate }"
@@ -8,28 +11,39 @@
   *ngIf="!actionOpened"
   matRipple
 >
-  <div class="reports-card--divider" *ngIf="!showDate"></div>
-  <div class="reports-card--main-info">
-    <div class="reports-card--purpose-amount-block">
-      <div class="reports-card--purpose">
-        <span>{{ report.purpose | ellipsis : 40 }}</span>
-      </div>
-      <div class="reports-card--amount-block ion-text-nowrap">
-        <span class="reports-card--currency">{{ reportCurrencySymbol }}</span>
-        <span class="reports-card--amount">
-          {{ report.amount || 0 | humanizeCurrency : report.currency : true }}
-        </span>
+  <div class="reports-card--container">
+    <div class="reports-card--main-info">
+      <!-- Icon -->
+      <mat-icon class="reports-card--list-icon" svgIcon="list-new"></mat-icon>
+
+      <div class="reports-card--purpose-num-amount-block">
+        <!-- Report name  -->
+        <div class="reports-card--purpose">
+          <span>{{ report.purpose | ellipsis : 40 }}</span>
+        </div>
+
+        <!-- Number of expenses -->
+        <div class="reports-card--no-transactions">
+          <span>{{ report.num_expenses }} </span>
+          <span>{{ report.num_expenses === 1 ? 'Expense' : 'Expenses' }}</span>
+        </div>
+
+        <!-- Total amount -->
+        <div class="reports-card--amount-block ion-text-nowrap">
+          <span class="reports-card--currency">{{ reportCurrencySymbol }}</span>
+          <span class="reports-card--amount">
+            {{ { value: report.amount || 0, currencyCode: report.currency, skipSymbol: true } | exactCurrency }}
+          </span>
+        </div>
       </div>
     </div>
-  </div>
-  <div class="reports-card--secondary-info">
-    <div class="reports-card--secondary-info-block">
-      <div class="reports-card--no-transactions">
-        <span>{{ report.num_expenses }} </span>
-        <span>{{ report.num_expenses === 1 ? 'Expense' : 'Expenses' }}</span>
-      </div>
-      <div class="state-pill state-{{ report.state | reportState }}">
-        {{ report.state | reportState : simplifyReportsEnabled | snakeCaseToSpaceCase }}
+
+    <!-- Report status -->
+    <div class="reports-card--secondary-info">
+      <div class="reports-card--secondary-info-block">
+        <div class="state-pill state-{{ report.state | reportState }}">
+          {{ report.state | reportState : simplifyReportsEnabled | snakeCaseToSpaceCase }}
+        </div>
       </div>
     </div>
   </div>

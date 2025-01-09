@@ -5,6 +5,7 @@ import { AdvanceRequestApprover } from 'src/app/core/mock-data/advance-request-a
 import { EllipsisPipe } from '../../pipes/ellipses.pipe';
 import { FyCurrencyPipe } from '../../pipes/fy-currency.pipe';
 import { HumanizeCurrencyPipe } from '../../pipes/humanize-currency.pipe';
+import { ExactCurrencyPipe } from '../../pipes/exact-currency.pipe';
 import { SnakeCaseToSpaceCase } from '../../pipes/snake-case-to-space-case.pipe';
 import { FySummaryTileComponent } from './summary-tile.component';
 
@@ -15,7 +16,14 @@ describe('FySummaryTileComponent', () => {
   beforeEach(async () => {
     const fyCurrencyPipeSpy = jasmine.createSpyObj('FyCurrencyPipe', ['transform']);
     await TestBed.configureTestingModule({
-      declarations: [FySummaryTileComponent, HumanizeCurrencyPipe, FyCurrencyPipe, SnakeCaseToSpaceCase, EllipsisPipe],
+      declarations: [
+        FySummaryTileComponent,
+        HumanizeCurrencyPipe,
+        ExactCurrencyPipe,
+        FyCurrencyPipe,
+        SnakeCaseToSpaceCase,
+        EllipsisPipe,
+      ],
       imports: [IonicModule.forRoot()],
       providers: [
         {

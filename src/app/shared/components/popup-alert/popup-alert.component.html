@@ -1,6 +1,6 @@
 <div class="popup-alert">
   <ion-header>
-    <div class="popup-alert--header text-center">
+    <div class="popup-alert--header" [ngClass]="leftAlign ? 'text-left' : 'text-center'">
       {{ title }}
     </div>
   </ion-header>
@@ -29,7 +29,7 @@
       </div>
     </div>
   </div>
-  <div class="popup-alert--body ion-text-center" [innerHtml]="message"></div>
+  <div class="popup-alert--body" [ngClass]="leftAlign ? 'text-left' : 'text-center'" [innerHtml]="message"></div>
 
   <div class="popup-alert--info-container" *ngIf="flaggedExpensesCount">
     <app-fy-alert-info [message]="'This report has ' + flaggedExpensesCount + ' violations'" [type]="'warning'">

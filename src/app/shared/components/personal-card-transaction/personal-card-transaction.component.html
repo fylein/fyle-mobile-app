@@ -1,6 +1,6 @@
 <div *ngIf="showDt; else divider" class="personal-card-transaction--date">
   <ng-container>
-    {{ txnDate | dateFormat }}
+    {{ transaction.spent_at | dateFormat }}
   </ng-container>
 </div>
 
@@ -13,39 +13,55 @@
     <mat-checkbox class="custom-mat-checkbox expenses-card--checkbox" [checked]="isSelected" disabled> </mat-checkbox>
   </div>
   <div class="personal-card-transaction--details">
-    <div class="personal-card-transaction--vendor">
-      {{ description }}
+    <!-- List Icon -->
+    <mat-icon class="personal-card-transaction--list-icon" svgIcon="list-new"></mat-icon>
+
+    <!-- Txn details -->
+    <div class="personal-card-transaction--vendor-amount-container">
+      <!-- Vendor -->
+      <div class="personal-card-transaction--vendor">
+        {{ transaction.description }}
+      </div>
+
+      <!-- Amount -->
+      <div class="personal-card-transaction--currency-amount-container">
+        <span
+          class="personal-card-transaction--currency"
+          [ngClass]="{ ' personal-card-transaction--green': transaction.transactionType === 'credit' }"
+          >{{ currency }}
+        </span>
+        <span
+          class="personal-card-transaction--amount"
+          [ngClass]="{ 'personal-card-transaction--green': transaction.transactionType === 'credit' }"
+        >
+          {{ { value: transaction.amount, currencyCode: currency, skipSymbol: true } | exactCurrency }}
+        </span>
+        <span
+          class="personal-card-transaction--type"
+          [ngClass]="{ ' personal-card-transaction--green': transaction.transactionType === 'credit' }"
+        >
+          <ng-container *ngIf="transaction.transactionType === 'debit'">DR</ng-container>
+          <ng-container *ngIf="transaction.transactionType === 'credit'">CR</ng-container>
+        </span>
+      </div>
+
+      <!-- Buttons -->
+      <div class="personal-card-transaction--button">
+        <ng-container *ngIf="status === 'INITIALIZED' || status === 'HIDDEN'"> Create expense </ng-container>
+        <ng-container *ngIf="status === 'MATCHED'"> View expense </ng-container>
+        <ion-icon
+          *ngIf="!isMatchedCountLoading"
+          [src]="'assets/svg/arrow-right.svg'"
+          class="personal-card-transaction--icon"
+          slot="icon-only"
+        >
+        </ion-icon>
+        <ion-spinner
+          *ngIf="isMatchedCountLoading"
+          name="crescent"
+          class="personal-card-transaction--icon"
+        ></ion-spinner>
+      </div>
     </div>
-    <div class="personal-card-transaction--button">
-      <ng-container *ngIf="status === 'INITIALIZED' || status === 'HIDDEN'"> Create expense </ng-container>
-      <ng-container *ngIf="status === 'MATCHED'"> View expense </ng-container>
-      <ion-icon
-        *ngIf="!isMatchedCountLoading"
-        [src]="'assets/svg/arrow-right.svg'"
-        class="personal-card-transaction--icon"
-        slot="icon-only"
-      >
-      </ion-icon>
-      <ion-spinner *ngIf="isMatchedCountLoading" name="crescent" class="personal-card-transaction--icon"></ion-spinner>
-    </div>
-  </div>
-  <div class="personal-card-transaction--currency-amount-container ion-text-right">
-    <span
-      class="personal-card-transaction--currency"
-      [ngClass]="{ ' personal-card-transaction--green': type === 'credit' }"
-      >{{ currency }}
-    </span>
-    <span
-      class="personal-card-transaction--amount"
-      [ngClass]="{ 'personal-card-transaction--green': type === 'credit' }"
-      >{{ amount | currency : currency : '' }}
-    </span>
-    <span
-      class="personal-card-transaction--type"
-      [ngClass]="{ ' personal-card-transaction--green': type === 'credit' }"
-    >
-      <ng-container *ngIf="type === 'debit'">DR</ng-container>
-      <ng-container *ngIf="type === 'credit'">CR</ng-container>
-    </span>
   </div>
 </div>

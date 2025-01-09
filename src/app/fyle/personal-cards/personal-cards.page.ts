@@ -27,8 +27,8 @@ import {
   Subject,
   takeUntil,
 } from 'rxjs';
-import { PersonalCard } from 'src/app/core/models/personal_card.model';
-import { PersonalCardTxn } from 'src/app/core/models/personal_card_txn.model';
+import { PlatformPersonalCard } from 'src/app/core/models/platform/platform-personal-card.model';
+import { PlatformPersonalCardTxn } from 'src/app/core/models/platform/platform-personal-card-txn.model';
 import { HeaderState } from 'src/app/shared/components/fy-header/header-state.enum';
 
 import * as dayjs from 'dayjs';
@@ -54,9 +54,10 @@ import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-optio
 import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { SortFiltersParams } from 'src/app/core/models/sort-filters-params.model';
 import { PersonalCardFilter } from 'src/app/core/models/personal-card-filters.model';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { PlatformPersonalCardFilterParams } from 'src/app/core/models/platform/platform-personal-card-filter-params.model';
+import { PlatformPersonalCardTxnState } from 'src/app/core/models/platform/platform-personal-card-txn-state.enum';
+import { PlatformPersonalCardQueryParams } from 'src/app/core/models/platform/platform-personal-card-query-params.model';
 
 // eslint-disable-next-line custom-rules/prefer-semantic-extension-name
 type Filters = Partial<PersonalCardFilter>;
@@ -75,15 +76,15 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
   linkedAccountsCount$: Observable<number>;
 
-  linkedAccounts$: Observable<PersonalCard[]>;
+  linkedAccounts$: Observable<PlatformPersonalCard[]>;
 
   loadCardData$: BehaviorSubject<{}> = new BehaviorSubject({});
 
-  loadData$: BehaviorSubject<Partial<SortFiltersParams>> = new BehaviorSubject({
+  loadData$: BehaviorSubject<Partial<PlatformPersonalCardFilterParams>> = new BehaviorSubject({
     pageNumber: 1,
   });
 
-  transactions$: Observable<PersonalCardTxn[]>;
+  transactions$: Observable<PlatformPersonalCardTxn[]>;
 
   transactionsCount$: Observable<number>;
 
@@ -99,15 +100,15 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
   isLoadingDataInfiniteScroll = false;
 
-  acc: PersonalCardTxn[] = [];
+  acc: PlatformPersonalCardTxn[] = [];
 
   currentPageNumber = 1;
 
   isInfiniteScrollRequired$: Observable<boolean>;
 
-  selectedTransactionType = 'INITIALIZED';
+  selectedTransactionType = PlatformPersonalCardTxnState.INITIALIZED;
 
-  selectedAccount: PersonalCard;
+  selectedAccount: PlatformPersonalCard;
 
   isfetching = false;
 
@@ -137,8 +138,6 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
   scrolled = false;
 
-  usePlatformApi = false;
-
   onPageExit$ = new Subject();
 
   constructor(
@@ -157,8 +156,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     private spinnerDialog: SpinnerDialog,
     private trackingService: TrackingService,
     private modalProperties: ModalPropertiesService,
-    private cdr: ChangeDetectorRef,
-    private launchDarklyService: LaunchDarklyService
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -176,7 +174,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.linkedAccounts$ = this.loadCardData$.pipe(
       tap(() => (this.isLoading = true)),
       switchMap(() =>
-        this.personalCardsService.getPersonalCards(this.usePlatformApi).pipe(
+        this.personalCardsService.getPersonalCards().pipe(
           tap(() => {
             this.isCardsLoaded = true;
           }),
@@ -192,8 +190,12 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
   loadTransactionCount(): void {
     this.transactionsCount$ = this.loadData$.pipe(
       switchMap((params) => {
-        const queryParams = this.apiV2Service.extendQueryParamsForTextSearch(params.queryParams, params.searchString);
-        return this.personalCardsService.getBankTransactionsCount(queryParams, this.usePlatformApi);
+        const queryParams: Partial<PlatformPersonalCardQueryParams> = this.apiV2Service.extendQueryParamsForTextSearch(
+          params.queryParams,
+          params.searchString,
+          true
+        );
+        return this.personalCardsService.getBankTransactionsCount(queryParams);
       }),
       shareReplay(1)
     );
@@ -208,12 +210,12 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
   loadAccountCount(): void {
     this.linkedAccountsCount$ = this.loadCardData$.pipe(
-      switchMap(() => this.personalCardsService.getPersonalCardsCount(this.usePlatformApi)),
+      switchMap(() => this.personalCardsService.getPersonalCardsCount()),
       shareReplay(1)
     );
   }
 
-  loadPersonalTxns(): Observable<PersonalCardTxn[]> {
+  loadPersonalTxns(): Observable<PlatformPersonalCardTxn[]> {
     return this.loadData$.pipe(
       switchMap((params) => {
         let queryParams: Record<string, string>;
@@ -228,19 +230,16 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
         } else {
           queryParams = params.queryParams as Record<string, string>;
         }
-        queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams as {}, params.searchString);
-        return this.personalCardsService.getBankTransactionsCount(queryParams, this.usePlatformApi).pipe(
+        queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams as {}, params.searchString, true);
+        return this.personalCardsService.getBankTransactionsCount(queryParams).pipe(
           switchMap((count) => {
             if (count > (params.pageNumber - 1) * 10) {
               return this.personalCardsService
-                .getBankTransactions(
-                  {
-                    offset: (params.pageNumber - 1) * 10,
-                    limit: 10,
-                    queryParams,
-                  },
-                  this.usePlatformApi
-                )
+                .getBankTransactions({
+                  offset: (params.pageNumber - 1) * 10,
+                  limit: 10,
+                  queryParams,
+                })
                 .pipe(
                   finalize(() => {
                     this.isTransactionsLoading = false;
@@ -250,7 +249,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
             } else {
               this.isTransactionsLoading = false;
               return of({
-                data: [],
+                data: [] as PlatformPersonalCardTxn[],
               });
             }
           })
@@ -272,18 +271,15 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
     this.loadCardData$ = new BehaviorSubject({});
 
-    this.launchDarklyService.getVariation('personal_cards_platform', false).subscribe((usePlatformApi) => {
-      this.usePlatformApi = usePlatformApi;
-      this.loadAccountCount();
-      this.loadLinkedAccounts();
+    this.loadAccountCount();
+    this.loadLinkedAccounts();
 
-      const paginatedPipe = this.loadPersonalTxns();
-      this.transactions$ = paginatedPipe.pipe(shareReplay(1));
-      this.filterPills = this.personalCardsService.generateFilterPills(this.filters);
+    const paginatedPipe = this.loadPersonalTxns();
+    this.transactions$ = paginatedPipe.pipe(shareReplay(1));
+    this.filterPills = this.personalCardsService.generateFilterPills(this.filters);
 
-      this.loadTransactionCount();
-      this.loadInfiniteScroll();
-    });
+    this.loadTransactionCount();
+    this.loadInfiniteScroll();
 
     this.simpleSearchInput.nativeElement.value = '';
     fromEvent<{ srcElement: { value: string } }>(this.simpleSearchInput.nativeElement, 'keyup')
@@ -326,7 +322,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
   linkAccount(): void {
     from(this.loaderService.showLoader('Redirecting you to our banking partner...', 10000))
       .pipe(
-        switchMap(() => this.personalCardsService.getToken(this.usePlatformApi)),
+        switchMap(() => this.personalCardsService.getToken()),
         finalize(async () => {
           await this.loaderService.hideLoader();
         })
@@ -341,7 +337,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       url,
       access_token,
       isMfaFlow,
-      this.selectedAccount.yodlee_provider_account_id
+      this.selectedAccount?.yodlee_provider_account_id
     );
     const browser = this.inAppBrowserService.create(pageContentUrl, '_blank', 'location=no');
     this.spinnerDialog.show();
@@ -370,7 +366,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
             if (isMfaFlow) {
               this.syncTransactions();
             } else {
-              this.postAccounts([decodedData[0].requestId]);
+              this.postAccounts();
             }
           }
         });
@@ -378,10 +374,10 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     });
   }
 
-  postAccounts(requestIds: string[]): void {
+  postAccounts(): void {
     from(this.loaderService.showLoader('Linking your card with Fyle...', 30000))
       .pipe(
-        switchMap(() => this.personalCardsService.postBankAccounts(requestIds, this.usePlatformApi)),
+        switchMap(() => this.personalCardsService.postBankAccounts()),
         finalize(async () => {
           await this.loaderService.hideLoader();
         })
@@ -403,13 +399,13 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.trackingService.cardDeletedOnPersonalCards();
   }
 
-  onCardChanged(card: PersonalCard): void {
+  onCardChanged(card: PlatformPersonalCard): void {
     this.selectedAccount = card;
     this.acc = [];
     const params = this.loadData$.getValue();
     const queryParams = params.queryParams || {};
-    queryParams.btxn_status = `in.(${this.selectedTransactionType})`;
-    queryParams.ba_id = `eq.${this.selectedAccount.id}`;
+    queryParams.state = `in.(${this.selectedTransactionType})`;
+    queryParams.personal_card_id = `eq.${this.selectedAccount.id}`;
     params.queryParams = queryParams;
     params.pageNumber = 1;
     this.zone.run(() => {
@@ -464,11 +460,11 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     if (this.selectionMode) {
       this.switchSelectionMode();
     }
-    this.selectedTransactionType = event.detail.value;
+    this.selectedTransactionType = event.detail.value as PlatformPersonalCardTxnState;
     this.acc = [];
     const params = this.loadData$.getValue();
     const queryParams = params.queryParams || {};
-    queryParams.btxn_status = `in.(${this.selectedTransactionType})`;
+    queryParams.state = `in.(${this.selectedTransactionType})`;
     params.queryParams = queryParams;
     params.pageNumber = 1;
     this.zone.run(() => {
@@ -480,7 +476,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
   fetchNewTransactionsWithMfa(): void {
     from(this.loaderService.showLoader('Redirecting you to our banking partner...', 10000))
       .pipe(
-        switchMap(() => this.personalCardsService.getToken(this.usePlatformApi)),
+        switchMap(() => this.personalCardsService.getToken()),
         finalize(async () => {
           await this.loaderService.hideLoader();
         })
@@ -496,7 +492,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     if (this.selectionMode) {
       this.switchSelectionMode();
     }
-    this.personalCardsService.isMfaEnabled(this.selectedAccount.id, this.usePlatformApi).subscribe((isMfaEnabled) => {
+    this.personalCardsService.isMfaEnabled(this.selectedAccount.id).subscribe((isMfaEnabled) => {
       if (isMfaEnabled) {
         this.fetchNewTransactionsWithMfa();
       } else {
@@ -506,7 +502,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
   }
 
   syncTransactions(): void {
-    this.personalCardsService.syncTransactions(this.selectedAccount.id, this.usePlatformApi).subscribe(() => {
+    this.personalCardsService.syncTransactions(this.selectedAccount.id).subscribe(() => {
       this.acc = [];
       this.isfetching = false;
       const params = this.loadData$.getValue();
@@ -519,7 +515,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
   hideSelectedTransactions(): void {
     this.isHiding = true;
     this.personalCardsService
-      .hideTransactions(this.selectedElements, this.usePlatformApi)
+      .hideTransactions(this.selectedElements)
       .pipe(
         tap((txnsHiddenCount: number) => {
           const message =
@@ -569,7 +565,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.selectAll = event;
     this.selectedElements = [];
     if (this.selectAll) {
-      this.selectedElements = this.acc.map((txn) => txn.btxn_id);
+      this.selectedElements = this.acc.map((txn) => txn.id);
     }
   }
 
@@ -666,19 +662,19 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     }
   }
 
-  addNewFiltersToParams(): Partial<SortFiltersParams> {
+  addNewFiltersToParams(): Partial<PlatformPersonalCardFilterParams> {
     const currentParams = this.loadData$.getValue();
 
     currentParams.pageNumber = 1;
-    const newQueryParams: { or: string[]; btxn_status?: string; ba_id?: string } = {
+    const newQueryParams: Partial<PlatformPersonalCardQueryParams> = {
       or: [],
     };
-    newQueryParams.btxn_status = `in.(${this.selectedTransactionType})`;
-    newQueryParams.ba_id = `eq.${this.selectedAccount.id}`;
+    newQueryParams.state = `in.(${this.selectedTransactionType})`;
+    newQueryParams.personal_card_id = `eq.${this.selectedAccount.id}`;
     const filters = this.filters;
-    this.personalCardsService.generateTxnDateParams(newQueryParams, filters, 'createdOn', this.usePlatformApi);
-    this.personalCardsService.generateTxnDateParams(newQueryParams, filters, 'updatedOn', this.usePlatformApi);
-    this.personalCardsService.generateCreditParams(newQueryParams, filters, this.usePlatformApi);
+    this.personalCardsService.generateTxnDateParams(newQueryParams, filters, 'createdOn');
+    this.personalCardsService.generateTxnDateParams(newQueryParams, filters, 'updatedOn');
+    this.personalCardsService.generateCreditParams(newQueryParams, filters);
     currentParams.queryParams = newQueryParams;
     this.filters = filters;
     return currentParams;
@@ -748,21 +744,21 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.filterPills = this.personalCardsService.generateFilterPills(this.filters);
   }
 
-  createExpense(txnDetails: PersonalCardTxn): void {
+  createExpense(txnDetails: PlatformPersonalCardTxn): void {
     if (this.selectionMode || this.loadingMatchedExpenseCount) {
       return;
     }
-    if (txnDetails.btxn_status === 'MATCHED') {
+    if (txnDetails.state === PlatformPersonalCardTxnState.MATCHED) {
       this.openExpensePreview(txnDetails);
       return;
     }
 
-    const txnDate = dayjs(txnDetails.btxn_transaction_dt).format('YYYY-MM-DD');
+    const txnDate = dayjs(txnDetails.spent_at).format('YYYY-MM-DD');
 
     this.loadingMatchedExpenseCount = true;
-    this.loadingTxnId = txnDetails.btxn_id;
+    this.loadingTxnId = txnDetails.id;
     this.personalCardsService
-      .getMatchedExpensesSuggestions(txnDetails.btxn_amount, txnDate, this.usePlatformApi)
+      .getMatchedExpensesSuggestions(txnDetails.amount, txnDate)
       .subscribe((expenseSuggestions) => {
         this.loadingMatchedExpenseCount = false;
         this.loadingTxnId = null;
@@ -776,6 +772,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
         } else {
           this.router.navigate(['/', 'enterprise', 'personal_cards_matched_expenses'], {
             state: {
+              personalCard: this.selectedAccount,
               txnDetails,
               expenseSuggestions,
             },
@@ -784,14 +781,14 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       });
   }
 
-  async openExpensePreview(txnDetails: PersonalCardTxn): Promise<void> {
-    const txn_details = txnDetails.txn_details;
+  async openExpensePreview(txnDetails: PlatformPersonalCardTxn): Promise<void> {
+    const txn_details = txnDetails.matched_expenses;
     const expenseDetailsModal = await this.modalController.create({
       component: ExpensePreviewComponent,
       componentProps: {
         expenseId: txn_details[0].id,
-        card: txnDetails.ba_account_number,
-        cardTxnId: txnDetails.btxn_id,
+        card: this.selectedAccount.card_number,
+        cardTxnId: txnDetails.id,
         type: 'edit',
       },
       ...this.modalProperties.getModalDefaultProperties('expense-preview-modal'),
@@ -827,7 +824,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
         }
       });
       let currentParams = this.loadData$.getValue();
-      currentParams = this.personalCardsService.generateDateParams(data, currentParams, this.usePlatformApi);
+      currentParams = this.personalCardsService.generateDateParams(data, currentParams);
 
       this.loadData$.next(currentParams);
     }

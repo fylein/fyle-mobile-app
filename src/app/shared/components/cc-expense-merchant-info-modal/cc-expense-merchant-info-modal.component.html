@@ -1,0 +1,22 @@
+<ion-header mode="md" class="header">
+  <ion-toolbar mode="md" class="fy-modal-toolbar">
+    <ion-buttons slot="start">
+      <ion-button
+        (click)="dismissModal()"
+        class="cc-expense-merchant-info-modal__toolbar-close-btn"
+        data-testid="close-btn"
+      >
+        <mat-icon class="fy-icon-close" svgIcon="cross"></mat-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title class="text-center cc-expense-merchant-info-modal__toolbar-title" data-testid="title"
+      >Merchant</ion-title
+    >
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="cc-expense-merchant-info-modal__content">
+  <div class="cc-expense-merchant-info-modal__body" data-testid="content">
+    <ng-container>This merchant name comes from the transaction.</ng-container>
+  </div>
+</ion-content>
