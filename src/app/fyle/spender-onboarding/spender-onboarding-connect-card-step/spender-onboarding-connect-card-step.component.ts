@@ -1,6 +1,14 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
-import { AbstractControl, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  ValidationErrors,
+  ValidatorFn,
+  Validators,
+} from '@angular/forms';
 import { PopoverController } from '@ionic/angular';
 import { catchError, concatMap, from, map, of } from 'rxjs';
 import { CardNetworkType } from 'src/app/core/enums/card-network-type';
@@ -68,21 +76,23 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
     this.handleEnrollmentFailures(error, cardId);
   }
 
+  getFullCardNumber(cardId: string): string {
+    return this.fg.controls[`card_number_${cardId}`]?.value + this.cardValuesMap[cardId].last_four;
+  }
+
   enrollMultipleCards(cards: PlatformCorporateCard[]): void {
     from(cards)
       .pipe(
         concatMap((card) =>
-          this.realTimeFeedService
-            .enroll(this.fg.controls[`card_number_${card.id}`].value + this.cardValuesMap[card.id].last_four, card.id)
-            .pipe(
-              map(() => {
-                this.cardsList.successfulCards.push(`**** ${card.card_number.slice(-4)}`);
-              }),
-              catchError((error: HttpErrorResponse) => {
-                this.setupErrorMessages(error, `${card.card_number.slice(-4)}`, card.id);
-                return of(error);
-              })
-            )
+          this.realTimeFeedService.enroll(this.getFullCardNumber(card.id), card.id).pipe(
+            map(() => {
+              this.cardsList.successfulCards.push(`**** ${card.card_number.slice(-4)}`);
+            }),
+            catchError((error: HttpErrorResponse) => {
+              this.setupErrorMessages(error, `${card.card_number.slice(-4)}`, card.id);
+              return of(error);
+            })
+          )
         )
       )
       .subscribe(() => {
@@ -118,6 +128,10 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
   }
 
   enrollCards(): void {
+    this.cardsList = {
+      successfulCards: [],
+      failedCards: [],
+    };
     const cards = this.enrollableCards;
     this.cardsEnrolling = true;
     if (cards.length > 0) {
@@ -198,8 +212,8 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
                 new FormControl('', [
                   Validators.required,
                   Validators.maxLength(12),
-                  this.cardNumberValidator.bind(this),
-                  this.cardNetworkValidator.bind(this),
+                  this.cardNumberValidator(card.id),
+                  this.cardNetworkValidator(card.id),
                 ])
               );
             });
@@ -213,8 +227,8 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
               new FormControl('', [
                 Validators.required,
                 Validators.maxLength(16),
-                this.cardNumberValidator.bind(this),
-                this.cardNetworkValidator.bind(this),
+                this.cardNumberValidator(),
+                this.cardNetworkValidator(),
               ])
             );
           }
@@ -252,32 +266,36 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
     }
   }
 
-  private cardNumberValidator(control: AbstractControl): ValidationErrors {
-    // Reactive forms are not strongly typed in Angular 13, so we need to cast the value to string
-    // TODO (Angular 14 >): Remove the type casting and directly use string type for the form control
-    const cardNumber = control.value as string;
+  private cardNumberValidator(cardId?: string): ValidatorFn {
+    return (): ValidationErrors | null => {
+      // Reactive forms are not strongly typed in Angular 13, so we need to cast the value to string
+      // TODO (Angular 14 >): Remove the type casting and directly use string type for the form control
+      const cardNumber = cardId ? this.getFullCardNumber(cardId) : (this.fg.controls.card_number.value as string);
 
-    const isValid = this.realTimeFeedService.isCardNumberValid(cardNumber);
-    const cardType = this.realTimeFeedService.getCardTypeFromNumber(cardNumber);
+      const isValid = this.realTimeFeedService.isCardNumberValid(cardNumber);
+      const cardType = this.realTimeFeedService.getCardTypeFromNumber(cardNumber);
 
-    if (cardType === CardNetworkType.VISA || cardType === CardNetworkType.MASTERCARD) {
-      return isValid && cardNumber.length === 16 ? null : { invalidCardNumber: true };
-    }
+      if (cardType === CardNetworkType.VISA || cardType === CardNetworkType.MASTERCARD) {
+        return isValid && cardNumber.length === 16 ? null : { invalidCardNumber: true };
+      }
 
-    return isValid ? null : { invalidCardNumber: true };
+      return isValid ? null : { invalidCardNumber: true };
+    };
   }
 
-  private cardNetworkValidator(control: AbstractControl): ValidationErrors {
-    const cardNumber = control.value as string;
-    const cardType = this.realTimeFeedService.getCardTypeFromNumber(cardNumber);
+  private cardNetworkValidator(cardId?: string): ValidatorFn {
+    return (): ValidationErrors | null => {
+      const cardNumber = cardId ? this.getFullCardNumber(cardId) : (this.fg.controls.card_number.value as string);
+      const cardType = this.realTimeFeedService.getCardTypeFromNumber(cardNumber);
 
-    if (
-      (!this.isVisaRTFEnabled && cardType === CardNetworkType.VISA) ||
-      (!this.isMastercardRTFEnabled && cardType === CardNetworkType.MASTERCARD)
-    ) {
-      return { invalidCardNetwork: true };
-    }
+      if (
+        (!this.isVisaRTFEnabled && cardType === CardNetworkType.VISA) ||
+        (!this.isMastercardRTFEnabled && cardType === CardNetworkType.MASTERCARD)
+      ) {
+        return { invalidCardNetwork: true };
+      }
 
-    return null;
+      return null;
+    };
   }
 }

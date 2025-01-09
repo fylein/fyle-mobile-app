@@ -22,12 +22,13 @@
               <input
                 class="smartlook-show connect-card__card-number-input pl-0"
                 inputmode="numeric"
-                mask="0000 0000 0000 0000"
+                mask="0000 0000 0000"
                 placeholder="xxxx xxxx xxxx"
                 data-testid="card-number-input"
                 formControlName="card_number_{{ card.id }}"
                 required
                 (input)="onCardNumberUpdate(card)"
+                [disabled]="true"
               />
 
               <div class="connect-card__card-last-four">
