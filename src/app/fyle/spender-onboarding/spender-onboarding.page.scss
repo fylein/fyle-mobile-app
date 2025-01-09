@@ -3,6 +3,11 @@ $item-border-color: #e0e0e0;
 $menu-botton-color: #000;
 $toolbar-border: #ababab6b;
 
+.spender-onboarding-container {
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+}
 .spender-onboarding {
   background: $border-info-lighter;
   height: 100%;

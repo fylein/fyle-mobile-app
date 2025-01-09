@@ -78,9 +78,6 @@ export class SidemenuComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.spenderOnboardingService.setOnboardingStatusAsComplete().subscribe(() => {
-      this.reloadCurrentRoute();
-    });
     this.setupNetworkWatcher();
     this.authService.getEou().then((eou) => {
       this.eou = eou;
