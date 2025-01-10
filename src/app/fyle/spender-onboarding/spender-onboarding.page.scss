@@ -1,15 +1,12 @@
 @import '../../../theme/colors.scss';
 $item-border-color: #e0e0e0;
-$background-color: #fff;
 $menu-botton-color: #000;
 $toolbar-border: #ababab6b;
-
-.spender-onboarding-container {
-}
 
 .spender-onboarding {
   background: $border-info-lighter;
   height: 100%;
+  padding-top: 20px;
 
   &__progress-bar {
     width: 50px;
@@ -77,12 +74,12 @@ $toolbar-border: #ababab6b;
   }
 
   &__menubutton {
-    color: $menu-botton-color;
+    color: $pure-black;
   }
 
   &__title {
     line-height: 1.3;
-    color: $menu-botton-color;
+    color: $pure-black;
   }
 
   &__zero-state {

@@ -1,17 +1,8 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import {
-  ChangeDetectorRef,
-  Component,
-  EventEmitter,
-  Input,
-  OnChanges,
-  OnInit,
-  Output,
-  SimpleChanges,
-} from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { PopoverController } from '@ionic/angular';
-import { catchError, concatMap, from, map, noop, of, switchMap, tap } from 'rxjs';
+import { catchError, concatMap, from, map, of } from 'rxjs';
 import { CardNetworkType } from 'src/app/core/enums/card-network-type';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
@@ -112,7 +103,7 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
           this.cardsList.successfulCards.push(`**** ${(this.fg.controls.card_number.value as string).slice(-4)}`);
         }),
         catchError((error: HttpErrorResponse) => {
-          this.setupErrorMessages(error, this.fg.controls.card_number.value as string);
+          this.setupErrorMessages(error, (this.fg.controls.card_number.value as string).slice(-4));
           return of(error);
         })
       )
@@ -139,21 +130,19 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
   generateMessage(): string {
     if (this.cardsList.successfulCards.length > 0) {
       return 'We ran into an issue while processing your request. You can cancel and retry connecting the failed card or proceed to the next step.';
-    } else if (this.cardsList.failedCards.length > 0) {
-      return `
-      We ran into an issue while processing your request for the cards  ${this.cardsList.failedCards
+    } else if (this.cardsList.failedCards.length > 1) {
+      return `We ran into an issue while processing your request for the cards  ${this.cardsList.failedCards
         .slice(0, this.cardsList.failedCards.length - 1)
-        .join(', ')} and ${this.cardsList.failedCards.slice(-1)}.
-      You can cancel and retry connecting the failed card or proceed to the next step.`;
+        .join(', ')} and ${this.cardsList.failedCards.slice(
+        -1
+      )}. You can cancel and retry connecting the failed card or proceed to the next step.`;
     } else {
-      return `
-      We ran into an issue while processing your request for the card ${this.cardsList.failedCards[0]}.
-      You can cancel and retry connecting the failed card or proceed to the next step.`;
+      return `We ran into an issue while processing your request for the card ${this.cardsList.failedCards[0]}. You can cancel and retry connecting the failed card or proceed to the next step.`;
     }
   }
 
-  showErrorPopover(): void {
-    const errorPopover = this.popoverController.create({
+  async showErrorPopover(): Promise<void> {
+    const errorPopover = await this.popoverController.create({
       componentProps: {
         title: this.cardsList.successfulCards.length > 0 ? 'Status summary' : 'Failed connecting',
         message: this.generateMessage(),
@@ -171,17 +160,15 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
       cssClass: 'pop-up-in-center',
     });
 
-    from(errorPopover)
-      .pipe(
-        tap((errorPopover) => errorPopover.present()),
-        switchMap((errorPopover) => errorPopover.onWillDismiss()),
-        map((response: OverlayResponse<{ action?: string }>) => {
-          if (response?.data?.action === 'close') {
-            this.isStepComplete.emit(true);
-          }
-        })
-      )
-      .subscribe(noop);
+    await errorPopover.present();
+
+    const { data } = (await errorPopover.onWillDismiss()) as OverlayResponse<{
+      action: string;
+    }>;
+
+    if (data?.action === 'close') {
+      this.isStepComplete.emit(true);
+    }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -254,7 +241,7 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
     }
   }
 
-  private handleEnrollmentFailures(error: Error, cardId: string): void {
+  private handleEnrollmentFailures(error: Error, cardId?: string): void {
     const enrollmentFailureMessage = error.message || 'Something went wrong. Please try after some time.';
     if (this.enrollableCards.length > 0) {
       this.fg.controls[`card_number_${cardId}`].setErrors({ enrollmentError: true });

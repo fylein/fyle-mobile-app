@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
 import { SpenderOnboardingPage } from './spender-onboarding.page';
@@ -11,6 +11,7 @@ import { OnboardingStep } from './models/onboarding-step.enum';
 import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
 import { onboardingStatusData } from 'src/app/core/mock-data/onboarding-status.data';
 import { extendedOrgUserResponse } from 'src/app/core/test-data/tasks.service.spec.data';
+import { OnboardingStepStatus } from 'src/app/core/models/onboarding-step-status.model';
 
 describe('SpenderOnboardingPage', () => {
   let component: SpenderOnboardingPage;
@@ -31,12 +32,13 @@ describe('SpenderOnboardingPage', () => {
       'markConnectCardsStepAsComplete',
       'skipSmsOptInStep',
       'markSmsOptInStepAsComplete',
+      'markWelcomeModalStepAsComplete',
     ]);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const corporateCreditCardExpenseServiceSpy = jasmine.createSpyObj('CorporateCreditCardExpenseService', [
       'getCorporateCards',
     ]);
-    const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    const routerSpy = jasmine.createSpyObj('Router', ['navigate', 'navigateByUrl']);
 
     await TestBed.configureTestingModule({
       declarations: [SpenderOnboardingPage],
@@ -84,23 +86,41 @@ describe('SpenderOnboardingPage', () => {
     });
   });
 
-  it('skipOnboardingStep(): should skip the current onboarding step', () => {
+  it('skipOnboardingStep(): should skip the current onboarding step', fakeAsync(() => {
+    const onboardingRequestResponse: OnboardingStepStatus = {
+      is_configured: false,
+      is_skipped: true,
+    };
     component.currentStep = OnboardingStep.CONNECT_CARD;
+    spenderOnboardingService.skipConnectCardsStep.and.returnValue(of(onboardingRequestResponse));
     component.skipOnboardingStep();
+    tick();
     expect(spenderOnboardingService.skipConnectCardsStep).toHaveBeenCalled();
 
     component.currentStep = OnboardingStep.OPT_IN;
+    spenderOnboardingService.skipSmsOptInStep.and.returnValue(of(onboardingRequestResponse));
     component.skipOnboardingStep();
+    tick();
     expect(spenderOnboardingService.skipSmsOptInStep).toHaveBeenCalled();
-  });
+  }));
 
-  it('markStepAsComplete(): should mark the current step as complete', () => {
+  it('markStepAsComplete(): should mark the current step as complete', fakeAsync(() => {
+    const onboardingRequestResponse: OnboardingStepStatus = {
+      is_configured: true,
+      is_skipped: false,
+    };
     component.currentStep = OnboardingStep.CONNECT_CARD;
+    spenderOnboardingService.markConnectCardsStepAsComplete.and.returnValue(of(onboardingRequestResponse));
     component.markStepAsComplete();
+    tick();
     expect(spenderOnboardingService.markConnectCardsStepAsComplete).toHaveBeenCalled();
 
     component.currentStep = OnboardingStep.OPT_IN;
+    fixture.detectChanges();
+    spenderOnboardingService.markSmsOptInStepAsComplete.and.returnValue(of(onboardingRequestResponse));
+    spenderOnboardingService.markWelcomeModalStepAsComplete.and.returnValue(of({ is_complete: true }));
     component.markStepAsComplete();
+    tick();
     expect(spenderOnboardingService.markSmsOptInStepAsComplete).toHaveBeenCalled();
-  });
+  }));
 });

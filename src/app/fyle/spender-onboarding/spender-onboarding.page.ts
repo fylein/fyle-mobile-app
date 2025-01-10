@@ -46,6 +46,8 @@ export class SpenderOnboardingPage {
   ) {}
 
   ionViewWillEnter(): void {
+    this.router.navigateByUrl('/enterprise/my_dashboard', { skipLocationChange: true });
+    this.router.navigate(['/', 'enterprise', 'my_dashboard']);
     this.isLoading = true;
     from(this.loaderService.showLoader())
       .pipe(
@@ -81,11 +83,14 @@ export class SpenderOnboardingPage {
               this.currentStep = OnboardingStep.CONNECT_CARD;
             }
           }
-          this.currentStep = OnboardingStep.OPT_IN;
           this.isLoading = false;
         })
       )
       .subscribe();
+  }
+
+  goBackToConnectCard(): void {
+    this.currentStep = OnboardingStep.CONNECT_CARD;
   }
 
   skipOnboardingStep(): void {
@@ -107,7 +112,7 @@ export class SpenderOnboardingPage {
           switchMap(() => this.spenderOnboardingService.markWelcomeModalStepAsComplete()),
           map(() => {
             this.onboardingComplete = true;
-            this.startCountdown();
+            this.router.navigate(['/', 'enterprise', 'my_dashboard']);
           })
         )
         .subscribe();
@@ -116,7 +121,9 @@ export class SpenderOnboardingPage {
 
   markStepAsComplete(): void {
     if (this.currentStep === OnboardingStep.CONNECT_CARD) {
-      this.spenderOnboardingService.markConnectCardsStepAsComplete().subscribe();
+      this.spenderOnboardingService.markConnectCardsStepAsComplete().subscribe(() => {
+        this.currentStep = OnboardingStep.OPT_IN;
+      });
     }
     if (this.currentStep === OnboardingStep.OPT_IN) {
       this.onboardingInProgress = false;
@@ -134,11 +141,11 @@ export class SpenderOnboardingPage {
   }
 
   startCountdown(): void {
-    const interval = setInterval(() => {
+    setInterval(() => {
       if (this.redirectionCount > 0) {
         this.redirectionCount--;
       } else {
-        clearInterval(interval);
+        this.router.navigateByUrl('/enterprise/my_dashboard', { skipLocationChange: true });
         this.router.navigate(['/', 'enterprise', 'my_dashboard']);
       }
     }, 1000);
