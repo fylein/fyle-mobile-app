@@ -118,7 +118,7 @@ describe('SwitchOrgPage', () => {
     const deepLinkServiceSpy = jasmine.createSpyObj('DeepLinkService', ['getExpenseRoute']);
     const ldSpy = jasmine.createSpyObj('LaunchDarklyService', ['initializeUser']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
-    const spenderOnboardingServiceSpy = jasmine.createSpyObj('SpenderOnboardingSettings', ['getOnboardingStatus']);
+    const spenderOnboardingServiceSpy = jasmine.createSpyObj('SpenderOnboardingService', ['getOnboardingStatus']);
 
     TestBed.configureTestingModule({
       declarations: [SwitchOrgPage, ActiveOrgCardComponent, OrgCardComponent, FyZeroStateComponent],
