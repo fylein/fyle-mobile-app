@@ -209,7 +209,7 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
     this.sendCodeLoading = false;
   }
 
-  handleOtpError(err: HttpErrorResponse) {
+  handleOtpError(err: HttpErrorResponse): void {
     if (err.status === 400) {
       const error = err.error as { message: string };
       const errorMessage = error.message?.toLowerCase() || '';

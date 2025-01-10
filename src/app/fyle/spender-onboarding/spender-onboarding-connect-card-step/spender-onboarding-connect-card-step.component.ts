@@ -88,7 +88,7 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
                 this.cardsList.successfulCards.push(`**** ${card.card_number.slice(-4)}`);
               }),
               catchError((error: HttpErrorResponse) => {
-                this.setupErrorMessages(error, `${card.card_number.slice(-4)}`, card.id);
+                this.setupErrorMessages(error, this.fg.controls[`card_number_${card.id}`].value as string, card.id);
                 return of(error);
               })
             )
@@ -211,8 +211,8 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
                 new FormControl('', [
                   Validators.required,
                   Validators.maxLength(12),
-                  this.cardNumberValidator.bind(this),
-                  this.cardNetworkValidator.bind(this),
+                  this.cardNumberValidator,
+                  this.cardNetworkValidator,
                 ])
               );
             });
