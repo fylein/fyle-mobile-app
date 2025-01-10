@@ -3,7 +3,7 @@ import { Navigation, Router, RouterModule, UrlSerializer, UrlTree } from '@angul
 import { RouterTestingModule } from '@angular/router/testing';
 import { IonicModule, ModalController } from '@ionic/angular';
 import { apiExpenseRes } from 'src/app/core/mock-data/expense.data';
-import { apiPersonalCardTxnsRes } from 'src/app/core/mock-data/personal-card-txns.data';
+import { platformPersonalCardTxns } from 'src/app/core/mock-data/personal-card-txns.data';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { PersonalCardsMatchedExpensesPage } from './personal-cards-matched-expenses.page';
@@ -11,6 +11,11 @@ import { CurrencyPipe, DatePipe } from '@angular/common';
 import { CurrencySymbolPipe } from 'src/app/shared/pipes/currency-symbol.pipe';
 import { ExpensePreviewComponent } from './expense-preview/expense-preview.component';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
+import { ExactCurrencyPipe } from 'src/app/shared/pipes/exact-currency.pipe';
+import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
+import { platformExpenseWithExtractedData } from 'src/app/core/mock-data/platform/v1/expense.data';
+import { platformPersonalCardTxnExpenseSuggestionsRes } from 'src/app/core/mock-data/personal-card-txn-expense-suggestions.data';
+import { linkedAccounts } from 'src/app/core/mock-data/personal-cards.data';
 
 describe('PersonalCardsMatchedExpensesPage', () => {
   let component: PersonalCardsMatchedExpensesPage;
@@ -21,7 +26,13 @@ describe('PersonalCardsMatchedExpensesPage', () => {
   let modalPropertiesService: jasmine.SpyObj<ModalPropertiesService>;
 
   const data: Navigation = {
-    extras: { state: { txnDetails: apiPersonalCardTxnsRes.data[0], expenseSuggestions: apiExpenseRes } },
+    extras: {
+      state: {
+        personalCard: linkedAccounts[0],
+        txnDetails: platformPersonalCardTxns.data[0],
+        expenseSuggestions: [platformExpenseWithExtractedData, ...platformPersonalCardTxnExpenseSuggestionsRes.data],
+      },
+    },
     id: 0,
     initialUrl: '',
     extractedUrl: new UrlTree(),
@@ -34,7 +45,7 @@ describe('PersonalCardsMatchedExpensesPage', () => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
     TestBed.configureTestingModule({
-      declarations: [PersonalCardsMatchedExpensesPage, CurrencyPipe, DatePipe, CurrencySymbolPipe],
+      declarations: [PersonalCardsMatchedExpensesPage, CurrencyPipe, DatePipe, CurrencySymbolPipe, ExactCurrencyPipe],
       imports: [IonicModule.forRoot(), RouterTestingModule, RouterModule],
       providers: [
         UrlSerializer,
@@ -50,6 +61,8 @@ describe('PersonalCardsMatchedExpensesPage', () => {
           provide: ModalPropertiesService,
           useValue: modalPropertiesSpy,
         },
+        FyCurrencyPipe,
+        CurrencyPipe,
       ],
     }).compileComponents();
     personalCardsService = TestBed.inject(PersonalCardsService) as jasmine.SpyObj<PersonalCardsService>;
@@ -74,11 +87,11 @@ describe('PersonalCardsMatchedExpensesPage', () => {
     fixture.detectChanges();
 
     expect(getTextContent(getElementBySelector(fixture, '.matched-expenses--purpose'))).toEqual(
-      component.txnDetails.btxn_description
+      component.txnDetails.description
     );
     expect(getTextContent(getElementBySelector(fixture, '.matched-expenses--currency'))).toEqual('$');
     expect(getTextContent(getElementBySelector(fixture, '.matched-expenses--amount'))).toEqual('200.00');
-    expect(getTextContent(getElementBySelector(fixture, '.matched-expenses--date'))).toEqual('Sep 19, 2021');
+    expect(getTextContent(getElementBySelector(fixture, '.matched-expenses--date'))).toEqual('Sep 22, 2024');
   });
 
   it('createExpense(): should take the user to create expense page', () => {
@@ -96,6 +109,7 @@ describe('PersonalCardsMatchedExpensesPage', () => {
   });
 
   it('openExpensePreview(): should open expense preview modal', async () => {
+    component.personalCard = data.extras.state.personalCard;
     component.txnDetails = data.extras.state.txnDetails;
     fixture.detectChanges();
     modalController.create.and.returnValue(
@@ -126,8 +140,8 @@ describe('PersonalCardsMatchedExpensesPage', () => {
       component: ExpensePreviewComponent,
       componentProps: {
         expenseId: expense_id,
-        card: component.txnDetails.ba_account_number,
-        cardTxnId: component.txnDetails.btxn_id,
+        card: component.personalCard.card_number,
+        cardTxnId: component.txnDetails.id,
         type: 'match',
       },
       ...modalData,

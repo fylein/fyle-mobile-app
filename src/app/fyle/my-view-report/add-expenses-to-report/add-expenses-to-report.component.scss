@@ -7,14 +7,23 @@
   }
 
   &--title-container {
-    color: $black;
+    color: $blue-black;
     font-weight: 500;
-    margin-left: -10%;
   }
 
   &--title {
-    font-size: 20px;
-    line-height: 26px;
+    font-size: 14px;
+    margin-bottom: 4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  &--total-amount {
+    font-size: 12px;
+    font-weight: 400;
   }
 
   &--close {
