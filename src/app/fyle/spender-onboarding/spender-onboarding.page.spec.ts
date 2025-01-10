@@ -12,8 +12,10 @@ import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.da
 import { onboardingStatusData } from 'src/app/core/mock-data/onboarding-status.data';
 import { extendedOrgUserResponse } from 'src/app/core/test-data/tasks.service.spec.data';
 import { OnboardingStepStatus } from 'src/app/core/models/onboarding-step-status.model';
+import { orgSettingsWoTaxAndRtf } from 'src/app/core/mock-data/org-settings.data';
+import { statementUploadedCard } from 'src/app/core/mock-data/platform-corporate-card.data';
 
-fdescribe('SpenderOnboardingPage', () => {
+describe('SpenderOnboardingPage', () => {
   let component: SpenderOnboardingPage;
   let fixture: ComponentFixture<SpenderOnboardingPage>;
   let loaderService: jasmine.SpyObj<LoaderService>;
@@ -33,6 +35,7 @@ fdescribe('SpenderOnboardingPage', () => {
       'skipSmsOptInStep',
       'markSmsOptInStepAsComplete',
       'markWelcomeModalStepAsComplete',
+      'setOnboardingStatusEvent',
     ]);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const corporateCreditCardExpenseServiceSpy = jasmine.createSpyObj('CorporateCreditCardExpenseService', [
@@ -63,64 +66,127 @@ fdescribe('SpenderOnboardingPage', () => {
       CorporateCreditCardExpenseService
     ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
+    spenderOnboardingService.markWelcomeModalStepAsComplete.and.returnValue(of({ is_complete: true }));
   });
 
-  it('ionViewWillEnter(): should show loader and fetch onboarding data on ionViewWillEnter', (done) => {
-    loaderService.showLoader.and.resolveTo();
-    orgUserService.getCurrent.and.returnValue(of(extendedOrgUserResponse));
-    orgSettingsService.get.and.returnValue(of(orgSettingsData));
-    spenderOnboardingService.getOnboardingStatus.and.returnValue(of(onboardingStatusData));
-    corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([]));
+  describe('ionViewWillEnter(): ', () => {
+    it('should show loader and fetch onboarding data on ionViewWillEnter', (done) => {
+      loaderService.showLoader.and.resolveTo();
+      orgUserService.getCurrent.and.returnValue(of(extendedOrgUserResponse));
+      orgSettingsService.get.and.returnValue(of(orgSettingsData));
+      spenderOnboardingService.getOnboardingStatus.and.returnValue(of(onboardingStatusData));
+      corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([]));
 
-    component.ionViewWillEnter();
+      component.ionViewWillEnter();
 
-    fixture.whenStable().then(() => {
-      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        fixture.detectChanges();
 
-      expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-      expect(component.userFullName).toBe('Aiyush');
-      expect(component.currentStep).toBe(OnboardingStep.CONNECT_CARD);
-      expect(component.isLoading).toBeFalse();
-      expect(loaderService.hideLoader).toHaveBeenCalled();
-      done();
+        expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+        expect(component.userFullName).toBe('Aiyush');
+        expect(component.currentStep).toBe(OnboardingStep.CONNECT_CARD);
+        expect(component.isLoading).toBeFalse();
+        expect(loaderService.hideLoader).toHaveBeenCalled();
+        done();
+      });
+    });
+
+    it('should go to Opt in step when RTF is disabled', (done) => {
+      loaderService.showLoader.and.resolveTo();
+      orgUserService.getCurrent.and.returnValue(of(extendedOrgUserResponse));
+      orgSettingsService.get.and.returnValue(of(orgSettingsWoTaxAndRtf));
+      spenderOnboardingService.getOnboardingStatus.and.returnValue(of(onboardingStatusData));
+      corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([statementUploadedCard]));
+
+      component.ionViewWillEnter();
+
+      fixture.whenStable().then(() => {
+        fixture.detectChanges();
+
+        expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+        expect(component.userFullName).toBe('Aiyush');
+        expect(component.currentStep).toBe(OnboardingStep.OPT_IN);
+        expect(component.isLoading).toBeFalse();
+        done();
+      });
+    });
+
+    it('should go to Opt in step when connect card is skipped', (done) => {
+      loaderService.showLoader.and.resolveTo();
+      orgUserService.getCurrent.and.returnValue(of(extendedOrgUserResponse));
+      orgSettingsService.get.and.returnValue(of(orgSettingsData));
+      spenderOnboardingService.getOnboardingStatus.and.returnValue(
+        of({ ...onboardingStatusData, step_connect_cards_is_skipped: true })
+      );
+      corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([statementUploadedCard]));
+
+      component.ionViewWillEnter();
+
+      fixture.whenStable().then(() => {
+        fixture.detectChanges();
+
+        expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+        expect(component.userFullName).toBe('Aiyush');
+        expect(component.currentStep).toBe(OnboardingStep.OPT_IN);
+        expect(component.isLoading).toBeFalse();
+        done();
+      });
     });
   });
 
-  it('skipOnboardingStep(): should skip the current onboarding step', fakeAsync(() => {
-    const onboardingRequestResponse: OnboardingStepStatus = {
-      is_configured: false,
-      is_skipped: true,
-    };
-    component.currentStep = OnboardingStep.CONNECT_CARD;
-    spenderOnboardingService.skipConnectCardsStep.and.returnValue(of(onboardingRequestResponse));
-    component.skipOnboardingStep();
-    tick();
-    expect(spenderOnboardingService.skipConnectCardsStep).toHaveBeenCalled();
+  describe('skipOnboardingStep(): ', () => {
+    it('should skip the current onboarding step - connect card', fakeAsync(() => {
+      const onboardingRequestResponse: OnboardingStepStatus = {
+        is_configured: false,
+        is_skipped: true,
+      };
+      component.currentStep = OnboardingStep.CONNECT_CARD;
+      spenderOnboardingService.skipConnectCardsStep.and.returnValue(of(onboardingRequestResponse));
+      component.skipOnboardingStep();
+      tick();
+      expect(spenderOnboardingService.skipConnectCardsStep).toHaveBeenCalled();
+    }));
 
-    component.currentStep = OnboardingStep.OPT_IN;
-    spenderOnboardingService.skipSmsOptInStep.and.returnValue(of(onboardingRequestResponse));
-    component.skipOnboardingStep();
-    tick();
-    expect(spenderOnboardingService.skipSmsOptInStep).toHaveBeenCalled();
-  }));
+    it('should skip the current onboarding step - opt in', fakeAsync(() => {
+      const onboardingRequestResponse: OnboardingStepStatus = {
+        is_configured: false,
+        is_skipped: true,
+      };
+      component.currentStep = OnboardingStep.OPT_IN;
+      spenderOnboardingService.skipSmsOptInStep.and.returnValue(of(onboardingRequestResponse));
+      spenderOnboardingService.markWelcomeModalStepAsComplete.and.returnValue(of({ is_complete: true }));
+      component.skipOnboardingStep();
+      tick();
+      expect(spenderOnboardingService.skipSmsOptInStep).toHaveBeenCalled();
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard']);
+    }));
+  });
 
-  it('markStepAsComplete(): should mark the current step as complete', fakeAsync(() => {
-    const onboardingRequestResponse: OnboardingStepStatus = {
-      is_configured: true,
-      is_skipped: false,
-    };
-    component.currentStep = OnboardingStep.CONNECT_CARD;
-    spenderOnboardingService.markConnectCardsStepAsComplete.and.returnValue(of(onboardingRequestResponse));
-    component.markStepAsComplete();
-    tick();
-    expect(spenderOnboardingService.markConnectCardsStepAsComplete).toHaveBeenCalled();
+  describe('markStepAsComplete(): ', () => {
+    it('should mark the current step as complete - Connect Card', fakeAsync(() => {
+      const onboardingRequestResponse: OnboardingStepStatus = {
+        is_configured: true,
+        is_skipped: false,
+      };
+      component.currentStep = OnboardingStep.CONNECT_CARD;
+      spenderOnboardingService.markConnectCardsStepAsComplete.and.returnValue(of(onboardingRequestResponse));
+      component.markStepAsComplete();
+      tick();
+      expect(spenderOnboardingService.markConnectCardsStepAsComplete).toHaveBeenCalled();
+    }));
 
-    component.currentStep = OnboardingStep.OPT_IN;
-    fixture.detectChanges();
-    spenderOnboardingService.markSmsOptInStepAsComplete.and.returnValue(of(onboardingRequestResponse));
-    spenderOnboardingService.markWelcomeModalStepAsComplete.and.returnValue(of({ is_complete: true }));
-    component.markStepAsComplete();
-    tick();
-    expect(spenderOnboardingService.markSmsOptInStepAsComplete).toHaveBeenCalled();
-  }));
+    it('should mark the current step as complete', fakeAsync(() => {
+      const onboardingRequestResponse: OnboardingStepStatus = {
+        is_configured: true,
+        is_skipped: false,
+      };
+      component.currentStep = OnboardingStep.OPT_IN;
+      fixture.detectChanges();
+      spenderOnboardingService.markWelcomeModalStepAsComplete.and.returnValue(of({ is_complete: true }));
+      spenderOnboardingService.markSmsOptInStepAsComplete.and.returnValue(of(onboardingRequestResponse));
+      component.markStepAsComplete();
+      tick();
+      expect(spenderOnboardingService.markSmsOptInStepAsComplete).toHaveBeenCalled();
+    }));
+  });
 });

@@ -24,8 +24,13 @@ import { eouRes3 } from 'src/app/core/mock-data/extended-org-user.data';
 import { OrgService } from 'src/app/core/services/org.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { RouterTestingModule } from '@angular/router/testing';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
+import { OnboardingState } from 'src/app/core/models/onboarding-state.enum';
+import { onboardingStatusData } from 'src/app/core/mock-data/onboarding-status.data';
+import { orgSettingsData } from 'src/app/core/test-data/org-settings.service.spec.data';
 
-fdescribe('InvitedUserPage', () => {
+describe('InvitedUserPage', () => {
   let component: InvitedUserPage;
   let fixture: ComponentFixture<InvitedUserPage>;
   let networkService: jasmine.SpyObj<NetworkService>;
@@ -38,6 +43,8 @@ fdescribe('InvitedUserPage', () => {
   let trackingService: jasmine.SpyObj<TrackingService>;
   let matSnackBar: jasmine.SpyObj<MatSnackBar>;
   let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
+  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let spenderOnboardingService: jasmine.SpyObj<SpenderOnboardingService>;
 
   beforeEach(waitForAsync(() => {
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
@@ -52,6 +59,8 @@ fdescribe('InvitedUserPage', () => {
     ]);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const spenderOnboardingServiceSpy = jasmine.createSpyObj('SpenderOnboardingService', ['getOnboardingStatus']);
     TestBed.configureTestingModule({
       declarations: [InvitedUserPage],
       imports: [IonicModule.forRoot(), MatIconTestingModule, RouterTestingModule],
@@ -67,6 +76,8 @@ fdescribe('InvitedUserPage', () => {
         { provide: TrackingService, useValue: trackingServiceSpy },
         { provide: MatSnackBar, useValue: matSnackBarSpy },
         { provide: SnackbarPropertiesService, useValue: snackbarPropertiesSpy },
+        { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
+        { provide: SpenderOnboardingService, useValue: spenderOnboardingServiceSpy },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -81,6 +92,8 @@ fdescribe('InvitedUserPage', () => {
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
     snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
+    spenderOnboardingService = TestBed.inject(SpenderOnboardingService) as jasmine.SpyObj<SpenderOnboardingService>;
+    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
 
     networkService.connectivityWatcher.and.returnValue(new EventEmitter());
     networkService.isOnline.and.returnValue(of(true));
@@ -89,6 +102,10 @@ fdescribe('InvitedUserPage', () => {
     component = fixture.componentInstance;
     component.isConnected$ = of(true);
     fixture.detectChanges();
+    spenderOnboardingService.getOnboardingStatus.and.returnValue(
+      of({ ...onboardingStatusData, state: OnboardingState.COMPLETED })
+    );
+    orgSettingsService.get.and.returnValue(of(orgSettingsData));
   }));
 
   it('should create', () => {
@@ -265,4 +282,14 @@ fdescribe('InvitedUserPage', () => {
     // @ts-ignore
     expect(component.router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'sign_in']); // Should navigate to the correct route
   });
+
+  it('navigateToDashboard(): should navigate to spender onboarding when onboarding status is not complete', fakeAsync(() => {
+    spenderOnboardingService.getOnboardingStatus.and.returnValue(
+      of({ ...onboardingStatusData, state: OnboardingState.YET_TO_START })
+    );
+    orgSettingsService.get.and.returnValue(of(orgSettingsData));
+    component.navigateToDashboard();
+    tick();
+    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'spender_onboarding']);
+  }));
 });
