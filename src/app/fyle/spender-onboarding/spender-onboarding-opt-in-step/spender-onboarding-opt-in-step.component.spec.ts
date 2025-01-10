@@ -23,6 +23,8 @@ import { snackbarPropertiesRes2 } from 'src/app/core/mock-data/snackbar-properti
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { UserEventService } from 'src/app/core/services/user-event.service';
 import { FormBuilder } from '@angular/forms';
+import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
+import { onboardingStatusData } from 'src/app/core/mock-data/onboarding-status.data';
 
 describe('SpenderOnboardingOptInStepComponent', () => {
   let component: SpenderOnboardingOptInStepComponent;
@@ -35,8 +37,8 @@ describe('SpenderOnboardingOptInStepComponent', () => {
   let trackingService: jasmine.SpyObj<TrackingService>;
   let matSnackbar: jasmine.SpyObj<MatSnackBar>;
   let loaderService: jasmine.SpyObj<LoaderService>;
-  let platformHandlerService: jasmine.SpyObj<PlatformHandlerService>;
   let userEventService: jasmine.SpyObj<UserEventService>;
+  let spenderOnboardingService: jasmine.SpyObj<SpenderOnboardingService>;
   let fb: FormBuilder;
 
   beforeEach(waitForAsync(() => {
@@ -63,6 +65,7 @@ describe('SpenderOnboardingOptInStepComponent', () => {
     const browserHandlerServiceSpy = jasmine.createSpyObj('BrowserHandlerService', ['openLinkWithToolbarColor']);
     const platformHandlerServiceSpy = jasmine.createSpyObj('PlatformHandlerService', ['registerBackButtonAction']);
     const userEventServiceSpy = jasmine.createSpyObj('UserEventService', ['clearTaskCache']);
+    const spenderOnboardingServiceSpy = jasmine.createSpyObj('SpenderOnboardingService', ['getOnboardingStatus']);
 
     TestBed.configureTestingModule({
       declarations: [SpenderOnboardingOptInStepComponent],
@@ -80,6 +83,7 @@ describe('SpenderOnboardingOptInStepComponent', () => {
         { provide: BrowserHandlerService, useValue: browserHandlerServiceSpy },
         { provide: PlatformHandlerService, useValue: platformHandlerServiceSpy },
         { provide: UserEventService, useValue: userEventServiceSpy },
+        { provide: SpenderOnboardingService, useValue: spenderOnboardingServiceSpy },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -96,7 +100,7 @@ describe('SpenderOnboardingOptInStepComponent', () => {
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     matSnackbar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
-    platformHandlerService = TestBed.inject(PlatformHandlerService) as jasmine.SpyObj<PlatformHandlerService>;
+    spenderOnboardingService = TestBed.inject(SpenderOnboardingService) as jasmine.SpyObj<SpenderOnboardingService>;
     userEventService = TestBed.inject(UserEventService) as jasmine.SpyObj<UserEventService>;
     fb = TestBed.inject(FormBuilder);
   }));
@@ -108,6 +112,9 @@ describe('SpenderOnboardingOptInStepComponent', () => {
   describe('ngOnInit():', () => {
     beforeEach(() => {
       component.eou = cloneDeep(eouRes2);
+      spenderOnboardingService.getOnboardingStatus.and.returnValue(
+        of({ ...onboardingStatusData, step_connect_cards_is_skipped: true })
+      );
     });
 
     it('should not set mobileNumberInputValue if mobile number is not present in DB', () => {

@@ -44,6 +44,11 @@ import { DeepLinkService } from 'src/app/core/services/deep-link.service';
 import { platformExpenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { transformedExpenseData } from 'src/app/core/mock-data/transformed-expense.data';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { orgSettingsData } from 'src/app/core/test-data/org-settings.service.spec.data';
+import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
+import { onboardingStatusData } from 'src/app/core/mock-data/onboarding-status.data';
+import { OnboardingState } from 'src/app/core/models/onboarding-state.enum';
 
 const roles = ['OWNER', 'USER', 'FYLER'];
 const email = 'ajain@fyle.in';
@@ -73,6 +78,8 @@ describe('SwitchOrgPage', () => {
   let transactionService: jasmine.SpyObj<TransactionService>;
   let expensesService: jasmine.SpyObj<ExpensesService>;
   let deepLinkService: jasmine.SpyObj<DeepLinkService>;
+  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let spenderOnboardingService: jasmine.SpyObj<SpenderOnboardingService>;
 
   beforeEach(waitForAsync(() => {
     const platformSpy = jasmine.createSpyObj('Platform', ['is']);
@@ -110,6 +117,8 @@ describe('SwitchOrgPage', () => {
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById']);
     const deepLinkServiceSpy = jasmine.createSpyObj('DeepLinkService', ['getExpenseRoute']);
     const ldSpy = jasmine.createSpyObj('LaunchDarklyService', ['initializeUser']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const spenderOnboardingServiceSpy = jasmine.createSpyObj('SpenderOnboardingSettings', ['getOnboardingSettings']);
 
     TestBed.configureTestingModule({
       declarations: [SwitchOrgPage, ActiveOrgCardComponent, OrgCardComponent, FyZeroStateComponent],
@@ -149,6 +158,14 @@ describe('SwitchOrgPage', () => {
         {
           provide: LoaderService,
           useValue: loaderServiceSpy,
+        },
+        {
+          provide: OrgSettingsService,
+          useValue: orgSettingsServiceSpy,
+        },
+        {
+          provide: SpenderOnboardingService,
+          useValue: spenderOnboardingServiceSpy,
         },
         {
           provide: UserService,
@@ -256,11 +273,14 @@ describe('SwitchOrgPage', () => {
     deepLinkService = TestBed.inject(DeepLinkService) as jasmine.SpyObj<DeepLinkService>;
     transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
+    spenderOnboardingService = TestBed.inject(SpenderOnboardingService) as jasmine.SpyObj<SpenderOnboardingService>;
+    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
 
     component.searchRef = fixture.debugElement.query(By.css('#search'));
     component.searchOrgsInput = fixture.debugElement.query(By.css('.smartlook-show'));
     component.contentRef = fixture.debugElement.query(By.css('.switch-org__content-container__content-block'));
     fixture.detectChanges();
+    spyOn(component, 'navigateToDashboard').and.callThrough();
   }));
 
   it('should create', () => {
@@ -642,16 +662,34 @@ describe('SwitchOrgPage', () => {
   });
 
   describe('navigateBasedOnUserStatus(): ', () => {
-    it('should navigate to dashboard if status is active', (done) => {
+    it('should navigate to dashboard if status is active', fakeAsync(() => {
       const config = {
         isPendingDetails: false,
         roles,
         eou: apiEouRes,
       };
-
+      orgSettingsService.get.and.returnValue(of(orgSettingsData));
+      spenderOnboardingService.getOnboardingStatus.and.returnValue(
+        of({ ...onboardingStatusData, state: OnboardingState.COMPLETED })
+      );
+      tick();
       component.navigateBasedOnUserStatus(config).subscribe((res) => {
         expect(res).toBeNull();
         expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard']);
+      });
+    }));
+
+    it('should navigate to spender onboarding if status not COMPLETE', (done) => {
+      const config = {
+        isPendingDetails: false,
+        roles,
+        eou: apiEouRes,
+      };
+      orgSettingsService.get.and.returnValue(of(orgSettingsData));
+      spenderOnboardingService.getOnboardingStatus.and.returnValue(of(onboardingStatusData));
+      component.navigateBasedOnUserStatus(config).subscribe((res) => {
+        expect(res).toBeNull();
+        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'spender_onboarding']);
         done();
       });
     });
