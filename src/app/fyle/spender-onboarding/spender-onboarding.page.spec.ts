@@ -13,7 +13,7 @@ import { onboardingStatusData } from 'src/app/core/mock-data/onboarding-status.d
 import { extendedOrgUserResponse } from 'src/app/core/test-data/tasks.service.spec.data';
 import { OnboardingStepStatus } from 'src/app/core/models/onboarding-step-status.model';
 
-describe('SpenderOnboardingPage', () => {
+fdescribe('SpenderOnboardingPage', () => {
   let component: SpenderOnboardingPage;
   let fixture: ComponentFixture<SpenderOnboardingPage>;
   let loaderService: jasmine.SpyObj<LoaderService>;

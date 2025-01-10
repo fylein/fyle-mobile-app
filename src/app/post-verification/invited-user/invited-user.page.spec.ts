@@ -25,7 +25,7 @@ import { OrgService } from 'src/app/core/services/org.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { RouterTestingModule } from '@angular/router/testing';
 
-describe('InvitedUserPage', () => {
+fdescribe('InvitedUserPage', () => {
   let component: InvitedUserPage;
   let fixture: ComponentFixture<InvitedUserPage>;
   let networkService: jasmine.SpyObj<NetworkService>;

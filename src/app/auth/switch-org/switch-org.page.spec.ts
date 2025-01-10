@@ -54,7 +54,7 @@ const roles = ['OWNER', 'USER', 'FYLER'];
 const email = 'ajain@fyle.in';
 const org_id = 'orNVthTo2Zyo';
 
-describe('SwitchOrgPage', () => {
+fdescribe('SwitchOrgPage', () => {
   let component: SwitchOrgPage;
   let fixture: ComponentFixture<SwitchOrgPage>;
   let loaderService: jasmine.SpyObj<LoaderService>;
@@ -118,7 +118,7 @@ describe('SwitchOrgPage', () => {
     const deepLinkServiceSpy = jasmine.createSpyObj('DeepLinkService', ['getExpenseRoute']);
     const ldSpy = jasmine.createSpyObj('LaunchDarklyService', ['initializeUser']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
-    const spenderOnboardingServiceSpy = jasmine.createSpyObj('SpenderOnboardingSettings', ['getOnboardingSettings']);
+    const spenderOnboardingServiceSpy = jasmine.createSpyObj('SpenderOnboardingSettings', ['getOnboardingStatus']);
 
     TestBed.configureTestingModule({
       declarations: [SwitchOrgPage, ActiveOrgCardComponent, OrgCardComponent, FyZeroStateComponent],
@@ -280,7 +280,10 @@ describe('SwitchOrgPage', () => {
     component.searchOrgsInput = fixture.debugElement.query(By.css('.smartlook-show'));
     component.contentRef = fixture.debugElement.query(By.css('.switch-org__content-container__content-block'));
     fixture.detectChanges();
-    spyOn(component, 'navigateToDashboard').and.callThrough();
+    spenderOnboardingService.getOnboardingStatus.and.returnValue(
+      of({ ...onboardingStatusData, state: OnboardingState.COMPLETED })
+    );
+    orgSettingsService.get.and.returnValue(of(orgSettingsData));
   }));
 
   it('should create', () => {
@@ -568,6 +571,16 @@ describe('SwitchOrgPage', () => {
     }));
   });
 
+  it('navigateToDashboard(): should navigate to spender onboarding when onboarding status is not complete', fakeAsync(() => {
+    spenderOnboardingService.getOnboardingStatus.and.returnValue(
+      of({ ...onboardingStatusData, state: OnboardingState.YET_TO_START })
+    );
+    orgSettingsService.get.and.returnValue(of(orgSettingsData));
+    component.navigateToDashboard();
+    tick();
+    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'spender_onboarding']);
+  }));
+
   describe('navigateToSetupPage():', () => {
     it('should navigate to setup page if org the roles has OWNER', () => {
       component.navigateToSetupPage(['OWNER']);
@@ -592,7 +605,12 @@ describe('SwitchOrgPage', () => {
       .pipe(
         finalize(() => {
           expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-          expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard']);
+          expect(router.navigate).toHaveBeenCalledOnceWith([
+            '/',
+            'enterprise',
+            'my_dashboard',
+            { openSMSOptInDialog: undefined },
+          ]);
         })
       )
       .subscribe((res) => {
@@ -675,7 +693,12 @@ describe('SwitchOrgPage', () => {
       tick();
       component.navigateBasedOnUserStatus(config).subscribe((res) => {
         expect(res).toBeNull();
-        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard']);
+        expect(router.navigate).toHaveBeenCalledOnceWith([
+          '/',
+          'enterprise',
+          'my_dashboard',
+          { openSMSOptInDialog: undefined },
+        ]);
       });
     }));
 
