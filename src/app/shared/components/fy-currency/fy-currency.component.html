@@ -1,29 +1,37 @@
 <div class="fy-currency">
   <form [formGroup]="fg" class="fy-currency--form">
-    <div class="fy-currency--input-container fy-currency--currency-block">
-      <div class="fy-currency--label">
-        Currency
-        <span class="fy-currency--mandatory"> * </span>
+    <div class="fy-currency--input-wrapper fy-currency--currency-block">
+      <div class="fy-currency--input-container">
+        <div class="fy-currency--label">
+          Currency
+          <span class="fy-currency--mandatory"> * </span>
+        </div>
+        <input
+          class="fy-currency--input smartlook-show"
+          (click)="openCurrencyModal()"
+          formControlName="currency"
+          (blur)="onBlur()"
+        />
       </div>
-      <input
-        class="fy-currency--input smartlook-show"
-        (click)="openCurrencyModal()"
-        formControlName="currency"
-        (blur)="onBlur()"
-      />
+      <div class="fy-currency__auto-coded" *ngIf="currencyAutoCodeMessage">
+        <mat-icon class="fy-currency__sparkle-icon" svgIcon="sparkle"></mat-icon>
+        {{ currencyAutoCodeMessage }}
+      </div>
     </div>
-    <div class="fy-currency--input-container fy-currency--amount-block" [ngClass]="{ 'fy-currency__invalid': !valid }">
-      <div class="fy-currency--label">
-        Amount
-        <span class="fy-currency--mandatory"> * </span>
+    <div class="fy-currency--input-wrapper fy-currency--amount-block">
+      <div class="fy-currency--input-container" [ngClass]="{ 'fy-currency__invalid': !valid }">
+        <div class="fy-currency--label">
+          Amount
+          <span class="fy-currency--mandatory"> * </span>
+        </div>
+        <app-fy-number placeholder="00.00" formControlName="amount" [isAmount]="true"> </app-fy-number>
       </div>
-      <app-fy-number placeholder="00.00" formControlName="amount" [isAmount]="true"> </app-fy-number>
+      <div class="fy-currency__auto-coded" *ngIf="amountAutoCodeMessage">
+        <mat-icon class="fy-currency__sparkle-icon" svgIcon="sparkle"></mat-icon>
+        {{ amountAutoCodeMessage }}
+      </div>
     </div>
   </form>
-</div>
-<div class="fy-currency__auto-coded" *ngIf="autoCodeMessage">
-  <mat-icon class="fy-currency__sparkle-icon" svgIcon="sparkle"></mat-icon>
-  {{ autoCodeMessage }}
 </div>
 <ng-container *ngIf="value?.currency && value?.orig_currency">
   <div class="fy-currency--exchange-rate-container" [ngClass]="{ expanded: expanded }">
