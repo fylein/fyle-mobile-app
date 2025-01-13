@@ -224,7 +224,7 @@ describe('MyViewAdvanceRequestPage', () => {
         state: 'DRAFT',
         name: 'Draft',
       });
-      expect(component.currencySymbol).toBeUndefined() ;
+      expect(component.currencySymbol).toBeUndefined();
     }));
 
     it('should set actions$ to actions', fakeAsync(() => {
