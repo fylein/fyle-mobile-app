@@ -341,7 +341,7 @@
         *ngIf="(report$|async)?.state === 'DRAFT' && (report$|async)?.num_expenses !== 0"
         [disabled]="submitReportLoader"
         appFormButtonValidation
-        [loadingText]="'Summitting'"
+        [loadingText]="'Submitting'"
         [loading]="submitReportLoader"
         (click)="submitReport()"
       >
