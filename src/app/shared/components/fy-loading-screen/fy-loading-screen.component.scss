@@ -1,13 +1,8 @@
 @import '../../../../theme/colors.scss';
 
 .loading-screen-container {
-  padding: 16px;
+  padding: 12px;
   border-bottom: 1px solid $grey-lighter;
-
-  // TODO: Remove `new-loader-enabled` class and update padding of parent class `loading-screen-container` once all list views are updated to the new designs
-  &.new-loader-enabled {
-    padding: 12px;
-  }
 
   &--checkbox {
     margin-top: 30px;
@@ -17,15 +12,9 @@
   }
 
   &--icon {
-    height: 74px;
-    width: 72px;
+    height: 72px;
+    width: 56px;
     border-radius: 8px;
-
-    // TODO: Remove `new-loader-enabled` class and update height &width of parent class `--icon` once all list views are updated to the new designs
-    &.new-loader-enabled {
-      height: 72px;
-      width: 56px;
-    }
   }
 
   &--content-block {
