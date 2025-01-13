@@ -113,7 +113,10 @@
       </ng-template>
 
       <!-- Dashed Divider -->
-      <div class="expenses-card--vertical-dotted-border"></div>
+      <div
+        class="expenses-card--vertical-dotted-border"
+        [ngClass]="{ 'expenses-card--vertical-dotted-border__shift': isSelectionModeEnabled }"
+      ></div>
 
       <!-- Expense sync loader -->
       <div class="d-flex expenses-card--deatils-block">
