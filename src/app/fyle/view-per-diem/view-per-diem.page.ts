@@ -7,14 +7,13 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
-import { switchMap, finalize, shareReplay, map, concatMap, filter, take } from 'rxjs/operators';
+import { switchMap, finalize, shareReplay, map, filter, take } from 'rxjs/operators';
 import { PopoverController, ModalController } from '@ionic/angular';
 import { StatusService } from 'src/app/core/services/status.service';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
-import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 import { getCurrencySymbol } from '@angular/common';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
@@ -33,7 +32,6 @@ import { ExpensesService as SpenderExpensesService } from 'src/app/core/services
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-view-per-diem',
@@ -57,8 +55,6 @@ export class ViewPerDiemPage {
 
   policyViolations$: Observable<IndividualExpensePolicyState[]>;
 
-  canFlagOrUnflag$: Observable<boolean>;
-
   canDelete$: Observable<boolean>;
 
   expenseId: string;
@@ -72,8 +68,6 @@ export class ViewPerDiemPage {
   comments$: Observable<ExtendedStatus[]>;
 
   isDeviceWidthSmall = window.innerWidth < 330;
-
-  isExpenseFlagged: boolean;
 
   reportExpenseCount: number;
 
@@ -99,8 +93,6 @@ export class ViewPerDiemPage {
 
   costCenterDependentCustomProperties$: Observable<Partial<CustomInput>[]>;
 
-  isManualFlagFeatureEnabled$: Observable<{ value: boolean }>;
-
   constructor(
     private activatedRoute: ActivatedRoute,
     private transactionService: TransactionService,
@@ -119,8 +111,7 @@ export class ViewPerDiemPage {
     private dependentFieldsService: DependentFieldsService,
     private spenderExpensesService: SpenderExpensesService,
     private approverExpensesService: ApproverExpensesService,
-    private approverReportsService: ApproverReportsService,
-    private launchDarklyService: LaunchDarklyService
+    private approverReportsService: ApproverReportsService
   ) {}
 
   get ExpenseView(): typeof ExpenseView {
@@ -180,8 +171,6 @@ export class ViewPerDiemPage {
   ionViewWillEnter(): void {
     this.expenseId = this.activatedRoute.snapshot.params.id as string;
     this.view = this.activatedRoute.snapshot.params.view as ExpenseView;
-
-    this.isManualFlagFeatureEnabled$ = this.launchDarklyService.checkIfManualFlaggingFeatureIsEnabled();
 
     this.perDiemExpense$ = this.updateFlag$.pipe(
       switchMap(() =>
@@ -270,8 +259,7 @@ export class ViewPerDiemPage {
       switchMap((expense) =>
         this.customInputsService.fillCustomProperties(
           expense.category_id,
-          expense.custom_fields as Partial<CustomInput>[],
-          true
+          expense.custom_fields as Partial<CustomInput>[]
         )
       ),
       map((customProperties) =>
@@ -287,18 +275,6 @@ export class ViewPerDiemPage {
         const perDiemRateId = perDiemExpense.per_diem_rate_id;
         return this.perDiemService.getRate(perDiemRateId);
       })
-    );
-
-    this.canFlagOrUnflag$ = this.perDiemExpense$.pipe(
-      filter(() => this.view === ExpenseView.team),
-      map((expense) =>
-        [
-          ExpenseState.COMPLETE,
-          ExpenseState.APPROVER_PENDING,
-          ExpenseState.APPROVED,
-          ExpenseState.PAYMENT_PENDING,
-        ].includes(expense.state)
-      )
     );
 
     this.canDelete$ = this.perDiemExpense$.pipe(
@@ -333,10 +309,6 @@ export class ViewPerDiemPage {
     this.isAmountCapped$ = this.perDiemExpense$.pipe(
       map((expense) => this.isNumber(expense.admin_amount) || this.isNumber(expense.policy_amount))
     );
-
-    this.perDiemExpense$.subscribe((expense) => {
-      this.isExpenseFlagged = !!expense.is_manually_flagged;
-    });
 
     this.updateFlag$.next(null);
 
@@ -373,45 +345,6 @@ export class ViewPerDiemPage {
       this.trackingService.expenseRemovedByApprover();
       this.router.navigate(['/', 'enterprise', 'view_team_report', { id: this.reportId, navigate_back: true }]);
     }
-  }
-
-  async flagUnflagExpense(): Promise<void> {
-    const title = this.isExpenseFlagged ? 'Unflag' : 'Flag';
-    const flagUnflagModal = await this.popoverController.create({
-      component: FyPopoverComponent,
-      componentProps: {
-        title,
-        formLabel: `Reason for ${title.toLowerCase()}ing expense`,
-      },
-      cssClass: 'fy-dialog-popover',
-    });
-
-    await flagUnflagModal.present();
-    const { data } = (await flagUnflagModal.onWillDismiss()) as { data: { comment: string } };
-
-    if (data && data.comment) {
-      from(this.loaderService.showLoader('Please wait'))
-        .pipe(
-          switchMap(() => {
-            const comment = {
-              comment: data.comment,
-            };
-            return this.statusService.post('transactions', this.expenseId, comment, true);
-          }),
-          concatMap(() =>
-            this.isExpenseFlagged
-              ? this.transactionService.manualUnflag(this.expenseId)
-              : this.transactionService.manualFlag(this.expenseId)
-          ),
-          finalize(() => {
-            this.updateFlag$.next(null);
-            this.loaderService.hideLoader();
-          })
-        )
-        .subscribe(noop);
-    }
-
-    this.trackingService.expenseFlagUnflagClicked({ action: title });
   }
 
   getDisplayValue(customProperties: CustomField): string {

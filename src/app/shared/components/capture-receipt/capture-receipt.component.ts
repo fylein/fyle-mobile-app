@@ -25,6 +25,7 @@ import { CameraService } from 'src/app/core/services/camera.service';
 import { CameraPreviewService } from 'src/app/core/services/camera-preview.service';
 import { ReceiptPreviewData } from 'src/app/core/models/receipt-preview-data.model';
 
+// eslint-disable-next-line custom-rules/prefer-semantic-extension-name
 type Image = Partial<{
   source: string;
   base64Image: string;
@@ -110,15 +111,13 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
     return forkJoin({
       isOffline: this.isOffline$.pipe(take(1)),
-      eou: this.authService.getEou(),
     }).pipe(
-      switchMap(({ eou, isOffline }) => {
+      switchMap(({ isOffline }) => {
         if (isOffline) {
           source += '_OFFLINE';
         }
         const transaction = {
           source,
-          currency: eou?.org?.currency,
         };
 
         const attachmentUrls = [
@@ -128,7 +127,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
             url: base64ImagesWithSource.base64Image,
           },
         ];
-        return this.transactionsOutboxService.addEntry(transaction, attachmentUrls, null, null, true);
+        return this.transactionsOutboxService.addEntry(transaction, attachmentUrls, null);
       })
     );
   }

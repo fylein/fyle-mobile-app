@@ -35,7 +35,7 @@ import {
 } from 'src/app/core/mock-data/org-category.data';
 import { orgUserSettingsData, orgUserSettingsWithCurrency } from 'src/app/core/mock-data/org-user-settings.data';
 import { extractedData, instaFyleData1, instaFyleData5 } from 'src/app/core/mock-data/parsed-receipt.data';
-import { apiPersonalCardTxnsRes } from 'src/app/core/mock-data/personal-card-txns.data';
+import { platformPersonalCardTxns } from 'src/app/core/mock-data/personal-card-txns.data';
 import { platformPolicyExpenseData1 } from 'src/app/core/mock-data/platform-policy-expense.data';
 import { policyViolation1 } from 'src/app/core/mock-data/policy-violation.data';
 import { expensePolicyData, publicPolicyExpenseData1 } from 'src/app/core/mock-data/public-policy-expense.data';
@@ -254,6 +254,7 @@ export function TestCases3(getTestBed) {
       component._isExpandedView = true;
       component.navigateBack = true;
       component.hardwareBackButtonAction = new Subscription();
+      component.vendorOptions = ['vendor'];
       fixture.detectChanges();
     });
 
@@ -460,6 +461,10 @@ export function TestCases3(getTestBed) {
     });
 
     describe('generateEtxnFromFg():', () => {
+      beforeEach(() => {
+        component.allCategories$ = of(orgCategoryData1);
+      });
+
       it('should generate expense object from input in the form', (done) => {
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
 
@@ -723,10 +728,6 @@ export function TestCases3(getTestBed) {
 
         component.fg.controls.costCenter.setValue(costCenterApiRes1[0]);
         component.fg.controls.location_1.setValue(optionsData15.options[0].value);
-        component.fg.controls.category.setValue({
-          name: 'TRAVEL',
-          sub_category: 'TAXI',
-        });
         component.fg.controls.currencyObj.setValue({
           amount: 100,
           currency: 'USD',
@@ -734,7 +735,7 @@ export function TestCases3(getTestBed) {
         fixture.detectChanges();
 
         const mockCustomFieldData1 = cloneDeep(customFieldData2);
-        component.generateEtxnFromFg(of(unflattenedTxnData2), of(mockCustomFieldData1), true).subscribe((res) => {
+        component.generateEtxnFromFg(of(unflattenedTxnData2), of(mockCustomFieldData1)).subscribe((res) => {
           expect(res).toEqual(newExpFromFg2);
           expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(component.mode);
           expect(dateService.getUTCDate).toHaveBeenCalledOnceWith(new Date('2023-02-23T16:24:01.335Z'));
@@ -806,39 +807,37 @@ export function TestCases3(getTestBed) {
         fixture.detectChanges();
 
         const mockCustomFields = cloneDeep(customFieldData1);
-        component
-          .generateEtxnFromFg(of(cloneDeep(draftUnflattendedTxn)), of(mockCustomFields), false)
-          .subscribe((res) => {
-            expect(res).toEqual(newExpFromFg3);
-            expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(component.mode);
+        component.generateEtxnFromFg(of(cloneDeep(draftUnflattendedTxn)), of(mockCustomFields)).subscribe((res) => {
+          expect(res).toEqual(newExpFromFg3);
+          expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(component.mode);
 
-            expect(component.getSourceAccID).toHaveBeenCalledTimes(1);
-            expect(component.getAdvanceWalletId).toHaveBeenCalledTimes(1);
-            expect(component.getBillable).toHaveBeenCalledTimes(1);
-            expect(component.getSkipRemibursement).toHaveBeenCalledTimes(1);
-            expect(component.getTxnDate).toHaveBeenCalledTimes(1);
-            expect(component.getCurrency).toHaveBeenCalledTimes(1);
-            expect(component.getOriginalCurrency).toHaveBeenCalledTimes(1);
-            expect(component.getOriginalAmount).toHaveBeenCalledTimes(1);
-            expect(component.getProjectID).toHaveBeenCalledTimes(1);
-            expect(component.getTaxAmount).toHaveBeenCalledTimes(1);
-            expect(component.getTaxGroupID).toHaveBeenCalledTimes(1);
-            expect(component.getOrgCategoryID).toHaveBeenCalledTimes(1);
-            expect(component.getFyleCategory).toHaveBeenCalledTimes(1);
-            expect(component.getDisplayName).toHaveBeenCalledTimes(1);
-            expect(component.getPurpose).toHaveBeenCalledTimes(1);
-            expect(component.getFromDt).toHaveBeenCalledTimes(1);
-            expect(component.getToDt).toHaveBeenCalledTimes(1);
-            expect(component.getFlightJourneyClass).toHaveBeenCalledTimes(1);
-            expect(component.getFlightReturnClass).toHaveBeenCalledTimes(1);
-            expect(component.getTrainTravelClass).toHaveBeenCalledTimes(1);
-            expect(component.getBusTravelClass).toHaveBeenCalledTimes(1);
-            expect(component.getDistance).toHaveBeenCalledTimes(1);
-            expect(component.getDistanceUnit).toHaveBeenCalledTimes(1);
-            expect(component.getBreakfastProvided).toHaveBeenCalledTimes(1);
-            expect(component.getAmount).toHaveBeenCalledTimes(1);
-            done();
-          });
+          expect(component.getSourceAccID).toHaveBeenCalledTimes(1);
+          expect(component.getAdvanceWalletId).toHaveBeenCalledTimes(1);
+          expect(component.getBillable).toHaveBeenCalledTimes(1);
+          expect(component.getSkipRemibursement).toHaveBeenCalledTimes(1);
+          expect(component.getTxnDate).toHaveBeenCalledTimes(1);
+          expect(component.getCurrency).toHaveBeenCalledTimes(1);
+          expect(component.getOriginalCurrency).toHaveBeenCalledTimes(1);
+          expect(component.getOriginalAmount).toHaveBeenCalledTimes(1);
+          expect(component.getProjectID).toHaveBeenCalledTimes(1);
+          expect(component.getTaxAmount).toHaveBeenCalledTimes(1);
+          expect(component.getTaxGroupID).toHaveBeenCalledTimes(1);
+          expect(component.getOrgCategoryID).toHaveBeenCalledTimes(1);
+          expect(component.getFyleCategory).toHaveBeenCalledTimes(1);
+          expect(component.getDisplayName).toHaveBeenCalledTimes(1);
+          expect(component.getPurpose).toHaveBeenCalledTimes(1);
+          expect(component.getFromDt).toHaveBeenCalledTimes(1);
+          expect(component.getToDt).toHaveBeenCalledTimes(1);
+          expect(component.getFlightJourneyClass).toHaveBeenCalledTimes(1);
+          expect(component.getFlightReturnClass).toHaveBeenCalledTimes(1);
+          expect(component.getTrainTravelClass).toHaveBeenCalledTimes(1);
+          expect(component.getBusTravelClass).toHaveBeenCalledTimes(1);
+          expect(component.getDistance).toHaveBeenCalledTimes(1);
+          expect(component.getDistanceUnit).toHaveBeenCalledTimes(1);
+          expect(component.getBreakfastProvided).toHaveBeenCalledTimes(1);
+          expect(component.getAmount).toHaveBeenCalledTimes(1);
+          done();
+        });
       });
 
       it('should generate expense from form without cost center and location data in edit mode and is not a policy violation', (done) => {
@@ -877,7 +876,7 @@ export function TestCases3(getTestBed) {
 
         const mockCustomFields = cloneDeep(customFieldData1);
         const mockEtxn = cloneDeep(draftUnflattendedTxn);
-        component.generateEtxnFromFg(of(cloneDeep(mockEtxn)), of(mockCustomFields), false).subscribe((res) => {
+        component.generateEtxnFromFg(of(cloneDeep(mockEtxn)), of(mockCustomFields)).subscribe((res) => {
           expect(res).toEqual(newExpFromFg4);
           expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(component.mode);
           expect(component.getSourceAccID).toHaveBeenCalledTimes(1);
@@ -1151,6 +1150,34 @@ export function TestCases3(getTestBed) {
               expect(error).toBeTruthy();
               done();
             },
+          });
+      });
+
+      it('should set default comment if user wants to continue with violations but does not provide a comment', (done) => {
+        loaderService.hideLoader.and.resolveTo();
+        loaderService.showLoader.and.resolveTo();
+        component.etxn$ = of(unflattenedTxnData2);
+        spyOn(component, 'continueWithPolicyViolations').and.resolveTo({ comment: '' });
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(unflattenedExpData));
+
+        component
+          .policyViolationErrorHandler(
+            {
+              policyViolations: criticalPolicyViolation1,
+              policyAction: policyViolation1.data.final_desired_state,
+            },
+            of(customFieldData2)
+          )
+          .subscribe((result) => {
+            expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+            expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+            expect(component.continueWithPolicyViolations).toHaveBeenCalledOnceWith(
+              criticalPolicyViolation1,
+              policyViolation1.data.final_desired_state
+            );
+            expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(1);
+            expect(result.comment).toBe('No policy violation explanation provided');
+            done();
           });
       });
     });
@@ -1471,7 +1498,7 @@ export function TestCases3(getTestBed) {
       });
 
       it('should get new expense observable from personal card txn and home currency does not match extracted data', (done) => {
-        activatedRoute.snapshot.params.personalCardTxn = JSON.stringify(apiPersonalCardTxnsRes.data);
+        activatedRoute.snapshot.params.personalCardTxn = JSON.stringify(platformPersonalCardTxns.data[0]);
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         authService.getEou.and.resolveTo(apiEouRes);
         component.orgUserSettings$ = of(orgUserSettingsData);

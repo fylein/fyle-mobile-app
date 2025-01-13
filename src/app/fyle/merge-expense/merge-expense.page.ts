@@ -308,7 +308,6 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
 
     this.setupCustomInputs();
 
-    this.loadGenericFieldsOptions();
     this.loadCategoryDependentFields();
     this.subscribeExpenseChange();
 
@@ -329,6 +328,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
       this.expenses = expenses;
       // Set receipts from expenses if the merge form is having one or more expenses without receipts
       this.setupDefaultReceipts(expenses);
+      this.loadGenericFieldsOptions();
     });
 
     this.combinedCustomProperties = this.generateCustomInputOptions(customProperties as Partial<CustomInput>[][]);
@@ -535,6 +535,9 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
   }
 
   onReceiptChanged(receipt_ids: string): void {
+    if (!receipt_ids) {
+      return;
+    }
     this.mergeExpensesService.getAttachements(receipt_ids).subscribe((receipts) => {
       this.selectedReceiptsId = receipts.map((receipt) => receipt.id);
       this.attachments = receipts;

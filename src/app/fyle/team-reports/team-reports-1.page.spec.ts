@@ -1,10 +1,9 @@
 import { ComponentFixture, discardPeriodicTasks, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { ModalController, RefresherCustomEvent } from '@ionic/angular';
+import { ModalController } from '@ionic/angular';
 
 import { TeamReportsPage } from './team-reports.page';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { ReportService } from 'src/app/core/services/report.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -15,7 +14,6 @@ import { TasksService } from 'src/app/core/services/tasks.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { HeaderState } from 'src/app/shared/components/fy-header/header-state.enum';
 import { BehaviorSubject, of } from 'rxjs';
-import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
 import { creditTxnFilterPill } from 'src/app/core/mock-data/filter-pills.data';
 import { getElementRef } from 'src/app/core/dom-helpers';
 import { cloneDeep } from 'lodash';
@@ -24,12 +22,9 @@ import {
   tasksQueryParamsWithFiltersData,
   tasksQueryParamsWithFiltersData2,
 } from 'src/app/core/mock-data/get-tasks-query-params-with-filters.data';
-import { tasksQueryParamsParams } from 'src/app/core/mock-data/get-tasks-query-params.data';
 import { getTeamReportsParams1, getTeamReportsParams2 } from 'src/app/core/mock-data/api-params.data';
 import { GetTasksQueryParamsWithFilters } from 'src/app/core/models/get-tasks-query-params-with-filters.model';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-report.data';
-import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
@@ -40,7 +35,6 @@ export function TestCases1(getTestBed) {
     let fixture: ComponentFixture<TeamReportsPage>;
     let networkService: jasmine.SpyObj<NetworkService>;
     let loaderService: jasmine.SpyObj<LoaderService>;
-    let reportService: jasmine.SpyObj<ReportService>;
     let modalController: jasmine.SpyObj<ModalController>;
     let dateService: jasmine.SpyObj<DateService>;
     let router: jasmine.SpyObj<Router>;
@@ -54,7 +48,6 @@ export function TestCases1(getTestBed) {
     let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
     let authService: jasmine.SpyObj<AuthService>;
     let inputElement: HTMLInputElement;
-    let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
 
     beforeEach(waitForAsync(() => {
       const TestBed = getTestBed();
@@ -62,7 +55,6 @@ export function TestCases1(getTestBed) {
       component = fixture.componentInstance;
       networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
       loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
-      reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
       modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
       dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
       router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
@@ -73,7 +65,6 @@ export function TestCases1(getTestBed) {
       apiV2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
       tasksService = TestBed.inject(TasksService) as jasmine.SpyObj<TasksService>;
       orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
-      launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
       approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
       authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
       component.eou$ = of(apiEouRes);
@@ -116,20 +107,12 @@ export function TestCases1(getTestBed) {
         mockAddNewFiltersToParams.and.returnValue(mockTasksQuery);
         spyOn(component, 'generateFilterPills').and.returnValue(creditTxnFilterPill);
         spyOn(component, 'clearFilters');
-        launchDarklyService.checkIfManualFlaggingFeatureIsEnabled.and.returnValue(of({ value: true }));
       });
 
       it('should set navigateBack to true if navigate_back is defined in activatedRoute.snapshot.params', () => {
         component.navigateBack = false;
         component.ionViewWillEnter();
         expect(component.navigateBack).toBeTrue();
-      });
-
-      it('should set isManualFlagFeatureEnabled$ from launchDarklyService ', () => {
-        component.ionViewWillEnter();
-        component.isManualFlagFeatureEnabled$.subscribe((res) => {
-          expect(res.value).toBeTrue();
-        });
       });
 
       it('should set navigateBack to false if navigate_back is undefined in activatedRoute.snapshot.params', () => {

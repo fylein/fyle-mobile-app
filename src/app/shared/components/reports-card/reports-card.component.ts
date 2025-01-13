@@ -14,11 +14,6 @@ export class ReportsCardComponent implements OnInit {
 
   @Input() simplifyReportsEnabled: boolean;
 
-  @Input() isManualFlagFeatureEnabled = false;
-
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  @Output() deleteReport: EventEmitter<Report> = new EventEmitter();
-
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   @Output() gotoReport: EventEmitter<Report> = new EventEmitter();
 
@@ -42,10 +37,6 @@ export class ReportsCardComponent implements OnInit {
       (this.prevDate && new Date(this.prevDate).toDateString());
 
     this.reportCurrencySymbol = getCurrencySymbol(this.report.currency, 'wide');
-  }
-
-  onDeleteReport(): void {
-    this.deleteReport.emit(this.report);
   }
 
   onGoToReport(): void {

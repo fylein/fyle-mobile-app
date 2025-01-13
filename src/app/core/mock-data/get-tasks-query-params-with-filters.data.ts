@@ -1,6 +1,7 @@
 import deepFreeze from 'deep-freeze-strict';
 
 import { GetTasksQueryParamsWithFilters } from '../models/get-tasks-query-params-with-filters.model';
+import { PlatformPersonalCardFilterParams } from '../models/platform/platform-personal-card-filter-params.model';
 
 export const tasksQueryParamsWithFiltersData: Partial<GetTasksQueryParamsWithFilters> = deepFreeze({
   pageNumber: 1,
@@ -32,11 +33,11 @@ export const tasksQueryParamsWithFiltersData3: Partial<GetTasksQueryParamsWithFi
   },
 });
 
-export const personalCardQueryParamFiltersData: Partial<GetTasksQueryParamsWithFilters> = deepFreeze({
+export const personalCardQueryParamFiltersData: Partial<PlatformPersonalCardFilterParams> = deepFreeze({
   pageNumber: 1,
   queryParams: {
     or: [],
-    btxn_status: 'in.(DEBIT)',
-    ba_id: 'eq.baccLesaRlyvLY',
+    state: 'in.(INITIALIZED)',
+    personal_card_id: 'eq.baccY70V3Mz048',
   },
 });

@@ -22,6 +22,7 @@ import { By } from '@angular/platform-browser';
 })
 class MockCardNumberComponent {
   @Input() cardNumber: string;
+  @Input() cardNickname: string;
 }
 
 describe('CorporateCardComponent', () => {

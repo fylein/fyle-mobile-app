@@ -4,6 +4,7 @@ import { map, switchMap } from 'rxjs/operators';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
+import { ExactCurrencyPipe } from 'src/app/shared/pipes/exact-currency.pipe';
 import { TASKEVENT } from '../models/task-event.enum';
 import { TaskFilters } from '../models/task-filters.model';
 import { TaskIcon } from '../models/task-icon.enum';
@@ -43,6 +44,7 @@ export class TasksService {
   constructor(
     private reportService: ReportService,
     private humanizeCurrency: HumanizeCurrencyPipe,
+    private exactCurrency: ExactCurrencyPipe,
     private userEventService: UserEventService,
     private authService: AuthService,
     private advancesRequestService: AdvanceRequestService,
@@ -318,6 +320,7 @@ export class TasksService {
       sentBackAdvances: this.getSentBackAdvanceTasks(),
       setCommuteDetails: this.getCommuteDetailsTasks(),
       teamReports: this.getTeamReportsTasks(showTeamReportTask),
+      addCorporateCard: this.getAddCorporateCardTask(),
     }).pipe(
       map(
         ({
@@ -330,6 +333,7 @@ export class TasksService {
           teamReports,
           sentBackAdvances,
           setCommuteDetails,
+          addCorporateCard,
         }) => {
           this.totalTaskCount$.next(
             mobileNumberVerification.length +
@@ -340,7 +344,8 @@ export class TasksService {
               teamReports.length +
               potentialDuplicates.length +
               sentBackAdvances.length +
-              setCommuteDetails.length
+              setCommuteDetails.length +
+              addCorporateCard.length
           );
           this.expensesTaskCount$.next(draftExpenses.length + unreportedExpenses.length + potentialDuplicates.length);
           this.reportsTaskCount$.next(sentBackReports.length + unsubmittedReports.length);
@@ -364,7 +369,8 @@ export class TasksService {
               .concat(unsubmittedReports)
               .concat(unreportedExpenses)
               .concat(teamReports)
-              .concat(sentBackAdvances);
+              .concat(sentBackAdvances)
+              .concat(addCorporateCard);
           } else {
             return this.getFilteredTaskList(filters, {
               potentialDuplicates,
@@ -425,24 +431,20 @@ export class TasksService {
   }
 
   getMobileNumberVerificationTasks(): Observable<DashboardTask[]> {
-    const rtfEnrolledCards$ = this.corporateCreditCardExpenseService
-      .getCorporateCards()
-      .pipe(map((cards) => cards.filter((card) => card.is_visa_enrolled || card.is_mastercard_enrolled)));
-
     return forkJoin({
-      rtfEnrolledCards: rtfEnrolledCards$,
       eou: from(this.authService.getEou()),
       isUserFromINCluster: from(this.utilityService.isUserFromINCluster()),
     }).pipe(
-      switchMap(({ rtfEnrolledCards, eou, isUserFromINCluster }) => {
+      switchMap(({ eou, isUserFromINCluster }) => {
         //Show this task only if mobile number is not verified and user is enrolled for RTF and user is not from IN cluster
         if (
+          (eou.org.currency === 'USD' || eou.org.currency === 'CAD') &&
           !eou.ou.mobile_verified &&
           eou.ou.mobile_verification_attempts_left !== 0 &&
-          rtfEnrolledCards.length &&
           !isUserFromINCluster
         ) {
-          return of(this.mapMobileNumberVerificationTask(eou.ou.mobile?.length ? 'Verify' : 'Add'));
+          const isInvalidUSNumber = eou.ou.mobile && !eou.ou.mobile.startsWith('+1');
+          return of(this.mapMobileNumberVerificationTask(isInvalidUSNumber));
         }
         return of<DashboardTask[]>([]);
       })
@@ -531,6 +533,24 @@ export class TasksService {
     }
   }
 
+  getAddCorporateCardTask(): Observable<DashboardTask[]> {
+    return forkJoin([this.orgSettingsService.get(), this.corporateCreditCardExpenseService.getCorporateCards()]).pipe(
+      map(([orgSettings, cards]) => {
+        const isRtfEnabled =
+          (orgSettings.visa_enrollment_settings.allowed && orgSettings.visa_enrollment_settings.enabled) ||
+          (orgSettings.mastercard_enrollment_settings.allowed && orgSettings.mastercard_enrollment_settings.enabled);
+        const isCCCEnabled =
+          orgSettings.corporate_credit_card_settings.allowed && orgSettings.corporate_credit_card_settings.enabled;
+        const rtfCards = cards.filter((card) => card.is_visa_enrolled || card.is_mastercard_enrolled);
+        if (isRtfEnabled && isCCCEnabled && rtfCards.length === 0) {
+          return this.mapAddCorporateCardTask();
+        } else {
+          return [] as DashboardTask[];
+        }
+      })
+    );
+  }
+
   getPotentialDuplicatesTasks(): Observable<DashboardTask[]> {
     return this.expensesService.getDuplicateSets().pipe(
       map((duplicateSets) => {
@@ -544,18 +564,37 @@ export class TasksService {
     );
   }
 
-  mapMobileNumberVerificationTask(type: 'Add' | 'Verify'): DashboardTask[] {
-    const subheaderPrefixString = type === 'Add' ? 'Add and verify' : 'Verify';
+  mapMobileNumberVerificationTask(isInvalidUSNumber: boolean): DashboardTask[] {
     const task = [
       {
         hideAmount: true,
-        header: `${type} Mobile Number`,
-        subheader: `${subheaderPrefixString} your mobile number to text the receipts directly`,
-        icon: TaskIcon.MOBILE,
+        header: isInvalidUSNumber ? 'Update phone number to opt in to text receipts' : 'Opt in to text receipts',
+        subheader: isInvalidUSNumber
+          ? 'Add a +1 country code to your mobile number to receive text message receipts.'
+          : 'Opt-in to activate text messages for instant expense submission',
+        icon: TaskIcon.STARS,
         ctas: [
           {
-            content: type,
+            content: isInvalidUSNumber ? 'Update and Opt in' : 'Opt in',
             event: TASKEVENT.mobileNumberVerification,
+          },
+        ],
+      },
+    ];
+    return task;
+  }
+
+  mapAddCorporateCardTask(): DashboardTask[] {
+    const task = [
+      {
+        hideAmount: true,
+        header: 'Add Corporate Card',
+        subheader: 'Add your corporate card to track expenses.',
+        icon: TaskIcon.CARD,
+        ctas: [
+          {
+            content: 'Add Card',
+            event: TASKEVENT.addCorporateCard,
           },
         ],
       },
@@ -687,14 +726,18 @@ export class TasksService {
   }
 
   getAmountString(amount: number, currency: string): string {
-    return amount > 0 ? ` worth ${this.humanizeCurrency.transform(amount, currency)} ` : '';
+    return amount > 0 ? ` worth ${this.exactCurrency.transform({ value: amount, currencyCode: currency })} ` : '';
   }
 
   mapSentBackReportsToTasks(aggregate: PlatformReportsStatsResponse, homeCurrency: string): DashboardTask[] {
     if (aggregate.count > 0) {
       return [
         {
-          amount: this.humanizeCurrency.transform(aggregate.total_amount, homeCurrency, true),
+          amount: this.exactCurrency.transform({
+            value: aggregate.total_amount,
+            currencyCode: homeCurrency,
+            skipSymbol: true,
+          }),
           count: aggregate.count,
           header: `Report${aggregate.count === 1 ? '' : 's'} sent back!`,
           subheader: `${aggregate.count} report${aggregate.count === 1 ? '' : 's'}${this.getAmountString(
@@ -728,7 +771,11 @@ export class TasksService {
       } sent back by your approver`;
       return [
         {
-          amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, true),
+          amount: this.exactCurrency.transform({
+            value: aggregate.totalAmount,
+            currencyCode: homeCurrency,
+            skipSymbol: true,
+          }),
           count: aggregate.totalCount,
           header: headerMessage,
           subheader: subheaderMessage,
@@ -750,7 +797,11 @@ export class TasksService {
     if (aggregate.count > 0) {
       return [
         {
-          amount: this.humanizeCurrency.transform(aggregate.total_amount, homeCurrency, true),
+          amount: this.exactCurrency.transform({
+            value: aggregate.total_amount,
+            currencyCode: homeCurrency,
+            skipSymbol: true,
+          }),
           count: aggregate.count,
           header: `Unsubmitted report${aggregate.count === 1 ? '' : 's'}`,
           subheader: `${aggregate.count} report${aggregate.count === 1 ? '' : 's'}${this.getAmountString(
@@ -775,7 +826,11 @@ export class TasksService {
     if (aggregate.count > 0) {
       return [
         {
-          amount: this.humanizeCurrency.transform(aggregate.total_amount, homeCurrency, true),
+          amount: this.exactCurrency.transform({
+            value: aggregate.total_amount,
+            currencyCode: homeCurrency,
+            skipSymbol: true,
+          }),
           count: aggregate.count,
           header: `Report${aggregate.count === 1 ? '' : 's'} to be approved`,
           subheader: `${aggregate.count} report${aggregate.count === 1 ? '' : 's'}${this.getAmountString(
@@ -803,7 +858,11 @@ export class TasksService {
     if (aggregate.totalCount > 0) {
       return [
         {
-          amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, true),
+          amount: this.exactCurrency.transform({
+            value: aggregate.totalAmount,
+            currencyCode: homeCurrency,
+            skipSymbol: true,
+          }),
           count: aggregate.totalCount,
           header: `Incomplete expense${aggregate.totalCount === 1 ? '' : 's'}`,
           subheader: `${aggregate.totalCount} expense${aggregate.totalCount === 1 ? '' : 's'}${this.getAmountString(
@@ -830,7 +889,11 @@ export class TasksService {
   ): DashboardTask[] {
     if (aggregate.totalCount > 0) {
       const task = {
-        amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, true),
+        amount: this.exactCurrency.transform({
+          value: aggregate.totalAmount,
+          currencyCode: homeCurrency,
+          skipSymbol: true,
+        }),
         count: aggregate.totalCount,
         header: 'Expenses are ready to report',
         subheader: `${aggregate.totalCount} expense${aggregate.totalCount === 1 ? '' : 's'} ${this.getAmountString(

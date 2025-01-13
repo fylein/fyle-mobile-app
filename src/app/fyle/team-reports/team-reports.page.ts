@@ -2,7 +2,6 @@ import { Component, OnInit, ViewChild, ElementRef, EventEmitter } from '@angular
 import { Observable, BehaviorSubject, fromEvent, noop, concat, Subject, from } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { ReportService } from 'src/app/core/services/report.service';
 import { ModalController } from '@ionic/angular';
 import { DateService } from 'src/app/core/services/date.service';
 import { ActivatedRoute, Params, Router } from '@angular/router';
@@ -31,7 +30,6 @@ import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-team-reports',
@@ -87,14 +85,11 @@ export class TeamReportsPage implements OnInit {
 
   simplifyReportsSettings$: Observable<{ enabled: boolean }>;
 
-  isManualFlagFeatureEnabled$: Observable<{ value: boolean }>;
-
   eou$: Observable<ExtendedOrgUser>;
 
   constructor(
     private networkService: NetworkService,
     private loaderService: LoaderService,
-    private reportService: ReportService,
     private modalController: ModalController,
     private dateService: DateService,
     private router: Router,
@@ -106,7 +101,6 @@ export class TeamReportsPage implements OnInit {
     private tasksService: TasksService,
     private orgSettingsService: OrgSettingsService,
     private reportStatePipe: ReportState,
-    private launchDarklyService: LaunchDarklyService,
     private approverReportsService: ApproverReportsService,
     private authService: AuthService
   ) {}
@@ -127,7 +121,6 @@ export class TeamReportsPage implements OnInit {
     this.isLoading = true;
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigate_back;
 
-    this.isManualFlagFeatureEnabled$ = this.launchDarklyService.checkIfManualFlaggingFeatureIsEnabled();
     this.eou$ = from(this.authService.getEou());
     this.tasksService.getTeamReportsTaskCount().subscribe((teamReportsTaskCount) => {
       this.teamReportsTaskCount = teamReportsTaskCount;
@@ -259,7 +252,7 @@ export class TeamReportsPage implements OnInit {
     params.pageNumber = this.currentPageNumber;
     this.loadData$.next(params);
     setTimeout(() => {
-      event?.target?.complete();
+      event?.target?.complete?.();
     }, 1000);
   }
 

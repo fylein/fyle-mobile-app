@@ -30,7 +30,6 @@ export interface UnflattenedReport {
     location4: string;
     location5: string;
     locations: string[];
-    manual_flag: boolean;
     num_transactions: number;
     org_user_id: string;
     last_updated_by?: UserDetails;
@@ -43,7 +42,6 @@ export interface UnflattenedReport {
     reimbursed_at: Date;
     risk_state: string;
     risk_state_expense_count: number;
-    settlement_id: string;
     source: string;
     state: string;
     submitted_at: Date;

@@ -1103,7 +1103,7 @@ export const mileageCategories2: OrgCategory[] = deepFreeze([
     created_at: new Date('2021-05-18T11:40:38.576Z'),
     displayName: 'mileage',
     enabled: true,
-    fyle_category: 'Food',
+    fyle_category: 'Mileage',
     id: 141295,
     name: 'mileage',
     org_id: 'orrjqbDbeP9p',

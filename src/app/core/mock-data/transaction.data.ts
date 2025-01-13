@@ -1,9 +1,11 @@
 import deepFreeze from 'deep-freeze-strict';
-
-import { TransactionStatus } from '../models/platform/v1/expense.model';
 import { Transaction } from '../models/v1/transaction.model';
 import { optionsData15, optionsData33 } from './merge-expenses-options-data.data';
 import { expectedTxnCustomProperties, txnCustomPropertiesData } from './txn-custom-properties.data';
+import { ExpenseTransactionStatus } from '../enums/platform/v1/expense-transaction-status.enum';
+import { Expense } from '../models/platform/v1/expense.model';
+import { MileageUnitEnum } from '../models/platform/platform-mileage-rates.model';
+import deepFreezeStrict from 'deep-freeze-strict';
 
 export const txnList: Transaction[] = deepFreeze([
   {
@@ -180,6 +182,14 @@ export const txnData: Transaction = deepFreeze({
   admin_amount: null,
   policy_amount: null,
   custom_attributes: null,
+  source_account_id: 'acc5APeygFjRd',
+  skip_reimbursement: false,
+});
+
+export const txnDataCleaned: Partial<Transaction> = deepFreeze({
+  source: 'MOBILE_DASHCAM_BULK',
+  txn_dt: new Date('2023-02-08T17:00:00.000Z'),
+  currency: 'INR',
   source_account_id: 'acc5APeygFjRd',
   skip_reimbursement: false,
 });
@@ -2584,6 +2594,44 @@ export const txnAmount1: Transaction = deepFreeze({
   categoryDisplayName: 'Bus',
 });
 
+export const transformedExpensePayload: Partial<Expense> = deepFreezeStrict({
+  id: txnAmount1.id,
+  spent_at: txnAmount1.txn_dt,
+  category_id: txnAmount1.org_category_id,
+  purpose: txnAmount1.purpose,
+  source_account_id: txnAmount1.source_account_id,
+  claim_amount: txnAmount1.amount,
+  merchant: txnAmount1.vendor,
+  project_id: txnAmount1.project_id,
+  cost_center_id: txnAmount1.cost_center_id,
+  foreign_currency: txnAmount1.orig_currency,
+  foreign_amount: txnAmount1.orig_amount,
+  source: txnAmount1.source,
+  is_reimbursable: !txnAmount1.skip_reimbursement,
+  tax_amount: txnAmount1.tax_amount,
+  tax_group_id: txnAmount1.tax_group_id,
+  is_billable: txnAmount1.billable,
+  distance: txnAmount1.distance,
+  distance_unit: txnAmount1.distance_unit as MileageUnitEnum,
+  started_at: txnAmount1.from_dt,
+  ended_at: txnAmount1.to_dt,
+  custom_fields: txnAmount1.custom_properties,
+  per_diem_rate_id: txnAmount1.per_diem_rate_id,
+  per_diem_num_days: 0,
+  mileage_rate_id: txnAmount1.mileage_rate_id,
+  advance_wallet_id: txnAmount1.advance_wallet_id,
+  report_id: txnAmount1.report_id,
+  travel_classes: [],
+  locations: [],
+  commute_deduction: undefined,
+  mileage_is_round_trip: null,
+  commute_details_id: undefined,
+  hotel_is_breakfast_provided: null,
+  file_ids: undefined,
+  mileage_calculated_distance: null,
+  mileage_calculated_amount: null,
+});
+
 export const splitExpenseTxn2: Transaction = deepFreeze({
   skip_reimbursement: false,
   source: 'MOBILE',
@@ -4130,7 +4178,7 @@ export const editUnflattenedTransactionWithMatchCCCPlatform: Partial<Transaction
       corporate_credit_card_account_number: '7620',
       orig_amount: null,
       orig_currency: null,
-      status: TransactionStatus.PENDING,
+      status: ExpenseTransactionStatus.PENDING,
       displayObject: 'Jul 4, 2018 - test description260.37',
     },
   ],

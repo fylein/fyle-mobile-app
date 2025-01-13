@@ -15,7 +15,7 @@ import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { of, throwError } from 'rxjs';
+import { of, Subscription, throwError } from 'rxjs';
 import { extendedDeviceInfoMockData } from 'src/app/core/mock-data/extended-device-info.data';
 import { ErrorComponent } from './error/error.component';
 import { authResData1, authResData2, samlResData1, samlResData2 } from 'src/app/core/mock-data/auth-reponse.data';
@@ -27,6 +27,10 @@ import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { By } from '@angular/platform-browser';
 import { HttpErrorResponse } from '@angular/common/http';
+import { SignInPageState } from './sign-in-page-state.enum';
+import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
+import { BackButtonService } from 'src/app/core/services/back-button.service';
+import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 
 describe('SignInPage', () => {
   let component: SignInPage;
@@ -44,6 +48,8 @@ describe('SignInPage', () => {
   let deviceService: jasmine.SpyObj<DeviceService>;
   let loginInfoService: jasmine.SpyObj<LoginInfoService>;
   let inAppBrowserService: jasmine.SpyObj<InAppBrowserService>;
+  let platformHandlerService: jasmine.SpyObj<PlatformHandlerService>;
+  let backButtonService: jasmine.SpyObj<BackButtonService>;
 
   beforeEach(waitForAsync(() => {
     const routerAuthServiceSpy = jasmine.createSpyObj('RouterAuthService', [
@@ -63,7 +69,8 @@ describe('SignInPage', () => {
     const deviceServiceSpy = jasmine.createSpyObj('DeviceService', ['getDeviceInfo']);
     const loginInfoServiceSpy = jasmine.createSpyObj('LoginInfoService', ['addLoginInfo']);
     const inAppBrowserServiceSpy = jasmine.createSpyObj('InAppBrowserService', ['create']);
-
+    const platformHandlerServiceSpy = jasmine.createSpyObj('PlatformHandlerService', ['registerBackButtonAction']);
+    const backButtonServiceSpy = jasmine.createSpyObj('BackButtonService', ['showAppCloseAlert']);
     TestBed.configureTestingModule({
       declarations: [SignInPage, MatButton],
       imports: [
@@ -127,6 +134,14 @@ describe('SignInPage', () => {
           provide: InAppBrowserService,
           useValue: inAppBrowserServiceSpy,
         },
+        {
+          provide: PlatformHandlerService,
+          useValue: platformHandlerServiceSpy,
+        },
+        {
+          provide: BackButtonService,
+          useValue: backButtonServiceSpy,
+        },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -146,6 +161,8 @@ describe('SignInPage', () => {
     deviceService = TestBed.inject(DeviceService) as jasmine.SpyObj<DeviceService>;
     loginInfoService = TestBed.inject(LoginInfoService) as jasmine.SpyObj<LoginInfoService>;
     inAppBrowserService = TestBed.inject(InAppBrowserService) as jasmine.SpyObj<InAppBrowserService>;
+    platformHandlerService = TestBed.inject(PlatformHandlerService) as jasmine.SpyObj<PlatformHandlerService>;
+    backButtonService = TestBed.inject(BackButtonService) as jasmine.SpyObj<BackButtonService>;
 
     loaderService.showLoader.and.returnValue(new Promise(() => {}));
     router.navigate.and.stub();
@@ -205,6 +222,70 @@ describe('SignInPage', () => {
     });
   });
 
+  it('ionViewWillEnter(): should set up back button actions', () => {
+    const mockSubscription = new Subscription();
+    platformHandlerService.registerBackButtonAction.and.returnValue(mockSubscription);
+    spyOn(component, 'goBack');
+    component.ionViewWillEnter();
+    expect(component.hardwareBackButtonAction).toEqual(mockSubscription);
+    expect(platformHandlerService.registerBackButtonAction).toHaveBeenCalledTimes(1);
+  });
+
+  describe('goBack(): ', () => {
+    it('should navigate to ENTER_EMAIL when current step is ENTER_PASSWORD', () => {
+      spyOn(component, 'changeState');
+
+      component.currentStep = SignInPageState.ENTER_PASSWORD;
+      component.goBack(component.currentStep);
+
+      expect(component.changeState).toHaveBeenCalledWith(SignInPageState.ENTER_EMAIL);
+      expect(backButtonService.showAppCloseAlert).not.toHaveBeenCalled();
+    });
+
+    it('should show app close alert for other states', () => {
+      spyOn(component, 'changeState');
+
+      component.currentStep = SignInPageState.SELECT_SIGN_IN_METHOD;
+      component.goBack(component.currentStep);
+
+      expect(backButtonService.showAppCloseAlert).toHaveBeenCalledTimes(1);
+      expect(component.changeState).not.toHaveBeenCalled();
+    });
+
+    it('should show app close alert for other states', () => {
+      spyOn(component, 'changeState');
+
+      component.currentStep = SignInPageState.ENTER_EMAIL;
+      component.goBack(component.currentStep);
+
+      expect(component.changeState).toHaveBeenCalledWith(SignInPageState.SELECT_SIGN_IN_METHOD);
+    });
+  });
+
+  it('ionViewWillLeave(): should unsubscribe from hardwareBackButtonAction', () => {
+    component.hardwareBackButtonAction = new Subscription();
+    spyOn(component.hardwareBackButtonAction, 'unsubscribe');
+    component.ionViewWillLeave();
+
+    expect(component.hardwareBackButtonAction.unsubscribe).toHaveBeenCalled();
+  });
+
+  it('changeState(): should update the current step', () => {
+    component.changeState(SignInPageState.ENTER_EMAIL);
+
+    expect(component.currentStep).toBe(SignInPageState.ENTER_EMAIL);
+
+    component.changeState(SignInPageState.ENTER_PASSWORD);
+
+    expect(component.currentStep).toBe(SignInPageState.ENTER_PASSWORD);
+  });
+
+  it('goToForgotPasswordPage(): should navigate to the reset password page with the email parameter', () => {
+    component.goToForgotPasswordPage();
+
+    expect(router.navigate).toHaveBeenCalledWith(['/', 'auth', 'reset_password', { email: 'ajain@fyle.in' }]);
+  });
+
   describe('checkIfEmailExists(): ', () => {
     it('should check if value email exists', (done) => {
       component.fg.controls.email.setValue('email@gmail.com');
@@ -220,7 +301,6 @@ describe('SignInPage', () => {
       component.checkIfEmailExists();
       expect(component.handleSamlSignIn).toHaveBeenCalledOnceWith({ saml: true });
       expect(routerAuthService.checkEmailExists).toHaveBeenCalledOnceWith(component.fg.controls.email.value);
-      expect(component.emailSet).toBeFalse();
       expect(component.emailLoading).toBeFalse();
       done();
     });
@@ -233,7 +313,6 @@ describe('SignInPage', () => {
       fixture.detectChanges();
 
       component.checkIfEmailExists();
-      expect(component.emailSet).toBeTrue();
       expect(component.handleSamlSignIn).not.toHaveBeenCalled();
       done();
     });
@@ -250,11 +329,12 @@ describe('SignInPage', () => {
     });
 
     it('should mark form as touched if email field is not valid', () => {
-      component.fg.controls.email.setErrors(new Error('error'));
+      component.currentStep = SignInPageState.ENTER_EMAIL;
+      component.fg.controls.email.setValue('email.com'); // setting an invalid email
 
       component.checkIfEmailExists();
       fixture.detectChanges();
-      const emailError = fixture.debugElement.query(By.css('.sign-in--error'));
+      const emailError = fixture.debugElement.query(By.css('.sign-in__enter-email__error-message'));
       expect(emailError).toBeDefined();
       expect(getTextContent(emailError.nativeElement)).toEqual('Please enter a valid email.');
     });
@@ -303,7 +383,7 @@ describe('SignInPage', () => {
       const errorPopoverSpy = jasmine.createSpyObj('errorPopover', ['present']);
       popoverController.create.and.returnValue(errorPopoverSpy);
 
-      const header = 'Incorrect Email or Password';
+      const header = 'Incorrect email or password';
 
       await component.handleError(null);
 
@@ -419,15 +499,6 @@ describe('SignInPage', () => {
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'switch_org', { choose: true }]);
       expect(component.trackLoginInfo).toHaveBeenCalledTimes(1);
     });
-
-    it("should throw an error if google reponse doesn't contain access token", async () => {
-      googleAuthService.login.and.resolveTo(authResData1);
-      spyOn(component, 'handleError');
-
-      await component.googleSignIn();
-      expect(googleAuthService.login).toHaveBeenCalledTimes(1);
-      expect(component.handleError).toHaveBeenCalledOnceWith(undefined);
-    });
   });
 
   it('trackLoginInfo(): should track login', async () => {
@@ -440,15 +511,6 @@ describe('SignInPage', () => {
     expect(trackingService.eventTrack).toHaveBeenCalledOnceWith('Added Login Info', {
       label: extendedDeviceInfoMockData.appVersion,
     });
-  });
-
-  it('ionViewWillEnter(): should set email', () => {
-    expect(component.emailSet).toBeFalse();
-
-    component.fg.controls.email.setValue('email');
-
-    component.ionViewWillEnter();
-    expect(component.emailSet).toBeTrue();
   });
 
   describe('ngOnInit(): ', () => {
@@ -483,47 +545,106 @@ describe('SignInPage', () => {
     }));
   });
 
-  it('should check if email exists on typing the input', () => {
+  it('should check if email exists on clicking the button', () => {
+    component.currentStep = SignInPageState.ENTER_EMAIL;
     spyOn(component, 'checkIfEmailExists');
-    component.emailSet = false;
-    component.fg.controls.email.setValue('ajain@fyle.in');
     fixture.detectChanges();
 
-    const emailField = getElementBySelector(fixture, '#sign-in--email');
-    emailField.dispatchEvent(new KeyboardEvent('keyup', { key: 'Enter' }));
-
-    expect(component.checkIfEmailExists).toHaveBeenCalledTimes(1);
-  });
-
-  it('should check if email exists on clicking the button', () => {
-    spyOn(component, 'checkIfEmailExists');
-
-    const contButton = getElementBySelector(fixture, '#sign-in--continue') as HTMLElement;
+    const contButton = getElementBySelector(fixture, '#sign-in__continue') as HTMLElement;
     click(contButton);
     expect(component.checkIfEmailExists).toHaveBeenCalledTimes(1);
   });
 
   it('should sign in with google when clicking on the SIGN IN WITH GOOGLE button', () => {
+    component.currentStep = SignInPageState.SELECT_SIGN_IN_METHOD;
     spyOn(component, 'googleSignIn');
-    const googleButton = getElementBySelector(fixture, '.sign-in--secondary-cta-btn') as HTMLElement;
+    fixture.detectChanges();
 
+    const googleButton = getElementBySelector(fixture, '.sign-in__secondary-cta__btn') as HTMLElement;
     click(googleButton);
     expect(component.googleSignIn).toHaveBeenCalledTimes(1);
   });
 
   it('should show error if email field is empty', () => {
+    component.currentStep = SignInPageState.ENTER_EMAIL;
     component.fg.controls.email.setValue(null);
     component.fg.markAllAsTouched();
     fixture.detectChanges();
 
-    expect(getTextContent(getElementBySelector(fixture, '.sign-in--error'))).toEqual('Please enter an email.');
+    expect(getTextContent(getElementBySelector(fixture, '.sign-in__enter-email__error-message'))).toEqual(
+      'Please enter a valid email.'
+    );
   });
 
   it('should show error if email is invalid', () => {
+    component.currentStep = SignInPageState.ENTER_EMAIL;
     component.fg.controls.email.setValue('email.com');
     component.fg.markAllAsTouched();
+    component.fg.controls.email.updateValueAndValidity();
     fixture.detectChanges();
 
-    expect(getTextContent(getElementBySelector(fixture, '.sign-in--error'))).toEqual('Please enter a valid email.');
+    expect(getTextContent(getElementBySelector(fixture, '.sign-in__enter-email__error-message'))).toEqual(
+      'Please enter a valid email.'
+    );
+  });
+
+  describe('template: ', () => {
+    it('should display the video container when currentStep is SELECT_SIGN_IN_METHOD', () => {
+      component.currentStep = component.signInPageState.SELECT_SIGN_IN_METHOD;
+      fixture.detectChanges();
+      const videoElement = getElementBySelector(fixture, '.sign-in__video-container');
+      expect(videoElement).toBeTruthy();
+    });
+
+    it('should display the email form when currentStep is ENTER_EMAIL', () => {
+      component.currentStep = component.signInPageState.ENTER_EMAIL;
+      fixture.detectChanges();
+      const emailForm = getElementBySelector(fixture, '.sign-in__enter-email__form-container');
+      expect(emailForm).toBeTruthy();
+    });
+
+    it('should disable the continue button if email is invalid', () => {
+      component.currentStep = component.signInPageState.ENTER_EMAIL;
+      component.fg.controls.email.setValue(null);
+      fixture.detectChanges();
+      const continueButton: HTMLButtonElement = getElementBySelector(
+        fixture,
+        '.sign-in__enter-email ion-button'
+      ) as HTMLButtonElement;
+      expect(continueButton.disabled).toBeTrue();
+    });
+
+    it('should display the password form when currentStep is ENTER_PASSWORD', () => {
+      component.currentStep = component.signInPageState.ENTER_PASSWORD;
+      fixture.detectChanges();
+      const passwordForm = getElementBySelector(fixture, '.sign-in__enter-password__form-container');
+      expect(passwordForm).toBeTruthy();
+    });
+
+    it('should toggle password visibility when icon is clicked', () => {
+      component.currentStep = component.signInPageState.ENTER_PASSWORD;
+      component.hidePassword = true;
+      fixture.detectChanges();
+
+      const toggleIcon = getElementBySelector(fixture, '.sign-in__enter-password__password-icon-container');
+      toggleIcon.dispatchEvent(new Event('click'));
+      fixture.detectChanges();
+
+      expect(component.hidePassword).toBeFalse();
+    });
+
+    it('should call googleSignIn method when Google sign-in button is clicked', () => {
+      spyOn(component, 'googleSignIn');
+      component.currentStep = component.signInPageState.SELECT_SIGN_IN_METHOD;
+      fixture.detectChanges();
+
+      const googleSignInButton: HTMLButtonElement = getElementBySelector(
+        fixture,
+        '.sign-in__secondary-cta__btn'
+      ) as HTMLButtonElement;
+      googleSignInButton.click();
+
+      expect(component.googleSignIn).toHaveBeenCalled();
+    });
   });
 });

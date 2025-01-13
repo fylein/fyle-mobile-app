@@ -7,7 +7,6 @@ import { AuthService } from './auth.service';
 import { CorporateCreditCardExpenseService } from './corporate-credit-card-expense.service';
 import { DataTransformService } from './data-transform.service';
 import { apiCardV2Transactions } from '../mock-data/ccc-api-response.data';
-import { expectedECccResponse } from '../mock-data/corporate-card-expense-unflattened.data';
 import { uniqueCardsParam } from '../mock-data/unique-cards.data';
 import { cardAggregateStatParam } from '../mock-data/card-aggregate-stats.data';
 import { DateService } from './date.service';
@@ -15,13 +14,13 @@ import { expectedUniqueCardStats } from '../mock-data/unique-cards-stats.data';
 import { apiAssignedCardDetailsRes } from '../mock-data/stats-response.data';
 import { expectedAssignedCCCStats, mastercardCCCStats } from '../mock-data/ccc-expense.details.data';
 import { apiEouRes } from '../mock-data/extended-org-user.data';
-import { eCCCApiResponse } from '../mock-data/corporate-card-expense-flattened.data';
 import { mastercardRTFCard, statementUploadedCard } from '../mock-data/platform-corporate-card.data';
 import { StatsResponse } from '../models/v2/stats-response.model';
 import { bankFeedSourcesData } from '../mock-data/bank-feed-sources.data';
 import {
   ccTransactionResponseData,
   ccTransactionResponseData1,
+  ccTransactionResponseData2,
 } from '../mock-data/corporate-card-transaction-response.data';
 import { statementUploadedCardDetail } from '../mock-data/platform-corporate-card-detail.data';
 import { matchedCCTransactionData3 } from '../mock-data/matchedCCTransaction.data';
@@ -199,7 +198,7 @@ describe('CorporateCreditCardExpenseService', () => {
   });
 
   it('transformCCTransaction(): should transform the corporate card transaction response to matched corporate card transaction', () => {
-    const res = cccExpenseService.transformCCTransaction(ccTransactionResponseData.data[0]);
+    const res = cccExpenseService.transformCCTransaction(ccTransactionResponseData2.data[0]);
     expect(res).toEqual(matchedCCTransactionData3);
   });
 });

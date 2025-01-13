@@ -146,7 +146,7 @@
           <ion-grid class="add-edit-expense--card-container">
             <ion-row>
               <ion-col>
-                <div class="add-edit-expense--card-container__label">Card number</div>
+                <div class="add-edit-expense--card-container__label">Card</div>
                 <div class="add-edit-expense--card-container__value">
                   {{ cardNumber ? (cardNumber | maskNumber) : '-' }}
                 </div>
@@ -186,6 +186,21 @@
                   <div class="add-edit-expense--card-container__value">{{ selectedCCCTransaction.description }}</div>
                 </ion-col>
               </ion-row>
+            </ng-container>
+
+            <ng-container>
+              <div class="add-edit-expense--card-container__merchant_block">
+                <div class="add-edit-expense--card-container__merchant_label">Merchant:</div>
+                <div class="add-edit-expense--card-container__merchant_value">
+                  <span> {{ selectedCCCTransaction?.vendor || 'Unavailable' }} </span>
+                  <ion-icon
+                    (click)="openCCExpenseMerchantInfoModal()"
+                    src="../../../assets/svg/info-circle-outline.svg"
+                    class="add-edit-expense--card-container__merchant_info_icon"
+                    data-testid="merchant-info-icon"
+                  ></ion-icon>
+                </div>
+              </div>
             </ng-container>
 
             <ng-container *ngIf="isRTFEnabled$ | async">
@@ -252,6 +267,7 @@
                   [expanded]="attachedReceiptsCount === 0"
                   [touchedInParent]="fg?.controls?.currencyObj?.touched"
                   [validInParent]="fg?.controls?.currencyObj?.valid"
+                  [autoCodedData]="autoCodedData"
                 >
                 </app-currency>
                 <div
@@ -299,7 +315,7 @@
                   <div
                     *ngIf="txnFields?.txn_dt"
                     [ngClass]="{'add-edit-expense--internal-block__invalid add-edit-expense--date__invalid': fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid}"
-                    class="add-edit-expense--date add-edit-expense--internal-block add-edit-expense--internal-block__margin"
+                    class="add-edit-expense--date add-edit-expense--internal-block add-edit-expense--internal-block__margin add-edit-expense--internal-block--auto-coded"
                   >
                     <div
                       [ngClass]="{'add-edit-expense--date-label__invalid': fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid}"
@@ -319,6 +335,13 @@
                       type="date"
                       [name]="txnFields.txn_dt?.field_name || 'Date of Spend'"
                     />
+                  </div>
+                  <div
+                    class="add-edit-expense--auto-coded"
+                    *ngIf="(autoCodedData?.date && fg.controls.dateOfSpend?.value) && (autoCodedData.date | date:'MMM dd, YYYY') === (fg.controls.dateOfSpend.value | date:'MMM dd, YYYY')"
+                  >
+                    <mat-icon class="add-edit-expense--sparkle-icon" svgIcon="sparkle"></mat-icon>
+                    Date is auto coded.
                   </div>
                   <div
                     *ngIf="fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid"
@@ -488,6 +511,13 @@
                       [placeholder]="txnFields.org_category_id.placeholder"
                     >
                     </app-virtual-select>
+                    <div
+                      class="add-edit-expense--auto-coded"
+                      *ngIf="(autoCodedData?.category && fg.controls.category?.value?.displayName) && autoCodedData.category === fg.controls.category.value.displayName"
+                    >
+                      <mat-icon class="add-edit-expense--sparkle-icon" svgIcon="sparkle"></mat-icon>
+                      Category is auto coded.
+                    </div>
                   </div>
                   <div
                     *ngIf="fg.controls.category.touched && !fg.controls.category.valid"
@@ -904,6 +934,13 @@
                 [placeholder]="txnFields.vendor_id?.placeholder"
               >
               </app-virtual-select>
+              <div
+                class="add-edit-expense--auto-coded"
+                *ngIf="(autoCodedData?.vendor_name && fg.controls.vendor_id?.value?.display_name) && autoCodedData.vendor_name?.toLowerCase() === fg.controls.vendor_id.value.display_name?.toLowerCase()"
+              >
+                <mat-icon class="add-edit-expense--sparkle-icon" svgIcon="sparkle"></mat-icon>
+                Merchant is auto coded.
+              </div>
             </div>
             <div *ngIf="fg.controls.vendor_id.touched && !fg.controls.vendor_id.valid" class="add-edit-expense--error">
               Please select a merchant

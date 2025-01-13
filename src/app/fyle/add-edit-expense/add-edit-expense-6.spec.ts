@@ -73,7 +73,6 @@ import {
 } from 'src/app/core/test-data/accounts.service.spec.data';
 import { expectedProjectsResponse } from 'src/app/core/test-data/projects.spec.data';
 import { AddEditExpensePage } from './add-edit-expense.page';
-import { TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
 import { TransactionStatusInfoPopoverComponent } from 'src/app/shared/components/transaction-status-info-popover/transaction-status-info-popover.component';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
@@ -87,6 +86,8 @@ import { matchedCCTransactionData, matchedCCTransactionData2 } from 'src/app/cor
 import { ccTransactionData, ccTransactionData1 } from 'src/app/core/mock-data/cc-transaction.data';
 import { ccTransactionResponseData } from 'src/app/core/mock-data/corporate-card-transaction-response.data';
 import { cloneDeep } from 'lodash';
+import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
+import { CCExpenseMerchantInfoModalComponent } from 'src/app/shared/components/cc-expense-merchant-info-modal/cc-expense-merchant-info-modal.component';
 
 export function TestCases6(getTestBed) {
   describe('AddEditExpensePage-6', () => {
@@ -1210,18 +1211,53 @@ export function TestCases6(getTestBed) {
       const popoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present']);
       popoverController.create.and.resolveTo(popoverSpy);
 
-      component.openTransactionStatusInfoModal(TransactionStatus.PENDING);
+      component.openTransactionStatusInfoModal(ExpenseTransactionStatus.PENDING);
 
       tick();
 
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         component: TransactionStatusInfoPopoverComponent,
         componentProps: {
-          transactionStatus: TransactionStatus.PENDING,
+          transactionStatus: ExpenseTransactionStatus.PENDING,
         },
         cssClass: 'fy-dialog-popover',
       });
       expect(popoverSpy.present).toHaveBeenCalledTimes(1);
+    }));
+
+    it('openCCExpenseMerchantInfoModal(): should open the transaction status info modal', fakeAsync(() => {
+      const modalSpy = jasmine.createSpyObj('modal', ['present']);
+      modalController.create.and.resolveTo(modalSpy);
+
+      modalProperties.getModalDefaultProperties.and.returnValue({
+        cssClass: 'merchant-info',
+        showBackdrop: true,
+        canDismiss: true,
+        backdropDismiss: true,
+        animated: true,
+        initialBreakpoint: 1,
+        breakpoints: [0, 1],
+        handle: false,
+      });
+
+      component.openCCExpenseMerchantInfoModal();
+
+      tick();
+
+      expect(modalController.create).toHaveBeenCalledOnceWith({
+        component: CCExpenseMerchantInfoModalComponent,
+        cssClass: 'merchant-info',
+        showBackdrop: true,
+        canDismiss: true,
+        backdropDismiss: true,
+        animated: true,
+        initialBreakpoint: 1,
+        breakpoints: [0, 1],
+        handle: false,
+      });
+
+      expect(modalSpy.present).toHaveBeenCalledTimes(1);
+      expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
     }));
   });
 }

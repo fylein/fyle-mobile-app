@@ -5,6 +5,7 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatIconModule } from '@angular/material/icon';
 import { EllipsisPipe } from '../../pipes/ellipses.pipe';
 import { HumanizeCurrencyPipe } from '../../pipes/humanize-currency.pipe';
+import { ExactCurrencyPipe } from '../../pipes/exact-currency.pipe';
 import { FyCurrencyPipe } from '../../pipes/fy-currency.pipe';
 import { CurrencyPipe } from '@angular/common';
 import { ReportState } from '../../pipes/report-state.pipe';
@@ -18,7 +19,14 @@ describe('ReportsCardComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ReportsCardComponent, EllipsisPipe, HumanizeCurrencyPipe, ReportState, SnakeCaseToSpaceCase],
+      declarations: [
+        ReportsCardComponent,
+        EllipsisPipe,
+        HumanizeCurrencyPipe,
+        ExactCurrencyPipe,
+        ReportState,
+        SnakeCaseToSpaceCase,
+      ],
       imports: [IonicModule.forRoot(), MatIconTestingModule, MatIconModule],
       providers: [FyCurrencyPipe, CurrencyPipe],
     }).compileComponents();
@@ -40,17 +48,6 @@ describe('ReportsCardComponent', () => {
     expect(getTextContent(getElementBySelector(fixture, '.reports-card--currency'))).toEqual('$');
     expect(getTextContent(getElementBySelector(fixture, '.reports-card--amount'))).toEqual('100.00');
     expect(getTextContent(getElementBySelector(fixture, '.reports-card--no-transactions'))).toEqual('0 Expenses');
-  });
-
-  it('should have default value of false for isManualFlagFeatureEnabled', () => {
-    expect(component.isManualFlagFeatureEnabled).toBeFalse();
-  });
-
-  it('onDeleteReport(): should delete report event', () => {
-    const deleteReportSpy = spyOn(component.deleteReport, 'emit');
-
-    component.onDeleteReport();
-    expect(deleteReportSpy).toHaveBeenCalledTimes(1);
   });
 
   it('onGoToReport(): should emit go to report', () => {

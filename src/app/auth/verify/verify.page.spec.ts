@@ -11,6 +11,7 @@ import { of, throwError } from 'rxjs';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { VerifyPageState } from './verify.enum';
+import { UserEventService } from 'src/app/core/services/user-event.service';
 
 describe('VerifyPage', () => {
   let component: VerifyPage;
@@ -19,12 +20,14 @@ describe('VerifyPage', () => {
   let routerAuthService: jasmine.SpyObj<RouterAuthService>;
   let authService: jasmine.SpyObj<AuthService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
+  let userEventService: jasmine.SpyObj<UserEventService>;
 
   beforeEach(waitForAsync(() => {
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const routerAuthServiceSpy = jasmine.createSpyObj('RouterAuthService', ['emailVerify']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['newRefreshToken']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['emailVerified', 'onSignin']);
+    const userEventServiceSpy = jasmine.createSpyObj('UserEventService', ['logout']);
 
     TestBed.configureTestingModule({
       declarations: [VerifyPage],
@@ -54,6 +57,10 @@ describe('VerifyPage', () => {
             },
           },
         },
+        {
+          provide: UserEventService,
+          useValue: userEventServiceSpy,
+        },
       ],
     }).compileComponents();
 
@@ -63,6 +70,7 @@ describe('VerifyPage', () => {
     routerAuthService = TestBed.inject(RouterAuthService) as jasmine.SpyObj<RouterAuthService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
+    userEventService = TestBed.inject(UserEventService) as jasmine.SpyObj<UserEventService>;
   }));
 
   it('should create', () => {
@@ -78,25 +86,6 @@ describe('VerifyPage', () => {
       expect(trackingService.emailVerified).toHaveBeenCalledTimes(1);
       expect(trackingService.onSignin).toHaveBeenCalledOnceWith('ajain@fyle.in');
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'switch_org', { invite_link: true }]);
-      const verifyHeader = getElementBySelector(fixture, '#verify--header');
-      const verifySubheader = getElementBySelector(fixture, '.verify--form-subheader');
-      expect(getTextContent(verifyHeader)).toContain('Verifying Identity');
-      expect(getTextContent(verifySubheader)).toContain('Checking your credentials..');
-    });
-
-    it('should handle error when verification fails', () => {
-      const mockError = new Error('Verification failed');
-      routerAuthService.emailVerify.and.returnValue(throwError(() => mockError));
-      fixture.detectChanges();
-      spyOn(component, 'handleError');
-      component.ngOnInit();
-      expect(component.handleError).toHaveBeenCalledOnceWith(mockError);
-      const verifyHeader = getElementBySelector(fixture, '#verify--header');
-      const verifySubheader = getElementBySelector(fixture, '.verify--form-subheader');
-      expect(getTextContent(verifyHeader)).toContain('Verification Failed');
-      expect(getTextContent(verifySubheader)).toContain(
-        'Unable to verify your Fyle account. Please contact support by sending an email to support@fylehq.com'
-      );
     });
   });
 
@@ -107,7 +96,6 @@ describe('VerifyPage', () => {
       };
       component.handleError(error);
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'disabled']);
-      expect(component.currentPageState).not.toEqual(VerifyPageState.error);
     });
 
     it('should navigate to auth/pending_verification if status code is 440', () => {
@@ -121,15 +109,21 @@ describe('VerifyPage', () => {
         'pending_verification',
         { hasTokenExpired: true, orgId: 'orNVthTo2Zyo' },
       ]);
-      expect(component.currentPageState).not.toEqual(VerifyPageState.error);
     });
 
     it('should change the page status if error code is something else', () => {
       const error = {
         status: 404,
       };
+      const logoutSpy = spyOn(component, 'logout');
       component.handleError(error);
-      expect(component.currentPageState).toEqual(VerifyPageState.error);
+      expect(logoutSpy).toHaveBeenCalledTimes(1);
     });
+  });
+
+  it('logout(): should log out the user', () => {
+    component.logout();
+    expect(userEventService.logout).toHaveBeenCalledTimes(1);
+    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'sign_in']);
   });
 });

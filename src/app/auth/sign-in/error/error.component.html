@@ -1,11 +1,18 @@
 <div class="error-internal">
-  <div class="error-internal--header" id="sign-in--error-msg">
-    {{ header }}
+  <div class="error-internal__header" id="sign-in__error-msg">
+    <ion-icon
+      class="fy-icon-close error-internal__close-icon"
+      [src]="'/assets/svg/cross.svg'"
+      (click)="closePopover()"
+    ></ion-icon>
+    <div class="error-internal__header__header-text">
+      {{ header }}
+    </div>
   </div>
-  <div *ngIf="error" class="error-internal--details">
+  <div *ngIf="error" class="error-internal__details">
     <div *ngIf="error.status === 401 && (error.data || error.message)">
-      This email address will be temporarily locked after 5 unsuccessful login attempts. Try
-      <a class="error-internal--redirect" (click)="routeTo(['/', 'auth', 'reset_password'])">resetting</a> your
+      This email address will be temporarily locked after 5 unsuccessful login attempts. Would you like to try
+      <a class="error-internal__redirect" (click)="routeTo(['/', 'auth', 'reset_password'])">resetting</a> your
       password?
     </div>
 
@@ -31,7 +38,7 @@
       <div>Your organization has restricted Fyle access to its corporate network.</div>
     </div>
   </div>
-  <div class="error-internal--primary-cta">
-    <button mat-flat-button color="primary" (click)="tryAgainClicked()">TRY AGAIN</button>
+  <div class="error-internal__primary-cta">
+    <ion-button class="btn-primary" fill="clear" (click)="closePopover()">Try again</ion-button>
   </div>
 </div>

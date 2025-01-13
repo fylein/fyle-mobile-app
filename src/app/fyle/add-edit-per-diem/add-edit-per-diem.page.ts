@@ -111,6 +111,7 @@ import { PerDiemRedirectedFrom } from 'src/app/core/models/per-diem-redirected-f
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { AdvanceWallet } from 'src/app/core/models/platform/v1/advance-wallet.model';
 import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
+import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -163,6 +164,8 @@ export class AddEditPerDiemPage implements OnInit {
   individualProjectIds$: Observable<number[]>;
 
   isProjectsEnabled$: Observable<boolean>;
+
+  isProjectCategoryRestrictionsEnabled$: Observable<boolean>;
 
   isCostCentersEnabled$: Observable<boolean>;
 
@@ -285,6 +288,7 @@ export class AddEditPerDiemPage implements OnInit {
     private paymentModesService: PaymentModesService,
     private perDiemService: PerDiemService,
     private categoriesService: CategoriesService,
+    private costCentersService: CostCentersService,
     private orgUserSettingsService: OrgUserSettingsService,
     private orgSettingsService: OrgSettingsService,
     private platform: Platform,
@@ -632,7 +636,7 @@ export class AddEditPerDiemPage implements OnInit {
         const parentCategoryName = 'per diem';
         return categories.filter(
           (orgCategory) =>
-            parentCategoryName.toLowerCase() === orgCategory.name?.toLowerCase() &&
+            parentCategoryName.toLowerCase() === orgCategory.fyle_category?.toLowerCase() &&
             parentCategoryName.toLowerCase() !== orgCategory.sub_category?.toLowerCase()
         );
       }),
@@ -725,9 +729,13 @@ export class AddEditPerDiemPage implements OnInit {
       }),
       startWith(this.fg.controls.project.value),
       concatMap((project: ProjectV2) =>
-        this.subCategories$.pipe(
-          map((allActiveSubCategories: OrgCategory[]) =>
-            this.projectsService.getAllowedOrgCategoryIds(project, allActiveSubCategories)
+        combineLatest([this.subCategories$, this.isProjectCategoryRestrictionsEnabled$]).pipe(
+          map(([allActiveSubCategories, isProjectCategoryRestrictionsEnabled]) =>
+            this.projectsService.getAllowedOrgCategoryIds(
+              project,
+              allActiveSubCategories,
+              isProjectCategoryRestrictionsEnabled
+            )
           )
         )
       ),
@@ -951,7 +959,7 @@ export class AddEditPerDiemPage implements OnInit {
       sub_category: [],
       per_diem_rate: [, Validators.required],
       purpose: [],
-      num_days: [, Validators.compose([Validators.required, Validators.min(0)])],
+      num_days: [null, [Validators.required, Validators.min(0), Validators.pattern(/^\d+$/)]],
       report: [],
       from_dt: [],
       to_dt: [, this.customDateValidator.bind(this)],
@@ -999,8 +1007,15 @@ export class AddEditPerDiemPage implements OnInit {
       )
     );
 
+    this.isProjectCategoryRestrictionsEnabled$ = orgSettings$.pipe(
+      map(
+        (orgSettings) =>
+          orgSettings.advanced_projects.allowed && orgSettings.advanced_projects.enable_category_restriction
+      )
+    );
+
     this.individualPerDiemRatesEnabled$ = orgSettings$.pipe(
-      map((orgSettings) => orgSettings.per_diem.enable_individual_per_diem_rates)
+      map((orgSettings) => orgSettings.advanced_per_diems_settings?.enable_employee_restriction)
     );
 
     orgSettings$.subscribe((orgSettings) => {
@@ -1035,7 +1050,8 @@ export class AddEditPerDiemPage implements OnInit {
       .pipe(
         switchMap(({ orgSettings, allowedPerDiemRates }) =>
           iif(
-            () => allowedPerDiemRates.length > 0 || orgSettings.per_diem.enable_individual_per_diem_rates,
+            () =>
+              allowedPerDiemRates.length > 0 || orgSettings.advanced_per_diems_settings?.enable_employee_restriction,
             of(allowedPerDiemRates),
             perDiemRates$
           )
@@ -1062,7 +1078,7 @@ export class AddEditPerDiemPage implements OnInit {
       )
       .pipe(
         map(({ orgSettings, perDiemRates, allowedPerDiemRates }) => {
-          if (orgSettings.per_diem.enable_individual_per_diem_rates) {
+          if (orgSettings.advanced_per_diems_settings?.enable_employee_restriction) {
             if (allowedPerDiemRates.length > 0 && perDiemRates.length > 0) {
               return true;
             } else {
@@ -1126,13 +1142,10 @@ export class AddEditPerDiemPage implements OnInit {
 
     this.paymentModes$ = this.getPaymentModes();
 
-    this.costCenters$ = forkJoin({
-      orgSettings: orgSettings$,
-      orgUserSettings: orgUserSettings$,
-    }).pipe(
-      switchMap(({ orgSettings, orgUserSettings }) => {
+    this.costCenters$ = orgSettings$.pipe(
+      switchMap((orgSettings) => {
         if (orgSettings.cost_centers.enabled) {
-          return this.orgUserSettingsService.getAllowedCostCenters(orgUserSettings);
+          return this.costCentersService.getAllActive();
         } else {
           return of([]);
         }
@@ -1212,7 +1225,7 @@ export class AddEditPerDiemPage implements OnInit {
 
             if (expenseField.is_mandatory) {
               if (txnFieldKey === 'num_days') {
-                control.setValidators(Validators.compose([Validators.required, Validators.min(0)]));
+                control.setValidators([Validators.required, Validators.min(0), Validators.pattern(/^\d+$/)]);
               } else if (txnFieldKey === 'to_dt') {
                 control.setValidators(
                   isConnected
@@ -1234,7 +1247,7 @@ export class AddEditPerDiemPage implements OnInit {
               }
             } else {
               if (txnFieldKey === 'num_days') {
-                control.setValidators(Validators.compose([Validators.required, Validators.min(0)]));
+                control.setValidators([Validators.required, Validators.min(0), Validators.pattern(/^\d+$/)]);
               }
               if (txnFieldKey === 'to_dt') {
                 control.setValidators(isConnected ? (this.customDateValidator.bind(this) as ValidatorFn) : null);
@@ -1395,12 +1408,14 @@ export class AddEditPerDiemPage implements OnInit {
       perDiemCategoryIds: this.projectCategoryIds$,
       perDiemCategories: this.projectCategories$,
       eou: this.authService.getEou(),
+      isProjectCategoryRestrictionsEnabled: this.isProjectCategoryRestrictionsEnabled$,
     }).pipe(
-      switchMap(({ recentValues, perDiemCategoryIds, perDiemCategories, eou }) =>
+      switchMap(({ recentValues, perDiemCategoryIds, perDiemCategories, eou, isProjectCategoryRestrictionsEnabled }) =>
         this.recentlyUsedItemsService.getRecentlyUsedProjects({
           recentValues,
           eou,
           categoryIds: perDiemCategoryIds,
+          isProjectCategoryRestrictionsEnabled,
           activeCategoryList: perDiemCategories,
         })
       )
@@ -1682,6 +1697,9 @@ export class AddEditPerDiemPage implements OnInit {
         const isAdvanceWalletEnabled = res.orgSettings?.advances?.advance_wallets_enabled;
         let customProperties = res.customProperties;
         customProperties = customProperties.map((customProperty) => {
+          if (!customProperty.value) {
+            this.customFieldsService.setDefaultValue(customProperty, customProperty.type);
+          }
           if (customProperty.type === 'DATE') {
             customProperty.value =
               customProperty.value && this.dateService.getUTCDate(new Date(customProperty.value as string));
@@ -1955,20 +1973,19 @@ export class AddEditPerDiemPage implements OnInit {
               comments.push(comment);
             }
 
-            let reportId: string;
             const formValue = this.getFormValues();
+            const transaction = cloneDeep(etxn.tx);
             if (
               formValue.report &&
               (etxn.tx.policy_amount === null || (etxn.tx.policy_amount && !(etxn.tx.policy_amount < 0.0001)))
             ) {
-              reportId = formValue.report.id;
+              transaction.report_id = formValue.report.id;
             }
             return of(
               this.transactionsOutboxService.addEntryAndSync(
-                etxn.tx,
+                transaction,
                 etxn.dataUrls as { url: string; type: string }[],
-                comments,
-                reportId
+                comments
               )
             ).pipe(switchMap((txnData) => from(txnData)));
           })
@@ -2229,7 +2246,6 @@ export class AddEditPerDiemPage implements OnInit {
 
   savePerDiem(): void {
     const that = this;
-
     that
       .checkIfInvalidPaymentMode()
       .pipe(take(1))

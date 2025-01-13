@@ -1,7 +1,7 @@
 @import '../../../../theme/colors.scss';
 
 .loading-screen-container {
-  padding: 16px;
+  padding: 12px;
   border-bottom: 1px solid $grey-lighter;
 
   &--checkbox {
@@ -12,8 +12,8 @@
   }
 
   &--icon {
-    height: 74px;
-    width: 72px;
+    height: 72px;
+    width: 56px;
     border-radius: 8px;
   }
 

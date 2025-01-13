@@ -27,12 +27,13 @@ export class ProjectsService {
   @Cacheable()
   getByParamsUnformatted(
     projectParams: PlatformProjectArgs,
+    isProjectCategoryRestrictionsEnabled: boolean,
     activeCategoryList?: OrgCategory[]
   ): Observable<ProjectV2[]> {
     // eslint-disable-next-line prefer-const
     let { orgId, isEnabled, orgCategoryIds, searchNameText, limit, offset, sortOrder, sortDirection, projectIds } =
       projectParams;
-    sortOrder = sortOrder || 'project_updated_at';
+    sortOrder = sortOrder || 'updated_at';
     sortDirection = sortDirection || 'desc';
 
     const params: PlatformProjectParams = {
@@ -46,13 +47,13 @@ export class ProjectsService {
     this.addActiveFilter(isEnabled, params);
 
     // `orgCategoryIds` can be optional
-    this.addOrgCategoryIdsFilter(orgCategoryIds, params);
-
-    // `projectIds` can be optional
-    this.addProjectIdsFilter(projectIds, params);
+    this.addOrgCategoryIdsFilter(orgCategoryIds, params, isProjectCategoryRestrictionsEnabled);
 
     // `searchNameText` can be optional
     this.addNameSearchFilter(searchNameText, params);
+
+    // `projectIds` can be optional
+    this.addProjectIdsFilter(projectIds, params);
 
     return this.spenderPlatformV1ApiService
       .get<PlatformApiResponse<PlatformProject[]>>('/projects', {
@@ -82,8 +83,8 @@ export class ProjectsService {
   }
 
   addNameSearchFilter(searchNameText: string, params: PlatformProjectParams): void {
-    if (typeof searchNameText !== 'undefined' && searchNameText !== null) {
-      params.name = 'ilike.%' + searchNameText + '%';
+    if (typeof searchNameText !== 'undefined' && searchNameText) {
+      params.display_name = `ilike."%${searchNameText}%"`;
     }
   }
 
@@ -93,8 +94,12 @@ export class ProjectsService {
     }
   }
 
-  addOrgCategoryIdsFilter(orgCategoryIds: string[], params: PlatformProjectParams): void {
-    if (typeof orgCategoryIds !== 'undefined' && orgCategoryIds !== null) {
+  addOrgCategoryIdsFilter(
+    orgCategoryIds: string[],
+    params: PlatformProjectParams,
+    isProjectCategoryRestrictionsEnabled: boolean
+  ): void {
+    if (typeof orgCategoryIds !== 'undefined' && orgCategoryIds !== null && isProjectCategoryRestrictionsEnabled) {
       params.or = '(category_ids.is.null, ' + 'category_ids.ov.{' + orgCategoryIds.join(',') + '}' + ')';
     }
   }
@@ -105,9 +110,13 @@ export class ProjectsService {
     }
   }
 
-  getAllowedOrgCategoryIds(project: ProjectParams | ProjectV2, activeCategoryList: OrgCategory[]): OrgCategory[] {
+  getAllowedOrgCategoryIds(
+    project: ProjectParams | ProjectV2,
+    activeCategoryList: OrgCategory[],
+    isProjectCategoryRestrictionsEnabled: boolean
+  ): OrgCategory[] {
     let categoryList: OrgCategory[] = [];
-    if (project) {
+    if (project && isProjectCategoryRestrictionsEnabled) {
       categoryList = activeCategoryList.filter((category: OrgCategory) => {
         const catId = category.id;
         return project.project_org_category_ids.indexOf(catId as never) > -1;

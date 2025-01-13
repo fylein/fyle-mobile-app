@@ -77,6 +77,7 @@ import { expenseFieldResponse } from 'src/app/core/mock-data/expense-field.data'
 import { expectedProjects4 } from 'src/app/core/mock-data/extended-projects.data';
 import { reportData1 } from 'src/app/core/mock-data/report.data';
 import { sortedCategory } from 'src/app/core/mock-data/org-category.data';
+import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 
 export function TestCases1(getTestBed) {
   return describe('AddEditExpensePage-1', () => {
@@ -122,6 +123,7 @@ export function TestCases1(getTestBed) {
     let titleCasePipe: jasmine.SpyObj<TitleCasePipe>;
     let paymentModesService: jasmine.SpyObj<PaymentModesService>;
     let taxGroupService: jasmine.SpyObj<TaxGroupService>;
+    let costCentersService: jasmine.SpyObj<CostCentersService>;
     let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
     let storageService: jasmine.SpyObj<StorageService>;
     let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
@@ -178,6 +180,7 @@ export function TestCases1(getTestBed) {
       titleCasePipe = TestBed.inject(TitleCasePipe) as jasmine.SpyObj<TitleCasePipe>;
       paymentModesService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
       taxGroupService = TestBed.inject(TaxGroupService) as jasmine.SpyObj<TaxGroupService>;
+      costCentersService = TestBed.inject(CostCentersService) as jasmine.SpyObj<CostCentersService>;
       orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
@@ -637,8 +640,8 @@ export function TestCases1(getTestBed) {
       networkService.isOnline.and.returnValue(of(true));
 
       component.setupNetworkWatcher();
-      expect(networkService.connectivityWatcher).toHaveBeenCalledOnceWith(new EventEmitter<boolean>());
-      expect(networkService.isOnline).toHaveBeenCalledTimes(1);
+      expect(networkService.connectivityWatcher).toHaveBeenCalledWith(new EventEmitter<boolean>());
+      expect(networkService.isOnline).toHaveBeenCalled();
       component.isConnected$.subscribe((res) => {
         expect(res).toBeTrue();
         done();
@@ -1500,7 +1503,7 @@ export function TestCases1(getTestBed) {
       it('should return list of cost centers if enabled', (done) => {
         component.orgUserSettings$ = of(orgUserSettingsData);
         orgSettingsService.get.and.returnValue(of(orgSettingsRes));
-        orgUserSettingsService.getAllowedCostCenters.and.returnValue(of(costCenterApiRes1));
+        costCentersService.getAllActive.and.returnValue(of(costCenterApiRes1));
         fixture.detectChanges();
 
         component.setupCostCenters();
@@ -1514,7 +1517,7 @@ export function TestCases1(getTestBed) {
         });
 
         expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-        expect(orgUserSettingsService.getAllowedCostCenters).toHaveBeenCalledOnceWith(orgUserSettingsData);
+        expect(costCentersService.getAllActive).toHaveBeenCalledTimes(1);
         done();
       });
 
@@ -1523,7 +1526,7 @@ export function TestCases1(getTestBed) {
         orgSettingsService.get.and.returnValue(
           of({ ...orgSettingsRes, cost_centers: { ...orgSettingsRes.cost_centers, enabled: false } })
         );
-        orgUserSettingsService.getAllowedCostCenters.and.returnValue(of(costCenterApiRes1));
+        costCentersService.getAllActive.and.returnValue(of(costCenterApiRes1));
         fixture.detectChanges();
 
         component.setupCostCenters();

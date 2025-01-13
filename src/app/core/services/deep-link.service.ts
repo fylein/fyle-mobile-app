@@ -109,6 +109,19 @@ export class DeepLinkService {
           orgId,
           txnId,
         });
+      } else if (redirectUri.match('my_dashboard')) {
+        // https://staging1.fyle.tech/app/main/#/my_dashboard?org_id=oroX1Q9TTEOg&open_sms_dialog=true&referrer=transactional_email
+        const referrer = redirectUri.match(/referrer=(\w+)/)?.[1];
+        const orgId = redirectUri.match(/org_id=(\w+)/)?.[1];
+        const openSMSOptInDialog = redirectUri.includes('open_sms_dialog=true');
+        const properties = {
+          sub_module: 'my_dashboard',
+          openSMSOptInDialog,
+          orgId,
+          referrer,
+        };
+        this.trackingService.smsDeepLinkOpened(properties);
+        this.router.navigate(['/', 'deep_link_redirection', properties]);
       } else {
         this.router.navigate(['/', 'auth', 'switch_org', { choose: true }]);
       }

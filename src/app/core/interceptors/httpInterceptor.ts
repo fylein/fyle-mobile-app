@@ -9,7 +9,7 @@ import {
 } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
-import { BehaviorSubject, Observable, forkJoin, from, iif, of, throwError } from 'rxjs';
+import { BehaviorSubject, EMPTY, Observable, forkJoin, from, iif, of, throwError } from 'rxjs';
 import { catchError, concatMap, filter, mergeMap, take } from 'rxjs/operators';
 
 import { JwtHelperService } from '../services/jwt-helper.service';
@@ -67,12 +67,12 @@ export class HttpConfigInterceptor implements HttpInterceptor {
   refreshAccessToken(): Observable<string> {
     return from(this.tokenService.getRefreshToken()).pipe(
       concatMap((refreshToken) => this.routerAuthService.fetchAccessToken(refreshToken)),
-      catchError((error) => {
+      catchError(() => {
         this.userEventService.logout();
         this.secureStorageService.clearAll();
         this.storageService.clearAll();
         globalCacheBusterNotifier.next();
-        return throwError(error);
+        return EMPTY;
       }),
       concatMap((authResponse) => this.routerAuthService.newAccessToken(authResponse.access_token)),
       concatMap(() => from(this.tokenService.getAccessToken()))
@@ -88,7 +88,7 @@ export class HttpConfigInterceptor implements HttpInterceptor {
   getAccessToken(): Observable<string> {
     return from(this.tokenService.getAccessToken()).pipe(
       concatMap((accessToken) => {
-        if (this.expiringSoon(accessToken)) {
+        if (!accessToken || this.expiringSoon(accessToken)) {
           if (!this.accessTokenCallInProgress) {
             this.accessTokenCallInProgress = true;
             this.accessTokenSubject.next(null);

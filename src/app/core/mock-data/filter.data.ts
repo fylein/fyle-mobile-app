@@ -2,23 +2,9 @@ import deepFreeze from 'deep-freeze-strict';
 
 import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-option-type.enum';
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
+import { PersonalCardFilter } from '../models/personal-card-filters.model';
 
-type Filter = Partial<{
-  amount: number;
-  createdOn: Partial<{
-    name?: string;
-    customDateStart?: Date;
-    customDateEnd?: Date;
-  }>;
-  updatedOn: Partial<{
-    name?: string;
-    customDateStart?: Date;
-    customDateEnd?: Date;
-  }>;
-  transactionType: string;
-}>;
-
-export const filterData1: Filter = deepFreeze({
+export const filterData1: Partial<PersonalCardFilter> = deepFreeze({
   createdOn: {
     name: 'custom',
     customDateStart: new Date('2023-02-20T00:00:00.000Z'),

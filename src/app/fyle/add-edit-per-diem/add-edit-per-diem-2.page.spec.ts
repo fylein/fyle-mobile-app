@@ -96,6 +96,7 @@ import {
 } from 'src/app/core/mock-data/per-diem-form-value.data';
 import { platformExpenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { transformedExpenseData } from 'src/app/core/mock-data/transformed-expense.data';
+import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 
 export function TestCases2(getTestBed) {
   return describe('add-edit-per-diem test cases set 2', () => {
@@ -134,6 +135,7 @@ export function TestCases2(getTestBed) {
     let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
     let platform: Platform;
     let paymentModesService: jasmine.SpyObj<PaymentModesService>;
+    let costCentersService: jasmine.SpyObj<CostCentersService>;
     let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
     let storageService: jasmine.SpyObj<StorageService>;
     let perDiemService: jasmine.SpyObj<PerDiemService>;
@@ -177,6 +179,7 @@ export function TestCases2(getTestBed) {
       snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
       platform = TestBed.inject(Platform);
       paymentModesService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
+      costCentersService = TestBed.inject(CostCentersService) as jasmine.SpyObj<CostCentersService>;
       orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       perDiemService = TestBed.inject(PerDiemService) as jasmine.SpyObj<PerDiemService>;
@@ -237,6 +240,7 @@ export function TestCases2(getTestBed) {
 
     it('setupFilteredCategories(): should setup filteredCategories$', () => {
       component.subCategories$ = of(orgCategoryData1);
+      component.isProjectCategoryRestrictionsEnabled$ = of(true);
       component.fg.patchValue({
         sub_category: {
           id: 247980,
@@ -246,7 +250,7 @@ export function TestCases2(getTestBed) {
       projectsService.getAllowedOrgCategoryIds.and.returnValue([orgCategoryData]);
       spyOn(component.fg.controls.sub_category, 'reset');
       component.setupFilteredCategories();
-      expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledOnceWith(projects[0], orgCategoryData1);
+      expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledOnceWith(projects[0], orgCategoryData1, true);
       expect(component.fg.controls.sub_category.reset).toHaveBeenCalledTimes(1);
     });
 
@@ -533,7 +537,7 @@ export function TestCases2(getTestBed) {
         }));
         perDiemService.getAllowedPerDiems.and.returnValue(of(mockPerDiem));
         component.isConnected$ = of(true);
-        orgUserSettingsService.getAllowedCostCenters.and.returnValue(of(costCentersData));
+        costCentersService.getAllActive.and.returnValue(of(costCentersData));
         reportService.getAutoSubmissionReportName.and.returnValue(of('#1: Aug 2023'));
         accountsService.getAccountTypeFromPaymentMode.and.returnValue(AccountType.CCC);
         recentlyUsedItemsService.getRecentlyUsed.and.returnValue(of(recentlyUsedRes));
@@ -694,7 +698,7 @@ export function TestCases2(getTestBed) {
 
       it('should update canCreatePerDiem$ to true if enable_individual_per_diem_rates is enabled in orgSettings and allowedPerDiemRates and perDiemRates are not empty', (done) => {
         const mockOrgSettings = cloneDeep(orgSettingsRes);
-        mockOrgSettings.per_diem.enable_individual_per_diem_rates = true;
+        mockOrgSettings.advanced_per_diems_settings.enable_employee_restriction = true;
         orgSettingsService.get.and.returnValue(of(mockOrgSettings));
         component.ionViewWillEnter();
         component.canCreatePerDiem$
@@ -715,7 +719,7 @@ export function TestCases2(getTestBed) {
         perDiemService.getAllowedPerDiems.and.returnValue(of([]));
         perDiemService.getRates.and.returnValue(of([]));
         const mockOrgSettings = cloneDeep(orgSettingsRes);
-        mockOrgSettings.per_diem.enable_individual_per_diem_rates = true;
+        mockOrgSettings.advanced_per_diems_settings.enable_employee_restriction = true;
         orgSettingsService.get.and.returnValue(of(mockOrgSettings));
         component.ionViewWillEnter();
         component.canCreatePerDiem$
@@ -828,7 +832,7 @@ export function TestCases2(getTestBed) {
       it('should update the costCenters$, recentlyUsedCostCenters$ and reports$ correctly', (done) => {
         component.ionViewWillEnter();
         component.costCenters$.subscribe((res) => {
-          expect(orgUserSettingsService.getAllowedCostCenters).toHaveBeenCalledOnceWith(orgUserSettingsData);
+          expect(costCentersService.getAllActive).toHaveBeenCalledTimes(1);
           expect(res).toEqual(expectedCCdata3);
         });
 
@@ -857,7 +861,7 @@ export function TestCases2(getTestBed) {
         orgSettingsService.get.and.returnValue(of(mockOrgSettings));
         component.ionViewWillEnter();
         component.costCenters$.subscribe((res) => {
-          expect(orgUserSettingsService.getAllowedCostCenters).not.toHaveBeenCalled();
+          expect(costCentersService.getAllActive).not.toHaveBeenCalled();
           expect(res).toEqual([]);
         });
         done();
@@ -1000,7 +1004,7 @@ export function TestCases2(getTestBed) {
 
       it('should set costCenter if costCenter length is 1 and mode is add', fakeAsync(() => {
         component.getNewExpense = jasmine.createSpy().and.returnValue(of(unflattenedExpWoCostCenter));
-        orgUserSettingsService.getAllowedCostCenters.and.returnValue(of([costCentersData[0]]));
+        costCentersService.getAllActive.and.returnValue(of([costCentersData[0]]));
         activatedRoute.snapshot.params.id = undefined;
         component.ionViewWillEnter();
         tick(1000);

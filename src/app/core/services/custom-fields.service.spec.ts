@@ -47,19 +47,13 @@ describe('CustomFieldsService', () => {
       expect(result.value).toBeFalse();
     });
 
-    it('should set default value to empty string for select type', () => {
-      const mockTxnCustomProperties = cloneDeep(txnCustomPropertiesData3[1]);
-      const result = customFieldsService.setDefaultValue(mockTxnCustomProperties, 'SELECT');
-      expect(result.value).toBe('');
-    });
-
-    it('should set default value to empty string for multi select type', () => {
+    it('should set default value to empty array for multi select type', () => {
       const mockTxnCustomProperties = cloneDeep(txnCustomPropertiesData3[2]);
       const result = customFieldsService.setDefaultValue(mockTxnCustomProperties, 'MULTI_SELECT');
-      expect(result.value).toBe('');
+      expect(result.value).toEqual([]);
     });
 
-    it('should set default value to empty string for user select type', () => {
+    it('should set default value to empty array for user select type', () => {
       const mockTxnCustomProperties = cloneDeep(txnCustomPropertiesData[0]);
       const result = customFieldsService.setDefaultValue(mockTxnCustomProperties, 'USER_LIST');
       expect(result.value).toEqual([]);

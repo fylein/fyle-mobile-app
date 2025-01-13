@@ -4,7 +4,6 @@ import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
 import { IonicModule, ModalController } from '@ionic/angular';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { ReportService } from 'src/app/core/services/report.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -20,13 +19,11 @@ import { TestCases3 } from './team-reports-3.page.spec';
 import { TestCases4 } from './team-reports-4.page.spec';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 describe('TeamReportsPage', () => {
   const getTestBed = () => {
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
-    const reportServiceSpy = jasmine.createSpyObj('ReportService', ['getTeamReports', 'getTeamReportsCount', 'delete']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const dateServiceSpy = jasmine.createSpyObj('DateService', [
       'getThisMonthRange',
@@ -57,9 +54,6 @@ describe('TeamReportsPage', () => {
       'getReportsCount',
     ]);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
-    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', [
-      'checkIfManualFlaggingFeatureIsEnabled',
-    ]);
 
     TestBed.configureTestingModule({
       declarations: [TeamReportsPage, ReportState],
@@ -67,7 +61,6 @@ describe('TeamReportsPage', () => {
       providers: [
         { provide: NetworkService, useValue: networkServiceSpy },
         { provide: LoaderService, useValue: loaderServiceSpy },
-        { provide: ReportService, useValue: reportServiceSpy },
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: DateService, useValue: dateServiceSpy },
         { provide: Router, useValue: routerSpy },
@@ -80,7 +73,6 @@ describe('TeamReportsPage', () => {
         { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
         { provide: ApproverReportsService, useValue: approverReportsServiceSpy },
         { provide: AuthService, useValue: authServiceSpy },
-        { provide: LaunchDarklyService, useValue: launchDarklyServiceSpy },
         ReportState,
       ],
       schemas: [NO_ERRORS_SCHEMA],

@@ -21,16 +21,31 @@ import {
 } from 'src/app/core/mock-data/platform/v1/attach-receipt-payload.data';
 import { splitPayloadData1 } from 'src/app/core/mock-data/split-payload.data';
 import { splitPolicyExp1 } from 'src/app/core/mock-data/split-expense-policy.data';
-import { SplitExpenseMissingFieldsData } from 'src/app/core/models/split-expense-missing-fields.data';
+import { SplitExpenseMissingFieldsData } from 'src/app/core/mock-data/split-expense-missing-fields.data';
+import { CorporateCreditCardExpenseService } from '../../../corporate-credit-card-expense.service';
+import {
+  ccTransactionResponseData,
+  ccTransactionResponseData3,
+} from 'src/app/core/mock-data/corporate-card-transaction-response.data';
+import { cloneDeep } from 'lodash';
+import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
+import { Transaction } from 'src/app/core/models/v1/transaction.model';
+import { transformedExpensePayload, txnAmount1 } from 'src/app/core/mock-data/transaction.data';
+import { Expense } from 'src/app/core/models/platform/v1/expense.model';
+import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
 
 describe('ExpensesService', () => {
   let service: ExpensesService;
   let spenderService: jasmine.SpyObj<SpenderService>;
   let sharedExpenseService: jasmine.SpyObj<SharedExpenseService>;
+  let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
 
   beforeEach(() => {
     const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['get', 'post']);
     const sharedExpenseServiceSpy = jasmine.createSpyObj('SharedExpenseService', ['generateStatsQueryParams']);
+    const corporateCreditCardExpenseServiceSpy = jasmine.createSpyObj('CorporateCreditCardExpenseService', [
+      'getMatchedTransactionById',
+    ]);
 
     TestBed.configureTestingModule({
       providers: [
@@ -40,31 +55,71 @@ describe('ExpensesService', () => {
           provide: PAGINATION_SIZE,
           useValue: 2,
         },
+        {
+          provide: CorporateCreditCardExpenseService,
+          useValue: corporateCreditCardExpenseServiceSpy,
+        },
       ],
     });
     service = TestBed.inject(ExpensesService);
     spenderService = TestBed.inject(SpenderService) as jasmine.SpyObj<SpenderService>;
     sharedExpenseService = TestBed.inject(SharedExpenseService) as jasmine.SpyObj<SharedExpenseService>;
+    corporateCreditCardExpenseService = TestBed.inject(
+      CorporateCreditCardExpenseService
+    ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
   });
 
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
 
-  it('getExpenseById(): should return expense with the given id', (done) => {
-    spenderService.get.and.returnValue(of({ data: [expenseData] }));
-    const expenseId = 'txOJVaaPxo9O';
+  describe('getExpenseById():', () => {
+    it('should return expense with the given id', (done) => {
+      spenderService.get.and.returnValue(of({ data: [expenseData] }));
+      const expenseId = 'txOJVaaPxo9O';
 
-    service.getExpenseById(expenseId).subscribe((response) => {
-      expect(response).toBeTruthy();
-      expect(response).toEqual(expenseData);
+      service.getExpenseById(expenseId).subscribe((response) => {
+        expect(response).toBeTruthy();
+        expect(response).toEqual(expenseData);
 
-      expect(spenderService.get).toHaveBeenCalledOnceWith(`/expenses`, {
-        params: {
-          id: `eq.${expenseId}`,
-        },
+        expect(spenderService.get).toHaveBeenCalledOnceWith(`/expenses`, {
+          params: {
+            id: `eq.${expenseId}`,
+          },
+        });
+        done();
       });
-      done();
+    });
+
+    it('should return expense with the given id and fill matched_corporate_card_transactions by making API call', (done) => {
+      const mockExpenseData = cloneDeep(expenseData);
+      mockExpenseData.matched_corporate_card_transactions = [];
+      mockExpenseData.matched_corporate_card_transaction_ids = ['btxnBdS2Kpvzhy'];
+      spenderService.get.and.returnValue(of({ data: [mockExpenseData] }));
+
+      const mockCCTransactionRes = cloneDeep(ccTransactionResponseData);
+      mockCCTransactionRes.data[0].transaction_status = ExpenseTransactionStatus.PENDING;
+      corporateCreditCardExpenseService.getMatchedTransactionById.and.returnValue(of(mockCCTransactionRes));
+
+      const expenseId = 'txOJVaaPxo9O';
+
+      service.getExpenseById(expenseId).subscribe((response) => {
+        expect(response).toBeTruthy();
+
+        expect(spenderService.get).toHaveBeenCalledOnceWith(`/expenses`, {
+          params: {
+            id: `eq.${expenseId}`,
+          },
+        });
+
+        expect(corporateCreditCardExpenseService.getMatchedTransactionById).toHaveBeenCalledOnceWith('btxnBdS2Kpvzhy');
+
+        expect(response).toEqual(mockExpenseData);
+
+        expect(response.matched_corporate_card_transactions[0].status).toEqual(ExpenseTransactionStatus.PENDING);
+
+        done();
+      });
     });
   });
 
@@ -82,17 +137,61 @@ describe('ExpensesService', () => {
     });
   });
 
-  it('getExpenses(): should return the expenses', (done) => {
-    spenderService.get.and.returnValue(of(expensesResponse));
+  describe('getExpenses():', () => {
+    it('should return the expenses', (done) => {
+      spenderService.get.and.returnValue(of(expensesResponse));
 
-    service.getExpenses(getExpensesQueryParams).subscribe((response) => {
-      expect(response).toBeTruthy();
-      expect(response).toEqual(expensesResponse.data);
+      service.getExpenses(getExpensesQueryParams).subscribe((response) => {
+        expect(response).toBeTruthy();
+        expect(response).toEqual(expensesResponse.data);
 
-      expect(spenderService.get).toHaveBeenCalledOnceWith('/expenses', {
-        params: getExpensesQueryParams,
+        expect(spenderService.get).toHaveBeenCalledOnceWith('/expenses', {
+          params: getExpensesQueryParams,
+        });
+        done();
       });
-      done();
+    });
+
+    it('should return expenses with matched_corporate_card_transactions filled by calling API', (done) => {
+      const mockExpensesResponse = cloneDeep(expensesResponse);
+
+      const expenseWithUnmatchedCCTransactions = cloneDeep(expenseData);
+      expenseWithUnmatchedCCTransactions.matched_corporate_card_transactions = [];
+
+      const expenseWithUnmatchedCCTransactions2 = cloneDeep(expenseData);
+      expenseWithUnmatchedCCTransactions2.matched_corporate_card_transaction_ids = ['btxnBdS2Kpvzhy'];
+      expenseWithUnmatchedCCTransactions2.matched_corporate_card_transactions = [];
+
+      mockExpensesResponse.data = [
+        expenseWithUnmatchedCCTransactions,
+        expenseData,
+        expenseWithUnmatchedCCTransactions2,
+      ];
+
+      spenderService.get.and.returnValues(of(mockExpensesResponse), of(ccTransactionResponseData3));
+
+      service.getExpenses(getExpensesQueryParams).subscribe((response) => {
+        expect(response).toBeTruthy();
+        expect(response).toEqual(mockExpensesResponse.data);
+
+        expect(spenderService.get).toHaveBeenCalledTimes(2);
+
+        expect(spenderService.get).toHaveBeenCalledWith('/expenses', {
+          params: getExpensesQueryParams,
+        });
+
+        expect(spenderService.get).toHaveBeenCalledWith('/corporate_card_transactions', {
+          params: {
+            id: 'in.(btxn7DbV1VYnmT,btxnBdS2Kpvzhy)',
+          },
+        });
+
+        expect(response[0].matched_corporate_card_transactions[0].status).toEqual(ExpenseTransactionStatus.POSTED);
+        expect(response[1].matched_corporate_card_transactions[0].status).toEqual(ExpenseTransactionStatus.PENDING);
+        expect(response[2].matched_corporate_card_transactions[0].status).toEqual(ExpenseTransactionStatus.PENDING);
+
+        done();
+      });
     });
   });
 
@@ -295,6 +394,89 @@ describe('ExpensesService', () => {
     });
   });
 
+  describe('transformTo', () => {
+    let transaction: Partial<Transaction>;
+    let expensePayload: Partial<Expense>;
+
+    beforeEach(() => {
+      transaction = cloneDeep(txnAmount1);
+      expensePayload = {
+        ...transformedExpensePayload,
+      };
+    });
+
+    it('should transform a Transaction to Expense payload', () => {
+      const result = service.transformTo(txnAmount1);
+      expect(result).toEqual(expensePayload);
+    });
+
+    it('should include flight travel classes if category is flight or airlines', () => {
+      transaction.fyle_category = 'Airlines';
+      transaction.flight_journey_travel_class = 'Economy';
+      transaction.flight_return_travel_class = 'Business';
+      expensePayload.travel_classes = ['Economy', 'Business'];
+
+      const result = service.transformTo(transaction);
+      expect(result.travel_classes).toEqual(['Economy', 'Business']);
+    });
+
+    it('should only include flight_journey_travel_class when return class is not present', () => {
+      transaction.fyle_category = 'Airlines';
+      transaction.flight_journey_travel_class = 'Economy';
+      transaction.flight_return_travel_class = null;
+      expensePayload.travel_classes = ['Economy'];
+
+      const result = service.transformTo(transaction);
+      expect(result.travel_classes).toEqual(['Economy']);
+    });
+
+    it('should include bus travel class if category is bus', () => {
+      transaction.fyle_category = 'bus';
+      transaction.bus_travel_class = 'Luxury';
+      expensePayload.travel_classes = ['Luxury'];
+
+      const result = service.transformTo(transaction);
+      expect(result.travel_classes).toEqual(['Luxury']);
+    });
+
+    it('should include train travel class if category is train', () => {
+      transaction.fyle_category = 'train';
+      transaction.train_travel_class = 'First Class';
+      expensePayload.travel_classes = ['First Class'];
+
+      const result = service.transformTo(transaction);
+      expect(result.travel_classes).toEqual(['First Class']);
+    });
+
+    it('should not include any travel classes if category is not flight, bus, or train', () => {
+      transaction.fyle_category = 'taxi';
+      expensePayload.travel_classes = [];
+
+      const result = service.transformTo(transaction);
+      expect(result.travel_classes).toEqual([]);
+    });
+
+    it('should include multiple travel classes when both journey and return classes are present for flight', () => {
+      transaction.fyle_category = 'Airlines';
+      transaction.flight_journey_travel_class = 'Premium Economy';
+      transaction.flight_return_travel_class = 'Economy';
+      expensePayload.travel_classes = ['Premium Economy', 'Economy'];
+
+      const result = service.transformTo(transaction);
+      expect(result.travel_classes).toEqual(['Premium Economy', 'Economy']);
+    });
+
+    it('should not add travel class if travel class fields are undefined for flight', () => {
+      transaction.fyle_category = 'Airlines';
+      transaction.flight_journey_travel_class = undefined;
+      transaction.flight_return_travel_class = undefined;
+      expensePayload.travel_classes = [];
+
+      const result = service.transformTo(transaction);
+      expect(result.travel_classes).toEqual([]);
+    });
+  });
+
   it('post(): should post expenses', (done) => {
     spenderService.post.and.returnValue(of({}));
 
@@ -306,6 +488,25 @@ describe('ExpensesService', () => {
     service.post(expenseWithAdvanceWalletId).subscribe(() => {
       expect(spenderService.post).toHaveBeenCalledOnceWith('/expenses', {
         data: expenseWithAdvanceWalletId,
+      });
+      done();
+    });
+  });
+
+  it('createFromFile(): should post fileId, source to create expense', (done) => {
+    spenderService.post.and.returnValue(of({}));
+
+    const fileId = 'file123';
+    const source = 'email';
+
+    service.createFromFile(fileId, source).subscribe((response) => {
+      expect(spenderService.post).toHaveBeenCalledOnceWith('/expenses/create_from_file/bulk', {
+        data: [
+          {
+            file_id: fileId,
+            source,
+          },
+        ],
       });
       done();
     });

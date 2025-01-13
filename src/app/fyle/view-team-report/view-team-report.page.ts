@@ -14,21 +14,18 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
-import { RefinerService } from 'src/app/core/services/refiner.service';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { getCurrencySymbol } from '@angular/common';
 import * as dayjs from 'dayjs';
 import { StatusService } from 'src/app/core/services/status.service';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
-import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
+import { ExactCurrencyPipe } from 'src/app/shared/pipes/exact-currency.pipe';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { PdfExport } from 'src/app/core/models/pdf-exports.model';
 import { EditReportNamePopoverComponent } from '../my-view-report/edit-report-name-popover/edit-report-name-popover.component';
 import { ExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
-import { ShareReportComponent } from './share-report/share-report.component';
 import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
@@ -38,6 +35,8 @@ import { ExtendedComment } from 'src/app/core/models/platform/v1/extended-commen
 import { Comment } from 'src/app/core/models/platform/v1/comment.model';
 import { ApprovalState, ReportApprovals } from 'src/app/core/models/platform/report-approvals.model';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { RefinerService } from 'src/app/core/services/refiner.service';
+
 @Component({
   selector: 'app-view-team-report',
   templateUrl: './view-team-report.page.html',
@@ -52,15 +51,11 @@ export class ViewTeamReportPage {
 
   expenses$: Observable<Expense[]>;
 
-  sharedWith$: Observable<string[]>;
-
   refreshApprovals$ = new Subject();
 
   permissions$: Observable<ReportPermissions>;
 
   hideAllExpenses = true;
-
-  sharedWithLimit = 3;
 
   canEdit$: Observable<boolean>;
 
@@ -134,8 +129,6 @@ export class ViewTeamReportPage {
 
   approvals: ReportApprovals[];
 
-  isManualFlagFeatureEnabled$: Observable<{ value: boolean }>;
-
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
@@ -150,13 +143,13 @@ export class ViewTeamReportPage {
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService,
     private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService,
+    private launchDarklyService: LaunchDarklyService,
     private refinerService: RefinerService,
+    private snackbarProperties: SnackbarPropertiesService,
     private statusService: StatusService,
-    private humanizeCurrency: HumanizeCurrencyPipe,
+    private exactCurrency: ExactCurrencyPipe,
     private orgSettingsService: OrgSettingsService,
-    private approverReportsService: ApproverReportsService,
-    private launchDarklyService: LaunchDarklyService
+    private approverReportsService: ApproverReportsService
   ) {}
 
   ionViewWillLeave(): void {
@@ -265,8 +258,6 @@ export class ViewTeamReportPage {
     this.isExpensesLoading = true;
     this.setupNetworkWatcher();
 
-    this.isManualFlagFeatureEnabled$ = this.launchDarklyService.checkIfManualFlaggingFeatureIsEnabled();
-
     const navigateBack = this.activatedRoute.snapshot.params?.navigate_back as string | null;
     if (navigateBack && typeof navigateBack == 'string') {
       this.navigateBack = JSON.parse(navigateBack) as boolean;
@@ -315,15 +306,6 @@ export class ViewTeamReportPage {
       }
     });
 
-    this.sharedWith$ = this.reportService.getExports(this.activatedRoute.snapshot.params.id as string).pipe(
-      map((pdfExports: { results: PdfExport[] }) =>
-        pdfExports.results
-          .sort((a, b) => (a.created_at < b.created_at ? 1 : b.created_at < a.created_at ? -1 : 0))
-          .map((pdfExport) => pdfExport.sent_to)
-          .filter((item, index, inputArray) => inputArray.indexOf(item) === index)
-      )
-    );
-
     this.expenses$ = this.expensesService.getReportExpenses(this.activatedRoute.snapshot.params.id as string).pipe(
       shareReplay(1),
       finalize(() => (this.isExpensesLoading = false))
@@ -364,34 +346,6 @@ export class ViewTeamReportPage {
     this.canShowTooltip = !this.canShowTooltip;
   }
 
-  async deleteReport(): Promise<void> {
-    const popupResult = await this.popupService.showPopup({
-      header: 'Delete Report',
-      message: `
-        <p class="highlight-info">
-          On deleting this report, all the associated expenses will be moved to <strong>My Expenses</strong> list.
-        </p>
-        <p>
-          Are you sure, you want to delete this report?
-        </p>
-      `,
-      primaryCta: {
-        text: 'Delete Report',
-      },
-    });
-
-    if (popupResult === 'primary') {
-      from(this.loaderService.showLoader())
-        .pipe(
-          switchMap(() => this.reportService.delete(this.activatedRoute.snapshot.params.id as string)),
-          finalize(() => from(this.loaderService.hideLoader()))
-        )
-        .subscribe(() => {
-          this.router.navigate(['/', 'enterprise', 'team_reports']);
-        });
-    }
-  }
-
   async approveReport(): Promise<void> {
     if (!this.canApprove) {
       this.toggleTooltip();
@@ -399,15 +353,18 @@ export class ViewTeamReportPage {
       const report = await this.report$.pipe(take(1)).toPromise();
       const expenses = await this.expenses$.toPromise();
 
-      const rpAmount = this.humanizeCurrency.transform(report.amount, report.currency, false);
-      const flaggedExpensesCount = expenses.filter(
-        (expense) => expense.is_policy_flagged || expense.is_manually_flagged
-      ).length;
+      const rpAmount = this.exactCurrency.transform({
+        value: report.amount,
+        currencyCode: report.currency,
+        skipSymbol: false,
+      });
+      const flaggedExpensesCount = expenses.filter((expense) => expense.is_policy_flagged).length;
       const popover = await this.popoverController.create({
         componentProps: {
           flaggedExpensesCount,
           title: 'Approve Report',
           message: report.num_expenses + ' expenses of amount ' + rpAmount + ' will be approved',
+          leftAlign: true,
           primaryCta: {
             text: 'Approve',
             action: 'approve',
@@ -426,9 +383,13 @@ export class ViewTeamReportPage {
       const { data } = (await popover.onWillDismiss()) as { data: { action: string } };
 
       if (data && data.action === 'approve') {
-        this.reportService.approve(report.id).subscribe(() => {
-          this.refinerService.startSurvey({ actionName: 'Approve Report' });
+        this.approverReportsService.approve(report.id).subscribe(() => {
           this.router.navigate(['/', 'enterprise', 'team_reports']);
+          this.launchDarklyService.getVariation('nps_survey', false).subscribe((showNpsSurvey) => {
+            if (showNpsSurvey) {
+              this.refinerService.startSurvey({ actionName: 'Approve Report' });
+            }
+          });
         });
       }
     }
@@ -463,29 +424,6 @@ export class ViewTeamReportPage {
     ]);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async shareReport(event): Promise<void> {
-    const popover = await this.popoverController.create({
-      component: ShareReportComponent,
-      cssClass: 'dialog-popover',
-    });
-
-    await popover.present();
-
-    const { data } = (await popover.onWillDismiss()) as { data: { email: string } };
-
-    if (data.email) {
-      const params = {
-        report_ids: [this.activatedRoute.snapshot.params.id],
-        email: data.email,
-      };
-      this.reportService.downloadSummaryPdfUrl(params).subscribe(async () => {
-        const message = `We will send ${data.email} a link to download the PDF <br> when it is generated and send you a copy.`;
-        await this.loaderService.showLoader(message);
-      });
-    }
-  }
-
   async sendBack(): Promise<void> {
     const popover = await this.popoverController.create({
       component: FyPopoverComponent,
@@ -500,23 +438,16 @@ export class ViewTeamReportPage {
     const { data } = (await popover.onWillDismiss()) as { data: { comment: string } };
 
     if (data && data.comment) {
-      const status = {
-        comment: data.comment,
-      };
-      const statusPayload = {
-        status,
-        notify: false,
-      };
-
-      this.reportService.inquire(this.activatedRoute.snapshot.params.id as string, statusPayload).subscribe(() => {
-        const message = 'Report Sent Back successfully';
-        this.matSnackBar.openFromComponent(ToastMessageComponent, {
-          ...this.snackbarProperties.setSnackbarProperties('success', { message }),
-          panelClass: ['msb-success-with-camera-icon'],
+      this.approverReportsService
+        .sendBack(this.activatedRoute.snapshot.params.id as string, data.comment)
+        .subscribe(() => {
+          const message = 'Report Sent Back successfully';
+          this.matSnackBar.openFromComponent(ToastMessageComponent, {
+            ...this.snackbarProperties.setSnackbarProperties('success', { message }),
+            panelClass: ['msb-success-with-camera-icon'],
+          });
+          this.trackingService.showToastMessage({ ToastContent: message });
         });
-        this.trackingService.showToastMessage({ ToastContent: message });
-        this.refinerService.startSurvey({ actionName: 'Send Back Report' });
-      });
       this.router.navigate(['/', 'enterprise', 'team_reports']);
     }
   }

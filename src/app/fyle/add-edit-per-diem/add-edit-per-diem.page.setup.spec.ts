@@ -44,6 +44,7 @@ import { TestCases2 } from './add-edit-per-diem-2.page.spec';
 import { TestCases3 } from './add-edit-per-diem-3.page.spec';
 import { TestCases4 } from './add-edit-per-diem-4.page.spec';
 import { TestCases5 } from './add-edit-per-diem-5.page.spec';
+import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 
 describe('AddEditPerDiemPage', () => {
   const getTestBed = () => {
@@ -56,18 +57,16 @@ describe('AddEditPerDiemPage', () => {
     ]);
     const perDiemServiceSpy = jasmine.createSpyObj('PerDiemService', ['getRates', 'getAllowedPerDiems']);
     const customInputsServiceSpy = jasmine.createSpyObj('CustomInputsService', ['getAll', 'filterByCategory']);
-    const customFieldsServiceSpy = jasmine.createSpyObj('CustomFieldsService', ['standardizeCustomFields']);
+    const customFieldsServiceSpy = jasmine.createSpyObj('CustomFieldsService', [
+      'standardizeCustomFields',
+      'setDefaultValue',
+    ]);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', [
       'getHomeCurrency',
       'getAmountWithCurrencyFraction',
       'getExchangeRate',
     ]);
-    const reportServiceSpy = jasmine.createSpyObj('ReportService', [
-      'getAutoSubmissionReportName',
-      'getReportById',
-      'getFilteredPendingReports',
-      'addTransactions',
-    ]);
+    const reportServiceSpy = jasmine.createSpyObj('ReportService', ['getAutoSubmissionReportName']);
     const platformSpenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', [
       'getAllReportsByParams',
       'ejectExpenses',
@@ -137,6 +136,7 @@ describe('AddEditPerDiemPage', () => {
       'checkIfPaymentModeConfigurationsIsEnabled',
     ]);
     const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', ['getAll']);
+    const costCentersServiceSpy = jasmine.createSpyObj('CostCentersService', ['getAllActive']);
     const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', [
       'getAllowedPaymentModes',
       'get',
@@ -254,6 +254,10 @@ describe('AddEditPerDiemPage', () => {
         {
           provide: CategoriesService,
           useValue: categoriesServiceSpy,
+        },
+        {
+          provide: CostCentersService,
+          useValue: costCentersServiceSpy,
         },
         {
           provide: OrgUserSettingsService,

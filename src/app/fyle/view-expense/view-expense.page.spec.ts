@@ -42,7 +42,7 @@ import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
 import { ExpensesService as ApproverExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
 import { ExpensesService as SpenderExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { expenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
-import { Expense, TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
+import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { TransactionStatusInfoPopoverComponent } from 'src/app/shared/components/transaction-status-info-popover/transaction-status-info-popover.component';
@@ -57,7 +57,8 @@ import {
   expectedReportsSinglePageSubmitted,
   paidReportData,
 } from 'src/app/core/mock-data/platform-report.data';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
+import { CCExpenseMerchantInfoModalComponent } from 'src/app/shared/components/cc-expense-merchant-info-modal/cc-expense-merchant-info-modal.component';
 
 describe('ViewExpensePage', () => {
   let component: ViewExpensePage;
@@ -84,7 +85,6 @@ describe('ViewExpensePage', () => {
   let approverFileService: jasmine.SpyObj<ApproverFileService>;
   let activateRouteMock: ActivatedRoute;
   let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
-  let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
 
   beforeEach(waitForAsync(() => {
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['hideLoader', 'showLoader']);
@@ -131,9 +131,6 @@ describe('ViewExpensePage', () => {
     const approverReportsServiceSpy = jasmine.createSpyObj('ApproverReportsService', [
       'ejectExpenses',
       'getReportById',
-    ]);
-    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', [
-      'checkIfManualFlaggingFeatureIsEnabled',
     ]);
 
     const spenderFileServiceSpy = jasmine.createSpyObj('SpenderFileService', ['generateUrlsBulk']);
@@ -240,10 +237,6 @@ describe('ViewExpensePage', () => {
             },
           },
         },
-        {
-          provide: LaunchDarklyService,
-          useValue: launchDarklyServiceSpy,
-        },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
@@ -272,7 +265,6 @@ describe('ViewExpensePage', () => {
     approverFileService = TestBed.inject(ApproverFileService) as jasmine.SpyObj<ApproverFileService>;
     approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
     activateRouteMock = TestBed.inject(ActivatedRoute);
-    launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
 
     fixture.detectChanges();
   }));
@@ -518,15 +510,6 @@ describe('ViewExpensePage', () => {
         thumbnail: 'mock-thumbnail',
       });
       approverReportsService.getReportById.and.returnValue(of(expectedReportsSinglePage[0]));
-
-      launchDarklyService.checkIfManualFlaggingFeatureIsEnabled.and.returnValue(of({ value: true }));
-    });
-
-    it('should set isManualFlagFeatureEnabled$ from launchDarklyService ', () => {
-      component.ionViewWillEnter();
-      component.isManualFlagFeatureEnabled$.subscribe((res) => {
-        expect(res.value).toBeTrue();
-      });
     });
 
     it('should get all the system categories and get the correct value of report is by subscribing to expenseWithoutCustomProperties$', fakeAsync(() => {
@@ -556,8 +539,7 @@ describe('ViewExpensePage', () => {
         expect(customProperties).toEqual(filledCustomProperties);
         expect(customInputsService.fillCustomProperties).toHaveBeenCalledOnceWith(
           expenseData.category_id,
-          expenseData.custom_fields as Partial<CustomInput>[],
-          true
+          expenseData.custom_fields as Partial<CustomInput>[]
         );
         done();
       });
@@ -691,7 +673,7 @@ describe('ViewExpensePage', () => {
       expect(component.view).toEqual(activateRouteMock.snapshot.params.view);
     });
 
-    it('should get the flag status', (done) => {
+    it('should get the flag status', () => {
       const mockWithoutCustPropData: Expense = {
         ...expenseData,
         custom_fields: null,
@@ -702,11 +684,6 @@ describe('ViewExpensePage', () => {
       activateRouteMock.snapshot.params.view = ExpenseView.team;
       component.expense$ = of(expenseData);
       component.ionViewWillEnter();
-      component.canFlagOrUnflag$.subscribe((canFlagOrUnflag) => {
-        expect(mockWithoutCustPropData.state).toEqual(ExpenseState.APPROVED);
-        expect(canFlagOrUnflag).toBeTrue();
-        done();
-      });
     });
 
     it('should return false if there is only one transaction in the report and the state is PAID', () => {
@@ -1043,84 +1020,6 @@ describe('ViewExpensePage', () => {
     }));
   });
 
-  describe('flagUnflagExpense', () => {
-    it('should flag,unflagged expense', fakeAsync(() => {
-      activateRouteMock.snapshot.params = {
-        id: 'tx5fBcPBAxLv',
-      };
-
-      loaderService.showLoader.and.resolveTo();
-      loaderService.hideLoader.and.resolveTo();
-
-      const title = 'Flag';
-      const flagPopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onWillDismiss']);
-      popoverController.create.and.returnValue(flagPopoverSpy);
-      const data = { comment: 'This is a comment for flagging' };
-      flagPopoverSpy.onWillDismiss.and.resolveTo({ data });
-      statusService.post.and.returnValue(of(txnStatusData));
-      transactionService.manualFlag.and.returnValue(of(expenseData2));
-
-      component.flagUnflagExpense(false);
-      tick(500);
-
-      expect(popoverController.create).toHaveBeenCalledOnceWith({
-        component: FyPopoverComponent,
-        componentProps: {
-          title,
-          formLabel: 'Reason for flaging expense',
-        },
-        cssClass: 'fy-dialog-popover',
-      });
-
-      expect(flagPopoverSpy.present).toHaveBeenCalledTimes(1);
-      expect(flagPopoverSpy.onWillDismiss).toHaveBeenCalledTimes(1);
-      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Please wait');
-      expect(statusService.post).toHaveBeenCalledOnceWith('transactions', component.expenseId, data, true);
-      expect(transactionService.manualFlag).toHaveBeenCalledOnceWith(component.expenseId);
-      tick(500);
-      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-      expect(trackingService.expenseFlagUnflagClicked).toHaveBeenCalledOnceWith({ action: title });
-    }));
-
-    it('should unflag,flagged expense', fakeAsync(() => {
-      activateRouteMock.snapshot.params = {
-        id: 'tx5fBcPBAxLv',
-      };
-
-      loaderService.showLoader.and.resolveTo();
-      loaderService.hideLoader.and.resolveTo();
-
-      const title = 'Unflag';
-      const flagPopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onWillDismiss']);
-      popoverController.create.and.returnValue(flagPopoverSpy);
-      const data = { comment: 'This is a comment for flagging' };
-      flagPopoverSpy.onWillDismiss.and.resolveTo({ data });
-      statusService.post.and.returnValue(of(txnStatusData));
-      transactionService.manualUnflag.and.returnValue(of(expenseData1));
-
-      component.flagUnflagExpense(true);
-      tick(500);
-
-      expect(popoverController.create).toHaveBeenCalledOnceWith({
-        component: FyPopoverComponent,
-        componentProps: {
-          title,
-          formLabel: 'Reason for unflaging expense',
-        },
-        cssClass: 'fy-dialog-popover',
-      });
-
-      expect(flagPopoverSpy.present).toHaveBeenCalledTimes(1);
-      expect(flagPopoverSpy.onWillDismiss).toHaveBeenCalledTimes(1);
-      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Please wait');
-      expect(statusService.post).toHaveBeenCalledOnceWith('transactions', component.expenseId, data, true);
-      expect(transactionService.manualUnflag).toHaveBeenCalledOnceWith(component.expenseId);
-      tick(500);
-      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-      expect(trackingService.expenseFlagUnflagClicked).toHaveBeenCalledOnceWith({ action: title });
-    }));
-  });
-
   describe('viewAttachments', () => {
     it('should open modal with attachments', fakeAsync(() => {
       const attachments = [
@@ -1165,17 +1064,52 @@ describe('ViewExpensePage', () => {
     const popoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present']);
     popoverController.create.and.resolveTo(popoverSpy);
 
-    component.openTransactionStatusInfoModal(TransactionStatus.PENDING);
+    component.openTransactionStatusInfoModal(ExpenseTransactionStatus.PENDING);
 
     tick();
 
     expect(popoverController.create).toHaveBeenCalledOnceWith({
       component: TransactionStatusInfoPopoverComponent,
       componentProps: {
-        transactionStatus: TransactionStatus.PENDING,
+        transactionStatus: ExpenseTransactionStatus.PENDING,
       },
       cssClass: 'fy-dialog-popover',
     });
     expect(popoverSpy.present).toHaveBeenCalledTimes(1);
+  }));
+
+  it('openCCExpenseMerchantInfoModal(): should open the transaction status info modal', fakeAsync(() => {
+    const modalSpy = jasmine.createSpyObj('modal', ['present']);
+    modalController.create.and.resolveTo(modalSpy);
+
+    modalProperties.getModalDefaultProperties.and.returnValue({
+      cssClass: 'merchant-info',
+      showBackdrop: true,
+      canDismiss: true,
+      backdropDismiss: true,
+      animated: true,
+      initialBreakpoint: 1,
+      breakpoints: [0, 1],
+      handle: false,
+    });
+
+    component.openCCExpenseMerchantInfoModal();
+
+    tick();
+
+    expect(modalController.create).toHaveBeenCalledOnceWith({
+      component: CCExpenseMerchantInfoModalComponent,
+      cssClass: 'merchant-info',
+      showBackdrop: true,
+      canDismiss: true,
+      backdropDismiss: true,
+      animated: true,
+      initialBreakpoint: 1,
+      breakpoints: [0, 1],
+      handle: false,
+    });
+
+    expect(modalSpy.present).toHaveBeenCalledTimes(1);
+    expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
   }));
 });

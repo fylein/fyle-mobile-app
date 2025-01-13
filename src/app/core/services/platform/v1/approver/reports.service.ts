@@ -81,6 +81,22 @@ export class ApproverReportsService {
     return this.getReportsByParams(queryParams).pipe(map((res: PlatformApiResponse<Report[]>) => res.data[0]));
   }
 
+  sendBack(id: string, comment: string): Observable<void> {
+    return this.approverPlatformApiService.post('/reports/send_back', { data: { id, comment } });
+  }
+
+  addApprover(rptId: string, approverEmail: string, comment: string): Observable<Report> {
+    const data = {
+      id: rptId,
+      approver_email: approverEmail,
+      comment,
+    };
+
+    return this.approverPlatformApiService
+      .post<{ data: Report }>('/reports/add_approver', { data })
+      .pipe(map((res) => res.data));
+  }
+
   permissions(id: string): Observable<ReportPermissions> {
     return this.approverPlatformApiService
       .post<PlatformApiPayload<ReportPermissions>>('/reports/permissions', { data: { id } })
@@ -91,6 +107,14 @@ export class ApproverReportsService {
     return this.approverPlatformApiService
       .post<PlatformApiPayload<Comment>>('/reports/comments', { data: { id, comment } })
       .pipe(map((res) => res.data));
+  }
+
+  approve(rptId: string): Observable<Report> {
+    const data = {
+      id: rptId,
+    };
+
+    return this.approverPlatformApiService.post('/reports/partially_approve', { data });
   }
 
   ejectExpenses(rptId: string, expenseId: string, comment?: string[]): Observable<void> {

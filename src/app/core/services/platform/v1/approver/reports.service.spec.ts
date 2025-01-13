@@ -186,6 +186,39 @@ describe('ApproverReportsService', () => {
     });
   });
 
+  it('sendBack(): should send back a report', (done) => {
+    approverPlatformApiService.post.and.returnValue(of(null));
+
+    const reportID = 'rpvcIMRMyM3A';
+    const comment = 'testing';
+
+    approverReportsService.sendBack(reportID, comment).subscribe(() => {
+      expect(approverPlatformApiService.post).toHaveBeenCalledOnceWith(`/reports/send_back`, {
+        data: { id: reportID, comment },
+      });
+      done();
+    });
+  });
+
+  it('addApprover(): should add approver to a report', (done) => {
+    approverPlatformApiService.post.and.returnValue(of({ data: platformReportData }));
+
+    const reportID = 'rprj1zHHpW2W';
+    const approverEmail = 'asilk@akls.in';
+    const comment = 'comment';
+
+    approverReportsService.addApprover(reportID, approverEmail, comment).subscribe(() => {
+      expect(approverPlatformApiService.post).toHaveBeenCalledOnceWith(`/reports/add_approver`, {
+        data: {
+          id: reportID,
+          approver_email: approverEmail,
+          comment,
+        },
+      });
+      done();
+    });
+  });
+
   it('getReportById(): should get a report by id', () => {
     spyOn(approverReportsService, 'getReportsByParams').and.returnValue(of(allReportsPaginated1));
     const queryParams = {
@@ -194,6 +227,19 @@ describe('ApproverReportsService', () => {
     approverReportsService.getReportById('rpvcIMRMyM3A').subscribe((res) => {
       expect(res).toEqual(allReportsPaginated1.data[0]);
       expect(approverReportsService.getReportsByParams).toHaveBeenCalledOnceWith(queryParams);
+    });
+  });
+
+  it('approve(): should approve a report', (done) => {
+    approverPlatformApiService.post.and.returnValue(of(null));
+
+    const reportID = 'rpShFuVCUIXk';
+    const data = {
+      id: reportID,
+    };
+    approverReportsService.approve(reportID).subscribe(() => {
+      expect(approverPlatformApiService.post).toHaveBeenCalledOnceWith(`/reports/partially_approve`, { data });
+      done();
     });
   });
 

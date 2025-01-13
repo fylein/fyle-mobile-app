@@ -1,7 +1,7 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import * as Sentry from '@sentry/angular';
 import { Observable, from, forkJoin, concat, combineLatest } from 'rxjs';
-import { map, shareReplay } from 'rxjs/operators';
+import { shareReplay } from 'rxjs/operators';
 import { DeviceService } from 'src/app/core/services/device.service';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
@@ -106,9 +106,7 @@ export class SidemenuComponent implements OnInit {
     const primaryOrg$ = this.orgService.getPrimaryOrg().pipe(shareReplay(1));
     const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
     const orgUserSettings$ = this.orgUserSettingsService.get();
-    const delegatedAccounts$ = this.orgUserService
-      .findDelegatedAccounts()
-      .pipe(map((res) => this.orgUserService.excludeByStatus(res, 'DISABLED')));
+    const delegatedAccounts$ = this.orgUserService.findDelegatedAccounts();
     const deviceInfo$ = this.deviceService.getDeviceInfo().pipe(shareReplay(1));
     const isSwitchedToDelegator$ = from(this.orgUserService.isSwitchedToDelegator());
     const allowedActions$ = this.sidemenuService.getAllowedActions();
@@ -219,7 +217,7 @@ export class SidemenuComponent implements OnInit {
 
     const primaryOptions = [
       {
-        title: 'Dashboard',
+        title: 'Home',
         isVisible: true,
         icon: 'dashboard',
         route: ['/', 'enterprise', 'my_dashboard'],
@@ -298,7 +296,7 @@ export class SidemenuComponent implements OnInit {
   getPrimarySidemenuOptionsOffline(): Partial<SidemenuItem>[] {
     return [
       {
-        title: 'Dashboard',
+        title: 'Home',
         isVisible: true,
         icon: 'dashboard',
         route: ['/', 'enterprise', 'my_dashboard'],

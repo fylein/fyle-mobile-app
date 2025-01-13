@@ -47,14 +47,14 @@ describe('FyLoadingScreenComponent', () => {
       component.isSelectionModeEnabled = true;
       fixture.detectChanges();
       const ionColEl = getElementBySelector(fixture, '.loading-screen-container--content-block');
-      expect(getElementAttributeValue(ionColEl, 'size')).toBe('4.68');
+      expect(getElementAttributeValue(ionColEl, 'size')).toBe('6.0');
     });
 
     it('should set column size based on isSelectionModeEnabled input is false', () => {
       component.isSelectionModeEnabled = false;
       fixture.detectChanges();
       const ionColEl = getElementBySelector(fixture, '.loading-screen-container--content-block');
-      expect(getElementAttributeValue(ionColEl, 'size')).toBe('6');
+      expect(getElementAttributeValue(ionColEl, 'size')).toBe('7.0');
     });
   });
 });

@@ -14,6 +14,8 @@ import {
 } from '../test-data/custom-inputs.spec.data';
 import { CustomInputsService } from './custom-inputs.service';
 import { expensesWithDependentFields } from '../mock-data/dependent-field-expenses.data';
+import { CustomInput } from '../models/custom-input.model';
+import { mockExpenseData } from '../mock-data/expense-field.data';
 
 describe('CustomInputsService', () => {
   let customInputsService: CustomInputsService;
@@ -232,7 +234,7 @@ describe('CustomInputsService', () => {
       options: null,
     };
 
-    const expectedProperty = 'some,location';
+    const expectedProperty = '-';
 
     const result = customInputsService.getCustomPropertyDisplayValue(testProperty);
     expect(result).toEqual(expectedProperty);
@@ -281,9 +283,30 @@ describe('CustomInputsService', () => {
   it('should fill custom properties', (done) => {
     authService.getEou.and.resolveTo(authRespone);
     spenderPlatformV1ApiService.get.and.returnValue(of(platformApiResponse));
-    const result = customInputsService.fillCustomProperties(orgCatId, customProperties, false);
+    const result = customInputsService.fillCustomProperties(orgCatId, customProperties);
     result.subscribe((res) => {
       expect(res).toEqual(filledCustomProperties);
+      done();
+    });
+  });
+
+  it('should append "(Deleted)" to field name when custom input is disabled', (done) => {
+    const orgCategoryId = 147791;
+
+    const customProperties: CustomInput[] = [];
+
+    // Mock getAllinView method to return an observable with the mock data
+    spyOn(customInputsService, 'getAll').and.returnValue(of(mockExpenseData));
+
+    // Mock filterByCategory to return the mock object as the filtered result
+    spyOn(customInputsService, 'filterByCategory').and.callFake((inputs, id) => {
+      return inputs.filter((input) => input.org_category_ids.includes(id as number));
+    });
+
+    // Call fillCustomProperties and verify results
+    customInputsService.fillCustomProperties(orgCategoryId, customProperties).subscribe((result) => {
+      expect(result.length).toBe(1);
+      expect(result[0].name).toBe('testttt (Deleted)'); // Check for "(Deleted)"
       done();
     });
   });

@@ -16,35 +16,32 @@ import {
   readyToReportExpensesData,
   readyToReportExpensesData2,
 } from 'src/app/core/mock-data/platform/v1/expense.data';
-import { reportUnflattenedData } from 'src/app/core/mock-data/report-v1.data';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { RefinerService } from 'src/app/core/services/refiner.service';
-import { ReportService } from 'src/app/core/services/report.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
+import { ExactCurrencyPipe } from 'src/app/shared/pipes/exact-currency.pipe';
 import { StorageService } from '../../core/services/storage.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { MyCreateReportPage } from './my-create-report.page';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { orgSettingsPendingRestrictions } from 'src/app/core/mock-data/org-settings.data';
+import { orgSettingsPendingRestrictions, orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { expectedReportsSinglePage } from '../../core/mock-data/platform-report.data';
+import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
 
 describe('MyCreateReportPage', () => {
   let component: MyCreateReportPage;
   let fixture: ComponentFixture<MyCreateReportPage>;
   let transactionService: jasmine.SpyObj<TransactionService>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
-  let reportService: jasmine.SpyObj<ReportService>;
   let currencyService: jasmine.SpyObj<CurrencyService>;
   let loaderService: jasmine.SpyObj<LoaderService>;
   let router: jasmine.SpyObj<Router>;
   let trackingService: jasmine.SpyObj<TrackingService>;
   let storageService: jasmine.SpyObj<StorageService>;
-  let refinerService: jasmine.SpyObj<RefinerService>;
   let expensesService: jasmine.SpyObj<ExpensesService>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
@@ -52,27 +49,22 @@ describe('MyCreateReportPage', () => {
   beforeEach(waitForAsync(() => {
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['getAllExpenses']);
-    const reportServiceSpy = jasmine.createSpyObj('ReportService', [
-      'createDraft',
-      'addTransactions',
-      'create',
-      'getReportPurpose',
-    ]);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['createFirstReport', 'createReport']);
     const storageServiceSpy = jasmine.createSpyObj('StorageService', ['get', 'set']);
-    const refinerServiceSpy = jasmine.createSpyObj('RefinerService', ['startSurvey']);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getAllExpenses']);
     const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', [
       'addExpenses',
       'createDraft',
       'getReportsCount',
+      'suggestPurpose',
+      'create',
     ]);
 
     TestBed.configureTestingModule({
-      declarations: [MyCreateReportPage, HumanizeCurrencyPipe],
+      declarations: [MyCreateReportPage, HumanizeCurrencyPipe, ExactCurrencyPipe],
       imports: [IonicModule.forRoot(), RouterTestingModule, FormsModule, MatCheckboxModule],
       providers: [
         FyCurrencyPipe,
@@ -96,10 +88,6 @@ describe('MyCreateReportPage', () => {
           useValue: transactionServiceSpy,
         },
         {
-          provide: ReportService,
-          useValue: reportServiceSpy,
-        },
-        {
           provide: CurrencyService,
           useValue: currencyServiceSpy,
         },
@@ -120,10 +108,6 @@ describe('MyCreateReportPage', () => {
           useValue: storageServiceSpy,
         },
         {
-          provide: RefinerService,
-          useValue: refinerServiceSpy,
-        },
-        {
           provide: ExpensesService,
           useValue: expensesServiceSpy,
         },
@@ -139,13 +123,11 @@ describe('MyCreateReportPage', () => {
 
     activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
     transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
-    reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
-    refinerService = TestBed.inject(RefinerService) as jasmine.SpyObj<RefinerService>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
 
@@ -269,14 +251,14 @@ describe('MyCreateReportPage', () => {
     });
 
     it('should create report', () => {
-      reportService.create.and.returnValue(of(expectedReportsSinglePage[0]));
+      spenderReportsService.create.and.returnValue(of(expectedReportsSinglePage[0]));
       component.selectedElements = cloneDeep(readyToReportExpensesData);
       fixture.detectChanges();
 
       component.ctaClickedEvent('create_report');
 
       expect(component.sendFirstReportCreated).toHaveBeenCalledTimes(1);
-      expect(reportService.create).toHaveBeenCalledOnceWith(
+      expect(spenderReportsService.create).toHaveBeenCalledOnceWith(
         {
           purpose: component.reportTitle,
           source: 'MOBILE',
@@ -288,7 +270,6 @@ describe('MyCreateReportPage', () => {
         Report_Value: component.selectedTotalAmount,
       });
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_reports']);
-      expect(refinerService.startSurvey).toHaveBeenCalledOnceWith({ actionName: 'Submit Newly Created Report' });
     });
 
     it('show report name error if there is no name', fakeAsync(() => {
@@ -359,7 +340,7 @@ describe('MyCreateReportPage', () => {
   it('getReportTitle(): get report title', fakeAsync(() => {
     component.selectedElements = cloneDeep(readyToReportExpensesData);
     spyOn(component, 'getTotalSelectedExpensesAmount').and.returnValue(150);
-    reportService.getReportPurpose.and.returnValue(of('#Sept 24'));
+    spenderReportsService.suggestPurpose.and.returnValue(of('#Sept 24'));
     const el = getElementBySelector(fixture, "[data-testid='report-name']") as HTMLInputElement;
     el.value = 'New Report';
     el.dispatchEvent(new Event('input'));
@@ -373,9 +354,10 @@ describe('MyCreateReportPage', () => {
 
     component.getReportTitle();
 
-    expect(reportService.getReportPurpose).toHaveBeenCalledOnceWith({
-      ids: [readyToReportExpensesData[0].id, readyToReportExpensesData[1].id],
-    });
+    expect(spenderReportsService.suggestPurpose).toHaveBeenCalledOnceWith([
+      readyToReportExpensesData[0].id,
+      readyToReportExpensesData[1].id,
+    ]);
     expect(component.reportTitle).toEqual('#Sept 24');
     expect(component.getTotalSelectedExpensesAmount).toHaveBeenCalledOnceWith(component.selectedElements);
   }));
@@ -413,7 +395,6 @@ describe('MyCreateReportPage', () => {
   it('ionViewWillEnter(): should setup expenses', fakeAsync(() => {
     loaderService.showLoader.and.resolveTo();
     loaderService.hideLoader.and.resolveTo();
-    transactionService.getAllExpenses.and.returnValue(of(cloneDeep(selectedExpenses)));
     expensesService.getAllExpenses.and.returnValue(of(readyToReportExpensesData));
     orgSettingsService.get.and.returnValue(of(orgSettingsPendingRestrictions));
     spyOn(component, 'getReportTitle').and.returnValue(null);
@@ -430,7 +411,6 @@ describe('MyCreateReportPage', () => {
         state: 'in.(COMPLETE)',
         order: 'spent_at.desc',
         or: ['(policy_amount.is.null,policy_amount.gt.0.0001)'],
-        and: '(or(matched_corporate_card_transactions.eq.[],matched_corporate_card_transactions->0->status.neq.PENDING))',
       },
     });
     expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
@@ -438,6 +418,65 @@ describe('MyCreateReportPage', () => {
 
     expect(component.checkTxnIds).toHaveBeenCalledTimes(1);
   }));
+
+  describe('ionViewWillEnter():', () => {
+    beforeEach(() => {
+      loaderService.showLoader.and.resolveTo();
+      loaderService.hideLoader.and.resolveTo();
+      const mockSelectedExpense = cloneDeep(readyToReportExpensesData);
+      mockSelectedExpense[0].matched_corporate_card_transaction_ids = [];
+      mockSelectedExpense[1].matched_corporate_card_transactions[0].status = ExpenseTransactionStatus.PENDING;
+      expensesService.getAllExpenses.and.returnValue(of(mockSelectedExpense));
+      orgSettingsService.get.and.returnValue(of(orgSettingsPendingRestrictions));
+      spyOn(component, 'getReportTitle').and.returnValue(null);
+      spyOn(component, 'checkTxnIds');
+      component.selectedExpenseIDs = [mockSelectedExpense[0].id, mockSelectedExpense[1].id];
+      fixture.detectChanges();
+    });
+
+    it('ionViewWillEnter(): should setup expenses', fakeAsync(() => {
+      component.ionViewWillEnter();
+      tick(500);
+
+      expect(expensesService.getAllExpenses).toHaveBeenCalledOnceWith({
+        queryParams: {
+          report_id: 'is.null',
+          state: 'in.(COMPLETE)',
+          order: 'spent_at.desc',
+          or: ['(policy_amount.is.null,policy_amount.gt.0.0001)'],
+        },
+      });
+      expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+      expect(component.getReportTitle).toHaveBeenCalledTimes(1);
+
+      expect(component.checkTxnIds).toHaveBeenCalledTimes(1);
+      // Should filter out the pending expenses
+      expect(component.selectedElements.length).toEqual(1);
+    }));
+
+    it('ionViewWillEnter(): should not filter expense if pending restriction is disabled', fakeAsync(() => {
+      orgSettingsService.get.and.returnValue(of(orgSettingsRes));
+
+      component.ionViewWillEnter();
+      tick(500);
+
+      expect(expensesService.getAllExpenses).toHaveBeenCalledOnceWith({
+        queryParams: {
+          report_id: 'is.null',
+          state: 'in.(COMPLETE)',
+          order: 'spent_at.desc',
+          or: ['(policy_amount.is.null,policy_amount.gt.0.0001)'],
+        },
+      });
+      expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+      expect(component.getReportTitle).toHaveBeenCalledTimes(1);
+
+      expect(component.checkTxnIds).toHaveBeenCalledTimes(1);
+
+      // Should not filter out the pending expenses
+      expect(component.selectedElements.length).toEqual(2);
+    }));
+  });
 
   describe('getTotalSelectedExpensesAmount()', () => {
     it('should return total amount', () => {

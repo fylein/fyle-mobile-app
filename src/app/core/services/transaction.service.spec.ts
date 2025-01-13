@@ -15,7 +15,6 @@ import {
   expenseData3,
   expenseList3,
   expenseList4,
-  expenseDataWithDateString,
 } from '../mock-data/expense.data';
 import { UndoMergeData } from '../mock-data/undo-merge.data';
 import { AccountsService } from './accounts.service';
@@ -36,12 +35,18 @@ import { TransactionService } from './transaction.service';
 import { UserEventService } from './user-event.service';
 import { UtilityService } from './utility.service';
 import * as dayjs from 'dayjs';
-import { eouRes2 } from '../mock-data/extended-org-user.data';
-import { expenseV2Data, expenseV2DataMultiple } from '../mock-data/expense-v2.data';
 import * as lodash from 'lodash';
-import { txnData, txnData2, txnData4, txnDataPayload, txnList, upsertTxnParam } from '../mock-data/transaction.data';
-import { unflattenedTxnData, unflattenedTxnDataWithSubCategory } from '../mock-data/unflattened-txn.data';
-import { fileObjectData, fileObjectData1, fileObjectData2 } from '../mock-data/file-object.data';
+import {
+  transformedExpensePayload,
+  txnData,
+  txnData2,
+  txnData4,
+  txnDataCleaned,
+  txnDataPayload,
+  txnList,
+  upsertTxnParam,
+} from '../mock-data/transaction.data';
+import { fileObjectData1 } from '../mock-data/file-object.data';
 import { AccountType } from '../enums/account-type.enum';
 import { orgUserSettingsData, orgUserSettingsData2, orgUserSettingsData3 } from '../mock-data/org-user-settings.data';
 import { orgSettingsData } from '../test-data/org-settings.service.spec.data';
@@ -60,7 +65,6 @@ import { cloneDeep } from 'lodash';
 import { expensesCacheBuster$ } from '../cache-buster/expense-cache-buster';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { expenseData } from '../mock-data/platform/v1/expense.data';
-import { LaunchDarklyService } from './launch-darkly.service';
 
 describe('TransactionService', () => {
   let transactionService: TransactionService;
@@ -85,9 +89,7 @@ describe('TransactionService', () => {
   beforeEach(() => {
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['isOnline']);
     const storageServiceSpy = jasmine.createSpyObj('StorageService', ['get', 'set']);
-    const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post', 'delete']);
-    const apiV2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['get', 'getStats']);
     const dataTransformServiceSpy = jasmine.createSpyObj('DataTransformService', ['unflatten']);
     const dateServiceSpy = jasmine.createSpyObj('DateService', [
       'fixDates',
@@ -95,6 +97,7 @@ describe('TransactionService', () => {
       'getThisMonthRange',
       'getThisWeekRange',
       'getLastMonthRange',
+      'getUTCMidAfternoonDate',
     ]);
     const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
     const timezoneServiceSpy = jasmine.createSpyObj('TimezoneService', [
@@ -109,27 +112,14 @@ describe('TransactionService', () => {
     const paymentModesServiceSpy = jasmine.createSpyObj('PaymentModesService', ['getDefaultAccount']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const accountsServiceSpy = jasmine.createSpyObj('AccountsService', ['getEMyAccounts']);
-    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['attachReceiptsToExpense']);
-    const ldServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getImmediate']);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['transformTo', 'post', 'createFromFile']);
 
     TestBed.configureTestingModule({
       providers: [
         TransactionService,
         {
-          provide: LaunchDarklyService,
-          useValue: ldServiceSpy,
-        },
-        {
           provide: ApiService,
           useValue: apiServiceSpy,
-        },
-        {
-          provide: ApiV2Service,
-          useValue: apiV2ServiceSpy,
-        },
-        {
-          provide: AuthService,
-          useValue: authServiceSpy,
         },
         {
           provide: DataTransformService,
@@ -197,9 +187,7 @@ describe('TransactionService', () => {
     transactionService = TestBed.inject(TransactionService);
     networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
     storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
-    authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
-    apiV2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
     dataTransformService = TestBed.inject(DataTransformService) as jasmine.SpyObj<DataTransformService>;
     dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
     orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
@@ -225,28 +213,6 @@ describe('TransactionService', () => {
     transactionService.clearCache().subscribe((res) => {
       expect(notifierSpy).toHaveBeenCalledTimes(1);
       expect(res).toBeNull();
-      done();
-    });
-  });
-
-  it('manualFlag(): should manually flag a transaction', (done) => {
-    const transactionID = 'tx5fBcPBAxLv';
-    apiService.post.and.returnValue(of(expenseData2));
-
-    transactionService.manualFlag(transactionID).subscribe((res) => {
-      expect(res).toEqual(expenseData2);
-      expect(apiService.post).toHaveBeenCalledOnceWith('/transactions/' + transactionID + '/manual_flag');
-      done();
-    });
-  });
-
-  it('manualUnflag(): should manually unflag a transaction', (done) => {
-    const transactionID = 'tx5fBcPBAxLv';
-    apiService.post.and.returnValue(of(expenseData1));
-
-    transactionService.manualUnflag(transactionID).subscribe((res) => {
-      expect(res).toEqual(expenseData1);
-      expect(apiService.post).toHaveBeenCalledOnceWith('/transactions/' + transactionID + '/manual_unflag');
       done();
     });
   });
@@ -868,117 +834,6 @@ describe('TransactionService', () => {
     });
   });
 
-  it('getMyExpenses(): should return my expenses with order', (done) => {
-    authService.getEou.and.resolveTo(eouRes2);
-    apiV2Service.get.and.returnValue(of(expenseV2Data));
-    dateService.fixDatesV2.and.returnValue(expenseV2Data.data[0]);
-
-    const params = {
-      offset: 0,
-      limit: 1,
-      queryParams: {
-        or: [],
-        tx_report_id: 'is.null',
-        tx_state: 'in.(COMPLETE,DRAFT)',
-      },
-      order: 'tx_txn_dt.desc',
-    };
-
-    transactionService.getMyExpenses(params).subscribe((res) => {
-      expect(res).toEqual(expenseV2Data);
-      expect(apiV2Service.get).toHaveBeenCalledOnceWith('/expenses', {
-        params: {
-          offset: params.offset,
-          limit: params.limit,
-          order: `${params.order || 'tx_txn_dt.desc'},tx_created_at.desc,tx_id.desc`,
-          tx_org_user_id: 'eq.' + eouRes2.ou.id,
-          ...params.queryParams,
-        },
-      });
-      expect(authService.getEou).toHaveBeenCalledTimes(1);
-      expect(dateService.fixDatesV2).toHaveBeenCalledOnceWith(res.data[0]);
-      done();
-    });
-  });
-
-  it('getMyExpenses(): should return my expenses without order using default date order', (done) => {
-    authService.getEou.and.resolveTo(eouRes2);
-    apiV2Service.get.and.returnValue(of(expenseV2Data));
-    dateService.fixDatesV2.and.returnValue(expenseV2Data.data[0]);
-
-    const params2 = {
-      offset: 0,
-      limit: 1,
-      queryParams: {
-        or: [],
-        tx_report_id: 'is.null',
-        tx_state: 'in.(COMPLETE,DRAFT)',
-      },
-    };
-
-    transactionService.getMyExpenses(params2).subscribe((res) => {
-      expect(res).toEqual(expenseV2Data);
-      expect(apiV2Service.get).toHaveBeenCalledOnceWith('/expenses', {
-        params: {
-          offset: params2.offset,
-          limit: params2.limit,
-          // eslint-disable-next-line @typescript-eslint/dot-notation
-          order: `${params2['order'] || 'tx_txn_dt.desc'},tx_created_at.desc,tx_id.desc`,
-          tx_org_user_id: 'eq.' + eouRes2.ou.id,
-          ...params2.queryParams,
-        },
-      });
-      expect(authService.getEou).toHaveBeenCalledTimes(1);
-      expect(dateService.fixDatesV2).toHaveBeenCalledOnceWith(res.data[0]);
-      done();
-    });
-  });
-
-  it('getMyExpensesCount(): should return my expenses count', (done) => {
-    spyOn(transactionService, 'getMyExpenses').and.returnValue(of(expenseV2Data));
-
-    const params = {
-      tx_report_id: 'is.null',
-      tx_state: 'in.(COMPLETE,DRAFT)',
-    };
-
-    transactionService.getMyExpensesCount(params).subscribe((res) => {
-      expect(res).toEqual(expenseV2Data.count);
-      expect(transactionService.getMyExpenses).toHaveBeenCalledOnceWith({
-        offset: 0,
-        limit: 1,
-        queryParams: params,
-      });
-      done();
-    });
-  });
-
-  it('getAllExpenses(): should return all expenses', (done) => {
-    spyOn(transactionService, 'getMyExpensesCount').and.returnValue(of(2));
-    spyOn(transactionService, 'getMyExpenses').and.returnValue(of(expenseV2DataMultiple));
-
-    const params = {
-      queryParams: {
-        tx_report_id: 'is.null',
-        tx_state: 'in.(COMPLETE)',
-        order: 'tx_txn_dt.desc',
-        or: ['(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)'],
-      },
-    };
-
-    transactionService.getAllExpenses(params).subscribe((res) => {
-      expect(res).toEqual(expenseV2DataMultiple.data);
-      expect(transactionService.getMyExpensesCount).toHaveBeenCalledOnceWith(params.queryParams);
-      expect(transactionService.getMyExpenses).toHaveBeenCalledOnceWith({
-        offset: 0,
-        limit: 2,
-        queryParams: params.queryParams,
-        order: undefined,
-      });
-      done();
-    });
-  });
-
   it('unmatchCCCExpense(): should unmatch ccc expense', (done) => {
     spenderPlatformV1ApiService.post.and.returnValue(of(unmatchCCCExpenseResponseData));
 
@@ -1127,33 +982,6 @@ describe('TransactionService', () => {
     });
   });
 
-  it('review(): should return transaction response on review', (done) => {
-    apiService.post.and.returnValue(of(null));
-    const transactionId = 'tx3qHxFNgRcZ';
-
-    transactionService.review(transactionId).subscribe((res) => {
-      expect(res).toBeNull();
-      expect(apiService.post).toHaveBeenCalledOnceWith('/transactions/' + transactionId + '/review');
-      done();
-    });
-  });
-
-  it('uploadBase64(): should uploadBase64 and return file object response', (done) => {
-    const transactionID = 'txdzGV1TZEg3';
-    const fileName = '000.jpeg';
-    const base64Content = 'dummyBase64Value';
-    apiService.post.and.returnValue(of(fileObjectData));
-
-    transactionService.uploadBase64File(transactionID, fileName, base64Content).subscribe((res) => {
-      expect(res).toEqual(fileObjectData);
-      expect(apiService.post).toHaveBeenCalledOnceWith('/transactions/' + transactionID + '/upload_b64', {
-        content: base64Content,
-        name: fileName,
-      });
-      done();
-    });
-  });
-
   it('getTxnAccount(): should get the default txn account', (done) => {
     orgSettingsService.get.and.returnValue(of(orgSettingsData));
     accountsService.getEMyAccounts.and.returnValue(of(accountsData));
@@ -1268,18 +1096,36 @@ describe('TransactionService', () => {
     });
   });
 
-  it('createTxnWithFiles(): should create transaction with files', (done) => {
-    spyOn(transactionService, 'upsert').and.returnValue(of(txnData2));
-    expensesService.attachReceiptsToExpense.and.returnValue(of([expenseData]));
+  describe('createTxnWithFiles():', () => {
+    it('should create transaction with files', (done) => {
+      const mockFileObject = cloneDeep(fileObjectData1);
 
-    const mockFileObject = cloneDeep(fileObjectData1);
-    transactionService.createTxnWithFiles(txnData, of(mockFileObject)).subscribe((res) => {
-      expect(res).toEqual(txnData2);
-      expect(transactionService.upsert).toHaveBeenCalledOnceWith(txnData);
-      expect(expensesService.attachReceiptsToExpense).toHaveBeenCalledOnceWith(mockFileObject[0].transaction_id, [
-        mockFileObject[0].id,
-      ]);
-      done();
+      spyOn(transactionService, 'upsert').and.returnValue(of(txnData2));
+      expensesService.createFromFile.and.returnValue(of({ data: [expenseData] }));
+      transactionService.createTxnWithFiles({ ...txnData }, of(mockFileObject)).subscribe((res) => {
+        expect(res).toEqual(txnData2);
+        expect(expensesService.createFromFile).toHaveBeenCalledOnceWith(mockFileObject[0].id, 'MOBILE_DASHCAM_BULK');
+        expect(transactionService.upsert).toHaveBeenCalledOnceWith({
+          ...txnDataCleaned,
+          id: expenseData.id,
+        });
+        done();
+      });
+    });
+
+    it('should create transaction from file when txn contains only source', (done) => {
+      const mockFileObject = cloneDeep(fileObjectData1);
+      const txnWithSourceOnly = { source: 'MOBILE_DASHCAM' };
+
+      expensesService.createFromFile.and.returnValue(of({ data: [expenseData] }));
+      spyOn(transactionService, 'transformExpense').and.returnValue({ tx: txnData2 });
+
+      transactionService.createTxnWithFiles(txnWithSourceOnly, of(mockFileObject)).subscribe((res) => {
+        expect(expensesService.createFromFile).toHaveBeenCalledOnceWith(mockFileObject[0].id, 'MOBILE_DASHCAM');
+        expect(transactionService.transformExpense).toHaveBeenCalled();
+        expect(res).toEqual(txnData2);
+        done();
+      });
     });
   });
 
@@ -1290,17 +1136,20 @@ describe('TransactionService', () => {
     spyOn(transactionService, 'getTxnAccount').and.returnValue(of(txnAccountData));
     // @ts-ignore
     spyOn(transactionService, 'getPersonalAccount').and.returnValue(of(personalAccountData));
+    spyOn(transactionService, 'transformExpense').and.returnValue({ tx: txnData4 });
     timezoneService.convertAllDatesToProperLocale.and.returnValue(txnCustomPropertiesData2);
-    apiService.post.and.returnValue(of(txnData4));
     utilityService.discardRedundantCharacters.and.returnValue(txnDataPayload);
+    expensesService.transformTo.and.returnValue(transformedExpensePayload);
+    expensesService.post.and.returnValue(of({ data: expenseData }));
 
     const mockUpsertTxnParam = cloneDeep(upsertTxnParam);
     transactionService.upsert(mockUpsertTxnParam).subscribe((res) => {
       expect(res).toEqual(txnData4);
-      expect(apiService.post).toHaveBeenCalledOnceWith('/transactions', txnDataPayload);
+      expect(expensesService.transformTo).toHaveBeenCalledOnceWith(txnDataPayload);
+      expect(expensesService.post).toHaveBeenCalledOnceWith(transformedExpensePayload);
       expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
       expect(timezoneService.convertAllDatesToProperLocale).toHaveBeenCalledOnceWith(txnCustomPropertiesData6, offset);
-      expect(timezoneService.convertToUtc).toHaveBeenCalledTimes(3);
+      expect(timezoneService.convertToUtc).toHaveBeenCalledTimes(2);
       // @ts-ignore
       expect(transactionService.getTxnAccount).toHaveBeenCalledTimes(1);
       // @ts-ignore
@@ -1316,17 +1165,20 @@ describe('TransactionService', () => {
     spyOn(transactionService, 'getTxnAccount').and.returnValue(of(txnAccountData));
     // @ts-ignore
     spyOn(transactionService, 'getPersonalAccount').and.returnValue(of(personalAccountData));
+    spyOn(transactionService, 'transformExpense').and.returnValue({ tx: txnData4 });
     timezoneService.convertAllDatesToProperLocale.and.returnValue(txnCustomPropertiesData2);
-    apiService.post.and.returnValue(of(txnData4));
     utilityService.discardRedundantCharacters.and.returnValue(txnDataPayload);
+    expensesService.transformTo.and.returnValue(transformedExpensePayload);
+    expensesService.post.and.returnValue(of({ data: expenseData }));
 
     const mockUpsertTxnParam = cloneDeep(upsertTxnParam);
     transactionService.upsert(mockUpsertTxnParam).subscribe((res) => {
       expect(res).toEqual(txnData4);
-      expect(apiService.post).toHaveBeenCalledOnceWith('/transactions', txnDataPayload);
+      expect(expensesService.transformTo).toHaveBeenCalledOnceWith(txnDataPayload);
+      expect(expensesService.post).toHaveBeenCalledOnceWith(transformedExpensePayload);
       expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
       expect(timezoneService.convertAllDatesToProperLocale).toHaveBeenCalledOnceWith(txnCustomPropertiesData6, offset);
-      expect(timezoneService.convertToUtc).toHaveBeenCalledTimes(3);
+      expect(timezoneService.convertToUtc).toHaveBeenCalledTimes(2);
       // @ts-ignore
       expect(transactionService.getTxnAccount).toHaveBeenCalledTimes(1);
       // @ts-ignore

@@ -22,6 +22,7 @@ import { categorieListRes, recentUsedCategoriesRes } from 'src/app/core/mock-dat
 import {
   filteredCategoriesData,
   orgCategoryData,
+  orgCategoryData1,
   sortedCategory,
   transformedOrgCategories,
 } from 'src/app/core/mock-data/org-category.data';
@@ -31,6 +32,7 @@ import {
   taxSettingsData,
   taxSettingsData2,
   orgSettingsParamsWithAdvanceWallet,
+  orgSettingsWithProjectCategoryRestrictions,
 } from 'src/app/core/mock-data/org-settings.data';
 import {
   orgUserSettingsData,
@@ -60,6 +62,7 @@ import {
   unflattenedExpWoProject,
   unflattenedExpenseWithCCCGroupId2,
   unflattenedTxnData,
+  unflattenedTxnWithCategory,
 } from 'src/app/core/mock-data/unflattened-txn.data';
 import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
 import { AccountsService } from 'src/app/core/services/accounts.service';
@@ -466,6 +469,8 @@ export function TestCases5(getTestBed) {
     });
 
     describe('setupFilteredCategories():', () => {
+      beforeEach(() => (component.isProjectCategoryRestrictionsEnabled$ = of(true)));
+
       it('should get filtered categories for a project', fakeAsync(() => {
         component.etxn$ = of(unflattenedTxnData);
         component.activeCategories$ = of(sortedCategory);
@@ -481,7 +486,11 @@ export function TestCases5(getTestBed) {
 
         expect(component.fg.controls.billable.value).toBeFalse();
         expect(projectsService.getbyId).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.project_id, sortedCategory);
-        expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledWith(apiV2ResponseMultiple[1], sortedCategory);
+        expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledWith(
+          apiV2ResponseMultiple[1],
+          sortedCategory,
+          true
+        );
       }));
 
       it('should get updated filtered categories for changing an existing project', fakeAsync(() => {
@@ -500,7 +509,11 @@ export function TestCases5(getTestBed) {
 
         expect(projectsService.getbyId).toHaveBeenCalledOnceWith(257528, sortedCategory);
         expect(component.fg.controls.billable.value).toBeFalse();
-        expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledWith(apiV2ResponseMultiple[1], sortedCategory);
+        expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledWith(
+          apiV2ResponseMultiple[1],
+          sortedCategory,
+          true
+        );
       }));
 
       it('should return null the expense does not have project id', fakeAsync(() => {
@@ -516,7 +529,55 @@ export function TestCases5(getTestBed) {
         tick(500);
 
         expect(component.fg.controls.billable.value).toBeFalse();
-        expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledWith(null, sortedCategory);
+        expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledWith(null, sortedCategory, true);
+      }));
+
+      it('should filter recentCategories based on project_org_category_ids when restrictions are enabled', fakeAsync(() => {
+        component.isProjectCategoryRestrictionsEnabled$ = of(true);
+        component.etxn$ = of(unflattenedTxnData);
+        component.activeCategories$ = of(sortedCategory);
+        component.recentCategoriesOriginal = recentUsedCategoriesRes;
+        projectsService.getbyId.and.returnValue(of(apiV2ResponseMultiple[0]));
+        projectsService.getAllowedOrgCategoryIds.and.returnValue(transformedOrgCategories);
+
+        const projectWithRestrictions = {
+          project_org_category_ids: [89469, 16576],
+        };
+
+        const expectedRecentCategories = recentUsedCategoriesRes.filter((category) =>
+          projectWithRestrictions.project_org_category_ids.includes(category.value.id)
+        );
+
+        component.setupFilteredCategories();
+        tick(500);
+
+        component.fg.controls.project.setValue(projectWithRestrictions);
+        fixture.detectChanges();
+        tick(500);
+
+        expect(component.recentCategories).toEqual(expectedRecentCategories);
+      }));
+
+      it('should set recentCategories to undefined if recentCategoriesOriginal is not present when restrictions are enabled', fakeAsync(() => {
+        component.isProjectCategoryRestrictionsEnabled$ = of(true);
+        component.etxn$ = of(unflattenedTxnData);
+        component.activeCategories$ = of(sortedCategory);
+        component.recentCategoriesOriginal = null;
+        projectsService.getbyId.and.returnValue(of(apiV2ResponseMultiple[0]));
+        projectsService.getAllowedOrgCategoryIds.and.returnValue(transformedOrgCategories);
+
+        const projectWithRestrictions = {
+          project_org_category_ids: [89469, 16576],
+        };
+
+        component.setupFilteredCategories();
+        tick(500);
+
+        component.fg.controls.project.setValue(projectWithRestrictions);
+        fixture.detectChanges();
+        tick(500);
+
+        expect(component.recentCategories).toBeUndefined();
       }));
     });
 
@@ -754,8 +815,9 @@ export function TestCases5(getTestBed) {
     it('getRecentProjects(): should get recent projects', (done) => {
       component.activeCategories$ = of(sortedCategory);
       component.recentlyUsedValues$ = of(recentlyUsedRes);
+      component.isProjectCategoryRestrictionsEnabled$ = of(true);
+      component.etxn$ = of(unflattenedTxnWithCategory);
       authService.getEou.and.resolveTo(apiEouRes);
-      component.fg.controls.category.setValue(orgCategoryData);
       recentlyUsedItemsService.getRecentlyUsedProjects.and.returnValue(of(recentlyUsedProjectRes));
       fixture.detectChanges();
 
@@ -765,7 +827,8 @@ export function TestCases5(getTestBed) {
         expect(recentlyUsedItemsService.getRecentlyUsedProjects).toHaveBeenCalledOnceWith({
           recentValues: recentlyUsedRes,
           eou: apiEouRes,
-          categoryIds: component.fg.controls.category.value && component.fg.controls.category.value.id,
+          categoryIds: [`${unflattenedTxnWithCategory.tx.org_category_id}`],
+          isProjectCategoryRestrictionsEnabled: true,
           activeCategoryList: sortedCategory,
         });
         done();
@@ -1085,7 +1148,7 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'getSelectedCostCenters').and.returnValue(of(costCentersData[0]));
         spyOn(component, 'getReceiptCount').and.returnValue(of(1));
         currencyService.getHomeCurrency.and.returnValue(of('USD'));
-        orgSettingsService.get.and.returnValue(of(orgSettingsData));
+        orgSettingsService.get.and.returnValue(of(orgSettingsWithProjectCategoryRestrictions));
         customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
         loaderService.hideLoader.and.resolveTo();
         loaderService.showLoader.and.resolveTo();
@@ -1402,6 +1465,10 @@ export function TestCases5(getTestBed) {
     });
 
     describe('ionViewWillEnter():', () => {
+      beforeEach(() => {
+        categoriesService.getAll.and.returnValue(of(orgCategoryData1));
+      });
+
       it('should setup class variables', (done) => {
         component.isConnected$ = of(true);
         component.txnFields$ = of(txnFieldsData2);
@@ -1431,7 +1498,6 @@ export function TestCases5(getTestBed) {
         storageService.get.and.resolveTo(true);
         spyOn(component, 'setupBalanceFlag');
         statusService.find.and.returnValue(of(getEstatusApiResponse));
-        spyOn(component, 'getActiveCategories').and.returnValue(of(sortedCategory));
         spyOn(component, 'getNewExpenseObservable').and.returnValue(of(expectedExpenseObservable));
         spyOn(component, 'getEditExpenseObservable').and.returnValue(of(expectedUnflattendedTxnData1));
         fileService.getReceiptsDetails.and.returnValue({
@@ -1643,7 +1709,6 @@ export function TestCases5(getTestBed) {
         storageService.get.and.resolveTo(true);
         spyOn(component, 'setupBalanceFlag');
         statusService.find.and.returnValue(of(getEstatusApiResponse));
-        spyOn(component, 'getActiveCategories').and.returnValue(of(sortedCategory));
         spyOn(component, 'getNewExpenseObservable').and.returnValue(of(expectedExpenseObservable));
         spyOn(component, 'getEditExpenseObservable').and.returnValue(of(expectedUnflattendedTxnData1));
         fileService.findByTransactionId.and.returnValue(of(expectedFileData1));
@@ -1720,7 +1785,6 @@ export function TestCases5(getTestBed) {
         storageService.get.and.resolveTo(true);
         spyOn(component, 'setupBalanceFlag');
         statusService.find.and.returnValue(of(getEstatusApiResponse));
-        spyOn(component, 'getActiveCategories').and.returnValue(of(sortedCategory));
         spyOn(component, 'getNewExpenseObservable').and.returnValue(of(expectedExpenseObservable));
         spyOn(component, 'getEditExpenseObservable').and.returnValue(of(expectedUnflattendedTxnData1));
         expensesService.getSplitExpenses.and.returnValue(of(splitExpensesData));

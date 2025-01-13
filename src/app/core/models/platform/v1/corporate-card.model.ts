@@ -5,4 +5,5 @@ export interface CorporateCard {
   masked_number: string;
   user_full_name: string;
   user_email: string;
+  nickname?: string;
 }

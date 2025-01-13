@@ -5,6 +5,7 @@ import { DEVICE_PLATFORM } from 'src/app/constants';
 import { CameraState } from 'src/app/core/enums/camera-state.enum';
 import { CameraPreviewService } from 'src/app/core/services/camera-preview.service';
 import { CameraService } from 'src/app/core/services/camera.service';
+import * as Sentry from '@sentry/angular';
 
 @Component({
   selector: 'app-camera-preview',
@@ -54,11 +55,11 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
     private cameraPreviewService: CameraPreviewService
   ) {}
 
-  get CameraState() {
+  get CameraState(): typeof CameraState {
     return CameraState;
   }
 
-  setUpAndStartCamera() {
+  setUpAndStartCamera(): void {
     this.isIos = this.devicePlatform === 'ios';
     if (this.devicePlatform === 'web') {
       this.startCameraPreview();
@@ -79,8 +80,9 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
     }
   }
 
-  startCameraPreview() {
+  startCameraPreview(): void {
     if (![CameraState.STARTING, CameraState.RUNNING].includes(this.cameraState)) {
+      const currentCameraState = this.cameraState;
       this.cameraState = CameraState.STARTING;
       const cameraPreviewOptions: CameraPreviewOptions = {
         position: 'rear',
@@ -91,22 +93,37 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
         disableAudio: true,
       };
 
-      from(this.cameraPreviewService.start(cameraPreviewOptions)).subscribe((_) => {
-        this.cameraState = CameraState.RUNNING;
-        this.getFlashModes();
+      from(this.cameraPreviewService.start(cameraPreviewOptions)).subscribe({
+        next: () => {
+          this.cameraState = CameraState.RUNNING;
+          this.getFlashModes();
+        },
+        error: (error) => {
+          Sentry.captureException(error, {
+            extra: {
+              errorResponse: error,
+              currentCameraState,
+              cameraState: this.cameraState,
+              navigationState: window.location.href,
+              options: cameraPreviewOptions,
+              platform: this.devicePlatform,
+              timestamp: new Date().toISOString(),
+            },
+          });
+        },
       });
     }
   }
 
-  stopCamera() {
+  stopCamera(): void {
     //Stop camera only if it is in RUNNING state
     if (this.cameraState === CameraState.RUNNING) {
       this.cameraState = CameraState.STOPPING;
-      from(this.cameraPreviewService.stop()).subscribe((_) => (this.cameraState = CameraState.STOPPED));
+      from(this.cameraPreviewService.stop()).subscribe(() => (this.cameraState = CameraState.STOPPED));
     }
   }
 
-  getFlashModes() {
+  getFlashModes(): void {
     if (this.devicePlatform !== 'web') {
       from(this.cameraPreviewService.getSupportedFlashModes()).subscribe((flashModes) => {
         const requiredFlashModesPresent = flashModes.result?.includes('on') && flashModes.result?.includes('off');
@@ -118,7 +135,7 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
     }
   }
 
-  onToggleFlashMode() {
+  onToggleFlashMode(): void {
     if (this.devicePlatform !== 'web') {
       let nextActiveFlashMode: 'on' | 'off' = 'on';
       if (this.flashMode === 'on') {
@@ -131,37 +148,37 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
     }
   }
 
-  onGalleryUpload() {
+  onGalleryUpload(): void {
     this.stopCamera();
     this.galleryUpload.emit();
   }
 
-  onSwitchMode() {
+  onSwitchMode(): void {
     this.switchMode.emit();
   }
 
-  openReceiptPreview() {
+  openReceiptPreview(): void {
     this.stopCamera();
     this.receiptPreview.emit();
   }
 
-  onDismissCameraPreview() {
+  onDismissCameraPreview(): void {
     this.stopCamera();
     this.dismissCameraPreview.emit();
   }
 
-  onCaptureReceipt() {
+  onCaptureReceipt(): void {
     if (this.cameraState === CameraState.RUNNING) {
       this.captureReceipt.emit();
     }
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     //Component is initialized with camera in STOPPED state
     this.cameraState = CameraState.STOPPED;
   }
 
-  ngOnChanges(changes: SimpleChanges) {
+  ngOnChanges(changes: SimpleChanges): void {
     if (changes.isBulkMode?.previousValue !== undefined) {
       this.showModeChangedMessage = true;
       setTimeout(() => {

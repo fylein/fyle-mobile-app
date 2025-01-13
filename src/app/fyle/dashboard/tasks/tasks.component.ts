@@ -1,8 +1,8 @@
-import { Component, EventEmitter, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ModalController, RefresherEventDetail } from '@ionic/angular';
+import { ModalController, PopoverController, RefresherEventDetail } from '@ionic/angular';
 import { Observable, BehaviorSubject, forkJoin, from, of, concat, combineLatest } from 'rxjs';
 import { finalize, map, shareReplay, switchMap } from 'rxjs/operators';
 import { TaskCta } from 'src/app/core/models/task-cta.model';
@@ -35,6 +35,12 @@ import { ApproverReportsService } from 'src/app/core/services/platform/v1/approv
 import { Report, ReportState } from 'src/app/core/models/platform/v1/report.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { OrgService } from 'src/app/core/services/org.service';
+import { FyOptInComponent } from 'src/app/shared/components/fy-opt-in/fy-opt-in.component';
+import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
+import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
+import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { AddCorporateCardComponent } from '../../manage-corporate-cards/add-corporate-card/add-corporate-card.component';
+import { CardAddedComponent } from '../../manage-corporate-cards/card-added/card-added.component';
 
 @Component({
   selector: 'app-tasks',
@@ -42,6 +48,8 @@ import { OrgService } from 'src/app/core/services/org.service';
   styleUrls: ['./tasks.component.scss'],
 })
 export class TasksComponent implements OnInit {
+  @Output() optedIn = new EventEmitter<void>();
+
   tasks$: Observable<DashboardTask[]>;
 
   loadData$: BehaviorSubject<TaskFilters> = new BehaviorSubject({
@@ -64,6 +72,12 @@ export class TasksComponent implements OnInit {
 
   autoSubmissionReportDate$: Observable<Date>;
 
+  isVisaRTFEnabled$: Observable<boolean>;
+
+  isMastercardRTFEnabled$: Observable<boolean>;
+
+  isYodleeEnabled$: Observable<boolean>;
+
   constructor(
     private taskService: TasksService,
     private transactionService: TransactionService,
@@ -82,8 +96,11 @@ export class TasksComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private networkService: NetworkService,
     private orgSettingsService: OrgSettingsService,
+    private orgUserSettingsService: OrgUserSettingsService,
     private authService: AuthService,
-    private orgService: OrgService
+    private orgService: OrgService,
+    private popoverController: PopoverController,
+    private corporateCreditCardExpenseService: CorporateCreditCardExpenseService
   ) {}
 
   ngOnInit(): void {
@@ -216,7 +233,7 @@ export class TasksComponent implements OnInit {
       this.loadData$.next(this.loadData$.getValue());
       if (event) {
         setTimeout(() => {
-          event.target?.complete();
+          event.target?.complete?.();
         }, 1500);
       }
     });
@@ -357,35 +374,41 @@ export class TasksComponent implements OnInit {
     });
   }
 
-  onTaskClicked(taskCta: TaskCta, task: DashboardTask): void {
-    this.trackingService.tasksClicked({
-      Asset: 'Mobile',
-      header: task.header,
-    });
+  handleEventsWithTaskConfig(taskCta: TaskCta, task: DashboardTask): void {
     switch (taskCta.event) {
-      case TASKEVENT.expensesAddToReport:
-        this.onExpensesToReportTaskClick();
-        break;
       case TASKEVENT.openDraftReports:
         this.onOpenDraftReportsTaskClick(taskCta, task);
         break;
       case TASKEVENT.openSentBackReport:
         this.onSentBackReportTaskClick(taskCta, task);
         break;
-      case TASKEVENT.reviewExpenses:
-        this.onReviewExpensesTaskClick();
-        break;
       case TASKEVENT.openTeamReport:
         this.onTeamReportsTaskClick(taskCta, task);
-        break;
-      case TASKEVENT.openPotentialDuplicates:
-        this.onPotentialDuplicatesTaskClick();
         break;
       case TASKEVENT.openSentBackAdvance:
         this.onSentBackAdvanceTaskClick(taskCta, task);
         break;
+      default:
+        break;
+    }
+  }
+
+  handleEventsWithoutTaskConfig(taskCtaEvent: TASKEVENT): void {
+    switch (taskCtaEvent) {
+      case TASKEVENT.expensesAddToReport:
+        this.onExpensesToReportTaskClick();
+        break;
+      case TASKEVENT.reviewExpenses:
+        this.onReviewExpensesTaskClick();
+        break;
+      case TASKEVENT.openPotentialDuplicates:
+        this.onPotentialDuplicatesTaskClick();
+        break;
       case TASKEVENT.mobileNumberVerification:
-        this.onMobileNumberVerificationTaskClick(taskCta);
+        this.onMobileNumberVerificationTaskClick();
+        break;
+      case TASKEVENT.addCorporateCard:
+        this.onAddCorporateCardClick();
         break;
       case TASKEVENT.commuteDetails:
         this.onCommuteDetailsTaskClick();
@@ -395,15 +418,95 @@ export class TasksComponent implements OnInit {
     }
   }
 
-  onMobileNumberVerificationTaskClick(taskCta: TaskCta): void {
-    this.router.navigate([
-      '/',
-      'enterprise',
-      'my_profile',
-      {
-        openPopover: taskCta.content === 'Add' ? 'add_mobile_number' : 'verify_mobile_number',
-      },
-    ]);
+  onTaskClicked(taskCta: TaskCta, task: DashboardTask): void {
+    this.trackingService.tasksClicked({
+      Asset: 'Mobile',
+      header: task.header,
+    });
+    this.handleEventsWithTaskConfig(taskCta, task);
+    this.handleEventsWithoutTaskConfig(taskCta.event);
+  }
+
+  onMobileNumberVerificationTaskClick(): void {
+    this.trackingService.clickedOnTask({
+      type: 'Opt in',
+    });
+
+    from(this.authService.getEou()).subscribe(async (eou) => {
+      const optInModal = await this.modalController.create({
+        component: FyOptInComponent,
+        componentProps: {
+          extendedOrgUser: eou,
+        },
+      });
+
+      await optInModal.present();
+
+      const { data } = await optInModal.onWillDismiss<{ action: string }>();
+
+      if (data && data.action === 'SUCCESS') {
+        this.trackingService.optedInFromTasks();
+        this.doRefresh();
+        this.optedIn.emit();
+      }
+    });
+  }
+
+  handleEnrollmentSuccess(): void {
+    this.corporateCreditCardExpenseService.clearCache().subscribe(async () => {
+      const cardAddedModal = await this.popoverController.create({
+        component: CardAddedComponent,
+        cssClass: 'pop-up-in-center',
+      });
+
+      await cardAddedModal.present();
+      await cardAddedModal.onDidDismiss();
+
+      this.doRefresh();
+    });
+  }
+
+  onAddCorporateCardClick(): void {
+    const orgSettings$ = this.orgSettingsService.get();
+    this.isVisaRTFEnabled$ = orgSettings$.pipe(
+      map((orgSettings) => orgSettings.visa_enrollment_settings.allowed && orgSettings.visa_enrollment_settings.enabled)
+    );
+
+    this.isMastercardRTFEnabled$ = orgSettings$.pipe(
+      map(
+        (orgSettings) =>
+          orgSettings.mastercard_enrollment_settings.allowed && orgSettings.mastercard_enrollment_settings.enabled
+      )
+    );
+
+    this.isYodleeEnabled$ = forkJoin([orgSettings$, this.orgUserSettingsService.get()]).pipe(
+      map(
+        ([orgSettings, orgUserSettings]) =>
+          orgSettings.bank_data_aggregation_settings.allowed &&
+          orgSettings.bank_data_aggregation_settings.enabled &&
+          orgUserSettings.bank_data_aggregation_settings.enabled
+      )
+    );
+    forkJoin([this.isVisaRTFEnabled$, this.isMastercardRTFEnabled$, this.isYodleeEnabled$]).subscribe(
+      async ([isVisaRTFEnabled, isMastercardRTFEnabled, isYodleeEnabled]) => {
+        const addCorporateCardPopover = await this.popoverController.create({
+          component: AddCorporateCardComponent,
+          cssClass: 'fy-dialog-popover',
+          componentProps: {
+            isVisaRTFEnabled,
+            isMastercardRTFEnabled,
+            isYodleeEnabled,
+          },
+        });
+
+        await addCorporateCardPopover.present();
+        const popoverResponse = (await addCorporateCardPopover.onDidDismiss()) as OverlayResponse<{ success: boolean }>;
+
+        if (popoverResponse.data?.success) {
+          this.handleEnrollmentSuccess();
+        }
+      }
+    );
   }
 
   onReviewExpensesTaskClick(): void {
@@ -490,7 +593,9 @@ export class TasksComponent implements OnInit {
           finalize(() => this.loaderService.hideLoader())
         )
         .subscribe((res) => {
-          this.router.navigate(['/', 'enterprise', 'my_view_report', { id: res[0].id }]);
+          if (res[0]?.id) {
+            this.router.navigate(['/', 'enterprise', 'my_view_report', { id: res[0].id }]);
+          }
         });
     } else {
       this.router.navigate(['/', 'enterprise', 'my_reports'], {
@@ -537,7 +642,9 @@ export class TasksComponent implements OnInit {
             finalize(() => this.loaderService.hideLoader())
           )
           .subscribe((res) => {
-            this.router.navigate(['/', 'enterprise', 'view_team_report', { id: res[0].id, navigate_back: true }]);
+            if (res[0]?.id) {
+              this.router.navigate(['/', 'enterprise', 'view_team_report', { id: res[0].id, navigate_back: true }]);
+            }
           });
       });
     } else {
@@ -563,7 +670,9 @@ export class TasksComponent implements OnInit {
           finalize(() => this.loaderService.hideLoader())
         )
         .subscribe((res) => {
-          this.router.navigate(['/', 'enterprise', 'my_view_report', { id: res[0].id }]);
+          if (res[0]?.id) {
+            this.router.navigate(['/', 'enterprise', 'my_view_report', { id: res[0].id }]);
+          }
         });
     } else {
       this.router.navigate(['/', 'enterprise', 'my_reports'], {
@@ -580,7 +689,7 @@ export class TasksComponent implements OnInit {
   }
 
   addTransactionsToReport(report: Report, selectedExpensesId: string[]): Observable<Report> {
-    return from(this.loaderService.showLoader('Adding transaction to report')).pipe(
+    return from(this.loaderService.showLoader('Adding expense to report')).pipe(
       switchMap(() => this.spenderReportsService.addExpenses(report.id, selectedExpensesId).pipe(map(() => report))),
       finalize(() => this.loaderService.hideLoader())
     );
@@ -610,7 +719,6 @@ export class TasksComponent implements OnInit {
         state: 'in.(COMPLETE)',
         or: '(policy_amount.is.null,policy_amount.gt.0.0001)',
         report_id: 'is.null',
-        and: '()',
       },
     };
 
@@ -619,17 +727,21 @@ export class TasksComponent implements OnInit {
         (orgSetting) =>
           orgSetting?.corporate_credit_card_settings?.enabled && orgSetting?.pending_cct_expense_restriction?.enabled
       ),
-      switchMap((filterPendingTxn: boolean) => {
-        if (filterPendingTxn) {
-          params.queryParams = {
-            ...params.queryParams,
-            and: '(or(matched_corporate_card_transactions.eq.[],matched_corporate_card_transactions->0->status.neq.PENDING))',
-          };
-        }
-        return this.expensesService
-          .getAllExpenses(params)
-          .pipe(map((expenses) => expenses.map((expenses) => expenses.id)));
-      })
+      switchMap((filterPendingTxn: boolean) =>
+        this.expensesService.getAllExpenses(params).pipe(
+          map((expenses) =>
+            expenses
+              .filter((expense) => {
+                if (filterPendingTxn && expense.matched_corporate_card_transaction_ids.length > 0) {
+                  return expense.matched_corporate_card_transactions[0].status !== ExpenseTransactionStatus.PENDING;
+                } else {
+                  return true;
+                }
+              })
+              .map((expenses) => expenses.id)
+          )
+        )
+      )
     );
 
     this.spenderReportsService

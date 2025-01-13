@@ -35,7 +35,7 @@ import { CameraOptionsPopupComponent } from 'src/app/fyle/add-edit-expense/camer
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 import { ToastMessageComponent } from '../toast-message/toast-message.component';
 import { DebugElement, EventEmitter } from '@angular/core';
-import { expenseData, expenseResponseData } from 'src/app/core/mock-data/platform/v1/expense.data';
+import { apiExpenses1, expenseData, expenseResponseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { ExpensesService as SharedExpenseService } from 'src/app/core/services/platform/v1/shared/expenses.service';
 import { PopupAlertComponent } from '../popup-alert/popup-alert.component';
@@ -88,7 +88,6 @@ describe('ExpensesCardComponent', () => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
     const transactionsOutboxServiceSpy = jasmine.createSpyObj('TransactionsOutboxService', [
-      'isDataExtractionPending',
       'isSyncInProgress',
       'fileUpload',
     ]);
@@ -155,7 +154,6 @@ describe('ExpensesCardComponent', () => {
     sharedExpenseService.isCriticalPolicyViolatedExpense.and.returnValue(false);
     platform.is.and.returnValue(true);
     fileService.getReceiptDetails.and.returnValue(fileObjectAdv[0].type);
-    transactionsOutboxService.isDataExtractionPending.and.returnValue(true);
     expensesService.getExpenseById.and.returnValue(of(platformExpenseData));
     transactionService.transformExpense.and.returnValue(transformedExpenseData);
     networkService.isOnline.and.returnValue(of(true));
@@ -338,89 +336,36 @@ describe('ExpensesCardComponent', () => {
     });
   });
 
-  describe('pollDataExtractionStatus():', () => {
-    it('should call the callback when data extraction is not pending', fakeAsync(() => {
-      transactionsOutboxService.isDataExtractionPending.and.returnValue(false);
-      const callbackSpy = jasmine.createSpy('callback');
-      component.pollDataExtractionStatus(callbackSpy);
-      tick(5000);
-      expect(callbackSpy).toHaveBeenCalledTimes(1);
-    }));
-
-    it('should keep polling when data extraction is pending', fakeAsync(() => {
-      const callbackSpy = jasmine.createSpy('callback');
-
-      transactionsOutboxService.isDataExtractionPending.and.returnValue(true);
-
-      component.pollDataExtractionStatus(callbackSpy);
-      tick(1000); // wait for the initial setTimeout call
-
-      expect(transactionsOutboxService.isDataExtractionPending).toHaveBeenCalledTimes(1);
-      expect(callbackSpy).not.toHaveBeenCalledTimes(1);
-
-      // simulate data extraction not pending
-      transactionsOutboxService.isDataExtractionPending.and.returnValue(false);
-      tick(5000); // wait for the next setTimeout call
-
-      expect(transactionsOutboxService.isDataExtractionPending).toHaveBeenCalledTimes(2);
-      expect(callbackSpy).toHaveBeenCalledTimes(1);
-    }));
-  });
-
   describe('handleScanStatus():', () => {
     it('should handle status when the syncing is in progress and the extracted data is present', () => {
       component.isOutboxExpense = false;
       component.homeCurrency = 'INR';
-      component.expense.id = 'txO6d6eiB4JF';
+      component.expense = cloneDeep(apiExpenses1[0]);
       orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
-      const isScanCompletedSpy = spyOn(component, 'checkIfScanIsCompleted').and.returnValue(false);
-      expensesService.getExpenseById.and.returnValue(of(platformExpenseWithExtractedData));
-      transactionService.transformExpense.and.returnValue(transformedExpenseWithExtractedData);
-      component.isScanInProgress = true;
-      spyOn(component, 'pollDataExtractionStatus').and.callFake((callback) => {
-        callback();
-      });
-
-      transactionsOutboxService.isDataExtractionPending.and.returnValue(true);
+      const isScanCompletedSpy = spyOn(component, 'checkIfScanIsCompleted').and.returnValue(true);
 
       component.handleScanStatus();
 
       expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
       expect(isScanCompletedSpy).toHaveBeenCalledTimes(1);
-      expect(transactionsOutboxService.isDataExtractionPending).toHaveBeenCalledOnceWith('txO6d6eiB4JF');
-      expect(component.pollDataExtractionStatus).toHaveBeenCalledTimes(1);
-      expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(component.expense.id);
-      expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseWithExtractedData);
       expect(component.isScanCompleted).toBeTrue();
       expect(component.isScanInProgress).toBeFalse();
-      expect(component.expense.extracted_data).toEqual(transformedExpenseWithExtractedData.tx.extracted_data);
     });
 
     it('should handle status when the sync is in progress and there is no extracted data present', () => {
       component.isOutboxExpense = false;
-      component.expense.id = 'txvslh8aQMbu';
+      component.expense = cloneDeep(expenseData);
       orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
       const isScanCompletedSpy = spyOn(component, 'checkIfScanIsCompleted').and.returnValue(false);
-      expensesService.getExpenseById.and.returnValue(of(platformExpenseData));
-      transactionService.transformExpense.and.returnValue(transformedExpenseData);
       component.isScanInProgress = true;
-      const pollDataSpy = spyOn(component, 'pollDataExtractionStatus').and.callFake((callback) => {
-        callback();
-      });
-
-      transactionsOutboxService.isDataExtractionPending.and.returnValue(true);
 
       component.handleScanStatus();
 
       expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
       expect(component.checkIfScanIsCompleted).toHaveBeenCalledTimes(1);
       expect(isScanCompletedSpy).toHaveBeenCalledTimes(1);
-      expect(transactionsOutboxService.isDataExtractionPending).toHaveBeenCalledOnceWith('txvslh8aQMbu');
-      expect(pollDataSpy).toHaveBeenCalledTimes(1);
-      expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(component.expense.id);
-      expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
       expect(component.isScanCompleted).toBeFalse();
-      expect(component.isScanInProgress).toBeFalse();
+      expect(component.isScanInProgress).toBeTrue();
     });
 
     it('should handle status when the scanning is not in progress', () => {
@@ -570,92 +515,13 @@ describe('ExpensesCardComponent', () => {
   });
 
   describe('setIsPolicyViolated()', () => {
-    it('should set isPolicyViolated to false when isManualFlagFeatureEnabled is false and expense is not flagged', () => {
-      component.isManualFlagFeatureEnabled = false;
+    it('should set isPolicyViolated to false expense is not policy flagged', () => {
       component.expense = {
         ...expenseData,
-        is_manually_flagged: false,
         is_policy_flagged: false,
       };
       component.setIsPolicyViolated();
       expect(component.isPolicyViolated).toBeFalse();
-    });
-
-    it('should set isPolicyViolated to true when isManualFlagFeatureEnabled is false but expense is policy flagged', () => {
-      component.isManualFlagFeatureEnabled = false;
-      component.expense = {
-        ...expenseData,
-        is_manually_flagged: false,
-        is_policy_flagged: true,
-      };
-      component.setIsPolicyViolated();
-      expect(component.isPolicyViolated).toBeTrue();
-    });
-
-    it('should set isPolicyViolated to false when isManualFlagFeatureEnabled is true but expense is not manually flagged and not policy flagged', () => {
-      component.isManualFlagFeatureEnabled = true;
-      component.expense = {
-        ...expenseData,
-        is_manually_flagged: false,
-        is_policy_flagged: false,
-      };
-      component.setIsPolicyViolated();
-      expect(component.isPolicyViolated).toBeFalse();
-    });
-
-    it('should set isPolicyViolated to true when isManualFlagFeatureEnabled is true and expense is manually flagged', () => {
-      component.isManualFlagFeatureEnabled = true;
-      component.expense = {
-        ...expenseData,
-        is_manually_flagged: true,
-        is_policy_flagged: false,
-      };
-      component.setIsPolicyViolated();
-      expect(component.isPolicyViolated).toBeTrue();
-    });
-
-    it('should set isPolicyViolated to true when isManualFlagFeatureEnabled is true and expense is policy flagged but not manually flagged', () => {
-      component.isManualFlagFeatureEnabled = true;
-      component.expense = {
-        ...expenseData,
-        is_manually_flagged: false,
-        is_policy_flagged: true,
-      };
-      component.setIsPolicyViolated();
-      expect(component.isPolicyViolated).toBeTrue();
-    });
-
-    it('should set isPolicyViolated to true when isManualFlagFeatureEnabled is true and expense is both manually flagged and policy flagged', () => {
-      component.isManualFlagFeatureEnabled = true;
-      component.expense = {
-        ...expenseData,
-        is_manually_flagged: true,
-        is_policy_flagged: true,
-      };
-      component.setIsPolicyViolated();
-      expect(component.isPolicyViolated).toBeTrue();
-    });
-
-    it('should set isPolicyViolated to false when isManualFlagFeatureEnabled is false and expense is manually flagged but not policy flagged', () => {
-      component.isManualFlagFeatureEnabled = false;
-      component.expense = {
-        ...expenseData,
-        is_manually_flagged: true,
-        is_policy_flagged: false,
-      };
-      component.setIsPolicyViolated();
-      expect(component.isPolicyViolated).toBeFalse();
-    });
-
-    it('should set isPolicyViolated to true when isManualFlagFeatureEnabled is false and expense is both manually flagged and policy flagged', () => {
-      component.isManualFlagFeatureEnabled = false;
-      component.expense = {
-        ...expenseData,
-        is_manually_flagged: true,
-        is_policy_flagged: true,
-      };
-      component.setIsPolicyViolated();
-      expect(component.isPolicyViolated).toBeTrue();
     });
   });
 

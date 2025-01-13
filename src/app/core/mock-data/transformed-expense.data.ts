@@ -1,7 +1,6 @@
 import deepFreeze from 'deep-freeze-strict';
-
-import { TransactionStatus } from '../models/platform/v1/expense.model';
 import { UnflattenedTransaction } from '../models/unflattened-transaction.model';
+import { ExpenseTransactionStatus } from '../enums/platform/v1/expense-transaction-status.enum';
 
 export const transformedExpenseData: Partial<UnflattenedTransaction> = deepFreeze({
   tx: {
@@ -390,7 +389,7 @@ export const transformedExpenseWithMatchCCCData: Partial<UnflattenedTransaction>
         corporate_credit_card_account_number: '7620',
         orig_amount: null,
         orig_currency: null,
-        status: TransactionStatus.PENDING,
+        status: ExpenseTransactionStatus.PENDING,
       },
     ],
     source_account_id: 'acc7F6bwRa52p',
@@ -435,7 +434,7 @@ export const transformedExpenseWithMatchCCCData3: Partial<UnflattenedTransaction
         corporate_credit_card_account_number: '9891',
         orig_amount: null,
         orig_currency: null,
-        status: TransactionStatus.PENDING,
+        status: ExpenseTransactionStatus.PENDING,
         displayObject: 'Jun 6, 2018 - test description205.21',
       },
     ],

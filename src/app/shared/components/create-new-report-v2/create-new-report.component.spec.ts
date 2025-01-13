@@ -3,10 +3,9 @@ import { IonicModule } from '@ionic/angular';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { HumanizeCurrencyPipe } from '../../pipes/humanize-currency.pipe';
+import { ExactCurrencyPipe } from '../../pipes/exact-currency.pipe';
 import { ModalController } from '@ionic/angular';
-import { ReportService } from 'src/app/core/services/report.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { RefinerService } from 'src/app/core/services/refiner.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { CreateNewReportComponent } from './create-new-report.component';
@@ -26,31 +25,28 @@ describe('CreateNewReportComponent', () => {
   let component: CreateNewReportComponent;
   let fixture: ComponentFixture<CreateNewReportComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
-  let reportService: jasmine.SpyObj<ReportService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
-  let refinerService: jasmine.SpyObj<RefinerService>;
   let currencyService: jasmine.SpyObj<CurrencyService>;
   let expenseFieldsService: jasmine.SpyObj<ExpenseFieldsService>;
   let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
 
   beforeEach(waitForAsync(() => {
     modalController = jasmine.createSpyObj('ModalController', ['dismiss']);
-    reportService = jasmine.createSpyObj('ReportService', [
-      'getReportPurpose',
-      'createDraft',
-      'addTransactions',
-      'create',
-    ]);
     trackingService = jasmine.createSpyObj('TrackingService', ['createReport']);
-    refinerService = jasmine.createSpyObj('RefinerService', ['startSurvey']);
     currencyService = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     expenseFieldsService = jasmine.createSpyObj('ExpenseFieldsService', ['getAllMap']);
-    spenderReportsService = jasmine.createSpyObj('SpenderReportsService', ['addExpenses', 'createDraft']);
+    spenderReportsService = jasmine.createSpyObj('SpenderReportsService', [
+      'addExpenses',
+      'createDraft',
+      'suggestPurpose',
+      'create',
+    ]);
     const humanizeCurrencyPipeSpy = jasmine.createSpyObj('HumanizeCurrency', ['transform']);
+    const exactCurrencyPipeSpy = jasmine.createSpyObj('ExactCurrency', ['transform']);
     const fyCurrencyPipeSpy = jasmine.createSpyObj('FyCurrencyPipe', ['transform']);
 
     TestBed.configureTestingModule({
-      declarations: [CreateNewReportComponent, HumanizeCurrencyPipe, FyCurrencyPipe],
+      declarations: [CreateNewReportComponent, HumanizeCurrencyPipe, ExactCurrencyPipe, FyCurrencyPipe],
       imports: [
         IonicModule.forRoot(),
         MatIconModule,
@@ -61,21 +57,18 @@ describe('CreateNewReportComponent', () => {
       ],
       providers: [
         { provide: ModalController, useValue: modalController },
-        { provide: ReportService, useValue: reportService },
         { provide: TrackingService, useValue: trackingService },
-        { provide: RefinerService, useValue: refinerService },
         { provide: CurrencyService, useValue: currencyService },
         { provide: ExpenseFieldsService, useValue: expenseFieldsService },
         { provide: HumanizeCurrencyPipe, useValue: humanizeCurrencyPipeSpy },
+        { provide: ExactCurrencyPipe, useValue: exactCurrencyPipeSpy },
         { provide: FyCurrencyPipe, useValue: fyCurrencyPipeSpy },
         { provide: SpenderReportsService, useValue: spenderReportsService },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
     }).compileComponents();
 
-    reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
-    refinerService = TestBed.inject(RefinerService) as jasmine.SpyObj<RefinerService>;
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
     expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
     spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
@@ -100,32 +93,32 @@ describe('CreateNewReportComponent', () => {
     it('should get the report title', () => {
       const reportName = '#1:  Jul 2021';
       component.selectedElements = apiExpenses1;
-      reportService.getReportPurpose.and.returnValue(of(reportName));
+      spenderReportsService.suggestPurpose.and.returnValue(of(reportName));
       component.getReportTitle();
       fixture.detectChanges();
       expect(component.reportTitle).toEqual(reportName);
-      expect(reportService.getReportPurpose).toHaveBeenCalledOnceWith({ ids: ['txDDLtRaflUW', 'tx5WDG9lxBDT'] });
+      expect(spenderReportsService.suggestPurpose).toHaveBeenCalledOnceWith(['txDDLtRaflUW', 'tx5WDG9lxBDT']);
     });
 
     it('should not get the report title when the element is not in the selectedElements array', () => {
       const reportName = '#1:  Jul 2021';
       component.selectedElements = [apiExpenses1[0]];
-      reportService.getReportPurpose.and.returnValue(of(reportName));
+      spenderReportsService.suggestPurpose.and.returnValue(of(reportName));
       component.getReportTitle();
       fixture.detectChanges();
       expect(component.reportTitle).toEqual(reportName);
-      expect(reportService.getReportPurpose).toHaveBeenCalledOnceWith({ ids: ['txDDLtRaflUW'] });
+      expect(spenderReportsService.suggestPurpose).toHaveBeenCalledOnceWith(['txDDLtRaflUW']);
     });
 
     it('should get report title without reimbursable amount', () => {
       const reportName = '#1:  Jul 2021';
       component.selectedElements = [nonReimbursableExpense];
 
-      reportService.getReportPurpose.and.returnValue(of(reportName));
+      spenderReportsService.suggestPurpose.and.returnValue(of(reportName));
       component.getReportTitle();
       fixture.detectChanges();
       expect(component.reportTitle).toEqual(reportName);
-      expect(reportService.getReportPurpose).toHaveBeenCalledOnceWith({ ids: [nonReimbursableExpense.id] });
+      expect(spenderReportsService.suggestPurpose).toHaveBeenCalledOnceWith([nonReimbursableExpense.id]);
     });
   });
 
@@ -205,7 +198,7 @@ describe('CreateNewReportComponent', () => {
       const Expense_Count = txns.length;
       const Report_Value = 0;
       const report = expectedReportsSinglePage[0];
-      spenderReportsService.createDraft.and.returnValue(of(expectedReportsSinglePage[0]));
+      spenderReportsService.createDraft.and.returnValue(of(report));
       spenderReportsService.addExpenses.and.returnValue(of(undefined));
       component.ctaClickedEvent('create_draft_report');
       fixture.detectChanges();
@@ -235,7 +228,7 @@ describe('CreateNewReportComponent', () => {
       const Expense_Count = tnxs.length;
       const Report_Value = 0;
       const report = expectedReportsSinglePage[0];
-      spenderReportsService.createDraft.and.returnValue(of(expectedReportsSinglePage[0]));
+      spenderReportsService.createDraft.and.returnValue(of(report));
       component.ctaClickedEvent('create_draft_report');
       fixture.detectChanges();
       tick(500);
@@ -256,17 +249,17 @@ describe('CreateNewReportComponent', () => {
         purpose: '#3 : Mar 2023',
         source: 'MOBILE',
       };
-
       const txnIds = ['txDDLtRaflUW', 'tx5WDG9lxBDT'];
       const report = expectedReportsSinglePage[0];
-      reportService.create.and.returnValue(of(expectedReportsSinglePage[0]));
-      component.ctaClickedEvent('submit_report');
+
+      spenderReportsService.create.and.returnValue(of(report));
       fixture.detectChanges();
+
+      component.ctaClickedEvent('submit_report');
       tick(500);
       expect(component.submitReportLoader).toBeFalse();
       expect(component.showReportNameError).toBeFalse();
-      expect(reportService.create).toHaveBeenCalledOnceWith(reportPurpose, txnIds);
-      expect(refinerService.startSurvey).toHaveBeenCalledOnceWith({ actionName: 'Submit Newly Created Report' });
+      expect(spenderReportsService.create).toHaveBeenCalledOnceWith(reportPurpose, txnIds);
       expect(component.submitReportLoader).toBeFalse();
       expect(modalController.dismiss).toHaveBeenCalledOnceWith({
         report,

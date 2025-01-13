@@ -2,9 +2,9 @@ import { getCurrencySymbol } from '@angular/common';
 import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { ActivatedRoute, NavigationStart, Params, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, PopoverController } from '@ionic/angular';
-import { cloneDeep, isEqual } from 'lodash';
+import { cloneDeep, isEqual, isNumber } from 'lodash';
 import {
   BehaviorSubject,
   Observable,
@@ -17,17 +17,22 @@ import {
   iif,
   noop,
   of,
+  timer,
 } from 'rxjs';
 import {
   debounceTime,
   distinctUntilChanged,
+  exhaustMap,
   filter,
   finalize,
   map,
   shareReplay,
+  startWith,
   switchMap,
   take,
   takeUntil,
+  takeWhile,
+  timeout,
 } from 'rxjs/operators';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { Expense } from 'src/app/core/models/expense.model';
@@ -38,7 +43,6 @@ import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expe
 import { GetExpenseQueryParam } from 'src/app/core/models/platform/v1/get-expenses-query.model';
 import { UniqueCards } from 'src/app/core/models/unique-cards.model';
 import { Transaction } from 'src/app/core/models/v1/transaction.model';
-import { ApiV2Service } from 'src/app/core/services/api-v2.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -51,7 +55,6 @@ import { PlatformHandlerService } from 'src/app/core/services/platform-handler.s
 import { ExpensesService as SharedExpenseService } from 'src/app/core/services/platform/v1/shared/expenses.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { PopupService } from 'src/app/core/services/popup.service';
-import { ReportService } from 'src/app/core/services/report.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { TokenService } from 'src/app/core/services/token.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
@@ -75,7 +78,12 @@ import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog/add-tx
 import { MyExpensesService } from './my-expenses.service';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { PromoteOptInModalComponent } from 'src/app/shared/components/promote-opt-in-modal/promote-opt-in-modal.component';
+import { AuthService } from 'src/app/core/services/auth.service';
+import { UtilityService } from 'src/app/core/services/utility.service';
+import { FeatureConfigService } from 'src/app/core/services/platform/v1/spender/feature-config.service';
+import * as dayjs from 'dayjs';
+import { ExpensesQueryParams } from 'src/app/core/models/platform/v1/expenses-query-params.model';
 
 @Component({
   selector: 'app-my-expenses',
@@ -108,8 +116,6 @@ export class MyExpensesPage implements OnInit {
   homeCurrency$: Observable<string>;
 
   isInstaFyleEnabled$: Observable<boolean>;
-
-  isBulkFyleEnabled$: Observable<boolean>;
 
   isMileageEnabled$: Observable<boolean>;
 
@@ -193,7 +199,9 @@ export class MyExpensesPage implements OnInit {
 
   restrictPendingTransactionsEnabled = false;
 
-  isManualFlagFeatureEnabled$: Observable<{ value: boolean }>;
+  optInShowTimer;
+
+  navigationSubscription: Subscription;
 
   constructor(
     private networkService: NetworkService,
@@ -208,9 +216,7 @@ export class MyExpensesPage implements OnInit {
     private trackingService: TrackingService,
     private storageService: StorageService,
     private tokenService: TokenService,
-    private apiV2Service: ApiV2Service,
     private modalProperties: ModalPropertiesService,
-    private reportService: ReportService,
     private matBottomSheet: MatBottomSheet,
     private matSnackBar: MatSnackBar,
     private actionSheetController: ActionSheetController,
@@ -227,7 +233,9 @@ export class MyExpensesPage implements OnInit {
     private expenseService: ExpensesService,
     private sharedExpenseService: SharedExpenseService,
     private spenderReportsService: SpenderReportsService,
-    private launchDarklyService: LaunchDarklyService
+    private authService: AuthService,
+    private utilityService: UtilityService,
+    private featureConfigService: FeatureConfigService
   ) {}
 
   get HeaderState(): typeof HeaderState {
@@ -423,6 +431,9 @@ export class MyExpensesPage implements OnInit {
   }
 
   ionViewWillLeave(): void {
+    clearTimeout(this.optInShowTimer as number);
+    this.navigationSubscription?.unsubscribe();
+    this.utilityService.toggleShowOptInAfterExpenseCreation(false);
     this.hardwareBackButton.unsubscribe();
     this.onPageExit$.next(null);
   }
@@ -444,8 +455,6 @@ export class MyExpensesPage implements OnInit {
       this.backButtonAction
     );
 
-    this.isManualFlagFeatureEnabled$ = this.launchDarklyService.checkIfManualFlaggingFeatureIsEnabled();
-
     this.tasksService.getExpensesTaskCount().subscribe((expensesTaskCount) => {
       this.expensesTaskCount = expensesTaskCount;
     });
@@ -457,10 +466,6 @@ export class MyExpensesPage implements OnInit {
         (orgUserSettings) =>
           orgUserSettings?.insta_fyle_settings?.allowed && orgUserSettings.insta_fyle_settings.enabled
       )
-    );
-
-    this.isBulkFyleEnabled$ = getOrgUserSettingsService$.pipe(
-      map((orgUserSettings) => orgUserSettings?.bulk_fyle_settings?.enabled)
     );
 
     this.orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
@@ -606,7 +611,24 @@ export class MyExpensesPage implements OnInit {
       })
     );
 
-    this.myExpenses$ = paginatedPipe.pipe(shareReplay(1));
+    /**
+     * Observable that manages expenses, including polling for incomplete scans.
+     */
+    this.myExpenses$ = paginatedPipe.pipe(
+      switchMap((expenses) => {
+        const dEincompleteExpenseIds = this.filterDEIncompleteExpenses(expenses);
+
+        if (dEincompleteExpenseIds.length === 0) {
+          return of(expenses); // All scans are completed
+        } else {
+          return this.pollDEIncompleteExpenses(dEincompleteExpenseIds, expenses).pipe(
+            startWith(expenses),
+            timeout(30000)
+          );
+        }
+      }),
+      shareReplay(1)
+    );
 
     this.count$ = this.loadExpenses$.pipe(
       switchMap((params) => {
@@ -715,6 +737,94 @@ export class MyExpensesPage implements OnInit {
     this.doRefresh();
 
     this.checkDeleteDisabled();
+
+    const optInModalPostExpenseCreationFeatureConfig = {
+      feature: 'OPT_IN_POPUP_POST_EXPENSE_CREATION',
+      key: 'OPT_IN_POPUP_SHOWN_COUNT',
+    };
+
+    const isRedirectedFromAddExpense = this.activatedRoute.snapshot.queryParams.redirected_from_add_expense as string;
+
+    this.utilityService.canShowOptInModal(optInModalPostExpenseCreationFeatureConfig).subscribe((canShowOptInModal) => {
+      if (canShowOptInModal && isRedirectedFromAddExpense) {
+        this.utilityService.toggleShowOptInAfterExpenseCreation(true);
+        this.setModalDelay();
+        this.setNavigationSubscription();
+      }
+    });
+  }
+
+  onPageClick(): void {
+    if (this.optInShowTimer) {
+      clearTimeout(this.optInShowTimer as number);
+      this.utilityService.toggleShowOptInAfterExpenseCreation(false);
+    }
+  }
+
+  async showPromoteOptInModal(): Promise<void> {
+    this.trackingService.showOptInModalPostExpenseCreation();
+
+    from(this.authService.getEou()).subscribe(async (eou) => {
+      const optInPromotionalModal = await this.modalController.create({
+        component: PromoteOptInModalComponent,
+        componentProps: {
+          extendedOrgUser: eou,
+        },
+        mode: 'ios',
+        ...this.modalProperties.getModalDefaultProperties('promote-opt-in-modal'),
+      });
+
+      await optInPromotionalModal.present();
+
+      const optInModalPostExpenseCreationFeatureConfig = {
+        feature: 'OPT_IN_POPUP_POST_EXPENSE_CREATION',
+        key: 'OPT_IN_POPUP_SHOWN_COUNT',
+        value: {
+          count: 1,
+        },
+      };
+
+      this.featureConfigService.saveConfiguration(optInModalPostExpenseCreationFeatureConfig).subscribe(noop);
+
+      const { data } = await optInPromotionalModal.onDidDismiss<{ skipOptIn: boolean }>();
+
+      if (data?.skipOptIn) {
+        this.trackingService.skipOptInModalPostExpenseCreation();
+      } else {
+        this.trackingService.optInFromPostExpenseCreationModal();
+      }
+    });
+  }
+
+  setModalDelay(): void {
+    this.optInShowTimer = setTimeout(() => {
+      this.showPromoteOptInModal();
+    }, 4000);
+  }
+
+  setNavigationSubscription(): void {
+    this.navigationSubscription = this.router.events.subscribe((event) => {
+      if (event instanceof NavigationStart) {
+        clearTimeout(this.optInShowTimer as number);
+
+        const optInModalPostExpenseCreationFeatureConfig = {
+          feature: 'OPT_IN_POPUP_POST_EXPENSE_CREATION',
+          key: 'OPT_IN_POPUP_SHOWN_COUNT',
+        };
+
+        const isRedirectedFromAddExpense = this.activatedRoute.snapshot.queryParams
+          .redirected_from_add_expense as string;
+
+        this.utilityService.canShowOptInModal(optInModalPostExpenseCreationFeatureConfig).subscribe((isAttemptLeft) => {
+          const canShowOptInModal = this.utilityService.canShowOptInAfterExpenseCreation();
+
+          if (isAttemptLeft && isRedirectedFromAddExpense && canShowOptInModal) {
+            this.showPromoteOptInModal();
+            this.utilityService.toggleShowOptInAfterExpenseCreation(false);
+          }
+        });
+      }
+    });
   }
 
   setupNetworkWatcher(): void {
@@ -731,7 +841,7 @@ export class MyExpensesPage implements OnInit {
     this.loadExpenses$.next(params);
 
     setTimeout(() => {
-      event?.target?.complete();
+      event?.target?.complete?.();
     }, 1000);
   }
 
@@ -763,7 +873,7 @@ export class MyExpensesPage implements OnInit {
     }
     const params = this.loadExpenses$.getValue();
     params.pageNumber = this.currentPageNumber;
-    this.transactionService.clearCache().subscribe(() => {
+    this.transactionService.clearCache(false).subscribe(() => {
       this.loadExpenses$.next(params);
       if (event) {
         setTimeout(() => {
@@ -782,6 +892,10 @@ export class MyExpensesPage implements OnInit {
 
     if (filter.receiptsAttached) {
       this.myExpensesService.generateReceiptsAttachedFilterPills(filterPills, filter);
+    }
+
+    if (filter.potentialDuplicates) {
+      this.myExpensesService.generatePotentialDuplicatesFilterPills(filterPills, filter);
     }
 
     if (filter.date) {
@@ -819,6 +933,8 @@ export class MyExpensesPage implements OnInit {
     newQueryParams = this.sharedExpenseService.generateDateParams(newQueryParams, this.filters);
 
     newQueryParams = this.sharedExpenseService.generateReceiptAttachedParams(newQueryParams, this.filters);
+
+    newQueryParams = this.sharedExpenseService.generatePotentialDuplicatesParams(newQueryParams, this.filters);
 
     newQueryParams = this.sharedExpenseService.generateStateFilters(newQueryParams, this.filters);
 
@@ -895,16 +1011,6 @@ export class MyExpensesPage implements OnInit {
     const params = this.addNewFiltersToParams();
     this.loadExpenses$.next(params);
     this.filterPills = this.generateFilterPills(this.filters);
-  }
-
-  async setState(): Promise<void> {
-    this.isLoading = true;
-    this.currentPageNumber = 1;
-    const params = this.addNewFiltersToParams();
-    this.loadExpenses$.next(params);
-    setTimeout(() => {
-      this.isLoading = false;
-    }, 500);
   }
 
   setExpenseStatsOnSelect(): void {
@@ -1349,7 +1455,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   addTransactionsToReport(report: Report, selectedExpensesId: string[]): Observable<Report> {
-    return from(this.loaderService.showLoader('Adding transaction to report')).pipe(
+    return from(this.loaderService.showLoader('Adding expense to report')).pipe(
       switchMap(() => this.spenderReportsService.addExpenses(report.id, selectedExpensesId).pipe(map(() => report))),
       finalize(() => this.loaderService.hideLoader())
     );
@@ -1530,7 +1636,10 @@ export class MyExpensesPage implements OnInit {
             }
             this.allExpensesCount = this.selectedElements.length;
             this.isReportableExpensesSelected =
-              this.sharedExpenseService.getReportableExpenses(this.selectedElements).length > 0;
+              this.sharedExpenseService.getReportableExpenses(
+                this.selectedElements,
+                this.restrictPendingTransactionsEnabled
+              ).length > 0;
             this.setExpenseStatsOnSelect();
           });
       }
@@ -1566,6 +1675,8 @@ export class MyExpensesPage implements OnInit {
       await this.openFilters('Sort By');
     } else if (filterType === 'splitExpense') {
       await this.openFilters('Split Expense');
+    } else if (filterType === 'potentialDuplicates') {
+      await this.openFilters('Potential duplicates');
     }
   }
 
@@ -1652,6 +1763,97 @@ export class MyExpensesPage implements OnInit {
           this.isDisabled = this.selectedOutboxExpenses.length === 0 || !this.outboxExpensesToBeDeleted;
         }
       })
+    );
+  }
+
+  private isZeroAmountPerDiemOrMileage(expense: PlatformExpense): boolean {
+    return (
+      (expense.category.name?.toLowerCase() === 'per diem' || expense.category.name?.toLowerCase() === 'mileage') &&
+      (expense.amount === 0 || expense.claim_amount === 0)
+    );
+  }
+
+  /**
+   * Checks if the scan process for an expense has been completed.
+   * @param PlatformExpense expense - The expense to check.
+   * @returns boolean - True if the scan is complete or if data is manually entered.
+   */
+  private isExpenseScanComplete(expense: PlatformExpense): boolean {
+    const isZeroAmountPerDiemOrMileage = this.isZeroAmountPerDiemOrMileage(expense);
+
+    const hasUserManuallyEnteredData =
+      isZeroAmountPerDiemOrMileage ||
+      ((expense.amount || expense.claim_amount) && isNumber(expense.amount || expense.claim_amount));
+    const isDataExtracted = !!expense.extracted_data;
+
+    // this is to prevent the scan failed from being shown from an indefinite amount of time.
+    const hasScanExpired = expense.created_at && dayjs(expense.created_at).diff(Date.now(), 'day') < 0;
+    return !!(hasUserManuallyEnteredData || isDataExtracted || hasScanExpired);
+  }
+
+  /**
+   * Filters the list of expenses to get only those with incomplete scans.
+   * @param PlatformExpense[] expenses - The list of expenses to check.
+   * @returns string[] - Array of expense IDs that have incomplete scans.
+   */
+  private filterDEIncompleteExpenses(expenses: PlatformExpense[]): string[] {
+    return expenses.filter((expense) => !this.isExpenseScanComplete(expense)).map((expense) => expense.id);
+  }
+
+  /**
+   * Updates the expenses with polling results.
+   * @param PlatformExpense[] initialExpenses - The initial list of expenses.
+   * @param PlatformExpense[] updatedExpenses - The updated expenses after polling.
+   * @param string[] dEincompleteExpenseIds - Array of expense IDs with incomplete scans.
+   * @returns PlatformExpense[] - Updated list of expenses.
+   */
+  private updateExpensesList(
+    initialExpenses: PlatformExpense[],
+    updatedExpenses: PlatformExpense[],
+    dEincompleteExpenseIds: string[]
+  ): PlatformExpense[] {
+    const updatedExpensesMap = new Map(updatedExpenses.map((expense) => [expense.id, expense]));
+
+    const newExpensesList = initialExpenses.map((expense) => {
+      if (dEincompleteExpenseIds.includes(expense.id)) {
+        const updatedExpense = updatedExpensesMap.get(expense.id);
+        if (this.isExpenseScanComplete(updatedExpense)) {
+          return updatedExpense;
+        }
+      }
+      return expense;
+    });
+
+    return newExpensesList;
+  }
+
+  /**
+   * Polls for expenses that have incomplete scan data.
+   * @param dEincompleteExpenseIds - Array of expense IDs with incomplete scans.
+   * @param initialExpenses - The initial list of expenses.
+   * @returns - Observable that emits updated expenses.
+   */
+  private pollDEIncompleteExpenses(
+    dEincompleteExpenseIds: string[],
+    expenses: PlatformExpense[]
+  ): Observable<PlatformExpense[]> {
+    let updatedExpensesList = expenses;
+    // Create a stop signal that emits after 30 seconds
+    const stopPolling$ = timer(30000);
+    return timer(5000, 5000).pipe(
+      exhaustMap(() => {
+        const params: ExpensesQueryParams = { queryParams: { id: `in.(${dEincompleteExpenseIds.join(',')})` } };
+        return this.expenseService.getExpenses({ ...params.queryParams }).pipe(
+          map((updatedExpenses) => {
+            updatedExpensesList = this.updateExpensesList(updatedExpensesList, updatedExpenses, dEincompleteExpenseIds);
+            dEincompleteExpenseIds = this.filterDEIncompleteExpenses(updatedExpenses);
+            return updatedExpensesList;
+          })
+        );
+      }),
+      takeWhile(() => dEincompleteExpenseIds.length > 0, true),
+      takeUntil(stopPolling$),
+      takeUntil(this.onPageExit$)
     );
   }
 }

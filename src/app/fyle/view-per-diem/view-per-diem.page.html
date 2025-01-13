@@ -20,20 +20,6 @@
         <ion-icon [src]="'../../../assets/svg/chat.svg'" slot="icon-only"></ion-icon>
       </ion-button>
 
-      <ng-container *ngIf="(isManualFlagFeatureEnabled$|async) as isManualFlagFeatureEnabled">
-        <ng-container *ngIf="(canFlagOrUnflag$|async) as canFlagOrUnflag">
-          <ng-container *ngIf="view === ExpenseView.team && isManualFlagFeatureEnabled.value && canFlagOrUnflag">
-            <ion-button
-              class="view-per-diem--header-btn-container__btn"
-              (click)="flagUnflagExpense()"
-              [ngClass]="isExpenseFlagged ? 'icon--flagged' : 'icon--unflagged'"
-            >
-              <ion-icon [src]="'../../../assets/svg/flag-fill.svg'" slot="icon-only"></ion-icon>
-            </ion-button>
-          </ng-container>
-        </ng-container>
-      </ng-container>
-
       <ng-container *ngIf="view === ExpenseView.team && canDelete$|async">
         <ion-button class="view-per-diem--header-btn-container__btn" (click)="removeExpenseFromReport()">
           <ion-icon [src]="'../../../assets/svg/bin.svg'" slot="icon-only"></ion-icon>
@@ -70,19 +56,19 @@
         <div *ngIf="isProjectShown" class="view-per-diem--card-container__project">
           {{ projectFieldName | titlecase }} : {{ perDiemExpense.project?.name || '-' }}
         </div>
-      </div>
-      <div class="ion-text-right view-per-diem--card-container__block">
-        <div>
+        <div class="view-per-diem--card-container__amount-container">
           <span>{{ expenseCurrencySymbol }}</span>
           <span class="view-per-diem--card-container__amount">
-            {{ perDiemExpense.amount || 0 | humanizeCurrency: perDiemExpense.currency:true }}
+            {{ { value: perDiemExpense.amount || 0, currencyCode: perDiemExpense.currency, skipSymbol: true } |
+            exactCurrency }}
           </span>
           <ion-icon
             class="view-per-diem--card-container__icon"
             [src]="'../../../assets/svg/' + paymentModeIcon + '.svg'"
           ></ion-icon>
         </div>
-
+      </div>
+      <div class="ion-text-right view-per-diem--card-container__block">
         <div
           class="view-per-diem--card-container__state-pill ion-text-right"
           [ngClass]="{'view-per-diem--card-container__state-pill--with-project': isProjectShown}"

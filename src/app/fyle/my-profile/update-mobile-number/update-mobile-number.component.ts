@@ -49,9 +49,9 @@ export class UpdateMobileNumberComponent implements OnInit, AfterViewInit {
 
   validateInput(): void {
     if (!this.inputValue?.length) {
-      this.error = 'Please enter a Mobile Number';
+      this.error = 'Enter mobile number';
     } else if (!this.inputValue.match(/[+]\d{7,}$/)) {
-      this.error = 'Please enter a valid mobile number with country code. e.g. +12025559975';
+      this.error = 'Enter mobile number with country code';
     }
   }
 
@@ -61,7 +61,7 @@ export class UpdateMobileNumberComponent implements OnInit, AfterViewInit {
 
   saveValue(): void {
     //If user has not changed the verified mobile number, close the popover
-    if (this.inputValue === this.extendedOrgUser.ou.mobile && this.extendedOrgUser.ou.mobile_verified) {
+    if (this.inputValue && this.inputValue === this.extendedOrgUser.ou.mobile) {
       this.popoverController.dismiss();
     } else {
       this.validateInput();

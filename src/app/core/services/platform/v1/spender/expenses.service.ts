@@ -16,6 +16,12 @@ import { Transaction } from 'src/app/core/models/v1/transaction.model';
 import { SplitExpensePolicy } from 'src/app/core/models/platform/v1/split-expense-policy.model';
 import { SplitExpenseMissingFields } from 'src/app/core/models/platform/v1/split-expense-missing-fields.model';
 import { expensesCacheBuster$ } from 'src/app/core/cache-buster/expense-cache-buster';
+import { CorporateCreditCardExpenseService } from '../../../corporate-credit-card-expense.service';
+import { corporateCardTransaction } from 'src/app/core/models/platform/v1/cc-transaction.model';
+import { MatchedCorporateCardTransaction } from 'src/app/core/models/platform/v1/matched-corpporate-card-transaction.model';
+import { MileageUnitEnum } from 'src/app/core/models/platform/platform-mileage-rates.model';
+import { Location } from 'src/app/core/models/location.model';
+import { CommuteDeduction } from 'src/app/core/enums/commute-deduction.enum';
 
 @Injectable({
   providedIn: 'root',
@@ -24,7 +30,8 @@ export class ExpensesService {
   constructor(
     @Inject(PAGINATION_SIZE) private paginationSize: number,
     private spenderService: SpenderService,
-    private sharedExpenseService: SharedExpenseService
+    private sharedExpenseService: SharedExpenseService,
+    private corporateCreditCardExpenseService: CorporateCreditCardExpenseService
   ) {}
 
   @CacheBuster({
@@ -76,6 +83,44 @@ export class ExpensesService {
     );
   }
 
+  fetchAndMapCCCTransactions(ids: string[], expenses: Expense[]): Observable<Expense[]> {
+    const params = {
+      id: `in.(${ids.join(',')})`,
+    };
+    return this.spenderService
+      .get<PlatformApiResponse<corporateCardTransaction[]>>('/corporate_card_transactions', { params })
+      .pipe(
+        map((res) => {
+          const formattedCCCTransaction = res.data.map((ccTransaction) => this.mapCCCEToExpense(ccTransaction));
+
+          expenses.forEach((expense) => {
+            if (
+              expense.matched_corporate_card_transaction_ids.length > 0 &&
+              expense.matched_corporate_card_transactions.length === 0
+            ) {
+              expense.matched_corporate_card_transactions = [
+                formattedCCCTransaction.find(
+                  (ccTransaction) => ccTransaction.id === expense.matched_corporate_card_transaction_ids[0]
+                ),
+              ];
+            }
+          });
+
+          return expenses;
+        })
+      );
+  }
+
+  getExpenseIdsWithUnmatchedCCCTransactions(expenses: Expense[]): string[] {
+    return expenses
+      .filter(
+        (expense) =>
+          expense.matched_corporate_card_transaction_ids.length > 0 &&
+          expense.matched_corporate_card_transactions.length === 0
+      )
+      .map((expense) => expense.matched_corporate_card_transaction_ids[0]);
+  }
+
   getExpenseById(id: string): Observable<Expense> {
     const data = {
       params: {
@@ -83,7 +128,50 @@ export class ExpensesService {
       },
     };
 
-    return this.spenderService.get<PlatformApiResponse<Expense[]>>('/expenses', data).pipe(map((res) => res.data[0]));
+    // TODO: Remove this extra call of corporate card transaction once the slow sync issue is fixed
+    return this.spenderService.get<PlatformApiResponse<Expense[]>>('/expenses', data).pipe(
+      map((res) => res.data[0]),
+      switchMap((expense) => {
+        if (
+          expense.matched_corporate_card_transaction_ids.length > 0 &&
+          expense.matched_corporate_card_transactions.length === 0
+        ) {
+          return this.corporateCreditCardExpenseService
+            .getMatchedTransactionById(expense.matched_corporate_card_transaction_ids[0])
+            .pipe(
+              map((res) => {
+                expense.matched_corporate_card_transactions = [this.mapCCCEToExpense(res.data[0])];
+                return expense;
+              })
+            );
+        } else {
+          return of(expense);
+        }
+      })
+    );
+  }
+
+  mapCCCEToExpense(ccTransaction: corporateCardTransaction): MatchedCorporateCardTransaction {
+    return {
+      id: ccTransaction.id,
+      corporate_card_id: ccTransaction.corporate_card_id,
+      corporate_card_number: ccTransaction.corporate_card.card_number,
+      corporate_card_nickname: ccTransaction.corporate_card.nickname,
+      masked_corporate_card_number: ccTransaction.corporate_card.masked_number,
+      bank_name: ccTransaction.corporate_card.bank_name,
+      corporate_card_user_full_name: ccTransaction.corporate_card.user_full_name,
+      amount: ccTransaction.amount,
+      currency: ccTransaction.currency,
+      category: ccTransaction.category,
+      spent_at: new Date(ccTransaction.spent_at),
+      posted_at: new Date(ccTransaction.post_date),
+      description: ccTransaction.description,
+      status: ccTransaction.transaction_status,
+      foreign_currency: ccTransaction.foreign_currency,
+      foreign_amount: ccTransaction.foreign_amount,
+      merchant: ccTransaction.merchant,
+      matched_by: null,
+    };
   }
 
   getExpensesCount(params: ExpensesQueryParams): Observable<number> {
@@ -93,9 +181,18 @@ export class ExpensesService {
   }
 
   getExpenses(params: ExpensesQueryParams): Observable<Expense[]> {
-    return this.spenderService
-      .get<PlatformApiResponse<Expense[]>>('/expenses', { params })
-      .pipe(map((expenses) => expenses.data));
+    return this.spenderService.get<PlatformApiResponse<Expense[]>>('/expenses', { params }).pipe(
+      map((expenses) => expenses.data),
+      switchMap((expenses) => {
+        const expenseIdsWithUnmatchedCCCTransactions = this.getExpenseIdsWithUnmatchedCCCTransactions(expenses);
+
+        if (expenseIdsWithUnmatchedCCCTransactions.length > 0) {
+          return this.fetchAndMapCCCTransactions(expenseIdsWithUnmatchedCCCTransactions, expenses);
+        } else {
+          return of(expenses);
+        }
+      })
+    );
   }
 
   getDuplicateSets(): Observable<ExpenseDuplicateSet[]> {
@@ -193,9 +290,79 @@ export class ExpensesService {
       .pipe(map((res) => res.data));
   }
 
-  post(expense: Partial<Expense>): Observable<void> {
-    return this.spenderService.post<void>('/expenses', {
+  // transform public transaction to expense payload for /post expenses
+  transformTo(transaction: Partial<Transaction>): Partial<Expense> {
+    const expense: Partial<Expense> = {
+      id: transaction.id,
+      spent_at: transaction.txn_dt,
+      category_id: transaction.org_category_id,
+      purpose: transaction.purpose,
+      source_account_id: transaction.source_account_id,
+      claim_amount: transaction.amount,
+      merchant: transaction.vendor,
+      project_id: transaction.project_id,
+      cost_center_id: transaction.cost_center_id,
+      foreign_currency: transaction.orig_currency,
+      foreign_amount: transaction.orig_amount,
+      source: transaction.source,
+      is_reimbursable: !transaction.skip_reimbursement,
+      tax_amount: transaction.tax_amount,
+      tax_group_id: transaction.tax_group_id,
+      is_billable: transaction.billable,
+      distance: transaction.distance,
+      distance_unit: transaction.distance_unit as MileageUnitEnum,
+      started_at: transaction.from_dt,
+      ended_at: transaction.to_dt,
+      locations: transaction.locations as unknown as Location[],
+      custom_fields: transaction.custom_properties,
+      per_diem_rate_id: transaction.per_diem_rate_id,
+      per_diem_num_days: transaction.num_days || 0,
+      mileage_rate_id: transaction.mileage_rate_id, // @arjun check if this is present
+      commute_deduction: transaction.commute_deduction as CommuteDeduction,
+      mileage_is_round_trip: transaction.mileage_is_round_trip,
+      commute_details_id: transaction.commute_details_id,
+      hotel_is_breakfast_provided: transaction.hotel_is_breakfast_provided,
+      advance_wallet_id: transaction.advance_wallet_id,
+      file_ids: transaction.file_ids,
+      report_id: transaction.report_id,
+      travel_classes: [],
+      mileage_calculated_distance: transaction.mileage_calculated_distance,
+      mileage_calculated_amount: transaction.mileage_calculated_amount,
+    };
+
+    if (
+      transaction.fyle_category?.toLowerCase() === 'flight' ||
+      transaction.fyle_category?.toLowerCase() === 'airlines'
+    ) {
+      if (transaction.flight_journey_travel_class) {
+        expense.travel_classes.push(transaction.flight_journey_travel_class);
+      }
+      if (transaction.flight_return_travel_class) {
+        expense.travel_classes.push(transaction.flight_return_travel_class);
+      }
+    } else if (transaction.fyle_category?.toLowerCase() === 'bus' && transaction.bus_travel_class) {
+      expense.travel_classes.push(transaction.bus_travel_class);
+    } else if (transaction.fyle_category?.toLowerCase() === 'train' && transaction.train_travel_class) {
+      expense.travel_classes.push(transaction.train_travel_class);
+    }
+
+    return expense;
+  }
+
+  post(expense: Partial<Expense>): Observable<{ data: Expense }> {
+    return this.spenderService.post<{ data: Expense }>('/expenses', {
       data: expense,
+    });
+  }
+
+  createFromFile(fileId: string, source: string): Observable<{ data: Expense[] }> {
+    return this.spenderService.post<{ data: Expense[] }>('/expenses/create_from_file/bulk', {
+      data: [
+        {
+          file_id: fileId,
+          source,
+        },
+      ],
     });
   }
 }

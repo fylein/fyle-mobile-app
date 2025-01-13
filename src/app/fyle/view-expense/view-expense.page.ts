@@ -15,7 +15,6 @@ import { ViewCommentComponent } from 'src/app/shared/components/comments-history
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
-import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 import { getCurrencySymbol } from '@angular/common';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
@@ -30,7 +29,7 @@ import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { ExpensesService as ApproverExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
 import { ExpensesService as SpenderExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
-import { Expense, TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
+import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { TransactionStatusInfoPopoverComponent } from 'src/app/shared/components/transaction-status-info-popover/transaction-status-info-popover.component';
@@ -38,7 +37,8 @@ import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/fi
 import { ApproverFileService } from 'src/app/core/services/platform/v1/approver/file.service';
 import { PlatformFileGenerateUrlsResponse } from 'src/app/core/models/platform/platform-file-generate-urls-response.model';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
+import { CCExpenseMerchantInfoModalComponent } from 'src/app/shared/components/cc-expense-merchant-info-modal/cc-expense-merchant-info-modal.component';
 
 @Component({
   selector: 'app-view-expense',
@@ -59,8 +59,6 @@ export class ViewExpensePage {
   customProperties$: Observable<CustomField[]>;
 
   expenseWithoutCustomProperties$: Observable<Expense>;
-
-  canFlagOrUnflag$: Observable<boolean>;
 
   canDelete$: Observable<boolean>;
 
@@ -136,8 +134,6 @@ export class ViewExpensePage {
 
   isRTFEnabled: boolean;
 
-  isManualFlagFeatureEnabled$: Observable<{ value: boolean }>;
-
   constructor(
     private loaderService: LoaderService,
     private transactionService: TransactionService,
@@ -160,8 +156,7 @@ export class ViewExpensePage {
     private approverExpensesService: ApproverExpensesService,
     private spenderFileService: SpenderFileService,
     private approverFileService: ApproverFileService,
-    private approverReportsService: ApproverReportsService,
-    private launchDarklyService: LaunchDarklyService
+    private approverReportsService: ApproverReportsService
   ) {}
 
   get ExpenseView(): typeof ExpenseView {
@@ -266,8 +261,6 @@ export class ViewExpensePage {
   ionViewWillEnter(): void {
     this.setupNetworkWatcher();
 
-    this.isManualFlagFeatureEnabled$ = this.launchDarklyService.checkIfManualFlaggingFeatureIsEnabled();
-
     this.expenseId = this.activatedRoute.snapshot.params.id as string;
     this.view = this.activatedRoute.snapshot.params.view as ExpenseView;
 
@@ -294,8 +287,7 @@ export class ViewExpensePage {
       concatMap((expense) =>
         this.customInputsService.fillCustomProperties(
           expense.category_id,
-          expense.custom_fields as Partial<CustomInput>[],
-          true
+          expense.custom_fields as Partial<CustomInput>[]
         )
       ),
       shareReplay(1)
@@ -371,18 +363,6 @@ export class ViewExpensePage {
     );
 
     this.comments$ = this.statusService.find('transactions', this.expenseId);
-
-    this.canFlagOrUnflag$ = this.expenseWithoutCustomProperties$.pipe(
-      filter(() => this.view === ExpenseView.team),
-      map((expense) =>
-        [
-          ExpenseState.COMPLETE,
-          ExpenseState.APPROVER_PENDING,
-          ExpenseState.APPROVED,
-          ExpenseState.PAYMENT_PENDING,
-        ].includes(expense.state)
-      )
-    );
 
     this.canDelete$ = this.expenseWithoutCustomProperties$.pipe(
       filter(() => this.view === ExpenseView.team),
@@ -506,44 +486,6 @@ export class ViewExpensePage {
     }
   }
 
-  async flagUnflagExpense(isExpenseFlagged: boolean): Promise<void> {
-    const title = isExpenseFlagged ? 'Unflag' : 'Flag';
-    const flagUnflagModal = await this.popoverController.create({
-      component: FyPopoverComponent,
-      componentProps: {
-        title,
-        formLabel: `Reason for ${title.toLowerCase()}ing expense`,
-      },
-      cssClass: 'fy-dialog-popover',
-    });
-
-    await flagUnflagModal.present();
-    const { data } = (await flagUnflagModal.onWillDismiss()) as { data: { comment: string } };
-
-    if (data && data.comment) {
-      from(this.loaderService.showLoader('Please wait'))
-        .pipe(
-          switchMap(() => {
-            const comment = {
-              comment: data.comment,
-            };
-            return this.statusService.post('transactions', this.expenseId, comment, true);
-          }),
-          concatMap(() =>
-            isExpenseFlagged
-              ? this.transactionService.manualUnflag(this.expenseId)
-              : this.transactionService.manualFlag(this.expenseId)
-          ),
-          finalize(() => {
-            this.updateFlag$.next(null);
-            this.loaderService.hideLoader();
-          })
-        )
-        .subscribe(noop);
-    }
-    this.trackingService.expenseFlagUnflagClicked({ action: title });
-  }
-
   viewAttachments(): void {
     from(this.loaderService.showLoader())
       .pipe(
@@ -563,7 +505,7 @@ export class ViewExpensePage {
       });
   }
 
-  async openTransactionStatusInfoModal(transactionStatus: TransactionStatus): Promise<void> {
+  async openTransactionStatusInfoModal(transactionStatus: ExpenseTransactionStatus): Promise<void> {
     const popover = await this.popoverController.create({
       component: TransactionStatusInfoPopoverComponent,
       componentProps: {
@@ -573,5 +515,14 @@ export class ViewExpensePage {
     });
 
     await popover.present();
+  }
+
+  async openCCExpenseMerchantInfoModal(): Promise<void> {
+    const modal = await this.modalController.create({
+      component: CCExpenseMerchantInfoModalComponent,
+      ...this.modalProperties.getModalDefaultProperties('merchant-info'),
+    });
+
+    await modal.present();
   }
 }

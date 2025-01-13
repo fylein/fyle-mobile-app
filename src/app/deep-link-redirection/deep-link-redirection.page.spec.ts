@@ -6,7 +6,6 @@ import { AdvanceRequestService } from '../core/services/advance-request.service'
 import { AuthService } from '../core/services/auth.service';
 import { TransactionService } from '../core/services/transaction.service';
 import { ExpensesService } from '../core/services/platform/v1/spender/expenses.service';
-import { ReportService } from '../core/services/report.service';
 import { DeepLinkRedirectionPage } from './deep-link-redirection.page';
 import { expectedSingleErpt } from '../core/mock-data/report-unflattened.data';
 import { of, throwError } from 'rxjs';
@@ -29,7 +28,6 @@ describe('DeepLinkRedirectionPage', () => {
   let advanceRequestService: jasmine.SpyObj<AdvanceRequestService>;
   let transactionService: jasmine.SpyObj<TransactionService>;
   let expensesService: jasmine.SpyObj<ExpensesService>;
-  let reportService: jasmine.SpyObj<ReportService>;
   let authService: jasmine.SpyObj<AuthService>;
   let deepLinkService: jasmine.SpyObj<DeepLinkService>;
   let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
@@ -42,7 +40,6 @@ describe('DeepLinkRedirectionPage', () => {
     const advanceRequestServiceSpy = jasmine.createSpyObj('AdvanceRequestService', ['getEReq']);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['transformExpense']);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById']);
-    const reportServiceSpy = jasmine.createSpyObj('ReportService', ['getERpt']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const deepLinkServiceSpy = jasmine.createSpyObj('DeepLinkService', ['getExpenseRoute']);
     const approverReportsServiceSpy = jasmine.createSpyObj('ApproverReportsService', ['getReportById']);
@@ -57,7 +54,6 @@ describe('DeepLinkRedirectionPage', () => {
         { provide: AdvanceRequestService, useValue: advanceRequestServiceSpy },
         { provide: TransactionService, useValue: transactionServiceSpy },
         { provide: ExpensesService, useValue: expensesServiceSpy },
-        { provide: ReportService, useValue: reportServiceSpy },
         { provide: AuthService, useValue: authServiceSpy },
         { provide: DeepLinkService, useValue: deepLinkServiceSpy },
         { provide: SpenderReportsService, useValue: spenderReportsServiceSpy },
@@ -81,7 +77,6 @@ describe('DeepLinkRedirectionPage', () => {
     advanceRequestService = TestBed.inject(AdvanceRequestService) as jasmine.SpyObj<AdvanceRequestService>;
     transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
-    reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     deepLinkService = TestBed.inject(DeepLinkService) as jasmine.SpyObj<DeepLinkService>;
     approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
@@ -409,6 +404,19 @@ describe('DeepLinkRedirectionPage', () => {
       fixture.detectChanges();
       tick(500);
       expect(component.redirectToAdvReqModule).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should call redirectToDashboardModule() if the sub_module is my_dashboard', fakeAsync(() => {
+      activeroutemock.snapshot.params = {
+        sub_module: 'my_dashboard',
+        orgId: 'oroX1Q9TTEO',
+        referrer: 'transactional_email',
+      };
+      spyOn(component, 'redirectToDashboardModule').and.stub();
+      component.ionViewWillEnter();
+      fixture.detectChanges();
+      tick(500);
+      expect(component.redirectToDashboardModule).toHaveBeenCalledTimes(1);
     }));
   });
 

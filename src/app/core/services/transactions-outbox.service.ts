@@ -2,23 +2,18 @@ import { Injectable } from '@angular/core';
 import { StorageService } from './storage.service';
 import { DateService } from './date.service';
 import { Observable, from, noop } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { TransactionService } from './transaction.service';
-import { FileService } from './file.service';
 import { StatusService } from './status.service';
-import { cloneDeep, indexOf } from 'lodash';
+import { indexOf } from 'lodash';
 import { ParsedReceipt } from '../models/parsed_receipt.model';
 import { TrackingService } from './tracking.service';
 import { Expense } from '../models/expense.model';
 import { CurrencyService } from './currency.service';
-import { OrgUserSettingsService } from './org-user-settings.service';
 import { Transaction } from '../models/v1/transaction.model';
 import { FileObject } from '../models/file-obj.model';
 import { OutboxQueue } from '../models/outbox-queue.model';
-import { ExpensesService } from './platform/v1/spender/expenses.service';
-import { SpenderReportsService } from './platform/v1/spender/reports.service';
 import { ParsedResponse } from '../models/parsed_response.model';
 import { SpenderFileService } from './platform/v1/spender/file.service';
 import { PlatformFile } from '../models/platform/platform-file.model';
@@ -33,10 +28,6 @@ export class TransactionsOutboxService {
 
   syncInProgress = false;
 
-  dataExtractionQueue: OutboxQueue[] = [];
-
-  tempQueue;
-
   ROOT_ENDPOINT: string;
 
   //Used for showing bulk mode prompt when instafyle is used more than thrice in the same session
@@ -46,14 +37,10 @@ export class TransactionsOutboxService {
     private storageService: StorageService,
     private dateService: DateService,
     private transactionService: TransactionService,
-    private fileService: FileService,
     private statusService: StatusService,
     private httpClient: HttpClient,
-    private spenderReportsService: SpenderReportsService,
     private trackingService: TrackingService,
     private currencyService: CurrencyService,
-    private orgUserSettingsService: OrgUserSettingsService,
-    private expensesService: ExpensesService,
     private spenderFileService: SpenderFileService
   ) {
     this.ROOT_ENDPOINT = environment.ROOT_URL;
@@ -76,34 +63,11 @@ export class TransactionsOutboxService {
     await this.storageService.set('outbox', this.queue);
   }
 
-  async saveDataExtractionQueue(): Promise<void> {
-    await this.storageService.set('data_extraction_queue', this.dataExtractionQueue);
-  }
-
-  async removeDataExtractionEntry(
-    expense: Partial<Transaction>,
-    dataUrls: { url: string; type: string }[]
-  ): Promise<void> {
-    const entry = {
-      transaction: expense,
-      dataUrls,
-    };
-
-    const idx = this.dataExtractionQueue.indexOf(entry);
-    this.dataExtractionQueue.splice(idx, 1);
-    await this.saveDataExtractionQueue();
-  }
-
   async restoreQueue(): Promise<void> {
     this.queue = await this.storageService.get('outbox');
-    this.dataExtractionQueue = await this.storageService.get('data_extraction_queue');
 
     if (!this.queue) {
       this.queue = [];
-    }
-
-    if (!this.dataExtractionQueue) {
-      this.dataExtractionQueue = [];
     }
 
     // eslint-disable-next-line @typescript-eslint/prefer-for-of
@@ -112,24 +76,6 @@ export class TransactionsOutboxService {
       // In localStorage the date objects are stored as string, have to convert them to date instance
       entry.transaction = this.dateService.fixDates(entry.transaction);
     }
-
-    // eslint-disable-next-line @typescript-eslint/prefer-for-of
-    for (let i = 0; i < this.dataExtractionQueue.length; i++) {
-      const entry = this.dataExtractionQueue[i];
-      // In localStorage the date objects are stored as string, have to convert them to date instance
-      entry.transaction = this.dateService.fixDates(entry.transaction);
-    }
-  }
-
-  async addDataExtractionEntry(
-    transaction: Partial<Transaction>,
-    dataUrls: { url: string; type: string }[]
-  ): Promise<void> {
-    this.dataExtractionQueue.push({
-      transaction,
-      dataUrls,
-    });
-    await this.saveDataExtractionQueue();
   }
 
   getExpenseDate(entry: OutboxQueue, extractedData: ParsedResponse): Date {
@@ -139,74 +85,6 @@ export class TransactionsOutboxService {
       return new Date(extractedData.date);
     } else {
       return new Date();
-    }
-  }
-
-  async processDataExtractionEntry(): Promise<void> {
-    const that = this;
-    const clonedQueue = cloneDeep(this.dataExtractionQueue);
-
-    if (clonedQueue.length > 0) {
-      // calling data_extraction serially for all expenses in queue.
-      // https://gist.github.com/steve-taylor/5075717
-      const loop = (index: number): void => {
-        const entry = clonedQueue[index];
-
-        const base64Image = entry.dataUrls[0].url.replace('data:image/jpeg;base64,', '');
-
-        that
-          .parseReceipt(base64Image)
-          .then(
-            (response) => {
-              const parsedResponse = response.data;
-
-              if (parsedResponse) {
-                const extractedData = {
-                  amount: parsedResponse.amount,
-                  currency: parsedResponse.currency,
-                  category: parsedResponse.category,
-                  date: parsedResponse.date ? new Date(parsedResponse.date) : null,
-                  vendor: parsedResponse.vendor_name,
-                };
-
-                entry.transaction.extracted_data = extractedData;
-                entry.transaction.txn_dt = this.getExpenseDate(entry, parsedResponse);
-
-                // TODO: add this to allow amout addtion to extracted expense
-                // let transactionUpsertPromise;
-
-                // if (!entry.transaction.amount) {
-                //   transactionUpsertPromise = that
-                //     .getExtractedCurrencyData(extractedData, entry)
-                //     .then((_) => that.transactionService.upsert(entry.transaction).toPromise());
-                // } else {
-                //   transactionUpsertPromise = that.transactionService.upsert(entry.transaction).toPromise();
-                // }
-
-                that.transactionService
-                  .upsert(entry.transaction)
-                  .toPromise()
-                  .then(() => null)
-                  .finally(() => {
-                    this.removeDataExtractionEntry(entry.transaction, entry.dataUrls);
-                  });
-              } else {
-                this.removeDataExtractionEntry(entry.transaction, entry.dataUrls);
-              }
-            },
-            () => {
-              this.removeDataExtractionEntry(entry.transaction, entry.dataUrls);
-            }
-          )
-          .finally(() => {
-            // iterating to next item on list.
-            if (index < clonedQueue.length - 1) {
-              loop(index + 1);
-            }
-          });
-      };
-
-      loop(0);
     }
   }
 
@@ -263,16 +141,12 @@ export class TransactionsOutboxService {
   addEntry(
     transaction: Partial<Transaction>,
     dataUrls: { url: string; type: string }[],
-    comments?: string[],
-    reportId?: string,
-    applyMagic = false
+    comments?: string[]
   ): Promise<void> {
     this.queue.push({
       transaction,
       dataUrls,
       comments,
-      reportId,
-      applyMagic: !!applyMagic,
     });
 
     return this.saveQueue();
@@ -283,11 +157,9 @@ export class TransactionsOutboxService {
   addEntryAndSync(
     transaction: Partial<Transaction>,
     dataUrls: { url: string; type: string }[],
-    comments: string[],
-    reportId: string,
-    applyMagic = false
+    comments: string[]
   ): Promise<OutboxQueue> {
-    this.addEntry(transaction, dataUrls, comments, reportId, applyMagic);
+    this.addEntry(transaction, dataUrls, comments);
     return this.syncEntry(this.queue.pop());
   }
 
@@ -328,7 +200,6 @@ export class TransactionsOutboxService {
   syncEntry(entry: OutboxQueue): Promise<OutboxQueue> {
     const that = this;
     const fileObjPromiseArray: Promise<FileObject>[] = [];
-    const reportId = entry.reportId;
 
     if (!entry.fileUploadCompleted) {
       if (entry.dataUrls && entry.dataUrls.length > 0) {
@@ -360,76 +231,12 @@ export class TransactionsOutboxService {
               that.statusService.post('transactions', resp.id, { comment }, true).subscribe(noop);
             });
           }
-          if (resp.id && entry.transaction.advance_wallet_id !== resp.advance_wallet_id) {
-            const expense = {
-              id: resp.id,
-              advance_wallet_id: entry.transaction.advance_wallet_id,
-            };
-            that.expensesService.post(expense).subscribe(noop);
-          }
-          if (entry.dataUrls && entry.dataUrls.length > 0) {
-            that.expensesService
-              .getExpenseById(resp.id)
-              .toPromise()
-              .then((expense) => {
-                entry.dataUrls.forEach((dataUrl) => {
-                  if (dataUrl.callBackUrl) {
-                    const transformedExpense = that.transactionService.transformExpense(expense);
-                    that.httpClient.post(dataUrl.callBackUrl, {
-                      entered_data: {
-                        amount: transformedExpense.tx.amount,
-                        currency: transformedExpense.tx.currency,
-                        orig_currency: transformedExpense.tx.orig_currency,
-                        orig_amount: transformedExpense.tx.orig_amount,
-                        date: transformedExpense.tx.txn_dt,
-                        vendor: transformedExpense.tx.vendor,
-                        category: transformedExpense.tx.fyle_category,
-                        external_id: transformedExpense.tx.external_id,
-                        transaction_id: transformedExpense.tx.id,
-                      },
-                    });
-                  }
-                });
-              });
-          }
-
-          if (entry.applyMagic) {
-            const isInstafyleEnabled$ = this.orgUserSettingsService
-              .get()
-              .pipe(
-                map(
-                  (orgUserSettings) =>
-                    orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled
-                )
-              );
-
-            isInstafyleEnabled$.subscribe((isInstafyleEnabled) => {
-              if (isInstafyleEnabled) {
-                that.addDataExtractionEntry(resp, entry.dataUrls);
-              }
-            });
-          }
 
           that
             .matchIfRequired(resp.id, entry.transaction.matchCCCId)
             .then(() => {
               that.removeEntry(entry);
-              if (reportId) {
-                const txnIds = [resp.id];
-                that.spenderReportsService
-                  .addExpenses(reportId, txnIds)
-                  .toPromise()
-                  .then(() => {
-                    this.trackingService.addToExistingReportAddEditExpense();
-                    resolve(entry);
-                  })
-                  .catch((err: Error) => {
-                    this.trackingService.syncError({ label: err });
-                    reject(err);
-                  });
-              } else {
-                resolve(entry);
-              }
+              resolve(entry);
             })
             .catch((err: Error) => {
               this.trackingService.syncError({ label: err });
@@ -463,7 +270,6 @@ export class TransactionsOutboxService {
           // if (p.length > 0) {
           //   TransactionService.deleteCache();
           // }
-          that.processDataExtractionEntry();
           resolve();
         })
         .catch((err) => {
@@ -520,12 +326,6 @@ export class TransactionsOutboxService {
           .toPromise()
           .then((res) => res as ParsedReceipt)
       );
-  }
-
-  isDataExtractionPending(txnId: string): boolean {
-    const txnIds = this.dataExtractionQueue.map((entry) => entry.transaction.id);
-
-    return txnIds.indexOf(txnId) > -1;
   }
 
   isPDF(type: string): boolean {

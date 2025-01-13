@@ -69,8 +69,10 @@ export class IconModule {
     'info-circle-fill.svg',
     'info-circle-fill.svg',
     'info-gradient.svg',
+    'info-circle-gradient.svg',
     'list-plus.svg',
     'list.svg',
+    'list-new.svg',
     'location.svg',
     'logo-google.svg',
     'loader.svg',
@@ -112,6 +114,9 @@ export class IconModule {
     'arrow-up.svg',
     'check-circle-outline.svg',
     'question-square-outline.svg',
+    'sparkle.svg',
+    'arrow-tail-right.svg',
+    'stars-filled.svg',
   ];
 
   constructor(private domSanitizer: DomSanitizer, private matIconRegistry: MatIconRegistry) {

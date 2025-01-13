@@ -1,18 +1,16 @@
+import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 import { Component } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, NavController } from '@ionic/angular';
 import { isEmpty, isNumber } from 'lodash';
 import * as dayjs from 'dayjs';
-import { forkJoin, from, iif, Observable, of, throwError } from 'rxjs';
+import { combineLatest, forkJoin, from, iif, Observable, of, throwError } from 'rxjs';
 import { catchError, concatMap, finalize, map, switchMap } from 'rxjs/operators';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { DateService } from 'src/app/core/services/date.service';
-import { FileService } from 'src/app/core/services/file.service';
-import { TransactionService } from 'src/app/core/services/transaction.service';
 import { SplitExpenseService } from 'src/app/core/services/split-expense.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { ReportService } from 'src/app/core/services/report.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
@@ -80,6 +78,8 @@ export class SplitExpensePage {
 
   isCorporateCardsEnabled$: Observable<boolean>;
 
+  isProjectCategoryRestrictionsEnabled$: Observable<boolean>;
+
   transaction: Transaction;
 
   fileObjs: FileObject[];
@@ -125,18 +125,16 @@ export class SplitExpensePage {
     private dateService: DateService,
     private splitExpenseService: SplitExpenseService,
     private currencyService: CurrencyService,
-    private transactionService: TransactionService,
-    private fileService: FileService,
     private navController: NavController,
     private router: Router,
     private transactionsOutboxService: TransactionsOutboxService,
-    private reportService: ReportService,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
     private trackingService: TrackingService,
     private policyService: PolicyService,
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
+    private costCentersService: CostCentersService,
     private orgUserSettingsService: OrgUserSettingsService,
     private orgSettingsService: OrgSettingsService,
     private dependentFieldsService: DependentFieldsService,
@@ -374,31 +372,46 @@ export class SplitExpensePage {
     });
   }
 
+  setSplitExpenseValuesBasedOnProject(
+    splitTxn: Transaction,
+    project: ProjectV2,
+    isProjectCategoryRestrictionsEnabled: boolean
+  ): void {
+    splitTxn.project_id = project.project_id;
+    splitTxn.project_name = project.project_name;
+    splitTxn.org_category_id = null;
+    splitTxn.org_category = null;
+    if (
+      this.transaction.org_category_id &&
+      (!isProjectCategoryRestrictionsEnabled ||
+        (project.project_org_category_ids &&
+          project.project_org_category_ids.includes(this.transaction.org_category_id)))
+    ) {
+      splitTxn.org_category_id = this.transaction.org_category_id;
+      splitTxn.org_category = this.transaction.org_category;
+    }
+  }
+
   setSplitExpenseProjectHelper(
     splitFormValue: SplitExpense,
     splitTxn: Transaction,
-    project: ProjectV2,
-    costCenter: ExpenseField
+    expenseDetails: Record<string, ExpenseField | ProjectV2>,
+    isProjectCategoryRestrictionsEnabled: boolean
   ): void {
+    const project: ProjectV2 = expenseDetails.project as ProjectV2;
+    const costCenter: ExpenseField = expenseDetails.costCenter as ExpenseField;
+
     if (splitFormValue.project?.project_id) {
-      splitTxn.project_id = project.project_id;
-      splitTxn.project_name = project.project_name;
-      splitTxn.org_category_id = null;
-      splitTxn.org_category = null;
-      if (
-        project.project_org_category_ids &&
-        this.transaction.org_category_id &&
-        project.project_org_category_ids.includes(this.transaction.org_category_id)
-      ) {
-        splitTxn.org_category_id = this.transaction.org_category_id;
-        splitTxn.org_category = this.transaction.org_category;
-      }
+      this.setSplitExpenseValuesBasedOnProject(splitTxn, project, isProjectCategoryRestrictionsEnabled);
     } else if (splitFormValue.category?.id) {
       splitTxn.org_category_id = splitFormValue.category.id;
       splitTxn.org_category = splitFormValue.category.name;
       splitTxn.project_id = null;
       splitTxn.project_name = null;
-      if (this.transaction.project_id && project.project_org_category_ids.includes(splitFormValue.category.id)) {
+      if (
+        this.transaction.project_id &&
+        (!isProjectCategoryRestrictionsEnabled || project.project_org_category_ids.includes(splitFormValue.category.id))
+      ) {
         splitTxn.project_id = project.project_id;
         splitTxn.project_name = project.project_name;
       }
@@ -414,12 +427,12 @@ export class SplitExpensePage {
   setCategoryAndProjectHelper(
     splitFormValue: SplitExpense,
     splitTxn: Transaction,
-    project: ProjectV2,
-    costCenter: ExpenseField
+    expenseDetails: Record<string, ExpenseField | ProjectV2>,
+    isProjectCategoryRestrictionsEnabled: boolean
   ): void {
     splitTxn.cost_center_id = splitFormValue.cost_center?.id || this.transaction.cost_center_id;
     if (this.transaction.project_id || this.transaction.org_category_id) {
-      this.setSplitExpenseProjectHelper(splitFormValue, splitTxn, project, costCenter);
+      this.setSplitExpenseProjectHelper(splitFormValue, splitTxn, expenseDetails, isProjectCategoryRestrictionsEnabled);
     } else {
       //if no project or category id exists in source txn, set them from splitExpense object
       splitTxn.org_category_id = splitFormValue.category?.id || this.transaction.org_category_id;
@@ -427,27 +440,45 @@ export class SplitExpensePage {
     }
   }
 
-  setupCategoryAndProject(splitTxn: Transaction, splitFormValue: SplitExpense): void {
-    const costCenter = this.txnFields.cost_center_id;
+  setupCategoryAndProject(
+    splitTxn: Transaction,
+    splitFormValue: SplitExpense,
+    isProjectCategoryRestrictionsEnabled: boolean
+  ): void {
+    const expenseDetails: Record<string, ExpenseField | ProjectV2> = {
+      costCenter: this.txnFields.cost_center_id,
+      project: null,
+    };
+
     if (!this.transaction.project_id && !splitFormValue.project?.project_id) {
-      //if no project id exists, pass project as null
-      this.setCategoryAndProjectHelper(splitFormValue, splitTxn, null, costCenter);
+      //if no project id exists, pass project as null, expenseDetails has project as null by default
+      this.setCategoryAndProjectHelper(splitFormValue, splitTxn, expenseDetails, isProjectCategoryRestrictionsEnabled);
     } else {
       //if split_expense has project org_category_ids, pass project
       if (splitFormValue.project && splitFormValue.project.project_org_category_ids) {
-        this.setCategoryAndProjectHelper(splitFormValue, splitTxn, splitFormValue.project, costCenter);
+        expenseDetails.project = splitFormValue.project;
+        this.setCategoryAndProjectHelper(
+          splitFormValue,
+          splitTxn,
+          expenseDetails,
+          isProjectCategoryRestrictionsEnabled
+        );
       } else if (
         (splitFormValue.project?.project_id && !splitFormValue.project.project_org_category_ids) ||
         this.transaction.project_id
       ) {
         //if split_expense or source txn has projectIds, call the method to get project and push to promises
-        let project: ProjectV2;
         if (splitFormValue.project) {
-          project = splitFormValue.project;
+          expenseDetails.project = splitFormValue.project;
         } else {
-          project = this.selectedProject;
+          expenseDetails.project = this.selectedProject;
         }
-        this.setCategoryAndProjectHelper(splitFormValue, splitTxn, project, costCenter);
+        this.setCategoryAndProjectHelper(
+          splitFormValue,
+          splitTxn,
+          expenseDetails,
+          isProjectCategoryRestrictionsEnabled
+        );
       }
     }
   }
@@ -462,13 +493,13 @@ export class SplitExpensePage {
       ),
     };
 
-    return forkJoin(splitExpense$).pipe(
-      switchMap((data) => {
-        for (const [index, txn] of data.txns.entries()) {
+    return forkJoin([splitExpense$.txns, this.isProjectCategoryRestrictionsEnabled$]).pipe(
+      switchMap(([txns, isProjectCategoryRestrictionsEnabled]) => {
+        for (const [index, txn] of txns.entries()) {
           const splitForm = this.splitExpensesFormArray.at(index);
-          this.setupCategoryAndProject(txn, splitForm.value as SplitExpense);
+          this.setupCategoryAndProject(txn, splitForm.value as SplitExpense, isProjectCategoryRestrictionsEnabled);
         }
-        this.splitExpenseTxn = data.txns.map((txn) => txn);
+        this.splitExpenseTxn = txns;
         return of(this.splitExpenseTxn);
       })
     );
@@ -846,14 +877,30 @@ export class SplitExpensePage {
     // This method is used for setting the header of split expense page
     this.getSplitExpenseHeader();
 
+    this.isProjectCategoryRestrictionsEnabled$ = orgSettings$.pipe(
+      map(
+        (orgSettings) =>
+          orgSettings.advanced_projects.allowed && orgSettings.advanced_projects.enable_category_restriction
+      )
+    );
+
     this.categories$ = this.getActiveCategories().pipe(
       switchMap((activeCategories) =>
         this.launchDarklyService.getVariation('show_project_mapped_categories_in_split_expense', false).pipe(
           switchMap((showProjectMappedCategories) => {
             if (showProjectMappedCategories && this.transaction.project_id) {
-              return this.projectsService
-                .getbyId(this.transaction.project_id)
-                .pipe(map((project) => this.projectsService.getAllowedOrgCategoryIds(project, activeCategories)));
+              return combineLatest([
+                this.projectsService.getbyId(this.transaction.project_id),
+                this.isProjectCategoryRestrictionsEnabled$,
+              ]).pipe(
+                map(([project, isProjectCategoryRestrictionsEnabled]) =>
+                  this.projectsService.getAllowedOrgCategoryIds(
+                    project,
+                    activeCategories,
+                    isProjectCategoryRestrictionsEnabled
+                  )
+                )
+              );
             }
 
             return of(activeCategories);
@@ -882,14 +929,10 @@ export class SplitExpensePage {
     );
 
     if (this.splitType === 'cost centers') {
-      const orgUserSettings$ = this.orgUserSettingsService.get();
-      this.costCenters$ = forkJoin({
-        orgSettings: orgSettings$,
-        orgUserSettings: orgUserSettings$,
-      }).pipe(
-        switchMap(({ orgSettings, orgUserSettings }) => {
+      this.costCenters$ = orgSettings$.pipe(
+        switchMap((orgSettings) => {
           if (orgSettings.cost_centers.enabled) {
-            return this.orgUserSettingsService.getAllowedCostCenters(orgUserSettings);
+            return this.costCentersService.getAllActive();
           } else {
             return of([]);
           }

@@ -1,11 +1,9 @@
 import { Inject, Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { DateService } from './date.service';
-import { map, switchMap, concatMap, reduce } from 'rxjs/operators';
+import { map, switchMap, concatMap, reduce, tap } from 'rxjs/operators';
 import { StorageService } from './storage.service';
 import { from, Observable, range, forkJoin, of } from 'rxjs';
-import { ApiV2Service } from './api-v2.service';
-import { AuthService } from './auth.service';
 import { OrgUserSettingsService } from './org-user-settings.service';
 import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
@@ -22,8 +20,6 @@ import { AccountsService } from './accounts.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformPolicyExpense } from '../models/platform/platform-policy-expense.model';
 import { ExpensePolicy } from '../models/platform/platform-expense-policy.model';
-import { EtxnParams } from '../models/etxn-params.model';
-import { ApiV2Response } from '../models/v2/api-v2-response.model';
 import { Transaction } from '../models/v1/transaction.model';
 import { FileObject } from '../models/file-obj.model';
 import { UnflattenedTransaction } from '../models/unflattened-transaction.model';
@@ -40,31 +36,20 @@ import { CorporateCardTransactionRes } from '../models/platform/v1/corporate-car
 import { ExpenseFilters } from '../models/expense-filters.model';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { expensesCacheBuster$ } from '../cache-buster/expense-cache-buster';
-import { LaunchDarklyService } from './launch-darkly.service';
-
-enum FilterState {
-  READY_TO_REPORT = 'READY_TO_REPORT',
-  POLICY_VIOLATED = 'POLICY_VIOLATED',
-  CANNOT_REPORT = 'CANNOT_REPORT',
-  DRAFT = 'DRAFT',
-}
-
-type PaymentMode = {
-  name: string;
-  key: string;
-};
+import { FilterState } from '../enums/filter-state.enum';
+import { PaymentMode } from '../models/payment-mode.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class TransactionService {
+  private clearTaskCache = true;
+
   constructor(
     @Inject(PAGINATION_SIZE) private paginationSize: number,
     private storageService: StorageService,
     private apiService: ApiService,
-    private apiV2Service: ApiV2Service,
     private dateService: DateService,
-    private authService: AuthService,
     private orgUserSettingsService: OrgUserSettingsService,
     private timezoneService: TimezoneService,
     private utilityService: UtilityService,
@@ -73,11 +58,12 @@ export class TransactionService {
     private paymentModesService: PaymentModesService,
     private orgSettingsService: OrgSettingsService,
     private accountsService: AccountsService,
-    private expensesService: ExpensesService,
-    private ldService: LaunchDarklyService
+    private expensesService: ExpensesService
   ) {
     expensesCacheBuster$.subscribe(() => {
-      this.userEventService.clearTaskCache();
+      if (this.clearTaskCache) {
+        this.userEventService.clearTaskCache();
+      }
     });
   }
 
@@ -90,86 +76,11 @@ export class TransactionService {
     cacheBusterNotifier: expensesCacheBuster$,
     isInstant: true,
   })
-  clearCache(): Observable<null> {
-    return of(null);
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: expensesCacheBuster$,
-  })
-  manualFlag(txnId: string): Observable<Expense> {
-    return this.apiService.post('/transactions/' + txnId + '/manual_flag');
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: expensesCacheBuster$,
-  })
-  manualUnflag(txnId: string): Observable<Expense> {
-    return this.apiService.post('/transactions/' + txnId + '/manual_unflag');
-  }
-
-  @Cacheable({
-    cacheBusterObserver: expensesCacheBuster$,
-  })
-
-  // TODO: Remove/Update method once we remove older my-expenses-page completely
-  getMyExpenses(
-    config: Partial<{ offset: number; limit: number; order: string; queryParams: EtxnParams }> = {
-      offset: 0,
-      limit: 10,
-      queryParams: {},
-    }
-  ): Observable<ApiV2Response<Expense>> {
-    return from(this.authService.getEou()).pipe(
-      switchMap((eou) =>
-        this.apiV2Service.get('/expenses', {
-          params: {
-            offset: config.offset,
-            limit: config.limit,
-            order: `${config.order || 'tx_txn_dt.desc'},tx_created_at.desc,tx_id.desc`,
-            tx_org_user_id: 'eq.' + eou.ou.id,
-            ...config.queryParams,
-          },
-        })
-      ),
-      map(
-        (res) =>
-          res as {
-            count: number;
-            data: Expense[];
-            limit: number;
-            offset: number;
-            url: string;
-          }
-      ),
-      map((res) => ({
-        ...res,
-        data: res.data.map((datum: Expense) => this.dateService.fixDatesV2(datum)),
-      }))
-    );
-  }
-
-  @Cacheable({
-    cacheBusterObserver: expensesCacheBuster$,
-  })
-
-  // TODO: Remove/Update method once we remove older my-expenses-page completely
-  getAllExpenses(config: Partial<{ order: string; queryParams: EtxnParams }>): Observable<Expense[]> {
-    return this.getMyExpensesCount(config.queryParams).pipe(
-      switchMap((count) => {
-        count = count > this.paginationSize ? count / this.paginationSize : 1;
-        return range(0, count);
-      }),
-      concatMap((page) =>
-        this.getMyExpenses({
-          offset: this.paginationSize * page,
-          limit: this.paginationSize,
-          queryParams: config.queryParams,
-          order: config.order,
-        })
-      ),
-      map((res) => res.data),
-      reduce((acc, curr) => acc.concat(curr), [] as Expense[])
+  clearCache(clearTaskCache: boolean = true): Observable<null> {
+    return of(null).pipe(
+      tap(() => {
+        this.clearTaskCache = clearTaskCache;
+      })
     );
   }
 
@@ -237,11 +148,7 @@ export class TransactionService {
           transaction.txn_dt.setSeconds(0);
           transaction.txn_dt.setMilliseconds(0);
 
-          if (this.ldService.getImmediate('timezone_fix', false)) {
-            transaction.txn_dt = this.dateService.getUTCMidAfternoonDate(transaction.txn_dt);
-          } else {
-            transaction.txn_dt = this.timezoneService.convertToUtc(transaction.txn_dt, offset);
-          }
+          transaction.txn_dt = this.dateService.getUTCMidAfternoonDate(transaction.txn_dt);
         }
 
         if (transaction.from_dt) {
@@ -273,7 +180,8 @@ export class TransactionService {
 
         const transactionCopy = this.utilityService.discardRedundantCharacters(transaction, fieldsToCheck);
 
-        return this.apiService.post<Transaction>('/transactions', transactionCopy);
+        const expensePayload = this.expensesService.transformTo(transactionCopy);
+        return this.expensesService.post(expensePayload).pipe(map((result) => this.transformExpense(result.data).tx));
       })
     );
   }
@@ -285,26 +193,29 @@ export class TransactionService {
     txn: Partial<Transaction>,
     fileUploads$: Observable<FileObject[]>
   ): Observable<Partial<Transaction>> {
-    const upsertTxn$ = this.upsert(txn);
-    return forkJoin([fileUploads$, upsertTxn$]).pipe(
-      switchMap(([fileObjs, transaction]) => {
+    return fileUploads$.pipe(
+      switchMap((fileObjs) => {
         const fileIds = fileObjs.map((fileObj) => fileObj.id);
-        if (fileIds.length > 0) {
-          return this.expensesService.attachReceiptsToExpense(transaction.id, fileIds).pipe(map(() => transaction));
+        const isReceiptUpload = txn.hasOwnProperty('source') && Object.keys(txn).length === 1;
+        const isAmountPresent = !!txn.amount;
+        if ((isReceiptUpload || !isAmountPresent) && fileIds.length > 0) {
+          return this.expensesService.createFromFile(fileIds[0], txn.source).pipe(
+            switchMap((result) => {
+              // capture receipt flow: patching the expense in case of amount not present
+              if (!isReceiptUpload && !isAmountPresent) {
+                txn.id = result.data[0].id;
+                return this.upsert(this.cleanupExpensePayload(txn));
+              } else {
+                return of(this.transformExpense(result.data[0]).tx);
+              }
+            })
+          );
         } else {
-          return of(transaction);
+          txn.file_ids = fileIds;
+          return this.upsert(txn);
         }
       })
     );
-  }
-
-  // TODO: Remove/Update method once we remove older my-expenses-page completely
-  getMyExpensesCount(queryParams: EtxnParams): Observable<number> {
-    return this.getMyExpenses({
-      offset: 0,
-      limit: 1,
-      queryParams,
-    }).pipe(map((res) => res.count));
   }
 
   checkMandatoryFields(platformPolicyExpense: PlatformPolicyExpense): Observable<PlatformMissingMandatoryFields> {
@@ -370,20 +281,8 @@ export class TransactionService {
     return this.spenderPlatformV1ApiService.post('/corporate_card_transactions/match', { data: payload });
   }
 
-  review(txnId: string): Observable<null> {
-    return this.apiService.post('/transactions/' + txnId + '/review');
-  }
-
   getDefaultVehicleType(): Observable<string> {
     return from(this.storageService.get<string>('vehicle_preference'));
-  }
-
-  uploadBase64File(txnId: string, name: string, base64Content: string): Observable<FileObject> {
-    const data = {
-      content: base64Content,
-      name,
-    };
-    return this.apiService.post('/transactions/' + txnId + '/upload_b64', data);
   }
 
   unmatchCCCExpense(id: string, expenseId: string): Observable<CorporateCardTransactionRes> {
@@ -519,7 +418,7 @@ export class TransactionService {
     if (stateOrFilter.length > 0) {
       let combinedStateOrFilter = stateOrFilter.reduce((param1, param2) => `${param1}, ${param2}`);
       combinedStateOrFilter = `(${combinedStateOrFilter})`;
-      newQueryParamsCopy.or.push(combinedStateOrFilter);
+      (newQueryParamsCopy.or as string[]).push(combinedStateOrFilter);
     }
 
     return newQueryParamsCopy;
@@ -560,11 +459,11 @@ export class TransactionService {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     if (filters.splitExpense) {
       if (filters.splitExpense === 'YES') {
-        newQueryParamsCopy.or.push('(tx_is_split_expense.eq.true)');
+        (newQueryParamsCopy.or as string[]).push('(tx_is_split_expense.eq.true)');
       }
 
       if (filters.splitExpense === 'NO') {
-        newQueryParamsCopy.or.push('(tx_is_split_expense.eq.false)');
+        (newQueryParamsCopy.or as string[]).push('(tx_is_split_expense.eq.false)');
       }
     }
 
@@ -604,7 +503,7 @@ export class TransactionService {
     if (typeOrFilter.length > 0) {
       let combinedTypeOrFilter = typeOrFilter.reduce((param1, param2) => `${param1}, ${param2}`);
       combinedTypeOrFilter = `(${combinedTypeOrFilter})`;
-      newQueryParamsCopy.or.push(combinedTypeOrFilter);
+      (newQueryParamsCopy.or as string[]).push(combinedTypeOrFilter);
     }
 
     return newQueryParamsCopy;
@@ -759,6 +658,7 @@ export class TransactionService {
         orig_currency: expense.foreign_currency,
         from_dt: expense.started_at,
         to_dt: expense.ended_at,
+        tax: expense.tax_amount,
         vendor: expense.merchant,
         distance: expense.distance,
         distance_unit: expense.distance_unit,
@@ -804,7 +704,6 @@ export class TransactionService {
         mileage_calculated_amount: expense.mileage_calculated_amount,
         commute_deduction: expense.commute_deduction,
         commute_deduction_id: expense.commute_details_id,
-        manual_flag: expense.is_manually_flagged,
         policy_flag: expense.is_policy_flagged,
         extracted_data: expense.extracted_data
           ? {
@@ -830,6 +729,7 @@ export class TransactionService {
               orig_amount: transaction.foreign_amount,
               orig_currency: transaction.foreign_currency,
               status: transaction.status,
+              corporate_card_nickname: transaction?.corporate_card_nickname,
             }))
           : null,
         source_account_id: expense.source_account_id,
@@ -868,11 +768,15 @@ export class TransactionService {
       tx_file_ids: expense.file_ids,
       tx_creator_id: expense.employee?.id,
       tx_state: expense.state,
-      tx_tax_org_id: expense.tax_group_id,
+      tx_org_category_id: expense.category_id,
+      tx_from_dt: expense.started_at,
+      tx_to_dt: expense.ended_at,
+      tx_tax_group_id: expense.tax_group_id,
+      tx_tax: expense.tax_amount,
       tg_name: expense.tax_group?.name,
       tx_project_name: expense.project?.name,
       tx_project_id: expense.project_id,
-      tx_cost_center_name: expense.cost_center?.name,
+      tx_cost_center_name: expense.cost_center?.name || null,
       tx_cost_center_id: expense.cost_center_id,
       tx_corporate_credit_card_expense_group_id:
         expense.matched_corporate_card_transaction_ids?.length > 0
@@ -900,7 +804,6 @@ export class TransactionService {
       tx_mileage_is_round_trip: expense.mileage_is_round_trip,
       tx_mileage_calculated_distance: expense.mileage_calculated_distance,
       tx_mileage_calculated_amount: expense.mileage_calculated_amount,
-      tx_manual_flag: expense.is_manually_flagged,
       tx_policy_flag: expense.is_policy_flagged,
       tx_extracted_data: expense.extracted_data
         ? {
@@ -1026,5 +929,16 @@ export class TransactionService {
     }
 
     return typeOrFilter;
+  }
+
+  // to be used only when updating created expense with form values during capture recept flow
+  private cleanupExpensePayload(txn: Partial<Transaction>): Partial<Transaction> {
+    const newTxn: Partial<Transaction> = {};
+    for (const key in txn) {
+      if (txn[key] !== null && txn[key] !== undefined) {
+        newTxn[key] = txn[key] as Transaction[keyof Transaction];
+      }
+    }
+    return newTxn;
   }
 }

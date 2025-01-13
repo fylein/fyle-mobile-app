@@ -7,10 +7,11 @@ import { MileageUnitEnum } from 'src/app/core/models/platform/platform-mileage-r
 import { ReportState } from 'src/app/core/models/platform/v1/report.model';
 import { ApprovalState } from 'src/app/core/models/platform/report-approvals.model';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
-import { Expense, TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
+import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { FileType } from 'src/app/core/models/platform/v1/file.model';
 import { CustomFieldTypes } from 'src/app/core/enums/platform/v1/custom-fields-type.enum';
 import { CommuteDeduction } from 'src/app/core/enums/commute-deduction.enum';
+import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
 
 export const expenseData: Expense = deepFreeze({
   accounting_export_summary: {},
@@ -119,7 +120,6 @@ export const expenseData: Expense = deepFreeze({
   is_reimbursable: false,
   is_split: false,
   is_verified: true,
-  is_weekend_spend: false,
   last_exported_at: null,
   last_settled_at: null,
   last_verified_at: new Date('2023-10-31T18:15:25.494224+00:00'),
@@ -143,7 +143,7 @@ export const expenseData: Expense = deepFreeze({
       merchant: 'Merchant1',
       posted_at: null,
       spent_at: new Date('2023-10-15T00:00:00+00:00'),
-      status: TransactionStatus?.PENDING,
+      status: ExpenseTransactionStatus?.PENDING,
     },
   ],
   merchant: null,
@@ -200,14 +200,12 @@ export const expenseData: Expense = deepFreeze({
     reimbursement_id: 'reim9PJnm8PAUs',
     reimbursement_seq_num: 'P/2023/11/T/P/2023/11/R/1',
     seq_num: 'C/2023/10/R/8',
-    settlement_id: 'setLBTMkqCfL9',
     state: ReportState.APPROVED,
     title: '#7: October 2023',
   },
   report_id: 'rp96APY6Efph',
   report_last_approved_at: new Date('2023-11-02T10:44:14.290000+00:00'),
   report_last_paid_at: null,
-  report_settlement_id: 'setLBTMkqCfL9',
   seq_num: 'E/2023/10/T/7',
   source: 'WEBAPP',
   source_account: {
@@ -534,7 +532,6 @@ export const mileageExpense: Expense = deepFreeze({
   is_reimbursable: true,
   is_split: false,
   is_verified: false,
-  is_weekend_spend: false,
   last_exported_at: null,
   last_settled_at: null,
   last_verified_at: null,
@@ -603,14 +600,12 @@ export const mileageExpense: Expense = deepFreeze({
     reimbursement_id: null,
     reimbursement_seq_num: null,
     seq_num: 'C/2023/11/R/2',
-    settlement_id: null,
     state: ReportState.APPROVER_PENDING,
     title: '#1: October 2023',
   },
   report_id: 'rpynbzxa3psU',
   report_last_approved_at: null,
   report_last_paid_at: null,
-  report_settlement_id: null,
   seq_num: 'E/2023/02/T/4',
   source: 'WEBAPP_BULK',
   source_account: {
@@ -893,7 +888,6 @@ export const perDiemExpense: Expense = deepFreeze({
   is_reimbursable: true,
   is_split: false,
   is_verified: false,
-  is_weekend_spend: false,
   last_exported_at: null,
   last_settled_at: null,
   last_verified_at: null,
@@ -957,14 +951,12 @@ export const perDiemExpense: Expense = deepFreeze({
     reimbursement_id: null,
     reimbursement_seq_num: null,
     seq_num: 'C/2023/10/R/13',
-    settlement_id: null,
     state: ReportState.APPROVER_PENDING,
     title: '#5: October 2023',
   },
   report_id: 'rpFvmTgyeBjN',
   report_last_approved_at: null,
   report_last_paid_at: null,
-  report_settlement_id: null,
   seq_num: 'E/2023/11/T/2',
   source: 'WEBAPP',
   source_account: {
@@ -1028,6 +1020,7 @@ export const criticalPolicyViolatedExpense: Expense = deepFreeze({
   policy_amount: 0.00009,
 });
 
+// eslint-disable-next-line custom-rules/prefer-semantic-extension-name
 type Category = Pick<PlatformCategory, 'code' | 'id' | 'display_name' | 'name' | 'sub_category' | 'system_category'>;
 
 const mileageCategory: Category = deepFreeze({
@@ -1298,7 +1291,6 @@ export const apiExpenses1: Expense[] = deepFreeze([
     is_reimbursable: true,
     is_split: true,
     is_verified: false,
-    is_weekend_spend: false,
     last_exported_at: null,
     last_settled_at: null,
     last_verified_at: null,
@@ -1346,7 +1338,6 @@ export const apiExpenses1: Expense[] = deepFreeze([
     report_id: null,
     report_last_approved_at: null,
     report_last_paid_at: null,
-    report_settlement_id: null,
     seq_num: 'E/2023/11/T/14',
     source: 'MOBILE_DASHCAM_BULK',
     source_account: {
@@ -1653,7 +1644,6 @@ export const apiExpenses1: Expense[] = deepFreeze([
     is_reimbursable: true,
     is_split: true,
     is_verified: false,
-    is_weekend_spend: false,
     last_exported_at: null,
     last_settled_at: null,
     last_verified_at: null,
@@ -1701,7 +1691,6 @@ export const apiExpenses1: Expense[] = deepFreeze([
     report_id: null,
     report_last_approved_at: null,
     report_last_paid_at: null,
-    report_settlement_id: null,
     seq_num: 'E/2023/11/T/13',
     source: 'MOBILE_DASHCAM_BULK',
     source_account: {
@@ -1869,7 +1858,6 @@ export const splitExpensesData: Expense[] = deepFreeze([
     is_reimbursable: false,
     is_split: true,
     is_verified: false,
-    is_weekend_spend: false,
     last_exported_at: null,
     last_settled_at: null,
     last_verified_at: null,
@@ -1906,7 +1894,6 @@ export const splitExpensesData: Expense[] = deepFreeze([
     report_id: null,
     report_last_approved_at: null,
     report_last_paid_at: null,
-    report_settlement_id: null,
     seq_num: 'E/2024/03/T/7',
     source: 'MOBILE',
     source_account: {
@@ -2015,7 +2002,6 @@ export const splitExpensesData: Expense[] = deepFreeze([
     is_reimbursable: false,
     is_split: true,
     is_verified: false,
-    is_weekend_spend: false,
     last_exported_at: null,
     last_settled_at: null,
     last_verified_at: null,
@@ -2052,7 +2038,6 @@ export const splitExpensesData: Expense[] = deepFreeze([
     report_id: null,
     report_last_approved_at: null,
     report_last_paid_at: null,
-    report_settlement_id: null,
     seq_num: 'E/2024/03/T/6',
     source: 'MOBILE',
     source_account: {
@@ -2166,7 +2151,6 @@ export const apiExpenses3: Expense[] = deepFreeze([
     is_reimbursable: false,
     is_split: true,
     is_verified: false,
-    is_weekend_spend: false,
     last_exported_at: null,
     last_settled_at: null,
     last_verified_at: null,
@@ -2203,7 +2187,6 @@ export const apiExpenses3: Expense[] = deepFreeze([
     report_id: null,
     report_last_approved_at: null,
     report_last_paid_at: null,
-    report_settlement_id: null,
     seq_num: 'E/2024/03/T/6',
     source: 'MOBILE',
     source_account: {
@@ -2312,7 +2295,6 @@ export const apiExpenses3: Expense[] = deepFreeze([
     is_reimbursable: false,
     is_split: true,
     is_verified: false,
-    is_weekend_spend: false,
     last_exported_at: null,
     last_settled_at: null,
     last_verified_at: null,
@@ -2349,7 +2331,6 @@ export const apiExpenses3: Expense[] = deepFreeze([
     report_id: null,
     report_last_approved_at: null,
     report_last_paid_at: null,
-    report_settlement_id: null,
     seq_num: 'E/2024/03/T/5',
     source: 'MOBILE',
     source_account: {
@@ -2473,7 +2454,6 @@ export const platformExpenseData: Expense = deepFreeze({
   is_reimbursable: true,
   is_split: false,
   is_verified: false,
-  is_weekend_spend: false,
   last_exported_at: null,
   last_settled_at: null,
   last_verified_at: null,
@@ -2515,7 +2495,6 @@ export const platformExpenseData: Expense = deepFreeze({
   report_id: null,
   report_last_approved_at: null,
   report_last_paid_at: null,
-  report_settlement_id: null,
   seq_num: 'E/2023/12/T/8',
   source: 'WEBAPP',
   source_account: {
@@ -2653,7 +2632,6 @@ export const platformExpenseDataWithSubCategory: Expense = deepFreeze({
   is_reimbursable: true,
   is_split: false,
   is_verified: false,
-  is_weekend_spend: false,
   last_exported_at: null,
   last_settled_at: null,
   last_verified_at: null,
@@ -2722,14 +2700,12 @@ export const platformExpenseDataWithSubCategory: Expense = deepFreeze({
     reimbursement_id: null,
     reimbursement_seq_num: null,
     seq_num: 'C/2023/12/R/2',
-    settlement_id: null,
     state: ReportState.APPROVER_PENDING,
     title: '#1:  Dec 2023',
   },
   report_id: null,
   report_last_approved_at: null,
   report_last_paid_at: null,
-  report_settlement_id: null,
   seq_num: 'E/2024/02/T/137',
   source: 'MOBILE',
   source_account: {
@@ -2896,7 +2872,6 @@ export const platformExpenseWithExtractedData: Expense = deepFreeze({
   is_reimbursable: true,
   is_split: false,
   is_verified: false,
-  is_weekend_spend: false,
   last_exported_at: null,
   last_settled_at: null,
   last_verified_at: null,
@@ -2939,7 +2914,6 @@ export const platformExpenseWithExtractedData: Expense = deepFreeze({
   report_id: null,
   report_last_approved_at: null,
   report_last_paid_at: null,
-  report_settlement_id: null,
   seq_num: 'E/2024/02/T/152',
   source: 'WEBAPP',
   source_account: {
@@ -3060,7 +3034,6 @@ export const platformExpenseWithMatchCCC: Expense = deepFreeze({
   is_reimbursable: false,
   is_split: false,
   is_verified: null,
-  is_weekend_spend: false,
   last_exported_at: null,
   last_settled_at: null,
   last_verified_at: null,
@@ -3084,7 +3057,7 @@ export const platformExpenseWithMatchCCC: Expense = deepFreeze({
       merchant: 'test description',
       posted_at: null,
       spent_at: new Date('2018-07-03T18:30:00.000Z'),
-      status: TransactionStatus.PENDING,
+      status: ExpenseTransactionStatus.PENDING,
     },
   ],
   merchant: 'test description',
@@ -3117,7 +3090,6 @@ export const platformExpenseWithMatchCCC: Expense = deepFreeze({
   report_id: null,
   report_last_approved_at: null,
   report_last_paid_at: null,
-  report_settlement_id: null,
   seq_num: 'E/2024/01/T/39',
   source: 'CORPORATE_CARD',
   source_account: {
