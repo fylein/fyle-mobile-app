@@ -13,7 +13,7 @@
           (blur)="onBlur()"
         />
       </div>
-      <div class="fy-currency__auto-coded" *ngIf="currencyAutoCodeMessage">
+      <div *ngIf="currencyAutoCodeMessage" class="fy-currency__auto-coded">
         <mat-icon class="fy-currency__sparkle-icon" svgIcon="sparkle"></mat-icon>
         {{ currencyAutoCodeMessage }}
       </div>
@@ -26,7 +26,7 @@
         </div>
         <app-fy-number placeholder="00.00" formControlName="amount" [isAmount]="true"> </app-fy-number>
       </div>
-      <div class="fy-currency__auto-coded" *ngIf="amountAutoCodeMessage">
+      <div *ngIf="amountAutoCodeMessage" class="fy-currency__auto-coded">
         <mat-icon class="fy-currency__sparkle-icon" svgIcon="sparkle"></mat-icon>
         {{ amountAutoCodeMessage }}
       </div>
