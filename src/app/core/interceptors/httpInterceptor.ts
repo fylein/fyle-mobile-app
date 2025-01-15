@@ -187,32 +187,17 @@ export class HttpConfigInterceptor implements HttpInterceptor {
       Object.assign(errorObject, {
         status: error.status,
         statusText: error.statusText,
+        name: `API Error ${error.status} : ${error.url?.split('?')[0]}`,
       });
 
       Sentry.captureException(errorObject, {
         tags: {
-          errorType: 'API_500',
+          errorType: `API_${error.status}`,
           apiEndpoint: error.url,
         },
         extra: {
           requestUrl: request.url,
-          requestMethod: request.method,
-          requestHeaders: request.headers,
-          requestBody: request.body,
-          responseStatus: error.status,
-          responseStatusText: error.statusText,
           responseData: error.error,
-        },
-      });
-
-      Sentry.addBreadcrumb({
-        category: 'api',
-        message: `API call failed with status ${error.status}`,
-        level: 'error',
-        data: {
-          url: request.url,
-          method: request.method,
-          status: error.status,
         },
       });
     }
