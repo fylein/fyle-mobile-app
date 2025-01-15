@@ -451,7 +451,7 @@ export class MyViewReportPage {
       });
   }
 
-submitReport(): void {
+  submitReport(): void {
     this.submitReportLoader = true;
     this.spenderReportsService
       .submit(this.reportId)
