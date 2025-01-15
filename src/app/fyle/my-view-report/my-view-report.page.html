@@ -328,6 +328,10 @@
       <ion-button
         class="fy-footer-cta fy-footer-cta--primary"
         *ngIf="canResubmitReport$ | async"
+        [disabled]="submitReportLoader"
+        appFormButtonValidation
+        [loadingText]="'Resubmitting'"
+        [loading]="submitReportLoader"
         (click)="resubmitReport()"
       >
         Resubmit Report
@@ -335,6 +339,10 @@
       <ion-button
         class="fy-footer-cta fy-footer-cta--primary"
         *ngIf="(report$|async)?.state === 'DRAFT' && (report$|async)?.num_expenses !== 0"
+        [disabled]="submitReportLoader"
+        appFormButtonValidation
+        [loadingText]="'Submitting'"
+        [loading]="submitReportLoader"
         (click)="submitReport()"
       >
         Submit Report
