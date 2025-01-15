@@ -466,28 +466,30 @@ export class MyViewReportPage {
           });
           this.trackingService.showToastMessage({ ToastContent: message });
         },
-        error: (error) => {
-          const errorMessage = `Report Submit Error ${error.status}: ${error.error?.message || error.statusText || 'Unknown Error'}`;
+        error: (error: HttpErrorResponse) => {
+          const errorMessage = `Report Submit Error ${error.status}: ${
+            error?.message || error.statusText || 'Unknown Error'
+          }`;
           const errorObj = new Error(errorMessage);
-          
+
           Object.assign(errorObj, {
             status: error.status,
             url: error.url,
-            responseData: error.error,
-            name: `ReportSubmitError_${this.reportId}`
+            responseData: error.message,
+            name: `ReportSubmitError_${this.reportId}`,
           });
 
           Sentry.captureException(errorObj, {
             tags: {
               errorType: 'REPORT_SUBMIT_ERROR',
-              reportId: this.reportId
+              reportId: this.reportId,
             },
             extra: {
               reportId: this.reportId,
               responseStatus: error.status,
               responseData: error.error,
-              page: 'submit_report'
-            }
+              page: 'submit_report',
+            },
           });
         },
       });
