@@ -114,6 +114,8 @@ export class MyViewReportPage {
 
   hardwareBackButtonAction: Subscription;
 
+  submitReportLoader = false;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
@@ -434,64 +436,61 @@ export class MyViewReportPage {
   }
 
   resubmitReport(): void {
-    this.spenderReportsService.resubmit(this.reportId).subscribe(() => {
-      this.router.navigate(['/', 'enterprise', 'my_reports']);
-      const message = `Report resubmitted successfully.`;
-      this.matSnackBar.openFromComponent(ToastMessageComponent, {
-        ...this.snackbarProperties.setSnackbarProperties('success', { message }),
-        panelClass: ['msb-success-with-camera-icon'],
-      });
-      this.trackingService.showToastMessage({ ToastContent: message });
-    });
-  }
-
-  submitReport(): void {
-    this.spenderReportsService.submit(this.reportId).subscribe({
-      next: () => {
+    this.submitReportLoader = true;
+    this.spenderReportsService
+      .resubmit(this.reportId)
+      .pipe(finalize(() => (this.submitReportLoader = false)))
+      .subscribe(() => {
         this.router.navigate(['/', 'enterprise', 'my_reports']);
-        const message = `Report submitted successfully.`;
+        const message = `Report resubmitted successfully.`;
         this.matSnackBar.openFromComponent(ToastMessageComponent, {
           ...this.snackbarProperties.setSnackbarProperties('success', { message }),
           panelClass: ['msb-success-with-camera-icon'],
         });
         this.trackingService.showToastMessage({ ToastContent: message });
-      },
-      error: (error: HttpErrorResponse) => {
-        const errorObject = new Error(`Report Submission Failed: ${error.message || 'Unknown error'}`);
-        if (error.status) {
-          Object.assign(errorObject, {
-            status: error.status,
-            statusText: error.statusText,
+      });
+  }
+
+submitReport(): void {
+    this.submitReportLoader = true;
+    this.spenderReportsService
+      .submit(this.reportId)
+      .pipe(finalize(() => (this.submitReportLoader = false)))
+      .subscribe({
+        next: () => {
+          this.router.navigate(['/', 'enterprise', 'my_reports']);
+          const message = `Report submitted successfully.`;
+          this.matSnackBar.openFromComponent(ToastMessageComponent, {
+            ...this.snackbarProperties.setSnackbarProperties('success', { message }),
+            panelClass: ['msb-success-with-camera-icon'],
           });
-        }
+          this.trackingService.showToastMessage({ ToastContent: message });
+        },
+        error: (error) => {
+          const errorMessage = `Report Submit Error ${error.status}: ${error.error?.message || error.statusText || 'Unknown Error'}`;
+          const errorObj = new Error(errorMessage);
+          
+          Object.assign(errorObj, {
+            status: error.status,
+            url: error.url,
+            responseData: error.error,
+            name: `ReportSubmitError_${this.reportId}`
+          });
 
-        Sentry.addBreadcrumb({
-          category: 'reports',
-          message: 'Failed to submit report',
-          level: 'error',
-          data: {
-            reportId: this.reportId,
-            errorStatus: error.status,
-            errorMessage: error.message,
-          },
-        });
-
-        Sentry.captureException(errorObject, {
-          tags: {
-            errorType: 'REPORT_SUBMISSION_FAILED',
-            reportId: this.reportId,
-          },
-          extra: {
-            reportId: this.reportId,
-            errorResponse: error,
-            context: {
-              component: 'ReportSubmissionComponent',
-              action: 'submitReport',
+          Sentry.captureException(errorObj, {
+            tags: {
+              errorType: 'REPORT_SUBMIT_ERROR',
+              reportId: this.reportId
             },
-          },
-        });
-      },
-    });
+            extra: {
+              reportId: this.reportId,
+              responseStatus: error.status,
+              responseData: error.error,
+              page: 'submit_report'
+            }
+          });
+        },
+      });
   }
 
   getTransactionRoute(category: string, canEdit: boolean): string {
