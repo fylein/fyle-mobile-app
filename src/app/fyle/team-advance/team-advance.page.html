@@ -29,7 +29,7 @@
       ></app-fy-filter-pills>
     </div>
   </ng-container>
-  <app-fy-loading-screen *ngIf="isLoading" [isNewLoaderEnabled]="true"></app-fy-loading-screen>
+  <app-fy-loading-screen *ngIf="isLoading"></app-fy-loading-screen>
   <div *ngIf="count$|async; else zeroState">
     <ion-refresher slot="fixed" (ionRefresh)="changeState($event)">
       <ion-refresher-content></ion-refresher-content>
