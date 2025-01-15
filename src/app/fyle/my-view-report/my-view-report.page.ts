@@ -113,6 +113,8 @@ export class MyViewReportPage {
 
   hardwareBackButtonAction: Subscription;
 
+  submitReportLoader = false;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
@@ -433,38 +435,46 @@ export class MyViewReportPage {
   }
 
   resubmitReport(): void {
-    this.spenderReportsService.resubmit(this.reportId).subscribe(() => {
-      this.router.navigate(['/', 'enterprise', 'my_reports']);
-      const message = `Report resubmitted successfully.`;
-      this.matSnackBar.openFromComponent(ToastMessageComponent, {
-        ...this.snackbarProperties.setSnackbarProperties('success', { message }),
-        panelClass: ['msb-success-with-camera-icon'],
-      });
-      this.trackingService.showToastMessage({ ToastContent: message });
-    });
-  }
-
-  submitReport(): void {
-    this.spenderReportsService.submit(this.reportId).subscribe({
-      next: () => {
+    this.submitReportLoader = true;
+    this.spenderReportsService
+      .resubmit(this.reportId)
+      .pipe(finalize(() => (this.submitReportLoader = false)))
+      .subscribe(() => {
         this.router.navigate(['/', 'enterprise', 'my_reports']);
-        const message = `Report submitted successfully.`;
+        const message = `Report resubmitted successfully.`;
         this.matSnackBar.openFromComponent(ToastMessageComponent, {
           ...this.snackbarProperties.setSnackbarProperties('success', { message }),
           panelClass: ['msb-success-with-camera-icon'],
         });
         this.trackingService.showToastMessage({ ToastContent: message });
-      },
-      error: (error) => {
-        // Capture error with additional details in Sentry
-        Sentry.captureException(error, {
-          extra: {
-            reportId: this.reportId,
-            errorResponse: error,
-          },
-        });
-      },
-    });
+      });
+  }
+
+  submitReport(): void {
+    this.submitReportLoader = true;
+    this.spenderReportsService
+      .submit(this.reportId)
+      .pipe(finalize(() => (this.submitReportLoader = false)))
+      .subscribe({
+        next: () => {
+          this.router.navigate(['/', 'enterprise', 'my_reports']);
+          const message = `Report submitted successfully.`;
+          this.matSnackBar.openFromComponent(ToastMessageComponent, {
+            ...this.snackbarProperties.setSnackbarProperties('success', { message }),
+            panelClass: ['msb-success-with-camera-icon'],
+          });
+          this.trackingService.showToastMessage({ ToastContent: message });
+        },
+        error: (error) => {
+          // Capture error with additional details in Sentry
+          Sentry.captureException(error, {
+            extra: {
+              reportId: this.reportId,
+              errorResponse: error,
+            },
+          });
+        },
+      });
   }
 
   getTransactionRoute(category: string, canEdit: boolean): string {
