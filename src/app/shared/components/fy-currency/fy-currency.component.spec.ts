@@ -481,7 +481,7 @@ describe('FyCurrencyComponent', () => {
     expect(component.valid).toBeTrue();
   });
 
-  it('should set autoCodeMessage to "Currency and Amount are auto coded." when both are auto coded', () => {
+  it('should set currencyAutoCodeMessage to "Currency is auto coded." and amountAutoCodeMessage to "Amount is auto coded." when both are auto coded', () => {
     component.autoCodedData = { currency: 'USD', amount: 100 };
     component.fg = new FormGroup({
       currency: new FormControl('USD'),
@@ -489,10 +489,11 @@ describe('FyCurrencyComponent', () => {
       homeCurrencyAmount: new FormControl(null),
     });
     component.showAutoCodeMessage();
-    expect(component.autoCodeMessage).toBe('Currency and Amount are auto coded.');
+    expect(component.currencyAutoCodeMessage).toBe('Currency is auto coded.');
+    expect(component.amountAutoCodeMessage).toBe('Amount is auto coded.');
   });
 
-  it('should set autoCodeMessage to "Currency is auto coded." when only currency is auto coded', () => {
+  it('should set currencyAutoCodeMessage to "Currency is auto coded." when only currency is auto coded', () => {
     component.autoCodedData = { currency: 'USD', amount: 100 };
     component.fg = new FormGroup({
       currency: new FormControl('USD'),
@@ -500,10 +501,10 @@ describe('FyCurrencyComponent', () => {
       homeCurrencyAmount: new FormControl(null),
     });
     component.showAutoCodeMessage();
-    expect(component.autoCodeMessage).toBe('Currency is auto coded.');
+    expect(component.currencyAutoCodeMessage).toBe('Currency is auto coded.');
   });
 
-  it('should set autoCodeMessage to "Amount is auto coded." when only amount is auto coded', () => {
+  it('should set amountAutoCodeMessage to "Amount is auto coded." when only amount is auto coded', () => {
     component.autoCodedData = { currency: 'USD', amount: 100 };
     component.fg = new FormGroup({
       currency: new FormControl('EUR'),
@@ -511,10 +512,10 @@ describe('FyCurrencyComponent', () => {
       homeCurrencyAmount: new FormControl(null),
     });
     component.showAutoCodeMessage();
-    expect(component.autoCodeMessage).toBe('Amount is auto coded.');
+    expect(component.amountAutoCodeMessage).toBe('Amount is auto coded.');
   });
 
-  it('should set autoCodeMessage to "" when neither currency nor amount is auto coded', () => {
+  it('should set currencyAutoCodeMessage and amountAutoCodeMessage to "" when neither currency nor amount is auto coded', () => {
     component.autoCodedData = { currency: 'USD', amount: 100 };
     component.fg = new FormGroup({
       currency: new FormControl('EUR'),
@@ -522,6 +523,7 @@ describe('FyCurrencyComponent', () => {
       homeCurrencyAmount: new FormControl(null),
     });
     component.showAutoCodeMessage();
-    expect(component.autoCodeMessage).toBe('');
+    expect(component.currencyAutoCodeMessage).toBe('');
+    expect(component.amountAutoCodeMessage).toBe('');
   });
 });
