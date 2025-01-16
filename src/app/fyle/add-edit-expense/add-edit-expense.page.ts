@@ -3677,7 +3677,7 @@ export class AddEditExpensePage implements OnInit {
   checkPolicyViolation(etxn: { tx: PublicPolicyExpense; dataUrls: Partial<FileObject>[] }): Observable<ExpensePolicy> {
     return this.policyService.getPlatformPolicyExpense(etxn, this.selectedCCCTransaction).pipe(
       switchMap((platformPolicyExpense) => this.transactionService.checkPolicy(platformPolicyExpense)),
-      catchError((err) => {
+      catchError((err: Error) => {
         this.trackingService.checkPolicyError({ label: err });
         return throwError(() => err);
       })
@@ -4066,7 +4066,7 @@ export class AddEditExpensePage implements OnInit {
             };
 
             return this.transactionService.upsert(etxn.tx as Transaction).pipe(
-              catchError((err) => {
+              catchError((err: Error) => {
                 this.trackingService.editExpenseError({ label: err });
                 return throwError(() => err);
               }),
