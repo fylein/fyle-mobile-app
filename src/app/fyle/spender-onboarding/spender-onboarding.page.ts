@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { forkJoin, from, map, switchMap } from 'rxjs';
+import { forkJoin, from, map, switchMap, tap } from 'rxjs';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
@@ -46,8 +46,6 @@ export class SpenderOnboardingPage {
   ) {}
 
   ionViewWillEnter(): void {
-    this.router.navigateByUrl('/enterprise/my_dashboard', { skipLocationChange: true });
-    this.router.navigate(['/', 'enterprise', 'my_dashboard']);
     this.isLoading = true;
     from(this.loaderService.showLoader())
       .pipe(
@@ -78,10 +76,13 @@ export class SpenderOnboardingPage {
               rtfCards.length > 0
             ) {
               this.currentStep = OnboardingStep.OPT_IN;
-              this.onlyOptInEnabled = true;
+              if (onboardingStatus.step_connect_cards_is_configured) {
+                this.onlyOptInEnabled = true;
+              }
             } else {
               this.currentStep = OnboardingStep.CONNECT_CARD;
             }
+            this.currentStep = OnboardingStep.CONNECT_CARD;
           }
           this.isLoading = false;
         })
@@ -122,9 +123,10 @@ export class SpenderOnboardingPage {
 
   markStepAsComplete(): void {
     if (this.currentStep === OnboardingStep.CONNECT_CARD) {
-      this.spenderOnboardingService.markConnectCardsStepAsComplete().subscribe(() => {
-        this.currentStep = OnboardingStep.OPT_IN;
-      });
+      this.spenderOnboardingService
+        .markConnectCardsStepAsComplete()
+        .pipe(tap(() => (this.currentStep = OnboardingStep.OPT_IN)))
+        .subscribe();
     }
     if (this.currentStep === OnboardingStep.OPT_IN) {
       this.onboardingInProgress = false;

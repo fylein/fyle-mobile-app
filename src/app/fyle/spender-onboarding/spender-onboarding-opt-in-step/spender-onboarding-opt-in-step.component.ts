@@ -163,7 +163,7 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
 
   validateInput(): void {
     if (!this.mobileNumberInputValue?.length) {
-      this.mobileNumberError = 'Please enter mobile number';
+      this.mobileNumberError = 'Please enter mobile number.';
     } else if (!this.mobileNumberInputValue.match(/^\+1\d{10}$/)) {
       this.mobileNumberError = 'Please enter a valid number with +1 country code. Try re-entering your number.';
     }

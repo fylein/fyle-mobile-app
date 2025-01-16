@@ -1,14 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
-import {
-  AbstractControl,
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  ValidationErrors,
-  ValidatorFn,
-  Validators,
-} from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { PopoverController } from '@ionic/angular';
 import { catchError, concatMap, from, map, of } from 'rxjs';
 import { CardNetworkType } from 'src/app/core/enums/card-network-type';
@@ -26,8 +18,6 @@ import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup
   styleUrls: ['./spender-onboarding-connect-card-step.component.scss'],
 })
 export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChanges {
-  @Input() readOnly?: boolean = false;
-
   @Input() orgSettings: OrgSettings;
 
   @Output() isStepComplete: EventEmitter<boolean> = new EventEmitter<boolean>();
@@ -155,9 +145,9 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
         .slice(0, this.cardsList.failedCards.length - 1)
         .join(', ')} and ${this.cardsList.failedCards.slice(
         -1
-      )}. You can cancel and retry connecting the failed card or proceed to the next step.`;
+      )}.<br><br>You can cancel and retry connecting the failed card or proceed to the next step.`;
     } else {
-      return `We ran into an issue while processing your request for the card ${this.cardsList.failedCards[0]}. You can cancel and retry connecting the failed card or proceed to the next step.`;
+      return `We ran into an issue while processing your request for the card ${this.cardsList.failedCards[0]}.<br><br> You can cancel and retry connecting the failed card or proceed to the next step.`;
     }
   }
 
@@ -166,6 +156,7 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
       componentProps: {
         title: this.cardsList.successfulCards.length > 0 ? 'Status summary' : 'Failed connecting',
         message: this.generateMessage(),
+        leftAlign: true,
         primaryCta: {
           text: 'Proceed anyway',
           action: 'close',
@@ -276,7 +267,7 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
     return (): ValidationErrors | null => {
       // Reactive forms are not strongly typed in Angular 13, so we need to cast the value to string
       // TODO (Angular 14 >): Remove the type casting and directly use string type for the form control
-      const cardNumber = cardId ? this.getFullCardNumber(cardId) : (this.fg.controls.card_number.value as string);
+      const cardNumber = cardId ? this.getFullCardNumber(cardId) : (this.fg.controls.card_number?.value as string);
 
       const isValid = this.realTimeFeedService.isCardNumberValid(cardNumber);
       const cardType = this.realTimeFeedService.getCardTypeFromNumber(cardNumber);
@@ -291,7 +282,7 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
 
   private cardNetworkValidator(cardId?: string): ValidatorFn {
     return (): ValidationErrors | null => {
-      const cardNumber = cardId ? this.getFullCardNumber(cardId) : (this.fg.controls.card_number.value as string);
+      const cardNumber = cardId ? this.getFullCardNumber(cardId) : (this.fg.controls.card_number?.value as string);
       const cardType = this.realTimeFeedService.getCardTypeFromNumber(cardNumber);
 
       if (
