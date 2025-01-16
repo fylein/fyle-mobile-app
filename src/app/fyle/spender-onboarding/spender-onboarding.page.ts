@@ -82,7 +82,6 @@ export class SpenderOnboardingPage {
             } else {
               this.currentStep = OnboardingStep.CONNECT_CARD;
             }
-            this.currentStep = OnboardingStep.CONNECT_CARD;
           }
           this.isLoading = false;
         })
