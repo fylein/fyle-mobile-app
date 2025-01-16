@@ -72,11 +72,6 @@ export class SidemenuComponent implements OnInit {
     private spenderOnboardingService: SpenderOnboardingService
   ) {}
 
-  async reloadCurrentRoute(): Promise<void> {
-    await this.router.navigateByUrl('/enterprise/my_dashboard', { skipLocationChange: true });
-    await this.router.navigate(['/', 'enterprise', 'my_dashboard']);
-  }
-
   ngOnInit(): void {
     this.setupNetworkWatcher();
     this.authService.getEou().then((eou) => {
