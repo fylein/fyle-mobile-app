@@ -12,7 +12,6 @@ import { statementUploadedCard } from 'src/app/core/mock-data/platform-corporate
 import { SimpleChanges } from '@angular/core';
 import { orgSettingsData } from 'src/app/core/test-data/org-settings.service.spec.data';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
-import { contextLinesIntegration } from '@sentry/angular';
 
 describe('SpenderOnboardingConnectCardStepComponent', () => {
   let component: SpenderOnboardingConnectCardStepComponent;
