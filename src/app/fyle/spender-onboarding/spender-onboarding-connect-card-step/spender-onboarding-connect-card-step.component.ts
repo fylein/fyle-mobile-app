@@ -268,32 +268,36 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
     return (): ValidationErrors | null => {
       // Reactive forms are not strongly typed in Angular 13, so we need to cast the value to string
       // TODO (Angular 14 >): Remove the type casting and directly use string type for the form control
-      const cardNumber = cardId ? this.getFullCardNumber(cardId) : (this.fg.controls.card_number.value as string);
+      if (Object.keys(this.fg.controls).length > 0) {
+        const cardNumber = cardId ? this.getFullCardNumber(cardId) : (this.fg.controls.card_number.value as string);
 
-      const isValid = this.realTimeFeedService.isCardNumberValid(cardNumber);
-      const cardType = this.realTimeFeedService.getCardTypeFromNumber(cardNumber);
+        const isValid = this.realTimeFeedService.isCardNumberValid(cardNumber);
+        const cardType = this.realTimeFeedService.getCardTypeFromNumber(cardNumber);
 
-      if (cardType === CardNetworkType.VISA || cardType === CardNetworkType.MASTERCARD) {
-        return isValid && cardNumber.length === 16 ? null : { invalidCardNumber: true };
+        if (cardType === CardNetworkType.VISA || cardType === CardNetworkType.MASTERCARD) {
+          return isValid && cardNumber.length === 16 ? null : { invalidCardNumber: true };
+        }
+
+        return isValid ? null : { invalidCardNumber: true };
       }
-
-      return isValid ? null : { invalidCardNumber: true };
     };
   }
 
   private cardNetworkValidator(cardId?: string): ValidatorFn {
     return (): ValidationErrors | null => {
-      const cardNumber = cardId ? this.getFullCardNumber(cardId) : (this.fg.controls.card_number.value as string);
-      const cardType = this.realTimeFeedService.getCardTypeFromNumber(cardNumber);
+      if (Object.keys(this.fg.controls).length > 0) {
+        const cardNumber = cardId ? this.getFullCardNumber(cardId) : (this.fg.controls.card_number.value as string);
+        const cardType = this.realTimeFeedService.getCardTypeFromNumber(cardNumber);
 
-      if (
-        (!this.isVisaRTFEnabled && cardType === CardNetworkType.VISA) ||
-        (!this.isMastercardRTFEnabled && cardType === CardNetworkType.MASTERCARD)
-      ) {
-        return { invalidCardNetwork: true };
+        if (
+          (!this.isVisaRTFEnabled && cardType === CardNetworkType.VISA) ||
+          (!this.isMastercardRTFEnabled && cardType === CardNetworkType.MASTERCARD)
+        ) {
+          return { invalidCardNetwork: true };
+        }
+
+        return null;
       }
-
-      return null;
     };
   }
 }
