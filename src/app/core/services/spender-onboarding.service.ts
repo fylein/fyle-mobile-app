@@ -85,9 +85,7 @@ export class SpenderOnboardingService {
     return this.onboardingComplete$.asObservable();
   }
 
-  // Emit a new event
   setOnboardingStatusEvent(): void {
     this.onboardingComplete$.next(true);
-    console.log('event set');
   }
 }
