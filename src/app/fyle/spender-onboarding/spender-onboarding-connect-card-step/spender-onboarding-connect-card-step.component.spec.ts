@@ -70,7 +70,8 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
       realTimeFeedService.isCardNumberValid.and.returnValue(false);
       realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.OTHERS);
       component.ngOnInit();
-      component.fg.controls.card_number_bacc15bbrRGWzf.setValue('4111111111');
+      const controlName = Object.keys(component.fg.controls)[0];
+      component.fg.controls[controlName].setValue('4111111111');
       fixture.detectChanges();
 
       expect(component.fg.controls.card_number_bacc15bbrRGWzf.errors.invalidCardNumber).toBeTrue();
@@ -81,7 +82,8 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
       realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.VISA);
       component.isVisaRTFEnabled = false;
       component.ngOnInit();
-      component.fg.controls.card_number_bacc15bbrRGWzf.setValue('4111111111');
+      const controlName = Object.keys(component.fg.controls)[0];
+      component.fg.controls[controlName].setValue('4111111111');
       fixture.detectChanges();
 
       expect(component.fg.controls.card_number_bacc15bbrRGWzf.errors.invalidCardNetwork).toBeTrue();
@@ -185,7 +187,7 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
   });
 
   describe('enrollCards(): ', () => {
-    it('should call enrollMultipleCards if enrollableCards has one item', () => {
+    it('should call enrollMultipleCards if enrollableCards has items', () => {
       component.enrollableCards = [statementUploadedCard];
       const enrollSingularCardSpy = spyOn(component, 'enrollSingularCard');
       const enrollMultipleCardsSpy = spyOn(component, 'enrollMultipleCards');
@@ -197,7 +199,7 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
       expect(component.cardsEnrolling).toBeTrue();
     });
 
-    it('should call enrollMultipleCards if enrollableCards has more than one items', () => {
+    it('should call enrollMultipleCards if enrollableCards has items', () => {
       component.enrollableCards = [statementUploadedCard, { ...statementUploadedCard, id: 'bacc15bbrRGWzg' }];
       const enrollSingularCardSpy = spyOn(component, 'enrollSingularCard');
       const enrollMultipleCardsSpy = spyOn(component, 'enrollMultipleCards');
