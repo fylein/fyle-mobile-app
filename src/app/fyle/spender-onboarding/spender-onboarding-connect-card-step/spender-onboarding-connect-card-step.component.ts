@@ -128,6 +128,10 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
       successfulCards: [],
       failedCards: [],
     };
+    this.fg.markAllAsTouched();
+    if (!this.fg.valid) {
+      return;
+    }
     const cards = this.enrollableCards.filter((card) => !this.cardValuesMap[card.id]?.enrollment_success);
     this.cardsEnrolling = true;
     if (cards.length > 0) {
