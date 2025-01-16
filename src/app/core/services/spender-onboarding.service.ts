@@ -84,8 +84,4 @@ export class SpenderOnboardingService {
   setOnboardingStatusAsComplete(): Observable<boolean> {
     return this.onboardingComplete$.asObservable();
   }
-
-  setOnboardingStatusEvent(): void {
-    this.onboardingComplete$.next(true);
-  }
 }

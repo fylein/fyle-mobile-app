@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { finalize, forkJoin, from, map, switchMap } from 'rxjs';
+import { Component, ViewChild } from '@angular/core';
+import { finalize, forkJoin, from, map, Observable, switchMap } from 'rxjs';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
@@ -9,6 +9,7 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { Router } from '@angular/router';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
+import { SidemenuComponent } from 'src/app/shared/components/sidemenu/sidemenu.component';
 
 @Component({
   selector: 'app-spender-onboarding',
@@ -16,6 +17,8 @@ import { OrgSettings } from 'src/app/core/models/org-settings.model';
   styleUrls: ['./spender-onboarding.page.scss'],
 })
 export class SpenderOnboardingPage {
+  @ViewChild('sidemenuRef') sidemenuRef: SidemenuComponent;
+
   isLoading = true;
 
   userFullName: string;
@@ -35,6 +38,8 @@ export class SpenderOnboardingPage {
   onboardingInProgress = true;
 
   redirectionCount = 3;
+
+  isConnected$: Observable<boolean>;
 
   constructor(
     private loaderService: LoaderService,
@@ -113,8 +118,8 @@ export class SpenderOnboardingPage {
         .pipe(
           switchMap(() => this.spenderOnboardingService.markWelcomeModalStepAsComplete()),
           map(() => {
-            this.spenderOnboardingService.setOnboardingStatusEvent();
             this.onboardingComplete = true;
+            this.setSidenavPostOnboarding();
             this.router.navigate(['/', 'enterprise', 'my_dashboard']);
           })
         )
@@ -135,13 +140,27 @@ export class SpenderOnboardingPage {
         .pipe(
           switchMap(() => this.spenderOnboardingService.markWelcomeModalStepAsComplete()),
           map(() => {
-            this.spenderOnboardingService.setOnboardingStatusEvent();
             this.onboardingComplete = true;
+            this.setSidenavPostOnboarding();
             this.startCountdown();
           })
         )
         .subscribe();
     }
+  }
+
+  setSidenavPostOnboarding(): void {
+    this.isConnected$
+      .pipe(
+        map((isOnline) => {
+          if (isOnline) {
+            this.sidemenuRef.showSideMenuOnline();
+          } else {
+            this.sidemenuRef.showSideMenuOffline();
+          }
+        })
+      )
+      .subscribe();
   }
 
   startCountdown(): void {
