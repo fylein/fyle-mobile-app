@@ -12,6 +12,7 @@ import { statementUploadedCard } from 'src/app/core/mock-data/platform-corporate
 import { SimpleChanges } from '@angular/core';
 import { orgSettingsData } from 'src/app/core/test-data/org-settings.service.spec.data';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
+import { contextLinesIntegration } from '@sentry/angular';
 
 describe('SpenderOnboardingConnectCardStepComponent', () => {
   let component: SpenderOnboardingConnectCardStepComponent;
@@ -70,7 +71,8 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
       realTimeFeedService.isCardNumberValid.and.returnValue(false);
       realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.OTHERS);
       component.ngOnInit();
-      component.fg.controls.card_number_bacc15bbrRGWzf.setValue('4111111111');
+      const controlName = Object.keys(component.fg.controls)[0];
+      component.fg.controls[controlName].setValue('4111111111');
       fixture.detectChanges();
 
       expect(component.fg.controls.card_number_bacc15bbrRGWzf.errors.invalidCardNumber).toBeTrue();
@@ -81,7 +83,8 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
       realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.VISA);
       component.isVisaRTFEnabled = false;
       component.ngOnInit();
-      component.fg.controls.card_number_bacc15bbrRGWzf.setValue('4111111111');
+      const controlName = Object.keys(component.fg.controls)[0];
+      component.fg.controls[controlName].setValue('4111111111');
       fixture.detectChanges();
 
       expect(component.fg.controls.card_number_bacc15bbrRGWzf.errors.invalidCardNetwork).toBeTrue();
