@@ -135,55 +135,73 @@ describe('SpenderOnboardingPage', () => {
   });
 
   describe('skipOnboardingStep(): ', () => {
-    it('should skip the current onboarding step - connect card', fakeAsync(() => {
+    it('should skip the connect card onboarding step', fakeAsync(() => {
+      component.currentStep = OnboardingStep.CONNECT_CARD;
+      fixture.detectChanges();
+
       const onboardingRequestResponse: OnboardingStepStatus = {
         is_configured: false,
         is_skipped: true,
       };
-      component.currentStep = OnboardingStep.CONNECT_CARD;
+
       spenderOnboardingService.skipConnectCardsStep.and.returnValue(of(onboardingRequestResponse));
+
       component.skipOnboardingStep();
       tick();
-      expect(spenderOnboardingService.skipConnectCardsStep).toHaveBeenCalled();
+
+      expect(spenderOnboardingService.skipConnectCardsStep).toHaveBeenCalledTimes(1);
+      expect(component.currentStep).toBe(OnboardingStep.OPT_IN);
     }));
 
-    it('should skip the current onboarding step - opt in', fakeAsync(() => {
+    it('should skip the opt-in onboarding step and mark welcome modal as complete', fakeAsync(() => {
       const onboardingRequestResponse: OnboardingStepStatus = {
         is_configured: false,
         is_skipped: true,
       };
+      const welcomeModalCompletionResponse = { is_complete: true };
+
       component.currentStep = OnboardingStep.OPT_IN;
+      component.onboardingInProgress = true;
+
       spenderOnboardingService.skipSmsOptInStep.and.returnValue(of(onboardingRequestResponse));
-      spenderOnboardingService.markWelcomeModalStepAsComplete.and.returnValue(of({ is_complete: true }));
+      spenderOnboardingService.markWelcomeModalStepAsComplete.and.returnValue(of(welcomeModalCompletionResponse));
+
       component.skipOnboardingStep();
       tick();
-      expect(spenderOnboardingService.skipSmsOptInStep).toHaveBeenCalled();
+
+      expect(spenderOnboardingService.skipSmsOptInStep).toHaveBeenCalledTimes(1);
+      expect(spenderOnboardingService.markWelcomeModalStepAsComplete).toHaveBeenCalledTimes(1);
+      expect(spenderOnboardingService.setOnboardingStatusEvent).toHaveBeenCalledTimes(1);
+      expect(component.onboardingComplete).toBeTrue();
+      expect(component.onboardingInProgress).toBeFalse();
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard']);
     }));
   });
 
   describe('markStepAsComplete(): ', () => {
     it('should mark the current step as complete - Connect Card', fakeAsync(() => {
+      component.currentStep = OnboardingStep.CONNECT_CARD;
       const onboardingRequestResponse: OnboardingStepStatus = {
         is_configured: true,
         is_skipped: false,
       };
-      component.currentStep = OnboardingStep.CONNECT_CARD;
       spenderOnboardingService.markConnectCardsStepAsComplete.and.returnValue(of(onboardingRequestResponse));
+      tick();
       component.markStepAsComplete();
       tick();
       expect(spenderOnboardingService.markConnectCardsStepAsComplete).toHaveBeenCalled();
     }));
 
-    it('should mark the current step as complete', fakeAsync(() => {
+    it('should mark the current step as complete - Opt in', fakeAsync(() => {
       const onboardingRequestResponse: OnboardingStepStatus = {
         is_configured: true,
         is_skipped: false,
       };
-      component.currentStep = OnboardingStep.OPT_IN;
-      fixture.detectChanges();
-      spenderOnboardingService.markWelcomeModalStepAsComplete.and.returnValue(of({ is_complete: true }));
       spenderOnboardingService.markSmsOptInStepAsComplete.and.returnValue(of(onboardingRequestResponse));
+      spenderOnboardingService.markWelcomeModalStepAsComplete.and.returnValue(of({ is_complete: true }));
+      component.currentStep = OnboardingStep.OPT_IN;
+      spyOn(component, 'startCountdown');
+      tick();
       component.markStepAsComplete();
       tick();
       expect(spenderOnboardingService.markSmsOptInStepAsComplete).toHaveBeenCalled();

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { forkJoin, from, map, switchMap } from 'rxjs';
+import { finalize, forkJoin, from, map, switchMap } from 'rxjs';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
@@ -9,6 +9,7 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { Router } from '@angular/router';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
+import { tap } from 'lodash';
 
 @Component({
   selector: 'app-spender-onboarding',
@@ -83,7 +84,10 @@ export class SpenderOnboardingPage {
               this.currentStep = OnboardingStep.CONNECT_CARD;
             }
           }
+        }),
+        finalize(() => {
           this.isLoading = false;
+          return from(this.loaderService.hideLoader());
         })
       )
       .subscribe();
@@ -103,8 +107,7 @@ export class SpenderOnboardingPage {
           })
         )
         .subscribe();
-    }
-    if (this.currentStep === OnboardingStep.OPT_IN) {
+    } else if (this.currentStep === OnboardingStep.OPT_IN) {
       this.onboardingInProgress = false;
       this.spenderOnboardingService
         .skipSmsOptInStep()
@@ -122,11 +125,11 @@ export class SpenderOnboardingPage {
 
   markStepAsComplete(): void {
     if (this.currentStep === OnboardingStep.CONNECT_CARD) {
-      this.spenderOnboardingService.markConnectCardsStepAsComplete().subscribe(() => {
-        this.currentStep = OnboardingStep.OPT_IN;
-      });
-    }
-    if (this.currentStep === OnboardingStep.OPT_IN) {
+      this.spenderOnboardingService
+        .markConnectCardsStepAsComplete()
+        .pipe(map(() => (this.currentStep = OnboardingStep.OPT_IN)))
+        .subscribe();
+    } else if (this.currentStep === OnboardingStep.OPT_IN) {
       this.onboardingInProgress = false;
       this.spenderOnboardingService
         .markSmsOptInStepAsComplete()
