@@ -135,58 +135,115 @@ describe('SpenderOnboardingPage', () => {
   });
 
   describe('skipOnboardingStep(): ', () => {
-    it('should skip the current onboarding step - connect card', fakeAsync(() => {
+    it('should skip the connect card onboarding step', fakeAsync(() => {
+      component.currentStep = OnboardingStep.CONNECT_CARD;
+      fixture.detectChanges();
+
       const onboardingRequestResponse: OnboardingStepStatus = {
         is_configured: false,
         is_skipped: true,
       };
-      component.currentStep = OnboardingStep.CONNECT_CARD;
+
       spenderOnboardingService.skipConnectCardsStep.and.returnValue(of(onboardingRequestResponse));
+
       component.skipOnboardingStep();
       tick();
-      expect(spenderOnboardingService.skipConnectCardsStep).toHaveBeenCalled();
+
+      expect(spenderOnboardingService.skipConnectCardsStep).toHaveBeenCalledTimes(1);
+      expect(component.currentStep).toBe(OnboardingStep.OPT_IN);
     }));
 
-    it('should skip the current onboarding step - opt in', fakeAsync(() => {
+    it('should skip the opt-in onboarding step and mark welcome modal as complete', fakeAsync(() => {
       const onboardingRequestResponse: OnboardingStepStatus = {
         is_configured: false,
         is_skipped: true,
       };
+      const welcomeModalCompletionResponse = { is_complete: true };
+
       component.currentStep = OnboardingStep.OPT_IN;
+      component.onboardingInProgress = true;
+
       spenderOnboardingService.skipSmsOptInStep.and.returnValue(of(onboardingRequestResponse));
-      spenderOnboardingService.markWelcomeModalStepAsComplete.and.returnValue(of({ is_complete: true }));
+      spenderOnboardingService.markWelcomeModalStepAsComplete.and.returnValue(of(welcomeModalCompletionResponse));
+
       component.skipOnboardingStep();
       tick();
-      expect(spenderOnboardingService.skipSmsOptInStep).toHaveBeenCalled();
+
+      expect(spenderOnboardingService.skipSmsOptInStep).toHaveBeenCalledTimes(1);
+      expect(spenderOnboardingService.markWelcomeModalStepAsComplete).toHaveBeenCalledTimes(1);
+      expect(spenderOnboardingService.setOnboardingStatusEvent).toHaveBeenCalledTimes(1);
+      expect(component.onboardingComplete).toBeTrue();
+      expect(component.onboardingInProgress).toBeFalse();
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard']);
     }));
   });
 
   describe('markStepAsComplete(): ', () => {
     it('should mark the current step as complete - Connect Card', fakeAsync(() => {
+      component.currentStep = OnboardingStep.CONNECT_CARD;
       const onboardingRequestResponse: OnboardingStepStatus = {
         is_configured: true,
         is_skipped: false,
       };
-      component.currentStep = OnboardingStep.CONNECT_CARD;
       spenderOnboardingService.markConnectCardsStepAsComplete.and.returnValue(of(onboardingRequestResponse));
+      tick();
       component.markStepAsComplete();
       tick();
       expect(spenderOnboardingService.markConnectCardsStepAsComplete).toHaveBeenCalled();
     }));
 
-    it('should mark the current step as complete', fakeAsync(() => {
+    it('should mark the current step as complete - Opt in', fakeAsync(() => {
       const onboardingRequestResponse: OnboardingStepStatus = {
         is_configured: true,
         is_skipped: false,
       };
-      component.currentStep = OnboardingStep.OPT_IN;
-      fixture.detectChanges();
-      spenderOnboardingService.markWelcomeModalStepAsComplete.and.returnValue(of({ is_complete: true }));
       spenderOnboardingService.markSmsOptInStepAsComplete.and.returnValue(of(onboardingRequestResponse));
+      spenderOnboardingService.markWelcomeModalStepAsComplete.and.returnValue(of({ is_complete: true }));
+      component.currentStep = OnboardingStep.OPT_IN;
+      spyOn(component, 'startCountdown');
+      tick();
       component.markStepAsComplete();
       tick();
       expect(spenderOnboardingService.markSmsOptInStepAsComplete).toHaveBeenCalled();
+    }));
+  });
+
+  describe('startCountdown(): ', () => {
+    it('should decrement redirectionCount and navigate to the dashboard when it reaches zero', fakeAsync(() => {
+      // Initialize redirectionCount and spy on router
+      component.redirectionCount = 3; // Example initial value
+      spyOn(router, 'navigate');
+      spyOn(router, 'navigateByUrl');
+
+      // Call the method
+      component.startCountdown();
+
+      // Simulate 1 second intervals
+      tick(1000);
+      expect(component.redirectionCount).toBe(2);
+
+      tick(1000);
+      expect(component.redirectionCount).toBe(1);
+
+      tick(1000);
+      expect(component.redirectionCount).toBe(0);
+      expect(router.navigateByUrl).toHaveBeenCalledWith('/enterprise/my_dashboard', { skipLocationChange: true });
+      expect(router.navigate).toHaveBeenCalledWith(['/', 'enterprise', 'my_dashboard']);
+    }));
+
+    it('should not navigate if redirectionCount is already zero', fakeAsync(() => {
+      component.redirectionCount = 0;
+      spyOn(router, 'navigate');
+      spyOn(router, 'navigateByUrl');
+
+      // Call the method
+      component.startCountdown();
+
+      // Simulate some time passing
+      tick(1000);
+
+      expect(router.navigateByUrl).toHaveBeenCalledWith('/enterprise/my_dashboard', { skipLocationChange: true });
+      expect(router.navigate).toHaveBeenCalledWith(['/', 'enterprise', 'my_dashboard']);
     }));
   });
 });
