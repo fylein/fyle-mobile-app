@@ -10,17 +10,19 @@ xdescribe('AppComponent', () => {
   let platformReadySpy;
   let platformSpy;
 
-  beforeEach(waitForAsync(() => {
-    platformReadySpy = Promise.resolve();
-    platformSpy = jasmine.createSpyObj('Platform', { ready: platformReadySpy });
+  beforeEach(
+    waitForAsync(() => {
+      platformReadySpy = Promise.resolve();
+      platformSpy = jasmine.createSpyObj('Platform', { ready: platformReadySpy });
 
-    TestBed.configureTestingModule({
-      declarations: [AppComponent],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA],
-      providers: [{ provide: Platform, useValue: platformSpy }],
-      imports: [RouterTestingModule.withRoutes([])],
-    }).compileComponents();
-  }));
+      TestBed.configureTestingModule({
+        declarations: [AppComponent],
+        schemas: [CUSTOM_ELEMENTS_SCHEMA],
+        providers: [{ provide: Platform, useValue: platformSpy }],
+        imports: [RouterTestingModule.withRoutes([])],
+      }).compileComponents();
+    })
+  );
 
   it('should create the app', async () => {
     const fixture = TestBed.createComponent(AppComponent);
