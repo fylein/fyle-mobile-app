@@ -1,7 +1,4 @@
 @import '../../../theme/colors.scss';
-$item-border-color: #e0e0e0;
-$menu-botton-color: #000;
-$toolbar-border: #ababab6b;
 
 .spender-onboarding-container {
   height: 100%;
@@ -100,23 +97,6 @@ $toolbar-border: #ababab6b;
     display: flex;
     align-items: center;
     justify-content: center;
-  }
-
-  &__option {
-    font-weight: normal;
-    color: #0077ee;
-    font-size: 16px;
-  }
-
-  &__select-state {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    min-width: 120px;
-  }
-
-  &__select-state-checkbox {
-    margin-right: 8px;
   }
 
   &__skip-cta {

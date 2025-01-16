@@ -344,7 +344,7 @@
   }
 
   &__send-code-btn {
-    background: linear-gradient(162.38deg, #ff3366 3.01%, #fe5196 111.5%);
+    background: linear-gradient(162.38deg, $brand-primary 3.01%, $brand-primary-light 111.5%);
     &__icon {
       width: 12px;
       height: 14px;
@@ -416,7 +416,7 @@
   }
 
   &__otp-container-text {
-    color: #5a5d72;
+    color: $black-light;
     font-size: 14px;
     font-style: normal;
     font-weight: 500;
