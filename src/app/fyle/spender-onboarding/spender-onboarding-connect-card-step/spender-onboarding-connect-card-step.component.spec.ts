@@ -185,7 +185,7 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
   });
 
   describe('enrollCards(): ', () => {
-    it('should call enrollMultipleCards if enrollableCards has items', () => {
+    it('should call enrollMultipleCards if enrollableCards has one item', () => {
       component.enrollableCards = [statementUploadedCard];
       const enrollSingularCardSpy = spyOn(component, 'enrollSingularCard');
       const enrollMultipleCardsSpy = spyOn(component, 'enrollMultipleCards');
@@ -197,7 +197,7 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
       expect(component.cardsEnrolling).toBeTrue();
     });
 
-    it('should call enrollMultipleCards if enrollableCards has items', () => {
+    it('should call enrollMultipleCards if enrollableCards has more than one items', () => {
       component.enrollableCards = [statementUploadedCard, { ...statementUploadedCard, id: 'bacc15bbrRGWzg' }];
       const enrollSingularCardSpy = spyOn(component, 'enrollSingularCard');
       const enrollMultipleCardsSpy = spyOn(component, 'enrollMultipleCards');

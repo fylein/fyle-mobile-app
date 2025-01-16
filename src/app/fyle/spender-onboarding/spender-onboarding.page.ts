@@ -147,7 +147,6 @@ export class SpenderOnboardingPage {
       if (this.redirectionCount > 0) {
         this.redirectionCount--;
       } else {
-        this.router.navigateByUrl('/enterprise/my_dashboard', { skipLocationChange: true });
         this.router.navigate(['/', 'enterprise', 'my_dashboard']);
       }
     }, 1000);

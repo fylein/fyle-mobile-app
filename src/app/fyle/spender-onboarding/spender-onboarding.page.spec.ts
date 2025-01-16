@@ -41,7 +41,7 @@ describe('SpenderOnboardingPage', () => {
     const corporateCreditCardExpenseServiceSpy = jasmine.createSpyObj('CorporateCreditCardExpenseService', [
       'getCorporateCards',
     ]);
-    const routerSpy = jasmine.createSpyObj('Router', ['navigate', 'navigateByUrl']);
+    const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
       declarations: [SpenderOnboardingPage],
@@ -210,15 +210,10 @@ describe('SpenderOnboardingPage', () => {
 
   describe('startCountdown(): ', () => {
     it('should decrement redirectionCount and navigate to the dashboard when it reaches zero', fakeAsync(() => {
-      // Initialize redirectionCount and spy on router
-      component.redirectionCount = 3; // Example initial value
-      spyOn(router, 'navigate');
-      spyOn(router, 'navigateByUrl');
+      component.redirectionCount = 3;
 
-      // Call the method
       component.startCountdown();
 
-      // Simulate 1 second intervals
       tick(1000);
       expect(component.redirectionCount).toBe(2);
 
@@ -227,22 +222,16 @@ describe('SpenderOnboardingPage', () => {
 
       tick(1000);
       expect(component.redirectionCount).toBe(0);
-      expect(router.navigateByUrl).toHaveBeenCalledWith('/enterprise/my_dashboard', { skipLocationChange: true });
       expect(router.navigate).toHaveBeenCalledWith(['/', 'enterprise', 'my_dashboard']);
     }));
 
     it('should not navigate if redirectionCount is already zero', fakeAsync(() => {
       component.redirectionCount = 0;
-      spyOn(router, 'navigate');
-      spyOn(router, 'navigateByUrl');
 
-      // Call the method
       component.startCountdown();
 
-      // Simulate some time passing
       tick(1000);
 
-      expect(router.navigateByUrl).toHaveBeenCalledWith('/enterprise/my_dashboard', { skipLocationChange: true });
       expect(router.navigate).toHaveBeenCalledWith(['/', 'enterprise', 'my_dashboard']);
     }));
   });
