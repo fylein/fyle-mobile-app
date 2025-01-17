@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, ViewChild } from '@angular/core';
+import { Component, EventEmitter, ViewChild } from '@angular/core';
 import { concat, forkJoin, from, noop, Observable, of, Subject, Subscription } from 'rxjs';
 import { map, shareReplay, switchMap, takeUntil } from 'rxjs/operators';
 import { ActionSheetButton, ActionSheetController, ModalController, NavController, Platform } from '@ionic/angular';
