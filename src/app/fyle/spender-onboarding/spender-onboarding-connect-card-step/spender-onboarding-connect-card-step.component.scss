@@ -32,7 +32,7 @@
     border: 0;
     color: $blue-black;
     word-spacing: 24px;
-    width: 226px;
+    width: fit-content;
 
     &::placeholder {
       font-size: 14px;
