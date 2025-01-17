@@ -6,7 +6,7 @@ import { VerifiedOrgAuthGuard } from './core/guards/verified-org-auth.guard';
 const routes: Routes = [
   {
     path: '',
-    redirectTo: 'enterprise/my_dashboard',
+    redirectTo: 'enterprise/spender_onboarding',
     pathMatch: 'full',
   },
   {
