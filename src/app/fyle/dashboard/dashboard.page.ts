@@ -32,6 +32,8 @@ import { FyOptInComponent } from 'src/app/shared/components/fy-opt-in/fy-opt-in.
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
+import { OnboardingState } from 'src/app/core/models/onboarding-state.enum';
 
 @Component({
   selector: 'app-dashboard',
@@ -96,7 +98,8 @@ export class DashboardPage {
     private modalProperties: ModalPropertiesService,
     private authService: AuthService,
     private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService
+    private snackbarProperties: SnackbarPropertiesService,
+    private spenderOnboardingService: SpenderOnboardingService
   ) {}
 
   get displayedTaskCount(): number {
@@ -179,7 +182,24 @@ export class DashboardPage {
     this.trackingService.showToastMessage({ ToastContent: message });
   }
 
+  navigateToOnboarding(): void {
+    forkJoin([this.orgSettingsService.get(), this.spenderOnboardingService.getOnboardingStatus()]).subscribe(
+      ([orgSettings, onboardingStatus]) => {
+        if (
+          (orgSettings.corporate_credit_card_settings.enabled ||
+            orgSettings.visa_enrollment_settings.enabled ||
+            orgSettings.mastercard_enrollment_settings.enabled ||
+            orgSettings.amex_feed_enrollment_settings.enabled) &&
+          onboardingStatus.state !== OnboardingState.COMPLETED
+        ) {
+          this.router.navigate(['/', 'enterprise', 'spender_onboarding']);
+        }
+      }
+    );
+  }
+
   ionViewWillEnter(): void {
+    this.navigateToOnboarding();
     this.setupNetworkWatcher();
     this.registerBackButtonAction();
     this.smartlookService.init();
