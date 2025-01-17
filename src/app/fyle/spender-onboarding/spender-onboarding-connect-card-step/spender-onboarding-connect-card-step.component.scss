@@ -32,6 +32,7 @@
     border: 0;
     color: $blue-black;
     word-spacing: 24px;
+    width: 226px;
 
     &::placeholder {
       font-size: 14px;
@@ -84,8 +85,9 @@
   }
 
   &__primary-cta {
-    width: 40%;
+    width: 50%;
     align-self: flex-end;
+    margin-bottom: 20px;
   }
 
   &__toolbar-title {
