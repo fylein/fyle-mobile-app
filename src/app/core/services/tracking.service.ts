@@ -373,6 +373,14 @@ export class TrackingService {
     this.eventTrack('Edit Expense Error', properties);
   }
 
+  editMileageError(properties: { label: Error }): void {
+    this.eventTrack('Edit Mileage Error', properties);
+  }
+
+  editPerDiemError(properties: { label: Error }): void {
+    this.eventTrack('Edit Per Diem Error', properties);
+  }
+
   // adding expenses in existing report event
   addToExistingReport(properties = {}): void {
     this.eventTrack('Add Expenses to Report', properties);
