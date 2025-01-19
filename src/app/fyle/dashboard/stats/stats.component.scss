@@ -22,6 +22,16 @@ $ccc-bank-name: #c4cae8;
     line-height: 18px;
     color: $black-light;
     font-weight: 500;
+
+    &-content {
+      display: flex;
+      align-items: center;
+      margin-left: 4px;
+    }
+
+    ion-icon {
+      margin-right: 4px;
+    }
   }
 
   &--expenses-card {

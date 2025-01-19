@@ -2,7 +2,16 @@
   <ion-grid class="stats--body">
     <ion-row class="stats--expenses-stats-row" *ngIf="isConnected$ | async">
       <ion-col class="stats--expenses-stats-col">
-        <div class="stats--header">ALL EXPENSES</div>
+        <div class="stats--header">
+          <div class="stats--header-content">
+            <ion-icon
+              src="../../../../assets/svg/list.svg"
+              class="card-stats__logo--default__icon"
+              data-testid="default-icon"
+            ></ion-icon>
+            <span>My expenses</span>
+          </div>
+        </div>
       </ion-col>
     </ion-row>
     <ion-row *ngIf="isConnected$ | async">
@@ -11,7 +20,7 @@
           [currency]="homeCurrency$ | async"
           [currencySymbol]="currencySymbol$ | async"
           [name]="'Incomplete'"
-          [expenseState]="'DRAFT'"
+          [expenseState]="'INCOMPLETE_EXPENSE'"
           [count]="(incompleteExpensesStats$ | async)?.count"
           [value]="(incompleteExpensesStats$ | async)?.sum"
           [loading]="isIncompleteExpensesStatsLoading"
@@ -33,7 +42,16 @@
     </ion-row>
     <ion-row class="stats--report-stats-row" *ngIf="isConnected$ | async">
       <ion-col class="stats--report-stats-col">
-        <div class="stats--header">EXPENSE REPORTS</div>
+        <div class="stats--header">
+          <div class="stats--header-content">
+            <ion-icon
+              src="../../../../assets/svg/folder.svg"
+              class="card-stats__logo--default__icon"
+              data-testid="default-icon"
+            ></ion-icon>
+            <span>My expense reports</span>
+          </div>
+        </div>
       </ion-col>
     </ion-row>
     <ng-container *ngIf="isConnected$ | async">

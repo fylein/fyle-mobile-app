@@ -19,6 +19,12 @@
     line-height: 8px;
   }
 
+  &__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
   &__logo {
     &--container {
       display: flex;
@@ -109,4 +115,25 @@
     height: 20px;
     color: $dark-grey;
   }
+}
+
+.corporate-card-badge-container {
+  display: flex;
+  align-items: center;
+  background-color: #ffffff;
+  border: 1px solid $grey-2;
+  border-radius: 5px;
+  max-height: 20px;
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  margin-left: auto;
+}
+
+.corporate-card-badge {
+  color: $dark-grey;
+  text-align: center;
+  font-size: 11px;
+  line-height: 8px;
 }

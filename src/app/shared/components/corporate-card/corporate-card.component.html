@@ -1,7 +1,12 @@
 <div class="corporate-card">
   <ion-row class="ion-align-items-center">
     <ion-col class="p-0">
-      <div class="corporate-card__bank-name" *ngIf="card?.bank_name">{{ card.bank_name }}</div>
+      <ion-row class="corporate-card__row">
+        <div class="corporate-card__bank-name" *ngIf="card?.bank_name">{{ card.bank_name }}</div>
+        <div class="corporate-card-badge-container">
+          <span class="corporate-card-badge">Corporate card</span>
+        </div>
+      </ion-row>
     </ion-col>
 
     <ion-col size="auto" class="p-0">
@@ -51,13 +56,13 @@
           isCardConnectedToBankFeed
         "
       >
-        <span class="corporate-card__feed-label">Synced Using</span>
-        <span class="corporate-card__feed-value" data-testid="feed-info">{{
-          card.data_feed_source === 'STATEMENT_UPLOAD' ? 'Statement Upload' : 'Bank Feed'
+        <span class="corporate-card__feed-label">Synced using</span>
+        <span class="corporate-card__feed-label" data-testid="feed-info">{{
+          card.data_feed_source === 'STATEMENT_UPLOAD' ? 'Statement upload' : 'Bank Feed'
         }}</span>
       </ng-container>
     </div>
-    <div>
+    <!-- <div>
       <ng-container *ngIf="!isCardConnectedToRTF">
         <div class="corporate-card__logo--default">
           <ng-container *ngIf="card.data_feed_source === dataFeedSourceTypes.AMEX_FEED; else defaultCard">
@@ -91,6 +96,6 @@
           data-testid="mastercard-icon"
         />
       </ng-container>
-    </div>
+    </div> -->
   </div>
 </div>
