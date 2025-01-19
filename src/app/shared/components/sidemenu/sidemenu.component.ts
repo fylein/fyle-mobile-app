@@ -198,7 +198,7 @@ export class SidemenuComponent implements OnInit {
     const { allowedReportsActions, allowedAdvancesActions } = this.allowedActions;
     const teamOptions = [
       {
-        title: 'Team Reports',
+        title: 'Team reports',
         isVisible: allowedReportsActions && allowedReportsActions.approve && showTeamReportsPage,
         route: ['/', 'enterprise', 'team_reports'],
       },
@@ -302,7 +302,7 @@ export class SidemenuComponent implements OnInit {
         route: ['/', 'enterprise', 'my_dashboard'],
       },
       {
-        title: 'Expenses',
+        title: 'My expenses',
         isVisible: true,
         icon: 'list',
         route: ['/', 'enterprise', 'my_expenses'],
