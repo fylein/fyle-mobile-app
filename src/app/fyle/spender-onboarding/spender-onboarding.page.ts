@@ -97,7 +97,10 @@ export class SpenderOnboardingPage {
               this.currentStep = OnboardingStep.CONNECT_CARD;
             }
           }
+        }),
+        finalize(() => {
           this.isLoading = false;
+          return from(this.loaderService.hideLoader());
         })
       )
       .subscribe();
@@ -117,8 +120,7 @@ export class SpenderOnboardingPage {
           })
         )
         .subscribe();
-    }
-    if (this.currentStep === OnboardingStep.OPT_IN) {
+    } else if (this.currentStep === OnboardingStep.OPT_IN) {
       this.onboardingInProgress = false;
       this.spenderOnboardingService
         .skipSmsOptInStep()
@@ -144,8 +146,7 @@ export class SpenderOnboardingPage {
           })
         )
         .subscribe();
-    }
-    if (this.currentStep === OnboardingStep.OPT_IN) {
+    } else if (this.currentStep === OnboardingStep.OPT_IN) {
       this.onboardingInProgress = false;
       this.spenderOnboardingService
         .markSmsOptInStepAsComplete()

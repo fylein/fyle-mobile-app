@@ -1,7 +1,7 @@
 import { Component, OnInit, EventEmitter, NgZone, ViewChild } from '@angular/core';
 import { Platform, MenuController, NavController } from '@ionic/angular';
 import { from, concat, Observable, noop, forkJoin } from 'rxjs';
-import { switchMap, shareReplay, filter, take } from 'rxjs/operators';
+import { switchMap, shareReplay, filter, take, map } from 'rxjs/operators';
 import { Router, NavigationEnd, NavigationStart } from '@angular/router';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { UserEventService } from 'src/app/core/services/user-event.service';
@@ -147,6 +147,22 @@ export class AppComponent implements OnInit {
     );
   }
 
+  setSidenavPostOnboarding(): void {
+    this.spenderOnboardingService
+      .setOnboardingStatusAsComplete()
+      .pipe(
+        switchMap(() => this.isConnected$.pipe(take(1))),
+        map((isOnline) => {
+          if (isOnline) {
+            this.sidemenuRef.showSideMenuOnline();
+          } else {
+            this.sidemenuRef.showSideMenuOffline();
+          }
+        })
+      )
+      .subscribe();
+  }
+
   ngOnInit(): void {
     this.setupNetworkWatcher();
 
@@ -194,13 +210,7 @@ export class AppComponent implements OnInit {
       }, 500);
     });
 
-    this.spenderOnboardingService.setOnboardingStatusAsComplete().subscribe(() => {
-      if (this.isOnline) {
-        this.sidemenuRef.showSideMenuOnline();
-      } else {
-        this.sidemenuRef.showSideMenuOffline();
-      }
-    });
+    this.setSidenavPostOnboarding();
 
     this.userEventService.onLogout(() => {
       this.trackingService.onSignOut();
