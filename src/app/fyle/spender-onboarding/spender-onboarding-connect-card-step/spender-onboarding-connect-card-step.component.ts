@@ -2,7 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { PopoverController } from '@ionic/angular';
-import { catchError, concatMap, from, map, of } from 'rxjs';
+import { catchError, concatMap, finalize, from, map, of } from 'rxjs';
 import { CardNetworkType } from 'src/app/core/enums/card-network-type';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
@@ -19,8 +19,6 @@ import { CardProperties } from '../models/card-properties.model';
   styleUrls: ['./spender-onboarding-connect-card-step.component.scss'],
 })
 export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChanges {
-  @Input() readOnly?: boolean = false;
-
   @Input() orgSettings: OrgSettings;
 
   @Output() isStepComplete: EventEmitter<boolean> = new EventEmitter<boolean>();
@@ -82,16 +80,12 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
               return of(error);
             })
           )
-        )
+        ),
+        finalize(() => {
+          this.handleEnrollmentCompletion();
+        })
       )
-      .subscribe(() => {
-        this.cardsEnrolling = false;
-        if (this.cardsList.failedCards.length > 0) {
-          this.showErrorPopover();
-        } else {
-          this.isStepComplete.emit(true);
-        }
-      });
+      .subscribe();
   }
 
   enrollSingularCard(): void {
@@ -104,16 +98,12 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
         catchError((error: HttpErrorResponse) => {
           this.setupErrorMessages(error, (this.fg.controls.card_number.value as string).slice(-4));
           return of(error);
+        }),
+        finalize(() => {
+          this.handleEnrollmentCompletion();
         })
       )
-      .subscribe(() => {
-        this.cardsEnrolling = false;
-        if (this.cardsList.failedCards.length > 0) {
-          this.showErrorPopover();
-        } else {
-          this.isStepComplete.emit(true);
-        }
-      });
+      .subscribe();
   }
 
   enrollCards(): void {
@@ -121,6 +111,10 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
       successfulCards: [],
       failedCards: [],
     };
+    this.fg.markAllAsTouched();
+    if (!this.fg.valid) {
+      return;
+    }
     const cards = this.enrollableCards.filter((card) => !this.cardValuesMap[card.id]?.enrollment_success);
     this.cardsEnrolling = true;
     if (cards.length > 0) {
@@ -138,9 +132,9 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
         .slice(0, this.cardsList.failedCards.length - 1)
         .join(', ')} and ${this.cardsList.failedCards.slice(
         -1
-      )}. You can cancel and retry connecting the failed card or proceed to the next step.`;
+      )}.<br><br>You can cancel and retry connecting the failed card or proceed to the next step.`;
     } else {
-      return `We ran into an issue while processing your request for the card ${this.cardsList.failedCards[0]}. You can cancel and retry connecting the failed card or proceed to the next step.`;
+      return `We ran into an issue while processing your request for the card ${this.cardsList.failedCards[0]}.<br><br> You can cancel and retry connecting the failed card or proceed to the next step.`;
     }
   }
 
@@ -149,6 +143,7 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
       componentProps: {
         title: this.cardsList.successfulCards.length > 0 ? 'Status summary' : 'Failed connecting',
         message: this.generateMessage(),
+        leftAlign: true,
         primaryCta: {
           text: 'Proceed anyway',
           action: 'close',
@@ -287,5 +282,14 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
         return { invalidCardNetwork: true };
       }
     };
+  }
+
+  private handleEnrollmentCompletion(): void {
+    this.cardsEnrolling = false;
+    if (this.cardsList.failedCards.length > 0) {
+      this.showErrorPopover();
+    } else {
+      this.isStepComplete.emit(true);
+    }
   }
 }

@@ -117,7 +117,6 @@
             mask="0000 0000 0000 0000"
             placeholder="Enter corporate card number"
             data-testid="card-number-input"
-            appAutofocus
             formControlName="card_number"
             required
             (input)="onCardNumberUpdate()"
@@ -188,7 +187,6 @@
       role="button"
       (click)="enrollCards()"
       appFormButtonValidation
-      [disabled]="!fg.valid"
       [loading]="cardsEnrolling"
       [loadingText]="'Continue'"
     >
