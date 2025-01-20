@@ -44,7 +44,6 @@ import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup
 import { OrgUser } from 'src/app/core/models/org-user.model';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { UpdateMobileNumberComponent } from './update-mobile-number/update-mobile-number.component';
-import { OnboardingStatus } from 'src/app/core/models/onboarding-status.model';
 import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
 import { OnboardingState } from 'src/app/core/models/onboarding-state.enum';
 

@@ -11,6 +11,7 @@ import { CorporateCreditCardExpenseService } from 'src/app/core/services/corpora
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { OnboardingState } from 'src/app/core/models/onboarding-state.enum';
 import { OnboardingStatus } from 'src/app/core/models/onboarding-status.model';
+import { TrackingService } from 'src/app/core/services/tracking.service';
 
 @Component({
   selector: 'app-spender-onboarding',
@@ -44,7 +45,8 @@ export class SpenderOnboardingPage {
     private spenderOnboardingService: SpenderOnboardingService,
     private orgSettingsService: OrgSettingsService,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
-    private router: Router
+    private router: Router,
+    private trackingService: TrackingService
   ) {}
 
   navigateToDashboard(orgSettings: OrgSettings, onboardingStatus: OnboardingStatus): void {
@@ -117,6 +119,7 @@ export class SpenderOnboardingPage {
         .skipConnectCardsStep()
         .pipe(
           map(() => {
+            this.trackingService.eventTrack('Connect Cards Onboarding Step - Skipped');
             this.currentStep = OnboardingStep.OPT_IN;
           })
         )
@@ -128,6 +131,7 @@ export class SpenderOnboardingPage {
         .pipe(
           switchMap(() => this.spenderOnboardingService.markWelcomeModalStepAsComplete()),
           map(() => {
+            this.trackingService.eventTrack('Sms Opt In Onboarding Step - Skipped');
             this.spenderOnboardingService.setOnboardingStatusEvent();
             this.onboardingComplete = true;
             this.router.navigate(['/', 'enterprise', 'my_dashboard']);

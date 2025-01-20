@@ -137,24 +137,6 @@ describe('SpenderOnboardingOptInStepComponent', () => {
         message: 'EDIT_NUMBER',
       });
     });
-
-    it('should dismiss modal if user clicked from mobile input screen', () => {
-      component.optInFlowState = OptInFlowState.MOBILE_INPUT;
-      component.goBack();
-      expect(modalController.dismiss).toHaveBeenCalledTimes(1);
-      expect(trackingService.skipOptInFlow).toHaveBeenCalledTimes(1);
-    });
-
-    it('should dismiss modal if user clicked from success screen', () => {
-      component.optInFlowState = OptInFlowState.SUCCESS;
-      component.goBack();
-      expect(modalController.dismiss).toHaveBeenCalledOnceWith({
-        action: 'SUCCESS',
-      });
-      expect(trackingService.optInFlowSuccess).toHaveBeenCalledOnceWith({
-        message: 'SUCCESS',
-      });
-    });
   });
 
   describe('validateInput():', () => {

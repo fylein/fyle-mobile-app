@@ -12,6 +12,7 @@ import { CorporateCreditCardExpenseService } from 'src/app/core/services/corpora
 import { RealTimeFeedService } from 'src/app/core/services/real-time-feed.service';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { CardProperties } from '../models/card-properties.model';
+import { TrackingService } from 'src/app/core/services/tracking.service';
 
 @Component({
   selector: 'app-spender-onboarding-connect-card-step',
@@ -54,7 +55,8 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
     private corporateCreditCardExpensesService: CorporateCreditCardExpenseService,
     private realTimeFeedService: RealTimeFeedService,
     private fb: FormBuilder,
-    private popoverController: PopoverController
+    private popoverController: PopoverController,
+    private trackingService: TrackingService
   ) {}
 
   setupErrorMessages(error: HttpErrorResponse, cardNumber: string, cardId?: string): void {
@@ -130,7 +132,7 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
     } else if (this.cardsList.failedCards.length > 1) {
       const allButLast = this.cardsList.failedCards.slice(0, -1).join(', ');
       const lastCard = this.cardsList.failedCards[this.cardsList.failedCards.length - 1];
-      return `We ran into an issue while processing your request for the cards  ${allButLast} and ${lastCard}.<br><br>You can cancel and retry connecting the failed card or proceed to the next step.`;
+      return `We ran into an issue while processing your request for the cards  ${allButLast}} and ${lastCard}.<br><br>You can cancel and retry connecting the failed card or proceed to the next step.`;
     } else {
       return `We ran into an issue while processing your request for the card ${this.cardsList.failedCards[0]}.<br><br> You can cancel and retry connecting the failed card or proceed to the next step.`;
     }
@@ -219,6 +221,7 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
 
   ngOnInit(): void {
     this.fg = this.fb.group({});
+    this.trackingService.eventTrack('Connect Cards Onboarding Step - Viewed');
     this.setupForm();
   }
 
@@ -287,6 +290,9 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
     if (this.cardsList.failedCards.length > 0) {
       this.showErrorPopover();
     } else {
+      this.trackingService.eventTrack('Connect Cards Onboarding Step - Completed', {
+        numberOfCards: this.cardsList.successfulCards.length,
+      });
       this.isStepComplete.emit(true);
     }
   }
