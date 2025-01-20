@@ -35,6 +35,7 @@ describe('SpenderOnboardingPage', () => {
       'skipSmsOptInStep',
       'markSmsOptInStepAsComplete',
       'markWelcomeModalStepAsComplete',
+      'setOnboardingStatusEvent',
     ]);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const corporateCreditCardExpenseServiceSpy = jasmine.createSpyObj('CorporateCreditCardExpenseService', [
