@@ -14,6 +14,7 @@ import { extendedOrgUserResponse } from 'src/app/core/test-data/tasks.service.sp
 import { OnboardingStepStatus } from 'src/app/core/models/onboarding-step-status.model';
 import { orgSettingsWoTaxAndRtf } from 'src/app/core/mock-data/org-settings.data';
 import { statementUploadedCard } from 'src/app/core/mock-data/platform-corporate-card.data';
+import { TrackingService } from 'src/app/core/services/tracking.service';
 
 describe('SpenderOnboardingPage', () => {
   let component: SpenderOnboardingPage;
@@ -24,6 +25,7 @@ describe('SpenderOnboardingPage', () => {
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
   let router: jasmine.SpyObj<Router>;
+  let trackingService: jasmine.SpyObj<TrackingService>;
 
   beforeEach(async () => {
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
@@ -42,6 +44,7 @@ describe('SpenderOnboardingPage', () => {
       'getCorporateCards',
     ]);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['eventTrack']);
 
     await TestBed.configureTestingModule({
       declarations: [SpenderOnboardingPage],
@@ -52,6 +55,7 @@ describe('SpenderOnboardingPage', () => {
         { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
         { provide: CorporateCreditCardExpenseService, useValue: corporateCreditCardExpenseServiceSpy },
         { provide: Router, useValue: routerSpy },
+        { provide: TrackingService, useValue: trackingServiceSpy },
       ],
     }).compileComponents();
 
@@ -66,6 +70,7 @@ describe('SpenderOnboardingPage', () => {
       CorporateCreditCardExpenseService
     ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
+    trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     spenderOnboardingService.markWelcomeModalStepAsComplete.and.returnValue(of({ is_complete: true }));
   });
 

@@ -135,6 +135,7 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
   }
 
   ngOnInit(): void {
+    this.trackingService.eventTrack('Sms Opt In Onboarding Step - Viewed');
     this.fg = this.fb.group({});
     this.fg.addControl('mobile_number', this.fb.control('', [Validators.required, Validators.maxLength(10)]));
     this.spenderOnboardingService.getOnboardingStatus().subscribe((onboardingStatus) => {
@@ -146,18 +147,8 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
 
   goBack(): void {
     if (this.optInFlowState === OptInFlowState.OTP_VERIFICATION) {
-      this.trackingService.optInFlowRetry({
-        message: 'EDIT_NUMBER',
-      });
+      this.trackingService.eventTrack('Sms Opt In Onboarding Step - Edit Number');
       this.optInFlowState = OptInFlowState.MOBILE_INPUT;
-    } else if (this.optInFlowState === OptInFlowState.SUCCESS) {
-      this.trackingService.optInFlowSuccess({
-        message: 'SUCCESS',
-      });
-      this.modalController.dismiss({ action: 'SUCCESS' });
-    } else {
-      this.trackingService.skipOptInFlow();
-      this.modalController.dismiss();
     }
   }
 
@@ -227,6 +218,7 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
         'msb-failure-with-camera-icon'
       );
       this.disableResendOtp = true;
+      this.trackingService.eventTrack('Sms Opt In Onboarding Step - Max Otp Attempts Reached');
     }
 
     this.sendCodeLoading = false;
@@ -294,6 +286,7 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
           this.optInFlowState = OptInFlowState.SUCCESS;
           this.verifyingOtp = false;
           this.isStepComplete.emit(true);
+          this.trackingService.eventTrack('Sms Opt In Onboarding Step - Completed');
           this.userEventService.clearTaskCache();
         },
         error: () => {

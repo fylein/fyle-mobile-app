@@ -13,6 +13,7 @@ import { SimpleChanges } from '@angular/core';
 import { orgSettingsData } from 'src/app/core/test-data/org-settings.service.spec.data';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { enrollmentErrorPopoverData1, enrollmentErrorPopoverData2 } from 'src/app/core/mock-data/modal-controller.data';
+import { TrackingService } from 'src/app/core/services/tracking.service';
 
 describe('SpenderOnboardingConnectCardStepComponent', () => {
   let component: SpenderOnboardingConnectCardStepComponent;
@@ -21,12 +22,14 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
   let realTimeFeedService: jasmine.SpyObj<RealTimeFeedService>;
   let popoverController: jasmine.SpyObj<PopoverController>;
   let fb: FormBuilder;
+  let trackingService: TrackingService;
 
   beforeEach(waitForAsync(() => {
     const corporateCreditCardExpenseServiceSpy = jasmine.createSpyObj('CorporateCreditCardExpenseService', [
       'getCorporateCards',
     ]);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create', 'dismiss']);
+    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['eventTrack']);
     const realTimeFeedServiceSpy = jasmine.createSpyObj('RealTimeFeedService', [
       'enroll',
       'getCardTypeFromNumber',
@@ -41,6 +44,7 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
         { provide: RealTimeFeedService, useValue: realTimeFeedServiceSpy },
         { provide: CorporateCreditCardExpenseService, useValue: corporateCreditCardExpenseServiceSpy },
         { provide: PopoverController, useValue: popoverControllerSpy },
+        { provide: TrackingService, useValue: trackingServiceSpy },
       ],
     }).compileComponents();
 
@@ -54,6 +58,7 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
     fb = TestBed.inject(FormBuilder);
     component.fg = fb.group({});
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
+    trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([]));
     realTimeFeedService.isCardNumberValid.and.returnValue(true);
     realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.VISA);
