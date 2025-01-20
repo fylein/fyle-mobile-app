@@ -2,7 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { PopoverController } from '@ionic/angular';
-import { catchError, concatMap, from, map, of } from 'rxjs';
+import { catchError, concatMap, finalize, from, map, of } from 'rxjs';
 import { CardNetworkType } from 'src/app/core/enums/card-network-type';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
@@ -89,16 +89,12 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
               return of(error);
             })
           )
-        )
+        ),
+        finalize(() => {
+          this.handleEnrollmentCompletion();
+        })
       )
-      .subscribe(() => {
-        this.cardsEnrolling = false;
-        if (this.cardsList.failedCards.length > 0) {
-          this.showErrorPopover();
-        } else {
-          this.isStepComplete.emit(true);
-        }
-      });
+      .subscribe();
   }
 
   enrollSingularCard(): void {
@@ -111,16 +107,12 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
         catchError((error: HttpErrorResponse) => {
           this.setupErrorMessages(error, (this.fg.controls.card_number.value as string).slice(-4));
           return of(error);
+        }),
+        finalize(() => {
+          this.handleEnrollmentCompletion();
         })
       )
-      .subscribe(() => {
-        this.cardsEnrolling = false;
-        if (this.cardsList.failedCards.length > 0) {
-          this.showErrorPopover();
-        } else {
-          this.isStepComplete.emit(true);
-        }
-      });
+      .subscribe();
   }
 
   enrollCards(): void {
@@ -128,6 +120,10 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
       successfulCards: [],
       failedCards: [],
     };
+    this.fg.markAllAsTouched();
+    if (!this.fg.valid) {
+      return;
+    }
     const cards = this.enrollableCards.filter((card) => !this.cardValuesMap[card.id]?.enrollment_success);
     this.cardsEnrolling = true;
     if (cards.length > 0) {
@@ -294,5 +290,14 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
 
       return null;
     };
+  }
+
+  private handleEnrollmentCompletion(): void {
+    this.cardsEnrolling = false;
+    if (this.cardsList.failedCards.length > 0) {
+      this.showErrorPopover();
+    } else {
+      this.isStepComplete.emit(true);
+    }
   }
 }
