@@ -45,7 +45,7 @@ import { platformExpenseData } from 'src/app/core/mock-data/platform/v1/expense.
 import { transformedExpenseData } from 'src/app/core/mock-data/transformed-expense.data';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { orgSettingsData } from 'src/app/core/test-data/org-settings.service.spec.data';
+import { orgSettingsCardsDisabled, orgSettingsData } from 'src/app/core/test-data/org-settings.service.spec.data';
 import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
 import { onboardingStatusData } from 'src/app/core/mock-data/onboarding-status.data';
 import { OnboardingState } from 'src/app/core/models/onboarding-state.enum';
@@ -699,6 +699,8 @@ describe('SwitchOrgPage', () => {
           'my_dashboard',
           { openSMSOptInDialog: undefined },
         ]);
+        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+        expect(spenderOnboardingService.getOnboardingStatus).toHaveBeenCalledTimes(1);
       });
     }));
 
@@ -728,6 +730,21 @@ describe('SwitchOrgPage', () => {
         expect(res).toBeNull();
         expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'disabled']);
         done();
+      });
+
+      it('should navigate to dashboard when no enrollment settings are enabled', (done) => {
+        const config = {
+          isPendingDetails: false,
+          roles,
+          eou: apiEouRes,
+        };
+        orgSettingsService.get.and.returnValue(of(orgSettingsCardsDisabled));
+        spenderOnboardingService.getOnboardingStatus.and.returnValue(of(onboardingStatusData));
+        component.navigateBasedOnUserStatus(config).subscribe((res) => {
+          expect(res).toBeNull();
+          expect(router.navigate).toHaveBeenCalledWith(['/', 'enterprise', 'my_dashboard']);
+          done();
+        });
       });
     });
 
