@@ -321,6 +321,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     forkJoin([this.orgSettingsService.get(), this.spenderOnboardingService.getOnboardingStatus()]).subscribe(
       ([orgSettings, onboardingStatus]) => {
         if (
+          orgSettings.corporate_credit_card_settings.enabled &&
           (orgSettings.visa_enrollment_settings.enabled ||
             orgSettings.mastercard_enrollment_settings.enabled ||
             orgSettings.amex_feed_enrollment_settings.enabled) &&

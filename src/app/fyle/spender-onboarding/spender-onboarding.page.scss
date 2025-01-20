@@ -1,12 +1,19 @@
 @import '../../../theme/colors.scss';
-$item-border-color: #e0e0e0;
-$menu-botton-color: #000;
-$toolbar-border: #ababab6b;
+
+.spender-onboarding-container {
+  height: 100%;
+}
+
+.content-container {
+  height: 100%;
+}
 
 .spender-onboarding {
   background: $border-info-lighter;
   height: 100%;
   padding-top: 20px;
+  display: flex;
+  flex-direction: column;
 
   &__progress-bar {
     width: 50px;
@@ -25,20 +32,23 @@ $toolbar-border: #ababab6b;
   }
 
   &__menu-icon-container {
-    padding: 20px 16px;
-  }
-
-  &__component-container {
-    height: 75%;
+    padding: 20px 8px;
   }
 
   &__step-tracker {
-    padding: 24px;
+    padding: 24px 20px;
     border-radius: 32px 32px 0px 0px;
     border: 1px solid $border-info-lighter;
     background: $pure-white;
     box-shadow: -14px -6px 24px 0px #00000008;
     height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+
+  &__onboarding-step {
+    flex-grow: 1;
   }
 
   &__stepper-container {
@@ -87,23 +97,6 @@ $toolbar-border: #ababab6b;
     display: flex;
     align-items: center;
     justify-content: center;
-  }
-
-  &__option {
-    font-weight: normal;
-    color: #0077ee;
-    font-size: 16px;
-  }
-
-  &__select-state {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    min-width: 120px;
-  }
-
-  &__select-state-checkbox {
-    margin-right: 8px;
   }
 
   &__skip-cta {

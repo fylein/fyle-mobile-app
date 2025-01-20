@@ -98,12 +98,13 @@ export class InvitedUserPage implements OnInit {
   navigateToDashboard(): void {
     forkJoin([this.orgSettingsService.get(), this.spenderOnboardingService.getOnboardingStatus()]).subscribe(
       ([orgSettings, onboardingStatus]) => {
-        if (
+        const shouldProceedToOnboarding =
+          orgSettings.corporate_credit_card_settings.enabled &&
           (orgSettings.visa_enrollment_settings.enabled ||
             orgSettings.mastercard_enrollment_settings.enabled ||
             orgSettings.amex_feed_enrollment_settings.enabled) &&
-          onboardingStatus.state !== OnboardingState.COMPLETED
-        ) {
+          onboardingStatus.state !== OnboardingState.COMPLETED;
+        if (shouldProceedToOnboarding) {
           this.router.navigate(['/', 'enterprise', 'spender_onboarding']);
         } else {
           this.router.navigate(['/', 'enterprise', 'my_dashboard']);
