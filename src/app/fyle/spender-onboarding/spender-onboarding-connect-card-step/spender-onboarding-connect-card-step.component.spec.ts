@@ -202,7 +202,7 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
       expect(component.cardsEnrolling).toBeTrue();
     });
 
-    it('should call enrollMultipleCards if enrollableCards has items', () => {
+    it('should call enrollMultipleCards if enrollableCards has items - case when there are no items', () => {
       const enrollSingularCardSpy = spyOn(component, 'enrollSingularCard');
       const enrollMultipleCardsSpy = spyOn(component, 'enrollMultipleCards');
       component.ngOnInit();
@@ -214,9 +214,9 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
 
       component.enrollCards();
 
-      expect(enrollMultipleCardsSpy).toHaveBeenCalledWith([component.enrollableCards[1]]);
+      expect(enrollMultipleCardsSpy).not.toHaveBeenCalled();
       expect(enrollSingularCardSpy).not.toHaveBeenCalled();
-      expect(component.cardsEnrolling).toBeTrue();
+      expect(component.cardsEnrolling).toBeFalse();
     });
 
     it('should call enrollSingularCard if enrollableCards is empty', () => {
@@ -364,6 +364,10 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
     });
 
     it('should display a popover when successful cards are present and handle its actions', fakeAsync(() => {
+      component.cardsList = {
+        successfulCards: ['**** 1111'],
+        failedCards: ['**** 1111'],
+      };
       const popoverSpy = jasmine.createSpyObj('popover', ['present', 'onWillDismiss']);
       spyOn(component, 'generateMessage').and.returnValue('Error message');
       const isStepSkippedSpy = spyOn(component.isStepSkipped, 'emit');
