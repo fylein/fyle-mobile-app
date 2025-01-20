@@ -161,7 +161,7 @@ describe('SpenderOnboardingOptInStepComponent', () => {
     it('should set mobileNumberError if mobile number field is empty', () => {
       component.mobileNumberInputValue = '';
       expect(component.validateInput());
-      expect(component.mobileNumberError).toBe('Please enter mobile number');
+      expect(component.mobileNumberError).toBe('Please enter mobile number.');
     });
 
     it('should set mobileNumberError if mobile number is invalid', () => {
@@ -175,7 +175,7 @@ describe('SpenderOnboardingOptInStepComponent', () => {
     it('should set mobileNumberError if mobileNumberInputValue is null', () => {
       component.mobileNumberInputValue = null;
       expect(component.validateInput());
-      expect(component.mobileNumberError).toBe('Please enter mobile number');
+      expect(component.mobileNumberError).toBe('Please enter mobile number.');
     });
 
     it('should set mobileNumberError if mobileNumberInputValue does not starts with +1', () => {

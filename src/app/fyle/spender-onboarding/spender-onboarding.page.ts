@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { finalize, forkJoin, from, map, switchMap } from 'rxjs';
+import { forkJoin, from, map, switchMap, tap } from 'rxjs';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
@@ -9,6 +9,8 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { Router } from '@angular/router';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
+import { OnboardingState } from 'src/app/core/models/onboarding-state.enum';
+import { OnboardingStatus } from 'src/app/core/models/onboarding-status.model';
 
 @Component({
   selector: 'app-spender-onboarding',
@@ -45,6 +47,17 @@ export class SpenderOnboardingPage {
     private router: Router
   ) {}
 
+  navigateToDashboard(orgSettings: OrgSettings, onboardingStatus: OnboardingStatus): void {
+    const hasEnabledCards = orgSettings.corporate_credit_card_settings.enabled ||
+      orgSettings.visa_enrollment_settings.enabled ||
+      orgSettings.mastercard_enrollment_settings.enabled ||
+      orgSettings.amex_feed_enrollment_settings.enabled;
+    const shouldShowOnboarding = hasEnabledCards && onboardingStatus.state !== OnboardingState.COMPLETED;
+    if (!shouldShowOnboarding) {
+      this.router.navigate(['/', 'enterprise', 'my_dashboard']);
+    }
+  }
+
   ionViewWillEnter(): void {
     this.isLoading = true;
     from(this.loaderService.showLoader())
@@ -58,6 +71,7 @@ export class SpenderOnboardingPage {
           ])
         ),
         map(([eou, orgSettings, onboardingStatus, corporateCards]) => {
+          this.navigateToDashboard(orgSettings, onboardingStatus);
           this.eou = eou;
           this.userFullName = eou.us.full_name;
           this.orgSettings = orgSettings;
@@ -76,7 +90,9 @@ export class SpenderOnboardingPage {
               rtfCards.length > 0
             ) {
               this.currentStep = OnboardingStep.OPT_IN;
-              this.onlyOptInEnabled = true;
+              if (onboardingStatus.step_connect_cards_is_configured) {
+                this.onlyOptInEnabled = true;
+              }
             } else {
               this.currentStep = OnboardingStep.CONNECT_CARD;
             }
@@ -124,7 +140,11 @@ export class SpenderOnboardingPage {
     if (this.currentStep === OnboardingStep.CONNECT_CARD) {
       this.spenderOnboardingService
         .markConnectCardsStepAsComplete()
-        .pipe(map(() => (this.currentStep = OnboardingStep.OPT_IN)))
+        .pipe(
+          tap(() => {
+            this.currentStep = OnboardingStep.OPT_IN;
+          })
+        )
         .subscribe();
     } else if (this.currentStep === OnboardingStep.OPT_IN) {
       this.onboardingInProgress = false;

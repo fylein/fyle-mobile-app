@@ -6,26 +6,26 @@ import { VerifiedOrgAuthGuard } from './core/guards/verified-org-auth.guard';
 const routes: Routes = [
   {
     path: '',
-    redirectTo: 'enterprise/my_dashboard',
+    redirectTo: 'enterprise/spender_onboarding',
     pathMatch: 'full',
   },
   {
     path: 'auth',
-    loadChildren: () => import('./auth/auth.module').then((m) => m.AuthModule),
+    loadChildren: (): void => import('./auth/auth.module').then((m) => m.AuthModule),
   },
   {
     path: 'post_verification',
-    loadChildren: () => import('./post-verification/post-verification.module').then((m) => m.PostVerificationModule),
+    loadChildren: (): void => import('./post-verification/post-verification.module').then((m) => m.PostVerificationModule),
     canActivate: [AuthGuard],
   },
   {
     path: 'enterprise',
-    loadChildren: () => import('./fyle/fyle.module').then((m) => m.FyleModule),
+    loadChildren: (): void => import('./fyle/fyle.module').then((m) => m.FyleModule),
     canActivate: [AuthGuard, VerifiedOrgAuthGuard],
   },
   {
     path: 'deep_link_redirection',
-    loadChildren: () =>
+    loadChildren: (): void =>
       import('./deep-link-redirection/deep-link-redirection.module').then((m) => m.DeepLinkRedirectionPageModule),
   },
 ];
