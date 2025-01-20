@@ -11,6 +11,7 @@ import { PopoverCardsList } from 'src/app/core/models/popover-cards-list.model';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { RealTimeFeedService } from 'src/app/core/services/real-time-feed.service';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
+import { CardProperties } from '../models/card-properties.model';
 
 @Component({
   selector: 'app-spender-onboarding-connect-card-step',
@@ -30,23 +31,13 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
 
   isMastercardRTFEnabled = false;
 
-  cardType = CardNetworkType;
-
   enrollableCards: PlatformCorporateCard[] = [];
 
-  cardValuesMap: Record<
-    string,
-    { card_type: string; last_four: string; enrollment_error?: string; enrollment_success?: boolean }
-  > = {};
-
-  rtfCardType: CardNetworkType;
+  cardValuesMap: Record<string, CardProperties> = {};
 
   cardsLoading = true;
 
-  singleEnrollableCardDetails: { card_type: string; card_number: string } = {
-    card_type: '',
-    card_number: '',
-  };
+  singleEnrollableCardType: CardNetworkType;
 
   cardsList: PopoverCardsList = {
     successfulCards: [],
@@ -211,10 +202,7 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
               );
             });
           } else {
-            this.singleEnrollableCardDetails = {
-              card_number: null,
-              card_type: CardNetworkType.OTHERS,
-            };
+            this.singleEnrollableCardType = CardNetworkType.OTHERS;
             this.fg.addControl(
               'card_number',
               new FormControl('', [
@@ -242,7 +230,7 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
         this.fg.controls[`card_number_${card.id}`].value as string
       );
     } else {
-      this.singleEnrollableCardDetails.card_type = this.realTimeFeedService.getCardTypeFromNumber(
+      this.singleEnrollableCardType = this.realTimeFeedService.getCardTypeFromNumber(
         this.fg.controls.card_number.value as string
       );
     }
@@ -291,7 +279,7 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
           return { invalidCardNetwork: true };
         }
 
-        return null;
+        return { invalidCardNetwork: true };
       }
     };
   }

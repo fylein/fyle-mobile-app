@@ -41,7 +41,7 @@ describe('SpenderOnboardingPage', () => {
     const corporateCreditCardExpenseServiceSpy = jasmine.createSpyObj('CorporateCreditCardExpenseService', [
       'getCorporateCards',
     ]);
-    const routerSpy = jasmine.createSpyObj('Router', ['navigate', 'navigateByUrl']);
+    const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
       declarations: [SpenderOnboardingPage],
@@ -171,6 +171,7 @@ describe('SpenderOnboardingPage', () => {
 
       expect(spenderOnboardingService.skipSmsOptInStep).toHaveBeenCalledTimes(1);
       expect(spenderOnboardingService.markWelcomeModalStepAsComplete).toHaveBeenCalledTimes(1);
+      expect(spenderOnboardingService.setOnboardingStatusEvent).toHaveBeenCalledTimes(1);
       expect(component.onboardingComplete).toBeTrue();
       expect(component.onboardingInProgress).toBeFalse();
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard']);
@@ -204,6 +205,27 @@ describe('SpenderOnboardingPage', () => {
       component.markStepAsComplete();
       tick();
       expect(spenderOnboardingService.markSmsOptInStepAsComplete).toHaveBeenCalled();
+    }));
+  });
+
+  describe('startCountdown(): ', () => {
+    it('should decrement redirectionCount and navigate to the dashboard when it reaches zero', fakeAsync(() => {
+      spyOn(window, 'setInterval').and.callThrough();
+      spyOn(window, 'clearInterval').and.callThrough();
+
+      component.redirectionCount = 3;
+
+      component.startCountdown();
+
+      tick(1000);
+      expect(component.redirectionCount).toBe(2);
+
+      tick(1000);
+      expect(component.redirectionCount).toBe(1);
+
+      tick(1000);
+      expect(component.redirectionCount).toBe(0);
+      expect(router.navigate).toHaveBeenCalledWith(['/', 'enterprise', 'my_dashboard']);
     }));
   });
 });
