@@ -48,15 +48,14 @@ export class SpenderOnboardingPage {
   ) {}
 
   navigateToDashboard(orgSettings: OrgSettings, onboardingStatus: OnboardingStatus): void {
-    if (
-      !(
-        (orgSettings.corporate_credit_card_settings.enabled ||
-          orgSettings.visa_enrollment_settings.enabled ||
-          orgSettings.mastercard_enrollment_settings.enabled ||
-          orgSettings.amex_feed_enrollment_settings.enabled) &&
-        onboardingStatus.state !== OnboardingState.COMPLETED
-      )
-    ) {
+    const hasEnabledCards = orgSettings.corporate_credit_card_settings.enabled ||
+      orgSettings.visa_enrollment_settings.enabled ||
+      orgSettings.mastercard_enrollment_settings.enabled ||
+      orgSettings.amex_feed_enrollment_settings.enabled;
+    
+    const shouldShowOnboarding = hasEnabledCards && onboardingStatus.state !== OnboardingState.COMPLETED;
+    
+    if (!shouldShowOnboarding) {
       this.router.navigate(['/', 'enterprise', 'my_dashboard']);
     }
   }
