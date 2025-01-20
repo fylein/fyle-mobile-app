@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { forkJoin, from, map, switchMap, tap } from 'rxjs';
+import { finalize, forkJoin, from, map, switchMap, tap } from 'rxjs';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
@@ -48,7 +48,8 @@ export class SpenderOnboardingPage {
   ) {}
 
   navigateToDashboard(orgSettings: OrgSettings, onboardingStatus: OnboardingStatus): void {
-    const hasEnabledCards = orgSettings.corporate_credit_card_settings.enabled ||
+    const hasEnabledCards =
+      orgSettings.corporate_credit_card_settings.enabled ||
       orgSettings.visa_enrollment_settings.enabled ||
       orgSettings.mastercard_enrollment_settings.enabled ||
       orgSettings.amex_feed_enrollment_settings.enabled;
