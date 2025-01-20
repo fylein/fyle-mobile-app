@@ -12,6 +12,7 @@ import { statementUploadedCard } from 'src/app/core/mock-data/platform-corporate
 import { SimpleChanges } from '@angular/core';
 import { orgSettingsData } from 'src/app/core/test-data/org-settings.service.spec.data';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
+import { enrollmentErrorPopoverData1, enrollmentErrorPopoverData2 } from 'src/app/core/mock-data/modal-controller.data';
 
 describe('SpenderOnboardingConnectCardStepComponent', () => {
   let component: SpenderOnboardingConnectCardStepComponent;
@@ -290,7 +291,7 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
 
     it('should handle unsuccessful card enrollment - new card', fakeAsync(() => {
       component.ngOnInit();
-
+      const stepCompleteSpy = spyOn(component.isStepComplete, 'emit');
       const showErrorPopoverSpy = spyOn(component, 'showErrorPopover');
       realTimeFeedService.enroll.and.returnValues(
         of(statementUploadedCard),
@@ -359,23 +360,7 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
       fixture.detectChanges();
       component.showErrorPopover();
 
-      expect(popoverController.create).toHaveBeenCalledOnceWith({
-        componentProps: {
-          title: 'Failed connecting',
-          message: 'Error message',
-          primaryCta: {
-            text: 'Proceed anyway',
-            action: 'close',
-          },
-          secondaryCta: {
-            text: 'Cancel',
-            action: 'cancel',
-          },
-          cardsList: {},
-        },
-        component: PopupAlertComponent,
-        cssClass: 'pop-up-in-center',
-      });
+      expect(popoverController.create).toHaveBeenCalledOnceWith(enrollmentErrorPopoverData1);
     });
 
     it('should display a popover when successful cards are present and handle its actions', fakeAsync(() => {
@@ -388,30 +373,10 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
         },
       });
       popoverController.create.and.resolveTo(popoverSpy);
-      component.cardsList = {
-        successfulCards: ['**** 1111'],
-        failedCards: ['**** 1111'],
-      };
       fixture.detectChanges();
       component.showErrorPopover();
 
-      expect(popoverController.create).toHaveBeenCalledOnceWith({
-        componentProps: {
-          title: 'Status summary',
-          message: 'Error message',
-          primaryCta: {
-            text: 'Proceed anyway',
-            action: 'close',
-          },
-          secondaryCta: {
-            text: 'Cancel',
-            action: 'cancel',
-          },
-          cardsList: component.cardsList,
-        },
-        component: PopupAlertComponent,
-        cssClass: 'pop-up-in-center',
-      });
+      expect(popoverController.create).toHaveBeenCalledOnceWith(enrollmentErrorPopoverData2);
       tick();
       expect(isStepSkippedSpy).toHaveBeenCalledTimes(1);
     }));
