@@ -62,24 +62,15 @@
         }}</span>
       </ng-container>
     </div>
-    <!-- <div>
-      <ng-container *ngIf="!isCardConnectedToRTF">
-        <div class="corporate-card__logo--default">
-          <ng-container *ngIf="card.data_feed_source === dataFeedSourceTypes.AMEX_FEED; else defaultCard">
-            <img
-              src="../../../../assets/images/amex-logo.png"
-              class="corporate-card__logo--amex__icon"
-              data-testid="amex-icon"
-            />
-          </ng-container>
-          <ng-template #defaultCard>
-            <ion-icon
-              src="../../../../assets/svg/card.svg"
-              class="corporate-card__logo--default__icon"
-              data-testid="default-icon"
-            ></ion-icon>
-          </ng-template>
-        </div>
+    <div>
+      <ng-container *ngIf="!isCardConnectedToRTF" class="corporate-card__logo--default">
+        <ng-container *ngIf="card.data_feed_source === dataFeedSourceTypes.AMEX_FEED">
+          <img
+            src="../../../../assets/images/amex-logo.png"
+            class="corporate-card__logo--amex__icon"
+            data-testid="amex-icon"
+          />
+        </ng-container>
       </ng-container>
 
       <ng-container *ngIf="isCardConnectedToRTF">
@@ -96,6 +87,6 @@
           data-testid="mastercard-icon"
         />
       </ng-container>
-    </div> -->
+    </div>
   </div>
 </div>

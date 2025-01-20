@@ -7,19 +7,10 @@
     color: $black-light;
     font-weight: 500;
     margin: 16px 16px 0 16px;
-
-    &-content {
-      display: flex;
-      align-items: center;
-      margin-left: 4px;
-    }
-
-    ion-icon {
-      margin-right: 4px;
-    }
   }
+
   .card-count {
-    margin-left: 4px;
+    margin-left: 2px;
   }
 
   &__zero-state {

@@ -3,14 +3,7 @@
     <ion-row class="stats--expenses-stats-row" *ngIf="isConnected$ | async">
       <ion-col class="stats--expenses-stats-col">
         <div class="stats--header">
-          <div class="stats--header-content">
-            <ion-icon
-              src="../../../../assets/svg/list.svg"
-              class="card-stats__logo--default__icon"
-              data-testid="default-icon"
-            ></ion-icon>
-            <span>My expenses</span>
-          </div>
+          <span>My expenses</span>
         </div>
       </ion-col>
     </ion-row>
@@ -43,14 +36,7 @@
     <ion-row class="stats--report-stats-row" *ngIf="isConnected$ | async">
       <ion-col class="stats--report-stats-col">
         <div class="stats--header">
-          <div class="stats--header-content">
-            <ion-icon
-              src="../../../../assets/svg/folder.svg"
-              class="card-stats__logo--default__icon"
-              data-testid="default-icon"
-            ></ion-icon>
-            <span>My expense reports</span>
-          </div>
+          <span>My expense reports</span>
         </div>
       </ion-col>
     </ion-row>

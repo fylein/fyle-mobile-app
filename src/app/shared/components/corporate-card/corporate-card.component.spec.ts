@@ -74,46 +74,36 @@ describe('CorporateCardComponent', () => {
     expect(cardNumberComponent.componentInstance.cardNumber).toBe(mastercardRTFCard.card_number);
   });
 
-  // describe('card logo', () => {
-  //   it('should show mastercard icon when the card is connected to mastercard RTF', () => {
-  //     component.ngOnInit();
-  //     fixture.detectChanges();
+  describe('card logo', () => {
+    it('should show mastercard icon when the card is connected to mastercard RTF', () => {
+      component.ngOnInit();
+      fixture.detectChanges();
 
-  //     const icon = getElementBySelector(fixture, '[data-testid="mastercard-icon"]');
-  //     expect(icon).toBeTruthy();
-  //   });
+      const icon = getElementBySelector(fixture, '[data-testid="mastercard-icon"]');
+      expect(icon).toBeTruthy();
+    });
 
-  //   it('should show visa icon when the card is connected to visa RTF', () => {
-  //     component.card = visaRTFCard;
-  //     component.isVisaRTFEnabled = true;
+    it('should show visa icon when the card is connected to visa RTF', () => {
+      component.card = visaRTFCard;
+      component.isVisaRTFEnabled = true;
 
-  //     component.ngOnInit();
-  //     fixture.detectChanges();
+      component.ngOnInit();
+      fixture.detectChanges();
 
-  //     const icon = getElementBySelector(fixture, '[data-testid="visa-icon"]');
-  //     expect(icon).toBeTruthy();
-  //   });
+      const icon = getElementBySelector(fixture, '[data-testid="visa-icon"]');
+      expect(icon).toBeTruthy();
+    });
 
-  //   it('should show amex icon when the card is connected to AMEX_FEED', () => {
-  //     component.card = amexFeedCard;
+    it('should show amex icon when the card is connected to AMEX_FEED', () => {
+      component.card = amexFeedCard;
 
-  //     component.ngOnInit();
-  //     fixture.detectChanges();
+      component.ngOnInit();
+      fixture.detectChanges();
 
-  //     const icon = getElementBySelector(fixture, '[data-testid="amex-icon"]');
-  //     expect(icon).toBeTruthy();
-  //   });
-
-  //   it('should show the default card icon when the card is not connected to visa,  mastercard RTF and AMEX_FEED', () => {
-  //     component.card = statementUploadedCard;
-
-  //     component.ngOnInit();
-  //     fixture.detectChanges();
-
-  //     const icon = getElementBySelector(fixture, '[data-testid="default-icon"]');
-  //     expect(icon).toBeTruthy();
-  //   });
-  // });
+      const icon = getElementBySelector(fixture, '[data-testid="amex-icon"]');
+      expect(icon).toBeTruthy();
+    });
+  });
 
   describe('options menu button', () => {
     it('should raise an event cardOptionsClick when the button is clicked', () => {
