@@ -2146,6 +2146,10 @@ export class AddEditPerDiemPage implements OnInit {
             }
 
             return this.transactionService.upsert(etxn.tx).pipe(
+              catchError((error: Error) => {
+                this.trackingService.editPerDiemError({ label: error });
+                return throwError(() => error);
+              }),
               switchMap((txn) => this.expensesService.getExpenseById(txn.id)),
               map((expense) => this.transactionService.transformExpense(expense).tx),
               switchMap((tx) => {
