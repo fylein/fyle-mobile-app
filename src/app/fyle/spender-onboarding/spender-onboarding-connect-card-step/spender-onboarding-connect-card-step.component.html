@@ -15,7 +15,9 @@
             class="connect-card__input-inner-container"
             [ngClass]="{
               'connect-card__input-inner-container--error':
-                fg.controls['card_number_' + card.id].touched && fg.controls['card_number_' + card.id].invalid
+                fg.controls['card_number_' + card.id].touched &&
+                fg.controls['card_number_' + card.id].invalid &&
+                !cardValuesMap[card.id].enrollment_success
             }"
           >
             <div class="connect-card__card-number-input-container">
@@ -61,7 +63,11 @@
           <div class="connect-card__input-error-space"></div>
 
           <div
-            *ngIf="fg.controls['card_number_' + card.id]?.touched && fg.controls['card_number_' + card.id]?.invalid"
+            *ngIf="
+              fg.controls['card_number_' + card.id]?.touched &&
+              fg.controls['card_number_' + card.id]?.invalid &&
+              !cardValuesMap[card.id].enrollment_success
+            "
             class="connect-card__input-errors"
             data-testid="error-message"
           >
