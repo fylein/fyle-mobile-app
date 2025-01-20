@@ -56,6 +56,10 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
     corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([]));
     realTimeFeedService.isCardNumberValid.and.returnValue(true);
     realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.VISA);
+    corporateCreditCardExpenseService.getCorporateCards.and.returnValue(
+      of([statementUploadedCard, { ...statementUploadedCard, id: 'bacc15bbrRGWzg' }])
+    );
+    component.enrollableCards = [statementUploadedCard, { ...statementUploadedCard, id: 'bacc15bbrRGWzg' }];
   }));
 
   describe('ngOnInit(): ', () => {
@@ -72,9 +76,8 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
       component.ngOnInit();
       const controlName = Object.keys(component.fg.controls)[0];
       component.fg.controls[controlName].setValue('4111111111');
-      fixture.detectChanges();
 
-      expect(component.fg.controls.card_number_bacc15bbrRGWzf.errors.invalidCardNumber).toBeTrue();
+      expect(component.fg.controls[`card_number_${statementUploadedCard.id}`].errors.invalidCardNumber).toBeTrue();
     });
 
     it('should run validator for invalid card network', () => {
@@ -84,9 +87,7 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
       component.ngOnInit();
       const controlName = Object.keys(component.fg.controls)[0];
       component.fg.controls[controlName].setValue('4111111111');
-      fixture.detectChanges();
-
-      expect(component.fg.controls.card_number_bacc15bbrRGWzf.errors.invalidCardNetwork).toBeTrue();
+      expect(component.fg.controls[`card_number_${statementUploadedCard.id}`].errors.invalidCardNetwork).toBeTrue();
     });
 
     it('should run validator for valid card and valid network', () => {
@@ -95,20 +96,21 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
       realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.VISA);
       component.isVisaRTFEnabled = true;
       component.ngOnInit();
-      fixture.detectChanges();
-
-      expect(component.fg.controls.card_number_bacc15bbrRGWzf.errors.invalidCardNetwork).toBeUndefined();
+      const controlName = Object.keys(component.fg.controls)[0];
+      expect(
+        component.fg.controls[`card_number_${statementUploadedCard.id}`].errors.invalidCardNetwork
+      ).toBeUndefined();
     });
 
-    it('should run validator for valid card and invalid network', () => {
+    it('should run validator for valid card and invalid network - when both are invalid', () => {
       spyOn(component, 'getFullCardNumber').and.returnValue('41111111111111');
       realTimeFeedService.isCardNumberValid.and.returnValue(true);
       realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.OTHERS);
       component.isVisaRTFEnabled = false;
       component.ngOnInit();
-      fixture.detectChanges();
-
-      expect(component.fg.controls.card_number_bacc15bbrRGWzf.errors.invalidCardNetwork).toBeUndefined();
+      expect(
+        component.fg.controls[`card_number_${statementUploadedCard.id}`].errors.invalidCardNetwork
+      ).toBeUndefined();
     });
   });
 
@@ -200,9 +202,9 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
     });
 
     it('should call enrollMultipleCards if enrollableCards has items', () => {
-      component.enrollableCards = [statementUploadedCard, { ...statementUploadedCard, id: 'bacc15bbrRGWzg' }];
       const enrollSingularCardSpy = spyOn(component, 'enrollSingularCard');
       const enrollMultipleCardsSpy = spyOn(component, 'enrollMultipleCards');
+      component.ngOnInit();
       component.cardValuesMap.bacc15bbrRGWzf = {
         last_four: '1111',
         enrollment_success: true,
@@ -271,25 +273,7 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
 
   describe('enrollMultipleCards(): ', () => {
     it('should handle successful card enrollment - existing card', fakeAsync(() => {
-      corporateCreditCardExpenseService.getCorporateCards.and.returnValue(
-        of([statementUploadedCard, { ...statementUploadedCard, id: 'bacc15bbrRGWzg' }])
-      );
-      component.enrollableCards = [statementUploadedCard, { ...statementUploadedCard, id: 'bacc15bbrRGWzg' }];
-      component.fg = fb.group({
-        card_number_bacc15bbrRGWzf: ['', Validators.required],
-        card_number_bacc15bbrRGWzg: ['', Validators.required],
-      });
-
-      component.cardValuesMap = {
-        bacc15bbrRGWzf: {
-          last_four: '5555',
-          card_type: CardNetworkType.OTHERS,
-        },
-        bacc15bbrRGWzg: {
-          last_four: '5555',
-          card_type: CardNetworkType.OTHERS,
-        },
-      };
+      component.ngOnInit();
 
       const stepCompleteSpy = spyOn(component.isStepComplete, 'emit');
       const showErrorPopoverSpy = spyOn(component, 'showErrorPopover');
@@ -305,24 +289,7 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
     }));
 
     it('should handle unsuccessful card enrollment - new card', fakeAsync(() => {
-      corporateCreditCardExpenseService.getCorporateCards.and.returnValue(
-        of([statementUploadedCard, { ...statementUploadedCard, id: 'bacc15bbrRGWzg' }])
-      );
-      component.enrollableCards = [statementUploadedCard, { ...statementUploadedCard, id: 'bacc15bbrRGWzg' }];
-      component.cardValuesMap = {
-        bacc15bbrRGWzf: {
-          last_four: '5555',
-          card_type: CardNetworkType.OTHERS,
-        },
-        bacc15bbrRGWzg: {
-          last_four: '5555',
-          card_type: CardNetworkType.OTHERS,
-        },
-      };
-      component.fg = fb.group({
-        card_number_bacc15bbrRGWzf: ['', Validators.required],
-        card_number_bacc15bbrRGWzg: ['', Validators.required],
-      });
+      component.ngOnInit();
 
       const showErrorPopoverSpy = spyOn(component, 'showErrorPopover');
       realTimeFeedService.enroll.and.returnValues(
@@ -360,9 +327,7 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
 
     it('should handle unsuccessful card enrollment', fakeAsync(() => {
       corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([]));
-      component.fg = fb.group({
-        card_number: ['', Validators.required],
-      });
+      component.ngOnInit();
       component.fg.controls.card_number.setValue('41111111111111111');
       const showErrorPopoverSpy = spyOn(component, 'showErrorPopover');
       realTimeFeedService.enroll.and.returnValues(
@@ -412,9 +377,10 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
       });
     });
 
-    it('should display a popover when successful cards are present and handle its actions', () => {
+    it('should display a popover when successful cards are present and handle its actions', fakeAsync(() => {
       const popoverSpy = jasmine.createSpyObj('popover', ['present', 'onWillDismiss']);
       spyOn(component, 'generateMessage').and.returnValue('Error message');
+      const isStepSkippedSpy = spyOn(component.isStepSkipped, 'emit');
       popoverSpy.onWillDismiss.and.resolveTo({
         data: {
           action: 'close',
@@ -445,6 +411,24 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
         component: PopupAlertComponent,
         cssClass: 'pop-up-in-center',
       });
+      tick();
+      expect(isStepSkippedSpy).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should handle cancel action', () => {
+      const popoverSpy = jasmine.createSpyObj('popover', ['present', 'onWillDismiss']);
+      const isStepSkippedSpy = spyOn(component.isStepSkipped, 'emit');
+      spyOn(component, 'generateMessage').and.returnValue('Error message');
+      popoverSpy.onWillDismiss.and.resolveTo({
+        data: {
+          action: 'cancel',
+        },
+      });
+      popoverController.create.and.resolveTo(popoverSpy);
+
+      component.showErrorPopover();
+
+      expect(isStepSkippedSpy).not.toHaveBeenCalled();
     });
   });
 
@@ -459,20 +443,13 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
       component.fg.controls.card_number.setValue('4111111111111111');
 
       component.onCardNumberUpdate();
-      expect(component.singleEnrollableCardDetails.card_type).toBe(CardNetworkType.VISA);
+      expect(component.singleEnrollableCardType).toBe(CardNetworkType.VISA);
     });
 
     it('should update card_type for the given card or singleEnrollableCardDetails - existing card', () => {
       realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.VISA);
-      component.cardValuesMap.bacc15bbrRGWzf = {
-        last_four: '1111',
-        card_type: CardNetworkType.VISA,
-      };
-      component.enrollableCards = [statementUploadedCard, { ...statementUploadedCard, id: 'bacc15bbrRGWzg' }];
-      component.fg = fb.group({
-        card_number_bacc15bbrRGWzf: ['', Validators.required],
-      });
-      component.fg.controls.card_number_bacc15bbrRGWzf.setValue('4111111111111111');
+      component.ngOnInit();
+      component.fg.controls[`card_number_${statementUploadedCard.id}`].setValue('4111111111111111');
 
       component.onCardNumberUpdate(statementUploadedCard);
       expect(component.cardValuesMap.bacc15bbrRGWzf.card_type).toBe(CardNetworkType.VISA);

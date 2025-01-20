@@ -143,10 +143,10 @@ export class SpenderOnboardingPage {
   }
 
   startCountdown(): void {
-    setInterval(() => {
-      if (this.redirectionCount > 0) {
-        this.redirectionCount--;
-      } else {
+    const interval = setInterval(() => {
+      this.redirectionCount--;
+      if (this.redirectionCount === 0) {
+        clearInterval(interval);
         this.router.navigate(['/', 'enterprise', 'my_dashboard']);
       }
     }, 1000);

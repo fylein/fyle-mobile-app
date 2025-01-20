@@ -35,6 +35,7 @@ describe('SpenderOnboardingPage', () => {
       'skipSmsOptInStep',
       'markSmsOptInStepAsComplete',
       'markWelcomeModalStepAsComplete',
+      'setOnboardingStatusEvent',
     ]);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const corporateCreditCardExpenseServiceSpy = jasmine.createSpyObj('CorporateCreditCardExpenseService', [
@@ -209,6 +210,9 @@ describe('SpenderOnboardingPage', () => {
 
   describe('startCountdown(): ', () => {
     it('should decrement redirectionCount and navigate to the dashboard when it reaches zero', fakeAsync(() => {
+      spyOn(window, 'setInterval').and.callThrough();
+      spyOn(window, 'clearInterval').and.callThrough();
+
       component.redirectionCount = 3;
 
       component.startCountdown();
@@ -224,7 +228,7 @@ describe('SpenderOnboardingPage', () => {
       expect(router.navigate).toHaveBeenCalledWith(['/', 'enterprise', 'my_dashboard']);
     }));
 
-    it('should not navigate if redirectionCount is already zero', fakeAsync(() => {
+    it('should navigate if redirectionCount is already zero', fakeAsync(() => {
       component.redirectionCount = 0;
 
       component.startCountdown();
