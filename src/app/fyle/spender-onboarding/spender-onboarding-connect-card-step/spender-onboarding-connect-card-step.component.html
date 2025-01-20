@@ -123,21 +123,21 @@
           />
 
           <ion-icon
-            *ngIf="singleEnrollableCardDetails?.card_type === 'Others'"
+            *ngIf="ssingleEnrollableCardType === 'Others'"
             src="../../../../assets/svg/card.svg"
             class="connect-card__input-default-icon"
             data-testid="default-icon"
           ></ion-icon>
 
           <img
-            *ngIf="singleEnrollableCardDetails?.card_type === 'Visa'"
+            *ngIf="singleEnrollableCardTypee === 'Visa'"
             src="../../../../assets/images/visa-logo.png"
             class="connect-card__input-visa-icon"
             data-testid="visa-icon"
           />
 
           <img
-            *ngIf="singleEnrollableCardDetails?.card_type === 'Mastercard'"
+            *ngIf="singleEnrollableCardType === 'Mastercard'"
             src="../../../../assets/images/mastercard-logo.png"
             class="connect-card__input-mastercard-icon"
             data-testid="mastercard-icon"

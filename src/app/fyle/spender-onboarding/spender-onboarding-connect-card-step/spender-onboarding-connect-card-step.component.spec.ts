@@ -408,7 +408,7 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
   });
 
   describe('onCardNumberUpdate(): ', () => {
-    it('should update card_type for the given card or singleEnrollableCardDetails - new card', () => {
+    it('should update card_type for the given card or singleEnrollableCardType - new card', () => {
       realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.VISA);
       corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([]));
       component.enrollableCards = [];
