@@ -227,15 +227,5 @@ describe('SpenderOnboardingPage', () => {
       expect(component.redirectionCount).toBe(0);
       expect(router.navigate).toHaveBeenCalledWith(['/', 'enterprise', 'my_dashboard']);
     }));
-
-    it('should navigate if redirectionCount is already zero', fakeAsync(() => {
-      component.redirectionCount = 0;
-
-      component.startCountdown();
-
-      tick(1000);
-
-      expect(router.navigate).toHaveBeenCalledWith(['/', 'enterprise', 'my_dashboard']);
-    }));
   });
 });

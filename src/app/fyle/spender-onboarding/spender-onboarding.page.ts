@@ -144,11 +144,11 @@ export class SpenderOnboardingPage {
 
   startCountdown(): void {
     const interval = setInterval(() => {
+      this.redirectionCount--;
       if (this.redirectionCount === 0) {
         clearInterval(interval);
         this.router.navigate(['/', 'enterprise', 'my_dashboard']);
       }
-      this.redirectionCount--;
     }, 1000);
   }
 }
