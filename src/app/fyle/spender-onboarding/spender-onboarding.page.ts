@@ -138,7 +138,11 @@ export class SpenderOnboardingPage {
     if (this.currentStep === OnboardingStep.CONNECT_CARD) {
       this.spenderOnboardingService
         .markConnectCardsStepAsComplete()
-        .pipe(tap(() => (this.currentStep = OnboardingStep.OPT_IN)))
+        .pipe(
+          tap(() => {
+            this.currentStep = OnboardingStep.OPT_IN;
+          })
+        )
         .subscribe();
     }
     if (this.currentStep === OnboardingStep.OPT_IN) {
