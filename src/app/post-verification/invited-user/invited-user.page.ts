@@ -98,7 +98,11 @@ export class InvitedUserPage implements OnInit {
   navigateToDashboard(): void {
     forkJoin([this.orgSettingsService.get(), this.spenderOnboardingService.getOnboardingStatus()]).subscribe(
       ([orgSettings, onboardingStatus]) => {
+        /**
+         * Org orgp5onHZThs requires additional steps before enrolling cards, hence they are skipped for onboarding
+         */
         const shouldProceedToOnboarding =
+          orgSettings.org_id !== 'orgp5onHZThs' &&
           orgSettings.corporate_credit_card_settings.enabled &&
           (orgSettings.visa_enrollment_settings.enabled ||
             orgSettings.mastercard_enrollment_settings.enabled ||
