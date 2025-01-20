@@ -87,12 +87,12 @@ describe('FiltersHelperService', () => {
     expect(filterHelperService.generateFilterPills(testFilters)).toEqual(filterResponse);
   });
 
-  it('should generate pill using only Sorting Params - Approved At New To Old', () => {
+  it('should generate pill using only Sorting Params - Approved date New To Old', () => {
     const testFilters: Filters = {
       sortParam: SortingParam.approvalDate,
     };
 
-    const testPill: FilterPill[] = [{ label: 'Sort By', type: 'sort', value: 'approved at - new to old' }];
+    const testPill: FilterPill[] = [{ label: 'Sort By', type: 'sort', value: 'approved date - new to old' }];
 
     expect(filterHelperService.generateFilterPills(testFilters)).toEqual(testPill);
   });
@@ -119,44 +119,44 @@ describe('FiltersHelperService', () => {
     expect(filterHelperService.generateFilterPills(testFilters, 'some project')).toEqual(testPill);
   });
 
-  it('should generate pill using only Sorting Params - Approved At New To Old', () => {
+  it('should generate pill using only Sorting Params - Approved date New To Old', () => {
     const testFilters: Filters = {
       sortParam: SortingParam.approvalDate,
     };
 
-    const testPill: FilterPill[] = [{ label: 'Sort By', type: 'sort', value: 'approved at - new to old' }];
+    const testPill: FilterPill[] = [{ label: 'Sort By', type: 'sort', value: 'approved date - new to old' }];
 
     expect(filterHelperService.generateFilterPills(testFilters)).toEqual(testPill);
   });
 
-  it('should generate pill using only Sorting Params - Approved At Old To New', () => {
+  it('should generate pill using only Sorting Params - Approved date Old To New', () => {
     const testFilters: Filters = {
       sortParam: SortingParam.approvalDate,
       sortDir: SortingDirection.ascending,
     };
 
-    const testPill: FilterPill[] = [{ label: 'Sort By', type: 'sort', value: 'approved at - old to new' }];
+    const testPill: FilterPill[] = [{ label: 'Sort By', type: 'sort', value: 'approved date - old to new' }];
 
     expect(filterHelperService.generateFilterPills(testFilters)).toEqual(testPill);
   });
 
-  it('should generate pill using only Sorting Params - Created At New to Old', () => {
+  it('should generate pill using only Sorting Params - Created date New to Old', () => {
     const testFilters: Filters = {
       sortParam: SortingParam.creationDate,
     };
 
-    const testPill: FilterPill[] = [{ label: 'Sort By', type: 'sort', value: 'created at - new to old' }];
+    const testPill: FilterPill[] = [{ label: 'Sort By', type: 'sort', value: 'created date - new to old' }];
 
     expect(filterHelperService.generateFilterPills(testFilters)).toEqual(testPill);
   });
 
-  it('should generate pill using only Sorting Params - Created At Old to New', () => {
+  it('should generate pill using only Sorting Params - Created date Old to New', () => {
     const testFilters: Filters = {
       sortParam: SortingParam.creationDate,
       sortDir: SortingDirection.ascending,
     };
 
-    const testPill: FilterPill[] = [{ label: 'Sort By', type: 'sort', value: 'created at - old to new' }];
+    const testPill: FilterPill[] = [{ label: 'Sort By', type: 'sort', value: 'created date - old to new' }];
     expect(filterHelperService.generateFilterPills(testFilters)).toEqual(testPill);
   });
 
@@ -422,19 +422,19 @@ describe('FiltersHelperService', () => {
         optionType: FilterOptionType.singleselect,
         options: [
           {
-            label: 'Created At - New to Old',
+            label: 'Created date - New to Old',
             value: SortingValue.creationDateAsc,
           },
           {
-            label: 'Created At - Old to New',
+            label: 'Created date - Old to New',
             value: SortingValue.creationDateDesc,
           },
           {
-            label: 'Approved At - New to Old',
+            label: 'Approved date - New to Old',
             value: SortingValue.approvalDateAsc,
           },
           {
-            label: 'Approved At - Old to New',
+            label: 'Approved date - Old to New',
             value: SortingValue.approvalDateDesc,
           },
         ],

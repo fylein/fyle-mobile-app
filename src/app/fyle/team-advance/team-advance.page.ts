@@ -187,11 +187,11 @@ export class TeamAdvancePage implements AfterViewChecked {
         optionType: FilterOptionType.singleselect,
         options: [
           {
-            label: 'Requested On - New to Old',
+            label: 'Requested date - New to Old',
             value: SortingValue.creationDateAsc,
           },
           {
-            label: 'Requested On - Old to New',
+            label: 'Requested date - Old to New',
             value: SortingValue.creationDateDesc,
           },
           {

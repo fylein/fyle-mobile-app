@@ -28,19 +28,19 @@ export const filterOptions: FilterOptions<string>[] = deepFreeze([
     optionType: FilterOptionType.singleselect,
     options: [
       {
-        label: 'Created At - New to Old',
+        label: 'Created date - New to Old',
         value: SortingValue.creationDateAsc,
       },
       {
-        label: 'Created At - Old to New',
+        label: 'Created date - Old to New',
         value: SortingValue.creationDateDesc,
       },
       {
-        label: 'Approved At - New to Old',
+        label: 'Approved date - New to Old',
         value: SortingValue.approvalDateAsc,
       },
       {
-        label: 'Approved At - Old to New',
+        label: 'Approved date - Old to New',
         value: SortingValue.approvalDateDesc,
       },
       {

@@ -21,10 +21,10 @@ export class FiltersHelperService {
     const filterPills: FilterPill[] = [];
 
     const filterPillsMap: Record<SortingValue, string> = {
-      [SortingValue.creationDateAsc]: 'created at - new to old',
-      [SortingValue.creationDateDesc]: 'created at - old to new',
-      [SortingValue.approvalDateAsc]: 'approved at - new to old',
-      [SortingValue.approvalDateDesc]: 'approved at - old to new',
+      [SortingValue.creationDateAsc]: 'created date - new to old',
+      [SortingValue.creationDateDesc]: 'created date - old to new',
+      [SortingValue.approvalDateAsc]: 'approved date - new to old',
+      [SortingValue.approvalDateDesc]: 'approved date - old to new',
       [SortingValue.projectAsc]: 'project - A to Z',
       [SortingValue.projectDesc]: 'project - Z to A',
     };
