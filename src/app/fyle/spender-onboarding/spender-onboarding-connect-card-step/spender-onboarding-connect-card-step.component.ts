@@ -91,12 +91,7 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
           )
         ),
         finalize(() => {
-          this.cardsEnrolling = false;
-          if (this.cardsList.failedCards.length > 0) {
-            this.showErrorPopover();
-          } else {
-            this.isStepComplete.emit(true);
-          }
+          this.handleEnrollmentCompletion();
         })
       )
       .subscribe();
@@ -114,12 +109,7 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
           return of(error);
         }),
         finalize(() => {
-          this.cardsEnrolling = false;
-          if (this.cardsList.failedCards.length > 0) {
-            this.showErrorPopover();
-          } else {
-            this.isStepComplete.emit(true);
-          }
+          this.handleEnrollmentCompletion();
         })
       )
       .subscribe();
@@ -300,5 +290,14 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
 
       return null;
     };
+  }
+
+  private handleEnrollmentCompletion(): void {
+    this.cardsEnrolling = false;
+    if (this.cardsList.failedCards.length > 0) {
+      this.showErrorPopover();
+    } else {
+      this.isStepComplete.emit(true);
+    }
   }
 }
