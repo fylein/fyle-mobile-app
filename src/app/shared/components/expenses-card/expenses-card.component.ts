@@ -439,7 +439,7 @@ export class ExpensesCardComponent implements OnInit {
       component: PopupAlertComponent,
       componentProps: {
         title: 'Size limit exceeded',
-        message: 'The uploaded file is greater than 5MB in size. Please reduce the file size and try again.',
+        message: 'The uploaded file is greater than 9MB in size. Please reduce the file size and try again.',
         primaryCta: {
           text: 'OK',
         },
