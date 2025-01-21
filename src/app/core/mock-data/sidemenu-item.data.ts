@@ -21,7 +21,7 @@ export const sidemenuItemData2: SidemenuItem = deepFreeze({
   disabled: false,
   dropdownOptions: [
     {
-      title: 'Team reports',
+      title: 'Team expense reports',
       isVisible: true,
       route: ['/', 'enterprise', 'team_reports'],
     },

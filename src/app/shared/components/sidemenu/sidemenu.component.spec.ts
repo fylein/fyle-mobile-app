@@ -221,7 +221,7 @@ describe('SidemenuComponent', () => {
     expect(teamOpt.length).toBe(2);
     expect(teamOpt).toEqual([
       {
-        title: 'Team reports',
+        title: 'Team expense reports',
         isVisible:
           component.allowedActions.allowedReportsActions && component.allowedActions.allowedReportsActions.approve,
         route: ['/', 'enterprise', 'team_reports'],
@@ -289,7 +289,7 @@ describe('SidemenuComponent', () => {
       const cardOptSpy = spyOn(component, 'getCardOptions').and.returnValue([]);
       const teamOptSpy = spyOn(component, 'getTeamOptions').and.returnValue([
         {
-          title: 'Team reports',
+          title: 'Team expense reports',
           isVisible: true,
           route: ['/', 'enterprise', 'team_reports'],
         },
@@ -324,7 +324,7 @@ describe('SidemenuComponent', () => {
           route: ['/', 'enterprise', 'my_expenses'],
         },
         {
-          title: 'My reports',
+          title: 'My expense reports',
           isVisible: true,
           icon: 'folder',
           route: ['/', 'enterprise', 'my_reports'],
@@ -345,7 +345,7 @@ describe('SidemenuComponent', () => {
           disabled: false,
           dropdownOptions: [
             {
-              title: 'Team reports',
+              title: 'Team expense reports',
               isVisible: true,
               route: ['/', 'enterprise', 'team_reports'],
             },

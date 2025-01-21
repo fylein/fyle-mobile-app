@@ -44,7 +44,7 @@ export const PrimaryOptionsRes1: Partial<SidemenuItem>[] = deepFreeze([
     disabled: false,
   },
   {
-    title: 'My reports',
+    title: 'My expense reports',
     isVisible: true,
     icon: 'folder',
     route: ['/', 'enterprise', 'my_reports'],
@@ -76,7 +76,7 @@ export const PrimaryOptionsRes2: Partial<SidemenuItem>[] = deepFreeze([
     disabled: false,
     dropdownOptions: [
       {
-        title: 'Team reports',
+        title: 'Team expense reports',
         isVisible: true,
         route: ['/', 'enterprise', 'team_reports'],
       },
@@ -103,7 +103,7 @@ export const getPrimarySidemenuOptionsRes1 = deepFreeze([
     route: ['/', 'enterprise', 'my_expenses'],
   },
   {
-    title: 'My reports',
+    title: 'My expense reports',
     isVisible: true,
     icon: 'folder',
     route: ['/', 'enterprise', 'my_reports'],
@@ -118,7 +118,7 @@ export const getPrimarySidemenuOptionsRes1 = deepFreeze([
   },
 
   {
-    title: 'Team reports',
+    title: 'Team expense reports',
     isVisible: true,
     route: ['/', 'enterprise', 'team_reports'],
     icon: 'user-three',
@@ -170,7 +170,7 @@ export const setSideMenuRes: Partial<SidemenuItem>[] = deepFreeze([
     route: ['/', 'enterprise', 'my_expenses'],
   },
   {
-    title: 'My reports',
+    title: 'My expense reports',
     isVisible: true,
     icon: 'folder',
     route: ['/', 'enterprise', 'my_reports'],
@@ -184,7 +184,7 @@ export const setSideMenuRes: Partial<SidemenuItem>[] = deepFreeze([
     disabled: false,
   },
   {
-    title: 'Team reports',
+    title: 'Team expense reports',
     isVisible: true,
     route: ['/', 'enterprise', 'team_reports'],
     icon: 'user-three',
