@@ -385,7 +385,7 @@ export class MyExpensesPage implements OnInit {
     const isPerDiemEnabled = orgSettings.per_diem.enabled && allowedExpenseTypes.perDiem;
     that.actionSheetButtons = [
       {
-        text: 'Capture Receipt',
+        text: 'Capture receipt',
         icon: 'assets/svg/camera.svg',
         cssClass: 'capture-receipt',
         handler: this.actionSheetButtonsHandler('capture receipts', 'camera_overlay'),
@@ -1672,7 +1672,7 @@ export class MyExpensesPage implements OnInit {
     } else if (filterType === 'date') {
       await this.openFilters('Date');
     } else if (filterType === 'sort') {
-      await this.openFilters('Sort By');
+      await this.openFilters('Sort by');
     } else if (filterType === 'splitExpense') {
       await this.openFilters('Split Expense');
     } else if (filterType === 'potentialDuplicates') {

@@ -110,13 +110,13 @@ export function TestCases3(getTestBed) {
       it('should call openFilters with Date if filterType is date', () => {
         component.onFilterClick('date');
 
-        expect(component.openFilters).toHaveBeenCalledOnceWith('Submitted Date');
+        expect(component.openFilters).toHaveBeenCalledOnceWith('Submitted date');
       });
 
       it('should call openFilters with Date if filterType is date', () => {
         component.onFilterClick('sort');
 
-        expect(component.openFilters).toHaveBeenCalledOnceWith('Sort By');
+        expect(component.openFilters).toHaveBeenCalledOnceWith('Sort by');
       });
     });
 
@@ -200,7 +200,7 @@ export function TestCases3(getTestBed) {
         component.convertRptDtSortToSelectedFilters(filter, generatedFilters);
 
         expect(generatedFilters.length).toEqual(1);
-        expect(generatedFilters[0].name).toEqual('Sort By');
+        expect(generatedFilters[0].name).toEqual('Sort by');
         expect(generatedFilters[0].value).toEqual('dateOldToNew');
       });
 
@@ -214,7 +214,7 @@ export function TestCases3(getTestBed) {
         component.convertRptDtSortToSelectedFilters(filter, generatedFilters);
 
         expect(generatedFilters.length).toEqual(1);
-        expect(generatedFilters[0].name).toEqual('Sort By');
+        expect(generatedFilters[0].name).toEqual('Sort by');
         expect(generatedFilters[0].value).toEqual('dateNewToOld');
       });
 
@@ -225,7 +225,7 @@ export function TestCases3(getTestBed) {
         };
         const generatedFilters: SelectedFilters<string | string[]>[] = [
           {
-            name: 'Sort By',
+            name: 'Sort by',
             value: 'dateOldToNew',
           },
         ];
@@ -233,7 +233,7 @@ export function TestCases3(getTestBed) {
         component.convertRptDtSortToSelectedFilters(filter, generatedFilters);
 
         expect(generatedFilters.length).toEqual(1);
-        expect(generatedFilters[0].name).toEqual('Sort By');
+        expect(generatedFilters[0].name).toEqual('Sort by');
         expect(generatedFilters[0].value).toEqual('dateOldToNew');
       });
     });
@@ -256,7 +256,7 @@ export function TestCases3(getTestBed) {
       expect(component.convertNameSortToSelectedFilters).toHaveBeenCalledTimes(1);
       expect(generatedFilters).toEqual([
         {
-          name: 'Sort By',
+          name: 'Sort by',
           value: 'dateOldToNew',
         },
       ]);
@@ -277,7 +277,7 @@ export function TestCases3(getTestBed) {
         component.convertNameSortToSelectedFilters(teamReportsFiltersParams, generatedFilters);
         expect(generatedFilters).toEqual([
           {
-            name: 'Sort By',
+            name: 'Sort by',
             value: 'nameAToZ',
           },
         ]);
@@ -288,7 +288,7 @@ export function TestCases3(getTestBed) {
         component.convertNameSortToSelectedFilters(teamReportsFiltersParams2, generatedFilters);
         expect(generatedFilters).toEqual([
           {
-            name: 'Sort By',
+            name: 'Sort by',
             value: 'nameZToA',
           },
         ]);
@@ -377,7 +377,7 @@ export function TestCases3(getTestBed) {
 
       it('should return selectedFilters from selected filters and set customDateStart and customDateEnd to undefined if associatedData is undefined', () => {
         const mockSelectedFiltersParams = cloneDeep(selectedFiltersParams2);
-        const submittedDateFilter = mockSelectedFiltersParams.find((filter) => filter.name === 'Submitted Date');
+        const submittedDateFilter = mockSelectedFiltersParams.find((filter) => filter.name === 'Submitted date');
         submittedDateFilter.associatedData = undefined;
         const generatedFilters = component.convertFilters(mockSelectedFiltersParams);
 

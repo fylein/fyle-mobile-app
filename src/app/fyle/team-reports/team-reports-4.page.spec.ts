@@ -98,7 +98,7 @@ export function TestCases4(getTestBed) {
 
         expect(filterPill).toEqual([
           {
-            label: 'Submitted Date',
+            label: 'Submitted date',
             type: 'date',
             value: '2023-01-1 to 2023-02-2',
           },
@@ -113,7 +113,7 @@ export function TestCases4(getTestBed) {
 
         expect(filterPill).toEqual([
           {
-            label: 'Submitted Date',
+            label: 'Submitted date',
             type: 'date',
             value: '>= 2023-01-1',
           },
@@ -128,7 +128,7 @@ export function TestCases4(getTestBed) {
 
         expect(filterPill).toEqual([
           {
-            label: 'Submitted Date',
+            label: 'Submitted date',
             type: 'date',
             value: '<= 2023-02-2',
           },
@@ -152,7 +152,7 @@ export function TestCases4(getTestBed) {
         component.generateDateFilterPills(mockTeamReportsFilters, filterPill);
         expect(filterPill).toEqual([
           {
-            label: 'Submitted Date',
+            label: 'Submitted date',
             type: 'date',
             value: 'this Week',
           },
@@ -167,7 +167,7 @@ export function TestCases4(getTestBed) {
         component.generateDateFilterPills(mockTeamReportsFilters, filterPill);
         expect(filterPill).toEqual([
           {
-            label: 'Submitted Date',
+            label: 'Submitted date',
             type: 'date',
             value: 'this Month',
           },
@@ -182,7 +182,7 @@ export function TestCases4(getTestBed) {
         component.generateDateFilterPills(mockTeamReportsFilters, filterPill);
         expect(filterPill).toEqual([
           {
-            label: 'Submitted Date',
+            label: 'Submitted date',
             type: 'date',
             value: 'All',
           },
@@ -197,7 +197,7 @@ export function TestCases4(getTestBed) {
         component.generateDateFilterPills(mockTeamReportsFilters, filterPill);
         expect(filterPill).toEqual([
           {
-            label: 'Submitted Date',
+            label: 'Submitted date',
             type: 'date',
             value: 'Last Month',
           },
@@ -215,7 +215,7 @@ export function TestCases4(getTestBed) {
         expect(component.generateCustomDatePill).toHaveBeenCalledOnceWith(mockTeamReportsFilters, filterPill);
         expect(filterPill).toEqual([
           {
-            label: 'Submitted Date',
+            label: 'Submitted date',
             type: 'date',
             value: '>= 2023-01-1',
           },
@@ -229,7 +229,7 @@ export function TestCases4(getTestBed) {
         component.generateSortRptDatePills(teamReportsFiltersParams4, filterPill);
         expect(filterPill).toEqual([
           {
-            label: 'Sort By',
+            label: 'Sort by',
             type: 'sort',
             value: 'Submitted date - old to new',
           },
@@ -243,7 +243,7 @@ export function TestCases4(getTestBed) {
         component.generateSortRptDatePills(mockTeamReportsFiltersParams, filterPill);
         expect(filterPill).toEqual([
           {
-            label: 'Sort By',
+            label: 'Sort by',
             type: 'sort',
             value: 'Submitted date - new to old',
           },
@@ -257,7 +257,7 @@ export function TestCases4(getTestBed) {
         component.generateSortAmountPills(teamReportsFiltersParams5, filterPill);
         expect(filterPill).toEqual([
           {
-            label: 'Sort By',
+            label: 'Sort by',
             type: 'sort',
             value: 'amount - high to low',
           },
@@ -271,7 +271,7 @@ export function TestCases4(getTestBed) {
         component.generateSortAmountPills(mockTeamReportsFiltersParams, filterPill);
         expect(filterPill).toEqual([
           {
-            label: 'Sort By',
+            label: 'Sort by',
             type: 'sort',
             value: 'amount - low to high',
           },
@@ -285,7 +285,7 @@ export function TestCases4(getTestBed) {
         component.generateSortNamePills(teamReportsFiltersParams6, filterPill);
         expect(filterPill).toEqual([
           {
-            label: 'Sort By',
+            label: 'Sort by',
             type: 'sort',
             value: 'Name - a to z',
           },
@@ -299,7 +299,7 @@ export function TestCases4(getTestBed) {
         component.generateSortNamePills(mockTeamReportsFiltersParams, filterPill);
         expect(filterPill).toEqual([
           {
-            label: 'Sort By',
+            label: 'Sort by',
             type: 'sort',
             value: 'Name - z to a',
           },
@@ -318,7 +318,7 @@ export function TestCases4(getTestBed) {
       expect(component.generateSortNamePills).toHaveBeenCalledOnceWith(teamReportsFiltersParams5, filterPill);
       expect(filterPill).toEqual([
         {
-          label: 'Sort By',
+          label: 'Sort by',
           type: 'sort',
           value: 'amount - high to low',
         },
@@ -359,7 +359,7 @@ export function TestCases4(getTestBed) {
         expect(component.generateSortFilterPills).not.toHaveBeenCalled();
         expect(filterPill).toEqual([
           {
-            label: 'Submitted Date',
+            label: 'Submitted date',
             type: 'date',
             value: 'this Week',
           },
@@ -373,7 +373,7 @@ export function TestCases4(getTestBed) {
         expect(component.generateSortFilterPills).toHaveBeenCalledTimes(1);
         expect(filterPill).toEqual([
           {
-            label: 'Sort By',
+            label: 'Sort by',
             type: 'sort',
             value: 'amount - high to low',
           },
@@ -387,7 +387,7 @@ export function TestCases4(getTestBed) {
         component.convertAmountSortToSelectedFilters(teamReportsFiltersParams5, generatedFilters);
         expect(generatedFilters).toEqual([
           {
-            name: 'Sort By',
+            name: 'Sort by',
             value: 'amountHighToLow',
           },
         ]);
@@ -400,7 +400,7 @@ export function TestCases4(getTestBed) {
         component.convertAmountSortToSelectedFilters(mockTeamReportsFiltersParams, generatedFilters);
         expect(generatedFilters).toEqual([
           {
-            name: 'Sort By',
+            name: 'Sort by',
             value: 'amountLowToHigh',
           },
         ]);

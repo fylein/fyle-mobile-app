@@ -1610,7 +1610,7 @@ describe('MyReportsPage', () => {
 
       component.onFilterClick('sort');
 
-      expect(component.openFilters).toHaveBeenCalledOnceWith('Sort By');
+      expect(component.openFilters).toHaveBeenCalledOnceWith('Sort by');
     });
   });
 
@@ -1686,7 +1686,7 @@ describe('MyReportsPage', () => {
       component.convertRptDtSortToSelectedFilters(filter, generatedFilters);
 
       expect(generatedFilters.length).toEqual(1);
-      expect(generatedFilters[0].name).toEqual('Sort By');
+      expect(generatedFilters[0].name).toEqual('Sort by');
       expect(generatedFilters[0].value).toEqual('dateOldToNew');
     });
 
@@ -1700,7 +1700,7 @@ describe('MyReportsPage', () => {
       component.convertRptDtSortToSelectedFilters(filter, generatedFilters);
 
       expect(generatedFilters.length).toEqual(1);
-      expect(generatedFilters[0].name).toEqual('Sort By');
+      expect(generatedFilters[0].name).toEqual('Sort by');
       expect(generatedFilters[0].value).toEqual('dateNewToOld');
     });
 
@@ -1711,7 +1711,7 @@ describe('MyReportsPage', () => {
       };
       const generatedFilters: SelectedFilters<string>[] = [
         {
-          name: 'Sort By',
+          name: 'Sort by',
           value: 'dateOldToNew',
         },
       ];
@@ -1719,7 +1719,7 @@ describe('MyReportsPage', () => {
       component.convertRptDtSortToSelectedFilters(filter, generatedFilters);
 
       expect(generatedFilters.length).toEqual(1);
-      expect(generatedFilters[0].name).toEqual('Sort By');
+      expect(generatedFilters[0].name).toEqual('Sort by');
       expect(generatedFilters[0].value).toEqual('dateOldToNew');
     });
   });
@@ -1775,7 +1775,7 @@ describe('MyReportsPage', () => {
 
       expect(generatedFilters).toEqual([
         {
-          name: 'Sort By',
+          name: 'Sort by',
           value: 'nameAToZ',
         },
       ]);
@@ -1792,7 +1792,7 @@ describe('MyReportsPage', () => {
 
       expect(generatedFilters).toEqual([
         {
-          name: 'Sort By',
+          name: 'Sort by',
           value: 'nameZToA',
         },
       ]);
@@ -1826,7 +1826,7 @@ describe('MyReportsPage', () => {
   describe('convertSelectedSortFiltersToFilters(): ', () => {
     it('should convert selected sort filter to corresponding sortParam and sortDir', () => {
       const sortBy = {
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'dateNewToOld',
       };
       const generatedFilters = {};
@@ -1841,7 +1841,7 @@ describe('MyReportsPage', () => {
 
     it('should convert selected sort filter to corresponding sortParam and sortDir (dateOldToNew)', () => {
       const sortBy = {
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'dateOldToNew',
       };
       const generatedFilters = {};
@@ -1856,7 +1856,7 @@ describe('MyReportsPage', () => {
 
     it('should convert selected sort filter to corresponding sortParam and sortDir (amountHighToLow)', () => {
       const sortBy = {
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'amountHighToLow',
       };
       const generatedFilters = {};
@@ -1871,7 +1871,7 @@ describe('MyReportsPage', () => {
 
     it('should convert selected sort filter to corresponding sortParam and sortDir (amountLowToHigh)', () => {
       const sortBy = {
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'amountLowToHigh',
       };
       const generatedFilters = {};
@@ -1886,7 +1886,7 @@ describe('MyReportsPage', () => {
 
     it('should convert selected sort filter to corresponding sortParam and sortDir (nameAToZ)', () => {
       const sortBy = {
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'nameAToZ',
       };
       const generatedFilters = {};
@@ -1901,7 +1901,7 @@ describe('MyReportsPage', () => {
 
     it('should convert selected sort filter to corresponding sortParam and sortDir (nameZToA)', () => {
       const sortBy = {
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'nameZToA',
       };
       const generatedFilters = {};
@@ -1931,7 +1931,7 @@ describe('MyReportsPage', () => {
 
     it('should not modify generatedFilters if sortBy value is not recognized', () => {
       const sortBy = {
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'invalid',
       };
       const generatedFilters = {
@@ -2335,7 +2335,7 @@ describe('MyReportsPage', () => {
 
     spyOn(component, 'generateSortFilterPills').and.callFake((filter, filterPills) => {
       filterPills.push({
-        label: 'Sort By',
+        label: 'Sort by',
         type: 'sort',
         value: 'date - old to new',
       });
@@ -2361,7 +2361,7 @@ describe('MyReportsPage', () => {
 
       expect(generatedFilters).toEqual([
         {
-          name: 'Sort By',
+          name: 'Sort by',
           value: 'amountHighToLow',
         },
       ]);
@@ -2378,7 +2378,7 @@ describe('MyReportsPage', () => {
 
       expect(generatedFilters).toEqual([
         {
-          name: 'Sort By',
+          name: 'Sort by',
           value: 'amountLowToHigh',
         },
       ]);

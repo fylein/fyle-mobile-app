@@ -258,7 +258,7 @@ export const teamReportsModalControllerParams = {
         ],
       } as FilterOptions<string>,
       {
-        name: 'Submitted Date',
+        name: 'Submitted date',
         optionType: FilterOptionType.date,
         options: [
           {
@@ -284,15 +284,15 @@ export const teamReportsModalControllerParams = {
         ],
       } as FilterOptions<DateFilters>,
       {
-        name: 'Sort By',
+        name: 'Sort by',
         optionType: FilterOptionType.singleselect,
         options: [
           {
-            label: 'Submitted Date - New to Old',
+            label: 'Submitted date - New to Old',
             value: 'dateNewToOld',
           },
           {
-            label: 'Submitted Date - Old to New',
+            label: 'Submitted date - Old to New',
             value: 'dateOldToNew',
           },
           {

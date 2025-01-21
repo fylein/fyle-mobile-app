@@ -4,9 +4,13 @@
   &__header {
     font-size: 14px;
     line-height: 18px;
-    color: $grey-light;
+    color: $black-light;
     font-weight: 500;
     margin: 16px 16px 0 16px;
+  }
+
+  .card-count {
+    margin-left: 2px;
   }
 
   &__zero-state {
@@ -34,6 +38,30 @@
       border-radius: 16px;
       margin-right: 24px;
       bottom: 50px;
+    }
+  }
+
+  &__logo {
+    &--container {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+    }
+    &--default {
+      width: 38px;
+      height: 26px;
+      background-color: $white;
+      border: 1px solid $lighter-grey;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &__icon {
+        width: 18px;
+        height: 18px;
+        color: $grey-light;
+      }
     }
   }
 }
