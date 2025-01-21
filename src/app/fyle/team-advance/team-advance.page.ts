@@ -183,7 +183,7 @@ export class TeamAdvancePage implements AfterViewChecked {
         ],
       } as FilterOptions<string>,
       {
-        name: 'Sort By',
+        name: 'Sort by',
         optionType: FilterOptionType.singleselect,
         options: [
           {
@@ -239,7 +239,7 @@ export class TeamAdvancePage implements AfterViewChecked {
   async onFilterClick(filterType: string): Promise<void> {
     const filterTypes: Record<string, string> = {
       state: 'State',
-      sort: 'Sort By',
+      sort: 'Sort by',
     };
     await this.openFilters(filterTypes[filterType]);
   }

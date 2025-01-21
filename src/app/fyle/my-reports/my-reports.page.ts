@@ -514,7 +514,7 @@ export class MyReportsPage {
     } else if (filterType === 'date') {
       await this.openFilters('Date');
     } else if (filterType === 'sort') {
-      await this.openFilters('Sort By');
+      await this.openFilters('Sort by');
     }
   }
 
@@ -552,12 +552,12 @@ export class MyReportsPage {
   ): void {
     if (filter.sortParam === 'created_at' && filter.sortDir === 'asc') {
       generatedFilters.push({
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'dateOldToNew',
       });
     } else if (filter.sortParam === 'created_at' && filter.sortDir === 'desc') {
       generatedFilters.push({
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'dateNewToOld',
       });
     }
@@ -622,12 +622,12 @@ export class MyReportsPage {
   ): void {
     if (filter.sortParam === 'purpose' && filter.sortDir === 'asc') {
       generatedFilters.push({
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'nameAToZ',
       });
     } else if (filter.sortParam === 'purpose' && filter.sortDir === 'desc') {
       generatedFilters.push({
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'nameZToA',
       });
     }
@@ -682,7 +682,7 @@ export class MyReportsPage {
       generatedFilters.customDateEnd = dateFilter.associatedData?.endDate;
     }
 
-    const sortBy = selectedFilters.find((filter) => filter.name === 'Sort By');
+    const sortBy = selectedFilters.find((filter) => filter.name === 'Sort by');
 
     this.convertSelectedSortFitlersToFilters(sortBy, generatedFilters);
 
@@ -767,13 +767,13 @@ export class MyReportsPage {
   generateSortRptDatePills(filter: Partial<MyReportsFilters>, filterPills: FilterPill[]): void {
     if (filter.sortParam === 'created_at' && filter.sortDir === 'asc') {
       filterPills.push({
-        label: 'Sort By',
+        label: 'Sort by',
         type: 'sort',
         value: 'date - old to new',
       });
     } else if (filter.sortParam === 'created_at' && filter.sortDir === 'desc') {
       filterPills.push({
-        label: 'Sort By',
+        label: 'Sort by',
         type: 'sort',
         value: 'date - new to old',
       });
@@ -783,13 +783,13 @@ export class MyReportsPage {
   generateSortAmountPills(filter: Partial<MyReportsFilters>, filterPills: FilterPill[]): void {
     if (filter.sortParam === 'amount' && filter.sortDir === 'desc') {
       filterPills.push({
-        label: 'Sort By',
+        label: 'Sort by',
         type: 'sort',
         value: 'amount - high to low',
       });
     } else if (filter.sortParam === 'amount' && filter.sortDir === 'asc') {
       filterPills.push({
-        label: 'Sort By',
+        label: 'Sort by',
         type: 'sort',
         value: 'amount - low to high',
       });
@@ -799,13 +799,13 @@ export class MyReportsPage {
   generateSortNamePills(filter: Partial<MyReportsFilters>, filterPills: FilterPill[]): void {
     if (filter.sortParam === 'purpose' && filter.sortDir === 'asc') {
       filterPills.push({
-        label: 'Sort By',
+        label: 'Sort by',
         type: 'sort',
         value: 'Name - a to z',
       });
     } else if (filter.sortParam === 'purpose' && filter.sortDir === 'desc') {
       filterPills.push({
-        label: 'Sort By',
+        label: 'Sort by',
         type: 'sort',
         value: 'Name - z to a',
       });
@@ -851,12 +851,12 @@ export class MyReportsPage {
   ): void {
     if (filter.sortParam === 'amount' && filter.sortDir === 'desc') {
       generatedFilters.push({
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'amountHighToLow',
       });
     } else if (filter.sortParam === 'amount' && filter.sortDir === 'asc') {
       generatedFilters.push({
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'amountLowToHigh',
       });
     }
@@ -976,7 +976,7 @@ export class MyReportsPage {
             ],
           } as FilterOptions<DateFilters>,
           {
-            name: 'Sort By',
+            name: 'Sort by',
             optionType: FilterOptionType.singleselect,
             options: [
               {

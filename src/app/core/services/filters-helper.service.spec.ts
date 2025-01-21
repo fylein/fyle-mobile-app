@@ -92,7 +92,7 @@ describe('FiltersHelperService', () => {
       sortParam: SortingParam.approvalDate,
     };
 
-    const testPill: FilterPill[] = [{ label: 'Sort By', type: 'sort', value: 'approved date - new to old' }];
+    const testPill: FilterPill[] = [{ label: 'Sort by', type: 'sort', value: 'approved date - new to old' }];
 
     expect(filterHelperService.generateFilterPills(testFilters)).toEqual(testPill);
   });
@@ -103,7 +103,7 @@ describe('FiltersHelperService', () => {
       sortDir: SortingDirection.ascending,
     };
 
-    const testPill: FilterPill[] = [{ label: 'Sort By', type: 'sort', value: 'Some Project - A to Z' }];
+    const testPill: FilterPill[] = [{ label: 'Sort by', type: 'sort', value: 'Some Project - A to Z' }];
 
     expect(filterHelperService.generateFilterPills(testFilters, 'some project')).toEqual(testPill);
   });
@@ -114,19 +114,9 @@ describe('FiltersHelperService', () => {
       sortDir: SortingDirection.descending,
     };
 
-    const testPill: FilterPill[] = [{ label: 'Sort By', type: 'sort', value: 'Some Project - Z to A' }];
+    const testPill: FilterPill[] = [{ label: 'Sort by', type: 'sort', value: 'Some Project - Z to A' }];
 
     expect(filterHelperService.generateFilterPills(testFilters, 'some project')).toEqual(testPill);
-  });
-
-  it('should generate pill using only Sorting Params - Approved date New To Old', () => {
-    const testFilters: Filters = {
-      sortParam: SortingParam.approvalDate,
-    };
-
-    const testPill: FilterPill[] = [{ label: 'Sort By', type: 'sort', value: 'approved date - new to old' }];
-
-    expect(filterHelperService.generateFilterPills(testFilters)).toEqual(testPill);
   });
 
   it('should generate pill using only Sorting Params - Approved date Old To New', () => {
@@ -135,7 +125,7 @@ describe('FiltersHelperService', () => {
       sortDir: SortingDirection.ascending,
     };
 
-    const testPill: FilterPill[] = [{ label: 'Sort By', type: 'sort', value: 'approved date - old to new' }];
+    const testPill: FilterPill[] = [{ label: 'Sort by', type: 'sort', value: 'approved date - old to new' }];
 
     expect(filterHelperService.generateFilterPills(testFilters)).toEqual(testPill);
   });
@@ -145,7 +135,7 @@ describe('FiltersHelperService', () => {
       sortParam: SortingParam.creationDate,
     };
 
-    const testPill: FilterPill[] = [{ label: 'Sort By', type: 'sort', value: 'created date - new to old' }];
+    const testPill: FilterPill[] = [{ label: 'Sort by', type: 'sort', value: 'created date - new to old' }];
 
     expect(filterHelperService.generateFilterPills(testFilters)).toEqual(testPill);
   });
@@ -156,7 +146,7 @@ describe('FiltersHelperService', () => {
       sortDir: SortingDirection.ascending,
     };
 
-    const testPill: FilterPill[] = [{ label: 'Sort By', type: 'sort', value: 'created date - old to new' }];
+    const testPill: FilterPill[] = [{ label: 'Sort by', type: 'sort', value: 'created date - old to new' }];
     expect(filterHelperService.generateFilterPills(testFilters)).toEqual(testPill);
   });
 
@@ -213,7 +203,7 @@ describe('FiltersHelperService', () => {
 
     const testSelectedFilter: SelectedFilters<string | AdvancesStates[] | SortingDirection>[] = [
       {
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'appDateNewToOld',
       },
       {
@@ -233,7 +223,7 @@ describe('FiltersHelperService', () => {
 
     const testSelectedFilter: SelectedFilters<string | AdvancesStates[]>[] = [
       {
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'crDateOldToNew',
       },
     ];
@@ -249,7 +239,7 @@ describe('FiltersHelperService', () => {
 
     const testSelectedFilter: SelectedFilters<string | AdvancesStates[]>[] = [
       {
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'projectAToZ',
       },
     ];
@@ -265,7 +255,7 @@ describe('FiltersHelperService', () => {
 
     const testSelectedFilter: SelectedFilters<string | SortingDirection | AdvancesStates[]>[] = [
       {
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'projectZToA',
       },
       {
@@ -277,10 +267,10 @@ describe('FiltersHelperService', () => {
     expect(filterHelperService.generateSelectedFilters(testFilters)).toEqual(testSelectedFilter);
   });
 
-  it('should convert data to selected filters | Sort By - A to Z, Sort Direction - DESC, State - DRAFT,CANCELLED', () => {
+  it('should convert data to selected filters | Sort by - A to Z, Sort Direction - DESC, State - DRAFT,CANCELLED', () => {
     const testSelectedFilters: SelectedFilters<string | AdvancesStates[] | SortingDirection>[] = [
       {
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'projectZToA',
       },
       {
@@ -302,10 +292,10 @@ describe('FiltersHelperService', () => {
     expect(filterHelperService.convertDataToFilters(testSelectedFilters)).toEqual(testFilters);
   });
 
-  it('should convert data to selected filters | Sort By - Z to A, Sort Direction - DESC, State - DRAFT,CANCELLED', () => {
+  it('should convert data to selected filters | Sort by - Z to A, Sort Direction - DESC, State - DRAFT,CANCELLED', () => {
     const testSelectedFilters: SelectedFilters<string | AdvancesStates[] | SortingDirection>[] = [
       {
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'projectZToA',
       },
       {
@@ -326,10 +316,10 @@ describe('FiltersHelperService', () => {
     expect(filterHelperService.convertDataToFilters(testSelectedFilters)).toEqual(testFilters);
   });
 
-  it('should convert data to selected filters | Sort By - A to Z, Sort Direction - ASC', () => {
+  it('should convert data to selected filters | Sort by - A to Z, Sort Direction - ASC', () => {
     const testSelectedFilters: SelectedFilters<string | AdvancesStates[]>[] = [
       {
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'projectAToZ',
       },
     ];
@@ -345,7 +335,7 @@ describe('FiltersHelperService', () => {
   it('should convert data to selected filters | APPROVAL DATE - DESC', () => {
     const testSelectedFilters: SelectedFilters<string | AdvancesStates[]>[] = [
       {
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'appDateNewToOld',
       },
     ];
@@ -361,7 +351,7 @@ describe('FiltersHelperService', () => {
   it('should convert data to selected filters | CREATION DATE - ASC', () => {
     const testSelectedFilters: SelectedFilters<string | AdvancesStates[] | SortingDirection>[] = [
       {
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'crDateOldToNew',
       },
     ];
@@ -382,7 +372,7 @@ describe('FiltersHelperService', () => {
 
     const selectedFilters: SelectedFilters<any>[] = [
       {
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'projectZToA',
       },
       {
@@ -418,7 +408,7 @@ describe('FiltersHelperService', () => {
         ],
       } as FilterOptions<string>,
       {
-        name: 'Sort By',
+        name: 'Sort by',
         optionType: FilterOptionType.singleselect,
         options: [
           {

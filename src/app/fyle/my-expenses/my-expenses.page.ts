@@ -1672,7 +1672,7 @@ export class MyExpensesPage implements OnInit {
     } else if (filterType === 'date') {
       await this.openFilters('Date');
     } else if (filterType === 'sort') {
-      await this.openFilters('Sort By');
+      await this.openFilters('Sort by');
     } else if (filterType === 'splitExpense') {
       await this.openFilters('Split Expense');
     } else if (filterType === 'potentialDuplicates') {

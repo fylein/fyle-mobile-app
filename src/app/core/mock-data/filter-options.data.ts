@@ -24,7 +24,7 @@ export const filterOptions: FilterOptions<string>[] = deepFreeze([
     ],
   },
   {
-    name: 'Sort By',
+    name: 'Sort by',
     optionType: FilterOptionType.singleselect,
     options: [
       {
@@ -151,7 +151,7 @@ export const filterOptions2: FilterOptions<string>[] = deepFreeze([
     ],
   },
   {
-    name: 'Sort By',
+    name: 'Sort by',
     optionType: FilterOptionType.singleselect,
     options: [
       {
@@ -278,7 +278,7 @@ export const filterOptions3: FilterOptions<string>[] = deepFreeze([
     ],
   },
   {
-    name: 'Sort By',
+    name: 'Sort by',
     optionType: FilterOptionType.singleselect,
     options: [
       {

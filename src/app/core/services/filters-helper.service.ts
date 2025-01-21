@@ -48,7 +48,7 @@ export class FiltersHelperService {
 
     if (filters.sortParam) {
       filterPills.push({
-        label: 'Sort By',
+        label: 'Sort by',
         type: 'sort',
         value: filterPillsMap[sortString],
       });
@@ -64,7 +64,7 @@ export class FiltersHelperService {
       (filter): filter is SelectedFilters<AdvancesStates[]> => filter.name === 'State'
     );
     const sortBy = selectedFilters.find<SelectedFilters<string>>(
-      (filter): filter is SelectedFilters<string> => filter.name === 'Sort By'
+      (filter): filter is SelectedFilters<string> => filter.name === 'Sort by'
     );
 
     if (stateFilter) {
@@ -82,7 +82,7 @@ export class FiltersHelperService {
     const generatedFilters: SelectedFilters<string | AdvancesStates[]>[] = [];
     const filtersMap: Record<string, string> = {
       state: 'State',
-      sortParam: 'Sort By',
+      sortParam: 'Sort by',
       sortDir: 'Sort Direction',
     };
 
