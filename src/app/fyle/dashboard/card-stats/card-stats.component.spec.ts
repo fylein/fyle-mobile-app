@@ -191,7 +191,7 @@ describe('CardStatsComponent', () => {
       expect(spentCardsComponentInstance.cardDetails).toEqual(cardDetails);
       expect(spentCardsComponentInstance.homeCurrency).toEqual('USD');
       expect(spentCardsComponentInstance.currencySymbol).toEqual('$');
-      expect(spentCardsComponentInstance.showAddCardSlide).toEqual(true);
+      expect(spentCardsComponentInstance.showAddCardSlide).toBeTrue();
 
       expect(corporateCreditCardExpenseService.getCorporateCards).toHaveBeenCalledTimes(1);
       expect(corporateCreditCardExpenseService.getPlatformCorporateCardDetails).toHaveBeenCalledOnceWith(
@@ -233,7 +233,7 @@ describe('CardStatsComponent', () => {
         expect(addCardComponent).toBeTruthy();
 
         const addCardComponentInstance = addCardComponent.componentInstance as MockAddCardComponent;
-        expect(addCardComponentInstance.showZeroStateMessage).toEqual(true);
+        expect(addCardComponentInstance.showZeroStateMessage).toBeTrue();
       });
 
       it('should not be visible if RTF enrollment is disabled', fakeAsync(() => {
