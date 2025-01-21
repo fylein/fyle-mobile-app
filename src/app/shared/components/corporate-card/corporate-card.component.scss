@@ -1,4 +1,5 @@
 @import '../../../../theme/colors';
+@import '../../../../assets/styles/fy_select';
 
 .corporate-card {
   width: 100%;
@@ -20,8 +21,7 @@
   }
 
   &__row {
-    display: flex;
-    justify-content: space-between;
+    @extend %flex-layout-row;
     align-items: center;
   }
 
