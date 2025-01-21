@@ -63,13 +63,13 @@ export const selectedFilters3 = deepFreeze([
     value: 'Last 7 Days',
     associatedData: { startDate: new Date('2023-04-01'), endDate: new Date('2023-04-04') },
   },
-  { name: 'Sort By', value: 'dateNewToOld' },
+  { name: 'Sort by', value: 'dateNewToOld' },
 ]);
 
 export const selectedFilters4 = deepFreeze([
   { name: 'State', value: 'Approved' },
   { name: 'Date', value: 'Last 7 Days', associatedData: undefined },
-  { name: 'Sort By', value: 'dateNewToOld' },
+  { name: 'Sort by', value: 'dateNewToOld' },
 ]);
 
 export const selectedFilters5 = deepFreeze([
@@ -101,7 +101,7 @@ export const selectedFilters6: SelectedFilters<string | string[]>[] = deepFreeze
     value: 'DRAFT',
   },
   {
-    name: 'Submitted Date',
+    name: 'Submitted date',
     value: 'custom',
     associatedData: {
       startDate: new Date('2023-01-01'),
@@ -111,7 +111,7 @@ export const selectedFilters6: SelectedFilters<string | string[]>[] = deepFreeze
 ]);
 
 export const selectedFiltersParams: SelectedFilters<string> = deepFreeze({
-  name: 'Sort By',
+  name: 'Sort by',
   value: 'dateNewToOld',
 });
 
@@ -126,7 +126,7 @@ export const selectedFiltersParams2: SelectedFilters<string>[] = deepFreeze([
     associatedData: { startDate: new Date('2023-01-04'), endDate: new Date('2023-01-10') },
   },
   {
-    name: 'Submitted Date',
+    name: 'Submitted date',
     value: 'custom',
     associatedData: {
       startDate: new Date('2023-01-01'),
@@ -153,7 +153,7 @@ export const selectedFilters7: SelectedFilters<string | string[]>[] = deepFreeze
     name: 'Cards',
     value: ['1234', '2389'],
   },
-  { name: 'Sort By', value: 'dateNewToOld' },
+  { name: 'Sort by', value: 'dateNewToOld' },
   {
     name: 'Split Expense',
     value: 'Yes',
@@ -181,7 +181,7 @@ export const selectedFilters8: SelectedFilters<string | string[]>[] = deepFreeze
     name: 'Cards',
     value: ['1234', '2389'],
   },
-  { name: 'Sort By', value: 'dateNewToOld' },
+  { name: 'Sort by', value: 'dateNewToOld' },
   {
     name: 'Split Expense',
     value: 'Yes',

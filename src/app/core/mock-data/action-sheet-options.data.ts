@@ -24,7 +24,7 @@ export const actionSheetOptionsData = deepFreeze([
 ]);
 export const expectedActionSheetButtonRes = deepFreeze([
   {
-    text: 'Capture Receipt',
+    text: 'Capture receipt',
     icon: 'assets/svg/camera.svg',
     cssClass: 'capture-receipt',
     handler: undefined,
@@ -51,7 +51,7 @@ export const expectedActionSheetButtonRes = deepFreeze([
 
 export const expectedActionSheetButtonsWithMileage = deepFreeze([
   {
-    text: 'Capture Receipt',
+    text: 'Capture receipt',
     icon: 'assets/svg/camera.svg',
     cssClass: 'capture-receipt',
     handler: undefined,
@@ -72,7 +72,7 @@ export const expectedActionSheetButtonsWithMileage = deepFreeze([
 
 export const expectedActionSheetButtonsWithPerDiem = deepFreeze([
   {
-    text: 'Capture Receipt',
+    text: 'Capture receipt',
     icon: 'assets/svg/camera.svg',
     cssClass: 'capture-receipt',
     handler: undefined,

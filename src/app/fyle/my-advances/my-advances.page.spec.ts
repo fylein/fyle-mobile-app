@@ -524,10 +524,10 @@ describe('MyAdvancesPage', () => {
       expect(component.openFilters).toHaveBeenCalledOnceWith('State');
     }));
 
-    it('onFilterClick(): should call openFilters with Sort By if argument is sort', fakeAsync(() => {
+    it('onFilterClick(): should call openFilters with Sort by if argument is sort', fakeAsync(() => {
       component.onFilterClick('sort');
       tick(100);
-      expect(component.openFilters).toHaveBeenCalledOnceWith('Sort By');
+      expect(component.openFilters).toHaveBeenCalledOnceWith('Sort by');
     }));
   });
 
