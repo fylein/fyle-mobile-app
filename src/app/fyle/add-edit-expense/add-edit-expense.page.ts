@@ -1547,7 +1547,8 @@ export class AddEditExpensePage implements OnInit {
   getSelectedCategory(): Observable<OrgCategory> {
     return this.etxn$.pipe(
       switchMap((etxn) => {
-        if (etxn.tx.org_category_id) {
+        // filter out unspecified category as it is not a valid category
+        if (etxn.tx.org_category_id && etxn.tx.fyle_category?.toLowerCase() !== 'unspecified') {
           return this.categoriesService.getCategoryById(etxn.tx.org_category_id);
         } else {
           return of(null);
