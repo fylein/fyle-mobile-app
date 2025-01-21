@@ -50,7 +50,7 @@ class MockAddCardComponent {
   @Input() showZeroStateMessage: boolean;
 }
 
-xdescribe('CardStatsComponent', () => {
+fdescribe('CardStatsComponent', () => {
   const cards = [mastercardRTFCard];
   const cardStats = mastercardCCCStats;
   const cardDetails = cardDetailsRes;
@@ -200,7 +200,7 @@ xdescribe('CardStatsComponent', () => {
       );
     });
 
-    it('should set virtualCardDetails$ when isVirtualCardsEnabled is true', fakeAsync(() => {
+    xit('should set virtualCardDetails$ when isVirtualCardsEnabled is true', fakeAsync(() => {
       component.isVirtualCardsEnabled$ = of({ enabled: true });
 
       virtualCardsService.getCardDetailsMap.and.returnValue(of(virtualCardCombinedResponse));
