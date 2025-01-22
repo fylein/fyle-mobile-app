@@ -84,6 +84,7 @@ import { UtilityService } from 'src/app/core/services/utility.service';
 import { FeatureConfigService } from 'src/app/core/services/platform/v1/spender/feature-config.service';
 import * as dayjs from 'dayjs';
 import { ExpensesQueryParams } from 'src/app/core/models/platform/v1/expenses-query-params.model';
+import { ApiV2Service } from 'src/app/core/services/api-v2.service';
 
 @Component({
   selector: 'app-my-expenses',
@@ -235,7 +236,8 @@ export class MyExpensesPage implements OnInit {
     private spenderReportsService: SpenderReportsService,
     private authService: AuthService,
     private utilityService: UtilityService,
-    private featureConfigService: FeatureConfigService
+    private featureConfigService: FeatureConfigService,
+    private apiV2Service: ApiV2Service
   ) {}
 
   get HeaderState(): typeof HeaderState {
@@ -569,14 +571,13 @@ export class MyExpensesPage implements OnInit {
 
     const paginatedPipe = this.loadExpenses$.pipe(
       switchMap((params) => {
-        const queryParams = params.queryParams || {};
+        let queryParams = params.queryParams || {};
 
         queryParams.report_id = queryParams.report_id || 'is.null';
         queryParams.state = 'in.(COMPLETE,DRAFT)';
 
         if (params.searchString) {
-          queryParams.q = params.searchString;
-          queryParams.q = queryParams.q + ':*';
+          queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
         } else if (params.searchString === '') {
           delete queryParams.q;
         }
