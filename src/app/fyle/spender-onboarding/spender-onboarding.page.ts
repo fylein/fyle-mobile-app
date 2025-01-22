@@ -49,19 +49,6 @@ export class SpenderOnboardingPage {
     private trackingService: TrackingService
   ) {}
 
-  navigateToDashboard(orgSettings: OrgSettings, onboardingStatus: OnboardingStatus): void {
-    const restrictedOrg = orgSettings.org_id === 'orgp5onHZThs';
-    const hasEnabledCards =
-      orgSettings.corporate_credit_card_settings.enabled &&
-      (orgSettings.visa_enrollment_settings.enabled ||
-        orgSettings.mastercard_enrollment_settings.enabled ||
-        orgSettings.amex_feed_enrollment_settings.enabled);
-    const shouldShowOnboarding = hasEnabledCards && onboardingStatus.state !== OnboardingState.COMPLETED;
-    if (!shouldShowOnboarding || restrictedOrg) {
-      this.router.navigate(['/', 'enterprise', 'my_dashboard']);
-    }
-  }
-
   ionViewWillEnter(): void {
     this.isLoading = true;
     from(this.loaderService.showLoader())
@@ -75,7 +62,6 @@ export class SpenderOnboardingPage {
           ])
         ),
         map(([eou, orgSettings, onboardingStatus, corporateCards]) => {
-          this.navigateToDashboard(orgSettings, onboardingStatus);
           this.eou = eou;
           this.userFullName = eou.us.full_name;
           this.orgSettings = orgSettings;

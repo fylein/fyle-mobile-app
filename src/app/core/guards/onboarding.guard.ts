@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
-import { forkJoin, Observable, of } from 'rxjs';
+import { forkJoin, from, Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { OrgSettingsService } from '../services/org-settings.service';
 import { SpenderOnboardingService } from '../services/spender-onboarding.service';
@@ -28,7 +28,7 @@ export class OnboardingGuard implements CanActivate {
     return forkJoin([
       this.orgSettingsService.get(),
       this.spenderOnboardingService.getOnboardingStatus(),
-      of(this.utilityService.isUserFromINCluster()),
+      from(this.utilityService.isUserFromINCluster()),
       this.authService.getEou(),
     ]).pipe(
       map(([orgSettings, onboardingStatus, isUserFromINCluster, eou]) => {
