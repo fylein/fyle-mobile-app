@@ -42,7 +42,7 @@ export class OnboardingGuard implements CanActivate {
           onboardingStatus
         );
 
-        this.handleNavigation(shouldProceedToOnboarding);
+        return this.handleNavigation(shouldProceedToOnboarding);
       })
     );
   }
