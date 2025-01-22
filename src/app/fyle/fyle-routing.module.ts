@@ -8,6 +8,7 @@ const routes: Routes = [
   {
     path: 'my_dashboard',
     loadChildren: () => import('./dashboard/dashboard.module').then((m) => m.DashboardPageModule),
+    canActivate: [OnboardingGuard],
   },
   {
     path: 'my_expenses',
@@ -148,7 +149,6 @@ const routes: Routes = [
 routes.forEach((route) => {
   route.canActivate = route.canActivate || [];
   route.canActivate.push(OptInGuard);
-  route.canActivate.push(OnboardingGuard);
 });
 
 export const fyleRoutes = routes;
