@@ -2,6 +2,7 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { OptInGuard } from '../core/guards/opt-in.guard';
+import { OnboardingGuard } from '../core/guards/onboarding.guard';
 
 const routes: Routes = [
   {
@@ -147,6 +148,7 @@ const routes: Routes = [
 routes.forEach((route) => {
   route.canActivate = route.canActivate || [];
   route.canActivate.push(OptInGuard);
+  route.canActivate.push(OnboardingGuard);
 });
 
 export const fyleRoutes = routes;

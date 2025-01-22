@@ -43,7 +43,6 @@ export class OnboardingGuard implements CanActivate {
         );
 
         this.handleNavigation(shouldProceedToOnboarding);
-        return true;
       })
     );
   }
@@ -73,9 +72,11 @@ export class OnboardingGuard implements CanActivate {
     return !restrictedOrgs && currency === 'USD' && areCardsEnabled && onboardingStatus.state !== 'COMPLETED';
   }
 
-  private handleNavigation(shouldProceedToOnboarding: boolean): void {
+  private handleNavigation(shouldProceedToOnboarding: boolean): boolean {
     if (shouldProceedToOnboarding) {
       this.router.navigate(['/', 'enterprise', 'spender_onboarding']);
+      return false;
     }
+    return true;
   }
 }

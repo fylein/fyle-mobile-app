@@ -23,7 +23,7 @@ const routes: Routes = [
   {
     path: 'enterprise',
     loadChildren: () => import('./fyle/fyle.module').then((m) => m.FyleModule),
-    canActivate: [AuthGuard, VerifiedOrgAuthGuard, OnboardingGuard],
+    canActivate: [AuthGuard, VerifiedOrgAuthGuard],
   },
   {
     path: 'deep_link_redirection',
