@@ -320,13 +320,18 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
   navigateToDashboard(openOptInDialog?: boolean): void {
     forkJoin([this.orgSettingsService.get(), this.spenderOnboardingService.getOnboardingStatus()]).subscribe(
       ([orgSettings, onboardingStatus]) => {
-        if (
+        /**
+         * Ref: https://www.notion.so/fyleuniverse/Self-Serve-Onboarding-Frontend-efb825569da548c2b8ee4645e111790d?pvs=4#10e2ed8bfcb38056b397e61ba1e362e2
+         * Org orgp5onHZThs requires additional steps before enrolling cards, hence they are skipped for onboarding
+         */
+        const shouldProceedToOnboarding =
+          orgSettings.org_id !== 'orgp5onHZThs' &&
           orgSettings.corporate_credit_card_settings.enabled &&
           (orgSettings.visa_enrollment_settings.enabled ||
             orgSettings.mastercard_enrollment_settings.enabled ||
             orgSettings.amex_feed_enrollment_settings.enabled) &&
-          onboardingStatus.state !== OnboardingState.COMPLETED
-        ) {
+          onboardingStatus.state !== OnboardingState.COMPLETED;
+        if (shouldProceedToOnboarding) {
           this.router.navigate(['/', 'enterprise', 'spender_onboarding']);
         } else {
           this.router.navigate([

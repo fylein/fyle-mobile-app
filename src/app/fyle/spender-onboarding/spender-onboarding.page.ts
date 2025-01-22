@@ -50,13 +50,14 @@ export class SpenderOnboardingPage {
   ) {}
 
   navigateToDashboard(orgSettings: OrgSettings, onboardingStatus: OnboardingStatus): void {
+    const restrictedOrg = orgSettings.org_id === 'orgp5onHZThs';
     const hasEnabledCards =
       orgSettings.corporate_credit_card_settings.enabled &&
       (orgSettings.visa_enrollment_settings.enabled ||
         orgSettings.mastercard_enrollment_settings.enabled ||
         orgSettings.amex_feed_enrollment_settings.enabled);
     const shouldShowOnboarding = hasEnabledCards && onboardingStatus.state !== OnboardingState.COMPLETED;
-    if (!shouldShowOnboarding) {
+    if (!shouldShowOnboarding || restrictedOrg) {
       this.router.navigate(['/', 'enterprise', 'my_dashboard']);
     }
   }
