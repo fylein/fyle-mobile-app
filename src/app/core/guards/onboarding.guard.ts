@@ -43,7 +43,7 @@ export class OnboardingGuard implements CanActivate {
         );
 
         this.handleNavigation(shouldProceedToOnboarding);
-        return false;
+        return true;
       })
     );
   }
@@ -76,8 +76,6 @@ export class OnboardingGuard implements CanActivate {
   private handleNavigation(shouldProceedToOnboarding: boolean): void {
     if (shouldProceedToOnboarding) {
       this.router.navigate(['/', 'enterprise', 'spender_onboarding']);
-    } else {
-      this.router.navigate(['/', 'enterprise', 'my_dashboard']);
     }
   }
 }

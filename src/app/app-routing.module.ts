@@ -10,7 +10,6 @@ const routes: Routes = [
     path: '',
     redirectTo: 'enterprise/my_dashboard',
     pathMatch: 'full',
-    canActivate: [OnboardingGuard],
   },
   {
     path: 'auth',
@@ -24,7 +23,7 @@ const routes: Routes = [
   {
     path: 'enterprise',
     loadChildren: () => import('./fyle/fyle.module').then((m) => m.FyleModule),
-    canActivate: [AuthGuard, VerifiedOrgAuthGuard],
+    canActivate: [AuthGuard, VerifiedOrgAuthGuard, OnboardingGuard],
   },
   {
     path: 'deep_link_redirection',
