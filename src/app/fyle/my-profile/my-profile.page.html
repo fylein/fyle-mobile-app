@@ -158,21 +158,23 @@
         </div>
       </ng-container>
 
-      <div class="my-profile__section-header">Preferences</div>
-      <div class="my-profile__preference-container">
-        <div
-          *ngFor="let preferenceSetting of preferenceSettings;let i=index, last as isLast"
-          [ngClass]="{'my-profile__preference-container__card': !isLast}"
-        >
-          <app-preference-setting
-            [title]="preferenceSetting.title"
-            [content]="preferenceSetting.content"
-            [isEnabled]="preferenceSetting.isEnabled"
-            [key]="preferenceSetting.key"
-            [defaultCurrency]="preferenceSetting.defaultCurrency"
-            (preferenceChanged)="toggleSetting($event)"
+      <div *ngIf="preferenceSettings.length > 0">
+        <div class="my-profile__section-header">Preferences</div>
+        <div class="my-profile__preference-container">
+          <div
+            *ngFor="let preferenceSetting of preferenceSettings;let i=index, last as isLast"
+            [ngClass]="{'my-profile__preference-container__card': !isLast}"
           >
-          </app-preference-setting>
+            <app-preference-setting
+              [title]="preferenceSetting.title"
+              [content]="preferenceSetting.content"
+              [isEnabled]="preferenceSetting.isEnabled"
+              [key]="preferenceSetting.key"
+              [defaultCurrency]="preferenceSetting.defaultCurrency"
+              (preferenceChanged)="toggleSetting($event)"
+            >
+            </app-preference-setting>
+          </div>
         </div>
       </div>
     </ng-container>
