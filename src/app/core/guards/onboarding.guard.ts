@@ -60,7 +60,7 @@ export class OnboardingGuard implements CanActivate {
   }
 
   private isRestrictedOrg(orgSettings: OrgSettings, isUserFromINCluster: boolean): boolean {
-    return orgSettings.org_id === 'orgp5onHZThs' || !isUserFromINCluster;
+    return orgSettings.org_id === 'orgp5onHZThs';
   }
 
   private shouldProceedToOnboarding(
