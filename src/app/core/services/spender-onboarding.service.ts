@@ -126,10 +126,14 @@ export class SpenderOnboardingService {
   }
 
   private checkCardFeedEnabled(orgSettings: OrgSettings): boolean {
+    const visaSettings = orgSettings.visa_enrollment_settings;
+    const mastercardSettings = orgSettings.mastercard_enrollment_settings;
+    const amexSettings = orgSettings.amex_feed_enrollment_settings;
+
     return (
-      (!!orgSettings.visa_enrollment_settings.allowed && !!orgSettings.visa_enrollment_settings.enabled) ||
-      (!!orgSettings.mastercard_enrollment_settings.allowed && !!orgSettings.mastercard_enrollment_settings.enabled) ||
-      (!!orgSettings.amex_feed_enrollment_settings.allowed && !!orgSettings.amex_feed_enrollment_settings.enabled)
+      (visaSettings && !!visaSettings.allowed && !!visaSettings.enabled) ||
+      (mastercardSettings && !!mastercardSettings.allowed && !!mastercardSettings.enabled) ||
+      (amexSettings && !!amexSettings.allowed && !!amexSettings.enabled)
     );
   }
 
