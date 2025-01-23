@@ -9,8 +9,6 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { Router } from '@angular/router';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
-import { OnboardingState } from 'src/app/core/models/onboarding-state.enum';
-import { OnboardingStatus } from 'src/app/core/models/onboarding-status.model';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 
 @Component({
