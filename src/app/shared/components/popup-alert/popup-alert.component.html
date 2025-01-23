@@ -37,7 +37,12 @@
   </div>
 
   <ion-footer class="popup-alert--footer">
-    <div [ngClass]="{ 'popup-alert--cta-container': secondaryCta, 'text-center': !secondaryCta }">
+    <div
+      [ngClass]="{
+        'popup-alert--cta-container': secondaryCta,
+        'popup-alert--primary-cta-container text-center': !secondaryCta
+      }"
+    >
       <button
         *ngIf="secondaryCta"
         type="button"

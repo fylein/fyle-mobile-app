@@ -145,12 +145,8 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
         message: this.generateMessage(),
         leftAlign: true,
         primaryCta: {
-          text: 'Proceed anyway',
+          text: 'Continue',
           action: 'close',
-        },
-        secondaryCta: {
-          text: 'Cancel',
-          action: 'cancel',
         },
         cardsList: this.cardsList.successfulCards.length > 0 ? this.cardsList : {},
       },
@@ -163,9 +159,8 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
     const { data } = (await errorPopover.onWillDismiss()) as OverlayResponse<{
       action: string;
     }>;
-
-    if (data.action === 'close') {
-      this.isStepSkipped.emit(true);
+    if (this.cardsList.successfulCards.length > 0) {
+      this.isStepComplete.emit(true);
     }
   }
 
@@ -220,6 +215,11 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
   }
 
   ngOnInit(): void {
+    this.cardsList = {
+      successfulCards: ['***1111'],
+      failedCards: ['***1111', '****5555'],
+    };
+    this.showErrorPopover();
     this.fg = this.fb.group({});
     this.trackingService.eventTrack('Connect Cards Onboarding Step - Viewed');
     this.setupForm();

@@ -25,6 +25,10 @@ $small-screen: 700px;
     }
   }
 
+  &--primary-cta-container {
+    padding-top: 16px;
+  }
+
   &--cta-button {
     font-weight: 500;
     &__disabled {
