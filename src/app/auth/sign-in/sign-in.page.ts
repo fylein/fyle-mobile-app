@@ -20,6 +20,7 @@ import { SignInPageState } from './sign-in-page-state.enum';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
 import { BackButtonService } from 'src/app/core/services/back-button.service';
+import { head } from 'lodash';
 
 @Component({
   selector: 'app-sign-in',
@@ -169,6 +170,8 @@ export class SignInPage implements OnInit {
       header = 'Sorry... Something went wrong!';
     } else if (error?.status === 433) {
       header = 'Temporary Lockout';
+    } else if (error?.status === 401) {
+      header = 'Account not found';
     }
 
     const errorPopover = await this.popoverController.create({
