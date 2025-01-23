@@ -128,7 +128,7 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
 
   generateMessage(): string {
     if (this.cardsList.successfulCards.length > 0) {
-      return 'We ran into an issue while processing your request. You can cancel and retry connecting the failed card or proceed to the next step.';
+      return 'Some cards were not enrolled. You can enroll them later from Settings.';
     } else if (this.cardsList.failedCards.length > 1) {
       const allButLast = this.cardsList.failedCards.slice(0, -1).join(', ');
       const lastCard = this.cardsList.failedCards[this.cardsList.failedCards.length - 1];
@@ -156,9 +156,8 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
 
     await errorPopover.present();
 
-    const { data } = (await errorPopover.onWillDismiss()) as OverlayResponse<{
-      action: string;
-    }>;
+    await errorPopover.onWillDismiss();
+
     if (this.cardsList.successfulCards.length > 0) {
       this.isStepComplete.emit(true);
     }
@@ -215,11 +214,6 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
   }
 
   ngOnInit(): void {
-    this.cardsList = {
-      successfulCards: ['***1111'],
-      failedCards: ['***1111', '****5555'],
-    };
-    this.showErrorPopover();
     this.fg = this.fb.group({});
     this.trackingService.eventTrack('Connect Cards Onboarding Step - Viewed');
     this.setupForm();
