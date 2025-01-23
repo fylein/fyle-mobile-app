@@ -159,7 +159,7 @@ export class SignInPage implements OnInit {
 
   async handleError(error: HttpErrorResponse): Promise<void> {
     let header = 'Incorrect email or password';
-
+    console.log(error);
     if (error?.status === 400) {
       this.router.navigate(['/', 'auth', 'pending_verification', { email: this.fg.controls.email.value as string }]);
       return;
