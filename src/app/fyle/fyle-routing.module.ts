@@ -2,11 +2,13 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { OptInGuard } from '../core/guards/opt-in.guard';
+import { OnboardingGuard } from '../core/guards/onboarding.guard';
 
 const routes: Routes = [
   {
     path: 'my_dashboard',
     loadChildren: () => import('./dashboard/dashboard.module').then((m) => m.DashboardPageModule),
+    canActivate: [OnboardingGuard],
   },
   {
     path: 'my_expenses',

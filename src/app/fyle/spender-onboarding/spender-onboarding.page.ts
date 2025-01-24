@@ -9,8 +9,6 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { Router } from '@angular/router';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
-import { OnboardingState } from 'src/app/core/models/onboarding-state.enum';
-import { OnboardingStatus } from 'src/app/core/models/onboarding-status.model';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 
 @Component({
@@ -49,19 +47,6 @@ export class SpenderOnboardingPage {
     private trackingService: TrackingService
   ) {}
 
-  navigateToDashboard(orgSettings: OrgSettings, onboardingStatus: OnboardingStatus): void {
-    const restrictedOrg = orgSettings.org_id === 'orgp5onHZThs';
-    const hasEnabledCards =
-      orgSettings.corporate_credit_card_settings.enabled &&
-      (orgSettings.visa_enrollment_settings.enabled ||
-        orgSettings.mastercard_enrollment_settings.enabled ||
-        orgSettings.amex_feed_enrollment_settings.enabled);
-    const shouldShowOnboarding = hasEnabledCards && onboardingStatus.state !== OnboardingState.COMPLETED;
-    if (!shouldShowOnboarding || restrictedOrg) {
-      this.router.navigate(['/', 'enterprise', 'my_dashboard']);
-    }
-  }
-
   ionViewWillEnter(): void {
     this.isLoading = true;
     from(this.loaderService.showLoader())
@@ -75,7 +60,6 @@ export class SpenderOnboardingPage {
           ])
         ),
         map(([eou, orgSettings, onboardingStatus, corporateCards]) => {
-          this.navigateToDashboard(orgSettings, onboardingStatus);
           this.eou = eou;
           this.userFullName = eou.us.full_name;
           this.orgSettings = orgSettings;
