@@ -395,11 +395,10 @@ export class SidemenuComponent implements OnInit {
 
   setupSideMenu(isConnected?: boolean, orgs?: Org[], isDelegatee?: boolean): void {
     if (isConnected) {
-      this.spenderOnboardingService.getOnboardingStatus().subscribe((onboardingStatus) => {
-        const isOnboardingPending = onboardingStatus.state !== OnboardingState.COMPLETED;
+      this.spenderOnboardingService.checkForRedirectionToOnboarding().subscribe((redirectionAllowed) => {
         this.filteredSidemenuList = [
-          ...this.getPrimarySidemenuOptions(isConnected, isOnboardingPending),
-          ...this.getSecondarySidemenuOptions(orgs, isDelegatee, isConnected, isOnboardingPending),
+          ...this.getPrimarySidemenuOptions(isConnected, redirectionAllowed),
+          ...this.getSecondarySidemenuOptions(orgs, isDelegatee, isConnected, redirectionAllowed),
         ];
       });
     } else {
