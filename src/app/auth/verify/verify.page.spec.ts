@@ -11,7 +11,7 @@ import { of } from 'rxjs';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { UserEventService } from 'src/app/core/services/user-event.service';
 
-fdescribe('VerifyPage', () => {
+describe('VerifyPage', () => {
   let component: VerifyPage;
   let fixture: ComponentFixture<VerifyPage>;
   let router: jasmine.SpyObj<Router>;
