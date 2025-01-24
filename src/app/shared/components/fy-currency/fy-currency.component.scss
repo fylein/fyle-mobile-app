@@ -38,7 +38,7 @@
 
   &--form {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     height: 70px;
   }
 
@@ -51,12 +51,12 @@
 
   &--currency-block {
     margin-right: 8px;
-    width: 30%;
+    width: 50%;
   }
 
   &--amount-block {
     margin-left: 8px;
-    width: 70%;
+    width: 50%;
   }
 
   &__auto-coded {
@@ -64,6 +64,7 @@
     align-items: center;
     height: 12px;
     font-size: 12px;
+    margin-top: 5px;
     color: $black-light;
   }
 

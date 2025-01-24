@@ -221,13 +221,13 @@ describe('SidemenuComponent', () => {
     expect(teamOpt.length).toBe(2);
     expect(teamOpt).toEqual([
       {
-        title: 'Team Reports',
+        title: 'Team expense reports',
         isVisible:
           component.allowedActions.allowedReportsActions && component.allowedActions.allowedReportsActions.approve,
         route: ['/', 'enterprise', 'team_reports'],
       },
       {
-        title: 'Team Advances',
+        title: 'Team advances',
         isVisible:
           component.allowedActions.allowedAdvancesActions && component.allowedActions.allowedAdvancesActions.approve,
         route: ['/', 'enterprise', 'team_advance'],
@@ -289,7 +289,7 @@ describe('SidemenuComponent', () => {
       const cardOptSpy = spyOn(component, 'getCardOptions').and.returnValue([]);
       const teamOptSpy = spyOn(component, 'getTeamOptions').and.returnValue([
         {
-          title: 'Team Reports',
+          title: 'Team expense reports',
           isVisible: true,
           route: ['/', 'enterprise', 'team_reports'],
         },
@@ -318,20 +318,20 @@ describe('SidemenuComponent', () => {
           route: ['/', 'enterprise', 'my_dashboard'],
         },
         {
-          title: 'Expenses',
+          title: 'My expenses',
           isVisible: true,
           icon: 'list',
           route: ['/', 'enterprise', 'my_expenses'],
         },
         {
-          title: 'Reports',
+          title: 'My expense reports',
           isVisible: true,
           icon: 'folder',
           route: ['/', 'enterprise', 'my_reports'],
           disabled: false,
         },
         {
-          title: 'Advances',
+          title: 'My advances',
           isVisible: component.orgSettings.advance_requests.enabled,
           icon: 'wallet',
           route: ['/', 'enterprise', 'my_advances'],
@@ -345,12 +345,12 @@ describe('SidemenuComponent', () => {
           disabled: false,
           dropdownOptions: [
             {
-              title: 'Team Reports',
+              title: 'Team expense reports',
               isVisible: true,
               route: ['/', 'enterprise', 'team_reports'],
             },
             {
-              title: 'Team Advances',
+              title: 'Team advances',
               isVisible: true,
               route: ['/', 'enterprise', 'team_advance'],
             },
@@ -385,7 +385,7 @@ describe('SidemenuComponent', () => {
     });
 
     it('should not show the Delegated Accounts option when there is no delegatee', () => {
-      const resData = getSecondarySidemenuOptionsRes1.filter((option) => option.title !== 'Delegated Accounts');
+      const resData = getSecondarySidemenuOptionsRes1.filter((option) => option.title !== 'Delegated accounts');
       const result = component.getSecondarySidemenuOptions(orgData1, false, true);
       fixture.detectChanges();
       expect(result.length).toBe(3);
@@ -402,14 +402,14 @@ describe('SidemenuComponent', () => {
       component.isSwitchedToDelegator = false;
       const resData = [
         {
-          title: 'Delegated Accounts',
+          title: 'Delegated accounts',
           isVisible: true,
           icon: 'user-two',
           route: ['/', 'enterprise', 'delegated_accounts'],
           disabled: false,
         },
         {
-          title: 'Switch Organization',
+          title: 'Switch organization',
           isVisible: orgData2.length > 1 && !component.isSwitchedToDelegator,
           icon: 'swap',
           route: ['/', 'auth', 'switch_org', { choose: true, navigate_back: true }],

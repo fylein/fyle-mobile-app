@@ -40,7 +40,9 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
 
   @Input() autoCodedData: ParsedResponse;
 
-  autoCodeMessage = '';
+  currencyAutoCodeMessage = '';
+
+  amountAutoCodeMessage = '';
 
   exchangeRate = 1;
 
@@ -183,15 +185,8 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
     const isCurrencyAutoCoded = currency && currency === formCurrency;
     const isAmountAutoCoded = amount && amount === formAmount;
 
-    if (isCurrencyAutoCoded && isAmountAutoCoded) {
-      this.autoCodeMessage = 'Currency and Amount are auto coded.';
-    } else if (isCurrencyAutoCoded) {
-      this.autoCodeMessage = 'Currency is auto coded.';
-    } else if (isAmountAutoCoded) {
-      this.autoCodeMessage = 'Amount is auto coded.';
-    } else {
-      this.autoCodeMessage = '';
-    }
+    this.currencyAutoCodeMessage = isCurrencyAutoCoded ? 'Currency is auto coded.' : '';
+    this.amountAutoCodeMessage = isAmountAutoCoded ? 'Amount is auto coded.' : '';
   }
 
   convertInnerValueToFormValue(innerVal: CurrencyObj): CurrencyAmountFormValues {

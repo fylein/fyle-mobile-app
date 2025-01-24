@@ -192,8 +192,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       switchMap((params) => {
         const queryParams: Partial<PlatformPersonalCardQueryParams> = this.apiV2Service.extendQueryParamsForTextSearch(
           params.queryParams,
-          params.searchString,
-          true
+          params.searchString
         );
         return this.personalCardsService.getBankTransactionsCount(queryParams);
       }),
@@ -230,7 +229,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
         } else {
           queryParams = params.queryParams as Record<string, string>;
         }
-        queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams as {}, params.searchString, true);
+        queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams as {}, params.searchString);
         return this.personalCardsService.getBankTransactionsCount(queryParams).pipe(
           switchMap((count) => {
             if (count > (params.pageNumber - 1) * 10) {

@@ -198,12 +198,12 @@ export class SidemenuComponent implements OnInit {
     const { allowedReportsActions, allowedAdvancesActions } = this.allowedActions;
     const teamOptions = [
       {
-        title: 'Team Reports',
+        title: 'Team expense reports',
         isVisible: allowedReportsActions && allowedReportsActions.approve && showTeamReportsPage,
         route: ['/', 'enterprise', 'team_reports'],
       },
       {
-        title: 'Team Advances',
+        title: 'Team advances',
         isVisible: allowedAdvancesActions && allowedAdvancesActions.approve,
         route: ['/', 'enterprise', 'team_advance'],
       },
@@ -223,7 +223,7 @@ export class SidemenuComponent implements OnInit {
         route: ['/', 'enterprise', 'my_dashboard'],
       },
       {
-        title: 'Expenses',
+        title: 'My expenses',
         isVisible: true,
         icon: 'list',
         route: ['/', 'enterprise', 'my_expenses'],
@@ -237,14 +237,14 @@ export class SidemenuComponent implements OnInit {
         dropdownOptions: cardOptions,
       },
       {
-        title: 'Reports',
+        title: 'My expense reports',
         isVisible: true,
         icon: 'folder',
         route: ['/', 'enterprise', 'my_reports'],
         disabled: !isConnected,
       },
       {
-        title: 'Advances',
+        title: 'My advances',
         isVisible: this.orgSettings.advances.enabled || this.orgSettings.advance_requests.enabled,
         icon: 'wallet',
         route: ['/', 'enterprise', 'my_advances'],
@@ -302,7 +302,7 @@ export class SidemenuComponent implements OnInit {
         route: ['/', 'enterprise', 'my_dashboard'],
       },
       {
-        title: 'Expenses',
+        title: 'My expenses',
         isVisible: true,
         icon: 'list',
         route: ['/', 'enterprise', 'my_expenses'],
@@ -319,7 +319,7 @@ export class SidemenuComponent implements OnInit {
   getSecondarySidemenuOptions(orgs: Org[], isDelegatee: boolean, isConnected: boolean): Partial<SidemenuItem>[] {
     return [
       {
-        title: 'Delegated Accounts',
+        title: 'Delegated accounts',
         isVisible: isDelegatee && !this.isSwitchedToDelegator,
         icon: 'user-two',
         route: ['/', 'enterprise', 'delegated_accounts'],
@@ -333,7 +333,7 @@ export class SidemenuComponent implements OnInit {
         disabled: !isConnected,
       },
       {
-        title: 'Switch Organization',
+        title: 'Switch organization',
         isVisible: orgs.length > 1 && !this.isSwitchedToDelegator,
         icon: 'swap',
         route: ['/', 'auth', 'switch_org', { choose: true, navigate_back: true }],

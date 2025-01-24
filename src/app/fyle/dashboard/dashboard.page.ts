@@ -340,10 +340,10 @@ export class DashboardPage {
     const isPerDiemEnabled = orgSettings.per_diem.enabled && allowedExpenseTypes.perDiem;
     that.actionSheetButtons = [
       {
-        text: 'Capture Receipt',
+        text: 'Capture receipt',
         icon: 'assets/svg/camera.svg',
         cssClass: 'capture-receipt',
-        handler: this.actionSheetButtonsHandler('Capture Receipt', 'camera_overlay'),
+        handler: this.actionSheetButtonsHandler('Capture receipt', 'camera_overlay'),
       },
       {
         text: 'Add Manually',
