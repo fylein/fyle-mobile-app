@@ -26,7 +26,7 @@ export class VerifyPage implements OnInit {
     this.routerAuthService
       .emailVerify(verificationCode)
       .pipe(
-        switchMap((resp) => this.authService.newRefreshToken(resp.refresh_token)),
+        switchMap((resp) => this.authService.refreshEou()),
         tap((eou) => {
           this.trackingService.emailVerified();
           this.trackingService.onSignin(eou.us.email);
