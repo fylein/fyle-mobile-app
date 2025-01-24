@@ -84,7 +84,6 @@ export class SpenderOnboardingPage {
             } else {
               this.currentStep = OnboardingStep.CONNECT_CARD;
             }
-            this.currentStep = OnboardingStep.CONNECT_CARD;
           }
         }),
         finalize(() => {
@@ -119,7 +118,6 @@ export class SpenderOnboardingPage {
           map(() => {
             this.trackingService.eventTrack('Sms Opt In Onboarding Step - Skipped');
             this.spenderOnboardingService.setOnboardingStatusEvent();
-            this.onboardingComplete = true;
             this.router.navigate(['/', 'enterprise', 'my_dashboard']);
           })
         )

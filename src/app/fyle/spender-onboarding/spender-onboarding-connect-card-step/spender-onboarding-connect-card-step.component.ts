@@ -145,9 +145,16 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
         message: this.generateMessage(),
         leftAlign: true,
         primaryCta: {
-          text: 'Continue',
+          text: this.cardsList.successfulCards.length > 0 ? 'Continue' : 'Proceed anyway',
           action: 'close',
         },
+        secondaryCta:
+          this.cardsList.successfulCards.length > 0
+            ? null
+            : {
+                text: 'Cancel',
+                action: 'cancel',
+              },
         cardsList: this.cardsList.successfulCards.length > 0 ? this.cardsList : {},
       },
       component: PopupAlertComponent,
@@ -156,10 +163,15 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
 
     await errorPopover.present();
 
-    await errorPopover.onWillDismiss();
+    const { data } = (await errorPopover.onWillDismiss()) as OverlayResponse<{
+      action: string;
+    }>;
 
-    if (this.cardsList.successfulCards.length > 0) {
+    if (!data && this.cardsList.successfulCards.length > 0) {
       this.isStepComplete.emit(true);
+    }
+    if (data.action === 'close') {
+      this.isStepSkipped.emit(true);
     }
   }
 
