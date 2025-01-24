@@ -37,8 +37,6 @@ import { ReportPermissions } from 'src/app/core/models/report-permissions.model'
 import { ExtendedComment } from 'src/app/core/models/platform/v1/extended-comment.model';
 import { Comment } from 'src/app/core/models/platform/v1/comment.model';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
-import * as Sentry from '@sentry/angular';
-import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-my-view-report',
@@ -456,42 +454,14 @@ export class MyViewReportPage {
     this.spenderReportsService
       .submit(this.reportId)
       .pipe(finalize(() => (this.submitReportLoader = false)))
-      .subscribe({
-        next: () => {
-          this.router.navigate(['/', 'enterprise', 'my_reports']);
-          const message = `Report submitted successfully.`;
-          this.matSnackBar.openFromComponent(ToastMessageComponent, {
-            ...this.snackbarProperties.setSnackbarProperties('success', { message }),
-            panelClass: ['msb-success-with-camera-icon'],
-          });
-          this.trackingService.showToastMessage({ ToastContent: message });
-        },
-        error: (error: HttpErrorResponse) => {
-          const errorMessage = `Report Submit Error ${error.status}: ${
-            error?.message || error.statusText || 'Unknown Error'
-          }`;
-          const errorObj = new Error(errorMessage);
-
-          Object.assign(errorObj, {
-            status: error.status,
-            url: error.url,
-            responseData: error.message,
-            name: `ReportSubmitError_${this.reportId}`,
-          });
-
-          Sentry.captureException(errorObj, {
-            tags: {
-              errorType: 'REPORT_SUBMIT_ERROR',
-              reportId: this.reportId,
-            },
-            extra: {
-              reportId: this.reportId,
-              responseStatus: error.status,
-              responseData: error.error,
-              page: 'submit_report',
-            },
-          });
-        },
+      .subscribe(() => {
+        this.router.navigate(['/', 'enterprise', 'my_reports']);
+        const message = `Report submitted successfully.`;
+        this.matSnackBar.openFromComponent(ToastMessageComponent, {
+          ...this.snackbarProperties.setSnackbarProperties('success', { message }),
+          panelClass: ['msb-success-with-camera-icon'],
+        });
+        this.trackingService.showToastMessage({ ToastContent: message });
       });
   }
 

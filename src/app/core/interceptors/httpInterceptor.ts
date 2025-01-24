@@ -154,7 +154,7 @@ export class HttpConfigInterceptor implements HttpInterceptor {
         return next.handle(request).pipe(
           catchError((error) => {
             if (error instanceof HttpErrorResponse) {
-              this.handleSentryError(error, request);
+              this.trackErrorInSentry(error, request);
               if (this.expiringSoon(token)) {
                 return from(this.refreshAccessToken()).pipe(
                   mergeMap((newToken) => {
@@ -180,7 +180,7 @@ export class HttpConfigInterceptor implements HttpInterceptor {
     );
   }
 
-  private handleSentryError(error: HttpErrorResponse, request: HttpRequest<string>): void {
+  private trackErrorInSentry(error: HttpErrorResponse, request: HttpRequest<string>): void {
     if (error.status >= 500) {
       const errorObject = new Error(`API ${error.status} Error: ${error.message || 'Server error'}`);
 
