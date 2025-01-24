@@ -103,7 +103,7 @@ export class MyProfilePage {
 
   isUserFromINCluster$: Observable<boolean>;
 
-  onboardingPending$: Observable<{ is_pending: boolean }>;
+  onboardingPending$: Observable<{ hide_other_options: boolean }>;
 
   constructor(
     private authService: AuthService,
@@ -190,9 +190,9 @@ export class MyProfilePage {
     this.setupNetworkWatcher();
     this.eou$ = from(this.authService.getEou());
     this.isUserFromINCluster$ = from(this.utilityService.isUserFromINCluster());
-    this.onboardingPending$ = this.spenderOnboardingService.getOnboardingStatus().pipe(
-      map((onboardingStatus) => ({
-        is_pending: onboardingStatus.state !== OnboardingState.COMPLETED,
+    this.onboardingPending$ = this.spenderOnboardingService.checkForRedirectionToOnboarding().pipe(
+      map((redirectionAllowed) => ({
+        hide_other_options: redirectionAllowed,
       }))
     );
     this.reset();
