@@ -93,7 +93,7 @@ describe('ApiV2Service', () => {
       const expectedQueryParams = {
         param1: 'value1',
         param2: 'value2',
-        _search_document: 'fts.' + expectedSearchQuery,
+        q: expectedSearchQuery,
       };
       const result = apiV2Service.extendQueryParamsForTextSearch(queryParams, simpleSearchText);
       expect(result).toEqual(expectedQueryParams);

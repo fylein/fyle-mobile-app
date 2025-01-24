@@ -2651,6 +2651,10 @@ export class AddEditMileagePage implements OnInit {
 
             // NOTE: This double call is done as certain fields will not be present in return of upsert call. policy_amount in this case.
             return this.transactionService.upsert(etxn.tx as Transaction).pipe(
+              catchError((error: Error) => {
+                this.trackingService.editMileageError({ label: error });
+                return throwError(() => error);
+              }),
               switchMap((txn) => this.expensesService.getExpenseById(txn.id)),
               map((expense) => this.transactionService.transformExpense(expense).tx),
               switchMap((tx) => {
