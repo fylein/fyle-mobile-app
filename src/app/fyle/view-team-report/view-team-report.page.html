@@ -316,6 +316,10 @@
         [ngClass]="{
           'view-reports--primary-cta__disabled': !canApprove
         }"
+        [disabled]="approveReportLoader"
+        appFormButtonValidation
+        [loadingText]="'Approving'"
+        [loading]="approveReportLoader"
       >
         Approve Report
       </ion-button>
