@@ -177,7 +177,6 @@ describe('SpenderOnboardingPage', () => {
       expect(spenderOnboardingService.skipSmsOptInStep).toHaveBeenCalledTimes(1);
       expect(spenderOnboardingService.markWelcomeModalStepAsComplete).toHaveBeenCalledTimes(1);
       expect(spenderOnboardingService.setOnboardingStatusEvent).toHaveBeenCalledTimes(1);
-      expect(component.onboardingComplete).toBeTrue();
       expect(component.onboardingInProgress).toBeFalse();
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard']);
     }));

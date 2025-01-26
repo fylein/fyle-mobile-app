@@ -14,7 +14,6 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
-import { OnboardingState } from 'src/app/core/models/onboarding-state.enum';
 
 @Component({
   selector: 'app-invited-user',

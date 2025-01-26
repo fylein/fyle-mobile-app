@@ -132,7 +132,7 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
     } else if (this.cardsList.failedCards.length > 1) {
       const allButLast = this.cardsList.failedCards.slice(0, -1).join(', ');
       const lastCard = this.cardsList.failedCards[this.cardsList.failedCards.length - 1];
-      return `We ran into an issue while processing your request for the cards  ${allButLast}} and ${lastCard}.<br><br>You can cancel and retry connecting the failed card or proceed to the next step.`;
+      return `We ran into an issue while processing your request for the cards  ${allButLast} and ${lastCard}.<br><br>You can cancel and retry connecting the failed card or proceed to the next step.`;
     } else {
       return `We ran into an issue while processing your request for the card ${this.cardsList.failedCards[0]}.<br><br> You can cancel and retry connecting the failed card or proceed to the next step.`;
     }

@@ -113,13 +113,10 @@ export const enrollmentErrorPopoverData2 = {
     title: 'Status summary',
     message: 'Error message',
     primaryCta: {
-      text: 'Proceed anyway',
+      text: 'Continue',
       action: 'close',
     },
-    secondaryCta: {
-      text: 'Cancel',
-      action: 'cancel',
-    },
+    secondaryCta: null,
     cardsList: {
       successfulCards: ['**** 1111'],
       failedCards: ['**** 1111'],

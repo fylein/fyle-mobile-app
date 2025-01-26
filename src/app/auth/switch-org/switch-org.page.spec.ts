@@ -118,7 +118,9 @@ describe('SwitchOrgPage', () => {
     const deepLinkServiceSpy = jasmine.createSpyObj('DeepLinkService', ['getExpenseRoute']);
     const ldSpy = jasmine.createSpyObj('LaunchDarklyService', ['initializeUser']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
-    const spenderOnboardingServiceSpy = jasmine.createSpyObj('SpenderOnboardingService', ['getOnboardingStatus']);
+    const spenderOnboardingServiceSpy = jasmine.createSpyObj('SpenderOnboardingService', [
+      'checkForRedirectionToOnboarding',
+    ]);
 
     TestBed.configureTestingModule({
       declarations: [SwitchOrgPage, ActiveOrgCardComponent, OrgCardComponent, FyZeroStateComponent],
@@ -280,9 +282,7 @@ describe('SwitchOrgPage', () => {
     component.searchOrgsInput = fixture.debugElement.query(By.css('.smartlook-show'));
     component.contentRef = fixture.debugElement.query(By.css('.switch-org__content-container__content-block'));
     fixture.detectChanges();
-    spenderOnboardingService.getOnboardingStatus.and.returnValue(
-      of({ ...onboardingStatusData, state: OnboardingState.COMPLETED })
-    );
+    spenderOnboardingService.checkForRedirectionToOnboarding.and.returnValue(of(false));
     orgSettingsService.get.and.returnValue(of(orgSettingsData));
   }));
 
@@ -572,9 +572,7 @@ describe('SwitchOrgPage', () => {
   });
 
   it('navigateToDashboard(): should navigate to spender onboarding when onboarding status is not complete', fakeAsync(() => {
-    spenderOnboardingService.getOnboardingStatus.and.returnValue(
-      of({ ...onboardingStatusData, state: OnboardingState.YET_TO_START })
-    );
+    spenderOnboardingService.checkForRedirectionToOnboarding.and.returnValue(of(true));
     orgSettingsService.get.and.returnValue(of(orgSettingsData));
     component.navigateToDashboard();
     tick();
@@ -687,9 +685,7 @@ describe('SwitchOrgPage', () => {
         eou: apiEouRes,
       };
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
-      spenderOnboardingService.getOnboardingStatus.and.returnValue(
-        of({ ...onboardingStatusData, state: OnboardingState.COMPLETED })
-      );
+      spenderOnboardingService.checkForRedirectionToOnboarding.and.returnValue(of(false));
       tick();
       component.navigateBasedOnUserStatus(config).subscribe((res) => {
         expect(res).toBeNull();
@@ -699,8 +695,7 @@ describe('SwitchOrgPage', () => {
           'my_dashboard',
           { openSMSOptInDialog: undefined },
         ]);
-        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-        expect(spenderOnboardingService.getOnboardingStatus).toHaveBeenCalledTimes(1);
+        expect(spenderOnboardingService.checkForRedirectionToOnboarding).toHaveBeenCalledTimes(1);
       });
     }));
 
@@ -711,7 +706,7 @@ describe('SwitchOrgPage', () => {
         eou: apiEouRes,
       };
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
-      spenderOnboardingService.getOnboardingStatus.and.returnValue(of(onboardingStatusData));
+      spenderOnboardingService.checkForRedirectionToOnboarding.and.returnValue(of(true));
       component.navigateBasedOnUserStatus(config).subscribe((res) => {
         expect(res).toBeNull();
         expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'spender_onboarding']);
@@ -731,20 +726,25 @@ describe('SwitchOrgPage', () => {
         expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'disabled']);
         done();
       });
+    });
 
-      it('should navigate to dashboard when no enrollment settings are enabled', (done) => {
-        const config = {
-          isPendingDetails: false,
-          roles,
-          eou: apiEouRes,
-        };
-        orgSettingsService.get.and.returnValue(of(orgSettingsCardsDisabled));
-        spenderOnboardingService.getOnboardingStatus.and.returnValue(of(onboardingStatusData));
-        component.navigateBasedOnUserStatus(config).subscribe((res) => {
-          expect(res).toBeNull();
-          expect(router.navigate).toHaveBeenCalledWith(['/', 'enterprise', 'my_dashboard']);
-          done();
-        });
+    it('should navigate to dashboard when no enrollment settings are enabled', (done) => {
+      const config = {
+        isPendingDetails: false,
+        roles,
+        eou: apiEouRes,
+      };
+      orgSettingsService.get.and.returnValue(of(orgSettingsCardsDisabled));
+      spenderOnboardingService.checkForRedirectionToOnboarding.and.returnValue(of(false));
+      component.navigateBasedOnUserStatus(config).subscribe((res) => {
+        expect(res).toBeNull();
+        expect(router.navigate).toHaveBeenCalledWith([
+          '/',
+          'enterprise',
+          'my_dashboard',
+          { openSMSOptInDialog: undefined },
+        ]);
+        done();
       });
     });
 
