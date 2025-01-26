@@ -453,7 +453,7 @@ describe('DashboardPage', () => {
 
   describe('actionSheetButtonsHandler():', () => {
     it('should call trackingService and navigate to add_edit_per_diem if action is add per diem', () => {
-      const handler = component.actionSheetButtonsHandler('Add Per Diem', 'add_edit_per_diem');
+      const handler = component.actionSheetButtonsHandler('Add per diem', 'add_edit_per_diem');
       handler();
       expect(trackingService.dashboardActionSheetButtonClicked).toHaveBeenCalledOnceWith({
         Action: 'Add Per Diem',
@@ -469,10 +469,10 @@ describe('DashboardPage', () => {
     });
 
     it('should call trackingService and navigate to add_edit_mileage if action is add mileage', () => {
-      const handler = component.actionSheetButtonsHandler('Add Mileage', 'add_edit_mileage');
+      const handler = component.actionSheetButtonsHandler('Add mileage', 'add_edit_mileage');
       handler();
       expect(trackingService.dashboardActionSheetButtonClicked).toHaveBeenCalledOnceWith({
-        Action: 'Add Mileage',
+        Action: 'Add mileage',
       });
       expect(router.navigate).toHaveBeenCalledOnceWith([
         '/',

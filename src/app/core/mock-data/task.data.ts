@@ -95,7 +95,7 @@ export const unreportedExpenseTaskSample = deepFreeze({
   icon: TaskIcon.REPORT,
   ctas: [
     {
-      content: 'Add to Report',
+      content: 'Add to report',
       event: TASKEVENT.expensesAddToReport,
     },
   ],
@@ -109,7 +109,7 @@ export const unreportedExpenseTaskSample2 = deepFreeze({
   icon: TaskIcon.REPORT,
   ctas: [
     {
-      content: 'Add to Report',
+      content: 'Add to report',
       event: TASKEVENT.expensesAddToReport,
     },
   ],
