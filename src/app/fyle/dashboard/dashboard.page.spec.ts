@@ -456,7 +456,7 @@ describe('DashboardPage', () => {
       const handler = component.actionSheetButtonsHandler('Add per diem', 'add_edit_per_diem');
       handler();
       expect(trackingService.dashboardActionSheetButtonClicked).toHaveBeenCalledOnceWith({
-        Action: 'Add Per Diem',
+        Action: 'Add per diem',
       });
       expect(router.navigate).toHaveBeenCalledOnceWith([
         '/',

@@ -1463,7 +1463,7 @@ describe('MyExpensesPage', () => {
       const handler = component.actionSheetButtonsHandler('Add per diem', 'add_edit_per_diem');
       handler();
       expect(trackingService.myExpensesActionSheetAction).toHaveBeenCalledOnceWith({
-        Action: 'Add Per Diem',
+        Action: 'Add per diem',
       });
       expect(router.navigate).toHaveBeenCalledOnceWith([
         '/',
