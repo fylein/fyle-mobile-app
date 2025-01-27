@@ -22,7 +22,6 @@ import { MenuController } from '@ionic/angular';
 import { SidemenuAllowedActions } from 'src/app/core/models/sidemenu-allowed-actions.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
-import { OnboardingState } from 'src/app/core/models/onboarding-state.enum';
 
 @Component({
   selector: 'app-sidemenu',
