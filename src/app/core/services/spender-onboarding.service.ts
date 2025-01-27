@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, forkJoin, from, map, Observable } from 'rxjs';
+import { BehaviorSubject, forkJoin, from, map, Observable, Subject } from 'rxjs';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { OnboardingWelcomeStepStatus } from '../models/onboarding-welcome-step-status.model';
@@ -9,7 +9,9 @@ import { UtilityService } from './utility.service';
 import { AuthService } from './auth.service';
 import { OrgSettingsService } from './org-settings.service';
 import { OrgSettings } from '../models/org-settings.model';
+import { Cacheable, CacheBuster } from 'ts-cacheable';
 
+const spenderOnboardingCacheBuster$ = new Subject<void>();
 @Injectable({
   providedIn: 'root',
 })
@@ -22,6 +24,37 @@ export class SpenderOnboardingService {
     private authService: AuthService,
     private orgSettingsService: OrgSettingsService
   ) {}
+
+  @Cacheable({
+    cacheBusterObserver: spenderOnboardingCacheBuster$,
+  })
+  checkForRedirectionToOnboarding(): Observable<boolean> {
+    return forkJoin([
+      this.orgSettingsService.get(),
+      this.getOnboardingStatus(),
+      from(this.utilityService.isUserFromINCluster()),
+      this.authService.getEou(),
+    ]).pipe(
+      map(([orgSettings, onboardingStatus, isUserFromINCluster, eou]) => {
+        const isCCCEnabled = this.checkCCCEnabled(orgSettings);
+        const isCardFeedEnabled = this.checkCardFeedEnabled(orgSettings);
+        const restrictedOrgs = this.isRestrictedOrg(orgSettings, isUserFromINCluster);
+        return this.shouldProceedToOnboarding(
+          eou.org.currency,
+          restrictedOrgs,
+          isCCCEnabled && isCardFeedEnabled,
+          onboardingStatus
+        );
+      })
+    );
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: spenderOnboardingCacheBuster$,
+  })
+  setOnboardingStatusAsComplete(): Observable<boolean> {
+    return this.onboardingComplete$.asObservable();
+  }
 
   getOnboardingStatus(): Observable<OnboardingStatus> {
     return this.spenderPlatformV1ApiService
@@ -90,33 +123,8 @@ export class SpenderOnboardingService {
     return this.processSmsOptInStep(data);
   }
 
-  setOnboardingStatusAsComplete(): Observable<boolean> {
-    return this.onboardingComplete$.asObservable();
-  }
-
   setOnboardingStatusEvent(): void {
     this.onboardingComplete$.next(true);
-  }
-
-  checkForRedirectionToOnboarding(): Observable<boolean> {
-    return forkJoin([
-      this.orgSettingsService.get(),
-      this.getOnboardingStatus(),
-      from(this.utilityService.isUserFromINCluster()),
-      this.authService.getEou(),
-    ]).pipe(
-      map(([orgSettings, onboardingStatus, isUserFromINCluster, eou]) => {
-        const isCCCEnabled = this.checkCCCEnabled(orgSettings);
-        const isCardFeedEnabled = this.checkCardFeedEnabled(orgSettings);
-        const restrictedOrgs = this.isRestrictedOrg(orgSettings, isUserFromINCluster);
-        return this.shouldProceedToOnboarding(
-          eou.org.currency,
-          restrictedOrgs,
-          isCCCEnabled && isCardFeedEnabled,
-          onboardingStatus
-        );
-      })
-    );
   }
 
   private checkCCCEnabled(orgSettings: OrgSettings): boolean {
