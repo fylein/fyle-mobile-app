@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing';
+import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { SpenderOnboardingService } from './spender-onboarding.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { OnboardingStepStatus } from '../models/onboarding-step-status.model';
@@ -186,7 +186,7 @@ describe('SpenderOnboardingService', () => {
       });
     });
 
-    it('should return false when conditions are not met', (done) => {
+    it('should return false when conditions are not met', fakeAsync(() => {
       const orgSettings = {
         ...orgSettingsCCCDisabled3,
         org_id: 'orgp5onHZThs',
@@ -197,11 +197,11 @@ describe('SpenderOnboardingService', () => {
       utilityService.isUserFromINCluster.and.resolveTo(true);
       authService.getEou.and.returnValue(new Promise((resolve) => resolve(extendedOrgUserResponse)));
 
+      tick();
       spenderOnboardingService.checkForRedirectionToOnboarding().subscribe((result) => {
         expect(result).toBeFalse();
-        done();
       });
-    });
+    }));
   });
 
   describe('checkCCCEnabled(): ', () => {
