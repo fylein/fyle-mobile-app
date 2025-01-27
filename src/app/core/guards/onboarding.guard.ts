@@ -11,8 +11,8 @@ export class OnboardingGuard implements CanActivate {
   constructor(private spenderOnboardingService: SpenderOnboardingService, private router: Router) {}
 
   canActivate(
-    next: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot
+    _: ActivatedRouteSnapshot,
+    _: RouterStateSnapshot
   ): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
     return this.spenderOnboardingService.checkForRedirectionToOnboarding().pipe(
       map((shouldRedirectToOnboarding) => {
@@ -21,6 +21,10 @@ export class OnboardingGuard implements CanActivate {
           return false;
         }
         return true;
+      }),
+      catchError((error) => {
+        this.router.navigate(['/', 'enterprise', 'my_dashboard']);
+        return of(false);
       })
     );
   }
