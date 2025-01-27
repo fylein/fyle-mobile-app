@@ -1,5 +1,5 @@
 import { Component, EventEmitter, OnInit } from '@angular/core';
-import { Observable, noop, concat, from, forkJoin } from 'rxjs';
+import { Observable, noop, concat, from } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { switchMap, finalize, tap, map } from 'rxjs/operators';
