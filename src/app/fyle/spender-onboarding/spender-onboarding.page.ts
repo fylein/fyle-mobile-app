@@ -118,7 +118,6 @@ export class SpenderOnboardingPage {
           map(() => {
             this.trackingService.eventTrack('Sms Opt In Onboarding Step - Skipped');
             this.spenderOnboardingService.setOnboardingStatusEvent();
-            this.onboardingComplete = true;
             this.router.navigate(['/', 'enterprise', 'my_dashboard']);
           })
         )

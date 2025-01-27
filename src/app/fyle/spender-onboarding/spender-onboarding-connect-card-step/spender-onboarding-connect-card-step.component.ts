@@ -128,7 +128,7 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
 
   generateMessage(): string {
     if (this.cardsList.successfulCards.length > 0) {
-      return 'We ran into an issue while processing your request. You can cancel and retry connecting the failed card or proceed to the next step.';
+      return 'Some cards were not enrolled. You can enroll them later from Settings.';
     } else if (this.cardsList.failedCards.length > 1) {
       const allButLast = this.cardsList.failedCards.slice(0, -1).join(', ');
       const lastCard = this.cardsList.failedCards[this.cardsList.failedCards.length - 1];
@@ -145,13 +145,16 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
         message: this.generateMessage(),
         leftAlign: true,
         primaryCta: {
-          text: 'Proceed anyway',
+          text: this.cardsList.successfulCards.length > 0 ? 'Continue' : 'Proceed anyway',
           action: 'close',
         },
-        secondaryCta: {
-          text: 'Cancel',
-          action: 'cancel',
-        },
+        secondaryCta:
+          this.cardsList.successfulCards.length > 0
+            ? null
+            : {
+                text: 'Cancel',
+                action: 'cancel',
+              },
         cardsList: this.cardsList.successfulCards.length > 0 ? this.cardsList : {},
       },
       component: PopupAlertComponent,
@@ -164,6 +167,9 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
       action: string;
     }>;
 
+    if (!data && this.cardsList.successfulCards.length > 0) {
+      this.isStepComplete.emit(true);
+    }
     if (data.action === 'close') {
       this.isStepSkipped.emit(true);
     }
