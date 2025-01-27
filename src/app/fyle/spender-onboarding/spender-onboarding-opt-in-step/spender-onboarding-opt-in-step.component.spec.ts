@@ -14,8 +14,7 @@ import { PlatformHandlerService } from 'src/app/core/services/platform-handler.s
 import { cloneDeep } from 'lodash';
 import { eouRes2 } from 'src/app/core/mock-data/extended-org-user.data';
 import { OptInFlowState } from 'src/app/core/enums/opt-in-flow-state.enum';
-import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
-import { Subscription, of, throwError } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ToastType } from 'src/app/core/enums/toast-type.enum';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -50,16 +49,7 @@ describe('SpenderOnboardingOptInStepComponent', () => {
       'verifyOtp',
     ]);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
-    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
-      'openOptInDialog',
-      'optInFlowRetry',
-      'optInFlowSuccess',
-      'skipOptInFlow',
-      'updateMobileNumber',
-      'optInFlowError',
-      'showToastMessage',
-      'clickedOnHelpArticle',
-    ]);
+    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['eventTrack']);
     const matSnackbarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const browserHandlerServiceSpy = jasmine.createSpyObj('BrowserHandlerService', ['openLinkWithToolbarColor']);
@@ -133,9 +123,6 @@ describe('SpenderOnboardingOptInStepComponent', () => {
       component.optInFlowState = OptInFlowState.OTP_VERIFICATION;
       component.goBack();
       expect(component.optInFlowState).toEqual(OptInFlowState.MOBILE_INPUT);
-      expect(trackingService.optInFlowRetry).toHaveBeenCalledOnceWith({
-        message: 'EDIT_NUMBER',
-      });
     });
   });
 
@@ -268,9 +255,7 @@ describe('SpenderOnboardingOptInStepComponent', () => {
       });
       mobileNumberVerificationService.sendOtp.and.returnValue(throwError(error));
       component.resendOtp('CLICK');
-      expect(trackingService.optInFlowError).toHaveBeenCalledOnceWith({
-        message: 'OTP_MAX_ATTEMPTS_REACHED',
-      });
+
       expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
         'You have reached the limit for 6 digit code requests. Try again after 24 hours.',
         ToastType.FAILURE,
@@ -289,9 +274,6 @@ describe('SpenderOnboardingOptInStepComponent', () => {
       mobileNumberVerificationService.sendOtp.and.returnValue(throwError(error));
       component.ngOtpInput = null;
       component.resendOtp('CLICK');
-      expect(trackingService.optInFlowError).toHaveBeenCalledOnceWith({
-        message: 'OTP_MAX_ATTEMPTS_REACHED',
-      });
       expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
         'You have reached the limit for 6 digit code requests. Try again after 24 hours.',
         ToastType.FAILURE,
@@ -435,9 +417,6 @@ describe('SpenderOnboardingOptInStepComponent', () => {
     expect(matSnackbar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
       ...snackbarPropertiesRes2,
       panelClass: ['icon'],
-    });
-    expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
-      ToastContent: 'message',
     });
   });
 

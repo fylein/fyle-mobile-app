@@ -182,6 +182,10 @@
       &__invalid {
         border-bottom: 1px solid $red;
       }
+
+      &__password-focus {
+        border-bottom: 1px solid $black;
+      }
     }
 
     &__password-container {

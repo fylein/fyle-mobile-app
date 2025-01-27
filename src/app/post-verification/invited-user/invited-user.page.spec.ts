@@ -60,7 +60,9 @@ describe('InvitedUserPage', () => {
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
-    const spenderOnboardingServiceSpy = jasmine.createSpyObj('SpenderOnboardingService', ['getOnboardingStatus']);
+    const spenderOnboardingServiceSpy = jasmine.createSpyObj('SpenderOnboardingService', [
+      'checkForRedirectionToOnboarding',
+    ]);
     TestBed.configureTestingModule({
       declarations: [InvitedUserPage],
       imports: [IonicModule.forRoot(), MatIconTestingModule, RouterTestingModule],
@@ -102,9 +104,7 @@ describe('InvitedUserPage', () => {
     component = fixture.componentInstance;
     component.isConnected$ = of(true);
     fixture.detectChanges();
-    spenderOnboardingService.getOnboardingStatus.and.returnValue(
-      of({ ...onboardingStatusData, state: OnboardingState.COMPLETED })
-    );
+    spenderOnboardingService.checkForRedirectionToOnboarding.and.returnValue(of(false));
     orgSettingsService.get.and.returnValue(of(orgSettingsData));
   }));
 
@@ -284,9 +284,7 @@ describe('InvitedUserPage', () => {
   });
 
   it('navigateToDashboard(): should navigate to spender onboarding when onboarding status is not complete', fakeAsync(() => {
-    spenderOnboardingService.getOnboardingStatus.and.returnValue(
-      of({ ...onboardingStatusData, state: OnboardingState.YET_TO_START })
-    );
+    spenderOnboardingService.checkForRedirectionToOnboarding.and.returnValue(of(true));
     orgSettingsService.get.and.returnValue(of(orgSettingsData));
     component.navigateToDashboard();
     tick();

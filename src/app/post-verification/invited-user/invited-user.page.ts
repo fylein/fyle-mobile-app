@@ -1,5 +1,5 @@
 import { Component, EventEmitter, OnInit } from '@angular/core';
-import { Observable, noop, concat, from, forkJoin } from 'rxjs';
+import { Observable, noop, concat, from } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { switchMap, finalize, tap, map } from 'rxjs/operators';
@@ -14,7 +14,6 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
-import { OnboardingState } from 'src/app/core/models/onboarding-state.enum';
 
 @Component({
   selector: 'app-invited-user',

@@ -35,8 +35,6 @@ import {
 } from 'src/app/core/mock-data/sidemenu.data';
 import { delegatorData } from 'src/app/core/mock-data/platform/v1/delegator.data';
 import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
-import { onboardingStatusData } from 'src/app/core/mock-data/onboarding-status.data';
-import { OnboardingState } from 'src/app/core/models/onboarding-state.enum';
 
 describe('SidemenuComponent', () => {
   let component: SidemenuComponent;
@@ -87,7 +85,9 @@ describe('SidemenuComponent', () => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     authServiceSpy.getEou.and.resolveTo(apiEouRes);
     const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
-    const spenderOnboardingServiceSpy = jasmine.createSpyObj('SpenderOnboardingService', ['getOnboardingStatus']);
+    const spenderOnboardingServiceSpy = jasmine.createSpyObj('SpenderOnboardingService', [
+      'checkForRedirectionToOnboarding',
+    ]);
 
     TestBed.configureTestingModule({
       declarations: [SidemenuComponent],
@@ -457,9 +457,7 @@ describe('SidemenuComponent', () => {
 
   describe('setupSideMenu(): ', () => {
     beforeEach(() => {
-      spenderOnboardingService.getOnboardingStatus.and.returnValue(
-        of({ ...onboardingStatusData, state: OnboardingState.COMPLETED })
-      );
+      spenderOnboardingService.checkForRedirectionToOnboarding.and.returnValue(of(false));
     });
 
     it('should setup the side menu', fakeAsync(() => {
@@ -531,9 +529,7 @@ describe('SidemenuComponent', () => {
       orgUserService.getCurrent.and.returnValue(of(currentEouRes));
 
       sidemenuService.getAllowedActions.and.returnValue(of(sidemenuAllowedActions));
-      spenderOnboardingService.getOnboardingStatus.and.returnValue(
-        of({ ...onboardingStatusData, state: OnboardingState.COMPLETED })
-      );
+      spenderOnboardingService.checkForRedirectionToOnboarding.and.returnValue(of(false));
 
       component.showSideMenuOnline();
       tick(500);

@@ -109,14 +109,12 @@ export class SpenderOnboardingService {
         const isCCCEnabled = this.checkCCCEnabled(orgSettings);
         const isCardFeedEnabled = this.checkCardFeedEnabled(orgSettings);
         const restrictedOrgs = this.isRestrictedOrg(orgSettings, isUserFromINCluster);
-        const shouldProceedToOnboarding = this.shouldProceedToOnboarding(
+        return this.shouldProceedToOnboarding(
           eou.org.currency,
           restrictedOrgs,
           isCCCEnabled && isCardFeedEnabled,
           onboardingStatus
         );
-
-        return shouldProceedToOnboarding;
       })
     );
   }

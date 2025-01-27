@@ -229,9 +229,7 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
       const error = err.error as { message: string };
       const errorMessage = error.message?.toLowerCase() || '';
       if (errorMessage.includes('out of attempts') || errorMessage.includes('max send attempts reached')) {
-        this.trackingService.optInFlowError({
-          message: 'OTP_MAX_ATTEMPTS_REACHED',
-        });
+        this.trackingService.eventTrack('Sms Opt In Onboarding Step - Max Otp Attempts Reached');
         this.toastWithoutCTA(
           'You have reached the limit for 6 digit code requests. Try again after 24 hours.',
           ToastType.FAILURE,
@@ -310,7 +308,6 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
       ...this.snackbarProperties.setSnackbarProperties(toastType, { message }),
       panelClass: [panelClass],
     });
-    this.trackingService.showToastMessage({ ToastContent: message });
   }
 
   startTimer(): void {

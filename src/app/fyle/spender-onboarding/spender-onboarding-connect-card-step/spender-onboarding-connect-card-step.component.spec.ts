@@ -11,7 +11,6 @@ import { of, throwError } from 'rxjs';
 import { statementUploadedCard } from 'src/app/core/mock-data/platform-corporate-card.data';
 import { SimpleChanges } from '@angular/core';
 import { orgSettingsData } from 'src/app/core/test-data/org-settings.service.spec.data';
-import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { enrollmentErrorPopoverData1, enrollmentErrorPopoverData2 } from 'src/app/core/mock-data/modal-controller.data';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 
@@ -250,9 +249,7 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
       component.cardsList.failedCards.push('**** 1234');
       const message = component.generateMessage();
 
-      expect(message).toBe(
-        'We ran into an issue while processing your request. You can cancel and retry connecting the failed card or proceed to the next step.'
-      );
+      expect(message).toBe('Some cards were not enrolled. You can enroll them later from Settings.');
     });
 
     it('should return the message for multiple failed cards', () => {

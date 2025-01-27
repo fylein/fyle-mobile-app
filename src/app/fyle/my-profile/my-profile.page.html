@@ -13,7 +13,7 @@
   </ng-container>
   <div class="my-profile__content-container__content">
     <ng-container *ngIf="onboardingPending$ | async as onboardingPending">
-      <ng-container *ngIf="onboardingPending.hide_other_options">
+      <ng-container *ngIf="!onboardingPending.hideOtherOptions">
         <ng-container *ngIf="isConnected$ | async">
           <!-- Hide Opt in flow for IN cluster -->
           <ng-container *ngIf="!(isUserFromINCluster$ | async); else isNonUSOrg">

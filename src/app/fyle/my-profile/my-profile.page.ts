@@ -45,7 +45,6 @@ import { OrgUser } from 'src/app/core/models/org-user.model';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { UpdateMobileNumberComponent } from './update-mobile-number/update-mobile-number.component';
 import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
-import { OnboardingState } from 'src/app/core/models/onboarding-state.enum';
 
 @Component({
   selector: 'app-my-profile',
@@ -103,7 +102,7 @@ export class MyProfilePage {
 
   isUserFromINCluster$: Observable<boolean>;
 
-  onboardingPending$: Observable<{ hide_other_options: boolean }>;
+  onboardingPending$: Observable<{ hideOtherOptions: boolean }>;
 
   constructor(
     private authService: AuthService,
@@ -192,7 +191,7 @@ export class MyProfilePage {
     this.isUserFromINCluster$ = from(this.utilityService.isUserFromINCluster());
     this.onboardingPending$ = this.spenderOnboardingService.checkForRedirectionToOnboarding().pipe(
       map((redirectionAllowed) => ({
-        hide_other_options: redirectionAllowed,
+        hideOtherOptions: redirectionAllowed,
       }))
     );
     this.reset();
