@@ -259,6 +259,7 @@ export class SignInPage implements OnInit {
           this.fg.reset();
           this.router.navigate(['/', 'auth', 'switch_org', { choose: true }]);
         },
+        error: (err: HttpErrorResponse) => this.handleError(err),
       });
   }
 

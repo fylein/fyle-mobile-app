@@ -278,7 +278,6 @@ describe('FyUserlistModalComponent', () => {
     component.allowCustomValues = true;
     const processNewlyAddedItemsSpy = spyOn(component, 'processNewlyAddedItems').and.returnValue(of(filteredDataRes));
     component.ngAfterViewInit();
-    fixture.detectChanges();
     const result: Partial<Employee>[] = [
       {
         is_selected: true,

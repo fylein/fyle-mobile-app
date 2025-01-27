@@ -43,7 +43,7 @@
         </div>
       </div>
       <div class="stats--ccc-stats-title">
-        Incomplete Card {{ cardDetail.stats.totalDraftTxns === 1 ? 'Expense' : 'Expenses' }}
+        Incomplete Card {{ cardDetail.stats.totalDraftTxns <= 1 ? 'Expense' : 'Expenses' }}
       </div>
     </div>
 
@@ -75,7 +75,7 @@
         </div>
       </div>
       <div class="stats--ccc-stats-title">
-        Total {{ cardDetail.stats.totalTxnsCount === 1 ? 'Expense' : 'Expenses' }}
+        Total {{ cardDetail.stats.totalTxnsCount <= 1 ? 'Expense' : 'Expenses' }}
       </div>
     </div>
   </div>

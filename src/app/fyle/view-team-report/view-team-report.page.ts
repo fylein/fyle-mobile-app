@@ -129,6 +129,8 @@ export class ViewTeamReportPage {
 
   approvals: ReportApprovals[];
 
+  approveReportLoader = false;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
@@ -383,14 +385,18 @@ export class ViewTeamReportPage {
       const { data } = (await popover.onWillDismiss()) as { data: { action: string } };
 
       if (data && data.action === 'approve') {
-        this.approverReportsService.approve(report.id).subscribe(() => {
-          this.router.navigate(['/', 'enterprise', 'team_reports']);
-          this.launchDarklyService.getVariation('nps_survey', false).subscribe((showNpsSurvey) => {
-            if (showNpsSurvey) {
-              this.refinerService.startSurvey({ actionName: 'Approve Report' });
-            }
+        this.approveReportLoader = true;
+        this.approverReportsService
+          .approve(report.id)
+          .pipe(finalize(() => (this.approveReportLoader = false)))
+          .subscribe(() => {
+            this.router.navigate(['/', 'enterprise', 'team_reports']);
+            this.launchDarklyService.getVariation('nps_survey', false).subscribe((showNpsSurvey) => {
+              if (showNpsSurvey) {
+                this.refinerService.startSurvey({ actionName: 'Approve Report' });
+              }
+            });
           });
-        });
       }
     }
   }

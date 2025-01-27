@@ -74,7 +74,7 @@ export class MyProfilePage {
     formAutofill: 'expense_form_autofills',
   };
 
-  preferenceSettings: PreferenceSetting[];
+  preferenceSettings: PreferenceSetting[] = [];
 
   infoCardsData: CopyCardDetails[];
 
