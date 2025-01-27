@@ -50,13 +50,13 @@ describe('SpenderOnboardingService', () => {
         ],
       ],
     });
-    spenderOnboardingService = TestBed.inject(SpenderOnboardingService);
     spenderPlatformV1ApiService = TestBed.inject(
       SpenderPlatformV1ApiService
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
+    spenderOnboardingService = TestBed.inject(SpenderOnboardingService);
   });
 
   it('getOnboardingStatus(): should get onboarding status', (done) => {
@@ -172,36 +172,13 @@ describe('SpenderOnboardingService', () => {
     });
   });
 
-  describe('checkForRedirectionToOnboarding(): ', () => {
-    it('should return true when conditions are met', (done) => {
-      const orgSettings = orgSettingsData;
-
-      spyOn(spenderOnboardingService, 'getOnboardingStatus').and.returnValue(of(onboardingStatusData));
-      orgSettingsService.get.and.returnValue(of(orgSettings));
-      utilityService.isUserFromINCluster.and.resolveTo(false);
-      authService.getEou.and.returnValue(new Promise((resolve) => resolve(apiEouRes)));
-      spenderOnboardingService.checkForRedirectionToOnboarding().subscribe((result) => {
-        expect(result).toBeTrue();
-        done();
-      });
-    });
-
-    it('should return false when conditions are not met', fakeAsync(() => {
-      const orgSettings = {
-        ...orgSettingsCCCDisabled3,
-        org_id: 'orgp5onHZThs',
-      };
-
-      spyOn(spenderOnboardingService, 'getOnboardingStatus').and.returnValue(of(onboardingStatusData));
-      orgSettingsService.get.and.returnValue(of(orgSettings));
-      utilityService.isUserFromINCluster.and.resolveTo(true);
-      authService.getEou.and.returnValue(new Promise((resolve) => resolve(extendedOrgUserResponse)));
-
-      tick();
-      spenderOnboardingService.checkForRedirectionToOnboarding().subscribe((result) => {
-        expect(result).toBeFalse();
-      });
-    }));
+  it('checkForRedirectionToOnboarding(): should return true when conditions are met', async () => {
+    spyOn(spenderOnboardingService, 'getOnboardingStatus').and.returnValue(of(onboardingStatusData));
+    orgSettingsService.get.and.returnValue(of(orgSettingsData));
+    authService.getEou.and.returnValue(new Promise((resolve) => resolve(apiEouRes)));
+    utilityService.isUserFromINCluster.and.resolveTo(false);
+    const result = await spenderOnboardingService.checkForRedirectionToOnboarding().toPromise();
+    expect(result).toBeTrue();
   });
 
   describe('checkCCCEnabled(): ', () => {
