@@ -286,7 +286,7 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
           return { invalidCardNetwork: true };
         }
 
-        return { invalidCardNetwork: true };
+        return null;
       }
     };
   }
