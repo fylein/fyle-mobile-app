@@ -377,7 +377,7 @@ describe('SidemenuComponent', () => {
     });
   });
 
-  fdescribe('getSecondarySidemenuOptions():', () => {
+  describe('getSecondarySidemenuOptions():', () => {
     it('should get the secondary options', () => {
       const resData = getSecondarySidemenuOptionsRes1;
       const result = component.getSecondarySidemenuOptions(orgData1, true, true, false);
