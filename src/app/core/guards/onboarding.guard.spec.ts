@@ -3,7 +3,6 @@ import { TestBed } from '@angular/core/testing';
 import { SpenderOnboardingService } from '../services/spender-onboarding.service';
 import { OnboardingGuard } from './onboarding.guard';
 import { Observable, of } from 'rxjs';
-import { routerStateSnapshotData } from '../mock-data/router-state-snapshot.data';
 
 describe('OnboardingGuard', () => {
   let guard: OnboardingGuard;
@@ -41,10 +40,7 @@ describe('OnboardingGuard', () => {
     it('should allow activation if checkForRedirectionToOnboarding returns false', (done) => {
       spenderOnboardingService.checkForRedirectionToOnboarding.and.returnValue(of(false));
 
-      const canActivate = guard.canActivate(
-        new ActivatedRoute().snapshot,
-        routerStateSnapshotData
-      ) as Observable<boolean>;
+      const canActivate = guard.canActivate() as Observable<boolean>;
       canActivate.subscribe((result) => {
         expect(result).toBeTrue();
         done();
@@ -54,10 +50,7 @@ describe('OnboardingGuard', () => {
     it('should prevent activation if checkForRedirectionToOnboarding returns true', (done) => {
       spenderOnboardingService.checkForRedirectionToOnboarding.and.returnValue(of(true));
 
-      const canActivate = guard.canActivate(
-        new ActivatedRoute().snapshot,
-        routerStateSnapshotData
-      ) as Observable<boolean>;
+      const canActivate = guard.canActivate() as Observable<boolean>;
       canActivate.subscribe((result) => {
         expect(result).toBeFalse();
         done();
@@ -68,10 +61,7 @@ describe('OnboardingGuard', () => {
       // Arrange
       spenderOnboardingService.checkForRedirectionToOnboarding.and.returnValue(of(false));
 
-      const canActivate = guard.canActivate(
-        new ActivatedRoute().snapshot,
-        routerStateSnapshotData
-      ) as Observable<boolean>;
+      const canActivate = guard.canActivate() as Observable<boolean>;
       // Act
       canActivate.subscribe(() => {
         expect(spenderOnboardingService.checkForRedirectionToOnboarding).toHaveBeenCalledTimes(1);
