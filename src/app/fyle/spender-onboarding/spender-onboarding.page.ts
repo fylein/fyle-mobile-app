@@ -64,7 +64,7 @@ export class SpenderOnboardingPage {
           this.userFullName = eou.us.full_name;
           this.orgSettings = orgSettings;
           const isRtfEnabled =
-            orgSettings.visa_enrollment_settings.enabled && orgSettings.mastercard_enrollment_settings.enabled;
+            orgSettings.visa_enrollment_settings.enabled || orgSettings.mastercard_enrollment_settings.enabled;
           const isAmexFeedEnabled = orgSettings.amex_feed_enrollment_settings.enabled;
           const rtfCards = corporateCards.filter((card) => card.is_visa_enrolled || card.is_mastercard_enrolled);
           if (isAmexFeedEnabled && !isRtfEnabled) {
