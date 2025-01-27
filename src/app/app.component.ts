@@ -1,7 +1,7 @@
 import { Component, OnInit, EventEmitter, NgZone, ViewChild } from '@angular/core';
 import { Platform, MenuController, NavController } from '@ionic/angular';
 import { from, concat, Observable, noop, forkJoin } from 'rxjs';
-import { switchMap, shareReplay, filter, take } from 'rxjs/operators';
+import { switchMap, shareReplay, filter, take, map } from 'rxjs/operators';
 import { Router, NavigationEnd, NavigationStart } from '@angular/router';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { UserEventService } from 'src/app/core/services/user-event.service';
@@ -24,6 +24,7 @@ import { BackButtonActionPriority } from './core/models/back-button-action-prior
 import { BackButtonService } from './core/services/back-button.service';
 import { TextZoom } from '@capacitor/text-zoom';
 import { GmapsService } from './core/services/gmaps.service';
+import { SpenderOnboardingService } from './core/services/spender-onboarding.service';
 
 @Component({
   selector: 'app-root',
@@ -68,7 +69,8 @@ export class AppComponent implements OnInit {
     private loginInfoService: LoginInfoService,
     private navController: NavController,
     private backButtonService: BackButtonService,
-    private gmapsService: GmapsService
+    private gmapsService: GmapsService,
+    private spenderOnboardingService: SpenderOnboardingService
   ) {
     this.initializeApp();
     this.registerBackButtonAction();
@@ -145,6 +147,22 @@ export class AppComponent implements OnInit {
     );
   }
 
+  setSidenavPostOnboarding(): void {
+    this.spenderOnboardingService
+      .setOnboardingStatusAsComplete()
+      .pipe(
+        switchMap(() => this.isConnected$.pipe(take(1))),
+        map((isOnline) => {
+          if (isOnline) {
+            this.sidemenuRef.showSideMenuOnline();
+          } else {
+            this.sidemenuRef.showSideMenuOffline();
+          }
+        })
+      )
+      .subscribe();
+  }
+
   ngOnInit(): void {
     this.setupNetworkWatcher();
 
@@ -191,6 +209,8 @@ export class AppComponent implements OnInit {
         }
       }, 500);
     });
+
+    this.setSidenavPostOnboarding();
 
     this.userEventService.onLogout(() => {
       this.trackingService.onSignOut();

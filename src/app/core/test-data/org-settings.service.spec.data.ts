@@ -899,6 +899,23 @@ export const orgSettingsAmexFeedDataRequest: OrgSettingsResponse = deepFreeze({
   amex_feed_enrollment_settings: null,
 });
 
+export const orgSettingsCardsDisabled: OrgSettingsResponse = deepFreeze({
+  ...orgSettingsPostData,
+  amex_feed_enrollment_settings: {
+    allowed: false,
+    enabled: false,
+    virtual_card_settings_enabled: false,
+  },
+  visa_enrollment_settings: {
+    allowed: false,
+    enabled: false,
+  },
+  mastercard_enrollment_settings: {
+    allowed: false,
+    enabled: false,
+  },
+});
+
 export const orgSettingsAmexFeedDataResponse: OrgSettingsResponse = deepFreeze({
   ...orgSettingsGetData,
   amex_feed_enrollment_settings: {
