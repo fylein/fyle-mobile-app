@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { SpenderOnboardingService } from '../services/spender-onboarding.service';
 
 @Injectable({
@@ -10,10 +10,7 @@ import { SpenderOnboardingService } from '../services/spender-onboarding.service
 export class OnboardingGuard implements CanActivate {
   constructor(private spenderOnboardingService: SpenderOnboardingService, private router: Router) {}
 
-  canActivate(
-    _: ActivatedRouteSnapshot,
-    _: RouterStateSnapshot
-  ): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
+  canActivate(): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
     return this.spenderOnboardingService.checkForRedirectionToOnboarding().pipe(
       map((shouldRedirectToOnboarding) => {
         if (shouldRedirectToOnboarding) {
@@ -22,9 +19,9 @@ export class OnboardingGuard implements CanActivate {
         }
         return true;
       }),
-      catchError((error) => {
+      catchError(() => {
         this.router.navigate(['/', 'enterprise', 'my_dashboard']);
-        return of(false);
+        return of(true);
       })
     );
   }
