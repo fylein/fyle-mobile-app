@@ -1,9 +1,8 @@
 import { Injectable } from '@angular/core';
 import { CanActivate, Router, UrlTree } from '@angular/router';
-import { from, Observable, of } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { SpenderOnboardingService } from '../services/spender-onboarding.service';
-import { LoaderService } from '../services/loader.service';
 
 @Injectable({
   providedIn: 'root',
@@ -11,8 +10,7 @@ import { LoaderService } from '../services/loader.service';
 export class OnboardingGuard implements CanActivate {
   constructor(
     private spenderOnboardingService: SpenderOnboardingService,
-    private router: Router,
-    private loaderService: LoaderService
+    private router: Router
   ) {}
 
   canActivate(): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
