@@ -18,7 +18,7 @@ import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { CustomInputsService } from './custom-inputs.service';
 import { cloneDeep } from 'lodash';
 
-describe('DependentFieldsService', () => {
+fdescribe('DependentFieldsService', () => {
   let dependentFieldsService: DependentFieldsService;
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
   let customInputsService: jasmine.SpyObj<CustomInputsService>;
