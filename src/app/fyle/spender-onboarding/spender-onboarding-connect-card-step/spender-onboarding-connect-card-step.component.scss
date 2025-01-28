@@ -46,7 +46,7 @@
     border: 0;
     font-size: 18px;
     font-weight: 500;
-    word-spacing: 24px;
+    word-spacing: 20px;
     field-sizing: content;
     &::placeholder {
       font-size: 14px;
@@ -58,6 +58,7 @@
   &__card-number-input-container {
     display: flex;
     justify-content: flex-start;
+    align-items: center;
   }
 
   &__card-last-four {

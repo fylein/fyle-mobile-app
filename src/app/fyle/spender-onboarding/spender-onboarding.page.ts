@@ -157,7 +157,7 @@ export class SpenderOnboardingPage {
         .pipe(
           map(() => {
             this.trackingService.eventTrack('Sms Opt In Onboarding Step - Skipped');
-            this.navigateOnSkippedOnboarding();
+            this.completeOnboarding();
           })
         )
         .subscribe();
