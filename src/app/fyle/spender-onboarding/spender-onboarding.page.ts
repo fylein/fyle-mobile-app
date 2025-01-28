@@ -64,7 +64,7 @@ export class SpenderOnboardingPage {
   }
 
   completeOnboarding(isComplete?: boolean): void {
-    this.isLoading = true;
+    this.onboardingInProgress = false;
     this.spenderOnboardingService
       .markWelcomeModalStepAsComplete()
       .pipe(
@@ -114,7 +114,7 @@ export class SpenderOnboardingPage {
           const isAmexFeedEnabled = orgSettings.amex_feed_enrollment_settings.enabled;
           const rtfCards = corporateCards.filter((card) => card.is_visa_enrolled || card.is_mastercard_enrolled);
           if (this.isMobileVerified(this.eou) && rtfCards.length > 0) {
-            this.completeOnboarding(true);
+            this.completeOnboarding();
           } else if (isAmexFeedEnabled && !isRtfEnabled) {
             this.currentStep = OnboardingStep.OPT_IN;
             this.showOneStep = true;
@@ -135,19 +135,6 @@ export class SpenderOnboardingPage {
     this.currentStep = OnboardingStep.CONNECT_CARD;
   }
 
-  navigateOnSkippedOnboarding(): void {
-    this.onboardingInProgress = false;
-    this.spenderOnboardingService
-      .markWelcomeModalStepAsComplete()
-      .pipe(
-        map(() => {
-          this.spenderOnboardingService.setOnboardingStatusEvent();
-          this.router.navigate(['/', 'enterprise', 'my_dashboard']);
-        })
-      )
-      .subscribe();
-  }
-
   skipOnboardingStep(): void {
     if (this.currentStep === OnboardingStep.CONNECT_CARD) {
       this.spenderOnboardingService
@@ -156,7 +143,7 @@ export class SpenderOnboardingPage {
           map(() => {
             this.trackingService.eventTrack('Connect Cards Onboarding Step - Skipped');
             if (this.isMobileVerified(this.eou)) {
-              this.navigateOnSkippedOnboarding();
+              this.completeOnboarding();
             } else {
               this.currentStep = OnboardingStep.OPT_IN;
             }
@@ -196,11 +183,8 @@ export class SpenderOnboardingPage {
       this.spenderOnboardingService
         .markSmsOptInStepAsComplete()
         .pipe(
-          switchMap(() => this.spenderOnboardingService.markWelcomeModalStepAsComplete()),
           map(() => {
-            this.spenderOnboardingService.setOnboardingStatusEvent();
-            this.onboardingComplete = true;
-            this.startCountdown();
+            this.completeOnboarding(true);
           })
         )
         .subscribe();
