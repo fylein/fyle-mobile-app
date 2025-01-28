@@ -3914,7 +3914,7 @@ export class AddEditExpensePage implements OnInit {
     await fyCriticalPolicyViolationPopOver.present();
 
     const { data } = (await fyCriticalPolicyViolationPopOver.onWillDismiss()) as {
-      data: { comment: string };
+      data: boolean
     };
     return !!data;
   }
