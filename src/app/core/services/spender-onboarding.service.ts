@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, forkJoin, from, map, Observable, Subject } from 'rxjs';
+import { BehaviorSubject, catchError, forkJoin, from, map, Observable, of, Subject } from 'rxjs';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { OnboardingWelcomeStepStatus } from '../models/onboarding-welcome-step-status.model';
@@ -45,7 +45,8 @@ export class SpenderOnboardingService {
           isCCCEnabled && isCardFeedEnabled,
           onboardingStatus
         );
-      })
+      }),
+      catchError(() => of(false))
     );
   }
 

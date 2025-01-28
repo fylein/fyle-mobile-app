@@ -41,6 +41,10 @@ export class NewPasswordPage implements OnInit {
 
   isLoading = false;
 
+  focusOnPassword = false;
+
+  focusOnConfirmPassword = false;
+
   constructor(
     private fb: FormBuilder,
     private activatedRoute: ActivatedRoute,
@@ -123,6 +127,7 @@ export class NewPasswordPage implements OnInit {
   }
 
   setPasswordTooltip(value: boolean): void {
+    this.focusOnPassword = value;
     this.showPasswordTooltip = value;
   }
 
