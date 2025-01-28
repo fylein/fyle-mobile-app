@@ -25,10 +25,7 @@ export class OnboardingGuard implements CanActivate {
         }
         return true;
       }),
-      catchError(() => {
-        this.router.navigate(['/', 'enterprise', 'my_dashboard']);
-        return of(true);
-      }),
+      catchError(() => of(true)),
       finalize(() => this.loaderService.hideLoader())
     );
   }
