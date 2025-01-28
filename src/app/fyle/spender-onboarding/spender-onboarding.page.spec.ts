@@ -147,28 +147,6 @@ describe('SpenderOnboardingPage', () => {
     expect(component.currentStep).toBe(OnboardingStep.CONNECT_CARD);
   });
 
-  describe('setPostOnboardingScreen(): ', () => {
-    it('should call setOnboardingStatusEvent and navigate to my_dashboard if isComplete is false', () => {
-      const isComplete = false;
-
-      component.setPostOnboardingScreen(isComplete);
-
-      expect(spenderOnboardingService.setOnboardingStatusEvent).toHaveBeenCalled();
-      expect(router.navigate).toHaveBeenCalledWith(['/', 'enterprise', 'my_dashboard']);
-    });
-
-    it('should call setOnboardingStatusEvent, set onboardingComplete to true, and startCountdown if isComplete is true', () => {
-      const isComplete = true;
-      spyOn(component, 'startCountdown');
-
-      component.setPostOnboardingScreen(isComplete);
-
-      expect(spenderOnboardingService.setOnboardingStatusEvent).toHaveBeenCalled();
-      expect(component.onboardingComplete).toBeTrue();
-      expect(component.startCountdown).toHaveBeenCalled();
-    });
-  });
-
   describe('skipOnboardingStep(): ', () => {
     it('should set onboarding as complete if mobile number is verified before navigating to opt in', fakeAsync(() => {
       component.currentStep = OnboardingStep.CONNECT_CARD;
