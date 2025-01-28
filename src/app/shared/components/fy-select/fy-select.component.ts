@@ -46,13 +46,15 @@ export class FySelectComponent implements ControlValueAccessor {
 
   @Input() placeholder: string;
 
-  @Input() defaultLabelProp;
+  @Input() defaultLabelProp?: string;
 
   @Input() recentlyUsed: { label: string; value: any; selected?: boolean }[];
 
   @Input() touchedInParent: boolean;
 
   @Input() validInParent: boolean;
+
+  @Input() isCustomSelect?: boolean;
 
   displayValue: string | number | boolean;
 
@@ -64,7 +66,7 @@ export class FySelectComponent implements ControlValueAccessor {
 
   constructor(private modalController: ModalController, private modalProperties: ModalPropertiesService) {}
 
-  get valid() {
+  get valid(): boolean {
     if (this.touchedInParent) {
       return this.validInParent;
     } else {
@@ -123,6 +125,7 @@ export class FySelectComponent implements ControlValueAccessor {
         showSaveButton: this.showSaveButton,
         defaultLabelProp: this.defaultLabelProp,
         recentlyUsed: this.recentlyUsed,
+        isCustomSelect: this.isCustomSelect,
         label: this.label,
       },
       mode: 'ios',
@@ -138,7 +141,7 @@ export class FySelectComponent implements ControlValueAccessor {
     }
   }
 
-  onBlur() {
+  onBlur(): void {
     this.onTouchedCallback();
   }
 
