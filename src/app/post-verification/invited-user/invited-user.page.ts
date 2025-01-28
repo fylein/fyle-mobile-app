@@ -51,6 +51,10 @@ export class InvitedUserPage implements OnInit {
 
   isLoading = false;
 
+  focusOnPassword = false;
+
+  focusOnConfirmPassword = false;
+
   constructor(
     private networkService: NetworkService,
     private fb: FormBuilder,
@@ -91,6 +95,7 @@ export class InvitedUserPage implements OnInit {
   }
 
   setPasswordTooltip(value: boolean): void {
+    this.focusOnPassword = value;
     this.showPasswordTooltip = value;
   }
 
