@@ -903,7 +903,7 @@ export class TasksService {
         icon: TaskIcon.REPORT,
         ctas: [
           {
-            content: 'Add to Report',
+            content: 'Add to report',
             event: TASKEVENT.expensesAddToReport,
           },
         ],
