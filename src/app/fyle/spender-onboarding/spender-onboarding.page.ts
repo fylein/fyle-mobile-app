@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { finalize, forkJoin, from, map, switchMap } from 'rxjs';
+import { finalize, forkJoin, from, map, Observable, switchMap } from 'rxjs';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
@@ -12,6 +12,7 @@ import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { OnboardingStatus } from 'src/app/core/models/onboarding-status.model';
 import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
+import { OnboardingWelcomeStepStatus } from 'src/app/core/models/onboarding-welcome-step-status.model';
 
 @Component({
   selector: 'app-spender-onboarding',
@@ -63,16 +64,13 @@ export class SpenderOnboardingPage {
     }
   }
 
-  completeOnboarding(isComplete?: boolean): void {
+  completeOnboarding(isComplete?: boolean): Observable<void> {
     this.onboardingInProgress = false;
-    this.spenderOnboardingService
-      .markWelcomeModalStepAsComplete()
-      .pipe(
-        map(() => {
-          this.setPostOnboardingScreen(isComplete);
-        })
-      )
-      .subscribe();
+    return this.spenderOnboardingService.markWelcomeModalStepAsComplete().pipe(
+      map(() => {
+        this.setPostOnboardingScreen(isComplete);
+      })
+    );
   }
 
   setUpRtfSteps(onboardingStatus: OnboardingStatus, rtfCards: PlatformCorporateCard[]): void {
@@ -143,7 +141,7 @@ export class SpenderOnboardingPage {
           map(() => {
             this.trackingService.eventTrack('Connect Cards Onboarding Step - Skipped');
             if (this.isMobileVerified(this.eou)) {
-              this.completeOnboarding();
+              this.completeOnboarding().subscribe();
             } else {
               this.currentStep = OnboardingStep.OPT_IN;
             }
@@ -157,8 +155,8 @@ export class SpenderOnboardingPage {
         .pipe(
           map(() => {
             this.trackingService.eventTrack('Sms Opt In Onboarding Step - Skipped');
-            this.completeOnboarding();
-          })
+          }),
+          switchMap(() => this.completeOnboarding())
         )
         .subscribe();
     }
@@ -171,7 +169,7 @@ export class SpenderOnboardingPage {
         .pipe(
           map(() => {
             if (this.isMobileVerified(this.eou)) {
-              this.completeOnboarding(true);
+              return this.completeOnboarding(true);
             } else {
               this.currentStep = OnboardingStep.OPT_IN;
             }
