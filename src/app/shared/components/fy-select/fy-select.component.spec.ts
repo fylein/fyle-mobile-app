@@ -128,7 +128,7 @@ describe('FySelectComponent', () => {
       const mockCallback = jasmine.createSpy('mockCallback');
       component.value = 'PreviousValue';
       component.registerOnChange(mockCallback);
-      component.label = 'Payment Mode';
+      component.label = 'Payment mode';
       const modalSpy = jasmine.createSpyObj('HTMLIonModalElement', ['present', 'onWillDismiss']);
       modalController.create.and.returnValue(Promise.resolve(modalSpy));
       modalSpy.onWillDismiss.and.returnValue(Promise.resolve({ data: { value: 'UpdatedValue' } }));

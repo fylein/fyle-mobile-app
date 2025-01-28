@@ -99,7 +99,7 @@ export class FySelectComponent implements ControlValueAccessor {
   async openModal() {
     let cssClass: string;
 
-    if (this.label === 'Payment Mode') {
+    if (this.label === 'Payment mode') {
       cssClass = 'payment-mode-modal';
     } else if (this.label === 'Commute Deduction') {
       cssClass = 'add-location-modal';

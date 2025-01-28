@@ -1561,7 +1561,7 @@ export class AddEditMileagePage implements OnInit {
     this.setupSelectedCostCenters();
 
     this.fg.reset();
-    this.title = 'Add Mileage';
+    this.title = 'Add mileage';
 
     this.activeIndex = this.activatedRoute.snapshot.params.activeIndex as number;
     this.reviewList = (this.activatedRoute.snapshot.params.txnIds &&
