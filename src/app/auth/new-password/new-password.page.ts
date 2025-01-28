@@ -127,7 +127,7 @@ export class NewPasswordPage implements OnInit {
   }
 
   setPasswordTooltip(value: boolean): void {
-    this.focusOnPassword = true;
+    this.focusOnPassword = value;
     this.showPasswordTooltip = value;
   }
 
