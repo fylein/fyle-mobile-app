@@ -10,6 +10,8 @@ import { Router } from '@angular/router';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { TrackingService } from 'src/app/core/services/tracking.service';
+import { OnboardingStatus } from 'src/app/core/models/onboarding-status.model';
+import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
 
 @Component({
   selector: 'app-spender-onboarding',
@@ -62,15 +64,32 @@ export class SpenderOnboardingPage {
   }
 
   completeOnboarding(isComplete?: boolean): void {
-    if (this.currentStep === OnboardingStep.OPT_IN && this.isMobileVerified(this.eou)) {
-      this.spenderOnboardingService
-        .markWelcomeModalStepAsComplete()
-        .pipe(
-          map(() => {
-            this.setPostOnboardingScreen(isComplete);
-          })
-        )
-        .subscribe();
+    this.isLoading = true;
+    this.spenderOnboardingService
+      .markWelcomeModalStepAsComplete()
+      .pipe(
+        map(() => {
+          this.setPostOnboardingScreen(isComplete);
+        })
+      )
+      .subscribe();
+  }
+
+  setUpRtfSteps(onboardingStatus: OnboardingStatus, rtfCards: PlatformCorporateCard[]): void {
+    if (
+      onboardingStatus.step_connect_cards_is_skipped ||
+      onboardingStatus.step_connect_cards_is_configured ||
+      rtfCards.length > 0
+    ) {
+      this.currentStep = OnboardingStep.OPT_IN;
+      if (onboardingStatus.step_connect_cards_is_configured) {
+        this.showOneStep = true;
+      }
+    } else {
+      this.currentStep = OnboardingStep.CONNECT_CARD;
+      if (this.isMobileVerified(this.eou)) {
+        this.showOneStep = true;
+      }
     }
   }
 
@@ -94,29 +113,15 @@ export class SpenderOnboardingPage {
             orgSettings.visa_enrollment_settings.enabled || orgSettings.mastercard_enrollment_settings.enabled;
           const isAmexFeedEnabled = orgSettings.amex_feed_enrollment_settings.enabled;
           const rtfCards = corporateCards.filter((card) => card.is_visa_enrolled || card.is_mastercard_enrolled);
-          if (isAmexFeedEnabled && !isRtfEnabled) {
+          if (this.isMobileVerified(this.eou) && rtfCards.length > 0) {
+            this.completeOnboarding(true);
+          } else if (isAmexFeedEnabled && !isRtfEnabled) {
             this.currentStep = OnboardingStep.OPT_IN;
             this.showOneStep = true;
           } else if (isRtfEnabled) {
             // If Connect Card was skipped earlier or Cards are already enrolled, then go to OPT_IN step
-            if (
-              onboardingStatus.step_connect_cards_is_skipped ||
-              onboardingStatus.step_connect_cards_is_configured ||
-              rtfCards.length > 0
-            ) {
-              this.currentStep = OnboardingStep.OPT_IN;
-              if (onboardingStatus.step_connect_cards_is_configured) {
-                this.showOneStep = true;
-              }
-            } else {
-              this.currentStep = OnboardingStep.CONNECT_CARD;
-              if (this.isMobileVerified(this.eou)) {
-                this.showOneStep = true;
-              }
-            }
+            this.setUpRtfSteps(onboardingStatus, rtfCards);
           }
-
-          this.completeOnboarding();
         }),
         finalize(() => {
           this.isLoading = false;

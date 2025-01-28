@@ -147,7 +147,7 @@ describe('SpenderOnboardingPage', () => {
     expect(component.currentStep).toBe(OnboardingStep.CONNECT_CARD);
   });
 
-  fdescribe('setPostOnboardingScreen(): ', () => {
+  describe('setPostOnboardingScreen(): ', () => {
     it('should call setOnboardingStatusEvent and navigate to my_dashboard if isComplete is false', () => {
       const isComplete = false;
 
