@@ -1,7 +1,7 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import * as Sentry from '@sentry/angular';
-import { Observable, from, forkJoin, concat, combineLatest } from 'rxjs';
-import { shareReplay } from 'rxjs/operators';
+import { Observable, from, forkJoin, concat, combineLatest, EMPTY } from 'rxjs';
+import { catchError, shareReplay } from 'rxjs/operators';
 import { DeviceService } from 'src/app/core/services/device.service';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
@@ -394,12 +394,20 @@ export class SidemenuComponent implements OnInit {
 
   setupSideMenu(isConnected?: boolean, orgs?: Org[], isDelegatee?: boolean): void {
     if (isConnected) {
-      this.spenderOnboardingService.checkForRedirectionToOnboarding().subscribe((redirectionAllowed) => {
-        this.filteredSidemenuList = [
-          ...this.getPrimarySidemenuOptions(isConnected, redirectionAllowed),
-          ...this.getSecondarySidemenuOptions(orgs, isDelegatee, isConnected, redirectionAllowed),
-        ];
-      });
+      this.spenderOnboardingService
+        .checkForRedirectionToOnboarding()
+        .pipe(
+          catchError(() => {
+            this.filteredSidemenuList = [...this.getPrimarySidemenuOptionsOffline()];
+            return EMPTY;
+          })
+        )
+        .subscribe((redirectionAllowed) => {
+          this.filteredSidemenuList = [
+            ...this.getPrimarySidemenuOptions(isConnected, redirectionAllowed),
+            ...this.getSecondarySidemenuOptions(orgs, isDelegatee, isConnected, redirectionAllowed),
+          ];
+        });
     } else {
       this.filteredSidemenuList = [...this.getPrimarySidemenuOptionsOffline()];
     }

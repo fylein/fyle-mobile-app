@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { CanActivate, Router, UrlTree } from '@angular/router';
 import { Observable, of } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, finalize, map, switchMap } from 'rxjs/operators';
 import { SpenderOnboardingService } from '../services/spender-onboarding.service';
+import { LoaderService } from '../services/loader.service';
 
 @Injectable({
   providedIn: 'root',
@@ -10,11 +11,13 @@ import { SpenderOnboardingService } from '../services/spender-onboarding.service
 export class OnboardingGuard implements CanActivate {
   constructor(
     private spenderOnboardingService: SpenderOnboardingService,
-    private router: Router
+    private router: Router,
+    private loaderService: LoaderService
   ) {}
 
   canActivate(): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
-    return this.spenderOnboardingService.checkForRedirectionToOnboarding().pipe(
+    return of(this.loaderService.showLoader()).pipe(
+      switchMap(() => this.spenderOnboardingService.checkForRedirectionToOnboarding()),
       map((shouldRedirectToOnboarding) => {
         if (shouldRedirectToOnboarding) {
           this.router.navigate(['/', 'enterprise', 'spender_onboarding']);
@@ -25,7 +28,8 @@ export class OnboardingGuard implements CanActivate {
       catchError(() => {
         this.router.navigate(['/', 'enterprise', 'my_dashboard']);
         return of(true);
-      })
+      }),
+      finalize(() => this.loaderService.hideLoader())
     );
   }
 }

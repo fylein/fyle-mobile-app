@@ -1815,7 +1815,6 @@ export class AddEditExpensePage implements OnInit {
             [],
             this.customInputsService.filterByCategory(customExpenseFields, etxn.tx.org_category_id)
           );
-
           const customInputValues: {
             name: string;
             value: string | number | string[] | number[] | Date | boolean | { display?: string };
