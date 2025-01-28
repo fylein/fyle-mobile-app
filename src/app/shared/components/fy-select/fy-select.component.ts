@@ -134,7 +134,7 @@ export class FySelectComponent implements ControlValueAccessor {
 
     await selectionModal.present();
 
-    const { data } = await selectionModal.onWillDismiss();
+    const { data } = (await selectionModal.onWillDismiss()) as { data: { value: string } };
 
     if (data) {
       this.value = data.value;
