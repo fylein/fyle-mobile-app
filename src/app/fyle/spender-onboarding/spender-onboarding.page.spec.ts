@@ -15,6 +15,7 @@ import { OnboardingStepStatus } from 'src/app/core/models/onboarding-step-status
 import { orgSettingsWoTaxAndRtf } from 'src/app/core/mock-data/org-settings.data';
 import { statementUploadedCard } from 'src/app/core/mock-data/platform-corporate-card.data';
 import { TrackingService } from 'src/app/core/services/tracking.service';
+import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 
 describe('SpenderOnboardingPage', () => {
   let component: SpenderOnboardingPage;
@@ -72,6 +73,7 @@ describe('SpenderOnboardingPage', () => {
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     spenderOnboardingService.markWelcomeModalStepAsComplete.and.returnValue(of({ is_complete: true }));
+    spyOn(component, 'completeOnboarding').and.returnValue(of()).and.callThrough();
   });
 
   describe('ionViewWillEnter(): ', () => {
@@ -139,9 +141,37 @@ describe('SpenderOnboardingPage', () => {
     });
   });
 
+  it('goBackToConnectCard(): should set currentStep to OnboardingStep.CONNECT_CARD when goBackToConnectCard is called', () => {
+    component.goBackToConnectCard();
+
+    expect(component.currentStep).toBe(OnboardingStep.CONNECT_CARD);
+  });
+
   describe('skipOnboardingStep(): ', () => {
-    it('should skip the connect card onboarding step', fakeAsync(() => {
+    it('should set onboarding as complete if mobile number is verified before navigating to opt in', fakeAsync(() => {
       component.currentStep = OnboardingStep.CONNECT_CARD;
+      fixture.detectChanges();
+
+      const onboardingRequestResponse: OnboardingStepStatus = {
+        is_configured: false,
+        is_skipped: true,
+      };
+      const welcomeModalCompletionResponse = { is_complete: true };
+
+      spenderOnboardingService.skipConnectCardsStep.and.returnValue(of(onboardingRequestResponse));
+      spenderOnboardingService.markWelcomeModalStepAsComplete.and.returnValue(of(welcomeModalCompletionResponse));
+      spyOn(component, 'isMobileVerified').and.returnValue(true);
+      tick();
+
+      component.skipOnboardingStep();
+      tick();
+
+      expect(spenderOnboardingService.skipConnectCardsStep).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should move from Opt in to connect card step if mobile number is not verified', fakeAsync(() => {
+      component.currentStep = OnboardingStep.CONNECT_CARD;
+      component.eou = apiEouRes;
       fixture.detectChanges();
 
       const onboardingRequestResponse: OnboardingStepStatus = {
@@ -150,12 +180,13 @@ describe('SpenderOnboardingPage', () => {
       };
 
       spenderOnboardingService.skipConnectCardsStep.and.returnValue(of(onboardingRequestResponse));
+      tick();
 
       component.skipOnboardingStep();
       tick();
 
       expect(spenderOnboardingService.skipConnectCardsStep).toHaveBeenCalledTimes(1);
-      expect(component.currentStep).toBe(OnboardingStep.OPT_IN);
+      expect(component.currentStep).toEqual(OnboardingStep.OPT_IN);
     }));
 
     it('should skip the opt-in onboarding step and mark welcome modal as complete', fakeAsync(() => {
@@ -169,20 +200,21 @@ describe('SpenderOnboardingPage', () => {
       component.onboardingInProgress = true;
 
       spenderOnboardingService.skipSmsOptInStep.and.returnValue(of(onboardingRequestResponse));
-      spenderOnboardingService.markWelcomeModalStepAsComplete.and.returnValue(of(welcomeModalCompletionResponse));
 
       component.skipOnboardingStep();
       tick();
 
+      expect(component.completeOnboarding).toHaveBeenCalledTimes(1);
       expect(spenderOnboardingService.skipSmsOptInStep).toHaveBeenCalledTimes(1);
-      expect(spenderOnboardingService.markWelcomeModalStepAsComplete).toHaveBeenCalledTimes(1);
-      expect(spenderOnboardingService.setOnboardingStatusEvent).toHaveBeenCalledTimes(1);
       expect(component.onboardingInProgress).toBeFalse();
-      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard']);
     }));
   });
 
   describe('markStepAsComplete(): ', () => {
+    beforeEach(() => {
+      component.eou = apiEouRes;
+    });
+
     it('should mark the current step as complete - Connect Card', fakeAsync(() => {
       component.currentStep = OnboardingStep.CONNECT_CARD;
       const onboardingRequestResponse: OnboardingStepStatus = {
@@ -231,5 +263,58 @@ describe('SpenderOnboardingPage', () => {
       expect(component.redirectionCount).toBe(0);
       expect(router.navigate).toHaveBeenCalledWith(['/', 'enterprise', 'my_dashboard']);
     }));
+  });
+
+  describe('setPostOnboardingScreen(): ', () => {
+    it('should set onboarding status and start countdown when isComplete is true', () => {
+      spyOn(component, 'startCountdown');
+      spenderOnboardingService.setOnboardingStatusEvent.and.returnValue();
+
+      component.setPostOnboardingScreen(true);
+
+      expect(spenderOnboardingService.setOnboardingStatusEvent).toHaveBeenCalledTimes(1);
+      expect(component.onboardingComplete).toBeTrue();
+      expect(component.startCountdown).toHaveBeenCalledTimes(1);
+    });
+
+    it('should set onboarding status and navigate to my_dashboard when isComplete is false', () => {
+      spenderOnboardingService.setOnboardingStatusEvent.and.returnValue();
+
+      component.setPostOnboardingScreen(false);
+
+      expect(spenderOnboardingService.setOnboardingStatusEvent).toHaveBeenCalledTimes(1);
+      expect(component.onboardingComplete).toBeFalse();
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard']);
+    });
+  });
+
+  describe('completeOnboarding(): ', () => {
+    it('should mark welcome modal step as complete and set post onboarding screen when isComplete is true', (done) => {
+      const welcomeModalCompletionResponse = { is_complete: true };
+
+      spyOn(component, 'setPostOnboardingScreen');
+      spenderOnboardingService.markWelcomeModalStepAsComplete.and.returnValue(of(welcomeModalCompletionResponse));
+
+      component.completeOnboarding(true).subscribe(() => {
+        expect(spenderOnboardingService.markWelcomeModalStepAsComplete).toHaveBeenCalledTimes(1);
+        expect(component.onboardingInProgress).toBeFalse();
+        expect(component.setPostOnboardingScreen).toHaveBeenCalledOnceWith(true);
+        done();
+      });
+    });
+
+    it('should mark welcome modal step as complete and set post onboarding screen when isComplete is false', (done) => {
+      const welcomeModalCompletionResponse = { is_complete: true };
+
+      spyOn(component, 'setPostOnboardingScreen');
+      spenderOnboardingService.markWelcomeModalStepAsComplete.and.returnValue(of(welcomeModalCompletionResponse));
+
+      component.completeOnboarding(false).subscribe(() => {
+        expect(spenderOnboardingService.markWelcomeModalStepAsComplete).toHaveBeenCalledTimes(1);
+        expect(component.onboardingInProgress).toBeFalse();
+        expect(component.setPostOnboardingScreen).toHaveBeenCalledOnceWith(false);
+        done();
+      });
+    });
   });
 });
