@@ -87,6 +87,7 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
               option.selected = isEqual(option.value, this.currentSelection);
               return option;
             })
+            .slice(0, 200)
         )
       );
     }
@@ -129,6 +130,7 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
                 option.selected = isEqual(option.value, this.currentSelection);
                 return option;
               })
+              .slice(0, 200)
           );
         }),
         shareReplay(1)
@@ -154,10 +156,12 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
 
       this.filteredOptions$ = of(
         initial.concat(
-          this.options.map((option) => {
-            option.selected = isEqual(option.value, this.currentSelection);
-            return option;
-          })
+          this.options
+            .map((option) => {
+              option.selected = isEqual(option.value, this.currentSelection);
+              return option;
+            })
+            .slice(0, 200)
         )
       );
     }
