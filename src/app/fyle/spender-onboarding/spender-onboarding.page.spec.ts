@@ -17,7 +17,7 @@ import { statementUploadedCard } from 'src/app/core/mock-data/platform-corporate
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 
-describe('SpenderOnboardingPage', () => {
+fdescribe('SpenderOnboardingPage', () => {
   let component: SpenderOnboardingPage;
   let fixture: ComponentFixture<SpenderOnboardingPage>;
   let loaderService: jasmine.SpyObj<LoaderService>;

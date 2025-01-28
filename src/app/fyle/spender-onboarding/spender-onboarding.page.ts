@@ -12,7 +12,6 @@ import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { OnboardingStatus } from 'src/app/core/models/onboarding-status.model';
 import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
-import { OnboardingWelcomeStepStatus } from 'src/app/core/models/onboarding-welcome-step-status.model';
 
 @Component({
   selector: 'app-spender-onboarding',
@@ -167,9 +166,9 @@ export class SpenderOnboardingPage {
       this.spenderOnboardingService
         .markConnectCardsStepAsComplete()
         .pipe(
-          switchMap(() => {
+          map(() => {
             if (this.isMobileVerified(this.eou)) {
-              return this.completeOnboarding(true);
+              return this.completeOnboarding(true).subscribe();
             } else {
               this.currentStep = OnboardingStep.OPT_IN;
             }
