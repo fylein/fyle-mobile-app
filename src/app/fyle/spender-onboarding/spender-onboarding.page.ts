@@ -167,7 +167,7 @@ export class SpenderOnboardingPage {
       this.spenderOnboardingService
         .markConnectCardsStepAsComplete()
         .pipe(
-          map(() => {
+          switchMap(() => {
             if (this.isMobileVerified(this.eou)) {
               return this.completeOnboarding(true);
             } else {
@@ -180,11 +180,7 @@ export class SpenderOnboardingPage {
       this.onboardingInProgress = false;
       this.spenderOnboardingService
         .markSmsOptInStepAsComplete()
-        .pipe(
-          map(() => {
-            this.completeOnboarding(true);
-          })
-        )
+        .pipe(switchMap(() => this.completeOnboarding(true)))
         .subscribe();
     }
   }
