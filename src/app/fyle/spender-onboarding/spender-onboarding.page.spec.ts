@@ -15,6 +15,7 @@ import { OnboardingStepStatus } from 'src/app/core/models/onboarding-step-status
 import { orgSettingsWoTaxAndRtf } from 'src/app/core/mock-data/org-settings.data';
 import { statementUploadedCard } from 'src/app/core/mock-data/platform-corporate-card.data';
 import { TrackingService } from 'src/app/core/services/tracking.service';
+import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 
 describe('SpenderOnboardingPage', () => {
   let component: SpenderOnboardingPage;
@@ -72,6 +73,7 @@ describe('SpenderOnboardingPage', () => {
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     spenderOnboardingService.markWelcomeModalStepAsComplete.and.returnValue(of({ is_complete: true }));
+    spyOn(component, 'completeOnboarding');
   });
 
   describe('ionViewWillEnter(): ', () => {
@@ -140,8 +142,30 @@ describe('SpenderOnboardingPage', () => {
   });
 
   describe('skipOnboardingStep(): ', () => {
-    it('should skip the connect card onboarding step', fakeAsync(() => {
+    it('should set onboarding as complete if mobile number is verified before navigating to opt in', fakeAsync(() => {
       component.currentStep = OnboardingStep.CONNECT_CARD;
+      fixture.detectChanges();
+
+      const onboardingRequestResponse: OnboardingStepStatus = {
+        is_configured: false,
+        is_skipped: true,
+      };
+      const welcomeModalCompletionResponse = { is_complete: true };
+
+      spenderOnboardingService.skipConnectCardsStep.and.returnValue(of(onboardingRequestResponse));
+      spenderOnboardingService.markWelcomeModalStepAsComplete.and.returnValue(of(welcomeModalCompletionResponse));
+      spyOn(component, 'isMobileVerified').and.returnValue(true);
+      tick();
+
+      component.skipOnboardingStep();
+      tick();
+
+      expect(spenderOnboardingService.skipConnectCardsStep).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should move from Opt in to connect card step if mobile number is not verified', fakeAsync(() => {
+      component.currentStep = OnboardingStep.CONNECT_CARD;
+      component.eou = apiEouRes;
       fixture.detectChanges();
 
       const onboardingRequestResponse: OnboardingStepStatus = {
@@ -150,12 +174,15 @@ describe('SpenderOnboardingPage', () => {
       };
 
       spenderOnboardingService.skipConnectCardsStep.and.returnValue(of(onboardingRequestResponse));
+      const mobileVerifiedSpy = spyOn(component, 'isMobileVerified');
+      tick();
 
       component.skipOnboardingStep();
       tick();
 
+      expect(mobileVerifiedSpy).toHaveBeenCalledOnceWith(component.eou);
       expect(spenderOnboardingService.skipConnectCardsStep).toHaveBeenCalledTimes(1);
-      expect(component.currentStep).toBe(OnboardingStep.OPT_IN);
+      expect(component.currentStep).toEqual(OnboardingStep.OPT_IN);
     }));
 
     it('should skip the opt-in onboarding step and mark welcome modal as complete', fakeAsync(() => {
@@ -183,6 +210,10 @@ describe('SpenderOnboardingPage', () => {
   });
 
   describe('markStepAsComplete(): ', () => {
+    beforeEach(() => {
+      component.eou = apiEouRes;
+    });
+
     it('should mark the current step as complete - Connect Card', fakeAsync(() => {
       component.currentStep = OnboardingStep.CONNECT_CARD;
       const onboardingRequestResponse: OnboardingStepStatus = {

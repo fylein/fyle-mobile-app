@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { finalize, forkJoin, from, map, switchMap, tap } from 'rxjs';
+import { finalize, forkJoin, from, map, switchMap } from 'rxjs';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
@@ -23,7 +23,7 @@ export class SpenderOnboardingPage {
 
   currentStep: OnboardingStep = OnboardingStep.CONNECT_CARD;
 
-  onlyOptInEnabled = false;
+  showOneStep = false;
 
   onboardingStep: typeof OnboardingStep = OnboardingStep;
 
@@ -47,6 +47,33 @@ export class SpenderOnboardingPage {
     private trackingService: TrackingService
   ) {}
 
+  isMobileVerified(eou: ExtendedOrgUser): boolean {
+    return !!(eou.ou.mobile && eou.ou.mobile_verified);
+  }
+
+  setPostOnboardingScreen(isComplete?: boolean): void {
+    this.spenderOnboardingService.setOnboardingStatusEvent();
+    if (isComplete) {
+      this.onboardingComplete = true;
+      this.startCountdown();
+    } else {
+      this.router.navigate(['/', 'enterprise', 'my_dashboard']);
+    }
+  }
+
+  completeOnboarding(isComplete?: boolean): void {
+    if (this.currentStep === OnboardingStep.OPT_IN && this.isMobileVerified(this.eou)) {
+      this.spenderOnboardingService
+        .markWelcomeModalStepAsComplete()
+        .pipe(
+          map(() => {
+            this.setPostOnboardingScreen(isComplete);
+          })
+        )
+        .subscribe();
+    }
+  }
+
   ionViewWillEnter(): void {
     this.isLoading = true;
     from(this.loaderService.showLoader())
@@ -69,7 +96,7 @@ export class SpenderOnboardingPage {
           const rtfCards = corporateCards.filter((card) => card.is_visa_enrolled || card.is_mastercard_enrolled);
           if (isAmexFeedEnabled && !isRtfEnabled) {
             this.currentStep = OnboardingStep.OPT_IN;
-            this.onlyOptInEnabled = true;
+            this.showOneStep = true;
           } else if (isRtfEnabled) {
             // If Connect Card was skipped earlier or Cards are already enrolled, then go to OPT_IN step
             if (
@@ -79,12 +106,17 @@ export class SpenderOnboardingPage {
             ) {
               this.currentStep = OnboardingStep.OPT_IN;
               if (onboardingStatus.step_connect_cards_is_configured) {
-                this.onlyOptInEnabled = true;
+                this.showOneStep = true;
               }
             } else {
               this.currentStep = OnboardingStep.CONNECT_CARD;
+              if (this.isMobileVerified(this.eou)) {
+                this.showOneStep = true;
+              }
             }
           }
+
+          this.completeOnboarding();
         }),
         finalize(() => {
           this.isLoading = false;
@@ -98,6 +130,19 @@ export class SpenderOnboardingPage {
     this.currentStep = OnboardingStep.CONNECT_CARD;
   }
 
+  navigateOnSkippedOnboarding(): void {
+    this.onboardingInProgress = false;
+    this.spenderOnboardingService
+      .markWelcomeModalStepAsComplete()
+      .pipe(
+        map(() => {
+          this.spenderOnboardingService.setOnboardingStatusEvent();
+          this.router.navigate(['/', 'enterprise', 'my_dashboard']);
+        })
+      )
+      .subscribe();
+  }
+
   skipOnboardingStep(): void {
     if (this.currentStep === OnboardingStep.CONNECT_CARD) {
       this.spenderOnboardingService
@@ -105,7 +150,11 @@ export class SpenderOnboardingPage {
         .pipe(
           map(() => {
             this.trackingService.eventTrack('Connect Cards Onboarding Step - Skipped');
-            this.currentStep = OnboardingStep.OPT_IN;
+            if (this.isMobileVerified(this.eou)) {
+              this.navigateOnSkippedOnboarding();
+            } else {
+              this.currentStep = OnboardingStep.OPT_IN;
+            }
           })
         )
         .subscribe();
@@ -114,11 +163,9 @@ export class SpenderOnboardingPage {
       this.spenderOnboardingService
         .skipSmsOptInStep()
         .pipe(
-          switchMap(() => this.spenderOnboardingService.markWelcomeModalStepAsComplete()),
           map(() => {
             this.trackingService.eventTrack('Sms Opt In Onboarding Step - Skipped');
-            this.spenderOnboardingService.setOnboardingStatusEvent();
-            this.router.navigate(['/', 'enterprise', 'my_dashboard']);
+            this.navigateOnSkippedOnboarding();
           })
         )
         .subscribe();
@@ -130,8 +177,12 @@ export class SpenderOnboardingPage {
       this.spenderOnboardingService
         .markConnectCardsStepAsComplete()
         .pipe(
-          tap(() => {
-            this.currentStep = OnboardingStep.OPT_IN;
+          map(() => {
+            if (this.isMobileVerified(this.eou)) {
+              this.completeOnboarding(true);
+            } else {
+              this.currentStep = OnboardingStep.OPT_IN;
+            }
           })
         )
         .subscribe();
