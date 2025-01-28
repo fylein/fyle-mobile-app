@@ -372,19 +372,19 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
       };
       const popoverSpy = jasmine.createSpyObj('popover', ['present', 'onWillDismiss']);
       spyOn(component, 'generateMessage').and.returnValue('Error message');
-      const isStepSkippedSpy = spyOn(component.isStepSkipped, 'emit');
+      const isStepCompleteSpy = spyOn(component.isStepComplete, 'emit');
       popoverSpy.onWillDismiss.and.resolveTo({
         data: {
           action: 'close',
         },
       });
       popoverController.create.and.resolveTo(popoverSpy);
-      fixture.detectChanges();
       component.showErrorPopover();
+      tick();
 
       expect(popoverController.create).toHaveBeenCalledOnceWith(enrollmentErrorPopoverData2);
       tick();
-      expect(isStepSkippedSpy).toHaveBeenCalledTimes(1);
+      expect(isStepCompleteSpy).toHaveBeenCalledTimes(1);
     }));
 
     it('should handle cancel action', () => {

@@ -167,10 +167,9 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
       action: string;
     }>;
 
-    if (!data && this.cardsList.successfulCards.length > 0) {
+    if (this.cardsList.successfulCards.length > 0) {
       this.isStepComplete.emit(true);
-    }
-    if (data.action === 'close') {
+    } else if (data.action === 'close') {
       this.isStepSkipped.emit(true);
     }
   }
