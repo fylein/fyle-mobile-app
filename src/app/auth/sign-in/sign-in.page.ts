@@ -45,6 +45,8 @@ export class SignInPage implements OnInit {
 
   hardwareBackButtonAction: Subscription;
 
+  focusOnPassword = false;
+
   constructor(
     private formBuilder: FormBuilder,
     private routerAuthService: RouterAuthService,

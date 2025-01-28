@@ -89,6 +89,44 @@ export const popoverControllerParams = {
   cssClass: 'pop-up-in-center',
 };
 
+export const enrollmentErrorPopoverData1 = {
+  componentProps: {
+    title: 'Failed connecting',
+    message: 'Error message',
+    primaryCta: {
+      text: 'Proceed anyway',
+      action: 'close',
+    },
+    secondaryCta: {
+      text: 'Cancel',
+      action: 'cancel',
+    },
+    cardsList: {},
+    leftAlign: true,
+  },
+  component: PopupAlertComponent,
+  cssClass: 'pop-up-in-center',
+};
+
+export const enrollmentErrorPopoverData2 = {
+  componentProps: {
+    title: 'Status summary',
+    message: 'Error message',
+    primaryCta: {
+      text: 'Continue',
+      action: 'close',
+    },
+    secondaryCta: null,
+    cardsList: {
+      successfulCards: ['**** 1111'],
+      failedCards: ['**** 1111'],
+    },
+    leftAlign: true,
+  },
+  component: PopupAlertComponent,
+  cssClass: 'pop-up-in-center',
+};
+
 export const openFromComponentConfig = {
   data: {
     icon: 'warning-fill',
