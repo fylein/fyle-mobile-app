@@ -20,7 +20,7 @@ export class AddMorePopupComponent implements OnInit {
       },
       {
         icon: 'image',
-        title: 'Upload Image/PDF',
+        title: 'Upload from Gallery',
         mode: 'gallery',
       },
     ];
