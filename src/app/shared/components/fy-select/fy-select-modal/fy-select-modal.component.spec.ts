@@ -8,7 +8,7 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { of, take } from 'rxjs';
 import { By } from '@angular/platform-browser';
 
-describe('FySelectModalComponent', () => {
+fdescribe('FySelectModalComponent', () => {
   let component: FySelectModalComponent;
   let fixture: ComponentFixture<FySelectModalComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
@@ -76,6 +76,35 @@ describe('FySelectModalComponent', () => {
         { label: 'None', value: null },
         { label: 'econo', value: 'econo', selected: false },
         { label: 'economy', value: 'ECONOMY', selected: true },
+      ]);
+    });
+    tick(1000);
+  }));
+
+  it('ngAfterViewInit(): should update filteredOptions$ if isCustomSelect is true', fakeAsync(() => {
+    component.currentSelection = 'ECONOMY';
+    component.nullOption = true;
+    component.customInput = true;
+    component.defaultLabelProp = 'economy';
+    component.isCustomSelect = true;
+    component.options = [
+      { label: 'economy', value: 'ECONOMY' },
+      { label: 'business', value: 'BUSINESS' },
+    ];
+    tick();
+    component.ngAfterViewInit();
+    inputElement.value = 'econo';
+    inputElement.dispatchEvent(new Event('keyup'));
+
+    component.filteredOptions$.pipe(take(1)).subscribe((res) => {
+      expect(res).toEqual([
+        { label: 'None', value: null },
+        { label: 'econo', value: 'econo', selected: false },
+        { label: 'economy', value: 'ECONOMY', selected: true },
+      ]);
+      expect(component.options).toEqual([
+        { label: 'economy', value: 'ECONOMY', selected: true },
+        { label: 'business', value: 'BUSINESS', selected: false },
       ]);
     });
     tick(1000);
@@ -193,7 +222,7 @@ describe('FySelectModalComponent', () => {
     });
 
     it('should return recently used items from local storage if not available from API', fakeAsync(() => {
-      const getSpy = recentLocalStorageItemsService.get.and.returnValue(Promise.resolve(localStorageItems));
+      const getSpy = recentLocalStorageItemsService.get.and.resolveTo(localStorageItems);
       component.options = options;
       component.recentlyUsed = null;
       component.currentSelection = 'BUSINESS';
