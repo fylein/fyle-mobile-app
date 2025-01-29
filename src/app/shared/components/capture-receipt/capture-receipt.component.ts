@@ -479,6 +479,15 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     receiptsFromGallery$
       .pipe(filter((receiptsFromGallery: string[]) => receiptsFromGallery.length > 0))
       .subscribe((receiptsFromGallery) => {
+        const oversizedReceipts = receiptsFromGallery.filter((receiptBase64) => {
+          const receiptSize = this.calculateBase64Size(receiptBase64);
+          return receiptSize > 5 * 1024 * 1024; // 5MB in bytes
+        });
+
+        if (oversizedReceipts.length > 0) {
+          return this.showSizeLimitExceededPopover();
+        }
+
         receiptsFromGallery.forEach((receiptBase64) => {
           const receiptBase64Data = 'data:image/jpeg;base64,' + receiptBase64;
           this.base64ImagesWithSource.push({
@@ -492,6 +501,27 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     receiptsFromGallery$
       .pipe(filter((receiptsFromGallery: string[]) => !receiptsFromGallery.length))
       .subscribe(() => this.setUpAndStartCamera());
+  }
+
+  calculateBase64Size(base64String: string): number {
+    const padding = (base64String.match(/(=+)$/) || [])[0]?.length || 0;
+    return (base64String.length * 3) / 4 - padding;
+  }
+
+  async showSizeLimitExceededPopover(): Promise<void> {
+    const sizeLimitExceededPopover = await this.popoverController.create({
+      component: PopupAlertComponent,
+      componentProps: {
+        title: 'Size limit exceeded',
+        message: 'The uploaded file is greater than 5MB in size. Please reduce the file size and try again.',
+        primaryCta: {
+          text: 'OK',
+        },
+      },
+      cssClass: 'pop-up-in-center',
+    });
+
+    await sizeLimitExceededPopover.present();
   }
 
   ngAfterViewInit(): void {
