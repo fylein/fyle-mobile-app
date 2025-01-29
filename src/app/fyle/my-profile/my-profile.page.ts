@@ -3,7 +3,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { Observable, Subscription, concat, forkJoin, from, noop } from 'rxjs';
-import { finalize, shareReplay, switchMap } from 'rxjs/operators';
+import { finalize, map, shareReplay, switchMap } from 'rxjs/operators';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { InfoCardData } from 'src/app/core/models/info-card-data.model';
 import { Org } from 'src/app/core/models/org.model';
@@ -44,6 +44,7 @@ import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup
 import { OrgUser } from 'src/app/core/models/org-user.model';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { UpdateMobileNumberComponent } from './update-mobile-number/update-mobile-number.component';
+import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
 
 @Component({
   selector: 'app-my-profile',
@@ -101,6 +102,8 @@ export class MyProfilePage {
 
   isUserFromINCluster$: Observable<boolean>;
 
+  onboardingPending$: Observable<{ hideOtherOptions: boolean }>;
+
   constructor(
     private authService: AuthService,
     private orgUserSettingsService: OrgUserSettingsService,
@@ -124,7 +127,8 @@ export class MyProfilePage {
     private employeesService: EmployeesService,
     private paymentModeService: PaymentModesService,
     private utilityService: UtilityService,
-    private orgUserService: OrgUserService
+    private orgUserService: OrgUserService,
+    private spenderOnboardingService: SpenderOnboardingService
   ) {}
 
   setupNetworkWatcher(): void {
@@ -185,7 +189,11 @@ export class MyProfilePage {
     this.setupNetworkWatcher();
     this.eou$ = from(this.authService.getEou());
     this.isUserFromINCluster$ = from(this.utilityService.isUserFromINCluster());
-
+    this.onboardingPending$ = this.spenderOnboardingService.checkForRedirectionToOnboarding().pipe(
+      map((redirectionAllowed) => ({
+        hideOtherOptions: redirectionAllowed,
+      }))
+    );
     this.reset();
     from(this.tokenService.getClusterDomain()).subscribe((clusterDomain) => {
       this.clusterDomain = clusterDomain;

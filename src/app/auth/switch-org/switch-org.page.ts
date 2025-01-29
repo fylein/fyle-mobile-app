@@ -31,6 +31,8 @@ import { TransactionService } from 'src/app/core/services/transaction.service';
 import { DeepLinkService } from 'src/app/core/services/deep-link.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
 
 @Component({
   selector: 'app-switch-org',
@@ -86,7 +88,9 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     private transactionService: TransactionService,
     private deepLinkService: DeepLinkService,
     private expensesService: ExpensesService,
-    private launchDarklyService: LaunchDarklyService
+    private launchDarklyService: LaunchDarklyService,
+    private orgSettingsService: OrgSettingsService,
+    private spenderOnboardingService: SpenderOnboardingService
   ) {}
 
   ngOnInit(): void {
@@ -208,14 +212,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       )
       .subscribe({
         next: () => {
-          this.router.navigate([
-            '/',
-            'enterprise',
-            'my_dashboard',
-            {
-              openSMSOptInDialog: true,
-            },
-          ]);
+          this.navigateToDashboard(true);
         },
         error: () => this.router.navigate(['/', 'auth', 'switch_org']),
       });
@@ -319,13 +316,35 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     }
   }
 
+  navigateToDashboard(openOptInDialog?: boolean): void {
+    this.spenderOnboardingService
+      .checkForRedirectionToOnboarding()
+      .pipe(
+        map((shouldProceedToOnboarding) => {
+          if (shouldProceedToOnboarding) {
+            this.router.navigate(['/', 'enterprise', 'spender_onboarding']);
+          } else {
+            this.router.navigate([
+              '/',
+              'enterprise',
+              'my_dashboard',
+              {
+                openSMSOptInDialog: openOptInDialog,
+              },
+            ]);
+          }
+        })
+      )
+      .subscribe();
+  }
+
   // Mark the user active in the selected org and redirect them to the dashboard.
   markUserActive(): Observable<ExtendedOrgUser> {
     return from(this.loaderService.showLoader()).pipe(
       switchMap(() => this.orgUserService.markActive()),
       finalize(() => {
         this.loaderService.hideLoader();
-        this.router.navigate(['/', 'enterprise', 'my_dashboard']);
+        this.navigateToDashboard();
       })
     );
   }
@@ -370,7 +389,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     if (config.isPendingDetails) {
       return this.handlePendingDetails(config.roles, config?.isFromInviteLink);
     } else if (config.eou.ou.status === 'ACTIVE') {
-      this.router.navigate(['/', 'enterprise', 'my_dashboard']);
+      this.navigateToDashboard();
     } else if (config.eou.ou.status === 'DISABLED') {
       this.router.navigate(['/', 'auth', 'disabled']);
     }
