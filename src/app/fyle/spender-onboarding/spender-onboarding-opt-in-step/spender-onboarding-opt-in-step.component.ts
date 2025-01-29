@@ -190,6 +190,9 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
               this.sendCodeLoading = false;
             },
           });
+      } else {
+        this.savingMobileNumber = false;
+        return;
       }
     }
   }
