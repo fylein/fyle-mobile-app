@@ -257,7 +257,7 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
       fixture.detectChanges();
       const message = component.generateMessage();
       expect(message).toBe(
-        `We ran into an issue while processing your request for the cards  **** 1234, **** 5678 and **** 9012.<br><br>You can cancel and retry connecting the failed card or proceed to the next step.`
+        `We ran into an issue while processing your request for the cards <span class='text-bold'>**** 1234, **** 5678</span> and <span class='text-bold'>**** 9012</span>.<br><br>You can cancel and retry connecting the failed card or proceed to the next step.`
       );
     });
 
@@ -269,7 +269,7 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
       const message = component.generateMessage();
 
       expect(message).toBe(
-        `We ran into an issue while processing your request for the card **** 1234.<br><br> You can cancel and retry connecting the failed card or proceed to the next step.`
+        `We ran into an issue while processing your request for the card <span class='text-bold'>**** 1234</span>.<br><br> You can cancel and retry connecting the failed card or proceed to the next step.`
       );
     });
   });
