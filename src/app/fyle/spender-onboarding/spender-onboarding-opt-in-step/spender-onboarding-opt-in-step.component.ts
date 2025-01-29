@@ -164,9 +164,7 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
 
   saveMobileNumber(): void {
     this.savingMobileNumber = true;
-    if (this.mobileNumberError.length) {
-      this.validateInput();
-    }
+
     //If user has not changed the verified mobile number, close the popover
     if (this.mobileNumberInputValue === this.eou.ou.mobile && this.eou.ou.mobile_verified) {
       this.optInFlowState = OptInFlowState.OTP_VERIFICATION;
