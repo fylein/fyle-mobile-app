@@ -56,6 +56,7 @@ describe('InvitedUserPage', () => {
       'showToastMessage',
       'setupComplete',
       'activated',
+      'eventTrack',
     ]);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);

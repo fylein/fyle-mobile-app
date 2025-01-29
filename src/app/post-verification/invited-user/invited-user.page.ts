@@ -86,6 +86,8 @@ export class InvitedUserPage implements OnInit {
       this.fg.controls.fullName.setValue(eou?.us?.full_name);
       this.orgName = eou.ou.org_name;
     });
+
+    this.trackingService.eventTrack('Setup user page opened');
   }
 
   onPasswordValid(isValid: boolean): void {

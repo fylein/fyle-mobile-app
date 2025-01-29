@@ -55,6 +55,7 @@ export class SpenderOnboardingPage {
 
   setPostOnboardingScreen(isComplete?: boolean): void {
     this.spenderOnboardingService.setOnboardingStatusEvent();
+    this.corporateCreditCardExpenseService.clearCache().subscribe();
     if (isComplete) {
       this.onboardingComplete = true;
       this.startCountdown();

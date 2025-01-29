@@ -43,6 +43,7 @@ describe('SpenderOnboardingPage', () => {
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const corporateCreditCardExpenseServiceSpy = jasmine.createSpyObj('CorporateCreditCardExpenseService', [
       'getCorporateCards',
+      'clearCache',
     ]);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['eventTrack']);
@@ -73,6 +74,7 @@ describe('SpenderOnboardingPage', () => {
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     spenderOnboardingService.markWelcomeModalStepAsComplete.and.returnValue(of({ is_complete: true }));
+    corporateCreditCardExpenseService.clearCache.and.returnValue(of(null));
     spyOn(component, 'completeOnboarding').and.returnValue(of()).and.callThrough();
   });
 
