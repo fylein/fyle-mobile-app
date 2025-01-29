@@ -43,7 +43,7 @@ export class FySelectModalComponent implements AfterViewInit {
 
   @Input() label: string;
 
-  @Input() isCustomSelect?: boolean;
+  @Input() isCustomSelect = false;
 
   value: string | ModalOption = '';
 
@@ -78,8 +78,6 @@ export class FySelectModalComponent implements AfterViewInit {
               option.selected = isEqual(option.value, this.currentSelection);
               return option;
             })
-            .sort((a, b) => (this.isCustomSelect ? (a.selected === b.selected ? 0 : a.selected ? -1 : 1) : 0))
-            .slice(0, this.isCustomSelect ? 200 : this.options.length)
         )
       );
     }
