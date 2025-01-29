@@ -8,7 +8,7 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { of, take } from 'rxjs';
 import { By } from '@angular/platform-browser';
 
-fdescribe('FySelectModalComponent', () => {
+describe('FySelectModalComponent', () => {
   let component: FySelectModalComponent;
   let fixture: ComponentFixture<FySelectModalComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
