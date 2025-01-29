@@ -107,7 +107,6 @@ fdescribe('FySelectModalComponent', () => {
         { label: 'business', value: 'BUSINESS', selected: false },
       ]);
     });
-    tick(1000);
   }));
 
   it('ngAfterViewInit(): should update filteredOptions$ if currentSelection is not equal to any options value', () => {
