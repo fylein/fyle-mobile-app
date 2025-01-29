@@ -159,6 +159,7 @@ describe('NewPasswordPage', () => {
     tick(500);
 
     expect(deviceService.getDeviceInfo).toHaveBeenCalledTimes(1);
+    expect(trackingService.eventTrack).toHaveBeenCalledOnceWith('Reset Password page opened');
     expect(trackingService.eventTrack).toHaveBeenCalledOnceWith('Added Login Info', { label: '5.50.0' });
     expect(loginInfoService.addLoginInfo).toHaveBeenCalledOnceWith('5.50.0', mockDate);
   }));
