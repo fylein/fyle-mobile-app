@@ -112,7 +112,7 @@ export class SpenderOnboardingPage {
           const isAmexFeedEnabled = orgSettings.amex_feed_enrollment_settings.enabled;
           const rtfCards = corporateCards.filter((card) => card.is_visa_enrolled || card.is_mastercard_enrolled);
           if (this.isMobileVerified(this.eou) && rtfCards.length > 0) {
-            this.completeOnboarding();
+            this.completeOnboarding().subscribe();
           } else if (isAmexFeedEnabled && !isRtfEnabled) {
             this.currentStep = OnboardingStep.OPT_IN;
             this.showOneStep = true;
