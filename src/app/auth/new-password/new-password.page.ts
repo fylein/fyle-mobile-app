@@ -64,6 +64,7 @@ export class NewPasswordPage implements OnInit {
       password: ['', [Validators.required, this.checkPasswordValidity]],
       confirmPassword: ['', [Validators.required, this.validatePasswordEquality]],
     });
+    this.trackingService.eventTrack('Reset Password page opened');
   }
 
   changePassword(): void {
