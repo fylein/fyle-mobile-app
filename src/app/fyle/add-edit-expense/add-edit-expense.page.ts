@@ -750,7 +750,7 @@ export class AddEditExpensePage implements OnInit {
     await splitBlockedPopoverSpy.present();
   }
 
-  openSplitExpenseModal(splitType: string): void {
+  openSplitExpenseModal(): void {
     const customFields$ = this.getCustomFields();
     const formValue = this.getFormValues();
 
@@ -774,13 +774,30 @@ export class AddEditExpensePage implements OnInit {
             'Looks like the tax amount is more than the expense amount. Please correct the tax amount before splitting it.';
           return this.showSplitBlockedPopover(popoverMessage);
         }
+        const splitConfig = {
+          category: {
+            is_visible: !!res.txnFields.org_category_id,
+            value: formValue.category,
+            is_mandatory: res.txnFields.org_category_id?.is_mandatory || false,
+          },
+          project: {
+            is_visible: !!res.txnFields.project_id,
+            value: formValue.project,
+            is_mandatory: res.txnFields.project_id?.is_mandatory || false,
+          },
+          costCenter: {
+            is_visible: !!res.txnFields.cost_center_id,
+            value: formValue.costCenter,
+            is_mandatory: res.txnFields.cost_center_id?.is_mandatory || false,
+          },
+        };
 
         this.router.navigate([
           '/',
           'enterprise',
           'split_expense',
           {
-            splitType,
+            splitConfig,
             txnFields: JSON.stringify(res.txnFields),
             txn: JSON.stringify(res.generatedEtxn.tx),
             currencyObj: JSON.stringify(this.fg.controls.currencyObj.value),
@@ -991,34 +1008,10 @@ export class AddEditExpensePage implements OnInit {
     return this.markPeronsalOrDismiss('dismiss');
   }
 
-  splitExpCategoryHandler(): void {
+  splitExpenseHandler(): void {
     if (this.pendingTransactionAllowedToReportAndSplit) {
       if (this.fg.valid) {
-        this.openSplitExpenseModal('categories');
-      } else {
-        this.showFormValidationErrors();
-      }
-    } else {
-      this.showTransactionPendingToast();
-    }
-  }
-
-  splitExpProjectHandler(): void {
-    if (this.pendingTransactionAllowedToReportAndSplit) {
-      if (this.fg.valid) {
-        this.openSplitExpenseModal('projects');
-      } else {
-        this.showFormValidationErrors();
-      }
-    } else {
-      this.showTransactionPendingToast();
-    }
-  }
-
-  splitExpCostCenterHandler(): void {
-    if (this.pendingTransactionAllowedToReportAndSplit) {
-      if (this.fg.valid) {
-        this.openSplitExpenseModal('cost centers');
+        this.openSplitExpenseModal();
       } else {
         this.showFormValidationErrors();
       }
@@ -1037,87 +1030,43 @@ export class AddEditExpensePage implements OnInit {
   }
 
   getActionSheetOptions(): Observable<{ text: string; handler: () => void }[]> {
-    const projects$ = this.activeCategories$.pipe(
-      switchMap((activeCategories) => this.projectsService.getAllActive(activeCategories))
-    );
-    return forkJoin({
-      orgSettings: this.orgSettingsService.get(),
-      costCenters: this.costCenters$,
-      projects: projects$,
-      txnFields: this.txnFields$.pipe(take(1)),
-      filteredCategories: this.filteredCategories$.pipe(take(1)),
-      showProjectMappedCategoriesInSplitExpense: this.launchDarklyService.getVariation(
-        'show_project_mapped_categories_in_split_expense',
-        false
-      ),
-    }).pipe(
-      map(
-        ({
-          orgSettings,
-          costCenters,
-          projects,
-          txnFields,
-          filteredCategories,
-          showProjectMappedCategoriesInSplitExpense,
-        }) => {
-          const isSplitExpenseAllowed = orgSettings.expense_settings.split_expense_settings.enabled;
+    return this.orgSettingsService.get().pipe(
+      map((orgSettings) => {
+        const isSplitExpenseAllowed = orgSettings.expense_settings.split_expense_settings.enabled;
 
-          const actionSheetOptions: { text: string; handler: () => void }[] = [];
+        const actionSheetOptions: { text: string; handler: () => void }[] = [];
 
-          if (isSplitExpenseAllowed) {
-            const areCostCentersAvailable = costCenters.length > 0 && txnFields.cost_center_id;
-            const areProjectsAvailable = orgSettings.projects.enabled && projects.length > 0;
-            const areProjectDependentCategoriesAvailable = filteredCategories.length > 1;
-            const projectField = txnFields.project_id;
-            const costCenterField = txnFields.cost_center_id;
+        if (isSplitExpenseAllowed) {
+          actionSheetOptions.push({
+            text: 'Split Expense',
+            handler: () => this.splitExpenseHandler(),
+          });
+        }
 
-            if (!showProjectMappedCategoriesInSplitExpense || areProjectDependentCategoriesAvailable) {
-              actionSheetOptions.push({
-                text: 'Split Expense By Category',
-                handler: () => this.splitExpCategoryHandler(),
-              });
-            }
-
-            if (areProjectsAvailable) {
-              actionSheetOptions.push({
-                text: 'Split Expense By ' + this.titleCasePipe.transform(projectField?.field_name),
-                handler: () => this.splitExpProjectHandler(),
-              });
-            }
-
-            if (areCostCentersAvailable) {
-              actionSheetOptions.push({
-                text: 'Split Expense By ' + this.titleCasePipe.transform(costCenterField?.field_name),
-                handler: () => this.splitExpCostCenterHandler(),
-              });
-            }
-          }
-
-          if (this.isCccExpense) {
-            if (this.isExpenseMatchedForDebitCCCE) {
-              actionSheetOptions.push({
-                text: 'Mark as Personal',
-                handler: () => this.markPersonalHandler(),
-              });
-            }
-
-            if (this.canDismissCCCE) {
-              actionSheetOptions.push({
-                text: 'Dimiss as Card Payment',
-                handler: () => this.markDismissHandler(),
-              });
-            }
-          }
-
-          if (this.isCorporateCreditCardEnabled && this.canRemoveCardExpense) {
+        if (this.isCccExpense) {
+          if (this.isExpenseMatchedForDebitCCCE) {
             actionSheetOptions.push({
-              text: 'Remove Card Expense',
-              handler: () => this.removeCCCHandler(),
+              text: 'Mark as Personal',
+              handler: () => this.markPersonalHandler(),
             });
           }
-          return actionSheetOptions;
+
+          if (this.canDismissCCCE) {
+            actionSheetOptions.push({
+              text: 'Dimiss as Card Payment',
+              handler: () => this.markDismissHandler(),
+            });
+          }
         }
-      )
+
+        if (this.isCorporateCreditCardEnabled && this.canRemoveCardExpense) {
+          actionSheetOptions.push({
+            text: 'Remove Card Expense',
+            handler: () => this.removeCCCHandler(),
+          });
+        }
+        return actionSheetOptions;
+      })
     );
   }
 
