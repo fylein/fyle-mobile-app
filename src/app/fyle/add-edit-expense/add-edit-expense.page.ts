@@ -14,7 +14,7 @@ import {
   Observable,
   Subject,
   Subscription,
-  combineLatest,:
+  combineLatest,
   concat,
   forkJoin,
   from,
