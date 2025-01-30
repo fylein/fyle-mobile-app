@@ -314,7 +314,10 @@ export class ExpensesService {
       started_at: transaction.from_dt,
       ended_at: transaction.to_dt,
       locations: transaction.locations as unknown as Location[],
-      custom_fields: transaction.custom_properties,
+      custom_fields: transaction.custom_properties.map((customProperty) => ({
+        name: customProperty.name,
+        value: customProperty.value,
+      })),
       per_diem_rate_id: transaction.per_diem_rate_id,
       per_diem_num_days: transaction.num_days || 0,
       mileage_rate_id: transaction.mileage_rate_id, // @arjun check if this is present
