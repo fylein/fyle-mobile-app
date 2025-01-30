@@ -73,7 +73,7 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
 
   mobileNumberInputValue: string;
 
-  mobileNumberError: string;
+  mobileNumberError = '';
 
   sendCodeLoading = false;
 
@@ -157,11 +157,14 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
       this.mobileNumberError = 'Please enter mobile number.';
     } else if (!this.mobileNumberInputValue.match(/^\+1\d{10}$/)) {
       this.mobileNumberError = 'Please enter a valid number with +1 country code. Try re-entering your number.';
+    } else {
+      this.mobileNumberError = '';
     }
   }
 
   saveMobileNumber(): void {
     this.savingMobileNumber = true;
+
     //If user has not changed the verified mobile number, close the popover
     if (this.mobileNumberInputValue === this.eou.ou.mobile && this.eou.ou.mobile_verified) {
       this.optInFlowState = OptInFlowState.OTP_VERIFICATION;
@@ -190,6 +193,9 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
               this.sendCodeLoading = false;
             },
           });
+      } else {
+        this.savingMobileNumber = false;
+        return;
       }
     }
   }

@@ -1,17 +1,8 @@
-import {
-  Component,
-  OnInit,
-  ViewChild,
-  ElementRef,
-  AfterViewInit,
-  Input,
-  ChangeDetectorRef,
-  TemplateRef,
-} from '@angular/core';
+import { Component, ViewChild, ElementRef, AfterViewInit, Input, ChangeDetectorRef, TemplateRef } from '@angular/core';
 import { from, fromEvent, Observable, of } from 'rxjs';
-import { map, startWith, distinctUntilChanged, tap, switchMap, shareReplay } from 'rxjs/operators';
+import { map, startWith, distinctUntilChanged, switchMap, shareReplay } from 'rxjs/operators';
 import { ModalController } from '@ionic/angular';
-import { isEqual, includes } from 'lodash';
+import { isEqual } from 'lodash';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
 import { ExtendedOption, ModalOption, Option } from './fy-select-modal.interface';
@@ -21,7 +12,7 @@ import { ExtendedOption, ModalOption, Option } from './fy-select-modal.interface
   templateUrl: './fy-select-modal.component.html',
   styleUrls: ['./fy-select-modal.component.scss'],
 })
-export class FySelectModalComponent implements OnInit, AfterViewInit {
+export class FySelectModalComponent implements AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;
 
   @Input() options: Option[] = [];
@@ -52,6 +43,8 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
 
   @Input() label: string;
 
+  @Input() isCustomSelect = false;
+
   value: string | ModalOption = '';
 
   recentrecentlyUsedItems$: Observable<ExtendedOption[]>;
@@ -63,16 +56,14 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
     private utilityService: UtilityService
   ) {}
 
-  ngOnInit() {}
-
-  clearValue() {
+  clearValue(): void {
     this.value = '';
     const searchInput = this.searchBarRef.nativeElement as HTMLInputElement;
     searchInput.value = '';
     searchInput.dispatchEvent(new Event('keyup'));
   }
 
-  getRecentlyUsedItems() {
+  getRecentlyUsedItems(): Observable<Option[]> {
     // Check if recently items exists from api and set, else, set the recent items from the localStorage
     if (this.recentlyUsed) {
       return of(this.recentlyUsed);
@@ -92,14 +83,14 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
     }
   }
 
-  ngAfterViewInit() {
+  ngAfterViewInit(): void {
     if (this.searchBarRef && this.searchBarRef.nativeElement) {
-      this.filteredOptions$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
-        map((event: any) => event.srcElement.value),
+      this.filteredOptions$ = fromEvent(this.searchBarRef.nativeElement as HTMLElement, 'keyup').pipe(
+        map((event: Event) => (event.target as HTMLInputElement).value),
         startWith(''),
         distinctUntilChanged(),
         map((searchText) => {
-          const initial = [];
+          const initial: Option[] = [];
 
           if (this.nullOption && this.currentSelection) {
             initial.push({ label: 'None', value: null });
@@ -113,6 +104,7 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
             const selectedOption = this.options.find((option) => isEqual(option.value, this.currentSelection));
             if (!selectedOption) {
               extraOption = extraOption.concat({
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                 label: this.currentSelection[this.defaultLabelProp],
                 value: this.currentSelection,
                 selected: false,
@@ -129,12 +121,14 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
                 option.selected = isEqual(option.value, this.currentSelection);
                 return option;
               })
+              .sort((a, b) => (this.isCustomSelect ? (a.selected === b.selected ? 0 : a.selected ? -1 : 1) : 0))
+              .slice(0, this.isCustomSelect ? 200 : this.options.length)
           );
         }),
         shareReplay(1)
       );
-      this.recentrecentlyUsedItems$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
-        map((event: any) => event.srcElement.value),
+      this.recentrecentlyUsedItems$ = fromEvent(this.searchBarRef.nativeElement as HTMLElement, 'keyup').pipe(
+        map((event: Event) => (event.target as HTMLInputElement).value),
         startWith(''),
         distinctUntilChanged(),
         switchMap((searchText) =>
@@ -146,7 +140,7 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
         shareReplay(1)
       );
     } else {
-      const initial = [];
+      const initial: Option[] = [];
 
       if (this.nullOption && this.currentSelection) {
         initial.push({ label: 'None', value: null });
@@ -154,10 +148,13 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
 
       this.filteredOptions$ = of(
         initial.concat(
-          this.options.map((option) => {
-            option.selected = isEqual(option.value, this.currentSelection);
-            return option;
-          })
+          this.options
+            .map((option) => {
+              option.selected = isEqual(option.value, this.currentSelection);
+              return option;
+            })
+            .sort((a, b) => (this.isCustomSelect ? (a.selected === b.selected ? 0 : a.selected ? -1 : 1) : 0))
+            .slice(0, this.isCustomSelect ? 200 : this.options.length)
         )
       );
     }
@@ -165,11 +162,11 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
     this.cdr.detectChanges();
   }
 
-  onDoneClick() {
+  onDoneClick(): void {
     this.modalController.dismiss();
   }
 
-  onElementSelect(option: ExtendedOption) {
+  onElementSelect(option: ExtendedOption): void {
     if (this.cacheName && option.value) {
       option.custom = !this.options.some((internalOption) => internalOption.value !== option.value);
       this.recentLocalStorageItemsService.post(this.cacheName, option, 'label');
@@ -177,10 +174,10 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
     this.modalController.dismiss(option);
   }
 
-  saveToCacheAndUse() {
+  saveToCacheAndUse(): void {
     const option: ExtendedOption = {
-      label: this.searchBarRef.nativeElement.value,
-      value: this.searchBarRef.nativeElement.value,
+      label: (this.searchBarRef.nativeElement as HTMLInputElement).value,
+      value: (this.searchBarRef.nativeElement as HTMLInputElement).value,
       selected: false,
     };
     this.onElementSelect(option);

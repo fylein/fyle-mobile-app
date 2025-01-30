@@ -24,7 +24,7 @@ describe('VerifyPage', () => {
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const routerAuthServiceSpy = jasmine.createSpyObj('RouterAuthService', ['emailVerify']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['refreshEou']);
-    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['emailVerified', 'onSignin']);
+    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['emailVerified', 'onSignin', 'eventTrack']);
     const userEventServiceSpy = jasmine.createSpyObj('UserEventService', ['logout']);
 
     TestBed.configureTestingModule({
