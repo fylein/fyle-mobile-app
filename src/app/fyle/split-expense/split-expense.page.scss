@@ -42,7 +42,8 @@ $background-color: #fff;
 
   &--top-bar {
     background-color: $pure-white;
-    padding: 16px 16px 0 16px;
+    padding: 16px 16px 8px 16px;
+    gap: 10px;
   }
 
   &--container {
@@ -54,6 +55,7 @@ $background-color: #fff;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding-bottom: 23px;
   }
 
   &--internal-block {
@@ -73,39 +75,59 @@ $background-color: #fff;
 
   &--card {
     padding: 16px;
-    margin-top: 24px;
+    margin-top: 18px;
     border-radius: 8px;
-    border: 1px solid $grey-lighter;
+    border: 1px solid $border-tertiary;
+    box-shadow: 0px 0px 4px 2px $shadow-xs;
   }
 
   &--card-header {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+  }
+
+  &--left-content {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 10px;
+  }
+
+  &--icon-container {
+    padding: 4px;
+    border-radius: 4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: $off-white;
   }
 
   &--index {
     font-size: 14px;
     font-weight: 500;
-    color: $grey-light;
-    margin: 0 auto 12px;
     line-height: 18px;
   }
 
-  &--remove {
-    margin-left: 43%;
+  &--split-count-icon {
+    width: 20px;
+    height: 2opx;
   }
 
   &--remove-icon {
     background: none;
-    height: 18px;
-    width: 18px;
+    color: $red;
+    height: 20px;
+    width: 20px;
   }
 
   &--amount-percentage {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    padding-bottom: 23px;
   }
 
   &--percentage {
@@ -192,97 +214,78 @@ $background-color: #fff;
   &--more-actions {
     display: flex;
     align-items: center;
-    margin: 36px 0;
-
-    &__divider {
-      width: 1px;
-      height: 18px;
-      margin: 0 20px;
-      background-color: $grey-lighter;
-      border-radius: 2px;
-    }
+    padding: 16px;
+    justify-content: space-between;
+    gap: 16px;
+    box-shadow: 0px 2px 10px 0px $shadow-lg;
   }
 
   &--add-more,
   &--split-evenly {
     display: flex;
     align-items: center;
-    color: $brand-primary;
+    justify-content: center;
+    padding: 12px 16px;
+    gap: 8px;
   }
 
   &--add-more-icon,
   &--split-evenly-icon {
     color: $brand-primary;
-    margin-right: 8px;
-    width: 20px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
   }
 
   &--add-more-label,
   &--split-evenly-label {
     color: $black-light;
-    font-size: 14px;
+    font-size: 12px;
     line-height: 18px;
     font-weight: 500;
   }
 
-  &--primary-cta {
-    width: 100%;
-    height: 48px;
-    --border-width: 1px;
-  }
-
   &--amount-block {
     display: flex;
-    border-bottom: 1px solid $grey-lighter;
-    padding: 22px 0 20px 0;
+    padding: 12px;
+    border-radius: 8px;
+    background: $pink-gradient-light-2;
 
     &__label {
       font-size: 12px;
-      line-height: 16px;
+      line-height: 18px;
       color: $black-light;
-      font-weight: 400;
       width: 50%;
     }
   }
 
   &--split-amount {
     font-weight: 500;
-    font-size: 20px;
-    line-height: 26px;
+    font-size: 16px;
+    line-height: 20px;
     color: $blue-black;
   }
 
-  &--limit {
-    padding: 16px;
-    margin-bottom: 16px;
+  &--align-right {
+    text-align: right;
   }
 
   &--error-message-block {
-    width: 100%;
-    color: $pure-white;
-    padding: 16px;
+    color: $blue-black;
+    border-radius: 4px;
+    background-color: $pale-pink;
+    font-size: 12px;
+    padding: 8px 12px;
+    line-height: 15px;
     display: flex;
     align-items: center;
-    height: 44px;
-  }
-
-  &--error-message {
-    margin: 0 !important;
-  }
-
-  &--error-container {
-    display: flex;
-    background-color: $red;
-    margin: 16px;
-    border-radius: 8px;
+    margin-top: 3px;
+    border: 1px solid $red-1;
   }
 
   &--error-icon {
-    margin-right: 10px;
-  }
-
-  &--footer {
-    background-color: $pure-white;
+    margin-right: 12px;
+    color: $red;
+    height: 18px;
+    width: 18px;
   }
 }

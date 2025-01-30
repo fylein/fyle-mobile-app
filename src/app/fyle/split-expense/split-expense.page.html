@@ -8,7 +8,7 @@
       </ion-buttons>
 
       <div class="split-expense--header-block">
-        <div class="split-expense--header-title" mode="md">Split by {{ splitExpenseHeader }}</div>
+        <div class="split-expense--header-title" mode="md">Split expense</div>
         <ion-buttons>
           <ion-button
             (click)="save()"
@@ -26,17 +26,32 @@
 </ion-header>
 
 <div class="split-expense--top-bar">
-  <app-fy-alert-info [type]="'warning'" [message]="'Split expense cannot be undone'"></app-fy-alert-info>
+  <app-fy-alert-info
+    [type]="'warning'"
+    [message]="'Split expense is a permanent action and cannot be undone.'"
+  ></app-fy-alert-info>
 
   <div class="split-expense--amount-block" *ngIf="amount">
     <div class="split-expense--amount-block__label">
-      Total:
-      <div class="split-expense--split-amount">{{ currency }} {{totalSplitAmount}}</div>
+      No.of splits
+      <div class="split-expense--split-amount">{{splitExpensesFormArray.controls.length}}</div>
     </div>
     <div class="split-expense--amount-block__label">
-      Remaining:
+      Total amount
+      <div class="split-expense--split-amount">{{ currency }} {{totalSplitAmount}}</div>
+    </div>
+    <div class="split-expense--amount-block__label split-expense--align-right">
+      Remaining amount
       <div class="split-expense--split-amount">{{ currency }} {{remainingAmount }}</div>
     </div>
+  </div>
+  <div *ngIf="splitExpensesFormArray.controls.length === 30" class="split-expense--error-message-block">
+    <mat-icon class="split-expense--error-icon" svgIcon="danger-fill"></mat-icon>
+    <div>Cannot have more than 30 splits for an expense.</div>
+  </div>
+  <div *ngIf="showErrorBlock" class="split-expense--error-message-block">
+    <mat-icon class="split-expense--error-icon" svgIcon="danger-fill"></mat-icon>
+    <div>{{errorMessage}}</div>
   </div>
 </div>
 
@@ -44,12 +59,12 @@
   <div class="split-expense--container">
     <div class="split-expense--card" *ngFor="let splitExpenseForm of splitExpensesFormArray.controls; index as i">
       <div class="split-expense--card-header">
-        <p
-          class="split-expense--index"
-          [ngClass]="{'split-expense--remove': splitExpensesFormArray.controls.length > 2}"
-        >
-          SPLIT {{ i + 1 }}
-        </p>
+        <div class="split-expense--left-content">
+          <div class="split-expense--icon-container">
+            <mat-icon class="split-expense--split-count-icon" svgIcon="split"></mat-icon>
+          </div>
+          <div class="split-expense--index">SPLIT {{ i + 1 }}</div>
+        </div>
         <mat-icon
           class="split-expense--remove-icon"
           *ngIf="splitExpensesFormArray.controls.length > 2"
@@ -78,7 +93,7 @@
           </div>
 
           <div class="split-expense--item split-expense--percentage">
-            <span class="split-expense--label">Percentage</span>
+            <span class="split-expense--label">Amount in %</span>
             <input
               inputmode="decimal"
               type="number"
@@ -87,6 +102,30 @@
               [min]="0.01"
               (ngModelChange)="onChangePercentage(splitExpenseForm, i)"
             />
+          </div>
+        </div>
+
+        <div class="split-expense--main-block">
+          <div
+            class="split-expense--item split-expense--date"
+            [ngClass]="{'split-expense--date-invalid': splitExpenseForm.controls.txn_dt.touched && !splitExpenseForm.controls.txn_dt.valid}"
+          >
+            <div class="split-expense--label split-expense--date-label">Date of spend</div>
+            <span class="split-expense--mandatory">*</span>
+            <input
+              appFormatDate
+              class="split-expense--date-input date-input__format smartlook-show"
+              type="date"
+              formControlName="txn_dt"
+              [min]="minDate"
+              [max]="maxDate"
+            />
+          </div>
+          <div
+            class="split-expense--error"
+            *ngIf="splitExpenseForm.controls.txn_dt.touched && !splitExpenseForm.controls.txn_dt.valid"
+          >
+            Please select a valid date.
           </div>
         </div>
 
@@ -152,30 +191,6 @@
               Please select a cost center.
             </div>
           </div>
-
-          <div class="split-expense--internal-block">
-            <div
-              class="split-expense--item split-expense--date"
-              [ngClass]="{'split-expense--date-invalid': splitExpenseForm.controls.txn_dt.touched && !splitExpenseForm.controls.txn_dt.valid}"
-            >
-              <div class="split-expense--label split-expense--date-label">Date</div>
-              <span class="split-expense--mandatory">*</span>
-              <input
-                appFormatDate
-                class="split-expense--date-input date-input__format smartlook-show"
-                type="date"
-                formControlName="txn_dt"
-                [min]="minDate"
-                [max]="maxDate"
-              />
-            </div>
-            <div
-              class="split-expense--error"
-              *ngIf="splitExpenseForm.controls.txn_dt.touched && !splitExpenseForm.controls.txn_dt.valid"
-            >
-              Please select a valid date.
-            </div>
-          </div>
         </div>
 
         <div
@@ -184,35 +199,23 @@
         ></div>
       </ng-container>
     </div>
-
-    <div class="split-expense--more-actions">
-      <div class="split-expense--add-more" *ngIf="splitExpensesFormArray.controls.length < 30" (click)="add()">
-        <mat-icon class="split-expense--add-more-icon" svgIcon="plus-square"></mat-icon>
-        <div class="text-center split-expense--add-more-label">Add Split</div>
-      </div>
-
-      <div *ngIf="splitExpensesFormArray.controls.length < 30" class="split-expense--more-actions__divider"></div>
-
-      <div class="split-expense--split-evenly" (click)="splitEvenly()">
-        <mat-icon class="split-expense--split-evenly-icon" svgIcon="split"></mat-icon>
-        <div class="text-center split-expense--split-evenly-label">Split Evenly</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="split-expense--limit" *ngIf="splitExpensesFormArray.controls.length === 30">
-    <app-fy-alert-info
-      [type]="'warning'"
-      [message]="'Limit Reached: You cannot split an expense into more than 30 parts.'"
-    ></app-fy-alert-info>
   </div>
 </ion-content>
 
-<ion-footer *ngIf="showErrorBlock" class="split-expense--footer">
-  <div class="split-expense--error-container">
-    <div class="split-expense--error-message-block">
-      <mat-icon class="split-expense--error-icon" svgIcon="danger-fill"></mat-icon>
-      <p class="split-expense--error-message">{{errorMessage}}</p>
-    </div>
+<ion-footer>
+  <div class="split-expense--more-actions">
+    <button
+      class="btn-outline-secondary split-expense--add-more"
+      *ngIf="splitExpensesFormArray.controls.length < 30"
+      (click)="add()"
+    >
+      <mat-icon class="split-expense--add-more-icon" svgIcon="plus-square"></mat-icon>
+      <div>Add Split</div>
+    </button>
+
+    <button class="btn-outline-secondary split-expense--split-evenly" (click)="splitEvenly()">
+      <mat-icon class="split-expense--split-evenly-icon" svgIcon="split"></mat-icon>
+      <div>Split Evenly</div>
+    </button>
   </div>
 </ion-footer>
