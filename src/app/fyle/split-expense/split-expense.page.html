@@ -40,7 +40,7 @@
       Total amount
       <div class="split-expense--split-amount">{{ currency }} {{totalSplitAmount}}</div>
     </div>
-    <div class="split-expense--amount-block__label split-expense--align-right">
+    <div class="split-expense--amount-block__label split-expense--remaining-amount">
       Remaining amount
       <div class="split-expense--split-amount">{{ currency }} {{remainingAmount }}</div>
     </div>
@@ -59,7 +59,7 @@
   <div class="split-expense--container">
     <div class="split-expense--card" *ngFor="let splitExpenseForm of splitExpensesFormArray.controls; index as i">
       <div class="split-expense--card-header">
-        <div class="split-expense--left-content">
+        <div class="split-expense--card-header-left-content">
           <div class="split-expense--icon-container">
             <mat-icon class="split-expense--split-count-icon" svgIcon="split"></mat-icon>
           </div>

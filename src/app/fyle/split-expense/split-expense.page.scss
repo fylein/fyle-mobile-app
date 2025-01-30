@@ -55,7 +55,7 @@ $background-color: #fff;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-bottom: 23px;
+    padding-bottom: 24px;
   }
 
   &--internal-block {
@@ -89,7 +89,7 @@ $background-color: #fff;
     margin-bottom: 30px;
   }
 
-  &--left-content {
+  &--card-header-left-content {
     display: flex;
     justify-content: flex-start;
     align-items: center;
@@ -265,7 +265,7 @@ $background-color: #fff;
     color: $blue-black;
   }
 
-  &--align-right {
+  &--remaining-amount {
     text-align: right;
   }
 
