@@ -165,9 +165,7 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
           );
         });
         if (value.mileageLocations.length === 1) {
-          this.mileageLocations.push(
-            new FormControl(null, this.mileageConfig.location_mandatory && Validators.required)
-          );
+          this.mileageLocations.push(new FormControl({}, this.mileageConfig.location_mandatory && Validators.required));
         }
       }
 
@@ -233,7 +231,7 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
 
       data.mileageLocations?.forEach((mileageLocation) => {
         this.mileageLocations.push(
-          new FormControl(mileageLocation, this.mileageConfig.location_mandatory && Validators.required)
+          new FormControl(mileageLocation || {}, this.mileageConfig.location_mandatory && Validators.required)
         );
       });
 

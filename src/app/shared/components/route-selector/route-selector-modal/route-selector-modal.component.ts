@@ -99,8 +99,8 @@ export class RouteSelectorModalComponent implements OnInit {
         );
       });
     } else {
-      this.mileageLocations.push(new FormControl(null, this.mileageConfig.location_mandatory && Validators.required));
-      this.mileageLocations.push(new FormControl(null, this.mileageConfig.location_mandatory && Validators.required));
+      this.mileageLocations.push(new FormControl({}, this.mileageConfig.location_mandatory && Validators.required));
+      this.mileageLocations.push(new FormControl({}, this.mileageConfig.location_mandatory && Validators.required));
     }
 
     this.form.patchValue({
