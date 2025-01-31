@@ -22,7 +22,7 @@ jobs:
           native-config: staging
           upload-artifact: Android
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         id: download
         with:
           name: 'Android'
@@ -51,7 +51,7 @@ jobs:
           native-config: prod
           upload-artifact: ios
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         id: ios
         with:
           name: 'ios'
