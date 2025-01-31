@@ -5,6 +5,7 @@ dotenv.config();
 const secrets = require('./secrets');
 
 module.exports = function (ctx) {
+  console.log('Running prebuild hook');
   //Throw error if any env variable is undefined
   if (secrets.prodEnvironment.includes('undefined')) {
     throw Error('Environment variable cannot be undefined');
