@@ -171,8 +171,6 @@ This will ensure that all required packages are correctly installed, resolving t
 ├── appflow.config.json              # Configuration for Appflow
 ├── browserslist                     # Browser compatibility configuration
 ├── build_appflow.sh                 # Shell script for Appflow build
-├── build_prod.sh                    # Shell script for production build
-├── build_staging.sh                 # Shell script for staging build
 ├── capacitor.config.ts              # Capacitor configuration
 ├── ionic.config.json                # Ionic CLI configuration
 ├── karma.conf.js                    # Karma test runner configuration
