@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/member-ordering */
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 import { Component } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -49,6 +50,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
 import { PlatformFile } from 'src/app/core/models/platform/platform-file.model';
+import { ReviewSplitExpenseComponent } from 'src/app/shared/components/review-split-expense/review-split-expense.component';
 
 @Component({
   selector: 'app-split-expense',
@@ -792,6 +794,7 @@ export class SplitExpensePage {
             concatMap((formattedSplitExpense) => {
               this.formattedSplitExpense = formattedSplitExpense;
               this.correctTotalSplitAmount();
+              this.openReviewSplitExpenseModal(this.formattedSplitExpense);
               return this.handlePolicyAndMissingFieldsCheck(formattedSplitExpense);
             }),
             catchError((errResponse: HttpErrorResponse) => {
@@ -1114,5 +1117,23 @@ export class SplitExpensePage {
     });
 
     return isEvenSplit;
+  }
+
+  async openReviewSplitExpenseModal(expense): Promise<void> {
+    const reviewModal = await this.modalController.create({
+      component: ReviewSplitExpenseComponent,
+      componentProps: {
+        splitExpenses: expense,
+        reportId: this.reportId || '',
+      },
+      mode: 'ios',
+      cssClass: 'fy-dialog-popover',
+      breakpoints: [0, 1],
+      initialBreakpoint: 1,
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties(),
+    });
+
+    await reviewModal.present();
   }
 }
