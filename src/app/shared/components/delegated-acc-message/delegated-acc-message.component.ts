@@ -12,6 +12,7 @@ import { NetworkService } from '../../../core/services/network.service';
 })
 export class DelegatedAccMessageComponent implements OnInit {
   delegateeName: string;
+
   isConnected$: Observable<boolean>;
 
   constructor(private authService: AuthService, private router: Router, private networkService: NetworkService) {}
