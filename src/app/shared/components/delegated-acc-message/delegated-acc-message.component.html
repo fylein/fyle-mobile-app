@@ -1,4 +1,4 @@
 <span class="delegated-acc">
   You're now managing {{ delegateeName | ellipsis : 15 }}'s account
-  <u (click)="switchBack()" [disabled]="!isConnected">Switch back</u>
+  <u class="u-link" [ngClass]="{ disabled: !isConnected$ | async }" (click)="switchBack()">Switch back</u>
 </span>

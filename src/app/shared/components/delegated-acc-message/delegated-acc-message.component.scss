@@ -12,3 +12,11 @@
   font-weight: bold;
   margin-top: env(safe-area-inset-top);
 }
+
+.u-link {
+  color: inherit;
+}
+
+.u-link.disabled {
+  color: gray;
+}
