@@ -695,7 +695,7 @@ export class MyReportsPage {
         label: 'State',
         type: 'state',
         value: (<string[]>filter.state)
-          .map((state) => this.reportStatePipe.transform(state, simplifyReportsSettings.enabled))
+          .map((state) => this.reportStatePipe.transform(state))
           .reduce((state1, state2) => `${state1}, ${state2}`),
       });
     });

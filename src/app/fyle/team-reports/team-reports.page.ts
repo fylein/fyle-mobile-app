@@ -588,7 +588,7 @@ export class TeamReportsPage implements OnInit {
         label: 'State',
         type: 'state',
         value: (filter.state as string[])
-          .map((state) => this.reportStatePipe.transform(state, simplifyReportsSettings.enabled))
+          .map((state) => this.reportStatePipe.transform(state))
           .reduce((state1, state2) => `${state1}, ${state2}`),
       });
     });
