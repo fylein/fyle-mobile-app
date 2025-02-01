@@ -500,8 +500,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   calculateImageSize(base64Image: string): number {
-    let stringLength = base64Image.length - 'data:image/jpeg;base64,'.length;
-    let sizeInBytes = 4 * Math.ceil(stringLength / 3) * 0.5624896334383812;
+    const stringLength = base64Image.length - 'data:image/jpeg;base64,'.length;
+    const sizeInBytes = 4 * Math.ceil(stringLength / 3) * 0.5624896334383812;
     return sizeInBytes;
   }
 
