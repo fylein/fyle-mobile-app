@@ -1,6 +1,6 @@
 import { Component, OnInit, EventEmitter } from '@angular/core';
 import { AuthService } from '../../../core/services/auth.service';
-import { from, concat } from 'rxjs';
+import { from, concat, Observable } from 'rxjs';
 import { shareReplay } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { NetworkService } from '../../../core/services/network.service';
@@ -12,11 +12,11 @@ import { NetworkService } from '../../../core/services/network.service';
 })
 export class DelegatedAccMessageComponent implements OnInit {
   delegateeName: string;
-  isConnected$: any;
+  isConnected$: Observable<boolean>;
 
   constructor(private authService: AuthService, private router: Router, private networkService: NetworkService) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     from(this.authService.getEou()).subscribe((res) => {
       this.delegateeName = res.us.full_name;
     });
@@ -30,7 +30,7 @@ export class DelegatedAccMessageComponent implements OnInit {
     );
   }
 
-  switchBack() {
+  switchBack(): void {
     if (!this.isConnected$) {
       return;
     }
