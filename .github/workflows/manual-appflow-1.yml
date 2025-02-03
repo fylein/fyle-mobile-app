@@ -22,9 +22,6 @@ jobs:
           native-config: staging
           filename: android.apk
 
-      - name: Debug APK Location
-        run: ls -lah ${HOME}
-
       - uses: actions/upload-artifact@v4
         with:
           name: 'Android'
