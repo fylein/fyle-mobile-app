@@ -170,6 +170,17 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     }
   }
 
+  ionViewWillEnter(): void {
+    this.activatedRoute.queryParams.subscribe((params) => {
+      if (params?.refresh) {
+        const currentParams = this.loadData$.getValue();
+        this.currentPageNumber = 1;
+        currentParams.pageNumber = this.currentPageNumber;
+        this.loadData$.next(currentParams);
+      }
+    });
+  }
+
   loadLinkedAccounts(): void {
     this.linkedAccounts$ = this.loadCardData$.pipe(
       tap(() => (this.isLoading = true)),
