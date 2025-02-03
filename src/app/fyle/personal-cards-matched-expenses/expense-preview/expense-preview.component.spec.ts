@@ -128,7 +128,9 @@ describe('ExpensePreviewComponent', () => {
 
     expect(personalCardsService.matchExpense).toHaveBeenCalledWith('testExpenseId', 'testCardTxnId');
     expect(modalController.dismiss).toHaveBeenCalledTimes(1);
-    expect(router.navigate).toHaveBeenCalledWith(['/', 'enterprise', 'personal_cards']);
+    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'personal_cards'], {
+      queryParams: { refresh: true },
+    });
     expect(trackingService.oldExpensematchedFromPersonalCard).toHaveBeenCalledTimes(1);
   });
 });

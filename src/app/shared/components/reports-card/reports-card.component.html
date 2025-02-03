@@ -19,7 +19,7 @@
       <div class="reports-card--purpose-num-amount-block">
         <!-- Report name  -->
         <div class="reports-card--purpose">
-          <span>{{ report.purpose | ellipsis : 40 }}</span>
+          <span>{{ report.purpose | ellipsis : 205 }}</span>
         </div>
 
         <!-- Number of expenses -->
@@ -42,7 +42,7 @@
     <div class="reports-card--secondary-info">
       <div class="reports-card--secondary-info-block">
         <div class="state-pill state-{{ report.state | reportState }}">
-          {{ report.state | reportState : simplifyReportsEnabled | snakeCaseToSpaceCase }}
+          {{ report.state | reportState | snakeCaseToSpaceCase }}
         </div>
       </div>
     </div>
