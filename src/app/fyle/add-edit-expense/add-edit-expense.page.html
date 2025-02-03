@@ -20,7 +20,7 @@
       <div *ngIf="mode === 'add'" class="add-edit-expense--toolbar__title">Add Expense</div>
       <div *ngIf="mode === 'edit'">
         <ng-container *ngIf="reviewList?.length;else editMode">
-          Review Expense
+          Review expense
           <div class="add-edit-expense--sub-header">
             {{ +activeIndex + 1 }} of {{ reviewList?.length }} expense{{reviewList?.length > 1 ? 's' : ''}}
           </div>
