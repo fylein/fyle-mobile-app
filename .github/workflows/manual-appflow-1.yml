@@ -20,7 +20,21 @@ jobs:
           build-type: debug
           environment: staging
           native-config: staging
-          filename: android.apk    
+          filename: android.apk
+
+      - name: Debug APK Location
+        run: ls -lah ${HOME}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: 'Android'
+          path: ~/android.apk
+
+      - uses: actions/download-artifact@v4
+        id: download
+        with:
+          name: 'Android'
+          path: ./
 
       - name: Upload apk to diawi Slack
         uses: rnkdsh/action-upload-diawi@v1.2.0
@@ -42,12 +56,23 @@ jobs:
           native-config: prod
           filename: ios.ipa
 
+      - uses: actions/upload-artifact@v4
+        with:
+          name: 'ios'
+          path: 'android.apk'
+
+      - uses: actions/download-artifact@v4
+        id: ios
+        with:
+          name: 'ios'
+          path: ./
+
       - name: Upload ipa to diawi Slack
         uses: rnkdsh/action-upload-diawi@v1.2.0
         id: diwaiIos
         with:
           token: ${{ secrets.DIAWI_TOKEN }}
-          file: ~/ios.ipa
+          file: ios.ipa
 
       - name: Get branch name
         id: get-branch
