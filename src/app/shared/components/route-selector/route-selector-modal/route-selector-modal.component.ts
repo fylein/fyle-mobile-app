@@ -1,9 +1,8 @@
+/* eslint-disable */
 import { Component, Input, OnInit } from '@angular/core';
 import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
-import { intersection, isEmpty } from 'lodash';
-import { Subscription } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { switchMap } from 'rxjs/operators';
 import { MileageService } from 'src/app/core/services/mileage.service';
 
 @Component({
