@@ -22,7 +22,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: 'Android'
-          path: ./
 
       - uses: actions/download-artifact@v4
         id: download
@@ -55,7 +54,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: 'ios'
-          path: ./
 
       - uses: actions/download-artifact@v4
         id: ios
