@@ -1666,7 +1666,6 @@ export class MyExpensesPage implements OnInit {
   }
 
   async onFilterClick(filterType: string): Promise<void> {
-    debugger;
     if (filterType === 'state') {
       await this.openFilters('Type');
     } else if (filterType === 'receiptsAttached') {
