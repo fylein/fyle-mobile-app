@@ -52,7 +52,7 @@ describe('ExactCurrencyPipe', () => {
       fyCurrencyPipeSpy.transform.and.returnValue('$0.00');
       const config: CurrencyPipeConfig = { value: 0, currencyCode: 'USD' };
       const result = exactCurrencyPipe.transform(config);
-      expect(fyCurrencyPipeSpy.transform).toHaveBeenCalledWith(0, 'USD', 'symbol', undefined);
+      expect(fyCurrencyPipeSpy.transform).toHaveBeenCalledWith(0, 'USD', 'symbol', '1.0-0');
       expect(result).toEqual('$0.00');
     });
 
