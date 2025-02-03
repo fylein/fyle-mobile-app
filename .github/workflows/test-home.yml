@@ -6,8 +6,6 @@ jobs:
   test-home-path:
     runs-on: ubuntu-latest
     steps:
-      - name: Print HOME directory
-        run: echo "HOME is set to: ${HOME}"
 
       - name: Create a test file in HOME
         run: echo "This is a test file" > ${HOME}/test-file.txt
