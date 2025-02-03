@@ -142,6 +142,7 @@ export class PersonalCardsService {
           limit: config.limit,
           offset: config.offset,
           ...config.queryParams,
+          order: 'spent_at.desc,id.desc',
         },
       })
       .pipe(
