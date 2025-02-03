@@ -22,32 +22,13 @@ jobs:
           native-config: staging
           filename: android.apk
       
-      - name: Debug APK Location
-        run: ls -lah ~
-
-      - name: Debug APK Location
-        run: ls -lah
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: 'Android'
-          path: ~/android.apk
-
-      - uses: actions/download-artifact@v4
-        id: download
-        with:
-          name: 'Android'
-          path: ./
-
-      - name: Rename file
-        run: mv *.apk android.apk
 
       - name: Upload apk to diawi Slack
         uses: rnkdsh/action-upload-diawi@v1.2.0
         id: diwaiAndroid
         with:
           token: ${{ secrets.DIAWI_TOKEN }}
-          file: android.apk
+          file: ~/android.apk
 
       - name: Build iOS on Appflow
         uses: ionic-team/appflow-build@v1
