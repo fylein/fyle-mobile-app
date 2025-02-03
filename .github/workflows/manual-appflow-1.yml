@@ -14,6 +14,8 @@ jobs:
       - name: Build Android with Appflow
         uses: ionic-team/appflow-build@v1
         with:
+          token: ${{ secrets.APPFLOW_TOKEN }}
+          app-id: 32316914
           platform: Android
           build-type: debug
           environment: staging
@@ -22,7 +24,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: 'Android'
-          path: 'builds/android/*.apk'
 
       - uses: actions/download-artifact@v4
         id: download
@@ -44,6 +45,8 @@ jobs:
         uses: ionic-team/appflow-build@v1
         with:
           token: ${{ secrets.APPFLOW_TOKEN }}
+          app-id: 32316914
+          platform: iOS
           build-type: development
           build-stack: macOS - 2024.04 - Apple silicon
           certificate: Fyle signing
@@ -53,7 +56,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: 'ios'
-          path: 'builds/ios/*.ipa'
 
       - uses: actions/download-artifact@v4
         id: ios
@@ -83,4 +85,5 @@ jobs:
         id: notify
         with:
           slack-bot-user-oauth-access-token: ${{ secrets.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN }}
+          slack-channel: C029QPGHSQL
           slack-text: ${{github.event.sender.login}} ran manual workflow  on "${{ steps.get-branch.outputs._1 }}" branch \r\n PR link ${{github.event.pull_request.html_url}} \r\n \r\n *Description* \r\n ```${{github.event.pull_request.body}}```  \r\n \r\n APK Link ${{steps.diwaiAndroid.outputs.url}} \r\n IPA link ${{steps.diwaiIos.outputs.url}}
