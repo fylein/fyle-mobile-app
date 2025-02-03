@@ -4,7 +4,6 @@ module.exports.getProdEnvironment = () => `
 export const environment = {
   production: true,
   NAME: '',
-  CLUSTER_DOMAIN: '',
   ROOT_URL: '${process.env.FYLE_MOBILE_ROOT_URL}',
   ROUTER_API_ENDPOINT: '${process.env.FYLE_MOBILE_ROUTER_API_ENDPOINT}',
   ANDROID_CLIENT_ID: '${process.env.FYLE_MOBILE_ANDROID_CLIENT_ID}',
