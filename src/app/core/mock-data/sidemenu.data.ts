@@ -37,7 +37,7 @@ export const PrimaryOptionsRes1: Partial<SidemenuItem>[] = deepFreeze([
     route: ['/', 'enterprise', 'my_expenses'],
   },
   {
-    title: 'Personal Cards',
+    title: 'Personal cards',
     isVisible: true,
     route: ['/', 'enterprise', 'personal_cards'],
     icon: 'card',
@@ -60,7 +60,7 @@ export const PrimaryOptionsRes1: Partial<SidemenuItem>[] = deepFreeze([
 ]);
 
 export const UpdatedOptionsRes: Partial<SidemenuItem> = deepFreeze({
-  title: 'Personal Cards',
+  title: 'Personal cards',
   isVisible: true,
   route: ['/', 'enterprise', 'personal_cards'],
   icon: 'card',
@@ -141,7 +141,7 @@ export const getSecondarySidemenuOptionsRes1 = deepFreeze([
     route: ['/', 'enterprise', 'my_profile'],
   },
   {
-    title: 'Live Chat',
+    title: 'Live chat',
     isVisible: true,
     icon: 'chat',
     openLiveChat: true,
@@ -204,7 +204,7 @@ export const setSideMenuRes: Partial<SidemenuItem>[] = deepFreeze([
     route: ['/', 'enterprise', 'my_profile'],
   },
   {
-    title: 'Live Chat',
+    title: 'Live chat',
     isVisible: true,
     icon: 'chat',
     openLiveChat: true,
