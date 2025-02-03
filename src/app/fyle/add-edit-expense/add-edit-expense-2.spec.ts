@@ -1656,7 +1656,7 @@ export function TestCases2(getTestBed) {
         component: PopupAlertComponent,
         componentProps: {
           title: 'Size limit exceeded',
-          message: 'The uploaded file is greater than 9MB in size. Please reduce the file size and try again.',
+          message: 'The uploaded file is greater than 8MB in size. Please reduce the file size and try again.',
           primaryCta: {
             text: 'OK',
           },
