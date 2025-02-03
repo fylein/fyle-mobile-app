@@ -503,14 +503,16 @@ export class MyExpensesPage implements OnInit {
         switchMap(() => this.getCardDetail())
       )
       .subscribe((cards) => {
+        const cardNumbers = [];
         cards.forEach((card) => {
           const cardNickname = card.cardNickname ? ` (${card.cardNickname})` : '';
           const cardDetail = {
             label: this.maskNumber.transform(card.cardNumber) + cardNickname,
             value: card.cardNumber,
           };
-          this.cardNumbers.push(cardDetail);
+          cardNumbers.push(cardDetail);
         });
+        this.cardNumbers = cardNumbers;
       });
 
     this.headerState = HeaderState.base;
@@ -1664,6 +1666,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   async onFilterClick(filterType: string): Promise<void> {
+    debugger;
     if (filterType === 'state') {
       await this.openFilters('Type');
     } else if (filterType === 'receiptsAttached') {
@@ -1678,6 +1681,8 @@ export class MyExpensesPage implements OnInit {
       await this.openFilters('Split Expense');
     } else if (filterType === 'potentialDuplicates') {
       await this.openFilters('Potential duplicates');
+    } else if (filterType === 'cardNumbers') {
+      await this.openFilters('Cards');
     }
   }
 
