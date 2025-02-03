@@ -37,9 +37,6 @@ module.exports = function (ctx) {
   //Check if live update and actual app version have same major and minor versions
   compareAppVersion(process.env.LIVE_UPDATE_APP_VERSION, ctx.env.FYLE_MOBILE_RELEASE_VERSION);
 
-  //Throw error if any variable in environment file is undefined
-
-  const platformRoot = path.join(ctx.project.dir, 'android');
   FILE_PATHS = {
     'android.cameraPreview':
       `${ctx.project.dir}` +

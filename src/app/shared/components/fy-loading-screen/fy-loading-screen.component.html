@@ -1,30 +1,21 @@
-<!-- TODO: Remove class `new-loader-enabled once all list views are updated to the new designs -->
-<ion-grid
-  class="loading-screen-container"
-  [ngClass]="{ 'new-loader-enabled': isNewLoaderEnabled }"
-  *ngFor="let row of rows"
->
+<ion-grid class="loading-screen-container" *ngFor="let row of rows">
   <ion-row>
-    <ion-col *ngIf="isSelectionModeEnabled" [attr.size]="isNewLoaderEnabled ? '1' : '1.32'">
+    <ion-col *ngIf="isSelectionModeEnabled" [attr.size]="1">
       <div class="loading-screen-container--checkbox">
         <ion-skeleton-text animated></ion-skeleton-text>
       </div>
     </ion-col>
-    <ion-col [attr.size]="isNewLoaderEnabled ? '1.95' : '2.65'">
-      <!-- TODO: Remove class `new-loader-enabled` -->
-      <div class="loading-screen-container--icon" [ngClass]="{ 'new-loader-enabled': isNewLoaderEnabled }">
+    <ion-col [attr.size]="1.95">
+      <div class="loading-screen-container--icon">
         <ion-skeleton-text animated></ion-skeleton-text>
       </div>
     </ion-col>
-    <ion-col
-      [attr.size]="isSelectionModeEnabled ? (isNewLoaderEnabled ? '6.0' : '4.68') : isNewLoaderEnabled ? '7.0' : '6'"
-      class="loading-screen-container--content-block"
-    >
+    <ion-col [attr.size]="isSelectionModeEnabled ? '6.0' : '7.0'" class="loading-screen-container--content-block">
       <ion-skeleton-text animated class="loading-screen-container--content-block__header"></ion-skeleton-text>
       <ion-skeleton-text animated class="loading-screen-container--content-block__sub-header"></ion-skeleton-text>
       <ion-skeleton-text animated class="loading-screen-container--content-block__sub-header"></ion-skeleton-text>
     </ion-col>
-    <ion-col [attr.size]="isNewLoaderEnabled ? '3' : '3.35'">
+    <ion-col [attr.size]="3">
       <div class="loading-screen-container--state">
         <ion-skeleton-text animated></ion-skeleton-text>
       </div>

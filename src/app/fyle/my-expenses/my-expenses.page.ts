@@ -84,6 +84,7 @@ import { UtilityService } from 'src/app/core/services/utility.service';
 import { FeatureConfigService } from 'src/app/core/services/platform/v1/spender/feature-config.service';
 import * as dayjs from 'dayjs';
 import { ExpensesQueryParams } from 'src/app/core/models/platform/v1/expenses-query-params.model';
+import { ApiV2Service } from 'src/app/core/services/api-v2.service';
 
 @Component({
   selector: 'app-my-expenses',
@@ -235,7 +236,8 @@ export class MyExpensesPage implements OnInit {
     private spenderReportsService: SpenderReportsService,
     private authService: AuthService,
     private utilityService: UtilityService,
-    private featureConfigService: FeatureConfigService
+    private featureConfigService: FeatureConfigService,
+    private apiV2Service: ApiV2Service
   ) {}
 
   get HeaderState(): typeof HeaderState {
@@ -385,13 +387,13 @@ export class MyExpensesPage implements OnInit {
     const isPerDiemEnabled = orgSettings.per_diem.enabled && allowedExpenseTypes.perDiem;
     that.actionSheetButtons = [
       {
-        text: 'Capture Receipt',
+        text: 'Capture receipt',
         icon: 'assets/svg/camera.svg',
         cssClass: 'capture-receipt',
         handler: this.actionSheetButtonsHandler('capture receipts', 'camera_overlay'),
       },
       {
-        text: 'Add Manually',
+        text: 'Add manually',
         icon: 'assets/svg/list.svg',
         cssClass: 'capture-receipt',
         handler: this.actionSheetButtonsHandler('Add Expense', 'add_edit_expense'),
@@ -400,19 +402,19 @@ export class MyExpensesPage implements OnInit {
 
     if (mileageEnabled) {
       that.actionSheetButtons.push({
-        text: 'Add Mileage',
+        text: 'Add mileage',
         icon: 'assets/svg/mileage.svg',
         cssClass: 'capture-receipt',
-        handler: this.actionSheetButtonsHandler('Add Mileage', 'add_edit_mileage'),
+        handler: this.actionSheetButtonsHandler('Add mileage', 'add_edit_mileage'),
       });
     }
 
     if (isPerDiemEnabled) {
       that.actionSheetButtons.push({
-        text: 'Add Per Diem',
+        text: 'Add per diem',
         icon: 'assets/svg/calendar.svg',
         cssClass: 'capture-receipt',
-        handler: this.actionSheetButtonsHandler('Add Per Diem', 'add_edit_per_diem'),
+        handler: this.actionSheetButtonsHandler('Add per diem', 'add_edit_per_diem'),
       });
     }
   }
@@ -569,14 +571,13 @@ export class MyExpensesPage implements OnInit {
 
     const paginatedPipe = this.loadExpenses$.pipe(
       switchMap((params) => {
-        const queryParams = params.queryParams || {};
+        let queryParams = params.queryParams || {};
 
         queryParams.report_id = queryParams.report_id || 'is.null';
         queryParams.state = 'in.(COMPLETE,DRAFT)';
 
         if (params.searchString) {
-          queryParams.q = params.searchString;
-          queryParams.q = queryParams.q + ':*';
+          queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
         } else if (params.searchString === '') {
           delete queryParams.q;
         }
@@ -1672,7 +1673,7 @@ export class MyExpensesPage implements OnInit {
     } else if (filterType === 'date') {
       await this.openFilters('Date');
     } else if (filterType === 'sort') {
-      await this.openFilters('Sort By');
+      await this.openFilters('Sort by');
     } else if (filterType === 'splitExpense') {
       await this.openFilters('Split Expense');
     } else if (filterType === 'potentialDuplicates') {

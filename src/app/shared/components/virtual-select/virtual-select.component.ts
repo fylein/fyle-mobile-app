@@ -102,7 +102,7 @@ export class VirtualSelectComponent implements ControlValueAccessor, OnInit {
   }
 
   async openModal(): Promise<void> {
-    const cssClass = this.label === 'Payment Mode' ? 'payment-mode-modal' : 'virtual-modal';
+    const cssClass = this.label === 'Payment mode' ? 'payment-mode-modal' : 'virtual-modal';
 
     const selectionModal = await this.modalController.create({
       component: VirtualSelectModalComponent,

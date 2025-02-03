@@ -20,7 +20,7 @@
       <div *ngIf="mode === 'add'" class="add-edit-expense--toolbar__title">Add Expense</div>
       <div *ngIf="mode === 'edit'">
         <ng-container *ngIf="reviewList?.length;else editMode">
-          Review Expense
+          Review expense
           <div class="add-edit-expense--sub-header">
             {{ +activeIndex + 1 }} of {{ reviewList?.length }} expense{{reviewList?.length > 1 ? 's' : ''}}
           </div>
@@ -360,14 +360,14 @@
                     <app-fy-select
                       [disabled]="isExpenseBankTxn"
                       [enableSearch]="false"
-                      [label]="'Payment Mode'"
+                      [label]="'Payment mode'"
                       [mandatory]="true"
                       [nullOption]="false"
                       [options]="paymentModes"
-                      [selectModalHeader]="'Select Payment Mode'"
+                      [selectModalHeader]="'Select payment mode'"
                       [selectionElement]="paymentMode"
                       formControlName="paymentMode"
-                      [placeholder]="'Payment Mode'"
+                      [placeholder]="'Payment mode'"
                       [touchedInParent]="fg.controls.paymentMode.touched"
                       [validInParent]="fg.controls.paymentMode.valid"
                     >
@@ -1119,6 +1119,7 @@
                       [placeholder]="customInput.placeholder | ellipsis: 30"
                       [touchedInParent]="customInput.control.controls.value.touched"
                       [validInParent]="customInput.control.controls.value.valid"
+                      [isCustomSelect]="true"
                     >
                     </app-fy-select>
                   </div>
@@ -1172,7 +1173,7 @@
                 <ng-container *ngIf="pendingTransactionAllowedToReportAndSplit">
                   <div class="add-edit-expense--internal-block">
                     <app-fy-add-to-report
-                      [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'"
+                      [label]="etxn.tx.report_id ? 'Report' : 'Add to report'"
                       [autoSubmissionReportName]="autoSubmissionReportName$|async"
                       [options]="reports"
                       [isNewReportsFlowEnabled]="isNewReportsFlowEnabled"

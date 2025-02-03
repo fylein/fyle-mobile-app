@@ -64,7 +64,7 @@ export class MyExpensesService {
       generatedFilters.cardNumbers = <string[]>cardsFilter.value;
     }
 
-    const sortBy = selectedFilters.find((filter) => filter.name === 'Sort By');
+    const sortBy = selectedFilters.find((filter) => filter.name === 'Sort by');
 
     this.convertSelectedSortFitlersToFilters(sortBy, generatedFilters);
 
@@ -80,13 +80,13 @@ export class MyExpensesService {
   generateSortAmountPills(filter: Partial<ExpenseFilters>, filterPills: FilterPill[]): void {
     if (filter.sortParam === 'amount' && filter.sortDir === 'desc') {
       filterPills.push({
-        label: 'Sort By',
+        label: 'Sort by',
         type: 'sort',
         value: 'amount - high to low',
       });
     } else if (filter.sortParam === 'amount' && filter.sortDir === 'asc') {
       filterPills.push({
-        label: 'Sort By',
+        label: 'Sort by',
         type: 'sort',
         value: 'amount - low to high',
       });
@@ -96,13 +96,13 @@ export class MyExpensesService {
   generateSortTxnDatePills(filter: Partial<ExpenseFilters>, filterPills: FilterPill[]): void {
     if (filter.sortParam === 'spent_at' && filter.sortDir === 'asc') {
       filterPills.push({
-        label: 'Sort By',
+        label: 'Sort by',
         type: 'sort',
         value: 'date - old to new',
       });
     } else if (filter.sortParam === 'spent_at' && filter.sortDir === 'desc') {
       filterPills.push({
-        label: 'Sort By',
+        label: 'Sort by',
         type: 'sort',
         value: 'date - new to old',
       });
@@ -376,7 +376,7 @@ export class MyExpensesService {
         ],
       } as FilterOptions<string>,
       {
-        name: 'Sort By',
+        name: 'Sort by',
         optionType: FilterOptionType.singleselect,
         options: [
           {
@@ -502,12 +502,12 @@ export class MyExpensesService {
   ): void {
     if (filter.sortParam === 'category->name' && filter.sortDir === 'asc') {
       generatedFilters.push({
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'categoryAToZ',
       });
     } else if (filter.sortParam === 'category->name' && filter.sortDir === 'desc') {
       generatedFilters.push({
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'categoryZToA',
       });
     }
@@ -519,12 +519,12 @@ export class MyExpensesService {
   ): void {
     if (filter.sortParam === 'amount' && filter.sortDir === 'desc') {
       generatedFilters.push({
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'amountHighToLow',
       });
     } else if (filter.sortParam === 'amount' && filter.sortDir === 'asc') {
       generatedFilters.push({
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'amountLowToHigh',
       });
     }
@@ -536,12 +536,12 @@ export class MyExpensesService {
   ): void {
     if (filter.sortParam === 'spent_at' && filter.sortDir === 'asc') {
       generatedFilters.push({
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'dateOldToNew',
       });
     } else if (filter.sortParam === 'spent_at' && filter.sortDir === 'desc') {
       generatedFilters.push({
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'dateNewToOld',
       });
     }
@@ -550,13 +550,13 @@ export class MyExpensesService {
   private generateSortCategoryPills(filter: Partial<ExpenseFilters>, filterPills: FilterPill[]): void {
     if (filter.sortParam === 'category->name' && filter.sortDir === 'asc') {
       filterPills.push({
-        label: 'Sort By',
+        label: 'Sort by',
         type: 'sort',
         value: 'category - a to z',
       });
     } else if (filter.sortParam === 'category->name' && filter.sortDir === 'desc') {
       filterPills.push({
-        label: 'Sort By',
+        label: 'Sort by',
         type: 'sort',
         value: 'category - z to a',
       });

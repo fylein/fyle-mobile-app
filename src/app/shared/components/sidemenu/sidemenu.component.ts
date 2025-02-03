@@ -21,6 +21,7 @@ import { Router } from '@angular/router';
 import { MenuController } from '@ionic/angular';
 import { SidemenuAllowedActions } from 'src/app/core/models/sidemenu-allowed-actions.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
+import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
 
 @Component({
   selector: 'app-sidemenu',
@@ -66,7 +67,8 @@ export class SidemenuComponent implements OnInit {
     private launchDarklyService: LaunchDarklyService,
     private orgService: OrgService,
     private authService: AuthService,
-    private orgUserSettingsService: OrgUserSettingsService
+    private orgUserSettingsService: OrgUserSettingsService,
+    private spenderOnboardingService: SpenderOnboardingService
   ) {}
 
   ngOnInit(): void {
@@ -178,14 +180,15 @@ export class SidemenuComponent implements OnInit {
     );
   }
 
-  getCardOptions(): Partial<SidemenuItem>[] {
+  getCardOptions(isOnboardingPending: boolean): Partial<SidemenuItem>[] {
     const cardOptions = [
       {
-        title: 'Personal Cards',
+        title: 'Personal cards',
         isVisible:
           this.orgSettings.org_personal_cards_settings.allowed &&
           this.orgSettings.org_personal_cards_settings.enabled &&
-          this.orgUserSettings.personal_cards_settings?.enabled,
+          this.orgUserSettings.personal_cards_settings?.enabled &&
+          !isOnboardingPending,
         route: ['/', 'enterprise', 'personal_cards'],
       },
     ];
@@ -198,12 +201,12 @@ export class SidemenuComponent implements OnInit {
     const { allowedReportsActions, allowedAdvancesActions } = this.allowedActions;
     const teamOptions = [
       {
-        title: 'Team Reports',
+        title: 'Team expense reports',
         isVisible: allowedReportsActions && allowedReportsActions.approve && showTeamReportsPage,
         route: ['/', 'enterprise', 'team_reports'],
       },
       {
-        title: 'Team Advances',
+        title: 'Team advances',
         isVisible: allowedAdvancesActions && allowedAdvancesActions.approve,
         route: ['/', 'enterprise', 'team_advance'],
       },
@@ -211,48 +214,55 @@ export class SidemenuComponent implements OnInit {
     return teamOptions.filter((teamOption) => teamOption.isVisible);
   }
 
-  getPrimarySidemenuOptions(isConnected: boolean): Partial<SidemenuItem>[] {
+  getPrimarySidemenuOptions(isConnected: boolean, isOnboardingPending: boolean): Partial<SidemenuItem>[] {
     const teamOptions = this.getTeamOptions();
-    const cardOptions = this.getCardOptions();
+    const cardOptions = this.getCardOptions(isOnboardingPending);
 
     const primaryOptions = [
       {
         title: 'Home',
-        isVisible: true,
+        isVisible: !isOnboardingPending,
         icon: 'dashboard',
         route: ['/', 'enterprise', 'my_dashboard'],
       },
       {
-        title: 'Expenses',
-        isVisible: true,
+        title: 'Get started',
+        isVisible: isOnboardingPending,
+        icon: 'dashboard',
+        route: ['/', 'enterprise', 'spender_onboarding'],
+      },
+      {
+        title: 'My expenses',
+        isVisible: !isOnboardingPending,
         icon: 'list',
         route: ['/', 'enterprise', 'my_expenses'],
       },
       {
         title: 'Cards',
-        isVisible: cardOptions.length ? true : false,
+        isVisible: !!cardOptions.length && !isOnboardingPending,
         icon: 'card',
         disabled: !isConnected,
         isDropdownOpen: false,
         dropdownOptions: cardOptions,
       },
       {
-        title: 'Reports',
-        isVisible: true,
+        title: 'My expense reports',
+        isVisible: !isOnboardingPending,
         icon: 'folder',
         route: ['/', 'enterprise', 'my_reports'],
         disabled: !isConnected,
       },
       {
-        title: 'Advances',
-        isVisible: this.orgSettings.advances.enabled || this.orgSettings.advance_requests.enabled,
+        title: 'My advances',
+        isVisible:
+          (this.orgSettings.advances.enabled || this.orgSettings.advance_requests.enabled) && !isOnboardingPending,
         icon: 'wallet',
         route: ['/', 'enterprise', 'my_advances'],
         disabled: !isConnected,
       },
       {
         title: 'Team',
-        isVisible: teamOptions.length ? true : false,
+        isVisible: !!teamOptions.length && !isOnboardingPending,
         icon: 'user-three',
         isDropdownOpen: false,
         disabled: !isConnected,
@@ -302,7 +312,7 @@ export class SidemenuComponent implements OnInit {
         route: ['/', 'enterprise', 'my_dashboard'],
       },
       {
-        title: 'Expenses',
+        title: 'My expenses',
         isVisible: true,
         icon: 'list',
         route: ['/', 'enterprise', 'my_expenses'],
@@ -316,24 +326,29 @@ export class SidemenuComponent implements OnInit {
     ];
   }
 
-  getSecondarySidemenuOptions(orgs: Org[], isDelegatee: boolean, isConnected: boolean): Partial<SidemenuItem>[] {
+  getSecondarySidemenuOptions(
+    orgs: Org[],
+    isDelegatee: boolean,
+    isConnected: boolean,
+    isOnboardingPending: boolean
+  ): Partial<SidemenuItem>[] {
     return [
       {
-        title: 'Delegated Accounts',
-        isVisible: isDelegatee && !this.isSwitchedToDelegator,
+        title: 'Delegated accounts',
+        isVisible: isDelegatee && !this.isSwitchedToDelegator && !isOnboardingPending,
         icon: 'user-two',
         route: ['/', 'enterprise', 'delegated_accounts'],
         disabled: !isConnected,
       },
       {
         title: 'Switch back to my account',
-        isVisible: this.isSwitchedToDelegator,
+        isVisible: this.isSwitchedToDelegator && !isOnboardingPending,
         icon: 'fy-switch',
         route: ['/', 'enterprise', 'delegated_accounts', { switchToOwn: true }],
         disabled: !isConnected,
       },
       {
-        title: 'Switch Organization',
+        title: 'Switch organization',
         isVisible: orgs.length > 1 && !this.isSwitchedToDelegator,
         icon: 'swap',
         route: ['/', 'auth', 'switch_org', { choose: true, navigate_back: true }],
@@ -346,7 +361,7 @@ export class SidemenuComponent implements OnInit {
         route: ['/', 'enterprise', 'my_profile'],
       },
       {
-        title: 'Live Chat',
+        title: 'Live chat',
         isVisible:
           this.orgUserSettings &&
           this.orgUserSettings.in_app_chat_settings &&
@@ -373,12 +388,18 @@ export class SidemenuComponent implements OnInit {
     }
   }
 
+  reloadSidemenu(): void {
+    this.setupSideMenu();
+  }
+
   setupSideMenu(isConnected?: boolean, orgs?: Org[], isDelegatee?: boolean): void {
     if (isConnected) {
-      this.filteredSidemenuList = [
-        ...this.getPrimarySidemenuOptions(isConnected),
-        ...this.getSecondarySidemenuOptions(orgs, isDelegatee, isConnected),
-      ];
+      this.spenderOnboardingService.checkForRedirectionToOnboarding().subscribe((redirectionAllowed) => {
+        this.filteredSidemenuList = [
+          ...this.getPrimarySidemenuOptions(isConnected, redirectionAllowed),
+          ...this.getSecondarySidemenuOptions(orgs, isDelegatee, isConnected, redirectionAllowed),
+        ];
+      });
     } else {
       this.filteredSidemenuList = [...this.getPrimarySidemenuOptionsOffline()];
     }
