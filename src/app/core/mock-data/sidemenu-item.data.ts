@@ -36,7 +36,7 @@ export const sidemenuItemData2: SidemenuItem = deepFreeze({
 });
 
 export const sidemenuItemData3: Partial<SidemenuItem> = deepFreeze({
-  title: 'Live chat',
+  title: 'Live Chat',
   isVisible: true,
   icon: 'chat',
   openLiveChat: true,

@@ -872,7 +872,7 @@ export class TasksService {
           icon: TaskIcon.WARNING,
           ctas: [
             {
-              content: `Review expense${aggregate.totalCount === 1 ? '' : 's'}`,
+              content: `Review Expense${aggregate.totalCount === 1 ? '' : 's'}`,
               event: TASKEVENT.reviewExpenses,
             },
           ],
