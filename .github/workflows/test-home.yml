@@ -1,0 +1,22 @@
+name: Test HOME Variable
+
+on: workflow_dispatch  # Allows manual triggering
+
+jobs:
+  test-home-path:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print HOME directory
+        run: echo "HOME is set to: ${HOME}"
+
+      - name: Create a test file in HOME
+        run: echo "This is a test file" > ${HOME}/test-file.txt
+
+      - name: List contents of HOME
+        run: ls -lah ${HOME}
+
+      - name: Upload test file as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Test-File
+          path: ${HOME}/test-file.txt
