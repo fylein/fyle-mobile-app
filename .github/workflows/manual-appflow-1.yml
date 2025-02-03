@@ -14,6 +14,9 @@ jobs:
       - name: Build Android with Appflow
         run: touch ~/android.apk
 
+      - name: Move android.apk to current directory
+        run: mv ~/android.apk .
+
       - name: Upload apk to diawi Slack
         uses: rnkdsh/action-upload-diawi@v1.2.0
         id: diwaiAndroid
