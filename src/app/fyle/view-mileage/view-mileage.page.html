@@ -73,7 +73,7 @@
           [ngClass]="{'view-mileage--card-container__state-pill--with-project': isProjectShown}"
         >
           <div class="state-pill state-{{expense.state | expenseState}}">
-            {{ expense.state | expenseState : isNewReportsFlowEnabled | snakeCaseToSpaceCase | titlecase }}
+            {{ expense.state | expenseState | snakeCaseToSpaceCase | titlecase }}
           </div>
         </div>
       </div>
@@ -224,7 +224,7 @@
           </div>
         </ion-col>
         <ion-col class="view-mileage--content-container">
-          <div class="view-mileage--label">Payment Mode</div>
+          <div class="view-mileage--label">Payment mode</div>
           <div class="view-mileage--value">{{ paymentMode }}</div>
         </ion-col>
       </ion-row>

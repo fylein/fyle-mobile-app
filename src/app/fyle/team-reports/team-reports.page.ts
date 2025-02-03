@@ -170,7 +170,7 @@ export class TeamReportsPage implements OnInit {
       const paginatedPipe = this.loadData$.pipe(
         switchMap((params) => {
           let queryParams = params.queryParams;
-          queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString, true);
+          queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
           const orderByParams =
             params.sortParam && params.sortDir ? `${params.sortParam}.${params.sortDir}` : 'created_at.desc,id.desc';
           this.isLoadingDataInInfiniteScroll = true;
@@ -196,7 +196,7 @@ export class TeamReportsPage implements OnInit {
       this.count$ = this.loadData$.pipe(
         switchMap((params) => {
           let queryParams = params.queryParams;
-          queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString, true);
+          queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
           this.isLoadingDataInInfiniteScroll = true;
           return this.approverReportsService.getReportsCount(queryParams);
         }),
@@ -583,14 +583,12 @@ export class TeamReportsPage implements OnInit {
   }
 
   generateStateFilterPills(filterPills: FilterPill[], filter: Partial<TeamReportsFilters>): void {
-    this.simplifyReportsSettings$.subscribe((simplifyReportsSettings) => {
-      filterPills.push({
-        label: 'State',
-        type: 'state',
-        value: (filter.state as string[])
-          .map((state) => this.reportStatePipe.transform(state, simplifyReportsSettings.enabled))
-          .reduce((state1, state2) => `${state1}, ${state2}`),
-      });
+    filterPills.push({
+      label: 'State',
+      type: 'state',
+      value: (<string[]>filter.state)
+        .map((state) => this.reportStatePipe.transform(state))
+        .reduce((state1, state2) => `${state1}, ${state2}`),
     });
   }
 

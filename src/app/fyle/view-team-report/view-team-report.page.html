@@ -43,7 +43,7 @@
             <ion-col size="3.5">
               <ng-container *ngIf="(simplifyReportsSettings$ | async) as simplifyReportsSettings">
                 <div class="view-reports--report-state-pill state-pill state-{{report.state | reportState}}">
-                  {{report.state | reportState : simplifyReportsSettings.enabled | snakeCaseToSpaceCase}}
+                  {{report.state | reportState | snakeCaseToSpaceCase}}
                 </div>
               </ng-container>
             </ion-col>
@@ -316,6 +316,10 @@
         [ngClass]="{
           'view-reports--primary-cta__disabled': !canApprove
         }"
+        [disabled]="approveReportLoader"
+        appFormButtonValidation
+        [loadingText]="'Approving'"
+        [loading]="approveReportLoader"
       >
         Approve Report
       </ion-button>

@@ -45,6 +45,8 @@ export class SignInPage implements OnInit {
 
   hardwareBackButtonAction: Subscription;
 
+  focusOnPassword = false;
+
   constructor(
     private formBuilder: FormBuilder,
     private routerAuthService: RouterAuthService,
@@ -153,6 +155,7 @@ export class SignInPage implements OnInit {
   }
 
   goToForgotPasswordPage(): void {
+    this.trackingService.eventTrack('Go to Forgot Password page');
     this.router.navigate(['/', 'auth', 'reset_password', { email: this.fg.controls.email.value as string }]);
   }
 
@@ -160,9 +163,11 @@ export class SignInPage implements OnInit {
     let header = 'Incorrect email or password';
 
     if (error?.status === 400) {
+      this.trackingService.eventTrack('Go to Invite Expired page');
       this.router.navigate(['/', 'auth', 'pending_verification', { email: this.fg.controls.email.value as string }]);
       return;
     } else if (error?.status === 422) {
+      this.trackingService.eventTrack('Go to Disabled User page');
       this.router.navigate(['/', 'auth', 'disabled']);
       return;
     } else if (error?.status === 500) {
@@ -257,6 +262,7 @@ export class SignInPage implements OnInit {
           this.fg.reset();
           this.router.navigate(['/', 'auth', 'switch_org', { choose: true }]);
         },
+        error: (err: HttpErrorResponse) => this.handleError(err),
       });
   }
 
@@ -282,8 +288,10 @@ export class SignInPage implements OnInit {
   ionViewWillEnter(): void {
     if (this.activatedRoute.snapshot.params.email) {
       this.currentStep = SignInPageState.ENTER_PASSWORD;
+      this.trackingService.eventTrack('Sign In page opened - enter password state');
     } else {
       this.currentStep = SignInPageState.SELECT_SIGN_IN_METHOD;
+      this.trackingService.eventTrack('Sign In page opened - select sign in state');
     }
     const fn = (): void => {
       this.goBack(this.currentStep);
@@ -293,6 +301,7 @@ export class SignInPage implements OnInit {
   }
 
   changeState(state: SignInPageState): void {
+    this.trackingService.eventTrack('Sign in page navigation', { state });
     this.currentStep = state;
   }
 

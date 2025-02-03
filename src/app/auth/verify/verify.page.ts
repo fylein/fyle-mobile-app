@@ -26,7 +26,7 @@ export class VerifyPage implements OnInit {
     this.routerAuthService
       .emailVerify(verificationCode)
       .pipe(
-        switchMap((resp) => this.authService.newRefreshToken(resp.refresh_token)),
+        switchMap(() => this.authService.refreshEou()),
         tap((eou) => {
           this.trackingService.emailVerified();
           this.trackingService.onSignin(eou.us.email);
@@ -41,8 +41,10 @@ export class VerifyPage implements OnInit {
   handleError(err: { status: number }): void {
     const orgId = this.activatedRoute.snapshot.params.org_id as string;
     if (err.status === 422) {
+      this.trackingService.eventTrack('Go to Disabled User page');
       this.router.navigate(['/', 'auth', 'disabled']);
     } else if (err.status === 440) {
+      this.trackingService.eventTrack('Go to Invite Expired page');
       this.router.navigate(['/', 'auth', 'pending_verification', { hasTokenExpired: true, orgId }]);
     } else {
       this.logout();

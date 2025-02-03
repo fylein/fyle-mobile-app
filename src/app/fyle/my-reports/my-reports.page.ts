@@ -157,7 +157,7 @@ export class MyReportsPage {
         let queryParams = params.queryParams || {
           state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
         };
-        queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString, true);
+        queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
         const orderByParams =
           params.sortParam && params.sortDir ? `${params.sortParam}.${params.sortDir}` : 'created_at.desc,id.desc';
         this.isLoadingDataInInfiniteScroll = true;
@@ -195,7 +195,7 @@ export class MyReportsPage {
         let queryParams = params.queryParams || {
           state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
         };
-        queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString, true);
+        queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
         this.isLoadingDataInInfiniteScroll = true;
         return this.spenderReportsService.getReportsCount(queryParams);
       }),
@@ -690,14 +690,12 @@ export class MyReportsPage {
   }
 
   generateStateFilterPills(filterPills: FilterPill[], filter: Partial<MyReportsFilters>): void {
-    this.simplifyReportsSettings$.subscribe((simplifyReportsSettings) => {
-      filterPills.push({
-        label: 'State',
-        type: 'state',
-        value: (<string[]>filter.state)
-          .map((state) => this.reportStatePipe.transform(state, simplifyReportsSettings.enabled))
-          .reduce((state1, state2) => `${state1}, ${state2}`),
-      });
+    filterPills.push({
+      label: 'State',
+      type: 'state',
+      value: (<string[]>filter.state)
+        .map((state) => this.reportStatePipe.transform(state))
+        .reduce((state1, state2) => `${state1}, ${state2}`),
     });
   }
 

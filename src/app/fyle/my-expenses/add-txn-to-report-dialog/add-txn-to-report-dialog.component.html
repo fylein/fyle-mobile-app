@@ -10,7 +10,7 @@
             class="report-list--header--row-icon"
           ></ion-icon>
         </ion-col>
-        <ion-col size="10" class="report-list--header--title text-center">Add to Report</ion-col>
+        <ion-col size="10" class="report-list--header--title text-center">Add to report</ion-col>
         <ion-col size="1" class="report-list--header--row-icon-container">
           <ion-icon
             data-testid="addIcon"
@@ -48,7 +48,7 @@
             <ion-col size="2.75" class="ion-no-padding ion-text-right">
               <div class="ion-text-right">
                 <div class="text-center report-list--state state-pill state-{{ report.state | reportState }}">
-                  {{ report.state | reportState : data.isNewReportsFlowEnabled | snakeCaseToSpaceCase | titlecase }}
+                  {{ report.state | reportState | titlecase }}
                 </div>
               </div>
             </ion-col>

@@ -27,7 +27,7 @@ export class ApiV2Service {
   }
 
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-  extendQueryParamsForTextSearch(queryParams = {}, simpleSearchText: string, usingPlatformApi?: boolean) {
+  extendQueryParamsForTextSearch(queryParams = {}, simpleSearchText: string) {
     if (simpleSearchText === undefined || simpleSearchText.length < 1) {
       return queryParams;
     }
@@ -41,10 +41,6 @@ export class ApiV2Service {
       .concat(lastElement)
       .concat(':*');
 
-    if (usingPlatformApi) {
-      return Object.assign({}, queryParams, { q: searchQuery });
-    } else {
-      return Object.assign({}, queryParams, { _search_document: 'fts.' + searchQuery });
-    }
+    return Object.assign({}, queryParams, { q: searchQuery });
   }
 }
