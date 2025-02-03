@@ -214,7 +214,7 @@ describe('SidemenuComponent', () => {
     fixture.detectChanges();
     expect(cardOpt).toEqual([
       {
-        title: 'Personal Cards',
+        title: 'Personal cards',
         isVisible: true,
         route: ['/', 'enterprise', 'personal_cards'],
       },
@@ -252,7 +252,7 @@ describe('SidemenuComponent', () => {
   describe('getPrimarySidemenuOptions():', () => {
     it('should get the primary sidemenu options', () => {
       const primOpt = PrimaryOptionsRes1.concat(PrimaryOptionsRes2);
-      const resData = primOpt.filter((option) => option.title !== 'Personal Cards');
+      const resData = primOpt.filter((option) => option.title !== 'Personal cards');
       const cardOptSpy = spyOn(component, 'getCardOptions').and.returnValue([]);
       const teamOptSpy = spyOn(component, 'getTeamOptions').and.returnValue([]);
       const result = component.getPrimarySidemenuOptions(true, false);
@@ -273,7 +273,7 @@ describe('SidemenuComponent', () => {
       const teamOptSpy = spyOn(component, 'getTeamOptions').and.returnValue([]);
       const cardOptSpy = spyOn(component, 'getCardOptions').and.returnValue([
         {
-          title: 'Personal Cards',
+          title: 'Personal cards',
           isVisible: true,
           route: ['/', 'enterprise', 'personal_cards'],
         },
@@ -429,7 +429,7 @@ describe('SidemenuComponent', () => {
           route: ['/', 'enterprise', 'my_profile'],
         },
         {
-          title: 'Live Chat',
+          title: 'Live chat',
           isVisible: true,
           icon: 'chat',
           openLiveChat: true,
