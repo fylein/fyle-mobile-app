@@ -12,7 +12,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Build Android with Appflow
-        run: touch ~/android.apk
+        uses: ionic-team/appflow-build@v1
+        with:
+          token: ${{ secrets.APPFLOW_TOKEN }}
+          app-id: 32316914
+          platform: Android
+          build-type: debug
+          environment: staging
+          native-config: staging
+          filename: android.apk
 
       - name: Move android.apk to current directory
         run: mv ~/android.apk .
@@ -23,3 +31,41 @@ jobs:
         with:
           token: ${{ secrets.DIAWI_TOKEN }}
           file: android.apk
+
+      - name: Build iOS on Appflow
+        uses: ionic-team/appflow-build@v1
+        with:
+          token: ${{ secrets.APPFLOW_TOKEN }}
+          app-id: 32316914
+          platform: iOS
+          build-type: development
+          build-stack: macOS - 2024.04 - Apple silicon
+          certificate: Fyle signing
+          environment: staging
+          native-config: prod
+          filename: ios.ipa
+
+      - name: Move ios.ipa to current directory
+        run: mv ~/ios.ipa .
+
+      - name: Upload ipa to diawi Slack
+        uses: rnkdsh/action-upload-diawi@v1.2.0
+        id: diwaiIos
+        with:
+          token: ${{ secrets.DIAWI_TOKEN }}
+          file: ios.ipa
+
+      - name: Get branch name
+        id: get-branch
+        uses: xom9ikk/split@v1
+        with:
+          string: ${{ github.ref }}
+          separator: refs/heads/
+
+      - name: Send Message to Slack
+        uses: archive/github-actions-slack@v2.0.1
+        id: notify
+        with:
+          slack-bot-user-oauth-access-token: ${{ secrets.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN }}
+          slack-channel: C029QPGHSQL
+          slack-text: ${{github.event.sender.login}} ran manual workflow  on "${{ steps.get-branch.outputs._1 }}" branch \r\n PR link ${{github.event.pull_request.html_url}} \r\n \r\n *Description* \r\n ```${{github.event.pull_request.body}}```  \r\n \r\n APK Link ${{steps.diwaiAndroid.outputs.url}} \r\n IPA link ${{steps.diwaiIos.outputs.url}}
