@@ -21,13 +21,13 @@ jobs:
           environment: staging
           native-config: staging
 
-      - uses: actions/download-artifact@v4
-        id: download
+      - uses: actions/upload-artifact@v4
         with:
           name: 'Android'
           path: ./
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/download-artifact@v4
+        id: download
         with:
           name: 'Android'
           path: ./
@@ -54,13 +54,13 @@ jobs:
           environment: staging
           native-config: prod
 
-      - uses: actions/download-artifact@v4
-        id: ios
+      - uses: actions/upload-artifact@v4
         with:
           name: 'ios'
           path: ./
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/download-artifact@v4
+        id: ios
         with:
           name: 'ios'
           path: ./
