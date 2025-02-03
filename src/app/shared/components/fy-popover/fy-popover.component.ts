@@ -13,6 +13,8 @@ export class FyPopoverComponent implements AfterViewInit {
 
   @Input() formLabel = '';
 
+  @Input() message: string;
+
   formValue = '';
 
   constructor(private popoverController: PopoverController) {}

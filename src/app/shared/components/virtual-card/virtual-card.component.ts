@@ -5,6 +5,8 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
 import { ToastMessageComponent } from '../toast-message/toast-message.component';
 import { CardStatus } from 'src/app/core/enums/card-status.enum';
 import { CardAddedComponent } from 'src/app/fyle/manage-corporate-cards/card-added/card-added.component';
+import { PopoverController } from '@ionic/angular';
+import { FyPopoverComponent } from '../fy-popover/fy-popover.component';
 
 @Component({
   selector: 'app-virtual-card',
@@ -35,7 +37,8 @@ export class VirtualCardComponent implements OnInit {
   constructor(
     private clipboardService: ClipboardService,
     private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService
+    private snackbarProperties: SnackbarPropertiesService,
+    private popoverController: PopoverController
   ) {}
 
   showToastMessage(message: string): void {
@@ -57,6 +60,21 @@ export class VirtualCardComponent implements OnInit {
 
   ngOnInit(): void {
     this.showSuccessStatusDot = [CardStatus.ACTIVE, CardStatus.PREACTIVE].some((a) => a === this.cardStatus);
+  }
+
+  openInfoPopup(): void {
+    this.popoverController
+      .create({
+        component: FyPopoverComponent,
+        componentProps: {
+          title: 'Available monthly limit',
+          message: 'Available limit on this card for the current month.',
+        },
+        cssClass: 'dialog-popover',
+      })
+      .then((popover) => {
+        popover.present();
+      });
   }
 
   hideCvvAndCopy() {
