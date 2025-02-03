@@ -22,4 +22,4 @@ jobs:
         id: diwaiAndroid
         with:
           token: ${{ secrets.DIAWI_TOKEN }}
-          file: ${{ env.HOME }}/android.apk
+          file: android.apk
