@@ -11,7 +11,7 @@ export const draftExpenseTaskSample = deepFreeze({
   icon: TaskIcon.WARNING,
   ctas: [
     {
-      content: 'Review Expenses',
+      content: 'Review expenses',
       event: TASKEVENT.reviewExpenses,
     },
   ],
@@ -25,7 +25,7 @@ export const draftExpenseTaskSample2 = deepFreeze({
   icon: TaskIcon.WARNING,
   ctas: [
     {
-      content: 'Review Expenses',
+      content: 'Review expenses',
       event: TASKEVENT.reviewExpenses,
     },
   ],

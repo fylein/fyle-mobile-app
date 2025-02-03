@@ -999,7 +999,7 @@ describe('TasksService', () => {
         icon: TaskIcon.WARNING,
         ctas: [
           {
-            content: 'Review Expense',
+            content: 'Review expense',
             event: TASKEVENT.reviewExpenses,
           },
         ],

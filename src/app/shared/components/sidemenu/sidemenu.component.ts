@@ -183,7 +183,7 @@ export class SidemenuComponent implements OnInit {
   getCardOptions(isOnboardingPending: boolean): Partial<SidemenuItem>[] {
     const cardOptions = [
       {
-        title: 'Personal Cards',
+        title: 'Personal cards',
         isVisible:
           this.orgSettings.org_personal_cards_settings.allowed &&
           this.orgSettings.org_personal_cards_settings.enabled &&
@@ -361,7 +361,7 @@ export class SidemenuComponent implements OnInit {
         route: ['/', 'enterprise', 'my_profile'],
       },
       {
-        title: 'Live Chat',
+        title: 'Live chat',
         isVisible:
           this.orgUserSettings &&
           this.orgUserSettings.in_app_chat_settings &&
