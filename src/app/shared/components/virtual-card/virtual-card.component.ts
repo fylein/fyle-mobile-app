@@ -4,7 +4,6 @@ import { ClipboardService } from 'src/app/core/services/clipboard.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from '../toast-message/toast-message.component';
 import { CardStatus } from 'src/app/core/enums/card-status.enum';
-import { CardAddedComponent } from 'src/app/fyle/manage-corporate-cards/card-added/card-added.component';
 import { PopoverController } from '@ionic/angular';
 import { FyPopoverComponent } from '../fy-popover/fy-popover.component';
 
@@ -28,9 +27,9 @@ export class VirtualCardComponent implements OnInit {
 
   CardStatus: typeof CardStatus = CardStatus;
 
-  showCardNumber: boolean = false;
+  showCardNumber = false;
 
-  showCvv: boolean = false;
+  showCvv = false;
 
   showSuccessStatusDot: boolean;
 
@@ -53,7 +52,7 @@ export class VirtualCardComponent implements OnInit {
     });
   }
 
-  async copyToClipboard(contentToCopy: string) {
+  async copyToClipboard(contentToCopy: string): Promise<void> {
     await this.clipboardService.writeString(contentToCopy);
     this.showToastMessage('Copied Successfully!');
   }
@@ -77,7 +76,7 @@ export class VirtualCardComponent implements OnInit {
       });
   }
 
-  hideCvvAndCopy() {
+  hideCvvAndCopy(): void {
     setTimeout(() => {
       this.showCvv = false;
     }, 1000);
@@ -85,7 +84,7 @@ export class VirtualCardComponent implements OnInit {
     this.copyToClipboard(this.cvv);
   }
 
-  hideCardNumberAndCopy() {
+  hideCardNumberAndCopy(): void {
     setTimeout(() => {
       this.showCardNumber = false;
     }, 1000);
@@ -93,11 +92,11 @@ export class VirtualCardComponent implements OnInit {
     this.copyToClipboard(this.cardNumber);
   }
 
-  toggleShowCardNumber() {
+  toggleShowCardNumber(): void {
     this.showCardNumber = true;
   }
 
-  toggleShowCvv() {
+  toggleShowCvv(): void {
     this.showCvv = true;
   }
 }

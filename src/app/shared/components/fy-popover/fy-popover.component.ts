@@ -19,18 +19,18 @@ export class FyPopoverComponent implements AfterViewInit {
 
   constructor(private popoverController: PopoverController) {}
 
-  ngAfterViewInit() {
+  ngAfterViewInit(): void {
     const formInput = this.simpleFormInput.nativeElement as HTMLInputElement;
     setTimeout(() => {
       formInput.focus();
     }, 400);
   }
 
-  dismiss() {
+  dismiss(): void {
     this.popoverController.dismiss();
   }
 
-  submit() {
+  submit(): void {
     this.popoverController.dismiss({ comment: this.formValue });
   }
 }
