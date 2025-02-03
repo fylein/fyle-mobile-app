@@ -87,7 +87,7 @@ Here are some common issues and how to fix them:
 
 ```bash
   Property 'LIVE_UPDATE_APP_VERSION' does not exist on type
-  '{ production: boolean; NAME: string; CLUSTER_DOMAIN: string; ROOT_URL: string; ROUTER_API_ENDPOINT: string;
+  '{ production: boolean; NAME: string; ROOT_URL: string; ROUTER_API_ENDPOINT: string;
   ANDROID_CLIENT_ID: string; IP_FIND_KEY: string; GOOGLE_MAPS_API_KEY: string; FRESHCHAT_TOKEN: string;
   SENTRY_DSN: string; REFINER_NPS_FORM_ID: string; }'
 ```
@@ -171,8 +171,6 @@ This will ensure that all required packages are correctly installed, resolving t
 ├── appflow.config.json              # Configuration for Appflow
 ├── browserslist                     # Browser compatibility configuration
 ├── build_appflow.sh                 # Shell script for Appflow build
-├── build_prod.sh                    # Shell script for production build
-├── build_staging.sh                 # Shell script for staging build
 ├── capacitor.config.ts              # Capacitor configuration
 ├── ionic.config.json                # Ionic CLI configuration
 ├── karma.conf.js                    # Karma test runner configuration
