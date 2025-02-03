@@ -20,11 +20,12 @@ jobs:
           build-type: debug
           environment: staging
           native-config: staging
+          filename: android.apk
 
       - uses: actions/upload-artifact@v4
         with:
           name: 'Android'
-          path: 'builds/android/*.apk'
+          path: 'android.apk'
 
       - uses: actions/download-artifact@v4
         id: download
