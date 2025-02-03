@@ -20,10 +20,14 @@ jobs:
           build-type: debug
           environment: staging
           native-config: staging
-          upload-artifact: Android
 
       - uses: actions/download-artifact@v4
         id: download
+        with:
+          name: 'Android'
+          path: ./
+
+      - uses: actions/upload-artifact@v4
         with:
           name: 'Android'
           path: ./
@@ -49,9 +53,14 @@ jobs:
           certificate: Fyle signing
           environment: staging
           native-config: prod
-          upload-artifact: ios
 
       - uses: actions/download-artifact@v4
+        id: ios
+        with:
+          name: 'ios'
+          path: ./
+
+      - uses: actions/upload-artifact@v4
         id: ios
         with:
           name: 'ios'
