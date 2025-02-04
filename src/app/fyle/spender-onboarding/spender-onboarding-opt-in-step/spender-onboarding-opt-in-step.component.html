@@ -100,7 +100,12 @@
     class="opt-in-step__cta-container"
     [ngClass]="{ 'opt-in-step__without-go-back': !showGoBackCta, 'opt-in-step__with-go-back': showGoBackCta }"
   >
-    <div fill="clear" class="opt-in-step__cta-secondary" (click)="goBackToConnectCard()" *ngIf="showGoBackCta">
+    <div
+      fill="clear"
+      class="opt-in-step__cta-secondary"
+      (click)="goBackToConnectCard()"
+      *ngIf="showGoBackCta && !areCardsEnrolled"
+    >
       <ion-icon class="opt-in-step__arrow-icon" [src]="'/assets/svg/arrow-left.svg'" slot="icon-only"></ion-icon>
       <span class="opt-in-step__cta-text">Go back</span>
     </div>
