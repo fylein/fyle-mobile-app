@@ -62,7 +62,7 @@
               </div>
               <div class="ion-text-right">
                 <div class="text-center report-list--state state-pill state-{{ option.value.state | reportState }}">
-                  {{ option.value.state | reportState | snakeCaseToSpaceCase | titlecase }}
+                  {{ option.value.state | reportState : isNewReportsFlowEnabled | snakeCaseToSpaceCase | titlecase }}
                 </div>
               </div>
             </ion-col>

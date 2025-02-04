@@ -43,7 +43,7 @@
             <ion-col size="3.5">
               <ng-container *ngIf="(simplifyReportsSettings$ | async) as simplifyReportsSettings">
                 <div class="view-reports--report-state-pill state-pill state-{{report.state | reportState}}">
-                  {{report.state | reportState | snakeCaseToSpaceCase}}
+                  {{report.state | reportState : simplifyReportsSettings.enabled | snakeCaseToSpaceCase}}
                 </div>
               </ng-container>
             </ion-col>
