@@ -205,10 +205,4 @@ export class SpenderOnboardingPage {
       }
     }, 1000);
   }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private handleError(error: any, event: string): Observable<Record<string, never>> {
-    this.trackingService.eventTrack(event, { error });
-    return of({});
-  }
 }
