@@ -141,6 +141,36 @@ describe('SpenderOnboardingPage', () => {
         done();
       });
     });
+
+    it('should skip connect card step if RTF cards are enrolled', (done) => {
+      const onboardingRequestResponse: OnboardingStepStatus = {
+        is_configured: false,
+        is_skipped: true,
+      };
+
+      loaderService.showLoader.and.resolveTo();
+      orgUserService.getCurrent.and.returnValue(of(apiEouRes));
+      orgSettingsService.get.and.returnValue(of(orgSettingsData));
+      spenderOnboardingService.getOnboardingStatus.and.returnValue(
+        of({ ...onboardingStatusData, step_connect_cards_is_skipped: false })
+      );
+      corporateCreditCardExpenseService.getCorporateCards.and.returnValue(
+        of([{ ...statementUploadedCard, is_mastercard_enrolled: true }])
+      );
+      spenderOnboardingService.skipConnectCardsStep.and.returnValue(of(onboardingRequestResponse));
+
+      component.ionViewWillEnter();
+
+      fixture.whenStable().then(() => {
+        fixture.detectChanges();
+
+        expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+        expect(spenderOnboardingService.skipConnectCardsStep).toHaveBeenCalledTimes(1);
+        expect(component.showOneStep).toBeTrue();
+        expect(component.isLoading).toBeFalse();
+        done();
+      });
+    });
   });
 
   it('goBackToConnectCard(): should set currentStep to OnboardingStep.CONNECT_CARD when goBackToConnectCard is called', () => {
