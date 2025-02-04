@@ -39,6 +39,8 @@ export class SpenderOnboardingPage {
 
   redirectionCount = 3;
 
+  areCardsEnrolled = false;
+
   constructor(
     private loaderService: LoaderService,
     private orgUserService: OrgUserService,
@@ -74,15 +76,16 @@ export class SpenderOnboardingPage {
   }
 
   setUpRtfSteps(onboardingStatus: OnboardingStatus, rtfCards: PlatformCorporateCard[]): void {
-    if (
-      onboardingStatus.step_connect_cards_is_skipped ||
-      onboardingStatus.step_connect_cards_is_configured ||
-      rtfCards.length > 0
-    ) {
+    if (onboardingStatus.step_connect_cards_is_skipped || onboardingStatus.step_connect_cards_is_configured) {
       this.currentStep = OnboardingStep.OPT_IN;
       if (onboardingStatus.step_connect_cards_is_configured) {
         this.showOneStep = true;
       }
+    } else if (rtfCards.length > 0) {
+      this.areCardsEnrolled = true;
+      this.currentStep = OnboardingStep.OPT_IN;
+      this.showOneStep = true;
+      this.spenderOnboardingService.skipConnectCardsStep().subscribe();
     } else {
       this.currentStep = OnboardingStep.CONNECT_CARD;
       if (this.isMobileVerified(this.eou)) {
