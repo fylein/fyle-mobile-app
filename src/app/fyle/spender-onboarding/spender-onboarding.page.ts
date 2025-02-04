@@ -39,6 +39,8 @@ export class SpenderOnboardingPage {
 
   redirectionCount = 3;
 
+  areCardsEnrolled = false;
+
   constructor(
     private loaderService: LoaderService,
     private orgUserService: OrgUserService,
@@ -80,6 +82,7 @@ export class SpenderOnboardingPage {
         this.showOneStep = true;
       }
     } else if (rtfCards.length > 0) {
+      this.areCardsEnrolled = true;
       this.currentStep = OnboardingStep.OPT_IN;
       this.showOneStep = true;
       this.spenderOnboardingService.skipConnectCardsStep().subscribe();
