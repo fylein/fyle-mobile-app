@@ -98,13 +98,13 @@
 
   <div
     class="opt-in-step__cta-container"
-    [ngClass]="{ 'opt-in-step__without-go-back': !showGoBackCta, 'opt-in-step__with-go-back': showGoBackCta }"
+    [ngClass]="{ 'opt-in-step__without-go-back': !isConnectCardsSkipped, 'opt-in-step__with-go-back': isConnectCardsSkipped }"
   >
     <div
       fill="clear"
       class="opt-in-step__cta-secondary"
       (click)="goBackToConnectCard()"
-      *ngIf="showGoBackCta && !areCardsEnrolled"
+      *ngIf="isConnectCardsSkipped && !areCardsEnrolled"
     >
       <ion-icon class="opt-in-step__arrow-icon" [src]="'/assets/svg/arrow-left.svg'" slot="icon-only"></ion-icon>
       <span class="opt-in-step__cta-text">Go back</span>
