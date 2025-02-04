@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { catchError, finalize, forkJoin, from, map, Observable, switchMap } from 'rxjs';
+import { finalize, forkJoin, from, map, Observable, switchMap } from 'rxjs';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
