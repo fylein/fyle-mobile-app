@@ -139,6 +139,7 @@ describe('PersonalCardsService', () => {
             limit: platformTxnsConfig.limit,
             offset: platformTxnsConfig.offset,
             ...platformTxnsConfig.queryParams,
+            order: 'spent_at.desc,id.desc',
           },
         });
         done();

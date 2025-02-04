@@ -69,7 +69,7 @@ export class ExpensePreviewComponent implements OnInit {
           ...this.snackbarProperties.setSnackbarProperties('success', { message: 'Successfully matched the expense.' }),
           panelClass: ['msb-success'],
         });
-        this.router.navigate(['/', 'enterprise', 'personal_cards']);
+        this.router.navigate(['/', 'enterprise', 'personal_cards'], { queryParams: { refresh: true } });
         this.trackingService.oldExpensematchedFromPersonalCard();
       });
   }

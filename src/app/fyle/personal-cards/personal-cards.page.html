@@ -193,7 +193,7 @@
               (click)="createExpense(transaction)"
               *ngIf="!isTransactionsLoading"
               [transaction]="transaction"
-              [previousTxnDate]="transactions[i-1]?.btxn_transaction_dt"
+              [previousTxnDate]="transactions[i-1]?.spent_at"
               [isMatchedCountLoading]="transaction.id === loadingTxnId"
               [status]="selectedTransactionType"
               [isSelectionModeEnabled]="selectionMode"

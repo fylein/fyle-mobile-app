@@ -44,6 +44,8 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
 
   @Input() eou: ExtendedOrgUser;
 
+  @Input() areCardsEnrolled: boolean;
+
   @Output() isStepComplete: EventEmitter<boolean> = new EventEmitter<boolean>();
 
   @Output() goToConnectCard: EventEmitter<boolean> = new EventEmitter<boolean>();
@@ -91,7 +93,7 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
 
   hardwareBackButtonAction: Subscription;
 
-  showGoBackCta = false;
+  isConnectCardsSkipped = false;
 
   savingMobileNumber = false;
 
@@ -140,7 +142,7 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
     this.fg.addControl('mobile_number', this.fb.control('', [Validators.required, Validators.maxLength(10)]));
     this.spenderOnboardingService.getOnboardingStatus().subscribe((onboardingStatus) => {
       if (onboardingStatus.step_connect_cards_is_skipped === true) {
-        this.showGoBackCta = true;
+        this.isConnectCardsSkipped = true;
       }
     });
   }
