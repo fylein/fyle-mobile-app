@@ -503,7 +503,7 @@ export class MyExpensesPage implements OnInit {
         switchMap(() => this.getCardDetail())
       )
       .subscribe((cards) => {
-        const cardNumbers = [];
+        const cardNumbers: Array<{ label: string; value: string }> = [];
         cards.forEach((card) => {
           const cardNickname = card.cardNickname ? ` (${card.cardNickname})` : '';
           const cardDetail = {
