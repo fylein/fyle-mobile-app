@@ -143,13 +143,21 @@ describe('SpenderOnboardingPage', () => {
     });
 
     it('should skip connect card step if RTF cards are enrolled', (done) => {
+      const onboardingRequestResponse: OnboardingStepStatus = {
+        is_configured: false,
+        is_skipped: true,
+      };
+
       loaderService.showLoader.and.resolveTo();
-      orgUserService.getCurrent.and.returnValue(of(extendedOrgUserResponse));
+      orgUserService.getCurrent.and.returnValue(of(apiEouRes));
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
       spenderOnboardingService.getOnboardingStatus.and.returnValue(
-        of({ ...onboardingStatusData, step_connect_cards_is_skipped: true })
+        of({ ...onboardingStatusData, step_connect_cards_is_skipped: false })
       );
-      corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([statementUploadedCard]));
+      corporateCreditCardExpenseService.getCorporateCards.and.returnValue(
+        of([{ ...statementUploadedCard, is_mastercard_enrolled: true }])
+      );
+      spenderOnboardingService.skipConnectCardsStep.and.returnValue(of(onboardingRequestResponse));
 
       component.ionViewWillEnter();
 
@@ -157,8 +165,8 @@ describe('SpenderOnboardingPage', () => {
         fixture.detectChanges();
 
         expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-        expect(component.userFullName).toBe('Aiyush');
-        expect(component.currentStep).toBe(OnboardingStep.OPT_IN);
+        expect(spenderOnboardingService.skipConnectCardsStep).toHaveBeenCalledTimes(1);
+        expect(component.showOneStep).toBeTrue();
         expect(component.isLoading).toBeFalse();
         done();
       });
