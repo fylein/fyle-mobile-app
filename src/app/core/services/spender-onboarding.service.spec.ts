@@ -14,7 +14,6 @@ import { OnboardingState } from '../models/onboarding-state.enum';
 import { orgSettingsCCCDisabled3 } from '../mock-data/org-settings.data';
 import { extendedOrgUserResponse } from '../test-data/tasks.service.spec.data';
 import { apiEouRes } from '../mock-data/extended-org-user.data';
-import { onboardingRequestResponse } from '../mock-data/onboarding-request-response.data';
 
 describe('SpenderOnboardingService', () => {
   let spenderOnboardingService: SpenderOnboardingService;
@@ -72,6 +71,10 @@ describe('SpenderOnboardingService', () => {
   });
 
   it('processConnnectCardsStep(): should process connect card step', (done) => {
+    const onboardingRequestResponse: OnboardingStepStatus = {
+      is_configured: true,
+      is_skipped: false,
+    };
     spenderPlatformV1ApiService.post.and.returnValue(of({ data: onboardingRequestResponse }));
 
     spenderOnboardingService.processConnectCardsStep(onboardingRequestResponse).subscribe((res) => {
@@ -84,6 +87,10 @@ describe('SpenderOnboardingService', () => {
   });
 
   it('processSmsOptInStep(): should process opt in step', (done) => {
+    const onboardingRequestResponse: OnboardingStepStatus = {
+      is_configured: true,
+      is_skipped: false,
+    };
     spenderPlatformV1ApiService.post.and.returnValue(of({ data: onboardingRequestResponse }));
 
     spenderOnboardingService.processSmsOptInStep(onboardingRequestResponse).subscribe((res) => {
@@ -96,15 +103,15 @@ describe('SpenderOnboardingService', () => {
   });
 
   it('processWelcomeModalStep(): should get category count', (done) => {
-    const onboardingRequestResponseForWelcomeModal: OnboardingWelcomeStepStatus = {
+    const onboardingRequestResponse: OnboardingWelcomeStepStatus = {
       is_complete: true,
     };
-    spenderPlatformV1ApiService.post.and.returnValue(of({ data: onboardingRequestResponseForWelcomeModal }));
+    spenderPlatformV1ApiService.post.and.returnValue(of({ data: onboardingRequestResponse }));
 
-    spenderOnboardingService.processWelcomeModalStep(onboardingRequestResponseForWelcomeModal).subscribe((res) => {
-      expect(res).toEqual(onboardingRequestResponseForWelcomeModal);
+    spenderOnboardingService.processWelcomeModalStep(onboardingRequestResponse).subscribe((res) => {
+      expect(res).toEqual(onboardingRequestResponse);
       expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/onboarding/process_step_show_welcome_modal', {
-        data: onboardingRequestResponseForWelcomeModal,
+        data: onboardingRequestResponse,
       });
       done();
     });
