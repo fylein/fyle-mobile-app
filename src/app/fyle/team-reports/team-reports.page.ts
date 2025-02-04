@@ -583,12 +583,14 @@ export class TeamReportsPage implements OnInit {
   }
 
   generateStateFilterPills(filterPills: FilterPill[], filter: Partial<TeamReportsFilters>): void {
-    filterPills.push({
-      label: 'State',
-      type: 'state',
-      value: (<string[]>filter.state)
-        .map((state) => this.reportStatePipe.transform(state))
-        .reduce((state1, state2) => `${state1}, ${state2}`),
+    this.simplifyReportsSettings$.subscribe((simplifyReportsSettings) => {
+      filterPills.push({
+        label: 'State',
+        type: 'state',
+        value: (filter.state as string[])
+          .map((state) => this.reportStatePipe.transform(state, simplifyReportsSettings.enabled))
+          .reduce((state1, state2) => `${state1}, ${state2}`),
+      });
     });
   }
 

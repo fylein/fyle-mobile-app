@@ -1,7 +1,7 @@
 @import './../../../theme/colors.scss';
-$submitted-color: #4798ff;
+$reported-color: #4798ff;
 $approved-color: #67bc53;
-$closed-color: #64b5a6;
+$paid-color: #64b5a6;
 $fyled-color: #f90;
 $sent-back-color: #da1e28;
 
@@ -200,8 +200,8 @@ $sent-back-color: #da1e28;
   }
 
   &--approval-state {
-    &__submitted {
-      color: $submitted-color;
+    &__reported {
+      color: $reported-color;
     }
     &__complete {
       color: $fyled-color;
@@ -212,8 +212,8 @@ $sent-back-color: #da1e28;
     &__approved {
       color: $approved-color;
     }
-    &__closed {
-      color: $closed-color;
+    &__paid {
+      color: $paid-color;
     }
   }
 

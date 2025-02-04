@@ -94,8 +94,8 @@ $advance_paid_color: darken(#5cb85c, 15%);
   }
 
   &--approval-state {
-    &__submitted {
-      color: $submitted-color;
+    &__reported {
+      color: $reported-color;
     }
     &__complete {
       color: $fyled-color;

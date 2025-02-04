@@ -86,8 +86,8 @@
   }
 
   &--approval-state {
-    &__submitted {
-      color: $submitted-color;
+    &__reported {
+      color: $reported-color;
     }
     &__complete {
       color: $fyled-color;

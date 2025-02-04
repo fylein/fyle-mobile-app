@@ -690,12 +690,14 @@ export class MyReportsPage {
   }
 
   generateStateFilterPills(filterPills: FilterPill[], filter: Partial<MyReportsFilters>): void {
-    filterPills.push({
-      label: 'State',
-      type: 'state',
-      value: (<string[]>filter.state)
-        .map((state) => this.reportStatePipe.transform(state))
-        .reduce((state1, state2) => `${state1}, ${state2}`),
+    this.simplifyReportsSettings$.subscribe((simplifyReportsSettings) => {
+      filterPills.push({
+        label: 'State',
+        type: 'state',
+        value: (<string[]>filter.state)
+          .map((state) => this.reportStatePipe.transform(state, simplifyReportsSettings.enabled))
+          .reduce((state1, state2) => `${state1}, ${state2}`),
+      });
     });
   }
 
