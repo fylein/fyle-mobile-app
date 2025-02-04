@@ -143,11 +143,6 @@ describe('SpenderOnboardingPage', () => {
     });
 
     it('should skip connect card step if RTF cards are enrolled', (done) => {
-      const onboardingRequestResponse: OnboardingStepStatus = {
-        is_configured: false,
-        is_skipped: true,
-      };
-
       loaderService.showLoader.and.resolveTo();
       orgUserService.getCurrent.and.returnValue(of(apiEouRes));
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
@@ -184,10 +179,6 @@ describe('SpenderOnboardingPage', () => {
       component.currentStep = OnboardingStep.CONNECT_CARD;
       fixture.detectChanges();
 
-      const onboardingRequestResponse: OnboardingStepStatus = {
-        is_configured: false,
-        is_skipped: true,
-      };
       const welcomeModalCompletionResponse = { is_complete: true };
 
       spenderOnboardingService.skipConnectCardsStep.and.returnValue(of(onboardingRequestResponse));
@@ -205,11 +196,6 @@ describe('SpenderOnboardingPage', () => {
       component.currentStep = OnboardingStep.CONNECT_CARD;
       component.eou = apiEouRes;
       fixture.detectChanges();
-
-      const onboardingRequestResponse: OnboardingStepStatus = {
-        is_configured: false,
-        is_skipped: true,
-      };
 
       spenderOnboardingService.skipConnectCardsStep.and.returnValue(of(onboardingRequestResponse));
       tick();
