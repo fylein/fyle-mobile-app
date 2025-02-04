@@ -282,6 +282,7 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
         const cardType = this.realTimeFeedService.getCardTypeFromNumber(cardNumber);
 
         if (
+          cardType === CardNetworkType.OTHERS ||
           (!this.isVisaRTFEnabled && cardType === CardNetworkType.VISA) ||
           (!this.isMastercardRTFEnabled && cardType === CardNetworkType.MASTERCARD)
         ) {
