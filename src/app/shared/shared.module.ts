@@ -422,6 +422,7 @@ import { CCExpenseMerchantInfoModalComponent } from './components/cc-expense-mer
     DashboardOptInComponent,
     MobileNumberCardComponent,
     CCExpenseMerchantInfoModalComponent,
+    ReviewSplitExpenseComponent,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker, FyCurrencyPipe, ReportState, ExactCurrencyPipe],
 })

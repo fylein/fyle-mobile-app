@@ -29,6 +29,14 @@ describe('ReviewSplitExpenseComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  it('should initialize with split expenses input', () => {
+    const mockExpenses = [expenseData];
+    component.splitExpenses = mockExpenses;
+    fixture.detectChanges();
+
+    expect(component.splitExpenses).toEqual(mockExpenses);
+  });
+
   it('should call modalController.dismiss with correct params on goToTransaction', () => {
     const event = { expense: expenseData, expenseIndex: 0 };
 

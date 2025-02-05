@@ -7,7 +7,7 @@ import { ModalController } from '@ionic/angular';
   styleUrls: ['./review-split-expense.component.scss'],
 })
 export class ReviewSplitExpenseComponent {
-  @Input() splitExpenses: Expense;
+  @Input() splitExpenses: Expense[];
 
   constructor(private modalController: ModalController) {}
 
