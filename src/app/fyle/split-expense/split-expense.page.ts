@@ -51,6 +51,7 @@ import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expen
 import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
 import { PlatformFile } from 'src/app/core/models/platform/platform-file.model';
 import { ReviewSplitExpenseComponent } from 'src/app/shared/components/review-split-expense/review-split-expense.component';
+import { Expense } from 'src/app/core/models/expense.model';
 
 @Component({
   selector: 'app-split-expense',
@@ -1114,7 +1115,7 @@ export class SplitExpensePage {
     return isEvenSplit;
   }
 
-  async openReviewSplitExpenseModal(expense): Promise<void> {
+  async openReviewSplitExpenseModal(expense: Expense): Promise<void> {
     const reviewModal = await this.modalController.create({
       component: ReviewSplitExpenseComponent,
       componentProps: {
@@ -1127,7 +1128,8 @@ export class SplitExpensePage {
 
     await reviewModal.present();
 
-    const { data } = await reviewModal.onWillDismiss();
+    const { data }: { data?: { dismissed: boolean; action: string; expense?: Expense } } =
+      await reviewModal.onWillDismiss();
 
     if (data) {
       if (data.action === 'close') {
