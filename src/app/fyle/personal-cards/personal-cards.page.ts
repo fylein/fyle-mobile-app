@@ -5,6 +5,7 @@ import {
   ElementRef,
   EventEmitter,
   NgZone,
+  OnDestroy,
   OnInit,
   ViewChild,
 } from '@angular/core';
@@ -67,7 +68,7 @@ type Filters = Partial<PersonalCardFilter>;
   templateUrl: './personal-cards.page.html',
   styleUrls: ['./personal-cards.page.scss'],
 })
-export class PersonalCardsPage implements OnInit, AfterViewInit {
+export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef<HTMLInputElement>;
 
   headerState: HeaderState = HeaderState.base;
