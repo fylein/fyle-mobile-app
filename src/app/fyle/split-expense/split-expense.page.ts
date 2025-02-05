@@ -569,11 +569,6 @@ export class SplitExpensePage {
   showSuccessToast(): void {
     this.saveSplitExpenseLoading = false;
     const toastMessage = 'Expense split successfully.';
-    if (this.reportId) {
-      this.router.navigate(['/', 'enterprise', 'my_view_report', { id: this.reportId }]);
-    } else {
-      this.router.navigate(['/', 'enterprise', 'my_expenses']);
-    }
     this.toastWithoutCTA(toastMessage, ToastType.SUCCESS, 'msb-success-with-camera-icon');
   }
 
@@ -700,6 +695,7 @@ export class SplitExpensePage {
         this.trackingService.splitExpenseSuccess(splitTrackingProps);
 
         const txnIds = txns.data.map((txn) => txn.id);
+        this.openReviewSplitExpenseModal(txns.data);
 
         if (comments) {
           return this.splitExpenseService
@@ -794,7 +790,6 @@ export class SplitExpensePage {
             concatMap((formattedSplitExpense) => {
               this.formattedSplitExpense = formattedSplitExpense;
               this.correctTotalSplitAmount();
-              this.openReviewSplitExpenseModal(this.formattedSplitExpense);
               return this.handlePolicyAndMissingFieldsCheck(formattedSplitExpense);
             }),
             catchError((errResponse: HttpErrorResponse) => {
@@ -1127,13 +1122,33 @@ export class SplitExpensePage {
         reportId: this.reportId || '',
       },
       mode: 'ios',
-      cssClass: 'fy-dialog-popover',
-      breakpoints: [0, 1],
-      initialBreakpoint: 1,
       presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
     });
 
     await reviewModal.present();
+
+    const { data } = await reviewModal.onWillDismiss();
+
+    if (data) {
+      if (data.action === 'close') {
+        if (this.reportId) {
+          this.router.navigate(['/', 'enterprise', 'my_view_report', { id: this.reportId }]);
+        } else {
+          this.router.navigate(['/', 'enterprise', 'my_expenses']);
+        }
+      } else if (data.action === 'navigate') {
+        const expense = data.expense;
+        let category = expense?.category?.name?.toLowerCase();
+
+        if (category === 'mileage') {
+          this.router.navigate(['/', 'enterprise', 'add_edit_mileage', { id: expense.id, persist_filters: true }]);
+        } else if (category === 'per diem') {
+          this.router.navigate(['/', 'enterprise', 'add_edit_per_diem', { id: expense.id, persist_filters: true }]);
+        } else {
+          this.router.navigate(['/', 'enterprise', 'add_edit_expense', { id: expense.id, persist_filters: true }]);
+        }
+      }
+    }
   }
 }

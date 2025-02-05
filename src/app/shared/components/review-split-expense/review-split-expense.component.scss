@@ -1,1 +1,16 @@
 @import '../../../../theme/colors.scss';
+
+.review-split-expense-modal {
+  padding-top: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid $grey;
+  &--header {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 27px;
+    gap: 10px;
+  }
+}
