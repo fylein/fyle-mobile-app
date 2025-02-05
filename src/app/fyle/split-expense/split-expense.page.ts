@@ -1119,7 +1119,6 @@ export class SplitExpensePage {
       component: ReviewSplitExpenseComponent,
       componentProps: {
         splitExpenses: expense,
-        reportId: this.reportId || '',
       },
       mode: 'ios',
       presentingElement: await this.modalController.getTop(),
