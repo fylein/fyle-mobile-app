@@ -195,19 +195,20 @@ export class SidemenuComponent implements OnInit {
     return cardOptions.filter((cardOption) => cardOption.isVisible);
   }
 
-  getTeamOptions(): Partial<SidemenuItem>[] {
+  getTeamOptions(isOnboardingPending: boolean): Partial<SidemenuItem>[] {
     const showTeamReportsPage = this.primaryOrg?.id === (this.activeOrg as Org)?.id;
 
     const { allowedReportsActions, allowedAdvancesActions } = this.allowedActions;
     const teamOptions = [
       {
         title: 'Team expense reports',
-        isVisible: allowedReportsActions && allowedReportsActions.approve && showTeamReportsPage,
+        isVisible:
+          allowedReportsActions && allowedReportsActions.approve && showTeamReportsPage && !isOnboardingPending,
         route: ['/', 'enterprise', 'team_reports'],
       },
       {
         title: 'Team advances',
-        isVisible: allowedAdvancesActions && allowedAdvancesActions.approve,
+        isVisible: allowedAdvancesActions && allowedAdvancesActions.approve && !isOnboardingPending,
         route: ['/', 'enterprise', 'team_advance'],
       },
     ];
@@ -215,7 +216,7 @@ export class SidemenuComponent implements OnInit {
   }
 
   getPrimarySidemenuOptions(isConnected: boolean, isOnboardingPending: boolean): Partial<SidemenuItem>[] {
-    const teamOptions = this.getTeamOptions();
+    const teamOptions = this.getTeamOptions(isOnboardingPending);
     const cardOptions = this.getCardOptions(isOnboardingPending);
 
     const primaryOptions = [
