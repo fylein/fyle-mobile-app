@@ -98,7 +98,10 @@
 
   <div
     class="opt-in-step__cta-container"
-    [ngClass]="{ 'opt-in-step__without-go-back': !isConnectCardsSkipped, 'opt-in-step__with-go-back': isConnectCardsSkipped }"
+    [ngClass]="{
+      'opt-in-step__without-go-back': !(isConnectCardsSkipped && !areCardsEnrolled),
+      'opt-in-step__with-go-back': isConnectCardsSkipped && !areCardsEnrolled
+    }"
   >
     <div
       fill="clear"
