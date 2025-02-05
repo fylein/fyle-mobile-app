@@ -138,7 +138,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
   scrolled = false;
 
-  onPageExit$ = new Subject();
+  onComponentDestroy$ = new Subject();
 
   constructor(
     private personalCardsService: PersonalCardsService,
@@ -297,7 +297,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
         map((event) => event.srcElement.value),
         distinctUntilChanged(),
         debounceTime(400),
-        takeUntil(this.onPageExit$)
+        takeUntil(this.onComponentDestroy$)
       )
       .subscribe((searchString) => {
         const currentParams = this.loadData$.getValue();
@@ -309,16 +309,16 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.cdr.detectChanges();
   }
 
-  ionViewWillLeave(): void {
-    this.onPageExit$.next(null);
-    this.onPageExit$.complete();
+  ngOnDestroy(): void {
+    this.onComponentDestroy$.next(null);
+    this.onComponentDestroy$.complete();
   }
 
   setupNetworkWatcher(): void {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
-      takeUntil(this.onPageExit$),
+      takeUntil(this.onComponentDestroy$),
       shareReplay(1)
     );
 
