@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/member-ordering */
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 import { Component } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -50,8 +49,6 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
 import { PlatformFile } from 'src/app/core/models/platform/platform-file.model';
-import { ReviewSplitExpenseComponent } from 'src/app/shared/components/review-split-expense/review-split-expense.component';
-import { Expense } from 'src/app/core/models/expense.model';
 
 @Component({
   selector: 'app-split-expense',
@@ -570,6 +567,11 @@ export class SplitExpensePage {
   showSuccessToast(): void {
     this.saveSplitExpenseLoading = false;
     const toastMessage = 'Expense split successfully.';
+    if (this.reportId) {
+      this.router.navigate(['/', 'enterprise', 'my_view_report', { id: this.reportId }]);
+    } else {
+      this.router.navigate(['/', 'enterprise', 'my_expenses']);
+    }
     this.toastWithoutCTA(toastMessage, ToastType.SUCCESS, 'msb-success-with-camera-icon');
   }
 
@@ -696,7 +698,6 @@ export class SplitExpensePage {
         this.trackingService.splitExpenseSuccess(splitTrackingProps);
 
         const txnIds = txns.data.map((txn) => txn.id);
-        this.openReviewSplitExpenseModal(txns.data);
 
         if (comments) {
           return this.splitExpenseService
@@ -1113,43 +1114,5 @@ export class SplitExpensePage {
     });
 
     return isEvenSplit;
-  }
-
-  async openReviewSplitExpenseModal(expense: Expense): Promise<void> {
-    const reviewModal = await this.modalController.create({
-      component: ReviewSplitExpenseComponent,
-      componentProps: {
-        splitExpenses: expense,
-      },
-      mode: 'ios',
-      presentingElement: await this.modalController.getTop(),
-      ...this.modalProperties.getModalDefaultProperties(),
-    });
-
-    await reviewModal.present();
-
-    const { data }: { data?: { dismissed: boolean; action: string; expense?: Expense } } =
-      await reviewModal.onWillDismiss();
-
-    if (data) {
-      if (data.action === 'close') {
-        if (this.reportId) {
-          this.router.navigate(['/', 'enterprise', 'my_view_report', { id: this.reportId }]);
-        } else {
-          this.router.navigate(['/', 'enterprise', 'my_expenses']);
-        }
-      } else if (data.action === 'navigate') {
-        const expense = data.expense;
-        let category = expense?.category?.name?.toLowerCase();
-
-        if (category === 'mileage') {
-          this.router.navigate(['/', 'enterprise', 'add_edit_mileage', { id: expense.id, persist_filters: true }]);
-        } else if (category === 'per diem') {
-          this.router.navigate(['/', 'enterprise', 'add_edit_per_diem', { id: expense.id, persist_filters: true }]);
-        } else {
-          this.router.navigate(['/', 'enterprise', 'add_edit_expense', { id: expense.id, persist_filters: true }]);
-        }
-      }
-    }
   }
 }
