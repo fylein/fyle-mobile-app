@@ -223,7 +223,7 @@ describe('SidemenuComponent', () => {
 
   it('getTeamOptions: should get team options', () => {
     component.allowedActions = sidemenuAllowedActions;
-    const teamOpt = component.getTeamOptions();
+    const teamOpt = component.getTeamOptions(false);
     fixture.detectChanges();
     expect(teamOpt.length).toBe(2);
     expect(teamOpt).toEqual([
