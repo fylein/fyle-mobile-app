@@ -1,9 +1,9 @@
 @import '../../../../theme/colors.scss';
 
 .review-split-expense-modal {
-  padding-top: 16px;
-  padding-bottom: 12px;
   border-bottom: 1px solid $grey;
+  margin-bottom: 8px;
+
   &--header {
     display: flex;
     justify-content: flex-start;
@@ -11,6 +11,17 @@
     font-size: 18px;
     font-weight: 500;
     line-height: 27px;
-    gap: 10px;
+    padding-inline: 12px;
+  }
+
+  &--body {
+    padding-inline: 16px;
+  }
+
+  &--divier {
+    height: 1px;
+    width: 100%;
+    margin-bottom: 6px;
+    background-color: $grey;
   }
 }
