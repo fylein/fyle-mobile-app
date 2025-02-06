@@ -80,7 +80,7 @@ describe('FyFiltersComponent', () => {
     fixture.detectChanges();
     expect(component.currentFilterValueMap).toEqual({
       'Created date': 'custom',
-      'Updated On': 'custom',
+      'Updated date': 'custom',
       'Transactions Type': 'Debit',
       Type: 'custom',
       'Receipts Attached': 'custom',
@@ -532,7 +532,7 @@ describe('FyFiltersComponent', () => {
     fixture.detectChanges();
     expect(component.currentFilterValueMap).toEqual({
       'Created date': 'custom',
-      'Updated On': 'custom',
+      'Updated date': 'custom',
       'Transactions Type': 'Debit',
       Type: 'custom',
       'Receipts Attached': 'custom',

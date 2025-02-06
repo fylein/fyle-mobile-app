@@ -435,7 +435,7 @@ describe('PersonalCardsService', () => {
       personalCardsService.generateUpdatedOnCustomDatePill(filters, filterPills);
       expect(filterPills).toEqual([
         {
-          label: 'Updated On',
+          label: 'Updated date',
           type: 'date',
           value: '2023-02-21 to 2023-02-23',
         },
@@ -456,7 +456,7 @@ describe('PersonalCardsService', () => {
       personalCardsService.generateUpdatedOnCustomDatePill(filters, filterPills);
       expect(filterPills).toEqual([
         {
-          label: 'Updated On',
+          label: 'Updated date',
           type: 'date',
           value: '>= 2023-02-21',
         },
@@ -477,7 +477,7 @@ describe('PersonalCardsService', () => {
       personalCardsService.generateUpdatedOnCustomDatePill(filters, filterPills);
       expect(filterPills).toEqual([
         {
-          label: 'Updated On',
+          label: 'Updated date',
           type: 'date',
           value: '<= 2023-02-23',
         },
@@ -601,7 +601,7 @@ describe('PersonalCardsService', () => {
       personalCardsService.generateDateFilterPills('updatedOn', filters, filterPills);
       expect(filterPills).toEqual([
         {
-          label: 'Updated On',
+          label: 'Updated date',
           type: 'date',
           value: '>= 2023-02-21',
         },

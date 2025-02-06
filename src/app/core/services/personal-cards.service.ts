@@ -256,7 +256,7 @@ export class PersonalCardsService {
       }
     }
 
-    const updatedOnDateFilter = selectedFilters.find((filter) => filter.name === 'Updated On');
+    const updatedOnDateFilter = selectedFilters.find((filter) => filter.name === 'Updated date');
     if (updatedOnDateFilter) {
       generatedFilters.updatedOn = { name: updatedOnDateFilter.value };
       if (updatedOnDateFilter.associatedData) {
@@ -280,7 +280,7 @@ export class PersonalCardsService {
     if (filter?.updatedOn) {
       const dateFilter = filter;
       generatedFilters.push({
-        name: 'Updated On',
+        name: 'Updated date',
         value: dateFilter.updatedOn.name,
         associatedData: {
           startDate: dateFilter.updatedOn.customDateStart,
@@ -406,19 +406,19 @@ export class PersonalCardsService {
 
     if (startDate && endDate) {
       filterPills.push({
-        label: 'Updated On',
+        label: 'Updated date',
         type: 'date',
         value: `${startDate} to ${endDate}`,
       });
     } else if (startDate) {
       filterPills.push({
-        label: 'Updated On',
+        label: 'Updated date',
         type: 'date',
         value: `>= ${startDate}`,
       });
     } else if (endDate) {
       filterPills.push({
-        label: 'Updated On',
+        label: 'Updated date',
         type: 'date',
         value: `<= ${endDate}`,
       });
