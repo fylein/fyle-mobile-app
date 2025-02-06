@@ -16,6 +16,7 @@ import { orgSettingsWoTaxAndRtf } from 'src/app/core/mock-data/org-settings.data
 import { statementUploadedCard } from 'src/app/core/mock-data/platform-corporate-card.data';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
+import { orgSettingsCardsDisabled } from 'src/app/core/test-data/org-settings.service.spec.data';
 
 describe('SpenderOnboardingPage', () => {
   let component: SpenderOnboardingPage;
@@ -102,7 +103,7 @@ describe('SpenderOnboardingPage', () => {
 
     it('should go to Opt in step when RTF is disabled', (done) => {
       loaderService.showLoader.and.resolveTo();
-      orgUserService.getCurrent.and.returnValue(of(extendedOrgUserResponse));
+      orgUserService.getCurrent.and.returnValue(of(apiEouRes));
       orgSettingsService.get.and.returnValue(of(orgSettingsWoTaxAndRtf));
       spenderOnboardingService.getOnboardingStatus.and.returnValue(of(onboardingStatusData));
       corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([statementUploadedCard]));
@@ -113,7 +114,7 @@ describe('SpenderOnboardingPage', () => {
         fixture.detectChanges();
 
         expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-        expect(component.userFullName).toBe('Aiyush');
+        expect(component.userFullName).toBe('Abhishek Jain');
         expect(component.currentStep).toBe(OnboardingStep.OPT_IN);
         expect(component.isLoading).toBeFalse();
         done();
