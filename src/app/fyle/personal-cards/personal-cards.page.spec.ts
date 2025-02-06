@@ -647,7 +647,7 @@ describe('PersonalCardsPage', () => {
           updatedOn: {},
         };
 
-        component.onFilterClose('Updated On');
+        component.onFilterClose('Updated date');
         expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);
         expect(personalCardsService.generateFilterPills).toHaveBeenCalledTimes(1);
       });
