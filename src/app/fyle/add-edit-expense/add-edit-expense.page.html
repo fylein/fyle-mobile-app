@@ -569,10 +569,16 @@
                     <app-fy-number formControlName="tax_amount" [placeholder]="'Enter Tax Amount'"></app-fy-number>
                   </div>
                   <div
-                    *ngIf="(fg.controls.tax_amount.touched && (!fg.controls.tax_amount.valid || fg.controls.tax_amount.hasError('invalid')))"
+                    *ngIf="(fg.controls.tax_amount.touched && (!fg.controls.tax_amount.valid || fg.controls.tax_amount.hasError('invalid')) && !fg.controls.tax_amount.hasError('taxAmountGreaterThanAmount'))"
                     class="add-edit-expense--error"
                   >
                     Please enter a valid tax amount.
+                  </div>
+                  <div
+                    *ngIf="fg.controls.tax_amount.touched && fg.controls.tax_amount.hasError('taxAmountGreaterThanAmount')"
+                    class="add-edit-expense--error"
+                  >
+                    Tax amount cannot be greater than amount
                   </div>
                 </div>
               </ng-container>

@@ -2,7 +2,15 @@
 /* eslint-disable complexity */
 import { TitleCasePipe } from '@angular/common';
 import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } from '@angular/core';
-import { AbstractControl, FormArray, FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormArray,
+  FormBuilder,
+  FormGroup,
+  ValidationErrors,
+  Validators,
+  ValidatorFn,
+} from '@angular/forms';
 import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -2843,6 +2851,17 @@ export class AddEditExpensePage implements OnInit {
     }
   }
 
+  taxAmountValidator(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      if (!control.value) {
+        return null;
+      }
+
+      const isAmountGreaterThanTaxAmount = this.getAmount() > control.value;
+      return isAmountGreaterThanTaxAmount ? null : { taxAmountGreaterThanAmount: true };
+    };
+  }
+
   initClassObservables(): void {
     this.isNewReportsFlowEnabled = false;
     this.onPageExit$ = new Subject();
@@ -3016,7 +3035,7 @@ export class AddEditExpensePage implements OnInit {
       purpose: [],
       report: [],
       tax_group: [],
-      tax_amount: [],
+      tax_amount: [, this.taxAmountValidator()],
       location_1: [],
       location_2: [],
       from_dt: [],
