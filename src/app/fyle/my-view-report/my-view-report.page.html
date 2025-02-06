@@ -70,8 +70,8 @@
                 <div class="view-reports--submitted-date">
                   <div>
                     <span class="view-reports--submitted-date__text"
-                      >{{report.state === "DRAFT" ? "Created on : " : (report.last_resubmitted_at ? "Resubmitted on : "
-                      : "Submitted on : " )}}
+                      >{{report.state === "DRAFT" ? "Created on : " : (report.last_resubmitted_at ? "Resubmitted date :
+                      " : "Submitted date : " )}}
                     </span>
                     <span *ngIf="report.state === 'DRAFT'" class="view-reports--submitted-date__date"
                       >{{report.created_at | date: 'MMM dd, YYYY'}}</span
