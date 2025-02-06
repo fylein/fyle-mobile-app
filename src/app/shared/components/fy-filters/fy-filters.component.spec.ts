@@ -275,8 +275,8 @@ describe('FyFiltersComponent', () => {
 
     component.ngOnInit();
     fixture.detectChanges();
-    expect(component.startDate).toEqual(undefined);
-    expect(component.endDate).toEqual(undefined);
+    expect(component.startDate).toBeUndefined();
+    expect(component.endDate).toBeUndefined();
   });
 
   it('should set filterOptions options to optionsNewFlowCCCOnly', () => {
@@ -538,14 +538,15 @@ describe('FyFiltersComponent', () => {
       'Receipts Attached': 'custom',
     });
     expect(component.customDateMap).toEqual({});
-    expect(component.startDate).toEqual(undefined);
-    expect(component.endDate).toEqual(undefined);
+    expect(component.startDate).toBeUndefined();
+    expect(component.endDate).toBeUndefined();
     component.clearAll();
     expect(component.currentFilterValueMap).toEqual({});
     expect(component.customDateMap).toEqual({});
     expect(component.startDate).toBeNull();
     expect(component.endDate).toBeNull();
   });
+
   it('onDateChange(): should update startDate and endDate', () => {
     component.simplifyReportsSettings$ = of({ enabled: false });
     component.selectedFilterValues = selectedFilters1;
