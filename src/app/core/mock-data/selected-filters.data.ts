@@ -12,7 +12,7 @@ export const selectedFilters1: SelectedFilters<string>[] = deepFreeze([
     },
   },
   {
-    name: 'Updated On',
+    name: 'Updated date',
     value: 'custom',
     associatedData: {
       startDate: new Date('2023-02-22T00:00:00.000Z'),
@@ -35,7 +35,7 @@ export const selectedFilters1: SelectedFilters<string>[] = deepFreeze([
 
 export const selectedFilters2: SelectedFilters<string>[] = deepFreeze([
   {
-    name: 'Updated On',
+    name: 'Updated date',
     value: 'custom',
     associatedData: {
       startDate: new Date('2023-02-22T00:00:00.000Z'),
