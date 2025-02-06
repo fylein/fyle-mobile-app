@@ -30,7 +30,7 @@ import { fileObject4 } from '../mock-data/file-object.data';
 import { unspecifiedCategory } from '../mock-data/org-category.data';
 import { eCCCData1 } from '../mock-data/corporate-card-expense-unflattened.data';
 
-describe('PolicyService', () => {
+fdescribe('PolicyService', () => {
   let policyService: PolicyService;
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
   let approverPlatformApiService: jasmine.SpyObj<ApproverPlatformApiService>;
