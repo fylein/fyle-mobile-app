@@ -37,10 +37,17 @@ describe('ReviewSplitExpenseComponent', () => {
     expect(component.splitExpenses).toEqual(mockExpenses);
   });
 
-  it('should call modalController.dismiss with correct params on goToTransaction', () => {
+  it('should handle empty split expenses array', () => {
+    component.splitExpenses = [];
+    fixture.detectChanges();
+
+    expect(component.splitExpenses).toEqual([]);
+  });
+
+  it('goToExpense(): should call modalController.dismiss with correct params on goToTransaction', () => {
     const event = { expense: expenseData, expenseIndex: 0 };
 
-    component.goToTransaction(event);
+    component.goToExpense(event);
 
     expect(modalControllerSpy.dismiss).toHaveBeenCalledWith({
       dismissed: true,
@@ -49,7 +56,7 @@ describe('ReviewSplitExpenseComponent', () => {
     });
   });
 
-  it('should call modalController.dismiss with correct params on close', () => {
+  it('close(): should call modalController.dismiss with correct params on close', () => {
     component.close();
 
     expect(modalControllerSpy.dismiss).toHaveBeenCalledWith({

@@ -11,7 +11,7 @@ export class ReviewSplitExpenseComponent {
 
   constructor(private modalController: ModalController) {}
 
-  goToTransaction(event: { expense: Expense; expenseIndex: number }): void {
+  goToExpense(event: { expense: Expense; expenseIndex: number }): void {
     this.modalController.dismiss({
       dismissed: true,
       action: 'navigate',
