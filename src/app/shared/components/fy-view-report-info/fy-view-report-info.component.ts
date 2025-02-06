@@ -15,6 +15,7 @@ import { ExpensesService as SharedExpensesService } from 'src/app/core/services/
 import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 
+// eslint-disable-next-line custom-rules/prefer-semantic-extension-name
 type AmountDetails = {
   'Total Amount': number;
   Reimbursable: number;
@@ -22,6 +23,7 @@ type AmountDetails = {
   Advance?: number;
 };
 
+// eslint-disable-next-line custom-rules/prefer-semantic-extension-name, custom-rules/one-interface-per-file
 type PaymentMode = {
   [paymentMode: string]: {
     name: string;
