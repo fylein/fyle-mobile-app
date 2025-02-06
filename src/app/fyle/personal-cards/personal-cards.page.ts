@@ -612,7 +612,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
             ],
           } as FilterOptions<DateFilters>,
           {
-            name: 'Updated On',
+            name: 'Updated date',
             optionType: FilterOptionType.date,
             options: [
               {
@@ -721,7 +721,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
       delete this.filters.createdOn;
     }
 
-    if (filterLabel === 'Updated On') {
+    if (filterLabel === 'Updated date') {
       delete this.filters.updatedOn;
     }
 
