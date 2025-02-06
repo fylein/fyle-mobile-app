@@ -64,7 +64,7 @@ jobs:
           certificate: Fyle signing
           environment: ${{ github.event.inputs.name }}
           native-config: prod
-          upload-artifact: ios
+          filename: ios.ipa
 
       - name: Move ios.ipa to current directory
         run: mv ~/ios.ipa .
