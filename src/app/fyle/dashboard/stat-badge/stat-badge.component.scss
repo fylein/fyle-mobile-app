@@ -54,8 +54,8 @@
 
     &__incomplete,
     &__approver_pending {
-      background-color: map-get($fdl-state-bg-map, 'reported');
-      color: map-get($fdl-state-color-map, 'reported');
+      background-color: map-get($fdl-state-bg-map, 'submitted');
+      color: map-get($fdl-state-color-map, 'submitted');
     }
 
     &__complete {
