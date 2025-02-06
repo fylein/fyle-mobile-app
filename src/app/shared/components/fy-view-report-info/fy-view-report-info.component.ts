@@ -14,24 +14,8 @@ import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpensesService as SharedExpensesService } from 'src/app/core/services/platform/v1/shared/expenses.service';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
-
-// eslint-disable-next-line custom-rules/prefer-semantic-extension-name
-type AmountDetails = {
-  'Total Amount': number;
-  Reimbursable: number;
-  CCC?: number;
-  Advance?: number;
-};
-
-// eslint-disable-next-line custom-rules/prefer-semantic-extension-name, custom-rules/one-interface-per-file
-type PaymentMode = {
-  [paymentMode: string]: {
-    name: string;
-    key: string;
-    amount: number;
-    count: number;
-  };
-};
+import { AmountDetails } from 'src/app/core/models/amount-details.model';
+import { ReportInfoPaymentMode } from 'src/app/core/models/report-info-payment-mode.model';
 
 @Component({
   selector: 'app-fy-view-report-info-v2',
@@ -222,7 +206,7 @@ export class FyViewReportInfoComponent {
     }
   }
 
-  getCCCAdvanceSummary(paymentModeWiseData: PaymentMode, orgSettings: OrgSettings): void {
+  getCCCAdvanceSummary(paymentModeWiseData: ReportInfoPaymentMode, orgSettings: OrgSettings): void {
     if (orgSettings.corporate_credit_card_settings && orgSettings.corporate_credit_card_settings.enabled) {
       this.amountComponentWiseDetails.CCC = paymentModeWiseData.ccc?.amount || 0;
     }
