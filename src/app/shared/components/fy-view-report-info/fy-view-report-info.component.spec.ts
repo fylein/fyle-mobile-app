@@ -107,7 +107,7 @@ describe('FyViewReportInfoComponent', () => {
       'Report Name': '#3:  Jul 2023 - Office expense',
       Owner: 'Abhishek Jain',
       'Report Number': 'C/2023/07/R/17',
-      'Created On': datePipe.transform(new Date('2023-07-11T13:54:46.317208'), 'MMM d, y'),
+      'Created date': datePipe.transform(new Date('2023-07-11T13:54:46.317208'), 'MMM d, y'),
     };
     const paymentModeSummaryMock = {
       reimbursable: {
@@ -145,7 +145,7 @@ describe('FyViewReportInfoComponent', () => {
       'Report Name': '#3:  Jul 2023 - Office expense',
       Owner: 'Abhishek Jain',
       'Report Number': 'C/2023/07/R/17',
-      'Created On': datePipe.transform(new Date('2023-07-11T16:24:01.335Z'), 'MMM d, y'),
+      'Created date': datePipe.transform(new Date('2023-07-11T16:24:01.335Z'), 'MMM d, y'),
     };
     const paymentModeSummaryMock = {
       reimbursable: {

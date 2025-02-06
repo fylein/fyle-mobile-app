@@ -369,7 +369,7 @@ describe('PersonalCardsService', () => {
       personalCardsService.generateCreatedOnCustomDatePill(filters, filterPills);
       expect(filterPills).toEqual([
         {
-          label: 'Created On',
+          label: 'Created date',
           type: 'date',
           value: '2023-02-21 to 2023-02-23',
         },
@@ -390,7 +390,7 @@ describe('PersonalCardsService', () => {
       personalCardsService.generateCreatedOnCustomDatePill(filters, filterPills);
       expect(filterPills).toEqual([
         {
-          label: 'Created On',
+          label: 'Created date',
           type: 'date',
           value: '>= 2023-02-21',
         },
@@ -411,7 +411,7 @@ describe('PersonalCardsService', () => {
       personalCardsService.generateCreatedOnCustomDatePill(filters, filterPills);
       expect(filterPills).toEqual([
         {
-          label: 'Created On',
+          label: 'Created date',
           type: 'date',
           value: '<= 2023-02-23',
         },
@@ -499,7 +499,7 @@ describe('PersonalCardsService', () => {
       personalCardsService.generateDateFilterPills('createdOn', filters, filterPills);
       expect(filterPills).toEqual([
         {
-          label: 'Created On',
+          label: 'Created date',
           type: 'date',
           value: 'this Week',
         },
@@ -519,7 +519,7 @@ describe('PersonalCardsService', () => {
       personalCardsService.generateDateFilterPills('createdOn', filters, filterPills);
       expect(filterPills).toEqual([
         {
-          label: 'Created On',
+          label: 'Created date',
           type: 'date',
           value: 'this Month',
         },
@@ -539,7 +539,7 @@ describe('PersonalCardsService', () => {
       personalCardsService.generateDateFilterPills('createdOn', filters, filterPills);
       expect(filterPills).toEqual([
         {
-          label: 'Created On',
+          label: 'Created date',
           type: 'date',
           value: 'All',
         },
@@ -559,7 +559,7 @@ describe('PersonalCardsService', () => {
       personalCardsService.generateDateFilterPills('createdOn', filters, filterPills);
       expect(filterPills).toEqual([
         {
-          label: 'Created On',
+          label: 'Created date',
           type: 'date',
           value: 'Last Month',
         },
@@ -580,7 +580,7 @@ describe('PersonalCardsService', () => {
       personalCardsService.generateDateFilterPills('createdOn', filters, filterPills);
       expect(filterPills).toEqual([
         {
-          label: 'Created On',
+          label: 'Created date',
           type: 'date',
           value: '>= 2023-02-21',
         },
