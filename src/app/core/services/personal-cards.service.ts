@@ -247,7 +247,7 @@ export class PersonalCardsService {
 
   convertFilters(selectedFilters: SelectedFilters<string>[]): Partial<PersonalCardFilter> {
     const generatedFilters: PersonalCardFilter = {} as PersonalCardFilter;
-    const createdOnDateFilter = selectedFilters.find((filter) => filter.name === 'Created On');
+    const createdOnDateFilter = selectedFilters.find((filter) => filter.name === 'Created date');
     if (createdOnDateFilter) {
       generatedFilters.createdOn = { name: createdOnDateFilter.value };
       if (createdOnDateFilter.associatedData) {
@@ -292,7 +292,7 @@ export class PersonalCardsService {
     if (filter?.createdOn) {
       const dateFilter = filter;
       generatedFilters.push({
-        name: 'Created On',
+        name: 'Created date',
         value: dateFilter.createdOn.name,
         associatedData: {
           startDate: dateFilter.createdOn.customDateStart,
@@ -449,19 +449,19 @@ export class PersonalCardsService {
 
     if (startDate && endDate) {
       filterPills.push({
-        label: 'Created On',
+        label: 'Created date',
         type: 'date',
         value: `${startDate} to ${endDate}`,
       });
     } else if (startDate) {
       filterPills.push({
-        label: 'Created On',
+        label: 'Created date',
         type: 'date',
         value: `>= ${startDate}`,
       });
     } else if (endDate) {
       filterPills.push({
-        label: 'Created On',
+        label: 'Created date',
         type: 'date',
         value: `<= ${endDate}`,
       });
@@ -472,7 +472,7 @@ export class PersonalCardsService {
     const dateFilter = filters[type] as PersonalCardDateFilter;
     if (dateFilter.name === DateFilters.thisWeek) {
       filterPills.push({
-        label: 'Created On',
+        label: 'Created date',
         type: 'date',
         value: 'this Week',
       });
@@ -480,7 +480,7 @@ export class PersonalCardsService {
 
     if (dateFilter.name === DateFilters.thisMonth) {
       filterPills.push({
-        label: 'Created On',
+        label: 'Created date',
         type: 'date',
         value: 'this Month',
       });
@@ -488,7 +488,7 @@ export class PersonalCardsService {
 
     if (dateFilter.name === DateFilters.all) {
       filterPills.push({
-        label: 'Created On',
+        label: 'Created date',
         type: 'date',
         value: 'All',
       });
@@ -496,7 +496,7 @@ export class PersonalCardsService {
 
     if (dateFilter.name === DateFilters.lastMonth) {
       filterPills.push({
-        label: 'Created On',
+        label: 'Created date',
         type: 'date',
         value: 'Last Month',
       });

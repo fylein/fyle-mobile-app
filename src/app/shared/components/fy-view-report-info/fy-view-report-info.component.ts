@@ -84,7 +84,7 @@ export class FyViewReportInfoComponent {
         'Report Name': report.purpose,
         Owner: report.employee.user.full_name,
         'Report Number': report.seq_num,
-        'Created On': createdDate,
+        'Created date': createdDate,
       };
       this.reportCurrency = report.currency;
 

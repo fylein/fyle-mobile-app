@@ -635,7 +635,7 @@ describe('PersonalCardsPage', () => {
           createdOn: {},
         };
 
-        component.onFilterClose('Created On');
+        component.onFilterClose('Created date');
         expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);
         expect(personalCardsService.generateFilterPills).toHaveBeenCalledTimes(1);
       });

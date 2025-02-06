@@ -585,7 +585,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       componentProps: {
         filterOptions: [
           {
-            name: 'Created On',
+            name: 'Created date',
             optionType: FilterOptionType.date,
             options: [
               {
@@ -716,7 +716,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
   }
 
   onFilterClose(filterLabel: string): void {
-    if (filterLabel === 'Created On') {
+    if (filterLabel === 'Created date') {
       delete this.filters.createdOn;
     }
 
