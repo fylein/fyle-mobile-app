@@ -14,6 +14,7 @@ import { cloneDeep } from 'lodash';
 import { CategoriesService } from './categories.service';
 import { FileObject } from '../models/file-obj.model';
 import { MatchedCCCTransaction } from '../models/matchedCCCTransaction.model';
+import { TxnCustomProperties } from '../models/txn-custom-properties.model';
 
 @Injectable({
   providedIn: 'root',
@@ -46,7 +47,10 @@ export class PolicyService {
       distance: transaction.distance,
       distance_unit: transaction.distance_unit,
       locations: txnLocations?.filter((location) => !!location),
-      custom_fields: transaction.custom_properties,
+      custom_fields: transaction.custom_properties.map((customProperty: TxnCustomProperties) => ({
+        name: customProperty.name,
+        value: customProperty.value,
+      })),
       started_at: transaction.from_dt,
       ended_at: transaction.to_dt,
       per_diem_rate_id: transaction.per_diem_rate_id,
