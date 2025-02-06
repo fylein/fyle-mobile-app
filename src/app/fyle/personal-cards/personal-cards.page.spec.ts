@@ -955,12 +955,12 @@ describe('PersonalCardsPage', () => {
     });
   });
 
-  it('ionViewWillLeave(): should set onPageExit to null', () => {
-    spyOn(component.onPageExit$, 'next');
-    spyOn(component.onPageExit$, 'complete');
-    component.ionViewWillLeave();
-    expect(component.onPageExit$.next).toHaveBeenCalledOnceWith(null);
-    expect(component.onPageExit$.complete).toHaveBeenCalledTimes(1);
+  it('ngOnDestroy(): should set onComponentDestroy$ to null', () => {
+    spyOn(component.onComponentDestroy$, 'next');
+    spyOn(component.onComponentDestroy$, 'complete');
+    component.ngOnDestroy();
+    expect(component.onComponentDestroy$.next).toHaveBeenCalledOnceWith(null);
+    expect(component.onComponentDestroy$.complete).toHaveBeenCalledTimes(1);
   });
 
   it('loadLinkedAccounts(): should load linked accounts', (done) => {
