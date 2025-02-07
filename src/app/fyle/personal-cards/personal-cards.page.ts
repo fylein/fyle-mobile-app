@@ -5,6 +5,7 @@ import {
   ElementRef,
   EventEmitter,
   NgZone,
+  OnDestroy,
   OnInit,
   ViewChild,
 } from '@angular/core';
@@ -67,7 +68,7 @@ type Filters = Partial<PersonalCardFilter>;
   templateUrl: './personal-cards.page.html',
   styleUrls: ['./personal-cards.page.scss'],
 })
-export class PersonalCardsPage implements OnInit, AfterViewInit {
+export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef<HTMLInputElement>;
 
   headerState: HeaderState = HeaderState.base;
@@ -138,7 +139,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
   scrolled = false;
 
-  onPageExit$ = new Subject();
+  onComponentDestroy$ = new Subject();
 
   constructor(
     private personalCardsService: PersonalCardsService,
@@ -297,7 +298,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
         map((event) => event.srcElement.value),
         distinctUntilChanged(),
         debounceTime(400),
-        takeUntil(this.onPageExit$)
+        takeUntil(this.onComponentDestroy$)
       )
       .subscribe((searchString) => {
         const currentParams = this.loadData$.getValue();
@@ -309,16 +310,16 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.cdr.detectChanges();
   }
 
-  ionViewWillLeave(): void {
-    this.onPageExit$.next(null);
-    this.onPageExit$.complete();
+  ngOnDestroy(): void {
+    this.onComponentDestroy$.next(null);
+    this.onComponentDestroy$.complete();
   }
 
   setupNetworkWatcher(): void {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
-      takeUntil(this.onPageExit$),
+      takeUntil(this.onComponentDestroy$),
       shareReplay(1)
     );
 
@@ -585,7 +586,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       componentProps: {
         filterOptions: [
           {
-            name: 'Created On',
+            name: 'Created date',
             optionType: FilterOptionType.date,
             options: [
               {
@@ -716,7 +717,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
   }
 
   onFilterClose(filterLabel: string): void {
-    if (filterLabel === 'Created On') {
+    if (filterLabel === 'Created date') {
       delete this.filters.createdOn;
     }
 
