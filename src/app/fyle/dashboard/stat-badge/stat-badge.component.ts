@@ -25,8 +25,8 @@ export class StatBadgeComponent {
 
   @Output() badgeClicked = new EventEmitter();
 
-  // To track if the screen is small (370px or below)
-  isSmallScreen = window.innerWidth <= 370;
+  // To track if the screen is small (396px or below)
+  isSmallScreen = window.innerWidth <= 396;
 
   onBadgeClicked(): void {
     if (!this.loading) {
