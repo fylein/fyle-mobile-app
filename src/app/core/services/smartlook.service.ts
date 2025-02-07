@@ -55,8 +55,6 @@ export class SmartlookService {
         this.smartlook.setUserIdentifier(
           new SmartlookUserIdentifier(eou.us.id, {
             id: eou.us.id,
-            email: eou.us.email,
-            name: eou.us.full_name,
             org_id: eou.ou.org_id,
             org_name: eou.ou.org_name,
             devicePlatform: deviceInfo.platform,

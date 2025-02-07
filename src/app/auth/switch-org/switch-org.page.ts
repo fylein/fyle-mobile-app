@@ -172,9 +172,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
   setSentryUser(eou: ExtendedOrgUser): void {
     if (eou) {
       Sentry.setUser({
-        id: eou.us.email + ' - ' + eou.ou.id,
-        email: eou.us.email,
-        orgUserId: eou.ou.id,
+        id: eou.ou.id,
       });
     }
   }
