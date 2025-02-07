@@ -43,15 +43,15 @@
         </div>
       </div>
       <div class="stats--ccc-stats-title">
-        Incomplete Card {{ cardDetail.stats.totalDraftTxns <= 1 ? 'Expense' : 'Expenses' }}
+        Incomplete card {{ cardDetail.stats.totalDraftTxns <= 1 ? 'expense' : 'expenses' }}
       </div>
     </div>
 
     <hr class="stats--ccc-stats-divider" />
-    <div (click)="goToExpensesPage('totalExpenses', cardDetail)">
+    <div (click)="goToExpensesPage('completeExpenses', cardDetail)">
       <div class="stats--ccc-classified-stats stats--ccc-classified-stats__margin-top">
         <div class="stats--ccc-classified-count">
-          {{ cardDetail.stats.totalTxnsCount }}
+          {{ cardDetail.stats.totalCompleteTxns }}
         </div>
         <div class="stats--ccc-classified-amount">
           <span class="stats--expenses-amount-currency">
@@ -60,22 +60,23 @@
           <ng-container
             *ngIf="
               !isSmallScreen &&
-                cardDetail.stats.totalAmountValue > -1000000000 &&
-                cardDetail.stats.totalAmountValue < 1000000000;
+                cardDetail.stats.totalCompleteExpensesValue > -1000000000 &&
+                cardDetail.stats.totalCompleteExpensesValue < 1000000000;
               else humanizeTotalAmount
             "
           >
             {{
-              { value: cardDetail.stats.totalAmountValue, currencyCode: homeCurrency, skipSymbol: true } | exactCurrency
+              { value: cardDetail.stats.totalCompleteExpensesValue, currencyCode: homeCurrency, skipSymbol: true }
+                | exactCurrency
             }}
           </ng-container>
           <ng-template #humanizeTotalAmount>
-            {{ cardDetail.stats.totalAmountValue | humanizeCurrency : homeCurrency : true }}
+            {{ cardDetail.stats.totalCompleteExpensesValue | humanizeCurrency : homeCurrency : true }}
           </ng-template>
         </div>
       </div>
       <div class="stats--ccc-stats-title">
-        Total {{ cardDetail.stats.totalTxnsCount <= 1 ? 'Expense' : 'Expenses' }}
+        Complete card {{ cardDetail.stats.totalCompleteTxns <= 1 ? 'expense' : 'expenses' }}
       </div>
     </div>
   </div>
