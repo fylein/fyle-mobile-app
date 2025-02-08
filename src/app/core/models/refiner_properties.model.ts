@@ -4,7 +4,6 @@ export interface RefinerProperties {
 
 export interface IdentifyUserPayload {
   id: string;
-  email: string;
   name: string;
   account: {
     company_id: string;

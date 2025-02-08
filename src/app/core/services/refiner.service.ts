@@ -254,7 +254,6 @@ export class RefinerService {
           'identifyUser',
           {
             id: eou.us.id, // Replace with your user ID
-            email: eou.us.email, // Replace with user Email
             name: eou.us.full_name, // Replace with user name
             account: {
               company_id: eou.ou.org_id,
