@@ -8,8 +8,9 @@ import { environment } from 'src/environments/environment';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
 import { map, take } from 'rxjs/operators';
 import { OrgUserService } from './org-user.service';
-import { IdentifyUserPayload, RefinerProperties } from '../models/refiner_properties.model';
+import { RefinerProperties } from '../models/refiner_properties.model';
 import { CurrencyService } from './currency.service';
+import { IdentifyUserPayload } from '../models/identify-user-payload';
 
 @Injectable({
   providedIn: 'root',
