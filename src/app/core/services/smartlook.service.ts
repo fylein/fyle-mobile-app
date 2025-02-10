@@ -28,14 +28,14 @@ export class SmartlookService {
     this.setupNetworkWatcher();
   }
 
-  setupNetworkWatcher() {
+  setupNetworkWatcher(): void {
     const that = this;
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(that.networkService.isOnline(), networkWatcherEmitter.asObservable());
   }
 
-  init() {
+  init(): void {
     forkJoin({
       isConnected: this.isConnected$.pipe(take(1)),
       homeCurrency: this.currencyService.getHomeCurrency(),
@@ -55,10 +55,7 @@ export class SmartlookService {
         this.smartlook.setUserIdentifier(
           new SmartlookUserIdentifier(eou.us.id, {
             id: eou.us.id,
-            email: eou.us.email,
-            name: eou.us.full_name,
             org_id: eou.ou.org_id,
-            org_name: eou.ou.org_name,
             devicePlatform: deviceInfo.platform,
             deviceModel: deviceInfo.model,
             deviceOS: deviceInfo.osVersion,
