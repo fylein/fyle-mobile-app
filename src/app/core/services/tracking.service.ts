@@ -431,8 +431,8 @@ export class TrackingService {
     this.eventTrack('dashboard incomplete corporate card expenses clicked', properties);
   }
 
-  dashboardOnTotalCardExpensesClick(properties = {}): void {
-    this.eventTrack('dashboard total corporate card expenses clicked', properties);
+  dashboardOnCompleteCardExpensesClick(properties = {}): void {
+    this.eventTrack('dashboard complete corporate card expenses clicked', properties);
   }
 
   //View expenses
