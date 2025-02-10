@@ -10,7 +10,7 @@ import { map, take } from 'rxjs/operators';
 import { OrgUserService } from './org-user.service';
 import { RefinerProperties } from '../models/refiner_properties.model';
 import { CurrencyService } from './currency.service';
-import { IdentifyUserPayload } from '../models/identify-user-payload';
+import { IdentifyUserPayload } from '../models/identify-user-payload.model';
 
 @Injectable({
   providedIn: 'root',

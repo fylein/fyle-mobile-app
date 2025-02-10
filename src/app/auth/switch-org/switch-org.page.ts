@@ -446,7 +446,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
         filter((userAppVersionDetails) => !!userAppVersionDetails)
       )
       .subscribe((userAppVersionDetails) => {
-        const { appSupportDetails, lastLoggedInVersion, eou, deviceInfo } = userAppVersionDetails;
+        const { appSupportDetails, lastLoggedInVersion, deviceInfo } = userAppVersionDetails;
         this.trackingService.eventTrack('Auto Logged out', {
           lastLoggedInVersion,
           appVersion: deviceInfo.appVersion,
