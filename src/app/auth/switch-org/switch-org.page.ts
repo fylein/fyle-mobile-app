@@ -449,7 +449,6 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
         const { appSupportDetails, lastLoggedInVersion, eou, deviceInfo } = userAppVersionDetails;
         this.trackingService.eventTrack('Auto Logged out', {
           lastLoggedInVersion,
-          user_email: eou?.us?.email,
           appVersion: deviceInfo.appVersion,
         });
         this.router.navigate(['/', 'auth', 'app_version', { message: appSupportDetails.message }]);
@@ -462,15 +461,12 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     from(this.authService.getEou()).subscribe((currentEou) => {
       const properties = {
         Asset: 'Mobile',
-        'Switch To': org.name,
+        'Switch To': org.id,
         'Is Destination Org Active': isDestinationOrgActive,
         'Is Destination Org Primary': currentEou && currentEou.ou && currentEou.ou.is_primary,
         'Is Current Org Primary': isCurrentOrgPrimary,
         Source: 'User Clicked',
-        'User Email': originalEou.us && originalEou.us.email,
-        'User Org Name': originalEou.ou && originalEou.ou.org_name,
         'User Org ID': originalEou.ou && originalEou.ou.org_id,
-        'User Full Name': originalEou.us && originalEou.us.full_name,
       };
       this.trackingService.onSwitchOrg(properties);
     });

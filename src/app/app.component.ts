@@ -131,7 +131,6 @@ export class AppComponent implements OnInit {
           const { appSupportDetails, lastLoggedInVersion, eou, deviceInfo } = userAppVersionDetails;
           this.trackingService.eventTrack('Auto Logged out', {
             lastLoggedInVersion,
-            user_email: eou?.us?.email,
             appVersion: deviceInfo.appVersion,
           });
           this.router.navigate(['/', 'auth', 'app_version', { message: appSupportDetails.message }]);

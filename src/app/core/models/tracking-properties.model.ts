@@ -79,10 +79,7 @@ export interface SwitchOrgProperties {
   'Is Destination Org Primary': boolean;
   'Is Current Org Primary': boolean;
   Source: string;
-  'User Email': string;
-  'User Org Name': string;
   'User Org ID': string;
-  'User Full Name': string;
 }
 
 export interface CorporateCardExpenseProperties {

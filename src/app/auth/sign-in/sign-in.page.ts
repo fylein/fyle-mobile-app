@@ -81,9 +81,9 @@ export class SignInPage implements OnInit {
         .pipe(
           take(1),
           switchMap(() => this.authService.refreshEou()),
-          tap(async () => {
+          tap(async (eou) => {
             await this.trackLoginInfo();
-            this.trackingService.onSignin(this.fg.controls.email.value as string, {
+            this.trackingService.onSignin(eou.us.id, {
               label: 'Email',
             });
           })
@@ -202,8 +202,8 @@ export class SignInPage implements OnInit {
         .basicSignin(this.fg.controls.email.value as string, this.fg.controls.password.value as string)
         .pipe(
           switchMap(() => this.authService.refreshEou()),
-          tap(async () => {
-            this.trackingService.onSignin(this.fg.controls.email.value as string, {
+          tap(async (eou) => {
+            this.trackingService.onSignin(eou.us.id, {
               label: 'Email',
             });
             await this.trackLoginInfo();
@@ -244,8 +244,8 @@ export class SignInPage implements OnInit {
         switchMap((googleAuthResponse) =>
           this.routerAuthService.googleSignin(googleAuthResponse.accessToken).pipe(
             switchMap(() => this.authService.refreshEou()),
-            tap(async () => {
-              this.trackingService.onSignin(this.fg.controls.email.value as string, {
+            tap(async (eou) => {
+              this.trackingService.onSignin(eou.us.id, {
                 label: 'Email',
               });
               await this.trackLoginInfo();

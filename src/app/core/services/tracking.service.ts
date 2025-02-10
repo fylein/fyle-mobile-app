@@ -44,7 +44,7 @@ import mixpanel, { Config } from 'mixpanel-browser';
   providedIn: 'root',
 })
 export class TrackingService {
-  identityEmail = null;
+  identityId = null;
 
   ROOT_ENDPOINT: string;
 
@@ -77,13 +77,13 @@ export class TrackingService {
 
   async updateIdentity(): Promise<void> {
     const eou = await this.authService.getEou();
-    const email = eou?.us?.email;
-    if (email && email !== this.identityEmail) {
+    const id = eou?.us?.id;
+    if (id && id !== this.identityId) {
       try {
-        mixpanel?.identify(email);
+        mixpanel?.identify(id);
       } catch (e) {}
 
-      this.identityEmail = email;
+      this.identityId = id;
     }
   }
 
@@ -94,8 +94,8 @@ export class TrackingService {
       if (eou?.us && eou?.ou) {
         try {
           const distinctId = mixpanel?.get_distinct_id() as string;
-          if (distinctId !== eou.us.email) {
-            mixpanel?.identify(eou.us.email);
+          if (distinctId !== eou.us.id) {
+            mixpanel?.identify(eou.us.id);
           }
 
           properties['User Name'] = eou.us.full_name;
@@ -108,7 +108,7 @@ export class TrackingService {
   }
 
   async updateIdentityIfNotPresent(): Promise<void> {
-    if (!this.identityEmail) {
+    if (!this.identityId) {
       await this.updateIdentity();
     }
   }
@@ -149,12 +149,12 @@ export class TrackingService {
   }
 
   // external APIs
-  onSignin(email: string, properties: { label?: string } = {}): void {
+  onSignin(userId: string, properties: { label?: string } = {}): void {
     try {
-      mixpanel?.identify(email);
+      mixpanel?.identify(userId);
     } catch (e) {}
 
-    this.identityEmail = email;
+    this.identityId = userId;
     this.eventTrack('Signin', properties);
   }
 

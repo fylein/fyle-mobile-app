@@ -131,10 +131,6 @@ export class SetupAccountPage implements OnInit {
         )
         .subscribe(() => {
           this.trackingService.setupHalf();
-          // // setting up company details in clevertap profile
-          this.trackingService.updateSegmentProfile({
-            'Company Name': this.fg.controls.companyName.value,
-          });
 
           this.router.navigate(['/', 'post_verification', 'setup_account_preferences']);
         });
