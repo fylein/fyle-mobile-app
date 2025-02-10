@@ -156,6 +156,8 @@ export class SidemenuComponent implements OnInit {
         if (eou) {
           Sentry.setUser({
             id: eou.ou.id,
+            orgUserId: eou.ou.id,
+            orgId: eou.ou.org_id,
           });
 
           if (isConnected) {

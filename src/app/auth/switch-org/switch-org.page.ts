@@ -173,6 +173,8 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     if (eou) {
       Sentry.setUser({
         id: eou.ou.id,
+        orgUserId: eou.ou.id,
+        orgId: eou.ou.org_id,
       });
     }
   }
