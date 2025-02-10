@@ -56,7 +56,6 @@ export class SmartlookService {
           new SmartlookUserIdentifier(eou.us.id, {
             id: eou.us.id,
             org_id: eou.ou.org_id,
-            org_name: eou.ou.org_name,
             devicePlatform: deviceInfo.platform,
             deviceModel: deviceInfo.model,
             deviceOS: deviceInfo.osVersion,
