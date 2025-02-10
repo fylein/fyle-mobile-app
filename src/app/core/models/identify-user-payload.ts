@@ -1,9 +1,9 @@
 export interface IdentifyUserPayload {
   id: string;
-  name: string;
+  orgUserId: string;
+  orgId: string;
   account: {
     company_id: string;
-    company_name: string;
     region: string;
   };
   source: string;

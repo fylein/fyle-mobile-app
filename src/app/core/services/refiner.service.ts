@@ -255,10 +255,10 @@ export class RefinerService {
           'identifyUser',
           {
             id: eou.us.id, // Replace with your user ID
-            name: eou.us.full_name, // Replace with user name
+            orgUserId: eou.ou.id,
+            orgId: eou.ou.org_id,
             account: {
               company_id: eou.ou.org_id,
-              company_name: eou.ou.org_name,
               region: `${this.getRegion(homeCurrency)} - ${homeCurrency}`,
             },
             source: `Mobile - ${device}`,
