@@ -222,9 +222,11 @@ In this file, you will see 4 metrics for the files you have changed:
 
 For running the app directly on an Android device for staging
 
-1. Build and sync the app:
+- Add .env file to project (ping mobile app team for the file)
+- Build and sync the app:
 
 ```bash
+ionic build -c staging
 ionic capacitor run android -l --external --configuration=staging
 
 ```

@@ -24,14 +24,14 @@ export class SmartlookService {
     this.setupNetworkWatcher();
   }
 
-  setupNetworkWatcher() {
+  setupNetworkWatcher(): void {
     const that = this;
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(that.networkService.isOnline(), networkWatcherEmitter.asObservable());
   }
 
-  init() {
+  init(): void {
     forkJoin({
       isConnected: this.isConnected$.pipe(take(1)),
       homeCurrency: this.currencyService.getHomeCurrency(),
@@ -48,10 +48,8 @@ export class SmartlookService {
         this.smartlook.setProjectKey({ key: environment.SMARTLOOK_API_KEY });
         this.smartlook.start();
         this.smartlook.setUserIdentifier({ identifier: eou.us.id });
-        this.smartlook.setUserName({ name: eou.us.full_name });
-        this.smartlook.setUserEmail({ email: eou.us.email });
+        this.smartlook.setUserProperty({ propertyName: 'id', value: eou.us.id });
         this.smartlook.setUserProperty({ propertyName: 'org_id', value: eou.ou.org_id });
-        this.smartlook.setUserProperty({ propertyName: 'org_name', value: eou.ou.org_name });
         this.smartlook.setUserProperty({ propertyName: 'devicePlatform', value: deviceInfo.platform });
         this.smartlook.setUserProperty({ propertyName: 'deviceModel', value: deviceInfo.model });
         this.smartlook.setUserProperty({ propertyName: 'deviceOS', value: deviceInfo.osVersion });
