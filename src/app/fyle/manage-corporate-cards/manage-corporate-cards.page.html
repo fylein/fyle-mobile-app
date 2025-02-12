@@ -77,6 +77,7 @@
             [expiry]="virtualCardDetails[corporateCard.virtual_card_id]?.expiry_date"
             [cardStatus]="corporateCard.virtual_card_state"
             [cardNickname]="virtualCardDetails[corporateCard.virtual_card_id]?.nick_name"
+            [availableAmount]="virtualCardDetails[corporateCard.virtual_card_id]?.current_amount"
             class="manage-corporate-cards__virtual-cards__virtual-card"
           ></app-virtual-card>
         </div>
