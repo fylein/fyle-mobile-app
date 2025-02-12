@@ -2,9 +2,9 @@
 
 .stats {
   &--expenses-amount-currency {
-    font-size: 12px;
+    font-size: 16px;
     line-height: 15px;
-    color: $black-light;
+    color: $black;
   }
 
   &--ccc-card-details {
@@ -57,7 +57,7 @@
 
   &--ccc-classified-amount {
     font-weight: 500;
-    font-size: 14px;
+    font-size: 16px;
     line-height: 28px;
     color: $black;
   }

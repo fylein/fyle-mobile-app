@@ -53,6 +53,17 @@ export const cardDetailsRes: PlatformCorporateCardDetail[] = deepFreeze([
     },
   },
   virtualCardDetails[0],
+  {
+    card: visaRTFCard,
+    stats: {
+      totalDraftTxns: 960,
+      totalDraftValue: 565633,
+      totalCompleteTxns: 2,
+      totalCompleteExpensesValue: 100,
+      totalTxnsCount: 960,
+      totalAmountValue: 565633,
+    },
+  },
 ]);
 
 export const statementUploadedCardDetail: PlatformCorporateCardDetail[] = deepFreeze([
