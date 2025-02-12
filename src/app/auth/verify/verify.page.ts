@@ -29,7 +29,7 @@ export class VerifyPage implements OnInit {
         switchMap(() => this.authService.refreshEou()),
         tap((eou) => {
           this.trackingService.emailVerified();
-          this.trackingService.onSignin(eou.us.email);
+          this.trackingService.onSignin(eou.us.id);
         })
       )
       .subscribe({
