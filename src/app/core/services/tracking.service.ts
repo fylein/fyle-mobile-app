@@ -34,7 +34,6 @@ import { TaskFilters } from '../models/task-filters.model';
 import { OrgCategory } from '../models/v1/org-category.model';
 import { TeamReportsFilters } from '../models/team-reports-filters.model';
 import { forkJoin, from } from 'rxjs';
-import { ExpenseFilters } from '../models/expense-filters.model';
 import { ReportFilters } from '../models/report-filters.model';
 import { CommuteDetailsResponse } from '../models/platform/commute-details-response.model';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -140,6 +139,7 @@ export class TrackingService {
           webViewVersion: deviceInfo.webViewVersion,
         },
         appVersion: environment.LIVE_UPDATE_APP_VERSION,
+        $current_url: window.location.href?.split('?')[0],
       };
 
       try {
@@ -463,7 +463,7 @@ export class TrackingService {
     this.eventTrack('my expenses action sheet action clicked', properties);
   }
 
-  myExpensesFilterApplied(properties: Partial<ExpenseFilters>): void {
+  myExpensesFilterApplied(properties: { filterLabels: string[] }): void {
     this.eventTrack('my expenses filters applied', properties);
   }
 

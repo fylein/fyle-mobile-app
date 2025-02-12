@@ -1000,10 +1000,9 @@ export class MyExpensesPage implements OnInit {
       const params = this.addNewFiltersToParams();
 
       this.loadExpenses$.next(params);
-
       this.filterPills = this.generateFilterPills(this.filters);
       this.trackingService.myExpensesFilterApplied({
-        ...this.filters,
+        filterLabels: Object.keys(this.filters),
       });
     }
   }
