@@ -46,7 +46,7 @@
           value="MATCHED"
           class="personal-cards--segment-block__btn personal-cards--segment-block__space-left"
         >
-          Expenses Created
+          Expenses created
         </ion-segment-button>
         <ion-segment-button value="HIDDEN" class="personal-cards--segment-block__btn"> Hidden </ion-segment-button>
       </ion-segment>
@@ -109,7 +109,7 @@
       (click)="fetchNewTransactions()"
       [disabled]="isfetching"
     >
-      <ng-container *ngIf="!isfetching"> Fetch Transactions </ng-container>
+      <ng-container *ngIf="!isfetching"> Fetch transactions </ng-container>
       <ng-container *ngIf="isfetching">
         Fetching <ion-spinner name="crescent" class="personal-cards--fetching-spinner"></ion-spinner>
       </ng-container>
@@ -157,7 +157,7 @@
     <ng-container *ngIf="selectionMode">
       <ion-item class="personal-cards--select-all-container">
         <mat-checkbox class="custom-mat-checkbox" [(ngModel)]="selectAll" (ngModelChange)="onSelectAll($event)">
-          Select All
+          Select all
         </mat-checkbox>
       </ion-item>
     </ng-container>

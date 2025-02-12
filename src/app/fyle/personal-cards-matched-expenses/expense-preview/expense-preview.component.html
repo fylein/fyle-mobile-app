@@ -8,8 +8,8 @@
     </ion-buttons>
     <ion-title>
       <div class="expense-preview--toolbar__title">
-        <ng-container *ngIf="type === 'match'"> Confirm Matching Expense </ng-container>
-        <ng-container *ngIf="type === 'edit'"> View matching Expense </ng-container>
+        <ng-container *ngIf="type === 'match'"> Confirm matching expense </ng-container>
+        <ng-container *ngIf="type === 'edit'"> View matching expense </ng-container>
       </div>
     </ion-title>
   </ion-toolbar>
@@ -40,7 +40,7 @@
       </ion-row>
       <ion-row class="expense-preview--body-container__content">
         <ion-col size="5">
-          <div class="expense-preview--body-container__title">Created Date</div>
+          <div class="expense-preview--body-container__title">Created date</div>
         </ion-col>
         <ion-col size="7">
           <div class="expense-preview--body-container__value">
@@ -50,7 +50,7 @@
       </ion-row>
       <ion-row class="expense-preview--body-container__content">
         <ion-col size="5">
-          <div class="expense-preview--body-container__title">Spent Date</div>
+          <div class="expense-preview--body-container__title">Spent date</div>
         </ion-col>
         <ion-col size="7">
           <div class="expense-preview--body-container__value">
@@ -96,7 +96,7 @@
         <ion-col size="7">
           <div class="expense-preview--body-container__value">
             <ng-container *ngIf="!expenseDetails.file_ids?.length"
-              >Not Attached
+              >Not attached
               <ion-icon
                 [src]="'assets/svg/attachment-none.svg'"
                 class="expense-preview--icon"
