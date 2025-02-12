@@ -139,6 +139,7 @@ export class TrackingService {
           webViewVersion: deviceInfo.webViewVersion,
         },
         appVersion: environment.LIVE_UPDATE_APP_VERSION,
+        // overriding $current_url which MixPanel auto captures to prevent query parms containing PII data
         $current_url: window.location.href?.split('?')[0],
       };
 
