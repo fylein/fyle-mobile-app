@@ -4,11 +4,7 @@ import { filter, take } from 'rxjs/operators';
 import { AuthService } from './auth.service';
 import { CurrencyService } from './currency.service';
 import { DeviceService } from './device.service';
-import {
-  Smartlook,
-  SmartlookSetupConfigBuilder,
-  SmartlookUserIdentifier,
-} from '@awesome-cordova-plugins/smartlook/ngx';
+import { Smartlook } from '@awesome-cordova-plugins/smartlook/ngx';
 import { environment } from 'src/environments/environment';
 import { NetworkService } from './network.service';
 
@@ -49,19 +45,18 @@ export class SmartlookService {
         )
       )
       .subscribe(({ eou, deviceInfo }) => {
-        const setupConfig = new SmartlookSetupConfigBuilder(environment.SMARTLOOK_API_KEY);
-        this.smartlook.setupAndStartRecording(setupConfig.build());
-
-        this.smartlook.setUserIdentifier(
-          new SmartlookUserIdentifier(eou.us.id, {
-            id: eou.us.id,
-            org_id: eou.ou.org_id,
-            devicePlatform: deviceInfo.platform,
-            deviceModel: deviceInfo.model,
-            deviceOS: deviceInfo.osVersion,
-            is_approver: eou.ou.roles.includes('APPROVER') ? 'true' : 'false',
-          })
-        );
+        this.smartlook.setProjectKey({ key: environment.SMARTLOOK_API_KEY });
+        this.smartlook.start();
+        this.smartlook.setUserIdentifier({ identifier: eou.us.id });
+        this.smartlook.setUserProperty({ propertyName: 'id', value: eou.us.id });
+        this.smartlook.setUserProperty({ propertyName: 'org_id', value: eou.ou.org_id });
+        this.smartlook.setUserProperty({ propertyName: 'devicePlatform', value: deviceInfo.platform });
+        this.smartlook.setUserProperty({ propertyName: 'deviceModel', value: deviceInfo.model });
+        this.smartlook.setUserProperty({ propertyName: 'deviceOS', value: deviceInfo.osVersion });
+        this.smartlook.setUserProperty({
+          propertyName: 'is_approver',
+          value: eou.ou.roles.includes('APPROVER') ? 'true' : 'false',
+        });
       });
   }
 }
