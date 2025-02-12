@@ -234,7 +234,6 @@ describe('SetupAccountPage', () => {
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
       tick(500);
       expect(trackingService.setupHalf).toHaveBeenCalledTimes(1);
-      expect(trackingService.updateSegmentProfile).toHaveBeenCalledOnceWith({ 'Company Name': 'Acme Inc.' });
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'post_verification', 'setup_account_preferences']);
     }));
 

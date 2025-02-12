@@ -8,8 +8,9 @@ import { environment } from 'src/environments/environment';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
 import { map, take } from 'rxjs/operators';
 import { OrgUserService } from './org-user.service';
-import { IdentifyUserPayload, RefinerProperties } from '../models/refiner_properties.model';
+import { RefinerProperties } from '../models/refiner_properties.model';
 import { CurrencyService } from './currency.service';
+import { IdentifyUserPayload } from '../models/identify-user-payload.model';
 
 @Injectable({
   providedIn: 'root',
@@ -254,11 +255,10 @@ export class RefinerService {
           'identifyUser',
           {
             id: eou.us.id, // Replace with your user ID
-            email: eou.us.email, // Replace with user Email
-            name: eou.us.full_name, // Replace with user name
+            orgUserId: eou.ou.id,
+            orgId: eou.ou.org_id,
             account: {
               company_id: eou.ou.org_id,
-              company_name: eou.ou.org_name,
               region: `${this.getRegion(homeCurrency)} - ${homeCurrency}`,
             },
             source: `Mobile - ${device}`,
