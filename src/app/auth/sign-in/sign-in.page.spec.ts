@@ -440,7 +440,7 @@ describe('SignInPage', () => {
 
       expect(routerAuthService.basicSignin).toHaveBeenCalledOnceWith('email', 'password');
       expect(authService.refreshEou).toHaveBeenCalledTimes(1);
-      expect(trackingService.onSignin).toHaveBeenCalledOnceWith(apiEouRes.us.id, {
+      expect(trackingService.onSignin).toHaveBeenCalledOnceWith(apiEouRes.us.email, {
         label: 'Email',
       });
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'switch_org', { choose: true }]);

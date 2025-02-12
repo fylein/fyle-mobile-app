@@ -112,7 +112,7 @@ describe('NewPasswordPage', () => {
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
       expect(routerAuthService.resetPassword).toHaveBeenCalledOnceWith(refreshToken, passwordValue);
       expect(authService.refreshEou).toHaveBeenCalledTimes(1);
-      expect(trackingService.onSignin).toHaveBeenCalledOnceWith(resetPasswordRes.us.id);
+      expect(trackingService.onSignin).toHaveBeenCalledOnceWith(resetPasswordRes.us.email);
       expect(trackingService.resetPassword).toHaveBeenCalledTimes(1);
       expect(component.trackLoginInfo).toHaveBeenCalledTimes(1);
       expect(snackbarPropertiesService.setSnackbarProperties).toHaveBeenCalledOnceWith('success', { message });

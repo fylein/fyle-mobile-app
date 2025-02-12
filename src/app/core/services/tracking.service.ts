@@ -42,7 +42,7 @@ import { ViewReportInfoProperties } from '../models/view-report-info-properties.
   providedIn: 'root',
 })
 export class TrackingService {
-  identityId = null;
+  identityEmail = null;
 
   ROOT_ENDPOINT: string;
 
@@ -75,13 +75,13 @@ export class TrackingService {
 
   async updateIdentity(): Promise<void> {
     const eou = await this.authService.getEou();
-    const id = eou?.us?.id;
-    if (id && id !== this.identityId) {
+    const email = eou?.us?.email;
+    if (email && email !== this.identityEmail) {
       try {
-        mixpanel?.identify(id);
+        mixpanel?.identify(email);
       } catch (e) {}
 
-      this.identityId = id;
+      this.identityEmail = email;
     }
   }
 
@@ -92,13 +92,14 @@ export class TrackingService {
       if (eou?.us && eou?.ou) {
         try {
           const distinctId = mixpanel?.get_distinct_id() as string;
-          if (distinctId !== eou.us.id) {
-            mixpanel?.identify(eou.us.id);
+          if (distinctId !== eou.us.email) {
+            mixpanel?.identify(eou.us.email);
           }
 
-          properties['User Name'] = eou.us.full_name;
-          properties['User Org Name'] = eou.ou.org_name;
-          properties['User Org ID'] = eou.ou.org_id;
+          properties['User Id'] = eou.us.id;
+          properties['Org Id'] = eou.ou.org_id;
+          properties['Org User Id'] = eou.ou.id;
+          properties['Org Currency'] = eou.org.currency;
         } catch (e) {}
       }
     } catch (error) {}
@@ -106,7 +107,7 @@ export class TrackingService {
   }
 
   async updateIdentityIfNotPresent(): Promise<void> {
-    if (!this.identityId) {
+    if (!this.identityEmail) {
       await this.updateIdentity();
     }
   }
@@ -147,12 +148,12 @@ export class TrackingService {
   }
 
   // external APIs
-  onSignin(userId: string, properties: { label?: string } = {}): void {
+  onSignin(email: string, properties: { label?: string } = {}): void {
     try {
-      mixpanel?.identify(userId);
+      mixpanel?.identify(email);
     } catch (e) {}
 
-    this.identityId = userId;
+    this.identityEmail = email;
     this.eventTrack('Signin', properties);
   }
 
