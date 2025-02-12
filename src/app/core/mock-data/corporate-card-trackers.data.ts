@@ -1,12 +1,10 @@
 import deepFreeze from 'deep-freeze-strict';
 
 import { CardNetworkType } from '../enums/card-network-type';
-import {
-  CardEnrolledProperties,
-  CardEnrollmentErrorsProperties,
-  CardUnenrolledProperties,
-  EnrollingNonRTFCardProperties,
-} from '../models/tracking-properties.model';
+import { CardEnrolledProperties } from '../models/card-enrolled-properties.model';
+import { CardEnrollmentErrorsProperties } from '../models/card-enrollment-errors-properties.model';
+import { CardUnenrolledProperties } from '../models/card-unenrolled-properties.model';
+import { EnrollingNonRTFCardProperties } from '../models/enrolling-non-rtf-card-properties.model';
 
 export const cardEnrolledProperties1: CardEnrolledProperties = deepFreeze({
   Source: '/enterprise/manage_corporate_cards',
