@@ -108,7 +108,7 @@ describe('FyAddToReportModalComponent', () => {
     fixture.detectChanges();
 
     expect(getTextContent(getElementBySelector(fixture, '.report-list--zero-state__title'))).toEqual(
-      'No Reports found'
+      'No reports found'
     );
     expect(getTextContent(getElementBySelector(fixture, '.report-list--zero-state__subtitle'))).toEqual(
       'To create a draft report please click on'

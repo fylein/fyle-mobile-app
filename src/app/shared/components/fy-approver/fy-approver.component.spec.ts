@@ -75,7 +75,7 @@ describe('FyApproverComponent', () => {
     component.type = 'REPORT';
     fixture.detectChanges();
 
-    expect(getTextContent(getElementBySelector(fixture, '.approver--card-action-text'))).toEqual('Add Approver');
+    expect(getTextContent(getElementBySelector(fixture, '.approver--card-action-text'))).toEqual('Add approver');
     const approverCardClickable = getElementBySelector(fixture, '.approver--card') as HTMLElement;
 
     click(approverCardClickable);
