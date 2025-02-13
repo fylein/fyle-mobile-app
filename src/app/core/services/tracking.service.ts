@@ -37,6 +37,7 @@ import { TaskFilterClearAllProperties } from '../models/task-filter-clear-all-pr
 import { TaskPageOpenProperties } from '../models/task-page-open-properties.model';
 import { TaskProperties } from '../models/task-properties.model';
 import { ViewReportInfoProperties } from '../models/view-report-info-properties.model';
+import { ExtendedOrgUser } from '../models/extended-org-user.model';
 
 @Injectable({
   providedIn: 'root',
@@ -47,6 +48,14 @@ export class TrackingService {
   ROOT_ENDPOINT: string;
 
   constructor(private authService: AuthService, private deviceService: DeviceService) {}
+
+  private isDemoAccount(eou: ExtendedOrgUser): boolean {
+    const email = eou.us.email.toLowerCase();
+    const orgName = eou.ou.org_name.toLowerCase();
+    const keywords = ['demo', 'test', 'fyle'];
+
+    return keywords.some((keyword) => email.includes(keyword) || orgName.includes(keyword));
+  }
 
   setRoot(rootUrl: string): void {
     this.ROOT_ENDPOINT = rootUrl;
@@ -100,6 +109,7 @@ export class TrackingService {
           properties['Org Id'] = eou.ou.org_id;
           properties['Org User Id'] = eou.ou.id;
           properties['Org Currency'] = eou.org.currency;
+          properties['Is Demo Account'] = this.isDemoAccount(eou);
         } catch (e) {}
       }
     } catch (error) {}
