@@ -210,7 +210,7 @@ describe('ViewTeamAdvanceRequestPage', () => {
       });
 
       component.showAdvanceActions$.subscribe((data) => {
-        expect(data).toEqual(false);
+        expect(data).toBeFalse();
       });
     }));
 
@@ -255,7 +255,7 @@ describe('ViewTeamAdvanceRequestPage', () => {
       const eouRes = cloneDeep(apiEouRes);
       eouRes.ou.org_id = 'or2390Fjsd';
       authService.getEou.and.resolveTo(eouRes);
-      let customField: CustomField[] = JSON.parse(extendedAdvReqDraft.areq_custom_field_values);
+      const customField: CustomField[] = JSON.parse(extendedAdvReqDraft.areq_custom_field_values);
       component.ionViewWillEnter();
       tick(100);
 
@@ -312,7 +312,7 @@ describe('ViewTeamAdvanceRequestPage', () => {
 
     it('getApproverEmails(): should return undefined if approvals are undefined', () => {
       const approvalEmails = component.getApproverEmails(undefined);
-      expect(approvalEmails).toEqual(undefined);
+      expect(approvalEmails).toBeUndefined();
     });
   });
 
