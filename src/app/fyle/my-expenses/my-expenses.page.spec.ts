@@ -2076,7 +2076,9 @@ describe('MyExpensesPage', () => {
 
       expect(component.generateFilterPills).toHaveBeenCalledOnceWith({ sortDir: 'asc', splitExpense: 'YES' });
       expect(component.filterPills).toEqual(creditTxnFilterPill);
-      expect(trackingService.myExpensesFilterApplied).toHaveBeenCalledOnceWith({ sortDir: 'asc', splitExpense: 'YES' });
+      expect(trackingService.myExpensesFilterApplied).toHaveBeenCalledOnceWith({
+        filterLabels: ['sortDir', 'splitExpense'],
+      });
     }));
 
     it('should call modalController and myExpensesService if cardNumbers is undefined', fakeAsync(() => {
