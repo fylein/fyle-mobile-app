@@ -1,3 +1,3 @@
 export interface IdentifyProperties {
-  [key: string]: string;
+  [key: string]: string | boolean;
 }
