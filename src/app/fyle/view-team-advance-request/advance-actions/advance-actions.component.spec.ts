@@ -46,7 +46,7 @@ describe('AdvanceActionsComponent', () => {
       };
       fixture.detectChanges();
       const approveButton = getElementBySelector(fixture, '.advance-action--action-head');
-      expect(getTextContent(approveButton)).toContain('Approve Advance');
+      expect(getTextContent(approveButton)).toContain('Approve advance');
     });
 
     it('should show Reject Advance action button if can_reject is true', () => {
@@ -57,7 +57,7 @@ describe('AdvanceActionsComponent', () => {
       };
       fixture.detectChanges();
       const rejectButton = getElementBySelector(fixture, '.advance-action--action-head');
-      expect(getTextContent(rejectButton)).toContain('Reject Advance');
+      expect(getTextContent(rejectButton)).toContain('Reject advance');
     });
 
     it('should show Send back Advance action button if can_inquire is true', () => {
@@ -68,7 +68,7 @@ describe('AdvanceActionsComponent', () => {
       };
       fixture.detectChanges();
       const inquireButton = getElementBySelector(fixture, '.advance-action--action-head');
-      expect(getTextContent(inquireButton)).toContain('Send Back Advance');
+      expect(getTextContent(inquireButton)).toContain('Send back advance');
     });
 
     it('should show all 3 advance action buttons if all can_approve, can_inquire and can_reject are true', () => {
@@ -79,9 +79,9 @@ describe('AdvanceActionsComponent', () => {
       };
       fixture.detectChanges();
       const actionsEl = getAllElementsBySelector(fixture, '.advance-action--action-head');
-      expect(getTextContent(actionsEl[0])).toContain('Approve Advance');
-      expect(getTextContent(actionsEl[1])).toContain('Send Back Advance');
-      expect(getTextContent(actionsEl[2])).toContain('Reject Advance');
+      expect(getTextContent(actionsEl[0])).toContain('Approve advance');
+      expect(getTextContent(actionsEl[1])).toContain('Send back advance');
+      expect(getTextContent(actionsEl[2])).toContain('Reject advance');
     });
 
     it('should not show the advance actions cta button if all 3 advance actions are false', () => {
@@ -100,7 +100,7 @@ describe('AdvanceActionsComponent', () => {
     it('should dismiss popover with the sendBackAdvance command when send back action button is clicked', () => {
       const mockCommand = 'sendBackAdvance';
       // @ts-ignore
-      component.popoverController.dismiss.and.returnValue(Promise.resolve());
+      component.popoverController.dismiss.and.resolveTo();
       const sendBackButton = getElementBySelector(fixture, '.advance-action--action') as HTMLElement;
       click(sendBackButton);
       component.openAnotherPopover(mockCommand);
@@ -111,7 +111,7 @@ describe('AdvanceActionsComponent', () => {
     it('should dismiss popover with the approveAdvance command when approve advance action button is clicked', () => {
       const mockCommand = 'approveAdvance';
       // @ts-ignore
-      component.popoverController.dismiss.and.returnValue(Promise.resolve());
+      component.popoverController.dismiss.and.resolveTo();
       const approveButton = getElementBySelector(fixture, '.advance-action--action') as HTMLElement;
       click(approveButton);
       component.openAnotherPopover(mockCommand);
@@ -122,7 +122,7 @@ describe('AdvanceActionsComponent', () => {
     it('should dismiss popover with the rejectAdvance command when reject advance action button is clicked', () => {
       const mockCommand = 'rejectAdvance';
       // @ts-ignore
-      component.popoverController.dismiss.and.returnValue(Promise.resolve());
+      component.popoverController.dismiss.and.resolveTo();
       const rejectButton = getElementBySelector(fixture, '.advance-action--action') as HTMLElement;
       click(rejectButton);
       component.openAnotherPopover(mockCommand);
