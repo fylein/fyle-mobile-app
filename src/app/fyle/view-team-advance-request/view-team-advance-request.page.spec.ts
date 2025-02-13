@@ -351,9 +351,9 @@ describe('ViewTeamAdvanceRequestPage', () => {
     expect(component.showApproveAdvanceSummaryPopover).toHaveBeenCalledTimes(1);
     expect(component.showSendBackAdvanceSummaryPopover).toHaveBeenCalledTimes(1);
     expect(component.showRejectAdvanceSummaryPopup).toHaveBeenCalledTimes(1);
-    expect(component.actionSheetButtons[0].text).toEqual('Approve Advance');
-    expect(component.actionSheetButtons[1].text).toEqual('Send Back Advance');
-    expect(component.actionSheetButtons[2].text).toEqual('Reject Advance');
+    expect(component.actionSheetButtons[0].text).toEqual('Approve advance');
+    expect(component.actionSheetButtons[1].text).toEqual('Send back advance');
+    expect(component.actionSheetButtons[2].text).toEqual('Reject advance');
   }));
 
   it('openActionSheet(): should call actionSheetController.create with correct params', fakeAsync(() => {

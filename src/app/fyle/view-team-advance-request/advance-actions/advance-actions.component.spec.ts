@@ -46,7 +46,7 @@ describe('AdvanceActionsComponent', () => {
       };
       fixture.detectChanges();
       const approveButton = getElementBySelector(fixture, '.advance-action--action-head');
-      expect(getTextContent(approveButton)).toContain('Approve Advance');
+      expect(getTextContent(approveButton)).toContain('Approve advance');
     });
 
     it('should show Reject Advance action button if can_reject is true', () => {
@@ -79,9 +79,9 @@ describe('AdvanceActionsComponent', () => {
       };
       fixture.detectChanges();
       const actionsEl = getAllElementsBySelector(fixture, '.advance-action--action-head');
-      expect(getTextContent(actionsEl[0])).toContain('Approve Advance');
-      expect(getTextContent(actionsEl[1])).toContain('Send Back Advance');
-      expect(getTextContent(actionsEl[2])).toContain('Reject Advance');
+      expect(getTextContent(actionsEl[0])).toContain('Approve advance');
+      expect(getTextContent(actionsEl[1])).toContain('Send back advance');
+      expect(getTextContent(actionsEl[2])).toContain('Reject advance');
     });
 
     it('should not show the advance actions cta button if all 3 advance actions are false', () => {
