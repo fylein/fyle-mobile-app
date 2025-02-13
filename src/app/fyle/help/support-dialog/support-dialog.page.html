@@ -19,7 +19,7 @@
       <p>contact your admin</p>
 
       <div class="support--admin-list">
-        <div *ngFor="let admin of adminList let i=index" class="support--admin-list-contact-card">
+        <div *ngFor="let admin of adminList let i=index" class="support--admin-list-contact-card smartlook-hide">
           <div>{{ admin.us_full_name }}</div>
           <a href="mailto:{{ admin.us_email }}">{{ admin.us_email }}</a>
         </div>
