@@ -71,7 +71,7 @@ describe('FyApproverComponent', () => {
   });
 
   it('should show card if item type is other than TEAM_REPORT or ADVANCE_REQUEST', () => {
-    spyOn(component, 'openApproverListDialog').and.returnValue(Promise.resolve(null));
+    spyOn(component, 'openApproverListDialog').and.resolveTo();
     component.type = 'REPORT';
     fixture.detectChanges();
 

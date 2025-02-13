@@ -61,33 +61,34 @@ describe('FyAddToReportModalComponent', () => {
     currencyService.getHomeCurrency.and.returnValue(of('USD'));
     fixture.detectChanges();
   }));
+
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
   it('onDoneClick(): should call done CTA', () => {
-    modalController.dismiss.and.returnValue(Promise.resolve(true));
+    modalController.dismiss.and.resolveTo();
 
     component.onDoneClick();
     expect(modalController.dismiss).toHaveBeenCalledTimes(1);
   });
 
   it('onElementSelect(): should select element', () => {
-    modalController.dismiss.and.returnValue(Promise.resolve(true));
+    modalController.dismiss.and.resolveTo();
 
     component.onElementSelect(component.options[0]);
     expect(modalController.dismiss).toHaveBeenCalledOnceWith(component.options[0]);
   });
 
   it('createDraftReport(): should create a draft report', () => {
-    modalController.dismiss.and.returnValue(Promise.resolve(true));
+    modalController.dismiss.and.resolveTo();
 
     component.createDraftReport();
     expect(modalController.dismiss).toHaveBeenCalledOnceWith({ createDraftReport: true });
   });
 
   it('dismissModal(): should dismiss the modal', () => {
-    modalController.dismiss.and.returnValue(Promise.resolve(true));
+    modalController.dismiss.and.resolveTo();
 
     component.dismissModal({ srcElement: { innerText: 'Hello' } });
     expect(modalController.dismiss).toHaveBeenCalledOnceWith({
