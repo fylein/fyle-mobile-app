@@ -374,6 +374,11 @@ export class TrackingService {
     this.eventTrack('Sync Error', properties);
   }
 
+  // capture receipt flow, patch expenses error
+  patchExpensesError(properties: { label: Error }): void {
+    this.eventTrack('Patch expense error - capture receipt flow', properties);
+  }
+
   checkPolicyError(properties: { label: Error }): void {
     this.eventTrack('Check Policy Error', properties);
   }

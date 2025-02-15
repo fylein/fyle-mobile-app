@@ -216,7 +216,7 @@ export class TransactionService {
                    * to recall this function due to this patch expense failure
                    */
                   catchError((err) => {
-                    this.trackingService.eventTrack('Patch expense error - capture receipt flow', { label: err });
+                    this.trackingService.patchExpensesError({ label: err });
                     return of(this.transformExpense(result.data[0]).tx);
                   })
                 );
