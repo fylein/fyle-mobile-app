@@ -487,9 +487,15 @@ describe('MergeExpensesService', () => {
 
   describe('getCorporateCardTransactions(): ', () => {
     it('should return the corporate card transactions', (done) => {
-      const params = {
+      const expenseWithId = [
+        {
+          tx_corporate_credit_card_expense_group_id: 'btxnBdS2Kpvzhy',
+        },
+      ];
+
+      const config = {
         queryParams: {
-          group_id: ['in.(,)'],
+          id: 'in.(btxnBdS2Kpvzhy)',
         },
         offset: 0,
         limit: 1,
@@ -497,48 +503,42 @@ describe('MergeExpensesService', () => {
 
       customInputsService.getAll.withArgs(true).and.returnValue(of(customInputData));
       corporateCreditCardExpenseService.getCorporateCardTransactions
-        .withArgs(params)
+        .withArgs(config)
         .and.returnValue(of(ccTransactionResponseData));
 
-      mergeExpensesService.getCorporateCardTransactions(expensesDataWithCC).subscribe((res) => {
+      mergeExpensesService.getCorporateCardTransactions(expenseWithId).subscribe((res) => {
         expect(res).toEqual(ccTransactionResponseData.data);
-        expect(corporateCreditCardExpenseService.getCorporateCardTransactions).toHaveBeenCalledOnceWith(params);
+        expect(corporateCreditCardExpenseService.getCorporateCardTransactions).toHaveBeenCalledOnceWith(config);
         expect(customInputsService.getAll).toHaveBeenCalledOnceWith(true);
         done();
       });
     });
 
-    it('should return the corporate card transactions if expenses are undefined', (done) => {
-      const params = {
-        queryParams: {
-          group_id: ['in.(,)'],
+    it('should return empty array when expense has null id', (done) => {
+      const expensesWithNullIds = [
+        {
+          tx_corporate_credit_card_expense_group_id: null,
         },
-        offset: 0,
-        limit: 1,
-      };
+      ];
 
       customInputsService.getAll.withArgs(true).and.returnValue(of(customInputData));
-      corporateCreditCardExpenseService.getCorporateCardTransactions
-        .withArgs(params)
-        .and.returnValue(of(ccTransactionResponseData));
 
-      const mockExpense = [undefined, undefined];
-      mergeExpensesService.getCorporateCardTransactions(mockExpense).subscribe((res) => {
-        expect(res).toEqual(ccTransactionResponseData.data);
-        expect(corporateCreditCardExpenseService.getCorporateCardTransactions).toHaveBeenCalledOnceWith(params);
+      mergeExpensesService.getCorporateCardTransactions(expensesWithNullIds).subscribe((res) => {
+        expect(res).toEqual([]);
+        expect(corporateCreditCardExpenseService.getCorporateCardTransactions).not.toHaveBeenCalled();
         expect(customInputsService.getAll).toHaveBeenCalledOnceWith(true);
         done();
       });
     });
-  });
 
-  it('should return empty list if there are no expenses', (done) => {
-    customInputsService.getAll.withArgs(true).and.returnValue(of(customInputData));
+    it('should return empty list if there are no expenses', (done) => {
+      customInputsService.getAll.withArgs(true).and.returnValue(of(customInputData));
 
-    mergeExpensesService.getCorporateCardTransactions([]).subscribe((res) => {
-      expect(res).toEqual([]);
-      expect(customInputsService.getAll).toHaveBeenCalledOnceWith(true);
-      done();
+      mergeExpensesService.getCorporateCardTransactions([]).subscribe((res) => {
+        expect(res).toEqual([]);
+        expect(customInputsService.getAll).toHaveBeenCalledOnceWith(true);
+        done();
+      });
     });
   });
 
