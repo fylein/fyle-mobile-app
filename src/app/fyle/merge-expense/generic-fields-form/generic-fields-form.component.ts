@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, TemplateRef } from '@angular/core';
 import { Subscription, noop } from 'rxjs';
 import { filter } from 'rxjs/operators';
-import { CorporateCardExpense } from 'src/app/core/models/v2/corporate-card-expense.model';
+import { corporateCardTransaction } from 'src/app/core/models/platform/v1/cc-transaction.model';
 import { FormGroup, ControlValueAccessor, NG_VALUE_ACCESSOR, FormBuilder, Validators } from '@angular/forms';
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { CustomProperty } from 'src/app/core/models/custom-properties.model';
@@ -54,7 +54,7 @@ export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor,
 
   @Input() categoryDependentTemplate: TemplateRef<string[]>;
 
-  @Input() CCCTxns: CorporateCardExpense[];
+  @Input() CCCTxns: corporateCardTransaction[];
 
   @Input() disableFormElements: boolean;
 

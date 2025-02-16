@@ -4,8 +4,6 @@ import { map, switchMap } from 'rxjs/operators';
 import { CardAggregateStats } from '../models/card-aggregate-stats.model';
 import { CCCDetails } from '../models/ccc-expense-details.model';
 import { UniqueCardStats } from '../models/unique-cards-stats.model';
-import { ApiV2Response } from '../models/v2/api-v2-response.model';
-import { CorporateCardExpense } from '../models/v2/corporate-card-expense.model';
 import { StatsResponse } from '../models/v2/stats-response.model';
 import { ApiV2Service } from './api-v2.service';
 import { AuthService } from './auth.service';
@@ -19,13 +17,7 @@ import { UniqueCards } from '../models/unique-cards.model';
 import { CorporateCardTransactionRes } from '../models/platform/v1/corporate-card-transaction-res.model';
 import { corporateCardTransaction } from '../models/platform/v1/cc-transaction.model';
 import { MatchedCCCTransaction } from '../models/matchedCCCTransaction.model';
-
-type Config = Partial<{
-  offset: number;
-  queryParams: { state?: string; group_id?: string[] };
-  limit: number;
-  order?: string;
-}>;
+import { PlatformConfig } from '../models/platform/platform-config.model';
 
 const cacheBuster$ = new Subject<void>();
 
@@ -65,13 +57,12 @@ export class CorporateCreditCardExpenseService {
     ];
   }
 
-  getv2CardTransactions(config: Config): Observable<ApiV2Response<CorporateCardExpense>> {
-    return this.apiV2Service
-      .get<CorporateCardExpense, { params: Config }>('/corporate_card_transactions', {
+  getCorporateCardTransactions(config: PlatformConfig): Observable<PlatformApiResponse<corporateCardTransaction[]>> {
+    return this.spenderPlatformV1ApiService
+      .get<PlatformApiResponse<corporateCardTransaction[]>>('/corporate_card_transactions', {
         params: {
           offset: config.offset,
           limit: config.limit,
-          order: `${config.order || 'txn_dt.desc'},id.desc`,
           ...config.queryParams,
         },
       })
@@ -80,10 +71,8 @@ export class CorporateCreditCardExpenseService {
           (res) =>
             res as {
               count: number;
-              data: CorporateCardExpense[];
-              limit: number;
+              data: corporateCardTransaction[];
               offset: number;
-              url: string;
             }
         )
       );
