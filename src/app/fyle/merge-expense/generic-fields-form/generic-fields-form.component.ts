@@ -6,18 +6,8 @@ import { FormGroup, ControlValueAccessor, NG_VALUE_ACCESSOR, FormBuilder, Valida
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { CustomProperty } from 'src/app/core/models/custom-properties.model';
 import { AllowedPaymentModes } from 'src/app/core/models/allowed-payment-modes.enum';
-
-type Option = Partial<{
-  label: string;
-  value: string;
-}>;
-
-type OptionsData = Partial<{
-  options: Option[];
-  areSameValues: boolean;
-  name: string;
-  value: string;
-}>;
+import { MergeExpensesOption } from 'src/app/core/models/merge-expenses-option.model';
+import { MergeExpensesOptionsData } from 'src/app/core/models/merge-expenses-options-data.model';
 
 @Component({
   selector: 'app-generic-fields-form',
@@ -26,31 +16,31 @@ type OptionsData = Partial<{
   providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: GenericFieldsFormComponent, multi: true }],
 })
 export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor, OnDestroy {
-  @Input() amountOptionsData: OptionsData;
+  @Input() amountOptionsData: MergeExpensesOptionsData<string>;
 
-  @Input() receiptOptions: Option[];
+  @Input() receiptOptions: MergeExpensesOption<string>[];
 
-  @Input() dateOfSpendOptionsData: OptionsData;
+  @Input() dateOfSpendOptionsData: MergeExpensesOptionsData<string>;
 
-  @Input() paymentModeOptionsData: OptionsData;
+  @Input() paymentModeOptionsData: MergeExpensesOptionsData<string>;
 
   @Input() attachments: FileObject[];
 
-  @Input() projectOptionsData: OptionsData;
+  @Input() projectOptionsData: MergeExpensesOptionsData<string>;
 
-  @Input() billableOptionsData: OptionsData;
+  @Input() billableOptionsData: MergeExpensesOptionsData<string>;
 
-  @Input() categoryOptionsData: OptionsData;
+  @Input() categoryOptionsData: MergeExpensesOptionsData<string>;
 
-  @Input() vendorOptionsData: OptionsData;
+  @Input() vendorOptionsData: MergeExpensesOptionsData<string>;
 
-  @Input() taxGroupOptionsData: OptionsData;
+  @Input() taxGroupOptionsData: MergeExpensesOptionsData<string>;
 
-  @Input() taxAmountOptionsData: OptionsData;
+  @Input() taxAmountOptionsData: MergeExpensesOptionsData<string>;
 
-  @Input() constCenterOptionsData: OptionsData;
+  @Input() constCenterOptionsData: MergeExpensesOptionsData<string>;
 
-  @Input() purposeOptionsData: OptionsData;
+  @Input() purposeOptionsData: MergeExpensesOptionsData<string>;
 
   @Input() categoryDependentTemplate: TemplateRef<string[]>;
 
