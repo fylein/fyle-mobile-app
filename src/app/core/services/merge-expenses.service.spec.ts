@@ -90,7 +90,7 @@ import {
 import { fileObject11 } from '../mock-data/file-object.data';
 import * as lodash from 'lodash';
 import { projectsV1Data } from '../test-data/projects.spec.data';
-import { corporateCardExpenseData } from '../mock-data/corporate-card-expense.data';
+import { ccTransactionResponseData } from '../mock-data/corporate-card-transaction-response.data';
 import { customInputData } from '../test-data/custom-inputs.spec.data';
 import * as dayjs from 'dayjs';
 import { expectedOrgCategoryByName2, orgCategoryData1 } from '../mock-data/org-category.data';
@@ -123,7 +123,7 @@ describe('MergeExpensesService', () => {
       'getReceiptsDetails',
     ]);
     const corporateCreditCardExpenseServiceSpy = jasmine.createSpyObj('CorporateCreditCardExpenseService', [
-      'getv2CardTransactions',
+      'getCorporateCardTransactions',
     ]);
     const customInputsServiceSpy = jasmine.createSpyObj('CustomInputsService', ['getAll']);
     const humanizeCurrencyPipeSpy = jasmine.createSpyObj('HumanizeCurrencyPipe', ['transform']);
@@ -496,13 +496,13 @@ describe('MergeExpensesService', () => {
       };
 
       customInputsService.getAll.withArgs(true).and.returnValue(of(customInputData));
-      corporateCreditCardExpenseService.getv2CardTransactions
+      corporateCreditCardExpenseService.getCorporateCardTransactions
         .withArgs(params)
-        .and.returnValue(of(corporateCardExpenseData));
+        .and.returnValue(of(ccTransactionResponseData));
 
       mergeExpensesService.getCorporateCardTransactions(expensesDataWithCC).subscribe((res) => {
-        expect(res).toEqual(corporateCardExpenseData.data);
-        expect(corporateCreditCardExpenseService.getv2CardTransactions).toHaveBeenCalledOnceWith(params);
+        expect(res).toEqual(ccTransactionResponseData.data);
+        expect(corporateCreditCardExpenseService.getCorporateCardTransactions).toHaveBeenCalledOnceWith(params);
         expect(customInputsService.getAll).toHaveBeenCalledOnceWith(true);
         done();
       });
@@ -518,14 +518,14 @@ describe('MergeExpensesService', () => {
       };
 
       customInputsService.getAll.withArgs(true).and.returnValue(of(customInputData));
-      corporateCreditCardExpenseService.getv2CardTransactions
+      corporateCreditCardExpenseService.getCorporateCardTransactions
         .withArgs(params)
-        .and.returnValue(of(corporateCardExpenseData));
+        .and.returnValue(of(ccTransactionResponseData));
 
       const mockExpense = [undefined, undefined];
       mergeExpensesService.getCorporateCardTransactions(mockExpense).subscribe((res) => {
-        expect(res).toEqual(corporateCardExpenseData.data);
-        expect(corporateCreditCardExpenseService.getv2CardTransactions).toHaveBeenCalledOnceWith(params);
+        expect(res).toEqual(ccTransactionResponseData.data);
+        expect(corporateCreditCardExpenseService.getCorporateCardTransactions).toHaveBeenCalledOnceWith(params);
         expect(customInputsService.getAll).toHaveBeenCalledOnceWith(true);
         done();
       });
