@@ -1047,8 +1047,8 @@ export class SplitExpensePage implements OnDestroy {
 
         return this.launchDarklyService.getVariation('show_project_mapped_categories_in_split_expense', false).pipe(
           switchMap((showProjectMappedCategories) => {
-            if ((showProjectMappedCategories || isProjectCategoryRestrictionsEnabled) && project.project_id) {
-              return this.projectsService.getbyId(project.project_id).pipe(
+            if ((showProjectMappedCategories || isProjectCategoryRestrictionsEnabled) && project?.project_id) {
+              return this.projectsService.getbyId(project?.project_id).pipe(
                 map((projectDetails) => {
                   const allowedCategories = this.projectsService.getAllowedOrgCategoryIds(
                     projectDetails,
@@ -1070,11 +1070,11 @@ export class SplitExpensePage implements OnDestroy {
 
     this.categories$.pipe(takeUntil(this.destroy$)).subscribe((categories) => {
       const categoryControl = splitForm.get('category');
-      const currentCategory = categoryControl.value;
+      const currentCategory = categoryControl?.value;
       if (
         currentCategory &&
-        currentCategory.id &&
-        !categories.some((category) => category.value.id === currentCategory.id)
+        currentCategory?.id &&
+        !categories.some((category) => category.value.id === currentCategory?.id)
       ) {
         categoryControl.reset();
       }
@@ -1121,7 +1121,7 @@ export class SplitExpensePage implements OnDestroy {
         'cost_center',
         this.formBuilder.control(
           isFirstSplit ? this.splitConfig.costCenter.value : '',
-          this.splitConfig.project.is_mandatory ? [Validators.required] : null
+          this.splitConfig.costCenter.is_mandatory ? [Validators.required] : null
         )
       );
     }
