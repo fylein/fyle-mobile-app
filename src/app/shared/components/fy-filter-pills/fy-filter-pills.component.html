@@ -4,7 +4,7 @@
       <div class="filter-pills--pills">
         <ng-container *ngFor="let filterPill of filterPills">
           <div class="filter-pills--pill" (click)="onFilterClick(filterPill)">
-            <span class="filter-pills--label"> {{ filterPill.label }} </span>
+            <span class="filter-pills--label"> {{ filterPill.label }}: </span>
             <span class="filter-pills--value">
               {{ filterPill.value | snakeCaseToSpaceCase | titlecase }}
             </span>
