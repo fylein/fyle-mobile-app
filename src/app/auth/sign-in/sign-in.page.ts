@@ -83,9 +83,7 @@ export class SignInPage implements OnInit {
           switchMap(() => this.authService.refreshEou()),
           tap(async (eou) => {
             await this.trackLoginInfo();
-            this.trackingService.onSignin(eou.us.email, {
-              label: 'Email',
-            });
+            this.trackingService.onSignin(eou.us.id);
           })
         )
         .subscribe(() => {
@@ -203,9 +201,7 @@ export class SignInPage implements OnInit {
         .pipe(
           switchMap(() => this.authService.refreshEou()),
           tap(async (eou) => {
-            this.trackingService.onSignin(eou.us.email, {
-              label: 'Email',
-            });
+            this.trackingService.onSignin(eou.us.id);
             await this.trackLoginInfo();
           }),
           finalize(() => (this.passwordLoading = false))
@@ -245,9 +241,7 @@ export class SignInPage implements OnInit {
           this.routerAuthService.googleSignin(googleAuthResponse.accessToken).pipe(
             switchMap(() => this.authService.refreshEou()),
             tap(async (eou) => {
-              this.trackingService.onSignin(eou.us.email, {
-                label: 'Email',
-              });
+              this.trackingService.onSignin(eou.us.id);
               await this.trackLoginInfo();
             })
           )
