@@ -72,14 +72,14 @@ describe('CameraOptionsPopupComponent', () => {
     const sizeLimitExceededPopoverSpy = jasmine.createSpyObj('sizeLimitExceededPopover', ['present']);
     popoverController.create.and.resolveTo(sizeLimitExceededPopoverSpy);
 
-    component.showSizeLimitExceededPopover();
+    component.showSizeLimitExceededPopover(8388609);
     tick(500);
 
     expect(popoverController.create).toHaveBeenCalledOnceWith({
       component: PopupAlertComponent,
       componentProps: {
         title: 'Size limit exceeded',
-        message: 'The uploaded file is greater than 5MB in size. Please reduce the file size and try again.',
+        message: 'The uploaded file is greater than 8MB in size. Please reduce the file size and try again.',
         primaryCta: {
           text: 'OK',
         },
