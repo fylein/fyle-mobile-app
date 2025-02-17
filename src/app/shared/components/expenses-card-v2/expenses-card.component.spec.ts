@@ -44,7 +44,6 @@ import {
   transformedExpenseData,
   transformedExpenseWithExtractedData,
 } from 'src/app/core/mock-data/transformed-expense.data';
-import { MAX_FILE_SIZE } from 'src/app/core/constants';
 
 describe('ExpensesCardComponent', () => {
   let component: ExpensesCardComponent;
@@ -694,7 +693,7 @@ describe('ExpensesCardComponent', () => {
   it('showSizeLimitExceededPopover', fakeAsync(() => {
     const popOverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present']);
     popoverController.create.and.resolveTo(popOverSpy);
-    component.showSizeLimitExceededPopover(MAX_FILE_SIZE);
+    component.showSizeLimitExceededPopover(8388609);
 
     tick(500);
     expect(popoverController.create).toHaveBeenCalledOnceWith({

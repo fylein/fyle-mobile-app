@@ -111,7 +111,6 @@ import {
 import { apiExpenses1, apiExpenses2, splitExpensesData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
-import { MAX_FILE_SIZE } from 'src/app/core/constants';
 
 const properties = {
   cssClass: 'fy-modal',
@@ -1650,7 +1649,7 @@ export function TestCases2(getTestBed) {
 
       popoverController.create.and.resolveTo(sizeLimitExceededPopoverSpy);
 
-      component.showSizeLimitExceededPopover(MAX_FILE_SIZE);
+      component.showSizeLimitExceededPopover(8388609);
       tick(500);
 
       expect(popoverController.create).toHaveBeenCalledOnceWith({
