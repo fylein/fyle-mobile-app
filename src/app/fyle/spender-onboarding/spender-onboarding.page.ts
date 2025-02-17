@@ -39,6 +39,8 @@ export class SpenderOnboardingPage {
 
   redirectionCount = 3;
 
+  areCardsEnrolled = false;
+
   constructor(
     private loaderService: LoaderService,
     private orgUserService: OrgUserService,
@@ -60,6 +62,7 @@ export class SpenderOnboardingPage {
       this.onboardingComplete = true;
       this.startCountdown();
     } else {
+      this.trackingService.eventTrack('Redirect To Dashboard After Onboarding Skip');
       this.router.navigate(['/', 'enterprise', 'my_dashboard']);
     }
   }
@@ -74,11 +77,15 @@ export class SpenderOnboardingPage {
   }
 
   setUpRtfSteps(onboardingStatus: OnboardingStatus, rtfCards: PlatformCorporateCard[]): void {
-    if (
-      onboardingStatus.step_connect_cards_is_skipped ||
-      onboardingStatus.step_connect_cards_is_configured ||
-      rtfCards.length > 0
-    ) {
+    if (rtfCards.length > 0) {
+      this.trackingService.eventTrack('Skip Connect Cards Onboarding Step - Cards Already Enrolled', {
+        numberOfEnrolledCards: rtfCards.length,
+      });
+      this.areCardsEnrolled = true;
+      this.currentStep = OnboardingStep.OPT_IN;
+      this.showOneStep = true;
+      this.spenderOnboardingService.skipConnectCardsStep().subscribe();
+    } else if (onboardingStatus.step_connect_cards_is_skipped || onboardingStatus.step_connect_cards_is_configured) {
       this.currentStep = OnboardingStep.OPT_IN;
       if (onboardingStatus.step_connect_cards_is_configured) {
         this.showOneStep = true;
@@ -86,6 +93,7 @@ export class SpenderOnboardingPage {
     } else {
       this.currentStep = OnboardingStep.CONNECT_CARD;
       if (this.isMobileVerified(this.eou)) {
+        this.trackingService.eventTrack('Skip Sms Opt In Onboarding Step - Mobile Already Verified');
         this.showOneStep = true;
       }
     }
@@ -109,17 +117,19 @@ export class SpenderOnboardingPage {
           this.orgSettings = orgSettings;
           const isRtfEnabled =
             orgSettings.visa_enrollment_settings.enabled || orgSettings.mastercard_enrollment_settings.enabled;
-          const isAmexFeedEnabled = orgSettings.amex_feed_enrollment_settings.enabled;
+          const onlyAmexEnabled = orgSettings.amex_feed_enrollment_settings.enabled && !isRtfEnabled;
           const rtfCards = corporateCards.filter((card) => card.is_visa_enrolled || card.is_mastercard_enrolled);
-          if (this.isMobileVerified(this.eou) && rtfCards.length > 0) {
+          if (this.isMobileVerified(this.eou) && (onlyAmexEnabled || rtfCards.length > 0)) {
+            this.trackingService.eventTrack('Redirect To Dashboard From Onboarding As No Steps To Show');
             this.completeOnboarding().subscribe();
-          } else if (isAmexFeedEnabled && !isRtfEnabled) {
+          } else if (onlyAmexEnabled) {
             this.currentStep = OnboardingStep.OPT_IN;
             this.showOneStep = true;
           } else if (isRtfEnabled) {
             // If Connect Card was skipped earlier or Cards are already enrolled, then go to OPT_IN step
             this.setUpRtfSteps(onboardingStatus, rtfCards);
           }
+          this.trackingService.eventTrack('Spender Onboarding', { numberOfEnrollableCards: rtfCards.length });
         }),
         finalize(() => {
           this.isLoading = false;
@@ -190,6 +200,7 @@ export class SpenderOnboardingPage {
       this.redirectionCount--;
       if (this.redirectionCount === 0) {
         clearInterval(interval);
+        this.trackingService.eventTrack('Redirect To Dashboard After Onboarding Success');
         this.router.navigate(['/', 'enterprise', 'my_dashboard']);
       }
     }, 1000);

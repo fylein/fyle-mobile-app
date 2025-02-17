@@ -17,7 +17,7 @@
       mode="md"
       [ngClass]="{'add-edit-expense--title__review': reviewList?.length}"
     >
-      <div *ngIf="mode === 'add'" class="add-edit-expense--toolbar__title">Add Expense</div>
+      <div *ngIf="mode === 'add'" class="add-edit-expense--toolbar__title">Add expense</div>
       <div *ngIf="mode === 'edit'">
         <ng-container *ngIf="reviewList?.length;else editMode">
           Review expense
@@ -155,13 +155,13 @@
                 </div>
               </ion-col>
               <ion-col>
-                <div class="add-edit-expense--card-container__label">Spend Date</div>
+                <div class="add-edit-expense--card-container__label">Spend date</div>
                 <div class="add-edit-expense--card-container__value">
                   {{ selectedCCCTransaction?.txn_dt | date: 'MMM dd, YYYY' }}
                 </div>
               </ion-col>
               <ion-col>
-                <div class="add-edit-expense--card-container__label">Spend Amount</div>
+                <div class="add-edit-expense--card-container__label">Spend amount</div>
                 <div *ngIf="selectedCCCTransaction?.amount > 0">
                   <span class="add-edit-expense--card-container__value"
                     >{{ selectedCCCTransaction?.amount | humanizeCurrency: selectedCCCTransaction?.currency }}</span
@@ -182,7 +182,7 @@
             <ng-container *ngIf="selectedCCCTransaction?.description">
               <ion-row>
                 <ion-col>
-                  <div class="add-edit-expense--card-container__label">Card Transaction</div>
+                  <div class="add-edit-expense--card-container__label">Card transaction</div>
                   <div class="add-edit-expense--card-container__value">{{ selectedCCCTransaction.description }}</div>
                 </ion-col>
               </ion-row>
@@ -569,10 +569,16 @@
                     <app-fy-number formControlName="tax_amount" [placeholder]="'Enter Tax Amount'"></app-fy-number>
                   </div>
                   <div
-                    *ngIf="(fg.controls.tax_amount.touched && (!fg.controls.tax_amount.valid || fg.controls.tax_amount.hasError('invalid')))"
+                    *ngIf="(fg.controls.tax_amount.touched && (!fg.controls.tax_amount.valid || fg.controls.tax_amount.hasError('invalid')) && !fg.controls.tax_amount.hasError('taxAmountGreaterThanAmount'))"
                     class="add-edit-expense--error"
                   >
                     Please enter a valid tax amount.
+                  </div>
+                  <div
+                    *ngIf="fg.controls.tax_amount.touched && fg.controls.tax_amount.hasError('taxAmountGreaterThanAmount')"
+                    class="add-edit-expense--error"
+                  >
+                    Tax amount cannot be greater than amount
                   </div>
                 </div>
               </ng-container>
@@ -850,7 +856,7 @@
                   class="add-edit-expense--internal-block"
                 >
                   <mat-checkbox formControlName="hotel_is_breakfast_provided">
-                    <span class="add-edit-expense--text-label"> Breakfast Provided </span>
+                    <span class="add-edit-expense--text-label"> Breakfast provided </span>
                   </mat-checkbox>
                 </div>
 
@@ -1308,7 +1314,7 @@
             appFormButtonValidation
             class="btn-primary"
           >
-            Save Expense
+            Save expense
           </ion-button>
         </ion-buttons>
       </div>

@@ -75,8 +75,7 @@ export class NewPasswordPage implements OnInit {
         switchMap(() => this.routerAuthService.resetPassword(refreshToken, this.fg.controls.password.value as string)),
         switchMap(() => this.authService.refreshEou()),
         tap(async (eou) => {
-          const email = eou.us.email;
-          this.trackingService.onSignin(email);
+          this.trackingService.onSignin(eou.us.email);
           this.trackingService.resetPassword();
           await this.trackLoginInfo();
         }),

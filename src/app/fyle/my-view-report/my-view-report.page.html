@@ -6,7 +6,7 @@
       </button>
       <ion-back-button mode="md" *ngIf="navigateBack"></ion-back-button>
     </ion-buttons>
-    <ion-title mode="md" class="page-title"> View Report </ion-title>
+    <ion-title mode="md" class="page-title"> View report </ion-title>
     <ion-buttons mode="md" slot="end">
       <ng-container *ngIf="report$|async as report">
         <ng-container *ngIf="report.num_expenses">
@@ -70,8 +70,8 @@
                 <div class="view-reports--submitted-date">
                   <div>
                     <span class="view-reports--submitted-date__text"
-                      >{{report.state === "DRAFT" ? "Created on : " : (report.last_resubmitted_at ? "Resubmitted on : "
-                      : "Submitted on : " )}}
+                      >{{report.state === "DRAFT" ? "Created date : " : (report.last_resubmitted_at ? "Resubmitted date
+                      : " : "Submitted date : " )}}
                     </span>
                     <span *ngIf="report.state === 'DRAFT'" class="view-reports--submitted-date__date"
                       >{{report.created_at | date: 'MMM dd, YYYY'}}</span
@@ -89,7 +89,7 @@
                   class="view-reports--view-info__icon"
                   src="../../../assets/svg/info-circle-gradient.svg"
                 ></ion-icon>
-                <span class="view-reports--view-info__content">View Info</span>
+                <span class="view-reports--view-info__content">View info</span>
               </div>
             </ion-col>
           </ion-row>
@@ -334,7 +334,7 @@
         [loading]="submitReportLoader"
         (click)="resubmitReport()"
       >
-        Resubmit Report
+        Resubmit report
       </ion-button>
       <ion-button
         class="fy-footer-cta fy-footer-cta--primary"
@@ -345,7 +345,7 @@
         [loading]="submitReportLoader"
         (click)="submitReport()"
       >
-        Submit Report
+        Submit report
       </ion-button>
     </div>
   </ion-toolbar>

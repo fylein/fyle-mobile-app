@@ -40,7 +40,7 @@ describe('CardTransactionPreviewComponent', () => {
     fixture.detectChanges();
 
     const header = getElementBySelector(fixture, '.card-transaction--header');
-    expect(getTextContent(header)).toBe('Card Transaction');
+    expect(getTextContent(header)).toBe('Card transaction');
 
     const vendor = getElementBySelector(fixture, '.card-transaction--matching-content span:nth-child(1)');
     expect(getTextContent(vendor)).toBe('Amazon,');

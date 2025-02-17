@@ -26,7 +26,7 @@
     <div class="create-new-report--name">
       <div class="create-new-report--text" [ngClass]="{ 'create-new-report--text__invalid': showReportNameError }">
         <div class="create-new-report--text-label">
-          Report Name
+          Report name
           <span class="create-new-report--mandatory">*</span>
         </div>
         <input
@@ -79,7 +79,7 @@
         [ngClass]="{ 'create-new-report--secondary-cta__disabled': submitReportLoader || saveDraftReportLoader }"
         (click)="ctaClickedEvent('create_draft_report')"
       >
-        Save as Draft
+        Save as draft
       </button>
       <button
         type="submit"
@@ -94,7 +94,7 @@
         }"
         (click)="ctaClickedEvent('submit_report')"
       >
-        Submit Report
+        Submit report
       </button>
     </div>
   </ion-toolbar>

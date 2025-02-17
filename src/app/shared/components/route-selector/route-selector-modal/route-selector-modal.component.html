@@ -16,7 +16,7 @@
 <ion-content>
   <div class="route-selector-modal--body" [formGroup]="form">
     <div class="route-selector-modal--distance-details">
-      Total Distance: {{ calculatedLocationDistance || '-' }} {{ unit | titlecase }}
+      Total distance: {{ calculatedLocationDistance || '-' }} {{ unit | titlecase }}
     </div>
 
     <div class="timeline--timeline route-selector-modal--timeline">
@@ -92,7 +92,7 @@
 
     <div class="route-selector-modal--internal-block" *ngIf="mileageLocations.controls.length < 3">
       <mat-checkbox formControlName="roundTrip">
-        <span class="route-selector-modal--checkbox"> Round Trip </span>
+        <span class="route-selector-modal--checkbox"> Round trip </span>
       </mat-checkbox>
     </div>
   </div>

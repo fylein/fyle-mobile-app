@@ -37,6 +37,7 @@
         ></app-spender-onboarding-connect-card-step>
         <app-spender-onboarding-opt-in-step
           [eou]="eou"
+          [areCardsEnrolled]="areCardsEnrolled"
           (isStepComplete)="markStepAsComplete()"
           (goToConnectCard)="goBackToConnectCard()"
           *ngIf="this.currentStep === 'OPT_IN'"

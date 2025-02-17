@@ -2,33 +2,6 @@ import { Injectable } from '@angular/core';
 import { AuthService } from './auth.service';
 import { DeviceService } from '../../core/services/device.service';
 import { environment } from 'src/environments/environment';
-import {
-  ExpenseProperties,
-  IdentifyProperties,
-  SplittingExpenseProperties,
-  PolicyCorrectionProperties,
-  AddAttachmentProperties,
-  CommentHistoryActionProperties,
-  CreateReportProperties,
-  SwitchOrgProperties,
-  CorporateCardExpenseProperties,
-  ExpenseClickProperties,
-  FooterButtonClickProperties,
-  TaskPageOpenProperties,
-  TaskProperties,
-  TaskFilterClearAllProperties,
-  FilterPillClickedProperties,
-  ViewReportInfoProperties,
-  OnSettingToggleProperties,
-  AppLaunchTimeProperties,
-  CaptureSingleReceiptTimeProperties,
-  SwitchOrgLaunchTimeProperties,
-  ReportNameChangeProperties,
-  CardEnrolledProperties,
-  CardEnrollmentErrorsProperties,
-  CardUnenrolledProperties,
-  EnrollingNonRTFCardProperties,
-} from '../models/tracking-properties.model';
 import { ExpenseView } from '../models/expense-view.enum';
 import { TaskFilters } from '../models/task-filters.model';
 import { OrgCategory } from '../models/v1/org-category.model';
@@ -39,6 +12,32 @@ import { ReportFilters } from '../models/report-filters.model';
 import { CommuteDetailsResponse } from '../models/platform/commute-details-response.model';
 import { HttpErrorResponse } from '@angular/common/http';
 import mixpanel, { Config } from 'mixpanel-browser';
+import { AddAttachmentProperties } from '../models/add-attachment-properties.model';
+import { AppLaunchTimeProperties } from '../models/app-launch-time-properties.model';
+import { CaptureSingleReceiptTimeProperties } from '../models/capture-single-receipt-time-properties.model';
+import { CardEnrolledProperties } from '../models/card-enrolled-properties.model';
+import { CardEnrollmentErrorsProperties } from '../models/card-enrollment-errors-properties.model';
+import { CardUnenrolledProperties } from '../models/card-unenrolled-properties.model';
+import { CommentHistoryActionProperties } from '../models/comment-history-action-properties.model';
+import { CorporateCardExpenseProperties } from '../models/corporate-card-expense-properties.model';
+import { CreateReportProperties } from '../models/create-report-properties.model';
+import { EnrollingNonRTFCardProperties } from '../models/enrolling-non-rtf-card-properties.model';
+import { ExpenseClickProperties } from '../models/expense-click-properties.model';
+import { ExpenseProperties } from '../models/expense-properties.model';
+import { FilterPillClickedProperties } from '../models/filter-pill-clicked-properties.model';
+import { FooterButtonClickProperties } from '../models/footer-button-click-properties.model';
+import { IdentifyProperties } from '../models/identify-properties.model';
+import { OnSettingToggleProperties } from '../models/on-setting-toggle-properties.model';
+import { PolicyCorrectionProperties } from '../models/policy-correction-properties.model';
+import { ReportNameChangeProperties } from '../models/report-name-change-properties.model';
+import { SplittingExpenseProperties } from '../models/splitting-expense-properties.model';
+import { SwitchOrgProperties } from '../models/switch-Oorg-properties.model';
+import { SwitchOrgLaunchTimeProperties } from '../models/switch-org-launch-time-properties.model';
+import { TaskFilterClearAllProperties } from '../models/task-filter-clear-all-properties.model';
+import { TaskPageOpenProperties } from '../models/task-page-open-properties.model';
+import { TaskProperties } from '../models/task-properties.model';
+import { ViewReportInfoProperties } from '../models/view-report-info-properties.model';
+import { ExtendedOrgUser } from '../models/extended-org-user.model';
 
 @Injectable({
   providedIn: 'root',
@@ -49,6 +48,14 @@ export class TrackingService {
   ROOT_ENDPOINT: string;
 
   constructor(private authService: AuthService, private deviceService: DeviceService) {}
+
+  private isDemoAccount(eou: ExtendedOrgUser): boolean {
+    const email = eou.us.email.toLowerCase();
+    const orgName = eou.ou.org_name.toLowerCase();
+    const keywords = ['demo', 'test', 'fyle'];
+
+    return keywords.some((keyword) => email.includes(keyword) || orgName.includes(keyword));
+  }
 
   setRoot(rootUrl: string): void {
     this.ROOT_ENDPOINT = rootUrl;
@@ -98,9 +105,11 @@ export class TrackingService {
             mixpanel?.identify(eou.us.email);
           }
 
-          properties['User Name'] = eou.us.full_name;
-          properties['User Org Name'] = eou.ou.org_name;
-          properties['User Org ID'] = eou.ou.org_id;
+          properties['User Id'] = eou.us.id;
+          properties['Org Id'] = eou.ou.org_id;
+          properties['Org User Id'] = eou.ou.id;
+          properties['Org Currency'] = eou.org.currency;
+          properties['Is Demo Account'] = this.isDemoAccount(eou);
         } catch (e) {}
       }
     } catch (error) {}
@@ -433,8 +442,8 @@ export class TrackingService {
     this.eventTrack('dashboard incomplete corporate card expenses clicked', properties);
   }
 
-  dashboardOnTotalCardExpensesClick(properties = {}): void {
-    this.eventTrack('dashboard total corporate card expenses clicked', properties);
+  dashboardOnCompleteCardExpensesClick(properties = {}): void {
+    this.eventTrack('dashboard complete corporate card expenses clicked', properties);
   }
 
   //View expenses

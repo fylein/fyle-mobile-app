@@ -78,6 +78,10 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
               this.cardValuesMap[card.id].enrollment_success = true;
             }),
             catchError((error: HttpErrorResponse) => {
+              this.trackingService.eventTrack('Connect Cards Onboarding Step - Failed', {
+                CardNumber: card.card_number.slice(-4),
+                error,
+              });
               this.setupErrorMessages(error, `${card.card_number.slice(-4)}`, card.id);
               return of(error);
             })
@@ -98,6 +102,10 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
           this.cardsList.successfulCards.push(`**** ${(this.fg.controls.card_number.value as string).slice(-4)}`);
         }),
         catchError((error: HttpErrorResponse) => {
+          this.trackingService.eventTrack('Connect Cards Onboarding Step - Failed', {
+            CardNumber: (this.fg.controls.card_number.value as string).slice(-4),
+            error,
+          });
           this.setupErrorMessages(error, (this.fg.controls.card_number.value as string).slice(-4));
           return of(error);
         }),
@@ -282,6 +290,7 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
         const cardType = this.realTimeFeedService.getCardTypeFromNumber(cardNumber);
 
         if (
+          cardType === CardNetworkType.OTHERS ||
           (!this.isVisaRTFEnabled && cardType === CardNetworkType.VISA) ||
           (!this.isMastercardRTFEnabled && cardType === CardNetworkType.MASTERCARD)
         ) {

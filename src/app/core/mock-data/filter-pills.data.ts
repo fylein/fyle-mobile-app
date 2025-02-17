@@ -20,12 +20,12 @@ export const debitTxnFilterPill: FilterPill[] = deepFreeze([
 
 export const allFilterPills: FilterPill[] = deepFreeze([
   {
-    label: 'Created On',
+    label: 'Created date',
     type: 'date',
     value: '2023-02-20 to 2023-02-22',
   },
   {
-    label: 'Updated On',
+    label: 'Updated date',
     type: 'date',
     value: '2023-02-22 to 2023-02-24',
   },
