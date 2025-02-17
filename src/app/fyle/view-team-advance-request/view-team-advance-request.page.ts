@@ -223,7 +223,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
     this.actions$.subscribe((actions) => {
       if (actions.can_approve) {
         this.actionSheetButtons.push({
-          text: 'Approve Advance',
+          text: 'Approve advance',
           handler: () => {
             this.showApproveAdvanceSummaryPopover();
           },
@@ -232,7 +232,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
 
       if (actions.can_inquire) {
         this.actionSheetButtons.push({
-          text: 'Send Back Advance',
+          text: 'Send back advance',
           handler: () => {
             this.showSendBackAdvanceSummaryPopover();
           },
@@ -241,7 +241,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
 
       if (actions.can_reject) {
         this.actionSheetButtons.push({
-          text: 'Reject Advance',
+          text: 'Reject advance',
           handler: () => {
             this.showRejectAdvanceSummaryPopup();
           },

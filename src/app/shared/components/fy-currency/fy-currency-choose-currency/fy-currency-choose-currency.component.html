@@ -2,7 +2,7 @@
   <mat-icon class="fy-modal-top-bar" svgIcon="notch"></mat-icon>
   <ion-toolbar mode="md" class="fy-modal-toolbar">
     <ion-title>
-      <div class="selection-modal--title">Select Currency</div>
+      <div class="selection-modal--title">Select currency</div>
     </ion-title>
     <ion-buttons slot="start">
       <ion-button (click)="onDoneClick()">
@@ -53,7 +53,7 @@
     </div>
     <div *ngIf="filteredCurrencies$ | async as filteredCurrencies">
       <div *ngIf="filteredCurrencies.length > 0">
-        <div class="selection-modal--sub-title">All Currencies</div>
+        <div class="selection-modal--sub-title">All currencies</div>
         <ng-container *ngFor="let currency of filteredCurrencies">
           <div matRipple class="selection-modal--list-element" (click)="onCurrencySelect(currency)">
             <div>{{ currency.shortCode }} - {{ currency.longName }}</div>
