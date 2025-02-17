@@ -47,7 +47,7 @@ export class CameraOptionsPopupComponent implements OnInit {
       this.closeClicked();
 
       if (file?.size > MAX_FILE_SIZE) {
-        this.showSizeLimitExceededPopover();
+        this.showSizeLimitExceededPopover(MAX_FILE_SIZE);
       }
     }
   }
@@ -71,12 +71,14 @@ export class CameraOptionsPopupComponent implements OnInit {
     nativeElement.click();
   }
 
-  async showSizeLimitExceededPopover(): Promise<void> {
+  async showSizeLimitExceededPopover(maxFileSize: number): Promise<void> {
     const sizeLimitExceededPopover = await this.popoverController.create({
       component: PopupAlertComponent,
       componentProps: {
         title: 'Size limit exceeded',
-        message: 'The uploaded file is greater than 8MB in size. Please reduce the file size and try again.',
+        message: `The uploaded file is greater than ${
+          maxFileSize / (1024 * 1024)
+        }MB in size. Please reduce the file size and try again.`,
         primaryCta: {
           text: 'OK',
         },

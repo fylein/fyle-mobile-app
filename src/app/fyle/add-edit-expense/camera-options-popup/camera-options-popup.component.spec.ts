@@ -5,6 +5,7 @@ import { FileService } from 'src/app/core/services/file.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { CameraOptionsPopupComponent } from './camera-options-popup.component';
+import { MAX_FILE_SIZE } from 'src/app/core/constants';
 
 describe('CameraOptionsPopupComponent', () => {
   let component: CameraOptionsPopupComponent;
@@ -72,7 +73,7 @@ describe('CameraOptionsPopupComponent', () => {
     const sizeLimitExceededPopoverSpy = jasmine.createSpyObj('sizeLimitExceededPopover', ['present']);
     popoverController.create.and.resolveTo(sizeLimitExceededPopoverSpy);
 
-    component.showSizeLimitExceededPopover();
+    component.showSizeLimitExceededPopover(MAX_FILE_SIZE);
     tick(500);
 
     expect(popoverController.create).toHaveBeenCalledOnceWith({
