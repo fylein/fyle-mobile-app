@@ -28,7 +28,7 @@ export const modalControllerParams = {
     filterOptions: [
       ...filterOptions1,
       {
-        name: 'Cards',
+        name: 'Cards ending in...',
         optionType: FilterOptionType.multiselect,
         options: [
           {

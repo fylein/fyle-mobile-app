@@ -58,7 +58,7 @@ export class MyExpensesService {
       generatedFilters.type = <string[]>expenseTypeFilter.value;
     }
 
-    const cardsFilter = selectedFilters.find((filter) => filter.name === 'Cards');
+    const cardsFilter = selectedFilters.find((filter) => filter.name === 'Cards ending in...');
 
     if (cardsFilter) {
       generatedFilters.cardNumbers = <string[]>cardsFilter.value;
@@ -224,7 +224,7 @@ export class MyExpensesService {
 
   generateCardFilterPills(filterPills: FilterPill[], filter: Partial<ExpenseFilters>): void {
     filterPills.push({
-      label: 'Cards',
+      label: 'Cards ending in...',
       type: 'cardNumbers',
       value: filter.cardNumbers
         .map((cardNumber) => this.maskNumber.transform(cardNumber))
@@ -466,7 +466,7 @@ export class MyExpensesService {
 
     if (filter.cardNumbers) {
       generatedFilters.push({
-        name: 'Cards',
+        name: 'Cards ending in...',
         value: filter.cardNumbers,
       });
     }
