@@ -264,7 +264,7 @@ export function TestCases4(getTestBed) {
         component.uploadFileCallback(file);
         tick(500);
 
-        expect(component.showSizeLimitExceededPopover(8388609)).toHaveBeenCalledOnceWith();
+        expect(component.showSizeLimitExceededPopover).toHaveBeenCalledOnceWith(8388609);
       }));
     });
 
