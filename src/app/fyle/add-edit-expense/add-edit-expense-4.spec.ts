@@ -87,6 +87,7 @@ import {
 } from 'src/app/core/mock-data/transformed-expense.data';
 import { cloneDeep } from 'lodash';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { MAX_FILE_SIZE } from 'src/app/core/constants';
 
 export function TestCases4(getTestBed) {
   return describe('AddEditExpensePage-4', () => {
@@ -264,7 +265,7 @@ export function TestCases4(getTestBed) {
         component.uploadFileCallback(file);
         tick(500);
 
-        expect(component.showSizeLimitExceededPopover).toHaveBeenCalledOnceWith(8388609);
+        expect(component.showSizeLimitExceededPopover).toHaveBeenCalledOnceWith(MAX_FILE_SIZE);
       }));
     });
 
