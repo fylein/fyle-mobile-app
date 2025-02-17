@@ -64,6 +64,8 @@
       align-items: center;
       justify-content: center;
       gap: -1px;
+      flex-wrap: nowrap;
+      white-space: nowrap;
       &--icon {
         height: 14px;
         color: $dark-grey;
