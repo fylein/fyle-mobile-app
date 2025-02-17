@@ -255,7 +255,7 @@ export function TestCases4(getTestBed) {
         });
       }));
 
-      it('should show file size exceeded popover if uploaded file is larger than 5MB', fakeAsync(() => {
+      it('should show file size exceeded popover if uploaded file is larger than 8MB', fakeAsync(() => {
         spyOn(component, 'showSizeLimitExceededPopover');
 
         const myBlob = new Blob([new ArrayBuffer(100 * 100 * 1000)], { type: 'application/octet-stream' });

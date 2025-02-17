@@ -676,9 +676,9 @@ describe('ExpensesCardComponent', () => {
       });
     }));
 
-    it('should show size limit exceeded popover if the file size is more than 5MB', fakeAsync(() => {
+    it('should show size limit exceeded popover if the file size is more than 8MB', fakeAsync(() => {
       const mockFile = new File(['file contents'], 'test.png', { type: 'image/png' });
-      Object.defineProperty(mockFile, 'size', { value: 5000001 });
+      Object.defineProperty(mockFile, 'size', { value: 8000001 });
       const mockNativeElement = {
         files: [mockFile],
       };
