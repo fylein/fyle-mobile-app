@@ -797,7 +797,7 @@ export class AddEditExpensePage implements OnInit {
           'enterprise',
           'split_expense',
           {
-            splitConfig,
+            splitConfig: JSON.stringify(splitConfig),
             txnFields: JSON.stringify(res.txnFields),
             txn: JSON.stringify(res.generatedEtxn.tx),
             currencyObj: JSON.stringify(this.fg.controls.currencyObj.value),

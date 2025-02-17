@@ -1,12 +1,22 @@
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, NavController } from '@ionic/angular';
 import { isEmpty, isNumber } from 'lodash';
 import * as dayjs from 'dayjs';
-import { combineLatest, forkJoin, from, iif, Observable, of, throwError } from 'rxjs';
-import { catchError, concatMap, finalize, map, switchMap } from 'rxjs/operators';
+import { combineLatest, forkJoin, from, iif, Observable, of, Subject, throwError } from 'rxjs';
+import {
+  catchError,
+  concatMap,
+  finalize,
+  map,
+  shareReplay,
+  startWith,
+  switchMap,
+  takeUntil,
+  withLatestFrom,
+} from 'rxjs/operators';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { SplitExpenseService } from 'src/app/core/services/split-expense.service';
@@ -55,12 +65,36 @@ import { PlatformFile } from 'src/app/core/models/platform/platform-file.model';
   templateUrl: './split-expense.page.html',
   styleUrls: ['./split-expense.page.scss'],
 })
-export class SplitExpensePage {
+export class SplitExpensePage implements OnDestroy {
   splitExpensesFormArray = new FormArray([]);
 
   fg: FormGroup;
 
   splitType: string;
+
+  splitConfig: {
+    category: {
+      is_visible: boolean;
+      value: FormData;
+      is_mandatory: boolean;
+    };
+    project: {
+      is_visible: boolean;
+      value: FormData;
+      is_mandatory: boolean;
+    };
+    costCenter: {
+      is_visible: boolean;
+      value: FormData;
+      is_mandatory: boolean;
+    };
+  };
+
+  destroy$ = new Subject<void>();
+
+  activeCategories$ = this.getActiveCategories().pipe(shareReplay(1));
+
+  filteredCategoriesArray: Observable<{ label: string; value: OrgCategory }[]>[] = [];
 
   txnFields: Partial<ExpenseFieldsObj>;
 
@@ -73,6 +107,8 @@ export class SplitExpensePage {
   remainingAmount: number;
 
   categories$: Observable<OrgCategoryListItem[]>;
+
+  filteredCategories$: Observable<OrgCategoryListItem[]>;
 
   costCenters$: Observable<CostCenters[]>;
 
@@ -143,6 +179,11 @@ export class SplitExpensePage {
     private timezoneService: TimezoneService,
     private expensesService: ExpensesService
   ) {}
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   goBack(): void {
     this.navController.back();
@@ -300,9 +341,10 @@ export class SplitExpensePage {
         const offset = orgUserSettings.locale.offset;
 
         const isDifferentProject =
-          this.splitType === 'projects' && splitExpenseValue.project?.project_id !== this.transaction.project_id;
+          this.splitConfig.project.is_visible && splitExpenseValue.project?.project_id !== this.transaction.project_id;
         const isDifferentCostCenter =
-          this.splitType === 'cost centers' && splitExpenseValue.cost_center?.id !== this.transaction.cost_center_id;
+          this.splitConfig.costCenter.is_visible &&
+          splitExpenseValue.cost_center?.id !== this.transaction.cost_center_id;
 
         //If selected project/cost center is not same as the original expense, then remove dependent fields from source expense.
         if (isDifferentProject || isDifferentCostCenter) {
@@ -845,20 +887,11 @@ export class SplitExpensePage {
     });
   }
 
-  getSplitExpenseHeader(): void {
-    if (this.splitType === 'cost centers') {
-      this.splitExpenseHeader = this.txnFields.cost_center_id.field_name;
-    } else if (this.splitType === 'projects') {
-      this.splitExpenseHeader = this.txnFields.project_id.field_name;
-    } else {
-      this.splitExpenseHeader = 'category';
-    }
-  }
-
   ionViewWillEnter(): void {
     const currencyObj = JSON.parse(this.activatedRoute.snapshot.params.currencyObj as string) as CurrencyObj;
     const orgSettings$ = this.orgSettingsService.get();
-    this.splitType = this.activatedRoute.snapshot.params.splitType as string;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    this.splitConfig = JSON.parse(this.activatedRoute.snapshot.params.splitConfig as string);
     this.txnFields = JSON.parse(this.activatedRoute.snapshot.params.txnFields as string) as Partial<ExpenseFieldsObj>;
     this.fileUrls = JSON.parse(this.activatedRoute.snapshot.params.fileObjs as string) as FileObject[];
     this.selectedCCCTransaction = JSON.parse(
@@ -868,14 +901,10 @@ export class SplitExpensePage {
     this.transaction = JSON.parse(this.activatedRoute.snapshot.params.txn as string) as Transaction;
     this.selectedProject = JSON.parse(this.activatedRoute.snapshot.params.selectedProject as string) as ProjectV2;
     this.expenseFields = JSON.parse(this.activatedRoute.snapshot.params.expenseFields as string) as ExpenseField[];
-
     // Set max and min date for form
     const today = new Date();
     this.minDate = dayjs(new Date('Jan 1, 2001')).format('YYYY-MM-D');
     this.maxDate = dayjs(this.dateService.addDaysToDate(today, 1)).format('YYYY-MM-D');
-
-    // This method is used for setting the header of split expense page
-    this.getSplitExpenseHeader();
 
     this.isProjectCategoryRestrictionsEnabled$ = orgSettings$.pipe(
       map(
@@ -913,10 +942,10 @@ export class SplitExpensePage {
     this.getCategoryList();
 
     let parentFieldId: number;
-    if (this.splitType === 'projects') {
-      parentFieldId = this.txnFields.project_id.id;
-    } else if (this.splitType === 'cost centers') {
-      parentFieldId = this.txnFields.cost_center_id?.id;
+    if (this.splitConfig.project.is_visible || this.splitConfig.costCenter.is_visible) {
+      parentFieldId = this.splitConfig.project.is_visible
+        ? this.txnFields.project_id.id
+        : this.txnFields.cost_center_id?.id;
     }
 
     this.dependentCustomProperties$ = iif(
@@ -928,7 +957,7 @@ export class SplitExpensePage {
       of(null)
     );
 
-    if (this.splitType === 'cost centers') {
+    if (this.splitConfig.costCenter.is_visible) {
       this.costCenters$ = orgSettings$.pipe(
         switchMap((orgSettings) => {
           if (orgSettings.cost_centers.enabled) {
@@ -999,6 +1028,60 @@ export class SplitExpensePage {
     }
   }
 
+  setupFilteredCategories(index: number): void {
+    const splitForm = this.splitExpensesFormArray.at(index);
+    const projectControl = splitForm.get('project');
+
+    if (!projectControl) {
+      return;
+    }
+    this.filteredCategoriesArray[index] = projectControl.valueChanges.pipe(
+      startWith(projectControl.value),
+      withLatestFrom(this.activeCategories$, this.isProjectCategoryRestrictionsEnabled$),
+      switchMap(([project, activeCategories, isProjectCategoryRestrictionsEnabled]) => {
+        if (!project) {
+          return this.getActiveCategories().pipe(
+            map((categories) => categories.map((category) => ({ label: category.displayName, value: category })))
+          );
+        }
+
+        return this.launchDarklyService.getVariation('show_project_mapped_categories_in_split_expense', false).pipe(
+          switchMap((showProjectMappedCategories) => {
+            if ((showProjectMappedCategories || isProjectCategoryRestrictionsEnabled) && project.project_id) {
+              return this.projectsService.getbyId(project.project_id).pipe(
+                map((projectDetails) => {
+                  const allowedCategories = this.projectsService.getAllowedOrgCategoryIds(
+                    projectDetails,
+                    activeCategories,
+                    isProjectCategoryRestrictionsEnabled
+                  );
+                  return allowedCategories;
+                })
+              );
+            }
+            return of(activeCategories);
+          }),
+          map((categories) => categories.map((category) => ({ label: category.displayName, value: category })))
+        );
+      }),
+      shareReplay(1),
+      takeUntil(this.destroy$)
+    );
+
+    this.categories$.pipe(takeUntil(this.destroy$)).subscribe((categories) => {
+      const categoryControl = splitForm.get('category');
+      const currentCategory = categoryControl.value;
+      if (
+        currentCategory &&
+        currentCategory.id &&
+        !categories.some((category) => category.value.id === currentCategory.id)
+      ) {
+        categoryControl.reset();
+      }
+    });
+  }
+
+  // eslint-disable-next-line complexity
   add(amount?: number, currency?: string, percentage?: number, txnDt?: string | Date | dayjs.Dayjs): void {
     if (!txnDt) {
       const dateOfTxn = this.transaction?.txn_dt;
@@ -1013,15 +1096,56 @@ export class SplitExpensePage {
       txn_dt: [txnDt, Validators.compose([Validators.required, this.customDateValidator])],
     });
 
-    if (this.splitType === 'categories') {
-      fg.addControl('category', this.formBuilder.control('', [Validators.required]));
-    } else if (this.splitType === 'projects') {
-      fg.addControl('project', this.formBuilder.control('', [Validators.required]));
-    } else if (this.splitType === 'cost centers') {
-      fg.addControl('cost_center', this.formBuilder.control('', [Validators.required]));
+    const isFirstSplit = this.splitExpensesFormArray.length === 0;
+
+    if (this.splitConfig.category.is_visible) {
+      fg.addControl(
+        'category',
+        this.formBuilder.control(
+          isFirstSplit ? this.splitConfig.category.value : '',
+          this.splitConfig.category.is_mandatory ? [Validators.required] : null
+        )
+      );
+    }
+    if (this.splitConfig.project.is_visible) {
+      fg.addControl(
+        'project',
+        this.formBuilder.control(
+          isFirstSplit ? this.splitConfig.project.value : '',
+          this.splitConfig.project.is_mandatory ? [Validators.required] : null
+        )
+      );
+    }
+    if (this.splitConfig.costCenter.is_visible) {
+      fg.addControl(
+        'cost_center',
+        this.formBuilder.control(
+          isFirstSplit ? this.splitConfig.costCenter.value : '',
+          this.splitConfig.project.is_mandatory ? [Validators.required] : null
+        )
+      );
+    }
+
+    if (this.txnFields.purpose) {
+      fg.addControl(
+        'purpose',
+        this.formBuilder.control('', this.txnFields.purpose.is_mandatory ? [Validators.required] : null)
+      );
     }
 
     this.splitExpensesFormArray.push(fg);
+
+    if (isFirstSplit && this.splitConfig.category.is_visible) {
+      const firstSplitCategory = this.splitExpensesFormArray.at(0)?.get('category')?.value;
+      if (!firstSplitCategory) {
+        this.setupFilteredCategories(0);
+      }
+      this.filteredCategoriesArray[1] = this.categories$;
+    }
+
+    if (this.splitExpensesFormArray.length > 2 && this.splitConfig.category.is_visible) {
+      this.filteredCategoriesArray.push(this.categories$);
+    }
     this.getTotalSplitAmount();
   }
 
