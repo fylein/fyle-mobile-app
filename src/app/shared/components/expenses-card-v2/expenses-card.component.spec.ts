@@ -676,9 +676,9 @@ describe('ExpensesCardComponent', () => {
       });
     }));
 
-    it('should show size limit exceeded popover if the file size is more than 5MB', fakeAsync(() => {
+    it('should show size limit exceeded popover if the file size is more than 8MB', fakeAsync(() => {
       const mockFile = new File(['file contents'], 'test.png', { type: 'image/png' });
-      Object.defineProperty(mockFile, 'size', { value: 5000001 });
+      Object.defineProperty(mockFile, 'size', { value: 8388609 });
       const mockNativeElement = {
         files: [mockFile],
       };
@@ -693,14 +693,14 @@ describe('ExpensesCardComponent', () => {
   it('showSizeLimitExceededPopover', fakeAsync(() => {
     const popOverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present']);
     popoverController.create.and.resolveTo(popOverSpy);
-    component.showSizeLimitExceededPopover();
+    component.showSizeLimitExceededPopover(8388609);
 
     tick(500);
     expect(popoverController.create).toHaveBeenCalledOnceWith({
       component: PopupAlertComponent,
       componentProps: {
         title: 'Size limit exceeded',
-        message: 'The uploaded file is greater than 5MB in size. Please reduce the file size and try again.',
+        message: 'The uploaded file is greater than 8MB in size. Please reduce the file size and try again.',
         primaryCta: {
           text: 'OK',
         },
