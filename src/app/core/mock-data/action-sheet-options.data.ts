@@ -2,15 +2,7 @@ import deepFreeze from 'deep-freeze-strict';
 
 export const actionSheetOptionsData = deepFreeze([
   {
-    text: 'Split Expense By Category',
-    handler: () => {},
-  },
-  {
-    text: 'Split Expense By Project',
-    handler: () => {},
-  },
-  {
-    text: 'Split Expense By Cost Center',
+    text: 'Split Expense',
     handler: () => {},
   },
   {

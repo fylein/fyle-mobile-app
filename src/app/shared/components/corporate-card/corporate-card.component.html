@@ -31,7 +31,7 @@
   <div class="corporate-card__feed">
     <div class="corporate-card__status">
       <ng-container *ngIf="isCardConnectedToRTF">
-        <span class="corporate-card__feed-label">Transactions Feed</span>
+        <span class="corporate-card__feed-label">Transactions feed</span>
         <div class="corporate-card__feed-value corporate-card__feed-live">
           <div class="corporate-card__feed-live-dot"></div>
           <span data-testid="feed-info">Live</span>
@@ -44,7 +44,7 @@
           card.data_feed_source === dataFeedSourceTypes.AMEX_FEED
         "
       >
-        <span class="corporate-card__feed-label">Last Synced</span>
+        <span class="corporate-card__feed-label">Last synced</span>
         <span class="corporate-card__feed-value" data-testid="feed-info">{{
           card.last_synced_at | date : 'MMM dd, YYYY'
         }}</span>

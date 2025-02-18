@@ -633,7 +633,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
       txn_dt: this.genericFieldsFormValues.dateOfSpend,
       receipt_ids: this.selectedReceiptsId,
       custom_properties: [
-        ...this.customInputsFormValues?.fields,
+        ...(Array.isArray(this.customInputsFormValues?.fields) ? this.customInputsFormValues.fields : []),
         ...projectDependantFieldValues,
         ...costCenterDependentFieldValues,
       ],

@@ -117,6 +117,7 @@ export class ManageCorporateCardsPage {
           .map((card) => card.virtual_card_id);
         const virtualCardsParams = {
           virtualCardIds,
+          includeCurrentAmount: true,
         };
         return this.virtualCardsService.getCardDetailsMap(virtualCardsParams);
       })
