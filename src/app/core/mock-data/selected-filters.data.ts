@@ -150,7 +150,7 @@ export const selectedFilters7: SelectedFilters<string | string[]>[] = deepFreeze
     value: ['Mileage'],
   },
   {
-    name: 'Cards',
+    name: 'Cards ending in...',
     value: ['1234', '2389'],
   },
   { name: 'Sort by', value: 'dateNewToOld' },
@@ -178,7 +178,7 @@ export const selectedFilters8: SelectedFilters<string | string[]>[] = deepFreeze
     value: ['Mileage'],
   },
   {
-    name: 'Cards',
+    name: 'Cards ending in...',
     value: ['1234', '2389'],
   },
   { name: 'Sort by', value: 'dateNewToOld' },
@@ -214,7 +214,7 @@ export const selectedFilters9: SelectedFilters<string | string[]>[] = deepFreeze
     value: ['PerDiem', 'Mileage'],
   },
   {
-    name: 'Cards',
+    name: 'Cards ending in...',
     value: ['1234', '5678'],
   },
   {

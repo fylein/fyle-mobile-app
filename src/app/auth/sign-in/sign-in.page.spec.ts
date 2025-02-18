@@ -440,9 +440,7 @@ describe('SignInPage', () => {
 
       expect(routerAuthService.basicSignin).toHaveBeenCalledOnceWith('email', 'password');
       expect(authService.refreshEou).toHaveBeenCalledTimes(1);
-      expect(trackingService.onSignin).toHaveBeenCalledOnceWith(apiEouRes.us.email, {
-        label: 'Email',
-      });
+      expect(trackingService.onSignin).toHaveBeenCalledOnceWith(apiEouRes.us.id);
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'switch_org', { choose: true }]);
     });
 
@@ -493,9 +491,7 @@ describe('SignInPage', () => {
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
       expect(routerAuthService.googleSignin).toHaveBeenCalledOnceWith(authResData2.accessToken);
       expect(authService.refreshEou).toHaveBeenCalledTimes(1);
-      expect(trackingService.onSignin).toHaveBeenCalledOnceWith(apiEouRes.us.email, {
-        label: 'Email',
-      });
+      expect(trackingService.onSignin).toHaveBeenCalledOnceWith(apiEouRes.us.id);
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'switch_org', { choose: true }]);
       expect(component.trackLoginInfo).toHaveBeenCalledTimes(1);
     });
