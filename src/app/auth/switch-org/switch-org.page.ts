@@ -175,6 +175,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
         id: eou.ou.id,
         orgUserId: eou.ou.id,
         orgId: eou.ou.org_id,
+        userId: eou.ou.user_id,
       });
     }
   }

@@ -158,6 +158,7 @@ export class SidemenuComponent implements OnInit {
             id: eou.ou.id,
             orgUserId: eou.ou.id,
             orgId: eou.ou.org_id,
+            userId: eou.ou.user_id,
           });
 
           if (isConnected) {
