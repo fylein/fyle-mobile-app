@@ -82,7 +82,7 @@ describe('VerifyPage', () => {
       authService.refreshEou.and.returnValue(of(apiEouRes));
       fixture.detectChanges();
       expect(trackingService.emailVerified).toHaveBeenCalledTimes(1);
-      expect(trackingService.onSignin).toHaveBeenCalledOnceWith('ajain@fyle.in');
+      expect(trackingService.onSignin).toHaveBeenCalledOnceWith(apiEouRes.us.id);
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'switch_org', { invite_link: true }]);
     });
   });

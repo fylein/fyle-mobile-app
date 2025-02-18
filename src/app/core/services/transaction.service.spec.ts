@@ -2,17 +2,14 @@ import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import {
-  etxncData,
   expenseData2,
   expenseData1,
-  etxnData,
   mileageExpenseWithDistance,
   mileageExpenseWithoutDistance,
   perDiemExpenseSingleNumDays,
   perDiemExpenseMultipleNumDays,
   apiExpenseRes,
   expenseList2,
-  expenseData3,
   expenseList3,
   expenseList4,
 } from '../mock-data/expense.data';
@@ -65,6 +62,7 @@ import { cloneDeep } from 'lodash';
 import { expensesCacheBuster$ } from '../cache-buster/expense-cache-buster';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { expenseData } from '../mock-data/platform/v1/expense.data';
+import { TrackingService } from './tracking.service';
 
 describe('TransactionService', () => {
   let transactionService: TransactionService;
@@ -85,6 +83,7 @@ describe('TransactionService', () => {
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let accountsService: jasmine.SpyObj<AccountsService>;
   let expensesService: jasmine.SpyObj<ExpensesService>;
+  let trackingService: jasmine.SpyObj<TrackingService>;
 
   beforeEach(() => {
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['isOnline']);
@@ -113,6 +112,7 @@ describe('TransactionService', () => {
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const accountsServiceSpy = jasmine.createSpyObj('AccountsService', ['getEMyAccounts']);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['transformTo', 'post', 'createFromFile']);
+    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['patchExpensesError']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -178,6 +178,10 @@ describe('TransactionService', () => {
           useValue: expensesServiceSpy,
         },
         {
+          provide: TrackingService,
+          useValue: trackingServiceSpy,
+        },
+        {
           provide: PAGINATION_SIZE,
           useValue: 2,
         },
@@ -202,6 +206,7 @@ describe('TransactionService', () => {
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     accountsService = TestBed.inject(AccountsService) as jasmine.SpyObj<AccountsService>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
+    trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
   });
 
   it('should be created', () => {

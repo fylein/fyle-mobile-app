@@ -78,7 +78,6 @@ import { IndividualExpensePolicyState } from 'src/app/core/models/platform/platf
 import { PublicPolicyExpense } from 'src/app/core/models/public-policy-expense.model';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { TaxGroup } from 'src/app/core/models/tax-group.model';
-import { CorporateCardExpenseProperties } from 'src/app/core/models/tracking-properties.model';
 import { TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
 import { UndoMerge } from 'src/app/core/models/undo-merge.model';
 import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transaction.model';
@@ -149,6 +148,7 @@ import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense
 import { RefinerService } from 'src/app/core/services/refiner.service';
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 import { CCExpenseMerchantInfoModalComponent } from 'src/app/shared/components/cc-expense-merchant-info-modal/cc-expense-merchant-info-modal.component';
+import { CorporateCardExpenseProperties } from 'src/app/core/models/corporate-card-expense-properties.model';
 
 // eslint-disable-next-line
 type FormValue = {
@@ -4712,7 +4712,7 @@ export class AddEditExpensePage implements OnInit {
         };
         this.attachReceipts(fileData);
       } else {
-        this.showSizeLimitExceededPopover();
+        this.showSizeLimitExceededPopover(MAX_FILE_SIZE);
       }
     }
   }
@@ -5236,12 +5236,14 @@ export class AddEditExpensePage implements OnInit {
     this.selectedProject$.complete();
   }
 
-  async showSizeLimitExceededPopover(): Promise<void> {
+  async showSizeLimitExceededPopover(maxFileSize: number): Promise<void> {
     const sizeLimitExceededPopover = await this.popoverController.create({
       component: PopupAlertComponent,
       componentProps: {
         title: 'Size limit exceeded',
-        message: 'The uploaded file is greater than 5MB in size. Please reduce the file size and try again.',
+        message: `The uploaded file is greater than ${(maxFileSize / (1024 * 1024)).toFixed(
+          0
+        )}MB in size. Please reduce the file size and try again.`,
         primaryCta: {
           text: 'OK',
         },

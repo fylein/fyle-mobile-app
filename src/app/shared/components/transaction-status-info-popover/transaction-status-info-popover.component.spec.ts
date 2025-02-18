@@ -51,7 +51,7 @@ describe('TransactionStatusInfoComponent', () => {
         fixture.detectChanges();
 
         const title = getElementBySelector(fixture, '[data-testid="title"');
-        expect(title.textContent).toEqual('Transaction Status: Pending');
+        expect(title.textContent).toEqual('Transaction status: Pending');
       });
 
       it('should display the correct title when transaction status is POSTED', () => {
@@ -60,7 +60,7 @@ describe('TransactionStatusInfoComponent', () => {
         fixture.detectChanges();
 
         const title = getElementBySelector(fixture, '[data-testid="title"');
-        expect(title.textContent).toEqual('Transaction Status: Posted');
+        expect(title.textContent).toEqual('Transaction status: Posted');
       });
     });
 

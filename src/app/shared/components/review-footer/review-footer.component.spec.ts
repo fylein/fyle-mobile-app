@@ -77,7 +77,7 @@ describe('ReviewFooterComponent', () => {
     fixture.detectChanges();
     const saveAndPrevButton2 = getElementBySelector(fixture, '.fy-footer-cta--tertiary-secondary') as HTMLElement;
     expect(saveAndPrevButton2).not.toBeNull();
-    expect(getTextContent(saveAndPrevButton2)).toContain('Save and Previous');
+    expect(getTextContent(saveAndPrevButton2)).toContain('Save and previous');
   });
 
   it('should render Save button when reviewList is empty or activeIndex is the last item', () => {

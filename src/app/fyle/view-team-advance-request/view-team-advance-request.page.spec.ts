@@ -210,7 +210,7 @@ describe('ViewTeamAdvanceRequestPage', () => {
       });
 
       component.showAdvanceActions$.subscribe((data) => {
-        expect(data).toEqual(false);
+        expect(data).toBeFalse();
       });
     }));
 
@@ -255,7 +255,7 @@ describe('ViewTeamAdvanceRequestPage', () => {
       const eouRes = cloneDeep(apiEouRes);
       eouRes.ou.org_id = 'or2390Fjsd';
       authService.getEou.and.resolveTo(eouRes);
-      let customField: CustomField[] = JSON.parse(extendedAdvReqDraft.areq_custom_field_values);
+      const customField: CustomField[] = JSON.parse(extendedAdvReqDraft.areq_custom_field_values);
       component.ionViewWillEnter();
       tick(100);
 
@@ -312,7 +312,7 @@ describe('ViewTeamAdvanceRequestPage', () => {
 
     it('getApproverEmails(): should return undefined if approvals are undefined', () => {
       const approvalEmails = component.getApproverEmails(undefined);
-      expect(approvalEmails).toEqual(undefined);
+      expect(approvalEmails).toBeUndefined();
     });
   });
 
@@ -351,9 +351,9 @@ describe('ViewTeamAdvanceRequestPage', () => {
     expect(component.showApproveAdvanceSummaryPopover).toHaveBeenCalledTimes(1);
     expect(component.showSendBackAdvanceSummaryPopover).toHaveBeenCalledTimes(1);
     expect(component.showRejectAdvanceSummaryPopup).toHaveBeenCalledTimes(1);
-    expect(component.actionSheetButtons[0].text).toEqual('Approve Advance');
-    expect(component.actionSheetButtons[1].text).toEqual('Send Back Advance');
-    expect(component.actionSheetButtons[2].text).toEqual('Reject Advance');
+    expect(component.actionSheetButtons[0].text).toEqual('Approve advance');
+    expect(component.actionSheetButtons[1].text).toEqual('Send back advance');
+    expect(component.actionSheetButtons[2].text).toEqual('Reject advance');
   }));
 
   it('openActionSheet(): should call actionSheetController.create with correct params', fakeAsync(() => {

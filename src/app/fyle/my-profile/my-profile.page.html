@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <app-fy-menu-icon class="my-profile__menubutton" auto-hide="false"></app-fy-menu-icon>
     </ion-buttons>
-    <ion-title mode="md" class="page-title">My Settings</ion-title>
+    <ion-title mode="md" class="page-title">My settings</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -61,14 +61,14 @@
 
           <!-- TODO - Re-enable again at the time of release -->
           <ng-container *ngIf="isMileageEnabled && isCommuteDeductionEnabled">
-            <div class="my-profile__section-header">Commute Details</div>
+            <div class="my-profile__section-header">Commute details</div>
             <div
               *ngIf="!commuteDetails?.home_location"
               class="my-profile__card"
               (click)="openCommuteDetailsModal()"
               matRipple
             >
-              <div class="my-profile__card__title">Add Location</div>
+              <div class="my-profile__card__title">Add location</div>
               <ion-icon
                 class="my-profile__navigate-icon"
                 src="../../../assets/svg/arrow-right.svg"
@@ -113,9 +113,9 @@
                     src="../../../assets/svg/edit.svg"
                     slot="icon-only"
                   ></ion-icon>
-                  <span class="my-profile__card__edit-commute-button__text">Edit Location</span>
+                  <span class="my-profile__card__edit-commute-button__text">Edit location</span>
                 </div>
-                <div class="my-profile__card__emphasized-content">Commute Distance:</div>
+                <div class="my-profile__card__emphasized-content">Commute distance:</div>
                 <div class="my-profile__card__commute-distance-row">
                   <ion-icon
                     class="my-profile__icon"
@@ -144,7 +144,7 @@
 
           <div class="my-profile__section-header">Notifications</div>
           <div class="my-profile__card" [routerLink]="[ '/', 'enterprise', 'notifications' ]" matRipple>
-            <div class="my-profile__card__title">Manage Notifications</div>
+            <div class="my-profile__card__title">Manage notifications</div>
             <ion-icon
               class="my-profile__navigate-icon"
               src="../../../assets/svg/arrow-right.svg"
@@ -155,7 +155,7 @@
           <ng-container *ngIf="isCCCEnabled && (isVisaRTFEnabled || isMastercardRTFEnabled || isVirtualCardsEnabled)">
             <div class="my-profile__section-header">My cards</div>
             <div class="my-profile__card" [routerLink]="[ '/', 'enterprise', 'manage_corporate_cards' ]" matRipple>
-              <div class="my-profile__card__title">Manage Cards</div>
+              <div class="my-profile__card__title">Manage cards</div>
               <ion-icon
                 class="my-profile__navigate-icon"
                 src="../../../assets/svg/arrow-right.svg"
@@ -193,7 +193,7 @@
           src="../../../assets/svg/power.svg"
           slot="icon-only"
         ></ion-icon>
-        <div>Sign Out</div>
+        <div>Sign out</div>
       </div>
     </div>
   </div>
