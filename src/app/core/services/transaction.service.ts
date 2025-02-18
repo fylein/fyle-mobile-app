@@ -215,7 +215,7 @@ export class TransactionService {
                    * as the expense is already created with the receipt and we don't want the caller
                    * to recall this function due to this patch expense failure
                    */
-                  catchError((err) => {
+                  catchError((err: Error) => {
                     this.trackingService.patchExpensesError({ label: err });
                     return of(this.transformExpense(result.data[0]).tx);
                   })
