@@ -62,7 +62,8 @@
               {{ projectFieldName | titlecase }}: {{ expense.project?.name || '-' }}
             </div>
             <div *ngIf="isCCCTransaction && cardNumber">
-              Card: {{ cardNumber | maskNumber }} <span *ngIf="cardNickname">{{'(' + cardNickname + ')'}}</span>
+              Card ending in... {{ cardNumber | maskNumber }}
+              <span *ngIf="cardNickname">{{'(' + cardNickname + ')'}}</span>
             </div>
           </div>
 
@@ -95,7 +96,8 @@
               {{ projectFieldName | titlecase }}: {{ expense.project?.name || '-' }}
             </div>
             <div *ngIf="isCCCTransaction && cardNumber">
-              Card: {{ cardNumber | maskNumber }} <span *ngIf="cardNickname">{{'(' + cardNickname + ')'}}</span>
+              Card ending in... {{ cardNumber | maskNumber }}
+              <span *ngIf="cardNickname">{{'(' + cardNickname + ')'}}</span>
             </div>
           </div>
 
@@ -191,7 +193,7 @@
           </ion-col>
           <ion-col class="view-expense--content-container">
             <div class="view-expense--label">Employee</div>
-            <div class="view-expense--value">{{ expense.user.full_name }}</div>
+            <div class="view-expense--value smartlook-hide">{{ expense.user.full_name }}</div>
           </ion-col>
         </ion-row>
       </ion-grid>
