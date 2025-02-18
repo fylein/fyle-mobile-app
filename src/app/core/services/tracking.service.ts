@@ -49,14 +49,6 @@ export class TrackingService {
 
   constructor(private authService: AuthService, private deviceService: DeviceService) {}
 
-  private isDemoAccount(eou: ExtendedOrgUser): boolean {
-    const email = eou.us.email.toLowerCase();
-    const orgName = eou.ou.org_name.toLowerCase();
-    const keywords = ['demo', 'test', 'fyle'];
-
-    return keywords.some((keyword) => email.includes(keyword) || orgName.includes(keyword));
-  }
-
   setRoot(rootUrl: string): void {
     this.ROOT_ENDPOINT = rootUrl;
     this.initializeMixpanel();
@@ -372,6 +364,11 @@ export class TrackingService {
   // sync error event
   syncError(properties: { label: Error }): void {
     this.eventTrack('Sync Error', properties);
+  }
+
+  // capture receipt flow, patch expenses error
+  patchExpensesError(properties: { label: Error }): void {
+    this.eventTrack('Patch expense error - capture receipt flow', properties);
   }
 
   checkPolicyError(properties: { label: Error }): void {
@@ -867,5 +864,13 @@ export class TrackingService {
 
   clickedOnDashboardBanner(): void {
     this.eventTrack('Clicked On Dashboard Banner');
+  }
+
+  private isDemoAccount(eou: ExtendedOrgUser): boolean {
+    const email = eou.us.email.toLowerCase();
+    const orgName = eou.ou.org_name.toLowerCase();
+    const keywords = ['demo', 'test', 'fyle'];
+
+    return keywords.some((keyword) => email.includes(keyword) || orgName.includes(keyword));
   }
 }
