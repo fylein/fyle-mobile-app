@@ -91,14 +91,6 @@
               {{ expense.foreign_amount | humanizeCurrency: expense.foreign_currency }} at {{ expense.amount /
               expense.foreign_amount | currency: expense.currency: 'symbol-narrow' }}
             </div>
-
-            <div *ngIf="isProjectShown" class="view-expense--card-container__project">
-              {{ projectFieldName | titlecase }}: {{ expense.project?.name || '-' }}
-            </div>
-            <div *ngIf="isCCCTransaction && cardNumber">
-              Card ending in... {{ cardNumber | maskNumber }}
-              <span *ngIf="cardNickname">{{'(' + cardNickname + ')'}}</span>
-            </div>
           </div>
 
           <div class="ion-text-right view-expense--card-container__block">
