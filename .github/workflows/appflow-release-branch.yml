@@ -40,6 +40,7 @@ jobs:
           certificate: Fyle signing
           environment: staging
           native-config: prod
+          filename: ios.ipa
 
       - name: Move ios.ipa to current directory
         run: mv ~/ios.ipa .
