@@ -43,7 +43,7 @@
         </div>
       </ion-col>
       <ion-col size="7">
-        <div class="view-info--body-container__value">
+        <div class="view-info--body-container__value smartlook-hide">
           {{ item.value }}
         </div>
       </ion-col>
@@ -67,7 +67,7 @@
         </div>
       </ion-col>
       <ion-col size="7">
-        <div class="view-info--body-container__value">
+        <div class="view-info--body-container__value smartlook-hide">
           {{ item.value | currency : reportCurrency : 'symbol-narrow' }}
         </div>
       </ion-col>
@@ -86,7 +86,7 @@
           </div>
         </ion-col>
         <ion-col size="7">
-          <div class="view-info--body-container__value">
+          <div class="view-info--body-container__value smartlook-hide">
             <ng-container *ngIf="item.currency !== reportCurrency; else origAmountOnly">
               {{ item.origAmount | currency : item.currency : 'code' }} =
               {{ item.amount | currency : reportCurrency : 'code' }}
@@ -109,7 +109,7 @@
           </div>
         </ion-col>
         <ion-col size="7">
-          <div class="view-info--body-container__value">
+          <div class="view-info--body-container__value smartlook-hide">
             {{ item.value }}
           </div>
         </ion-col>
