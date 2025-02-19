@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Component, EventEmitter, forwardRef, Input, Output, TemplateRef } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { noop } from 'rxjs';
@@ -101,7 +103,7 @@ export class FySelectComponent implements ControlValueAccessor {
     }
   }
 
-  async openModal() {
+  async openModal(): Promise<void> {
     let cssClass: string;
 
     if (this.label === 'Payment mode') {
@@ -167,11 +169,11 @@ export class FySelectComponent implements ControlValueAccessor {
     }
   }
 
-  registerOnChange(fn: any) {
+  registerOnChange(fn: any): void {
     this.onChangeCallback = fn;
   }
 
-  registerOnTouched(fn: any) {
+  registerOnTouched(fn: any): void {
     this.onTouchedCallback = fn;
   }
 }
