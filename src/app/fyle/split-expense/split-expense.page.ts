@@ -70,6 +70,8 @@ export class SplitExpensePage implements OnDestroy {
 
   filteredCategoriesArray: Observable<{ label: string; value: OrgCategory }[]>[] = [];
 
+  costCenterDisabledStates: boolean[] = [];
+
   txnFields: Partial<ExpenseFieldsObj>;
 
   amount: number;
@@ -1111,6 +1113,18 @@ export class SplitExpensePage implements OnDestroy {
     return of(categories.map((category) => ({ label: category.displayName, value: category })));
   }
 
+  onCategoryChange(index: number): void {
+    const splitForm = this.splitExpensesFormArray.at(index);
+    const categoryControl = splitForm.get('category').value as OrgCategory;
+
+    if (!categoryControl) {
+      return;
+    }
+
+    const isCostCenterAllowed = this.txnFields.cost_center_id?.org_category_ids?.includes(categoryControl.id);
+    this.costCenterDisabledStates[index] = !isCostCenterAllowed;
+  }
+
   // eslint-disable-next-line complexity
   add(amount?: number, currency?: string, percentage?: number, txnDt?: string | Date | dayjs.Dayjs): void {
     if (!txnDt) {
@@ -1169,14 +1183,24 @@ export class SplitExpensePage implements OnDestroy {
       const firstSplitCategory = this.splitExpensesFormArray.at(0)?.get('category')?.value as OrgCategory | null;
       if (!firstSplitCategory) {
         this.setupFilteredCategories(0);
+        if (this.splitConfig.costCenter.is_visible) {
+          this.costCenterDisabledStates[0] = false;
+        }
       } else {
         this.filteredCategoriesArray[0] = this.categories$;
+        if (this.splitConfig.costCenter.is_visible) {
+          this.onCategoryChange(0);
+        }
       }
       this.filteredCategoriesArray[1] = this.categories$;
+      this.costCenterDisabledStates[1] = false;
     }
 
     if (this.splitExpensesFormArray.length > 2 && this.splitConfig.category.is_visible) {
       this.filteredCategoriesArray.push(this.categories$);
+      if (this.splitConfig.costCenter.is_visible) {
+        this.costCenterDisabledStates.push(false);
+      }
     }
     this.getTotalSplitAmount();
   }
@@ -1184,6 +1208,7 @@ export class SplitExpensePage implements OnDestroy {
   remove(index: number): void {
     this.splitExpensesFormArray.removeAt(index);
     this.filteredCategoriesArray.splice(index, 1);
+    this.costCenterDisabledStates.splice(index, 1);
 
     if (this.splitExpensesFormArray.length === 2) {
       const firstSplitExpenseForm = this.splitExpensesFormArray.at(0);

@@ -164,6 +164,7 @@
                 [touchedInParent]="splitExpenseForm.controls.category.touched"
                 [validInParent]="splitExpenseForm.controls.category.valid"
                 [disabled]="categories.length === 0"
+                (valueChange)="splitConfig.costCenter.is_visible ? onCategoryChange(i) : null"
               >
               </app-fy-select>
             </div>
@@ -187,6 +188,7 @@
                 [cacheName]="'splitExpenseCostCenterCache'"
                 [touchedInParent]="splitExpenseForm.controls.cost_center.touched"
                 [validInParent]="splitExpenseForm.controls.cost_center.valid"
+                [disabled]="costCenterDisabledStates[i]"
               >
               </app-fy-select>
             </div>
