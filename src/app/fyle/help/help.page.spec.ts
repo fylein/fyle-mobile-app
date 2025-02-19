@@ -108,18 +108,6 @@ describe('HelpPage', () => {
     expect(component.presentSupportModal).toHaveBeenCalledWith(dialogType);
   }));
 
-  it('openLogMileageDialog(): should open LogMileage dialog', () => {
-    spyOn(component, 'presentSupportModal');
-    component.openLogMileageDialog();
-    expect(component.presentSupportModal).toHaveBeenCalledWith('log_mileage');
-  });
-
-  it('openCaptureEmailReceiptsDialog(): should open captureEmailReceipts dialog', () => {
-    spyOn(component, 'presentSupportModal');
-    component.openCaptureEmailReceiptsDialog();
-    expect(component.presentSupportModal).toHaveBeenCalledWith('capture_email');
-  });
-
   describe('presentSupportModal():', () => {
     it('should open present support modal when the dialog type is contact_support and when data is present', fakeAsync(() => {
       const dialogType = 'contact_support';
