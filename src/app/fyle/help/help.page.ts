@@ -8,6 +8,7 @@ import { from } from 'rxjs';
 import { TrackingService } from '../../core/services/tracking.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { BrowserHandlerService } from 'src/app/core/services/browser-handler.service';
+import { OrgAdmin } from 'src/app/core/models/org-admin.model';
 
 @Component({
   selector: 'app-help',
@@ -15,7 +16,7 @@ import { BrowserHandlerService } from 'src/app/core/services/browser-handler.ser
   styleUrls: ['./help.page.scss'],
 })
 export class HelpPage implements OnInit {
-  orgAdmins: unknown;
+  orgAdmins: OrgAdmin[] = [];
 
   contactSupportLoading = false;
 
