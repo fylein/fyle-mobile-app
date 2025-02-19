@@ -1,4 +1,4 @@
-export interface splitconfig {
+export interface SplitConfig {
   category: {
     is_visible: boolean;
     value: FormData;

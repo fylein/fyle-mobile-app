@@ -59,7 +59,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
 import { PlatformFile } from 'src/app/core/models/platform/platform-file.model';
-import { splitconfig } from 'src/app/core/models/split-config.model';
+import { SplitConfig } from 'src/app/core/models/split-config.model';
 
 @Component({
   selector: 'app-split-expense',
@@ -73,7 +73,7 @@ export class SplitExpensePage implements OnDestroy {
 
   splitType: string;
 
-  splitConfig: splitconfig;
+  splitConfig: SplitConfig;
 
   destroy$ = new Subject<void>();
 
