@@ -3439,7 +3439,7 @@ export class AddEditExpensePage implements OnInit {
 
   getTxnDate(): Date {
     const formValue = this.getFormValues();
-    return formValue?.dateOfSpend && this.dateService.getUTCDate(new Date(formValue.dateOfSpend));
+    return !!formValue?.dateOfSpend ? this.dateService.getUTCDate(new Date(formValue.dateOfSpend)) : null;
   }
 
   getCurrency(): string {
