@@ -56,16 +56,6 @@ $background-color: #fff;
     justify-content: space-between;
     align-items: center;
     padding-bottom: 24px;
-
-    & > .split-expense--internal-block {
-      flex-grow: 1;
-      width: 100%;
-    }
-
-    & > .split-expense--internal-block:not(:only-child) {
-      width: 48%;
-      flex-grow: 0;
-    }
   }
 
   &--internal-block {
@@ -73,8 +63,17 @@ $background-color: #fff;
     background: $pure-white;
     border: 0;
     line-height: 1;
-    width: 48%;
     height: 80px;
+
+    &:only-child {
+      width: 100%;
+      flex-grow: 1;
+    }
+
+    &:not(:only-child) {
+      width: 48%;
+      flex-grow: 0;
+    }
   }
 
   &--error {
