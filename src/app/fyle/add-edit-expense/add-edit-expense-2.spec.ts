@@ -573,6 +573,25 @@ export function TestCases2(getTestBed) {
           done();
         });
       });
+
+      it('should redirect back if the expense is not returned from the API', (done) => {
+        expensesService.getExpenseById.and.returnValue(throwError(() => new Error('expense not found')));
+        spyOn(component, 'goBack');
+
+        component.getEditExpenseObservable().subscribe({
+          next: () => fail('Expected an error, but got a successful response'),
+          error: () => {}, // No action needed, as we expect an error
+          complete: () => {
+            expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+            expect(loaderService.showLoader).toHaveBeenCalledOnceWith(
+              'This expense no longer exists. Redirecting to expenses list',
+              1000
+            );
+            expect(component.goBack).toHaveBeenCalledTimes(1);
+            done();
+          },
+        });
+      });
     });
 
     it('goToPrev(): should go to the previous txn', () => {
