@@ -1066,6 +1066,28 @@ export class SplitExpensePage {
     this.getTotalSplitAmount();
   }
 
+  handleNavigationAfterReview(action: string, expense?: PlatformExpense): void {
+    if (action === 'close') {
+      this.router.navigate([
+        '/',
+        'enterprise',
+        this.reportId ? 'my_view_report' : 'my_expenses',
+        ...(this.reportId ? [{ id: this.reportId }] : []),
+      ]);
+    } else if (action === 'navigate' && expense) {
+      const routeMap: Record<string, string> = {
+        mileage: 'add_edit_mileage',
+        'per diem': 'add_edit_per_diem',
+        default: 'add_edit_expense',
+      };
+
+      const category = expense?.category?.system_category.toLowerCase();
+      const route = routeMap[category] || routeMap.default;
+
+      this.router.navigate(['/', 'enterprise', route, { id: expense.id, persist_filters: true }]);
+    }
+  }
+
   async openReviewSplitExpenseModal(expense: Transaction[]): Promise<void> {
     const reviewModal = await this.modalController.create({
       component: ReviewSplitExpenseComponent,
@@ -1085,24 +1107,7 @@ export class SplitExpensePage {
       await reviewModal.onWillDismiss();
 
     if (data) {
-      if (data.action === 'close') {
-        if (this.reportId) {
-          this.router.navigate(['/', 'enterprise', 'my_view_report', { id: this.reportId }]);
-        } else {
-          this.router.navigate(['/', 'enterprise', 'my_expenses']);
-        }
-      } else if (data.action === 'navigate') {
-        const expense = data.expense;
-        const category = expense?.category?.name?.toLowerCase();
-
-        if (category === 'mileage') {
-          this.router.navigate(['/', 'enterprise', 'add_edit_mileage', { id: expense.id, persist_filters: true }]);
-        } else if (category === 'per diem') {
-          this.router.navigate(['/', 'enterprise', 'add_edit_per_diem', { id: expense.id, persist_filters: true }]);
-        } else {
-          this.router.navigate(['/', 'enterprise', 'add_edit_expense', { id: expense.id, persist_filters: true }]);
-        }
-      }
+      this.handleNavigationAfterReview(data.action, data.expense);
     }
   }
 
