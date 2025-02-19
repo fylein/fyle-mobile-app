@@ -53,14 +53,6 @@ export class HelpPage implements OnInit {
       });
   }
 
-  openLogMileageDialog() {
-    this.presentSupportModal('log_mileage');
-  }
-
-  openCaptureEmailReceiptsDialog() {
-    this.presentSupportModal('capture_email');
-  }
-
   async presentSupportModal(dialogType) {
     this.trackingService.viewHelpCard();
     const modal = await this.modalController.create({
