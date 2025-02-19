@@ -49,6 +49,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
 import { PlatformFile } from 'src/app/core/models/platform/platform-file.model';
+import { ReviewSplitExpenseComponent } from 'src/app/shared/components/review-split-expense/review-split-expense.component';
 
 @Component({
   selector: 'app-split-expense',
@@ -567,11 +568,6 @@ export class SplitExpensePage {
   showSuccessToast(): void {
     this.saveSplitExpenseLoading = false;
     const toastMessage = 'Expense split successfully.';
-    if (this.reportId) {
-      this.router.navigate(['/', 'enterprise', 'my_view_report', { id: this.reportId }]);
-    } else {
-      this.router.navigate(['/', 'enterprise', 'my_expenses']);
-    }
     this.toastWithoutCTA(toastMessage, ToastType.SUCCESS, 'msb-success-with-camera-icon');
   }
 
@@ -712,7 +708,7 @@ export class SplitExpensePage {
             )
             .subscribe(() => this.showSuccessToast());
         }
-
+        this.openReviewSplitExpenseModal(txns.data);
         return this.showSuccessToast();
       });
   }
@@ -1068,6 +1064,51 @@ export class SplitExpensePage {
 
     // Recalculate the total split amount and remaining amount
     this.getTotalSplitAmount();
+  }
+
+  handleNavigationAfterReview(action: string, expense?: PlatformExpense): void {
+    if (action === 'close') {
+      this.router.navigate([
+        '/',
+        'enterprise',
+        this.reportId ? 'my_view_report' : 'my_expenses',
+        ...(this.reportId ? [{ id: this.reportId }] : []),
+      ]);
+    } else if (action === 'navigate' && expense) {
+      const routeMap: Record<string, string> = {
+        mileage: 'add_edit_mileage',
+        'per diem': 'add_edit_per_diem',
+        default: 'add_edit_expense',
+      };
+
+      const category = expense?.category?.system_category.toLowerCase();
+      const route = routeMap[category] || routeMap.default;
+
+      this.router.navigate(['/', 'enterprise', route, { id: expense.id, persist_filters: true }]);
+    }
+  }
+
+  async openReviewSplitExpenseModal(expense: Transaction[]): Promise<void> {
+    const reviewModal = await this.modalController.create({
+      component: ReviewSplitExpenseComponent,
+      componentProps: {
+        splitExpenses: expense,
+      },
+      mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties(),
+      cssClass: 'review-split-expense-modal',
+      showBackdrop: false,
+    });
+
+    await reviewModal.present();
+
+    const { data }: { data?: { dismissed: boolean; action: string; expense?: PlatformExpense } } =
+      await reviewModal.onWillDismiss();
+
+    if (data) {
+      this.handleNavigationAfterReview(data.action, data.expense);
+    }
   }
 
   private setEvenSplit(
