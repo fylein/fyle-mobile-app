@@ -3,8 +3,8 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, PopoverController, RefresherEventDetail } from '@ionic/angular';
-import { Observable, BehaviorSubject, forkJoin, from, of, concat, combineLatest } from 'rxjs';
-import { finalize, map, shareReplay, switchMap } from 'rxjs/operators';
+import { Observable, BehaviorSubject, forkJoin, from, of, concat, combineLatest, EMPTY } from 'rxjs';
+import { catchError, finalize, map, shareReplay, switchMap } from 'rxjs/operators';
 import { TaskCta } from 'src/app/core/models/task-cta.model';
 import { TASKEVENT } from 'src/app/core/models/task-event.enum';
 import { TaskFilters } from 'src/app/core/models/task-filters.model';
@@ -521,21 +521,17 @@ export class TasksComponent implements OnInit {
             queryParams,
           })
         ),
-        map((expenses) => expenses.map((expense) => expense.id)),
-        switchMap((selectedIds) => {
-          const initial = selectedIds[0];
-          const allIds = selectedIds;
-
-          return this.expensesService.getExpenseById(initial).pipe(
-            map((expense) => ({
-              inital: this.transactionService.transformExpense(expense),
-              allIds,
-            }))
-          );
+        map((expenses) => {
+          const initialExpense = expenses[0];
+          const allExpenseIds = expenses.map((expense) => expense.id);
+          return {
+            inital: this.transactionService.transformExpense(initialExpense),
+            allExpenseIds,
+          };
         }),
         finalize(() => this.loaderService.hideLoader())
       )
-      .subscribe(({ inital, allIds }) => {
+      .subscribe(({ inital, allExpenseIds }) => {
         let category;
 
         if (inital.tx.org_category) {
@@ -549,7 +545,7 @@ export class TasksComponent implements OnInit {
             'add_edit_mileage',
             {
               id: inital.tx.id,
-              txnIds: JSON.stringify(allIds),
+              txnIds: JSON.stringify(allExpenseIds),
               activeIndex: 0,
             },
           ]);
@@ -560,7 +556,7 @@ export class TasksComponent implements OnInit {
             'add_edit_per_diem',
             {
               id: inital.tx.id,
-              txnIds: JSON.stringify(allIds),
+              txnIds: JSON.stringify(allExpenseIds),
               activeIndex: 0,
             },
           ]);
@@ -571,7 +567,7 @@ export class TasksComponent implements OnInit {
             'add_edit_expense',
             {
               id: inital.tx.id,
-              txnIds: JSON.stringify(allIds),
+              txnIds: JSON.stringify(allExpenseIds),
               activeIndex: 0,
             },
           ]);
