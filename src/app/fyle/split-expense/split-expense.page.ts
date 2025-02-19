@@ -6,17 +6,7 @@ import { ModalController, NavController } from '@ionic/angular';
 import { isEmpty, isNumber } from 'lodash';
 import * as dayjs from 'dayjs';
 import { combineLatest, forkJoin, from, iif, Observable, of, Subject, throwError } from 'rxjs';
-import {
-  catchError,
-  concatMap,
-  finalize,
-  map,
-  shareReplay,
-  startWith,
-  switchMap,
-  takeUntil,
-  withLatestFrom,
-} from 'rxjs/operators';
+import { catchError, concatMap, finalize, map, shareReplay, startWith, switchMap, takeUntil } from 'rxjs/operators';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { SplitExpenseService } from 'src/app/core/services/split-expense.service';
@@ -1011,59 +1001,6 @@ export class SplitExpensePage implements OnDestroy {
     }
   }
 
-  getFilteredCategories({
-    projectControl,
-    getActiveCategories,
-    isProjectCategoryRestrictionsEnabled$,
-    services,
-  }: {
-    projectControl: AbstractControl;
-    getActiveCategories: () => Observable<OrgCategory[]>;
-    isProjectCategoryRestrictionsEnabled$: Observable<boolean>;
-    services: { launchDarklyService: LaunchDarklyService; projectsService: ProjectsService };
-  }): Observable<{ label: string; value: OrgCategory }[]> {
-    return projectControl.valueChanges.pipe(
-      startWith(projectControl.value),
-      withLatestFrom(getActiveCategories(), isProjectCategoryRestrictionsEnabled$),
-      switchMap(
-        ([project, activeCategories, isProjectCategoryRestrictionsEnabled]: [
-          Partial<ProjectV2> | null,
-          OrgCategory[],
-          boolean
-        ]) => {
-          if (!project) {
-            return getActiveCategories().pipe(
-              map((categories) => categories.map((category) => ({ label: category.displayName, value: category })))
-            );
-          }
-
-          return services.launchDarklyService
-            .getVariation('show_project_mapped_categories_in_split_expense', false)
-            .pipe(
-              switchMap((showProjectMappedCategories) => {
-                const projectId = project.project_id;
-                if ((showProjectMappedCategories || isProjectCategoryRestrictionsEnabled) && projectId) {
-                  return services.projectsService.getbyId(projectId).pipe(
-                    map((projectDetails) => {
-                      const allowedCategories = services.projectsService.getAllowedOrgCategoryIds(
-                        projectDetails,
-                        activeCategories,
-                        isProjectCategoryRestrictionsEnabled
-                      );
-                      return allowedCategories;
-                    })
-                  );
-                }
-                return of(activeCategories);
-              }),
-              map((categories) => categories.map((category) => ({ label: category.displayName, value: category })))
-            );
-        }
-      ),
-      shareReplay(1)
-    );
-  }
-
   setupFilteredCategories(index: number): void {
     const splitForm = this.splitExpensesFormArray.at(index);
     const projectControl = splitForm.get('project');
@@ -1082,17 +1019,100 @@ export class SplitExpensePage implements OnDestroy {
       },
     }).pipe(takeUntil(this.destroy$));
 
-    this.categories$.pipe(takeUntil(this.destroy$)).subscribe((categories) => {
-      const categoryControl = splitForm.get('category');
-      const currentCategory = categoryControl.value as OrgCategory;
-      if (
-        currentCategory &&
-        currentCategory.id &&
-        !categories.some((category) => category.value.id === currentCategory.id)
-      ) {
-        categoryControl.reset();
-      }
-    });
+    this.resetInvalidCategoryIfNotAllowed(splitForm);
+  }
+
+  resetInvalidCategoryIfNotAllowed(splitForm: AbstractControl): void {
+    combineLatest([
+      this.categories$,
+      splitForm.get('category').valueChanges.pipe(startWith(splitForm.get('category').value)),
+    ])
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(([categories, currentCategory]) => {
+        if (
+          (currentCategory as OrgCategory)?.id &&
+          !categories.some((category) => category.value.id === (currentCategory as OrgCategory).id)
+        ) {
+          splitForm.get('category').reset();
+        }
+      });
+  }
+
+  getFilteredCategories({
+    projectControl,
+    getActiveCategories,
+    isProjectCategoryRestrictionsEnabled$,
+    services,
+  }: {
+    projectControl: AbstractControl;
+    getActiveCategories: () => Observable<OrgCategory[]>;
+    isProjectCategoryRestrictionsEnabled$: Observable<boolean>;
+    services: { launchDarklyService: LaunchDarklyService; projectsService: ProjectsService };
+  }): Observable<{ label: string; value: OrgCategory }[]> {
+    const activeCategories$ = getActiveCategories().pipe(shareReplay(1));
+
+    return combineLatest([
+      projectControl.valueChanges.pipe(startWith(projectControl.value)),
+      activeCategories$,
+      isProjectCategoryRestrictionsEnabled$,
+    ]).pipe(
+      switchMap(
+        ([project, activeCategories, isProjectCategoryRestrictionsEnabled]: [
+          Partial<ProjectV2> | null,
+          OrgCategory[],
+          boolean
+        ]) => {
+          if (!project?.project_id) {
+            return this.formatCategories(activeCategories);
+          }
+
+          return services.launchDarklyService
+            .getVariation('show_project_mapped_categories_in_split_expense', false)
+            .pipe(
+              switchMap((showProjectMappedCategories) =>
+                this.getAllowedCategories(
+                  String(project.project_id),
+                  activeCategories,
+                  isProjectCategoryRestrictionsEnabled,
+                  showProjectMappedCategories,
+                  services
+                )
+              ),
+              switchMap((categories) => this.formatCategories(categories))
+            );
+        }
+      ),
+      shareReplay(1)
+    );
+  }
+
+  // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
+  getAllowedCategories(
+    projectId: string,
+    activeCategories: OrgCategory[],
+    isProjectCategoryRestrictionsEnabled: boolean,
+    showProjectMappedCategories: boolean,
+    services: { projectsService: ProjectsService }
+  ): Observable<OrgCategory[]> {
+    if (!showProjectMappedCategories && !isProjectCategoryRestrictionsEnabled) {
+      return of(activeCategories);
+    }
+
+    return services.projectsService
+      .getbyId(projectId)
+      .pipe(
+        map((projectDetails) =>
+          services.projectsService.getAllowedOrgCategoryIds(
+            projectDetails,
+            activeCategories,
+            isProjectCategoryRestrictionsEnabled
+          )
+        )
+      );
+  }
+
+  formatCategories(categories: OrgCategory[]): Observable<{ label: string; value: OrgCategory }[]> {
+    return of(categories.map((category) => ({ label: category.displayName, value: category })));
   }
 
   // eslint-disable-next-line complexity
@@ -1153,6 +1173,8 @@ export class SplitExpensePage implements OnDestroy {
       const firstSplitCategory = this.splitExpensesFormArray.at(0)?.get('category')?.value as OrgCategory | null;
       if (!firstSplitCategory) {
         this.setupFilteredCategories(0);
+      } else {
+        this.filteredCategoriesArray[0] = this.categories$;
       }
       this.filteredCategoriesArray[1] = this.categories$;
     }
@@ -1165,6 +1187,7 @@ export class SplitExpensePage implements OnDestroy {
 
   remove(index: number): void {
     this.splitExpensesFormArray.removeAt(index);
+    this.filteredCategoriesArray.splice(index, 1);
 
     if (this.splitExpensesFormArray.length === 2) {
       const firstSplitExpenseForm = this.splitExpensesFormArray.at(0);
