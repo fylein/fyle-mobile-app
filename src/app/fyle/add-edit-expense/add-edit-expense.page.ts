@@ -2719,6 +2719,7 @@ export class AddEditExpensePage implements OnInit {
   getEditExpenseObservable(): Observable<Partial<UnflattenedTransaction>> {
     this.platformExpense$ = this.expensesService.getExpenseById(this.activatedRoute.snapshot.params.id as string).pipe(
       catchError((error) => {
+        this.loaderService.hideLoader();
         this.loaderService.showLoader('This expense no longer exists. Redirecting to expenses list', 1000);
         this.goBack();
         return EMPTY;
