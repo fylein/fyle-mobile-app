@@ -1114,6 +1114,9 @@ export class SplitExpensePage implements OnDestroy {
   }
 
   onCategoryChange(index: number): void {
+    if (!this.splitConfig.costCenter.is_visible) {
+      return;
+    }
     const splitForm = this.splitExpensesFormArray.at(index);
     const categoryControl = splitForm.get('category').value as OrgCategory;
 
@@ -1123,6 +1126,10 @@ export class SplitExpensePage implements OnDestroy {
 
     const isCostCenterAllowed = this.txnFields.cost_center_id?.org_category_ids?.includes(categoryControl.id);
     this.costCenterDisabledStates[index] = !isCostCenterAllowed;
+
+    if (!isCostCenterAllowed) {
+      splitForm.get('cost_center').reset();
+    }
   }
 
   // eslint-disable-next-line complexity

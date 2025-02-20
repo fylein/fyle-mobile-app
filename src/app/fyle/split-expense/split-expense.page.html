@@ -164,7 +164,7 @@
                 [touchedInParent]="splitExpenseForm.controls.category.touched"
                 [validInParent]="splitExpenseForm.controls.category.valid"
                 [disabled]="categories.length === 0"
-                (valueChange)="splitConfig.costCenter.is_visible ? onCategoryChange(i) : null"
+                (valueChange)="onCategoryChange(i)"
               >
               </app-fy-select>
             </div>
