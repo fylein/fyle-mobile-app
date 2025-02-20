@@ -6,10 +6,12 @@ import { platformPersonalCardTxns } from 'src/app/core/mock-data/personal-card-t
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { PersonalCardsMatchedExpensesPage } from './personal-cards-matched-expenses.page';
+import { CurrencyPipe } from '@angular/common';
 import { CurrencySymbolPipe } from 'src/app/shared/pipes/currency-symbol.pipe';
 import { ExpensePreviewComponent } from './expense-preview/expense-preview.component';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { ExactCurrencyPipe } from 'src/app/shared/pipes/exact-currency.pipe';
+import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 import { platformExpenseWithExtractedData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { platformPersonalCardTxnExpenseSuggestionsRes } from 'src/app/core/mock-data/personal-card-txn-expense-suggestions.data';
 import { linkedAccounts } from 'src/app/core/mock-data/personal-cards.data';
@@ -58,6 +60,8 @@ describe('PersonalCardsMatchedExpensesPage', () => {
           provide: ModalPropertiesService,
           useValue: modalPropertiesSpy,
         },
+        FyCurrencyPipe,
+        CurrencyPipe,
       ],
     }).compileComponents();
     personalCardsService = TestBed.inject(PersonalCardsService) as jasmine.SpyObj<PersonalCardsService>;
