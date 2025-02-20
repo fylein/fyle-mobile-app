@@ -5,6 +5,7 @@ import { FileService } from 'src/app/core/services/file.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { CameraOptionsPopupComponent } from './camera-options-popup.component';
+import { MAX_FILE_SIZE } from 'src/app/core/constants';
 
 describe('CameraOptionsPopupComponent', () => {
   let component: CameraOptionsPopupComponent;
@@ -145,7 +146,8 @@ describe('CameraOptionsPopupComponent', () => {
     }));
 
     it('should show warning popup to the user when the file size exceeds the maximum file size limit  allowed', fakeAsync(() => {
-      const myBlob = new Blob([new ArrayBuffer(100 * 100 * 1000)], { type: 'application/octet-stream' });
+      const newSize = MAX_FILE_SIZE + 1;
+      const myBlob = new Blob([new ArrayBuffer(newSize)], { type: 'application/octet-stream' });
       const file = new File([myBlob], 'file');
 
       spyOn(component, 'closeClicked');
