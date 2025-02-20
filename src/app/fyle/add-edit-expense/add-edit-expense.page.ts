@@ -2786,6 +2786,7 @@ export class AddEditExpensePage implements OnInit {
         .getExpenseById(this.reviewList[activeIndex - 1])
         .pipe(
           catchError(() => {
+            // expense not found, so skipping it
             this.reviewList.splice(activeIndex - 1, 1);
             if (activeIndex === 0) {
               this.closeAddEditExpenses();
@@ -2810,6 +2811,7 @@ export class AddEditExpensePage implements OnInit {
         .getExpenseById(this.reviewList[activeIndex + 1])
         .pipe(
           catchError(() => {
+            // expense not found, so skipping it
             this.reviewList.splice(activeIndex + 1, 1);
             if (activeIndex === this.reviewList.length - 1) {
               this.closeAddEditExpenses();
