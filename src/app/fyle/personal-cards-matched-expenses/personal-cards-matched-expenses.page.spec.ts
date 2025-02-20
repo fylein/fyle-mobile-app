@@ -34,7 +34,7 @@ describe('PersonalCardsMatchedExpensesPage', () => {
       },
     },
     id: 0,
-    initialUrl: '',
+    initialUrl: new UrlTree(),
     extractedUrl: new UrlTree(),
     trigger: 'imperative',
     previousNavigation: undefined,
