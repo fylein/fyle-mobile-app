@@ -24,7 +24,6 @@ import {
   publicAdvanceRequestRes4,
   publicAdvanceRequestRes5,
   publicAdvanceRequestRes6,
-  publicAdvanceRequestResSentBack,
 } from 'src/app/core/mock-data/extended-advance-request.data';
 import {
   singleExtendedAdvancesData,
@@ -83,7 +82,7 @@ describe('MyAdvancesPage', () => {
     let orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
 
     TestBed.configureTestingModule({
-      declarations: [MyAdvancesPage, TitleCasePipe],
+      declarations: [MyAdvancesPage],
       imports: [IonicModule.forRoot()],
       providers: [
         { provide: AdvanceRequestService, useValue: advanceRequestServiceSpy },

@@ -14,7 +14,7 @@ import { costCenterApiRes1, expectedCCdata } from 'src/app/core/mock-data/cost-c
 import { customFieldData1 } from 'src/app/core/mock-data/custom-field.data';
 import { expenseFieldObjData, txnFieldData } from 'src/app/core/mock-data/expense-field-obj.data';
 import { txnFieldsMap2 } from 'src/app/core/mock-data/expense-fields-map.data';
-import { apiExpenseRes, expenseData1 } from 'src/app/core/mock-data/expense.data';
+import { expenseData1 } from 'src/app/core/mock-data/expense.data';
 import { categorieListRes } from 'src/app/core/mock-data/org-category-list-item.data';
 import { orgSettingsRes, orgSettingsParamsWithAdvanceWallet } from 'src/app/core/mock-data/org-settings.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';

@@ -296,7 +296,6 @@ import { CCExpenseMerchantInfoModalComponent } from './components/cc-expense-mer
     MatIconModule,
     MatCheckboxModule,
     MatButtonModule,
-    ReactiveFormsModule,
     PinchZoomModule,
     PdfViewerModule,
     MatRippleModule,

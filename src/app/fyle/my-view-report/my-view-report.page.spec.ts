@@ -1,4 +1,4 @@
-import { AsyncPipe, CurrencyPipe } from '@angular/common';
+import { CurrencyPipe } from '@angular/common';
 import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { MatIconModule } from '@angular/material/icon';
@@ -128,7 +128,6 @@ describe('MyViewReportPage', () => {
         ExactCurrencyPipe,
         ReportState,
         SnakeCaseToSpaceCase,
-        AsyncPipe,
       ],
       imports: [IonicModule.forRoot(), MatIconTestingModule, MatIconModule],
       providers: [
