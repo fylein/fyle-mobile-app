@@ -693,7 +693,7 @@ describe('ExpensesCardComponent', () => {
   it('showSizeLimitExceededPopover', fakeAsync(() => {
     const popOverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present']);
     popoverController.create.and.resolveTo(popOverSpy);
-    component.showSizeLimitExceededPopover(8388609);
+    component.showSizeLimitExceededPopover(11534337);
 
     tick(500);
     expect(popoverController.create).toHaveBeenCalledOnceWith({

@@ -72,7 +72,7 @@ describe('CameraOptionsPopupComponent', () => {
     const sizeLimitExceededPopoverSpy = jasmine.createSpyObj('sizeLimitExceededPopover', ['present']);
     popoverController.create.and.resolveTo(sizeLimitExceededPopoverSpy);
 
-    component.showSizeLimitExceededPopover(8388609);
+    component.showSizeLimitExceededPopover(11534337);
     tick(500);
 
     expect(popoverController.create).toHaveBeenCalledOnceWith({
