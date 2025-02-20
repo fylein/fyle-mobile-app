@@ -1,6 +1,6 @@
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 import { Component } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, NavController } from '@ionic/angular';
 import { isEmpty, isNumber } from 'lodash';
@@ -56,9 +56,9 @@ import { SplittingExpenseProperties } from 'src/app/core/models/splitting-expens
   styleUrls: ['./split-expense.page.scss'],
 })
 export class SplitExpensePage {
-  splitExpensesFormArray = new FormArray([]);
+  splitExpensesFormArray = new UntypedFormArray([]);
 
-  fg: FormGroup;
+  fg: UntypedFormGroup;
 
   splitType: string;
 
@@ -120,7 +120,7 @@ export class SplitExpensePage {
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     private categoriesService: CategoriesService,
     private dateService: DateService,
     private splitExpenseService: SplitExpenseService,

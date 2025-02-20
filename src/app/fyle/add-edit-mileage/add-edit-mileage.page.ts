@@ -2,7 +2,7 @@ import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 // TODO: Very hard to fix this file without making massive changes
 /* eslint-disable complexity */
 import { ChangeDetectorRef, Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } from '@angular/core';
-import { AbstractControl, FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, NavController, PopoverController } from '@ionic/angular';
@@ -140,7 +140,7 @@ export class AddEditMileagePage implements OnInit {
 
   reviewList: string[];
 
-  fg: FormGroup;
+  fg: UntypedFormGroup;
 
   txnFields$: Observable<Partial<ExpenseFieldsObj>>;
 
@@ -301,7 +301,7 @@ export class AddEditMileagePage implements OnInit {
     private customFieldsService: CustomFieldsService,
     private reportService: ReportService,
     private platformReportService: SpenderReportsService,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private projectsService: ProjectsService,
     private mileageService: MileageService,
     private mileageRatesService: MileageRatesService,
@@ -731,7 +731,7 @@ export class AddEditMileagePage implements OnInit {
         this.isConnected$.pipe(
           take(1),
           map((isConnected) => {
-            const customFieldsFormArray = this.fg.controls.custom_inputs as FormArray;
+            const customFieldsFormArray = this.fg.controls.custom_inputs as UntypedFormArray;
             customFieldsFormArray.clear();
             for (const customField of customFields) {
               customFieldsFormArray.push(
@@ -1545,7 +1545,7 @@ export class AddEditMileagePage implements OnInit {
       project: [],
       billable: [],
       sub_category: [, Validators.required],
-      custom_inputs: new FormArray([]),
+      custom_inputs: new UntypedFormArray([]),
       costCenter: [],
       report: [],
       project_dependent_fields: this.fb.array([]),

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { from, throwError } from 'rxjs';
@@ -19,12 +19,12 @@ enum RequestInvitationPageState {
   styleUrls: ['./request-invitation.page.scss'],
 })
 export class RequestInvitationPage implements OnInit {
-  fg: FormGroup;
+  fg: UntypedFormGroup;
 
   currentPageState: RequestInvitationPageState = RequestInvitationPageState.notSent;
 
   constructor(
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private activateRoute: ActivatedRoute,
     private loaderService: LoaderService,
     private invitationRequestsService: InvitationRequestsService

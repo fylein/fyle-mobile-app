@@ -9,7 +9,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { MergeExpensesService } from 'src/app/core/services/merge-expenses.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { FormBuilder, FormControl, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormControl, Validators } from '@angular/forms';
 import { cloneDeep } from 'lodash';
 import { expenseList2, transformedPlatformedExpense1 } from 'src/app/core/mock-data/expense.data';
 import { mergeExpensesOptionsData } from 'src/app/core/mock-data/merge-expenses-option.data';
@@ -54,7 +54,7 @@ export function TestCases1(getTestBed) {
     let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
     let mergeExpensesService: jasmine.SpyObj<MergeExpensesService>;
     let trackingService: jasmine.SpyObj<TrackingService>;
-    let formBuilder: FormBuilder;
+    let formBuilder: UntypedFormBuilder;
     let transactionService: jasmine.SpyObj<TransactionService>;
     let expensesService: jasmine.SpyObj<ExpensesService>;
 
@@ -74,7 +74,7 @@ export function TestCases1(getTestBed) {
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
       transactionService = TestBed.inject(TransactionService);
       expensesService = TestBed.inject(ExpensesService);
-      formBuilder = TestBed.inject(FormBuilder);
+      formBuilder = TestBed.inject(UntypedFormBuilder);
       component.fg = formBuilder.group({
         target_txn_id: [, Validators.required],
         genericFields: [],
@@ -89,7 +89,7 @@ export function TestCases1(getTestBed) {
 
     it('genericFieldsForm(): should return the genericFields form control', () => {
       component.fg = formBuilder.group({
-        genericFields: new FormControl([]),
+        genericFields: new UntypedFormControl([]),
       });
 
       const genericFieldsForm = component.genericFieldsForm;
@@ -99,7 +99,7 @@ export function TestCases1(getTestBed) {
 
     it('categoryDependentForm(): should return the categoryDependent form control', () => {
       component.fg = formBuilder.group({
-        categoryDependent: new FormControl([]),
+        categoryDependent: new UntypedFormControl([]),
       });
 
       const categoryDependentForm = component.categoryDependentForm;

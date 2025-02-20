@@ -1,7 +1,7 @@
 import { Component, EventEmitter, OnInit } from '@angular/core';
 import { Observable, noop, concat, from } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { switchMap, finalize, tap, map } from 'rxjs/operators';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -23,7 +23,7 @@ import { SpenderOnboardingService } from 'src/app/core/services/spender-onboardi
 export class InvitedUserPage implements OnInit {
   isConnected$: Observable<boolean>;
 
-  fg: FormGroup;
+  fg: UntypedFormGroup;
 
   eou$: Observable<ExtendedOrgUser>;
 
@@ -57,7 +57,7 @@ export class InvitedUserPage implements OnInit {
 
   constructor(
     private networkService: NetworkService,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private orgUserService: OrgUserService,
     private loaderService: LoaderService,
     private authService: AuthService,

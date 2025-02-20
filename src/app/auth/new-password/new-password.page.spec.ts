@@ -8,7 +8,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { DeviceService } from 'src/app/core/services/device.service';
 import { LoginInfoService } from 'src/app/core/services/login-info.service';
-import { FormBuilder, FormControl, ReactiveFormsModule } from '@angular/forms';
+import { UntypedFormBuilder, FormControl, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
@@ -48,7 +48,7 @@ describe('NewPasswordPage', () => {
       declarations: [NewPasswordPage],
       imports: [IonicModule.forRoot(), ReactiveFormsModule, RouterTestingModule],
       providers: [
-        FormBuilder,
+        UntypedFormBuilder,
         { provide: AuthService, useValue: authServiceSpy },
         { provide: RouterAuthService, useValue: routerAuthServiceSpy },
         { provide: LoaderService, useValue: loaderServiceSpy },

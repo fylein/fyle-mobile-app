@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 import { ModalController } from '@ionic/angular';
 import { MileageService } from 'src/app/core/services/mileage.service';
 import { RouteSelectorModalComponent } from './route-selector-modal.component';
-import { FormArray, FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { UntypedFormArray, UntypedFormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { mileageLocationData1, mileageLocationData2 } from 'src/app/core/mock-data/mileage-location.data';
 import { FyLocationComponent } from '../../fy-location/fy-location.component';
@@ -16,7 +16,7 @@ import { of } from 'rxjs';
 describe('RouteSelectorModalComponent', () => {
   let component: RouteSelectorModalComponent;
   let fixture: ComponentFixture<RouteSelectorModalComponent>;
-  let fb: jasmine.SpyObj<FormBuilder>;
+  let fb: jasmine.SpyObj<UntypedFormBuilder>;
   let modalController: jasmine.SpyObj<ModalController>;
   let mileageService: jasmine.SpyObj<MileageService>;
 
@@ -34,7 +34,7 @@ describe('RouteSelectorModalComponent', () => {
         MatCheckboxModule,
       ],
       providers: [
-        FormBuilder,
+        UntypedFormBuilder,
         {
           provide: ModalController,
           useValue: modalControllerSpy,
@@ -50,13 +50,13 @@ describe('RouteSelectorModalComponent', () => {
     component = fixture.componentInstance;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     mileageService = TestBed.inject(MileageService) as jasmine.SpyObj<MileageService>;
-    fb = TestBed.inject(FormBuilder) as jasmine.SpyObj<FormBuilder>;
+    fb = TestBed.inject(UntypedFormBuilder) as jasmine.SpyObj<UntypedFormBuilder>;
 
     mileageService.getDistance.and.returnValue(of(20));
     component.mileageConfig = orgSettingsRes.mileage;
     component.formInitialized = true;
     component.form = fb.group({
-      mileageLocations: new FormArray([]),
+      mileageLocations: new UntypedFormArray([]),
       roundTrip: [],
     });
     component.value = {

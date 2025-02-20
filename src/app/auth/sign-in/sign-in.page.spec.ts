@@ -10,7 +10,7 @@ import { TrackingService } from '../../core/services/tracking.service';
 import { DeviceService } from '../../core/services/device.service';
 import { LoginInfoService } from '../../core/services/login-info.service';
 import { SignInPage } from './sign-in.page';
-import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { UntypedFormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -35,7 +35,7 @@ import { BackButtonActionPriority } from 'src/app/core/models/back-button-action
 describe('SignInPage', () => {
   let component: SignInPage;
   let fixture: ComponentFixture<SignInPage>;
-  let formBuilder: jasmine.SpyObj<FormBuilder>;
+  let formBuilder: jasmine.SpyObj<UntypedFormBuilder>;
   let routerAuthService: jasmine.SpyObj<RouterAuthService>;
   let popoverController: jasmine.SpyObj<PopoverController>;
   let loaderService: jasmine.SpyObj<LoaderService>;
@@ -85,7 +85,7 @@ describe('SignInPage', () => {
         RouterTestingModule,
       ],
       providers: [
-        FormBuilder,
+        UntypedFormBuilder,
         {
           provide: ActivatedRoute,
           useValue: { snapshot: { params: { email: 'ajain@fyle.in' } } },
@@ -148,7 +148,7 @@ describe('SignInPage', () => {
     fixture = TestBed.createComponent(SignInPage);
     component = fixture.componentInstance;
 
-    formBuilder = TestBed.inject(FormBuilder) as jasmine.SpyObj<FormBuilder>;
+    formBuilder = TestBed.inject(UntypedFormBuilder) as jasmine.SpyObj<UntypedFormBuilder>;
     routerAuthService = TestBed.inject(RouterAuthService) as jasmine.SpyObj<RouterAuthService>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;

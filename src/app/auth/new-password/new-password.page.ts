@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { finalize, switchMap, tap } from 'rxjs/operators';
 import { from, Observable } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -19,7 +19,7 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
   styleUrls: ['./new-password.page.scss'],
 })
 export class NewPasswordPage implements OnInit {
-  fg: FormGroup;
+  fg: UntypedFormGroup;
 
   lengthValidationDisplay$: Observable<boolean>;
 
@@ -46,7 +46,7 @@ export class NewPasswordPage implements OnInit {
   focusOnConfirmPassword = false;
 
   constructor(
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private activatedRoute: ActivatedRoute,
     private loaderService: LoaderService,
     private routerAuthService: RouterAuthService,
