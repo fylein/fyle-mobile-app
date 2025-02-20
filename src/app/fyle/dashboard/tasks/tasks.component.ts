@@ -525,17 +525,17 @@ export class TasksComponent implements OnInit {
           const initialExpense = expenses[0];
           const allExpenseIds = expenses.map((expense) => expense.id);
           return {
-            inital: this.transactionService.transformExpense(initialExpense),
+            initial: this.transactionService.transformExpense(initialExpense),
             allExpenseIds,
           };
         }),
         finalize(() => this.loaderService.hideLoader())
       )
-      .subscribe(({ inital, allExpenseIds }) => {
+      .subscribe(({ initial, allExpenseIds }) => {
         let category;
 
-        if (inital.tx.org_category) {
-          category = inital.tx.org_category.toLowerCase();
+        if (initial.tx.org_category) {
+          category = initial.tx.org_category.toLowerCase();
         }
 
         if (category === 'mileage') {
@@ -544,7 +544,7 @@ export class TasksComponent implements OnInit {
             'enterprise',
             'add_edit_mileage',
             {
-              id: inital.tx.id,
+              id: initial.tx.id,
               txnIds: JSON.stringify(allExpenseIds),
               activeIndex: 0,
             },
@@ -555,7 +555,7 @@ export class TasksComponent implements OnInit {
             'enterprise',
             'add_edit_per_diem',
             {
-              id: inital.tx.id,
+              id: initial.tx.id,
               txnIds: JSON.stringify(allExpenseIds),
               activeIndex: 0,
             },
@@ -566,7 +566,7 @@ export class TasksComponent implements OnInit {
             'enterprise',
             'add_edit_expense',
             {
-              id: inital.tx.id,
+              id: initial.tx.id,
               txnIds: JSON.stringify(allExpenseIds),
               activeIndex: 0,
             },
