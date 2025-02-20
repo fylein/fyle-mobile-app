@@ -2780,23 +2780,49 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  goToPrev(): void {
-    this.activeIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex as string, 10);
-    if (this.reviewList[+this.activeIndex - 1]) {
-      this.expensesService.getExpenseById(this.reviewList[+this.activeIndex - 1]).subscribe((expense) => {
-        const etxn = this.transactionService.transformExpense(expense);
-        this.goToTransaction(etxn, this.reviewList, +this.activeIndex - 1);
-      });
+  goToPrev(activeIndex: number): void {
+    if (this.reviewList[activeIndex - 1]) {
+      this.expensesService
+        .getExpenseById(this.reviewList[activeIndex - 1])
+        .pipe(
+          catchError(() => {
+            this.reviewList.splice(activeIndex - 1, 1);
+            if (activeIndex === 0) {
+              this.closeAddEditExpenses();
+            } else {
+              this.goToPrev(activeIndex - 1);
+            }
+            return EMPTY;
+          })
+        )
+        .subscribe((expense) => {
+          const etxn = this.transactionService.transformExpense(expense);
+          this.goToTransaction(etxn, this.reviewList, activeIndex - 1);
+        });
+    } else {
+      this.closeAddEditExpenses();
     }
   }
 
-  goToNext(): void {
-    this.activeIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex as string, 10);
-    if (this.reviewList[+this.activeIndex + 1]) {
-      this.expensesService.getExpenseById(this.reviewList[+this.activeIndex + 1]).subscribe((expense) => {
-        const etxn = this.transactionService.transformExpense(expense);
-        this.goToTransaction(etxn, this.reviewList, +this.activeIndex + 1);
-      });
+  goToNext(activeIndex: number): void {
+    if (this.reviewList[activeIndex + 1]) {
+      this.expensesService
+        .getExpenseById(this.reviewList[activeIndex + 1])
+        .pipe(
+          catchError(() => {
+            this.reviewList.splice(activeIndex + 1, 1);
+            if (activeIndex === this.reviewList.length - 1) {
+              this.closeAddEditExpenses();
+            } else {
+              this.goToNext(activeIndex);
+            }
+            return EMPTY;
+          })
+        )
+        .subscribe((expense) => {
+          const etxn = this.transactionService.transformExpense(expense);
+          this.goToTransaction(etxn, this.reviewList, activeIndex + 1);
+        });
     }
   }
 
@@ -3878,7 +3904,7 @@ export class AddEditExpensePage implements OnInit {
             if (+this.activeIndex === 0) {
               that.closeAddEditExpenses();
             } else {
-              that.goToPrev();
+              that.goToPrev(+this.activeIndex);
             }
           });
         } else {
@@ -3887,7 +3913,7 @@ export class AddEditExpensePage implements OnInit {
             if (+this.activeIndex === 0) {
               that.closeAddEditExpenses();
             } else {
-              that.goToPrev();
+              that.goToPrev(+this.activeIndex);
             }
           });
         }
@@ -3906,7 +3932,7 @@ export class AddEditExpensePage implements OnInit {
             if (+this.activeIndex === this.reviewList.length - 1) {
               that.closeAddEditExpenses();
             } else {
-              that.goToNext();
+              that.goToNext(+this.activeIndex);
             }
           });
         } else {
@@ -3915,7 +3941,7 @@ export class AddEditExpensePage implements OnInit {
             if (+this.activeIndex === this.reviewList.length - 1) {
               that.closeAddEditExpenses();
             } else {
-              that.goToNext();
+              that.goToNext(+this.activeIndex);
             }
           });
         }
