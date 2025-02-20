@@ -118,7 +118,9 @@ describe('ApproverDialogComponent', () => {
 
   it('addChip(): should add chip', () => {
     spyOn(component, 'clearValue');
+    const chipInput = jasmine.createSpyObj('chipInput', ['clear']);
     const ev: MatChipInputEvent = {
+      chipInput,
       value: 'label',
       input: getElementBySelector(fixture, '.selection-modal--form-input') as HTMLInputElement,
     };
