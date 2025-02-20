@@ -18,6 +18,10 @@ export class FooterComponent implements OnInit {
 
   @Output() taskClicked = new EventEmitter();
 
+  @Output() expensesClicked = new EventEmitter();
+
+  @Output() reportsClicked = new EventEmitter();
+
   @Input() taskCount = 0;
 
   @Input() activeState: FooterState;
@@ -43,6 +47,7 @@ export class FooterComponent implements OnInit {
   }
 
   goToHome() {
+    console.log('FooterComponent -> goToHome -> this.router.url', this.router.url);
     this.trackingService.footerButtonClicked({
       Action: 'Home',
       Url: this.router.url,
@@ -52,6 +57,7 @@ export class FooterComponent implements OnInit {
   }
 
   goToCameraMode() {
+    console.log('FooterComponent -> goToCameraMode -> this.router.url', this.router.url);
     this.trackingService.footerButtonClicked({
       Action: 'Camera',
       Url: this.router.url,
@@ -60,7 +66,28 @@ export class FooterComponent implements OnInit {
     this.cameraClicked.emit();
   }
 
+  goToExpenses() {
+    console.log('FooterComponent -> goToExpenses -> this.router.url', this.router.url);
+    this.trackingService.footerButtonClicked({
+      Action: 'Expenses',
+      Url: this.router.url,
+    });
+
+    this.expensesClicked.emit();
+  }
+
+  goToReports() {
+    console.log('FooterComponent -> goToReports -> this.router.url', this.router.url);
+    this.trackingService.footerButtonClicked({
+      Action: 'Reports',
+      Url: this.router.url,
+    });
+
+    this.reportsClicked.emit();
+  }
+
   goToTasks(connectionState: ConnectionMessageStatus) {
+    console.log('FooterComponent -> goToTasks -> this.router.url', this.router.url);
     if (connectionState !== ConnectionMessageStatus.disconnected) {
       this.trackingService.footerButtonClicked({
         Action: 'Tasks',

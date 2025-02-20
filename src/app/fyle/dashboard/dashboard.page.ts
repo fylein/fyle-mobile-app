@@ -305,6 +305,36 @@ export class DashboardPage {
     ]);
   }
 
+  onExpensesClicked(): void {
+    console.log('Expenses clicked');
+    this.router.navigate(
+      [
+        '/',
+        'enterprise',
+        'my_expenses',
+        {
+          navigate_back: true,
+        },
+      ],
+      { skipLocationChange: true }
+    );
+  }
+
+  onReportsClicked(): void {
+    console.log('Reports clicked');
+    this.router.navigate(
+      [
+        '/',
+        'enterprise',
+        'my_reports',
+        {
+          navigate_back: true,
+        },
+      ],
+      { skipLocationChange: true }
+    );
+  }
+
   onHomeClicked(): void {
     this.currentStateIndex = 0;
     const queryParams: Params = { state: 'home' };
