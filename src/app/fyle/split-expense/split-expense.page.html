@@ -167,6 +167,11 @@
                 (valueChange)="splitConfig.costCenter.is_visible ? onCategoryChange(i) : null"
               >
               </app-fy-select>
+              <div
+                *ngIf="categories.length === 0"
+                (click)="showDisabledMessage('category')"
+                class="split-expense--internal-block-overlay"
+              ></div>
             </div>
             <div
               *ngIf="splitExpenseForm.controls.category.touched && !splitExpenseForm.controls.category.valid"
@@ -191,6 +196,11 @@
                 [disabled]="costCenterDisabledStates[i]"
               >
               </app-fy-select>
+              <div
+                *ngIf="costCenterDisabledStates[i]"
+                (click)="showDisabledMessage('cost center')"
+                class="split-expense--internal-block-overlay"
+              ></div>
             </div>
             <div
               *ngIf="splitExpenseForm.controls.cost_center.touched && !splitExpenseForm.controls.cost_center.valid"
