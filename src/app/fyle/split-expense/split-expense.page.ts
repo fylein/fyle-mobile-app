@@ -1185,7 +1185,12 @@ export class SplitExpensePage implements OnDestroy {
     }
 
     this.splitExpensesFormArray.push(fg);
+    this.handleInitialconfig(isFirstSplit);
 
+    this.getTotalSplitAmount();
+  }
+
+  handleInitialconfig(isFirstSplit: boolean): void {
     if (isFirstSplit && this.splitConfig.category.is_visible) {
       const firstSplitCategory = this.splitExpensesFormArray.at(0)?.get('category')?.value as OrgCategory | null;
       if (!firstSplitCategory) {
@@ -1209,7 +1214,6 @@ export class SplitExpensePage implements OnDestroy {
         this.costCenterDisabledStates.push(false);
       }
     }
-    this.getTotalSplitAmount();
   }
 
   remove(index: number): void {
