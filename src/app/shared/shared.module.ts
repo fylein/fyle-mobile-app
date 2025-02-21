@@ -117,6 +117,7 @@ import { CardDetailComponent } from './components/spent-cards/card-detail/card-d
 import { MaskNumber } from './pipes/mask-number.pipe';
 import { PolicyViolationActionComponent } from './components/fy-policy-violation/policy-violation-action/policy-violation-action.component';
 import { SplitExpensePolicyViolationComponent } from './components/split-expense-policy-violation/split-expense-policy-violation.component';
+import { ReviewSplitExpenseComponent } from './components/review-split-expense/review-split-expense.component';
 import { PolicyViolationRuleComponent } from './components/policy-violation-rule/policy-violation-rule.component';
 import { FyCurrencyComponent } from './components/fy-currency/fy-currency.component';
 import { FyCurrencyChooseCurrencyComponent } from './components/fy-currency/fy-currency-choose-currency/fy-currency-choose-currency.component';
@@ -249,6 +250,7 @@ import { CCExpenseMerchantInfoModalComponent } from './components/cc-expense-mer
     FyPolicyViolationComponent,
     PolicyViolationActionComponent,
     SplitExpensePolicyViolationComponent,
+    ReviewSplitExpenseComponent,
     PolicyViolationRuleComponent,
     FyCurrencyComponent,
     FyCurrencyChooseCurrencyComponent,
@@ -420,6 +422,7 @@ import { CCExpenseMerchantInfoModalComponent } from './components/cc-expense-mer
     DashboardOptInComponent,
     MobileNumberCardComponent,
     CCExpenseMerchantInfoModalComponent,
+    ReviewSplitExpenseComponent,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker, FyCurrencyPipe, ReportState, ExactCurrencyPipe],
 })
