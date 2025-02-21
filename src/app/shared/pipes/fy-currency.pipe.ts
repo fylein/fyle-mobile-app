@@ -20,6 +20,10 @@ export class FyCurrencyPipe implements PipeTransform {
     digitsInfo?: string,
     locale?: string
   ): string | null {
+    // When amount passed is 0 avoid adding decimal point
+    if (value === 0) {
+      digitsInfo = '1.0-0';
+    }
     const transformedValue = this.currencyPipe.transform(value, currencyCode, display, digitsInfo, locale);
 
     if (transformedValue) {

@@ -192,7 +192,7 @@ describe('AddExpensesToReportComponent', () => {
     component.selectedElements = [];
     fixture.detectChanges();
 
-    expect(getTextContent(getElementBySelector(fixture, '.report-list--title'))).toEqual('Add Expenses');
+    expect(getTextContent(getElementBySelector(fixture, '.report-list--title'))).toEqual('Add expenses');
   });
 
   it('should show number of expenses', () => {

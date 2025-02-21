@@ -4,7 +4,7 @@ import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-f
 
 export const selectedFilters1: SelectedFilters<string>[] = deepFreeze([
   {
-    name: 'Created On',
+    name: 'Created date',
     value: 'custom',
     associatedData: {
       startDate: new Date('2023-02-20T00:00:00.000Z'),
@@ -12,7 +12,7 @@ export const selectedFilters1: SelectedFilters<string>[] = deepFreeze([
     },
   },
   {
-    name: 'Updated On',
+    name: 'Updated date',
     value: 'custom',
     associatedData: {
       startDate: new Date('2023-02-22T00:00:00.000Z'),
@@ -35,7 +35,7 @@ export const selectedFilters1: SelectedFilters<string>[] = deepFreeze([
 
 export const selectedFilters2: SelectedFilters<string>[] = deepFreeze([
   {
-    name: 'Updated On',
+    name: 'Updated date',
     value: 'custom',
     associatedData: {
       startDate: new Date('2023-02-22T00:00:00.000Z'),
@@ -43,7 +43,7 @@ export const selectedFilters2: SelectedFilters<string>[] = deepFreeze([
     },
   },
   {
-    name: 'Created On',
+    name: 'Created date',
     value: 'custom',
     associatedData: {
       startDate: new Date('2023-02-20T00:00:00.000Z'),
@@ -150,7 +150,7 @@ export const selectedFilters7: SelectedFilters<string | string[]>[] = deepFreeze
     value: ['Mileage'],
   },
   {
-    name: 'Cards',
+    name: 'Cards ending in...',
     value: ['1234', '2389'],
   },
   { name: 'Sort by', value: 'dateNewToOld' },
@@ -178,7 +178,7 @@ export const selectedFilters8: SelectedFilters<string | string[]>[] = deepFreeze
     value: ['Mileage'],
   },
   {
-    name: 'Cards',
+    name: 'Cards ending in...',
     value: ['1234', '2389'],
   },
   { name: 'Sort by', value: 'dateNewToOld' },
@@ -214,7 +214,7 @@ export const selectedFilters9: SelectedFilters<string | string[]>[] = deepFreeze
     value: ['PerDiem', 'Mileage'],
   },
   {
-    name: 'Cards',
+    name: 'Cards ending in...',
     value: ['1234', '5678'],
   },
   {

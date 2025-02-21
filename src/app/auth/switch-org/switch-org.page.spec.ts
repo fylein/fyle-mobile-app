@@ -806,7 +806,6 @@ describe('SwitchOrgPage', () => {
     expect(appVersionService.getUserAppVersionDetails).toHaveBeenCalledOnceWith(extendedDeviceInfoMockData);
     expect(trackingService.eventTrack).toHaveBeenCalledOnceWith('Auto Logged out', {
       lastLoggedInVersion: '5.50.0',
-      user_email: apiEouRes?.us?.email,
       appVersion: extendedDeviceInfoMockData.appVersion,
     });
     expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'app_version', { message: 'message' }]);
@@ -819,15 +818,12 @@ describe('SwitchOrgPage', () => {
     tick(500);
     const properties = {
       Asset: 'Mobile',
-      'Switch To': 'Staging Loaded',
+      'Switch To': orgData1[0].id,
       'Is Destination Org Active': true,
       'Is Destination Org Primary': true,
       'Is Current Org Primary': true,
       Source: 'User Clicked',
-      'User Email': 'ajain@fyle.in',
-      'User Org Name': 'Staging Loaded',
       'User Org ID': 'orNVthTo2Zyo',
-      'User Full Name': 'Abhishek Jain',
     };
     expect(authService.getEou).toHaveBeenCalledTimes(1);
     expect(trackingService.onSwitchOrg).toHaveBeenCalledOnceWith(properties);

@@ -44,7 +44,6 @@ import { TransformedSplitExpenseMissingFields } from 'src/app/core/models/transf
 import { SplitExpenseViolationsPopup } from 'src/app/core/models/split-expense-violations-popup.model';
 import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
-import { SplittingExpenseProperties } from 'src/app/core/models/tracking-properties.model';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
@@ -52,6 +51,7 @@ import { PlatformFile } from 'src/app/core/models/platform/platform-file.model';
 import { SplitConfig } from 'src/app/core/models/split-config.model';
 import { ReviewSplitExpenseComponent } from 'src/app/shared/components/review-split-expense/review-split-expense.component';
 import { FyMsgPopoverComponent } from 'src/app/shared/components/fy-msg-popover/fy-msg-popover.component';
+import { SplittingExpenseProperties } from 'src/app/core/models/splitting-expense-properties.model';
 
 @Component({
   selector: 'app-split-expense',

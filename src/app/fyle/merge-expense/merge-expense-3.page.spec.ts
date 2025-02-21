@@ -41,7 +41,7 @@ import { responseAfterAppliedFilter } from 'src/app/core/test-data/custom-inputs
 import { expenseFieldsMapResponse, expenseFieldsMapResponse4 } from 'src/app/core/mock-data/expense-fields-map.data';
 import { dependentFieldsMappingForProject } from 'src/app/core/mock-data/dependent-field-mapping.data';
 import { expectedCustomInputFields } from 'src/app/core/mock-data/custom-field.data';
-import { apiCardV2Transactions } from 'src/app/core/mock-data/ccc-api-response.data';
+import { ccTransactionResponseData } from 'src/app/core/mock-data/corporate-card-transaction-response.data';
 import { expenseInfoWithoutDefaultExpense, expensesInfo } from 'src/app/core/mock-data/expenses-info.data';
 import { customInputData1, customInputsData4 } from 'src/app/core/mock-data/custom-input.data';
 import { mergeExpenesesCustomInputsData } from 'src/app/core/mock-data/merge-expenses-custom-inputs.data';
@@ -255,10 +255,10 @@ export function TestCases3(getTestBed) {
 
     it('onPaymentModeChanged(): should call mergeExpensesService.getCorporateCardTransactions() once and assign CCCTxns correctly', () => {
       component.expenses = expenseList2;
-      mergeExpensesService.getCorporateCardTransactions.and.returnValue(of(apiCardV2Transactions.data));
+      mergeExpensesService.getCorporateCardTransactions.and.returnValue(of(ccTransactionResponseData.data));
       component.onPaymentModeChanged();
       expect(mergeExpensesService.getCorporateCardTransactions).toHaveBeenCalledOnceWith(expenseList2);
-      expect(component.CCCTxns).toEqual(apiCardV2Transactions.data);
+      expect(component.CCCTxns).toEqual(ccTransactionResponseData.data);
     });
 
     describe('generateCustomInputOptions(): ', () => {
