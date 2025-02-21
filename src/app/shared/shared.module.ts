@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
+import { CommonModule, DatePipe, DecimalPipe, TitleCasePipe } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatChipsModule } from '@angular/material/chips';
@@ -420,6 +420,15 @@ import { CCExpenseMerchantInfoModalComponent } from './components/cc-expense-mer
     MobileNumberCardComponent,
     CCExpenseMerchantInfoModalComponent,
   ],
-  providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker, FyCurrencyPipe, ReportState, ExactCurrencyPipe],
+  providers: [
+    DecimalPipe,
+    DatePipe,
+    HumanizeCurrencyPipe,
+    ImagePicker,
+    FyCurrencyPipe,
+    ReportState,
+    ExactCurrencyPipe,
+    TitleCasePipe,
+  ],
 })
 export class SharedModule {}
