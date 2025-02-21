@@ -63,8 +63,26 @@ $background-color: #fff;
     background: $pure-white;
     border: 0;
     line-height: 1;
-    width: 48%;
     height: 80px;
+    position: relative;
+
+    &:only-child {
+      width: 100%;
+      flex-grow: 1;
+    }
+
+    &:not(:only-child) {
+      width: 48%;
+      flex-grow: 0;
+    }
+  }
+
+  &--internal-block-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
   }
 
   &--error {
