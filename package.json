@@ -25,6 +25,7 @@
   },
   "private": true,
   "dependencies": {
+    "@angular-eslint/schematics": "^15.2.1",
     "@angular/animations": "^15.2.10",
     "@angular/cdk": "^15.2.9",
     "@angular/common": "^15.2.10",
@@ -98,7 +99,7 @@
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^15.2.11",
-    "@angular-eslint/builder": "^13.5.0",
+    "@angular-eslint/builder": "^15.2.1",
     "@angular-eslint/eslint-plugin": "^14.4.0",
     "@angular-eslint/eslint-plugin-template": "^14.4.0",
     "@angular-eslint/template-parser": "^14.4.0",
