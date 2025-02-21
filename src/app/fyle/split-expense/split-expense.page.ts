@@ -2,7 +2,7 @@ import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 import { Component, OnDestroy } from '@angular/core';
 import { AbstractControl, FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ModalController, NavController } from '@ionic/angular';
+import { ModalController, NavController, PopoverController } from '@ionic/angular';
 import { isEmpty, isNumber } from 'lodash';
 import * as dayjs from 'dayjs';
 import { combineLatest, forkJoin, from, iif, Observable, of, Subject, throwError } from 'rxjs';
@@ -51,6 +51,7 @@ import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expe
 import { PlatformFile } from 'src/app/core/models/platform/platform-file.model';
 import { SplitConfig } from 'src/app/core/models/split-config.model';
 import { ReviewSplitExpenseComponent } from 'src/app/shared/components/review-split-expense/review-split-expense.component';
+import { FyMsgPopoverComponent } from 'src/app/shared/components/fy-msg-popover/fy-msg-popover.component';
 
 @Component({
   selector: 'app-split-expense',
@@ -69,6 +70,8 @@ export class SplitExpensePage implements OnDestroy {
   destroy$ = new Subject<void>();
 
   filteredCategoriesArray: Observable<{ label: string; value: OrgCategory }[]>[] = [];
+
+  costCenterDisabledStates: boolean[] = [];
 
   txnFields: Partial<ExpenseFieldsObj>;
 
@@ -143,6 +146,7 @@ export class SplitExpensePage implements OnDestroy {
     private trackingService: TrackingService,
     private policyService: PolicyService,
     private modalController: ModalController,
+    private popoverController: PopoverController,
     private modalProperties: ModalPropertiesService,
     private costCentersService: CostCentersService,
     private orgUserSettingsService: OrgUserSettingsService,
@@ -1111,6 +1115,25 @@ export class SplitExpensePage implements OnDestroy {
     return of(categories.map((category) => ({ label: category.displayName, value: category })));
   }
 
+  onCategoryChange(index: number): void {
+    if (!this.splitConfig.costCenter.is_visible) {
+      return;
+    }
+    const splitForm = this.splitExpensesFormArray.at(index);
+    const categoryControl = splitForm.get('category').value as OrgCategory;
+
+    if (!categoryControl) {
+      return;
+    }
+
+    const isCostCenterAllowed = this.txnFields.cost_center_id?.org_category_ids?.includes(categoryControl.id);
+    this.costCenterDisabledStates[index] = !isCostCenterAllowed;
+
+    if (!isCostCenterAllowed) {
+      splitForm.get('cost_center').reset();
+    }
+  }
+
   // eslint-disable-next-line complexity
   add(amount?: number, currency?: string, percentage?: number, txnDt?: string | Date | dayjs.Dayjs): void {
     if (!txnDt) {
@@ -1164,26 +1187,41 @@ export class SplitExpensePage implements OnDestroy {
     }
 
     this.splitExpensesFormArray.push(fg);
+    this.handleInitialconfig(isFirstSplit);
 
+    this.getTotalSplitAmount();
+  }
+
+  handleInitialconfig(isFirstSplit: boolean): void {
     if (isFirstSplit && this.splitConfig.category.is_visible) {
       const firstSplitCategory = this.splitExpensesFormArray.at(0)?.get('category')?.value as OrgCategory | null;
       if (!firstSplitCategory) {
         this.setupFilteredCategories(0);
+        if (this.splitConfig.costCenter.is_visible) {
+          this.costCenterDisabledStates[0] = false;
+        }
       } else {
         this.filteredCategoriesArray[0] = this.categories$;
+        if (this.splitConfig.costCenter.is_visible) {
+          this.onCategoryChange(0);
+        }
       }
       this.filteredCategoriesArray[1] = this.categories$;
+      this.costCenterDisabledStates[1] = false;
     }
 
     if (this.splitExpensesFormArray.length > 2 && this.splitConfig.category.is_visible) {
       this.filteredCategoriesArray.push(this.categories$);
+      if (this.splitConfig.costCenter.is_visible) {
+        this.costCenterDisabledStates.push(false);
+      }
     }
-    this.getTotalSplitAmount();
   }
 
   remove(index: number): void {
     this.splitExpensesFormArray.removeAt(index);
     this.filteredCategoriesArray.splice(index, 1);
+    this.costCenterDisabledStates.splice(index, 1);
 
     if (this.splitExpensesFormArray.length === 2) {
       const firstSplitExpenseForm = this.splitExpensesFormArray.at(0);
@@ -1225,6 +1263,28 @@ export class SplitExpensePage implements OnDestroy {
 
     // Recalculate the total split amount and remaining amount
     this.getTotalSplitAmount();
+  }
+
+  showDisabledMessage(type: string): void {
+    let msg = '';
+    if (type === 'category') {
+      msg = 'No category is available for the selected project.';
+    } else {
+      msg = 'No cost center is available for the selected category.';
+    }
+    this.showPopoverModal(msg);
+  }
+
+  async showPopoverModal(msg: string): Promise<void> {
+    const Popover = await this.popoverController.create({
+      component: FyMsgPopoverComponent,
+      componentProps: {
+        msg,
+      },
+      cssClass: 'fy-dialog-popover',
+    });
+
+    await Popover.present();
   }
 
   handleNavigationAfterReview(action: string, expense?: PlatformExpense): void {
