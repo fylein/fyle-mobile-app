@@ -87,6 +87,7 @@ import {
 } from 'src/app/core/mock-data/transformed-expense.data';
 import { cloneDeep } from 'lodash';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { MAX_FILE_SIZE } from 'src/app/core/constants';
 
 export function TestCases4(getTestBed) {
   return describe('AddEditExpensePage-4', () => {
@@ -255,16 +256,17 @@ export function TestCases4(getTestBed) {
         });
       }));
 
-      it('should show file size exceeded popover if uploaded file is larger than 5MB', fakeAsync(() => {
+      it('should show file size exceeded popover if uploaded file is larger than 11MB', fakeAsync(() => {
         spyOn(component, 'showSizeLimitExceededPopover');
 
-        const myBlob = new Blob([new ArrayBuffer(100 * 100 * 1000)], { type: 'application/octet-stream' });
+        const newSize = MAX_FILE_SIZE + 1;
+        const myBlob = new Blob([new ArrayBuffer(newSize)], { type: 'application/octet-stream' });
         const file = new File([myBlob], 'file');
 
         component.uploadFileCallback(file);
         tick(500);
 
-        expect(component.showSizeLimitExceededPopover).toHaveBeenCalledOnceWith();
+        expect(component.showSizeLimitExceededPopover).toHaveBeenCalledOnceWith(MAX_FILE_SIZE);
       }));
     });
 

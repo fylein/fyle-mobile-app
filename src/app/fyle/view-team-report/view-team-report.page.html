@@ -6,7 +6,7 @@
       </ion-button>
     </ion-buttons>
     <ng-container>
-      <ion-title mode="md" class="page-title"> View Report </ion-title>
+      <ion-title mode="md" class="page-title"> View report </ion-title>
     </ng-container>
     <ion-buttons mode="md" slot="end">
       <ion-button *ngIf="isReportReported" (click)="sendBack()">
@@ -65,8 +65,8 @@
               <div class="view-reports--employee-name">
                 <div>
                   <span class="view-reports--employee-name__text">Employee : </span>
-                  <span class="view-reports--employee-name__name"
-                    >{{report.employee.user.full_name | ellipsis: 30}}</span
+                  <span class="view-reports--employee-name__name smartlook-hide">
+                    {{report.employee.user.full_name | ellipsis: 30}}</span
                   >
                 </div>
               </div>
@@ -79,7 +79,7 @@
                 <div class="view-reports--submitted-date">
                   <div>
                     <span class="view-reports--submitted-date__text">
-                      {{ report.last_resubmitted_at ? "Resubmitted on : " : "Submitted on : "}}
+                      {{ report.last_resubmitted_at ? "Resubmitted date : " : "Submitted date : "}}
                     </span>
                     <span class="view-reports--submitted-date__date"
                       >{{(report.last_resubmitted_at || report.last_submitted_at) | date: 'MMM dd, YYYY'}}</span
@@ -94,7 +94,7 @@
                   class="view-reports--view-info__icon"
                   src="../../../assets/svg/info-circle-gradient.svg"
                 ></ion-icon>
-                <span class="view-reports--view-info__content">View Info</span>
+                <span class="view-reports--view-info__content">View info</span>
               </div>
             </ion-col>
           </ion-row>
@@ -119,7 +119,7 @@
           </div>
           <div *ngFor="let approver of approvals">
             <div class="view-reports--approvers-list">
-              <div>{{ approver.approver_user.full_name }}</div>
+              <div class="smartlook-hide">{{ approver.approver_user.full_name }}</div>
               <div class="view-reports--approver-state-section">
                 <div
                   class="view-reports--approver-state-pill view-reports--approver-state-pill__{{approver.state | lowercase}}"
@@ -199,7 +199,7 @@
               <ion-grid class="view-comment--card view-comment--self-comment text-right">
                 <ion-row>
                   <ion-col size="12">
-                    <div class="view-comment--name-container">{{ estatus.creator_user?.full_name }}</div>
+                    <div class="view-comment--name-container smartlook-hide">{{ estatus.creator_user?.full_name }}</div>
                   </ion-col>
                 </ion-row>
                 <ion-row>
@@ -239,7 +239,7 @@
               <ion-grid class="view-comment--card view-comment--others-comment text-left">
                 <ion-row>
                   <ion-col size="12">
-                    <div class="view-comment--name-container">{{ estatus.creator_user?.full_name }}</div>
+                    <div class="view-comment--name-container smartlook-hide">{{ estatus.creator_user?.full_name }}</div>
                   </ion-col>
                 </ion-row>
                 <ion-row>
@@ -321,7 +321,7 @@
         [loadingText]="'Approving'"
         [loading]="approveReportLoader"
       >
-        Approve Report
+        Approve report
       </ion-button>
     </ion-toolbar>
   </ion-footer>

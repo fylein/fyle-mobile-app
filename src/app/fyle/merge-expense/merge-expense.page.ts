@@ -20,7 +20,7 @@ import { GenericFieldsOptions } from 'src/app/core/models/generic-fields-options
 import { MergeExpensesOption } from 'src/app/core/models/merge-expenses-option.model';
 import { MergeExpensesOptionsData } from 'src/app/core/models/merge-expenses-options-data.model';
 import { TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
-import { CorporateCardExpense } from 'src/app/core/models/v2/corporate-card-expense.model';
+import { corporateCardTransaction } from 'src/app/core/models/platform/v1/cc-transaction.model';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
@@ -118,7 +118,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
 
   expenseToKeepInfoText: string;
 
-  CCCTxns: CorporateCardExpense[];
+  CCCTxns: corporateCardTransaction[];
 
   redirectedFrom: string;
 
@@ -633,7 +633,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
       txn_dt: this.genericFieldsFormValues.dateOfSpend,
       receipt_ids: this.selectedReceiptsId,
       custom_properties: [
-        ...this.customInputsFormValues?.fields,
+        ...(Array.isArray(this.customInputsFormValues?.fields) ? this.customInputsFormValues.fields : []),
         ...projectDependantFieldValues,
         ...costCenterDependentFieldValues,
       ],

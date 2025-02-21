@@ -38,7 +38,7 @@ describe('CardDetailComponent', () => {
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
       'dashboardOnIncompleteCardExpensesClick',
-      'dashboardOnTotalCardExpensesClick',
+      'dashboardOnCompleteCardExpensesClick',
     ]);
     const orgSettingServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     TestBed.configureTestingModule({
@@ -73,7 +73,7 @@ describe('CardDetailComponent', () => {
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     orgSettingService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
-    component.cardDetail = cardDetailsRes[0];
+    component.cardDetail = cardDetailsRes[cardDetailsRes.length - 1];
     orgSettingService.get.and.returnValue(of(orgSettingsWithV2ExpensesPage));
     fixture.detectChanges();
   }));
@@ -106,19 +106,19 @@ describe('CardDetailComponent', () => {
       });
     });
 
-    it('should go to expenses page and show filter DRAFT & READY_TO_REPORT expenses', () => {
-      trackingService.dashboardOnTotalCardExpensesClick.and.callThrough();
+    it('should go to expenses page and show filter READY_TO_REPORT expenses', () => {
+      trackingService.dashboardOnCompleteCardExpensesClick.and.callThrough();
       fixture.detectChanges();
 
       const queryParams = {
         filters: JSON.stringify({
-          state: ['DRAFT,READY_TO_REPORT'],
+          state: ['READY_TO_REPORT'],
           cardNumbers: [component.cardDetail.card.card_number],
         }),
       };
 
-      component.goToExpensesPage('totalExpenses', component.cardDetail);
-      expect(trackingService.dashboardOnTotalCardExpensesClick).toHaveBeenCalledTimes(1);
+      component.goToExpensesPage('completeExpenses', component.cardDetail);
+      expect(trackingService.dashboardOnCompleteCardExpensesClick).toHaveBeenCalledTimes(1);
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses'], {
         queryParams,
       });

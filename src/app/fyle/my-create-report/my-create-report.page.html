@@ -7,7 +7,7 @@
         </ion-button>
       </ion-buttons>
       <div class="my-create-report--title-container text-center">
-        <div class="my-create-report--title">Create New Report</div>
+        <div class="my-create-report--title">Create new report</div>
         <div class="my-create-report--sub-title">
           {{ selectedElements?.length }} {{ selectedElements?.length > 1 ? 'Expenses' : 'Expense' }}
           <span class="my-create-report--amount">
@@ -22,7 +22,7 @@
 <ion-content class="no-keyboard-adjust">
   <div class="my-create-report--container full-height">
     <div class="my-create-report--report-card">
-      <div class="my-create-report--report-title">Report Name</div>
+      <div class="my-create-report--report-title">Report name</div>
       <span class="my-create-report--mandatory"> * </span>
       <input
         data-testid="report-name"
@@ -89,7 +89,7 @@
         [loadingText]="'Saving Report'"
         [disabled]="emptyInput"
       >
-        Save as Draft
+        Save as draft
       </ion-button>
       <ion-button
         class="fy-footer-cta fy-footer-cta--primary"
@@ -99,7 +99,7 @@
         [loadingText]="'Submitting Report'"
         [disabled]="(this.selectedElements?.length === 0) || saveDraftReportLoading  || saveReportLoading"
       >
-        Submit Report
+        Submit report
       </ion-button>
     </div>
   </ion-toolbar>

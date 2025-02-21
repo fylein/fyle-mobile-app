@@ -156,22 +156,21 @@ describe('CorporateCreditCardExpenseService', () => {
     expect(result).toEqual(statementUploadedCardDetail);
   });
 
-  it('getv2CardTransactions(): should get all card transactions', (done) => {
-    apiV2Service.get.and.returnValue(of(apiCardV2Transactions));
+  it('getCorporateCardTransactions(): should get all card transactions', (done) => {
+    spenderPlatformV1ApiService.get.and.returnValue(of(ccTransactionResponseData));
 
     const param = {
       offset: 0,
       queryParams: {},
-      limit: 2,
+      limit: 1,
     };
 
-    cccExpenseService.getv2CardTransactions(param).subscribe((res) => {
-      expect(res).toEqual(apiCardV2Transactions);
-      expect(apiV2Service.get).toHaveBeenCalledOnceWith('/corporate_card_transactions', {
+    cccExpenseService.getCorporateCardTransactions(param).subscribe((res) => {
+      expect(res).toEqual(ccTransactionResponseData);
+      expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/corporate_card_transactions', {
         params: {
           offset: 0,
-          limit: 2,
-          order: 'txn_dt.desc,id.desc',
+          limit: 1,
         },
       });
       done();

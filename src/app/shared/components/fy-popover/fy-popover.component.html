@@ -8,7 +8,7 @@
     <ion-title>
       <div class="fy-popover--toolbar__title">{{ title }}</div>
     </ion-title>
-    <ion-buttons slot="end">
+    <ion-buttons *ngIf="!message" slot="end">
       <ion-button [disabled]="formValue.trim().length === 0" class="fy-popover--toolbar__btn" (click)="submit()">
         Done
       </ion-button>
@@ -16,7 +16,11 @@
   </ion-toolbar>
 </ion-header>
 
-<div class="fy-popover--input-container">
+<div *ngIf="message" class="fy-popover__info-details">
+  {{ message }}
+</div>
+
+<div *ngIf="!message" class="fy-popover--input-container">
   <div class="fy-popover--input-container__label">
     <span> {{ formLabel }} </span>
     <span class="fy-popover--input-container__mandatory"> * </span>

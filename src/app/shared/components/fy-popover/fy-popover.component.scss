@@ -47,4 +47,10 @@
       border: 1px solid $grey-light;
     }
   }
+
+  &__info-details {
+    font-size: 14px;
+    padding: 20px 16px;
+    color: $black;
+  }
 }

@@ -36,15 +36,19 @@ export class CardDetailComponent {
       });
 
       this.trackingService.dashboardOnIncompleteCardExpensesClick();
-    } else if (state === 'totalExpenses' && cardDetail.stats.totalTxnsCount && cardDetail.stats.totalTxnsCount > 0) {
+    } else if (
+      state === 'completeExpenses' &&
+      cardDetail.stats.totalCompleteTxns &&
+      cardDetail.stats.totalCompleteTxns > 0
+    ) {
       const queryParams: Params = {
-        filters: JSON.stringify({ state: ['DRAFT,READY_TO_REPORT'], cardNumbers: [this.cardDetail?.card.card_number] }),
+        filters: JSON.stringify({ state: ['READY_TO_REPORT'], cardNumbers: [this.cardDetail?.card.card_number] }),
       };
       this.router.navigate(['/', 'enterprise', 'my_expenses'], {
         queryParams,
       });
 
-      this.trackingService.dashboardOnTotalCardExpensesClick();
+      this.trackingService.dashboardOnCompleteCardExpensesClick();
     }
   }
 }

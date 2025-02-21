@@ -970,7 +970,7 @@ export class MyExpensesPage implements OnInit {
     const filterMain = this.myExpensesService.getFilters();
     if (this.cardNumbers?.length > 0) {
       filterMain.push({
-        name: 'Cards',
+        name: 'Cards ending in...',
         optionType: FilterOptionType.multiselect,
         options: this.cardNumbers,
       } as FilterOptions<string>);
@@ -1000,10 +1000,9 @@ export class MyExpensesPage implements OnInit {
       const params = this.addNewFiltersToParams();
 
       this.loadExpenses$.next(params);
-
       this.filterPills = this.generateFilterPills(this.filters);
       this.trackingService.myExpensesFilterApplied({
-        ...this.filters,
+        filterLabels: Object.keys(this.filters),
       });
     }
   }
@@ -1681,7 +1680,7 @@ export class MyExpensesPage implements OnInit {
     } else if (filterType === 'potentialDuplicates') {
       await this.openFilters('Potential duplicates');
     } else if (filterType === 'cardNumbers') {
-      await this.openFilters('Cards');
+      await this.openFilters('Cards ending in...');
     }
   }
 

@@ -5,7 +5,7 @@
     [ngClass]="{ 'receipt-preview__toolbar--no-index': base64ImagesWithSource.length === 1 }"
   >
     <ion-title [ngClass]="{ 'receipt-preview__title--with-delete': base64ImagesWithSource.length > 1 }">
-      <div class="text-center receipt-preview__title">Receipt Preview</div>
+      <div class="text-center receipt-preview__title">Receipt preview</div>
       <div *ngIf="base64ImagesWithSource.length > 1" class="receipt-preview__sub-title text-center">
         {{ activeIndex + 1 }}/{{ base64ImagesWithSource.length }}
       </div>
