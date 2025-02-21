@@ -2,7 +2,7 @@ import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 import { Component, OnDestroy } from '@angular/core';
 import { AbstractControl, FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ModalController, NavController } from '@ionic/angular';
+import { ModalController, NavController, PopoverController } from '@ionic/angular';
 import { isEmpty, isNumber } from 'lodash';
 import * as dayjs from 'dayjs';
 import { combineLatest, forkJoin, from, iif, Observable, of, Subject, throwError } from 'rxjs';
@@ -51,6 +51,7 @@ import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expe
 import { PlatformFile } from 'src/app/core/models/platform/platform-file.model';
 import { SplitConfig } from 'src/app/core/models/split-config.model';
 import { ReviewSplitExpenseComponent } from 'src/app/shared/components/review-split-expense/review-split-expense.component';
+import { FyMsgPopoverComponent } from 'src/app/shared/components/fy-msg-popover/fy-msg-popover.component';
 
 @Component({
   selector: 'app-split-expense',
@@ -145,6 +146,7 @@ export class SplitExpensePage implements OnDestroy {
     private trackingService: TrackingService,
     private policyService: PolicyService,
     private modalController: ModalController,
+    private popoverController: PopoverController,
     private modalProperties: ModalPropertiesService,
     private costCentersService: CostCentersService,
     private orgUserSettingsService: OrgUserSettingsService,
@@ -1261,6 +1263,28 @@ export class SplitExpensePage implements OnDestroy {
 
     // Recalculate the total split amount and remaining amount
     this.getTotalSplitAmount();
+  }
+
+  showDisabledMessage(type: string): void {
+    let msg = '';
+    if (type === 'category') {
+      msg = 'No category is available for the selected project.';
+    } else {
+      msg = 'No cost center is available for the selected category.';
+    }
+    this.showPopoverModal(msg);
+  }
+
+  async showPopoverModal(msg: string): Promise<void> {
+    const Popover = await this.popoverController.create({
+      component: FyMsgPopoverComponent,
+      componentProps: {
+        msg,
+      },
+      cssClass: 'fy-dialog-popover',
+    });
+
+    await Popover.present();
   }
 
   handleNavigationAfterReview(action: string, expense?: PlatformExpense): void {
