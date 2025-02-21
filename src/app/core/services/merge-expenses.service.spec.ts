@@ -90,7 +90,7 @@ import {
 import { fileObject11 } from '../mock-data/file-object.data';
 import * as lodash from 'lodash';
 import { projectsV1Data } from '../test-data/projects.spec.data';
-import { corporateCardExpenseData } from '../mock-data/corporate-card-expense.data';
+import { ccTransactionResponseData } from '../mock-data/corporate-card-transaction-response.data';
 import { customInputData } from '../test-data/custom-inputs.spec.data';
 import * as dayjs from 'dayjs';
 import { expectedOrgCategoryByName2, orgCategoryData1 } from '../mock-data/org-category.data';
@@ -123,7 +123,7 @@ describe('MergeExpensesService', () => {
       'getReceiptsDetails',
     ]);
     const corporateCreditCardExpenseServiceSpy = jasmine.createSpyObj('CorporateCreditCardExpenseService', [
-      'getv2CardTransactions',
+      'getCorporateCardTransactions',
     ]);
     const customInputsServiceSpy = jasmine.createSpyObj('CustomInputsService', ['getAll']);
     const humanizeCurrencyPipeSpy = jasmine.createSpyObj('HumanizeCurrencyPipe', ['transform']);
@@ -487,58 +487,58 @@ describe('MergeExpensesService', () => {
 
   describe('getCorporateCardTransactions(): ', () => {
     it('should return the corporate card transactions', (done) => {
-      const params = {
+      const expenseWithId = [
+        {
+          tx_corporate_credit_card_expense_group_id: 'btxnBdS2Kpvzhy',
+        },
+      ];
+
+      const config = {
         queryParams: {
-          group_id: ['in.(,)'],
+          id: 'in.(btxnBdS2Kpvzhy)',
         },
         offset: 0,
         limit: 1,
       };
 
       customInputsService.getAll.withArgs(true).and.returnValue(of(customInputData));
-      corporateCreditCardExpenseService.getv2CardTransactions
-        .withArgs(params)
-        .and.returnValue(of(corporateCardExpenseData));
+      corporateCreditCardExpenseService.getCorporateCardTransactions
+        .withArgs(config)
+        .and.returnValue(of(ccTransactionResponseData));
 
-      mergeExpensesService.getCorporateCardTransactions(expensesDataWithCC).subscribe((res) => {
-        expect(res).toEqual(corporateCardExpenseData.data);
-        expect(corporateCreditCardExpenseService.getv2CardTransactions).toHaveBeenCalledOnceWith(params);
+      mergeExpensesService.getCorporateCardTransactions(expenseWithId).subscribe((res) => {
+        expect(res).toEqual(ccTransactionResponseData.data);
+        expect(corporateCreditCardExpenseService.getCorporateCardTransactions).toHaveBeenCalledOnceWith(config);
         expect(customInputsService.getAll).toHaveBeenCalledOnceWith(true);
         done();
       });
     });
 
-    it('should return the corporate card transactions if expenses are undefined', (done) => {
-      const params = {
-        queryParams: {
-          group_id: ['in.(,)'],
+    it('should return empty array when expense has null id', (done) => {
+      const expensesWithNullIds = [
+        {
+          tx_corporate_credit_card_expense_group_id: null,
         },
-        offset: 0,
-        limit: 1,
-      };
+      ];
 
       customInputsService.getAll.withArgs(true).and.returnValue(of(customInputData));
-      corporateCreditCardExpenseService.getv2CardTransactions
-        .withArgs(params)
-        .and.returnValue(of(corporateCardExpenseData));
 
-      const mockExpense = [undefined, undefined];
-      mergeExpensesService.getCorporateCardTransactions(mockExpense).subscribe((res) => {
-        expect(res).toEqual(corporateCardExpenseData.data);
-        expect(corporateCreditCardExpenseService.getv2CardTransactions).toHaveBeenCalledOnceWith(params);
+      mergeExpensesService.getCorporateCardTransactions(expensesWithNullIds).subscribe((res) => {
+        expect(res).toEqual([]);
+        expect(corporateCreditCardExpenseService.getCorporateCardTransactions).not.toHaveBeenCalled();
         expect(customInputsService.getAll).toHaveBeenCalledOnceWith(true);
         done();
       });
     });
-  });
 
-  it('should return empty list if there are no expenses', (done) => {
-    customInputsService.getAll.withArgs(true).and.returnValue(of(customInputData));
+    it('should return empty list if there are no expenses', (done) => {
+      customInputsService.getAll.withArgs(true).and.returnValue(of(customInputData));
 
-    mergeExpensesService.getCorporateCardTransactions([]).subscribe((res) => {
-      expect(res).toEqual([]);
-      expect(customInputsService.getAll).toHaveBeenCalledOnceWith(true);
-      done();
+      mergeExpensesService.getCorporateCardTransactions([]).subscribe((res) => {
+        expect(res).toEqual([]);
+        expect(customInputsService.getAll).toHaveBeenCalledOnceWith(true);
+        done();
+      });
     });
   });
 

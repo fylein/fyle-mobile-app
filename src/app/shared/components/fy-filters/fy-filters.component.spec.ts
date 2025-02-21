@@ -79,8 +79,8 @@ describe('FyFiltersComponent', () => {
     component.filterOptions = filterOptions1;
     fixture.detectChanges();
     expect(component.currentFilterValueMap).toEqual({
-      'Created On': 'custom',
-      'Updated On': 'custom',
+      'Created date': 'custom',
+      'Updated date': 'custom',
       'Transactions Type': 'Debit',
       Type: 'custom',
       'Receipts Attached': 'custom',
@@ -275,8 +275,8 @@ describe('FyFiltersComponent', () => {
 
     component.ngOnInit();
     fixture.detectChanges();
-    expect(component.startDate).toEqual(undefined);
-    expect(component.endDate).toEqual(undefined);
+    expect(component.startDate).toBeUndefined();
+    expect(component.endDate).toBeUndefined();
   });
 
   it('should set filterOptions options to optionsNewFlowCCCOnly', () => {
@@ -531,32 +531,33 @@ describe('FyFiltersComponent', () => {
     component.filterOptions = filterOptions1;
     fixture.detectChanges();
     expect(component.currentFilterValueMap).toEqual({
-      'Created On': 'custom',
-      'Updated On': 'custom',
+      'Created date': 'custom',
+      'Updated date': 'custom',
       'Transactions Type': 'Debit',
       Type: 'custom',
       'Receipts Attached': 'custom',
     });
     expect(component.customDateMap).toEqual({});
-    expect(component.startDate).toEqual(undefined);
-    expect(component.endDate).toEqual(undefined);
+    expect(component.startDate).toBeUndefined();
+    expect(component.endDate).toBeUndefined();
     component.clearAll();
     expect(component.currentFilterValueMap).toEqual({});
     expect(component.customDateMap).toEqual({});
     expect(component.startDate).toBeNull();
     expect(component.endDate).toBeNull();
   });
+
   it('onDateChange(): should update startDate and endDate', () => {
     component.simplifyReportsSettings$ = of({ enabled: false });
     component.selectedFilterValues = selectedFilters1;
     component.nonReimbursableOrg$ = of(false);
-    component.activeFilterInitialName = 'Created On';
+    component.activeFilterInitialName = 'Created date';
     component.filterOptions = filterOptions1;
     component.startDate = new Date('2023-04-22');
     component.endDate = new Date('2023-04-25');
     fixture.detectChanges();
     component.onDateChange();
-    expect(component.customDateMap['Created On']).toEqual({
+    expect(component.customDateMap['Created date']).toEqual({
       startDate: new Date('2023-04-22'),
       endDate: new Date('2023-04-25'),
     });
@@ -566,11 +567,11 @@ describe('FyFiltersComponent', () => {
     component.simplifyReportsSettings$ = of({ enabled: false });
     component.selectedFilterValues = selectedFilters1;
     component.nonReimbursableOrg$ = of(false);
-    component.activeFilterInitialName = 'Created On';
+    component.activeFilterInitialName = 'Created date';
     component.filterOptions = filterOptions1;
     fixture.detectChanges();
     const filterDefinition = {
-      name: 'Created On',
+      name: 'Created date',
       optionType: FilterOptionType.date,
       options: [
         {

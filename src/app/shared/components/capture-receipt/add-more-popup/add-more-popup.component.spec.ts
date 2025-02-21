@@ -27,7 +27,7 @@ describe('AddMorePopupComponent', () => {
 
   it('should display the heading correctly', () => {
     const headingElement = getElementBySelector(fixture, '.add-more--heading');
-    expect(getTextContent(headingElement)).toContain('Add more Using');
+    expect(getTextContent(headingElement)).toContain('Add more using');
   });
 
   it('should initialize actionButtons correctly', () => {

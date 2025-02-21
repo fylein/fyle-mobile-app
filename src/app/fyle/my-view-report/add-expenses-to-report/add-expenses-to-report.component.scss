@@ -22,7 +22,7 @@
   }
 
   &--total-amount {
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 400;
   }
 
@@ -64,6 +64,8 @@
       align-items: center;
       justify-content: center;
       gap: -1px;
+      flex-wrap: nowrap;
+      white-space: nowrap;
       &--icon {
         height: 14px;
         color: $dark-grey;

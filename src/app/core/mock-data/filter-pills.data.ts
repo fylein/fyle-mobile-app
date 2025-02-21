@@ -20,12 +20,12 @@ export const debitTxnFilterPill: FilterPill[] = deepFreeze([
 
 export const allFilterPills: FilterPill[] = deepFreeze([
   {
-    label: 'Created On',
+    label: 'Created date',
     type: 'date',
     value: '2023-02-20 to 2023-02-22',
   },
   {
-    label: 'Updated On',
+    label: 'Updated date',
     type: 'date',
     value: '2023-02-22 to 2023-02-24',
   },
@@ -80,7 +80,7 @@ export const expectedFilterPill1: FilterPill[] = deepFreeze([
     value: 'category - a to z',
   },
   {
-    label: 'Cards',
+    label: 'Cards ending in...',
     type: 'cardNumbers',
     value: '****1234, ****5678',
   },
@@ -148,7 +148,7 @@ export const sortFilterPill: FilterPill = deepFreeze({
 });
 
 export const cardFilterPill: FilterPill = deepFreeze({
-  label: 'Cards',
+  label: 'Cards ending in...',
   type: 'cardNumbers',
   value: '****1234, ****5678',
 });
