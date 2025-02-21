@@ -1,10 +1,11 @@
-import { ComponentFixture, TestBed, async, fakeAsync, flush, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { DelegatedAccMessageComponent } from './delegated-acc-message.component';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { EllipsisPipe } from '../../pipes/ellipses.pipe';
+import { RouterTestingModule } from '@angular/router/testing';
+import { of } from 'rxjs';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
-import { getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 
 describe('DelegatedAccMessageComponent', () => {
   let component: DelegatedAccMessageComponent;
@@ -13,9 +14,10 @@ describe('DelegatedAccMessageComponent', () => {
 
   beforeEach(waitForAsync(() => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
+    authServiceSpy.getEou.and.returnValue(of(apiEouRes));
     TestBed.configureTestingModule({
       declarations: [DelegatedAccMessageComponent, EllipsisPipe],
-      imports: [IonicModule.forRoot()],
+      imports: [IonicModule.forRoot(), RouterTestingModule],
       providers: [
         {
           provide: AuthService,
@@ -26,8 +28,6 @@ describe('DelegatedAccMessageComponent', () => {
 
     fixture = TestBed.createComponent(DelegatedAccMessageComponent);
     component = fixture.componentInstance;
-    authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
     fixture.detectChanges();
   }));
 
@@ -38,7 +38,7 @@ describe('DelegatedAccMessageComponent', () => {
   it("should display delegatee's name", () => {
     component.delegateeName = 'Abhishek Jain';
     fixture.detectChanges();
-    expect(getTextContent(getElementBySelector(fixture, '.delegated-acc'))).toEqual(
+    expect(fixture.nativeElement.querySelector('.delegated-acc').textContent).toContain(
       `You're now managing Abhishek Jain's account`
     );
   });
