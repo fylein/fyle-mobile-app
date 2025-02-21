@@ -118,8 +118,23 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
   stopCamera(): void {
     //Stop camera only if it is in RUNNING state
     if (this.cameraState === CameraState.RUNNING) {
+      const currentCameraState = this.cameraState;
       this.cameraState = CameraState.STOPPING;
-      from(this.cameraPreviewService.stop()).subscribe(() => (this.cameraState = CameraState.STOPPED));
+
+      from(this.cameraPreviewService.stop()).subscribe({
+        next: () => {
+          this.cameraState = CameraState.STOPPED;
+        },
+        error: (error) => {
+          Sentry.captureException(error, {
+            extra: {
+              errorResponse: error,
+              currentCameraState,
+              cameraState: this.cameraState,
+            },
+          });
+        },
+      });
     }
   }
 

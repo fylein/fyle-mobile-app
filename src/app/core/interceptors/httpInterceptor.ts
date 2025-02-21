@@ -22,6 +22,7 @@ import { SecureStorageService } from '../services/secure-storage.service';
 import { StorageService } from '../services/storage.service';
 import { TokenService } from '../services/token.service';
 import { UserEventService } from '../services/user-event.service';
+import * as Sentry from '@sentry/angular';
 
 @Injectable()
 export class HttpConfigInterceptor implements HttpInterceptor {
@@ -153,6 +154,7 @@ export class HttpConfigInterceptor implements HttpInterceptor {
         return next.handle(request).pipe(
           catchError((error) => {
             if (error instanceof HttpErrorResponse) {
+              this.trackErrorInSentry(error, request);
               if (this.expiringSoon(token)) {
                 return from(this.refreshAccessToken()).pipe(
                   mergeMap((newToken) => {
@@ -176,6 +178,29 @@ export class HttpConfigInterceptor implements HttpInterceptor {
         );
       })
     );
+  }
+
+  private trackErrorInSentry(error: HttpErrorResponse, request: HttpRequest<string>): void {
+    if (error.status >= 500) {
+      const errorObject = new Error(`API ${error.status} Error: ${error.message || 'Server error'}`);
+
+      Object.assign(errorObject, {
+        status: error.status,
+        statusText: error.statusText,
+        name: `API Error ${error.status} : ${error.url?.split('?')[0]}`,
+      });
+
+      Sentry.captureException(errorObject, {
+        tags: {
+          errorType: `API_${error.status}`,
+          apiEndpoint: error.url,
+        },
+        extra: {
+          requestUrl: request.url,
+          responseData: error.error,
+        },
+      });
+    }
   }
 }
 
