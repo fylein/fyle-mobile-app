@@ -1668,14 +1668,14 @@ export function TestCases2(getTestBed) {
 
       popoverController.create.and.resolveTo(sizeLimitExceededPopoverSpy);
 
-      component.showSizeLimitExceededPopover(8388609);
+      component.showSizeLimitExceededPopover(11534337);
       tick(500);
 
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         component: PopupAlertComponent,
         componentProps: {
           title: 'Size limit exceeded',
-          message: 'The uploaded file is greater than 8MB in size. Please reduce the file size and try again.',
+          message: 'The uploaded file is greater than 11MB in size. Please reduce the file size and try again.',
           primaryCta: {
             text: 'OK',
           },
