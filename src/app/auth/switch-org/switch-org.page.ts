@@ -267,7 +267,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
           })
         )
         .subscribe(() => {
-          this.showToastNotification('Verification Email Sent');
+          this.showToastNotification('Verification email sent');
           this.logoutIfSingleOrg(orgs);
         });
     } else {

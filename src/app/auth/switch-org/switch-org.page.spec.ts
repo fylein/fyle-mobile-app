@@ -477,7 +477,7 @@ fdescribe('SwitchOrgPage', () => {
       component.handleDismissPopup('resend', email, org_id, orgData1);
       expect(component.resendInvite).toHaveBeenCalledOnceWith(email, org_id);
       expect(component.logoutIfSingleOrg).toHaveBeenCalledOnceWith(orgData1);
-      expect(component.showToastNotification).toHaveBeenCalledOnceWith('Verification Email Sent');
+      expect(component.showToastNotification).toHaveBeenCalledOnceWith('Verification email sent');
     });
 
     it('should logout if action is cancel', () => {
