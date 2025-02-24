@@ -7,7 +7,7 @@ import { FooterComponent } from './footer.component';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ConnectionMessageStatus } from '../fy-connection/connection-status.enum';
-import { FooterState } from './footer-state';
+import { FooterState } from './footer-state.enum';
 import { of } from 'rxjs';
 import { MatRippleModule } from '@angular/material/core';
 import { getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';

@@ -234,6 +234,7 @@
     (homeClicked)="onHomeClicked()"
     (taskClicked)="onTaskClicked()"
     (cameraClicked)="onCameraClicked()"
+    (reportsClicked)="onReportsClicked()"
     [taskCount]="expensesTaskCount"
   ></app-fy-footer>
   <ng-container *ngIf="openReports$ | async as openReports">

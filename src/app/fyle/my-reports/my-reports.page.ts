@@ -479,6 +479,10 @@ export class MyReportsPage {
     this.router.navigate(['/', 'enterprise', 'camera_overlay', { navigate_back: true }]);
   }
 
+  onExpensesClicked(): void {
+    this.router.navigate(['/', 'enterprise', 'my_expenses', { navigate_back: true }]);
+  }
+
   onViewCommentsClick(): void {
     // TODO: Add when view comments is done
   }

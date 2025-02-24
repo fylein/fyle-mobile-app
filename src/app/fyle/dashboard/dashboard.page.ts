@@ -6,7 +6,7 @@ import { NetworkService } from '../../core/services/network.service';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { StatsComponent } from './stats/stats.component';
 import { ActivatedRoute, NavigationStart, Params, Router } from '@angular/router';
-import { FooterState } from '../../shared/components/footer/footer-state';
+import { FooterState } from '../../shared/components/footer/footer-state.enum';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TasksComponent } from './tasks/tasks.component';
 import { TasksService } from 'src/app/core/services/tasks.service';
@@ -306,7 +306,6 @@ export class DashboardPage {
   }
 
   onExpensesClicked(): void {
-    console.log('Expenses clicked');
     this.router.navigate(
       [
         '/',
@@ -316,12 +315,11 @@ export class DashboardPage {
           navigate_back: true,
         },
       ],
-      { skipLocationChange: true }
+      { skipLocationChange: true, replaceUrl: true }
     );
   }
 
   onReportsClicked(): void {
-    console.log('Reports clicked');
     this.router.navigate(
       [
         '/',
@@ -331,7 +329,7 @@ export class DashboardPage {
           navigate_back: true,
         },
       ],
-      { skipLocationChange: true }
+      { skipLocationChange: true, replaceUrl: true }
     );
   }
 

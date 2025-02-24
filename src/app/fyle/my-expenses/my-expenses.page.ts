@@ -1730,6 +1730,10 @@ export class MyExpensesPage implements OnInit {
     ]);
   }
 
+  onReportsClicked(): void {
+    this.router.navigate(['/', 'enterprise', 'my_reports', { navigate_back: true }]);
+  }
+
   searchClick(): void {
     this.headerState = HeaderState.simpleSearch;
     const searchInput = this.simpleSearchInput.nativeElement;
