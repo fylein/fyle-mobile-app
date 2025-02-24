@@ -286,10 +286,10 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       const email = eou.us.email;
       const popover = await this.popoverController.create({
         componentProps: {
-          title: 'Invite Not Accepted',
+          title: 'Invite not accepted',
           message: `You have been invited to ${orgName} organization, please check your previous emails and accept the invite or resend invite.`,
           primaryCta: {
-            text: 'Resend Invite',
+            text: 'Resend invite',
             action: 'resend',
           },
           secondaryCta: {
