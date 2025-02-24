@@ -27,6 +27,8 @@ import { CommuteDeduction } from 'src/app/core/enums/commute-deduction.enum';
   providedIn: 'root',
 })
 export class ExpensesService {
+  private splitExpensesData = null;
+
   constructor(
     @Inject(PAGINATION_SIZE) private paginationSize: number,
     private spenderService: SpenderService,
@@ -370,5 +372,20 @@ export class ExpensesService {
         },
       ],
     });
+  }
+
+  storeRecentlySplitExpenses(data): void {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    this.splitExpensesData = data;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/adjacent-overload-signatures, @typescript-eslint/explicit-function-return-type
+  getRecentlySplitExpenses() {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return this.splitExpensesData;
+  }
+
+  clearRecentlySplitExpenses(): void {
+    this.splitExpensesData = null;
   }
 }
