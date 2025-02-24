@@ -8,6 +8,7 @@ import { from } from 'rxjs';
 import { TrackingService } from '../../core/services/tracking.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { BrowserHandlerService } from 'src/app/core/services/browser-handler.service';
+import { OrgAdmin } from 'src/app/core/models/org-admin.model';
 
 @Component({
   selector: 'app-help',
@@ -15,7 +16,7 @@ import { BrowserHandlerService } from 'src/app/core/services/browser-handler.ser
   styleUrls: ['./help.page.scss'],
 })
 export class HelpPage implements OnInit {
-  orgAdmins: unknown;
+  orgAdmins: Partial<OrgAdmin>;
 
   contactSupportLoading = false;
 
@@ -47,12 +48,16 @@ export class HelpPage implements OnInit {
         finalize(() => from(this.loaderService.hideLoader()))
       )
       .subscribe((orgAdmins) => {
-        this.orgAdmins = orgAdmins.data;
+        this.orgAdmins = orgAdmins;
+        // eslint-disable-next-line no-console
+        console.log('Testing New', orgAdmins);
         this.presentSupportModal('contact_support');
       });
   }
 
   async presentSupportModal(dialogType: string): Promise<void> {
+    // eslint-disable-next-line no-console
+    console.log('Testing falied');
     this.trackingService.viewHelpCard();
     const modal = await this.modalController.create({
       component: SupportDialogPage,
@@ -61,14 +66,25 @@ export class HelpPage implements OnInit {
         adminEous: this.orgAdmins,
       },
     });
-
+    // eslint-disable-next-line no-console
+    console.log('Testing falied 1');
     await modal.present();
+    // eslint-disable-next-line no-console
+    console.log('Testing falied 2');
     const { data }: { data?: unknown } = await modal.onDidDismiss();
+    // eslint-disable-next-line no-console
+    console.log('Testing 3');
+    // eslint-disable-next-line no-console
+    console.log('Testing 1', data);
     if (data) {
+      // eslint-disable-next-line no-console
+      console.log('Testing 2', data);
       if (dialogType === 'contact_support') {
         this.contactSupportLoading = false;
       }
     } else {
+      // eslint-disable-next-line no-console
+      console.log('Testing falied 4');
       this.contactSupportLoading = false;
     }
   }
@@ -79,5 +95,7 @@ export class HelpPage implements OnInit {
 
   ngOnInit(): void {
     // Placeholder for initialization logic
+    // eslint-disable-next-line no-console
+    console.log('Testing orgAdmins',this.orgAdmins);
   }
 }
