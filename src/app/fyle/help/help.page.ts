@@ -49,42 +49,26 @@ export class HelpPage implements OnInit {
       )
       .subscribe((orgAdmins) => {
         this.orgAdmins = orgAdmins;
-        // eslint-disable-next-line no-console
-        console.log('Testing New', orgAdmins);
         this.presentSupportModal('contact_support');
       });
   }
 
   async presentSupportModal(dialogType: string): Promise<void> {
-    // eslint-disable-next-line no-console
-    console.log('Testing falied');
     this.trackingService.viewHelpCard();
     const modal = await this.modalController.create({
       component: SupportDialogPage,
       componentProps: {
         type: dialogType,
-        adminEous: this.orgAdmins,
+        adminEous: this.orgAdmins.data,
       },
     });
-    // eslint-disable-next-line no-console
-    console.log('Testing falied 1');
     await modal.present();
-    // eslint-disable-next-line no-console
-    console.log('Testing falied 2');
-    const { data }: { data?: unknown } = await modal.onDidDismiss();
-    // eslint-disable-next-line no-console
-    console.log('Testing 3');
-    // eslint-disable-next-line no-console
-    console.log('Testing 1', data);
+    const { data }: { data?: { dismissed: boolean } } = await modal.onDidDismiss();
     if (data) {
-      // eslint-disable-next-line no-console
-      console.log('Testing 2', data);
       if (dialogType === 'contact_support') {
         this.contactSupportLoading = false;
       }
     } else {
-      // eslint-disable-next-line no-console
-      console.log('Testing falied 4');
       this.contactSupportLoading = false;
     }
   }
@@ -95,7 +79,5 @@ export class HelpPage implements OnInit {
 
   ngOnInit(): void {
     // Placeholder for initialization logic
-    // eslint-disable-next-line no-console
-    console.log('Testing orgAdmins',this.orgAdmins);
   }
 }

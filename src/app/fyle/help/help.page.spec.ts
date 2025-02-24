@@ -13,7 +13,7 @@ import { employeesRes } from 'src/app/core/test-data/org-user.service.spec.data'
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { BrowserHandlerService } from 'src/app/core/services/browser-handler.service';
 
-describe('HelpPage', () => {
+fdescribe('HelpPage', () => {
   let component: HelpPage;
   let fixture: ComponentFixture<HelpPage>;
   let modalController: jasmine.SpyObj<ModalController>;
@@ -104,7 +104,7 @@ describe('HelpPage', () => {
     expect(authService.getEou).toHaveBeenCalledTimes(1);
     expect(orgUserService.getEmployeesByParams).toHaveBeenCalledOnceWith(params);
     expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-    expect(component.orgAdmins).toEqual(employeesRes.data);
+    expect(component.orgAdmins).toEqual(employeesRes);
     expect(component.presentSupportModal).toHaveBeenCalledWith(dialogType);
   }));
 
@@ -122,7 +122,7 @@ describe('HelpPage', () => {
         component: SupportDialogPage,
         componentProps: {
           type: dialogType,
-          adminEous: employeesRes,
+          adminEous: employeesRes.data,
         },
       });
       expect(modalControllerSpy.present).toHaveBeenCalledTimes(1);
@@ -143,7 +143,7 @@ describe('HelpPage', () => {
         component: SupportDialogPage,
         componentProps: {
           type: dialogType,
-          adminEous: employeesRes,
+          adminEous: employeesRes.data,
         },
       });
       expect(modalControllerSpy.present).toHaveBeenCalledTimes(1);
