@@ -7,7 +7,7 @@ import { NetworkService } from 'src/app/core/services/network.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { TrackingService } from '../../../core/services/tracking.service';
 import { SnackbarPropertiesService } from '../../../core/services/snackbar-properties.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
@@ -16,7 +16,7 @@ import { ExpensesCardComponent } from './expenses-card.component';
 import { PopoverController, ModalController, Platform } from '@ionic/angular';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatLegacyCheckboxModule as MatCheckboxModule } from '@angular/material/legacy-checkbox';
 import { FormsModule } from '@angular/forms';
 import { ExpenseState } from '../../pipes/expense-state.pipe';
 import { orgSettingsGetData } from 'src/app/core/test-data/org-settings.service.spec.data';
@@ -676,9 +676,9 @@ describe('ExpensesCardComponent', () => {
       });
     }));
 
-    it('should show size limit exceeded popover if the file size is more than 5MB', fakeAsync(() => {
+    it('should show size limit exceeded popover if the file size is more than 11MB', fakeAsync(() => {
       const mockFile = new File(['file contents'], 'test.png', { type: 'image/png' });
-      Object.defineProperty(mockFile, 'size', { value: 5000001 });
+      Object.defineProperty(mockFile, 'size', { value: 11534337 });
       const mockNativeElement = {
         files: [mockFile],
       };
@@ -693,14 +693,14 @@ describe('ExpensesCardComponent', () => {
   it('showSizeLimitExceededPopover', fakeAsync(() => {
     const popOverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present']);
     popoverController.create.and.resolveTo(popOverSpy);
-    component.showSizeLimitExceededPopover();
+    component.showSizeLimitExceededPopover(11534337);
 
     tick(500);
     expect(popoverController.create).toHaveBeenCalledOnceWith({
       component: PopupAlertComponent,
       componentProps: {
         title: 'Size limit exceeded',
-        message: 'The uploaded file is greater than 5MB in size. Please reduce the file size and try again.',
+        message: 'The uploaded file is greater than 11MB in size. Please reduce the file size and try again.',
         primaryCta: {
           text: 'OK',
         },

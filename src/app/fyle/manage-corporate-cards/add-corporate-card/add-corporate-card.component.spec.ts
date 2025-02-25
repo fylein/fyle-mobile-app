@@ -438,7 +438,7 @@ describe('AddCorporateCardComponent', () => {
       expect(alertMessageComponent.componentInstance.message).toBe(
         'Enter a valid Visa or Mastercard number. If you have other cards, please add them on Fyle Web or contact your admin.'
       );
-      expect(addCorporateCardBtn.disabled).toBe(true);
+      expect(addCorporateCardBtn.disabled).toBeTrue();
       expect(trackingService.enrollingNonRTFCard).toHaveBeenCalledOnceWith(enrollingNonRTFCardProperties);
     });
   });

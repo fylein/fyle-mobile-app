@@ -9,7 +9,7 @@ import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { Router, RouterModule } from '@angular/router';
 import { TrackingService } from '../../core/services/tracking.service';
 import { SetupAccountPreferencesPage } from './setup-account-preferences.page';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { UntypedFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { RouterTestingModule } from '@angular/router/testing';
 import { of } from 'rxjs';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
@@ -26,7 +26,7 @@ describe('SetupAccountPreferencesPage', () => {
   let authService: jasmine.SpyObj<AuthService>;
   let orgService: jasmine.SpyObj<OrgService>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
-  let fb: FormBuilder;
+  let fb: UntypedFormBuilder;
   let loadingService: jasmine.SpyObj<LoaderService>;
   let orgUserService: jasmine.SpyObj<OrgUserService>;
   let router: jasmine.SpyObj<Router>;
@@ -50,7 +50,7 @@ describe('SetupAccountPreferencesPage', () => {
       declarations: [SetupAccountPreferencesPage],
       imports: [IonicModule.forRoot(), ReactiveFormsModule, RouterTestingModule, RouterModule],
       providers: [
-        FormBuilder,
+        UntypedFormBuilder,
         {
           provide: NetworkService,
           useValue: networkServiceSpy,
@@ -89,19 +89,20 @@ describe('SetupAccountPreferencesPage', () => {
     orgService = TestBed.inject(OrgService) as jasmine.SpyObj<OrgService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
-    fb = TestBed.inject(FormBuilder);
+    fb = TestBed.inject(UntypedFormBuilder);
     loadingService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
     orgUserService = TestBed.inject(OrgUserService) as jasmine.SpyObj<OrgUserService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
 
     networkService.connectivityWatcher.and.callThrough();
     networkService.isOnline.and.returnValue(of(true));
-    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+    authService.getEou.and.resolveTo(apiEouRes);
     orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
     mockOrgSettingsRes = cloneDeep(orgSettingsRes);
     orgSettingsService.get.and.returnValue(of(mockOrgSettingsRes));
     fixture.detectChanges();
   }));
+
   it('should create', () => {
     expect(component).toBeTruthy();
   });
@@ -137,8 +138,8 @@ describe('SetupAccountPreferencesPage', () => {
   });
 
   it('markActiveAndRedirect', fakeAsync(() => {
-    loadingService.showLoader.and.returnValue(Promise.resolve());
-    loadingService.hideLoader.and.returnValue(Promise.resolve());
+    loadingService.showLoader.and.resolveTo();
+    loadingService.hideLoader.and.resolveTo();
     trackingService.setupComplete.and.callThrough();
     orgUserService.markActive.and.returnValue(of(apiEouRes));
     trackingService.activated.and.callThrough();

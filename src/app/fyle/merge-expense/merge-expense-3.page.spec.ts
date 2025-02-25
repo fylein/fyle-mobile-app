@@ -5,13 +5,16 @@ import { CategoriesService } from 'src/app/core/services/categories.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
 import { NavController } from '@ionic/angular';
-import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
+import {
+  MatLegacySnackBar as MatSnackBar,
+  MatLegacySnackBarRef as MatSnackBarRef,
+} from '@angular/material/legacy-snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { MergeExpensesService } from 'src/app/core/services/merge-expenses.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
-import { FormBuilder, Validators } from '@angular/forms';
+import { UntypedFormBuilder, Validators } from '@angular/forms';
 import { cloneDeep } from 'lodash';
 import { apiExpenseRes, expenseList2 } from 'src/app/core/mock-data/expense.data';
 import { BehaviorSubject, Observable, Subscription, of, skip, take } from 'rxjs';
@@ -41,7 +44,7 @@ import { responseAfterAppliedFilter } from 'src/app/core/test-data/custom-inputs
 import { expenseFieldsMapResponse, expenseFieldsMapResponse4 } from 'src/app/core/mock-data/expense-fields-map.data';
 import { dependentFieldsMappingForProject } from 'src/app/core/mock-data/dependent-field-mapping.data';
 import { expectedCustomInputFields } from 'src/app/core/mock-data/custom-field.data';
-import { apiCardV2Transactions } from 'src/app/core/mock-data/ccc-api-response.data';
+import { ccTransactionResponseData } from 'src/app/core/mock-data/corporate-card-transaction-response.data';
 import { expenseInfoWithoutDefaultExpense, expensesInfo } from 'src/app/core/mock-data/expenses-info.data';
 import { customInputData1, customInputsData4 } from 'src/app/core/mock-data/custom-input.data';
 import { mergeExpenesesCustomInputsData } from 'src/app/core/mock-data/merge-expenses-custom-inputs.data';
@@ -62,7 +65,7 @@ export function TestCases3(getTestBed) {
     let trackingService: jasmine.SpyObj<TrackingService>;
     let expenseFieldsService: jasmine.SpyObj<ExpenseFieldsService>;
     let dependantFieldsService: jasmine.SpyObj<DependentFieldsService>;
-    let formBuilder: FormBuilder;
+    let formBuilder: UntypedFormBuilder;
 
     beforeEach(waitForAsync(() => {
       const TestBed = getTestBed();
@@ -80,7 +83,7 @@ export function TestCases3(getTestBed) {
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
       expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
       dependantFieldsService = TestBed.inject(DependentFieldsService) as jasmine.SpyObj<DependentFieldsService>;
-      formBuilder = TestBed.inject(FormBuilder);
+      formBuilder = TestBed.inject(UntypedFormBuilder);
       component.fg = formBuilder.group({
         target_txn_id: [, Validators.required],
         genericFields: [],
@@ -255,10 +258,10 @@ export function TestCases3(getTestBed) {
 
     it('onPaymentModeChanged(): should call mergeExpensesService.getCorporateCardTransactions() once and assign CCCTxns correctly', () => {
       component.expenses = expenseList2;
-      mergeExpensesService.getCorporateCardTransactions.and.returnValue(of(apiCardV2Transactions.data));
+      mergeExpensesService.getCorporateCardTransactions.and.returnValue(of(ccTransactionResponseData.data));
       component.onPaymentModeChanged();
       expect(mergeExpensesService.getCorporateCardTransactions).toHaveBeenCalledOnceWith(expenseList2);
-      expect(component.CCCTxns).toEqual(apiCardV2Transactions.data);
+      expect(component.CCCTxns).toEqual(ccTransactionResponseData.data);
     });
 
     describe('generateCustomInputOptions(): ', () => {

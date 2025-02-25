@@ -1,7 +1,7 @@
 import { getCurrencySymbol } from '@angular/common';
 import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { ActivatedRoute, NavigationStart, Params, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, PopoverController } from '@ionic/angular';
 import { cloneDeep, isEqual, isNumber } from 'lodash';
@@ -1000,10 +1000,9 @@ export class MyExpensesPage implements OnInit {
       const params = this.addNewFiltersToParams();
 
       this.loadExpenses$.next(params);
-
       this.filterPills = this.generateFilterPills(this.filters);
       this.trackingService.myExpensesFilterApplied({
-        ...this.filters,
+        filterLabels: Object.keys(this.filters),
       });
     }
   }

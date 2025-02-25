@@ -1,5 +1,11 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {
+  UntypedFormBuilder,
+  UntypedFormControl,
+  UntypedFormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { IonicModule, ModalController } from '@ionic/angular';
 import { of } from 'rxjs';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
@@ -13,7 +19,7 @@ import { FyNumberComponent } from '../fy-number/fy-number.component';
 describe('FyCurrencyComponent', () => {
   let component: FyCurrencyComponent;
   let fixture: ComponentFixture<FyCurrencyComponent>;
-  let fb: FormBuilder;
+  let fb: UntypedFormBuilder;
   let modalController: jasmine.SpyObj<ModalController>;
   let currencyService: jasmine.SpyObj<CurrencyService>;
   let modalPropertiesService: jasmine.SpyObj<ModalPropertiesService>;
@@ -44,14 +50,14 @@ describe('FyCurrencyComponent', () => {
           provide: ModalPropertiesService,
           useValue: modalPropertiesServiceSpy,
         },
-        FormBuilder,
+        UntypedFormBuilder,
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
 
     fixture = TestBed.createComponent(FyCurrencyComponent);
     component = fixture.componentInstance;
-    fb = TestBed.inject(FormBuilder);
+    fb = TestBed.inject(UntypedFormBuilder);
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
     modalPropertiesService = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
@@ -128,10 +134,10 @@ describe('FyCurrencyComponent', () => {
     const exchangeRate = 1.5;
     currencyService.getExchangeRate.and.returnValue(of(exchangeRate));
 
-    component.fg = new FormGroup({
-      currency: new FormControl('EUR'),
-      amount: new FormControl(null),
-      homeCurrencyAmount: new FormControl(null),
+    component.fg = new UntypedFormGroup({
+      currency: new UntypedFormControl('EUR'),
+      amount: new UntypedFormControl(null),
+      homeCurrencyAmount: new UntypedFormControl(null),
     });
     component.homeCurrency = 'USD';
     component.innerValue = {
@@ -158,10 +164,10 @@ describe('FyCurrencyComponent', () => {
     const exchangeRate = 1.5;
     currencyService.getExchangeRate.and.returnValue(of(exchangeRate));
 
-    component.fg = new FormGroup({
-      currency: new FormControl('EUR'),
-      amount: new FormControl(300),
-      homeCurrencyAmount: new FormControl(300),
+    component.fg = new UntypedFormGroup({
+      currency: new UntypedFormControl('EUR'),
+      amount: new UntypedFormControl(300),
+      homeCurrencyAmount: new UntypedFormControl(300),
     });
     component.homeCurrency = 'USD';
     component.innerValue = {
@@ -255,10 +261,10 @@ describe('FyCurrencyComponent', () => {
   });
 
   it('should set exchange Rate correctly', fakeAsync(() => {
-    component.fg = new FormGroup({
-      currency: new FormControl('USD'),
-      amount: new FormControl(50),
-      homeCurrencyAmount: new FormControl(50),
+    component.fg = new UntypedFormGroup({
+      currency: new UntypedFormControl('USD'),
+      amount: new UntypedFormControl(50),
+      homeCurrencyAmount: new UntypedFormControl(50),
     });
     component.homeCurrency = 'EUR';
     component.value = {
@@ -295,10 +301,10 @@ describe('FyCurrencyComponent', () => {
   }));
 
   it('should set exchange Rate correctly', fakeAsync(() => {
-    component.fg = new FormGroup({
-      currency: new FormControl('USD'),
-      amount: new FormControl(50),
-      homeCurrencyAmount: new FormControl(50),
+    component.fg = new UntypedFormGroup({
+      currency: new UntypedFormControl('USD'),
+      amount: new UntypedFormControl(50),
+      homeCurrencyAmount: new UntypedFormControl(50),
     });
     component.homeCurrency = 'EUR';
     component.value = {
@@ -341,10 +347,10 @@ describe('FyCurrencyComponent', () => {
   }));
 
   it('should set exchange Rate correctly', fakeAsync(() => {
-    component.fg = new FormGroup({
-      currency: new FormControl('USD'),
-      amount: new FormControl(50),
-      homeCurrencyAmount: new FormControl(50),
+    component.fg = new UntypedFormGroup({
+      currency: new UntypedFormControl('USD'),
+      amount: new UntypedFormControl(50),
+      homeCurrencyAmount: new UntypedFormControl(50),
     });
     component.homeCurrency = 'EUR';
     component.value = {
@@ -381,10 +387,10 @@ describe('FyCurrencyComponent', () => {
   }));
 
   it('should open the currency modal and should set ExchangeRate without passing currency Code', fakeAsync(() => {
-    component.fg = new FormGroup({
-      currency: new FormControl('USD'),
-      amount: new FormControl(50),
-      homeCurrencyAmount: new FormControl(50),
+    component.fg = new UntypedFormGroup({
+      currency: new UntypedFormControl('USD'),
+      amount: new UntypedFormControl(50),
+      homeCurrencyAmount: new UntypedFormControl(50),
     });
     spyOn(component, 'setExchangeRate');
     modalController.create.and.resolveTo({
@@ -416,10 +422,10 @@ describe('FyCurrencyComponent', () => {
   }));
 
   it('should open the currency modal and should set exchange Rate', fakeAsync(() => {
-    component.fg = new FormGroup({
-      currency: new FormControl('USD'),
-      amount: new FormControl(50),
-      homeCurrencyAmount: new FormControl(50),
+    component.fg = new UntypedFormGroup({
+      currency: new UntypedFormControl('USD'),
+      amount: new UntypedFormControl(50),
+      homeCurrencyAmount: new UntypedFormControl(50),
     });
     spyOn(component, 'setExchangeRate');
     modalController.create.and.resolveTo({
@@ -449,10 +455,10 @@ describe('FyCurrencyComponent', () => {
   }));
 
   it('should open the currency modal and should set form currency value', fakeAsync(() => {
-    component.fg = new FormGroup({
-      currency: new FormControl('USD'),
-      amount: new FormControl(50),
-      homeCurrencyAmount: new FormControl(50),
+    component.fg = new UntypedFormGroup({
+      currency: new UntypedFormControl('USD'),
+      amount: new UntypedFormControl(50),
+      homeCurrencyAmount: new UntypedFormControl(50),
     });
     spyOn(component, 'setExchangeRate');
     modalController.create.and.resolveTo({
@@ -483,10 +489,10 @@ describe('FyCurrencyComponent', () => {
 
   it('should set currencyAutoCodeMessage to "Currency is auto coded." and amountAutoCodeMessage to "Amount is auto coded." when both are auto coded', () => {
     component.autoCodedData = { currency: 'USD', amount: 100 };
-    component.fg = new FormGroup({
-      currency: new FormControl('USD'),
-      amount: new FormControl(100),
-      homeCurrencyAmount: new FormControl(null),
+    component.fg = new UntypedFormGroup({
+      currency: new UntypedFormControl('USD'),
+      amount: new UntypedFormControl(100),
+      homeCurrencyAmount: new UntypedFormControl(null),
     });
     component.showAutoCodeMessage();
     expect(component.currencyAutoCodeMessage).toBe('Currency is auto coded.');
@@ -495,10 +501,10 @@ describe('FyCurrencyComponent', () => {
 
   it('should set currencyAutoCodeMessage to "Currency is auto coded." when only currency is auto coded', () => {
     component.autoCodedData = { currency: 'USD', amount: 100 };
-    component.fg = new FormGroup({
-      currency: new FormControl('USD'),
-      amount: new FormControl(200),
-      homeCurrencyAmount: new FormControl(null),
+    component.fg = new UntypedFormGroup({
+      currency: new UntypedFormControl('USD'),
+      amount: new UntypedFormControl(200),
+      homeCurrencyAmount: new UntypedFormControl(null),
     });
     component.showAutoCodeMessage();
     expect(component.currencyAutoCodeMessage).toBe('Currency is auto coded.');
@@ -506,10 +512,10 @@ describe('FyCurrencyComponent', () => {
 
   it('should set amountAutoCodeMessage to "Amount is auto coded." when only amount is auto coded', () => {
     component.autoCodedData = { currency: 'USD', amount: 100 };
-    component.fg = new FormGroup({
-      currency: new FormControl('EUR'),
-      amount: new FormControl(100),
-      homeCurrencyAmount: new FormControl(null),
+    component.fg = new UntypedFormGroup({
+      currency: new UntypedFormControl('EUR'),
+      amount: new UntypedFormControl(100),
+      homeCurrencyAmount: new UntypedFormControl(null),
     });
     component.showAutoCodeMessage();
     expect(component.amountAutoCodeMessage).toBe('Amount is auto coded.');
@@ -517,10 +523,10 @@ describe('FyCurrencyComponent', () => {
 
   it('should set currencyAutoCodeMessage and amountAutoCodeMessage to "" when neither currency nor amount is auto coded', () => {
     component.autoCodedData = { currency: 'USD', amount: 100 };
-    component.fg = new FormGroup({
-      currency: new FormControl('EUR'),
-      amount: new FormControl(200),
-      homeCurrencyAmount: new FormControl(null),
+    component.fg = new UntypedFormGroup({
+      currency: new UntypedFormControl('EUR'),
+      amount: new UntypedFormControl(200),
+      homeCurrencyAmount: new UntypedFormControl(null),
     });
     component.showAutoCodeMessage();
     expect(component.currencyAutoCodeMessage).toBe('');

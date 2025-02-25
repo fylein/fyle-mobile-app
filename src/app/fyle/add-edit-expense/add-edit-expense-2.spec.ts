@@ -1,7 +1,7 @@
 import { TitleCasePipe } from '@angular/common';
 import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
-import { FormArray, FormBuilder, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { UntypedFormArray, UntypedFormBuilder, Validators } from '@angular/forms';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
@@ -130,7 +130,7 @@ export function TestCases2(getTestBed) {
     let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
     let accountsService: jasmine.SpyObj<AccountsService>;
     let authService: jasmine.SpyObj<AuthService>;
-    let formBuilder: FormBuilder;
+    let formBuilder: UntypedFormBuilder;
     let categoriesService: jasmine.SpyObj<CategoriesService>;
     let dateService: jasmine.SpyObj<DateService>;
     let projectsService: jasmine.SpyObj<ProjectsService>;
@@ -185,7 +185,7 @@ export function TestCases2(getTestBed) {
       activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
       accountsService = TestBed.inject(AccountsService) as jasmine.SpyObj<AccountsService>;
       authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-      formBuilder = TestBed.inject(FormBuilder);
+      formBuilder = TestBed.inject(UntypedFormBuilder);
       categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
       dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
       reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
@@ -254,7 +254,7 @@ export function TestCases2(getTestBed) {
         bus_travel_class: [],
         distance: [],
         distance_unit: [],
-        custom_inputs: new FormArray([]),
+        custom_inputs: new UntypedFormArray([]),
         billable: [],
         costCenter: [],
         hotel_is_breakfast_provided: [],
@@ -573,6 +573,25 @@ export function TestCases2(getTestBed) {
           done();
         });
       });
+
+      it('should redirect back if the expense is not returned from the API', (done) => {
+        expensesService.getExpenseById.and.returnValue(throwError(() => new Error('expense not found')));
+        spyOn(component, 'goBack');
+
+        component.getEditExpenseObservable().subscribe({
+          next: () => fail('Expected an error, but got a successful response'),
+          error: () => {}, // No action needed, as we expect an error
+          complete: () => {
+            expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+            expect(loaderService.showLoader).toHaveBeenCalledOnceWith(
+              'This expense no longer exists. Redirecting to expenses list',
+              1000
+            );
+            expect(component.goBack).toHaveBeenCalledTimes(1);
+            done();
+          },
+        });
+      });
     });
 
     it('goToPrev(): should go to the previous txn', () => {
@@ -581,9 +600,8 @@ export function TestCases2(getTestBed) {
       component.reviewList = ['txvslh8aQMbu', 'txNyI8ot5CuJ'];
       expensesService.getExpenseById.and.returnValue(of(platformExpenseData));
       transactionService.transformExpense.and.returnValue(transformedExpenseData);
-      fixture.detectChanges();
 
-      component.goToPrev();
+      component.goToPrev(1);
       expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txvslh8aQMbu');
       expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
       expect(component.goToTransaction).toHaveBeenCalledOnceWith(transformedExpenseData, component.reviewList, 0);
@@ -595,9 +613,8 @@ export function TestCases2(getTestBed) {
       component.reviewList = ['txSEM4DtjyKR', 'txD5hIQgLuR5'];
       expensesService.getExpenseById.and.returnValue(of(platformExpenseDataWithSubCategory));
       transactionService.transformExpense.and.returnValue(transformedExpenseDataWithSubCategory);
-      fixture.detectChanges();
 
-      component.goToNext();
+      component.goToNext(0);
       expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txD5hIQgLuR5');
       expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseDataWithSubCategory);
       expect(component.goToTransaction).toHaveBeenCalledOnceWith(
@@ -977,7 +994,7 @@ export function TestCases2(getTestBed) {
         component.saveExpenseAndGotoPrev();
         expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_AND_PREV_EXPENSE');
         expect(component.checkIfReceiptIsMissingAndMandatory).toHaveBeenCalledWith('SAVE_AND_PREV_EXPENSE');
-        expect(component.goToPrev).toHaveBeenCalledOnceWith();
+        expect(component.goToPrev).toHaveBeenCalledOnceWith(component.activeIndex);
       });
 
       it('should save an edited expense and close the form', () => {
@@ -1011,7 +1028,7 @@ export function TestCases2(getTestBed) {
         component.saveExpenseAndGotoPrev();
         expect(component.editExpense).toHaveBeenCalledOnceWith('SAVE_AND_PREV_EXPENSE');
         expect(component.checkIfReceiptIsMissingAndMandatory).toHaveBeenCalledWith('SAVE_AND_PREV_EXPENSE');
-        expect(component.goToPrev).toHaveBeenCalledOnceWith();
+        expect(component.goToPrev).toHaveBeenCalledOnceWith(component.activeIndex);
       });
 
       it('should show validation errors if the form is not valid', () => {
@@ -1649,14 +1666,14 @@ export function TestCases2(getTestBed) {
 
       popoverController.create.and.resolveTo(sizeLimitExceededPopoverSpy);
 
-      component.showSizeLimitExceededPopover();
+      component.showSizeLimitExceededPopover(11534337);
       tick(500);
 
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         component: PopupAlertComponent,
         componentProps: {
           title: 'Size limit exceeded',
-          message: 'The uploaded file is greater than 5MB in size. Please reduce the file size and try again.',
+          message: 'The uploaded file is greater than 11MB in size. Please reduce the file size and try again.',
           primaryCta: {
             text: 'OK',
           },

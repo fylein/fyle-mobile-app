@@ -5,7 +5,10 @@ import * as dayjs from 'dayjs';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { MatBottomSheet, MatBottomSheetRef } from '@angular/material/bottom-sheet';
-import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
+import {
+  MatLegacySnackBar as MatSnackBar,
+  MatLegacySnackBarRef as MatSnackBarRef,
+} from '@angular/material/legacy-snack-bar';
 import { By } from '@angular/platform-browser';
 import { ActivatedRoute, NavigationStart, Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -2076,7 +2079,9 @@ describe('MyExpensesPage', () => {
 
       expect(component.generateFilterPills).toHaveBeenCalledOnceWith({ sortDir: 'asc', splitExpense: 'YES' });
       expect(component.filterPills).toEqual(creditTxnFilterPill);
-      expect(trackingService.myExpensesFilterApplied).toHaveBeenCalledOnceWith({ sortDir: 'asc', splitExpense: 'YES' });
+      expect(trackingService.myExpensesFilterApplied).toHaveBeenCalledOnceWith({
+        filterLabels: ['sortDir', 'splitExpense'],
+      });
     }));
 
     it('should call modalController and myExpensesService if cardNumbers is undefined', fakeAsync(() => {
@@ -2096,7 +2101,9 @@ describe('MyExpensesPage', () => {
       });
       expect(component.generateFilterPills).toHaveBeenCalledOnceWith({ sortDir: 'asc', splitExpense: 'YES' });
       expect(component.filterPills).toEqual(creditTxnFilterPill);
-      expect(trackingService.myExpensesFilterApplied).toHaveBeenCalledOnceWith({ sortDir: 'asc', splitExpense: 'YES' });
+      expect(trackingService.myExpensesFilterApplied).toHaveBeenCalledOnceWith({
+        filterLabels: ['sortDir', 'splitExpense'],
+      });
     }));
   });
 

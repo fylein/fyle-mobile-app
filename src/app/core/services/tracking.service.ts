@@ -7,7 +7,6 @@ import { TaskFilters } from '../models/task-filters.model';
 import { OrgCategory } from '../models/v1/org-category.model';
 import { TeamReportsFilters } from '../models/team-reports-filters.model';
 import { forkJoin, from } from 'rxjs';
-import { ExpenseFilters } from '../models/expense-filters.model';
 import { ReportFilters } from '../models/report-filters.model';
 import { CommuteDetailsResponse } from '../models/platform/commute-details-response.model';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -43,19 +42,11 @@ import { ExtendedOrgUser } from '../models/extended-org-user.model';
   providedIn: 'root',
 })
 export class TrackingService {
-  identityEmail = null;
+  identityId = null;
 
   ROOT_ENDPOINT: string;
 
   constructor(private authService: AuthService, private deviceService: DeviceService) {}
-
-  private isDemoAccount(eou: ExtendedOrgUser): boolean {
-    const email = eou.us.email.toLowerCase();
-    const orgName = eou.ou.org_name.toLowerCase();
-    const keywords = ['demo', 'test', 'fyle'];
-
-    return keywords.some((keyword) => email.includes(keyword) || orgName.includes(keyword));
-  }
 
   setRoot(rootUrl: string): void {
     this.ROOT_ENDPOINT = rootUrl;
@@ -84,13 +75,13 @@ export class TrackingService {
 
   async updateIdentity(): Promise<void> {
     const eou = await this.authService.getEou();
-    const email = eou?.us?.email;
-    if (email && email !== this.identityEmail) {
+    const userId = eou?.us?.id;
+    if (userId && userId !== this.identityId) {
       try {
-        mixpanel?.identify(email);
+        mixpanel?.identify(userId);
       } catch (e) {}
 
-      this.identityEmail = email;
+      this.identityId = userId;
     }
   }
 
@@ -101,8 +92,8 @@ export class TrackingService {
       if (eou?.us && eou?.ou) {
         try {
           const distinctId = mixpanel?.get_distinct_id() as string;
-          if (distinctId !== eou.us.email) {
-            mixpanel?.identify(eou.us.email);
+          if (distinctId !== eou.us.id) {
+            mixpanel?.identify(eou.us.id);
           }
 
           properties['User Id'] = eou.us.id;
@@ -117,7 +108,7 @@ export class TrackingService {
   }
 
   async updateIdentityIfNotPresent(): Promise<void> {
-    if (!this.identityEmail) {
+    if (!this.identityId) {
       await this.updateIdentity();
     }
   }
@@ -149,6 +140,8 @@ export class TrackingService {
           webViewVersion: deviceInfo.webViewVersion,
         },
         appVersion: environment.LIVE_UPDATE_APP_VERSION,
+        // overriding $current_url which MixPanel auto captures to prevent query parms containing PII data
+        $current_url: window.location.href?.split('?')[0],
       };
 
       try {
@@ -158,12 +151,12 @@ export class TrackingService {
   }
 
   // external APIs
-  onSignin(email: string, properties: { label?: string } = {}): void {
+  onSignin(userId: string, properties: { label?: string } = {}): void {
     try {
-      mixpanel?.identify(email);
+      mixpanel?.identify(userId);
     } catch (e) {}
 
-    this.identityEmail = email;
+    this.identityId = userId;
     this.eventTrack('Signin', properties);
   }
 
@@ -374,6 +367,11 @@ export class TrackingService {
     this.eventTrack('Sync Error', properties);
   }
 
+  // capture receipt flow, patch expenses error
+  patchExpensesError(properties: { label: Error }): void {
+    this.eventTrack('Patch expense error - capture receipt flow', properties);
+  }
+
   checkPolicyError(properties: { label: Error }): void {
     this.eventTrack('Check Policy Error', properties);
   }
@@ -472,7 +470,7 @@ export class TrackingService {
     this.eventTrack('my expenses action sheet action clicked', properties);
   }
 
-  myExpensesFilterApplied(properties: Partial<ExpenseFilters>): void {
+  myExpensesFilterApplied(properties: { filterLabels: string[] }): void {
     this.eventTrack('my expenses filters applied', properties);
   }
 
@@ -867,5 +865,13 @@ export class TrackingService {
 
   clickedOnDashboardBanner(): void {
     this.eventTrack('Clicked On Dashboard Banner');
+  }
+
+  private isDemoAccount(eou: ExtendedOrgUser): boolean {
+    const email = eou.us.email.toLowerCase();
+    const orgName = eou.ou.org_name.toLowerCase();
+    const keywords = ['demo', 'test', 'fyle'];
+
+    return keywords.some((keyword) => email.includes(keyword) || orgName.includes(keyword));
   }
 }

@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { DateService } from './date.service';
-import { map, switchMap, concatMap, reduce, tap } from 'rxjs/operators';
+import { map, switchMap, concatMap, reduce, tap, catchError } from 'rxjs/operators';
 import { StorageService } from './storage.service';
 import { from, Observable, range, forkJoin, of } from 'rxjs';
 import { OrgUserSettingsService } from './org-user-settings.service';
@@ -38,6 +38,7 @@ import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { expensesCacheBuster$ } from '../cache-buster/expense-cache-buster';
 import { FilterState } from '../enums/filter-state.enum';
 import { PaymentMode } from '../models/payment-mode.model';
+import { TrackingService } from './tracking.service';
 
 @Injectable({
   providedIn: 'root',
@@ -58,7 +59,8 @@ export class TransactionService {
     private paymentModesService: PaymentModesService,
     private orgSettingsService: OrgSettingsService,
     private accountsService: AccountsService,
-    private expensesService: ExpensesService
+    private expensesService: ExpensesService,
+    private trackingService: TrackingService
   ) {
     expensesCacheBuster$.subscribe(() => {
       if (this.clearTaskCache) {
@@ -201,10 +203,23 @@ export class TransactionService {
         if ((isReceiptUpload || !isAmountPresent) && fileIds.length > 0) {
           return this.expensesService.createFromFile(fileIds[0], txn.source).pipe(
             switchMap((result) => {
-              // capture receipt flow: patching the expense in case of amount not present
+              /** capture receipt flow: patching the expense in case of amount not present
+               * if not receiptUpload and amount is not present, then it is the capture receipt
+               * flow where the user has captured a receipt and saved without entering the amount.
+               */
               if (!isReceiptUpload && !isAmountPresent) {
                 txn.id = result.data[0].id;
-                return this.upsert(this.cleanupExpensePayload(txn));
+                return this.upsert(this.cleanupExpensePayload(txn)).pipe(
+                  /**
+                   * ignoring error in case of patching the expense during the capture receipt flow
+                   * as the expense is already created with the receipt and we don't want the caller
+                   * to recall this function due to this patch expense failure
+                   */
+                  catchError((err: Error) => {
+                    this.trackingService.patchExpensesError({ label: err });
+                    return of(this.transformExpense(result.data[0]).tx);
+                  })
+                );
               } else {
                 return of(this.transformExpense(result.data[0]).tx);
               }

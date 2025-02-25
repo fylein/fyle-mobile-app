@@ -35,13 +35,13 @@ describe('FyPopoverComponent', () => {
   });
 
   it('dismiss(): should dismiss the popover', () => {
-    popoverController.dismiss.and.returnValue(Promise.resolve(true));
+    popoverController.dismiss.and.resolveTo(true);
     component.dismiss();
     expect(popoverController.dismiss).toHaveBeenCalledTimes(1);
   });
 
   it('submit(): should submit the form', () => {
-    popoverController.dismiss.and.returnValue(Promise.resolve(true));
+    popoverController.dismiss.and.resolveTo(true);
     component.formValue = 'Test comment';
     component.submit();
     expect(popoverController.dismiss).toHaveBeenCalledOnceWith({ comment: 'Test comment' });

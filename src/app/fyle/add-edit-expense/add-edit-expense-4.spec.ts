@@ -1,8 +1,8 @@
 import { TitleCasePipe } from '@angular/common';
 import { DebugElement } from '@angular/core';
 import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
-import { FormArray, FormBuilder, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { UntypedFormArray, UntypedFormBuilder, Validators } from '@angular/forms';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
@@ -87,6 +87,7 @@ import {
 } from 'src/app/core/mock-data/transformed-expense.data';
 import { cloneDeep } from 'lodash';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { MAX_FILE_SIZE } from 'src/app/core/constants';
 
 export function TestCases4(getTestBed) {
   return describe('AddEditExpensePage-4', () => {
@@ -95,7 +96,7 @@ export function TestCases4(getTestBed) {
     let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
     let accountsService: jasmine.SpyObj<AccountsService>;
     let authService: jasmine.SpyObj<AuthService>;
-    let formBuilder: FormBuilder;
+    let formBuilder: UntypedFormBuilder;
     let categoriesService: jasmine.SpyObj<CategoriesService>;
     let dateService: jasmine.SpyObj<DateService>;
     let projectsService: jasmine.SpyObj<ProjectsService>;
@@ -149,7 +150,7 @@ export function TestCases4(getTestBed) {
       activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
       accountsService = TestBed.inject(AccountsService) as jasmine.SpyObj<AccountsService>;
       authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-      formBuilder = TestBed.inject(FormBuilder);
+      formBuilder = TestBed.inject(UntypedFormBuilder);
       categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
       dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
       reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
@@ -217,7 +218,7 @@ export function TestCases4(getTestBed) {
         bus_travel_class: [],
         distance: [],
         distance_unit: [],
-        custom_inputs: new FormArray([]),
+        custom_inputs: new UntypedFormArray([]),
         billable: [],
         costCenter: [],
         hotel_is_breakfast_provided: [],
@@ -255,16 +256,17 @@ export function TestCases4(getTestBed) {
         });
       }));
 
-      it('should show file size exceeded popover if uploaded file is larger than 5MB', fakeAsync(() => {
+      it('should show file size exceeded popover if uploaded file is larger than 11MB', fakeAsync(() => {
         spyOn(component, 'showSizeLimitExceededPopover');
 
-        const myBlob = new Blob([new ArrayBuffer(100 * 100 * 1000)], { type: 'application/octet-stream' });
+        const newSize = MAX_FILE_SIZE + 1;
+        const myBlob = new Blob([new ArrayBuffer(newSize)], { type: 'application/octet-stream' });
         const file = new File([myBlob], 'file');
 
         component.uploadFileCallback(file);
         tick(500);
 
-        expect(component.showSizeLimitExceededPopover).toHaveBeenCalledOnceWith();
+        expect(component.showSizeLimitExceededPopover).toHaveBeenCalledOnceWith(MAX_FILE_SIZE);
       }));
     });
 

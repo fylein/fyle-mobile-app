@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { finalize, switchMap, tap } from 'rxjs/operators';
 import { from, Observable } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -9,7 +9,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { DeviceService } from '../../core/services/device.service';
 import { LoginInfoService } from '../../core/services/login-info.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 
@@ -19,7 +19,7 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
   styleUrls: ['./new-password.page.scss'],
 })
 export class NewPasswordPage implements OnInit {
-  fg: FormGroup;
+  fg: UntypedFormGroup;
 
   lengthValidationDisplay$: Observable<boolean>;
 
@@ -46,7 +46,7 @@ export class NewPasswordPage implements OnInit {
   focusOnConfirmPassword = false;
 
   constructor(
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private activatedRoute: ActivatedRoute,
     private loaderService: LoaderService,
     private routerAuthService: RouterAuthService,
@@ -75,7 +75,7 @@ export class NewPasswordPage implements OnInit {
         switchMap(() => this.routerAuthService.resetPassword(refreshToken, this.fg.controls.password.value as string)),
         switchMap(() => this.authService.refreshEou()),
         tap(async (eou) => {
-          this.trackingService.onSignin(eou.us.email);
+          this.trackingService.onSignin(eou.us.id);
           this.trackingService.resetPassword();
           await this.trackLoginInfo();
         }),

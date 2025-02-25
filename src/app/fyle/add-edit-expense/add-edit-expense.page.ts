@@ -4,14 +4,17 @@ import { TitleCasePipe } from '@angular/common';
 import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } from '@angular/core';
 import {
   AbstractControl,
-  FormArray,
-  FormBuilder,
-  FormGroup,
+  UntypedFormArray,
+  UntypedFormBuilder,
+  UntypedFormGroup,
   ValidationErrors,
   Validators,
   ValidatorFn,
 } from '@angular/forms';
-import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
+import {
+  MatLegacySnackBar as MatSnackBar,
+  MatLegacySnackBarRef as MatSnackBarRef,
+} from '@angular/material/legacy-snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
@@ -227,7 +230,7 @@ export class AddEditExpensePage implements OnInit {
 
   reviewList: string[];
 
-  fg: FormGroup;
+  fg: UntypedFormGroup;
 
   filteredCategories$: Observable<OrgCategoryListItem[]>;
 
@@ -458,7 +461,7 @@ export class AddEditExpensePage implements OnInit {
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
     private authService: AuthService,
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     private categoriesService: CategoriesService,
     private dateService: DateService,
     private projectsService: ProjectsService,
@@ -2314,7 +2317,7 @@ export class AddEditExpensePage implements OnInit {
         this.isConnected$.pipe(
           take(1),
           map((isConnected: boolean) => {
-            const customFieldsFormArray = this.fg.controls.custom_inputs as FormArray;
+            const customFieldsFormArray = this.fg.controls.custom_inputs as UntypedFormArray;
             customFieldsFormArray.clear();
             for (const customField of customFields) {
               customFieldsFormArray.push(
@@ -2717,9 +2720,15 @@ export class AddEditExpensePage implements OnInit {
   }
 
   getEditExpenseObservable(): Observable<Partial<UnflattenedTransaction>> {
-    this.platformExpense$ = this.expensesService
-      .getExpenseById(this.activatedRoute.snapshot.params.id as string)
-      .pipe(shareReplay(1));
+    this.platformExpense$ = this.expensesService.getExpenseById(this.activatedRoute.snapshot.params.id as string).pipe(
+      catchError(() => {
+        this.loaderService.hideLoader();
+        this.loaderService.showLoader('This expense no longer exists. Redirecting to expenses list', 1000);
+        this.goBack();
+        return EMPTY;
+      }),
+      shareReplay(1)
+    );
     return this.platformExpense$.pipe(
       switchMap((expense) => {
         const etxn = this.transactionService.transformExpense(expense);
@@ -2774,23 +2783,51 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  goToPrev(): void {
-    this.activeIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex as string, 10);
-    if (this.reviewList[+this.activeIndex - 1]) {
-      this.expensesService.getExpenseById(this.reviewList[+this.activeIndex - 1]).subscribe((expense) => {
-        const etxn = this.transactionService.transformExpense(expense);
-        this.goToTransaction(etxn, this.reviewList, +this.activeIndex - 1);
-      });
+  goToPrev(activeIndex: number): void {
+    if (this.reviewList[activeIndex - 1]) {
+      this.expensesService
+        .getExpenseById(this.reviewList[activeIndex - 1])
+        .pipe(
+          catchError(() => {
+            // expense not found, so skipping it
+            this.reviewList.splice(activeIndex - 1, 1);
+            if (activeIndex === 0) {
+              this.closeAddEditExpenses();
+            } else {
+              this.goToPrev(activeIndex - 1);
+            }
+            return EMPTY;
+          })
+        )
+        .subscribe((expense) => {
+          const etxn = this.transactionService.transformExpense(expense);
+          this.goToTransaction(etxn, this.reviewList, activeIndex - 1);
+        });
+    } else {
+      this.closeAddEditExpenses();
     }
   }
 
-  goToNext(): void {
-    this.activeIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex as string, 10);
-    if (this.reviewList[+this.activeIndex + 1]) {
-      this.expensesService.getExpenseById(this.reviewList[+this.activeIndex + 1]).subscribe((expense) => {
-        const etxn = this.transactionService.transformExpense(expense);
-        this.goToTransaction(etxn, this.reviewList, +this.activeIndex + 1);
-      });
+  goToNext(activeIndex: number): void {
+    if (this.reviewList[activeIndex + 1]) {
+      this.expensesService
+        .getExpenseById(this.reviewList[activeIndex + 1])
+        .pipe(
+          catchError(() => {
+            // expense not found, so skipping it
+            this.reviewList.splice(activeIndex + 1, 1);
+            if (activeIndex === this.reviewList.length - 1) {
+              this.closeAddEditExpenses();
+            } else {
+              this.goToNext(activeIndex);
+            }
+            return EMPTY;
+          })
+        )
+        .subscribe((expense) => {
+          const etxn = this.transactionService.transformExpense(expense);
+          this.goToTransaction(etxn, this.reviewList, activeIndex + 1);
+        });
     }
   }
 
@@ -3046,7 +3083,7 @@ export class AddEditExpensePage implements OnInit {
       bus_travel_class: [],
       distance: [],
       distance_unit: [],
-      custom_inputs: new FormArray([]),
+      custom_inputs: new UntypedFormArray([]),
       billable: [],
       costCenter: [],
       hotel_is_breakfast_provided: [],
@@ -3439,7 +3476,7 @@ export class AddEditExpensePage implements OnInit {
 
   getTxnDate(): Date {
     const formValue = this.getFormValues();
-    return formValue?.dateOfSpend && this.dateService.getUTCDate(new Date(formValue.dateOfSpend));
+    return !!formValue?.dateOfSpend ? this.dateService.getUTCDate(new Date(formValue.dateOfSpend)) : null;
   }
 
   getCurrency(): string {
@@ -3627,19 +3664,11 @@ export class AddEditExpensePage implements OnInit {
   }
 
   triggerNpsSurvey(): void {
-    const roles$ = from(this.authService.getRoles().pipe(shareReplay(1)));
-    const showNpsSurvey$ = this.launchDarklyService.getVariation('nps_survey', false);
-
-    forkJoin([roles$, showNpsSurvey$])
-      .pipe(
-        switchMap(([roles, showNpsSurvey]) => {
-          if (showNpsSurvey && !roles.includes('ADMIN')) {
-            this.refinerService.startSurvey({ actionName: 'Save Expense' });
-          }
-          return of(null);
-        })
-      )
-      .subscribe();
+    this.launchDarklyService.getVariation('nps_survey', false).subscribe((showNpsSurvey) => {
+      if (showNpsSurvey) {
+        this.refinerService.startSurvey({ actionName: 'Save Expense' });
+      }
+    });
   }
 
   showSaveExpenseLoader(redirectedFrom: string): void {
@@ -3872,7 +3901,7 @@ export class AddEditExpensePage implements OnInit {
             if (+this.activeIndex === 0) {
               that.closeAddEditExpenses();
             } else {
-              that.goToPrev();
+              that.goToPrev(+this.activeIndex);
             }
           });
         } else {
@@ -3881,7 +3910,7 @@ export class AddEditExpensePage implements OnInit {
             if (+this.activeIndex === 0) {
               that.closeAddEditExpenses();
             } else {
-              that.goToPrev();
+              that.goToPrev(+this.activeIndex);
             }
           });
         }
@@ -3900,7 +3929,7 @@ export class AddEditExpensePage implements OnInit {
             if (+this.activeIndex === this.reviewList.length - 1) {
               that.closeAddEditExpenses();
             } else {
-              that.goToNext();
+              that.goToNext(+this.activeIndex);
             }
           });
         } else {
@@ -3909,7 +3938,7 @@ export class AddEditExpensePage implements OnInit {
             if (+this.activeIndex === this.reviewList.length - 1) {
               that.closeAddEditExpenses();
             } else {
-              that.goToNext();
+              that.goToNext(+this.activeIndex);
             }
           });
         }
@@ -4712,7 +4741,7 @@ export class AddEditExpensePage implements OnInit {
         };
         this.attachReceipts(fileData);
       } else {
-        this.showSizeLimitExceededPopover();
+        this.showSizeLimitExceededPopover(MAX_FILE_SIZE);
       }
     }
   }
@@ -5236,12 +5265,14 @@ export class AddEditExpensePage implements OnInit {
     this.selectedProject$.complete();
   }
 
-  async showSizeLimitExceededPopover(): Promise<void> {
+  async showSizeLimitExceededPopover(maxFileSize: number): Promise<void> {
     const sizeLimitExceededPopover = await this.popoverController.create({
       component: PopupAlertComponent,
       componentProps: {
         title: 'Size limit exceeded',
-        message: 'The uploaded file is greater than 5MB in size. Please reduce the file size and try again.',
+        message: `The uploaded file is greater than ${(maxFileSize / (1024 * 1024)).toFixed(
+          0
+        )}MB in size. Please reduce the file size and try again.`,
         primaryCta: {
           text: 'OK',
         },

@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { FormBuilder, FormsModule } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
+import { UntypedFormBuilder, FormsModule } from '@angular/forms';
+import { MatLegacyFormFieldModule as MatFormFieldModule } from '@angular/material/legacy-form-field';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { IonicModule } from '@ionic/angular';
@@ -16,7 +16,7 @@ describe('SendEmailComponent', () => {
       declarations: [SendEmailComponent],
       imports: [IonicModule.forRoot(), MatFormFieldModule, FormsModule, RouterModule, RouterTestingModule],
       providers: [
-        FormBuilder,
+        UntypedFormBuilder,
         {
           provide: ActivatedRoute,
           useValue: {
