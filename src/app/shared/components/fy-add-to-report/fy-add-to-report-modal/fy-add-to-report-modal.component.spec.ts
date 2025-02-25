@@ -8,7 +8,7 @@ import { of } from 'rxjs';
 import { optionData1 } from 'src/app/core/mock-data/option.data';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
-import { CurrencyPipe, TitleCasePipe } from '@angular/common';
+import { CurrencyPipe } from '@angular/common';
 import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
 import { SnakeCaseToSpaceCase } from 'src/app/shared/pipes/snake-case-to-space-case.pipe';
 import { MatIconModule } from '@angular/material/icon';
@@ -26,13 +26,7 @@ describe('FyAddToReportModalComponent', () => {
     const cdrSpy = jasmine.createSpyObj('ChangeDetectorRef', ['detectChanges']);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     TestBed.configureTestingModule({
-      declarations: [
-        FyAddToReportModalComponent,
-        HumanizeCurrencyPipe,
-        ReportState,
-        SnakeCaseToSpaceCase,
-        TitleCasePipe,
-      ],
+      declarations: [FyAddToReportModalComponent, HumanizeCurrencyPipe, ReportState, SnakeCaseToSpaceCase],
       imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule],
       providers: [
         FyCurrencyPipe,

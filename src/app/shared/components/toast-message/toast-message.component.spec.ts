@@ -1,6 +1,10 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
-import { MatSnackBarModule, MatSnackBarRef, MAT_SNACK_BAR_DATA } from '@angular/material/snack-bar';
+import {
+  MatLegacySnackBarModule as MatSnackBarModule,
+  MatLegacySnackBarRef as MatSnackBarRef,
+  MAT_LEGACY_SNACK_BAR_DATA as MAT_SNACK_BAR_DATA,
+} from '@angular/material/legacy-snack-bar';
 import { ToastMessageComponent } from './toast-message.component';
 import { MatIconModule } from '@angular/material/icon';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
