@@ -2,7 +2,7 @@
   <div class="stat-badge--container">
     <ion-grid class="stat-badge--grid">
       <ion-row>
-        <ion-col class="stat-badge--count-col" size="3">
+        <ion-col class="stat-badge--count-col" [attr.size]="reportState === 'UNAPPROVED_TEAM_REPORTS' ? 1.5 : 3">
           <div *ngIf="!loading && reportState">
             <div
               *ngIf="!loading"

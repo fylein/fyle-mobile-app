@@ -17,7 +17,7 @@ import {
 } from '../../core/mock-data/stats.data';
 import { DashboardService } from './dashboard.service';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
-import { ReportStates } from './stat-badge/report-states';
+import { ReportStates } from './stat-badge/report-states.enum';
 
 describe('DashboardService', () => {
   let dashboardService: DashboardService;

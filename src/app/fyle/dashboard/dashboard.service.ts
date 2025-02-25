@@ -1,20 +1,25 @@
 import { Injectable } from '@angular/core';
-import { Observable, forkJoin } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, forkJoin, from, of } from 'rxjs';
+import { map, switchMap } from 'rxjs/operators';
 import { CCCDetails } from 'src/app/core/models/ccc-expense-details.model';
 import { ReportStats } from 'src/app/core/models/report-stats.model';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { Stats } from '../../core/models/stats.model';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
-import { ReportStates } from './stat-badge/report-states';
+import { ReportStates } from './stat-badge/report-states.enum';
+import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
+import { AuthService } from 'src/app/core/services/auth.service';
+import { PlatformReportsStatsResponse } from 'src/app/core/models/platform/v1/report-stats-response.model';
 
 @Injectable()
 export class DashboardService {
   constructor(
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
     private expensesService: ExpensesService,
-    private spenderReportsService: SpenderReportsService
+    private spenderReportsService: SpenderReportsService,
+    private approverReportsService: ApproverReportsService,
+    private authService: AuthService
   ) {}
 
   getUnreportedExpensesStats(): Observable<Stats> {
@@ -44,6 +49,33 @@ export class DashboardService {
           sum: stats.data.total_amount,
         }))
       );
+  }
+
+  getUnapprovedTeamReportsStats(showTeamReportStats: Boolean): Observable<PlatformReportsStatsResponse> {
+    if (showTeamReportStats) {
+      return from(this.authService.getEou()).pipe(
+        switchMap((eou) => {
+          if (eou.ou.roles.includes('APPROVER')) {
+            return this.approverReportsService.getReportsStats({
+              next_approver_user_ids: `cs.[${eou.us.id}]`,
+              state: `eq.${ReportStates.APPROVER_PENDING}`,
+            });
+          }
+          const zeroResponse: PlatformReportsStatsResponse = {
+            count: 0,
+            failed_amount: null,
+            failed_count: null,
+            processing_amount: 0,
+            processing_count: 0,
+            reimbursable_amount: 0,
+            total_amount: 0,
+          };
+          return of(zeroResponse);
+        })
+      );
+    } else {
+      return of(null);
+    }
   }
 
   getReportsStats(): Observable<ReportStats> {

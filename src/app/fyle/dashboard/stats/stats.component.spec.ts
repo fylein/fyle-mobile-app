@@ -10,7 +10,7 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgService } from 'src/app/core/services/org.service';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { ReportStates } from '../stat-badge/report-states';
+import { ReportStates } from '../stat-badge/report-states.enum';
 import { of } from 'rxjs';
 import { EventEmitter } from '@angular/core';
 import { orgSettingsParamsWithSimplifiedReport, orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
