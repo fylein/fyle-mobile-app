@@ -85,6 +85,7 @@ import { FeatureConfigService } from 'src/app/core/services/platform/v1/spender/
 import * as dayjs from 'dayjs';
 import { ExpensesQueryParams } from 'src/app/core/models/platform/v1/expenses-query-params.model';
 import { ApiV2Service } from 'src/app/core/services/api-v2.service';
+import { FooterState } from 'src/app/shared/components/footer/footer-state.enum';
 
 @Component({
   selector: 'app-my-expenses',
@@ -242,6 +243,10 @@ export class MyExpensesPage implements OnInit {
 
   get HeaderState(): typeof HeaderState {
     return HeaderState;
+  }
+
+  get FooterState(): typeof FooterState {
+    return FooterState;
   }
 
   clearText(isFromCancel: string): void {

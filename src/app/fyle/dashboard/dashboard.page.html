@@ -74,6 +74,6 @@
     (expensesClicked)="onExpensesClicked()"
     (reportsClicked)="onReportsClicked()"
     [taskCount]="displayedTaskCount"
-    [activeState]="currentStateIndex===0?FooterState.HOME: FooterState.TASKS"
+    [activeState]="currentActiveState"
   ></app-fy-footer>
 </ion-footer>
