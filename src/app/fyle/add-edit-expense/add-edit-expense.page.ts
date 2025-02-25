@@ -543,21 +543,23 @@ export class AddEditExpensePage implements OnInit {
   }
 
   goBack(): void {
-    const params = this.activatedRoute.snapshot.params;
-
-    if (params.fromSplitExpenseReview) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      const storedData = this.expensesService.getRecentlySplitExpenses();
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      if (storedData?.fromSplitExpenseReview) {
-        this.navController.back();
-      } else {
-        this.expensesService.clearRecentlySplitExpenses();
-        this.router.navigate(['/', 'enterprise', 'my_expenses']);
-      }
+    if (this.activatedRoute.snapshot.params.fromSplitExpenseReview) {
+      this.expensesService
+        .getRecentlySplitExpenses()
+        .pipe(take(1))
+        .subscribe((storedData) => {
+          if (storedData?.fromSplitExpenseReview) {
+            this.navController.back();
+          } else {
+            this.expensesService.clearRecentlySplitExpenses();
+            this.router.navigate(['/', 'enterprise', 'my_expenses']);
+          }
+        });
     } else {
       this.expensesService.clearRecentlySplitExpenses();
-      if (this.mode === 'add') {
+      if (this.activatedRoute.snapshot.params.persist_filters || this.isRedirectedFromReport) {
+        this.navController.back();
+      } else if (this.mode === 'add') {
         this.router.navigate(['/', 'enterprise', 'my_expenses'], {
           queryParams: { redirected_from_add_expense: true },
         });
@@ -3742,7 +3744,7 @@ export class AddEditExpensePage implements OnInit {
   saveExpense(): void {
     const that = this;
     const formValues = this.getFormValues();
-
+    this.expensesService.clearRecentlySplitExpenses();
     forkJoin({
       invalidPaymentMode: that.checkIfInvalidPaymentMode().pipe(take(1)),
       isReceiptMissingAndMandatory: that.checkIfReceiptIsMissingAndMandatory('SAVE_EXPENSE'),
@@ -3788,7 +3790,6 @@ export class AddEditExpensePage implements OnInit {
         }
       }
     });
-    this.expensesService.clearRecentlySplitExpenses();
   }
 
   saveAndNewExpense(): void {
@@ -4414,15 +4415,17 @@ export class AddEditExpensePage implements OnInit {
   closeAddEditExpenses(): void {
     const params = this.activatedRoute.snapshot.params;
     if (params.fromSplitExpenseReview) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      const storedData = this.expensesService.getRecentlySplitExpenses();
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      if (storedData?.fromSplitExpenseReview) {
-        this.navController.back();
-      } else {
-        this.expensesService.clearRecentlySplitExpenses();
-        this.router.navigate(['/', 'enterprise', 'my_expenses']);
-      }
+      this.expensesService
+        .getRecentlySplitExpenses()
+        .pipe(take(1))
+        .subscribe((storedData) => {
+          if (storedData?.fromSplitExpenseReview) {
+            this.navController.back();
+          }
+        });
+    } else {
+      this.expensesService.clearRecentlySplitExpenses();
+      this.router.navigate(['/', 'enterprise', 'my_expenses']);
     }
   }
 

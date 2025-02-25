@@ -5,7 +5,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
-import { Observable, Subscription, finalize, of, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, Subscription, finalize, of, throwError } from 'rxjs';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { criticalPolicyViolation2 } from 'src/app/core/mock-data/crtical-policy-violations.data';
 import { duplicateSetData1, duplicateSetData6 } from 'src/app/core/mock-data/duplicate-sets.data';
@@ -111,6 +111,7 @@ import {
 import { apiExpenses1, apiExpenses2, splitExpensesData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
+import { Transaction } from 'src/app/core/models/v1/transaction.model';
 
 const properties = {
   cssClass: 'fy-modal',
@@ -173,6 +174,7 @@ export function TestCases2(getTestBed) {
     let expensesService: jasmine.SpyObj<ExpensesService>;
     let reportsService: jasmine.SpyObj<SpenderReportsService>;
     let advanceWalletsService: jasmine.SpyObj<AdvanceWalletsService>;
+    let splitExpensesData$: BehaviorSubject<{ expenses: Transaction[]; fromSplitExpenseReview: boolean } | null>;
 
     beforeEach(() => {
       const TestBed = getTestBed();
@@ -1203,10 +1205,49 @@ export function TestCases2(getTestBed) {
       expect(result).toBeCloseTo((new Date().getTime() - component.expenseStartTime) / 1000, 2);
     });
 
-    it('closeAddEditExpenses(): should close the form and navigate back to my_expenses page', () => {
-      component.closeAddEditExpenses();
+    describe('closeAddEditExpense()', () => {
+      beforeEach(() => {
+        splitExpensesData$ = new BehaviorSubject<{ expenses: Transaction[]; fromSplitExpenseReview: boolean } | null>(
+          null
+        );
+        expensesService.getRecentlySplitExpenses.and.callFake(() => splitExpensesData$.asObservable());
+        expensesService.clearRecentlySplitExpenses.and.callFake(() => splitExpensesData$.next(null));
+      });
 
-      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses']);
+      it('closeAddEditExpenses(): should navigate back if fromSplitExpenseReview is true', () => {
+        activatedRoute.snapshot.params = { fromSplitExpenseReview: true };
+        const mockData = { expenses: [], fromSplitExpenseReview: true };
+        splitExpensesData$.next(mockData);
+        component.closeAddEditExpenses();
+        expect(navController.back).toHaveBeenCalled();
+        expect(router.navigate).not.toHaveBeenCalled();
+      });
+
+      it('closeAddEditExpenses(): should clear expenses and navigate if fromSplitExpenseReview is false', () => {
+        activatedRoute.snapshot.params = { fromSplitExpenseReview: false };
+        splitExpensesData$.next(null);
+        component.closeAddEditExpenses();
+        expect(expensesService.clearRecentlySplitExpenses).toHaveBeenCalled();
+        expect(router.navigate).toHaveBeenCalledWith(['/', 'enterprise', 'my_expenses']);
+      });
+
+      it('closeAddEditExpenses(): should clear expenses and navigate if getRecentlySplitExpenses returns null', () => {
+        activatedRoute.snapshot.params = { fromSplitExpenseReview: false };
+        const mockData = { expenses: [], fromSplitExpenseReview: true };
+        splitExpensesData$.next(mockData);
+        component.closeAddEditExpenses();
+        expect(expensesService.clearRecentlySplitExpenses).toHaveBeenCalled();
+        expect(router.navigate).toHaveBeenCalledWith(['/', 'enterprise', 'my_expenses']);
+      });
+
+      it('closeAddEditExpenses(): should clear expenses and navigate if fromSplitExpenseReview is not present', () => {
+        activatedRoute.snapshot.params = {};
+        const mockData = { expenses: [], fromSplitExpenseReview: true };
+        splitExpensesData$.next(mockData);
+        component.closeAddEditExpenses();
+        expect(expensesService.clearRecentlySplitExpenses).toHaveBeenCalled();
+        expect(router.navigate).toHaveBeenCalledWith(['/', 'enterprise', 'my_expenses']);
+      });
     });
 
     describe('getParsedReceipt():', () => {

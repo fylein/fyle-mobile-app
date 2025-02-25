@@ -6,7 +6,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
-import { Subscription, of } from 'rxjs';
+import { BehaviorSubject, Subscription, of } from 'rxjs';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { actionSheetOptionsData } from 'src/app/core/mock-data/action-sheet-options.data';
 import { expectedECccResponse } from 'src/app/core/mock-data/corporate-card-expense-unflattened.data';
@@ -78,6 +78,8 @@ import { expectedProjects4 } from 'src/app/core/mock-data/extended-projects.data
 import { reportData1 } from 'src/app/core/mock-data/report.data';
 import { sortedCategory } from 'src/app/core/mock-data/org-category.data';
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { Transaction } from 'src/app/core/models/v1/transaction.model';
 
 export function TestCases1(getTestBed) {
   return describe('AddEditExpensePage-1', () => {
@@ -128,6 +130,8 @@ export function TestCases1(getTestBed) {
     let storageService: jasmine.SpyObj<StorageService>;
     let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
     let advanceWalletsService: jasmine.SpyObj<AdvanceWalletsService>;
+    let expensesService: jasmine.SpyObj<ExpensesService>;
+    let splitExpensesData$: BehaviorSubject<{ expenses: Transaction[]; fromSplitExpenseReview: boolean } | null>;
 
     beforeEach(() => {
       const TestBed = getTestBed();
@@ -184,6 +188,7 @@ export function TestCases1(getTestBed) {
       orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
+      expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
 
       component.fg = formBuilder.group({
         currencyObj: [, component.currencyObjValidator],
@@ -251,23 +256,56 @@ export function TestCases1(getTestBed) {
     });
 
     describe('goBack():', () => {
-      it('should go back to the report if redirected from the report page', () => {
-        component.isRedirectedFromReport = true;
-        fixture.detectChanges();
+      beforeEach(() => {
+        splitExpensesData$ = new BehaviorSubject<{ expenses: Transaction[]; fromSplitExpenseReview: boolean } | null>(
+          null
+        );
+        expensesService.getRecentlySplitExpenses.and.callFake(() => splitExpensesData$.asObservable());
+        expensesService.clearRecentlySplitExpenses.and.callFake(() => splitExpensesData$.next(null));
+      });
 
-        navController.back.and.returnValue(null);
+      it('should go back if redirected from split expense review and has stored data', () => {
+        activatedRoute.snapshot.params.fromSplitExpenseReview = true;
+        const mockData = { expenses: [], fromSplitExpenseReview: true };
+        splitExpensesData$.next(mockData);
+        component.goBack();
+        expect(navController.back).toHaveBeenCalledTimes(1);
+        expect(expensesService.clearRecentlySplitExpenses).not.toHaveBeenCalled();
+      });
 
+      it('should clear recently split expenses and navigate to my_expenses if redirected from split expense review without stored data', () => {
+        activatedRoute.snapshot.params.fromSplitExpenseReview = true;
+        component.goBack();
+        expect(expensesService.clearRecentlySplitExpenses).toHaveBeenCalled();
+        expect(router.navigate).toHaveBeenCalledWith(['/', 'enterprise', 'my_expenses']);
+      });
+
+      it('should go back if persist_filters is true', () => {
+        activatedRoute.snapshot.params.persist_filters = true;
         component.goBack();
         expect(navController.back).toHaveBeenCalledTimes(1);
       });
 
-      it('should go back to my expenses page if it is not redirected from report and no filters are applied', () => {
-        activatedRoute.snapshot.params.persist_filters = false;
-        component.isRedirectedFromReport = false;
-        fixture.detectChanges();
-
+      it('should go back if redirected from report', () => {
+        component.isRedirectedFromReport = true;
         component.goBack();
-        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses']);
+        expect(navController.back).toHaveBeenCalledTimes(1);
+      });
+
+      it('should navigate to my_expenses with query param if mode is add', () => {
+        component.mode = 'add';
+        activatedRoute.snapshot.params = {};
+        component.goBack();
+        expect(router.navigate).toHaveBeenCalledWith(['/', 'enterprise', 'my_expenses'], {
+          queryParams: { redirected_from_add_expense: true },
+        });
+      });
+
+      it('should navigate to my_expenses if no other conditions are met', () => {
+        component.isRedirectedFromReport = false;
+        activatedRoute.snapshot.params = {};
+        component.goBack();
+        expect(router.navigate).toHaveBeenCalledWith(['/', 'enterprise', 'my_expenses']);
       });
     });
 
@@ -706,7 +744,7 @@ export function TestCases1(getTestBed) {
           'enterprise',
           'split_expense',
           {
-            splitConfig,
+            splitConfig: JSON.stringify(splitConfig),
             txnFields: JSON.stringify(txnFieldsMap2),
             txn: JSON.stringify(unflattenedExpData.tx),
             currencyObj: JSON.stringify(component.fg.controls.currencyObj.value),
@@ -752,7 +790,7 @@ export function TestCases1(getTestBed) {
           'enterprise',
           'split_expense',
           {
-            splitConfig,
+            splitConfig: JSON.stringify(splitConfig),
             txnFields: JSON.stringify(txnFieldsMap2),
             txn: JSON.stringify(unflattenedExpData.tx),
             currencyObj: JSON.stringify(component.fg.controls.currencyObj.value),
