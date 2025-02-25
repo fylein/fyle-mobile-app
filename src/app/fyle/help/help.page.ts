@@ -1,14 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { SupportDialogPage } from 'src/app/fyle/help/support-dialog/support-dialog.page';
-import { Browser } from '@capacitor/browser';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { filter, tap, map, switchMap, finalize, take } from 'rxjs/operators';
+import { switchMap, finalize } from 'rxjs/operators';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
-import { from, of } from 'rxjs';
+import { from } from 'rxjs';
 import { TrackingService } from '../../core/services/tracking.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { BrowserHandlerService } from 'src/app/core/services/browser-handler.service';
+import { ApiV2Response } from 'src/app/core/models/v2/api-v2-response.model';
+import { Employee } from 'src/app/core/models/spender/employee.model';
 
 @Component({
   selector: 'app-help',
@@ -16,7 +17,7 @@ import { BrowserHandlerService } from 'src/app/core/services/browser-handler.ser
   styleUrls: ['./help.page.scss'],
 })
 export class HelpPage implements OnInit {
-  orgAdmins;
+  orgAdmins: Partial<ApiV2Response<Partial<Employee>>>;
 
   contactSupportLoading = false;
 
@@ -29,7 +30,7 @@ export class HelpPage implements OnInit {
     private browserHandlerService: BrowserHandlerService
   ) {}
 
-  openContactSupportDialog() {
+  openContactSupportDialog(): void {
     this.contactSupportLoading = true;
     from(this.loaderService.showLoader('Please wait', 10000))
       .pipe(
@@ -48,31 +49,22 @@ export class HelpPage implements OnInit {
         finalize(() => from(this.loaderService.hideLoader()))
       )
       .subscribe((orgAdmins) => {
-        this.orgAdmins = orgAdmins.data;
+        this.orgAdmins = orgAdmins;
         this.presentSupportModal('contact_support');
       });
   }
 
-  openLogMileageDialog() {
-    this.presentSupportModal('log_mileage');
-  }
-
-  openCaptureEmailReceiptsDialog() {
-    this.presentSupportModal('capture_email');
-  }
-
-  async presentSupportModal(dialogType) {
+  async presentSupportModal(dialogType: string): Promise<void> {
     this.trackingService.viewHelpCard();
     const modal = await this.modalController.create({
       component: SupportDialogPage,
       componentProps: {
         type: dialogType,
-        adminEous: this.orgAdmins,
+        adminEous: this.orgAdmins.data,
       },
     });
-
     await modal.present();
-    const { data } = await modal.onDidDismiss();
+    const { data }: { data?: { dismissed: boolean } } = await modal.onDidDismiss();
     if (data) {
       if (dialogType === 'contact_support') {
         this.contactSupportLoading = false;
@@ -82,9 +74,11 @@ export class HelpPage implements OnInit {
     }
   }
 
-  async openHelpLink() {
+  async openHelpLink(): Promise<void> {
     await this.browserHandlerService.openLinkWithToolbarColor('#280a31', 'https://help.fylehq.com');
   }
 
-  ngOnInit() {}
+  ngOnInit(): void {
+    // Placeholder for initialization logic
+  }
 }
