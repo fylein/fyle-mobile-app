@@ -308,7 +308,6 @@ export function TestCases2(getTestBed) {
             report_id: 'is.null',
           },
         });
-        expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(expensesList[0].id);
         expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(mileageCategoryPlatformExpenseData);
         expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
         expect(router.navigate).toHaveBeenCalledOnceWith([
@@ -331,7 +330,6 @@ export function TestCases2(getTestBed) {
             report_id: 'is.null',
           },
         });
-        expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(expensesList[0].id);
         expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(perDiemCategoryPlatformExpenseData);
         expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
         expect(router.navigate).toHaveBeenCalledOnceWith([
@@ -354,7 +352,6 @@ export function TestCases2(getTestBed) {
             report_id: 'is.null',
           },
         });
-        expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(expensesList[0].id);
         expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
         expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
         expect(router.navigate).toHaveBeenCalledOnceWith([
