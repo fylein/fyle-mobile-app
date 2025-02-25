@@ -25,11 +25,12 @@
     font-size: 12px;
     line-height: 14px;
     color: $grey-light;
+    margin-bottom: 6px;
   }
 
   &--value {
-    margin-top: 2px;
     font-weight: 500;
+    color: $grey-light-2;
   }
 
   &--content-container {

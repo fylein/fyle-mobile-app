@@ -9,6 +9,7 @@ export interface PolicyViolation {
   amount?: number;
   currency?: string;
   name?: string;
+  inputFieldInfo?: { [key: string]: string };
   type?: string;
   isExpanded?: boolean;
 }

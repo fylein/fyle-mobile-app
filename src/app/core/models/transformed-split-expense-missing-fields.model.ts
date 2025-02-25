@@ -4,6 +4,7 @@ export interface TransformedSplitExpenseMissingFields {
   amount: number;
   currency: string;
   name: string;
+  inputFieldInfo?: { [key: string]: string };
   type: string;
   data: PlatformMissingMandatoryFields;
 }
