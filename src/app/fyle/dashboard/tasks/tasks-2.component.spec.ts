@@ -296,7 +296,7 @@ export function TestCases2(getTestBed) {
       });
 
       it('should get all expenses and navigate to add_edit_mileage if category is of type mileage', fakeAsync(() => {
-        expensesService.getExpenseById.and.returnValue(of(mileageCategoryPlatformExpenseData));
+        expensesService.getAllExpenses.and.returnValue(of([mileageCategoryPlatformExpenseData]));
         transactionService.transformExpense.and.returnValue(mileageCategoryTransformedExpenseData);
 
         component.onReviewExpensesTaskClick();
@@ -319,7 +319,7 @@ export function TestCases2(getTestBed) {
       }));
 
       it('should get all expenses and navigate to add_edit_per_diem if category is of type per diem', fakeAsync(() => {
-        expensesService.getExpenseById.and.returnValue(of(perDiemCategoryPlatformExpenseData));
+        expensesService.getAllExpenses.and.returnValue(of([perDiemCategoryPlatformExpenseData]));
         transactionService.transformExpense.and.returnValue(perDiemCategoryTransformedExpenseData);
         component.onReviewExpensesTaskClick();
         tick(100);
@@ -341,7 +341,7 @@ export function TestCases2(getTestBed) {
       }));
 
       it('should get all expenses and navigate to add_edit_expense if category is other than mileage or per diem', fakeAsync(() => {
-        expensesService.getExpenseById.and.returnValue(of(platformExpenseData));
+        expensesService.getAllExpenses.and.returnValue(of([platformExpenseData]));
         transactionService.transformExpense.and.returnValue(transformedExpenseData);
         component.onReviewExpensesTaskClick();
         tick(100);
