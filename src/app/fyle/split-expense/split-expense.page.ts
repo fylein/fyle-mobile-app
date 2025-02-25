@@ -63,8 +63,6 @@ export class SplitExpensePage implements OnDestroy {
 
   fg: FormGroup;
 
-  splitType = 'projects';
-
   splitConfig: SplitConfig;
 
   destroy$ = new Subject<void>();
@@ -128,8 +126,6 @@ export class SplitExpensePage implements OnDestroy {
   formattedSplitExpense: Transaction[];
 
   unspecifiedCategory: OrgCategory = null;
-
-  splitExpenseHeader: string;
 
   constructor(
     private activatedRoute: ActivatedRoute,
