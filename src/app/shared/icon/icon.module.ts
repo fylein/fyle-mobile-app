@@ -59,6 +59,7 @@ export class IconModule {
     'flag-outline.svg',
     'flash-off.svg',
     'flash-on.svg',
+    'folder.svg',
     'gear.svg',
     'hamburger-menu.svg',
     'house-fill.svg',
