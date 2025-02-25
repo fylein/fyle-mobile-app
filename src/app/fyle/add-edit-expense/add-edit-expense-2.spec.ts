@@ -602,7 +602,7 @@ export function TestCases2(getTestBed) {
       transactionService.transformExpense.and.returnValue(transformedExpenseData);
       fixture.detectChanges();
 
-      component.goToPrev();
+      component.goToPrev(component.activeIndex);
       expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txvslh8aQMbu');
       expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
       expect(component.goToTransaction).toHaveBeenCalledOnceWith(transformedExpenseData, component.reviewList, 0);
@@ -616,7 +616,7 @@ export function TestCases2(getTestBed) {
       transactionService.transformExpense.and.returnValue(transformedExpenseDataWithSubCategory);
       fixture.detectChanges();
 
-      component.goToNext();
+      component.goToNext(component.activeIndex);
       expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txD5hIQgLuR5');
       expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseDataWithSubCategory);
       expect(component.goToTransaction).toHaveBeenCalledOnceWith(
@@ -996,7 +996,7 @@ export function TestCases2(getTestBed) {
         component.saveExpenseAndGotoPrev();
         expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_AND_PREV_EXPENSE');
         expect(component.checkIfReceiptIsMissingAndMandatory).toHaveBeenCalledWith('SAVE_AND_PREV_EXPENSE');
-        expect(component.goToPrev).toHaveBeenCalledOnceWith();
+        expect(component.goToPrev).toHaveBeenCalledOnceWith(component.activeIndex);
       });
 
       it('should save an edited expense and close the form', () => {
@@ -1030,7 +1030,7 @@ export function TestCases2(getTestBed) {
         component.saveExpenseAndGotoPrev();
         expect(component.editExpense).toHaveBeenCalledOnceWith('SAVE_AND_PREV_EXPENSE');
         expect(component.checkIfReceiptIsMissingAndMandatory).toHaveBeenCalledWith('SAVE_AND_PREV_EXPENSE');
-        expect(component.goToPrev).toHaveBeenCalledOnceWith();
+        expect(component.goToPrev).toHaveBeenCalledOnceWith(component.activeIndex);
       });
 
       it('should show validation errors if the form is not valid', () => {
