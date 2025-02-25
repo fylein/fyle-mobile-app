@@ -42,7 +42,7 @@ describe('FyLocationComponent', () => {
     component.innerValue = { display: 'Test location', value: 'test_location' };
     spyOn(component, 'onChangeCallback');
     component.value = testValue;
-    expect(component.innerValue).toEqual(undefined);
+    expect(component.innerValue).toBeUndefined();
     expect(component.displayValue).toEqual('');
     expect(component.onChangeCallback).toHaveBeenCalledOnceWith(undefined);
   });
@@ -62,12 +62,10 @@ describe('FyLocationComponent', () => {
     const dataPromise = new Promise((resolve) => {
       setTimeout(() => resolve({ data: { selection: 'TestValue' } }), 2000); // test was updating the component.value instantaneously, therefore a delay was required;
     });
-    modalController.create.and.returnValue(
-      Promise.resolve({
-        present: () => {},
-        onWillDismiss: () => dataPromise,
-      } as any)
-    );
+    modalController.create.and.resolveTo({
+      present: () => {},
+      onWillDismiss: () => dataPromise,
+    } as any);
     component.openModal();
 
     tick(1000);
@@ -103,14 +101,14 @@ describe('FyLocationComponent', () => {
     component.innerValue = { display: 'Test location2', value: 'test_location2' };
     const testValue = undefined;
     component.writeValue(testValue);
-    expect(component.innerValue).toEqual(undefined);
+    expect(component.innerValue).toBeUndefined();
     expect(component.displayValue).toEqual('');
   });
 
   it('valid(): should return validInParent value if touchedInParent is true', () => {
     component.touchedInParent = true;
     component.validInParent = false;
-    expect(component.valid).toBe(false);
+    expect(component.valid).toBeFalse();
   });
 
   it('registerOnChange(): should set onChangeCallback function', () => {

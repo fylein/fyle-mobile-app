@@ -4,7 +4,7 @@ import { Observable, concat, noop, from, forkJoin } from 'rxjs';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { map, concatMap, finalize, shareReplay } from 'rxjs/operators';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { ModalController, ToastController } from '@ionic/angular';
 import { SelectCurrencyComponent } from './select-currency/select-currency.component';
 import { OrgService } from 'src/app/core/services/org.service';
@@ -30,7 +30,7 @@ export class SetupAccountPage implements OnInit {
 
   fullname$: Observable<string>;
 
-  fg: FormGroup;
+  fg: UntypedFormGroup;
 
   org$: Observable<Org>;
 
@@ -49,7 +49,7 @@ export class SetupAccountPage implements OnInit {
   constructor(
     private networkService: NetworkService,
     private authService: AuthService,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private modalController: ModalController,
     private orgService: OrgService,
     private toastController: ToastController,

@@ -1,5 +1,5 @@
 import { Component, EventEmitter } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { ActivatedRoute } from '@angular/router';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { Observable, Subscription, concat, forkJoin, from, noop } from 'rxjs';
