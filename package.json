@@ -152,6 +152,9 @@
     "bracketSpacing": true
   },
   "lint-staged": {
-    "*.{ts,scss,html}": "prettier --write"
+    "*.{ts,scss,html}": "prettier --write",
+    "*.ts": [
+      "eslint --fix"
+    ]
   }
 }
