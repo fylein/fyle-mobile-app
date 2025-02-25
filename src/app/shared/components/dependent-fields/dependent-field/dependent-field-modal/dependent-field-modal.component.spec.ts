@@ -1,13 +1,13 @@
 import { ComponentFixture, TestBed, fakeAsync, flush, tick, waitForAsync } from '@angular/core/testing';
 import { IonicModule, ModalController } from '@ionic/angular';
-import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatLegacyFormFieldModule as MatFormFieldModule } from '@angular/material/legacy-form-field';
 import { MatIconModule } from '@angular/material/icon';
 
 import { DependentFieldModalComponent } from './dependent-field-modal.component';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { FormsModule } from '@angular/forms';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { MatInputModule } from '@angular/material/input';
+import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy-input';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { of, skip, take } from 'rxjs';
 import {
@@ -171,14 +171,14 @@ describe('DependentFieldModalComponent', () => {
   });
 
   it('onDoneClick(): should dismiss modal', fakeAsync(() => {
-    modalController.dismiss.and.returnValue(Promise.resolve(true));
+    modalController.dismiss.and.resolveTo(true);
     component.onDoneClick();
     tick(500);
     expect(modalController.dismiss).toHaveBeenCalledTimes(1);
   }));
 
   it('onElementSelect(): should dismiss modal with selected option', fakeAsync(() => {
-    modalController.dismiss.and.returnValue(Promise.resolve(true));
+    modalController.dismiss.and.resolveTo(true);
     component.onElementSelect(dependentFieldOptions[0]);
     tick(500);
     expect(modalController.dismiss).toHaveBeenCalledOnceWith(dependentFieldOptions[0]);

@@ -56,8 +56,8 @@ describe('PreferenceSettingComponent', () => {
   it('openCurrencyModal(): should open the currency modal', fakeAsync(() => {
     const modalSpy = jasmine.createSpyObj('HTMLIonModalElement', ['present', 'onWillDismiss']);
     const selectedCurrency: Currency = { shortCode: 'ARS', longName: 'Argentine Peso' };
-    modalController.create.and.returnValue(Promise.resolve(modalSpy));
-    modalSpy.onWillDismiss.and.returnValue(Promise.resolve({ data: { selectedCurrency } } as any));
+    modalController.create.and.resolveTo(modalSpy);
+    modalSpy.onWillDismiss.and.resolveTo({ data: { selectedCurrency } } as any);
 
     component.openCurrencyModal();
     tick();
