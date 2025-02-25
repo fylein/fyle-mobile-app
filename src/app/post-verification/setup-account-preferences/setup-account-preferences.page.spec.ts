@@ -96,12 +96,13 @@ describe('SetupAccountPreferencesPage', () => {
 
     networkService.connectivityWatcher.and.callThrough();
     networkService.isOnline.and.returnValue(of(true));
-    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+    authService.getEou.and.resolveTo(apiEouRes);
     orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
     mockOrgSettingsRes = cloneDeep(orgSettingsRes);
     orgSettingsService.get.and.returnValue(of(mockOrgSettingsRes));
     fixture.detectChanges();
   }));
+
   it('should create', () => {
     expect(component).toBeTruthy();
   });
@@ -137,8 +138,8 @@ describe('SetupAccountPreferencesPage', () => {
   });
 
   it('markActiveAndRedirect', fakeAsync(() => {
-    loadingService.showLoader.and.returnValue(Promise.resolve());
-    loadingService.hideLoader.and.returnValue(Promise.resolve());
+    loadingService.showLoader.and.resolveTo();
+    loadingService.hideLoader.and.resolveTo();
     trackingService.setupComplete.and.callThrough();
     orgUserService.markActive.and.returnValue(of(apiEouRes));
     trackingService.activated.and.callThrough();

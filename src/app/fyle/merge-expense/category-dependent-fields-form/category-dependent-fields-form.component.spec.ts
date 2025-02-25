@@ -31,7 +31,7 @@ describe('CategoryDependentFieldsFormComponent', () => {
     component.categoryDependentFormGroup = new UntypedFormBuilder().group({
       location_1: new UntypedFormControl(''),
     });
-    expect(component.isFieldTouched('location_1')).toBe(false);
+    expect(component.isFieldTouched('location_1')).toBeFalse();
   });
 
   it('ngOnInit(): should emit fieldsTouched', () => {

@@ -71,10 +71,10 @@ describe('FyPolicyViolationComponent', () => {
     expect(component.form).toBeDefined();
     expect(component.form.get('comment')).toBeDefined();
     expect(component.form.get('comment').value).toBe('');
-    expect(component.isExpenseFlagged).toBe(true);
-    expect(component.isPrimaryApproverSkipped).toBe(true);
-    expect(component.needAdditionalApproval).toBe(true);
-    expect(component.isExpenseCapped).toBe(true);
+    expect(component.isExpenseFlagged).toBeTrue();
+    expect(component.isPrimaryApproverSkipped).toBeTrue();
+    expect(component.needAdditionalApproval).toBeTrue();
+    expect(component.isExpenseCapped).toBeTrue();
     expect(component.constructAdditionalApproverAction).toHaveBeenCalledTimes(1);
     expect(component.constructCappingAction).toHaveBeenCalledTimes(1);
   });

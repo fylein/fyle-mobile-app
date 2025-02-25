@@ -328,7 +328,7 @@ describe('DependentFieldsComponent', () => {
       const parentFieldId = 219200;
       const parentFieldValue = 'Cost Area 1';
       component.getDependentField(parentFieldId, parentFieldValue).subscribe((result) => {
-        expect(result).toEqual(null);
+        expect(result).toBeNull();
       });
       expect(dependentFieldsService.getOptionsForDependentField).not.toHaveBeenCalled();
     });
@@ -338,7 +338,7 @@ describe('DependentFieldsComponent', () => {
       const parentFieldValue = 'Cost Code 2';
       dependentFieldsService.getOptionsForDependentField.and.returnValue(of([]));
       component.getDependentField(parentFieldId, parentFieldValue).subscribe((result) => {
-        expect(result).toEqual(null);
+        expect(result).toBeNull();
       });
       expect(dependentFieldsService.getOptionsForDependentField).toHaveBeenCalledOnceWith({
         fieldId: dependentCustomFields[1].id,
@@ -353,7 +353,7 @@ describe('DependentFieldsComponent', () => {
       const parentFieldValue = 'Cost Code 2';
       dependentFieldsService.getOptionsForDependentField.and.returnValue(of(null));
       component.getDependentField(parentFieldId, parentFieldValue).subscribe((result) => {
-        expect(result).toEqual(null);
+        expect(result).toBeNull();
       });
       expect(dependentFieldsService.getOptionsForDependentField).toHaveBeenCalledOnceWith({
         fieldId: dependentCustomFields[1].id,
@@ -487,7 +487,7 @@ describe('DependentFieldsComponent', () => {
 
       component.getDependentField(data.id, data.value).subscribe((result) => {
         expect(component.isDependentFieldLoading).toBeFalse();
-        expect(result).toEqual(null);
+        expect(result).toBeNull();
         expect(component.addDependentField).not.toHaveBeenCalled();
       });
     });
@@ -510,7 +510,7 @@ describe('DependentFieldsComponent', () => {
 
       component.getDependentField(data.id, data.value).subscribe((result) => {
         expect(component.isDependentFieldLoading).toBeFalse();
-        expect(result).toEqual(null);
+        expect(result).toBeNull();
         expect(component.addDependentField).not.toHaveBeenCalled();
       });
     });
