@@ -478,7 +478,7 @@ describe('MyProfilePage', () => {
     expect(popoverController.create).toHaveBeenCalledOnceWith({
       component: PopupWithBulletsComponent,
       componentProps: {
-        title: 'Verification Successful',
+        title: 'Verification successful',
         listHeader: 'Now you can:',
         listItems: [
           {
