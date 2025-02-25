@@ -8,15 +8,15 @@ import { SetupAccountPageRoutingModule } from './setup-account-routing.module';
 
 import { SetupAccountPage } from './setup-account.page';
 
-import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatLegacyFormFieldModule as MatFormFieldModule } from '@angular/material/legacy-form-field';
 
-import { MatInputModule } from '@angular/material/input';
+import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy-input';
 
 import { SelectCurrencyComponent } from './select-currency/select-currency.component';
 
 import { MatRippleModule } from '@angular/material/core';
 
-import { MatButtonModule } from '@angular/material/button';
+import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button';
 
 @NgModule({
   imports: [

@@ -8,7 +8,7 @@ import { of, throwError } from 'rxjs';
 import { authResData1 } from 'src/app/core/mock-data/auth-reponse.data';
 import { By } from '@angular/platform-browser';
 import { UntypedFormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
