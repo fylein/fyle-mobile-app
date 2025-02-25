@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, NavController, PopoverController } from '@ionic/angular';
 import { isEmpty, isNumber } from 'lodash';
 import * as dayjs from 'dayjs';
-import { combineLatest, forkJoin, from, iif, Observable, of, Subject, throwError } from 'rxjs';
+import { BehaviorSubject, combineLatest, forkJoin, from, iif, Observable, of, Subject, throwError } from 'rxjs';
 import { catchError, concatMap, finalize, map, shareReplay, startWith, switchMap, takeUntil } from 'rxjs/operators';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { DateService } from 'src/app/core/services/date.service';
@@ -131,7 +131,11 @@ export class SplitExpensePage implements OnDestroy {
 
   splitExpenseHeader: string;
 
-  private isReviewModalOpen = false;
+  isReviewModalOpen = false;
+
+  private splitExpensesData$ = new BehaviorSubject<{ expenses: Transaction[]; fromSplitExpenseReview: boolean } | null>(
+    null
+  );
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -863,7 +867,7 @@ export class SplitExpensePage implements OnDestroy {
   }
 
   ionViewWillEnter(): void {
-    this.expensesService.getRecentlySplitExpenses().subscribe((storedData) => {
+    this.getRecentlySplitExpenses().subscribe((storedData) => {
       if (storedData?.fromSplitExpenseReview && !this.isReviewModalOpen) {
         this.openReviewSplitExpenseModal(storedData.expenses);
       } else {
@@ -1299,7 +1303,7 @@ export class SplitExpensePage implements OnDestroy {
 
   handleNavigationAfterReview(action: string, expense?: PlatformExpense): void {
     if (action === 'close') {
-      this.expensesService.clearRecentlySplitExpenses();
+      this.clearRecentlySplitExpenses();
       this.router.navigate([
         '/',
         'enterprise',
@@ -1342,7 +1346,7 @@ export class SplitExpensePage implements OnDestroy {
       showBackdrop: false,
     });
 
-    this.expensesService.storeRecentlySplitExpenses({
+    this.storeRecentlySplitExpenses({
       expenses: expense,
       fromSplitExpenseReview: true,
     });
@@ -1355,6 +1359,18 @@ export class SplitExpensePage implements OnDestroy {
     if (data) {
       this.handleNavigationAfterReview(data.action, data.expense);
     }
+  }
+
+  private storeRecentlySplitExpenses(data: { expenses: Transaction[]; fromSplitExpenseReview: boolean }): void {
+    this.splitExpensesData$.next(data);
+  }
+
+  private getRecentlySplitExpenses(): Observable<{ expenses: Transaction[]; fromSplitExpenseReview: boolean } | null> {
+    return this.splitExpensesData$.asObservable();
+  }
+
+  private clearRecentlySplitExpenses(): void {
+    this.splitExpensesData$.next(null);
   }
 
   private setEvenSplit(

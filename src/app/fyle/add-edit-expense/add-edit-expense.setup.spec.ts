@@ -226,9 +226,6 @@ describe('AddEditExpensePage', () => {
       'getSplitExpenses',
       'attachReceiptToExpense',
       'post',
-      'getRecentlySplitExpenses',
-      'clearRecentlySplitExpenses',
-      'storeRecentlySplitExpenses',
     ]);
     const advanceWalletsServiceSpy = jasmine.createSpyObj('AdvanceWalletsService', ['getAllAdvanceWallets']);
     const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['get', 'post']);

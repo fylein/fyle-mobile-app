@@ -27,10 +27,6 @@ import { CommuteDeduction } from 'src/app/core/enums/commute-deduction.enum';
   providedIn: 'root',
 })
 export class ExpensesService {
-  private splitExpensesData$ = new BehaviorSubject<{ expenses: Transaction[]; fromSplitExpenseReview: boolean } | null>(
-    null
-  );
-
   constructor(
     @Inject(PAGINATION_SIZE) private paginationSize: number,
     private spenderService: SpenderService,
@@ -374,17 +370,5 @@ export class ExpensesService {
         },
       ],
     });
-  }
-
-  storeRecentlySplitExpenses(data: { expenses: Transaction[]; fromSplitExpenseReview: boolean }): void {
-    this.splitExpensesData$.next(data);
-  }
-
-  getRecentlySplitExpenses(): Observable<{ expenses: Transaction[]; fromSplitExpenseReview: boolean } | null> {
-    return this.splitExpensesData$.asObservable();
-  }
-
-  clearRecentlySplitExpenses(): void {
-    this.splitExpensesData$.next(null);
   }
 }
