@@ -1,18 +1,9 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { CurrencyService } from 'src/app/core/services/currency.service';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormBuilder, Validators } from '@angular/forms';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import {
-  switchMap,
-  finalize,
-  distinctUntilChanged,
-  debounceTime,
-  throttle,
-  throttleTime,
-  pairwise,
-  map,
-} from 'rxjs/operators';
+import { switchMap, finalize, distinctUntilChanged } from 'rxjs/operators';
 import { from } from 'rxjs';
 
 @Component({
@@ -31,16 +22,16 @@ export class FyCurrencyExchangeRateComponent implements OnInit {
 
   @Input() exchangeRate;
 
-  fg: FormGroup;
+  fg: UntypedFormGroup;
 
   constructor(
     private modalController: ModalController,
     private currencyService: CurrencyService,
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     private loaderService: LoaderService
   ) {}
 
-  toFixed(num, fixed) {
+  toFixed(num: number, fixed: number): string {
     const re = new RegExp('^-?\\d+(?:.\\d{0,' + (fixed || -1) + '})?');
     return num.toString().match(re)[0];
   }

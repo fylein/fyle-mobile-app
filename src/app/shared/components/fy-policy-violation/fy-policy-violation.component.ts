@@ -3,7 +3,7 @@ import { ModalController } from '@ionic/angular';
 import { getCurrencySymbol } from '@angular/common';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
-import { FormControl, FormGroup } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { FinalExpensePolicyState } from 'src/app/core/models/platform/platform-final-expense-policy-state.model';
 
 @Component({
@@ -26,7 +26,7 @@ export class FyPolicyViolationComponent implements OnInit {
 
   @Input() showCloseIcon = false;
 
-  form: FormGroup;
+  form: UntypedFormGroup;
 
   isExpenseFlagged = false;
 
@@ -82,8 +82,8 @@ export class FyPolicyViolationComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.form = new FormGroup({
-      comment: new FormControl(''),
+    this.form = new UntypedFormGroup({
+      comment: new UntypedFormControl(''),
     });
     if (this.policyAction) {
       this.isExpenseFlagged = this.policyAction.flag;

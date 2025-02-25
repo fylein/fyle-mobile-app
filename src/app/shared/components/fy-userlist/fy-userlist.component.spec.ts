@@ -50,8 +50,8 @@ describe('FyUserlistComponent', () => {
       component.allowCustomValues = true;
       const modalSpy = jasmine.createSpyObj('HTMLIonModalElement', ['present', 'onWillDismiss']);
       const selected = ['ajain+12+12+1@fyle.in'];
-      modalController.create.and.returnValue(Promise.resolve(modalSpy));
-      modalSpy.onWillDismiss.and.returnValue(Promise.resolve({ data: { selected } }));
+      modalController.create.and.resolveTo(modalSpy);
+      modalSpy.onWillDismiss.and.resolveTo({ data: { selected } });
 
       component.openModal();
       tick(500);
@@ -71,8 +71,8 @@ describe('FyUserlistComponent', () => {
       component.allowCustomValues = true;
       const modalSpy = jasmine.createSpyObj('HTMLIonModalElement', ['present', 'onWillDismiss']);
       const selected = [];
-      modalController.create.and.returnValue(Promise.resolve(modalSpy));
-      modalSpy.onWillDismiss.and.returnValue(Promise.resolve({ data: { selected } }));
+      modalController.create.and.resolveTo(modalSpy);
+      modalSpy.onWillDismiss.and.resolveTo({ data: { selected } });
 
       component.openModal();
       tick(500);

@@ -1,6 +1,13 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import {
+  UntypedFormBuilder,
+  UntypedFormControl,
+  UntypedFormGroup,
+  ValidationErrors,
+  ValidatorFn,
+  Validators,
+} from '@angular/forms';
 import { PopoverController } from '@ionic/angular';
 import { catchError, concatMap, finalize, from, map, of } from 'rxjs';
 import { CardNetworkType } from 'src/app/core/enums/card-network-type';
@@ -26,7 +33,7 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
 
   @Output() isStepSkipped: EventEmitter<boolean> = new EventEmitter<boolean>();
 
-  cardForm: FormControl;
+  cardForm: UntypedFormControl;
 
   isVisaRTFEnabled = false;
 
@@ -45,7 +52,7 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
     failedCards: [],
   };
 
-  fg: FormGroup;
+  fg: UntypedFormGroup;
 
   cardsEnrolling = false;
 
@@ -54,7 +61,7 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
   constructor(
     private corporateCreditCardExpensesService: CorporateCreditCardExpenseService,
     private realTimeFeedService: RealTimeFeedService,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private popoverController: PopoverController,
     private trackingService: TrackingService
   ) {}
@@ -209,7 +216,7 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
               };
               this.fg.addControl(
                 controlName,
-                new FormControl('', [
+                new UntypedFormControl('', [
                   Validators.required,
                   Validators.maxLength(12),
                   this.cardNumberValidator(card.id),
@@ -221,7 +228,7 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
             this.singleEnrollableCardType = CardNetworkType.OTHERS;
             this.fg.addControl(
               'card_number',
-              new FormControl('', [
+              new UntypedFormControl('', [
                 Validators.required,
                 Validators.maxLength(16),
                 this.cardNumberValidator(),
