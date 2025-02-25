@@ -191,6 +191,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
       return this.saveDraftAdvanceRequest(advanceRequest);
     }
   }
+
   showFormValidationErrors(): void {
     this.fg.markAllAsTouched();
     const formContainer = this.formContainer.nativeElement as HTMLElement;
@@ -246,8 +247,8 @@ export class AddEditAdvanceRequestPage implements OnInit {
       }
       this.generateAdvanceRequestFromFg(this.extendedAdvanceRequest$)
         .pipe(
-          switchMap((advanceRequest) => {
-            return this.saveAndSubmit(event, advanceRequest).pipe(
+          switchMap((advanceRequest) =>
+            this.saveAndSubmit(event, advanceRequest).pipe(
               finalize(() => {
                 this.fg.reset();
                 if (event === 'draft') {
@@ -261,8 +262,8 @@ export class AddEditAdvanceRequestPage implements OnInit {
                   return this.router.navigate(['/', 'enterprise', 'my_advances']);
                 }
               })
-            );
-          })
+            )
+          )
         )
         .subscribe(noop);
     } else {
