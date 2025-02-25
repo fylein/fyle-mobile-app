@@ -8,7 +8,7 @@ import { ReceiptPreviewComponent } from './receipt-preview.component';
 import { ModalController, Platform, PopoverController } from '@ionic/angular';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { PinchZoomModule } from 'ngx13-pinch-zoom';
+import { PinchZoomModule } from '@mtnair/ngx-pinch-zoom';
 import { CropReceiptComponent } from '../crop-receipt/crop-receipt.component';
 import { PopupAlertComponent } from '../../popup-alert/popup-alert.component';
 import { SwiperComponent } from 'swiper/angular';
@@ -116,14 +116,12 @@ describe('ReceiptPreviewComponent', () => {
 
   it('openCropReceiptModal(): should open the crop receipt modal', async () => {
     const cropReceiptModalSpy = jasmine.createSpyObj('cropReceiptModal', ['present', 'onWillDismiss']) as any;
-    cropReceiptModalSpy.onWillDismiss.and.returnValue(
-      Promise.resolve({
-        data: {
-          base64ImageWithSource: images[0],
-        },
-      })
-    );
-    modalController.create.and.returnValue(Promise.resolve(cropReceiptModalSpy));
+    cropReceiptModalSpy.onWillDismiss.and.resolveTo({
+      data: {
+        base64ImageWithSource: images[0],
+      },
+    });
+    modalController.create.and.resolveTo(cropReceiptModalSpy);
     trackingService.cropReceipt.and.returnValue(null);
 
     component.openCropReceiptModal();
@@ -152,7 +150,7 @@ describe('ReceiptPreviewComponent', () => {
   });
 
   it('saveReceipt(): should save receipt', () => {
-    modalController.dismiss.and.returnValue(Promise.resolve(null));
+    modalController.dismiss.and.resolveTo(null);
 
     component.saveReceipt();
     expect(modalController.dismiss).toHaveBeenCalledWith({
@@ -178,14 +176,12 @@ describe('ReceiptPreviewComponent', () => {
         },
       ];
       const closePopOverSpy = jasmine.createSpyObj('closePopOver', ['present', 'onWillDismiss']);
-      closePopOverSpy.onWillDismiss.and.returnValue(
-        Promise.resolve({
-          data: {
-            action: 'discard',
-          },
-        })
-      );
-      popoverController.create.and.returnValue(Promise.resolve(closePopOverSpy));
+      closePopOverSpy.onWillDismiss.and.resolveTo({
+        data: {
+          action: 'discard',
+        },
+      });
+      popoverController.create.and.resolveTo(closePopOverSpy);
       fixture.detectChanges();
 
       const message = `Are you sure you want to discard the ${component.base64ImagesWithSource.length} receipts you just captured?`;
@@ -214,12 +210,10 @@ describe('ReceiptPreviewComponent', () => {
     it('should close modal and retake image if discard if no previous image exist', async () => {
       component.base64ImagesWithSource = [];
       const closePopOverSpy = jasmine.createSpyObj('closePopOver', ['present', 'onWillDismiss']);
-      closePopOverSpy.onWillDismiss.and.returnValue(
-        Promise.resolve({
-          data: {},
-        })
-      );
-      popoverController.create.and.returnValue(Promise.resolve(closePopOverSpy));
+      closePopOverSpy.onWillDismiss.and.resolveTo({
+        data: {},
+      });
+      popoverController.create.and.resolveTo(closePopOverSpy);
 
       fixture.detectChanges();
 
@@ -248,8 +242,8 @@ describe('ReceiptPreviewComponent', () => {
 
   describe('galleryUpload(): ', () => {
     it('should update the images list if upload from gallery is successful', async () => {
-      imagePicker.hasReadPermission.and.returnValue(Promise.resolve(true));
-      imagePicker.getPictures.and.returnValue(Promise.resolve(['encodedcontent1']));
+      imagePicker.hasReadPermission.and.resolveTo(true);
+      imagePicker.getPictures.and.resolveTo(['encodedcontent1']);
 
       const options = {
         maximumImagesCount: 10,
@@ -264,7 +258,7 @@ describe('ReceiptPreviewComponent', () => {
   });
 
   it('captureReceipts(): should close the modal and save the captured receipts', async () => {
-    modalController.dismiss.and.returnValue(Promise.resolve(null));
+    modalController.dismiss.and.resolveTo(null);
 
     component.captureReceipts();
     expect(modalController.dismiss).toHaveBeenCalledOnceWith({
@@ -277,14 +271,12 @@ describe('ReceiptPreviewComponent', () => {
     it('should delete receipt', async () => {
       component.base64ImagesWithSource = images;
       const closePopOverSpy = jasmine.createSpyObj('deletePopOver', ['present', 'onWillDismiss']);
-      closePopOverSpy.onWillDismiss.and.returnValue(
-        Promise.resolve({
-          data: {
-            action: 'remove',
-          },
-        })
-      );
-      popoverController.create.and.returnValue(Promise.resolve(closePopOverSpy));
+      closePopOverSpy.onWillDismiss.and.resolveTo({
+        data: {
+          action: 'remove',
+        },
+      });
+      popoverController.create.and.resolveTo(closePopOverSpy);
       fixture.detectChanges();
 
       await component.deleteReceipt();
@@ -311,14 +303,12 @@ describe('ReceiptPreviewComponent', () => {
       component.base64ImagesWithSource = [];
       spyOn(component, 'retake').and.returnValue(null);
       const closePopOverSpy = jasmine.createSpyObj('deletePopOver', ['present', 'onWillDismiss']);
-      closePopOverSpy.onWillDismiss.and.returnValue(
-        Promise.resolve({
-          data: {
-            action: 'remove',
-          },
-        })
-      );
-      popoverController.create.and.returnValue(Promise.resolve(closePopOverSpy));
+      closePopOverSpy.onWillDismiss.and.resolveTo({
+        data: {
+          action: 'remove',
+        },
+      });
+      popoverController.create.and.resolveTo(closePopOverSpy);
       fixture.detectChanges();
 
       await component.deleteReceipt();
@@ -344,7 +334,7 @@ describe('ReceiptPreviewComponent', () => {
   });
 
   it('retake(): should clear the images taken and dismiss the modal', () => {
-    modalController.dismiss.and.returnValue(Promise.resolve(null));
+    modalController.dismiss.and.resolveTo(null);
 
     component.retake();
     expect(modalController.dismiss).toHaveBeenCalledOnceWith({

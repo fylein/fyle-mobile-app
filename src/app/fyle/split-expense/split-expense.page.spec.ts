@@ -4,7 +4,7 @@ import { CategoriesService } from 'src/app/core/services/categories.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { SplitExpenseService } from 'src/app/core/services/split-expense.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
@@ -16,10 +16,10 @@ import { DependentFieldsService } from 'src/app/core/services/dependent-fields.s
 import { SplitExpensePage } from './split-expense.page';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import {
-  FormArray,
-  FormBuilder,
-  FormControl,
-  FormGroup,
+  UntypedFormArray,
+  UntypedFormBuilder,
+  UntypedFormControl,
+  UntypedFormGroup,
   FormsModule,
   ReactiveFormsModule,
   Validators,
@@ -28,9 +28,9 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ModalController, NavController } from '@ionic/angular';
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { IconModule } from 'src/app/shared/icon/icon.module';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
+import { MatLegacyFormFieldModule as MatFormFieldModule } from '@angular/material/legacy-form-field';
+import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy-input';
+import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button';
 import { RouterTestingModule } from '@angular/router/testing';
 import { orgSettingsGetData } from 'src/app/core/test-data/org-settings.service.spec.data';
 import { of, throwError } from 'rxjs';
@@ -135,7 +135,7 @@ import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 describe('SplitExpensePage', () => {
   let component: SplitExpensePage;
   let fixture: ComponentFixture<SplitExpensePage>;
-  let formBuilder: jasmine.SpyObj<FormBuilder>;
+  let formBuilder: jasmine.SpyObj<UntypedFormBuilder>;
   let categoriesService: jasmine.SpyObj<CategoriesService>;
   let dateService: jasmine.SpyObj<DateService>;
   let splitExpenseService: jasmine.SpyObj<SplitExpenseService>;
@@ -222,7 +222,7 @@ describe('SplitExpensePage', () => {
         MatIconTestingModule,
       ],
       providers: [
-        FormBuilder,
+        UntypedFormBuilder,
         {
           provide: CategoriesService,
           useValue: categoriesServiceSpy,
@@ -280,7 +280,7 @@ describe('SplitExpensePage', () => {
     fixture = TestBed.createComponent(SplitExpensePage);
     component = fixture.componentInstance;
 
-    formBuilder = TestBed.inject(FormBuilder) as jasmine.SpyObj<FormBuilder>;
+    formBuilder = TestBed.inject(UntypedFormBuilder) as jasmine.SpyObj<UntypedFormBuilder>;
     categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
     dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
     splitExpenseService = TestBed.inject(SplitExpenseService) as jasmine.SpyObj<SplitExpenseService>;
@@ -320,23 +320,23 @@ describe('SplitExpensePage', () => {
     it('should get the new amount and percentage value after amount is changed for first split', fakeAsync(() => {
       spyOn(component, 'getTotalSplitAmount');
       component.amount = 2000;
-      const splitExpenseForm1 = new FormGroup({
-        amount: new FormControl(120),
-        currency: new FormControl('INR'),
-        percentage: new FormControl(60),
-        txn_dt: new FormControl('2023-01-11'),
-        category: new FormControl(''),
+      const splitExpenseForm1 = new UntypedFormGroup({
+        amount: new UntypedFormControl(120),
+        currency: new UntypedFormControl('INR'),
+        percentage: new UntypedFormControl(60),
+        txn_dt: new UntypedFormControl('2023-01-11'),
+        category: new UntypedFormControl(''),
       });
 
-      const otherSplitExpenseForm = new FormGroup({
-        amount: new FormControl(800),
-        currency: new FormControl('INR'),
-        percentage: new FormControl(40),
-        txn_dt: new FormControl('2023-01-11'),
-        category: new FormControl(''),
+      const otherSplitExpenseForm = new UntypedFormGroup({
+        amount: new UntypedFormControl(800),
+        currency: new UntypedFormControl('INR'),
+        percentage: new UntypedFormControl(40),
+        txn_dt: new UntypedFormControl('2023-01-11'),
+        category: new UntypedFormControl(''),
       });
       Object.defineProperty(splitExpenseForm1.controls.amount, '_pendingChange', { value: true });
-      component.splitExpensesFormArray = new FormArray([splitExpenseForm1, otherSplitExpenseForm]);
+      component.splitExpensesFormArray = new UntypedFormArray([splitExpenseForm1, otherSplitExpenseForm]);
 
       component.onChangeAmount(splitExpenseForm1, 0);
       tick(500);
@@ -349,23 +349,23 @@ describe('SplitExpensePage', () => {
     it('should get the new amount and percentage value after amount is changed for second split', fakeAsync(() => {
       spyOn(component, 'getTotalSplitAmount');
       component.amount = 2000;
-      const splitExpenseForm1 = new FormGroup({
-        amount: new FormControl(1200),
-        currency: new FormControl('INR'),
-        percentage: new FormControl(60),
-        txn_dt: new FormControl('2023-01-11'),
-        category: new FormControl(''),
+      const splitExpenseForm1 = new UntypedFormGroup({
+        amount: new UntypedFormControl(1200),
+        currency: new UntypedFormControl('INR'),
+        percentage: new UntypedFormControl(60),
+        txn_dt: new UntypedFormControl('2023-01-11'),
+        category: new UntypedFormControl(''),
       });
 
-      const otherSplitExpenseForm = new FormGroup({
-        amount: new FormControl(80),
-        currency: new FormControl('INR'),
-        percentage: new FormControl(40),
-        txn_dt: new FormControl('2023-01-11'),
-        category: new FormControl(''),
+      const otherSplitExpenseForm = new UntypedFormGroup({
+        amount: new UntypedFormControl(80),
+        currency: new UntypedFormControl('INR'),
+        percentage: new UntypedFormControl(40),
+        txn_dt: new UntypedFormControl('2023-01-11'),
+        category: new UntypedFormControl(''),
       });
       Object.defineProperty(otherSplitExpenseForm.controls.amount, '_pendingChange', { value: true });
-      component.splitExpensesFormArray = new FormArray([splitExpenseForm1, otherSplitExpenseForm]);
+      component.splitExpensesFormArray = new UntypedFormArray([splitExpenseForm1, otherSplitExpenseForm]);
 
       component.onChangeAmount(otherSplitExpenseForm, 1);
       tick(500);
@@ -437,7 +437,7 @@ describe('SplitExpensePage', () => {
       const splitExpenseForm1 = cloneDeep(splitExpenseFormData1);
       const otherSplitExpenseForm = cloneDeep(splitExpenseFormData5);
       Object.defineProperty(splitExpenseForm1.controls.percentage, '_pendingChange', { value: true });
-      component.splitExpensesFormArray = new FormArray([splitExpenseForm1, otherSplitExpenseForm]);
+      component.splitExpensesFormArray = new UntypedFormArray([splitExpenseForm1, otherSplitExpenseForm]);
 
       component.onChangePercentage(splitExpenseForm1, 0);
 
@@ -453,7 +453,7 @@ describe('SplitExpensePage', () => {
       const splitExpenseForm1 = cloneDeep(splitExpenseFormData1);
       const otherSplitExpenseForm = cloneDeep(splitExpenseFormData6);
       Object.defineProperty(otherSplitExpenseForm.controls.percentage, '_pendingChange', { value: true });
-      component.splitExpensesFormArray = new FormArray([splitExpenseForm1, otherSplitExpenseForm]);
+      component.splitExpensesFormArray = new UntypedFormArray([splitExpenseForm1, otherSplitExpenseForm]);
 
       component.onChangePercentage(otherSplitExpenseForm, 1);
 
@@ -466,23 +466,23 @@ describe('SplitExpensePage', () => {
 
   describe('getTotalSplitAmount():', () => {
     it('should calculate total split amount and remaining amount correctly when there are two form groups', () => {
-      const splitExpenseForm1 = new FormGroup({
-        amount: new FormControl(473.4),
-        currency: new FormControl('INR'),
-        percentage: new FormControl(60),
-        txn_dt: new FormControl('2023-01-11'),
-        category: new FormControl(''),
+      const splitExpenseForm1 = new UntypedFormGroup({
+        amount: new UntypedFormControl(473.4),
+        currency: new UntypedFormControl('INR'),
+        percentage: new UntypedFormControl(60),
+        txn_dt: new UntypedFormControl('2023-01-11'),
+        category: new UntypedFormControl(''),
       });
-      const splitExpenseForm2 = new FormGroup({
-        amount: new FormControl(315.6),
-        currency: new FormControl('INR'),
-        percentage: new FormControl(40),
-        txn_dt: new FormControl('2023-01-11'),
-        category: new FormControl(''),
+      const splitExpenseForm2 = new UntypedFormGroup({
+        amount: new UntypedFormControl(315.6),
+        currency: new UntypedFormControl('INR'),
+        percentage: new UntypedFormControl(40),
+        txn_dt: new UntypedFormControl('2023-01-11'),
+        category: new UntypedFormControl(''),
       });
       component.amount = 789;
 
-      component.splitExpensesFormArray = new FormArray([splitExpenseForm1, splitExpenseForm2]);
+      component.splitExpensesFormArray = new UntypedFormArray([splitExpenseForm1, splitExpenseForm2]);
 
       component.getTotalSplitAmount();
 
@@ -492,31 +492,35 @@ describe('SplitExpensePage', () => {
 
     it('should calculate total split amount and remaining amount correctly when the expense is not evenly split in three', () => {
       component.amount = 25000;
-      const splitExpenseForm1 = new FormGroup({
-        amount: new FormControl(10000),
-        currency: new FormControl('INR'),
-        percentage: new FormControl(60),
-        txn_dt: new FormControl('2023-01-11'),
-        category: new FormControl(''),
+      const splitExpenseForm1 = new UntypedFormGroup({
+        amount: new UntypedFormControl(10000),
+        currency: new UntypedFormControl('INR'),
+        percentage: new UntypedFormControl(60),
+        txn_dt: new UntypedFormControl('2023-01-11'),
+        category: new UntypedFormControl(''),
       });
 
-      const splitExpenseForm2 = new FormGroup({
-        amount: new FormControl(5000),
-        currency: new FormControl('INR'),
-        percentage: new FormControl(40),
-        txn_dt: new FormControl('2023-01-11'),
-        category: new FormControl(''),
+      const splitExpenseForm2 = new UntypedFormGroup({
+        amount: new UntypedFormControl(5000),
+        currency: new UntypedFormControl('INR'),
+        percentage: new UntypedFormControl(40),
+        txn_dt: new UntypedFormControl('2023-01-11'),
+        category: new UntypedFormControl(''),
       });
 
-      const splitExpenseForm3 = new FormGroup({
-        amount: new FormControl(null),
-        currency: new FormControl(null),
-        percentage: new FormControl(null),
-        txn_dt: new FormControl('2023-01-11'),
-        category: new FormControl(''),
+      const splitExpenseForm3 = new UntypedFormGroup({
+        amount: new UntypedFormControl(null),
+        currency: new UntypedFormControl(null),
+        percentage: new UntypedFormControl(null),
+        txn_dt: new UntypedFormControl('2023-01-11'),
+        category: new UntypedFormControl(''),
       });
 
-      component.splitExpensesFormArray = new FormArray([splitExpenseForm1, splitExpenseForm2, splitExpenseForm3]);
+      component.splitExpensesFormArray = new UntypedFormArray([
+        splitExpenseForm1,
+        splitExpenseForm2,
+        splitExpenseForm3,
+      ]);
       component.getTotalSplitAmount();
       expect(component.totalSplitAmount).toEqual(15000);
       expect(component.remainingAmount).toEqual(10000);
@@ -996,7 +1000,7 @@ describe('SplitExpensePage', () => {
 
   describe('customDateValidator():', () => {
     it('should return null when the date is within the valid range', () => {
-      const control = new FormControl('2023-06-15');
+      const control = new UntypedFormControl('2023-06-15');
       const result = component.customDateValidator(control);
       expect(result).toBeNull();
     });
@@ -1004,7 +1008,7 @@ describe('SplitExpensePage', () => {
     it('should return an error object when the date is after the upper bound of the valid range', () => {
       const tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 3);
-      const control = new FormControl(tomorrow.toISOString().substring(0, 10));
+      const control = new UntypedFormControl(tomorrow.toISOString().substring(0, 10));
       const result = component.customDateValidator(control);
       expect(result).toEqual({ invalidDateSelection: true });
     });
@@ -1083,22 +1087,22 @@ describe('SplitExpensePage', () => {
 
       component.splitType = 'categories';
       component.transaction = txnData;
-      const splitExpenseForm1 = new FormGroup({
-        amount: new FormControl(10000),
-        currency: new FormControl('INR'),
-        percentage: new FormControl(60),
-        txn_dt: new FormControl('2023-02-08'),
-        category: new FormControl(''),
+      const splitExpenseForm1 = new UntypedFormGroup({
+        amount: new UntypedFormControl(10000),
+        currency: new UntypedFormControl('INR'),
+        percentage: new UntypedFormControl(60),
+        txn_dt: new UntypedFormControl('2023-02-08'),
+        category: new UntypedFormControl(''),
       });
 
-      const splitExpenseForm2 = new FormGroup({
-        amount: new FormControl(5000),
-        currency: new FormControl('INR'),
-        percentage: new FormControl(40),
-        txn_dt: new FormControl('2023-02-08'),
-        category: new FormControl(''),
+      const splitExpenseForm2 = new UntypedFormGroup({
+        amount: new UntypedFormControl(5000),
+        currency: new UntypedFormControl('INR'),
+        percentage: new UntypedFormControl(40),
+        txn_dt: new UntypedFormControl('2023-02-08'),
+        category: new UntypedFormControl(''),
       });
-      component.splitExpensesFormArray = new FormArray([splitExpenseForm1, splitExpenseForm2]);
+      component.splitExpensesFormArray = new UntypedFormArray([splitExpenseForm1, splitExpenseForm2]);
 
       component.add();
       expect(component.splitExpensesFormArray.length).toEqual(3);
@@ -1111,22 +1115,22 @@ describe('SplitExpensePage', () => {
   describe('remove()', () => {
     it('should remove the expense at the 1st index', () => {
       spyOn(component, 'getTotalSplitAmount');
-      const splitExpenseForm1 = new FormGroup({
-        amount: new FormControl(10000),
-        currency: new FormControl('INR'),
-        percentage: new FormControl(60),
-        txn_dt: new FormControl('2023-01-11'),
-        category: new FormControl(''),
+      const splitExpenseForm1 = new UntypedFormGroup({
+        amount: new UntypedFormControl(10000),
+        currency: new UntypedFormControl('INR'),
+        percentage: new UntypedFormControl(60),
+        txn_dt: new UntypedFormControl('2023-01-11'),
+        category: new UntypedFormControl(''),
       });
 
-      const splitExpenseForm2 = new FormGroup({
-        amount: new FormControl(5000),
-        currency: new FormControl('INR'),
-        percentage: new FormControl(40),
-        txn_dt: new FormControl('2023-01-11'),
-        category: new FormControl(''),
+      const splitExpenseForm2 = new UntypedFormGroup({
+        amount: new UntypedFormControl(5000),
+        currency: new UntypedFormControl('INR'),
+        percentage: new UntypedFormControl(40),
+        txn_dt: new UntypedFormControl('2023-01-11'),
+        category: new UntypedFormControl(''),
       });
-      component.splitExpensesFormArray = new FormArray([splitExpenseForm1, splitExpenseForm2]);
+      component.splitExpensesFormArray = new UntypedFormArray([splitExpenseForm1, splitExpenseForm2]);
       component.remove(1);
 
       expect(component.splitExpensesFormArray.length).toBe(1);
@@ -1136,31 +1140,35 @@ describe('SplitExpensePage', () => {
     });
 
     it('should recalculate the amount and percentage for the last split expense form when there are more than 2 splits', () => {
-      const splitExpenseForm1 = new FormGroup({
-        amount: new FormControl(9000),
-        currency: new FormControl('INR'),
-        percentage: new FormControl(60),
-        txn_dt: new FormControl('2023-01-11'),
-        category: new FormControl(''),
+      const splitExpenseForm1 = new UntypedFormGroup({
+        amount: new UntypedFormControl(9000),
+        currency: new UntypedFormControl('INR'),
+        percentage: new UntypedFormControl(60),
+        txn_dt: new UntypedFormControl('2023-01-11'),
+        category: new UntypedFormControl(''),
       });
 
-      const splitExpenseForm2 = new FormGroup({
-        amount: new FormControl(4000),
-        currency: new FormControl('INR'),
-        percentage: new FormControl(26.667),
-        txn_dt: new FormControl('2023-01-11'),
-        category: new FormControl(''),
+      const splitExpenseForm2 = new UntypedFormGroup({
+        amount: new UntypedFormControl(4000),
+        currency: new UntypedFormControl('INR'),
+        percentage: new UntypedFormControl(26.667),
+        txn_dt: new UntypedFormControl('2023-01-11'),
+        category: new UntypedFormControl(''),
       });
 
-      const splitExpenseForm3 = new FormGroup({
-        amount: new FormControl(2000),
-        currency: new FormControl('INR'),
-        percentage: new FormControl(13.333),
-        txn_dt: new FormControl('2023-01-11'),
-        category: new FormControl(''),
+      const splitExpenseForm3 = new UntypedFormGroup({
+        amount: new UntypedFormControl(2000),
+        currency: new UntypedFormControl('INR'),
+        percentage: new UntypedFormControl(13.333),
+        txn_dt: new UntypedFormControl('2023-01-11'),
+        category: new UntypedFormControl(''),
       });
 
-      component.splitExpensesFormArray = new FormArray([splitExpenseForm1, splitExpenseForm2, splitExpenseForm3]);
+      component.splitExpensesFormArray = new UntypedFormArray([
+        splitExpenseForm1,
+        splitExpenseForm2,
+        splitExpenseForm3,
+      ]);
       component.amount = 15000;
       component.remove(2);
       expect(component.splitExpensesFormArray.length).toBe(2);
@@ -1176,22 +1184,22 @@ describe('SplitExpensePage', () => {
       spyOn(component, 'getTotalSplitAmount');
       //@ts-ignore
       spyOn(component, 'setEvenSplit');
-      const splitExpenseForm1 = new FormGroup({
-        amount: new FormControl(327.5),
-        currency: new FormControl('INR'),
-        percentage: new FormControl(50),
-        txn_dt: new FormControl('2023-01-11'),
-        category: new FormControl(''),
+      const splitExpenseForm1 = new UntypedFormGroup({
+        amount: new UntypedFormControl(327.5),
+        currency: new UntypedFormControl('INR'),
+        percentage: new UntypedFormControl(50),
+        txn_dt: new UntypedFormControl('2023-01-11'),
+        category: new UntypedFormControl(''),
       });
-      const splitExpenseForm2 = new FormGroup({
-        amount: new FormControl(327.5),
-        currency: new FormControl('INR'),
-        percentage: new FormControl(50),
-        txn_dt: new FormControl('2023-01-11'),
-        category: new FormControl(''),
+      const splitExpenseForm2 = new UntypedFormGroup({
+        amount: new UntypedFormControl(327.5),
+        currency: new UntypedFormControl('INR'),
+        percentage: new UntypedFormControl(50),
+        txn_dt: new UntypedFormControl('2023-01-11'),
+        category: new UntypedFormControl(''),
       });
 
-      component.splitExpensesFormArray = new FormArray([splitExpenseForm1, splitExpenseForm2]);
+      component.splitExpensesFormArray = new UntypedFormArray([splitExpenseForm1, splitExpenseForm2]);
       component.amount = 655;
       const evenAmount = 327.5;
       const evenPercentage = 50;
@@ -1214,22 +1222,22 @@ describe('SplitExpensePage', () => {
 
   describe('setEvenSplit()', () => {
     it('should set the amount and percentage for the last split when last split is true', () => {
-      const splitExpenseForm1 = new FormGroup({
-        amount: new FormControl(327.5),
-        currency: new FormControl('INR'),
-        percentage: new FormControl(50),
-        txn_dt: new FormControl('2023-01-11'),
-        category: new FormControl(''),
+      const splitExpenseForm1 = new UntypedFormGroup({
+        amount: new UntypedFormControl(327.5),
+        currency: new UntypedFormControl('INR'),
+        percentage: new UntypedFormControl(50),
+        txn_dt: new UntypedFormControl('2023-01-11'),
+        category: new UntypedFormControl(''),
       });
-      const splitExpenseForm2 = new FormGroup({
-        amount: new FormControl(327.5),
-        currency: new FormControl('INR'),
-        percentage: new FormControl(50),
-        txn_dt: new FormControl('2023-01-11'),
-        category: new FormControl(''),
+      const splitExpenseForm2 = new UntypedFormGroup({
+        amount: new UntypedFormControl(327.5),
+        currency: new UntypedFormControl('INR'),
+        percentage: new UntypedFormControl(50),
+        txn_dt: new UntypedFormControl('2023-01-11'),
+        category: new UntypedFormControl(''),
       });
 
-      component.splitExpensesFormArray = new FormArray([splitExpenseForm1, splitExpenseForm2]);
+      component.splitExpensesFormArray = new UntypedFormArray([splitExpenseForm1, splitExpenseForm2]);
       component.amount = 655;
       const evenAmount = 327.5;
       const evenPercentage = 50;
@@ -1244,27 +1252,27 @@ describe('SplitExpensePage', () => {
     });
 
     it('should set amount and parcentage accordingly when isLastSplit is false', () => {
-      const splitExpenseForm1 = new FormGroup({
-        amount: new FormControl(218.333),
-        currency: new FormControl('INR'),
-        percentage: new FormControl(33.333),
-        txn_dt: new FormControl('2023-01-11'),
-        category: new FormControl(''),
+      const splitExpenseForm1 = new UntypedFormGroup({
+        amount: new UntypedFormControl(218.333),
+        currency: new UntypedFormControl('INR'),
+        percentage: new UntypedFormControl(33.333),
+        txn_dt: new UntypedFormControl('2023-01-11'),
+        category: new UntypedFormControl(''),
       });
-      const splitExpenseForm2 = new FormGroup({
-        amount: new FormControl(218.333),
-        currency: new FormControl('INR'),
-        percentage: new FormControl(33.333),
-        txn_dt: new FormControl('2023-01-11'),
-        category: new FormControl(''),
+      const splitExpenseForm2 = new UntypedFormGroup({
+        amount: new UntypedFormControl(218.333),
+        currency: new UntypedFormControl('INR'),
+        percentage: new UntypedFormControl(33.333),
+        txn_dt: new UntypedFormControl('2023-01-11'),
+        category: new UntypedFormControl(''),
       });
 
-      const splitExpenseForm3 = new FormGroup({
-        amount: new FormControl(218.333),
-        currency: new FormControl('INR'),
-        percentage: new FormControl(33.334),
-        txn_dt: new FormControl('2023-01-11'),
-        category: new FormControl(''),
+      const splitExpenseForm3 = new UntypedFormGroup({
+        amount: new UntypedFormControl(218.333),
+        currency: new UntypedFormControl('INR'),
+        percentage: new UntypedFormControl(33.334),
+        txn_dt: new UntypedFormControl('2023-01-11'),
+        category: new UntypedFormControl(''),
       });
 
       const evenAmount = 218.333;
@@ -1273,7 +1281,11 @@ describe('SplitExpensePage', () => {
       const lastSplitIndex = 2;
       const lastSplitPercentage = 33.334;
 
-      component.splitExpensesFormArray = new FormArray([splitExpenseForm1, splitExpenseForm2, splitExpenseForm3]);
+      component.splitExpensesFormArray = new UntypedFormArray([
+        splitExpenseForm1,
+        splitExpenseForm2,
+        splitExpenseForm3,
+      ]);
       component.amount = 655;
       //@ts-ignore
       component.setEvenSplit(evenAmount, evenPercentage, lastSplitAmount, lastSplitPercentage);
@@ -1285,22 +1297,22 @@ describe('SplitExpensePage', () => {
   describe('isEvenlySplit():', () => {
     it('should return true if the split expenses are evenly split', () => {
       component.amount = 1000;
-      const splitExpenseForm1 = new FormGroup({
-        amount: new FormControl(500),
-        currency: new FormControl('INR'),
-        percentage: new FormControl(50),
-        txn_dt: new FormControl('2023-01-11'),
-        category: new FormControl(''),
+      const splitExpenseForm1 = new UntypedFormGroup({
+        amount: new UntypedFormControl(500),
+        currency: new UntypedFormControl('INR'),
+        percentage: new UntypedFormControl(50),
+        txn_dt: new UntypedFormControl('2023-01-11'),
+        category: new UntypedFormControl(''),
       });
 
-      const splitExpenseForm2 = new FormGroup({
-        amount: new FormControl(500),
-        currency: new FormControl('INR'),
-        percentage: new FormControl(50),
-        txn_dt: new FormControl('2023-01-11'),
-        category: new FormControl(''),
+      const splitExpenseForm2 = new UntypedFormGroup({
+        amount: new UntypedFormControl(500),
+        currency: new UntypedFormControl('INR'),
+        percentage: new UntypedFormControl(50),
+        txn_dt: new UntypedFormControl('2023-01-11'),
+        category: new UntypedFormControl(''),
       });
-      component.splitExpensesFormArray = new FormArray([splitExpenseForm1, splitExpenseForm2]);
+      component.splitExpensesFormArray = new UntypedFormArray([splitExpenseForm1, splitExpenseForm2]);
       //@ts-ignore
       const result = component.isEvenlySplit();
       expect(result).toBeTrue();
@@ -1308,42 +1320,42 @@ describe('SplitExpensePage', () => {
 
     it('should return false if the split expenses are not evenly split', () => {
       component.amount = 1000;
-      const splitExpenseForm1 = new FormGroup({
-        amount: new FormControl(800),
-        currency: new FormControl('INR'),
-        percentage: new FormControl(80),
-        txn_dt: new FormControl('2023-01-11'),
-        category: new FormControl(''),
+      const splitExpenseForm1 = new UntypedFormGroup({
+        amount: new UntypedFormControl(800),
+        currency: new UntypedFormControl('INR'),
+        percentage: new UntypedFormControl(80),
+        txn_dt: new UntypedFormControl('2023-01-11'),
+        category: new UntypedFormControl(''),
       });
 
-      const splitExpenseForm2 = new FormGroup({
-        amount: new FormControl(200),
-        currency: new FormControl('INR'),
-        percentage: new FormControl(20),
-        txn_dt: new FormControl('2023-01-11'),
-        category: new FormControl(''),
+      const splitExpenseForm2 = new UntypedFormGroup({
+        amount: new UntypedFormControl(200),
+        currency: new UntypedFormControl('INR'),
+        percentage: new UntypedFormControl(20),
+        txn_dt: new UntypedFormControl('2023-01-11'),
+        category: new UntypedFormControl(''),
       });
-      component.splitExpensesFormArray = new FormArray([splitExpenseForm1, splitExpenseForm2]);
+      component.splitExpensesFormArray = new UntypedFormArray([splitExpenseForm1, splitExpenseForm2]);
       //@ts-ignore
       const result = component.isEvenlySplit();
       expect(result).toBeFalse();
     });
 
     it('should consider splits with a difference of 0.01 as evenly split', () => {
-      component.splitExpensesFormArray = new FormArray([
-        new FormGroup({
-          amount: new FormControl(10.0),
-          currency: new FormControl('INR'),
-          percentage: new FormControl(20),
-          txn_dt: new FormControl('2023-01-11'),
-          category: new FormControl(''),
+      component.splitExpensesFormArray = new UntypedFormArray([
+        new UntypedFormGroup({
+          amount: new UntypedFormControl(10.0),
+          currency: new UntypedFormControl('INR'),
+          percentage: new UntypedFormControl(20),
+          txn_dt: new UntypedFormControl('2023-01-11'),
+          category: new UntypedFormControl(''),
         }),
-        new FormGroup({
-          amount: new FormControl(10.01),
-          currency: new FormControl('INR'),
-          percentage: new FormControl(20),
-          txn_dt: new FormControl('2023-01-11'),
-          category: new FormControl(''),
+        new UntypedFormGroup({
+          amount: new UntypedFormControl(10.01),
+          currency: new UntypedFormControl('INR'),
+          percentage: new UntypedFormControl(20),
+          txn_dt: new UntypedFormControl('2023-01-11'),
+          category: new UntypedFormControl(''),
         }),
       ]);
       //@ts-ignore
@@ -1732,23 +1744,23 @@ describe('SplitExpensePage', () => {
     });
 
     it('should call createSplitTxns method and return the transactions created by split API', () => {
-      const splitExpenseForm1 = new FormGroup({
-        amount: new FormControl(120),
-        currency: new FormControl('INR'),
-        percentage: new FormControl(60),
-        txn_dt: new FormControl('2023-01-11'),
-        category: new FormControl(''),
+      const splitExpenseForm1 = new UntypedFormGroup({
+        amount: new UntypedFormControl(120),
+        currency: new UntypedFormControl('INR'),
+        percentage: new UntypedFormControl(60),
+        txn_dt: new UntypedFormControl('2023-01-11'),
+        category: new UntypedFormControl(''),
       });
 
-      const otherSplitExpenseForm = new FormGroup({
-        amount: new FormControl(800),
-        currency: new FormControl('INR'),
-        percentage: new FormControl(40),
-        txn_dt: new FormControl('2023-01-11'),
-        category: new FormControl(''),
+      const otherSplitExpenseForm = new UntypedFormGroup({
+        amount: new UntypedFormControl(800),
+        currency: new UntypedFormControl('INR'),
+        percentage: new UntypedFormControl(40),
+        txn_dt: new UntypedFormControl('2023-01-11'),
+        category: new UntypedFormControl(''),
       });
 
-      component.splitExpensesFormArray = new FormArray([splitExpenseForm1, otherSplitExpenseForm]);
+      component.splitExpensesFormArray = new UntypedFormArray([splitExpenseForm1, otherSplitExpenseForm]);
       const splitExpenses = cloneDeep(txnList);
       component.createSplitTxns(splitExpenses).subscribe((res) => {
         expect(res).toEqual(txnList);
@@ -1773,7 +1785,7 @@ describe('SplitExpensePage', () => {
         percentage: [50],
         txn_dt: [new Date(), Validators.compose([Validators.required, component.customDateValidator])],
       });
-      component.splitExpensesFormArray = new FormArray([mockSplitExpForm]);
+      component.splitExpensesFormArray = new UntypedFormArray([mockSplitExpForm]);
       spyOn(component, 'generateSplitEtxnFromFg').and.returnValue(of(txnList[0]));
       spyOn(component, 'uploadFiles').and.returnValue(of(fileObjectData1));
       spyOn(component, 'correctTotalSplitAmount');
@@ -1818,7 +1830,7 @@ describe('SplitExpensePage', () => {
         percentage: [50],
         txn_dt: [new Date(), Validators.compose([Validators.required, component.customDateValidator])],
       });
-      component.splitExpensesFormArray = new FormArray([mockSplitExpForm]);
+      component.splitExpensesFormArray = new UntypedFormArray([mockSplitExpForm]);
 
       component.save();
 
@@ -1889,7 +1901,7 @@ describe('SplitExpensePage', () => {
         percentage: [50],
         txn_dt: [new Date(), Validators.compose([Validators.required, component.customDateValidator])],
       });
-      component.splitExpensesFormArray = new FormArray([mockSplitExpForm]);
+      component.splitExpensesFormArray = new UntypedFormArray([mockSplitExpForm]);
       spyOn(component.splitExpensesFormArray, 'markAllAsTouched');
 
       component.save();
@@ -2188,7 +2200,7 @@ describe('SplitExpensePage', () => {
 
   describe('getViolationName():', () => {
     beforeEach(() => {
-      component.splitExpensesFormArray = new FormArray([splitExpenseFormData7]);
+      component.splitExpensesFormArray = new UntypedFormArray([splitExpenseFormData7]);
     });
 
     it('should return category name if split type is category', () => {

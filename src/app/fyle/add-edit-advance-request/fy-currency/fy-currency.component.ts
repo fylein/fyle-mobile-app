@@ -1,6 +1,12 @@
 import { Component, OnInit, forwardRef, Input, Injector } from '@angular/core';
 
-import { NG_VALUE_ACCESSOR, ControlValueAccessor, FormBuilder, FormGroup, NgControl } from '@angular/forms';
+import {
+  NG_VALUE_ACCESSOR,
+  ControlValueAccessor,
+  UntypedFormBuilder,
+  UntypedFormGroup,
+  NgControl,
+} from '@angular/forms';
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { FyCurrencyChooseCurrencyComponent } from './fy-currency-choose-currency/fy-currency-choose-currency.component';
@@ -23,7 +29,7 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
 
   @Input() homeCurrency: string;
 
-  fg: FormGroup;
+  fg: UntypedFormGroup;
 
   private ngControl: NgControl;
 
@@ -37,7 +43,7 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
   private onChangeCallback: (_: any) => void = noop;
 
   constructor(
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
     private injector: Injector

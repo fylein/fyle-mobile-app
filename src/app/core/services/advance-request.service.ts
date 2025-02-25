@@ -144,13 +144,11 @@ export class AdvanceRequestService {
         params,
       })
       .pipe(
-        map((res) => {
-          return {
-            count: res.count,
-            offset: res.offset,
-            data: this.convertToPublicAdvanceRequest(res),
-          };
-        })
+        map((res) => ({
+          count: res.count,
+          offset: res.offset,
+          data: this.convertToPublicAdvanceRequest(res),
+        }))
       );
   }
 
@@ -204,11 +202,7 @@ export class AdvanceRequestService {
       .get<PlatformApiResponse<AdvanceRequestPlatform[]>>('/advance_requests', {
         params: { id: `eq.${id}` },
       })
-      .pipe(
-        map((res) => {
-          return this.mapAdvanceRequest(this.fixDatesForPlatformFields(res.data[0]));
-        })
-      );
+      .pipe(map((res) => this.mapAdvanceRequest(this.fixDatesForPlatformFields(res.data[0]))));
   }
 
   @CacheBuster({

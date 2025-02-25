@@ -4,7 +4,7 @@ import { IonicModule } from '@ionic/angular';
 import { VirtualCardComponent } from './virtual-card.component';
 import { ClipboardService } from 'src/app/core/services/clipboard.service';
 import { click, getElementBySelector } from 'src/app/core/dom-helpers';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from '../toast-message/toast-message.component';
 

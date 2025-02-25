@@ -1,7 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { CurrencyService } from 'src/app/core/services/currency.service';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormBuilder, Validators } from '@angular/forms';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import {
   switchMap,
@@ -29,12 +29,12 @@ export class FyCurrencyExchangeRateComponent implements OnInit {
 
   @Input() txnDt;
 
-  fg: FormGroup;
+  fg: UntypedFormGroup;
 
   constructor(
     private modalController: ModalController,
     private currencyService: CurrencyService,
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     private loaderService: LoaderService
   ) {}
 
