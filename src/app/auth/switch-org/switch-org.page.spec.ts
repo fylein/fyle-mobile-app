@@ -477,7 +477,7 @@ describe('SwitchOrgPage', () => {
       component.handleDismissPopup('resend', email, org_id, orgData1);
       expect(component.resendInvite).toHaveBeenCalledOnceWith(email, org_id);
       expect(component.logoutIfSingleOrg).toHaveBeenCalledOnceWith(orgData1);
-      expect(component.showToastNotification).toHaveBeenCalledOnceWith('Verification Email Sent');
+      expect(component.showToastNotification).toHaveBeenCalledOnceWith('Verification email sent');
     });
 
     it('should logout if action is cancel', () => {
@@ -519,10 +519,10 @@ describe('SwitchOrgPage', () => {
       expect(component.handleDismissPopup).toHaveBeenCalledOnceWith('action', email, org_id, orgData1);
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         componentProps: {
-          title: 'Invite Not Accepted',
+          title: 'Invite not accepted',
           message: `You have been invited to ${apiEouRes.ou.org_name} organization, please check your previous emails and accept the invite or resend invite.`,
           primaryCta: {
-            text: 'Resend Invite',
+            text: 'Resend invite',
             action: 'resend',
           },
           secondaryCta: {
@@ -553,10 +553,10 @@ describe('SwitchOrgPage', () => {
       expect(component.handleDismissPopup).toHaveBeenCalledOnceWith(undefined, email, org_id, orgData1);
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         componentProps: {
-          title: 'Invite Not Accepted',
+          title: 'Invite not accepted',
           message: `You have been invited to ${apiEouRes.ou.org_name} organization, please check your previous emails and accept the invite or resend invite.`,
           primaryCta: {
-            text: 'Resend Invite',
+            text: 'Resend invite',
             action: 'resend',
           },
           secondaryCta: {
