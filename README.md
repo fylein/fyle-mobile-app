@@ -191,7 +191,7 @@ This will ensure that all required packages are correctly installed, resolving t
 - Run unit tests:
 
 ```bash
-npm run test
+npx ng test
 ```
 
 - For non-parallel execution (Recommended method for preventing excessive CPU utilization and memory hogging.):
