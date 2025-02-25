@@ -6,17 +6,7 @@ import { ModalController, NavController, PopoverController } from '@ionic/angula
 import { isEmpty, isNumber } from 'lodash';
 import * as dayjs from 'dayjs';
 import { combineLatest, forkJoin, from, iif, Observable, of, Subject, throwError } from 'rxjs';
-import {
-  catchError,
-  concatMap,
-  finalize,
-  map,
-  shareReplay,
-  startWith,
-  switchMap,
-  takeUntil,
-  tap,
-} from 'rxjs/operators';
+import { catchError, concatMap, finalize, map, shareReplay, startWith, switchMap, takeUntil } from 'rxjs/operators';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { SplitExpenseService } from 'src/app/core/services/split-expense.service';
@@ -550,17 +540,16 @@ export class SplitExpensePage implements OnDestroy {
     const inputFieldInfo: { [key: string]: string } = {};
 
     if (this.splitConfig.category.is_visible) {
-      inputFieldInfo.Category = splitExpenseFormValue.category.name;
+      inputFieldInfo.Category = splitExpenseFormValue?.category.name || '-';
     }
 
     if (this.splitConfig.costCenter.is_visible) {
-      inputFieldInfo[this.txnFields?.cost_center_id?.field_name] = splitExpenseFormValue.cost_center.name;
+      inputFieldInfo[this.txnFields?.cost_center_id?.field_name] = splitExpenseFormValue?.cost_center?.name || '-';
     }
 
     if (this.splitConfig.project.is_visible) {
-      inputFieldInfo[this.txnFields?.project_id?.field_name] = splitExpenseFormValue.project.project_name;
+      inputFieldInfo[this.txnFields?.project_id?.field_name] = splitExpenseFormValue?.project.project_name || '-';
     }
-
     return inputFieldInfo;
   }
 
@@ -591,6 +580,7 @@ export class SplitExpensePage implements OnDestroy {
         if (mandatoryFields.hasOwnProperty(key)) {
           mandatoryFieldsData[index].amount = etxn.orig_amount || etxn.amount;
           mandatoryFieldsData[index].currency = etxn.orig_currency || etxn.currency;
+          mandatoryFieldsData[index].inputFieldInfo = this.generateInputFieldInfo(index);
           mandatoryFieldsData[index].data = mandatoryFields.data[index];
           break;
         }

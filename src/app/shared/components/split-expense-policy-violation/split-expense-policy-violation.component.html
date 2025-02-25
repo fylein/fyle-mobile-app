@@ -31,17 +31,17 @@
           </div>
           <div class="split-expense-policy-violation--sub-header-slot">
             <div class="split-expense-policy-violation--split-by-type-container">
-              @for (item of policyViolations[transaction].inputFieldInfo | keyvalue; track item.key) {
-              <div class="split-expense-policy-violation--placeholder">
-                {{ item.key | uppercase }} :
-                <span class="split-expense-policy-violation--value">
-                  {{ item.value }}
-                </span>
+              <div *ngIf="policyViolations[transaction]?.inputFieldInfo">
+                <div
+                  *ngFor="let input of policyViolations[transaction].inputFieldInfo | keyvalue"
+                  class="split-expense-policy-violation--placeholder"
+                >
+                  {{ input.key | uppercase }} :
+                  <span class="split-expense-policy-violation--value">{{ input.value }}</span>
+                </div>
               </div>
-              }
             </div>
             <div class="split-expense-policy-violation--policy-amount-container">
-              <div class="split-expense-policy-violation--placeholder">SPLIT AMOUNT</div>
               <div class="split-expense-policy-violation--value text-right">
                 {{
                   policyViolations[transaction].amount
@@ -122,13 +122,18 @@
           </div>
           <div class="split-expense-policy-violation--sub-header-slot">
             <div class="split-expense-policy-violation--split-by-type-container">
-              <div class="split-expense-policy-violation--placeholder">
-                {{ missingFieldsViolations[missingField].type | uppercase }}
+              <div *ngIf="missingFieldsViolations[missingField]?.inputFieldInfo">
+                <div
+                  *ngFor="let input of missingFieldsViolations[missingField].inputFieldInfo | keyvalue"
+                  class="split-expense-policy-violation--placeholder"
+                >
+                  {{ input.key | uppercase }} :
+                  <span class="split-expense-policy-violation--value">{{ input.value }}</span>
+                </div>
               </div>
               <div class="split-expense-policy-violation--value">{{ missingFieldsViolations[missingField].name }}</div>
             </div>
             <div class="split-expense-policy-violation--policy-amount-container">
-              <div class="split-expense-policy-violation--placeholder">SPLIT AMOUNT</div>
               <div class="split-expense-policy-violation--value text-right">
                 {{
                   missingFieldsViolations[missingField].amount
