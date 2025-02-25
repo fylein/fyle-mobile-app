@@ -86,7 +86,7 @@ describe('FyNumberComponent', () => {
     component.setDisabledState(false);
     fixture.detectChanges();
     const inputElement = fixture.debugElement.query(By.css('input')).nativeElement;
-    expect(inputElement.disabled).toBe(false);
+    expect(inputElement.disabled).toBeFalse();
   });
 
   describe('onInit(): valueChanges subscription and check if values are being set correctly', () => {
@@ -99,7 +99,7 @@ describe('FyNumberComponent', () => {
       component.ngOnInit();
       fixture.detectChanges();
       const inputElement = fixture.debugElement.queryAll(By.css('.fy-number--input'));
-      expect(component.isIos).toBe(false);
+      expect(component.isIos).toBeFalse();
       expect(component.isKeyboardPluginEnabled).toBeFalse();
       expect(inputElement.length).toBe(1);
       expect(component.handleChange).not.toHaveBeenCalled();

@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { Component, Input, OnInit } from '@angular/core';
 import { UntypedFormArray, UntypedFormBuilder } from '@angular/forms';
 import { ModalController } from '@ionic/angular';

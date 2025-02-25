@@ -96,8 +96,8 @@ describe('FyCurrencyExchangeRateComponent', () => {
   }));
 
   it('ngOnInit(): should set form values if exchangeRate is not defined and txnDt is not defined', fakeAsync(() => {
-    loaderService.showLoader.and.returnValue(Promise.resolve());
-    loaderService.hideLoader.and.returnValue(Promise.resolve());
+    loaderService.showLoader.and.resolveTo();
+    loaderService.hideLoader.and.resolveTo();
     currencyService.getExchangeRate.and.returnValue(of(1.5));
     component.exchangeRate = null;
     component.txnDt = undefined;
@@ -120,8 +120,8 @@ describe('FyCurrencyExchangeRateComponent', () => {
   }));
 
   it('ngOnInit(): should set form values if exchangeRate is not defined', fakeAsync(() => {
-    loaderService.showLoader.and.returnValue(Promise.resolve());
-    loaderService.hideLoader.and.returnValue(Promise.resolve());
+    loaderService.showLoader.and.resolveTo();
+    loaderService.hideLoader.and.resolveTo();
     currencyService.getExchangeRate.and.returnValue(of(1.5));
     component.exchangeRate = null;
     fixture.detectChanges();

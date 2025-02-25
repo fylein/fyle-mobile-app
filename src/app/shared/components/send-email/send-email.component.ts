@@ -31,20 +31,20 @@ export class SendEmailComponent implements OnInit {
 
   constructor(private formBuilder: UntypedFormBuilder, private activatedRoute: ActivatedRoute) {}
 
-  get pageStates() {
+  get pageStates(): typeof PageState {
     return PageState;
   }
 
-  ngOnInit() {
-    const email = this.activatedRoute.snapshot.params.email || '';
+  ngOnInit(): void {
+    const email = (this.activatedRoute.snapshot.params.email as string) || '';
     this.fg = this.formBuilder.group({
       email: [email, Validators.compose([Validators.required, Validators.pattern('\\S+@\\S+\\.\\S{2,}')])],
     });
   }
 
-  onClickSend() {
+  onClickSend(): void {
     if (this.fg.controls.email.valid) {
-      this.sendEmail.emit(this.fg.controls.email.value);
+      this.sendEmail.emit(this.fg.controls.email.value as string);
     } else {
       this.fg.controls.email.markAsTouched();
     }
