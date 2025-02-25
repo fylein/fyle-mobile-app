@@ -86,12 +86,12 @@ ion-popover.error-popover {
   }
 }
 
-.mat-bottom-sheet-1 {
+.mat-bottom-sheet-1 .mat-bottom-sheet-container {
   padding: 16px 12px 12px 12px !important;
   border-radius: 16px 16px 0px 0px !important;
 }
 
-.mat-bottom-sheet-2 {
+.mat-bottom-sheet-2 .mat-bottom-sheet-container {
   padding: 24px 24px 6px 24px !important;
   border-radius: 16px 16px 0px 0px !important;
 }
