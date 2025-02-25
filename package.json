@@ -8,7 +8,7 @@
     "start": "ng serve",
     "build": "ng build && npm run sentry:sourcemaps",
     "appflow": "sh build_appflow.sh",
-    "test": "ng test --watch=false --browsers=ChromeHeadless",
+    "test": "ng test --watch=false",
     "test-basic": "ng test",
     "test:no-parallel": "ng test",
     "lint": "eslint -c .eslintrc.json",
