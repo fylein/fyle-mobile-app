@@ -145,7 +145,7 @@ describe('SuggestedDuplicatesComponent', () => {
   it('should dismiss all duplicate expenses and display success toast message', () => {
     const dismissDuplicatesSpy = expensesService.dismissDuplicates.and.returnValue(of(null));
     const showDismissedSuccessToastSpy = spyOn(component, 'showDismissedSuccessToast');
-    const modalControllerDismissSpy = modalController.dismiss.and.returnValue(Promise.resolve(true));
+    const modalControllerDismissSpy = modalController.dismiss.and.resolveTo(true);
 
     component.dismissAll();
     fixture.detectChanges();

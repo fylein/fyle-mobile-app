@@ -106,7 +106,7 @@ describe('FyMultiselectModalComponent', () => {
   });
 
   it('onDoneClick(): should dismiss modal', () => {
-    modalController.dismiss.and.returnValue(Promise.resolve(true));
+    modalController.dismiss.and.resolveTo(true);
 
     component.onDoneClick();
     expect(modalController.dismiss).toHaveBeenCalledTimes(1);
@@ -123,7 +123,7 @@ describe('FyMultiselectModalComponent', () => {
   });
 
   it('useSelected(): dismiss modal and save the current selection', () => {
-    modalController.dismiss.and.returnValue(Promise.resolve(true));
+    modalController.dismiss.and.resolveTo(true);
 
     component.useSelected();
     expect(modalController.dismiss).toHaveBeenCalledOnceWith({

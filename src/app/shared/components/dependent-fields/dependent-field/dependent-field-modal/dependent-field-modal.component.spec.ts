@@ -171,14 +171,14 @@ describe('DependentFieldModalComponent', () => {
   });
 
   it('onDoneClick(): should dismiss modal', fakeAsync(() => {
-    modalController.dismiss.and.returnValue(Promise.resolve(true));
+    modalController.dismiss.and.resolveTo(true);
     component.onDoneClick();
     tick(500);
     expect(modalController.dismiss).toHaveBeenCalledTimes(1);
   }));
 
   it('onElementSelect(): should dismiss modal with selected option', fakeAsync(() => {
-    modalController.dismiss.and.returnValue(Promise.resolve(true));
+    modalController.dismiss.and.resolveTo(true);
     component.onElementSelect(dependentFieldOptions[0]);
     tick(500);
     expect(modalController.dismiss).toHaveBeenCalledOnceWith(dependentFieldOptions[0]);

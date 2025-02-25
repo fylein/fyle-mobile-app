@@ -9,10 +9,7 @@ import { SplitExpensePageRoutingModule } from './split-expense-routing.module';
 import { SplitExpensePage } from './split-expense.page';
 import { MatIconModule } from '@angular/material/icon';
 import { SharedModule } from 'src/app/shared/shared.module';
-import {
-  MatLegacyFormField as MatFormField,
-  MatLegacyFormFieldModule as MatFormFieldModule,
-} from '@angular/material/legacy-form-field';
+import { MatLegacyFormFieldModule as MatFormFieldModule } from '@angular/material/legacy-form-field';
 import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy-input';
 
 @NgModule({

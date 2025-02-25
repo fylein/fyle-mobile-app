@@ -9,20 +9,18 @@ import {
   templateUrl: './toast-message.component.html',
   styleUrls: ['./toast-message.component.scss'],
 })
-export class ToastMessageComponent implements OnInit {
+export class ToastMessageComponent {
   constructor(
     @Inject(MAT_SNACK_BAR_DATA)
     public data: { icon: string; message: string; redirectionText: string; showCloseButton: boolean },
     private snackBarRef: MatSnackBarRef<ToastMessageComponent>
   ) {}
 
-  ngOnInit() {}
-
-  closeEvent() {
+  closeEvent(): void {
     this.snackBarRef.dismiss();
   }
 
-  actionEvent() {
+  actionEvent(): void {
     this.snackBarRef.dismissWithAction();
   }
 }

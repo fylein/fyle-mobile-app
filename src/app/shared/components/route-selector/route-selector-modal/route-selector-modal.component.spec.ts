@@ -107,7 +107,7 @@ describe('RouteSelectorModalComponent', () => {
     fixture.detectChanges();
 
     expect(component.mileageLocations.length).toEqual(4);
-    expect(component.distance).toEqual(null);
+    expect(component.distance).toBeNull();
     expect(mileageService.getDistance).toHaveBeenCalledTimes(4);
   });
 

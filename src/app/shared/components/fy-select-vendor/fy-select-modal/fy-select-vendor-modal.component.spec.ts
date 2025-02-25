@@ -140,7 +140,7 @@ describe('FySelectVendorModalComponent', () => {
     cdr = TestBed.inject(ChangeDetectorRef) as jasmine.SpyObj<ChangeDetectorRef>;
 
     vendorService.get.and.returnValue(of(vendors));
-    recentLocalStorageItemsService.get.and.returnValue(Promise.resolve(vendorsList));
+    recentLocalStorageItemsService.get.and.resolveTo(vendorsList);
     utilityService.searchArrayStream.and.returnValue(() => of([{ label: '', value: '' }]));
     component.filteredOptions$ = of(vendorsList);
 
@@ -167,7 +167,7 @@ describe('FySelectVendorModalComponent', () => {
   });
 
   it('getRecentlyUsedVendors(): should get recently used vendors', (done) => {
-    recentLocalStorageItemsService.get.and.returnValue(Promise.resolve(vendorsList));
+    recentLocalStorageItemsService.get.and.resolveTo(vendorsList);
 
     component.getRecentlyUsedVendors().subscribe((res) => {
       expect(recentLocalStorageItemsService.get).toHaveBeenCalledWith('recentVendorList');
@@ -176,7 +176,7 @@ describe('FySelectVendorModalComponent', () => {
   });
 
   it('onDoneClick(): should dismiss the modal when clicking on done CTA', () => {
-    modalController.dismiss.and.returnValue(Promise.resolve(true));
+    modalController.dismiss.and.resolveTo(true);
 
     component.onDoneClick();
     expect(modalController.dismiss).toHaveBeenCalledTimes(1);
@@ -184,7 +184,7 @@ describe('FySelectVendorModalComponent', () => {
 
   it('onElementSelect(): should dismiss modal with the selected vendor', () => {
     recentLocalStorageItemsService.post.and.callThrough();
-    modalController.dismiss.and.returnValue(Promise.resolve(true));
+    modalController.dismiss.and.resolveTo(true);
 
     component.onElementSelect(vendorsList[0]);
     expect(modalController.dismiss).toHaveBeenCalledOnceWith(vendorsList[0]);
@@ -192,7 +192,7 @@ describe('FySelectVendorModalComponent', () => {
   });
 
   it('onNewSelect(): should dismiss the modal with new option selected', () => {
-    modalController.dismiss.and.returnValue(Promise.resolve(true));
+    modalController.dismiss.and.resolveTo(true);
     recentLocalStorageItemsService.post.and.callThrough();
     component.value = 'value  ';
     fixture.detectChanges();

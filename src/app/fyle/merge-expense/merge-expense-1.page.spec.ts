@@ -156,11 +156,11 @@ export function TestCases1(getTestBed) {
         component.expenses = transformedPlatformedExpense1;
         component.ionViewWillEnter();
 
-        expect(component.fg.controls.target_txn_id.value).toEqual(null);
+        expect(component.fg.controls.target_txn_id.value).toBeNull();
         expect(component.fg.controls.target_txn_id.validator).toBe(Validators.required);
-        expect(component.fg.controls.genericFields.value).toEqual(null);
-        expect(component.fg.controls.categoryDependent.value).toEqual(null);
-        expect(component.fg.controls.custom_inputs.value).toEqual(null);
+        expect(component.fg.controls.genericFields.value).toBeNull();
+        expect(component.fg.controls.categoryDependent.value).toBeNull();
+        expect(component.fg.controls.custom_inputs.value).toBeNull();
 
         expect(expensesService.getAllExpenses).toHaveBeenCalledOnceWith({
           offset: 0,
@@ -324,7 +324,7 @@ export function TestCases1(getTestBed) {
 
       it('should set receipts_from as null if none of the merged expense has receipt', () => {
         component.setupDefaultReceipts(component.expenses);
-        expect(component.fg.controls.genericFields.value.receipts_from).toEqual(null);
+        expect(component.fg.controls.genericFields.value.receipts_from).toBeNull();
       });
     });
 
