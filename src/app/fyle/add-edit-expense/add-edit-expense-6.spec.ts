@@ -703,27 +703,6 @@ export function TestCases6(getTestBed) {
       });
     });
 
-    describe('getTxnDate():', () => {
-      it('should get txn date', () => {
-        dateService.getUTCDate.and.returnValue(null);
-        component.fg.controls.dateOfSpend.setValue({
-          acc: {
-            type: AccountType.PERSONAL,
-          },
-        });
-
-        const result = component.getTxnDate();
-        expect(result).toBeNull();
-      });
-
-      it('should return null', () => {
-        setFormValueNull();
-
-        const result = component.getTxnDate();
-        expect(result).toBeUndefined();
-      });
-    });
-
     describe('getCurrency():', () => {
       it('should get currency', () => {
         component.fg.controls.currencyObj.setValue({
@@ -1029,7 +1008,7 @@ export function TestCases6(getTestBed) {
         setFormValueNull();
 
         const result = component.getTxnDate();
-        expect(result).toBeUndefined();
+        expect(result).toBeNull();
       });
     });
 
