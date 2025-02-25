@@ -167,7 +167,7 @@ describe('NavigationFooterComponent', () => {
 
   describe('goToExpense():', () => {
     it('should go to transaction', () => {
-      router.navigate.and.returnValue(Promise.resolve(null));
+      router.navigate.and.resolveTo(null);
       component.goToExpense(expenseData, 0);
 
       expect(router.navigate).toHaveBeenCalledOnceWith([
@@ -181,7 +181,7 @@ describe('NavigationFooterComponent', () => {
     });
 
     it('should go to mileage', () => {
-      router.navigate.and.returnValue(Promise.resolve(null));
+      router.navigate.and.resolveTo(null);
       component.goToExpense(mileageExpense, 0);
 
       expect(router.navigate).toHaveBeenCalledOnceWith([
@@ -195,7 +195,7 @@ describe('NavigationFooterComponent', () => {
     });
 
     it('should go to per-diem', () => {
-      router.navigate.and.returnValue(Promise.resolve(null));
+      router.navigate.and.resolveTo(null);
       component.goToExpense(perDiemExpense, 0);
 
       expect(router.navigate).toHaveBeenCalledOnceWith([

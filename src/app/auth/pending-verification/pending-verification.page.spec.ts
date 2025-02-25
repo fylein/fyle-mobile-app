@@ -7,8 +7,8 @@ import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { of, throwError } from 'rxjs';
 import { authResData1 } from 'src/app/core/mock-data/auth-reponse.data';
 import { By } from '@angular/platform-browser';
-import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { UntypedFormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
@@ -23,8 +23,8 @@ describe('PendingVerificationPage', () => {
   let matSnackBar: jasmine.SpyObj<MatSnackBar>;
   let snackbarPropertiesService: jasmine.SpyObj<SnackbarPropertiesService>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
-  let formBuilder: jasmine.SpyObj<FormBuilder>;
-  let fb: FormBuilder;
+  let formBuilder: jasmine.SpyObj<UntypedFormBuilder>;
+  let fb: UntypedFormBuilder;
 
   beforeEach(waitForAsync(() => {
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
@@ -35,7 +35,7 @@ describe('PendingVerificationPage', () => {
       declarations: [PendingVerificationPage],
       imports: [IonicModule.forRoot(), RouterTestingModule, RouterModule, FormsModule, ReactiveFormsModule],
       providers: [
-        FormBuilder,
+        UntypedFormBuilder,
         {
           provide: RouterAuthService,
           useValue: routerAuthServiceSpy,
@@ -66,7 +66,7 @@ describe('PendingVerificationPage', () => {
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
     snackbarPropertiesService = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
     activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
-    fb = TestBed.inject(FormBuilder);
+    fb = TestBed.inject(UntypedFormBuilder);
     activatedRoute.snapshot.params.orgId = 'orNVthTo2Zyo';
     component.fg = fb.group({
       email: ['', Validators.compose([Validators.required, Validators.pattern('\\S+@\\S+\\.\\S{2,}')])],

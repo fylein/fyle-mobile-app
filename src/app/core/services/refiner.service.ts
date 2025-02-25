@@ -11,6 +11,7 @@ import { OrgUserService } from './org-user.service';
 import { RefinerProperties } from '../models/refiner_properties.model';
 import { CurrencyService } from './currency.service';
 import { IdentifyUserPayload } from '../models/identify-user-payload.model';
+import { TokenService } from './token.service';
 
 @Injectable({
   providedIn: 'root',
@@ -201,7 +202,8 @@ export class RefinerService {
     private currencyService: CurrencyService,
     private authService: AuthService,
     private networkService: NetworkService,
-    private orgUserService: OrgUserService
+    private orgUserService: OrgUserService,
+    private tokenService: TokenService
   ) {
     this.setupNetworkWatcher();
   }
@@ -248,7 +250,8 @@ export class RefinerService {
       eou: this.authService.getEou(),
       homeCurrency: this.currencyService.getHomeCurrency(),
       deviceInfo: Device.getInfo(),
-    }).subscribe(({ isConnected, eou, homeCurrency, deviceInfo }) => {
+      clusterDomain: this.tokenService.getClusterDomain(),
+    }).subscribe(({ isConnected, eou, homeCurrency, deviceInfo, clusterDomain }) => {
       if (this.canStartSurvey(homeCurrency, eou) && isConnected) {
         const device = deviceInfo.operatingSystem.toUpperCase();
         (window as typeof window & { _refiner: (eventName: string, payload: IdentifyUserPayload) => void })._refiner(
@@ -257,6 +260,7 @@ export class RefinerService {
             id: eou.us.id, // Replace with your user ID
             orgUserId: eou.ou.id,
             orgId: eou.ou.org_id,
+            clusterDomain,
             account: {
               company_id: eou.ou.org_id,
               region: `${this.getRegion(homeCurrency)} - ${homeCurrency}`,

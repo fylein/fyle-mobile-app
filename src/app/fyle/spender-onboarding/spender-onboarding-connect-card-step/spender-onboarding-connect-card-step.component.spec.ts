@@ -2,7 +2,7 @@ import { ComponentFixture, fakeAsync, flush, TestBed, tick, waitForAsync } from 
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { SpenderOnboardingConnectCardStepComponent } from './spender-onboarding-connect-card-step.component';
 import { RealTimeFeedService } from 'src/app/core/services/real-time-feed.service';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { UntypedFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { IonicModule, PopoverController } from '@ionic/angular';
 import { CardNetworkType } from 'src/app/core/enums/card-network-type';
 import { NgxMaskModule } from 'ngx-mask';
@@ -20,7 +20,7 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
   let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
   let realTimeFeedService: jasmine.SpyObj<RealTimeFeedService>;
   let popoverController: jasmine.SpyObj<PopoverController>;
-  let fb: FormBuilder;
+  let fb: UntypedFormBuilder;
   let trackingService: TrackingService;
 
   beforeEach(waitForAsync(() => {
@@ -39,7 +39,7 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
       declarations: [SpenderOnboardingConnectCardStepComponent],
       imports: [IonicModule.forRoot(), NgxMaskModule.forRoot(), ReactiveFormsModule],
       providers: [
-        FormBuilder,
+        UntypedFormBuilder,
         { provide: RealTimeFeedService, useValue: realTimeFeedServiceSpy },
         { provide: CorporateCreditCardExpenseService, useValue: corporateCreditCardExpenseServiceSpy },
         { provide: PopoverController, useValue: popoverControllerSpy },
@@ -54,7 +54,7 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
     corporateCreditCardExpenseService = TestBed.inject(
       CorporateCreditCardExpenseService
     ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
-    fb = TestBed.inject(FormBuilder);
+    fb = TestBed.inject(UntypedFormBuilder);
     component.fg = fb.group({});
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;

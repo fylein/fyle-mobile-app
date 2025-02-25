@@ -10,7 +10,7 @@ import { AdvanceRequestService } from 'src/app/core/services/advance-request.ser
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NetworkService } from 'src/app/core/services/network.service';
@@ -296,7 +296,7 @@ export function TestCases2(getTestBed) {
       });
 
       it('should get all expenses and navigate to add_edit_mileage if category is of type mileage', fakeAsync(() => {
-        expensesService.getExpenseById.and.returnValue(of(mileageCategoryPlatformExpenseData));
+        expensesService.getAllExpenses.and.returnValue(of([mileageCategoryPlatformExpenseData]));
         transactionService.transformExpense.and.returnValue(mileageCategoryTransformedExpenseData);
 
         component.onReviewExpensesTaskClick();
@@ -308,7 +308,6 @@ export function TestCases2(getTestBed) {
             report_id: 'is.null',
           },
         });
-        expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(expensesList[0].id);
         expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(mileageCategoryPlatformExpenseData);
         expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
         expect(router.navigate).toHaveBeenCalledOnceWith([
@@ -320,7 +319,7 @@ export function TestCases2(getTestBed) {
       }));
 
       it('should get all expenses and navigate to add_edit_per_diem if category is of type per diem', fakeAsync(() => {
-        expensesService.getExpenseById.and.returnValue(of(perDiemCategoryPlatformExpenseData));
+        expensesService.getAllExpenses.and.returnValue(of([perDiemCategoryPlatformExpenseData]));
         transactionService.transformExpense.and.returnValue(perDiemCategoryTransformedExpenseData);
         component.onReviewExpensesTaskClick();
         tick(100);
@@ -331,7 +330,6 @@ export function TestCases2(getTestBed) {
             report_id: 'is.null',
           },
         });
-        expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(expensesList[0].id);
         expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(perDiemCategoryPlatformExpenseData);
         expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
         expect(router.navigate).toHaveBeenCalledOnceWith([
@@ -343,7 +341,7 @@ export function TestCases2(getTestBed) {
       }));
 
       it('should get all expenses and navigate to add_edit_expense if category is other than mileage or per diem', fakeAsync(() => {
-        expensesService.getExpenseById.and.returnValue(of(platformExpenseData));
+        expensesService.getAllExpenses.and.returnValue(of([platformExpenseData]));
         transactionService.transformExpense.and.returnValue(transformedExpenseData);
         component.onReviewExpensesTaskClick();
         tick(100);
@@ -354,7 +352,6 @@ export function TestCases2(getTestBed) {
             report_id: 'is.null',
           },
         });
-        expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(expensesList[0].id);
         expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
         expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
         expect(router.navigate).toHaveBeenCalledOnceWith([

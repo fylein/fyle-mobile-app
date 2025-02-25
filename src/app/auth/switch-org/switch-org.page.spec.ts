@@ -12,7 +12,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { DeviceService } from 'src/app/core/services/device.service';
 import { AppVersionService } from 'src/app/core/services/app-version.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { SwitchOrgPage } from './switch-org.page';
@@ -21,8 +21,8 @@ import { ActivatedRoute, Router, UrlSerializer } from '@angular/router';
 import { Platform, PopoverController } from '@ionic/angular';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
+import { MatLegacyFormFieldModule as MatFormFieldModule } from '@angular/material/legacy-form-field';
+import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy-input';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
@@ -477,7 +477,7 @@ describe('SwitchOrgPage', () => {
       component.handleDismissPopup('resend', email, org_id, orgData1);
       expect(component.resendInvite).toHaveBeenCalledOnceWith(email, org_id);
       expect(component.logoutIfSingleOrg).toHaveBeenCalledOnceWith(orgData1);
-      expect(component.showToastNotification).toHaveBeenCalledOnceWith('Verification Email Sent');
+      expect(component.showToastNotification).toHaveBeenCalledOnceWith('Verification email sent');
     });
 
     it('should logout if action is cancel', () => {
@@ -519,10 +519,10 @@ describe('SwitchOrgPage', () => {
       expect(component.handleDismissPopup).toHaveBeenCalledOnceWith('action', email, org_id, orgData1);
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         componentProps: {
-          title: 'Invite Not Accepted',
+          title: 'Invite not accepted',
           message: `You have been invited to ${apiEouRes.ou.org_name} organization, please check your previous emails and accept the invite or resend invite.`,
           primaryCta: {
-            text: 'Resend Invite',
+            text: 'Resend invite',
             action: 'resend',
           },
           secondaryCta: {
@@ -553,10 +553,10 @@ describe('SwitchOrgPage', () => {
       expect(component.handleDismissPopup).toHaveBeenCalledOnceWith(undefined, email, org_id, orgData1);
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         componentProps: {
-          title: 'Invite Not Accepted',
+          title: 'Invite not accepted',
           message: `You have been invited to ${apiEouRes.ou.org_name} organization, please check your previous emails and accept the invite or resend invite.`,
           primaryCta: {
-            text: 'Resend Invite',
+            text: 'Resend invite',
             action: 'resend',
           },
           secondaryCta: {
