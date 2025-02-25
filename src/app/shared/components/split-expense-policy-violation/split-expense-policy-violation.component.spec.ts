@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule, ModalController } from '@ionic/angular';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { SplitExpensePolicyViolationComponent } from './split-expense-policy-violation.component';
-import { FormArray, FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { UntypedFormArray, UntypedFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { cloneDeep } from 'lodash';
 import {
   filteredSplitPolicyViolationsData,
@@ -17,7 +17,7 @@ describe('SplitExpensePolicyViolationComponent', () => {
   let component: SplitExpensePolicyViolationComponent;
   let fixture: ComponentFixture<SplitExpensePolicyViolationComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
-  let comments: FormArray;
+  let comments: UntypedFormArray;
 
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
@@ -26,7 +26,7 @@ describe('SplitExpensePolicyViolationComponent', () => {
       imports: [IonicModule.forRoot(), ReactiveFormsModule],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
       providers: [
-        FormBuilder,
+        UntypedFormBuilder,
         {
           provide: ModalController,
           useValue: modalControllerSpy,
@@ -44,7 +44,7 @@ describe('SplitExpensePolicyViolationComponent', () => {
     component.missingFieldsViolations = {
       0: cloneDeep(filteredMissingFieldsViolationsData),
     };
-    comments = component.form.controls.comments as FormArray;
+    comments = component.form.controls.comments as UntypedFormArray;
     fixture.detectChanges();
   }));
 

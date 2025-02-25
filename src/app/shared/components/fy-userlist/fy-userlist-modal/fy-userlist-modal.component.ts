@@ -16,7 +16,7 @@ import { Employee } from 'src/app/core/models/spender/employee.model';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { MatChipInputEvent } from '@angular/material/chips';
+import { MatLegacyChipInputEvent as MatChipInputEvent } from '@angular/material/legacy-chips';
 @Component({
   selector: 'app-fy-userlist-modal',
   templateUrl: './fy-userlist-modal.component.html',

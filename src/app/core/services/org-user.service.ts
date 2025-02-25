@@ -55,8 +55,8 @@ export class OrgUserService {
   })
   switchToDelegator(user_id: string, org_id: string): Observable<ExtendedOrgUser> {
     const params = {
-      user_id: user_id,
-      org_id: org_id,
+      user_id,
+      org_id,
     };
 
     return this.apiService

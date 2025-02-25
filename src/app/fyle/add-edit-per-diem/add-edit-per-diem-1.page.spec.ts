@@ -29,9 +29,9 @@ import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expen
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
 
-import { FormArray, FormBuilder, Validators } from '@angular/forms';
+import { UntypedFormArray, UntypedFormBuilder, Validators } from '@angular/forms';
 import { ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
@@ -89,7 +89,7 @@ export function TestCases1(getTestBed) {
     let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
     let accountsService: jasmine.SpyObj<AccountsService>;
     let authService: jasmine.SpyObj<AuthService>;
-    let formBuilder: FormBuilder;
+    let formBuilder: UntypedFormBuilder;
     let categoriesService: jasmine.SpyObj<CategoriesService>;
     let dateService: jasmine.SpyObj<DateService>;
     let projectsService: jasmine.SpyObj<ProjectsService>;
@@ -131,7 +131,7 @@ export function TestCases1(getTestBed) {
       activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
       accountsService = TestBed.inject(AccountsService) as jasmine.SpyObj<AccountsService>;
       authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-      formBuilder = TestBed.inject(FormBuilder);
+      formBuilder = TestBed.inject(UntypedFormBuilder);
       categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
       dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
       projectsService = TestBed.inject(ProjectsService) as jasmine.SpyObj<ProjectsService>;
@@ -181,7 +181,7 @@ export function TestCases1(getTestBed) {
         report: [],
         from_dt: [],
         to_dt: [, component.customDateValidator.bind(component)],
-        custom_inputs: new FormArray([]),
+        custom_inputs: new UntypedFormArray([]),
         billable: [],
         costCenter: [],
         project_dependent_fields: formBuilder.array([]),

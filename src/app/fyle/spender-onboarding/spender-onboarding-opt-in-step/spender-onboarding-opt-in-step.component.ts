@@ -10,8 +10,8 @@ import {
   SimpleChanges,
   ViewChild,
 } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { ModalController } from '@ionic/angular';
 import { NgOtpInputComponent, NgOtpInputConfig } from 'ng-otp-input';
 import { finalize, from, Subscription, switchMap } from 'rxjs';
@@ -50,7 +50,7 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
 
   @Output() goToConnectCard: EventEmitter<boolean> = new EventEmitter<boolean>();
 
-  cardForm: FormControl;
+  cardForm: UntypedFormControl;
 
   isVisaRTFEnabled = false;
 
@@ -69,7 +69,7 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
     failedCards: [],
   };
 
-  fg: FormGroup;
+  fg: UntypedFormGroup;
 
   optInFlowState: OptInFlowState = OptInFlowState.MOBILE_INPUT;
 
@@ -109,7 +109,7 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
   };
 
   constructor(
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private trackingService: TrackingService,
     private modalController: ModalController,
     private orgUserService: OrgUserService,
