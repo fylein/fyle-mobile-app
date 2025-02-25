@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { Component, Input, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { getCurrencySymbol } from '@angular/common';

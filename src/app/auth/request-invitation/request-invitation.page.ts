@@ -2,9 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { from, throwError } from 'rxjs';
+import { from } from 'rxjs';
 import { InvitationRequestsService } from 'src/app/core/services/invitation-requests.service';
-import { catchError, concatMap, finalize } from 'rxjs/operators';
+import { concatMap, finalize } from 'rxjs/operators';
 
 enum RequestInvitationPageState {
   notSent,

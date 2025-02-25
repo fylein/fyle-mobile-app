@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { fromEvent, Observable } from 'rxjs';
 import { ModalController } from '@ionic/angular';
