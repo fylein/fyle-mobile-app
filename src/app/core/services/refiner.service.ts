@@ -252,7 +252,6 @@ export class RefinerService {
       deviceInfo: Device.getInfo(),
       clusterDomain: this.tokenService.getClusterDomain(),
     }).subscribe(({ isConnected, eou, homeCurrency, deviceInfo, clusterDomain }) => {
-      console.log(clusterDomain);
       if (this.canStartSurvey(homeCurrency, eou) && isConnected) {
         const device = deviceInfo.operatingSystem.toUpperCase();
         (window as typeof window & { _refiner: (eventName: string, payload: IdentifyUserPayload) => void })._refiner(
