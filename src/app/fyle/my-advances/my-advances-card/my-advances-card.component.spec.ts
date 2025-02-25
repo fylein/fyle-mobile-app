@@ -1,4 +1,4 @@
-import { CurrencyPipe, DatePipe } from '@angular/common';
+import { CurrencyPipe } from '@angular/common';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { extendedAdvReqDraft } from 'src/app/core/mock-data/extended-advance-request.data';
@@ -20,7 +20,7 @@ describe('MyAdvancesCardComponent', () => {
   beforeEach(waitForAsync(() => {
     const advanceRequestServiceSpy = jasmine.createSpyObj('AdvanceRequestService', ['getInternalStateAndDisplayName']);
     TestBed.configureTestingModule({
-      declarations: [MyAdvancesCardComponent, EllipsisPipe, HumanizeCurrencyPipe, ExactCurrencyPipe, DatePipe],
+      declarations: [MyAdvancesCardComponent, EllipsisPipe, HumanizeCurrencyPipe, ExactCurrencyPipe],
       imports: [IonicModule.forRoot()],
       providers: [
         FyCurrencyPipe,

@@ -2,7 +2,13 @@ import { Component, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, Te
 import { Subscription, noop } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { corporateCardTransaction } from 'src/app/core/models/platform/v1/cc-transaction.model';
-import { FormGroup, ControlValueAccessor, NG_VALUE_ACCESSOR, FormBuilder, Validators } from '@angular/forms';
+import {
+  UntypedFormGroup,
+  ControlValueAccessor,
+  NG_VALUE_ACCESSOR,
+  UntypedFormBuilder,
+  Validators,
+} from '@angular/forms';
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { CustomProperty } from 'src/app/core/models/custom-properties.model';
 import { AllowedPaymentModes } from 'src/app/core/models/allowed-payment-modes.enum';
@@ -60,7 +66,7 @@ export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor,
 
   @Output() paymentModeChanged = new EventEmitter<AllowedPaymentModes>();
 
-  genericFieldsFormGroup: FormGroup;
+  genericFieldsFormGroup: UntypedFormGroup;
 
   onChangeSub: Subscription;
 
@@ -70,7 +76,7 @@ export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor,
 
   onTouched: () => void = noop;
 
-  constructor(private formBuilder: FormBuilder, private injector: Injector) {}
+  constructor(private formBuilder: UntypedFormBuilder, private injector: Injector) {}
 
   isFieldTouched = (fieldName: string): boolean => this.genericFieldsFormGroup.get(fieldName).touched;
 
@@ -114,7 +120,7 @@ export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor,
       this.receiptChanged.emit(receiptsFrom);
     });
 
-    this.genericFieldsFormGroup.valueChanges.subscribe((formControlNames: FormGroup) => {
+    this.genericFieldsFormGroup.valueChanges.subscribe((formControlNames: UntypedFormGroup) => {
       const touchedItems: string[] = [];
       Object.keys(formControlNames).forEach((key) => {
         if (this.isFieldTouched(key)) {
@@ -129,7 +135,7 @@ export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor,
     this.onChangeSub?.unsubscribe();
   }
 
-  writeValue(value: FormGroup): void {
+  writeValue(value: UntypedFormGroup): void {
     if (value) {
       this.genericFieldsFormGroup.patchValue(value);
     }

@@ -10,7 +10,7 @@ import { HttpConfigInterceptor } from './core/interceptors/httpInterceptor';
 import { GooglePlus } from '@awesome-cordova-plugins/google-plus/ngx';
 import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
 import { SharedModule } from './shared/shared.module';
-import { CurrencyPipe, TitleCasePipe } from '@angular/common';
+import { CurrencyPipe } from '@angular/common';
 import * as Sentry from '@sentry/angular';
 import { ConfigService } from './core/services/config.service';
 import { RouterAuthService } from './core/services/router-auth.service';
@@ -45,7 +45,6 @@ export const MIN_SCREEN_WIDTH = new InjectionToken<number>(
     SharedModule,
     HammerModule,
     HttpClientJsonpModule,
-    SharedModule,
     HammerModule,
     NgOtpInputModule,
   ],
@@ -96,7 +95,6 @@ export const MIN_SCREEN_WIDTH = new InjectionToken<number>(
       provide: DEVICE_PLATFORM,
       useValue: Capacitor.getPlatform(),
     },
-    TitleCasePipe,
   ],
   bootstrap: [AppComponent],
 })

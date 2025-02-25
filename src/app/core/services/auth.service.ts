@@ -31,9 +31,7 @@ export class AuthService {
     return this.apiService.get('/eous/current').pipe(
       switchMap((data) => {
         const extendedOrgUser = this.dataTransformService.unflatten(data) as ExtendedOrgUser;
-        return from(this.storageService.set('user', extendedOrgUser)).pipe(
-          map(() => extendedOrgUser as ExtendedOrgUser)
-        );
+        return from(this.storageService.set('user', extendedOrgUser)).pipe(map(() => extendedOrgUser));
       })
     );
   }

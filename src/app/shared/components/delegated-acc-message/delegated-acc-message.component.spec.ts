@@ -27,7 +27,7 @@ describe('DelegatedAccMessageComponent', () => {
     fixture = TestBed.createComponent(DelegatedAccMessageComponent);
     component = fixture.componentInstance;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+    authService.getEou.and.resolveTo(apiEouRes);
     fixture.detectChanges();
   }));
 

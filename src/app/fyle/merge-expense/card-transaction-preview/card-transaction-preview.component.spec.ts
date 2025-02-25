@@ -1,4 +1,3 @@
-import { CurrencyPipe, DatePipe } from '@angular/common';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
@@ -15,7 +14,7 @@ describe('CardTransactionPreviewComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [CardTransactionPreviewComponent, EllipsisPipe, DatePipe, CurrencyPipe],
+      declarations: [CardTransactionPreviewComponent, EllipsisPipe],
       imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule],
     }).compileComponents();
 

@@ -96,8 +96,8 @@ describe('DependentFieldComponent', () => {
     const callbackFn = jasmine.createSpy('callbackFn');
     component.registerOnChange(callbackFn);
 
-    modalController.create.and.returnValue(Promise.resolve(modalSpy));
-    modalSpy.onWillDismiss.and.returnValue(Promise.resolve({ data: { value: selectedValue } }));
+    modalController.create.and.resolveTo(modalSpy);
+    modalSpy.onWillDismiss.and.resolveTo({ data: { value: selectedValue } });
     modalProperties.getModalDefaultProperties.and.returnValue(defaultModalProperties);
 
     const inputElement = componentElement.query(By.css('.dependent-field__input'));
@@ -123,7 +123,7 @@ describe('DependentFieldComponent', () => {
 
     expect(component.onTouchedCallback).toHaveBeenCalledTimes(1);
     expect(callbackFn).toHaveBeenCalledTimes(1);
-    expect(inputElement.nativeElement.classList.contains('ng-touched')).toBe(true);
+    expect(inputElement.nativeElement.classList.contains('ng-touched')).toBeTrue();
   });
 
   it('writeValue(): should write the formControl value to select field', () => {

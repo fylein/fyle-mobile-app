@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
 import { GenericFieldsFormComponent } from './generic-fields-form.component';
-import { FormBuilder, FormControl } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormControl } from '@angular/forms';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { dependentCustomProperties } from 'src/app/core/mock-data/custom-property.data';
 import { AllowedPaymentModes } from 'src/app/core/models/allowed-payment-modes.enum';
@@ -15,7 +15,7 @@ describe('GenericFieldsFormComponent', () => {
     TestBed.configureTestingModule({
       declarations: [GenericFieldsFormComponent],
       imports: [IonicModule.forRoot()],
-      providers: [FormBuilder],
+      providers: [UntypedFormBuilder],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
@@ -86,11 +86,11 @@ describe('GenericFieldsFormComponent', () => {
   });
 
   it('writeValue(): should patch value to form control', () => {
-    component.genericFieldsFormGroup = new FormBuilder().group({
-      location_1: new FormControl(),
+    component.genericFieldsFormGroup = new UntypedFormBuilder().group({
+      location_1: new UntypedFormControl(),
     });
-    const newValue = new FormBuilder().group({
-      location_1: new FormControl(200),
+    const newValue = new UntypedFormBuilder().group({
+      location_1: new UntypedFormControl(200),
     });
     spyOn(component.genericFieldsFormGroup, 'patchValue');
     component.writeValue(newValue);

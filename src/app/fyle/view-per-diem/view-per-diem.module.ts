@@ -5,7 +5,7 @@ import { IonicModule } from '@ionic/angular';
 import { ViewPerDiemPageRoutingModule } from './view-per-diem-routing.module';
 import { ViewPerDiemPage } from './view-per-diem.page';
 import { SharedModule } from '../../shared/shared.module';
-import { MatButtonModule } from '@angular/material/button';
+import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button';
 
 @NgModule({
   imports: [CommonModule, FormsModule, IonicModule, ViewPerDiemPageRoutingModule, SharedModule, MatButtonModule],

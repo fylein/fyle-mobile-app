@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 import { Platform } from '@ionic/angular';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { FyNumberComponent } from './fy-number.component';
-import { FormsModule, ReactiveFormsModule, FormControl, NG_VALUE_ACCESSOR, NgControl } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, UntypedFormControl, NG_VALUE_ACCESSOR, NgControl } from '@angular/forms';
 import { of } from 'rxjs';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatIconModule } from '@angular/material/icon';
@@ -40,7 +40,7 @@ describe('FyNumberComponent', () => {
         {
           provide: NgControl,
           useValue: {
-            control: new FormControl(),
+            control: new UntypedFormControl(),
           },
         },
       ],
@@ -86,7 +86,7 @@ describe('FyNumberComponent', () => {
     component.setDisabledState(false);
     fixture.detectChanges();
     const inputElement = fixture.debugElement.query(By.css('input')).nativeElement;
-    expect(inputElement.disabled).toBe(false);
+    expect(inputElement.disabled).toBeFalse();
   });
 
   describe('onInit(): valueChanges subscription and check if values are being set correctly', () => {
@@ -99,7 +99,7 @@ describe('FyNumberComponent', () => {
       component.ngOnInit();
       fixture.detectChanges();
       const inputElement = fixture.debugElement.queryAll(By.css('.fy-number--input'));
-      expect(component.isIos).toBe(false);
+      expect(component.isIos).toBeFalse();
       expect(component.isKeyboardPluginEnabled).toBeFalse();
       expect(inputElement.length).toBe(1);
       expect(component.handleChange).not.toHaveBeenCalled();

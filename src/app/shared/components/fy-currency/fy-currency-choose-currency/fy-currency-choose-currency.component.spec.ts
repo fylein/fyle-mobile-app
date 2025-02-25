@@ -51,8 +51,8 @@ describe('FyCurrencyChooseCurrencyComponent', () => {
   it('clearValue(): should clear the value and trigger a keyup event', () => {
     const mockCurrencies = { USD: 'US Dollar', EUR: 'Euro', JPY: 'Japanese Yen' };
     currencyService.getAll.and.returnValue(of(mockCurrencies));
-    loaderService.showLoader.and.returnValue(Promise.resolve());
-    loaderService.hideLoader.and.returnValue(Promise.resolve());
+    loaderService.showLoader.and.resolveTo();
+    loaderService.hideLoader.and.resolveTo();
     component.value = 'USD';
     const searchBarRefSpy = {
       nativeElement: jasmine.createSpyObj('nativeElement', ['dispatchEvent']),
@@ -69,8 +69,8 @@ describe('FyCurrencyChooseCurrencyComponent', () => {
   it('should load currencies on initialization', fakeAsync(() => {
     const mockCurrencies = { USD: 'US Dollar', EUR: 'Euro', JPY: 'Japanese Yen' };
     currencyService.getAll.and.returnValue(of(mockCurrencies));
-    loaderService.showLoader.and.returnValue(Promise.resolve());
-    loaderService.hideLoader.and.returnValue(Promise.resolve());
+    loaderService.showLoader.and.resolveTo();
+    loaderService.hideLoader.and.resolveTo();
 
     fixture.detectChanges();
     component.ngOnInit();
@@ -84,8 +84,8 @@ describe('FyCurrencyChooseCurrencyComponent', () => {
   it('should load currencies on initialization even if value is empty', fakeAsync(() => {
     const mockCurrencies = { USD: 'US Dollar', EUR: 'Euro', JPY: '' };
     currencyService.getAll.and.returnValue(of(mockCurrencies));
-    loaderService.showLoader.and.returnValue(Promise.resolve());
-    loaderService.hideLoader.and.returnValue(Promise.resolve());
+    loaderService.showLoader.and.resolveTo();
+    loaderService.hideLoader.and.resolveTo();
 
     fixture.detectChanges();
     component.ngOnInit();

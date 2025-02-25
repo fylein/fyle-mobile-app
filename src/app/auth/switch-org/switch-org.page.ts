@@ -23,7 +23,7 @@ import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { ExtendedDeviceInfo } from 'src/app/core/models/extended-device-info.model';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ResendEmailVerification } from 'src/app/core/models/resend-email-verification.model';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
