@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { FormArray, FormBuilder } from '@angular/forms';
+import { UntypedFormArray, UntypedFormBuilder } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
 import { FilteredMissingFieldsViolations } from 'src/app/core/models/filtered-missing-fields-violations.model';
 import { FilteredSplitPolicyViolations } from 'src/app/core/models/filtered-split-policy-violations.model';
@@ -28,10 +28,10 @@ export class SplitExpensePolicyViolationComponent implements OnInit {
 
   splitExpenseModalHeader = 'Policy Violation Found';
 
-  constructor(private modalController: ModalController, private fb: FormBuilder) {}
+  constructor(private modalController: ModalController, private fb: UntypedFormBuilder) {}
 
-  get formComments(): FormArray {
-    return this.form.controls.comments as FormArray;
+  get formComments(): UntypedFormArray {
+    return this.form.controls.comments as UntypedFormArray;
   }
 
   hidePolicyViolations(): void {
