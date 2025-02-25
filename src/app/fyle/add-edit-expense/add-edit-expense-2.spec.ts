@@ -600,9 +600,8 @@ export function TestCases2(getTestBed) {
       component.reviewList = ['txvslh8aQMbu', 'txNyI8ot5CuJ'];
       expensesService.getExpenseById.and.returnValue(of(platformExpenseData));
       transactionService.transformExpense.and.returnValue(transformedExpenseData);
-      fixture.detectChanges();
 
-      component.goToPrev(component.activeIndex);
+      component.goToPrev(1);
       expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txvslh8aQMbu');
       expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
       expect(component.goToTransaction).toHaveBeenCalledOnceWith(transformedExpenseData, component.reviewList, 0);
@@ -614,9 +613,8 @@ export function TestCases2(getTestBed) {
       component.reviewList = ['txSEM4DtjyKR', 'txD5hIQgLuR5'];
       expensesService.getExpenseById.and.returnValue(of(platformExpenseDataWithSubCategory));
       transactionService.transformExpense.and.returnValue(transformedExpenseDataWithSubCategory);
-      fixture.detectChanges();
 
-      component.goToNext(component.activeIndex);
+      component.goToNext(0);
       expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txD5hIQgLuR5');
       expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseDataWithSubCategory);
       expect(component.goToTransaction).toHaveBeenCalledOnceWith(
