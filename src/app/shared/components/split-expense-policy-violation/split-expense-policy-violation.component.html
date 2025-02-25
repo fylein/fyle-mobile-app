@@ -31,10 +31,14 @@
           </div>
           <div class="split-expense-policy-violation--sub-header-slot">
             <div class="split-expense-policy-violation--split-by-type-container">
+              @for (item of policyViolations[transaction].inputFieldInfo | keyvalue; track item.key) {
               <div class="split-expense-policy-violation--placeholder">
-                {{ policyViolations[transaction].type | uppercase }}
+                {{ item.key | uppercase }} :
+                <span class="split-expense-policy-violation--value">
+                  {{ item.value }}
+                </span>
               </div>
-              <div class="split-expense-policy-violation--value">{{ policyViolations[transaction].name }}</div>
+              }
             </div>
             <div class="split-expense-policy-violation--policy-amount-container">
               <div class="split-expense-policy-violation--placeholder">SPLIT AMOUNT</div>

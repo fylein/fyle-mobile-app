@@ -183,7 +183,7 @@
         </div>
 
         <div *ngIf="splitConfig.costCenter.is_visible || txnFields?.purpose" class="split-expense--main-block">
-          <div class="split-expense--internal-block" *ngIf="splitConfig.costCenter.is_visible">
+          <div *ngIf="splitConfig.costCenter.is_visible" class="split-expense--internal-block">
             <div *ngIf="costCenters$|async as costCenters">
               <app-fy-select
                 [label]="txnFields?.cost_center_id?.field_name"

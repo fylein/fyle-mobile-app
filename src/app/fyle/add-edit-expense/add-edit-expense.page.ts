@@ -452,6 +452,10 @@ export class AddEditExpensePage implements OnInit {
 
   selectedCategory$: Observable<OrgCategory>;
 
+  isProjectEnabled: boolean;
+
+  isCostCenterEnabled: boolean;
+
   vendorOptions: string[] = [];
 
   constructor(
@@ -789,12 +793,12 @@ export class AddEditExpensePage implements OnInit {
             is_mandatory: res.txnFields.org_category_id?.is_mandatory || false,
           },
           project: {
-            is_visible: !!res.txnFields.project_id,
+            is_visible: !!res.txnFields.project_id || this.isProjectEnabled,
             value: formValue.project,
             is_mandatory: res.txnFields.project_id?.is_mandatory || false,
           },
           costCenter: {
-            is_visible: !!res.txnFields.cost_center_id,
+            is_visible: !!res.txnFields.cost_center_id || this.isCostCenterEnabled,
             value: formValue.costCenter,
             is_mandatory: res.txnFields.cost_center_id?.is_mandatory || false,
           },
@@ -3073,6 +3077,9 @@ export class AddEditExpensePage implements OnInit {
       this.isCorporateCreditCardEnabled = this.getCCCSettings(orgSettings);
 
       this.isNewReportsFlowEnabled = orgSettings?.simplified_report_closure_settings?.enabled || false;
+
+      this.isProjectEnabled = orgSettings?.projects.enabled || false;
+      this.isCostCenterEnabled = orgSettings?.cost_centers.enabled || false;
 
       this.isDraftExpenseEnabled =
         orgSettings.ccc_draft_expense_settings &&

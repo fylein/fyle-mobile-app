@@ -6,7 +6,17 @@ import { ModalController, NavController, PopoverController } from '@ionic/angula
 import { isEmpty, isNumber } from 'lodash';
 import * as dayjs from 'dayjs';
 import { combineLatest, forkJoin, from, iif, Observable, of, Subject, throwError } from 'rxjs';
-import { catchError, concatMap, finalize, map, shareReplay, startWith, switchMap, takeUntil } from 'rxjs/operators';
+import {
+  catchError,
+  concatMap,
+  finalize,
+  map,
+  shareReplay,
+  startWith,
+  switchMap,
+  takeUntil,
+  tap,
+} from 'rxjs/operators';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { SplitExpenseService } from 'src/app/core/services/split-expense.service';
@@ -63,7 +73,7 @@ export class SplitExpensePage implements OnDestroy {
 
   fg: FormGroup;
 
-  splitType: string;
+  splitType = 'projects';
 
   splitConfig: SplitConfig;
 
@@ -535,15 +545,23 @@ export class SplitExpensePage implements OnDestroy {
     this.trackingService.showToastMessage({ ToastContent: message });
   }
 
-  getViolationName(index: number): string {
+  generateInputFieldInfo(index: number): { [key: string]: string } {
     const splitExpenseFormValue = this.splitExpensesFormArray.at(index).value as SplitExpense;
-    if (this.splitType === 'projects') {
-      return splitExpenseFormValue.project.project_name;
-    } else if (this.splitType === 'cost centers') {
-      return splitExpenseFormValue.cost_center.name;
-    } else {
-      return splitExpenseFormValue.category.name;
+    const inputFieldInfo: { [key: string]: string } = {};
+
+    if (this.splitConfig.category.is_visible) {
+      inputFieldInfo.Category = splitExpenseFormValue.category.name;
     }
+
+    if (this.splitConfig.costCenter.is_visible) {
+      inputFieldInfo[this.txnFields?.cost_center_id?.field_name] = splitExpenseFormValue.cost_center.name;
+    }
+
+    if (this.splitConfig.project.is_visible) {
+      inputFieldInfo[this.txnFields?.project_id?.field_name] = splitExpenseFormValue.project.project_name;
+    }
+
+    return inputFieldInfo;
   }
 
   transformViolationData(etxns: Transaction[], violations: SplitExpensePolicy): { [id: number]: PolicyViolation } {
@@ -554,8 +572,7 @@ export class SplitExpensePage implements OnDestroy {
         if (violations.hasOwnProperty(key)) {
           violationData[index].amount = etxn.orig_amount || etxn.amount;
           violationData[index].currency = etxn.orig_currency || etxn.currency;
-          violationData[index].name = this.getViolationName(index);
-          violationData[index].type = this.splitType;
+          violationData[index].inputFieldInfo = this.generateInputFieldInfo(index);
           violationData[index].data = violations.data[index];
         }
       }
@@ -574,8 +591,6 @@ export class SplitExpensePage implements OnDestroy {
         if (mandatoryFields.hasOwnProperty(key)) {
           mandatoryFieldsData[index].amount = etxn.orig_amount || etxn.amount;
           mandatoryFieldsData[index].currency = etxn.orig_currency || etxn.currency;
-          mandatoryFieldsData[index].name = this.getViolationName(index);
-          mandatoryFieldsData[index].type = this.splitType;
           mandatoryFieldsData[index].data = mandatoryFields.data[index];
           break;
         }
@@ -725,7 +740,10 @@ export class SplitExpensePage implements OnDestroy {
                 return throwError(err);
               })
             )
-            .subscribe(() => this.showSuccessToast());
+            .subscribe(() => {
+              this.openReviewSplitExpenseModal(txns.data);
+              this.showSuccessToast();
+            });
         }
         this.openReviewSplitExpenseModal(txns.data);
         return this.showSuccessToast();
@@ -748,9 +766,8 @@ export class SplitExpensePage implements OnDestroy {
 
   getSplitExpensePoperties(): SplittingExpenseProperties {
     return {
-      Type: this.splitType,
-      'Is Evenly Split': this.isEvenlySplit(),
       Asset: 'Mobile',
+      'Is Evenly Split': this.isEvenlySplit(),
       'Is part of report': !!this.reportId,
       'Report ID': this.reportId || null,
       'Expense State': this.transaction.state,
@@ -1123,6 +1140,7 @@ export class SplitExpensePage implements OnDestroy {
     const categoryControl = splitForm.get('category').value as OrgCategory;
 
     if (!categoryControl) {
+      this.costCenterDisabledStates[index] = false;
       return;
     }
 
