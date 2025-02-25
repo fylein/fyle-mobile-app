@@ -1,6 +1,6 @@
 import { AfterViewChecked, ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { AbstractControl, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NavController } from '@ionic/angular';
 import { BehaviorSubject, Observable, forkJoin, noop } from 'rxjs';
@@ -42,7 +42,7 @@ import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expen
 export class MergeExpensePage implements OnInit, AfterViewChecked {
   expenses: Partial<Expense>[];
 
-  fg: FormGroup;
+  fg: UntypedFormGroup;
 
   expenseOptions$: Observable<MergeExpensesOption<string>[]>;
 
@@ -138,7 +138,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
     private router: Router,
     private transcationService: TransactionService,
     private categoriesService: CategoriesService,
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     private customInputsService: CustomInputsService,
     private customFieldsService: CustomFieldsService,
     private navController: NavController,

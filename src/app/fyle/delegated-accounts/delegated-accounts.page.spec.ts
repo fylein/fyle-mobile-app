@@ -112,7 +112,7 @@ describe('DelegatedAccountsPage', () => {
     loaderService.hideLoader.and.resolveTo();
     recentLocalStorageItemsService.clearRecentLocalStorageCache.and.returnValue(null);
     orgUserService.switchToDelegator.and.returnValue(of(eouUnFlattended));
-    authService.getEou.and.returnValue(Promise.resolve(eouUnFlattended));
+    authService.getEou.and.resolveTo(eouUnFlattended);
 
     component.switchToDelegatee(delegatorData);
     tick(500);

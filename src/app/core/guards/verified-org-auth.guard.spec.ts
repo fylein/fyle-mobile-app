@@ -14,8 +14,8 @@ describe('AuthGuard', () => {
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
 
   beforeEach(() => {
-    let routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    let authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
+    const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     TestBed.configureTestingModule({
       schemas: [NO_ERRORS_SCHEMA],
       providers: [

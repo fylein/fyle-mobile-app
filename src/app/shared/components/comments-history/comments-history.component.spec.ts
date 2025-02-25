@@ -78,8 +78,8 @@ describe('CommentsHistoryComponent', () => {
   describe('presentModal', () => {
     const modalSpy = jasmine.createSpyObj('HTMLIonModalElement', ['present', 'onDidDismiss']);
     it('should create a modal with the correct component and properties and add comment when data is updated', async () => {
-      modalController.create.and.returnValue(Promise.resolve(modalSpy));
-      modalSpy.onDidDismiss.and.returnValue(Promise.resolve({ data: { updated: true } } as any));
+      modalController.create.and.resolveTo(modalSpy);
+      modalSpy.onDidDismiss.and.resolveTo({ data: { updated: true } } as any);
       await component.presentModal();
       component.refreshComments$.next(null);
       expect(modalController.create).toHaveBeenCalledOnceWith({
@@ -95,8 +95,8 @@ describe('CommentsHistoryComponent', () => {
     });
 
     it('should call trackingService.viewComment when data is not updated', async () => {
-      modalController.create.and.returnValue(Promise.resolve(modalSpy));
-      modalSpy.onDidDismiss.and.returnValue(Promise.resolve({ data: { updated: false } } as any));
+      modalController.create.and.resolveTo(modalSpy);
+      modalSpy.onDidDismiss.and.resolveTo({ data: { updated: false } } as any);
       await component.presentModal();
       expect(modalController.create).toHaveBeenCalledOnceWith({
         component: ViewCommentComponent,

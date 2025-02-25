@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed, fakeAsync, flushMicrotasks, tick, waitForAsync } from '@angular/core/testing';
 import {
-  FormBuilder,
+  UntypedFormBuilder,
   FormControl,
   FormGroup,
   FormsModule,
@@ -20,7 +20,7 @@ import { FyCurrencyExchangeRateComponent } from './fy-currency-exchange-rate.com
 describe('FyCurrencyExchangeRateComponent', () => {
   let component: FyCurrencyExchangeRateComponent;
   let fixture: ComponentFixture<FyCurrencyExchangeRateComponent>;
-  let fb: FormBuilder;
+  let fb: UntypedFormBuilder;
   let modalController: jasmine.SpyObj<ModalController>;
   let currencyService: jasmine.SpyObj<CurrencyService>;
   let loaderService: jasmine.SpyObj<LoaderService>;
@@ -49,14 +49,14 @@ describe('FyCurrencyExchangeRateComponent', () => {
           provide: LoaderService,
           useValue: loaderServiceSpy,
         },
-        FormBuilder,
+        UntypedFormBuilder,
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
 
     fixture = TestBed.createComponent(FyCurrencyExchangeRateComponent);
     component = fixture.componentInstance;
-    fb = TestBed.inject(FormBuilder);
+    fb = TestBed.inject(UntypedFormBuilder);
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
@@ -96,8 +96,8 @@ describe('FyCurrencyExchangeRateComponent', () => {
   }));
 
   it('ngOnInit(): should set form values if exchangeRate is not defined and txnDt is not defined', fakeAsync(() => {
-    loaderService.showLoader.and.returnValue(Promise.resolve());
-    loaderService.hideLoader.and.returnValue(Promise.resolve());
+    loaderService.showLoader.and.resolveTo();
+    loaderService.hideLoader.and.resolveTo();
     currencyService.getExchangeRate.and.returnValue(of(1.5));
     component.exchangeRate = null;
     component.txnDt = undefined;
@@ -120,8 +120,8 @@ describe('FyCurrencyExchangeRateComponent', () => {
   }));
 
   it('ngOnInit(): should set form values if exchangeRate is not defined', fakeAsync(() => {
-    loaderService.showLoader.and.returnValue(Promise.resolve());
-    loaderService.hideLoader.and.returnValue(Promise.resolve());
+    loaderService.showLoader.and.resolveTo();
+    loaderService.hideLoader.and.resolveTo();
     currencyService.getExchangeRate.and.returnValue(of(1.5));
     component.exchangeRate = null;
     fixture.detectChanges();

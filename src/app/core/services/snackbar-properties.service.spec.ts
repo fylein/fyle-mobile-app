@@ -48,6 +48,6 @@ describe('SnackbarPropertiesService', () => {
 
   it('should return showCloseButton as true', () => {
     const properties = service.setSnackbarProperties('success', { message: 'Success message' });
-    expect(properties.data.showCloseButton).toEqual(true);
+    expect(properties.data.showCloseButton).toBeTrue();
   });
 });

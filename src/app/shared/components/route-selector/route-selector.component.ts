@@ -1,4 +1,3 @@
-/* eslint-disable */
 import {
   Component,
   DoCheck,
@@ -13,10 +12,10 @@ import {
 import {
   AbstractControl,
   ControlValueAccessor,
-  FormArray,
-  FormBuilder,
-  FormControl,
-  FormGroup,
+  UntypedFormArray,
+  UntypedFormBuilder,
+  UntypedFormControl,
+  UntypedFormGroup,
   NG_VALIDATORS,
   NG_VALUE_ACCESSOR,
   Validators,
@@ -72,16 +71,16 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
 
   onChangeSub: Subscription;
 
-  form: FormGroup = this.fb.group({
-    mileageLocations: new FormArray([]),
+  form: UntypedFormGroup = this.fb.group({
+    mileageLocations: new UntypedFormArray([]),
     distance: [, Validators.required],
     roundTrip: [],
   });
 
-  constructor(private fb: FormBuilder, private modalController: ModalController) {}
+  constructor(private fb: UntypedFormBuilder, private modalController: ModalController) {}
 
   get mileageLocations() {
-    return this.form.controls.mileageLocations as FormArray;
+    return this.form.controls.mileageLocations as UntypedFormArray;
   }
 
   get isRoundTripDisabled(): boolean {
@@ -162,11 +161,13 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
       if (value.mileageLocations) {
         value.mileageLocations.forEach((location) => {
           this.mileageLocations.push(
-            new FormControl(location, this.mileageConfig.location_mandatory && Validators.required)
+            new UntypedFormControl(location, this.mileageConfig.location_mandatory && Validators.required)
           );
         });
         if (value.mileageLocations.length === 1) {
-          this.mileageLocations.push(new FormControl({}, this.mileageConfig.location_mandatory && Validators.required));
+          this.mileageLocations.push(
+            new UntypedFormControl({}, this.mileageConfig.location_mandatory && Validators.required)
+          );
         }
       }
 
@@ -232,7 +233,7 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
 
       data.mileageLocations?.forEach((mileageLocation) => {
         this.mileageLocations.push(
-          new FormControl(mileageLocation || {}, this.mileageConfig.location_mandatory && Validators.required)
+          new UntypedFormControl(mileageLocation || {}, this.mileageConfig.location_mandatory && Validators.required)
         );
       });
 
@@ -245,7 +246,7 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
     }
   }
 
-  validate(fc: FormControl) {
+  validate(fc: UntypedFormControl) {
     if (!this.form.valid) {
       return {
         ...this.form.controls.mileageLocations.errors,
