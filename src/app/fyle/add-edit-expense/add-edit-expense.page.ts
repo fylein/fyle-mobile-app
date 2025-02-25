@@ -3636,19 +3636,11 @@ export class AddEditExpensePage implements OnInit {
   }
 
   triggerNpsSurvey(): void {
-    const roles$ = from(this.authService.getRoles().pipe(shareReplay(1)));
-    const showNpsSurvey$ = this.launchDarklyService.getVariation('nps_survey', false);
-
-    forkJoin([roles$, showNpsSurvey$])
-      .pipe(
-        switchMap(([roles, showNpsSurvey]) => {
-          if (showNpsSurvey && !roles.includes('ADMIN')) {
-            this.refinerService.startSurvey({ actionName: 'Save Expense' });
-          }
-          return of(null);
-        })
-      )
-      .subscribe();
+    this.launchDarklyService.getVariation('nps_survey', false).subscribe((showNpsSurvey) => {
+      if (showNpsSurvey) {
+        this.refinerService.startSurvey({ actionName: 'Save Expense' });
+      }
+    });
   }
 
   showSaveExpenseLoader(redirectedFrom: string): void {
