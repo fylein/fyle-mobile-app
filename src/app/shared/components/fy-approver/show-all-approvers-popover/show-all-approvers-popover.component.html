@@ -1,0 +1,45 @@
+<ion-header mode="ios" class="show-all-approvers-popover--header">
+  <ion-toolbar class="show-all-approvers-popover--toolbar">
+    <ion-buttons slot="start">
+      <ion-button (click)="closePopover()">
+        <mat-icon class="fy-icon-close" svgIcon="cross"></mat-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title class="show-all-approvers-popover--toolbar__title"> All approvers </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content scroll-y="false" class="no-keyboard-adjust">
+  <div class="approvers-list">
+    <div class="approver-item" *ngFor="let approval of approvals; index as i">
+      <div class="approver-item-container">
+        <div class="approver-step">
+          <div class="approver-step-number">{{ i + 1 }}</div>
+          <ion-icon [src]="'/assets/svg/line-default.svg'" slot="icon-only"></ion-icon>
+        </div>
+        <div class="approver-details">
+          <div>
+            <div class="approver-name">{{ approval.approver_user.full_name }}</div>
+            <div class="approver-email">{{ approval.approver_user.email }}</div>
+          </div>
+          <div class="approver-details__status">
+            <div
+              class="dot"
+              [ngClass]="{
+                dot__done: approval.state === approvalState.APPROVAL_DONE,
+                dot__pending: approval.state === approvalState.APPROVAL_PENDING
+              }"
+            ></div>
+            <div *ngIf="approval.state === approvalState.APPROVAL_PENDING" class="approver-state-pending">
+              Approval pending
+            </div>
+            <div *ngIf="approval.state === approvalState.APPROVAL_DONE" class="approver-state-done">Approved</div>
+          </div>
+        </div>
+      </div>
+      <div class="approver-item-line">
+        <ion-icon [src]="'/assets/svg/line-default.svg'" slot="icon-only"></ion-icon>
+      </div>
+    </div>
+  </div>
+</ion-content>

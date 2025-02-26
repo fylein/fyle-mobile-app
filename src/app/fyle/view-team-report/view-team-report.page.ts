@@ -33,9 +33,11 @@ import { ReportPermissions } from 'src/app/core/models/report-permissions.model'
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { ExtendedComment } from 'src/app/core/models/platform/v1/extended-comment.model';
 import { Comment } from 'src/app/core/models/platform/v1/comment.model';
-import { ApprovalState, ReportApprovals } from 'src/app/core/models/platform/report-approvals.model';
+import { ReportApprovals } from 'src/app/core/models/platform/report-approvals.model';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { RefinerService } from 'src/app/core/services/refiner.service';
+import { ShowAllApproversPopoverComponent } from 'src/app/shared/components/fy-approver/show-all-approvers-popover/show-all-approvers-popover.component';
+import { ApprovalState } from 'src/app/core/models/platform/approval-state.enum';
 
 @Component({
   selector: 'app-view-team-report',
@@ -473,6 +475,22 @@ export class ViewTeamReportPage {
     await viewInfoModal.onWillDismiss();
 
     this.trackingService.clickViewReportInfo({ view: ExpenseView.team });
+  }
+
+  async openViewApproverModal(): Promise<void> {
+    const viewApproversModal = await this.popoverController.create({
+      component: ShowAllApproversPopoverComponent,
+      componentProps: {
+        approvals: this.approvals,
+      },
+      cssClass: 'fy-dialog-popover',
+      backdropDismiss: false,
+    });
+
+    await viewApproversModal.present();
+    await viewApproversModal.onWillDismiss();
+
+    this.trackingService.eventTrack('All approvers modal closed', { view: ExpenseView.team });
   }
 
   segmentChanged(event: { detail: { value: string } }): void {

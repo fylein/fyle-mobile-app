@@ -3,7 +3,7 @@ import deepFreeze from 'deep-freeze-strict';
 import { Report, ReportState } from '../models/platform/v1/report.model';
 import { ReportsQueryParams } from '../models/platform/v1/reports-query-params.model';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
-import { ApprovalState } from '../models/platform/report-approvals.model';
+import { ApprovalState } from '../models/platform/approval-state.enum';
 
 export const mockQueryParams: ReportsQueryParams = deepFreeze({
   state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
