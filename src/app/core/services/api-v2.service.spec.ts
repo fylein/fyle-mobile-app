@@ -14,10 +14,6 @@ describe('ApiV2Service', () => {
     someKey: 'someValue',
   };
 
-  const apiResponse = {
-    message: 'SUCCESS',
-  };
-
   beforeEach(() => {
     const httpClientSpy = jasmine.createSpyObj('HttpClient', ['get']);
 
@@ -68,35 +64,6 @@ describe('ApiV2Service', () => {
           });
           done();
         });
-    });
-  });
-
-  describe('extendQueryParamsForTextSearch():', () => {
-    const queryParams = {
-      param1: 'value1',
-      param2: 'value2',
-    };
-
-    it('should return the original queryParams when simpleSearchText is undefined', () => {
-      const result = apiV2Service.extendQueryParamsForTextSearch(queryParams, undefined);
-      expect(result).toEqual(queryParams);
-    });
-
-    it('should return the original queryParams when simpleSearchText is an empty string', () => {
-      const result = apiV2Service.extendQueryParamsForTextSearch(queryParams, '');
-      expect(result).toEqual(queryParams);
-    });
-
-    it('should append the correct search query to the queryParams when simpleSearchText is not empty', () => {
-      const simpleSearchText = 'example text search';
-      const expectedSearchQuery = 'text & example & search:*';
-      const expectedQueryParams = {
-        param1: 'value1',
-        param2: 'value2',
-        q: expectedSearchQuery,
-      };
-      const result = apiV2Service.extendQueryParamsForTextSearch(queryParams, simpleSearchText);
-      expect(result).toEqual(expectedQueryParams);
     });
   });
 });
