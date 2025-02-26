@@ -545,8 +545,7 @@ export class AddEditExpensePage implements OnInit {
   goBack(): void {
     if (
       this.activatedRoute.snapshot.params.persist_filters ||
-      this.activatedRoute.snapshot.params.fromSplitExpenseReview ||
-      this.isRedirectedFromReport
+      this.activatedRoute.snapshot.params.fromSplitExpenseReview
     ) {
       this.navController.back();
     } else {
@@ -3820,7 +3819,7 @@ export class AddEditExpensePage implements OnInit {
         if (that.mode === 'add') {
           that.addExpense('SAVE_AND_PREV_EXPENSE').subscribe(() => {
             if (+this.activeIndex === 0) {
-              that.closeAddEditExpenses();
+              that.goBack();
             } else {
               that.goToPrev();
             }
@@ -3829,7 +3828,7 @@ export class AddEditExpensePage implements OnInit {
           // to do edit
           that.editExpense('SAVE_AND_PREV_EXPENSE').subscribe(() => {
             if (+this.activeIndex === 0) {
-              that.closeAddEditExpenses();
+              that.goBack();
             } else {
               that.goToPrev();
             }
@@ -3848,7 +3847,7 @@ export class AddEditExpensePage implements OnInit {
         if (that.mode === 'add') {
           that.addExpense('SAVE_AND_NEXT_EXPENSE').subscribe(() => {
             if (+this.activeIndex === this.reviewList.length - 1) {
-              that.closeAddEditExpenses();
+              that.goBack();
             } else {
               that.goToNext();
             }
@@ -3857,7 +3856,7 @@ export class AddEditExpensePage implements OnInit {
           // to do edit
           that.editExpense('SAVE_AND_NEXT_EXPENSE').subscribe(() => {
             if (+this.activeIndex === this.reviewList.length - 1) {
-              that.closeAddEditExpenses();
+              that.goBack();
             } else {
               that.goToNext();
             }
@@ -4400,15 +4399,6 @@ export class AddEditExpensePage implements OnInit {
         this.triggerNpsSurvey();
       })
     );
-  }
-
-  closeAddEditExpenses(): void {
-    const params = this.activatedRoute.snapshot.params;
-    if (params.fromSplitExpenseReview) {
-      this.navController.back();
-    } else {
-      this.router.navigate(['/', 'enterprise', 'my_expenses']);
-    }
   }
 
   async getParsedReceipt(base64Image: string, fileType: string): Promise<ParsedReceipt> {
