@@ -122,6 +122,8 @@ export class MyViewReportPage {
 
   approvals: ReportApprovals[];
 
+  approverToShow: ReportApprovals;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
@@ -237,6 +239,17 @@ export class MyViewReportPage {
     });
   }
 
+  setupApproverToShow(report: Report): void {
+    const filteredApprover = this.approvals.filter(
+      (approver) => report.next_approver_user_ids?.[0] === approver.approver_user.id
+    );
+    const highestRankApprover = this.approvals.reduce(
+      (max, approver) => (approver.rank > max.rank ? approver : max),
+      this.approvals[0]
+    );
+    this.approverToShow = filteredApprover.length === 1 ? filteredApprover[0] : highestRankApprover;
+  }
+
   ionViewWillEnter(): void {
     this.setupNetworkWatcher();
     this.reportId = this.activatedRoute.snapshot.params.id as string;
@@ -252,6 +265,7 @@ export class MyViewReportPage {
       map((report) => {
         this.setupComments(report);
         this.approvals = report.approvals;
+        this.setupApproverToShow(report);
         return report;
       }),
       shareReplay(1)
