@@ -934,6 +934,7 @@ export class SplitExpensePage implements OnDestroy {
     );
 
     if (this.splitConfig.costCenter.is_visible) {
+      this.addCostCenterIdToTxnFields();
       this.costCenters$ = orgSettings$.pipe(
         switchMap((orgSettings) => {
           if (orgSettings.cost_centers.enabled) {
@@ -1333,6 +1334,16 @@ export class SplitExpensePage implements OnDestroy {
 
     if (data) {
       this.handleNavigationAfterReview(data.action, data.expense);
+    }
+  }
+
+  private addCostCenterIdToTxnFields(): void {
+    if (this.txnFields.cost_center_id) {
+      return;
+    }
+    const costCenterField = this.expenseFields.find((field) => field.column_name === 'cost_center_id');
+    if (costCenterField) {
+      this.txnFields.cost_center_id = costCenterField;
     }
   }
 
