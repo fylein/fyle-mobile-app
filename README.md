@@ -191,7 +191,7 @@ This will ensure that all required packages are correctly installed, resolving t
 - Run unit tests:
 
 ```bash
-npm run test
+npx ng test
 ```
 
 - For non-parallel execution (Recommended method for preventing excessive CPU utilization and memory hogging.):
@@ -222,9 +222,11 @@ In this file, you will see 4 metrics for the files you have changed:
 
 For running the app directly on an Android device for staging
 
-1. Build and sync the app:
+- Add .env file to project (ping mobile app team for the file)
+- Build and sync the app:
 
 ```bash
+ionic build -c staging
 ionic capacitor run android -l --external --configuration=staging
 
 ```

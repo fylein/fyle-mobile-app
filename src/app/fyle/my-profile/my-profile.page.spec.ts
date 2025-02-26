@@ -1,6 +1,6 @@
 import { EventEmitter } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { ActivatedRoute } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { IonicModule, ModalController, PopoverController } from '@ionic/angular';
@@ -478,7 +478,7 @@ describe('MyProfilePage', () => {
     expect(popoverController.create).toHaveBeenCalledOnceWith({
       component: PopupWithBulletsComponent,
       componentProps: {
-        title: 'Verification Successful',
+        title: 'Verification successful',
         listHeader: 'Now you can:',
         listItems: [
           {

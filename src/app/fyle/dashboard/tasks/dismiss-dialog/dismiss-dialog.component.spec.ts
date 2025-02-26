@@ -46,7 +46,7 @@ describe('DismissDialogComponent', () => {
     expect(getTextContent(getElementBySelector(fixture, '.dismiss-dialog--header'))).toEqual(
       'Dismiss duplicate expenses'
     );
-    expect(getTextContent(getElementBySelector(fixture, '.dismiss-dialog--dismiss'))).toEqual('Yes, Dismiss');
+    expect(getTextContent(getElementBySelector(fixture, '.dismiss-dialog--dismiss'))).toEqual('Yes, dismiss');
   });
 
   it('cancel(): should cancel the CTA', () => {

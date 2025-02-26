@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { from, throwError, Observable, of, noop, Subscription } from 'rxjs';
 import { PopoverController } from '@ionic/angular';
@@ -27,7 +27,7 @@ import { BackButtonService } from 'src/app/core/services/back-button.service';
   styleUrls: ['./sign-in.page.scss'],
 })
 export class SignInPage implements OnInit {
-  fg: FormGroup;
+  fg: UntypedFormGroup;
 
   emailLoading = false;
 
@@ -48,7 +48,7 @@ export class SignInPage implements OnInit {
   focusOnPassword = false;
 
   constructor(
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     private routerAuthService: RouterAuthService,
     private popoverController: PopoverController,
     private loaderService: LoaderService,
@@ -81,11 +81,9 @@ export class SignInPage implements OnInit {
         .pipe(
           take(1),
           switchMap(() => this.authService.refreshEou()),
-          tap(async () => {
+          tap(async (eou) => {
             await this.trackLoginInfo();
-            this.trackingService.onSignin(this.fg.controls.email.value as string, {
-              label: 'Email',
-            });
+            this.trackingService.onSignin(eou.us.id);
           })
         )
         .subscribe(() => {
@@ -202,10 +200,8 @@ export class SignInPage implements OnInit {
         .basicSignin(this.fg.controls.email.value as string, this.fg.controls.password.value as string)
         .pipe(
           switchMap(() => this.authService.refreshEou()),
-          tap(async () => {
-            this.trackingService.onSignin(this.fg.controls.email.value as string, {
-              label: 'Email',
-            });
+          tap(async (eou) => {
+            this.trackingService.onSignin(eou.us.id);
             await this.trackLoginInfo();
           }),
           finalize(() => (this.passwordLoading = false))
@@ -244,10 +240,8 @@ export class SignInPage implements OnInit {
         switchMap((googleAuthResponse) =>
           this.routerAuthService.googleSignin(googleAuthResponse.accessToken).pipe(
             switchMap(() => this.authService.refreshEou()),
-            tap(async () => {
-              this.trackingService.onSignin(this.fg.controls.email.value as string, {
-                label: 'Email',
-              });
+            tap(async (eou) => {
+              this.trackingService.onSignin(eou.us.id);
               await this.trackLoginInfo();
             })
           )

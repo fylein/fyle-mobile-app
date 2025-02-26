@@ -86,12 +86,12 @@ ion-popover.error-popover {
   }
 }
 
-.mat-bottom-sheet-1 {
+.mat-bottom-sheet-1 .mat-bottom-sheet-container {
   padding: 16px 12px 12px 12px !important;
   border-radius: 16px 16px 0px 0px !important;
 }
 
-.mat-bottom-sheet-2 {
+.mat-bottom-sheet-2 .mat-bottom-sheet-container {
   padding: 24px 24px 6px 24px !important;
   border-radius: 16px 16px 0px 0px !important;
 }
@@ -1073,6 +1073,7 @@ ion-modal.promote-opt-in-modal {
   min-height: 20px !important;
   font-size: 12px;
   color: $black-light !important;
+  padding-right: 0 !important;
 }
 
 .mat-chip.mat-standard-chip .mat-chip-remove {
@@ -1083,7 +1084,7 @@ ion-modal.promote-opt-in-modal {
 }
 
 .mat-standard-chip .mat-chip-remove.mat-icon {
-  width: 8px !important;
+  width: 16px !important;
 }
 
 .selection-modal--form-container {
@@ -1414,7 +1415,7 @@ ion-toggle.toggle-checked::before {
   border: 1px solid $brand-primary;
   border-radius: 14px;
   color: $brand-primary;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 500;
   display: inline-block;
   line-height: 18px;

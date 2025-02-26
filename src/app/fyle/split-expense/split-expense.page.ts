@@ -1,6 +1,6 @@
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 import { Component } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, NavController } from '@ionic/angular';
 import { isEmpty, isNumber } from 'lodash';
@@ -11,7 +11,7 @@ import { CategoriesService } from 'src/app/core/services/categories.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { SplitExpenseService } from 'src/app/core/services/split-expense.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -44,11 +44,11 @@ import { TransformedSplitExpenseMissingFields } from 'src/app/core/models/transf
 import { SplitExpenseViolationsPopup } from 'src/app/core/models/split-expense-violations-popup.model';
 import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
-import { SplittingExpenseProperties } from 'src/app/core/models/tracking-properties.model';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
 import { PlatformFile } from 'src/app/core/models/platform/platform-file.model';
+import { SplittingExpenseProperties } from 'src/app/core/models/splitting-expense-properties.model';
 
 @Component({
   selector: 'app-split-expense',
@@ -56,9 +56,9 @@ import { PlatformFile } from 'src/app/core/models/platform/platform-file.model';
   styleUrls: ['./split-expense.page.scss'],
 })
 export class SplitExpensePage {
-  splitExpensesFormArray = new FormArray([]);
+  splitExpensesFormArray = new UntypedFormArray([]);
 
-  fg: FormGroup;
+  fg: UntypedFormGroup;
 
   splitType: string;
 
@@ -120,7 +120,7 @@ export class SplitExpensePage {
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     private categoriesService: CategoriesService,
     private dateService: DateService,
     private splitExpenseService: SplitExpenseService,

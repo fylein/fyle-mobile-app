@@ -132,6 +132,9 @@ export class ExpensesService {
     return this.spenderService.get<PlatformApiResponse<Expense[]>>('/expenses', data).pipe(
       map((res) => res.data[0]),
       switchMap((expense) => {
+        if (!expense) {
+          throw new Error('expense not found');
+        }
         if (
           expense.matched_corporate_card_transaction_ids.length > 0 &&
           expense.matched_corporate_card_transactions.length === 0

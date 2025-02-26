@@ -39,7 +39,7 @@
     <div class="virtual-card__card-fields__cvv-field">
       <div class="virtual-card__card-fields__label-text">CVV</div>
       <div class="virtual-card__card-fields__cvv-field__cvv-value">
-        <div *ngIf="!showCvv" class="virtual-card__card-fields__cvv-mask">****</div>
+        <div *ngIf="!showCvv" class="virtual-card__card-fields__cvv-mask">***</div>
         <div *ngIf="showCvv" class="virtual-card__card-fields__cvv-number">{{ cvv }}</div>
         <ion-icon
           *ngIf="cardStatus !== CardStatus.DELETED && cardStatus !== CardStatus.EXPIRED"
@@ -57,7 +57,14 @@
     </div>
     <div *ngIf="availableAmount !== undefined" class="virtual-card__vertical-divider"></div>
     <div *ngIf="availableAmount !== undefined">
-      <div class="virtual-card__card-fields__label-text">Available</div>
+      <div class="virtual-card__card-fields__label-text">
+        Available
+        <ion-icon
+          class="virtual-card__card-fields__label-text__info-icon"
+          src="../../../../../assets/svg/info-circle-outline.svg"
+          (click)="openInfoPopup()"
+        ></ion-icon>
+      </div>
       <div class="virtual-card__card-fields__value-text">{{ availableAmount | currency : 'USD' }}</div>
     </div>
   </div>

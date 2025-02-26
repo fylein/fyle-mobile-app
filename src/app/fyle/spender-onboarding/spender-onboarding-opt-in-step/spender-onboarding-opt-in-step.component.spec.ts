@@ -7,7 +7,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { MobileNumberVerificationService } from 'src/app/core/services/mobile-number-verification.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { BrowserHandlerService } from 'src/app/core/services/browser-handler.service';
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
@@ -21,7 +21,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { snackbarPropertiesRes2 } from 'src/app/core/mock-data/snackbar-properties.data';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { UserEventService } from 'src/app/core/services/user-event.service';
-import { FormBuilder } from '@angular/forms';
+import { UntypedFormBuilder } from '@angular/forms';
 import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
 import { onboardingStatusData } from 'src/app/core/mock-data/onboarding-status.data';
 
@@ -38,7 +38,7 @@ describe('SpenderOnboardingOptInStepComponent', () => {
   let loaderService: jasmine.SpyObj<LoaderService>;
   let userEventService: jasmine.SpyObj<UserEventService>;
   let spenderOnboardingService: jasmine.SpyObj<SpenderOnboardingService>;
-  let fb: FormBuilder;
+  let fb: UntypedFormBuilder;
 
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
@@ -61,7 +61,7 @@ describe('SpenderOnboardingOptInStepComponent', () => {
       declarations: [SpenderOnboardingOptInStepComponent],
       imports: [IonicModule.forRoot()],
       providers: [
-        FormBuilder,
+        UntypedFormBuilder,
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: OrgUserService, useValue: orgUserServiceSpy },
         { provide: AuthService, useValue: authServiceSpy },
@@ -92,7 +92,7 @@ describe('SpenderOnboardingOptInStepComponent', () => {
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
     spenderOnboardingService = TestBed.inject(SpenderOnboardingService) as jasmine.SpyObj<SpenderOnboardingService>;
     userEventService = TestBed.inject(UserEventService) as jasmine.SpyObj<UserEventService>;
-    fb = TestBed.inject(FormBuilder);
+    fb = TestBed.inject(UntypedFormBuilder);
   }));
 
   it('should create', () => {

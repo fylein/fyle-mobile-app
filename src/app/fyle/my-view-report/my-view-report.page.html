@@ -6,7 +6,7 @@
       </button>
       <ion-back-button mode="md" *ngIf="navigateBack"></ion-back-button>
     </ion-buttons>
-    <ion-title mode="md" class="page-title"> View Report </ion-title>
+    <ion-title mode="md" class="page-title"> View report </ion-title>
     <ion-buttons mode="md" slot="end">
       <ng-container *ngIf="report$|async as report">
         <ng-container *ngIf="report.num_expenses">
@@ -89,7 +89,7 @@
                   class="view-reports--view-info__icon"
                   src="../../../assets/svg/info-circle-gradient.svg"
                 ></ion-icon>
-                <span class="view-reports--view-info__content">View Info</span>
+                <span class="view-reports--view-info__content">View info</span>
               </div>
             </ion-col>
           </ion-row>
@@ -102,7 +102,7 @@
             <div class="view-reports--approvers">Approvers</div>
             <div *ngFor="let approver of report.approvals">
               <div class="view-reports--approvers-list">
-                <div>{{ approver.approver_user.full_name }}</div>
+                <div class="smartlook-hide">{{ approver.approver_user.full_name }}</div>
                 <div class="view-reports--approver-state-section">
                   <div
                     class="view-reports--approver-state-pill view-reports--approver-state-pill__{{approver.state | lowercase}}"
@@ -212,7 +212,9 @@
                 <ion-grid class="view-comment--card view-comment--self-comment text-right">
                   <ion-row>
                     <ion-col size="12">
-                      <div class="view-comment--name-container">{{ estatus.creator_user?.full_name }}</div>
+                      <div class="view-comment--name-container smartlook-hide">
+                        {{ estatus.creator_user?.full_name }}
+                      </div>
                     </ion-col>
                   </ion-row>
                   <ion-row>
@@ -252,7 +254,9 @@
                 <ion-grid class="view-comment--card view-comment--others-comment text-left">
                   <ion-row>
                     <ion-col size="12">
-                      <div class="view-comment--name-container">{{ estatus.creator_user?.full_name }}</div>
+                      <div class="view-comment--name-container smartlook-hide">
+                        {{ estatus.creator_user?.full_name }}
+                      </div>
                     </ion-col>
                   </ion-row>
                   <ion-row>
@@ -334,7 +338,7 @@
         [loading]="submitReportLoader"
         (click)="resubmitReport()"
       >
-        Resubmit Report
+        Resubmit report
       </ion-button>
       <ion-button
         class="fy-footer-cta fy-footer-cta--primary"
@@ -345,7 +349,7 @@
         [loading]="submitReportLoader"
         (click)="submitReport()"
       >
-        Submit Report
+        Submit report
       </ion-button>
     </div>
   </ion-toolbar>

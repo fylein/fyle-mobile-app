@@ -3,8 +3,8 @@ import { NetworkService } from 'src/app/core/services/network.service';
 import { Observable, concat, noop, from, forkJoin } from 'rxjs';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
-import { map, concatMap, finalize, tap, shareReplay } from 'rxjs/operators';
-import { FormBuilder, FormGroup, Validators, AbstractControl } from '@angular/forms';
+import { map, concatMap, finalize, shareReplay } from 'rxjs/operators';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { ModalController, ToastController } from '@ionic/angular';
 import { SelectCurrencyComponent } from './select-currency/select-currency.component';
 import { OrgService } from 'src/app/core/services/org.service';
@@ -14,6 +14,9 @@ import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { Router } from '@angular/router';
 import { TrackingService } from '../../core/services/tracking.service';
+import { User } from 'src/app/core/models/user.model';
+import { Currency } from 'src/app/core/models/currency.model';
+import { OrgSettingsResponse } from 'src/app/core/models/org-settings.model';
 
 @Component({
   selector: 'app-setup-account',
@@ -27,7 +30,7 @@ export class SetupAccountPage implements OnInit {
 
   fullname$: Observable<string>;
 
-  fg: FormGroup;
+  fg: UntypedFormGroup;
 
   org$: Observable<Org>;
 
@@ -46,7 +49,7 @@ export class SetupAccountPage implements OnInit {
   constructor(
     private networkService: NetworkService,
     private authService: AuthService,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private modalController: ModalController,
     private orgService: OrgService,
     private toastController: ToastController,
@@ -57,14 +60,14 @@ export class SetupAccountPage implements OnInit {
     private trackingService: TrackingService
   ) {}
 
-  setupNetworkWatcher() {
+  setupNetworkWatcher(): void {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable());
     this.isConnected$.subscribe(noop);
   }
 
-  async openCurrenySelectionModal() {
+  async openCurrenySelectionModal(): Promise<void> {
     const modal = await this.modalController.create({
       component: SelectCurrencyComponent,
     });
@@ -73,13 +76,13 @@ export class SetupAccountPage implements OnInit {
 
     const { data } = await modal.onWillDismiss();
     if (data) {
-      this.fg.controls.homeCurrency.setValue(data.currency.shortCode);
+      this.fg.controls.homeCurrency.setValue((data.currency as Currency).shortCode);
     }
   }
 
-  postUser() {
+  postUser(): Observable<User> {
     return this.eou$.pipe(
-      concatMap((eou) => {
+      concatMap((eou: ExtendedOrgUser) => {
         const us = eou.us;
         us.password = this.fg.controls.password.value;
         return this.orgUserService.postUser(us);
@@ -87,7 +90,7 @@ export class SetupAccountPage implements OnInit {
     );
   }
 
-  postOrg() {
+  postOrg(): Observable<Org> {
     return this.org$.pipe(
       concatMap((org) => {
         org.name = this.fg.controls.companyName.value;
@@ -97,7 +100,7 @@ export class SetupAccountPage implements OnInit {
     );
   }
 
-  saveGuessedMileage() {
+  saveGuessedMileage(): Observable<OrgSettingsResponse> {
     return forkJoin({
       orgSettings: this.orgSettingsService.get(),
       org: this.org$,
@@ -119,7 +122,7 @@ export class SetupAccountPage implements OnInit {
     );
   }
 
-  async saveData() {
+  async saveData(): Promise<void> {
     this.fg.markAllAsTouched();
     if (this.fg.valid) {
       // do valid shit
@@ -131,10 +134,6 @@ export class SetupAccountPage implements OnInit {
         )
         .subscribe(() => {
           this.trackingService.setupHalf();
-          // // setting up company details in clevertap profile
-          this.trackingService.updateSegmentProfile({
-            'Company Name': this.fg.controls.companyName.value,
-          });
 
           this.router.navigate(['/', 'post_verification', 'setup_account_preferences']);
         });
@@ -149,7 +148,7 @@ export class SetupAccountPage implements OnInit {
     }
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.setupNetworkWatcher();
     this.eou$ = from(this.authService.getEou());
     this.fullname$ = this.eou$.pipe(map((eou) => eou.us.full_name));

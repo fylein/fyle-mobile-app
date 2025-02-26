@@ -14,7 +14,11 @@
     <div *ngIf="cardNickname" class="card-number__unmasked-digits__with-nickname" data-testid="unmasked-digits">
       {{ cardNumber | slice : -4 }}
     </div>
-    <div *ngIf="!cardNickname" class="card-number__unmasked-digits__without-nickname" data-testid="unmasked-digits">
+    <div
+      *ngIf="!cardNickname"
+      class="card-number__unmasked-digits__without-nickname smartlook-hide"
+      data-testid="unmasked-digits"
+    >
       {{ cardNumber | slice : -4 }}
     </div>
   </div>

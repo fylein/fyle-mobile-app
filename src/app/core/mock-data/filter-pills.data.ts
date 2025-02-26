@@ -80,7 +80,7 @@ export const expectedFilterPill1: FilterPill[] = deepFreeze([
     value: 'category - a to z',
   },
   {
-    label: 'Cards',
+    label: 'Cards ending in...',
     type: 'cardNumbers',
     value: '****1234, ****5678',
   },
@@ -148,7 +148,7 @@ export const sortFilterPill: FilterPill = deepFreeze({
 });
 
 export const cardFilterPill: FilterPill = deepFreeze({
-  label: 'Cards',
+  label: 'Cards ending in...',
   type: 'cardNumbers',
   value: '****1234, ****5678',
 });

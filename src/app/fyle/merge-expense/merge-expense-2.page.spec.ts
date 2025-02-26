@@ -5,13 +5,16 @@ import { CategoriesService } from 'src/app/core/services/categories.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
 import { NavController } from '@ionic/angular';
-import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
+import {
+  MatLegacySnackBar as MatSnackBar,
+  MatLegacySnackBarRef as MatSnackBarRef,
+} from '@angular/material/legacy-snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { MergeExpensesService } from 'src/app/core/services/merge-expenses.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
-import { FormBuilder, Validators } from '@angular/forms';
+import { UntypedFormBuilder, Validators } from '@angular/forms';
 import { cloneDeep } from 'lodash';
 import { expenseList2 } from 'src/app/core/mock-data/expense.data';
 import { BehaviorSubject, Observable, Subscription, of } from 'rxjs';
@@ -74,7 +77,7 @@ export function TestCases2(getTestBed) {
     let trackingService: jasmine.SpyObj<TrackingService>;
     let expenseFieldsService: jasmine.SpyObj<ExpenseFieldsService>;
     let dependantFieldsService: jasmine.SpyObj<DependentFieldsService>;
-    let formBuilder: FormBuilder;
+    let formBuilder: UntypedFormBuilder;
 
     beforeEach(waitForAsync(() => {
       const TestBed = getTestBed();
@@ -92,7 +95,7 @@ export function TestCases2(getTestBed) {
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
       expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
       dependantFieldsService = TestBed.inject(DependentFieldsService) as jasmine.SpyObj<DependentFieldsService>;
-      formBuilder = TestBed.inject(FormBuilder);
+      formBuilder = TestBed.inject(UntypedFormBuilder);
       component.fg = formBuilder.group({
         target_txn_id: [, Validators.required],
         genericFields: [],
@@ -169,7 +172,7 @@ export function TestCases2(getTestBed) {
         expect(component.fg.controls.genericFields.value.amount).toEqual('tx3nHShG60zq');
         const amountCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(0);
         expect(amountCall[0]).toEqual(optionsData3);
-        expect(amountCall[1]).toEqual(true);
+        expect(amountCall[1]).toBeTrue();
         expect(amountCall[2]).toEqual('tx3nHShG60zq');
         expect(amountCall[3]).toEqual(99);
       });
@@ -181,7 +184,7 @@ export function TestCases2(getTestBed) {
         expect(component.fg.controls.genericFields.value.dateOfSpend).toEqual(new Date('2023-03-13T11:30:00.000Z'));
         const dateOfSpendCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(1);
         expect(dateOfSpendCall[0]).toEqual(optionsData6);
-        expect(dateOfSpendCall[1]).toEqual(false);
+        expect(dateOfSpendCall[1]).toBeFalse();
         expect(dateOfSpendCall[2]).toEqual(new Date('2021-07-29T06:30:00.000Z'));
         expect(dateOfSpendCall[3]).toEqual(new Date('2023-03-13T11:30:00.000Z'));
       });
@@ -193,8 +196,8 @@ export function TestCases2(getTestBed) {
         expect(component.fg.controls.genericFields.value.paymentMode).toEqual('PERSONAL_ACCOUNT');
         const paymentModeCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(2);
         expect(paymentModeCall[0]).toEqual(optionsData7);
-        expect(paymentModeCall[1]).toEqual(true);
-        expect(paymentModeCall[2]).toEqual(undefined);
+        expect(paymentModeCall[1]).toBeTrue();
+        expect(paymentModeCall[2]).toBeUndefined();
         expect(paymentModeCall[3]).toEqual('PERSONAL_ACCOUNT');
       });
 
@@ -205,7 +208,7 @@ export function TestCases2(getTestBed) {
         expect(component.fg.controls.genericFields.value.project).toEqual('3943');
         const projectCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(3);
         expect(projectCall[0]).toEqual(optionsData9);
-        expect(projectCall[1]).toEqual(false);
+        expect(projectCall[1]).toBeFalse();
         expect(projectCall[2]).toEqual(3812);
         expect(projectCall[3]).toEqual('PROJECT_1');
       });
@@ -214,12 +217,12 @@ export function TestCases2(getTestBed) {
         component.touchedGenericFields = ['billable'];
         component.genericFieldsForm.patchValue({ billable: false });
         component.onExpenseChanged(1);
-        expect(component.fg.controls.genericFields.value.billable).toEqual(false);
+        expect(component.fg.controls.genericFields.value.billable).toBeFalse();
         const billableCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(4);
         expect(billableCall[0]).toEqual(optionsData2);
-        expect(billableCall[1]).toEqual(true);
-        expect(billableCall[2]).toEqual(false);
-        expect(billableCall[3]).toEqual(false);
+        expect(billableCall[1]).toBeTrue();
+        expect(billableCall[2]).toBeFalse();
+        expect(billableCall[3]).toBeFalse();
       });
 
       it('should call getFieldValueOnChange for updating category with correct arguments', () => {
@@ -229,7 +232,7 @@ export function TestCases2(getTestBed) {
         expect(component.fg.controls.genericFields.value.category).toEqual(207484);
         const categoryCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(5);
         expect(categoryCall[0]).toEqual(optionsData10);
-        expect(categoryCall[1]).toEqual(true);
+        expect(categoryCall[1]).toBeTrue();
         expect(categoryCall[2]).toEqual(207484);
         expect(categoryCall[3]).toEqual(213);
       });
@@ -241,7 +244,7 @@ export function TestCases2(getTestBed) {
         expect(component.fg.controls.genericFields.value.vendor).toEqual('Nilesh As Vendor');
         const vendorCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(6);
         expect(vendorCall[0]).toEqual(optionsData8);
-        expect(vendorCall[1]).toEqual(false);
+        expect(vendorCall[1]).toBeFalse();
         expect(vendorCall[2]).toEqual('ramdev baba');
         expect(vendorCall[3]).toEqual('VENDOR_1');
       });
@@ -253,7 +256,7 @@ export function TestCases2(getTestBed) {
         expect(component.fg.controls.genericFields.value.tax_group).toEqual('tgXEJA6YUoZ1');
         const taxGroupCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(7);
         expect(taxGroupCall[0]).toEqual(optionsData11);
-        expect(taxGroupCall[1]).toEqual(true);
+        expect(taxGroupCall[1]).toBeTrue();
         expect(taxGroupCall[2]).toEqual('tgFDWBpJL3vy');
         expect(taxGroupCall[3]).toEqual('TAX_GROUP_1');
       });
@@ -265,7 +268,7 @@ export function TestCases2(getTestBed) {
         expect(component.fg.controls.genericFields.value.tax_amount).toEqual(0.01);
         const taxAmountCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(8);
         expect(taxAmountCall[0]).toEqual(optionsData12);
-        expect(taxAmountCall[1]).toEqual(true);
+        expect(taxAmountCall[1]).toBeTrue();
         expect(taxAmountCall[2]).toEqual(0.32);
         expect(taxAmountCall[3]).toEqual(99);
       });
@@ -278,7 +281,7 @@ export function TestCases2(getTestBed) {
         expect(component.fg.controls.genericFields.value.costCenter).toEqual('213');
         const costCenterCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(9);
         expect(costCenterCall[0]).toEqual(optionsData13);
-        expect(costCenterCall[1]).toEqual(true);
+        expect(costCenterCall[1]).toBeTrue();
         expect(costCenterCall[2]).toEqual(12488);
         expect(costCenterCall[3]).toEqual('COST_CENTER_1');
       });
@@ -290,7 +293,7 @@ export function TestCases2(getTestBed) {
         expect(component.fg.controls.genericFields.value.purpose).toEqual('Outing');
         const customFieldsCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(10);
         expect(customFieldsCall[0]).toEqual(optionsData14);
-        expect(customFieldsCall[1]).toEqual(true);
+        expect(customFieldsCall[1]).toBeTrue();
         expect(customFieldsCall[2]).toEqual('Others');
         expect(customFieldsCall[3]).toEqual('PURPOSE_1');
       });
@@ -325,16 +328,16 @@ export function TestCases2(getTestBed) {
       it('should set categoryDependent fields in the form correctly', () => {
         component.loadCategoryDependentFields();
 
-        expect(component.fg.controls.categoryDependent.value.location_1).toEqual(null);
-        expect(component.fg.controls.categoryDependent.value.location_2).toEqual(null);
+        expect(component.fg.controls.categoryDependent.value.location_1).toBeNull();
+        expect(component.fg.controls.categoryDependent.value.location_2).toBeNull();
         expect(component.fg.controls.categoryDependent.value.from_dt).toEqual(new Date('2023-03-13T05:31:00.000Z'));
         expect(component.fg.controls.categoryDependent.value.to_dt).toEqual(new Date('2023-03-13T05:31:00.000Z'));
         expect(component.fg.controls.categoryDependent.value.flight_journey_travel_class).toEqual('ECONOMY');
         expect(component.fg.controls.categoryDependent.value.flight_return_travel_class).toEqual('ECONOMY');
-        expect(component.fg.controls.categoryDependent.value.train_travel_class).toEqual(null);
+        expect(component.fg.controls.categoryDependent.value.train_travel_class).toBeNull();
         expect(component.fg.controls.categoryDependent.value.bus_travel_class).toEqual('AC');
-        expect(component.fg.controls.categoryDependent.value.distance).toEqual(null);
-        expect(component.fg.controls.categoryDependent.value.distance_unit).toEqual(null);
+        expect(component.fg.controls.categoryDependent.value.distance).toBeNull();
+        expect(component.fg.controls.categoryDependent.value.distance_unit).toBeNull();
       });
 
       it('should call mergeExpensesService.getFieldValue with correct arguments', () => {
@@ -396,7 +399,7 @@ export function TestCases2(getTestBed) {
       it('should call fg.markAllAsTouched once and set isMerging to false', () => {
         component.mergeExpense();
         expect(component.fg.markAllAsTouched).toHaveBeenCalledTimes(1);
-        expect(component.isMerging).toEqual(false);
+        expect(component.isMerging).toBeFalse();
       });
 
       it('should call mergeExpensesService.mergeExpenses once', () => {
