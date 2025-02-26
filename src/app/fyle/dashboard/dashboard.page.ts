@@ -6,7 +6,7 @@ import { NetworkService } from '../../core/services/network.service';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { StatsComponent } from './stats/stats.component';
 import { ActivatedRoute, NavigationStart, Params, Router } from '@angular/router';
-import { FooterState } from '../../shared/components/footer/footer-state';
+import { FooterState } from '../../shared/components/footer/footer-state.enum';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TasksComponent } from './tasks/tasks.component';
 import { TasksService } from 'src/app/core/services/tasks.service';
@@ -58,6 +58,8 @@ export class DashboardPage {
   onPageExit$ = new Subject();
 
   currentStateIndex = 0;
+
+  currentActiveState = FooterState.HOME;
 
   actionSheetButtons: ActionSheetButton[] = [];
 
@@ -187,8 +189,10 @@ export class DashboardPage {
     const currentState =
       this.activatedRoute.snapshot.queryParams.state === 'tasks' ? DashboardState.tasks : DashboardState.home;
     if (currentState === DashboardState.tasks) {
+      this.currentActiveState = FooterState.TASKS;
       this.currentStateIndex = 1;
     } else {
+      this.currentActiveState = FooterState.HOME;
       this.currentStateIndex = 0;
     }
 
@@ -279,6 +283,7 @@ export class DashboardPage {
 
   onTaskClicked(): void {
     this.currentStateIndex = 1;
+    this.currentActiveState = FooterState.TASKS;
     const queryParams: Params = { state: 'tasks' };
     this.router.navigate([], {
       relativeTo: this.activatedRoute,
@@ -305,8 +310,39 @@ export class DashboardPage {
     ]);
   }
 
+  onExpensesClicked(): void {
+    this.currentActiveState = FooterState.EXPENSES;
+    this.router.navigate(
+      [
+        '/',
+        'enterprise',
+        'my_expenses',
+        {
+          navigate_back: true,
+        },
+      ],
+      { skipLocationChange: true, replaceUrl: true }
+    );
+  }
+
+  onReportsClicked(): void {
+    this.currentActiveState = FooterState.REPORTS;
+    this.router.navigate(
+      [
+        '/',
+        'enterprise',
+        'my_reports',
+        {
+          navigate_back: true,
+        },
+      ],
+      { skipLocationChange: true, replaceUrl: true }
+    );
+  }
+
   onHomeClicked(): void {
     this.currentStateIndex = 0;
+    this.currentActiveState = FooterState.HOME;
     const queryParams: Params = { state: 'home' };
     this.router.navigate([], {
       relativeTo: this.activatedRoute,
