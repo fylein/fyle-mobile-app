@@ -863,9 +863,9 @@ export class SplitExpensePage implements OnDestroy {
   }
 
   ionViewWillEnter(): void {
-    this.getRecentlySplitExpenses().subscribe((storedData) => {
-      if (storedData?.fromSplitExpenseReview && !this.isReviewModalOpen) {
-        this.openReviewSplitExpenseModal(storedData.expenses);
+    this.getRecentlySplitExpenses().subscribe((splitExpData) => {
+      if (splitExpData?.fromSplitExpenseReview && !this.isReviewModalOpen) {
+        this.openReviewSplitExpenseModal(splitExpData.expenses);
       } else {
         const currencyObj = JSON.parse(this.activatedRoute.snapshot.params.currencyObj as string) as CurrencyObj;
         const orgSettings$ = this.orgSettingsService.get();
@@ -1313,7 +1313,7 @@ export class SplitExpensePage implements OnDestroy {
         default: 'add_edit_expense',
       };
 
-      const category = expense?.category?.system_category ? expense.category.system_category.toLowerCase() : 'default';
+      const category = expense?.category?.system_category?.toLowerCase();
       const route = routeMap[category] || routeMap.default;
 
       this.router.navigate([
@@ -1342,7 +1342,7 @@ export class SplitExpensePage implements OnDestroy {
       showBackdrop: false,
     });
 
-    this.storeRecentlySplitExpenses({
+    this.setRecentlySplitExpenses({
       expenses: expense,
       fromSplitExpenseReview: true,
     });
@@ -1357,10 +1357,7 @@ export class SplitExpensePage implements OnDestroy {
     }
   }
 
-  private storeRecentlySplitExpenses(data: {
-    expenses: Partial<Transaction>[];
-    fromSplitExpenseReview: boolean;
-  }): void {
+  private setRecentlySplitExpenses(data: { expenses: Partial<Transaction>[]; fromSplitExpenseReview: boolean }): void {
     this.expensesService.splitExpensesData$.next(data);
   }
 

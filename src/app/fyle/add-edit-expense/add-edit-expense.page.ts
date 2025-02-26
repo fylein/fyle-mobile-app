@@ -5235,7 +5235,7 @@ export class AddEditExpensePage implements OnInit {
 
     const currentData = this.expensesService.splitExpensesData$.getValue();
 
-    if (currentData && currentData.expenses) {
+    if (currentData && currentData?.expenses) {
       const updatedExpenses = currentData.expenses.map((expense) =>
         expense.id === updatedExpense.id ? updatedExpense : expense
       );
