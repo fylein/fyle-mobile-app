@@ -10,35 +10,47 @@
 </ion-header>
 
 <ion-content scroll-y="false" class="no-keyboard-adjust">
-  <div class="approvers-list">
-    <div class="approver-item" *ngFor="let approval of approvals; index as i">
-      <div class="approver-item-container">
-        <div class="approver-step">
-          <div class="approver-step-number">{{ i + 1 }}</div>
-          <ion-icon [src]="'/assets/svg/line-default.svg'" slot="icon-only"></ion-icon>
+  <div class="show-all-approvers-popover__approvers-list">
+    <div class="show-all-approvers-popover__approver-item" *ngFor="let approval of approvals; index as i">
+      <div class="show-all-approvers-popover__approver-item-container">
+        <div class="show-all-approvers-popover__approver-step">
+          <div class="show-all-approvers-popover__approver-step-number">{{ i + 1 }}</div>
+          <ion-icon
+            *ngIf="i !== approvals.length - 1"
+            [src]="'/assets/svg/line-default.svg'"
+            slot="icon-only"
+          ></ion-icon>
         </div>
-        <div class="approver-details">
+        <div class="show-all-approvers-popover__approver-details">
           <div>
-            <div class="approver-name">{{ approval.approver_user.full_name }}</div>
-            <div class="approver-email">{{ approval.approver_user.email }}</div>
+            <div class="show-all-approvers-popover__approver-name">{{ approval.approver_user.full_name }}</div>
+            <div class="show-all-approvers-popover__approver-email">{{ approval.approver_user.email }}</div>
           </div>
-          <div class="approver-details__status">
+          <div class="show-all-approvers-popover__approver-details__status">
             <div
-              class="dot"
+              class="show-all-approvers-popover__dot"
               [ngClass]="{
-                dot__done: approval.state === approvalState.APPROVAL_DONE,
-                dot__pending: approval.state === approvalState.APPROVAL_PENDING
+                'show-all-approvers-popover__dot__done': approval.state === approvalState.APPROVAL_DONE,
+                'show-all-approvers-popover__dot__pending': approval.state === approvalState.APPROVAL_PENDING
               }"
             ></div>
-            <div *ngIf="approval.state === approvalState.APPROVAL_PENDING" class="approver-state-pending">
+            <div
+              *ngIf="approval.state === approvalState.APPROVAL_PENDING"
+              class="show-all-approvers-popover__approver-state-pending"
+            >
               Approval pending
             </div>
-            <div *ngIf="approval.state === approvalState.APPROVAL_DONE" class="approver-state-done">Approved</div>
+            <div
+              *ngIf="approval.state === approvalState.APPROVAL_DONE"
+              class="show-all-approvers-popover__approver-state-done"
+            >
+              Approved
+            </div>
           </div>
         </div>
       </div>
-      <div class="approver-item-line">
-        <ion-icon [src]="'/assets/svg/line-default.svg'" slot="icon-only"></ion-icon>
+      <div class="show-all-approvers-popover__approver-item-line">
+        <ion-icon *ngIf="i !== approvals.length - 1" [src]="'/assets/svg/line-default.svg'" slot="icon-only"></ion-icon>
       </div>
     </div>
   </div>
