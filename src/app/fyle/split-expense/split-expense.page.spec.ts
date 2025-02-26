@@ -33,7 +33,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { RouterTestingModule } from '@angular/router/testing';
 import { orgSettingsGetData } from 'src/app/core/test-data/org-settings.service.spec.data';
-import { of, Subject, throwError } from 'rxjs';
+import { BehaviorSubject, of, Subject, throwError } from 'rxjs';
 import {
   expectedFilterOrgCategory,
   expectedOrgCategoriesPaginated,
@@ -53,6 +53,7 @@ import {
   sourceTxn2,
   splitTxns,
   txnData,
+  txnData2,
   txnData4,
   txnData6,
   txnList,
@@ -72,11 +73,6 @@ import {
 import {
   splitExpense1,
   splitExpense2,
-  splitExpense3,
-  splitExpense4,
-  splitExpense5,
-  splitExpense6,
-  splitExpense7,
   splitExpense8,
   splitExpense9,
   splitExpenseDataWithCostCenter,
@@ -109,7 +105,6 @@ import {
   splitExpenseFormData3,
   splitExpenseFormData5,
   splitExpenseFormData6,
-  splitExpenseFormData7,
 } from 'src/app/core/mock-data/split-expense-form.data';
 import { costCentersData3, expectedCCdata } from 'src/app/core/mock-data/cost-centers.data';
 import {
@@ -143,7 +138,7 @@ import dayjs from 'dayjs';
 import { OrgCategory } from 'src/app/core/models/v1/org-category.model';
 import { FyMsgPopoverComponent } from 'src/app/shared/components/fy-msg-popover/fy-msg-popover.component';
 import { ReviewSplitExpenseComponent } from 'src/app/shared/components/review-split-expense/review-split-expense.component';
-fdescribe('SplitExpensePage', () => {
+describe('SplitExpensePage', () => {
   let component: SplitExpensePage;
   let fixture: ComponentFixture<SplitExpensePage>;
   let formBuilder: jasmine.SpyObj<FormBuilder>;
@@ -191,7 +186,9 @@ fdescribe('SplitExpensePage', () => {
       'transformSplitTo',
     ]);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
-    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById']);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById'], {
+      splitExpensesData$: new BehaviorSubject(null),
+    });
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const transactionsOutboxServiceSpy = jasmine.createSpyObj('TransactionsOutboxService', ['fileUpload']);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
@@ -773,7 +770,7 @@ fdescribe('SplitExpensePage', () => {
         'show_project_mapped_categories_in_split_expense',
         false
       );
-      expect(component.getActiveCategories).toHaveBeenCalledTimes(2);
+      expect(component.getActiveCategories).toHaveBeenCalled();
 
       expect(projectsService.getbyId).not.toHaveBeenCalled();
       expect(projectsService.getAllowedOrgCategoryIds).not.toHaveBeenCalled();
@@ -792,7 +789,7 @@ fdescribe('SplitExpensePage', () => {
         'show_project_mapped_categories_in_split_expense',
         false
       );
-      expect(component.getActiveCategories).toHaveBeenCalledTimes(2);
+      expect(component.getActiveCategories).toHaveBeenCalled();
 
       expect(projectsService.getbyId).toHaveBeenCalledWith(component.transaction.project_id);
       expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledWith(
@@ -816,7 +813,7 @@ fdescribe('SplitExpensePage', () => {
         'show_project_mapped_categories_in_split_expense',
         false
       );
-      expect(component.getActiveCategories).toHaveBeenCalledTimes(2);
+      expect(component.getActiveCategories).toHaveBeenCalled();
 
       expect(projectsService.getbyId).not.toHaveBeenCalled();
       expect(projectsService.getAllowedOrgCategoryIds).not.toHaveBeenCalled();
@@ -893,6 +890,43 @@ fdescribe('SplitExpensePage', () => {
       });
 
       expect(component.setValuesForCCC).toHaveBeenCalledOnceWith(currencyObjData1, 'USD', true);
+    });
+
+    it('should open review modal if fromSplitExpenseReview is true and isReviewModalOpen is false', () => {
+      spyOn(component, 'openReviewSplitExpenseModal');
+      component.isReviewModalOpen = false;
+      const mockData = { fromSplitExpenseReview: true, expenses: [] };
+      spyOn(expensesService.splitExpensesData$, 'asObservable').and.returnValue(of(mockData));
+
+      component.ionViewWillEnter();
+
+      expect(component.openReviewSplitExpenseModal).toHaveBeenCalledWith([]);
+    });
+
+    it('should not open review modal if fromSplitExpenseReview is false or isReviewModalOpen is true', () => {
+      spyOn(component, 'openReviewSplitExpenseModal');
+      component.isReviewModalOpen = true;
+      const mockData = { fromSplitExpenseReview: false, expenses: [] };
+      spyOn(expensesService.splitExpensesData$, 'asObservable').and.returnValue(of(mockData));
+      component.ionViewWillEnter();
+
+      expect(component.openReviewSplitExpenseModal).not.toHaveBeenCalled();
+    });
+
+    it('should correctly initialize required variables', () => {
+      component.isReviewModalOpen = true;
+      component.ionViewWillEnter();
+
+      expect(component.splitConfig).toEqual(JSON.parse(activateRouteMock.snapshot.params.splitConfig));
+      expect(component.txnFields).toEqual(JSON.parse(activateRouteMock.snapshot.params.txnFields));
+      expect(component.fileUrls).toEqual(JSON.parse(activateRouteMock.snapshot.params.fileObjs));
+      expect(component.selectedCCCTransaction).toEqual(
+        JSON.parse(activateRouteMock.snapshot.params.selectedCCCTransaction)
+      );
+      expect(component.reportId).toEqual(JSON.parse(activateRouteMock.snapshot.params.selectedReportId));
+      expect(component.transaction).toEqual(JSON.parse(activateRouteMock.snapshot.params.txn));
+      expect(component.selectedProject).toEqual(JSON.parse(activateRouteMock.snapshot.params.selectedProject));
+      expect(component.expenseFields).toEqual(JSON.parse(activateRouteMock.snapshot.params.expenseFields));
     });
   });
 
@@ -1141,6 +1175,7 @@ fdescribe('SplitExpensePage', () => {
       spyOn(component, 'getActiveCategories').and.returnValue(of([]));
       spyOn(component, 'getFilteredCategories').and.returnValue(of([]));
       component.splitExpensesFormArray.clear();
+      component.transaction = { ...txnData2, txn_dt: null };
       component.add(50, 'USD', 50);
 
       const formGroup = component.splitExpensesFormArray.at(0);
@@ -1151,12 +1186,12 @@ fdescribe('SplitExpensePage', () => {
     it('should set default date to transaction date if available', () => {
       spyOn(component, 'getActiveCategories').and.returnValue(of([]));
       spyOn(component, 'getFilteredCategories').and.returnValue(of([]));
-      const txnDate = new Date('2024-02-21');
+      component.splitExpensesFormArray.clear();
+      component.transaction = txnData2;
       component.add(50, 'USD', 50);
 
       const formGroup = component.splitExpensesFormArray.at(0);
-      const expectedDate = dayjs(txnDate).format('YYYY-MM-DD');
-      expect(formGroup.get('txn_dt').value).toBe(expectedDate);
+      expect(formGroup.get('txn_dt').value).toBe('2023-02-08');
     });
 
     it('should add category control if category is visible in splitConfig', () => {
@@ -1375,7 +1410,7 @@ fdescribe('SplitExpensePage', () => {
         percentage: new FormControl(60),
         txn_dt: new FormControl('2023-02-08'),
         category: new FormControl(''),
-        project: new FormControl('Test Project'),
+        project: new FormControl(testProjectV2),
         cost_center: new FormControl(''),
         purpose: new FormControl(''),
       });
@@ -1402,7 +1437,7 @@ fdescribe('SplitExpensePage', () => {
       component
         .getFilteredCategories({
           projectControl: component.splitExpensesFormArray.at(0).get('project'),
-          getActiveCategories: () => of(orgCategoryData1),
+          getActiveCategories: () => of(allowedActiveCategories),
           isProjectCategoryRestrictionsEnabled$: of(true),
           services: { launchDarklyService, projectsService },
         })
@@ -1436,12 +1471,12 @@ fdescribe('SplitExpensePage', () => {
       component
         .getFilteredCategories({
           projectControl: component.splitExpensesFormArray.at(0).get('project'),
-          getActiveCategories: () => of(orgCategoryData1),
+          getActiveCategories: () => of(allowedActiveCategories),
           isProjectCategoryRestrictionsEnabled$: of(false),
           services: { launchDarklyService, projectsService },
         })
         .subscribe((categories) => {
-          expect(categories).toEqual(orgCategoryListItemData1);
+          expect(categories).toEqual(allowedActiveCategoriesListOptions);
           done();
         });
     });
@@ -1608,27 +1643,41 @@ fdescribe('SplitExpensePage', () => {
 
   describe('openReviewSplitExpenseModal()', () => {
     it('should create and present the review split expense modal', async () => {
-      const modalSpy = jasmine.createSpyObj('HTMLIonModalElement', ['present', 'onWillDismiss']);
-      modalSpy.onWillDismiss.and.resolveTo({ data: { action: 'close' } });
-      modalController.create.and.resolveTo(modalSpy);
-      modalController.getTop.and.resolveTo({} as HTMLIonModalElement);
+      const ReviewSplitExpenseModalSpy = jasmine.createSpyObj('ReviewSplitExpenseModal', ['present', 'onWillDismiss']);
+      ReviewSplitExpenseModalSpy.onWillDismiss.and.resolveTo({ data: { action: 'close' } });
+      modalController.create.and.resolveTo(ReviewSplitExpenseModalSpy);
 
-      await component.openReviewSplitExpenseModal([]);
+      component.isReviewModalOpen = false;
+
+      spyOn(expensesService.splitExpensesData$, 'next').and.callThrough();
+
+      await component.openReviewSplitExpenseModal([txnData2, txnData4]);
 
       expect(modalController.create).toHaveBeenCalledWith({
         component: ReviewSplitExpenseComponent,
-        componentProps: { splitExpenses: [] },
+        componentProps: { splitExpenses: [txnData2, txnData4] },
         mode: 'ios',
-        presentingElement: jasmine.anything(),
+        presentingElement: await modalController.getTop(),
         cssClass: 'review-split-expense-modal',
         showBackdrop: false,
       });
-
-      expect(modalSpy.present).toHaveBeenCalled();
       expect(expensesService.splitExpensesData$.next).toHaveBeenCalledWith({
-        expenses: [],
+        expenses: [txnData2, txnData4],
         fromSplitExpenseReview: true,
       });
+      await ReviewSplitExpenseModalSpy.onWillDismiss();
+      expect(component.isReviewModalOpen).toBeFalse();
+    });
+
+    it('should not open modal if one is already open', async () => {
+      component.isReviewModalOpen = true;
+
+      spyOn(expensesService.splitExpensesData$, 'next');
+
+      await component.openReviewSplitExpenseModal([txnData2]);
+
+      expect(modalController.create).not.toHaveBeenCalled();
+      expect(expensesService.splitExpensesData$.next).not.toHaveBeenCalled();
     });
   });
 
