@@ -4087,6 +4087,7 @@ export class AddEditExpensePage implements OnInit {
         )
       ),
       switchMap((transaction) => {
+        this.updateRecentlySplitExpenses(transaction);
         if (
           transaction.corporate_credit_card_expense_group_id &&
           this.selectedCCCTransaction &&
@@ -5225,5 +5226,23 @@ export class AddEditExpensePage implements OnInit {
       return vendor;
     }
     return this.vendorOptions?.find((option) => option.toLowerCase() === vendor.toLowerCase()) || null;
+  }
+
+  private updateRecentlySplitExpenses(updatedExpense: Partial<Transaction>): void {
+    if (!this.activatedRoute.snapshot.params.fromSplitExpenseReview) {
+      return;
+    }
+
+    const currentData = this.expensesService.splitExpensesData$.getValue();
+
+    if (currentData && currentData.expenses) {
+      const updatedExpenses = currentData.expenses.map((expense) =>
+        expense.id === updatedExpense.id ? updatedExpense : expense
+      );
+      this.expensesService.splitExpensesData$.next({
+        ...currentData,
+        expenses: updatedExpenses,
+      });
+    }
   }
 }

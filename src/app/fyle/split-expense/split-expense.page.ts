@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, NavController, PopoverController } from '@ionic/angular';
 import { isEmpty, isNumber } from 'lodash';
 import * as dayjs from 'dayjs';
-import { BehaviorSubject, combineLatest, forkJoin, from, iif, Observable, of, Subject, throwError } from 'rxjs';
+import { combineLatest, forkJoin, from, iif, Observable, of, Subject, throwError } from 'rxjs';
 import { catchError, concatMap, finalize, map, shareReplay, startWith, switchMap, takeUntil } from 'rxjs/operators';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { DateService } from 'src/app/core/services/date.service';
@@ -132,10 +132,6 @@ export class SplitExpensePage implements OnDestroy {
   splitExpenseHeader: string;
 
   isReviewModalOpen = false;
-
-  private splitExpensesData$ = new BehaviorSubject<{ expenses: Transaction[]; fromSplitExpenseReview: boolean } | null>(
-    null
-  );
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -1320,11 +1316,16 @@ export class SplitExpensePage implements OnDestroy {
       const category = expense?.category?.system_category ? expense.category.system_category.toLowerCase() : 'default';
       const route = routeMap[category] || routeMap.default;
 
-      this.router.navigate(['/', 'enterprise', route, { id: expense.id, persist_filters: true }]);
+      this.router.navigate([
+        '/',
+        'enterprise',
+        route,
+        { id: expense.id, persist_filters: true, fromSplitExpenseReview: true },
+      ]);
     }
   }
 
-  async openReviewSplitExpenseModal(expense: Transaction[]): Promise<void> {
+  async openReviewSplitExpenseModal(expense: Partial<Transaction>[]): Promise<void> {
     if (this.isReviewModalOpen) {
       return;
     }
@@ -1356,16 +1357,22 @@ export class SplitExpensePage implements OnDestroy {
     }
   }
 
-  private storeRecentlySplitExpenses(data: { expenses: Transaction[]; fromSplitExpenseReview: boolean }): void {
-    this.splitExpensesData$.next(data);
+  private storeRecentlySplitExpenses(data: {
+    expenses: Partial<Transaction>[];
+    fromSplitExpenseReview: boolean;
+  }): void {
+    this.expensesService.splitExpensesData$.next(data);
   }
 
-  private getRecentlySplitExpenses(): Observable<{ expenses: Transaction[]; fromSplitExpenseReview: boolean } | null> {
-    return this.splitExpensesData$.asObservable();
+  private getRecentlySplitExpenses(): Observable<{
+    expenses: Partial<Transaction>[];
+    fromSplitExpenseReview: boolean;
+  } | null> {
+    return this.expensesService.splitExpensesData$.asObservable();
   }
 
   private clearRecentlySplitExpenses(): void {
-    this.splitExpensesData$.next(null);
+    this.expensesService.splitExpensesData$.next(null);
   }
 
   private setEvenSplit(
