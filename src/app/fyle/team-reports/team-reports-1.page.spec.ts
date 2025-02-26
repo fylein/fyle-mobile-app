@@ -9,7 +9,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { ApiV2Service } from 'src/app/core/services/api-v2.service';
+import { ExtendQueryParamsService } from 'src/app/core/services/extend-query-params.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { HeaderState } from 'src/app/shared/components/fy-header/header-state.enum';
@@ -42,7 +42,7 @@ export function TestCases1(getTestBed) {
     let currencyService: jasmine.SpyObj<CurrencyService>;
     let popupService: jasmine.SpyObj<PopupService>;
     let trackingService: jasmine.SpyObj<TrackingService>;
-    let apiV2Service: jasmine.SpyObj<ApiV2Service>;
+    let extendQueryParamsService: jasmine.SpyObj<ExtendQueryParamsService>;
     let tasksService: jasmine.SpyObj<TasksService>;
     let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
     let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
@@ -62,7 +62,7 @@ export function TestCases1(getTestBed) {
       popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
       activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
-      apiV2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
+      extendQueryParamsService = TestBed.inject(ExtendQueryParamsService) as jasmine.SpyObj<ExtendQueryParamsService>;
       tasksService = TestBed.inject(TasksService) as jasmine.SpyObj<TasksService>;
       orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
       approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
@@ -205,7 +205,7 @@ export function TestCases1(getTestBed) {
 
       it('should call approverReporsService.getReportsByParams and update acc', (done) => {
         mockAddNewFiltersToParams.and.returnValue(tasksQueryParamsWithFiltersData2);
-        apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
+        extendQueryParamsService.extendQueryParamsForTextSearch.and.returnValue({
           state: 'in.(APPROVER_PENDING)',
           next_approver_user_ids: 'cs.[usvKA4X8Ugcr]',
         });

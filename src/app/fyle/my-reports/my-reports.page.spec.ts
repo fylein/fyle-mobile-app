@@ -5,7 +5,7 @@ import { MyReportsPage } from './my-reports.page';
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ReportService } from 'src/app/core/services/report.service';
-import { ApiV2Service } from 'src/app/core/services/api-v2.service';
+import { ExtendQueryParamsService } from 'src/app/core/services/extend-query-params.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -92,7 +92,7 @@ describe('MyReportsPage', () => {
   let tasksService: jasmine.SpyObj<TasksService>;
   let currencyService: jasmine.SpyObj<CurrencyService>;
   let reportService: jasmine.SpyObj<ReportService>;
-  let apiV2Service: jasmine.SpyObj<ApiV2Service>;
+  let extendQueryParamsService: jasmine.SpyObj<ExtendQueryParamsService>;
   let expensesService: jasmine.SpyObj<ExpensesService>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
@@ -111,7 +111,9 @@ describe('MyReportsPage', () => {
     const tasksServiceSpy = jasmine.createSpyObj('TasksService', ['getReportsTaskCount']);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     const reportServiceSpy = jasmine.createSpyObj('ReportService', ['clearTransactionCache']);
-    const apiV2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['extendQueryParamsForTextSearch']);
+    const extendQueryParamsServiceSpy = jasmine.createSpyObj('ExtendQueryParamsService', [
+      'extendQueryParamsForTextSearch',
+    ]);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseStats']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
@@ -149,7 +151,7 @@ describe('MyReportsPage', () => {
         { provide: TasksService, useValue: tasksServiceSpy },
         { provide: CurrencyService, useValue: currencyServiceSpy },
         { provide: ReportService, useValue: reportServiceSpy },
-        { provide: ApiV2Service, useValue: apiV2ServiceSpy },
+        { provide: ExtendQueryParamsService, useValue: extendQueryParamsServiceSpy },
         { provide: ExpensesService, useValue: expensesServiceSpy },
         { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
         { provide: ActivatedRoute, useValue: activatedRouteSpy },
@@ -207,7 +209,7 @@ describe('MyReportsPage', () => {
     reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
     tasksService = TestBed.inject(TasksService) as jasmine.SpyObj<TasksService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
-    apiV2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
+    extendQueryParamsService = TestBed.inject(ExtendQueryParamsService) as jasmine.SpyObj<ExtendQueryParamsService>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
     dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
@@ -225,7 +227,7 @@ describe('MyReportsPage', () => {
   describe('ionViewWillEnter(): ', () => {
     it('should initialize component properties and load data', fakeAsync(() => {
       tasksService.getReportsTaskCount.and.returnValue(of(5));
-      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
+      extendQueryParamsService.extendQueryParamsForTextSearch.and.returnValue({
         state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
         q: 'example:*',
       });
@@ -355,7 +357,7 @@ describe('MyReportsPage', () => {
 
     it('should initialize component properties and load data when search string is empty', fakeAsync(() => {
       tasksService.getReportsTaskCount.and.returnValue(of(5));
-      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
+      extendQueryParamsService.extendQueryParamsForTextSearch.and.returnValue({
         state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
       });
       const homeCurrency = 'USD';
@@ -482,7 +484,7 @@ describe('MyReportsPage', () => {
 
     it('should initialize component properties and set simplifyReportsSetting$ to undefined if orgSetting$ is undefined', fakeAsync(() => {
       tasksService.getReportsTaskCount.and.returnValue(of(5));
-      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
+      extendQueryParamsService.extendQueryParamsForTextSearch.and.returnValue({
         state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
       });
       const homeCurrency = 'USD';
@@ -609,7 +611,7 @@ describe('MyReportsPage', () => {
 
     it('should initialize component properties and set simplifyReportsSetting$ to false if orgSetting$.payment_mode_setting.payment_modes_order is not defined', fakeAsync(() => {
       tasksService.getReportsTaskCount.and.returnValue(of(5));
-      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
+      extendQueryParamsService.extendQueryParamsForTextSearch.and.returnValue({
         state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
       });
       const homeCurrency = 'USD';
@@ -735,7 +737,7 @@ describe('MyReportsPage', () => {
 
     it('should initialize component properties and get report by order if sortParam and sortDir is defined, aggregates is empty array and simplified_report is enabled', fakeAsync(() => {
       tasksService.getReportsTaskCount.and.returnValue(of(5));
-      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
+      extendQueryParamsService.extendQueryParamsForTextSearch.and.returnValue({
         state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
       });
       const homeCurrency = 'USD';
@@ -854,7 +856,7 @@ describe('MyReportsPage', () => {
 
     it('should initialize component properties and load data if filters is defined in activatedRoute.snapshot', fakeAsync(() => {
       tasksService.getReportsTaskCount.and.returnValue(of(5));
-      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
+      extendQueryParamsService.extendQueryParamsForTextSearch.and.returnValue({
         state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
       });
       const homeCurrency = 'USD';
@@ -994,7 +996,7 @@ describe('MyReportsPage', () => {
 
     it('should initialize component properties and load data if state is defined in activatedRoute.snapshot', fakeAsync(() => {
       tasksService.getReportsTaskCount.and.returnValue(of(5));
-      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
+      extendQueryParamsService.extendQueryParamsForTextSearch.and.returnValue({
         state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
         q: 'example:*',
       });

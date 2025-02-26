@@ -30,7 +30,7 @@ import { linkedAccounts } from 'src/app/core/mock-data/personal-cards.data';
 import { selectedFilters1, selectedFilters2 } from 'src/app/core/mock-data/selected-filters.data';
 import { snackbarPropertiesRes6, snackbarPropertiesRes7 } from 'src/app/core/mock-data/snackbar-properties.data';
 import { apiToken } from 'src/app/core/mock-data/yoodle-token.data';
-import { ApiV2Service } from 'src/app/core/services/api-v2.service';
+import { ExtendQueryParamsService } from 'src/app/core/services/extend-query-params.service';
 import { InAppBrowserService } from 'src/app/core/services/in-app-browser.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
@@ -59,7 +59,7 @@ describe('PersonalCardsPage', () => {
   let matSnackBar: jasmine.SpyObj<MatSnackBar>;
   let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
   let modalController: jasmine.SpyObj<ModalController>;
-  let apiV2Service: jasmine.SpyObj<ApiV2Service>;
+  let extendQueryParamsService: jasmine.SpyObj<ExtendQueryParamsService>;
   let platform: jasmine.SpyObj<Platform>;
   let spinnerDialog: jasmine.SpyObj<SpinnerDialog>;
   let trackingService: jasmine.SpyObj<TrackingService>;
@@ -92,7 +92,9 @@ describe('PersonalCardsPage', () => {
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
-    const apiV2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['extendQueryParamsForTextSearch']);
+    const extendQueryParamsServiceSpy = jasmine.createSpyObj('ExtendQueryParamsService', [
+      'extendQueryParamsForTextSearch',
+    ]);
     const platformSpy = jasmine.createSpyObj('Platform', ['is']);
     const spinnerDialogSpy = jasmine.createSpyObj('SpinnerDialog', ['show', 'hide']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
@@ -167,8 +169,8 @@ describe('PersonalCardsPage', () => {
           useValue: modalControllerSpy,
         },
         {
-          provide: ApiV2Service,
-          useValue: apiV2ServiceSpy,
+          provide: ExtendQueryParamsService,
+          useValue: extendQueryParamsServiceSpy,
         },
         {
           provide: Platform,
@@ -200,7 +202,7 @@ describe('PersonalCardsPage', () => {
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
     snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
-    apiV2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
+    extendQueryParamsService = TestBed.inject(ExtendQueryParamsService) as jasmine.SpyObj<ExtendQueryParamsService>;
     platform = TestBed.inject(Platform) as jasmine.SpyObj<Platform>;
     spinnerDialog = TestBed.inject(SpinnerDialog) as jasmine.SpyObj<SpinnerDialog>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
@@ -979,14 +981,14 @@ describe('PersonalCardsPage', () => {
   });
 
   it('loadTransactionCount(): should load transaction count', (done) => {
-    apiV2Service.extendQueryParamsForTextSearch.and.returnValue({});
+    extendQueryParamsService.extendQueryParamsForTextSearch.and.returnValue({});
     personalCardsService.getBankTransactionsCount.and.returnValue(of(1));
 
     component.loadTransactionCount();
 
     component.transactionsCount$.subscribe((res) => {
       expect(res).toEqual(1);
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledTimes(1);
+      expect(extendQueryParamsService.extendQueryParamsForTextSearch).toHaveBeenCalledTimes(1);
       expect(personalCardsService.getBankTransactionsCount).toHaveBeenCalledTimes(1);
       done();
     });
@@ -1021,14 +1023,14 @@ describe('PersonalCardsPage', () => {
     it('should load personal cards txns with params', (done) => {
       activatedRoute.snapshot.queryParams.filters = JSON.stringify({});
       spyOn(component, 'addNewFiltersToParams').and.returnValue({});
-      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({});
+      extendQueryParamsService.extendQueryParamsForTextSearch.and.returnValue({});
       personalCardsService.getBankTransactionsCount.and.returnValue(of(1));
       personalCardsService.getBankTransactions.and.returnValue(of(platformPersonalCardTxns));
 
       component.loadPersonalTxns().subscribe((res) => {
         expect(res).toEqual(platformPersonalCardTxns.data);
         expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);
-        expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledTimes(1);
+        expect(extendQueryParamsService.extendQueryParamsForTextSearch).toHaveBeenCalledTimes(1);
         expect(personalCardsService.getBankTransactionsCount).toHaveBeenCalledTimes(1);
         expect(personalCardsService.getBankTransactions).toHaveBeenCalledTimes(1);
         done();
@@ -1042,7 +1044,7 @@ describe('PersonalCardsPage', () => {
 
       component.loadPersonalTxns().subscribe((res) => {
         expect(res).toEqual([]);
-        expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledTimes(1);
+        expect(extendQueryParamsService.extendQueryParamsForTextSearch).toHaveBeenCalledTimes(1);
         expect(personalCardsService.getBankTransactionsCount).toHaveBeenCalledTimes(1);
         expect(personalCardsService.getBankTransactions).not.toHaveBeenCalled();
         done();
