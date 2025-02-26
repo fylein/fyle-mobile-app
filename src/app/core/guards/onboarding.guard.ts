@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { CanActivate, Router, UrlTree } from '@angular/router';
+import { Router, UrlTree } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { catchError, finalize, map, switchMap } from 'rxjs/operators';
 import { SpenderOnboardingService } from '../services/spender-onboarding.service';
@@ -8,7 +8,7 @@ import { LoaderService } from '../services/loader.service';
 @Injectable({
   providedIn: 'root',
 })
-export class OnboardingGuard implements CanActivate {
+export class OnboardingGuard {
   constructor(
     private spenderOnboardingService: SpenderOnboardingService,
     private router: Router,
