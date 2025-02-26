@@ -52,6 +52,7 @@ import { SplitConfig } from 'src/app/core/models/split-config.model';
 import { ReviewSplitExpenseComponent } from 'src/app/shared/components/review-split-expense/review-split-expense.component';
 import { FyMsgPopoverComponent } from 'src/app/shared/components/fy-msg-popover/fy-msg-popover.component';
 import { SplittingExpenseProperties } from 'src/app/core/models/splitting-expense-properties.model';
+import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 
 @Component({
   selector: 'app-split-expense',
@@ -151,7 +152,8 @@ export class SplitExpensePage implements OnDestroy {
     private launchDarklyService: LaunchDarklyService,
     private projectsService: ProjectsService,
     private timezoneService: TimezoneService,
-    private expensesService: ExpensesService
+    private expensesService: ExpensesService,
+    private expenseFieldsService: ExpenseFieldsService
   ) {}
 
   ngOnDestroy(): void {
@@ -934,6 +936,7 @@ export class SplitExpensePage implements OnDestroy {
     );
 
     if (this.splitConfig.costCenter.is_visible) {
+      this.addCostCenterIdToTxnFields();
       this.costCenters$ = orgSettings$.pipe(
         switchMap((orgSettings) => {
           if (orgSettings.cost_centers.enabled) {
@@ -1334,6 +1337,18 @@ export class SplitExpensePage implements OnDestroy {
     if (data) {
       this.handleNavigationAfterReview(data.action, data.expense);
     }
+  }
+
+  private addCostCenterIdToTxnFields(): void {
+    if (this.txnFields.cost_center_id) {
+      return;
+    }
+    this.expenseFieldsService.getAllEnabled().subscribe((res: ExpenseField[]) => {
+      const costCenterField = res.find((field) => field.column_name === 'cost_center_id');
+      if (costCenterField) {
+        this.txnFields.cost_center_id = costCenterField;
+      }
+    });
   }
 
   private setEvenSplit(
