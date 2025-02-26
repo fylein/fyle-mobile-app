@@ -31,6 +31,7 @@
 @import 'swiper/scss';
 @import 'swiper/scss/navigation';
 @import 'swiper/scss/pagination';
+@import 'driver.js/dist/driver.css';
 
 $header-input-interior: #eeeeee;
 
@@ -1437,4 +1438,62 @@ ion-toggle.toggle-checked::before {
   .add-edit-per-diem--title__review {
     height: 74px !important;
   }
+}
+
+.driver-popover {
+  background-color: #2c304e;
+  color: white;
+  width: 224px;
+  height: 124px;
+  max-width: 260px;
+  box-shadow: none;
+}
+
+.driver-popover-arrow {
+  content: '';
+  position: absolute;
+  border: 5px solid #2c304e;
+}
+
+.driver-popover-arrow-side-top {
+  top: 100%;
+  border-right-color: transparent;
+  border-bottom-color: transparent;
+  border-left-color: transparent;
+}
+
+.driver-popover-description {
+  font-size: 12px;
+}
+
+.driver-popover-close-btn {
+  color: #a9acbc !important;
+  font-weight: normal;
+}
+
+.driver-popover-description {
+  padding-bottom: 10px;
+}
+
+.driver-popover-footer button {
+  background-color: transparent;
+}
+
+.driver-popover-prev-btn {
+  border: none !important;
+  color: white !important;
+  text-shadow: none !important;
+  opacity: 1 !important;
+}
+
+.driver-popover-next-btn {
+  background-color: white !important;
+  max-width: 50px !important;
+  min-width: 42px !important;
+  height: 28px !important;
+  text-align: center !important;
+}
+
+.driver-popover-progress-text {
+  color: #a9acbc;
 }

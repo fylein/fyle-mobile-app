@@ -32,7 +32,7 @@ import { FyOptInComponent } from 'src/app/shared/components/fy-opt-in/fy-opt-in.
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-
+import { driver, Driver, DriveStep } from 'driver.js';
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.page.html',
@@ -77,6 +77,8 @@ export class DashboardPage {
 
   isUserFromINCluster$: Observable<boolean>;
 
+  private driver: Driver;
+
   constructor(
     private currencyService: CurrencyService,
     private networkService: NetworkService,
@@ -115,6 +117,43 @@ export class DashboardPage {
 
   get filterPills(): FilterPill[] {
     return this.tasksComponent.filterPills;
+  }
+
+  initializeTour(): void {
+    this.driver = driver({
+      overlayOpacity: 0.75,
+      allowClose: true,
+      overlayClickBehavior: 'nextStep',
+      showProgress: true,
+      stageRadius: 8,
+      popoverClass: 'custom-popover',
+      doneBtnText: 'Ok',
+      nextBtnText: 'Next',
+      prevBtnText: 'Back',
+    });
+
+    const steps: DriveStep[] = [
+      {
+        element: '#tab-button-expenses',
+        popover: {
+          description: 'You can now access Expenses directly from the navigation bar.',
+          side: 'top',
+          align: 'start',
+          showButtons: ['next'],
+        },
+      },
+      {
+        element: '#tab-button-reports',
+        popover: {
+          description: 'You can now access Reports directly from the navigation bar.',
+          side: 'top',
+          align: 'end',
+        },
+      },
+    ];
+
+    this.driver.setSteps(steps);
+    this.driver.drive();
   }
 
   ionViewWillLeave(): void {
@@ -185,6 +224,7 @@ export class DashboardPage {
     this.setupNetworkWatcher();
     this.registerBackButtonAction();
     this.smartlookService.init();
+    this.initializeTour();
     this.taskCount = 0;
     const currentState =
       this.activatedRoute.snapshot.queryParams.state === 'tasks' ? DashboardState.tasks : DashboardState.home;
