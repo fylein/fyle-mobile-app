@@ -545,7 +545,7 @@ export class AddEditExpensePage implements OnInit {
   goBack(): void {
     if (
       this.activatedRoute.snapshot.params.persist_filters ||
-      this.activatedRoute.snapshot.params.fromSplitExpenseReview
+      this.activatedRoute.snapshot.params.isRedirectedFromReport
     ) {
       this.navController.back();
     } else {

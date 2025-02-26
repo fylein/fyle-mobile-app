@@ -1320,12 +1320,7 @@ export class SplitExpensePage implements OnDestroy {
       const category = expense?.category?.system_category ? expense.category.system_category.toLowerCase() : 'default';
       const route = routeMap[category] || routeMap.default;
 
-      this.router.navigate([
-        '/',
-        'enterprise',
-        route,
-        { id: expense.id, persist_filters: true, fromSplitExpenseReview: true },
-      ]);
+      this.router.navigate(['/', 'enterprise', route, { id: expense.id, persist_filters: true }]);
     }
   }
 
