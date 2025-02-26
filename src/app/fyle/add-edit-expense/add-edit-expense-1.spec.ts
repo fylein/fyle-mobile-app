@@ -252,11 +252,9 @@ export function TestCases1(getTestBed) {
 
     describe('goBack():', () => {
       it('should go back to the report if redirected from the report page', () => {
-        component.isRedirectedFromReport = true;
+        activatedRoute.snapshot.params.isRedirectedFromReport = true;
 
         fixture.detectChanges();
-
-        navController.back.and.returnValue(null);
         component.goBack();
         expect(navController.back).toHaveBeenCalledTimes(1);
       });

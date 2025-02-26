@@ -63,8 +63,6 @@ export class SplitExpensePage implements OnDestroy {
 
   fg: FormGroup;
 
-  splitType: string;
-
   splitConfig: SplitConfig;
 
   destroy$ = new Subject<void>();
@@ -537,17 +535,6 @@ export class SplitExpensePage implements OnDestroy {
     this.trackingService.showToastMessage({ ToastContent: message });
   }
 
-  getViolationName(index: number): string {
-    const splitExpenseFormValue = this.splitExpensesFormArray.at(index).value as SplitExpense;
-    if (this.splitType === 'projects') {
-      return splitExpenseFormValue.project.project_name;
-    } else if (this.splitType === 'cost centers') {
-      return splitExpenseFormValue.cost_center.name;
-    } else {
-      return splitExpenseFormValue.category.name;
-    }
-  }
-
   transformViolationData(etxns: Transaction[], violations: SplitExpensePolicy): { [id: number]: PolicyViolation } {
     const violationData: { [id: number]: PolicyViolation } = {};
     for (const [index, etxn] of etxns.entries()) {
@@ -556,8 +543,6 @@ export class SplitExpensePage implements OnDestroy {
         if (violations.hasOwnProperty(key)) {
           violationData[index].amount = etxn.orig_amount || etxn.amount;
           violationData[index].currency = etxn.orig_currency || etxn.currency;
-          violationData[index].name = this.getViolationName(index);
-          violationData[index].type = this.splitType;
           violationData[index].data = violations.data[index];
         }
       }
@@ -576,8 +561,6 @@ export class SplitExpensePage implements OnDestroy {
         if (mandatoryFields.hasOwnProperty(key)) {
           mandatoryFieldsData[index].amount = etxn.orig_amount || etxn.amount;
           mandatoryFieldsData[index].currency = etxn.orig_currency || etxn.currency;
-          mandatoryFieldsData[index].name = this.getViolationName(index);
-          mandatoryFieldsData[index].type = this.splitType;
           mandatoryFieldsData[index].data = mandatoryFields.data[index];
           break;
         }
@@ -750,9 +733,8 @@ export class SplitExpensePage implements OnDestroy {
 
   getSplitExpensePoperties(): SplittingExpenseProperties {
     return {
-      Type: this.splitType,
-      'Is Evenly Split': this.isEvenlySplit(),
       Asset: 'Mobile',
+      'Is Evenly Split': this.isEvenlySplit(),
       'Is part of report': !!this.reportId,
       'Report ID': this.reportId || null,
       'Expense State': this.transaction.state,
