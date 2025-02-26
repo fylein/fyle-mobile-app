@@ -110,6 +110,29 @@
           </ion-col>
         </ion-row>
       </ng-container>
+      <ng-container *ngIf="unapprovedTeamReportsStats$ | async">
+        <ion-row class="stats--report-stats-row" *ngIf="isConnected$ | async">
+          <ion-col class="stats--report-stats-col">
+            <div class="stats--header">
+              <span>Team expense reports</span>
+            </div>
+          </ion-col>
+        </ion-row>
+        <ion-row *ngIf="isConnected$ | async">
+          <ion-col class="stats--report-badge-col stats--report-badge-col__left stats--report-badge-col__top">
+            <app-stat-badge
+              [currency]="homeCurrency$ | async"
+              [currencySymbol]="currencySymbol$ | async"
+              [name]="'Approval pending'"
+              [reportState]="ReportStates.UNAPPROVED_TEAM_REPORTS"
+              [count]="(unapprovedTeamReportsStats$ | async)?.count"
+              [value]="(unapprovedTeamReportsStats$ | async)?.total_amount"
+              [loading]="isIncompleteExpensesStatsLoading"
+              (badgeClicked)="goToTeamReportsPage($event)"
+            ></app-stat-badge>
+          </ion-col>
+        </ion-row>
+      </ng-container>
 
       <ng-template #reportStatsLoading>
         <ion-row>

@@ -17,7 +17,8 @@ import {
 } from '../../core/mock-data/stats.data';
 import { DashboardService } from './dashboard.service';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
-import { ReportStates } from './stat-badge/report-states';
+import { ReportStates } from './stat-badge/report-states.enum';
+import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 
 describe('DashboardService', () => {
   let dashboardService: DashboardService;
@@ -25,12 +26,14 @@ describe('DashboardService', () => {
   let authService: jasmine.SpyObj<AuthService>;
   let apiV2Service: jasmine.SpyObj<ApiV2Service>;
   let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
+  let approverReportService: jasmine.SpyObj<ApproverReportsService>;
 
   beforeEach(() => {
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseStats']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const apiV2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['get', 'getStats']);
     const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', ['getReportsStats']);
+    const approverReportServiceSpy = jasmine.createSpyObj('ApproverReportsService', ['getReportsStats']);
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
       providers: [
@@ -52,6 +55,10 @@ describe('DashboardService', () => {
           provide: SpenderReportsService,
           useValue: spenderReportsServiceSpy,
         },
+        {
+          provide: ApproverReportsService,
+          useValue: approverReportServiceSpy,
+        },
       ],
     });
     dashboardService = TestBed.inject(DashboardService);
@@ -59,6 +66,7 @@ describe('DashboardService', () => {
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     apiV2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
     spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
+    approverReportService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
   });
 
   it('should be created', () => {

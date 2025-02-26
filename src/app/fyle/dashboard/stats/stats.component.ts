@@ -2,12 +2,12 @@ import { Component, EventEmitter, OnInit } from '@angular/core';
 import { DashboardService } from '../dashboard.service';
 import { Observable } from 'rxjs/internal/Observable';
 import { shareReplay } from 'rxjs/internal/operators/shareReplay';
-import { map, tap } from 'rxjs/operators';
+import { map, switchMap, tap } from 'rxjs/operators';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { Params, Router } from '@angular/router';
 import { NetworkService } from '../../../core/services/network.service';
-import { concat, forkJoin, Subject } from 'rxjs';
-import { ReportStates } from '../stat-badge/report-states';
+import { combineLatest, concat, forkJoin, of, Subject } from 'rxjs';
+import { ReportStates } from '../stat-badge/report-states.enum';
 import { getCurrencySymbol } from '@angular/common';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
@@ -40,6 +40,8 @@ export class StatsComponent implements OnInit {
   unreportedExpensesStats$: Observable<{ count: number; sum: number }>;
 
   incompleteExpensesStats$: Observable<{ count: number; sum: number }>;
+
+  unapprovedTeamReportsStats$: Observable<PlatformReportsStatsResponse>;
 
   isUnreportedExpensesStatsLoading = true;
 
@@ -134,6 +136,22 @@ export class StatsComponent implements OnInit {
     );
   }
 
+  initializeUnapprovedTeamReportsStats(): void {
+    this.unapprovedTeamReportsStats$ = combineLatest({
+      currentOrg: this.orgService.getCurrentOrg(),
+      primaryOrg: this.orgService.getPrimaryOrg(),
+    }).pipe(
+      switchMap(({ currentOrg, primaryOrg }) => {
+        const showTeamReportStats = currentOrg.id === primaryOrg.id;
+        if (showTeamReportStats) {
+          return this.dashboardService.getUnapprovedTeamReportsStats();
+        } else {
+          return of(null);
+        }
+      })
+    );
+  }
+
   trackOrgLaunchTime(isMultiOrg: boolean): void {
     if (performance.getEntriesByName(PerfTrackers.appLaunchTime)?.length < 1) {
       // Time taken for the app to launch and display the first screen
@@ -173,6 +191,7 @@ export class StatsComponent implements OnInit {
 
     that.initializeReportStats();
     that.initializeExpensesStats();
+    that.initializeUnapprovedTeamReportsStats();
 
     this.orgService.getOrgs().subscribe((orgs) => {
       const isMultiOrg = orgs?.length > 1;
@@ -222,6 +241,22 @@ export class StatsComponent implements OnInit {
         event: 'Clicked On Incomplete Expenses',
       });
     }
+  }
+
+  goToTeamReportsPage(state: ReportStates): void {
+    let reportState = state;
+    if (reportState === ReportStates.UNAPPROVED_TEAM_REPORTS) {
+      reportState = ReportStates.APPROVER_PENDING;
+    }
+    this.router.navigate(['/', 'enterprise', 'team_reports'], {
+      queryParams: {
+        filters: JSON.stringify({ state: [reportState.toString()] }),
+      },
+    });
+
+    this.trackingService.statsClicked({
+      event: 'Clicked On Unapproved Team Reports',
+    });
   }
 
   private trackDashboardLaunchTime(): void {

@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { ReportStates } from './report-states';
+import { ReportStates } from './report-states.enum';
 
 @Component({
   selector: 'app-stat-badge',

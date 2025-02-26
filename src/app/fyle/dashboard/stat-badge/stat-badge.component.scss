@@ -60,7 +60,8 @@
     }
 
     &__incomplete,
-    &__approver_pending {
+    &__approver_pending,
+    &__unapproved_team_reports {
       background-color: map-get($fdl-state-bg-map, 'submitted');
       color: map-get($fdl-state-color-map, 'submitted');
     }
