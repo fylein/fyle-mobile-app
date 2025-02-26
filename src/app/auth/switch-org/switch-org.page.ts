@@ -12,7 +12,7 @@ import { StorageService } from 'src/app/core/services/storage.service';
 import { OrgService } from 'src/app/core/services/org.service';
 import { UserEventService } from 'src/app/core/services/user-event.service';
 import { globalCacheBusterNotifier } from 'ts-cacheable';
-import * as Sentry from '@sentry/angular';
+import * as Sentry from '@sentry/angular-ivy';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { DeviceService } from 'src/app/core/services/device.service';
