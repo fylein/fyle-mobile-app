@@ -244,12 +244,13 @@ export class StatsComponent implements OnInit {
   }
 
   goToTeamReportsPage(state: ReportStates): void {
-    if (state === ReportStates.UNAPPROVED_TEAM_REPORTS) {
-      state = ReportStates.APPROVER_PENDING;
+    let reportState = state;
+    if (reportState === ReportStates.UNAPPROVED_TEAM_REPORTS) {
+      reportState = ReportStates.APPROVER_PENDING;
     }
     this.router.navigate(['/', 'enterprise', 'team_reports'], {
       queryParams: {
-        filters: JSON.stringify({ state: [state.toString()] }),
+        filters: JSON.stringify({ state: [reportState.toString()] }),
       },
     });
 
