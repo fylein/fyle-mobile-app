@@ -118,7 +118,9 @@
                 </app-fy-approver>
               </div>
             </div>
-            <div class="view-reports--view-approvers" (click)="openViewApproverModal()">View all</div>
+            <div *ngIf="showViewApproverModal" class="view-reports--view-approvers" (click)="openViewApproverModal()">
+              View all
+            </div>
           </div>
           <div *ngFor="let approver of approvals">
             <div class="view-reports--approvers-list">

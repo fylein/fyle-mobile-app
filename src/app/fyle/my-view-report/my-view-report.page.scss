@@ -5,6 +5,27 @@
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
   }
 
+  &--view-approvers {
+    display: flex;
+    padding: 0;
+    justify-content: center;
+    align-items: center;
+    gap: 2px;
+    border-radius: 4px;
+    color: $blue-black;
+    text-align: center;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 18px;
+    text-decoration-line: underline;
+    text-decoration-style: solid;
+    text-decoration-skip-ink: none;
+    text-decoration-thickness: auto;
+    text-underline-offset: auto;
+    text-underline-position: from-font;
+  }
+
   &--btn-container {
     &__btn {
       color: $black-light;
@@ -257,6 +278,9 @@
     color: $black-light;
     padding: 18px 10px 0;
     margin-top: 6px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
   }
 
   &--approvers-list {

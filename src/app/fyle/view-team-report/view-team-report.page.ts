@@ -133,6 +133,8 @@ export class ViewTeamReportPage {
 
   approveReportLoader = false;
 
+  showViewApproverModal = false;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
@@ -157,6 +159,12 @@ export class ViewTeamReportPage {
   ) {}
 
   ionViewWillLeave(): void {
+    this.launchDarklyService
+      .getVariation('show_multi_stage_approval_flow', false)
+      .pipe(take(1))
+      .subscribe((showViewApproverModal) => {
+        this.showViewApproverModal = showViewApproverModal;
+      });
     this.onPageExit.next(null);
   }
 

@@ -99,7 +99,12 @@
       <div class="view-reports--approvers-wrapper">
         <div class="view-reports--approvers-section" *ngIf="(report.state !== 'DRAFT')">
           <div *ngIf="report.approvals.length > 0" class="view-reports--approval-state-block">
-            <div class="view-reports--approvers">Approvers</div>
+            <div class="view-reports--approvers">
+              Approvers
+              <div *ngIf="showViewApproverModal" class="view-reports--view-approvers" (click)="openViewApproverModal()">
+                View all
+              </div>
+            </div>
             <div *ngFor="let approver of report.approvals">
               <div class="view-reports--approvers-list">
                 <div class="smartlook-hide">{{ approver.approver_user.full_name }}</div>

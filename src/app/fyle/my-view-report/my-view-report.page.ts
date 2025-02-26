@@ -38,6 +38,9 @@ import { ExtendedComment } from 'src/app/core/models/platform/v1/extended-commen
 import { Comment } from 'src/app/core/models/platform/v1/comment.model';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
 import * as Sentry from '@sentry/angular';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { ShowAllApproversPopoverComponent } from 'src/app/shared/components/fy-approver/show-all-approvers-popover/show-all-approvers-popover.component';
+import { ReportApprovals } from 'src/app/core/models/platform/report-approvals.model';
 
 @Component({
   selector: 'app-my-view-report',
@@ -115,6 +118,10 @@ export class MyViewReportPage {
 
   submitReportLoader = false;
 
+  showViewApproverModal = true;
+
+  approvals: ReportApprovals[];
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
@@ -132,7 +139,9 @@ export class MyViewReportPage {
     private statusService: StatusService,
     private orgSettingsService: OrgSettingsService,
     private platformHandlerService: PlatformHandlerService,
-    private spenderReportsService: SpenderReportsService
+    private spenderReportsService: SpenderReportsService,
+    private launchDarklyService: LaunchDarklyService,
+    private orgSubscription
   ) {}
 
   get Segment(): typeof ReportPageSegment {
@@ -237,6 +246,7 @@ export class MyViewReportPage {
       ),
       map((report) => {
         this.setupComments(report);
+        this.approvals = report.approvals;
         return report;
       }),
       shareReplay(1)
@@ -332,6 +342,22 @@ export class MyViewReportPage {
       Time_spent: this.timeSpentOnEditingReportName,
       Roles: this.eou?.ou.roles,
     });
+  }
+
+  async openViewApproverModal(): Promise<void> {
+    const viewApproversModal = await this.popoverController.create({
+      component: ShowAllApproversPopoverComponent,
+      componentProps: {
+        approvals: this.approvals,
+      },
+      cssClass: 'fy-dialog-popover',
+      backdropDismiss: false,
+    });
+
+    await viewApproversModal.present();
+    await viewApproversModal.onWillDismiss();
+
+    this.trackingService.eventTrack('All approvers modal closed', { view: ExpenseView.team });
   }
 
   showReportNameChangeSuccessToast(): void {
