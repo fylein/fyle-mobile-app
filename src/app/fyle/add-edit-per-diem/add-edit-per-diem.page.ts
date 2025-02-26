@@ -32,9 +32,9 @@ import {
 } from 'rxjs/operators';
 import {
   AbstractControl,
-  FormArray,
-  FormBuilder,
-  FormGroup,
+  UntypedFormArray,
+  UntypedFormBuilder,
+  UntypedFormGroup,
   ValidationErrors,
   ValidatorFn,
   Validators,
@@ -69,7 +69,7 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { FyPolicyViolationComponent } from 'src/app/shared/components/fy-policy-violation/fy-policy-violation.component';
@@ -145,7 +145,7 @@ export class AddEditPerDiemPage implements OnInit {
 
   homeCurrency$: Observable<string>;
 
-  fg: FormGroup;
+  fg: UntypedFormGroup;
 
   minDate: string;
 
@@ -257,7 +257,7 @@ export class AddEditPerDiemPage implements OnInit {
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private dateService: DateService,
     private accountsService: AccountsService,
     private customInputsService: CustomInputsService,
@@ -824,7 +824,7 @@ export class AddEditPerDiemPage implements OnInit {
         this.isConnected$.pipe(
           take(1),
           map((isConnected) => {
-            const customFieldsFormArray = this.fg.controls.custom_inputs as FormArray;
+            const customFieldsFormArray = this.fg.controls.custom_inputs as UntypedFormArray;
             customFieldsFormArray.clear();
             for (const customField of customFields) {
               customFieldsFormArray.push(
@@ -963,7 +963,7 @@ export class AddEditPerDiemPage implements OnInit {
       report: [],
       from_dt: [],
       to_dt: [, this.customDateValidator.bind(this)],
-      custom_inputs: new FormArray([]),
+      custom_inputs: new UntypedFormArray([]),
       billable: [],
       costCenter: [],
       project_dependent_fields: this.fb.array([]),

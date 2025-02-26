@@ -2,7 +2,10 @@ import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angul
 import { IonicModule } from '@ionic/angular';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
-import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
+import {
+  MatLegacyChipInputEvent as MatChipInputEvent,
+  MatLegacyChipsModule as MatChipsModule,
+} from '@angular/material/legacy-chips';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { ModalController } from '@ionic/angular';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
@@ -17,7 +20,7 @@ import {
   filteredDataRes,
   searchedUserListRes,
 } from 'src/app/core/mock-data/employee.data';
-import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatLegacyCheckboxModule as MatCheckboxModule } from '@angular/material/legacy-checkbox';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
 import { Employee } from 'src/app/core/models/spender/employee.model';
 import { By } from '@angular/platform-browser';

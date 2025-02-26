@@ -1,7 +1,7 @@
 import { TitleCasePipe } from '@angular/common';
 import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
-import { FormArray, FormBuilder, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { UntypedFormArray, UntypedFormBuilder, Validators } from '@angular/forms';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
@@ -96,7 +96,7 @@ export function TestCases6(getTestBed) {
     let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
     let accountsService: jasmine.SpyObj<AccountsService>;
     let authService: jasmine.SpyObj<AuthService>;
-    let formBuilder: FormBuilder;
+    let formBuilder: UntypedFormBuilder;
     let categoriesService: jasmine.SpyObj<CategoriesService>;
     let dateService: jasmine.SpyObj<DateService>;
     let projectsService: jasmine.SpyObj<ProjectsService>;
@@ -156,7 +156,7 @@ export function TestCases6(getTestBed) {
       activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
       accountsService = TestBed.inject(AccountsService) as jasmine.SpyObj<AccountsService>;
       authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-      formBuilder = TestBed.inject(FormBuilder);
+      formBuilder = TestBed.inject(UntypedFormBuilder);
       categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
       dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
       reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
@@ -225,7 +225,7 @@ export function TestCases6(getTestBed) {
         bus_travel_class: [],
         distance: [],
         distance_unit: [],
-        custom_inputs: new FormArray([]),
+        custom_inputs: new UntypedFormArray([]),
         billable: [],
         costCenter: [],
         hotel_is_breakfast_provided: [],
@@ -703,27 +703,6 @@ export function TestCases6(getTestBed) {
       });
     });
 
-    describe('getTxnDate():', () => {
-      it('should get txn date', () => {
-        dateService.getUTCDate.and.returnValue(null);
-        component.fg.controls.dateOfSpend.setValue({
-          acc: {
-            type: AccountType.PERSONAL,
-          },
-        });
-
-        const result = component.getTxnDate();
-        expect(result).toBeNull();
-      });
-
-      it('should return null', () => {
-        setFormValueNull();
-
-        const result = component.getTxnDate();
-        expect(result).toBeUndefined();
-      });
-    });
-
     describe('getCurrency():', () => {
       it('should get currency', () => {
         component.fg.controls.currencyObj.setValue({
@@ -1029,7 +1008,7 @@ export function TestCases6(getTestBed) {
         setFormValueNull();
 
         const result = component.getTxnDate();
-        expect(result).toBeUndefined();
+        expect(result).toBeNull();
       });
     });
 
