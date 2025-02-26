@@ -25,8 +25,19 @@ export class StatBadgeComponent {
 
   @Output() badgeClicked = new EventEmitter();
 
-  // To track if the screen is small (396px or below)
-  isSmallScreen = window.innerWidth <= 396;
+  screenWidth: number = window.innerWidth;
+
+  // TODO: This approach based on screen size evaluation needs to be fixed
+  get shouldDisplayExact(): boolean {
+    if (this.screenWidth > 396) {
+      return this.value >= -999999 && this.value <= 9999999;
+    } else if (this.screenWidth > 370) {
+      // covers screenWidth between 371 and 396
+      return this.value >= -99999 && this.value <= 999999;
+    } else {
+      return false;
+    }
+  }
 
   onBadgeClicked(): void {
     if (!this.loading) {

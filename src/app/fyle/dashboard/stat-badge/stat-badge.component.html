@@ -42,10 +42,10 @@
               <ion-col class="stat-badge--grid-col">
                 <div *ngIf="!loading" class="stat-badge--amount">
                   {{ currencySymbol
-                  }}<ng-container *ngIf="!isSmallScreen && value > -10000000 && value < 10000000; else humanize">{{
+                  }}<ng-container *ngIf="shouldDisplayExact; else humanize">{{
                     { value: value, currencyCode: currency, skipSymbol: true } | exactCurrency
-                  }}</ng-container
-                  ><ng-template #humanize>{{ value | humanizeCurrency : currency : true }}</ng-template>
+                  }}</ng-container>
+                  <ng-template #humanize>{{ value | humanizeCurrency : currency : true }}</ng-template>
                 </div>
                 <div *ngIf="loading">
                   <ion-skeleton-text
