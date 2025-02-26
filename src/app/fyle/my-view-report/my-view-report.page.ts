@@ -118,7 +118,7 @@ export class MyViewReportPage {
 
   submitReportLoader = false;
 
-  showViewApproverModal = true;
+  showViewApproverModal = false;
 
   approvals: ReportApprovals[];
 
@@ -140,8 +140,7 @@ export class MyViewReportPage {
     private orgSettingsService: OrgSettingsService,
     private platformHandlerService: PlatformHandlerService,
     private spenderReportsService: SpenderReportsService,
-    private launchDarklyService: LaunchDarklyService,
-    private orgSubscription
+    private launchDarklyService: LaunchDarklyService
   ) {}
 
   get Segment(): typeof ReportPageSegment {
@@ -165,6 +164,12 @@ export class MyViewReportPage {
 
   ionViewWillLeave(): void {
     this.hardwareBackButtonAction.unsubscribe();
+    this.launchDarklyService
+      .getVariation('show_multi_stage_approval_flow', false)
+      .pipe(take(1))
+      .subscribe((showViewApproverModal) => {
+        this.showViewApproverModal = showViewApproverModal;
+      });
     this.onPageExit.next(null);
   }
 
