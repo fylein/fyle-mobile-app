@@ -543,7 +543,10 @@ export class AddEditExpensePage implements OnInit {
   }
 
   goBack(): void {
-    if (this.activatedRoute.snapshot.params.persist_filters || this.isRedirectedFromReport) {
+    if (
+      this.activatedRoute.snapshot.params.persist_filters ||
+      this.activatedRoute.snapshot.params.isRedirectedFromReport
+    ) {
       this.navController.back();
     } else {
       if (this.mode === 'add') {
@@ -3731,7 +3734,6 @@ export class AddEditExpensePage implements OnInit {
   saveExpense(): void {
     const that = this;
     const formValues = this.getFormValues();
-
     forkJoin({
       invalidPaymentMode: that.checkIfInvalidPaymentMode().pipe(take(1)),
       isReceiptMissingAndMandatory: that.checkIfReceiptIsMissingAndMandatory('SAVE_EXPENSE'),
@@ -3817,7 +3819,7 @@ export class AddEditExpensePage implements OnInit {
         if (that.mode === 'add') {
           that.addExpense('SAVE_AND_PREV_EXPENSE').subscribe(() => {
             if (+this.activeIndex === 0) {
-              that.closeAddEditExpenses();
+              that.goBack();
             } else {
               that.goToPrev();
             }
@@ -3826,7 +3828,7 @@ export class AddEditExpensePage implements OnInit {
           // to do edit
           that.editExpense('SAVE_AND_PREV_EXPENSE').subscribe(() => {
             if (+this.activeIndex === 0) {
-              that.closeAddEditExpenses();
+              that.goBack();
             } else {
               that.goToPrev();
             }
@@ -3845,7 +3847,7 @@ export class AddEditExpensePage implements OnInit {
         if (that.mode === 'add') {
           that.addExpense('SAVE_AND_NEXT_EXPENSE').subscribe(() => {
             if (+this.activeIndex === this.reviewList.length - 1) {
-              that.closeAddEditExpenses();
+              that.goBack();
             } else {
               that.goToNext();
             }
@@ -3854,7 +3856,7 @@ export class AddEditExpensePage implements OnInit {
           // to do edit
           that.editExpense('SAVE_AND_NEXT_EXPENSE').subscribe(() => {
             if (+this.activeIndex === this.reviewList.length - 1) {
-              that.closeAddEditExpenses();
+              that.goBack();
             } else {
               that.goToNext();
             }
@@ -4085,6 +4087,7 @@ export class AddEditExpensePage implements OnInit {
         )
       ),
       switchMap((transaction) => {
+        this.updateRecentlySplitExpenses(transaction);
         if (
           transaction.corporate_credit_card_expense_group_id &&
           this.selectedCCCTransaction &&
@@ -4397,10 +4400,6 @@ export class AddEditExpensePage implements OnInit {
         this.triggerNpsSurvey();
       })
     );
-  }
-
-  closeAddEditExpenses(): void {
-    this.router.navigate(['/', 'enterprise', 'my_expenses']);
   }
 
   async getParsedReceipt(base64Image: string, fileType: string): Promise<ParsedReceipt> {
@@ -5227,5 +5226,23 @@ export class AddEditExpensePage implements OnInit {
       return vendor;
     }
     return this.vendorOptions?.find((option) => option.toLowerCase() === vendor.toLowerCase()) || null;
+  }
+
+  private updateRecentlySplitExpenses(updatedExpense: Partial<Transaction>): void {
+    if (!this.activatedRoute.snapshot.params.fromSplitExpenseReview) {
+      return;
+    }
+
+    const currentData = this.expensesService.splitExpensesData$.getValue();
+
+    if (currentData && currentData.expenses) {
+      const updatedExpenses = currentData.expenses.map((expense) =>
+        expense.id === updatedExpense.id ? updatedExpense : expense
+      );
+      this.expensesService.splitExpensesData$.next({
+        ...currentData,
+        expenses: updatedExpenses,
+      });
+    }
   }
 }
