@@ -51,31 +51,19 @@ export class DashboardService {
       );
   }
 
-  getUnapprovedTeamReportsStats(showTeamReportStats: Boolean): Observable<PlatformReportsStatsResponse> {
-    if (showTeamReportStats) {
-      return from(this.authService.getEou()).pipe(
-        switchMap((eou) => {
-          if (eou.ou.roles.includes('APPROVER')) {
-            return this.approverReportsService.getReportsStats({
-              next_approver_user_ids: `cs.[${eou.us.id}]`,
-              state: `eq.${ReportStates.APPROVER_PENDING}`,
-            });
-          }
-          const zeroResponse: PlatformReportsStatsResponse = {
-            count: 0,
-            failed_amount: null,
-            failed_count: null,
-            processing_amount: 0,
-            processing_count: 0,
-            reimbursable_amount: 0,
-            total_amount: 0,
-          };
-          return of(zeroResponse);
-        })
-      );
-    } else {
-      return of(null);
-    }
+  getUnapprovedTeamReportsStats(): Observable<PlatformReportsStatsResponse> {
+    return from(this.authService.getEou()).pipe(
+      switchMap((eou) => {
+        if (eou.ou.roles.includes('APPROVER')) {
+          return this.approverReportsService.getReportsStats({
+            next_approver_user_ids: `cs.[${eou.us.id}]`,
+            state: `eq.${ReportStates.APPROVER_PENDING}`,
+          });
+        } else {
+          return of(null);
+        }
+      })
+    );
   }
 
   getReportsStats(): Observable<ReportStats> {

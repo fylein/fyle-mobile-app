@@ -6,7 +6,7 @@ import { map, switchMap, tap } from 'rxjs/operators';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { Params, Router } from '@angular/router';
 import { NetworkService } from '../../../core/services/network.service';
-import { combineLatest, concat, forkJoin, Subject } from 'rxjs';
+import { combineLatest, concat, forkJoin, of, Subject } from 'rxjs';
 import { ReportStates } from '../stat-badge/report-states.enum';
 import { getCurrencySymbol } from '@angular/common';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -143,7 +143,11 @@ export class StatsComponent implements OnInit {
     }).pipe(
       switchMap(({ currentOrg, primaryOrg }) => {
         const showTeamReportStats = currentOrg.id === primaryOrg.id;
-        return this.dashboardService.getUnapprovedTeamReportsStats(showTeamReportStats);
+        if (showTeamReportStats) {
+          return this.dashboardService.getUnapprovedTeamReportsStats();
+        } else {
+          return of(null);
+        }
       })
     );
   }
