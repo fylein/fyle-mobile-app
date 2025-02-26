@@ -17,13 +17,11 @@ export class ExtendQueryParamsService {
       return queryParams;
     }
 
-    const textArray = simpleSearchText.split(/(\s+)/).filter((word) => word.trim().length > 0);
-    const lastElement = textArray[textArray.length - 1];
-    const arrayWithoutLastElement = textArray.slice(0, -1);
+    const searchWords = simpleSearchText.split(/(\s+)/).filter((word) => word.trim().length > 0);
+    const lastWord = searchWords[searchWords.length - 1];
+    const arrayWithoutLastWord = searchWords.slice(0, -1);
 
-    const searchQuery = arrayWithoutLastElement
-      .reduce((curr, agg) => `${agg} & ${curr}`, '')
-      .concat(`${lastElement}:*`);
+    const searchQuery = arrayWithoutLastWord.reduce((curr, agg) => `${agg} & ${curr}`, '').concat(`${lastWord}:*`);
 
     return Object.assign({}, queryParams, { q: searchQuery });
   }
