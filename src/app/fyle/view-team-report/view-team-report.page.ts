@@ -161,12 +161,6 @@ export class ViewTeamReportPage {
   ) {}
 
   ionViewWillLeave(): void {
-    this.launchDarklyService
-      .getVariation('show_multi_stage_approval_flow', false)
-      .pipe(take(1))
-      .subscribe((showViewApproverModal) => {
-        this.showViewApproverModal = showViewApproverModal;
-      });
     this.onPageExit.next(null);
   }
 
@@ -283,6 +277,12 @@ export class ViewTeamReportPage {
     this.isExpensesLoading = true;
     this.setupNetworkWatcher();
 
+    this.launchDarklyService
+      .getVariation('show_multi_stage_approval_flow', false)
+      .pipe(take(1))
+      .subscribe((showViewApproverModal) => {
+        this.showViewApproverModal = showViewApproverModal;
+      });
     const navigateBack = this.activatedRoute.snapshot.params?.navigate_back as string | null;
     if (navigateBack && typeof navigateBack == 'string') {
       this.navigateBack = JSON.parse(navigateBack) as boolean;

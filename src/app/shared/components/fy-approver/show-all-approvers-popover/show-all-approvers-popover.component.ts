@@ -1,8 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { ModalController, PopoverController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular';
 import { ApprovalState } from 'src/app/core/models/platform/approval-state.enum';
 import { ReportApprovals } from 'src/app/core/models/platform/report-approvals.model';
-import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
 @Component({
   selector: 'app-show-all-approvers-popover',
@@ -14,11 +13,7 @@ export class ShowAllApproversPopoverComponent implements OnInit {
 
   approvalState: typeof ApprovalState = ApprovalState;
 
-  constructor(
-    private modalController: ModalController,
-    private modalProperties: ModalPropertiesService,
-    private popoverController: PopoverController
-  ) {}
+  constructor(private popoverController: PopoverController) {}
 
   ngOnInit(): void {
     if (this.approvals) {

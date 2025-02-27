@@ -264,8 +264,10 @@ export class MyViewReportPage {
       ),
       map((report) => {
         this.setupComments(report);
-        this.approvals = report.approvals;
-        this.setupApproverToShow(report);
+        this.approvals = report?.approvals;
+        if (this.approvals) {
+          this.setupApproverToShow(report);
+        }
         return report;
       }),
       shareReplay(1)
