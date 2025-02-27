@@ -119,7 +119,70 @@ export class DashboardPage {
     return this.tasksComponent.filterPills;
   }
 
-  initializeTour(): void {
+  setNavbarWalkthroughConfig(): void {
+    this.trackingService.eventTrack('Dashboard Walkthrough Started');
+    const featureConfigParams = {
+      feature: 'DASHBOARD_NAVBAR_WALKTHROUGH',
+      key: 'SHOW_NAVBAR_WALKTHROUGH',
+    };
+
+    this.featureConfigService
+      .getConfiguration(featureConfigParams)
+      .pipe(
+        switchMap((config) => {
+          const featureConfigValue = config?.value as { shownCount?: number; finishCount?: number };
+          const shownCount = featureConfigValue?.shownCount || 0;
+          const finishCount = featureConfigValue?.finishCount || 0;
+
+          const newConfigValue = {
+            shownCount: shownCount + 1,
+            finishCount,
+          };
+
+          const newConfig = {
+            ...featureConfigParams,
+            value: newConfigValue,
+          };
+
+          return this.featureConfigService.saveConfiguration(newConfig);
+        })
+      )
+      .subscribe(noop);
+  }
+
+  setNavbarWalkthroughCompleted(): void {
+    this.trackingService.eventTrack('Dashboard Walkthrough Completed');
+    const featureConfigParams = {
+      feature: 'DASHBOARD_NAVBAR_WALKTHROUGH',
+      key: 'SHOW_NAVBAR_WALKTHROUGH',
+    };
+
+    this.featureConfigService
+      .getConfiguration(featureConfigParams)
+      .pipe(
+        switchMap((config) => {
+          const featureConfigValue = config?.value as { shownCount?: number; finishCount?: number };
+          const shownCount = featureConfigValue?.shownCount || 0;
+          const finishCount = featureConfigValue?.finishCount || 0;
+
+          const newConfigValue = {
+            shownCount,
+            finishCount: finishCount + 1,
+          };
+
+          const newConfig = {
+            ...featureConfigParams,
+            value: newConfigValue,
+          };
+
+          return this.featureConfigService.saveConfiguration(newConfig);
+        })
+      )
+      .subscribe(noop);
+  }
+
+  initializeTour(isApprover: Boolean): void {
+    this.setNavbarWalkthroughConfig();
     this.driver = driver({
       overlayOpacity: 0.75,
       allowClose: true,
@@ -130,16 +193,27 @@ export class DashboardPage {
       doneBtnText: 'Ok',
       nextBtnText: 'Next',
       prevBtnText: 'Back',
+      onDestroyed: () => {
+        this.setNavbarWalkthroughCompleted();
+      },
     });
 
     const steps: DriveStep[] = [
+      {
+        element: '#footer-walkthrough',
+        popover: {
+          description: 'You can now access Expenses directly from the navigation bar.',
+          side: 'top',
+          align: 'center',
+          showButtons: ['next'],
+        },
+      },
       {
         element: '#tab-button-expenses',
         popover: {
           description: 'You can now access Expenses directly from the navigation bar.',
           side: 'top',
           align: 'start',
-          showButtons: ['next'],
         },
       },
       {
@@ -152,8 +226,46 @@ export class DashboardPage {
       },
     ];
 
+    if (isApprover) {
+      steps.push({
+        element: '#approval-pending-stat',
+        popover: {
+          description: 'Now you can view your team expense report data on home page',
+          side: 'top',
+          align: 'center',
+        },
+      });
+    }
+
     this.driver.setSteps(steps);
     this.driver.drive();
+  }
+
+  setShowNavbarWalkthrough(): void {
+    let isApprover = false;
+    this.eou$
+      .pipe(
+        map((eou) => {
+          isApprover = eou.ou.roles.includes('APPROVER');
+        })
+      )
+      .subscribe(noop);
+
+    const showNavbarWalkthroughConfig = {
+      feature: 'DASHBOARD_NAVBAR_WALKTHROUGH',
+      key: 'SHOW_NAVBAR_WALKTHROUGH',
+    };
+
+    this.featureConfigService.getConfiguration(showNavbarWalkthroughConfig).subscribe((config) => {
+      const featureConfigValue = config?.value as { shownCount?: number; finishCount?: number };
+      const finishCount = featureConfigValue?.finishCount || 0;
+
+      if (finishCount < 1) {
+        setTimeout(() => {
+          this.initializeTour(isApprover);
+        }, 1000);
+      }
+    });
   }
 
   ionViewWillLeave(): void {
@@ -224,7 +336,6 @@ export class DashboardPage {
     this.setupNetworkWatcher();
     this.registerBackButtonAction();
     this.smartlookService.init();
-    this.initializeTour();
     this.taskCount = 0;
     const currentState =
       this.activatedRoute.snapshot.queryParams.state === 'tasks' ? DashboardState.tasks : DashboardState.home;
@@ -244,6 +355,7 @@ export class DashboardPage {
     this.isUserFromINCluster$ = from(this.utilityService.isUserFromINCluster());
 
     this.setShowOptInBanner();
+    this.setShowNavbarWalkthrough();
 
     const openSMSOptInDialog = this.activatedRoute.snapshot.params.openSMSOptInDialog as string;
     if (openSMSOptInDialog === 'true') {
