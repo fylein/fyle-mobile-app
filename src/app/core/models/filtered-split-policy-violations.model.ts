@@ -8,6 +8,7 @@ export interface FilteredSplitPolicyViolations {
     final_desired_state: FinalExpensePolicyState;
   };
   type: string;
+  inputFieldInfo?: { [key: string]: string };
   name: string;
   currency: string;
   amount: number;
