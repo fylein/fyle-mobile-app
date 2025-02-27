@@ -84,7 +84,7 @@ import { UtilityService } from 'src/app/core/services/utility.service';
 import { FeatureConfigService } from 'src/app/core/services/platform/v1/spender/feature-config.service';
 import * as dayjs from 'dayjs';
 import { ExpensesQueryParams } from 'src/app/core/models/platform/v1/expenses-query-params.model';
-import { ApiV2Service } from 'src/app/core/services/api-v2.service';
+import { ExtendQueryParamsService } from 'src/app/core/services/extend-query-params.service';
 import { FooterState } from 'src/app/shared/components/footer/footer-state.enum';
 
 @Component({
@@ -238,7 +238,7 @@ export class MyExpensesPage implements OnInit {
     private authService: AuthService,
     private utilityService: UtilityService,
     private featureConfigService: FeatureConfigService,
-    private apiV2Service: ApiV2Service
+    private extendQueryParamsService: ExtendQueryParamsService
   ) {}
 
   get HeaderState(): typeof HeaderState {
@@ -584,7 +584,7 @@ export class MyExpensesPage implements OnInit {
         queryParams.state = 'in.(COMPLETE,DRAFT)';
 
         if (params.searchString) {
-          queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
+          queryParams = this.extendQueryParamsService.extendQueryParamsForTextSearch(queryParams, params.searchString);
         } else if (params.searchString === '') {
           delete queryParams.q;
         }

@@ -294,7 +294,7 @@ export class MyProfilePage {
           this.orgUserSettings.expense_form_autofills.allowed,
       },
       {
-        title: 'Default Currency',
+        title: 'Default currency',
         content: 'Select the default currency to be used for creating expenses.',
         key: 'defaultCurrency',
         defaultCurrency: this.orgUserSettings.currency_settings.preferred_currency,
@@ -310,10 +310,10 @@ export class MyProfilePage {
 
     const allInfoCardsData: InfoCardData[] = [
       {
-        title: 'Email Receipts',
+        title: 'Email receipts',
         content: `Forward your receipts to Fyle at ${fyleEmail}.`,
         contentToCopy: fyleEmail,
-        toastMessageContent: 'Email Copied Successfully',
+        toastMessageContent: 'Email copied successfully',
         isShown: true,
       },
     ];
@@ -350,7 +350,7 @@ export class MyProfilePage {
     const verificationSuccessfulPopover = await this.popoverController.create({
       component: PopupWithBulletsComponent,
       componentProps: {
-        title: 'Verification Successful',
+        title: 'Verification successful',
         listHeader: 'Now you can:',
         listItems,
         ctaText: 'Got it',
@@ -546,14 +546,14 @@ export class MyProfilePage {
 
   async updateMobileNumber(eou: ExtendedOrgUser): Promise<void> {
     this.trackingService.updateMobileNumberClicked({
-      popoverTitle: (eou.ou.mobile?.length ? 'Edit' : 'Add') + ' Mobile Number',
+      popoverTitle: (eou.ou.mobile?.length ? 'Edit' : 'Add') + ' mobile number',
     });
 
     const updateMobileNumberPopover = await this.popoverController.create({
       component: UpdateMobileNumberComponent,
       componentProps: {
-        title: (eou.ou.mobile?.length ? 'Edit' : 'Add') + ' Mobile Number',
-        inputLabel: 'Mobile Number',
+        title: (eou.ou.mobile?.length ? 'Edit' : 'Add') + ' mobile number',
+        inputLabel: 'Mobile number',
         extendedOrgUser: eou,
         placeholder: 'Enter mobile number e.g. +129586736556',
       },

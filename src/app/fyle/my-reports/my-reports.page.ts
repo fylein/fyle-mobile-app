@@ -9,7 +9,7 @@ import { ModalController, PopoverController } from '@ionic/angular';
 import { DateService } from 'src/app/core/services/date.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { TrackingService } from '../../core/services/tracking.service';
-import { ApiV2Service } from 'src/app/core/services/api-v2.service';
+import { ExtendQueryParamsService } from 'src/app/core/services/extend-query-params.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { HeaderState } from '../../shared/components/fy-header/header-state.enum';
 import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
@@ -102,7 +102,7 @@ export class MyReportsPage {
     private activatedRoute: ActivatedRoute,
     private popoverController: PopoverController,
     private trackingService: TrackingService,
-    private apiV2Service: ApiV2Service,
+    private extendQueryParamsService: ExtendQueryParamsService,
     private tasksService: TasksService,
     private modalController: ModalController,
     private orgSettingsService: OrgSettingsService,
@@ -161,7 +161,7 @@ export class MyReportsPage {
         let queryParams = params.queryParams || {
           state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
         };
-        queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
+        queryParams = this.extendQueryParamsService.extendQueryParamsForTextSearch(queryParams, params.searchString);
         const orderByParams =
           params.sortParam && params.sortDir ? `${params.sortParam}.${params.sortDir}` : 'created_at.desc,id.desc';
         this.isLoadingDataInInfiniteScroll = true;
@@ -199,7 +199,7 @@ export class MyReportsPage {
         let queryParams = params.queryParams || {
           state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
         };
-        queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
+        queryParams = this.extendQueryParamsService.extendQueryParamsForTextSearch(queryParams, params.searchString);
         this.isLoadingDataInInfiniteScroll = true;
         return this.spenderReportsService.getReportsCount(queryParams);
       }),

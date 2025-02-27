@@ -4,7 +4,7 @@ import { getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 import { ExactCurrencyPipe } from 'src/app/shared/pipes/exact-currency.pipe';
-import { ReportStates } from './report-states';
+import { ReportStates } from './report-states.enum';
 
 import { StatBadgeComponent } from './stat-badge.component';
 
