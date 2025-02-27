@@ -1102,9 +1102,6 @@ describe('SplitExpensePage', () => {
           updated_at: undefined,
         },
       };
-
-      // spyOn(component, 'getActiveCategories').and.returnValue(of([]));
-      // spyOn(component, 'getFilteredCategories').and.returnValue(of([]));
     });
 
     afterEach(() => {
@@ -1549,14 +1546,11 @@ describe('SplitExpensePage', () => {
         purpose: new FormControl(null),
       });
 
-      const validCategory = categorieListRes[0]; // Ensure we're using the correct object structure
+      const validCategory = categorieListRes[0];
       splitExpenseForm1.get('category').setValue(validCategory.value);
 
       component.resetInvalidCategoryIfNotAllowed(splitExpenseForm1);
-
-      // Simulate value change
       splitExpenseForm1.get('category').updateValueAndValidity();
-
       expect(splitExpenseForm1.get('category').value).toEqual(jasmine.objectContaining({ id: 129140 }));
     });
   });
@@ -2933,27 +2927,6 @@ describe('SplitExpensePage', () => {
         expect(res).toEqual({ action: 'continue', comments: null });
         done();
       });
-    });
-  });
-
-  xit('transformViolationData(): should return amount, type, currency and violation data', () => {
-    const etxn = cloneDeep([txnData4]);
-    // spyOn(component, 'getViolationName').and.returnValue('Food');
-    const mockPolicyViolation = cloneDeep(splitPolicyExp1);
-
-    const res = component.transformViolationData(etxn, mockPolicyViolation);
-    expect(res).toEqual({
-      '0': policyViolationData5,
-    });
-  });
-
-  xit('transformMandatoryFieldsData(): should return amount, type, currency and missing fields data', () => {
-    const etxn = cloneDeep([txnData4]);
-    const mockMissingFields = cloneDeep(SplitExpenseMissingFieldsData);
-
-    const res = component.transformMandatoryFieldsData(etxn, mockMissingFields);
-    expect(res).toEqual({
-      '0': transformedSplitExpenseMissingFieldsData2,
     });
   });
 
