@@ -178,6 +178,7 @@ export class TeamReportsPage implements OnInit {
             offset: (params.pageNumber - 1) * 10,
             limit: 10,
             ...queryParams,
+            or: `(next_approver_user_ids.cs.[${eou.us.id}], state.in.(APPROVED,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID))`,
             order: orderByParams,
           });
         }),
