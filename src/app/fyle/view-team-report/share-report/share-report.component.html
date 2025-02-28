@@ -18,9 +18,9 @@
       />
     </mat-form-field>
   </div>
-  <div class="share-report--validation" *ngIf="emailInput.touched && emailInput.invalid">
-    Please enter a valid email
-  </div>
+  @if (emailInput.touched && emailInput.invalid) {
+  <div class="share-report--validation">Please enter a valid email</div>
+  }
   <div class="share-report--primary-cta">
     <button [disabled]="email.trim().length === 0" mat-flat-button color="primary" (click)="shareReport(emailInput)">
       PULL BACK

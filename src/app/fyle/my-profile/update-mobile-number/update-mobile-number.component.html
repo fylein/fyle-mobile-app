@@ -28,7 +28,9 @@
     [maxlength]="15"
     [minlength]="7"
   />
-  <span *ngIf="error?.length" class="update-mobile-number--input-container__error">{{ error }}</span>
+  @if (error?.length) {
+  <span class="update-mobile-number--input-container__error">{{ error }}</span>
+  }
   <ion-buttons class="update-mobile-number--cta">
     <ion-button
       (click)="saveValue()"

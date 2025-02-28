@@ -8,34 +8,36 @@
             Add your mobile number to keep your profile information updated.
           </div>
         </div>
-        <span *ngIf="!mobileNumber" class="mobile-number-card__add-btn">Add</span>
+        @if (!mobileNumber) {
+        <span class="mobile-number-card__add-btn">Add</span>
+        }
       </div>
 
-      <ng-container *ngIf="mobileNumber">
-        <div class="mobile-number-card__divider"></div>
-        <div class="mobile-number-card__mobile">
-          <span class="mobile-number-card__mobile__text">Mobile number</span>
-          <div class="mobile-number-card__mobile__number-container">
-            <span>
-              {{ mobileNumber }}
-            </span>
-            <span>
-              <ion-icon
-                (click)="editMobileNumber()"
-                src="../../../../assets/svg/edit.svg"
-                slot="icon-only"
-                class="fy-icon mobile-number-card__mobile__edit-icon"
-              ></ion-icon>
-              <ion-icon
-                (click)="deleteMobileNumber()"
-                src="../../../../assets/svg/bin.svg"
-                slot="icon-only"
-                class="fy-icon mobile-number-card__mobile__delete-icon"
-              ></ion-icon>
-            </span>
-          </div>
+      @if (mobileNumber) {
+      <div class="mobile-number-card__divider"></div>
+      <div class="mobile-number-card__mobile">
+        <span class="mobile-number-card__mobile__text">Mobile number</span>
+        <div class="mobile-number-card__mobile__number-container">
+          <span>
+            {{ mobileNumber }}
+          </span>
+          <span>
+            <ion-icon
+              (click)="editMobileNumber()"
+              src="../../../../assets/svg/edit.svg"
+              slot="icon-only"
+              class="fy-icon mobile-number-card__mobile__edit-icon"
+            ></ion-icon>
+            <ion-icon
+              (click)="deleteMobileNumber()"
+              src="../../../../assets/svg/bin.svg"
+              slot="icon-only"
+              class="fy-icon mobile-number-card__mobile__delete-icon"
+            ></ion-icon>
+          </span>
         </div>
-      </ng-container>
+      </div>
+      }
     </div>
   </div>
 </ng-container>

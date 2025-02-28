@@ -21,79 +21,76 @@
 
     <div class="timeline--timeline route-selector-modal--timeline">
       <ng-container formArrayName="mileageLocations">
-        <ng-container *ngFor="let control of mileageLocations.controls; index as i; first as isFirst; last as isLast">
+        @for (control of mileageLocations.controls; track control; let i = $index; let isFirst = $first; let isLast =
+        $last) {
+        <div
+          class="timeline--timeline-item"
+          [ngClass]="{
+            'timeline--timeline-item__invalid': control.touched && !control.valid,
+            'timeline--timeline-item__internal-item': i > 1 && !isLast,
+            'timeline--timeline-item__first': isFirst,
+            'timeline--timeline-item__last': isLast,
+            'timeline--timeline-item__middle': !(isFirst || isLast)
+          }"
+        >
           <div
-            class="timeline--timeline-item"
+            class="timeline--timeline-item-internal"
             [ngClass]="{
-              'timeline--timeline-item__invalid': control.touched && !control.valid,
-              'timeline--timeline-item__internal-item': i > 1 && !isLast,
-              'timeline--timeline-item__first': isFirst,
-              'timeline--timeline-item__last': isLast,
-              'timeline--timeline-item__middle': !(isFirst || isLast)
+              'timeline--timeline-item-internal__first': isFirst,
+              'timeline--timeline-item-internal__last': isLast
             }"
           >
-            <div
-              class="timeline--timeline-item-internal"
-              [ngClass]="{
-                'timeline--timeline-item-internal__first': isFirst,
-                'timeline--timeline-item-internal__last': isLast
-              }"
+            <app-fy-location
+              class="route-selector-modal--location"
+              [formControlName]="i"
+              [label]="isFirst ? 'Start' : isLast ? 'Destination' : control.value ? 'Stop ' + i : 'Stop ' + i"
+              [mandatory]="mileageConfig.location_mandatory"
+              [hideSuffix]="true"
+              [cacheName]="isFirst ? 'routeFirstElement' : 'routeOtherElements'"
+              [recentLocations]="
+                isFirst
+                  ? recentlyUsedMileageLocations?.recent_start_locations
+                  : isLast
+                  ? recentlyUsedMileageLocations?.recent_end_locations
+                  : recentlyUsedMileageLocations?.recent_locations
+              "
+              [touchedInParent]="control.touched"
+              [validInParent]="control.valid"
             >
-              <app-fy-location
-                class="route-selector-modal--location"
-                [formControlName]="i"
-                [label]="isFirst ? 'Start' : isLast ? 'Destination' : control.value ? 'Stop ' + i : 'Stop ' + i"
-                [mandatory]="mileageConfig.location_mandatory"
-                [hideSuffix]="true"
-                [cacheName]="isFirst ? 'routeFirstElement' : 'routeOtherElements'"
-                [recentLocations]="
-                  isFirst
-                    ? recentlyUsedMileageLocations?.recent_start_locations
-                    : isLast
-                    ? recentlyUsedMileageLocations?.recent_end_locations
-                    : recentlyUsedMileageLocations?.recent_locations
-                "
-                [touchedInParent]="control.touched"
-                [validInParent]="control.valid"
-              >
-              </app-fy-location>
-              <span
-                *ngIf="
-                  i >= 1 && (i !== mileageLocations.controls.length - 1 || mileageLocations.controls.length === 10)
-                "
-              >
-                <mat-icon (click)="removeMileageLocation(i)" class="route-selector-modal--remove-stop" svgIcon="bin">
-                </mat-icon>
-              </span>
-              <span *ngIf="i === mileageLocations.controls.length - 1 && mileageLocations.controls.length !== 10">
-                <mat-icon svgIcon="plus-square" (click)="addMileageLocation()" class="route-selector-modal--add-stop">
-                </mat-icon>
-              </span>
-            </div>
-
-            <div
-              *ngIf="control.touched && !control.valid"
-              class="route-selector-modal--error"
-              [ngClass]="{ 'route-selector-modal--error__first': isFirst, 'route-selector-modal--error__last': isLast }"
-            >
-              Please select location
-            </div>
+            </app-fy-location>
+            @if ( i >= 1 && (i !== mileageLocations.controls.length - 1 || mileageLocations.controls.length === 10) ) {
+            <span>
+              <mat-icon (click)="removeMileageLocation(i)" class="route-selector-modal--remove-stop" svgIcon="bin">
+              </mat-icon>
+            </span>
+            } @if (i === mileageLocations.controls.length - 1 && mileageLocations.controls.length !== 10) {
+            <span>
+              <mat-icon svgIcon="plus-square" (click)="addMileageLocation()" class="route-selector-modal--add-stop">
+              </mat-icon>
+            </span>
+            }
           </div>
-        </ng-container>
+          @if (control.touched && !control.valid) {
+          <div
+            class="route-selector-modal--error"
+            [ngClass]="{ 'route-selector-modal--error__first': isFirst, 'route-selector-modal--error__last': isLast }"
+          >
+            Please select location
+          </div>
+          }
+        </div>
+        }
       </ng-container>
     </div>
 
-    <app-fy-alert-info
-      *ngIf="mileageLocations.controls.length === 10"
-      [message]="'You can add a maximum of 10 locations'"
-      [type]="'information'"
-    >
-    </app-fy-alert-info>
-
-    <div class="route-selector-modal--internal-block" *ngIf="mileageLocations.controls.length < 3">
+    @if (mileageLocations.controls.length === 10) {
+    <app-fy-alert-info [message]="'You can add a maximum of 10 locations'" [type]="'information'"> </app-fy-alert-info>
+    } @if (mileageLocations.controls.length < 3) {
+    <div class="route-selector-modal--internal-block">
       <mat-checkbox formControlName="roundTrip">
         <span class="route-selector-modal--checkbox"> Round trip </span>
       </mat-checkbox>
     </div>
+    }
   </div>
 </ion-content>

@@ -1,5 +1,7 @@
 <ion-header mode="md">
-  <mat-icon *ngIf="isIos" class="fy-modal-top-bar" svgIcon="notch"></mat-icon>
+  @if (isIos) {
+  <mat-icon class="fy-modal-top-bar" svgIcon="notch"></mat-icon>
+  }
   <ion-toolbar mode="md" class="text-center fy-modal-toolbar expense-preview--toolbar">
     <ion-buttons slot="start">
       <ion-button (click)="closeModal()">
@@ -8,110 +10,104 @@
     </ion-buttons>
     <ion-title>
       <div class="expense-preview--toolbar__title">
-        <ng-container *ngIf="type === 'match'"> Confirm matching expense </ng-container>
-        <ng-container *ngIf="type === 'edit'"> View matching expense </ng-container>
+        @if (type === 'match') { Confirm matching expense } @if (type === 'edit') { View matching expense }
       </div>
     </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <ng-container *ngIf="expenseDetails$ | async as expenseDetails; else shimmers">
-    <ion-grid class="expense-preview--body-container">
-      <ion-row class="expense-preview--body-container__content">
-        <ion-col size="5">
-          <div class="expense-preview--body-container__title">Expense Id</div>
-        </ion-col>
-        <ion-col size="7" (click)="editExpense()">
-          <div class="expense-preview--body-container__value expense-preview--link">
-            {{ expenseDetails.seq_num }}
-          </div>
-        </ion-col>
-      </ion-row>
-      <ion-row class="expense-preview--body-container__content">
-        <ion-col size="5">
-          <div class="expense-preview--body-container__title">Amount</div>
-        </ion-col>
-        <ion-col size="7">
-          <div class="expense-preview--body-container__value">
-            {{ expenseDetails.amount | currency : expenseDetails.currency : 'symbol-narrow' }}
-          </div>
-        </ion-col>
-      </ion-row>
-      <ion-row class="expense-preview--body-container__content">
-        <ion-col size="5">
-          <div class="expense-preview--body-container__title">Created date</div>
-        </ion-col>
-        <ion-col size="7">
-          <div class="expense-preview--body-container__value">
-            {{ expenseDetails.created_at | date : 'MMM dd, YYYY' }}
-          </div>
-        </ion-col>
-      </ion-row>
-      <ion-row class="expense-preview--body-container__content">
-        <ion-col size="5">
-          <div class="expense-preview--body-container__title">Spent date</div>
-        </ion-col>
-        <ion-col size="7">
-          <div class="expense-preview--body-container__value">
-            {{ expenseDetails.spent_at | date : 'MMM dd, YYYY' }}
-          </div>
-        </ion-col>
-      </ion-row>
-      <ion-row class="expense-preview--body-container__content">
-        <ion-col size="5">
-          <div class="expense-preview--body-container__title">Merchant</div>
-        </ion-col>
-        <ion-col size="7">
-          <div class="expense-preview--body-container__value">
-            {{ expenseDetails.merchant }}
-            <ng-container *ngIf="!expenseDetails.merchant">-</ng-container>
-          </div>
-        </ion-col>
-      </ion-row>
-      <ion-row class="expense-preview--body-container__content">
-        <ion-col size="5">
-          <div class="expense-preview--body-container__title">Category</div>
-        </ion-col>
-        <ion-col size="7">
-          <div class="expense-preview--body-container__value">
-            {{ expenseDetails.category?.name }}
-          </div>
-        </ion-col>
-      </ion-row>
-      <ion-row class="expense-preview--body-container__content">
-        <ion-col size="5">
-          <div class="expense-preview--body-container__title">Card ending in...</div>
-        </ion-col>
-        <ion-col size="7">
-          <div class="expense-preview--body-container__value">
-            {{ card }}
-          </div>
-        </ion-col>
-      </ion-row>
-      <ion-row class="expense-preview--body-container__content">
-        <ion-col size="5">
-          <div class="expense-preview--body-container__title">Receipt</div>
-        </ion-col>
-        <ion-col size="7">
-          <div class="expense-preview--body-container__value">
-            <ng-container *ngIf="!expenseDetails.file_ids?.length"
-              >Not attached
-              <ion-icon
-                [src]="'assets/svg/attachment-none.svg'"
-                class="expense-preview--icon"
-                slot="icon-only"
-              ></ion-icon>
-            </ng-container>
-            <ng-container *ngIf="expenseDetails.file_ids?.length"
-              >Attached
-              <ion-icon [src]="'assets/svg/attachment.svg'" class="expense-preview--icon" slot="icon-only"></ion-icon>
-            </ng-container>
-          </div>
-        </ion-col>
-      </ion-row>
-    </ion-grid>
-  </ng-container>
+  @if (expenseDetails$ | async; as expenseDetails) {
+  <ion-grid class="expense-preview--body-container">
+    <ion-row class="expense-preview--body-container__content">
+      <ion-col size="5">
+        <div class="expense-preview--body-container__title">Expense Id</div>
+      </ion-col>
+      <ion-col size="7" (click)="editExpense()">
+        <div class="expense-preview--body-container__value expense-preview--link">
+          {{ expenseDetails.seq_num }}
+        </div>
+      </ion-col>
+    </ion-row>
+    <ion-row class="expense-preview--body-container__content">
+      <ion-col size="5">
+        <div class="expense-preview--body-container__title">Amount</div>
+      </ion-col>
+      <ion-col size="7">
+        <div class="expense-preview--body-container__value">
+          {{ expenseDetails.amount | currency : expenseDetails.currency : 'symbol-narrow' }}
+        </div>
+      </ion-col>
+    </ion-row>
+    <ion-row class="expense-preview--body-container__content">
+      <ion-col size="5">
+        <div class="expense-preview--body-container__title">Created date</div>
+      </ion-col>
+      <ion-col size="7">
+        <div class="expense-preview--body-container__value">
+          {{ expenseDetails.created_at | date : 'MMM dd, YYYY' }}
+        </div>
+      </ion-col>
+    </ion-row>
+    <ion-row class="expense-preview--body-container__content">
+      <ion-col size="5">
+        <div class="expense-preview--body-container__title">Spent date</div>
+      </ion-col>
+      <ion-col size="7">
+        <div class="expense-preview--body-container__value">
+          {{ expenseDetails.spent_at | date : 'MMM dd, YYYY' }}
+        </div>
+      </ion-col>
+    </ion-row>
+    <ion-row class="expense-preview--body-container__content">
+      <ion-col size="5">
+        <div class="expense-preview--body-container__title">Merchant</div>
+      </ion-col>
+      <ion-col size="7">
+        <div class="expense-preview--body-container__value">
+          {{ expenseDetails.merchant }}
+          @if (!expenseDetails.merchant) { - }
+        </div>
+      </ion-col>
+    </ion-row>
+    <ion-row class="expense-preview--body-container__content">
+      <ion-col size="5">
+        <div class="expense-preview--body-container__title">Category</div>
+      </ion-col>
+      <ion-col size="7">
+        <div class="expense-preview--body-container__value">
+          {{ expenseDetails.category?.name }}
+        </div>
+      </ion-col>
+    </ion-row>
+    <ion-row class="expense-preview--body-container__content">
+      <ion-col size="5">
+        <div class="expense-preview--body-container__title">Card ending in...</div>
+      </ion-col>
+      <ion-col size="7">
+        <div class="expense-preview--body-container__value">
+          {{ card }}
+        </div>
+      </ion-col>
+    </ion-row>
+    <ion-row class="expense-preview--body-container__content">
+      <ion-col size="5">
+        <div class="expense-preview--body-container__title">Receipt</div>
+      </ion-col>
+      <ion-col size="7">
+        <div class="expense-preview--body-container__value">
+          @if (!expenseDetails.file_ids?.length) { Not attached
+          <ion-icon [src]="'assets/svg/attachment-none.svg'" class="expense-preview--icon" slot="icon-only"></ion-icon>
+          } @if (expenseDetails.file_ids?.length) { Attached
+          <ion-icon [src]="'assets/svg/attachment.svg'" class="expense-preview--icon" slot="icon-only"></ion-icon>
+          }
+        </div>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+  } @else {
+  <app-expense-preview-shimmer> </app-expense-preview-shimmer>
+  }
 
   <!-- shimmers -->
   <ng-template #shimmers>
@@ -121,7 +117,8 @@
 <ion-footer class="expense-preview--footer-container">
   <ion-toolbar mode="md">
     <div class="expense-preview--footer-toolbar">
-      <ion-buttons *ngIf="type === 'match'">
+      @if (type === 'match') {
+      <ion-buttons>
         <ion-button (click)="closeModal()" [disabled]="loading" class="btn-secondary"> Cancel </ion-button>
         <ion-button
           (click)="matchExpense()"
@@ -134,9 +131,11 @@
           Confirm Match
         </ion-button>
       </ion-buttons>
-      <ion-buttons *ngIf="type === 'edit'">
+      } @if (type === 'edit') {
+      <ion-buttons>
         <ion-button (click)="editExpense()" appFormButtonValidation class="btn-primary"> Edit </ion-button>
       </ion-buttons>
+      }
     </div>
   </ion-toolbar>
 </ion-footer>

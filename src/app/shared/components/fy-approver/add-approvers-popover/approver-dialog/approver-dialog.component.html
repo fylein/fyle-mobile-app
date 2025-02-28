@@ -20,22 +20,21 @@
       [ngClass]="{ 'selection-modal--form-container__chips': selectedApproversList?.length > 0 }"
     >
       <mat-chip-list #chipList aria-label="Multi select">
+        @for (approver of selectedApproversList; track approver) {
         <mat-chip
-          *ngFor="let approver of selectedApproversList"
           data-testid="approvers"
           [selectable]="selectable"
           [removable]="removable"
           (removed)="removeApprover(approver)"
         >
           {{ approver.name }}
-          <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+          @if (removable) {
+          <mat-icon matChipRemove>cancel</mat-icon>
+          }
         </mat-chip>
-        <mat-icon
-          *ngIf="!(selectedApproversList?.length > 0)"
-          class="selection-modal--search-icon"
-          matPrefix
-          svgIcon="search"
-        ></mat-icon>
+        } @if (!(selectedApproversList?.length > 0)) {
+        <mat-icon class="selection-modal--search-icon" matPrefix svgIcon="search"></mat-icon>
+        }
         <input
           #searchBar
           [(ngModel)]="value"
@@ -49,9 +48,9 @@
         />
       </mat-chip-list>
     </mat-form-field>
-    <div class="selection-modal--selected-count" *ngIf="selectedApproversList?.length > 0">
-      {{ selectedApproversList.length }} selected
-    </div>
+    @if (selectedApproversList?.length > 0) {
+    <div class="selection-modal--selected-count">{{ selectedApproversList.length }} selected</div>
+    }
   </ion-toolbar>
 </ion-header>
 

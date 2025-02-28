@@ -1,5 +1,7 @@
 <ion-app>
-  <app-delegated-acc-message *ngIf="isSwitchedToDelegator"></app-delegated-acc-message>
+  @if (isSwitchedToDelegator) {
+  <app-delegated-acc-message></app-delegated-acc-message>
+  }
   <app-sidemenu (switchDelegator)="switchDelegator($event)" #sidemenuRef></app-sidemenu>
   <ion-router-outlet id="main-content" [ngClass]="{ 'main-outlet': isSwitchedToDelegator }"></ion-router-outlet>
   <app-fy-connection></app-fy-connection>

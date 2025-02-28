@@ -1,5 +1,6 @@
 <ion-content scroll-y="false" class="no-keyboard-adjust">
-  <div class="invited-user" *ngIf="(isConnected$|async)">
+  @if ((isConnected$|async)) {
+  <div class="invited-user">
     <div>
       <ion-icon
         class="fy-icon invited-user__back-icon"
@@ -9,7 +10,8 @@
       <div>
         <div class="invited-user__form-header">Join "{{ orgName }}" on Fyle</div>
         <div>
-          <form *ngIf="fg" [formGroup]="fg">
+          @if (fg) {
+          <form [formGroup]="fg">
             <div class="invited-user__input-container">
               <div
                 class="invited-user__text invited-user__text-block"
@@ -18,12 +20,10 @@
                 <div class="invited-user__text-label">Full name</div>
                 <input [required]="true" class="invited-user__text-input smartlook-show" formControlName="fullName" />
               </div>
-              <div
-                *ngIf="fg.controls.fullName.touched && fg.controls.fullName.invalid && fg.controls.fullName.errors.required"
-                class="invited-user__error"
-              >
-                Please enter your name
-              </div>
+              @if (fg.controls.fullName.touched && fg.controls.fullName.invalid && fg.controls.fullName.errors.required)
+              {
+              <div class="invited-user__error">Please enter your name</div>
+              }
             </div>
             <div class="invited-user__input-container">
               <div
@@ -48,24 +48,20 @@
                     ></ion-icon>
                   </div>
                 </div>
+                @if (showPasswordTooltip) {
                 <app-password-check-tooltip
-                  *ngIf="showPasswordTooltip"
                   [password]="fg.controls.password.value"
                   (isPasswordValid)="onPasswordValid($event)"
                 ></app-password-check-tooltip>
+                }
               </div>
-              <div
-                *ngIf="fg.controls.password.touched && fg.controls.password.invalid && fg.controls.password.errors.required"
-                class="invited-user__error"
-              >
-                Password cannot be empty
-              </div>
-              <div
-                *ngIf="fg.controls.password.touched && fg.controls.password.invalid && fg.controls.password.errors.invalidPassword && !fg.controls.password.errors.required"
-                class="invited-user__error"
-              >
-                Please enter a valid password.
-              </div>
+              @if (fg.controls.password.touched && fg.controls.password.invalid && fg.controls.password.errors.required)
+              {
+              <div class="invited-user__error">Password cannot be empty</div>
+              } @if (fg.controls.password.touched && fg.controls.password.invalid &&
+              fg.controls.password.errors.invalidPassword && !fg.controls.password.errors.required) {
+              <div class="invited-user__error">Please enter a valid password.</div>
+              }
             </div>
             <div class="invited-user__input-container">
               <div
@@ -95,24 +91,21 @@
                   </div>
                 </div>
               </div>
-              <div
-                *ngIf="fg.controls.confirmPassword.touched && fg.controls.confirmPassword.invalid && fg.controls.confirmPassword.errors.required"
-                class="invited-user__error"
-              >
-                Password cannot be empty
-              </div>
-              <div
-                *ngIf="fg.controls.confirmPassword.touched && fg.controls.confirmPassword.invalid && fg.controls.confirmPassword.errors.passwordMismatch && !fg.controls.confirmPassword.errors.required"
-                class="invited-user__error"
-              >
-                Passwords do not match
-              </div>
+              @if (fg.controls.confirmPassword.touched && fg.controls.confirmPassword.invalid &&
+              fg.controls.confirmPassword.errors.required) {
+              <div class="invited-user__error">Password cannot be empty</div>
+              } @if (fg.controls.confirmPassword.touched && fg.controls.confirmPassword.invalid &&
+              fg.controls.confirmPassword.errors.passwordMismatch && !fg.controls.confirmPassword.errors.required) {
+              <div class="invited-user__error">Passwords do not match</div>
+              }
             </div>
           </form>
+          }
         </div>
       </div>
     </div>
-    <div *ngIf="fg">
+    @if (fg) {
+    <div>
       <ion-button
         fill="clear"
         [ngClass]="{'invited-user__save__disabled': !fg.valid}"
@@ -127,8 +120,10 @@
         Join
       </ion-button>
     </div>
+    }
   </div>
-  <div class="invited-user-offline ion-text-center" *ngIf="!(isConnected$|async)">
+  } @if (!(isConnected$|async)) {
+  <div class="invited-user-offline ion-text-center">
     <img
       class="invited-user-offline__image"
       alt="offline-zer-state"
@@ -140,4 +135,5 @@
       working.
     </div>
   </div>
+  }
 </ion-content>

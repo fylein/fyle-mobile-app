@@ -1,4 +1,5 @@
-<div class="personal-card--card-details" *ngIf="!minimal">
+@if (!minimal) {
+<div class="personal-card--card-details">
   <ion-grid class="personal-card--container">
     <div class="personal-card--header">
       <div class="personal-card--bank-name">
@@ -20,8 +21,8 @@
   </ion-grid>
   <div class="personal-card--sync-detail">Last fetch: {{ lastSyncedAt | date : 'MMM d, y | h:mm a' }}</div>
 </div>
-
-<div class="personal-card--card-details-minimal" *ngIf="minimal">
+} @if (minimal) {
+<div class="personal-card--card-details-minimal">
   <ion-grid class="personal-card--container">
     <div class="personal-card--header-minimal">
       <div class="personal-card--bank-name">
@@ -33,3 +34,4 @@
     </div>
   </ion-grid>
 </div>
+}

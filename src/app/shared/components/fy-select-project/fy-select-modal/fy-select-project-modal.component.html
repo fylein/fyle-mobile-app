@@ -21,11 +21,12 @@
         placeholder="Search"
         [(ngModel)]="value"
       />
-      <mat-icon *ngIf="isLoading" class="selection-modal--autocomplete-loader" svgIcon="loader" matSuffix></mat-icon>
+      @if (isLoading) {
+      <mat-icon class="selection-modal--autocomplete-loader" svgIcon="loader" matSuffix></mat-icon>
+      } @if (!isLoading && value) {
       <button
         (click)="clearValue()"
         class="selection-modal--clear-button"
-        *ngIf="!isLoading && value"
         aria-label="Clear"
         mat-button
         mat-icon-button
@@ -33,16 +34,15 @@
       >
         <mat-icon>close</mat-icon>
       </button>
+      }
     </mat-form-field>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
   <div class="selection-modal--container">
-    <div
-      class="selection-modal--recently-used-block"
-      *ngIf="cacheName && (recentrecentlyUsedItems$ | async)?.length > 0"
-    >
+    @if (cacheName && (recentrecentlyUsedItems$ | async)?.length > 0) {
+    <div class="selection-modal--recently-used-block">
       <div
         matRipple
         class="selection-modal--list-element"
@@ -56,7 +56,9 @@
               <app-fy-highlight-text [fullText]="label" [queryText]="value"> </app-fy-highlight-text>
             </span>
           </div>
-          <mat-icon *ngIf="selected" class="selection-modal--check"> check </mat-icon>
+          @if (selected) {
+          <mat-icon class="selection-modal--check"> check </mat-icon>
+          }
         </ng-template>
         <ng-container
           *ngTemplateOutlet="
@@ -67,6 +69,7 @@
         </ng-container>
       </div>
     </div>
+    }
 
     <div
       matRipple
@@ -75,7 +78,9 @@
       (click)="onElementSelect(filteredListItem)"
     >
       <app-fy-highlight-text [fullText]="filteredListItem.label" [queryText]="value"> </app-fy-highlight-text>
-      <mat-icon *ngIf="filteredListItem.selected" class="selection-modal--check"> check </mat-icon>
+      @if (filteredListItem.selected) {
+      <mat-icon class="selection-modal--check"> check </mat-icon>
+      }
     </div>
   </div>
 </ion-content>

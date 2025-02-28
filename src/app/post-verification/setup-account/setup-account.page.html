@@ -1,5 +1,6 @@
 <ion-content>
-  <div class="setup-account" *ngIf="(isConnected$|async)">
+  @if ((isConnected$|async)) {
+  <div class="setup-account">
     <div class="setup-account--full-name">{{fullname$|async}}</div>
     <div class="setup-account--form-header-container">
       <div class="setup-account--form-header">Setup your account?</div>
@@ -63,76 +64,81 @@
     <div class="setup-account--password-rules">
       <div>
         <span>
+          @if (lengthValidationDisplay$|async) {
           <ion-icon
-            *ngIf="lengthValidationDisplay$|async"
             class="new-password--validation setup-account--validation__correct"
             name="checkmark-outline"
           ></ion-icon>
+          } @if (!(lengthValidationDisplay$|async)) {
           <ion-icon
-            *ngIf="!(lengthValidationDisplay$|async)"
             class="new-password--validation setup-account--validation__incorrect"
             name="close-outline"
           ></ion-icon>
+          }
         </span>
         <span> Is between 12 to 32 characters </span>
       </div>
       <div>
         <span>
+          @if (uppercaseValidationDisplay$|async) {
           <ion-icon
-            *ngIf="uppercaseValidationDisplay$|async"
             class="new-password--validation setup-account--validation__correct"
             name="checkmark-outline"
           ></ion-icon>
+          } @if (!(uppercaseValidationDisplay$|async)) {
           <ion-icon
-            *ngIf="!(uppercaseValidationDisplay$|async)"
             class="new-password--validation setup-account--validation__incorrect"
             name="close-outline"
           ></ion-icon>
+          }
         </span>
         <span> Contains atleast 1 uppercase character </span>
       </div>
       <div>
         <span>
+          @if (lowercaseValidationDisplay$|async) {
           <ion-icon
-            *ngIf="lowercaseValidationDisplay$|async"
             class="new-password--validation setup-account--validation__correct"
             name="checkmark-outline"
           ></ion-icon>
+          } @if (!(lowercaseValidationDisplay$|async)) {
           <ion-icon
-            *ngIf="!(lowercaseValidationDisplay$|async)"
             class="new-password--validation setup-account--validation__incorrect"
             name="close-outline"
           ></ion-icon>
+          }
         </span>
         <span> Contains atleast 1 lowercase character </span>
       </div>
       <div>
         <span>
+          @if (numberValidationDisplay$|async) {
           <ion-icon
-            *ngIf="numberValidationDisplay$|async"
             class="new-password--validation setup-account--validation__correct"
             name="checkmark-outline"
           ></ion-icon>
+          } @if (!(numberValidationDisplay$|async)) {
           <ion-icon
-            *ngIf="!(numberValidationDisplay$|async)"
             class="new-password--validation setup-account--validation__incorrect"
             name="close-outline"
           ></ion-icon>
+          }
         </span>
         <span> Contains atleast 1 number </span>
       </div>
       <div>
         <span>
+          @if (specialCharValidationDisplay$|async) {
           <ion-icon
-            *ngIf="specialCharValidationDisplay$|async"
             class="new-password--validation setup-account--validation__correct"
             name="checkmark-outline"
           ></ion-icon>
+          } @if (!(specialCharValidationDisplay$|async)) {
           <ion-icon
-            *ngIf="!(specialCharValidationDisplay$|async)"
             class="new-password--validation setup-account--validation__incorrect"
             name="close-outline"
           ></ion-icon>
+          }
         </span>
         <span> Contains atleast 1 special character </span>
       </div>
@@ -149,7 +155,8 @@
       </button>
     </div>
   </div>
-  <div class="setup-account-offline ion-text-center" *ngIf="!(isConnected$|async)">
+  } @if (!(isConnected$|async)) {
+  <div class="setup-account-offline ion-text-center">
     <img
       class="setup-account-offline--image"
       alt="offline-zer-state"
@@ -161,4 +168,5 @@
       working.
     </div>
   </div>
+  }
 </ion-content>

@@ -1,4 +1,5 @@
-<div *ngIf="transactionDetails" class="card-transaction">
+@if (transactionDetails) {
+<div class="card-transaction">
   <div class="card-transaction--header">Card transaction</div>
   <div class="card-transaction--matching-card">
     <mat-icon svgIcon="card" class="card-transaction--icon-corporate-card"></mat-icon>
@@ -11,3 +12,4 @@
     </div>
   </div>
 </div>
+}

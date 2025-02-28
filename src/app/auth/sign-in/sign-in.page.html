@@ -1,5 +1,6 @@
 <ion-content class="sign-in no-keyboard-adjust" scroll-y="false">
-  <div class="sign-in__select-sign-in" *ngIf="currentStep === signInPageState.SELECT_SIGN_IN_METHOD">
+  @if (currentStep === signInPageState.SELECT_SIGN_IN_METHOD) {
+  <div class="sign-in__select-sign-in">
     <div class="sign-in__video-container">
       <video
         class="sign-in__video-container__video"
@@ -19,13 +20,11 @@
       <ion-button (click)="changeState(signInPageState.ENTER_EMAIL)" class="btn-primary" fill="clear">
         Sign in with email address
       </ion-button>
-
       <div class="sign-in__divider-container">
         <div class="sign-in__divider"></div>
         or
         <div class="sign-in__divider"></div>
       </div>
-
       <button
         (click)="googleSignIn()"
         appFormButtonValidation
@@ -38,7 +37,8 @@
       </button>
     </div>
   </div>
-  <div class="sign-in__enter-email" *ngIf="currentStep === signInPageState.ENTER_EMAIL">
+  } @if (currentStep === signInPageState.ENTER_EMAIL) {
+  <div class="sign-in__enter-email">
     <div>
       <ion-icon
         class="fy-icon sign-in__back-icon"
@@ -61,12 +61,9 @@
             pattern="\S+@\S+\.\S{2,}"
             class="sign-in__enter-email__input-container__input"
           />
-          <div
-            class="sign-in__enter-email__error-message"
-            *ngIf="fg.controls.email.touched && !fg.controls.email.valid"
-          >
-            Please enter a valid email.
-          </div>
+          @if (fg.controls.email.touched && !fg.controls.email.valid) {
+          <div class="sign-in__enter-email__error-message">Please enter a valid email.</div>
+          }
         </form>
       </div>
     </div>
@@ -85,7 +82,8 @@
       </ion-button>
     </div>
   </div>
-  <div class="sign-in__enter-password" *ngIf="currentStep === signInPageState.ENTER_PASSWORD">
+  } @if (currentStep === signInPageState.ENTER_PASSWORD) {
+  <div class="sign-in__enter-password">
     <div>
       <ion-icon
         class="fy-icon sign-in__back-icon"
@@ -134,12 +132,9 @@
               </div>
             </div>
           </div>
-          <div
-            class="sign-in__enter-password__error-message"
-            *ngIf="fg.controls.password.touched && !fg.controls.password.valid"
-          >
-            Please enter password
-          </div>
+          @if (fg.controls.password.touched && !fg.controls.password.valid) {
+          <div class="sign-in__enter-password__error-message">Please enter password</div>
+          }
         </form>
         <div class="sign-in__enter-password__forgot-password">
           <button class="sign-in__enter-password__forgot-password_button" (click)="goToForgotPasswordPage()">
@@ -162,4 +157,5 @@
       </ion-button>
     </div>
   </div>
+  }
 </ion-content>

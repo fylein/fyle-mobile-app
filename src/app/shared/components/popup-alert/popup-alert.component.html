@@ -5,7 +5,8 @@
     </div>
   </ion-header>
 
-  <div *ngIf="cardsList?.successfulCards?.length > 0" class="popup-alert--card-details-container">
+  @if (cardsList?.successfulCards?.length > 0) {
+  <div class="popup-alert--card-details-container">
     <div class="popup-alert--content-container">
       <div class="popup-alert--success-tick-container">
         <ion-icon class="popup-alert--success-tick" src="/assets/svg/check.svg"></ion-icon>
@@ -29,12 +30,15 @@
       </div>
     </div>
   </div>
+  }
   <div class="popup-alert--body" [ngClass]="leftAlign ? 'text-left' : 'text-center'" [innerHtml]="message"></div>
 
-  <div class="popup-alert--info-container" *ngIf="flaggedExpensesCount">
+  @if (flaggedExpensesCount) {
+  <div class="popup-alert--info-container">
     <app-fy-alert-info [message]="'This report has ' + flaggedExpensesCount + ' violations'" [type]="'warning'">
     </app-fy-alert-info>
   </div>
+  }
 
   <ion-footer class="popup-alert--footer">
     <div
@@ -43,14 +47,15 @@
         'popup-alert--primary-cta-container text-center': !secondaryCta
       }"
     >
+      @if (secondaryCta) {
       <button
-        *ngIf="secondaryCta"
         type="button"
         class="popup-alert--cta-button popup-alert--secondary-cta text-center"
         (click)="ctaClickedEvent(secondaryCta.action)"
       >
         {{ secondaryCta.text }}
       </button>
+      }
       <button
         type="submit"
         class="popup-alert--cta-button popup-alert--primary-cta text-center"

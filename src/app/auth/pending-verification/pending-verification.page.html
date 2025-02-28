@@ -1,6 +1,8 @@
 <ion-content scroll-y="false" class="no-keyboard-adjust">
-  <div class="pending-verification" *ngIf="fg">
-    <div class="pending-verification__send-invite" *ngIf="!isInvitationLinkSent">
+  @if (fg) {
+  <div class="pending-verification">
+    @if (!isInvitationLinkSent) {
+    <div class="pending-verification__send-invite">
       <div class="pending-verification__form-container">
         <div class="pending-verification__error-icon-container">
           <ion-icon
@@ -26,12 +28,9 @@
             pattern="\S+@\S+\.\S{2,}"
             class="pending-verification__input-container__input"
           />
-          <div
-            class="pending-verification__error-message"
-            *ngIf="fg.controls.email.touched && !fg.controls.email.valid"
-          >
-            Please enter a valid email.
-          </div>
+          @if (fg.controls.email.touched && !fg.controls.email.valid) {
+          <div class="pending-verification__error-message">Please enter a valid email.</div>
+          }
         </form>
       </div>
       <div>
@@ -56,8 +55,10 @@
         </div>
       </div>
     </div>
-    <div class="pending-verification__send-invite" *ngIf="isInvitationLinkSent">
-      <div class="pending-verification__content-container" *ngIf="isInvitationLinkSent">
+    } @if (isInvitationLinkSent) {
+    <div class="pending-verification__send-invite">
+      @if (isInvitationLinkSent) {
+      <div class="pending-verification__content-container">
         <div class="pending-verification__success-icon-container">
           <ion-icon
             class="pending-verification__success-icon"
@@ -73,6 +74,7 @@
           </p>
         </section>
       </div>
+      }
       <div class="pending-verification__cta">
         <ion-button
           (click)="onGotoSignInClick()"
@@ -92,5 +94,7 @@
         </ion-button>
       </div>
     </div>
+    }
   </div>
+  }
 </ion-content>

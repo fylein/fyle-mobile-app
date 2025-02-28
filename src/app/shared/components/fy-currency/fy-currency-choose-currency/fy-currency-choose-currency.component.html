@@ -20,16 +20,19 @@
         placeholder="Search"
         [(ngModel)]="value"
       />
-      <button mat-button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="clearValue()">
+      @if (value) {
+      <button mat-button matSuffix mat-icon-button aria-label="Clear" (click)="clearValue()">
         <mat-icon>close</mat-icon>
       </button>
+      }
     </mat-form-field>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
   <div class="selection-modal--container">
-    <div class="selection-modal--recently-used-block" *ngIf="(recentlyUsedCurrencies$ | async)?.length > 0">
+    @if ((recentlyUsedCurrencies$ | async)?.length > 0) {
+    <div class="selection-modal--recently-used-block">
       <div
         matRipple
         class="selection-modal--list-element"
@@ -43,7 +46,9 @@
               <app-fy-highlight-text [fullText]="label + ' - ' + currency" [queryText]="value"> </app-fy-highlight-text>
             </span>
           </div>
-          <mat-icon *ngIf="selected" class="selection-modal--check"> check </mat-icon>
+          @if (selected) {
+          <mat-icon class="selection-modal--check"> check </mat-icon>
+          }
         </ng-template>
         <ng-container
           *ngTemplateOutlet="selectionElement ? selectionElement : defaultSelectionElement; context: recentlyUsedItem"
@@ -51,16 +56,22 @@
         </ng-container>
       </div>
     </div>
-    <div *ngIf="filteredCurrencies$ | async as filteredCurrencies">
-      <div *ngIf="filteredCurrencies.length > 0">
+    } @if (filteredCurrencies$ | async; as filteredCurrencies) {
+    <div>
+      @if (filteredCurrencies.length > 0) {
+      <div>
         <div class="selection-modal--sub-title">All currencies</div>
-        <ng-container *ngFor="let currency of filteredCurrencies">
-          <div matRipple class="selection-modal--list-element" (click)="onCurrencySelect(currency)">
-            <div>{{ currency.shortCode }} - {{ currency.longName }}</div>
-            <mat-icon class="selection-modal--check" *ngIf="currency.shortCode === currentSelection"> check </mat-icon>
-          </div>
-        </ng-container>
+        @for (currency of filteredCurrencies; track currency) {
+        <div matRipple class="selection-modal--list-element" (click)="onCurrencySelect(currency)">
+          <div>{{ currency.shortCode }} - {{ currency.longName }}</div>
+          @if (currency.shortCode === currentSelection) {
+          <mat-icon class="selection-modal--check"> check </mat-icon>
+          }
+        </div>
+        }
       </div>
+      }
     </div>
+    }
   </div>
 </ion-content>

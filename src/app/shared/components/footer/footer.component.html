@@ -1,46 +1,47 @@
-<ng-container *ngIf="connectionState$ | async as connectionState">
-  <div class="fy-footer">
+@if (connectionState$ | async; as connectionState) {
+<div class="fy-footer">
+  <div
+    class="fy-footer--buttons"
+    [ngClass]="{
+      'fy-footer--buttons__message-gap':
+        connectionState === ConnectionMessageStatus.onlineMessageShown ||
+        connectionState === ConnectionMessageStatus.disconnected
+    }"
+  >
     <div
-      class="fy-footer--buttons"
-      [ngClass]="{
-        'fy-footer--buttons__message-gap':
-          connectionState === ConnectionMessageStatus.onlineMessageShown ||
-          connectionState === ConnectionMessageStatus.disconnected
-      }"
+      class="fy-footer--button"
+      [ngClass]="{ 'fy-footer--button__inactive': activeState !== FooterState.HOME }"
+      expand="full"
+      (click)="goToHome()"
     >
-      <div
-        class="fy-footer--button"
-        [ngClass]="{ 'fy-footer--button__inactive': activeState !== FooterState.HOME }"
-        expand="full"
-        (click)="goToHome()"
-      >
-        <mat-icon
-          class="fy-footer--icon"
-          [svgIcon]="activeState === FooterState.HOME ? 'house-fill' : 'house-outline'"
-        ></mat-icon>
-        Home
+      <mat-icon
+        class="fy-footer--icon"
+        [svgIcon]="activeState === FooterState.HOME ? 'house-fill' : 'house-outline'"
+      ></mat-icon>
+      Home
+    </div>
+    <div class="fy-footer--primary-button-container" matRipple (click)="goToCameraMode()">
+      <mat-icon class="fy-footer--icon fy-footer--icon__primary fy-footer--primary-icon" svgIcon="camera"></mat-icon>
+    </div>
+    <div
+      class="fy-footer--button"
+      [ngClass]="{
+        'fy-footer--button__inactive': activeState !== FooterState.TASKS,
+        'fy-footer--button__disabled': connectionState === ConnectionMessageStatus.disconnected
+      }"
+      expand="full"
+      (click)="goToTasks(connectionState)"
+    >
+      <mat-icon
+        class="fy-footer--icon"
+        [svgIcon]="activeState === FooterState.TASKS ? 'bell-fill' : 'bell-outline'"
+      ></mat-icon>
+      @if (taskCount > 0) {
+      <div class="fy-footer--icon-pill">
+        {{ taskCount }}
       </div>
-      <div class="fy-footer--primary-button-container" matRipple (click)="goToCameraMode()">
-        <mat-icon class="fy-footer--icon fy-footer--icon__primary fy-footer--primary-icon" svgIcon="camera"></mat-icon>
-      </div>
-      <div
-        class="fy-footer--button"
-        [ngClass]="{
-          'fy-footer--button__inactive': activeState !== FooterState.TASKS,
-          'fy-footer--button__disabled': connectionState === ConnectionMessageStatus.disconnected
-        }"
-        expand="full"
-        (click)="goToTasks(connectionState)"
-      >
-        <mat-icon
-          class="fy-footer--icon"
-          [svgIcon]="activeState === FooterState.TASKS ? 'bell-fill' : 'bell-outline'"
-        ></mat-icon>
-        <div *ngIf="taskCount > 0" class="fy-footer--icon-pill">
-          {{ taskCount }}
-        </div>
-        Tasks
-      </div>
+      } Tasks
     </div>
   </div>
-</ng-container>
+</div>
+}

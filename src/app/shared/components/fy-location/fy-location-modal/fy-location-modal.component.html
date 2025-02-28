@@ -17,10 +17,11 @@
           matInput
           placeholder="Search"
         />
-        <mat-icon *ngIf="loader" class="selection-modal--autocomplete-loader" svgIcon="loader" matSuffix> </mat-icon>
+        @if (loader) {
+        <mat-icon class="selection-modal--autocomplete-loader" svgIcon="loader" matSuffix> </mat-icon>
+        } @if (value) {
         <button
           (click)="clearValue()"
-          *ngIf="value"
           aria-label="Clear"
           class="selection-modal--simple-search-close"
           mat-button
@@ -29,9 +30,11 @@
         >
           <mat-icon class="selection-modal--simple-search-icon" svgIcon="clear"></mat-icon>
         </button>
+        }
       </div>
     </mat-form-field>
-    <ion-buttons *ngIf="!disableEnteringManualLocation" mode="md" slot="end">
+    @if (!disableEnteringManualLocation) {
+    <ion-buttons mode="md" slot="end">
       <ion-button
         color="fy-primary"
         class="text-capitalize selection-modal--cta-button"
@@ -41,14 +44,17 @@
         Save
       </ion-button>
     </ion-buttons>
+    }
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <div *ngIf="header" class="selection-modal--header">
+  @if (header) {
+  <div class="selection-modal--header">
     {{ header | lowercase }}
   </div>
-  <div class="selection-modal--current-location-getter" *ngIf="!currentGeolocationPermissionGranted">
+  } @if (!currentGeolocationPermissionGranted) {
+  <div class="selection-modal--current-location-getter">
     <app-fy-alert-info
       [message]="'Enable location from Settings to fetch current location'"
       [type]="'information'"
@@ -58,17 +64,18 @@
     >
     </app-fy-alert-info>
   </div>
-  <div class="selection-modal--error-lookup" *ngIf="lookupFailed">
+  } @if (lookupFailed) {
+  <div class="selection-modal--error-lookup">
     <app-fy-alert-info
       [message]="'Couldn\'t get current location. Please enter manually.'"
       [type]="'warning'"
     ></app-fy-alert-info>
   </div>
-  <ng-container *ngIf="loader">
-    <div class="selection-modal--spinner">
-      <ion-spinner name="crescent"></ion-spinner>
-    </div>
-  </ng-container>
+  } @if (loader) {
+  <div class="selection-modal--spinner">
+    <ion-spinner name="crescent"></ion-spinner>
+  </div>
+  }
   <div
     matRipple
     class="selection-modal--list-element"
@@ -93,16 +100,18 @@
   >
     <mat-icon class="selection-modal--list-element-icon" svgIcon="location"> </mat-icon>
     <div>
-      <div class="selection-modal--location-main-text" *ngIf="filteredListItem.structured_formatting?.main_text">
+      @if (filteredListItem.structured_formatting?.main_text) {
+      <div class="selection-modal--location-main-text">
         {{ filteredListItem.structured_formatting?.main_text || filteredListItem.description }}
       </div>
+      }
       <div class="selection-modal--location-description">
         {{ filteredListItem.description }}
       </div>
     </div>
   </div>
+  @if (!loader && currentGeolocationPermissionGranted) {
   <div
-    *ngIf="!loader && currentGeolocationPermissionGranted"
     matRipple
     class="selection-modal--list-element selection-modal--list-element__current-location"
     (click)="getCurrentLocation()"
@@ -110,4 +119,5 @@
     <mat-icon class="selection-modal--list-element-icon" svgIcon="location"> </mat-icon>
     <div class="selection-modal--location-main-text">Use Current Location</div>
   </div>
+  }
 </ion-content>
