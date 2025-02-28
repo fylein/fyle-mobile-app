@@ -863,114 +863,118 @@ export class SplitExpensePage implements OnDestroy {
   }
 
   ionViewWillEnter(): void {
-    this.getRecentlySplitExpenses().subscribe((splitExpData) => {
-      if (splitExpData?.fromSplitExpenseReview && !this.isReviewModalOpen) {
-        this.openReviewSplitExpenseModal(splitExpData.expenses);
-      } else {
-        const currencyObj = JSON.parse(this.activatedRoute.snapshot.params.currencyObj as string) as CurrencyObj;
-        const orgSettings$ = this.orgSettingsService.get();
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        this.splitConfig = JSON.parse(this.activatedRoute.snapshot.params.splitConfig as string);
-        this.txnFields = JSON.parse(
-          this.activatedRoute.snapshot.params.txnFields as string
-        ) as Partial<ExpenseFieldsObj>;
-        this.fileUrls = JSON.parse(this.activatedRoute.snapshot.params.fileObjs as string) as FileObject[];
-        this.selectedCCCTransaction = JSON.parse(
-          this.activatedRoute.snapshot.params.selectedCCCTransaction as string
-        ) as MatchedCCCTransaction;
-        this.reportId = JSON.parse(this.activatedRoute.snapshot.params.selectedReportId as string) as string;
-        this.transaction = JSON.parse(this.activatedRoute.snapshot.params.txn as string) as Transaction;
-        this.selectedProject = JSON.parse(this.activatedRoute.snapshot.params.selectedProject as string) as ProjectV2;
-        this.expenseFields = JSON.parse(this.activatedRoute.snapshot.params.expenseFields as string) as ExpenseField[];
-        // Set max and min date for form
-        const today = new Date();
-        this.minDate = dayjs(new Date('Jan 1, 2001')).format('YYYY-MM-D');
-        this.maxDate = dayjs(this.dateService.addDaysToDate(today, 1)).format('YYYY-MM-D');
+    if (!this.isReviewModalOpen) {
+      this.getRecentlySplitDataAndOpenReviewModal();
+    } else {
+      const currencyObj = JSON.parse(this.activatedRoute.snapshot.params.currencyObj as string) as CurrencyObj;
+      const orgSettings$ = this.orgSettingsService.get();
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      this.splitConfig = JSON.parse(this.activatedRoute.snapshot.params.splitConfig as string);
+      this.txnFields = JSON.parse(this.activatedRoute.snapshot.params.txnFields as string) as Partial<ExpenseFieldsObj>;
+      this.fileUrls = JSON.parse(this.activatedRoute.snapshot.params.fileObjs as string) as FileObject[];
+      this.selectedCCCTransaction = JSON.parse(
+        this.activatedRoute.snapshot.params.selectedCCCTransaction as string
+      ) as MatchedCCCTransaction;
+      this.reportId = JSON.parse(this.activatedRoute.snapshot.params.selectedReportId as string) as string;
+      this.transaction = JSON.parse(this.activatedRoute.snapshot.params.txn as string) as Transaction;
+      this.selectedProject = JSON.parse(this.activatedRoute.snapshot.params.selectedProject as string) as ProjectV2;
+      this.expenseFields = JSON.parse(this.activatedRoute.snapshot.params.expenseFields as string) as ExpenseField[];
+      // Set max and min date for form
+      const today = new Date();
+      this.minDate = dayjs(new Date('Jan 1, 2001')).format('YYYY-MM-D');
+      this.maxDate = dayjs(this.dateService.addDaysToDate(today, 1)).format('YYYY-MM-D');
 
-        this.isProjectCategoryRestrictionsEnabled$ = orgSettings$.pipe(
-          map(
-            (orgSettings) =>
-              orgSettings.advanced_projects.allowed && orgSettings.advanced_projects.enable_category_restriction
-          )
-        );
+      this.isProjectCategoryRestrictionsEnabled$ = orgSettings$.pipe(
+        map(
+          (orgSettings) =>
+            orgSettings.advanced_projects.allowed && orgSettings.advanced_projects.enable_category_restriction
+        )
+      );
 
-        this.categories$ = this.getActiveCategories().pipe(
-          switchMap((activeCategories) =>
-            this.launchDarklyService.getVariation('show_project_mapped_categories_in_split_expense', false).pipe(
-              switchMap((showProjectMappedCategories) => {
-                if (showProjectMappedCategories && this.transaction.project_id) {
-                  return combineLatest([
-                    this.projectsService.getbyId(this.transaction.project_id),
-                    this.isProjectCategoryRestrictionsEnabled$,
-                  ]).pipe(
-                    map(([project, isProjectCategoryRestrictionsEnabled]) =>
-                      this.projectsService.getAllowedOrgCategoryIds(
-                        project,
-                        activeCategories,
-                        isProjectCategoryRestrictionsEnabled
-                      )
+      this.categories$ = this.getActiveCategories().pipe(
+        switchMap((activeCategories) =>
+          this.launchDarklyService.getVariation('show_project_mapped_categories_in_split_expense', false).pipe(
+            switchMap((showProjectMappedCategories) => {
+              if (showProjectMappedCategories && this.transaction.project_id) {
+                return combineLatest([
+                  this.projectsService.getbyId(this.transaction.project_id),
+                  this.isProjectCategoryRestrictionsEnabled$,
+                ]).pipe(
+                  map(([project, isProjectCategoryRestrictionsEnabled]) =>
+                    this.projectsService.getAllowedOrgCategoryIds(
+                      project,
+                      activeCategories,
+                      isProjectCategoryRestrictionsEnabled
                     )
-                  );
-                }
-
-                return of(activeCategories);
-              }),
-              map((categories) => categories.map((category) => ({ label: category.displayName, value: category })))
-            )
-          )
-        );
-
-        this.getCategoryList();
-
-        let parentFieldId: number;
-        if (this.splitConfig.project.is_visible || this.splitConfig.costCenter.is_visible) {
-          parentFieldId = this.splitConfig.project.is_visible
-            ? this.txnFields.project_id.id
-            : this.txnFields.cost_center_id?.id;
-        }
-
-        this.dependentCustomProperties$ = iif(
-          () => !!parentFieldId,
-          this.dependentFieldsService.getDependentFieldValuesForBaseField(
-            this.transaction.custom_properties,
-            parentFieldId
-          ),
-          of(null)
-        );
-
-        if (this.splitConfig.costCenter.is_visible) {
-          this.costCenters$ = orgSettings$.pipe(
-            switchMap((orgSettings) => {
-              if (orgSettings.cost_centers.enabled) {
-                return this.costCentersService.getAllActive();
-              } else {
-                return of([]);
+                  )
+                );
               }
-            }),
-            map((costCenters: CostCenter[]) =>
-              costCenters.map((costCenter) => ({
-                label: costCenter.name,
-                value: costCenter,
-              }))
-            )
-          );
-        }
 
-        this.isCorporateCardsEnabled$ = orgSettings$.pipe(
-          map(
-            (orgSettings) =>
-              orgSettings.corporate_credit_card_settings && orgSettings.corporate_credit_card_settings.enabled
+              return of(activeCategories);
+            }),
+            map((categories) => categories.map((category) => ({ label: category.displayName, value: category })))
+          )
+        )
+      );
+
+      this.getCategoryList();
+
+      let parentFieldId: number;
+      if (this.splitConfig.project.is_visible || this.splitConfig.costCenter.is_visible) {
+        parentFieldId = this.splitConfig.project.is_visible
+          ? this.txnFields.project_id.id
+          : this.txnFields.cost_center_id?.id;
+      }
+
+      this.dependentCustomProperties$ = iif(
+        () => !!parentFieldId,
+        this.dependentFieldsService.getDependentFieldValuesForBaseField(
+          this.transaction.custom_properties,
+          parentFieldId
+        ),
+        of(null)
+      );
+
+      if (this.splitConfig.costCenter.is_visible) {
+        this.costCenters$ = orgSettings$.pipe(
+          switchMap((orgSettings) => {
+            if (orgSettings.cost_centers.enabled) {
+              return this.costCentersService.getAllActive();
+            } else {
+              return of([]);
+            }
+          }),
+          map((costCenters: CostCenter[]) =>
+            costCenters.map((costCenter) => ({
+              label: costCenter.name,
+              value: costCenter,
+            }))
           )
         );
+      }
 
-        this.getUnspecifiedCategory();
+      this.isCorporateCardsEnabled$ = orgSettings$.pipe(
+        map(
+          (orgSettings) =>
+            orgSettings.corporate_credit_card_settings && orgSettings.corporate_credit_card_settings.enabled
+        )
+      );
 
-        forkJoin({
-          homeCurrency: this.currencyService.getHomeCurrency(),
-          isCorporateCardsEnabled: this.isCorporateCardsEnabled$,
-        }).subscribe(({ homeCurrency, isCorporateCardsEnabled }) =>
-          this.setValuesForCCC(currencyObj, homeCurrency, isCorporateCardsEnabled)
-        );
+      this.getUnspecifiedCategory();
+
+      forkJoin({
+        homeCurrency: this.currencyService.getHomeCurrency(),
+        isCorporateCardsEnabled: this.isCorporateCardsEnabled$,
+      }).subscribe(({ homeCurrency, isCorporateCardsEnabled }) =>
+        this.setValuesForCCC(currencyObj, homeCurrency, isCorporateCardsEnabled)
+      );
+    }
+  }
+
+  getRecentlySplitDataAndOpenReviewModal(): void {
+    this.getRecentlySplitExpenses().subscribe((splitExpData) => {
+      if (splitExpData) {
+        this.openReviewSplitExpenseModal(splitExpData.expenses);
       }
     });
   }
@@ -1344,7 +1348,6 @@ export class SplitExpensePage implements OnDestroy {
 
     this.setRecentlySplitExpenses({
       expenses: expense,
-      fromSplitExpenseReview: true,
     });
 
     await reviewModal.present();
@@ -1357,14 +1360,11 @@ export class SplitExpensePage implements OnDestroy {
     }
   }
 
-  private setRecentlySplitExpenses(data: { expenses: Partial<Transaction>[]; fromSplitExpenseReview: boolean }): void {
+  private setRecentlySplitExpenses(data: { expenses: Partial<Transaction>[] }): void {
     this.expensesService.splitExpensesData$.next(data);
   }
 
-  private getRecentlySplitExpenses(): Observable<{
-    expenses: Partial<Transaction>[];
-    fromSplitExpenseReview: boolean;
-  } | null> {
+  private getRecentlySplitExpenses(): Observable<{ expenses: Partial<Transaction>[] } | null> {
     return this.expensesService.splitExpensesData$.asObservable();
   }
 

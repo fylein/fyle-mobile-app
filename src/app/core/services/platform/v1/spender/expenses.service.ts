@@ -29,7 +29,6 @@ import { CommuteDeduction } from 'src/app/core/enums/commute-deduction.enum';
 export class ExpensesService {
   splitExpensesData$ = new BehaviorSubject<{
     expenses: Partial<Transaction>[];
-    fromSplitExpenseReview: boolean;
   } | null>(null);
 
   constructor(
