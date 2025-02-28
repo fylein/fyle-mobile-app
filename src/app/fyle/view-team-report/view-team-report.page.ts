@@ -133,6 +133,10 @@ export class ViewTeamReportPage {
 
   approveReportLoader = false;
 
+  showViewApproverModal = false;
+
+  approverToShow: ReportApprovals;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
@@ -258,10 +262,27 @@ export class ViewTeamReportPage {
     });
   }
 
+  setupApproverToShow(report: Report): void {
+    const filteredApprover = this.approvals.filter(
+      (approver) => report.next_approver_user_ids?.[0] === approver.approver_user.id
+    );
+    const highestRankApprover = this.approvals.reduce(
+      (max, approver) => (approver.rank > max.rank ? approver : max),
+      this.approvals[0]
+    );
+    this.approverToShow = filteredApprover.length === 1 ? filteredApprover[0] : highestRankApprover;
+  }
+
   ionViewWillEnter(): void {
     this.isExpensesLoading = true;
     this.setupNetworkWatcher();
 
+    this.launchDarklyService
+      .getVariation('show_multi_stage_approval_flow', false)
+      .pipe(take(1))
+      .subscribe((showViewApproverModal) => {
+        this.showViewApproverModal = showViewApproverModal;
+      });
     const navigateBack = this.activatedRoute.snapshot.params?.navigate_back as string | null;
     if (navigateBack && typeof navigateBack == 'string') {
       this.navigateBack = JSON.parse(navigateBack) as boolean;
@@ -285,6 +306,7 @@ export class ViewTeamReportPage {
             this.approvals = report.approvals.filter((approval) =>
               [ApprovalState.APPROVAL_PENDING, ApprovalState.APPROVAL_DONE].includes(approval.state)
             );
+            this.setupApproverToShow(report);
             return report;
           })
         )
