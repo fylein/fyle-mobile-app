@@ -184,11 +184,13 @@ export class DashboardPage {
   initializeTour(isApprover: Boolean): void {
     this.setNavbarWalkthroughConfig();
     this.driver = driver({
-      overlayOpacity: 0.75,
+      overlayOpacity: 0.5,
       allowClose: true,
       overlayClickBehavior: 'nextStep',
       showProgress: true,
-      stageRadius: 8,
+      overlayColor: '#161528',
+      stageRadius: 6,
+      stagePadding: 4,
       popoverClass: 'custom-popover',
       doneBtnText: 'Ok',
       nextBtnText: 'Next',
@@ -207,6 +209,9 @@ export class DashboardPage {
           align: 'center',
           showButtons: ['next'],
         },
+        onHighlightStarted: (_el, _step, opts): void => {
+          opts.config.stagePadding = 15;
+        },
       },
       {
         element: '#tab-button-expenses',
@@ -215,6 +220,9 @@ export class DashboardPage {
           side: 'top',
           align: 'start',
         },
+        onHighlightStarted: (_el, _step, opts): void => {
+          opts.config.stagePadding = 4;
+        },
       },
       {
         element: '#tab-button-reports',
@@ -222,6 +230,9 @@ export class DashboardPage {
           description: 'You can now access Reports directly from the navigation bar.',
           side: 'top',
           align: 'end',
+        },
+        onHighlightStarted: (_el, _step, opts): void => {
+          opts.config.stagePadding = 6;
         },
       },
     ];
@@ -233,6 +244,9 @@ export class DashboardPage {
           description: 'Now you can view your team expense report data on home page',
           side: 'top',
           align: 'center',
+        },
+        onHighlightStarted: (_el, _step, opts): void => {
+          opts.config.stagePadding = 2;
         },
       });
     }
@@ -355,7 +369,8 @@ export class DashboardPage {
     this.isUserFromINCluster$ = from(this.utilityService.isUserFromINCluster());
 
     this.setShowOptInBanner();
-    this.setShowNavbarWalkthrough();
+    // this.setShowNavbarWalkthrough();
+    this.initializeTour(true);
 
     const openSMSOptInDialog = this.activatedRoute.snapshot.params.openSMSOptInDialog as string;
     if (openSMSOptInDialog === 'true') {
