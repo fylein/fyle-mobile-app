@@ -51,6 +51,12 @@ $background-color: #fff;
     margin-top: -12px;
   }
 
+  &--date-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start !important;
+  }
+
   &--main-block {
     display: flex;
     justify-content: space-between;
@@ -145,11 +151,18 @@ $background-color: #fff;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    align-items: flex-start;
     padding-bottom: 24px;
   }
 
   &--percentage {
     margin-left: 16px;
+  }
+
+  &--amount-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
   }
 
   &--item {

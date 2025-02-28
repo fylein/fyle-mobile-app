@@ -95,7 +95,7 @@ import {
 } from 'src/app/core/test-data/projects.spec.data';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SplitExpensePolicyViolationComponent } from 'src/app/shared/components/split-expense-policy-violation/split-expense-policy-violation.component';
-import { policyViolation1, policyViolationData5 } from 'src/app/core/mock-data/policy-violation.data';
+import { policyViolation1, policyViolationData6 } from 'src/app/core/mock-data/policy-violation.data';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
 import { unflattenedAccount3Data } from 'src/app/core/test-data/accounts.service.spec.data';
 import { categorieListRes } from 'src/app/core/mock-data/org-category-list-item.data';
@@ -123,7 +123,7 @@ import { filteredSplitPolicyViolationsData } from 'src/app/core/mock-data/filter
 import { filteredMissingFieldsViolationsData } from 'src/app/core/mock-data/filtered-missing-fields-violations.data';
 import {
   transformedSplitExpenseMissingFieldsData,
-  transformedSplitExpenseMissingFieldsData2,
+  transformedSplitExpenseMissingFieldsData3,
 } from 'src/app/core/mock-data/transformed-split-expense-missing-fields.data';
 import { splitPolicyExp1 } from 'src/app/core/mock-data/split-expense-policy.data';
 import { SplitExpenseMissingFieldsData } from 'src/app/core/mock-data/split-expense-missing-fields.data';
@@ -2186,50 +2186,86 @@ describe('SplitExpensePage', () => {
     });
   });
 
-  describe('getViolationName():', () => {
+  describe('generateInputFieldInfo', () => {
     beforeEach(() => {
-      component.splitExpensesFormArray = new FormArray([splitExpenseFormData7]);
+      component.splitExpensesFormArray = new FormArray([
+        new FormGroup({
+          category: new FormControl({ name: 'Travel' }),
+          cost_center: new FormControl({ name: 'Finance' }),
+          project: new FormControl({ project_name: 'Project A' }),
+        }),
+      ]);
+      component.splitConfig.category.is_visible = true;
+      component.splitConfig.costCenter.is_visible = true;
+      component.splitConfig.project.is_visible = true;
+      component.txnFields = txnFieldData;
     });
 
-    it('should return category name if split type is category', () => {
-      component.splitType = 'categories';
+    it('should generate input field info correctly when all fields are visible', () => {
+      const result = component.generateInputFieldInfo(0);
 
-      expect(component.getViolationName(0)).toEqual('Food');
+      expect(result).toEqual({
+        Category: 'Travel',
+        'Cost Center': 'Finance',
+        Project: 'Project A',
+      });
     });
 
-    it('should return project name if split type is project', () => {
-      component.splitType = 'projects';
-
-      expect(component.getViolationName(0)).toEqual('Project 1');
+    it('should handle missing category field', () => {
+      component.splitExpensesFormArray.at(0).patchValue({ category: null });
+      const result = component.generateInputFieldInfo(0);
+      expect(result.Category).toBe('-');
     });
 
-    it('should return cost center name if split type is cost center', () => {
-      component.splitType = 'cost centers';
+    it('should handle missing cost center field', () => {
+      component.splitExpensesFormArray.at(0).patchValue({ cost_center: null });
+      const result = component.generateInputFieldInfo(0);
+      expect(result['Cost Center']).toBe('-');
+    });
 
-      expect(component.getViolationName(0)).toEqual('Cost Center 1');
+    it('should handle missing project field', () => {
+      component.splitExpensesFormArray.at(0).patchValue({ project: null });
+      const result = component.generateInputFieldInfo(0);
+      expect(result.Project).toBe('-');
+    });
+
+    it('should exclude fields if they are not visible in splitConfig', () => {
+      component.splitConfig.category.is_visible = true;
+      component.splitConfig.costCenter.is_visible = false;
+      component.splitConfig.project.is_visible = false;
+
+      const result = component.generateInputFieldInfo(0);
+      expect(result).toEqual({});
     });
   });
 
   it('transformViolationData(): should return amount, type, currency and violation data', () => {
     const etxn = cloneDeep([txnData4]);
-    spyOn(component, 'getViolationName').and.returnValue('Food');
+    spyOn(component, 'generateInputFieldInfo').and.returnValue({
+      Category: 'Travel',
+      'Cost Center': 'Finance',
+      Project: 'Project A',
+    });
     const mockPolicyViolation = cloneDeep(splitPolicyExp1);
 
     const res = component.transformViolationData(etxn, mockPolicyViolation);
     expect(res).toEqual({
-      '0': policyViolationData5,
+      '0': policyViolationData6,
     });
   });
 
-  it('transformMandatoryFieldsData(): should return amount, type, currency and missing fields data', () => {
+  it('transformMandatoryFieldsData(): should return amount, currency and missing fields data', () => {
     const etxn = cloneDeep([txnData4]);
-    spyOn(component, 'getViolationName').and.returnValue('Food');
+    spyOn(component, 'generateInputFieldInfo').and.returnValue({
+      Category: 'Travel',
+      'Cost Center': 'Finance',
+      Project: 'Project A',
+    });
     const mockMissingFields = cloneDeep(SplitExpenseMissingFieldsData);
-    component.splitType = 'category';
 
     const res = component.transformMandatoryFieldsData(etxn, mockMissingFields);
     expect(res).toEqual({
-      '0': transformedSplitExpenseMissingFieldsData2,
+      '0': transformedSplitExpenseMissingFieldsData3,
     });
   });
 
