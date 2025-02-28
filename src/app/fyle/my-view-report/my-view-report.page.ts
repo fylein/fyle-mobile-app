@@ -41,6 +41,7 @@ import * as Sentry from '@sentry/angular';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { ShowAllApproversPopoverComponent } from 'src/app/shared/components/fy-approver/show-all-approvers-popover/show-all-approvers-popover.component';
 import { ReportApprovals } from 'src/app/core/models/platform/report-approvals.model';
+import * as Sentry from '@sentry/angular-ivy';
 
 @Component({
   selector: 'app-my-view-report',
