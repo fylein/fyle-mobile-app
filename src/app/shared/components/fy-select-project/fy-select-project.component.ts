@@ -1,4 +1,4 @@
-import { Component, forwardRef, Input, OnDestroy, TemplateRef, ElementRef } from '@angular/core';
+import { Component, forwardRef, Input, OnDestroy, TemplateRef, ElementRef, Output, EventEmitter } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
@@ -42,6 +42,8 @@ export class FySelectProjectComponent implements ControlValueAccessor, OnDestroy
 
   @Input() isProjectCategoryRestrictionsEnabled: boolean;
 
+  @Output() valueChange = new EventEmitter<ProjectV2>();
+
   displayValue: string;
 
   innerValue: ProjectV2;
@@ -75,6 +77,7 @@ export class FySelectProjectComponent implements ControlValueAccessor, OnDestroy
       }
 
       this.onChangeCallback(v);
+      this.valueChange.emit(v);
     }
   }
 

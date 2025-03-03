@@ -51,6 +51,12 @@ $background-color: #fff;
     margin-top: -12px;
   }
 
+  &--date-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start !important;
+  }
+
   &--main-block {
     display: flex;
     justify-content: space-between;
@@ -63,8 +69,26 @@ $background-color: #fff;
     background: $pure-white;
     border: 0;
     line-height: 1;
-    width: 48%;
     height: 80px;
+    position: relative;
+
+    &:only-child {
+      width: 100%;
+      flex-grow: 1;
+    }
+
+    &:not(:only-child) {
+      width: 48%;
+      flex-grow: 0;
+    }
+  }
+
+  &--internal-block-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
   }
 
   &--error {
@@ -127,11 +151,18 @@ $background-color: #fff;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    align-items: flex-start;
     padding-bottom: 24px;
   }
 
   &--percentage {
     margin-left: 16px;
+  }
+
+  &--amount-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
   }
 
   &--item {

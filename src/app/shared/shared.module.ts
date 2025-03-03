@@ -155,6 +155,7 @@ import { MobileNumberCardComponent } from './components/mobile-number-card/mobil
 import { PasswordCheckTooltipComponent } from './components/password-check-tooltip/password-check-tooltip.component';
 import { ExactCurrencyPipe } from './pipes/exact-currency.pipe';
 import { CCExpenseMerchantInfoModalComponent } from './components/cc-expense-merchant-info-modal/cc-expense-merchant-info-modal.component';
+import { FyMsgPopoverComponent } from './components/fy-msg-popover/fy-msg-popover.component';
 import { ShowAllApproversPopoverComponent } from './components/fy-approver/show-all-approvers-popover/show-all-approvers-popover.component';
 
 @NgModule({
@@ -231,6 +232,7 @@ import { ShowAllApproversPopoverComponent } from './components/fy-approver/show-
     PersonalCardTransactionComponent,
     FyInputPopoverComponent,
     FyPopoverComponent,
+    FyMsgPopoverComponent,
     SidemenuComponent,
     SidemenuHeaderComponent,
     SidemenuFooterComponent,
@@ -373,6 +375,7 @@ import { ShowAllApproversPopoverComponent } from './components/fy-approver/show-
     BankAccountCardsComponent,
     PersonalCardTransactionComponent,
     FyPopoverComponent,
+    FyMsgPopoverComponent,
     SidemenuComponent,
     FyNavFooterComponent,
     SendEmailComponent,
