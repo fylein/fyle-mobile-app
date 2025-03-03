@@ -455,12 +455,21 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
+  initClassObservables(): void {
+    const fn = (): void => {
+      this.backButtonAction();
+    };
+    const priority = BackButtonActionPriority.MEDIUM;
+    this.hardwareBackButton = this.platformHandlerService.registerBackButtonAction(priority, fn);
+  }
+
   ionViewWillEnter(): void {
     this.isNewReportsFlowEnabled = false;
-    this.hardwareBackButton = this.platformHandlerService.registerBackButtonAction(
-      BackButtonActionPriority.MEDIUM,
-      this.backButtonAction
-    );
+    this.initClassObservables();
+    // this.hardwareBackButton = this.platformHandlerService.registerBackButtonAction(
+    //   BackButtonActionPriority.MEDIUM,
+    //   this.backButtonAction
+    // );
 
     this.tasksService.getExpensesTaskCount().subscribe((expensesTaskCount) => {
       this.expensesTaskCount = expensesTaskCount;
