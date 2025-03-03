@@ -114,7 +114,11 @@ import {
   currencyObjData4,
 } from 'src/app/core/mock-data/currency-obj.data';
 import { ToastType } from 'src/app/core/enums/toast-type.enum';
-import { costCenterExpenseField, expenseFieldResponse } from 'src/app/core/mock-data/expense-field.data';
+import {
+  costCenterExpenseField,
+  expenseFieldResponse,
+  transformedResponse,
+} from 'src/app/core/mock-data/expense-field.data';
 import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { txnCustomPropertiesData } from 'src/app/core/mock-data/txn-custom-properties.data';
 import { filteredSplitPolicyViolationsData } from 'src/app/core/mock-data/filtered-split-policy-violations.data';
@@ -761,6 +765,7 @@ describe('SplitExpensePage', () => {
       dateService.addDaysToDate.and.returnValue(new Date('2023-01-11'));
       spyOn(component, 'getUnspecifiedCategory');
       component.isReviewModalOpen = true;
+      component.splitConfig = cloneDeep(splitConfig);
     });
 
     it('should should show all categories if show_project_mapped_categories_in_split_expense flag is false', () => {
@@ -929,6 +934,31 @@ describe('SplitExpensePage', () => {
       expect(component.transaction).toEqual(JSON.parse(activateRouteMock.snapshot.params.txn));
       expect(component.selectedProject).toEqual(JSON.parse(activateRouteMock.snapshot.params.selectedProject));
       expect(component.expenseFields).toEqual(JSON.parse(activateRouteMock.snapshot.params.expenseFields));
+    });
+
+    it('should set parentFieldId to cost_center_id when project is not visible but costCenter is visible', () => {
+      component.txnFields = cloneDeep(txnFieldData);
+      component.splitConfig = component.splitConfig = {
+        ...cloneDeep(splitConfig),
+        category: { ...splitConfig.project, is_visible: false },
+      };
+
+      component.ionViewWillEnter();
+
+      expect(component.splitConfig.costCenter.is_visible).toBeTrue();
+      expect(component.txnFields.cost_center_id).toBeDefined();
+    });
+
+    it('should call getCategoryList when ionViewWillEnter is called', () => {
+      spyOn(component, 'getCategoryList');
+      component.ionViewWillEnter();
+      expect(component.getCategoryList).toHaveBeenCalled();
+    });
+
+    it('should call addCostCenterIdToTxnFields when cost center is visible', () => {
+      spyOn(component, 'addCostCenterIdToTxnFields');
+      component.ionViewWillEnter();
+      expect(component.addCostCenterIdToTxnFields).toHaveBeenCalled();
     });
   });
 
@@ -1337,6 +1367,7 @@ describe('SplitExpensePage', () => {
     });
 
     it('should return formatted categories when project ID is null', (done) => {
+      spyOn(component, 'formatCategories').and.callThrough();
       component
         .getFilteredCategories({
           projectControl: component.splitExpensesFormArray.at(0).get('project'),
@@ -1345,6 +1376,7 @@ describe('SplitExpensePage', () => {
           services: { launchDarklyService, projectsService },
         })
         .subscribe((categories) => {
+          expect(component.formatCategories).toHaveBeenCalledWith(allowedActiveCategories);
           expect(categories).toEqual(allowedActiveCategoriesListOptions);
           done();
         });
@@ -2830,6 +2862,21 @@ describe('SplitExpensePage', () => {
 
       const result = component.generateInputFieldInfo(0);
       expect(result).toEqual({});
+    });
+  });
+
+  describe('addCostCenterIdToTxnFields', () => {
+    it('should return early if cost_center_id is already present in txnFields', () => {
+      component.txnFields = cloneDeep(txnFieldData);
+      component.addCostCenterIdToTxnFields();
+      expect(component.txnFields.cost_center_id).toEqual(txnFieldData.cost_center_id);
+    });
+
+    it('should assign cost_center_id if it is not present in txnFields and exists in expenseFields', () => {
+      component.txnFields = cloneDeep(expenseFieldObjData);
+      component.expenseFields = transformedResponse;
+      component.addCostCenterIdToTxnFields();
+      expect(component.txnFields.cost_center_id).toBe(transformedResponse[4]);
     });
   });
 

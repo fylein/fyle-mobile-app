@@ -1365,6 +1365,16 @@ export class SplitExpensePage implements OnDestroy {
     }
   }
 
+  addCostCenterIdToTxnFields(): void {
+    if (this.txnFields.cost_center_id) {
+      return;
+    }
+    const costCenterField = this.expenseFields.find((field) => field.column_name === 'cost_center_id');
+    if (costCenterField) {
+      this.txnFields.cost_center_id = costCenterField;
+    }
+  }
+
   private setRecentlySplitExpenses(data: { expenses: Partial<Transaction>[] }): void {
     this.expensesService.splitExpensesData$.next(data);
   }
@@ -1375,16 +1385,6 @@ export class SplitExpensePage implements OnDestroy {
 
   private clearRecentlySplitExpenses(): void {
     this.expensesService.splitExpensesData$.next(null);
-  }
-
-  private addCostCenterIdToTxnFields(): void {
-    if (this.txnFields.cost_center_id) {
-      return;
-    }
-    const costCenterField = this.expenseFields.find((field) => field.column_name === 'cost_center_id');
-    if (costCenterField) {
-      this.txnFields.cost_center_id = costCenterField;
-    }
   }
 
   private setEvenSplit(
