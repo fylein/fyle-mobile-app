@@ -120,7 +120,6 @@ export class DashboardPage {
   }
 
   setNavbarWalkthroughConfig(): void {
-    this.trackingService.eventTrack('Dashboard Walkthrough Started');
     const featureConfigParams = {
       feature: 'DASHBOARD_NAVBAR_WALKTHROUGH',
       key: 'SHOW_NAVBAR_WALKTHROUGH',
@@ -151,7 +150,6 @@ export class DashboardPage {
   }
 
   setNavbarWalkthroughCompleted(): void {
-    this.trackingService.eventTrack('Dashboard Walkthrough Completed');
     const featureConfigParams = {
       feature: 'DASHBOARD_NAVBAR_WALKTHROUGH',
       key: 'SHOW_NAVBAR_WALKTHROUGH',
@@ -204,7 +202,8 @@ export class DashboardPage {
       {
         element: '#footer-walkthrough',
         popover: {
-          description: 'You can now access Expenses directly from the navigation bar.',
+          description:
+            'Expenses & Reports are now on the bottom bar of the home page for easy access and smooth navigation!',
           side: 'top',
           align: 'center',
           showButtons: ['next'],
@@ -216,7 +215,7 @@ export class DashboardPage {
       {
         element: '#tab-button-expenses',
         popover: {
-          description: 'You can now access Expenses directly from the navigation bar.',
+          description: 'Tap here to quickly access and manage your expenses!.',
           side: 'top',
           align: 'start',
         },
@@ -227,7 +226,7 @@ export class DashboardPage {
       {
         element: '#tab-button-reports',
         popover: {
-          description: 'You can now access Reports directly from the navigation bar.',
+          description: 'Tap here to quickly access and manage your expense reports!',
           side: 'top',
           align: 'end',
         },
@@ -241,7 +240,7 @@ export class DashboardPage {
       steps.push({
         element: '#approval-pending-stat',
         popover: {
-          description: 'Now you can view your team expense report data on home page',
+          description: `Easily manage and approve reports—Access your team's reports right from the home page!`,
           side: 'top',
           align: 'center',
         },
