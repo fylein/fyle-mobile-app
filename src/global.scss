@@ -1443,8 +1443,7 @@ ion-toggle.toggle-checked::before {
 .driver-popover {
   background-color: #2c304e;
   color: white;
-  width: 254px;
-  height: 154px;
+  min-height: 154px;
   max-width: 260px;
   box-shadow: none;
 }
