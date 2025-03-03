@@ -138,6 +138,7 @@ import dayjs from 'dayjs';
 import { OrgCategory } from 'src/app/core/models/v1/org-category.model';
 import { FyMsgPopoverComponent } from 'src/app/shared/components/fy-msg-popover/fy-msg-popover.component';
 import { ReviewSplitExpenseComponent } from 'src/app/shared/components/review-split-expense/review-split-expense.component';
+import { splitConfig } from 'src/app/core/mock-data/split-config.data';
 describe('SplitExpensePage', () => {
   let component: SplitExpensePage;
   let fixture: ComponentFixture<SplitExpensePage>;
@@ -785,7 +786,7 @@ describe('SplitExpensePage', () => {
 
       component.ionViewWillEnter();
 
-      expect(launchDarklyService.getVariation).toHaveBeenCalledWith(
+      expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith(
         'show_project_mapped_categories_in_split_expense',
         false
       );
@@ -892,10 +893,10 @@ describe('SplitExpensePage', () => {
       expect(component.setValuesForCCC).toHaveBeenCalledOnceWith(currencyObjData1, 'USD', true);
     });
 
-    it('should open review modal if fromSplitExpenseReview is true and isReviewModalOpen is false', () => {
+    it('should open review modal if isReviewModalOpen is false', () => {
       spyOn(component, 'openReviewSplitExpenseModal');
       component.isReviewModalOpen = false;
-      const mockData = { fromSplitExpenseReview: true, expenses: [] };
+      const mockData = { expenses: [] };
       spyOn(expensesService.splitExpensesData$, 'asObservable').and.returnValue(of(mockData));
 
       component.ionViewWillEnter();
@@ -903,10 +904,10 @@ describe('SplitExpensePage', () => {
       expect(component.openReviewSplitExpenseModal).toHaveBeenCalledWith([]);
     });
 
-    it('should not open review modal if fromSplitExpenseReview is false or isReviewModalOpen is true', () => {
+    it('should not open review modal if isReviewModalOpen is true', () => {
       spyOn(component, 'openReviewSplitExpenseModal');
       component.isReviewModalOpen = true;
-      const mockData = { fromSplitExpenseReview: false, expenses: [] };
+      const mockData = { expenses: [] };
       spyOn(expensesService.splitExpensesData$, 'asObservable').and.returnValue(of(mockData));
       component.ionViewWillEnter();
 
@@ -932,40 +933,8 @@ describe('SplitExpensePage', () => {
 
   describe('setValuesForCCC():', () => {
     beforeEach(() => {
-      component.splitConfig = {
-        category: {
-          is_mandatory: false,
-          is_visible: true,
-          value: undefined,
-        },
-        costCenter: {
-          is_mandatory: false,
-          is_visible: true,
-          value: undefined,
-        },
-        project: {
-          is_mandatory: true,
-          is_visible: true,
-          value: undefined,
-        },
-      };
-      component.txnFields = {
-        purpose: {
-          is_mandatory: false,
-          code: '',
-          column_name: '',
-          created_at: undefined,
-          default_value: '',
-          is_custom: false,
-          is_enabled: true,
-          org_category_ids: [],
-          org_id: '',
-          placeholder: '',
-          seq: 0,
-          type: '',
-          updated_at: undefined,
-        },
-      };
+      component.splitConfig = splitConfig;
+      component.txnFields = txnFieldData;
 
       spyOn(component, 'getActiveCategories').and.returnValue(of([]));
       spyOn(component, 'getFilteredCategories').and.returnValue(of([]));
@@ -1068,40 +1037,8 @@ describe('SplitExpensePage', () => {
 
   describe('add():', () => {
     beforeEach(() => {
-      component.splitConfig = {
-        category: {
-          is_mandatory: false,
-          is_visible: true,
-          value: undefined,
-        },
-        costCenter: {
-          is_mandatory: false,
-          is_visible: true,
-          value: undefined,
-        },
-        project: {
-          is_mandatory: true,
-          is_visible: true,
-          value: undefined,
-        },
-      };
-      component.txnFields = {
-        purpose: {
-          is_mandatory: false,
-          code: '',
-          column_name: '',
-          created_at: undefined,
-          default_value: '',
-          is_custom: false,
-          is_enabled: true,
-          org_category_ids: [],
-          org_id: '',
-          placeholder: '',
-          seq: 0,
-          type: '',
-          updated_at: undefined,
-        },
-      };
+      component.splitConfig = splitConfig;
+      component.txnFields = txnFieldData;
     });
 
     afterEach(() => {
@@ -1192,11 +1129,7 @@ describe('SplitExpensePage', () => {
     });
 
     it('should add category control if category is visible in splitConfig', () => {
-      component.splitConfig = {
-        category: { is_visible: true, is_mandatory: true, value: null },
-        project: { is_visible: false, is_mandatory: false, value: null },
-        costCenter: { is_visible: false, is_mandatory: false, value: null },
-      };
+      component.splitConfig = splitConfig;
 
       component.add(50, 'USD', 50);
       const formGroup = component.splitExpensesFormArray.at(0);
@@ -1204,23 +1137,17 @@ describe('SplitExpensePage', () => {
     });
 
     it('should not add category control if category is not visible in splitConfig', () => {
-      component.splitConfig = {
-        category: { is_visible: false, is_mandatory: false, value: null },
-        project: { is_visible: false, is_mandatory: false, value: null },
-        costCenter: { is_visible: false, is_mandatory: false, value: null },
+      component.splitConfig = component.splitConfig = {
+        ...splitConfig,
+        category: { ...splitConfig.category, is_visible: false },
       };
-
       component.add(50, 'USD', 50);
       const formGroup = component.splitExpensesFormArray.at(0);
       expect(formGroup.get('category')).toBeFalsy();
     });
 
     it('should add project control if project is visible in splitConfig', () => {
-      component.splitConfig = {
-        category: { is_visible: false, is_mandatory: false, value: null },
-        project: { is_visible: true, is_mandatory: true, value: null },
-        costCenter: { is_visible: false, is_mandatory: false, value: null },
-      };
+      component.splitConfig = splitConfig;
 
       component.add(50, 'USD', 50);
       const formGroup = component.splitExpensesFormArray.at(0);
@@ -1228,11 +1155,7 @@ describe('SplitExpensePage', () => {
     });
 
     it('should add cost center control if costCenter is visible in splitConfig', () => {
-      component.splitConfig = {
-        category: { is_visible: false, is_mandatory: false, value: null },
-        project: { is_visible: false, is_mandatory: false, value: null },
-        costCenter: { is_visible: true, is_mandatory: true, value: null },
-      };
+      component.splitConfig = splitConfig;
 
       component.add(50, 'USD', 50);
       const formGroup = component.splitExpensesFormArray.at(0);
@@ -1249,11 +1172,7 @@ describe('SplitExpensePage', () => {
 
     it('should setup filtered categories for first split if category is visible', () => {
       spyOn(component, 'setupFilteredCategories');
-      component.splitConfig = {
-        category: { is_visible: true, is_mandatory: true, value: null },
-        project: { is_visible: false, is_mandatory: false, value: null },
-        costCenter: { is_visible: false, is_mandatory: false, value: null },
-      };
+      component.splitConfig = splitConfig;
 
       component.add(50, 'USD', 50);
       expect(component.setupFilteredCategories).toHaveBeenCalledWith(0);
@@ -1274,23 +1193,7 @@ describe('SplitExpensePage', () => {
       component.filteredCategoriesArray = [];
       component.costCenterDisabledStates = [];
       component.categories$ = of([]);
-      component.splitConfig = {
-        category: {
-          is_mandatory: false,
-          is_visible: true,
-          value: undefined,
-        },
-        costCenter: {
-          is_mandatory: false,
-          is_visible: true,
-          value: undefined,
-        },
-        project: {
-          is_mandatory: true,
-          is_visible: true,
-          value: undefined,
-        },
-      };
+      component.splitConfig = splitConfig;
       spyOn(component, 'setupFilteredCategories');
       spyOn(component, 'onCategoryChange');
     });
@@ -1657,7 +1560,6 @@ describe('SplitExpensePage', () => {
       });
       expect(expensesService.splitExpensesData$.next).toHaveBeenCalledWith({
         expenses: [txnData2, txnData4],
-        fromSplitExpenseReview: true,
       });
       await ReviewSplitExpenseModalSpy.onWillDismiss();
       expect(component.isReviewModalOpen).toBeFalse();
@@ -1722,45 +1624,8 @@ describe('SplitExpensePage', () => {
         purpose: new FormControl(''),
       });
       component.splitExpensesFormArray = new FormArray([splitExpenseForm1, splitExpenseForm2]);
-      component.splitConfig = {
-        category: {
-          is_visible: true,
-          value: undefined,
-          is_mandatory: false,
-        },
-        project: {
-          is_visible: true,
-          value: undefined,
-          is_mandatory: false,
-        },
-        costCenter: {
-          is_visible: true,
-          value: undefined,
-          is_mandatory: false,
-        },
-      };
-      component.txnFields = {
-        cost_center_id: {
-          id: 3,
-          code: null,
-          column_name: 'cost_center_id',
-          created_at: new Date('2018-01-31T23:50:27.221000+00:00'),
-          default_value: null,
-          field_name: 'Location',
-          is_custom: false,
-          is_enabled: true,
-          is_mandatory: false,
-          options: [],
-          org_category_ids: [16557, 16558, 16559, 16560, 16561, 226659],
-          org_id: 'orNVthTo2Zyo',
-          placeholder: 'Select Cost Center',
-          seq: 1,
-          type: 'SELECT',
-          updated_at: new Date('2023-05-25T12:09:02.814657+00:00'),
-          parent_field_id: null,
-          field: 'cost_center_id',
-        },
-      };
+      component.splitConfig = splitConfig;
+      component.txnFields = txnFieldData;
     });
 
     it('should return early if costCenter is not visible', () => {
@@ -2088,23 +1953,7 @@ describe('SplitExpensePage', () => {
       spyOn(component, 'correctDates');
       spyOn(component, 'setTransactionDate').and.returnValue(new Date('2023-08-04'));
       timezoneService.convertAllDatesToProperLocale.and.returnValue(txnCustomPropertiesData);
-      component.splitConfig = {
-        category: {
-          is_mandatory: false,
-          is_visible: true,
-          value: undefined,
-        },
-        costCenter: {
-          is_mandatory: false,
-          is_visible: true,
-          value: undefined,
-        },
-        project: {
-          is_mandatory: true,
-          is_visible: true,
-          value: undefined,
-        },
-      };
+      component.splitConfig = splitConfig;
     });
 
     it('should return split expense object with all the fields if project is enable and cost center is disable', () => {
@@ -2838,7 +2687,7 @@ describe('SplitExpensePage', () => {
 
     it('should call handlePolicyAndMissingFieldsCheck and showSplitExpensePolicyViolationsAndMissingFields if policy violations exist', (done) => {
       const splitEtxns = cloneDeep(txnList);
-      component.handlePolicyAndMissingFieldsCheck(splitEtxns).subscribe((_res) => {
+      component.handlePolicyAndMissingFieldsCheck(splitEtxns).subscribe(() => {
         expect(policyService.checkIfViolationsExist).toHaveBeenCalledOnceWith({ '0': policyViolation1 });
         expect(splitExpenseService.checkIfMissingFieldsExist).toHaveBeenCalledOnceWith({
           '1': transformedSplitExpenseMissingFieldsData,
