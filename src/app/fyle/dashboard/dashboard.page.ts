@@ -479,32 +479,26 @@ export class DashboardPage {
 
   onExpensesClicked(): void {
     this.currentActiveState = FooterState.EXPENSES;
-    this.router.navigate(
-      [
-        '/',
-        'enterprise',
-        'my_expenses',
-        {
-          navigate_back: true,
-        },
-      ],
-      { skipLocationChange: true, replaceUrl: true }
-    );
+    this.router.navigate([
+      '/',
+      'enterprise',
+      'my_expenses',
+      {
+        navigate_back: true,
+      },
+    ]);
   }
 
   onReportsClicked(): void {
     this.currentActiveState = FooterState.REPORTS;
-    this.router.navigate(
-      [
-        '/',
-        'enterprise',
-        'my_reports',
-        {
-          navigate_back: true,
-        },
-      ],
-      { skipLocationChange: true, replaceUrl: true }
-    );
+    this.router.navigate([
+      '/',
+      'enterprise',
+      'my_reports',
+      {
+        navigate_back: true,
+      },
+    ]);
   }
 
   onHomeClicked(): void {

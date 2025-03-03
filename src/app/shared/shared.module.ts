@@ -154,6 +154,7 @@ import { MobileNumberCardComponent } from './components/mobile-number-card/mobil
 import { PasswordCheckTooltipComponent } from './components/password-check-tooltip/password-check-tooltip.component';
 import { ExactCurrencyPipe } from './pipes/exact-currency.pipe';
 import { CCExpenseMerchantInfoModalComponent } from './components/cc-expense-merchant-info-modal/cc-expense-merchant-info-modal.component';
+import { ShowAllApproversPopoverComponent } from './components/fy-approver/show-all-approvers-popover/show-all-approvers-popover.component';
 
 @NgModule({
   declarations: [
@@ -221,6 +222,7 @@ import { CCExpenseMerchantInfoModalComponent } from './components/cc-expense-mer
     BankAccountCardComponent,
     DeleteButtonComponent,
     AddApproversPopoverComponent,
+    ShowAllApproversPopoverComponent,
     ExpenseCardLiteComponent,
     BankAccountCardsComponent,
     BankAccountCardComponent,
