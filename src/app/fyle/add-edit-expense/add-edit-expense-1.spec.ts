@@ -253,19 +253,19 @@ export function TestCases1(getTestBed) {
     describe('goBack():', () => {
       it('should go back to the report if redirected from the report page', () => {
         component.isRedirectedFromReport = true;
+
         fixture.detectChanges();
 
         navController.back.and.returnValue(null);
-
         component.goBack();
         expect(navController.back).toHaveBeenCalledTimes(1);
       });
 
       it('should go back to my expenses page if it is not redirected from report and no filters are applied', () => {
         activatedRoute.snapshot.params.persist_filters = false;
+
         component.isRedirectedFromReport = false;
         fixture.detectChanges();
-
         component.goBack();
         expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses']);
       });
@@ -706,7 +706,7 @@ export function TestCases1(getTestBed) {
           'enterprise',
           'split_expense',
           {
-            splitConfig,
+            splitConfig: JSON.stringify(splitConfig),
             txnFields: JSON.stringify(txnFieldsMap2),
             txn: JSON.stringify(unflattenedExpData.tx),
             currencyObj: JSON.stringify(component.fg.controls.currencyObj.value),
@@ -752,7 +752,7 @@ export function TestCases1(getTestBed) {
           'enterprise',
           'split_expense',
           {
-            splitConfig,
+            splitConfig: JSON.stringify(splitConfig),
             txnFields: JSON.stringify(txnFieldsMap2),
             txn: JSON.stringify(unflattenedExpData.tx),
             currencyObj: JSON.stringify(component.fg.controls.currencyObj.value),
