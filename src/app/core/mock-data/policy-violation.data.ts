@@ -89,6 +89,7 @@ export const splitPolicyExp4: PolicyViolation = deepFreeze({
   },
   amount: 240000,
   currency: 'INR',
+  inputFieldInfo: { Category: 'Travel', 'Cost Center': 'Finance', Project: 'Project A' },
   name: '1 / chumma returns',
   type: 'category',
 });
@@ -166,8 +167,6 @@ export const policyViolationData5: PolicyViolation = deepFreeze({
 export const policyViolationData6: PolicyViolation = deepFreeze({
   amount: 122,
   currency: 'INR',
-  name: undefined,
-  type: undefined,
   inputFieldInfo: { Category: 'Travel', 'Cost Center': 'Finance', Project: 'Project A' },
   data: {
     individual_desired_states: [],
