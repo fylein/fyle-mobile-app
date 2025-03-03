@@ -466,10 +466,6 @@ export class MyExpensesPage implements OnInit {
   ionViewWillEnter(): void {
     this.isNewReportsFlowEnabled = false;
     this.initClassObservables();
-    // this.hardwareBackButton = this.platformHandlerService.registerBackButtonAction(
-    //   BackButtonActionPriority.MEDIUM,
-    //   this.backButtonAction
-    // );
 
     this.tasksService.getExpensesTaskCount().subscribe((expensesTaskCount) => {
       this.expensesTaskCount = expensesTaskCount;
