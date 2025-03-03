@@ -252,7 +252,7 @@ export function TestCases1(getTestBed) {
 
     describe('goBack():', () => {
       it('should go back to the report if redirected from the report page', () => {
-        component.isRedirectedFromReport = true;
+        activatedRoute.snapshot.params.isRedirectedFromReport = true;
 
         fixture.detectChanges();
 
@@ -673,7 +673,7 @@ export function TestCases1(getTestBed) {
 
     describe('openSplitExpenseModal():', () => {
       beforeEach(() => {
-        customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
+        expenseFieldsService.getAllEnabled.and.returnValue(of(expenseFieldResponse));
       });
 
       it('should open split expense modal by navigating to split expense', () => {
@@ -687,12 +687,12 @@ export function TestCases1(getTestBed) {
             is_mandatory: expenseFieldObjData.org_category_id?.is_mandatory || false,
           },
           project: {
-            is_visible: !!expenseFieldObjData.project_id,
+            is_visible: !!expenseFieldObjData.project_id || component.isProjectEnabled,
             value: component.getFormValues().project,
             is_mandatory: expenseFieldObjData.project_id?.is_mandatory || false,
           },
           costCenter: {
-            is_visible: !!expenseFieldObjData.cost_center_id,
+            is_visible: !!expenseFieldObjData.cost_center_id || component.isCostCenterEnabled,
             value: component.getFormValues().costCenter,
             is_mandatory: expenseFieldObjData.cost_center_id?.is_mandatory || false,
           },
@@ -733,12 +733,12 @@ export function TestCases1(getTestBed) {
             is_mandatory: expenseFieldObjData.org_category_id?.is_mandatory || false,
           },
           project: {
-            is_visible: !!expenseFieldObjData.project_id,
+            is_visible: !!expenseFieldObjData.project_id || component.isProjectEnabled,
             value: component.getFormValues().project,
             is_mandatory: expenseFieldObjData.project_id?.is_mandatory || false,
           },
           costCenter: {
-            is_visible: !!expenseFieldObjData.cost_center_id,
+            is_visible: !!expenseFieldObjData.cost_center_id || component.isCostCenterEnabled,
             value: component.getFormValues().costCenter,
             is_mandatory: expenseFieldObjData.cost_center_id?.is_mandatory || false,
           },

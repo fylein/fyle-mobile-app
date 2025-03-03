@@ -128,7 +128,7 @@ export class SplitExpensePage implements OnDestroy {
   unspecifiedCategory: OrgCategory = null;
 
   isReviewModalOpen = false;
-  
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
@@ -538,7 +538,7 @@ export class SplitExpensePage implements OnDestroy {
     const inputFieldInfo: { [key: string]: string } = {};
 
     if (this.splitConfig.category.is_visible) {
-      inputFieldInfo.Category = splitExpenseFormValue?.category.name || '-';
+      inputFieldInfo.Category = splitExpenseFormValue?.category?.name || '-';
     }
 
     if (this.splitConfig.costCenter.is_visible) {
@@ -546,7 +546,7 @@ export class SplitExpensePage implements OnDestroy {
     }
 
     if (this.splitConfig.project.is_visible) {
-      inputFieldInfo[this.txnFields?.project_id?.field_name] = splitExpenseFormValue?.project.project_name || '-';
+      inputFieldInfo[this.txnFields?.project_id?.field_name] = splitExpenseFormValue?.project?.project_name || '-';
     }
     return inputFieldInfo;
   }
@@ -1376,7 +1376,7 @@ export class SplitExpensePage implements OnDestroy {
   private clearRecentlySplitExpenses(): void {
     this.expensesService.splitExpensesData$.next(null);
   }
-  
+
   private addCostCenterIdToTxnFields(): void {
     if (this.txnFields.cost_center_id) {
       return;
