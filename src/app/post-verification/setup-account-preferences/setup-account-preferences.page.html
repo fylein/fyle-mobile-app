@@ -1,7 +1,7 @@
 <ion-content>
-  <div class="setup-account-preferences" *ngIf="isConnected$|async">
+  @if (isConnected$|async) {
+  <div class="setup-account-preferences">
     <div class="setup-account-preferences--full-name">{{companyName$|async}}</div>
-
     <div class="setup-account-preferences--form-header-container">
       <div class="setup-account-preferences--form-header setup-account-preferences--form-header__completed">
         Setup your account?
@@ -9,7 +9,6 @@
       <div class="setup-account-preferences--form-header">Configure Fyle</div>
       <div class="setup-account-preferences--form-sub-header">Setup your account preferences</div>
     </div>
-
     <form [formGroup]="fg">
       <div class="setup-account-preferences--config">
         <div class="setup-account-preferences--config-header">
@@ -51,7 +50,8 @@
       </div>
     </form>
   </div>
-  <div class="setup-account-preferences-offline ion-text-center" *ngIf="!(isConnected$|async)">
+  } @if (!(isConnected$|async)) {
+  <div class="setup-account-preferences-offline ion-text-center">
     <img
       class="setup-account-preferences-offline--image"
       alt="offline-zer-state"
@@ -63,4 +63,5 @@
       working.
     </div>
   </div>
+  }
 </ion-content>

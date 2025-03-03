@@ -17,12 +17,8 @@
   <div>
     <div class="delegated--header-bar">Select the account you wish to manage</div>
     <div id="delagated-acc-list">
-      <div
-        matRipple
-        (click)="switchToDelegatee(acc)"
-        class="delegated--org-element"
-        *ngFor="let acc of delegatedAccList"
-      >
+      @for (acc of delegatedAccList; track acc) {
+      <div matRipple (click)="switchToDelegatee(acc)" class="delegated--org-element">
         <ion-grid>
           <ion-row>
             <ion-col size="2">
@@ -36,6 +32,7 @@
           </ion-row>
         </ion-grid>
       </div>
+      }
     </div>
   </div>
 </ion-content>

@@ -9,35 +9,37 @@
       {{ header }}
     </div>
   </div>
-  <div *ngIf="error" class="error-internal__details">
-    <div *ngIf="error.status === 401 && (error.data || error.message)">
+  @if (error) {
+  <div class="error-internal__details">
+    @if (error.status === 401 && (error.data || error.message)) {
+    <div>
       This email address will be temporarily locked after 5 unsuccessful login attempts. Would you like to try
       <a class="error-internal__redirect" (click)="routeTo(['/', 'auth', 'reset_password'])">resetting</a> your
       password?
     </div>
-
-    <div *ngIf="error.status === 400">
-      Your account is not verified. Please request a verification link, if required
-    </div>
-
-    <div *ngIf="error.status === 500">
+    } @if (error.status === 400) {
+    <div>Your account is not verified. Please request a verification link, if required</div>
+    } @if (error.status === 500) {
+    <div>
       <div>
         Please retry in a while. Send us a note to <a href="mailto:support@fylehq.com">support&#64;fylehq.com</a> if the
         problem persists.
       </div>
     </div>
-
-    <div *ngIf="error.status === 433">
+    } @if (error.status === 433) {
+    <div>
       <div>
         This email address is locked temporarily, as there are too many unsuccessful login attempts recently. Please
         retry later.
       </div>
     </div>
-
-    <div *ngIf="error.status === 401 && !(error.data || error.message)">
+    } @if (error.status === 401 && !(error.data || error.message)) {
+    <div>
       <div>Your organization has restricted Fyle access to its corporate network.</div>
     </div>
+    }
   </div>
+  }
   <div class="error-internal__primary-cta">
     <ion-button class="btn-primary" fill="clear" (click)="closePopover()">Try again</ion-button>
   </div>

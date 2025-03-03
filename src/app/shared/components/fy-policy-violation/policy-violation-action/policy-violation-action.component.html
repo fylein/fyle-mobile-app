@@ -6,9 +6,11 @@
   }"
 >
   <div class="policy-violation-action--content">
-    <div class="policy-violation-action--icon" *ngIf="icon">
+    @if (icon) {
+    <div class="policy-violation-action--icon">
       <img [src]="icon" />
     </div>
+    }
     <div class="policy-violation-action--message" [innerHTML]="message"></div>
   </div>
 </div>

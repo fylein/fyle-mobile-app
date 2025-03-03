@@ -32,31 +32,29 @@
       <span> One Time Password (OTP) </span>
       <span class="verify-number-popover__input-container__mandatory"> * </span>
     </div>
-    <ng-container *ngIf="showOtpTimer; else resendOtpCta">
-      <span class="verify-number-popover__input-container__label__otp-timer">
-        Resend OTP in
-        <span class="verify-number-popover__input-container__label__otp-timer--timer"
-          >0:{{ otpTimer | number : '2.0' }}</span
-        >
-      </span>
-    </ng-container>
-    <ng-template #resendOtpCta>
-      <button
-        *ngIf="!disableResendOtp"
-        class="verify-number-popover__input-container__label__resend"
-        (click)="resendOtp('CLICK')"
-        appFormButtonValidation
-        buttonType="secondary"
-        [loading]="sendingOtp"
-        loadingText="Sending OTP"
+    @if (showOtpTimer) {
+    <span class="verify-number-popover__input-container__label__otp-timer">
+      Resend OTP in
+      <span class="verify-number-popover__input-container__label__otp-timer--timer"
+        >0:{{ otpTimer | number : '2.0' }}</span
       >
-        Resend OTP
-      </button>
-      <!-- TODO: Handle this case in directive and fix it property -->
-      <div *ngIf="disableResendOtp" class="verify-number-popover__input-container__label__resend--disabled">
-        Resend OTP
-      </div>
-    </ng-template>
+    </span>
+    } @else { @if (!disableResendOtp) {
+    <button
+      class="verify-number-popover__input-container__label__resend"
+      (click)="resendOtp('CLICK')"
+      appFormButtonValidation
+      buttonType="secondary"
+      [loading]="sendingOtp"
+      loadingText="Sending OTP"
+    >
+      Resend OTP
+    </button>
+    }
+    <!-- TODO: Handle this case in directive and fix it property -->
+    @if (disableResendOtp) {
+    <div class="verify-number-popover__input-container__label__resend--disabled">Resend OTP</div>
+    } }
   </div>
   <input
     #input
@@ -70,5 +68,7 @@
     maxlength="6"
     (focus)="onFocus()"
   />
-  <span *ngIf="error?.length" class="verify-number-popover__input-container__error">{{ error }}</span>
+  @if (error?.length) {
+  <span class="verify-number-popover__input-container__error">{{ error }}</span>
+  }
 </div>

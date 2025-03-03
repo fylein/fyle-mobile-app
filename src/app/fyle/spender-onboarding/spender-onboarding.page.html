@@ -1,6 +1,7 @@
 <div class="spender-onboarding-container">
   <ion-content class="content-container no-keyboard-adjust" scroll-y="false">
-    <div class="spender-onboarding" *ngIf="!isLoading && onboardingInProgress">
+    @if (!isLoading && onboardingInProgress) {
+    <div class="spender-onboarding">
       <ion-buttons slot="start" class="spender-onboarding__menu-icon-container">
         <app-fy-menu-icon class="spender-onboarding__menubutton" auto-hide="false"></app-fy-menu-icon>
       </ion-buttons>
@@ -28,33 +29,37 @@
           </div>
           <div class="spender-onboarding__skip-cta" (click)="skipOnboardingStep()">Skip</div>
         </div>
+        @if (this.currentStep === 'CONNECT_CARD') {
         <app-spender-onboarding-connect-card-step
           [orgSettings]="orgSettings"
           (isStepComplete)="markStepAsComplete()"
           (isStepSkipped)="skipOnboardingStep()"
-          *ngIf="this.currentStep === 'CONNECT_CARD'"
           class="spender-onboarding__onboarding-step"
         ></app-spender-onboarding-connect-card-step>
+        } @if (this.currentStep === 'OPT_IN') {
         <app-spender-onboarding-opt-in-step
           [eou]="eou"
           [areCardsEnrolled]="areCardsEnrolled"
           (isStepComplete)="markStepAsComplete()"
           (goToConnectCard)="goBackToConnectCard()"
-          *ngIf="this.currentStep === 'OPT_IN'"
           class="spender-onboarding__onboarding-step"
         ></app-spender-onboarding-opt-in-step>
+        }
       </div>
     </div>
-    <div class="spender-onboarding-loader" *ngIf="onboardingInProgress === false && !onboardingComplete">
+    } @if (onboardingInProgress === false && !onboardingComplete) {
+    <div class="spender-onboarding-loader">
       <div class="spender-onboarding-loader__redirection-loader">
         <ion-icon src="/assets/svg/loader.svg" class="spender-onboarding-loader__redirection-loader__icon"></ion-icon>
       </div>
       <div class="spender-onboarding-loader__redirection-loader__text">Setting up your account...</div>
     </div>
-    <div class="spender-onboarding-loader" *ngIf="onboardingInProgress === false && onboardingComplete">
+    } @if (onboardingInProgress === false && onboardingComplete) {
+    <div class="spender-onboarding-loader">
       <img src="/assets/images/onboarding-success.gif" />
       <div class="spender-onboarding-loader__header-text">You're all set!</div>
       <div class="spender-onboarding-loader__description-text">Redirecting in {{redirectionCount}}</div>
     </div>
+    }
   </ion-content>
 </div>

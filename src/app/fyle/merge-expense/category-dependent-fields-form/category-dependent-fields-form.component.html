@@ -1,8 +1,8 @@
 <form [formGroup]="categoryDependentFormGroup">
+  @if (location1OptionsData?.options?.length > 0) {
   <div
     [ngClass]="{ 'merge-expenses--internal-block_special': categoryDependentFormGroup.controls.location_1.value }"
     class="merge-expenses--internal-block"
-    *ngIf="location1OptionsData?.options?.length > 0"
   >
     <app-fy-select
       [enableSearch]="false"
@@ -20,11 +20,10 @@
     >
     </app-fy-select>
   </div>
-
+  } @if (location2OptionsData?.options?.length > 0) {
   <div
     class="merge-expenses--internal-block"
     [ngClass]="{ 'merge-expenses--internal-block_special': categoryDependentFormGroup.controls.location_2.value }"
-    *ngIf="location2OptionsData?.options?.length > 0"
   >
     <app-fy-select
       [enableSearch]="false"
@@ -42,11 +41,10 @@
     >
     </app-fy-select>
   </div>
-
+  } @if (onwardDateOptionsData?.options?.length > 0) {
   <div
     [ngClass]="{ 'merge-expenses--internal-block_special': categoryDependentFormGroup.controls.from_dt.value }"
     class="merge-expenses--internal-block"
-    *ngIf="onwardDateOptionsData?.options?.length > 0"
   >
     <app-fy-select
       [enableSearch]="false"
@@ -64,11 +62,10 @@
     >
     </app-fy-select>
   </div>
-
+  } @if (returnDateOptionsData?.options?.length > 0) {
   <div
     [ngClass]="{ 'merge-expenses--internal-block_special': categoryDependentFormGroup.controls.to_dt.value }"
     class="merge-expenses--internal-block"
-    *ngIf="returnDateOptionsData?.options?.length > 0"
   >
     <app-fy-select
       [enableSearch]="false"
@@ -86,13 +83,12 @@
     >
     </app-fy-select>
   </div>
-
+  } @if (flightJourneyTravelClassOptionsData?.options?.length > 0) {
   <div
     [ngClass]="{
       'merge-expenses--internal-block_special': categoryDependentFormGroup.controls.flight_journey_travel_class.value
     }"
     class="merge-expenses--internal-block"
-    *ngIf="flightJourneyTravelClassOptionsData?.options?.length > 0"
   >
     <app-fy-select
       [enableSearch]="false"
@@ -112,13 +108,12 @@
     >
     </app-fy-select>
   </div>
-
+  } @if (flightReturnTravelClassOptionsData?.options?.length > 0) {
   <div
     [ngClass]="{
       'merge-expenses--internal-block_special': categoryDependentFormGroup.controls.flight_return_travel_class.value
     }"
     class="merge-expenses--internal-block"
-    *ngIf="flightReturnTravelClassOptionsData?.options?.length > 0"
   >
     <app-fy-select
       [enableSearch]="false"
@@ -138,13 +133,12 @@
     >
     </app-fy-select>
   </div>
-
+  } @if (trainTravelClassOptionsData?.options?.length > 0) {
   <div
     [ngClass]="{
       'merge-expenses--internal-block_special': categoryDependentFormGroup.controls.train_travel_class.value
     }"
     class="merge-expenses--internal-block"
-    *ngIf="trainTravelClassOptionsData?.options?.length > 0"
   >
     <app-fy-select
       [enableSearch]="false"
@@ -164,13 +158,12 @@
     >
     </app-fy-select>
   </div>
-
+  } @if (busTravelClassOptionsData?.options?.length > 0) {
   <div
     [ngClass]="{
       'merge-expenses--internal-block_special': categoryDependentFormGroup.controls.bus_travel_class.value
     }"
     class="merge-expenses--internal-block"
-    *ngIf="busTravelClassOptionsData?.options?.length > 0"
   >
     <app-fy-select
       [enableSearch]="false"
@@ -190,11 +183,10 @@
     >
     </app-fy-select>
   </div>
-
+  } @if (distanceOptionsData?.options?.length > 0) {
   <div
     [ngClass]="{ 'merge-expenses--internal-block_special': categoryDependentFormGroup.controls.distance.value }"
     class="merge-expenses--internal-block"
-    *ngIf="distanceOptionsData?.options?.length > 0"
   >
     <app-fy-select
       [enableSearch]="false"
@@ -212,11 +204,10 @@
     >
     </app-fy-select>
   </div>
-
+  } @if (distanceUnitOptionsData?.options?.length > 0) {
   <div
     [ngClass]="{ 'merge-expenses--internal-block_special': categoryDependentFormGroup.controls.distance_unit.value }"
     class="merge-expenses--internal-block"
-    *ngIf="distanceUnitOptionsData?.options?.length > 0"
   >
     <app-fy-select
       [enableSearch]="false"
@@ -234,4 +225,5 @@
     >
     </app-fy-select>
   </div>
+  }
 </form>

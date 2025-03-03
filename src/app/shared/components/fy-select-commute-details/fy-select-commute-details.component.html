@@ -41,12 +41,9 @@
           [validInParent]="commuteDetails.controls.homeLocation?.valid"
         >
         </app-fy-location>
-        <div
-          *ngIf="commuteDetails.controls.homeLocation.touched && !commuteDetails.controls.homeLocation.valid"
-          class="commute-details--error"
-        >
-          Please select home location
-        </div>
+        @if (commuteDetails.controls.homeLocation.touched && !commuteDetails.controls.homeLocation.valid) {
+        <div class="commute-details--error">Please select home location</div>
+        }
       </div>
     </div>
     <div class="commute-details--work-location">
@@ -66,12 +63,9 @@
           [validInParent]="commuteDetails.controls.workLocation?.valid"
         >
         </app-fy-location>
-        <div
-          *ngIf="commuteDetails.controls.workLocation.touched && !commuteDetails.controls.workLocation.valid"
-          class="commute-details--error"
-        >
-          Please select work location
-        </div>
+        @if (commuteDetails.controls.workLocation.touched && !commuteDetails.controls.workLocation.valid) {
+        <div class="commute-details--error">Please select work location</div>
+        }
       </div>
     </div>
   </div>

@@ -20,23 +20,26 @@
         placeholder="Search"
         [(ngModel)]="value"
       />
-      <button mat-button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="clearValue()">
+      @if (value) {
+      <button mat-button matSuffix mat-icon-button aria-label="Clear" (click)="clearValue()">
         <mat-icon>close</mat-icon>
       </button>
+      }
     </mat-form-field>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <div class="selection-modal--container" *ngIf="filteredCurrencies$ | async as filteredCurrencies">
-    <div
-      *ngFor="let currency of filteredCurrencies"
-      class="selection-modal--list-element"
-      (click)="onCurrencySelect(currency)"
-      matRipple
-    >
+  @if (filteredCurrencies$ | async; as filteredCurrencies) {
+  <div class="selection-modal--container">
+    @for (currency of filteredCurrencies; track currency) {
+    <div class="selection-modal--list-element" (click)="onCurrencySelect(currency)" matRipple>
       <div>{{ currency.shortCode }} - {{ currency.longName }}</div>
-      <mat-icon class="selection-modal--check" *ngIf="currency.shortCode === currentSelection"> check </mat-icon>
+      @if (currency.shortCode === currentSelection) {
+      <mat-icon class="selection-modal--check"> check </mat-icon>
+      }
     </div>
+    }
   </div>
+  }
 </ion-content>

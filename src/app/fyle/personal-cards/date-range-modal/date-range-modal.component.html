@@ -1,4 +1,5 @@
-<div class="date-range-modal" *ngIf="!isCalenderVisible">
+@if (!isCalenderVisible) {
+<div class="date-range-modal">
   <ion-list>
     <div class="date-range-modal--title">DATE RANGE</div>
     <ion-item (click)="selectRange('This Month')">
@@ -33,6 +34,7 @@
     </ion-item>
   </ion-list>
 </div>
+}
 <mat-date-range-input [rangePicker]="picker" class="date-range-modal--range-picker">
   <input matStartDate placeholder="Start date" class="smartlook-show" #dateRangeStart />
   <input matEndDate placeholder="End date" class="smartlook-show" (dateChange)="datePicked()" #dateRangeEnd />

@@ -10,7 +10,8 @@
       </ion-col>
     </ion-row>
   </ion-grid>
-  <div class="request-invitation--form" *ngIf="currentPageState === RequestInvitationStates.notSent">
+  @if (currentPageState === RequestInvitationStates.notSent) {
+  <div class="request-invitation--form">
     <div class="request-invitation--form-header">Request invitation</div>
     <div class="request-invitation--form-subheader">
       Your company already uses Fyle. Send an invitation request to your Fyle admin.
@@ -40,19 +41,22 @@
       </button>
     </div>
   </div>
-  <div class="request-invitation--form" *ngIf="currentPageState === RequestInvitationStates.success">
+  } @if (currentPageState === RequestInvitationStates.success) {
+  <div class="request-invitation--form">
     <div class="request-invitation--form-header">Request invitation successful</div>
     <div class="request-invitation--form-subheader">
       Your request has been sent to your admin - they may take some time to process it
     </div>
   </div>
-  <div class="request-invitation--form" *ngIf="currentPageState === RequestInvitationStates.failure">
+  } @if (currentPageState === RequestInvitationStates.failure) {
+  <div class="request-invitation--form">
     <div class="request-invitation--form-header">Request invitation failed</div>
     <div class="request-invitation--form-subheader">
       Something went wrong. Please send us a note at support&#64;fylehq.com
     </div>
   </div>
-  <div class="request-invitation--form" *ngIf="currentPageState === RequestInvitationStates.alreadySent">
+  } @if (currentPageState === RequestInvitationStates.alreadySent) {
+  <div class="request-invitation--form">
     <div class="request-invitation--form-header">Request pending</div>
     <div class="request-invitation--form-subheader">
       <div>Your request has already been sent to your organization's admin.</div>
@@ -62,6 +66,7 @@
       </div>
     </div>
   </div>
+  }
 </ion-content>
 
 <ion-footer>

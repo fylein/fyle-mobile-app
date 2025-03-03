@@ -10,7 +10,8 @@
 </ion-header>
 
 <ion-content>
-  <div *ngIf="advance$|async as advance">
+  @if (advance$|async; as advance) {
+  <div>
     <div class="view-advance--container">
       <app-summary-tile
         [purpose]="advance.adv_purpose || '-'"
@@ -18,7 +19,6 @@
         [amount]="advance.adv_orig_amount || advance.adv_amount || 0"
         [status]="'Paid'"
       ></app-summary-tile>
-
       <div class="view-advance--content-container">
         <div class="view-advance--element">
           <app-fy-statistic
@@ -28,7 +28,6 @@
             [value]="advance.adv_advance_number || '-'"
           ></app-fy-statistic>
         </div>
-
         <div class="view-advance--element">
           <app-fy-statistic
             [icon]="'../../../../assets/svg/user-one.svg'"
@@ -37,13 +36,12 @@
             [value]="advance.creator_us_full_name || '-'"
           ></app-fy-statistic>
         </div>
-
         <div class="view-advance--divider"></div>
-
         <ion-grid class="view-advance--grid">
           <ion-row>
             <ng-container>
-              <ion-col *ngIf="advance.areq_approved_at" class="p-0" size="6">
+              @if (advance.areq_approved_at) {
+              <ion-col class="p-0" size="6">
                 <div class="view-advance--element">
                   <app-fy-statistic
                     [icon]="'../../../../assets/svg/calendar.svg'"
@@ -53,6 +51,7 @@
                   ></app-fy-statistic>
                 </div>
               </ion-col>
+              }
               <ion-col class="p-0" size="6">
                 <app-fy-statistic
                   [icon]="'../../../../assets/svg/calendar.svg'"
@@ -64,7 +63,6 @@
             </ng-container>
           </ion-row>
         </ion-grid>
-
         <div class="view-advance--element">
           <app-fy-statistic
             [icon]="'../../../../assets/svg/card.svg'"
@@ -73,7 +71,6 @@
             [value]="advance.adv_mode || '-'"
           ></app-fy-statistic>
         </div>
-
         <div class="view-advance--element">
           <app-fy-statistic
             [icon]="'../../../../assets/svg/list.svg'"
@@ -82,11 +79,10 @@
             [value]="advance.project_name || '-'"
           ></app-fy-statistic>
         </div>
-
         <div class="view-advance--divider"></div>
-
         <!-- In case there is no advance request associated with the advance, there will be no notes -->
-        <div *ngIf="!advance.areq_id" class="view-advance--element">
+        @if (!advance.areq_id) {
+        <div class="view-advance--element">
           <app-fy-statistic
             [icon]="'../../../../assets/svg/list.svg'"
             [type]="StatisticTypes.STRING"
@@ -94,8 +90,8 @@
             [value]="'-'"
           ></app-fy-statistic>
         </div>
-
-        <div *ngIf="advance.areq_id && advanceRequest$|async as advanceRequest" class="view-advance--element">
+        } @if (advance.areq_id && advanceRequest$|async; as advanceRequest) {
+        <div class="view-advance--element">
           <app-fy-statistic
             [icon]="'../../../../assets/svg/list.svg'"
             [type]="StatisticTypes.STRING"
@@ -103,11 +99,12 @@
             [value]="advanceRequest?.areq_notes || '-'"
           ></app-fy-statistic>
         </div>
+        }
       </div>
-
-      <div *ngIf="advance.areq_id" class="view-advance--divider"></div>
-
-      <div *ngIf="advance.areq_id" class="view-advance--advance-request-block">
+      @if (advance.areq_id) {
+      <div class="view-advance--divider"></div>
+      } @if (advance.areq_id) {
+      <div class="view-advance--advance-request-block">
         <div class="view-advance--icon-container">
           <img class="view-advance--icon" [src]="'../../../../assets/svg/open-in-new-tab.svg'" />
         </div>
@@ -120,6 +117,8 @@
           >
         </div>
       </div>
+      }
     </div>
   </div>
+  }
 </ion-content>

@@ -20,9 +20,9 @@
         placeholder="Search"
         [(ngModel)]="value"
       />
+      @if (value) {
       <button
         mat-button
-        *ngIf="value"
         matSuffix
         mat-icon-button
         aria-label="Clear"
@@ -31,6 +31,7 @@
       >
         <mat-icon>close</mat-icon>
       </button>
+      }
     </mat-form-field>
   </ion-toolbar>
 </ion-header>
@@ -45,7 +46,9 @@
       (click)="onCurrencySelect(currency)"
     >
       <div>{{ currency.shortCode }} - {{ currency.longName }}</div>
-      <mat-icon class="selection-modal--check" *ngIf="currency.shortCode === currentSelection"> check </mat-icon>
+      @if (currency.shortCode === currentSelection) {
+      <mat-icon class="selection-modal--check"> check </mat-icon>
+      }
     </div>
   </ng-container>
 </ion-content>

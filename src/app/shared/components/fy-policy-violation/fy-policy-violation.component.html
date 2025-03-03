@@ -1,84 +1,81 @@
-<div *ngIf="showHeader">
-  <mat-icon *ngIf="showDragBar" class="fy-modal-top-bar" svgIcon="notch"></mat-icon>
+@if (showHeader) {
+<div>
+  @if (showDragBar) {
+  <mat-icon class="fy-modal-top-bar" svgIcon="notch"></mat-icon>
+  }
   <div class="text-center policy-violation--toolbar fy-modal-toolbar">
     <div>
       <div class="policy-violation--toolbar__title">
-        <span class="policy-violation--toolbar__close-icon" *ngIf="showCloseIcon" slot="start">
+        @if (showCloseIcon) {
+        <span class="policy-violation--toolbar__close-icon" slot="start">
           <mat-icon (click)="cancel()" class="fy-icon-close" svgIcon="cross"></mat-icon>
         </span>
-        Policy violation<span *ngIf="policyViolationMessages?.length > 1">s</span> found
+        } Policy violation@if (policyViolationMessages?.length > 1) {
+        <span>s</span>
+        } found
       </div>
     </div>
   </div>
 </div>
+}
 
 <div class="policy-violation--content-section">
   <div class="policy-violation--body">
     <div class="inner-content">
-      <ng-container *ngFor="let violation of policyViolationMessages">
-        <app-policy-violation-rule [message]="violation" [violationType]="'normal'"></app-policy-violation-rule>
-      </ng-container>
+      @for (violation of policyViolationMessages; track violation) {
+      <app-policy-violation-rule [message]="violation" [violationType]="'normal'"></app-policy-violation-rule>
+      }
     </div>
 
-    <ng-container *ngIf="policyAction?.run_summary?.length">
+    @if (policyAction?.run_summary?.length) {
+    <div>
+      <p class="policy-violation--action-header">The policy violation will trigger the following action(s):</p>
+    </div>
+    @if (isExpenseFlagged) {
+    <app-policy-violation-action
+      [icon]="'../../../../assets/svg/flag-outline.svg'"
+      [message]="'Expense will be flagged for verification and approval'"
+      [actionsCount]="policyAction?.run_summary?.length"
+    ></app-policy-violation-action>
+    } @if (isPrimaryApproverSkipped) {
+    <app-policy-violation-action
+      [icon]="'../../../../assets/svg/user-one.svg'"
+      [message]="'Primary approver will be skipped'"
+      [actionsCount]="policyAction?.run_summary?.length"
+    ></app-policy-violation-action>
+    } @if (isExpenseCapped && cappedAmountString) {
+    <app-policy-violation-action
+      [icon]="'../../../../assets/svg/plus-minus.svg'"
+      [message]="cappedAmountString"
+      [actionsCount]="policyAction?.run_summary?.length"
+    ></app-policy-violation-action>
+    } @if (needAdditionalApproval && approverEmailsRequiredMsg) {
+    <app-policy-violation-action
+      [icon]="'../../../../assets/svg/user-two.svg'"
+      [message]="approverEmailsRequiredMsg"
+      [actionsCount]="policyAction?.run_summary?.length"
+    ></app-policy-violation-action>
+    } } @if (showComment) {
+    <form [formGroup]="form">
       <div>
-        <p class="policy-violation--action-header">The policy violation will trigger the following action(s):</p>
+        <p class="policy-violation--additional-details-header">
+          Please provide additional details for approval
+          <span class="policy-violation--additional-details-comment-length">{{ form.value.comment.length }}/500</span>
+        </p>
       </div>
-
-      <ng-container *ngIf="isExpenseFlagged">
-        <app-policy-violation-action
-          [icon]="'../../../../assets/svg/flag-outline.svg'"
-          [message]="'Expense will be flagged for verification and approval'"
-          [actionsCount]="policyAction?.run_summary?.length"
-        ></app-policy-violation-action>
-      </ng-container>
-
-      <ng-container *ngIf="isPrimaryApproverSkipped">
-        <app-policy-violation-action
-          [icon]="'../../../../assets/svg/user-one.svg'"
-          [message]="'Primary approver will be skipped'"
-          [actionsCount]="policyAction?.run_summary?.length"
-        ></app-policy-violation-action>
-      </ng-container>
-
-      <ng-container *ngIf="isExpenseCapped && cappedAmountString">
-        <app-policy-violation-action
-          [icon]="'../../../../assets/svg/plus-minus.svg'"
-          [message]="cappedAmountString"
-          [actionsCount]="policyAction?.run_summary?.length"
-        ></app-policy-violation-action>
-      </ng-container>
-
-      <ng-container *ngIf="needAdditionalApproval && approverEmailsRequiredMsg">
-        <app-policy-violation-action
-          [icon]="'../../../../assets/svg/user-two.svg'"
-          [message]="approverEmailsRequiredMsg"
-          [actionsCount]="policyAction?.run_summary?.length"
-        ></app-policy-violation-action>
-      </ng-container>
-    </ng-container>
-
-    <ng-container *ngIf="showComment">
-      <form [formGroup]="form">
-        <div>
-          <p class="policy-violation--additional-details-header">
-            Please provide additional details for approval
-            <span class="policy-violation--additional-details-comment-length">{{ form.value.comment.length }}/500</span>
-          </p>
-        </div>
-
-        <textarea
-          maxlength="500"
-          class="policy-violation--textarea"
-          formControlName="comment"
-          placeholder="Enter the details here"
-        ></textarea>
-      </form>
-    </ng-container>
+      <textarea
+        maxlength="500"
+        class="policy-violation--textarea"
+        formControlName="comment"
+        placeholder="Enter the details here"
+      ></textarea>
+    </form>
+    }
   </div>
 </div>
 
-<ion-footer *ngIf="showCTA">
+@if (showCTA) {
+<ion-footer>
   <ion-toolbar mode="md">
     <div class="fy-footer-cta-container">
       <ion-button class="fy-footer-cta fy-footer-cta--tertiary-secondary" (click)="cancel()"> Cancel </ion-button>
@@ -86,3 +83,4 @@
     </div>
   </ion-toolbar>
 </ion-footer>
+}

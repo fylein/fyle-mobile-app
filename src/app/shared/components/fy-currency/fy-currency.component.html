@@ -13,10 +13,12 @@
           (blur)="onBlur()"
         />
       </div>
-      <div *ngIf="currencyAutoCodeMessage" class="fy-currency__auto-coded">
+      @if (currencyAutoCodeMessage) {
+      <div class="fy-currency__auto-coded">
         <mat-icon class="fy-currency__sparkle-icon" svgIcon="sparkle"></mat-icon>
         {{ currencyAutoCodeMessage }}
       </div>
+      }
     </div>
     <div class="fy-currency--input-wrapper fy-currency--amount-block">
       <div class="fy-currency--input-container" [ngClass]="{ 'fy-currency__invalid': !valid }">
@@ -26,20 +28,22 @@
         </div>
         <app-fy-number placeholder="00.00" formControlName="amount" [isAmount]="true"> </app-fy-number>
       </div>
-      <div *ngIf="amountAutoCodeMessage" class="fy-currency__auto-coded">
+      @if (amountAutoCodeMessage) {
+      <div class="fy-currency__auto-coded">
         <mat-icon class="fy-currency__sparkle-icon" svgIcon="sparkle"></mat-icon>
         {{ amountAutoCodeMessage }}
       </div>
+      }
     </div>
   </form>
 </div>
-<ng-container *ngIf="value?.currency && value?.orig_currency">
-  <div class="fy-currency--exchange-rate-container" [ngClass]="{ expanded: expanded }">
-    <mat-icon class="fy-currency--exchange-rate-icon" svgIcon="info-circle-fill"></mat-icon>
-    <div class="fy-currency--exchange-rate-message">
-      <strong>{{ value.amount | currency : value.currency : 'code' }}</strong>
-      at {{ exchangeRate | number : '1.0-6' }} {{ value.currency }} / {{ value.orig_currency }}
-    </div>
-    <button class="fy-currency--exchange-rate-modify" (click)="setExchangeRate()">Modify</button>
+@if (value?.currency && value?.orig_currency) {
+<div class="fy-currency--exchange-rate-container" [ngClass]="{ expanded: expanded }">
+  <mat-icon class="fy-currency--exchange-rate-icon" svgIcon="info-circle-fill"></mat-icon>
+  <div class="fy-currency--exchange-rate-message">
+    <strong>{{ value.amount | currency : value.currency : 'code' }}</strong>
+    at {{ exchangeRate | number : '1.0-6' }} {{ value.currency }} / {{ value.orig_currency }}
   </div>
-</ng-container>
+  <button class="fy-currency--exchange-rate-modify" (click)="setExchangeRate()">Modify</button>
+</div>
+}

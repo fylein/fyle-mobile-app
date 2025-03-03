@@ -39,7 +39,9 @@
           #reportTitleInput="ngModel"
         />
       </div>
-      <div class="create-new-report--error-message" *ngIf="showReportNameError">Please enter report name.</div>
+      @if (showReportNameError) {
+      <div class="create-new-report--error-message">Please enter report name.</div>
+      }
     </div>
 
     <div class="create-new-report--heading">Expenses</div>
@@ -52,7 +54,8 @@
       >
     </div>
 
-    <div *ngFor="let expense of selectedExpensesToReport; let i = index">
+    @for (expense of selectedExpensesToReport; track expense; let i = $index) {
+    <div>
       <app-expense-card-v2
         [expense]="expense"
         [previousExpenseTxnDate]="selectedExpensesToReport[i - 1]?.spent_at"
@@ -63,6 +66,7 @@
       >
       </app-expense-card-v2>
     </div>
+    }
   </div>
 </ion-content>
 

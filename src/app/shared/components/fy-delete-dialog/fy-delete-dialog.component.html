@@ -12,7 +12,8 @@
         <div class="fy-delete-dialog--body" [innerHTML]="body"></div>
       </ion-col>
     </ion-row>
-    <ion-row *ngIf="infoMessage" class="fy-delete-dialog--info-container">
+    @if (infoMessage) {
+    <ion-row class="fy-delete-dialog--info-container">
       <ion-col size="1">
         <mat-icon class="fy-delete-dialog--info-container__icon" svgIcon="info-circle-fill"></mat-icon>
       </ion-col>
@@ -22,6 +23,7 @@
         </div>
       </ion-col>
     </ion-row>
+    }
     <ion-row class="fy-delete-dialog--cta-container">
       <ion-col size="6">
         <div

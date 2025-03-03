@@ -12,7 +12,8 @@
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
-  <ion-toolbar *ngIf="enableSearch" class="text-center">
+  @if (enableSearch) {
+  <ion-toolbar class="text-center">
     <mat-form-field appearance="none" class="selection-modal--form-field mat-form-field-no-padding">
       <mat-icon class="selection-modal--search-icon" matPrefix svgIcon="search"></mat-icon>
       <input
@@ -23,11 +24,14 @@
         matInput
         placeholder="{{ placeholder || 'Search' }}"
       />
-      <button (click)="clearValue()" *ngIf="value" aria-label="Clear" mat-button mat-icon-button matSuffix>
+      @if (value) {
+      <button (click)="clearValue()" aria-label="Clear" mat-button mat-icon-button matSuffix>
         <mat-icon>close</mat-icon>
       </button>
+      }
     </mat-form-field>
   </ion-toolbar>
+  }
 </ion-header>
 
 <ion-content>
@@ -38,7 +42,8 @@
     maxBufferPx="1350"
   >
     <div class="selection-modal--container">
-      <div *ngIf="selectableOptions.length === 0">
+      @if (selectableOptions.length === 0) {
+      <div>
         <app-fy-zero-state
           [header]="'No such ' + label + ' found'"
           [submessage]="'Search for another ' + label + ' or select one from the list.'"
@@ -47,32 +52,30 @@
           [useNewStyling]="true"
         ></app-fy-zero-state>
       </div>
-
-      <div *ngIf="selectableOptions.length > 0">
+      } @if (selectableOptions.length > 0) {
+      <div>
         <ng-container *cdkVirtualFor="let filteredListItem of selectableOptions">
-          <div
-            (click)="onElementSelect(filteredListItem)"
-            *ngIf="filteredListItem.label.length > 0"
-            class="selection-modal--list-element"
-            matRipple
-          >
+          @if (filteredListItem.label.length > 0) {
+          <div (click)="onElementSelect(filteredListItem)" class="selection-modal--list-element" matRipple>
             <ng-template #defaultSelectionElement let-label="label" let-selected="selected">
-              <div *ngIf="filteredListItem.isRecentlyUsed" class="selection-modal--recently-used-item-content">
+              @if (filteredListItem.isRecentlyUsed) {
+              <div class="selection-modal--recently-used-item-content">
                 <mat-icon class="selection-modal--recently-used-icon" svgIcon="clock"></mat-icon>
                 <span class="selection-modal--label">
                   <app-fy-highlight-text [fullText]="label" [queryText]="value"> </app-fy-highlight-text>
                 </span>
-                <mat-icon *ngIf="selected" class="selection-modal--check"> check </mat-icon>
+                @if (selected) {
+                <mat-icon class="selection-modal--check"> check </mat-icon>
+                }
               </div>
-
-              <ng-container *ngIf="!filteredListItem.isRecentlyUsed">
-                <div class="selection-modal--label">
-                  <app-fy-highlight-text [fullText]="label" [queryText]="value"> </app-fy-highlight-text>
-                </div>
-                <mat-icon *ngIf="selected" class="selection-modal--check"> check </mat-icon>
-              </ng-container>
+              } @if (!filteredListItem.isRecentlyUsed) {
+              <div class="selection-modal--label">
+                <app-fy-highlight-text [fullText]="label" [queryText]="value"> </app-fy-highlight-text>
+              </div>
+              @if (selected) {
+              <mat-icon class="selection-modal--check"> check </mat-icon>
+              } }
             </ng-template>
-
             <ng-container
               *ngTemplateOutlet="
                 selectionElement ? selectionElement : defaultSelectionElement;
@@ -81,13 +84,16 @@
             >
             </ng-container>
           </div>
+          }
         </ng-container>
       </div>
+      }
     </div>
   </cdk-virtual-scroll-viewport>
 </ion-content>
 
-<ion-footer *ngIf="showSaveButton">
+@if (showSaveButton) {
+<ion-footer>
   <ion-toolbar>
     <div class="selection-modal--cta-container">
       <ion-button (click)="saveToCacheAndUse()" class="selection-modal--primary-cta" color="fyle-primary" fill="solid">
@@ -96,3 +102,4 @@
     </div>
   </ion-toolbar>
 </ion-footer>
+}

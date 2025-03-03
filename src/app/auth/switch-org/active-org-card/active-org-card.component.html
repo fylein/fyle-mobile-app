@@ -3,45 +3,45 @@
   <ion-grid class="ion-grid-no-padding">
     <ion-row>
       <ion-col class="active-org-card__icon-container">
-        <ng-container *ngIf="!isLoading; else skeletonIcon">
-          <div class="active-org-card__icon-container__icon">
-            <div class="active-org-card__icon-container__currency content-center">
-              {{ org.currency }}
-            </div>
+        @if (!isLoading) {
+        <div class="active-org-card__icon-container__icon">
+          <div class="active-org-card__icon-container__currency content-center">
+            {{ org.currency }}
           </div>
-        </ng-container>
+        </div>
+        } @else {
+        <div class="active-org-card__icon-container__skeleton-icon">
+          <ion-skeleton-text animated></ion-skeleton-text>
+        </div>
+        }
       </ion-col>
       <ion-col class="active-org-card__content-container">
         <ion-grid class="ion-grid-no-padding">
           <ion-row>
             <ion-col class="active-org-card__content-container__title smartlook-hide">
-              <ng-container *ngIf="!isLoading; else skeletonText">
-                {{ org.name }}
-              </ng-container>
+              @if (!isLoading) {
+              {{ org.name }}
+              } @else {
+              <ion-skeleton-text animated></ion-skeleton-text>
+              }
             </ion-col>
           </ion-row>
           <ion-row>
             <ion-col class="active-org-card__content-container__sub-title">
-              <ng-container *ngIf="!isLoading; else skeletonText">
-                {{ org.domain }}
-              </ng-container>
+              @if (!isLoading) {
+              {{ org.domain }}
+              } @else {
+              <ion-skeleton-text animated></ion-skeleton-text>
+              }
             </ion-col>
           </ion-row>
         </ion-grid>
       </ion-col>
-      <ion-col *ngIf="isPrimaryOrg" class="active-org-card__pill-container">
+      @if (isPrimaryOrg) {
+      <ion-col class="active-org-card__pill-container">
         <div class="active-org-card__pill-container__pill">Primary</div>
       </ion-col>
+      }
     </ion-row>
   </ion-grid>
 </div>
-
-<ng-template #skeletonIcon>
-  <div class="active-org-card__icon-container__skeleton-icon">
-    <ion-skeleton-text animated></ion-skeleton-text>
-  </div>
-</ng-template>
-
-<ng-template #skeletonText>
-  <ion-skeleton-text animated></ion-skeleton-text>
-</ng-template>

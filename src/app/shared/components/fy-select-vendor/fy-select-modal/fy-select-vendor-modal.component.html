@@ -21,18 +21,13 @@
         placeholder="Search"
         [(ngModel)]="value"
       />
-      <mat-icon *ngIf="isLoading" class="selection-modal--autocomplete-loader" svgIcon="loader" matSuffix></mat-icon>
-      <button
-        mat-button
-        *ngIf="!isLoading && value"
-        matSuffix
-        data-testid="clear"
-        mat-icon-button
-        aria-label="Clear"
-        (click)="clearValue()"
-      >
+      @if (isLoading) {
+      <mat-icon class="selection-modal--autocomplete-loader" svgIcon="loader" matSuffix></mat-icon>
+      } @if (!isLoading && value) {
+      <button mat-button matSuffix data-testid="clear" mat-icon-button aria-label="Clear" (click)="clearValue()">
         <mat-icon>close</mat-icon>
       </button>
+      }
     </mat-form-field>
   </ion-toolbar>
 </ion-header>
@@ -45,10 +40,13 @@
     maxBufferPx="1350"
   >
     <div class="selection-modal--container">
-      <div *ngIf="value && value.trim().length">
-        <div *ngIf="!(selectableOptions?.length > 0)" class="selection-modal--list-element">
+      @if (value && value.trim().length) {
+      <div>
+        @if (!(selectableOptions?.length > 0)) {
+        <div class="selection-modal--list-element">
           <i> No results found </i>
         </div>
+        }
         <div matRipple class="selection-modal--list-element" (click)="onNewSelect()">
           <div class="selection-modal--add-item-block">
             <mat-icon class="selection-modal--add-item-icon"> add_circle_outline </mat-icon>
@@ -60,8 +58,10 @@
           </div>
         </div>
       </div>
+      }
       <!-- All Vendors -->
-      <div *ngIf="selectableOptions?.length > 0" [ngClass]="{ 'selection-modal--all-merchants__margin-top': value }">
+      @if (selectableOptions?.length > 0) {
+      <div [ngClass]="{ 'selection-modal--all-merchants__margin-top': value }">
         <div
           matRipple
           class="selection-modal--list-element"
@@ -69,24 +69,31 @@
           (click)="onElementSelect(filteredListItem)"
         >
           <ng-template #defaultSelectionElement let-label="label" let-selected="selected">
-            <div *ngIf="filteredListItem.isRecentlyUsed" class="selection-modal--recently-used-item-content">
+            @if (filteredListItem.isRecentlyUsed) {
+            <div class="selection-modal--recently-used-item-content">
               <mat-icon class="selection-modal--recently-used-icon" svgIcon="clock"></mat-icon>
               <div class="selection-modal--label">
                 <app-fy-highlight-text [fullText]="label" [queryText]="value"> </app-fy-highlight-text>
               </div>
-              <mat-icon *ngIf="selected" class="selection-modal--check"> check </mat-icon>
+              @if (selected) {
+              <mat-icon class="selection-modal--check"> check </mat-icon>
+              }
             </div>
-
-            <div *ngIf="!filteredListItem.isRecentlyUsed" class="selection-modal--list-item">
+            } @if (!filteredListItem.isRecentlyUsed) {
+            <div class="selection-modal--list-item">
               <div class="selection-modal--label">
                 <app-fy-highlight-text [fullText]="label" [queryText]="value"> </app-fy-highlight-text>
               </div>
-              <mat-icon *ngIf="selected" class="selection-modal--check"> check </mat-icon>
+              @if (selected) {
+              <mat-icon class="selection-modal--check"> check </mat-icon>
+              }
             </div>
+            }
           </ng-template>
           <ng-container *ngTemplateOutlet="defaultSelectionElement; context: filteredListItem"> </ng-container>
         </div>
       </div>
+      }
     </div>
   </cdk-virtual-scroll-viewport>
 </ion-content>
