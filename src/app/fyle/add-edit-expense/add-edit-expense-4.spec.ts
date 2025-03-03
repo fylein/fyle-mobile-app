@@ -256,7 +256,7 @@ export function TestCases4(getTestBed) {
         });
       }));
 
-      it('should show file size exceeded popover if uploaded file is larger than 11MB', fakeAsync(() => {
+      it('should show file size exceeded popover if uploaded file is larger than 15MB', fakeAsync(() => {
         spyOn(component, 'showSizeLimitExceededPopover');
 
         const newSize = MAX_FILE_SIZE + 1;
