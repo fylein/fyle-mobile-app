@@ -232,7 +232,7 @@ export class DashboardPage {
           align: 'end',
         },
         onHighlightStarted: (_el, _step, opts): void => {
-          opts.config.stagePadding = 6;
+          opts.config.stagePadding = 4;
         },
       },
     ];
