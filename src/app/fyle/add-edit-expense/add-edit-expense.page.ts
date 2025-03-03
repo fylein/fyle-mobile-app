@@ -2748,7 +2748,7 @@ export class AddEditExpensePage implements OnInit {
             // expense not found, so skipping it
             this.reviewList.splice(activeIndex - 1, 1);
             if (activeIndex === 0) {
-              this.closeAddEditExpenses();
+              this.goBack();
             } else {
               this.goToPrev(activeIndex - 1);
             }
@@ -2760,7 +2760,7 @@ export class AddEditExpensePage implements OnInit {
           this.goToTransaction(etxn, this.reviewList, activeIndex - 1);
         });
     } else {
-      this.closeAddEditExpenses();
+      this.goBack();
     }
   }
 
@@ -2773,7 +2773,7 @@ export class AddEditExpensePage implements OnInit {
             // expense not found, so skipping it
             this.reviewList.splice(activeIndex + 1, 1);
             if (activeIndex === this.reviewList.length - 1) {
-              this.closeAddEditExpenses();
+              this.goBack();
             } else {
               this.goToNext(activeIndex);
             }
