@@ -8,9 +8,9 @@ import { SetupAccountPageRoutingModule } from './setup-account-routing.module';
 
 import { SetupAccountPage } from './setup-account.page';
 
-import { MatLegacyFormFieldModule as MatFormFieldModule } from '@angular/material/legacy-form-field';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
-import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy-input';
+import { MatInputModule } from '@angular/material/input';
 
 import { SelectCurrencyComponent } from './select-currency/select-currency.component';
 

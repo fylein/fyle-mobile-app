@@ -8,9 +8,9 @@ import { NewPasswordPageRoutingModule } from './new-password-routing.module';
 
 import { NewPasswordPage } from './new-password.page';
 
-import { MatLegacyFormFieldModule as MatFormFieldModule } from '@angular/material/legacy-form-field';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
-import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy-input';
+import { MatInputModule } from '@angular/material/input';
 
 import { MatIconModule } from '@angular/material/icon';
 

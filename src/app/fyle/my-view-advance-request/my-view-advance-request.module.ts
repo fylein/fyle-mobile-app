@@ -9,8 +9,8 @@ import { MyViewAdvanceRequestPageRoutingModule } from './my-view-advance-request
 import { MyViewAdvanceRequestPage } from './my-view-advance-request.page';
 import { MatIconModule } from '@angular/material/icon';
 import { SharedModule } from 'src/app/shared/shared.module';
-import { MatLegacyFormFieldModule as MatFormFieldModule } from '@angular/material/legacy-form-field';
-import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy-input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button';
 import { PinchZoomModule } from '@mtnair/ngx-pinch-zoom';
 import { PdfViewerModule } from 'ng2-pdf-viewer';

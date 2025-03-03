@@ -12,9 +12,9 @@ import { TransactionsShimmerComponent } from './transactions-shimmer/transaction
 import { MatLegacyCheckboxModule as MatCheckboxModule } from '@angular/material/legacy-checkbox';
 import { MatNativeDateModule } from '@angular/material/core';
 
-import { MatLegacyFormFieldModule as MatFormFieldModule } from '@angular/material/legacy-form-field';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy-input';
+import { MatInputModule } from '@angular/material/input';
 import { DateRangeModalComponent } from './date-range-modal/date-range-modal.component';
 import { SpinnerDialog } from '@awesome-cordova-plugins/spinner-dialog/ngx';
 

@@ -6,8 +6,8 @@ import { DelegatedAccountsPageRoutingModule } from './delegated-accounts-routing
 import { DelegatedAccountsPage } from './delegated-accounts.page';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { MatRippleModule } from '@angular/material/core';
-import { MatLegacyFormFieldModule as MatFormFieldModule } from '@angular/material/legacy-form-field';
-import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy-input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 
 @NgModule({
   imports: [

@@ -7,8 +7,8 @@ import { IonicModule } from '@ionic/angular';
 import { MyReportsPageRoutingModule } from './my-reports-routing.module';
 
 import { MyReportsPage } from './my-reports.page';
-import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy-input';
-import { MatLegacyFormFieldModule as MatFormFieldModule } from '@angular/material/legacy-form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button';
 import { MatLegacyRadioModule as MatRadioModule } from '@angular/material/legacy-radio';
 import { MatRippleModule, MatNativeDateModule } from '@angular/material/core';
