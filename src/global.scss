@@ -1443,8 +1443,8 @@ ion-toggle.toggle-checked::before {
 .driver-popover {
   background-color: #2c304e;
   color: white;
-  width: 224px;
-  height: 124px;
+  width: 254px;
+  height: 154px;
   max-width: 260px;
   box-shadow: none;
 }
@@ -1463,7 +1463,7 @@ ion-toggle.toggle-checked::before {
 }
 
 .driver-popover-description {
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .driver-popover-close-btn {
@@ -1475,8 +1475,11 @@ ion-toggle.toggle-checked::before {
   padding-bottom: 10px;
 }
 
-.driver-popover-footer button {
-  background-color: transparent;
+.driver-popover-footer {
+  margin-top: 38px;
+  button {
+    background-color: transparent;
+  }
 }
 
 .driver-popover-prev-btn {
@@ -1488,12 +1491,16 @@ ion-toggle.toggle-checked::before {
 
 .driver-popover-next-btn {
   background-color: white !important;
-  max-width: 50px !important;
-  min-width: 42px !important;
-  height: 28px !important;
+  max-width: 70px !important;
+  min-width: 52px !important;
+  height: 32px !important;
   text-align: center !important;
 }
 
 .driver-popover-progress-text {
   color: #a9acbc;
+}
+
+.driver-popover-navigation-btns {
+  gap: 15px;
 }
