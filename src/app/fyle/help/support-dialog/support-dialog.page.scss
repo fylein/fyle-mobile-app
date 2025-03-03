@@ -49,19 +49,4 @@ $note-container-color: #f1f1f1;
     }
   }
 
-  &--image-container {
-    margin: 10px 0;
-  }
-
-  &--content-container {
-    padding: 20px 0;
-    font-size: 16px;
-    line-height: 24px;
-  }
-
-  &--note-container {
-    border-radius: 4px;
-    padding: 10px;
-    background-color: $note-container-color;
-  }
 }

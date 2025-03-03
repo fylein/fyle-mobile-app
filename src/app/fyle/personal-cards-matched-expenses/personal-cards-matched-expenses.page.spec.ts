@@ -2,12 +2,11 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { Navigation, Router, RouterModule, UrlSerializer, UrlTree } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { IonicModule, ModalController } from '@ionic/angular';
-import { apiExpenseRes } from 'src/app/core/mock-data/expense.data';
 import { platformPersonalCardTxns } from 'src/app/core/mock-data/personal-card-txns.data';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { PersonalCardsMatchedExpensesPage } from './personal-cards-matched-expenses.page';
-import { CurrencyPipe, DatePipe } from '@angular/common';
+import { CurrencyPipe } from '@angular/common';
 import { CurrencySymbolPipe } from 'src/app/shared/pipes/currency-symbol.pipe';
 import { ExpensePreviewComponent } from './expense-preview/expense-preview.component';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
@@ -34,7 +33,7 @@ describe('PersonalCardsMatchedExpensesPage', () => {
       },
     },
     id: 0,
-    initialUrl: '',
+    initialUrl: new UrlTree(),
     extractedUrl: new UrlTree(),
     trigger: 'imperative',
     previousNavigation: undefined,
@@ -45,7 +44,7 @@ describe('PersonalCardsMatchedExpensesPage', () => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
     TestBed.configureTestingModule({
-      declarations: [PersonalCardsMatchedExpensesPage, CurrencyPipe, DatePipe, CurrencySymbolPipe, ExactCurrencyPipe],
+      declarations: [PersonalCardsMatchedExpensesPage, CurrencySymbolPipe, ExactCurrencyPipe],
       imports: [IonicModule.forRoot(), RouterTestingModule, RouterModule],
       providers: [
         UrlSerializer,

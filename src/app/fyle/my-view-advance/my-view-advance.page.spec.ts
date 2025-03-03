@@ -119,7 +119,7 @@ describe('MyViewAdvancePage', () => {
       component.ionViewWillEnter();
       tick(100);
 
-      expect(component.currencySymbol).toEqual(undefined);
+      expect(component.currencySymbol).toBeUndefined();
     }));
   });
 });

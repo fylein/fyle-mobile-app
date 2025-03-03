@@ -1,8 +1,8 @@
 import { TitleCasePipe } from '@angular/common';
 import { EventEmitter } from '@angular/core';
 import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
-import { FormArray, FormBuilder, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { UntypedFormArray, UntypedFormBuilder, Validators } from '@angular/forms';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
@@ -14,7 +14,7 @@ import { costCenterApiRes1, expectedCCdata } from 'src/app/core/mock-data/cost-c
 import { customFieldData1 } from 'src/app/core/mock-data/custom-field.data';
 import { expenseFieldObjData, txnFieldData } from 'src/app/core/mock-data/expense-field-obj.data';
 import { txnFieldsMap2 } from 'src/app/core/mock-data/expense-fields-map.data';
-import { apiExpenseRes, expenseData1 } from 'src/app/core/mock-data/expense.data';
+import { expenseData1 } from 'src/app/core/mock-data/expense.data';
 import { categorieListRes } from 'src/app/core/mock-data/org-category-list-item.data';
 import { orgSettingsRes, orgSettingsParamsWithAdvanceWallet } from 'src/app/core/mock-data/org-settings.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
@@ -86,7 +86,7 @@ export function TestCases1(getTestBed) {
     let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
     let accountsService: jasmine.SpyObj<AccountsService>;
     let authService: jasmine.SpyObj<AuthService>;
-    let formBuilder: FormBuilder;
+    let formBuilder: UntypedFormBuilder;
     let categoriesService: jasmine.SpyObj<CategoriesService>;
     let dateService: jasmine.SpyObj<DateService>;
     let projectsService: jasmine.SpyObj<ProjectsService>;
@@ -139,7 +139,7 @@ export function TestCases1(getTestBed) {
       activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
       accountsService = TestBed.inject(AccountsService) as jasmine.SpyObj<AccountsService>;
       authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-      formBuilder = TestBed.inject(FormBuilder);
+      formBuilder = TestBed.inject(UntypedFormBuilder);
       categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
       dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
       reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
@@ -206,7 +206,7 @@ export function TestCases1(getTestBed) {
         bus_travel_class: [],
         distance: [],
         distance_unit: [],
-        custom_inputs: new FormArray([]),
+        custom_inputs: new UntypedFormArray([]),
         billable: [],
         costCenter: [],
         hotel_is_breakfast_provided: [],
