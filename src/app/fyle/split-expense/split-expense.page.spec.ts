@@ -760,6 +760,7 @@ describe('SplitExpensePage', () => {
       component.transaction = cloneDeep(txnData);
       dateService.addDaysToDate.and.returnValue(new Date('2023-01-11'));
       spyOn(component, 'getUnspecifiedCategory');
+      component.isReviewModalOpen = true;
     });
 
     it('should should show all categories if show_project_mapped_categories_in_split_expense flag is false', () => {
@@ -931,9 +932,19 @@ describe('SplitExpensePage', () => {
     });
   });
 
+  describe('getRecentlySplitDataAndOpenReviewModal():', () => {
+    it('should call openReviewSplitExpenseModal with split expenses data', () => {
+      spyOn(component, 'openReviewSplitExpenseModal');
+      const mockData = { expenses: [] };
+      spyOn(expensesService.splitExpensesData$, 'asObservable').and.returnValue(of(mockData));
+      component.getRecentlySplitDataAndOpenReviewModal();
+      expect(component.openReviewSplitExpenseModal).toHaveBeenCalledWith([]);
+    });
+  });
+
   describe('setValuesForCCC():', () => {
     beforeEach(() => {
-      component.splitConfig = splitConfig;
+      component.splitConfig = cloneDeep(splitConfig);
       component.txnFields = txnFieldData;
 
       spyOn(component, 'getActiveCategories').and.returnValue(of([]));
@@ -1037,7 +1048,7 @@ describe('SplitExpensePage', () => {
 
   describe('add():', () => {
     beforeEach(() => {
-      component.splitConfig = splitConfig;
+      component.splitConfig = cloneDeep(splitConfig);
       component.txnFields = txnFieldData;
     });
 
@@ -1129,8 +1140,6 @@ describe('SplitExpensePage', () => {
     });
 
     it('should add category control if category is visible in splitConfig', () => {
-      component.splitConfig = splitConfig;
-
       component.add(50, 'USD', 50);
       const formGroup = component.splitExpensesFormArray.at(0);
       expect(formGroup.get('category')).toBeTruthy();
@@ -1138,7 +1147,7 @@ describe('SplitExpensePage', () => {
 
     it('should not add category control if category is not visible in splitConfig', () => {
       component.splitConfig = component.splitConfig = {
-        ...splitConfig,
+        ...cloneDeep(splitConfig),
         category: { ...splitConfig.category, is_visible: false },
       };
       component.add(50, 'USD', 50);
@@ -1147,16 +1156,12 @@ describe('SplitExpensePage', () => {
     });
 
     it('should add project control if project is visible in splitConfig', () => {
-      component.splitConfig = splitConfig;
-
       component.add(50, 'USD', 50);
       const formGroup = component.splitExpensesFormArray.at(0);
       expect(formGroup.get('project')).toBeTruthy();
     });
 
     it('should add cost center control if costCenter is visible in splitConfig', () => {
-      component.splitConfig = splitConfig;
-
       component.add(50, 'USD', 50);
       const formGroup = component.splitExpensesFormArray.at(0);
       expect(formGroup.get('cost_center')).toBeTruthy();
@@ -1172,8 +1177,6 @@ describe('SplitExpensePage', () => {
 
     it('should setup filtered categories for first split if category is visible', () => {
       spyOn(component, 'setupFilteredCategories');
-      component.splitConfig = splitConfig;
-
       component.add(50, 'USD', 50);
       expect(component.setupFilteredCategories).toHaveBeenCalledWith(0);
     });
@@ -1193,7 +1196,7 @@ describe('SplitExpensePage', () => {
       component.filteredCategoriesArray = [];
       component.costCenterDisabledStates = [];
       component.categories$ = of([]);
-      component.splitConfig = splitConfig;
+      component.splitConfig = cloneDeep(splitConfig);
       spyOn(component, 'setupFilteredCategories');
       spyOn(component, 'onCategoryChange');
     });
@@ -1624,8 +1627,8 @@ describe('SplitExpensePage', () => {
         purpose: new FormControl(''),
       });
       component.splitExpensesFormArray = new FormArray([splitExpenseForm1, splitExpenseForm2]);
-      component.splitConfig = splitConfig;
-      component.txnFields = txnFieldData;
+      component.splitConfig = cloneDeep(splitConfig);
+      component.txnFields = cloneDeep(txnFieldData);
     });
 
     it('should return early if costCenter is not visible', () => {
@@ -1953,7 +1956,7 @@ describe('SplitExpensePage', () => {
       spyOn(component, 'correctDates');
       spyOn(component, 'setTransactionDate').and.returnValue(new Date('2023-08-04'));
       timezoneService.convertAllDatesToProperLocale.and.returnValue(txnCustomPropertiesData);
-      component.splitConfig = splitConfig;
+      component.splitConfig = cloneDeep(splitConfig);
     });
 
     it('should return split expense object with all the fields if project is enable and cost center is disable', () => {
@@ -2788,9 +2791,7 @@ describe('SplitExpensePage', () => {
           project: new FormControl({ project_name: 'Project A' }),
         }),
       ]);
-      component.splitConfig.category.is_visible = true;
-      component.splitConfig.costCenter.is_visible = true;
-      component.splitConfig.project.is_visible = true;
+      component.splitConfig = cloneDeep(splitConfig);
       component.txnFields = txnFieldData;
     });
 
@@ -2799,7 +2800,7 @@ describe('SplitExpensePage', () => {
 
       expect(result).toEqual({
         Category: 'Travel',
-        'Cost Center': 'Finance',
+        Location: 'Finance',
         Project: 'Project A',
       });
     });
@@ -2813,7 +2814,7 @@ describe('SplitExpensePage', () => {
     it('should handle missing cost center field', () => {
       component.splitExpensesFormArray.at(0).patchValue({ cost_center: null });
       const result = component.generateInputFieldInfo(0);
-      expect(result['Cost Center']).toBe('-');
+      expect(result.Location).toBe('-');
     });
 
     it('should handle missing project field', () => {
@@ -2823,7 +2824,7 @@ describe('SplitExpensePage', () => {
     });
 
     it('should exclude fields if they are not visible in splitConfig', () => {
-      component.splitConfig.category.is_visible = true;
+      component.splitConfig.category.is_visible = false;
       component.splitConfig.costCenter.is_visible = false;
       component.splitConfig.project.is_visible = false;
 
