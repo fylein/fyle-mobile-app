@@ -269,6 +269,8 @@ describe('DashboardPage', () => {
       authService.getEou.and.resolveTo(apiEouRes);
       utilityService.isUserFromINCluster.and.resolveTo(false);
       spyOn(component, 'setShowOptInBanner');
+      featureConfigService.getConfiguration.and.returnValue(of(null));
+      featureConfigService.saveConfiguration.and.returnValue(of(null));
     });
 
     it('should call setupNetworkWatcher, registerBackButtonAction and smartlookService.init once', () => {
