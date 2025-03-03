@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@angular/core';
-import { Observable, concatMap, map, of, range, reduce, switchMap } from 'rxjs';
+import { BehaviorSubject, Observable, concatMap, map, of, range, reduce, switchMap } from 'rxjs';
 import { SpenderService } from '../spender/spender.service';
 import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
@@ -27,6 +27,10 @@ import { CommuteDeduction } from 'src/app/core/enums/commute-deduction.enum';
   providedIn: 'root',
 })
 export class ExpensesService {
+  splitExpensesData$ = new BehaviorSubject<{
+    expenses: Partial<Transaction>[];
+  } | null>(null);
+
   constructor(
     @Inject(PAGINATION_SIZE) private paginationSize: number,
     private spenderService: SpenderService,

@@ -16,3 +16,10 @@ export const transformedSplitExpenseMissingFieldsData2: Partial<TransformedSplit
   type: 'category',
   data: { missing_amount: false, missing_receipt: false, missing_currency: false, missing_expense_field_ids: [] },
 });
+
+export const transformedSplitExpenseMissingFieldsData3: Partial<TransformedSplitExpenseMissingFields> = deepFreeze({
+  amount: 122,
+  currency: 'INR',
+  inputFieldInfo: { Category: 'Travel', 'Cost Center': 'Finance', Project: 'Project A' },
+  data: { missing_amount: false, missing_receipt: false, missing_currency: false, missing_expense_field_ids: [] },
+});

@@ -968,7 +968,7 @@ export function TestCases2(getTestBed) {
       it('should add a new expense and close the form', () => {
         spyOn(component, 'addExpense').and.returnValue(of(Promise.resolve(outboxQueueData1[0])));
         spyOn(component, 'checkIfReceiptIsMissingAndMandatory').and.returnValue(of(false));
-        spyOn(component, 'closeAddEditExpenses');
+        spyOn(component, 'goBack');
         component.activeIndex = 0;
         component.mode = 'add';
         Object.defineProperty(component.fg, 'valid', {
@@ -979,7 +979,7 @@ export function TestCases2(getTestBed) {
         component.saveExpenseAndGotoPrev();
         expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_AND_PREV_EXPENSE');
         expect(component.checkIfReceiptIsMissingAndMandatory).toHaveBeenCalledWith('SAVE_AND_PREV_EXPENSE');
-        expect(component.closeAddEditExpenses).toHaveBeenCalledOnceWith();
+        expect(component.goBack).toHaveBeenCalledOnceWith();
       });
 
       it('should add a new expense and go to the previous expense if not the first one in list', () => {
@@ -1002,7 +1002,7 @@ export function TestCases2(getTestBed) {
       it('should save an edited expense and close the form', () => {
         spyOn(component, 'editExpense').and.returnValue(of(txnData2));
         spyOn(component, 'checkIfReceiptIsMissingAndMandatory').and.returnValue(of(false));
-        spyOn(component, 'closeAddEditExpenses');
+        spyOn(component, 'goBack');
         component.activeIndex = 0;
         component.mode = 'edit';
         Object.defineProperty(component.fg, 'valid', {
@@ -1013,7 +1013,7 @@ export function TestCases2(getTestBed) {
         component.saveExpenseAndGotoPrev();
         expect(component.editExpense).toHaveBeenCalledOnceWith('SAVE_AND_PREV_EXPENSE');
         expect(component.checkIfReceiptIsMissingAndMandatory).toHaveBeenCalledWith('SAVE_AND_PREV_EXPENSE');
-        expect(component.closeAddEditExpenses).toHaveBeenCalledOnceWith();
+        expect(component.goBack).toHaveBeenCalledOnceWith();
       });
 
       it('should save an edited expense and go to the previous expense', () => {
@@ -1048,7 +1048,7 @@ export function TestCases2(getTestBed) {
       it('should add a new expense and close the form', () => {
         spyOn(component, 'addExpense').and.returnValue(of(Promise.resolve(outboxQueueData1[0])));
         spyOn(component, 'checkIfReceiptIsMissingAndMandatory').and.returnValue(of(false));
-        spyOn(component, 'closeAddEditExpenses');
+        spyOn(component, 'goBack');
         component.activeIndex = 0;
         component.reviewList = ['id1'];
         component.mode = 'add';
@@ -1060,7 +1060,7 @@ export function TestCases2(getTestBed) {
         component.saveExpenseAndGotoNext();
         expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_EXPENSE');
         expect(component.checkIfReceiptIsMissingAndMandatory).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_EXPENSE');
-        expect(component.closeAddEditExpenses).toHaveBeenCalledOnceWith();
+        expect(component.goBack).toHaveBeenCalledOnceWith();
       });
 
       it('should add a new expense and go to the next expense if not the first one in list', () => {
@@ -1084,7 +1084,7 @@ export function TestCases2(getTestBed) {
       it('should save an edited expense and close the form', () => {
         spyOn(component, 'editExpense').and.returnValue(of(txnData2));
         spyOn(component, 'checkIfReceiptIsMissingAndMandatory').and.returnValue(of(false));
-        spyOn(component, 'closeAddEditExpenses');
+        spyOn(component, 'goBack');
         component.activeIndex = 0;
         component.mode = 'edit';
         component.reviewList = ['id1'];
@@ -1096,7 +1096,7 @@ export function TestCases2(getTestBed) {
         component.saveExpenseAndGotoNext();
         expect(component.editExpense).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_EXPENSE');
         expect(component.checkIfReceiptIsMissingAndMandatory).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_EXPENSE');
-        expect(component.closeAddEditExpenses).toHaveBeenCalledTimes(1);
+        expect(component.goBack).toHaveBeenCalledTimes(1);
       });
 
       it('should save an edited expense and go to the next expense', () => {
@@ -1201,12 +1201,6 @@ export function TestCases2(getTestBed) {
 
       const result = component.getTimeSpentOnPage();
       expect(result).toBeCloseTo((new Date().getTime() - component.expenseStartTime) / 1000, 2);
-    });
-
-    it('closeAddEditExpenses(): should close the form and navigate back to my_expenses page', () => {
-      component.closeAddEditExpenses();
-
-      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses']);
     });
 
     describe('getParsedReceipt():', () => {

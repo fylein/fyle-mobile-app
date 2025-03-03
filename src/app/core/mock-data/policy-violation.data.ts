@@ -162,3 +162,23 @@ export const policyViolationData5: PolicyViolation = deepFreeze({
     },
   },
 });
+
+export const policyViolationData6: PolicyViolation = deepFreeze({
+  amount: 122,
+  currency: 'INR',
+  name: undefined,
+  type: undefined,
+  inputFieldInfo: { Category: 'Travel', 'Cost Center': 'Finance', Project: 'Project A' },
+  data: {
+    individual_desired_states: [],
+    final_desired_state: {
+      add_approver_user_ids: [],
+      amount: null,
+      flag: false,
+      is_receipt_mandatory: false,
+      remove_employee_approver1: false,
+      run_status: 'SUCCESS',
+      run_summary: [],
+    },
+  },
+});

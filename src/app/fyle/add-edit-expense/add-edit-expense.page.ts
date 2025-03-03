@@ -452,6 +452,10 @@ export class AddEditExpensePage implements OnInit {
 
   selectedCategory$: Observable<OrgCategory>;
 
+  isProjectEnabled: boolean;
+
+  isCostCenterEnabled: boolean;
+
   vendorOptions: string[] = [];
 
   constructor(
@@ -768,7 +772,7 @@ export class AddEditExpensePage implements OnInit {
     forkJoin({
       generatedEtxn: this.generateEtxnFromFg(this.etxn$, customFields$),
       txnFields: this.txnFields$.pipe(take(1)),
-      expenseFields: this.customInputsService.getAll(true).pipe(shareReplay(1)),
+      expenseFields: this.expenseFieldsService.getAllEnabled().pipe(shareReplay(1)),
     }).subscribe(
       (res: { generatedEtxn: UnflattenedTransaction; txnFields: ExpenseFieldsObj; expenseFields: ExpenseField[] }) => {
         if (res.generatedEtxn.tx.report_id && !formValue.report?.id) {
@@ -792,12 +796,12 @@ export class AddEditExpensePage implements OnInit {
             is_mandatory: res.txnFields.org_category_id?.is_mandatory || false,
           },
           project: {
-            is_visible: !!res.txnFields.project_id,
+            is_visible: !!res.txnFields.project_id || this.isProjectEnabled,
             value: formValue.project,
             is_mandatory: res.txnFields.project_id?.is_mandatory || false,
           },
           costCenter: {
-            is_visible: !!res.txnFields.cost_center_id,
+            is_visible: !!res.txnFields.cost_center_id || this.isCostCenterEnabled,
             value: formValue.costCenter,
             is_mandatory: res.txnFields.cost_center_id?.is_mandatory || false,
           },
@@ -3077,6 +3081,9 @@ export class AddEditExpensePage implements OnInit {
 
       this.isNewReportsFlowEnabled = orgSettings?.simplified_report_closure_settings?.enabled || false;
 
+      this.isProjectEnabled = orgSettings?.projects.enabled || false;
+      this.isCostCenterEnabled = orgSettings?.cost_centers.enabled || false;
+
       this.isDraftExpenseEnabled =
         orgSettings.ccc_draft_expense_settings &&
         orgSettings.ccc_draft_expense_settings.allowed &&
@@ -3734,7 +3741,6 @@ export class AddEditExpensePage implements OnInit {
   saveExpense(): void {
     const that = this;
     const formValues = this.getFormValues();
-
     forkJoin({
       invalidPaymentMode: that.checkIfInvalidPaymentMode().pipe(take(1)),
       isReceiptMissingAndMandatory: that.checkIfReceiptIsMissingAndMandatory('SAVE_EXPENSE'),
@@ -3820,7 +3826,7 @@ export class AddEditExpensePage implements OnInit {
         if (that.mode === 'add') {
           that.addExpense('SAVE_AND_PREV_EXPENSE').subscribe(() => {
             if (+this.activeIndex === 0) {
-              that.closeAddEditExpenses();
+              that.goBack();
             } else {
               that.goToPrev();
             }
@@ -3829,7 +3835,7 @@ export class AddEditExpensePage implements OnInit {
           // to do edit
           that.editExpense('SAVE_AND_PREV_EXPENSE').subscribe(() => {
             if (+this.activeIndex === 0) {
-              that.closeAddEditExpenses();
+              that.goBack();
             } else {
               that.goToPrev();
             }
@@ -3848,7 +3854,7 @@ export class AddEditExpensePage implements OnInit {
         if (that.mode === 'add') {
           that.addExpense('SAVE_AND_NEXT_EXPENSE').subscribe(() => {
             if (+this.activeIndex === this.reviewList.length - 1) {
-              that.closeAddEditExpenses();
+              that.goBack();
             } else {
               that.goToNext();
             }
@@ -3857,7 +3863,7 @@ export class AddEditExpensePage implements OnInit {
           // to do edit
           that.editExpense('SAVE_AND_NEXT_EXPENSE').subscribe(() => {
             if (+this.activeIndex === this.reviewList.length - 1) {
-              that.closeAddEditExpenses();
+              that.goBack();
             } else {
               that.goToNext();
             }
@@ -4401,10 +4407,6 @@ export class AddEditExpensePage implements OnInit {
         this.triggerNpsSurvey();
       })
     );
-  }
-
-  closeAddEditExpenses(): void {
-    this.router.navigate(['/', 'enterprise', 'my_expenses']);
   }
 
   async getParsedReceipt(base64Image: string, fileType: string): Promise<ParsedReceipt> {
@@ -5231,5 +5233,23 @@ export class AddEditExpensePage implements OnInit {
       return vendor;
     }
     return this.vendorOptions?.find((option) => option.toLowerCase() === vendor.toLowerCase()) || null;
+  }
+
+  private updateRecentlySplitExpenses(updatedExpense: Partial<Transaction>): void {
+    if (!this.activatedRoute.snapshot.params.fromSplitExpenseReview) {
+      return;
+    }
+
+    const currentData = this.expensesService.splitExpensesData$.getValue();
+
+    if (currentData && currentData?.expenses) {
+      const updatedExpenses = currentData.expenses.map((expense) =>
+        expense.id === updatedExpense.id ? updatedExpense : expense
+      );
+      this.expensesService.splitExpensesData$.next({
+        ...currentData,
+        expenses: updatedExpenses,
+      });
+    }
   }
 }
