@@ -12,7 +12,7 @@ import { StorageService } from 'src/app/core/services/storage.service';
 import { OrgService } from 'src/app/core/services/org.service';
 import { UserEventService } from 'src/app/core/services/user-event.service';
 import { globalCacheBusterNotifier } from 'ts-cacheable';
-import * as Sentry from '@sentry/angular';
+import * as Sentry from '@sentry/angular-ivy';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { DeviceService } from 'src/app/core/services/device.service';
@@ -23,7 +23,7 @@ import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { ExtendedDeviceInfo } from 'src/app/core/models/extended-device-info.model';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ResendEmailVerification } from 'src/app/core/models/resend-email-verification.model';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
@@ -267,7 +267,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
           })
         )
         .subscribe(() => {
-          this.showToastNotification('Verification Email Sent');
+          this.showToastNotification('Verification email sent');
           this.logoutIfSingleOrg(orgs);
         });
     } else {
@@ -286,10 +286,10 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       const email = eou.us.email;
       const popover = await this.popoverController.create({
         componentProps: {
-          title: 'Invite Not Accepted',
+          title: 'Invite not accepted',
           message: `You have been invited to ${orgName} organization, please check your previous emails and accept the invite or resend invite.`,
           primaryCta: {
-            text: 'Resend Invite',
+            text: 'Resend invite',
             action: 'resend',
           },
           secondaryCta: {

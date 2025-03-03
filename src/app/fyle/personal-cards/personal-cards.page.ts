@@ -35,11 +35,11 @@ import { HeaderState } from 'src/app/shared/components/fy-header/header-state.en
 import * as dayjs from 'dayjs';
 import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
 import { DateRangeModalComponent } from './date-range-modal/date-range-modal.component';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { SpinnerDialog } from '@awesome-cordova-plugins/spinner-dialog/ngx';
 import { ModalController, Platform } from '@ionic/angular';
-import { ApiV2Service } from 'src/app/core/services/api-v2.service';
+import { ExtendQueryParamsService } from 'src/app/core/services/extend-query-params.service';
 import { InAppBrowserService } from 'src/app/core/services/in-app-browser.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
@@ -48,7 +48,7 @@ import { PersonalCardsService } from 'src/app/core/services/personal-cards.servi
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExpensePreviewComponent } from '../personal-cards-matched-expenses/expense-preview/expense-preview.component';
-import { MatCheckboxChange } from '@angular/material/checkbox';
+import { MatLegacyCheckboxChange as MatCheckboxChange } from '@angular/material/legacy-checkbox';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-option-type.enum';
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
@@ -152,7 +152,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
     private modalController: ModalController,
-    private apiV2Service: ApiV2Service,
+    private extendQueryParamsService: ExtendQueryParamsService,
     private platform: Platform,
     private spinnerDialog: SpinnerDialog,
     private trackingService: TrackingService,
@@ -202,10 +202,8 @@ export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
   loadTransactionCount(): void {
     this.transactionsCount$ = this.loadData$.pipe(
       switchMap((params) => {
-        const queryParams: Partial<PlatformPersonalCardQueryParams> = this.apiV2Service.extendQueryParamsForTextSearch(
-          params.queryParams,
-          params.searchString
-        );
+        const queryParams: Partial<PlatformPersonalCardQueryParams> =
+          this.extendQueryParamsService.extendQueryParamsForTextSearch(params.queryParams, params.searchString);
         return this.personalCardsService.getBankTransactionsCount(queryParams);
       }),
       shareReplay(1)
@@ -241,7 +239,10 @@ export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
         } else {
           queryParams = params.queryParams as Record<string, string>;
         }
-        queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams as {}, params.searchString);
+        queryParams = this.extendQueryParamsService.extendQueryParamsForTextSearch(
+          queryParams as {},
+          params.searchString
+        );
         return this.personalCardsService.getBankTransactionsCount(queryParams).pipe(
           switchMap((count) => {
             if (count > (params.pageNumber - 1) * 10) {

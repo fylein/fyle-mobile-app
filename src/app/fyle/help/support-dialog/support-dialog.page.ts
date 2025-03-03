@@ -1,7 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { NavParams } from '@ionic/angular';
-import { Browser } from '@capacitor/browser';
 import { TrackingService } from '../../../core/services/tracking.service';
 import { BrowserHandlerService } from 'src/app/core/services/browser-handler.service';
 

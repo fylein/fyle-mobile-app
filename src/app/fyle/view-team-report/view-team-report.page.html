@@ -104,31 +104,50 @@
       <div class="view-reports--approvers-section" *ngIf="(report.state !== 'DRAFT')">
         <div *ngIf="approvals.length > 0" class="view-reports--approval-state-block">
           <div class="view-reports--approvers-title-block">
-            <div class="view-reports--approvers">Approvers</div>
-            <div *ngIf="permissions$|async as permissions">
-              <app-fy-approver
-                *ngIf="permissions.can_add_approver"
-                [approverEmailsList]="getApproverEmails(approvals)"
-                [id]="report.id"
-                [ownerEmail]="report.employee.user.email"
-                [type]="'TEAM_REPORT'"
-                (notify)="onUpdateApprover($event)"
-              >
-              </app-fy-approver>
+            <div class="view-reports--approvers-edit-container">
+              <div class="view-reports--approvers">Approvers</div>
+              <div *ngIf="permissions$|async as permissions">
+                <app-fy-approver
+                  *ngIf="permissions.can_add_approver"
+                  [approverEmailsList]="getApproverEmails(approvals)"
+                  [id]="report.id"
+                  [ownerEmail]="report.employee.user.email"
+                  [type]="'TEAM_REPORT'"
+                  (notify)="onUpdateApprover($event)"
+                >
+                </app-fy-approver>
+              </div>
+            </div>
+            <div *ngIf="showViewApproverModal" class="view-reports--view-approvers" (click)="openViewApproverModal()">
+              View all
             </div>
           </div>
-          <div *ngFor="let approver of approvals">
-            <div class="view-reports--approvers-list">
-              <div class="smartlook-hide">{{ approver.approver_user.full_name }}</div>
-              <div class="view-reports--approver-state-section">
-                <div
-                  class="view-reports--approver-state-pill view-reports--approver-state-pill__{{approver.state | lowercase}}"
-                ></div>
-                <span
-                  >{{ approver.state === 'APPROVAL_DONE' ? 'Approved' : (approver.state | titlecase |
-                  snakeCaseToSpaceCase)}}</span
-                >
+          <div *ngIf="!showViewApproverModal">
+            <div *ngFor="let approver of approvals">
+              <div class="view-reports--approvers-list">
+                <div class="smartlook-hide">{{ approver.approver_user.full_name }}</div>
+                <div class="view-reports--approver-state-section">
+                  <div
+                    class="view-reports--approver-state-pill view-reports--approver-state-pill__{{approver.state | lowercase}}"
+                  ></div>
+                  <span
+                    >{{ approver.state === 'APPROVAL_DONE' ? 'Approved' : (approver.state | titlecase |
+                    snakeCaseToSpaceCase)}}</span
+                  >
+                </div>
               </div>
+            </div>
+          </div>
+          <div *ngIf="showViewApproverModal" class="view-reports--approvers-list">
+            <div class="smartlook-hide">{{ approverToShow.approver_user.full_name }}</div>
+            <div class="view-reports--approver-state-section">
+              <div
+                class="view-reports--approver-state-pill view-reports--approver-state-pill__{{approverToShow?.state | lowercase}}"
+              ></div>
+              <span
+                >{{ approverToShow?.state === 'APPROVAL_DONE' ? 'Approved' : (approverToShow?.state | titlecase |
+                snakeCaseToSpaceCase)}}</span
+              >
             </div>
           </div>
         </div>

@@ -1,9 +1,9 @@
 import deepFreeze from 'deep-freeze-strict';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { Expense } from '../models/platform/v1/expense.model';
-import { ApprovalState } from '../models/platform/report-approvals.model';
 import { AccountType } from '../models/platform/v1/account.model';
 import { ExpenseState } from '../models/expense-state.enum';
+import { ApprovalState } from '../models/platform/approval-state.enum';
 
 export const platformPersonalCardTxnExpenseSuggestionsRes: PlatformApiResponse<Expense[]> = deepFreeze({
   data: [

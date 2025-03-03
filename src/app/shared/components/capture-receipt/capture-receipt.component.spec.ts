@@ -12,7 +12,7 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CaptureReceiptComponent } from './capture-receipt.component';
 import { ModalController, NavController, PopoverController } from '@ionic/angular';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { DEVICE_PLATFORM } from 'src/app/constants';
 import { RouterTestingModule } from '@angular/router/testing';
 import { CameraPreviewComponent } from './camera-preview/camera-preview.component';
