@@ -197,6 +197,7 @@ describe('AddEditExpensePage', () => {
     const tokenServiceSpy = jasmine.createSpyObj('TokenService', ['getClusterDomain']);
     const expenseFieldsServiceSpy = jasmine.createSpyObj('ExpenseFieldsService', [
       'getAllMap',
+      'getAllEnabled',
       'filterByOrgCategoryId',
       'getDefaultTxnFieldValues',
     ]);
