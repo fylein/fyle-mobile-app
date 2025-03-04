@@ -360,8 +360,8 @@ export class ViewTeamReportPage {
       this.canShowTooltip = true;
       this.showViewApproverModal =
         showViewApproverModal &&
-        orgSettings?.simplified_multi_stage_approvals.allowed &&
-        orgSettings?.simplified_multi_stage_approvals.enabled;
+        orgSettings?.simplified_multi_stage_approvals?.allowed &&
+        orgSettings?.simplified_multi_stage_approvals?.enabled;
     });
 
     this.refreshApprovals$.next(null);

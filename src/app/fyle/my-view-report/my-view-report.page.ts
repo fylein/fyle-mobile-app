@@ -346,8 +346,8 @@ export class MyViewReportPage {
       ([orgSettings, showViewApproverModal]) => {
         this.showViewApproverModal =
           showViewApproverModal &&
-          orgSettings?.simplified_multi_stage_approvals.allowed &&
-          orgSettings?.simplified_multi_stage_approvals.enabled;
+          orgSettings?.simplified_multi_stage_approvals?.allowed &&
+          orgSettings?.simplified_multi_stage_approvals?.enabled;
       }
     );
 
