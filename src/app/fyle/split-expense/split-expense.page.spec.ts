@@ -1609,8 +1609,6 @@ describe('SplitExpensePage', () => {
         cssClass: 'review-split-expense-modal',
         showBackdrop: false,
         backdropDismiss: false,
-        swipeToClose: false,
-        animated: true,
       });
       expect(expensesService.splitExpensesData$.next).toHaveBeenCalledWith({
         expenses: [txnData2, txnData4],

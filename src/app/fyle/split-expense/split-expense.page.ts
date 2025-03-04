@@ -1303,7 +1303,6 @@ export class SplitExpensePage implements OnDestroy {
   handleNavigationAfterReview(action: string, expense?: PlatformExpense): void {
     if (action === 'close') {
       this.clearRecentlySplitExpenses();
-      this.isReviewModalOpen = false;
       this.router.navigate([
         '/',
         'enterprise',
@@ -1345,8 +1344,6 @@ export class SplitExpensePage implements OnDestroy {
       cssClass: 'review-split-expense-modal',
       showBackdrop: false,
       backdropDismiss: false,
-      swipeToClose: false,
-      animated: true,
     });
 
     this.setRecentlySplitExpenses({
@@ -1360,6 +1357,14 @@ export class SplitExpensePage implements OnDestroy {
     this.isReviewModalOpen = false;
     if (data) {
       this.handleNavigationAfterReview(data.action, data.expense);
+    } else {
+      this.clearRecentlySplitExpenses();
+      this.router.navigate([
+        '/',
+        'enterprise',
+        this.reportId ? 'my_view_report' : 'my_expenses',
+        ...(this.reportId ? [{ id: this.reportId }] : []),
+      ]);
     }
   }
 
