@@ -1346,7 +1346,6 @@ export class SplitExpensePage implements OnDestroy {
       showBackdrop: false,
       backdropDismiss: false,
       swipeToClose: false,
-      canDismiss: false,
       animated: true,
     });
 
