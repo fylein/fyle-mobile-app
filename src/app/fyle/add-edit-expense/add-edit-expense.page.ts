@@ -799,12 +799,12 @@ export class AddEditExpensePage implements OnInit {
             is_mandatory: res.txnFields.org_category_id?.is_mandatory || false,
           },
           project: {
-            is_visible: !!res.txnFields.project_id || this.isProjectEnabled,
+            is_visible: this.isProjectEnabled,
             value: formValue.project,
             is_mandatory: res.txnFields.project_id?.is_mandatory || false,
           },
           costCenter: {
-            is_visible: !!res.txnFields.cost_center_id || this.isCostCenterEnabled,
+            is_visible: this.isCostCenterEnabled,
             value: formValue.costCenter,
             is_mandatory: res.txnFields.cost_center_id?.is_mandatory || false,
           },

@@ -687,12 +687,12 @@ export function TestCases1(getTestBed) {
             is_mandatory: expenseFieldObjData.org_category_id?.is_mandatory || false,
           },
           project: {
-            is_visible: !!expenseFieldObjData.project_id || component.isProjectEnabled,
+            is_visible: component.isProjectEnabled,
             value: component.getFormValues().project,
             is_mandatory: expenseFieldObjData.project_id?.is_mandatory || false,
           },
           costCenter: {
-            is_visible: !!expenseFieldObjData.cost_center_id || component.isCostCenterEnabled,
+            is_visible: component.isCostCenterEnabled,
             value: component.getFormValues().costCenter,
             is_mandatory: expenseFieldObjData.cost_center_id?.is_mandatory || false,
           },
@@ -733,12 +733,12 @@ export function TestCases1(getTestBed) {
             is_mandatory: expenseFieldObjData.org_category_id?.is_mandatory || false,
           },
           project: {
-            is_visible: !!expenseFieldObjData.project_id || component.isProjectEnabled,
+            is_visible: component.isProjectEnabled,
             value: component.getFormValues().project,
             is_mandatory: expenseFieldObjData.project_id?.is_mandatory || false,
           },
           costCenter: {
-            is_visible: !!expenseFieldObjData.cost_center_id || component.isCostCenterEnabled,
+            is_visible: component.isCostCenterEnabled,
             value: component.getFormValues().costCenter,
             is_mandatory: expenseFieldObjData.cost_center_id?.is_mandatory || false,
           },

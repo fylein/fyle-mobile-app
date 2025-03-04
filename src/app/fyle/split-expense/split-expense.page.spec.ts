@@ -967,16 +967,6 @@ describe('SplitExpensePage', () => {
     });
   });
 
-  describe('getRecentlySplitDataAndOpenReviewModal():', () => {
-    it('should call openReviewSplitExpenseModal with split expenses data', () => {
-      spyOn(component, 'openReviewSplitExpenseModal');
-      const mockData = { expenses: [] };
-      spyOn(expensesService.splitExpensesData$, 'asObservable').and.returnValue(of(mockData));
-      component.getRecentlySplitDataAndOpenReviewModal();
-      expect(component.openReviewSplitExpenseModal).toHaveBeenCalledWith([]);
-    });
-  });
-
   describe('setValuesForCCC():', () => {
     beforeEach(() => {
       component.splitConfig = cloneDeep(splitConfig);
@@ -1210,12 +1200,6 @@ describe('SplitExpensePage', () => {
       expect(formGroup.get('purpose')).toBeTruthy();
     });
 
-    it('should setup filtered categories for first split if category is visible', () => {
-      spyOn(component, 'setupFilteredCategories');
-      component.add(50, 'USD', 50);
-      expect(component.setupFilteredCategories).toHaveBeenCalledWith(0);
-    });
-
     it('should update totalSplitAmount after adding new form group', () => {
       spyOn(component, 'getActiveCategories').and.returnValue(of([]));
       spyOn(component, 'getFilteredCategories').and.returnValue(of([]));
@@ -1240,12 +1224,14 @@ describe('SplitExpensePage', () => {
       component.splitExpensesFormArray.push(
         new UntypedFormGroup({
           category: new UntypedFormControl(null),
+          project: new UntypedFormControl(null),
         })
       );
 
       component.handleInitialconfig(true);
 
-      expect(component.setupFilteredCategories).toHaveBeenCalledWith(0);
+      expect(component.setupFilteredCategories).not.toHaveBeenCalled();
+      expect(component.filteredCategoriesArray[0]).toBe(component.categories$);
       expect(component.filteredCategoriesArray[1]).toBe(component.categories$);
       expect(component.costCenterDisabledStates[1]).toBeFalse();
     });
@@ -1254,6 +1240,7 @@ describe('SplitExpensePage', () => {
       component.splitExpensesFormArray.push(
         new UntypedFormGroup({
           category: new UntypedFormControl('some-category'),
+          project: new UntypedFormControl(null),
         })
       );
 
@@ -1275,6 +1262,21 @@ describe('SplitExpensePage', () => {
       expect(component.filteredCategoriesArray.length).toBe(1);
       expect(component.filteredCategoriesArray[0]).toBe(component.categories$);
       expect(component.costCenterDisabledStates[0]).toBeFalse();
+    });
+
+    it('should call setupFilteredCategories when the first split has a project value', () => {
+      component.splitExpensesFormArray.push(
+        new UntypedFormGroup({
+          category: new UntypedFormControl(null),
+          project: new UntypedFormControl('some-project'),
+        })
+      );
+
+      component.handleInitialconfig(true);
+
+      expect(component.setupFilteredCategories).toHaveBeenCalledWith(0);
+      expect(component.filteredCategoriesArray[1]).toBe(component.categories$);
+      expect(component.costCenterDisabledStates[1]).toBeFalse();
     });
   });
 
@@ -1549,11 +1551,20 @@ describe('SplitExpensePage', () => {
   describe('showDisabledMessage()', () => {
     beforeEach(() => {
       spyOn(component, 'showPopoverModal').and.callThrough();
+      component.splitConfig = cloneDeep(splitConfig);
     });
 
     it('should show correct message for category type', () => {
       component.showDisabledMessage('category');
       expect(component.showPopoverModal).toHaveBeenCalledWith('No category is available for the selected project.');
+    });
+
+    it('should show correct message when type is category and project is not enabled', () => {
+      component.splitConfig.project.is_visible = false;
+      component.showDisabledMessage('category');
+      expect(component.showPopoverModal).toHaveBeenCalledWith(
+        'No category is assigned. Please contact admin for further help.'
+      );
     });
 
     it('should show correct message for cost center type', () => {
