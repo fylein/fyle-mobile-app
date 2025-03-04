@@ -115,7 +115,7 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
 
   getDefaultUsersList(): Observable<Partial<Employee>[]> {
     const params: Partial<EmployeeParams> = {
-      order: 'us_full_name.asc,us_email.asc,ou_id',
+      order: 'user->full_name.asc,user->email.asc',
     };
 
     if (this.approverEmailsList.length > 0) {
@@ -140,11 +140,11 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
   getSearchedUsersList(searchText?: string): Observable<Partial<Employee>[]> {
     const params: Partial<EmployeeParams> = {
       limit: 20,
-      order: 'us_full_name.asc,us_email.asc,ou_id',
+      order: 'user->full_name.asc,user->email.asc',
     };
 
     if (searchText) {
-      params.or = `(us_email.ilike.*${searchText}*,us_full_name.ilike.*${searchText}*)`;
+      params.or = `(user->email.ilike.*${searchText}*,user->full_name.ilike.*${searchText}*)`;
     }
 
     return this.orgUserService.getEmployeesBySearch(params).pipe(
