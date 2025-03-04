@@ -1608,7 +1608,6 @@ describe('SplitExpensePage', () => {
         presentingElement: await modalController.getTop(),
         cssClass: 'review-split-expense-modal',
         showBackdrop: false,
-        backdropDismiss: false,
       });
       expect(expensesService.splitExpensesData$.next).toHaveBeenCalledWith({
         expenses: [txnData2, txnData4],
