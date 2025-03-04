@@ -368,8 +368,8 @@ export class DashboardPage {
     this.isUserFromINCluster$ = from(this.utilityService.isUserFromINCluster());
 
     this.setShowOptInBanner();
-    // this.setShowNavbarWalkthrough();
-    this.initializeTour(true);
+    this.setShowNavbarWalkthrough();
+    // this.initializeTour(true);
 
     const openSMSOptInDialog = this.activatedRoute.snapshot.params.openSMSOptInDialog as string;
     if (openSMSOptInDialog === 'true') {

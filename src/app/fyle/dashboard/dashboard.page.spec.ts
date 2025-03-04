@@ -36,6 +36,10 @@ import { properties } from 'src/app/core/mock-data/modal-properties.data';
 import { featureConfigOptInData } from 'src/app/core/mock-data/feature-config.data';
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import {
+  featureConfigWalkthroughFinishData,
+  featureConfigWalkthroughStartData,
+} from 'src/app/core/mock-data/feature-config.data';
 
 describe('DashboardPage', () => {
   let component: DashboardPage;
@@ -253,6 +257,8 @@ describe('DashboardPage', () => {
     beforeEach(() => {
       spyOn(component, 'setupNetworkWatcher');
       spyOn(component, 'registerBackButtonAction');
+      spyOn(component, 'initializeTour');
+      spyOn(component, 'setNavbarWalkthroughConfig');
       orgSettingsService.get.and.returnValue(of(orgSettingsRes));
       orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
       categoriesService.getMileageOrPerDiemCategories.and.returnValue(of(mileagePerDiemPlatformCategoryData));
@@ -269,7 +275,7 @@ describe('DashboardPage', () => {
       authService.getEou.and.resolveTo(apiEouRes);
       utilityService.isUserFromINCluster.and.resolveTo(false);
       spyOn(component, 'setShowOptInBanner');
-      featureConfigService.getConfiguration.and.returnValue(of(null));
+      featureConfigService.getConfiguration.and.returnValue(of(featureConfigWalkthroughFinishData));
       featureConfigService.saveConfiguration.and.returnValue(of(null));
     });
 
@@ -366,6 +372,14 @@ describe('DashboardPage', () => {
       });
       expect(component.setShowOptInBanner).toHaveBeenCalledTimes(1);
     });
+
+    it('should start navbar walkthrough', fakeAsync(() => {
+      component.eou$ = of(apiEouRes);
+      featureConfigService.getConfiguration.and.returnValue(of(featureConfigWalkthroughStartData));
+      component.ionViewWillEnter();
+      tick(1000);
+      expect(component.initializeTour).toHaveBeenCalledTimes(1);
+    }));
   });
 
   describe('backButtonActionHandler():', () => {
