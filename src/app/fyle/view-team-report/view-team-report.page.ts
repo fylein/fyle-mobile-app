@@ -277,12 +277,6 @@ export class ViewTeamReportPage {
     this.isExpensesLoading = true;
     this.setupNetworkWatcher();
 
-    this.launchDarklyService
-      .getVariation('show_multi_stage_approval_flow', false)
-      .pipe(take(1))
-      .subscribe((showViewApproverModal) => {
-        this.showViewApproverModal = showViewApproverModal;
-      });
     const navigateBack = this.activatedRoute.snapshot.params?.navigate_back as string | null;
     if (navigateBack && typeof navigateBack == 'string') {
       this.navigateBack = JSON.parse(navigateBack) as boolean;
@@ -354,7 +348,8 @@ export class ViewTeamReportPage {
       eou: this.eou$,
       report: this.report$.pipe(take(1)),
       orgSettings: this.orgSettingsService.get(),
-    }).subscribe(({ expenses, eou, report, orgSettings }) => {
+      showViewApproverModal: this.launchDarklyService.getVariation('show_multi_stage_approval_flow', false),
+    }).subscribe(({ expenses, eou, report, orgSettings, showViewApproverModal }) => {
       this.reportExpensesIds = expenses.map((expense) => expense.id);
       this.isSequentialApprovalEnabled = this.getApprovalSettings(orgSettings);
       this.canApprove = this.isSequentialApprovalEnabled
@@ -363,6 +358,10 @@ export class ViewTeamReportPage {
           report.next_approver_user_ids.includes(eou.us.id)
         : true;
       this.canShowTooltip = true;
+      this.showViewApproverModal =
+        showViewApproverModal &&
+        orgSettings?.simplified_multi_stage_approvals?.allowed &&
+        orgSettings?.simplified_multi_stage_approvals?.enabled;
     });
 
     this.refreshApprovals$.next(null);
