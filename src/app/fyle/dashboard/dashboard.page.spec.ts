@@ -12,7 +12,7 @@ import { SmartlookService } from 'src/app/core/services/smartlook.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { EventEmitter, NO_ERRORS_SCHEMA } from '@angular/core';
-import { FooterState } from 'src/app/shared/components/footer/footer-state';
+import { FooterState } from 'src/app/shared/components/footer/footer-state.enum';
 import { Subject, Subscription, of } from 'rxjs';
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
@@ -433,6 +433,30 @@ describe('DashboardPage', () => {
       '/',
       'enterprise',
       'camera_overlay',
+      {
+        navigate_back: true,
+      },
+    ]);
+  });
+
+  it('onExpensesClicked(): should navigate to expenses page', () => {
+    component.onExpensesClicked();
+    expect(router.navigate).toHaveBeenCalledOnceWith([
+      '/',
+      'enterprise',
+      'my_expenses',
+      {
+        navigate_back: true,
+      },
+    ]);
+  });
+
+  it('onReportsClicked(): should navigate to reports page', () => {
+    component.onReportsClicked();
+    expect(router.navigate).toHaveBeenCalledOnceWith([
+      '/',
+      'enterprise',
+      'my_reports',
       {
         navigate_back: true,
       },
