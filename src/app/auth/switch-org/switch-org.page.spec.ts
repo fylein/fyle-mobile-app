@@ -307,7 +307,6 @@ describe('SwitchOrgPage', () => {
       component.searchOrgsInput.nativeElement.dispatchEvent(new Event('keyup'));
       const changeDetectorRef = fixture.debugElement.injector.get(ChangeDetectorRef);
       const detectChangesSpy = spyOn(changeDetectorRef.constructor.prototype, 'detectChanges');
-      fixture.detectChanges();
 
       component.ionViewWillEnter();
       tick(1000);
@@ -325,7 +324,7 @@ describe('SwitchOrgPage', () => {
       expect(component.proceed).toHaveBeenCalledOnceWith(true);
 
       expect(component.getOrgsWhichContainSearchText).toHaveBeenCalledOnceWith([orgData2[1]], '');
-      expect(detectChangesSpy).toHaveBeenCalledTimes(2);
+      expect(detectChangesSpy).toHaveBeenCalledTimes(1);
     }));
 
     it('should directly proceed to invite line flow if choosing is disabled', fakeAsync(() => {
