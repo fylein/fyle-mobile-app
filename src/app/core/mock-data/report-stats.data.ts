@@ -118,3 +118,13 @@ export const expectedSentBackResponseSingularReport: PlatformReportsStatsRespons
   processing_count: 0,
   reimbursable_amount: 0,
 });
+
+export const unapprovedTeamReportsStats: PlatformReportsStatsResponse = deepFreeze({
+  total_amount: 4500,
+  count: 2,
+  failed_amount: 0,
+  failed_count: 0,
+  processing_amount: 0,
+  processing_count: 0,
+  reimbursable_amount: 0,
+});
