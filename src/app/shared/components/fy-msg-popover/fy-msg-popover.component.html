@@ -1,0 +1,14 @@
+<ion-content>
+  <div class="fy-popover--content-wrapper">
+    <div class="fy-popover--icon-container">
+      <ion-buttons slot="start">
+        <ion-button (click)="dismiss()">
+          <mat-icon class="fy-icon-close" svgIcon="cross"></mat-icon>
+        </ion-button>
+      </ion-buttons>
+    </div>
+    <div class="fy-popover--msg-container">
+      <div class="fy-popover--message-text">{{ msg }}</div>
+    </div>
+  </div>
+</ion-content>
