@@ -1284,6 +1284,7 @@ describe('SplitExpensePage', () => {
     beforeEach(() => {
       spyOn(component, 'getFilteredCategories').and.returnValue(of([]));
       spyOn(component, 'resetInvalidCategoryIfNotAllowed');
+      spyOn(component, 'handleCategoryValidation');
 
       const splitExpenseForm1 = new UntypedFormGroup({
         amount: new UntypedFormControl(10000),
@@ -1328,6 +1329,7 @@ describe('SplitExpensePage', () => {
         })
       );
 
+      expect(component.handleCategoryValidation).toHaveBeenCalledWith(0, component.splitExpensesFormArray.at(0));
       expect(component.resetInvalidCategoryIfNotAllowed).toHaveBeenCalledWith(component.splitExpensesFormArray.at(0));
     });
 
@@ -2899,9 +2901,11 @@ describe('SplitExpensePage', () => {
 
     it('should assign cost_center_id if it is not present in txnFields and exists in expenseFields', () => {
       component.txnFields = cloneDeep(expenseFieldObjData);
+      component.splitConfig = cloneDeep(splitConfig);
       component.expenseFields = transformedResponse;
       component.addCostCenterIdToTxnFields();
       expect(component.txnFields.cost_center_id).toBe(transformedResponse[4]);
+      expect(component.splitConfig.costCenter.is_mandatory).toBe(transformedResponse[4].is_mandatory);
     });
   });
 

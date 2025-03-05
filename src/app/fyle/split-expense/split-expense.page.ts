@@ -1032,6 +1032,7 @@ export class SplitExpensePage implements OnDestroy {
       },
     }).pipe(takeUntil(this.destroy$));
 
+    this.handleCategoryValidation(index, splitForm);
     this.resetInvalidCategoryIfNotAllowed(splitForm);
   }
 
@@ -1128,6 +1129,20 @@ export class SplitExpensePage implements OnDestroy {
     return of(categories.map((category) => ({ label: category.displayName, value: category })));
   }
 
+  handleCategoryValidation(index: number, splitForm: AbstractControl): void {
+    this.filteredCategoriesArray[index].pipe(takeUntil(this.destroy$)).subscribe((filteredCategories) => {
+      const categoryControl = splitForm.get('category');
+
+      if (filteredCategories.length === 0 && this.splitConfig.category.is_mandatory) {
+        categoryControl.clearValidators();
+        categoryControl.updateValueAndValidity();
+      } else if (this.splitConfig.category.is_mandatory) {
+        categoryControl.setValidators([Validators.required]);
+        categoryControl.updateValueAndValidity();
+      }
+    });
+  }
+
   onCategoryChange(index: number): void {
     if (!this.splitConfig.costCenter.is_visible) {
       return;
@@ -1141,10 +1156,18 @@ export class SplitExpensePage implements OnDestroy {
     }
 
     const isCostCenterAllowed = this.txnFields.cost_center_id?.org_category_ids?.includes(categoryControl.id);
+    const costCenterControl = splitForm.get('cost_center');
     this.costCenterDisabledStates[index] = !isCostCenterAllowed;
 
     if (!isCostCenterAllowed) {
-      splitForm.get('cost_center').reset();
+      costCenterControl.reset();
+      if (this.splitConfig.costCenter.is_mandatory) {
+        costCenterControl.clearValidators();
+        costCenterControl.updateValueAndValidity();
+      }
+    } else if (this.splitConfig.costCenter.is_mandatory) {
+      costCenterControl.setValidators([Validators.required]);
+      costCenterControl.updateValueAndValidity();
     }
   }
 
@@ -1382,6 +1405,7 @@ export class SplitExpensePage implements OnDestroy {
     const costCenterField = this.expenseFields.find((field) => field.column_name === 'cost_center_id');
     if (costCenterField) {
       this.txnFields.cost_center_id = costCenterField;
+      this.splitConfig.costCenter.is_mandatory = costCenterField.is_mandatory;
     }
   }
 
