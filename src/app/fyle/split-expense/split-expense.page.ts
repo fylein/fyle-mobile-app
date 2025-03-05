@@ -1327,6 +1327,7 @@ export class SplitExpensePage implements OnDestroy {
         msg,
       },
       cssClass: 'fy-dialog-popover',
+      showBackdrop: false,
     });
 
     await Popover.present();
