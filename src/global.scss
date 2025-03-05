@@ -323,6 +323,7 @@ ion-popover.camera-options-popover {
   }
 }
 
+// to get rid of the box shadow introduced by ionic v7
 .header-md {
   box-shadow: none;
   -webkit-box-shadow: none;
