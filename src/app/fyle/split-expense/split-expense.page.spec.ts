@@ -1284,6 +1284,8 @@ describe('SplitExpensePage', () => {
     beforeEach(() => {
       spyOn(component, 'getFilteredCategories').and.returnValue(of([]));
       spyOn(component, 'resetInvalidCategoryIfNotAllowed');
+      spyOn(component, 'handleCategoryValidation');
+      component.splitConfig = cloneDeep(splitConfig);
 
       const splitExpenseForm1 = new UntypedFormGroup({
         amount: new UntypedFormControl(10000),
@@ -1328,7 +1330,11 @@ describe('SplitExpensePage', () => {
         })
       );
 
-      expect(component.resetInvalidCategoryIfNotAllowed).toHaveBeenCalledWith(component.splitExpensesFormArray.at(0));
+      expect(component.handleCategoryValidation).toHaveBeenCalledWith(0, component.splitExpensesFormArray.at(0));
+      expect(component.resetInvalidCategoryIfNotAllowed).toHaveBeenCalledWith(
+        0,
+        component.splitExpensesFormArray.at(0)
+      );
     });
 
     it('should not setup filtered categories if project control does not exist', () => {
@@ -1458,7 +1464,7 @@ describe('SplitExpensePage', () => {
 
   describe('resetInvalidCategoryIfNotAllowed()', () => {
     beforeEach(() => {
-      component.categories$ = of(categorieListRes);
+      component.filteredCategoriesArray = [of(categorieListRes)];
     });
 
     it('should reset category if it is not in the allowed list', () => {
@@ -1474,7 +1480,7 @@ describe('SplitExpensePage', () => {
       });
 
       splitExpenseForm1.get('category').setValue({ label: 'invalid-category', id: 99999 });
-      component.resetInvalidCategoryIfNotAllowed(splitExpenseForm1);
+      component.resetInvalidCategoryIfNotAllowed(0, splitExpenseForm1);
       splitExpenseForm1.get('category').updateValueAndValidity();
       expect(splitExpenseForm1.get('category').value).toBeNull();
     });
@@ -1494,7 +1500,7 @@ describe('SplitExpensePage', () => {
       const validCategory = categorieListRes[0];
       splitExpenseForm1.get('category').setValue(validCategory.value);
 
-      component.resetInvalidCategoryIfNotAllowed(splitExpenseForm1);
+      component.resetInvalidCategoryIfNotAllowed(0, splitExpenseForm1);
       splitExpenseForm1.get('category').updateValueAndValidity();
       expect(splitExpenseForm1.get('category').value).toEqual(jasmine.objectContaining({ id: 129140 }));
     });
@@ -1689,14 +1695,14 @@ describe('SplitExpensePage', () => {
 
     it('should return early if category value is null', () => {
       component.splitConfig.costCenter.is_visible = true;
-      const categorySpy = spyOn(component.splitExpensesFormArray.at(0), 'get').and.returnValue({
+      const formSpy = spyOn(component.splitExpensesFormArray.at(0), 'get').and.returnValue({
         value: null,
       } as any);
 
       component.onCategoryChange(0);
 
-      expect(categorySpy).toHaveBeenCalledWith('category');
-      expect(categorySpy).not.toHaveBeenCalledWith('cost_center');
+      expect(formSpy).toHaveBeenCalledWith('category');
+      expect(formSpy).toHaveBeenCalledWith('cost_center');
     });
 
     it('should disable cost center if category is not allowed', () => {
@@ -2899,9 +2905,11 @@ describe('SplitExpensePage', () => {
 
     it('should assign cost_center_id if it is not present in txnFields and exists in expenseFields', () => {
       component.txnFields = cloneDeep(expenseFieldObjData);
+      component.splitConfig = cloneDeep(splitConfig);
       component.expenseFields = transformedResponse;
       component.addCostCenterIdToTxnFields();
       expect(component.txnFields.cost_center_id).toBe(transformedResponse[4]);
+      expect(component.splitConfig.costCenter.is_mandatory).toBe(transformedResponse[4].is_mandatory);
     });
   });
 

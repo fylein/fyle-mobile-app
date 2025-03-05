@@ -1017,8 +1017,13 @@ export class SplitExpensePage implements OnDestroy {
   setupFilteredCategories(index: number): void {
     const splitForm = this.splitExpensesFormArray.at(index);
     const projectControl = splitForm.get('project');
+    const categoryControl = splitForm.get('category');
 
     if (!projectControl || projectControl.value === null) {
+      if (this.splitConfig.category.is_mandatory) {
+        categoryControl.setValidators(Validators.required);
+        categoryControl.updateValueAndValidity();
+      }
       return;
     }
 
@@ -1032,12 +1037,13 @@ export class SplitExpensePage implements OnDestroy {
       },
     }).pipe(takeUntil(this.destroy$));
 
-    this.resetInvalidCategoryIfNotAllowed(splitForm);
+    this.handleCategoryValidation(index, splitForm);
+    this.resetInvalidCategoryIfNotAllowed(index, splitForm);
   }
 
-  resetInvalidCategoryIfNotAllowed(splitForm: AbstractControl): void {
+  resetInvalidCategoryIfNotAllowed(index: number, splitForm: AbstractControl): void {
     combineLatest([
-      this.categories$,
+      this.filteredCategoriesArray[index],
       splitForm.get('category').valueChanges.pipe(startWith(splitForm.get('category').value)),
     ])
       .pipe(takeUntil(this.destroy$))
@@ -1128,15 +1134,35 @@ export class SplitExpensePage implements OnDestroy {
     return of(categories.map((category) => ({ label: category.displayName, value: category })));
   }
 
+  handleCategoryValidation(index: number, splitForm: AbstractControl): void {
+    this.filteredCategoriesArray[index].pipe(takeUntil(this.destroy$)).subscribe((filteredCategories) => {
+      const categoryControl = splitForm.get('category');
+
+      if (filteredCategories.length === 0 && this.splitConfig.category.is_mandatory) {
+        categoryControl.clearValidators();
+        categoryControl.updateValueAndValidity();
+      } else if (this.splitConfig.category.is_mandatory) {
+        categoryControl.setValidators([Validators.required]);
+        categoryControl.updateValueAndValidity();
+      }
+    });
+  }
+
   onCategoryChange(index: number): void {
     if (!this.splitConfig.costCenter.is_visible) {
       return;
     }
+    const isCostCenterMandatory = this.splitConfig.costCenter.is_mandatory;
     const splitForm = this.splitExpensesFormArray.at(index);
     const categoryControl = splitForm.get('category').value as OrgCategory;
+    const costCenterControl = splitForm.get('cost_center');
 
     if (!categoryControl) {
       this.costCenterDisabledStates[index] = false;
+      if (isCostCenterMandatory) {
+        costCenterControl.setValidators([Validators.required]);
+        costCenterControl.updateValueAndValidity();
+      }
       return;
     }
 
@@ -1144,7 +1170,14 @@ export class SplitExpensePage implements OnDestroy {
     this.costCenterDisabledStates[index] = !isCostCenterAllowed;
 
     if (!isCostCenterAllowed) {
-      splitForm.get('cost_center').reset();
+      costCenterControl.reset();
+      if (isCostCenterMandatory) {
+        costCenterControl.clearValidators();
+        costCenterControl.updateValueAndValidity();
+      }
+    } else if (isCostCenterMandatory) {
+      costCenterControl.setValidators([Validators.required]);
+      costCenterControl.updateValueAndValidity();
     }
   }
 
@@ -1382,6 +1415,7 @@ export class SplitExpensePage implements OnDestroy {
     const costCenterField = this.expenseFields.find((field) => field.column_name === 'cost_center_id');
     if (costCenterField) {
       this.txnFields.cost_center_id = costCenterField;
+      this.splitConfig.costCenter.is_mandatory = costCenterField.is_mandatory;
     }
   }
 
