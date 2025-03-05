@@ -37,12 +37,12 @@ export class HelpPage implements OnInit {
         switchMap(() => from(this.authService.getEou())),
         switchMap((eou) =>
           this.orgUserService.getEmployeesByParams({
-            select: 'us_full_name,us_email',
-            ou_org_id: 'eq.' + eou.ou.org_id,
-            ou_roles: 'like.%' + 'ADMIN%',
-            ou_status: 'eq.' + '"ACTIVE"',
-            ou_id: 'not.eq.' + eou.ou.id,
-            order: 'us_full_name.asc,ou_id',
+            select: '(user)',
+            roles: 'like.%ADMIN%',
+            is_enabled: 'eq.true',
+            has_accepted_invite: 'eq.true',
+            id: `neq.${eou.ou.id}`,
+            order: 'user->full_name.asc',
             limit: 5,
           })
         ),
