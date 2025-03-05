@@ -245,7 +245,7 @@ describe('ViewTeamReportPageV2', () => {
     approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
     launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
     refinerService = TestBed.inject(RefinerService) as jasmine.SpyObj<RefinerService>;
-
+    launchDarklyService.getVariation.and.returnValue(of(true));
     fixture.detectChanges();
   }));
 

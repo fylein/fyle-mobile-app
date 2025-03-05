@@ -33,9 +33,11 @@ import { ReportPermissions } from 'src/app/core/models/report-permissions.model'
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { ExtendedComment } from 'src/app/core/models/platform/v1/extended-comment.model';
 import { Comment } from 'src/app/core/models/platform/v1/comment.model';
-import { ApprovalState, ReportApprovals } from 'src/app/core/models/platform/report-approvals.model';
+import { ReportApprovals } from 'src/app/core/models/platform/report-approvals.model';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { RefinerService } from 'src/app/core/services/refiner.service';
+import { ShowAllApproversPopoverComponent } from 'src/app/shared/components/fy-approver/show-all-approvers-popover/show-all-approvers-popover.component';
+import { ApprovalState } from 'src/app/core/models/platform/approval-state.enum';
 
 @Component({
   selector: 'app-view-team-report',
@@ -130,6 +132,10 @@ export class ViewTeamReportPage {
   approvals: ReportApprovals[];
 
   approveReportLoader = false;
+
+  showViewApproverModal = false;
+
+  approverToShow: ReportApprovals;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -256,6 +262,17 @@ export class ViewTeamReportPage {
     });
   }
 
+  setupApproverToShow(report: Report): void {
+    const filteredApprover = this.approvals.filter(
+      (approver) => report.next_approver_user_ids?.[0] === approver.approver_user.id
+    );
+    const highestRankApprover = this.approvals.reduce(
+      (max, approver) => (approver.rank > max.rank ? approver : max),
+      this.approvals[0]
+    );
+    this.approverToShow = filteredApprover.length === 1 ? filteredApprover[0] : highestRankApprover;
+  }
+
   ionViewWillEnter(): void {
     this.isExpensesLoading = true;
     this.setupNetworkWatcher();
@@ -283,6 +300,7 @@ export class ViewTeamReportPage {
             this.approvals = report.approvals.filter((approval) =>
               [ApprovalState.APPROVAL_PENDING, ApprovalState.APPROVAL_DONE].includes(approval.state)
             );
+            this.setupApproverToShow(report);
             return report;
           })
         )
@@ -330,7 +348,8 @@ export class ViewTeamReportPage {
       eou: this.eou$,
       report: this.report$.pipe(take(1)),
       orgSettings: this.orgSettingsService.get(),
-    }).subscribe(({ expenses, eou, report, orgSettings }) => {
+      showViewApproverModal: this.launchDarklyService.getVariation('show_multi_stage_approval_flow', false),
+    }).subscribe(({ expenses, eou, report, orgSettings, showViewApproverModal }) => {
       this.reportExpensesIds = expenses.map((expense) => expense.id);
       this.isSequentialApprovalEnabled = this.getApprovalSettings(orgSettings);
       this.canApprove = this.isSequentialApprovalEnabled
@@ -339,6 +358,10 @@ export class ViewTeamReportPage {
           report.next_approver_user_ids.includes(eou.us.id)
         : true;
       this.canShowTooltip = true;
+      this.showViewApproverModal =
+        showViewApproverModal &&
+        orgSettings?.simplified_multi_stage_approvals?.allowed &&
+        orgSettings?.simplified_multi_stage_approvals?.enabled;
     });
 
     this.refreshApprovals$.next(null);
@@ -473,6 +496,22 @@ export class ViewTeamReportPage {
     await viewInfoModal.onWillDismiss();
 
     this.trackingService.clickViewReportInfo({ view: ExpenseView.team });
+  }
+
+  async openViewApproverModal(): Promise<void> {
+    const viewApproversModal = await this.popoverController.create({
+      component: ShowAllApproversPopoverComponent,
+      componentProps: {
+        approvals: this.approvals,
+      },
+      cssClass: 'fy-dialog-popover',
+      backdropDismiss: false,
+    });
+
+    await viewApproversModal.present();
+    await viewApproversModal.onWillDismiss();
+
+    this.trackingService.eventTrack('All approvers modal closed', { view: ExpenseView.team });
   }
 
   segmentChanged(event: { detail: { value: string } }): void {

@@ -60,6 +60,7 @@ import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { orgSettingsPendingRestrictions } from 'src/app/core/mock-data/org-settings.data';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
+import { LaunchDarklyService } from '../../core/services/launch-darkly.service';
 
 describe('MyViewReportPage', () => {
   let component: MyViewReportPage;
@@ -80,9 +81,11 @@ describe('MyViewReportPage', () => {
   let statusService: jasmine.SpyObj<StatusService>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
+  let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
 
   beforeEach(waitForAsync(() => {
     const reportServiceSpy = jasmine.createSpyObj('ReportService', ['updateReportPurpose']);
+    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
     const expnesesServicespy = jasmine.createSpyObj('ExpensesService', [
       'getReportExpenses',
       'getExpenses',
@@ -205,6 +208,10 @@ describe('MyViewReportPage', () => {
           provide: SpenderReportsService,
           useValue: spenderReportsServiceSpy,
         },
+        {
+          provide: LaunchDarklyService,
+          useValue: launchDarklyServiceSpy,
+        },
         { provide: NavController, useValue: { push: NavController.prototype.back } },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
@@ -227,11 +234,13 @@ describe('MyViewReportPage', () => {
     statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
+    launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
 
     component.report$ = of(platformReportData);
     component.canEdit$ = of(true);
     component.canDelete$ = of(true);
 
+    launchDarklyService.getVariation.and.returnValue(of(true));
     fixture.detectChanges();
   }));
 

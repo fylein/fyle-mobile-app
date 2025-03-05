@@ -5,13 +5,13 @@ import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { PlatformCategory } from 'src/app/core/models/platform/platform-category.model';
 import { MileageUnitEnum } from 'src/app/core/models/platform/platform-mileage-rates.model';
 import { ReportState } from 'src/app/core/models/platform/v1/report.model';
-import { ApprovalState } from 'src/app/core/models/platform/report-approvals.model';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { FileType } from 'src/app/core/models/platform/v1/file.model';
 import { CustomFieldTypes } from 'src/app/core/enums/platform/v1/custom-fields-type.enum';
 import { CommuteDeduction } from 'src/app/core/enums/commute-deduction.enum';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
+import { ApprovalState } from 'src/app/core/models/platform/approval-state.enum';
 
 export const expenseData: Expense = deepFreeze({
   accounting_export_summary: {},

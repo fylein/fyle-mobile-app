@@ -115,6 +115,7 @@ $sent-back-color: #da1e28;
   &--approvers-title-block {
     display: flex;
     align-items: baseline;
+    justify-content: space-between;
   }
 
   &--approvers-list {
@@ -197,6 +198,32 @@ $sent-back-color: #da1e28;
     &__highlight {
       color: #67bc53;
     }
+  }
+
+  &--view-approvers {
+    display: flex;
+    padding: 0;
+    justify-content: center;
+    align-items: center;
+    gap: 2px;
+    border-radius: 4px;
+    color: $blue-black;
+    text-align: center;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 18px;
+    text-decoration-line: underline;
+    text-decoration-style: solid;
+    text-decoration-skip-ink: none;
+    text-decoration-thickness: auto;
+    text-underline-offset: auto;
+    text-underline-position: from-font;
+  }
+
+  &--approvers-edit-container {
+    display: flex;
+    align-items: baseline;
   }
 
   &--approval-state {
