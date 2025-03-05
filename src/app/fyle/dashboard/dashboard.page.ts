@@ -351,6 +351,9 @@ export class DashboardPage {
     this.setupNetworkWatcher();
     this.registerBackButtonAction();
     this.smartlookService.init();
+    this.footerService.footerCurrentStateIndex$.subscribe((index) => {
+      this.currentStateIndex = index;
+    });
     this.taskCount = 0;
     const currentState =
       this.activatedRoute.snapshot.queryParams.state === 'tasks' ? DashboardState.tasks : DashboardState.home;
@@ -361,10 +364,6 @@ export class DashboardPage {
       this.currentActiveState = FooterState.HOME;
       this.currentStateIndex = 0;
     }
-
-    this.footerService.footerCurrentStateIndex$.subscribe((index) => {
-      this.currentStateIndex = index;
-    });
 
     this.orgUserSettings$ = this.orgUserSettingsService.get().pipe(shareReplay(1));
     this.orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));

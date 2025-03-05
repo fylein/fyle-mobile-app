@@ -104,7 +104,9 @@ describe('DashboardPage', () => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
-    const footerServiceSpy = jasmine.createSpyObj('FooterService', ['updateCurrentStateIndex']);
+    const footerServiceSpy = jasmine.createSpyObj('FooterService', ['updateCurrentStateIndex'], {
+      footerCurrentStateIndex$: of(1),
+    });
 
     TestBed.configureTestingModule({
       declarations: [DashboardPage],
