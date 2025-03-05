@@ -1017,8 +1017,13 @@ export class SplitExpensePage implements OnDestroy {
   setupFilteredCategories(index: number): void {
     const splitForm = this.splitExpensesFormArray.at(index);
     const projectControl = splitForm.get('project');
+    const categoryControl = splitForm.get('category');
 
     if (!projectControl || projectControl.value === null) {
+      if (this.splitConfig.category.is_mandatory) {
+        categoryControl.setValidators(Validators.required);
+        categoryControl.updateValueAndValidity();
+      }
       return;
     }
 
@@ -1033,12 +1038,12 @@ export class SplitExpensePage implements OnDestroy {
     }).pipe(takeUntil(this.destroy$));
 
     this.handleCategoryValidation(index, splitForm);
-    this.resetInvalidCategoryIfNotAllowed(splitForm);
+    this.resetInvalidCategoryIfNotAllowed(index, splitForm);
   }
 
-  resetInvalidCategoryIfNotAllowed(splitForm: AbstractControl): void {
+  resetInvalidCategoryIfNotAllowed(index: number, splitForm: AbstractControl): void {
     combineLatest([
-      this.categories$,
+      this.filteredCategoriesArray[index],
       splitForm.get('category').valueChanges.pipe(startWith(splitForm.get('category').value)),
     ])
       .pipe(takeUntil(this.destroy$))
@@ -1147,25 +1152,30 @@ export class SplitExpensePage implements OnDestroy {
     if (!this.splitConfig.costCenter.is_visible) {
       return;
     }
+    const isCostCenterMandatory = this.splitConfig.costCenter.is_mandatory;
     const splitForm = this.splitExpensesFormArray.at(index);
     const categoryControl = splitForm.get('category').value as OrgCategory;
+    const costCenterControl = splitForm.get('cost_center');
 
     if (!categoryControl) {
       this.costCenterDisabledStates[index] = false;
+      if (isCostCenterMandatory) {
+        costCenterControl.setValidators([Validators.required]);
+        costCenterControl.updateValueAndValidity();
+      }
       return;
     }
 
     const isCostCenterAllowed = this.txnFields.cost_center_id?.org_category_ids?.includes(categoryControl.id);
-    const costCenterControl = splitForm.get('cost_center');
     this.costCenterDisabledStates[index] = !isCostCenterAllowed;
 
     if (!isCostCenterAllowed) {
       costCenterControl.reset();
-      if (this.splitConfig.costCenter.is_mandatory) {
+      if (isCostCenterMandatory) {
         costCenterControl.clearValidators();
         costCenterControl.updateValueAndValidity();
       }
-    } else if (this.splitConfig.costCenter.is_mandatory) {
+    } else if (isCostCenterMandatory) {
       costCenterControl.setValidators([Validators.required]);
       costCenterControl.updateValueAndValidity();
     }

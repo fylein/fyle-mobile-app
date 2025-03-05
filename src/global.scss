@@ -926,6 +926,10 @@ ion-modal.review-split-expense-modal {
   }
 }
 
+.ios .review-split-expense-modal {
+  margin-bottom: -12px;
+}
+
 ion-modal.share-report-modal {
   &::part(content) {
     border-radius: 16px 16px 0 0 !important;
