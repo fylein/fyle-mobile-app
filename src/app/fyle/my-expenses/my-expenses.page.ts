@@ -85,6 +85,7 @@ import { FeatureConfigService } from 'src/app/core/services/platform/v1/spender/
 import * as dayjs from 'dayjs';
 import { ExpensesQueryParams } from 'src/app/core/models/platform/v1/expenses-query-params.model';
 import { ExtendQueryParamsService } from 'src/app/core/services/extend-query-params.service';
+import { FooterState } from 'src/app/shared/components/footer/footer-state.enum';
 
 @Component({
   selector: 'app-my-expenses',
@@ -242,6 +243,10 @@ export class MyExpensesPage implements OnInit {
 
   get HeaderState(): typeof HeaderState {
     return HeaderState;
+  }
+
+  get FooterState(): typeof FooterState {
+    return FooterState;
   }
 
   clearText(isFromCancel: string): void {
@@ -450,12 +455,17 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
+  initClassObservables(): void {
+    const fn = (): void => {
+      this.backButtonAction();
+    };
+    const priority = BackButtonActionPriority.MEDIUM;
+    this.hardwareBackButton = this.platformHandlerService.registerBackButtonAction(priority, fn);
+  }
+
   ionViewWillEnter(): void {
     this.isNewReportsFlowEnabled = false;
-    this.hardwareBackButton = this.platformHandlerService.registerBackButtonAction(
-      BackButtonActionPriority.MEDIUM,
-      this.backButtonAction
-    );
+    this.initClassObservables();
 
     this.tasksService.getExpensesTaskCount().subscribe((expensesTaskCount) => {
       this.expensesTaskCount = expensesTaskCount;
@@ -1728,6 +1738,10 @@ export class MyExpensesPage implements OnInit {
         navigate_back: true,
       },
     ]);
+  }
+
+  onReportsClicked(): void {
+    this.router.navigate(['/', 'enterprise', 'my_reports', { navigate_back: true }]);
   }
 
   searchClick(): void {
