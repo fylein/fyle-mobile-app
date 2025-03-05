@@ -1351,7 +1351,6 @@ export class SplitExpensePage implements OnDestroy {
       presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
       cssClass: 'review-split-expense-modal',
-      showBackdrop: false,
     });
 
     this.setRecentlySplitExpenses({
