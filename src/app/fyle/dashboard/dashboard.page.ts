@@ -33,6 +33,7 @@ import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { driver, Driver, DriveStep } from 'driver.js';
+import { FooterService } from 'src/app/core/services/footer.service';
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.page.html',
@@ -100,7 +101,8 @@ export class DashboardPage {
     private modalProperties: ModalPropertiesService,
     private authService: AuthService,
     private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService
+    private snackbarProperties: SnackbarPropertiesService,
+    private footerService: FooterService
   ) {}
 
   get displayedTaskCount(): number {
@@ -359,6 +361,10 @@ export class DashboardPage {
       this.currentActiveState = FooterState.HOME;
       this.currentStateIndex = 0;
     }
+
+    this.footerService.footerCurrentStateIndex$.subscribe((index) => {
+      this.currentStateIndex = index;
+    });
 
     this.orgUserSettings$ = this.orgUserSettingsService.get().pipe(shareReplay(1));
     this.orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));

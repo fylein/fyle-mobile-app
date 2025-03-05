@@ -1,8 +1,8 @@
 import { Component, OnInit, EventEmitter, NgZone, ViewChild } from '@angular/core';
 import { Platform, MenuController, NavController } from '@ionic/angular';
-import { from, concat, Observable, noop, forkJoin } from 'rxjs';
+import { from, concat, Observable, noop, forkJoin, of } from 'rxjs';
 import { switchMap, shareReplay, filter, take, map } from 'rxjs/operators';
-import { Router, NavigationEnd, NavigationStart } from '@angular/router';
+import { Router, NavigationEnd, NavigationStart, ActivatedRoute, Params } from '@angular/router';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { UserEventService } from 'src/app/core/services/user-event.service';
 import { DeviceService } from 'src/app/core/services/device.service';
@@ -25,6 +25,9 @@ import { BackButtonService } from './core/services/back-button.service';
 import { TextZoom } from '@capacitor/text-zoom';
 import { GmapsService } from './core/services/gmaps.service';
 import { SpenderOnboardingService } from './core/services/spender-onboarding.service';
+import { FooterState } from './shared/components/footer/footer-state.enum';
+import { FooterService } from './core/services/footer.service';
+import { TasksService } from './core/services/tasks.service';
 
 @Component({
   selector: 'app-root',
@@ -52,9 +55,18 @@ export class AppComponent implements OnInit {
 
   isOnline: boolean;
 
+  showFooter: boolean;
+
+  currentActiveState = FooterState.HOME;
+
+  currentPath: string;
+
+  totalTasksCount: number;
+
   constructor(
     private platform: Platform,
     private router: Router,
+    private activatedRoute: ActivatedRoute,
     private authService: AuthService,
     private userEventService: UserEventService,
     private menuController: MenuController,
@@ -70,7 +82,9 @@ export class AppComponent implements OnInit {
     private navController: NavController,
     private backButtonService: BackButtonService,
     private gmapsService: GmapsService,
-    private spenderOnboardingService: SpenderOnboardingService
+    private spenderOnboardingService: SpenderOnboardingService,
+    private footerService: FooterService,
+    private tasksService: TasksService
   ) {
     this.initializeApp();
     this.registerBackButtonAction();
@@ -164,6 +178,7 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
     this.setupNetworkWatcher();
+    this.totalTasksCount = 0;
 
     // This was done as a security fix for appknox
     // eslint-disable-next-line
@@ -240,7 +255,139 @@ export class AppComponent implements OnInit {
       }
     });
 
+    this.getShowFooter();
+
     this.gmapsService.loadLibrary();
+  }
+
+  getShowFooter(): void {
+    this.isConnected$
+      .pipe(switchMap((isConnected) => (isConnected ? this.tasksService.getTotalTaskCount() : of(0))))
+      .subscribe((taskCount) => {
+        this.totalTasksCount = taskCount;
+      });
+
+    this.router.events
+      .pipe(
+        filter((event) => event instanceof NavigationEnd),
+        map(() => {
+          const segments = this.router.url.split(';')[0].split('/');
+          return segments.pop();
+        })
+      )
+      .subscribe((path) => {
+        this.currentPath = path.split('?')[0];
+        let state = null;
+        if (path.includes('?')) {
+          state = path.split('?')[1].split('=')[1];
+        }
+        const routesWithoutFooter = [
+          'my_dashboard',
+          'my_expenses',
+          'my_advances',
+          'my_reports',
+          'team_advance',
+          'personal_cards',
+          'team_reports',
+        ]; // Add routes where you don't want to show the footer
+        this.showFooter = routesWithoutFooter.includes(this.currentPath);
+
+        switch (this.currentPath) {
+          case 'my_dashboard':
+            if (state === 'tasks') {
+              this.currentActiveState = FooterState.TASKS;
+              this.footerService.updateCurrentStateIndex(1);
+            } else {
+              this.currentActiveState = FooterState.HOME;
+              this.footerService.updateCurrentStateIndex(0);
+            }
+            break;
+          case 'my_expenses':
+            this.currentActiveState = FooterState.EXPENSES;
+            break;
+          case 'my_reports':
+            this.currentActiveState = FooterState.REPORTS;
+            break;
+          default:
+            this.currentActiveState = null;
+            break;
+        }
+      });
+  }
+
+  onHomeClicked(): void {
+    this.currentActiveState = FooterState.HOME;
+    this.footerService.updateCurrentStateIndex(0);
+    const queryParams: Params = { state: 'home' };
+    if (this.currentPath === 'my_dashboard') {
+      this.router.navigate([], {
+        relativeTo: this.activatedRoute,
+        queryParams,
+      });
+    } else {
+      this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
+        queryParams,
+      });
+    }
+
+    this.trackingService.footerHomeTabClicked({
+      page: 'Dashboard',
+    });
+  }
+
+  onTaskClicked(): void {
+    this.currentActiveState = FooterState.TASKS;
+    this.footerService.updateCurrentStateIndex(1);
+    const queryParams: Params = { state: 'tasks' };
+    if (this.currentPath === 'my_dashboard') {
+      this.router.navigate([], {
+        relativeTo: this.activatedRoute,
+        queryParams,
+      });
+    } else {
+      this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
+        queryParams,
+      });
+    }
+    this.trackingService.tasksPageOpened({
+      Asset: 'Mobile',
+      from: 'Dashboard',
+    });
+  }
+
+  onCameraClicked(): void {
+    this.router.navigate([
+      '/',
+      'enterprise',
+      'camera_overlay',
+      {
+        navigate_back: true,
+      },
+    ]);
+  }
+
+  onExpensesClicked(): void {
+    this.currentActiveState = FooterState.EXPENSES;
+    this.router.navigate([
+      '/',
+      'enterprise',
+      'my_expenses',
+      {
+        navigate_back: true,
+      },
+    ]);
+  }
+
+  onReportsClicked(): void {
+    this.currentActiveState = FooterState.REPORTS;
+    this.router.navigate([
+      '/',
+      'enterprise',
+      'my_reports',
+      {
+        navigate_back: true,
+      },
+    ]);
   }
 
   switchDelegator(isSwitchedToDelegator: boolean): void {
