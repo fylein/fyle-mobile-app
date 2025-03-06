@@ -4,7 +4,6 @@ import { Employee } from '../models/spender/employee.model';
 
 export const selectedOptionRes: Partial<Employee> = deepFreeze({
   id: 'oubQzXeZbwbS',
-  org_id: 'orNVthTo2Zyo',
   roles: '["FYLER","APPROVER","HOD","HOP","AUDITOR","FINANCE"]',
   is_enabled: true,
   has_accepted_invite: true,
@@ -17,7 +16,6 @@ export const selectedOptionRes: Partial<Employee> = deepFreeze({
 export const filteredOptionsRes: Partial<Employee>[] = deepFreeze([
   {
     id: 'oubQzXeZbwbS',
-    org_id: 'orNVthTo2Zyo',
     roles: '["FYLER","APPROVER","HOD","HOP","AUDITOR","FINANCE"]',
     is_enabled: true,
     has_accepted_invite: true,
@@ -28,7 +26,6 @@ export const filteredOptionsRes: Partial<Employee>[] = deepFreeze([
   },
   {
     id: 'oumDNNh9CfNY',
-    org_id: 'orNVthTo2Zyo',
     roles: '["FYLER","FINANCE","ADMIN","APPROVER"]',
     is_enabled: true,
     has_accepted_invite: false,
@@ -39,7 +36,6 @@ export const filteredOptionsRes: Partial<Employee>[] = deepFreeze([
   },
   {
     id: 'ouPoW69slRBp',
-    org_id: 'orNVthTo2Zyo',
     roles: '["FYLER","APPROVER","HOD","HOP","ADMIN","PAYMENT_PROCESSOR"]',
     is_enabled: true,
     has_accepted_invite: true,
@@ -50,7 +46,6 @@ export const filteredOptionsRes: Partial<Employee>[] = deepFreeze([
   },
   {
     id: 'ouE7qv3Y45oz',
-    org_id: 'orNVthTo2Zyo',
     roles: '["FYLER","APPROVER","FINANCE","HOP"]',
     is_enabled: true,
     has_accepted_invite: true,
@@ -61,7 +56,6 @@ export const filteredOptionsRes: Partial<Employee>[] = deepFreeze([
   },
   {
     id: 'ouKmdituKMi9',
-    org_id: 'orNVthTo2Zyo',
     roles: '["APPROVER","FYLER","AUDITOR","HOP","HOD","ADMIN"]',
     is_enabled: true,
     has_accepted_invite: true,
@@ -72,7 +66,6 @@ export const filteredOptionsRes: Partial<Employee>[] = deepFreeze([
   },
   {
     id: 'ouTi8ul9u51y',
-    org_id: 'orNVthTo2Zyo',
     roles: '["FYLER"]',
     is_enabled: true,
     has_accepted_invite: false,

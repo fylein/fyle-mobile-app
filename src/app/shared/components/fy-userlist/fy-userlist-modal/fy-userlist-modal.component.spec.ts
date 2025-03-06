@@ -9,7 +9,6 @@ import {
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { ModalController } from '@ionic/angular';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
-import { LoaderService } from 'src/app/core/services/loader.service';
 import { FyUserlistModalComponent } from './fy-userlist-modal.component';
 import { ChangeDetectorRef } from '@angular/core';
 import { employeesParamsRes, employeesRes } from 'src/app/core/test-data/org-user.service.spec.data';
@@ -32,13 +31,11 @@ describe('FyUserlistModalComponent', () => {
   let modalController: jasmine.SpyObj<ModalController>;
   let cdr: jasmine.SpyObj<ChangeDetectorRef>;
   let orgUserService: jasmine.SpyObj<OrgUserService>;
-  let loaderService: jasmine.SpyObj<LoaderService>;
 
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
     const cdrSpy = jasmine.createSpyObj('ChangeDetectorRef', ['detectChanges']);
     const orgUserServiceSpy = jasmine.createSpyObj('OrgUserService', ['getEmployeesBySearch']);
-    const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
 
     TestBed.configureTestingModule({
       declarations: [FyUserlistModalComponent],
@@ -54,14 +51,12 @@ describe('FyUserlistModalComponent', () => {
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: ChangeDetectorRef, useValue: cdrSpy },
         { provide: OrgUserService, useValue: orgUserServiceSpy },
-        { provide: LoaderService, useValue: loaderServiceSpy },
       ],
     }).compileComponents();
 
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     cdr = TestBed.inject(ChangeDetectorRef) as jasmine.SpyObj<ChangeDetectorRef>;
     orgUserService = TestBed.inject(OrgUserService) as jasmine.SpyObj<OrgUserService>;
-    loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
 
     const employeesData = cloneDeep(employeesRes.data);
     orgUserService.getEmployeesBySearch.and.returnValue(of(employeesData));
@@ -183,6 +178,11 @@ describe('FyUserlistModalComponent', () => {
   });
 
   describe('getDefaultUsersList():', () => {
+    beforeEach(() => {
+      const employeesData = cloneDeep(employeesParamsRes.data);
+      orgUserService.getEmployeesBySearch.and.returnValue(of(employeesData));
+    });
+
     it('should get default users list', (done) => {
       const params = {
         order: 'full_name.asc,email.asc,id.asc',
@@ -190,8 +190,6 @@ describe('FyUserlistModalComponent', () => {
           'in.(ajain+12+12+1@fyle.in,ajain+12121212@fyle.in,aaaaaaa@aaaabbbb.com,aaaaasdjskjd@sdsd.com,kawaljeet.ravi22@gmail.com,abcdefg@somemail.com)',
       };
 
-      const employeesData = cloneDeep(employeesParamsRes.data);
-      orgUserService.getEmployeesBySearch.and.returnValue(of(employeesData));
       component.getDefaultUsersList().subscribe((res) => {
         fixture.detectChanges();
         expect(res).toEqual(searchedUserListRes);
@@ -204,7 +202,7 @@ describe('FyUserlistModalComponent', () => {
     it('should get default users list with empty params', () => {
       component.currentSelections = [];
       const params = { limit: 20, order: 'full_name.asc,email.asc,id.asc' };
-      orgUserService.getEmployeesBySearch.and.returnValue(of(employeesParamsRes.data));
+
       component.getDefaultUsersList();
       fixture.detectChanges();
       expect(component.currentSelections).toEqual([]);

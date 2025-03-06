@@ -15,7 +15,7 @@ import { of } from 'rxjs';
 import { employeesParamsRes } from 'src/app/core/test-data/org-user.service.spec.data';
 import { MatLegacyCheckboxModule as MatCheckboxModule } from '@angular/material/legacy-checkbox';
 import { click, getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, has } from 'lodash';
 
 describe('ApproverDialogComponent', () => {
   let component: ApproverDialogComponent;
@@ -38,9 +38,9 @@ describe('ApproverDialogComponent', () => {
   const emps = [
     {
       id: 'ouX8dwsbLCLv',
-      ou_org_id: 'orNVthTo2Zyo',
       roles: 'ADMIN',
-      ou_status: 'ACTIVE',
+      is_enabled: true,
+      has_accepted_invite: true,
       email: 'ajain@fyle.in',
       full_name: 'Abhishek Jain',
       user_id: 'usvKA4X8Ugcz',
@@ -48,9 +48,9 @@ describe('ApproverDialogComponent', () => {
     },
     {
       id: 'ouCI4UQ2G0K1',
-      ou_org_id: 'orNVthTo2Zyo',
       roles: 'ADMIN',
-      ou_status: 'ACTIVE',
+      is_enabled: true,
+      has_accepted_invite: true,
       email: 'jay.b@fyle.in',
       full_name: 'Jay Budhadev',
       user_id: 'usvKA4X8Ugcr',
@@ -241,8 +241,7 @@ describe('ApproverDialogComponent', () => {
       fixture.detectChanges();
 
       const params = {
-        order: 'full_name.asc,email.asc,id',
-
+        order: 'full_name.asc,email.asc,id.asc',
         limit: 20,
       };
 
@@ -282,7 +281,7 @@ describe('ApproverDialogComponent', () => {
       ]);
       expect(orgUserService.getEmployeesBySearch).toHaveBeenCalledWith({
         limit: 20,
-        order: 'full_name.asc,email.asc,id',
+        order: 'full_name.asc,email.asc,id.asc',
         or: '(email.ilike.*text*,full_name.ilike.*text*)',
       });
       done();

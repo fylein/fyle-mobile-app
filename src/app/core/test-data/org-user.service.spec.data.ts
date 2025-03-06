@@ -221,8 +221,8 @@ export const employeesParamsRes = deepFreeze({
       is_selected: false,
     },
     {
-      ou_id: 'ouX8dwsbLCLv',
-      ou_roles: '["FINANCE","ADMIN","APPROVER","FYLER","VERIFIER","PAYMENT_PROCESSOR","AUDITOR","HOP","HOD","OWNER"]',
+      id: 'ouX8dwsbLCLv',
+      roles: '["FINANCE","ADMIN","APPROVER","FYLER","VERIFIER","PAYMENT_PROCESSOR","AUDITOR","HOP","HOD","OWNER"]',
       is_enabled: true,
       has_accepted_invite: true,
       email: 'ajain@fyle.in',
