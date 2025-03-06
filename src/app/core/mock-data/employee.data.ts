@@ -109,7 +109,6 @@ export const filteredDataRes: Partial<Employee>[] = deepFreeze([
 export const searchedUserListRes: Partial<Employee>[] = deepFreeze([
   {
     id: 'oubQzXeZbwbS',
-    org_id: 'orNVthTo2Zyo',
     roles: '["FYLER","APPROVER","HOD","HOP"]',
     is_enabled: true,
     has_accepted_invite: true,
@@ -120,7 +119,6 @@ export const searchedUserListRes: Partial<Employee>[] = deepFreeze([
   },
   {
     id: 'ouXYHXfr4w0b',
-    org_id: 'orNVthTo2Zyo',
     roles: '["FYLER","APPROVER","HOP"]',
     is_enabled: true,
     has_accepted_invite: false,
@@ -131,7 +129,6 @@ export const searchedUserListRes: Partial<Employee>[] = deepFreeze([
   },
   {
     id: 'ouX8dwsbLCLv',
-    org_id: 'orNVthTo2Zyo',
     roles: '["FINANCE","ADMIN","APPROVER","FYLER","VERIFIER","PAYMENT_PROCESSOR","AUDITOR","HOP","HOD","OWNER"]',
     is_enabled: true,
     has_accepted_invite: true,
