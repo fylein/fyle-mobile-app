@@ -57,7 +57,11 @@
 
 <ion-content>
   <div class="split-expense--container">
-    <div class="split-expense--card" *ngFor="let splitExpenseForm of splitExpensesFormArray.controls; index as i">
+    <div
+      #splitElement
+      class="split-expense--card"
+      *ngFor="let splitExpenseForm of splitExpensesFormArray.controls; index as i"
+    >
       <div class="split-expense--card-header">
         <div class="split-expense--card-header-left-content">
           <div class="split-expense--icon-container">

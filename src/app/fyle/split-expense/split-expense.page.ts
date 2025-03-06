@@ -1,5 +1,5 @@
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
-import { Component, OnDestroy } from '@angular/core';
+import { Component, ElementRef, OnDestroy, QueryList, ViewChildren } from '@angular/core';
 import { AbstractControl, UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, NavController, PopoverController } from '@ionic/angular';
@@ -59,6 +59,8 @@ import { SplittingExpenseProperties } from 'src/app/core/models/splitting-expens
   styleUrls: ['./split-expense.page.scss'],
 })
 export class SplitExpensePage implements OnDestroy {
+  @ViewChildren('splitElement') splitElements!: QueryList<ElementRef>;
+
   splitExpensesFormArray = new UntypedFormArray([]);
 
   fg: UntypedFormGroup;
@@ -852,6 +854,20 @@ export class SplitExpensePage implements OnDestroy {
       });
     } else {
       this.splitExpensesFormArray.markAllAsTouched();
+      this.scrollToFirstSplitWithMissingRequiredFields();
+    }
+  }
+
+  scrollToFirstSplitWithMissingRequiredFields(): void {
+    const formArray = this.splitExpensesFormArray;
+    const invalidIndex = formArray.controls.findIndex((formGroup) => formGroup.invalid);
+
+    if (invalidIndex !== -1) {
+      const invalidElement = this.splitElements.toArray()[invalidIndex]?.nativeElement as HTMLElement;
+
+      if (invalidElement instanceof HTMLElement) {
+        invalidElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
     }
   }
 
@@ -1237,6 +1253,20 @@ export class SplitExpensePage implements OnDestroy {
     this.handleInitialconfig(isFirstSplit);
 
     this.getTotalSplitAmount();
+    if (this.splitExpensesFormArray.length > 2) {
+      setTimeout(() => {
+        this.scrollToLastElement();
+      }, 100);
+    }
+  }
+
+  scrollToLastElement(): void {
+    const newIndex = this.splitExpensesFormArray.length - 1;
+    const newSplitElement = this.splitElements.toArray()[newIndex]?.nativeElement as HTMLElement;
+
+    if (newSplitElement instanceof HTMLElement) {
+      newSplitElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   }
 
   handleInitialconfig(isFirstSplit: boolean): void {
