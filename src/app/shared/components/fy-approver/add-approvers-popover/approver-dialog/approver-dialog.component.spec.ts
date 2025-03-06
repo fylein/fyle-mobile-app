@@ -15,7 +15,7 @@ import { of } from 'rxjs';
 import { employeesParamsRes } from 'src/app/core/test-data/org-user.service.spec.data';
 import { MatLegacyCheckboxModule as MatCheckboxModule } from '@angular/material/legacy-checkbox';
 import { click, getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
-import { cloneDeep, has } from 'lodash';
+import { cloneDeep } from 'lodash';
 
 describe('ApproverDialogComponent', () => {
   let component: ApproverDialogComponent;

@@ -2,6 +2,15 @@ import deepFreeze from 'deep-freeze-strict';
 
 import { Employee } from '../models/spender/employee.model';
 
+export const selectedItem: Record<string, boolean> = deepFreeze({
+  'ajain+12121212@fyle.in': true,
+  'aaaaaaa@aaaabbbb.com': true,
+  'aaaaasdjskjd@sdsd.com': true,
+  'ajain+12+12+1@fyle.in': true,
+  'kawaljeet.ravi22@gmail.com': true,
+  'abcdefg@somemail.com': true,
+});
+
 export const selectedOptionRes: Partial<Employee> = deepFreeze({
   id: 'oubQzXeZbwbS',
   roles: '["FYLER","APPROVER","HOD","HOP","AUDITOR","FINANCE"]',

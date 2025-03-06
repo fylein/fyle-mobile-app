@@ -14,6 +14,7 @@ import { ChangeDetectorRef } from '@angular/core';
 import { employeesParamsRes, employeesRes } from 'src/app/core/test-data/org-user.service.spec.data';
 import { of } from 'rxjs';
 import {
+  selectedItem,
   selectedOptionRes,
   filteredOptionsRes,
   filteredDataRes,
@@ -31,15 +32,6 @@ describe('FyUserlistModalComponent', () => {
   let modalController: jasmine.SpyObj<ModalController>;
   let cdr: jasmine.SpyObj<ChangeDetectorRef>;
   let orgUserService: jasmine.SpyObj<OrgUserService>;
-
-  const selectedItem = {
-    'ajain+12121212@fyle.in': true,
-    'aaaaaaa@aaaabbbb.com': true,
-    'aaaaasdjskjd@sdsd.com': true,
-    'ajain+12+12+1@fyle.in': true,
-    'kawaljeet.ravi22@gmail.com': true,
-    'abcdefg@somemail.com': true,
-  };
 
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
