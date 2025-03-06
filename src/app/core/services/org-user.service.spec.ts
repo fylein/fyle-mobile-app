@@ -108,7 +108,7 @@ describe('OrgUserService', () => {
     spenderPlatformV1ApiService.get.and.returnValue(of(employeesRes));
     const params = {
       limit: 5,
-      order: 'full_name.asc,id.asc',
+      order: 'full_name.asc',
       id: 'neq.ouX8dwsbLCLv',
       roles: 'like.%ADMIN%',
       is_enabled: 'eq.true',
@@ -124,7 +124,7 @@ describe('OrgUserService', () => {
 
   it('should be able to get employees by search with OR param', (done) => {
     const params = {
-      order: 'full_name.asc,email.asc,id.asc',
+      order: 'full_name.asc,email.asc',
       email: 'in.(ajain@fyle.in)',
       or: '(is_enabled.eq.true)',
       and: '(or(is_enabled.eq.true),or(is_enabled.eq.true))',

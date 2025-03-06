@@ -185,7 +185,7 @@ describe('FyUserlistModalComponent', () => {
 
     it('should get default users list', (done) => {
       const params = {
-        order: 'full_name.asc,email.asc,id.asc',
+        order: 'full_name.asc,email.asc',
         email:
           'in.(ajain+12+12+1@fyle.in,ajain+12121212@fyle.in,aaaaaaa@aaaabbbb.com,aaaaasdjskjd@sdsd.com,kawaljeet.ravi22@gmail.com,abcdefg@somemail.com)',
       };
@@ -201,7 +201,7 @@ describe('FyUserlistModalComponent', () => {
 
     it('should get default users list with empty params', () => {
       component.currentSelections = [];
-      const params = { limit: 20, order: 'full_name.asc,email.asc,id.asc' };
+      const params = { limit: 20, order: 'full_name.asc,email.asc' };
 
       component.getDefaultUsersList();
       fixture.detectChanges();
@@ -213,7 +213,7 @@ describe('FyUserlistModalComponent', () => {
   it('getSearchedUsersList(): should get the searched user list', fakeAsync(() => {
     const params = {
       limit: 20,
-      order: 'full_name.asc,email.asc,id.asc',
+      order: 'full_name.asc,email.asc',
       or: '(email.ilike.*ajain+12+12+1@fyle.in*,full_name.ilike.*ajain+12+12+1@fyle.in*)',
     };
     const employeesData = cloneDeep(employeesParamsRes.data);

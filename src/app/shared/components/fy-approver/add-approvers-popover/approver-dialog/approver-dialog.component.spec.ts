@@ -222,7 +222,7 @@ describe('ApproverDialogComponent', () => {
       loaderService.hideLoader.and.resolveTo(null);
 
       const params = {
-        order: 'full_name.asc,email.asc,id.asc',
+        order: 'full_name.asc,email.asc',
         email: `in.(${component.approverEmailsList.join(',')})`,
       };
 
@@ -241,7 +241,7 @@ describe('ApproverDialogComponent', () => {
       fixture.detectChanges();
 
       const params = {
-        order: 'full_name.asc,email.asc,id.asc',
+        order: 'full_name.asc,email.asc',
         limit: 20,
       };
 
@@ -281,7 +281,7 @@ describe('ApproverDialogComponent', () => {
       ]);
       expect(orgUserService.getEmployeesBySearch).toHaveBeenCalledWith({
         limit: 20,
-        order: 'full_name.asc,email.asc,id.asc',
+        order: 'full_name.asc,email.asc',
         or: '(email.ilike.*text*,full_name.ilike.*text*)',
       });
       done();

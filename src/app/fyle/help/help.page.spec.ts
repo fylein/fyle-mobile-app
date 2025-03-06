@@ -87,7 +87,7 @@ describe('HelpPage', () => {
       is_enabled: 'eq.true',
       has_accepted_invite: 'eq.true',
       id: 'neq.ouX8dwsbLCLv',
-      order: 'full_name.asc,id.asc',
+      order: 'full_name.asc',
       limit: 5,
     };
 
