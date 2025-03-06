@@ -32,6 +32,15 @@ describe('FyUserlistModalComponent', () => {
   let cdr: jasmine.SpyObj<ChangeDetectorRef>;
   let orgUserService: jasmine.SpyObj<OrgUserService>;
 
+  const selectedItem = {
+    'ajain+12121212@fyle.in': true,
+    'aaaaaaa@aaaabbbb.com': true,
+    'aaaaasdjskjd@sdsd.com': true,
+    'ajain+12+12+1@fyle.in': true,
+    'kawaljeet.ravi22@gmail.com': true,
+    'abcdefg@somemail.com': true,
+  };
+
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
     const cdrSpy = jasmine.createSpyObj('ChangeDetectorRef', ['detectChanges']);
@@ -85,15 +94,6 @@ describe('FyUserlistModalComponent', () => {
   });
 
   it('getSelectedItemDict(): shouls retutn a selected item dictonary', () => {
-    const selectedItem = {
-      'ajain+12121212@fyle.in': true,
-      'aaaaaaa@aaaabbbb.com': true,
-      'aaaaasdjskjd@sdsd.com': true,
-      'ajain+12+12+1@fyle.in': true,
-      'kawaljeet.ravi22@gmail.com': true,
-      'abcdefg@somemail.com': true,
-    };
-
     const selectedItemDict = component.getSelectedItemDict();
     fixture.detectChanges();
     expect(selectedItemDict).toEqual(selectedItem);
@@ -123,7 +123,7 @@ describe('FyUserlistModalComponent', () => {
 
   describe('onSelect():', () => {
     it('add the employee email address to the list of currently selected email addresses', () => {
-      const getSelectedItemDictSpy = spyOn(component, 'getSelectedItemDict');
+      const getSelectedItemDictSpy = spyOn(component, 'getSelectedItemDict').and.returnValue(selectedItem);
       component.onSelect(selectedOptionRes, { checked: true });
       fixture.detectChanges();
       expect(component.currentSelections).toContain('ajain+12+12+1@fyle.in');
@@ -131,7 +131,7 @@ describe('FyUserlistModalComponent', () => {
     });
 
     it('remove the email address from the list of currently selected email addresses', () => {
-      const getSelectedItemDictSpy = spyOn(component, 'getSelectedItemDict');
+      const getSelectedItemDictSpy = spyOn(component, 'getSelectedItemDict').and.returnValue(selectedItem);
       component.onSelect(selectedOptionRes, { checked: false });
       fixture.detectChanges();
       expect(component.currentSelections).not.toContain('ajain+12+12+1@fyle.in');
@@ -151,7 +151,7 @@ describe('FyUserlistModalComponent', () => {
   });
 
   it('onAddNew(): should add new email address', () => {
-    const getSelectedItemDictSpy = spyOn(component, 'getSelectedItemDict');
+    const getSelectedItemDictSpy = spyOn(component, 'getSelectedItemDict').and.returnValue(selectedItem);
     const clearValueSpy = spyOn(component, 'clearValue');
     component.value = 'aditi.saini@fyle.in';
     component.onAddNew();
