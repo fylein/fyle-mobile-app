@@ -63,6 +63,16 @@ export class AppComponent implements OnInit {
 
   totalTasksCount: number;
 
+  routesWithFooter = [
+    'my_dashboard',
+    'my_expenses',
+    'my_advances',
+    'my_reports',
+    'team_advance',
+    'personal_cards',
+    'team_reports',
+  ];
+
   constructor(
     private platform: Platform,
     private router: Router,
@@ -268,58 +278,8 @@ export class AppComponent implements OnInit {
   }
 
   getShowFooter(): void {
-    this.isConnected$
-      .pipe(switchMap((isConnected) => (isConnected ? this.tasksService.getTotalTaskCount() : of(0))))
-      .subscribe((taskCount) => {
-        this.totalTasksCount = taskCount;
-      });
-
-    this.router.events
-      .pipe(
-        filter((event) => event instanceof NavigationEnd),
-        map(() => {
-          const segments = this.router.url.split(';')[0].split('/');
-          return segments.pop();
-        })
-      )
-      .subscribe((path) => {
-        this.currentPath = path.split('?')[0];
-        let state = null;
-        if (path.includes('?')) {
-          state = path.split('?')[1].split('=')[1];
-        }
-        const routesWithoutFooter = [
-          'my_dashboard',
-          'my_expenses',
-          'my_advances',
-          'my_reports',
-          'team_advance',
-          'personal_cards',
-          'team_reports',
-        ]; // Add routes where you don't want to show the footer
-        this.showFooter = routesWithoutFooter.includes(this.currentPath);
-
-        switch (this.currentPath) {
-          case 'my_dashboard':
-            if (state === 'tasks') {
-              this.currentActiveState = FooterState.TASKS;
-              this.footerService.updateCurrentStateIndex(1);
-            } else {
-              this.currentActiveState = FooterState.HOME;
-              this.footerService.updateCurrentStateIndex(0);
-            }
-            break;
-          case 'my_expenses':
-            this.currentActiveState = FooterState.EXPENSES;
-            break;
-          case 'my_reports':
-            this.currentActiveState = FooterState.REPORTS;
-            break;
-          default:
-            this.currentActiveState = null;
-            break;
-        }
-      });
+    this.getTotalTasksCount();
+    this.handleRouteChanges();
   }
 
   onHomeClicked(): void {
@@ -399,5 +359,60 @@ export class AppComponent implements OnInit {
 
   switchDelegator(isSwitchedToDelegator: boolean): void {
     this.isSwitchedToDelegator = isSwitchedToDelegator;
+  }
+
+  private getTotalTasksCount(): void {
+    this.isConnected$
+      .pipe(switchMap((isConnected) => (isConnected ? this.tasksService.getTotalTaskCount() : of(0))))
+      .subscribe((taskCount) => {
+        this.totalTasksCount = taskCount;
+      });
+  }
+
+  private handleRouteChanges(): void {
+    this.router.events
+      .pipe(
+        filter((event) => event instanceof NavigationEnd),
+        map(() => {
+          const segments = this.router.url.split(';')[0].split('/');
+          return segments.pop();
+        })
+      )
+      .subscribe((path) => {
+        this.currentPath = path.split('?')[0];
+        const state = this.getStateFromPath(path);
+        this.showFooter = this.routesWithFooter.includes(this.currentPath);
+        this.updateFooterState(state);
+      });
+  }
+
+  private getStateFromPath(path: string): string | null {
+    if (path.includes('?')) {
+      return path.split('?')[1].split('=')[1];
+    }
+    return null;
+  }
+
+  private updateFooterState(state: string | null): void {
+    switch (this.currentPath) {
+      case 'my_dashboard':
+        if (state === 'tasks') {
+          this.currentActiveState = FooterState.TASKS;
+          this.footerService.updateCurrentStateIndex(1);
+        } else {
+          this.currentActiveState = FooterState.HOME;
+          this.footerService.updateCurrentStateIndex(0);
+        }
+        break;
+      case 'my_expenses':
+        this.currentActiveState = FooterState.EXPENSES;
+        break;
+      case 'my_reports':
+        this.currentActiveState = FooterState.REPORTS;
+        break;
+      default:
+        this.currentActiveState = null;
+        break;
+    }
   }
 }
