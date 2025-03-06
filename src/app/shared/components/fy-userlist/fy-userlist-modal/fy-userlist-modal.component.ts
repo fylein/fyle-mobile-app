@@ -28,7 +28,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
 
   eouc$: Observable<Partial<Employee>[]>;
 
-  intialSelectedEmployees: string[] = [];
+  initialSelectedEmployees: string[] = [];
 
   userListCopy$: Observable<Employee[]>;
 
@@ -85,8 +85,8 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    this.intialSelectedEmployees = cloneDeep(this.currentSelections);
-    this.intialSelectedEmployees.sort((a, b) => (a < b ? -1 : 1));
+    this.initialSelectedEmployees = cloneDeep(this.currentSelections);
+    this.initialSelectedEmployees.sort((a, b) => (a < b ? -1 : 1));
     this.selectedItemDict = this.getSelectedItemDict();
   }
 
@@ -140,7 +140,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
     );
   }
 
-  getUsersList(searchText?: string): Observable<Partial<Employee>[]> {
+  getUsersList(searchText: string): Observable<Partial<Employee>[]> {
     this.isLoading = true;
     // run ChangeDetectionRef.detectChanges to avoid
     // 'expression has changed after it was checked error'.
@@ -203,7 +203,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
     return of(newEmpList);
   }
 
-  processNewlyAddedItems(searchText?: string): Observable<Partial<Employee>[]> {
+  processNewlyAddedItems(searchText: string): Observable<Partial<Employee>[]> {
     return from(this.filteredOptions$).pipe(
       switchMap((filteredOptions) =>
         this.getNewlyAddedUsers(filteredOptions).pipe(
@@ -218,8 +218,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
               newArr.push(newItem);
               newlyAddedItems = newArr.concat(newlyAddedItems);
               return newlyAddedItems.filter(
-                (item) =>
-                  item && item.email && item.email.length > 0 && item.email.toLowerCase().includes(searchTextLowerCase)
+                (item) => item?.email?.length > 0 && item.email.toLowerCase().includes(searchTextLowerCase)
               );
             }
             return newlyAddedItems;
@@ -237,7 +236,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
       startWith(''),
       distinctUntilChanged(),
       debounceTime(400),
-      switchMap((searchText?: string) => this.getUsersList(searchText))
+      switchMap((searchText: string) => this.getUsersList(searchText))
     );
 
     if (this.allowCustomValues) {
@@ -246,7 +245,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
         startWith(''),
         distinctUntilChanged(),
         debounceTime(400),
-        switchMap((searchText?: string) => this.processNewlyAddedItems(searchText))
+        switchMap((searchText: string) => this.processNewlyAddedItems(searchText))
       );
     }
     this.cdr.detectChanges();

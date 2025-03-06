@@ -85,7 +85,7 @@ describe('FyUserlistModalComponent', () => {
     expect(separatorKeysCodes).toEqual(keyCodeData);
   });
 
-  it('getSelectedItemDict(): shouls retutn a selected item dictonary', () => {
+  it('getSelectedItemDict(): should return a selected item dictonary', () => {
     const selectedItemDict = component.getSelectedItemDict();
     fixture.detectChanges();
     expect(selectedItemDict).toEqual(selectedItem);
