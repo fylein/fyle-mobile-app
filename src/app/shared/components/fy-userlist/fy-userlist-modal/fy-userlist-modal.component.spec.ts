@@ -128,9 +128,7 @@ describe('FyUserlistModalComponent', () => {
 
   describe('onSelect():', () => {
     it('add the employee email address to the list of currently selected email addresses', () => {
-      const getSelectedItemDictSpy = spyOn(component, 'getSelectedItemDict').and.returnValue(
-        of(component.currentSelections)
-      );
+      const getSelectedItemDictSpy = spyOn(component, 'getSelectedItemDict');
       component.onSelect(selectedOptionRes, { checked: true });
       fixture.detectChanges();
       expect(component.currentSelections).toContain('ajain+12+12+1@fyle.in');
@@ -138,9 +136,7 @@ describe('FyUserlistModalComponent', () => {
     });
 
     it('remove the email address from the list of currently selected email addresses', () => {
-      const getSelectedItemDictSpy = spyOn(component, 'getSelectedItemDict').and.returnValue(
-        of(component.currentSelections)
-      );
+      const getSelectedItemDictSpy = spyOn(component, 'getSelectedItemDict');
       component.onSelect(selectedOptionRes, { checked: false });
       fixture.detectChanges();
       expect(component.currentSelections).not.toContain('ajain+12+12+1@fyle.in');
@@ -160,9 +156,7 @@ describe('FyUserlistModalComponent', () => {
   });
 
   it('onAddNew(): should add new email address', () => {
-    const getSelectedItemDictSpy = spyOn(component, 'getSelectedItemDict').and.returnValue(
-      of(component.currentSelections)
-    );
+    const getSelectedItemDictSpy = spyOn(component, 'getSelectedItemDict');
     const clearValueSpy = spyOn(component, 'clearValue');
     component.value = 'aditi.saini@fyle.in';
     component.onAddNew();
