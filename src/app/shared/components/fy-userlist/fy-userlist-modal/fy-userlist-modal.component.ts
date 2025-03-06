@@ -99,7 +99,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
 
   getDefaultUsersList(): Observable<Partial<Employee>[]> {
     const params: Partial<EmployeeParams> = {
-      order: 'full_name.asc,email.asc,id.asc',
+      order: 'full_name.asc,email.asc',
     };
 
     if (this.currentSelections.length > 0) {
@@ -121,7 +121,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
   getSearchedUsersList(searchText?: string): Observable<Partial<Employee>[]> {
     const params: Partial<EmployeeParams> = {
       limit: 20,
-      order: 'full_name.asc,email.asc,id.asc',
+      order: 'full_name.asc,email.asc',
     };
 
     if (searchText) {
