@@ -5,7 +5,6 @@ import { map, startWith, distinctUntilChanged, switchMap, finalize, debounceTime
 import { cloneDeep } from 'lodash';
 import { Employee } from 'src/app/core/models/spender/employee.model';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
-import { LoaderService } from 'src/app/core/services/loader.service';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MatLegacyChipInputEvent as MatChipInputEvent } from '@angular/material/legacy-chips';
 import { EmployeeParams } from 'src/app/core/models/employee-params.model';
@@ -54,8 +53,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
   constructor(
     private modalController: ModalController,
     private cdr: ChangeDetectorRef,
-    private orgUserService: OrgUserService,
-    private loaderService: LoaderService
+    private orgUserService: OrgUserService
   ) {}
 
   getSelectedItemDict(): Record<string, boolean> {
@@ -101,7 +99,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
 
   getDefaultUsersList(): Observable<Partial<Employee>[]> {
     const params: Partial<EmployeeParams> = {
-      order: 'full_name.asc,email.asc,id.asc',
+      order: 'full_name.asc,email.asc',
     };
 
     if (this.currentSelections.length > 0) {
@@ -123,7 +121,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
   getSearchedUsersList(searchText?: string): Observable<Partial<Employee>[]> {
     const params: Partial<EmployeeParams> = {
       limit: 20,
-      order: 'full_name.asc,email.asc,id.asc',
+      order: 'full_name.asc,email.asc',
     };
 
     if (searchText) {

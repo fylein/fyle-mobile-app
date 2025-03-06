@@ -42,7 +42,7 @@ export class HelpPage implements OnInit {
             is_enabled: 'eq.true',
             has_accepted_invite: 'eq.true',
             id: 'neq.' + eou.ou.id,
-            order: 'full_name.asc,id.asc',
+            order: 'full_name.asc',
             limit: 5,
           })
         ),
