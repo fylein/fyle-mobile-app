@@ -125,7 +125,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
     };
 
     if (searchText) {
-      params.or = `(email.ilike.*${searchText}*,full_name.ilike.*${searchText}*)`;
+      params.or = `(email.ilike.%${searchText}%,full_name.ilike.%${searchText}%)`;
     }
 
     return this.orgUserService.getEmployeesBySearch(params).pipe(

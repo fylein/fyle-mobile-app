@@ -144,7 +144,7 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
     };
 
     if (searchText) {
-      params.or = `(email.ilike.*${searchText}*,full_name.ilike.*${searchText}*)`;
+      params.or = `(email.ilike.%${searchText}%,full_name.ilike.%${searchText}%)`;
     }
 
     return this.orgUserService.getEmployeesBySearch(params).pipe(

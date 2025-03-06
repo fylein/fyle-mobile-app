@@ -282,7 +282,7 @@ describe('ApproverDialogComponent', () => {
       expect(orgUserService.getEmployeesBySearch).toHaveBeenCalledWith({
         limit: 20,
         order: 'full_name.asc,email.asc',
-        or: '(email.ilike.*text*,full_name.ilike.*text*)',
+        or: '(email.ilike.%text%,full_name.ilike.%text%)',
       });
       done();
     });

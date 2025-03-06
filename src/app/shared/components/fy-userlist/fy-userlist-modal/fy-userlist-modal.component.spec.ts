@@ -206,7 +206,7 @@ describe('FyUserlistModalComponent', () => {
     const params = {
       limit: 20,
       order: 'full_name.asc,email.asc',
-      or: '(email.ilike.*ajain+12+12+1@fyle.in*,full_name.ilike.*ajain+12+12+1@fyle.in*)',
+      or: '(email.ilike.%ajain+12+12+1@fyle.in%,full_name.ilike.%ajain+12+12+1@fyle.in%)',
     };
     const employeesData = cloneDeep(employeesParamsRes.data);
     orgUserService.getEmployeesBySearch.and.returnValue(of(employeesData));
