@@ -93,6 +93,22 @@ describe('FooterComponent', () => {
     expect(trackingServiceSpy.footerButtonClicked).toHaveBeenCalledOnceWith({ Action: 'Camera', Url: routerSpy.url });
   });
 
+  it('goToExpenses(): should emit expensesClicked event on clicking expenses icon', () => {
+    fixture.detectChanges();
+    const expensesSpy = spyOn(footerComponent.expensesClicked, 'emit');
+    footerComponent.goToExpenses();
+    expect(expensesSpy).toHaveBeenCalledTimes(1);
+    expect(trackingServiceSpy.footerButtonClicked).toHaveBeenCalledOnceWith({ Action: 'Expenses', Url: routerSpy.url });
+  });
+
+  it('goToReports(): should emit reportsClicked event on clicking reports icon', () => {
+    fixture.detectChanges();
+    const reportsSpy = spyOn(footerComponent.reportsClicked, 'emit');
+    footerComponent.goToReports();
+    expect(reportsSpy).toHaveBeenCalledTimes(1);
+    expect(trackingServiceSpy.footerButtonClicked).toHaveBeenCalledOnceWith({ Action: 'Reports', Url: routerSpy.url });
+  });
+
   describe('goToTasks():', () => {
     it('should emit taskClicked event when connectionState is not disconnected', () => {
       const connectionState = ConnectionMessageStatus.onlineMessageShown;
