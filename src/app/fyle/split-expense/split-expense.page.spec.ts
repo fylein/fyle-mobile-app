@@ -1071,6 +1071,132 @@ describe('SplitExpensePage', () => {
     });
   });
 
+  describe('updateCategoryMandatoryStatus():', () => {
+    beforeEach(() => {
+      component.splitConfig = cloneDeep(splitConfig);
+
+      const splitExpenseForm1 = new UntypedFormGroup({
+        amount: new UntypedFormControl(10000),
+        currency: new UntypedFormControl('INR'),
+        percentage: new UntypedFormControl(60),
+        txn_dt: new UntypedFormControl('2023-02-08'),
+        category: new UntypedFormControl(''),
+        project: new UntypedFormControl('Test Project'),
+        cost_center: new UntypedFormControl(''),
+        purpose: new UntypedFormControl(''),
+      });
+
+      const splitExpenseForm2 = new UntypedFormGroup({
+        amount: new UntypedFormControl(5000),
+        currency: new UntypedFormControl('INR'),
+        percentage: new UntypedFormControl(40),
+        txn_dt: new UntypedFormControl('2023-02-08'),
+        category: new UntypedFormControl(''),
+        project: new UntypedFormControl(null),
+        cost_center: new UntypedFormControl(''),
+        purpose: new UntypedFormControl(''),
+      });
+
+      component.splitExpensesFormArray = new UntypedFormArray([splitExpenseForm1, splitExpenseForm2]);
+    });
+
+    it('should set category mandatory to false when project is not visible and categories are empty', () => {
+      component.splitConfig.project.is_visible = false;
+      component.splitConfig.category.is_mandatory = true;
+
+      const spyForm1 = jasmine.createSpyObj('FormControl', ['clearValidators', 'updateValueAndValidity']);
+      const spyForm2 = jasmine.createSpyObj('FormControl', ['clearValidators', 'updateValueAndValidity']);
+
+      spyOn(component.splitExpensesFormArray.at(0), 'get').and.returnValue(spyForm1);
+      spyOn(component.splitExpensesFormArray.at(1), 'get').and.returnValue(spyForm2);
+
+      component.updateCategoryMandatoryStatus([]);
+
+      expect(component.splitConfig.category.is_mandatory).toBeFalse();
+
+      expect(spyForm1.clearValidators).toHaveBeenCalled();
+      expect(spyForm1.updateValueAndValidity).toHaveBeenCalled();
+      expect(spyForm2.clearValidators).toHaveBeenCalled();
+      expect(spyForm2.updateValueAndValidity).toHaveBeenCalled();
+    });
+
+    it('should not change category mandatory when project is visible', () => {
+      component.splitConfig.project.is_visible = true;
+      component.splitConfig.category.is_mandatory = true;
+
+      const spyForm1 = jasmine.createSpyObj('FormControl', ['clearValidators', 'updateValueAndValidity']);
+      const spyForm2 = jasmine.createSpyObj('FormControl', ['clearValidators', 'updateValueAndValidity']);
+
+      spyOn(component.splitExpensesFormArray.at(0), 'get').and.returnValue(spyForm1);
+      spyOn(component.splitExpensesFormArray.at(1), 'get').and.returnValue(spyForm2);
+
+      component.updateCategoryMandatoryStatus([]);
+
+      expect(component.splitConfig.category.is_mandatory).toBeTrue();
+      expect(spyForm1.clearValidators).not.toHaveBeenCalled();
+      expect(spyForm1.updateValueAndValidity).not.toHaveBeenCalled();
+      expect(spyForm2.clearValidators).not.toHaveBeenCalled();
+      expect(spyForm2.updateValueAndValidity).not.toHaveBeenCalled();
+    });
+
+    it('should not change category mandatory when categories are not empty', () => {
+      component.splitConfig.project.is_visible = false;
+      component.splitConfig.category.is_mandatory = true;
+
+      const spyForm1 = jasmine.createSpyObj('FormControl', ['clearValidators', 'updateValueAndValidity']);
+      const spyForm2 = jasmine.createSpyObj('FormControl', ['clearValidators', 'updateValueAndValidity']);
+
+      spyOn(component.splitExpensesFormArray.at(0), 'get').and.returnValue(spyForm1);
+      spyOn(component.splitExpensesFormArray.at(1), 'get').and.returnValue(spyForm2);
+
+      component.updateCategoryMandatoryStatus(orgCategoryData1);
+
+      expect(component.splitConfig.category.is_mandatory).toBeTrue();
+      expect(spyForm1.clearValidators).not.toHaveBeenCalled();
+      expect(spyForm1.updateValueAndValidity).not.toHaveBeenCalled();
+      expect(spyForm2.clearValidators).not.toHaveBeenCalled();
+      expect(spyForm2.updateValueAndValidity).not.toHaveBeenCalled();
+    });
+
+    it('should not change category mandatory when it is already false', () => {
+      component.splitConfig.project.is_visible = false;
+      component.splitConfig.category.is_mandatory = false;
+
+      const spyForm1 = jasmine.createSpyObj('FormControl', ['clearValidators', 'updateValueAndValidity']);
+      const spyForm2 = jasmine.createSpyObj('FormControl', ['clearValidators', 'updateValueAndValidity']);
+
+      spyOn(component.splitExpensesFormArray.at(0), 'get').and.returnValue(spyForm1);
+      spyOn(component.splitExpensesFormArray.at(1), 'get').and.returnValue(spyForm2);
+
+      component.updateCategoryMandatoryStatus([]);
+
+      expect(component.splitConfig.category.is_mandatory).toBeFalse();
+      expect(spyForm1.clearValidators).not.toHaveBeenCalled();
+      expect(spyForm1.updateValueAndValidity).not.toHaveBeenCalled();
+      expect(spyForm2.clearValidators).not.toHaveBeenCalled();
+      expect(spyForm2.updateValueAndValidity).not.toHaveBeenCalled();
+    });
+
+    it('should handle the case when form array has less than 3 elements', () => {
+      component.splitConfig.project.is_visible = false;
+      component.splitConfig.category.is_mandatory = true;
+
+      const splitExpenseForm1 = new UntypedFormGroup({
+        category: new UntypedFormControl('', Validators.required),
+      });
+      component.splitExpensesFormArray = new UntypedFormArray([splitExpenseForm1, splitExpenseForm1]);
+
+      const spyForm1 = jasmine.createSpyObj('FormControl', ['clearValidators', 'updateValueAndValidity']);
+      spyOn(component.splitExpensesFormArray.at(0), 'get').and.returnValue(spyForm1);
+
+      component.updateCategoryMandatoryStatus([]);
+
+      expect(component.splitConfig.category.is_mandatory).toBeFalse();
+      expect(spyForm1.clearValidators).toHaveBeenCalled();
+      expect(spyForm1.updateValueAndValidity).toHaveBeenCalled();
+    });
+  });
+
   describe('add():', () => {
     beforeEach(() => {
       component.splitConfig = cloneDeep(splitConfig);

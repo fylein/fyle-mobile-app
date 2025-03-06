@@ -6,7 +6,17 @@ import { ModalController, NavController, PopoverController } from '@ionic/angula
 import { isEmpty, isNumber } from 'lodash';
 import * as dayjs from 'dayjs';
 import { combineLatest, forkJoin, from, iif, Observable, of, Subject, Subscription, throwError } from 'rxjs';
-import { catchError, concatMap, finalize, map, shareReplay, startWith, switchMap, takeUntil } from 'rxjs/operators';
+import {
+  catchError,
+  concatMap,
+  finalize,
+  map,
+  shareReplay,
+  startWith,
+  switchMap,
+  takeUntil,
+  tap,
+} from 'rxjs/operators';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { SplitExpenseService } from 'src/app/core/services/split-expense.service';
@@ -928,6 +938,7 @@ export class SplitExpensePage implements OnDestroy {
             }
             return of(activeCategories);
           }),
+          tap((categories) => this.updateCategoryMandatoryStatus(categories)),
           map((categories) => categories.map((category) => ({ label: category.displayName, value: category })))
         )
       )
@@ -978,6 +989,20 @@ export class SplitExpensePage implements OnDestroy {
     }).subscribe(({ homeCurrency, isCorporateCardsEnabled }) =>
       this.setValuesForCCC(currencyObj, homeCurrency, isCorporateCardsEnabled)
     );
+  }
+
+  updateCategoryMandatoryStatus(categories: OrgCategory[]): void {
+    if (!this.splitConfig.project.is_visible && categories.length === 0 && this.splitConfig.category.is_mandatory) {
+      this.splitConfig.category.is_mandatory = false;
+      for (let i = 0; i < 2; i++) {
+        const control = this.splitExpensesFormArray.at(i);
+        const categoryControl = control?.get('category');
+        if (categoryControl) {
+          categoryControl.clearValidators();
+          categoryControl.updateValueAndValidity();
+        }
+      }
+    }
   }
 
   ionViewWillLeave(): void {
