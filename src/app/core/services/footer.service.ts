@@ -9,7 +9,15 @@ export class FooterService {
 
   footerCurrentStateIndex$ = this.footerCurrentStateIndex.asObservable();
 
+  selectionMode = new BehaviorSubject<boolean>(false);
+
+  selectionMode$ = this.selectionMode.asObservable();
+
   updateCurrentStateIndex(index: number): void {
     this.footerCurrentStateIndex.next(index);
+  }
+
+  updateSelectionMode(isEnabled: boolean): void {
+    this.selectionMode.next(isEnabled);
   }
 }

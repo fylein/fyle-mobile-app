@@ -179,6 +179,13 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     this.setupNetworkWatcher();
     this.totalTasksCount = 0;
+    this.footerService.selectionMode$.subscribe((isEnabled) => {
+      if (isEnabled) {
+        this.showFooter = false;
+      } else {
+        this.showFooter = true;
+      }
+    });
 
     // This was done as a security fix for appknox
     // eslint-disable-next-line

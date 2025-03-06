@@ -28,4 +28,19 @@ describe('FooterService', () => {
       done();
     });
   });
+
+  it('should have initial selectionMode$ value as false', (done) => {
+    service.selectionMode$.subscribe((isEnabled) => {
+      expect(isEnabled).toBeFalse();
+      done();
+    });
+  });
+
+  it('should update selectionMode$ value', (done) => {
+    service.updateSelectionMode(true);
+    service.selectionMode$.subscribe((isEnabled) => {
+      expect(isEnabled).toBeTrue();
+      done();
+    });
+  });
 });
