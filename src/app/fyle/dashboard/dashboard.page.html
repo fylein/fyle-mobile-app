@@ -71,9 +71,7 @@
     (homeClicked)="onHomeClicked()"
     (taskClicked)="onTaskClicked()"
     (cameraClicked)="onCameraClicked()"
-    (expensesClicked)="onExpensesClicked()"
-    (reportsClicked)="onReportsClicked()"
     [taskCount]="displayedTaskCount"
-    [activeState]="currentActiveState"
+    [activeState]="currentStateIndex===0?FooterState.HOME: FooterState.TASKS"
   ></app-fy-footer>
 </ion-footer>

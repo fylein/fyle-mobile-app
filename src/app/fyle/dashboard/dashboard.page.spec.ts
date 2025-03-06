@@ -462,30 +462,6 @@ describe('DashboardPage', () => {
     ]);
   });
 
-  it('onExpensesClicked(): should navigate to expenses page', () => {
-    component.onExpensesClicked();
-    expect(router.navigate).toHaveBeenCalledOnceWith([
-      '/',
-      'enterprise',
-      'my_expenses',
-      {
-        navigate_back: true,
-      },
-    ]);
-  });
-
-  it('onReportsClicked(): should navigate to reports page', () => {
-    component.onReportsClicked();
-    expect(router.navigate).toHaveBeenCalledOnceWith([
-      '/',
-      'enterprise',
-      'my_reports',
-      {
-        navigate_back: true,
-      },
-    ]);
-  });
-
   it('onHomeClicked(): should set currentStateIndex to 0, navigate to my_dashboard page with queryParams.state as home and track footerHomeTabClicked event', () => {
     component.onHomeClicked();
     expect(component.currentStateIndex).toEqual(0);
