@@ -37,23 +37,23 @@ describe('ApproverDialogComponent', () => {
 
   const emps = [
     {
-      ou_id: 'ouX8dwsbLCLv',
-      ou_org_id: 'orNVthTo2Zyo',
-      ou_roles: 'ADMIN',
-      ou_status: 'ACTIVE',
-      us_email: 'ajain@fyle.in',
-      us_full_name: 'Abhishek Jain',
-      us_id: 'usvKA4X8Ugcz',
+      id: 'ouX8dwsbLCLv',
+      roles: 'ADMIN',
+      is_enabled: true,
+      has_accepted_invite: true,
+      email: 'ajain@fyle.in',
+      full_name: 'Abhishek Jain',
+      user_id: 'usvKA4X8Ugcz',
       is_selected: true,
     },
     {
-      ou_id: 'ouCI4UQ2G0K1',
-      ou_org_id: 'orNVthTo2Zyo',
-      ou_roles: 'ADMIN',
-      ou_status: 'ACTIVE',
-      us_email: 'jay.b@fyle.in',
-      us_full_name: 'Jay Budhadev',
-      us_id: 'usvKA4X8Ugcr',
+      id: 'ouCI4UQ2G0K1',
+      roles: 'ADMIN',
+      is_enabled: true,
+      has_accepted_invite: true,
+      email: 'jay.b@fyle.in',
+      full_name: 'Jay Budhadev',
+      user_id: 'usvKA4X8Ugcr',
       is_selected: true,
     },
   ];
@@ -155,13 +155,13 @@ describe('ApproverDialogComponent', () => {
 
       component.onSelectApprover(
         {
-          ou_id: 'ouX8dwsbLCLv',
-          ou_org_id: 'orNVthTo2Zyo',
-          ou_roles: 'ADMIN',
-          ou_status: 'ACTIVE',
-          us_email: 'ajain@fyle.in',
-          us_full_name: 'Abhishek Jain',
-          us_id: 'usvKA4X8Ugcr',
+          id: 'ouX8dwsbLCLv',
+          roles: 'ADMIN',
+          is_enabled: true,
+          has_accepted_invite: true,
+          email: 'ajain@fyle.in',
+          full_name: 'Abhishek Jain',
+          user_id: 'usvKA4X8Ugcr',
           is_selected: true,
         },
         { checked: true }
@@ -184,13 +184,13 @@ describe('ApproverDialogComponent', () => {
 
       component.onSelectApprover(
         {
-          ou_id: 'ouX8dwsbLCLv',
-          ou_org_id: 'orNVthTo2Zyo',
-          ou_roles: 'ADMIN',
-          ou_status: 'ACTIVE',
-          us_email: 'ajain@fyle.in',
-          us_full_name: 'Abhishek Jain',
-          us_id: 'usvKA4X8Ugcr',
+          id: 'ouX8dwsbLCLv',
+          roles: 'ADMIN',
+          is_enabled: true,
+          has_accepted_invite: true,
+          email: 'ajain@fyle.in',
+          full_name: 'Abhishek Jain',
+          user_id: 'usvKA4X8Ugcr',
           is_selected: true,
         },
         { checked: false }
@@ -222,8 +222,8 @@ describe('ApproverDialogComponent', () => {
       loaderService.hideLoader.and.resolveTo(null);
 
       const params = {
-        order: 'us_full_name.asc,us_email.asc,ou_id',
-        us_email: `in.(${component.approverEmailsList.join(',')})`,
+        order: 'full_name.asc,email.asc',
+        email: `in.(${component.approverEmailsList.join(',')})`,
       };
 
       tick();
@@ -241,8 +241,7 @@ describe('ApproverDialogComponent', () => {
       fixture.detectChanges();
 
       const params = {
-        order: 'us_full_name.asc,us_email.asc,ou_id',
-
+        order: 'full_name.asc,email.asc',
         limit: 20,
       };
 
@@ -260,30 +259,30 @@ describe('ApproverDialogComponent', () => {
     component.getSearchedUsersList('text').subscribe((res) => {
       expect(res).toEqual([
         {
-          ou_id: 'oubQzXeZbwbS',
-          ou_org_id: 'orNVthTo2Zyo',
-          ou_roles: '["FYLER","APPROVER","HOD","HOP"]',
-          ou_status: '"ACTIVE"',
-          us_email: 'ajain+12+12+1@fyle.in',
-          us_full_name: 'AA23',
-          us_id: 'usTdvbcxOqjs',
+          id: 'oubQzXeZbwbS',
+          roles: '["FYLER","APPROVER","HOD","HOP"]',
+          is_enabled: true,
+          has_accepted_invite: true,
+          email: 'ajain+12+12+1@fyle.in',
+          full_name: 'AA23',
+          user_id: 'usTdvbcxOqjs',
           is_selected: false,
         },
         {
-          ou_id: 'ouXYHXfr4w0b',
-          ou_org_id: 'orNVthTo2Zyo',
-          ou_roles: '["FYLER","APPROVER","HOP"]',
-          ou_status: '"PENDING_DETAILS"',
-          us_email: 'aaaaaaa@aaaabbbb.com',
-          us_full_name: 'AAA',
-          us_id: 'usBBavu872gu',
+          id: 'ouXYHXfr4w0b',
+          roles: '["FYLER","APPROVER","HOP"]',
+          is_enabled: true,
+          has_accepted_invite: false,
+          email: 'aaaaaaa@aaaabbbb.com',
+          full_name: 'AAA',
+          user_id: 'usBBavu872gu',
           is_selected: false,
         },
       ]);
       expect(orgUserService.getEmployeesBySearch).toHaveBeenCalledWith({
         limit: 20,
-        order: 'us_full_name.asc,us_email.asc,ou_id',
-        or: '(us_email.ilike.*text*,us_full_name.ilike.*text*)',
+        order: 'full_name.asc,email.asc',
+        or: '(email.ilike.*text*,full_name.ilike.*text*)',
       });
       done();
     });
@@ -299,36 +298,36 @@ describe('ApproverDialogComponent', () => {
   it('getSearchedEmployees', () => {
     const res = component.getSearchedEmployees(emps, [
       {
-        ou_id: 'ouCI4UQ2G0K1',
-        ou_org_id: 'orNVthTo2Zyo',
-        ou_roles: 'ADMIN',
-        ou_status: 'ACTIVE',
-        us_email: 'aiyush.d@fyle.in',
-        us_full_name: 'Aiyush Dhar',
-        us_id: 'usvKA4X8Ugcb',
+        id: 'ouCI4UQ2G0K1',
+        roles: 'ADMIN',
+        is_enabled: true,
+        has_accepted_invite: true,
+        email: 'aiyush.d@fyle.in',
+        full_name: 'Aiyush Dhar',
+        user_id: 'usvKA4X8Ugcb',
         is_selected: true,
       },
     ]);
 
     expect(res).toEqual([
       {
-        ou_id: 'ouX8dwsbLCLv',
-        ou_org_id: 'orNVthTo2Zyo',
-        ou_roles: 'ADMIN',
-        ou_status: 'ACTIVE',
-        us_email: 'ajain@fyle.in',
-        us_full_name: 'Abhishek Jain',
-        us_id: 'usvKA4X8Ugcz',
+        id: 'ouX8dwsbLCLv',
+        roles: 'ADMIN',
+        is_enabled: true,
+        has_accepted_invite: true,
+        email: 'ajain@fyle.in',
+        full_name: 'Abhishek Jain',
+        user_id: 'usvKA4X8Ugcz',
         is_selected: true,
       },
       {
-        ou_id: 'ouCI4UQ2G0K1',
-        ou_org_id: 'orNVthTo2Zyo',
-        ou_roles: 'ADMIN',
-        ou_status: 'ACTIVE',
-        us_email: 'jay.b@fyle.in',
-        us_full_name: 'Jay Budhadev',
-        us_id: 'usvKA4X8Ugcr',
+        id: 'ouCI4UQ2G0K1',
+        roles: 'ADMIN',
+        is_enabled: true,
+        has_accepted_invite: true,
+        email: 'jay.b@fyle.in',
+        full_name: 'Jay Budhadev',
+        user_id: 'usvKA4X8Ugcr',
         is_selected: true,
       },
     ]);
