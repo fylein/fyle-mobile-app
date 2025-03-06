@@ -2,12 +2,13 @@ export interface EmployeeParams {
   or: string;
   and: string;
   select: string;
-  ou_org_id: string;
-  ou_roles: string;
-  ou_status: string;
-  ou_id: string;
+  org_id: string;
+  roles: string;
+  is_enabled: string;
+  has_accepted_invite: string;
+  id: string;
   order: string;
   limit: number;
-  us_email?: string;
-  us_id: string;
+  email?: string;
+  user_id: string;
 }

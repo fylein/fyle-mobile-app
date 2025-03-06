@@ -8,8 +8,8 @@ import { from } from 'rxjs';
 import { TrackingService } from '../../core/services/tracking.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { BrowserHandlerService } from 'src/app/core/services/browser-handler.service';
-import { ApiV2Response } from 'src/app/core/models/v2/api-v2-response.model';
 import { Employee } from 'src/app/core/models/spender/employee.model';
+import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
 
 @Component({
   selector: 'app-help',
@@ -17,7 +17,7 @@ import { Employee } from 'src/app/core/models/spender/employee.model';
   styleUrls: ['./help.page.scss'],
 })
 export class HelpPage implements OnInit {
-  orgAdmins: Partial<ApiV2Response<Partial<Employee>>>;
+  orgAdmins: PlatformApiResponse<Partial<Employee>[]>;
 
   contactSupportLoading = false;
 
@@ -37,12 +37,12 @@ export class HelpPage implements OnInit {
         switchMap(() => from(this.authService.getEou())),
         switchMap((eou) =>
           this.orgUserService.getEmployeesByParams({
-            select: 'us_full_name,us_email',
-            ou_org_id: 'eq.' + eou.ou.org_id,
-            ou_roles: 'like.%' + 'ADMIN%',
-            ou_status: 'eq.' + '"ACTIVE"',
-            ou_id: 'not.eq.' + eou.ou.id,
-            order: 'us_full_name.asc,ou_id',
+            select: '(full_name,email)',
+            roles: 'like.%' + 'ADMIN%',
+            is_enabled: 'eq.true',
+            has_accepted_invite: 'eq.true',
+            id: 'neq.' + eou.ou.id,
+            order: 'full_name.asc,id.asc',
             limit: 5,
           })
         ),
