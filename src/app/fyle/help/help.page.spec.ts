@@ -82,7 +82,7 @@ describe('HelpPage', () => {
   it('openContactSupportDialog(): should open contact support dialog', fakeAsync(() => {
     const dialogType = 'contact_support';
     const params = {
-      select: 'full_name,email',
+      select: '(full_name,email)',
       roles: 'like.%ADMIN%',
       is_enabled: 'eq.true',
       has_accepted_invite: 'eq.true',
