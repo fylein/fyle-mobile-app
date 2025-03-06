@@ -176,7 +176,7 @@ describe('FyUserlistModalComponent', () => {
     const onSelectSpy = spyOn(component, 'onSelect');
     const item = 'ajain121212@fyle.in';
     const updatedItem = {
-      us_email: item,
+      email: item,
       is_selected: false,
     };
     const event = {
@@ -191,8 +191,8 @@ describe('FyUserlistModalComponent', () => {
   describe('getDefaultUsersList():', () => {
     it('should get default users list', (done) => {
       const params = {
-        order: 'us_full_name.asc,us_email.asc,ou_id',
-        us_email:
+        order: 'full_name.asc,email.asc,id.asc',
+        email:
           'in.(ajain+12+12+1@fyle.in,ajain+12121212@fyle.in,aaaaaaa@aaaabbbb.com,aaaaasdjskjd@sdsd.com,kawaljeet.ravi22@gmail.com,abcdefg@somemail.com)',
       };
 
@@ -209,7 +209,7 @@ describe('FyUserlistModalComponent', () => {
 
     it('should get default users list with empty params', () => {
       component.currentSelections = [];
-      const params = { limit: 20, order: 'us_full_name.asc,us_email.asc,ou_id' };
+      const params = { limit: 20, order: 'full_name.asc,email.asc,id.asc' };
       orgUserService.getEmployeesBySearch.and.returnValue(of(employeesParamsRes.data));
       component.getDefaultUsersList();
       fixture.detectChanges();
@@ -221,8 +221,8 @@ describe('FyUserlistModalComponent', () => {
   it('getSearchedUsersList(): should get the searched user list', fakeAsync(() => {
     const params = {
       limit: 20,
-      order: 'us_full_name.asc,us_email.asc,ou_id',
-      or: '(us_email.ilike.*ajain+12+12+1@fyle.in*,us_full_name.ilike.*ajain+12+12+1@fyle.in*)',
+      order: 'full_name.asc,email.asc,id.asc',
+      or: '(email.ilike.*ajain+12+12+1@fyle.in*,full_name.ilike.*ajain+12+12+1@fyle.in*)',
     };
     const employeesData = cloneDeep(employeesParamsRes.data);
     orgUserService.getEmployeesBySearch.and.returnValue(of(employeesData));
@@ -248,7 +248,7 @@ describe('FyUserlistModalComponent', () => {
       const result = [
         {
           isNew: true,
-          us_email: 'john.doe@fyle.in',
+          email: 'john.doe@fyle.in',
         },
       ];
 
@@ -284,7 +284,7 @@ describe('FyUserlistModalComponent', () => {
     const result: Partial<Employee>[] = [
       {
         is_selected: true,
-        us_email: 'john.doe@fyle.in',
+        email: 'john.doe@fyle.in',
       },
     ];
 
