@@ -703,7 +703,7 @@ describe('SplitExpensePage', () => {
   it('toastWithoutCTA(): should display the toast without CTA', () => {
     const message = 'Your expense was split successfully. All the split expenses were added to the report';
     const toastType = ToastType.SUCCESS;
-    const panelClassData = 'msb-success-with-camera-icon';
+    const panelClassData = 'msb-success-with-camera-icon-for-split-exp';
     component.toastWithoutCTA(message, toastType, panelClassData);
     expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
       ...snackbarProperties.setSnackbarProperties(toastType, { message }),
@@ -723,7 +723,7 @@ describe('SplitExpensePage', () => {
       expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
         toastMessage,
         ToastType.SUCCESS,
-        'msb-success-with-camera-icon'
+        'msb-success-with-camera-icon-for-split-exp'
       );
     });
   });
@@ -2638,7 +2638,7 @@ describe('SplitExpensePage', () => {
         expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
           'We were unable to split your expense. Please try again later.',
           ToastType.FAILURE,
-          'msb-failure-with-camera-icon'
+          'msb-failure-with-camera-icon-for-split-exp'
         );
         expect(trackingService.splittingExpense).toHaveBeenCalledOnceWith({
           Asset: 'Mobile',
@@ -2711,7 +2711,7 @@ describe('SplitExpensePage', () => {
         expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
           'We were unable to split your expense. Please try again later.',
           ToastType.FAILURE,
-          'msb-failure-with-camera-icon'
+          'msb-failure-with-camera-icon-for-split-exp'
         );
         expect(splitExpenseService.postSplitExpenseComments).not.toHaveBeenCalled();
         expect(component.showSuccessToast).not.toHaveBeenCalled();
@@ -2732,7 +2732,7 @@ describe('SplitExpensePage', () => {
         expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
           'We were unable to split your expense. Please try again later.',
           ToastType.FAILURE,
-          'msb-failure-with-camera-icon'
+          'msb-failure-with-camera-icon-for-split-exp'
         );
         expect(component.showSuccessToast).not.toHaveBeenCalled();
       }
