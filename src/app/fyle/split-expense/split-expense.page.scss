@@ -199,6 +199,17 @@ $background-color: #fff;
     padding: 0;
   }
 
+  &--purpose-input {
+    border: 0;
+    font-size: 14px;
+    line-height: 18px;
+    border: none;
+    width: 100%;
+    padding: 0;
+    height: 18px;
+    margin: 6px 0;
+  }
+
   &--mandatory {
     color: $brand-primary;
     font-size: 14px;

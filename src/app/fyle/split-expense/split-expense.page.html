@@ -57,7 +57,11 @@
 
 <ion-content>
   <div class="split-expense--container">
-    <div class="split-expense--card" *ngFor="let splitExpenseForm of splitExpensesFormArray.controls; index as i">
+    <div
+      #splitElement
+      class="split-expense--card"
+      *ngFor="let splitExpenseForm of splitExpensesFormArray.controls; index as i"
+    >
       <div class="split-expense--card-header">
         <div class="split-expense--card-header-left-content">
           <div class="split-expense--icon-container">
@@ -167,7 +171,7 @@
                 [label]="'Category'"
                 formControlName="category"
                 [options]="categories"
-                [mandatory]="splitConfig.category.is_mandatory"
+                [mandatory]="splitConfig.category.is_mandatory && categories.length !== 0"
                 [cacheName]="'splitExpenseCategoryCache'"
                 [selectModalHeader]="'Select Category'"
                 [touchedInParent]="splitExpenseForm.controls.category.touched"
@@ -199,7 +203,7 @@
                 formControlName="cost_center"
                 [options]="costCenters"
                 [selectModalHeader]="'Select ' + txnFields?.cost_center_id?.field_name"
-                [mandatory]="splitConfig.costCenter.is_mandatory"
+                [mandatory]="splitConfig.costCenter.is_mandatory && !costCenterDisabledStates[i]"
                 [cacheName]="'splitExpenseCostCenterCache'"
                 [touchedInParent]="splitExpenseForm.controls.cost_center.touched"
                 [validInParent]="splitExpenseForm.controls.cost_center.valid"
@@ -230,7 +234,7 @@
                 [placeholder]="txnFields.purpose?.placeholder || 'Enter '+txnFields.purpose?.field_name | slice: 0:30"
                 [required]="txnFields.purpose?.is_mandatory"
                 [title]="'Enter'+txnFields.purpose?.field_name"
-                class="split-expense--date-input date-input__format smartlook-show"
+                class="split-expense--purpose-input smartlook-show"
                 formControlName="purpose"
               />
             </div>
