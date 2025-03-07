@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { FooterState } from './footer-state';
+import { FooterState } from './footer-state.enum';
 import { NetworkService } from '../../../core/services/network.service';
 import { ConnectionMessageStatus } from '../fy-connection/connection-status.enum';
 import { Observable } from 'rxjs/internal/Observable';
@@ -18,6 +18,10 @@ export class FooterComponent implements OnInit {
 
   @Output() taskClicked = new EventEmitter();
 
+  @Output() expensesClicked = new EventEmitter();
+
+  @Output() reportsClicked = new EventEmitter();
+
   @Input() taskCount = 0;
 
   @Input() activeState: FooterState;
@@ -30,19 +34,19 @@ export class FooterComponent implements OnInit {
     private router: Router
   ) {}
 
-  get ConnectionMessageStatus() {
+  get ConnectionMessageStatus(): typeof ConnectionMessageStatus {
     return ConnectionMessageStatus;
   }
 
-  get FooterState() {
+  get FooterState(): typeof FooterState {
     return FooterState;
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.connectionState$ = this.networkService.getConnectionStatus();
   }
 
-  goToHome() {
+  goToHome(): void {
     this.trackingService.footerButtonClicked({
       Action: 'Home',
       Url: this.router.url,
@@ -51,7 +55,7 @@ export class FooterComponent implements OnInit {
     this.homeClicked.emit();
   }
 
-  goToCameraMode() {
+  goToCameraMode(): void {
     this.trackingService.footerButtonClicked({
       Action: 'Camera',
       Url: this.router.url,
@@ -60,7 +64,25 @@ export class FooterComponent implements OnInit {
     this.cameraClicked.emit();
   }
 
-  goToTasks(connectionState: ConnectionMessageStatus) {
+  goToExpenses(): void {
+    this.trackingService.footerButtonClicked({
+      Action: 'Expenses',
+      Url: this.router.url,
+    });
+
+    this.expensesClicked.emit();
+  }
+
+  goToReports(): void {
+    this.trackingService.footerButtonClicked({
+      Action: 'Reports',
+      Url: this.router.url,
+    });
+
+    this.reportsClicked.emit();
+  }
+
+  goToTasks(connectionState: ConnectionMessageStatus): void {
     if (connectionState !== ConnectionMessageStatus.disconnected) {
       this.trackingService.footerButtonClicked({
         Action: 'Tasks',

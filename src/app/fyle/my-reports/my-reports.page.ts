@@ -28,7 +28,7 @@ import { ReportsQueryParams } from 'src/app/core/models/platform/v1/reports-quer
 import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
 import { MyReportsFilters } from 'src/app/core/models/my-reports-filters.model';
-
+import { FooterState } from 'src/app/shared/components/footer/footer-state.enum';
 @Component({
   selector: 'app-my-reports',
   templateUrl: './my-reports.page.html',
@@ -113,6 +113,10 @@ export class MyReportsPage {
 
   get HeaderState(): typeof HeaderState {
     return HeaderState;
+  }
+
+  get FooterState(): typeof FooterState {
+    return FooterState;
   }
 
   ionViewWillLeave(): void {
