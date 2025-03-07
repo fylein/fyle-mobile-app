@@ -1444,7 +1444,7 @@ ion-toggle.toggle-checked::before {
   background-color: #2c304e;
   color: white;
   min-height: 154px;
-  max-width: 260px;
+  max-width: 280px;
   box-shadow: none;
 }
 
@@ -1463,11 +1463,15 @@ ion-toggle.toggle-checked::before {
 
 .driver-popover-description {
   font-size: 14px;
+  max-width: 200px;
 }
 
 .driver-popover-close-btn {
   color: #a9acbc !important;
   font-weight: normal;
+  font-size: 24px;
+  top: 5px;
+  right: 5px;
 }
 
 .driver-popover-description {
