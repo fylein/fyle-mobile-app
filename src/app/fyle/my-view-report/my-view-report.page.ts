@@ -1,5 +1,5 @@
 import { Component, ElementRef, EventEmitter, ViewChild } from '@angular/core';
-import { Observable, from, noop, concat, Subject, BehaviorSubject, Subscription } from 'rxjs';
+import { Observable, from, noop, concat, Subject, BehaviorSubject, Subscription, forkJoin } from 'rxjs';
 import { ReportService } from 'src/app/core/services/report.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { map, switchMap, shareReplay, takeUntil, tap, take, finalize } from 'rxjs/operators';
@@ -37,6 +37,9 @@ import { ReportPermissions } from 'src/app/core/models/report-permissions.model'
 import { ExtendedComment } from 'src/app/core/models/platform/v1/extended-comment.model';
 import { Comment } from 'src/app/core/models/platform/v1/comment.model';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { ShowAllApproversPopoverComponent } from 'src/app/shared/components/fy-approver/show-all-approvers-popover/show-all-approvers-popover.component';
+import { ReportApprovals } from 'src/app/core/models/platform/report-approvals.model';
 import * as Sentry from '@sentry/angular-ivy';
 
 @Component({
@@ -115,6 +118,12 @@ export class MyViewReportPage {
 
   submitReportLoader = false;
 
+  showViewApproverModal = false;
+
+  approvals: ReportApprovals[];
+
+  approverToShow: ReportApprovals;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
@@ -132,7 +141,8 @@ export class MyViewReportPage {
     private statusService: StatusService,
     private orgSettingsService: OrgSettingsService,
     private platformHandlerService: PlatformHandlerService,
-    private spenderReportsService: SpenderReportsService
+    private spenderReportsService: SpenderReportsService,
+    private launchDarklyService: LaunchDarklyService
   ) {}
 
   get Segment(): typeof ReportPageSegment {
@@ -223,6 +233,17 @@ export class MyViewReportPage {
     });
   }
 
+  setupApproverToShow(report: Report): void {
+    const filteredApprover = this.approvals.filter(
+      (approver) => report.next_approver_user_ids?.[0] === approver.approver_user.id
+    );
+    const highestRankApprover = this.approvals.reduce(
+      (max, approver) => (approver.rank > max.rank ? approver : max),
+      this.approvals[0]
+    );
+    this.approverToShow = filteredApprover.length === 1 ? filteredApprover[0] : highestRankApprover;
+  }
+
   ionViewWillEnter(): void {
     this.setupNetworkWatcher();
     this.reportId = this.activatedRoute.snapshot.params.id as string;
@@ -237,6 +258,10 @@ export class MyViewReportPage {
       ),
       map((report) => {
         this.setupComments(report);
+        this.approvals = report?.approvals;
+        if (this.approvals) {
+          this.setupApproverToShow(report);
+        }
         return report;
       }),
       shareReplay(1)
@@ -317,6 +342,15 @@ export class MyViewReportPage {
       map((orgSettings) => ({ enabled: this.getSimplifyReportSettings(orgSettings) }))
     );
 
+    forkJoin([orgSettings$, this.launchDarklyService.getVariation('show_multi_stage_approval_flow', false)]).subscribe(
+      ([orgSettings, showViewApproverModal]) => {
+        this.showViewApproverModal =
+          showViewApproverModal &&
+          orgSettings?.simplified_multi_stage_approvals?.allowed &&
+          orgSettings?.simplified_multi_stage_approvals?.enabled;
+      }
+    );
+
     this.hardwareBackButtonAction = this.platformHandlerService.registerBackButtonAction(
       BackButtonActionPriority.MEDIUM,
       () => {
@@ -332,6 +366,22 @@ export class MyViewReportPage {
       Time_spent: this.timeSpentOnEditingReportName,
       Roles: this.eou?.ou.roles,
     });
+  }
+
+  async openViewApproverModal(): Promise<void> {
+    const viewApproversModal = await this.popoverController.create({
+      component: ShowAllApproversPopoverComponent,
+      componentProps: {
+        approvals: this.approvals,
+      },
+      cssClass: 'fy-dialog-popover',
+      backdropDismiss: false,
+    });
+
+    await viewApproversModal.present();
+    await viewApproversModal.onWillDismiss();
+
+    this.trackingService.eventTrack('All approvers modal closed', { view: ExpenseView.team });
   }
 
   showReportNameChangeSuccessToast(): void {
