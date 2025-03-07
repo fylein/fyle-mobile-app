@@ -1299,7 +1299,7 @@
             Save and new
           </ion-button>
           <ion-button
-            (click)="closeAddEditExpenses()"
+            (click)="goBack()"
             *ngIf="mode === 'edit' && !navigateBack"
             [disabled]="saveExpenseLoader"
             class="btn-secondary"

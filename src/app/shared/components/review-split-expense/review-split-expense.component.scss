@@ -1,0 +1,27 @@
+@import '../../../../theme/colors.scss';
+
+.review-split-expense-modal {
+  border-bottom: 1px solid $grey;
+  margin-bottom: 8px;
+
+  &--header {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 26px;
+    padding-inline: 12px;
+  }
+
+  &--expense-container {
+    padding-inline: 16px;
+  }
+
+  &--divider {
+    height: 1px;
+    width: 100%;
+    margin-bottom: 6px;
+    background-color: $grey;
+  }
+}
