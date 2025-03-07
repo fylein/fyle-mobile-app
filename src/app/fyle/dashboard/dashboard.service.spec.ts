@@ -19,7 +19,7 @@ import { DashboardService } from './dashboard.service';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { ReportStates } from './stat-badge/report-states.enum';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
-import { unapprovedTeamReportsStats } from '../../core/mock-data/report-stats.data';
+import { expectedSentBackResponse } from '../../core/mock-data/report-stats.data';
 
 describe('DashboardService', () => {
   let dashboardService: DashboardService;
@@ -210,10 +210,10 @@ describe('DashboardService', () => {
 
   it('should get unapproved team reports stats if user is an approver', (done) => {
     authService.getEou.and.resolveTo(apiEouRes);
-    approverReportService.getReportsStats.and.returnValue(of(unapprovedTeamReportsStats));
+    approverReportService.getReportsStats.and.returnValue(of(expectedSentBackResponse));
 
     dashboardService.getUnapprovedTeamReportsStats().subscribe((res) => {
-      expect(res).toEqual(unapprovedTeamReportsStats);
+      expect(res).toEqual(expectedSentBackResponse);
       expect(approverReportService.getReportsStats).toHaveBeenCalledOnceWith({
         next_approver_user_ids: `cs.[${apiEouRes.us.id}]`,
         state: `eq.${ReportStates.APPROVER_PENDING}`,
