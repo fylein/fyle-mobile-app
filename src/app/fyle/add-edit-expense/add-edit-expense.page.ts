@@ -2677,7 +2677,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   handleCategoryValidation(categories: OrgCategory[]): void {
-    this.txnFields$.subscribe((txnFields) => {
+    this.txnFields$.pipe(takeUntil(this.onPageExit$)).subscribe((txnFields) => {
       const isMandatory = txnFields?.org_category_id?.is_mandatory;
       const categoryControl = this.fg.controls.category;
       if (!categoryControl) {
