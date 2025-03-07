@@ -8,7 +8,7 @@ import { JwtHelperService } from './jwt-helper.service';
 import { apiEouRes, eouFlattended, eouRes3 } from '../mock-data/extended-org-user.data';
 import { apiAuthResponseRes } from '../mock-data/auth-response.data';
 import { finalize, noop, of, tap } from 'rxjs';
-import { apiAccessTokenRes, apiTokenWithoutRoles } from '../mock-data/acess-token-data.data';
+import { apiAccessTokenRes, apiTokenWithoutRoles } from '../mock-data/access-token-data.data';
 
 describe('AuthService', () => {
   let authService: AuthService;
