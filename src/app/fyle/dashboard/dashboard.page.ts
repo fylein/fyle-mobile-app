@@ -32,6 +32,7 @@ import { FyOptInComponent } from 'src/app/shared/components/fy-opt-in/fy-opt-in.
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { driver, DriveStep } from 'driver.js';
 
 @Component({
   selector: 'app-dashboard',
@@ -113,6 +114,140 @@ export class DashboardPage {
 
   get filterPills(): FilterPill[] {
     return this.tasksComponent.filterPills;
+  }
+
+  setNavbarWalkthroughFeatureConfigFlag(isWalkthroughComplete: boolean): void {
+    const featureConfigParams = {
+      feature: 'DASHBOARD_NAVBAR_WALKTHROUGH',
+      key: 'SHOW_NAVBAR_WALKTHROUGH',
+    };
+
+    let newConfigValue = {};
+
+    this.featureConfigService
+      .getConfiguration<{ isShown?: boolean; isFinished?: boolean }>(featureConfigParams)
+      .pipe(
+        switchMap((config) => {
+          const featureConfigValue = config?.value || {};
+          const isShown = featureConfigValue?.isShown || false;
+          const isFinished = featureConfigValue?.isFinished || false;
+
+          if (isWalkthroughComplete) {
+            newConfigValue = {
+              isShown,
+              isFinished: true,
+            };
+          } else {
+            newConfigValue = {
+              isShown: true,
+              isFinished,
+            };
+          }
+
+          const newConfig = {
+            ...featureConfigParams,
+            value: newConfigValue,
+          };
+
+          return this.featureConfigService.saveConfiguration(newConfig);
+        })
+      )
+      .subscribe(noop);
+  }
+
+  startTour(isApprover: boolean): void {
+    this.setNavbarWalkthroughFeatureConfigFlag(false);
+    const driverInstance = driver({
+      overlayOpacity: 0.5,
+      allowClose: true,
+      overlayClickBehavior: 'nextStep',
+      showProgress: true,
+      overlayColor: '#161528',
+      stageRadius: 6,
+      stagePadding: 4,
+      popoverClass: 'custom-popover',
+      doneBtnText: 'Ok',
+      nextBtnText: 'Next',
+      prevBtnText: 'Back',
+      onDestroyed: () => {
+        this.setNavbarWalkthroughFeatureConfigFlag(true);
+      },
+    });
+
+    const steps: DriveStep[] = [
+      {
+        element: '#footer-walkthrough',
+        popover: {
+          description:
+            'Expenses & Reports are now on the bottom bar of the home page for easy access and smooth navigation!',
+          side: 'top',
+          align: 'center',
+          showButtons: ['next', 'close'],
+        },
+        onHighlightStarted: (_el, _step, opts): void => {
+          opts.config.stagePadding = 10;
+        },
+      },
+      {
+        element: '#tab-button-expenses',
+        popover: {
+          description: 'Tap here to quickly access and manage your expenses!',
+          side: 'top',
+          align: 'start',
+        },
+        onHighlightStarted: (_el, _step, opts): void => {
+          opts.config.stagePadding = 4;
+        },
+      },
+      {
+        element: '#tab-button-reports',
+        popover: {
+          description: 'Tap here to quickly access and manage your expense reports!',
+          side: 'top',
+          align: 'end',
+        },
+        onHighlightStarted: (_el, _step, opts): void => {
+          opts.config.stagePadding = 4;
+        },
+      },
+    ];
+
+    if (isApprover) {
+      steps.push({
+        element: '#approval-pending-stat',
+        popover: {
+          description: `Easily manage and approve reports — Access your team's reports right from the home page!`,
+          side: 'top',
+          align: 'center',
+        },
+        onHighlightStarted: (_el, _step, opts): void => {
+          opts.config.stagePadding = 4;
+        },
+      });
+    }
+
+    driverInstance.setSteps(steps);
+    driverInstance.drive();
+  }
+
+  showNavbarWalkthrough(isApprover: boolean): void {
+    const showNavbarWalkthroughConfig = {
+      feature: 'DASHBOARD_NAVBAR_WALKTHROUGH',
+      key: 'SHOW_NAVBAR_WALKTHROUGH',
+    };
+
+    this.featureConfigService
+      .getConfiguration<{ isShown?: boolean; isFinished?: boolean }>(showNavbarWalkthroughConfig)
+      .subscribe((config) => {
+        const featureConfigValue = config?.value || {};
+        const isFinished = featureConfigValue?.isFinished || false;
+
+        if (!isFinished) {
+          setTimeout(() => {
+            this.startTour(isApprover);
+          }, 1000);
+        }
+      });
   }
 
   ionViewWillLeave(): void {
@@ -198,6 +333,18 @@ export class DashboardPage {
     this.homeCurrency$ = this.currencyService.getHomeCurrency().pipe(shareReplay(1));
     this.eou$ = from(this.authService.getEou()).pipe(shareReplay(1));
     this.isUserFromINCluster$ = from(this.utilityService.isUserFromINCluster());
+
+    this.eou$
+      .pipe(
+        map((eou) => {
+          if (eou.ou.roles.includes('APPROVER')) {
+            this.showNavbarWalkthrough(true);
+          } else {
+            this.showNavbarWalkthrough(false);
+          }
+        })
+      )
+      .subscribe(noop);
 
     this.setShowOptInBanner();
 
