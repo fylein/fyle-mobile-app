@@ -21,8 +21,7 @@ import {
   expectedActionSheetButtonsWithPerDiem,
 } from 'src/app/core/mock-data/action-sheet-options.data';
 import { allowedExpenseTypes } from 'src/app/core/mock-data/allowed-expense-types.data';
-import { apiAuthRes } from 'src/app/core/mock-data/auth-reponse.data';
-import { expectedAssignedCCCStats } from 'src/app/core/mock-data/ccc-expense.details.data';
+import { apiAuthRes } from 'src/app/core/mock-data/auth-response.data';
 import {
   expenseFiltersData2,
   expenseWithPotentialDuplicateFilterData,
@@ -32,7 +31,7 @@ import {
   expectedFormattedTransaction,
   expenseData2,
   expenseList4,
-  expenseListwithoutID,
+  expenseListWithoutID,
 } from 'src/app/core/mock-data/expense.data';
 import {
   cardFilterPill,
@@ -238,7 +237,6 @@ describe('MyExpensesPage', () => {
     const storageServiceSpy = jasmine.createSpyObj('StorageService', ['get', 'set', 'post']);
     const corporateCreditCardServiceSpy = jasmine.createSpyObj('CorporateCreditCardExpenseService', [
       'getExpenseDetailsInCards',
-      'getAssignedCards',
       'getCorporateCards',
     ]);
     const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
@@ -489,7 +487,6 @@ describe('MyExpensesPage', () => {
       orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
       orgSettingsService.get.and.returnValue(of(orgSettingsRes));
       categoriesService.getMileageOrPerDiemCategories.and.returnValue(of(mileagePerDiemPlatformCategoryData));
-      corporateCreditCardService.getAssignedCards.and.returnValue(of(expectedAssignedCCCStats));
       spyOn(component, 'getCardDetail').and.returnValue(of(uniqueCardsData));
       spyOn(component, 'syncOutboxExpenses');
       spyOn(component, 'setAllExpensesCountAndAmount');
@@ -1697,7 +1694,7 @@ describe('MyExpensesPage', () => {
     }));
   });
 
-  it('syncOutboxExpenses(): should call transactionoutboxService and do a refresh', fakeAsync(() => {
+  it('syncOutboxExpenses(): should call transactionOutboxService and do a refresh', fakeAsync(() => {
     const mockFormattedTransactions = cloneDeep(apiExpenseRes);
     const mockPendingTransactions = cloneDeep(txnList);
     spyOn(component, 'formatTransactions').and.returnValues(mockFormattedTransactions, []);
@@ -2968,7 +2965,7 @@ describe('MyExpensesPage', () => {
     }));
 
     it('should open a popover and delete offline expenses', fakeAsync(() => {
-      component.outboxExpensesToBeDeleted = expenseListwithoutID;
+      component.outboxExpensesToBeDeleted = expenseListWithoutID;
       const deletePopOverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
       deletePopOverSpy.onDidDismiss.and.resolveTo({ data: { status: 'success' } });
       popoverController.create.and.resolveTo(deletePopOverSpy);
