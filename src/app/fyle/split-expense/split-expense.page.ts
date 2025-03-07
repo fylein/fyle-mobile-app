@@ -604,7 +604,7 @@ export class SplitExpensePage implements OnDestroy {
   showSuccessToast(): void {
     this.saveSplitExpenseLoading = false;
     const toastMessage = 'Expense split successfully.';
-    this.toastWithoutCTA(toastMessage, ToastType.SUCCESS, 'msb-success-with-camera-icon');
+    this.toastWithoutCTA(toastMessage, ToastType.SUCCESS, 'msb-success-with-camera-icon-for-split-exp');
   }
 
   getAttachedFiles(expenseId: string): Observable<Partial<PlatformFile>[]> {
@@ -720,7 +720,7 @@ export class SplitExpensePage implements OnDestroy {
           this.trackingService.splitExpensePolicyCheckFailed(splitTrackingProps);
 
           const message = 'We were unable to split your expense. Please try again later.';
-          this.toastWithoutCTA(message, ToastType.FAILURE, 'msb-failure-with-camera-icon');
+          this.toastWithoutCTA(message, ToastType.FAILURE, 'msb-failure-with-camera-icon-for-split-exp');
           this.router.navigate(['/', 'enterprise', 'my_expenses']);
           return throwError(errResponse);
         })
@@ -737,7 +737,7 @@ export class SplitExpensePage implements OnDestroy {
             .pipe(
               catchError((err) => {
                 const message = 'We were unable to split your expense. Please try again later.';
-                this.toastWithoutCTA(message, ToastType.FAILURE, 'msb-failure-with-camera-icon');
+                this.toastWithoutCTA(message, ToastType.FAILURE, 'msb-failure-with-camera-icon-for-split-exp');
                 this.router.navigate(['/', 'enterprise', 'my_expenses']);
                 return throwError(err);
               })
@@ -845,7 +845,7 @@ export class SplitExpensePage implements OnDestroy {
               this.trackingService.splitExpensePolicyCheckFailed(splitTrackingProps);
 
               const message = 'We were unable to split your expense. Please try again later.';
-              this.toastWithoutCTA(message, ToastType.FAILURE, 'msb-failure-with-camera-icon');
+              this.toastWithoutCTA(message, ToastType.FAILURE, 'msb-failure-with-camera-icon-for-split-exp');
               return throwError(errResponse);
             }),
             finalize(() => {
