@@ -1094,6 +1094,7 @@ export class SplitExpensePage implements OnDestroy {
           !categories.some((category) => category.value.id === (currentCategory as OrgCategory).id)
         ) {
           splitForm.get('category').reset();
+          this.onCategoryChange(index);
         }
       });
   }
