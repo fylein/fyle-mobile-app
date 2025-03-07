@@ -12,7 +12,7 @@ import { ApproverPlatformApiService } from './approver-platform-api.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformCommonApiService } from './platform-common-api.service';
 import { of } from 'rxjs';
-import { apiAuthRes, authResData1 } from '../mock-data/auth-reponse.data';
+import { apiAuthRes, authResData1 } from '../mock-data/auth-response.data';
 import { ExpenseAggregationService } from './expense-aggregation.service';
 import { SpenderService } from './platform/v1/spender/spender.service';
 import { ApproverService } from './platform/v1/approver/approver.service';
@@ -74,7 +74,7 @@ describe('RouterAuthService', () => {
           useValue: routerApiServiceSpy,
         },
         {
-          provdide: StorageService,
+          provide: StorageService,
           useValue: storageServiceSpy,
         },
         {
@@ -304,7 +304,7 @@ describe('RouterAuthService', () => {
     });
   });
 
-  it('resetPassword(): should reset user passord', (done) => {
+  it('resetPassword(): should reset user password', (done) => {
     routerApiService.post.and.returnValue(of(authResData1));
     spyOn(routerAuthService, 'handleSignInResponse').and.resolveTo(authResData1);
 
