@@ -171,6 +171,7 @@ describe('SplitExpensePage', () => {
   let timezoneService: jasmine.SpyObj<TimezoneService>;
   let activateRouteMock: ActivatedRoute;
   let destroy$: Subject<void>;
+  let formControlSpy: jasmine.SpyObj<UntypedFormControl>;
 
   beforeEach(waitForAsync(() => {
     const navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
@@ -216,6 +217,7 @@ describe('SplitExpensePage', () => {
     const dependentFieldsServiceSpy = jasmine.createSpyObj('DependentFieldsService', [
       'getDependentFieldValuesForBaseField',
     ]);
+    formControlSpy = jasmine.createSpyObj('FormControl', ['clearValidators', 'updateValueAndValidity']);
     const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
     const projectsServiceSpy = jasmine.createSpyObj('ProjectsService', ['getbyId', 'getAllowedOrgCategoryIds']);
     const timezoneServiceSpy = jasmine.createSpyObj('TimezoneService', [
@@ -1104,77 +1106,57 @@ describe('SplitExpensePage', () => {
       component.splitConfig.project.is_visible = false;
       component.splitConfig.category.is_mandatory = true;
 
-      const spyForm1 = jasmine.createSpyObj('FormControl', ['clearValidators', 'updateValueAndValidity']);
-      const spyForm2 = jasmine.createSpyObj('FormControl', ['clearValidators', 'updateValueAndValidity']);
-
-      spyOn(component.splitExpensesFormArray.at(0), 'get').and.returnValue(spyForm1);
-      spyOn(component.splitExpensesFormArray.at(1), 'get').and.returnValue(spyForm2);
+      spyOn(component.splitExpensesFormArray.at(0), 'get').and.returnValue(formControlSpy);
+      spyOn(component.splitExpensesFormArray.at(1), 'get').and.returnValue(formControlSpy);
 
       component.updateCategoryMandatoryStatus([]);
 
       expect(component.splitConfig.category.is_mandatory).toBeFalse();
 
-      expect(spyForm1.clearValidators).toHaveBeenCalled();
-      expect(spyForm1.updateValueAndValidity).toHaveBeenCalled();
-      expect(spyForm2.clearValidators).toHaveBeenCalled();
-      expect(spyForm2.updateValueAndValidity).toHaveBeenCalled();
+      expect(formControlSpy.clearValidators).toHaveBeenCalled();
+      expect(formControlSpy.updateValueAndValidity).toHaveBeenCalled();
     });
 
     it('should not change category mandatory when project is visible', () => {
       component.splitConfig.project.is_visible = true;
       component.splitConfig.category.is_mandatory = true;
 
-      const spyForm1 = jasmine.createSpyObj('FormControl', ['clearValidators', 'updateValueAndValidity']);
-      const spyForm2 = jasmine.createSpyObj('FormControl', ['clearValidators', 'updateValueAndValidity']);
-
-      spyOn(component.splitExpensesFormArray.at(0), 'get').and.returnValue(spyForm1);
-      spyOn(component.splitExpensesFormArray.at(1), 'get').and.returnValue(spyForm2);
+      spyOn(component.splitExpensesFormArray.at(0), 'get').and.returnValue(formControlSpy);
+      spyOn(component.splitExpensesFormArray.at(1), 'get').and.returnValue(formControlSpy);
 
       component.updateCategoryMandatoryStatus([]);
 
       expect(component.splitConfig.category.is_mandatory).toBeTrue();
-      expect(spyForm1.clearValidators).not.toHaveBeenCalled();
-      expect(spyForm1.updateValueAndValidity).not.toHaveBeenCalled();
-      expect(spyForm2.clearValidators).not.toHaveBeenCalled();
-      expect(spyForm2.updateValueAndValidity).not.toHaveBeenCalled();
+      expect(formControlSpy.clearValidators).not.toHaveBeenCalled();
+      expect(formControlSpy.updateValueAndValidity).not.toHaveBeenCalled();
     });
 
     it('should not change category mandatory when categories are not empty', () => {
       component.splitConfig.project.is_visible = false;
       component.splitConfig.category.is_mandatory = true;
 
-      const spyForm1 = jasmine.createSpyObj('FormControl', ['clearValidators', 'updateValueAndValidity']);
-      const spyForm2 = jasmine.createSpyObj('FormControl', ['clearValidators', 'updateValueAndValidity']);
-
-      spyOn(component.splitExpensesFormArray.at(0), 'get').and.returnValue(spyForm1);
-      spyOn(component.splitExpensesFormArray.at(1), 'get').and.returnValue(spyForm2);
+      spyOn(component.splitExpensesFormArray.at(0), 'get').and.returnValue(formControlSpy);
+      spyOn(component.splitExpensesFormArray.at(1), 'get').and.returnValue(formControlSpy);
 
       component.updateCategoryMandatoryStatus(orgCategoryData1);
 
       expect(component.splitConfig.category.is_mandatory).toBeTrue();
-      expect(spyForm1.clearValidators).not.toHaveBeenCalled();
-      expect(spyForm1.updateValueAndValidity).not.toHaveBeenCalled();
-      expect(spyForm2.clearValidators).not.toHaveBeenCalled();
-      expect(spyForm2.updateValueAndValidity).not.toHaveBeenCalled();
+      expect(formControlSpy.clearValidators).not.toHaveBeenCalled();
+      expect(formControlSpy.updateValueAndValidity).not.toHaveBeenCalled();
     });
 
     it('should not change category mandatory when it is already false', () => {
       component.splitConfig.project.is_visible = false;
       component.splitConfig.category.is_mandatory = false;
 
-      const spyForm1 = jasmine.createSpyObj('FormControl', ['clearValidators', 'updateValueAndValidity']);
-      const spyForm2 = jasmine.createSpyObj('FormControl', ['clearValidators', 'updateValueAndValidity']);
-
-      spyOn(component.splitExpensesFormArray.at(0), 'get').and.returnValue(spyForm1);
-      spyOn(component.splitExpensesFormArray.at(1), 'get').and.returnValue(spyForm2);
+      spyOn(component.splitExpensesFormArray.at(0), 'get').and.returnValue(formControlSpy);
+      spyOn(component.splitExpensesFormArray.at(1), 'get').and.returnValue(formControlSpy);
 
       component.updateCategoryMandatoryStatus([]);
 
       expect(component.splitConfig.category.is_mandatory).toBeFalse();
-      expect(spyForm1.clearValidators).not.toHaveBeenCalled();
-      expect(spyForm1.updateValueAndValidity).not.toHaveBeenCalled();
-      expect(spyForm2.clearValidators).not.toHaveBeenCalled();
-      expect(spyForm2.updateValueAndValidity).not.toHaveBeenCalled();
+      expect(formControlSpy.clearValidators).not.toHaveBeenCalled();
+      expect(formControlSpy.updateValueAndValidity).not.toHaveBeenCalled();
     });
 
     it('should handle the case when form array has less than 3 elements', () => {
@@ -1186,14 +1168,13 @@ describe('SplitExpensePage', () => {
       });
       component.splitExpensesFormArray = new UntypedFormArray([splitExpenseForm1, splitExpenseForm1]);
 
-      const spyForm1 = jasmine.createSpyObj('FormControl', ['clearValidators', 'updateValueAndValidity']);
-      spyOn(component.splitExpensesFormArray.at(0), 'get').and.returnValue(spyForm1);
+      spyOn(component.splitExpensesFormArray.at(0), 'get').and.returnValue(formControlSpy);
 
       component.updateCategoryMandatoryStatus([]);
 
       expect(component.splitConfig.category.is_mandatory).toBeFalse();
-      expect(spyForm1.clearValidators).toHaveBeenCalled();
-      expect(spyForm1.updateValueAndValidity).toHaveBeenCalled();
+      expect(formControlSpy.clearValidators).toHaveBeenCalled();
+      expect(formControlSpy.updateValueAndValidity).toHaveBeenCalled();
     });
   });
 

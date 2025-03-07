@@ -1179,13 +1179,18 @@ export class SplitExpensePage implements OnDestroy {
     this.filteredCategoriesArray[index].pipe(takeUntil(this.destroy$)).subscribe((filteredCategories) => {
       const categoryControl = splitForm.get('category');
 
-      if (filteredCategories.length === 0 && this.splitConfig.category.is_mandatory) {
-        categoryControl.clearValidators();
-        categoryControl.updateValueAndValidity();
-      } else if (this.splitConfig.category.is_mandatory) {
-        categoryControl.setValidators([Validators.required]);
-        categoryControl.updateValueAndValidity();
+      const isMandatory = this.splitConfig.category.is_mandatory;
+      if (!categoryControl) {
+        return;
       }
+
+      if (isMandatory) {
+        categoryControl.setValidators(filteredCategories.length ? [Validators.required] : null);
+      } else {
+        categoryControl.clearValidators();
+      }
+
+      categoryControl.updateValueAndValidity();
     });
   }
 
