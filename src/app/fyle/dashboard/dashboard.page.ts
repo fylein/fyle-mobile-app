@@ -32,7 +32,7 @@ import { FyOptInComponent } from 'src/app/shared/components/fy-opt-in/fy-opt-in.
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { driver, Driver, DriveStep } from 'driver.js';
+import { driver, DriveStep } from 'driver.js';
 
 @Component({
   selector: 'app-dashboard',
@@ -76,8 +76,6 @@ export class DashboardPage {
 
   isUserFromINCluster$: Observable<boolean>;
 
-  private driver: Driver;
-
   constructor(
     private currencyService: CurrencyService,
     private networkService: NetworkService,
@@ -118,7 +116,7 @@ export class DashboardPage {
     return this.tasksComponent.filterPills;
   }
 
-  setNavbarWalkthroughConfigurations(isWalkthroughComplete: Boolean): void {
+  setNavbarWalkthroughFeatureConfigFlag(isWalkthroughComplete: boolean): void {
     const featureConfigParams = {
       feature: 'DASHBOARD_NAVBAR_WALKTHROUGH',
       key: 'SHOW_NAVBAR_WALKTHROUGH',
@@ -157,9 +155,9 @@ export class DashboardPage {
       .subscribe(noop);
   }
 
-  startTour(isApprover: Boolean): void {
-    this.setNavbarWalkthroughConfigurations(false);
-    this.driver = driver({
+  startTour(isApprover: boolean): void {
+    this.setNavbarWalkthroughFeatureConfigFlag(false);
+    const driverInstance = driver({
       overlayOpacity: 0.5,
       allowClose: true,
       overlayClickBehavior: 'nextStep',
@@ -172,7 +170,7 @@ export class DashboardPage {
       nextBtnText: 'Next',
       prevBtnText: 'Back',
       onDestroyed: () => {
-        this.setNavbarWalkthroughConfigurations(true);
+        this.setNavbarWalkthroughFeatureConfigFlag(true);
       },
     });
 
@@ -218,7 +216,7 @@ export class DashboardPage {
       steps.push({
         element: '#approval-pending-stat',
         popover: {
-          description: `Easily manage and approve reports—Access your team's reports right from the home page!`,
+          description: `Easily manage and approve reports — Access your team's reports right from the home page!`,
           side: 'top',
           align: 'center',
         },
@@ -228,11 +226,11 @@ export class DashboardPage {
       });
     }
 
-    this.driver.setSteps(steps);
-    this.driver.drive();
+    driverInstance.setSteps(steps);
+    driverInstance.drive();
   }
 
-  showNavbarWalkthrough(isApprover: Boolean): void {
+  showNavbarWalkthrough(isApprover: boolean): void {
     const showNavbarWalkthroughConfig = {
       feature: 'DASHBOARD_NAVBAR_WALKTHROUGH',
       key: 'SHOW_NAVBAR_WALKTHROUGH',
