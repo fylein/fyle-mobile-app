@@ -1102,7 +1102,7 @@ describe('SplitExpensePage', () => {
       component.splitExpensesFormArray = new UntypedFormArray([splitExpenseForm1, splitExpenseForm2]);
     });
 
-    it('should set category mandatory to false when project is not visible and categories are empty', () => {
+    it('should set the category field mandatory value to false when project is not visible and categories are not present', () => {
       component.splitConfig.project.is_visible = false;
       component.splitConfig.category.is_mandatory = true;
 
@@ -1117,7 +1117,7 @@ describe('SplitExpensePage', () => {
       expect(formControlSpy.updateValueAndValidity).toHaveBeenCalled();
     });
 
-    it('should not change category mandatory when project is visible', () => {
+    it('should not change category field mandatory value when project is visible', () => {
       component.splitConfig.project.is_visible = true;
       component.splitConfig.category.is_mandatory = true;
 
@@ -1131,7 +1131,7 @@ describe('SplitExpensePage', () => {
       expect(formControlSpy.updateValueAndValidity).not.toHaveBeenCalled();
     });
 
-    it('should not change category mandatory when categories are not empty', () => {
+    it('should not change category field mandatory value when categories are available', () => {
       component.splitConfig.project.is_visible = false;
       component.splitConfig.category.is_mandatory = true;
 
@@ -1145,7 +1145,7 @@ describe('SplitExpensePage', () => {
       expect(formControlSpy.updateValueAndValidity).not.toHaveBeenCalled();
     });
 
-    it('should not change category mandatory when it is already false', () => {
+    it('should not change category field mandatory value when the category field mandatory value is already false', () => {
       component.splitConfig.project.is_visible = false;
       component.splitConfig.category.is_mandatory = false;
 
@@ -1159,7 +1159,7 @@ describe('SplitExpensePage', () => {
       expect(formControlSpy.updateValueAndValidity).not.toHaveBeenCalled();
     });
 
-    it('should handle the case when form array has less than 3 elements', () => {
+    it('should initially clear category field required validator for the first 2 splits if cateogy is mandatory and project is not visible and there are no categories available', () => {
       component.splitConfig.project.is_visible = false;
       component.splitConfig.category.is_mandatory = true;
 
