@@ -1572,6 +1572,8 @@ describe('SplitExpensePage', () => {
   describe('resetInvalidCategoryIfNotAllowed()', () => {
     beforeEach(() => {
       component.filteredCategoriesArray = [of(categorieListRes)];
+      component.splitConfig = cloneDeep(splitConfig);
+      spyOn(component, 'onCategoryChange');
     });
 
     it('should reset category if it is not in the allowed list', () => {
@@ -1590,6 +1592,7 @@ describe('SplitExpensePage', () => {
       component.resetInvalidCategoryIfNotAllowed(0, splitExpenseForm1);
       splitExpenseForm1.get('category').updateValueAndValidity();
       expect(splitExpenseForm1.get('category').value).toBeNull();
+      expect(component.onCategoryChange).toHaveBeenCalledOnceWith(0);
     });
 
     it('should not reset category if it is in the allowed list', () => {
@@ -1610,6 +1613,7 @@ describe('SplitExpensePage', () => {
       component.resetInvalidCategoryIfNotAllowed(0, splitExpenseForm1);
       splitExpenseForm1.get('category').updateValueAndValidity();
       expect(splitExpenseForm1.get('category').value).toEqual(jasmine.objectContaining({ id: 129140 }));
+      expect(component.onCategoryChange).not.toHaveBeenCalledOnceWith(0);
     });
   });
 
