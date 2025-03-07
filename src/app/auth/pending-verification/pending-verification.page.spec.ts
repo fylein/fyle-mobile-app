@@ -5,7 +5,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { PendingVerificationPage } from './pending-verification.page';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { of, throwError } from 'rxjs';
-import { authResData1 } from 'src/app/core/mock-data/auth-reponse.data';
+import { authResData1 } from 'src/app/core/mock-data/auth-response.data';
 import { By } from '@angular/platform-browser';
 import { UntypedFormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
