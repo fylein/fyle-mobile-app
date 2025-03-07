@@ -206,16 +206,16 @@ export class DashboardPage {
             'Expenses & Reports are now on the bottom bar of the home page for easy access and smooth navigation!',
           side: 'top',
           align: 'center',
-          showButtons: ['next'],
+          showButtons: ['next', 'close'],
         },
         onHighlightStarted: (_el, _step, opts): void => {
-          opts.config.stagePadding = 15;
+          opts.config.stagePadding = 10;
         },
       },
       {
         element: '#tab-button-expenses',
         popover: {
-          description: 'Tap here to quickly access and manage your expenses!.',
+          description: 'Tap here to quickly access and manage your expenses!',
           side: 'top',
           align: 'start',
         },
@@ -245,7 +245,7 @@ export class DashboardPage {
           align: 'center',
         },
         onHighlightStarted: (_el, _step, opts): void => {
-          opts.config.stagePadding = 2;
+          opts.config.stagePadding = 4;
         },
       });
     }
@@ -370,7 +370,6 @@ export class DashboardPage {
 
     this.setShowOptInBanner();
     this.setShowNavbarWalkthrough();
-    // this.initializeTour(true);
 
     const openSMSOptInDialog = this.activatedRoute.snapshot.params.openSMSOptInDialog as string;
     if (openSMSOptInDialog === 'true') {
