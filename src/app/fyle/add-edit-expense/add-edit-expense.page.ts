@@ -2636,6 +2636,7 @@ export class AddEditExpensePage implements OnInit {
               )
             )
           ),
+          tap((categories) => this.handleCategoryValidation(categories)),
           map((categories) => categories.map((category) => ({ label: category.displayName, value: category })))
         )
       ),
@@ -2672,6 +2673,22 @@ export class AddEditExpensePage implements OnInit {
       ) {
         this.fg.controls.category.reset();
       }
+    });
+  }
+
+  handleCategoryValidation(categories: OrgCategory[]): void {
+    this.txnFields$.subscribe((txnFields) => {
+      const isMandatory = txnFields?.org_category_id?.is_mandatory;
+      const categoryControl = this.fg.controls.category;
+      if (!categoryControl) {
+        return;
+      }
+      if (isMandatory) {
+        categoryControl.setValidators(categories.length ? [Validators.required] : null);
+      } else {
+        categoryControl.clearValidators();
+      }
+      categoryControl.updateValueAndValidity();
     });
   }
 
