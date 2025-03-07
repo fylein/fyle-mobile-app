@@ -9,7 +9,6 @@ import { ExtendedOrgUser } from '../models/extended-org-user.model';
 import { OrgUser } from '../models/org-user.model';
 import { Employee } from '../models/spender/employee.model';
 import { User } from '../models/user.model';
-import { ApiV2Service } from './api-v2.service';
 import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
 import { DataTransformService } from './data-transform.service';
@@ -34,7 +33,6 @@ export class OrgUserService {
     private authService: AuthService,
     private dataTransformService: DataTransformService,
     private trackingService: TrackingService,
-    private apiV2Service: ApiV2Service,
     private spenderPlatformV1ApiService: SpenderPlatformV1ApiService
   ) {}
 
@@ -46,8 +44,8 @@ export class OrgUserService {
   @Cacheable({
     cacheBusterObserver: orgUsersCacheBuster$,
   })
-  getEmployeesByParams(params: Partial<EmployeeParams>) {
-    return this.apiV2Service.get<Partial<Employee>, {}>('/spender_employees', { params });
+  getEmployeesByParams(params: Partial<EmployeeParams>): Observable<PlatformApiResponse<Partial<Employee>[]>> {
+    return this.spenderPlatformV1ApiService.get<PlatformApiResponse<Partial<Employee>[]>>('/employees', { params });
   }
 
   @CacheBuster({
@@ -91,9 +89,9 @@ export class OrgUserService {
 
   getEmployeesBySearch(params: Partial<EmployeeParams>): Observable<Partial<Employee>[]> {
     if (params.or) {
-      params.and = `(or${params.or},or(ou_status.like.*"ACTIVE",ou_status.like.*"PENDING_DETAILS"))`;
+      params.and = `(or${params.or},or(is_enabled.eq.true))`;
     } else {
-      params.or = '(ou_status.like.*"ACTIVE",ou_status.like.*"PENDING_DETAILS")';
+      params.or = '(is_enabled.eq.true)';
     }
     return this.getEmployeesByParams({
       ...params,
@@ -105,7 +103,7 @@ export class OrgUserService {
   }
 
   excludeByStatus(eous: ExtendedOrgUser[], status: string): ExtendedOrgUser[] {
-    let eousFiltered = [];
+    let eousFiltered: ExtendedOrgUser[] = [];
     if (eous) {
       eousFiltered = eous.filter((eou) => status.indexOf(eou.ou.status) === -1);
     }

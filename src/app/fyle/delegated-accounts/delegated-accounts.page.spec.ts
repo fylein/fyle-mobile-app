@@ -14,7 +14,6 @@ import { OrgService } from 'src/app/core/services/org.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { DelegatedAccountsPage } from './delegated-accounts.page';
 import { delegatorData } from 'src/app/core/mock-data/platform/v1/delegator.data';
-import { employeesParamsRes } from 'src/app/core/test-data/org-user.service.spec.data';
 import { AuthService } from 'src/app/core/services/auth.service';
 
 describe('DelegatedAccountsPage', () => {
