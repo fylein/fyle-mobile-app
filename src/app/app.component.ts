@@ -343,6 +343,8 @@ export class AppComponent implements OnInit {
         navigate_back: true,
       },
     ]);
+
+    this.trackingService.footerExpensesTabClicked();
   }
 
   onReportsClicked(): void {
@@ -355,6 +357,8 @@ export class AppComponent implements OnInit {
         navigate_back: true,
       },
     ]);
+
+    this.trackingService.footerReportsTabClicked();
   }
 
   switchDelegator(isSwitchedToDelegator: boolean): void {

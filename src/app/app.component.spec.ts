@@ -69,7 +69,12 @@ describe('AppComponent', () => {
     });
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const tasksServiceSpy = jasmine.createSpyObj('TasksService', ['getTotalTaskCount']);
-    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['tasksPageOpened', 'footerHomeTabClicked']);
+    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
+      'tasksPageOpened',
+      'footerHomeTabClicked',
+      'footerExpensesTabClicked',
+      'footerReportsTabClicked',
+    ]);
     const navControllerSpy = jasmine.createSpyObj('NavController', ['navigateRoot', 'back']);
     spenderOnboardingServiceSpy.setOnboardingStatusAsComplete.and.returnValue(of(null));
 
@@ -189,6 +194,7 @@ describe('AppComponent', () => {
         navigate_back: true,
       },
     ]);
+    expect(trackingService.footerExpensesTabClicked).toHaveBeenCalledTimes(1);
   });
 
   it('should navigate to reports when onReportsClicked() is called', () => {
@@ -203,5 +209,6 @@ describe('AppComponent', () => {
         navigate_back: true,
       },
     ]);
+    expect(trackingService.footerReportsTabClicked).toHaveBeenCalledTimes(1);
   });
 });
