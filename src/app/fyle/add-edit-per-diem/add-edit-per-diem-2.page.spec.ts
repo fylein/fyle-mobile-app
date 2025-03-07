@@ -51,22 +51,19 @@ import {
 } from 'src/app/core/mock-data/per-diem-custom-inputs.data';
 import { projects } from 'src/app/core/mock-data/extended-projects.data';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
-import { authResData1 } from 'src/app/core/mock-data/auth-reponse.data';
+import { authResData1 } from 'src/app/core/mock-data/auth-response.data';
 import {
-  accountsData,
-  multipleAdvAccountsData,
   multiplePaymentModesData,
   orgSettingsData,
   paymentModeDataCCC,
   paymentModesData,
-  unflattenedAccount2Data,
   advanceWallet1Data,
   multiplePaymentModesWithoutAdvData,
 } from 'src/app/core/test-data/accounts.service.spec.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import { expectedReportsPaginated, expectedSingleReport } from 'src/app/core/mock-data/platform-report.data';
 import { reportOptionsData3 } from 'src/app/core/mock-data/report-options.data';
-import { txnFieldsData2, txnFieldsData3 } from 'src/app/core/mock-data/expense-field-obj.data';
+import { txnFieldsData3 } from 'src/app/core/mock-data/expense-field-obj.data';
 import { allowedPerDiem, expectedPerDiems } from 'src/app/core/test-data/per-diem.service.spec.data';
 import { costCentersData, expectedCCdata2, expectedCCdata3 } from 'src/app/core/mock-data/cost-centers.data';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
@@ -80,13 +77,11 @@ import {
   orgSettingsParamsWithAdvanceWallet,
 } from 'src/app/core/mock-data/org-settings.data';
 import { TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
-import { OrgCategory } from 'src/app/core/models/v1/org-category.model';
 import { allowedPerDiemRateOptionsData1 } from 'src/app/core/mock-data/allowed-per-diem-rate-options.data';
 import { perDiemRatesData1, perDiemRatesData2 } from 'src/app/core/mock-data/per-diem-rates.data';
 import { currencyObjData5, currencyObjData6 } from 'src/app/core/mock-data/currency-obj.data';
 import {
   perDiemFormValuesData1,
-  perDiemFormValuesData10,
   perDiemFormValuesData2,
   perDiemFormValuesData3,
   perDiemFormValuesData4,

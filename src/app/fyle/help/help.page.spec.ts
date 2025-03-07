@@ -82,12 +82,12 @@ describe('HelpPage', () => {
   it('openContactSupportDialog(): should open contact support dialog', fakeAsync(() => {
     const dialogType = 'contact_support';
     const params = {
-      select: 'us_full_name,us_email',
-      ou_org_id: 'eq.orNVthTo2Zyo',
-      ou_roles: 'like.%ADMIN%',
-      ou_status: 'eq."ACTIVE"',
-      ou_id: 'not.eq.ouX8dwsbLCLv',
-      order: 'us_full_name.asc,ou_id',
+      select: '(full_name,email)',
+      roles: 'like.%ADMIN%',
+      is_enabled: 'eq.true',
+      has_accepted_invite: 'eq.true',
+      id: 'neq.ouX8dwsbLCLv',
+      order: 'full_name.asc',
       limit: 5,
     };
 
