@@ -18,7 +18,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { of, Subscription, throwError } from 'rxjs';
 import { extendedDeviceInfoMockData } from 'src/app/core/mock-data/extended-device-info.data';
 import { ErrorComponent } from './error/error.component';
-import { authResData1, authResData2, samlResData1, samlResData2 } from 'src/app/core/mock-data/auth-reponse.data';
+import { authResData1, authResData2, samlResData1, samlResData2 } from 'src/app/core/mock-data/auth-response.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import {
   MatLegacyButton as MatButton,

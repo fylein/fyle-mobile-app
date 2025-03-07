@@ -30,7 +30,7 @@ import { finalize, of, throwError } from 'rxjs';
 import { orgData1, orgData2 } from 'src/app/core/mock-data/org.data';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
-import { authResData1 } from '../../core/mock-data/auth-reponse.data';
+import { authResData1 } from '../../core/mock-data/auth-response.data';
 import { extendedDeviceInfoMockData } from 'src/app/core/mock-data/extended-device-info.data';
 import { By } from '@angular/platform-browser';
 import { ActiveOrgCardComponent } from './active-org-card/active-org-card.component';
@@ -47,8 +47,6 @@ import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { orgSettingsCardsDisabled, orgSettingsData } from 'src/app/core/test-data/org-settings.service.spec.data';
 import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
-import { onboardingStatusData } from 'src/app/core/mock-data/onboarding-status.data';
-import { OnboardingState } from 'src/app/core/models/onboarding-state.enum';
 
 const roles = ['OWNER', 'USER', 'FYLER'];
 const email = 'ajain@fyle.in';
@@ -536,7 +534,7 @@ describe('SwitchOrgPage', () => {
       });
     }));
 
-    it('should show appropiate popup if action is not provided', fakeAsync(() => {
+    it('should show appropriate popup if action is not provided', fakeAsync(() => {
       spyOn(component, 'handleDismissPopup').and.returnValue(null);
       const popoverSpy = jasmine.createSpyObj('popover', ['present', 'onWillDismiss']);
       popoverSpy.onWillDismiss.and.resolveTo({
@@ -714,7 +712,7 @@ describe('SwitchOrgPage', () => {
       });
     });
 
-    it('should navigate to disbaled page if org is disbaled', (done) => {
+    it('should navigate to disabled page if org is disabled', (done) => {
       const config = {
         isPendingDetails: false,
         roles,
@@ -970,7 +968,7 @@ describe('SwitchOrgPage', () => {
     expect(component.resetSearch).toHaveBeenCalledTimes(1);
   });
 
-  it('should open search bar on cliking on the OPEN icon', () => {
+  it('should open search bar on clicking on the OPEN icon', () => {
     spyOn(component, 'openSearchBar');
 
     const openButton = getElementBySelector(fixture, '.switch-org__content-container__content__icon') as HTMLElement;

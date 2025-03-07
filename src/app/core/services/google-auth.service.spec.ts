@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { GoogleAuthService } from './google-auth.service';
 import { GooglePlus } from '@awesome-cordova-plugins/google-plus/ngx';
-import { apiAuthRes, apiLogoutRes } from '../mock-data/auth-reponse.data';
+import { apiAuthRes, apiLogoutRes } from '../mock-data/auth-response.data';
 import { environment } from 'src/environments/environment';
 
 describe('GoogleAuthService', () => {
@@ -28,7 +28,7 @@ describe('GoogleAuthService', () => {
   });
 
   describe('login():', () => {
-    it('should login in a user via goolge', (done) => {
+    it('should login in a user via google', (done) => {
       googlePlus.login.and.resolveTo(apiAuthRes);
       googlePlus.logout.and.resolveTo(apiLogoutRes);
 
