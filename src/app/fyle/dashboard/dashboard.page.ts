@@ -34,6 +34,7 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { driver, Driver, DriveStep } from 'driver.js';
 import { FooterService } from 'src/app/core/services/footer.service';
+
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.page.html',
@@ -119,24 +120,33 @@ export class DashboardPage {
     return this.tasksComponent.filterPills;
   }
 
-  setNavbarWalkthroughConfig(): void {
+  setNavbarWalkthroughConfigurations(isWalkthroughComplete: Boolean): void {
     const featureConfigParams = {
       feature: 'DASHBOARD_NAVBAR_WALKTHROUGH',
       key: 'SHOW_NAVBAR_WALKTHROUGH',
     };
 
+    let newConfigValue = {};
+
     this.featureConfigService
-      .getConfiguration(featureConfigParams)
+      .getConfiguration<{ isShown?: boolean; isFinished?: boolean }>(featureConfigParams)
       .pipe(
         switchMap((config) => {
-          const featureConfigValue = config?.value as { shownCount?: number; finishCount?: number };
-          const shownCount = featureConfigValue?.shownCount || 0;
-          const finishCount = featureConfigValue?.finishCount || 0;
+          const featureConfigValue = config?.value || {};
+          const isShown = featureConfigValue?.isShown || false;
+          const isFinished = featureConfigValue?.isFinished || false;
 
-          const newConfigValue = {
-            shownCount: shownCount + 1,
-            finishCount,
-          };
+          if (isWalkthroughComplete) {
+            newConfigValue = {
+              isShown,
+              isFinished: true,
+            };
+          } else {
+            newConfigValue = {
+              isShown: true,
+              isFinished,
+            };
+          }
 
           const newConfig = {
             ...featureConfigParams,
@@ -149,38 +159,8 @@ export class DashboardPage {
       .subscribe(noop);
   }
 
-  setNavbarWalkthroughCompleted(): void {
-    const featureConfigParams = {
-      feature: 'DASHBOARD_NAVBAR_WALKTHROUGH',
-      key: 'SHOW_NAVBAR_WALKTHROUGH',
-    };
-
-    this.featureConfigService
-      .getConfiguration(featureConfigParams)
-      .pipe(
-        switchMap((config) => {
-          const featureConfigValue = config?.value as { shownCount?: number; finishCount?: number };
-          const shownCount = featureConfigValue?.shownCount || 0;
-          const finishCount = featureConfigValue?.finishCount || 0;
-
-          const newConfigValue = {
-            shownCount,
-            finishCount: finishCount + 1,
-          };
-
-          const newConfig = {
-            ...featureConfigParams,
-            value: newConfigValue,
-          };
-
-          return this.featureConfigService.saveConfiguration(newConfig);
-        })
-      )
-      .subscribe(noop);
-  }
-
-  initializeTour(isApprover: Boolean): void {
-    this.setNavbarWalkthroughConfig();
+  startTour(isApprover: Boolean): void {
+    this.setNavbarWalkthroughConfigurations(false);
     this.driver = driver({
       overlayOpacity: 0.5,
       allowClose: true,
@@ -194,7 +174,7 @@ export class DashboardPage {
       nextBtnText: 'Next',
       prevBtnText: 'Back',
       onDestroyed: () => {
-        this.setNavbarWalkthroughCompleted();
+        this.setNavbarWalkthroughConfigurations(true);
       },
     });
 
@@ -254,31 +234,24 @@ export class DashboardPage {
     this.driver.drive();
   }
 
-  setShowNavbarWalkthrough(): void {
-    let isApprover = false;
-    this.eou$
-      .pipe(
-        map((eou) => {
-          isApprover = eou.ou.roles.includes('APPROVER');
-        })
-      )
-      .subscribe(noop);
-
+  showNavbarWalkthrough(isApprover: Boolean): void {
     const showNavbarWalkthroughConfig = {
       feature: 'DASHBOARD_NAVBAR_WALKTHROUGH',
       key: 'SHOW_NAVBAR_WALKTHROUGH',
     };
 
-    this.featureConfigService.getConfiguration(showNavbarWalkthroughConfig).subscribe((config) => {
-      const featureConfigValue = config?.value as { shownCount?: number; finishCount?: number };
-      const finishCount = featureConfigValue?.finishCount || 0;
+    this.featureConfigService
+      .getConfiguration<{ isShown?: boolean; isFinished?: boolean }>(showNavbarWalkthroughConfig)
+      .subscribe((config) => {
+        const featureConfigValue = config?.value || {};
+        const isFinished = featureConfigValue?.isFinished || false;
 
-      if (finishCount < 1) {
-        setTimeout(() => {
-          this.initializeTour(isApprover);
-        }, 1000);
-      }
-    });
+        if (!isFinished) {
+          setTimeout(() => {
+            this.startTour(isApprover);
+          }, 1000);
+        }
+      });
   }
 
   ionViewWillLeave(): void {
@@ -368,8 +341,19 @@ export class DashboardPage {
     this.eou$ = from(this.authService.getEou()).pipe(shareReplay(1));
     this.isUserFromINCluster$ = from(this.utilityService.isUserFromINCluster());
 
+    this.eou$
+      .pipe(
+        map((eou) => {
+          if (eou.ou.roles.includes('APPROVER')) {
+            this.showNavbarWalkthrough(true);
+          } else {
+            this.showNavbarWalkthrough(false);
+          }
+        })
+      )
+      .subscribe(noop);
+
     this.setShowOptInBanner();
-    this.setShowNavbarWalkthrough();
 
     const openSMSOptInDialog = this.activatedRoute.snapshot.params.openSMSOptInDialog as string;
     if (openSMSOptInDialog === 'true') {
