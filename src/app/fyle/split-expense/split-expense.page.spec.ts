@@ -171,6 +171,7 @@ describe('SplitExpensePage', () => {
   let timezoneService: jasmine.SpyObj<TimezoneService>;
   let activateRouteMock: ActivatedRoute;
   let destroy$: Subject<void>;
+  let formControlSpy: jasmine.SpyObj<UntypedFormControl>;
 
   beforeEach(waitForAsync(() => {
     const navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
@@ -216,6 +217,7 @@ describe('SplitExpensePage', () => {
     const dependentFieldsServiceSpy = jasmine.createSpyObj('DependentFieldsService', [
       'getDependentFieldValuesForBaseField',
     ]);
+    formControlSpy = jasmine.createSpyObj('FormControl', ['clearValidators', 'updateValueAndValidity']);
     const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
     const projectsServiceSpy = jasmine.createSpyObj('ProjectsService', ['getbyId', 'getAllowedOrgCategoryIds']);
     const timezoneServiceSpy = jasmine.createSpyObj('TimezoneService', [
@@ -1071,6 +1073,111 @@ describe('SplitExpensePage', () => {
     });
   });
 
+  describe('updateCategoryMandatoryStatus():', () => {
+    beforeEach(() => {
+      component.splitConfig = cloneDeep(splitConfig);
+
+      const splitExpenseForm1 = new UntypedFormGroup({
+        amount: new UntypedFormControl(10000),
+        currency: new UntypedFormControl('INR'),
+        percentage: new UntypedFormControl(60),
+        txn_dt: new UntypedFormControl('2023-02-08'),
+        category: new UntypedFormControl(''),
+        project: new UntypedFormControl('Test Project'),
+        cost_center: new UntypedFormControl(''),
+        purpose: new UntypedFormControl(''),
+      });
+
+      const splitExpenseForm2 = new UntypedFormGroup({
+        amount: new UntypedFormControl(5000),
+        currency: new UntypedFormControl('INR'),
+        percentage: new UntypedFormControl(40),
+        txn_dt: new UntypedFormControl('2023-02-08'),
+        category: new UntypedFormControl(''),
+        project: new UntypedFormControl(null),
+        cost_center: new UntypedFormControl(''),
+        purpose: new UntypedFormControl(''),
+      });
+
+      component.splitExpensesFormArray = new UntypedFormArray([splitExpenseForm1, splitExpenseForm2]);
+    });
+
+    it('should set the category field mandatory value to false when project is not visible and categories are not present', () => {
+      component.splitConfig.project.is_visible = false;
+      component.splitConfig.category.is_mandatory = true;
+
+      spyOn(component.splitExpensesFormArray.at(0), 'get').and.returnValue(formControlSpy);
+      spyOn(component.splitExpensesFormArray.at(1), 'get').and.returnValue(formControlSpy);
+
+      component.updateCategoryMandatoryStatus([]);
+
+      expect(component.splitConfig.category.is_mandatory).toBeFalse();
+
+      expect(formControlSpy.clearValidators).toHaveBeenCalled();
+      expect(formControlSpy.updateValueAndValidity).toHaveBeenCalled();
+    });
+
+    it('should not change category field mandatory value when project is visible', () => {
+      component.splitConfig.project.is_visible = true;
+      component.splitConfig.category.is_mandatory = true;
+
+      spyOn(component.splitExpensesFormArray.at(0), 'get').and.returnValue(formControlSpy);
+      spyOn(component.splitExpensesFormArray.at(1), 'get').and.returnValue(formControlSpy);
+
+      component.updateCategoryMandatoryStatus([]);
+
+      expect(component.splitConfig.category.is_mandatory).toBeTrue();
+      expect(formControlSpy.clearValidators).not.toHaveBeenCalled();
+      expect(formControlSpy.updateValueAndValidity).not.toHaveBeenCalled();
+    });
+
+    it('should not change category field mandatory value when categories are available', () => {
+      component.splitConfig.project.is_visible = false;
+      component.splitConfig.category.is_mandatory = true;
+
+      spyOn(component.splitExpensesFormArray.at(0), 'get').and.returnValue(formControlSpy);
+      spyOn(component.splitExpensesFormArray.at(1), 'get').and.returnValue(formControlSpy);
+
+      component.updateCategoryMandatoryStatus(orgCategoryData1);
+
+      expect(component.splitConfig.category.is_mandatory).toBeTrue();
+      expect(formControlSpy.clearValidators).not.toHaveBeenCalled();
+      expect(formControlSpy.updateValueAndValidity).not.toHaveBeenCalled();
+    });
+
+    it('should not change category field mandatory value when the category field mandatory value is already false', () => {
+      component.splitConfig.project.is_visible = false;
+      component.splitConfig.category.is_mandatory = false;
+
+      spyOn(component.splitExpensesFormArray.at(0), 'get').and.returnValue(formControlSpy);
+      spyOn(component.splitExpensesFormArray.at(1), 'get').and.returnValue(formControlSpy);
+
+      component.updateCategoryMandatoryStatus([]);
+
+      expect(component.splitConfig.category.is_mandatory).toBeFalse();
+      expect(formControlSpy.clearValidators).not.toHaveBeenCalled();
+      expect(formControlSpy.updateValueAndValidity).not.toHaveBeenCalled();
+    });
+
+    it('should initially clear category field required validator for the first 2 splits if cateogy is mandatory and project is not visible and there are no categories available', () => {
+      component.splitConfig.project.is_visible = false;
+      component.splitConfig.category.is_mandatory = true;
+
+      const splitExpenseForm1 = new UntypedFormGroup({
+        category: new UntypedFormControl('', Validators.required),
+      });
+      component.splitExpensesFormArray = new UntypedFormArray([splitExpenseForm1, splitExpenseForm1]);
+
+      spyOn(component.splitExpensesFormArray.at(0), 'get').and.returnValue(formControlSpy);
+
+      component.updateCategoryMandatoryStatus([]);
+
+      expect(component.splitConfig.category.is_mandatory).toBeFalse();
+      expect(formControlSpy.clearValidators).toHaveBeenCalled();
+      expect(formControlSpy.updateValueAndValidity).toHaveBeenCalled();
+    });
+  });
+
   describe('add():', () => {
     beforeEach(() => {
       component.splitConfig = cloneDeep(splitConfig);
@@ -1284,6 +1391,8 @@ describe('SplitExpensePage', () => {
     beforeEach(() => {
       spyOn(component, 'getFilteredCategories').and.returnValue(of([]));
       spyOn(component, 'resetInvalidCategoryIfNotAllowed');
+      spyOn(component, 'handleCategoryValidation');
+      component.splitConfig = cloneDeep(splitConfig);
 
       const splitExpenseForm1 = new UntypedFormGroup({
         amount: new UntypedFormControl(10000),
@@ -1328,7 +1437,11 @@ describe('SplitExpensePage', () => {
         })
       );
 
-      expect(component.resetInvalidCategoryIfNotAllowed).toHaveBeenCalledWith(component.splitExpensesFormArray.at(0));
+      expect(component.handleCategoryValidation).toHaveBeenCalledWith(0, component.splitExpensesFormArray.at(0));
+      expect(component.resetInvalidCategoryIfNotAllowed).toHaveBeenCalledWith(
+        0,
+        component.splitExpensesFormArray.at(0)
+      );
     });
 
     it('should not setup filtered categories if project control does not exist', () => {
@@ -1458,7 +1571,9 @@ describe('SplitExpensePage', () => {
 
   describe('resetInvalidCategoryIfNotAllowed()', () => {
     beforeEach(() => {
-      component.categories$ = of(categorieListRes);
+      component.filteredCategoriesArray = [of(categorieListRes)];
+      component.splitConfig = cloneDeep(splitConfig);
+      spyOn(component, 'onCategoryChange');
     });
 
     it('should reset category if it is not in the allowed list', () => {
@@ -1474,9 +1589,10 @@ describe('SplitExpensePage', () => {
       });
 
       splitExpenseForm1.get('category').setValue({ label: 'invalid-category', id: 99999 });
-      component.resetInvalidCategoryIfNotAllowed(splitExpenseForm1);
+      component.resetInvalidCategoryIfNotAllowed(0, splitExpenseForm1);
       splitExpenseForm1.get('category').updateValueAndValidity();
       expect(splitExpenseForm1.get('category').value).toBeNull();
+      expect(component.onCategoryChange).toHaveBeenCalledOnceWith(0);
     });
 
     it('should not reset category if it is in the allowed list', () => {
@@ -1494,9 +1610,10 @@ describe('SplitExpensePage', () => {
       const validCategory = categorieListRes[0];
       splitExpenseForm1.get('category').setValue(validCategory.value);
 
-      component.resetInvalidCategoryIfNotAllowed(splitExpenseForm1);
+      component.resetInvalidCategoryIfNotAllowed(0, splitExpenseForm1);
       splitExpenseForm1.get('category').updateValueAndValidity();
       expect(splitExpenseForm1.get('category').value).toEqual(jasmine.objectContaining({ id: 129140 }));
+      expect(component.onCategoryChange).not.toHaveBeenCalledOnceWith(0);
     });
   });
 
@@ -1607,7 +1724,6 @@ describe('SplitExpensePage', () => {
         mode: 'ios',
         presentingElement: await modalController.getTop(),
         cssClass: 'review-split-expense-modal',
-        showBackdrop: false,
       });
       expect(expensesService.splitExpensesData$.next).toHaveBeenCalledWith({
         expenses: [txnData2, txnData4],
@@ -1690,14 +1806,14 @@ describe('SplitExpensePage', () => {
 
     it('should return early if category value is null', () => {
       component.splitConfig.costCenter.is_visible = true;
-      const categorySpy = spyOn(component.splitExpensesFormArray.at(0), 'get').and.returnValue({
+      const formSpy = spyOn(component.splitExpensesFormArray.at(0), 'get').and.returnValue({
         value: null,
       } as any);
 
       component.onCategoryChange(0);
 
-      expect(categorySpy).toHaveBeenCalledWith('category');
-      expect(categorySpy).not.toHaveBeenCalledWith('cost_center');
+      expect(formSpy).toHaveBeenCalledWith('category');
+      expect(formSpy).toHaveBeenCalledWith('cost_center');
     });
 
     it('should disable cost center if category is not allowed', () => {
@@ -2900,9 +3016,11 @@ describe('SplitExpensePage', () => {
 
     it('should assign cost_center_id if it is not present in txnFields and exists in expenseFields', () => {
       component.txnFields = cloneDeep(expenseFieldObjData);
+      component.splitConfig = cloneDeep(splitConfig);
       component.expenseFields = transformedResponse;
       component.addCostCenterIdToTxnFields();
       expect(component.txnFields.cost_center_id).toBe(transformedResponse[4]);
+      expect(component.splitConfig.costCenter.is_mandatory).toBe(transformedResponse[4].is_mandatory);
     });
   });
 

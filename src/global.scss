@@ -919,11 +919,17 @@ ion-modal.fy-modal {
 ion-modal.review-split-expense-modal {
   &::part(content) {
     border-radius: 0 !important;
-    max-height: 100% !important;
+    height: 100% !important;
     position: absolute;
     top: 0 !important;
     bottom: 0 !important;
   }
+}
+
+.ios .review-split-expense-modal {
+  margin-bottom: -12px;
+  margin-top: 12px;
+  padding-top: 12px;
 }
 
 ion-modal.share-report-modal {
