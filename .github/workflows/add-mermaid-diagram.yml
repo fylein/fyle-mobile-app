@@ -11,16 +11,18 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set Up Node.js
-        uses: actions/setup-node@v4
+      - name: Generate Mermaid Diagram
+        uses: gr2m/render-mermaid-action@v1
         with:
-          node-version: 18
+          input: diagram.mmd
+          output: diagrams/diagram.png
 
-      - name: Commit rendered png and svg files
+      - name: Commit and Push Diagram to PR Branch
         uses: stefanzweifel/git-auto-commit-action@v5.0.0
         with:
-          file_pattern: "*[.svg,.png]"
-          commit_message: automatically rendered mermaid diagrams
+          commit_message: "Automatically rendered Mermaid diagrams"
+          file_pattern: "diagrams/*.png diagrams/*.svg"
+          branch: ${{ github.head_ref }}
 
       - name: Upload Mermaid Diagram as Artifact
         uses: actions/upload-artifact@v4
@@ -29,8 +31,12 @@ jobs:
           path: diagrams/diagram.png
 
       - name: Add Comment to PR with Mermaid Diagram
+        run: |
+          PR_BRANCH=${{ github.head_ref }}
+          PR_IMAGE_URL="https://raw.githubusercontent.com/${{ github.repository }}/${PR_BRANCH}/diagrams/diagram.png"
+          echo "🖼️ **Generated Mermaid Diagram for this PR:**" >> comment.md
+          echo "![$PR_IMAGE_URL]($PR_IMAGE_URL)" >> comment.md
+
         uses: mshick/add-pr-comment@v2
         with:
-          message: |
-            🖼️ **Generated Mermaid Diagram for this PR:**
-            ![Mermaid Diagram](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts)
+          message-path: comment.md
