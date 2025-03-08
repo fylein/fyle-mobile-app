@@ -1,8 +1,6 @@
 name: Mermaid Diagram for PRs
 
-on:
-  pull_request:
-    types: [opened, synchronize]
+on: [pull_request]
 
 jobs:
   generate-mermaid-diagram:
