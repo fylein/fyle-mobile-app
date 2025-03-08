@@ -19,20 +19,23 @@ jobs:
       - name: Install System Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libnss3 xvfb
+          sudo apt-get install -y libnss3 xvfb chromium-browser
 
       - name: Install Mermaid CLI & Puppeteer
         run: |
           npm install -g @mermaid-js/mermaid-cli
           npm install puppeteer --save-dev
 
-      - name: Generate Mermaid Diagram (Disable Sandbox)
-        uses: nielsvaneck/render-md-mermaid@v2
-        with:
-          input: diagrams/diagram.mmd
-          output: diagrams/diagram.png
-          puppeteer: true
-          puppeteerArgs: '--no-sandbox, --disable-setuid-sandbox'
+      - name: Set Puppeteer Executable Path
+        run: |
+          echo "PUPPETEER_EXECUTABLE_PATH=$(which chromium-browser)" >> $GITHUB_ENV
+
+      - name: Generate Mermaid Diagram (Force No Sandbox)
+        env:
+          PUPPETEER_EXECUTABLE_PATH: "/usr/bin/chromium-browser"
+        run: |
+          mkdir -p diagrams
+          xvfb-run --auto-servernum -- mmdc -i diagram.mmd -o diagrams/diagram.png --scale 2 --theme default --backgroundColor transparent --puppeteerArgs="--no-sandbox --disable-setuid-sandbox"
 
       - name: Upload Mermaid Diagram as Artifact
         uses: actions/upload-artifact@v4
