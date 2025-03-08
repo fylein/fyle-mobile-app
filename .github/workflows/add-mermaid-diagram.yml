@@ -35,7 +35,7 @@ jobs:
           PUPPETEER_EXECUTABLE_PATH: "/usr/bin/chromium-browser"
         run: |
           mkdir -p diagrams
-          xvfb-run --auto-servernum -- mmdc -i diagram.mmd -o diagrams/diagram.png --scale 2 --theme default --backgroundColor transparent --puppeteerArgs="--no-sandbox --disable-setuid-sandbox"
+          xvfb-run --auto-servernum -- mmdc -i diagram.mmd -o diagrams/diagram.png --scale 2 --theme default --backgroundColor transparent"
 
       - name: Upload Mermaid Diagram as Artifact
         uses: actions/upload-artifact@v4
