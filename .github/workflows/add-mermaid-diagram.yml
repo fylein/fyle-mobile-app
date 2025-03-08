@@ -8,24 +8,36 @@ jobs:
   generate-mermaid-diagram:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Install Mermaid CLI
-        run: npm install -g @mermaid-js/mermaid-cli
+      - name: Set Up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
 
-      - name: Generate Mermaid diagram (without sandbox)
+      - name: Install System Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libnss3 xvfb
+
+      - name: Install Mermaid CLI & Puppeteer
+        run: |
+          npm install -g @mermaid-js/mermaid-cli
+          npm install puppeteer --save-dev
+
+      - name: Generate Mermaid Diagram (Headless Mode)
         run: |
           mkdir -p diagrams
-          mmdc -i diagram.mmd -o diagrams/diagram.png --puppeteerConfig '{ "args": ["--no-sandbox"] }'
+          xvfb-run --auto-servernum mmdc -i diagram.mmd -o diagrams/diagram.png --scale 2 --theme default --backgroundColor transparent
 
-      - name: Upload Mermaid diagram as artifact
+      - name: Upload Mermaid Diagram as Artifact
         uses: actions/upload-artifact@v4
         with:
           name: mermaid-diagram
           path: diagrams/diagram.png
 
-      - name: Add comment to PR with Mermaid Diagram
+      - name: Add Comment to PR with Mermaid Diagram
         uses: mshick/add-pr-comment@v2
         with:
           message: |
