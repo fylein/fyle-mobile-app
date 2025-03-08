@@ -26,10 +26,10 @@ jobs:
           npm install -g @mermaid-js/mermaid-cli
           npm install puppeteer --save-dev
 
-      - name: Generate Mermaid Diagram (Headless Mode)
+      - name: Generate Mermaid Diagram (Disable Sandbox)
         run: |
           mkdir -p diagrams
-          xvfb-run --auto-servernum mmdc -i diagram.mmd -o diagrams/diagram.png --scale 2 --theme default --backgroundColor transparent
+          xvfb-run --auto-servernum mmdc -i diagram.mmd -o diagrams/diagram.png --scale 2 --theme default --backgroundColor transparent --puppeteerConfig '{ "args": ["--no-sandbox", "--disable-setuid-sandbox"] }'
 
       - name: Upload Mermaid Diagram as Artifact
         uses: actions/upload-artifact@v4
