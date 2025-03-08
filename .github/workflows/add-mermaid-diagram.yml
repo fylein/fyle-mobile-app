@@ -14,10 +14,10 @@ jobs:
       - name: Install Mermaid CLI
         run: npm install -g @mermaid-js/mermaid-cli
 
-      - name: Generate Mermaid diagram
+      - name: Generate Mermaid diagram (without sandbox)
         run: |
           mkdir -p diagrams
-          mmdc -i diagram.mmd -o diagrams/diagram.png
+          mmdc -i diagram.mmd -o diagrams/diagram.png --puppeteerConfig '{ "args": ["--no-sandbox"] }'
 
       - name: Upload Mermaid diagram as artifact
         uses: actions/upload-artifact@v4
