@@ -16,26 +16,11 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install System Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libnss3 xvfb chromium-browser
-
-      - name: Install Mermaid CLI & Puppeteer
-        run: |
-          npm install -g @mermaid-js/mermaid-cli
-          npm install puppeteer --save-dev
-
-      - name: Set Puppeteer Executable Path
-        run: |
-          echo "PUPPETEER_EXECUTABLE_PATH=$(which chromium-browser)" >> $GITHUB_ENV
-
-      - name: Generate Mermaid Diagram (Force No Sandbox)
-        env:
-          PUPPETEER_EXECUTABLE_PATH: "/usr/bin/chromium-browser"
-        run: |
-          mkdir -p diagrams
-          xvfb-run --auto-servernum -- mmdc -i diagram.mmd -o diagrams/diagram.png --scale 2 --theme default --backgroundColor transparent"
+      - name: Commit rendered png and svg files
+        uses: stefanzweifel/git-auto-commit-action@v5.0.0
+        with:
+          file_pattern: "*[.svg,.png]"
+          commit_message: automatically rendered mermaid diagrams
 
       - name: Upload Mermaid Diagram as Artifact
         uses: actions/upload-artifact@v4
