@@ -17,5 +17,27 @@
 		"accessOrigins": [
 			"https://app.fylehq.com"
 		]
-	}
+	},
+	"server": {
+		"androidScheme": "http"
+	},
+	"packageClassList": [
+		"CameraPreview",
+		"AppPlugin",
+		"CAPBrowserPlugin",
+		"CAPCameraPlugin",
+		"ClipboardPlugin",
+		"DevicePlugin",
+		"GeolocationPlugin",
+		"HapticsPlugin",
+		"KeyboardPlugin",
+		"CAPNetworkPlugin",
+		"PreferencesPlugin",
+		"SplashScreenPlugin",
+		"StatusBarPlugin",
+		"TextZoomPlugin",
+		"NativeSettingsPlugin",
+		"SecureStoragePlugin",
+		"CDVPlugin"
+	]
 }
