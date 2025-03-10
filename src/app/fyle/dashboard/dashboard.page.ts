@@ -32,7 +32,8 @@ import { FyOptInComponent } from 'src/app/shared/components/fy-opt-in/fy-opt-in.
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { driver, Driver, DriveStep } from 'driver.js';
+import { driver } from 'driver.js';
+import { WalkthroughDriverService } from 'src/app/core/services/walkthrough-driver.service';
 import { FooterService } from 'src/app/core/services/footer.service';
 
 @Component({
@@ -77,8 +78,6 @@ export class DashboardPage {
 
   isUserFromINCluster$: Observable<boolean>;
 
-  private driver: Driver;
-
   constructor(
     private currencyService: CurrencyService,
     private networkService: NetworkService,
@@ -101,6 +100,7 @@ export class DashboardPage {
     private authService: AuthService,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
+    private walkthroughDriverService: WalkthroughDriverService,
     private footerService: FooterService
   ) {}
 
@@ -120,7 +120,7 @@ export class DashboardPage {
     return this.tasksComponent.filterPills;
   }
 
-  setNavbarWalkthroughConfigurations(isWalkthroughComplete: Boolean): void {
+  setNavbarWalkthroughFeatureConfigFlag(isWalkthroughComplete: boolean): void {
     const featureConfigParams = {
       feature: 'DASHBOARD_NAVBAR_WALKTHROUGH',
       key: 'SHOW_NAVBAR_WALKTHROUGH',
@@ -159,9 +159,9 @@ export class DashboardPage {
       .subscribe(noop);
   }
 
-  startTour(isApprover: Boolean): void {
-    this.setNavbarWalkthroughConfigurations(false);
-    this.driver = driver({
+  startTour(isApprover: boolean): void {
+    this.setNavbarWalkthroughFeatureConfigFlag(false);
+    const driverInstance = driver({
       overlayOpacity: 0.5,
       allowClose: true,
       overlayClickBehavior: 'nextStep',
@@ -174,67 +174,17 @@ export class DashboardPage {
       nextBtnText: 'Next',
       prevBtnText: 'Back',
       onDestroyed: () => {
-        this.setNavbarWalkthroughConfigurations(true);
+        this.setNavbarWalkthroughFeatureConfigFlag(true);
       },
     });
 
-    const steps: DriveStep[] = [
-      {
-        element: '#footer-walkthrough',
-        popover: {
-          description:
-            'Expenses & Reports are now on the bottom bar of the home page for easy access and smooth navigation!',
-          side: 'top',
-          align: 'center',
-          showButtons: ['next', 'close'],
-        },
-        onHighlightStarted: (_el, _step, opts): void => {
-          opts.config.stagePadding = 10;
-        },
-      },
-      {
-        element: '#tab-button-expenses',
-        popover: {
-          description: 'Tap here to quickly access and manage your expenses!',
-          side: 'top',
-          align: 'start',
-        },
-        onHighlightStarted: (_el, _step, opts): void => {
-          opts.config.stagePadding = 4;
-        },
-      },
-      {
-        element: '#tab-button-reports',
-        popover: {
-          description: 'Tap here to quickly access and manage your expense reports!',
-          side: 'top',
-          align: 'end',
-        },
-        onHighlightStarted: (_el, _step, opts): void => {
-          opts.config.stagePadding = 4;
-        },
-      },
-    ];
+    const navbarWalkthroughDriverSteps = this.walkthroughDriverService.getNavBarWalkthroughDriver(isApprover);
 
-    if (isApprover) {
-      steps.push({
-        element: '#approval-pending-stat',
-        popover: {
-          description: `Easily manage and approve reports—Access your team's reports right from the home page!`,
-          side: 'top',
-          align: 'center',
-        },
-        onHighlightStarted: (_el, _step, opts): void => {
-          opts.config.stagePadding = 4;
-        },
-      });
-    }
-
-    this.driver.setSteps(steps);
-    this.driver.drive();
+    driverInstance.setSteps(navbarWalkthroughDriverSteps);
+    driverInstance.drive();
   }
 
-  showNavbarWalkthrough(isApprover: Boolean): void {
+  showNavbarWalkthrough(isApprover: boolean): void {
     const showNavbarWalkthroughConfig = {
       feature: 'DASHBOARD_NAVBAR_WALKTHROUGH',
       key: 'SHOW_NAVBAR_WALKTHROUGH',

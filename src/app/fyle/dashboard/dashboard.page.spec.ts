@@ -265,7 +265,7 @@ describe('DashboardPage', () => {
       spyOn(component, 'setupNetworkWatcher');
       spyOn(component, 'registerBackButtonAction');
       spyOn(component, 'startTour');
-      spyOn(component, 'setNavbarWalkthroughConfigurations');
+      spyOn(component, 'setNavbarWalkthroughFeatureConfigFlag');
       orgSettingsService.get.and.returnValue(of(orgSettingsRes));
       orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
       categoriesService.getMileageOrPerDiemCategories.and.returnValue(of(mileagePerDiemPlatformCategoryData));
@@ -854,7 +854,7 @@ describe('DashboardPage', () => {
   it('should fetch and update navbar walkthrough config', fakeAsync(() => {
     featureConfigService.getConfiguration.and.returnValue(of(featureConfigWalkthroughStartData));
     featureConfigService.saveConfiguration.and.returnValue(of(null));
-    component.setNavbarWalkthroughConfigurations(false);
+    component.setNavbarWalkthroughFeatureConfigFlag(false);
     tick();
 
     expect(featureConfigService.getConfiguration).toHaveBeenCalledOnceWith({
@@ -875,7 +875,7 @@ describe('DashboardPage', () => {
   it('should set the config when the navbar walkthrough is finished', fakeAsync(() => {
     featureConfigService.getConfiguration.and.returnValue(of(featureConfigWalkthroughStartData));
     featureConfigService.saveConfiguration.and.returnValue(of(null));
-    component.setNavbarWalkthroughConfigurations(true);
+    component.setNavbarWalkthroughFeatureConfigFlag(true);
     tick();
 
     expect(featureConfigService.getConfiguration).toHaveBeenCalledOnceWith({
