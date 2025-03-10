@@ -6,11 +6,7 @@ import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { AuthService } from './auth.service';
 import { CorporateCreditCardExpenseService } from './corporate-credit-card-expense.service';
 import { DataTransformService } from './data-transform.service';
-import { apiCardV2Transactions } from '../mock-data/ccc-api-response.data';
-import { uniqueCardsParam } from '../mock-data/unique-cards.data';
-import { cardAggregateStatParam } from '../mock-data/card-aggregate-stats.data';
 import { DateService } from './date.service';
-import { expectedUniqueCardStats } from '../mock-data/unique-cards-stats.data';
 import { apiAssignedCardDetailsRes } from '../mock-data/stats-response.data';
 import { expectedAssignedCCCStats, mastercardCCCStats } from '../mock-data/ccc-expense.details.data';
 import { apiEouRes } from '../mock-data/extended-org-user.data';
@@ -141,17 +137,8 @@ describe('CorporateCreditCardExpenseService', () => {
     });
   });
 
-  it('getExpenseDetailsInCards(): should get expense details in card', () => {
-    const result = cccExpenseService.getExpenseDetailsInCards(uniqueCardsParam, cardAggregateStatParam);
-
-    expect(result).toEqual(expectedUniqueCardStats);
-  });
-
   it('getPlatformCorporateCardDetails(): should get corporate card details', () => {
-    const result = cccExpenseService.getPlatformCorporateCardDetails(
-      [statementUploadedCard],
-      mastercardCCCStats.cardDetails
-    );
+    const result = cccExpenseService.getPlatformCorporateCardDetails([statementUploadedCard], mastercardCCCStats);
 
     expect(result).toEqual(statementUploadedCardDetail);
   });
