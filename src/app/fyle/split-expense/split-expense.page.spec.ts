@@ -122,10 +122,14 @@ import {
 import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { txnCustomPropertiesData } from 'src/app/core/mock-data/txn-custom-properties.data';
 import { filteredSplitPolicyViolationsData } from 'src/app/core/mock-data/filtered-split-policy-violations.data';
-import { filteredMissingFieldsViolationsData } from 'src/app/core/mock-data/filtered-missing-fields-violations.data';
+import {
+  filteredMissingFieldsViolationsData,
+  filteredMissingFieldsViolationsData2,
+} from 'src/app/core/mock-data/filtered-missing-fields-violations.data';
 import {
   transformedSplitExpenseMissingFieldsData,
   transformedSplitExpenseMissingFieldsData3,
+  transformedSplitExpenseMissingFieldsData4,
 } from 'src/app/core/mock-data/transformed-split-expense-missing-fields.data';
 import { splitPolicyExp1 } from 'src/app/core/mock-data/split-expense-policy.data';
 import { SplitExpenseMissingFieldsData } from 'src/app/core/mock-data/split-expense-missing-fields.data';
@@ -209,7 +213,7 @@ describe('SplitExpensePage', () => {
       'splitExpensePolicyAndMissingFieldsPopupShown',
     ]);
     const policyServiceSpy = jasmine.createSpyObj('PolicyService', ['checkIfViolationsExist']);
-    const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create', 'getTop']);
+    const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create', 'present', 'getTop']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
     const costCentersServiceSpy = jasmine.createSpyObj('CostCentersService', ['getAllActive']);
@@ -2833,10 +2837,11 @@ describe('SplitExpensePage', () => {
     });
 
     it('should open missing fields modal', async () => {
-      const missingFieldsViolations = { '1': transformedSplitExpenseMissingFieldsData };
-
+      const missingFieldsViolations = { '1': transformedSplitExpenseMissingFieldsData4 };
+      splitExpenseService.filteredMissingFieldsViolations.and.returnValue({
+        '1': filteredMissingFieldsViolationsData2,
+      });
       spyOn(component, 'showMissingFieldsModal').and.callThrough();
-
       const result = await component.showSplitExpensePolicyViolationsAndMissingFields(
         txnList,
         { '0': policyViolation1 },
@@ -2844,7 +2849,6 @@ describe('SplitExpensePage', () => {
       );
 
       expect(component.showMissingFieldsModal).toHaveBeenCalled();
-
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         component: PopupAlertComponent,
         componentProps: {
