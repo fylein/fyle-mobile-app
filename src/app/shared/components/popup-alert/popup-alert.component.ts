@@ -11,6 +11,8 @@ export class PopupAlertComponent {
 
   @Input() message: string;
 
+  @Input() secondaryMsg: string;
+
   @Input() leftAlign = false;
 
   @Input() primaryCta: { text: string; action: string; type?: string };
