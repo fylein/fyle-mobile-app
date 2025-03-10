@@ -35,7 +35,7 @@ jobs:
           platform: Android
           build-type: debug
           environment: ${{ github.event.inputs.name }}
-          native-config: prod
+          native-config: staging
           filename: android.apk
 
       - name: Move android.apk to current directory
@@ -62,7 +62,7 @@ jobs:
           build-type: development
           certificate: Fyle signing
           environment: ${{ github.event.inputs.name }}
-          native-config: prod
+          native-config: staging
           filename: ios.ipa
 
       - name: Move ios.ipa to current directory
