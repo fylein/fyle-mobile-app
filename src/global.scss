@@ -913,6 +913,13 @@ ref - https://stackoverflow.com/a/31162426
     --background: transparent;
     --color: #{$black-light};
   }
+
+  &--outline-secondary {
+    --background: transparent;
+    --color: #{$black-light};
+    border: 1px solid #{$grey};
+    border-radius: 4px;
+  }
 }
 
 .footer-ios ion-toolbar:first-of-type {
