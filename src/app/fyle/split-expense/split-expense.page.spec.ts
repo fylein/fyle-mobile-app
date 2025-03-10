@@ -143,6 +143,7 @@ import { OrgCategory } from 'src/app/core/models/v1/org-category.model';
 import { FyMsgPopoverComponent } from 'src/app/shared/components/fy-msg-popover/fy-msg-popover.component';
 import { ReviewSplitExpenseComponent } from 'src/app/shared/components/review-split-expense/review-split-expense.component';
 import { splitConfig } from 'src/app/core/mock-data/split-config.data';
+import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 describe('SplitExpensePage', () => {
   let component: SplitExpensePage;
   let fixture: ComponentFixture<SplitExpensePage>;
@@ -2764,7 +2765,7 @@ describe('SplitExpensePage', () => {
       component.transaction = cloneDeep(txnData4);
     });
 
-    it('should open policy violations and missing fields modal', async () => {
+    it('should open policy violations modal', async () => {
       const fyCriticalPolicyViolationPopOverSpy = jasmine.createSpyObj('fyCriticalPolicyViolationPopOver', [
         'present',
         'onWillDismiss',
@@ -2779,17 +2780,13 @@ describe('SplitExpensePage', () => {
       const result = await component.showSplitExpensePolicyViolationsAndMissingFields(
         txnList,
         { '0': policyViolation1 },
-        { '1': transformedSplitExpenseMissingFieldsData }
+        null
       );
       expect(splitExpenseService.filteredPolicyViolations).toHaveBeenCalledOnceWith({ '0': policyViolation1 });
-      expect(splitExpenseService.filteredMissingFieldsViolations).toHaveBeenCalledOnceWith({
-        '1': transformedSplitExpenseMissingFieldsData,
-      });
       expect(modalController.create).toHaveBeenCalledOnceWith({
         component: SplitExpensePolicyViolationComponent,
         componentProps: {
           policyViolations: { '0': filteredSplitPolicyViolationsData },
-          missingFieldsViolations: { '1': filteredMissingFieldsViolationsData },
           isPartOfReport: false,
         },
         mode: 'ios',
@@ -2801,7 +2798,7 @@ describe('SplitExpensePage', () => {
       });
     });
 
-    it('should open policy violations and missing fields modal with isPartOfReport as true if report is attached', async () => {
+    it('should open policy violations modal with isPartOfReport as true if report is attached', async () => {
       component.reportId = 'rpeq1B17R8gWZ';
       const fyCriticalPolicyViolationPopOverSpy = jasmine.createSpyObj('fyCriticalPolicyViolationPopOver', [
         'present',
@@ -2820,12 +2817,10 @@ describe('SplitExpensePage', () => {
         null
       );
       expect(splitExpenseService.filteredPolicyViolations).toHaveBeenCalledOnceWith({ '0': policyViolation1 });
-      expect(splitExpenseService.filteredMissingFieldsViolations).not.toHaveBeenCalled();
       expect(modalController.create).toHaveBeenCalledOnceWith({
         component: SplitExpensePolicyViolationComponent,
         componentProps: {
           policyViolations: { '0': filteredSplitPolicyViolationsData },
-          missingFieldsViolations: null,
           isPartOfReport: true,
         },
         mode: 'ios',
@@ -2835,6 +2830,37 @@ describe('SplitExpensePage', () => {
       expect(result).toEqual({
         action: 'continue',
       });
+    });
+
+    it('should open missing fields modal', async () => {
+      const missingFieldsViolations = { '1': transformedSplitExpenseMissingFieldsData };
+
+      spyOn(component, 'showMissingFieldsModal').and.callThrough();
+
+      const result = await component.showSplitExpensePolicyViolationsAndMissingFields(
+        txnList,
+        { '0': policyViolation1 },
+        missingFieldsViolations
+      );
+
+      expect(component.showMissingFieldsModal).toHaveBeenCalled();
+
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        component: PopupAlertComponent,
+        componentProps: {
+          title: 'Expense cannot be split',
+          leftAlign: true,
+          message:
+            'Splitting this expense will result in incomplete expenses, which cannot be added to a expense report.',
+          secondaryMsg: 'Please remove the expense from the expense report and split it again.',
+          primaryCta: {
+            text: 'Got it',
+          },
+        },
+        cssClass: 'pop-up-in-center',
+      });
+
+      expect(result).toBeNull();
     });
   });
 
