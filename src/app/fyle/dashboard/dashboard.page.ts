@@ -34,6 +34,7 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { driver } from 'driver.js';
 import { WalkthroughDriverService } from 'src/app/core/services/walkthrough-driver.service';
+import { FooterService } from 'src/app/core/services/footer.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -99,7 +100,8 @@ export class DashboardPage {
     private authService: AuthService,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
-    private walkthroughDriverService: WalkthroughDriverService
+    private walkthroughDriverService: WalkthroughDriverService,
+    private footerService: FooterService
   ) {}
 
   get displayedTaskCount(): number {
@@ -270,6 +272,9 @@ export class DashboardPage {
     this.setupNetworkWatcher();
     this.registerBackButtonAction();
     this.smartlookService.init();
+    this.footerService.footerCurrentStateIndex$.subscribe((index) => {
+      this.currentStateIndex = index;
+    });
     this.taskCount = 0;
     const currentState =
       this.activatedRoute.snapshot.queryParams.state === 'tasks' ? DashboardState.tasks : DashboardState.home;

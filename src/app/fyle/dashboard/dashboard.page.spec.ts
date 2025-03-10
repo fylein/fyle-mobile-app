@@ -40,6 +40,7 @@ import {
   featureConfigWalkthroughFinishData,
   featureConfigWalkthroughStartData,
 } from 'src/app/core/mock-data/feature-config.data';
+import { FooterService } from 'src/app/core/services/footer.service';
 
 describe('DashboardPage', () => {
   let component: DashboardPage;
@@ -63,6 +64,7 @@ describe('DashboardPage', () => {
   let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
   let authService: jasmine.SpyObj<AuthService>;
   let modalController: jasmine.SpyObj<ModalController>;
+  let footerService: jasmine.SpyObj<FooterService>;
 
   beforeEach(waitForAsync(() => {
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
@@ -102,6 +104,9 @@ describe('DashboardPage', () => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
+    const footerServiceSpy = jasmine.createSpyObj('FooterService', ['updateCurrentStateIndex'], {
+      footerCurrentStateIndex$: of(1),
+    });
 
     TestBed.configureTestingModule({
       declarations: [DashboardPage],
@@ -144,6 +149,7 @@ describe('DashboardPage', () => {
           provide: SnackbarPropertiesService,
           useValue: snackbarPropertiesSpy,
         },
+        { provide: FooterService, useValue: footerServiceSpy },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -170,6 +176,7 @@ describe('DashboardPage', () => {
     modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
+    footerService = TestBed.inject(FooterService) as jasmine.SpyObj<FooterService>;
     fixture.detectChanges();
   }));
 
