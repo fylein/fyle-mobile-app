@@ -2,6 +2,7 @@
   <div class="fy-footer">
     <div
       class="fy-footer--buttons"
+      id="footer-walkthrough"
       [ngClass]="{
         'fy-footer--buttons__message-gap':
           connectionState === ConnectionMessageStatus.onlineMessageShown ||
@@ -28,7 +29,7 @@
         expand="full"
         (click)="goToExpenses()"
       >
-        <ion-tab-button tab="expenses" class="fy-footer--button__tabs">
+        <ion-tab-button tab="expenses" class="fy-footer--button__tabs tab-button-expenses">
           <mat-icon
             class="fy-footer--icon"
             [svgIcon]="activeState === FooterState.EXPENSES ? 'list-fill' : 'list'"
@@ -45,7 +46,7 @@
         expand="full"
         (click)="goToReports()"
       >
-        <ion-tab-button tab="reports" class="fy-footer--button__tabs">
+        <ion-tab-button tab="reports" class="fy-footer--button__tabs tab-button-reports">
           <mat-icon
             class="fy-footer--icon"
             [svgIcon]="activeState === FooterState.REPORTS ? 'folder-fill' : 'folder'"

@@ -32,6 +32,8 @@ import { FyOptInComponent } from 'src/app/shared/components/fy-opt-in/fy-opt-in.
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { driver } from 'driver.js';
+import { WalkthroughDriverService } from 'src/app/core/services/walkthrough-driver.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -96,7 +98,8 @@ export class DashboardPage {
     private modalProperties: ModalPropertiesService,
     private authService: AuthService,
     private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService
+    private snackbarProperties: SnackbarPropertiesService,
+    private walkthroughDriverService: WalkthroughDriverService
   ) {}
 
   get displayedTaskCount(): number {
@@ -113,6 +116,90 @@ export class DashboardPage {
 
   get filterPills(): FilterPill[] {
     return this.tasksComponent.filterPills;
+  }
+
+  setNavbarWalkthroughFeatureConfigFlag(isWalkthroughComplete: boolean): void {
+    const featureConfigParams = {
+      feature: 'DASHBOARD_NAVBAR_WALKTHROUGH',
+      key: 'SHOW_NAVBAR_WALKTHROUGH',
+    };
+
+    let newConfigValue = {};
+
+    this.featureConfigService
+      .getConfiguration<{ isShown?: boolean; isFinished?: boolean }>(featureConfigParams)
+      .pipe(
+        switchMap((config) => {
+          const featureConfigValue = config?.value || {};
+          const isShown = featureConfigValue?.isShown || false;
+          const isFinished = featureConfigValue?.isFinished || false;
+
+          if (isWalkthroughComplete) {
+            newConfigValue = {
+              isShown,
+              isFinished: true,
+            };
+          } else {
+            newConfigValue = {
+              isShown: true,
+              isFinished,
+            };
+          }
+
+          const newConfig = {
+            ...featureConfigParams,
+            value: newConfigValue,
+          };
+
+          return this.featureConfigService.saveConfiguration(newConfig);
+        })
+      )
+      .subscribe(noop);
+  }
+
+  startTour(isApprover: boolean): void {
+    this.setNavbarWalkthroughFeatureConfigFlag(false);
+    const driverInstance = driver({
+      overlayOpacity: 0.5,
+      allowClose: true,
+      overlayClickBehavior: 'nextStep',
+      showProgress: true,
+      overlayColor: '#161528',
+      stageRadius: 6,
+      stagePadding: 4,
+      popoverClass: 'custom-popover',
+      doneBtnText: 'Ok',
+      nextBtnText: 'Next',
+      prevBtnText: 'Back',
+      onDestroyed: () => {
+        this.setNavbarWalkthroughFeatureConfigFlag(true);
+      },
+    });
+
+    const navbarWalkthroughDriverSteps = this.walkthroughDriverService.getNavBarWalkthroughDriver(isApprover);
+
+    driverInstance.setSteps(navbarWalkthroughDriverSteps);
+    driverInstance.drive();
+  }
+
+  showNavbarWalkthrough(isApprover: boolean): void {
+    const showNavbarWalkthroughConfig = {
+      feature: 'DASHBOARD_NAVBAR_WALKTHROUGH',
+      key: 'SHOW_NAVBAR_WALKTHROUGH',
+    };
+
+    this.featureConfigService
+      .getConfiguration<{ isShown?: boolean; isFinished?: boolean }>(showNavbarWalkthroughConfig)
+      .subscribe((config) => {
+        const featureConfigValue = config?.value || {};
+        const isFinished = featureConfigValue?.isFinished || false;
+
+        if (!isFinished) {
+          setTimeout(() => {
+            this.startTour(isApprover);
+          }, 1000);
+        }
+      });
   }
 
   ionViewWillLeave(): void {
@@ -198,6 +285,18 @@ export class DashboardPage {
     this.homeCurrency$ = this.currencyService.getHomeCurrency().pipe(shareReplay(1));
     this.eou$ = from(this.authService.getEou()).pipe(shareReplay(1));
     this.isUserFromINCluster$ = from(this.utilityService.isUserFromINCluster());
+
+    this.eou$
+      .pipe(
+        map((eou) => {
+          if (eou.ou.roles.includes('APPROVER')) {
+            this.showNavbarWalkthrough(true);
+          } else {
+            this.showNavbarWalkthrough(false);
+          }
+        })
+      )
+      .subscribe(noop);
 
     this.setShowOptInBanner();
 

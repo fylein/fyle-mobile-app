@@ -110,8 +110,8 @@
           </ion-col>
         </ion-row>
       </ng-container>
-      <ng-container *ngIf="unapprovedTeamReportsStats$ | async">
-        <ion-row class="stats--report-stats-row" *ngIf="isConnected$ | async">
+      <div class="approval-pending-stat" id="approval-pending-stat" *ngIf="unapprovedTeamReportsStats$ | async">
+        <ion-row class="stats--report-stats-row-team" *ngIf="isConnected$ | async">
           <ion-col class="stats--report-stats-col">
             <div class="stats--header">
               <span>Team expense reports</span>
@@ -132,7 +132,7 @@
             ></app-stat-badge>
           </ion-col>
         </ion-row>
-      </ng-container>
+      </div>
 
       <ng-template #reportStatsLoading>
         <ion-row>
