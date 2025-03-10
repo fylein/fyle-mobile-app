@@ -6,7 +6,7 @@
     </ion-title>
     <ion-buttons slot="start">
       <ion-button (click)="onDoneClick()">
-        <mat-icon class="fy-icon-Close" svgIcon="cross"></mat-icon>
+        <mat-icon class="fy-icon-close" svgIcon="cross"></mat-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -45,7 +45,7 @@
       (click)="onCurrencySelect(currency)"
     >
       <div>{{ currency.shortCode }} - {{ currency.longName }}</div>
-      <mat-icon class="selection-modal--Check" *ngIf="currency.shortCode === currentSelection"> Check </mat-icon>
+      <mat-icon class="selection-modal--check" *ngIf="currency.shortCode === currentSelection"> Check </mat-icon>
     </div>
   </ng-container>
 </ion-content>

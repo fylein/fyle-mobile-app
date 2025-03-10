@@ -5,7 +5,7 @@
       <div class="selection-modal--title">Select currency</div>
     </ion-title>
     <ion-buttons slot="start">
-      <ion-button (click)="CloseModal()">
+      <ion-button (click)="closeModal()">
         <mat-icon class="fy-icon-Close" svgIcon="cross"></mat-icon>
       </ion-button>
     </ion-buttons>
@@ -36,7 +36,7 @@
       matRipple
     >
       <div>{{ currency.shortCode }} - {{ currency.longName }}</div>
-      <mat-icon class="selection-modal--Check" *ngIf="currency.shortCode === currentSelection"> Check </mat-icon>
+      <mat-icon class="selection-modal--check" *ngIf="currency.shortCode === currentSelection"> Check </mat-icon>
     </div>
   </div>
 </ion-content>

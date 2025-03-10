@@ -20,14 +20,14 @@
                 matInput
                 [(ngModel)]="mobileNumberInputValue"
                 class="opt-in-step__mobile-input-container__input"
-                [ngClass]="{ 'opt-in-step__mobile-input-container__input__error': Mobilenumbererror?.length }"
+                [ngClass]="{ 'opt-in-step__mobile-input-container__input__error': mobileNumberError?.length }"
                 [placeholder]="'Enter mobile number with country code e.g +155512345..'"
                 type="tel"
                 [maxlength]="15"
                 [minlength]="7"
               />
-              <span *ngIf="Mobilenumbererror?.length" class="opt-in-step__mobile-input-container__error">{{
-                Mobilenumbererror
+              <span *ngIf="mobileNumberError?.length" class="opt-in-step__mobile-input-container__error">{{
+                mobileNumberError
               }}</span>
             </div>
           </ng-container>
@@ -89,7 +89,7 @@
           <div class="opt-in-step__success__header">You are all set</div>
           <div class="opt-in-step__success__description">
             We have sent you a confirmation message. You can now use text messages to create and submit your next
-            Expense!
+            expense!
           </div>
         </div>
       </ng-container>

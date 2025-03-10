@@ -70,7 +70,7 @@
                   <div class="capped-message">
                     Claimed amount {{etxn.tx.user_amount | currency: etxn.tx.currency: '' }} was capped to
                     {{etxn.tx.amount | currency: etxn.tx.currency: '' }} due to policy
-                    <span *ngIf="isAmountDisabled$|async"> And cannot be edited.</span>
+                    <span *ngIf="isAmountDisabled$|async"> and cannot be edited.</span>
                   </div>
                 </div>
               </ng-container>
@@ -136,7 +136,7 @@
                             </ng-container>
                           </ng-container>
                         </div>
-                        <mat-icon *ngIf="selected"> Check </mat-icon>
+                        <mat-icon *ngIf="selected"> check </mat-icon>
                       </ng-template>
                     </div>
                     <div
@@ -293,7 +293,7 @@
                             </div>
                           </ng-container>
                         </div>
-                        <mat-icon *ngIf="selected" class="add-edit-per-diem--Check"> Check </mat-icon>
+                        <mat-icon *ngIf="selected" class="add-edit-per-diem--check"> check </mat-icon>
                       </ng-template>
                     </div>
                     <div
@@ -355,9 +355,9 @@
                         *ngIf="(isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) && (individualProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))"
                       >
                         <div *ngIf="fg.controls.project.value" class="add-edit-per-diem--internal-block">
-                          <mat-Checkbox formControlName="billable">
-                            <span class="add-edit-per-diem--Checkbox"> Billable </span>
-                          </mat-Checkbox>
+                          <mat-checkbox formControlName="billable">
+                            <span class="add-edit-per-diem--checkbox"> Billable </span>
+                          </mat-checkbox>
                         </div>
                       </div>
                     </div>
@@ -562,12 +562,12 @@
                             />
                           </div>
 
-                          <div *ngIf="customInput.type === 'BOOLEAN'" class="add-edit-per-diem--Checkbox">
+                          <div *ngIf="customInput.type === 'BOOLEAN'" class="add-edit-per-diem--checkbox">
                             <label>
-                              <mat-Checkbox formControlName="value">
+                              <mat-checkbox formControlName="value">
                                 {{customInput.name | ellipsis: 35 }}
                                 <span class="add-edit-per-diem--mandatory" *ngIf="customInput.mandatory">*</span>
-                              </mat-Checkbox>
+                              </mat-checkbox>
                             </label>
                           </div>
 

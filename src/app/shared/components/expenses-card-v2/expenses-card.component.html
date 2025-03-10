@@ -30,7 +30,7 @@
       <!-- Expense Icon -->
       <ng-container *ngIf="!isReceiptPresent && !attachmentUploadInProgress">
         <div
-          class="expenses-card--Receipt-container d-flex"
+          class="expenses-card--receipt-container d-flex"
           *ngIf="!isOutboxExpense; else outboxExpenseDisplay"
           (click)="addAttachments($event)"
         >
@@ -43,11 +43,11 @@
             class="d-none"
           />
           <ion-icon
-            class="expenses-card--Receipt-icon"
-            [src]="ReceiptIcon"
+            class="expenses-card--receipt-icon"
+            [src]="receiptIcon"
             [ngClass]="{
-              'expenses-card--Receipt-icon__pdf': ReceiptIcon === 'assets/svg/file-pdf.svg',
-              'expenses-card--Receipt-icon__image': ReceiptIcon === 'assets/svg/list-plus.svg'
+              'expenses-card--receipt-icon__pdf': receiptIcon === 'assets/svg/file-pdf.svg',
+              'expenses-card--receipt-icon__image': receiptIcon === 'assets/svg/list-plus.svg'
             }"
           ></ion-icon>
         </div>
@@ -55,23 +55,23 @@
 
       <!-- Expense Receipt -->
       <div
-        class="expenses-card--Receipt-image-container expenses-card--with-image"
+        class="expenses-card--receipt-image-container expenses-card--with-image"
         [ngStyle]="{
           'background-image': isScanInProgress ? imageTransperencyOverlay : ''
         }"
         *ngIf="isReceiptPresent"
       >
-        <img class="expenses-card--Receipt-image" [src]="'../../../../assets/images/pdf-Receipt-placeholder.png'" />
+        <img class="expenses-card--receipt-image" [src]="'../../../../assets/images/pdf-receipt-placeholder.png'" />
         <ion-icon *ngIf="isScanInProgress" class="expenses-card--scanning-icon" src="assets/svg/fy-scan.svg"></ion-icon>
       </div>
 
       <div
-        class="expenses-card--Receipt-container expenses-card--with-image"
+        class="expenses-card--receipt-container expenses-card--with-image"
         *ngIf="attachmentUploadInProgress"
         [ngStyle]="{
           'background-image':
             inlineReceiptDataUrl &&
-            imageTransperencyOverlay + 'url(' + '../../../../assets/images/pdf-Receipt-placeholder.png' + ')'
+            imageTransperencyOverlay + 'url(' + '../../../../assets/images/pdf-receipt-placeholder.png' + ')'
         }"
       >
         <div class="expenses-card--spinner-placeholder">
@@ -82,11 +82,11 @@
       <ng-template #outboxExpenseDisplay>
         <ng-container *ngIf="isSycing$ | async; else defaultState">
           <div
-            class="expenses-card--Receipt-container expenses-card--with-image"
+            class="expenses-card--receipt-container expenses-card--with-image"
             [ngStyle]="{
               'background-image':
                 expense.file_ids?.length > 0 &&
-                imageTransperencyOverlay + 'url(' + '../../../../assets/images/pdf-Receipt-placeholder.png' + ')'
+                imageTransperencyOverlay + 'url(' + '../../../../assets/images/pdf-receipt-placeholder.png' + ')'
             }"
           >
             <div class="expenses-card--spinner-placeholder">
@@ -96,15 +96,15 @@
         </ng-container>
         <ng-template #defaultState>
           <div
-            class="expenses-card--Receipt-container expenses-card--with-image"
+            class="expenses-card--receipt-container expenses-card--with-image"
             [ngStyle]="{
               'background-image':
                 expense.file_ids?.length > 0 &&
-                imageTransperencyOverlay + 'url(' + '../../../../assets/images/pdf-Receipt-placeholder.png' + ')'
+                imageTransperencyOverlay + 'url(' + '../../../../assets/images/pdf-receipt-placeholder.png' + ')'
             }"
           >
             <ion-icon
-              class="expenses-card--Receipt-icon"
+              class="expenses-card--receipt-icon"
               *ngIf="!expense.file_ids?.length"
               [src]="'../../../../assets/svg/list.svg'"
             ></ion-icon>
@@ -122,23 +122,23 @@
       <div class="d-flex expenses-card--deatils-block">
         <ng-container *ngIf="isConnected$ | async; else expenseCardDefaultView">
           <ng-container *ngIf="isSycing$ | async; else expenseCardScanning">
-            <div class="expenses-card--scaning-Receipt__container">
-              <div class="expenses-card--scaning-Receipt__header">
+            <div class="expenses-card--scaning-receipt__container">
+              <div class="expenses-card--scaning-receipt__header">
                 <ng-container *ngIf="category === 'mileage'; else uploadPerDiem"> Syncing mileage </ng-container>
                 <ng-template #uploadPerDiem>
                   <ng-container *ngIf="category === 'per diem'; else uploadDefault"> Syncing per diem </ng-container>
                 </ng-template>
                 <ng-template #uploadDefault>
-                  {{ expense.amount || expense.claim_amount ? 'Syncing' : 'Uploading' }} Receipt...
+                  {{ expense.amount || expense.claim_amount ? 'Syncing' : 'Uploading' }} receipt...
                 </ng-template>
               </div>
-              <div class="expenses-card--scaning-Receipt__content">
+              <div class="expenses-card--scaning-receipt__content">
                 Your
-                <ng-container *ngIf="category === 'mileage' || category === 'per diem'; else ReceiptContent">
+                <ng-container *ngIf="category === 'mileage' || category === 'per diem'; else receiptContent">
                   {{ category }}
                 </ng-container>
-                <ng-template #ReceiptContent> Receipt </ng-template>
-                Will be added shortly.
+                <ng-template #receiptContent> Receipt </ng-template>
+                will be added shortly.
               </div>
             </div>
           </ng-container>
@@ -148,16 +148,16 @@
         <ng-template #expenseCardScanning>
           <ng-container *ngIf="!isScanCompleted; else expenseCardDefaultView">
             <ng-container *ngIf="isScanInProgress; else scanFailed">
-              <div class="expenses-card--scaning-Receipt__container">
-                <div class="expenses-card--scaning-Receipt__header expenses-card--scaning-Receipt__header-scanning">
-                  Scanning Receipt...
+              <div class="expenses-card--scaning-receipt__container">
+                <div class="expenses-card--scaning-receipt__header expenses-card--scaning-receipt__header-scanning">
+                  Scanning receipt...
                 </div>
-                <div class="expenses-card--scaning-Receipt__content">This takes a short while</div>
+                <div class="expenses-card--scaning-receipt__content">This takes a short while</div>
               </div>
             </ng-container>
             <ng-template #scanFailed>
-              <div class="expenses-card--scaning-Receipt__container expenses-card--scaning-Receipt__container-Error">
-                <div class="expenses-card--scaning-Receipt__header expenses-card--scaning-Receipt__header-failed">
+              <div class="expenses-card--scaning-receipt__container expenses-card--scaning-receipt__container-error">
+                <div class="expenses-card--scaning-receipt__header expenses-card--scaning-receipt__header-failed">
                   Scan failed
                 </div>
               </div>
@@ -248,7 +248,7 @@
           <!-- Expense with missing info -->
           <div
             *ngIf="isDraft"
-            class="expenses-card--category-vendor-project-container expenses-card--category-vendor-project-container__align-vertical-center expenses-card--category-vendor-project-container__Error"
+            class="expenses-card--category-vendor-project-container expenses-card--category-vendor-project-container__align-vertical-center expenses-card--category-vendor-project-container__error"
           >
             <div>Expense information missing</div>
 

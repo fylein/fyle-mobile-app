@@ -9,10 +9,10 @@
   </div>
 
   <div class="d-flex ion-text-right">
-    <span *ngIf="Data.Redirectiontext" class="toast-message--redirection ion-text-right" (click)="actionEvent()">{{
-      Data.Redirectiontext
+    <span *ngIf="data.redirectionText" class="toast-message--redirection ion-text-right" (click)="actionEvent()">{{
+      data.redirectionText
     }}</span>
-    <mat-icon *ngIf="data.showCloseButton" class="toast-message--right-icon ion-text-right" (click)="CloseEvent()"
+    <mat-icon *ngIf="data.showCloseButton" class="toast-message--right-icon ion-text-right" (click)="closeEvent()"
       >Close</mat-icon
     >
   </div>

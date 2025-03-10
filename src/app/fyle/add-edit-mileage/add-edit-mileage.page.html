@@ -71,7 +71,7 @@
                   <div class="capped-message">
                     Claimed amount {{etxn.tx.user_amount | currency: etxn.tx.currency: 'symbol-narrow'}} was capped to
                     {{etxn.tx.amount | currency: etxn.tx.currency: 'symbol-narrow'}} due to policy
-                    <span *ngIf="isAmountDisabled$|async"> And cannot be edited.</span>
+                    <span *ngIf="isAmountDisabled$|async"> and cannot be edited.</span>
                   </div>
                 </div>
               </ng-container>
@@ -188,7 +188,7 @@
                                       Add location
                                     </div>
                                   </div>
-                                  <mat-icon *ngIf="selected" class="add-edit-mileage--Check"> Check </mat-icon>
+                                  <mat-icon *ngIf="selected" class="add-edit-mileage--check"> Check </mat-icon>
                                 </ng-template>
                               </div>
                               <div
@@ -232,7 +232,7 @@
                     let-selected="selected"
                   >
                     <div class="add-edit-mileage--rate-name">{{label}}</div>
-                    <mat-icon *ngIf="selected"> Check </mat-icon>
+                    <mat-icon *ngIf="selected"> check </mat-icon>
                   </ng-template>
                 </div>
                 <div
@@ -319,7 +319,7 @@
                               </div>
                             </ng-container>
                           </div>
-                          <mat-icon *ngIf="selected" class="add-edit-mileage--Check"> Check </mat-icon>
+                          <mat-icon *ngIf="selected" class="add-edit-mileage--check"> check </mat-icon>
                         </ng-template>
                       </div>
                       <div
@@ -382,9 +382,9 @@
                   *ngIf="(isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) && (individualProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))"
                 >
                   <div *ngIf="fg.controls.project.value">
-                    <mat-Checkbox formControlName="billable">
-                      <span class="add-edit-mileage--Checkbox"> Billable </span>
-                    </mat-Checkbox>
+                    <mat-checkbox formControlName="billable">
+                      <span class="add-edit-mileage--checkbox"> Billable </span>
+                    </mat-checkbox>
                   </div>
                 </div>
               </div>
@@ -573,12 +573,12 @@
                         />
                       </div>
 
-                      <div *ngIf="customInput.type === 'BOOLEAN'" class="add-edit-mileage--Checkbox">
+                      <div *ngIf="customInput.type === 'BOOLEAN'" class="add-edit-mileage--checkbox">
                         <label>
-                          <mat-Checkbox formControlName="value">
+                          <mat-checkbox formControlName="value">
                             {{customInput.name | ellipsis: 35 }}
                             <span class="add-edit-mileage--mandatory" *ngIf="customInput.mandatory">*</span>
-                          </mat-Checkbox>
+                          </mat-checkbox>
                         </label>
                       </div>
 

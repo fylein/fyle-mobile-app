@@ -40,7 +40,7 @@
               <div class="split-expense-policy-violation--placeholder">Split amount</div>
               <div class="split-expense-policy-violation--value text-right">
                 {{
-                  Policyviolations[transaction].Amount
+                  policyViolations[transaction].amount
                     | currency : policyViolations[transaction].currency : 'symbol-narrow'
                 }}
               </div>
@@ -127,7 +127,7 @@
               <div class="split-expense-policy-violation--placeholder">Split amount</div>
               <div class="split-expense-policy-violation--value text-right">
                 {{
-                  Missingfieldsviolations[missingfield].Amount
+                  missingFieldsViolations[missingField].amount
                     | currency : missingFieldsViolations[missingField].currency : 'symbol-narrow'
                 }}
               </div>

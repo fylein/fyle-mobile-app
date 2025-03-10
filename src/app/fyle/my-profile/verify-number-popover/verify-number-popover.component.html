@@ -34,7 +34,7 @@
     </div>
     <ng-container *ngIf="showOtpTimer; else resendOtpCta">
       <span class="verify-number-popover__input-container__label__otp-timer">
-        Resend otp in
+        Resend OTP in
         <span class="verify-number-popover__input-container__label__otp-timer--timer"
           >0:{{ otpTimer | number : '2.0' }}</span
         >
@@ -50,11 +50,11 @@
         [loading]="sendingOtp"
         loadingText="Sending OTP"
       >
-        Resend otp
+        Resend OTP
       </button>
       <!-- TODO: Handle this case in directive and fix it property -->
       <div *ngIf="disableResendOtp" class="verify-number-popover__input-container__label__resend--disabled">
-        Resend otp
+        Resend OTP
       </div>
     </ng-template>
   </div>
@@ -63,7 +63,7 @@
     matInput
     [(ngModel)]="value"
     class="verify-number-popover__input-container__input smartlook-show"
-    placeholder="Enter 6 digit otp"
+    placeholder="Enter 6 digit OTP"
     type="text"
     inputmode="numeric"
     autocomplete="one-time-code"
