@@ -64,6 +64,7 @@ import { FyMsgPopoverComponent } from 'src/app/shared/components/fy-msg-popover/
 import { SplittingExpenseProperties } from 'src/app/core/models/splitting-expense-properties.model';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { FilteredSplitPolicyViolations } from 'src/app/core/models/filtered-split-policy-violations.model';
+import { FilteredMissingFieldsViolations } from 'src/app/core/models/filtered-missing-fields-violations.model';
 
 @Component({
   selector: 'app-split-expense',
@@ -627,7 +628,18 @@ export class SplitExpensePage implements OnDestroy {
 
     const splitTrackingProps = this.getSplitExpensePoperties();
     this.trackingService.splitExpensePolicyAndMissingFieldsPopupShown(splitTrackingProps);
+    let filteredMissingFieldsViolations = {};
+    let hasMissingFields = false;
+
     if (missingFieldsViolations) {
+      filteredMissingFieldsViolations =
+        this.splitExpenseService.filteredMissingFieldsViolations(missingFieldsViolations);
+      hasMissingFields = Object.values(filteredMissingFieldsViolations).some(
+        (field: FilteredMissingFieldsViolations) => field?.isMissingFields
+      );
+    }
+
+    if (hasMissingFields) {
       this.showMissingFieldsModal();
       return null;
     } else {
