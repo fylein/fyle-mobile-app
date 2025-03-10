@@ -146,6 +146,22 @@ ion-popover.error-popover {
   padding: 12px 8px !important;
 }
 
+.msb-success-with-camera-icon-for-split-exp {
+  color: $pure-white;
+  background-color: $green;
+  border-radius: 8px !important;
+  margin: 0 16px 24px !important;
+  padding: 12px 8px !important;
+}
+
+.msb-failure-with-camera-icon-for-split-exp {
+  color: $pure-white;
+  background-color: $red;
+  border-radius: 8px !important;
+  margin: 0 16px 24px !important;
+  padding: 12px 8px !important;
+}
+
 .msb-failure-with-camera-icon {
   color: $pure-white;
   background-color: $red;
@@ -896,6 +912,13 @@ ref - https://stackoverflow.com/a/31162426
   &--tertiary-secondary {
     --background: transparent;
     --color: #{$black-light};
+  }
+
+  &--outline-secondary {
+    --background: transparent;
+    --color: #{$black-light};
+    border: 1px solid #{$grey};
+    border-radius: 4px;
   }
 }
 

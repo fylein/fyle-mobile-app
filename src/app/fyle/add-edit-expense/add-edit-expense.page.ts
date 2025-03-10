@@ -338,6 +338,8 @@ export class AddEditExpensePage implements OnInit {
 
   navigateBack = false;
 
+  fromSplitExpenseReview = false;
+
   isExpenseBankTxn = false;
 
   recentCategories: OrgCategoryListItem[];
@@ -3034,6 +3036,7 @@ export class AddEditExpensePage implements OnInit {
     });
 
     this.navigateBack = this.activatedRoute.snapshot.params.navigate_back as boolean;
+    this.fromSplitExpenseReview = this.activatedRoute.snapshot.params.fromSplitExpenseReview as boolean;
     this.expenseStartTime = new Date().getTime();
     this.fg = this.formBuilder.group({
       currencyObj: [, this.currencyObjValidator],
