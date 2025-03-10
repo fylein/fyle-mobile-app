@@ -18,7 +18,7 @@
     <div class="opt-in--container">
       <div class="d-flex mb-16">
         <mat-icon class="fy-icon opt-in--sparkle-icon" svgIcon="sparkle"></mat-icon>
-        <span class="opt-in--try-ai-text"> Try AI </span>
+        <span class="opt-in--try-ai-text"> Try ai </span>
       </div>
       <ng-container *ngIf="optInFlowState === OptInFlowState.MOBILE_INPUT">
         <div class="opt-in--description">Opt into text messaging for instant expense submission</div>
@@ -32,15 +32,15 @@
             matInput
             [(ngModel)]="mobileNumberInputValue"
             class="opt-in--mobile-input-container__input"
-            [ngClass]="{ 'opt-in--mobile-input-container__input--error': mobileNumberError?.length }"
+            [ngClass]="{ 'opt-in--mobile-input-container__input--error': Mobilenumbererror?.length }"
             (focus)="onFocus()"
             [placeholder]="'Enter mobile number with country code e.g +155512345..'"
             type="tel"
             [maxlength]="15"
             [minlength]="7"
           />
-          <span *ngIf="mobileNumberError?.length" class="opt-in--mobile-input-container__error">{{
-            mobileNumberError
+          <span *ngIf="Mobilenumbererror?.length" class="opt-in--mobile-input-container__error">{{
+            Mobilenumbererror
           }}</span>
         </div>
       </ng-container>

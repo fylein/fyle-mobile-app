@@ -23,7 +23,7 @@
           <span class="advance-card--amount" *ngIf="advanceRequest.areq_amount && advanceRequest.areq_currency">
             {{
               { value: advanceRequest.areq_amount || 0, currencyCode: advanceRequest.areq_currency, skipSymbol: true }
-                | exactCurrency
+                | exactcurrency
             }}
           </span>
         </div>

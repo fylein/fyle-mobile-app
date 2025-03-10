@@ -6,7 +6,7 @@
     </ion-title>
     <ion-buttons slot="start">
       <ion-button (click)="onDoneClick()">
-        <mat-icon class="fy-icon-close" svgIcon="cross"></mat-icon>
+        <mat-icon class="fy-icon-Close" svgIcon="cross"></mat-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -35,7 +35,7 @@
         mat-icon-button
         matSuffix
       >
-        <mat-icon>close</mat-icon>
+        <mat-icon>Close</mat-icon>
       </button>
     </mat-form-field>
   </ion-toolbar>
@@ -64,7 +64,7 @@
           <div class="dependent-field-modal__label">
             <app-fy-highlight-text [fullText]="filteredListItem.label" [queryText]="value"> </app-fy-highlight-text>
           </div>
-          <mat-icon *ngIf="filteredListItem.selected" class="dependent-field-modal__check"> check </mat-icon>
+          <mat-icon *ngIf="filteredListItem.selected" class="dependent-field-modal__Check"> Check </mat-icon>
         </div>
       </div>
     </ng-container>

@@ -23,7 +23,7 @@
           formControlName="email"
           type="email"
           matInput
-          placeholder="Work Email"
+          placeholder="Work email"
           class="smartlook-show"
         />
       </mat-form-field>
@@ -36,7 +36,7 @@
         color="primary"
         (click)="sendRequestInvitation()"
       >
-        REQUEST INVITATION
+        Request invitation
       </button>
     </div>
   </div>
@@ -49,16 +49,16 @@
   <div class="request-invitation--form" *ngIf="currentPageState === RequestInvitationStates.failure">
     <div class="request-invitation--form-header">Request invitation failed</div>
     <div class="request-invitation--form-subheader">
-      Something went wrong. Please send us a note at support@fylehq.com
+      Something went wrong. Please send us a note at support@fylehq. Com
     </div>
   </div>
   <div class="request-invitation--form" *ngIf="currentPageState === RequestInvitationStates.alreadySent">
     <div class="request-invitation--form-header">Request pending</div>
     <div class="request-invitation--form-subheader">
-      <div>Your request has already been sent to your organization's admin.</div>
+      <div>Your request has already been sent to your Organization's admin.</div>
       <div>
         You cannot request an invitation again. Please wait till the invitation is accepted or write a note to your
-        organization's admin.
+        Organization's admin.
       </div>
     </div>
   </div>

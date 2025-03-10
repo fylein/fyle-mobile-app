@@ -14,7 +14,7 @@
     <div class="add-corporate-card__input-container">
       <div class="add-corporate-card__input-label">
         <span>Enter card number</span>
-        <span class="add-corporate-card__input-label--mandatory"> * </span>
+        <span class="add-corporate-card__input-label--mAndatory"> * </span>
       </div>
 
       <div
@@ -65,20 +65,20 @@
 
         <ng-container *ngIf="cardForm.errors.invalidCardNetwork">
           <span *ngIf="isVisaRTFEnabled && isMastercardRTFEnabled; else visaOnlyOrg"
-            >Enter a valid Visa or Mastercard number. If you have other cards, please contact your admin.</span
+            >Enter a valid visa or mastercard number. If you have other cards, please contact your admin.</span
           >
 
           <ng-template #visaOnlyOrg>
             <!-- Check if only visa is enabled -->
             <span *ngIf="cardForm.errors.invalidCardNetwork && isVisaRTFEnabled; else mastercardOnlyOrg"
-              >Enter a valid Visa number. If you have other cards, please contact your admin.</span
+              >Enter a valid visa number. If you have other cards, please contact your admin.</span
             >
           </ng-template>
 
           <ng-template #mastercardOnlyOrg>
             <!-- Check if only mastercard is enabled -->
             <span *ngIf="cardForm.errors.invalidCardNetwork && isMastercardRTFEnabled"
-              >Enter a valid Mastercard number. If you have other cards, please contact your admin.</span
+              >Enter a valid mastercard number. If you have other cards, please contact your admin.</span
             >
           </ng-template>
         </ng-container>
@@ -100,7 +100,7 @@
       <ion-accordion-group>
         <ion-accordion>
           <div class="add-corporate-card__view-tnc-btn" slot="header">
-            <span>View terms and conditions</span>
+            <span>View Terms And conditions</span>
             <ion-icon
               src="../../../../assets/svg/arrow-up.svg"
               class="add-corporate-card__view-tnc-btn-icon ion-accordion-toggle-icon"
@@ -108,7 +108,7 @@
           </div>
           <div slot="content" class="add-corporate-card__tnc">
             <div class="add-corporate-card__tnc-heading">
-              By enrolling your card and clicking on "Add", you hereby agree to:
+              By enrolling your card And clicking on "add", you hereby agree to:
             </div>
             <ul class="add-corporate-card__tnc-list">
               <li>
@@ -119,33 +119,33 @@
                     >card network ({{ cardNetworks | arrayToCommaList }})</ng-container
                   >
                 </span>
-                and Fyle Inc to access details of all transactions made using the enrolled card. This includes the
-                transaction amount, the name of the merchant, the date and time of the transaction, and any other
-                relevant information deemed necessary to provide services.
+                And Fyle inc to access details of all transactions made using the enrolled card. This includes the
+                Transaction amount, the name of the merchant, the date And time of the transaction, And any other
+                Relevant information deemed necessary to provide services.
               </li>
               <li>
-                Allow Fyle to use the above details to create expenses on your behalf and enable program notifications.
+                Allow Fyle to use the above details to create expenses on your behalf And enable program notifications.
               </li>
               <li>
                 Agree to our
                 <a
-                  href="https://www.fylehq.com/privacy/terms-and-conditions"
+                  href="https://www.fylehq.com/privacy/terms-And-conditions"
                   target="_blank"
                   class="add-corporate-card__tnc-link"
                 >
-                  terms and conditions
+                  Terms And conditions
                   <ion-icon
                     src="../../../../assets/svg/open-in-new-tab.svg"
                     class="add-corporate-card__tnc-link-icon"
                   ></ion-icon>
                 </a>
-                and
+                And
                 <a
                   href="https://www.fylehq.com/privacy/privacy-policy"
                   target="_blank"
                   class="add-corporate-card__tnc-link"
                 >
-                  privacy policy
+                  Privacy policy
                   <ion-icon
                     src="../../../../assets/svg/open-in-new-tab.svg"
                     class="add-corporate-card__tnc-link-icon"

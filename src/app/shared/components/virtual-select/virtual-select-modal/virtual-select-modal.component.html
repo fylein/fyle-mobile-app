@@ -8,7 +8,7 @@
     </ion-title>
     <ion-buttons slot="start">
       <ion-button (click)="onDoneClick()">
-        <mat-icon class="fy-icon-close" svgIcon="cross"></mat-icon>
+        <mat-icon class="fy-icon-Close" svgIcon="cross"></mat-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -24,7 +24,7 @@
         placeholder="{{ placeholder || 'Search' }}"
       />
       <button (click)="clearValue()" *ngIf="value" aria-label="Clear" mat-button mat-icon-button matSuffix>
-        <mat-icon>close</mat-icon>
+        <mat-icon>Close</mat-icon>
       </button>
     </mat-form-field>
   </ion-toolbar>
@@ -62,14 +62,14 @@
                 <span class="selection-modal--label">
                   <app-fy-highlight-text [fullText]="label" [queryText]="value"> </app-fy-highlight-text>
                 </span>
-                <mat-icon *ngIf="selected" class="selection-modal--check"> check </mat-icon>
+                <mat-icon *ngIf="selected" class="selection-modal--Check"> Check </mat-icon>
               </div>
 
               <ng-container *ngIf="!filteredListItem.isRecentlyUsed">
                 <div class="selection-modal--label">
                   <app-fy-highlight-text [fullText]="label" [queryText]="value"> </app-fy-highlight-text>
                 </div>
-                <mat-icon *ngIf="selected" class="selection-modal--check"> check </mat-icon>
+                <mat-icon *ngIf="selected" class="selection-modal--Check"> Check </mat-icon>
               </ng-container>
             </ng-template>
 
@@ -91,7 +91,7 @@
   <ion-toolbar>
     <div class="selection-modal--cta-container">
       <ion-button (click)="saveToCacheAndUse()" class="selection-modal--primary-cta" color="fyle-primary" fill="solid">
-        SAVE
+        Save
       </ion-button>
     </div>
   </ion-toolbar>

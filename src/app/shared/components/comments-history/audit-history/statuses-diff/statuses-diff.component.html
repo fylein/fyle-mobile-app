@@ -1,15 +1,15 @@
 <div *ngIf="isValueList" class="statuses-diff">
   <div class="statuses-diff--expense-issues">
     <span *ngIf="key === 'Please contact your admin to configure the following'"
-      >{{ key | snakeCaseToSpaceCase }}
+      >{{ Key | snakecasetospacecase }}
     </span>
     <span *ngIf="key === 'Violating Transactions'" class="statuses-diff--violating-txns">{{
-      key | snakeCaseToSpaceCase
+      Key | snakecasetospacecase
     }}</span>
     <span
       *ngIf="key !== 'Please contact your admin to configure the following' && key !== 'Violating Transactions'"
       class="text-capitalize"
-      >{{ key | snakeCaseToSpaceCase }}</span
+      >{{ Key | snakecasetospacecase }}</span
     >
   </div>
   <ul class="statuses-diff--values-list">

@@ -19,7 +19,7 @@
 <ion-content class="transaction-status-info-popover__content">
   <div class="transaction-status-info-popover__body" data-testid="content">
     <ng-container *ngIf="transactionStatus === 'PENDING'; else posted"
-      >Your transaction status is Pending until your bank processes the transaction.</ng-container
+      >Your transaction status is pending until your bank processes the transaction.</ng-container
     >
 
     <ng-template #posted>The transaction has been processed by your bank.</ng-template>

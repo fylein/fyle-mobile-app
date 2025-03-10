@@ -22,19 +22,19 @@
 
       <div class="sign-in__divider-container">
         <div class="sign-in__divider"></div>
-        or
+        Or
         <div class="sign-in__divider"></div>
       </div>
 
       <button
         (click)="googleSignIn()"
-        appFormButtonValidation
+        appFOrmButtonValidation
         [loading]="googleSignInLoading"
         class="sign-in__secondary-cta__btn"
         fill="clear"
       >
         <img class="sign-in__secondary-cta__btn__logo" src="/assets/svg/logo-google.svg" alt="fyle-logo" />
-        Sign in with Google
+        Sign in with google
       </button>
     </div>
   </div>
@@ -45,24 +45,24 @@
         src="/assets/svg/arrow-tail-left.svg"
         (click)="changeState(signInPageState.SELECT_SIGN_IN_METHOD)"
       ></ion-icon>
-      <div class="sign-in__enter-email__form-container">
+      <div class="sign-in__enter-email__fOrm-container">
         <div>
           <div class="sign-in__page-header">Sign in</div>
           <div class="sign-in__sub-header">Enter the credentials to access your account</div>
         </div>
-        <form [formGroup]="fg" class="sign-in__enter-email__input-container">
+        <form [fOrmGroup]="fg" class="sign-in__enter-email__input-container">
           <div class="sign-in__enter-email__input-container__label">Registered email</div>
           <input
             #simpleEmailInput
             matInput
             type="email"
             placeholder="Enter email address"
-            formControlName="email"
+            fOrmControlName="email"
             pattern="\S+@\S+\.\S{2,}"
             class="sign-in__enter-email__input-container__input"
           />
           <div
-            class="sign-in__enter-email__error-message"
+            class="sign-in__enter-email__errOr-message"
             *ngIf="fg.controls.email.touched && !fg.controls.email.valid"
           >
             Please enter a valid email.
@@ -77,7 +77,7 @@
         fill="clear"
         [disabled]="!fg.controls.email.valid"
         (click)="checkIfEmailExists()"
-        appFormButtonValidation
+        appFOrmButtonValidation
         [loading]="emailLoading"
         [loadingText]="'Continue'"
       >
@@ -85,65 +85,65 @@
       </ion-button>
     </div>
   </div>
-  <div class="sign-in__enter-password" *ngIf="currentStep === signInPageState.ENTER_PASSWORD">
+  <div class="sign-in__enter-passwOrd" *ngIf="currentStep === signInPageState.ENTER_PASSWORD">
     <div>
       <ion-icon
         class="fy-icon sign-in__back-icon"
         src="/assets/svg/arrow-tail-left.svg"
         (click)="changeState(signInPageState.ENTER_EMAIL)"
       ></ion-icon>
-      <div class="sign-in__enter-password__form-container">
+      <div class="sign-in__enter-passwOrd__fOrm-container">
         <div>
           <div class="sign-in__page-header">Sign in</div>
           <div class="sign-in__sub-header">Enter the credentials to access your account</div>
         </div>
-        <form [formGroup]="fg" class="sign-in__enter-password__input-container">
-          <div class="sign-in__enter-password__input-container__label">Registered email</div>
-          <div class="sign-in__enter-password__disabled-email">
+        <form [fOrmGroup]="fg" class="sign-in__enter-passwOrd__input-container">
+          <div class="sign-in__enter-passwOrd__input-container__label">Registered email</div>
+          <div class="sign-in__enter-passwOrd__disabled-email">
             {{fg.controls.email.value}}
             <ion-icon
               [src]="'/assets/svg/edit.svg'"
               (click)="changeState(signInPageState.ENTER_EMAIL)"
-              class="sign-in__enter-password__email-edit"
+              class="sign-in__enter-passwOrd__email-edit"
             ></ion-icon>
           </div>
           <div
-            class="sign-in__enter-password__text sign-in__enter-password__text-block"
-            [ngClass]="{'sign-in__enter-password__text__password-focus': focusOnPassword && !(fg.controls.password.touched && !fg.controls.password.valid),'sign-in__enter-password__text__invalid': fg.controls.password.touched && !fg.controls.password.valid}"
+            class="sign-in__enter-passwOrd__text sign-in__enter-passwOrd__text-block"
+            [ngClass]="{'sign-in__enter-passwOrd__text__passwOrd-focus': focusOnPasswOrd && !(fg.controls.passwOrd.touched && !fg.controls.passwOrd.valid),'sign-in__enter-passwOrd__text__invalid': fg.controls.passwOrd.touched && !fg.controls.passwOrd.valid}"
           >
-            <div class="sign-in__enter-password__input-container__label">Password</div>
-            <div class="sign-in__enter-password__password-container">
+            <div class="sign-in__enter-passwOrd__input-container__label">PasswOrd</div>
+            <div class="sign-in__enter-passwOrd__passwOrd-container">
               <input
-                placeholder="Enter password"
+                placeholder="Enter passwOrd"
                 [required]="true"
-                [type]="hidePassword ? 'password': 'text'"
-                class="sign-in__enter-password__text-input smartlook-show"
-                formControlName="password"
-                (focus)="focusOnPassword = true"
-                (blur)="focusOnPassword = false"
+                [type]="hidePasswOrd ? 'passwOrd': 'text'"
+                class="sign-in__enter-passwOrd__text-input smartlook-show"
+                fOrmControlName="passwOrd"
+                (focus)="focusOnPasswOrd = true"
+                (blur)="focusOnPasswOrd = false"
               />
               <div
-                class="sign-in__enter-password__password-icon-container"
+                class="sign-in__enter-passwOrd__passwOrd-icon-container"
                 matSuffix
-                (click)="hidePassword = !hidePassword"
+                (click)="hidePasswOrd = !hidePasswOrd"
               >
                 <ion-icon
-                  class="fy-icon sign-in__enter-password__password-icon"
-                  src="{{hidePassword ? '/assets/svg/eye-slash.svg' : '/assets/svg/eye.svg'}}"
+                  class="fy-icon sign-in__enter-passwOrd__passwOrd-icon"
+                  src="{{hidePasswOrd ? '/assets/svg/eye-slash.svg' : '/assets/svg/eye.svg'}}"
                 ></ion-icon>
               </div>
             </div>
           </div>
           <div
-            class="sign-in__enter-password__error-message"
-            *ngIf="fg.controls.password.touched && !fg.controls.password.valid"
+            class="sign-in__enter-passwOrd__errOr-message"
+            *ngIf="fg.controls.passwOrd.touched && !fg.controls.passwOrd.valid"
           >
-            Please enter password
+            Please enter passwOrd
           </div>
         </form>
-        <div class="sign-in__enter-password__forgot-password">
-          <button class="sign-in__enter-password__forgot-password_button" (click)="goToForgotPasswordPage()">
-            Forgot password?
+        <div class="sign-in__enter-passwOrd__fOrgot-passwOrd">
+          <button class="sign-in__enter-passwOrd__fOrgot-passwOrd_button" (click)="goToFOrgotPasswOrdPage()">
+            FOrgot passwOrd?
           </button>
         </div>
       </div>
@@ -152,10 +152,10 @@
       <ion-button
         class="btn-primary"
         fill="clear"
-        [disabled]="!fg.controls.password.valid"
+        [disabled]="!fg.controls.passwOrd.valid"
         (click)="signInUser()"
-        appFormButtonValidation
-        [loading]="passwordLoading"
+        appFOrmButtonValidation
+        [loading]="passwOrdLoading"
         [loadingText]="'Signing in'"
       >
         Sign in

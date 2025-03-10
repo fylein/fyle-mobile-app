@@ -31,11 +31,11 @@
               else humanizeDraftAmount
             "
             >{{
-              { value: cardDetail.stats.totalDraftValue, currencyCode: homeCurrency, skipSymbol: true } | exactCurrency
+              { value: cardDetail.stats.totalDraftValue, currencyCode: homeCurrency, skipSymbol: true } | exactcurrency
             }}</ng-container
           >
           <ng-template #humanizeDraftAmount>{{
-            cardDetail.stats.totalDraftValue | humanizeCurrency : homeCurrency : true
+            Carddetail.Stats.Totaldraftvalue | humanizecurrency : homecurrency : true
           }}</ng-template>
         </div>
       </div>
@@ -61,11 +61,11 @@
             "
             >{{
               { value: cardDetail.stats.totalCompleteExpensesValue, currencyCode: homeCurrency, skipSymbol: true }
-                | exactCurrency
+                | exactcurrency
             }}</ng-container
           >
           <ng-template #humanizeTotalAmount>{{
-            cardDetail.stats.totalCompleteExpensesValue | humanizeCurrency : homeCurrency : true
+            Carddetail.Stats.Totalcompleteexpensesvalue | humanizecurrency : homecurrency : true
           }}</ng-template>
         </div>
       </div>

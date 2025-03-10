@@ -13,7 +13,7 @@
     <div *ngIf="error.status === 401 && (error.data || error.message)">
       This email address will be temporarily locked after 5 unsuccessful login attempts. Would you like to try
       <a class="error-internal__redirect" (click)="routeTo(['/', 'auth', 'reset_password'])">resetting</a> your
-      password?
+      Password?
     </div>
 
     <div *ngIf="error.status === 400">
@@ -23,14 +23,14 @@
     <div *ngIf="error.status === 500">
       <div>
         Please retry in a while. Send us a note to <a href="mailto:support@fylehq.com">support@fylehq.com</a> if the
-        problem persists.
+        Problem persists.
       </div>
     </div>
 
     <div *ngIf="error.status === 433">
       <div>
         This email address is locked temporarily, as there are too many unsuccessful login attempts recently. Please
-        retry later.
+        Retry later.
       </div>
     </div>
 
