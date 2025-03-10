@@ -32,7 +32,8 @@ import { FyOptInComponent } from 'src/app/shared/components/fy-opt-in/fy-opt-in.
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { driver, DriveStep } from 'driver.js';
+import { driver } from 'driver.js';
+import { WalkthroughDriverService } from 'src/app/core/services/walkthrough-driver.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -97,7 +98,8 @@ export class DashboardPage {
     private modalProperties: ModalPropertiesService,
     private authService: AuthService,
     private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService
+    private snackbarProperties: SnackbarPropertiesService,
+    private walkthroughDriverService: WalkthroughDriverService
   ) {}
 
   get displayedTaskCount(): number {
@@ -174,59 +176,9 @@ export class DashboardPage {
       },
     });
 
-    const steps: DriveStep[] = [
-      {
-        element: '#footer-walkthrough',
-        popover: {
-          description:
-            'Expenses & Reports are now on the bottom bar of the home page for easy access and smooth navigation!',
-          side: 'top',
-          align: 'center',
-          showButtons: ['next', 'close'],
-        },
-        onHighlightStarted: (_el, _step, opts): void => {
-          opts.config.stagePadding = 10;
-        },
-      },
-      {
-        element: '#tab-button-expenses',
-        popover: {
-          description: 'Tap here to quickly access and manage your expenses!',
-          side: 'top',
-          align: 'start',
-        },
-        onHighlightStarted: (_el, _step, opts): void => {
-          opts.config.stagePadding = 4;
-        },
-      },
-      {
-        element: '#tab-button-reports',
-        popover: {
-          description: 'Tap here to quickly access and manage your expense reports!',
-          side: 'top',
-          align: 'end',
-        },
-        onHighlightStarted: (_el, _step, opts): void => {
-          opts.config.stagePadding = 4;
-        },
-      },
-    ];
+    const navbarWalkthroughDriverSteps = this.walkthroughDriverService.getNavBarWalkthroughDriver(isApprover);
 
-    if (isApprover) {
-      steps.push({
-        element: '#approval-pending-stat',
-        popover: {
-          description: `Easily manage and approve reports — Access your team's reports right from the home page!`,
-          side: 'top',
-          align: 'center',
-        },
-        onHighlightStarted: (_el, _step, opts): void => {
-          opts.config.stagePadding = 4;
-        },
-      });
-    }
-
-    driverInstance.setSteps(steps);
+    driverInstance.setSteps(navbarWalkthroughDriverSteps);
     driverInstance.drive();
   }
 
