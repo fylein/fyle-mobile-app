@@ -24,7 +24,7 @@
         placeholder="{{ placeholder || 'Search' }}"
       />
       <button (click)="clearValue()" *ngIf="value" aria-label="Clear" mat-button mat-icon-button matSuffix>
-        <mat-icon>Close</mat-icon>
+        <mat-icon>close</mat-icon>
       </button>
     </mat-form-field>
   </ion-toolbar>
@@ -62,14 +62,14 @@
                 <span class="selection-modal--label">
                   <app-fy-highlight-text [fullText]="label" [queryText]="value"> </app-fy-highlight-text>
                 </span>
-                <mat-icon *ngIf="selected" class="selection-modal--check"> Check </mat-icon>
+                <mat-icon *ngIf="selected" class="selection-modal--check"> check </mat-icon>
               </div>
 
               <ng-container *ngIf="!filteredListItem.isRecentlyUsed">
                 <div class="selection-modal--label">
                   <app-fy-highlight-text [fullText]="label" [queryText]="value"> </app-fy-highlight-text>
                 </div>
-                <mat-icon *ngIf="selected" class="selection-modal--check"> Check </mat-icon>
+                <mat-icon *ngIf="selected" class="selection-modal--check"> check </mat-icon>
               </ng-container>
             </ng-template>
 

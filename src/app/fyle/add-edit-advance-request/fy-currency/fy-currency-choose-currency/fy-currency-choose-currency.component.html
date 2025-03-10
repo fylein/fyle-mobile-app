@@ -29,7 +29,7 @@
         class="selection-modal--clear"
         (click)="clearValue()"
       >
-        <mat-icon>Close</mat-icon>
+        <mat-icon>close</mat-icon>
       </button>
     </mat-form-field>
   </ion-toolbar>
@@ -45,7 +45,7 @@
       (click)="onCurrencySelect(currency)"
     >
       <div>{{ currency.shortCode }} - {{ currency.longName }}</div>
-      <mat-icon class="selection-modal--check" *ngIf="currency.shortCode === currentSelection"> Check </mat-icon>
+      <mat-icon class="selection-modal--check" *ngIf="currency.shortCode === currentSelection"> check </mat-icon>
     </div>
   </ng-container>
 </ion-content>

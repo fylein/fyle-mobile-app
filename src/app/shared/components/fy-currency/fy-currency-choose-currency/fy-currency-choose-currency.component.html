@@ -21,7 +21,7 @@
         [(ngModel)]="value"
       />
       <button mat-button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="clearValue()">
-        <mat-icon>Close</mat-icon>
+        <mat-icon>close</mat-icon>
       </button>
     </mat-form-field>
   </ion-toolbar>
@@ -43,7 +43,7 @@
               <app-fy-highlight-text [fullText]="label + ' - ' + currency" [queryText]="value"> </app-fy-highlight-text>
             </span>
           </div>
-          <mat-icon *ngIf="selected" class="selection-modal--check"> Check </mat-icon>
+          <mat-icon *ngIf="selected" class="selection-modal--check"> check </mat-icon>
         </ng-template>
         <ng-container
           *ngTemplateOutlet="selectionElement ? selectionElement : defaultSelectionElement; context: recentlyUsedItem"
@@ -57,7 +57,7 @@
         <ng-container *ngFor="let currency of filteredCurrencies">
           <div matRipple class="selection-modal--list-element" (click)="onCurrencySelect(currency)">
             <div>{{ currency.shortCode }} - {{ currency.longName }}</div>
-            <mat-icon class="selection-modal--check" *ngIf="currency.shortCode === currentSelection"> Check </mat-icon>
+            <mat-icon class="selection-modal--check" *ngIf="currency.shortCode === currentSelection"> check </mat-icon>
           </div>
         </ng-container>
       </div>

@@ -21,7 +21,7 @@
         [(ngModel)]="value"
       />
       <button mat-button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="clearValue()">
-        <mat-icon>Close</mat-icon>
+        <mat-icon>close</mat-icon>
       </button>
     </mat-form-field>
   </ion-toolbar>
@@ -36,7 +36,7 @@
       matRipple
     >
       <div>{{ currency.shortCode }} - {{ currency.longName }}</div>
-      <mat-icon class="selection-modal--check" *ngIf="currency.shortCode === currentSelection"> Check </mat-icon>
+      <mat-icon class="selection-modal--check" *ngIf="currency.shortCode === currentSelection"> check </mat-icon>
     </div>
   </div>
 </ion-content>

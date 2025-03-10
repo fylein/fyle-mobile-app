@@ -22,21 +22,21 @@
 <ion-content class="no-keyboard-adjust">
   <div class="my-create-report--container full-height">
     <div class="my-create-report--report-card">
-      <div class="my-create-report--report-title">Report name</div>
+      <div class="my-create-report--report-title">Expense report name</div>
       <span class="my-create-report--mandatory"> * </span>
       <input
         data-testid="report-name"
         class="my-create-report--report-name smartlook-show"
         name="reportName"
         type="text"
-        placeholder="Enter report title"
+        placeholder="Enter report name"
         [(ngModel)]="reportTitle"
         required
         (ngModelChange)="detectTitleChange()"
         #reportTitleInput="ngModel"
       />
     </div>
-    <div class="my-create-report--error-message" *ngIf="showReportNameError">Please enter report name.</div>
+    <div class="my-create-report--error-message" *ngIf="showReportNameError">Please enter expense report name.</div>
 
     <div *ngIf="readyToReportExpenses?.length === 0" class="my-create-report--zero-state">
       <div>

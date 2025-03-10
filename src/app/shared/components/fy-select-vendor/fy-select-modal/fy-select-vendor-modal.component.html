@@ -31,7 +31,7 @@
         aria-label="Clear"
         (click)="clearValue()"
       >
-        <mat-icon>Close</mat-icon>
+        <mat-icon>close</mat-icon>
       </button>
     </mat-form-field>
   </ion-toolbar>
@@ -74,14 +74,14 @@
               <div class="selection-modal--label">
                 <app-fy-highlight-text [fullText]="label" [queryText]="value"> </app-fy-highlight-text>
               </div>
-              <mat-icon *ngIf="selected" class="selection-modal--check"> Check </mat-icon>
+              <mat-icon *ngIf="selected" class="selection-modal--check"> check </mat-icon>
             </div>
 
             <div *ngIf="!filteredListItem.isRecentlyUsed" class="selection-modal--list-item">
               <div class="selection-modal--label">
                 <app-fy-highlight-text [fullText]="label" [queryText]="value"> </app-fy-highlight-text>
               </div>
-              <mat-icon *ngIf="selected" class="selection-modal--check"> Check </mat-icon>
+              <mat-icon *ngIf="selected" class="selection-modal--check"> check </mat-icon>
             </div>
           </ng-template>
           <ng-container *ngTemplateOutlet="defaultSelectionElement; context: filteredListItem"> </ng-container>
