@@ -127,7 +127,7 @@
                 <ng-container *ngIf="category === 'mileage' || category === 'per diem'; else receiptContent">
                   {{ category }}
                 </ng-container>
-                <ng-template #receiptContent> Receipt </ng-template>
+                <ng-template #receiptContent> receipt </ng-template>
                 will be added shortly.
               </div>
             </div>
@@ -145,7 +145,7 @@
               </div>
             </ng-container>
             <ng-template #scanFailed>
-              <div class="expenses-card--scaning-receipt__container expenses-card--scaning-receipt__container-Error">
+              <div class="expenses-card--scaning-receipt__container expenses-card--scaning-receipt__container-error">
                 <div class="expenses-card--scaning-receipt__header expenses-card--scaning-receipt__header-failed">
                   Scan failed
                 </div>
@@ -221,7 +221,7 @@
             class="expenses-card--category-vendor-project-container expenses-card--category-vendor-project-container__align-vertical-center expenses-card--category-vendor-project-container__error"
           >
             <div>Expense information</div>
-            <div>Missing</div>
+            <div>missing</div>
           </div>
           <div class="expenses-card--default-view-container">
             <div class="expenses-card--currency-amount-container ion-text-right">
