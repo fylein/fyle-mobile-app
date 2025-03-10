@@ -158,7 +158,7 @@ export class CorporateCreditCardExpenseService {
     const config = {
       data: {
         query_params:
-          "or=(matched_expenses.cs.[{'state':'DRAFT'}],matched_expenses.cs.[{'state':'COMPLETE'}])&amount=gt.0",
+          'or=(matched_expenses.cs.[{"state":"DRAFT"}],matched_expenses.cs.[{"state":"COMPLETE"}])&amount=gt.0',
       },
     };
 
