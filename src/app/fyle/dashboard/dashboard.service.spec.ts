@@ -1,10 +1,8 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
-import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { completeStats, emptyStats, incompleteStats } from 'src/app/core/mock-data/platform/v1/expenses-stats.data';
-import { ApiV2Service } from 'src/app/core/services/api-v2.service';
-import { AuthService } from 'src/app/core/services/auth.service';
+import { SpenderPlatformV1ApiService } from 'src/app/core/services/spender-platform-v1-api.service';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { expectedAssignedCCCStats } from '../../core/mock-data/ccc-expense.details.data';
@@ -23,30 +21,20 @@ import { ApproverReportsService } from 'src/app/core/services/platform/v1/approv
 describe('DashboardService', () => {
   let dashboardService: DashboardService;
   let expensesService: jasmine.SpyObj<ExpensesService>;
-  let authService: jasmine.SpyObj<AuthService>;
-  let apiV2Service: jasmine.SpyObj<ApiV2Service>;
   let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
   let approverReportService: jasmine.SpyObj<ApproverReportsService>;
+  let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
 
   beforeEach(() => {
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseStats']);
-    const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
-    const apiV2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['get', 'getStats']);
     const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', ['getReportsStats']);
     const approverReportServiceSpy = jasmine.createSpyObj('ApproverReportsService', ['getReportsStats']);
+    const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['post']);
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
       providers: [
         DashboardService,
         CorporateCreditCardExpenseService,
-        {
-          provide: AuthService,
-          useValue: authServiceSpy,
-        },
-        {
-          provide: ApiV2Service,
-          useValue: apiV2ServiceSpy,
-        },
         {
           provide: ExpensesService,
           useValue: expensesServiceSpy,
@@ -59,14 +47,19 @@ describe('DashboardService', () => {
           provide: ApproverReportsService,
           useValue: approverReportServiceSpy,
         },
+        {
+          provide: SpenderPlatformV1ApiService,
+          useValue: spenderPlatformV1ApiServiceSpy,
+        },
       ],
     });
     dashboardService = TestBed.inject(DashboardService);
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
-    authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-    apiV2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
     spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
     approverReportService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
+    spenderPlatformV1ApiService = TestBed.inject(
+      SpenderPlatformV1ApiService
+    ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
   });
 
   it('should be created', () => {
@@ -190,19 +183,20 @@ describe('DashboardService', () => {
   });
 
   it('getCCCDetails(): should get assigned card details', (done) => {
-    authService.getEou.and.resolveTo(apiEouRes);
-    apiV2Service.getStats.and.returnValue(of(apiAssignedCardDetailsRes));
-
-    const apiParams =
-      '/expenses_and_ccce/stats?aggregates=count(tx_id),sum(tx_amount)&scalar=true&dimension_1_1=corporate_credit_card_bank_name,corporate_credit_card_account_number,tx_state&tx_state=' +
-      'in.(COMPLETE,DRAFT)' +
-      '&corporate_credit_card_account_number=not.is.null&debit=is.true&tx_org_user_id=eq.' +
-      'ouX8dwsbLCLv';
+    const config = {
+      data: {
+        query_params:
+          'or=(matched_expenses.cs.[{"state":"DRAFT"}],matched_expenses.cs.[{"state":"COMPLETE"}])&amount=gt.0',
+      },
+    };
+    spenderPlatformV1ApiService.post.and.returnValue(of(apiAssignedCardDetailsRes));
 
     dashboardService.getCCCDetails().subscribe((res) => {
       expect(res).toEqual(expectedAssignedCCCStats);
-      expect(authService.getEou).toHaveBeenCalledTimes(1);
-      expect(apiV2Service.getStats).toHaveBeenCalledOnceWith(apiParams, {});
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith(
+        '/corporate_card_transactions/expenses/stats',
+        config
+      );
       done();
     });
   });

@@ -7,7 +7,7 @@ export const expectedAssignedCCCStats: CCCDetails[] = deepFreeze([
   {
     bank_name: 'DAMNA',
     card_number: '8698',
-    corporate_card_id: 'card-damna-8698',
+    corporate_card_id: 'bacc12bbrBYWye',
     DRAFT: {
       count: 964,
       total_amount: 568437,
@@ -23,7 +23,7 @@ export const mastercardCCCStats: CCCDetails[] = deepFreeze([
   {
     bank_name: 'MASTERCARD_BANK',
     card_number: '5555',
-    corporate_card_id: 'card-mastercard-bank-5555',
+    corporate_card_id: 'bacc15bbrRGWzf',
     DRAFT: {
       count: 6,
       total_amount: 937.2,
