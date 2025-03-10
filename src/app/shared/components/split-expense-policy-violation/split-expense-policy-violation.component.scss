@@ -2,9 +2,10 @@
 
 .split-expense-policy-violation {
   &--accordion {
-    padding: 8px;
-    border-bottom: 1px solid $lavender;
-    margin-bottom: 8px;
+    padding: 14px 4px 4px 4px;
+    margin: 12px;
+    border: 1px solid $border-tertiary;
+    border-radius: 8px;
   }
 
   &--header-slot {
@@ -12,6 +13,14 @@
     align-items: center;
     justify-content: space-between;
     padding: 0px 10px;
+  }
+
+  &--header-msg {
+    margin: 0 12px;
+    padding-top: 12px;
+    span {
+      display: block;
+    }
   }
 
   &--sub-header-slot {
@@ -25,11 +34,12 @@
     font-size: 12px;
     line-height: 14px;
     color: $grey-light;
+    margin-bottom: 6px;
   }
 
   &--value {
-    margin-top: 2px;
     font-weight: 500;
+    color: $grey-light-2;
   }
 
   &--content-container {
@@ -68,9 +78,10 @@
   }
 
   &--additional-details-comment-length {
-    float: right;
+    text-align: right;
     color: $text-button-grey;
     font-size: 12px;
+    margin-right: 14px;
   }
 
   &--disabled {

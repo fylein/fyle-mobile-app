@@ -469,7 +469,10 @@ export function TestCases5(getTestBed) {
     });
 
     describe('setupFilteredCategories():', () => {
-      beforeEach(() => (component.isProjectCategoryRestrictionsEnabled$ = of(true)));
+      beforeEach(() => {
+        component.isProjectCategoryRestrictionsEnabled$ = of(true);
+        component.txnFields$ = of(expenseFieldObjData);
+      });
 
       it('should get filtered categories for a project', fakeAsync(() => {
         component.etxn$ = of(unflattenedTxnData);
