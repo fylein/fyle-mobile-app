@@ -1,5 +1,5 @@
 import { Component, EventEmitter, ViewChild } from '@angular/core';
-import { concat, forkJoin, from, noop, Observable, of, Subject, Subscription } from 'rxjs';
+import { concat, forkJoin, from, noop, Observable, of, Subject, Subscription, timer } from 'rxjs';
 import { map, shareReplay, switchMap, takeUntil } from 'rxjs/operators';
 import { ActionSheetButton, ActionSheetController, ModalController, NavController, Platform } from '@ionic/angular';
 import { NetworkService } from '../../core/services/network.service';
@@ -33,7 +33,7 @@ import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { driver } from 'driver.js';
-import { WalkthroughDriverService } from 'src/app/core/services/walkthrough-driver.service';
+import { WalkthroughService } from 'src/app/core/services/walkthrough.service';
 import { FooterService } from 'src/app/core/services/footer.service';
 
 @Component({
@@ -100,7 +100,7 @@ export class DashboardPage {
     private authService: AuthService,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
-    private walkthroughDriverService: WalkthroughDriverService,
+    private walkthroughDriverService: WalkthroughService,
     private footerService: FooterService
   ) {}
 
@@ -120,47 +120,24 @@ export class DashboardPage {
     return this.tasksComponent.filterPills;
   }
 
-  setNavbarWalkthroughFeatureConfigFlag(isWalkthroughComplete: boolean): void {
+  setNavbarWalkthroughFeatureConfigFlag(): void {
     const featureConfigParams = {
-      feature: 'DASHBOARD_NAVBAR_WALKTHROUGH',
-      key: 'SHOW_NAVBAR_WALKTHROUGH',
+      feature: 'WALKTHROUGH',
+      key: 'DASHBOARD_SHOW_NAVBAR',
     };
 
-    let newConfigValue = {};
-
     this.featureConfigService
-      .getConfiguration<{ isShown?: boolean; isFinished?: boolean }>(featureConfigParams)
-      .pipe(
-        switchMap((config) => {
-          const featureConfigValue = config?.value || {};
-          const isShown = featureConfigValue?.isShown || false;
-          const isFinished = featureConfigValue?.isFinished || false;
-
-          if (isWalkthroughComplete) {
-            newConfigValue = {
-              isShown,
-              isFinished: true,
-            };
-          } else {
-            newConfigValue = {
-              isShown: true,
-              isFinished,
-            };
-          }
-
-          const newConfig = {
-            ...featureConfigParams,
-            value: newConfigValue,
-          };
-
-          return this.featureConfigService.saveConfiguration(newConfig);
-        })
-      )
+      .saveConfiguration({
+        ...featureConfigParams,
+        value: {
+          isShown: true,
+          isFinished: true,
+        },
+      })
       .subscribe(noop);
   }
 
   startTour(isApprover: boolean): void {
-    this.setNavbarWalkthroughFeatureConfigFlag(false);
     const driverInstance = driver({
       overlayOpacity: 0.5,
       allowClose: true,
@@ -174,7 +151,7 @@ export class DashboardPage {
       nextBtnText: 'Next',
       prevBtnText: 'Back',
       onDestroyed: () => {
-        this.setNavbarWalkthroughFeatureConfigFlag(true);
+        this.setNavbarWalkthroughFeatureConfigFlag();
       },
     });
 
@@ -186,8 +163,8 @@ export class DashboardPage {
 
   showNavbarWalkthrough(isApprover: boolean): void {
     const showNavbarWalkthroughConfig = {
-      feature: 'DASHBOARD_NAVBAR_WALKTHROUGH',
-      key: 'SHOW_NAVBAR_WALKTHROUGH',
+      feature: 'WALKTHROUGH',
+      key: 'DASHBOARD_SHOW_NAVBAR',
     };
 
     this.featureConfigService
@@ -197,9 +174,9 @@ export class DashboardPage {
         const isFinished = featureConfigValue?.isFinished || false;
 
         if (!isFinished) {
-          setTimeout(() => {
+          timer(1000).subscribe(() => {
             this.startTour(isApprover);
-          }, 1000);
+          });
         }
       });
   }

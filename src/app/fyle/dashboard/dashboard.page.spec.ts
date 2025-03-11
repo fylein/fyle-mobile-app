@@ -851,43 +851,17 @@ describe('DashboardPage', () => {
     });
   });
 
-  it('should fetch and update navbar walkthrough config', fakeAsync(() => {
-    featureConfigService.getConfiguration.and.returnValue(of(featureConfigWalkthroughStartData));
-    featureConfigService.saveConfiguration.and.returnValue(of(null));
-    component.setNavbarWalkthroughFeatureConfigFlag(false);
-    tick();
-
-    expect(featureConfigService.getConfiguration).toHaveBeenCalledOnceWith({
-      feature: 'DASHBOARD_NAVBAR_WALKTHROUGH',
-      key: 'SHOW_NAVBAR_WALKTHROUGH',
-    });
-
-    expect(featureConfigService.saveConfiguration).toHaveBeenCalledOnceWith({
-      feature: 'DASHBOARD_NAVBAR_WALKTHROUGH',
-      key: 'SHOW_NAVBAR_WALKTHROUGH',
-      value: {
-        isShown: true,
-        isFinished: featureConfigWalkthroughStartData.value.isFinished,
-      },
-    });
-  }));
-
   it('should set the config when the navbar walkthrough is finished', fakeAsync(() => {
     featureConfigService.getConfiguration.and.returnValue(of(featureConfigWalkthroughStartData));
     featureConfigService.saveConfiguration.and.returnValue(of(null));
-    component.setNavbarWalkthroughFeatureConfigFlag(true);
+    component.setNavbarWalkthroughFeatureConfigFlag();
     tick();
 
-    expect(featureConfigService.getConfiguration).toHaveBeenCalledOnceWith({
-      feature: 'DASHBOARD_NAVBAR_WALKTHROUGH',
-      key: 'SHOW_NAVBAR_WALKTHROUGH',
-    });
-
     expect(featureConfigService.saveConfiguration).toHaveBeenCalledOnceWith({
-      feature: 'DASHBOARD_NAVBAR_WALKTHROUGH',
-      key: 'SHOW_NAVBAR_WALKTHROUGH',
+      feature: 'WALKTHROUGH',
+      key: 'DASHBOARD_SHOW_NAVBAR',
       value: {
-        isShown: featureConfigWalkthroughStartData.value.isShown,
+        isShown: true,
         isFinished: true,
       },
     });
@@ -901,8 +875,8 @@ describe('DashboardPage', () => {
     tick();
 
     expect(featureConfigService.getConfiguration).toHaveBeenCalledOnceWith({
-      feature: 'DASHBOARD_NAVBAR_WALKTHROUGH',
-      key: 'SHOW_NAVBAR_WALKTHROUGH',
+      feature: 'WALKTHROUGH',
+      key: 'DASHBOARD_SHOW_NAVBAR',
     });
 
     expect(component.startTour).not.toHaveBeenCalled();

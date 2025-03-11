@@ -45,19 +45,21 @@
   }
 }
 
-.driver-popover-prev-btn {
-  border: none !important;
-  color: white !important;
-  text-shadow: none !important;
-  opacity: 1 !important;
-}
+.driver-popover-navigation-btns {
+  .driver-popover-next-btn {
+    background-color: white;
+    max-width: 70px;
+    min-width: 52px;
+    height: 32px;
+    text-align: center;
+  }
 
-.driver-popover-next-btn {
-  background-color: white !important;
-  max-width: 70px !important;
-  min-width: 52px !important;
-  height: 32px !important;
-  text-align: center !important;
+  .driver-popover-prev-btn {
+    border: none;
+    color: white;
+    text-shadow: none;
+    opacity: 1;
+  }
 }
 
 .driver-popover-progress-text {
