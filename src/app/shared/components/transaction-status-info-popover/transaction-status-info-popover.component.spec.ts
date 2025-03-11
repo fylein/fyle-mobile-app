@@ -72,7 +72,7 @@ describe('TransactionStatusInfoComponent', () => {
 
         const content = getElementBySelector(fixture, '[data-testid="content"');
         expect(content.textContent).toEqual(
-          'Your transaction status is Pending until your bank processes the transaction.'
+          `Your transaction status is 'Pending' until your bank processes the transaction.`
         );
       });
 
