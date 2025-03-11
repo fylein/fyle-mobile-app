@@ -1,0 +1,16 @@
+.fy-popover {
+  &--content-wrapper {
+    padding: 32px 16px;
+  }
+  &--msg-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  &--message-text {
+    font-size: 12px;
+    line-height: 18px;
+    width: 50%;
+    text-align: center;
+  }
+}
