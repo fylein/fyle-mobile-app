@@ -10,7 +10,7 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
-import { BehaviorSubject, of } from 'rxjs';
+import { of } from 'rxjs';
 import {
   orgSettingsCCCDisabled,
   orgSettingsCCCEnabled,
@@ -18,15 +18,13 @@ import {
 } from 'src/app/core/mock-data/org-settings.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import { emptyCCCStats, mastercardCCCStats } from 'src/app/core/mock-data/ccc-expense.details.data';
-import { mastercardRTFCard, statementUploadedCard } from 'src/app/core/mock-data/platform-corporate-card.data';
+import { mastercardRTFCard } from 'src/app/core/mock-data/platform-corporate-card.data';
 import { By } from '@angular/platform-browser';
 import { cardDetailsRes, virtualCardDetailsCombined } from 'src/app/core/mock-data/platform-corporate-card-detail.data';
 import { AddCorporateCardComponent } from '../../manage-corporate-cards/add-corporate-card/add-corporate-card.component';
 import { CardAddedComponent } from '../../manage-corporate-cards/card-added/card-added.component';
 import { VirtualCardsService } from 'src/app/core/services/virtual-cards.service';
-import { virtualCardDetailsResponse } from 'src/app/core/mock-data/virtual-card-details-response.data';
 import { virtualCardCombinedResponse } from 'src/app/core/mock-data/virtual-card-combined-response.data';
-import { VirtualCardsCombinedRequest } from 'src/app/core/models/virtual-cards-combined-request.model';
 
 @Component({
   selector: 'app-spent-cards',
@@ -196,7 +194,7 @@ describe('CardStatsComponent', () => {
       expect(corporateCreditCardExpenseService.getCorporateCards).toHaveBeenCalledTimes(1);
       expect(corporateCreditCardExpenseService.getPlatformCorporateCardDetails).toHaveBeenCalledOnceWith(
         cards,
-        cardStats.cardDetails
+        cardStats
       );
     });
 
