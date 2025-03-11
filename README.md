@@ -223,7 +223,7 @@ In this file, you will see 4 metrics for the files you have changed:
 For running the app directly on an Android device for staging
 
 - Add .env file to project (ping mobile app team for the file)
-- Build and sync the app:
+- Build and run the app:
 
 ```bash
 ionic build -c staging
@@ -239,15 +239,12 @@ For running the app directly on an ios device for staging
 
 - Add .env file to project (ping mobile app team for the file)
 - Install Xcode from the App Store
-- Build and sync:
+- Build and run the app:
 
 ```bash
 ionic build --staging
-npx cap sync
-npx cap open ios
+ionic capacitor run ios -l --external --configuration=staging
 ```
-
-- Open Xcode, select the connected device from the top bar and click on the run button.
 
 <br/>
 
