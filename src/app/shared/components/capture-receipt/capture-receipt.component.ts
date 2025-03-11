@@ -403,9 +403,9 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     const isIos = this.devicePlatform === 'ios';
 
     const galleryPermissionName = isIos ? 'Photos' : 'Storage';
-    let title = 'Camera Permission';
+    let title = 'Camera permission';
     if (permissionType === 'GALLERY') {
-      title = galleryPermissionName + ' Permission';
+      title = galleryPermissionName + ' permission';
     }
 
     const cameraPermissionMessage = `To capture photos, please allow Fyle to access your camera. Click Settings and allow access to Camera and ${galleryPermissionName}`;

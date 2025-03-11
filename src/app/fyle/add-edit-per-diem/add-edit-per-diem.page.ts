@@ -970,7 +970,7 @@ export class AddEditPerDiemPage implements OnInit {
       cost_center_dependent_fields: this.fb.array([]),
     });
 
-    this.title = 'Add Expense';
+    this.title = 'Add expense';
     this.activeIndex = this.activatedRoute.snapshot.params.activeIndex as number;
     this.reviewList =
       this.activatedRoute.snapshot.params.txnIds &&
