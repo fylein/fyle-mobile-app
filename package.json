@@ -138,11 +138,7 @@
     "ionic_generate_source_map": "true"
   },
   "overrides": {
-    "karma-parallel": {
-      "istanbul": {
-        "async": "^3.2.6"
-      }
-    }
+    "async": "^3.2.6"
   },
   "prettier": {
     "printWidth": 120,
