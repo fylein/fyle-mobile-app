@@ -43,4 +43,4 @@ setup.sh
 
 # Sentry Config File
 .sentryclirc
-
+dependency-check-report.csv
