@@ -52,7 +52,7 @@
 </ion-content>
 
 <ion-content *ngIf="!isReportView && !isEmployeeView" (swipe)="onSwipeAmount($event)">
-  <p class="view-info--section-header">COMPONENT WISE SPLIT</p>
+  <p class="view-info--section-header">Component wise split</p>
   <ion-grid class="view-info--body-container">
     <ion-row
       *ngFor="let item of amountComponentWiseDetails | keyvalue : originalOrder"
@@ -74,7 +74,7 @@
     </ion-row>
   </ion-grid>
   <div *ngIf="isForeignCurrency">
-    <p class="view-info--section-header view-info--section-header__currency">CURRENCY WISE SPLIT</p>
+    <p class="view-info--section-header view-info--section-header__currency">Currency wise split</p>
     <ion-grid class="view-info--body-container">
       <ion-row *ngFor="let item of amountCurrencyWiseDetails" class="view-info--body-container__content">
         <ion-col size="5">
