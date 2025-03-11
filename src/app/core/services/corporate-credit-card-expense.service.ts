@@ -172,30 +172,24 @@ export class CorporateCreditCardExpenseService {
    * to match the structure expected by the frontend
    */
   private transformCardData(cardData: CardTransactionStat[]): CCCDetails[] {
-    const cardMap = new Map<string, CCCDetails>();
-    cardData.forEach((card) => {
-      const cardId = card.corporate_card_id;
+    return Object.values(
+      cardData.reduce((cardMap, { corporate_card_id, bank_name, card_number, state, count, total_amount }) => {
+        if (!cardMap[corporate_card_id]) {
+          cardMap[corporate_card_id] = {
+            bank_name,
+            card_number,
+            corporate_card_id,
+            DRAFT: { count: 0, total_amount: 0 },
+            COMPLETE: { count: 0, total_amount: 0 },
+          };
+        }
 
-      if (!cardMap.has(cardId)) {
-        cardMap.set(cardId, {
-          bank_name: card.bank_name,
-          card_number: card.card_number,
-          corporate_card_id: cardId,
-          DRAFT: { count: 0, total_amount: 0 },
-          COMPLETE: { count: 0, total_amount: 0 },
-        });
-      }
+        if (state in cardMap[corporate_card_id]) {
+          cardMap[corporate_card_id][state] = { count, total_amount };
+        }
 
-      const cardEntry = cardMap.get(cardId);
-
-      if (card.state === 'DRAFT' || card.state === 'COMPLETE') {
-        cardEntry[card.state] = {
-          count: card.count,
-          total_amount: card.total_amount,
-        };
-      }
-    });
-
-    return Array.from(cardMap.values());
+        return cardMap;
+      }, {} as Record<string, CCCDetails>)
+    );
   }
 }
