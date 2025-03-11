@@ -3196,7 +3196,7 @@ export class AddEditExpensePage implements OnInit {
       this.activatedRoute.snapshot.params.txnIds &&
       (JSON.parse(this.activatedRoute.snapshot.params.txnIds as string) as string[]);
 
-    this.title = 'Add Expense';
+    this.title = 'Add expense';
     this.title =
       this.activeIndex > -1 && this.reviewList && this.activeIndex < this.reviewList.length ? 'Review' : 'Edit';
 
