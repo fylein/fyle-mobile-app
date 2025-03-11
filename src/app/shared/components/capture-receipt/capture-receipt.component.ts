@@ -419,7 +419,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         title,
         message,
         primaryCta: {
-          text: 'Open Settings',
+          text: 'Open settings',
           action: 'OPEN_SETTINGS',
         },
         secondaryCta: {

@@ -600,11 +600,11 @@ describe('CaptureReceiptComponent', () => {
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         component: PopupAlertComponent,
         componentProps: {
-          title: 'Camera Permission',
+          title: 'Camera permission',
           message:
             'To capture photos, please allow Fyle to access your camera. Click Settings and allow access to Camera and Storage',
           primaryCta: {
-            text: 'Open Settings',
+            text: 'Open settings',
             action: 'OPEN_SETTINGS',
           },
           secondaryCta: {
@@ -624,10 +624,10 @@ describe('CaptureReceiptComponent', () => {
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         component: PopupAlertComponent,
         componentProps: {
-          title: 'Storage Permission',
+          title: 'Storage permission',
           message: 'Please allow Fyle to access device photos. Click Settings and allow Storage access',
           primaryCta: {
-            text: 'Open Settings',
+            text: 'Open settings',
             action: 'OPEN_SETTINGS',
           },
           secondaryCta: {
