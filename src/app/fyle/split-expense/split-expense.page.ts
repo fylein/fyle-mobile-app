@@ -62,6 +62,9 @@ import { SplitConfig } from 'src/app/core/models/split-config.model';
 import { ReviewSplitExpenseComponent } from 'src/app/shared/components/review-split-expense/review-split-expense.component';
 import { FyMsgPopoverComponent } from 'src/app/shared/components/fy-msg-popover/fy-msg-popover.component';
 import { SplittingExpenseProperties } from 'src/app/core/models/splitting-expense-properties.model';
+import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
+import { FilteredSplitPolicyViolations } from 'src/app/core/models/filtered-split-policy-violations.model';
+import { FilteredMissingFieldsViolations } from 'src/app/core/models/filtered-missing-fields-violations.model';
 
 @Component({
   selector: 'app-split-expense',
@@ -623,23 +626,34 @@ export class SplitExpensePage implements OnDestroy {
   ): Promise<SplitExpenseViolationsPopup> {
     const filteredPolicyViolations = this.splitExpenseService.filteredPolicyViolations(policyViolations);
 
+    const splitTrackingProps = this.getSplitExpensePoperties();
+    this.trackingService.splitExpensePolicyAndMissingFieldsPopupShown(splitTrackingProps);
     let filteredMissingFieldsViolations = {};
+    let hasMissingFields = false;
 
     if (missingFieldsViolations) {
       filteredMissingFieldsViolations =
         this.splitExpenseService.filteredMissingFieldsViolations(missingFieldsViolations);
-    } else {
-      filteredMissingFieldsViolations = null;
+      hasMissingFields = Object.values(filteredMissingFieldsViolations).some(
+        (field: FilteredMissingFieldsViolations) => field?.isMissingFields
+      );
     }
 
-    const splitTrackingProps = this.getSplitExpensePoperties();
-    this.trackingService.splitExpensePolicyAndMissingFieldsPopupShown(splitTrackingProps);
+    if (hasMissingFields) {
+      this.showMissingFieldsModal();
+      return null;
+    } else {
+      return this.showPolicyViolationModal(filteredPolicyViolations);
+    }
+  }
 
+  async showPolicyViolationModal(filteredPolicyViolations: {
+    [id: number]: FilteredSplitPolicyViolations;
+  }): Promise<SplitExpenseViolationsPopup> {
     const splitExpenseViolationsModal = await this.modalController.create({
       component: SplitExpensePolicyViolationComponent,
       componentProps: {
         policyViolations: filteredPolicyViolations,
-        missingFieldsViolations: filteredMissingFieldsViolations,
         isPartOfReport: !!this.reportId,
       },
       mode: 'ios',
@@ -652,6 +666,24 @@ export class SplitExpensePage implements OnDestroy {
     const { data } = await splitExpenseViolationsModal.onWillDismiss<SplitExpenseViolationsPopup>();
 
     return data;
+  }
+
+  async showMissingFieldsModal(): Promise<void> {
+    const splitBlockedPopoverSpy = await this.popoverController.create({
+      component: PopupAlertComponent,
+      componentProps: {
+        title: 'Expense cannot be split',
+        leftAlign: true,
+        message:
+          'Splitting this expense will result in incomplete expenses, which cannot be added to a expense report.',
+        secondaryMsg: 'Please remove the expense from the expense report and split it again.',
+        primaryCta: {
+          text: 'Got it',
+        },
+      },
+      cssClass: 'pop-up-in-center',
+    });
+    await splitBlockedPopoverSpy.present();
   }
 
   handlePolicyAndMissingFieldsCheck(splitEtxns: Transaction[]): Observable<SplitExpenseViolationsPopup> {
@@ -782,7 +814,11 @@ export class SplitExpensePage implements OnDestroy {
       this.showErrorBlock = false;
       if (this.amount && parseFloat(this.amount.toFixed(3)) !== this.totalSplitAmount) {
         this.showErrorBlock = true;
-        this.errorMessage = 'Split amount cannot be more than ' + this.amount + '.';
+        if (this.totalSplitAmount < parseFloat(this.amount.toFixed(3))) {
+          this.errorMessage = 'Split amount cannot be less than ' + this.amount + '.';
+        } else {
+          this.errorMessage = 'Split amount cannot be more than ' + this.amount + '.';
+        }
         setTimeout(() => {
           this.showErrorBlock = false;
         }, 2500);
@@ -1431,7 +1467,7 @@ export class SplitExpensePage implements OnDestroy {
     }
   }
 
-  async openReviewSplitExpenseModal(expense: Partial<Transaction>[]): Promise<void> {
+  async openReviewSplitExpenseModal(expense: Partial<Transaction>[] | PlatformExpense[]): Promise<void> {
     if (this.isReviewModalOpen) {
       return;
     }
@@ -1480,11 +1516,11 @@ export class SplitExpensePage implements OnDestroy {
     }
   }
 
-  private setRecentlySplitExpenses(data: { expenses: Partial<Transaction>[] }): void {
+  private setRecentlySplitExpenses(data: { expenses: Partial<Transaction>[] | PlatformExpense[] }): void {
     this.expensesService.splitExpensesData$.next(data);
   }
 
-  private getRecentlySplitExpenses(): Observable<{ expenses: Partial<Transaction>[] } | null> {
+  private getRecentlySplitExpenses(): Observable<{ expenses: Partial<Transaction>[] | PlatformExpense[] } | null> {
     return this.expensesService.splitExpensesData$.asObservable();
   }
 

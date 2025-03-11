@@ -1,4 +1,5 @@
 // TODO: Very hard to fix this file without making massive changes
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable complexity */
 import { TitleCasePipe } from '@angular/common';
 import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } from '@angular/core';
@@ -5292,11 +5293,38 @@ export class AddEditExpensePage implements OnInit {
     }
 
     const currentData = this.expensesService.splitExpensesData$.getValue();
-
     if (currentData && currentData?.expenses) {
-      const updatedExpenses = currentData.expenses.map((expense) =>
-        expense.id === updatedExpense.id ? updatedExpense : expense
-      );
+      const updatedExpenses = currentData.expenses.map((expense) => {
+        if (expense.id === updatedExpense.id) {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          const updatedExpenseObj = { ...expense, ...updatedExpense };
+          if (updatedExpense.categoryDisplayName) {
+            if (!updatedExpenseObj.category) {
+              updatedExpenseObj.category = { name: updatedExpense.categoryDisplayName };
+            } else {
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+              updatedExpenseObj.category = {
+                ...updatedExpenseObj.category,
+                name: updatedExpense.categoryDisplayName,
+              };
+            }
+          }
+          if (updatedExpense.vendor !== undefined) {
+            updatedExpenseObj.merchant = updatedExpense.vendor;
+          }
+          if (updatedExpense.policy_flag !== undefined) {
+            updatedExpenseObj.is_policy_flagged = updatedExpense.policy_flag;
+          }
+          if (updatedExpense.skip_reimbursement !== undefined) {
+            updatedExpenseObj.is_reimbursable = !updatedExpense.skip_reimbursement;
+          }
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+          return updatedExpenseObj;
+        } else {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+          return expense;
+        }
+      });
       this.expensesService.splitExpensesData$.next({
         ...currentData,
         expenses: updatedExpenses,
