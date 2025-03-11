@@ -814,7 +814,11 @@ export class SplitExpensePage implements OnDestroy {
       this.showErrorBlock = false;
       if (this.amount && parseFloat(this.amount.toFixed(3)) !== this.totalSplitAmount) {
         this.showErrorBlock = true;
-        this.errorMessage = 'Split amount cannot be more than ' + this.amount + '.';
+        if (this.totalSplitAmount < parseFloat(this.amount.toFixed(3))) {
+          this.errorMessage = 'Split amount cannot be less than ' + this.amount + '.';
+        } else {
+          this.errorMessage = 'Split amount cannot be more than ' + this.amount + '.';
+        }
         setTimeout(() => {
           this.showErrorBlock = false;
         }, 2500);
@@ -1463,7 +1467,7 @@ export class SplitExpensePage implements OnDestroy {
     }
   }
 
-  async openReviewSplitExpenseModal(expense: Partial<Transaction>[]): Promise<void> {
+  async openReviewSplitExpenseModal(expense: Partial<Transaction>[] | PlatformExpense[]): Promise<void> {
     if (this.isReviewModalOpen) {
       return;
     }
@@ -1512,11 +1516,11 @@ export class SplitExpensePage implements OnDestroy {
     }
   }
 
-  private setRecentlySplitExpenses(data: { expenses: Partial<Transaction>[] }): void {
+  private setRecentlySplitExpenses(data: { expenses: Partial<Transaction>[] | PlatformExpense[] }): void {
     this.expensesService.splitExpensesData$.next(data);
   }
 
-  private getRecentlySplitExpenses(): Observable<{ expenses: Partial<Transaction>[] } | null> {
+  private getRecentlySplitExpenses(): Observable<{ expenses: Partial<Transaction>[] | PlatformExpense[] } | null> {
     return this.expensesService.splitExpensesData$.asObservable();
   }
 
