@@ -100,7 +100,7 @@ export class DashboardPage {
     private authService: AuthService,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
-    private walkthroughDriverService: WalkthroughService,
+    private walkthroughService: WalkthroughService,
     private footerService: FooterService
   ) {}
 
@@ -155,9 +155,9 @@ export class DashboardPage {
       },
     });
 
-    const navbarWalkthroughDriverSteps = this.walkthroughDriverService.getNavBarWalkthroughDriver(isApprover);
+    const navbarWalkthroughSteps = this.walkthroughService.getNavBarWalkthroughConfig(isApprover);
 
-    driverInstance.setSteps(navbarWalkthroughDriverSteps);
+    driverInstance.setSteps(navbarWalkthroughSteps);
     driverInstance.drive();
   }
 
