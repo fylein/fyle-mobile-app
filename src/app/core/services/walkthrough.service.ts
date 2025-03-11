@@ -5,7 +5,7 @@ import { DriveStep } from 'driver.js';
   providedIn: 'root',
 })
 export class WalkthroughService {
-  getNavBarWalkthroughDriver(isApprover: boolean): DriveStep[] {
+  getNavBarWalkthroughConfig(isApprover: boolean): DriveStep[] {
     const steps: DriveStep[] = [
       {
         element: '#footer-walkthrough',

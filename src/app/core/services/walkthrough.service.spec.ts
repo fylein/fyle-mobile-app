@@ -15,7 +15,7 @@ describe('WalkthroughDriverService', () => {
   });
 
   it('should return steps for non-approver', () => {
-    const steps: DriveStep[] = service.getNavBarWalkthroughDriver(false);
+    const steps: DriveStep[] = service.getNavBarWalkthroughConfig(false);
     expect(steps.length).toBe(3);
     expect(steps[0].element).toBe('#footer-walkthrough');
     expect(steps[1].element).toBe('#tab-button-expenses');
@@ -23,7 +23,7 @@ describe('WalkthroughDriverService', () => {
   });
 
   it('should return steps for approver', () => {
-    const steps: DriveStep[] = service.getNavBarWalkthroughDriver(true);
+    const steps: DriveStep[] = service.getNavBarWalkthroughConfig(true);
     expect(steps.length).toBe(4);
     expect(steps[0].element).toBe('#footer-walkthrough');
     expect(steps[1].element).toBe('#tab-button-expenses');
@@ -32,7 +32,7 @@ describe('WalkthroughDriverService', () => {
   });
 
   it('should have correct popover descriptions', () => {
-    const steps: DriveStep[] = service.getNavBarWalkthroughDriver(true);
+    const steps: DriveStep[] = service.getNavBarWalkthroughConfig(true);
     expect(steps[0].popover.description).toBe(
       'Expenses & Reports are now on the bottom bar of the home page for easy access and smooth navigation!'
     );
