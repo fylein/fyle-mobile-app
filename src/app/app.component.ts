@@ -190,11 +190,7 @@ export class AppComponent implements OnInit {
     this.setupNetworkWatcher();
     this.totalTasksCount = 0;
     this.footerService.selectionMode$.subscribe((isEnabled) => {
-      if (isEnabled) {
-        this.showFooter = false;
-      } else {
-        this.showFooter = true;
-      }
+      this.showFooter = !isEnabled;
     });
 
     // This was done as a security fix for appknox

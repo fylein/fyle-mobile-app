@@ -211,4 +211,63 @@ describe('AppComponent', () => {
     ]);
     expect(trackingService.footerReportsTabClicked).toHaveBeenCalledTimes(1);
   });
+
+  it('getShowFooter() should call getTotalTasksCount and handleRouteChanges', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const component = fixture.debugElement.componentInstance;
+    spyOn(component, 'getTotalTasksCount');
+    spyOn(component, 'handleRouteChanges');
+    component.getShowFooter();
+    expect(component.getTotalTasksCount).toHaveBeenCalledTimes(1);
+    expect(component.handleRouteChanges).toHaveBeenCalledTimes(1);
+  });
+
+  it('getStateFromPath() should return correct state when query parameter exists', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const component = fixture.debugElement.componentInstance;
+    const path = 'my_dashboard?state=tasks';
+    const state = component.getStateFromPath(path);
+    expect(state).toBe('tasks');
+  });
+
+  it('getStateFromPath() should return null when no query parameter exists', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const component = fixture.debugElement.componentInstance;
+    const path = 'my_dashboard';
+    const state = component.getStateFromPath(path);
+    expect(state).toBeNull();
+  });
+
+  it('updateFooterState() should set currentActiveState and update index for my_dashboard without tasks state', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const component = fixture.debugElement.componentInstance;
+    component.currentPath = 'my_dashboard';
+    component.updateFooterState(null);
+    expect(component.currentActiveState).toBe(FooterState.HOME);
+    expect(footerService.updateCurrentStateIndex).toHaveBeenCalledWith(0);
+  });
+
+  it('updateFooterState() should set currentActiveState for my_expenses', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const component = fixture.debugElement.componentInstance;
+    component.currentPath = 'my_expenses';
+    component.updateFooterState(null);
+    expect(component.currentActiveState).toBe(FooterState.EXPENSES);
+  });
+
+  it('updateFooterState() should set currentActiveState for my_reports', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const component = fixture.debugElement.componentInstance;
+    component.currentPath = 'my_reports';
+    component.updateFooterState(null);
+    expect(component.currentActiveState).toBe(FooterState.REPORTS);
+  });
+
+  it('updateFooterState() should set currentActiveState to null for other paths', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const component = fixture.debugElement.componentInstance;
+    component.currentPath = 'some_other_path';
+    component.updateFooterState(null);
+    expect(component.currentActiveState).toBeNull();
+  });
 });
