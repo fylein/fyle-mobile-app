@@ -4,7 +4,7 @@ import { DriveStep } from 'driver.js';
 @Injectable({
   providedIn: 'root',
 })
-export class WalkthroughDriverService {
+export class WalkthroughService {
   getNavBarWalkthroughDriver(isApprover: boolean): DriveStep[] {
     const steps: DriveStep[] = [
       {

@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
-import { WalkthroughDriverService } from './walkthrough-driver.service';
+import { WalkthroughService } from './walkthrough.service';
 import { DriveStep } from 'driver.js';
 
 describe('WalkthroughDriverService', () => {
-  let service: WalkthroughDriverService;
+  let service: WalkthroughService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(WalkthroughDriverService);
+    service = TestBed.inject(WalkthroughService);
   });
 
   it('should be created', () => {
