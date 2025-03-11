@@ -63,6 +63,7 @@ export const filteredSplitPolicyViolationsData2: FilteredSplitPolicyViolations =
   type: 'category',
   name: '1 / chumma returns',
   currency: 'INR',
+  inputFieldInfo: { Category: 'Travel', 'Cost Center': 'Finance', Project: 'Project A' },
   amount: 240000,
   isCriticalPolicyViolation: true,
 });

@@ -16,5 +16,6 @@ export const filteredMissingFieldsViolationsData2: FilteredMissingFieldsViolatio
   type: 'category',
   name: 'Food',
   currency: 'INR',
+  inputFieldInfo: { Category: 'Travel', 'Cost Center': 'Finance', Project: 'Project A' },
   amount: 122,
 });
