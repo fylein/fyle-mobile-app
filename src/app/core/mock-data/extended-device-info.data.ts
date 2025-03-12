@@ -3,7 +3,7 @@ import deepFreeze from 'deep-freeze-strict';
 import { ExtendedDeviceInfo } from '../models/extended-device-info.model';
 
 export const extendedDeviceInfoMockData: ExtendedDeviceInfo = deepFreeze({
-  identifier: 'mockidentifier123',
+  uuid: 'mockuuid123',
   appVersion: '5.50.0',
   liveUpdateAppVersion: '5.50.0',
   model: 'iPhone 11 Pro Max',
@@ -16,7 +16,7 @@ export const extendedDeviceInfoMockData: ExtendedDeviceInfo = deepFreeze({
 });
 
 export const extendedDeviceInfoMockData2: ExtendedDeviceInfo = deepFreeze({
-  identifier: 'mockidentifier124',
+  uuid: 'mockuuid124',
   appVersion: '5.52.0',
   liveUpdateAppVersion: '5.52.0',
   model: 'Samsung Galaxy A13',
@@ -29,7 +29,7 @@ export const extendedDeviceInfoMockData2: ExtendedDeviceInfo = deepFreeze({
 });
 
 export const extendedDeviceInfoMockDataWoApp: ExtendedDeviceInfo = deepFreeze({
-  identifier: 'mockidentifier124',
+  uuid: 'mockuuid124',
   appVersion: null,
   liveUpdateAppVersion: '5.52.0',
   model: 'Samsung Galaxy A13',
