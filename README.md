@@ -111,7 +111,7 @@ rm -rf node_modules
 - Reinstall the dependencies by running:
 
 ```bash
-npm install
+npm ci
 ```
 
 This will ensure that all required packages are correctly installed, resolving the issue.
