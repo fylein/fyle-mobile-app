@@ -1,5 +1,4 @@
 // TODO: Very hard to fix this file without making massive changes
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable complexity */
 import { TitleCasePipe } from '@angular/common';
 import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } from '@angular/core';
@@ -2691,7 +2690,7 @@ export class AddEditExpensePage implements OnInit {
       } else {
         categoryControl.clearValidators();
       }
-      categoryControl.updateValueAndValidity();
+      categoryControl.updateValueAndValidity({ emitEvent: false });
     });
   }
 
@@ -2870,7 +2869,7 @@ export class AddEditExpensePage implements OnInit {
         return null;
       }
 
-      const isAmountGreaterThanTaxAmount = this.getAmount() > control.value;
+      const isAmountGreaterThanTaxAmount = Math.abs(this.getAmount()) > Math.abs(control.value as number);
       return isAmountGreaterThanTaxAmount ? null : { taxAmountGreaterThanAmount: true };
     };
   }
@@ -3197,7 +3196,7 @@ export class AddEditExpensePage implements OnInit {
       this.activatedRoute.snapshot.params.txnIds &&
       (JSON.parse(this.activatedRoute.snapshot.params.txnIds as string) as string[]);
 
-    this.title = 'Add Expense';
+    this.title = 'Add expense';
     this.title =
       this.activeIndex > -1 && this.reviewList && this.activeIndex < this.reviewList.length ? 'Review' : 'Edit';
 
@@ -5295,27 +5294,34 @@ export class AddEditExpensePage implements OnInit {
     const currentData = this.expensesService.splitExpensesData$.getValue();
     if (currentData && currentData?.expenses) {
       const updatedExpenses = currentData.expenses.map((expense) => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         if (expense.id === updatedExpense.id) {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           const updatedExpenseObj = { ...expense, ...updatedExpense };
           if (updatedExpense.categoryDisplayName) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             if (!updatedExpenseObj.category) {
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
               updatedExpenseObj.category = { name: updatedExpense.categoryDisplayName };
             } else {
-              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
               updatedExpenseObj.category = {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                 ...updatedExpenseObj.category,
                 name: updatedExpense.categoryDisplayName,
               };
             }
           }
           if (updatedExpense.vendor !== undefined) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             updatedExpenseObj.merchant = updatedExpense.vendor;
           }
           if (updatedExpense.policy_flag !== undefined) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             updatedExpenseObj.is_policy_flagged = updatedExpense.policy_flag;
           }
           if (updatedExpense.skip_reimbursement !== undefined) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             updatedExpenseObj.is_reimbursable = !updatedExpense.skip_reimbursement;
           }
           // eslint-disable-next-line @typescript-eslint/no-unsafe-return

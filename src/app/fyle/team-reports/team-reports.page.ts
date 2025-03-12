@@ -39,7 +39,7 @@ import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 export class TeamReportsPage implements OnInit {
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef<HTMLInputElement>;
 
-  pageTitle = 'Team Reports';
+  pageTitle = 'Team reports';
 
   isConnected$: Observable<boolean>;
 
