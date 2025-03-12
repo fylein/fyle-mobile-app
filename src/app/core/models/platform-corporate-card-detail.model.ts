@@ -5,11 +5,10 @@ export interface PlatformCorporateCardDetail {
   card: PlatformCorporateCard;
   stats: {
     totalTxnsCount: number;
-    totalAmountValue: number;
     totalCompleteTxns: number;
-    totalCompleteExpensesValue: number;
+    totalCompleteExpensesAmount: number;
     totalDraftTxns: number;
-    totalDraftValue: number;
+    totalDraftAmount: number;
   };
   virtualCardDetail?: CardDetailsCombinedResponse;
 }
