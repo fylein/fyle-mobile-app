@@ -2,7 +2,7 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { IonicModule, Platform } from '@ionic/angular';
-import { Router } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
 
 import { AppComponent } from './app.component';
 import { AuthService } from './core/services/auth.service';
@@ -269,5 +269,29 @@ describe('AppComponent', () => {
     component.currentPath = 'some_other_path';
     component.updateFooterState(null);
     expect(component.currentActiveState).toBeNull();
+  });
+
+  it('getTotalTasksCount() should update totalTasksCount when connected', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const component = fixture.debugElement.componentInstance;
+    // When connected, return a specific task count from tasks service.
+    tasksService.getTotalTaskCount.and.returnValue(of(5));
+    component.isConnected$ = of(true);
+    (router as any).events = of(new NavigationEnd(1, '/enterprise/my_dashboard', '/enterprise/my_dashboard'));
+    spyOn(component, 'handleRouteChanges').and.callThrough();
+    spyOn(component, 'getTotalTasksCount').and.callThrough();
+    component.getShowFooter();
+    expect(component.getTotalTasksCount).toHaveBeenCalledTimes(1);
+    expect(tasksService.getTotalTaskCount).toHaveBeenCalledTimes(1);
+    expect(component.totalTasksCount).toBe(5);
+  });
+
+  it('getTotalTasksCount() should update totalTasksCount to 0 when not connected', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const component = fixture.debugElement.componentInstance;
+    // When not connected, our pipe should return 0.
+    component.isConnected$ = of(false);
+    (component as any).getTotalTasksCount();
+    expect(component.totalTasksCount).toBe(0);
   });
 });
