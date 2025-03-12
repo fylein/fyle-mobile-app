@@ -2690,7 +2690,7 @@ export class AddEditExpensePage implements OnInit {
       } else {
         categoryControl.clearValidators();
       }
-      categoryControl.updateValueAndValidity();
+      categoryControl.updateValueAndValidity({ emitEvent: false });
     });
   }
 
