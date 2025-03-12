@@ -1,0 +1,71 @@
+@import '../../theme/colors.scss';
+
+.driver-popover {
+  background-color: $walkthrough-bg;
+  color: white;
+  min-height: 154px;
+  max-width: 280px;
+  box-shadow: none;
+}
+
+.driver-popover-arrow {
+  content: '';
+  position: absolute;
+  border: 5px solid $walkthrough-bg;
+}
+
+.driver-popover-arrow-side-top {
+  top: 100%;
+  border-right-color: transparent;
+  border-bottom-color: transparent;
+  border-left-color: transparent;
+}
+
+.driver-popover-description {
+  font-size: 14px;
+  max-width: 200px;
+}
+
+.driver-popover-close-btn {
+  color: $walkthrough-text-color !important;
+  font-weight: normal;
+  font-size: 24px;
+  top: 5px;
+  right: 5px;
+}
+
+.driver-popover-description {
+  padding-bottom: 10px;
+}
+
+.driver-popover-footer {
+  margin-top: 38px;
+  button {
+    background-color: transparent;
+  }
+}
+
+.driver-popover-navigation-btns {
+  .driver-popover-next-btn {
+    background-color: white;
+    max-width: 70px;
+    min-width: 52px;
+    height: 32px;
+    text-align: center;
+  }
+
+  .driver-popover-prev-btn {
+    border: none;
+    color: white;
+    text-shadow: none;
+    opacity: 1;
+  }
+}
+
+.driver-popover-progress-text {
+  color: $walkthrough-text-color;
+}
+
+.driver-popover-navigation-btns {
+  gap: 15px;
+}

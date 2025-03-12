@@ -2,6 +2,7 @@
   <div class="fy-footer">
     <div
       class="fy-footer--buttons"
+      id="footer-walkthrough"
       [ngClass]="{
         'fy-footer--buttons__message-gap':
           connectionState === ConnectionMessageStatus.onlineMessageShown ||
@@ -14,14 +15,44 @@
         expand="full"
         (click)="goToHome()"
       >
-        <mat-icon
-          class="fy-footer--icon"
-          [svgIcon]="activeState === FooterState.HOME ? 'house-fill' : 'house-outline'"
-        ></mat-icon>
-        Home
+        <ion-tab-button tab="home" class="fy-footer--button__tabs">
+          <mat-icon
+            class="fy-footer--icon"
+            [svgIcon]="activeState === FooterState.HOME ? 'house-fill' : 'house-outline'"
+          ></mat-icon>
+          Home
+        </ion-tab-button>
+      </div>
+      <div
+        class="fy-footer--button"
+        [ngClass]="{ 'fy-footer--button__inactive': activeState !== FooterState.EXPENSES }"
+        expand="full"
+        (click)="goToExpenses()"
+      >
+        <ion-tab-button tab="expenses" class="fy-footer--button__tabs tab-button-expenses">
+          <mat-icon
+            class="fy-footer--icon"
+            [svgIcon]="activeState === FooterState.EXPENSES ? 'list-fill' : 'list'"
+          ></mat-icon>
+          Expenses
+        </ion-tab-button>
       </div>
       <div class="fy-footer--primary-button-container" matRipple (click)="goToCameraMode()">
         <mat-icon class="fy-footer--icon fy-footer--icon__primary fy-footer--primary-icon" svgIcon="camera"></mat-icon>
+      </div>
+      <div
+        class="fy-footer--button"
+        [ngClass]="{ 'fy-footer--button__inactive': activeState !== FooterState.REPORTS }"
+        expand="full"
+        (click)="goToReports()"
+      >
+        <ion-tab-button tab="reports" class="fy-footer--button__tabs tab-button-reports">
+          <mat-icon
+            class="fy-footer--icon"
+            [svgIcon]="activeState === FooterState.REPORTS ? 'folder-fill' : 'folder'"
+          ></mat-icon>
+          Reports
+        </ion-tab-button>
       </div>
       <div
         class="fy-footer--button"
@@ -32,14 +63,17 @@
         expand="full"
         (click)="goToTasks(connectionState)"
       >
-        <mat-icon
-          class="fy-footer--icon"
-          [svgIcon]="activeState === FooterState.TASKS ? 'bell-fill' : 'bell-outline'"
-        ></mat-icon>
-        <div *ngIf="taskCount > 0" class="fy-footer--icon-pill">
-          {{ taskCount }}
-        </div>
-        Tasks
+        <ion-tab-button tab="tasks" class="fy-footer--button__tabs">
+          <mat-icon
+            class="fy-footer--icon"
+            [svgIcon]="activeState === FooterState.TASKS ? 'bell-fill' : 'bell-outline'"
+          ></mat-icon>
+          <div *ngIf="taskCount > 0" class="fy-footer--icon-pill">
+            {{ taskCount }}
+          </div>
+          Tasks
+        </ion-tab-button>
+        <ion-ripple-effect type="unbounded"></ion-ripple-effect>
       </div>
     </div>
   </div>
