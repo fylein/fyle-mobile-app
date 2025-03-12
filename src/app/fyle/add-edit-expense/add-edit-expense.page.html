@@ -26,12 +26,12 @@
           </div>
         </ng-container>
         <ng-template #editMode>
-          <div>{{isIncompleteExpense ? 'Review' : 'Edit'}} Expense</div>
+          <div>{{isIncompleteExpense ? 'Review' : 'Edit'}} expense</div>
         </ng-template>
       </div>
     </ion-title>
 
-    <ion-buttons class="add-edit-expense--header-btn-container" slot="end">
+    <ion-buttons *ngIf="!fromSplitExpenseReview" class="add-edit-expense--header-btn-container" slot="end">
       <ion-button
         *ngIf="reviewList?.length || mode === 'edit'"
         class="add-edit-expense--header-btn-container__btn"
@@ -1299,7 +1299,7 @@
             Save and new
           </ion-button>
           <ion-button
-            (click)="closeAddEditExpenses()"
+            (click)="goBack()"
             *ngIf="mode === 'edit' && !navigateBack"
             [disabled]="saveExpenseLoader"
             class="btn-secondary"
