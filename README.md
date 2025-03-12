@@ -46,7 +46,7 @@ cd fyle-mobile-app
 2. **Install dependencies:**
 
 ```bash
-npm install
+npm ci
 ```
 
 3. **Set Environment Variables**: Add the environment files corresponding to the build you want in the environment folder. ([Follow Environment Setup](#-environment-setup))
