@@ -1,12 +1,12 @@
 import { Component, EventEmitter, ViewChild } from '@angular/core';
-import { concat, forkJoin, from, noop, Observable, of, Subject, Subscription } from 'rxjs';
+import { concat, forkJoin, from, noop, Observable, of, Subject, Subscription, timer } from 'rxjs';
 import { map, shareReplay, switchMap, takeUntil } from 'rxjs/operators';
 import { ActionSheetButton, ActionSheetController, ModalController, NavController, Platform } from '@ionic/angular';
 import { NetworkService } from '../../core/services/network.service';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { StatsComponent } from './stats/stats.component';
 import { ActivatedRoute, NavigationStart, Params, Router } from '@angular/router';
-import { FooterState } from '../../shared/components/footer/footer-state';
+import { FooterState } from '../../shared/components/footer/footer-state.enum';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TasksComponent } from './tasks/tasks.component';
 import { TasksService } from 'src/app/core/services/tasks.service';
@@ -32,6 +32,9 @@ import { FyOptInComponent } from 'src/app/shared/components/fy-opt-in/fy-opt-in.
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { driver } from 'driver.js';
+import { WalkthroughService } from 'src/app/core/services/walkthrough.service';
+import { FooterService } from 'src/app/core/services/footer.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -96,7 +99,9 @@ export class DashboardPage {
     private modalProperties: ModalPropertiesService,
     private authService: AuthService,
     private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService
+    private snackbarProperties: SnackbarPropertiesService,
+    private walkthroughService: WalkthroughService,
+    private footerService: FooterService
   ) {}
 
   get displayedTaskCount(): number {
@@ -113,6 +118,67 @@ export class DashboardPage {
 
   get filterPills(): FilterPill[] {
     return this.tasksComponent.filterPills;
+  }
+
+  setNavbarWalkthroughFeatureConfigFlag(): void {
+    const featureConfigParams = {
+      feature: 'WALKTHROUGH',
+      key: 'DASHBOARD_SHOW_NAVBAR',
+    };
+
+    this.featureConfigService
+      .saveConfiguration({
+        ...featureConfigParams,
+        value: {
+          isShown: true,
+          isFinished: true,
+        },
+      })
+      .subscribe(noop);
+  }
+
+  startTour(isApprover: boolean): void {
+    const driverInstance = driver({
+      overlayOpacity: 0.5,
+      allowClose: true,
+      overlayClickBehavior: 'nextStep',
+      showProgress: true,
+      overlayColor: '#161528',
+      stageRadius: 6,
+      stagePadding: 4,
+      popoverClass: 'custom-popover',
+      doneBtnText: 'Ok',
+      nextBtnText: 'Next',
+      prevBtnText: 'Back',
+      onDestroyed: () => {
+        this.setNavbarWalkthroughFeatureConfigFlag();
+      },
+    });
+
+    const navbarWalkthroughSteps = this.walkthroughService.getNavBarWalkthroughConfig(isApprover);
+
+    driverInstance.setSteps(navbarWalkthroughSteps);
+    driverInstance.drive();
+  }
+
+  showNavbarWalkthrough(isApprover: boolean): void {
+    const showNavbarWalkthroughConfig = {
+      feature: 'WALKTHROUGH',
+      key: 'DASHBOARD_SHOW_NAVBAR',
+    };
+
+    this.featureConfigService
+      .getConfiguration<{ isShown?: boolean; isFinished?: boolean }>(showNavbarWalkthroughConfig)
+      .subscribe((config) => {
+        const featureConfigValue = config?.value || {};
+        const isFinished = featureConfigValue?.isFinished || false;
+
+        if (!isFinished) {
+          timer(1000).subscribe(() => {
+            this.startTour(isApprover);
+          });
+        }
+      });
   }
 
   ionViewWillLeave(): void {
@@ -183,6 +249,9 @@ export class DashboardPage {
     this.setupNetworkWatcher();
     this.registerBackButtonAction();
     this.smartlookService.init();
+    this.footerService.footerCurrentStateIndex$.subscribe((index) => {
+      this.currentStateIndex = index;
+    });
     this.taskCount = 0;
     const currentState =
       this.activatedRoute.snapshot.queryParams.state === 'tasks' ? DashboardState.tasks : DashboardState.home;
@@ -198,6 +267,18 @@ export class DashboardPage {
     this.homeCurrency$ = this.currencyService.getHomeCurrency().pipe(shareReplay(1));
     this.eou$ = from(this.authService.getEou()).pipe(shareReplay(1));
     this.isUserFromINCluster$ = from(this.utilityService.isUserFromINCluster());
+
+    this.eou$
+      .pipe(
+        map((eou) => {
+          if (eou.ou.roles.includes('APPROVER')) {
+            this.showNavbarWalkthrough(true);
+          } else {
+            this.showNavbarWalkthrough(false);
+          }
+        })
+      )
+      .subscribe(noop);
 
     this.setShowOptInBanner();
 

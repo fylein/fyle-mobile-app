@@ -10,6 +10,7 @@
     min-height: 100%;
     justify-content: center;
     color: $black;
+    overflow: hidden;
     &__inactive {
       color: $grey-light;
     }
@@ -20,6 +21,10 @@
 
     &__disabled {
       opacity: 0.2;
+    }
+
+    &__tabs {
+      width: 100%;
     }
   }
 
@@ -87,4 +92,12 @@
   &--primary-icon {
     color: $pure-white;
   }
+}
+
+.tab-button-expenses {
+  width: 85%;
+}
+
+.tab-button-reports {
+  width: 85%;
 }

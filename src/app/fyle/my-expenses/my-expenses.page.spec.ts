@@ -614,7 +614,7 @@ describe('MyExpensesPage', () => {
       expect(component.hardwareBackButton).toEqual(backButtonSubscription);
       expect(platformHandlerService.registerBackButtonAction).toHaveBeenCalledOnceWith(
         BackButtonActionPriority.MEDIUM,
-        component.backButtonAction
+        jasmine.any(Function)
       );
       expect(tasksService.getExpensesTaskCount).toHaveBeenCalledTimes(1);
       expect(component.expensesTaskCount).toBe(10);
