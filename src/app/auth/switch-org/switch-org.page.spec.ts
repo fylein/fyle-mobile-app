@@ -885,7 +885,7 @@ describe('SwitchOrgPage', () => {
       expect(authService.getEou).toHaveBeenCalledTimes(1);
       expect(deviceService.getDeviceInfo).toHaveBeenCalledTimes(1);
       expect(authService.logout).toHaveBeenCalledOnceWith({
-        device_id: extendedDeviceInfoMockData.identifier,
+        device_id: extendedDeviceInfoMockData.uuid,
         user_id: apiEouRes.us.id,
       });
 

@@ -17,8 +17,5 @@
 		"accessOrigins": [
 			"https://app.fylehq.com"
 		]
-	},
-	"server": {
-		"androidScheme": "http"
 	}
 }

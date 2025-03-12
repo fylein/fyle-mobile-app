@@ -148,7 +148,7 @@ export class MyProfilePage {
         .pipe(
           switchMap(({ device, eou }) =>
             this.authService.logout({
-              device_id: device.identifier,
+              device_id: device.uuid,
               user_id: eou.us.id,
             })
           ),
