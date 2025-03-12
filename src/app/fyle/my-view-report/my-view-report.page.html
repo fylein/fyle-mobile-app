@@ -6,7 +6,7 @@
       </button>
       <ion-back-button mode="md" *ngIf="navigateBack"></ion-back-button>
     </ion-buttons>
-    <ion-title mode="md" class="page-title"> View report </ion-title>
+    <ion-title mode="md" class="page-title">View expense report</ion-title>
     <ion-buttons mode="md" slot="end">
       <ng-container *ngIf="report$|async as report">
         <ng-container *ngIf="report.num_expenses">
