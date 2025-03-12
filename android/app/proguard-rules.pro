@@ -48,21 +48,14 @@
 -keep class com.crashlytics.android.**
 -keepattributes SourceFile,LineNumberTable
 
-# Rules for Capacitor v3 plugins and annotations
--keep @com.getcapacitor.annotation.CapacitorPlugin public class * {
-  @com.getcapacitor.annotation.PermissionCallback <methods>;
-  @com.getcapacitor.annotation.ActivityCallback <methods>;
-  @com.getcapacitor.annotation.Permission <methods>;
-  @com.getcapacitor.PluginMethod public <methods>;
-}
-
-# Rules for Capacitor v2 plugins and annotations
--keep @com.getcapacitor.NativePlugin public class * {
-  @com.getcapacitor.PluginMethod public <methods>;
-}
-
 # Rules for Cordova plugins
 -keep public class * extends org.apache.cordova.* {
   public <methods>;
   public <fields>;
 }
+
+# Keep Capacitor core runtime
+-keep class com.getcapacitor.** { *; }
+
+# Keep plugin classes and their reflection methods
+-keep class com.capacitorjs.plugins.** { *; }
