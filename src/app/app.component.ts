@@ -189,6 +189,7 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     this.setupNetworkWatcher();
     this.totalTasksCount = 0;
+    //This is to subscribe to the selection mode and hide the footer when selection mode is enabled on the expenses page
     this.footerService.selectionMode$.subscribe((isEnabled) => {
       this.showFooter = !isEnabled;
     });
@@ -373,8 +374,8 @@ export class AppComponent implements OnInit {
     this.router.events
       .pipe(
         filter((event) => event instanceof NavigationEnd),
-        map(() => {
-          const segments = this.router.url.split(';')[0].split('/');
+        map((event: NavigationEnd) => {
+          const segments = event.urlAfterRedirects.split(';')[0].split('/');
           return segments.pop();
         })
       )
@@ -393,6 +394,7 @@ export class AppComponent implements OnInit {
     return null;
   }
 
+  // this is to handle footer state changes when navigation is done from the sidebar
   private updateFooterState(state: string | null): void {
     switch (this.currentPath) {
       case 'my_dashboard':
