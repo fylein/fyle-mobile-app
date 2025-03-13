@@ -146,7 +146,7 @@ export class DashboardPage {
     const driverInstance = driver({
       overlayOpacity: 0.5,
       allowClose: true,
-      overlayClickBehavior: 'close',
+      overlayClickBehavior: 'nextStep',
       showProgress: true,
       overlayColor: '#161528',
       stageRadius: 6,
@@ -157,6 +157,10 @@ export class DashboardPage {
       prevBtnText: 'Back',
       onDestroyStarted: () => {
         if (!this.isWalkthroughPaused) {
+          this.trackingService.eventTrack('Navbar Walkthrough Completed', {
+            Asset: 'Mobile',
+            from: 'Dashboard',
+          });
           this.setNavbarWalkthroughFeatureConfigFlag();
           this.walkthroughService.setActiveWalkthroughIndex(0);
           driverInstance.destroy();
@@ -284,18 +288,19 @@ export class DashboardPage {
     this.homeCurrency$ = this.currencyService.getHomeCurrency().pipe(shareReplay(1));
     this.eou$ = from(this.authService.getEou()).pipe(shareReplay(1));
     this.isUserFromINCluster$ = from(this.utilityService.isUserFromINCluster());
-
-    this.eou$
-      .pipe(
-        map((eou) => {
-          if (eou.ou.roles.includes('APPROVER') && eou.ou.is_primary) {
-            this.showNavbarWalkthrough(true);
-          } else {
-            this.showNavbarWalkthrough(false);
-          }
-        })
-      )
-      .subscribe(noop);
+    if (this.activatedRoute.snapshot.queryParams.state === 'home') {
+      this.eou$
+        .pipe(
+          map((eou) => {
+            if (eou.ou.roles.includes('APPROVER') && eou.ou.is_primary) {
+              this.showNavbarWalkthrough(true);
+            } else {
+              this.showNavbarWalkthrough(false);
+            }
+          })
+        )
+        .subscribe(noop);
+    }
 
     this.setShowOptInBanner();
 
