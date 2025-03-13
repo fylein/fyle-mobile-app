@@ -19,4 +19,5 @@ export interface ExtendedStatus {
   us_full_name?: string;
   st?: StatusCategory;
   show_dt?: boolean;
+  userTimezone?: string;
 }

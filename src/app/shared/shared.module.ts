@@ -81,6 +81,7 @@ import { MatLegacyRadioModule as MatRadioModule } from '@angular/material/legacy
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { FyFilterPillsComponent } from './components/fy-filter-pills/fy-filter-pills.component';
 import { DateFormatPipe } from './pipes/date-format.pipe';
+import { DateTimezonePipe } from './pipes/date-timezone.pipe';
 import { RouteSelectorComponent } from './components/route-selector/route-selector.component';
 import { RouteSelectorModalComponent } from './components/route-selector/route-selector-modal/route-selector-modal.component';
 import { RouteVisualizerComponent } from './components/route-visualizer/route-visualizer.component';
@@ -168,6 +169,7 @@ import { ShowAllApproversPopoverComponent } from './components/fy-approver/show-
     ReportState,
     SnakeCaseToSpaceCase,
     DateFormatPipe,
+    DateTimezonePipe,
     FySelectComponent,
     FySelectModalComponent,
     FySelectVendorComponent,
@@ -323,6 +325,7 @@ import { ShowAllApproversPopoverComponent } from './components/fy-approver/show-
     ExactCurrencyPipe,
     ReportState,
     DateFormatPipe,
+    DateTimezonePipe,
     FySelectComponent,
     FySelectVendorComponent,
     FyLocationComponent,
