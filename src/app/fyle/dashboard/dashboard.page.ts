@@ -78,6 +78,10 @@ export class DashboardPage {
 
   isUserFromINCluster$: Observable<boolean>;
 
+  isWalkthroughComplete = false;
+
+  isWalkthroughPaused = false;
+
   constructor(
     private currencyService: CurrencyService,
     private networkService: NetworkService,
@@ -121,6 +125,7 @@ export class DashboardPage {
   }
 
   setNavbarWalkthroughFeatureConfigFlag(): void {
+    this.isWalkthroughComplete = true;
     const featureConfigParams = {
       feature: 'WALKTHROUGH',
       key: 'DASHBOARD_SHOW_NAVBAR',
@@ -141,7 +146,7 @@ export class DashboardPage {
     const driverInstance = driver({
       overlayOpacity: 0.5,
       allowClose: true,
-      overlayClickBehavior: 'nextStep',
+      overlayClickBehavior: 'close',
       showProgress: true,
       overlayColor: '#161528',
       stageRadius: 6,
@@ -150,15 +155,20 @@ export class DashboardPage {
       doneBtnText: 'Ok',
       nextBtnText: 'Next',
       prevBtnText: 'Back',
-      onDestroyed: () => {
-        this.setNavbarWalkthroughFeatureConfigFlag();
+      onDestroyStarted: () => {
+        if (!this.isWalkthroughPaused) {
+          this.setNavbarWalkthroughFeatureConfigFlag();
+          this.walkthroughService.setActiveWalkthroughIndex(0);
+          driverInstance.destroy();
+        }
       },
     });
 
     const navbarWalkthroughSteps = this.walkthroughService.getNavBarWalkthroughConfig(isApprover);
+    const activeStepIndex = this.walkthroughService.getActiveWalkthroughIndex();
 
     driverInstance.setSteps(navbarWalkthroughSteps);
-    driverInstance.drive();
+    driverInstance.drive(activeStepIndex);
   }
 
   showNavbarWalkthrough(isApprover: boolean): void {
@@ -172,6 +182,7 @@ export class DashboardPage {
       .subscribe((config) => {
         const featureConfigValue = config?.value || {};
         const isFinished = featureConfigValue?.isFinished || false;
+        this.isWalkthroughComplete = isFinished;
 
         if (!isFinished) {
           timer(1000).subscribe(() => {
@@ -182,6 +193,11 @@ export class DashboardPage {
   }
 
   ionViewWillLeave(): void {
+    if (!this.isWalkthroughComplete) {
+      this.isWalkthroughPaused = true;
+      this.walkthroughService.setActiveWalkthroughIndex(driver().getActiveIndex());
+      driver().destroy();
+    }
     clearTimeout(this.optInShowTimer as number);
     this.navigationSubscription?.unsubscribe();
     this.utilityService.toggleShowOptInAfterAddingCard(false);
@@ -246,6 +262,7 @@ export class DashboardPage {
   }
 
   ionViewWillEnter(): void {
+    this.isWalkthroughPaused = false;
     this.setupNetworkWatcher();
     this.registerBackButtonAction();
     this.smartlookService.init();
@@ -271,7 +288,7 @@ export class DashboardPage {
     this.eou$
       .pipe(
         map((eou) => {
-          if (eou.ou.roles.includes('APPROVER')) {
+          if (eou.ou.roles.includes('APPROVER') && eou.ou.is_primary) {
             this.showNavbarWalkthrough(true);
           } else {
             this.showNavbarWalkthrough(false);
