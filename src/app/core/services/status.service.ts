@@ -6,17 +6,12 @@ import { StatusCategory } from '../models/status-category.model';
 import { forkJoin, Observable } from 'rxjs';
 import { TransactionStatus } from '../models/transaction-status.model';
 import { OrgUserSettingsService } from './org-user-settings.service';
-import { TimezoneService } from './timezone.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class StatusService {
-  constructor(
-    private apiService: ApiService,
-    private orgUserSettingsService: OrgUserSettingsService,
-    private timezoneService: TimezoneService
-  ) {}
+  constructor(private apiService: ApiService, private orgUserSettingsService: OrgUserSettingsService) {}
 
   find(objectType: string, objectId: string): Observable<ExtendedStatus[]> {
     return forkJoin([

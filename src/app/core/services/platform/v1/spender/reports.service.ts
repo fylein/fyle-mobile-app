@@ -190,14 +190,16 @@ export class SpenderReportsService {
     ]).pipe(
       map(([response, orgUserSettings]) => {
         const timezone = orgUserSettings?.locale?.timezone || 'UTC';
-        response.data = response.data.map((report) => ({
-          ...report,
-          comments: report.comments.map((comment) => ({
-            ...comment,
-            userTimezone: timezone,
+        return {
+          ...response,
+          data: response.data.map((report) => ({
+            ...report,
+            comments: report.comments.map((comment) => ({
+              ...comment,
+              userTimezone: timezone,
+            })),
           })),
-        }));
-        return response;
+        };
       })
     );
   }
