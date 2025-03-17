@@ -288,19 +288,17 @@ export class DashboardPage {
     this.homeCurrency$ = this.currencyService.getHomeCurrency().pipe(shareReplay(1));
     this.eou$ = from(this.authService.getEou()).pipe(shareReplay(1));
     this.isUserFromINCluster$ = from(this.utilityService.isUserFromINCluster());
-    if (this.activatedRoute.snapshot.queryParams.state === 'home') {
-      this.eou$
-        .pipe(
-          map((eou) => {
-            if (eou.ou.roles.includes('APPROVER') && eou.ou.is_primary) {
-              this.showNavbarWalkthrough(true);
-            } else {
-              this.showNavbarWalkthrough(false);
-            }
-          })
-        )
-        .subscribe(noop);
-    }
+    this.eou$
+      .pipe(
+        map((eou) => {
+          if (eou.ou.roles.includes('APPROVER') && eou.ou.is_primary) {
+            this.showNavbarWalkthrough(true);
+          } else {
+            this.showNavbarWalkthrough(false);
+          }
+        })
+      )
+      .subscribe(noop);
 
     this.setShowOptInBanner();
 
