@@ -1340,19 +1340,16 @@ export class SplitExpensePage implements OnDestroy {
     if (isFirstSplit && this.splitConfig.category.is_visible) {
       const firstSplitCategory = this.splitExpensesFormArray.at(0)?.get('category')?.value as OrgCategory | null;
       const firstSplitProject = this.splitExpensesFormArray.at(0)?.get('project');
+      this.filteredCategoriesArray[0] = this.categories$;
+      if (firstSplitProject?.value) {
+        this.setupFilteredCategories(0);
+      }
 
-      if (!firstSplitCategory) {
-        this.filteredCategoriesArray[0] = this.categories$;
-        if (this.splitConfig.costCenter.is_visible) {
-          this.costCenterDisabledStates[0] = false;
-        }
-        if (firstSplitProject?.value) {
-          this.setupFilteredCategories(0);
-        }
-      } else {
-        this.filteredCategoriesArray[0] = this.categories$;
-        if (this.splitConfig.costCenter.is_visible) {
+      if (this.splitConfig.costCenter.is_visible) {
+        if (firstSplitCategory) {
           this.onCategoryChange(0);
+        } else {
+          this.costCenterDisabledStates[0] = false;
         }
       }
       this.filteredCategoriesArray[1] = this.categories$;

@@ -1,7 +1,9 @@
-import { CardAggregateStats } from './card-aggregate-stats.model';
+import { CardStateData } from './card-state-data.model';
 
 export interface CCCDetails {
-  cardDetails: CardAggregateStats[];
-  totalAmount: number;
-  totalTxns: number;
+  bank_name: string;
+  card_number: string;
+  corporate_card_id: string;
+  DRAFT: CardStateData;
+  COMPLETE: CardStateData;
 }

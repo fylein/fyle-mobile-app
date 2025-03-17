@@ -93,7 +93,7 @@ export class DashboardService {
     return reportStatsObservable$;
   }
 
-  getCCCDetails(): Observable<CCCDetails> {
+  getCCCDetails(): Observable<CCCDetails[]> {
     return this.corporateCreditCardExpenseService.getAssignedCards();
   }
 
