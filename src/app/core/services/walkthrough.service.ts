@@ -5,6 +5,8 @@ import { DriveStep } from 'driver.js';
   providedIn: 'root',
 })
 export class WalkthroughService {
+  activeWalkthroughIndex = 0;
+
   getNavBarWalkthroughConfig(isApprover: boolean): DriveStep[] {
     const steps: DriveStep[] = [
       {
@@ -59,5 +61,13 @@ export class WalkthroughService {
     }
 
     return steps;
+  }
+
+  getActiveWalkthroughIndex(): number {
+    return this.activeWalkthroughIndex;
+  }
+
+  setActiveWalkthroughIndex(index: number): void {
+    this.activeWalkthroughIndex = index;
   }
 }
