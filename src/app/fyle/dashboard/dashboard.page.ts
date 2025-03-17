@@ -337,8 +337,7 @@ export class DashboardPage {
       .pipe(
         map((eou) => {
           if (eou.ou.roles.includes('APPROVER') && eou.ou.is_primary) {
-            // this.showNavbarWalkthrough(true);
-            this.startTour(true);
+            this.showNavbarWalkthrough(true);
           } else {
             this.showNavbarWalkthrough(false);
           }
