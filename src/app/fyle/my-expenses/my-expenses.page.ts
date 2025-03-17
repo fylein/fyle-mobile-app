@@ -305,6 +305,8 @@ export class MyExpensesPage implements OnInit {
     if (expense) {
       this.selectExpense(expense);
     }
+
+    this.checkDeleteDisabled().subscribe();
   }
 
   switchOutboxSelectionMode(expense?: Expense): void {
@@ -1115,6 +1117,7 @@ export class MyExpensesPage implements OnInit {
     }
     this.setExpenseStatsOnSelect();
     this.isMergeAllowed = this.sharedExpenseService.isMergeAllowed(this.selectedElements);
+    this.checkDeleteDisabled().subscribe();
   }
 
   goToTransaction(event: { expense: PlatformExpense; expenseIndex: number }): void {
@@ -1630,6 +1633,7 @@ export class MyExpensesPage implements OnInit {
           this.transactionService.getReportableExpenses(this.selectedOutboxExpenses).length > 0;
         this.outboxExpensesToBeDeleted = this.selectedOutboxExpenses;
         this.setOutboxExpenseStatsOnSelect();
+        this.checkDeleteDisabled().subscribe();
       } else {
         this.loadExpenses$
           .pipe(
@@ -1660,6 +1664,7 @@ export class MyExpensesPage implements OnInit {
                 this.restrictPendingTransactionsEnabled
               ).length > 0;
             this.setExpenseStatsOnSelect();
+            this.checkDeleteDisabled().subscribe();
           });
       }
     } else {
@@ -1669,6 +1674,7 @@ export class MyExpensesPage implements OnInit {
       this.isReportableExpensesSelected =
         this.sharedExpenseService.getReportableExpenses(this.selectedElements).length > 0;
       this.setExpenseStatsOnSelect();
+      this.checkDeleteDisabled().subscribe();
     }
   }
 
