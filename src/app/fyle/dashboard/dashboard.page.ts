@@ -86,6 +86,8 @@ export class DashboardPage {
 
   overlayClickCount = 0;
 
+  walkthroughOverlayStartIndex = 0;
+
   constructor(
     private currencyService: CurrencyService,
     private networkService: NetworkService,
@@ -207,9 +209,12 @@ export class DashboardPage {
       },
     });
 
-    const activeStepIndex = this.walkthroughService.getActiveWalkthroughIndex();
+    let activeStepIndex = this.walkthroughService.getActiveWalkthroughIndex();
 
     driverInstance.setSteps(navbarWalkthroughSteps);
+    if (this.overlayClickCount > 0) {
+      activeStepIndex = this.walkthroughOverlayStartIndex;
+    }
     driverInstance.drive(activeStepIndex);
   }
 
@@ -230,7 +235,7 @@ export class DashboardPage {
         const featureConfigValue = config?.value || {};
         const isFinished = featureConfigValue?.isFinished || false;
         this.overlayClickCount = featureConfigValue?.overlayClickCount || 0;
-        this.walkthroughService.setActiveWalkthroughIndex(featureConfigValue?.currentStepIndex || 0);
+        this.walkthroughOverlayStartIndex = featureConfigValue?.currentStepIndex || 0;
         this.isWalkthroughComplete = isFinished;
 
         if (!isFinished) {
