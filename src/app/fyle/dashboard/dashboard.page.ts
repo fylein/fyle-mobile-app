@@ -211,7 +211,6 @@ export class DashboardPage {
 
     driverInstance.setSteps(navbarWalkthroughSteps);
     driverInstance.drive(activeStepIndex);
-    driverInstance.drive(activeStepIndex);
   }
 
   showNavbarWalkthrough(isApprover: boolean): void {
@@ -243,11 +242,6 @@ export class DashboardPage {
   }
 
   ionViewWillLeave(): void {
-    if (!this.isWalkthroughComplete) {
-      this.isWalkthroughPaused = true;
-      this.walkthroughService.setActiveWalkthroughIndex(driver().getActiveIndex());
-      driver().destroy();
-    }
     if (!this.isWalkthroughComplete) {
       this.isWalkthroughPaused = true;
       this.walkthroughService.setActiveWalkthroughIndex(driver().getActiveIndex());
