@@ -104,7 +104,7 @@ describe('CameraPreviewComponent', () => {
   });
 
   it('startCameraPreview(): should start camera preview', fakeAsync(() => {
-    cameraPreviewService.start.and.returnValue(Promise.resolve({}));
+    cameraPreviewService.start.and.returnValue(Promise.resolve());
     spyOn(component, 'getFlashModes');
     fixture.detectChanges();
 
@@ -122,7 +122,7 @@ describe('CameraPreviewComponent', () => {
   }));
 
   it('stopCamera(): should stop camera and change state', fakeAsync(() => {
-    cameraPreviewService.stop.and.returnValue(Promise.resolve(true));
+    cameraPreviewService.stop.and.returnValue(Promise.resolve());
     component.cameraState = CameraState.RUNNING;
     fixture.detectChanges();
 
