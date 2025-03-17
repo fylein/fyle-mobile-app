@@ -82,6 +82,10 @@ export class DashboardPage {
 
   isWalkthroughPaused = false;
 
+  isOverlayClicked = true;
+
+  overlayClickCount = 0;
+
   constructor(
     private currencyService: CurrencyService,
     private networkService: NetworkService,
@@ -124,29 +128,49 @@ export class DashboardPage {
     return this.tasksComponent.filterPills;
   }
 
-  setNavbarWalkthroughFeatureConfigFlag(): void {
-    this.isWalkthroughComplete = true;
+  setNavbarWalkthroughFeatureConfigFlag(overlayClicked: boolean): void {
     const featureConfigParams = {
       feature: 'WALKTHROUGH',
       key: 'DASHBOARD_SHOW_NAVBAR',
     };
 
+    const eventTrackName =
+      overlayClicked && this.overlayClickCount < 1
+        ? 'Navbar Walkthrough Skipped with overlay clicked'
+        : 'Navbar Walkthrough Completed';
+
+    const featureConfigValue =
+      overlayClicked && this.overlayClickCount < 1
+        ? {
+            isShown: true,
+            isFinished: false,
+            overlayClickCount: this.overlayClickCount + 1,
+            currentStepIndex: this.walkthroughService.getActiveWalkthroughIndex(),
+          }
+        : {
+            isShown: true,
+            isFinished: true,
+          };
+
+    this.trackingService.eventTrack(eventTrackName, {
+      Asset: 'Mobile',
+      from: 'Dashboard',
+    });
+
     this.featureConfigService
       .saveConfiguration({
         ...featureConfigParams,
-        value: {
-          isShown: true,
-          isFinished: true,
-        },
+        value: featureConfigValue,
       })
       .subscribe(noop);
   }
 
   startTour(isApprover: boolean): void {
+    const navbarWalkthroughSteps = this.walkthroughService.getNavBarWalkthroughConfig(isApprover);
     const driverInstance = driver({
       overlayOpacity: 0.5,
       allowClose: true,
-      overlayClickBehavior: 'nextStep',
+      overlayClickBehavior: 'close',
       showProgress: true,
       overlayColor: '#161528',
       stageRadius: 6,
@@ -155,20 +179,34 @@ export class DashboardPage {
       doneBtnText: 'Ok',
       nextBtnText: 'Next',
       prevBtnText: 'Back',
+      onCloseClick: () => {
+        this.walkthroughService.setIsOverlayClicked(false);
+        this.setNavbarWalkthroughFeatureConfigFlag(false);
+        driverInstance.destroy();
+      },
+      onDeselected: () => {
+        const activeIndex = driverInstance.getActiveIndex();
+        if (activeIndex) {
+          this.walkthroughService.setActiveWalkthroughIndex(activeIndex);
+        }
+      },
+      onNextClick: () => {
+        driverInstance.moveNext();
+        if (this.walkthroughService.getActiveWalkthroughIndex() === navbarWalkthroughSteps.length - 1) {
+          this.walkthroughService.setIsOverlayClicked(false);
+        }
+      },
       onDestroyStarted: () => {
-        if (!this.isWalkthroughPaused) {
-          this.trackingService.eventTrack('Navbar Walkthrough Completed', {
-            Asset: 'Mobile',
-            from: 'Dashboard',
-          });
-          this.setNavbarWalkthroughFeatureConfigFlag();
-          this.walkthroughService.setActiveWalkthroughIndex(0);
+        if (this.walkthroughService.getIsOverlayClicked()) {
+          this.setNavbarWalkthroughFeatureConfigFlag(true);
+          driverInstance.destroy();
+        } else {
+          this.setNavbarWalkthroughFeatureConfigFlag(false);
           driverInstance.destroy();
         }
       },
     });
 
-    const navbarWalkthroughSteps = this.walkthroughService.getNavBarWalkthroughConfig(isApprover);
     const activeStepIndex = this.walkthroughService.getActiveWalkthroughIndex();
 
     driverInstance.setSteps(navbarWalkthroughSteps);
@@ -182,10 +220,17 @@ export class DashboardPage {
     };
 
     this.featureConfigService
-      .getConfiguration<{ isShown?: boolean; isFinished?: boolean }>(showNavbarWalkthroughConfig)
+      .getConfiguration<{
+        isShown?: boolean;
+        isFinished?: boolean;
+        overlayClickCount?: number;
+        currentStepIndex?: number;
+      }>(showNavbarWalkthroughConfig)
       .subscribe((config) => {
         const featureConfigValue = config?.value || {};
         const isFinished = featureConfigValue?.isFinished || false;
+        this.overlayClickCount = featureConfigValue?.overlayClickCount || 0;
+        this.walkthroughService.setActiveWalkthroughIndex(featureConfigValue?.currentStepIndex || 0);
         this.isWalkthroughComplete = isFinished;
 
         if (!isFinished) {
@@ -292,7 +337,8 @@ export class DashboardPage {
       .pipe(
         map((eou) => {
           if (eou.ou.roles.includes('APPROVER') && eou.ou.is_primary) {
-            this.showNavbarWalkthrough(true);
+            // this.showNavbarWalkthrough(true);
+            this.startTour(true);
           } else {
             this.showNavbarWalkthrough(false);
           }
