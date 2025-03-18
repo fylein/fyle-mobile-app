@@ -7,7 +7,7 @@ import { FooterComponent } from './footer.component';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ConnectionMessageStatus } from '../fy-connection/connection-status.enum';
-import { FooterState } from './footer-state';
+import { FooterState } from './footer-state.enum';
 import { of } from 'rxjs';
 import { MatRippleModule } from '@angular/material/core';
 import { getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
@@ -91,6 +91,22 @@ describe('FooterComponent', () => {
     footerComponent.goToCameraMode();
     expect(cameraModeSpy).toHaveBeenCalledTimes(1);
     expect(trackingServiceSpy.footerButtonClicked).toHaveBeenCalledOnceWith({ Action: 'Camera', Url: routerSpy.url });
+  });
+
+  it('goToExpenses(): should emit expensesClicked event on clicking expenses icon', () => {
+    fixture.detectChanges();
+    const expensesSpy = spyOn(footerComponent.expensesClicked, 'emit');
+    footerComponent.goToExpenses();
+    expect(expensesSpy).toHaveBeenCalledTimes(1);
+    expect(trackingServiceSpy.footerButtonClicked).toHaveBeenCalledOnceWith({ Action: 'Expenses', Url: routerSpy.url });
+  });
+
+  it('goToReports(): should emit reportsClicked event on clicking reports icon', () => {
+    fixture.detectChanges();
+    const reportsSpy = spyOn(footerComponent.reportsClicked, 'emit');
+    footerComponent.goToReports();
+    expect(reportsSpy).toHaveBeenCalledTimes(1);
+    expect(trackingServiceSpy.footerButtonClicked).toHaveBeenCalledOnceWith({ Action: 'Reports', Url: routerSpy.url });
   });
 
   describe('goToTasks():', () => {

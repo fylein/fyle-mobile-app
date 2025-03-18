@@ -16,3 +16,35 @@ export const featureConfigOptInData: FeatureConfig<{ count: number }> = deepFree
   },
   is_shared: true,
 });
+
+export const featureConfigWalkthroughFinishData: FeatureConfig<{ isShown: boolean; isFinished: boolean }> = deepFreeze({
+  feature: 'DASHBOARD_NAVBAR_WALKTHROUGH',
+  key: 'SHOW_NAVBAR_WALKTHROUGH',
+  is_shared: false,
+  sub_feature: null,
+  value: {
+    isShown: true,
+    isFinished: true,
+  },
+  target_client: 'web',
+  org_id: 'org123',
+  user_id: 'user123',
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
+});
+
+export const featureConfigWalkthroughStartData: FeatureConfig<{ isShown: boolean; isFinished: boolean }> = deepFreeze({
+  feature: 'DASHBOARD_NAVBAR_WALKTHROUGH',
+  key: 'SHOW_NAVBAR_WALKTHROUGH',
+  is_shared: false,
+  sub_feature: null,
+  value: {
+    isShown: false,
+    isFinished: false,
+  },
+  target_client: 'web',
+  org_id: 'org123',
+  user_id: 'user123',
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
+});
