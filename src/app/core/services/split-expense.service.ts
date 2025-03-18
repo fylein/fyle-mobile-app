@@ -365,6 +365,7 @@ export class SplitExpenseService {
           action: violations[key].data,
           type: violations[key].type,
           name: violations[key].name,
+          inputFieldInfo: violations[key].inputFieldInfo,
           currency: violations[key].currency,
           amount: violations[key].amount,
           isCriticalPolicyViolation,
@@ -386,6 +387,7 @@ export class SplitExpenseService {
           isMissingFields: mandatoryFields[key].data && this.isMissingFields(mandatoryFields[key]),
           type: mandatoryFields[key].type,
           name: mandatoryFields[key].name,
+          inputFieldInfo: mandatoryFields[key].inputFieldInfo,
           currency: mandatoryFields[key].currency,
           amount: mandatoryFields[key].amount,
         };

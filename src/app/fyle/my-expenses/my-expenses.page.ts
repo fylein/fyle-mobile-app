@@ -85,6 +85,8 @@ import { FeatureConfigService } from 'src/app/core/services/platform/v1/spender/
 import * as dayjs from 'dayjs';
 import { ExpensesQueryParams } from 'src/app/core/models/platform/v1/expenses-query-params.model';
 import { ExtendQueryParamsService } from 'src/app/core/services/extend-query-params.service';
+import { FooterState } from 'src/app/shared/components/footer/footer-state.enum';
+import { FooterService } from 'src/app/core/services/footer.service';
 
 @Component({
   selector: 'app-my-expenses',
@@ -237,11 +239,16 @@ export class MyExpensesPage implements OnInit {
     private authService: AuthService,
     private utilityService: UtilityService,
     private featureConfigService: FeatureConfigService,
-    private extendQueryParamsService: ExtendQueryParamsService
+    private extendQueryParamsService: ExtendQueryParamsService,
+    private footerService: FooterService
   ) {}
 
   get HeaderState(): typeof HeaderState {
     return HeaderState;
+  }
+
+  get FooterState(): typeof FooterState {
+    return FooterState;
   }
 
   clearText(isFromCancel: string): void {
@@ -276,6 +283,7 @@ export class MyExpensesPage implements OnInit {
 
   switchSelectionMode(expense?: PlatformExpense): void {
     this.selectionMode = !this.selectionMode;
+    this.footerService.updateSelectionMode(this.selectionMode);
     if (!this.selectionMode) {
       if (this.loadExpenses$.getValue().searchString) {
         this.headerState = HeaderState.simpleSearch;
@@ -301,6 +309,7 @@ export class MyExpensesPage implements OnInit {
 
   switchOutboxSelectionMode(expense?: Expense): void {
     this.selectionMode = !this.selectionMode;
+    this.footerService.updateSelectionMode(this.selectionMode);
     if (!this.selectionMode) {
       if (this.loadExpenses$.getValue().searchString) {
         this.headerState = HeaderState.simpleSearch;
@@ -450,12 +459,17 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
+  initClassObservables(): void {
+    const fn = (): void => {
+      this.backButtonAction();
+    };
+    const priority = BackButtonActionPriority.MEDIUM;
+    this.hardwareBackButton = this.platformHandlerService.registerBackButtonAction(priority, fn);
+  }
+
   ionViewWillEnter(): void {
     this.isNewReportsFlowEnabled = false;
-    this.hardwareBackButton = this.platformHandlerService.registerBackButtonAction(
-      BackButtonActionPriority.MEDIUM,
-      this.backButtonAction
-    );
+    this.initClassObservables();
 
     this.tasksService.getExpensesTaskCount().subscribe((expensesTaskCount) => {
       this.expensesTaskCount = expensesTaskCount;
@@ -537,6 +551,7 @@ export class MyExpensesPage implements OnInit {
     });
 
     this.selectionMode = false;
+    this.footerService.updateSelectionMode(this.selectionMode);
     this.selectedElements = [];
 
     this.syncOutboxExpenses();
@@ -1446,6 +1461,7 @@ export class MyExpensesPage implements OnInit {
 
     this.isReportableExpensesSelected = false;
     this.selectionMode = false;
+    this.footerService.updateSelectionMode(this.selectionMode);
     this.headerState = HeaderState.base;
     this.doRefresh();
 
@@ -1597,6 +1613,7 @@ export class MyExpensesPage implements OnInit {
 
       this.isReportableExpensesSelected = false;
       this.selectionMode = false;
+      this.footerService.updateSelectionMode(this.selectionMode);
       this.headerState = HeaderState.base;
 
       this.doRefresh();

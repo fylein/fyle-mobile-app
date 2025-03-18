@@ -10,19 +10,17 @@ import {
   providedIn: 'root',
 })
 export class CameraPreviewService {
-  constructor() {}
-
   capture(options: CameraPreviewPictureOptions): Promise<{
     value: string;
   }> {
     return CameraPreview.capture(options);
   }
 
-  start(options: CameraPreviewOptions): Promise<{}> {
+  start(options: CameraPreviewOptions): Promise<void> {
     return CameraPreview.start(options);
   }
 
-  stop(): Promise<{}> {
+  stop(): Promise<void> {
     return CameraPreview.stop();
   }
 

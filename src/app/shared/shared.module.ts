@@ -118,6 +118,7 @@ import { CardDetailComponent } from './components/spent-cards/card-detail/card-d
 import { MaskNumber } from './pipes/mask-number.pipe';
 import { PolicyViolationActionComponent } from './components/fy-policy-violation/policy-violation-action/policy-violation-action.component';
 import { SplitExpensePolicyViolationComponent } from './components/split-expense-policy-violation/split-expense-policy-violation.component';
+import { ReviewSplitExpenseComponent } from './components/review-split-expense/review-split-expense.component';
 import { PolicyViolationRuleComponent } from './components/policy-violation-rule/policy-violation-rule.component';
 import { FyCurrencyComponent } from './components/fy-currency/fy-currency.component';
 import { FyCurrencyChooseCurrencyComponent } from './components/fy-currency/fy-currency-choose-currency/fy-currency-choose-currency.component';
@@ -155,6 +156,7 @@ import { MobileNumberCardComponent } from './components/mobile-number-card/mobil
 import { PasswordCheckTooltipComponent } from './components/password-check-tooltip/password-check-tooltip.component';
 import { ExactCurrencyPipe } from './pipes/exact-currency.pipe';
 import { CCExpenseMerchantInfoModalComponent } from './components/cc-expense-merchant-info-modal/cc-expense-merchant-info-modal.component';
+import { FyMsgPopoverComponent } from './components/fy-msg-popover/fy-msg-popover.component';
 import { ShowAllApproversPopoverComponent } from './components/fy-approver/show-all-approvers-popover/show-all-approvers-popover.component';
 
 @NgModule({
@@ -232,6 +234,7 @@ import { ShowAllApproversPopoverComponent } from './components/fy-approver/show-
     PersonalCardTransactionComponent,
     FyInputPopoverComponent,
     FyPopoverComponent,
+    FyMsgPopoverComponent,
     SidemenuComponent,
     SidemenuHeaderComponent,
     SidemenuFooterComponent,
@@ -253,6 +256,7 @@ import { ShowAllApproversPopoverComponent } from './components/fy-approver/show-
     FyPolicyViolationComponent,
     PolicyViolationActionComponent,
     SplitExpensePolicyViolationComponent,
+    ReviewSplitExpenseComponent,
     PolicyViolationRuleComponent,
     FyCurrencyComponent,
     FyCurrencyChooseCurrencyComponent,
@@ -374,6 +378,7 @@ import { ShowAllApproversPopoverComponent } from './components/fy-approver/show-
     BankAccountCardsComponent,
     PersonalCardTransactionComponent,
     FyPopoverComponent,
+    FyMsgPopoverComponent,
     SidemenuComponent,
     FyNavFooterComponent,
     SendEmailComponent,
@@ -424,6 +429,7 @@ import { ShowAllApproversPopoverComponent } from './components/fy-approver/show-
     DashboardOptInComponent,
     MobileNumberCardComponent,
     CCExpenseMerchantInfoModalComponent,
+    ReviewSplitExpenseComponent,
   ],
   providers: [
     DecimalPipe,
