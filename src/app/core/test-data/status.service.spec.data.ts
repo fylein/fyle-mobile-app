@@ -1994,6 +1994,7 @@ export const systemExtendedComments: ExtendedComment[] = deepFreeze([
     isBotComment: true,
     isSelfComment: false,
     isOthersComment: true,
+    userTimezone: 'America/North_Dakota/New_Salem',
   },
   {
     comment: 'submitted by Suyash (suyash.p@fyle.in)',
@@ -2004,6 +2005,7 @@ export const systemExtendedComments: ExtendedComment[] = deepFreeze([
     isBotComment: true,
     isSelfComment: false,
     isOthersComment: true,
+    userTimezone: 'America/North_Dakota/New_Salem',
   },
 ]);
 
@@ -2090,6 +2092,7 @@ export const systemCommentsWithSt: ExtendedStatus[] = deepFreeze([
       category: 'repots Reversed',
       icon: 'radio-circle-outline',
     },
+    userTimezon: 'America/North_Dakota/New_Salem',
   },
   {
     st_id: 'st7ak7UoeTDH',
@@ -2112,6 +2115,7 @@ export const systemCommentsWithSt: ExtendedStatus[] = deepFreeze([
     isSelfComment: false,
     isOthersComment: true,
     st: { category: 'Policy Violation', icon: 'warning-fill' },
+    userTimezon: 'America/North_Dakota/New_Salem',
   },
   {
     st_id: 'st8dHUhDzXxr',
@@ -2133,5 +2137,6 @@ export const systemCommentsWithSt: ExtendedStatus[] = deepFreeze([
       category: 'Flagged',
       icon: 'flag-fill',
     },
+    userTimezon: 'America/North_Dakota/New_Salem',
   },
 ]);

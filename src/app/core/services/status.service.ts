@@ -15,7 +15,7 @@ export class StatusService {
 
   find(objectType: string, objectId: string): Observable<ExtendedStatus[]> {
     return forkJoin([
-      this.apiService.get<ExtendedStatus[]>('/' + objectType + '/' + objectId + '/estatuses'),
+      this.apiService.get<ExtendedStatus[]>(`/${objectType}/${objectId}/estatuses`),
       this.orgUserSettingsService.get(),
     ]).pipe(
       map(([estatuses, orgUserSettings]) => {
