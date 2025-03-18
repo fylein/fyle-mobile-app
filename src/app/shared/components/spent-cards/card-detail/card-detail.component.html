@@ -26,16 +26,16 @@
           }}<ng-container
             *ngIf="
               !isSmallScreen &&
-                cardDetail.stats.totalDraftValue > -1000000000 &&
-                cardDetail.stats.totalDraftValue < 1000000000;
+                cardDetail.stats.totalDraftAmount > -1000000000 &&
+                cardDetail.stats.totalDraftAmount < 1000000000;
               else humanizeDraftAmount
             "
             >{{
-              { value: cardDetail.stats.totalDraftValue, currencyCode: homeCurrency, skipSymbol: true } | exactCurrency
+              { value: cardDetail.stats.totalDraftAmount, currencyCode: homeCurrency, skipSymbol: true } | exactCurrency
             }}</ng-container
           >
           <ng-template #humanizeDraftAmount>{{
-            cardDetail.stats.totalDraftValue | humanizeCurrency : homeCurrency : true
+            cardDetail.stats.totalDraftAmount | humanizeCurrency : homeCurrency : true
           }}</ng-template>
         </div>
       </div>
@@ -55,17 +55,17 @@
           }}<ng-container
             *ngIf="
               !isSmallScreen &&
-                cardDetail.stats.totalCompleteExpensesValue > -1000000000 &&
-                cardDetail.stats.totalCompleteExpensesValue < 1000000000;
+                cardDetail.stats.totalCompleteExpensesAmount > -1000000000 &&
+                cardDetail.stats.totalCompleteExpensesAmount < 1000000000;
               else humanizeTotalAmount
             "
             >{{
-              { value: cardDetail.stats.totalCompleteExpensesValue, currencyCode: homeCurrency, skipSymbol: true }
+              { value: cardDetail.stats.totalCompleteExpensesAmount, currencyCode: homeCurrency, skipSymbol: true }
                 | exactCurrency
             }}</ng-container
           >
           <ng-template #humanizeTotalAmount>{{
-            cardDetail.stats.totalCompleteExpensesValue | humanizeCurrency : homeCurrency : true
+            cardDetail.stats.totalCompleteExpensesAmount | humanizeCurrency : homeCurrency : true
           }}</ng-template>
         </div>
       </div>

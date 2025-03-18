@@ -116,7 +116,7 @@ export class ProjectsService {
     isProjectCategoryRestrictionsEnabled: boolean
   ): OrgCategory[] {
     let categoryList: OrgCategory[] = [];
-    if (project && isProjectCategoryRestrictionsEnabled) {
+    if (project && isProjectCategoryRestrictionsEnabled && project.project_org_category_ids) {
       categoryList = activeCategoryList.filter((category: OrgCategory) => {
         const catId = category.id;
         return project.project_org_category_ids.indexOf(catId as never) > -1;
