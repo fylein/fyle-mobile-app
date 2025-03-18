@@ -467,17 +467,11 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       shareReplay(1)
     );
 
-    checkPermission$
-      .pipe(
-        filter((permission) => !permission),
-        switchMap(() => from(this.cameraService.requestCameraPermissions(['photos'])))
-      )
-      .subscribe((permissions) => {
-        if (permissions?.photos === 'denied') {
-          return this.showPermissionDeniedPopover('GALLERY');
-        }
-        this.onGalleryUpload();
-      });
+    checkPermission$.subscribe((hasPermission) => {
+      if (!hasPermission) {
+        return this.showPermissionDeniedPopover('GALLERY');
+      }
+    });
 
     receiptsFromGallery$
       .pipe(filter((receiptsFromGallery: string[]) => receiptsFromGallery.length > 0))

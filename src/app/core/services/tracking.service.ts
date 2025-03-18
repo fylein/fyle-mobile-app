@@ -651,6 +651,14 @@ export class TrackingService {
     this.eventTrack('Home Tab clicked On Footer', properties);
   }
 
+  footerExpensesTabClicked(): void {
+    this.eventTrack('Expenses Tab clicked On Footer');
+  }
+
+  footerReportsTabClicked(): void {
+    this.eventTrack('Reports Tab clicked On Footer');
+  }
+
   menuButtonClicked(properties = {}): void {
     this.eventTrack('Menu Button Clicked', properties);
   }

@@ -144,6 +144,8 @@ export class SplitExpensePage implements OnDestroy {
 
   isReviewModalOpen = false;
 
+  categoryDisableMsg = '';
+
   private splitExpenseData: Subscription;
 
   constructor(
@@ -1028,14 +1030,17 @@ export class SplitExpensePage implements OnDestroy {
   }
 
   updateCategoryMandatoryStatus(categories: OrgCategory[]): void {
-    if (!this.splitConfig.project.is_visible && categories.length === 0 && this.splitConfig.category.is_mandatory) {
-      this.splitConfig.category.is_mandatory = false;
-      for (let i = 0; i < 2; i++) {
-        const control = this.splitExpensesFormArray.at(i);
-        const categoryControl = control?.get('category');
-        if (categoryControl) {
-          categoryControl.clearValidators();
-          categoryControl.updateValueAndValidity();
+    if (categories.length === 0) {
+      this.categoryDisableMsg = 'No category is assigned. Please contact admin for further help.';
+      if (this.splitConfig.category.is_mandatory) {
+        this.splitConfig.category.is_mandatory = false;
+        for (let i = 0; i < 2; i++) {
+          const control = this.splitExpensesFormArray.at(i);
+          const categoryControl = control?.get('category');
+          if (categoryControl) {
+            categoryControl.clearValidators();
+            categoryControl.updateValueAndValidity();
+          }
         }
       }
     }
@@ -1340,19 +1345,16 @@ export class SplitExpensePage implements OnDestroy {
     if (isFirstSplit && this.splitConfig.category.is_visible) {
       const firstSplitCategory = this.splitExpensesFormArray.at(0)?.get('category')?.value as OrgCategory | null;
       const firstSplitProject = this.splitExpensesFormArray.at(0)?.get('project');
+      this.filteredCategoriesArray[0] = this.categories$;
+      if (firstSplitProject?.value) {
+        this.setupFilteredCategories(0);
+      }
 
-      if (!firstSplitCategory) {
-        this.filteredCategoriesArray[0] = this.categories$;
-        if (this.splitConfig.costCenter.is_visible) {
-          this.costCenterDisabledStates[0] = false;
-        }
-        if (firstSplitProject?.value) {
-          this.setupFilteredCategories(0);
-        }
-      } else {
-        this.filteredCategoriesArray[0] = this.categories$;
-        if (this.splitConfig.costCenter.is_visible) {
+      if (this.splitConfig.costCenter.is_visible) {
+        if (firstSplitCategory) {
           this.onCategoryChange(0);
+        } else {
+          this.costCenterDisabledStates[0] = false;
         }
       }
       this.filteredCategoriesArray[1] = this.categories$;
@@ -1415,13 +1417,11 @@ export class SplitExpensePage implements OnDestroy {
   }
 
   showDisabledMessage(type: string): void {
-    let msg = '';
-    if (type === 'category') {
+    let msg = this.categoryDisableMsg;
+    if (type === 'category' && !msg) {
       msg = 'No category is available for the selected project.';
-      if (!this.splitConfig.project.is_visible) {
-        msg = 'No category is assigned. Please contact admin for further help.';
-      }
-    } else {
+    }
+    if (type === 'cost center') {
       msg = 'No cost center is available for the selected category.';
     }
     this.showPopoverModal(msg);

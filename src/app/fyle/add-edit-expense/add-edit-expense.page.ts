@@ -2690,7 +2690,7 @@ export class AddEditExpensePage implements OnInit {
       } else {
         categoryControl.clearValidators();
       }
-      categoryControl.updateValueAndValidity();
+      categoryControl.updateValueAndValidity({ emitEvent: false });
     });
   }
 
@@ -2869,7 +2869,7 @@ export class AddEditExpensePage implements OnInit {
         return null;
       }
 
-      const isAmountGreaterThanTaxAmount = this.getAmount() > control.value;
+      const isAmountGreaterThanTaxAmount = Math.abs(this.getAmount()) > Math.abs(control.value as number);
       return isAmountGreaterThanTaxAmount ? null : { taxAmountGreaterThanAmount: true };
     };
   }

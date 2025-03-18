@@ -2,126 +2,37 @@ import deepFreeze from 'deep-freeze-strict';
 
 import { CCCDetails } from '../models/ccc-expense-details.model';
 
-export const expectedAssignedCCCStats: CCCDetails = deepFreeze({
-  totalTxns: 1090,
-  totalAmount: 589553.832,
-  cardDetails: [
-    {
-      aggregates: [
-        {
-          function_name: 'count(tx_id)',
-          function_value: 4,
-        },
-        {
-          function_name: 'sum(tx_amount)',
-          function_value: 3494,
-        },
-      ],
-      key: [
-        {
-          column_name: 'corporate_credit_card_bank_name',
-          column_value: 'DAMNA',
-        },
-        {
-          column_name: 'corporate_credit_card_account_number',
-          column_value: '8698',
-        },
-        {
-          column_name: 'tx_state',
-          column_value: 'COMPLETE',
-        },
-      ],
+// Converted to the new CCCDetails format
+export const expectedAssignedCCCStats: CCCDetails[] = deepFreeze([
+  {
+    bank_name: 'DAMNA',
+    card_number: '8698',
+    corporate_card_id: 'bacc12bbrBYWye',
+    DRAFT: {
+      count: 964,
+      total_amount: 568437,
     },
-    {
-      aggregates: [
-        {
-          function_name: 'count(tx_id)',
-          function_value: 964,
-        },
-        {
-          function_name: 'sum(tx_amount)',
-          function_value: 568437,
-        },
-      ],
-      key: [
-        {
-          column_name: 'corporate_credit_card_bank_name',
-          column_value: 'DAMNA',
-        },
-        {
-          column_name: 'corporate_credit_card_account_number',
-          column_value: '8698',
-        },
-        {
-          column_name: 'tx_state',
-          column_value: 'DRAFT',
-        },
-      ],
+    COMPLETE: {
+      count: 4,
+      total_amount: 3494,
     },
-  ],
-});
+  },
+]);
 
-export const mastercardCCCStats: CCCDetails = deepFreeze({
-  totalTxns: 12,
-  totalAmount: 1874.4,
-  cardDetails: [
-    {
-      aggregates: [
-        {
-          function_name: 'count(tx_id)',
-          function_value: 6,
-        },
-        {
-          function_name: 'sum(tx_amount)',
-          function_value: 937.2,
-        },
-      ],
-      key: [
-        {
-          column_name: 'corporate_credit_card_bank_name',
-          column_value: 'MASTERCARD_BANK',
-        },
-        {
-          column_name: 'corporate_credit_card_account_number',
-          column_value: '5555',
-        },
-        {
-          column_name: 'tx_state',
-          column_value: 'DRAFT',
-        },
-      ],
+export const mastercardCCCStats: CCCDetails[] = deepFreeze([
+  {
+    bank_name: 'MASTERCARD_BANK',
+    card_number: '5555',
+    corporate_card_id: 'bacc15bbrRGWzf',
+    DRAFT: {
+      count: 6,
+      total_amount: 937.2,
     },
-    {
-      aggregates: [
-        {
-          function_name: 'count(tx_id)',
-          function_value: 6,
-        },
-        {
-          function_name: 'sum(tx_amount)',
-          function_value: 937.2,
-        },
-      ],
-      key: [
-        {
-          column_name: 'corporate_credit_card_bank_name',
-          column_value: 'MASTERCARD_BANK',
-        },
-        {
-          column_name: 'corporate_credit_card_account_number',
-          column_value: '5555',
-        },
-        {
-          column_name: 'tx_state',
-          column_value: 'COMPLETE',
-        },
-      ],
+    COMPLETE: {
+      count: 6,
+      total_amount: 937.2,
     },
-  ],
-});
+  },
+]);
 
-export const emptyCCCStats: CCCDetails = deepFreeze({
-  totalTxns: 0,
-  totalAmount: 0,
-  cardDetails: [],
-});
+export const emptyCCCStats: CCCDetails[] = deepFreeze([] as CCCDetails[]);

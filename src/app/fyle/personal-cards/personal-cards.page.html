@@ -32,7 +32,7 @@
       </ion-button>
     </ion-buttons>
   </ng-container>
-  <ng-container personalCardContent *ngIf="!isLoading && ((linkedAccountsCount$ | async) !== 0)">
+  <ng-container personalCardContent *ngIf="(linkedAccountsCount$ | async) !== 0">
     <ion-toolbar mode="{{mode}}" class="personal-cards--segment-container">
       <ion-segment
         class="personal-cards-segment-block"
