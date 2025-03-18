@@ -80,6 +80,7 @@ describe('DashboardPage', () => {
       'optInFromPostPostCardAdditionInDashboard',
       'optedInFromDashboardBanner',
       'skipOptInFromDashboardBanner',
+      'eventTrack',
     ]);
     const actionSheetControllerSpy = jasmine.createSpyObj('ActionSheetController', ['create']);
     const tasksServiceSpy = jasmine.createSpyObj('TasksService', ['getTotalTaskCount']);
@@ -854,7 +855,7 @@ describe('DashboardPage', () => {
   it('should set the config when the navbar walkthrough is finished', fakeAsync(() => {
     featureConfigService.getConfiguration.and.returnValue(of(featureConfigWalkthroughStartData));
     featureConfigService.saveConfiguration.and.returnValue(of(null));
-    component.setNavbarWalkthroughFeatureConfigFlag();
+    component.setNavbarWalkthroughFeatureConfigFlag(false);
     tick();
 
     expect(featureConfigService.saveConfiguration).toHaveBeenCalledOnceWith({
