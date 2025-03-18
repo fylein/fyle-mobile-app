@@ -283,7 +283,7 @@ export class NotificationsPage implements OnInit {
 
     this.isDelegateePresent$ = from(this.authService.getEou()).pipe(
       switchMap((res) => this.employeesService.getByParams({ user_id: `eq.${res.us.id}` })),
-      map((employeesResponse) => employeesResponse.data[0].delegatees?.length > 0)
+      map((employeesResponse) => employeesResponse.data[0]?.delegatees?.length > 0)
     );
 
     this.orgSettings$ = this.orgSettingsService.get();
