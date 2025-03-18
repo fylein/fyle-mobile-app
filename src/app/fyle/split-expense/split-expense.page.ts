@@ -144,7 +144,7 @@ export class SplitExpensePage implements OnDestroy {
 
   isReviewModalOpen = false;
 
-  disableMessage = '';
+  categoryDisableMsg = '';
 
   private splitExpenseData: Subscription;
 
@@ -1031,7 +1031,7 @@ export class SplitExpensePage implements OnDestroy {
 
   updateCategoryMandatoryStatus(categories: OrgCategory[]): void {
     if (categories.length === 0) {
-      this.disableMessage = 'No category is assigned. Please contact admin for further help.';
+      this.categoryDisableMsg = 'No category is assigned. Please contact admin for further help.';
       if (this.splitConfig.category.is_mandatory) {
         this.splitConfig.category.is_mandatory = false;
         for (let i = 0; i < 2; i++) {
@@ -1417,7 +1417,7 @@ export class SplitExpensePage implements OnDestroy {
   }
 
   showDisabledMessage(type: string): void {
-    let msg = this.disableMessage;
+    let msg = this.categoryDisableMsg;
     if (type === 'category' && !msg) {
       msg = 'No category is available for the selected project.';
     }

@@ -1657,11 +1657,11 @@ describe('SplitExpensePage', () => {
     beforeEach(() => {
       spyOn(component, 'showPopoverModal').and.callThrough();
       component.splitConfig = cloneDeep(splitConfig);
-      component.disableMessage = 'No category is assigned. Please contact admin for further help.';
+      component.categoryDisableMsg = 'No category is assigned. Please contact admin for further help.';
     });
 
     it('should show correct message for category type when msg is empty', () => {
-      component.disableMessage = '';
+      component.categoryDisableMsg = '';
       component.showDisabledMessage('category');
       expect(component.showPopoverModal).toHaveBeenCalledWith('No category is available for the selected project.');
     });
