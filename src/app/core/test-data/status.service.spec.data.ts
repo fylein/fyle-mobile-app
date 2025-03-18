@@ -2092,7 +2092,7 @@ export const systemCommentsWithSt: ExtendedStatus[] = deepFreeze([
       category: 'repots Reversed',
       icon: 'radio-circle-outline',
     },
-    userTimezon: 'America/North_Dakota/New_Salem',
+    userTimezone: 'America/North_Dakota/New_Salem',
   },
   {
     st_id: 'st7ak7UoeTDH',
@@ -2115,7 +2115,7 @@ export const systemCommentsWithSt: ExtendedStatus[] = deepFreeze([
     isSelfComment: false,
     isOthersComment: true,
     st: { category: 'Policy Violation', icon: 'warning-fill' },
-    userTimezon: 'America/North_Dakota/New_Salem',
+    userTimezone: 'America/North_Dakota/New_Salem',
   },
   {
     st_id: 'st8dHUhDzXxr',
@@ -2137,6 +2137,6 @@ export const systemCommentsWithSt: ExtendedStatus[] = deepFreeze([
       category: 'Flagged',
       icon: 'flag-fill',
     },
-    userTimezon: 'America/North_Dakota/New_Salem',
+    userTimezone: 'America/North_Dakota/New_Salem',
   },
 ]);
