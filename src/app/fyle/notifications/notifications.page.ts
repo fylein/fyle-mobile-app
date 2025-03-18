@@ -3,7 +3,7 @@ import { UntypedFormArray, UntypedFormBuilder, UntypedFormControl, UntypedFormGr
 import { Router } from '@angular/router';
 import { NavController } from '@ionic/angular';
 import { Observable, from, noop, zip } from 'rxjs';
-import { finalize, map, switchMap } from 'rxjs/operators';
+import { finalize, map, switchMap, tap } from 'rxjs/operators';
 import {
   EmailEvents,
   NotificationEventFeatures,
@@ -146,7 +146,7 @@ export class NotificationsPage implements OnInit {
 
     this.orgUserSettingsService
       .post(this.orgUserSettings)
-      .pipe(() => this.orgUserSettingsService.clearOrgUserSettings())
+      .pipe(tap(() => this.orgUserSettingsService.clearOrgUserSettings()))
       .pipe(finalize(() => (this.saveNotifLoading = false)))
       .subscribe(() => {
         this.navBack();
@@ -283,7 +283,7 @@ export class NotificationsPage implements OnInit {
 
     this.isDelegateePresent$ = from(this.authService.getEou()).pipe(
       switchMap((res) => this.employeesService.getByParams({ user_id: `eq.${res.us.id}` })),
-      map((employee) => employee?.data[0]?.delegatees?.length > 0)
+      map((employeesResponse) => employeesResponse?.data[0]?.delegatees?.length > 0)
     );
 
     this.orgSettings$ = this.orgSettingsService.get();
