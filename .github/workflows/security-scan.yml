@@ -3,6 +3,11 @@ name: Security Scan
 on:
   pull_request:
     types: [opened, synchronize, reopened]
+    branches:
+      - master
+    paths:
+      - '**/package-lock.json'
+      - '**/requirements.txt'
 
 jobs:
   security-scan:
@@ -12,4 +17,4 @@ jobs:
         uses: fylein/vulnerability-scan-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          is_submodule: true
+          is_submodule: true 
