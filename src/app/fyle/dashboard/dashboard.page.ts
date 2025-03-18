@@ -82,6 +82,9 @@ export class DashboardPage {
 
   isWalkthroughPaused = false;
 
+  // variable to check for the overlay bg click for the walkthrough
+  // This needs to be true at the start as driver.js does not have a default overlay click event
+  // We make this false if the driver is destroyed by other than overlay click
   isOverlayClicked = true;
 
   overlayClickCount = 0;
@@ -181,23 +184,27 @@ export class DashboardPage {
       doneBtnText: 'Ok',
       nextBtnText: 'Next',
       prevBtnText: 'Back',
+      // Callback used for the cancel walkthrough button
       onCloseClick: () => {
         this.walkthroughService.setIsOverlayClicked(false);
         this.setNavbarWalkthroughFeatureConfigFlag(false);
         driverInstance.destroy();
       },
+      //Callback used for registering the active index of the walkthrough
       onDeselected: () => {
         const activeIndex = driverInstance.getActiveIndex();
         if (activeIndex) {
           this.walkthroughService.setActiveWalkthroughIndex(activeIndex);
         }
       },
+      // Callback used to check for the next step and finish button
       onNextClick: () => {
         driverInstance.moveNext();
         if (this.walkthroughService.getActiveWalkthroughIndex() === navbarWalkthroughSteps.length - 1) {
           this.walkthroughService.setIsOverlayClicked(false);
         }
       },
+      // Callback used for performing actions when the walkthrough is destroyed
       onDestroyStarted: () => {
         if (this.walkthroughService.getIsOverlayClicked()) {
           this.setNavbarWalkthroughFeatureConfigFlag(true);
@@ -235,6 +242,7 @@ export class DashboardPage {
         const featureConfigValue = config?.value || {};
         const isFinished = featureConfigValue?.isFinished || false;
         this.overlayClickCount = featureConfigValue?.overlayClickCount || 0;
+        // index to start the walkthrough from is destroyed due to overlay click
         this.walkthroughOverlayStartIndex = featureConfigValue?.currentStepIndex || 0;
         this.isWalkthroughComplete = isFinished;
 
@@ -247,6 +255,7 @@ export class DashboardPage {
   }
 
   ionViewWillLeave(): void {
+    // handling the pause walkthrough when the user navigates to other pages
     if (!this.isWalkthroughComplete) {
       this.isWalkthroughPaused = true;
       this.walkthroughService.setActiveWalkthroughIndex(driver().getActiveIndex());
