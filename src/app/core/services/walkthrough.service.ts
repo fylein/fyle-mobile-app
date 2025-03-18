@@ -7,6 +7,8 @@ import { DriveStep } from 'driver.js';
 export class WalkthroughService {
   activeWalkthroughIndex = 0;
 
+  isOverlayClicked = true;
+
   getNavBarWalkthroughConfig(isApprover: boolean): DriveStep[] {
     const steps: DriveStep[] = [
       {
@@ -69,5 +71,13 @@ export class WalkthroughService {
 
   setActiveWalkthroughIndex(index: number): void {
     this.activeWalkthroughIndex = index;
+  }
+
+  setIsOverlayClicked(isClicked: boolean): void {
+    this.isOverlayClicked = isClicked;
+  }
+
+  getIsOverlayClicked(): boolean {
+    return this.isOverlayClicked;
   }
 }
