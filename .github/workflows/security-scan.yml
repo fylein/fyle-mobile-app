@@ -1,0 +1,15 @@
+name: Security Scan
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run Vulnerability Scanner
+        uses: fylein/vulnerability-scan-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          is_submodule: true
