@@ -21,17 +21,21 @@ import { TransactionService } from '../../../transaction.service';
 import { apiReportPermissions } from 'src/app/core/mock-data/report-permissions.data';
 import { Comment } from 'src/app/core/models/platform/v1/comment.model';
 import { exportPayload } from 'src/app/core/mock-data/export-payload.data';
+import { OrgUserSettingsService } from '../../../org-user-settings.service';
+import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 
 describe('SpenderReportsService', () => {
   let spenderReportsService: SpenderReportsService;
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
   let userEventService: jasmine.SpyObj<UserEventService>;
   let transactionService: jasmine.SpyObj<TransactionService>;
+  let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
 
   beforeEach(() => {
     const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get', 'post']);
     const userEventServiceSpy = jasmine.createSpyObj('UserEventServive', ['clearTaskCache']);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['clearCache']);
+    const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
     TestBed.configureTestingModule({
       providers: [
         SpenderReportsService,
@@ -39,6 +43,7 @@ describe('SpenderReportsService', () => {
         { provide: SpenderPlatformV1ApiService, useValue: spenderPlatformV1ApiServiceSpy },
         { provide: UserEventService, useValue: userEventServiceSpy },
         { provide: TransactionService, useValue: transactionServiceSpy },
+        { provide: OrgUserSettingsService, useValue: orgUserSettingsServiceSpy },
       ],
     });
     spenderReportsService = TestBed.inject(SpenderReportsService);
@@ -47,7 +52,9 @@ describe('SpenderReportsService', () => {
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     userEventService = TestBed.inject(UserEventService) as jasmine.SpyObj<UserEventService>;
     transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
+    orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
     spyOn(spenderReportsService, 'clearTransactionCache').and.returnValue(of(null));
+    orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
   });
 
   it('should be created', () => {
