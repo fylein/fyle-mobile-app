@@ -1107,8 +1107,7 @@ describe('SplitExpensePage', () => {
       component.splitExpensesFormArray = new UntypedFormArray([splitExpenseForm1, splitExpenseForm2]);
     });
 
-    it('should set the category field mandatory value to false when project is not visible and categories are not present', () => {
-      component.splitConfig.project.is_visible = false;
+    it('should set the category field mandatory value to false when categories are not present ', () => {
       component.splitConfig.category.is_mandatory = true;
 
       spyOn(component.splitExpensesFormArray.at(0), 'get').and.returnValue(formControlSpy);
@@ -1120,20 +1119,6 @@ describe('SplitExpensePage', () => {
 
       expect(formControlSpy.clearValidators).toHaveBeenCalled();
       expect(formControlSpy.updateValueAndValidity).toHaveBeenCalled();
-    });
-
-    it('should not change category field mandatory value when project is visible', () => {
-      component.splitConfig.project.is_visible = true;
-      component.splitConfig.category.is_mandatory = true;
-
-      spyOn(component.splitExpensesFormArray.at(0), 'get').and.returnValue(formControlSpy);
-      spyOn(component.splitExpensesFormArray.at(1), 'get').and.returnValue(formControlSpy);
-
-      component.updateCategoryMandatoryStatus([]);
-
-      expect(component.splitConfig.category.is_mandatory).toBeTrue();
-      expect(formControlSpy.clearValidators).not.toHaveBeenCalled();
-      expect(formControlSpy.updateValueAndValidity).not.toHaveBeenCalled();
     });
 
     it('should not change category field mandatory value when categories are available', () => {
@@ -1151,7 +1136,6 @@ describe('SplitExpensePage', () => {
     });
 
     it('should not change category field mandatory value when the category field mandatory value is already false', () => {
-      component.splitConfig.project.is_visible = false;
       component.splitConfig.category.is_mandatory = false;
 
       spyOn(component.splitExpensesFormArray.at(0), 'get').and.returnValue(formControlSpy);
@@ -1164,8 +1148,7 @@ describe('SplitExpensePage', () => {
       expect(formControlSpy.updateValueAndValidity).not.toHaveBeenCalled();
     });
 
-    it('should initially clear category field required validator for the first 2 splits if cateogy is mandatory and project is not visible and there are no categories available', () => {
-      component.splitConfig.project.is_visible = false;
+    it('should initially clear category field required validator for the first 2 splits if cateogy is mandatory and there are no categories available', () => {
       component.splitConfig.category.is_mandatory = true;
 
       const splitExpenseForm1 = new UntypedFormGroup({
@@ -1674,15 +1657,16 @@ describe('SplitExpensePage', () => {
     beforeEach(() => {
       spyOn(component, 'showPopoverModal').and.callThrough();
       component.splitConfig = cloneDeep(splitConfig);
+      component.categoryDisableMsg = 'No category is assigned. Please contact admin for further help.';
     });
 
-    it('should show correct message for category type', () => {
+    it('should show correct message for category type when msg is empty', () => {
+      component.categoryDisableMsg = '';
       component.showDisabledMessage('category');
       expect(component.showPopoverModal).toHaveBeenCalledWith('No category is available for the selected project.');
     });
 
-    it('should show correct message when type is category and project is not enabled', () => {
-      component.splitConfig.project.is_visible = false;
+    it('should show correct message when type is category and msg is not empty', () => {
       component.showDisabledMessage('category');
       expect(component.showPopoverModal).toHaveBeenCalledWith(
         'No category is assigned. Please contact admin for further help.'

@@ -1,5 +1,5 @@
 import { Component, EventEmitter, ViewChild } from '@angular/core';
-import { concat, forkJoin, from, noop, Observable, of, Subject, Subscription, timer } from 'rxjs';
+import { concat, forkJoin, from, noop, Observable, of, Subject, Subscription } from 'rxjs';
 import { map, shareReplay, switchMap, takeUntil } from 'rxjs/operators';
 import { ActionSheetButton, ActionSheetController, ModalController, NavController, Platform } from '@ionic/angular';
 import { NetworkService } from '../../core/services/network.service';
@@ -82,6 +82,15 @@ export class DashboardPage {
 
   isWalkthroughPaused = false;
 
+  // variable to check for the overlay bg click for the walkthrough
+  // This needs to be true at the start as driver.js does not have a default overlay click event
+  // We make this false if the driver is destroyed by other than overlay click
+  isOverlayClicked = true;
+
+  overlayClickCount = 0;
+
+  walkthroughOverlayStartIndex = 0;
+
   constructor(
     private currencyService: CurrencyService,
     private networkService: NetworkService,
@@ -124,29 +133,49 @@ export class DashboardPage {
     return this.tasksComponent.filterPills;
   }
 
-  setNavbarWalkthroughFeatureConfigFlag(): void {
-    this.isWalkthroughComplete = true;
+  setNavbarWalkthroughFeatureConfigFlag(overlayClicked: boolean): void {
     const featureConfigParams = {
       feature: 'WALKTHROUGH',
       key: 'DASHBOARD_SHOW_NAVBAR',
     };
 
+    const eventTrackName =
+      overlayClicked && this.overlayClickCount < 1
+        ? 'Navbar Walkthrough Skipped with overlay clicked'
+        : 'Navbar Walkthrough Completed';
+
+    const featureConfigValue =
+      overlayClicked && this.overlayClickCount < 1
+        ? {
+            isShown: true,
+            isFinished: false,
+            overlayClickCount: this.overlayClickCount + 1,
+            currentStepIndex: this.walkthroughService.getActiveWalkthroughIndex(),
+          }
+        : {
+            isShown: true,
+            isFinished: true,
+          };
+
+    this.trackingService.eventTrack(eventTrackName, {
+      Asset: 'Mobile',
+      from: 'Dashboard',
+    });
+
     this.featureConfigService
       .saveConfiguration({
         ...featureConfigParams,
-        value: {
-          isShown: true,
-          isFinished: true,
-        },
+        value: featureConfigValue,
       })
       .subscribe(noop);
   }
 
   startTour(isApprover: boolean): void {
+    const navbarWalkthroughSteps = this.walkthroughService.getNavBarWalkthroughConfig(isApprover);
     const driverInstance = driver({
       overlayOpacity: 0.5,
       allowClose: true,
-      overlayClickBehavior: 'nextStep',
+      overlayClickBehavior: 'close',
       showProgress: true,
       overlayColor: '#161528',
       stageRadius: 6,
@@ -155,23 +184,44 @@ export class DashboardPage {
       doneBtnText: 'Ok',
       nextBtnText: 'Next',
       prevBtnText: 'Back',
+      // Callback used for the cancel walkthrough button
+      onCloseClick: () => {
+        this.walkthroughService.setIsOverlayClicked(false);
+        this.setNavbarWalkthroughFeatureConfigFlag(false);
+        driverInstance.destroy();
+      },
+      //Callback used for registering the active index of the walkthrough
+      onDeselected: () => {
+        const activeIndex = driverInstance.getActiveIndex();
+        if (activeIndex) {
+          this.walkthroughService.setActiveWalkthroughIndex(activeIndex);
+        }
+      },
+      // Callback used to check for the next step and finish button
+      onNextClick: () => {
+        driverInstance.moveNext();
+        if (this.walkthroughService.getActiveWalkthroughIndex() === navbarWalkthroughSteps.length - 1) {
+          this.walkthroughService.setIsOverlayClicked(false);
+        }
+      },
+      // Callback used for performing actions when the walkthrough is destroyed
       onDestroyStarted: () => {
-        if (!this.isWalkthroughPaused) {
-          this.trackingService.eventTrack('Navbar Walkthrough Completed', {
-            Asset: 'Mobile',
-            from: 'Dashboard',
-          });
-          this.setNavbarWalkthroughFeatureConfigFlag();
-          this.walkthroughService.setActiveWalkthroughIndex(0);
+        if (this.walkthroughService.getIsOverlayClicked()) {
+          this.setNavbarWalkthroughFeatureConfigFlag(true);
+          driverInstance.destroy();
+        } else {
+          this.setNavbarWalkthroughFeatureConfigFlag(false);
           driverInstance.destroy();
         }
       },
     });
 
-    const navbarWalkthroughSteps = this.walkthroughService.getNavBarWalkthroughConfig(isApprover);
-    const activeStepIndex = this.walkthroughService.getActiveWalkthroughIndex();
+    let activeStepIndex = this.walkthroughService.getActiveWalkthroughIndex();
 
     driverInstance.setSteps(navbarWalkthroughSteps);
+    if (this.overlayClickCount > 0) {
+      activeStepIndex = this.walkthroughOverlayStartIndex;
+    }
     driverInstance.drive(activeStepIndex);
   }
 
@@ -182,21 +232,28 @@ export class DashboardPage {
     };
 
     this.featureConfigService
-      .getConfiguration<{ isShown?: boolean; isFinished?: boolean }>(showNavbarWalkthroughConfig)
+      .getConfiguration<{
+        isShown?: boolean;
+        isFinished?: boolean;
+        overlayClickCount?: number;
+        currentStepIndex?: number;
+      }>(showNavbarWalkthroughConfig)
       .subscribe((config) => {
         const featureConfigValue = config?.value || {};
         const isFinished = featureConfigValue?.isFinished || false;
+        this.overlayClickCount = featureConfigValue?.overlayClickCount || 0;
+        // index to start the walkthrough from is destroyed due to overlay click
+        this.walkthroughOverlayStartIndex = featureConfigValue?.currentStepIndex || 0;
         this.isWalkthroughComplete = isFinished;
 
         if (!isFinished) {
-          timer(1000).subscribe(() => {
-            this.startTour(isApprover);
-          });
+          this.startTour(isApprover);
         }
       });
   }
 
   ionViewWillLeave(): void {
+    // handling the pause walkthrough when the user navigates to other pages
     if (!this.isWalkthroughComplete) {
       this.isWalkthroughPaused = true;
       this.walkthroughService.setActiveWalkthroughIndex(driver().getActiveIndex());
@@ -288,21 +345,23 @@ export class DashboardPage {
     this.homeCurrency$ = this.currencyService.getHomeCurrency().pipe(shareReplay(1));
     this.eou$ = from(this.authService.getEou()).pipe(shareReplay(1));
     this.isUserFromINCluster$ = from(this.utilityService.isUserFromINCluster());
-    this.eou$
-      .pipe(
-        map((eou) => {
-          if (eou.ou.roles.includes('APPROVER') && eou.ou.is_primary) {
-            this.showNavbarWalkthrough(true);
-          } else {
-            this.showNavbarWalkthrough(false);
-          }
-        })
-      )
-      .subscribe(noop);
+    const openSMSOptInDialog = this.activatedRoute.snapshot.params.openSMSOptInDialog as string;
+    if (openSMSOptInDialog !== 'true') {
+      this.eou$
+        .pipe(
+          map((eou) => {
+            if (eou.ou.roles.includes('APPROVER') && eou.ou.is_primary) {
+              this.showNavbarWalkthrough(true);
+            } else {
+              this.showNavbarWalkthrough(false);
+            }
+          })
+        )
+        .subscribe(noop);
+    }
 
     this.setShowOptInBanner();
 
-    const openSMSOptInDialog = this.activatedRoute.snapshot.params.openSMSOptInDialog as string;
     if (openSMSOptInDialog === 'true') {
       this.eou$
         .pipe(

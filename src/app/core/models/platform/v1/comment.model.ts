@@ -8,4 +8,5 @@ export interface Comment {
   };
   creator_user_id: string;
   id: string;
+  userTimezone?: string;
 }

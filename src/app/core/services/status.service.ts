@@ -3,23 +3,29 @@ import { ApiService } from './api.service';
 import { map } from 'rxjs/operators';
 import { ExtendedStatus } from '../models/extended_status.model';
 import { StatusCategory } from '../models/status-category.model';
-import { Observable } from 'rxjs';
+import { forkJoin, Observable } from 'rxjs';
 import { TransactionStatus } from '../models/transaction-status.model';
+import { OrgUserSettingsService } from './org-user-settings.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class StatusService {
-  constructor(private apiService: ApiService) {}
+  constructor(private apiService: ApiService, private orgUserSettingsService: OrgUserSettingsService) {}
 
   find(objectType: string, objectId: string): Observable<ExtendedStatus[]> {
-    return this.apiService.get('/' + objectType + '/' + objectId + '/estatuses').pipe(
-      map((estatuses: ExtendedStatus[]) =>
-        estatuses?.map((estatus) => {
-          estatus.st_created_at = new Date(estatus.st_created_at);
+    return forkJoin([
+      this.apiService.get<ExtendedStatus[]>(`/${objectType}/${objectId}/estatuses`),
+      this.orgUserSettingsService.get(),
+    ]).pipe(
+      map(([estatuses, orgUserSettings]) => {
+        const timezone = orgUserSettings?.locale?.timezone || 'UTC';
+
+        return estatuses?.map((estatus) => {
+          estatus.userTimezone = timezone;
           return estatus;
-        })
-      )
+        });
+      })
     );
   }
 

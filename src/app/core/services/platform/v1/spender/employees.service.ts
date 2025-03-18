@@ -29,7 +29,7 @@ export class EmployeesService {
     });
   }
 
-  getByParams(params: Partial<PlatformEmployee>): Observable<PlatformApiResponse<PlatformEmployee>> {
+  getByParams(params: Partial<PlatformEmployee>): Observable<PlatformApiResponse<PlatformEmployee[]>> {
     return this.spenderService.get(`/employees`, { params });
   }
 }

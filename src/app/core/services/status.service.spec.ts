@@ -9,17 +9,19 @@ import {
   updateReponseWithFlattenedEStatus,
 } from '../test-data/status.service.spec.data';
 import { cloneDeep } from 'lodash';
+import { OrgUserSettingsService } from './org-user-settings.service';
+import { orgUserSettingsData } from '../mock-data/org-user-settings.data';
 
 describe('StatusService', () => {
   let statusService: StatusService;
   let apiService: jasmine.SpyObj<ApiService>;
-
+  let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
   const type = 'transactions';
   const id = 'tx1oTNwgRdRq';
 
   beforeEach(() => {
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post']);
-
+    const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
     TestBed.configureTestingModule({
       providers: [
         StatusService,
@@ -27,10 +29,16 @@ describe('StatusService', () => {
           provide: ApiService,
           useValue: apiServiceSpy,
         },
+        {
+          provide: OrgUserSettingsService,
+          useValue: orgUserSettingsServiceSpy,
+        },
       ],
     });
     statusService = TestBed.inject(StatusService);
     apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
+    orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
+    orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
   });
 
   it('should be created', () => {
@@ -65,7 +73,6 @@ describe('StatusService', () => {
   it('should find and return the latest comment', (done) => {
     const mockGetApiResponse = cloneDeep(getApiResponse);
     apiService.get.and.returnValue(of(mockGetApiResponse));
-
     const result = statusService.findLatestComment(id, type, 'POLICY');
     result.subscribe((res) => {
       expect(res).toEqual('food expenses are limited to rs 200 only');

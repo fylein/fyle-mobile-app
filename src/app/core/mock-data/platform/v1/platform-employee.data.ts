@@ -34,13 +34,13 @@ export const platformEmployeeData: PlatformEmployee = deepFreeze({
   ],
 });
 
-export const platformEmployeeResponse: PlatformApiResponse<PlatformEmployee> = deepFreeze({
+export const platformEmployeeResponse: PlatformApiResponse<PlatformEmployee[]> = deepFreeze({
   count: 1,
   offset: 10,
-  data: platformEmployeeData,
+  data: [platformEmployeeData],
 });
 
-export const platformEmployeeEmptyResponse: PlatformApiResponse<PlatformEmployee> = deepFreeze({
+export const platformEmployeeEmptyResponse: PlatformApiResponse<PlatformEmployee[]> = deepFreeze({
   count: 1,
   offset: 10,
   data: null,

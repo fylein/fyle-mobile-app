@@ -19,24 +19,31 @@ import { expectedReportStats } from 'src/app/core/mock-data/report-stats.data';
 import { ReportState } from '../../../../models/platform/v1/report.model';
 import { apiReportPermissions } from 'src/app/core/mock-data/report-permissions.data';
 import { Comment } from 'src/app/core/models/platform/v1/comment.model';
+import { OrgUserSettingsService } from '../../../org-user-settings.service';
+import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 
 describe('ApproverReportsService', () => {
   let approverReportsService: ApproverReportsService;
   let approverPlatformApiService: jasmine.SpyObj<ApproverPlatformApiService>;
+  let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
 
   beforeEach(() => {
     const approverPlatformApiServiceSpy = jasmine.createSpyObj('ApproverPlatformApiService', ['post', 'get']);
+    const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
     TestBed.configureTestingModule({
       providers: [
         ApproverReportsService,
         { provide: PAGINATION_SIZE, useValue: 2 },
         { provide: ApproverPlatformApiService, useValue: approverPlatformApiServiceSpy },
+        { provide: OrgUserSettingsService, useValue: orgUserSettingsServiceSpy },
       ],
     });
     approverReportsService = TestBed.inject(ApproverReportsService);
     approverPlatformApiService = TestBed.inject(
       ApproverPlatformApiService
     ) as jasmine.SpyObj<ApproverPlatformApiService>;
+    orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
+    orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
   });
 
   it('should be created', () => {
