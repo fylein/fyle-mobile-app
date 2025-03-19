@@ -5,16 +5,30 @@ on:
     types: [opened, synchronize, reopened]
     branches:
       - master
-    paths:
-      - '**/package-lock.json'
-      - '**/requirements.txt'
 
 jobs:
   security-scan:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v41
+        with:
+          files: |
+            **/package-lock.json
+            **/requirements.txt
+
       - name: Run Vulnerability Scanner
+        if: steps.changed-files.outputs.any_changed == 'true'
         uses: fylein/vulnerability-scan-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          is_submodule: true 
+          is_submodule: true
+
+      - name: Skip Vulnerability Scanner
+        if: steps.changed-files.outputs.any_changed != 'true'
+        run: echo "No changes to dependency files, skipping vulnerability scan."
