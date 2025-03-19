@@ -306,7 +306,7 @@ export class MyExpensesPage implements OnInit {
       this.selectExpense(expense);
     }
 
-    this.checkDeleteDisabled().subscribe();
+    this.checkDeleteDisabled().pipe(take(1)).subscribe();
   }
 
   switchOutboxSelectionMode(expense?: Expense): void {
@@ -472,6 +472,8 @@ export class MyExpensesPage implements OnInit {
   ionViewWillEnter(): void {
     this.isNewReportsFlowEnabled = false;
     this.initClassObservables();
+
+    this.checkDeleteDisabled().pipe(takeUntil(this.onPageExit$.asObservable())).subscribe();
 
     this.tasksService.getExpensesTaskCount().subscribe((expensesTaskCount) => {
       this.expensesTaskCount = expensesTaskCount;
@@ -756,7 +758,7 @@ export class MyExpensesPage implements OnInit {
     );
     this.doRefresh();
 
-    this.checkDeleteDisabled();
+    this.checkDeleteDisabled().pipe(take(1)).subscribe();
 
     const optInModalPostExpenseCreationFeatureConfig = {
       feature: 'OPT_IN_POPUP_POST_EXPENSE_CREATION',
@@ -1117,7 +1119,7 @@ export class MyExpensesPage implements OnInit {
     }
     this.setExpenseStatsOnSelect();
     this.isMergeAllowed = this.sharedExpenseService.isMergeAllowed(this.selectedElements);
-    this.checkDeleteDisabled().subscribe();
+    this.checkDeleteDisabled().pipe(take(1)).subscribe();
   }
 
   goToTransaction(event: { expense: PlatformExpense; expenseIndex: number }): void {
@@ -1633,7 +1635,7 @@ export class MyExpensesPage implements OnInit {
           this.transactionService.getReportableExpenses(this.selectedOutboxExpenses).length > 0;
         this.outboxExpensesToBeDeleted = this.selectedOutboxExpenses;
         this.setOutboxExpenseStatsOnSelect();
-        this.checkDeleteDisabled().subscribe();
+        this.checkDeleteDisabled().pipe(take(1)).subscribe();
       } else {
         this.loadExpenses$
           .pipe(
@@ -1664,7 +1666,7 @@ export class MyExpensesPage implements OnInit {
                 this.restrictPendingTransactionsEnabled
               ).length > 0;
             this.setExpenseStatsOnSelect();
-            this.checkDeleteDisabled().subscribe();
+            this.checkDeleteDisabled().pipe(take(1)).subscribe();
           });
       }
     } else {
@@ -1674,7 +1676,7 @@ export class MyExpensesPage implements OnInit {
       this.isReportableExpensesSelected =
         this.sharedExpenseService.getReportableExpenses(this.selectedElements).length > 0;
       this.setExpenseStatsOnSelect();
-      this.checkDeleteDisabled().subscribe();
+      this.checkDeleteDisabled().pipe(take(1)).subscribe();
     }
   }
 
