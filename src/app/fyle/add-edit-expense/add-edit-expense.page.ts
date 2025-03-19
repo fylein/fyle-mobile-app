@@ -2592,6 +2592,11 @@ export class AddEditExpensePage implements OnInit {
               control.setValidators(isConnected ? Validators.required : null);
             }
           }
+
+          // set back the customDateValidator for spent_at field
+          if (txnFieldKey === 'txn_dt') {
+            control.addValidators(this.customDateValidator);
+          }
           control.updateValueAndValidity();
         }
         this.fg.updateValueAndValidity();

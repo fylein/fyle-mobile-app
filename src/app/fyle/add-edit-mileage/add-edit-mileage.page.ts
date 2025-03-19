@@ -1071,6 +1071,11 @@ export class AddEditMileagePage implements OnInit {
                 control.setValidators(isConnected ? Validators.required : null);
               }
             }
+
+            // set back the customDateValidator for spent_at field
+            if (txnFieldKey === 'txn_dt') {
+              control.addValidators(this.customDateValidator);
+            }
             if (txnFieldKey === 'project_id' || txnFieldKey === 'commute_deduction') {
               control.updateValueAndValidity({
                 emitEvent: false,
