@@ -16,6 +16,7 @@ import { SortingValue } from 'src/app/core/models/sorting-value.model';
 import { TitleCasePipe } from '@angular/common';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 
+// eslint-disable-next-line
 type Filters = Partial<{
   state: AdvancesStates[];
   sortParam: SortingParam;
@@ -72,16 +73,12 @@ export class TeamAdvancePage implements AfterViewChecked {
 
     this.teamAdvancerequests$ = this.loadData$.pipe(
       concatMap(({ pageNumber, state, sortParam, sortDir }) =>
-        this.advanceRequestService.getTeamAdvanceRequests({
+        this.advanceRequestService.getTeamAdvanceRequestsPlatform({
           offset: (pageNumber - 1) * 10,
           limit: 10,
           queryParams: {
+            order: `${sortParam}.${sortDir}`,
             ...this.getExtraParams(state),
-          },
-          filter: {
-            state,
-            sortParam,
-            sortDir,
           },
         })
       ),
@@ -264,7 +261,7 @@ export class TeamAdvancePage implements AfterViewChecked {
 
     if (isPending && isApproved) {
       extraParams = {
-        areq_state: ['not.eq.DRAFT'],
+        areq_state: ['neq.DRAFT'],
         areq_approval_state: ['ov.{APPROVAL_PENDING,APPROVAL_DONE}'],
         or: ['(areq_is_sent_back.is.null,areq_is_sent_back.is.false)'],
       };
