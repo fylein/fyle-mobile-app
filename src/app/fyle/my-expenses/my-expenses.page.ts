@@ -758,8 +758,6 @@ export class MyExpensesPage implements OnInit {
     );
     this.doRefresh();
 
-    this.checkDeleteDisabled().pipe(take(1)).subscribe();
-
     const optInModalPostExpenseCreationFeatureConfig = {
       feature: 'OPT_IN_POPUP_POST_EXPENSE_CREATION',
       key: 'OPT_IN_POPUP_SHOWN_COUNT',
