@@ -3374,7 +3374,7 @@ describe('MyExpensesPage', () => {
       component.expensesToBeDeleted = [];
 
       component.checkDeleteDisabled().subscribe(() => {
-        expect(component.isDisabled).toBeFalse();
+        expect(component.isDeleteDisabled).toBeFalse();
         done();
       });
     });
@@ -3385,7 +3385,7 @@ describe('MyExpensesPage', () => {
       component.outboxExpensesToBeDeleted = [];
 
       component.checkDeleteDisabled().subscribe(() => {
-        expect(component.isDisabled).toBeFalse();
+        expect(component.isDeleteDisabled).toBeFalse();
         done();
       });
     });
