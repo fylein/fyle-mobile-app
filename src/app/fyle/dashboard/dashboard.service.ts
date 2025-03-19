@@ -54,7 +54,7 @@ export class DashboardService {
   getUnapprovedTeamReportsStats(): Observable<PlatformReportsStatsResponse> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) => {
-        if (eou.ou.roles.includes('APPROVER')) {
+        if (eou.ou?.roles?.includes('APPROVER')) {
           return this.approverReportsService.getReportsStats({
             next_approver_user_ids: `cs.[${eou.us.id}]`,
             state: `eq.${ReportStates.APPROVER_PENDING}`,
