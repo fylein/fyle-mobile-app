@@ -255,7 +255,7 @@ describe('ViewTeamAdvanceRequestPage', () => {
       const eouRes = cloneDeep(apiEouRes);
       eouRes.ou.org_id = 'or2390Fjsd';
       authService.getEou.and.resolveTo(eouRes);
-      const customField: CustomField[] = JSON.parse(extendedAdvReqDraft.areq_custom_field_values);
+      const customField: CustomField[] = extendedAdvReqDraft.areq_custom_field_values;
       component.ionViewWillEnter();
       tick(100);
 

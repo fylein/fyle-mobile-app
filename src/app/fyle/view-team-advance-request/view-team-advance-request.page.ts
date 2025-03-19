@@ -154,7 +154,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
             res.advanceRequest.areq_custom_field_values.length > 0
           ) {
             customFieldValues = this.advanceRequestService.modifyAdvanceRequestCustomFields(
-              JSON.parse(res.advanceRequest.areq_custom_field_values) as CustomField[]
+              res.advanceRequest.areq_custom_field_values
             );
           }
 
@@ -168,7 +168,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
           return res.customFields;
         } else {
           return this.advanceRequestService.modifyAdvanceRequestCustomFields(
-            JSON.parse(res.advanceRequest.areq_custom_field_values) as CustomField[]
+            res.advanceRequest.areq_custom_field_values
           );
         }
       })
