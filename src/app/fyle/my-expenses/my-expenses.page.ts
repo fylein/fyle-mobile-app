@@ -473,7 +473,7 @@ export class MyExpensesPage implements OnInit {
     this.isNewReportsFlowEnabled = false;
     this.initClassObservables();
 
-    this.checkDeleteDisabled().pipe(takeUntil(this.onPageExit$.asObservable())).subscribe();
+    this.checkDeleteDisabled().pipe(takeUntil(this.onPageExit$)).subscribe();
 
     this.tasksService.getExpensesTaskCount().subscribe((expensesTaskCount) => {
       this.expensesTaskCount = expensesTaskCount;
