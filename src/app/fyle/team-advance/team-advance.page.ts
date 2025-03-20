@@ -266,7 +266,7 @@ export class TeamAdvancePage implements AfterViewChecked {
     if (isPending && isApproved) {
       extraParams = {
         state: 'neq.DRAFT',
-        approvals: 'cd.{"state":"APPROVAL_PENDING",APPROVAL_DONE}',
+        or: '(approvals.cs.[{"state":"APPROVAL_PENDING"}], approvals.cs.[{"state": "APPROVED"}])',
       };
     } else if (isPending) {
       extraParams = {
@@ -274,11 +274,11 @@ export class TeamAdvancePage implements AfterViewChecked {
       };
     } else if (isApproved) {
       extraParams = {
-        'approvals->state': 'ov.{APPROVAL_PENDING,APPROVAL_DONE}',
+        or: '(approvals.cs.[{"state":"APPROVAL_PENDING"}], approvals.cs.[{"state": "APPROVED"}])',
       };
     } else {
       extraParams = {
-        'approvals->state': 'ov.{APPROVAL_PENDING,APPROVAL_DONE,APPROVAL_REJECTED}',
+        or: '(approvals.cs.[{"state":"APPROVAL_PENDING"}], approvals.cs.[{"state": "APPROVED"}], approvals.cs.[{"state": "REJECTED"}])',
       };
     }
 

@@ -298,43 +298,43 @@ export class AdvanceRequestService {
       queryParams: {},
     }
   ): Observable<ApiV2Response<ExtendedAdvanceRequest>> {
-    const defaultParams = {};
-    const isPending = config.filter.state.includes(AdvancesStates.pending);
-    const isApproved = config.filter.state.includes(AdvancesStates.approved);
-    let approvalState;
+    return from(this.authService.getEou()).pipe(
+      switchMap((eou) => {
+        const defaultParams = {};
+        const isPending = config.filter.state.includes(AdvancesStates.pending);
+        const isApproved = config.filter.state.includes(AdvancesStates.approved);
+        let approvalState;
 
-    if (isPending && isApproved) {
-      approvalState = 'in.(APPROVAL_PENDING,APPROVAL_DONE)';
-    } else if (isApproved) {
-      approvalState = 'eq.APPROVAL_DONE';
-    } else if (isPending) {
-      approvalState = 'eq.APPROVAL_PENDING';
-    }
+        if (isPending && isApproved) {
+          approvalState = 'in.(APPROVAL_PENDING,APPROVED)';
+        } else if (isApproved) {
+          approvalState = 'APPROVED';
+        } else if (isPending) {
+          approvalState = 'APPROVAL_PENDING';
+        }
 
-    if (approvalState) {
-      //   defaultParams[`advance_request_approvals->state`] = [approvalState];
-    }
+        if (approvalState) {
+          defaultParams.and = `approvals.cs.[{"state":"${approvalState}"}]`;
+        }
+        const order = this.getSortOrder(config.filter.sortParam, config.filter.sortDir);
 
-    const order = this.getSortOrder(config.filter.sortParam, config.filter.sortDir);
-
-    return this.approverService
-      .get<PlatformApiResponse<AdvanceRequestPlatform[]>>('/advance_requests', {
-        params: {
-          offset: config.offset,
-          limit: config.limit,
-          order,
-          // areq_approvers_ids: 'cs.{' + eou.ou.id + '}',
-          ...defaultParams,
-          ...config.queryParams,
-        },
-      })
-      .pipe(
-        map((res) => ({
-          count: res.count,
-          offset: res.offset,
-          data: this.convertToAdvanceRequest(res),
-        }))
-      );
+        return this.approverService.get<PlatformApiResponse<AdvanceRequestPlatform[]>>('/advance_requests', {
+          params: {
+            offset: config.offset,
+            limit: config.limit,
+            order,
+            approvals: `cs.[{"approver_user_id":"${eou.ou.user_id}"}]`,
+            ...defaultParams,
+            ...config.queryParams,
+          },
+        });
+      }),
+      map((res) => ({
+        count: res.count,
+        offset: res.offset,
+        data: this.convertToAdvanceRequest(res),
+      }))
+    );
   }
 
   getEReqFromPlatform(advanceRequestId: string): Observable<UnflattenedAdvanceRequest> {
