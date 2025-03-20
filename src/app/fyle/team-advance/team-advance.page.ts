@@ -77,8 +77,12 @@ export class TeamAdvancePage implements AfterViewChecked {
           offset: (pageNumber - 1) * 10,
           limit: 10,
           queryParams: {
-            order: `${sortParam}.${sortDir}`,
             ...this.getExtraParams(state),
+          },
+          filter: {
+            state,
+            sortParam,
+            sortDir,
           },
         })
       ),
@@ -261,22 +265,20 @@ export class TeamAdvancePage implements AfterViewChecked {
 
     if (isPending && isApproved) {
       extraParams = {
-        areq_state: ['neq.DRAFT'],
-        areq_approval_state: ['ov.{APPROVAL_PENDING,APPROVAL_DONE}'],
-        or: ['(areq_is_sent_back.is.null,areq_is_sent_back.is.false)'],
+        state: 'neq.DRAFT',
+        approvals: 'cd.{"state":"APPROVAL_PENDING",APPROVAL_DONE}',
       };
     } else if (isPending) {
       extraParams = {
-        areq_state: ['eq.APPROVAL_PENDING'],
-        or: ['(areq_is_sent_back.is.null,areq_is_sent_back.is.false)'],
+        state: 'eq.APPROVAL_PENDING',
       };
     } else if (isApproved) {
       extraParams = {
-        areq_approval_state: ['ov.{APPROVAL_PENDING,APPROVAL_DONE}'],
+        'approvals->state': 'ov.{APPROVAL_PENDING,APPROVAL_DONE}',
       };
     } else {
       extraParams = {
-        areq_approval_state: ['ov.{APPROVAL_PENDING,APPROVAL_DONE,APPROVAL_REJECTED}'],
+        'approvals->state': 'ov.{APPROVAL_PENDING,APPROVAL_DONE,APPROVAL_REJECTED}',
       };
     }
 

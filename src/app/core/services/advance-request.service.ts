@@ -292,18 +292,39 @@ export class AdvanceRequestService {
     cacheBusterObserver: advanceRequestsCacheBuster$,
   })
   getTeamAdvanceRequestsPlatform(
-    config: PlatformConfig = {
+    config: Config = {
       offset: 0,
       limit: 10,
       queryParams: {},
     }
   ): Observable<ApiV2Response<ExtendedAdvanceRequest>> {
+    const defaultParams = {};
+    const isPending = config.filter.state.includes(AdvancesStates.pending);
+    const isApproved = config.filter.state.includes(AdvancesStates.approved);
+    let approvalState;
+
+    if (isPending && isApproved) {
+      approvalState = 'in.(APPROVAL_PENDING,APPROVAL_DONE)';
+    } else if (isApproved) {
+      approvalState = 'eq.APPROVAL_DONE';
+    } else if (isPending) {
+      approvalState = 'eq.APPROVAL_PENDING';
+    }
+
+    if (approvalState) {
+      //   defaultParams[`advance_request_approvals->state`] = [approvalState];
+    }
+
+    const order = this.getSortOrder(config.filter.sortParam, config.filter.sortDir);
+
     return this.approverService
       .get<PlatformApiResponse<AdvanceRequestPlatform[]>>('/advance_requests', {
         params: {
           offset: config.offset,
           limit: config.limit,
+          order,
           // areq_approvers_ids: 'cs.{' + eou.ou.id + '}',
+          ...defaultParams,
           ...config.queryParams,
         },
       })
@@ -395,7 +416,7 @@ export class AdvanceRequestService {
   }
 
   getTeamAdvanceRequestsCount(queryParams: {}, filter: Filters): Observable<number> {
-    return this.getTeamAdvanceRequests({
+    return this.getTeamAdvanceRequestsPlatform({
       offset: 0,
       limit: 1,
       queryParams,
@@ -607,19 +628,19 @@ export class AdvanceRequestService {
   private getSortOrder(sortParam: SortingParam, sortDir: SortingDirection): string {
     let order: string;
     if (sortParam === SortingParam.creationDate) {
-      order = 'areq_created_at';
+      order = 'created_at';
     } else if (sortParam === SortingParam.approvalDate) {
-      order = 'areq_approved_at';
+      order = 'last_approved_at';
     } else if (sortParam === SortingParam.project) {
-      order = 'project_name';
+      order = 'project->name';
     } else {
-      order = 'areq_created_at'; //default
+      order = 'created_at'; //default
     }
 
     if (sortDir === SortingDirection.ascending) {
-      order += '.asc,areq_id.desc';
+      order += '.asc,id.desc';
     } else {
-      order += '.desc,areq_id.desc'; //default
+      order += '.desc,id.desc'; //default
     }
 
     return order;
