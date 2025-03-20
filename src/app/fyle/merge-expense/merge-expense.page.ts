@@ -696,7 +696,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
 
     return expenseFields$.pipe(
       switchMap((expenseFields) => {
-        this.showBillable = expenseFields?.billable[0]?.is_enabled;
+        this.showBillable = expenseFields?.billable?.[0]?.is_enabled;
         let parentFieldId: number;
         if (parentField === 'PROJECT') {
           parentFieldId = expenseFields.project_id[0].id;
