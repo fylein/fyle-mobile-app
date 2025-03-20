@@ -463,7 +463,7 @@ export class AddEditExpensePage implements OnInit {
 
   vendorOptions: string[] = [];
 
-  showBillable: boolean;
+  showBillable = false;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -2625,12 +2625,10 @@ export class AddEditExpensePage implements OnInit {
       }),
       switchMap((initialProject) =>
         this.fg.controls.project.valueChanges.pipe(
-          withLatestFrom(this.txnFields$),
-          tap(([project, txnFields]) => {
-            if (!project) {
+          tap((initialProject) => {
+            if (!initialProject) {
               this.fg.patchValue({ billable: false });
             } else {
-              this.showBillable = txnFields?.billable?.is_enabled;
               this.fg.patchValue({ billable: this.showBillable ? this.billableDefaultValue : false });
             }
           }),
@@ -3317,9 +3315,9 @@ export class AddEditExpensePage implements OnInit {
 
     this.initSplitTxn(orgSettings$);
 
-    this.setupFilteredCategories();
-
     this.setupExpenseFields();
+
+    this.setupFilteredCategories();
 
     this.flightJourneyTravelClassOptions$ = this.txnFields$.pipe(
       map((txnFields) => {
