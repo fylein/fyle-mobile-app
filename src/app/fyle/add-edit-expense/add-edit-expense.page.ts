@@ -463,6 +463,8 @@ export class AddEditExpensePage implements OnInit {
 
   vendorOptions: string[] = [];
 
+  showBillable: boolean;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -2343,6 +2345,9 @@ export class AddEditExpensePage implements OnInit {
     this.etxn$
       .pipe(
         switchMap(() => txnFieldsMap$),
+        tap((txnFields) => {
+          this.showBillable = txnFields.billable.is_enabled;
+        }),
         map((txnFields) => this.expenseFieldsService.getDefaultTxnFieldValues(txnFields))
       )
       .subscribe((defaultValues) => {
@@ -2385,6 +2390,7 @@ export class AddEditExpensePage implements OnInit {
             } else if (
               defaultValueColumn === 'billable' &&
               this.fg.controls.project.value &&
+              this.showBillable &&
               (control.value === null || control.value === undefined) &&
               !control.touched
             ) {
@@ -2619,11 +2625,13 @@ export class AddEditExpensePage implements OnInit {
       }),
       switchMap((initialProject) =>
         this.fg.controls.project.valueChanges.pipe(
-          tap((initialProject) => {
-            if (!initialProject) {
+          withLatestFrom(this.txnFields$),
+          tap(([project, txnFields]) => {
+            if (!project) {
               this.fg.patchValue({ billable: false });
             } else {
-              this.fg.patchValue({ billable: this.billableDefaultValue });
+              this.showBillable = txnFields?.billable?.is_enabled;
+              this.fg.patchValue({ billable: this.showBillable ? this.billableDefaultValue : false });
             }
           }),
           startWith(initialProject),
