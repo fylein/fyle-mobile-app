@@ -9,7 +9,7 @@ import {
   finalize,
   catchError,
 } from 'rxjs/operators';
-import { ModalController } from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular';
 import { Observable, fromEvent, of, from, forkJoin, noop, throwError } from 'rxjs';
 import { LocationService } from 'src/app/core/services/location.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -18,6 +18,8 @@ import { Geolocation } from '@capacitor/geolocation';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { MapGeocoderResponse } from '@angular/google-maps';
 import { GmapsService } from 'src/app/core/services/gmaps.service';
+import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-settings';
+import { PopupAlertComponent } from '../../popup-alert/popup-alert.component';
 
 @Component({
   selector: 'app-fy-location-modal',
@@ -49,6 +51,8 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
 
   currentGeolocationPermissionGranted = false;
 
+  isDeviceLocationEnabled: boolean = false;
+
   constructor(
     private gmapsService: GmapsService,
     private modalController: ModalController,
@@ -56,7 +60,8 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
     private locationService: LocationService,
     private authService: AuthService,
     private loaderService: LoaderService,
-    private recentLocalStorageItemsService: RecentLocalStorageItemsService
+    private recentLocalStorageItemsService: RecentLocalStorageItemsService,
+    private popoverController: PopoverController,
   ) {}
 
   ngOnInit() {
@@ -81,13 +86,23 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
   }
 
   async checkPermissionStatus() {
-    const permission = await Geolocation.checkPermissions();
-    this.currentGeolocationPermissionGranted = permission.location === 'granted';
+    try {
+      const permission = await Geolocation.checkPermissions();
+      console.log(permission)
+      this.currentGeolocationPermissionGranted = permission.location === 'granted';
+      this.isDeviceLocationEnabled = true;
+    } catch(err) {
+      this.isDeviceLocationEnabled = false;
+      console.log(err)
+    }
   }
 
-  async askForCurrentLocationPermission() {
-    await Geolocation.requestPermissions();
-    await this.checkPermissionStatus();
+  async askForEnableLocationSettings() {
+    NativeSettings.open({
+      optionAndroid: AndroidSettings.Location,
+      optionIOS: IOSSettings.LocationServices,
+    });
+    this.close()
   }
 
   clearValue() {
@@ -293,24 +308,67 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
     return formattedLocation;
   }
 
-  getCurrentLocation() {
-    from(this.loaderService.showLoader('Loading current location...', 10000))
-      .pipe(
-        switchMap(() => this.locationService.getCurrentLocation({ enableHighAccuracy: true })),
-        switchMap((coordinates) =>
-          this.gmapsService.getGeocode(coordinates?.coords.latitude, coordinates?.coords.longitude)
-        ),
-        map(this.formatGeocodeResponse),
-        catchError((err) => {
-          this.lookupFailed = true;
-          return throwError(err);
-        }),
-        finalize(() => from(this.loaderService.hideLoader()))
-      )
-      .subscribe((selection) => {
-        this.modalController.dismiss({
-          selection,
-        });
+    setupPermissionDeniedPopover(): Promise<HTMLIonPopoverElement> {
+      let title = 'Location permission';
+      const message = `To fetch current location, please allow Fyle to access your location. Click Settings and allow access to Location`;
+  
+      return this.popoverController.create({
+        component: PopupAlertComponent,
+        componentProps: {
+          title,
+          message,
+          primaryCta: {
+            text: 'Open settings',
+            action: 'OPEN_SETTINGS',
+          },
+          secondaryCta: {
+            text: 'Cancel',
+            action: 'CANCEL',
+          },
+        },
+        cssClass: 'pop-up-in-center',
+        backdropDismiss: false,
       });
+    }
+
+  async getCurrentLocation() {
+    if (this.currentGeolocationPermissionGranted) {
+      from(this.loaderService.showLoader('Loading current location...', 10000))
+        .pipe(
+          switchMap(() => this.locationService.getCurrentLocation({ enableHighAccuracy: true })),
+          switchMap((coordinates) =>
+            this.gmapsService.getGeocode(coordinates?.coords.latitude, coordinates?.coords.longitude)
+          ),
+          map(this.formatGeocodeResponse),
+          catchError((err) => {
+            this.lookupFailed = true;
+            return throwError(err);
+          }),
+          finalize(() => from(this.loaderService.hideLoader()))
+        )
+        .subscribe((selection) => {
+          this.modalController.dismiss({
+            selection,
+          });
+        });
+    } else {
+      const permission = await Geolocation.requestPermissions();
+      if (permission.location === 'denied' || permission.location === 'prompt-with-rationale') {
+        from(this.setupPermissionDeniedPopover())
+        .pipe(
+          tap((permissionDeniedPopover) => permissionDeniedPopover.present()),
+          switchMap((permissionDeniedPopover) => permissionDeniedPopover.onWillDismiss<{ action: string }>())
+        )
+        .subscribe(({ data }) => {
+          if (data?.action === 'OPEN_SETTINGS') {
+            NativeSettings.open({
+              optionAndroid: AndroidSettings.ApplicationDetails,
+              optionIOS: IOSSettings.App,
+            });
+          }
+          this.close();
+        });
+      }
+    }
   }
 }
