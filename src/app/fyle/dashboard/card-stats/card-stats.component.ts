@@ -157,18 +157,10 @@ export class CardStatsComponent implements OnInit {
 
     this.cardDetails$ = this.loadCardDetails$.pipe(
       switchMap(() =>
-        forkJoin([
-          this.corporateCreditCardExpenseService.getCorporateCards(),
-          this.dashboardService.getCCCDetails().pipe(map((details) => details.cardDetails)),
-        ]).pipe(
-          map(([corporateCards, corporateCardStats]) => {
-            const cardDetails = this.corporateCreditCardExpenseService.getPlatformCorporateCardDetails(
-              corporateCards,
-              corporateCardStats
-            );
-            return cardDetails;
-          })
-        )
+        forkJoin([this.corporateCreditCardExpenseService.getCorporateCards(), this.dashboardService.getCCCDetails()])
+      ),
+      map(([corporateCards, corporateCardStats]) =>
+        this.corporateCreditCardExpenseService.getPlatformCorporateCardDetails(corporateCards, corporateCardStats)
       )
     );
 

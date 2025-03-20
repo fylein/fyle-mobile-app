@@ -16,6 +16,10 @@ $small-screen: 700px;
     color: $blue-black;
   }
 
+  &--secondary-msg {
+    margin-top: 8px;
+  }
+
   &--cta-container {
     margin-top: 16px;
     display: flex;

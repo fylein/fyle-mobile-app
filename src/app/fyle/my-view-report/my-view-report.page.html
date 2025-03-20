@@ -6,7 +6,7 @@
       </button>
       <ion-back-button mode="md" *ngIf="navigateBack"></ion-back-button>
     </ion-buttons>
-    <ion-title mode="md" class="page-title"> View report </ion-title>
+    <ion-title mode="md" class="page-title">View expense report</ion-title>
     <ion-buttons mode="md" slot="end">
       <ng-container *ngIf="report$|async as report">
         <ng-container *ngIf="report.num_expenses">
@@ -221,7 +221,9 @@
           <div *ngIf="userComments?.length > 0" class="view-comment--container">
             <div *ngFor="let estatus of userComments">
               <div *ngIf="estatus.show_dt">
-                <div class="view-comment--date text-center">{{ estatus.created_at | dateFormat }}</div>
+                <div class="view-comment--date text-center">
+                  {{ estatus.created_at | dateTimezone: estatus.userTimezone }}
+                </div>
               </div>
               <div
                 class="view-comment--block"
@@ -254,7 +256,9 @@
                   </ion-row>
                   <ion-row>
                     <ion-col size="12">
-                      <div class="view-comment--comment-timestamp">{{ estatus.created_at | date: 'h:mm a' }}</div>
+                      <div class="view-comment--comment-timestamp">
+                        {{ estatus.created_at | dateTimezone: estatus.userTimezone: 'h:mm a' }}
+                      </div>
                     </ion-col>
                   </ion-row>
                 </ion-grid>
@@ -296,7 +300,9 @@
                   </ion-row>
                   <ion-row>
                     <ion-col size="12">
-                      <div class="view-comment--comment-timestamp">{{ estatus.created_at | date: 'h:mm a' }}</div>
+                      <div class="view-comment--comment-timestamp">
+                        {{ estatus.created_at | dateTimezone: estatus.userTimezone: 'h:mm a' }}
+                      </div>
                     </ion-col>
                   </ion-row>
                 </ion-grid>

@@ -534,11 +534,11 @@ describe('ManageCorporateCardsPage', () => {
       expect(actionSheetController.create).toHaveBeenCalledOnceWith({
         buttons: [
           {
-            text: 'Connect to Visa Real-time Feed',
+            text: 'Connect to Visa real-time feed',
             handler: jasmine.any(Function),
           },
           {
-            text: 'Connect to Mastercard Real-time Feed',
+            text: 'Connect to Mastercard real-time feed',
             handler: jasmine.any(Function),
           },
         ],

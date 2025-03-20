@@ -5,7 +5,6 @@ const config: CapacitorConfig = {
   appId: 'com.ionicframework.fyle595781',
   appName: 'Fyle',
   webDir: 'www',
-  bundledWebRuntime: false,
   loggingBehavior: 'debug',
   plugins: {
     SplashScreen: {

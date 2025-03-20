@@ -31,6 +31,8 @@
 @import 'swiper/scss';
 @import 'swiper/scss/navigation';
 @import 'swiper/scss/pagination';
+@import 'driver.js/dist/driver.css';
+@import '/src/assets/styles/fy_driver_tour.scss';
 
 $header-input-interior: #eeeeee;
 
@@ -143,6 +145,22 @@ ion-popover.error-popover {
   background-color: $green;
   border-radius: 8px !important;
   margin: 0 16px 133px !important;
+  padding: 12px 8px !important;
+}
+
+.msb-success-with-camera-icon-for-split-exp {
+  color: $pure-white;
+  background-color: $green;
+  border-radius: 8px !important;
+  margin: 0 16px 24px !important;
+  padding: 12px 8px !important;
+}
+
+.msb-failure-with-camera-icon-for-split-exp {
+  color: $pure-white;
+  background-color: $red;
+  border-radius: 8px !important;
+  margin: 0 16px 24px !important;
   padding: 12px 8px !important;
 }
 
@@ -904,6 +922,13 @@ ref - https://stackoverflow.com/a/31162426
     --background: transparent;
     --color: #{$black-light};
   }
+
+  &--outline-secondary {
+    --background: transparent;
+    --color: #{$black-light};
+    border: 1px solid #{$grey};
+    border-radius: 4px;
+  }
 }
 
 .footer-ios ion-toolbar:first-of-type {
@@ -921,6 +946,22 @@ ion-modal.fy-modal {
     position: absolute;
     top: 10%;
   }
+}
+
+ion-modal.review-split-expense-modal {
+  &::part(content) {
+    border-radius: 0 !important;
+    height: 100% !important;
+    position: absolute;
+    top: 0 !important;
+    bottom: 0 !important;
+  }
+}
+
+.ios .review-split-expense-modal {
+  margin-bottom: -12px;
+  margin-top: 12px;
+  padding-top: 12px;
 }
 
 ion-modal.share-report-modal {

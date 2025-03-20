@@ -77,7 +77,7 @@
       <ion-button *ngIf="isMergeAllowed" (click)="mergeExpenses()">
         <ion-icon class="my-expenses--merge-icon" src="../../../assets/svg/merge.svg"></ion-icon>
       </ion-button>
-      <ion-button (click)="openDeleteExpensesPopover()" [disabled]="isDisabled">
+      <ion-button (click)="openDeleteExpensesPopover()" [disabled]="isDeleteDisabled">
         <ion-icon src="../../../assets/svg/bin.svg"></ion-icon>
       </ion-button>
     </ion-buttons>

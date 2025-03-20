@@ -12,7 +12,7 @@ import { SmartlookService } from 'src/app/core/services/smartlook.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { EventEmitter, NO_ERRORS_SCHEMA } from '@angular/core';
-import { FooterState } from 'src/app/shared/components/footer/footer-state';
+import { FooterState } from 'src/app/shared/components/footer/footer-state.enum';
 import { Subject, Subscription, of } from 'rxjs';
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
@@ -36,6 +36,11 @@ import { properties } from 'src/app/core/mock-data/modal-properties.data';
 import { featureConfigOptInData } from 'src/app/core/mock-data/feature-config.data';
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import {
+  featureConfigWalkthroughFinishData,
+  featureConfigWalkthroughStartData,
+} from 'src/app/core/mock-data/feature-config.data';
+import { FooterService } from 'src/app/core/services/footer.service';
 
 describe('DashboardPage', () => {
   let component: DashboardPage;
@@ -59,6 +64,7 @@ describe('DashboardPage', () => {
   let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
   let authService: jasmine.SpyObj<AuthService>;
   let modalController: jasmine.SpyObj<ModalController>;
+  let footerService: jasmine.SpyObj<FooterService>;
 
   beforeEach(waitForAsync(() => {
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
@@ -74,6 +80,7 @@ describe('DashboardPage', () => {
       'optInFromPostPostCardAdditionInDashboard',
       'optedInFromDashboardBanner',
       'skipOptInFromDashboardBanner',
+      'eventTrack',
     ]);
     const actionSheetControllerSpy = jasmine.createSpyObj('ActionSheetController', ['create']);
     const tasksServiceSpy = jasmine.createSpyObj('TasksService', ['getTotalTaskCount']);
@@ -98,6 +105,9 @@ describe('DashboardPage', () => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
+    const footerServiceSpy = jasmine.createSpyObj('FooterService', ['updateCurrentStateIndex'], {
+      footerCurrentStateIndex$: of(1),
+    });
 
     TestBed.configureTestingModule({
       declarations: [DashboardPage],
@@ -140,6 +150,7 @@ describe('DashboardPage', () => {
           provide: SnackbarPropertiesService,
           useValue: snackbarPropertiesSpy,
         },
+        { provide: FooterService, useValue: footerServiceSpy },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -166,6 +177,7 @@ describe('DashboardPage', () => {
     modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
+    footerService = TestBed.inject(FooterService) as jasmine.SpyObj<FooterService>;
     fixture.detectChanges();
   }));
 
@@ -253,6 +265,8 @@ describe('DashboardPage', () => {
     beforeEach(() => {
       spyOn(component, 'setupNetworkWatcher');
       spyOn(component, 'registerBackButtonAction');
+      spyOn(component, 'startTour');
+      spyOn(component, 'setNavbarWalkthroughFeatureConfigFlag');
       orgSettingsService.get.and.returnValue(of(orgSettingsRes));
       orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
       categoriesService.getMileageOrPerDiemCategories.and.returnValue(of(mileagePerDiemPlatformCategoryData));
@@ -269,6 +283,8 @@ describe('DashboardPage', () => {
       authService.getEou.and.resolveTo(apiEouRes);
       utilityService.isUserFromINCluster.and.resolveTo(false);
       spyOn(component, 'setShowOptInBanner');
+      featureConfigService.getConfiguration.and.returnValue(of(featureConfigWalkthroughFinishData));
+      featureConfigService.saveConfiguration.and.returnValue(of(null));
     });
 
     it('should call setupNetworkWatcher, registerBackButtonAction and smartlookService.init once', () => {
@@ -364,6 +380,14 @@ describe('DashboardPage', () => {
       });
       expect(component.setShowOptInBanner).toHaveBeenCalledTimes(1);
     });
+
+    it('should start navbar walkthrough', fakeAsync(() => {
+      component.eou$ = of(apiEouRes);
+      featureConfigService.getConfiguration.and.returnValue(of(featureConfigWalkthroughStartData));
+      component.ionViewWillEnter();
+      tick(1000);
+      expect(component.startTour).toHaveBeenCalledTimes(1);
+    }));
   });
 
   describe('backButtonActionHandler():', () => {
@@ -827,4 +851,35 @@ describe('DashboardPage', () => {
       expect(res).toBeFalse();
     });
   });
+
+  it('should set the config when the navbar walkthrough is finished', fakeAsync(() => {
+    featureConfigService.getConfiguration.and.returnValue(of(featureConfigWalkthroughStartData));
+    featureConfigService.saveConfiguration.and.returnValue(of(null));
+    component.setNavbarWalkthroughFeatureConfigFlag(false);
+    tick();
+
+    expect(featureConfigService.saveConfiguration).toHaveBeenCalledOnceWith({
+      feature: 'WALKTHROUGH',
+      key: 'DASHBOARD_SHOW_NAVBAR',
+      value: {
+        isShown: true,
+        isFinished: true,
+      },
+    });
+  }));
+
+  it('should not show the navbar walkthrough if the user has already seen it', fakeAsync(() => {
+    featureConfigService.getConfiguration.and.returnValue(of(featureConfigWalkthroughFinishData));
+    component.eou$ = of(apiEouRes);
+    spyOn(component, 'startTour');
+    component.showNavbarWalkthrough(true);
+    tick();
+
+    expect(featureConfigService.getConfiguration).toHaveBeenCalledOnceWith({
+      feature: 'WALKTHROUGH',
+      key: 'DASHBOARD_SHOW_NAVBAR',
+    });
+
+    expect(component.startTour).not.toHaveBeenCalled();
+  }));
 });

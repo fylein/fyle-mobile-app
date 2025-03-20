@@ -614,7 +614,7 @@ describe('MyExpensesPage', () => {
       expect(component.hardwareBackButton).toEqual(backButtonSubscription);
       expect(platformHandlerService.registerBackButtonAction).toHaveBeenCalledOnceWith(
         BackButtonActionPriority.MEDIUM,
-        component.backButtonAction
+        jasmine.any(Function)
       );
       expect(tasksService.getExpensesTaskCount).toHaveBeenCalledTimes(1);
       expect(component.expensesTaskCount).toBe(10);
@@ -1244,6 +1244,8 @@ describe('MyExpensesPage', () => {
       component.allExpensesStats$ = of({ count: 10, amount: 1000 });
       spyOn(component, 'selectExpense');
       spyOn(component, 'setAllExpensesCountAndAmount');
+      component.isConnected$ = of(true);
+      spyOn(component, 'checkDeleteDisabled').and.returnValue(of(void 0));
     });
 
     it('should set headerState to simpleSearch if searchString is defined in loadData', () => {
@@ -2137,6 +2139,8 @@ describe('MyExpensesPage', () => {
       sharedExpenseService.getReportableExpenses.and.returnValue(apiExpenses1);
       component.allExpensesCount = 2;
       spyOn(component, 'setExpenseStatsOnSelect');
+      component.isConnected$ = of(true);
+      spyOn(component, 'checkDeleteDisabled').and.returnValue(of(void 0));
       component.selectedElements = cloneDeep(apiExpenses1);
       sharedExpenseService.isMergeAllowed.and.returnValue(true);
       sharedExpenseService.excludeCCCExpenses.and.returnValue(apiExpenses1);
@@ -3069,6 +3073,8 @@ describe('MyExpensesPage', () => {
       sharedExpenseService.excludeCCCExpenses.and.returnValue(apiExpenses1);
       sharedExpenseService.getReportableExpenses.and.returnValue(apiExpenses1);
       spyOn(component, 'setExpenseStatsOnSelect');
+      component.isConnected$ = of(true);
+      spyOn(component, 'checkDeleteDisabled').and.returnValue(of(void 0));
       component.loadExpenses$ = new BehaviorSubject({ pageNumber: 1, searchString: 'Bus' });
     });
 
@@ -3368,7 +3374,7 @@ describe('MyExpensesPage', () => {
       component.expensesToBeDeleted = [];
 
       component.checkDeleteDisabled().subscribe(() => {
-        expect(component.isDisabled).toBeFalse();
+        expect(component.isDeleteDisabled).toBeFalse();
         done();
       });
     });
@@ -3379,7 +3385,7 @@ describe('MyExpensesPage', () => {
       component.outboxExpensesToBeDeleted = [];
 
       component.checkDeleteDisabled().subscribe(() => {
-        expect(component.isDisabled).toBeFalse();
+        expect(component.isDeleteDisabled).toBeFalse();
         done();
       });
     });

@@ -1,4 +1,4 @@
-PODS:
+xPODS:
   - AppAuth (1.7.6):
     - AppAuth/Core (= 1.7.6)
     - AppAuth/ExternalUserAgent (= 1.7.6)
@@ -203,6 +203,6 @@ SPEC CHECKSUMS:
   PromisesObjC: 3113f7f76903778cf4a0586bd1ab89329a0b7b97
   SwiftKeychainWrapper: 807ba1d63c33a7d0613288512399cd1eda1e470c
 
-PODFILE CHECKSUM: 6b565780300569ee0ae7b15a9bf09d0f4c939e1f
+PODFILE CHECKSUM: 428bcb1f739729c3230503d97feadffd4f9f568c
 
 COCOAPODS: 1.16.2

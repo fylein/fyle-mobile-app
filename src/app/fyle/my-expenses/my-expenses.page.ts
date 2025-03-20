@@ -85,6 +85,8 @@ import { FeatureConfigService } from 'src/app/core/services/platform/v1/spender/
 import * as dayjs from 'dayjs';
 import { ExpensesQueryParams } from 'src/app/core/models/platform/v1/expenses-query-params.model';
 import { ExtendQueryParamsService } from 'src/app/core/services/extend-query-params.service';
+import { FooterState } from 'src/app/shared/components/footer/footer-state.enum';
+import { FooterService } from 'src/app/core/services/footer.service';
 
 @Component({
   selector: 'app-my-expenses',
@@ -196,7 +198,7 @@ export class MyExpensesPage implements OnInit {
 
   isNewReportsFlowEnabled = false;
 
-  isDisabled = false;
+  isDeleteDisabled = false;
 
   restrictPendingTransactionsEnabled = false;
 
@@ -237,11 +239,16 @@ export class MyExpensesPage implements OnInit {
     private authService: AuthService,
     private utilityService: UtilityService,
     private featureConfigService: FeatureConfigService,
-    private extendQueryParamsService: ExtendQueryParamsService
+    private extendQueryParamsService: ExtendQueryParamsService,
+    private footerService: FooterService
   ) {}
 
   get HeaderState(): typeof HeaderState {
     return HeaderState;
+  }
+
+  get FooterState(): typeof FooterState {
+    return FooterState;
   }
 
   clearText(isFromCancel: string): void {
@@ -276,6 +283,7 @@ export class MyExpensesPage implements OnInit {
 
   switchSelectionMode(expense?: PlatformExpense): void {
     this.selectionMode = !this.selectionMode;
+    this.footerService.updateSelectionMode(this.selectionMode);
     if (!this.selectionMode) {
       if (this.loadExpenses$.getValue().searchString) {
         this.headerState = HeaderState.simpleSearch;
@@ -297,10 +305,13 @@ export class MyExpensesPage implements OnInit {
     if (expense) {
       this.selectExpense(expense);
     }
+
+    this.checkDeleteDisabled().pipe(take(1)).subscribe();
   }
 
   switchOutboxSelectionMode(expense?: Expense): void {
     this.selectionMode = !this.selectionMode;
+    this.footerService.updateSelectionMode(this.selectionMode);
     if (!this.selectionMode) {
       if (this.loadExpenses$.getValue().searchString) {
         this.headerState = HeaderState.simpleSearch;
@@ -450,12 +461,19 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
+  initClassObservables(): void {
+    const fn = (): void => {
+      this.backButtonAction();
+    };
+    const priority = BackButtonActionPriority.MEDIUM;
+    this.hardwareBackButton = this.platformHandlerService.registerBackButtonAction(priority, fn);
+  }
+
   ionViewWillEnter(): void {
     this.isNewReportsFlowEnabled = false;
-    this.hardwareBackButton = this.platformHandlerService.registerBackButtonAction(
-      BackButtonActionPriority.MEDIUM,
-      this.backButtonAction
-    );
+    this.initClassObservables();
+
+    this.checkDeleteDisabled().pipe(takeUntil(this.onPageExit$)).subscribe();
 
     this.tasksService.getExpensesTaskCount().subscribe((expensesTaskCount) => {
       this.expensesTaskCount = expensesTaskCount;
@@ -537,6 +555,7 @@ export class MyExpensesPage implements OnInit {
     });
 
     this.selectionMode = false;
+    this.footerService.updateSelectionMode(this.selectionMode);
     this.selectedElements = [];
 
     this.syncOutboxExpenses();
@@ -738,8 +757,6 @@ export class MyExpensesPage implements OnInit {
       )
     );
     this.doRefresh();
-
-    this.checkDeleteDisabled();
 
     const optInModalPostExpenseCreationFeatureConfig = {
       feature: 'OPT_IN_POPUP_POST_EXPENSE_CREATION',
@@ -1100,6 +1117,7 @@ export class MyExpensesPage implements OnInit {
     }
     this.setExpenseStatsOnSelect();
     this.isMergeAllowed = this.sharedExpenseService.isMergeAllowed(this.selectedElements);
+    this.checkDeleteDisabled().pipe(take(1)).subscribe();
   }
 
   goToTransaction(event: { expense: PlatformExpense; expenseIndex: number }): void {
@@ -1446,6 +1464,7 @@ export class MyExpensesPage implements OnInit {
 
     this.isReportableExpensesSelected = false;
     this.selectionMode = false;
+    this.footerService.updateSelectionMode(this.selectionMode);
     this.headerState = HeaderState.base;
     this.doRefresh();
 
@@ -1597,6 +1616,7 @@ export class MyExpensesPage implements OnInit {
 
       this.isReportableExpensesSelected = false;
       this.selectionMode = false;
+      this.footerService.updateSelectionMode(this.selectionMode);
       this.headerState = HeaderState.base;
 
       this.doRefresh();
@@ -1613,6 +1633,7 @@ export class MyExpensesPage implements OnInit {
           this.transactionService.getReportableExpenses(this.selectedOutboxExpenses).length > 0;
         this.outboxExpensesToBeDeleted = this.selectedOutboxExpenses;
         this.setOutboxExpenseStatsOnSelect();
+        this.checkDeleteDisabled().pipe(take(1)).subscribe();
       } else {
         this.loadExpenses$
           .pipe(
@@ -1643,6 +1664,7 @@ export class MyExpensesPage implements OnInit {
                 this.restrictPendingTransactionsEnabled
               ).length > 0;
             this.setExpenseStatsOnSelect();
+            this.checkDeleteDisabled().pipe(take(1)).subscribe();
           });
       }
     } else {
@@ -1652,6 +1674,7 @@ export class MyExpensesPage implements OnInit {
       this.isReportableExpensesSelected =
         this.sharedExpenseService.getReportableExpenses(this.selectedElements).length > 0;
       this.setExpenseStatsOnSelect();
+      this.checkDeleteDisabled().pipe(take(1)).subscribe();
     }
   }
 
@@ -1759,12 +1782,12 @@ export class MyExpensesPage implements OnInit {
     return this.isConnected$.pipe(
       map((isConnected) => {
         if (isConnected) {
-          this.isDisabled =
+          this.isDeleteDisabled =
             this.selectedElements?.length === 0 ||
             !this.expensesToBeDeleted ||
             (this.expensesToBeDeleted?.length === 0 && this.cccExpenses > 0);
         } else if (!isConnected) {
-          this.isDisabled = this.selectedOutboxExpenses.length === 0 || !this.outboxExpensesToBeDeleted;
+          this.isDeleteDisabled = this.selectedOutboxExpenses.length === 0 || !this.outboxExpensesToBeDeleted;
         }
       })
     );

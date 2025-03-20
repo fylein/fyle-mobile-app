@@ -199,7 +199,7 @@ export class ManageCorporateCardsPage {
         } else if (card.data_feed_source === DataFeedSource.STATEMENT_UPLOAD) {
           if (isVisaRTFEnabled) {
             actionSheetButtons.push({
-              text: 'Connect to Visa Real-time Feed',
+              text: 'Connect to Visa real-time feed',
               handler: () => {
                 this.openAddCorporateCardPopover(card, CardNetworkType.VISA);
               },
@@ -208,7 +208,7 @@ export class ManageCorporateCardsPage {
 
           if (isMastercardRTFEnabled) {
             actionSheetButtons.push({
-              text: 'Connect to Mastercard Real-time Feed',
+              text: 'Connect to Mastercard real-time feed',
               handler: () => {
                 this.openAddCorporateCardPopover(card, CardNetworkType.MASTERCARD);
               },

@@ -2747,6 +2747,11 @@ export const platformExpenseDataWithReportId: Expense = deepFreeze({
   report_id: 'rpbNc3kn5baq',
 });
 
+export const platformExpenseDataWithoutReportId: Expense = deepFreeze({
+  ...platformExpenseDataWithSubCategory,
+  report_id: null,
+});
+
 export const platformExpenseDataWithReportId2: Expense = deepFreeze({
   ...platformExpenseDataWithSubCategory,
   report_id: 'rplD17WeBlha',

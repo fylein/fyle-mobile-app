@@ -36,11 +36,11 @@ src/environments/environment.staging.ts
 .gradle
 android/app/google-services.json
 ios/App/App/GoogleService-Info.plist
-package-lock.json
 setup.sh
 .env
 .angular
 
 # Sentry Config File
 .sentryclirc
-
+dependency-check-report.csv
+repo_vulns.csv
