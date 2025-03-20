@@ -134,7 +134,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
 
   txnIDs: string[];
 
-  showBillable = false;
+  showBillable = true;
 
   constructor(
     private router: Router,
