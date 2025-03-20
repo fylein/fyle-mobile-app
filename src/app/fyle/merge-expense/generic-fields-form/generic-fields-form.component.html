@@ -136,7 +136,7 @@
   <div class="merge-expenses--primary-block" *ngIf="projectOptionsData?.options?.length !== 0">
     <ion-grid class="merge-expenses--grid">
       <ion-row>
-        <ion-col size="6">
+        <ion-col [size]="!showBillable ? '12.3' : '6'">
           <div
             [ngClass]="{ 'merge-expenses--internal-block_special': genericFieldsFormGroup.controls.project.value }"
             class="merge-expenses--internal-block merge-expenses--internal-block__margin"
@@ -159,28 +159,32 @@
           </div>
         </ion-col>
 
-        <ion-col size="6">
-          <div
-            [ngClass]="{ 'merge-expenses--internal-block_special': genericFieldsFormGroup.controls.billable.value }"
-            class="merge-expenses--internal-block"
-          >
-            <app-fy-select
-              [enableSearch]="false"
-              [label]="'Billable'"
-              [mandatory]="false"
-              [nullOption]="false"
-              [disabled]="
-                disableFormElements || billableOptionsData?.options?.length === 0 || billableOptionsData?.areSameValues
-              "
-              [options]="billableOptionsData?.options"
-              [selectModalHeader]="'Select billable'"
-              formControlName="billable"
-              [touchedInParent]="genericFieldsFormGroup.controls.billable.touched"
-              [validInParent]="genericFieldsFormGroup.controls.billable.valid"
+        <ng-container *ngIf="showBillable">
+          <ion-col size="6">
+            <div
+              [ngClass]="{ 'merge-expenses--internal-block_special': genericFieldsFormGroup.controls.billable.value }"
+              class="merge-expenses--internal-block"
             >
-            </app-fy-select>
-          </div>
-        </ion-col>
+              <app-fy-select
+                [enableSearch]="false"
+                [label]="'Billable'"
+                [mandatory]="false"
+                [nullOption]="false"
+                [disabled]="
+                  disableFormElements ||
+                  billableOptionsData?.options?.length === 0 ||
+                  billableOptionsData?.areSameValues
+                "
+                [options]="billableOptionsData?.options"
+                [selectModalHeader]="'Select billable'"
+                formControlName="billable"
+                [touchedInParent]="genericFieldsFormGroup.controls.billable.touched"
+                [validInParent]="genericFieldsFormGroup.controls.billable.valid"
+              >
+              </app-fy-select>
+            </div>
+          </ion-col>
+        </ng-container>
       </ion-row>
     </ion-grid>
   </div>
