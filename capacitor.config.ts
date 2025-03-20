@@ -13,6 +13,10 @@ const config: CapacitorConfig = {
     },
     Keyboard: {
       style: KeyboardStyle.Light,
+      resizeOnFullScreen: true,
+    },
+    StatusBar: {
+      overlaysWebView: false,
     },
   },
   cordova: {
