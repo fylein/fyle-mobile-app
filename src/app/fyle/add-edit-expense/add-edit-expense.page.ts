@@ -2346,7 +2346,7 @@ export class AddEditExpensePage implements OnInit {
       .pipe(
         switchMap(() => txnFieldsMap$),
         tap((txnFields) => {
-          this.showBillable = txnFields.billable.is_enabled;
+          this.showBillable = txnFields?.billable?.is_enabled;
         }),
         map((txnFields) => this.expenseFieldsService.getDefaultTxnFieldValues(txnFields))
       )
