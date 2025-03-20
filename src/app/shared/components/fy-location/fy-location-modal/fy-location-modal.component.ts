@@ -88,12 +88,10 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
   async checkPermissionStatus() {
     try {
       const permission = await Geolocation.checkPermissions();
-      console.log(permission)
       this.currentGeolocationPermissionGranted = permission.location === 'granted';
       this.isDeviceLocationEnabled = true;
     } catch(err) {
       this.isDeviceLocationEnabled = false;
-      console.log(err)
     }
   }
 
