@@ -841,7 +841,7 @@ export class AddEditMileagePage implements OnInit {
 
     const autofillLocation$ = forkJoin({
       eou: this.authService.getEou(),
-      currentLocation: this.locationService.getCurrentLocation(),
+      currentLocation: this.locationService.getCurrentLocation({enableHighAccuracy: true}),
       orgUserSettings: this.orgUserSettingsService.get(),
       orgSettings: this.orgSettingsService.get(),
       recentValue: this.recentlyUsedValues$,

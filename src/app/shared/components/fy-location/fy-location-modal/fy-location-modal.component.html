@@ -48,12 +48,12 @@
   <div *ngIf="header" class="selection-modal--header">
     {{ header | lowercase }}
   </div>
-  <div class="selection-modal--current-location-getter" *ngIf="!currentGeolocationPermissionGranted">
+  <div class="selection-modal--current-location-getter" *ngIf="!isDeviceLocationEnabled">
     <app-fy-alert-info
       [message]="'Enable location from Settings to fetch current location'"
       [type]="'information'"
       [showActionButton]="true"
-      (actionClick)="askForCurrentLocationPermission()"
+      (actionClick)="askForEnableLocationSettings()"
       [actionButtonContent]="'Enable'"
     >
     </app-fy-alert-info>
@@ -102,7 +102,7 @@
     </div>
   </div>
   <div
-    *ngIf="!loader && currentGeolocationPermissionGranted"
+    *ngIf="!loader && isDeviceLocationEnabled"
     matRipple
     class="selection-modal--list-element selection-modal--list-element__current-location"
     (click)="getCurrentLocation()"
