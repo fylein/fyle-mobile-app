@@ -5,7 +5,6 @@ const config: CapacitorConfig = {
   appId: 'com.ionicframework.fyle595781',
   appName: 'Fyle',
   webDir: 'www',
-  bundledWebRuntime: false,
   loggingBehavior: 'debug',
   plugins: {
     SplashScreen: {
@@ -14,6 +13,10 @@ const config: CapacitorConfig = {
     },
     Keyboard: {
       style: KeyboardStyle.Light,
+      resizeOnFullScreen: true,
+    },
+    StatusBar: {
+      overlaysWebView: false,
     },
   },
   cordova: {
