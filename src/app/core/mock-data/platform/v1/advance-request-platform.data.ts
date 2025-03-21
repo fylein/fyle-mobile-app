@@ -80,6 +80,7 @@ export const advanceRequestPlatform: PlatformApiResponse<AdvanceRequestPlatform[
       last_approved_at: new Date('2020-06-14T13:14:55.201598+00:00'),
       custom_fields: [
         {
+          id: 1,
           name: 'checking',
           value: 'true',
           type: CustomFieldTypes.BOOLEAN,
