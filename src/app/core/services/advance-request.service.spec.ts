@@ -242,20 +242,19 @@ describe('AdvanceRequestService', () => {
 
   it('getApproverAdvanceRequest(): should get an advance request from ID', (done) => {
     const advReqID = 'areqiwr3Wwiri';
-    const expectedData = cloneDeep(publicAdvanceRequestRes);
-    approverService.get.and.returnValue(of(advanceRequestPlatform));
+    approverService.get.and.returnValue(of(singleExtendedAdvReqRes));
     // @ts-ignore
-    spyOn(advanceRequestService, 'fixDatesForPlatformFields').and.returnValue(advanceRequestPlatform.data[0]);
+    spyOn(advanceRequestService, 'fixDatesForPlatformFields').and.returnValue(singleExtendedAdvReqRes.data[0]);
 
-    advanceRequestService.getAdvanceRequestPlatform(advReqID).subscribe((res) => {
-      expect(res).toEqual(expectedData.data[0]);
+    advanceRequestService.getApproverAdvanceRequest(advReqID).subscribe((res) => {
+      expect(res).toEqual(singleExtendedAdvReqRes.data[0]);
       expect(approverService.get).toHaveBeenCalledOnceWith('/advance_requests', {
         params: {
           id: `eq.${advReqID}`,
         },
       });
       // @ts-ignore
-      expect(advanceRequestService.fixDatesForPlatformFields).toHaveBeenCalledOnceWith(advanceRequestPlatform.data[0]);
+      expect(advanceRequestService.fixDatesForPlatformFields).toHaveBeenCalledOnceWith(singleExtendedAdvReqRes.data[0]);
       done();
     });
   });
@@ -639,9 +638,7 @@ describe('AdvanceRequestService', () => {
       const sortingDirection = SortingDirection.ascending;
 
       //@ts-ignore
-      expect(advanceRequestService.getSortOrder(sortingParam, sortingDirection)).toEqual(
-        'areq_created_at.asc,areq_id.desc'
-      );
+      expect(advanceRequestService.getSortOrder(sortingParam, sortingDirection)).toEqual('created_at.asc,id.desc');
     });
 
     it('param - approval date | direction - descending', () => {
@@ -651,7 +648,7 @@ describe('AdvanceRequestService', () => {
 
       //@ts-ignore
       expect(advanceRequestService.getSortOrder(sortingParam, sortingDirection)).toEqual(
-        'areq_approved_at.desc,areq_id.desc'
+        'last_approved_at.desc,id.desc'
       );
     });
 
@@ -661,21 +658,19 @@ describe('AdvanceRequestService', () => {
       const sortingDirection = SortingDirection.ascending;
 
       //@ts-ignore
-      expect(advanceRequestService.getSortOrder(sortingParam, sortingDirection)).toEqual(
-        'project_name.asc,areq_id.desc'
-      );
+      expect(advanceRequestService.getSortOrder(sortingParam, sortingDirection)).toEqual('project->name.asc,id.desc');
     });
 
     it('param - nothing specified | direction - ascending', () => {
       const sortingDirection = SortingDirection.ascending;
 
       //@ts-ignore
-      expect(advanceRequestService.getSortOrder({}, sortingDirection)).toEqual('areq_created_at.asc,areq_id.desc');
+      expect(advanceRequestService.getSortOrder({}, sortingDirection)).toEqual('created_at.asc,id.desc');
     });
   });
 
   it('getTeamAdvanceRequestsCount(): should get team advance count', (done) => {
-    spyOn(advanceRequestService, 'getTeamAdvanceRequests').and.returnValue(of(teamAdvanceCountRes));
+    spyOn(advanceRequestService, 'getTeamAdvanceRequestsPlatform').and.returnValue(of(teamAdvanceCountRes));
 
     const filters = {
       state: [AdvancesStates.pending],

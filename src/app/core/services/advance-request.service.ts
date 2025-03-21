@@ -173,9 +173,7 @@ export class AdvanceRequestService {
   getApproverAdvanceRequest(id: string): Observable<ExtendedAdvanceRequest> {
     return this.approverService
       .get<PlatformApiResponse<AdvanceRequestPlatform[]>>('/advance_requests', {
-        params: {
-          id: `eq.${id}`,
-        },
+        params: { id: `eq.${id}` },
       })
       .pipe(map((res) => this.mapApproverAdvanceRequest(this.fixDatesForPlatformFields(res.data[0]))));
   }
@@ -552,12 +550,17 @@ export class AdvanceRequestService {
       areq_source: advanceRequestPlatform.source,
       areq_state: this.getAdvanceRequestState(advanceRequestPlatform.state),
       areq_updated_at: advanceRequestPlatform.updated_at,
-      ou_department: advanceRequestPlatform.employee.department && advanceRequestPlatform.employee.department.name,
-      ou_department_id: advanceRequestPlatform.employee.department && advanceRequestPlatform.employee.department.id,
+      ou_department:
+        advanceRequestPlatform.employee &&
+        advanceRequestPlatform.employee.department &&
+        advanceRequestPlatform.employee.department.name,
+      ou_department_id: advanceRequestPlatform.employee && advanceRequestPlatform.employee.department.id,
       ou_id: advanceRequestPlatform.employee_id,
       ou_org_id: advanceRequestPlatform.org_id,
       ou_sub_department:
-        advanceRequestPlatform.employee.department && advanceRequestPlatform.employee.department.sub_department,
+        advanceRequestPlatform.employee &&
+        advanceRequestPlatform.employee.department &&
+        advanceRequestPlatform.employee.department.sub_department,
       us_email: advanceRequestPlatform.user.email,
       us_full_name: advanceRequestPlatform.user.full_name,
       areq_is_pulled_back: advanceRequestPlatform.state === AdvanceRequestState.PULLED_BACK,
