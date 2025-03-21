@@ -117,7 +117,9 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
     this.advanceRequest$ = this.refreshApprovers$.pipe(
       startWith(true),
       switchMap(() =>
-        from(this.loaderService.showLoader()).pipe(switchMap(() => this.advanceRequestService.getAdvanceRequest(id)))
+        from(this.loaderService.showLoader()).pipe(
+          switchMap(() => this.advanceRequestService.getApproverAdvanceRequest(id))
+        )
       ),
       finalize(() => from(this.loaderService.hideLoader())),
       shareReplay(1)
