@@ -5,6 +5,45 @@ import { ApiV2Response } from '../models/api-v2.model';
 import { ExtendedAdvanceRequestPublic } from '../models/extended-advance-request-public.model';
 import { ExtendedAdvanceRequest } from '../models/extended_advance_request.model';
 
+export const extendedAdvReqRes: ApiV2Response<ExtendedAdvanceRequest> = deepFreeze({
+  count: 1,
+  offset: 0,
+  data: [
+    {
+      areq_advance_id: 'advjrgwlk2Q',
+      areq_advance_request_number: 'A/2020/10/T/95',
+      areq_amount: 47.99,
+      areq_approved_at: new Date('2020-06-14T13:14:55.201598+00:00'),
+      areq_created_at: new Date('2020-06-01T13:14:54.804+00:00'),
+      areq_currency: 'USD',
+      areq_id: 'areqiwr3Wwirr',
+      areq_notes: 'onsite client meeting',
+      areq_org_user_id: 'outGt9ju6qP',
+      areq_project_id: '1234',
+      areq_purpose: 'onsite client meeting',
+      areq_source: 'WEBAPP',
+      areq_state: 'DRAFT',
+      areq_updated_at: new Date('2020-06-11T13:14:55.201598+00:00'),
+      ou_department: 'Tech',
+      ou_department_id: 'deptCjFrZcE0rH',
+      ou_id: 'outGt9ju6qP',
+      ou_org_id: 'orwruogwnngg',
+      ou_sub_department: 'Tech',
+      us_email: 'john.doe@example.com',
+      us_full_name: 'John Doe',
+      areq_is_pulled_back: false,
+      ou_employee_id: 'outGt9ju6qP',
+      areq_custom_field_values: [{ name: 'checking', value: 'true', type: 'BOOLEAN' }],
+      areq_policy_amount: 1500,
+      areq_is_sent_back: false,
+      project_name: 'Fast and Furious',
+      project_code: 'C1234',
+    },
+  ],
+  limit: 1,
+  url: '/v2/advance_requests',
+});
+
 export const singleExtendedAdvReqRes: ApiV2Response<ExtendedAdvanceRequest> = deepFreeze({
   count: 1,
   data: [

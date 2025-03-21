@@ -32,7 +32,7 @@ describe('TeamAdvancePage', () => {
 
   beforeEach(waitForAsync(() => {
     const advanceRequestServiceSpy = jasmine.createSpyObj('AdvanceRequestService', [
-      'getTeamAdvanceRequests',
+      'getTeamAdvanceRequestsPlatform',
       'getTeamAdvanceRequestsCount',
       'destroyAdvanceRequestsCacheBuster',
     ]);
@@ -102,10 +102,7 @@ describe('TeamAdvancePage', () => {
   it('ionViewWillEnter(): should setup class observables', fakeAsync(() => {
     tasksService.getTotalTaskCount.and.returnValue(of(1));
     spyOn(component, 'setupDefaultFilters');
-    advanceRequestService.getTeamAdvanceRequests.and.returnValue(of(allTeamAdvanceRequestsRes));
-    spyOn(component, 'getExtraParams').and.returnValue({
-      areq_approval_state: ['ov.{APPROVAL_PENDING,APPROVAL_DONE}'],
-    });
+    advanceRequestService.getTeamAdvanceRequestsPlatform.and.returnValue(of(allTeamAdvanceRequestsRes));
     advanceRequestService.getTeamAdvanceRequestsCount.and.returnValue(of(1));
     spyOn(component, 'getAndUpdateProjectName');
 
@@ -263,43 +260,6 @@ describe('TeamAdvancePage', () => {
       state: [AdvancesStates.pending],
     });
     expect(component.filterPills).toEqual(expectedFilterPill1);
-  });
-
-  describe('getExtraParams():', () => {
-    it('should generate params for both pending and approved states', () => {
-      const result = component.getExtraParams([AdvancesStates.pending, AdvancesStates.approved]);
-
-      expect(result).toEqual({
-        areq_state: ['not.eq.DRAFT'],
-        areq_approval_state: ['ov.{APPROVAL_PENDING,APPROVAL_DONE}'],
-        or: ['(areq_is_sent_back.is.null,areq_is_sent_back.is.false)'],
-      });
-    });
-
-    it('should generate params for pending state', () => {
-      const result = component.getExtraParams([AdvancesStates.pending]);
-
-      expect(result).toEqual({
-        areq_state: ['eq.APPROVAL_PENDING'],
-        or: ['(areq_is_sent_back.is.null,areq_is_sent_back.is.false)'],
-      });
-    });
-
-    it('should generate params for approved state', () => {
-      const result = component.getExtraParams([AdvancesStates.approved]);
-
-      expect(result).toEqual({
-        areq_approval_state: ['ov.{APPROVAL_PENDING,APPROVAL_DONE}'],
-      });
-    });
-
-    it('should generate params for rejected state', () => {
-      const result = component.getExtraParams([AdvancesStates.rejected]);
-
-      expect(result).toEqual({
-        areq_approval_state: ['ov.{APPROVAL_PENDING,APPROVAL_DONE,APPROVAL_REJECTED}'],
-      });
-    });
   });
 
   it('onHomeClicked(): should take user to dashboard page', () => {
