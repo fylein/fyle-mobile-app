@@ -27,6 +27,7 @@ import {
   extendedAdvReqPaid,
   extendedAdvReqPulledBack,
   extendedAdvReqRejected,
+  extendedAdvReqRes,
   extendedAdvReqSentBack,
   extendedAdvReqSubmitted,
   extendedAdvReqWithDates,
@@ -241,12 +242,12 @@ describe('AdvanceRequestService', () => {
 
   it('getApproverAdvanceRequest(): should get an advance request from ID', (done) => {
     const advReqID = 'areqiwr3Wwiri';
-    const expectedData = cloneDeep(publicAdvanceRequestRes);
+    const expectedData = cloneDeep(extendedAdvReqRes);
     approverService.get.and.returnValue(of(advanceRequestPlatform));
     // @ts-ignore
     spyOn(advanceRequestService, 'fixDatesForPlatformFields').and.returnValue(advanceRequestPlatform.data[0]);
 
-    advanceRequestService.getAdvanceRequestPlatform(advReqID).subscribe((res) => {
+    advanceRequestService.getApproverAdvanceRequest(advReqID).subscribe((res) => {
       expect(res).toEqual(expectedData.data[0]);
       expect(approverService.get).toHaveBeenCalledOnceWith('/advance_requests', {
         params: {
