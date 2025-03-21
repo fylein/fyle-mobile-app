@@ -314,7 +314,7 @@ export class AdvanceRequestService {
         }
 
         if (approvalState) {
-          defaultParams.and = `approvals.cs.[state: ${approvalState}}]&state=eq.${approvalState}`;
+          defaultParams.and = `(approvals.cs.[{"state": "${approvalState}"}],state.eq.${approvalState})`;
         }
         const order = this.getSortOrder(config.filter.sortParam, config.filter.sortDir);
 
@@ -323,7 +323,7 @@ export class AdvanceRequestService {
             offset: config.offset,
             limit: config.limit,
             order,
-            approvals: `cs.[{approver_user_id: ${eou.ou.user_id}}]`,
+            approvals: `cs.[{"approver_user_id": "${eou.ou.user_id}"}]`,
             ...defaultParams,
             ...config.queryParams,
           },
