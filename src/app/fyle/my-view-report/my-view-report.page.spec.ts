@@ -894,21 +894,21 @@ describe('MyViewReportPage', () => {
     it('should change segment value', () => {
       component.segmentChanged({
         detail: {
-          value: '100',
+          value: ReportPageSegment.COMMENTS,
         },
       } as SegmentCustomEvent);
 
-      expect(component.segmentValue).toEqual(parseInt('100', 10));
+      expect(component.segmentValue).toEqual(ReportPageSegment.COMMENTS);
     });
 
     it('should not change segment value if event does not contain the value', () => {
-      component.segmentValue = parseInt('100', 10);
+      component.segmentValue = ReportPageSegment.EXPENSES;
       fixture.detectChanges();
-      expect(component.segmentValue).toEqual(parseInt('100', 10));
+      expect(component.segmentValue).toEqual(ReportPageSegment.EXPENSES);
 
       component.segmentChanged(null);
 
-      expect(component.segmentValue).toEqual(parseInt('100', 10));
+      expect(component.segmentValue).toEqual(ReportPageSegment.EXPENSES);
     });
   });
 
