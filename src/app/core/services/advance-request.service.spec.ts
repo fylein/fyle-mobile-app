@@ -62,7 +62,6 @@ import {
   advanceRequestPlatformSentBack,
 } from '../mock-data/platform/v1/advance-request-platform.data';
 import { cloneDeep } from 'lodash';
-import { P } from '@angular/cdk/keycodes';
 
 describe('AdvanceRequestService', () => {
   let advanceRequestService: AdvanceRequestService;
@@ -242,19 +241,20 @@ describe('AdvanceRequestService', () => {
 
   it('getApproverAdvanceRequest(): should get an advance request from ID', (done) => {
     const advReqID = 'areqiwr3Wwiri';
-    approverService.get.and.returnValue(of(singleExtendedAdvReqRes));
+    const expectedData = cloneDeep(publicAdvanceRequestRes);
+    approverService.get.and.returnValue(of(advanceRequestPlatform));
     // @ts-ignore
-    spyOn(advanceRequestService, 'fixDatesForPlatformFields').and.returnValue(singleExtendedAdvReqRes.data[0]);
+    spyOn(advanceRequestService, 'fixDatesForPlatformFields').and.returnValue(advanceRequestPlatform.data[0]);
 
-    advanceRequestService.getApproverAdvanceRequest(advReqID).subscribe((res) => {
-      expect(res).toEqual(singleExtendedAdvReqRes.data[0]);
+    advanceRequestService.getAdvanceRequestPlatform(advReqID).subscribe((res) => {
+      expect(res).toEqual(expectedData.data[0]);
       expect(approverService.get).toHaveBeenCalledOnceWith('/advance_requests', {
         params: {
           id: `eq.${advReqID}`,
         },
       });
       // @ts-ignore
-      expect(advanceRequestService.fixDatesForPlatformFields).toHaveBeenCalledOnceWith(singleExtendedAdvReqRes.data[0]);
+      expect(advanceRequestService.fixDatesForPlatformFields).toHaveBeenCalledOnceWith(advanceRequestPlatform.data[0]);
       done();
     });
   });
@@ -979,6 +979,7 @@ describe('AdvanceRequestService', () => {
       authService.getEou.and.resolveTo(apiEouRes);
       mockApiV2Res = cloneDeep(advanceRequestPlatform);
       approverService.get.and.returnValue(of(mockApiV2Res));
+      spyOn(advanceRequestService, 'convertToAdvanceRequest').and.returnValue(mockApiV2Res.data || []);
 
       userId = apiEouRes.ou.user_id;
       defaultParams = {
