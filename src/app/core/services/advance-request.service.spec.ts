@@ -776,7 +776,7 @@ describe('AdvanceRequestService', () => {
         limit: 10,
         queryParams: {
           areq_advance_id: 'is.null',
-          order: 'areq_created_at.desc,areq_id.desc',
+          order: 'created_at.desc,id.desc',
         },
       };
 
@@ -859,7 +859,7 @@ describe('AdvanceRequestService', () => {
         limit: 1,
         queryParams: {
           areq_state: ['eq.APPROVAL_PENDING'],
-          or: 'areq_created_at.desc,areq_id.desc',
+          or: 'created_at.desc,id.desc',
         },
         filter: {
           sortParam: undefined,
@@ -899,7 +899,7 @@ describe('AdvanceRequestService', () => {
         limit: 1,
         queryParams: {
           areq_state: ['eq.APPROVAL_PENDING'],
-          or: 'areq_created_at.desc,areq_id.desc',
+          or: 'created_at.desc,id.desc',
         },
         filter: {
           sortParam: undefined,
@@ -939,7 +939,7 @@ describe('AdvanceRequestService', () => {
         limit: 1,
         queryParams: {
           areq_state: ['eq.APPROVAL_PENDING'],
-          or: 'areq_created_at.desc,areq_id.desc',
+          or: 'created_at.desc,id.desc',
         },
         filter: {
           sortParam: undefined,
@@ -971,29 +971,45 @@ describe('AdvanceRequestService', () => {
   });
 
   describe('getTeamAdvanceRequestsPlatform():', () => {
-    it('should get all team advance requests | APPROVAL PENDING AND APPROVED', (done) => {
+    let mockApiV2Res;
+    let userId;
+    let defaultParams;
+
+    beforeEach(() => {
       authService.getEou.and.resolveTo(apiEouRes);
-      const mockApiV2Res = cloneDeep(allTeamAdvanceRequestsRes);
+      mockApiV2Res = cloneDeep(advanceRequestPlatform);
       approverService.get.and.returnValue(of(mockApiV2Res));
 
-      const params = {
+      userId = apiEouRes.ou.user_id;
+      defaultParams = {
         offset: 0,
         limit: 1,
         filter: {
           sortParam: undefined,
           sortDir: undefined,
-          state: [AdvancesStates.pending, AdvancesStates.approved],
+          state: [],
         },
       };
 
-      advanceRequestService.getTeamAdvanceRequestsPlatform(params).subscribe((res) => {
+      authService.getEou.calls.reset();
+      approverService.get.calls.reset();
+    });
+
+    it('should get all team advance requests | APPROVAL PENDING AND APPROVED', (done) => {
+      defaultParams.filter.state = [AdvancesStates.pending, AdvancesStates.approved];
+
+      const expectedParams = {
+        offset: defaultParams.offset,
+        limit: defaultParams.limit,
+        state: 'neq.DRAFT',
+        or: `(approvals.cs.[{"approver_user_id": "${userId}", "state":"APPROVAL_PENDING"}], approvals.cs.[{"approver_user_id": "${userId}", "state":"APPROVAL_DONE"}])`,
+        order: 'created_at.desc,id.desc',
+      };
+
+      advanceRequestService.getTeamAdvanceRequestsPlatform(defaultParams).subscribe((res) => {
         expect(res).toEqual(mockApiV2Res);
-        expect(apiv2Service.get).toHaveBeenCalledOnceWith('/advance_requests', {
-          params: {
-            offset: params.offset,
-            limit: params.limit,
-            areq_approvers_ids: `cs.{${apiEouRes.ou.user_id}}`,
-          },
+        expect(approverService.get).toHaveBeenCalledOnceWith('/advance_requests', {
+          params: expectedParams,
         });
         expect(authService.getEou).toHaveBeenCalledTimes(1);
         done();
@@ -1001,28 +1017,19 @@ describe('AdvanceRequestService', () => {
     });
 
     it('should get all team advance requests | APPROVAL PENDING', (done) => {
-      authService.getEou.and.resolveTo(apiEouRes);
-      const mockApiV2Res = cloneDeep(allTeamAdvanceRequestsRes);
-      approverService.get.and.returnValue(of(mockApiV2Res));
+      defaultParams.filter.state = [AdvancesStates.pending];
 
-      const params = {
-        offset: 0,
-        limit: 1,
-        filter: {
-          sortParam: undefined,
-          sortDir: undefined,
-          state: [AdvancesStates.pending],
-        },
+      const expectedParams = {
+        offset: defaultParams.offset,
+        limit: defaultParams.limit,
+        approvals: `cs.[{"approver_user_id":"${userId}", "state":"APPROVAL_PENDING"}]`,
+        order: 'created_at.desc,id.desc',
       };
 
-      advanceRequestService.getTeamAdvanceRequestsPlatform(params).subscribe((res) => {
+      advanceRequestService.getTeamAdvanceRequestsPlatform(defaultParams).subscribe((res) => {
         expect(res).toEqual(mockApiV2Res);
-        expect(apiv2Service.get).toHaveBeenCalledOnceWith('/advance_requests', {
-          params: {
-            offset: params.offset,
-            limit: params.limit,
-            areq_approvers_ids: `cs.{${apiEouRes.ou.user_id}}`,
-          },
+        expect(approverService.get).toHaveBeenCalledOnceWith('/advance_requests', {
+          params: expectedParams,
         });
         expect(authService.getEou).toHaveBeenCalledTimes(1);
         done();
@@ -1030,28 +1037,37 @@ describe('AdvanceRequestService', () => {
     });
 
     it('should get all team advance requests | APPROVED', (done) => {
-      authService.getEou.and.resolveTo(apiEouRes);
-      const mockApiV2Res = cloneDeep(allTeamAdvanceRequestsRes);
-      approverService.get.and.returnValue(of(mockApiV2Res));
+      defaultParams.filter.state = [AdvancesStates.approved];
 
-      const params = {
-        offset: 0,
-        limit: 1,
-        filter: {
-          sortParam: undefined,
-          sortDir: undefined,
-          state: [AdvancesStates.approved],
-        },
+      const expectedParams = {
+        offset: defaultParams.offset,
+        limit: defaultParams.limit,
+        approvals: `cs.[{"approver_user_id":"${userId}", "state":"APPROVAL_DONE"}]`,
+        order: 'created_at.desc,id.desc',
       };
 
-      advanceRequestService.getTeamAdvanceRequestsPlatform(params).subscribe((res) => {
+      advanceRequestService.getTeamAdvanceRequestsPlatform(defaultParams).subscribe((res) => {
         expect(res).toEqual(mockApiV2Res);
         expect(approverService.get).toHaveBeenCalledOnceWith('/advance_requests', {
-          params: {
-            offset: params.offset,
-            limit: params.limit,
-            areq_approvers_ids: `cs.{${apiEouRes.ou.user_id}}`,
-          },
+          params: expectedParams,
+        });
+        expect(authService.getEou).toHaveBeenCalledTimes(1);
+        done();
+      });
+    });
+
+    it('should get all team advance requests | NO SPECIFIC STATE', (done) => {
+      const expectedParams = {
+        offset: defaultParams.offset,
+        limit: defaultParams.limit,
+        or: `(approvals.cs.[{"approver_user_id": "${userId}", "state":"APPROVAL_PENDING"}], approvals.cs.[{"approver_user_id": "${userId}", "state":"APPROVAL_DONE"}], approvals.cs.[{"approver_user_id":"${userId}", "state":"APPROVAL_REJECTED"}])`,
+        order: 'created_at.desc,id.desc',
+      };
+
+      advanceRequestService.getTeamAdvanceRequestsPlatform(defaultParams).subscribe((res) => {
+        expect(res).toEqual(mockApiV2Res);
+        expect(approverService.get).toHaveBeenCalledOnceWith('/advance_requests', {
+          params: expectedParams,
         });
         expect(authService.getEou).toHaveBeenCalledTimes(1);
         done();

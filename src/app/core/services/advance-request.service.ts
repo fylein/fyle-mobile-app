@@ -550,26 +550,20 @@ export class AdvanceRequestService {
       areq_source: advanceRequestPlatform.source,
       areq_state: this.getAdvanceRequestState(advanceRequestPlatform.state),
       areq_updated_at: advanceRequestPlatform.updated_at,
-      ou_department:
-        advanceRequestPlatform.employee &&
-        advanceRequestPlatform.employee.department &&
-        advanceRequestPlatform.employee.department.name,
-      ou_department_id: advanceRequestPlatform.employee && advanceRequestPlatform.employee.department.id,
+      ou_department: advanceRequestPlatform.employee?.department?.name,
+      ou_department_id: advanceRequestPlatform.employee?.department?.id,
       ou_id: advanceRequestPlatform.employee_id,
       ou_org_id: advanceRequestPlatform.org_id,
-      ou_sub_department:
-        advanceRequestPlatform.employee &&
-        advanceRequestPlatform.employee.department &&
-        advanceRequestPlatform.employee.department.sub_department,
-      us_email: advanceRequestPlatform.user.email,
-      us_full_name: advanceRequestPlatform.user.full_name,
+      ou_sub_department: advanceRequestPlatform.employee?.department?.sub_department,
+      us_email: advanceRequestPlatform.user?.email,
+      us_full_name: advanceRequestPlatform.user?.full_name,
       areq_is_pulled_back: advanceRequestPlatform.state === AdvanceRequestState.PULLED_BACK,
       ou_employee_id: advanceRequestPlatform.employee_id,
       areq_custom_field_values: advanceRequestPlatform.custom_fields,
       areq_policy_amount: advanceRequestPlatform.policy_amount,
       areq_is_sent_back: advanceRequestPlatform.state === AdvanceRequestState.SENT_BACK,
-      project_name: advanceRequestPlatform.project && advanceRequestPlatform.project.name,
-      project_code: advanceRequestPlatform.project && advanceRequestPlatform.project.code,
+      project_name: advanceRequestPlatform.project?.name,
+      project_code: advanceRequestPlatform.project?.code,
     };
   }
 
