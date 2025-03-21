@@ -9,7 +9,11 @@
 			"androidScaleType": "CENTER_CROP"
 		},
 		"Keyboard": {
-			"style": "LIGHT"
+			"style": "LIGHT",
+			"resizeOnFullScreen": true
+		},
+		"StatusBar": {
+			"overlaysWebView": false
 		}
 	},
 	"cordova": {

@@ -1,11 +1,11 @@
-xPODS:
+PODS:
   - AppAuth (1.7.6):
     - AppAuth/Core (= 1.7.6)
     - AppAuth/ExternalUserAgent (= 1.7.6)
   - AppAuth/Core (1.7.6)
   - AppAuth/ExternalUserAgent (1.7.6):
     - AppAuth/Core
-  - Capacitor (7.0.1):
+  - Capacitor (7.1.0):
     - CapacitorCordova
   - CapacitorApp (7.0.0):
     - Capacitor
@@ -17,7 +17,7 @@ xPODS:
     - Capacitor
   - CapacitorCommunityCameraPreview (7.0.0):
     - Capacitor
-  - CapacitorCordova (7.0.1)
+  - CapacitorCordova (7.1.0)
   - CapacitorDevice (7.0.0):
     - Capacitor
   - CapacitorGeolocation (7.1.1):
@@ -42,10 +42,10 @@ xPODS:
     - Capacitor
   - CapacitorTextZoom (7.0.0):
     - Capacitor
-  - CordovaPlugins (7.0.1):
+  - CordovaPlugins (7.1.0):
     - CapacitorCordova
   - CordovaPluginsResources (0.0.105)
-  - CordovaPluginsStatic (7.0.1):
+  - CordovaPluginsStatic (7.1.0):
     - CapacitorCordova
     - GoogleSignIn (~> 5.0.2)
     - GoogleUtilities (~> 7.2.2)
@@ -174,13 +174,13 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   AppAuth: d4f13a8fe0baf391b2108511793e4b479691fb73
-  Capacitor: de199cba6c8b20995428ad0b7cb0bc6ca625ffd4
+  Capacitor: bceb785fb78f5e81e4a9e37843bc1c24bd9c7194
   CapacitorApp: 9cb31064a6c6bb2b1438583733a7bf45557fc1da
   CapacitorBrowser: 55c21db47416dcc8fc3b623e18fd7d09acb26081
   CapacitorCamera: 20a37684b81c69c0c33fb5a7216919f135371a6f
   CapacitorClipboard: 007d79cd6c104002b274546d13873526ca20beb7
   CapacitorCommunityCameraPreview: 4afa17da8cf488352514f82dd759cf871455576d
-  CapacitorCordova: 63d476958d5022d76f197031e8b7ea3519988c64
+  CapacitorCordova: 866217f32c1d25b326c568a10ea3ed0c36b13e29
   CapacitorDevice: 069faf433b3a99c3d5f0e500fbe634f60a8c6a84
   CapacitorGeolocation: c0755715aaadf5c86dc0053e1127b368444c914b
   CapacitorHaptics: 7be406a91e4eb87287f321c6c68e1709d6837b3a
@@ -192,9 +192,9 @@ SPEC CHECKSUMS:
   CapacitorSplashScreen: 7e7a0a1113833032f196b3af6fa437baccacf5bc
   CapacitorStatusBar: a8c4c83ed2e973bdafb979e80e4b00d027832cb7
   CapacitorTextZoom: 254c75dffb54d34d582a4f14cc7ba432fcfb5cad
-  CordovaPlugins: b6ba43c43305e2e9bceb43d8101c617d7926675c
+  CordovaPlugins: 61826da9bd384c6d83e8b47afa1c63f5c9d94162
   CordovaPluginsResources: 0c211f770ed91763a179ebcd9b9346e120b70662
-  CordovaPluginsStatic: 2105802c3d662cfbcf620c9b4c920e28841604fc
+  CordovaPluginsStatic: 05474b073377e36327ed3e34249dd7fb51dcdc06
   GoogleSignIn: 7137d297ddc022a7e0aa4619c86d72c909fa7213
   GoogleUtilities: 31c5b01f978a70c6cff2afc6272b3f1921614b43
   GTMAppAuth: 0ff230db599948a9ad7470ca667337803b3fc4dd
