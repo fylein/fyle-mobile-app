@@ -16,6 +16,7 @@ import { SortingValue } from 'src/app/core/models/sorting-value.model';
 import { TitleCasePipe } from '@angular/common';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 
+// eslint-disable-next-line
 type Filters = Partial<{
   state: AdvancesStates[];
   sortParam: SortingParam;
@@ -72,12 +73,9 @@ export class TeamAdvancePage implements AfterViewChecked {
 
     this.teamAdvancerequests$ = this.loadData$.pipe(
       concatMap(({ pageNumber, state, sortParam, sortDir }) =>
-        this.advanceRequestService.getTeamAdvanceRequests({
+        this.advanceRequestService.getTeamAdvanceRequestsPlatform({
           offset: (pageNumber - 1) * 10,
           limit: 10,
-          queryParams: {
-            ...this.getExtraParams(state),
-          },
           filter: {
             state,
             sortParam,
@@ -98,16 +96,11 @@ export class TeamAdvancePage implements AfterViewChecked {
 
     this.count$ = this.loadData$.pipe(
       switchMap(({ state, sortParam, sortDir }) =>
-        this.advanceRequestService.getTeamAdvanceRequestsCount(
-          {
-            ...this.getExtraParams(state),
-          },
-          {
-            state,
-            sortParam,
-            sortDir,
-          }
-        )
+        this.advanceRequestService.getTeamAdvanceRequestsCount({
+          state,
+          sortParam,
+          sortDir,
+        })
       ),
       shareReplay(1),
       finalize(() => (this.isLoading = false))
@@ -255,35 +248,6 @@ export class TeamAdvancePage implements AfterViewChecked {
       state: [AdvancesStates.pending],
     };
     this.filterPills = this.filtersHelperService.generateFilterPills(this.filters);
-  }
-
-  getExtraParams(state: AdvancesStates[]): Record<string, string[]> {
-    const isPending = state.includes(AdvancesStates.pending);
-    const isApproved = state.includes(AdvancesStates.approved);
-    let extraParams = {};
-
-    if (isPending && isApproved) {
-      extraParams = {
-        areq_state: ['not.eq.DRAFT'],
-        areq_approval_state: ['ov.{APPROVAL_PENDING,APPROVAL_DONE}'],
-        or: ['(areq_is_sent_back.is.null,areq_is_sent_back.is.false)'],
-      };
-    } else if (isPending) {
-      extraParams = {
-        areq_state: ['eq.APPROVAL_PENDING'],
-        or: ['(areq_is_sent_back.is.null,areq_is_sent_back.is.false)'],
-      };
-    } else if (isApproved) {
-      extraParams = {
-        areq_approval_state: ['ov.{APPROVAL_PENDING,APPROVAL_DONE}'],
-      };
-    } else {
-      extraParams = {
-        areq_approval_state: ['ov.{APPROVAL_PENDING,APPROVAL_DONE,APPROVAL_REJECTED}'],
-      };
-    }
-
-    return extraParams;
   }
 
   onHomeClicked(): void {
