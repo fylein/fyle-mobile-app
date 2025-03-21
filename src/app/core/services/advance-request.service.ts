@@ -58,6 +58,16 @@ type advanceRequestStat = {
   state: string;
 };
 
+// eslint-disable-next-line
+interface approverParams {
+  offset: number;
+  limit: number;
+  state?: string;
+  or?: string;
+  approvals?: string;
+  order?: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -300,34 +310,28 @@ export class AdvanceRequestService {
   ): Observable<ApiV2Response<ExtendedAdvanceRequest>> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) => {
-        const defaultParams = {};
+        const userId = eou.ou.user_id;
         const isPending = config.filter.state.includes(AdvancesStates.pending);
         const isApproved = config.filter.state.includes(AdvancesStates.approved);
-        let approvalState;
+        const params: approverParams = {
+          offset: config.offset,
+          limit: config.limit,
+        };
 
         if (isPending && isApproved) {
-          approvalState = 'in.(APPROVAL_PENDING,APPROVED)';
-        } else if (isApproved) {
-          approvalState = 'APPROVED';
+          params.state = 'neq.DRAFT';
+          params.or = `(approvals.cs.[{"approver_user_id": "${userId}", "state":"APPROVAL_PENDING"}], approvals.cs.[{"approver_user_id": "${userId}", "state":"APPROVAL_DONE"}])`;
         } else if (isPending) {
-          approvalState = 'APPROVAL_PENDING';
+          params.approvals = `cs.[{"approver_user_id":"${userId}", "state":"APPROVAL_PENDING"}]`;
+        } else if (isApproved) {
+          params.approvals = `cs.[{"approver_user_id":"${userId}", "state":"APPROVAL_DONE"}]`;
+        } else {
+          params.or = `(approvals.cs.[{"approver_user_id": "${userId}", "state":"APPROVAL_PENDING"}], approvals.cs.[{"approver_user_id": "${userId}", "state":"APPROVAL_DONE"}], approvals.cs.[{"approver_user_id":"${userId}", "state":"APPROVAL_REJECTED"}])`;
         }
-
-        if (approvalState) {
-          // eslint-disable-next-line
-          defaultParams['and'] = `(approvals.cs.[{"state": "${approvalState}"}],state.eq.${approvalState})`;
-        }
-        const order = this.getSortOrder(config.filter.sortParam, config.filter.sortDir);
+        params.order = this.getSortOrder(config.filter.sortParam, config.filter.sortDir);
 
         return this.approverService.get<PlatformApiResponse<AdvanceRequestPlatform[]>>('/advance_requests', {
-          params: {
-            offset: config.offset,
-            limit: config.limit,
-            order,
-            approvals: `cs.[{"approver_user_id": "${eou.ou.user_id}"}]`,
-            ...defaultParams,
-            ...config.queryParams,
-          },
+          params,
         });
       }),
       map((res) => ({
@@ -416,11 +420,10 @@ export class AdvanceRequestService {
     }).pipe(map((advanceRequest) => advanceRequest.count));
   }
 
-  getTeamAdvanceRequestsCount(queryParams: {}, filter: Filters): Observable<number> {
+  getTeamAdvanceRequestsCount(filter: Filters): Observable<number> {
     return this.getTeamAdvanceRequestsPlatform({
       offset: 0,
       limit: 1,
-      queryParams,
       filter,
     }).pipe(map((advanceRequest) => advanceRequest.count));
   }

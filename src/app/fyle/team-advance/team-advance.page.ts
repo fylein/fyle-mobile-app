@@ -76,9 +76,6 @@ export class TeamAdvancePage implements AfterViewChecked {
         this.advanceRequestService.getTeamAdvanceRequestsPlatform({
           offset: (pageNumber - 1) * 10,
           limit: 10,
-          queryParams: {
-            ...this.getExtraParams(state),
-          },
           filter: {
             state,
             sortParam,
@@ -99,16 +96,11 @@ export class TeamAdvancePage implements AfterViewChecked {
 
     this.count$ = this.loadData$.pipe(
       switchMap(({ state, sortParam, sortDir }) =>
-        this.advanceRequestService.getTeamAdvanceRequestsCount(
-          {
-            ...this.getExtraParams(state),
-          },
-          {
-            state,
-            sortParam,
-            sortDir,
-          }
-        )
+        this.advanceRequestService.getTeamAdvanceRequestsCount({
+          state,
+          sortParam,
+          sortDir,
+        })
       ),
       shareReplay(1),
       finalize(() => (this.isLoading = false))
@@ -256,33 +248,6 @@ export class TeamAdvancePage implements AfterViewChecked {
       state: [AdvancesStates.pending],
     };
     this.filterPills = this.filtersHelperService.generateFilterPills(this.filters);
-  }
-
-  getExtraParams(state: AdvancesStates[]): Record<string, string[]> {
-    const isPending = state.includes(AdvancesStates.pending);
-    const isApproved = state.includes(AdvancesStates.approved);
-    let extraParams = {};
-
-    if (isPending && isApproved) {
-      extraParams = {
-        state: 'neq.DRAFT',
-        or: '(approvals.cs.[{"state":"APPROVAL_PENDING"}], approvals.cs.[{"state": "APPROVED"}])',
-      };
-    } else if (isPending) {
-      extraParams = {
-        state: 'eq.APPROVAL_PENDING',
-      };
-    } else if (isApproved) {
-      extraParams = {
-        or: '(approvals.cs.[{"state": "APPROVED"}])',
-      };
-    } else {
-      extraParams = {
-        or: '(approvals.cs.[{"state": "APPROVAL_PENDING"}], approvals.cs.[{"state": "APPROVED"}], approvals.cs.[{"state": "REJECTED"}])',
-      };
-    }
-
-    return extraParams;
   }
 
   onHomeClicked(): void {
