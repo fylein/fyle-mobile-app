@@ -239,7 +239,7 @@ export class MyViewReportPage {
       (approver) => report.next_approver_user_ids?.[0] === approver.approver_user.id
     );
     const highestRankApprover = this.approvals.reduce(
-      (max, approver) => (approver.rank > max.rank ? approver : max),
+      (max, approver) => (approver.approver_order > max.approver_order ? approver : max),
       this.approvals[0]
     );
     this.approverToShow = filteredApprover.length === 1 ? filteredApprover[0] : highestRankApprover;
@@ -261,6 +261,7 @@ export class MyViewReportPage {
         this.setupComments(report);
         this.approvals = report?.approvals;
         if (this.approvals) {
+          this.approvals.sort((a, b) => a.approver_order - b.approver_order);
           this.setupApproverToShow(report);
         }
         return report;
