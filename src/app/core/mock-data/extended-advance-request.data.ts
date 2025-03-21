@@ -672,7 +672,7 @@ export const publicAdvanceRequestRes: ApiV2Response<ExtendedAdvanceRequestPublic
       us_full_name: 'John Doe',
       areq_is_pulled_back: false,
       ou_employee_id: 'outGt9ju6qP',
-      areq_custom_field_values: [{ name: 'checking', value: 'true', type: 'BOOLEAN' }],
+      areq_custom_field_values: [{ id: 1, name: 'checking', value: 'true', type: 'BOOLEAN' }],
       areq_is_sent_back: false,
       project_name: 'Fast and Furious',
       project_code: 'C1234',
