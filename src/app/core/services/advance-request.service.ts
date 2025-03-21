@@ -314,7 +314,8 @@ export class AdvanceRequestService {
         }
 
         if (approvalState) {
-          defaultParams.and = `(approvals.cs.[{"state": "${approvalState}"}],state.eq.${approvalState})`;
+          // eslint-disable-next-line
+          defaultParams['and'] = `(approvals.cs.[{"state": "${approvalState}"}],state.eq.${approvalState})`;
         }
         const order = this.getSortOrder(config.filter.sortParam, config.filter.sortDir);
 
