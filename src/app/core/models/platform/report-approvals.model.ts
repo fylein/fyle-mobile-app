@@ -5,5 +5,5 @@ export interface ReportApprovals {
   approver_user_id: string;
   approver_user: User;
   state: ApprovalState;
-  rank?: number;
+  approver_order: number;
 }

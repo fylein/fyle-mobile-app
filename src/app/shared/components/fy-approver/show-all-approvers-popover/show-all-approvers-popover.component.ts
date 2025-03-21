@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { ApprovalState } from 'src/app/core/models/platform/approval-state.enum';
 import { ReportApprovals } from 'src/app/core/models/platform/report-approvals.model';
@@ -8,18 +8,12 @@ import { ReportApprovals } from 'src/app/core/models/platform/report-approvals.m
   templateUrl: './show-all-approvers-popover.component.html',
   styleUrls: ['./show-all-approvers-popover.component.scss'],
 })
-export class ShowAllApproversPopoverComponent implements OnInit {
+export class ShowAllApproversPopoverComponent {
   @Input() approvals: ReportApprovals[];
 
   approvalState: typeof ApprovalState = ApprovalState;
 
   constructor(private popoverController: PopoverController) {}
-
-  ngOnInit(): void {
-    if (this.approvals) {
-      this.approvals.sort((a, b) => a.rank - b.rank);
-    }
-  }
 
   closePopover(): void {
     this.popoverController.dismiss();

@@ -41,6 +41,7 @@ import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service
 import { ShowAllApproversPopoverComponent } from 'src/app/shared/components/fy-approver/show-all-approvers-popover/show-all-approvers-popover.component';
 import { ReportApprovals } from 'src/app/core/models/platform/report-approvals.model';
 import * as Sentry from '@sentry/angular-ivy';
+import { ApprovalState } from 'src/app/core/models/platform/approval-state.enum';
 
 @Component({
   selector: 'app-my-view-report',
@@ -239,7 +240,7 @@ export class MyViewReportPage {
       (approver) => report.next_approver_user_ids?.[0] === approver.approver_user.id
     );
     const highestRankApprover = this.approvals.reduce(
-      (max, approver) => (approver.rank > max.rank ? approver : max),
+      (max, approver) => (approver.approver_order > max.approver_order ? approver : max),
       this.approvals[0]
     );
     this.approverToShow = filteredApprover.length === 1 ? filteredApprover[0] : highestRankApprover;
@@ -260,7 +261,12 @@ export class MyViewReportPage {
       map((report) => {
         this.setupComments(report);
         this.approvals = report?.approvals;
-        if (this.approvals) {
+        // filtering out disabled approvals from my view report page
+        this.approvals = report?.approvals?.filter((approval) =>
+          [ApprovalState.APPROVAL_PENDING, ApprovalState.APPROVAL_DONE].includes(approval.state)
+        );
+        if (this.showViewApproverModal) {
+          this.approvals.sort((a, b) => a.approver_order - b.approver_order);
           this.setupApproverToShow(report);
         }
         return report;

@@ -23,6 +23,7 @@ export const platformPersonalCardTxnExpenseSuggestionsRes: PlatformApiResponse<E
           },
           approver_user_id: 'usRjTPO4r69K',
           state: ApprovalState.APPROVAL_PENDING,
+          approver_order: 0,
         },
       ],
       approver_comments: [],
