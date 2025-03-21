@@ -5,7 +5,6 @@ import { advRequestFile, advRequestFile2 } from '../mock-data/advance-request-fi
 import {
   advanceRequests,
   advancedRequests2,
-  checkPolicyAdvReqParam,
   draftAdvancedRequestParam,
   draftAdvancedRequestRes,
   expectedSingleErq,
@@ -56,12 +55,14 @@ import { FileService } from './file.service';
 import { OrgUserSettingsService } from './org-user-settings.service';
 import { TimezoneService } from './timezone.service';
 import { SpenderService } from './platform/v1/spender/spender.service';
+import { ApproverService } from './platform/v1/approver/approver.service';
 import {
   advanceRequestPlatform,
   advanceRequestPlatformPulledBack,
   advanceRequestPlatformSentBack,
 } from '../mock-data/platform/v1/advance-request-platform.data';
 import { cloneDeep } from 'lodash';
+import { P } from '@angular/cdk/keycodes';
 
 describe('AdvanceRequestService', () => {
   let advanceRequestService: AdvanceRequestService;
@@ -71,9 +72,8 @@ describe('AdvanceRequestService', () => {
   let dataTransformService: jasmine.SpyObj<DataTransformService>;
   let dateService: DateService;
   let fileService: jasmine.SpyObj<FileService>;
-  let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
-  let timezoneService: jasmine.SpyObj<TimezoneService>;
   let spenderService: jasmine.SpyObj<SpenderService>;
+  let approverService: jasmine.SpyObj<ApproverService>;
 
   beforeEach(() => {
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post', 'delete']);
@@ -84,6 +84,7 @@ describe('AdvanceRequestService', () => {
     const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
     const timezoneServiceSpy = jasmine.createSpyObj('TimezoneService', ['convertToUtc']);
     const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['post', 'get']);
+    const approverServiceSpy = jasmine.createSpyObj('ApproverService', ['get']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -121,6 +122,10 @@ describe('AdvanceRequestService', () => {
           provide: SpenderService,
           useValue: spenderServiceSpy,
         },
+        {
+          provide: ApproverService,
+          useValue: approverServiceSpy,
+        },
       ],
     });
     advanceRequestService = TestBed.inject(AdvanceRequestService);
@@ -130,9 +135,8 @@ describe('AdvanceRequestService', () => {
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     dataTransformService = TestBed.inject(DataTransformService) as jasmine.SpyObj<DataTransformService>;
     fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
-    orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
-    timezoneService = TestBed.inject(TimezoneService) as jasmine.SpyObj<TimezoneService>;
     spenderService = TestBed.inject(SpenderService) as jasmine.SpyObj<SpenderService>;
+    approverService = TestBed.inject(ApproverService) as jasmine.SpyObj<ApproverService>;
   });
 
   it('should be created', () => {
@@ -233,6 +237,26 @@ describe('AdvanceRequestService', () => {
         );
         done();
       });
+    });
+  });
+
+  it('getApproverAdvanceRequest(): should get an advance request from ID', (done) => {
+    const advReqID = 'areqiwr3Wwiri';
+    const expectedData = cloneDeep(publicAdvanceRequestRes);
+    approverService.get.and.returnValue(of(advanceRequestPlatform));
+    // @ts-ignore
+    spyOn(advanceRequestService, 'fixDatesForPlatformFields').and.returnValue(advanceRequestPlatform.data[0]);
+
+    advanceRequestService.getAdvanceRequestPlatform(advReqID).subscribe((res) => {
+      expect(res).toEqual(expectedData.data[0]);
+      expect(approverService.get).toHaveBeenCalledOnceWith('/advance_requests', {
+        params: {
+          id: `eq.${advReqID}`,
+        },
+      });
+      // @ts-ignore
+      expect(advanceRequestService.fixDatesForPlatformFields).toHaveBeenCalledOnceWith(advanceRequestPlatform.data[0]);
+      done();
     });
   });
 
@@ -659,17 +683,11 @@ describe('AdvanceRequestService', () => {
       sortDir: undefined,
     };
 
-    const queryParams = {
-      areq_state: ['eq.APPROVAL_PENDING'],
-      or: ['(areq_is_sent_back.is.null,areq_is_sent_back.is.false)'],
-    };
-
-    advanceRequestService.getTeamAdvanceRequestsCount(queryParams, filters).subscribe((res) => {
+    advanceRequestService.getTeamAdvanceRequestsCount(filters).subscribe((res) => {
       expect(res).toEqual(teamAdvanceCountRes.count);
-      expect(advanceRequestService.getTeamAdvanceRequests).toHaveBeenCalledOnceWith({
+      expect(advanceRequestService.getTeamAdvanceRequestsPlatform).toHaveBeenCalledOnceWith({
         offset: 0,
         limit: 1,
-        queryParams,
         filter: { state: [AdvancesStates.pending], sortParam: undefined, sortDir: undefined },
       });
       done();
@@ -949,6 +967,95 @@ describe('AdvanceRequestService', () => {
             areq_approvers_ids: `cs.{${apiEouRes.ou.id}}`,
             ...defaultParams,
             ...params.queryParams,
+          },
+        });
+        expect(authService.getEou).toHaveBeenCalledTimes(1);
+        done();
+      });
+    });
+  });
+
+  describe('getTeamAdvanceRequestsPlatform():', () => {
+    it('should get all team advance requests | APPROVAL PENDING AND APPROVED', (done) => {
+      authService.getEou.and.resolveTo(apiEouRes);
+      const mockApiV2Res = cloneDeep(allTeamAdvanceRequestsRes);
+      approverService.get.and.returnValue(of(mockApiV2Res));
+
+      const params = {
+        offset: 0,
+        limit: 1,
+        filter: {
+          sortParam: undefined,
+          sortDir: undefined,
+          state: [AdvancesStates.pending, AdvancesStates.approved],
+        },
+      };
+
+      advanceRequestService.getTeamAdvanceRequestsPlatform(params).subscribe((res) => {
+        expect(res).toEqual(mockApiV2Res);
+        expect(apiv2Service.get).toHaveBeenCalledOnceWith('/advance_requests', {
+          params: {
+            offset: params.offset,
+            limit: params.limit,
+            areq_approvers_ids: `cs.{${apiEouRes.ou.user_id}}`,
+          },
+        });
+        expect(authService.getEou).toHaveBeenCalledTimes(1);
+        done();
+      });
+    });
+
+    it('should get all team advance requests | APPROVAL PENDING', (done) => {
+      authService.getEou.and.resolveTo(apiEouRes);
+      const mockApiV2Res = cloneDeep(allTeamAdvanceRequestsRes);
+      approverService.get.and.returnValue(of(mockApiV2Res));
+
+      const params = {
+        offset: 0,
+        limit: 1,
+        filter: {
+          sortParam: undefined,
+          sortDir: undefined,
+          state: [AdvancesStates.pending],
+        },
+      };
+
+      advanceRequestService.getTeamAdvanceRequestsPlatform(params).subscribe((res) => {
+        expect(res).toEqual(mockApiV2Res);
+        expect(apiv2Service.get).toHaveBeenCalledOnceWith('/advance_requests', {
+          params: {
+            offset: params.offset,
+            limit: params.limit,
+            areq_approvers_ids: `cs.{${apiEouRes.ou.user_id}}`,
+          },
+        });
+        expect(authService.getEou).toHaveBeenCalledTimes(1);
+        done();
+      });
+    });
+
+    it('should get all team advance requests | APPROVED', (done) => {
+      authService.getEou.and.resolveTo(apiEouRes);
+      const mockApiV2Res = cloneDeep(allTeamAdvanceRequestsRes);
+      approverService.get.and.returnValue(of(mockApiV2Res));
+
+      const params = {
+        offset: 0,
+        limit: 1,
+        filter: {
+          sortParam: undefined,
+          sortDir: undefined,
+          state: [AdvancesStates.approved],
+        },
+      };
+
+      advanceRequestService.getTeamAdvanceRequestsPlatform(params).subscribe((res) => {
+        expect(res).toEqual(mockApiV2Res);
+        expect(approverService.get).toHaveBeenCalledOnceWith('/advance_requests', {
+          params: {
+            offset: params.offset,
+            limit: params.limit,
+            areq_approvers_ids: `cs.{${apiEouRes.ou.user_id}}`,
           },
         });
         expect(authService.getEou).toHaveBeenCalledTimes(1);
