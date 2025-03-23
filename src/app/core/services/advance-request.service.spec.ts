@@ -980,7 +980,7 @@ describe('AdvanceRequestService', () => {
       authService.getEou.and.resolveTo(apiEouRes);
       mockApiV2Res = cloneDeep(advanceRequestPlatform);
       approverService.get.and.returnValue(of(mockApiV2Res));
-      spyOn(advanceRequestService, 'convertToAdvanceRequest').and.returnValue(mockApiV2Res.data || []);
+      spyOn(advanceRequestService, 'transformToAdvanceRequest').and.returnValue(mockApiV2Res.data || []);
 
       userId = apiEouRes.ou.user_id;
       defaultParams = {

@@ -5,8 +5,6 @@ import { forkJoin, from, Observable, of, Subject } from 'rxjs';
 import { ApiService } from './api.service';
 import { ApiV2Service } from './api-v2.service';
 import { AuthService } from './auth.service';
-import { OrgUserSettingsService } from './org-user-settings.service';
-import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { DataTransformService } from './data-transform.service';
 import { DateService } from './date.service';
 import { FileService } from './file.service';
@@ -76,8 +74,6 @@ export class AdvanceRequestService {
     private apiService: ApiService,
     private apiv2Service: ApiV2Service,
     private authService: AuthService,
-    private orgUserSettingsService: OrgUserSettingsService,
-    private timezoneService: TimezoneService,
     private dataTransformService: DataTransformService,
     private dateService: DateService,
     private fileService: FileService,
@@ -109,7 +105,7 @@ export class AdvanceRequestService {
         map((res) => ({
           count: res.count,
           offset: res.offset,
-          data: this.convertToPublicAdvanceRequest(res),
+          data: this.transformToPublicAdvanceRequest(res),
         }))
       );
   }
@@ -164,7 +160,7 @@ export class AdvanceRequestService {
       .get<PlatformApiResponse<AdvanceRequestPlatform[]>>('/advance_requests', {
         params: { id: `eq.${id}` },
       })
-      .pipe(map((res) => this.mapAdvanceRequest(this.fixDatesForPlatformFields(res.data[0]))));
+      .pipe(map((res) => this.transformSpenderAdvReq(this.fixDatesForPlatformFields(res.data[0]))));
   }
 
   @Cacheable({
@@ -175,7 +171,7 @@ export class AdvanceRequestService {
       .get<PlatformApiResponse<AdvanceRequestPlatform[]>>('/advance_requests', {
         params: { id: `eq.${id}` },
       })
-      .pipe(map((res) => this.mapApproverAdvanceRequest(this.fixDatesForPlatformFields(res.data[0]))));
+      .pipe(map((res) => this.transformApproverAdvReq(this.fixDatesForPlatformFields(res.data[0]))));
   }
 
   @CacheBuster({
@@ -335,7 +331,7 @@ export class AdvanceRequestService {
       map((res) => ({
         count: res.count,
         offset: res.offset,
-        data: this.convertToAdvanceRequest(res),
+        data: this.transformToAdvanceRequest(res),
       }))
     );
   }
@@ -534,7 +530,7 @@ export class AdvanceRequestService {
       .pipe(map((res) => res.data));
   }
 
-  mapApproverAdvanceRequest(advanceRequestPlatform: AdvanceRequestPlatform): ExtendedAdvanceRequest {
+  transformApproverAdvReq(advanceRequestPlatform: AdvanceRequestPlatform): ExtendedAdvanceRequest {
     return {
       areq_advance_request_number: advanceRequestPlatform.seq_num,
       areq_advance_id: advanceRequestPlatform.advance_id,
@@ -567,15 +563,15 @@ export class AdvanceRequestService {
     };
   }
 
-  convertToAdvanceRequest(
+  transformToAdvanceRequest(
     advanceReqPlatformResponse: PlatformApiResponse<AdvanceRequestPlatform[]>
   ): ExtendedAdvanceRequest[] {
     return advanceReqPlatformResponse.data.map((advanceRequestPlatform) =>
-      this.mapApproverAdvanceRequest(advanceRequestPlatform)
+      this.transformApproverAdvReq(advanceRequestPlatform)
     );
   }
 
-  mapAdvanceRequest(advanceRequestPlatform: AdvanceRequestPlatform): ExtendedAdvanceRequestPublic {
+  transformSpenderAdvReq(advanceRequestPlatform: AdvanceRequestPlatform): ExtendedAdvanceRequestPublic {
     return {
       areq_advance_request_number: advanceRequestPlatform.seq_num,
       areq_advance_id: advanceRequestPlatform.advance_id,
@@ -608,11 +604,11 @@ export class AdvanceRequestService {
     };
   }
 
-  convertToPublicAdvanceRequest(
+  transformToPublicAdvanceRequest(
     advanceReqPlatformResponse: PlatformApiResponse<AdvanceRequestPlatform[]>
   ): ExtendedAdvanceRequestPublic[] {
     return advanceReqPlatformResponse.data.map((advanceRequestPlatform) =>
-      this.mapAdvanceRequest(advanceRequestPlatform)
+      this.transformSpenderAdvReq(advanceRequestPlatform)
     );
   }
 
