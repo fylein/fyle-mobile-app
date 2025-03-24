@@ -313,11 +313,13 @@ export class AdvanceRequestService {
         };
 
         if (isPending && isApproved) {
-          params.state = 'neq.DRAFT';
+          params.state = 'in.(APPROVED, APPROVAL_PENDING)';
           params.or = `(approvals.cs.[{"approver_user_id": "${userId}", "state":"APPROVAL_PENDING"}], approvals.cs.[{"approver_user_id": "${userId}", "state":"APPROVAL_DONE"}])`;
         } else if (isPending) {
+          params.state = 'eq.APPROVAL_PENDING';
           params.approvals = `cs.[{"approver_user_id":"${userId}", "state":"APPROVAL_PENDING"}]`;
         } else if (isApproved) {
+          params.state = 'in.(APPROVED, APPROVAL_PENDING)';
           params.approvals = `cs.[{"approver_user_id":"${userId}", "state":"APPROVAL_DONE"}]`;
         } else {
           params.or = `(approvals.cs.[{"approver_user_id": "${userId}", "state":"APPROVAL_PENDING"}], approvals.cs.[{"approver_user_id": "${userId}", "state":"APPROVAL_DONE"}], approvals.cs.[{"approver_user_id":"${userId}", "state":"APPROVAL_REJECTED"}])`;
