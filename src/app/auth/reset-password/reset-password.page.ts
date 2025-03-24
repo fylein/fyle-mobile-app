@@ -26,6 +26,8 @@ export class ResetPasswordPage {
 
   PageState: typeof PageState = PageState;
 
+  isTmpPwdExpired = false;
+
   constructor(
     private formBuilder: UntypedFormBuilder,
     private routerAuthService: RouterAuthService,
@@ -38,6 +40,7 @@ export class ResetPasswordPage {
   ionViewWillEnter(): void {
     this.currentPageState = PageState.notSent;
     this.isEmailSentOnce = false;
+    this.isTmpPwdExpired = this.activatedRoute.snapshot.queryParams.tmp_pwd_expired === 'true';
     const email = (this.activatedRoute.snapshot.params.email as string) || '';
     this.fg = this.formBuilder.group({
       email: [email, Validators.compose([Validators.required, Validators.pattern('\\S+@\\S+\\.\\S{2,}')])],
