@@ -510,7 +510,7 @@ describe('FyOptInComponent', () => {
     expect(trackingService.clickedOnHelpArticle).toHaveBeenCalledTimes(1);
     expect(browserHandlerService.openLinkWithToolbarColor).toHaveBeenCalledOnceWith(
       '#280a31',
-      'https://help.fylehq.com/en/articles/8045065-submit-your-receipts-via-text-message'
+      'https://www.fylehq.com/help/en/articles/8045065-submit-your-receipts-via-text-message'
     );
   });
 

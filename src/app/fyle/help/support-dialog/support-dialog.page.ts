@@ -25,7 +25,7 @@ export class SupportDialogPage implements OnInit {
 
   async openHelpLink() {
     this.trackingService.engageWithHelpCard();
-    await this.browserHandlerService.openLinkWithToolbarColor('#280a31', 'https://help.fylehq.com');
+    await this.browserHandlerService.openLinkWithToolbarColor('#280a31', 'https://www.fylehq.com/help');
   }
 
   async openChromeExtLink() {
