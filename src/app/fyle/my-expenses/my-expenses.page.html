@@ -147,13 +147,13 @@
         </ng-container>
         <ng-template #isOldUser>
           <div class="my-expenses--zero-state-subheader__title">
-            <div class="my-expenses--zero-state-content">Your have no expenses right now</div>
+            <div class="my-expenses--zero-state-content">You have no expenses right now</div>
           </div>
         </ng-template>
       </div>
 
       <div *ngIf="(filters?.state || filters?.date)" class="my-expenses--zero-state-header">
-        <div class="my-expenses--zero-state-content">Your have no expenses</div>
+        <div class="my-expenses--zero-state-content">You have no expenses</div>
         <div class="my-expenses--zero-state-content">matching the applied filters</div>
       </div>
       <div *ngIf="!filters?.state && !filters?.date && simpleSearchText" class="my-expenses--zero-state-header">
