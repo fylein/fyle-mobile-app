@@ -5,7 +5,6 @@ import { advRequestFile, advRequestFile2 } from '../mock-data/advance-request-fi
 import {
   advanceRequests,
   advancedRequests2,
-  checkPolicyAdvReqParam,
   draftAdvancedRequestParam,
   draftAdvancedRequestRes,
   expectedSingleErq,
@@ -28,6 +27,7 @@ import {
   extendedAdvReqPaid,
   extendedAdvReqPulledBack,
   extendedAdvReqRejected,
+  extendedAdvReqRes,
   extendedAdvReqSentBack,
   extendedAdvReqSubmitted,
   extendedAdvReqWithDates,
@@ -56,6 +56,7 @@ import { FileService } from './file.service';
 import { OrgUserSettingsService } from './org-user-settings.service';
 import { TimezoneService } from './timezone.service';
 import { SpenderService } from './platform/v1/spender/spender.service';
+import { ApproverService } from './platform/v1/approver/approver.service';
 import {
   advanceRequestPlatform,
   advanceRequestPlatformPulledBack,
@@ -71,9 +72,8 @@ describe('AdvanceRequestService', () => {
   let dataTransformService: jasmine.SpyObj<DataTransformService>;
   let dateService: DateService;
   let fileService: jasmine.SpyObj<FileService>;
-  let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
-  let timezoneService: jasmine.SpyObj<TimezoneService>;
   let spenderService: jasmine.SpyObj<SpenderService>;
+  let approverService: jasmine.SpyObj<ApproverService>;
 
   beforeEach(() => {
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post', 'delete']);
@@ -84,6 +84,7 @@ describe('AdvanceRequestService', () => {
     const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
     const timezoneServiceSpy = jasmine.createSpyObj('TimezoneService', ['convertToUtc']);
     const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['post', 'get']);
+    const approverServiceSpy = jasmine.createSpyObj('ApproverService', ['get']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -121,6 +122,10 @@ describe('AdvanceRequestService', () => {
           provide: SpenderService,
           useValue: spenderServiceSpy,
         },
+        {
+          provide: ApproverService,
+          useValue: approverServiceSpy,
+        },
       ],
     });
     advanceRequestService = TestBed.inject(AdvanceRequestService);
@@ -130,9 +135,8 @@ describe('AdvanceRequestService', () => {
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     dataTransformService = TestBed.inject(DataTransformService) as jasmine.SpyObj<DataTransformService>;
     fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
-    orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
-    timezoneService = TestBed.inject(TimezoneService) as jasmine.SpyObj<TimezoneService>;
     spenderService = TestBed.inject(SpenderService) as jasmine.SpyObj<SpenderService>;
+    approverService = TestBed.inject(ApproverService) as jasmine.SpyObj<ApproverService>;
   });
 
   it('should be created', () => {
@@ -233,6 +237,26 @@ describe('AdvanceRequestService', () => {
         );
         done();
       });
+    });
+  });
+
+  it('getApproverAdvanceRequest(): should get an advance request from ID', (done) => {
+    const advReqID = 'areqiwr3Wwiri';
+    const expectedData = cloneDeep(extendedAdvReqRes);
+    approverService.get.and.returnValue(of(advanceRequestPlatform));
+    // @ts-ignore
+    spyOn(advanceRequestService, 'fixDatesForPlatformFields').and.returnValue(advanceRequestPlatform.data[0]);
+
+    advanceRequestService.getApproverAdvanceRequest(advReqID).subscribe((res) => {
+      expect(res).toEqual(expectedData.data[0]);
+      expect(approverService.get).toHaveBeenCalledOnceWith('/advance_requests', {
+        params: {
+          id: `eq.${advReqID}`,
+        },
+      });
+      // @ts-ignore
+      expect(advanceRequestService.fixDatesForPlatformFields).toHaveBeenCalledOnceWith(advanceRequestPlatform.data[0]);
+      done();
     });
   });
 
@@ -615,9 +639,7 @@ describe('AdvanceRequestService', () => {
       const sortingDirection = SortingDirection.ascending;
 
       //@ts-ignore
-      expect(advanceRequestService.getSortOrder(sortingParam, sortingDirection)).toEqual(
-        'areq_created_at.asc,areq_id.desc'
-      );
+      expect(advanceRequestService.getSortOrder(sortingParam, sortingDirection)).toEqual('created_at.asc,id.desc');
     });
 
     it('param - approval date | direction - descending', () => {
@@ -627,7 +649,7 @@ describe('AdvanceRequestService', () => {
 
       //@ts-ignore
       expect(advanceRequestService.getSortOrder(sortingParam, sortingDirection)).toEqual(
-        'areq_approved_at.desc,areq_id.desc'
+        'last_approved_at.desc,id.desc'
       );
     });
 
@@ -637,21 +659,19 @@ describe('AdvanceRequestService', () => {
       const sortingDirection = SortingDirection.ascending;
 
       //@ts-ignore
-      expect(advanceRequestService.getSortOrder(sortingParam, sortingDirection)).toEqual(
-        'project_name.asc,areq_id.desc'
-      );
+      expect(advanceRequestService.getSortOrder(sortingParam, sortingDirection)).toEqual('project->name.asc,id.desc');
     });
 
     it('param - nothing specified | direction - ascending', () => {
       const sortingDirection = SortingDirection.ascending;
 
       //@ts-ignore
-      expect(advanceRequestService.getSortOrder({}, sortingDirection)).toEqual('areq_created_at.asc,areq_id.desc');
+      expect(advanceRequestService.getSortOrder({}, sortingDirection)).toEqual('created_at.asc,id.desc');
     });
   });
 
   it('getTeamAdvanceRequestsCount(): should get team advance count', (done) => {
-    spyOn(advanceRequestService, 'getTeamAdvanceRequests').and.returnValue(of(teamAdvanceCountRes));
+    spyOn(advanceRequestService, 'getTeamAdvanceRequestsPlatform').and.returnValue(of(teamAdvanceCountRes));
 
     const filters = {
       state: [AdvancesStates.pending],
@@ -659,17 +679,11 @@ describe('AdvanceRequestService', () => {
       sortDir: undefined,
     };
 
-    const queryParams = {
-      areq_state: ['eq.APPROVAL_PENDING'],
-      or: ['(areq_is_sent_back.is.null,areq_is_sent_back.is.false)'],
-    };
-
-    advanceRequestService.getTeamAdvanceRequestsCount(queryParams, filters).subscribe((res) => {
+    advanceRequestService.getTeamAdvanceRequestsCount(filters).subscribe((res) => {
       expect(res).toEqual(teamAdvanceCountRes.count);
-      expect(advanceRequestService.getTeamAdvanceRequests).toHaveBeenCalledOnceWith({
+      expect(advanceRequestService.getTeamAdvanceRequestsPlatform).toHaveBeenCalledOnceWith({
         offset: 0,
         limit: 1,
-        queryParams,
         filter: { state: [AdvancesStates.pending], sortParam: undefined, sortDir: undefined },
       });
       done();
@@ -763,7 +777,7 @@ describe('AdvanceRequestService', () => {
         limit: 10,
         queryParams: {
           areq_advance_id: 'is.null',
-          order: 'areq_created_at.desc,areq_id.desc',
+          order: 'created_at.desc,id.desc',
         },
       };
 
@@ -846,7 +860,7 @@ describe('AdvanceRequestService', () => {
         limit: 1,
         queryParams: {
           areq_state: ['eq.APPROVAL_PENDING'],
-          or: 'areq_created_at.desc,areq_id.desc',
+          or: 'created_at.desc,id.desc',
         },
         filter: {
           sortParam: undefined,
@@ -886,7 +900,7 @@ describe('AdvanceRequestService', () => {
         limit: 1,
         queryParams: {
           areq_state: ['eq.APPROVAL_PENDING'],
-          or: 'areq_created_at.desc,areq_id.desc',
+          or: 'created_at.desc,id.desc',
         },
         filter: {
           sortParam: undefined,
@@ -926,7 +940,7 @@ describe('AdvanceRequestService', () => {
         limit: 1,
         queryParams: {
           areq_state: ['eq.APPROVAL_PENDING'],
-          or: 'areq_created_at.desc,areq_id.desc',
+          or: 'created_at.desc,id.desc',
         },
         filter: {
           sortParam: undefined,
@@ -950,6 +964,112 @@ describe('AdvanceRequestService', () => {
             ...defaultParams,
             ...params.queryParams,
           },
+        });
+        expect(authService.getEou).toHaveBeenCalledTimes(1);
+        done();
+      });
+    });
+  });
+
+  describe('getTeamAdvanceRequestsPlatform():', () => {
+    let mockApiV2Res;
+    let userId;
+    let defaultParams;
+
+    beforeEach(() => {
+      authService.getEou.and.resolveTo(apiEouRes);
+      mockApiV2Res = cloneDeep(advanceRequestPlatform);
+      approverService.get.and.returnValue(of(mockApiV2Res));
+      spyOn(advanceRequestService, 'transformToAdvanceRequest').and.returnValue(mockApiV2Res.data || []);
+
+      userId = apiEouRes.ou.user_id;
+      defaultParams = {
+        offset: 0,
+        limit: 1,
+        filter: {
+          sortParam: undefined,
+          sortDir: undefined,
+          state: [],
+        },
+      };
+
+      authService.getEou.calls.reset();
+      approverService.get.calls.reset();
+    });
+
+    it('should get all team advance requests | APPROVAL PENDING AND APPROVED', (done) => {
+      defaultParams.filter.state = [AdvancesStates.pending, AdvancesStates.approved];
+
+      const expectedParams = {
+        offset: defaultParams.offset,
+        limit: defaultParams.limit,
+        state: 'neq.DRAFT',
+        or: `(approvals.cs.[{"approver_user_id": "${userId}", "state":"APPROVAL_PENDING"}], approvals.cs.[{"approver_user_id": "${userId}", "state":"APPROVAL_DONE"}])`,
+        order: 'created_at.desc,id.desc',
+      };
+
+      advanceRequestService.getTeamAdvanceRequestsPlatform(defaultParams).subscribe((res) => {
+        expect(res).toEqual(mockApiV2Res);
+        expect(approverService.get).toHaveBeenCalledOnceWith('/advance_requests', {
+          params: expectedParams,
+        });
+        expect(authService.getEou).toHaveBeenCalledTimes(1);
+        done();
+      });
+    });
+
+    it('should get all team advance requests | APPROVAL PENDING', (done) => {
+      defaultParams.filter.state = [AdvancesStates.pending];
+
+      const expectedParams = {
+        offset: defaultParams.offset,
+        limit: defaultParams.limit,
+        approvals: `cs.[{"approver_user_id":"${userId}", "state":"APPROVAL_PENDING"}]`,
+        order: 'created_at.desc,id.desc',
+      };
+
+      advanceRequestService.getTeamAdvanceRequestsPlatform(defaultParams).subscribe((res) => {
+        expect(res).toEqual(mockApiV2Res);
+        expect(approverService.get).toHaveBeenCalledOnceWith('/advance_requests', {
+          params: expectedParams,
+        });
+        expect(authService.getEou).toHaveBeenCalledTimes(1);
+        done();
+      });
+    });
+
+    it('should get all team advance requests | APPROVED', (done) => {
+      defaultParams.filter.state = [AdvancesStates.approved];
+
+      const expectedParams = {
+        offset: defaultParams.offset,
+        limit: defaultParams.limit,
+        approvals: `cs.[{"approver_user_id":"${userId}", "state":"APPROVAL_DONE"}]`,
+        order: 'created_at.desc,id.desc',
+      };
+
+      advanceRequestService.getTeamAdvanceRequestsPlatform(defaultParams).subscribe((res) => {
+        expect(res).toEqual(mockApiV2Res);
+        expect(approverService.get).toHaveBeenCalledOnceWith('/advance_requests', {
+          params: expectedParams,
+        });
+        expect(authService.getEou).toHaveBeenCalledTimes(1);
+        done();
+      });
+    });
+
+    it('should get all team advance requests | NO SPECIFIC STATE', (done) => {
+      const expectedParams = {
+        offset: defaultParams.offset,
+        limit: defaultParams.limit,
+        or: `(approvals.cs.[{"approver_user_id": "${userId}", "state":"APPROVAL_PENDING"}], approvals.cs.[{"approver_user_id": "${userId}", "state":"APPROVAL_DONE"}], approvals.cs.[{"approver_user_id":"${userId}", "state":"APPROVAL_REJECTED"}])`,
+        order: 'created_at.desc,id.desc',
+      };
+
+      advanceRequestService.getTeamAdvanceRequestsPlatform(defaultParams).subscribe((res) => {
+        expect(res).toEqual(mockApiV2Res);
+        expect(approverService.get).toHaveBeenCalledOnceWith('/advance_requests', {
+          params: expectedParams,
         });
         expect(authService.getEou).toHaveBeenCalledTimes(1);
         done();
