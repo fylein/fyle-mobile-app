@@ -79,17 +79,24 @@
         *ngIf="!(filters?.state || filters?.date || simpleSearchText)"
         [unscaledImage]="true"
         [useNewStyling]="true"
-        image="../../../assets/images/zero-states/expenses.png"
-        header="You've got no report!"
-        message='Create one by clicking <ion-icon slot="icon-only" src="../../../assets/svg/plus-square.svg"></ion-icon> on top'
+        image="../../../assets/images/zero-states/reports.png"
+        message="You have no reports right now"
       ></app-fy-zero-state>
       <app-fy-zero-state
-        *ngIf="(filters?.state || filters?.date || simpleSearchText)"
+        *ngIf="(filters?.state || filters?.date)"
         [unscaledImage]="true"
         [useNewStyling]="true"
-        image="../../../assets/images/zero-states/search-not-found.svg"
-        header="No reports found"
-        message="We couldn't find any report that matched your search."
+        image="../../../assets/images/zero-states/reports.png"
+        message="You have no reports"
+        submessage="matching the applied filters"
+      ></app-fy-zero-state>
+      <app-fy-zero-state
+        *ngIf="!filters?.state && !filters?.date && simpleSearchText"
+        [unscaledImage]="true"
+        [useNewStyling]="true"
+        image="../../../assets/images/zero-states/search.png"
+        message="No results found"
+        submessage="Try a different keyword"
       ></app-fy-zero-state>
     </div>
 

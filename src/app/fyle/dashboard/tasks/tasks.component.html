@@ -42,19 +42,17 @@
             <ion-col size="12" class="ion-align-self-center">
               <app-fy-zero-state
                 *ngIf="!filterPills?.length"
-                [unscaledImage]="true"
                 [useNewStyling]="true"
-                image="../../../../assets/images/zero-states/completed-tasks.png"
-                header="You are all caught up!"
-                message="No tasks await your attention"
+                image="../../../../assets/images/zero-states/tasks.png"
+                message="Your have no tasks right now"
               ></app-fy-zero-state>
               <app-fy-zero-state
                 *ngIf="filterPills?.length"
                 [unscaledImage]="true"
                 [useNewStyling]="true"
-                image="../../../../assets/images/zero-states/expenses.png"
-                header="No tasks with the selected filters"
-                message="Clear the filters to see pending tasks, if any"
+                image="../../../../assets/images/zero-states/tasks.png"
+                message="Your have no tasks"
+                submessage="matching the applied filters"
               ></app-fy-zero-state>
             </ion-col>
           </ion-row>
