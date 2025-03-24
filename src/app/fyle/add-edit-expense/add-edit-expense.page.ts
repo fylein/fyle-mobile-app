@@ -2390,11 +2390,10 @@ export class AddEditExpensePage implements OnInit {
             } else if (
               defaultValueColumn === 'billable' &&
               this.fg.controls.project.value &&
-              this.showBillable &&
               (control.value === null || control.value === undefined) &&
               !control.touched
             ) {
-              control.patchValue(defaultValues[defaultValueColumn]);
+              control.patchValue(this.showBillable ? defaultValues[defaultValueColumn] : false);
             } else if (
               defaultValueColumn === 'tax_group_id' &&
               !control.value &&
