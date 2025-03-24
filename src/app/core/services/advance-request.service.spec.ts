@@ -1003,7 +1003,7 @@ describe('AdvanceRequestService', () => {
       const expectedParams = {
         offset: defaultParams.offset,
         limit: defaultParams.limit,
-        state: 'neq.DRAFT',
+        state: 'in.(APPROVED, APPROVAL_PENDING)',
         or: `(approvals.cs.[{"approver_user_id": "${userId}", "state":"APPROVAL_PENDING"}], approvals.cs.[{"approver_user_id": "${userId}", "state":"APPROVAL_DONE"}])`,
         order: 'created_at.desc,id.desc',
       };
@@ -1024,6 +1024,7 @@ describe('AdvanceRequestService', () => {
       const expectedParams = {
         offset: defaultParams.offset,
         limit: defaultParams.limit,
+        state: 'eq.APPROVAL_PENDING',
         approvals: `cs.[{"approver_user_id":"${userId}", "state":"APPROVAL_PENDING"}]`,
         order: 'created_at.desc,id.desc',
       };
@@ -1044,6 +1045,7 @@ describe('AdvanceRequestService', () => {
       const expectedParams = {
         offset: defaultParams.offset,
         limit: defaultParams.limit,
+        state: 'eq.APPROVED',
         approvals: `cs.[{"approver_user_id":"${userId}", "state":"APPROVAL_DONE"}]`,
         order: 'created_at.desc,id.desc',
       };
