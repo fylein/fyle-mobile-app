@@ -11,9 +11,6 @@
 		"Keyboard": {
 			"style": "LIGHT",
 			"resizeOnFullScreen": true
-		},
-		"StatusBar": {
-			"overlaysWebView": false
 		}
 	},
 	"cordova": {

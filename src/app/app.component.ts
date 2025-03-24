@@ -28,6 +28,7 @@ import { SpenderOnboardingService } from './core/services/spender-onboarding.ser
 import { FooterState } from './shared/components/footer/footer-state.enum';
 import { FooterService } from './core/services/footer.service';
 import { TasksService } from './core/services/tasks.service';
+import { Device } from '@capacitor/device';
 
 @Component({
   selector: 'app-root',
@@ -130,6 +131,12 @@ export class AppComponent implements OnInit {
       await StatusBar.setStyle({
         style: Style.Default,
       });
+
+      const info = await Device.getInfo();
+
+      if (info.platform === 'android') {
+        await StatusBar.setOverlaysWebView({ overlay: false });
+      }
 
       setTimeout(async () => await SplashScreen.hide(), 200);
 
