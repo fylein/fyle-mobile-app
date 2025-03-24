@@ -138,6 +138,8 @@ export class AppComponent implements OnInit {
         await StatusBar.setOverlaysWebView({ overlay: false });
       }
 
+      console.log(info)
+
       setTimeout(async () => await SplashScreen.hide(), 200);
 
       /*
