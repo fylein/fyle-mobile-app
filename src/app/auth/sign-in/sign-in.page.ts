@@ -160,18 +160,37 @@ export class SignInPage implements OnInit {
   async handleError(error: HttpErrorResponse): Promise<void> {
     let header = 'Incorrect email or password';
 
-    if (error?.status === 400) {
-      this.trackingService.eventTrack('Go to Invite Expired page');
-      this.router.navigate(['/', 'auth', 'pending_verification', { email: this.fg.controls.email.value as string }]);
-      return;
-    } else if (error?.status === 422) {
-      this.trackingService.eventTrack('Go to Disabled User page');
-      this.router.navigate(['/', 'auth', 'disabled']);
-      return;
-    } else if (error?.status === 500) {
-      header = 'Sorry... Something went wrong!';
-    } else if (error?.status === 433) {
-      header = 'Temporary Lockout';
+    switch (error?.status) {
+      case 400:
+        this.trackingService.eventTrack('Go to Invite Expired page');
+        this.router.navigate(['/', 'auth', 'pending_verification', { email: this.fg.controls.email.value as string }]);
+        break;
+
+      case 406:
+        this.trackingService.eventTrack('Go to Password Expired page');
+        const queryParams: Record<string, boolean> = {
+          tmp_pwd_expired: true,
+        };
+        this.router.navigate(['/', 'auth', 'reset_password', { email: this.fg.controls.email.value as string }], {
+          queryParams,
+        });
+        break;
+
+      case 422:
+        this.trackingService.eventTrack('Go to Disabled User page');
+        this.router.navigate(['/', 'auth', 'disabled']);
+        break;
+
+      case 500:
+        header = 'Sorry... Something went wrong!';
+        break;
+
+      case 433:
+        header = 'Temporary Lockout';
+        break;
+
+      default:
+        break;
     }
 
     const errorPopover = await this.popoverController.create({

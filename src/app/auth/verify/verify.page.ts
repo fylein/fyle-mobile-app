@@ -46,6 +46,11 @@ export class VerifyPage implements OnInit {
     } else if (err.status === 440) {
       this.trackingService.eventTrack('Go to Invite Expired page');
       this.router.navigate(['/', 'auth', 'pending_verification', { hasTokenExpired: true, orgId }]);
+    } else if (err.status === 406) {
+      const queryParams: Record<string, boolean> = {
+        tmp_pwd_expired: true,
+      };
+      this.router.navigate(['/', 'auth', 'reset_password'], { queryParams });
     } else {
       this.logout();
     }

@@ -53,7 +53,7 @@ describe('ResetPasswordPage', () => {
         },
         {
           provide: ActivatedRoute,
-          useValue: { snapshot: { params: { email: 'aastha.b@fyle.in' } } },
+          useValue: { snapshot: { params: { email: 'aastha.b@fyle.in' }, queryParams: { tmp_pwd_expired: 'true' } } },
         },
       ],
     }).compileComponents();
