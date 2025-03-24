@@ -35,6 +35,7 @@ import { FeatureConfigService } from 'src/app/core/services/platform/v1/spender/
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { PromoteOptInModalComponent } from 'src/app/shared/components/promote-opt-in-modal/promote-opt-in-modal.component';
 import { AuthService } from 'src/app/core/services/auth.service';
+import { isNumber } from 'lodash';
 @Component({
   selector: 'app-manage-corporate-cards',
   templateUrl: './manage-corporate-cards.page.html',
@@ -89,8 +90,8 @@ export class ManageCorporateCardsPage {
   }
 
   segmentChanged(event: SegmentCustomEvent): void {
-    if (event.detail.value) {
-      this.segmentValue = parseInt(`${event.detail.value}`, 10);
+    if (isNumber(event.detail.value)) {
+      this.segmentValue = event.detail.value;
     }
   }
 
