@@ -117,7 +117,9 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
     this.advanceRequest$ = this.refreshApprovers$.pipe(
       startWith(true),
       switchMap(() =>
-        from(this.loaderService.showLoader()).pipe(switchMap(() => this.advanceRequestService.getAdvanceRequest(id)))
+        from(this.loaderService.showLoader()).pipe(
+          switchMap(() => this.advanceRequestService.getApproverAdvanceRequest(id))
+        )
       ),
       finalize(() => from(this.loaderService.hideLoader())),
       shareReplay(1)
@@ -154,7 +156,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
             res.advanceRequest.areq_custom_field_values.length > 0
           ) {
             customFieldValues = this.advanceRequestService.modifyAdvanceRequestCustomFields(
-              JSON.parse(res.advanceRequest.areq_custom_field_values) as CustomField[]
+              res.advanceRequest.areq_custom_field_values
             );
           }
 
@@ -168,7 +170,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
           return res.customFields;
         } else {
           return this.advanceRequestService.modifyAdvanceRequestCustomFields(
-            JSON.parse(res.advanceRequest.areq_custom_field_values) as CustomField[]
+            res.advanceRequest.areq_custom_field_values
           );
         }
       })
