@@ -159,7 +159,9 @@ export class FyAddToReportComponent implements OnInit, OnChanges, ControlValueAc
               this.platformReportService
                 .getAllReportsByParams({ state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' })
                 .pipe(
-                  map((reports) => reports.map((report) => ({ label: report.purpose, value: report }))),
+                  map((reports) => reports
+                      .filter((report) => !report.approvals.some((approval) => approval.state === 'APPROVAL_DONE'))
+                      .map((report) => ({ label: report.purpose, value: report }))),
                   tap((options) => {
                     this.options = options;
                     this.value = this.options.find((option) => newReport.id === option.value.id)?.value;
