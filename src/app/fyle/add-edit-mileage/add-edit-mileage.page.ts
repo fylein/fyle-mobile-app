@@ -218,6 +218,8 @@ export class AddEditMileagePage implements OnInit {
 
   saveAndPrevMileageLoader = false;
 
+  showBillable = false;
+
   clusterDomain: string;
 
   recentlyUsedValues$: Observable<RecentlyUsed>;
@@ -468,7 +470,7 @@ export class AddEditMileagePage implements OnInit {
         if (!this.fg.controls.project.value) {
           this.fg.patchValue({ billable: false });
         } else {
-          this.fg.patchValue({ billable: this.billableDefaultValue });
+          this.fg.patchValue({ billable: this.showBillable ? this.billableDefaultValue : false });
         }
       }),
       startWith(this.fg.controls.project.value),
@@ -564,6 +566,7 @@ export class AddEditMileagePage implements OnInit {
       ),
       map((expenseFieldsMap: Partial<ExpenseFieldsObj>) => {
         if (expenseFieldsMap) {
+          this.showBillable = expenseFieldsMap.billable?.is_enabled;
           for (const tfc of Object.keys(expenseFieldsMap)) {
             const expenseField = expenseFieldsMap[tfc] as ExpenseField;
             const options = expenseField.options as string[];
@@ -626,7 +629,7 @@ export class AddEditMileagePage implements OnInit {
             defaultValueColumn === 'billable' &&
             (control.value === null || control.value === undefined)
           ) {
-            control.patchValue(defaultValues[defaultValueColumn]);
+            control.patchValue(this.showBillable ? defaultValues[defaultValueColumn] : false);
           }
         }
       }
