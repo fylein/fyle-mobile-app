@@ -45,7 +45,7 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
 
   @Input() recentLocations: string[];
 
-  @Input() cacheName: string;
+  @Input() cacheName: any;
 
   @Input() disableEnteringManualLocation = false;
 
