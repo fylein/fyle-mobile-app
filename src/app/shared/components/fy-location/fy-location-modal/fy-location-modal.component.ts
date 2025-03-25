@@ -37,7 +37,7 @@ import { DEVICE_PLATFORM } from 'src/app/constants';
   templateUrl: './fy-location-modal.component.html',
   styleUrls: ['./fy-location-modal.component.scss'],
 })
-export class FyLocationModalComponent implements AfterViewInit {
+export class FyLocationModalComponent implements OnInit, AfterViewInit {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   @Input() currentSelection: any;
 
@@ -79,7 +79,7 @@ export class FyLocationModalComponent implements AfterViewInit {
     @Inject(DEVICE_PLATFORM) private devicePlatform: 'android' | 'ios' | 'web'
   ) {}
 
-  ionViewWillEnter(): void {
+  ngOnInit(): void {
     this.checkPermissionStatus();
   }
 
