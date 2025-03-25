@@ -54,6 +54,8 @@ export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor,
 
   @Input() disableFormElements: boolean;
 
+  @Input() showBillable: boolean;
+
   @Input() projectDependentFieldsMapping: { [id: number]: CustomProperty<string>[] };
 
   @Input() costCenterDependentFieldsMapping: { [id: number]: CustomProperty<string>[] };

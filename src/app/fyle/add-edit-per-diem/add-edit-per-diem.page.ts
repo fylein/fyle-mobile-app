@@ -235,6 +235,8 @@ export class AddEditPerDiemPage implements OnInit {
 
   billableDefaultValue: boolean;
 
+  showBillable = false;
+
   isRedirectedFromReport = false;
 
   canRemoveFromReport = false;
@@ -531,6 +533,7 @@ export class AddEditPerDiemPage implements OnInit {
       ),
       map((expenseFieldsMap) => {
         if (expenseFieldsMap) {
+          this.showBillable = expenseFieldsMap.billable?.is_enabled;
           for (const tfc of Object.keys(expenseFieldsMap)) {
             const expenseField = expenseFieldsMap[tfc] as ExpenseField;
             const options = expenseField.options as string[];
@@ -589,7 +592,7 @@ export class AddEditPerDiemPage implements OnInit {
             (control.value === undefined || control.value === null) &&
             !control.touched
           ) {
-            control.patchValue(defaultValues[defaultValueColumn]);
+            control.patchValue(this.showBillable ? defaultValues[defaultValueColumn] : false);
           }
         }
       }
@@ -724,7 +727,7 @@ export class AddEditPerDiemPage implements OnInit {
         if (!this.fg.controls.project.value) {
           this.fg.patchValue({ billable: false });
         } else {
-          this.fg.patchValue({ billable: this.billableDefaultValue });
+          this.fg.patchValue({ billable: this.showBillable ? this.billableDefaultValue : false });
         }
       }),
       startWith(this.fg.controls.project.value),
