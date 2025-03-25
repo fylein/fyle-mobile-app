@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@angular/core';
-import { Observable, Subject, forkJoin, range } from 'rxjs';
+import { Observable, Subject, range } from 'rxjs';
 import { concatMap, map, reduce, switchMap, tap } from 'rxjs/operators';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { SpenderPlatformV1ApiService } from '../../../spender-platform-v1-api.service';
@@ -17,7 +17,6 @@ import { ReportPermissions } from 'src/app/core/models/report-permissions.model'
 import { Comment } from 'src/app/core/models/platform/v1/comment.model';
 import { ReportPurpose } from 'src/app/core/models/report-purpose.model';
 import { ExportPayload } from 'src/app/core/models/platform/export-payload.model';
-import { OrgUserSettingsService } from '../../../org-user-settings.service';
 
 const reportsCacheBuster$ = new Subject<void>();
 
@@ -29,8 +28,7 @@ export class SpenderReportsService {
     @Inject(PAGINATION_SIZE) private paginationSize: number,
     private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
     private userEventService: UserEventService,
-    private transactionService: TransactionService,
-    private orgUserSettingsService: OrgUserSettingsService
+    private transactionService: TransactionService
   ) {
     reportsCacheBuster$.subscribe(() => {
       this.userEventService.clearTaskCache();
@@ -184,24 +182,7 @@ export class SpenderReportsService {
         ...queryParams,
       },
     };
-    return forkJoin([
-      this.spenderPlatformV1ApiService.get<PlatformApiResponse<Report[]>>('/reports', config),
-      this.orgUserSettingsService.get(),
-    ]).pipe(
-      map(([response, orgUserSettings]) => {
-        const timezone = orgUserSettings?.locale?.timezone || 'UTC';
-        return {
-          ...response,
-          data: response.data.map((report) => ({
-            ...report,
-            comments: report.comments.map((comment) => ({
-              ...comment,
-              userTimezone: timezone,
-            })),
-          })),
-        };
-      })
-    );
+    return this.spenderPlatformV1ApiService.get<PlatformApiResponse<Report[]>>('/reports', config);
   }
 
   getReportById(id: string): Observable<Report> {
