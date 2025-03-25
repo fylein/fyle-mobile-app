@@ -463,6 +463,8 @@ export class AddEditExpensePage implements OnInit {
 
   vendorOptions: string[] = [];
 
+  showBillable = false;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -2343,6 +2345,9 @@ export class AddEditExpensePage implements OnInit {
     this.etxn$
       .pipe(
         switchMap(() => txnFieldsMap$),
+        tap((txnFields) => {
+          this.showBillable = txnFields?.billable?.is_enabled;
+        }),
         map((txnFields) => this.expenseFieldsService.getDefaultTxnFieldValues(txnFields))
       )
       .subscribe((defaultValues) => {
@@ -2388,7 +2393,7 @@ export class AddEditExpensePage implements OnInit {
               (control.value === null || control.value === undefined) &&
               !control.touched
             ) {
-              control.patchValue(defaultValues[defaultValueColumn]);
+              control.patchValue(this.showBillable ? defaultValues[defaultValueColumn] : false);
             } else if (
               defaultValueColumn === 'tax_group_id' &&
               !control.value &&
@@ -2591,7 +2596,13 @@ export class AddEditExpensePage implements OnInit {
             } else {
               control.setValidators(isConnected ? Validators.required : null);
             }
+          } else {
+            // set back the customDateValidator for spent_at field
+            if (txnFieldKey === 'txn_dt' && isConnected) {
+              control.setValidators(this.customDateValidator);
+            }
           }
+
           control.updateValueAndValidity();
         }
         this.fg.updateValueAndValidity();
@@ -2623,7 +2634,7 @@ export class AddEditExpensePage implements OnInit {
             if (!initialProject) {
               this.fg.patchValue({ billable: false });
             } else {
-              this.fg.patchValue({ billable: this.billableDefaultValue });
+              this.fg.patchValue({ billable: this.showBillable ? this.billableDefaultValue : false });
             }
           }),
           startWith(initialProject),
@@ -3309,9 +3320,9 @@ export class AddEditExpensePage implements OnInit {
 
     this.initSplitTxn(orgSettings$);
 
-    this.setupFilteredCategories();
-
     this.setupExpenseFields();
+
+    this.setupFilteredCategories();
 
     this.flightJourneyTravelClassOptions$ = this.txnFields$.pipe(
       map((txnFields) => {

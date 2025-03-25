@@ -260,6 +260,26 @@ describe('ViewTeamReportPageV2', () => {
     expect(component.onPageExit.next).toHaveBeenCalledOnceWith(null);
   });
 
+  describe('setupApproverToShow(): ', () => {
+    it('should set approverToShow to matching next approver if only one match', () => {
+      component.approvals = platformReportData.approvals;
+      const reportData = { ...platformReportData, next_approver_user_ids: ['usRjTPO4r69K'] };
+
+      component.setupApproverToShow(reportData);
+
+      expect(component.approverToShow).toEqual(component.approvals[1]);
+    });
+
+    it('should set approverToShow to highest rank approver if no match', () => {
+      component.approvals = platformReportData.approvals;
+      const reportData = { ...platformReportData, next_approver_user_ids: ['usRjTPO4r6'] };
+
+      component.setupApproverToShow(reportData);
+
+      expect(component.approverToShow).toEqual(component.approvals[1]);
+    });
+  });
+
   it('loadReports(): should load reports', (done) => {
     loaderService.showLoader.and.resolveTo();
     approverReportsService.getReportById.and.returnValue(of(expectedReportsSinglePage[0]));

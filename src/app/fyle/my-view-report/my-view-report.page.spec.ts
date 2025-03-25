@@ -566,6 +566,27 @@ describe('MyViewReportPage', () => {
     }));
   });
 
+  describe('setupApproverToShow(): ', () => {
+    it('should set approverToShow to matching next approver if only one match', () => {
+      component.approvals = platformReportData.approvals;
+
+      const reportData = { ...platformReportData, next_approver_user_ids: ['usRjTPO4r69K'] };
+      component.setupApproverToShow(reportData);
+
+      expect(component.approverToShow).toEqual(component.approvals[1]);
+    });
+
+    it('should set approverToShow to highest rank approver if no match', () => {
+      component.approvals = platformReportData.approvals;
+
+      const reportData = { ...platformReportData, next_approver_user_ids: ['usRjTPO4r6'] };
+
+      component.setupApproverToShow(reportData);
+
+      expect(component.approverToShow).toEqual(component.approvals[1]);
+    });
+  });
+
   it('deleteReport(): should delete report', () => {
     component.report$ = of(expectedReportsSinglePage[0]);
     fixture.detectChanges();
@@ -894,21 +915,21 @@ describe('MyViewReportPage', () => {
     it('should change segment value', () => {
       component.segmentChanged({
         detail: {
-          value: '100',
+          value: ReportPageSegment.COMMENTS,
         },
       } as SegmentCustomEvent);
 
-      expect(component.segmentValue).toEqual(parseInt('100', 10));
+      expect(component.segmentValue).toEqual(ReportPageSegment.COMMENTS);
     });
 
     it('should not change segment value if event does not contain the value', () => {
-      component.segmentValue = parseInt('100', 10);
+      component.segmentValue = ReportPageSegment.EXPENSES;
       fixture.detectChanges();
-      expect(component.segmentValue).toEqual(parseInt('100', 10));
+      expect(component.segmentValue).toEqual(ReportPageSegment.EXPENSES);
 
       component.segmentChanged(null);
 
-      expect(component.segmentValue).toEqual(parseInt('100', 10));
+      expect(component.segmentValue).toEqual(ReportPageSegment.EXPENSES);
     });
   });
 

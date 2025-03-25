@@ -6,7 +6,7 @@ import { ExtendedComment } from '../models/platform/v1/extended-comment.model';
 export const getApiResponse = deepFreeze([
   {
     st_id: 'st7ak7UoeTDH',
-    st_created_at: new Date('2022-09-23T15:33:52.696Z'),
+    st_created_at: '2022-09-23T15:33:52.696Z',
     st_org_user_id: 'POLICY',
     st_comment: 'food expenses are limited to rs 200 only',
     st_diff: {
@@ -24,7 +24,7 @@ export const getApiResponse = deepFreeze([
   },
   {
     st_id: 'st8dHUhDzXxr',
-    st_created_at: new Date('2022-09-21T15:33:51.727Z'),
+    st_created_at: '2022-09-21T15:33:51.727Z',
     st_org_user_id: 'POLICY',
     st_comment: 'Flagged as per policy',
     st_diff: null,
@@ -37,7 +37,7 @@ export const getApiResponse = deepFreeze([
   },
   {
     st_id: 'stFl71WSazpD',
-    st_created_at: new Date('2022-09-22T15:33:51.761Z'),
+    st_created_at: '2022-09-22T15:33:51.761Z',
     st_org_user_id: 'POLICY',
     st_comment: 'food expenses are limited to rs 200 only',
     st_diff: null,
@@ -50,7 +50,7 @@ export const getApiResponse = deepFreeze([
   },
   {
     st_id: 'stcA35pBcjBu',
-    st_created_at: new Date('2022-09-21T15:33:51.774Z'),
+    st_created_at: '2022-09-21T15:33:51.774Z',
     st_org_user_id: 'POLICY',
     st_comment:
       'The policy violation will trigger the following action(s): expense will be flagged for verification and approval, expense could not be added to a report or submitted',
@@ -64,7 +64,7 @@ export const getApiResponse = deepFreeze([
   },
   {
     st_id: 'stIwoMKmTqeM',
-    st_created_at: new Date('2022-09-21T15:33:50.409Z'),
+    st_created_at: '2022-09-21T15:33:50.409Z',
     st_org_user_id: 'SYSTEM',
     st_comment: 'created by Abhishek (ajain@fyle.in)',
     st_diff: {
@@ -107,7 +107,6 @@ export const getEstatusApiResponse: ExtendedStatus[] = deepFreeze([
     st_advance_request_id: null,
     us_full_name: 'some',
     us_email: null,
-    userTimezone: 'America/North_Dakota/New_Salem',
   },
   {
     st_id: 'st8dHUhDzXxr',
@@ -121,7 +120,6 @@ export const getEstatusApiResponse: ExtendedStatus[] = deepFreeze([
     st_advance_request_id: null,
     us_full_name: 'some',
     us_email: null,
-    userTimezone: 'America/North_Dakota/New_Salem',
   },
   {
     st_id: 'stFl71WSazpD',
@@ -135,7 +133,6 @@ export const getEstatusApiResponse: ExtendedStatus[] = deepFreeze([
     st_advance_request_id: null,
     us_full_name: 'some',
     us_email: null,
-    userTimezone: 'America/North_Dakota/New_Salem',
   },
   {
     st_id: 'stcA35pBcjBu',
@@ -150,7 +147,6 @@ export const getEstatusApiResponse: ExtendedStatus[] = deepFreeze([
     st_advance_request_id: null,
     us_full_name: null,
     us_email: null,
-    userTimezone: 'America/North_Dakota/New_Salem',
   },
   {
     st_id: 'stIwoMKmTqeM',
@@ -176,7 +172,6 @@ export const getEstatusApiResponse: ExtendedStatus[] = deepFreeze([
     st_advance_request_id: null,
     us_full_name: null,
     us_email: null,
-    userTimezone: 'America/North_Dakota/New_Salem',
   },
 ]);
 
@@ -1994,7 +1989,6 @@ export const systemExtendedComments: ExtendedComment[] = deepFreeze([
     isBotComment: true,
     isSelfComment: false,
     isOthersComment: true,
-    userTimezone: 'America/North_Dakota/New_Salem',
   },
   {
     comment: 'submitted by Suyash (suyash.p@fyle.in)',
@@ -2005,7 +1999,6 @@ export const systemExtendedComments: ExtendedComment[] = deepFreeze([
     isBotComment: true,
     isSelfComment: false,
     isOthersComment: true,
-    userTimezone: 'America/North_Dakota/New_Salem',
   },
 ]);
 
@@ -2024,7 +2017,6 @@ export const userComments: ExtendedComment[] = deepFreeze([
     isSelfComment: false,
     isOthersComment: true,
     show_dt: true,
-    userTimezone: 'America/North_Dakota/New_Salem',
   },
   {
     comment: 'aaac',
@@ -2040,7 +2032,6 @@ export const userComments: ExtendedComment[] = deepFreeze([
     isSelfComment: false,
     isOthersComment: true,
     show_dt: false,
-    userTimezone: 'America/North_Dakota/New_Salem',
   },
   {
     comment: 'aaa',
@@ -2056,7 +2047,6 @@ export const userComments: ExtendedComment[] = deepFreeze([
     isSelfComment: false,
     isOthersComment: true,
     show_dt: true,
-    userTimezone: 'America/North_Dakota/New_Salem',
   },
 ]);
 
@@ -2092,7 +2082,6 @@ export const systemCommentsWithSt: ExtendedStatus[] = deepFreeze([
       category: 'repots Reversed',
       icon: 'radio-circle-outline',
     },
-    userTimezone: 'America/North_Dakota/New_Salem',
   },
   {
     st_id: 'st7ak7UoeTDH',
@@ -2115,7 +2104,6 @@ export const systemCommentsWithSt: ExtendedStatus[] = deepFreeze([
     isSelfComment: false,
     isOthersComment: true,
     st: { category: 'Policy Violation', icon: 'warning-fill' },
-    userTimezone: 'America/North_Dakota/New_Salem',
   },
   {
     st_id: 'st8dHUhDzXxr',
@@ -2137,6 +2125,5 @@ export const systemCommentsWithSt: ExtendedStatus[] = deepFreeze([
       category: 'Flagged',
       icon: 'flag-fill',
     },
-    userTimezone: 'America/North_Dakota/New_Salem',
   },
 ]);

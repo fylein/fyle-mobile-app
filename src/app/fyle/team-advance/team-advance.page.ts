@@ -4,8 +4,8 @@ import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_req
 import { Params, Router } from '@angular/router';
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { Observable, Subject, noop } from 'rxjs';
-import { concatMap, switchMap, finalize, map, scan, shareReplay, take } from 'rxjs/operators';
+import { BehaviorSubject, Observable, noop } from 'rxjs';
+import { switchMap, finalize, map, scan, shareReplay, take } from 'rxjs/operators';
 import { FiltersHelperService } from 'src/app/core/services/filters-helper.service';
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
 import { AdvancesStates } from 'src/app/core/models/advances-states.model';
@@ -16,6 +16,7 @@ import { SortingValue } from 'src/app/core/models/sorting-value.model';
 import { TitleCasePipe } from '@angular/common';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 
+// eslint-disable-next-line
 type Filters = Partial<{
   state: AdvancesStates[];
   sortParam: SortingParam;
@@ -29,12 +30,17 @@ type Filters = Partial<{
 export class TeamAdvancePage implements AfterViewChecked {
   teamAdvancerequests$: Observable<ExtendedAdvanceRequest[]>;
 
-  loadData$: Subject<{
+  loadData$: BehaviorSubject<{
     pageNumber: number;
     state: AdvancesStates[];
     sortParam: SortingParam;
     sortDir: SortingDirection;
-  }> = new Subject();
+  }> = new BehaviorSubject({
+    pageNumber: 1,
+    state: [],
+    sortParam: null,
+    sortDir: null,
+  });
 
   count$: Observable<number>;
 
@@ -51,6 +57,8 @@ export class TeamAdvancePage implements AfterViewChecked {
   isLoading = false;
 
   projectFieldName = 'Project';
+
+  isLoadingDataInInfiniteScroll = false;
 
   constructor(
     private advanceRequestService: AdvanceRequestService,
@@ -71,22 +79,21 @@ export class TeamAdvancePage implements AfterViewChecked {
     this.isLoading = true;
 
     this.teamAdvancerequests$ = this.loadData$.pipe(
-      concatMap(({ pageNumber, state, sortParam, sortDir }) =>
-        this.advanceRequestService.getTeamAdvanceRequests({
+      switchMap(({ pageNumber, state, sortParam, sortDir }) => {
+        this.isLoadingDataInInfiniteScroll = true;
+        return this.advanceRequestService.getTeamAdvanceRequestsPlatform({
           offset: (pageNumber - 1) * 10,
           limit: 10,
-          queryParams: {
-            ...this.getExtraParams(state),
-          },
           filter: {
             state,
             sortParam,
             sortDir,
           },
-        })
-      ),
+        });
+      }),
       map((res) => res.data),
       scan((acc, curr) => {
+        this.isLoadingDataInInfiniteScroll = false;
         if (this.currentPageNumber === 1) {
           return curr;
         }
@@ -98,23 +105,18 @@ export class TeamAdvancePage implements AfterViewChecked {
 
     this.count$ = this.loadData$.pipe(
       switchMap(({ state, sortParam, sortDir }) =>
-        this.advanceRequestService.getTeamAdvanceRequestsCount(
-          {
-            ...this.getExtraParams(state),
-          },
-          {
-            state,
-            sortParam,
-            sortDir,
-          }
-        )
+        this.advanceRequestService.getTeamAdvanceRequestsCount({
+          state,
+          sortParam,
+          sortDir,
+        })
       ),
       shareReplay(1),
       finalize(() => (this.isLoading = false))
     );
 
     this.isInfiniteScrollRequired$ = this.teamAdvancerequests$.pipe(
-      concatMap((teamAdvancerequests) =>
+      switchMap((teamAdvancerequests) =>
         this.count$.pipe(
           take(1),
           map((count) => count > teamAdvancerequests.length)
@@ -145,6 +147,12 @@ export class TeamAdvancePage implements AfterViewChecked {
   }
 
   changeState(event?: { target?: { complete: () => void } }, incrementPageNumber = false): void {
+    if (this.isLoadingDataInInfiniteScroll) {
+      if (event) {
+        event.target?.complete?.();
+      }
+      return;
+    }
     this.currentPageNumber = incrementPageNumber ? this.currentPageNumber + 1 : 1;
     this.advanceRequestService.destroyAdvanceRequestsCacheBuster().subscribe(() => {
       this.loadData$.next({
@@ -255,35 +263,6 @@ export class TeamAdvancePage implements AfterViewChecked {
       state: [AdvancesStates.pending],
     };
     this.filterPills = this.filtersHelperService.generateFilterPills(this.filters);
-  }
-
-  getExtraParams(state: AdvancesStates[]): Record<string, string[]> {
-    const isPending = state.includes(AdvancesStates.pending);
-    const isApproved = state.includes(AdvancesStates.approved);
-    let extraParams = {};
-
-    if (isPending && isApproved) {
-      extraParams = {
-        areq_state: ['not.eq.DRAFT'],
-        areq_approval_state: ['ov.{APPROVAL_PENDING,APPROVAL_DONE}'],
-        or: ['(areq_is_sent_back.is.null,areq_is_sent_back.is.false)'],
-      };
-    } else if (isPending) {
-      extraParams = {
-        areq_state: ['eq.APPROVAL_PENDING'],
-        or: ['(areq_is_sent_back.is.null,areq_is_sent_back.is.false)'],
-      };
-    } else if (isApproved) {
-      extraParams = {
-        areq_approval_state: ['ov.{APPROVAL_PENDING,APPROVAL_DONE}'],
-      };
-    } else {
-      extraParams = {
-        areq_approval_state: ['ov.{APPROVAL_PENDING,APPROVAL_DONE,APPROVAL_REJECTED}'],
-      };
-    }
-
-    return extraParams;
   }
 
   onHomeClicked(): void {
