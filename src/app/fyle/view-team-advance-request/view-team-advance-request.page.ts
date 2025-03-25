@@ -295,7 +295,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
         .approve(areq.areq_id)
         .pipe(
           catchError(() => {
-            this.trackingService.eventTrack('Team Advances Approva Failed', { id: areq.areq_id });
+            this.trackingService.eventTrack('Team Advances Approval Failed', { id: areq.areq_id });
             return EMPTY;
           }),
           finalize(() => (this.isLoading = false))
