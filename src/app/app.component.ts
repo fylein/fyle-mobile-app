@@ -3,7 +3,6 @@ import { Platform, MenuController, NavController } from '@ionic/angular';
 import { from, concat, Observable, noop, forkJoin, of } from 'rxjs';
 import { switchMap, shareReplay, filter, take, map } from 'rxjs/operators';
 import { Router, NavigationEnd, NavigationStart, ActivatedRoute, Params } from '@angular/router';
-import { AuthService } from 'src/app/core/services/auth.service';
 import { UserEventService } from 'src/app/core/services/user-event.service';
 import { DeviceService } from 'src/app/core/services/device.service';
 import { AppVersionService } from './core/services/app-version.service';
@@ -15,7 +14,6 @@ import { SplashScreen } from '@capacitor/splash-screen';
 import { FreshChatService } from './core/services/fresh-chat.service';
 import { DeepLinkService } from './core/services/deep-link.service';
 import { TrackingService } from './core/services/tracking.service';
-import { LoginInfoService } from './core/services/login-info.service';
 import { SidemenuComponent } from './shared/components/sidemenu/sidemenu.component';
 import { ExtendedOrgUser } from './core/models/extended-org-user.model';
 import { PerfTrackers } from './core/models/perf-trackers.enum';
@@ -28,7 +26,6 @@ import { SpenderOnboardingService } from './core/services/spender-onboarding.ser
 import { FooterState } from './shared/components/footer/footer-state.enum';
 import { FooterService } from './core/services/footer.service';
 import { TasksService } from './core/services/tasks.service';
-import { Device } from '@capacitor/device';
 
 @Component({
   selector: 'app-root',
@@ -78,7 +75,6 @@ export class AppComponent implements OnInit {
     private platform: Platform,
     private router: Router,
     private activatedRoute: ActivatedRoute,
-    private authService: AuthService,
     private userEventService: UserEventService,
     private menuController: MenuController,
     private deviceService: DeviceService,
@@ -89,7 +85,6 @@ export class AppComponent implements OnInit {
     private zone: NgZone,
     private deepLinkService: DeepLinkService,
     private trackingService: TrackingService,
-    private loginInfoService: LoginInfoService,
     private navController: NavController,
     private backButtonService: BackButtonService,
     private gmapsService: GmapsService,
@@ -131,12 +126,6 @@ export class AppComponent implements OnInit {
       await StatusBar.setStyle({
         style: Style.Default,
       });
-
-      const info = await Device.getInfo();
-
-      if (info.platform === 'android') {
-        await StatusBar.setOverlaysWebView({ overlay: false });
-      }
 
       setTimeout(async () => await SplashScreen.hide(), 200);
 
