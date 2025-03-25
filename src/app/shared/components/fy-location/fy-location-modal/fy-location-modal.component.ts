@@ -1,4 +1,14 @@
-import { Component, OnInit, ViewChild, ChangeDetectorRef, AfterViewInit, ElementRef, Input } from '@angular/core';
+/* eslint-disable */
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  ChangeDetectorRef,
+  AfterViewInit,
+  ElementRef,
+  Input,
+  Inject,
+} from '@angular/core';
 import {
   map,
   startWith,
@@ -20,6 +30,7 @@ import { MapGeocoderResponse } from '@angular/google-maps';
 import { GmapsService } from 'src/app/core/services/gmaps.service';
 import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-settings';
 import { PopupAlertComponent } from '../../popup-alert/popup-alert.component';
+import { DEVICE_PLATFORM } from 'src/app/constants';
 
 @Component({
   selector: 'app-fy-location-modal',
@@ -27,13 +38,14 @@ import { PopupAlertComponent } from '../../popup-alert/popup-alert.component';
   styleUrls: ['./fy-location-modal.component.scss'],
 })
 export class FyLocationModalComponent implements OnInit, AfterViewInit {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   @Input() currentSelection: any;
 
   @Input() header = '';
 
   @Input() recentLocations: string[];
 
-  @Input() cacheName;
+  @Input() cacheName: string;
 
   @Input() disableEnteringManualLocation = false;
 
@@ -45,8 +57,10 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
 
   lookupFailed = false;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   filteredList$: Observable<any[]>;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   recentItemsFilteredList$: Observable<any[]>;
 
   currentGeolocationPermissionGranted = false;
@@ -62,13 +76,14 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
     private loaderService: LoaderService,
     private recentLocalStorageItemsService: RecentLocalStorageItemsService,
     private popoverController: PopoverController,
+    @Inject(DEVICE_PLATFORM) private devicePlatform: 'android' | 'ios' | 'web'
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.checkPermissionStatus();
   }
 
-  getRecentlyUsedItems() {
+  getRecentlyUsedItems(): Observable<{ display: string }[] | []> {
     // Check if recently items exists from api and set, else, set the recent items from the localStorage
     if (this.recentLocations) {
       return of(this.recentLocations.map((recentLocation) => ({ display: recentLocation })));
@@ -85,25 +100,35 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
     }
   }
 
-  async checkPermissionStatus() {
+  async checkPermissionStatus(): Promise<void> {
     try {
       const permission = await Geolocation.checkPermissions();
       this.currentGeolocationPermissionGranted = permission.location === 'granted';
       this.isDeviceLocationEnabled = true;
-    } catch(err) {
+    } catch (err) {
+      // Throws an error when system location permission is disabled (https://capacitorjs.com/docs/apis/geolocation#checkpermissions)
       this.isDeviceLocationEnabled = false;
     }
   }
 
-  async askForEnableLocationSettings() {
-    NativeSettings.open({
-      optionAndroid: AndroidSettings.Location,
-      optionIOS: IOSSettings.LocationServices,
-    });
-    this.close()
+  async askForEnableLocationSettings(): Promise<void> {
+    from(this.setupEnableLocationPopover())
+      .pipe(
+        tap((enableLocationPopover) => enableLocationPopover.present()),
+        switchMap((enableLocationPopover) => enableLocationPopover.onWillDismiss<{ action: string }>())
+      )
+      .subscribe(({ data }) => {
+        if (data?.action === 'OPEN_SETTINGS') {
+          NativeSettings.open({
+            optionAndroid: AndroidSettings.Location,
+            optionIOS: IOSSettings.LocationServices,
+          });
+        }
+        this.close();
+      });
   }
 
-  clearValue() {
+  clearValue(): void {
     /**
      * this.value is ng-model of search field. On click of clear button, clearValue() method will be called
      * this.value is set to empty string
@@ -117,7 +142,7 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
     searchInput.dispatchEvent(new Event('keyup'));
   }
 
-  ngAfterViewInit() {
+  ngAfterViewInit(): void {
     const that = this;
     if (that.currentSelection && that.currentSelection.display) {
       this.value = that.currentSelection.display;
@@ -187,8 +212,8 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
     that.cdr.detectChanges();
   }
 
-  onDoneClick() {
-    let value;
+  onDoneClick(): void {
+    let value: { display: string };
     if (this.currentSelection && this.value === this.currentSelection) {
       value = this.currentSelection;
     } else if (this.value && this.value !== '') {
@@ -206,7 +231,7 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
     });
   }
 
-  close() {
+  close(): void {
     this.modalController.dismiss();
   }
 
@@ -306,28 +331,55 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
     return formattedLocation;
   }
 
-    setupPermissionDeniedPopover(): Promise<HTMLIonPopoverElement> {
-      let title = 'Location permission';
-      const message = `To fetch current location, please allow Fyle to access your location. Click Settings and allow access to Location`;
-  
-      return this.popoverController.create({
-        component: PopupAlertComponent,
-        componentProps: {
-          title,
-          message,
-          primaryCta: {
-            text: 'Open settings',
-            action: 'OPEN_SETTINGS',
-          },
-          secondaryCta: {
-            text: 'Cancel',
-            action: 'CANCEL',
-          },
+  setupEnableLocationPopover(): Promise<HTMLIonPopoverElement> {
+    const isIos = this.devicePlatform === 'ios';
+    const locationServiceName = isIos ? 'Location Services' : 'Location';
+    let title = `Enable ${locationServiceName}`;
+    const message = `To fetch current location, please enable ${locationServiceName}. Click Open Settings${
+      isIos ? ', go to Privacy & Security' : ''
+    } and enable ${locationServiceName}`;
+
+    return this.popoverController.create({
+      component: PopupAlertComponent,
+      componentProps: {
+        title,
+        message,
+        primaryCta: {
+          text: 'Open settings',
+          action: 'OPEN_SETTINGS',
         },
-        cssClass: 'pop-up-in-center',
-        backdropDismiss: false,
-      });
-    }
+        secondaryCta: {
+          text: 'Cancel',
+          action: 'CANCEL',
+        },
+      },
+      cssClass: 'pop-up-in-center',
+      backdropDismiss: false,
+    });
+  }
+
+  setupPermissionDeniedPopover(): Promise<HTMLIonPopoverElement> {
+    let title = 'Location permission';
+    const message = `To fetch current location, please allow Fyle to access your location. Click Open Settings and allow access to Location and Precise Location`;
+
+    return this.popoverController.create({
+      component: PopupAlertComponent,
+      componentProps: {
+        title,
+        message,
+        primaryCta: {
+          text: 'Open settings',
+          action: 'OPEN_SETTINGS',
+        },
+        secondaryCta: {
+          text: 'Cancel',
+          action: 'CANCEL',
+        },
+      },
+      cssClass: 'pop-up-in-center',
+      backdropDismiss: false,
+    });
+  }
 
   async getCurrentLocation() {
     if (this.currentGeolocationPermissionGranted) {
@@ -353,19 +405,19 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
       const permission = await Geolocation.requestPermissions();
       if (permission.location === 'denied' || permission.location === 'prompt-with-rationale') {
         from(this.setupPermissionDeniedPopover())
-        .pipe(
-          tap((permissionDeniedPopover) => permissionDeniedPopover.present()),
-          switchMap((permissionDeniedPopover) => permissionDeniedPopover.onWillDismiss<{ action: string }>())
-        )
-        .subscribe(({ data }) => {
-          if (data?.action === 'OPEN_SETTINGS') {
-            NativeSettings.open({
-              optionAndroid: AndroidSettings.ApplicationDetails,
-              optionIOS: IOSSettings.App,
-            });
-          }
-          this.close();
-        });
+          .pipe(
+            tap((permissionDeniedPopover) => permissionDeniedPopover.present()),
+            switchMap((permissionDeniedPopover) => permissionDeniedPopover.onWillDismiss<{ action: string }>())
+          )
+          .subscribe(({ data }) => {
+            if (data?.action === 'OPEN_SETTINGS') {
+              NativeSettings.open({
+                optionAndroid: AndroidSettings.ApplicationDetails,
+                optionIOS: IOSSettings.App,
+              });
+            }
+            this.close();
+          });
       }
     }
   }
