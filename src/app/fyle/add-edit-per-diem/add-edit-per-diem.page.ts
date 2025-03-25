@@ -112,6 +112,7 @@ import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expen
 import { AdvanceWallet } from 'src/app/core/models/platform/v1/advance-wallet.model';
 import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
+import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -296,7 +297,8 @@ export class AddEditPerDiemPage implements OnInit {
     private platform: Platform,
     private storageService: StorageService,
     private expensesService: ExpensesService,
-    private advanceWalletsService: AdvanceWalletsService
+    private advanceWalletsService: AdvanceWalletsService,
+    private expenseCommentService: ExpenseCommentService
   ) {}
 
   get minPerDiemDate(): string {
@@ -1106,7 +1108,9 @@ export class AddEditPerDiemPage implements OnInit {
       ),
       map((projectCount) => projectCount > 0)
     );
-    this.comments$ = this.statusService.find('transactions', this.activatedRoute.snapshot.params.id as string);
+    this.comments$ = this.expenseCommentService.getTransformedComments(
+      this.activatedRoute.snapshot.params.id as string
+    );
 
     combineLatest([this.isConnected$, this.filteredCategories$])
       .pipe(distinctUntilChanged((a, b) => isEqual(a, b)))
@@ -2188,7 +2192,7 @@ export class AddEditPerDiemPage implements OnInit {
           }),
           switchMap((txn) => {
             if (comment) {
-              return this.statusService.findLatestComment(txn.id, 'transactions', txn.org_user_id).pipe(
+              return this.expenseCommentService.findLatestExpenseComment(txn.id, txn.org_user_id).pipe(
                 switchMap((result) => {
                   if (result !== comment) {
                     return this.statusService.post('transactions', txn.id, { comment }, true).pipe(map(() => txn));

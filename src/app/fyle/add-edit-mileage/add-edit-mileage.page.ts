@@ -113,6 +113,7 @@ import { CommuteDetailsResponse } from 'src/app/core/models/platform/commute-det
 import { AdvanceWallet } from 'src/app/core/models/platform/v1/advance-wallet.model';
 import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
 import { LocationInfo } from 'src/app/core/models/location-info.model';
+import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -335,7 +336,8 @@ export class AddEditMileagePage implements OnInit {
     private employeesService: EmployeesService,
     private expensesService: ExpensesService,
     private changeDetectorRef: ChangeDetectorRef,
-    private advanceWalletsService: AdvanceWalletsService
+    private advanceWalletsService: AdvanceWalletsService,
+    private expenseCommentService: ExpenseCommentService
   ) {}
 
   get showSaveAndNext(): boolean {
@@ -1626,7 +1628,9 @@ export class AddEditMileagePage implements OnInit {
       ),
       map((projectCount) => projectCount > 0)
     );
-    this.comments$ = this.statusService.find('transactions', this.activatedRoute.snapshot.params.id as string);
+    this.comments$ = this.expenseCommentService.getTransformedComments(
+      this.activatedRoute.snapshot.params.id as string
+    );
 
     this.filteredCategories$.subscribe((subCategories) => {
       if (subCategories.length) {
@@ -2700,7 +2704,7 @@ export class AddEditMileagePage implements OnInit {
           }),
           switchMap((txn) => {
             if (comment) {
-              return this.statusService.findLatestComment(txn.id, 'transactions', txn.org_user_id).pipe(
+              return this.expenseCommentService.findLatestExpenseComment(txn.id, txn.org_user_id).pipe(
                 switchMap((result) => {
                   if (result !== comment) {
                     return this.statusService.post('transactions', txn.id, { comment }, true).pipe(map(() => txn));

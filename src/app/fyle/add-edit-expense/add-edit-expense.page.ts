@@ -152,6 +152,7 @@ import { RefinerService } from 'src/app/core/services/refiner.service';
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 import { CCExpenseMerchantInfoModalComponent } from 'src/app/shared/components/cc-expense-merchant-info-modal/cc-expense-merchant-info-modal.component';
 import { CorporateCardExpenseProperties } from 'src/app/core/models/corporate-card-expense-properties.model';
+import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 
 // eslint-disable-next-line
 type FormValue = {
@@ -515,7 +516,8 @@ export class AddEditExpensePage implements OnInit {
     private refinerService: RefinerService,
     private platformHandlerService: PlatformHandlerService,
     private expensesService: ExpensesService,
-    private advanceWalletsService: AdvanceWalletsService
+    private advanceWalletsService: AdvanceWalletsService,
+    private expenseCommentService: ExpenseCommentService
   ) {}
 
   get isExpandedView(): boolean {
@@ -3215,7 +3217,9 @@ export class AddEditExpensePage implements OnInit {
       map((orgSettings) => orgSettings.projects && orgSettings.projects.enabled)
     );
 
-    this.comments$ = this.statusService.find('transactions', this.activatedRoute.snapshot.params.id as string);
+    this.comments$ = this.expenseCommentService.getTransformedComments(
+      this.activatedRoute.snapshot.params.id as string
+    );
 
     this.isSplitExpenseAllowed$ = orgSettings$.pipe(
       map((orgSettings) => orgSettings.expense_settings.split_expense_settings.enabled)
@@ -4138,7 +4142,7 @@ export class AddEditExpensePage implements OnInit {
               }),
               switchMap((txn) => {
                 if (comment) {
-                  return this.statusService.findLatestComment(txn.id, 'transactions', txn.org_user_id).pipe(
+                  return this.expenseCommentService.findLatestExpenseComment(txn.id, txn.org_user_id).pipe(
                     switchMap((result) => {
                       if (result !== comment) {
                         return this.statusService.post('transactions', txn.id, { comment }, true).pipe(map(() => txn));
