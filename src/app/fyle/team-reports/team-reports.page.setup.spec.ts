@@ -9,7 +9,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { ApiV2Service } from 'src/app/core/services/api-v2.service';
 import { ExtendQueryParamsService } from 'src/app/core/services/extend-query-params.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
@@ -47,7 +46,6 @@ describe('TeamReportsPage', () => {
         queryParams: {},
       },
     };
-    const apiV2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['extendQueryParamsForTextSearch']);
     const extendQueryParamsServiceSpy = jasmine.createSpyObj('ExtendQueryParamsService', [
       'extendQueryParamsForTextSearch',
     ]);
@@ -72,7 +70,6 @@ describe('TeamReportsPage', () => {
         { provide: PopupService, useValue: popupServiceSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },
         { provide: ActivatedRoute, useValue: activatedRouteSpy },
-        { provide: ApiV2Service, useValue: apiV2ServiceSpy },
         { provide: ExtendQueryParamsService, useValue: extendQueryParamsServiceSpy },
         { provide: TasksService, useValue: tasksServiceSpy },
         { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
