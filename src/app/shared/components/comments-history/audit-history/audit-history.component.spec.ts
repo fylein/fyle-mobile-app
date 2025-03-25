@@ -16,7 +16,6 @@ import {
 import { SnakeCaseToSpaceCase } from 'src/app/shared/pipes/snake-case-to-space-case.pipe';
 import { getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { cloneDeep } from 'lodash';
-import { DateTimezonePipe } from 'src/app/shared/pipes/date-timezone.pipe';
 
 describe('AuditHistoryComponent', () => {
   let component: AuditHistoryComponent;
@@ -26,7 +25,7 @@ describe('AuditHistoryComponent', () => {
   beforeEach(waitForAsync(() => {
     const expenseFieldsServiceSpy = jasmine.createSpyObj('ExpenseFieldsService', ['getAllEnabled']);
     TestBed.configureTestingModule({
-      declarations: [AuditHistoryComponent, StatusesDiffComponent, SnakeCaseToSpaceCase, DateTimezonePipe],
+      declarations: [AuditHistoryComponent, StatusesDiffComponent, SnakeCaseToSpaceCase],
       imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule],
       providers: [
         {
