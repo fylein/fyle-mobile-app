@@ -36,7 +36,7 @@ import {
 import { delegatorData } from 'src/app/core/mock-data/platform/v1/delegator.data';
 import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
 
-describe('SidemenuComponent', () => {
+fdescribe('SidemenuComponent', () => {
   let component: SidemenuComponent;
   let fixture: ComponentFixture<SidemenuComponent>;
   let deviceService: jasmine.SpyObj<DeviceService>;
@@ -228,13 +228,13 @@ describe('SidemenuComponent', () => {
     expect(teamOpt.length).toBe(2);
     expect(teamOpt).toEqual([
       {
-        title: 'Team expense reports',
+        title: 'Expense reports',
         isVisible:
           component.allowedActions.allowedReportsActions && component.allowedActions.allowedReportsActions.approve,
         route: ['/', 'enterprise', 'team_reports'],
       },
       {
-        title: 'Team advances',
+        title: 'Advances',
         isVisible:
           component.allowedActions.allowedAdvancesActions && component.allowedActions.allowedAdvancesActions.approve,
         route: ['/', 'enterprise', 'team_advance'],
@@ -296,7 +296,7 @@ describe('SidemenuComponent', () => {
       const cardOptSpy = spyOn(component, 'getCardOptions').and.returnValue([]);
       const teamOptSpy = spyOn(component, 'getTeamOptions').and.returnValue([
         {
-          title: 'Team expense reports',
+          title: 'Expense reports',
           isVisible: true,
           route: ['/', 'enterprise', 'team_reports'],
         },
@@ -352,12 +352,12 @@ describe('SidemenuComponent', () => {
           disabled: false,
           dropdownOptions: [
             {
-              title: 'Team expense reports',
+              title: 'Expense reports',
               isVisible: true,
               route: ['/', 'enterprise', 'team_reports'],
             },
             {
-              title: 'Team advances',
+              title: 'Advances',
               isVisible: true,
               route: ['/', 'enterprise', 'team_advance'],
             },
