@@ -6,6 +6,7 @@ import { StatusCategory } from '../models/status-category.model';
 import { forkJoin, Observable } from 'rxjs';
 import { TransactionStatus } from '../models/transaction-status.model';
 import { OrgUserSettingsService } from './org-user-settings.service';
+import { ExpenseComment } from '../models/expense-comment.model';
 
 @Injectable({
   providedIn: 'root',
@@ -281,5 +282,22 @@ export class StatusService {
     });
 
     return estatus;
+  }
+
+  transformToExtendedStatus(expenseComment: ExpenseComment): ExtendedStatus {
+    return {
+      st_id: expenseComment.id,
+      st_created_at: new Date(expenseComment.created_at),
+      st_org_user_id: expenseComment.creator_type,
+      st_comment: expenseComment.comment,
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      st_diff: expenseComment.action_data,
+      st_state: null,
+      st_transaction_id: expenseComment.expense_id,
+      st_report_id: null,
+      st_advance_request_id: null,
+      us_full_name: expenseComment.creator_user?.full_name || null,
+      us_email: expenseComment.creator_user?.email || null,
+    };
   }
 }
