@@ -12,5 +12,4 @@ export interface ExtendedComment {
   isBotComment?: boolean;
   isOthersComment?: boolean;
   show_dt?: boolean;
-  userTimezone?: string;
 }
