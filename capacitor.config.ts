@@ -23,6 +23,9 @@ const config: CapacitorConfig = {
   server: {
     androidScheme: 'http',
   },
+  android: {
+    adjustMarginsForEdgeToEdge: 'force',
+  },
 };
 
 export default config;

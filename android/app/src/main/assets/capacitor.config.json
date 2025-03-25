@@ -20,5 +20,8 @@
 	},
 	"server": {
 		"androidScheme": "http"
+	},
+	"android": {
+		"adjustMarginsForEdgeToEdge": "force"
 	}
 }
