@@ -123,8 +123,8 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
             optionAndroid: AndroidSettings.Location,
             optionIOS: IOSSettings.LocationServices,
           });
+          this.close();
         }
-        this.close();
       });
   }
 
@@ -415,8 +415,8 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
                 optionAndroid: AndroidSettings.ApplicationDetails,
                 optionIOS: IOSSettings.App,
               });
+              this.close();
             }
-            this.close();
           });
       }
     }
