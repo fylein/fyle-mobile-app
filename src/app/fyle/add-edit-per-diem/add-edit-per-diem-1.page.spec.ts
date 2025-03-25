@@ -654,6 +654,7 @@ export function TestCases1(getTestBed) {
     it('setupTfcDefaultValues(): should update the form with default expense field values if some fields are empty', () => {
       const fields = ['purpose', 'cost_center_id', 'from_dt', 'to_dt', 'num_days', 'billable'];
       const mockTxnFieldData = cloneDeep(txnFieldsData2);
+      component.showBillable = true;
       expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse));
       spyOn(component, 'getPerDiemCategories').and.returnValue(
         of({

@@ -26,6 +26,7 @@ export const platformReportData: Report = deepFreeze({
       },
       approver_user_id: 'usJzTy7lqHSI',
       state: ApprovalState.APPROVAL_PENDING,
+      approver_order: 1,
     },
     {
       approver_user: {
@@ -35,6 +36,7 @@ export const platformReportData: Report = deepFreeze({
       },
       approver_user_id: 'usRjTPO4r69K',
       state: ApprovalState.APPROVAL_DONE,
+      approver_order: 2,
     },
   ],
   created_at: new Date('2023-07-11T16:24:01.335Z'),
@@ -115,7 +117,6 @@ export const allReportsPaginated1: PlatformApiResponse<Report[]> = deepFreeze({
           creator_user: null,
           creator_user_id: 'SYSTEM',
           id: 'styBS6Mt3srX',
-          userTimezone: 'America/North_Dakota/New_Salem',
         },
         {
           comment: 'submitted by Suyash (suyash.p@fyle.in)',
@@ -123,7 +124,6 @@ export const allReportsPaginated1: PlatformApiResponse<Report[]> = deepFreeze({
           creator_user: null,
           creator_user_id: 'SYSTEM',
           id: 'stI6NDy8La7b',
-          userTimezone: 'America/North_Dakota/New_Salem',
         },
         {
           comment: 'aaab',
@@ -135,7 +135,6 @@ export const allReportsPaginated1: PlatformApiResponse<Report[]> = deepFreeze({
           },
           creator_user_id: 'usaTtklUXVZn',
           id: 'stVFdDpz1LAi',
-          userTimezone: 'America/North_Dakota/New_Salem',
         },
         {
           comment: 'aaac',
@@ -147,7 +146,6 @@ export const allReportsPaginated1: PlatformApiResponse<Report[]> = deepFreeze({
           },
           creator_user_id: 'usaTtklUXVZn',
           id: 'stVFdDpz1LAd',
-          userTimezone: 'America/North_Dakota/New_Salem',
         },
         {
           comment: 'aaa',
@@ -159,7 +157,6 @@ export const allReportsPaginated1: PlatformApiResponse<Report[]> = deepFreeze({
           },
           creator_user_id: 'usaTtklUXVZn',
           id: 'stVFdDpz1LAL',
-          userTimezone: 'America/North_Dakota/New_Salem',
         },
       ],
       approvals: [],
@@ -307,6 +304,7 @@ export const allReportsPaginatedWithApproval: PlatformApiResponse<Report[]> = de
           },
           approver_user_id: 'usJzTy7lqHSI',
           state: ApprovalState.APPROVAL_PENDING,
+          approver_order: 1,
         },
         {
           approver_user: {
@@ -316,6 +314,7 @@ export const allReportsPaginatedWithApproval: PlatformApiResponse<Report[]> = de
           },
           approver_user_id: 'usRjTPO4r69K',
           state: ApprovalState.APPROVAL_DONE,
+          approver_order: 2,
         },
       ],
       created_at: new Date('2023-07-11T06:19:28.260142+00:00'),
@@ -658,7 +657,6 @@ export const submittedReportData: Report = deepFreeze({
       creator_user: null,
       creator_user_id: 'SYSTEM',
       id: 'styBS6Mt3srX',
-      userTimezone: 'America/North_Dakota/New_Salem',
     },
     {
       comment: 'submitted by Suyash (suyash.p@fyle.in)',
@@ -666,7 +664,6 @@ export const submittedReportData: Report = deepFreeze({
       creator_user: null,
       creator_user_id: 'SYSTEM',
       id: 'stI6NDy8La7b',
-      userTimezone: 'America/North_Dakota/New_Salem',
     },
     {
       comment: 'aaab',
@@ -678,7 +675,6 @@ export const submittedReportData: Report = deepFreeze({
       },
       creator_user_id: 'usaTtklUXVZn',
       id: 'stVFdDpz1LAi',
-      userTimezone: 'America/North_Dakota/New_Salem',
     },
     {
       comment: 'aaac',
@@ -690,7 +686,6 @@ export const submittedReportData: Report = deepFreeze({
       },
       creator_user_id: 'usaTtklUXVZn',
       id: 'stVFdDpz1LAd',
-      userTimezone: 'America/North_Dakota/New_Salem',
     },
     {
       comment: 'aaa',
@@ -702,7 +697,6 @@ export const submittedReportData: Report = deepFreeze({
       },
       creator_user_id: 'usaTtklUXVZn',
       id: 'stVFdDpz1LAL',
-      userTimezone: 'America/North_Dakota/New_Salem',
     },
   ],
   currency: 'USD',
@@ -776,6 +770,7 @@ export const submittedReportDataWithApproval: Report = deepFreeze({
       },
       approver_user_id: 'usJzTy7lqHSI',
       state: ApprovalState.APPROVAL_PENDING,
+      approver_order: 0,
     },
     {
       approver_user: {
@@ -785,6 +780,7 @@ export const submittedReportDataWithApproval: Report = deepFreeze({
       },
       approver_user_id: 'usRjTPO4r69K',
       state: ApprovalState.APPROVAL_DONE,
+      approver_order: 0,
     },
   ],
   created_at: new Date('2023-07-11T06:19:28.260142+00:00'),
