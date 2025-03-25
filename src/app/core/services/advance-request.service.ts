@@ -5,8 +5,6 @@ import { forkJoin, from, Observable, of, Subject } from 'rxjs';
 import { ApiService } from './api.service';
 import { ApiV2Service } from './api-v2.service';
 import { AuthService } from './auth.service';
-import { OrgUserSettingsService } from './org-user-settings.service';
-import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { DataTransformService } from './data-transform.service';
 import { DateService } from './date.service';
 import { FileService } from './file.service';
@@ -19,14 +17,13 @@ import { AdvancesStates } from '../models/advances-states.model';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
 import { SortingDirection } from '../models/sorting-direction.model';
 import { SortingParam } from '../models/sorting-param.model';
-import { ExtendedOrgUser } from '../models/extended-org-user.model';
 import { AdvanceRequests } from '../models/advance-requests.model';
 import { StatusPayload } from '../models/status-payload.model';
 import { ApiV2Response } from '../models/api-v2.model';
-import { StatsDimensionResponse } from '../models/stats-dimension-response.model';
 import { AdvanceRequestActions } from '../models/advance-request-actions.model';
 import { AdvanceRequestFile } from '../models/advance-request-file.model';
 import { UnflattenedAdvanceRequest } from '../models/unflattened-advance-request.model';
+import { ApproverService } from './platform/v1/approver/approver.service';
 import { SpenderService } from './platform/v1/spender/spender.service';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { AdvanceRequestPlatform } from '../models/platform/advance-request-platform.model';
@@ -38,12 +35,14 @@ import { PlatformConfig } from '../models/platform/platform-config.model';
 
 const advanceRequestsCacheBuster$ = new Subject<void>();
 
+// eslint-disable-next-line
 type Filters = Partial<{
   state: AdvancesStates[];
   sortParam: SortingParam;
   sortDir: SortingDirection;
 }>;
 
+// eslint-disable-next-line
 type Config = Partial<{
   offset: number;
   limit: number;
@@ -52,9 +51,20 @@ type Config = Partial<{
   filter: Filters;
 }>;
 
+// eslint-disable-next-line
 type advanceRequestStat = {
   state: string;
 };
+
+// eslint-disable-next-line
+interface approverParams {
+  offset: number;
+  limit: number;
+  state?: string;
+  or?: string;
+  approvals?: string;
+  order?: string;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -64,64 +74,12 @@ export class AdvanceRequestService {
     private apiService: ApiService,
     private apiv2Service: ApiV2Service,
     private authService: AuthService,
-    private orgUserSettingsService: OrgUserSettingsService,
-    private timezoneService: TimezoneService,
     private dataTransformService: DataTransformService,
     private dateService: DateService,
     private fileService: FileService,
+    private approverService: ApproverService,
     private spenderService: SpenderService
   ) {}
-
-  private getAdvanceRequestState(advanceRequestState: string): string {
-    if (advanceRequestState === 'SENT_BACK') {
-      return 'INQUIRY';
-    } else if (advanceRequestState === 'PULLED_BACK') {
-      return 'DRAFT';
-    }
-
-    return advanceRequestState;
-  }
-
-  mapAdvanceRequest(advanceRequestPlatform: AdvanceRequestPlatform): ExtendedAdvanceRequestPublic {
-    return {
-      areq_advance_request_number: advanceRequestPlatform.seq_num,
-      areq_advance_id: advanceRequestPlatform.advance_id,
-      areq_amount: advanceRequestPlatform.amount,
-      areq_approved_at: advanceRequestPlatform.last_approved_at,
-      areq_created_at: advanceRequestPlatform.created_at,
-      areq_currency: advanceRequestPlatform.currency,
-      areq_id: advanceRequestPlatform.id,
-      areq_notes: advanceRequestPlatform.notes,
-      areq_org_user_id: advanceRequestPlatform.employee_id,
-      areq_project_id: advanceRequestPlatform.project_id,
-      areq_purpose: advanceRequestPlatform.purpose,
-      areq_source: advanceRequestPlatform.source,
-      areq_state: this.getAdvanceRequestState(advanceRequestPlatform.state),
-      areq_updated_at: advanceRequestPlatform.updated_at,
-      ou_department: advanceRequestPlatform.employee.department && advanceRequestPlatform.employee.department.name,
-      ou_department_id: advanceRequestPlatform.employee.department && advanceRequestPlatform.employee.department.id,
-      ou_id: advanceRequestPlatform.employee_id,
-      ou_org_id: advanceRequestPlatform.org_id,
-      ou_sub_department:
-        advanceRequestPlatform.employee.department && advanceRequestPlatform.employee.department.sub_department,
-      us_email: advanceRequestPlatform.user.email,
-      us_full_name: advanceRequestPlatform.user.full_name,
-      areq_is_pulled_back: advanceRequestPlatform.state === AdvanceRequestState.PULLED_BACK,
-      ou_employee_id: advanceRequestPlatform.employee_id,
-      areq_custom_field_values: advanceRequestPlatform.custom_fields,
-      areq_is_sent_back: advanceRequestPlatform.state === AdvanceRequestState.SENT_BACK,
-      project_name: advanceRequestPlatform.project && advanceRequestPlatform.project.name,
-      project_code: advanceRequestPlatform.project && advanceRequestPlatform.project.code,
-    };
-  }
-
-  convertToPublicAdvanceRequest(
-    advanceReqPlatformResponse: PlatformApiResponse<AdvanceRequestPlatform[]>
-  ): ExtendedAdvanceRequestPublic[] {
-    return advanceReqPlatformResponse.data.map((advanceRequestPlatform) =>
-      this.mapAdvanceRequest(advanceRequestPlatform)
-    );
-  }
 
   @Cacheable({
     cacheBusterObserver: advanceRequestsCacheBuster$,
@@ -147,7 +105,7 @@ export class AdvanceRequestService {
         map((res) => ({
           count: res.count,
           offset: res.offset,
-          data: this.convertToPublicAdvanceRequest(res),
+          data: this.transformToPublicAdvanceRequest(res),
         }))
       );
   }
@@ -202,7 +160,18 @@ export class AdvanceRequestService {
       .get<PlatformApiResponse<AdvanceRequestPlatform[]>>('/advance_requests', {
         params: { id: `eq.${id}` },
       })
-      .pipe(map((res) => this.mapAdvanceRequest(this.fixDatesForPlatformFields(res.data[0]))));
+      .pipe(map((res) => this.transformSpenderAdvReq(this.fixDatesForPlatformFields(res.data[0]))));
+  }
+
+  @Cacheable({
+    cacheBusterObserver: advanceRequestsCacheBuster$,
+  })
+  getApproverAdvanceRequest(id: string): Observable<ExtendedAdvanceRequest> {
+    return this.approverService
+      .get<PlatformApiResponse<AdvanceRequestPlatform[]>>('/advance_requests', {
+        params: { id: `eq.${id}` },
+      })
+      .pipe(map((res) => this.transformApproverAdvReq(this.fixDatesForPlatformFields(res.data[0]))));
   }
 
   @CacheBuster({
@@ -323,6 +292,52 @@ export class AdvanceRequestService {
     );
   }
 
+  @Cacheable({
+    cacheBusterObserver: advanceRequestsCacheBuster$,
+  })
+  getTeamAdvanceRequestsPlatform(
+    config: Config = {
+      offset: 0,
+      limit: 10,
+      queryParams: {},
+    }
+  ): Observable<ApiV2Response<ExtendedAdvanceRequest>> {
+    return from(this.authService.getEou()).pipe(
+      switchMap((eou) => {
+        const userId = eou.ou.user_id;
+        const isPending = config.filter.state.includes(AdvancesStates.pending);
+        const isApproved = config.filter.state.includes(AdvancesStates.approved);
+        const params: approverParams = {
+          offset: config.offset,
+          limit: config.limit,
+        };
+
+        if (isPending && isApproved) {
+          params.state = 'in.(APPROVED, APPROVAL_PENDING)';
+          params.or = `(approvals.cs.[{"approver_user_id": "${userId}", "state":"APPROVAL_PENDING"}], approvals.cs.[{"approver_user_id": "${userId}", "state":"APPROVAL_DONE"}])`;
+        } else if (isPending) {
+          params.state = 'eq.APPROVAL_PENDING';
+          params.approvals = `cs.[{"approver_user_id":"${userId}", "state":"APPROVAL_PENDING"}]`;
+        } else if (isApproved) {
+          params.state = 'in.(APPROVED, APPROVAL_PENDING)';
+          params.approvals = `cs.[{"approver_user_id":"${userId}", "state":"APPROVAL_DONE"}]`;
+        } else {
+          params.or = `(approvals.cs.[{"approver_user_id": "${userId}", "state":"APPROVAL_PENDING"}], approvals.cs.[{"approver_user_id": "${userId}", "state":"APPROVAL_DONE"}], approvals.cs.[{"approver_user_id":"${userId}", "state":"APPROVAL_REJECTED"}])`;
+        }
+        params.order = this.getSortOrder(config.filter.sortParam, config.filter.sortDir);
+
+        return this.approverService.get<PlatformApiResponse<AdvanceRequestPlatform[]>>('/advance_requests', {
+          params,
+        });
+      }),
+      map((res) => ({
+        count: res.count,
+        offset: res.offset,
+        data: this.transformToAdvanceRequest(res),
+      }))
+    );
+  }
+
   getEReqFromPlatform(advanceRequestId: string): Observable<UnflattenedAdvanceRequest> {
     return this.getAdvanceRequestPlatform(advanceRequestId).pipe(
       map((res) => {
@@ -370,7 +385,7 @@ export class AdvanceRequestService {
       .pipe(
         map((res) => {
           const approvals = res.data[0].approvals;
-          const filteredApprovers = [];
+          const filteredApprovers: ApprovalPublic[] = [];
           approvals.filter((approver) => {
             if (approver.state !== 'APPROVAL_DISABLED') {
               filteredApprovers.push({
@@ -401,11 +416,10 @@ export class AdvanceRequestService {
     }).pipe(map((advanceRequest) => advanceRequest.count));
   }
 
-  getTeamAdvanceRequestsCount(queryParams: {}, filter: Filters): Observable<number> {
-    return this.getTeamAdvanceRequests({
+  getTeamAdvanceRequestsCount(filter: Filters): Observable<number> {
+    return this.getTeamAdvanceRequestsPlatform({
       offset: 0,
       limit: 1,
-      queryParams,
       filter,
     }).pipe(map((advanceRequest) => advanceRequest.count));
   }
@@ -508,27 +522,6 @@ export class AdvanceRequestService {
     );
   }
 
-  private getSortOrder(sortParam: SortingParam, sortDir: SortingDirection): string {
-    let order: string;
-    if (sortParam === SortingParam.creationDate) {
-      order = 'areq_created_at';
-    } else if (sortParam === SortingParam.approvalDate) {
-      order = 'areq_approved_at';
-    } else if (sortParam === SortingParam.project) {
-      order = 'project_name';
-    } else {
-      order = 'areq_created_at'; //default
-    }
-
-    if (sortDir === SortingDirection.ascending) {
-      order += '.asc,areq_id.desc';
-    } else {
-      order += '.desc,areq_id.desc'; //default
-    }
-
-    return order;
-  }
-
   getAdvanceRequestStats(params: advanceRequestStat): Observable<StatsResponse> {
     return this.spenderService
       .post<{ data: StatsResponse }>('/advance_requests/stats', {
@@ -537,6 +530,119 @@ export class AdvanceRequestService {
         },
       })
       .pipe(map((res) => res.data));
+  }
+
+  transformApproverAdvReq(advanceRequestPlatform: AdvanceRequestPlatform): ExtendedAdvanceRequest {
+    return {
+      areq_advance_request_number: advanceRequestPlatform.seq_num,
+      areq_advance_id: advanceRequestPlatform.advance_id,
+      areq_amount: advanceRequestPlatform.amount,
+      areq_approved_at: advanceRequestPlatform.last_approved_at,
+      areq_created_at: advanceRequestPlatform.created_at,
+      areq_currency: advanceRequestPlatform.currency,
+      areq_id: advanceRequestPlatform.id,
+      areq_notes: advanceRequestPlatform.notes,
+      areq_org_user_id: advanceRequestPlatform.employee_id,
+      areq_project_id: advanceRequestPlatform.project_id,
+      areq_purpose: advanceRequestPlatform.purpose,
+      areq_source: advanceRequestPlatform.source,
+      areq_state: this.getAdvanceRequestState(advanceRequestPlatform.state),
+      areq_updated_at: advanceRequestPlatform.updated_at,
+      ou_department: advanceRequestPlatform.employee?.department?.name,
+      ou_department_id: advanceRequestPlatform.employee?.department?.id,
+      ou_id: advanceRequestPlatform.employee_id,
+      ou_org_id: advanceRequestPlatform.org_id,
+      ou_sub_department: advanceRequestPlatform.employee?.department?.sub_department,
+      us_email: advanceRequestPlatform.user?.email,
+      us_full_name: advanceRequestPlatform.user?.full_name,
+      areq_is_pulled_back: advanceRequestPlatform.state === AdvanceRequestState.PULLED_BACK,
+      ou_employee_id: advanceRequestPlatform.employee_id,
+      areq_custom_field_values: advanceRequestPlatform.custom_fields,
+      areq_policy_amount: advanceRequestPlatform.policy_amount,
+      areq_is_sent_back: advanceRequestPlatform.state === AdvanceRequestState.SENT_BACK,
+      project_name: advanceRequestPlatform.project?.name,
+      project_code: advanceRequestPlatform.project?.code,
+    };
+  }
+
+  transformToAdvanceRequest(
+    advanceReqPlatformResponse: PlatformApiResponse<AdvanceRequestPlatform[]>
+  ): ExtendedAdvanceRequest[] {
+    return advanceReqPlatformResponse.data.map((advanceRequestPlatform) =>
+      this.transformApproverAdvReq(advanceRequestPlatform)
+    );
+  }
+
+  transformSpenderAdvReq(advanceRequestPlatform: AdvanceRequestPlatform): ExtendedAdvanceRequestPublic {
+    return {
+      areq_advance_request_number: advanceRequestPlatform.seq_num,
+      areq_advance_id: advanceRequestPlatform.advance_id,
+      areq_amount: advanceRequestPlatform.amount,
+      areq_approved_at: advanceRequestPlatform.last_approved_at,
+      areq_created_at: advanceRequestPlatform.created_at,
+      areq_currency: advanceRequestPlatform.currency,
+      areq_id: advanceRequestPlatform.id,
+      areq_notes: advanceRequestPlatform.notes,
+      areq_org_user_id: advanceRequestPlatform.employee_id,
+      areq_project_id: advanceRequestPlatform.project_id,
+      areq_purpose: advanceRequestPlatform.purpose,
+      areq_source: advanceRequestPlatform.source,
+      areq_state: this.getAdvanceRequestState(advanceRequestPlatform.state),
+      areq_updated_at: advanceRequestPlatform.updated_at,
+      ou_department: advanceRequestPlatform.employee.department && advanceRequestPlatform.employee.department.name,
+      ou_department_id: advanceRequestPlatform.employee.department && advanceRequestPlatform.employee.department.id,
+      ou_id: advanceRequestPlatform.employee_id,
+      ou_org_id: advanceRequestPlatform.org_id,
+      ou_sub_department:
+        advanceRequestPlatform.employee.department && advanceRequestPlatform.employee.department.sub_department,
+      us_email: advanceRequestPlatform.user.email,
+      us_full_name: advanceRequestPlatform.user.full_name,
+      areq_is_pulled_back: advanceRequestPlatform.state === AdvanceRequestState.PULLED_BACK,
+      ou_employee_id: advanceRequestPlatform.employee_id,
+      areq_custom_field_values: advanceRequestPlatform.custom_fields,
+      areq_is_sent_back: advanceRequestPlatform.state === AdvanceRequestState.SENT_BACK,
+      project_name: advanceRequestPlatform.project && advanceRequestPlatform.project.name,
+      project_code: advanceRequestPlatform.project && advanceRequestPlatform.project.code,
+    };
+  }
+
+  transformToPublicAdvanceRequest(
+    advanceReqPlatformResponse: PlatformApiResponse<AdvanceRequestPlatform[]>
+  ): ExtendedAdvanceRequestPublic[] {
+    return advanceReqPlatformResponse.data.map((advanceRequestPlatform) =>
+      this.transformSpenderAdvReq(advanceRequestPlatform)
+    );
+  }
+
+  private getAdvanceRequestState(advanceRequestState: string): string {
+    if (advanceRequestState === 'SENT_BACK') {
+      return 'INQUIRY';
+    } else if (advanceRequestState === 'PULLED_BACK') {
+      return 'DRAFT';
+    }
+
+    return advanceRequestState;
+  }
+
+  private getSortOrder(sortParam: SortingParam, sortDir: SortingDirection): string {
+    let order: string;
+    if (sortParam === SortingParam.creationDate) {
+      order = 'created_at';
+    } else if (sortParam === SortingParam.approvalDate) {
+      order = 'last_approved_at';
+    } else if (sortParam === SortingParam.project) {
+      order = 'project->name';
+    } else {
+      order = 'created_at'; //default
+    }
+
+    if (sortDir === SortingDirection.ascending) {
+      order += '.asc,id.desc';
+    } else {
+      order += '.desc,id.desc'; //default
+    }
+
+    return order;
   }
 
   private getApproversByAdvanceRequestId(advanceRequestId: string): Observable<Approval[]> {
