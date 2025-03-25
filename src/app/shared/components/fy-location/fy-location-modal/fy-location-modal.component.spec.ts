@@ -18,6 +18,7 @@ import {
   locationData1,
   predictedLocation1,
 } from 'src/app/core/mock-data/location.data';
+import { DEVICE_PLATFORM } from 'src/app/constants';
 
 describe('FyLocationModalComponent', () => {
   let component: FyLocationModalComponent;
@@ -60,11 +61,15 @@ describe('FyLocationModalComponent', () => {
         },
         {
           provide: Geolocation,
-          useValue: jasmine.createSpyObj('Geolocation', ['requestPermissions']),
+          useValue: jasmine.createSpyObj('Geolocation', ['requestPermissions', 'requestPermissions']),
         },
         {
           provide: GmapsService,
           useValue: jasmine.createSpyObj('GMapsService', ['getGeocode']),
+        },
+        {
+          provide: DEVICE_PLATFORM,
+          useValue: 'android',
         },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -591,6 +596,7 @@ describe('FyLocationModalComponent', () => {
     locationService.getCurrentLocation.and.returnValue(of({ coords: { latitude: 12.345, longitude: 67.89 } }) as any);
     gmapsService.getGeocode.and.returnValue(of({ formatted_address: 'Example Address' }) as any);
     spyOn(component, 'formatGeocodeResponse').and.returnValue({ display: 'Example Address' });
+    component.currentGeolocationPermissionGranted = true;
 
     component.getCurrentLocation();
 
@@ -609,7 +615,7 @@ describe('FyLocationModalComponent', () => {
     locationService.getCurrentLocation.and.returnValue(of(undefined));
     gmapsService.getGeocode.and.returnValue(of({ formatted_address: 'Example Address' }) as any);
     spyOn(component, 'formatGeocodeResponse').and.returnValue({ display: 'Example Address' });
-
+    component.currentGeolocationPermissionGranted = true;
     component.getCurrentLocation();
 
     tick(10000);
@@ -628,6 +634,7 @@ describe('FyLocationModalComponent', () => {
     loaderService.hideLoader.and.resolveTo();
     locationService.getCurrentLocation.and.returnValue(of(null));
     gmapsService.getGeocode.and.returnValue(throwError(() => error));
+    component.currentGeolocationPermissionGranted = true;
 
     try {
       component.getCurrentLocation();
