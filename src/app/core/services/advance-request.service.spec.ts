@@ -1045,7 +1045,7 @@ describe('AdvanceRequestService', () => {
       const expectedParams = {
         offset: defaultParams.offset,
         limit: defaultParams.limit,
-        state: 'eq.APPROVED',
+        state: 'in.(APPROVED, APPROVAL_PENDING)',
         approvals: `cs.[{"approver_user_id":"${userId}", "state":"APPROVAL_DONE"}]`,
         order: 'created_at.desc,id.desc',
       };

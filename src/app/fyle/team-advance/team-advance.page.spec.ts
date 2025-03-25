@@ -20,7 +20,7 @@ import { TasksService } from 'src/app/core/services/tasks.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TeamAdvancePage } from './team-advance.page';
 
-fdescribe('TeamAdvancePage', () => {
+describe('TeamAdvancePage', () => {
   let component: TeamAdvancePage;
   let fixture: ComponentFixture<TeamAdvancePage>;
   let advanceRequestService: jasmine.SpyObj<AdvanceRequestService>;
