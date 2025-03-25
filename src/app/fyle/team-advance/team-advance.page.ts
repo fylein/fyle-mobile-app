@@ -4,8 +4,8 @@ import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_req
 import { Params, Router } from '@angular/router';
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { Observable, Subject, noop } from 'rxjs';
-import { concatMap, switchMap, finalize, map, scan, shareReplay, take } from 'rxjs/operators';
+import { BehaviorSubject, Observable, noop } from 'rxjs';
+import { switchMap, finalize, map, scan, shareReplay, take } from 'rxjs/operators';
 import { FiltersHelperService } from 'src/app/core/services/filters-helper.service';
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
 import { AdvancesStates } from 'src/app/core/models/advances-states.model';
@@ -30,12 +30,17 @@ type Filters = Partial<{
 export class TeamAdvancePage implements AfterViewChecked {
   teamAdvancerequests$: Observable<ExtendedAdvanceRequest[]>;
 
-  loadData$: Subject<{
+  loadData$: BehaviorSubject<{
     pageNumber: number;
     state: AdvancesStates[];
     sortParam: SortingParam;
     sortDir: SortingDirection;
-  }> = new Subject();
+  }> = new BehaviorSubject({
+    pageNumber: 1,
+    state: [],
+    sortParam: null,
+    sortDir: null,
+  });
 
   count$: Observable<number>;
 
@@ -52,6 +57,8 @@ export class TeamAdvancePage implements AfterViewChecked {
   isLoading = false;
 
   projectFieldName = 'Project';
+
+  isLoadingDataInInfiniteScroll = false;
 
   constructor(
     private advanceRequestService: AdvanceRequestService,
@@ -72,8 +79,9 @@ export class TeamAdvancePage implements AfterViewChecked {
     this.isLoading = true;
 
     this.teamAdvancerequests$ = this.loadData$.pipe(
-      concatMap(({ pageNumber, state, sortParam, sortDir }) =>
-        this.advanceRequestService.getTeamAdvanceRequestsPlatform({
+      switchMap(({ pageNumber, state, sortParam, sortDir }) => {
+        this.isLoadingDataInInfiniteScroll = true;
+        return this.advanceRequestService.getTeamAdvanceRequestsPlatform({
           offset: (pageNumber - 1) * 10,
           limit: 10,
           filter: {
@@ -81,10 +89,11 @@ export class TeamAdvancePage implements AfterViewChecked {
             sortParam,
             sortDir,
           },
-        })
-      ),
+        });
+      }),
       map((res) => res.data),
       scan((acc, curr) => {
+        this.isLoadingDataInInfiniteScroll = false;
         if (this.currentPageNumber === 1) {
           return curr;
         }
@@ -107,7 +116,7 @@ export class TeamAdvancePage implements AfterViewChecked {
     );
 
     this.isInfiniteScrollRequired$ = this.teamAdvancerequests$.pipe(
-      concatMap((teamAdvancerequests) =>
+      switchMap((teamAdvancerequests) =>
         this.count$.pipe(
           take(1),
           map((count) => count > teamAdvancerequests.length)
@@ -138,6 +147,12 @@ export class TeamAdvancePage implements AfterViewChecked {
   }
 
   changeState(event?: { target?: { complete: () => void } }, incrementPageNumber = false): void {
+    if (this.isLoadingDataInInfiniteScroll) {
+      if (event) {
+        event.target?.complete?.();
+      }
+      return;
+    }
     this.currentPageNumber = incrementPageNumber ? this.currentPageNumber + 1 : 1;
     this.advanceRequestService.destroyAdvanceRequestsCacheBuster().subscribe(() => {
       this.loadData$.next({
