@@ -26,6 +26,7 @@ export const platformReportData: Report = deepFreeze({
       },
       approver_user_id: 'usJzTy7lqHSI',
       state: ApprovalState.APPROVAL_PENDING,
+      approver_order: 1,
     },
     {
       approver_user: {
@@ -35,6 +36,7 @@ export const platformReportData: Report = deepFreeze({
       },
       approver_user_id: 'usRjTPO4r69K',
       state: ApprovalState.APPROVAL_DONE,
+      approver_order: 2,
     },
   ],
   created_at: new Date('2023-07-11T16:24:01.335Z'),
@@ -307,6 +309,7 @@ export const allReportsPaginatedWithApproval: PlatformApiResponse<Report[]> = de
           },
           approver_user_id: 'usJzTy7lqHSI',
           state: ApprovalState.APPROVAL_PENDING,
+          approver_order: 1,
         },
         {
           approver_user: {
@@ -316,6 +319,7 @@ export const allReportsPaginatedWithApproval: PlatformApiResponse<Report[]> = de
           },
           approver_user_id: 'usRjTPO4r69K',
           state: ApprovalState.APPROVAL_DONE,
+          approver_order: 2,
         },
       ],
       created_at: new Date('2023-07-11T06:19:28.260142+00:00'),
@@ -776,6 +780,7 @@ export const submittedReportDataWithApproval: Report = deepFreeze({
       },
       approver_user_id: 'usJzTy7lqHSI',
       state: ApprovalState.APPROVAL_PENDING,
+      approver_order: 0,
     },
     {
       approver_user: {
@@ -785,6 +790,7 @@ export const submittedReportDataWithApproval: Report = deepFreeze({
       },
       approver_user_id: 'usRjTPO4r69K',
       state: ApprovalState.APPROVAL_DONE,
+      approver_order: 0,
     },
   ],
   created_at: new Date('2023-07-11T06:19:28.260142+00:00'),
