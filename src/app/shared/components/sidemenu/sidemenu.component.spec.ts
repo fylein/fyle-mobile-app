@@ -36,7 +36,7 @@ import {
 import { delegatorData } from 'src/app/core/mock-data/platform/v1/delegator.data';
 import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
 
-fdescribe('SidemenuComponent', () => {
+describe('SidemenuComponent', () => {
   let component: SidemenuComponent;
   let fixture: ComponentFixture<SidemenuComponent>;
   let deviceService: jasmine.SpyObj<DeviceService>;
