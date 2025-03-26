@@ -15,7 +15,7 @@ export class SupportDialogPage {
 
   dialogType = this.navParams.get<string>('type');
 
-  adminList = this.navParams.get<HelpAdminInfo>('adminEous');
+  adminList = this.navParams.get<HelpAdminInfo[]>('adminEous');
 
   constructor(
     private modalController: ModalController,
