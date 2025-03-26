@@ -451,6 +451,7 @@ export const orgSettingsGetData: OrgSettings = deepFreeze({
     enabled: true,
   },
   pending_cct_expense_restriction: { enabled: true, allowed: true },
+  simplified_multi_stage_approvals: { enabled: true, allowed: true },
 });
 
 export const orgSettingsPostData: OrgSettingsResponse = deepFreeze({
