@@ -461,6 +461,7 @@ export interface OrgSettingsResponse {
   mobile_app_my_expenses_beta_enabled?: boolean;
   amex_feed_enrollment_settings?: AmexFeedEnrollmentSettings;
   pending_cct_expense_restriction?: CommonOrgSettings;
+  simplified_multi_stage_approvals?: CommonOrgSettings;
 }
 
 export interface UiPolicySettings {

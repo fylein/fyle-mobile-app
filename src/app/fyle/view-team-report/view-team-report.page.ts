@@ -365,6 +365,10 @@ export class ViewTeamReportPage {
         showViewApproverModal &&
         orgSettings?.simplified_multi_stage_approvals?.allowed &&
         orgSettings?.simplified_multi_stage_approvals?.enabled;
+      if (this.showViewApproverModal) {
+        this.approvals.sort((a, b) => a.approver_order - b.approver_order);
+        this.setupApproverToShow(report);
+      }
     });
 
     this.refreshApprovals$.next(null);

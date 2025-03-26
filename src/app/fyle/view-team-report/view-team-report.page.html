@@ -138,13 +138,13 @@
               </div>
             </div>
           </div>
-          <div *ngIf="showViewApproverModal" class="view-reports--approvers-list">
+          <div *ngIf="showViewApproverModal && approverToShow" class="view-reports--approvers-list">
             <div class="smartlook-hide">{{ approverToShow.approver_user.full_name }}</div>
             <div class="view-reports--approver-state-section">
               <div
                 class="view-reports--approver-state-pill view-reports--approver-state-pill__{{approverToShow?.state | lowercase}}"
               ></div>
-              <span
+              <span class="view-reports--approver-state-pill__text"
                 >{{ approverToShow?.state === 'APPROVAL_DONE' ? 'Approved' : (approverToShow?.state | titlecase |
                 snakeCaseToSpaceCase)}}</span
               >
