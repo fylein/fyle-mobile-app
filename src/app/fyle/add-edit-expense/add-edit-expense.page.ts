@@ -5219,6 +5219,16 @@ export class AddEditExpensePage implements OnInit {
     this.trackingService.showSuggestedDuplicates();
 
     const txnIDs = duplicateExpenses.map((expense) => expense?.tx_id);
+
+    const isAnyIdUndefined = txnIDs.some((id) => !id);
+
+    if (!isAnyIdUndefined) {
+      this.showSnackBarToast({ message: 'Something went wrong. Please try after some time.' }, 'failure', [
+        'msb-failure',
+      ]);
+      this.trackingService.eventTrack('Showing duplicate expenses failed', txnIDs);
+    }
+
     const currencyModal = await this.modalController.create({
       component: SuggestedDuplicatesComponent,
       componentProps: {
