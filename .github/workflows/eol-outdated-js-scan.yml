@@ -37,3 +37,4 @@ jobs:
         with:
           project: 'fyle-mobile-app'
           token: ${{ secrets.GITHUB_TOKEN }}
+          suppression_file: 'suppression.xml'
