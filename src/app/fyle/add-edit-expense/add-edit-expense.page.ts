@@ -5219,6 +5219,7 @@ export class AddEditExpensePage implements OnInit {
         'msb-failure',
       ]);
       this.trackingService.eventTrack('Showing duplicate expenses failed', txnIDs);
+      return;
     }
 
     const currencyModal = await this.modalController.create({
