@@ -3,7 +3,7 @@ import { ModalController } from '@ionic/angular';
 import { NavParams } from '@ionic/angular';
 import { TrackingService } from '../../../core/services/tracking.service';
 import { BrowserHandlerService } from 'src/app/core/services/browser-handler.service';
-import { HelpAdmin } from 'src/app/core/models/help-admin.model';
+import { HelpAdminInfo } from 'src/app/core/models/help-admin-info.model';
 
 @Component({
   selector: 'app-support-dialog',
@@ -11,11 +11,11 @@ import { HelpAdmin } from 'src/app/core/models/help-admin.model';
   styleUrls: ['./support-dialog.page.scss'],
 })
 export class SupportDialogPage {
-  @Input() adminEous: HelpAdmin[] = [];
+  @Input() adminEous: HelpAdminInfo[] = [];
 
   dialogType = this.navParams.get<string>('type');
 
-  adminList = this.navParams.get<HelpAdmin>('adminEous');
+  adminList = this.navParams.get<HelpAdminInfo>('adminEous');
 
   constructor(
     private modalController: ModalController,
