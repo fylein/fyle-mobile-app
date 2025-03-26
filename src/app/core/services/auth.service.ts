@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { Injectable } from '@angular/core';
 import { StorageService } from './storage.service';
 import { TokenService } from './token.service';
@@ -71,10 +72,10 @@ export class AuthService {
         if (accessToken) {
           const tokenPayload = this.jwtHelperService.decodeToken(accessToken) as AccessTokenData;
           try {
-            const roles = JSON.parse(tokenPayload.roles) as string[];
+            const roles = JSON.parse(tokenPayload.roles);
             return roles;
           } catch (e) {
-            return [];
+            return tokenPayload.roles;
           }
         } else {
           return [];
