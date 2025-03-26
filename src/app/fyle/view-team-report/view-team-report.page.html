@@ -138,13 +138,13 @@
               </div>
             </div>
           </div>
-          <div *ngIf="showViewApproverModal" class="view-reports--approvers-list">
+          <div *ngIf="showViewApproverModal && approverToShow" class="view-reports--approvers-list">
             <div class="smartlook-hide">{{ approverToShow.approver_user.full_name }}</div>
             <div class="view-reports--approver-state-section">
               <div
                 class="view-reports--approver-state-pill view-reports--approver-state-pill__{{approverToShow?.state | lowercase}}"
               ></div>
-              <span
+              <span class="view-reports--approver-state-pill__text"
                 >{{ approverToShow?.state === 'APPROVAL_DONE' ? 'Approved' : (approverToShow?.state | titlecase |
                 snakeCaseToSpaceCase)}}</span
               >
@@ -208,9 +208,7 @@
         <div *ngIf="isCommentsView && userComments && userComments.length > 0" class="view-comment--container">
           <div *ngFor="let estatus of userComments">
             <div *ngIf="estatus.show_dt">
-              <div class="view-comment--date text-center">
-                {{ estatus.created_at | dateTimezone: report.userTimezone }}
-              </div>
+              <div class="view-comment--date text-center">{{ estatus.created_at | dateFormat }}</div>
             </div>
             <div
               class="view-comment--block"
@@ -241,9 +239,7 @@
                 </ion-row>
                 <ion-row>
                   <ion-col size="12">
-                    <div class="view-comment--comment-timestamp">
-                      {{ estatus.created_at | dateTimezone: estatus.userTimezone: 'h:mm a' }}
-                    </div>
+                    <div class="view-comment--comment-timestamp">{{ estatus.created_at | date: 'h:mm a' }}</div>
                   </ion-col>
                 </ion-row>
               </ion-grid>
@@ -283,9 +279,7 @@
                 </ion-row>
                 <ion-row>
                   <ion-col size="12">
-                    <div class="view-comment--comment-timestamp">
-                      {{ estatus.created_at | dateTimezone: estatus.userTimezone: 'h:mm a' }}
-                    </div>
+                    <div class="view-comment--comment-timestamp">{{ estatus.created_at | date: 'h:mm a' }}</div>
                   </ion-col>
                 </ion-row>
               </ion-grid>

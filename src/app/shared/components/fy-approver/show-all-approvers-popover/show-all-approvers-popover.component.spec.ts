@@ -46,11 +46,13 @@ describe('ShowAllApproversPopoverComponent', () => {
         approver_user_id: 'usvKA4X8Ugcr',
         approver_user: { full_name: 'John Doe', email: 'john@example.com', id: 'usvKA4X8Ugcr' },
         state: ApprovalState.APPROVAL_PENDING,
+        approver_order: 0,
       },
       {
         approver_user_id: 'usvKA4X8Ugcr',
         approver_user: { full_name: 'Jane Doe', email: 'jane@example.com', id: 'usvKA4X8Ugcj' },
         state: ApprovalState.APPROVAL_DONE,
+        approver_order: 0,
       },
     ];
     fixture.detectChanges();
@@ -68,16 +70,19 @@ describe('ShowAllApproversPopoverComponent', () => {
         approver_user_id: 'usvKA4X8Ugcr',
         approver_user: { full_name: 'John Doe', email: 'john@example.com', id: 'usvKA4X8Ugcr' },
         state: ApprovalState.APPROVAL_PENDING,
+        approver_order: 0,
       },
       {
         approver_user_id: 'usvKA4X8Ugcj',
         approver_user: { full_name: 'Jane Doe', email: 'jane@example.com', id: 'usvKA4X8Ugcj' },
         state: ApprovalState.APPROVAL_DONE,
+        approver_order: 0,
       },
       {
         approver_user_id: 'usvKA4X8Ugcm',
         approver_user: { full_name: 'Mark Smith', email: 'mark@example.com', id: 'usvKA4X8Ugcm' },
         state: ApprovalState.APPROVAL_PENDING,
+        approver_order: 0,
       },
     ];
     fixture.detectChanges();

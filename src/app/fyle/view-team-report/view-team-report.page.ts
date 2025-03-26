@@ -267,7 +267,7 @@ export class ViewTeamReportPage {
       (approver) => report.next_approver_user_ids?.[0] === approver.approver_user.id
     );
     const highestRankApprover = this.approvals.reduce(
-      (max, approver) => (approver.rank > max.rank ? approver : max),
+      (max, approver) => (approver.approver_order > max.approver_order ? approver : max),
       this.approvals[0]
     );
     this.approverToShow = filteredApprover.length === 1 ? filteredApprover[0] : highestRankApprover;
@@ -297,10 +297,13 @@ export class ViewTeamReportPage {
         from(this.loaderService.showLoader()).pipe(
           switchMap(() => this.approverReportsService.getReportById(this.activatedRoute.snapshot.params.id as string)),
           map((report) => {
-            this.approvals = report.approvals.filter((approval) =>
+            this.approvals = report?.approvals?.filter((approval) =>
               [ApprovalState.APPROVAL_PENDING, ApprovalState.APPROVAL_DONE].includes(approval.state)
             );
-            this.setupApproverToShow(report);
+            if (this.showViewApproverModal) {
+              this.approvals.sort((a, b) => a.approver_order - b.approver_order);
+              this.setupApproverToShow(report);
+            }
             return report;
           })
         )
@@ -362,6 +365,10 @@ export class ViewTeamReportPage {
         showViewApproverModal &&
         orgSettings?.simplified_multi_stage_approvals?.allowed &&
         orgSettings?.simplified_multi_stage_approvals?.enabled;
+      if (this.showViewApproverModal) {
+        this.approvals.sort((a, b) => a.approver_order - b.approver_order);
+        this.setupApproverToShow(report);
+      }
     });
 
     this.refreshApprovals$.next(null);
