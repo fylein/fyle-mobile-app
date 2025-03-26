@@ -48,7 +48,7 @@
       <ng-container *ngFor="let filteredListItem of filteredOptions$ | async as list">
         <div
           (click)="onElementSelect(filteredListItem)"
-          *ngIf="!filteredListItem.value && filteredListItem.label.length > 0"
+          *ngIf="!filteredListItem.value && filteredListItem?.label?.length > 0"
           class="selection-modal--list-element"
           matRipple
         >
@@ -99,7 +99,7 @@
       <ng-container *ngFor="let filteredListItem of filteredOptions$ | async as list">
         <div
           (click)="onElementSelect(filteredListItem)"
-          *ngIf="filteredListItem.label.length > 0"
+          *ngIf="filteredListItem?.label?.length > 0"
           class="selection-modal--list-element"
           matRipple
         >
