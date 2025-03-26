@@ -379,9 +379,9 @@
                 </ng-container>
 
                 <div
-                  *ngIf="(isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) && (individualProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))"
+                  *ngIf="showBillable && (isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) && (individualProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))"
                 >
-                  <div *ngIf="fg.controls.project.value">
+                  <div *ngIf="fg.controls.project.value" class="add-edit-mileage--billable-block">
                     <mat-checkbox formControlName="billable">
                       <span class="add-edit-mileage--checkbox"> Billable </span>
                     </mat-checkbox>

@@ -1,6 +1,5 @@
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs/internal/observable/of';
-import { ApiV2Service } from './api-v2.service';
 import { ApiService } from './api.service';
 import {
   apiResponseActiveOnly,
@@ -40,7 +39,6 @@ describe('ProjectsService', () => {
 
   beforeEach(() => {
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get']);
-    const apiv2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['get']);
     const spenderPlatformApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get']);
 
     TestBed.configureTestingModule({
@@ -49,10 +47,6 @@ describe('ProjectsService', () => {
         {
           provide: ApiService,
           useValue: apiServiceSpy,
-        },
-        {
-          provide: ApiV2Service,
-          useValue: apiv2ServiceSpy,
         },
         {
           provide: SpenderPlatformV1ApiService,

@@ -6,7 +6,6 @@ import { TokenService } from './token.service';
 import { ApiService } from './api.service';
 import { AuthResponse } from '../models/auth-response.model';
 import { Observable, from } from 'rxjs';
-import { ApiV2Service } from './api-v2.service';
 import { LocationService } from './location.service';
 import { TransactionsOutboxService } from './transactions-outbox.service';
 import { VendorService } from './vendor.service';
@@ -29,7 +28,6 @@ export class RouterAuthService {
     private storageService: StorageService,
     private tokenService: TokenService,
     private apiService: ApiService,
-    private apiv2Service: ApiV2Service,
     private locationService: LocationService,
     private transactionOutboxService: TransactionsOutboxService,
     private vendorService: VendorService,
@@ -60,7 +58,6 @@ export class RouterAuthService {
 
   async setClusterDomain(domain: string): Promise<void> {
     this.apiService.setRoot(domain);
-    this.apiv2Service.setRoot(domain);
     this.locationService.setRoot(domain);
     this.transactionOutboxService.setRoot(domain);
     this.vendorService.setRoot(domain);
