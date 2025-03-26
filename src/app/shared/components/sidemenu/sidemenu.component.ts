@@ -203,8 +203,7 @@ export class SidemenuComponent implements OnInit {
     const teamOptions = [
       {
         title: 'Expense reports',
-        isVisible:
-          allowedReportsActions && allowedReportsActions.approve && showTeamReportsPage && !isOnboardingPending,
+        isVisible: allowedReportsActions?.approve && showTeamReportsPage && !isOnboardingPending,
         route: ['/', 'enterprise', 'team_reports'],
       },
       {

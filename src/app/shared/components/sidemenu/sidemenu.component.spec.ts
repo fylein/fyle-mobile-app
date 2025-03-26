@@ -229,14 +229,12 @@ describe('SidemenuComponent', () => {
     expect(teamOpt).toEqual([
       {
         title: 'Expense reports',
-        isVisible:
-          component.allowedActions.allowedReportsActions && component.allowedActions.allowedReportsActions.approve,
+        isVisible: component.allowedActions.allowedReportsActions?.approve,
         route: ['/', 'enterprise', 'team_reports'],
       },
       {
         title: 'Advances',
-        isVisible:
-          component.allowedActions.allowedAdvancesActions && component.allowedActions.allowedAdvancesActions.approve,
+        isVisible: component.allowedActions.allowedAdvancesActions?.approve,
         route: ['/', 'enterprise', 'team_advance'],
       },
     ]);
