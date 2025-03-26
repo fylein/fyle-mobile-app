@@ -1,0 +1,39 @@
+name: End of Life and Outdated JS Scan
+on:
+  pull_request:
+    branches: [master]
+    types: [opened, synchronize, reopened, ready_for_review]
+
+jobs:
+  scan:
+    name: Run scanner
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Filter paths
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            security-scan:
+            - 'package-lock.json'
+
+      - name: Checkout
+        if: ${{ steps.filter.outputs.security-scan == 'true' }}
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        if: ${{ steps.filter.outputs.security-scan == 'true' }}
+        with:
+          node-version: lts/*
+
+      - name: Install modules
+        if: ${{ steps.filter.outputs.security-scan == 'true' }}
+        run: npm ci
+
+      - name: Depcheck
+        if: ${{ steps.filter.outputs.security-scan == 'true' }}
+        uses: fylein/eol-outdated-js-scan-action@master
+        with:
+          project: 'fyle-mobile-app'
+          token: ${{ secrets.GITHUB_TOKEN }}
