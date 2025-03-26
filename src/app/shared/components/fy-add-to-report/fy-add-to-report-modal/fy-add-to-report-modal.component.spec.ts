@@ -102,12 +102,9 @@ describe('FyAddToReportModalComponent', () => {
     component.options = [];
     fixture.detectChanges();
 
-    expect(getTextContent(getElementBySelector(fixture, '.report-list--zero-state__title'))).toEqual(
-      'No reports found'
-    );
-    expect(getTextContent(getElementBySelector(fixture, '.report-list--zero-state__subtitle'))).toEqual(
-      'To create a draft report please click on'
-    );
+    const subtitles = getAllElementsBySelector(fixture, '.report-list--zero-state__subtitle');
+    expect(getTextContent(subtitles[0])).toEqual('You have no reports right now');
+    expect(getTextContent(subtitles[1])).toEqual('To create a draft report please click on');
   });
 
   it('should go to create draft report if add icon is clicked', () => {
