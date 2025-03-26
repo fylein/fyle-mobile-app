@@ -317,6 +317,13 @@
     &__approval_disabled {
       background-color: $gray-3;
     }
+
+    &__text {
+      color: $black-light;
+      font-size: 12px;
+      font-weight: 500;
+      line-height: 1.5;
+    }
   }
 
   &--expenses-card-block {
