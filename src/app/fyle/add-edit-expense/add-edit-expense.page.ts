@@ -5214,7 +5214,7 @@ export class AddEditExpensePage implements OnInit {
 
     const isAnyIdUndefined = txnIDs.some((id) => !id);
 
-    if (!isAnyIdUndefined) {
+    if (isAnyIdUndefined) {
       this.showSnackBarToast({ message: 'Something went wrong. Please try after some time.' }, 'failure', [
         'msb-failure',
       ]);
