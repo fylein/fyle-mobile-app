@@ -117,7 +117,6 @@ export const allReportsPaginated1: PlatformApiResponse<Report[]> = deepFreeze({
           creator_user: null,
           creator_user_id: 'SYSTEM',
           id: 'styBS6Mt3srX',
-          userTimezone: 'America/North_Dakota/New_Salem',
         },
         {
           comment: 'submitted by Suyash (suyash.p@fyle.in)',
@@ -125,7 +124,6 @@ export const allReportsPaginated1: PlatformApiResponse<Report[]> = deepFreeze({
           creator_user: null,
           creator_user_id: 'SYSTEM',
           id: 'stI6NDy8La7b',
-          userTimezone: 'America/North_Dakota/New_Salem',
         },
         {
           comment: 'aaab',
@@ -137,7 +135,6 @@ export const allReportsPaginated1: PlatformApiResponse<Report[]> = deepFreeze({
           },
           creator_user_id: 'usaTtklUXVZn',
           id: 'stVFdDpz1LAi',
-          userTimezone: 'America/North_Dakota/New_Salem',
         },
         {
           comment: 'aaac',
@@ -149,7 +146,6 @@ export const allReportsPaginated1: PlatformApiResponse<Report[]> = deepFreeze({
           },
           creator_user_id: 'usaTtklUXVZn',
           id: 'stVFdDpz1LAd',
-          userTimezone: 'America/North_Dakota/New_Salem',
         },
         {
           comment: 'aaa',
@@ -161,7 +157,6 @@ export const allReportsPaginated1: PlatformApiResponse<Report[]> = deepFreeze({
           },
           creator_user_id: 'usaTtklUXVZn',
           id: 'stVFdDpz1LAL',
-          userTimezone: 'America/North_Dakota/New_Salem',
         },
       ],
       approvals: [],
@@ -662,7 +657,6 @@ export const submittedReportData: Report = deepFreeze({
       creator_user: null,
       creator_user_id: 'SYSTEM',
       id: 'styBS6Mt3srX',
-      userTimezone: 'America/North_Dakota/New_Salem',
     },
     {
       comment: 'submitted by Suyash (suyash.p@fyle.in)',
@@ -670,7 +664,6 @@ export const submittedReportData: Report = deepFreeze({
       creator_user: null,
       creator_user_id: 'SYSTEM',
       id: 'stI6NDy8La7b',
-      userTimezone: 'America/North_Dakota/New_Salem',
     },
     {
       comment: 'aaab',
@@ -682,7 +675,6 @@ export const submittedReportData: Report = deepFreeze({
       },
       creator_user_id: 'usaTtklUXVZn',
       id: 'stVFdDpz1LAi',
-      userTimezone: 'America/North_Dakota/New_Salem',
     },
     {
       comment: 'aaac',
@@ -694,7 +686,6 @@ export const submittedReportData: Report = deepFreeze({
       },
       creator_user_id: 'usaTtklUXVZn',
       id: 'stVFdDpz1LAd',
-      userTimezone: 'America/North_Dakota/New_Salem',
     },
     {
       comment: 'aaa',
@@ -706,7 +697,6 @@ export const submittedReportData: Report = deepFreeze({
       },
       creator_user_id: 'usaTtklUXVZn',
       id: 'stVFdDpz1LAL',
-      userTimezone: 'America/North_Dakota/New_Salem',
     },
   ],
   currency: 'USD',

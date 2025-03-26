@@ -185,7 +185,6 @@ export class MyViewReportPage {
         st_id: comment.id,
         us_full_name: comment.creator_user?.full_name,
         st_diff: null,
-        userTimezone: comment.userTimezone,
       };
       return status;
     });
