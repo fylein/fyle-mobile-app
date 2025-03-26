@@ -152,7 +152,6 @@ import { RefinerService } from 'src/app/core/services/refiner.service';
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 import { CCExpenseMerchantInfoModalComponent } from 'src/app/shared/components/cc-expense-merchant-info-modal/cc-expense-merchant-info-modal.component';
 import { CorporateCardExpenseProperties } from 'src/app/core/models/corporate-card-expense-properties.model';
-import { HttpErrorResponse } from '@angular/common/http';
 
 // eslint-disable-next-line
 type FormValue = {
@@ -3991,14 +3990,7 @@ export class AddEditExpensePage implements OnInit {
     this.comments$
       .pipe(
         map((estatuses) => estatuses.filter((estatus) => estatus.st_org_user_id === 'POLICY')),
-        map((policyViolationComments) => policyViolationComments.length > 0),
-        catchError((err: HttpErrorResponse) => {
-          this.trackingService.eventTrack('Expenses estatuses call failed', {
-            err,
-            id: this.activatedRoute.snapshot.params.id as string,
-          });
-          return EMPTY;
-        })
+        map((policyViolationComments) => policyViolationComments.length > 0)
       )
       .subscribe((policyViolated) => {
         if (policyViolated && this.fg.dirty) {
@@ -5219,6 +5211,17 @@ export class AddEditExpensePage implements OnInit {
     this.trackingService.showSuggestedDuplicates();
 
     const txnIDs = duplicateExpenses.map((expense) => expense?.tx_id);
+
+    const isAnyIdUndefined = txnIDs.some((id) => !id);
+
+    if (isAnyIdUndefined) {
+      this.showSnackBarToast({ message: 'Something went wrong. Please try after some time.' }, 'failure', [
+        'msb-failure',
+      ]);
+      this.trackingService.eventTrack('Showing duplicate expenses failed', txnIDs);
+      return;
+    }
+
     const currencyModal = await this.modalController.create({
       component: SuggestedDuplicatesComponent,
       componentProps: {
