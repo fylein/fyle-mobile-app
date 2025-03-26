@@ -15,13 +15,10 @@ import {
 } from '../mock-data/expense.data';
 import { UndoMergeData } from '../mock-data/undo-merge.data';
 import { AccountsService } from './accounts.service';
-import { ApiV2Service } from './api-v2.service';
 import { ApiService } from './api.service';
-import { AuthService } from './auth.service';
 import { DataTransformService } from './data-transform.service';
 import { DateService } from './date.service';
 import { FileService } from './file.service';
-import { NetworkService } from './network.service';
 import { OrgSettingsService } from './org-settings.service';
 import { OrgUserSettingsService } from './org-user-settings.service';
 import { PaymentModesService } from './payment-modes.service';
@@ -66,11 +63,8 @@ import { TrackingService } from './tracking.service';
 
 describe('TransactionService', () => {
   let transactionService: TransactionService;
-  let networkService: jasmine.SpyObj<NetworkService>;
   let storageService: jasmine.SpyObj<StorageService>;
-  let authService: jasmine.SpyObj<AuthService>;
   let apiService: jasmine.SpyObj<ApiService>;
-  let apiV2Service: jasmine.SpyObj<ApiV2Service>;
   let dataTransformService: jasmine.SpyObj<DataTransformService>;
   let dateService: jasmine.SpyObj<DateService>;
   let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
@@ -86,7 +80,6 @@ describe('TransactionService', () => {
   let trackingService: jasmine.SpyObj<TrackingService>;
 
   beforeEach(() => {
-    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['isOnline']);
     const storageServiceSpy = jasmine.createSpyObj('StorageService', ['get', 'set']);
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post', 'delete']);
     const dataTransformServiceSpy = jasmine.createSpyObj('DataTransformService', ['unflatten']);
@@ -132,10 +125,6 @@ describe('TransactionService', () => {
         {
           provide: FileService,
           useValue: fileServiceSpy,
-        },
-        {
-          provide: NetworkService,
-          useValue: networkServiceSpy,
         },
         {
           provide: OrgSettingsService,
@@ -189,7 +178,6 @@ describe('TransactionService', () => {
     });
 
     transactionService = TestBed.inject(TransactionService);
-    networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
     storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
     apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
     dataTransformService = TestBed.inject(DataTransformService) as jasmine.SpyObj<DataTransformService>;

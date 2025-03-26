@@ -1,10 +1,9 @@
-import { fakeAsync, flush, TestBed, tick } from '@angular/core/testing';
+import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { RouterAuthService } from './router-auth.service';
 import { RouterApiService } from './router-api.service';
 import { StorageService } from './storage.service';
 import { TokenService } from './token.service';
 import { ApiService } from './api.service';
-import { ApiV2Service } from './api-v2.service';
 import { LocationService } from './location.service';
 import { TransactionsOutboxService } from './transactions-outbox.service';
 import { VendorService } from './vendor.service';
@@ -24,7 +23,6 @@ describe('RouterAuthService', () => {
   let storageService: jasmine.SpyObj<StorageService>;
   let tokenService: jasmine.SpyObj<TokenService>;
   let apiService: jasmine.SpyObj<ApiService>;
-  let apiV2Service: jasmine.SpyObj<ApiV2Service>;
   let locationService: jasmine.SpyObj<LocationService>;
   let transactionOutboxService: jasmine.SpyObj<TransactionsOutboxService>;
   let vendorService: jasmine.SpyObj<VendorService>;
@@ -54,7 +52,6 @@ describe('RouterAuthService', () => {
       'setAccessToken',
     ]);
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['setRoot']);
-    const apiV2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['setRoot']);
     const locationServiceSpy = jasmine.createSpyObj('LocationService', ['setRoot']);
     const transactionOutboxServiceSpy = jasmine.createSpyObj('TransactionsOutboxService', ['setRoot']);
     const vendorServiceSpy = jasmine.createSpyObj('VendorService', ['setRoot']);
@@ -84,10 +81,6 @@ describe('RouterAuthService', () => {
         {
           provide: ApiService,
           useValue: apiServiceSpy,
-        },
-        {
-          provide: ApiV2Service,
-          useValue: apiV2ServiceSpy,
         },
         {
           provide: LocationService,
@@ -136,7 +129,6 @@ describe('RouterAuthService', () => {
     storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
     tokenService = TestBed.inject(TokenService) as jasmine.SpyObj<TokenService>;
     apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
-    apiV2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
     locationService = TestBed.inject(LocationService) as jasmine.SpyObj<LocationService>;
     transactionOutboxService = TestBed.inject(TransactionsOutboxService) as jasmine.SpyObj<TransactionsOutboxService>;
     vendorService = TestBed.inject(VendorService) as jasmine.SpyObj<VendorService>;
@@ -174,7 +166,6 @@ describe('RouterAuthService', () => {
 
     routerAuthService.setClusterDomain(domain).then((res) => {
       expect(apiService.setRoot).toHaveBeenCalledOnceWith(domain);
-      expect(apiV2Service.setRoot).toHaveBeenCalledOnceWith(domain);
       expect(locationService.setRoot).toHaveBeenCalledOnceWith(domain);
       expect(transactionOutboxService.setRoot).toHaveBeenCalledOnceWith(domain);
       expect(vendorService.setRoot).toHaveBeenCalledOnceWith(domain);
