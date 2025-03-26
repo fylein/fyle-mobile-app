@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { Platform, PopoverController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular';
 import { ApprovalState } from 'src/app/core/models/platform/approval-state.enum';
 import { ReportApprovals } from 'src/app/core/models/platform/report-approvals.model';
 
@@ -13,7 +13,7 @@ export class ShowAllApproversPopoverComponent {
 
   approvalState: typeof ApprovalState = ApprovalState;
 
-  constructor(private popoverController: PopoverController, public platform: Platform) {}
+  constructor(private popoverController: PopoverController) {}
 
   closePopover(): void {
     this.popoverController.dismiss();
