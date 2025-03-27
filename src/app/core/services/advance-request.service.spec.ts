@@ -47,7 +47,6 @@ import { AdvancesStates } from '../models/advances-states.model';
 import { SortingDirection } from '../models/sorting-direction.model';
 import { SortingParam } from '../models/sorting-param.model';
 import { AdvanceRequestService } from './advance-request.service';
-import { ApiV2Service } from './api-v2.service';
 import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
 import { DataTransformService } from './data-transform.service';
@@ -67,7 +66,6 @@ import { cloneDeep } from 'lodash';
 describe('AdvanceRequestService', () => {
   let advanceRequestService: AdvanceRequestService;
   let apiService: jasmine.SpyObj<ApiService>;
-  let apiv2Service: jasmine.SpyObj<ApiV2Service>;
   let authService: jasmine.SpyObj<AuthService>;
   let dataTransformService: jasmine.SpyObj<DataTransformService>;
   let dateService: DateService;
@@ -77,7 +75,6 @@ describe('AdvanceRequestService', () => {
 
   beforeEach(() => {
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post', 'delete']);
-    const apiv2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['get']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const dataTransformServiceSpy = jasmine.createSpyObj('DataTransformService', ['unflatten']);
     const fileServiceSpy = jasmine.createSpyObj('FileService', ['post']);
@@ -93,10 +90,6 @@ describe('AdvanceRequestService', () => {
         {
           provide: ApiService,
           useValue: apiServiceSpy,
-        },
-        {
-          provide: ApiV2Service,
-          useValue: apiv2ServiceSpy,
         },
         {
           provide: AuthService,
@@ -131,7 +124,6 @@ describe('AdvanceRequestService', () => {
     advanceRequestService = TestBed.inject(AdvanceRequestService);
     dateService = TestBed.inject(DateService);
     apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
-    apiv2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     dataTransformService = TestBed.inject(DataTransformService) as jasmine.SpyObj<DataTransformService>;
     fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
@@ -146,25 +138,6 @@ describe('AdvanceRequestService', () => {
   it('destroyAdvanceRequestsCacheBuster(): should reset advance request cache', (done) => {
     advanceRequestService.destroyAdvanceRequestsCacheBuster().subscribe((res) => {
       expect(res).toBeNull();
-      done();
-    });
-  });
-
-  it('getAdvanceRequest(): should get an advance request from ID', (done) => {
-    const advReqID = 'areqdQ9jnokUva';
-    apiv2Service.get.and.returnValue(of(singleExtendedAdvReqRes));
-    // @ts-ignore
-    spyOn(advanceRequestService, 'fixDates').and.returnValue(singleExtendedAdvReqRes.data[0]);
-
-    advanceRequestService.getAdvanceRequest(advReqID).subscribe((res) => {
-      expect(res).toEqual(singleExtendedAdvReqRes.data[0]);
-      expect(apiv2Service.get).toHaveBeenCalledOnceWith('/advance_requests', {
-        params: {
-          areq_id: `eq.${advReqID}`,
-        },
-      });
-      // @ts-ignore
-      expect(advanceRequestService.fixDates).toHaveBeenCalledOnceWith(singleExtendedAdvReqRes.data[0]);
       done();
     });
   });
@@ -761,211 +734,6 @@ describe('AdvanceRequestService', () => {
             advance_id: 'eq.null',
           },
         });
-        done();
-      });
-    });
-  });
-
-  describe('getMyadvanceRequests():', () => {
-    it('should get all advance request', (done) => {
-      authService.getEou.and.resolveTo(apiEouRes);
-      const mockApiV2Res = cloneDeep(allAdvanceRequestsRes);
-      apiv2Service.get.and.returnValue(of(mockApiV2Res));
-
-      const param = {
-        offset: 0,
-        limit: 10,
-        queryParams: {
-          areq_advance_id: 'is.null',
-          order: 'created_at.desc,id.desc',
-        },
-      };
-
-      advanceRequestService.getMyadvanceRequests(param).subscribe((res) => {
-        expect(res).toEqual(mockApiV2Res);
-        expect(apiv2Service.get).toHaveBeenCalledOnceWith('/advance_requests', {
-          params: {
-            offset: param.offset,
-            limit: param.limit,
-            areq_org_user_id: 'eq.' + apiEouRes.ou.id,
-            ...param.queryParams,
-          },
-        });
-        expect(authService.getEou).toHaveBeenCalledTimes(1);
-        done();
-      });
-    });
-
-    it('should get all advance request with default params', (done) => {
-      authService.getEou.and.resolveTo(apiEouRes);
-      const mockApiV2Res = cloneDeep(allAdvanceRequestsRes);
-      apiv2Service.get.and.returnValue(of(mockApiV2Res));
-
-      advanceRequestService.getMyadvanceRequests().subscribe((res) => {
-        expect(res).toEqual(mockApiV2Res);
-        expect(apiv2Service.get).toHaveBeenCalledOnceWith('/advance_requests', {
-          params: {
-            offset: 0,
-            limit: 10,
-            areq_org_user_id: 'eq.' + apiEouRes.ou.id,
-          },
-        });
-        expect(authService.getEou).toHaveBeenCalledTimes(1);
-        done();
-      });
-    });
-  });
-
-  describe('getMyAdvanceRequestsCount():', () => {
-    it('should get advance request count', (done) => {
-      spyOn(advanceRequestService, 'getMyadvanceRequests').and.returnValue(of(teamAdvanceCountRes));
-      const queryParams = {
-        areq_advance_id: 'is.null',
-      };
-
-      advanceRequestService.getMyAdvanceRequestsCount(queryParams).subscribe((res) => {
-        expect(res).toEqual(teamAdvanceCountRes.count);
-        expect(advanceRequestService.getMyadvanceRequests).toHaveBeenCalledOnceWith({
-          offset: 0,
-          limit: 1,
-          queryParams: { ...queryParams },
-        });
-        done();
-      });
-    });
-
-    it('should get advance request count without query parmas', (done) => {
-      spyOn(advanceRequestService, 'getMyadvanceRequests').and.returnValue(of(teamAdvanceCountRes));
-
-      advanceRequestService.getMyAdvanceRequestsCount().subscribe((res) => {
-        expect(res).toEqual(teamAdvanceCountRes.count);
-        expect(advanceRequestService.getMyadvanceRequests).toHaveBeenCalledOnceWith({
-          offset: 0,
-          limit: 1,
-          queryParams: {},
-        });
-        done();
-      });
-    });
-  });
-
-  describe('getTeamAdvanceRequests():', () => {
-    it('should get all team advance requests | APPROVAL PENDING AND APPROVED', (done) => {
-      authService.getEou.and.resolveTo(apiEouRes);
-      const mockApiV2Res = cloneDeep(allTeamAdvanceRequestsRes);
-      apiv2Service.get.and.returnValue(of(mockApiV2Res));
-
-      const params = {
-        offset: 0,
-        limit: 1,
-        queryParams: {
-          areq_state: ['eq.APPROVAL_PENDING'],
-          or: 'created_at.desc,id.desc',
-        },
-        filter: {
-          sortParam: undefined,
-          sortDir: undefined,
-          state: [AdvancesStates.pending, AdvancesStates.approved],
-        },
-      };
-
-      const defaultParams = {
-        'advance_request_approvals->ouX8dwsbLCLv->>state': ['in.(APPROVAL_PENDING,APPROVAL_DONE)'],
-      };
-
-      advanceRequestService.getTeamAdvanceRequests(params).subscribe((res) => {
-        expect(res).toEqual(mockApiV2Res);
-        expect(apiv2Service.get).toHaveBeenCalledOnceWith('/advance_requests', {
-          params: {
-            offset: params.offset,
-            limit: params.limit,
-            order: params.queryParams.or,
-            areq_approvers_ids: `cs.{${apiEouRes.ou.id}}`,
-            ...defaultParams,
-            ...params.queryParams,
-          },
-        });
-        expect(authService.getEou).toHaveBeenCalledTimes(1);
-        done();
-      });
-    });
-
-    it('should get all team advance requests | APPROVAL PENDING', (done) => {
-      authService.getEou.and.resolveTo(apiEouRes);
-      const mockApiV2Res = cloneDeep(allTeamAdvanceRequestsRes);
-      apiv2Service.get.and.returnValue(of(mockApiV2Res));
-
-      const params = {
-        offset: 0,
-        limit: 1,
-        queryParams: {
-          areq_state: ['eq.APPROVAL_PENDING'],
-          or: 'created_at.desc,id.desc',
-        },
-        filter: {
-          sortParam: undefined,
-          sortDir: undefined,
-          state: [AdvancesStates.pending],
-        },
-      };
-
-      const defaultParams = {
-        'advance_request_approvals->ouX8dwsbLCLv->>state': ['eq.APPROVAL_PENDING'],
-      };
-
-      advanceRequestService.getTeamAdvanceRequests(params).subscribe((res) => {
-        expect(res).toEqual(mockApiV2Res);
-        expect(apiv2Service.get).toHaveBeenCalledOnceWith('/advance_requests', {
-          params: {
-            offset: params.offset,
-            limit: params.limit,
-            order: params.queryParams.or,
-            areq_approvers_ids: `cs.{${apiEouRes.ou.id}}`,
-            ...defaultParams,
-            ...params.queryParams,
-          },
-        });
-        expect(authService.getEou).toHaveBeenCalledTimes(1);
-        done();
-      });
-    });
-
-    it('should get all team advance requests | APPROVED', (done) => {
-      authService.getEou.and.resolveTo(apiEouRes);
-      const mockApiV2Res = cloneDeep(allTeamAdvanceRequestsRes);
-      apiv2Service.get.and.returnValue(of(mockApiV2Res));
-
-      const params = {
-        offset: 0,
-        limit: 1,
-        queryParams: {
-          areq_state: ['eq.APPROVAL_PENDING'],
-          or: 'created_at.desc,id.desc',
-        },
-        filter: {
-          sortParam: undefined,
-          sortDir: undefined,
-          state: [AdvancesStates.approved],
-        },
-      };
-
-      const defaultParams = {
-        'advance_request_approvals->ouX8dwsbLCLv->>state': ['eq.APPROVAL_DONE'],
-      };
-
-      advanceRequestService.getTeamAdvanceRequests(params).subscribe((res) => {
-        expect(res).toEqual(mockApiV2Res);
-        expect(apiv2Service.get).toHaveBeenCalledOnceWith('/advance_requests', {
-          params: {
-            offset: params.offset,
-            limit: params.limit,
-            order: params.queryParams.or,
-            areq_approvers_ids: `cs.{${apiEouRes.ou.id}}`,
-            ...defaultParams,
-            ...params.queryParams,
-          },
-        });
-        expect(authService.getEou).toHaveBeenCalledTimes(1);
         done();
       });
     });
