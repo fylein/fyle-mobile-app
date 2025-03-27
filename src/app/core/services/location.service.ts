@@ -23,11 +23,6 @@ export class LocationService {
     this.ROOT_ENDPOINT = environment.ROOT_URL;
   }
 
-  @Cacheable()
-  get<T>(url: string, config = {}): Observable<T> {
-    return this.httpClient.get<T>(this.ROOT_ENDPOINT + '/location' + url, config);
-  }
-
   @Cacheable({
     cacheBusterObserver: currentLocationCacheBuster$,
     maxAge: 10 * 60 * 1000, // 10 minutes
@@ -42,6 +37,18 @@ export class LocationService {
       this.timeoutWhen(!config.enableHighAccuracy, 5000),
       catchError(() => of(null))
     );
+  }
+
+  @Cacheable()
+  get<T>(url: string, config = {}): Observable<T> {
+    return this.httpClient.get<T>(this.ROOT_ENDPOINT + '/location' + url, config);
+  }
+
+  /**
+   * Busts the cache for the getCurrentLocation method.
+   */
+  bustCurrentLocationCache(): void {
+    currentLocationCacheBuster$.next();
   }
 
   timeoutWhen<T>(cond: boolean, value: number): OperatorFunction<T, T> {
