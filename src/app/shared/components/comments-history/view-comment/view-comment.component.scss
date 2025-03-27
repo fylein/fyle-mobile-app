@@ -161,7 +161,11 @@
     text-align: center;
 
     &__img {
-      height: 80px;
+      height: 150px;
+      width: 150px;
+      margin-left: auto;
+      margin-right: auto;
+      margin-bottom: 20px;
     }
 
     &__content {
