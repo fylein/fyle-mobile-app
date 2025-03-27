@@ -30,7 +30,7 @@ export class AuthService {
   refreshEou(): Observable<ExtendedOrgUser> {
     return this.apiService.get('/eous/current').pipe(
       switchMap((data) => {
-        const extendedOrgUser = this.dataTransformService.unflatten(data) as ExtendedOrgUser;
+        const extendedOrgUser = this.dataTransformService.unflatten<ExtendedOrgUser, unknown>(data);
         return from(this.storageService.set('user', extendedOrgUser)).pipe(map(() => extendedOrgUser));
       })
     );
