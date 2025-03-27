@@ -7,7 +7,6 @@ export const environment = {
   NAME: '',
   ROOT_URL: '',
   ROUTER_API_ENDPOINT: '',
-  IP_FIND_KEY: '',
   ANDROID_CLIENT_ID: '',
   GOOGLE_MAPS_API_KEY: '',
   FRESHCHAT_TOKEN: '',
