@@ -202,13 +202,12 @@ export class SidemenuComponent implements OnInit {
     const { allowedReportsActions, allowedAdvancesActions } = this.allowedActions;
     const teamOptions = [
       {
-        title: 'Team expense reports',
-        isVisible:
-          allowedReportsActions && allowedReportsActions.approve && showTeamReportsPage && !isOnboardingPending,
+        title: 'Expense reports',
+        isVisible: allowedReportsActions?.approve && showTeamReportsPage && !isOnboardingPending,
         route: ['/', 'enterprise', 'team_reports'],
       },
       {
-        title: 'Team advances',
+        title: 'Advances',
         isVisible: allowedAdvancesActions && allowedAdvancesActions.approve && !isOnboardingPending,
         route: ['/', 'enterprise', 'team_advance'],
       },

@@ -3,7 +3,6 @@ import { map, switchMap } from 'rxjs/operators';
 import { forkJoin, from, Observable, of, Subject } from 'rxjs';
 
 import { ApiService } from './api.service';
-import { ApiV2Service } from './api-v2.service';
 import { AuthService } from './auth.service';
 import { DataTransformService } from './data-transform.service';
 import { DateService } from './date.service';
@@ -72,7 +71,6 @@ interface approverParams {
 export class AdvanceRequestService {
   constructor(
     private apiService: ApiService,
-    private apiv2Service: ApiV2Service,
     private authService: AuthService,
     private dataTransformService: DataTransformService,
     private dateService: DateService,
@@ -108,48 +106,6 @@ export class AdvanceRequestService {
           data: this.transformToPublicAdvanceRequest(res),
         }))
       );
-  }
-
-  @Cacheable({
-    cacheBusterObserver: advanceRequestsCacheBuster$,
-  })
-  getMyadvanceRequests(
-    config: Config = {
-      offset: 0,
-      limit: 10,
-      queryParams: {},
-    }
-  ): Observable<ApiV2Response<ExtendedAdvanceRequest>> {
-    return from(this.authService.getEou()).pipe(
-      switchMap((eou) =>
-        this.apiv2Service.get<ExtendedAdvanceRequest, { params: Config }>('/advance_requests', {
-          params: {
-            offset: config.offset,
-            limit: config.limit,
-            areq_org_user_id: 'eq.' + eou.ou.id,
-            ...config.queryParams,
-          },
-        })
-      ),
-      map((res) => res as ApiV2Response<ExtendedAdvanceRequest>),
-      map((res) => ({
-        ...res,
-        data: res.data.map(this.fixDates),
-      }))
-    );
-  }
-
-  @Cacheable({
-    cacheBusterObserver: advanceRequestsCacheBuster$,
-  })
-  getAdvanceRequest(id: string): Observable<ExtendedAdvanceRequest> {
-    return this.apiv2Service
-      .get<ExtendedAdvanceRequest, { params: { areq_id: string } }>('/advance_requests', {
-        params: {
-          areq_id: `eq.${id}`,
-        },
-      })
-      .pipe(map((res) => this.fixDates(res.data[0])));
   }
 
   @Cacheable({
@@ -241,55 +197,6 @@ export class AdvanceRequestService {
   })
   destroyAdvanceRequestsCacheBuster(): Observable<null> {
     return of(null);
-  }
-
-  @Cacheable({
-    cacheBusterObserver: advanceRequestsCacheBuster$,
-  })
-  getTeamAdvanceRequests(
-    config: Config = {
-      offset: 0,
-      limit: 10,
-      queryParams: {},
-    }
-  ): Observable<ApiV2Response<ExtendedAdvanceRequest>> {
-    return from(this.authService.getEou()).pipe(
-      switchMap((eou) => {
-        const defaultParams = {};
-        const isPending = config.filter.state.includes(AdvancesStates.pending);
-        const isApproved = config.filter.state.includes(AdvancesStates.approved);
-        let approvalState;
-
-        if (isPending && isApproved) {
-          approvalState = 'in.(APPROVAL_PENDING,APPROVAL_DONE)';
-        } else if (isApproved) {
-          approvalState = 'eq.APPROVAL_DONE';
-        } else if (isPending) {
-          approvalState = 'eq.APPROVAL_PENDING';
-        }
-
-        if (approvalState) {
-          defaultParams[`advance_request_approvals->${eou.ou.id}->>state`] = [approvalState];
-        }
-
-        const order = this.getSortOrder(config.filter.sortParam, config.filter.sortDir);
-        return this.apiv2Service.get<ExtendedAdvanceRequest, {}>('/advance_requests', {
-          params: {
-            offset: config.offset,
-            limit: config.limit,
-            order,
-            areq_approvers_ids: 'cs.{' + eou.ou.id + '}',
-            ...defaultParams,
-            ...config.queryParams,
-          },
-        });
-      }),
-      map((res) => res as ApiV2Response<ExtendedAdvanceRequest>),
-      map((res) => ({
-        ...res,
-        data: res.data.map(this.fixDates),
-      }))
-    );
   }
 
   @Cacheable({
@@ -398,14 +305,6 @@ export class AdvanceRequestService {
           return filteredApprovers;
         })
       );
-  }
-
-  getMyAdvanceRequestsCount(queryParams = {}): Observable<number> {
-    return this.getMyadvanceRequests({
-      offset: 0,
-      limit: 1,
-      queryParams,
-    }).pipe(map((advanceRequest) => advanceRequest.count));
   }
 
   getSpenderAdvanceRequestsCount(queryParams = {}): Observable<number> {
