@@ -766,6 +766,7 @@ describe('FyLocationModalComponent', () => {
   describe('Popover Setup Methods', () => {
     describe('setupEnableLocationPopover()', () => {
       it('should create popover with iOS-specific title and message', async () => {
+        //@ts-ignore
         component.devicePlatform = 'ios';
 
         popoverController.create.and.resolveTo({} as HTMLIonPopoverElement);
@@ -793,6 +794,7 @@ describe('FyLocationModalComponent', () => {
       });
 
       it('should create popover with Android-specific title and message', async () => {
+        //@ts-ignore
         component.devicePlatform = 'android';
 
         popoverController.create.and.resolveTo({} as HTMLIonPopoverElement);
