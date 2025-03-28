@@ -3,9 +3,6 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { YodleeAccessToken } from '../models/yoodle-token.model';
 import { PersonalCardFilter } from '../models/personal-card-filters.model';
-import { ApiV2Service } from './api-v2.service';
-import { ApiService } from './api.service';
-import { ExpenseAggregationService } from './expense-aggregation.service';
 import { Expense } from '../models/platform/v1/expense.model';
 import { DateService } from './date.service';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
@@ -26,13 +23,7 @@ import { environment } from 'src/environments/environment';
   providedIn: 'root',
 })
 export class PersonalCardsService {
-  constructor(
-    private apiv2Service: ApiV2Service,
-    private expenseAggregationService: ExpenseAggregationService,
-    private apiService: ApiService,
-    private dateService: DateService,
-    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService
-  ) {}
+  constructor(private dateService: DateService, private spenderPlatformV1ApiService: SpenderPlatformV1ApiService) {}
 
   addTransactionTypeToTxns(txns: PlatformPersonalCardTxn[]): PlatformPersonalCardTxn[] {
     return txns.map((txn) => ({

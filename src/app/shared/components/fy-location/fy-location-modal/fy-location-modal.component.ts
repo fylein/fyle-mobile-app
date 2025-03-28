@@ -117,7 +117,7 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
 
   async askForEnableLocationSettings(): Promise<void> {
     // edge case: need to bust this cache if location is disabled to make getCurrentLocation work for the next time
-    this.locationService.bustCurrentLocationCache();
+    this.locationService.clearCurrentLocationCache();
     from(this.setupEnableLocationPopover())
       .pipe(
         tap((enableLocationPopover) => enableLocationPopover.present()),
@@ -409,7 +409,7 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
         });
     } else {
       // edge case: need to bust this cache if location permission is denied to make getCurrentLocation work for the next time
-      this.locationService.bustCurrentLocationCache();
+      this.locationService.clearCurrentLocationCache();
       const permission = await this.geoLocation.requestPermissions();
       if (permission.location === 'denied' || permission.location === 'prompt-with-rationale') {
         from(this.setupPermissionDeniedPopover())
