@@ -153,7 +153,7 @@ describe('HelpPage', () => {
   });
 
   it('openHelpLink', fakeAsync(() => {
-    const url = 'https://help.fylehq.com';
+    const url = 'https://www.fylehq.com/help';
     const toolbarColor = '#280a31';
     component.openHelpLink();
     tick(500);
