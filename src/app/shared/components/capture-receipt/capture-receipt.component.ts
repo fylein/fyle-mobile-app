@@ -408,7 +408,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       title = galleryPermissionName + ' permission';
     }
 
-    const cameraPermissionMessage = `To capture photos, please allow Fyle to access your camera. Click Settings and allow access to Camera and ${galleryPermissionName}`;
+    const cameraPermissionMessage = `To capture photos, please allow Fyle to access your camera. Click Open Settings and allow access to Camera and ${galleryPermissionName}`;
     const galleryPermissionMessage = `Please allow Fyle to access device photos. Click Settings and allow ${galleryPermissionName} access`;
 
     const message = permissionType === 'CAMERA' ? cameraPermissionMessage : galleryPermissionMessage;
