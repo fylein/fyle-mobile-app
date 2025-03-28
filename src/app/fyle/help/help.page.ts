@@ -75,7 +75,7 @@ export class HelpPage implements OnInit {
   }
 
   async openHelpLink(): Promise<void> {
-    await this.browserHandlerService.openLinkWithToolbarColor('#280a31', 'https://help.fylehq.com');
+    await this.browserHandlerService.openLinkWithToolbarColor('#280a31', 'https://www.fylehq.com/help');
   }
 
   ngOnInit(): void {

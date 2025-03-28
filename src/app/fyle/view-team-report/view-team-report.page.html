@@ -208,7 +208,7 @@
         <div *ngIf="isCommentsView && userComments && userComments.length > 0" class="view-comment--container">
           <div *ngFor="let estatus of userComments">
             <div *ngIf="estatus.show_dt">
-              <div class="view-comment--date text-center">{{ estatus.created_at | dateFormat }}</div>
+              <div class="view-comment--date text-center">{{ estatus.created_at | dateWithTimezone }}</div>
             </div>
             <div
               class="view-comment--block"
@@ -239,7 +239,9 @@
                 </ion-row>
                 <ion-row>
                   <ion-col size="12">
-                    <div class="view-comment--comment-timestamp">{{ estatus.created_at | date: 'h:mm a' }}</div>
+                    <div class="view-comment--comment-timestamp">
+                      {{ estatus.created_at | dateWithTimezone: 'h:mm a' }}
+                    </div>
                   </ion-col>
                 </ion-row>
               </ion-grid>
@@ -279,7 +281,9 @@
                 </ion-row>
                 <ion-row>
                   <ion-col size="12">
-                    <div class="view-comment--comment-timestamp">{{ estatus.created_at | date: 'h:mm a' }}</div>
+                    <div class="view-comment--comment-timestamp">
+                      {{ estatus.created_at | dateWithTimezone: 'h:mm a' }}
+                    </div>
                   </ion-col>
                 </ion-row>
               </ion-grid>
