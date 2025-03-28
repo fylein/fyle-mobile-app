@@ -214,7 +214,7 @@ describe('AddExpensesToReportComponent', () => {
     fixture.detectChanges();
 
     expect(getTextContent(getElementBySelector(fixture, '.add-expenses-to-report--zero-state--header'))).toEqual(
-      'Looks like there are no complete expenses!'
+      'You have no complete expenses'
     );
   });
 });

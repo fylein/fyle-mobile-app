@@ -279,7 +279,7 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
     this.trackingService.clickedOnHelpArticle();
     await this.browserHandlerService.openLinkWithToolbarColor(
       '#280a31',
-      'https://help.fylehq.com/en/articles/8045065-submit-your-receipts-via-text-message'
+      'https://www.fylehq.com/help/en/articles/8045065-submit-your-receipts-via-text-message'
     );
   }
 
