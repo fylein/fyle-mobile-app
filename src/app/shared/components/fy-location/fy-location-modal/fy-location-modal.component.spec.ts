@@ -51,7 +51,7 @@ describe('FyLocationModalComponent', () => {
             'getCurrentLocation',
             'getAutocompletePredictions',
             'getGeocode',
-            'bustCurrentLocationCache',
+            'clearCurrentLocationCache',
           ]),
         },
         {
@@ -671,7 +671,7 @@ describe('FyLocationModalComponent', () => {
       spyOn(component, 'setupPermissionDeniedPopover').and.resolveTo(popoverSpy);
       component.nativeSettings = jasmine.createSpyObj('NativeSettings', ['open']);
 
-      locationService.bustCurrentLocationCache = jasmine.createSpy('bustCurrentLocationCache');
+      locationService.clearCurrentLocationCache = jasmine.createSpy('clearCurrentLocationCache');
       const geoLocationSpy = jasmine.createSpyObj('Geolocation', ['requestPermissions']);
       geoLocationSpy.requestPermissions.and.resolveTo({ location: 'denied' });
       component.geoLocation = geoLocationSpy;
@@ -683,7 +683,7 @@ describe('FyLocationModalComponent', () => {
       tick();
 
       // Assert
-      expect(locationService.bustCurrentLocationCache).toHaveBeenCalledTimes(1);
+      expect(locationService.clearCurrentLocationCache).toHaveBeenCalledTimes(1);
       expect(component.setupPermissionDeniedPopover).toHaveBeenCalledTimes(1);
       expect(popoverSpy.present).toHaveBeenCalledTimes(1);
       expect(component.nativeSettings.open).toHaveBeenCalledOnceWith({
@@ -713,7 +713,7 @@ describe('FyLocationModalComponent', () => {
       tick(); // flush async
 
       // Assert
-      expect(locationService.bustCurrentLocationCache).toHaveBeenCalledTimes(1);
+      expect(locationService.clearCurrentLocationCache).toHaveBeenCalledTimes(1);
       expect(component.setupEnableLocationPopover).toHaveBeenCalledTimes(1);
       expect(popoverSpy.present).toHaveBeenCalledTimes(1);
       expect(component.nativeSettings.open).toHaveBeenCalledOnceWith({
