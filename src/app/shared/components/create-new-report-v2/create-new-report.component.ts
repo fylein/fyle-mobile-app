@@ -100,7 +100,7 @@ export class CreateNewReportComponent implements OnInit {
 
   async ctaClickedEvent(reportActionType: string): Promise<void> {
     this.showReportNameError = false;
-    if (this.reportTitle.trim().length <= 0) {
+    if (!this.reportTitle || this.reportTitle.trim().length <= 0) {
       this.showReportNameError = true;
       return;
     }
