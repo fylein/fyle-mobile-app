@@ -92,7 +92,6 @@ export class IconModule {
     'radio-circle-outline.svg',
     'rectangle.svg',
     'scooter.svg',
-    'search-not-found.svg',
     'search.svg',
     'send-back.svg',
     'send-fill.svg',
