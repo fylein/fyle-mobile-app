@@ -47,7 +47,7 @@ export class LocationService {
   /**
    * Busts the cache for the getCurrentLocation method.
    */
-  bustCurrentLocationCache(): void {
+  clearCurrentLocationCache(): void {
     currentLocationCacheBuster$.next();
   }
 
