@@ -1,12 +1,12 @@
 import { TestBed, ComponentFixture, waitForAsync, fakeAsync, tick } from '@angular/core/testing';
 import { FyLocationModalComponent } from './fy-location-modal.component';
-import { IonicModule, ModalController } from '@ionic/angular';
+import { IonicModule, ModalController, PopoverController } from '@ionic/angular';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { Observable, fromEvent, of, throwError } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { LocationService } from 'src/app/core/services/location.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { Geolocation, Position } from '@capacitor/geolocation';
+import { Geolocation } from '@capacitor/geolocation';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { GmapsService } from 'src/app/core/services/gmaps.service';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
@@ -20,6 +20,10 @@ import {
 } from 'src/app/core/mock-data/location.data';
 import { DEVICE_PLATFORM } from 'src/app/constants';
 
+import * as NativeSettings from 'capacitor-native-settings';
+import { AndroidSettings, IOSSettings } from 'capacitor-native-settings';
+import { PopupAlertComponent } from '../../popup-alert/popup-alert.component';
+
 describe('FyLocationModalComponent', () => {
   let component: FyLocationModalComponent;
   let fixture: ComponentFixture<FyLocationModalComponent>;
@@ -29,8 +33,10 @@ describe('FyLocationModalComponent', () => {
   let authService: jasmine.SpyObj<AuthService>;
   let loaderService: jasmine.SpyObj<LoaderService>;
   let gmapsService: jasmine.SpyObj<GmapsService>;
+  let popoverController: jasmine.SpyObj<PopoverController>;
 
   beforeEach(waitForAsync(() => {
+    const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     TestBed.configureTestingModule({
       declarations: [FyLocationModalComponent],
       imports: [IonicModule.forRoot(), FormsModule, ReactiveFormsModule],
@@ -45,6 +51,7 @@ describe('FyLocationModalComponent', () => {
             'getCurrentLocation',
             'getAutocompletePredictions',
             'getGeocode',
+            'bustCurrentLocationCache',
           ]),
         },
         {
@@ -58,6 +65,10 @@ describe('FyLocationModalComponent', () => {
         {
           provide: RecentLocalStorageItemsService,
           useValue: jasmine.createSpyObj('RecentLocalStorageItemsService', ['get', 'post']),
+        },
+        {
+          provide: PopoverController,
+          useValue: popoverControllerSpy,
         },
         {
           provide: Geolocation,
@@ -85,6 +96,7 @@ describe('FyLocationModalComponent', () => {
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
     gmapsService = TestBed.inject(GmapsService) as jasmine.SpyObj<GmapsService>;
+    popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     fixture.detectChanges();
   }));
 
@@ -590,63 +602,249 @@ describe('FyLocationModalComponent', () => {
     expect(formattedLocation).toBeUndefined();
   });
 
-  it('should fetch current location and dismiss the modal with the formatted location', fakeAsync(() => {
-    loaderService.showLoader.and.resolveTo();
-    loaderService.hideLoader.and.resolveTo();
-    locationService.getCurrentLocation.and.returnValue(of({ coords: { latitude: 12.345, longitude: 67.89 } }) as any);
-    gmapsService.getGeocode.and.returnValue(of({ formatted_address: 'Example Address' }) as any);
-    spyOn(component, 'formatGeocodeResponse').and.returnValue({ display: 'Example Address' });
-    component.currentGeolocationPermissionGranted = true;
+  describe('getCurrentLocation()', () => {
+    it('should fetch current location and dismiss the modal with the formatted location', fakeAsync(() => {
+      loaderService.showLoader.and.resolveTo();
+      loaderService.hideLoader.and.resolveTo();
+      locationService.getCurrentLocation.and.returnValue(of({ coords: { latitude: 12.345, longitude: 67.89 } }) as any);
+      gmapsService.getGeocode.and.returnValue(of({ formatted_address: 'Example Address' }) as any);
+      spyOn(component, 'formatGeocodeResponse').and.returnValue({ display: 'Example Address' });
+      component.currentGeolocationPermissionGranted = true;
 
-    component.getCurrentLocation();
-
-    tick(10000);
-
-    expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Loading current location...', 10000);
-    expect(locationService.getCurrentLocation).toHaveBeenCalledOnceWith({ enableHighAccuracy: true });
-    expect(gmapsService.getGeocode).toHaveBeenCalledOnceWith(12.345, 67.89);
-    expect(modalController.dismiss).toHaveBeenCalledOnceWith({ selection: { display: 'Example Address' } });
-    expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-  }));
-
-  it('should fetch current location and dismiss the modal with the formatted location', fakeAsync(() => {
-    loaderService.showLoader.and.resolveTo();
-    loaderService.hideLoader.and.resolveTo();
-    locationService.getCurrentLocation.and.returnValue(of(undefined));
-    gmapsService.getGeocode.and.returnValue(of({ formatted_address: 'Example Address' }) as any);
-    spyOn(component, 'formatGeocodeResponse').and.returnValue({ display: 'Example Address' });
-    component.currentGeolocationPermissionGranted = true;
-    component.getCurrentLocation();
-
-    tick(10000);
-
-    expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Loading current location...', 10000);
-    expect(locationService.getCurrentLocation).toHaveBeenCalledOnceWith({ enableHighAccuracy: true });
-    expect(gmapsService.getGeocode).toHaveBeenCalledTimes(1);
-    expect(modalController.dismiss).toHaveBeenCalledOnceWith({ selection: { display: 'Example Address' } });
-    expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-  }));
-
-  it('should handle error and set lookupFailed to true', fakeAsync(() => {
-    const error = new Error('Some error');
-
-    loaderService.showLoader.and.resolveTo();
-    loaderService.hideLoader.and.resolveTo();
-    locationService.getCurrentLocation.and.returnValue(of(null));
-    gmapsService.getGeocode.and.returnValue(throwError(() => error));
-    component.currentGeolocationPermissionGranted = true;
-
-    try {
       component.getCurrentLocation();
+
       tick(10000);
-    } catch (err) {
+
+      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Loading current location...', 10000);
+      expect(locationService.getCurrentLocation).toHaveBeenCalledOnceWith({ enableHighAccuracy: true });
+      expect(gmapsService.getGeocode).toHaveBeenCalledOnceWith(12.345, 67.89);
+      expect(modalController.dismiss).toHaveBeenCalledOnceWith({ selection: { display: 'Example Address' } });
+      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should fetch current location and dismiss the modal with the formatted location', fakeAsync(() => {
+      loaderService.showLoader.and.resolveTo();
+      loaderService.hideLoader.and.resolveTo();
+      locationService.getCurrentLocation.and.returnValue(of(undefined));
+      gmapsService.getGeocode.and.returnValue(of({ formatted_address: 'Example Address' }) as any);
+      spyOn(component, 'formatGeocodeResponse').and.returnValue({ display: 'Example Address' });
+      component.currentGeolocationPermissionGranted = true;
+      component.getCurrentLocation();
+
+      tick(10000);
+
       expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Loading current location...', 10000);
       expect(locationService.getCurrentLocation).toHaveBeenCalledOnceWith({ enableHighAccuracy: true });
       expect(gmapsService.getGeocode).toHaveBeenCalledTimes(1);
-      expect(modalController.dismiss).not.toHaveBeenCalled();
-      expect(component.lookupFailed).toBeTrue();
+      expect(modalController.dismiss).toHaveBeenCalledOnceWith({ selection: { display: 'Example Address' } });
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-      expect(err).toBe(error);
-    }
-  }));
+    }));
+
+    it('should handle error and set lookupFailed to true', fakeAsync(() => {
+      const error = new Error('Some error');
+
+      loaderService.showLoader.and.resolveTo();
+      loaderService.hideLoader.and.resolveTo();
+      locationService.getCurrentLocation.and.returnValue(of(null));
+      gmapsService.getGeocode.and.returnValue(throwError(() => error));
+      component.currentGeolocationPermissionGranted = true;
+
+      try {
+        component.getCurrentLocation();
+        tick(10000);
+      } catch (err) {
+        expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Loading current location...', 10000);
+        expect(locationService.getCurrentLocation).toHaveBeenCalledOnceWith({ enableHighAccuracy: true });
+        expect(gmapsService.getGeocode).toHaveBeenCalledTimes(1);
+        expect(modalController.dismiss).not.toHaveBeenCalled();
+        expect(component.lookupFailed).toBeTrue();
+        expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+        expect(err).toBe(error);
+      }
+    }));
+
+    it('should bust cache, show permission denied popover and open native settings when permission is denied', fakeAsync(() => {
+      const popoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onWillDismiss']);
+      popoverSpy.onWillDismiss.and.resolveTo({ data: { action: 'OPEN_SETTINGS' } });
+
+      const closeSpy = spyOn(component, 'close');
+      spyOn(component, 'setupPermissionDeniedPopover').and.resolveTo(popoverSpy);
+      component.nativeSettings = jasmine.createSpyObj('NativeSettings', ['open']);
+
+      locationService.bustCurrentLocationCache = jasmine.createSpy('bustCurrentLocationCache');
+      const geoLocationSpy = jasmine.createSpyObj('Geolocation', ['requestPermissions']);
+      geoLocationSpy.requestPermissions.and.resolveTo({ location: 'denied' });
+      component.geoLocation = geoLocationSpy;
+
+      component.currentGeolocationPermissionGranted = false;
+
+      // Act
+      component.getCurrentLocation();
+      tick();
+
+      // Assert
+      expect(locationService.bustCurrentLocationCache).toHaveBeenCalledTimes(1);
+      expect(component.setupPermissionDeniedPopover).toHaveBeenCalledTimes(1);
+      expect(popoverSpy.present).toHaveBeenCalledTimes(1);
+      expect(component.nativeSettings.open).toHaveBeenCalledOnceWith({
+        optionAndroid: AndroidSettings.ApplicationDetails,
+        optionIOS: IOSSettings.App,
+      });
+      expect(closeSpy).toHaveBeenCalledTimes(1);
+    }));
+  });
+
+  describe('askForEnableLocationSettings()', () => {
+    it('should bust cache, show popover, open native settings and close modal on OPEN_SETTINGS action', fakeAsync(() => {
+      // Arrange
+      const closeSpy = spyOn(component, 'close');
+      component.nativeSettings = jasmine.createSpyObj('NativeSettings', ['open']);
+      const popoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onWillDismiss']);
+      popoverSpy.onWillDismiss.and.resolveTo({
+        data: {
+          action: 'OPEN_SETTINGS',
+        },
+      });
+
+      spyOn(component, 'setupEnableLocationPopover').and.resolveTo(popoverSpy);
+
+      // Act
+      component.askForEnableLocationSettings();
+      tick(); // flush async
+
+      // Assert
+      expect(locationService.bustCurrentLocationCache).toHaveBeenCalledTimes(1);
+      expect(component.setupEnableLocationPopover).toHaveBeenCalledTimes(1);
+      expect(popoverSpy.present).toHaveBeenCalledTimes(1);
+      expect(component.nativeSettings.open).toHaveBeenCalledOnceWith({
+        optionAndroid: AndroidSettings.Location,
+        optionIOS: IOSSettings.LocationServices,
+      });
+      expect(closeSpy).toHaveBeenCalledTimes(1);
+    }));
+  });
+
+  describe('checkPermissionStatus()', () => {
+    let geoLocationSpy;
+    beforeEach(() => {
+      geoLocationSpy = jasmine.createSpyObj('Geolocation', ['checkPermissions']);
+    });
+
+    it('should set currentGeolocationPermissionGranted to true and isDeviceLocationEnabled to true when permission is granted', fakeAsync(async () => {
+      geoLocationSpy.checkPermissions.and.resolveTo({ location: 'granted' });
+      component.geoLocation = geoLocationSpy;
+
+      await component.checkPermissionStatus();
+
+      expect(component.geoLocation.checkPermissions).toHaveBeenCalledTimes(1);
+      expect(component.currentGeolocationPermissionGranted).toBeTrue();
+      expect(component.isDeviceLocationEnabled).toBeTrue();
+    }));
+
+    it('should set currentGeolocationPermissionGranted to false and isDeviceLocationEnabled to true when permission is denied', fakeAsync(async () => {
+      geoLocationSpy.checkPermissions.and.resolveTo({ location: 'denied' });
+      component.geoLocation = geoLocationSpy;
+
+      await component.checkPermissionStatus();
+
+      expect(component.geoLocation.checkPermissions).toHaveBeenCalledTimes(1);
+      expect(component.currentGeolocationPermissionGranted).toBeFalse();
+      expect(component.isDeviceLocationEnabled).toBeTrue();
+    }));
+
+    it('should set isDeviceLocationEnabled to false when checkPermissions throws error', fakeAsync(async () => {
+      geoLocationSpy.checkPermissions.and.rejectWith(new Error('Permission check failed'));
+      component.geoLocation = geoLocationSpy;
+
+      await component.checkPermissionStatus();
+
+      expect(component.geoLocation.checkPermissions).toHaveBeenCalledTimes(1);
+      expect(component.isDeviceLocationEnabled).toBeFalse();
+    }));
+  });
+
+  describe('Popover Setup Methods', () => {
+    describe('setupEnableLocationPopover()', () => {
+      it('should create popover with iOS-specific title and message', async () => {
+        component.devicePlatform = 'ios';
+
+        popoverController.create.and.resolveTo({} as HTMLIonPopoverElement);
+
+        await component.setupEnableLocationPopover();
+
+        expect(popoverController.create).toHaveBeenCalledOnceWith({
+          component: PopupAlertComponent,
+          componentProps: {
+            title: 'Enable Location Services',
+            message:
+              "To fetch your current location, please enable Location Services. Click 'Open Settings',then go to Privacy & Security and turn on Location Services",
+            primaryCta: {
+              text: 'Open settings',
+              action: 'OPEN_SETTINGS',
+            },
+            secondaryCta: {
+              text: 'Cancel',
+              action: 'CANCEL',
+            },
+          },
+          cssClass: 'pop-up-in-center',
+          backdropDismiss: false,
+        });
+      });
+
+      it('should create popover with Android-specific title and message', async () => {
+        component.devicePlatform = 'android';
+
+        popoverController.create.and.resolveTo({} as HTMLIonPopoverElement);
+
+        await component.setupEnableLocationPopover();
+
+        expect(popoverController.create).toHaveBeenCalledOnceWith({
+          component: PopupAlertComponent,
+          componentProps: {
+            title: 'Enable Location',
+            message:
+              "To fetch your current location, please enable Location. Click 'Open Settings' and turn on Location",
+            primaryCta: {
+              text: 'Open settings',
+              action: 'OPEN_SETTINGS',
+            },
+            secondaryCta: {
+              text: 'Cancel',
+              action: 'CANCEL',
+            },
+          },
+          cssClass: 'pop-up-in-center',
+          backdropDismiss: false,
+        });
+      });
+    });
+
+    describe('setupPermissionDeniedPopover()', () => {
+      it('should create permission denied popover with expected content', async () => {
+        popoverController.create.and.resolveTo({} as HTMLIonPopoverElement);
+
+        await component.setupPermissionDeniedPopover();
+
+        expect(popoverController.create).toHaveBeenCalledOnceWith({
+          component: PopupAlertComponent,
+          componentProps: {
+            title: 'Location permission',
+            message:
+              "To fetch current location, please allow Fyle to access your Location. Click on 'Open Settings', then enable both 'Location' and 'Precise Location' to continue.",
+            primaryCta: {
+              text: 'Open settings',
+              action: 'OPEN_SETTINGS',
+            },
+            secondaryCta: {
+              text: 'Cancel',
+              action: 'CANCEL',
+            },
+          },
+          cssClass: 'pop-up-in-center',
+          backdropDismiss: false,
+        });
+      });
+    });
+  });
 });

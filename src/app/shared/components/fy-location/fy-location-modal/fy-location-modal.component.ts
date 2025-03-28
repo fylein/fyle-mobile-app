@@ -57,6 +57,10 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
 
   lookupFailed = false;
 
+  nativeSettings = NativeSettings;
+
+  geoLocation = Geolocation;
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   filteredList$: Observable<any[]>;
 
@@ -102,7 +106,7 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
 
   async checkPermissionStatus(): Promise<void> {
     try {
-      const permission = await Geolocation.checkPermissions();
+      const permission = await this.geoLocation.checkPermissions();
       this.currentGeolocationPermissionGranted = permission.location === 'granted';
       this.isDeviceLocationEnabled = true;
     } catch (err) {
@@ -121,7 +125,7 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
       )
       .subscribe(({ data }) => {
         if (data?.action === 'OPEN_SETTINGS') {
-          NativeSettings.open({
+          this.nativeSettings.open({
             optionAndroid: AndroidSettings.Location,
             optionIOS: IOSSettings.LocationServices,
           });
@@ -337,9 +341,9 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
     const isIos = this.devicePlatform === 'ios';
     const locationServiceName = isIos ? 'Location Services' : 'Location';
     let title = `Enable ${locationServiceName}`;
-    const message = `To fetch current location, please enable ${locationServiceName}. Click Open Settings${
-      isIos ? ', go to Privacy & Security' : ''
-    } and enable ${locationServiceName}`;
+    const message = `To fetch your current location, please enable ${locationServiceName}. Click 'Open Settings'${
+      isIos ? ',then go to Privacy & Security' : ''
+    } and turn on ${locationServiceName}`;
 
     return this.popoverController.create({
       component: PopupAlertComponent,
@@ -362,7 +366,7 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
 
   setupPermissionDeniedPopover(): Promise<HTMLIonPopoverElement> {
     let title = 'Location permission';
-    const message = `To fetch current location, please allow Fyle to access your location. Click Open Settings and allow access to Location and Precise Location`;
+    const message = `To fetch current location, please allow Fyle to access your Location. Click on 'Open Settings', then enable both 'Location' and 'Precise Location' to continue.`;
 
     return this.popoverController.create({
       component: PopupAlertComponent,
@@ -406,7 +410,7 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
     } else {
       // edge case: need to bust this cache if location permission is denied to make getCurrentLocation work for the next time
       this.locationService.bustCurrentLocationCache();
-      const permission = await Geolocation.requestPermissions();
+      const permission = await this.geoLocation.requestPermissions();
       if (permission.location === 'denied' || permission.location === 'prompt-with-rationale') {
         from(this.setupPermissionDeniedPopover())
           .pipe(
@@ -415,7 +419,7 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
           )
           .subscribe(({ data }) => {
             if (data?.action === 'OPEN_SETTINGS') {
-              NativeSettings.open({
+              this.nativeSettings.open({
                 optionAndroid: AndroidSettings.ApplicationDetails,
                 optionIOS: IOSSettings.App,
               });
