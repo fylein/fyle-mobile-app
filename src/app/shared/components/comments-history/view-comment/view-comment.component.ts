@@ -10,11 +10,13 @@ import { Router } from '@angular/router';
 import { TrackingService } from '../../../../core/services/tracking.service';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import * as dayjs from 'dayjs';
+import { DateWithTimezonePipe } from 'src/app/shared/pipes/date-with-timezone.pipe';
 
 @Component({
   selector: 'app-view-comment',
   templateUrl: './view-comment.component.html',
   styleUrls: ['./view-comment.component.scss'],
+  providers: [DateWithTimezonePipe]
 })
 export class ViewCommentComponent implements OnInit {
   @Input() objectType: string;
@@ -57,7 +59,8 @@ export class ViewCommentComponent implements OnInit {
     private router: Router,
     private trackingService: TrackingService,
     private elementRef: ElementRef,
-    public platform: Platform
+    public platform: Platform,
+    private dateWithTimezonePipe: DateWithTimezonePipe,
   ) {}
 
   setContentScrollToBottom(): void {
@@ -194,8 +197,8 @@ export class ViewCommentComponent implements OnInit {
       this.userComments = estatuses.filter((status) => status.us_full_name);
 
       for (let i = 0; i < this.userComments.length; i++) {
-        const prevCommentDt = dayjs(this.userComments[i - 1] && this.userComments[i - 1].st_created_at);
-        const currentCommentDt = dayjs(this.userComments[i] && this.userComments[i].st_created_at);
+        const prevCommentDt = this.dateWithTimezonePipe.transform(this.userComments[i - 1] && this.userComments[i - 1].st_created_at);
+        const currentCommentDt = this.dateWithTimezonePipe.transform(this.userComments[i] && this.userComments[i].st_created_at);
         if (dayjs(prevCommentDt).isSame(currentCommentDt, 'day')) {
           this.userComments[i].show_dt = false;
         } else {
