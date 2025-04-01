@@ -3320,9 +3320,9 @@ export class AddEditExpensePage implements OnInit {
 
     this.initSplitTxn(orgSettings$);
 
-    this.setupExpenseFields();
-
     this.setupFilteredCategories();
+
+    this.setupExpenseFields();
 
     this.flightJourneyTravelClassOptions$ = this.txnFields$.pipe(
       map((txnFields) => {
