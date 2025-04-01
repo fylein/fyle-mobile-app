@@ -41,6 +41,7 @@ import {
   featureConfigWalkthroughStartData,
 } from 'src/app/core/mock-data/feature-config.data';
 import { FooterService } from 'src/app/core/services/footer.service';
+import { TimezoneService } from 'src/app/core/services/timezone.service';
 
 describe('DashboardPage', () => {
   let component: DashboardPage;
@@ -65,6 +66,7 @@ describe('DashboardPage', () => {
   let authService: jasmine.SpyObj<AuthService>;
   let modalController: jasmine.SpyObj<ModalController>;
   let footerService: jasmine.SpyObj<FooterService>;
+  let timezoneService: jasmine.SpyObj<TimezoneService>;
 
   beforeEach(waitForAsync(() => {
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
@@ -109,6 +111,7 @@ describe('DashboardPage', () => {
       footerCurrentStateIndex$: of(1),
     });
 
+    const timezoneServiceSpy = jasmine.createSpyObj('TimezoneService', ['setTimezone']);
     TestBed.configureTestingModule({
       declarations: [DashboardPage],
       imports: [IonicModule.forRoot()],
@@ -151,6 +154,10 @@ describe('DashboardPage', () => {
           useValue: snackbarPropertiesSpy,
         },
         { provide: FooterService, useValue: footerServiceSpy },
+        {
+          provide: TimezoneService,
+          useValue: timezoneServiceSpy,
+        },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -178,6 +185,7 @@ describe('DashboardPage', () => {
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     footerService = TestBed.inject(FooterService) as jasmine.SpyObj<FooterService>;
+    timezoneService = TestBed.inject(TimezoneService) as jasmine.SpyObj<TimezoneService>;
     fixture.detectChanges();
   }));
 
@@ -319,6 +327,7 @@ describe('DashboardPage', () => {
       component.orgUserSettings$.subscribe((res) => {
         expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
         expect(res).toEqual(orgUserSettingsData);
+        expect(timezoneService.setTimezone).toHaveBeenCalledTimes(1);
       });
     });
 
