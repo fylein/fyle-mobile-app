@@ -5,16 +5,5 @@ export interface Org {
   name: string;
   domain: string;
   currency: string;
-  branch_ifsc: string;
-  branch_account: string;
-  tally_bank_ledger?: any;
-  tally_default_category?: any;
-  tally_default_user?: any;
-  corporate_credit_card_details: {
-    bank_name?: any;
-    number_of_cards?: any;
-  };
-  verified: boolean;
-  lite: boolean;
-  dwolla_customers_metadata_id?: any;
+  is_verified: boolean;
 }

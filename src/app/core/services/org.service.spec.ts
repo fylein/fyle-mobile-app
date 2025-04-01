@@ -8,16 +8,19 @@ import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
 import { OrgService } from './org.service';
 import { TrackingService } from './tracking.service';
+import { SpenderService } from './platform/v1/spender/spender.service';
 import { cloneDeep } from 'lodash';
 
 describe('OrgService', () => {
   let orgService: OrgService;
   let apiService: jasmine.SpyObj<ApiService>;
+  let spenderService: jasmine.SpyObj<SpenderService>;
   let authService: jasmine.SpyObj<AuthService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
 
   beforeEach(() => {
     apiService = jasmine.createSpyObj('ApiService', ['get', 'post']);
+    spenderService = jasmine.createSpyObj('SpenderService', ['get', 'post']);
     authService = jasmine.createSpyObj('AuthService', ['newRefreshToken']);
     trackingService = jasmine.createSpyObj('TrackingService', ['activated']);
 
@@ -27,6 +30,10 @@ describe('OrgService', () => {
         {
           provide: ApiService,
           useValue: apiService,
+        },
+        {
+          provide: SpenderService,
+          useValue: spenderService,
         },
         {
           provide: AuthService,
@@ -40,6 +47,7 @@ describe('OrgService', () => {
     });
     orgService = TestBed.inject(OrgService);
     apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
+    spenderService = TestBed.inject(SpenderService) as jasmine.SpyObj<SpenderService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
   });
 
@@ -48,11 +56,11 @@ describe('OrgService', () => {
   });
 
   it('getCurrentOrg(): should get current org', (done) => {
-    apiService.get.and.returnValue(of(orgData1));
+    spenderService.get.and.returnValue(of({ data: orgData1 }));
 
     orgService.getCurrentOrg().subscribe((res) => {
       expect(res).toEqual(orgData1[0]);
-      expect(apiService.get).toHaveBeenCalledOnceWith('/orgs', {
+      expect(spenderService.get).toHaveBeenCalledOnceWith('/orgs', {
         params: {
           is_current: true,
         },
@@ -62,11 +70,11 @@ describe('OrgService', () => {
   });
 
   it('getPrimaryOrg(): should get primary org', (done) => {
-    apiService.get.and.returnValue(of(orgData1[0]));
+    spenderService.get.and.returnValue(of({ data: [orgData1[0]] }));
 
     orgService.getPrimaryOrg().subscribe((res) => {
       expect(res).toEqual(orgData1[0]);
-      expect(apiService.get).toHaveBeenCalledOnceWith('/orgs', {
+      expect(spenderService.get).toHaveBeenCalledOnceWith('/orgs', {
         params: {
           is_primary: true,
         },
@@ -76,23 +84,23 @@ describe('OrgService', () => {
   });
 
   it('getOrgs(): should get orgs', (done) => {
-    apiService.get.and.returnValue(of(orgData1));
+    spenderService.get.and.returnValue(of({ data: orgData1 }));
 
     orgService.getOrgs().subscribe((res) => {
       expect(res).toEqual(orgData1);
-      expect(apiService.get).toHaveBeenCalledTimes(1);
+      expect(spenderService.get).toHaveBeenCalledTimes(1);
       done();
     });
   });
 
   it('updateOrg(): should update org', (done) => {
-    apiService.post.and.returnValue(of(orgData1[0]));
+    spenderService.post.and.returnValue(of({ data: orgData1[0] }));
     spyOn(globalCacheBusterNotifier, 'next');
 
     orgService.updateOrg(orgData1[0]).subscribe((res) => {
       expect(res).toEqual(orgData1[0]);
-      expect(globalCacheBusterNotifier.next).toHaveBeenCalledBefore(apiService.post);
-      expect(apiService.post).toHaveBeenCalledOnceWith('/orgs', orgData1[0]);
+      expect(globalCacheBusterNotifier.next).toHaveBeenCalledBefore(spenderService.post);
+      expect(spenderService.post).toHaveBeenCalledOnceWith('/orgs', orgData1[0]);
       done();
     });
   });

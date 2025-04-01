@@ -8,6 +8,7 @@ import { Cacheable, globalCacheBusterNotifier } from 'ts-cacheable';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
 import { CurrencyIp } from '../models/currency-ip.model';
 import { AuthResponse } from '../models/auth-response.model';
+import { SpenderService } from './platform/v1/spender/spender.service';
 
 const orgsCacheBuster$ = new Subject<void>();
 
@@ -15,37 +16,43 @@ const orgsCacheBuster$ = new Subject<void>();
   providedIn: 'root',
 })
 export class OrgService {
-  constructor(private apiService: ApiService, private authService: AuthService) {}
+  constructor(
+    private apiService: ApiService,
+    private authService: AuthService,
+    private spenderService: SpenderService
+  ) {}
 
   @Cacheable({
     cacheBusterObserver: orgsCacheBuster$,
   })
   getCurrentOrg(): Observable<Org> {
-    return this.apiService
-      .get('/orgs', {
+    return this.spenderService
+      .get<{ data: Org[] }>('/orgs', {
         params: {
           is_current: true,
         },
       })
-      .pipe(map((orgs) => orgs[0] as Org));
+      .pipe(map((response) => response.data[0]));
   }
 
   @Cacheable({
     cacheBusterObserver: orgsCacheBuster$,
   })
   getPrimaryOrg(): Observable<Org> {
-    return this.apiService.get('/orgs', {
-      params: {
-        is_primary: true,
-      },
-    });
+    return this.spenderService
+      .get<{ data: Org[] }>('/orgs', {
+        params: {
+          is_primary: true,
+        },
+      })
+      .pipe(map((response) => response.data[0]));
   }
 
   @Cacheable({
     cacheBusterObserver: orgsCacheBuster$,
   })
   getOrgs(): Observable<Org[]> {
-    return this.apiService.get('/orgs').pipe(map((res) => res as Org[]));
+    return this.spenderService.get<{ data: Org[] }>('/orgs').pipe(map((response) => response.data));
   }
 
   suggestOrgCurrency(): Observable<string> {
@@ -60,7 +67,7 @@ export class OrgService {
 
   updateOrg(org: Org): Observable<Org> {
     globalCacheBusterNotifier.next();
-    return this.apiService.post('/orgs', org);
+    return this.spenderService.post<{ data: Org }>('/orgs', org).pipe(map((response) => response.data));
   }
 
   setCurrencyBasedOnIp(): Observable<Org> {
