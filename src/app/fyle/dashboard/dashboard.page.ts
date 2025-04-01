@@ -35,6 +35,7 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
 import { driver } from 'driver.js';
 import { WalkthroughService } from 'src/app/core/services/walkthrough.service';
 import { FooterService } from 'src/app/core/services/footer.service';
+import { TimezoneService } from 'src/app/core/services/timezone.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -114,7 +115,8 @@ export class DashboardPage {
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
     private walkthroughService: WalkthroughService,
-    private footerService: FooterService
+    private footerService: FooterService,
+    private timezoneService: TimezoneService
   ) {}
 
   get displayedTaskCount(): number {
@@ -346,6 +348,11 @@ export class DashboardPage {
     this.eou$ = from(this.authService.getEou()).pipe(shareReplay(1));
     this.isUserFromINCluster$ = from(this.utilityService.isUserFromINCluster());
     const openSMSOptInDialog = this.activatedRoute.snapshot.params.openSMSOptInDialog as string;
+
+    this.orgUserSettings$.subscribe((orgUserSettings) => {
+      this.timezoneService.setTimezone(orgUserSettings?.locale);
+    });
+
     if (openSMSOptInDialog !== 'true') {
       this.eou$
         .pipe(
