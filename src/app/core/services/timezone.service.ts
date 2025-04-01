@@ -1,7 +1,11 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { cloneDeep } from 'lodash';
 import { TxnCustomProperties } from '../models/txn-custom-properties.model';
 import { UtilityService } from './utility.service';
+import { Locale } from '../models/org_user_settings.model';
+import { TIMEZONE } from 'src/app/constants';
+import { BehaviorSubject } from 'rxjs';
+import { LaunchDarklyService } from './launch-darkly.service';
 
 @Injectable({
   providedIn: 'root',
@@ -2930,7 +2934,11 @@ export class TimezoneService {
     },
   ];
 
-  constructor(private utilityService: UtilityService) {}
+  constructor(
+    private utilityService: UtilityService,
+    @Inject(TIMEZONE) private timezone$: BehaviorSubject<string>,
+    private launchDarklyService: LaunchDarklyService
+  ) {}
 
   //TODO: Add proper types after utility service has been fixed
   convertAllDatesToProperLocale(object: TxnCustomProperties[], offset: string): TxnCustomProperties[] | Date {
@@ -2982,5 +2990,15 @@ export class TimezoneService {
 
   convertToUtc(date: Date, offset: string): Date {
     return this.convertToTimezone(date, offset, true);
+  }
+
+  setTimezone(locale: Locale): void {
+    this.launchDarklyService.getVariation('timezone_conversion', false).subscribe((timezoneConversion) => {
+      if (timezoneConversion) {
+        this.timezone$.next(locale?.timezone || 'UTC');
+      } else {
+        this.timezone$.next('');
+      }
+    });
   }
 }
