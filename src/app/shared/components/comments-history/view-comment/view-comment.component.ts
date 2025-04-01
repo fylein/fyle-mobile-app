@@ -5,7 +5,6 @@ import { finalize, map, startWith, switchMap } from 'rxjs/operators';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { StatusService } from 'src/app/core/services/status.service';
-import { Expense } from '../../../../core/models/expense.model';
 import { Router } from '@angular/router';
 import { TrackingService } from '../../../../core/services/tracking.service';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
@@ -16,16 +15,16 @@ import { DateWithTimezonePipe } from 'src/app/shared/pipes/date-with-timezone.pi
   selector: 'app-view-comment',
   templateUrl: './view-comment.component.html',
   styleUrls: ['./view-comment.component.scss'],
-  providers: [DateWithTimezonePipe]
+  providers: [DateWithTimezonePipe],
 })
 export class ViewCommentComponent implements OnInit {
   @Input() objectType: string;
 
-  @Input() objectId: any;
+  @Input() objectId: string;
 
   @ViewChild(IonContent, { static: false }) content: IonContent;
 
-  @ViewChild('commentInput') commentInput: ElementRef;
+  @ViewChild('commentInput') commentInput: ElementRef<HTMLInputElement>;
 
   estatuses$: Observable<ExtendedStatus[]>;
 
@@ -41,7 +40,7 @@ export class ViewCommentComponent implements OnInit {
 
   systemComments: ExtendedStatus[];
 
-  userComments: any;
+  userComments: ExtendedStatus[];
 
   type: string;
 
@@ -60,14 +59,14 @@ export class ViewCommentComponent implements OnInit {
     private trackingService: TrackingService,
     private elementRef: ElementRef,
     public platform: Platform,
-    private dateWithTimezonePipe: DateWithTimezonePipe,
+    private dateWithTimezonePipe: DateWithTimezonePipe
   ) {}
 
   setContentScrollToBottom(): void {
     this.content.scrollToBottom(500);
   }
 
-  addComment() {
+  addComment(): void {
     if (this.newComment) {
       const data = {
         comment: this.newComment,
@@ -80,13 +79,13 @@ export class ViewCommentComponent implements OnInit {
       this.statusService
         .post(this.objectType, this.objectId, data)
         .pipe()
-        .subscribe((res) => {
+        .subscribe(() => {
           this.refreshEstatuses$.next(null);
         });
     }
   }
 
-  async closeCommentModal() {
+  async closeCommentModal(): Promise<void> {
     if (this.newComment) {
       const unsavedChangesPopOver = await this.popoverController.create({
         component: PopupAlertComponent,
@@ -106,7 +105,7 @@ export class ViewCommentComponent implements OnInit {
       });
 
       await unsavedChangesPopOver.present();
-      const { data } = await unsavedChangesPopOver.onWillDismiss();
+      const { data } = await unsavedChangesPopOver.onWillDismiss<{ action: string }>();
 
       if (data && data.action === 'discard') {
         this.trackingService.viewComment();
@@ -123,7 +122,7 @@ export class ViewCommentComponent implements OnInit {
     }
   }
 
-  segmentChanged() {
+  segmentChanged(): void {
     this.isCommentsView = !this.isCommentsView;
     if (!this.isSwipe) {
       this.trackingService.commentsHistoryActions({
@@ -134,10 +133,12 @@ export class ViewCommentComponent implements OnInit {
     this.isSwipe = false;
   }
 
-  swipeRightToHistory(event) {
+  swipeRightToHistory(event: { direction: number }): void {
     this.isSwipe = true;
     if (event && event.direction === 2) {
-      const historyBtn = this.elementRef.nativeElement.getElementsByClassName('view-comment--segment-block__btn')[1];
+      const historyBtn = (this.elementRef.nativeElement as HTMLElement).getElementsByClassName(
+        'view-comment--segment-block__btn'
+      )[1] as HTMLElement;
       historyBtn.click();
       this.trackingService.commentsHistoryActions({
         action: 'swipe',
@@ -146,10 +147,12 @@ export class ViewCommentComponent implements OnInit {
     }
   }
 
-  swipeLeftToComments(event) {
+  swipeLeftToComments(event: { direction: number }): void {
     this.isSwipe = true;
     if (event && event.direction === 4) {
-      const commentsBtn = this.elementRef.nativeElement.getElementsByClassName('view-comment--segment-block__btn')[0];
+      const commentsBtn = (this.elementRef.nativeElement as HTMLElement).getElementsByClassName(
+        'view-comment--segment-block__btn'
+      )[0] as HTMLElement;
       commentsBtn.click();
       this.trackingService.commentsHistoryActions({
         action: 'swipe',
@@ -158,7 +161,7 @@ export class ViewCommentComponent implements OnInit {
     }
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     const eou$ = from(this.authService.getEou());
 
     this.estatuses$ = this.refreshEstatuses$.pipe(
@@ -197,8 +200,12 @@ export class ViewCommentComponent implements OnInit {
       this.userComments = estatuses.filter((status) => status.us_full_name);
 
       for (let i = 0; i < this.userComments.length; i++) {
-        const prevCommentDt = this.dateWithTimezonePipe.transform(this.userComments[i - 1] && this.userComments[i - 1].st_created_at);
-        const currentCommentDt = this.dateWithTimezonePipe.transform(this.userComments[i] && this.userComments[i].st_created_at);
+        const prevCommentDt = this.dateWithTimezonePipe.transform(
+          this.userComments[i - 1] && this.userComments[i - 1].st_created_at
+        );
+        const currentCommentDt = this.dateWithTimezonePipe.transform(
+          this.userComments[i] && this.userComments[i].st_created_at
+        );
         if (dayjs(prevCommentDt).isSame(currentCommentDt, 'day')) {
           this.userComments[i].show_dt = false;
         } else {
