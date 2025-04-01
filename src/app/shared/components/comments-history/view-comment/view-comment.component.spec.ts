@@ -12,7 +12,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { DateFormatPipe } from 'src/app/shared/pipes/date-format.pipe';
 import { PopupAlertComponent } from '../../popup-alert/popup-alert.component';
-import { of } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
 
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import {
@@ -21,6 +21,8 @@ import {
   updateReponseWithFlattenedEStatus,
 } from 'src/app/core/test-data/status.service.spec.data';
 import { cloneDeep } from 'lodash';
+import { DateWithTimezonePipe } from 'src/app/shared/pipes/date-with-timezone.pipe';
+import { TIMEZONE } from 'src/app/constants';
 
 describe('ViewCommentComponent', () => {
   let component: ViewCommentComponent;
@@ -46,7 +48,7 @@ describe('ViewCommentComponent', () => {
     const dateFormatPipeSpy = jasmine.createSpyObj('DateFormatPipe', ['transform']);
 
     TestBed.configureTestingModule({
-      declarations: [ViewCommentComponent, DateFormatPipe],
+      declarations: [ViewCommentComponent, DateFormatPipe, DateWithTimezonePipe],
       imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, FormsModule],
       providers: [
         { provide: StatusService, useValue: statusService },
@@ -58,6 +60,7 @@ describe('ViewCommentComponent', () => {
         { provide: ElementRef, useValue: elementRef },
         { provide: Platform, useValue: platform },
         { provide: DateFormatPipe, useValue: dateFormatPipeSpy },
+        { provide: TIMEZONE, useValue: new BehaviorSubject<string>('UTC') },
       ],
     }).compileComponents();
 

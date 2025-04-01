@@ -24,7 +24,6 @@ import { Capacitor } from '@capacitor/core';
 import { NgOtpInputModule } from 'ng-otp-input';
 import { TIMEZONE } from './constants';
 import { BehaviorSubject } from 'rxjs';
-import { OrgUserSettingsService } from './core/services/org-user-settings.service';
 
 export class MyHammerConfig extends HammerGestureConfig {
   overrides = {
@@ -85,15 +84,7 @@ export const MIN_SCREEN_WIDTH = new InjectionToken<number>(
     {
       provide: APP_INITIALIZER,
       useFactory: (configService: ConfigService) => (): Promise<void> => configService.loadConfigurationData(),
-      deps: [
-        ConfigService,
-        RouterAuthService,
-        TokenService,
-        SecureStorageService,
-        StorageService,
-        Sentry.TraceService,
-        OrgUserSettingsService,
-      ],
+      deps: [ConfigService, RouterAuthService, TokenService, SecureStorageService, StorageService, Sentry.TraceService],
       multi: true,
     },
     {
