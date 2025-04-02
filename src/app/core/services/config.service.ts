@@ -13,7 +13,7 @@ export class ConfigService {
     private secureStorageService: SecureStorageService
   ) {}
 
-  async loadConfigurationData() {
+  async loadConfigurationData(): Promise<void> {
     const clusterDomain: string = await this.tokenService.getClusterDomain();
 
     if (clusterDomain) {

@@ -37,7 +37,7 @@
         <app-fy-zero-state
           [header]="'No such ' + label + ' found'"
           [submessage]="'Search for another ' + label + ' or select one from the list.'"
-          [image]="'../../../../assets/images/zero-states/search-not-found.svg'"
+          [image]="'../../../../assets/images/zero-states/search.png'"
           [unscaledImage]="true"
           [useNewStyling]="true"
         ></app-fy-zero-state>
@@ -48,7 +48,7 @@
       <ng-container *ngFor="let filteredListItem of filteredOptions$ | async as list">
         <div
           (click)="onElementSelect(filteredListItem)"
-          *ngIf="!filteredListItem.value && filteredListItem.label.length > 0"
+          *ngIf="!filteredListItem.value && filteredListItem?.label?.length > 0"
           class="selection-modal--list-element"
           matRipple
         >
@@ -99,7 +99,7 @@
       <ng-container *ngFor="let filteredListItem of filteredOptions$ | async as list">
         <div
           (click)="onElementSelect(filteredListItem)"
-          *ngIf="filteredListItem.label.length > 0"
+          *ngIf="filteredListItem?.label?.length > 0"
           class="selection-modal--list-element"
           matRipple
         >

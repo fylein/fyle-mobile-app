@@ -602,7 +602,7 @@ describe('CaptureReceiptComponent', () => {
         componentProps: {
           title: 'Camera permission',
           message:
-            'To capture photos, please allow Fyle to access your camera. Click Settings and allow access to Camera and Storage',
+            'To capture photos, please allow Fyle to access your camera. Click Open Settings and allow access to Camera and Storage',
           primaryCta: {
             text: 'Open settings',
             action: 'OPEN_SETTINGS',

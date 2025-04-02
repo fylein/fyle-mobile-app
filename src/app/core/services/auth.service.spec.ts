@@ -126,7 +126,7 @@ describe('AuthService', () => {
       jwtHelperService.decodeToken.and.returnValue(apiTokenWithoutRoles);
 
       authService.getRoles().subscribe((res) => {
-        expect(res).toEqual([]);
+        expect(res).toBeUndefined();
         expect(tokenService.getAccessToken).toHaveBeenCalledTimes(1);
         expect(jwtHelperService.decodeToken).toHaveBeenCalledOnceWith(access_token);
         done();

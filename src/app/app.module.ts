@@ -22,6 +22,8 @@ import { PAGINATION_SIZE, DEVICE_PLATFORM } from './constants';
 import { Smartlook } from '@awesome-cordova-plugins/smartlook/ngx';
 import { Capacitor } from '@capacitor/core';
 import { NgOtpInputModule } from 'ng-otp-input';
+import { TIMEZONE } from './constants';
+import { BehaviorSubject } from 'rxjs';
 
 export class MyHammerConfig extends HammerGestureConfig {
   overrides = {
@@ -75,6 +77,10 @@ export const MIN_SCREEN_WIDTH = new InjectionToken<number>(
     },
     CurrencyPipe,
     ConfigService,
+    {
+      provide: TIMEZONE,
+      useValue: new BehaviorSubject<string>('UTC'),
+    },
     {
       provide: APP_INITIALIZER,
       useFactory: (configService: ConfigService) => (): Promise<void> => configService.loadConfigurationData(),

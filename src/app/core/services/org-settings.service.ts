@@ -427,6 +427,10 @@ export class OrgSettingsService {
         allowed: incoming.pending_cct_expense_restriction?.allowed,
         enabled: incoming.pending_cct_expense_restriction?.enabled,
       },
+      simplified_multi_stage_approvals: {
+        allowed: incoming.simplified_multi_stage_approvals?.allowed,
+        enabled: incoming.simplified_multi_stage_approvals?.enabled,
+      },
     };
 
     Object.keys(orgSettings).forEach((settingsType) => {

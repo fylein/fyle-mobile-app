@@ -88,7 +88,7 @@ Here are some common issues and how to fix them:
 ```bash
   Property 'LIVE_UPDATE_APP_VERSION' does not exist on type
   '{ production: boolean; NAME: string; ROOT_URL: string; ROUTER_API_ENDPOINT: string;
-  ANDROID_CLIENT_ID: string; IP_FIND_KEY: string; GOOGLE_MAPS_API_KEY: string; FRESHCHAT_TOKEN: string;
+  ANDROID_CLIENT_ID: string; GOOGLE_MAPS_API_KEY: string; FRESHCHAT_TOKEN: string;
   SENTRY_DSN: string; REFINER_NPS_FORM_ID: string; }'
 ```
 
