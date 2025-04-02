@@ -21,6 +21,9 @@
 	"server": {
 		"androidScheme": "http"
 	},
+	"android": {
+		"adjustMarginsForEdgeToEdge": "force"
+	},
 	"packageClassList": [
 		"CameraPreview",
 		"AppPlugin",
