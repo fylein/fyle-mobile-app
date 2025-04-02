@@ -92,6 +92,8 @@ export class DashboardPage {
 
   walkthroughOverlayStartIndex = 0;
 
+  userName = '';
+
   constructor(
     private currencyService: CurrencyService,
     private networkService: NetworkService,
@@ -362,6 +364,8 @@ export class DashboardPage {
             } else {
               this.showNavbarWalkthrough(false);
             }
+
+            this.userName = eou.us.full_name;
           })
         )
         .subscribe(noop);

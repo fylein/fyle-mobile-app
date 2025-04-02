@@ -47,6 +47,9 @@
 <ion-content class="dashboard--body">
   <mat-tab-group animationDuration="0ms" class="dashboard--tabs" [selectedIndex]="currentStateIndex">
     <mat-tab label="stats">
+      <div class="dashboard--greetings-text smartlook-hide">
+        Hi there, {{ userName }}! <span class="dashboard--handwave">👋</span>
+      </div>
       <ng-container *ngIf="isConnected$ | async">
         <ng-container *ngIf="!(isUserFromINCluster$ | async)">
           <ng-container *ngIf="eou$ | async as eou">
