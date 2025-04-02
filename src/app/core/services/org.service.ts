@@ -9,6 +9,7 @@ import { ExtendedOrgUser } from '../models/extended-org-user.model';
 import { CurrencyIp } from '../models/currency-ip.model';
 import { AuthResponse } from '../models/auth-response.model';
 import { SpenderService } from './platform/v1/spender/spender.service';
+import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 
 const orgsCacheBuster$ = new Subject<void>();
 
@@ -27,7 +28,7 @@ export class OrgService {
   })
   getCurrentOrg(): Observable<Org> {
     return this.spenderService
-      .get<{ data: Org[] }>('/orgs', {
+      .get<PlatformApiResponse<Org[]>>('/orgs', {
         params: {
           is_current: true,
         },
@@ -40,7 +41,7 @@ export class OrgService {
   })
   getPrimaryOrg(): Observable<Org> {
     return this.spenderService
-      .get<{ data: Org[] }>('/orgs', {
+      .get<PlatformApiResponse<Org[]>>('/orgs', {
         params: {
           is_primary: true,
         },
@@ -52,7 +53,7 @@ export class OrgService {
     cacheBusterObserver: orgsCacheBuster$,
   })
   getOrgs(): Observable<Org[]> {
-    return this.spenderService.get<{ data: Org[] }>('/orgs').pipe(map((response) => response.data));
+    return this.spenderService.get<PlatformApiResponse<Org[]>>('/orgs').pipe(map((response) => response.data));
   }
 
   suggestOrgCurrency(): Observable<string> {
@@ -67,7 +68,7 @@ export class OrgService {
 
   updateOrg(org: Org): Observable<Org> {
     globalCacheBusterNotifier.next();
-    return this.spenderService.post<{ data: Org }>('/orgs', org).pipe(map((response) => response.data));
+    return this.spenderService.post<PlatformApiResponse<Org>>('/orgs', org).pipe(map((response) => response.data));
   }
 
   setCurrencyBasedOnIp(): Observable<Org> {
