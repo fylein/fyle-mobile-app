@@ -108,7 +108,7 @@
             <div *ngIf="!showViewApproverModal">
               <div *ngFor="let approver of report.approvals">
                 <div class="view-reports--approvers-list">
-                  <div class="smartlook-hide">{{ approver?.approver_user?.full_name }}</div>
+                  <div class="smartlook-hide">{{ approver?.approver_user?.full_name | ellipsis: 15 }}</div>
                   <div class="view-reports--approver-state-section">
                     <div
                       class="view-reports--approver-state-pill view-reports--approver-state-pill__{{approver.state | lowercase}}"
