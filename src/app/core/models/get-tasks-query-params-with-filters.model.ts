@@ -6,4 +6,5 @@ export interface GetTasksQueryParamsWithFilters {
   sortParam: string;
   sortDir: string;
   searchString: string;
+  and?: string;
 }

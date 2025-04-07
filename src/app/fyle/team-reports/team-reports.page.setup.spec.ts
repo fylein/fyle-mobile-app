@@ -19,6 +19,7 @@ import { TestCases3 } from './team-reports-3.page.spec';
 import { TestCases4 } from './team-reports-4.page.spec';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 import { AuthService } from 'src/app/core/services/auth.service';
+import { LaunchDarklyService } from '../../core/services/launch-darkly.service';
 
 describe('TeamReportsPage', () => {
   const getTestBed = () => {
@@ -56,7 +57,7 @@ describe('TeamReportsPage', () => {
       'getReportsCount',
     ]);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
-
+    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
     TestBed.configureTestingModule({
       declarations: [TeamReportsPage, ReportState],
       imports: [IonicModule.forRoot()],
@@ -75,6 +76,7 @@ describe('TeamReportsPage', () => {
         { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
         { provide: ApproverReportsService, useValue: approverReportsServiceSpy },
         { provide: AuthService, useValue: authServiceSpy },
+        { provide: LaunchDarklyService, useValue: launchDarklyServiceSpy },
         ReportState,
       ],
       schemas: [NO_ERRORS_SCHEMA],

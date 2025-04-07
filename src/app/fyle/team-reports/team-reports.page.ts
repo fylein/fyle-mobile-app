@@ -1,12 +1,12 @@
 import { Component, OnInit, ViewChild, ElementRef, EventEmitter } from '@angular/core';
-import { Observable, BehaviorSubject, fromEvent, noop, concat, Subject, from } from 'rxjs';
+import { Observable, BehaviorSubject, fromEvent, noop, concat, Subject, from, combineLatest } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalController } from '@ionic/angular';
 import { DateService } from 'src/app/core/services/date.service';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { CurrencyService } from 'src/app/core/services/currency.service';
-import { map, distinctUntilChanged, debounceTime, switchMap, shareReplay } from 'rxjs/operators';
+import { map, distinctUntilChanged, debounceTime, switchMap, shareReplay, take } from 'rxjs/operators';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { ExtendQueryParamsService } from 'src/app/core/services/extend-query-params.service';
 import { HeaderState } from '../../shared/components/fy-header/header-state.enum';
@@ -30,6 +30,7 @@ import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-team-reports',
@@ -52,6 +53,8 @@ export class TeamReportsPage implements OnInit {
   isLoading = false;
 
   isLoadingDataInInfiniteScroll: boolean;
+
+  filterForMultiStageApproval: boolean;
 
   loadData$: BehaviorSubject<Partial<GetTasksQueryParamsWithFilters>>;
 
@@ -102,7 +105,8 @@ export class TeamReportsPage implements OnInit {
     private orgSettingsService: OrgSettingsService,
     private reportStatePipe: ReportState,
     private approverReportsService: ApproverReportsService,
-    private authService: AuthService
+    private authService: AuthService,
+    private launchDarklyService: LaunchDarklyService
   ) {}
 
   get HeaderState(): typeof HeaderState {
@@ -168,16 +172,38 @@ export class TeamReportsPage implements OnInit {
         });
 
       const paginatedPipe = this.loadData$.pipe(
+        switchMap((params) =>
+          combineLatest([
+            orgSettings$.pipe(take(1)),
+            this.eou$.pipe(take(1)),
+            this.launchDarklyService.getVariation('show_multi_stage_approval_flow', false),
+          ]).pipe(
+            map(([orgSettings, eou, showMultiStageApprovalFlow]) => {
+              this.filterForMultiStageApproval =
+                orgSettings?.simplified_multi_stage_approvals?.allowed &&
+                orgSettings?.simplified_multi_stage_approvals?.enabled &&
+                showMultiStageApprovalFlow;
+              return {
+                ...params,
+                userId: eou.us.id,
+              };
+            })
+          )
+        ),
         switchMap((params) => {
           let queryParams = params.queryParams;
           queryParams = this.extendQueryParamsService.extendQueryParamsForTextSearch(queryParams, params.searchString);
           const orderByParams =
             params.sortParam && params.sortDir ? `${params.sortParam}.${params.sortDir}` : 'created_at.desc,id.desc';
           this.isLoadingDataInInfiniteScroll = true;
+
           return this.approverReportsService.getReportsByParams({
             offset: (params.pageNumber - 1) * 10,
             limit: 10,
             ...queryParams,
+            or: this.filterForMultiStageApproval
+              ? `(next_approver_user_ids.cs.[${params.userId}], approvals.cs.[{'approver_user_id':'${params.userId}','state':'APPROVAL_DONE'}], state.in.(APPROVER_INQUIRY,APPROVED,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID))`
+              : '',
             order: orderByParams,
           });
         }),
