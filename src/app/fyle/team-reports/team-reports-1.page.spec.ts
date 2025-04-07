@@ -22,7 +22,7 @@ import {
   tasksQueryParamsWithFiltersData,
   tasksQueryParamsWithFiltersData2,
 } from 'src/app/core/mock-data/get-tasks-query-params-with-filters.data';
-import { getTeamReportsParams1, getTeamReportsParams2 } from 'src/app/core/mock-data/api-params.data';
+import { getTeamReportsParams1 } from 'src/app/core/mock-data/api-params.data';
 import { GetTasksQueryParamsWithFilters } from 'src/app/core/models/get-tasks-query-params-with-filters.model';
 import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-report.data';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
@@ -222,7 +222,6 @@ export function TestCases1(getTestBed) {
           expect(eou).toEqual(apiEouRes);
           expect(approverReportsService.getReportsByParams).toHaveBeenCalledTimes(1);
           expect(approverReportsService.getReportsByParams).toHaveBeenCalledWith(getTeamReportsParams1);
-          expect(approverReportsService.getReportsByParams).toHaveBeenCalledWith(getTeamReportsParams2);
           expect(component.isLoadingDataInInfiniteScroll).toBeFalse();
           expect(component.acc).toEqual(expectedReportsSinglePage);
           component.teamReports$.subscribe((teamReports) => {
