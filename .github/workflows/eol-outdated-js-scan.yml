@@ -9,28 +9,15 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  filter:
-    name: Get changed files
-    runs-on: ubuntu-latest
-
-    outputs:
-      run-scan: ${{ steps.filter.outputs.dependencies }}
-
-    steps:
-      - name: Filter paths
-        id: filter
-        uses: dorny/paths-filter@v3
-        with:
-          filters: |
-            dependencies:
-              - 'package-lock.json'
-              - 'suppression.xml'
-
   scan:
     name: Run scanner
     runs-on: ubuntu-latest
-    needs: filter
-    if: needs.filter.outputs.run-scan == 'true'
+    permissions:
+      # required for all workflows
+      security-events: write
+      # only required for workflows in private repositories
+      actions: read
+      contents: read
 
     steps:
       - name: Checkout
@@ -52,10 +39,24 @@ jobs:
 
       - name: Install modules
         if: steps.node-cache.outputs.cache-hit != 'true'
-        run: npm ci
+        run: npm ci && cd app-v2 && npm ci
 
-      - name: Depcheck
-        uses: fylein/eol-outdated-js-scan-action@master
+      - name: Run Dependency Check
+        uses: dependency-check/Dependency-Check_Action@main
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          suppression: 'suppression.xml'
+          path: .
+          format: 'SARIF'
+          project: ${{ github.workspace }}
+          args: >
+            --failOnCVSS 7
+            --exclude "**/node_modules/**"
+            --suppression suppression.xml
+
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          # Path to SARIF file relative to the root of the repository
+          sarif_file: reports/dependency-check-report.sarif
+          # Optional category for the results
+          # Used to differentiate multiple results for one commit
+          category: eol-outdated-js
