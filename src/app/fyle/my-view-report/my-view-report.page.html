@@ -101,7 +101,11 @@
           <div *ngIf="report.approvals.length > 0" class="view-reports--approval-state-block">
             <div class="view-reports--approvers">
               Approvers
-              <div *ngIf="showViewApproverModal" class="view-reports--view-approvers" (click)="openViewApproverModal()">
+              <div
+                *ngIf="showViewApproverModal && approvals.length > 1"
+                class="view-reports--view-approvers"
+                (click)="openViewApproverModal()"
+              >
                 View all
               </div>
             </div>
@@ -121,10 +125,7 @@
                 </div>
               </div>
             </div>
-            <div
-              *ngIf="showViewApproverModal && approvals.length > 1 && approverToShow"
-              class="view-reports--approvers-list"
-            >
+            <div *ngIf="showViewApproverModal && approverToShow" class="view-reports--approvers-list">
               <div class="smartlook-hide">{{ approverToShow?.approver_user?.full_name | ellipsis: 15 }}</div>
               <div class="view-reports--approver-state-section">
                 <div
