@@ -46,7 +46,7 @@ export class CameraOptionsPopupComponent implements OnInit {
         switchMap(() => fileRead$) // switch to fileRead$ after showing loader
       );
 
-      // Use race to see which finishes first: file read or the 1s loader delay
+      // Use race to show loader only if fileRead$ takes more than 300ms.
       fileRead$
         .pipe(
           raceWith(delayedLoader$),
