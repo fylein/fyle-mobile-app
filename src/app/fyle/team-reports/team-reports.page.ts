@@ -173,17 +173,13 @@ export class TeamReportsPage implements OnInit {
 
       const paginatedPipe = this.loadData$.pipe(
         switchMap((params) =>
-          combineLatest([
-            orgSettings$.pipe(take(1)),
-            this.eou$.pipe(take(1)),
-            this.launchDarklyService.getVariation('show_multi_stage_approval_flow', false),
-          ]).pipe(
-            map(([orgSettings, eou, showMultiStageApproval]) => {
+          combineLatest([orgSettings$.pipe(take(1)), this.eou$.pipe(take(1))]).pipe(
+            map(([orgSettings, eou]) => {
               // setting condition for filtering according to multi stage approval
               this.filterForMultiStageApproval =
                 orgSettings?.simplified_multi_stage_approvals?.allowed &&
                 orgSettings?.simplified_multi_stage_approvals?.enabled &&
-                showMultiStageApproval;
+                true;
               return {
                 ...params,
                 userId: eou.us.id,
@@ -204,7 +200,7 @@ export class TeamReportsPage implements OnInit {
             ...queryParams,
             ...(this.filterForMultiStageApproval
               ? {
-                  or: `(next_approver_user_ids.cs.[${params.userId}], approvals.cs.[{'approver_user_id':'${params.userId}','state':'APPROVAL_DONE'}], state.in.(APPROVER_INQUIRY,APPROVED,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID))`,
+                  or: `(next_approver_user_ids.cs.[${params.userId}], approvals.cs.[{"approver_user_id": "${params.userId}", "state":"APPROVAL_DONE"}], state.in.(APPROVER_INQUIRY,APPROVED,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID))`,
                 }
               : {}),
             order: orderByParams,
