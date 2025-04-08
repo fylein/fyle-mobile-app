@@ -204,7 +204,7 @@ export class TeamReportsPage implements OnInit {
             ...queryParams,
             ...(this.filterForMultiStageApproval
               ? {
-                  or: `(next_approver_user_ids.cs.[${params.userId}], approvals.cs.[{'approver_user_id':'${params.userId}','state':'APPROVAL_DONE'}], state.in.(APPROVER_INQUIRY,APPROVED,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID))`,
+                  or: `(next_approver_user_ids.cs.[${params.userId}], approvals.cs.[{"approver_user_id": "${params.userId}", "state":"APPROVAL_DONE"}], state.in.(APPROVER_INQUIRY,APPROVED,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID))`,
                 }
               : {}),
             order: orderByParams,
