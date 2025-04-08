@@ -5,6 +5,7 @@ import { TrackingService } from '../../../core/services/tracking.service';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { MAX_FILE_SIZE } from 'src/app/core/constants';
 import { LoaderService } from 'src/app/core/services/loader.service';
+import { finalize, from, map, raceWith, switchMap, tap, timer } from 'rxjs';
 
 @Component({
   selector: 'app-camera-options-popup',
@@ -39,14 +40,26 @@ export class CameraOptionsPopupComponent implements OnInit {
 
   async uploadFileCallback(file: File): Promise<void> {
     if (file?.size < MAX_FILE_SIZE) {
-      this.loaderService.showLoader('Please wait...', 5000);
-      const dataUrl = await this.fileService.readFile(file);
-      this.loaderService.hideLoader();
-      this.popoverController.dismiss({
-        type: file.type,
-        dataUrl,
-        actionSource: 'gallery_upload',
-      });
+      const fileRead$ = from(this.fileService.readFile(file));
+      const delayedLoader$ = timer(300).pipe(
+        tap(() => this.loaderService.showLoader('Please wait...', 5000)),
+        switchMap(() => fileRead$) // switch to fileRead$ after showing loader
+      );
+
+      // Use race to see which finishes first: file read or the 1s loader delay
+      fileRead$
+        .pipe(
+          raceWith(delayedLoader$),
+          map((dataUrl) => {
+            this.popoverController.dismiss({
+              type: file.type,
+              dataUrl,
+              actionSource: 'gallery_upload',
+            });
+          }),
+          finalize(() => this.loaderService.hideLoader())
+        )
+        .subscribe();
     } else {
       this.closeClicked();
 
