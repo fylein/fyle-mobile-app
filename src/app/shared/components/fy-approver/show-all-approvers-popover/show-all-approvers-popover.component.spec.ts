@@ -5,6 +5,7 @@ import { ShowAllApproversPopoverComponent } from './show-all-approvers-popover.c
 import { ApprovalState } from 'src/app/core/models/platform/approval-state.enum';
 import { getElementRef } from 'src/app/core/dom-helpers';
 import { By } from '@angular/platform-browser';
+import { EllipsisPipe } from 'src/app/shared/pipes/ellipses.pipe';
 
 describe('ShowAllApproversPopoverComponent', () => {
   let component: ShowAllApproversPopoverComponent;
@@ -15,7 +16,7 @@ describe('ShowAllApproversPopoverComponent', () => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['dismiss']);
 
     TestBed.configureTestingModule({
-      declarations: [ShowAllApproversPopoverComponent],
+      declarations: [ShowAllApproversPopoverComponent, EllipsisPipe],
       imports: [IonicModule.forRoot()],
       providers: [{ provide: PopoverController, useValue: popoverControllerSpy }],
     }).compileComponents();
