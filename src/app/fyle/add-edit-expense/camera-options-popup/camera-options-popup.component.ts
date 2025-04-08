@@ -4,6 +4,7 @@ import { FileService } from 'src/app/core/services/file.service';
 import { TrackingService } from '../../../core/services/tracking.service';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { MAX_FILE_SIZE } from 'src/app/core/constants';
+import { LoaderService } from 'src/app/core/services/loader.service';
 
 @Component({
   selector: 'app-camera-options-popup',
@@ -18,7 +19,8 @@ export class CameraOptionsPopupComponent implements OnInit {
   constructor(
     private popoverController: PopoverController,
     private fileService: FileService,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private loaderService: LoaderService
   ) {}
 
   ngOnInit(): void {
@@ -37,7 +39,9 @@ export class CameraOptionsPopupComponent implements OnInit {
 
   async uploadFileCallback(file: File): Promise<void> {
     if (file?.size < MAX_FILE_SIZE) {
+      this.loaderService.showLoader('Please wait...', 5000);
       const dataUrl = await this.fileService.readFile(file);
+      this.loaderService.hideLoader();
       this.popoverController.dismiss({
         type: file.type,
         dataUrl,

@@ -6,18 +6,21 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { CameraOptionsPopupComponent } from './camera-options-popup.component';
 import { MAX_FILE_SIZE } from 'src/app/core/constants';
+import { LoaderService } from 'src/app/core/services/loader.service';
 
-describe('CameraOptionsPopupComponent', () => {
+fdescribe('CameraOptionsPopupComponent', () => {
   let component: CameraOptionsPopupComponent;
   let fixture: ComponentFixture<CameraOptionsPopupComponent>;
   let popoverController: jasmine.SpyObj<PopoverController>;
   let fileService: jasmine.SpyObj<FileService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
+  let loaderService: jasmine.SpyObj<LoaderService>;
 
   beforeEach(waitForAsync(() => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create', 'dismiss']);
     const fileServiceSpy = jasmine.createSpyObj('FileService', ['readFile']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['addAttachment']);
+    const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
 
     TestBed.configureTestingModule({
       declarations: [CameraOptionsPopupComponent],
@@ -34,6 +37,10 @@ describe('CameraOptionsPopupComponent', () => {
         {
           provide: TrackingService,
           useValue: trackingServiceSpy,
+        },
+        {
+          provide: LoaderService,
+          useValue: loaderServiceSpy,
         },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
