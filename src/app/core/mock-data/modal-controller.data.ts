@@ -567,7 +567,7 @@ export const virtualSelectModalControllerParams = {
     cacheName: '',
     subheader: 'All',
     enableSearch: true,
-    selectModalHeader: 'Select Item',
+    selectModalHeader: 'Select item',
     placeholder: undefined,
     showSaveButton: false,
     defaultLabelProp: undefined,
