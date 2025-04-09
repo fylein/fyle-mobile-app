@@ -34,6 +34,7 @@ import {
   of,
   throwError,
   EMPTY,
+  timer,
 } from 'rxjs';
 import {
   catchError,
@@ -42,6 +43,7 @@ import {
   filter,
   finalize,
   map,
+  raceWith,
   shareReplay,
   startWith,
   switchMap,
@@ -4718,14 +4720,27 @@ export class AddEditExpensePage implements OnInit {
     let fileData: { type: string; dataUrl: string | ArrayBuffer; actionSource: string };
     if (file) {
       if (file.size < MAX_FILE_SIZE) {
-        const dataUrl = await this.fileService.readFile(file);
-        this.trackingService.addAttachment({ type: file.type });
-        fileData = {
-          type: file.type,
-          dataUrl,
-          actionSource: 'gallery_upload',
-        };
-        this.attachReceipts(fileData);
+        const fileRead$ = from(this.fileService.readFile(file));
+        const delayedLoader$ = timer(300).pipe(
+          tap(() => this.loaderService.showLoader('Please wait...', 5000)),
+          switchMap(() => fileRead$) // switch to fileRead$ after showing loader
+        );
+        // Use race to show loader only if fileRead$ takes more than 300ms.
+        fileRead$
+          .pipe(
+            raceWith(delayedLoader$),
+            map((dataUrl) => {
+              fileData = {
+                type: file.type,
+                dataUrl,
+                actionSource: 'gallery_upload',
+              };
+              this.attachReceipts(fileData);
+              this.trackingService.addAttachment({ type: file.type });
+            }),
+            finalize(() => this.loaderService.hideLoader())
+          )
+          .subscribe();
       } else {
         this.showSizeLimitExceededPopover(MAX_FILE_SIZE);
       }
