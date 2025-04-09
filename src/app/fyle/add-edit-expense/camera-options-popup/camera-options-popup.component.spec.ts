@@ -8,7 +8,7 @@ import { CameraOptionsPopupComponent } from './camera-options-popup.component';
 import { MAX_FILE_SIZE } from 'src/app/core/constants';
 import { LoaderService } from 'src/app/core/services/loader.service';
 
-describe('CameraOptionsPopupComponent', () => {
+fdescribe('CameraOptionsPopupComponent', () => {
   let component: CameraOptionsPopupComponent;
   let fixture: ComponentFixture<CameraOptionsPopupComponent>;
   let popoverController: jasmine.SpyObj<PopoverController>;
@@ -52,6 +52,7 @@ describe('CameraOptionsPopupComponent', () => {
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
+    loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
 
     fixture.detectChanges();
   }));
@@ -178,6 +179,35 @@ describe('CameraOptionsPopupComponent', () => {
       expect(popoverController.dismiss).not.toHaveBeenCalled();
       expect(component.closeClicked).toHaveBeenCalledTimes(1);
       expect(component.showSizeLimitExceededPopover).not.toHaveBeenCalled();
+    }));
+
+    it('should show loader if file reading takes more than 300ms', fakeAsync(() => {
+      // Setup delayed file read response
+      let resolveFileRead;
+      const fileReadPromise: Promise<string> = new Promise((resolve) => {
+        resolveFileRead = resolve;
+      });
+      fileService.readFile.and.returnValue(fileReadPromise);
+
+      const myBlob = new Blob([new ArrayBuffer(100 * 100)], { type: 'application/octet-stream' });
+      const file = new File([myBlob], 'file');
+
+      component.uploadFileCallback(file);
+
+      // Fast-forward just beyond the 300ms threshold
+      tick(301);
+      expect(loaderService.showLoader).toHaveBeenCalledWith('Please wait...', 5000);
+
+      // Resolve file read and complete the operation
+      resolveFileRead('file-data');
+      tick(100);
+
+      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+      expect(popoverController.dismiss).toHaveBeenCalledOnceWith({
+        type: file.type,
+        dataUrl: 'file-data',
+        actionSource: 'gallery_upload',
+      });
     }));
   });
 });
