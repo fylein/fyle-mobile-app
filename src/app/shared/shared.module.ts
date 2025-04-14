@@ -81,7 +81,6 @@ import { MatLegacyRadioModule as MatRadioModule } from '@angular/material/legacy
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { FyFilterPillsComponent } from './components/fy-filter-pills/fy-filter-pills.component';
 import { DateFormatPipe } from './pipes/date-format.pipe';
-import { DateTimezonePipe } from './pipes/date-timezone.pipe';
 import { RouteSelectorComponent } from './components/route-selector/route-selector.component';
 import { RouteSelectorModalComponent } from './components/route-selector/route-selector-modal/route-selector-modal.component';
 import { RouteVisualizerComponent } from './components/route-visualizer/route-visualizer.component';
@@ -158,6 +157,7 @@ import { ExactCurrencyPipe } from './pipes/exact-currency.pipe';
 import { CCExpenseMerchantInfoModalComponent } from './components/cc-expense-merchant-info-modal/cc-expense-merchant-info-modal.component';
 import { FyMsgPopoverComponent } from './components/fy-msg-popover/fy-msg-popover.component';
 import { ShowAllApproversPopoverComponent } from './components/fy-approver/show-all-approvers-popover/show-all-approvers-popover.component';
+import { DateWithTimezonePipe } from './pipes/date-with-timezone.pipe';
 
 @NgModule({
   declarations: [
@@ -169,7 +169,6 @@ import { ShowAllApproversPopoverComponent } from './components/fy-approver/show-
     ReportState,
     SnakeCaseToSpaceCase,
     DateFormatPipe,
-    DateTimezonePipe,
     FySelectComponent,
     FySelectModalComponent,
     FySelectVendorComponent,
@@ -292,6 +291,7 @@ import { ShowAllApproversPopoverComponent } from './components/fy-approver/show-
     MobileNumberCardComponent,
     ExactCurrencyPipe,
     CCExpenseMerchantInfoModalComponent,
+    DateWithTimezonePipe,
   ],
   imports: [
     CommonModule,
@@ -325,7 +325,6 @@ import { ShowAllApproversPopoverComponent } from './components/fy-approver/show-
     ExactCurrencyPipe,
     ReportState,
     DateFormatPipe,
-    DateTimezonePipe,
     FySelectComponent,
     FySelectVendorComponent,
     FyLocationComponent,
@@ -430,6 +429,7 @@ import { ShowAllApproversPopoverComponent } from './components/fy-approver/show-
     MobileNumberCardComponent,
     CCExpenseMerchantInfoModalComponent,
     ReviewSplitExpenseComponent,
+    DateWithTimezonePipe,
   ],
   providers: [
     DecimalPipe,

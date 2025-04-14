@@ -4,6 +4,8 @@ import { expectedTxnCustomProperties, txnCustomPropertiesData } from '../mock-da
 import { TimezoneService } from './timezone.service';
 import { UtilityService } from './utility.service';
 import { TxnCustomProperties } from '../models/txn-custom-properties.model';
+import { TIMEZONE } from 'src/app/constants';
+import { BehaviorSubject } from 'rxjs';
 
 describe('TimezoneService', () => {
   let timezoneService: TimezoneService;
@@ -17,6 +19,7 @@ describe('TimezoneService', () => {
         TimezoneService,
         { provide: CurrencyService, useValue: currencyServiceSpy },
         { provide: UtilityService, useValue: utilityServiceSpy },
+        { provide: TIMEZONE, useValue: new BehaviorSubject<string>('UTC') },
       ],
     });
     timezoneService = TestBed.inject(TimezoneService);

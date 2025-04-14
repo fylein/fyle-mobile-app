@@ -1,6 +1,5 @@
 import { TestBed } from '@angular/core/testing';
 import { PersonalCardsService } from './personal-cards.service';
-import { ApiV2Service } from './api-v2.service';
 import { ApiService } from './api.service';
 import { ExpenseAggregationService } from './expense-aggregation.service';
 import { DateService } from './date.service';
@@ -27,14 +26,12 @@ import { PlatformPersonalCardFilterParams } from '../models/platform/platform-pe
 
 describe('PersonalCardsService', () => {
   let personalCardsService: PersonalCardsService;
-  let apiV2Service: jasmine.SpyObj<ApiV2Service>;
   let apiService: jasmine.SpyObj<ApiService>;
   let expenseAggregationService: jasmine.SpyObj<ExpenseAggregationService>;
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
   let dateService: DateService;
 
   beforeEach(() => {
-    const apiV2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['get']);
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['post', 'get']);
     const expenseAggregationServiceSpy = jasmine.createSpyObj('ExpenseAggregationService', ['get', 'post', 'delete']);
     const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get', 'post']);
@@ -42,10 +39,6 @@ describe('PersonalCardsService', () => {
       providers: [
         PersonalCardsService,
         DateService,
-        {
-          provide: ApiV2Service,
-          useValue: apiV2ServiceSpy,
-        },
         {
           provide: ApiService,
           useValue: apiServiceSpy,
@@ -63,7 +56,6 @@ describe('PersonalCardsService', () => {
     personalCardsService = TestBed.inject(PersonalCardsService);
     dateService = TestBed.inject(DateService);
     apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
-    apiV2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
     expenseAggregationService = TestBed.inject(ExpenseAggregationService) as jasmine.SpyObj<ExpenseAggregationService>;
     spenderPlatformV1ApiService = TestBed.inject(
       SpenderPlatformV1ApiService
@@ -89,7 +81,6 @@ describe('PersonalCardsService', () => {
       personalCardsService.getPersonalCards().subscribe((res) => {
         expect(res).toEqual(platformApiLinkedAccRes.data);
         expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/personal_cards');
-        expect(apiV2Service.get).not.toHaveBeenCalled();
         done();
       });
     });
@@ -102,7 +93,6 @@ describe('PersonalCardsService', () => {
       personalCardsService.getPersonalCardsCount().subscribe((res) => {
         expect(res).toEqual(platformApiLinkedAccRes.count);
         expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/personal_cards');
-        expect(apiV2Service.get).not.toHaveBeenCalled();
         done();
       });
     });
@@ -122,7 +112,6 @@ describe('PersonalCardsService', () => {
       personalCardsService.deleteAccount(accountId).subscribe((res) => {
         expect(res).toEqual(deletePersonalCardPlatformRes.data);
         expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/personal_cards/delete', payload);
-        expect(apiV2Service.get).not.toHaveBeenCalled();
         done();
       });
     });

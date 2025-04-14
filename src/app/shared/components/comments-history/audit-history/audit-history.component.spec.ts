@@ -5,7 +5,7 @@ import { AuditHistoryComponent } from './audit-history.component';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { StatusesDiffComponent } from './statuses-diff/statuses-diff.component';
-import { of } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
 import { transformedResponse2 } from 'src/app/core/mock-data/expense-field.data';
 import {
   eStatusWithProjectName,
@@ -16,7 +16,8 @@ import {
 import { SnakeCaseToSpaceCase } from 'src/app/shared/pipes/snake-case-to-space-case.pipe';
 import { getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { cloneDeep } from 'lodash';
-import { DateTimezonePipe } from 'src/app/shared/pipes/date-timezone.pipe';
+import { DateWithTimezonePipe } from 'src/app/shared/pipes/date-with-timezone.pipe';
+import { TIMEZONE } from 'src/app/constants';
 
 describe('AuditHistoryComponent', () => {
   let component: AuditHistoryComponent;
@@ -26,13 +27,14 @@ describe('AuditHistoryComponent', () => {
   beforeEach(waitForAsync(() => {
     const expenseFieldsServiceSpy = jasmine.createSpyObj('ExpenseFieldsService', ['getAllEnabled']);
     TestBed.configureTestingModule({
-      declarations: [AuditHistoryComponent, StatusesDiffComponent, SnakeCaseToSpaceCase, DateTimezonePipe],
+      declarations: [AuditHistoryComponent, StatusesDiffComponent, SnakeCaseToSpaceCase, DateWithTimezonePipe],
       imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule],
       providers: [
         {
           provide: ExpenseFieldsService,
           useValue: expenseFieldsServiceSpy,
         },
+        { provide: TIMEZONE, useValue: new BehaviorSubject<string>('UTC') },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(AuditHistoryComponent);

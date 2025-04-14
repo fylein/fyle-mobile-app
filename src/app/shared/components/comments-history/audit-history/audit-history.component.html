@@ -20,7 +20,7 @@
         ></mat-icon>
         <span class="text-capitalize audit-history--category">{{ estatus.st.category }}</span>
         <div class="audit-history--timestamp">
-          <span>{{ estatus.st_created_at | dateTimezone : estatus.userTimezone : 'MMM D, YYYY h:mm a' }}</span>
+          <span>{{ estatus.st_created_at | dateWithTimezone : 'MMM D, YYYY h:mm a' }}</span>
         </div>
       </div>
 

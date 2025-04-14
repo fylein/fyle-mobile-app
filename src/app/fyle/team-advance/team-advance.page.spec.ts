@@ -4,7 +4,7 @@ import { IonicModule } from '@ionic/angular';
 import { TitleCasePipe } from '@angular/common';
 import { CUSTOM_ELEMENTS_SCHEMA, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
-import { Subject, of } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
 import { transformedResponse2 } from 'src/app/core/mock-data/expense-field.data';
 import {
   allTeamAdvanceRequestsRes,
@@ -89,7 +89,12 @@ describe('TeamAdvancePage', () => {
     filtersHelperService = TestBed.inject(FiltersHelperService) as jasmine.SpyObj<FiltersHelperService>;
     expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
 
-    component.loadData$ = new Subject();
+    component.loadData$ = new BehaviorSubject({
+      pageNumber: 1,
+      state: [],
+      sortParam: null,
+      sortDir: null,
+    });
     component.filters = {};
 
     fixture.detectChanges();

@@ -30,7 +30,7 @@ export class AuthService {
   refreshEou(): Observable<ExtendedOrgUser> {
     return this.apiService.get('/eous/current').pipe(
       switchMap((data) => {
-        const extendedOrgUser = this.dataTransformService.unflatten(data) as ExtendedOrgUser;
+        const extendedOrgUser = this.dataTransformService.unflatten<ExtendedOrgUser, unknown>(data);
         return from(this.storageService.set('user', extendedOrgUser)).pipe(map(() => extendedOrgUser));
       })
     );
@@ -65,7 +65,7 @@ export class AuthService {
     return this.apiService.post('/auth/resend_email_verification', { email, org_id: orgId });
   }
 
-  getRoles() {
+  getRoles(): Observable<string[]> {
     return from(this.tokenService.getAccessToken()).pipe(
       map((accessToken: string) => {
         if (accessToken) {
@@ -74,7 +74,8 @@ export class AuthService {
             const roles = JSON.parse(tokenPayload.roles) as string[];
             return roles;
           } catch (e) {
-            return [];
+            // @ts-ignore
+            return tokenPayload.roles as string[];
           }
         } else {
           return [];
@@ -83,7 +84,7 @@ export class AuthService {
     );
   }
 
-  logout(logoutPayload?: { device_id: string; user_id: string } | boolean) {
+  logout(logoutPayload?: { device_id: string; user_id: string } | boolean): Observable<unknown> {
     // CacheService.clearAll();
     return iif(
       () => logoutPayload as boolean,

@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@angular/core';
-import { Observable, concatMap, forkJoin, map, range, reduce, switchMap } from 'rxjs';
+import { Observable, concatMap, map, range, reduce, switchMap } from 'rxjs';
 import { ApproverPlatformApiService } from '../../../approver-platform-api.service';
 import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
 import { ReportsQueryParams } from 'src/app/core/models/platform/v1/reports-query-params.model';
@@ -10,7 +10,6 @@ import { PlatformReportsStatsResponse } from 'src/app/core/models/platform/v1/re
 import { PlatformApiPayload } from 'src/app/core/models/platform/platform-api-payload.model';
 import { ReportPermissions } from 'src/app/core/models/report-permissions.model';
 import { Comment } from 'src/app/core/models/platform/v1/comment.model';
-import { OrgUserSettingsService } from '../../../org-user-settings.service';
 
 @Injectable({
   providedIn: 'root',
@@ -18,8 +17,7 @@ import { OrgUserSettingsService } from '../../../org-user-settings.service';
 export class ApproverReportsService {
   constructor(
     @Inject(PAGINATION_SIZE) private paginationSize: number,
-    private approverPlatformApiService: ApproverPlatformApiService,
-    private orgUserSettingsService: OrgUserSettingsService
+    private approverPlatformApiService: ApproverPlatformApiService
   ) {}
 
   getAllReportsByParams(queryParams: ReportsQueryParams): Observable<Report[]> {
@@ -55,25 +53,7 @@ export class ApproverReportsService {
         ...queryParams,
       },
     };
-
-    return forkJoin([
-      this.approverPlatformApiService.get<PlatformApiResponse<Report[]>>('/reports', config),
-      this.orgUserSettingsService.get(),
-    ]).pipe(
-      map(([response, orgUserSettings]) => {
-        const timezone = orgUserSettings?.locale?.timezone || 'UTC';
-        return {
-          ...response,
-          data: response.data.map((report) => ({
-            ...report,
-            comments: report.comments.map((comment) => ({
-              ...comment,
-              userTimezone: timezone,
-            })),
-          })),
-        };
-      })
-    );
+    return this.approverPlatformApiService.get<PlatformApiResponse<Report[]>>('/reports', config);
   }
 
   generateStatsQueryParams(params: PlatformStatsRequestParams): string {
