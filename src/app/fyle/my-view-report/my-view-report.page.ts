@@ -1,5 +1,5 @@
 import { Component, ElementRef, EventEmitter, ViewChild } from '@angular/core';
-import { Observable, from, noop, concat, Subject, BehaviorSubject, Subscription, forkJoin } from 'rxjs';
+import { Observable, from, noop, concat, Subject, BehaviorSubject, Subscription } from 'rxjs';
 import { ReportService } from 'src/app/core/services/report.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { map, switchMap, shareReplay, takeUntil, tap, take, finalize } from 'rxjs/operators';
@@ -348,14 +348,11 @@ export class MyViewReportPage {
       map((orgSettings) => ({ enabled: this.getSimplifyReportSettings(orgSettings) }))
     );
 
-    forkJoin([orgSettings$, this.launchDarklyService.getVariation('show_multi_stage_approval_flow', false)]).subscribe(
-      ([orgSettings, showViewApproverModal]) => {
-        this.showViewApproverModal =
-          showViewApproverModal &&
-          orgSettings?.simplified_multi_stage_approvals?.allowed &&
-          orgSettings?.simplified_multi_stage_approvals?.enabled;
-      }
-    );
+    orgSettings$.subscribe((orgSettings) => {
+      this.showViewApproverModal =
+        orgSettings?.simplified_multi_stage_approvals?.allowed &&
+        orgSettings?.simplified_multi_stage_approvals?.enabled;
+    });
 
     this.hardwareBackButtonAction = this.platformHandlerService.registerBackButtonAction(
       BackButtonActionPriority.MEDIUM,
