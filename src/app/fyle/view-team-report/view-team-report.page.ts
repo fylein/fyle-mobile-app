@@ -351,8 +351,7 @@ export class ViewTeamReportPage {
       eou: this.eou$,
       report: this.report$.pipe(take(1)),
       orgSettings: this.orgSettingsService.get(),
-      showViewApproverModal: this.launchDarklyService.getVariation('show_multi_stage_approval_flow', false),
-    }).subscribe(({ expenses, eou, report, orgSettings, showViewApproverModal }) => {
+    }).subscribe(({ expenses, eou, report, orgSettings }) => {
       this.reportExpensesIds = expenses.map((expense) => expense.id);
       this.isSequentialApprovalEnabled = this.getApprovalSettings(orgSettings);
       this.canApprove = this.isSequentialApprovalEnabled
@@ -362,7 +361,6 @@ export class ViewTeamReportPage {
         : true;
       this.canShowTooltip = true;
       this.showViewApproverModal =
-        showViewApproverModal &&
         orgSettings?.simplified_multi_stage_approvals?.allowed &&
         orgSettings?.simplified_multi_stage_approvals?.enabled;
       if (this.showViewApproverModal) {
