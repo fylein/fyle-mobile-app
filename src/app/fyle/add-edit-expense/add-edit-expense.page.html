@@ -454,7 +454,7 @@
 
               <div *ngIf="isProjectsEnabled$|async">
                 <div *ngIf="isProjectsVisible$|async">
-                  <div *ngIf="fg.controls.project.value && showBillable">
+                  <div *ngIf="fg.controls.project.value && showBillable" class="add-edit-expense--billable-block">
                     <mat-checkbox formControlName="billable">
                       <span class="add-edit-expense--checkbox"> Billable </span>
                     </mat-checkbox>
