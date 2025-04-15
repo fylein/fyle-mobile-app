@@ -329,7 +329,7 @@
                       (keydown)="$event.preventDefault()"
                       [max]="maxDate"
                       [min]="minDate"
-                      [placeholder]="txnFields.txn_dt?.placeholder || 'Date of Spend'"
+                      [placeholder]="txnFields.txn_dt?.placeholder || 'Date of spend'"
                       class="add-edit-expense--date-input date-input__format smartlook-show"
                       formControlName="dateOfSpend"
                       type="date"
@@ -505,7 +505,7 @@
                       [label]="'Category'"
                       [mandatory]="txnFields?.org_category_id?.is_mandatory"
                       [options]="categories"
-                      [selectModalHeader]="'Select Category'"
+                      [selectModalHeader]="'Select category'"
                       [recentlyUsed]="recentCategories"
                       formControlName="category"
                       [placeholder]="txnFields.org_category_id.placeholder"
@@ -539,7 +539,7 @@
                     [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.tax_group.touched && !fg.controls.tax_group.valid}"
                   >
                     <app-fy-select
-                      [label]="(txnFields.tax_group_id.field_name || 'Tax Group')"
+                      [label]="(txnFields.tax_group_id.field_name || 'Tax group')"
                       [options]="taxGroups"
                       [mandatory]="txnFields.tax_group_id.is_mandatory"
                       [selectModalHeader]="'Select ' + (txnFields.tax_group_id.field_name || 'Tax Group')"
@@ -564,9 +564,9 @@
                       [ngClass]="{'add-edit-expense--text-label__invalid': (fg.controls.tax_amount.touched && (!fg.controls.tax_amount.valid || fg.controls.tax_amount.hasError('invalid')))}"
                       class="add-edit-expense--text-label"
                     >
-                      {{(taxSettings.name || 'Tax Amount') | ellipsis: 30 }}
+                      {{(taxSettings.name || 'Tax amount') | ellipsis: 30 }}
                     </div>
-                    <app-fy-number formControlName="tax_amount" [placeholder]="'Enter Tax Amount'"></app-fy-number>
+                    <app-fy-number formControlName="tax_amount" [placeholder]="'Enter tax amount'"></app-fy-number>
                   </div>
                   <div
                     *ngIf="(fg.controls.tax_amount.touched && (!fg.controls.tax_amount.valid || fg.controls.tax_amount.hasError('invalid')) && !fg.controls.tax_amount.hasError('taxAmountGreaterThanAmount'))"
@@ -720,7 +720,7 @@
                           [label]="txnFields.flight_journey_travel_class?.field_name"
                           [mandatory]="txnFields.flight_journey_travel_class?.is_mandatory"
                           [options]="txnFields.flight_journey_travel_class?.options"
-                          [selectModalHeader]="'Select Travel Class'"
+                          [selectModalHeader]="'Select travel class'"
                           formControlName="flight_journey_travel_class"
                           [placeholder]="txnFields.flight_journey_travel_class?.placeholder"
                           [touchedInParent]="fg.controls.flight_journey_travel_class.touched"
@@ -747,7 +747,7 @@
                           [label]="txnFields.flight_return_travel_class?.field_name"
                           [mandatory]="txnFields.flight_return_travel_class?.is_mandatory"
                           [options]="txnFields.flight_journey_travel_class?.options"
-                          [selectModalHeader]="'Select Travel Class'"
+                          [selectModalHeader]="'Select travel class'"
                           formControlName="flight_return_travel_class"
                           name="flightReturnClass"
                           [placeholder]="txnFields.flight_return_travel_class?.placeholder"
@@ -835,7 +835,7 @@
                     [label]="txnFields.bus_travel_class?.field_name"
                     [mandatory]="txnFields.bus_travel_class?.is_mandatory"
                     [options]="txnFields.bus_travel_class?.options"
-                    [selectModalHeader]="'Select Travel Class'"
+                    [selectModalHeader]="'Select travel class'"
                     formControlName="bus_travel_class"
                     hide-none="true"
                     [placeholder]="txnFields.bus_travel_class?.placeholder"
@@ -896,7 +896,7 @@
                       formControlName="distance_unit"
                       name="taxiDistanceUnit"
                       sub-title="Units"
-                      title="Select Unit"
+                      title="Select unit"
                       [placeholder]="txnFields.distance_unit?.placeholder"
                       [touchedInParent]="fg.controls.distance_unit.touched"
                       [validInParent]="fg.controls.distance_unit.valid"
@@ -965,7 +965,7 @@
                       [label]="txnFields.cost_center_id?.field_name"
                       [mandatory]="txnFields.cost_center_id?.is_mandatory"
                       [options]="costCenters"
-                      [selectModalHeader]="'Select Cost Center'"
+                      [selectModalHeader]="'Select cost center'"
                       [recentlyUsed]="recentCostCenters"
                       formControlName="costCenter"
                       [placeholder]="txnFields.cost_center_id?.placeholder"
