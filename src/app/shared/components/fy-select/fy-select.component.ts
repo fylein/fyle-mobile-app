@@ -125,7 +125,7 @@ export class FySelectComponent implements ControlValueAccessor {
         customInput: this.customInput,
         subheader: this.subheader,
         enableSearch: this.enableSearch,
-        selectModalHeader: this.selectModalHeader || 'Select Item',
+        selectModalHeader: this.selectModalHeader || 'Select item',
         placeholder: this.placeholder,
         showSaveButton: this.showSaveButton,
         defaultLabelProp: this.defaultLabelProp,
