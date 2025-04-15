@@ -1,6 +1,6 @@
 import deepFreeze from 'deep-freeze-strict';
 
-import { ExpensesInfo } from '../services/expenses-info.model';
+import { ExpensesInfo } from '../models/expenses-info.model';
 import { apiExpenseRes } from './expense.data';
 
 export const expensesInfo: ExpensesInfo = deepFreeze({
