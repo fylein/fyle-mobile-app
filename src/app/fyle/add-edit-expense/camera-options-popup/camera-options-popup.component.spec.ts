@@ -8,7 +8,7 @@ import { CameraOptionsPopupComponent } from './camera-options-popup.component';
 import { MAX_FILE_SIZE } from 'src/app/core/constants';
 import { LoaderService } from 'src/app/core/services/loader.service';
 
-fdescribe('CameraOptionsPopupComponent', () => {
+describe('CameraOptionsPopupComponent', () => {
   let component: CameraOptionsPopupComponent;
   let fixture: ComponentFixture<CameraOptionsPopupComponent>;
   let popoverController: jasmine.SpyObj<PopoverController>;
