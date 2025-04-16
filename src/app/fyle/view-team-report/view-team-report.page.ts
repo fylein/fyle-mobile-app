@@ -38,6 +38,7 @@ import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service
 import { RefinerService } from 'src/app/core/services/refiner.service';
 import { ShowAllApproversPopoverComponent } from 'src/app/shared/components/fy-approver/show-all-approvers-popover/show-all-approvers-popover.component';
 import { ApprovalState } from 'src/app/core/models/platform/approval-state.enum';
+import { DateWithTimezonePipe } from 'src/app/shared/pipes/date-with-timezone.pipe';
 
 @Component({
   selector: 'app-view-team-report',
@@ -157,7 +158,8 @@ export class ViewTeamReportPage {
     private statusService: StatusService,
     private exactCurrency: ExactCurrencyPipe,
     private orgSettingsService: OrgSettingsService,
-    private approverReportsService: ApproverReportsService
+    private approverReportsService: ApproverReportsService,
+    private dateWithTimezonePipe: DateWithTimezonePipe
   ) {}
 
   ionViewWillLeave(): void {
@@ -251,8 +253,8 @@ export class ViewTeamReportPage {
       this.userComments.sort((a, b) => (a.created_at > b.created_at ? 1 : -1));
 
       for (let i = 0; i < this.userComments.length; i++) {
-        const prevCommentDt = dayjs(this.userComments[i - 1] && this.userComments[i - 1].created_at);
-        const currentCommentDt = dayjs(this.userComments[i] && this.userComments[i].created_at);
+        const prevCommentDt = this.dateWithTimezonePipe.transform(this.userComments?.[i - 1]?.created_at);
+        const currentCommentDt = this.dateWithTimezonePipe.transform(this.userComments?.[i]?.created_at);
         if (dayjs(prevCommentDt).isSame(currentCommentDt, 'day')) {
           this.userComments[i].show_dt = false;
         } else {
@@ -351,8 +353,7 @@ export class ViewTeamReportPage {
       eou: this.eou$,
       report: this.report$.pipe(take(1)),
       orgSettings: this.orgSettingsService.get(),
-      showViewApproverModal: this.launchDarklyService.getVariation('show_multi_stage_approval_flow', false),
-    }).subscribe(({ expenses, eou, report, orgSettings, showViewApproverModal }) => {
+    }).subscribe(({ expenses, eou, report, orgSettings }) => {
       this.reportExpensesIds = expenses.map((expense) => expense.id);
       this.isSequentialApprovalEnabled = this.getApprovalSettings(orgSettings);
       this.canApprove = this.isSequentialApprovalEnabled
@@ -362,7 +363,6 @@ export class ViewTeamReportPage {
         : true;
       this.canShowTooltip = true;
       this.showViewApproverModal =
-        showViewApproverModal &&
         orgSettings?.simplified_multi_stage_approvals?.allowed &&
         orgSettings?.simplified_multi_stage_approvals?.enabled;
       if (this.showViewApproverModal) {

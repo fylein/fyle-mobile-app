@@ -287,8 +287,11 @@
 
   &--project-block {
     flex-grow: 1;
-    margin-right: 26px;
     margin-top: -12px;
+  }
+
+  &--billable-block {
+    margin-left: 26px;
   }
 
   &--primary-block {
