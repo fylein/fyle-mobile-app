@@ -222,7 +222,9 @@ export class MyViewReportPage {
 
       this.userComments.sort((a, b) => (a.created_at > b.created_at ? 1 : -1));
 
-      for (let i = 0; i < this.userComments.length; i++) {
+      this.userComments[0].show_dt = true;
+
+      for (let i = 1; i < this.userComments.length; i++) {
         const prevCommentDt = dayjs(this.userComments[i - 1] && this.userComments[i - 1].created_at);
         const currentCommentDt = dayjs(this.userComments[i] && this.userComments[i].created_at);
         if (dayjs(prevCommentDt).isSame(currentCommentDt, 'day')) {
