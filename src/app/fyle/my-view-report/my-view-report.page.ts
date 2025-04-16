@@ -42,6 +42,7 @@ import { ShowAllApproversPopoverComponent } from 'src/app/shared/components/fy-a
 import { ReportApprovals } from 'src/app/core/models/platform/report-approvals.model';
 import * as Sentry from '@sentry/angular-ivy';
 import { ApprovalState } from 'src/app/core/models/platform/approval-state.enum';
+import { DateWithTimezonePipe } from 'src/app/shared/pipes/date-with-timezone.pipe';
 
 @Component({
   selector: 'app-my-view-report',
@@ -143,7 +144,8 @@ export class MyViewReportPage {
     private orgSettingsService: OrgSettingsService,
     private platformHandlerService: PlatformHandlerService,
     private spenderReportsService: SpenderReportsService,
-    private launchDarklyService: LaunchDarklyService
+    private launchDarklyService: LaunchDarklyService,
+    private dateWithTimezonePipe: DateWithTimezonePipe
   ) {}
 
   get Segment(): typeof ReportPageSegment {
@@ -222,11 +224,9 @@ export class MyViewReportPage {
 
       this.userComments.sort((a, b) => (a.created_at > b.created_at ? 1 : -1));
 
-      this.userComments[0].show_dt = true;
-
-      for (let i = 1; i < this.userComments.length; i++) {
-        const prevCommentDt = dayjs(this.userComments[i - 1] && this.userComments[i - 1].created_at);
-        const currentCommentDt = dayjs(this.userComments[i] && this.userComments[i].created_at);
+      for (let i = 0; i < this.userComments.length; i++) {
+        const prevCommentDt = this.dateWithTimezonePipe.transform(this.userComments?.[i - 1]?.created_at);
+        const currentCommentDt = this.dateWithTimezonePipe.transform(this.userComments?.[i]?.created_at);
         if (dayjs(prevCommentDt).isSame(currentCommentDt, 'day')) {
           this.userComments[i].show_dt = false;
         } else {
