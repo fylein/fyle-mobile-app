@@ -5,11 +5,14 @@ import { finalize, map, startWith, switchMap } from 'rxjs/operators';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { StatusService } from 'src/app/core/services/status.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TrackingService } from '../../../../core/services/tracking.service';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import * as dayjs from 'dayjs';
 import { DateWithTimezonePipe } from 'src/app/shared/pipes/date-with-timezone.pipe';
+import { ExpenseCommentService as SpenderExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
+import { ExpenseCommentService as ApproverExpenseCommentService } from 'src/app/core/services/platform/v1/approver/expense-comment.service';
+import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 
 @Component({
   selector: 'app-view-comment',
@@ -50,6 +53,8 @@ export class ViewCommentComponent implements OnInit {
 
   isSwipe = false;
 
+  view: ExpenseView;
+
   constructor(
     private statusService: StatusService,
     private authService: AuthService,
@@ -59,7 +64,10 @@ export class ViewCommentComponent implements OnInit {
     private trackingService: TrackingService,
     private elementRef: ElementRef,
     public platform: Platform,
-    private dateWithTimezonePipe: DateWithTimezonePipe
+    private dateWithTimezonePipe: DateWithTimezonePipe,
+    private activatedRoute: ActivatedRoute,
+    private spenderExpenseCommentService: SpenderExpenseCommentService,
+    private approverExpenseCommentService: ApproverExpenseCommentService
   ) {}
 
   setContentScrollToBottom(): void {
@@ -162,29 +170,38 @@ export class ViewCommentComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.view = this.activatedRoute.snapshot.params.view as ExpenseView;
     const eou$ = from(this.authService.getEou());
 
     this.estatuses$ = this.refreshEstatuses$.pipe(
       startWith(0),
       switchMap(() => eou$),
-      switchMap((eou) =>
-        this.statusService.find(this.objectType, this.objectId).pipe(
+      switchMap((eou) => {
+        const isExpense = this.objectType === 'transactions';
+
+        const comments$ = isExpense
+          ? this.view === ExpenseView.team
+            ? this.approverExpenseCommentService.getTransformedComments(this.objectId)
+            : this.spenderExpenseCommentService.getTransformedComments(this.objectId)
+          : this.statusService.find(this.objectType, this.objectId);
+
+        return comments$.pipe(
           map((res) =>
             res.map((status) => {
-              status.isBotComment = status && ['SYSTEM', 'POLICY'].indexOf(status.st_org_user_id) > -1;
-              status.isSelfComment = status && eou && eou.ou && status.st_org_user_id === eou.ou.id;
-              status.isOthersComment = status && eou && eou.ou && status.st_org_user_id !== eou.ou.id;
+              status.isBotComment = ['SYSTEM', 'POLICY'].includes(status?.st_org_user_id);
+              status.isSelfComment = eou?.ou?.id === status?.st_org_user_id;
+              status.isOthersComment = eou?.ou?.id !== status?.st_org_user_id;
               return status;
             })
           ),
-          map((res) => res.sort((a, b) => a.st_created_at.valueOf() - b.st_created_at.valueOf())),
+          map((res) => res.sort((a, b) => new Date(a.st_created_at).valueOf() - new Date(b.st_created_at).valueOf())),
           finalize(() => {
             setTimeout(() => {
               this.setContentScrollToBottom();
             }, 500);
           })
-        )
-      )
+        );
+      })
     );
 
     this.estatuses$.subscribe((estatuses) => {

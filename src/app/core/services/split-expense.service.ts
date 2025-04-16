@@ -21,7 +21,6 @@ import { FilteredSplitPolicyViolations } from '../models/filtered-split-policy-v
 import { FilteredMissingFieldsViolations } from '../models/filtered-missing-fields-violations.model';
 import { TransformedSplitExpenseMissingFields } from '../models/transformed-split-expense-missing-fields.model';
 import { TxnCustomProperties } from '../models/txn-custom-properties.model';
-import { ExpenseCommentService } from './platform/v1/spender/expense-comment.service';
 
 @Injectable({
   providedIn: 'root',
@@ -36,16 +35,11 @@ export class SplitExpenseService {
     private statusService: StatusService,
     private categoriesService: CategoriesService,
     private utilityService: UtilityService,
-    private expensesService: ExpensesService,
-    private expenseCommentService: ExpenseCommentService
+    private expensesService: ExpensesService
   ) {}
 
   postComment(apiPayload: PolicyViolationComment): Observable<TransactionStatus> {
-    const expenseWithComment = {
-      id: apiPayload.txnId,
-      comment: apiPayload.comment.comment,
-    };
-    return this.expenseCommentService.post([expenseWithComment]);
+    return this.statusService.post(apiPayload.objectType, apiPayload.txnId, apiPayload.comment, apiPayload.notify);
   }
 
   formatDisplayName(model: number, categoryList: OrgCategory[]): string {

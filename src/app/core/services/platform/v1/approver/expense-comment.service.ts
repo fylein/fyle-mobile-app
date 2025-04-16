@@ -16,7 +16,7 @@ export class ExpenseCommentService {
   getExpenseCommentsById(id: string): Observable<ExpenseComment[]> {
     const data = {
       params: {
-        id: `eq.${id}`,
+        expense_id: `eq.${id}`,
       },
     };
 

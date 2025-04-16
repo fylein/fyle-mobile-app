@@ -282,7 +282,7 @@ export class StatusService {
     return {
       st_id: expenseComment.id,
       st_created_at: new Date(expenseComment.created_at),
-      st_org_user_id: expenseComment.creator_type,
+      st_org_user_id: expenseComment.creator_user_id || expenseComment.creator_type,
       st_comment: expenseComment.comment,
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       st_diff: expenseComment.action_data,
