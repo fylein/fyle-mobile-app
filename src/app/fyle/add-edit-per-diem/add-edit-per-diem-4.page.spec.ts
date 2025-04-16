@@ -21,6 +21,7 @@ import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-it
 import { ReportService } from 'src/app/core/services/report.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { StatusService } from 'src/app/core/services/status.service';
+import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { TokenService } from 'src/app/core/services/token.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -90,6 +91,7 @@ export function TestCases4(getTestBed) {
     let loaderService: jasmine.SpyObj<LoaderService>;
     let modalController: jasmine.SpyObj<ModalController>;
     let statusService: jasmine.SpyObj<StatusService>;
+    let expenseCommentService: jasmine.SpyObj<ExpenseCommentService>;
     let popoverController: jasmine.SpyObj<PopoverController>;
     let currencyService: jasmine.SpyObj<CurrencyService>;
     let networkService: jasmine.SpyObj<NetworkService>;
@@ -132,6 +134,7 @@ export function TestCases4(getTestBed) {
       loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
       modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
       statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
+      expenseCommentService = TestBed.inject(ExpenseCommentService) as jasmine.SpyObj<ExpenseCommentService>;
       popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
       currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
       networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
@@ -371,7 +374,7 @@ export function TestCases4(getTestBed) {
         transactionService.transformExpense.and.returnValue(transformedExpenseData);
         spenderReportsService.addExpenses.and.returnValue(of(undefined));
         spenderReportsService.ejectExpenses.and.returnValue(of(undefined));
-        statusService.findLatestComment.and.returnValue(of('comment1'));
+        expenseCommentService.findLatestExpenseComment.and.returnValue(of('comment1'));
         statusService.post.and.returnValue(of(expenseStatusData));
         component.etxn$ = of(transformedExpenseData);
         spyOn(component, 'getTimeSpentOnPage').and.returnValue(180);
@@ -552,9 +555,8 @@ export function TestCases4(getTestBed) {
             expect(spenderReportsService.ejectExpenses).not.toHaveBeenCalled();
             expect(trackingService.addToExistingReportAddEditExpense).toHaveBeenCalledTimes(1);
             expect(trackingService.removeFromExistingReportEditExpense).not.toHaveBeenCalled();
-            expect(statusService.findLatestComment).toHaveBeenCalledOnceWith(
+            expect(expenseCommentService.findLatestExpenseComment).toHaveBeenCalledOnceWith(
               transformedExpenseData.tx.id,
-              'transactions',
               transformedExpenseData.tx.org_user_id
             );
             expect(statusService.post).toHaveBeenCalledOnceWith(
@@ -611,9 +613,8 @@ export function TestCases4(getTestBed) {
             expect(spenderReportsService.ejectExpenses).not.toHaveBeenCalled();
             expect(trackingService.addToExistingReportAddEditExpense).toHaveBeenCalledTimes(1);
             expect(trackingService.removeFromExistingReportEditExpense).not.toHaveBeenCalled();
-            expect(statusService.findLatestComment).toHaveBeenCalledOnceWith(
+            expect(expenseCommentService.findLatestExpenseComment).toHaveBeenCalledOnceWith(
               transformedExpenseData.tx.id,
-              'transactions',
               transformedExpenseData.tx.org_user_id
             );
             expect(statusService.post).toHaveBeenCalledOnceWith(
@@ -668,9 +669,8 @@ export function TestCases4(getTestBed) {
             expect(spenderReportsService.ejectExpenses).not.toHaveBeenCalled();
             expect(trackingService.addToExistingReportAddEditExpense).toHaveBeenCalledTimes(1);
             expect(trackingService.removeFromExistingReportEditExpense).not.toHaveBeenCalled();
-            expect(statusService.findLatestComment).toHaveBeenCalledOnceWith(
+            expect(expenseCommentService.findLatestExpenseComment).toHaveBeenCalledOnceWith(
               transformedExpenseData.tx.id,
-              'transactions',
               transformedExpenseData.tx.org_user_id
             );
             expect(statusService.post).toHaveBeenCalledOnceWith(
@@ -686,7 +686,7 @@ export function TestCases4(getTestBed) {
 
       it('should throw policyViolations error and save the edited expense and should not call statusService.post if err.comment is equal to latest comment', (done) => {
         policyService.getCriticalPolicyRules.and.returnValue([]);
-        statusService.findLatestComment.and.returnValue(of('comment'));
+        expenseCommentService.findLatestExpenseComment.and.returnValue(of('comment'));
         component
           .editExpense(PerDiemRedirectedFrom.SAVE_PER_DIEM)
           .pipe(
@@ -724,9 +724,8 @@ export function TestCases4(getTestBed) {
             expect(spenderReportsService.ejectExpenses).not.toHaveBeenCalled();
             expect(trackingService.addToExistingReportAddEditExpense).toHaveBeenCalledTimes(1);
             expect(trackingService.removeFromExistingReportEditExpense).not.toHaveBeenCalled();
-            expect(statusService.findLatestComment).toHaveBeenCalledOnceWith(
+            expect(expenseCommentService.findLatestExpenseComment).toHaveBeenCalledOnceWith(
               transformedExpenseData.tx.id,
-              'transactions',
               transformedExpenseData.tx.org_user_id
             );
             expect(statusService.post).not.toHaveBeenCalled();
@@ -779,9 +778,8 @@ export function TestCases4(getTestBed) {
             expect(spenderReportsService.ejectExpenses).not.toHaveBeenCalled();
             expect(trackingService.addToExistingReportAddEditExpense).not.toHaveBeenCalled();
             expect(trackingService.removeFromExistingReportEditExpense).not.toHaveBeenCalled();
-            expect(statusService.findLatestComment).toHaveBeenCalledOnceWith(
+            expect(expenseCommentService.findLatestExpenseComment).toHaveBeenCalledOnceWith(
               transformedExpenseData.tx.id,
-              'transactions',
               transformedExpenseData.tx.org_user_id
             );
             expect(statusService.post).toHaveBeenCalledOnceWith(

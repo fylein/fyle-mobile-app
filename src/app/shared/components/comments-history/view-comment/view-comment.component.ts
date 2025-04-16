@@ -5,7 +5,6 @@ import { finalize, map, startWith, switchMap } from 'rxjs/operators';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { StatusService } from 'src/app/core/services/status.service';
-import { ActivatedRoute, Router } from '@angular/router';
 import { TrackingService } from '../../../../core/services/tracking.service';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import * as dayjs from 'dayjs';
@@ -24,6 +23,8 @@ export class ViewCommentComponent implements OnInit {
   @Input() objectType: string;
 
   @Input() objectId: string;
+
+  @Input() view: ExpenseView;
 
   @ViewChild(IonContent, { static: false }) content: IonContent;
 
@@ -53,19 +54,15 @@ export class ViewCommentComponent implements OnInit {
 
   isSwipe = false;
 
-  view: ExpenseView;
-
   constructor(
     private statusService: StatusService,
     private authService: AuthService,
     private modalController: ModalController,
     private popoverController: PopoverController,
-    private router: Router,
     private trackingService: TrackingService,
     private elementRef: ElementRef,
     public platform: Platform,
     private dateWithTimezonePipe: DateWithTimezonePipe,
-    private activatedRoute: ActivatedRoute,
     private spenderExpenseCommentService: SpenderExpenseCommentService,
     private approverExpenseCommentService: ApproverExpenseCommentService
   ) {}
@@ -170,7 +167,6 @@ export class ViewCommentComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.view = this.activatedRoute.snapshot.params.view as ExpenseView;
     const eou$ = from(this.authService.getEou());
 
     this.estatuses$ = this.refreshEstatuses$.pipe(

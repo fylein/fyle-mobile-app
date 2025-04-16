@@ -196,6 +196,7 @@ export class ViewExpensePage {
       componentProps: {
         objectType: 'transactions',
         objectId: this.expenseId,
+        view: this.view,
       },
       ...this.modalProperties.getModalDefaultProperties(),
     });
