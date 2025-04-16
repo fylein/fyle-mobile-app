@@ -1,7 +1,7 @@
 import { Component, Input, ViewChild, ElementRef, AfterViewInit, OnInit } from '@angular/core';
 import { Observable, from, fromEvent } from 'rxjs';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { OrgUserService } from 'src/app/core/services/org-user.service';
+import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
 import { switchMap, map, finalize, startWith, distinctUntilChanged } from 'rxjs/operators';
 import { ModalController } from '@ionic/angular';
 import { Employee } from 'src/app/core/models/spender/employee.model';
@@ -50,7 +50,7 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
 
   constructor(
     private loaderService: LoaderService,
-    private orgUserService: OrgUserService,
+    private employeesService: EmployeesService,
     private modalController: ModalController
   ) {}
 
@@ -126,7 +126,7 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
 
     return from(this.loaderService.showLoader('Loading...')).pipe(
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      switchMap((_) => this.orgUserService.getEmployeesBySearch(params)),
+      switchMap((_) => this.employeesService.getEmployeesBySearch(params)),
       map((approvers) =>
         approvers.map((approver) => {
           approver.is_selected = true;
@@ -147,7 +147,7 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
       params.or = `(email.ilike.%${searchText}%,full_name.ilike.%${searchText}%)`;
     }
 
-    return this.orgUserService.getEmployeesBySearch(params).pipe(
+    return this.employeesService.getEmployeesBySearch(params).pipe(
       map((eouc) => eouc.filter((eou) => this.approverEmailsList.indexOf(eou.email) === -1)),
       map((eouc) =>
         eouc
