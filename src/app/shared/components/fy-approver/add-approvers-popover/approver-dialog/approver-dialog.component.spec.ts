@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { OrgUserService } from 'src/app/core/services/org-user.service';
+import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
 import { ModalController } from '@ionic/angular';
 import { ApproverDialogComponent } from './approver-dialog.component';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
@@ -21,7 +21,7 @@ describe('ApproverDialogComponent', () => {
   let component: ApproverDialogComponent;
   let fixture: ComponentFixture<ApproverDialogComponent>;
   let loaderService: jasmine.SpyObj<LoaderService>;
-  let orgUserService: jasmine.SpyObj<OrgUserService>;
+  let employeesService: jasmine.SpyObj<EmployeesService>;
   let modalController: jasmine.SpyObj<ModalController>;
 
   const approvers = [
@@ -60,7 +60,7 @@ describe('ApproverDialogComponent', () => {
 
   beforeEach(waitForAsync(() => {
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
-    const orgUserServiceSpy = jasmine.createSpyObj('OrgUserService', ['getEmployeesBySearch']);
+    const employeesServiceSpy = jasmine.createSpyObj('EmployeesService', ['getEmployeesBySearch']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
 
     TestBed.configureTestingModule({
@@ -79,8 +79,8 @@ describe('ApproverDialogComponent', () => {
           useValue: loaderServiceSpy,
         },
         {
-          provide: OrgUserService,
-          useValue: orgUserServiceSpy,
+          provide: EmployeesService,
+          useValue: employeesServiceSpy,
         },
         {
           provide: ModalController,
@@ -92,7 +92,7 @@ describe('ApproverDialogComponent', () => {
     component = fixture.componentInstance;
 
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
-    orgUserService = TestBed.inject(OrgUserService) as jasmine.SpyObj<OrgUserService>;
+    employeesService = TestBed.inject(EmployeesService) as jasmine.SpyObj<EmployeesService>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
 
     component.initialApproverList = cloneDeep(approvers);
@@ -100,7 +100,7 @@ describe('ApproverDialogComponent', () => {
     component.approverEmailsList = ['jay.b@fyle.in', 'ajain@fyle.in'];
 
     const employeesData = cloneDeep(employeesParamsRes.data);
-    orgUserService.getEmployeesBySearch.and.returnValue(of(employeesData));
+    employeesService.getEmployeesBySearch.and.returnValue(of(employeesData));
     loaderService.showLoader.and.resolveTo(null);
     loaderService.hideLoader.and.resolveTo(null);
 
@@ -217,7 +217,7 @@ describe('ApproverDialogComponent', () => {
 
   describe('getDefaultUsersList():', () => {
     it(' should get default user list', fakeAsync(() => {
-      orgUserService.getEmployeesBySearch.and.returnValue(of(employeesParamsRes.data));
+      employeesService.getEmployeesBySearch.and.returnValue(of(employeesParamsRes.data));
       loaderService.showLoader.and.resolveTo(null);
       loaderService.hideLoader.and.resolveTo(null);
 
@@ -228,14 +228,14 @@ describe('ApproverDialogComponent', () => {
 
       tick();
       component.getDefaultUsersList();
-      expect(orgUserService.getEmployeesBySearch).toHaveBeenCalledWith(params);
+      expect(employeesService.getEmployeesBySearch).toHaveBeenCalledWith(params);
       expect(loaderService.showLoader).toHaveBeenCalledTimes(2);
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
     }));
 
     it('if approver email list is empty', () => {
       component.approverEmailsList = [];
-      orgUserService.getEmployeesBySearch.and.returnValue(of(employeesParamsRes.data));
+      employeesService.getEmployeesBySearch.and.returnValue(of(employeesParamsRes.data));
       loaderService.showLoader.and.resolveTo(null);
       loaderService.hideLoader.and.resolveTo(null);
       fixture.detectChanges();
@@ -246,7 +246,7 @@ describe('ApproverDialogComponent', () => {
       };
 
       component.getDefaultUsersList();
-      expect(orgUserService.getEmployeesBySearch).toHaveBeenCalledWith(params);
+      expect(employeesService.getEmployeesBySearch).toHaveBeenCalledWith(params);
       expect(loaderService.showLoader).toHaveBeenCalledTimes(2);
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
     });
@@ -254,7 +254,7 @@ describe('ApproverDialogComponent', () => {
 
   it('getSearchedUsersList(): get users list from search text', (done) => {
     const employeesData = cloneDeep(employeesParamsRes.data);
-    orgUserService.getEmployeesBySearch.and.returnValue(of(employeesData));
+    employeesService.getEmployeesBySearch.and.returnValue(of(employeesData));
 
     component.getSearchedUsersList('text').subscribe((res) => {
       expect(res).toEqual([
@@ -279,7 +279,7 @@ describe('ApproverDialogComponent', () => {
           is_selected: false,
         },
       ]);
-      expect(orgUserService.getEmployeesBySearch).toHaveBeenCalledWith({
+      expect(employeesService.getEmployeesBySearch).toHaveBeenCalledWith({
         limit: 20,
         order: 'full_name.asc,email.asc',
         or: '(email.ilike.%text%,full_name.ilike.%text%)',

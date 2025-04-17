@@ -1,4 +1,4 @@
-import { Expense } from '../models/expense.model';
+import { Expense } from './expense.model';
 
 export interface ExpensesInfo {
   isReportedAndAbove: boolean;

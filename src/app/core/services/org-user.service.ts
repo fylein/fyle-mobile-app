@@ -3,11 +3,9 @@ import { Observable, Subject } from 'rxjs';
 import { map, switchMap, tap } from 'rxjs/operators';
 import { CacheBuster, Cacheable, globalCacheBusterNotifier } from 'ts-cacheable';
 import { AuthResponse } from '../models/auth-response.model';
-import { EmployeeParams } from '../models/employee-params.model';
 import { EouApiResponse } from '../models/eou-api-response.model';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
 import { OrgUser } from '../models/org-user.model';
-import { Employee } from '../models/spender/employee.model';
 import { User } from '../models/user.model';
 import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
@@ -39,13 +37,6 @@ export class OrgUserService {
   @Cacheable()
   getCurrent(): Observable<ExtendedOrgUser> {
     return this.apiService.get('/eous/current').pipe(map((eou) => this.dataTransformService.unflatten(eou)));
-  }
-
-  @Cacheable({
-    cacheBusterObserver: orgUsersCacheBuster$,
-  })
-  getEmployeesByParams(params: Partial<EmployeeParams>): Observable<PlatformApiResponse<Partial<Employee>[]>> {
-    return this.spenderPlatformV1ApiService.get<PlatformApiResponse<Partial<Employee>[]>>('/employees', { params });
   }
 
   @CacheBuster({
@@ -85,17 +76,6 @@ export class OrgUserService {
       switchMap(() => this.authService.refreshEou()),
       tap(() => this.trackingService.activated())
     );
-  }
-
-  getEmployeesBySearch(params: Partial<EmployeeParams>): Observable<Partial<Employee>[]> {
-    if (params.or) {
-      params.and = `(or${params.or},or(is_enabled.eq.true))`;
-    } else {
-      params.or = '(is_enabled.eq.true)';
-    }
-    return this.getEmployeesByParams({
-      ...params,
-    }).pipe(map((res) => res.data));
   }
 
   getUserById(userId: string): Observable<EouApiResponse> {

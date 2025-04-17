@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import {
   MatLegacyChipInputEvent as MatChipInputEvent,
@@ -8,7 +8,7 @@ import {
 } from '@angular/material/legacy-chips';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { ModalController } from '@ionic/angular';
-import { OrgUserService } from 'src/app/core/services/org-user.service';
+import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
 import { FyUserlistModalComponent } from './fy-userlist-modal.component';
 import { ChangeDetectorRef } from '@angular/core';
 import { employeesParamsRes, employeesRes } from 'src/app/core/test-data/org-user.service.spec.data';
@@ -31,12 +31,12 @@ describe('FyUserlistModalComponent', () => {
   let fixture: ComponentFixture<FyUserlistModalComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
   let cdr: jasmine.SpyObj<ChangeDetectorRef>;
-  let orgUserService: jasmine.SpyObj<OrgUserService>;
+  let employeesService: jasmine.SpyObj<EmployeesService>;
 
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
     const cdrSpy = jasmine.createSpyObj('ChangeDetectorRef', ['detectChanges']);
-    const orgUserServiceSpy = jasmine.createSpyObj('OrgUserService', ['getEmployeesBySearch']);
+    const employeesServiceSpy = jasmine.createSpyObj('EmployeesService', ['getEmployeesBySearch']);
 
     TestBed.configureTestingModule({
       declarations: [FyUserlistModalComponent],
@@ -51,16 +51,16 @@ describe('FyUserlistModalComponent', () => {
       providers: [
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: ChangeDetectorRef, useValue: cdrSpy },
-        { provide: OrgUserService, useValue: orgUserServiceSpy },
+        { provide: EmployeesService, useValue: employeesServiceSpy },
       ],
     }).compileComponents();
 
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     cdr = TestBed.inject(ChangeDetectorRef) as jasmine.SpyObj<ChangeDetectorRef>;
-    orgUserService = TestBed.inject(OrgUserService) as jasmine.SpyObj<OrgUserService>;
+    employeesService = TestBed.inject(EmployeesService) as jasmine.SpyObj<EmployeesService>;
 
     const employeesData = cloneDeep(employeesRes.data);
-    orgUserService.getEmployeesBySearch.and.returnValue(of(employeesData));
+    employeesService.getEmployeesBySearch.and.returnValue(of(employeesData));
     fixture = TestBed.createComponent(FyUserlistModalComponent);
     component = fixture.componentInstance;
     component.value = 'test value';
@@ -172,7 +172,7 @@ describe('FyUserlistModalComponent', () => {
   describe('getDefaultUsersList():', () => {
     beforeEach(() => {
       const employeesData = cloneDeep(employeesParamsRes.data);
-      orgUserService.getEmployeesBySearch.and.returnValue(of(employeesData));
+      employeesService.getEmployeesBySearch.and.returnValue(of(employeesData));
     });
 
     it('should get default users list', (done) => {
@@ -186,7 +186,7 @@ describe('FyUserlistModalComponent', () => {
         fixture.detectChanges();
         expect(res).toEqual(searchedUserListRes);
         expect(component.currentSelections).toEqual(component.currentSelections);
-        expect(orgUserService.getEmployeesBySearch).toHaveBeenCalledWith(params);
+        expect(employeesService.getEmployeesBySearch).toHaveBeenCalledWith(params);
         done();
       });
     });
@@ -198,7 +198,7 @@ describe('FyUserlistModalComponent', () => {
       component.getDefaultUsersList();
       fixture.detectChanges();
       expect(component.currentSelections).toEqual([]);
-      expect(orgUserService.getEmployeesBySearch).toHaveBeenCalledWith(params);
+      expect(employeesService.getEmployeesBySearch).toHaveBeenCalledWith(params);
     });
   });
 
@@ -209,11 +209,11 @@ describe('FyUserlistModalComponent', () => {
       or: '(email.ilike.%ajain+12+12+1@fyle.in%,full_name.ilike.%ajain+12+12+1@fyle.in%)',
     };
     const employeesData = cloneDeep(employeesParamsRes.data);
-    orgUserService.getEmployeesBySearch.and.returnValue(of(employeesData));
+    employeesService.getEmployeesBySearch.and.returnValue(of(employeesData));
     component.getSearchedUsersList('ajain+12+12+1@fyle.in').subscribe((res) => {
       fixture.detectChanges();
       expect(res).toEqual(searchedUserListRes);
-      expect(orgUserService.getEmployeesBySearch).toHaveBeenCalledWith(params);
+      expect(employeesService.getEmployeesBySearch).toHaveBeenCalledWith(params);
     });
     tick(500);
   }));
