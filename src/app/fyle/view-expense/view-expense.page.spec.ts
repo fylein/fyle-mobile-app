@@ -4,6 +4,8 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { StatusService } from 'src/app/core/services/status.service';
+import { ExpenseCommentService as SpenderExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
+import { ExpenseCommentService as ApproverExpenseCommentService } from 'src/app/core/services/platform/v1/approver/expense-comment.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { FileService } from 'src/app/core/services/file.service';
 import { NetworkService } from '../../core/services/network.service';
@@ -67,6 +69,8 @@ describe('ViewExpensePage', () => {
   let transactionService: jasmine.SpyObj<TransactionService>;
   let customInputsService: jasmine.SpyObj<CustomInputsService>;
   let statusService: jasmine.SpyObj<StatusService>;
+  let spenderExpenseCommentService: jasmine.SpyObj<SpenderExpenseCommentService>;
+  let approverExpenseCommentService: jasmine.SpyObj<ApproverExpenseCommentService>;
   let fileService: jasmine.SpyObj<FileService>;
   let modalController: jasmine.SpyObj<ModalController>;
   let router: jasmine.SpyObj<Router>;
@@ -94,6 +98,12 @@ describe('ViewExpensePage', () => {
       'fillCustomProperties',
     ]);
     const statusServiceSpy = jasmine.createSpyObj('StatusService', ['find', 'post']);
+    const spenderExpenseCommentServiceSpy = jasmine.createSpyObj('SpenderExpenseCommentService', [
+      'getTransformedComments',
+    ]);
+    const approverExpenseCommentServiceSpy = jasmine.createSpyObj('ApproverExpenseCommentService', [
+      'getTransformedComments',
+    ]);
     const fileServiceSpy = jasmine.createSpyObj('FileService', ['getReceiptsDetails', 'downloadUrl']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
@@ -155,6 +165,14 @@ describe('ViewExpensePage', () => {
         {
           useValue: statusServiceSpy,
           provide: StatusService,
+        },
+        {
+          useValue: spenderExpenseCommentServiceSpy,
+          provide: SpenderExpenseCommentService,
+        },
+        {
+          useValue: approverExpenseCommentServiceSpy,
+          provide: ApproverExpenseCommentService,
         },
         {
           useValue: fileServiceSpy,
@@ -246,6 +264,12 @@ describe('ViewExpensePage', () => {
     transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
     customInputsService = TestBed.inject(CustomInputsService) as jasmine.SpyObj<CustomInputsService>;
     statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
+    spenderExpenseCommentService = TestBed.inject(
+      SpenderExpenseCommentService
+    ) as jasmine.SpyObj<SpenderExpenseCommentService>;
+    approverExpenseCommentService = TestBed.inject(
+      ApproverExpenseCommentService
+    ) as jasmine.SpyObj<ApproverExpenseCommentService>;
     fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
@@ -315,6 +339,7 @@ describe('ViewExpensePage', () => {
         componentProps: {
           objectType: 'transactions',
           objectId: component.expenseId,
+          view: ExpenseView.individual,
         },
         ...modalProperties.getModalDefaultProperties(),
       });
@@ -335,6 +360,7 @@ describe('ViewExpensePage', () => {
         componentProps: {
           objectType: 'transactions',
           objectId: component.expenseId,
+          view: ExpenseView.individual,
         },
         ...modalProperties.getModalDefaultProperties(),
       });
@@ -459,6 +485,7 @@ describe('ViewExpensePage', () => {
     beforeEach(() => {
       component.expenseId = 'tx5fBcPBAxLv';
       component.reportId = 'rp96APY6Efph';
+      component.view = ExpenseView.individual;
 
       spyOn(component, 'setupNetworkWatcher');
       spyOn(component, 'getPolicyDetails');
@@ -496,7 +523,7 @@ describe('ViewExpensePage', () => {
 
       dependentFieldsService.getDependentFieldValuesForBaseField.and.returnValue(of(dependentFieldValues));
 
-      statusService.find.and.returnValue(of(getEstatusApiResponse));
+      spenderExpenseCommentService.getTransformedComments.and.returnValue(of(getEstatusApiResponse));
 
       orgSettingsService.get.and.returnValue(of(orgSettingsGetData));
 
@@ -652,26 +679,28 @@ describe('ViewExpensePage', () => {
       spyOn(component, 'isPolicyComment').and.returnValue(true);
       component.ionViewWillEnter();
       component.policyViloations$.subscribe(() => {
-        expect(statusService.find).toHaveBeenCalledWith('transactions', expenseData.id);
-        expect(statusService.find).toHaveBeenCalledTimes(2);
+        expect(spenderExpenseCommentService.getTransformedComments).toHaveBeenCalledWith(expenseData.id);
+        expect(spenderExpenseCommentService.getTransformedComments).toHaveBeenCalledTimes(2);
         expect(component.isPolicyComment).toHaveBeenCalledTimes(5);
         done();
       });
     });
 
-    it('should get all the comments and set the appropriate view', (done) => {
+    it('should get all the comments and set the appropriate view', fakeAsync(() => {
       activateRouteMock.snapshot.params = {
         id: 'tx5fBcPBAxLv',
         view: ExpenseView.team,
         activeIndex: '0',
       };
+
       component.ionViewWillEnter();
-      component.comments$.subscribe(() => {
-        expect(statusService.find).toHaveBeenCalledOnceWith('transactions', component.expenseId);
-        done();
-      });
+      tick();
+
       expect(component.view).toEqual(activateRouteMock.snapshot.params.view);
-    });
+      component.comments$?.subscribe(() => {
+        expect(approverExpenseCommentService.getTransformedComments).toHaveBeenCalledOnceWith(component.expenseId);
+      });
+    }));
 
     it('should get the flag status', () => {
       const mockWithoutCustPropData: Expense = {

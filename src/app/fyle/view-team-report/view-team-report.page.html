@@ -118,14 +118,18 @@
                 </app-fy-approver>
               </div>
             </div>
-            <div *ngIf="showViewApproverModal" class="view-reports--view-approvers" (click)="openViewApproverModal()">
+            <div
+              *ngIf="showViewApproverModal && approvals.length > 1"
+              class="view-reports--view-approvers"
+              (click)="openViewApproverModal()"
+            >
               View all
             </div>
           </div>
           <div *ngIf="!showViewApproverModal">
             <div *ngFor="let approver of approvals">
               <div class="view-reports--approvers-list">
-                <div class="smartlook-hide">{{ approver.approver_user.full_name }}</div>
+                <div class="smartlook-hide">{{ approver?.approver_user?.full_name | ellipsis: 15 }}</div>
                 <div class="view-reports--approver-state-section">
                   <div
                     class="view-reports--approver-state-pill view-reports--approver-state-pill__{{approver.state | lowercase}}"
@@ -139,7 +143,7 @@
             </div>
           </div>
           <div *ngIf="showViewApproverModal && approverToShow" class="view-reports--approvers-list">
-            <div class="smartlook-hide">{{ approverToShow.approver_user.full_name }}</div>
+            <div class="smartlook-hide">{{ approverToShow?.approver_user?.full_name | ellipsis: 15 }}</div>
             <div class="view-reports--approver-state-section">
               <div
                 class="view-reports--approver-state-pill view-reports--approver-state-pill__{{approverToShow?.state | lowercase}}"

@@ -2,7 +2,6 @@
 	"appId": "com.ionicframework.fyle595781",
 	"appName": "Fyle",
 	"webDir": "www",
-	"bundledWebRuntime": false,
 	"loggingBehavior": "debug",
 	"plugins": {
 		"SplashScreen": {
@@ -10,7 +9,8 @@
 			"androidScaleType": "CENTER_CROP"
 		},
 		"Keyboard": {
-			"style": "LIGHT"
+			"style": "LIGHT",
+			"resizeOnFullScreen": true
 		}
 	},
 	"cordova": {
@@ -20,5 +20,8 @@
 	},
 	"server": {
 		"androidScheme": "http"
+	},
+	"android": {
+		"adjustMarginsForEdgeToEdge": "force"
 	}
 }

@@ -8,7 +8,7 @@ import { By } from '@angular/platform-browser';
 import { ActivatedRoute, Router, UrlSerializer } from '@angular/router';
 import { IonicModule, ModalController, NavController, PopoverController, SegmentCustomEvent } from '@ionic/angular';
 import { cloneDeep } from 'lodash';
-import { Subscription, of } from 'rxjs';
+import { BehaviorSubject, Subscription, of } from 'rxjs';
 import { click, getElementBySelector } from 'src/app/core/dom-helpers';
 import { ReportPageSegment } from 'src/app/core/enums/report-page-segment.enum';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
@@ -61,6 +61,8 @@ import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender
 import { orgSettingsPendingRestrictions } from 'src/app/core/mock-data/org-settings.data';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
 import { LaunchDarklyService } from '../../core/services/launch-darkly.service';
+import { DateWithTimezonePipe } from 'src/app/shared/pipes/date-with-timezone.pipe';
+import { TIMEZONE } from 'src/app/constants';
 
 describe('MyViewReportPage', () => {
   let component: MyViewReportPage;
@@ -131,6 +133,7 @@ describe('MyViewReportPage', () => {
         ExactCurrencyPipe,
         ReportState,
         SnakeCaseToSpaceCase,
+        DateWithTimezonePipe,
       ],
       imports: [IonicModule.forRoot(), MatIconTestingModule, MatIconModule],
       providers: [
@@ -213,6 +216,7 @@ describe('MyViewReportPage', () => {
           useValue: launchDarklyServiceSpy,
         },
         { provide: NavController, useValue: { push: NavController.prototype.back } },
+        { provide: TIMEZONE, useValue: new BehaviorSubject<string>('UTC') },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
     }).compileComponents();

@@ -22,12 +22,13 @@ import {
   tasksQueryParamsWithFiltersData,
   tasksQueryParamsWithFiltersData2,
 } from 'src/app/core/mock-data/get-tasks-query-params-with-filters.data';
-import { getTeamReportsParams1, getTeamReportsParams2 } from 'src/app/core/mock-data/api-params.data';
+import { getTeamReportsParams1 } from 'src/app/core/mock-data/api-params.data';
 import { GetTasksQueryParamsWithFilters } from 'src/app/core/models/get-tasks-query-params-with-filters.model';
 import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-report.data';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
+import { LaunchDarklyService } from '../../core/services/launch-darkly.service';
 
 export function TestCases1(getTestBed) {
   return describe('test cases set 1', () => {
@@ -48,6 +49,7 @@ export function TestCases1(getTestBed) {
     let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
     let authService: jasmine.SpyObj<AuthService>;
     let inputElement: HTMLInputElement;
+    let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
 
     beforeEach(waitForAsync(() => {
       const TestBed = getTestBed();
@@ -67,6 +69,8 @@ export function TestCases1(getTestBed) {
       orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
       approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
       authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
+      launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
+      launchDarklyService.getVariation.and.returnValue(of(false));
       component.eou$ = of(apiEouRes);
     }));
 
@@ -203,26 +207,29 @@ export function TestCases1(getTestBed) {
         expect(component.currentPageNumber).toBe(1);
       }));
 
-      it('should call approverReporsService.getReportsByParams and update acc', (done) => {
+      it('should call approverReporsService.getReportsByParams and update acc', fakeAsync(() => {
         mockAddNewFiltersToParams.and.returnValue(tasksQueryParamsWithFiltersData2);
+        orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithSimplifiedReport));
+        launchDarklyService.getVariation.and.returnValue(of(false));
+        component.eou$ = of(apiEouRes);
         extendQueryParamsService.extendQueryParamsForTextSearch.and.returnValue({
           state: 'in.(APPROVER_PENDING)',
           next_approver_user_ids: 'cs.[usvKA4X8Ugcr]',
         });
         component.ionViewWillEnter();
+        tick();
         component.eou$.subscribe((eou) => {
           expect(eou).toEqual(apiEouRes);
-          expect(approverReportsService.getReportsByParams).toHaveBeenCalledTimes(2);
+          expect(approverReportsService.getReportsByParams).toHaveBeenCalledTimes(1);
           expect(approverReportsService.getReportsByParams).toHaveBeenCalledWith(getTeamReportsParams1);
-          expect(approverReportsService.getReportsByParams).toHaveBeenCalledWith(getTeamReportsParams2);
-          expect(component.isLoadingDataInInfiniteScroll).toBeTrue();
+          expect(component.isLoadingDataInInfiniteScroll).toBeFalse();
           expect(component.acc).toEqual(expectedReportsSinglePage);
           component.teamReports$.subscribe((teamReports) => {
             expect(teamReports).toEqual(expectedReportsSinglePage);
-            done();
           });
         });
-      });
+        tick(500);
+      }));
 
       it('should set count$ and isInfiniteScrollRequired$ and navigate relative to activatedRoute', (done) => {
         mockAddNewFiltersToParams.and.returnValue({

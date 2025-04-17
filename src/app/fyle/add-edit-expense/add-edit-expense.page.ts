@@ -34,6 +34,7 @@ import {
   of,
   throwError,
   EMPTY,
+  timer,
 } from 'rxjs';
 import {
   catchError,
@@ -42,6 +43,7 @@ import {
   filter,
   finalize,
   map,
+  raceWith,
   shareReplay,
   startWith,
   switchMap,
@@ -152,6 +154,7 @@ import { RefinerService } from 'src/app/core/services/refiner.service';
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 import { CCExpenseMerchantInfoModalComponent } from 'src/app/shared/components/cc-expense-merchant-info-modal/cc-expense-merchant-info-modal.component';
 import { CorporateCardExpenseProperties } from 'src/app/core/models/corporate-card-expense-properties.model';
+import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 
 // eslint-disable-next-line
 type FormValue = {
@@ -515,7 +518,8 @@ export class AddEditExpensePage implements OnInit {
     private refinerService: RefinerService,
     private platformHandlerService: PlatformHandlerService,
     private expensesService: ExpensesService,
-    private advanceWalletsService: AdvanceWalletsService
+    private advanceWalletsService: AdvanceWalletsService,
+    private expenseCommentService: ExpenseCommentService
   ) {}
 
   get isExpandedView(): boolean {
@@ -3215,7 +3219,9 @@ export class AddEditExpensePage implements OnInit {
       map((orgSettings) => orgSettings.projects && orgSettings.projects.enabled)
     );
 
-    this.comments$ = this.statusService.find('transactions', this.activatedRoute.snapshot.params.id as string);
+    this.comments$ = this.expenseCommentService.getTransformedComments(
+      this.activatedRoute.snapshot.params.id as string
+    );
 
     this.isSplitExpenseAllowed$ = orgSettings$.pipe(
       map((orgSettings) => orgSettings.expense_settings.split_expense_settings.enabled)
@@ -4138,7 +4144,7 @@ export class AddEditExpensePage implements OnInit {
               }),
               switchMap((txn) => {
                 if (comment) {
-                  return this.statusService.findLatestComment(txn.id, 'transactions', txn.org_user_id).pipe(
+                  return this.expenseCommentService.findLatestExpenseComment(txn.id, txn.org_user_id).pipe(
                     switchMap((result) => {
                       if (result !== comment) {
                         return this.statusService.post('transactions', txn.id, { comment }, true).pipe(map(() => txn));
@@ -4718,14 +4724,27 @@ export class AddEditExpensePage implements OnInit {
     let fileData: { type: string; dataUrl: string | ArrayBuffer; actionSource: string };
     if (file) {
       if (file.size < MAX_FILE_SIZE) {
-        const dataUrl = await this.fileService.readFile(file);
-        this.trackingService.addAttachment({ type: file.type });
-        fileData = {
-          type: file.type,
-          dataUrl,
-          actionSource: 'gallery_upload',
-        };
-        this.attachReceipts(fileData);
+        const fileRead$ = from(this.fileService.readFile(file));
+        const delayedLoader$ = timer(300).pipe(
+          tap(() => this.loaderService.showLoader('Please wait...', 5000)),
+          switchMap(() => fileRead$) // switch to fileRead$ after showing loader
+        );
+        // Use race to show loader only if fileRead$ takes more than 300ms.
+        fileRead$
+          .pipe(
+            raceWith(delayedLoader$),
+            map((dataUrl) => {
+              fileData = {
+                type: file.type,
+                dataUrl,
+                actionSource: 'gallery_upload',
+              };
+              this.attachReceipts(fileData);
+              this.trackingService.addAttachment({ type: file.type });
+            }),
+            finalize(() => this.loaderService.hideLoader())
+          )
+          .subscribe();
       } else {
         this.showSizeLimitExceededPopover(MAX_FILE_SIZE);
       }

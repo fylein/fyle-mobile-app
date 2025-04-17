@@ -5,6 +5,8 @@ import { CustomInputsService } from 'src/app/core/services/custom-inputs.service
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { NetworkService } from '../../core/services/network.service';
 import { StatusService } from 'src/app/core/services/status.service';
+import { ExpenseCommentService as SpenderExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
+import { ExpenseCommentService as ApproverExpenseCommentService } from 'src/app/core/services/platform/v1/approver/expense-comment.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
@@ -58,6 +60,8 @@ describe('ViewMileagePage', () => {
   let router: jasmine.SpyObj<Router>;
   let networkService: jasmine.SpyObj<NetworkService>;
   let statusService: jasmine.SpyObj<StatusService>;
+  let spenderExpenseCommentService: jasmine.SpyObj<SpenderExpenseCommentService>;
+  let approverExpenseCommentService: jasmine.SpyObj<ApproverExpenseCommentService>;
   let modalController: jasmine.SpyObj<ModalController>;
   let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
@@ -80,6 +84,14 @@ describe('ViewMileagePage', () => {
       'fillCustomProperties',
     ]);
     const statusServiceSpy = jasmine.createSpyObj('StatusService', ['find', 'post']);
+    const spenderExpenseCommentServiceSpy = jasmine.createSpyObj('SpenderExpenseCommentService', [
+      'getTransformedComments',
+      'getExpenseCommentsById',
+    ]);
+    const approverExpenseCommentServiceSpy = jasmine.createSpyObj('ApproverExpenseCommentService', [
+      'getTransformedComments',
+      'getExpenseCommentsById',
+    ]);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
@@ -137,6 +149,14 @@ describe('ViewMileagePage', () => {
         {
           useValue: statusServiceSpy,
           provide: StatusService,
+        },
+        {
+          useValue: spenderExpenseCommentServiceSpy,
+          provide: SpenderExpenseCommentService,
+        },
+        {
+          useValue: approverExpenseCommentServiceSpy,
+          provide: ApproverExpenseCommentService,
         },
         {
           useValue: modalControllerSpy,
@@ -226,6 +246,12 @@ describe('ViewMileagePage', () => {
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
     customInputsService = TestBed.inject(CustomInputsService) as jasmine.SpyObj<CustomInputsService>;
     statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
+    spenderExpenseCommentService = TestBed.inject(
+      SpenderExpenseCommentService
+    ) as jasmine.SpyObj<SpenderExpenseCommentService>;
+    approverExpenseCommentService = TestBed.inject(
+      ApproverExpenseCommentService
+    ) as jasmine.SpyObj<ApproverExpenseCommentService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
@@ -340,6 +366,7 @@ describe('ViewMileagePage', () => {
         componentProps: {
           objectType: 'transactions',
           objectId: component.expenseId,
+          view: ExpenseView.individual,
         },
         ...modalProperties.getModalDefaultProperties(),
       });
@@ -360,6 +387,7 @@ describe('ViewMileagePage', () => {
         componentProps: {
           objectType: 'transactions',
           objectId: component.expenseId,
+          view: ExpenseView.individual,
         },
         ...modalProperties.getModalDefaultProperties(),
       });
@@ -405,6 +433,7 @@ describe('ViewMileagePage', () => {
     beforeEach(() => {
       component.expenseId = 'tx5fBcPBAxLv';
       component.reportId = 'rpynbzxa3psU';
+      component.view = ExpenseView.team;
 
       spyOn(component, 'setupNetworkWatcher');
       spyOn(component, 'getPolicyDetails');
@@ -430,7 +459,7 @@ describe('ViewMileagePage', () => {
       orgSettingsService.get.and.returnValue(of(orgSettingsGetData));
 
       customInputsService.fillCustomProperties.and.returnValue(of(filledCustomProperties));
-      statusService.find.and.returnValue(of(getEstatusApiResponse));
+      spenderExpenseCommentService.getTransformedComments.and.returnValue(of(getEstatusApiResponse));
     });
 
     it('should get all the data for extended mileage and expense fields', fakeAsync(() => {
@@ -857,7 +886,7 @@ describe('ViewMileagePage', () => {
       };
       component.ionViewWillEnter();
       component.comments$.subscribe(() => {
-        expect(statusService.find).toHaveBeenCalledOnceWith('transactions', component.expenseId);
+        expect(spenderExpenseCommentService.getTransformedComments).toHaveBeenCalledOnceWith(component.expenseId);
         done();
       });
       expect(component.view).toEqual(activateRouteMock.snapshot.params.view);

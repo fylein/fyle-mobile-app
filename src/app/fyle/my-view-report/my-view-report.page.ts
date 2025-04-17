@@ -1,5 +1,5 @@
 import { Component, ElementRef, EventEmitter, ViewChild } from '@angular/core';
-import { Observable, from, noop, concat, Subject, BehaviorSubject, Subscription, forkJoin } from 'rxjs';
+import { Observable, from, noop, concat, Subject, BehaviorSubject, Subscription } from 'rxjs';
 import { ReportService } from 'src/app/core/services/report.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { map, switchMap, shareReplay, takeUntil, tap, take, finalize } from 'rxjs/operators';
@@ -42,6 +42,7 @@ import { ShowAllApproversPopoverComponent } from 'src/app/shared/components/fy-a
 import { ReportApprovals } from 'src/app/core/models/platform/report-approvals.model';
 import * as Sentry from '@sentry/angular-ivy';
 import { ApprovalState } from 'src/app/core/models/platform/approval-state.enum';
+import { DateWithTimezonePipe } from 'src/app/shared/pipes/date-with-timezone.pipe';
 
 @Component({
   selector: 'app-my-view-report',
@@ -143,7 +144,8 @@ export class MyViewReportPage {
     private orgSettingsService: OrgSettingsService,
     private platformHandlerService: PlatformHandlerService,
     private spenderReportsService: SpenderReportsService,
-    private launchDarklyService: LaunchDarklyService
+    private launchDarklyService: LaunchDarklyService,
+    private dateWithTimezonePipe: DateWithTimezonePipe
   ) {}
 
   get Segment(): typeof ReportPageSegment {
@@ -223,8 +225,8 @@ export class MyViewReportPage {
       this.userComments.sort((a, b) => (a.created_at > b.created_at ? 1 : -1));
 
       for (let i = 0; i < this.userComments.length; i++) {
-        const prevCommentDt = dayjs(this.userComments[i - 1] && this.userComments[i - 1].created_at);
-        const currentCommentDt = dayjs(this.userComments[i] && this.userComments[i].created_at);
+        const prevCommentDt = this.dateWithTimezonePipe.transform(this.userComments?.[i - 1]?.created_at);
+        const currentCommentDt = this.dateWithTimezonePipe.transform(this.userComments?.[i]?.created_at);
         if (dayjs(prevCommentDt).isSame(currentCommentDt, 'day')) {
           this.userComments[i].show_dt = false;
         } else {
@@ -348,14 +350,11 @@ export class MyViewReportPage {
       map((orgSettings) => ({ enabled: this.getSimplifyReportSettings(orgSettings) }))
     );
 
-    forkJoin([orgSettings$, this.launchDarklyService.getVariation('show_multi_stage_approval_flow', false)]).subscribe(
-      ([orgSettings, showViewApproverModal]) => {
-        this.showViewApproverModal =
-          showViewApproverModal &&
-          orgSettings?.simplified_multi_stage_approvals?.allowed &&
-          orgSettings?.simplified_multi_stage_approvals?.enabled;
-      }
-    );
+    orgSettings$.subscribe((orgSettings) => {
+      this.showViewApproverModal =
+        orgSettings?.simplified_multi_stage_approvals?.allowed &&
+        orgSettings?.simplified_multi_stage_approvals?.enabled;
+    });
 
     this.hardwareBackButtonAction = this.platformHandlerService.registerBackButtonAction(
       BackButtonActionPriority.MEDIUM,
