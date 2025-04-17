@@ -68,7 +68,7 @@ export class OrgService {
 
   updateOrg(org: Org): Observable<Org> {
     globalCacheBusterNotifier.next();
-    return this.spenderService.post<PlatformApiResponse<Org>>('/orgs', org).pipe(map((response) => response.data));
+    return this.apiService.post('/orgs', org);
   }
 
   setCurrencyBasedOnIp(): Observable<Org> {

@@ -94,13 +94,13 @@ describe('OrgService', () => {
   });
 
   it('updateOrg(): should update org', (done) => {
-    spenderService.post.and.returnValue(of({ data: orgData1[0] }));
+    apiService.post.and.returnValue(of(orgData1[0]));
     spyOn(globalCacheBusterNotifier, 'next');
 
     orgService.updateOrg(orgData1[0]).subscribe((res) => {
       expect(res).toEqual(orgData1[0]);
-      expect(globalCacheBusterNotifier.next).toHaveBeenCalledBefore(spenderService.post);
-      expect(spenderService.post).toHaveBeenCalledOnceWith('/orgs', orgData1[0]);
+      expect(globalCacheBusterNotifier.next).toHaveBeenCalledBefore(apiService.post);
+      expect(apiService.post).toHaveBeenCalledOnceWith('/orgs', orgData1[0]);
       done();
     });
   });

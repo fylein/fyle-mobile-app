@@ -10,7 +10,8 @@ export const orgData1: Org[] = deepFreeze([
     name: 'Staging Loaded',
     domain: 'fyle.in',
     currency: 'USD',
-    is_verified: true,
+    is_primary: true,
+    is_current: true,
   },
 ]);
 
@@ -22,7 +23,8 @@ export const orgData2 = deepFreeze([
     name: 'Staging Loaded',
     domain: 'fyle.in',
     currency: 'USD',
-    is_verified: true,
+    is_primary: true,
+    is_current: true,
   },
   {
     id: 'orNVthTo2Zyo',
@@ -31,6 +33,7 @@ export const orgData2 = deepFreeze([
     name: 'Fyle Loaded',
     domain: 'fyle.in',
     currency: 'USD',
-    is_verified: true,
+    is_primary: false,
+    is_current: false,
   },
 ]);

@@ -5,5 +5,6 @@ export interface Org {
   name: string;
   domain: string;
   currency: string;
-  is_verified: boolean;
+  is_primary: boolean;
+  is_current: boolean;
 }
