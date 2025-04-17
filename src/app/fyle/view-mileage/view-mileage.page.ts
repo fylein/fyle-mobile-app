@@ -39,6 +39,8 @@ import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/fi
 import { ApproverFileService } from 'src/app/core/services/platform/v1/approver/file.service';
 import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
 import { PlatformFileGenerateUrlsResponse } from 'src/app/core/models/platform/platform-file-generate-urls-response.model';
+import { ExpenseCommentService as SpenderExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
+import { ExpenseCommentService as ApproverExpenseCommentService } from 'src/app/core/services/platform/v1/approver/expense-comment.service';
 
 @Component({
   selector: 'app-view-mileage',
@@ -131,7 +133,9 @@ export class ViewMileagePage {
     private mileageRatesService: MileageRatesService,
     private approverReportsService: ApproverReportsService,
     private spenderFileService: SpenderFileService,
-    private approverFileService: ApproverFileService
+    private approverFileService: ApproverFileService,
+    private spenderExpenseCommentService: SpenderExpenseCommentService,
+    private approverExpenseCommentService: ApproverExpenseCommentService
   ) {}
 
   get ExpenseView(): typeof ExpenseView {
@@ -193,6 +197,7 @@ export class ViewMileagePage {
       componentProps: {
         objectType: 'transactions',
         objectId: this.expenseId,
+        view: this.view,
       },
       ...this.modalProperties.getModalDefaultProperties(),
     });
@@ -420,7 +425,10 @@ export class ViewMileagePage {
       this.policyViloations$ = of(null);
     }
 
-    this.comments$ = this.statusService.find('transactions', this.expenseId);
+    this.comments$ =
+      this.view === ExpenseView.team
+        ? this.approverExpenseCommentService.getTransformedComments(this.expenseId)
+        : this.spenderExpenseCommentService.getTransformedComments(this.expenseId);
 
     this.isCriticalPolicyViolated$ = this.mileageExpense$.pipe(
       map((expense) => this.isNumber(expense.policy_amount) && expense.policy_amount < 0.0001)

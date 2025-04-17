@@ -23,6 +23,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { StatusService } from 'src/app/core/services/status.service';
+import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
@@ -97,6 +98,10 @@ describe('AddEditPerDiemPage', () => {
     const routerSpy = jasmine.createSpyObj('Router', ['navigate', 'navigateByUrl']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create', 'getTop']);
     const statusServiceSpy = jasmine.createSpyObj('StatusService', ['find', 'findLatestComment', 'post']);
+    const expenseCommentServiceSpy = jasmine.createSpyObj('ExpenseCommentService', [
+      'getTransformedComments',
+      'findLatestExpenseComment',
+    ]);
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
     const navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
     const advanceWalletsServiceSpy = jasmine.createSpyObj('AdvanceWalletsService', ['getAllAdvanceWallets']);
@@ -214,6 +219,10 @@ describe('AddEditPerDiemPage', () => {
         {
           provide: StatusService,
           useValue: statusServiceSpy,
+        },
+        {
+          provide: ExpenseCommentService,
+          useValue: expenseCommentServiceSpy,
         },
         {
           provide: NetworkService,

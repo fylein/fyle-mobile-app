@@ -22,6 +22,7 @@ import { ReportService } from 'src/app/core/services/report.service';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { StatusService } from 'src/app/core/services/status.service';
+import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { TokenService } from 'src/app/core/services/token.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -116,6 +117,7 @@ export function TestCases2(getTestBed) {
     let loaderService: jasmine.SpyObj<LoaderService>;
     let modalController: jasmine.SpyObj<ModalController>;
     let statusService: jasmine.SpyObj<StatusService>;
+    let expenseCommentService: jasmine.SpyObj<ExpenseCommentService>;
     let popoverController: jasmine.SpyObj<PopoverController>;
     let currencyService: jasmine.SpyObj<CurrencyService>;
     let networkService: jasmine.SpyObj<NetworkService>;
@@ -160,6 +162,7 @@ export function TestCases2(getTestBed) {
       loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
       modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
       statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
+      expenseCommentService = TestBed.inject(ExpenseCommentService) as jasmine.SpyObj<ExpenseCommentService>;
       popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
       currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
       networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
@@ -542,7 +545,7 @@ export function TestCases2(getTestBed) {
         currencyService.getHomeCurrency.and.returnValue(of('USD'));
         component.filteredCategories$ = of(categorieListRes);
         projectsService.getProjectCount.and.returnValue(of(4));
-        statusService.find.and.returnValue(of(getEstatusApiResponse));
+        expenseCommentService.getTransformedComments.and.returnValue(of(getEstatusApiResponse));
         currencyService.getAmountWithCurrencyFraction.and.returnValue(23);
         currencyService.getExchangeRate.and.returnValue(of(12));
         accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
@@ -763,7 +766,7 @@ export function TestCases2(getTestBed) {
         });
 
         component.comments$.subscribe((res) => {
-          expect(statusService.find).toHaveBeenCalledOnceWith('transactions', 'tx5n59fvxk4z');
+          expect(expenseCommentService.getTransformedComments).toHaveBeenCalledOnceWith('tx5n59fvxk4z');
           expect(res).toEqual(getEstatusApiResponse);
         });
         done();
