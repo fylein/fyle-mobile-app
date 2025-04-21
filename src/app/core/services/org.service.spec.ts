@@ -3,7 +3,7 @@ import { of } from 'rxjs';
 import { globalCacheBusterNotifier } from 'ts-cacheable';
 import { currencyIpData, currencyIpData2 } from '../mock-data/currency-ip.data';
 import { apiEouRes } from '../mock-data/extended-org-user.data';
-import { orgData1 } from '../mock-data/org.data';
+import { orgData1, orgData2, orgData3 } from '../mock-data/org.data';
 import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
 import { OrgService } from './org.service';
@@ -19,6 +19,7 @@ describe('OrgService', () => {
   let trackingService: jasmine.SpyObj<TrackingService>;
 
   beforeEach(() => {
+    globalCacheBusterNotifier.next();
     apiService = jasmine.createSpyObj('ApiService', ['get', 'post']);
     spenderService = jasmine.createSpyObj('SpenderService', ['get', 'post']);
     authService = jasmine.createSpyObj('AuthService', ['newRefreshToken']);
@@ -56,39 +57,49 @@ describe('OrgService', () => {
   });
 
   it('getCurrentOrg(): should get current org', (done) => {
-    spenderService.get.and.returnValue(of({ data: orgData1 }));
+    spenderService.get.and.returnValue(of({ data: orgData2 }));
 
     orgService.getCurrentOrg().subscribe((res) => {
-      expect(res).toEqual(orgData1[0]);
-      expect(spenderService.get).toHaveBeenCalledOnceWith('/orgs', {
-        params: {
-          is_current: true,
-        },
-      });
+      expect(res).toEqual(orgData2[0]);
+      expect(spenderService.get).toHaveBeenCalledOnceWith('/orgs');
       done();
     });
   });
 
   it('getPrimaryOrg(): should get primary org', (done) => {
-    spenderService.get.and.returnValue(of({ data: [orgData1[0]] }));
+    spenderService.get.and.returnValue(of({ data: orgData2 }));
 
     orgService.getPrimaryOrg().subscribe((res) => {
-      expect(res).toEqual(orgData1[0]);
-      expect(spenderService.get).toHaveBeenCalledOnceWith('/orgs', {
-        params: {
-          is_primary: true,
-        },
-      });
+      expect(res).toEqual(orgData2[0]);
+      expect(spenderService.get).toHaveBeenCalledOnceWith('/orgs');
       done();
     });
   });
 
   it('getOrgs(): should get orgs', (done) => {
-    spenderService.get.and.returnValue(of({ data: orgData1 }));
+    spenderService.get.and.returnValue(of({ data: orgData2 }));
 
     orgService.getOrgs().subscribe((res) => {
-      expect(res).toEqual(orgData1);
+      expect(res).toEqual(orgData2);
       expect(spenderService.get).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  it('getCurrentOrg(): should get org with is_current: true, is_primary: false', (done) => {
+    spenderService.get.and.returnValue(of({ data: orgData3 }));
+
+    orgService.getCurrentOrg().subscribe((res) => {
+      expect(res).toEqual(orgData3[0]); // is_current: true, is_primary: false
+      done();
+    });
+  });
+
+  it('getPrimaryOrg(): should get org with is_primary: true, is_current: false', (done) => {
+    spenderService.get.and.returnValue(of({ data: orgData3 }));
+
+    orgService.getPrimaryOrg().subscribe((res) => {
+      expect(res).toEqual(orgData3[1]); // is_primary: true, is_current: false
       done();
     });
   });

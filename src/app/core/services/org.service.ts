@@ -26,34 +26,19 @@ export class OrgService {
   @Cacheable({
     cacheBusterObserver: orgsCacheBuster$,
   })
-  getCurrentOrg(): Observable<Org> {
-    return this.spenderService
-      .get<PlatformApiResponse<Org[]>>('/orgs', {
-        params: {
-          is_current: true,
-        },
-      })
-      .pipe(map((response) => response.data[0]));
-  }
-
-  @Cacheable({
-    cacheBusterObserver: orgsCacheBuster$,
-  })
-  getPrimaryOrg(): Observable<Org> {
-    return this.spenderService
-      .get<PlatformApiResponse<Org[]>>('/orgs', {
-        params: {
-          is_primary: true,
-        },
-      })
-      .pipe(map((response) => response.data[0]));
-  }
-
   @Cacheable({
     cacheBusterObserver: orgsCacheBuster$,
   })
   getOrgs(): Observable<Org[]> {
     return this.spenderService.get<PlatformApiResponse<Org[]>>('/orgs').pipe(map((response) => response.data));
+  }
+
+  getPrimaryOrg(): Observable<Org> {
+    return this.getOrgs().pipe(map((orgs) => orgs.find((org) => org.is_primary)));
+  }
+
+  getCurrentOrg(): Observable<Org> {
+    return this.getOrgs().pipe(map((orgs) => orgs.find((org) => org.is_current)));
   }
 
   suggestOrgCurrency(): Observable<string> {
