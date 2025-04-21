@@ -91,6 +91,7 @@ import { ReportService } from 'src/app/core/services/report.service';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { StatusService } from 'src/app/core/services/status.service';
+import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { TaxGroupService } from 'src/app/core/services/tax-group.service';
 import { TokenService } from 'src/app/core/services/token.service';
@@ -151,6 +152,7 @@ export function TestCases5(getTestBed) {
     let loaderService: jasmine.SpyObj<LoaderService>;
     let modalController: jasmine.SpyObj<ModalController>;
     let statusService: jasmine.SpyObj<StatusService>;
+    let expenseCommentService: jasmine.SpyObj<ExpenseCommentService>;
     let fileService: jasmine.SpyObj<FileService>;
     let spenderFileService: jasmine.SpyObj<SpenderFileService>;
     let popoverController: jasmine.SpyObj<PopoverController>;
@@ -205,6 +207,7 @@ export function TestCases5(getTestBed) {
       loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
       modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
       statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
+      expenseCommentService = TestBed.inject(ExpenseCommentService) as jasmine.SpyObj<ExpenseCommentService>;
       fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
       spenderFileService = TestBed.inject(SpenderFileService) as jasmine.SpyObj<SpenderFileService>;
       popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
@@ -1500,7 +1503,7 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'setupCostCenters');
         storageService.get.and.resolveTo(true);
         spyOn(component, 'setupBalanceFlag');
-        statusService.find.and.returnValue(of(getEstatusApiResponse));
+        expenseCommentService.getTransformedComments.and.returnValue(of(getEstatusApiResponse));
         spyOn(component, 'getNewExpenseObservable').and.returnValue(of(expectedExpenseObservable));
         spyOn(component, 'getEditExpenseObservable').and.returnValue(of(expectedUnflattendedTxnData1));
         fileService.getReceiptsDetails.and.returnValue({
@@ -1594,7 +1597,7 @@ export function TestCases5(getTestBed) {
         expect(component.setupCostCenters).toHaveBeenCalledTimes(1);
 
         expect(storageService.get).toHaveBeenCalledOnceWith('isExpandedView');
-        expect(statusService.find).toHaveBeenCalledTimes(1);
+        expect(expenseCommentService.getTransformedComments).toHaveBeenCalledTimes(1);
 
         component.isProjectsEnabled$.subscribe((res) => {
           expect(res).toBeTrue();
@@ -1711,7 +1714,7 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'setupCostCenters');
         storageService.get.and.resolveTo(true);
         spyOn(component, 'setupBalanceFlag');
-        statusService.find.and.returnValue(of(getEstatusApiResponse));
+        expenseCommentService.getTransformedComments.and.returnValue(of(getEstatusApiResponse));
         spyOn(component, 'getNewExpenseObservable').and.returnValue(of(expectedExpenseObservable));
         spyOn(component, 'getEditExpenseObservable').and.returnValue(of(expectedUnflattendedTxnData1));
         fileService.findByTransactionId.and.returnValue(of(expectedFileData1));
@@ -1787,7 +1790,7 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'setupCostCenters');
         storageService.get.and.resolveTo(true);
         spyOn(component, 'setupBalanceFlag');
-        statusService.find.and.returnValue(of(getEstatusApiResponse));
+        expenseCommentService.getTransformedComments.and.returnValue(of(getEstatusApiResponse));
         spyOn(component, 'getNewExpenseObservable').and.returnValue(of(expectedExpenseObservable));
         spyOn(component, 'getEditExpenseObservable').and.returnValue(of(expectedUnflattendedTxnData1));
         expensesService.getSplitExpenses.and.returnValue(of(splitExpensesData));
@@ -1881,7 +1884,7 @@ export function TestCases5(getTestBed) {
         expect(component.setupCostCenters).toHaveBeenCalledTimes(1);
 
         expect(storageService.get).toHaveBeenCalledOnceWith('isExpandedView');
-        expect(statusService.find).toHaveBeenCalledTimes(1);
+        expect(expenseCommentService.getTransformedComments).toHaveBeenCalledTimes(1);
 
         component.isProjectsEnabled$.subscribe((res) => {
           expect(res).toBeTrue();

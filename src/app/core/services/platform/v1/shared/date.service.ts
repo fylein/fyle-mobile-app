@@ -22,6 +22,11 @@ export class DateService {
     return newDate;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  isExpenseComment(obj: any): boolean {
+    return obj && typeof obj === 'object' && 'comment' in obj && 'action' in obj && 'action_data' in obj;
+  }
+
   fixDates<T>(object: T): T {
     if (!object || typeof object !== 'object') {
       return object;
@@ -34,7 +39,8 @@ export class DateService {
 
         if (typeof value === 'object') {
           // Use recursion to fix nested objects
-          clone[key] = this.fixDates(value);
+          // Skipping processing the expense comment object since we are using dateWithTimezone pipe.
+          clone[key] = this.isExpenseComment(value) ? value : this.fixDates(value);
         } else {
           const isDateField = key.endsWith('_at') || this.dateFields.includes(key);
           if (isDateField) {

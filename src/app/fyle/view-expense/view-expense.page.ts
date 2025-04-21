@@ -29,6 +29,8 @@ import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { ExpensesService as ApproverExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
 import { ExpensesService as SpenderExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { ExpenseCommentService as SpenderExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
+import { ExpenseCommentService as ApproverExpenseCommentService } from 'src/app/core/services/platform/v1/approver/expense-comment.service';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
@@ -156,7 +158,9 @@ export class ViewExpensePage {
     private approverExpensesService: ApproverExpensesService,
     private spenderFileService: SpenderFileService,
     private approverFileService: ApproverFileService,
-    private approverReportsService: ApproverReportsService
+    private approverReportsService: ApproverReportsService,
+    private spenderExpenseCommentService: SpenderExpenseCommentService,
+    private approverExpenseCommentService: ApproverExpenseCommentService
   ) {}
 
   get ExpenseView(): typeof ExpenseView {
@@ -192,6 +196,7 @@ export class ViewExpensePage {
       componentProps: {
         objectType: 'transactions',
         objectId: this.expenseId,
+        view: this.view,
       },
       ...this.modalProperties.getModalDefaultProperties(),
     });
@@ -358,11 +363,18 @@ export class ViewExpensePage {
       .subscribe(noop);
 
     this.policyViloations$ = this.expenseWithoutCustomProperties$.pipe(
-      concatMap((expense) => this.statusService.find('transactions', expense.id)),
+      concatMap((expense) =>
+        this.view === ExpenseView.team
+          ? this.approverExpenseCommentService.getTransformedComments(expense.id)
+          : this.spenderExpenseCommentService.getTransformedComments(expense.id)
+      ),
       map((comments) => comments.filter(this.isPolicyComment))
     );
 
-    this.comments$ = this.statusService.find('transactions', this.expenseId);
+    this.comments$ =
+      this.view === ExpenseView.team
+        ? this.approverExpenseCommentService.getTransformedComments(this.expenseId)
+        : this.spenderExpenseCommentService.getTransformedComments(this.expenseId);
 
     this.canDelete$ = this.expenseWithoutCustomProperties$.pipe(
       filter(() => this.view === ExpenseView.team),

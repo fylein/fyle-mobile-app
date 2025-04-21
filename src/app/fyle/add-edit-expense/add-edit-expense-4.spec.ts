@@ -63,6 +63,7 @@ import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-it
 import { ReportService } from 'src/app/core/services/report.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { StatusService } from 'src/app/core/services/status.service';
+import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { TaxGroupService } from 'src/app/core/services/tax-group.service';
 import { TokenService } from 'src/app/core/services/token.service';
@@ -112,6 +113,7 @@ export function TestCases4(getTestBed) {
     let loaderService: jasmine.SpyObj<LoaderService>;
     let modalController: jasmine.SpyObj<ModalController>;
     let statusService: jasmine.SpyObj<StatusService>;
+    let expenseCommentService: jasmine.SpyObj<ExpenseCommentService>;
     let fileService: jasmine.SpyObj<FileService>;
     let popoverController: jasmine.SpyObj<PopoverController>;
     let currencyService: jasmine.SpyObj<CurrencyService>;
@@ -166,6 +168,7 @@ export function TestCases4(getTestBed) {
       loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
       modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
       statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
+      expenseCommentService = TestBed.inject(ExpenseCommentService) as jasmine.SpyObj<ExpenseCommentService>;
       fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
       popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
       currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
@@ -1107,7 +1110,7 @@ export function TestCases4(getTestBed) {
         authService.getEou.and.resolveTo(apiEouRes);
 
         transactionService.upsert.and.returnValue(of(transformedExpenseDataWithReportId.tx));
-        statusService.findLatestComment.and.returnValue(of('a comment'));
+        expenseCommentService.findLatestExpenseComment.and.returnValue(of('a comment'));
         statusService.post.and.returnValue(of(expenseStatusData));
         fixture.detectChanges();
 
@@ -1135,9 +1138,8 @@ export function TestCases4(getTestBed) {
           expect(component.trackEditExpense).toHaveBeenCalledOnceWith(transformedExpenseDataWithReportId);
           expect(transactionService.upsert).toHaveBeenCalledOnceWith(transformedExpenseDataWithReportId.tx);
 
-          expect(statusService.findLatestComment).toHaveBeenCalledOnceWith(
+          expect(expenseCommentService.findLatestExpenseComment).toHaveBeenCalledOnceWith(
             transformedExpenseDataWithReportId.tx.id,
-            'transactions',
             transformedExpenseDataWithReportId.tx.org_user_id
           );
           expect(statusService.post).toHaveBeenCalledOnceWith(
@@ -1168,7 +1170,7 @@ export function TestCases4(getTestBed) {
         component.etxn$ = of(transformedExpenseDataWithReportId2);
         authService.getEou.and.resolveTo(apiEouRes);
         transactionService.upsert.and.returnValue(of(transformedExpenseDataWithReportId2.tx));
-        statusService.findLatestComment.and.returnValue(of('comment'));
+        expenseCommentService.findLatestExpenseComment.and.returnValue(of('comment'));
         fixture.detectChanges();
 
         component.editExpense('SAVE_AND_NEW_EXPENSE').subscribe((res) => {
@@ -1194,9 +1196,8 @@ export function TestCases4(getTestBed) {
           expect(authService.getEou).toHaveBeenCalledTimes(1);
           expect(component.trackEditExpense).toHaveBeenCalledOnceWith(transformedExpenseDataWithReportId2);
           expect(transactionService.upsert).toHaveBeenCalledOnceWith(transformedExpenseDataWithReportId2.tx);
-          expect(statusService.findLatestComment).toHaveBeenCalledOnceWith(
+          expect(expenseCommentService.findLatestExpenseComment).toHaveBeenCalledOnceWith(
             transformedExpenseDataWithReportId2.tx.id,
-            'transactions',
             transformedExpenseDataWithReportId2.tx.org_user_id
           );
           done();

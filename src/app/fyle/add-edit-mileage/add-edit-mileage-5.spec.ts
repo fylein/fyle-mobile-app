@@ -68,6 +68,7 @@ import { ReportService } from 'src/app/core/services/report.service';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { StatusService } from 'src/app/core/services/status.service';
+import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { TaxGroupService } from 'src/app/core/services/tax-group.service';
 import { TokenService } from 'src/app/core/services/token.service';
@@ -109,6 +110,7 @@ export function TestCases5(getTestBed) {
     let loaderService: jasmine.SpyObj<LoaderService>;
     let modalController: jasmine.SpyObj<ModalController>;
     let statusService: jasmine.SpyObj<StatusService>;
+    let expenseCommentService: jasmine.SpyObj<ExpenseCommentService>;
     let fileService: jasmine.SpyObj<FileService>;
     let popoverController: jasmine.SpyObj<PopoverController>;
     let currencyService: jasmine.SpyObj<CurrencyService>;
@@ -166,6 +168,7 @@ export function TestCases5(getTestBed) {
       loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
       modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
       statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
+      expenseCommentService = TestBed.inject(ExpenseCommentService) as jasmine.SpyObj<ExpenseCommentService>;
       fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
       popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
       currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
@@ -270,7 +273,7 @@ export function TestCases5(getTestBed) {
       orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
       currencyService.getHomeCurrency.and.returnValue(of('USD'));
       projectsService.getProjectCount.and.returnValue(of(2));
-      statusService.find.and.returnValue(of(getEstatusApiResponse));
+      expenseCommentService.getTransformedComments.and.returnValue(of(getEstatusApiResponse));
       mileageRatesService.getAllMileageRates.and.returnValue(of(unfilteredMileageRatesData));
       mileageService.getOrgUserMileageSettings.and.returnValue(of(orgUserSettingsData.mileage_settings));
       mileageRatesService.filterEnabledMileageRates.and.returnValue(cloneDeep(mileageRateApiRes2));
@@ -380,7 +383,9 @@ export function TestCases5(getTestBed) {
           expect(res).toBeTrue();
         });
 
-        expect(statusService.find).toHaveBeenCalledOnceWith('transactions', activatedRoute.snapshot.params.id);
+        expect(expenseCommentService.getTransformedComments).toHaveBeenCalledOnceWith(
+          activatedRoute.snapshot.params.id
+        );
         expect(component.checkIndividualMileageEnabled).toHaveBeenCalledOnceWith(jasmine.any(Observable));
         expect(mileageRatesService.getAllMileageRates).toHaveBeenCalledTimes(2);
         expect(mileageService.getOrgUserMileageSettings).toHaveBeenCalledTimes(1);
@@ -554,7 +559,7 @@ export function TestCases5(getTestBed) {
         activatedRoute.snapshot.params.activeIndex = 0;
         activatedRoute.snapshot.params.txnIds = JSON.stringify(['tx3qwe4ty', 'tx6sd7gh', 'txD3cvb6']);
         spyOn(component, 'getRecentlyUsedValues').and.returnValue(of(null));
-        statusService.find.and.returnValue(of(getEstatusApiResponse));
+        expenseCommentService.getTransformedComments.and.returnValue(of(getEstatusApiResponse));
         mileageRatesService.getAllMileageRates.and.returnValue(of([]));
         mileageService.getOrgUserMileageSettings.and.returnValue(of(null));
         mileageRatesService.filterEnabledMileageRates.and.returnValue([]);
@@ -659,7 +664,7 @@ export function TestCases5(getTestBed) {
         activatedRoute.snapshot.params.activeIndex = 0;
         activatedRoute.snapshot.params.txnIds = JSON.stringify(['tx3qwe4ty', 'tx6sd7gh', 'txD3cvb6']);
         spyOn(component, 'getRecentlyUsedValues').and.returnValue(of(null));
-        statusService.find.and.returnValue(of(getEstatusApiResponse));
+        expenseCommentService.getTransformedComments.and.returnValue(of(getEstatusApiResponse));
         mileageRatesService.getAllMileageRates.and.returnValue(of([]));
         mileageService.getOrgUserMileageSettings.and.returnValue(of(null));
         mileageRatesService.filterEnabledMileageRates.and.returnValue([]);
@@ -691,7 +696,7 @@ export function TestCases5(getTestBed) {
         activatedRoute.snapshot.params.activeIndex = 0;
         activatedRoute.snapshot.params.txnIds = JSON.stringify(['tx3qwe4ty', 'tx6sd7gh', 'txD3cvb6']);
         spyOn(component, 'getRecentlyUsedValues').and.returnValue(of(null));
-        statusService.find.and.returnValue(of(getEstatusApiResponse));
+        expenseCommentService.getTransformedComments.and.returnValue(of(getEstatusApiResponse));
         mileageRatesService.getAllMileageRates.and.returnValue(of([]));
         mileageService.getOrgUserMileageSettings.and.returnValue(of(null));
         mileageRatesService.filterEnabledMileageRates.and.returnValue([]);
@@ -725,7 +730,7 @@ export function TestCases5(getTestBed) {
         activatedRoute.snapshot.params.txnIds = JSON.stringify(['tx3qwe4ty', 'tx6sd7gh', 'txD3cvb6']);
         activatedRoute.snapshot.params.id = 'tx3qwe4ty';
         spyOn(component, 'getRecentlyUsedValues').and.returnValue(of(null));
-        statusService.find.and.returnValue(of(getEstatusApiResponse));
+        expenseCommentService.getTransformedComments.and.returnValue(of(getEstatusApiResponse));
         mileageRatesService.getAllMileageRates.and.returnValue(of([]));
         mileageService.getOrgUserMileageSettings.and.returnValue(of(null));
         mileageRatesService.filterEnabledMileageRates.and.returnValue([]);
@@ -758,7 +763,7 @@ export function TestCases5(getTestBed) {
         activatedRoute.snapshot.params.txnIds = JSON.stringify(['tx3qwe4ty', 'tx6sd7gh', 'txD3cvb6']);
         activatedRoute.snapshot.params.id = 'tx3qwe4ty';
         spyOn(component, 'getRecentlyUsedValues').and.returnValue(of(null));
-        statusService.find.and.returnValue(of(getEstatusApiResponse));
+        expenseCommentService.getTransformedComments.and.returnValue(of(getEstatusApiResponse));
         mileageRatesService.getAllMileageRates.and.returnValue(of([]));
         mileageService.getOrgUserMileageSettings.and.returnValue(of(null));
         mileageRatesService.filterEnabledMileageRates.and.returnValue([]);
@@ -798,7 +803,7 @@ export function TestCases5(getTestBed) {
         activatedRoute.snapshot.params.txnIds = JSON.stringify(['tx3qwe4ty', 'tx6sd7gh', 'txD3cvb6']);
         activatedRoute.snapshot.params.id = 'tx3qwe4ty';
         spyOn(component, 'getRecentlyUsedValues').and.returnValue(of(null));
-        statusService.find.and.returnValue(of(getEstatusApiResponse));
+        expenseCommentService.getTransformedComments.and.returnValue(of(getEstatusApiResponse));
         mileageRatesService.getAllMileageRates.and.returnValue(of([]));
         mileageService.getOrgUserMileageSettings.and.returnValue(of(null));
         mileageRatesService.filterEnabledMileageRates.and.returnValue([]);

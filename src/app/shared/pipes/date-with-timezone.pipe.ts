@@ -1,4 +1,4 @@
-import { Inject, Pipe, PipeTransform } from '@angular/core';
+import { Inject, Injectable, Pipe, PipeTransform } from '@angular/core';
 import * as dayjs from 'dayjs';
 import * as utc from 'dayjs/plugin/utc';
 import * as timezone from 'dayjs/plugin/timezone';
@@ -11,6 +11,7 @@ dayjs.extend(timezone);
 @Pipe({
   name: 'dateWithTimezone',
 })
+@Injectable({ providedIn: 'root' })
 export class DateWithTimezonePipe implements PipeTransform {
   constructor(@Inject(TIMEZONE) private timezone$: BehaviorSubject<string>) {}
 

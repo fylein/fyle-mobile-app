@@ -2127,3 +2127,32 @@ export const systemCommentsWithSt: ExtendedStatus[] = deepFreeze([
     },
   },
 ]);
+
+export const transformedExpenseComments: ExtendedStatus[] = deepFreeze([
+  {
+    st_id: 'stNj1KHeiNIb',
+    st_created_at: new Date('2025-04-17T05:39:54.872279+00:00'),
+    st_org_user_id: 'usvMoPfCC9Xw',
+    st_comment: 'comment add',
+    st_diff: null,
+    st_state: null,
+    st_transaction_id: 'txjt6agn0gBY',
+    st_report_id: null,
+    st_advance_request_id: null,
+    us_full_name: 'Devendra Rana G',
+    us_email: 'devendra.r@fyle.in',
+  },
+  {
+    st_id: 'stNj1KHeiNIb',
+    st_created_at: new Date('2025-04-17T05:39:54.872279+00:00'),
+    st_org_user_id: 'usvMoPfCC9Xw',
+    st_comment: 'Test Comment',
+    st_diff: null,
+    st_state: null,
+    st_transaction_id: 'txjt6agn0gBY',
+    st_report_id: null,
+    st_advance_request_id: null,
+    us_full_name: 'Devendra Rana G',
+    us_email: 'devendra.r@fyle.in',
+  },
+]);
