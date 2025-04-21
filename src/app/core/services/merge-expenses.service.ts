@@ -4,7 +4,7 @@ import { filter, map, mergeMap, reduce, shareReplay, switchMap } from 'rxjs/oper
 import { ApiService } from './api.service';
 import { Expense } from '../models/expense.model';
 import { Expense as PlatformExpense } from '../models/platform/v1/expense.model';
-import { ExpensesInfo } from './expenses-info.model';
+import { ExpensesInfo } from '../models/expenses-info.model';
 import { FileService } from './file.service';
 import { SpenderFileService } from './platform/v1/spender/file.service';
 import { CorporateCreditCardExpenseService } from './corporate-credit-card-expense.service';

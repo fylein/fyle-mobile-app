@@ -104,55 +104,6 @@ describe('OrgUserService', () => {
     });
   });
 
-  it('should be able to get employees by params', (done) => {
-    spenderPlatformV1ApiService.get.and.returnValue(of(employeesRes));
-    const params = {
-      limit: 5,
-      order: 'full_name.asc',
-      id: 'neq.ouX8dwsbLCLv',
-      roles: 'like.%ADMIN%',
-      is_enabled: 'eq.true',
-      has_accepted_invite: 'eq.true',
-      select: 'full_name,email',
-    };
-    orgUserService.getEmployeesByParams(params).subscribe((res) => {
-      expect(res).toEqual(employeesRes);
-      expect(spenderPlatformV1ApiService.get).toHaveBeenCalledWith('/employees', { params });
-      done();
-    });
-  });
-
-  it('should be able to get employees by search with OR param', (done) => {
-    const params = {
-      order: 'full_name.asc,email.asc',
-      email: 'in.(ajain@fyle.in)',
-      or: '(is_enabled.eq.true)',
-      and: '(or(is_enabled.eq.true),or(is_enabled.eq.true))',
-    };
-    spenderPlatformV1ApiService.get.and.returnValue(of(employeesParamsRes));
-
-    orgUserService.getEmployeesBySearch(params).subscribe((res) => {
-      expect(res).toEqual(employeesParamsRes.data);
-      expect(spenderPlatformV1ApiService.get).toHaveBeenCalledWith('/employees', { params });
-      done();
-    });
-  });
-
-  it('should be able to get employees by search without OR param', (done) => {
-    const params = {
-      order: 'full_name.asc,email.asc,id',
-      email: 'in.(ajain@fyle.in)',
-      and: '(or(is_enabled.eq.true),or(is_enabled.eq.true))',
-    };
-    spenderPlatformV1ApiService.get.and.returnValue(of(employeesParamsRes));
-
-    orgUserService.getEmployeesBySearch(params).subscribe((res) => {
-      expect(res).toEqual(employeesParamsRes.data);
-      expect(spenderPlatformV1ApiService.get).toHaveBeenCalledWith('/employees', { params });
-      done();
-    });
-  });
-
   it('should be able to exclude eou by employee status', () => {
     const status = 'DISABLED';
     const eousFiltered = eouListWithDisabledUser.filter((eou) => status.indexOf(eou.ou.status) === -1);

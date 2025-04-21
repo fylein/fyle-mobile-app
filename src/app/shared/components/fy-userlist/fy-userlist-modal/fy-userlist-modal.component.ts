@@ -4,7 +4,7 @@ import { ModalController } from '@ionic/angular';
 import { map, startWith, distinctUntilChanged, switchMap, finalize, debounceTime } from 'rxjs/operators';
 import { cloneDeep } from 'lodash';
 import { Employee } from 'src/app/core/models/spender/employee.model';
-import { OrgUserService } from 'src/app/core/services/org-user.service';
+import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MatLegacyChipInputEvent as MatChipInputEvent } from '@angular/material/legacy-chips';
 import { EmployeeParams } from 'src/app/core/models/employee-params.model';
@@ -53,7 +53,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
   constructor(
     private modalController: ModalController,
     private cdr: ChangeDetectorRef,
-    private orgUserService: OrgUserService
+    private employeesService: EmployeesService
   ) {}
 
   getSelectedItemDict(): Record<string, boolean> {
@@ -108,7 +108,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
       params.limit = 20;
     }
 
-    return from(this.orgUserService.getEmployeesBySearch(params)).pipe(
+    return from(this.employeesService.getEmployeesBySearch(params)).pipe(
       map((eouc) =>
         eouc.map((eou) => {
           eou.is_selected = this.currentSelections.indexOf(eou.email) > -1;
@@ -128,7 +128,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
       params.or = `(email.ilike.%${searchText}%,full_name.ilike.%${searchText}%)`;
     }
 
-    return this.orgUserService.getEmployeesBySearch(params).pipe(
+    return this.employeesService.getEmployeesBySearch(params).pipe(
       map((eouc) =>
         eouc.map((eou) => {
           if (this.currentSelections && this.currentSelections.length > 0) {
