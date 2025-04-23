@@ -174,6 +174,9 @@ export class ViewCommentComponent implements OnInit {
       switchMap(() => eou$),
       switchMap((eou) => {
         const isExpense = this.objectType === 'transactions';
+        // Determine the correct userId based on the object type:
+        // - For Expenses (Platform API), the status object contains `user_id`, so we compare with `eou.us.id`.
+        // - For Advance Requests (Public API), the status object contains `org_user_id`, so we compare with `eou.ou.id`.
         const userId = isExpense ? eou?.us?.id : eou?.ou?.id;
 
         const comments$ = isExpense
