@@ -2704,7 +2704,7 @@ export class AddEditMileagePage implements OnInit {
           }),
           switchMap((txn) => {
             if (comment) {
-              return this.expenseCommentService.findLatestExpenseComment(txn.id, txn.org_user_id).pipe(
+              return this.expenseCommentService.findLatestExpenseComment(txn.id, txn.creator_id).pipe(
                 switchMap((result) => {
                   if (result !== comment) {
                     return this.statusService.post('transactions', txn.id, { comment }, true).pipe(map(() => txn));
