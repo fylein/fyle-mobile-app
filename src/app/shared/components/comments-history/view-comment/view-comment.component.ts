@@ -174,6 +174,7 @@ export class ViewCommentComponent implements OnInit {
       switchMap(() => eou$),
       switchMap((eou) => {
         const isExpense = this.objectType === 'transactions';
+        const userId = isExpense ? eou?.us?.id : eou?.ou?.id;
 
         const comments$ = isExpense
           ? this.view === ExpenseView.team
@@ -185,8 +186,8 @@ export class ViewCommentComponent implements OnInit {
           map((res) =>
             res.map((status) => {
               status.isBotComment = ['SYSTEM', 'POLICY'].includes(status?.st_org_user_id);
-              status.isSelfComment = eou?.ou?.id === status?.st_org_user_id;
-              status.isOthersComment = eou?.ou?.id !== status?.st_org_user_id;
+              status.isSelfComment = userId === status?.st_org_user_id;
+              status.isOthersComment = userId !== status?.st_org_user_id;
               return status;
             })
           ),
