@@ -90,7 +90,7 @@ describe('OrgService', () => {
     spenderService.get.and.returnValue(of({ data: orgData3 }));
 
     orgService.getCurrentOrg().subscribe((res) => {
-      expect(res).toEqual(orgData3[0]); // is_current: true, is_primary: false
+      expect(res).toEqual(orgData3[0]);
       done();
     });
   });
@@ -99,7 +99,7 @@ describe('OrgService', () => {
     spenderService.get.and.returnValue(of({ data: orgData3 }));
 
     orgService.getPrimaryOrg().subscribe((res) => {
-      expect(res).toEqual(orgData3[1]); // is_primary: true, is_current: false
+      expect(res).toEqual(orgData3[1]);
       done();
     });
   });
