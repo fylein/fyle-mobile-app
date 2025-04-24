@@ -39,6 +39,46 @@
       display: none;
     }
   }
+
+  &--greetings-text {
+    padding: 8px 16px 4px 16px;
+    font-size: 18px;
+    font-weight: 500;
+    color: $black-light;
+  }
+
+  &--handwave {
+    display: inline-block;
+    transform-origin: 70% 70%;
+    animation: handwave-animation 2.5s forwards;
+
+    @keyframes handwave-animation {
+      0% {
+        transform: rotate(0deg);
+      }
+      10% {
+        transform: rotate(14deg);
+      }
+      20% {
+        transform: rotate(-8deg);
+      }
+      30% {
+        transform: rotate(14deg);
+      }
+      40% {
+        transform: rotate(-4deg);
+      }
+      50% {
+        transform: rotate(10deg);
+      }
+      60% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(0deg);
+      }
+    }
+  }
 }
 
 .tasks {

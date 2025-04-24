@@ -3,7 +3,7 @@ import { ModalController } from '@ionic/angular';
 import { SupportDialogPage } from 'src/app/fyle/help/support-dialog/support-dialog.page';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { switchMap, finalize } from 'rxjs/operators';
-import { OrgUserService } from 'src/app/core/services/org-user.service';
+import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
 import { from } from 'rxjs';
 import { TrackingService } from '../../core/services/tracking.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -23,7 +23,7 @@ export class HelpPage implements OnInit {
 
   constructor(
     private modalController: ModalController,
-    private orgUserService: OrgUserService,
+    private employeesService: EmployeesService,
     private loaderService: LoaderService,
     private trackingService: TrackingService,
     private authService: AuthService,
@@ -36,7 +36,7 @@ export class HelpPage implements OnInit {
       .pipe(
         switchMap(() => from(this.authService.getEou())),
         switchMap((eou) =>
-          this.orgUserService.getEmployeesByParams({
+          this.employeesService.getEmployeesByParams({
             select: '(full_name,email)',
             roles: 'like.%' + 'ADMIN%',
             is_enabled: 'eq.true',
@@ -75,7 +75,7 @@ export class HelpPage implements OnInit {
   }
 
   async openHelpLink(): Promise<void> {
-    await this.browserHandlerService.openLinkWithToolbarColor('#280a31', 'https://help.fylehq.com');
+    await this.browserHandlerService.openLinkWithToolbarColor('#280a31', 'https://www.fylehq.com/help');
   }
 
   ngOnInit(): void {

@@ -115,9 +115,9 @@
       <ng-container *ngIf="orgs$ | async as orgs">
         <ng-container *ngIf="orgs.length > 1">
           <app-fy-zero-state
-            header="Sorry, no results found!"
-            [message]="'We could not find what you were looking for.\nKindly check the keywords again.'"
-            image="../../../assets/images/zero-states/search-not-found.svg"
+            [message]="'No results found'"
+            submessage="Try a different keyword"
+            image="../../../assets/images/zero-states/search.png"
             [unscaledImage]="true"
             [useNewStyling]="true"
           ></app-fy-zero-state>

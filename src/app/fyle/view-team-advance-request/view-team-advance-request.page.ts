@@ -1,9 +1,9 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetButton, ActionSheetController, ModalController, PopoverController } from '@ionic/angular';
-import { Subject, forkJoin, from } from 'rxjs';
+import { EMPTY, Subject, forkJoin, from } from 'rxjs';
 import { Observable } from 'rxjs/internal/Observable';
-import { concatMap, finalize, map, reduce, shareReplay, startWith, switchMap, take } from 'rxjs/operators';
+import { catchError, concatMap, finalize, map, reduce, shareReplay, startWith, switchMap, take } from 'rxjs/operators';
 import { MIN_SCREEN_WIDTH } from 'src/app/app.module';
 import { AdvanceRequestActions } from 'src/app/core/models/advance-request-actions.model';
 import { Approval } from 'src/app/core/models/approval.model';
@@ -117,7 +117,9 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
     this.advanceRequest$ = this.refreshApprovers$.pipe(
       startWith(true),
       switchMap(() =>
-        from(this.loaderService.showLoader()).pipe(switchMap(() => this.advanceRequestService.getAdvanceRequest(id)))
+        from(this.loaderService.showLoader()).pipe(
+          switchMap(() => this.advanceRequestService.getApproverAdvanceRequest(id))
+        )
       ),
       finalize(() => from(this.loaderService.hideLoader())),
       shareReplay(1)
@@ -154,7 +156,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
             res.advanceRequest.areq_custom_field_values.length > 0
           ) {
             customFieldValues = this.advanceRequestService.modifyAdvanceRequestCustomFields(
-              JSON.parse(res.advanceRequest.areq_custom_field_values) as CustomField[]
+              res.advanceRequest.areq_custom_field_values
             );
           }
 
@@ -168,7 +170,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
           return res.customFields;
         } else {
           return this.advanceRequestService.modifyAdvanceRequestCustomFields(
-            JSON.parse(res.advanceRequest.areq_custom_field_values) as CustomField[]
+            res.advanceRequest.areq_custom_field_values
           );
         }
       })
@@ -293,7 +295,13 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
       this.isLoading = true;
       this.advanceRequestService
         .approve(areq.areq_id)
-        .pipe(finalize(() => (this.isLoading = false)))
+        .pipe(
+          catchError(() => {
+            this.trackingService.eventTrack('Team Advances Approval Failed', { id: areq.areq_id });
+            return EMPTY;
+          }),
+          finalize(() => (this.isLoading = false))
+        )
         .subscribe(() => {
           this.router.navigate(['/', 'enterprise', 'team_advance']);
         });

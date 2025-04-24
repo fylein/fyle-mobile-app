@@ -5,6 +5,7 @@ import { ShowAllApproversPopoverComponent } from './show-all-approvers-popover.c
 import { ApprovalState } from 'src/app/core/models/platform/approval-state.enum';
 import { getElementRef } from 'src/app/core/dom-helpers';
 import { By } from '@angular/platform-browser';
+import { EllipsisPipe } from 'src/app/shared/pipes/ellipses.pipe';
 
 describe('ShowAllApproversPopoverComponent', () => {
   let component: ShowAllApproversPopoverComponent;
@@ -15,7 +16,7 @@ describe('ShowAllApproversPopoverComponent', () => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['dismiss']);
 
     TestBed.configureTestingModule({
-      declarations: [ShowAllApproversPopoverComponent],
+      declarations: [ShowAllApproversPopoverComponent, EllipsisPipe],
       imports: [IonicModule.forRoot()],
       providers: [{ provide: PopoverController, useValue: popoverControllerSpy }],
     }).compileComponents();
@@ -46,11 +47,13 @@ describe('ShowAllApproversPopoverComponent', () => {
         approver_user_id: 'usvKA4X8Ugcr',
         approver_user: { full_name: 'John Doe', email: 'john@example.com', id: 'usvKA4X8Ugcr' },
         state: ApprovalState.APPROVAL_PENDING,
+        approver_order: 0,
       },
       {
         approver_user_id: 'usvKA4X8Ugcr',
         approver_user: { full_name: 'Jane Doe', email: 'jane@example.com', id: 'usvKA4X8Ugcj' },
         state: ApprovalState.APPROVAL_DONE,
+        approver_order: 0,
       },
     ];
     fixture.detectChanges();
@@ -68,16 +71,19 @@ describe('ShowAllApproversPopoverComponent', () => {
         approver_user_id: 'usvKA4X8Ugcr',
         approver_user: { full_name: 'John Doe', email: 'john@example.com', id: 'usvKA4X8Ugcr' },
         state: ApprovalState.APPROVAL_PENDING,
+        approver_order: 0,
       },
       {
         approver_user_id: 'usvKA4X8Ugcj',
         approver_user: { full_name: 'Jane Doe', email: 'jane@example.com', id: 'usvKA4X8Ugcj' },
         state: ApprovalState.APPROVAL_DONE,
+        approver_order: 0,
       },
       {
         approver_user_id: 'usvKA4X8Ugcm',
         approver_user: { full_name: 'Mark Smith', email: 'mark@example.com', id: 'usvKA4X8Ugcm' },
         state: ApprovalState.APPROVAL_PENDING,
+        approver_order: 0,
       },
     ];
     fixture.detectChanges();

@@ -3,7 +3,7 @@
     <ion-buttons mode="md" slot="start">
       <app-fy-menu-icon class="advance-request--menubutton" auto-hide="false"></app-fy-menu-icon>
     </ion-buttons>
-    <ion-title mode="md" class="page-title"> Team advance requests </ion-title>
+    <ion-title mode="md" class="page-title">Team advances</ion-title>
     <ion-buttons mode="md" slot="end">
       <ion-button class="advance-request--header-btn" (click)="openFilters()">
         <ng-container *ngIf="filterPills?.length; else noFilterAppliedIcon">
@@ -17,7 +17,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content class="advance-request--content">
   <ng-container *ngIf="filterPills?.length">
     <div class="filter-pills-container">
       <app-fy-filter-pills
@@ -30,7 +30,7 @@
     </div>
   </ng-container>
   <app-fy-loading-screen *ngIf="isLoading"></app-fy-loading-screen>
-  <div *ngIf="count$|async; else zeroState">
+  <div class="advance-request--body" *ngIf="count$|async; else zeroState">
     <ion-refresher slot="fixed" (ionRefresh)="changeState($event)">
       <ion-refresher-content></ion-refresher-content>
     </ion-refresher>
@@ -50,11 +50,19 @@
   <ng-template #zeroState>
     <div class="advance-request--zero-state" *ngIf="(teamAdvancerequests$ | async)?.length === 0 && !isLoading">
       <app-fy-zero-state
+        *ngIf="!(filters?.state || filters?.sortParam || filters?.sortDir)"
         [unscaledImage]="true"
         [useNewStyling]="true"
-        image="../../../assets/images/zero-states/expenses.png"
-        header="Nothing here, grab a coffee maybe?"
-        message="Advances that need your approval will show up here."
+        image="../../../assets/images/zero-states/advances.png"
+        message="Your have no team advances right now"
+      ></app-fy-zero-state>
+      <app-fy-zero-state
+        *ngIf="(filters?.state || filters?.sortParam || filters?.sortDir)"
+        [unscaledImage]="true"
+        [useNewStyling]="true"
+        image="../../../assets/images/zero-states/advances.png"
+        message="Your have no team advances"
+        submessage="matching the applied filters"
       ></app-fy-zero-state>
     </div>
   </ng-template>

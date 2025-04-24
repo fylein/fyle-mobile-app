@@ -78,6 +78,7 @@ import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-it
 import { ReportService } from 'src/app/core/services/report.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { StatusService } from 'src/app/core/services/status.service';
+import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { TaxGroupService } from 'src/app/core/services/tax-group.service';
 import { TokenService } from 'src/app/core/services/token.service';
@@ -125,6 +126,7 @@ export function TestCases3(getTestBed) {
     let loaderService: jasmine.SpyObj<LoaderService>;
     let modalController: jasmine.SpyObj<ModalController>;
     let statusService: jasmine.SpyObj<StatusService>;
+    let expenseCommentService: jasmine.SpyObj<ExpenseCommentService>;
     let fileService: jasmine.SpyObj<FileService>;
     let popoverController: jasmine.SpyObj<PopoverController>;
     let currencyService: jasmine.SpyObj<CurrencyService>;
@@ -181,6 +183,7 @@ export function TestCases3(getTestBed) {
       loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
       modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
       statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
+      expenseCommentService = TestBed.inject(ExpenseCommentService) as jasmine.SpyObj<ExpenseCommentService>;
       fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
       popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
       currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
@@ -860,7 +863,7 @@ export function TestCases3(getTestBed) {
           report: expectedReportsPaginated[0],
         });
         spyOn(component, 'getIsPolicyExpense').and.returnValue(true);
-        statusService.findLatestComment.and.returnValue(of('A comment'));
+        expenseCommentService.findLatestExpenseComment.and.returnValue(of('A comment'));
         fixture.detectChanges();
 
         component.editExpense('SAVE_MILEAGE').subscribe((res) => {
@@ -891,9 +894,8 @@ export function TestCases3(getTestBed) {
           expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseDataWithSubCategory);
 
           expect(component.getFormValues).toHaveBeenCalledTimes(1);
-          expect(statusService.findLatestComment).toHaveBeenCalledOnceWith(
+          expect(expenseCommentService.findLatestExpenseComment).toHaveBeenCalledOnceWith(
             transformedExpenseDataWithSubCategory.tx.id,
-            'transactions',
             transformedExpenseDataWithSubCategory.tx.org_user_id
           );
           done();
@@ -923,7 +925,7 @@ export function TestCases3(getTestBed) {
         });
 
         spyOn(component, 'getIsPolicyExpense').and.returnValue(true);
-        statusService.findLatestComment.and.returnValue(of(null));
+        expenseCommentService.findLatestExpenseComment.and.returnValue(of(null));
         statusService.post.and.returnValue(of(expenseStatusData));
         fixture.detectChanges();
 
@@ -954,9 +956,8 @@ export function TestCases3(getTestBed) {
           expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(newExpFromFgPlatform.tx.id);
           expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseDataWithReportId);
           expect(component.getFormValues).toHaveBeenCalledTimes(1);
-          expect(statusService.findLatestComment).toHaveBeenCalledOnceWith(
+          expect(expenseCommentService.findLatestExpenseComment).toHaveBeenCalledOnceWith(
             transformedExpenseDataWithReportId.tx.id,
-            'transactions',
             transformedExpenseDataWithReportId.tx.org_user_id
           );
           expect(statusService.post).toHaveBeenCalledOnceWith(

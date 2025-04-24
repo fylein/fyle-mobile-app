@@ -26,7 +26,7 @@ import { CustomFieldsService } from 'src/app/core/services/custom-fields.service
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
-import { ExpensesInfo } from 'src/app/core/services/expenses-info.model';
+import { ExpensesInfo } from 'src/app/core/models/expenses-info.model';
 import { MergeExpensesService } from 'src/app/core/services/merge-expenses.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -133,6 +133,8 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
   costCenterDependentFieldsMapping$: Observable<DependentFieldsMapping>;
 
   txnIDs: string[];
+
+  showBillable = false;
 
   constructor(
     private router: Router,
@@ -694,6 +696,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
 
     return expenseFields$.pipe(
       switchMap((expenseFields) => {
+        this.showBillable = expenseFields?.billable?.[0]?.is_enabled;
         let parentFieldId: number;
         if (parentField === 'PROJECT') {
           parentFieldId = expenseFields.project_id[0].id;

@@ -15,7 +15,7 @@
           <app-fy-select
             [disabled]="disableFormElements || disableExpenseToKeep"
             [label]="'Expense to Keep'"
-            [selectModalHeader]="'Expense to Keep'"
+            [selectModalHeader]="'Expense to keep'"
             [mandatory]="true"
             [nullOption]="false"
             [options]="expenseOptions"
@@ -46,6 +46,7 @@
               [paymentModeOptionsData]="genericFieldsOptions.paymentModeOptionsData"
               [CCCTxns]="CCCTxns"
               [projectOptionsData]="genericFieldsOptions.projectOptionsData"
+              [showBillable]="showBillable"
               [billableOptionsData]="genericFieldsOptions.billableOptionsData"
               [vendorOptionsData]="genericFieldsOptions.vendorOptionsData"
               [categoryOptionsData]="genericFieldsOptions.categoryOptionsData"

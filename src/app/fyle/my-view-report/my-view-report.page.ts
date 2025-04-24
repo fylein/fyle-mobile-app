@@ -1,5 +1,5 @@
 import { Component, ElementRef, EventEmitter, ViewChild } from '@angular/core';
-import { Observable, from, noop, concat, Subject, BehaviorSubject, Subscription, forkJoin } from 'rxjs';
+import { Observable, from, noop, concat, Subject, BehaviorSubject, Subscription } from 'rxjs';
 import { ReportService } from 'src/app/core/services/report.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { map, switchMap, shareReplay, takeUntil, tap, take, finalize } from 'rxjs/operators';
@@ -18,7 +18,7 @@ import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-rep
 import * as dayjs from 'dayjs';
 import { StatusService } from 'src/app/core/services/status.service';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, isNumber } from 'lodash';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
@@ -41,6 +41,8 @@ import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service
 import { ShowAllApproversPopoverComponent } from 'src/app/shared/components/fy-approver/show-all-approvers-popover/show-all-approvers-popover.component';
 import { ReportApprovals } from 'src/app/core/models/platform/report-approvals.model';
 import * as Sentry from '@sentry/angular-ivy';
+import { ApprovalState } from 'src/app/core/models/platform/approval-state.enum';
+import { DateWithTimezonePipe } from 'src/app/shared/pipes/date-with-timezone.pipe';
 
 @Component({
   selector: 'app-my-view-report',
@@ -142,7 +144,8 @@ export class MyViewReportPage {
     private orgSettingsService: OrgSettingsService,
     private platformHandlerService: PlatformHandlerService,
     private spenderReportsService: SpenderReportsService,
-    private launchDarklyService: LaunchDarklyService
+    private launchDarklyService: LaunchDarklyService,
+    private dateWithTimezonePipe: DateWithTimezonePipe
   ) {}
 
   get Segment(): typeof ReportPageSegment {
@@ -222,8 +225,8 @@ export class MyViewReportPage {
       this.userComments.sort((a, b) => (a.created_at > b.created_at ? 1 : -1));
 
       for (let i = 0; i < this.userComments.length; i++) {
-        const prevCommentDt = dayjs(this.userComments[i - 1] && this.userComments[i - 1].created_at);
-        const currentCommentDt = dayjs(this.userComments[i] && this.userComments[i].created_at);
+        const prevCommentDt = this.dateWithTimezonePipe.transform(this.userComments?.[i - 1]?.created_at);
+        const currentCommentDt = this.dateWithTimezonePipe.transform(this.userComments?.[i]?.created_at);
         if (dayjs(prevCommentDt).isSame(currentCommentDt, 'day')) {
           this.userComments[i].show_dt = false;
         } else {
@@ -238,7 +241,7 @@ export class MyViewReportPage {
       (approver) => report.next_approver_user_ids?.[0] === approver.approver_user.id
     );
     const highestRankApprover = this.approvals.reduce(
-      (max, approver) => (approver.rank > max.rank ? approver : max),
+      (max, approver) => (approver.approver_order > max.approver_order ? approver : max),
       this.approvals[0]
     );
     this.approverToShow = filteredApprover.length === 1 ? filteredApprover[0] : highestRankApprover;
@@ -259,7 +262,12 @@ export class MyViewReportPage {
       map((report) => {
         this.setupComments(report);
         this.approvals = report?.approvals;
-        if (this.approvals) {
+        // filtering out disabled approvals from my view report page
+        this.approvals = report?.approvals?.filter((approval) =>
+          [ApprovalState.APPROVAL_PENDING, ApprovalState.APPROVAL_DONE].includes(approval.state)
+        );
+        if (this.showViewApproverModal) {
+          this.approvals.sort((a, b) => a.approver_order - b.approver_order);
           this.setupApproverToShow(report);
         }
         return report;
@@ -342,14 +350,11 @@ export class MyViewReportPage {
       map((orgSettings) => ({ enabled: this.getSimplifyReportSettings(orgSettings) }))
     );
 
-    forkJoin([orgSettings$, this.launchDarklyService.getVariation('show_multi_stage_approval_flow', false)]).subscribe(
-      ([orgSettings, showViewApproverModal]) => {
-        this.showViewApproverModal =
-          showViewApproverModal &&
-          orgSettings?.simplified_multi_stage_approvals?.allowed &&
-          orgSettings?.simplified_multi_stage_approvals?.enabled;
-      }
-    );
+    orgSettings$.subscribe((orgSettings) => {
+      this.showViewApproverModal =
+        orgSettings?.simplified_multi_stage_approvals?.allowed &&
+        orgSettings?.simplified_multi_stage_approvals?.enabled;
+    });
 
     this.hardwareBackButtonAction = this.platformHandlerService.registerBackButtonAction(
       BackButtonActionPriority.MEDIUM,
@@ -630,8 +635,8 @@ export class MyViewReportPage {
   }
 
   segmentChanged(event: SegmentCustomEvent): void {
-    if (event?.detail?.value) {
-      this.segmentValue = parseInt(`${event.detail.value}`, 10);
+    if (isNumber(event?.detail?.value)) {
+      this.segmentValue = event.detail.value;
     }
   }
 

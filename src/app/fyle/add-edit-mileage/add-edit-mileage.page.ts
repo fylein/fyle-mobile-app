@@ -113,6 +113,7 @@ import { CommuteDetailsResponse } from 'src/app/core/models/platform/commute-det
 import { AdvanceWallet } from 'src/app/core/models/platform/v1/advance-wallet.model';
 import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
 import { LocationInfo } from 'src/app/core/models/location-info.model';
+import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -217,6 +218,8 @@ export class AddEditMileagePage implements OnInit {
   saveAndNextMileageLoader = false;
 
   saveAndPrevMileageLoader = false;
+
+  showBillable = false;
 
   clusterDomain: string;
 
@@ -333,7 +336,8 @@ export class AddEditMileagePage implements OnInit {
     private employeesService: EmployeesService,
     private expensesService: ExpensesService,
     private changeDetectorRef: ChangeDetectorRef,
-    private advanceWalletsService: AdvanceWalletsService
+    private advanceWalletsService: AdvanceWalletsService,
+    private expenseCommentService: ExpenseCommentService
   ) {}
 
   get showSaveAndNext(): boolean {
@@ -468,7 +472,7 @@ export class AddEditMileagePage implements OnInit {
         if (!this.fg.controls.project.value) {
           this.fg.patchValue({ billable: false });
         } else {
-          this.fg.patchValue({ billable: this.billableDefaultValue });
+          this.fg.patchValue({ billable: this.showBillable ? this.billableDefaultValue : false });
         }
       }),
       startWith(this.fg.controls.project.value),
@@ -564,6 +568,7 @@ export class AddEditMileagePage implements OnInit {
       ),
       map((expenseFieldsMap: Partial<ExpenseFieldsObj>) => {
         if (expenseFieldsMap) {
+          this.showBillable = expenseFieldsMap.billable?.is_enabled;
           for (const tfc of Object.keys(expenseFieldsMap)) {
             const expenseField = expenseFieldsMap[tfc] as ExpenseField;
             const options = expenseField.options as string[];
@@ -626,7 +631,7 @@ export class AddEditMileagePage implements OnInit {
             defaultValueColumn === 'billable' &&
             (control.value === null || control.value === undefined)
           ) {
-            control.patchValue(defaultValues[defaultValueColumn]);
+            control.patchValue(this.showBillable ? defaultValues[defaultValueColumn] : false);
           }
         }
       }
@@ -841,7 +846,7 @@ export class AddEditMileagePage implements OnInit {
 
     const autofillLocation$ = forkJoin({
       eou: this.authService.getEou(),
-      currentLocation: this.locationService.getCurrentLocation(),
+      currentLocation: this.locationService.getCurrentLocation({ enableHighAccuracy: true }),
       orgUserSettings: this.orgUserSettingsService.get(),
       orgSettings: this.orgSettingsService.get(),
       recentValue: this.recentlyUsedValues$,
@@ -1070,7 +1075,13 @@ export class AddEditMileagePage implements OnInit {
               } else {
                 control.setValidators(isConnected ? Validators.required : null);
               }
+            } else {
+              // set back the customDateValidator for spent_at field
+              if (txnFieldKey === 'txn_dt' && isConnected) {
+                control.setValidators(this.customDateValidator);
+              }
             }
+
             if (txnFieldKey === 'project_id' || txnFieldKey === 'commute_deduction') {
               control.updateValueAndValidity({
                 emitEvent: false,
@@ -1617,7 +1628,9 @@ export class AddEditMileagePage implements OnInit {
       ),
       map((projectCount) => projectCount > 0)
     );
-    this.comments$ = this.statusService.find('transactions', this.activatedRoute.snapshot.params.id as string);
+    this.comments$ = this.expenseCommentService.getTransformedComments(
+      this.activatedRoute.snapshot.params.id as string
+    );
 
     this.filteredCategories$.subscribe((subCategories) => {
       if (subCategories.length) {
@@ -2691,7 +2704,7 @@ export class AddEditMileagePage implements OnInit {
           }),
           switchMap((txn) => {
             if (comment) {
-              return this.statusService.findLatestComment(txn.id, 'transactions', txn.org_user_id).pipe(
+              return this.expenseCommentService.findLatestExpenseComment(txn.id, txn.creator_id).pipe(
                 switchMap((result) => {
                   if (result !== comment) {
                     return this.statusService.post('transactions', txn.id, { comment }, true).pipe(map(() => txn));

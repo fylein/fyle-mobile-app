@@ -1,5 +1,5 @@
 import { Component, EventEmitter, ViewChild } from '@angular/core';
-import { concat, forkJoin, from, noop, Observable, of, Subject, Subscription, timer } from 'rxjs';
+import { concat, forkJoin, from, noop, Observable, of, Subject, Subscription } from 'rxjs';
 import { map, shareReplay, switchMap, takeUntil } from 'rxjs/operators';
 import { ActionSheetButton, ActionSheetController, ModalController, NavController, Platform } from '@ionic/angular';
 import { NetworkService } from '../../core/services/network.service';
@@ -35,6 +35,7 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
 import { driver } from 'driver.js';
 import { WalkthroughService } from 'src/app/core/services/walkthrough.service';
 import { FooterService } from 'src/app/core/services/footer.service';
+import { TimezoneService } from 'src/app/core/services/timezone.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -91,6 +92,8 @@ export class DashboardPage {
 
   walkthroughOverlayStartIndex = 0;
 
+  userName = '';
+
   constructor(
     private currencyService: CurrencyService,
     private networkService: NetworkService,
@@ -114,7 +117,8 @@ export class DashboardPage {
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
     private walkthroughService: WalkthroughService,
-    private footerService: FooterService
+    private footerService: FooterService,
+    private timezoneService: TimezoneService
   ) {}
 
   get displayedTaskCount(): number {
@@ -247,9 +251,7 @@ export class DashboardPage {
         this.isWalkthroughComplete = isFinished;
 
         if (!isFinished) {
-          timer(1000).subscribe(() => {
-            this.startTour(isApprover);
-          });
+          this.startTour(isApprover);
         }
       });
   }
@@ -347,21 +349,30 @@ export class DashboardPage {
     this.homeCurrency$ = this.currencyService.getHomeCurrency().pipe(shareReplay(1));
     this.eou$ = from(this.authService.getEou()).pipe(shareReplay(1));
     this.isUserFromINCluster$ = from(this.utilityService.isUserFromINCluster());
-    this.eou$
-      .pipe(
-        map((eou) => {
-          if (eou.ou.roles.includes('APPROVER') && eou.ou.is_primary) {
-            this.showNavbarWalkthrough(true);
-          } else {
-            this.showNavbarWalkthrough(false);
-          }
-        })
-      )
-      .subscribe(noop);
+    const openSMSOptInDialog = this.activatedRoute.snapshot.params.openSMSOptInDialog as string;
+
+    this.orgUserSettings$.subscribe((orgUserSettings) => {
+      this.timezoneService.setTimezone(orgUserSettings?.locale);
+    });
+
+    if (openSMSOptInDialog !== 'true') {
+      this.eou$
+        .pipe(
+          map((eou) => {
+            if (eou.ou.roles.includes('APPROVER') && eou.ou.is_primary) {
+              this.showNavbarWalkthrough(true);
+            } else {
+              this.showNavbarWalkthrough(false);
+            }
+
+            this.userName = eou.us.full_name;
+          })
+        )
+        .subscribe(noop);
+    }
 
     this.setShowOptInBanner();
 
-    const openSMSOptInDialog = this.activatedRoute.snapshot.params.openSMSOptInDialog as string;
     if (openSMSOptInDialog === 'true') {
       this.eou$
         .pipe(

@@ -8,7 +8,7 @@ import { By } from '@angular/platform-browser';
 import { ActivatedRoute, Router, UrlSerializer } from '@angular/router';
 import { IonicModule, ModalController, NavController, PopoverController, SegmentCustomEvent } from '@ionic/angular';
 import { cloneDeep } from 'lodash';
-import { Subscription, of } from 'rxjs';
+import { BehaviorSubject, Subscription, of } from 'rxjs';
 import { click, getElementBySelector } from 'src/app/core/dom-helpers';
 import { ReportPageSegment } from 'src/app/core/enums/report-page-segment.enum';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
@@ -61,6 +61,8 @@ import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender
 import { orgSettingsPendingRestrictions } from 'src/app/core/mock-data/org-settings.data';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
 import { LaunchDarklyService } from '../../core/services/launch-darkly.service';
+import { DateWithTimezonePipe } from 'src/app/shared/pipes/date-with-timezone.pipe';
+import { TIMEZONE } from 'src/app/constants';
 
 describe('MyViewReportPage', () => {
   let component: MyViewReportPage;
@@ -131,6 +133,7 @@ describe('MyViewReportPage', () => {
         ExactCurrencyPipe,
         ReportState,
         SnakeCaseToSpaceCase,
+        DateWithTimezonePipe,
       ],
       imports: [IonicModule.forRoot(), MatIconTestingModule, MatIconModule],
       providers: [
@@ -213,6 +216,7 @@ describe('MyViewReportPage', () => {
           useValue: launchDarklyServiceSpy,
         },
         { provide: NavController, useValue: { push: NavController.prototype.back } },
+        { provide: TIMEZONE, useValue: new BehaviorSubject<string>('UTC') },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -566,6 +570,27 @@ describe('MyViewReportPage', () => {
     }));
   });
 
+  describe('setupApproverToShow(): ', () => {
+    it('should set approverToShow to matching next approver if only one match', () => {
+      component.approvals = platformReportData.approvals;
+
+      const reportData = { ...platformReportData, next_approver_user_ids: ['usRjTPO4r69K'] };
+      component.setupApproverToShow(reportData);
+
+      expect(component.approverToShow).toEqual(component.approvals[1]);
+    });
+
+    it('should set approverToShow to highest rank approver if no match', () => {
+      component.approvals = platformReportData.approvals;
+
+      const reportData = { ...platformReportData, next_approver_user_ids: ['usRjTPO4r6'] };
+
+      component.setupApproverToShow(reportData);
+
+      expect(component.approverToShow).toEqual(component.approvals[1]);
+    });
+  });
+
   it('deleteReport(): should delete report', () => {
     component.report$ = of(expectedReportsSinglePage[0]);
     fixture.detectChanges();
@@ -894,21 +919,21 @@ describe('MyViewReportPage', () => {
     it('should change segment value', () => {
       component.segmentChanged({
         detail: {
-          value: '100',
+          value: ReportPageSegment.COMMENTS,
         },
       } as SegmentCustomEvent);
 
-      expect(component.segmentValue).toEqual(parseInt('100', 10));
+      expect(component.segmentValue).toEqual(ReportPageSegment.COMMENTS);
     });
 
     it('should not change segment value if event does not contain the value', () => {
-      component.segmentValue = parseInt('100', 10);
+      component.segmentValue = ReportPageSegment.EXPENSES;
       fixture.detectChanges();
-      expect(component.segmentValue).toEqual(parseInt('100', 10));
+      expect(component.segmentValue).toEqual(ReportPageSegment.EXPENSES);
 
       component.segmentChanged(null);
 
-      expect(component.segmentValue).toEqual(parseInt('100', 10));
+      expect(component.segmentValue).toEqual(ReportPageSegment.EXPENSES);
     });
   });
 

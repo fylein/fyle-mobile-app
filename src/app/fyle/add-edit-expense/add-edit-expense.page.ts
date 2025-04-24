@@ -34,6 +34,7 @@ import {
   of,
   throwError,
   EMPTY,
+  timer,
 } from 'rxjs';
 import {
   catchError,
@@ -42,6 +43,7 @@ import {
   filter,
   finalize,
   map,
+  raceWith,
   shareReplay,
   startWith,
   switchMap,
@@ -152,6 +154,7 @@ import { RefinerService } from 'src/app/core/services/refiner.service';
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 import { CCExpenseMerchantInfoModalComponent } from 'src/app/shared/components/cc-expense-merchant-info-modal/cc-expense-merchant-info-modal.component';
 import { CorporateCardExpenseProperties } from 'src/app/core/models/corporate-card-expense-properties.model';
+import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 
 // eslint-disable-next-line
 type FormValue = {
@@ -463,6 +466,8 @@ export class AddEditExpensePage implements OnInit {
 
   vendorOptions: string[] = [];
 
+  showBillable = false;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -513,7 +518,8 @@ export class AddEditExpensePage implements OnInit {
     private refinerService: RefinerService,
     private platformHandlerService: PlatformHandlerService,
     private expensesService: ExpensesService,
-    private advanceWalletsService: AdvanceWalletsService
+    private advanceWalletsService: AdvanceWalletsService,
+    private expenseCommentService: ExpenseCommentService
   ) {}
 
   get isExpandedView(): boolean {
@@ -2343,6 +2349,9 @@ export class AddEditExpensePage implements OnInit {
     this.etxn$
       .pipe(
         switchMap(() => txnFieldsMap$),
+        tap((txnFields) => {
+          this.showBillable = txnFields?.billable?.is_enabled;
+        }),
         map((txnFields) => this.expenseFieldsService.getDefaultTxnFieldValues(txnFields))
       )
       .subscribe((defaultValues) => {
@@ -2388,7 +2397,7 @@ export class AddEditExpensePage implements OnInit {
               (control.value === null || control.value === undefined) &&
               !control.touched
             ) {
-              control.patchValue(defaultValues[defaultValueColumn]);
+              control.patchValue(this.showBillable ? defaultValues[defaultValueColumn] : false);
             } else if (
               defaultValueColumn === 'tax_group_id' &&
               !control.value &&
@@ -2591,7 +2600,13 @@ export class AddEditExpensePage implements OnInit {
             } else {
               control.setValidators(isConnected ? Validators.required : null);
             }
+          } else {
+            // set back the customDateValidator for spent_at field
+            if (txnFieldKey === 'txn_dt' && isConnected) {
+              control.setValidators(this.customDateValidator);
+            }
           }
+
           control.updateValueAndValidity();
         }
         this.fg.updateValueAndValidity();
@@ -2623,7 +2638,7 @@ export class AddEditExpensePage implements OnInit {
             if (!initialProject) {
               this.fg.patchValue({ billable: false });
             } else {
-              this.fg.patchValue({ billable: this.billableDefaultValue });
+              this.fg.patchValue({ billable: this.showBillable ? this.billableDefaultValue : false });
             }
           }),
           startWith(initialProject),
@@ -3204,7 +3219,9 @@ export class AddEditExpensePage implements OnInit {
       map((orgSettings) => orgSettings.projects && orgSettings.projects.enabled)
     );
 
-    this.comments$ = this.statusService.find('transactions', this.activatedRoute.snapshot.params.id as string);
+    this.comments$ = this.expenseCommentService.getTransformedComments(
+      this.activatedRoute.snapshot.params.id as string
+    );
 
     this.isSplitExpenseAllowed$ = orgSettings$.pipe(
       map((orgSettings) => orgSettings.expense_settings.split_expense_settings.enabled)
@@ -4127,7 +4144,7 @@ export class AddEditExpensePage implements OnInit {
               }),
               switchMap((txn) => {
                 if (comment) {
-                  return this.statusService.findLatestComment(txn.id, 'transactions', txn.org_user_id).pipe(
+                  return this.expenseCommentService.findLatestExpenseComment(txn.id, txn.creator_id).pipe(
                     switchMap((result) => {
                       if (result !== comment) {
                         return this.statusService.post('transactions', txn.id, { comment }, true).pipe(map(() => txn));
@@ -4707,14 +4724,27 @@ export class AddEditExpensePage implements OnInit {
     let fileData: { type: string; dataUrl: string | ArrayBuffer; actionSource: string };
     if (file) {
       if (file.size < MAX_FILE_SIZE) {
-        const dataUrl = await this.fileService.readFile(file);
-        this.trackingService.addAttachment({ type: file.type });
-        fileData = {
-          type: file.type,
-          dataUrl,
-          actionSource: 'gallery_upload',
-        };
-        this.attachReceipts(fileData);
+        const fileRead$ = from(this.fileService.readFile(file));
+        const delayedLoader$ = timer(300).pipe(
+          tap(() => this.loaderService.showLoader('Please wait...', 5000)),
+          switchMap(() => fileRead$) // switch to fileRead$ after showing loader
+        );
+        // Use race to show loader only if fileRead$ takes more than 300ms.
+        fileRead$
+          .pipe(
+            raceWith(delayedLoader$),
+            map((dataUrl) => {
+              fileData = {
+                type: file.type,
+                dataUrl,
+                actionSource: 'gallery_upload',
+              };
+              this.attachReceipts(fileData);
+              this.trackingService.addAttachment({ type: file.type });
+            }),
+            finalize(() => this.loaderService.hideLoader())
+          )
+          .subscribe();
       } else {
         this.showSizeLimitExceededPopover(MAX_FILE_SIZE);
       }
@@ -5199,7 +5229,18 @@ export class AddEditExpensePage implements OnInit {
   async showSuggestedDuplicates(duplicateExpenses: Expense[]): Promise<void> {
     this.trackingService.showSuggestedDuplicates();
 
-    const txnIDs = duplicateExpenses.map((expense) => expense.tx_id);
+    const txnIDs = duplicateExpenses.map((expense) => expense?.tx_id);
+
+    const isAnyIdUndefined = txnIDs.some((id) => !id);
+
+    if (isAnyIdUndefined) {
+      this.showSnackBarToast({ message: 'Something went wrong. Please try after some time.' }, 'failure', [
+        'msb-failure',
+      ]);
+      this.trackingService.eventTrack('Showing duplicate expenses failed', txnIDs);
+      return;
+    }
+
     const currencyModal = await this.modalController.create({
       component: SuggestedDuplicatesComponent,
       componentProps: {

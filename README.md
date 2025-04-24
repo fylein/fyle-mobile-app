@@ -46,7 +46,7 @@ cd fyle-mobile-app
 2. **Install dependencies:**
 
 ```bash
-npm install
+npm ci
 ```
 
 3. **Set Environment Variables**: Add the environment files corresponding to the build you want in the environment folder. ([Follow Environment Setup](#-environment-setup))
@@ -88,7 +88,7 @@ Here are some common issues and how to fix them:
 ```bash
   Property 'LIVE_UPDATE_APP_VERSION' does not exist on type
   '{ production: boolean; NAME: string; ROOT_URL: string; ROUTER_API_ENDPOINT: string;
-  ANDROID_CLIENT_ID: string; IP_FIND_KEY: string; GOOGLE_MAPS_API_KEY: string; FRESHCHAT_TOKEN: string;
+  ANDROID_CLIENT_ID: string; GOOGLE_MAPS_API_KEY: string; FRESHCHAT_TOKEN: string;
   SENTRY_DSN: string; REFINER_NPS_FORM_ID: string; }'
 ```
 
@@ -111,7 +111,7 @@ rm -rf node_modules
 - Reinstall the dependencies by running:
 
 ```bash
-npm install
+npm ci
 ```
 
 This will ensure that all required packages are correctly installed, resolving the issue.

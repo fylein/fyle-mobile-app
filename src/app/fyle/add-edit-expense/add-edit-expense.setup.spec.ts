@@ -41,6 +41,7 @@ import { ReportService } from 'src/app/core/services/report.service';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { StatusService } from 'src/app/core/services/status.service';
+import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { TaxGroupService } from 'src/app/core/services/tax-group.service';
 import { TokenService } from 'src/app/core/services/token.service';
@@ -138,6 +139,10 @@ describe('AddEditExpensePage', () => {
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create', 'getTop']);
     const statusServiceSpy = jasmine.createSpyObj('StatusService', ['find', 'findLatestComment', 'post']);
+    const expenseCommentServiceSpy = jasmine.createSpyObj('ExpenseCommentService', [
+      'getTransformedComments',
+      'findLatestExpenseComment',
+    ]);
     const fileServiceSpy = jasmine.createSpyObj('FileService', [
       'findByTransactionId',
       'downloadUrl',
@@ -185,6 +190,7 @@ describe('AddEditExpensePage', () => {
       'newExpenseCreatedFromPersonalCard',
       'showSuggestedDuplicates',
       'fileUploadComplete',
+      'eventTrack',
     ]);
     const recentLocalStorageItemsServiceSpy = jasmine.createSpyObj('RecentLocalStorageItemsService', ['get']);
     const recentlyUsedItemsServiceSpy = jasmine.createSpyObj('RecentlyUsedItemsService', [
@@ -312,6 +318,10 @@ describe('AddEditExpensePage', () => {
         {
           provide: StatusService,
           useValue: statusServiceSpy,
+        },
+        {
+          provide: ExpenseCommentService,
+          useValue: expenseCommentServiceSpy,
         },
         {
           provide: FileService,
