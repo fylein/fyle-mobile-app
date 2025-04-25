@@ -31,11 +31,11 @@ export class ExpenseCommentService {
     );
   }
 
-  findLatestExpenseComment(expenseId: string, orgUserId: string): Observable<string> {
+  findLatestExpenseComment(expenseId: string, userId: string): Observable<string> {
     return this.getTransformedComments(expenseId).pipe(
       map((estatuses) => {
         const nonSystemEStatuses = estatuses.filter((eStatus) => eStatus.us_full_name);
-        const userComments = nonSystemEStatuses.filter((estatus) => estatus.st_org_user_id === orgUserId);
+        const userComments = nonSystemEStatuses.filter((estatus) => estatus.st_org_user_id === userId);
         const sortedStatus = this.sortStatusByDate(userComments);
         if (sortedStatus.length) {
           return sortedStatus[0].st_comment;
