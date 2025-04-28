@@ -5,7 +5,7 @@ import { TrackingService } from '../../../core/services/tracking.service';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { MAX_FILE_SIZE } from 'src/app/core/constants';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { finalize, from, map, raceWith, shareReplay, switchMap, timer } from 'rxjs';
+import { finalize, from, map, raceWith, switchMap, timer } from 'rxjs';
 
 @Component({
   selector: 'app-camera-options-popup',
