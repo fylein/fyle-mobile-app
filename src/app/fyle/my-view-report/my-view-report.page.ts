@@ -255,7 +255,7 @@ export class MyViewReportPage {
     this.segmentValue = ReportPageSegment.EXPENSES;
 
     this.report$ = this.loadReportDetails$.pipe(
-      tap(() => this.loaderService.showLoader()),
+      map(() => from(this.loaderService.showLoader())),
       switchMap(() =>
         this.spenderReportsService.getReportById(this.reportId).pipe(finalize(() => this.loaderService.hideLoader()))
       ),

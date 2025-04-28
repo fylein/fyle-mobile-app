@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Router, UrlTree } from '@angular/router';
-import { Observable, of } from 'rxjs';
+import { from, Observable, of } from 'rxjs';
 import { catchError, finalize, map, switchMap } from 'rxjs/operators';
 import { SpenderOnboardingService } from '../services/spender-onboarding.service';
 import { LoaderService } from '../services/loader.service';
@@ -16,7 +16,7 @@ export class OnboardingGuard {
   ) {}
 
   canActivate(): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
-    return of(this.loaderService.showLoader()).pipe(
+    return from(this.loaderService.showLoader()).pipe(
       switchMap(() => this.spenderOnboardingService.checkForRedirectionToOnboarding()),
       map((shouldRedirectToOnboarding) => {
         if (shouldRedirectToOnboarding) {
