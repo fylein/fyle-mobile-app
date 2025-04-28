@@ -266,7 +266,7 @@ export class RefinerService {
               region: `${this.getRegion(homeCurrency)} - ${homeCurrency}`,
             },
             source: `Mobile - ${device}`,
-            is_admin: eou?.ou?.roles?.includes('ADMIN') ? 'T' : 'F',
+            is_admin: eou?.ou?.roles?.some((role) => !['SPENDER', 'APPROVER'].includes(role)) ? 'T' : 'F',
             action_name: properties.actionName,
           }
         );
