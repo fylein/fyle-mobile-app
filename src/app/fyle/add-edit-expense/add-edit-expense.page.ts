@@ -4724,9 +4724,9 @@ export class AddEditExpensePage implements OnInit {
     let fileData: { type: string; dataUrl: string | ArrayBuffer; actionSource: string };
     if (file) {
       if (file.size < MAX_FILE_SIZE) {
-        const fileRead$ = from(this.fileService.readFile(file));
+        const fileRead$ = from(this.fileService.readFile(file)).pipe(shareReplay(1));
         const delayedLoader$ = timer(300).pipe(
-          tap(() => this.loaderService.showLoader('Please wait...', 5000)),
+          map(() => from(this.loaderService.showLoader('Please wait...', 5000))),
           switchMap(() => fileRead$) // switch to fileRead$ after showing loader
         );
         // Use race to show loader only if fileRead$ takes more than 300ms.
