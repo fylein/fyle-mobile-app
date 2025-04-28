@@ -42,7 +42,7 @@ export class CameraOptionsPopupComponent implements OnInit {
     if (file?.size < MAX_FILE_SIZE) {
       const fileRead$ = from(this.fileService.readFile(file));
       const delayedLoader$ = timer(300).pipe(
-        map(() => from(this.loaderService.showLoader('Please wait...', 5000))),
+        switchMap(() => from(this.loaderService.showLoader('Please wait...', 5000))),
         switchMap(() => fileRead$) // switch to fileRead$ after showing loader
       );
 
