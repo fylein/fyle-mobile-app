@@ -188,6 +188,7 @@ describe('CameraOptionsPopupComponent', () => {
         resolveFileRead = resolve;
       });
       fileService.readFile.and.returnValue(fileReadPromise);
+      loaderService.showLoader.and.resolveTo();
 
       const myBlob = new Blob([new ArrayBuffer(100 * 100)], { type: 'application/octet-stream' });
       const file = new File([myBlob], 'file');

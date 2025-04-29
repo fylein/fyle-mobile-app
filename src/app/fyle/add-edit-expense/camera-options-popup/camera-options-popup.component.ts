@@ -5,7 +5,7 @@ import { TrackingService } from '../../../core/services/tracking.service';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { MAX_FILE_SIZE } from 'src/app/core/constants';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { finalize, from, map, raceWith, switchMap, tap, timer } from 'rxjs';
+import { finalize, from, map, raceWith, switchMap, timer } from 'rxjs';
 
 @Component({
   selector: 'app-camera-options-popup',
@@ -42,7 +42,7 @@ export class CameraOptionsPopupComponent implements OnInit {
     if (file?.size < MAX_FILE_SIZE) {
       const fileRead$ = from(this.fileService.readFile(file));
       const delayedLoader$ = timer(300).pipe(
-        tap(() => this.loaderService.showLoader('Please wait...', 5000)),
+        switchMap(() => from(this.loaderService.showLoader('Please wait...', 5000))),
         switchMap(() => fileRead$) // switch to fileRead$ after showing loader
       );
 
