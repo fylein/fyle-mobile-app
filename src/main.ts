@@ -1,5 +1,6 @@
 import { enableProdMode } from '@angular/core';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+import { Capacitor } from '@capacitor/core';
 
 import { AppModule } from './app/app.module';
 import { environment } from './environments/environment';
@@ -42,27 +43,33 @@ const cleanHttpExceptionUrlsForSentryGrouping = (event: Sentry.Event): void => {
   }
 };
 
-Sentry.init({
-  dsn: environment.SENTRY_DSN,
-  integrations: [],
-  tracesSampleRate: 0.1,
-  release: environment.LIVE_UPDATE_APP_VERSION,
-  ignoreErrors: [
-    'Non-Error exception captured',
-    'Non-Error promise rejection captured',
-    'unhandledError', // "title": "<unknown>"
-    'plugin is not implemented on web', // Few plugins are not implemented for web - this error occurs when running the app on local, ignoring those errors
-    /Could not load "geocoder"/, // "title": "Error: Uncaught (in promise): Error: Could not load \"geocoder\".",
-    /ChunkLoadError: Loading chunk \d+ failed/, // "title": "Error: Uncaught (in promise): Error: The Google Maps JavaScript API could not load.",
-    /0 Unknown Error/, // "title": "<unknown>"
-    /The Google Maps JavaScript API could not load/, // "title": "Error: Uncaught (in promise): Error: The Google Maps JavaScript API could not load."
-    /kCLErrorDomain error/, // "title": "Error: Uncaught (in promise): Error: The operation couldn’t be completed. (kCLErrorDomain error 1.)",
-  ],
-  beforeSend(event) {
-    cleanHttpExceptionUrlsForSentryGrouping(event);
-    return event;
-  },
-});
+const platform = Capacitor.getPlatform();
+const isMobileApp = platform === 'android' || platform === 'ios';
+
+if (isMobileApp) {
+  console.log('Initializing Sentry for mobile app');
+  Sentry.init({
+    dsn: environment.SENTRY_DSN,
+    integrations: [],
+    tracesSampleRate: 0.1,
+    release: environment.LIVE_UPDATE_APP_VERSION,
+    ignoreErrors: [
+      'Non-Error exception captured',
+      'Non-Error promise rejection captured',
+      'unhandledError', // "title": "<unknown>"
+      'plugin is not implemented on web', // Few plugins are not implemented for web - this error occurs when running the app on local, ignoring those errors
+      /Could not load "geocoder"/, // "title": "Error: Uncaught (in promise): Error: Could not load \"geocoder\".",
+      /ChunkLoadError: Loading chunk \d+ failed/, // "title": "Error: Uncaught (in promise): Error: The Google Maps JavaScript API could not load.",
+      /0 Unknown Error/, // "title": "<unknown>"
+      /The Google Maps JavaScript API could not load/, // "title": "Error: Uncaught (in promise): Error: The Google Maps JavaScript API could not load."
+      /kCLErrorDomain error/, // "title": "Error: Uncaught (in promise): Error: The operation couldn't be completed. (kCLErrorDomain error 1.)",
+    ],
+    beforeSend(event) {
+      cleanHttpExceptionUrlsForSentryGrouping(event);
+      return event;
+    },
+  });
+}
 
 if (environment.production) {
   enableProdMode();
