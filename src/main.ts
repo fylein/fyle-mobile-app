@@ -47,7 +47,6 @@ const platform = Capacitor.getPlatform();
 const isMobileApp = platform === 'android' || platform === 'ios';
 
 if (isMobileApp) {
-  console.log('Initializing Sentry for mobile app');
   Sentry.init({
     dsn: environment.SENTRY_DSN,
     integrations: [],
