@@ -218,7 +218,7 @@ export const filterPopoverParams = {
 export const popoverControllerParams = {
   component: PopupAlertComponent,
   componentProps: {
-    title: 'Cannot delete report',
+    title: 'Cannot delete expense report',
     message: `Approved report cannot be deleted.`,
     primaryCta: {
       text: 'Close',
