@@ -1147,7 +1147,7 @@ export class MyExpensesPage implements OnInit {
         title: config.title,
         message: config.message,
         primaryCta: {
-          text: 'Exclude and Continue',
+          text: 'Exclude and continue',
           action: 'continue',
         },
         secondaryCta: {

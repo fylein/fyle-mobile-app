@@ -639,7 +639,7 @@ export function TestCases2(getTestBed) {
         expect(popoverController.create).toHaveBeenCalledOnceWith({
           component: PopupAlertComponent,
           componentProps: {
-            title: 'Unsaved Changes',
+            title: 'Unsaved changes',
             message: 'You have unsaved information that will be lost if you discard this expense.',
             primaryCta: {
               text: 'Discard',
@@ -676,7 +676,7 @@ export function TestCases2(getTestBed) {
         expect(popoverController.create).toHaveBeenCalledOnceWith({
           component: PopupAlertComponent,
           componentProps: {
-            title: 'Unsaved Changes',
+            title: 'Unsaved changes',
             message: 'You have unsaved information that will be lost if you discard this expense.',
             primaryCta: {
               text: 'Discard',

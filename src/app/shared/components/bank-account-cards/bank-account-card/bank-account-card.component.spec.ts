@@ -145,7 +145,7 @@ describe('BankAccountCardComponent', () => {
     expect(popoverController.create).toHaveBeenCalledOnceWith({
       component: PopupAlertComponent,
       componentProps: {
-        title: 'Delete Card',
+        title: 'Delete card',
         message: `Are you sure want to delete this card <b> (${component.accountDetails.bank_name} ${component.accountDetails.card_number}) </b>?`,
         primaryCta: {
           text: 'Delete',

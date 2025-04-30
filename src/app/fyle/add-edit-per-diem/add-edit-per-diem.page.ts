@@ -352,7 +352,7 @@ export class AddEditPerDiemPage implements OnInit {
       const unsavedChangesPopOver = await this.popoverController.create({
         component: PopupAlertComponent,
         componentProps: {
-          title: 'Unsaved Changes',
+          title: 'Unsaved changes',
           message: 'You have unsaved information that will be lost if you discard this expense.',
           primaryCta: {
             text: 'Discard',

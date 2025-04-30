@@ -356,7 +356,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     const limitReachedPopover = this.popoverController.create({
       component: PopupAlertComponent,
       componentProps: {
-        title: 'Limit Reached',
+        title: 'Limit reached',
         message:
           'You’ve added the maximum limit of 20 receipts. Please review and save these as expenses before adding more.',
         primaryCta: {

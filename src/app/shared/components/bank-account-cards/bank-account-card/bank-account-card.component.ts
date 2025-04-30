@@ -79,7 +79,7 @@ export class BankAccountCardComponent implements OnInit {
     const deleteCardPopOver = await this.popoverController.create({
       component: PopupAlertComponent,
       componentProps: {
-        title: 'Delete Card',
+        title: 'Delete card',
         message: `Are you sure want to delete this card <b> (${this.accountDetails.bank_name} ${this.accountDetails.card_number}) </b>?`,
         primaryCta: {
           text: 'Delete',

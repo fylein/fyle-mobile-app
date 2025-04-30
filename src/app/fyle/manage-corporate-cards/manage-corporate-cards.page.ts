@@ -385,10 +385,10 @@ export class ManageCorporateCardsPage {
       component: PopupAlertComponent,
       cssClass: 'pop-up-in-center',
       componentProps: {
-        title: 'Disconnect Card',
+        title: 'Disconnect card',
         message: `<div class="text-left"><div class="mb-16">You are disconnecting your ${cardType} card from real-time feed.</div><div>Do you wish to continue?</div></div>`,
         primaryCta: {
-          text: 'Yes, Disconnect',
+          text: 'Yes, disconnect',
           action: 'disconnect',
         },
         secondaryCta: {

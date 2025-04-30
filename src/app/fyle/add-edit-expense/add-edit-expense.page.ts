@@ -581,7 +581,7 @@ export class AddEditExpensePage implements OnInit {
       const unsavedChangesPopOver = await this.popoverController.create({
         component: PopupAlertComponent,
         componentProps: {
-          title: 'Unsaved Changes',
+          title: 'Unsaved changes',
           message: 'You have unsaved information that will be lost if you discard this expense.',
           primaryCta: {
             text: 'Discard',
@@ -728,7 +728,7 @@ export class AddEditExpensePage implements OnInit {
       header: 'Unmatch?',
       message,
       primaryCta: {
-        text: 'UNMATCH',
+        text: 'Unmatch',
       },
     });
 
@@ -767,7 +767,7 @@ export class AddEditExpensePage implements OnInit {
         title: 'Expense cannot be split',
         message,
         primaryCta: {
-          text: 'OK',
+          text: 'Ok',
         },
       },
       cssClass: 'pop-up-in-center',
@@ -5290,7 +5290,7 @@ export class AddEditExpensePage implements OnInit {
           0
         )}MB in size. Please reduce the file size and try again.`,
         primaryCta: {
-          text: 'OK',
+          text: 'Ok',
         },
       },
       cssClass: 'pop-up-in-center',

@@ -620,7 +620,7 @@ describe('ViewTeamReportPageV2', () => {
 
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         componentProps: {
-          title: 'Approve Report',
+          title: 'Approve expense report',
           message: '3 expenses of amount undefined will be approved',
           leftAlign: true,
           flaggedExpensesCount: 0,

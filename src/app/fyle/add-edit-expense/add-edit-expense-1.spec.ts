@@ -297,7 +297,7 @@ export function TestCases1(getTestBed) {
         expect(popoverController.create).toHaveBeenCalledOnceWith({
           component: PopupAlertComponent,
           componentProps: {
-            title: 'Unsaved Changes',
+            title: 'Unsaved changes',
             message: 'You have unsaved information that will be lost if you discard this expense.',
             primaryCta: {
               text: 'Discard',
@@ -331,7 +331,7 @@ export function TestCases1(getTestBed) {
         expect(popoverController.create).toHaveBeenCalledOnceWith({
           component: PopupAlertComponent,
           componentProps: {
-            title: 'Unsaved Changes',
+            title: 'Unsaved changes',
             message: 'You have unsaved information that will be lost if you discard this expense.',
             primaryCta: {
               text: 'Discard',
@@ -601,7 +601,7 @@ export function TestCases1(getTestBed) {
           header: 'Unmatch?',
           message: 'This will remove the mapping between corporate card expense and this expense.',
           primaryCta: {
-            text: 'UNMATCH',
+            text: 'Unmatch',
           },
         });
         expect(component.showSelectedTransaction).toBeFalse();
@@ -629,7 +629,7 @@ export function TestCases1(getTestBed) {
           message:
             'Unmatching the card transaction from this split expense will also unmatch it from the other splits associated with the expense.',
           primaryCta: {
-            text: 'UNMATCH',
+            text: 'Unmatch',
           },
         });
         expect(component.isDraftExpense).toBeFalse();
@@ -667,7 +667,7 @@ export function TestCases1(getTestBed) {
           title: 'Expense cannot be split',
           message,
           primaryCta: {
-            text: 'OK',
+            text: 'Ok',
           },
         },
         cssClass: 'pop-up-in-center',

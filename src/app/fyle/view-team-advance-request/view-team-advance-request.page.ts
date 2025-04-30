@@ -210,7 +210,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
       header: 'Confirm',
       message: 'Are you sure you want to delete this Advance Request',
       primaryCta: {
-        text: 'Delete Advance Request',
+        text: 'Delete advance request',
       },
     });
 
@@ -270,7 +270,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
       component: PopupAlertComponent,
       cssClass: 'pop-up-in-center',
       componentProps: {
-        title: 'Review Advance',
+        title: 'Review advance',
         message: 'Advance request by ' + areq.us_full_name + ' of amount ' + advanceAmount + ' will be approved',
         primaryCta: {
           text: 'Approve',

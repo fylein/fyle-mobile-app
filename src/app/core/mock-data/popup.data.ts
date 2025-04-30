@@ -3,7 +3,7 @@ import deepFreeze from 'deep-freeze-strict';
 import { PopupConfig } from 'src/app/shared/components/fy-popup/popup.model';
 
 export const popupConfigData: PopupConfig = deepFreeze({
-  header: 'Delete Report?',
+  header: 'Delete expense report?',
   message: `
           <p class="highlight-info">
             On deleting this report, all the associated expenses will be moved to <strong>"My Expenses"</strong> list.
@@ -18,7 +18,7 @@ export const popupConfigData: PopupConfig = deepFreeze({
 });
 
 export const popupConfigData2: PopupConfig = deepFreeze({
-  header: 'Cannot Delete Report',
+  header: 'Cannot delete expense report',
   message: 'Report cannot be deleted',
   primaryCta: {
     text: 'Close',
@@ -29,6 +29,6 @@ export const popupConfigData3: PopupConfig = deepFreeze({
   header: 'Confirm',
   message: 'Are you sure you want to delete this Advance Request',
   primaryCta: {
-    text: 'Delete Advance Request',
+    text: 'Delete advance request',
   },
 });

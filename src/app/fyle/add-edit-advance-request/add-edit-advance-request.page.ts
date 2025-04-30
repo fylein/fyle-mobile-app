@@ -9,8 +9,8 @@ import {
 } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, PopoverController } from '@ionic/angular';
-import { concat, forkJoin, from, iif, noop, Observable, of, throwError } from 'rxjs';
-import { catchError, concatMap, finalize, map, reduce, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { concat, forkJoin, from, iif, noop, Observable, of } from 'rxjs';
+import { concatMap, finalize, map, reduce, shareReplay, switchMap } from 'rxjs/operators';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advance-requests-custom-fields.service';
 import { AuthService } from 'src/app/core/services/auth.service';

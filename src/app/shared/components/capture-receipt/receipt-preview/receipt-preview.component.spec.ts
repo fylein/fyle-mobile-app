@@ -191,7 +191,7 @@ describe('ReceiptPreviewComponent', () => {
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         component: PopupAlertComponent,
         componentProps: {
-          title: 'Discard Receipt',
+          title: 'Discard receipt',
           message,
           primaryCta: {
             text: 'Discard',
@@ -223,7 +223,7 @@ describe('ReceiptPreviewComponent', () => {
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         component: PopupAlertComponent,
         componentProps: {
-          title: 'Discard Receipt',
+          title: 'Discard receipt',
           message,
           primaryCta: {
             text: 'Discard',
@@ -283,7 +283,7 @@ describe('ReceiptPreviewComponent', () => {
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         component: PopupAlertComponent,
         componentProps: {
-          title: 'Remove Receipt',
+          title: 'Remove receipt',
           message: 'Are you sure you want to remove this receipt?',
           primaryCta: {
             text: 'Remove',
@@ -315,7 +315,7 @@ describe('ReceiptPreviewComponent', () => {
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         component: PopupAlertComponent,
         componentProps: {
-          title: 'Remove Receipt',
+          title: 'Remove receipt',
           message: 'Are you sure you want to remove this receipt?',
           primaryCta: {
             text: 'Remove',
