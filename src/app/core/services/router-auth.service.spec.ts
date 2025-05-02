@@ -12,7 +12,6 @@ import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformCommonApiService } from './platform-common-api.service';
 import { of } from 'rxjs';
 import { apiAuthRes, authResData1 } from '../mock-data/auth-response.data';
-import { ExpenseAggregationService } from './expense-aggregation.service';
 import { SpenderService } from './platform/v1/spender/spender.service';
 import { ApproverService } from './platform/v1/approver/approver.service';
 import { TrackingService } from './tracking.service';
@@ -29,7 +28,6 @@ describe('RouterAuthService', () => {
   let approverPlatformApiService: jasmine.SpyObj<ApproverPlatformApiService>;
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
   let platformCommonApiService: jasmine.SpyObj<PlatformCommonApiService>;
-  let expenseAggregationService: jasmine.SpyObj<ExpenseAggregationService>;
   let spenderService: jasmine.SpyObj<SpenderService>;
   let approverService: jasmine.SpyObj<ApproverService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
@@ -58,7 +56,6 @@ describe('RouterAuthService', () => {
     const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['setRoot']);
     const platformCommonApiServiceSpy = jasmine.createSpyObj('PlatformCommonApiService', ['setRoot']);
     const approverPlatformApiServiceSpy = jasmine.createSpyObj('ApproverPlatformApiService', ['setRoot']);
-    const expenseAggregationServiceSpy = jasmine.createSpyObj('ExpenseAggregationService', ['setRoot']);
     const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['setRoot']);
     const approverServiceSpy = jasmine.createSpyObj('ApproverService', ['setRoot']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['setRoot']);
@@ -107,10 +104,6 @@ describe('RouterAuthService', () => {
           useValue: approverPlatformApiServiceSpy,
         },
         {
-          provide: ExpenseAggregationService,
-          useValue: expenseAggregationServiceSpy,
-        },
-        {
           provide: SpenderService,
           useValue: spenderServiceSpy,
         },
@@ -139,7 +132,6 @@ describe('RouterAuthService', () => {
     approverPlatformApiService = TestBed.inject(
       ApproverPlatformApiService
     ) as jasmine.SpyObj<ApproverPlatformApiService>;
-    expenseAggregationService = TestBed.inject(ExpenseAggregationService) as jasmine.SpyObj<ExpenseAggregationService>;
     spenderService = TestBed.inject(SpenderService) as jasmine.SpyObj<SpenderService>;
     approverService = TestBed.inject(ApproverService) as jasmine.SpyObj<ApproverService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
@@ -174,7 +166,6 @@ describe('RouterAuthService', () => {
       expect(platformCommonApiService.setRoot).toHaveBeenCalledWith(domain);
       expect(spenderPlatformV1ApiService.setRoot).toHaveBeenCalledTimes(2);
       expect(tokenService.setClusterDomain).toHaveBeenCalledOnceWith(domain);
-      expect(expenseAggregationService.setRoot).toHaveBeenCalledOnceWith(domain);
       expect(spenderService.setRoot).toHaveBeenCalledOnceWith(domain);
       expect(approverService.setRoot).toHaveBeenCalledOnceWith(domain);
       expect(trackingService.setRoot).toHaveBeenCalledOnceWith(domain);
