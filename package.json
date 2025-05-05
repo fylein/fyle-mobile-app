@@ -16,7 +16,7 @@
     "postinstall": "npx jetify",
     "format:check": "prettier --write ./src",
     "prepare": "husky install",
-    "lint:diff": "eslint -c .eslintrc.json $(git diff --name-only --diff-filter=ACMRTUXB origin/$GITHUB_BASE_REF | grep  -E \"(.js$|.ts$|.tsx$)\")",
+    "lint:diff": "git diff origin/$GITHUB_BASE_REF | eslint --plugin diff --rule 'diff/diff=error' -c .eslintrc.json --stdin --stdin-filename dummy.js",
     "lint:diff:local": "eslint --fix -c .eslintrc.json $(git diff --name-only --diff-filter=ACMRTUXB origin/master | grep  -E '(.js$|.ts$|.tsx$)')",
     "sentry:sourcemaps": "sentry-cli sourcemaps inject --org fyle-technologies-private-limi --project fyle-mobile-app-prod ./www && sentry-cli sourcemaps upload --org fyle-technologies-private-limi --project fyle-mobile-app-prod ./www"
   },
