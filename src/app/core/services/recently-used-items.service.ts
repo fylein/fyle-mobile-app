@@ -2,21 +2,36 @@ import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { CostCenter, CostCenters } from '../models/v1/cost-center.model';
 import { RecentlyUsed } from '../models/v1/recently_used.model';
-import { ApiService } from './api.service';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { map } from 'rxjs/operators';
 import { ProjectV2 } from '../models/v2/project-v2.model';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
 import { OrgCategory, OrgCategoryListItem } from '../models/v1/org-category.model';
 import { Currency, CurrencyName } from '../models/currency.model';
+import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 @Injectable({
   providedIn: 'root',
 })
 export class RecentlyUsedItemsService {
-  constructor(private apiService: ApiService, private projectsService: ProjectsService) {}
+  constructor(private SpenderPlatformV1ApiService: SpenderPlatformV1ApiService, private projectsService: ProjectsService) {}
+
+  formatRecentlyUsedFields(data: RecentlyUsed): RecentlyUsed {
+    const idFields = ['project_ids', 'category_ids', 'cost_center_ids'] as const;
+  
+    return idFields.reduce((acc, field) => {
+      const value = data[field];
+      return {
+        ...acc,
+        [field]: Array.isArray(value) ? value.map(Number) : value,
+      };
+    }, { ...data });
+  }
 
   getRecentlyUsed(): Observable<RecentlyUsed> {
-    return this.apiService.get('/recently_used');
+    return this.SpenderPlatformV1ApiService
+      .get<PlatformApiResponse<RecentlyUsed>>('/recently_used_fields')
+      .pipe(map((res) => this.formatRecentlyUsedFields(res.data)));
   }
 
   getRecentlyUsedProjects(config: {
@@ -28,8 +43,8 @@ export class RecentlyUsedItemsService {
   }): Observable<ProjectV2[]> {
     if (
       config.recentValues &&
-      config.recentValues.recent_project_ids &&
-      config.recentValues.recent_project_ids.length > 0 &&
+      config.recentValues.project_ids &&
+      config.recentValues.project_ids.length > 0 &&
       config.eou
     ) {
       return this.projectsService
@@ -40,7 +55,7 @@ export class RecentlyUsedItemsService {
             sortDirection: 'asc',
             sortOrder: 'name',
             orgCategoryIds: config.categoryIds,
-            projectIds: config.recentValues.recent_project_ids,
+            projectIds: config.recentValues.project_ids,
             offset: 0,
             limit: 10,
           },
@@ -53,7 +68,7 @@ export class RecentlyUsedItemsService {
             project.forEach((item) => {
               projectsMap[item.project_id] = item;
             });
-            return config.recentValues.recent_project_ids.map((id) => projectsMap[id]).filter((id) => id);
+            return config.recentValues.project_ids.map((id) => projectsMap[id]).filter((id) => id);
           })
         );
     } else {
@@ -69,14 +84,14 @@ export class RecentlyUsedItemsService {
       costCenters &&
       costCenters.length > 0 &&
       recentValue &&
-      recentValue.recent_cost_center_ids &&
-      recentValue.recent_cost_center_ids.length > 0
+      recentValue.cost_center_ids &&
+      recentValue.cost_center_ids.length > 0
     ) {
       const costCentersMap: { [key: string]: CostCenters } = {};
       costCenters.forEach((item) => {
         costCentersMap[item.value.id] = item;
       });
-      const recentCostCenterList = recentValue.recent_cost_center_ids
+      const recentCostCenterList = recentValue.cost_center_ids
         .map((id) => costCentersMap[id])
         .filter((id) => id);
       if (recentCostCenterList.length > 0) {
@@ -99,22 +114,22 @@ export class RecentlyUsedItemsService {
       filteredCategories &&
       filteredCategories.length > 0 &&
       recentValues &&
-      recentValues.recent_org_category_ids &&
-      recentValues.recent_org_category_ids.length > 0
+      recentValues.category_ids &&
+      recentValues.category_ids.length > 0
     ) {
       const categoriesMap: { [key: string]: OrgCategoryListItem } = {};
       filteredCategories.forEach((category) => {
         categoriesMap[category.value.id] = category;
       });
-      return of(recentValues.recent_org_category_ids.map((id) => categoriesMap[id]).filter((id) => id));
+      return of(recentValues.category_ids.map((id) => categoriesMap[id]).filter((id) => id));
     } else {
       return of(null);
     }
   }
 
   getRecentCurrencies(currencies: CurrencyName, recentValue: RecentlyUsed): Observable<Currency[]> {
-    if (currencies && recentValue && recentValue.recent_currencies && recentValue.recent_currencies.length > 0) {
-      const recentCurrenciesList = recentValue.recent_currencies.map((id) => ({ id, value: currencies[id] }));
+    if (currencies && recentValue && recentValue.currencies && recentValue.currencies.length > 0) {
+      const recentCurrenciesList = recentValue.currencies.map((id) => ({ id, value: currencies[id] }));
       if (recentCurrenciesList) {
         return of(recentCurrenciesList.map((currency) => ({ shortCode: currency.id, longName: currency.value })));
       }

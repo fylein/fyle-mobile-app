@@ -59,7 +59,7 @@ describe('RecentlyUsedItemsService', () => {
     apiService.get.and.returnValue(of(recentlyUsedRes));
     recentlyUsedItemsService.getRecentlyUsed().subscribe((res) => {
       expect(res).toEqual(recentlyUsedRes);
-      expect(apiService.get).toHaveBeenCalledOnceWith('/recently_used');
+      expect(apiService.get).toHaveBeenCalledOnceWith('/recently_used_fields');
       done();
     });
   });

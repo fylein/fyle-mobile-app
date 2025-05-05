@@ -62,9 +62,9 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
   @Input() validInParent = true;
 
   @Input() recentlyUsedMileageLocations: {
-    recent_start_locations?: string[];
-    recent_end_locations?: string[];
-    recent_locations?: string[];
+    start_locations?: string[];
+    end_locations?: string[];
+    locations?: string[];
   };
 
   @Output() distanceChange = new EventEmitter<number>();
