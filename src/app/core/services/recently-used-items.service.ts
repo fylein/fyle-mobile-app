@@ -14,24 +14,29 @@ import { PlatformApiResponse } from '../models/platform/platform-api-response.mo
   providedIn: 'root',
 })
 export class RecentlyUsedItemsService {
-  constructor(private SpenderPlatformV1ApiService: SpenderPlatformV1ApiService, private projectsService: ProjectsService) {}
+  constructor(
+    private SpenderPlatformV1ApiService: SpenderPlatformV1ApiService,
+    private projectsService: ProjectsService
+  ) {}
 
   formatRecentlyUsedFields(data: RecentlyUsed): RecentlyUsed {
     const idFields = ['project_ids', 'category_ids', 'cost_center_ids'] as const;
-  
-    return idFields.reduce((acc, field) => {
-      const value = data[field];
-      return {
-        ...acc,
-        [field]: Array.isArray(value) ? value.map(Number) : value,
-      };
-    }, { ...data });
+    const formattedData: RecentlyUsed = { ...data };
+
+    for (const field of idFields) {
+      const value = formattedData[field];
+      if (Array.isArray(value)) {
+        formattedData[field] = value.map(Number);
+      }
+    }
+
+    return formattedData;
   }
 
   getRecentlyUsed(): Observable<RecentlyUsed> {
-    return this.SpenderPlatformV1ApiService
-      .get<PlatformApiResponse<RecentlyUsed>>('/recently_used_fields')
-      .pipe(map((res) => this.formatRecentlyUsedFields(res.data)));
+    return this.SpenderPlatformV1ApiService.get<PlatformApiResponse<RecentlyUsed>>('/recently_used_fields').pipe(
+      map((res) => this.formatRecentlyUsedFields(res.data))
+    );
   }
 
   getRecentlyUsedProjects(config: {
@@ -91,9 +96,7 @@ export class RecentlyUsedItemsService {
       costCenters.forEach((item) => {
         costCentersMap[item.value.id] = item;
       });
-      const recentCostCenterList = recentValue.cost_center_ids
-        .map((id) => costCentersMap[id])
-        .filter((id) => id);
+      const recentCostCenterList = recentValue.cost_center_ids.map((id) => costCentersMap[id]).filter((id) => id);
       if (recentCostCenterList.length > 0) {
         return of(
           recentCostCenterList.map((costCenter) => ({ label: costCenter.value.name, value: costCenter.value }))
