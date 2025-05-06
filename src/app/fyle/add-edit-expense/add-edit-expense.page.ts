@@ -4944,7 +4944,7 @@ export class AddEditExpensePage implements OnInit {
           if (removeExpenseFromReport) {
             return this.platformReportService.ejectExpenses(reportId, this.activatedRoute.snapshot.params.id as string);
           }
-          return this.transactionService.delete(this.activatedRoute.snapshot.params.id as string);
+          return this.expensesService.deleteExpenses([this.activatedRoute.snapshot.params.id as string]);
         },
       },
     };
