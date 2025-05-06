@@ -465,7 +465,7 @@ export class ExpensesCardComponent implements OnInit {
           0
         )}MB in size. Please reduce the file size and try again.`,
         primaryCta: {
-          text: 'OK',
+          text: 'Ok',
         },
       },
       cssClass: 'pop-up-in-center',

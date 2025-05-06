@@ -75,10 +75,10 @@ export const addExpenseToReportModalParams2 = {
 export const popoverControllerParams = {
   component: PopupAlertComponent,
   componentProps: {
-    title: '2 Draft Expenses blocking the way',
+    title: '2 Draft expenses blocking the way',
     message: '2 expenses are in draft state.',
     primaryCta: {
-      text: 'Exclude and Continue',
+      text: 'Exclude and continue',
       action: 'continue',
     },
     secondaryCta: {
@@ -362,7 +362,7 @@ export const teamReportsModalControllerParams = {
 export const popoverControllerParams2 = {
   component: PopupAlertComponent,
   componentProps: {
-    title: 'Unsaved Changes',
+    title: 'Unsaved changes',
     message: 'You have unsaved information that will be lost if you discard this expense.',
     primaryCta: {
       text: 'Discard',
@@ -452,7 +452,7 @@ export const popoverControllerParams5 = {
   component: PopupAlertComponent,
   cssClass: 'pop-up-in-center',
   componentProps: {
-    title: 'Review Advance',
+    title: 'Review advance',
     message: 'Advance request by Abhishek Jain of amount $54 will be approved',
     primaryCta: {
       text: 'Approve',

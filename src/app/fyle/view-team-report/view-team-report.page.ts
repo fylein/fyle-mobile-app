@@ -394,7 +394,7 @@ export class ViewTeamReportPage {
       const popover = await this.popoverController.create({
         componentProps: {
           flaggedExpensesCount,
-          title: 'Approve Report',
+          title: 'Approve expense report',
           message: report.num_expenses + ' expenses of amount ' + rpAmount + ' will be approved',
           leftAlign: true,
           primaryCta: {

@@ -776,7 +776,7 @@ describe('FyLocationModalComponent', () => {
         expect(popoverController.create).toHaveBeenCalledOnceWith({
           component: PopupAlertComponent,
           componentProps: {
-            title: 'Enable Location Services',
+            title: 'Enable location services',
             message:
               "To fetch your current location, please enable Location Services. Click 'Open Settings',then go to Privacy & Security and turn on Location Services",
             primaryCta: {
@@ -804,7 +804,7 @@ describe('FyLocationModalComponent', () => {
         expect(popoverController.create).toHaveBeenCalledOnceWith({
           component: PopupAlertComponent,
           componentProps: {
-            title: 'Enable Location',
+            title: 'Enable location',
             message:
               "To fetch your current location, please enable Location. Click 'Open Settings' and turn on Location",
             primaryCta: {

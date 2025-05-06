@@ -12,13 +12,13 @@ import { OverlayResponse } from '../models/overlay-response.modal';
 export class BackButtonService {
   constructor(private popoverController: PopoverController) {}
 
-  showAppCloseAlert() {
+  showAppCloseAlert(): void {
     const exitAppPopover = this.popoverController.create({
       componentProps: {
-        title: 'Exit Fyle App',
+        title: 'Exit Fyle app',
         message: 'Are you sure you want to exit the app?',
         primaryCta: {
-          text: 'OK',
+          text: 'Ok',
           action: 'close',
         },
         secondaryCta: {
