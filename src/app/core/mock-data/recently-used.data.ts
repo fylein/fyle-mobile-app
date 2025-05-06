@@ -6,21 +6,21 @@ import { Currency, CurrencyName } from '../models/currency.model';
 import { CostCenter } from '../models/v1/cost-center.model';
 
 export const recentlyUsedRes: RecentlyUsed = deepFreeze({
-  recent_project_ids: [168826, 247943, 247946],
-  recent_org_category_ids: [89469, 129111, 16576],
-  recent_cost_center_ids: [6671, 6725, 89, 2406],
-  recent_currencies: ['ARS', 'INR', 'EUR', 'CLP'],
-  recent_vehicle_types: ['two_wheeler'],
-  recent_start_locations: [
+  project_ids: [168826, 247943, 247946],
+  category_ids: [89469, 129111, 16576],
+  cost_center_ids: [6671, 6725, 89, 2406],
+  currencies: ['ARS', 'INR', 'EUR', 'CLP'],
+  vehicle_types: ['two_wheeler'],
+  start_locations: [
     'MG Road, Halasuru, Yellappa Chetty Layout, Sivanchetti Gardens, Bengaluru, Karnataka, India',
     'MG Road, Yellappa Chetty Layout, Sivanchetti Gardens, Halasuru, Karnataka, India',
     'Chennai, Tamil Nadu, India',
     'mg road',
   ],
-  recent_end_locations: [
+  end_locations: [
     '578, 2nd Main Rd, A Block, Milk Colony, Subramanyanagar,2 State, Rajajinagar, Bengaluru, Karnataka 560010, India',
   ],
-  recent_locations: [
+  locations: [
     'Maya Race - Bar & Restaurant, MG Road, Haridevpur, Shanthala Nagar, Ashok Nagar, Bengaluru, Karnataka, India',
     'Cafe Coffee Day - Kolar Highway, Narsapura, Karnataka, India',
     '16/10, 16/10, Mariyamman Kovil St, Vagai Nagar, Ramanathapuram, Tamil Nadu 623504, India',
@@ -117,22 +117,22 @@ export const currencies: CurrencyName = deepFreeze({
 
 export const recentlyUsedResWithoutCurr = deepFreeze({
   ...recentlyUsedRes,
-  recent_currencies: [],
+  currencies: [],
 });
 
 export const recentlyUsedResWithoutCostCenterId = deepFreeze({
   ...recentlyUsedRes,
-  recent_cost_center_ids: [],
+  cost_center_ids: [],
 });
 
 export const recentlyUsedCategoryWithoutId = deepFreeze({
   ...recentlyUsedRes,
-  recent_org_category_ids: [],
+  category_ids: [],
 });
 
 export const costCentersResWithNonMatchingIds = deepFreeze({
   ...recentlyUsedRes,
-  recent_cost_center_ids: [2456, 2457, 3457, 3458],
+  cost_center_ids: [2456, 2457, 3457, 3458],
 });
 
 export const recentlyUsedCostCentersRes: Partial<{ label: string; value: CostCenter; selected?: boolean }[]> =
@@ -193,18 +193,18 @@ export const recentlyUsedCostCentersRes: Partial<{ label: string; value: CostCen
 
 export const recentlyUsedMileages: Pick<
   RecentlyUsed,
-  'recent_start_locations' | 'recent_end_locations' | 'recent_locations'
+  'start_locations' | 'end_locations' | 'locations'
 > = deepFreeze({
-  recent_start_locations: [
+  start_locations: [
     'MG Road, Halasuru, Yellappa Chetty Layout, Sivanchetti Gardens, Bengaluru, Karnataka, India',
     'MG Road, Yellappa Chetty Layout, Sivanchetti Gardens, Halasuru, Karnataka, India',
     'Chennai, Tamil Nadu, India',
     'mg road',
   ],
-  recent_end_locations: [
+  end_locations: [
     '578, 2nd Main Rd, A Block, Milk Colony, Subramanyanagar,2 State, Rajajinagar, Bengaluru, Karnataka 560010, India',
   ],
-  recent_locations: [
+  locations: [
     'Maya Race - Bar & Restaurant, MG Road, Haridevpur, Shanthala Nagar, Ashok Nagar, Bengaluru, Karnataka, India',
     'Cafe Coffee Day - Kolar Highway, Narsapura, Karnataka, India',
     '16/10, 16/10, Mariyamman Kovil St, Vagai Nagar, Ramanathapuram, Tamil Nadu 623504, India',

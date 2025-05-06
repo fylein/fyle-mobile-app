@@ -9,7 +9,9 @@ import {
 } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
 import { switchMap } from 'rxjs/operators';
+import { MileageDetails } from 'src/app/core/models/mileage.model';
 import { MileageService } from 'src/app/core/services/mileage.service';
+import { MileageLocation } from '../../route-visualizer/mileage-locations.interface';
 
 @Component({
   selector: 'app-route-selector-modal',
@@ -19,7 +21,7 @@ import { MileageService } from 'src/app/core/services/mileage.service';
 export class RouteSelectorModalComponent implements OnInit {
   @Input() unit: 'KM' | 'MILES';
 
-  @Input() mileageConfig;
+  @Input() mileageConfig: MileageDetails;
 
   @Input() isDistanceMandatory;
 
@@ -31,12 +33,16 @@ export class RouteSelectorModalComponent implements OnInit {
 
   @Input() isConnected;
 
-  @Input() value;
+  @Input() value: {
+    distance: number;
+    mileageLocations?: MileageLocation[];
+    roundTrip: number;
+  };
 
   @Input() recentlyUsedMileageLocations: {
-    recent_start_locations?: string[];
-    recent_end_locations?: string[];
-    recent_locations?: string[];
+    start_locations?: string[];
+    end_locations?: string[];
+    locations?: string[];
   };
 
   distance: string;
@@ -54,21 +60,21 @@ export class RouteSelectorModalComponent implements OnInit {
     private mileageService: MileageService
   ) {}
 
-  get mileageLocations() {
+  get mileageLocations(): UntypedFormArray {
     return this.form.controls.mileageLocations as UntypedFormArray;
   }
 
-  addMileageLocation() {
+  addMileageLocation(): void {
     this.mileageLocations.push(
       new UntypedFormControl(null, this.mileageConfig.location_mandatory && Validators.required)
     );
   }
 
-  removeMileageLocation(index: number) {
+  removeMileageLocation(index: number): void {
     this.mileageLocations.removeAt(index);
   }
 
-  customDistanceValidator(control: AbstractControl) {
+  customDistanceValidator(control: AbstractControl): { invalidDistance: boolean } {
     const passedInDistance = control.value && +control.value;
     if (passedInDistance !== null) {
       return passedInDistance > 0
@@ -79,8 +85,8 @@ export class RouteSelectorModalComponent implements OnInit {
     }
   }
 
-  ngOnInit() {
-    this.distance = this.value.distance;
+  ngOnInit(): void {
+    this.distance = String(this.value.distance);
 
     if (this.value?.mileageLocations?.length > 1) {
       this.mileageService.getDistance(this.value?.mileageLocations).subscribe((distance) => {
@@ -135,7 +141,7 @@ export class RouteSelectorModalComponent implements OnInit {
     });
 
     this.form.controls.mileageLocations.valueChanges
-      .pipe(switchMap((mileageLocations) => this.mileageService.getDistance(mileageLocations)))
+      .pipe(switchMap((mileageLocations: MileageLocation[]) => this.mileageService.getDistance(mileageLocations)))
       .subscribe((distance) => {
         if (distance === null) {
           this.distance = null;
@@ -158,7 +164,7 @@ export class RouteSelectorModalComponent implements OnInit {
       });
   }
 
-  save() {
+  save(): void {
     if (this.form.valid) {
       this.modalController.dismiss({
         ...this.form.value,
@@ -169,7 +175,7 @@ export class RouteSelectorModalComponent implements OnInit {
     }
   }
 
-  close() {
+  close(): void {
     this.modalController.dismiss();
   }
 }
