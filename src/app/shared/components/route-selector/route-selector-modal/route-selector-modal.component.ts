@@ -10,8 +10,8 @@ import {
 import { ModalController } from '@ionic/angular';
 import { switchMap } from 'rxjs/operators';
 import { MileageDetails } from 'src/app/core/models/mileage.model';
-import { Location } from 'src/app/core/models/location.model';
 import { MileageService } from 'src/app/core/services/mileage.service';
+import { MileageLocation } from '../../route-visualizer/mileage-locations.interface';
 
 @Component({
   selector: 'app-route-selector-modal',
@@ -34,9 +34,9 @@ export class RouteSelectorModalComponent implements OnInit {
   @Input() isConnected;
 
   @Input() value: {
-    distance: string;
-    mileageLocations: [];
-    roundTrip: [];
+    distance: number;
+    mileageLocations?: MileageLocation[];
+    roundTrip: number;
   };
 
   @Input() recentlyUsedMileageLocations: {
@@ -86,7 +86,7 @@ export class RouteSelectorModalComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.distance = this.value.distance;
+    this.distance = String(this.value.distance);
 
     if (this.value?.mileageLocations?.length > 1) {
       this.mileageService.getDistance(this.value?.mileageLocations).subscribe((distance) => {
@@ -141,7 +141,7 @@ export class RouteSelectorModalComponent implements OnInit {
     });
 
     this.form.controls.mileageLocations.valueChanges
-      .pipe(switchMap((mileageLocations: Location[]) => this.mileageService.getDistance(mileageLocations)))
+      .pipe(switchMap((mileageLocations: MileageLocation[]) => this.mileageService.getDistance(mileageLocations)))
       .subscribe((distance) => {
         if (distance === null) {
           this.distance = null;

@@ -247,13 +247,13 @@ describe('RouteSelectorComponent', () => {
 
   describe('validate():', () => {
     it('should return null of the form is valid', () => {
-      const result = component.validate(component.mileageConfig);
+      const result = component.validate();
       expect(result).toBeNull();
     });
 
     it('should validate form control', () => {
       component.form.controls.distance.setValue(null);
-      const result = component.validate(component.mileageConfig);
+      const result = component.validate();
       expect(result).toEqual({
         required: true,
       });

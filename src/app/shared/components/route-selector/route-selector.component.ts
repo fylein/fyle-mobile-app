@@ -24,6 +24,8 @@ import { ModalController } from '@ionic/angular';
 import { intersection, isEqual } from 'lodash';
 import { Subscription, distinctUntilChanged } from 'rxjs';
 import { RouteSelectorModalComponent } from './route-selector-modal/route-selector-modal.component';
+import { MileageDetails } from 'src/app/core/models/mileage.model';
+import { MileageLocation } from '../route-visualizer/mileage-locations.interface';
 
 @Component({
   selector: 'app-route-selector',
@@ -45,11 +47,11 @@ import { RouteSelectorModalComponent } from './route-selector-modal/route-select
 export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnDestroy, OnChanges, DoCheck {
   @Input() unit: 'KM' | 'MILES';
 
-  @Input() mileageConfig;
+  @Input() mileageConfig: MileageDetails;
 
-  @Input() isDistanceMandatory;
+  @Input() isDistanceMandatory: boolean;
 
-  @Input() isAmountDisabled;
+  @Input() isAmountDisabled: boolean;
 
   @Input() txnFields;
 
@@ -79,7 +81,7 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
 
   constructor(private fb: UntypedFormBuilder, private modalController: ModalController) {}
 
-  get mileageLocations() {
+  get mileageLocations(): UntypedFormArray {
     return this.form.controls.mileageLocations as UntypedFormArray;
   }
 
@@ -87,9 +89,10 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
     return this.isAmountDisabled;
   }
 
+  // eslint-disable-next-line
   onTouched = () => {};
 
-  ngDoCheck() {
+  ngDoCheck(): void {
     if (this.touchedInParent) {
       this.form.markAllAsTouched();
     }
@@ -100,7 +103,7 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
   }
 
   customDistanceValidator(control: AbstractControl): { invalidDistance: boolean } {
-    const passedInDistance = parseFloat(control.value);
+    const passedInDistance = parseFloat(String(control.value));
     if (passedInDistance !== null) {
       return passedInDistance >= 0
         ? null
@@ -120,7 +123,7 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
     }
   }
 
-  onTxnFieldsChange() {
+  onTxnFieldsChange(): void {
     const keyToControlMap: { [id: string]: AbstractControl } = {
       distance: this.form.controls.distance,
     };
@@ -130,9 +133,11 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
       control.updateValueAndValidity();
     }
 
+    // eslint-disable-next-line
     for (const txnFieldKey of intersection(['distance'], Object.keys(this.txnFields))) {
       const control = keyToControlMap[txnFieldKey];
 
+      // eslint-disable-next-line
       if (this.txnFields[txnFieldKey].is_mandatory) {
         if (txnFieldKey === 'distance') {
           control.setValidators(
@@ -146,7 +151,7 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
     this.form.updateValueAndValidity();
   }
 
-  onMileageConfigChange() {
+  onMileageConfigChange(): void {
     this.form.controls.mileageLocations.clearValidators();
     this.form.controls.mileageLocations.updateValueAndValidity();
     if (this.mileageConfig.location_mandatory) {
@@ -156,7 +161,7 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
     this.form.updateValueAndValidity();
   }
 
-  writeValue(value): void {
+  writeValue(value: { mileageLocations: MileageLocation[]; distance?: number; roundTrip?: boolean }): void {
     if (value) {
       if (value.mileageLocations) {
         value.mileageLocations.forEach((location) => {
@@ -179,10 +184,12 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
   }
 
   registerOnChange(onChange): void {
+    // eslint-disable-next-line
     this.onChangeSub = this.form.valueChanges.subscribe(onChange);
   }
 
   registerOnTouched(onTouched): void {
+    // eslint-disable-next-line
     this.onTouched = onTouched;
   }
 
@@ -194,21 +201,22 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
     }
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.form.controls.roundTrip.valueChanges.pipe(distinctUntilChanged()).subscribe((roundTrip) => {
       if (this.formInitialized) {
-        if (this.form.value.distance) {
+        const formValue = this.form.value as { distance: number };
+        if (formValue.distance) {
           if (roundTrip) {
-            this.form.controls.distance.setValue(parseFloat((+this.form.value.distance * 2).toFixed(2)));
+            this.form.controls.distance.setValue(parseFloat((+formValue.distance * 2).toFixed(2)));
           } else {
-            this.form.controls.distance.setValue(parseFloat((+this.form.value.distance / 2).toFixed(2)));
+            this.form.controls.distance.setValue(parseFloat((+formValue.distance / 2).toFixed(2)));
           }
         }
       }
     });
   }
 
-  async openModal() {
+  async openModal(): Promise<void> {
     const selectionModal = await this.modalController.create({
       component: RouteSelectorModalComponent,
       componentProps: {
@@ -216,29 +224,36 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
         mileageConfig: this.mileageConfig,
         isDistanceMandatory: this.isDistanceMandatory,
         isAmountDisabled: this.isAmountDisabled,
+        // eslint-disable-next-line
         txnFields: this.txnFields,
-        value: this.form.value,
+        value: this.form.value as {
+          distance: string;
+          mileageLocations: [];
+          roundTrip: boolean;
+        },
         recentlyUsedMileageLocations: this.recentlyUsedMileageLocations,
       },
     });
 
     await selectionModal.present();
 
-    const { data } = await selectionModal.onWillDismiss();
+    const { data } = (await selectionModal.onWillDismiss()) as {
+      data: { mileageLocations: []; distance: number; roundTrip: boolean };
+    };
 
     if (data) {
       this.mileageLocations.clear({
         emitEvent: false,
       });
 
-      data.mileageLocations?.forEach((mileageLocation) => {
+      data.mileageLocations?.forEach((mileageLocation: MileageLocation) => {
         this.mileageLocations.push(
           new UntypedFormControl(mileageLocation || {}, this.mileageConfig.location_mandatory && Validators.required)
         );
       });
 
       this.form.patchValue({
-        distance: parseFloat(data.distance),
+        distance: parseFloat(String(data.distance)),
         roundTrip: data.roundTrip,
       });
 
@@ -246,7 +261,8 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
     }
   }
 
-  validate(fc: UntypedFormControl) {
+  // eslint-disable-next-line
+  validate() {
     if (!this.form.valid) {
       return {
         ...this.form.controls.mileageLocations.errors,
