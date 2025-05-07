@@ -376,4 +376,14 @@ export class ExpensesService {
       ],
     });
   }
+
+  deleteExpenses(expenseIds: string[]): Observable<void> {
+    const payload = {
+      data: expenseIds.map((id) => ({ id })),
+    };
+
+    return this.spenderService
+      .post<PlatformApiResponse<null>>('/expenses/delete/bulk', payload)
+      .pipe(map((): void => void 0));
+  }
 }

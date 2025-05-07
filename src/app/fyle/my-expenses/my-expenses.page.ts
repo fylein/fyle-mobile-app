@@ -1530,14 +1530,14 @@ export class MyExpensesPage implements OnInit {
     await actionSheet.present();
   }
 
-  deleteSelectedExpenses(offlineExpenses: Partial<Expense>[]): Observable<Transaction[]> {
+  deleteSelectedExpenses(offlineExpenses: Partial<Expense>[]): Observable<void> {
     if (offlineExpenses?.length > 0) {
       this.transactionOutboxService.deleteBulkOfflineExpenses(this.pendingTransactions, offlineExpenses);
       return of(null);
     } else {
       this.selectedElements = this.expensesToBeDeleted.filter((expense) => expense.id);
       if (this.selectedElements.length > 0) {
-        return this.transactionService.deleteBulk(this.selectedElements.map((selectedExpense) => selectedExpense.id));
+        return this.expenseService.deleteExpenses(this.selectedElements.map((selectedExpense) => selectedExpense.id));
       } else {
         return of(null);
       }

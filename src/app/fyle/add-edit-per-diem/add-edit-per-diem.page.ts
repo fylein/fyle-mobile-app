@@ -2401,7 +2401,7 @@ export class AddEditPerDiemPage implements OnInit {
           if (removePerDiemFromReport) {
             return this.platformReportService.ejectExpenses(reportId, id);
           }
-          return this.transactionService.delete(id);
+          return this.expensesService.deleteExpenses([id]);
         },
       },
     };

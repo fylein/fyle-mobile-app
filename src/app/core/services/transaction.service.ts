@@ -1,14 +1,14 @@
 import { Inject, Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { DateService } from './date.service';
-import { map, switchMap, concatMap, reduce, tap, catchError } from 'rxjs/operators';
+import { map, switchMap, tap, catchError } from 'rxjs/operators';
 import { StorageService } from './storage.service';
-import { from, Observable, range, forkJoin, of } from 'rxjs';
+import { from, Observable, forkJoin, of } from 'rxjs';
 import { OrgUserSettingsService } from './org-user-settings.service';
 import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
 import { Expense } from '../models/expense.model';
-import { Cacheable, CacheBuster } from 'ts-cacheable';
+import { CacheBuster } from 'ts-cacheable';
 import { UserEventService } from './user-event.service';
 import { UndoMerge } from '../models/undo-merge.model';
 import { cloneDeep } from 'lodash';
@@ -83,33 +83,6 @@ export class TransactionService {
       tap(() => {
         this.clearTaskCache = clearTaskCache;
       })
-    );
-  }
-
-  @Cacheable({
-    cacheBusterObserver: expensesCacheBuster$,
-  })
-  @CacheBuster({
-    cacheBusterNotifier: expensesCacheBuster$,
-  })
-  delete(txnId: string): Observable<Expense> {
-    return this.apiService.delete<Expense>('/transactions/' + txnId);
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: expensesCacheBuster$,
-  })
-  deleteBulk(txnIds: string[]): Observable<Transaction[]> {
-    const chunkSize = 10;
-    const count = txnIds.length > chunkSize ? txnIds.length / chunkSize : 1;
-    return range(0, count).pipe(
-      concatMap((page) => {
-        const filteredtxnIds = txnIds.slice(chunkSize * page, chunkSize * page + chunkSize);
-        return this.apiService.post<Transaction>('/transactions/delete/bulk', {
-          txn_ids: filteredtxnIds,
-        });
-      }),
-      reduce((acc, curr) => acc.concat(curr), [] as Transaction[])
     );
   }
 
