@@ -1,5 +1,5 @@
 import { TestBed, discardPeriodicTasks, fakeAsync, tick } from '@angular/core/testing';
-import { ApiService } from './api.service';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { ProjectsService } from './projects.service';
 import { RecentlyUsedItemsService } from './recently-used-items.service';
 import {
@@ -23,7 +23,7 @@ import { platformProjectsArgs1 } from '../mock-data/platform/v1/platform-project
 
 describe('RecentlyUsedItemsService', () => {
   let recentlyUsedItemsService: RecentlyUsedItemsService;
-  let apiService: jasmine.SpyObj<ApiService>;
+  let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
   let projectsService: jasmine.SpyObj<ProjectsService>;
   let categoriesService: jasmine.SpyObj<CategoriesService>;
 
@@ -32,8 +32,8 @@ describe('RecentlyUsedItemsService', () => {
       providers: [
         RecentlyUsedItemsService,
         {
-          provide: ApiService,
-          useValue: jasmine.createSpyObj('ApiService', ['get']),
+          provide: SpenderPlatformV1ApiService,
+          useValue: jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get']),
         },
         {
           provide: ProjectsService,
@@ -46,7 +46,9 @@ describe('RecentlyUsedItemsService', () => {
       ],
     });
     recentlyUsedItemsService = TestBed.inject(RecentlyUsedItemsService);
-    apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
+    spenderPlatformV1ApiService = TestBed.inject(
+      SpenderPlatformV1ApiService
+    ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     projectsService = TestBed.inject(ProjectsService) as jasmine.SpyObj<ProjectsService>;
     categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
   });
@@ -56,10 +58,10 @@ describe('RecentlyUsedItemsService', () => {
   });
 
   it('getRecentlyUsed(): should get recently used items', (done) => {
-    apiService.get.and.returnValue(of(recentlyUsedRes));
+    spenderPlatformV1ApiService.get.and.returnValue(of({ data: recentlyUsedRes }));
     recentlyUsedItemsService.getRecentlyUsed().subscribe((res) => {
       expect(res).toEqual(recentlyUsedRes);
-      expect(apiService.get).toHaveBeenCalledOnceWith('/recently_used');
+      expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/recently_used_fields');
       done();
     });
   });

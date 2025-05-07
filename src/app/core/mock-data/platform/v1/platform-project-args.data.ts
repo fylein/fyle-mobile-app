@@ -9,7 +9,7 @@ export const platformProjectsArgs1: PlatformProjectArgs = deepFreeze({
   sortDirection: 'asc',
   sortOrder: 'name',
   orgCategoryIds: ['16558', '16559', '16560', '16561', '16562'],
-  projectIds: recentlyUsedRes.recent_project_ids,
+  projectIds: recentlyUsedRes.project_ids,
   offset: 0,
   limit: 10,
 });

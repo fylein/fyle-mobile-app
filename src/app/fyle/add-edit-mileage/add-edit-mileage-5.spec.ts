@@ -588,7 +588,7 @@ export function TestCases5(getTestBed) {
         expect(component.getRecentlyUsedValues).toHaveBeenCalledTimes(1);
 
         component.recentlyUsedMileageLocations$.subscribe((res) => {
-          expect(res).toEqual({ recent_start_locations: [], recent_end_locations: [], recent_locations: [] });
+          expect(res).toEqual({ start_locations: [], end_locations: [], locations: [] });
         });
 
         component.isProjectVisible$.subscribe((res) => {
