@@ -20,4 +20,4 @@ jobs:
       reviewer_1: 'mvaishnavi'
       reviewer_2: 'Julias0'
       tech_stack: 'Angular'
-      command_to_run: 'npx jscpd --ignore "**/node_modules/**,**/*.data.ts,**/*.spec.ts"'
+      command_to_run: 'npx jscpd --ignore "**/node_modules/**,**/*.data.ts,**/*.spec.ts" --output report --reporters json'
