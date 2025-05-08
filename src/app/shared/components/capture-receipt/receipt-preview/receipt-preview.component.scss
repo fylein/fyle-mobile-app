@@ -38,6 +38,16 @@
     &--crop {
       color: $black-light;
     }
+
+    &--rotate {
+      color: $black-light;
+      &:first-child {
+        margin-right: 4px;
+      }
+      &:nth-child(2) {
+        margin-left: 4px;
+      }
+    }
   }
 
   &__controls {
@@ -77,6 +87,9 @@
     margin: 16px;
     background-color: white !important;
     z-index: 12;
+    img.rotating {
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
   }
 
   &__cta-container {
