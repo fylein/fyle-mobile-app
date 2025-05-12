@@ -70,6 +70,16 @@ export class ReceiptPreviewComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Rotates the current image by 90 degrees in the specified direction.
+   *
+   * The rotation happens in two steps:
+   * 1. Visual rotation: Applies CSS transform immediately for smooth animation.
+   * 2. Data rotation: After a 400ms animation, the actual image data is rotated using canvas.
+   *
+   * @param direction - Direction to rotate the image (LEFT = -90°, RIGHT = 90°).
+   */
+
   rotateImage(direction: RotationDirection): void {
     if (this.rotatingDirection) {
       return;
