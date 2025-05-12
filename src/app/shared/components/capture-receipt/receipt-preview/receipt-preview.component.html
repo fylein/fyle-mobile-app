@@ -16,10 +16,10 @@
       </ion-button>
     </ion-buttons>
     <ion-buttons class="receipt-preview__btn" slot="end">
-      <ion-button class="receipt-preview__btn--rotate" (click)="rotateImage('left')">
+      <ion-button class="receipt-preview__btn--rotate" (click)="rotateImage(RotationDirection.LEFT)">
         <ion-icon src="../../../../assets/svg/rotate-left.svg"></ion-icon>
       </ion-button>
-      <ion-button class="receipt-preview__btn--rotate" (click)="rotateImage('right')">
+      <ion-button class="receipt-preview__btn--rotate" (click)="rotateImage(RotationDirection.RIGHT)">
         <ion-icon src="../../../../assets/svg/rotate-right.svg"></ion-icon>
       </ion-button>
       <ion-button class="receipt-preview__btn--crop" (click)="openCropReceiptModal()">
@@ -44,10 +44,10 @@
       <pinch-zoom class="receipt-preview__image-container">
         <img
           [src]="base64ImageWithSource.base64Image"
-          [ngClass]="{ rotating: rotatingDirection && i === activeIndex }"
-          [style.transform]="
-            rotatingDirection && i === activeIndex ? 'rotate(' + (rotatingDirection === 'left' ? -90 : 90) + 'deg)' : ''
-          "
+          [ngClass]="{
+            'receipt-preview__image--rotate-left': rotatingDirection === RotationDirection.LEFT && i === activeIndex,
+            'receipt-preview__image--rotate-right': rotatingDirection === RotationDirection.RIGHT && i === activeIndex
+          }"
         />
       </pinch-zoom>
     </ng-template>

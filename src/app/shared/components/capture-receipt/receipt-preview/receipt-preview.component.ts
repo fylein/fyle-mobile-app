@@ -11,6 +11,7 @@ import { SwiperComponent } from 'swiper/angular';
 import SwiperCore, { Pagination } from 'swiper';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { Image } from 'src/app/core/models/image-type.model';
+import { RotationDirection } from './rotation-direction.enum';
 
 // install Swiper modules
 SwiperCore.use([Pagination]);
@@ -35,7 +36,9 @@ export class ReceiptPreviewComponent implements OnInit {
 
   isCropModalOpen = false;
 
-  rotatingDirection: 'left' | 'right' | null = null;
+  rotatingDirection: RotationDirection;
+
+  RotationDirection = RotationDirection;
 
   constructor(
     private platform: Platform,
@@ -65,38 +68,28 @@ export class ReceiptPreviewComponent implements OnInit {
     }
   }
 
-  rotateImage(direction: 'left' | 'right'): void {
+  /**
+   * Rotates the current image by 90 degrees in the specified direction.
+   * The rotation happens in two steps:
+   * 1. Visual rotation: CSS transform is applied immediately for smooth animation
+   * 2. Data rotation: After animation completes (400ms), the actual image data is rotated using canvas
+   *
+   * @param direction - Direction to rotate the image (LEFT = -90°, RIGHT = 90°)
+   */
+  rotateImage(direction: RotationDirection): void {
     if (this.rotatingDirection) {
       return;
     }
     this.rotatingDirection = direction;
+    this.trackingService.rotateReceipt();
+
     setTimeout(() => {
       const currentImage = this.base64ImagesWithSource[this.activeIndex];
       if (!currentImage?.base64Image) {
         this.rotatingDirection = null;
         return;
       }
-      const img = new window.Image();
-      img.src = currentImage.base64Image;
-      img.onload = (): void => {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        if (!ctx) {
-          this.rotatingDirection = null;
-          return;
-        }
-        canvas.width = img.height;
-        canvas.height = img.width;
-        ctx.translate(canvas.width / 2, canvas.height / 2);
-        ctx.rotate(((direction === 'left' ? -90 : 90) * Math.PI) / 180);
-        ctx.drawImage(img, -img.width / 2, -img.height / 2);
-        this.base64ImagesWithSource[this.activeIndex] = {
-          ...currentImage,
-          base64Image: canvas.toDataURL('image/jpeg', 0.9),
-        };
-        this.swiper?.swiperRef.update();
-        this.rotatingDirection = null;
-      };
+      this.rotateImageData(currentImage, direction);
     }, 400);
   }
 
@@ -263,5 +256,37 @@ export class ReceiptPreviewComponent implements OnInit {
 
   async ionSlideDidChange(): Promise<void> {
     this.activeIndex = (await this.swiper?.swiperRef.activeIndex) ?? 0;
+  }
+
+  /**
+   * Rotates the image data using canvas transformation.
+   * Creates a new canvas with swapped dimensions, applies rotation transform,
+   * and updates the image data in the array.
+   *
+   * @param currentImage - The current image object containing base64 data
+   * @param direction - Direction to rotate the image (LEFT = -90°, RIGHT = 90°)
+   */
+  private rotateImageData(currentImage: Image, direction: RotationDirection): void {
+    const imageToBeRotated = new window.Image();
+    imageToBeRotated.src = currentImage.base64Image;
+    imageToBeRotated.onload = (): void => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        this.rotatingDirection = null;
+        return;
+      }
+      canvas.width = imageToBeRotated.height;
+      canvas.height = imageToBeRotated.width;
+      ctx.translate(canvas.width / 2, canvas.height / 2);
+      ctx.rotate(((direction === RotationDirection.LEFT ? -90 : 90) * Math.PI) / 180);
+      ctx.drawImage(imageToBeRotated, -imageToBeRotated.width / 2, -imageToBeRotated.height / 2);
+      this.base64ImagesWithSource[this.activeIndex] = {
+        ...currentImage,
+        base64Image: canvas.toDataURL('image/jpeg', 0.9),
+      };
+      this.swiper?.swiperRef.update();
+      this.rotatingDirection = null;
+    };
   }
 }

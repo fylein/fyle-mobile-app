@@ -1,4 +1,4 @@
-export type Image = Partial<{
+export type Image = {
   source: string;
   base64Image: string;
-}>;
+};
