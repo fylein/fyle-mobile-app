@@ -16,12 +16,23 @@
       </ion-button>
     </ion-buttons>
     <ion-buttons class="receipt-preview__btn" slot="end">
-      <ion-button class="receipt-preview__btn--rotate" (click)="rotateImage(RotationDirection.LEFT)">
-        <ion-icon src="../../../../assets/svg/arrow-anticlockwise.svg"></ion-icon>
-      </ion-button>
-      <ion-button class="receipt-preview__btn--rotate" (click)="rotateImage(RotationDirection.RIGHT)">
+      <!-- Show only right rotation on small screens -->
+      <ion-button
+        *ngIf="isSmallScreen; else bothRotate"
+        class="receipt-preview__btn--rotate"
+        (click)="rotateImage(RotationDirection.RIGHT)"
+      >
         <ion-icon src="../../../../assets/svg/arrow-clockwise.svg"></ion-icon>
       </ion-button>
+      <!-- Show both on larger screens -->
+      <ng-template #bothRotate>
+        <ion-button class="receipt-preview__btn--rotate" (click)="rotateImage(RotationDirection.LEFT)">
+          <ion-icon src="../../../../assets/svg/arrow-anticlockwise.svg"></ion-icon>
+        </ion-button>
+        <ion-button class="receipt-preview__btn--rotate" (click)="rotateImage(RotationDirection.RIGHT)">
+          <ion-icon src="../../../../assets/svg/arrow-clockwise.svg"></ion-icon>
+        </ion-button>
+      </ng-template>
       <ion-button class="receipt-preview__btn--crop" (click)="openCropReceiptModal()">
         <ion-icon src="../../../../assets/svg/crop.svg"></ion-icon>
       </ion-button>

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
 import { ModalController, Platform, PopoverController } from '@ionic/angular';
@@ -21,7 +21,7 @@ SwiperCore.use([Pagination]);
   templateUrl: './receipt-preview.component.html',
   styleUrls: ['./receipt-preview.component.scss'],
 })
-export class ReceiptPreviewComponent implements OnInit {
+export class ReceiptPreviewComponent implements OnInit, OnDestroy {
   @ViewChild('swiper', { static: false }) swiper?: SwiperComponent;
 
   @Input() base64ImagesWithSource: Image[];
@@ -39,6 +39,8 @@ export class ReceiptPreviewComponent implements OnInit {
   rotatingDirection: RotationDirection;
 
   RotationDirection = RotationDirection;
+
+  isSmallScreen: boolean;
 
   constructor(
     private platform: Platform,
@@ -68,14 +70,6 @@ export class ReceiptPreviewComponent implements OnInit {
     }
   }
 
-  /**
-   * Rotates the current image by 90 degrees in the specified direction.
-   * The rotation happens in two steps:
-   * 1. Visual rotation: CSS transform is applied immediately for smooth animation
-   * 2. Data rotation: After animation completes (400ms), the actual image data is rotated using canvas
-   *
-   * @param direction - Direction to rotate the image (LEFT = -90°, RIGHT = 90°)
-   */
   rotateImage(direction: RotationDirection): void {
     if (this.rotatingDirection) {
       return;
@@ -93,6 +87,10 @@ export class ReceiptPreviewComponent implements OnInit {
     }, 400);
   }
 
+  checkScreenSize = (): void => {
+    this.isSmallScreen = window.innerWidth < 400;
+  };
+
   ngOnInit(): void {
     this.sliderOptions = {
       zoom: {
@@ -100,6 +98,12 @@ export class ReceiptPreviewComponent implements OnInit {
       },
     };
     this.activeIndex = 0;
+    this.checkScreenSize();
+    window.addEventListener('resize', this.checkScreenSize);
+  }
+
+  ngOnDestroy(): void {
+    window.removeEventListener('resize', this.checkScreenSize);
   }
 
   ionViewWillEnter(): void {
@@ -258,14 +262,6 @@ export class ReceiptPreviewComponent implements OnInit {
     this.activeIndex = (await this.swiper?.swiperRef.activeIndex) ?? 0;
   }
 
-  /**
-   * Rotates the image data using canvas transformation.
-   * Creates a new canvas with swapped dimensions, applies rotation transform,
-   * and updates the image data in the array.
-   *
-   * @param currentImage - The current image object containing base64 data
-   * @param direction - Direction to rotate the image (LEFT = -90°, RIGHT = 90°)
-   */
   private rotateImageData(currentImage: Image, direction: RotationDirection): void {
     const imageToBeRotated = new window.Image();
     imageToBeRotated.src = currentImage.base64Image;
