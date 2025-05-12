@@ -5,8 +5,8 @@
     [ngClass]="{ 'receipt-preview__toolbar--no-index': base64ImagesWithSource.length === 1 }"
   >
     <ion-title [ngClass]="{ 'receipt-preview__title--with-delete': base64ImagesWithSource.length > 1 }">
-      <div class="text-center receipt-preview__title">Receipt preview</div>
-      <div *ngIf="base64ImagesWithSource.length > 1" class="receipt-preview__sub-title text-center">
+      <div class="receipt-preview__title">Receipts Preview</div>
+      <div *ngIf="base64ImagesWithSource.length > 1" class="receipt-preview__sub-title">
         {{ activeIndex + 1 }}/{{ base64ImagesWithSource.length }}
       </div>
     </ion-title>
@@ -17,10 +17,10 @@
     </ion-buttons>
     <ion-buttons class="receipt-preview__btn" slot="end">
       <ion-button class="receipt-preview__btn--rotate" (click)="rotateImage(RotationDirection.LEFT)">
-        <ion-icon src="../../../../assets/svg/rotate-left.svg"></ion-icon>
+        <ion-icon src="../../../../assets/svg/arrow-anticlockwise.svg"></ion-icon>
       </ion-button>
       <ion-button class="receipt-preview__btn--rotate" (click)="rotateImage(RotationDirection.RIGHT)">
-        <ion-icon src="../../../../assets/svg/rotate-right.svg"></ion-icon>
+        <ion-icon src="../../../../assets/svg/arrow-clockwise.svg"></ion-icon>
       </ion-button>
       <ion-button class="receipt-preview__btn--crop" (click)="openCropReceiptModal()">
         <ion-icon src="../../../../assets/svg/crop.svg"></ion-icon>
@@ -45,8 +45,10 @@
         <img
           [src]="base64ImageWithSource.base64Image"
           [ngClass]="{
-            'receipt-preview__image--rotate-left': rotatingDirection === RotationDirection.LEFT && i === activeIndex,
-            'receipt-preview__image--rotate-right': rotatingDirection === RotationDirection.RIGHT && i === activeIndex
+            'receipt-preview__image--arrow-anticlockwise':
+              rotatingDirection === RotationDirection.LEFT && i === activeIndex,
+            'receipt-preview__image--arrow-clockwise':
+              rotatingDirection === RotationDirection.RIGHT && i === activeIndex
           }"
         />
       </pinch-zoom>

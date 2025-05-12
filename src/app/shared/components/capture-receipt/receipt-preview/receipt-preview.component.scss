@@ -41,7 +41,6 @@
 
     &--rotate {
       color: $black-light;
-      margin: 0 4px;
     }
   }
 
@@ -91,12 +90,12 @@
     background-color: white !important;
     z-index: 12;
 
-    .receipt-preview__image--rotate-left {
+    .receipt-preview__image--arrow-anticlockwise {
       transform: rotate(-90deg);
       transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .receipt-preview__image--rotate-right {
+    .receipt-preview__image--arrow-clockwise {
       transform: rotate(90deg);
       transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
