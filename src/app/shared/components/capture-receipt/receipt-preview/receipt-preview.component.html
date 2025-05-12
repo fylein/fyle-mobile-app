@@ -18,14 +18,14 @@
     <ion-buttons class="receipt-preview__btn" slot="end">
       <!-- Show only right rotation on small screens -->
       <ion-button
-        *ngIf="isSmallScreen; else bothRotate"
+        *ngIf="isSmallScreen; else rotateCTAs"
         class="receipt-preview__btn--rotate"
         (click)="rotateImage(RotationDirection.RIGHT)"
       >
         <ion-icon src="../../../../assets/svg/arrow-clockwise.svg"></ion-icon>
       </ion-button>
-      <!-- Show both on larger screens -->
-      <ng-template #bothRotate>
+      <!-- Show both left and right rotation icons on larger screens -->
+      <ng-template #rotateCTAs>
         <ion-button class="receipt-preview__btn--rotate" (click)="rotateImage(RotationDirection.LEFT)">
           <ion-icon src="../../../../assets/svg/arrow-anticlockwise.svg"></ion-icon>
         </ion-button>
