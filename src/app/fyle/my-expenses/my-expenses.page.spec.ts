@@ -195,7 +195,6 @@ describe('MyExpensesPage', () => {
       'getDeleteDialogBody',
       'getExpenseDeletionMessage',
       'getCCCExpenseMessage',
-      'deleteBulk',
     ]);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', ['getMileageOrPerDiemCategories']);
@@ -273,6 +272,7 @@ describe('MyExpensesPage', () => {
       'getAllExpenses',
       'getExpenseById',
       'getExpenseStats',
+      'deleteExpenses',
     ]);
     const sharedExpenseServiceSpy = jasmine.createSpyObj('SharedExpenseService', [
       'generateCardNumberParams',
@@ -2881,7 +2881,7 @@ describe('MyExpensesPage', () => {
       component.deleteSelectedExpenses([]);
       expect(transactionOutboxService.deleteBulkOfflineExpenses).not.toHaveBeenCalledOnceWith([], []);
       expect(component.selectedElements).toEqual(apiExpenses1);
-      expect(transactionService.deleteBulk).toHaveBeenCalledOnceWith(['txDDLtRaflUW', 'tx5WDG9lxBDT']);
+      expect(expensesService.deleteExpenses).toHaveBeenCalledOnceWith(['txDDLtRaflUW', 'tx5WDG9lxBDT']);
     });
 
     it('should not call deleteBulk method if tx_id is not present in expensesToBeDeleted', () => {
@@ -2891,7 +2891,7 @@ describe('MyExpensesPage', () => {
       component.deleteSelectedExpenses(null);
       expect(transactionOutboxService.deleteBulkOfflineExpenses).not.toHaveBeenCalledOnceWith([], []);
       expect(component.selectedElements).toEqual([]);
-      expect(transactionService.deleteBulk).not.toHaveBeenCalled();
+      expect(expensesService.deleteExpenses).not.toHaveBeenCalled();
     });
 
     it('should delete outbox expenses', () => {
@@ -2913,7 +2913,7 @@ describe('MyExpensesPage', () => {
       sharedExpenseService.getDeleteDialogBody.and.returnValue('Once deleted, the action cannot be undone');
       component.expensesToBeDeleted = apiExpenses1;
       component.cccExpenses = 1;
-      transactionService.deleteBulk.and.returnValue(of(txnList));
+      expensesService.deleteExpenses.and.returnValue(of());
       snackbarProperties.setSnackbarProperties.and.returnValue(snackbarPropertiesRes3);
       spyOn(component, 'doRefresh');
       component.expensesToBeDeleted = cloneDeep(apiExpenses1);

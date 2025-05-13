@@ -2992,7 +2992,7 @@ export class AddEditMileagePage implements OnInit {
           if (config.removeMileageFromReport) {
             return this.platformReportService.ejectExpenses(config.reportId, config.id);
           }
-          return this.transactionService.delete(config.id);
+          return this.expensesService.deleteExpenses([config.id]);
         },
       },
     };
