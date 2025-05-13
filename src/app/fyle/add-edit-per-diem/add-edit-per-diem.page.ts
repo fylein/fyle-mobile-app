@@ -56,7 +56,6 @@ import { PolicyService } from 'src/app/core/services/policy.service';
 import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
 import { ModalController, NavController, PopoverController, Platform } from '@ionic/angular';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { StatusService } from 'src/app/core/services/status.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { TokenService } from 'src/app/core/services/token.service';
@@ -276,7 +275,6 @@ export class AddEditPerDiemPage implements OnInit {
     private loaderService: LoaderService,
     private router: Router,
     private modalController: ModalController,
-    private statusService: StatusService,
     private networkService: NetworkService,
     private navController: NavController,
     private trackingService: TrackingService,
@@ -1594,10 +1592,7 @@ export class AddEditPerDiemPage implements OnInit {
 
           // Check if recent projects exist
           const doRecentProjectIdsExist =
-            isAutofillsEnabled &&
-            recentValue &&
-            recentValue.project_ids &&
-            recentValue.project_ids.length > 0;
+            isAutofillsEnabled && recentValue && recentValue.project_ids && recentValue.project_ids.length > 0;
 
           if (recentProjects && recentProjects.length > 0) {
             this.recentProjects = recentProjects.map((item) => ({ label: item.project_name, value: item }));
@@ -1626,10 +1621,7 @@ export class AddEditPerDiemPage implements OnInit {
 
           // Check if recent cost centers exist
           const doRecentCostCenterIdsExist =
-            isAutofillsEnabled &&
-            recentValue &&
-            recentValue.cost_center_ids &&
-            recentValue.cost_center_ids.length > 0;
+            isAutofillsEnabled && recentValue && recentValue.cost_center_ids && recentValue.cost_center_ids.length > 0;
 
           if (recentCostCenters && recentCostCenters.length > 0) {
             this.recentCostCenters = recentCostCenters;
@@ -2195,7 +2187,14 @@ export class AddEditPerDiemPage implements OnInit {
               return this.expenseCommentService.findLatestExpenseComment(txn.id, txn.creator_id).pipe(
                 switchMap((result) => {
                   if (result !== comment) {
-                    return this.statusService.post('transactions', txn.id, { comment }, true).pipe(map(() => txn));
+                    const commentsWithExpenseId = [
+                      {
+                        id: txn.id,
+                        comment,
+                        notify: true,
+                      },
+                    ];
+                    return this.expenseCommentService.post(commentsWithExpenseId).pipe(map(() => txn));
                   } else {
                     return of(txn);
                   }

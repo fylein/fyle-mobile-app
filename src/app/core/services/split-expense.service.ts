@@ -1,15 +1,11 @@
 import { Injectable } from '@angular/core';
-import { forkJoin, from, Observable, of } from 'rxjs';
-import { concatMap, toArray } from 'rxjs/operators';
+import { forkJoin, Observable, of } from 'rxjs';
 import { FileObject } from '../models/file-obj.model';
-import { PolicyViolationComment } from '../models/policy-violation-comment.model';
 import { PolicyViolation } from '../models/policy-violation.model';
-import { TransactionStatus } from '../models/transaction-status.model';
 import { OrgCategory } from '../models/v1/org-category.model';
 import { Transaction } from '../models/v1/transaction.model';
 import { CategoriesService } from './categories.service';
 import { PolicyService } from './policy.service';
-import { StatusService } from './status.service';
 import { UtilityService } from './utility.service';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { ExpenseField } from '../models/v1/expense-field.model';
@@ -21,6 +17,8 @@ import { FilteredSplitPolicyViolations } from '../models/filtered-split-policy-v
 import { FilteredMissingFieldsViolations } from '../models/filtered-missing-fields-violations.model';
 import { TransformedSplitExpenseMissingFields } from '../models/transformed-split-expense-missing-fields.model';
 import { TxnCustomProperties } from '../models/txn-custom-properties.model';
+import { ExpenseCommentService } from './platform/v1/spender/expense-comment.service';
+import { ExpenseComment } from '../models/expense-comment.model';
 
 @Injectable({
   providedIn: 'root',
@@ -32,15 +30,11 @@ export class SplitExpenseService {
 
   constructor(
     private policyService: PolicyService,
-    private statusService: StatusService,
     private categoriesService: CategoriesService,
     private utilityService: UtilityService,
-    private expensesService: ExpensesService
+    private expensesService: ExpensesService,
+    private expenseCommentService: ExpenseCommentService
   ) {}
-
-  postComment(apiPayload: PolicyViolationComment): Observable<TransactionStatus> {
-    return this.statusService.post(apiPayload.objectType, apiPayload.txnId, apiPayload.comment, apiPayload.notify);
-  }
 
   formatDisplayName(model: number, categoryList: OrgCategory[]): string {
     const category = this.categoriesService.filterByOrgCategoryId(model, categoryList);
@@ -409,28 +403,16 @@ export class SplitExpenseService {
     return this.expensesService.splitExpense(splitExpensePayload);
   }
 
-  postSplitExpenseComments(txnIds: string[], comments: { [id: number]: string }): Observable<TransactionStatus[]> {
-    const payloadData = [];
+  postSplitExpenseComments(txnIds: string[], comments: { [id: number]: string }): Observable<ExpenseComment[]> {
+    const commentsWithExpenseId = txnIds.map((txnId, index) => ({
+      id: txnId,
+      comment:
+        comments[index] !== ''
+          ? this.prependPolicyViolationMessage + comments[index]
+          : this.defaultPolicyViolationMessage,
+      notify: true,
+    }));
 
-    for (const idx in txnIds) {
-      if (txnIds.hasOwnProperty(idx)) {
-        const comment =
-          comments[idx] !== ''
-            ? this.prependPolicyViolationMessage + comments[idx]
-            : this.defaultPolicyViolationMessage;
-        const apiPayload = {
-          objectType: 'transactions',
-          txnId: txnIds[idx],
-          comment: { comment },
-          notify: true,
-        };
-        payloadData.push(apiPayload);
-      }
-    }
-
-    return from(payloadData).pipe(
-      concatMap((payload: PolicyViolationComment) => this.postComment(payload)),
-      toArray()
-    );
+    return this.expenseCommentService.post(commentsWithExpenseId);
   }
 }

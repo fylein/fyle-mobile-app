@@ -86,7 +86,6 @@ import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-it
 import { ReportService } from 'src/app/core/services/report.service';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { StatusService } from 'src/app/core/services/status.service';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { TokenService } from 'src/app/core/services/token.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
@@ -310,7 +309,6 @@ export class AddEditMileagePage implements OnInit {
     private mileageRatesService: MileageRatesService,
     private transactionsOutboxService: TransactionsOutboxService,
     private policyService: PolicyService,
-    private statusService: StatusService,
     private modalController: ModalController,
     private networkService: NetworkService,
     private navController: NavController,
@@ -1927,10 +1925,7 @@ export class AddEditMileagePage implements OnInit {
 
           // Check if recent projects exist
           const doRecentProjectIdsExist =
-            isAutofillsEnabled &&
-            recentValue &&
-            recentValue.project_ids &&
-            recentValue.project_ids.length > 0;
+            isAutofillsEnabled && recentValue && recentValue.project_ids && recentValue.project_ids.length > 0;
 
           if (recentProjects && recentProjects.length > 0) {
             this.recentProjects = recentProjects.map((item) => ({ label: item.project_name, value: item }));
@@ -1959,10 +1954,7 @@ export class AddEditMileagePage implements OnInit {
 
           // Check if recent cost centers exist
           const doRecentCostCenterIdsExist =
-            isAutofillsEnabled &&
-            recentValue &&
-            recentValue.cost_center_ids &&
-            recentValue.cost_center_ids.length > 0;
+            isAutofillsEnabled && recentValue && recentValue.cost_center_ids && recentValue.cost_center_ids.length > 0;
 
           if (recentCostCenters && recentCostCenters.length > 0) {
             this.recentCostCenters = recentCostCenters;
@@ -2707,7 +2699,14 @@ export class AddEditMileagePage implements OnInit {
               return this.expenseCommentService.findLatestExpenseComment(txn.id, txn.creator_id).pipe(
                 switchMap((result) => {
                   if (result !== comment) {
-                    return this.statusService.post('transactions', txn.id, { comment }, true).pipe(map(() => txn));
+                    const commentsWithExpenseId = [
+                      {
+                        id: txn.id,
+                        comment,
+                        notify: true,
+                      },
+                    ];
+                    return this.expenseCommentService.post(commentsWithExpenseId).pipe(map(() => txn));
                   } else {
                     return of(txn);
                   }
