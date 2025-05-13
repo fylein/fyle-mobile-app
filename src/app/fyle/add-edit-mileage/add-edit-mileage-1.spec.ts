@@ -635,7 +635,7 @@ export function TestCases1(getTestBed) {
       });
 
       it('should get config params for delete report modal and call method to delete expense', () => {
-        transactionService.delete.and.returnValue(of(policyExpense2));
+        expensesService.deleteExpenses.and.returnValue(of());
 
         const result = component.getDeleteReportParams({
           header,
@@ -647,7 +647,7 @@ export function TestCases1(getTestBed) {
         });
 
         result.componentProps.deleteMethod();
-        expect(transactionService.delete).toHaveBeenCalledOnceWith('txn123');
+        expect(expensesService.deleteExpenses).toHaveBeenCalledOnceWith(['txn123']);
       });
     });
 

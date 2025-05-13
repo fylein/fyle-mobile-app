@@ -114,7 +114,6 @@ describe('AddEditMileagePage', () => {
       'setDefaultValue',
     ]);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', [
-      'delete',
       'getRemoveCardExpenseDialogBody',
       'removeCorporateCardExpense',
       'unmatchCCCExpense',
@@ -125,7 +124,7 @@ describe('AddEditMileagePage', () => {
       'matchCCCExpense',
       'getDefaultVehicleType',
     ]);
-    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById', 'post']);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById', 'post', 'deleteExpenses']);
     const policyServiceSpy = jasmine.createSpyObj('PolicyService', [
       'transformTo',
       'getCriticalPolicyRules',

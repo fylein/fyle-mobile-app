@@ -84,9 +84,8 @@ describe('AddEditPerDiemPage', () => {
       'checkPolicy',
       'upsert',
       'review',
-      'delete',
     ]);
-    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById', 'post']);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById', 'post', 'deleteExpenses']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const policyServiceSpy = jasmine.createSpyObj('PolicyService', [
       'transformTo',

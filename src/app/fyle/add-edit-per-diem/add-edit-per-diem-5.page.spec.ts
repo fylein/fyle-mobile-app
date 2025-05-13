@@ -365,11 +365,11 @@ export function TestCases5(getTestBed) {
           )
           .componentProps.deleteMethod();
         expect(spenderReportsService.ejectExpenses).toHaveBeenCalledOnceWith('rpFE5X1Pqi9P', 'tx5n59fvxk4z');
-        expect(transactionService.delete).not.toHaveBeenCalled();
+        expect(expensesService.deleteExpenses).not.toHaveBeenCalled();
       });
 
       it('should return modal params and method to delete expense if removePerDiemFromReport is false', () => {
-        transactionService.delete.and.returnValue(of(expenseData1));
+        expensesService.deleteExpenses.and.returnValue(of());
         component
           .getDeleteReportParams(
             { header: 'Header', body: 'body', ctaText: 'Action', ctaLoadingText: 'Loading' },
@@ -377,7 +377,7 @@ export function TestCases5(getTestBed) {
             'tx5n59fvxk4z'
           )
           .componentProps.deleteMethod();
-        expect(transactionService.delete).toHaveBeenCalledOnceWith('tx5n59fvxk4z');
+        expect(expensesService.deleteExpenses).toHaveBeenCalledOnceWith(['tx5n59fvxk4z']);
         expect(spenderReportsService.ejectExpenses).not.toHaveBeenCalled();
       });
     });

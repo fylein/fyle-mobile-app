@@ -109,7 +109,6 @@ describe('AddEditExpensePage', () => {
       'setDefaultValue',
     ]);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', [
-      'delete',
       'getRemoveCardExpenseDialogBody',
       'removeCorporateCardExpense',
       'unmatchCCCExpense',
@@ -233,6 +232,7 @@ describe('AddEditExpensePage', () => {
       'getSplitExpenses',
       'attachReceiptToExpense',
       'post',
+      'deleteExpenses',
     ]);
     const advanceWalletsServiceSpy = jasmine.createSpyObj('AdvanceWalletsService', ['getAllAdvanceWallets']);
     const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['get', 'post']);
