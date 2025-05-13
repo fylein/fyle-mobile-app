@@ -1288,14 +1288,14 @@ export function TestCases2(getTestBed) {
       });
 
       it('should  return modal params and method to delete expense', () => {
-        transactionService.delete.and.returnValue(of(expenseData1));
+        expensesService.deleteExpenses.and.returnValue(of());
         component
           .getDeleteReportParams(
             { header: 'Header', body: 'body', ctaText: 'Action', ctaLoadingText: 'Loading' },
             false
           )
           .componentProps.deleteMethod();
-        expect(transactionService.delete).toHaveBeenCalledTimes(1);
+        expect(expensesService.deleteExpenses).toHaveBeenCalledTimes(1);
       });
     });
 

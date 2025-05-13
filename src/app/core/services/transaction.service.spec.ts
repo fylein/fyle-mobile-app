@@ -210,17 +210,6 @@ describe('TransactionService', () => {
     });
   });
 
-  it('delete(): should delete a transaction', (done) => {
-    const transactionID = 'tx5fBcPBAxLv';
-    apiService.delete.and.returnValue(of(expenseData1));
-
-    transactionService.delete(transactionID).subscribe((res) => {
-      expect(res).toEqual(expenseData1);
-      expect(apiService.delete).toHaveBeenCalledOnceWith('/transactions/' + transactionID);
-      done();
-    });
-  });
-
   it('getDefaultVehicleType(): should get default vehicle type', (done) => {
     const defaultVehicleType = 'two_wheeler';
     storageService.get.and.resolveTo(defaultVehicleType);
@@ -842,19 +831,6 @@ describe('TransactionService', () => {
       expect(res).toEqual(unmatchCCCExpenseResponseData);
       expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/corporate_card_transactions/unmatch', {
         data: payload,
-      });
-      done();
-    });
-  });
-
-  it('deleteBulk(): should delete bulk transactions', (done) => {
-    apiService.post.and.returnValue(of(txnList));
-    const transactionIds = ['txzLsDY1IAAw', 'txAzvMhbD71q'];
-
-    transactionService.deleteBulk(transactionIds).subscribe((res) => {
-      expect(res).toEqual(txnList);
-      expect(apiService.post).toHaveBeenCalledOnceWith('/transactions/delete/bulk', {
-        txn_ids: transactionIds,
       });
       done();
     });
