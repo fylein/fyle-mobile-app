@@ -940,7 +940,7 @@ export function TestCases5(getTestBed) {
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         component: PopupAlertComponent,
         componentProps: {
-          title: 'Commute Updated',
+          title: 'Commute updated',
           message: 'body message',
           primaryCta: {
             text: 'Proceed',

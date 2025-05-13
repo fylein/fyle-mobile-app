@@ -1672,7 +1672,7 @@ export function TestCases2(getTestBed) {
           title: 'Size limit exceeded',
           message: 'The uploaded file is greater than 11MB in size. Please reduce the file size and try again.',
           primaryCta: {
-            text: 'OK',
+            text: 'Ok',
           },
         },
         cssClass: 'pop-up-in-center',

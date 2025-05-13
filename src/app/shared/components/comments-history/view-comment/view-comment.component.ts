@@ -95,7 +95,7 @@ export class ViewCommentComponent implements OnInit {
       const unsavedChangesPopOver = await this.popoverController.create({
         component: PopupAlertComponent,
         componentProps: {
-          title: 'Discard Message',
+          title: 'Discard message',
           message: 'Are you sure you want to discard the message?',
           primaryCta: {
             text: 'Discard',

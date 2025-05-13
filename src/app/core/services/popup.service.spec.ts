@@ -45,7 +45,7 @@ describe('PopupService', () => {
     );
 
     const result = await popupService.showPopup({
-      header: 'Delete Expense',
+      header: 'Delete expense',
       message: 'Are you sure you want to delete this expense?',
       primaryCta: {
         text: 'Delete',
@@ -55,7 +55,7 @@ describe('PopupService', () => {
     expect(popoverController.create).toHaveBeenCalledWith({
       componentProps: {
         config: {
-          header: 'Delete Expense',
+          header: 'Delete expense',
           message: 'Are you sure you want to delete this expense?',
           primaryCta: {
             text: 'Delete',

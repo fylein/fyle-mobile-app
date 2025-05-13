@@ -97,7 +97,7 @@ export class FyViewAttachmentComponent implements OnInit {
     const deletePopover = await this.popoverController.create({
       component: PopupAlertComponent,
       componentProps: {
-        title: 'Remove Receipt',
+        title: 'Remove receipt',
         message: 'Are you sure you want to remove this receipt?',
         primaryCta: {
           text: 'Remove',
