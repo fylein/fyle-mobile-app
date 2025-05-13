@@ -48,10 +48,10 @@
                 [cacheName]="isFirst ? 'routeFirstElement' : 'routeOtherElements'"
                 [recentLocations]="
                   isFirst
-                    ? recentlyUsedMileageLocations?.recent_start_locations
+                    ? recentlyUsedMileageLocations?.start_locations
                     : isLast
-                    ? recentlyUsedMileageLocations?.recent_end_locations
-                    : recentlyUsedMileageLocations?.recent_locations
+                    ? recentlyUsedMileageLocations?.end_locations
+                    : recentlyUsedMileageLocations?.locations
                 "
                 [touchedInParent]="control.touched"
                 [validInParent]="control.valid"

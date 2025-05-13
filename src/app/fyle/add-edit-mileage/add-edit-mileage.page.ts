@@ -226,9 +226,9 @@ export class AddEditMileagePage implements OnInit {
   recentlyUsedValues$: Observable<RecentlyUsed>;
 
   recentlyUsedMileageLocations$: Observable<{
-    recent_start_locations?: string[];
-    recent_end_locations?: string[];
-    recent_locations?: string[];
+    start_locations?: string[];
+    end_locations?: string[];
+    locations?: string[];
   }>;
 
   recentProjects: { label: string; value: ProjectV2; selected?: boolean }[];
@@ -808,11 +808,11 @@ export class AddEditMileagePage implements OnInit {
             orgUserSettings.expense_form_autofills.allowed &&
             orgUserSettings.expense_form_autofills.enabled &&
             recentValue &&
-            recentValue.recent_vehicle_types &&
-            recentValue.recent_vehicle_types.length > 0;
+            recentValue.vehicle_types &&
+            recentValue.vehicle_types.length > 0;
           if (isRecentVehicleTypePresent) {
-            vehicleType = recentValue.recent_vehicle_types[0];
-            this.presetVehicleType = recentValue.recent_vehicle_types[0];
+            vehicleType = recentValue.vehicle_types[0];
+            this.presetVehicleType = recentValue.vehicle_types[0];
           }
 
           // if any employee assigned mileage rate is present
@@ -859,11 +859,11 @@ export class AddEditMileagePage implements OnInit {
           orgUserSettings.expense_form_autofills.allowed &&
           orgUserSettings.expense_form_autofills.enabled &&
           recentValue &&
-          recentValue.recent_start_locations &&
-          recentValue.recent_start_locations.length > 0;
+          recentValue.start_locations &&
+          recentValue.start_locations.length > 0;
         if (isRecentLocationPresent) {
           const autocompleteLocationInfo = {
-            recentStartLocation: recentValue.recent_start_locations[0],
+            recentStartLocation: recentValue.start_locations[0],
             eou,
             currentLocation,
           };
@@ -1609,9 +1609,9 @@ export class AddEditMileagePage implements OnInit {
 
     this.recentlyUsedMileageLocations$ = this.recentlyUsedValues$.pipe(
       map((recentlyUsedValues) => ({
-        recent_start_locations: recentlyUsedValues?.recent_start_locations || [],
-        recent_end_locations: recentlyUsedValues?.recent_end_locations || [],
-        recent_locations: recentlyUsedValues?.recent_locations || [],
+        start_locations: recentlyUsedValues?.start_locations || [],
+        end_locations: recentlyUsedValues?.end_locations || [],
+        locations: recentlyUsedValues?.locations || [],
       }))
     );
 
@@ -1929,8 +1929,8 @@ export class AddEditMileagePage implements OnInit {
           const doRecentProjectIdsExist =
             isAutofillsEnabled &&
             recentValue &&
-            recentValue.recent_project_ids &&
-            recentValue.recent_project_ids.length > 0;
+            recentValue.project_ids &&
+            recentValue.project_ids.length > 0;
 
           if (recentProjects && recentProjects.length > 0) {
             this.recentProjects = recentProjects.map((item) => ({ label: item.project_name, value: item }));
@@ -1961,8 +1961,8 @@ export class AddEditMileagePage implements OnInit {
           const doRecentCostCenterIdsExist =
             isAutofillsEnabled &&
             recentValue &&
-            recentValue.recent_cost_center_ids &&
-            recentValue.recent_cost_center_ids.length > 0;
+            recentValue.cost_center_ids &&
+            recentValue.cost_center_ids.length > 0;
 
           if (recentCostCenters && recentCostCenters.length > 0) {
             this.recentCostCenters = recentCostCenters;
@@ -1995,10 +1995,10 @@ export class AddEditMileagePage implements OnInit {
             orgUserSettings.expense_form_autofills.allowed &&
             orgUserSettings.expense_form_autofills.enabled &&
             recentValue &&
-            recentValue.recent_start_locations &&
-            recentValue.recent_start_locations.length > 0;
+            recentValue.start_locations &&
+            recentValue.start_locations.length > 0;
           if (isRecentLocationPresent) {
-            this.presetLocation = recentValue.recent_start_locations[0];
+            this.presetLocation = recentValue.start_locations[0];
           }
           const mileage_rate_name = this.getMileageByVehicleType(allMileageRates, etxn.tx.mileage_vehicle_type);
           if (mileage_rate_name) {

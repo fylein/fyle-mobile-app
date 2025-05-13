@@ -1596,8 +1596,8 @@ export class AddEditPerDiemPage implements OnInit {
           const doRecentProjectIdsExist =
             isAutofillsEnabled &&
             recentValue &&
-            recentValue.recent_project_ids &&
-            recentValue.recent_project_ids.length > 0;
+            recentValue.project_ids &&
+            recentValue.project_ids.length > 0;
 
           if (recentProjects && recentProjects.length > 0) {
             this.recentProjects = recentProjects.map((item) => ({ label: item.project_name, value: item }));
@@ -1628,8 +1628,8 @@ export class AddEditPerDiemPage implements OnInit {
           const doRecentCostCenterIdsExist =
             isAutofillsEnabled &&
             recentValue &&
-            recentValue.recent_cost_center_ids &&
-            recentValue.recent_cost_center_ids.length > 0;
+            recentValue.cost_center_ids &&
+            recentValue.cost_center_ids.length > 0;
 
           if (recentCostCenters && recentCostCenters.length > 0) {
             this.recentCostCenters = recentCostCenters;

@@ -1370,11 +1370,11 @@ export class AddEditExpensePage implements OnInit {
               orgUserSettings.expense_form_autofills.allowed &&
               orgUserSettings.expense_form_autofills.enabled &&
               recentValue &&
-              recentValue.recent_currencies &&
-              recentValue.recent_currencies.length > 0
+              recentValue.currencies &&
+              recentValue.currencies.length > 0
             ) {
-              etxn.tx.currency = recentValue.recent_currencies[0];
-              this.presetCurrency = recentValue.recent_currencies[0];
+              etxn.tx.currency = recentValue.currencies[0];
+              this.presetCurrency = recentValue.currencies[0];
             } else {
               etxn.tx.currency =
                 (recentCurrency && recentCurrency[0] && recentCurrency[0].shortCode) || etxn.tx.currency;
@@ -1871,8 +1871,8 @@ export class AddEditExpensePage implements OnInit {
           const doRecentProjectIdsExist =
             isAutofillsEnabled &&
             recentValue &&
-            recentValue.recent_project_ids &&
-            recentValue.recent_project_ids.length > 0;
+            recentValue.project_ids &&
+            recentValue.project_ids.length > 0;
 
           if (recentProjects && recentProjects.length > 0) {
             this.recentProjects = recentProjects.map((item) => ({ label: item.project_name, value: item }));
@@ -1944,8 +1944,8 @@ export class AddEditExpensePage implements OnInit {
           const doRecentCostCenterIdsExist =
             isAutofillsEnabled &&
             recentValue &&
-            recentValue.recent_cost_center_ids &&
-            recentValue.recent_cost_center_ids.length > 0;
+            recentValue.cost_center_ids &&
+            recentValue.cost_center_ids.length > 0;
 
           if (recentCostCenters && recentCostCenters.length > 0) {
             this.recentCostCenters = recentCostCenters;
@@ -2052,7 +2052,7 @@ export class AddEditExpensePage implements OnInit {
 
     let category = config.category;
 
-    const doRecentOrgCategoryIdsExist = isAutofillsEnabled && recentValue?.recent_org_category_ids?.length;
+    const doRecentOrgCategoryIdsExist = isAutofillsEnabled && recentValue?.category_ids?.length;
 
     if (recentCategories?.length) {
       this.recentCategories = recentCategories;
