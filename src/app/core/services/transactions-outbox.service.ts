@@ -227,12 +227,12 @@ export class TransactionsOutboxService {
           entry.transaction.id = resp.id;
           entry.fileUploadCompleted = true;
           if (comments && comments.length > 0) {
-            const commentsWithExpenseId = comments.map((comment) => ({
+            const commentsWithExpenseIdPayload = comments.map((comment) => ({
               id: resp.id,
               comment,
               notify: true,
             }));
-            that.expenseCommentService.post(commentsWithExpenseId).subscribe(noop);
+            that.expenseCommentService.post(commentsWithExpenseIdPayload).subscribe(noop);
           }
 
           that

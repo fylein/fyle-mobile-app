@@ -2699,14 +2699,14 @@ export class AddEditMileagePage implements OnInit {
               return this.expenseCommentService.findLatestExpenseComment(txn.id, txn.creator_id).pipe(
                 switchMap((result) => {
                   if (result !== comment) {
-                    const commentsWithExpenseId = [
+                    const commentsWithExpenseIdPayload = [
                       {
                         id: txn.id,
                         comment,
                         notify: true,
                       },
                     ];
-                    return this.expenseCommentService.post(commentsWithExpenseId).pipe(map(() => txn));
+                    return this.expenseCommentService.post(commentsWithExpenseIdPayload).pipe(map(() => txn));
                   } else {
                     return of(txn);
                   }
