@@ -87,8 +87,8 @@ export class ViewCommentComponent implements OnInit {
         const commentsPayload = [
           {
             id: this.objectId,
-            comment: this.newComment,
-            notify: true,
+            comment: data.comment,
+            notify: false,
           },
         ];
 

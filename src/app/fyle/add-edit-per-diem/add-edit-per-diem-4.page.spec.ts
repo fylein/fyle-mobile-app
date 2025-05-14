@@ -20,7 +20,6 @@ import { ProjectsService } from 'src/app/core/services/projects.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { StatusService } from 'src/app/core/services/status.service';
 import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { TokenService } from 'src/app/core/services/token.service';
@@ -68,6 +67,7 @@ import {
 import { paymentModeDataAdvanceWallet } from 'src/app/core/test-data/accounts.service.spec.data';
 import { editUnflattenedTransactionPlatformWithAdvanceWallet } from 'src/app/core/mock-data/transaction.data';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { expenseCommentData } from 'src/app/core/mock-data/expense-comment.data';
 
 export function TestCases4(getTestBed) {
   return describe('add-edit-per-diem test cases set 4', () => {
@@ -90,7 +90,6 @@ export function TestCases4(getTestBed) {
     let router: jasmine.SpyObj<Router>;
     let loaderService: jasmine.SpyObj<LoaderService>;
     let modalController: jasmine.SpyObj<ModalController>;
-    let statusService: jasmine.SpyObj<StatusService>;
     let expenseCommentService: jasmine.SpyObj<ExpenseCommentService>;
     let popoverController: jasmine.SpyObj<PopoverController>;
     let currencyService: jasmine.SpyObj<CurrencyService>;
@@ -133,7 +132,6 @@ export function TestCases4(getTestBed) {
       router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
       loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
       modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
-      statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
       expenseCommentService = TestBed.inject(ExpenseCommentService) as jasmine.SpyObj<ExpenseCommentService>;
       popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
       currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
@@ -375,7 +373,7 @@ export function TestCases4(getTestBed) {
         spenderReportsService.addExpenses.and.returnValue(of(undefined));
         spenderReportsService.ejectExpenses.and.returnValue(of(undefined));
         expenseCommentService.findLatestExpenseComment.and.returnValue(of('comment1'));
-        statusService.post.and.returnValue(of(expenseStatusData));
+        expenseCommentService.post.and.returnValue(of([expenseCommentData]));
         component.etxn$ = of(transformedExpenseData);
         spyOn(component, 'getTimeSpentOnPage').and.returnValue(180);
         component.presetProjectId = 316443;
@@ -559,12 +557,13 @@ export function TestCases4(getTestBed) {
               transformedExpenseData.tx.id,
               transformedExpenseData.tx.org_user_id
             );
-            expect(statusService.post).toHaveBeenCalledOnceWith(
-              'transactions',
-              transformedExpenseData.tx.id,
-              { comment: 'comment' },
-              true
-            );
+            expect(expenseCommentService.post).toHaveBeenCalledOnceWith([
+              {
+                id: transformedExpenseData.tx.id,
+                comment: 'comment',
+                notify: true,
+              },
+            ]);
             expect(res).toEqual(transformedExpenseData.tx);
             done();
           });
@@ -617,12 +616,13 @@ export function TestCases4(getTestBed) {
               transformedExpenseData.tx.id,
               transformedExpenseData.tx.org_user_id
             );
-            expect(statusService.post).toHaveBeenCalledOnceWith(
-              'transactions',
-              transformedExpenseData.tx.id,
-              { comment: 'comment' },
-              true
-            );
+            expect(expenseCommentService.post).toHaveBeenCalledOnceWith([
+              {
+                id: transformedExpenseData.tx.id,
+                comment: 'comment',
+                notify: true,
+              },
+            ]);
             expect(res).toEqual(transformedExpenseData.tx);
             done();
           });
@@ -673,18 +673,19 @@ export function TestCases4(getTestBed) {
               transformedExpenseData.tx.id,
               transformedExpenseData.tx.org_user_id
             );
-            expect(statusService.post).toHaveBeenCalledOnceWith(
-              'transactions',
-              transformedExpenseData.tx.id,
-              { comment: 'comment' },
-              true
-            );
+            expect(expenseCommentService.post).toHaveBeenCalledOnceWith([
+              {
+                id: transformedExpenseData.tx.id,
+                comment: 'comment',
+                notify: true,
+              },
+            ]);
             expect(res).toEqual(transformedExpenseData.tx);
             done();
           });
       });
 
-      it('should throw policyViolations error and save the edited expense and should not call statusService.post if err.comment is equal to latest comment', (done) => {
+      it('should throw policyViolations error and save the edited expense and should not call expenseCommentService.post if err.comment is equal to latest comment', (done) => {
         policyService.getCriticalPolicyRules.and.returnValue([]);
         expenseCommentService.findLatestExpenseComment.and.returnValue(of('comment'));
         component
@@ -728,7 +729,7 @@ export function TestCases4(getTestBed) {
               transformedExpenseData.tx.id,
               transformedExpenseData.tx.org_user_id
             );
-            expect(statusService.post).not.toHaveBeenCalled();
+            expect(expenseCommentService.post).not.toHaveBeenCalled();
             expect(res).toEqual(transformedExpenseData.tx);
             done();
           });
@@ -782,12 +783,13 @@ export function TestCases4(getTestBed) {
               transformedExpenseData.tx.id,
               transformedExpenseData.tx.org_user_id
             );
-            expect(statusService.post).toHaveBeenCalledOnceWith(
-              'transactions',
-              transformedExpenseData.tx.id,
-              { comment: 'comment' },
-              true
-            );
+            expect(expenseCommentService.post).toHaveBeenCalledOnceWith([
+              {
+                id: transformedExpenseData.tx.id,
+                comment: 'comment',
+                notify: true,
+              },
+            ]);
             expect(res).toEqual(transformedExpenseData.tx);
             done();
           });

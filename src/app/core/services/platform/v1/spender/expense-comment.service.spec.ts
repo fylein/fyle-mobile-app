@@ -91,7 +91,7 @@ describe('ExpenseCommentService', () => {
 
   describe('post', () => {
     it('should call spenderService.post with correct data', (done) => {
-      const payload = [{ id: 'exp1', comment: 'Looks good' }];
+      const payload = [{ id: 'exp1', comment: 'Looks good', notify: true }];
 
       const mockResponse = { data: [expenseCommentData2] };
       spenderServiceSpy.post.and.returnValue(of(mockResponse));
@@ -100,7 +100,7 @@ describe('ExpenseCommentService', () => {
         expect(spenderServiceSpy.post).toHaveBeenCalledOnceWith('/expenses/comments/bulk', {
           data: payload,
         });
-        expect(res).toEqual(mockResponse);
+        expect(res).toEqual(mockResponse.data);
         done();
       });
     });

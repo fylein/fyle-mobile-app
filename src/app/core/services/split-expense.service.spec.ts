@@ -2,7 +2,6 @@ import { TestBed } from '@angular/core/testing';
 import { SplitExpenseService } from './split-expense.service';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { PolicyService } from './policy.service';
-import { StatusService } from './status.service';
 import { CategoriesService } from './categories.service';
 import { transformedOrgCategories, unspecifiedCategory } from '../mock-data/org-category.data';
 import {
@@ -32,8 +31,6 @@ import {
 import { of } from 'rxjs';
 import { fileObject4 } from '../mock-data/file-object.data';
 import { splitPolicyExp4 } from '../mock-data/policy-violation.data';
-import { txnStatusData } from '../mock-data/transaction-status.data';
-import { violationComment1, violationComment4, violationComment5 } from '../mock-data/policy-violcation-comment.data';
 import { criticalPolicyViolation1, criticalPolicyViolation2 } from '../mock-data/crtical-policy-violations.data';
 import { UtilityService } from './utility.service';
 import { cloneDeep, split } from 'lodash';
@@ -45,12 +42,14 @@ import { SplitExpenseMissingFieldsData } from '../mock-data/split-expense-missin
 import { transformedSplitExpenseMissingFieldsData2 } from '../mock-data/transformed-split-expense-missing-fields.data';
 import { filteredSplitPolicyViolationsData2 } from '../mock-data/filtered-split-policy-violations.data';
 import { filteredMissingFieldsViolationsData2 } from '../mock-data/filtered-missing-fields-violations.data';
+import { ExpenseCommentService } from './platform/v1/spender/expense-comment.service';
+import { expenseCommentData, expenseCommentData2 } from '../mock-data/expense-comment.data';
 
 describe('SplitExpenseService', () => {
   let splitExpenseService: SplitExpenseService;
   let expensesService: jasmine.SpyObj<ExpensesService>;
   let policyService: jasmine.SpyObj<PolicyService>;
-  let statusService: jasmine.SpyObj<StatusService>;
+  let expenseCommentService: jasmine.SpyObj<ExpenseCommentService>;
   let categoriesService: jasmine.SpyObj<CategoriesService>;
   let utilityService: jasmine.SpyObj<UtilityService>;
 
@@ -60,7 +59,7 @@ describe('SplitExpenseService', () => {
       'getPolicyRules',
       'getCriticalPolicyRules',
     ]);
-    const statusServiceSpy = jasmine.createSpyObj('StatusService', ['post']);
+    const expenseCommentServiceSpy = jasmine.createSpyObj('ExpenseCommentService', ['post']);
     const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', ['filterByOrgCategoryId']);
     const utilityServiceSpy = jasmine.createSpyObj('UtiltyService', ['generateRandomString']);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', [
@@ -82,8 +81,8 @@ describe('SplitExpenseService', () => {
           useValue: policyServiceSpy,
         },
         {
-          provide: StatusService,
-          useValue: statusServiceSpy,
+          provide: ExpenseCommentService,
+          useValue: expenseCommentServiceSpy,
         },
         {
           provide: CategoriesService,
@@ -103,7 +102,7 @@ describe('SplitExpenseService', () => {
     splitExpenseService = TestBed.inject(SplitExpenseService);
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     policyService = TestBed.inject(PolicyService) as jasmine.SpyObj<PolicyService>;
-    statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
+    expenseCommentService = TestBed.inject(ExpenseCommentService) as jasmine.SpyObj<ExpenseCommentService>;
     categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
     utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
@@ -111,21 +110,6 @@ describe('SplitExpenseService', () => {
 
   it('should be created', () => {
     expect(splitExpenseService).toBeTruthy();
-  });
-
-  it('postComment(): should post a comment', (done) => {
-    statusService.post.and.returnValue(of(txnStatusData));
-
-    splitExpenseService.postComment(violationComment1).subscribe((res) => {
-      expect(res).toEqual(txnStatusData);
-      expect(statusService.post).toHaveBeenCalledOnceWith(
-        violationComment1.objectType,
-        violationComment1.txnId,
-        violationComment1.comment,
-        violationComment1.notify
-      );
-      done();
-    });
   });
 
   describe('formatDisplayName():', () => {
@@ -755,20 +739,33 @@ describe('SplitExpenseService', () => {
       });
   });
 
-  describe('postSplitExpenseComments():', () => {
-    beforeEach(() => {
-      spyOn(splitExpenseService, 'postComment').and.returnValues(of(txnStatusData), of(txnStatusData));
-    });
+  it('postSplitExpenseComments(): should post split expense comments using expenseCommentService', (done) => {
+    const txnIds = ['txn1', 'txn2'];
+    const comments = {
+      0: 'First reason',
+      1: '',
+    };
+    const expectedPayload = [
+      {
+        id: 'txn1',
+        comment: splitExpenseService.prependPolicyViolationMessage + 'First reason',
+        notify: true,
+      },
+      {
+        id: 'txn2',
+        comment: splitExpenseService.defaultPolicyViolationMessage,
+        notify: true,
+      },
+    ];
 
-    it('should post comment for split expense', () => {
-      splitExpenseService
-        .postSplitExpenseComments(['txeqxj49dgh', 'txeqxj89ddf'], { '0': 'test comment 1', '1': '' })
-        .subscribe((res) => {
-          expect(res).toEqual([txnStatusData, txnStatusData]);
-          expect(splitExpenseService.postComment).toHaveBeenCalledTimes(2);
-          expect(splitExpenseService.postComment).toHaveBeenCalledWith(violationComment4);
-          expect(splitExpenseService.postComment).toHaveBeenCalledWith(violationComment5);
-        });
+    const mockResponse = [expenseCommentData, expenseCommentData2];
+
+    expenseCommentService.post.and.returnValue(of(mockResponse));
+
+    splitExpenseService.postSplitExpenseComments(txnIds, comments).subscribe((res) => {
+      expect(expenseCommentService.post).toHaveBeenCalledOnceWith(expectedPayload);
+      expect(res).toEqual(mockResponse);
+      done();
     });
   });
 });

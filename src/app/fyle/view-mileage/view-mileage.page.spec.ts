@@ -4,7 +4,6 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { NetworkService } from '../../core/services/network.service';
-import { StatusService } from 'src/app/core/services/status.service';
 import { ExpenseCommentService as SpenderExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 import { ExpenseCommentService as ApproverExpenseCommentService } from 'src/app/core/services/platform/v1/approver/expense-comment.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
@@ -59,7 +58,6 @@ describe('ViewMileagePage', () => {
   let popoverController: jasmine.SpyObj<PopoverController>;
   let router: jasmine.SpyObj<Router>;
   let networkService: jasmine.SpyObj<NetworkService>;
-  let statusService: jasmine.SpyObj<StatusService>;
   let spenderExpenseCommentService: jasmine.SpyObj<SpenderExpenseCommentService>;
   let approverExpenseCommentService: jasmine.SpyObj<ApproverExpenseCommentService>;
   let modalController: jasmine.SpyObj<ModalController>;
@@ -83,7 +81,6 @@ describe('ViewMileagePage', () => {
       'getCustomPropertyDisplayValue',
       'fillCustomProperties',
     ]);
-    const statusServiceSpy = jasmine.createSpyObj('StatusService', ['find', 'post']);
     const spenderExpenseCommentServiceSpy = jasmine.createSpyObj('SpenderExpenseCommentService', [
       'getTransformedComments',
       'getExpenseCommentsById',
@@ -145,10 +142,6 @@ describe('ViewMileagePage', () => {
         {
           useValue: customInputsServiceSpy,
           provide: CustomInputsService,
-        },
-        {
-          useValue: statusServiceSpy,
-          provide: StatusService,
         },
         {
           useValue: spenderExpenseCommentServiceSpy,
@@ -245,7 +238,6 @@ describe('ViewMileagePage', () => {
     component = fixture.componentInstance;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
     customInputsService = TestBed.inject(CustomInputsService) as jasmine.SpyObj<CustomInputsService>;
-    statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
     spenderExpenseCommentService = TestBed.inject(
       SpenderExpenseCommentService
     ) as jasmine.SpyObj<SpenderExpenseCommentService>;

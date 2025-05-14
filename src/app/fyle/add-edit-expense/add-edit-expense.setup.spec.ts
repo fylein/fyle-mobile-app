@@ -40,7 +40,6 @@ import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-it
 import { ReportService } from 'src/app/core/services/report.service';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { StatusService } from 'src/app/core/services/status.service';
 import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { TaxGroupService } from 'src/app/core/services/tax-group.service';
@@ -137,10 +136,10 @@ describe('AddEditExpensePage', () => {
     const routerSpy = jasmine.createSpyObj('Router', ['navigate', 'navigateByUrl']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create', 'getTop']);
-    const statusServiceSpy = jasmine.createSpyObj('StatusService', ['find', 'findLatestComment', 'post']);
     const expenseCommentServiceSpy = jasmine.createSpyObj('ExpenseCommentService', [
       'getTransformedComments',
       'findLatestExpenseComment',
+      'post',
     ]);
     const fileServiceSpy = jasmine.createSpyObj('FileService', [
       'findByTransactionId',
@@ -314,10 +313,6 @@ describe('AddEditExpensePage', () => {
         {
           provide: ModalController,
           useValue: modalControllerSpy,
-        },
-        {
-          provide: StatusService,
-          useValue: statusServiceSpy,
         },
         {
           provide: ExpenseCommentService,

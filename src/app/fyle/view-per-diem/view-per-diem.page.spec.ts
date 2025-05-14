@@ -8,7 +8,6 @@ import { CustomInputsService } from 'src/app/core/services/custom-inputs.service
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { StatusService } from 'src/app/core/services/status.service';
 import { ExpenseCommentService as SpenderExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 import { ExpenseCommentService as ApproverExpenseCommentService } from 'src/app/core/services/platform/v1/approver/expense-comment.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
@@ -59,7 +58,6 @@ describe('ViewPerDiemPage', () => {
   let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
   let router: jasmine.SpyObj<Router>;
   let popoverController: jasmine.SpyObj<PopoverController>;
-  let statusService: jasmine.SpyObj<StatusService>;
   let spenderExpenseCommentService: jasmine.SpyObj<SpenderExpenseCommentService>;
   let approverExpenseCommentService: jasmine.SpyObj<ApproverExpenseCommentService>;
   let modalController: jasmine.SpyObj<ModalController>;
@@ -87,7 +85,6 @@ describe('ViewPerDiemPage', () => {
     ]);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
-    const statusServiceSpy = jasmine.createSpyObj('StatusService', ['find', 'post']);
     const spenderExpenseCommentServiceSpy = jasmine.createSpyObj('SpenderExpenseCommentService', [
       'getTransformedComments',
     ]);
@@ -128,7 +125,6 @@ describe('ViewPerDiemPage', () => {
         { provide: PolicyService, useValue: policyServiceSpy },
         { provide: Router, useValue: routerSpy },
         { provide: PopoverController, useValue: popoverControllerSpy },
-        { provide: StatusService, useValue: statusServiceSpy },
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: ModalPropertiesService, useValue: modalPropertiesSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },
@@ -167,7 +163,6 @@ describe('ViewPerDiemPage', () => {
     approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
-    statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
     spenderExpenseCommentService = TestBed.inject(
       SpenderExpenseCommentService
     ) as jasmine.SpyObj<SpenderExpenseCommentService>;

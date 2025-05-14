@@ -43,8 +43,14 @@ describe('ViewCommentComponent', () => {
 
   beforeEach(waitForAsync(() => {
     statusService = jasmine.createSpyObj('StatusService', ['post', 'find', 'createStatusMap']);
-    spenderExpenseCommentService = jasmine.createSpyObj('SpenderExpenseCommentService', ['getTransformedComments']);
-    approverExpenseCommentService = jasmine.createSpyObj('ApproverExpenseCommentService', ['getTransformedComments']);
+    spenderExpenseCommentService = jasmine.createSpyObj('SpenderExpenseCommentService', [
+      'getTransformedComments',
+      'post',
+    ]);
+    approverExpenseCommentService = jasmine.createSpyObj('ApproverExpenseCommentService', [
+      'getTransformedComments',
+      'post',
+    ]);
     authService = jasmine.createSpyObj('AuthService', ['getEou']);
     modalController = jasmine.createSpyObj('ModalController', ['dismiss']);
     popoverController = jasmine.createSpyObj('PopoverController', ['create']);
@@ -94,15 +100,15 @@ describe('ViewCommentComponent', () => {
 
   it('should add comment to status and reset input field', () => {
     const newComment = 'This is a new comment';
-    const data = { comment: newComment };
+    const commentsPayload = [{ id: component.objectId, comment: newComment, notify: false }];
     component.newComment = newComment;
-    statusService.post.and.returnValue(of(null));
+    approverExpenseCommentService.post.and.returnValue(of(null));
     fixture.detectChanges();
     const focusSpy = spyOn(component.commentInput.nativeElement, 'focus');
     component.addComment();
 
     fixture.detectChanges();
-    expect(statusService.post).toHaveBeenCalledOnceWith(component.objectType, component.objectId, data);
+    expect(approverExpenseCommentService.post).toHaveBeenCalledOnceWith(commentsPayload);
     expect(component.newComment).toBeNull();
     expect(focusSpy).toHaveBeenCalledTimes(1);
     expect(component.isCommentAdded).toBeTrue();
