@@ -404,7 +404,7 @@ export class SplitExpenseService {
   }
 
   postSplitExpenseComments(txnIds: string[], comments: { [id: number]: string }): Observable<ExpenseComment[]> {
-    const commentsWithExpenseIdPayload = txnIds.map((txnId, index) => ({
+    const commentsPayload = txnIds.map((txnId, index) => ({
       id: txnId,
       comment:
         comments[index] !== ''
@@ -413,6 +413,6 @@ export class SplitExpenseService {
       notify: true,
     }));
 
-    return this.expenseCommentService.post(commentsWithExpenseIdPayload);
+    return this.expenseCommentService.post(commentsPayload);
   }
 }

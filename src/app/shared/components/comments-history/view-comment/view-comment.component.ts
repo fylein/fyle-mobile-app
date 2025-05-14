@@ -84,7 +84,7 @@ export class ViewCommentComponent implements OnInit {
       const isExpense = this.objectType === 'transactions';
 
       if (isExpense) {
-        const commentsWithExpenseIdPayload = [
+        const commentsPayload = [
           {
             id: this.objectId,
             comment: this.newComment,
@@ -94,8 +94,8 @@ export class ViewCommentComponent implements OnInit {
 
         const post$ =
           this.view === ExpenseView.team
-            ? this.approverExpenseCommentService.post(commentsWithExpenseIdPayload)
-            : this.spenderExpenseCommentService.post(commentsWithExpenseIdPayload);
+            ? this.approverExpenseCommentService.post(commentsPayload)
+            : this.spenderExpenseCommentService.post(commentsPayload);
 
         post$.pipe().subscribe(() => {
           this.refreshEstatuses$.next(null);
