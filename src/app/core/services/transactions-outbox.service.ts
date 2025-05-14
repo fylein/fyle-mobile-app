@@ -228,7 +228,7 @@ export class TransactionsOutboxService {
           entry.fileUploadCompleted = true;
           if (comments && comments.length > 0) {
             const commentsPayload = comments.map((comment) => ({
-              id: resp.id,
+              expense_id: resp.id,
               comment,
               notify: true,
             }));

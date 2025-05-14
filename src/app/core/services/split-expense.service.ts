@@ -405,7 +405,7 @@ export class SplitExpenseService {
 
   postSplitExpenseComments(txnIds: string[], comments: { [id: number]: string }): Observable<ExpenseComment[]> {
     const commentsPayload = txnIds.map((txnId, index) => ({
-      id: txnId,
+      expense_id: txnId,
       comment:
         comments[index] !== ''
           ? this.prependPolicyViolationMessage + comments[index]
