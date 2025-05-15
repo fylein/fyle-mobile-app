@@ -4484,7 +4484,12 @@ export class AddEditExpensePage implements OnInit {
       'assets/images/scanning.gif'
     );
 
+    const scanStartTime = Date.now();
     const parsedData: ParsedReceipt = await this.transactionOutboxService.parseReceipt(base64Image, fileType);
+    const scanEndTime = Date.now();
+    const scanDuration = (scanEndTime - scanStartTime) / 1000; // in seconds
+    this.trackingService.receiptScanTime({ duration: scanDuration, fileType });
+
     const homeCurrency = await this.currencyService.getHomeCurrency().toPromise();
 
     if (
