@@ -43,6 +43,10 @@ describe('TransactionStatusInfoComponent', () => {
     expect(popoverController.dismiss).toHaveBeenCalled();
   });
 
+  it('should return ExpenseTransactionStatus enum from TransactionStatus getter', () => {
+    expect(component.TransactionStatus).toBe(ExpenseTransactionStatus);
+  });
+
   describe('template', () => {
     describe('title', () => {
       it('should display the correct title when transaction status is PENDING', () => {
