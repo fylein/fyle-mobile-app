@@ -58,9 +58,13 @@ export class ExpenseCommentService {
     return estatus;
   }
 
-  post(commentsWithExpenseId: { id: string; comment: string }[]): Observable<{ data: ExpenseComment[] }> {
-    return this.approverService.post<{ data: ExpenseComment[] }>('/expenses/comments/bulk', {
-      data: commentsWithExpenseId,
-    });
+  post(
+    commentsWithExpenseId: { expense_id: string; comment: string; notify: boolean }[]
+  ): Observable<ExpenseComment[]> {
+    return this.approverService
+      .post<{ data: ExpenseComment[] }>('/expenses/comments/bulk', {
+        data: commentsWithExpenseId,
+      })
+      .pipe(map((res) => res.data));
   }
 }

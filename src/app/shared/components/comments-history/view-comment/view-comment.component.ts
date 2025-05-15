@@ -81,12 +81,33 @@ export class ViewCommentComponent implements OnInit {
       this.commentInput.nativeElement.focus();
       this.isCommentAdded = true;
 
-      this.statusService
-        .post(this.objectType, this.objectId, data)
-        .pipe()
-        .subscribe(() => {
+      const isExpense = this.objectType === 'transactions';
+
+      if (isExpense) {
+        const commentsPayload = [
+          {
+            expense_id: this.objectId,
+            comment: data.comment,
+            notify: false,
+          },
+        ];
+
+        const post$ =
+          this.view === ExpenseView.team
+            ? this.approverExpenseCommentService.post(commentsPayload)
+            : this.spenderExpenseCommentService.post(commentsPayload);
+
+        post$.pipe().subscribe(() => {
           this.refreshEstatuses$.next(null);
         });
+      } else {
+        this.statusService
+          .post(this.objectType, this.objectId, data)
+          .pipe()
+          .subscribe(() => {
+            this.refreshEstatuses$.next(null);
+          });
+      }
     }
   }
 

@@ -1,9 +1,0 @@
-<div class="comments-component" (click)="presentModal()">
-  <div class="comments-component--common">
-    <mat-icon *ngIf="!hideIcon" class="comments-component--icon">chat</mat-icon>
-    <p class="comments-component--heading">
-      {{ text }}
-      <span *ngIf="showCommentsCount">({{ noOfComments$ | async }})</span>
-    </p>
-  </div>
-</div>
