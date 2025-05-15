@@ -4141,7 +4141,7 @@ export class AddEditExpensePage implements OnInit {
                       if (result !== comment) {
                         const commentsPayload = [
                           {
-                            id: txn.id,
+                            expense_id: txn.id,
                             comment,
                             notify: true,
                           },

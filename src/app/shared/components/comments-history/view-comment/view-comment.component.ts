@@ -86,7 +86,7 @@ export class ViewCommentComponent implements OnInit {
       if (isExpense) {
         const commentsPayload = [
           {
-            id: this.objectId,
+            expense_id: this.objectId,
             comment: data.comment,
             notify: false,
           },

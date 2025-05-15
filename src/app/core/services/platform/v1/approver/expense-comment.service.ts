@@ -58,7 +58,9 @@ export class ExpenseCommentService {
     return estatus;
   }
 
-  post(commentsWithExpenseId: { id: string; comment: string; notify: boolean }[]): Observable<ExpenseComment[]> {
+  post(
+    commentsWithExpenseId: { expense_id: string; comment: string; notify: boolean }[]
+  ): Observable<ExpenseComment[]> {
     return this.approverService
       .post<{ data: ExpenseComment[] }>('/expenses/comments/bulk', {
         data: commentsWithExpenseId,
