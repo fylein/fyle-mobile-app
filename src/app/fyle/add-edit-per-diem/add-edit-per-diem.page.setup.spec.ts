@@ -22,7 +22,6 @@ import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expen
 import { AuthService } from 'src/app/core/services/auth.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { StatusService } from 'src/app/core/services/status.service';
 import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -96,10 +95,10 @@ describe('AddEditPerDiemPage', () => {
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate', 'navigateByUrl']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create', 'getTop']);
-    const statusServiceSpy = jasmine.createSpyObj('StatusService', ['find', 'findLatestComment', 'post']);
     const expenseCommentServiceSpy = jasmine.createSpyObj('ExpenseCommentService', [
       'getTransformedComments',
       'findLatestExpenseComment',
+      'post',
     ]);
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
     const navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
@@ -214,10 +213,6 @@ describe('AddEditPerDiemPage', () => {
         {
           provide: ModalController,
           useValue: modalControllerSpy,
-        },
-        {
-          provide: StatusService,
-          useValue: statusServiceSpy,
         },
         {
           provide: ExpenseCommentService,

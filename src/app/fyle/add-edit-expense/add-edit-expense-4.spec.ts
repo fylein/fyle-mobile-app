@@ -62,7 +62,6 @@ import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-loc
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { StatusService } from 'src/app/core/services/status.service';
 import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { TaxGroupService } from 'src/app/core/services/tax-group.service';
@@ -89,6 +88,7 @@ import {
 import { cloneDeep } from 'lodash';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { MAX_FILE_SIZE } from 'src/app/core/constants';
+import { expenseCommentData } from 'src/app/core/mock-data/expense-comment.data';
 
 export function TestCases4(getTestBed) {
   return describe('AddEditExpensePage-4', () => {
@@ -112,7 +112,6 @@ export function TestCases4(getTestBed) {
     let router: jasmine.SpyObj<Router>;
     let loaderService: jasmine.SpyObj<LoaderService>;
     let modalController: jasmine.SpyObj<ModalController>;
-    let statusService: jasmine.SpyObj<StatusService>;
     let expenseCommentService: jasmine.SpyObj<ExpenseCommentService>;
     let fileService: jasmine.SpyObj<FileService>;
     let popoverController: jasmine.SpyObj<PopoverController>;
@@ -167,7 +166,6 @@ export function TestCases4(getTestBed) {
       router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
       loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
       modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
-      statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
       expenseCommentService = TestBed.inject(ExpenseCommentService) as jasmine.SpyObj<ExpenseCommentService>;
       fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
       popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
@@ -1111,7 +1109,7 @@ export function TestCases4(getTestBed) {
 
         transactionService.upsert.and.returnValue(of(transformedExpenseDataWithReportId.tx));
         expenseCommentService.findLatestExpenseComment.and.returnValue(of('a comment'));
-        statusService.post.and.returnValue(of(expenseStatusData));
+        expenseCommentService.post.and.returnValue(of([expenseCommentData]));
         fixture.detectChanges();
 
         component.editExpense('SAVE_AND_NEW_EXPENSE').subscribe((res) => {
@@ -1142,12 +1140,13 @@ export function TestCases4(getTestBed) {
             transformedExpenseDataWithReportId.tx.id,
             transformedExpenseDataWithReportId.tx.org_user_id
           );
-          expect(statusService.post).toHaveBeenCalledOnceWith(
-            'transactions',
-            transformedExpenseDataWithReportId.tx.id,
-            { comment: 'A comment' },
-            true
-          );
+          expect(expenseCommentService.post).toHaveBeenCalledOnceWith([
+            {
+              expense_id: transformedExpenseDataWithReportId.tx.id,
+              comment: 'A comment',
+              notify: true,
+            },
+          ]);
           expect(component.getIsPolicyExpense).toHaveBeenCalledTimes(1);
           done();
         });
