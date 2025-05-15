@@ -559,7 +559,7 @@ export function TestCases4(getTestBed) {
             );
             expect(expenseCommentService.post).toHaveBeenCalledOnceWith([
               {
-                id: transformedExpenseData.tx.id,
+                expense_id: transformedExpenseData.tx.id,
                 comment: 'comment',
                 notify: true,
               },
@@ -618,7 +618,7 @@ export function TestCases4(getTestBed) {
             );
             expect(expenseCommentService.post).toHaveBeenCalledOnceWith([
               {
-                id: transformedExpenseData.tx.id,
+                expense_id: transformedExpenseData.tx.id,
                 comment: 'comment',
                 notify: true,
               },
@@ -675,7 +675,7 @@ export function TestCases4(getTestBed) {
             );
             expect(expenseCommentService.post).toHaveBeenCalledOnceWith([
               {
-                id: transformedExpenseData.tx.id,
+                expense_id: transformedExpenseData.tx.id,
                 comment: 'comment',
                 notify: true,
               },
@@ -785,7 +785,7 @@ export function TestCases4(getTestBed) {
             );
             expect(expenseCommentService.post).toHaveBeenCalledOnceWith([
               {
-                id: transformedExpenseData.tx.id,
+                expense_id: transformedExpenseData.tx.id,
                 comment: 'comment',
                 notify: true,
               },

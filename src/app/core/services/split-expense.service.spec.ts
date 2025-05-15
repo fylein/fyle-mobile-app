@@ -747,12 +747,12 @@ describe('SplitExpenseService', () => {
     };
     const expectedPayload = [
       {
-        id: 'txn1',
+        expense_id: 'txn1',
         comment: splitExpenseService.prependPolicyViolationMessage + 'First reason',
         notify: true,
       },
       {
-        id: 'txn2',
+        expense_id: 'txn2',
         comment: splitExpenseService.defaultPolicyViolationMessage,
         notify: true,
       },

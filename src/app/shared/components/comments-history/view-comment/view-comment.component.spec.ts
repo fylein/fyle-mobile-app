@@ -100,7 +100,7 @@ describe('ViewCommentComponent', () => {
 
   it('should add comment to status and reset input field', () => {
     const newComment = 'This is a new comment';
-    const commentsPayload = [{ id: component.objectId, comment: newComment, notify: false }];
+    const commentsPayload = [{ expense_id: component.objectId, comment: newComment, notify: false }];
     component.newComment = newComment;
     approverExpenseCommentService.post.and.returnValue(of(null));
     fixture.detectChanges();

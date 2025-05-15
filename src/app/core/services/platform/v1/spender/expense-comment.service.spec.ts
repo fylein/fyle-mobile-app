@@ -91,7 +91,7 @@ describe('ExpenseCommentService', () => {
 
   describe('post', () => {
     it('should call spenderService.post with correct data', (done) => {
-      const payload = [{ id: 'exp1', comment: 'Looks good', notify: true }];
+      const payload = [{ expense_id: 'exp1', comment: 'Looks good', notify: true }];
 
       const mockResponse = { data: [expenseCommentData2] };
       spenderServiceSpy.post.and.returnValue(of(mockResponse));

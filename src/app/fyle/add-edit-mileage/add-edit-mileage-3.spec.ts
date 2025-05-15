@@ -960,7 +960,7 @@ export function TestCases3(getTestBed) {
           );
           expect(expenseCommentService.post).toHaveBeenCalledOnceWith([
             {
-              id: transformedExpenseDataWithReportId.tx.id,
+              expense_id: transformedExpenseDataWithReportId.tx.id,
               comment: 'A comment',
               notify: true,
             },
