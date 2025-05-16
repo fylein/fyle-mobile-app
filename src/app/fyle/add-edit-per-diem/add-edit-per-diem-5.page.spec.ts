@@ -20,7 +20,6 @@ import { ProjectsService } from 'src/app/core/services/projects.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { StatusService } from 'src/app/core/services/status.service';
 import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { TokenService } from 'src/app/core/services/token.service';
@@ -70,7 +69,6 @@ export function TestCases5(getTestBed) {
     let router: jasmine.SpyObj<Router>;
     let loaderService: jasmine.SpyObj<LoaderService>;
     let modalController: jasmine.SpyObj<ModalController>;
-    let statusService: jasmine.SpyObj<StatusService>;
     let expenseCommentService: jasmine.SpyObj<ExpenseCommentService>;
     let popoverController: jasmine.SpyObj<PopoverController>;
     let currencyService: jasmine.SpyObj<CurrencyService>;
@@ -112,7 +110,6 @@ export function TestCases5(getTestBed) {
       router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
       loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
       modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
-      statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
       expenseCommentService = TestBed.inject(ExpenseCommentService) as jasmine.SpyObj<ExpenseCommentService>;
       popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
       currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
@@ -365,11 +362,11 @@ export function TestCases5(getTestBed) {
           )
           .componentProps.deleteMethod();
         expect(spenderReportsService.ejectExpenses).toHaveBeenCalledOnceWith('rpFE5X1Pqi9P', 'tx5n59fvxk4z');
-        expect(transactionService.delete).not.toHaveBeenCalled();
+        expect(expensesService.deleteExpenses).not.toHaveBeenCalled();
       });
 
       it('should return modal params and method to delete expense if removePerDiemFromReport is false', () => {
-        transactionService.delete.and.returnValue(of(expenseData1));
+        expensesService.deleteExpenses.and.returnValue(of());
         component
           .getDeleteReportParams(
             { header: 'Header', body: 'body', ctaText: 'Action', ctaLoadingText: 'Loading' },
@@ -377,7 +374,7 @@ export function TestCases5(getTestBed) {
             'tx5n59fvxk4z'
           )
           .componentProps.deleteMethod();
-        expect(transactionService.delete).toHaveBeenCalledOnceWith('tx5n59fvxk4z');
+        expect(expensesService.deleteExpenses).toHaveBeenCalledOnceWith(['tx5n59fvxk4z']);
         expect(spenderReportsService.ejectExpenses).not.toHaveBeenCalled();
       });
     });

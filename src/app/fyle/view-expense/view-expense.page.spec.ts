@@ -3,7 +3,6 @@ import { IonicModule } from '@ionic/angular';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
-import { StatusService } from 'src/app/core/services/status.service';
 import { ExpenseCommentService as SpenderExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 import { ExpenseCommentService as ApproverExpenseCommentService } from 'src/app/core/services/platform/v1/approver/expense-comment.service';
 import { ReportService } from 'src/app/core/services/report.service';
@@ -68,7 +67,6 @@ describe('ViewExpensePage', () => {
   let loaderService: jasmine.SpyObj<LoaderService>;
   let transactionService: jasmine.SpyObj<TransactionService>;
   let customInputsService: jasmine.SpyObj<CustomInputsService>;
-  let statusService: jasmine.SpyObj<StatusService>;
   let spenderExpenseCommentService: jasmine.SpyObj<SpenderExpenseCommentService>;
   let approverExpenseCommentService: jasmine.SpyObj<ApproverExpenseCommentService>;
   let fileService: jasmine.SpyObj<FileService>;
@@ -97,7 +95,6 @@ describe('ViewExpensePage', () => {
       'getCustomPropertyDisplayValue',
       'fillCustomProperties',
     ]);
-    const statusServiceSpy = jasmine.createSpyObj('StatusService', ['find', 'post']);
     const spenderExpenseCommentServiceSpy = jasmine.createSpyObj('SpenderExpenseCommentService', [
       'getTransformedComments',
     ]);
@@ -161,10 +158,6 @@ describe('ViewExpensePage', () => {
         {
           useValue: customInputsServiceSpy,
           provide: CustomInputsService,
-        },
-        {
-          useValue: statusServiceSpy,
-          provide: StatusService,
         },
         {
           useValue: spenderExpenseCommentServiceSpy,
@@ -263,7 +256,6 @@ describe('ViewExpensePage', () => {
     component = fixture.componentInstance;
     transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
     customInputsService = TestBed.inject(CustomInputsService) as jasmine.SpyObj<CustomInputsService>;
-    statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
     spenderExpenseCommentService = TestBed.inject(
       SpenderExpenseCommentService
     ) as jasmine.SpyObj<SpenderExpenseCommentService>;

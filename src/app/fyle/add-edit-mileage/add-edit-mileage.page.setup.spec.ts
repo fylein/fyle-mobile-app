@@ -40,7 +40,6 @@ import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-it
 import { ReportService } from 'src/app/core/services/report.service';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { StatusService } from 'src/app/core/services/status.service';
 import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { TaxGroupService } from 'src/app/core/services/tax-group.service';
@@ -114,7 +113,6 @@ describe('AddEditMileagePage', () => {
       'setDefaultValue',
     ]);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', [
-      'delete',
       'getRemoveCardExpenseDialogBody',
       'removeCorporateCardExpense',
       'unmatchCCCExpense',
@@ -125,7 +123,7 @@ describe('AddEditMileagePage', () => {
       'matchCCCExpense',
       'getDefaultVehicleType',
     ]);
-    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById', 'post']);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById', 'post', 'deleteExpenses']);
     const policyServiceSpy = jasmine.createSpyObj('PolicyService', [
       'transformTo',
       'getCriticalPolicyRules',
@@ -142,10 +140,10 @@ describe('AddEditMileagePage', () => {
     const routerSpy = jasmine.createSpyObj('Router', ['navigate', 'navigateByUrl']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create', 'getTop']);
-    const statusServiceSpy = jasmine.createSpyObj('StatusService', ['find', 'findLatestComment', 'post']);
     const expenseCommentServiceSpy = jasmine.createSpyObj('ExpenseCommentService', [
       'getTransformedComments',
       'findLatestExpenseComment',
+      'post',
     ]);
     const fileServiceSpy = jasmine.createSpyObj('FileService', [
       'findByTransactionId',
@@ -335,10 +333,6 @@ describe('AddEditMileagePage', () => {
         {
           provide: ModalController,
           useValue: modalControllerSpy,
-        },
-        {
-          provide: StatusService,
-          useValue: statusServiceSpy,
         },
         {
           provide: ExpenseCommentService,

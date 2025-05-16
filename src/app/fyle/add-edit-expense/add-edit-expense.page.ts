@@ -120,7 +120,6 @@ import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-it
 import { ReportService } from 'src/app/core/services/report.service';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { StatusService } from 'src/app/core/services/status.service';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { TaxGroupService } from 'src/app/core/services/tax-group.service';
 import { TokenService } from 'src/app/core/services/token.service';
@@ -486,7 +485,6 @@ export class AddEditExpensePage implements OnInit {
     private router: Router,
     private loaderService: LoaderService,
     private modalController: ModalController,
-    private statusService: StatusService,
     private fileService: FileService,
     private spenderFileService: SpenderFileService,
     private popoverController: PopoverController,
@@ -1869,10 +1867,7 @@ export class AddEditExpensePage implements OnInit {
 
           // Check if recent projects exist
           const doRecentProjectIdsExist =
-            isAutofillsEnabled &&
-            recentValue &&
-            recentValue.project_ids &&
-            recentValue.project_ids.length > 0;
+            isAutofillsEnabled && recentValue && recentValue.project_ids && recentValue.project_ids.length > 0;
 
           if (recentProjects && recentProjects.length > 0) {
             this.recentProjects = recentProjects.map((item) => ({ label: item.project_name, value: item }));
@@ -1942,10 +1937,7 @@ export class AddEditExpensePage implements OnInit {
 
           // Check if recent cost centers exist
           const doRecentCostCenterIdsExist =
-            isAutofillsEnabled &&
-            recentValue &&
-            recentValue.cost_center_ids &&
-            recentValue.cost_center_ids.length > 0;
+            isAutofillsEnabled && recentValue && recentValue.cost_center_ids && recentValue.cost_center_ids.length > 0;
 
           if (recentCostCenters && recentCostCenters.length > 0) {
             this.recentCostCenters = recentCostCenters;
@@ -4147,7 +4139,14 @@ export class AddEditExpensePage implements OnInit {
                   return this.expenseCommentService.findLatestExpenseComment(txn.id, txn.creator_id).pipe(
                     switchMap((result) => {
                       if (result !== comment) {
-                        return this.statusService.post('transactions', txn.id, { comment }, true).pipe(map(() => txn));
+                        const commentsPayload = [
+                          {
+                            expense_id: txn.id,
+                            comment,
+                            notify: true,
+                          },
+                        ];
+                        return this.expenseCommentService.post(commentsPayload).pipe(map(() => txn));
                       } else {
                         return of(txn);
                       }
@@ -4949,7 +4948,7 @@ export class AddEditExpensePage implements OnInit {
           if (removeExpenseFromReport) {
             return this.platformReportService.ejectExpenses(reportId, this.activatedRoute.snapshot.params.id as string);
           }
-          return this.transactionService.delete(this.activatedRoute.snapshot.params.id as string);
+          return this.expensesService.deleteExpenses([this.activatedRoute.snapshot.params.id as string]);
         },
       },
     };

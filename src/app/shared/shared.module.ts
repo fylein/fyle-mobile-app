@@ -39,7 +39,6 @@ import { MatLegacySnackBarModule as MatSnackBarModule } from '@angular/material/
 // component imports
 import { DelegatedAccMessageComponent } from './components/delegated-acc-message/delegated-acc-message.component';
 import { IconModule } from './icon/icon.module';
-import { CommentsHistoryComponent } from './components/comments-history/comments-history.component';
 import { ViewCommentComponent } from './components/comments-history/view-comment/view-comment.component';
 import { AuditHistoryComponent } from './components/comments-history/audit-history/audit-history.component';
 import { StatusesDiffComponent } from './components/comments-history/audit-history/statuses-diff/statuses-diff.component';
@@ -180,7 +179,6 @@ import { DateWithTimezonePipe } from './pipes/date-with-timezone.pipe';
     FyMultiselectModalComponent,
     FyUserlistModalComponent,
     DelegatedAccMessageComponent,
-    CommentsHistoryComponent,
     ViewCommentComponent,
     AuditHistoryComponent,
     StatusesDiffComponent,
@@ -335,7 +333,6 @@ import { DateWithTimezonePipe } from './pipes/date-with-timezone.pipe';
     InitialsPipe,
     DelegatedAccMessageComponent,
     IconModule,
-    CommentsHistoryComponent,
     AuditHistoryComponent,
     StatusesDiffComponent,
     FormButtonValidationDirective,
