@@ -1,7 +1,7 @@
 import { TitleCasePipe } from '@angular/common';
 import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA, Sanitizer } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { UntypedFormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { UntypedFormBuilder } from '@angular/forms';
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -62,7 +62,6 @@ import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expen
 import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
 import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
 import { PAGINATION_SIZE } from 'src/app/constants';
-import { SpenderService } from 'src/app/core/services/platform/v1/spender/spender.service';
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 
@@ -189,6 +188,7 @@ describe('AddEditExpensePage', () => {
       'showSuggestedDuplicates',
       'fileUploadComplete',
       'eventTrack',
+      'receiptScanTime'
     ]);
     const recentLocalStorageItemsServiceSpy = jasmine.createSpyObj('RecentLocalStorageItemsService', ['get']);
     const recentlyUsedItemsServiceSpy = jasmine.createSpyObj('RecentlyUsedItemsService', [
