@@ -96,6 +96,15 @@ export class TransactionsOutboxService {
 
   async fileUpload(dataUrl: string, fileType: string): Promise<FileObject> {
     return new Promise((resolve, reject) => {
+      // Validation: Check if dataUrl is valid
+      if (!dataUrl || typeof dataUrl !== 'string' || !dataUrl.startsWith('data:')) {
+        return reject(new Error('Invalid data URL: No content found in the file, Please Try uploading the file again'));
+      }
+      // Validation: Check if base64 data is present
+      const base64Data = dataUrl.split(',')[1];
+      if (!base64Data) {
+        return reject(new Error('No content found in the file, Please Try uploading the file again'));
+      }
       let fileExtension = fileType;
       let contentType = 'application/pdf';
 
@@ -112,17 +121,22 @@ export class TransactionsOutboxService {
         .toPromise()
         .then((fileObj: PlatformFile) => {
           const uploadUrl = fileObj.upload_url;
-          // check from here
+          // Convert dataUrl to blob and check blob size
           return fetch(dataUrl)
             .then((res) => res.blob())
-            .then((blob) =>
-              this.uploadData(uploadUrl, blob, contentType)
+            .then((blob) => {
+              if (!blob || blob.size === 0) {
+                return reject(
+                  new Error('File content is empty: No content found in the file, Please Try uploading the file again')
+                );
+              }
+              return this.uploadData(uploadUrl, blob, contentType)
                 .toPromise()
                 .then(() => resolve(fileObj))
                 .catch((err) => {
                   reject(err);
-                })
-            );
+                });
+            });
         })
         .catch((err) => {
           reject(err);

@@ -1869,10 +1869,7 @@ export class AddEditExpensePage implements OnInit {
 
           // Check if recent projects exist
           const doRecentProjectIdsExist =
-            isAutofillsEnabled &&
-            recentValue &&
-            recentValue.project_ids &&
-            recentValue.project_ids.length > 0;
+            isAutofillsEnabled && recentValue && recentValue.project_ids && recentValue.project_ids.length > 0;
 
           if (recentProjects && recentProjects.length > 0) {
             this.recentProjects = recentProjects.map((item) => ({ label: item.project_name, value: item }));
@@ -1942,10 +1939,7 @@ export class AddEditExpensePage implements OnInit {
 
           // Check if recent cost centers exist
           const doRecentCostCenterIdsExist =
-            isAutofillsEnabled &&
-            recentValue &&
-            recentValue.cost_center_ids &&
-            recentValue.cost_center_ids.length > 0;
+            isAutofillsEnabled && recentValue && recentValue.cost_center_ids && recentValue.cost_center_ids.length > 0;
 
           if (recentCostCenters && recentCostCenters.length > 0) {
             this.recentCostCenters = recentCostCenters;
@@ -4870,48 +4864,53 @@ export class AddEditExpensePage implements OnInit {
         })
       )
       .subscribe(async (attachments) => {
-        const attachmentsModal = await this.modalController.create({
-          component: FyViewAttachmentComponent,
-          componentProps: {
-            attachments,
-            canEdit: true,
-          },
-          mode: 'ios',
-        });
+        // Get the current expense object before opening the modal
+        this.etxn$.pipe(take(1)).subscribe(async (etxn) => {
+          const expenseId = etxn.tx?.id;
+          const attachmentsModal = await this.modalController.create({
+            component: FyViewAttachmentComponent,
+            componentProps: {
+              attachments,
+              canEdit: true,
+              expenseId, // Pass the expenseId here!
+            },
+            mode: 'ios',
+          });
 
-        await attachmentsModal.present();
+          await attachmentsModal.present();
 
-        const { data } = (await attachmentsModal.onWillDismiss()) as {
-          data: {
-            attachments: File[];
+          const { data } = (await attachmentsModal.onWillDismiss()) as {
+            data: {
+              attachments: File[];
+            };
           };
-        };
 
-        this.platformExpense$ = this.etxn$.pipe(
-          switchMap((etxn) => this.expensesService.getExpenseById(etxn.tx.id).pipe(shareReplay(1)))
-        );
+          this.platformExpense$ = this.etxn$.pipe(
+            switchMap((etxn) => this.expensesService.getExpenseById(etxn.tx.id).pipe(shareReplay(1)))
+          );
 
-        if (this.mode === 'add') {
-          if (data && data.attachments) {
-            this.newExpenseDataUrls = data.attachments;
-            this.attachedReceiptsCount = data.attachments.length;
+          if (this.mode === 'add') {
+            if (data && data.attachments) {
+              this.newExpenseDataUrls = data.attachments;
+              this.attachedReceiptsCount = data.attachments.length;
+            }
+          } else {
+            if ((data && data.attachments.length !== this.attachedReceiptsCount) || !data) {
+              this.etxn$
+                .pipe(
+                  switchMap((etxn) => (etxn.tx.id ? this.platformExpense$ : of({}))),
+                  map((expense: PlatformExpense) => expense.file_ids?.length || 0)
+                )
+                .subscribe((attachedReceipts) => {
+                  this.loadAttachments$.next();
+                  if (this.attachedReceiptsCount === attachedReceipts) {
+                    this.trackingService.viewAttachment();
+                  }
+                  this.attachedReceiptsCount = attachedReceipts;
+                });
+            }
           }
-        } else {
-          if ((data && data.attachments.length !== this.attachedReceiptsCount) || !data) {
-            this.etxn$
-              .pipe(
-                switchMap((etxn) => (etxn.tx.id ? this.platformExpense$ : of({}))),
-                map((expense: PlatformExpense) => expense.file_ids?.length || 0)
-              )
-              .subscribe((attachedReceipts) => {
-                this.loadAttachments$.next();
-                if (this.attachedReceiptsCount === attachedReceipts) {
-                  this.trackingService.viewAttachment();
-                }
-                this.attachedReceiptsCount = attachedReceipts;
-              });
-          }
-        }
+        });
       });
   }
 

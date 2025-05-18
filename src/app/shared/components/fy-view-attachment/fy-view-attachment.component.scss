@@ -105,4 +105,14 @@
     height: 12px;
     width: 100%;
   }
+
+  &--image-rotate-left {
+    transform: rotate(-90deg);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  &--image-rotate-right {
+    transform: rotate(90deg);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
 }
