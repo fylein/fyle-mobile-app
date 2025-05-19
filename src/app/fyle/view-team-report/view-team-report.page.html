@@ -199,34 +199,31 @@
         <!-- Expenses Section -->
         <div *ngIf="isExpensesView">
           <app-fy-loading-screen *ngIf="isExpensesLoading"></app-fy-loading-screen>
-
-          <ng-container *ngIf="report$|async as report">
-            <div *ngIf="!isExpensesLoading && report.num_expenses > 0">
-              <div class="view-reports--divider"></div>
-              <div class="view-reports-expense-card-block">
-                <div *ngFor="let expense of expenses$|async as list; let i = index;">
-                  <app-expense-card-v2
-                    [expense]="expense"
-                    [expenseIndex]="i"
-                    [previousExpenseTxnDate]="list[i-1]?.spent_at"
-                    [previousExpenseCreatedAt]="list[i-1]?.created_at"
-                    (goToTransaction)="goToTransaction($event)"
-                    [isFromReports]="true"
-                    [isFromViewReports]="true"
-                  >
-                  </app-expense-card-v2>
-                </div>
-              </div>
-              <ng-template #ExpensesLoader>
-                <ion-spinner name="crescent"></ion-spinner>
-              </ng-template>
-            </div>
-            <div class="view-reports--expenses-zero-state" *ngIf="!isExpensesLoading && report.num_expenses === 0">
-              <div class="text-center">
-                <img src="../../../assets/images/zero-states/new-expenses.png" alt="No expense in this report" />
+          <div *ngIf="!isExpensesLoading && report.num_expenses > 0">
+            <div class="view-reports--divider"></div>
+            <div class="view-reports-expense-card-block">
+              <div *ngFor="let expense of expenses$|async as list; let i = index;">
+                <app-expense-card-v2
+                  [expense]="expense"
+                  [expenseIndex]="i"
+                  [previousExpenseTxnDate]="list[i-1]?.spent_at"
+                  [previousExpenseCreatedAt]="list[i-1]?.created_at"
+                  (goToTransaction)="goToTransaction($event)"
+                  [isFromReports]="true"
+                  [isFromViewReports]="true"
+                >
+                </app-expense-card-v2>
               </div>
             </div>
-          </ng-container>
+            <ng-template #ExpensesLoader>
+              <ion-spinner name="crescent"></ion-spinner>
+            </ng-template>
+          </div>
+          <div class="view-reports--expenses-zero-state" *ngIf="!isExpensesLoading && report.num_expenses === 0">
+            <div class="text-center">
+              <img src="../../../assets/images/zero-states/new-expenses.png" alt="No expense in this report" />
+            </div>
+          </div>
         </div>
 
         <!-- Comments section -->
