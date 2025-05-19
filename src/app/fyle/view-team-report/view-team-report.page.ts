@@ -355,16 +355,17 @@ export class ViewTeamReportPage {
       orgSettings: this.orgSettingsService.get(),
     }).subscribe(({ expenses, eou, report, orgSettings }) => {
       this.reportExpensesIds = expenses.map((expense) => expense.id);
-      this.isSequentialApprovalEnabled = this.getApprovalSettings(orgSettings);
-      this.canApprove = this.isSequentialApprovalEnabled
-        ? report.next_approver_user_ids &&
-          report.next_approver_user_ids.length > 0 &&
-          report.next_approver_user_ids.includes(eou.us.id)
-        : true;
-      this.canShowTooltip = true;
       this.showViewApproverModal =
         orgSettings?.simplified_multi_stage_approvals?.allowed &&
         orgSettings?.simplified_multi_stage_approvals?.enabled;
+      this.isSequentialApprovalEnabled = this.getApprovalSettings(orgSettings);
+      this.canApprove =
+        this.isSequentialApprovalEnabled || this.showViewApproverModal
+          ? report.next_approver_user_ids &&
+            report.next_approver_user_ids.length > 0 &&
+            report.next_approver_user_ids.includes(eou.us.id)
+          : true;
+      this.canShowTooltip = true;
       if (this.showViewApproverModal) {
         this.approvals.sort((a, b) => a.approver_order - b.approver_order);
         this.setupApproverToShow(report);
