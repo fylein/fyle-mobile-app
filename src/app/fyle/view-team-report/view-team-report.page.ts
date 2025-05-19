@@ -146,6 +146,8 @@ export class ViewTeamReportPage {
 
   showExpansionPanel = false;
 
+  helpLink = '';
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
@@ -640,6 +642,7 @@ export class ViewTeamReportPage {
     this.showApprovalInfoMessage = true;
     if (this.approvalAmount > report.amount) {
       this.showExpansionPanel = true;
+      this.helpLink = 'https://help.fylehq.com/en/articles/1205138-view-and-approve-expense-reports#h_4d7cb8ac1f';
 
       let message = `You are reviewing ${this.formatCurrency(
         this.approvalAmount,
@@ -659,8 +662,9 @@ export class ViewTeamReportPage {
         report.currency
       )} (includes credits).`;
       this.approvalInfoMessage = message;
-    } else if (report.amount > this.approvalAmount) {
+    } else if (this.approvalAmount < report.amount) {
       this.showExpansionPanel = false;
+      this.helpLink = 'https://help.fylehq.com/en/articles/1205138-view-and-approve-expense-reports#h_1672226e87';
       this.approvalInfoMessage = `The total report amount is ${this.formatCurrency(
         report.amount,
         report.currency
