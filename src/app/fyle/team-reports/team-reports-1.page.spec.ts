@@ -220,9 +220,9 @@ export function TestCases1(getTestBed) {
         tick();
         component.eou$.subscribe((eou) => {
           expect(eou).toEqual(apiEouRes);
-          expect(approverReportsService.getReportsByParams).toHaveBeenCalledTimes(1);
+          expect(approverReportsService.getReportsByParams).toHaveBeenCalledTimes(2);
           expect(approverReportsService.getReportsByParams).toHaveBeenCalledWith(getTeamReportsParams1);
-          expect(component.isLoadingDataInInfiniteScroll).toBeFalse();
+          expect(component.isLoadingDataInInfiniteScroll).toBeTrue();
           expect(component.acc).toEqual(expectedReportsSinglePage);
           component.teamReports$.subscribe((teamReports) => {
             expect(teamReports).toEqual(expectedReportsSinglePage);

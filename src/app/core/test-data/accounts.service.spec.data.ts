@@ -2770,6 +2770,10 @@ export const orgSettingsAdvDisabledData: OrgSettings = deepFreeze({
     enabled: true,
     virtual_card_settings_enabled: true,
   },
+  simplified_multi_stage_approvals: {
+    allowed: true,
+    enabled: true,
+  },
 });
 
 export const paymentModesWithAdvanceWalletsResData = deepFreeze([
