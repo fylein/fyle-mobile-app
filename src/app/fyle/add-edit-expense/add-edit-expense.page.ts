@@ -1229,7 +1229,7 @@ export class AddEditExpensePage implements OnInit {
             parsedResponse: parsedResponse.data,
           };
         }),
-        catchError(() => 
+        catchError(() =>
            of({
             error: true,
             parsedResponse: {
