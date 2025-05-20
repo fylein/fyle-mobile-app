@@ -148,6 +148,8 @@ export class ViewTeamReportPage {
 
   helpLink = '';
 
+  canApproveReport = false;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
@@ -358,6 +360,10 @@ export class ViewTeamReportPage {
     this.canDelete$ = this.permissions$.pipe(map((permissions) => permissions.can_delete));
     this.canResubmitReport$ = this.permissions$.pipe(map((permissions) => permissions.can_resubmit));
 
+    this.permissions$.subscribe((permissions) => {
+      this.canApproveReport = permissions.can_approve;
+    });
+
     forkJoin({
       expenses: this.expenses$,
       eou: this.eou$,
@@ -365,16 +371,16 @@ export class ViewTeamReportPage {
       orgSettings: this.orgSettingsService.get(),
     }).subscribe(({ expenses, eou, report, orgSettings }) => {
       this.reportExpensesIds = expenses.map((expense) => expense.id);
-      this.isSequentialApprovalEnabled = this.getApprovalSettings(orgSettings);
-      this.canApprove = this.isSequentialApprovalEnabled
-        ? report.next_approver_user_ids &&
-          report.next_approver_user_ids.length > 0 &&
-          report.next_approver_user_ids.includes(eou.us.id)
-        : true;
-      this.canShowTooltip = true;
       this.showViewApproverModal =
-        orgSettings?.simplified_multi_stage_approvals?.allowed &&
-        orgSettings?.simplified_multi_stage_approvals?.enabled;
+        orgSettings?.simplified_multi_stage_approvals?.allowed && orgSettings.simplified_multi_stage_approvals.enabled;
+      this.isSequentialApprovalEnabled = this.getApprovalSettings(orgSettings);
+      this.canApprove =
+        this.isSequentialApprovalEnabled || this.showViewApproverModal
+          ? report.next_approver_user_ids &&
+            report.next_approver_user_ids.length > 0 &&
+            report.next_approver_user_ids.includes(eou.us.id)
+          : true;
+      this.canShowTooltip = true;
       if (this.showViewApproverModal) {
         this.approvals.sort((a, b) => a.approver_order - b.approver_order);
         this.setupApproverToShow(report);
@@ -648,19 +654,16 @@ export class ViewTeamReportPage {
         this.approvalAmount,
         report.currency
       )} in expenses requiring your approval. `;
-      message += `The total report amount is ${this.formatCurrency(
-        report.amount,
-        report.currency
-      )}, including other expenses not requiring your approval: `;
+      message += `The total report amount is ${this.formatCurrency(report.amount, report.currency)}, `;
 
       const noOfExpNotRequireApproval = report.num_expenses - expenses.length;
       const totalAmountOfExpNotRequireApproval = report.amount - this.approvalAmount;
       const expenseText = noOfExpNotRequireApproval > 1 ? 'expenses' : 'expense';
 
-      message += `${noOfExpNotRequireApproval} ${expenseText} totalling ${this.formatCurrency(
+      message += `including ${noOfExpNotRequireApproval} other ${expenseText} totalling ${this.formatCurrency(
         totalAmountOfExpNotRequireApproval,
         report.currency
-      )} (includes credits).`;
+      )} (credits included) that do not require your approval.`;
       this.approvalInfoMessage = message;
     } else if (this.approvalAmount < report.amount) {
       this.showExpansionPanel = false;

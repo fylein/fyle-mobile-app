@@ -60,6 +60,7 @@ import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service
 import { RefinerService } from 'src/app/core/services/refiner.service';
 import { DateWithTimezonePipe } from 'src/app/shared/pipes/date-with-timezone.pipe';
 import { TIMEZONE } from 'src/app/constants';
+import { ShowAllApproversPopoverComponent } from 'src/app/shared/components/fy-approver/show-all-approvers-popover/show-all-approvers-popover.component';
 
 describe('ViewTeamReportPageV2', () => {
   let component: ViewTeamReportPage;
@@ -106,6 +107,7 @@ describe('ViewTeamReportPageV2', () => {
       'showToastMessage',
       'clickViewReportInfo',
       'reportNameChange',
+      'eventTrack',
     ]);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
@@ -745,6 +747,36 @@ describe('ViewTeamReportPageV2', () => {
     expect(component.refreshApprovals$.next).toHaveBeenCalledOnceWith(null);
   });
 
+  describe('openViewApproverModal():', () => {
+    it('should open the modal and track the event', fakeAsync(() => {
+      const popoverSpy = jasmine.createSpyObj('popover', ['present', 'onWillDismiss']);
+      popoverSpy.present.and.resolveTo();
+      popoverSpy.onWillDismiss.and.resolveTo();
+
+      popoverController.create.and.resolveTo(popoverSpy);
+
+      component.approvals = platformReportData.approvals;
+
+      component.openViewApproverModal();
+      tick();
+
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        component: ShowAllApproversPopoverComponent,
+        componentProps: {
+          approvals: component.approvals,
+        },
+        cssClass: 'fy-dialog-popover',
+        backdropDismiss: false,
+      });
+
+      expect(popoverSpy.present).toHaveBeenCalled();
+      expect(popoverSpy.onWillDismiss).toHaveBeenCalled();
+      expect(trackingService.eventTrack).toHaveBeenCalledOnceWith('All approvers modal closed', {
+        view: ExpenseView.team,
+      });
+    }));
+  });
+
   describe('goToTransaction(): ', () => {
     it('it should go to view EXPENSE page and display the expense', () => {
       component.reportExpensesIds = ['rpDyD26O3qpV', 'rpqzKD4bPXpW'];
@@ -1096,5 +1128,65 @@ describe('ViewTeamReportPageV2', () => {
       });
       expect(component.updateReportName).not.toHaveBeenCalled();
     }));
+  });
+
+  describe('setApproverInfoMessage', () => {
+    beforeEach(() => {
+      exactCurrency.transform.and.callFake(({ value, currencyCode }) => {
+        return `${currencyCode}${value}`;
+      });
+    });
+
+    it('should set expansion panel and help link when approvalAmount is greater than report amount', () => {
+      const mockReport = cloneDeep(platformReportData);
+      mockReport.amount = 250;
+      mockReport.currency = 'USD';
+      mockReport.num_expenses = 3;
+      component.approvalAmount = 300;
+      component.canApproveReport = true;
+
+      component.setApproverInfoMessage(expenseResponseData, mockReport);
+
+      expect(component.showApprovalInfoMessage).toBeTrue();
+      expect(component.showExpansionPanel).toBeTrue();
+      expect(component.helpLink).toBe(
+        'https://help.fylehq.com/en/articles/1205138-view-and-approve-expense-reports#h_4d7cb8ac1f'
+      );
+      expect(component.approvalInfoMessage).toContain('You are reviewing USD300 in expenses requiring your approval');
+      expect(component.approvalInfoMessage).toContain('The total report amount is USD250');
+      expect(component.approvalInfoMessage).toContain('including 2 other expenses totalling USD-50 (credits included)');
+      expect(component.approvalInfoMessage).toContain('that do not require your approval');
+    });
+
+    it('should not use expansion panel when approvalAmount is less than report amount', () => {
+      const mockReport = cloneDeep(platformReportData);
+      mockReport.amount = 400;
+      mockReport.currency = 'USD';
+      mockReport.num_expenses = 3;
+      component.approvalAmount = 300;
+      component.canApproveReport = true;
+
+      component.setApproverInfoMessage(expenseResponseData, mockReport);
+
+      expect(component.showApprovalInfoMessage).toBeTrue();
+      expect(component.showExpansionPanel).toBeFalse();
+      expect(component.helpLink).toBe(
+        'https://help.fylehq.com/en/articles/1205138-view-and-approve-expense-reports#h_1672226e87'
+      );
+      expect(component.approvalInfoMessage).toContain('The total report amount is USD400');
+      expect(component.approvalInfoMessage).toContain('but only USD300 needs your approval');
+    });
+
+    it('should set showApprovalInfoMessage to false when approvalAmount equals report amount', () => {
+      const mockReport = cloneDeep(platformReportData);
+      mockReport.amount = 300;
+      mockReport.currency = 'USD';
+      mockReport.num_expenses = expenseResponseData.length;
+      component.approvalAmount = 300;
+      component.canApproveReport = true;
+
+      component.setApproverInfoMessage(expenseResponseData, mockReport);
+      expect(component.showApprovalInfoMessage).toBeFalse();
+    });
   });
 });
