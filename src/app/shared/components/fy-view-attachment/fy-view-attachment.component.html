@@ -10,8 +10,8 @@
       </ion-button>
     </ion-buttons>
     <ion-buttons *ngIf="canEdit" class="view-attachments--ion-buttons" slot="end">
-      <ion-button (click)="deleteAttachment()">
-        <mat-icon class="view-attachments--ion-buttons__delete" svgIcon="bin"></mat-icon>
+      <ion-button (click)="addAttachments($event)">
+        <mat-icon class="view-attachments--ion-buttons__add" svgIcon="plus-square"></mat-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -70,22 +70,37 @@
   </swiper>
 </ion-content>
 
-<ion-footer>
-  <ion-button (click)="rotateAttachment('left')" fill="clear" [disabled]="loading || saving">
-    <ion-icon src="assets/svg/arrow-anticlockwise.svg"></ion-icon>
-  </ion-button>
-  <ion-button (click)="rotateAttachment('right')" fill="clear" [disabled]="loading || saving">
-    <ion-icon src="assets/svg/arrow-clockwise.svg"></ion-icon>
-  </ion-button>
-  <ion-button
-    *ngIf="isImageDirty[activeIndex]"
-    (click)="saveRotatedImage()"
-    color="primary"
-    [disabled]="saving"
-    style="float: right; margin-left: auto"
-  >
-    <ion-spinner *ngIf="saving" name="crescent"></ion-spinner>
-    <span *ngIf="!saving">Save</span>
-  </ion-button>
-  <ion-spinner *ngIf="loading && !saving" name="crescent"></ion-spinner>
+<ion-footer style="padding: 8px 16px">
+  <div style="display: flex; justify-content: space-between; align-items: center">
+    <!-- Left side buttons: rotate left, rotate right, delete -->
+    <div style="display: flex; gap: 2px">
+      <ion-button (click)="rotateAttachment('left')" fill="clear" [disabled]="loading || saving">
+        <ion-icon src="assets/svg/arrow-anticlockwise.svg"></ion-icon>
+      </ion-button>
+
+      <ion-button (click)="rotateAttachment('right')" fill="clear" [disabled]="loading || saving">
+        <ion-icon src="assets/svg/arrow-clockwise.svg"></ion-icon>
+      </ion-button>
+
+      <ion-button *ngIf="canEdit" (click)="deleteAttachment()" fill="clear" [disabled]="loading || saving">
+        <mat-icon class="view-attachments--ion-buttons__delete" svgIcon="bin"></mat-icon>
+      </ion-button>
+    </div>
+
+    <!-- Right side: save or saved text -->
+    <div style="display: flex; align-items: center; gap: 12px">
+      <ion-button
+        *ngIf="isImageDirty[activeIndex]"
+        (click)="saveRotatedImage()"
+        [disabled]="saving"
+        [loadingText]="'Saving'"
+        [loading]="saving"
+        appFormButtonValidation
+        class="btn-primary"
+      >
+        <span *ngIf="!saving && !saveComplete">Save changes</span>
+      </ion-button>
+      <span *ngIf="!saving && saveComplete">Saved</span>
+    </div>
+  </div>
 </ion-footer>

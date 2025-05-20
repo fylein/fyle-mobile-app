@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, EventEmitter, Output } from '@angular/core';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { DomSanitizer } from '@angular/platform-browser';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -28,6 +28,8 @@ export class FyViewAttachmentComponent implements OnInit {
 
   @Input() expenseId: string;
 
+  @Output() addMoreAttachments = new EventEmitter<Event>();
+
   @ViewChild('swiper', { static: false }) imageSlides?: SwiperComponent;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -47,6 +49,9 @@ export class FyViewAttachmentComponent implements OnInit {
 
   // Indicates if a save operation is in progress
   saving = false;
+
+  // New property to track save completion
+  saveComplete = false;
 
   // max params shouldnt effect constructors
   constructor(
@@ -127,6 +132,10 @@ export class FyViewAttachmentComponent implements OnInit {
 
   onDoneClick(): void {
     this.modalController.dismiss({ attachments: this.attachments });
+  }
+
+  addAttachments(event: Event): void {
+    this.addMoreAttachments.emit(event);
   }
 
   goToNextSlide(): void {
@@ -253,6 +262,7 @@ export class FyViewAttachmentComponent implements OnInit {
   // eslint-disable-next-line complexity
   async saveRotatedImage(): Promise<void> {
     this.saving = true;
+    this.saveComplete = false;
     const attachment = this.attachments[this.activeIndex];
     // 1. Request a pre-signed S3 upload URL
     let fileObj: PlatformFile | undefined;
@@ -334,5 +344,10 @@ export class FyViewAttachmentComponent implements OnInit {
 
     this.isImageDirty[this.activeIndex] = false;
     this.saving = false;
+    this.saveComplete = true;
+    // Reset saveComplete after 5 seconds
+    setTimeout(() => {
+      this.saveComplete = false;
+    }, 5000);
   }
 }
