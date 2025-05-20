@@ -1129,4 +1129,61 @@ describe('ViewTeamReportPageV2', () => {
       expect(component.updateReportName).not.toHaveBeenCalled();
     }));
   });
+
+  describe('setApproverInfoMessage', () => {
+    beforeEach(() => {
+      exactCurrency.transform.and.callFake(({ value, currencyCode }) => {
+        return `${currencyCode}${value}`;
+      });
+    });
+
+    it('should set expansion panel and help link when approvalAmount is greater than report amount', () => {
+      const mockReport = cloneDeep(platformReportData);
+      mockReport.amount = 250;
+      mockReport.currency = 'USD';
+      mockReport.num_expenses = 3;
+      component.approvalAmount = 300;
+
+      component.setApproverInfoMessage(expenseResponseData, mockReport);
+
+      expect(component.showApprovalInfoMessage).toBeTrue();
+      expect(component.showExpansionPanel).toBeTrue();
+      expect(component.helpLink).toBe(
+        'https://help.fylehq.com/en/articles/1205138-view-and-approve-expense-reports#h_4d7cb8ac1f'
+      );
+      expect(component.approvalInfoMessage).toContain('You are reviewing USD300 in expenses requiring your approval');
+      expect(component.approvalInfoMessage).toContain('The total report amount is USD250');
+      expect(component.approvalInfoMessage).toContain('including 2 other expenses totalling USD-50 (credits included)');
+      expect(component.approvalInfoMessage).toContain('that do not require your approval');
+    });
+
+    it('should not use expansion panel when approvalAmount is less than report amount', () => {
+      const mockReport = cloneDeep(platformReportData);
+      mockReport.amount = 400;
+      mockReport.currency = 'USD';
+      mockReport.num_expenses = 3;
+      component.approvalAmount = 300;
+
+      component.setApproverInfoMessage(expenseResponseData, mockReport);
+
+      expect(component.showApprovalInfoMessage).toBeTrue();
+      expect(component.showExpansionPanel).toBeFalse();
+      expect(component.helpLink).toBe(
+        'https://help.fylehq.com/en/articles/1205138-view-and-approve-expense-reports#h_1672226e87'
+      );
+      expect(component.approvalInfoMessage).toContain('The total report amount is USD400');
+      expect(component.approvalInfoMessage).toContain('but only USD300 needs your approval');
+    });
+
+    it('should set showApprovalInfoMessage to false when approvalAmount equals report amount', () => {
+      const mockReport = cloneDeep(platformReportData);
+      mockReport.amount = 300;
+      mockReport.currency = 'USD';
+      mockReport.num_expenses = expenseResponseData.length;
+      component.approvalAmount = 300;
+
+      component.setApproverInfoMessage(expenseResponseData, mockReport);
+      expect(component.showApprovalInfoMessage).toBeFalse();
+    });
+  });
 });
