@@ -356,8 +356,7 @@ export class ViewTeamReportPage {
     }).subscribe(({ expenses, eou, report, orgSettings }) => {
       this.reportExpensesIds = expenses.map((expense) => expense.id);
       this.showViewApproverModal =
-        orgSettings?.simplified_multi_stage_approvals?.allowed &&
-        orgSettings?.simplified_multi_stage_approvals?.enabled;
+        orgSettings?.simplified_multi_stage_approvals?.allowed && orgSettings.simplified_multi_stage_approvals.enabled;
       this.isSequentialApprovalEnabled = this.getApprovalSettings(orgSettings);
       this.canApprove =
         this.isSequentialApprovalEnabled || this.showViewApproverModal

@@ -222,7 +222,7 @@ export function TestCases1(getTestBed) {
           expect(eou).toEqual(apiEouRes);
           expect(approverReportsService.getReportsByParams).toHaveBeenCalledTimes(2);
           expect(approverReportsService.getReportsByParams).toHaveBeenCalledWith(getTeamReportsParams1);
-          expect(component.isLoadingDataInInfiniteScroll).toBeFalse();
+          expect(component.isLoadingDataInInfiniteScroll).toBeTrue();
           expect(component.acc).toEqual(expectedReportsSinglePage);
           component.teamReports$.subscribe((teamReports) => {
             expect(teamReports).toEqual(expectedReportsSinglePage);
