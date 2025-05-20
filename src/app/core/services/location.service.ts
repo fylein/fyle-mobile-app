@@ -27,12 +27,12 @@ export class LocationService {
     cacheBusterObserver: currentLocationCacheBuster$,
     maxAge: 10 * 60 * 1000, // 10 minutes
   })
-  getCurrentLocation(config: { enableHighAccuracy: boolean } = { enableHighAccuracy: false }): Observable<Position> {
+  getCurrentLocation(config: { enableHighAccuracy: boolean } = { enableHighAccuracy: false }): Observable<Position | null> {
     return from(
       Geolocation.getCurrentPosition({
         timeout: 5000,
         enableHighAccuracy: config.enableHighAccuracy,
-      }).catch((err) => {
+      }).catch((err: { message?: string; errorMessage?: string }) => {
         if (
           err?.message === "Location permission request was denied." ||
           err?.errorMessage === "Location permission request was denied."
