@@ -32,6 +32,16 @@ export class LocationService {
       Geolocation.getCurrentPosition({
         timeout: 5000,
         enableHighAccuracy: config.enableHighAccuracy,
+      }).catch((err) => {
+        if (
+          err?.message === "Location permission request was denied." ||
+          err?.errorMessage === "Location permission request was denied."
+        ) {
+          // Swallow this specific error by returning null
+          return null;
+        }
+        // Re-throw all other errors
+        throw err;
       })
     ).pipe(
       this.timeoutWhen(!config.enableHighAccuracy, 5000),
