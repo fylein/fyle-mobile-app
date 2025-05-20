@@ -1,12 +1,12 @@
 import { Component, OnInit, ViewChild, ElementRef, EventEmitter } from '@angular/core';
-import { Observable, BehaviorSubject, fromEvent, noop, concat, Subject, from, combineLatest } from 'rxjs';
+import { Observable, BehaviorSubject, fromEvent, noop, concat, Subject, from } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalController } from '@ionic/angular';
 import { DateService } from 'src/app/core/services/date.service';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { CurrencyService } from 'src/app/core/services/currency.service';
-import { map, distinctUntilChanged, debounceTime, switchMap, shareReplay, take } from 'rxjs/operators';
+import { map, distinctUntilChanged, debounceTime, switchMap, shareReplay } from 'rxjs/operators';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { ExtendQueryParamsService } from 'src/app/core/services/extend-query-params.service';
 import { HeaderState } from '../../shared/components/fy-header/header-state.enum';
@@ -172,20 +172,6 @@ export class TeamReportsPage implements OnInit {
         });
 
       const paginatedPipe = this.loadData$.pipe(
-        switchMap((params) =>
-          combineLatest([orgSettings$.pipe(take(1)), this.eou$.pipe(take(1))]).pipe(
-            map(([orgSettings, eou]) => {
-              // setting condition for filtering according to multi stage approval
-              this.filterForMultiStageApproval =
-                orgSettings?.simplified_multi_stage_approvals?.allowed &&
-                orgSettings?.simplified_multi_stage_approvals?.enabled;
-              return {
-                ...params,
-                userId: eou.us.id,
-              };
-            })
-          )
-        ),
         switchMap((params) => {
           let queryParams = params.queryParams;
           queryParams = this.extendQueryParamsService.extendQueryParamsForTextSearch(queryParams, params.searchString);
@@ -197,11 +183,6 @@ export class TeamReportsPage implements OnInit {
             offset: (params.pageNumber - 1) * 10,
             limit: 10,
             ...queryParams,
-            ...(this.filterForMultiStageApproval
-              ? {
-                  or: `(next_approver_user_ids.cs.[${params.userId}], approvals.cs.[{"approver_user_id": "${params.userId}", "state":"APPROVAL_DONE"}], state.in.(APPROVER_INQUIRY,APPROVED,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID))`,
-                }
-              : {}),
             order: orderByParams,
           });
         }),
