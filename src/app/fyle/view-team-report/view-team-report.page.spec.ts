@@ -60,6 +60,7 @@ import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service
 import { RefinerService } from 'src/app/core/services/refiner.service';
 import { DateWithTimezonePipe } from 'src/app/shared/pipes/date-with-timezone.pipe';
 import { TIMEZONE } from 'src/app/constants';
+import { ShowAllApproversPopoverComponent } from 'src/app/shared/components/fy-approver/show-all-approvers-popover/show-all-approvers-popover.component';
 
 describe('ViewTeamReportPageV2', () => {
   let component: ViewTeamReportPage;
@@ -106,6 +107,7 @@ describe('ViewTeamReportPageV2', () => {
       'showToastMessage',
       'clickViewReportInfo',
       'reportNameChange',
+      'eventTrack',
     ]);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
@@ -743,6 +745,36 @@ describe('ViewTeamReportPageV2', () => {
 
     component.onUpdateApprover(true);
     expect(component.refreshApprovals$.next).toHaveBeenCalledOnceWith(null);
+  });
+
+  describe('openViewApproverModal():', () => {
+    it('should open the modal and track the event', fakeAsync(() => {
+      const popoverSpy = jasmine.createSpyObj('popover', ['present', 'onWillDismiss']);
+      popoverSpy.present.and.resolveTo();
+      popoverSpy.onWillDismiss.and.resolveTo();
+
+      popoverController.create.and.resolveTo(popoverSpy);
+
+      component.approvals = platformReportData.approvals;
+
+      component.openViewApproverModal();
+      tick();
+
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        component: ShowAllApproversPopoverComponent,
+        componentProps: {
+          approvals: component.approvals,
+        },
+        cssClass: 'fy-dialog-popover',
+        backdropDismiss: false,
+      });
+
+      expect(popoverSpy.present).toHaveBeenCalled();
+      expect(popoverSpy.onWillDismiss).toHaveBeenCalled();
+      expect(trackingService.eventTrack).toHaveBeenCalledOnceWith('All approvers modal closed', {
+        view: ExpenseView.team,
+      });
+    }));
   });
 
   describe('goToTransaction(): ', () => {
