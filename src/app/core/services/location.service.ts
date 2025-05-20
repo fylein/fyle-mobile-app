@@ -42,7 +42,7 @@ export class LocationService {
         }
         // Re-throw all other errors
         throw err;
-      })
+      }) as Promise<Position | null>
     ).pipe(
       this.timeoutWhen(!config.enableHighAccuracy, 5000),
       catchError(() => of(null))
