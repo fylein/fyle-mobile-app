@@ -18,7 +18,7 @@ export class HumanizeCurrencyPipe implements PipeTransform {
     const symbolType = skipSymbol ? '' : 'symbol';
 
     // We need to pass digitsInfo in this format - {minIntergers}.{minDecimal}-{maxDecimal}
-    const digitsInfo = fraction && `1.${fraction}-${fraction}`;
+    const digitsInfo = amount === 0 ? '1.0-0' : fraction && `1.${fraction}-${fraction}`;
 
     let fixedResult = this.fyCurrencyPipe.transform(result, currencyCode, symbolType, digitsInfo);
     fixedResult = fixedResult + si[exp];

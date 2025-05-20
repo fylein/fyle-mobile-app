@@ -7,7 +7,7 @@
       </ion-button>
     </ion-buttons>
     <ion-title>
-      <div class="view-info--toolbar__title">View Info</div>
+      <div class="view-info--toolbar__title">View info</div>
     </ion-title>
   </ion-toolbar>
 
@@ -43,7 +43,7 @@
         </div>
       </ion-col>
       <ion-col size="7">
-        <div class="view-info--body-container__value">
+        <div class="view-info--body-container__value smartlook-hide">
           {{ item.value }}
         </div>
       </ion-col>
@@ -52,7 +52,7 @@
 </ion-content>
 
 <ion-content *ngIf="!isReportView && !isEmployeeView" (swipe)="onSwipeAmount($event)">
-  <p class="view-info--section-header">COMPONENT WISE SPLIT</p>
+  <p class="view-info--section-header">Component wise split</p>
   <ion-grid class="view-info--body-container">
     <ion-row
       *ngFor="let item of amountComponentWiseDetails | keyvalue : originalOrder"
@@ -63,18 +63,18 @@
           {{ item.key }}
         </div>
         <div *ngIf="item && (item.key === 'Advance' || item.key === 'CCC')" class="view-info--body-container__subtitle">
-          Non-Reimbursable
+          Non-reimbursable
         </div>
       </ion-col>
       <ion-col size="7">
-        <div class="view-info--body-container__value">
+        <div class="view-info--body-container__value smartlook-hide">
           {{ item.value | currency : reportCurrency : 'symbol-narrow' }}
         </div>
       </ion-col>
     </ion-row>
   </ion-grid>
   <div *ngIf="isForeignCurrency">
-    <p class="view-info--section-header view-info--section-header__currency">CURRENCY WISE SPLIT</p>
+    <p class="view-info--section-header view-info--section-header__currency">Currency wise split</p>
     <ion-grid class="view-info--body-container">
       <ion-row *ngFor="let item of amountCurrencyWiseDetails" class="view-info--body-container__content">
         <ion-col size="5">
@@ -86,7 +86,7 @@
           </div>
         </ion-col>
         <ion-col size="7">
-          <div class="view-info--body-container__value">
+          <div class="view-info--body-container__value smartlook-hide">
             <ng-container *ngIf="item.currency !== reportCurrency; else origAmountOnly">
               {{ item.origAmount | currency : item.currency : 'code' }} =
               {{ item.amount | currency : reportCurrency : 'code' }}
@@ -109,7 +109,7 @@
           </div>
         </ion-col>
         <ion-col size="7">
-          <div class="view-info--body-container__value">
+          <div class="view-info--body-container__value smartlook-hide">
             {{ item.value }}
           </div>
         </ion-col>

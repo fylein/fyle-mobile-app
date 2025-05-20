@@ -159,32 +159,11 @@ export const platformPolicyExpenseData2: PlatformPolicyExpense = deepFreeze({
   ],
   custom_fields: [
     {
-      id: 174083,
-      mandatory: false,
       name: 'userlist test',
-      options: [],
-      placeholder: 'userlist test',
-      prefix: '',
-      type: 'USER_LIST',
       value: null,
     },
     {
-      id: 218778,
-      mandatory: false,
       name: 'select type field',
-      options: [
-        {
-          label: 'select-1',
-          value: 'select-1',
-        },
-        {
-          label: 'select-2',
-          value: 'select-2',
-        },
-      ],
-      placeholder: 'select custom field',
-      prefix: '',
-      type: 'SELECT',
       value: 'select-1',
     },
   ],

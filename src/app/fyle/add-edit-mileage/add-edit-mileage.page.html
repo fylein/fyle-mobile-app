@@ -16,16 +16,16 @@
       mode="md"
       [ngClass]="{'add-edit-mileage--title__review': reviewList?.length}"
     >
-      <div *ngIf="mode === 'add'" class="add-edit-mileage--toolbar__title">Add Mileage</div>
+      <div *ngIf="mode === 'add'" class="add-edit-mileage--toolbar__title">Add mileage</div>
       <div *ngIf="mode === 'edit'">
         <ng-container *ngIf="reviewList?.length;else editMode">
-          Review Mileage
+          Review mileage
           <div class="add-edit-mileage--sub-header">
             {{ +activeIndex + 1 }} of {{ reviewList?.length }} expense{{reviewList?.length > 1 ? 's' : ''}}
           </div>
         </ng-container>
         <ng-template #editMode>
-          <div>Edit Mileage</div>
+          <div>Edit mileage</div>
         </ng-template>
       </div>
     </ion-title>
@@ -157,7 +157,7 @@
                                   [mandatory]="txnFields.commute_deduction?.is_mandatory"
                                   [nullOption]="false"
                                   [options]="commuteDeductionOptions"
-                                  [selectModalHeader]="'Commute Deduction'"
+                                  [selectModalHeader]="'Commute deduction'"
                                   formControlName="commuteDeduction"
                                   [selectionElement]="commuteDeduction"
                                   [touchedInParent]="fg.controls.commuteDeduction.touched"
@@ -185,7 +185,7 @@
                                         class="add-edit-mileage--add-location--icon"
                                         src="../../../assets/svg/plus-square.svg"
                                       ></ion-icon>
-                                      Add Location
+                                      Add location
                                     </div>
                                   </div>
                                   <mat-icon *ngIf="selected" class="add-edit-mileage--check"> check </mat-icon>
@@ -218,7 +218,7 @@
                     [mandatory]="true"
                     [nullOption]="false"
                     [options]="mileageRatesOptions"
-                    [selectModalHeader]="'Select Mileage Rate'"
+                    [selectModalHeader]="'Select mileage rate'"
                     formControlName="mileage_rate_name"
                     [selectionElement]="mileage_rate_name"
                     [touchedInParent]="fg.controls.mileage_rate_name.touched"
@@ -239,7 +239,7 @@
                   *ngIf="fg.controls.mileage_rate_name.touched && !fg.controls.mileage_rate_name.valid"
                   class="add-edit-mileage--error"
                 >
-                  Select Mileage Rate.
+                  Select mileage rate.
                 </div>
               </ng-container>
 
@@ -284,14 +284,14 @@
                       >
                         <app-fy-select
                           [enableSearch]="false"
-                          [label]="'Payment Mode'"
+                          [label]="'Payment mode'"
                           [mandatory]="true"
                           [nullOption]="false"
                           [options]="paymentModes"
-                          [selectModalHeader]="'Select Payment Mode'"
+                          [selectModalHeader]="'Select payment mode'"
                           [selectionElement]="paymentMode"
                           formControlName="paymentMode"
-                          [placeholder]="'Select Payment Mode'"
+                          [placeholder]="'Select payment mode'"
                           [touchedInParent]="fg.controls.paymentMode.touched"
                           [validInParent]="fg.controls.paymentMode.valid"
                         >
@@ -315,7 +315,7 @@
                                 *ngIf="!paymentMode.acc.isReimbursable"
                                 class="add-edit-mileage--payment-mode-section"
                               >
-                                (Non Reimbursable)
+                                (Non reimbursable)
                               </div>
                             </ng-container>
                           </div>
@@ -379,9 +379,9 @@
                 </ng-container>
 
                 <div
-                  *ngIf="(isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) && (individualProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))"
+                  *ngIf="showBillable && (isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) && (individualProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))"
                 >
-                  <div *ngIf="fg.controls.project.value">
+                  <div *ngIf="fg.controls.project.value" class="add-edit-mileage--billable-block">
                     <mat-checkbox formControlName="billable">
                       <span class="add-edit-mileage--checkbox"> Billable </span>
                     </mat-checkbox>
@@ -425,12 +425,12 @@
                 >
                   <app-fy-select
                     [cacheName]="'mileageSubCategoryName'"
-                    [label]="'Sub Category'"
+                    [label]="'Subcategory'"
                     [mandatory]="true"
                     [options]="subCategories"
-                    [selectModalHeader]="'Select Sub Category'"
+                    [selectModalHeader]="'Select subcategory'"
                     formControlName="sub_category"
-                    [placeholder]="'Sub Category'"
+                    [placeholder]="'Subcategory'"
                     [touchedInParent]="fg.controls.sub_category.touched"
                     [validInParent]="fg.controls.sub_category.valid"
                   >
@@ -440,7 +440,7 @@
                   *ngIf="fg.controls.sub_category.touched && !fg.controls.sub_category.valid"
                   class="add-edit-mileage--error"
                 >
-                  Please select a Sub Category.
+                  Please select a sub-category.
                 </div>
               </ng-container>
             </ng-container>
@@ -459,7 +459,7 @@
                         [label]="txnFields.cost_center_id?.field_name"
                         [mandatory]="txnFields.cost_center_id.is_mandatory"
                         [options]="costCenters"
-                        [selectModalHeader]="'Select Cost Center'"
+                        [selectModalHeader]="'Select cost center'"
                         [recentlyUsed]="recentCostCenters"
                         formControlName="costCenter"
                         [placeholder]="txnFields.cost_center_id?.placeholder"
@@ -470,7 +470,7 @@
                       *ngIf="fg.controls.costCenter.touched && !fg.controls.costCenter.valid"
                       class="add-edit-mileage--error"
                     >
-                      Please select a Cost Center.
+                      Please select a cost center.
                     </div>
 
                     <ng-container *ngIf="dependentFields$|async as dependentFields">
@@ -604,6 +604,7 @@
                           [placeholder]="customInput.placeholder | ellipsis: 30"
                           [touchedInParent]="customInput.control.controls.value.touched"
                           [validInParent]="customInput.control.controls.value.valid"
+                          [isCustomSelect]="true"
                         >
                         </app-fy-select>
                       </div>
@@ -641,7 +642,7 @@
                       <ng-container *ngIf="canRemoveFromReport || !etxn?.tx?.report_id">
                         <div class="add-edit-mileage--internal-block">
                           <app-fy-add-to-report
-                            [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'"
+                            [label]="etxn.tx.report_id ? 'Report' : 'Add to report'"
                             [options]="reports"
                             formControlName="report"
                             [autoSubmissionReportName]="autoSubmissionReportName$|async"
@@ -727,7 +728,7 @@
               alt="zero-state"
             />
           </div>
-          <div class="add-edit-mileage--zero-state-text">Looks like no Mileage rates are set for your org yet.</div>
+          <div class="add-edit-mileage--zero-state-text">Looks like no mileage rates are set for your org yet.</div>
         </div>
       </ng-template>
     </ng-template>
@@ -760,7 +761,7 @@
             [loading]="saveAndNewMileageLoader"
             [loadingText]="'Saving'"
           >
-            Save & New
+            Save and new
           </ion-button>
           <ion-button (click)="close()" *ngIf="mode === 'edit'" [disabled]="saveMileageLoader" class="btn-secondary">
             Cancel

@@ -147,8 +147,10 @@ export class CustomInputsService {
   }
 
   setSelectMultiselectValue(customInput: ExpenseField, property: CustomField): void {
-    if (customInput.type === 'SELECT' || customInput.type === 'MULTI_SELECT') {
-      property.value = '';
+    if (customInput.type === 'SELECT') {
+      property.value = ''; // Single select
+    } else if (customInput.type === 'MULTI_SELECT') {
+      property.value = []; // Multi-select
     }
   }
 
@@ -204,9 +206,10 @@ export class CustomInputsService {
   }
 
   private formatMultiselectCustomProperty(customProperty: CustomField): string {
-    return customProperty.value && (<string[]>customProperty.value).length > 0
-      ? (<string[]>customProperty.value).join(', ')
-      : '-';
+    if (Array.isArray(customProperty.value) && customProperty.value.length > 0) {
+      return customProperty.value.join(', ');
+    }
+    return '-';
   }
 
   private formatNumberCustomProperty(customProperty: CustomField): string {

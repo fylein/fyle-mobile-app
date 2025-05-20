@@ -15,8 +15,8 @@ describe('ExpenseStatePipe', () => {
     expect(pipe.transform('COMPLETE')).toBe('complete');
   });
 
-  it('transforms "APPROVER_PENDING" state to "reported"', () => {
-    expect(pipe.transform('APPROVER_PENDING')).toBe('reported');
+  it('transforms "APPROVER_PENDING" state to "submitted"', () => {
+    expect(pipe.transform('APPROVER_PENDING')).toBe('submitted');
   });
 
   it('transforms "APPROVED" state to "approved"', () => {
@@ -27,11 +27,11 @@ describe('ExpenseStatePipe', () => {
     expect(pipe.transform('PAYMENT_PENDING')).toBe('payment_pending');
   });
 
-  it('transforms "PAYMENT_PROCESSING" state to "payment_processing"', () => {
-    expect(pipe.transform('PAYMENT_PROCESSING')).toBe('payment_processing');
+  it('transforms "PAYMENT_PROCESSING" state to "processing"', () => {
+    expect(pipe.transform('PAYMENT_PROCESSING')).toBe('processing');
   });
 
-  it('transforms "PAID" state to "paid"', () => {
-    expect(pipe.transform('PAID')).toBe('paid');
+  it('transforms "PAID" state to "closed"', () => {
+    expect(pipe.transform('PAID')).toBe('closed');
   });
 });

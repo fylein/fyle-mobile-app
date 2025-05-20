@@ -27,15 +27,15 @@ describe('AddMorePopupComponent', () => {
 
   it('should display the heading correctly', () => {
     const headingElement = getElementBySelector(fixture, '.add-more--heading');
-    expect(getTextContent(headingElement)).toContain('Add more Using');
+    expect(getTextContent(headingElement)).toContain('Add more using');
   });
 
   it('should initialize actionButtons correctly', () => {
     const containerElements = getAllElementsBySelector(fixture, '.add-more--container');
     expect(containerElements.length).toBe(2); // Check that there are 2 action buttons
     expect(addMorePopupComponent.actionButtons).toEqual([
-      { icon: 'camera', title: 'Capture Receipts', mode: 'camera' },
-      { icon: 'image', title: 'Upload from Gallery', mode: 'gallery' },
+      { icon: 'camera', title: 'Capture receipts', mode: 'camera' },
+      { icon: 'image', title: 'Upload files', mode: 'gallery' },
     ]);
   });
 

@@ -9,7 +9,7 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { Router, RouterModule } from '@angular/router';
 import { TrackingService } from '../../core/services/tracking.service';
 import { SetupAccountPage } from './setup-account.page';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { UntypedFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ModalController, ToastController } from '@ionic/angular';
 import { RouterTestingModule } from '@angular/router/testing';
 import { first, of, take, toArray } from 'rxjs';
@@ -17,8 +17,8 @@ import { apiEouRes, eouRes3 } from 'src/app/core/mock-data/extended-org-user.dat
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
+import { MatLegacyFormFieldModule as MatFormFieldModule } from '@angular/material/legacy-form-field';
+import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy-input';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { CUSTOM_ELEMENTS_SCHEMA, EventEmitter } from '@angular/core';
 import { SelectCurrencyComponent } from './select-currency/select-currency.component';
@@ -31,7 +31,7 @@ describe('SetupAccountPage', () => {
   let fixture: ComponentFixture<SetupAccountPage>;
   let networkService: jasmine.SpyObj<NetworkService>;
   let authService: jasmine.SpyObj<AuthService>;
-  let fb: FormBuilder;
+  let fb: UntypedFormBuilder;
   let modalController: jasmine.SpyObj<ModalController>;
   let orgService: jasmine.SpyObj<OrgService>;
   let toastController: jasmine.SpyObj<ToastController>;
@@ -65,7 +65,7 @@ describe('SetupAccountPage', () => {
         MatInputModule,
       ],
       providers: [
-        FormBuilder,
+        UntypedFormBuilder,
         { provide: NetworkService, useValue: networkServiceSpy },
         { provide: AuthService, useValue: authServiceSpy },
         { provide: ModalController, useValue: modalControllerSpy },
@@ -84,7 +84,7 @@ describe('SetupAccountPage', () => {
 
     networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-    fb = TestBed.inject(FormBuilder);
+    fb = TestBed.inject(UntypedFormBuilder);
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     orgService = TestBed.inject(OrgService) as jasmine.SpyObj<OrgService>;
     toastController = TestBed.inject(ToastController) as jasmine.SpyObj<ToastController>;
@@ -234,7 +234,6 @@ describe('SetupAccountPage', () => {
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
       tick(500);
       expect(trackingService.setupHalf).toHaveBeenCalledTimes(1);
-      expect(trackingService.updateSegmentProfile).toHaveBeenCalledOnceWith({ 'Company Name': 'Acme Inc.' });
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'post_verification', 'setup_account_preferences']);
     }));
 

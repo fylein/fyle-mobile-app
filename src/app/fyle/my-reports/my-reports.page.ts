@@ -9,7 +9,7 @@ import { ModalController, PopoverController } from '@ionic/angular';
 import { DateService } from 'src/app/core/services/date.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { TrackingService } from '../../core/services/tracking.service';
-import { ApiV2Service } from 'src/app/core/services/api-v2.service';
+import { ExtendQueryParamsService } from 'src/app/core/services/extend-query-params.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { HeaderState } from '../../shared/components/fy-header/header-state.enum';
 import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
@@ -28,7 +28,7 @@ import { ReportsQueryParams } from 'src/app/core/models/platform/v1/reports-quer
 import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
 import { MyReportsFilters } from 'src/app/core/models/my-reports-filters.model';
-
+import { FooterState } from 'src/app/shared/components/footer/footer-state.enum';
 @Component({
   selector: 'app-my-reports',
   templateUrl: './my-reports.page.html',
@@ -102,7 +102,7 @@ export class MyReportsPage {
     private activatedRoute: ActivatedRoute,
     private popoverController: PopoverController,
     private trackingService: TrackingService,
-    private apiV2Service: ApiV2Service,
+    private extendQueryParamsService: ExtendQueryParamsService,
     private tasksService: TasksService,
     private modalController: ModalController,
     private orgSettingsService: OrgSettingsService,
@@ -113,6 +113,10 @@ export class MyReportsPage {
 
   get HeaderState(): typeof HeaderState {
     return HeaderState;
+  }
+
+  get FooterState(): typeof FooterState {
+    return FooterState;
   }
 
   ionViewWillLeave(): void {
@@ -157,7 +161,7 @@ export class MyReportsPage {
         let queryParams = params.queryParams || {
           state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
         };
-        queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString, true);
+        queryParams = this.extendQueryParamsService.extendQueryParamsForTextSearch(queryParams, params.searchString);
         const orderByParams =
           params.sortParam && params.sortDir ? `${params.sortParam}.${params.sortDir}` : 'created_at.desc,id.desc';
         this.isLoadingDataInInfiniteScroll = true;
@@ -195,7 +199,7 @@ export class MyReportsPage {
         let queryParams = params.queryParams || {
           state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
         };
-        queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString, true);
+        queryParams = this.extendQueryParamsService.extendQueryParamsForTextSearch(queryParams, params.searchString);
         this.isLoadingDataInInfiniteScroll = true;
         return this.spenderReportsService.getReportsCount(queryParams);
       }),
@@ -514,7 +518,7 @@ export class MyReportsPage {
     } else if (filterType === 'date') {
       await this.openFilters('Date');
     } else if (filterType === 'sort') {
-      await this.openFilters('Sort By');
+      await this.openFilters('Sort by');
     }
   }
 
@@ -552,12 +556,12 @@ export class MyReportsPage {
   ): void {
     if (filter.sortParam === 'created_at' && filter.sortDir === 'asc') {
       generatedFilters.push({
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'dateOldToNew',
       });
     } else if (filter.sortParam === 'created_at' && filter.sortDir === 'desc') {
       generatedFilters.push({
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'dateNewToOld',
       });
     }
@@ -622,12 +626,12 @@ export class MyReportsPage {
   ): void {
     if (filter.sortParam === 'purpose' && filter.sortDir === 'asc') {
       generatedFilters.push({
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'nameAToZ',
       });
     } else if (filter.sortParam === 'purpose' && filter.sortDir === 'desc') {
       generatedFilters.push({
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'nameZToA',
       });
     }
@@ -682,7 +686,7 @@ export class MyReportsPage {
       generatedFilters.customDateEnd = dateFilter.associatedData?.endDate;
     }
 
-    const sortBy = selectedFilters.find((filter) => filter.name === 'Sort By');
+    const sortBy = selectedFilters.find((filter) => filter.name === 'Sort by');
 
     this.convertSelectedSortFitlersToFilters(sortBy, generatedFilters);
 
@@ -690,14 +694,12 @@ export class MyReportsPage {
   }
 
   generateStateFilterPills(filterPills: FilterPill[], filter: Partial<MyReportsFilters>): void {
-    this.simplifyReportsSettings$.subscribe((simplifyReportsSettings) => {
-      filterPills.push({
-        label: 'State',
-        type: 'state',
-        value: (<string[]>filter.state)
-          .map((state) => this.reportStatePipe.transform(state, simplifyReportsSettings.enabled))
-          .reduce((state1, state2) => `${state1}, ${state2}`),
-      });
+    filterPills.push({
+      label: 'State',
+      type: 'state',
+      value: (<string[]>filter.state)
+        .map((state) => this.reportStatePipe.transform(state))
+        .reduce((state1, state2) => `${state1}, ${state2}`),
     });
   }
 
@@ -767,13 +769,13 @@ export class MyReportsPage {
   generateSortRptDatePills(filter: Partial<MyReportsFilters>, filterPills: FilterPill[]): void {
     if (filter.sortParam === 'created_at' && filter.sortDir === 'asc') {
       filterPills.push({
-        label: 'Sort By',
+        label: 'Sort by',
         type: 'sort',
         value: 'date - old to new',
       });
     } else if (filter.sortParam === 'created_at' && filter.sortDir === 'desc') {
       filterPills.push({
-        label: 'Sort By',
+        label: 'Sort by',
         type: 'sort',
         value: 'date - new to old',
       });
@@ -783,13 +785,13 @@ export class MyReportsPage {
   generateSortAmountPills(filter: Partial<MyReportsFilters>, filterPills: FilterPill[]): void {
     if (filter.sortParam === 'amount' && filter.sortDir === 'desc') {
       filterPills.push({
-        label: 'Sort By',
+        label: 'Sort by',
         type: 'sort',
         value: 'amount - high to low',
       });
     } else if (filter.sortParam === 'amount' && filter.sortDir === 'asc') {
       filterPills.push({
-        label: 'Sort By',
+        label: 'Sort by',
         type: 'sort',
         value: 'amount - low to high',
       });
@@ -799,13 +801,13 @@ export class MyReportsPage {
   generateSortNamePills(filter: Partial<MyReportsFilters>, filterPills: FilterPill[]): void {
     if (filter.sortParam === 'purpose' && filter.sortDir === 'asc') {
       filterPills.push({
-        label: 'Sort By',
+        label: 'Sort by',
         type: 'sort',
         value: 'Name - a to z',
       });
     } else if (filter.sortParam === 'purpose' && filter.sortDir === 'desc') {
       filterPills.push({
-        label: 'Sort By',
+        label: 'Sort by',
         type: 'sort',
         value: 'Name - z to a',
       });
@@ -851,12 +853,12 @@ export class MyReportsPage {
   ): void {
     if (filter.sortParam === 'amount' && filter.sortDir === 'desc') {
       generatedFilters.push({
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'amountHighToLow',
       });
     } else if (filter.sortParam === 'amount' && filter.sortDir === 'asc') {
       generatedFilters.push({
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'amountLowToHigh',
       });
     }
@@ -976,7 +978,7 @@ export class MyReportsPage {
             ],
           } as FilterOptions<DateFilters>,
           {
-            name: 'Sort By',
+            name: 'Sort by',
             optionType: FilterOptionType.singleselect,
             options: [
               {

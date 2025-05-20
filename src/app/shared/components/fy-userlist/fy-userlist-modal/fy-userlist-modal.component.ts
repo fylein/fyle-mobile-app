@@ -1,22 +1,13 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, Input, ChangeDetectorRef } from '@angular/core';
 import { Observable, fromEvent, from, of } from 'rxjs';
 import { ModalController } from '@ionic/angular';
-import {
-  map,
-  startWith,
-  distinctUntilChanged,
-  switchMap,
-  finalize,
-  concatMap,
-  debounceTime,
-  tap,
-} from 'rxjs/operators';
-import { isEqual, cloneDeep, startsWith } from 'lodash';
+import { map, startWith, distinctUntilChanged, switchMap, finalize, debounceTime } from 'rxjs/operators';
+import { cloneDeep } from 'lodash';
 import { Employee } from 'src/app/core/models/spender/employee.model';
-import { OrgUserService } from 'src/app/core/services/org-user.service';
-import { LoaderService } from 'src/app/core/services/loader.service';
+import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { MatChipInputEvent } from '@angular/material/chips';
+import { MatLegacyChipInputEvent as MatChipInputEvent } from '@angular/material/legacy-chips';
+import { EmployeeParams } from 'src/app/core/models/employee-params.model';
 @Component({
   selector: 'app-fy-userlist-modal',
   templateUrl: './fy-userlist-modal.component.html',
@@ -25,7 +16,7 @@ import { MatChipInputEvent } from '@angular/material/chips';
 export class FyUserlistModalComponent implements OnInit, AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;
 
-  @Input() currentSelections: any[] = [];
+  @Input() currentSelections: string[] = [];
 
   @Input() filteredOptions$: Observable<Partial<Employee>[]>;
 
@@ -33,15 +24,11 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
 
   @Input() allowCustomValues: boolean;
 
-  value;
+  value = '';
 
   eouc$: Observable<Partial<Employee>[]>;
 
-  options: { label: string; value: any; selected?: boolean }[] = [];
-
-  selectedUsers: any[] = [];
-
-  intialSelectedEmployees: any[] = [];
+  initialSelectedEmployees: string[] = [];
 
   userListCopy$: Observable<Employee[]>;
 
@@ -66,30 +53,29 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
   constructor(
     private modalController: ModalController,
     private cdr: ChangeDetectorRef,
-    private orgUserService: OrgUserService,
-    private loaderService: LoaderService
+    private employeesService: EmployeesService
   ) {}
 
-  getSelectedItemDict() {
+  getSelectedItemDict(): Record<string, boolean> {
     return this.currentSelections.reduce((acc, curr) => {
       acc[curr] = true;
       return acc;
     }, {});
   }
 
-  getSeparatorKeysCodes() {
+  getSeparatorKeysCodes(): number[] {
     return [ENTER, COMMA];
   }
 
-  addChip(event: MatChipInputEvent) {
+  addChip(event: MatChipInputEvent): void {
     if (event && event.chipInput) {
       event.chipInput.clear();
     }
   }
 
-  removeChip(item) {
+  removeChip(item: string): void {
     const updatedItem = {
-      us_email: item,
+      email: item,
       is_selected: false,
     };
     const event = {
@@ -98,55 +84,55 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
     this.onSelect(updatedItem, event);
   }
 
-  ngOnInit() {
-    this.intialSelectedEmployees = cloneDeep(this.currentSelections);
-    this.intialSelectedEmployees.sort((a, b) => (a < b ? -1 : 1));
+  ngOnInit(): void {
+    this.initialSelectedEmployees = cloneDeep(this.currentSelections);
+    this.initialSelectedEmployees.sort((a, b) => (a < b ? -1 : 1));
     this.selectedItemDict = this.getSelectedItemDict();
   }
 
-  clearValue() {
+  clearValue(): void {
     this.value = '';
     const searchInput = this.searchBarRef.nativeElement as HTMLInputElement;
     searchInput.value = '';
     searchInput.dispatchEvent(new Event('keyup'));
   }
 
-  getDefaultUsersList() {
-    const params: any = {
-      order: 'us_full_name.asc,us_email.asc,ou_id',
+  getDefaultUsersList(): Observable<Partial<Employee>[]> {
+    const params: Partial<EmployeeParams> = {
+      order: 'full_name.asc,email.asc',
     };
 
     if (this.currentSelections.length > 0) {
-      params.us_email = `in.(${this.currentSelections.join(',')})`;
+      params.email = `in.(${this.currentSelections.join(',')})`;
     } else {
       params.limit = 20;
     }
 
-    return from(this.orgUserService.getEmployeesBySearch(params)).pipe(
+    return from(this.employeesService.getEmployeesBySearch(params)).pipe(
       map((eouc) =>
         eouc.map((eou) => {
-          eou.is_selected = this.currentSelections.indexOf(eou.us_email) > -1;
+          eou.is_selected = this.currentSelections.indexOf(eou.email) > -1;
           return eou;
         })
       )
     );
   }
 
-  getSearchedUsersList(searchText?: string) {
-    const params: any = {
+  getSearchedUsersList(searchText?: string): Observable<Partial<Employee>[]> {
+    const params: Partial<EmployeeParams> = {
       limit: 20,
-      order: 'us_full_name.asc,us_email.asc,ou_id',
+      order: 'full_name.asc,email.asc',
     };
 
     if (searchText) {
-      params.or = `(us_email.ilike.*${searchText}*,us_full_name.ilike.*${searchText}*)`;
+      params.or = `(email.ilike.%${searchText}%,full_name.ilike.%${searchText}%)`;
     }
 
-    return this.orgUserService.getEmployeesBySearch(params).pipe(
+    return this.employeesService.getEmployeesBySearch(params).pipe(
       map((eouc) =>
         eouc.map((eou) => {
           if (this.currentSelections && this.currentSelections.length > 0) {
-            eou.is_selected = this.currentSelections.indexOf(eou.us_email) > -1;
+            eou.is_selected = this.currentSelections.indexOf(eou.email) > -1;
           }
           return eou;
         })
@@ -154,7 +140,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
     );
   }
 
-  getUsersList(searchText) {
+  getUsersList(searchText: string): Observable<Partial<Employee>[]> {
     this.isLoading = true;
     // run ChangeDetectionRef.detectChanges to avoid
     // 'expression has changed after it was checked error'.
@@ -186,14 +172,14 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
     }
   }
 
-  filterSearchedEmployees(searchedEmployees: Partial<Employee>[], employees: Partial<Employee>[]) {
+  filterSearchedEmployees(searchedEmployees: Partial<Employee>[], employees: Partial<Employee>[]): Partial<Employee>[] {
     searchedEmployees = searchedEmployees.filter(
-      (searchedEmployee) => !employees.find((employee) => employee.us_email === searchedEmployee.us_email)
+      (searchedEmployee) => !employees.find((employee) => employee.email === searchedEmployee.email)
     );
     return searchedEmployees;
   }
 
-  getNewlyAddedUsers(filteredOptions) {
+  getNewlyAddedUsers(filteredOptions: Partial<Employee>[]): Observable<Partial<Employee>[]> {
     // make a copy of current selections
     this.currentSelectionsCopy = [];
     this.currentSelections.forEach((val) => this.currentSelectionsCopy.push(val));
@@ -201,7 +187,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
     // remove the ones which are in the filtered list
     // now currentSelectionsCopy will have only those emails which were newly added
     filteredOptions.forEach((item) => {
-      const index = this.currentSelectionsCopy.indexOf(item.us_email);
+      const index = this.currentSelectionsCopy.indexOf(item.email);
       if (index > -1) {
         this.currentSelectionsCopy.splice(index, 1);
       }
@@ -210,14 +196,14 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
     // create a temp list of type Partial<Employee>[] and
     /// push items in currentSelectionsCopy as partial employee objects and setting the is_selected to true
     const newEmpList: Partial<Employee>[] = [];
-    this.currentSelectionsCopy.forEach((item) => {
-      newEmpList.push({ us_email: item, is_selected: true });
+    this.currentSelectionsCopy.forEach((item: string) => {
+      newEmpList.push({ email: item, is_selected: true });
     });
 
     return of(newEmpList);
   }
 
-  processNewlyAddedItems(searchText) {
+  processNewlyAddedItems(searchText: string): Observable<Partial<Employee>[]> {
     return from(this.filteredOptions$).pipe(
       switchMap((filteredOptions) =>
         this.getNewlyAddedUsers(filteredOptions).pipe(
@@ -226,17 +212,13 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
               const searchTextLowerCase = searchText.toLowerCase();
               const newItem = {
                 isNew: true,
-                us_email: searchText,
+                email: searchText,
               };
-              const newArr = [];
+              const newArr: (Partial<Employee> & { isNew?: boolean })[] = [];
               newArr.push(newItem);
               newlyAddedItems = newArr.concat(newlyAddedItems);
               return newlyAddedItems.filter(
-                (item) =>
-                  item &&
-                  item.us_email &&
-                  item.us_email.length > 0 &&
-                  item.us_email.toLowerCase().includes(searchTextLowerCase)
+                (item) => item?.email?.length > 0 && item.email.toLowerCase().includes(searchTextLowerCase)
               );
             }
             return newlyAddedItems;
@@ -246,48 +228,50 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
     );
   }
 
-  ngAfterViewInit() {
-    this.filteredOptions$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
-      map((event: any) => event.srcElement.value),
+  ngAfterViewInit(): void {
+    const searchElement = this.searchBarRef.nativeElement as HTMLInputElement;
+
+    this.filteredOptions$ = fromEvent<KeyboardEvent>(searchElement, 'keyup').pipe(
+      map((event) => (event.target as HTMLInputElement).value),
       startWith(''),
       distinctUntilChanged(),
       debounceTime(400),
-      switchMap((searchText) => this.getUsersList(searchText))
+      switchMap((searchText: string) => this.getUsersList(searchText))
     );
 
     if (this.allowCustomValues) {
-      this.newlyAddedItems$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
-        map((event: any) => event.srcElement.value),
+      this.newlyAddedItems$ = fromEvent<KeyboardEvent>(searchElement, 'keyup').pipe(
+        map((event) => (event.target as HTMLInputElement).value),
         startWith(''),
         distinctUntilChanged(),
         debounceTime(400),
-        switchMap((searchText) => this.processNewlyAddedItems(searchText))
+        switchMap((searchText: string) => this.processNewlyAddedItems(searchText))
       );
     }
     this.cdr.detectChanges();
   }
 
-  onDoneClick() {
+  onDoneClick(): void {
     this.modalController.dismiss();
   }
 
-  onSelect(selectedOption: Partial<Employee>, event: { checked: boolean }) {
+  onSelect(selectedOption: Partial<Employee>, event: { checked: boolean }): void {
     if (event.checked) {
-      this.currentSelections.push(selectedOption.us_email);
+      this.currentSelections.push(selectedOption.email);
     } else {
-      const index = this.currentSelections.indexOf(selectedOption.us_email);
+      const index = this.currentSelections.indexOf(selectedOption.email);
       this.currentSelections.splice(index, 1);
     }
     this.selectedItemDict = this.getSelectedItemDict();
   }
 
-  useSelected() {
+  useSelected(): void {
     this.modalController.dismiss({
       selected: this.currentSelections,
     });
   }
 
-  onAddNew() {
+  onAddNew(): void {
     this.value = this.value.trim();
     if (!(this.currentSelections.indexOf(this.value) > -1)) {
       this.currentSelections.push(this.value);

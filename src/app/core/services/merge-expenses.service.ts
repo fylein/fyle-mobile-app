@@ -4,7 +4,7 @@ import { filter, map, mergeMap, reduce, shareReplay, switchMap } from 'rxjs/oper
 import { ApiService } from './api.service';
 import { Expense } from '../models/expense.model';
 import { Expense as PlatformExpense } from '../models/platform/v1/expense.model';
-import { ExpensesInfo } from './expenses-info.model';
+import { ExpensesInfo } from '../models/expenses-info.model';
 import { FileService } from './file.service';
 import { SpenderFileService } from './platform/v1/spender/file.service';
 import { CorporateCreditCardExpenseService } from './corporate-credit-card-expense.service';
@@ -13,7 +13,7 @@ import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pip
 import { ProjectsService } from './projects.service';
 import { CategoriesService } from './categories.service';
 import { FileObject } from '../models/file-obj.model';
-import { CorporateCardExpense } from '../models/v2/corporate-card-expense.model';
+import { corporateCardTransaction } from '../models/platform/v1/cc-transaction.model';
 import { DateService } from './date.service';
 import { AccountType } from '../enums/account-type.enum';
 import { TaxGroupService } from './tax-group.service';
@@ -28,14 +28,7 @@ import { DependentFieldsMapping } from '../models/dependent-field-mapping.model'
 import { CustomInput } from '../models/custom-input.model';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { PlatformFileGenerateUrlsResponse } from '../models/platform/platform-file-generate-urls-response.model';
-
-type CardTransactionsConfig = {
-  queryParams: {
-    group_id: string[];
-  };
-  offset: number;
-  limit: number;
-};
+import { PlatformConfig } from '../models/platform/platform-config.model';
 
 @Injectable({
   providedIn: 'root',
@@ -142,21 +135,23 @@ export class MergeExpensesService {
     );
   }
 
-  getCorporateCardTransactions(expenses: Partial<Expense>[]): Observable<CorporateCardExpense[] | []> {
+  getCorporateCardTransactions(expenses: Partial<Expense>[]): Observable<corporateCardTransaction[] | []> {
     return this.customInputsService.getAll(true).pipe(
       switchMap(() => {
-        const CCCGroupIds = expenses.map((expense) => expense?.tx_corporate_credit_card_expense_group_id);
+        const CCCGroupIds = expenses
+          .filter((expense) => expense.tx_corporate_credit_card_expense_group_id !== null)
+          .map((expense) => expense.tx_corporate_credit_card_expense_group_id);
 
         if (CCCGroupIds.length > 0) {
-          const queryParams = {
-            group_id: ['in.(' + CCCGroupIds + ')'],
+          const config: PlatformConfig = {
+            offset: 0,
+            limit: 1,
+            queryParams: {
+              id: `in.(${CCCGroupIds.join(',')})`,
+            },
           };
-          const params: Partial<CardTransactionsConfig> = {};
-          params.queryParams = queryParams;
-          params.offset = 0;
-          params.limit = 1;
           return this.corporateCreditCardExpenseService
-            .getv2CardTransactions(params)
+            .getCorporateCardTransactions(config)
             .pipe(map((cardTxns) => cardTxns.data));
         } else {
           return of([]);

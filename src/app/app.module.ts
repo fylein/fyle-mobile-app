@@ -10,8 +10,8 @@ import { HttpConfigInterceptor } from './core/interceptors/httpInterceptor';
 import { GooglePlus } from '@awesome-cordova-plugins/google-plus/ngx';
 import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
 import { SharedModule } from './shared/shared.module';
-import { CurrencyPipe, TitleCasePipe } from '@angular/common';
-import * as Sentry from '@sentry/angular';
+import { CurrencyPipe } from '@angular/common';
+import * as Sentry from '@sentry/angular-ivy';
 import { ConfigService } from './core/services/config.service';
 import { RouterAuthService } from './core/services/router-auth.service';
 import { TokenService } from './core/services/token.service';
@@ -22,6 +22,8 @@ import { PAGINATION_SIZE, DEVICE_PLATFORM } from './constants';
 import { Smartlook } from '@awesome-cordova-plugins/smartlook/ngx';
 import { Capacitor } from '@capacitor/core';
 import { NgOtpInputModule } from 'ng-otp-input';
+import { TIMEZONE } from './constants';
+import { BehaviorSubject } from 'rxjs';
 
 export class MyHammerConfig extends HammerGestureConfig {
   overrides = {
@@ -38,14 +40,15 @@ export const MIN_SCREEN_WIDTH = new InjectionToken<number>(
   declarations: [AppComponent],
   imports: [
     BrowserModule,
-    IonicModule.forRoot(),
+    IonicModule.forRoot({
+      innerHTMLTemplatesEnabled: true,
+    }),
     AppRoutingModule,
     BrowserAnimationsModule,
     HttpClientModule,
     SharedModule,
     HammerModule,
     HttpClientJsonpModule,
-    SharedModule,
     HammerModule,
     NgOtpInputModule,
   ],
@@ -75,6 +78,10 @@ export const MIN_SCREEN_WIDTH = new InjectionToken<number>(
     CurrencyPipe,
     ConfigService,
     {
+      provide: TIMEZONE,
+      useValue: new BehaviorSubject<string>('UTC'),
+    },
+    {
       provide: APP_INITIALIZER,
       useFactory: (configService: ConfigService) => (): Promise<void> => configService.loadConfigurationData(),
       deps: [ConfigService, RouterAuthService, TokenService, SecureStorageService, StorageService, Sentry.TraceService],
@@ -96,7 +103,6 @@ export const MIN_SCREEN_WIDTH = new InjectionToken<number>(
       provide: DEVICE_PLATFORM,
       useValue: Capacitor.getPlatform(),
     },
-    TitleCasePipe,
   ],
   bootstrap: [AppComponent],
 })

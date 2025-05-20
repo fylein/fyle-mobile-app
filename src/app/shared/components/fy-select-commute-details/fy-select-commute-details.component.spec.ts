@@ -2,11 +2,11 @@ import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angul
 import { IonicModule, ModalController } from '@ionic/angular';
 
 import { FySelectCommuteDetailsComponent } from './fy-select-commute-details.component';
-import { FormBuilder, Validators } from '@angular/forms';
+import { UntypedFormBuilder, Validators } from '@angular/forms';
 import { LocationService } from 'src/app/core/services/location.service';
 import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { commuteDetailsData } from 'src/app/core/mock-data/commute-details.data';
@@ -26,7 +26,7 @@ describe('FySelectCommuteDetailsComponent', () => {
   let component: FySelectCommuteDetailsComponent;
   let fixture: ComponentFixture<FySelectCommuteDetailsComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
-  let formBuilder: jasmine.SpyObj<FormBuilder>;
+  let formBuilder: jasmine.SpyObj<UntypedFormBuilder>;
   let locationService: jasmine.SpyObj<LocationService>;
   let employeesService: jasmine.SpyObj<EmployeesService>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
@@ -51,7 +51,7 @@ describe('FySelectCommuteDetailsComponent', () => {
       declarations: [FySelectCommuteDetailsComponent],
       imports: [IonicModule.forRoot()],
       providers: [
-        FormBuilder,
+        UntypedFormBuilder,
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: LocationService, useValue: locationServiceSpy },
         { provide: EmployeesService, useValue: employeesServiceSpy },
@@ -66,7 +66,7 @@ describe('FySelectCommuteDetailsComponent', () => {
     fixture = TestBed.createComponent(FySelectCommuteDetailsComponent);
     component = fixture.componentInstance;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
-    formBuilder = TestBed.inject(FormBuilder) as jasmine.SpyObj<FormBuilder>;
+    formBuilder = TestBed.inject(UntypedFormBuilder) as jasmine.SpyObj<UntypedFormBuilder>;
     locationService = TestBed.inject(LocationService) as jasmine.SpyObj<LocationService>;
     employeesService = TestBed.inject(EmployeesService) as jasmine.SpyObj<EmployeesService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;

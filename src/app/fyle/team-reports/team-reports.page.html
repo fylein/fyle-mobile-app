@@ -1,7 +1,7 @@
 <app-fy-header
   [currentState]="headerState"
   [navigateBack]="navigateBack"
-  [title]="'Team Reports'"
+  [title]="'Team expense reports'"
   (simpleSearchCancel)="onSimpleSearchCancel()"
 >
   <ng-container base>
@@ -95,11 +95,27 @@
     <ng-container *ngIf="(count$ | async) === 0">
       <div class="reports--zero-state">
         <app-fy-zero-state
+          *ngIf="!(filters?.state || filters?.date || simpleSearchText)"
           [unscaledImage]="true"
           [useNewStyling]="true"
-          image="../../../assets/images/zero-states/expenses.png"
-          header="Get yourself a coffee &#9749;"
-          message="No reports pending on you for approval."
+          image="../../../assets/images/zero-states/reports.png"
+          message="You have no reports right now"
+        ></app-fy-zero-state>
+        <app-fy-zero-state
+          *ngIf="(filters?.state || filters?.date)"
+          [unscaledImage]="true"
+          [useNewStyling]="true"
+          image="../../../assets/images/zero-states/reports.png"
+          message="You have no team reports"
+          submessage="matching the applied filters"
+        ></app-fy-zero-state>
+        <app-fy-zero-state
+          *ngIf="!filters?.state && !filters?.date && simpleSearchText"
+          [unscaledImage]="true"
+          [useNewStyling]="true"
+          image="../../../assets/images/zero-states/search.png"
+          message="No results found"
+          submessage="Try a different keyword"
         ></app-fy-zero-state>
       </div>
     </ng-container>

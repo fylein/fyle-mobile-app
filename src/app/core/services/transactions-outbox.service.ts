@@ -5,7 +5,6 @@ import { Observable, from, noop } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { TransactionService } from './transaction.service';
-import { StatusService } from './status.service';
 import { indexOf } from 'lodash';
 import { ParsedReceipt } from '../models/parsed_receipt.model';
 import { TrackingService } from './tracking.service';
@@ -17,6 +16,7 @@ import { OutboxQueue } from '../models/outbox-queue.model';
 import { ParsedResponse } from '../models/parsed_response.model';
 import { SpenderFileService } from './platform/v1/spender/file.service';
 import { PlatformFile } from '../models/platform/platform-file.model';
+import { ExpenseCommentService } from './platform/v1/spender/expense-comment.service';
 
 @Injectable({
   providedIn: 'root',
@@ -37,11 +37,11 @@ export class TransactionsOutboxService {
     private storageService: StorageService,
     private dateService: DateService,
     private transactionService: TransactionService,
-    private statusService: StatusService,
     private httpClient: HttpClient,
     private trackingService: TrackingService,
     private currencyService: CurrencyService,
-    private spenderFileService: SpenderFileService
+    private spenderFileService: SpenderFileService,
+    private expenseCommentService: ExpenseCommentService
   ) {
     this.ROOT_ENDPOINT = environment.ROOT_URL;
     this.restoreQueue();
@@ -227,9 +227,12 @@ export class TransactionsOutboxService {
           entry.transaction.id = resp.id;
           entry.fileUploadCompleted = true;
           if (comments && comments.length > 0) {
-            comments.forEach((comment) => {
-              that.statusService.post('transactions', resp.id, { comment }, true).subscribe(noop);
-            });
+            const commentsPayload = comments.map((comment) => ({
+              expense_id: resp.id,
+              comment,
+              notify: true,
+            }));
+            that.expenseCommentService.post(commentsPayload).subscribe(noop);
           }
 
           that

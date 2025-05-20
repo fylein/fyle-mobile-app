@@ -9,8 +9,11 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { Router } from '@angular/router';
-import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
+import {
+  MatLegacySnackBar as MatSnackBar,
+  MatLegacySnackBarRef as MatSnackBarRef,
+} from '@angular/material/legacy-snack-bar';
+import { MatLegacySnackBarModule as MatSnackBarModule } from '@angular/material/legacy-snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { of } from 'rxjs';
@@ -142,7 +145,7 @@ describe('SuggestedDuplicatesComponent', () => {
   it('should dismiss all duplicate expenses and display success toast message', () => {
     const dismissDuplicatesSpy = expensesService.dismissDuplicates.and.returnValue(of(null));
     const showDismissedSuccessToastSpy = spyOn(component, 'showDismissedSuccessToast');
-    const modalControllerDismissSpy = modalController.dismiss.and.returnValue(Promise.resolve(true));
+    const modalControllerDismissSpy = modalController.dismiss.and.resolveTo(true);
 
     component.dismissAll();
     fixture.detectChanges();

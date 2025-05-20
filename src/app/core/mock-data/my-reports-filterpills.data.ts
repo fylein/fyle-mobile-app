@@ -66,7 +66,7 @@ export const expectedFilterPill8 = deepFreeze([
 
 export const expectedFilterPill9 = deepFreeze([
   {
-    label: 'Sort By',
+    label: 'Sort by',
     type: 'sort',
     value: 'date - old to new',
   },
@@ -74,7 +74,7 @@ export const expectedFilterPill9 = deepFreeze([
 
 export const expectedFilterPill10 = deepFreeze([
   {
-    label: 'Sort By',
+    label: 'Sort by',
     type: 'sort',
     value: 'date - new to old',
   },
@@ -82,7 +82,7 @@ export const expectedFilterPill10 = deepFreeze([
 
 export const expectedFilterPill11 = deepFreeze([
   {
-    label: 'Sort By',
+    label: 'Sort by',
     type: 'sort',
     value: 'amount - high to low',
   },
@@ -90,7 +90,7 @@ export const expectedFilterPill11 = deepFreeze([
 
 export const expectedFilterPill12 = deepFreeze([
   {
-    label: 'Sort By',
+    label: 'Sort by',
     type: 'sort',
     value: 'amount - low to high',
   },
@@ -98,7 +98,7 @@ export const expectedFilterPill12 = deepFreeze([
 
 export const expectedFilterPill13 = deepFreeze([
   {
-    label: 'Sort By',
+    label: 'Sort by',
     type: 'sort',
     value: 'Name - a to z',
   },
@@ -106,7 +106,7 @@ export const expectedFilterPill13 = deepFreeze([
 
 export const expectedFilterPill14 = deepFreeze([
   {
-    label: 'Sort By',
+    label: 'Sort by',
     type: 'sort',
     value: 'Name - z to a',
   },

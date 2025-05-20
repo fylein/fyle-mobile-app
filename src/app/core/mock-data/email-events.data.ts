@@ -5,7 +5,7 @@ import { EmailEventsObject } from '../models/email-events.model';
 export const emailEvents: EmailEventsObject = deepFreeze({
   features: {
     expensesAndReports: {
-      textLabel: 'Expenses and Reports',
+      textLabel: 'Expenses and reports',
       selected: true,
     },
     advances: {

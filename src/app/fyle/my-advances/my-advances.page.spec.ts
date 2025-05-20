@@ -24,7 +24,6 @@ import {
   publicAdvanceRequestRes4,
   publicAdvanceRequestRes5,
   publicAdvanceRequestRes6,
-  publicAdvanceRequestResSentBack,
 } from 'src/app/core/mock-data/extended-advance-request.data';
 import {
   singleExtendedAdvancesData,
@@ -60,30 +59,30 @@ describe('MyAdvancesPage', () => {
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
 
   beforeEach(waitForAsync(() => {
-    let advanceRequestServiceSpy = jasmine.createSpyObj('AdvanceRequestService', [
+    const advanceRequestServiceSpy = jasmine.createSpyObj('AdvanceRequestService', [
       'getSpenderAdvanceRequestsCount',
       'getSpenderAdvanceRequests',
       'destroyAdvanceRequestsCacheBuster',
     ]);
-    let routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    let advanceServiceSpy = jasmine.createSpyObj('AdvanceService', [
+    const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    const advanceServiceSpy = jasmine.createSpyObj('AdvanceService', [
       'getMyAdvancesCount',
       'getSpenderAdvances',
       'destroyAdvancesCacheBuster',
     ]);
-    let networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
-    let filtersHelperServiceSpy = jasmine.createSpyObj('FiltersHelperService', [
+    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
+    const filtersHelperServiceSpy = jasmine.createSpyObj('FiltersHelperService', [
       'generateFilterPills',
       'openFilterModal',
     ]);
-    let utilityServiceSpy = jasmine.createSpyObj('UtilityService', ['sortAllAdvances']);
-    let trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['footerHomeTabClicked', 'tasksPageOpened']);
-    let tasksServiceSpy = jasmine.createSpyObj('TasksService', ['getAdvancesTaskCount', 'getTotalTaskCount']);
-    let expenseFieldsServiceSpy = jasmine.createSpyObj('ExpenseFieldsService', ['getAllEnabled']);
-    let orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const utilityServiceSpy = jasmine.createSpyObj('UtilityService', ['sortAllAdvances']);
+    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['footerHomeTabClicked', 'tasksPageOpened']);
+    const tasksServiceSpy = jasmine.createSpyObj('TasksService', ['getAdvancesTaskCount', 'getTotalTaskCount']);
+    const expenseFieldsServiceSpy = jasmine.createSpyObj('ExpenseFieldsService', ['getAllEnabled']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
 
     TestBed.configureTestingModule({
-      declarations: [MyAdvancesPage, TitleCasePipe],
+      declarations: [MyAdvancesPage],
       imports: [IonicModule.forRoot()],
       providers: [
         { provide: AdvanceRequestService, useValue: advanceRequestServiceSpy },
@@ -215,7 +214,7 @@ describe('MyAdvancesPage', () => {
       component.ionViewWillEnter();
       expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
       expect(component.advancesTaskCount).toEqual(4);
-      expect(component.navigateBack).toEqual(true);
+      expect(component.navigateBack).toBeTrue();
       expect(component.totalTaskCount).toEqual(5);
     });
 
@@ -524,10 +523,10 @@ describe('MyAdvancesPage', () => {
       expect(component.openFilters).toHaveBeenCalledOnceWith('State');
     }));
 
-    it('onFilterClick(): should call openFilters with Sort By if argument is sort', fakeAsync(() => {
+    it('onFilterClick(): should call openFilters with Sort by if argument is sort', fakeAsync(() => {
       component.onFilterClick('sort');
       tick(100);
-      expect(component.openFilters).toHaveBeenCalledOnceWith('Sort By');
+      expect(component.openFilters).toHaveBeenCalledOnceWith('Sort by');
     }));
   });
 

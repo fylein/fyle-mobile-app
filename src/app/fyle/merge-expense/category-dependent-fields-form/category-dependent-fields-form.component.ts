@@ -1,7 +1,13 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { EventEmitter, Injector, Output } from '@angular/core';
 import { Subscription, noop } from 'rxjs';
-import { FormGroup, ControlValueAccessor, NG_VALUE_ACCESSOR, FormBuilder, FormControl } from '@angular/forms';
+import {
+  UntypedFormGroup,
+  ControlValueAccessor,
+  NG_VALUE_ACCESSOR,
+  UntypedFormBuilder,
+  UntypedFormControl,
+} from '@angular/forms';
 
 type Option = Partial<{
   label: string;
@@ -46,13 +52,13 @@ export class CategoryDependentFieldsFormComponent implements OnInit, ControlValu
 
   @Input() disableFormElements: boolean;
 
-  categoryDependentFormGroup: FormGroup;
+  categoryDependentFormGroup: UntypedFormGroup;
 
   onChangeSub: Subscription;
 
   onTouched: () => void = noop;
 
-  constructor(private formBuilder: FormBuilder, private injector: Injector) {}
+  constructor(private formBuilder: UntypedFormBuilder, private injector: Injector) {}
 
   isFieldTouched = (fieldName: string): boolean => this.categoryDependentFormGroup.get(fieldName).touched;
 
@@ -70,7 +76,7 @@ export class CategoryDependentFieldsFormComponent implements OnInit, ControlValu
       distance_unit: [],
     });
 
-    this.categoryDependentFormGroup.valueChanges.subscribe((formControlNames: FormControl[]) => {
+    this.categoryDependentFormGroup.valueChanges.subscribe((formControlNames: UntypedFormControl[]) => {
       const touchedItems: string[] = [];
       Object.keys(formControlNames).forEach((key) => {
         if (this.isFieldTouched(key)) {
@@ -85,7 +91,7 @@ export class CategoryDependentFieldsFormComponent implements OnInit, ControlValu
     this.onChangeSub?.unsubscribe();
   }
 
-  writeValue(value: FormGroup): void {
+  writeValue(value: UntypedFormGroup): void {
     if (value) {
       this.categoryDependentFormGroup.patchValue(value);
     }

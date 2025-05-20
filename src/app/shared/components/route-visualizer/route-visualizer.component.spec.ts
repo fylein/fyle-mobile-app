@@ -242,7 +242,7 @@ describe('RouteVisualizerComponent', () => {
   it('handleMapLoadError(): should reset the map component', () => {
     component.handleMapLoadError(new Event('error'));
 
-    expect(component.showCurrentLocation).toBe(false);
+    expect(component.showCurrentLocation).toBeFalse();
     expect(component.directionsPolyline$).toBeNull();
     expect(component.directionsMapUrl$).toBeNull();
   });

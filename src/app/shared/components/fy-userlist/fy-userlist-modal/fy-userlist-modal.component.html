@@ -2,7 +2,7 @@
   <mat-icon class="fy-modal-top-bar" svgIcon="notch"></mat-icon>
   <ion-toolbar mode="md" class="fy-modal-toolbar">
     <ion-title>
-      <div class="selection-modal--title">Select Items</div>
+      <div class="selection-modal--title">Select items</div>
     </ion-title>
     <ion-buttons slot="start">
       <ion-button (click)="onDoneClick()">
@@ -73,11 +73,11 @@
         <label class="selection-modal--list-element-label">
           <mat-checkbox
             *ngIf="!newlyAddedItem.isNew"
-            [checked]="selectedItemDict[newlyAddedItem.us_email]"
+            [checked]="selectedItemDict[newlyAddedItem.email]"
             (change)="onSelect(newlyAddedItem, $event)"
           ></mat-checkbox>
           <span *ngIf="!newlyAddedItem.isNew" class="selection-modal--approver-details">
-            <span>{{ newlyAddedItem.us_email }}</span>
+            <span>{{ newlyAddedItem.email }}</span>
           </span>
           <div
             class="selection-modal--add-item-block"
@@ -99,12 +99,12 @@
       <div class="selection-modal--list-element">
         <label class="selection-modal--list-element-label">
           <mat-checkbox
-            [checked]="selectedItemDict[filteredListItem.us_email]"
+            [checked]="selectedItemDict[filteredListItem.email]"
             (change)="onSelect(filteredListItem, $event)"
           ></mat-checkbox>
           <span class="selection-modal--approver-details">
-            <span class="selection-modal--approver-details_name">{{ filteredListItem.us_full_name }}</span>
-            <span>{{ filteredListItem.us_email }}</span>
+            <span class="selection-modal--approver-details_name">{{ filteredListItem.full_name }}</span>
+            <span>{{ filteredListItem.email }}</span>
           </span>
         </label>
       </div>

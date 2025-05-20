@@ -5,7 +5,6 @@ import { AuthService } from '../services/auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { apiEouRes, eouWithPendingDetails } from '../mock-data/extended-org-user.data';
-import { routerStateSnapshotData } from '../mock-data/router-state-snapshot.data';
 
 describe('AuthGuard', () => {
   let guard: VerifiedOrgAuthGuard;
@@ -14,8 +13,8 @@ describe('AuthGuard', () => {
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
 
   beforeEach(() => {
-    let routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    let authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
+    const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     TestBed.configureTestingModule({
       schemas: [NO_ERRORS_SCHEMA],
       providers: [
@@ -48,7 +47,7 @@ describe('AuthGuard', () => {
   describe('canActivate(): ', () => {
     it('should return true if eou is present', (done) => {
       authService.getEou.and.resolveTo(apiEouRes);
-      const canActivate = guard.canActivate(activatedRoute.snapshot, routerStateSnapshotData) as Promise<boolean>;
+      const canActivate = guard.canActivate() as Promise<boolean>;
       canActivate.then((res) => {
         expect(authService.getEou).toHaveBeenCalledTimes(1);
         expect(res).toBeTrue();
@@ -58,7 +57,7 @@ describe('AuthGuard', () => {
 
     it('should return false if eou is not present', (done) => {
       authService.getEou.and.resolveTo(null);
-      const canActivate = guard.canActivate(activatedRoute.snapshot, routerStateSnapshotData) as Promise<boolean>;
+      const canActivate = guard.canActivate() as Promise<boolean>;
       canActivate.then((res) => {
         expect(authService.getEou).toHaveBeenCalledTimes(1);
         expect(res).toBeFalse();
@@ -68,7 +67,7 @@ describe('AuthGuard', () => {
 
     it('should navigate to switch org if status is PENDING_DETAILS', (done) => {
       authService.getEou.and.resolveTo(eouWithPendingDetails);
-      const canActivate = guard.canActivate(activatedRoute.snapshot, routerStateSnapshotData) as Promise<boolean>;
+      const canActivate = guard.canActivate() as Promise<boolean>;
       canActivate.then((res) => {
         expect(authService.getEou).toHaveBeenCalledTimes(1);
         expect(res).toBeTrue();

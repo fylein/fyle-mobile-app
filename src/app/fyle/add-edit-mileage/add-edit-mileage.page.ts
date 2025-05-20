@@ -2,8 +2,8 @@ import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 // TODO: Very hard to fix this file without making massive changes
 /* eslint-disable complexity */
 import { ChangeDetectorRef, Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } from '@angular/core';
-import { AbstractControl, FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { AbstractControl, UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, NavController, PopoverController } from '@ionic/angular';
 import * as dayjs from 'dayjs';
@@ -86,7 +86,6 @@ import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-it
 import { ReportService } from 'src/app/core/services/report.service';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { StatusService } from 'src/app/core/services/status.service';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { TokenService } from 'src/app/core/services/token.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
@@ -113,6 +112,7 @@ import { CommuteDetailsResponse } from 'src/app/core/models/platform/commute-det
 import { AdvanceWallet } from 'src/app/core/models/platform/v1/advance-wallet.model';
 import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
 import { LocationInfo } from 'src/app/core/models/location-info.model';
+import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -140,7 +140,7 @@ export class AddEditMileagePage implements OnInit {
 
   reviewList: string[];
 
-  fg: FormGroup;
+  fg: UntypedFormGroup;
 
   txnFields$: Observable<Partial<ExpenseFieldsObj>>;
 
@@ -218,14 +218,16 @@ export class AddEditMileagePage implements OnInit {
 
   saveAndPrevMileageLoader = false;
 
+  showBillable = false;
+
   clusterDomain: string;
 
   recentlyUsedValues$: Observable<RecentlyUsed>;
 
   recentlyUsedMileageLocations$: Observable<{
-    recent_start_locations?: string[];
-    recent_end_locations?: string[];
-    recent_locations?: string[];
+    start_locations?: string[];
+    end_locations?: string[];
+    locations?: string[];
   }>;
 
   recentProjects: { label: string; value: ProjectV2; selected?: boolean }[];
@@ -301,13 +303,12 @@ export class AddEditMileagePage implements OnInit {
     private customFieldsService: CustomFieldsService,
     private reportService: ReportService,
     private platformReportService: SpenderReportsService,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private projectsService: ProjectsService,
     private mileageService: MileageService,
     private mileageRatesService: MileageRatesService,
     private transactionsOutboxService: TransactionsOutboxService,
     private policyService: PolicyService,
-    private statusService: StatusService,
     private modalController: ModalController,
     private networkService: NetworkService,
     private navController: NavController,
@@ -333,7 +334,8 @@ export class AddEditMileagePage implements OnInit {
     private employeesService: EmployeesService,
     private expensesService: ExpensesService,
     private changeDetectorRef: ChangeDetectorRef,
-    private advanceWalletsService: AdvanceWalletsService
+    private advanceWalletsService: AdvanceWalletsService,
+    private expenseCommentService: ExpenseCommentService
   ) {}
 
   get showSaveAndNext(): boolean {
@@ -468,7 +470,7 @@ export class AddEditMileagePage implements OnInit {
         if (!this.fg.controls.project.value) {
           this.fg.patchValue({ billable: false });
         } else {
-          this.fg.patchValue({ billable: this.billableDefaultValue });
+          this.fg.patchValue({ billable: this.showBillable ? this.billableDefaultValue : false });
         }
       }),
       startWith(this.fg.controls.project.value),
@@ -564,6 +566,7 @@ export class AddEditMileagePage implements OnInit {
       ),
       map((expenseFieldsMap: Partial<ExpenseFieldsObj>) => {
         if (expenseFieldsMap) {
+          this.showBillable = expenseFieldsMap.billable?.is_enabled;
           for (const tfc of Object.keys(expenseFieldsMap)) {
             const expenseField = expenseFieldsMap[tfc] as ExpenseField;
             const options = expenseField.options as string[];
@@ -626,7 +629,7 @@ export class AddEditMileagePage implements OnInit {
             defaultValueColumn === 'billable' &&
             (control.value === null || control.value === undefined)
           ) {
-            control.patchValue(defaultValues[defaultValueColumn]);
+            control.patchValue(this.showBillable ? defaultValues[defaultValueColumn] : false);
           }
         }
       }
@@ -731,7 +734,7 @@ export class AddEditMileagePage implements OnInit {
         this.isConnected$.pipe(
           take(1),
           map((isConnected) => {
-            const customFieldsFormArray = this.fg.controls.custom_inputs as FormArray;
+            const customFieldsFormArray = this.fg.controls.custom_inputs as UntypedFormArray;
             customFieldsFormArray.clear();
             for (const customField of customFields) {
               customFieldsFormArray.push(
@@ -803,11 +806,11 @@ export class AddEditMileagePage implements OnInit {
             orgUserSettings.expense_form_autofills.allowed &&
             orgUserSettings.expense_form_autofills.enabled &&
             recentValue &&
-            recentValue.recent_vehicle_types &&
-            recentValue.recent_vehicle_types.length > 0;
+            recentValue.vehicle_types &&
+            recentValue.vehicle_types.length > 0;
           if (isRecentVehicleTypePresent) {
-            vehicleType = recentValue.recent_vehicle_types[0];
-            this.presetVehicleType = recentValue.recent_vehicle_types[0];
+            vehicleType = recentValue.vehicle_types[0];
+            this.presetVehicleType = recentValue.vehicle_types[0];
           }
 
           // if any employee assigned mileage rate is present
@@ -841,7 +844,7 @@ export class AddEditMileagePage implements OnInit {
 
     const autofillLocation$ = forkJoin({
       eou: this.authService.getEou(),
-      currentLocation: this.locationService.getCurrentLocation(),
+      currentLocation: this.locationService.getCurrentLocation({ enableHighAccuracy: true }),
       orgUserSettings: this.orgUserSettingsService.get(),
       orgSettings: this.orgSettingsService.get(),
       recentValue: this.recentlyUsedValues$,
@@ -854,11 +857,11 @@ export class AddEditMileagePage implements OnInit {
           orgUserSettings.expense_form_autofills.allowed &&
           orgUserSettings.expense_form_autofills.enabled &&
           recentValue &&
-          recentValue.recent_start_locations &&
-          recentValue.recent_start_locations.length > 0;
+          recentValue.start_locations &&
+          recentValue.start_locations.length > 0;
         if (isRecentLocationPresent) {
           const autocompleteLocationInfo = {
-            recentStartLocation: recentValue.recent_start_locations[0],
+            recentStartLocation: recentValue.start_locations[0],
             eou,
             currentLocation,
           };
@@ -1070,7 +1073,13 @@ export class AddEditMileagePage implements OnInit {
               } else {
                 control.setValidators(isConnected ? Validators.required : null);
               }
+            } else {
+              // set back the customDateValidator for spent_at field
+              if (txnFieldKey === 'txn_dt' && isConnected) {
+                control.setValidators(this.customDateValidator);
+              }
             }
+
             if (txnFieldKey === 'project_id' || txnFieldKey === 'commute_deduction') {
               control.updateValueAndValidity({
                 emitEvent: false,
@@ -1545,7 +1554,7 @@ export class AddEditMileagePage implements OnInit {
       project: [],
       billable: [],
       sub_category: [, Validators.required],
-      custom_inputs: new FormArray([]),
+      custom_inputs: new UntypedFormArray([]),
       costCenter: [],
       report: [],
       project_dependent_fields: this.fb.array([]),
@@ -1561,7 +1570,7 @@ export class AddEditMileagePage implements OnInit {
     this.setupSelectedCostCenters();
 
     this.fg.reset();
-    this.title = 'Add Mileage';
+    this.title = 'Add mileage';
 
     this.activeIndex = this.activatedRoute.snapshot.params.activeIndex as number;
     this.reviewList = (this.activatedRoute.snapshot.params.txnIds &&
@@ -1598,9 +1607,9 @@ export class AddEditMileagePage implements OnInit {
 
     this.recentlyUsedMileageLocations$ = this.recentlyUsedValues$.pipe(
       map((recentlyUsedValues) => ({
-        recent_start_locations: recentlyUsedValues?.recent_start_locations || [],
-        recent_end_locations: recentlyUsedValues?.recent_end_locations || [],
-        recent_locations: recentlyUsedValues?.recent_locations || [],
+        start_locations: recentlyUsedValues?.start_locations || [],
+        end_locations: recentlyUsedValues?.end_locations || [],
+        locations: recentlyUsedValues?.locations || [],
       }))
     );
 
@@ -1617,7 +1626,9 @@ export class AddEditMileagePage implements OnInit {
       ),
       map((projectCount) => projectCount > 0)
     );
-    this.comments$ = this.statusService.find('transactions', this.activatedRoute.snapshot.params.id as string);
+    this.comments$ = this.expenseCommentService.getTransformedComments(
+      this.activatedRoute.snapshot.params.id as string
+    );
 
     this.filteredCategories$.subscribe((subCategories) => {
       if (subCategories.length) {
@@ -1914,10 +1925,7 @@ export class AddEditMileagePage implements OnInit {
 
           // Check if recent projects exist
           const doRecentProjectIdsExist =
-            isAutofillsEnabled &&
-            recentValue &&
-            recentValue.recent_project_ids &&
-            recentValue.recent_project_ids.length > 0;
+            isAutofillsEnabled && recentValue && recentValue.project_ids && recentValue.project_ids.length > 0;
 
           if (recentProjects && recentProjects.length > 0) {
             this.recentProjects = recentProjects.map((item) => ({ label: item.project_name, value: item }));
@@ -1946,10 +1954,7 @@ export class AddEditMileagePage implements OnInit {
 
           // Check if recent cost centers exist
           const doRecentCostCenterIdsExist =
-            isAutofillsEnabled &&
-            recentValue &&
-            recentValue.recent_cost_center_ids &&
-            recentValue.recent_cost_center_ids.length > 0;
+            isAutofillsEnabled && recentValue && recentValue.cost_center_ids && recentValue.cost_center_ids.length > 0;
 
           if (recentCostCenters && recentCostCenters.length > 0) {
             this.recentCostCenters = recentCostCenters;
@@ -1982,10 +1987,10 @@ export class AddEditMileagePage implements OnInit {
             orgUserSettings.expense_form_autofills.allowed &&
             orgUserSettings.expense_form_autofills.enabled &&
             recentValue &&
-            recentValue.recent_start_locations &&
-            recentValue.recent_start_locations.length > 0;
+            recentValue.start_locations &&
+            recentValue.start_locations.length > 0;
           if (isRecentLocationPresent) {
-            this.presetLocation = recentValue.recent_start_locations[0];
+            this.presetLocation = recentValue.start_locations[0];
           }
           const mileage_rate_name = this.getMileageByVehicleType(allMileageRates, etxn.tx.mileage_vehicle_type);
           if (mileage_rate_name) {
@@ -2651,6 +2656,10 @@ export class AddEditMileagePage implements OnInit {
 
             // NOTE: This double call is done as certain fields will not be present in return of upsert call. policy_amount in this case.
             return this.transactionService.upsert(etxn.tx as Transaction).pipe(
+              catchError((error: Error) => {
+                this.trackingService.editMileageError({ label: error });
+                return throwError(() => error);
+              }),
               switchMap((txn) => this.expensesService.getExpenseById(txn.id)),
               map((expense) => this.transactionService.transformExpense(expense).tx),
               switchMap((tx) => {
@@ -2687,10 +2696,17 @@ export class AddEditMileagePage implements OnInit {
           }),
           switchMap((txn) => {
             if (comment) {
-              return this.statusService.findLatestComment(txn.id, 'transactions', txn.org_user_id).pipe(
+              return this.expenseCommentService.findLatestExpenseComment(txn.id, txn.creator_id).pipe(
                 switchMap((result) => {
                   if (result !== comment) {
-                    return this.statusService.post('transactions', txn.id, { comment }, true).pipe(map(() => txn));
+                    const commentsPayload = [
+                      {
+                        expense_id: txn.id,
+                        comment,
+                        notify: true,
+                      },
+                    ];
+                    return this.expenseCommentService.post(commentsPayload).pipe(map(() => txn));
                   } else {
                     return of(txn);
                   }
@@ -2975,7 +2991,7 @@ export class AddEditMileagePage implements OnInit {
           if (config.removeMileageFromReport) {
             return this.platformReportService.ejectExpenses(config.reportId, config.id);
           }
-          return this.transactionService.delete(config.id);
+          return this.expensesService.deleteExpenses([config.id]);
         },
       },
     };

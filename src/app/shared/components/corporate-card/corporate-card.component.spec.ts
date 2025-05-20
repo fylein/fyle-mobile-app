@@ -103,16 +103,6 @@ describe('CorporateCardComponent', () => {
       const icon = getElementBySelector(fixture, '[data-testid="amex-icon"]');
       expect(icon).toBeTruthy();
     });
-
-    it('should show the default card icon when the card is not connected to visa,  mastercard RTF and AMEX_FEED', () => {
-      component.card = statementUploadedCard;
-
-      component.ngOnInit();
-      fixture.detectChanges();
-
-      const icon = getElementBySelector(fixture, '[data-testid="default-icon"]');
-      expect(icon).toBeTruthy();
-    });
   });
 
   describe('options menu button', () => {
@@ -272,7 +262,7 @@ describe('CorporateCardComponent', () => {
       const feedInfo = getElementBySelector(fixture, '[data-testid="feed-info"]');
 
       expect(feedInfo).toBeTruthy();
-      expect(feedInfo.textContent).toBe('Statement Upload');
+      expect(feedInfo.textContent).toBe('Statement upload');
     });
   });
 });

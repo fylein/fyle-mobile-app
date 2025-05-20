@@ -10,7 +10,7 @@
       class="page-title"
       [ngClass]="{'view-mileage--title': reportExpenseCount > 1, 'pl-0': isDeviceWidthSmall}"
     >
-      View Mileage
+      View mileage
       <p class="view-mileage--subtitle" *ngIf="reportExpenseCount > 1">
         Showing {{ activeExpenseIndex + 1 }} of {{ reportExpenseCount }} expenses
       </p>
@@ -73,7 +73,7 @@
           [ngClass]="{'view-mileage--card-container__state-pill--with-project': isProjectShown}"
         >
           <div class="state-pill state-{{expense.state | expenseState}}">
-            {{ expense.state | expenseState : isNewReportsFlowEnabled | snakeCaseToSpaceCase | titlecase }}
+            {{ expense.state | expenseState | snakeCaseToSpaceCase | titlecase }}
           </div>
         </div>
       </div>
@@ -119,7 +119,7 @@
             </div>
           </ion-col>
           <ion-col class="view-mileage--content-container">
-            <div class="view-mileage--label">Round Trip</div>
+            <div class="view-mileage--label">Round trip</div>
             <div class="view-mileage--value">{{ expense.mileage_is_round_trip ? 'Yes' : 'No' }}</div>
           </ion-col>
         </ion-row>
@@ -136,7 +136,7 @@
           </div>
         </ion-col>
         <ion-col class="view-mileage--content-container">
-          <div class="view-mileage--label">Report Name</div>
+          <div class="view-mileage--label">Report name</div>
           <div class="view-mileage--value">{{ expense.report?.title }}</div>
         </ion-col>
       </ion-row>
@@ -151,7 +151,7 @@
         </ion-col>
         <ion-col class="view-mileage--content-container">
           <div class="view-mileage--label">Employee</div>
-          <div class="view-mileage--value">{{ expense.user.full_name }}</div>
+          <div class="view-mileage--value smartlook-hide">{{ expense.user.full_name }}</div>
         </ion-col>
       </ion-row>
     </ion-grid>
@@ -164,7 +164,7 @@
           </div>
         </ion-col>
         <ion-col class="view-mileage--content-container">
-          <div class="view-mileage--label">Expense ID</div>
+          <div class="view-mileage--label">Expense number</div>
           <div class="view-mileage--value">{{ expense.seq_num }}</div>
         </ion-col>
       </ion-row>
@@ -186,7 +186,7 @@
                 </div>
               </ion-col>
               <ion-col class="view-mileage--content-container">
-                <div class="view-mileage--label">Created Date</div>
+                <div class="view-mileage--label">Created date</div>
                 <div class="view-mileage--value">{{ expense.created_at | date: 'MMM dd, YYYY' }}</div>
               </ion-col>
             </ion-row>
@@ -204,7 +204,7 @@
                 </div>
               </ion-col>
               <ion-col class="view-mileage--content-container">
-                <div class="view-mileage--label">Spend Date</div>
+                <div class="view-mileage--label">Spend date</div>
                 <div class="view-mileage--value">{{ expense.spent_at | date: 'MMM dd, YYYY' }}</div>
               </ion-col>
             </ion-row>
@@ -224,7 +224,7 @@
           </div>
         </ion-col>
         <ion-col class="view-mileage--content-container">
-          <div class="view-mileage--label">Payment Mode</div>
+          <div class="view-mileage--label">Payment mode</div>
           <div class="view-mileage--value">{{ paymentMode }}</div>
         </ion-col>
       </ion-row>
@@ -258,7 +258,7 @@
                 </div>
               </ion-col>
               <ion-col class="view-mileage--content-container">
-                <div class="view-mileage--label">Subcategory</div>
+                <div class="view-mileage--label">Sub-category</div>
                 <div class="view-mileage--value">{{ expense.category.sub_category }}</div>
               </ion-col>
             </ion-row>
@@ -281,7 +281,7 @@
                 </div>
               </ion-col>
               <ion-col class="view-mileage--content-container">
-                <div class="view-mileage--label">Mileage Rate</div>
+                <div class="view-mileage--label">Mileage rate</div>
                 <div class="view-mileage--value">
                   {{ mileageRate.vehicle_type | mileageRateName }} ({{ mileageRate.rate | currency:expense.currency:
                   'symbol-narrow'}} / {{ mileageRate.unit | titlecase}})
@@ -307,7 +307,7 @@
                 </div>
               </ion-col>
               <ion-col class="view-mileage--content-container">
-                <div class="view-mileage--label">Commute Deduction</div>
+                <div class="view-mileage--label">Commute deduction</div>
                 <div class="view-mileage--value" *ngIf="expense.commute_deduction !== 'NO_DEDUCTION'">
                   {{commuteDeduction}} - {{expense.commute_details?.distance?.toFixed(2)}}
                   {{expense.commute_details?.distance_unit | titlecase}}
@@ -333,7 +333,7 @@
                 </div>
               </ion-col>
               <ion-col class="view-mileage--content-container">
-                <div class="view-mileage--label">Claimed Distance</div>
+                <div class="view-mileage--label">Claimed distance</div>
                 <div class="view-mileage--value">{{expense.distance}} {{expense.distance_unit | titlecase}}</div>
               </ion-col>
             </ion-row>
@@ -348,7 +348,7 @@
                 </div>
               </ion-col>
               <ion-col class="view-mileage--content-container">
-                <div class="view-mileage--label">Calculated Distance</div>
+                <div class="view-mileage--label">Calculated distance</div>
                 <div class="view-mileage--value">
                   {{expense.mileage_calculated_distance}} {{expense.distance_unit | titlecase}}
                 </div>
@@ -373,7 +373,7 @@
                 </div>
               </ion-col>
               <ion-col class="view-mileage--content-container">
-                <div class="view-mileage--label">Calculated Amount</div>
+                <div class="view-mileage--label">Calculated amount</div>
                 <div class="view-mileage--value">
                   {{expense.mileage_calculated_amount | currency:expense.currency: 'symbol-narrow'}}
                 </div>
@@ -400,7 +400,7 @@
                     </div>
                   </ion-col>
                   <ion-col class="view-mileage--content-container">
-                    <div class="view-mileage--label">Cost Center</div>
+                    <div class="view-mileage--label">Cost center</div>
                     <div class="view-mileage--value">{{ expense.cost_center?.name }}</div>
                   </ion-col>
                 </ion-row>
@@ -418,7 +418,7 @@
                     </div>
                   </ion-col>
                   <ion-col class="view-mileage--content-container">
-                    <div class="view-mileage--label">Cost Center Code</div>
+                    <div class="view-mileage--label">Cost center code</div>
                     <div class="view-mileage--value">{{ expense.cost_center?.code }}</div>
                   </ion-col>
                 </ion-row>

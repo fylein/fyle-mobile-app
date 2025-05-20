@@ -169,7 +169,7 @@ describe('AddApproversPopoverComponent', () => {
 
   it('should have the "Add Approvers" title in the header', () => {
     const title = getElementBySelector(fixture, '.add-approvers-popover--toolbar__title');
-    expect(getTextContent(title)).toContain('Add Approvers');
+    expect(getTextContent(title)).toContain('Add approvers');
   });
 
   it('should display the "+n more" chip when there are more than 3 selected approvers', () => {

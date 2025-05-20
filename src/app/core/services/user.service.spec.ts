@@ -226,7 +226,7 @@ describe('UserService', () => {
     authService.getEou.and.returnValue(new Promise<ExtendedOrgUser>((resolve) => resolve(extendedOrgUser)));
 
     userService.isPendingDetails().subscribe((isPendingDetails) => {
-      expect(isPendingDetails).toEqual(false);
+      expect(isPendingDetails).toBeFalse();
       done();
     });
   });
@@ -237,7 +237,7 @@ describe('UserService', () => {
     authService.getEou.and.returnValue(new Promise<ExtendedOrgUser>((resolve) => resolve(extendedOrgUserCopy)));
 
     userService.isPendingDetails().subscribe((isPendingDetails) => {
-      expect(isPendingDetails).toEqual(true);
+      expect(isPendingDetails).toBeTrue();
       done();
     });
   });

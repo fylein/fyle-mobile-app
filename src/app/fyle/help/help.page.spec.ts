@@ -2,7 +2,7 @@ import { ComponentFixture, fakeAsync, TestBed, tick, waitForAsync } from '@angul
 import { IonicModule } from '@ionic/angular';
 import { ModalController } from '@ionic/angular';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { OrgUserService } from 'src/app/core/services/org-user.service';
+import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { HelpPage } from './help.page';
@@ -17,7 +17,7 @@ describe('HelpPage', () => {
   let component: HelpPage;
   let fixture: ComponentFixture<HelpPage>;
   let modalController: jasmine.SpyObj<ModalController>;
-  let orgUserService: jasmine.SpyObj<OrgUserService>;
+  let employeesService: jasmine.SpyObj<EmployeesService>;
   let loaderService: jasmine.SpyObj<LoaderService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
   let authService: jasmine.SpyObj<AuthService>;
@@ -25,7 +25,7 @@ describe('HelpPage', () => {
 
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
-    const orgUserServiceSpy = jasmine.createSpyObj('OrgUserService', ['getEmployeesByParams']);
+    const employeesServiceSpy = jasmine.createSpyObj('EmployeesService', ['getEmployeesByParams']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['viewHelpCard']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
@@ -40,8 +40,8 @@ describe('HelpPage', () => {
           useValue: modalControllerSpy,
         },
         {
-          provide: OrgUserService,
-          useValue: orgUserServiceSpy,
+          provide: EmployeesService,
+          useValue: employeesServiceSpy,
         },
         {
           provide: LoaderService,
@@ -65,7 +65,7 @@ describe('HelpPage', () => {
     fixture = TestBed.createComponent(HelpPage);
     component = fixture.componentInstance;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
-    orgUserService = TestBed.inject(OrgUserService) as jasmine.SpyObj<OrgUserService>;
+    employeesService = TestBed.inject(EmployeesService) as jasmine.SpyObj<EmployeesService>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
@@ -82,12 +82,12 @@ describe('HelpPage', () => {
   it('openContactSupportDialog(): should open contact support dialog', fakeAsync(() => {
     const dialogType = 'contact_support';
     const params = {
-      select: 'us_full_name,us_email',
-      ou_org_id: 'eq.orNVthTo2Zyo',
-      ou_roles: 'like.%ADMIN%',
-      ou_status: 'eq."ACTIVE"',
-      ou_id: 'not.eq.ouX8dwsbLCLv',
-      order: 'us_full_name.asc,ou_id',
+      select: '(full_name,email)',
+      roles: 'like.%ADMIN%',
+      is_enabled: 'eq.true',
+      has_accepted_invite: 'eq.true',
+      id: 'neq.ouX8dwsbLCLv',
+      order: 'full_name.asc',
       limit: 5,
     };
 
@@ -95,30 +95,18 @@ describe('HelpPage', () => {
     loaderService.hideLoader.and.resolveTo();
     spyOn(component, 'presentSupportModal');
     authService.getEou.and.resolveTo(apiEouRes);
-    orgUserService.getEmployeesByParams.and.returnValue(of(employeesRes));
+    employeesService.getEmployeesByParams.and.returnValue(of(employeesRes));
 
     component.openContactSupportDialog();
     tick(500);
     expect(component.contactSupportLoading).toBeTrue();
     expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Please wait', 10000);
     expect(authService.getEou).toHaveBeenCalledTimes(1);
-    expect(orgUserService.getEmployeesByParams).toHaveBeenCalledOnceWith(params);
+    expect(employeesService.getEmployeesByParams).toHaveBeenCalledOnceWith(params);
     expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-    expect(component.orgAdmins).toEqual(employeesRes.data);
+    expect(component.orgAdmins).toEqual(employeesRes);
     expect(component.presentSupportModal).toHaveBeenCalledWith(dialogType);
   }));
-
-  it('openLogMileageDialog(): should open LogMileage dialog', () => {
-    spyOn(component, 'presentSupportModal');
-    component.openLogMileageDialog();
-    expect(component.presentSupportModal).toHaveBeenCalledWith('log_mileage');
-  });
-
-  it('openCaptureEmailReceiptsDialog(): should open captureEmailReceipts dialog', () => {
-    spyOn(component, 'presentSupportModal');
-    component.openCaptureEmailReceiptsDialog();
-    expect(component.presentSupportModal).toHaveBeenCalledWith('capture_email');
-  });
 
   describe('presentSupportModal():', () => {
     it('should open present support modal when the dialog type is contact_support and when data is present', fakeAsync(() => {
@@ -134,7 +122,7 @@ describe('HelpPage', () => {
         component: SupportDialogPage,
         componentProps: {
           type: dialogType,
-          adminEous: employeesRes,
+          adminEous: employeesRes.data,
         },
       });
       expect(modalControllerSpy.present).toHaveBeenCalledTimes(1);
@@ -155,7 +143,7 @@ describe('HelpPage', () => {
         component: SupportDialogPage,
         componentProps: {
           type: dialogType,
-          adminEous: employeesRes,
+          adminEous: employeesRes.data,
         },
       });
       expect(modalControllerSpy.present).toHaveBeenCalledTimes(1);
@@ -165,7 +153,7 @@ describe('HelpPage', () => {
   });
 
   it('openHelpLink', fakeAsync(() => {
-    const url = 'https://help.fylehq.com';
+    const url = 'https://www.fylehq.com/help';
     const toolbarColor = '#280a31';
     component.openHelpLink();
     tick(500);

@@ -7,7 +7,7 @@
         </ion-button>
       </ion-buttons>
       <div class="my-create-report--title-container text-center">
-        <div class="my-create-report--title">Create New Report</div>
+        <div class="my-create-report--title">Create new report</div>
         <div class="my-create-report--sub-title">
           {{ selectedElements?.length }} {{ selectedElements?.length > 1 ? 'Expenses' : 'Expense' }}
           <span class="my-create-report--amount">
@@ -22,30 +22,31 @@
 <ion-content class="no-keyboard-adjust">
   <div class="my-create-report--container full-height">
     <div class="my-create-report--report-card">
-      <div class="my-create-report--report-title">Report Name</div>
+      <div class="my-create-report--report-title">Expense report name</div>
       <span class="my-create-report--mandatory"> * </span>
       <input
         data-testid="report-name"
         class="my-create-report--report-name smartlook-show"
         name="reportName"
         type="text"
-        placeholder="Enter Report Title"
+        placeholder="Enter report name"
         [(ngModel)]="reportTitle"
         required
         (ngModelChange)="detectTitleChange()"
         #reportTitleInput="ngModel"
       />
     </div>
-    <div class="my-create-report--error-message" *ngIf="showReportNameError">Please enter report name.</div>
+    <div class="my-create-report--error-message" *ngIf="showReportNameError">Please enter expense report name.</div>
 
     <div *ngIf="readyToReportExpenses?.length === 0" class="my-create-report--zero-state">
       <div>
         <img
           alt="Create First Expenses"
           class="my-create-report--zero-state-img"
-          src="../../../assets/images/zero-states/expenses.png"
+          src="../../../assets/images/zero-states/new-expenses.png"
         />
-        <div class="my-create-report--zero-state-text">Looks like you don't have reportable expenses.</div>
+        <div class="my-create-report--zero-state-text">You have no reportable</div>
+        <div class="my-create-report--zero-state-text">expenses right now</div>
       </div>
     </div>
 
@@ -89,7 +90,7 @@
         [loadingText]="'Saving Report'"
         [disabled]="emptyInput"
       >
-        Save as Draft
+        Save as draft
       </ion-button>
       <ion-button
         class="fy-footer-cta fy-footer-cta--primary"
@@ -99,7 +100,7 @@
         [loadingText]="'Submitting Report'"
         [disabled]="(this.selectedElements?.length === 0) || saveDraftReportLoading  || saveReportLoading"
       >
-        Submit Report
+        Submit report
       </ion-button>
     </div>
   </ion-toolbar>

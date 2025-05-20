@@ -28,7 +28,7 @@
             <div class="invited-user__input-container">
               <div
                 class="invited-user__text invited-user__text-block"
-                [ngClass]="{'invited-user__text__invalid': fg.controls.password.touched && !fg.controls.password.valid}"
+                [ngClass]="{'invited-user__text__password-focus': focusOnPassword && !(fg.controls.password.touched && !fg.controls.password.valid), 'invited-user__text__invalid': fg.controls.password.touched && !fg.controls.password.valid}"
               >
                 <div class="invited-user__text-label">Password</div>
                 <div class="invited-user__password-container">
@@ -70,7 +70,7 @@
             <div class="invited-user__input-container">
               <div
                 class="invited-user__text invited-user__text-block"
-                [ngClass]="{'invited-user__text__invalid': fg.controls.confirmPassword.touched && !fg.controls.confirmPassword.valid}"
+                [ngClass]="{'invited-user__text__password-focus': focusOnConfirmPassword && !(fg.controls.confirmPassword.touched && !fg.controls.confirmPassword.valid), 'invited-user__text__invalid': fg.controls.confirmPassword.touched && !fg.controls.confirmPassword.valid}"
               >
                 <div class="invited-user__text-label">Confirm password</div>
                 <div class="invited-user__password-container">
@@ -80,6 +80,8 @@
                     [type]="hideConfirmPassword ? 'password': 'text'"
                     class="invited-user__text-input smartlook-show"
                     formControlName="confirmPassword"
+                    (focus)="focusOnConfirmPassword = true"
+                    (blur)="focusOnConfirmPassword = false"
                   />
                   <div
                     class="invited-user__password-icon-container"
@@ -134,7 +136,7 @@
     />
     <div class="invited-user-offline__title">Looks like you are offline</div>
     <div class="invited-user-offline__sub-title">
-      You need to be connected to Internet to be able to login to the app. Please check if your Internet connection is
+      You need to be connected to internet to be able to login to the app. Please check if your internet connection is
       working.
     </div>
   </div>

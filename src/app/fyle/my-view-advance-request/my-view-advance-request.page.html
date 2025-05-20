@@ -10,7 +10,7 @@
       </ion-button>
     </ion-buttons>
     <ion-title mode="md" class="page-title" [ngClass]="{'view-advance-request--title-sm': isDeviceWidthSmall}"
-      >View Advance Request</ion-title
+      >View advance request</ion-title
     >
     <ion-buttons
       class="view-advance-request--header-btn-container"
@@ -75,7 +75,7 @@
           <app-fy-statistic
             [icon]="'../../../../assets/svg/wallet.svg'"
             [type]="StatisticTypes.STRING"
-            [label]="'Request ID'"
+            [label]="'Request number'"
             [value]="advanceRequest.areq_advance_request_number|| '-'"
           ></app-fy-statistic>
         </div>
@@ -89,7 +89,7 @@
                 <app-fy-statistic
                   [icon]="'../../../../assets/svg/calendar.svg'"
                   [type]="StatisticTypes.DATE"
-                  [label]="'Created On'"
+                  [label]="'Created date'"
                   [value]="advanceRequest.areq_created_at | date: 'MMM dd, YYYY'"
                 ></app-fy-statistic>
               </div>
@@ -99,7 +99,7 @@
                 <app-fy-statistic
                   [icon]="'../../../../assets/svg/calendar.svg'"
                   [type]="StatisticTypes.DATE"
-                  [label]="'Approved On'"
+                  [label]="'Approved date'"
                   [value]="advanceRequest.areq_approved_at | date: 'MMM dd, YYYY'"
                 ></app-fy-statistic>
               </div>
@@ -130,7 +130,7 @@
           <app-fy-statistic
             [icon]="'../../../../assets/svg/list.svg'"
             [type]="StatisticTypes.STRING"
-            [label]="'Additional Notes'"
+            [label]="'Additional notes'"
             [value]="advanceRequest.areq_notes || '-'"
           ></app-fy-statistic>
         </div>
@@ -196,7 +196,7 @@
           <a
             class="view-advance-request--anchor"
             [routerLink]="['/', 'enterprise', 'my_view_advance', {id: advanceRequest.areq_advance_id}]"
-            >View Advance</a
+            >View advance</a
           >
         </div>
       </div>
@@ -206,7 +206,7 @@
 <ng-container *ngIf="actions$|async as actions">
   <ion-footer *ngIf="actions?.can_pull_back">
     <ion-toolbar class="fy-footer-cta-container" mode="md">
-      <ion-button class="fy-footer-cta fy-footer-cta--primary" (click)="pullBack()"> Pull Back </ion-button>
+      <ion-button class="fy-footer-cta fy-footer-cta--primary" (click)="pullBack()"> Pull back </ion-button>
     </ion-toolbar>
   </ion-footer>
 </ng-container>

@@ -11,7 +11,7 @@
       </ion-button>
     </ion-buttons>
     <ion-title class="text-center transaction-status-info-popover__toolbar-title" data-testid="title"
-      >Transaction Status: {{ transactionStatus | titlecase }}</ion-title
+      >Transaction status: {{ transactionStatus | titlecase }}</ion-title
     >
   </ion-toolbar>
 </ion-header>
@@ -19,7 +19,7 @@
 <ion-content class="transaction-status-info-popover__content">
   <div class="transaction-status-info-popover__body" data-testid="content">
     <ng-container *ngIf="transactionStatus === 'PENDING'; else posted"
-      >Your transaction status is Pending until your bank processes the transaction.</ng-container
+      >Your transaction status is 'Pending' until your bank processes the transaction.</ng-container
     >
 
     <ng-template #posted>The transaction has been processed by your bank.</ng-template>

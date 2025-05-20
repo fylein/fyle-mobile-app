@@ -104,7 +104,7 @@
             <input
               class="route-selector--input smartlook-show"
               type="text"
-              [placeholder]="'Enter Route'"
+              [placeholder]="'Enter route'"
               (click)="openModal()"
               [ngClass]="{ 'route-selector--input-disabled': form.controls.mileageLocations.disabled }"
               [disabled]="form.controls.mileageLocations.disabled"
@@ -133,7 +133,7 @@
     [ngClass]="{ 'route-selector--input-disabled': isRoundTripDisabled }"
   >
     <mat-checkbox [disabled]="isRoundTripDisabled" formControlName="roundTrip">
-      <span class="route-selector--checkbox"> Round Trip </span>
+      <span class="route-selector--checkbox"> Round trip </span>
     </mat-checkbox>
   </div>
 
@@ -160,7 +160,7 @@
         [min]="0"
         [isDistance]="true"
         formControlName="distance"
-        placeholder="Enter Distance"
+        placeholder="Enter distance"
       >
       </app-fy-number>
     </div>

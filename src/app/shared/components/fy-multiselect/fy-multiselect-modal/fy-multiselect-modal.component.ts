@@ -4,14 +4,14 @@ import { ModalController } from '@ionic/angular';
 import { distinctUntilChanged, map, startWith } from 'rxjs/operators';
 import { isEqual } from 'lodash';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { MatChipInputEvent } from '@angular/material/chips';
+import { MatLegacyChipInputEvent as MatChipInputEvent } from '@angular/material/legacy-chips';
 
 @Component({
   selector: 'app-fy-multiselect-modal',
   templateUrl: './fy-multiselect-modal.component.html',
   styleUrls: ['./fy-multiselect-modal.component.scss'],
 })
-export class FyMultiselectModalComponent implements OnInit, AfterViewInit {
+export class FyMultiselectModalComponent implements AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;
 
   @Input() options: { label: string; value: any; selected?: boolean }[] = [];
@@ -62,9 +62,7 @@ export class FyMultiselectModalComponent implements OnInit, AfterViewInit {
     this.onElementSelected(updatedItem);
   }
 
-  ngOnInit() {}
-
-  ngAfterViewInit() {
+  ngAfterViewInit(): void {
     this.filteredOptions$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
       map((event: any) => event.srcElement.value),
       startWith(''),
@@ -83,7 +81,7 @@ export class FyMultiselectModalComponent implements OnInit, AfterViewInit {
     this.cdr.detectChanges();
   }
 
-  onDoneClick() {
+  onDoneClick(): void {
     this.modalController.dismiss();
   }
 
@@ -98,7 +96,7 @@ export class FyMultiselectModalComponent implements OnInit, AfterViewInit {
     this.currentSelections = this.options.filter((option) => option.selected).map((option) => option.value);
   }
 
-  useSelected() {
+  useSelected(): void {
     this.modalController.dismiss({
       selected: this.options.filter((option) => option.selected),
     });

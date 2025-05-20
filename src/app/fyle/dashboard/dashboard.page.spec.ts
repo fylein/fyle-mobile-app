@@ -12,7 +12,7 @@ import { SmartlookService } from 'src/app/core/services/smartlook.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { EventEmitter, NO_ERRORS_SCHEMA } from '@angular/core';
-import { FooterState } from 'src/app/shared/components/footer/footer-state';
+import { FooterState } from 'src/app/shared/components/footer/footer-state.enum';
 import { Subject, Subscription, of } from 'rxjs';
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
@@ -34,8 +34,14 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
 import { featureConfigOptInData } from 'src/app/core/mock-data/feature-config.data';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import {
+  featureConfigWalkthroughFinishData,
+  featureConfigWalkthroughStartData,
+} from 'src/app/core/mock-data/feature-config.data';
+import { FooterService } from 'src/app/core/services/footer.service';
+import { TimezoneService } from 'src/app/core/services/timezone.service';
 
 describe('DashboardPage', () => {
   let component: DashboardPage;
@@ -59,6 +65,8 @@ describe('DashboardPage', () => {
   let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
   let authService: jasmine.SpyObj<AuthService>;
   let modalController: jasmine.SpyObj<ModalController>;
+  let footerService: jasmine.SpyObj<FooterService>;
+  let timezoneService: jasmine.SpyObj<TimezoneService>;
 
   beforeEach(waitForAsync(() => {
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
@@ -74,6 +82,7 @@ describe('DashboardPage', () => {
       'optInFromPostPostCardAdditionInDashboard',
       'optedInFromDashboardBanner',
       'skipOptInFromDashboardBanner',
+      'eventTrack',
     ]);
     const actionSheetControllerSpy = jasmine.createSpyObj('ActionSheetController', ['create']);
     const tasksServiceSpy = jasmine.createSpyObj('TasksService', ['getTotalTaskCount']);
@@ -98,7 +107,11 @@ describe('DashboardPage', () => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
+    const footerServiceSpy = jasmine.createSpyObj('FooterService', ['updateCurrentStateIndex'], {
+      footerCurrentStateIndex$: of(1),
+    });
 
+    const timezoneServiceSpy = jasmine.createSpyObj('TimezoneService', ['setTimezone']);
     TestBed.configureTestingModule({
       declarations: [DashboardPage],
       imports: [IonicModule.forRoot()],
@@ -140,6 +153,11 @@ describe('DashboardPage', () => {
           provide: SnackbarPropertiesService,
           useValue: snackbarPropertiesSpy,
         },
+        { provide: FooterService, useValue: footerServiceSpy },
+        {
+          provide: TimezoneService,
+          useValue: timezoneServiceSpy,
+        },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -166,6 +184,8 @@ describe('DashboardPage', () => {
     modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
+    footerService = TestBed.inject(FooterService) as jasmine.SpyObj<FooterService>;
+    timezoneService = TestBed.inject(TimezoneService) as jasmine.SpyObj<TimezoneService>;
     fixture.detectChanges();
   }));
 
@@ -253,6 +273,8 @@ describe('DashboardPage', () => {
     beforeEach(() => {
       spyOn(component, 'setupNetworkWatcher');
       spyOn(component, 'registerBackButtonAction');
+      spyOn(component, 'startTour');
+      spyOn(component, 'setNavbarWalkthroughFeatureConfigFlag');
       orgSettingsService.get.and.returnValue(of(orgSettingsRes));
       orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
       categoriesService.getMileageOrPerDiemCategories.and.returnValue(of(mileagePerDiemPlatformCategoryData));
@@ -269,6 +291,8 @@ describe('DashboardPage', () => {
       authService.getEou.and.resolveTo(apiEouRes);
       utilityService.isUserFromINCluster.and.resolveTo(false);
       spyOn(component, 'setShowOptInBanner');
+      featureConfigService.getConfiguration.and.returnValue(of(featureConfigWalkthroughFinishData));
+      featureConfigService.saveConfiguration.and.returnValue(of(null));
     });
 
     it('should call setupNetworkWatcher, registerBackButtonAction and smartlookService.init once', () => {
@@ -303,6 +327,7 @@ describe('DashboardPage', () => {
       component.orgUserSettings$.subscribe((res) => {
         expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
         expect(res).toEqual(orgUserSettingsData);
+        expect(timezoneService.setTimezone).toHaveBeenCalledTimes(1);
       });
     });
 
@@ -364,6 +389,14 @@ describe('DashboardPage', () => {
       });
       expect(component.setShowOptInBanner).toHaveBeenCalledTimes(1);
     });
+
+    it('should start navbar walkthrough', fakeAsync(() => {
+      component.eou$ = of(apiEouRes);
+      featureConfigService.getConfiguration.and.returnValue(of(featureConfigWalkthroughStartData));
+      component.ionViewWillEnter();
+      tick(1000);
+      expect(component.startTour).toHaveBeenCalledTimes(1);
+    }));
   });
 
   describe('backButtonActionHandler():', () => {
@@ -453,10 +486,10 @@ describe('DashboardPage', () => {
 
   describe('actionSheetButtonsHandler():', () => {
     it('should call trackingService and navigate to add_edit_per_diem if action is add per diem', () => {
-      const handler = component.actionSheetButtonsHandler('Add Per Diem', 'add_edit_per_diem');
+      const handler = component.actionSheetButtonsHandler('Add per diem', 'add_edit_per_diem');
       handler();
       expect(trackingService.dashboardActionSheetButtonClicked).toHaveBeenCalledOnceWith({
-        Action: 'Add Per Diem',
+        Action: 'Add per diem',
       });
       expect(router.navigate).toHaveBeenCalledOnceWith([
         '/',
@@ -469,10 +502,10 @@ describe('DashboardPage', () => {
     });
 
     it('should call trackingService and navigate to add_edit_mileage if action is add mileage', () => {
-      const handler = component.actionSheetButtonsHandler('Add Mileage', 'add_edit_mileage');
+      const handler = component.actionSheetButtonsHandler('Add mileage', 'add_edit_mileage');
       handler();
       expect(trackingService.dashboardActionSheetButtonClicked).toHaveBeenCalledOnceWith({
-        Action: 'Add Mileage',
+        Action: 'Add mileage',
       });
       expect(router.navigate).toHaveBeenCalledOnceWith([
         '/',
@@ -827,4 +860,35 @@ describe('DashboardPage', () => {
       expect(res).toBeFalse();
     });
   });
+
+  it('should set the config when the navbar walkthrough is finished', fakeAsync(() => {
+    featureConfigService.getConfiguration.and.returnValue(of(featureConfigWalkthroughStartData));
+    featureConfigService.saveConfiguration.and.returnValue(of(null));
+    component.setNavbarWalkthroughFeatureConfigFlag(false);
+    tick();
+
+    expect(featureConfigService.saveConfiguration).toHaveBeenCalledOnceWith({
+      feature: 'WALKTHROUGH',
+      key: 'DASHBOARD_SHOW_NAVBAR',
+      value: {
+        isShown: true,
+        isFinished: true,
+      },
+    });
+  }));
+
+  it('should not show the navbar walkthrough if the user has already seen it', fakeAsync(() => {
+    featureConfigService.getConfiguration.and.returnValue(of(featureConfigWalkthroughFinishData));
+    component.eou$ = of(apiEouRes);
+    spyOn(component, 'startTour');
+    component.showNavbarWalkthrough(true);
+    tick();
+
+    expect(featureConfigService.getConfiguration).toHaveBeenCalledOnceWith({
+      feature: 'WALKTHROUGH',
+      key: 'DASHBOARD_SHOW_NAVBAR',
+    });
+
+    expect(component.startTour).not.toHaveBeenCalled();
+  }));
 });

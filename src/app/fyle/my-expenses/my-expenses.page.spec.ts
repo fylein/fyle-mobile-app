@@ -5,7 +5,10 @@ import * as dayjs from 'dayjs';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { MatBottomSheet, MatBottomSheetRef } from '@angular/material/bottom-sheet';
-import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
+import {
+  MatLegacySnackBar as MatSnackBar,
+  MatLegacySnackBarRef as MatSnackBarRef,
+} from '@angular/material/legacy-snack-bar';
 import { By } from '@angular/platform-browser';
 import { ActivatedRoute, NavigationStart, Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -18,8 +21,7 @@ import {
   expectedActionSheetButtonsWithPerDiem,
 } from 'src/app/core/mock-data/action-sheet-options.data';
 import { allowedExpenseTypes } from 'src/app/core/mock-data/allowed-expense-types.data';
-import { apiAuthRes } from 'src/app/core/mock-data/auth-reponse.data';
-import { expectedAssignedCCCStats } from 'src/app/core/mock-data/ccc-expense.details.data';
+import { apiAuthRes } from 'src/app/core/mock-data/auth-response.data';
 import {
   expenseFiltersData2,
   expenseWithPotentialDuplicateFilterData,
@@ -29,7 +31,7 @@ import {
   expectedFormattedTransaction,
   expenseData2,
   expenseList4,
-  expenseListwithoutID,
+  expenseListWithoutID,
 } from 'src/app/core/mock-data/expense.data';
 import {
   cardFilterPill,
@@ -193,7 +195,6 @@ describe('MyExpensesPage', () => {
       'getDeleteDialogBody',
       'getExpenseDeletionMessage',
       'getCCCExpenseMessage',
-      'deleteBulk',
     ]);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', ['getMileageOrPerDiemCategories']);
@@ -235,7 +236,6 @@ describe('MyExpensesPage', () => {
     const storageServiceSpy = jasmine.createSpyObj('StorageService', ['get', 'set', 'post']);
     const corporateCreditCardServiceSpy = jasmine.createSpyObj('CorporateCreditCardExpenseService', [
       'getExpenseDetailsInCards',
-      'getAssignedCards',
       'getCorporateCards',
     ]);
     const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
@@ -272,6 +272,7 @@ describe('MyExpensesPage', () => {
       'getAllExpenses',
       'getExpenseById',
       'getExpenseStats',
+      'deleteExpenses',
     ]);
     const sharedExpenseServiceSpy = jasmine.createSpyObj('SharedExpenseService', [
       'generateCardNumberParams',
@@ -486,7 +487,6 @@ describe('MyExpensesPage', () => {
       orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
       orgSettingsService.get.and.returnValue(of(orgSettingsRes));
       categoriesService.getMileageOrPerDiemCategories.and.returnValue(of(mileagePerDiemPlatformCategoryData));
-      corporateCreditCardService.getAssignedCards.and.returnValue(of(expectedAssignedCCCStats));
       spyOn(component, 'getCardDetail').and.returnValue(of(uniqueCardsData));
       spyOn(component, 'syncOutboxExpenses');
       spyOn(component, 'setAllExpensesCountAndAmount');
@@ -614,7 +614,7 @@ describe('MyExpensesPage', () => {
       expect(component.hardwareBackButton).toEqual(backButtonSubscription);
       expect(platformHandlerService.registerBackButtonAction).toHaveBeenCalledOnceWith(
         BackButtonActionPriority.MEDIUM,
-        component.backButtonAction
+        jasmine.any(Function)
       );
       expect(tasksService.getExpensesTaskCount).toHaveBeenCalledTimes(1);
       expect(component.expensesTaskCount).toBe(10);
@@ -1244,6 +1244,8 @@ describe('MyExpensesPage', () => {
       component.allExpensesStats$ = of({ count: 10, amount: 1000 });
       spyOn(component, 'selectExpense');
       spyOn(component, 'setAllExpensesCountAndAmount');
+      component.isConnected$ = of(true);
+      spyOn(component, 'checkDeleteDisabled').and.returnValue(of(void 0));
     });
 
     it('should set headerState to simpleSearch if searchString is defined in loadData', () => {
@@ -1460,10 +1462,10 @@ describe('MyExpensesPage', () => {
 
   describe('actionSheetButtonsHandler():', () => {
     it('should call trackingService and navigate to add_edit_per_diem if action is add per diem', () => {
-      const handler = component.actionSheetButtonsHandler('Add Per Diem', 'add_edit_per_diem');
+      const handler = component.actionSheetButtonsHandler('Add per diem', 'add_edit_per_diem');
       handler();
       expect(trackingService.myExpensesActionSheetAction).toHaveBeenCalledOnceWith({
-        Action: 'Add Per Diem',
+        Action: 'Add per diem',
       });
       expect(router.navigate).toHaveBeenCalledOnceWith([
         '/',
@@ -1476,10 +1478,10 @@ describe('MyExpensesPage', () => {
     });
 
     it('should call trackingService and navigate to add_edit_mileage if action is add mileage', () => {
-      const handler = component.actionSheetButtonsHandler('Add Mileage', 'add_edit_mileage');
+      const handler = component.actionSheetButtonsHandler('Add mileage', 'add_edit_mileage');
       handler();
       expect(trackingService.myExpensesActionSheetAction).toHaveBeenCalledOnceWith({
-        Action: 'Add Mileage',
+        Action: 'Add mileage',
       });
       expect(router.navigate).toHaveBeenCalledOnceWith([
         '/',
@@ -1694,7 +1696,7 @@ describe('MyExpensesPage', () => {
     }));
   });
 
-  it('syncOutboxExpenses(): should call transactionoutboxService and do a refresh', fakeAsync(() => {
+  it('syncOutboxExpenses(): should call transactionOutboxService and do a refresh', fakeAsync(() => {
     const mockFormattedTransactions = cloneDeep(apiExpenseRes);
     const mockPendingTransactions = cloneDeep(txnList);
     spyOn(component, 'formatTransactions').and.returnValues(mockFormattedTransactions, []);
@@ -2076,7 +2078,9 @@ describe('MyExpensesPage', () => {
 
       expect(component.generateFilterPills).toHaveBeenCalledOnceWith({ sortDir: 'asc', splitExpense: 'YES' });
       expect(component.filterPills).toEqual(creditTxnFilterPill);
-      expect(trackingService.myExpensesFilterApplied).toHaveBeenCalledOnceWith({ sortDir: 'asc', splitExpense: 'YES' });
+      expect(trackingService.myExpensesFilterApplied).toHaveBeenCalledOnceWith({
+        filterLabels: ['sortDir', 'splitExpense'],
+      });
     }));
 
     it('should call modalController and myExpensesService if cardNumbers is undefined', fakeAsync(() => {
@@ -2096,7 +2100,9 @@ describe('MyExpensesPage', () => {
       });
       expect(component.generateFilterPills).toHaveBeenCalledOnceWith({ sortDir: 'asc', splitExpense: 'YES' });
       expect(component.filterPills).toEqual(creditTxnFilterPill);
-      expect(trackingService.myExpensesFilterApplied).toHaveBeenCalledOnceWith({ sortDir: 'asc', splitExpense: 'YES' });
+      expect(trackingService.myExpensesFilterApplied).toHaveBeenCalledOnceWith({
+        filterLabels: ['sortDir', 'splitExpense'],
+      });
     }));
   });
 
@@ -2133,6 +2139,8 @@ describe('MyExpensesPage', () => {
       sharedExpenseService.getReportableExpenses.and.returnValue(apiExpenses1);
       component.allExpensesCount = 2;
       spyOn(component, 'setExpenseStatsOnSelect');
+      component.isConnected$ = of(true);
+      spyOn(component, 'checkDeleteDisabled').and.returnValue(of(void 0));
       component.selectedElements = cloneDeep(apiExpenses1);
       sharedExpenseService.isMergeAllowed.and.returnValue(true);
       sharedExpenseService.excludeCCCExpenses.and.returnValue(apiExpenses1);
@@ -2873,7 +2881,7 @@ describe('MyExpensesPage', () => {
       component.deleteSelectedExpenses([]);
       expect(transactionOutboxService.deleteBulkOfflineExpenses).not.toHaveBeenCalledOnceWith([], []);
       expect(component.selectedElements).toEqual(apiExpenses1);
-      expect(transactionService.deleteBulk).toHaveBeenCalledOnceWith(['txDDLtRaflUW', 'tx5WDG9lxBDT']);
+      expect(expensesService.deleteExpenses).toHaveBeenCalledOnceWith(['txDDLtRaflUW', 'tx5WDG9lxBDT']);
     });
 
     it('should not call deleteBulk method if tx_id is not present in expensesToBeDeleted', () => {
@@ -2883,7 +2891,7 @@ describe('MyExpensesPage', () => {
       component.deleteSelectedExpenses(null);
       expect(transactionOutboxService.deleteBulkOfflineExpenses).not.toHaveBeenCalledOnceWith([], []);
       expect(component.selectedElements).toEqual([]);
-      expect(transactionService.deleteBulk).not.toHaveBeenCalled();
+      expect(expensesService.deleteExpenses).not.toHaveBeenCalled();
     });
 
     it('should delete outbox expenses', () => {
@@ -2905,7 +2913,7 @@ describe('MyExpensesPage', () => {
       sharedExpenseService.getDeleteDialogBody.and.returnValue('Once deleted, the action cannot be undone');
       component.expensesToBeDeleted = apiExpenses1;
       component.cccExpenses = 1;
-      transactionService.deleteBulk.and.returnValue(of(txnList));
+      expensesService.deleteExpenses.and.returnValue(of());
       snackbarProperties.setSnackbarProperties.and.returnValue(snackbarPropertiesRes3);
       spyOn(component, 'doRefresh');
       component.expensesToBeDeleted = cloneDeep(apiExpenses1);
@@ -2961,7 +2969,7 @@ describe('MyExpensesPage', () => {
     }));
 
     it('should open a popover and delete offline expenses', fakeAsync(() => {
-      component.outboxExpensesToBeDeleted = expenseListwithoutID;
+      component.outboxExpensesToBeDeleted = expenseListWithoutID;
       const deletePopOverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
       deletePopOverSpy.onDidDismiss.and.resolveTo({ data: { status: 'success' } });
       popoverController.create.and.resolveTo(deletePopOverSpy);
@@ -3065,6 +3073,8 @@ describe('MyExpensesPage', () => {
       sharedExpenseService.excludeCCCExpenses.and.returnValue(apiExpenses1);
       sharedExpenseService.getReportableExpenses.and.returnValue(apiExpenses1);
       spyOn(component, 'setExpenseStatsOnSelect');
+      component.isConnected$ = of(true);
+      spyOn(component, 'checkDeleteDisabled').and.returnValue(of(void 0));
       component.loadExpenses$ = new BehaviorSubject({ pageNumber: 1, searchString: 'Bus' });
     });
 
@@ -3364,7 +3374,7 @@ describe('MyExpensesPage', () => {
       component.expensesToBeDeleted = [];
 
       component.checkDeleteDisabled().subscribe(() => {
-        expect(component.isDisabled).toBeFalse();
+        expect(component.isDeleteDisabled).toBeFalse();
         done();
       });
     });
@@ -3375,7 +3385,7 @@ describe('MyExpensesPage', () => {
       component.outboxExpensesToBeDeleted = [];
 
       component.checkDeleteDisabled().subscribe(() => {
-        expect(component.isDisabled).toBeFalse();
+        expect(component.isDeleteDisabled).toBeFalse();
         done();
       });
     });

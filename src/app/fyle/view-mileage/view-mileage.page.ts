@@ -8,7 +8,6 @@ import { PolicyService } from 'src/app/core/services/policy.service';
 import { switchMap, finalize, shareReplay, map, takeUntil, take, filter } from 'rxjs/operators';
 import { PopoverController, ModalController } from '@ionic/angular';
 import { NetworkService } from '../../core/services/network.service';
-import { StatusService } from 'src/app/core/services/status.service';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { TrackingService } from '../../core/services/tracking.service';
@@ -39,6 +38,8 @@ import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/fi
 import { ApproverFileService } from 'src/app/core/services/platform/v1/approver/file.service';
 import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
 import { PlatformFileGenerateUrlsResponse } from 'src/app/core/models/platform/platform-file-generate-urls-response.model';
+import { ExpenseCommentService as SpenderExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
+import { ExpenseCommentService as ApproverExpenseCommentService } from 'src/app/core/services/platform/v1/approver/expense-comment.service';
 
 @Component({
   selector: 'app-view-mileage',
@@ -118,7 +119,6 @@ export class ViewMileagePage {
     private popoverController: PopoverController,
     private router: Router,
     private networkService: NetworkService,
-    private statusService: StatusService,
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService,
@@ -131,7 +131,9 @@ export class ViewMileagePage {
     private mileageRatesService: MileageRatesService,
     private approverReportsService: ApproverReportsService,
     private spenderFileService: SpenderFileService,
-    private approverFileService: ApproverFileService
+    private approverFileService: ApproverFileService,
+    private spenderExpenseCommentService: SpenderExpenseCommentService,
+    private approverExpenseCommentService: ApproverExpenseCommentService
   ) {}
 
   get ExpenseView(): typeof ExpenseView {
@@ -193,6 +195,7 @@ export class ViewMileagePage {
       componentProps: {
         objectType: 'transactions',
         objectId: this.expenseId,
+        view: this.view,
       },
       ...this.modalProperties.getModalDefaultProperties(),
     });
@@ -420,7 +423,10 @@ export class ViewMileagePage {
       this.policyViloations$ = of(null);
     }
 
-    this.comments$ = this.statusService.find('transactions', this.expenseId);
+    this.comments$ =
+      this.view === ExpenseView.team
+        ? this.approverExpenseCommentService.getTransformedComments(this.expenseId)
+        : this.spenderExpenseCommentService.getTransformedComments(this.expenseId);
 
     this.isCriticalPolicyViolated$ = this.mileageExpense$.pipe(
       map((expense) => this.isNumber(expense.policy_amount) && expense.policy_amount < 0.0001)

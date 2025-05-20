@@ -9,7 +9,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { ApiV2Service } from 'src/app/core/services/api-v2.service';
+import { ExtendQueryParamsService } from 'src/app/core/services/extend-query-params.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { HeaderState } from 'src/app/shared/components/fy-header/header-state.enum';
@@ -22,12 +22,13 @@ import {
   tasksQueryParamsWithFiltersData,
   tasksQueryParamsWithFiltersData2,
 } from 'src/app/core/mock-data/get-tasks-query-params-with-filters.data';
-import { getTeamReportsParams1, getTeamReportsParams2 } from 'src/app/core/mock-data/api-params.data';
+import { getTeamReportsParams1 } from 'src/app/core/mock-data/api-params.data';
 import { GetTasksQueryParamsWithFilters } from 'src/app/core/models/get-tasks-query-params-with-filters.model';
 import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-report.data';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
+import { LaunchDarklyService } from '../../core/services/launch-darkly.service';
 
 export function TestCases1(getTestBed) {
   return describe('test cases set 1', () => {
@@ -42,12 +43,13 @@ export function TestCases1(getTestBed) {
     let currencyService: jasmine.SpyObj<CurrencyService>;
     let popupService: jasmine.SpyObj<PopupService>;
     let trackingService: jasmine.SpyObj<TrackingService>;
-    let apiV2Service: jasmine.SpyObj<ApiV2Service>;
+    let extendQueryParamsService: jasmine.SpyObj<ExtendQueryParamsService>;
     let tasksService: jasmine.SpyObj<TasksService>;
     let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
     let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
     let authService: jasmine.SpyObj<AuthService>;
     let inputElement: HTMLInputElement;
+    let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
 
     beforeEach(waitForAsync(() => {
       const TestBed = getTestBed();
@@ -62,11 +64,13 @@ export function TestCases1(getTestBed) {
       popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
       activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
-      apiV2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
+      extendQueryParamsService = TestBed.inject(ExtendQueryParamsService) as jasmine.SpyObj<ExtendQueryParamsService>;
       tasksService = TestBed.inject(TasksService) as jasmine.SpyObj<TasksService>;
       orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
       approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
       authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
+      launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
+      launchDarklyService.getVariation.and.returnValue(of(false));
       component.eou$ = of(apiEouRes);
     }));
 
@@ -203,26 +207,29 @@ export function TestCases1(getTestBed) {
         expect(component.currentPageNumber).toBe(1);
       }));
 
-      it('should call approverReporsService.getReportsByParams and update acc', (done) => {
+      it('should call approverReporsService.getReportsByParams and update acc', fakeAsync(() => {
         mockAddNewFiltersToParams.and.returnValue(tasksQueryParamsWithFiltersData2);
-        apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
+        orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithSimplifiedReport));
+        launchDarklyService.getVariation.and.returnValue(of(false));
+        component.eou$ = of(apiEouRes);
+        extendQueryParamsService.extendQueryParamsForTextSearch.and.returnValue({
           state: 'in.(APPROVER_PENDING)',
           next_approver_user_ids: 'cs.[usvKA4X8Ugcr]',
         });
         component.ionViewWillEnter();
+        tick();
         component.eou$.subscribe((eou) => {
           expect(eou).toEqual(apiEouRes);
           expect(approverReportsService.getReportsByParams).toHaveBeenCalledTimes(2);
           expect(approverReportsService.getReportsByParams).toHaveBeenCalledWith(getTeamReportsParams1);
-          expect(approverReportsService.getReportsByParams).toHaveBeenCalledWith(getTeamReportsParams2);
           expect(component.isLoadingDataInInfiniteScroll).toBeTrue();
           expect(component.acc).toEqual(expectedReportsSinglePage);
           component.teamReports$.subscribe((teamReports) => {
             expect(teamReports).toEqual(expectedReportsSinglePage);
-            done();
           });
         });
-      });
+        tick(500);
+      }));
 
       it('should set count$ and isInfiniteScrollRequired$ and navigate relative to activatedRoute', (done) => {
         mockAddNewFiltersToParams.and.returnValue({

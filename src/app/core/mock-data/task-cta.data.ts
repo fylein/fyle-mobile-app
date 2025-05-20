@@ -20,7 +20,7 @@ export const taskCtaData3: TaskCta = deepFreeze({
 
 export const taskCtaData4: TaskCta = deepFreeze({
   event: TASKEVENT.reviewExpenses,
-  content: 'Review Expenses',
+  content: 'Review expenses',
 });
 
 export const taskCtaData5: TaskCta = deepFreeze({

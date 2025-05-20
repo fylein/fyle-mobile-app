@@ -2,7 +2,7 @@
   <mat-icon class="fy-modal-top-bar" svgIcon="notch"></mat-icon>
   <ion-toolbar mode="md" class="fy-modal-toolbar">
     <ion-title>
-      <div class="selection-modal--title">Select Approvers</div>
+      <div class="selection-modal--title">Select approvers</div>
     </ion-title>
     <ion-buttons slot="start">
       <ion-button data-testid="closeBtn" (click)="closeApproverModal()">
@@ -60,12 +60,12 @@
     <div class="selection-modal--list-element">
       <label class="selection-modal--list-element__label">
         <mat-checkbox
-          [checked]="selectedApproversDict[approver.us_email]"
+          [checked]="selectedApproversDict[approver.email]"
           (change)="onSelectApprover(approver, $event)"
         ></mat-checkbox>
         <span class="selection-modal--approver-details">
-          <span class="selection-modal--approver-details__title">{{ approver.us_full_name }}</span>
-          <span class="selection-modal--approver-details__content">{{ approver.us_email }}</span>
+          <span class="selection-modal--approver-details__title">{{ approver.full_name }}</span>
+          <span class="selection-modal--approver-details__content">{{ approver.email }}</span>
         </span>
       </label>
     </div>

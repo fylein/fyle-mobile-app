@@ -5,6 +5,27 @@
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
   }
 
+  &--view-approvers {
+    display: flex;
+    padding: 0;
+    justify-content: center;
+    align-items: center;
+    gap: 2px;
+    border-radius: 4px;
+    color: $blue-black;
+    text-align: center;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 18px;
+    text-decoration-line: underline;
+    text-decoration-style: solid;
+    text-decoration-skip-ink: none;
+    text-decoration-thickness: auto;
+    text-underline-offset: auto;
+    text-underline-position: from-font;
+  }
+
   &--btn-container {
     &__btn {
       color: $black-light;
@@ -86,8 +107,8 @@
   }
 
   &--approval-state {
-    &__reported {
-      color: $reported-color;
+    &__submitted {
+      color: $submitted-color;
     }
     &__complete {
       color: $fyled-color;
@@ -257,6 +278,9 @@
     color: $black-light;
     padding: 18px 10px 0;
     margin-top: 6px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
   }
 
   &--approvers-list {
@@ -292,6 +316,13 @@
 
     &__approval_disabled {
       background-color: $gray-3;
+    }
+
+    &__text {
+      color: $black-light;
+      font-size: 12px;
+      font-weight: 500;
+      line-height: 1.5;
     }
   }
 
@@ -397,6 +428,7 @@
     height: 150px;
     width: 150px;
     overflow: hidden;
+    margin-bottom: 20px;
   }
 
   &--history-container {

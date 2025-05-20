@@ -80,6 +80,14 @@
     &__label-text {
       font-weight: 500;
       margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+
+      &__info-icon {
+        height: 14px;
+        width: 14px;
+        margin-left: 4px;
+      }
     }
     &__cvv-mask {
       font-size: 14px;

@@ -9,7 +9,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { ApiV2Service } from 'src/app/core/services/api-v2.service';
+import { ExtendQueryParamsService } from 'src/app/core/services/extend-query-params.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { TestCases1 } from './team-reports-1.page.spec';
@@ -19,6 +19,7 @@ import { TestCases3 } from './team-reports-3.page.spec';
 import { TestCases4 } from './team-reports-4.page.spec';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 import { AuthService } from 'src/app/core/services/auth.service';
+import { LaunchDarklyService } from '../../core/services/launch-darkly.service';
 
 describe('TeamReportsPage', () => {
   const getTestBed = () => {
@@ -46,7 +47,9 @@ describe('TeamReportsPage', () => {
         queryParams: {},
       },
     };
-    const apiV2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['extendQueryParamsForTextSearch']);
+    const extendQueryParamsServiceSpy = jasmine.createSpyObj('ExtendQueryParamsService', [
+      'extendQueryParamsForTextSearch',
+    ]);
     const tasksServiceSpy = jasmine.createSpyObj('TasksService', ['getTeamReportsTaskCount']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const approverReportsServiceSpy = jasmine.createSpyObj('ApproverReportsService', [
@@ -54,7 +57,7 @@ describe('TeamReportsPage', () => {
       'getReportsCount',
     ]);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
-
+    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
     TestBed.configureTestingModule({
       declarations: [TeamReportsPage, ReportState],
       imports: [IonicModule.forRoot()],
@@ -68,11 +71,12 @@ describe('TeamReportsPage', () => {
         { provide: PopupService, useValue: popupServiceSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },
         { provide: ActivatedRoute, useValue: activatedRouteSpy },
-        { provide: ApiV2Service, useValue: apiV2ServiceSpy },
+        { provide: ExtendQueryParamsService, useValue: extendQueryParamsServiceSpy },
         { provide: TasksService, useValue: tasksServiceSpy },
         { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
         { provide: ApproverReportsService, useValue: approverReportsServiceSpy },
         { provide: AuthService, useValue: authServiceSpy },
+        { provide: LaunchDarklyService, useValue: launchDarklyServiceSpy },
         ReportState,
       ],
       schemas: [NO_ERRORS_SCHEMA],

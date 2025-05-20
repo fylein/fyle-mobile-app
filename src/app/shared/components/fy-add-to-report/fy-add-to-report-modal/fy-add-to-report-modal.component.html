@@ -2,7 +2,7 @@
   <mat-icon class="fy-modal-top-bar" svgIcon="notch"></mat-icon>
   <ion-toolbar mode="md" class="fy-modal-toolbar">
     <ion-title>
-      <div class="report-list--title text-center">Add To Report</div>
+      <div class="report-list--title text-center">Add to report</div>
     </ion-title>
     <ion-buttons slot="start">
       <ion-button data-testid="close_icon" (click)="onDoneClick()">
@@ -62,7 +62,7 @@
               </div>
               <div class="ion-text-right">
                 <div class="text-center report-list--state state-pill state-{{ option.value.state | reportState }}">
-                  {{ option.value.state | reportState : isNewReportsFlowEnabled | snakeCaseToSpaceCase | titlecase }}
+                  {{ option.value.state | reportState | snakeCaseToSpaceCase | titlecase }}
                 </div>
               </div>
             </ion-col>
@@ -85,12 +85,8 @@
 
   <ng-template #zeroState>
     <div class="report-list--zero-state">
-      <img
-        class="report-list--zero-state__img"
-        src="../../../../../assets/images/zero-states/expenses.png"
-        alt="zero"
-      />
-      <div class="report-list--zero-state__title">No Reports found</div>
+      <img class="report-list--zero-state__img" src="../../../../../assets/images/zero-states/reports.png" alt="zero" />
+      <div class="report-list--zero-state__subtitle">You have no reports right now</div>
       <div class="report-list--zero-state__subtitle">
         To create a draft report please click on
         <ion-icon

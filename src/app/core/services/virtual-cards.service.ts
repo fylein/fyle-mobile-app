@@ -40,7 +40,7 @@ export class VirtualCardsService {
     currentAmount?: CardDetailsAmountResponse;
   }> {
     const requestParam: VirtualCardsRequest = { id: virtualCardId };
-    let virtualCardRequests: {
+    const virtualCardRequests: {
       cardDetails: Observable<CardDetailsResponse>;
       virtualCard: Observable<VirtualCard>;
       currentAmount?: Observable<CardDetailsAmountResponse>;

@@ -9,11 +9,10 @@ export const virtualCardDetails: PlatformCorporateCardDetail[] = deepFreeze([
     card: virtualCard,
     stats: {
       totalDraftTxns: 0,
-      totalDraftValue: 0,
+      totalDraftAmount: 0,
       totalCompleteTxns: 0,
-      totalCompleteExpensesValue: 0,
+      totalCompleteExpensesAmount: 0,
       totalTxnsCount: 0,
-      totalAmountValue: 0,
     },
   },
 ]);
@@ -23,36 +22,43 @@ export const cardDetailsRes: PlatformCorporateCardDetail[] = deepFreeze([
     card: visaRTFCard,
     stats: {
       totalDraftTxns: 960,
-      totalDraftValue: 565633,
+      totalDraftAmount: 565633,
       totalCompleteTxns: 0,
-      totalCompleteExpensesValue: 0,
+      totalCompleteExpensesAmount: 0,
       totalTxnsCount: 960,
-      totalAmountValue: 565633,
     },
   },
   {
     card: mastercardRTFCard,
     stats: {
       totalDraftTxns: 6,
-      totalDraftValue: 937.2,
+      totalDraftAmount: 937.2,
       totalCompleteTxns: 0,
-      totalCompleteExpensesValue: 0,
+      totalCompleteExpensesAmount: 0,
       totalTxnsCount: 6,
-      totalAmountValue: 937.2,
     },
   },
   {
     card: statementUploadedCard,
     stats: {
       totalDraftTxns: 9,
-      totalDraftValue: 2624.27,
+      totalDraftAmount: 2624.27,
       totalCompleteTxns: 0,
-      totalCompleteExpensesValue: 0,
+      totalCompleteExpensesAmount: 0,
       totalTxnsCount: 9,
-      totalAmountValue: 2624.27,
     },
   },
   virtualCardDetails[0],
+  {
+    card: visaRTFCard,
+    stats: {
+      totalDraftTxns: 960,
+      totalDraftAmount: 565633,
+      totalCompleteTxns: 2,
+      totalCompleteExpensesAmount: 100,
+      totalTxnsCount: 960,
+    },
+  },
 ]);
 
 export const statementUploadedCardDetail: PlatformCorporateCardDetail[] = deepFreeze([
@@ -60,11 +66,10 @@ export const statementUploadedCardDetail: PlatformCorporateCardDetail[] = deepFr
     card: statementUploadedCard,
     stats: {
       totalDraftTxns: 6,
-      totalDraftValue: 937.2,
+      totalDraftAmount: 937.2,
       totalCompleteTxns: 6,
-      totalCompleteExpensesValue: 937.2,
+      totalCompleteExpensesAmount: 937.2,
       totalTxnsCount: 12,
-      totalAmountValue: 1874.4,
     },
   },
 ]);

@@ -26,20 +26,20 @@
     <div class="create-new-report--name">
       <div class="create-new-report--text" [ngClass]="{ 'create-new-report--text__invalid': showReportNameError }">
         <div class="create-new-report--text-label">
-          Report Name
+          Expense report name
           <span class="create-new-report--mandatory">*</span>
         </div>
         <input
           class="create-new-report--text-input create-new-report--internal-block smartlook-show"
           name="reportName"
           type="text"
-          placeholder="Enter Report Title"
+          placeholder="Enter expense report name"
           [(ngModel)]="reportTitle"
           required
           #reportTitleInput="ngModel"
         />
       </div>
-      <div class="create-new-report--error-message" *ngIf="showReportNameError">Please enter report name.</div>
+      <div class="create-new-report--error-message" *ngIf="showReportNameError">Please enter expense report name.</div>
     </div>
 
     <div class="create-new-report--heading">Expenses</div>
@@ -79,7 +79,7 @@
         [ngClass]="{ 'create-new-report--secondary-cta__disabled': submitReportLoader || saveDraftReportLoader }"
         (click)="ctaClickedEvent('create_draft_report')"
       >
-        Save as Draft
+        Save as draft
       </button>
       <button
         type="submit"
@@ -94,7 +94,7 @@
         }"
         (click)="ctaClickedEvent('submit_report')"
       >
-        Submit Report
+        Submit report
       </button>
     </div>
   </ion-toolbar>

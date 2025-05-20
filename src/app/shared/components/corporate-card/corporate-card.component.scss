@@ -1,4 +1,5 @@
 @import '../../../../theme/colors';
+@import '../../../../assets/styles/fy_select';
 
 .corporate-card {
   width: 100%;
@@ -15,8 +16,13 @@
 
   &__bank-name {
     color: $dark-grey;
-    font-size: 12px;
+    font-size: 14px;
     line-height: 8px;
+  }
+
+  &__row {
+    @extend %flex-layout-row;
+    align-items: center;
   }
 
   &__logo {
@@ -77,12 +83,12 @@
 
   &__feed-label {
     color: $black-light;
-    font-size: 12px;
+    font-size: 14px;
     line-height: normal;
   }
 
   &__feed-value {
-    font-size: 12px;
+    font-size: 14px;
     color: $blue-black;
     line-height: 1.16;
   }
@@ -109,4 +115,22 @@
     height: 20px;
     color: $dark-grey;
   }
+}
+
+.corporate-card-badge-container {
+  display: flex;
+  align-items: center;
+  background-color: $pure-white;
+  border: 1px solid $grey-2;
+  border-radius: 5px;
+  max-height: 20px;
+  padding: 4px;
+  margin-left: auto;
+}
+
+.corporate-card-badge {
+  color: $dark-grey;
+  text-align: center;
+  font-size: 12px;
+  line-height: 8px;
 }

@@ -3,7 +3,6 @@ import { OrgSettingsService } from '../services/org-settings.service';
 import { BetaPageFeatureFlagGuard } from './beta-page-feature-flag.guard';
 import { TestBed } from '@angular/core/testing';
 import { Observable, of } from 'rxjs';
-import { routerStateSnapshotData } from '../mock-data/router-state-snapshot.data';
 
 describe('BetaPageFeatureFlagGuard', () => {
   let guard: BetaPageFeatureFlagGuard;
@@ -54,7 +53,7 @@ describe('BetaPageFeatureFlagGuard', () => {
   describe('canActivate(): ', () => {
     it('Should navigate to the beta page if the feature flag is enabled', (done) => {
       orgSettingsService.isBetaPageEnabledForPath.and.returnValue(of(true));
-      const canActivate = guard.canActivate(activatedRoute.snapshot, routerStateSnapshotData) as Observable<boolean>;
+      const canActivate = guard.canActivate(activatedRoute.snapshot) as Observable<boolean>;
       canActivate.subscribe((res) => {
         expect(orgSettingsService.isBetaPageEnabledForPath).toHaveBeenCalledTimes(1);
         expect(res).toBeFalse();
@@ -65,7 +64,7 @@ describe('BetaPageFeatureFlagGuard', () => {
 
     it('Should navigate to the correct page if the feature flag is disabled', (done) => {
       orgSettingsService.isBetaPageEnabledForPath.and.returnValue(of(false));
-      const canActivate = guard.canActivate(activatedRoute.snapshot, routerStateSnapshotData) as Observable<boolean>;
+      const canActivate = guard.canActivate(activatedRoute.snapshot) as Observable<boolean>;
       canActivate.subscribe((res) => {
         expect(orgSettingsService.isBetaPageEnabledForPath).toHaveBeenCalledTimes(1);
         expect(res).toBeTrue();

@@ -4,7 +4,7 @@ on:
   push:
     branches: [ master ]
   pull_request:
-    types: [opened, synchronize, edited]
+    types: [opened, synchronize]
 
 jobs:
   run-linters:
@@ -13,14 +13,14 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Set up Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: lts/*
 
       # ESLint and Prettier must be in `package.json`
       - name: Install dependencies

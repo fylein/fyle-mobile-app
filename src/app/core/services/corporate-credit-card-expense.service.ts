@@ -1,31 +1,18 @@
 import { Injectable } from '@angular/core';
-import { Observable, Subject, from, of } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
-import { CardAggregateStats } from '../models/card-aggregate-stats.model';
+import { Observable, Subject, of } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { CardTransactionStat } from '../models/card-transaction-stat.model';
 import { CCCDetails } from '../models/ccc-expense-details.model';
-import { UniqueCardStats } from '../models/unique-cards-stats.model';
-import { ApiV2Response } from '../models/v2/api-v2-response.model';
-import { CorporateCardExpense } from '../models/v2/corporate-card-expense.model';
-import { StatsResponse } from '../models/v2/stats-response.model';
-import { ApiV2Service } from './api-v2.service';
-import { AuthService } from './auth.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { PlatformCorporateCard } from '../models/platform/platform-corporate-card.model';
 import { CacheBuster, Cacheable } from 'ts-cacheable';
 import { DataFeedSource } from '../enums/data-feed-source.enum';
 import { PlatformCorporateCardDetail } from '../models/platform-corporate-card-detail.model';
-import { UniqueCards } from '../models/unique-cards.model';
 import { CorporateCardTransactionRes } from '../models/platform/v1/corporate-card-transaction-res.model';
 import { corporateCardTransaction } from '../models/platform/v1/cc-transaction.model';
 import { MatchedCCCTransaction } from '../models/matchedCCCTransaction.model';
-
-type Config = Partial<{
-  offset: number;
-  queryParams: { state?: string; group_id?: string[] };
-  limit: number;
-  order?: string;
-}>;
+import { PlatformConfig } from '../models/platform/platform-config.model';
 
 const cacheBuster$ = new Subject<void>();
 
@@ -33,11 +20,7 @@ const cacheBuster$ = new Subject<void>();
   providedIn: 'root',
 })
 export class CorporateCreditCardExpenseService {
-  constructor(
-    private apiV2Service: ApiV2Service,
-    private authService: AuthService,
-    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService
-  ) {}
+  constructor(private spenderPlatformV1ApiService: SpenderPlatformV1ApiService) {}
 
   @CacheBuster({
     cacheBusterNotifier: cacheBuster$,
@@ -55,6 +38,28 @@ export class CorporateCreditCardExpenseService {
       .pipe(map((res) => res.data));
   }
 
+  transformCCTransaction(ccTransaction: corporateCardTransaction): Partial<MatchedCCCTransaction> {
+    const updatedCCTransaction = {
+      id: ccTransaction.id,
+      amount: ccTransaction.amount,
+      card_or_account_number: ccTransaction.corporate_card?.card_number,
+      created_at: ccTransaction.created_at,
+      creator_id: ccTransaction.user_id,
+      currency: ccTransaction.currency,
+      description: ccTransaction.description,
+      group_id: ccTransaction.id,
+      orig_amount: ccTransaction.foreign_amount,
+      orig_currency: ccTransaction.foreign_currency,
+      txn_dt: ccTransaction.spent_at,
+      updated_at: ccTransaction.updated_at,
+      vendor: ccTransaction.merchant,
+      corporate_credit_card_account_number: ccTransaction.corporate_card?.card_number,
+      status: ccTransaction.transaction_status,
+      nickname: ccTransaction.corporate_card?.nickname,
+    };
+    return updatedCCTransaction;
+  }
+
   getBankFeedSources(): DataFeedSource[] {
     return [
       DataFeedSource.BANK_FEED_AMEX,
@@ -65,13 +70,12 @@ export class CorporateCreditCardExpenseService {
     ];
   }
 
-  getv2CardTransactions(config: Config): Observable<ApiV2Response<CorporateCardExpense>> {
-    return this.apiV2Service
-      .get<CorporateCardExpense, { params: Config }>('/corporate_card_transactions', {
+  getCorporateCardTransactions(config: PlatformConfig): Observable<PlatformApiResponse<corporateCardTransaction[]>> {
+    return this.spenderPlatformV1ApiService
+      .get<PlatformApiResponse<corporateCardTransaction[]>>('/corporate_card_transactions', {
         params: {
           offset: config.offset,
           limit: config.limit,
-          order: `${config.order || 'txn_dt.desc'},id.desc`,
           ...config.queryParams,
         },
       })
@@ -80,10 +84,8 @@ export class CorporateCreditCardExpenseService {
           (res) =>
             res as {
               count: number;
-              data: CorporateCardExpense[];
-              limit: number;
+              data: corporateCardTransaction[];
               offset: number;
-              url: string;
             }
         )
       );
@@ -123,116 +125,71 @@ export class CorporateCreditCardExpenseService {
 
   getPlatformCorporateCardDetails(
     cards: PlatformCorporateCard[],
-    statsResponse: CardAggregateStats[]
+    cardDetails: CCCDetails[]
   ): PlatformCorporateCardDetail[] {
     return cards.map((card: PlatformCorporateCard) => {
       const formattedCard: PlatformCorporateCardDetail = {
         card,
         stats: {
-          totalDraftTxns: 0,
-          totalDraftValue: 0,
-          totalCompleteTxns: 0,
-          totalCompleteExpensesValue: 0,
           totalTxnsCount: 0,
-          totalAmountValue: 0,
+          totalDraftTxns: 0,
+          totalDraftAmount: 0,
+          totalCompleteTxns: 0,
+          totalCompleteExpensesAmount: 0,
         },
       };
 
-      statsResponse.forEach((stats) => {
-        if (stats.key[1].column_value === card.card_number && stats.key[2].column_value === 'DRAFT') {
-          formattedCard.stats.totalDraftTxns = stats.aggregates[0].function_value;
-          formattedCard.stats.totalDraftValue = stats.aggregates[1].function_value;
-        } else if (stats.key[1].column_value === card.card_number && stats.key[2].column_value === 'COMPLETE') {
-          formattedCard.stats.totalCompleteTxns = stats.aggregates[0].function_value;
-          formattedCard.stats.totalCompleteExpensesValue = stats.aggregates[1].function_value;
-        }
+      const matchingCardDetail = cardDetails.find((detail) => detail.corporate_card_id === card.id);
 
-        formattedCard.stats.totalTxnsCount = formattedCard.stats.totalDraftTxns + formattedCard.stats.totalCompleteTxns;
-        formattedCard.stats.totalAmountValue =
-          formattedCard.stats.totalDraftValue + formattedCard.stats.totalCompleteExpensesValue;
-      });
+      if (matchingCardDetail) {
+        formattedCard.stats.totalDraftTxns = matchingCardDetail.DRAFT.count;
+        formattedCard.stats.totalDraftAmount = matchingCardDetail.DRAFT.total_amount;
+
+        formattedCard.stats.totalCompleteTxns = matchingCardDetail.COMPLETE.count;
+        formattedCard.stats.totalCompleteExpensesAmount = matchingCardDetail.COMPLETE.total_amount;
+      }
+      formattedCard.stats.totalTxnsCount += formattedCard.stats.totalDraftTxns + formattedCard.stats.totalCompleteTxns;
 
       return formattedCard;
     });
   }
 
-  getExpenseDetailsInCards(uniqueCards: UniqueCards[], statsResponse: CardAggregateStats[]): UniqueCardStats[] {
-    const cardsCopy = JSON.parse(JSON.stringify(uniqueCards)) as UniqueCards[];
-    const uniqueCardsCopy = [];
-    cardsCopy?.forEach((card: UniqueCards) => {
-      if (uniqueCardsCopy.filter((uniqueCard: UniqueCards) => uniqueCard.cardNumber === card.cardNumber).length === 0) {
-        uniqueCardsCopy.push(card);
-      }
-    });
-    uniqueCardsCopy.forEach((card: UniqueCardStats) => {
-      card.totalDraftTxns = 0;
-      card.totalDraftValue = 0;
-      card.totalCompleteTxns = 0;
-      card.totalCompleteExpensesValue = 0;
-      statsResponse.forEach((stats) => {
-        if (stats.key[1].column_value === card.cardNumber && stats.key[2].column_value === 'DRAFT') {
-          card.totalDraftTxns = stats.aggregates[0].function_value;
-          card.totalDraftValue = stats.aggregates[1].function_value;
-        } else if (stats.key[1].column_value === card.cardNumber && stats.key[2].column_value === 'COMPLETE') {
-          card.totalCompleteTxns = stats.aggregates[0].function_value;
-          card.totalCompleteExpensesValue = stats.aggregates[1].function_value;
-        }
-        card.totalTxnsCount = card.totalDraftTxns + card.totalCompleteTxns;
-        card.totalAmountValue = card.totalDraftValue + card.totalCompleteExpensesValue;
-      });
-    });
-    return uniqueCardsCopy as UniqueCardStats[];
-  }
-
-  getAssignedCards(): Observable<CCCDetails> {
-    return from(this.authService.getEou()).pipe(
-      switchMap((eou) =>
-        this.apiV2Service.getStats(
-          '/expenses_and_ccce/stats?aggregates=count(tx_id),sum(tx_amount)&scalar=true&dimension_1_1=corporate_credit_card_bank_name,corporate_credit_card_account_number,tx_state&tx_state=' +
-            this.constructInQueryParamStringForV2(['COMPLETE', 'DRAFT']) +
-            '&corporate_credit_card_account_number=not.is.null&debit=is.true&tx_org_user_id=eq.' +
-            eou.ou.id,
-          {}
-        )
-      ),
-      map((statsResponse: StatsResponse) => {
-        const stats = {
-          totalTxns: 0,
-          totalAmount: 0,
-          cardDetails: statsResponse.data && statsResponse.data[1].value,
-        };
-        statsResponse.data[0].aggregates.forEach(function (aggregate) {
-          if (aggregate.function_name === 'count(tx_id)') {
-            stats.totalTxns = aggregate.function_value;
-          }
-          if (aggregate.function_name === 'sum(tx_amount)') {
-            stats.totalAmount = aggregate.function_value;
-          }
-        });
-        return stats;
-      })
-    );
-  }
-
-  transformCCTransaction(ccTransaction: corporateCardTransaction): Partial<MatchedCCCTransaction> {
-    const updatedCCTransaction = {
-      id: ccTransaction.id,
-      amount: ccTransaction.amount,
-      card_or_account_number: ccTransaction.corporate_card?.card_number,
-      created_at: ccTransaction.created_at,
-      creator_id: ccTransaction.user_id,
-      currency: ccTransaction.currency,
-      description: ccTransaction.description,
-      group_id: ccTransaction.id,
-      orig_amount: ccTransaction.foreign_amount,
-      orig_currency: ccTransaction.foreign_currency,
-      txn_dt: ccTransaction.spent_at,
-      updated_at: ccTransaction.updated_at,
-      vendor: ccTransaction.merchant,
-      corporate_credit_card_account_number: ccTransaction.corporate_card?.card_number,
-      status: ccTransaction.transaction_status,
-      nickname: ccTransaction.corporate_card?.nickname,
+  getAssignedCards(): Observable<CCCDetails[]> {
+    const config = {
+      data: {
+        query_params:
+          'or=(matched_expenses.cs.[{"state":"DRAFT"}],matched_expenses.cs.[{"state":"COMPLETE"}])&amount=gt.0',
+      },
     };
-    return updatedCCTransaction;
+
+    return this.spenderPlatformV1ApiService
+      .post('/corporate_card_transactions/expenses/stats', config)
+      .pipe(map((cardStats: PlatformApiResponse<CardTransactionStat[]>) => this.transformCardData(cardStats.data)));
+  }
+
+  /**
+   * Transforms card data from the new API response format
+   * to match the structure expected by the frontend
+   */
+  private transformCardData(cardData: CardTransactionStat[]): CCCDetails[] {
+    return Object.values(
+      cardData.reduce((cardMap, { corporate_card_id, bank_name, card_number, state, count, total_amount }) => {
+        if (!cardMap[corporate_card_id]) {
+          cardMap[corporate_card_id] = {
+            bank_name,
+            card_number,
+            corporate_card_id,
+            DRAFT: { count: 0, total_amount: 0 },
+            COMPLETE: { count: 0, total_amount: 0 },
+          };
+        }
+
+        if (state in cardMap[corporate_card_id]) {
+          cardMap[corporate_card_id][state] = { count, total_amount };
+        }
+
+        return cardMap;
+      }, {} as Record<string, CCCDetails>)
+    );
   }
 }

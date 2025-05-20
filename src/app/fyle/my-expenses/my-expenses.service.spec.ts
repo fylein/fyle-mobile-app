@@ -71,7 +71,7 @@ describe('MyExpensesService', () => {
   describe('covertFilters():', () => {
     it('should modify the selected filters and return the generated filter', () => {
       spyOn(myExpensesService, 'convertSelectedSortFitlersToFilters');
-      const sortBy = { name: 'Sort By', value: 'dateNewToOld' };
+      const sortBy = { name: 'Sort by', value: 'dateNewToOld' };
 
       const convertedFilters = myExpensesService.convertSelectedOptionsToExpenseFilters(selectedFilters7);
 
@@ -85,7 +85,7 @@ describe('MyExpensesService', () => {
 
     it('should set customDateStart and customDateEnd as undefined if associated data is undefined', () => {
       spyOn(myExpensesService, 'convertSelectedSortFitlersToFilters');
-      const sortBy = { name: 'Sort By', value: 'dateNewToOld' };
+      const sortBy = { name: 'Sort by', value: 'dateNewToOld' };
 
       const convertedFilters = myExpensesService.convertSelectedOptionsToExpenseFilters(selectedFilters8);
 
@@ -270,7 +270,7 @@ describe('MyExpensesService', () => {
   describe('convertSelectedSortFiltersToFilters(): ', () => {
     it('should convert selected sort filter to corresponding sortParam and sortDir', () => {
       const sortBy = {
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'dateNewToOld',
       };
       const generatedFilters = {};
@@ -285,7 +285,7 @@ describe('MyExpensesService', () => {
 
     it('should convert selected sort filter to corresponding sortParam and sortDir (dateOldToNew)', () => {
       const sortBy = {
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'dateOldToNew',
       };
       const generatedFilters = {};
@@ -300,7 +300,7 @@ describe('MyExpensesService', () => {
 
     it('should convert selected sort filter to corresponding sortParam and sortDir (amountHighToLow)', () => {
       const sortBy = {
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'amountHighToLow',
       };
       const generatedFilters = {};
@@ -315,7 +315,7 @@ describe('MyExpensesService', () => {
 
     it('should convert selected sort filter to corresponding sortParam and sortDir (amountLowToHigh)', () => {
       const sortBy = {
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'amountLowToHigh',
       };
       const generatedFilters = {};
@@ -330,7 +330,7 @@ describe('MyExpensesService', () => {
 
     it('should convert selected sort filter to corresponding sortParam and sortDir (nameAToZ)', () => {
       const sortBy = {
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'categoryAToZ',
       };
       const generatedFilters = {};
@@ -345,7 +345,7 @@ describe('MyExpensesService', () => {
 
     it('should convert selected sort filter to corresponding sortParam and sortDir (nameZToA)', () => {
       const sortBy = {
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'categoryZToA',
       };
       const generatedFilters = {};
@@ -404,7 +404,7 @@ describe('MyExpensesService', () => {
 
       expect(generatedFilters).toEqual([
         {
-          name: 'Sort By',
+          name: 'Sort by',
           value: 'categoryAToZ',
         },
       ]);
@@ -420,7 +420,7 @@ describe('MyExpensesService', () => {
 
       expect(generatedFilters).toEqual([
         {
-          name: 'Sort By',
+          name: 'Sort by',
           value: 'categoryZToA',
         },
       ]);
@@ -439,7 +439,7 @@ describe('MyExpensesService', () => {
 
       expect(generatedFilters).toEqual([
         {
-          name: 'Sort By',
+          name: 'Sort by',
           value: 'amountHighToLow',
         },
       ]);
@@ -456,7 +456,7 @@ describe('MyExpensesService', () => {
 
       expect(generatedFilters).toEqual([
         {
-          name: 'Sort By',
+          name: 'Sort by',
           value: 'amountLowToHigh',
         },
       ]);
@@ -475,7 +475,7 @@ describe('MyExpensesService', () => {
 
       expect(generatedFilters).toEqual([
         {
-          name: 'Sort By',
+          name: 'Sort by',
           value: 'dateNewToOld',
         },
       ]);
@@ -492,7 +492,7 @@ describe('MyExpensesService', () => {
 
       expect(generatedFilters).toEqual([
         {
-          name: 'Sort By',
+          name: 'Sort by',
           value: 'dateOldToNew',
         },
       ]);

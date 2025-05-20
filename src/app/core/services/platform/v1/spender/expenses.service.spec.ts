@@ -511,4 +511,21 @@ describe('ExpensesService', () => {
       done();
     });
   });
+
+  describe('deleteExpenses()', () => {
+    it('should call spenderService.post with correct payload and return void', (done) => {
+      const expenseIds = ['exp1', 'exp2', 'exp3'];
+      const expectedPayload = {
+        data: [{ id: 'exp1' }, { id: 'exp2' }, { id: 'exp3' }],
+      };
+
+      spenderService.post.and.returnValue(of({}));
+
+      service.deleteExpenses(expenseIds).subscribe((result) => {
+        expect(spenderService.post).toHaveBeenCalledOnceWith('/expenses/delete/bulk', expectedPayload);
+        expect(result).toBeUndefined();
+        done();
+      });
+    });
+  });
 });

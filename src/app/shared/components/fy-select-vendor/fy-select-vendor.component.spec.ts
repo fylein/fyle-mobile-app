@@ -51,21 +51,19 @@ describe('FySelectVendorComponent', () => {
     component.validInParent = false;
 
     const res = component.valid;
-    expect(res).toEqual(false);
+    expect(res).toBeFalse();
   });
 
   it('openModal(): should open modal', async () => {
     const currencyModalSpy = jasmine.createSpyObj('currencyModal', ['present', 'onWillDismiss']);
-    currencyModalSpy.onWillDismiss.and.returnValue(
-      Promise.resolve({
-        data: {
-          value: 'value',
-        },
-      })
-    );
+    currencyModalSpy.onWillDismiss.and.resolveTo({
+      data: {
+        value: 'value',
+      },
+    });
 
     modalProperties.getModalDefaultProperties.and.callThrough();
-    modalController.create.and.returnValue(Promise.resolve(currencyModalSpy));
+    modalController.create.and.resolveTo(currencyModalSpy);
 
     await component.openModal();
 
@@ -113,16 +111,14 @@ describe('FySelectVendorComponent', () => {
     component.registerOnChange(callbackFn);
 
     const currencyModalSpy = jasmine.createSpyObj('currencyModal', ['present', 'onWillDismiss']);
-    currencyModalSpy.onWillDismiss.and.returnValue(
-      Promise.resolve({
-        data: {
-          value: 'value',
-        },
-      })
-    );
+    currencyModalSpy.onWillDismiss.and.resolveTo({
+      data: {
+        value: 'value',
+      },
+    });
 
     modalProperties.getModalDefaultProperties.and.callThrough();
-    modalController.create.and.returnValue(Promise.resolve(currencyModalSpy));
+    modalController.create.and.resolveTo(currencyModalSpy);
 
     await component.openModal();
     await fixture.detectChanges();

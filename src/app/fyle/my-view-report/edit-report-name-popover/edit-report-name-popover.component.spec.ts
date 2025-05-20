@@ -55,14 +55,14 @@ describe('EditReportNamePopoverComponent', () => {
   });
 
   it('closePopover(): should call closePopover method when close button is clicked', () => {
-    popoverController.dismiss.and.returnValue(Promise.resolve(true));
+    popoverController.dismiss.and.resolveTo(true);
     const closeButton = getElementBySelector(fixture, '.fy-icon-close') as HTMLButtonElement;
     closeButton.click();
     expect(popoverController.dismiss).toHaveBeenCalledTimes(1);
   });
 
   it('saveReportName(): should call saveReportName method when save button is clicked', () => {
-    popoverController.dismiss.and.returnValue(Promise.resolve(true));
+    popoverController.dismiss.and.resolveTo(true);
     const saveButton = getElementBySelector(fixture, '.edit-report-name--toolbar__btn-save') as HTMLButtonElement;
     fixture.detectChanges();
     saveButton.click();

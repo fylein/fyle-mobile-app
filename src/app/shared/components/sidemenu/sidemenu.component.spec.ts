@@ -14,7 +14,7 @@ import { Router } from '@angular/router';
 import { MenuController } from '@ionic/angular';
 import { SidemenuComponent } from './sidemenu.component';
 import { of, take } from 'rxjs';
-import { MatMenuModule } from '@angular/material/menu';
+import { MatLegacyMenuModule as MatMenuModule } from '@angular/material/legacy-menu';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { Component, CUSTOM_ELEMENTS_SCHEMA, EventEmitter, Input, NO_ERRORS_SCHEMA, Output } from '@angular/core';
 import { extendedDeviceInfoMockData } from 'src/app/core/mock-data/extended-device-info.data';
@@ -34,6 +34,7 @@ import {
   setSideMenuRes,
 } from 'src/app/core/mock-data/sidemenu.data';
 import { delegatorData } from 'src/app/core/mock-data/platform/v1/delegator.data';
+import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
 
 describe('SidemenuComponent', () => {
   let component: SidemenuComponent;
@@ -50,6 +51,7 @@ describe('SidemenuComponent', () => {
   let orgService: jasmine.SpyObj<OrgService>;
   let authService: jasmine.SpyObj<AuthService>;
   let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
+  let spenderOnboardingService: jasmine.SpyObj<SpenderOnboardingService>;
 
   @Component({
     selector: 'app-sidemenu',
@@ -83,6 +85,9 @@ describe('SidemenuComponent', () => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     authServiceSpy.getEou.and.resolveTo(apiEouRes);
     const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
+    const spenderOnboardingServiceSpy = jasmine.createSpyObj('SpenderOnboardingService', [
+      'checkForRedirectionToOnboarding',
+    ]);
 
     TestBed.configureTestingModule({
       declarations: [SidemenuComponent],
@@ -100,6 +105,7 @@ describe('SidemenuComponent', () => {
         { provide: OrgService, useValue: orgServiceSpy },
         { provide: AuthService, useValue: authServiceSpy },
         { provide: OrgUserSettingsService, useValue: orgUserSettingsServiceSpy },
+        { provide: SpenderOnboardingService, useValue: spenderOnboardingServiceSpy },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -116,6 +122,7 @@ describe('SidemenuComponent', () => {
     orgService = TestBed.inject(OrgService) as jasmine.SpyObj<OrgService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
+    spenderOnboardingService = TestBed.inject(SpenderOnboardingService) as jasmine.SpyObj<SpenderOnboardingService>;
 
     networkService.connectivityWatcher.and.returnValue(new EventEmitter());
 
@@ -203,11 +210,11 @@ describe('SidemenuComponent', () => {
       },
     };
 
-    const cardOpt = component.getCardOptions();
+    const cardOpt = component.getCardOptions(false);
     fixture.detectChanges();
     expect(cardOpt).toEqual([
       {
-        title: 'Personal Cards',
+        title: 'Personal cards',
         isVisible: true,
         route: ['/', 'enterprise', 'personal_cards'],
       },
@@ -216,20 +223,18 @@ describe('SidemenuComponent', () => {
 
   it('getTeamOptions: should get team options', () => {
     component.allowedActions = sidemenuAllowedActions;
-    const teamOpt = component.getTeamOptions();
+    const teamOpt = component.getTeamOptions(false);
     fixture.detectChanges();
     expect(teamOpt.length).toBe(2);
     expect(teamOpt).toEqual([
       {
-        title: 'Team Reports',
-        isVisible:
-          component.allowedActions.allowedReportsActions && component.allowedActions.allowedReportsActions.approve,
+        title: 'Expense reports',
+        isVisible: component.allowedActions.allowedReportsActions?.approve,
         route: ['/', 'enterprise', 'team_reports'],
       },
       {
-        title: 'Team Advances',
-        isVisible:
-          component.allowedActions.allowedAdvancesActions && component.allowedActions.allowedAdvancesActions.approve,
+        title: 'Advances',
+        isVisible: component.allowedActions.allowedAdvancesActions?.approve,
         route: ['/', 'enterprise', 'team_advance'],
       },
     ]);
@@ -245,10 +250,10 @@ describe('SidemenuComponent', () => {
   describe('getPrimarySidemenuOptions():', () => {
     it('should get the primary sidemenu options', () => {
       const primOpt = PrimaryOptionsRes1.concat(PrimaryOptionsRes2);
-      const resData = primOpt.filter((option) => option.title !== 'Personal Cards');
+      const resData = primOpt.filter((option) => option.title !== 'Personal cards');
       const cardOptSpy = spyOn(component, 'getCardOptions').and.returnValue([]);
       const teamOptSpy = spyOn(component, 'getTeamOptions').and.returnValue([]);
-      const result = component.getPrimarySidemenuOptions(true);
+      const result = component.getPrimarySidemenuOptions(true, false);
       fixture.detectChanges();
       expect(result.length).toBe(4);
       result.forEach((option, index) => {
@@ -266,12 +271,12 @@ describe('SidemenuComponent', () => {
       const teamOptSpy = spyOn(component, 'getTeamOptions').and.returnValue([]);
       const cardOptSpy = spyOn(component, 'getCardOptions').and.returnValue([
         {
-          title: 'Personal Cards',
+          title: 'Personal cards',
           isVisible: true,
           route: ['/', 'enterprise', 'personal_cards'],
         },
       ]);
-      const result = component.getPrimarySidemenuOptions(true);
+      const result = component.getPrimarySidemenuOptions(true, false);
       fixture.detectChanges();
       expect(result.length).toBe(5);
       result.forEach((option, index) => {
@@ -289,12 +294,12 @@ describe('SidemenuComponent', () => {
       const cardOptSpy = spyOn(component, 'getCardOptions').and.returnValue([]);
       const teamOptSpy = spyOn(component, 'getTeamOptions').and.returnValue([
         {
-          title: 'Team Reports',
+          title: 'Expense reports',
           isVisible: true,
           route: ['/', 'enterprise', 'team_reports'],
         },
       ]);
-      const result = component.getPrimarySidemenuOptions(true);
+      const result = component.getPrimarySidemenuOptions(true, false);
       fixture.detectChanges();
       expect(result.length).toBe(5);
       result.forEach((option, index) => {
@@ -318,20 +323,20 @@ describe('SidemenuComponent', () => {
           route: ['/', 'enterprise', 'my_dashboard'],
         },
         {
-          title: 'Expenses',
+          title: 'My expenses',
           isVisible: true,
           icon: 'list',
           route: ['/', 'enterprise', 'my_expenses'],
         },
         {
-          title: 'Reports',
+          title: 'My expense reports',
           isVisible: true,
           icon: 'folder',
           route: ['/', 'enterprise', 'my_reports'],
           disabled: false,
         },
         {
-          title: 'Advances',
+          title: 'My advances',
           isVisible: component.orgSettings.advance_requests.enabled,
           icon: 'wallet',
           route: ['/', 'enterprise', 'my_advances'],
@@ -345,12 +350,12 @@ describe('SidemenuComponent', () => {
           disabled: false,
           dropdownOptions: [
             {
-              title: 'Team Reports',
+              title: 'Expense reports',
               isVisible: true,
               route: ['/', 'enterprise', 'team_reports'],
             },
             {
-              title: 'Team Advances',
+              title: 'Advances',
               isVisible: true,
               route: ['/', 'enterprise', 'team_advance'],
             },
@@ -358,7 +363,7 @@ describe('SidemenuComponent', () => {
         },
       ];
 
-      const result = component.getPrimarySidemenuOptions(true);
+      const result = component.getPrimarySidemenuOptions(true, false);
       fixture.detectChanges();
       expect(result.length).toBe(5);
       result.forEach((option, index) => {
@@ -373,7 +378,7 @@ describe('SidemenuComponent', () => {
   describe('getSecondarySidemenuOptions():', () => {
     it('should get the secondary options', () => {
       const resData = getSecondarySidemenuOptionsRes1;
-      const result = component.getSecondarySidemenuOptions(orgData1, true, true);
+      const result = component.getSecondarySidemenuOptions(orgData1, true, true, false);
       fixture.detectChanges();
       expect(result.length).toBe(4);
       result.forEach((option, index) => {
@@ -385,8 +390,8 @@ describe('SidemenuComponent', () => {
     });
 
     it('should not show the Delegated Accounts option when there is no delegatee', () => {
-      const resData = getSecondarySidemenuOptionsRes1.filter((option) => option.title !== 'Delegated Accounts');
-      const result = component.getSecondarySidemenuOptions(orgData1, false, true);
+      const resData = getSecondarySidemenuOptionsRes1.filter((option) => option.title !== 'Delegated accounts');
+      const result = component.getSecondarySidemenuOptions(orgData1, false, true, false);
       fixture.detectChanges();
       expect(result.length).toBe(3);
       result.forEach((option, index) => {
@@ -402,14 +407,14 @@ describe('SidemenuComponent', () => {
       component.isSwitchedToDelegator = false;
       const resData = [
         {
-          title: 'Delegated Accounts',
+          title: 'Delegated accounts',
           isVisible: true,
           icon: 'user-two',
           route: ['/', 'enterprise', 'delegated_accounts'],
           disabled: false,
         },
         {
-          title: 'Switch Organization',
+          title: 'Switch organization',
           isVisible: orgData2.length > 1 && !component.isSwitchedToDelegator,
           icon: 'swap',
           route: ['/', 'auth', 'switch_org', { choose: true, navigate_back: true }],
@@ -422,7 +427,7 @@ describe('SidemenuComponent', () => {
           route: ['/', 'enterprise', 'my_profile'],
         },
         {
-          title: 'Live Chat',
+          title: 'Live chat',
           isVisible: true,
           icon: 'chat',
           openLiveChat: true,
@@ -436,7 +441,7 @@ describe('SidemenuComponent', () => {
           disabled: false,
         },
       ];
-      const result = component.getSecondarySidemenuOptions(orgData2, true, true);
+      const result = component.getSecondarySidemenuOptions(orgData2, true, true, false);
       fixture.detectChanges();
       expect(result.length).toBe(5);
       result.forEach((option, index) => {
@@ -448,8 +453,12 @@ describe('SidemenuComponent', () => {
     });
   });
 
-  describe('setupSideMenu()', () => {
-    it('should setup the side menu', () => {
+  describe('setupSideMenu(): ', () => {
+    beforeEach(() => {
+      spenderOnboardingService.checkForRedirectionToOnboarding.and.returnValue(of(false));
+    });
+
+    it('should setup the side menu', fakeAsync(() => {
       const getPrimarySidemenuOptionsSpy = spyOn(component, 'getPrimarySidemenuOptions').and.returnValue(
         getPrimarySidemenuOptionsRes1
       );
@@ -458,22 +467,24 @@ describe('SidemenuComponent', () => {
       );
       const resData = setSideMenuRes;
       component.setupSideMenu(true, orgData1, true);
+      tick();
       fixture.detectChanges();
       expect(component.filteredSidemenuList).toEqual(resData);
-      expect(getPrimarySidemenuOptionsSpy).toHaveBeenCalledOnceWith(true);
-      expect(getSecondarySidemenuOptionsSpy).toHaveBeenCalledOnceWith(orgData1, true, true);
-    });
+      expect(getPrimarySidemenuOptionsSpy).toHaveBeenCalledOnceWith(true, false);
+      expect(getSecondarySidemenuOptionsSpy).toHaveBeenCalledOnceWith(orgData1, true, true, false);
+    }));
 
-    it('should only get the primary options when there is no internet connection', () => {
+    it('should only get the primary options when there is no internet connection', fakeAsync(() => {
       const getPrimarySidemenuOptionsOfflineSpy = spyOn(component, 'getPrimarySidemenuOptionsOffline').and.returnValue(
         sidemenuData1
       );
       const resData = sidemenuData1;
       component.setupSideMenu(false, orgData1, false);
       fixture.detectChanges();
+      tick();
       expect(component.filteredSidemenuList).toEqual(resData);
       expect(getPrimarySidemenuOptionsOfflineSpy).toHaveBeenCalledTimes(1);
-    });
+    }));
   });
 
   describe('goToProfile():', () => {
@@ -516,6 +527,7 @@ describe('SidemenuComponent', () => {
       orgUserService.getCurrent.and.returnValue(of(currentEouRes));
 
       sidemenuService.getAllowedActions.and.returnValue(of(sidemenuAllowedActions));
+      spenderOnboardingService.checkForRedirectionToOnboarding.and.returnValue(of(false));
 
       component.showSideMenuOnline();
       tick(500);

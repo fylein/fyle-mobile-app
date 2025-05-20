@@ -9,7 +9,7 @@ import { MyCreateReportPageRoutingModule } from './my-create-report-routing.modu
 import { MyCreateReportPage } from './my-create-report.page';
 import { MatIconModule } from '@angular/material/icon';
 import { SharedModule } from 'src/app/shared/shared.module';
-import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatLegacyCheckboxModule as MatCheckboxModule } from '@angular/material/legacy-checkbox';
 
 @NgModule({
   imports: [

@@ -32,7 +32,7 @@
         <div class="advance-card--secondary-info-block">
           <div class="advance-card--approval">
             <div *ngIf="advanceRequest.areq_approved_at">
-              <span>Approved on {{ advanceRequest.areq_approved_at | date : 'MMM dd, YYYY' }}</span>
+              <span>Approved date {{ advanceRequest.areq_approved_at | date : 'MMM dd, YYYY' }}</span>
             </div>
           </div>
         </div>

@@ -8,7 +8,8 @@ import { CustomInputsService } from 'src/app/core/services/custom-inputs.service
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { StatusService } from 'src/app/core/services/status.service';
+import { ExpenseCommentService as SpenderExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
+import { ExpenseCommentService as ApproverExpenseCommentService } from 'src/app/core/services/platform/v1/approver/expense-comment.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
@@ -57,7 +58,8 @@ describe('ViewPerDiemPage', () => {
   let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
   let router: jasmine.SpyObj<Router>;
   let popoverController: jasmine.SpyObj<PopoverController>;
-  let statusService: jasmine.SpyObj<StatusService>;
+  let spenderExpenseCommentService: jasmine.SpyObj<SpenderExpenseCommentService>;
+  let approverExpenseCommentService: jasmine.SpyObj<ApproverExpenseCommentService>;
   let modalController: jasmine.SpyObj<ModalController>;
   let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
@@ -83,7 +85,12 @@ describe('ViewPerDiemPage', () => {
     ]);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
-    const statusServiceSpy = jasmine.createSpyObj('StatusService', ['find', 'post']);
+    const spenderExpenseCommentServiceSpy = jasmine.createSpyObj('SpenderExpenseCommentService', [
+      'getTransformedComments',
+    ]);
+    const approverExpenseCommentServiceSpy = jasmine.createSpyObj('ApproverExpenseCommentService', [
+      'getTransformedComments',
+    ]);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
@@ -118,7 +125,6 @@ describe('ViewPerDiemPage', () => {
         { provide: PolicyService, useValue: policyServiceSpy },
         { provide: Router, useValue: routerSpy },
         { provide: PopoverController, useValue: popoverControllerSpy },
-        { provide: StatusService, useValue: statusServiceSpy },
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: ModalPropertiesService, useValue: modalPropertiesSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },
@@ -142,6 +148,8 @@ describe('ViewPerDiemPage', () => {
           },
         },
         { provide: LaunchDarklyService, useValue: launchDarklyServiceSpy },
+        { provide: SpenderExpenseCommentService, useValue: spenderExpenseCommentServiceSpy },
+        { provide: ApproverExpenseCommentService, useValue: approverExpenseCommentServiceSpy },
       ],
     }).compileComponents();
 
@@ -155,7 +163,12 @@ describe('ViewPerDiemPage', () => {
     approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
-    statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
+    spenderExpenseCommentService = TestBed.inject(
+      SpenderExpenseCommentService
+    ) as jasmine.SpyObj<SpenderExpenseCommentService>;
+    approverExpenseCommentService = TestBed.inject(
+      ApproverExpenseCommentService
+    ) as jasmine.SpyObj<ApproverExpenseCommentService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
@@ -255,6 +268,7 @@ describe('ViewPerDiemPage', () => {
         componentProps: {
           objectType: 'transactions',
           objectId: component.expenseId,
+          view: ExpenseView.individual,
         },
         ...properties,
       });
@@ -277,6 +291,7 @@ describe('ViewPerDiemPage', () => {
         componentProps: {
           objectType: 'transactions',
           objectId: component.expenseId,
+          view: ExpenseView.individual,
         },
         ...properties,
       });
@@ -292,6 +307,7 @@ describe('ViewPerDiemPage', () => {
     beforeEach(() => {
       component.expenseId = 'tx5fBcPBAxLv';
       component.reportId = 'rpFvmTgyeBjN';
+      component.view = ExpenseView.individual;
 
       loaderService.showLoader.and.resolveTo();
       loaderService.hideLoader.and.resolveTo();
@@ -306,7 +322,7 @@ describe('ViewPerDiemPage', () => {
       approverReportsService.getReportById.and.returnValue(of(expectedReportsSinglePage[0]));
       policyService.getApproverExpensePolicyViolations.and.returnValue(of(individualExpPolicyStateData2));
       policyService.getSpenderExpensePolicyViolations.and.returnValue(of(individualExpPolicyStateData3));
-      statusService.find.and.returnValue(of(estatusData1));
+      spenderExpenseCommentService.getTransformedComments.and.returnValue(of(estatusData1));
       spyOn(component, 'getPolicyDetails');
     });
 
@@ -551,7 +567,7 @@ describe('ViewPerDiemPage', () => {
       component.ionViewWillEnter();
       expect(component.getPolicyDetails).toHaveBeenCalledOnceWith('tx3qwe4ty');
       component.comments$.subscribe((comments) => {
-        expect(statusService.find).toHaveBeenCalledOnceWith('transactions', 'tx3qwe4ty');
+        expect(spenderExpenseCommentService.getTransformedComments).toHaveBeenCalledOnceWith('tx3qwe4ty');
         expect(comments).toEqual(estatusData1);
         done();
       });

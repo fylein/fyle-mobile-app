@@ -192,7 +192,7 @@ describe('AddExpensesToReportComponent', () => {
     component.selectedElements = [];
     fixture.detectChanges();
 
-    expect(getTextContent(getElementBySelector(fixture, '.report-list--title'))).toEqual('Add Expenses');
+    expect(getTextContent(getElementBySelector(fixture, '.report-list--title'))).toEqual('Add expenses');
   });
 
   it('should show number of expenses', () => {
@@ -214,7 +214,7 @@ describe('AddExpensesToReportComponent', () => {
     fixture.detectChanges();
 
     expect(getTextContent(getElementBySelector(fixture, '.add-expenses-to-report--zero-state--header'))).toEqual(
-      'Looks like there are no complete expenses!'
+      'You have no complete expenses'
     );
   });
 });

@@ -11,7 +11,7 @@
     </ion-row>
   </ion-grid>
   <div class="request-invitation--form" *ngIf="currentPageState === RequestInvitationStates.notSent">
-    <div class="request-invitation--form-header">Request Invitation</div>
+    <div class="request-invitation--form-header">Request invitation</div>
     <div class="request-invitation--form-subheader">
       Your company already uses Fyle. Send an invitation request to your Fyle admin.
     </div>
@@ -23,7 +23,7 @@
           formControlName="email"
           type="email"
           matInput
-          placeholder="Work Email"
+          placeholder="Work email"
           class="smartlook-show"
         />
       </mat-form-field>
@@ -36,24 +36,24 @@
         color="primary"
         (click)="sendRequestInvitation()"
       >
-        REQUEST INVITATION
+        Request invitation
       </button>
     </div>
   </div>
   <div class="request-invitation--form" *ngIf="currentPageState === RequestInvitationStates.success">
-    <div class="request-invitation--form-header">Request Invitation Successful</div>
+    <div class="request-invitation--form-header">Request invitation successful</div>
     <div class="request-invitation--form-subheader">
       Your request has been sent to your admin - they may take some time to process it
     </div>
   </div>
   <div class="request-invitation--form" *ngIf="currentPageState === RequestInvitationStates.failure">
-    <div class="request-invitation--form-header">Request Invitation Failed</div>
+    <div class="request-invitation--form-header">Request invitation failed</div>
     <div class="request-invitation--form-subheader">
       Something went wrong. Please send us a note at support@fylehq.com
     </div>
   </div>
   <div class="request-invitation--form" *ngIf="currentPageState === RequestInvitationStates.alreadySent">
-    <div class="request-invitation--form-header">Request Pending</div>
+    <div class="request-invitation--form-header">Request pending</div>
     <div class="request-invitation--form-subheader">
       <div>Your request has already been sent to your organization's admin.</div>
       <div>
@@ -67,7 +67,7 @@
 <ion-footer>
   <ion-toolbar mode="md">
     <ion-button fill="clear" expand="full" [routerLink]="['/','auth','sign_in']" routerLinkActive="router-link-active">
-      Back to Sign in
+      Back to sign in
     </ion-button>
   </ion-toolbar>
 </ion-footer>

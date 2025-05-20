@@ -88,8 +88,7 @@
     &__amount-section {
       display: flex;
       justify-content: flex-start;
-      width: 90%;
-      padding-top: 10px;
+      width: 100%;
       align-items: center;
     }
 
@@ -99,7 +98,7 @@
     }
 
     &__merchant {
-      font-size: 12px;
+      font-size: 14px;
       color: $dark-grey;
     }
 
@@ -120,7 +119,7 @@
     }
 
     &__amount {
-      font-size: 16px;
+      font-size: 14px;
       font-weight: 500;
       color: $black;
       margin-right: 4px;

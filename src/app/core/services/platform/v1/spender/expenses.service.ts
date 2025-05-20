@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@angular/core';
-import { Observable, concatMap, map, of, range, reduce, switchMap } from 'rxjs';
+import { BehaviorSubject, Observable, concatMap, map, of, range, reduce, switchMap } from 'rxjs';
 import { SpenderService } from '../spender/spender.service';
 import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
@@ -22,11 +22,16 @@ import { MatchedCorporateCardTransaction } from 'src/app/core/models/platform/v1
 import { MileageUnitEnum } from 'src/app/core/models/platform/platform-mileage-rates.model';
 import { Location } from 'src/app/core/models/location.model';
 import { CommuteDeduction } from 'src/app/core/enums/commute-deduction.enum';
+import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ExpensesService {
+  splitExpensesData$ = new BehaviorSubject<{
+    expenses: Partial<Transaction>[] | PlatformExpense[];
+  } | null>(null);
+
   constructor(
     @Inject(PAGINATION_SIZE) private paginationSize: number,
     private spenderService: SpenderService,
@@ -132,6 +137,9 @@ export class ExpensesService {
     return this.spenderService.get<PlatformApiResponse<Expense[]>>('/expenses', data).pipe(
       map((res) => res.data[0]),
       switchMap((expense) => {
+        if (!expense) {
+          throw new Error('expense not found');
+        }
         if (
           expense.matched_corporate_card_transaction_ids.length > 0 &&
           expense.matched_corporate_card_transactions.length === 0
@@ -314,7 +322,10 @@ export class ExpensesService {
       started_at: transaction.from_dt,
       ended_at: transaction.to_dt,
       locations: transaction.locations as unknown as Location[],
-      custom_fields: transaction.custom_properties,
+      custom_fields: transaction.custom_properties.map((customProperty) => ({
+        name: customProperty.name,
+        value: customProperty.value,
+      })),
       per_diem_rate_id: transaction.per_diem_rate_id,
       per_diem_num_days: transaction.num_days || 0,
       mileage_rate_id: transaction.mileage_rate_id, // @arjun check if this is present
@@ -364,5 +375,15 @@ export class ExpensesService {
         },
       ],
     });
+  }
+
+  deleteExpenses(expenseIds: string[]): Observable<void> {
+    const payload = {
+      data: expenseIds.map((id) => ({ id })),
+    };
+
+    return this.spenderService
+      .post<PlatformApiResponse<null>>('/expenses/delete/bulk', payload)
+      .pipe(map((): void => void 0));
   }
 }

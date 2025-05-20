@@ -1,7 +1,12 @@
 <div class="corporate-card">
   <ion-row class="ion-align-items-center">
     <ion-col class="p-0">
-      <div class="corporate-card__bank-name" *ngIf="card?.bank_name">{{ card.bank_name }}</div>
+      <ion-row class="corporate-card__row">
+        <div class="corporate-card__bank-name" *ngIf="card?.bank_name">{{ card.bank_name }}</div>
+        <div class="corporate-card-badge-container">
+          <span class="corporate-card-badge">Corporate card</span>
+        </div>
+      </ion-row>
     </ion-col>
 
     <ion-col size="auto" class="p-0">
@@ -26,7 +31,7 @@
   <div class="corporate-card__feed">
     <div class="corporate-card__status">
       <ng-container *ngIf="isCardConnectedToRTF">
-        <span class="corporate-card__feed-label">Transactions Feed</span>
+        <span class="corporate-card__feed-label">Transactions feed</span>
         <div class="corporate-card__feed-value corporate-card__feed-live">
           <div class="corporate-card__feed-live-dot"></div>
           <span data-testid="feed-info">Live</span>
@@ -39,7 +44,7 @@
           card.data_feed_source === dataFeedSourceTypes.AMEX_FEED
         "
       >
-        <span class="corporate-card__feed-label">Last Synced</span>
+        <span class="corporate-card__feed-label">Last synced</span>
         <span class="corporate-card__feed-value" data-testid="feed-info">{{
           card.last_synced_at | date : 'MMM dd, YYYY'
         }}</span>
@@ -51,30 +56,21 @@
           isCardConnectedToBankFeed
         "
       >
-        <span class="corporate-card__feed-label">Synced Using</span>
-        <span class="corporate-card__feed-value" data-testid="feed-info">{{
-          card.data_feed_source === 'STATEMENT_UPLOAD' ? 'Statement Upload' : 'Bank Feed'
+        <span class="corporate-card__feed-label">Synced using</span>
+        <span class="corporate-card__feed-label" data-testid="feed-info">{{
+          card.data_feed_source === 'STATEMENT_UPLOAD' ? 'Statement upload' : 'Bank Feed'
         }}</span>
       </ng-container>
     </div>
     <div>
-      <ng-container *ngIf="!isCardConnectedToRTF">
-        <div class="corporate-card__logo--default">
-          <ng-container *ngIf="card.data_feed_source === dataFeedSourceTypes.AMEX_FEED; else defaultCard">
-            <img
-              src="../../../../assets/images/amex-logo.png"
-              class="corporate-card__logo--amex__icon"
-              data-testid="amex-icon"
-            />
-          </ng-container>
-          <ng-template #defaultCard>
-            <ion-icon
-              src="../../../../assets/svg/card.svg"
-              class="corporate-card__logo--default__icon"
-              data-testid="default-icon"
-            ></ion-icon>
-          </ng-template>
-        </div>
+      <ng-container *ngIf="!isCardConnectedToRTF" class="corporate-card__logo--default">
+        <ng-container *ngIf="card.data_feed_source === dataFeedSourceTypes.AMEX_FEED">
+          <img
+            src="../../../../assets/images/amex-logo.png"
+            class="corporate-card__logo--amex__icon"
+            data-testid="amex-icon"
+          />
+        </ng-container>
       </ng-container>
 
       <ng-container *ngIf="isCardConnectedToRTF">

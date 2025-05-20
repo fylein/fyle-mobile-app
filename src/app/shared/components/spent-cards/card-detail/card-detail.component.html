@@ -22,60 +22,55 @@
           {{ cardDetail.stats.totalDraftTxns }}
         </div>
         <div class="stats--ccc-classified-amount">
-          <span class="stats--expenses-amount-currency">
-            {{ currencySymbol }}
-          </span>
-          <ng-container
+          {{ currencySymbol
+          }}<ng-container
             *ngIf="
               !isSmallScreen &&
-                cardDetail.stats.totalDraftValue > -1000000000 &&
-                cardDetail.stats.totalDraftValue < 1000000000;
+                cardDetail.stats.totalDraftAmount > -1000000000 &&
+                cardDetail.stats.totalDraftAmount < 1000000000;
               else humanizeDraftAmount
             "
+            >{{
+              { value: cardDetail.stats.totalDraftAmount, currencyCode: homeCurrency, skipSymbol: true } | exactCurrency
+            }}</ng-container
           >
-            {{
-              { value: cardDetail.stats.totalDraftValue, currencyCode: homeCurrency, skipSymbol: true } | exactCurrency
-            }}
-          </ng-container>
-          <ng-template #humanizeDraftAmount>
-            {{ cardDetail.stats.totalDraftValue | humanizeCurrency : homeCurrency : true }}
-          </ng-template>
+          <ng-template #humanizeDraftAmount>{{
+            cardDetail.stats.totalDraftAmount | humanizeCurrency : homeCurrency : true
+          }}</ng-template>
         </div>
       </div>
       <div class="stats--ccc-stats-title">
-        Incomplete Card {{ cardDetail.stats.totalDraftTxns === 1 ? 'Expense' : 'Expenses' }}
+        Incomplete card {{ cardDetail.stats.totalDraftTxns <= 1 ? 'expense' : 'expenses' }}
       </div>
     </div>
 
     <hr class="stats--ccc-stats-divider" />
-    <div (click)="goToExpensesPage('totalExpenses', cardDetail)">
+    <div (click)="goToExpensesPage('completeExpenses', cardDetail)">
       <div class="stats--ccc-classified-stats stats--ccc-classified-stats__margin-top">
         <div class="stats--ccc-classified-count">
-          {{ cardDetail.stats.totalTxnsCount }}
+          {{ cardDetail.stats.totalCompleteTxns }}
         </div>
         <div class="stats--ccc-classified-amount">
-          <span class="stats--expenses-amount-currency">
-            {{ currencySymbol }}
-          </span>
-          <ng-container
+          {{ currencySymbol
+          }}<ng-container
             *ngIf="
               !isSmallScreen &&
-                cardDetail.stats.totalAmountValue > -1000000000 &&
-                cardDetail.stats.totalAmountValue < 1000000000;
+                cardDetail.stats.totalCompleteExpensesAmount > -1000000000 &&
+                cardDetail.stats.totalCompleteExpensesAmount < 1000000000;
               else humanizeTotalAmount
             "
+            >{{
+              { value: cardDetail.stats.totalCompleteExpensesAmount, currencyCode: homeCurrency, skipSymbol: true }
+                | exactCurrency
+            }}</ng-container
           >
-            {{
-              { value: cardDetail.stats.totalAmountValue, currencyCode: homeCurrency, skipSymbol: true } | exactCurrency
-            }}
-          </ng-container>
-          <ng-template #humanizeTotalAmount>
-            {{ cardDetail.stats.totalAmountValue | humanizeCurrency : homeCurrency : true }}
-          </ng-template>
+          <ng-template #humanizeTotalAmount>{{
+            cardDetail.stats.totalCompleteExpensesAmount | humanizeCurrency : homeCurrency : true
+          }}</ng-template>
         </div>
       </div>
       <div class="stats--ccc-stats-title">
-        Total {{ cardDetail.stats.totalTxnsCount === 1 ? 'Expense' : 'Expenses' }}
+        Complete card {{ cardDetail.stats.totalCompleteTxns <= 1 ? 'expense' : 'expenses' }}
       </div>
     </div>
   </div>

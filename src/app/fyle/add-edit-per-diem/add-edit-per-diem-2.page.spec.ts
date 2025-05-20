@@ -21,7 +21,7 @@ import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-it
 import { ReportService } from 'src/app/core/services/report.service';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { StatusService } from 'src/app/core/services/status.service';
+import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { TokenService } from 'src/app/core/services/token.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -30,9 +30,9 @@ import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expen
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
 
-import { FormArray, FormBuilder, Validators } from '@angular/forms';
+import { UntypedFormArray, UntypedFormBuilder, Validators } from '@angular/forms';
 import { ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
 import { orgCategoryData, orgCategoryData1, perDiemCategory } from 'src/app/core/mock-data/org-category.data';
 import { BehaviorSubject, finalize, of, skip, take, tap } from 'rxjs';
@@ -51,22 +51,19 @@ import {
 } from 'src/app/core/mock-data/per-diem-custom-inputs.data';
 import { projects } from 'src/app/core/mock-data/extended-projects.data';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
-import { authResData1 } from 'src/app/core/mock-data/auth-reponse.data';
+import { authResData1 } from 'src/app/core/mock-data/auth-response.data';
 import {
-  accountsData,
-  multipleAdvAccountsData,
   multiplePaymentModesData,
   orgSettingsData,
   paymentModeDataCCC,
   paymentModesData,
-  unflattenedAccount2Data,
   advanceWallet1Data,
   multiplePaymentModesWithoutAdvData,
 } from 'src/app/core/test-data/accounts.service.spec.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import { expectedReportsPaginated, expectedSingleReport } from 'src/app/core/mock-data/platform-report.data';
 import { reportOptionsData3 } from 'src/app/core/mock-data/report-options.data';
-import { txnFieldsData2, txnFieldsData3 } from 'src/app/core/mock-data/expense-field-obj.data';
+import { txnFieldsData3 } from 'src/app/core/mock-data/expense-field-obj.data';
 import { allowedPerDiem, expectedPerDiems } from 'src/app/core/test-data/per-diem.service.spec.data';
 import { costCentersData, expectedCCdata2, expectedCCdata3 } from 'src/app/core/mock-data/cost-centers.data';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
@@ -80,13 +77,11 @@ import {
   orgSettingsParamsWithAdvanceWallet,
 } from 'src/app/core/mock-data/org-settings.data';
 import { TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
-import { OrgCategory } from 'src/app/core/models/v1/org-category.model';
 import { allowedPerDiemRateOptionsData1 } from 'src/app/core/mock-data/allowed-per-diem-rate-options.data';
 import { perDiemRatesData1, perDiemRatesData2 } from 'src/app/core/mock-data/per-diem-rates.data';
 import { currencyObjData5, currencyObjData6 } from 'src/app/core/mock-data/currency-obj.data';
 import {
   perDiemFormValuesData1,
-  perDiemFormValuesData10,
   perDiemFormValuesData2,
   perDiemFormValuesData3,
   perDiemFormValuesData4,
@@ -105,7 +100,7 @@ export function TestCases2(getTestBed) {
     let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
     let accountsService: jasmine.SpyObj<AccountsService>;
     let authService: jasmine.SpyObj<AuthService>;
-    let formBuilder: FormBuilder;
+    let formBuilder: UntypedFormBuilder;
     let categoriesService: jasmine.SpyObj<CategoriesService>;
     let dateService: jasmine.SpyObj<DateService>;
     let projectsService: jasmine.SpyObj<ProjectsService>;
@@ -120,7 +115,7 @@ export function TestCases2(getTestBed) {
     let router: jasmine.SpyObj<Router>;
     let loaderService: jasmine.SpyObj<LoaderService>;
     let modalController: jasmine.SpyObj<ModalController>;
-    let statusService: jasmine.SpyObj<StatusService>;
+    let expenseCommentService: jasmine.SpyObj<ExpenseCommentService>;
     let popoverController: jasmine.SpyObj<PopoverController>;
     let currencyService: jasmine.SpyObj<CurrencyService>;
     let networkService: jasmine.SpyObj<NetworkService>;
@@ -149,7 +144,7 @@ export function TestCases2(getTestBed) {
       activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
       accountsService = TestBed.inject(AccountsService) as jasmine.SpyObj<AccountsService>;
       authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-      formBuilder = TestBed.inject(FormBuilder);
+      formBuilder = TestBed.inject(UntypedFormBuilder);
       categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
       dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
       projectsService = TestBed.inject(ProjectsService) as jasmine.SpyObj<ProjectsService>;
@@ -164,7 +159,7 @@ export function TestCases2(getTestBed) {
       router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
       loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
       modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
-      statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
+      expenseCommentService = TestBed.inject(ExpenseCommentService) as jasmine.SpyObj<ExpenseCommentService>;
       popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
       currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
       networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
@@ -200,7 +195,7 @@ export function TestCases2(getTestBed) {
         report: [],
         from_dt: [],
         to_dt: [, component.customDateValidator.bind(component)],
-        custom_inputs: new FormArray([]),
+        custom_inputs: new UntypedFormArray([]),
         billable: [],
         costCenter: [],
         project_dependent_fields: formBuilder.array([]),
@@ -547,7 +542,7 @@ export function TestCases2(getTestBed) {
         currencyService.getHomeCurrency.and.returnValue(of('USD'));
         component.filteredCategories$ = of(categorieListRes);
         projectsService.getProjectCount.and.returnValue(of(4));
-        statusService.find.and.returnValue(of(getEstatusApiResponse));
+        expenseCommentService.getTransformedComments.and.returnValue(of(getEstatusApiResponse));
         currencyService.getAmountWithCurrencyFraction.and.returnValue(23);
         currencyService.getExchangeRate.and.returnValue(of(12));
         accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
@@ -768,7 +763,7 @@ export function TestCases2(getTestBed) {
         });
 
         component.comments$.subscribe((res) => {
-          expect(statusService.find).toHaveBeenCalledOnceWith('transactions', 'tx5n59fvxk4z');
+          expect(expenseCommentService.getTransformedComments).toHaveBeenCalledOnceWith('tx5n59fvxk4z');
           expect(res).toEqual(getEstatusApiResponse);
         });
         done();

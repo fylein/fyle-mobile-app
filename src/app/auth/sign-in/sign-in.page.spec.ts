@@ -10,17 +10,20 @@ import { TrackingService } from '../../core/services/tracking.service';
 import { DeviceService } from '../../core/services/device.service';
 import { LoginInfoService } from '../../core/services/login-info.service';
 import { SignInPage } from './sign-in.page';
-import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { UntypedFormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
+import { MatLegacyFormFieldModule as MatFormFieldModule } from '@angular/material/legacy-form-field';
+import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy-input';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { of, Subscription, throwError } from 'rxjs';
 import { extendedDeviceInfoMockData } from 'src/app/core/mock-data/extended-device-info.data';
 import { ErrorComponent } from './error/error.component';
-import { authResData1, authResData2, samlResData1, samlResData2 } from 'src/app/core/mock-data/auth-reponse.data';
+import { authResData1, authResData2, samlResData1, samlResData2 } from 'src/app/core/mock-data/auth-response.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
-import { MatButton, MatButtonModule } from '@angular/material/button';
+import {
+  MatLegacyButton as MatButton,
+  MatLegacyButtonModule as MatButtonModule,
+} from '@angular/material/legacy-button';
 import { InAppBrowserService } from 'src/app/core/services/in-app-browser.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
@@ -35,7 +38,7 @@ import { BackButtonActionPriority } from 'src/app/core/models/back-button-action
 describe('SignInPage', () => {
   let component: SignInPage;
   let fixture: ComponentFixture<SignInPage>;
-  let formBuilder: jasmine.SpyObj<FormBuilder>;
+  let formBuilder: jasmine.SpyObj<UntypedFormBuilder>;
   let routerAuthService: jasmine.SpyObj<RouterAuthService>;
   let popoverController: jasmine.SpyObj<PopoverController>;
   let loaderService: jasmine.SpyObj<LoaderService>;
@@ -85,7 +88,7 @@ describe('SignInPage', () => {
         RouterTestingModule,
       ],
       providers: [
-        FormBuilder,
+        UntypedFormBuilder,
         {
           provide: ActivatedRoute,
           useValue: { snapshot: { params: { email: 'ajain@fyle.in' } } },
@@ -148,7 +151,7 @@ describe('SignInPage', () => {
     fixture = TestBed.createComponent(SignInPage);
     component = fixture.componentInstance;
 
-    formBuilder = TestBed.inject(FormBuilder) as jasmine.SpyObj<FormBuilder>;
+    formBuilder = TestBed.inject(UntypedFormBuilder) as jasmine.SpyObj<UntypedFormBuilder>;
     routerAuthService = TestBed.inject(RouterAuthService) as jasmine.SpyObj<RouterAuthService>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
@@ -440,9 +443,7 @@ describe('SignInPage', () => {
 
       expect(routerAuthService.basicSignin).toHaveBeenCalledOnceWith('email', 'password');
       expect(authService.refreshEou).toHaveBeenCalledTimes(1);
-      expect(trackingService.onSignin).toHaveBeenCalledOnceWith('email', {
-        label: 'Email',
-      });
+      expect(trackingService.onSignin).toHaveBeenCalledOnceWith(apiEouRes.us.id);
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'switch_org', { choose: true }]);
     });
 
@@ -493,9 +494,7 @@ describe('SignInPage', () => {
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
       expect(routerAuthService.googleSignin).toHaveBeenCalledOnceWith(authResData2.accessToken);
       expect(authService.refreshEou).toHaveBeenCalledTimes(1);
-      expect(trackingService.onSignin).toHaveBeenCalledOnceWith('ajain@fyle.in', {
-        label: 'Email',
-      });
+      expect(trackingService.onSignin).toHaveBeenCalledOnceWith(apiEouRes.us.id);
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'switch_org', { choose: true }]);
       expect(component.trackLoginInfo).toHaveBeenCalledTimes(1);
     });

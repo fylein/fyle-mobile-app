@@ -2,7 +2,7 @@
   [ngClass]="{'d-none': isCameraPreviewStarted}"
   [currentState]="headerState"
   [navigateBack]="navigateBack"
-  [title]="'Expenses'"
+  [title]="'My expenses'"
   (simpleSearchCancel)="onSimpleSearchCancel()"
   (multiselectBack)="switchSelectionMode()"
 >
@@ -77,7 +77,7 @@
       <ion-button *ngIf="isMergeAllowed" (click)="mergeExpenses()">
         <ion-icon class="my-expenses--merge-icon" src="../../../assets/svg/merge.svg"></ion-icon>
       </ion-button>
-      <ion-button (click)="openDeleteExpensesPopover()" [disabled]="isDisabled">
+      <ion-button (click)="openDeleteExpensesPopover()" [disabled]="isDeleteDisabled">
         <ion-icon src="../../../assets/svg/bin.svg"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -85,7 +85,7 @@
   <ng-container multiselectSelectAll>
     <ion-item class="my-expenses--select-all-container">
       <mat-checkbox class="custom-mat-checkbox" [(ngModel)]="selectAll" (ngModelChange)="onSelectAll($event)">
-        Select All
+        Select all
       </mat-checkbox>
     </ion-item>
   </ng-container>
@@ -132,24 +132,33 @@
       <img
         alt="Create First Expenses"
         class="my-expenses--zero-state-img"
-        src="../../../assets/images/zero-states/expenses.png"
+        src="../../../assets/images/zero-states/new-expenses.png"
+        *ngIf="!simpleSearchText"
+      />
+      <img
+        alt="Create First Expenses"
+        class="my-expenses--zero-state-img"
+        src="../../../assets/images/zero-states/search.png"
+        *ngIf="simpleSearchText"
       />
       <div *ngIf="!(filters?.state || filters?.date || simpleSearchText)" class="my-expenses--zero-state-subheader">
         <ng-container *ngIf="isNewUser$|async; else isOldUser">
-          <p class="my-expenses--zero-state-header">Ready to add your first expense?</p>
-          <div class="my-expenses--zero-state-content">Click a picture of a receipt or add the details yourself.</div>
+          <div class="my-expenses--zero-state-content">You have no expenses right now</div>
         </ng-container>
         <ng-template #isOldUser>
           <div class="my-expenses--zero-state-subheader__title">
-            <p class="my-expenses--zero-state-header">Ready to add your expenses?</p>
-            <div class="my-expenses--zero-state-content">Click a picture of a receipt or add the details yourself.</div>
+            <div class="my-expenses--zero-state-content">You have no expenses right now</div>
           </div>
         </ng-template>
       </div>
 
-      <div *ngIf="(filters?.state || filters?.date || simpleSearchText )" class="my-expenses--zero-state-header">
-        <div>No Expenses Found</div>
-        <div class="my-expenses--zero-state-content">No expenses were found for the selected filter.</div>
+      <div *ngIf="(filters?.state || filters?.date)" class="my-expenses--zero-state-header">
+        <div class="my-expenses--zero-state-content">You have no expenses</div>
+        <div class="my-expenses--zero-state-content">matching the applied filters</div>
+      </div>
+      <div *ngIf="!filters?.state && !filters?.date && simpleSearchText" class="my-expenses--zero-state-header">
+        <div class="my-expenses--zero-state-content">No results found</div>
+        <div class="my-expenses--zero-state-content">Try a different keyword</div>
       </div>
     </div>
     <ng-container *ngIf="!(isConnected$|async)">
@@ -266,7 +275,7 @@
           class="my-expenses--cta-button my-expenses--primary-cta text-center"
           (click)="openReviewExpenses()"
         >
-          Start Review
+          Start review
         </button>
       </div>
     </ng-container>

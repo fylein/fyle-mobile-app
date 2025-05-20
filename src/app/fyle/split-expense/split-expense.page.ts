@@ -1,17 +1,27 @@
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
-import { Component } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Component, ElementRef, OnDestroy, QueryList, ViewChildren } from '@angular/core';
+import { AbstractControl, UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ModalController, NavController } from '@ionic/angular';
+import { ModalController, NavController, PopoverController } from '@ionic/angular';
 import { isEmpty, isNumber } from 'lodash';
 import * as dayjs from 'dayjs';
-import { combineLatest, forkJoin, from, iif, Observable, of, throwError } from 'rxjs';
-import { catchError, concatMap, finalize, map, switchMap } from 'rxjs/operators';
+import { combineLatest, forkJoin, from, iif, Observable, of, Subject, Subscription, throwError } from 'rxjs';
+import {
+  catchError,
+  concatMap,
+  finalize,
+  map,
+  shareReplay,
+  startWith,
+  switchMap,
+  takeUntil,
+  tap,
+} from 'rxjs/operators';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { SplitExpenseService } from 'src/app/core/services/split-expense.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -44,23 +54,37 @@ import { TransformedSplitExpenseMissingFields } from 'src/app/core/models/transf
 import { SplitExpenseViolationsPopup } from 'src/app/core/models/split-expense-violations-popup.model';
 import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
-import { SplittingExpenseProperties } from 'src/app/core/models/tracking-properties.model';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
 import { PlatformFile } from 'src/app/core/models/platform/platform-file.model';
+import { SplitConfig } from 'src/app/core/models/split-config.model';
+import { ReviewSplitExpenseComponent } from 'src/app/shared/components/review-split-expense/review-split-expense.component';
+import { FyMsgPopoverComponent } from 'src/app/shared/components/fy-msg-popover/fy-msg-popover.component';
+import { SplittingExpenseProperties } from 'src/app/core/models/splitting-expense-properties.model';
+import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
+import { FilteredSplitPolicyViolations } from 'src/app/core/models/filtered-split-policy-violations.model';
+import { FilteredMissingFieldsViolations } from 'src/app/core/models/filtered-missing-fields-violations.model';
 
 @Component({
   selector: 'app-split-expense',
   templateUrl: './split-expense.page.html',
   styleUrls: ['./split-expense.page.scss'],
 })
-export class SplitExpensePage {
-  splitExpensesFormArray = new FormArray([]);
+export class SplitExpensePage implements OnDestroy {
+  @ViewChildren('splitElement') splitElements!: QueryList<ElementRef>;
 
-  fg: FormGroup;
+  splitExpensesFormArray = new UntypedFormArray([]);
 
-  splitType: string;
+  fg: UntypedFormGroup;
+
+  splitConfig: SplitConfig;
+
+  destroy$ = new Subject<void>();
+
+  filteredCategoriesArray: Observable<{ label: string; value: OrgCategory }[]>[] = [];
+
+  costCenterDisabledStates: boolean[] = [];
 
   txnFields: Partial<ExpenseFieldsObj>;
 
@@ -73,6 +97,8 @@ export class SplitExpensePage {
   remainingAmount: number;
 
   categories$: Observable<OrgCategoryListItem[]>;
+
+  filteredCategories$: Observable<OrgCategoryListItem[]>;
 
   costCenters$: Observable<CostCenters[]>;
 
@@ -116,11 +142,15 @@ export class SplitExpensePage {
 
   unspecifiedCategory: OrgCategory = null;
 
-  splitExpenseHeader: string;
+  isReviewModalOpen = false;
+
+  categoryDisableMsg = '';
+
+  private splitExpenseData: Subscription;
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     private categoriesService: CategoriesService,
     private dateService: DateService,
     private splitExpenseService: SplitExpenseService,
@@ -133,6 +163,7 @@ export class SplitExpensePage {
     private trackingService: TrackingService,
     private policyService: PolicyService,
     private modalController: ModalController,
+    private popoverController: PopoverController,
     private modalProperties: ModalPropertiesService,
     private costCentersService: CostCentersService,
     private orgUserSettingsService: OrgUserSettingsService,
@@ -143,6 +174,11 @@ export class SplitExpensePage {
     private timezoneService: TimezoneService,
     private expensesService: ExpensesService
   ) {}
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   goBack(): void {
     this.navController.back();
@@ -300,9 +336,10 @@ export class SplitExpensePage {
         const offset = orgUserSettings.locale.offset;
 
         const isDifferentProject =
-          this.splitType === 'projects' && splitExpenseValue.project?.project_id !== this.transaction.project_id;
+          this.splitConfig.project.is_visible && splitExpenseValue.project?.project_id !== this.transaction.project_id;
         const isDifferentCostCenter =
-          this.splitType === 'cost centers' && splitExpenseValue.cost_center?.id !== this.transaction.cost_center_id;
+          this.splitConfig.costCenter.is_visible &&
+          splitExpenseValue.cost_center?.id !== this.transaction.cost_center_id;
 
         //If selected project/cost center is not same as the original expense, then remove dependent fields from source expense.
         if (isDifferentProject || isDifferentCostCenter) {
@@ -515,15 +552,22 @@ export class SplitExpensePage {
     this.trackingService.showToastMessage({ ToastContent: message });
   }
 
-  getViolationName(index: number): string {
+  generateInputFieldInfo(index: number): { [key: string]: string } {
     const splitExpenseFormValue = this.splitExpensesFormArray.at(index).value as SplitExpense;
-    if (this.splitType === 'projects') {
-      return splitExpenseFormValue.project.project_name;
-    } else if (this.splitType === 'cost centers') {
-      return splitExpenseFormValue.cost_center.name;
-    } else {
-      return splitExpenseFormValue.category.name;
+    const inputFieldInfo: { [key: string]: string } = {};
+
+    if (this.splitConfig.category.is_visible) {
+      inputFieldInfo.Category = splitExpenseFormValue?.category?.name || '-';
     }
+
+    if (this.splitConfig.costCenter.is_visible) {
+      inputFieldInfo[this.txnFields?.cost_center_id?.field_name] = splitExpenseFormValue?.cost_center?.name || '-';
+    }
+
+    if (this.splitConfig.project.is_visible) {
+      inputFieldInfo[this.txnFields?.project_id?.field_name] = splitExpenseFormValue?.project?.project_name || '-';
+    }
+    return inputFieldInfo;
   }
 
   transformViolationData(etxns: Transaction[], violations: SplitExpensePolicy): { [id: number]: PolicyViolation } {
@@ -534,8 +578,7 @@ export class SplitExpensePage {
         if (violations.hasOwnProperty(key)) {
           violationData[index].amount = etxn.orig_amount || etxn.amount;
           violationData[index].currency = etxn.orig_currency || etxn.currency;
-          violationData[index].name = this.getViolationName(index);
-          violationData[index].type = this.splitType;
+          violationData[index].inputFieldInfo = this.generateInputFieldInfo(index);
           violationData[index].data = violations.data[index];
         }
       }
@@ -554,8 +597,7 @@ export class SplitExpensePage {
         if (mandatoryFields.hasOwnProperty(key)) {
           mandatoryFieldsData[index].amount = etxn.orig_amount || etxn.amount;
           mandatoryFieldsData[index].currency = etxn.orig_currency || etxn.currency;
-          mandatoryFieldsData[index].name = this.getViolationName(index);
-          mandatoryFieldsData[index].type = this.splitType;
+          mandatoryFieldsData[index].inputFieldInfo = this.generateInputFieldInfo(index);
           mandatoryFieldsData[index].data = mandatoryFields.data[index];
           break;
         }
@@ -567,12 +609,7 @@ export class SplitExpensePage {
   showSuccessToast(): void {
     this.saveSplitExpenseLoading = false;
     const toastMessage = 'Expense split successfully.';
-    if (this.reportId) {
-      this.router.navigate(['/', 'enterprise', 'my_view_report', { id: this.reportId }]);
-    } else {
-      this.router.navigate(['/', 'enterprise', 'my_expenses']);
-    }
-    this.toastWithoutCTA(toastMessage, ToastType.SUCCESS, 'msb-success-with-camera-icon');
+    this.toastWithoutCTA(toastMessage, ToastType.SUCCESS, 'msb-success-with-camera-icon-for-split-exp');
   }
 
   getAttachedFiles(expenseId: string): Observable<Partial<PlatformFile>[]> {
@@ -591,23 +628,34 @@ export class SplitExpensePage {
   ): Promise<SplitExpenseViolationsPopup> {
     const filteredPolicyViolations = this.splitExpenseService.filteredPolicyViolations(policyViolations);
 
+    const splitTrackingProps = this.getSplitExpensePoperties();
+    this.trackingService.splitExpensePolicyAndMissingFieldsPopupShown(splitTrackingProps);
     let filteredMissingFieldsViolations = {};
+    let hasMissingFields = false;
 
     if (missingFieldsViolations) {
       filteredMissingFieldsViolations =
         this.splitExpenseService.filteredMissingFieldsViolations(missingFieldsViolations);
-    } else {
-      filteredMissingFieldsViolations = null;
+      hasMissingFields = Object.values(filteredMissingFieldsViolations).some(
+        (field: FilteredMissingFieldsViolations) => field?.isMissingFields
+      );
     }
 
-    const splitTrackingProps = this.getSplitExpensePoperties();
-    this.trackingService.splitExpensePolicyAndMissingFieldsPopupShown(splitTrackingProps);
+    if (hasMissingFields) {
+      this.showMissingFieldsModal();
+      return null;
+    } else {
+      return this.showPolicyViolationModal(filteredPolicyViolations);
+    }
+  }
 
+  async showPolicyViolationModal(filteredPolicyViolations: {
+    [id: number]: FilteredSplitPolicyViolations;
+  }): Promise<SplitExpenseViolationsPopup> {
     const splitExpenseViolationsModal = await this.modalController.create({
       component: SplitExpensePolicyViolationComponent,
       componentProps: {
         policyViolations: filteredPolicyViolations,
-        missingFieldsViolations: filteredMissingFieldsViolations,
         isPartOfReport: !!this.reportId,
       },
       mode: 'ios',
@@ -620,6 +668,24 @@ export class SplitExpensePage {
     const { data } = await splitExpenseViolationsModal.onWillDismiss<SplitExpenseViolationsPopup>();
 
     return data;
+  }
+
+  async showMissingFieldsModal(): Promise<void> {
+    const splitBlockedPopoverSpy = await this.popoverController.create({
+      component: PopupAlertComponent,
+      componentProps: {
+        title: 'Expense cannot be split',
+        leftAlign: true,
+        message:
+          'Splitting this expense will result in incomplete expenses, which cannot be added to a expense report.',
+        secondaryMsg: 'Please remove the expense from the expense report and split it again.',
+        primaryCta: {
+          text: 'Got it',
+        },
+      },
+      cssClass: 'pop-up-in-center',
+    });
+    await splitBlockedPopoverSpy.present();
   }
 
   handlePolicyAndMissingFieldsCheck(splitEtxns: Transaction[]): Observable<SplitExpenseViolationsPopup> {
@@ -688,7 +754,7 @@ export class SplitExpensePage {
           this.trackingService.splitExpensePolicyCheckFailed(splitTrackingProps);
 
           const message = 'We were unable to split your expense. Please try again later.';
-          this.toastWithoutCTA(message, ToastType.FAILURE, 'msb-failure-with-camera-icon');
+          this.toastWithoutCTA(message, ToastType.FAILURE, 'msb-failure-with-camera-icon-for-split-exp');
           this.router.navigate(['/', 'enterprise', 'my_expenses']);
           return throwError(errResponse);
         })
@@ -705,14 +771,17 @@ export class SplitExpensePage {
             .pipe(
               catchError((err) => {
                 const message = 'We were unable to split your expense. Please try again later.';
-                this.toastWithoutCTA(message, ToastType.FAILURE, 'msb-failure-with-camera-icon');
+                this.toastWithoutCTA(message, ToastType.FAILURE, 'msb-failure-with-camera-icon-for-split-exp');
                 this.router.navigate(['/', 'enterprise', 'my_expenses']);
                 return throwError(err);
               })
             )
-            .subscribe(() => this.showSuccessToast());
+            .subscribe(() => {
+              this.openReviewSplitExpenseModal(txns.data);
+              this.showSuccessToast();
+            });
         }
-
+        this.openReviewSplitExpenseModal(txns.data);
         return this.showSuccessToast();
       });
   }
@@ -733,9 +802,8 @@ export class SplitExpensePage {
 
   getSplitExpensePoperties(): SplittingExpenseProperties {
     return {
-      Type: this.splitType,
-      'Is Evenly Split': this.isEvenlySplit(),
       Asset: 'Mobile',
+      'Is Evenly Split': this.isEvenlySplit(),
       'Is part of report': !!this.reportId,
       'Report ID': this.reportId || null,
       'Expense State': this.transaction.state,
@@ -748,7 +816,11 @@ export class SplitExpensePage {
       this.showErrorBlock = false;
       if (this.amount && parseFloat(this.amount.toFixed(3)) !== this.totalSplitAmount) {
         this.showErrorBlock = true;
-        this.errorMessage = 'Split amount cannot be more than ' + this.amount + '.';
+        if (this.totalSplitAmount < parseFloat(this.amount.toFixed(3))) {
+          this.errorMessage = 'Split amount cannot be less than ' + this.amount + '.';
+        } else {
+          this.errorMessage = 'Split amount cannot be more than ' + this.amount + '.';
+        }
         setTimeout(() => {
           this.showErrorBlock = false;
         }, 2500);
@@ -811,7 +883,7 @@ export class SplitExpensePage {
               this.trackingService.splitExpensePolicyCheckFailed(splitTrackingProps);
 
               const message = 'We were unable to split your expense. Please try again later.';
-              this.toastWithoutCTA(message, ToastType.FAILURE, 'msb-failure-with-camera-icon');
+              this.toastWithoutCTA(message, ToastType.FAILURE, 'msb-failure-with-camera-icon-for-split-exp');
               return throwError(errResponse);
             }),
             finalize(() => {
@@ -830,6 +902,20 @@ export class SplitExpensePage {
       });
     } else {
       this.splitExpensesFormArray.markAllAsTouched();
+      this.scrollToFirstSplitWithMissingRequiredFields();
+    }
+  }
+
+  scrollToFirstSplitWithMissingRequiredFields(): void {
+    const formArray = this.splitExpensesFormArray;
+    const invalidIndex = formArray.controls.findIndex((formGroup) => formGroup.invalid);
+
+    if (invalidIndex !== -1) {
+      const invalidElement = this.splitElements.toArray()[invalidIndex]?.nativeElement as HTMLElement;
+
+      if (invalidElement instanceof HTMLElement) {
+        invalidElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
     }
   }
 
@@ -845,20 +931,12 @@ export class SplitExpensePage {
     });
   }
 
-  getSplitExpenseHeader(): void {
-    if (this.splitType === 'cost centers') {
-      this.splitExpenseHeader = this.txnFields.cost_center_id.field_name;
-    } else if (this.splitType === 'projects') {
-      this.splitExpenseHeader = this.txnFields.project_id.field_name;
-    } else {
-      this.splitExpenseHeader = 'category';
-    }
-  }
-
   ionViewWillEnter(): void {
+    this.getRecentlySplitExpenseAndOpenReviewModal();
     const currencyObj = JSON.parse(this.activatedRoute.snapshot.params.currencyObj as string) as CurrencyObj;
     const orgSettings$ = this.orgSettingsService.get();
-    this.splitType = this.activatedRoute.snapshot.params.splitType as string;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    this.splitConfig = JSON.parse(this.activatedRoute.snapshot.params.splitConfig as string);
     this.txnFields = JSON.parse(this.activatedRoute.snapshot.params.txnFields as string) as Partial<ExpenseFieldsObj>;
     this.fileUrls = JSON.parse(this.activatedRoute.snapshot.params.fileObjs as string) as FileObject[];
     this.selectedCCCTransaction = JSON.parse(
@@ -868,22 +946,16 @@ export class SplitExpensePage {
     this.transaction = JSON.parse(this.activatedRoute.snapshot.params.txn as string) as Transaction;
     this.selectedProject = JSON.parse(this.activatedRoute.snapshot.params.selectedProject as string) as ProjectV2;
     this.expenseFields = JSON.parse(this.activatedRoute.snapshot.params.expenseFields as string) as ExpenseField[];
-
     // Set max and min date for form
     const today = new Date();
     this.minDate = dayjs(new Date('Jan 1, 2001')).format('YYYY-MM-D');
     this.maxDate = dayjs(this.dateService.addDaysToDate(today, 1)).format('YYYY-MM-D');
-
-    // This method is used for setting the header of split expense page
-    this.getSplitExpenseHeader();
-
     this.isProjectCategoryRestrictionsEnabled$ = orgSettings$.pipe(
       map(
         (orgSettings) =>
           orgSettings.advanced_projects.allowed && orgSettings.advanced_projects.enable_category_restriction
       )
     );
-
     this.categories$ = this.getActiveCategories().pipe(
       switchMap((activeCategories) =>
         this.launchDarklyService.getVariation('show_project_mapped_categories_in_split_expense', false).pipe(
@@ -902,23 +974,20 @@ export class SplitExpensePage {
                 )
               );
             }
-
             return of(activeCategories);
           }),
+          tap((categories) => this.updateCategoryMandatoryStatus(categories)),
           map((categories) => categories.map((category) => ({ label: category.displayName, value: category })))
         )
       )
     );
-
     this.getCategoryList();
-
     let parentFieldId: number;
-    if (this.splitType === 'projects') {
-      parentFieldId = this.txnFields.project_id.id;
-    } else if (this.splitType === 'cost centers') {
-      parentFieldId = this.txnFields.cost_center_id?.id;
+    if (this.splitConfig.project.is_visible || this.splitConfig.costCenter.is_visible) {
+      parentFieldId = this.splitConfig.project.is_visible
+        ? this.txnFields.project_id.id
+        : this.txnFields.cost_center_id?.id;
     }
-
     this.dependentCustomProperties$ = iif(
       () => !!parentFieldId,
       this.dependentFieldsService.getDependentFieldValuesForBaseField(
@@ -927,8 +996,8 @@ export class SplitExpensePage {
       ),
       of(null)
     );
-
-    if (this.splitType === 'cost centers') {
+    if (this.splitConfig.costCenter.is_visible) {
+      this.addCostCenterIdToTxnFields();
       this.costCenters$ = orgSettings$.pipe(
         switchMap((orgSettings) => {
           if (orgSettings.cost_centers.enabled) {
@@ -945,22 +1014,50 @@ export class SplitExpensePage {
         )
       );
     }
-
     this.isCorporateCardsEnabled$ = orgSettings$.pipe(
       map(
         (orgSettings) =>
           orgSettings.corporate_credit_card_settings && orgSettings.corporate_credit_card_settings.enabled
       )
     );
-
     this.getUnspecifiedCategory();
-
     forkJoin({
       homeCurrency: this.currencyService.getHomeCurrency(),
       isCorporateCardsEnabled: this.isCorporateCardsEnabled$,
     }).subscribe(({ homeCurrency, isCorporateCardsEnabled }) =>
       this.setValuesForCCC(currencyObj, homeCurrency, isCorporateCardsEnabled)
     );
+  }
+
+  updateCategoryMandatoryStatus(categories: OrgCategory[]): void {
+    if (categories.length === 0) {
+      this.categoryDisableMsg = 'No category is assigned. Please contact admin for further help.';
+      if (this.splitConfig.category.is_mandatory) {
+        this.splitConfig.category.is_mandatory = false;
+        for (let i = 0; i < 2; i++) {
+          const control = this.splitExpensesFormArray.at(i);
+          const categoryControl = control?.get('category');
+          if (categoryControl) {
+            categoryControl.clearValidators();
+            categoryControl.updateValueAndValidity();
+          }
+        }
+      }
+    }
+  }
+
+  ionViewWillLeave(): void {
+    if (this.splitExpenseData) {
+      this.splitExpenseData.unsubscribe();
+    }
+  }
+
+  getRecentlySplitExpenseAndOpenReviewModal(): void {
+    this.splitExpenseData = this.getRecentlySplitExpenses().subscribe((splitData) => {
+      if (splitData?.expenses && !this.isReviewModalOpen) {
+        this.openReviewSplitExpenseModal(splitData.expenses);
+      }
+    });
   }
 
   setValuesForCCC(currencyObj: CurrencyObj, homeCurrency: string, isCorporateCardsEnabled: boolean): void {
@@ -999,6 +1096,180 @@ export class SplitExpensePage {
     }
   }
 
+  setupFilteredCategories(index: number): void {
+    const splitForm = this.splitExpensesFormArray.at(index);
+    const projectControl = splitForm.get('project');
+    const categoryControl = splitForm.get('category');
+
+    if (!projectControl || projectControl.value === null) {
+      if (this.splitConfig.category.is_mandatory) {
+        categoryControl.setValidators(Validators.required);
+        categoryControl.updateValueAndValidity();
+      }
+      return;
+    }
+
+    this.filteredCategoriesArray[index] = this.getFilteredCategories({
+      projectControl,
+      getActiveCategories: () => this.getActiveCategories(),
+      isProjectCategoryRestrictionsEnabled$: this.isProjectCategoryRestrictionsEnabled$,
+      services: {
+        launchDarklyService: this.launchDarklyService,
+        projectsService: this.projectsService,
+      },
+    }).pipe(takeUntil(this.destroy$));
+
+    this.handleCategoryValidation(index, splitForm);
+    this.resetInvalidCategoryIfNotAllowed(index, splitForm);
+  }
+
+  resetInvalidCategoryIfNotAllowed(index: number, splitForm: AbstractControl): void {
+    combineLatest([
+      this.filteredCategoriesArray[index],
+      splitForm.get('category').valueChanges.pipe(startWith(splitForm.get('category').value)),
+    ])
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(([categories, currentCategory]) => {
+        if (
+          (currentCategory as OrgCategory)?.id &&
+          !categories.some((category) => category.value.id === (currentCategory as OrgCategory).id)
+        ) {
+          splitForm.get('category').reset();
+          this.onCategoryChange(index);
+        }
+      });
+  }
+
+  getFilteredCategories({
+    projectControl,
+    getActiveCategories,
+    isProjectCategoryRestrictionsEnabled$,
+    services,
+  }: {
+    projectControl: AbstractControl;
+    getActiveCategories: () => Observable<OrgCategory[]>;
+    isProjectCategoryRestrictionsEnabled$: Observable<boolean>;
+    services: { launchDarklyService: LaunchDarklyService; projectsService: ProjectsService };
+  }): Observable<{ label: string; value: OrgCategory }[]> {
+    const activeCategories$ = getActiveCategories().pipe(shareReplay(1));
+
+    return combineLatest([
+      projectControl.valueChanges.pipe(startWith(projectControl.value)),
+      activeCategories$,
+      isProjectCategoryRestrictionsEnabled$,
+    ]).pipe(
+      switchMap(
+        ([project, activeCategories, isProjectCategoryRestrictionsEnabled]: [
+          Partial<ProjectV2> | null,
+          OrgCategory[],
+          boolean
+        ]) => {
+          if (!project?.project_id) {
+            return this.formatCategories(activeCategories);
+          }
+
+          return services.launchDarklyService
+            .getVariation('show_project_mapped_categories_in_split_expense', false)
+            .pipe(
+              switchMap((showProjectMappedCategories) =>
+                this.getAllowedCategories(
+                  String(project.project_id),
+                  activeCategories,
+                  isProjectCategoryRestrictionsEnabled,
+                  showProjectMappedCategories,
+                  services
+                )
+              ),
+              switchMap((categories) => this.formatCategories(categories))
+            );
+        }
+      ),
+      shareReplay(1)
+    );
+  }
+
+  // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
+  getAllowedCategories(
+    projectId: string,
+    activeCategories: OrgCategory[],
+    isProjectCategoryRestrictionsEnabled: boolean,
+    showProjectMappedCategories: boolean,
+    services: { projectsService: ProjectsService }
+  ): Observable<OrgCategory[]> {
+    if (!showProjectMappedCategories && !isProjectCategoryRestrictionsEnabled) {
+      return of(activeCategories);
+    }
+
+    return services.projectsService
+      .getbyId(projectId)
+      .pipe(
+        map((projectDetails) =>
+          services.projectsService.getAllowedOrgCategoryIds(
+            projectDetails,
+            activeCategories,
+            isProjectCategoryRestrictionsEnabled
+          )
+        )
+      );
+  }
+
+  formatCategories(categories: OrgCategory[]): Observable<{ label: string; value: OrgCategory }[]> {
+    return of(categories.map((category) => ({ label: category.displayName, value: category })));
+  }
+
+  handleCategoryValidation(index: number, splitForm: AbstractControl): void {
+    this.filteredCategoriesArray[index].pipe(takeUntil(this.destroy$)).subscribe((filteredCategories) => {
+      const categoryControl = splitForm.get('category');
+
+      const isMandatory = this.splitConfig.category.is_mandatory;
+      if (!categoryControl) {
+        return;
+      }
+
+      if (isMandatory) {
+        categoryControl.setValidators(filteredCategories.length ? [Validators.required] : null);
+      } else {
+        categoryControl.clearValidators();
+      }
+
+      categoryControl.updateValueAndValidity();
+    });
+  }
+
+  onCategoryChange(index: number): void {
+    if (!this.splitConfig.costCenter.is_visible) {
+      return;
+    }
+    const isCostCenterMandatory = this.splitConfig.costCenter.is_mandatory;
+    const splitForm = this.splitExpensesFormArray.at(index);
+    const categoryControl = splitForm.get('category').value as OrgCategory;
+    const costCenterControl = splitForm.get('cost_center');
+
+    if (!categoryControl) {
+      this.costCenterDisabledStates[index] = false;
+      if (isCostCenterMandatory) {
+        costCenterControl.setValidators([Validators.required]);
+        costCenterControl.updateValueAndValidity();
+      }
+      return;
+    }
+
+    const isCostCenterAllowed = this.txnFields.cost_center_id?.org_category_ids?.includes(categoryControl.id);
+    this.costCenterDisabledStates[index] = !isCostCenterAllowed;
+
+    if (!isCostCenterAllowed) {
+      costCenterControl.reset();
+      if (isCostCenterMandatory) {
+        costCenterControl.clearValidators();
+        costCenterControl.updateValueAndValidity();
+      }
+    } else if (isCostCenterMandatory) {
+      costCenterControl.setValidators([Validators.required]);
+      costCenterControl.updateValueAndValidity();
+    }
+  }
+
+  // eslint-disable-next-line complexity
   add(amount?: number, currency?: string, percentage?: number, txnDt?: string | Date | dayjs.Dayjs): void {
     if (!txnDt) {
       const dateOfTxn = this.transaction?.txn_dt;
@@ -1013,20 +1284,95 @@ export class SplitExpensePage {
       txn_dt: [txnDt, Validators.compose([Validators.required, this.customDateValidator])],
     });
 
-    if (this.splitType === 'categories') {
-      fg.addControl('category', this.formBuilder.control('', [Validators.required]));
-    } else if (this.splitType === 'projects') {
-      fg.addControl('project', this.formBuilder.control('', [Validators.required]));
-    } else if (this.splitType === 'cost centers') {
-      fg.addControl('cost_center', this.formBuilder.control('', [Validators.required]));
+    const isFirstSplit = this.splitExpensesFormArray.length === 0;
+
+    if (this.splitConfig.category.is_visible) {
+      fg.addControl(
+        'category',
+        this.formBuilder.control(
+          isFirstSplit ? this.splitConfig.category.value : '',
+          this.splitConfig.category.is_mandatory ? [Validators.required] : null
+        )
+      );
+    }
+    if (this.splitConfig.project.is_visible) {
+      fg.addControl(
+        'project',
+        this.formBuilder.control(
+          isFirstSplit ? this.splitConfig.project.value : '',
+          this.splitConfig.project.is_mandatory ? [Validators.required] : null
+        )
+      );
+    }
+    if (this.splitConfig.costCenter.is_visible) {
+      fg.addControl(
+        'cost_center',
+        this.formBuilder.control(
+          isFirstSplit ? this.splitConfig.costCenter.value : '',
+          this.splitConfig.costCenter.is_mandatory ? [Validators.required] : null
+        )
+      );
+    }
+
+    if (this.txnFields.purpose) {
+      fg.addControl(
+        'purpose',
+        this.formBuilder.control('', this.txnFields.purpose.is_mandatory ? [Validators.required] : null)
+      );
     }
 
     this.splitExpensesFormArray.push(fg);
+    this.handleInitialconfig(isFirstSplit);
+
     this.getTotalSplitAmount();
+    if (this.splitExpensesFormArray.length > 2) {
+      setTimeout(() => {
+        this.scrollToLastElement();
+      }, 100);
+    }
+  }
+
+  scrollToLastElement(): void {
+    const newIndex = this.splitExpensesFormArray.length - 1;
+    const newSplitElement = this.splitElements.toArray()[newIndex]?.nativeElement as HTMLElement;
+
+    if (newSplitElement instanceof HTMLElement) {
+      newSplitElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  handleInitialconfig(isFirstSplit: boolean): void {
+    if (isFirstSplit && this.splitConfig.category.is_visible) {
+      const firstSplitCategory = this.splitExpensesFormArray.at(0)?.get('category')?.value as OrgCategory | null;
+      const firstSplitProject = this.splitExpensesFormArray.at(0)?.get('project');
+      this.filteredCategoriesArray[0] = this.categories$;
+      if (firstSplitProject?.value) {
+        this.setupFilteredCategories(0);
+      }
+
+      if (this.splitConfig.costCenter.is_visible) {
+        if (firstSplitCategory) {
+          this.onCategoryChange(0);
+        } else {
+          this.costCenterDisabledStates[0] = false;
+        }
+      }
+      this.filteredCategoriesArray[1] = this.categories$;
+      this.costCenterDisabledStates[1] = false;
+    }
+
+    if (this.splitExpensesFormArray.length > 2 && this.splitConfig.category.is_visible) {
+      this.filteredCategoriesArray.push(this.categories$);
+      if (this.splitConfig.costCenter.is_visible) {
+        this.costCenterDisabledStates.push(false);
+      }
+    }
   }
 
   remove(index: number): void {
     this.splitExpensesFormArray.removeAt(index);
+    this.filteredCategoriesArray.splice(index, 1);
+    this.costCenterDisabledStates.splice(index, 1);
 
     if (this.splitExpensesFormArray.length === 2) {
       const firstSplitExpenseForm = this.splitExpensesFormArray.at(0);
@@ -1068,6 +1414,118 @@ export class SplitExpensePage {
 
     // Recalculate the total split amount and remaining amount
     this.getTotalSplitAmount();
+  }
+
+  showDisabledMessage(type: string): void {
+    let msg = this.categoryDisableMsg;
+    if (type === 'category' && !msg) {
+      msg = 'No category is available for the selected project.';
+    }
+    if (type === 'cost center') {
+      msg = 'No cost center is available for the selected category.';
+    }
+    this.showPopoverModal(msg);
+  }
+
+  async showPopoverModal(msg: string): Promise<void> {
+    const Popover = await this.popoverController.create({
+      component: FyMsgPopoverComponent,
+      componentProps: {
+        msg,
+      },
+      cssClass: 'fy-dialog-popover',
+    });
+
+    await Popover.present();
+  }
+
+  handleNavigationAfterReview(action: string, expense?: PlatformExpense): void {
+    if (action === 'close') {
+      this.clearRecentlySplitExpenses();
+      this.router.navigate([
+        '/',
+        'enterprise',
+        this.reportId ? 'my_view_report' : 'my_expenses',
+        ...(this.reportId ? [{ id: this.reportId }] : []),
+      ]);
+    } else if (action === 'navigate' && expense) {
+      const routeMap: Record<string, string> = {
+        mileage: 'add_edit_mileage',
+        'per diem': 'add_edit_per_diem',
+        default: 'add_edit_expense',
+      };
+
+      const category = expense?.category?.system_category?.toLowerCase();
+      const route = routeMap[category] || routeMap.default;
+
+      this.router.navigate([
+        '/',
+        'enterprise',
+        route,
+        { id: expense.id, persist_filters: true, fromSplitExpenseReview: true },
+      ]);
+    }
+  }
+
+  async openReviewSplitExpenseModal(expense: Partial<Transaction>[] | PlatformExpense[]): Promise<void> {
+    if (this.isReviewModalOpen) {
+      return;
+    }
+    this.isReviewModalOpen = true;
+    const reviewModal = await this.modalController.create({
+      component: ReviewSplitExpenseComponent,
+      componentProps: {
+        splitExpenses: expense,
+      },
+      mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties(),
+      cssClass: 'review-split-expense-modal',
+    });
+
+    this.setRecentlySplitExpenses({
+      expenses: expense,
+    });
+
+    await reviewModal.present();
+
+    const { data }: { data?: { dismissed: boolean; action: string; expense?: PlatformExpense } } =
+      await reviewModal.onWillDismiss();
+    this.isReviewModalOpen = false;
+    if (data) {
+      this.handleNavigationAfterReview(data.action, data.expense);
+    } else {
+      this.clearRecentlySplitExpenses();
+      this.router.navigate([
+        '/',
+        'enterprise',
+        this.reportId ? 'my_view_report' : 'my_expenses',
+        ...(this.reportId ? [{ id: this.reportId }] : []),
+      ]);
+    }
+  }
+
+  addCostCenterIdToTxnFields(): void {
+    if (this.txnFields.cost_center_id) {
+      return;
+    }
+    const costCenterField = this.expenseFields.find((field) => field.column_name === 'cost_center_id');
+    if (costCenterField) {
+      this.txnFields.cost_center_id = costCenterField;
+      this.splitConfig.costCenter.is_mandatory = costCenterField.is_mandatory;
+    }
+  }
+
+  private setRecentlySplitExpenses(data: { expenses: Partial<Transaction>[] | PlatformExpense[] }): void {
+    this.expensesService.splitExpensesData$.next(data);
+  }
+
+  private getRecentlySplitExpenses(): Observable<{ expenses: Partial<Transaction>[] | PlatformExpense[] } | null> {
+    return this.expensesService.splitExpensesData$.asObservable();
+  }
+
+  private clearRecentlySplitExpenses(): void {
+    this.expensesService.splitExpensesData$.next(null);
   }
 
   private setEvenSplit(

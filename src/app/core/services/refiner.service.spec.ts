@@ -7,6 +7,7 @@ import { OrgUserService } from './org-user.service';
 import { of } from 'rxjs';
 import { apiEouRes } from '../mock-data/extended-org-user.data';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
+import { TokenService } from './token.service';
 
 describe('RefinerService', () => {
   let refinerService: RefinerService;
@@ -14,12 +15,14 @@ describe('RefinerService', () => {
   let authService: jasmine.SpyObj<AuthService>;
   let networkService: jasmine.SpyObj<NetworkService>;
   let orgUserService: jasmine.SpyObj<OrgUserService>;
+  let tokenService: jasmine.SpyObj<TokenService>;
 
   beforeEach(() => {
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
     const orgUserServiceSpy = jasmine.createSpyObj('OrgUserService', ['isSwitchedToDelegator']);
+    const tokenServiceSpy = jasmine.createSpyObj('TokenService', ['getClusterDomain']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -28,6 +31,7 @@ describe('RefinerService', () => {
         { provide: AuthService, useValue: authServiceSpy },
         { provide: NetworkService, useValue: networkServiceSpy },
         { provide: OrgUserService, useValue: orgUserServiceSpy },
+        { provide: TokenService, useValue: tokenServiceSpy },
       ],
     });
     refinerService = TestBed.inject(RefinerService);
@@ -35,6 +39,7 @@ describe('RefinerService', () => {
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
     orgUserService = TestBed.inject(OrgUserService) as jasmine.SpyObj<OrgUserService>;
+    tokenService = TestBed.inject(TokenService) as jasmine.SpyObj<TokenService>;
   });
 
   it('should be created', () => {

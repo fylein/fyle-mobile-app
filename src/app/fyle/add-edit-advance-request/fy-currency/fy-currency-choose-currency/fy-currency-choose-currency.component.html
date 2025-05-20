@@ -2,7 +2,7 @@
   <mat-icon class="fy-modal-top-bar" svgIcon="notch"></mat-icon>
   <ion-toolbar mode="md" class="fy-modal-toolbar">
     <ion-title>
-      <div class="selection-modal--title">Select Currency</div>
+      <div class="selection-modal--title">Select currency</div>
     </ion-title>
     <ion-buttons slot="start">
       <ion-button (click)="onDoneClick()">
@@ -36,7 +36,7 @@
 </ion-header>
 
 <ion-content>
-  <div class="selection-modal--sub-title">All Currencies</div>
+  <div class="selection-modal--sub-title">All currencies</div>
   <ng-container *ngFor="let currency of filteredCurrencies$ | async as list">
     <div
       matRipple

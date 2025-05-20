@@ -3,8 +3,8 @@ import { IonicModule } from '@ionic/angular';
 import { ModalController } from '@ionic/angular';
 import { RouteSelectorComponent } from './route-selector.component';
 import { Injector, NO_ERRORS_SCHEMA, SimpleChanges } from '@angular/core';
-import { FormArray, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatCheckboxModule } from '@angular/material/checkbox';
+import { UntypedFormArray, UntypedFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatLegacyCheckboxModule as MatCheckboxModule } from '@angular/material/legacy-checkbox';
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { RouteSelectorModalComponent } from './route-selector-modal/route-selector-modal.component';
 import { expenseFieldsMapResponse3 } from 'src/app/core/mock-data/expense-fields-map.data';
@@ -19,7 +19,7 @@ import { cloneDeep } from 'lodash';
 describe('RouteSelectorComponent', () => {
   let component: RouteSelectorComponent;
   let fixture: ComponentFixture<RouteSelectorComponent>;
-  let fb: jasmine.SpyObj<FormBuilder>;
+  let fb: jasmine.SpyObj<UntypedFormBuilder>;
   let modalController: jasmine.SpyObj<ModalController>;
 
   beforeEach(waitForAsync(() => {
@@ -29,7 +29,7 @@ describe('RouteSelectorComponent', () => {
       declarations: [RouteSelectorComponent],
       imports: [IonicModule.forRoot(), MatCheckboxModule, ReactiveFormsModule, MatIconTestingModule, MatIconModule],
       providers: [
-        FormBuilder,
+        UntypedFormBuilder,
         {
           provide: ModalController,
           useValue: modalControllerSpy,
@@ -43,14 +43,14 @@ describe('RouteSelectorComponent', () => {
     }).compileComponents();
     fixture = TestBed.createComponent(RouteSelectorComponent);
     component = fixture.componentInstance;
-    fb = TestBed.inject(FormBuilder) as jasmine.SpyObj<FormBuilder>;
+    fb = TestBed.inject(UntypedFormBuilder) as jasmine.SpyObj<UntypedFormBuilder>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     const mockOrgSettings = cloneDeep(orgSettingsRes);
     component.mileageConfig = mockOrgSettings.mileage;
     component.formInitialized = true;
     component.onChangeSub = of(null).subscribe();
     component.form = fb.group({
-      mileageLocations: new FormArray([]),
+      mileageLocations: new UntypedFormArray([]),
       distance: [, Validators.required],
       roundTrip: [],
     });
@@ -247,13 +247,13 @@ describe('RouteSelectorComponent', () => {
 
   describe('validate():', () => {
     it('should return null of the form is valid', () => {
-      const result = component.validate(component.mileageConfig);
+      const result = component.validate();
       expect(result).toBeNull();
     });
 
     it('should validate form control', () => {
       component.form.controls.distance.setValue(null);
-      const result = component.validate(component.mileageConfig);
+      const result = component.validate();
       expect(result).toEqual({
         required: true,
       });

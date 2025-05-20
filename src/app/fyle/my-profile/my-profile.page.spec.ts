@@ -1,6 +1,6 @@
 import { EventEmitter } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { ActivatedRoute } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { IonicModule, ModalController, PopoverController } from '@ionic/angular';
@@ -28,15 +28,14 @@ import { PopupWithBulletsComponent } from 'src/app/shared/components/popup-with-
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { TrackingService } from '../../core/services/tracking.service';
 import { MyProfilePage } from './my-profile.page';
-import { VerifyNumberPopoverComponent } from './verify-number-popover/verify-number-popover.component';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
 import { SpenderService } from 'src/app/core/services/platform/v1/spender/spender.service';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { FyOptInComponent } from 'src/app/shared/components/fy-opt-in/fy-opt-in.component';
-import { AllowedPaymentModes } from 'src/app/core/models/allowed-payment-modes.enum';
 import { UtilityService } from 'src/app/core/services/utility.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
+import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
 
 describe('MyProfilePage', () => {
   let component: MyProfilePage;
@@ -56,11 +55,11 @@ describe('MyProfilePage', () => {
   let popoverController: jasmine.SpyObj<PopoverController>;
   let matSnackBar: jasmine.SpyObj<MatSnackBar>;
   let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
-  let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
   let paymentModeService: jasmine.SpyObj<PaymentModesService>;
   let modalController: jasmine.SpyObj<ModalController>;
   let utilityService: jasmine.SpyObj<UtilityService>;
   let orgUserService: jasmine.SpyObj<OrgUserService>;
+  let spenderOnboardingService: jasmine.SpyObj<SpenderOnboardingService>;
 
   beforeEach(waitForAsync(() => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou', 'logout', 'refreshEou']);
@@ -93,6 +92,9 @@ describe('MyProfilePage', () => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const utilityServiceSpy = jasmine.createSpyObj('UtilityService', ['isUserFromINCluster']);
     const orgUserServiceSpy = jasmine.createSpyObj('OrgUserService', ['postOrgUser']);
+    const spenderOnboardingServiceSpy = jasmine.createSpyObj('SpenderOnboardingService', [
+      'checkForRedirectionToOnboarding',
+    ]);
 
     TestBed.configureTestingModule({
       declarations: [MyProfilePage],
@@ -188,6 +190,10 @@ describe('MyProfilePage', () => {
           provide: OrgUserService,
           useValue: orgUserServiceSpy,
         },
+        {
+          provide: SpenderOnboardingService,
+          useValue: spenderOnboardingServiceSpy,
+        },
         SpenderService,
       ],
     }).compileComponents();
@@ -211,11 +217,11 @@ describe('MyProfilePage', () => {
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
     snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
-    activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
     paymentModeService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
     orgUserService = TestBed.inject(OrgUserService) as jasmine.SpyObj<OrgUserService>;
+    spenderOnboardingService = TestBed.inject(SpenderOnboardingService) as jasmine.SpyObj<SpenderOnboardingService>;
     component.eou$ = of(apiEouRes);
 
     fixture.detectChanges();
@@ -347,6 +353,7 @@ describe('MyProfilePage', () => {
     it('should setup class observables', fakeAsync(() => {
       spyOn(component, 'setupNetworkWatcher');
       authService.getEou.and.resolveTo(apiEouRes);
+      spenderOnboardingService.checkForRedirectionToOnboarding.and.returnValue(of(false));
       tokenService.getClusterDomain.and.resolveTo('domain');
       spyOn(component, 'reset');
       utilityService.isUserFromINCluster.and.resolveTo(false);
@@ -471,7 +478,7 @@ describe('MyProfilePage', () => {
     expect(popoverController.create).toHaveBeenCalledOnceWith({
       component: PopupWithBulletsComponent,
       componentProps: {
-        title: 'Verification Successful',
+        title: 'Verification successful',
         listHeader: 'Now you can:',
         listItems: [
           {

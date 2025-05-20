@@ -89,7 +89,7 @@ export class OrgUserSettingsService {
     const featuresList = {
       features: {
         expensesAndReports: {
-          textLabel: 'Expenses and Reports',
+          textLabel: 'Expenses and reports',
           selected: true,
         },
         advances: {

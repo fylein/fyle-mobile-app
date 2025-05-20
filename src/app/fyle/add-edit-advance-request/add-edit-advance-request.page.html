@@ -16,8 +16,8 @@
       class="page-title"
       [ngClass]="{'add-edit-advance-request--title-sm': isDeviceWidthSmall}"
     >
-      <div class="text-center add-edit-advance-request--toolbar__title" *ngIf="mode === 'add'">Request Advance</div>
-      <div *ngIf="mode === 'edit'">Edit Advance Request</div>
+      <div class="text-center add-edit-advance-request--toolbar__title" *ngIf="mode === 'add'">Request advance</div>
+      <div *ngIf="mode === 'edit'">Edit advance request</div>
     </ion-title>
 
     <ion-buttons
@@ -87,8 +87,8 @@
           [cacheName]="'recentPurposeList'"
           [customInput]="true"
           [showSaveButton]="true"
-          [selectModalHeader]="'Enter Purpose'"
-          [placeholder]="'Enter Purpose'"
+          [selectModalHeader]="'Enter purpose'"
+          [placeholder]="'Enter purpose'"
           [touchedInParent]="fg.controls.purpose.touched"
           [validInParent]="fg.controls.purpose.valid"
         >
@@ -118,12 +118,12 @@
 
       <div class="add-edit-advance-request--text add-edit-advance-request--internal-block">
         <div class="add-edit-advance-request--text-label add-edit-advance-request--additional-notes-label">
-          Additional Notes
+          Additional notes
         </div>
         <input
           class="add-edit-advance-request--text-input add-edit-advance-request--additional-notes-input smartlook-show"
           formControlName="notes"
-          placeholder="Enter Additional Notes"
+          placeholder="Enter additional notes"
         />
       </div>
     </div>
@@ -261,7 +261,7 @@
           [loading]="saveAdvanceLoading"
           [disabled]="saveDraftAdvanceLoading || saveAdvanceLoading"
         >
-          Submit Request
+          Submit request
         </ion-button>
       </ion-buttons>
     </div>

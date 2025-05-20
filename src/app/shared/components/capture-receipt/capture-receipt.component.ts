@@ -17,7 +17,10 @@ import { CameraPreviewComponent } from './camera-preview/camera-preview.componen
 import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-settings';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { DEVICE_PLATFORM } from 'src/app/constants';
-import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
+import {
+  MatLegacySnackBar as MatSnackBar,
+  MatLegacySnackBarRef as MatSnackBarRef,
+} from '@angular/material/legacy-snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -400,12 +403,12 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     const isIos = this.devicePlatform === 'ios';
 
     const galleryPermissionName = isIos ? 'Photos' : 'Storage';
-    let title = 'Camera Permission';
+    let title = 'Camera permission';
     if (permissionType === 'GALLERY') {
-      title = galleryPermissionName + ' Permission';
+      title = galleryPermissionName + ' permission';
     }
 
-    const cameraPermissionMessage = `To capture photos, please allow Fyle to access your camera. Click Settings and allow access to Camera and ${galleryPermissionName}`;
+    const cameraPermissionMessage = `To capture photos, please allow Fyle to access your camera. Click Open Settings and allow access to Camera and ${galleryPermissionName}`;
     const galleryPermissionMessage = `Please allow Fyle to access device photos. Click Settings and allow ${galleryPermissionName} access`;
 
     const message = permissionType === 'CAMERA' ? cameraPermissionMessage : galleryPermissionMessage;
@@ -416,7 +419,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         title,
         message,
         primaryCta: {
-          text: 'Open Settings',
+          text: 'Open settings',
           action: 'OPEN_SETTINGS',
         },
         secondaryCta: {
@@ -464,17 +467,11 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       shareReplay(1)
     );
 
-    checkPermission$
-      .pipe(
-        filter((permission) => !permission),
-        switchMap(() => from(this.cameraService.requestCameraPermissions(['photos'])))
-      )
-      .subscribe((permissions) => {
-        if (permissions?.photos === 'denied') {
-          return this.showPermissionDeniedPopover('GALLERY');
-        }
-        this.onGalleryUpload();
-      });
+    checkPermission$.subscribe((hasPermission) => {
+      if (!hasPermission) {
+        return this.showPermissionDeniedPopover('GALLERY');
+      }
+    });
 
     receiptsFromGallery$
       .pipe(filter((receiptsFromGallery: string[]) => receiptsFromGallery.length > 0))

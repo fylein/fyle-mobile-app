@@ -3,13 +3,10 @@ import { Observable, Subject } from 'rxjs';
 import { map, switchMap, tap } from 'rxjs/operators';
 import { CacheBuster, Cacheable, globalCacheBusterNotifier } from 'ts-cacheable';
 import { AuthResponse } from '../models/auth-response.model';
-import { EmployeeParams } from '../models/employee-params.model';
 import { EouApiResponse } from '../models/eou-api-response.model';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
 import { OrgUser } from '../models/org-user.model';
-import { Employee } from '../models/spender/employee.model';
 import { User } from '../models/user.model';
-import { ApiV2Service } from './api-v2.service';
 import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
 import { DataTransformService } from './data-transform.service';
@@ -34,7 +31,6 @@ export class OrgUserService {
     private authService: AuthService,
     private dataTransformService: DataTransformService,
     private trackingService: TrackingService,
-    private apiV2Service: ApiV2Service,
     private spenderPlatformV1ApiService: SpenderPlatformV1ApiService
   ) {}
 
@@ -43,20 +39,13 @@ export class OrgUserService {
     return this.apiService.get('/eous/current').pipe(map((eou) => this.dataTransformService.unflatten(eou)));
   }
 
-  @Cacheable({
-    cacheBusterObserver: orgUsersCacheBuster$,
-  })
-  getEmployeesByParams(params: Partial<EmployeeParams>) {
-    return this.apiV2Service.get<Partial<Employee>, {}>('/spender_employees', { params });
-  }
-
   @CacheBuster({
     cacheBusterNotifier: orgUsersCacheBuster$,
   })
   switchToDelegator(user_id: string, org_id: string): Observable<ExtendedOrgUser> {
     const params = {
-      user_id: user_id,
-      org_id: org_id,
+      user_id,
+      org_id,
     };
 
     return this.apiService
@@ -89,23 +78,12 @@ export class OrgUserService {
     );
   }
 
-  getEmployeesBySearch(params: Partial<EmployeeParams>): Observable<Partial<Employee>[]> {
-    if (params.or) {
-      params.and = `(or${params.or},or(ou_status.like.*"ACTIVE",ou_status.like.*"PENDING_DETAILS"))`;
-    } else {
-      params.or = '(ou_status.like.*"ACTIVE",ou_status.like.*"PENDING_DETAILS")';
-    }
-    return this.getEmployeesByParams({
-      ...params,
-    }).pipe(map((res) => res.data));
-  }
-
   getUserById(userId: string): Observable<EouApiResponse> {
     return this.apiService.get('/eous/' + userId);
   }
 
   excludeByStatus(eous: ExtendedOrgUser[], status: string): ExtendedOrgUser[] {
-    let eousFiltered = [];
+    let eousFiltered: ExtendedOrgUser[] = [];
     if (eous) {
       eousFiltered = eous.filter((eou) => status.indexOf(eou.ou.status) === -1);
     }

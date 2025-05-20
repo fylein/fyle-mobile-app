@@ -8,7 +8,7 @@ import { SetupAccountPreferencesPageRoutingModule } from './setup-account-prefer
 
 import { SetupAccountPreferencesPage } from './setup-account-preferences.page';
 
-import { MatButtonModule } from '@angular/material/button';
+import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button';
 
 @NgModule({
   imports: [

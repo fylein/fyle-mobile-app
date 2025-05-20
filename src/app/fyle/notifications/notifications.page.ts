@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import { UntypedFormArray, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NavController } from '@ionic/angular';
 import { Observable, from, noop, zip } from 'rxjs';
-import { finalize, map, switchMap } from 'rxjs/operators';
+import { finalize, map, switchMap, tap } from 'rxjs/operators';
 import {
   EmailEvents,
   NotificationEventFeatures,
@@ -47,24 +47,24 @@ export class NotificationsPage implements OnInit {
 
   saveNotifLoading = false;
 
-  notificationForm: FormGroup;
+  notificationForm: UntypedFormGroup;
 
   constructor(
     private authService: AuthService,
     private orgUserSettingsService: OrgUserSettingsService,
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     private orgSettingsService: OrgSettingsService,
     private router: Router,
     private navController: NavController,
     private employeesService: EmployeesService
   ) {}
 
-  get pushEvents(): FormArray {
-    return this.notificationForm.controls.pushEvents as FormArray;
+  get pushEvents(): UntypedFormArray {
+    return this.notificationForm.controls.pushEvents as UntypedFormArray;
   }
 
-  get emailEvents(): FormArray {
-    return this.notificationForm.controls.emailEvents as FormArray;
+  get emailEvents(): UntypedFormArray {
+    return this.notificationForm.controls.emailEvents as UntypedFormArray;
   }
 
   getDelegateeSubscription(): Observable<string> {
@@ -92,8 +92,8 @@ export class NotificationsPage implements OnInit {
     const unSubscribedEmailNotifications = orgUserSettings.notification_settings.email.unsubscribed_events;
 
     notificationEvents.events.forEach((event) => {
-      const a = new FormControl(true);
-      const b = new FormControl(true);
+      const a = new UntypedFormControl(true);
+      const b = new UntypedFormControl(true);
 
       if (unSubscribedPushNotifications.indexOf(event.eventType.toUpperCase()) > -1) {
         a.setValue(false);
@@ -146,7 +146,7 @@ export class NotificationsPage implements OnInit {
 
     this.orgUserSettingsService
       .post(this.orgUserSettings)
-      .pipe(() => this.orgUserSettingsService.clearOrgUserSettings())
+      .pipe(tap(() => this.orgUserSettingsService.clearOrgUserSettings()))
       .pipe(finalize(() => (this.saveNotifLoading = false)))
       .subscribe(() => {
         this.navBack();
@@ -271,8 +271,8 @@ export class NotificationsPage implements OnInit {
     // creating form
     this.notificationForm = this.formBuilder.group({
       notifyOption: [],
-      pushEvents: new FormArray([]), // push notification event form control array
-      emailEvents: new FormArray([]), // email  notification event form control array
+      pushEvents: new UntypedFormArray([]), // push notification event form control array
+      emailEvents: new UntypedFormArray([]), // email  notification event form control array
     });
 
     let notifyOption;
@@ -283,7 +283,7 @@ export class NotificationsPage implements OnInit {
 
     this.isDelegateePresent$ = from(this.authService.getEou()).pipe(
       switchMap((res) => this.employeesService.getByParams({ user_id: `eq.${res.us.id}` })),
-      map((employee) => employee?.data[0]?.delegatees?.length > 0)
+      map((employeesResponse) => employeesResponse?.data[0]?.delegatees?.length > 0)
     );
 
     this.orgSettings$ = this.orgSettingsService.get();

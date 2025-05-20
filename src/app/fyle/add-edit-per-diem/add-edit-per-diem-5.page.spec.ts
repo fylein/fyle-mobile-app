@@ -20,7 +20,7 @@ import { ProjectsService } from 'src/app/core/services/projects.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { StatusService } from 'src/app/core/services/status.service';
+import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { TokenService } from 'src/app/core/services/token.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -28,9 +28,9 @@ import { TransactionService } from 'src/app/core/services/transaction.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 
-import { FormArray, FormBuilder, FormControl, Validators } from '@angular/forms';
+import { UntypedFormArray, UntypedFormBuilder, UntypedFormControl, Validators } from '@angular/forms';
 import { ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
 import { Observable, Subject, Subscription, finalize, of } from 'rxjs';
 import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
@@ -54,7 +54,7 @@ export function TestCases5(getTestBed) {
     let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
     let accountsService: jasmine.SpyObj<AccountsService>;
     let authService: jasmine.SpyObj<AuthService>;
-    let formBuilder: FormBuilder;
+    let formBuilder: UntypedFormBuilder;
     let categoriesService: jasmine.SpyObj<CategoriesService>;
     let dateService: jasmine.SpyObj<DateService>;
     let projectsService: jasmine.SpyObj<ProjectsService>;
@@ -69,7 +69,7 @@ export function TestCases5(getTestBed) {
     let router: jasmine.SpyObj<Router>;
     let loaderService: jasmine.SpyObj<LoaderService>;
     let modalController: jasmine.SpyObj<ModalController>;
-    let statusService: jasmine.SpyObj<StatusService>;
+    let expenseCommentService: jasmine.SpyObj<ExpenseCommentService>;
     let popoverController: jasmine.SpyObj<PopoverController>;
     let currencyService: jasmine.SpyObj<CurrencyService>;
     let networkService: jasmine.SpyObj<NetworkService>;
@@ -96,7 +96,7 @@ export function TestCases5(getTestBed) {
       activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
       accountsService = TestBed.inject(AccountsService) as jasmine.SpyObj<AccountsService>;
       authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-      formBuilder = TestBed.inject(FormBuilder);
+      formBuilder = TestBed.inject(UntypedFormBuilder);
       categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
       dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
       projectsService = TestBed.inject(ProjectsService) as jasmine.SpyObj<ProjectsService>;
@@ -110,7 +110,7 @@ export function TestCases5(getTestBed) {
       router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
       loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
       modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
-      statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
+      expenseCommentService = TestBed.inject(ExpenseCommentService) as jasmine.SpyObj<ExpenseCommentService>;
       popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
       currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
       networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
@@ -145,7 +145,7 @@ export function TestCases5(getTestBed) {
         report: [],
         from_dt: [],
         to_dt: [, component.customDateValidator.bind(component)],
-        custom_inputs: new FormArray([]),
+        custom_inputs: new UntypedFormArray([]),
         billable: [],
         costCenter: [],
         project_dependent_fields: formBuilder.array([]),
@@ -362,11 +362,11 @@ export function TestCases5(getTestBed) {
           )
           .componentProps.deleteMethod();
         expect(spenderReportsService.ejectExpenses).toHaveBeenCalledOnceWith('rpFE5X1Pqi9P', 'tx5n59fvxk4z');
-        expect(transactionService.delete).not.toHaveBeenCalled();
+        expect(expensesService.deleteExpenses).not.toHaveBeenCalled();
       });
 
       it('should return modal params and method to delete expense if removePerDiemFromReport is false', () => {
-        transactionService.delete.and.returnValue(of(expenseData1));
+        expensesService.deleteExpenses.and.returnValue(of());
         component
           .getDeleteReportParams(
             { header: 'Header', body: 'body', ctaText: 'Action', ctaLoadingText: 'Loading' },
@@ -374,7 +374,7 @@ export function TestCases5(getTestBed) {
             'tx5n59fvxk4z'
           )
           .componentProps.deleteMethod();
-        expect(transactionService.delete).toHaveBeenCalledOnceWith('tx5n59fvxk4z');
+        expect(expensesService.deleteExpenses).toHaveBeenCalledOnceWith(['tx5n59fvxk4z']);
         expect(spenderReportsService.ejectExpenses).not.toHaveBeenCalled();
       });
     });
@@ -675,7 +675,7 @@ export function TestCases5(getTestBed) {
           from_dt: '2023-06-27',
         });
         const tomorrow = new Date();
-        const control = new FormControl(tomorrow.toDateString());
+        const control = new UntypedFormControl(tomorrow.toDateString());
         const result = component.customDateValidator(control);
         expect(result).toBeNull();
       });
@@ -686,7 +686,7 @@ export function TestCases5(getTestBed) {
         });
         const tomorrow = new Date('2023-06-15');
         tomorrow.setDate(tomorrow.getDate() + 3);
-        const control = new FormControl(tomorrow.toDateString());
+        const control = new UntypedFormControl(tomorrow.toDateString());
         const result = component.customDateValidator(control);
         expect(result).toEqual({ invalidDateSelection: true });
       });

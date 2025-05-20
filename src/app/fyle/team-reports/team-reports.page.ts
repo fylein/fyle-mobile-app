@@ -8,7 +8,7 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { map, distinctUntilChanged, debounceTime, switchMap, shareReplay } from 'rxjs/operators';
 import { PopupService } from 'src/app/core/services/popup.service';
-import { ApiV2Service } from 'src/app/core/services/api-v2.service';
+import { ExtendQueryParamsService } from 'src/app/core/services/extend-query-params.service';
 import { HeaderState } from '../../shared/components/fy-header/header-state.enum';
 import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
 import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-option-type.enum';
@@ -30,6 +30,7 @@ import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-team-reports',
@@ -39,7 +40,7 @@ import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 export class TeamReportsPage implements OnInit {
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef<HTMLInputElement>;
 
-  pageTitle = 'Team Reports';
+  pageTitle = 'Team reports';
 
   isConnected$: Observable<boolean>;
 
@@ -52,6 +53,8 @@ export class TeamReportsPage implements OnInit {
   isLoading = false;
 
   isLoadingDataInInfiniteScroll: boolean;
+
+  filterForMultiStageApproval: boolean;
 
   loadData$: BehaviorSubject<Partial<GetTasksQueryParamsWithFilters>>;
 
@@ -97,12 +100,13 @@ export class TeamReportsPage implements OnInit {
     private popupService: PopupService,
     private trackingService: TrackingService,
     private activatedRoute: ActivatedRoute,
-    private apiV2Service: ApiV2Service,
+    private extendQueryParamsService: ExtendQueryParamsService,
     private tasksService: TasksService,
     private orgSettingsService: OrgSettingsService,
     private reportStatePipe: ReportState,
     private approverReportsService: ApproverReportsService,
-    private authService: AuthService
+    private authService: AuthService,
+    private launchDarklyService: LaunchDarklyService
   ) {}
 
   get HeaderState(): typeof HeaderState {
@@ -170,10 +174,11 @@ export class TeamReportsPage implements OnInit {
       const paginatedPipe = this.loadData$.pipe(
         switchMap((params) => {
           let queryParams = params.queryParams;
-          queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString, true);
+          queryParams = this.extendQueryParamsService.extendQueryParamsForTextSearch(queryParams, params.searchString);
           const orderByParams =
             params.sortParam && params.sortDir ? `${params.sortParam}.${params.sortDir}` : 'created_at.desc,id.desc';
           this.isLoadingDataInInfiniteScroll = true;
+
           return this.approverReportsService.getReportsByParams({
             offset: (params.pageNumber - 1) * 10,
             limit: 10,
@@ -196,7 +201,7 @@ export class TeamReportsPage implements OnInit {
       this.count$ = this.loadData$.pipe(
         switchMap((params) => {
           let queryParams = params.queryParams;
-          queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString, true);
+          queryParams = this.extendQueryParamsService.extendQueryParamsForTextSearch(queryParams, params.searchString);
           this.isLoadingDataInInfiniteScroll = true;
           return this.approverReportsService.getReportsCount(queryParams);
         }),
@@ -431,9 +436,9 @@ export class TeamReportsPage implements OnInit {
     if (filterType === 'state') {
       await this.openFilters('State');
     } else if (filterType === 'date') {
-      await this.openFilters('Submitted Date');
+      await this.openFilters('Submitted date');
     } else if (filterType === 'sort') {
-      await this.openFilters('Sort By');
+      await this.openFilters('Sort by');
     }
   }
 
@@ -466,12 +471,12 @@ export class TeamReportsPage implements OnInit {
   ): void {
     if (filter.sortParam === 'last_submitted_at' && filter.sortDir === 'asc') {
       generatedFilters.push({
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'dateOldToNew',
       });
     } else if (filter.sortParam === 'last_submitted_at' && filter.sortDir === 'desc') {
       generatedFilters.push({
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'dateNewToOld',
       });
     }
@@ -500,7 +505,7 @@ export class TeamReportsPage implements OnInit {
 
     if (filter.date) {
       generatedFilters.push({
-        name: 'Submitted Date',
+        name: 'Submitted date',
         value: filter.date,
         associatedData: {
           startDate: filter.customDateStart,
@@ -522,12 +527,12 @@ export class TeamReportsPage implements OnInit {
   ): void {
     if (filter.sortParam === 'purpose' && filter.sortDir === 'asc') {
       generatedFilters.push({
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'nameAToZ',
       });
     } else if (filter.sortParam === 'purpose' && filter.sortDir === 'desc') {
       generatedFilters.push({
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'nameZToA',
       });
     }
@@ -568,14 +573,14 @@ export class TeamReportsPage implements OnInit {
       generatedFilters.state = stateFilter.value;
     }
 
-    const dateFilter = selectedFilters.find((filter) => filter.name === 'Submitted Date');
+    const dateFilter = selectedFilters.find((filter) => filter.name === 'Submitted date');
     if (dateFilter) {
       generatedFilters.date = dateFilter.value;
       generatedFilters.customDateStart = dateFilter.associatedData?.startDate;
       generatedFilters.customDateEnd = dateFilter.associatedData?.endDate;
     }
 
-    const sortBy = selectedFilters.find((filter) => filter.name === 'Sort By');
+    const sortBy = selectedFilters.find((filter) => filter.name === 'Sort by');
 
     this.convertSelectedSortFiltersToFilters(sortBy, generatedFilters);
 
@@ -583,14 +588,12 @@ export class TeamReportsPage implements OnInit {
   }
 
   generateStateFilterPills(filterPills: FilterPill[], filter: Partial<TeamReportsFilters>): void {
-    this.simplifyReportsSettings$.subscribe((simplifyReportsSettings) => {
-      filterPills.push({
-        label: 'State',
-        type: 'state',
-        value: (filter.state as string[])
-          .map((state) => this.reportStatePipe.transform(state, simplifyReportsSettings.enabled))
-          .reduce((state1, state2) => `${state1}, ${state2}`),
-      });
+    filterPills.push({
+      label: 'State',
+      type: 'state',
+      value: (<string[]>filter.state)
+        .map((state) => this.reportStatePipe.transform(state))
+        .reduce((state1, state2) => `${state1}, ${state2}`),
     });
   }
 
@@ -600,19 +603,19 @@ export class TeamReportsPage implements OnInit {
 
     if (startDate && endDate) {
       filterPills.push({
-        label: 'Submitted Date',
+        label: 'Submitted date',
         type: 'date',
         value: `${startDate} to ${endDate}`,
       });
     } else if (startDate) {
       filterPills.push({
-        label: 'Submitted Date',
+        label: 'Submitted date',
         type: 'date',
         value: `>= ${startDate}`,
       });
     } else if (endDate) {
       filterPills.push({
-        label: 'Submitted Date',
+        label: 'Submitted date',
         type: 'date',
         value: `<= ${endDate}`,
       });
@@ -622,7 +625,7 @@ export class TeamReportsPage implements OnInit {
   generateDateFilterPills(filter: Partial<TeamReportsFilters>, filterPills: FilterPill[]): void {
     if (filter.date === DateFilters.thisWeek) {
       filterPills.push({
-        label: 'Submitted Date',
+        label: 'Submitted date',
         type: 'date',
         value: 'this Week',
       });
@@ -630,7 +633,7 @@ export class TeamReportsPage implements OnInit {
 
     if (filter.date === DateFilters.thisMonth) {
       filterPills.push({
-        label: 'Submitted Date',
+        label: 'Submitted date',
         type: 'date',
         value: 'this Month',
       });
@@ -638,7 +641,7 @@ export class TeamReportsPage implements OnInit {
 
     if (filter.date === DateFilters.all) {
       filterPills.push({
-        label: 'Submitted Date',
+        label: 'Submitted date',
         type: 'date',
         value: 'All',
       });
@@ -646,7 +649,7 @@ export class TeamReportsPage implements OnInit {
 
     if (filter.date === DateFilters.lastMonth) {
       filterPills.push({
-        label: 'Submitted Date',
+        label: 'Submitted date',
         type: 'date',
         value: 'Last Month',
       });
@@ -660,13 +663,13 @@ export class TeamReportsPage implements OnInit {
   generateSortRptDatePills(filter: Partial<TeamReportsFilters>, filterPills: FilterPill[]): void {
     if (filter.sortParam === 'last_submitted_at' && filter.sortDir === 'asc') {
       filterPills.push({
-        label: 'Sort By',
+        label: 'Sort by',
         type: 'sort',
         value: 'Submitted date - old to new',
       });
     } else if (filter.sortParam === 'last_submitted_at' && filter.sortDir === 'desc') {
       filterPills.push({
-        label: 'Sort By',
+        label: 'Sort by',
         type: 'sort',
         value: 'Submitted date - new to old',
       });
@@ -676,13 +679,13 @@ export class TeamReportsPage implements OnInit {
   generateSortAmountPills(filter: Partial<TeamReportsFilters>, filterPills: FilterPill[]): void {
     if (filter.sortParam === 'amount' && filter.sortDir === 'desc') {
       filterPills.push({
-        label: 'Sort By',
+        label: 'Sort by',
         type: 'sort',
         value: 'amount - high to low',
       });
     } else if (filter.sortParam === 'amount' && filter.sortDir === 'asc') {
       filterPills.push({
-        label: 'Sort By',
+        label: 'Sort by',
         type: 'sort',
         value: 'amount - low to high',
       });
@@ -692,13 +695,13 @@ export class TeamReportsPage implements OnInit {
   generateSortNamePills(filter: Partial<TeamReportsFilters>, filterPills: FilterPill[]): void {
     if (filter.sortParam === 'purpose' && filter.sortDir === 'asc') {
       filterPills.push({
-        label: 'Sort By',
+        label: 'Sort by',
         type: 'sort',
         value: 'Name - a to z',
       });
     } else if (filter.sortParam === 'purpose' && filter.sortDir === 'desc') {
       filterPills.push({
-        label: 'Sort By',
+        label: 'Sort by',
         type: 'sort',
         value: 'Name - z to a',
       });
@@ -737,12 +740,12 @@ export class TeamReportsPage implements OnInit {
   ): void {
     if (filter.sortParam === 'amount' && filter.sortDir === 'desc') {
       generatedFilters.push({
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'amountHighToLow',
       });
     } else if (filter.sortParam === 'amount' && filter.sortDir === 'asc') {
       generatedFilters.push({
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'amountLowToHigh',
       });
     }
@@ -794,7 +797,7 @@ export class TeamReportsPage implements OnInit {
             ],
           } as FilterOptions<string>,
           {
-            name: 'Submitted Date',
+            name: 'Submitted date',
             optionType: FilterOptionType.date,
             options: [
               {
@@ -820,15 +823,15 @@ export class TeamReportsPage implements OnInit {
             ],
           } as FilterOptions<DateFilters>,
           {
-            name: 'Sort By',
+            name: 'Sort by',
             optionType: FilterOptionType.singleselect,
             options: [
               {
-                label: 'Submitted Date - New to Old',
+                label: 'Submitted date - New to Old',
                 value: 'dateNewToOld',
               },
               {
-                label: 'Submitted Date - Old to New',
+                label: 'Submitted date - Old to New',
                 value: 'dateOldToNew',
               },
               {

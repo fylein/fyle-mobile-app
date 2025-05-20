@@ -6,14 +6,12 @@ import { TokenService } from './token.service';
 import { ApiService } from './api.service';
 import { AuthResponse } from '../models/auth-response.model';
 import { Observable, from } from 'rxjs';
-import { ApiV2Service } from './api-v2.service';
 import { LocationService } from './location.service';
 import { TransactionsOutboxService } from './transactions-outbox.service';
 import { VendorService } from './vendor.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformCommonApiService } from './platform-common-api.service';
 import { ApproverPlatformApiService } from './approver-platform-api.service';
-import { ExpenseAggregationService } from './expense-aggregation.service';
 import { SpenderService } from './platform/v1/spender/spender.service';
 import { ApproverService } from './platform/v1/approver/approver.service';
 import { EmailExistsResponse } from '../models/email-exists-response.model';
@@ -29,14 +27,12 @@ export class RouterAuthService {
     private storageService: StorageService,
     private tokenService: TokenService,
     private apiService: ApiService,
-    private apiv2Service: ApiV2Service,
     private locationService: LocationService,
     private transactionOutboxService: TransactionsOutboxService,
     private vendorService: VendorService,
     private approverPlatformApiService: ApproverPlatformApiService,
     private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
     private platformCommonApiService: PlatformCommonApiService,
-    private expenseAggregationService: ExpenseAggregationService,
     private spenderService: SpenderService,
     private approverService: ApproverService,
     private trackingService: TrackingService
@@ -60,7 +56,6 @@ export class RouterAuthService {
 
   async setClusterDomain(domain: string): Promise<void> {
     this.apiService.setRoot(domain);
-    this.apiv2Service.setRoot(domain);
     this.locationService.setRoot(domain);
     this.transactionOutboxService.setRoot(domain);
     this.vendorService.setRoot(domain);
@@ -68,7 +63,6 @@ export class RouterAuthService {
     this.approverPlatformApiService.setRoot(domain);
     this.spenderPlatformV1ApiService.setRoot(domain);
     this.platformCommonApiService.setRoot(domain);
-    this.expenseAggregationService.setRoot(domain);
     this.spenderService.setRoot(domain);
     this.approverService.setRoot(domain);
     this.trackingService.setRoot(domain);
@@ -98,10 +92,6 @@ export class RouterAuthService {
   }
 
   async handleSignInResponse(data: AuthResponse): Promise<AuthResponse> {
-    // if (environment.NAME === 'dev') {
-    //   data.cluster_domain = environment.CLUSTER_DOMAIN;
-    //   data.redirect_url = data.redirect_url.replace('https://staging.fyle.in', data.cluster_domain);
-    // }
     await this.newRefreshToken(data.refresh_token);
     await this.setClusterDomain(data.cluster_domain);
     const resp = await this.fetchAccessToken(data.refresh_token);

@@ -5,7 +5,7 @@ import { IonicModule } from '@ionic/angular';
 import { ViewTeamAdvanceRequestPageRoutingModule } from './view-team-advance-request-routing.module';
 import { ViewTeamAdvanceRequestPage } from './view-team-advance-request.page';
 import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
+import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button';
 import { MatRippleModule } from '@angular/material/core';
 import { SharedModule } from '../../shared/shared.module';
 import { AdvanceActionsComponent } from './advance-actions/advance-actions.component';

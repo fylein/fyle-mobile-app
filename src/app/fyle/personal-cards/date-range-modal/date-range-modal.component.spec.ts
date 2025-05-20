@@ -56,13 +56,13 @@ describe('DateRangeModalComponent', () => {
   it('calenderOpened() should set isCalenderVisible to true on calenderOpened', () => {
     fixture.detectChanges();
     component.calenderOpened();
-    expect(component.isCalenderVisible).toBe(true);
+    expect(component.isCalenderVisible).toBeTrue();
   });
 
   it('calenderClosed(): should set isCalenderVisible to false on calenderClosed', () => {
     fixture.detectChanges();
     component.calenderClosed();
-    expect(component.isCalenderVisible).toBe(false);
+    expect(component.isCalenderVisible).toBeFalse();
   });
 
   it('should set isCalenderVisible to true when the date range picker is opened', () => {

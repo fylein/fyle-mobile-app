@@ -4,6 +4,8 @@ import { FileService } from 'src/app/core/services/file.service';
 import { TrackingService } from '../../../core/services/tracking.service';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { MAX_FILE_SIZE } from 'src/app/core/constants';
+import { LoaderService } from 'src/app/core/services/loader.service';
+import { finalize, from, map, raceWith, switchMap, timer } from 'rxjs';
 
 @Component({
   selector: 'app-camera-options-popup',
@@ -18,7 +20,8 @@ export class CameraOptionsPopupComponent implements OnInit {
   constructor(
     private popoverController: PopoverController,
     private fileService: FileService,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private loaderService: LoaderService
   ) {}
 
   ngOnInit(): void {
@@ -37,17 +40,31 @@ export class CameraOptionsPopupComponent implements OnInit {
 
   async uploadFileCallback(file: File): Promise<void> {
     if (file?.size < MAX_FILE_SIZE) {
-      const dataUrl = await this.fileService.readFile(file);
-      this.popoverController.dismiss({
-        type: file.type,
-        dataUrl,
-        actionSource: 'gallery_upload',
-      });
+      const fileRead$ = from(this.fileService.readFile(file));
+      const delayedLoader$ = timer(300).pipe(
+        switchMap(() => from(this.loaderService.showLoader('Please wait...', 5000))),
+        switchMap(() => fileRead$) // switch to fileRead$ after showing loader
+      );
+
+      // Use race to show loader only if fileRead$ takes more than 300ms.
+      fileRead$
+        .pipe(
+          raceWith(delayedLoader$),
+          map((dataUrl) => {
+            this.popoverController.dismiss({
+              type: file.type,
+              dataUrl,
+              actionSource: 'gallery_upload',
+            });
+          }),
+          finalize(() => this.loaderService.hideLoader())
+        )
+        .subscribe();
     } else {
       this.closeClicked();
 
       if (file?.size > MAX_FILE_SIZE) {
-        this.showSizeLimitExceededPopover();
+        this.showSizeLimitExceededPopover(MAX_FILE_SIZE);
       }
     }
   }
@@ -71,12 +88,14 @@ export class CameraOptionsPopupComponent implements OnInit {
     nativeElement.click();
   }
 
-  async showSizeLimitExceededPopover(): Promise<void> {
+  async showSizeLimitExceededPopover(maxFileSize: number): Promise<void> {
     const sizeLimitExceededPopover = await this.popoverController.create({
       component: PopupAlertComponent,
       componentProps: {
         title: 'Size limit exceeded',
-        message: 'The uploaded file is greater than 5MB in size. Please reduce the file size and try again.',
+        message: `The uploaded file is greater than ${(maxFileSize / (1024 * 1024)).toFixed(
+          0
+        )}MB in size. Please reduce the file size and try again.`,
         primaryCta: {
           text: 'OK',
         },

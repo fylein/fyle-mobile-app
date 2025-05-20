@@ -1,17 +1,16 @@
 import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
+import { ActivatedRouteSnapshot, Router, UrlTree } from '@angular/router';
 import { Observable, map, of } from 'rxjs';
 import { OrgSettingsService } from '../services/org-settings.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class BetaPageFeatureFlagGuard implements CanActivate {
+export class BetaPageFeatureFlagGuard {
   constructor(private orgSettingsService: OrgSettingsService, private router: Router) {}
 
   canActivate(
-    route: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot
+    route: ActivatedRouteSnapshot
   ): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
     const currentPath = route.routeConfig && route.routeConfig.path;
 

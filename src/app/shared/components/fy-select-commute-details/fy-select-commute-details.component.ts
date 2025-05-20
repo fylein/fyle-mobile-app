@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, Input, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { ModalController } from '@ionic/angular';
 import { catchError, forkJoin, map, switchMap, throwError } from 'rxjs';
 import { ToastType } from 'src/app/core/enums/toast-type.enum';
@@ -22,12 +22,12 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 export class FySelectCommuteDetailsComponent implements OnInit {
   @Input() existingCommuteDetails?: CommuteDetails;
 
-  commuteDetails: FormGroup;
+  commuteDetails: UntypedFormGroup;
 
   saveCommuteDetailsLoading = false;
 
   constructor(
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     private modalController: ModalController,
     private locationService: LocationService,
     private employeesService: EmployeesService,

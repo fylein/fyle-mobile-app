@@ -1,7 +1,7 @@
 import { TitleCasePipe } from '@angular/common';
 import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
-import { FormArray, FormBuilder, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { UntypedFormArray, UntypedFormBuilder, Validators } from '@angular/forms';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
@@ -58,7 +58,7 @@ import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-loc
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { StatusService } from 'src/app/core/services/status.service';
+import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { TaxGroupService } from 'src/app/core/services/tax-group.service';
 import { TokenService } from 'src/app/core/services/token.service';
@@ -130,7 +130,7 @@ export function TestCases2(getTestBed) {
     let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
     let accountsService: jasmine.SpyObj<AccountsService>;
     let authService: jasmine.SpyObj<AuthService>;
-    let formBuilder: FormBuilder;
+    let formBuilder: UntypedFormBuilder;
     let categoriesService: jasmine.SpyObj<CategoriesService>;
     let dateService: jasmine.SpyObj<DateService>;
     let projectsService: jasmine.SpyObj<ProjectsService>;
@@ -143,7 +143,7 @@ export function TestCases2(getTestBed) {
     let router: jasmine.SpyObj<Router>;
     let loaderService: jasmine.SpyObj<LoaderService>;
     let modalController: jasmine.SpyObj<ModalController>;
-    let statusService: jasmine.SpyObj<StatusService>;
+    let expenseCommentService: jasmine.SpyObj<ExpenseCommentService>;
     let fileService: jasmine.SpyObj<FileService>;
     let popoverController: jasmine.SpyObj<PopoverController>;
     let currencyService: jasmine.SpyObj<CurrencyService>;
@@ -185,7 +185,7 @@ export function TestCases2(getTestBed) {
       activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
       accountsService = TestBed.inject(AccountsService) as jasmine.SpyObj<AccountsService>;
       authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-      formBuilder = TestBed.inject(FormBuilder);
+      formBuilder = TestBed.inject(UntypedFormBuilder);
       categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
       dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
       reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
@@ -198,7 +198,7 @@ export function TestCases2(getTestBed) {
       router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
       loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
       modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
-      statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
+      expenseCommentService = TestBed.inject(ExpenseCommentService) as jasmine.SpyObj<ExpenseCommentService>;
       fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
       popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
       currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
@@ -254,7 +254,7 @@ export function TestCases2(getTestBed) {
         bus_travel_class: [],
         distance: [],
         distance_unit: [],
-        custom_inputs: new FormArray([]),
+        custom_inputs: new UntypedFormArray([]),
         billable: [],
         costCenter: [],
         hotel_is_breakfast_provided: [],
@@ -573,6 +573,25 @@ export function TestCases2(getTestBed) {
           done();
         });
       });
+
+      it('should redirect back if the expense is not returned from the API', (done) => {
+        expensesService.getExpenseById.and.returnValue(throwError(() => new Error('expense not found')));
+        spyOn(component, 'goBack');
+
+        component.getEditExpenseObservable().subscribe({
+          next: () => fail('Expected an error, but got a successful response'),
+          error: () => {}, // No action needed, as we expect an error
+          complete: () => {
+            expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+            expect(loaderService.showLoader).toHaveBeenCalledOnceWith(
+              'This expense no longer exists. Redirecting to expenses list',
+              1000
+            );
+            expect(component.goBack).toHaveBeenCalledTimes(1);
+            done();
+          },
+        });
+      });
     });
 
     it('goToPrev(): should go to the previous txn', () => {
@@ -581,9 +600,8 @@ export function TestCases2(getTestBed) {
       component.reviewList = ['txvslh8aQMbu', 'txNyI8ot5CuJ'];
       expensesService.getExpenseById.and.returnValue(of(platformExpenseData));
       transactionService.transformExpense.and.returnValue(transformedExpenseData);
-      fixture.detectChanges();
 
-      component.goToPrev();
+      component.goToPrev(1);
       expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txvslh8aQMbu');
       expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
       expect(component.goToTransaction).toHaveBeenCalledOnceWith(transformedExpenseData, component.reviewList, 0);
@@ -595,9 +613,8 @@ export function TestCases2(getTestBed) {
       component.reviewList = ['txSEM4DtjyKR', 'txD5hIQgLuR5'];
       expensesService.getExpenseById.and.returnValue(of(platformExpenseDataWithSubCategory));
       transactionService.transformExpense.and.returnValue(transformedExpenseDataWithSubCategory);
-      fixture.detectChanges();
 
-      component.goToNext();
+      component.goToNext(0);
       expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txD5hIQgLuR5');
       expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseDataWithSubCategory);
       expect(component.goToTransaction).toHaveBeenCalledOnceWith(
@@ -949,7 +966,7 @@ export function TestCases2(getTestBed) {
       it('should add a new expense and close the form', () => {
         spyOn(component, 'addExpense').and.returnValue(of(Promise.resolve(outboxQueueData1[0])));
         spyOn(component, 'checkIfReceiptIsMissingAndMandatory').and.returnValue(of(false));
-        spyOn(component, 'closeAddEditExpenses');
+        spyOn(component, 'goBack');
         component.activeIndex = 0;
         component.mode = 'add';
         Object.defineProperty(component.fg, 'valid', {
@@ -960,7 +977,7 @@ export function TestCases2(getTestBed) {
         component.saveExpenseAndGotoPrev();
         expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_AND_PREV_EXPENSE');
         expect(component.checkIfReceiptIsMissingAndMandatory).toHaveBeenCalledWith('SAVE_AND_PREV_EXPENSE');
-        expect(component.closeAddEditExpenses).toHaveBeenCalledOnceWith();
+        expect(component.goBack).toHaveBeenCalledOnceWith();
       });
 
       it('should add a new expense and go to the previous expense if not the first one in list', () => {
@@ -977,13 +994,13 @@ export function TestCases2(getTestBed) {
         component.saveExpenseAndGotoPrev();
         expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_AND_PREV_EXPENSE');
         expect(component.checkIfReceiptIsMissingAndMandatory).toHaveBeenCalledWith('SAVE_AND_PREV_EXPENSE');
-        expect(component.goToPrev).toHaveBeenCalledOnceWith();
+        expect(component.goToPrev).toHaveBeenCalledOnceWith(component.activeIndex);
       });
 
       it('should save an edited expense and close the form', () => {
         spyOn(component, 'editExpense').and.returnValue(of(txnData2));
         spyOn(component, 'checkIfReceiptIsMissingAndMandatory').and.returnValue(of(false));
-        spyOn(component, 'closeAddEditExpenses');
+        spyOn(component, 'goBack');
         component.activeIndex = 0;
         component.mode = 'edit';
         Object.defineProperty(component.fg, 'valid', {
@@ -994,7 +1011,7 @@ export function TestCases2(getTestBed) {
         component.saveExpenseAndGotoPrev();
         expect(component.editExpense).toHaveBeenCalledOnceWith('SAVE_AND_PREV_EXPENSE');
         expect(component.checkIfReceiptIsMissingAndMandatory).toHaveBeenCalledWith('SAVE_AND_PREV_EXPENSE');
-        expect(component.closeAddEditExpenses).toHaveBeenCalledOnceWith();
+        expect(component.goBack).toHaveBeenCalledOnceWith();
       });
 
       it('should save an edited expense and go to the previous expense', () => {
@@ -1011,7 +1028,7 @@ export function TestCases2(getTestBed) {
         component.saveExpenseAndGotoPrev();
         expect(component.editExpense).toHaveBeenCalledOnceWith('SAVE_AND_PREV_EXPENSE');
         expect(component.checkIfReceiptIsMissingAndMandatory).toHaveBeenCalledWith('SAVE_AND_PREV_EXPENSE');
-        expect(component.goToPrev).toHaveBeenCalledOnceWith();
+        expect(component.goToPrev).toHaveBeenCalledOnceWith(component.activeIndex);
       });
 
       it('should show validation errors if the form is not valid', () => {
@@ -1029,7 +1046,7 @@ export function TestCases2(getTestBed) {
       it('should add a new expense and close the form', () => {
         spyOn(component, 'addExpense').and.returnValue(of(Promise.resolve(outboxQueueData1[0])));
         spyOn(component, 'checkIfReceiptIsMissingAndMandatory').and.returnValue(of(false));
-        spyOn(component, 'closeAddEditExpenses');
+        spyOn(component, 'goBack');
         component.activeIndex = 0;
         component.reviewList = ['id1'];
         component.mode = 'add';
@@ -1041,7 +1058,7 @@ export function TestCases2(getTestBed) {
         component.saveExpenseAndGotoNext();
         expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_EXPENSE');
         expect(component.checkIfReceiptIsMissingAndMandatory).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_EXPENSE');
-        expect(component.closeAddEditExpenses).toHaveBeenCalledOnceWith();
+        expect(component.goBack).toHaveBeenCalledOnceWith();
       });
 
       it('should add a new expense and go to the next expense if not the first one in list', () => {
@@ -1065,7 +1082,7 @@ export function TestCases2(getTestBed) {
       it('should save an edited expense and close the form', () => {
         spyOn(component, 'editExpense').and.returnValue(of(txnData2));
         spyOn(component, 'checkIfReceiptIsMissingAndMandatory').and.returnValue(of(false));
-        spyOn(component, 'closeAddEditExpenses');
+        spyOn(component, 'goBack');
         component.activeIndex = 0;
         component.mode = 'edit';
         component.reviewList = ['id1'];
@@ -1077,7 +1094,7 @@ export function TestCases2(getTestBed) {
         component.saveExpenseAndGotoNext();
         expect(component.editExpense).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_EXPENSE');
         expect(component.checkIfReceiptIsMissingAndMandatory).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_EXPENSE');
-        expect(component.closeAddEditExpenses).toHaveBeenCalledTimes(1);
+        expect(component.goBack).toHaveBeenCalledTimes(1);
       });
 
       it('should save an edited expense and go to the next expense', () => {
@@ -1184,12 +1201,6 @@ export function TestCases2(getTestBed) {
       expect(result).toBeCloseTo((new Date().getTime() - component.expenseStartTime) / 1000, 2);
     });
 
-    it('closeAddEditExpenses(): should close the form and navigate back to my_expenses page', () => {
-      component.closeAddEditExpenses();
-
-      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses']);
-    });
-
     describe('getParsedReceipt():', () => {
       it('should get parsed receipt', fakeAsync(() => {
         const mockParsedReceiptData = cloneDeep(parsedReceiptData1);
@@ -1274,14 +1285,14 @@ export function TestCases2(getTestBed) {
       });
 
       it('should  return modal params and method to delete expense', () => {
-        transactionService.delete.and.returnValue(of(expenseData1));
+        expensesService.deleteExpenses.and.returnValue(of());
         component
           .getDeleteReportParams(
             { header: 'Header', body: 'body', ctaText: 'Action', ctaLoadingText: 'Loading' },
             false
           )
           .componentProps.deleteMethod();
-        expect(transactionService.delete).toHaveBeenCalledTimes(1);
+        expect(expensesService.deleteExpenses).toHaveBeenCalledTimes(1);
       });
     });
 
@@ -1649,14 +1660,14 @@ export function TestCases2(getTestBed) {
 
       popoverController.create.and.resolveTo(sizeLimitExceededPopoverSpy);
 
-      component.showSizeLimitExceededPopover();
+      component.showSizeLimitExceededPopover(11534337);
       tick(500);
 
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         component: PopupAlertComponent,
         componentProps: {
           title: 'Size limit exceeded',
-          message: 'The uploaded file is greater than 5MB in size. Please reduce the file size and try again.',
+          message: 'The uploaded file is greater than 11MB in size. Please reduce the file size and try again.',
           primaryCta: {
             text: 'OK',
           },

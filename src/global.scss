@@ -31,6 +31,8 @@
 @import 'swiper/scss';
 @import 'swiper/scss/navigation';
 @import 'swiper/scss/pagination';
+@import 'driver.js/dist/driver.css';
+@import '/src/assets/styles/fy_driver_tour.scss';
 
 $header-input-interior: #eeeeee;
 
@@ -86,12 +88,12 @@ ion-popover.error-popover {
   }
 }
 
-.mat-bottom-sheet-1 {
+.mat-bottom-sheet-1 .mat-bottom-sheet-container {
   padding: 16px 12px 12px 12px !important;
   border-radius: 16px 16px 0px 0px !important;
 }
 
-.mat-bottom-sheet-2 {
+.mat-bottom-sheet-2 .mat-bottom-sheet-container {
   padding: 24px 24px 6px 24px !important;
   border-radius: 16px 16px 0px 0px !important;
 }
@@ -143,6 +145,22 @@ ion-popover.error-popover {
   background-color: $green;
   border-radius: 8px !important;
   margin: 0 16px 133px !important;
+  padding: 12px 8px !important;
+}
+
+.msb-success-with-camera-icon-for-split-exp {
+  color: $pure-white;
+  background-color: $green;
+  border-radius: 8px !important;
+  margin: 0 16px 24px !important;
+  padding: 12px 8px !important;
+}
+
+.msb-failure-with-camera-icon-for-split-exp {
+  color: $pure-white;
+  background-color: $red;
+  border-radius: 8px !important;
+  margin: 0 16px 24px !important;
   padding: 12px 8px !important;
 }
 
@@ -323,6 +341,13 @@ ion-popover.camera-options-popover {
   }
 }
 
+// to get rid of the box shadow introduced by ionic v7
+.header-md,
+.footer-md {
+  box-shadow: none;
+  -webkit-box-shadow: none;
+}
+
 .header-md::after {
   background-image: none;
 }
@@ -357,6 +382,10 @@ ion-popover.camera-options-popover {
 
 .text-left {
   text-align: left !important;
+}
+
+.text-bold {
+  font-weight: 500;
 }
 
 .text-right {
@@ -745,8 +774,7 @@ ref - https://stackoverflow.com/a/31162426
     background: $white;
     min-height: 73px;
     margin-inline-end: 16px;
-    padding-left: 24px;
-    padding-right: 24px;
+    padding: 0 24px;
     margin-right: 16px;
   }
 
@@ -780,6 +808,7 @@ ref - https://stackoverflow.com/a/31162426
   }
 
   .action-sheet-button-inner {
+    min-height: 73px;
     border-bottom: 1px solid $translucent-grey;
   }
 }
@@ -870,7 +899,7 @@ ref - https://stackoverflow.com/a/31162426
   --box-shadow: none;
   --border-radius: 4px;
   height: 50px;
-  text-transform: capitalize;
+  text-transform: none;
   font-weight: 500;
   margin: 0;
   width: 100%;
@@ -893,6 +922,13 @@ ref - https://stackoverflow.com/a/31162426
     --background: transparent;
     --color: #{$black-light};
   }
+
+  &--outline-secondary {
+    --background: transparent;
+    --color: #{$black-light};
+    border: 1px solid #{$grey};
+    border-radius: 4px;
+  }
 }
 
 .footer-ios ion-toolbar:first-of-type {
@@ -910,6 +946,22 @@ ion-modal.fy-modal {
     position: absolute;
     top: 10%;
   }
+}
+
+ion-modal.review-split-expense-modal {
+  &::part(content) {
+    border-radius: 0 !important;
+    height: 100% !important;
+    position: absolute;
+    top: 0 !important;
+    bottom: 0 !important;
+  }
+}
+
+.ios .review-split-expense-modal {
+  margin-bottom: -12px;
+  margin-top: 12px;
+  padding-top: 12px;
 }
 
 ion-modal.share-report-modal {
@@ -1069,6 +1121,7 @@ ion-modal.promote-opt-in-modal {
   min-height: 20px !important;
   font-size: 12px;
   color: $black-light !important;
+  padding-right: 0 !important;
 }
 
 .mat-chip.mat-standard-chip .mat-chip-remove {
@@ -1079,7 +1132,7 @@ ion-modal.promote-opt-in-modal {
 }
 
 .mat-standard-chip .mat-chip-remove.mat-icon {
-  width: 8px !important;
+  width: 16px !important;
 }
 
 .selection-modal--form-container {
@@ -1271,11 +1324,16 @@ ion-modal.personal-cards-range-modal {
 ion-toggle {
   height: 22px;
   width: 52px;
-  --background: #{$grey-light};
-  --background-checked: #{$brand-primary};
+  --track-background: #{$grey-light};
+  --track-background-checked: #{$brand-primary};
   --handle-spacing: 4px;
   --handle-border-radius: 50%;
   --handle-width: 14px;
+
+  &::part(track) {
+    height: 22px;
+    width: 52px;
+  }
 }
 
 ion-toggle::before {
@@ -1410,7 +1468,7 @@ ion-toggle.toggle-checked::before {
   border: 1px solid $brand-primary;
   border-radius: 14px;
   color: $brand-primary;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 500;
   display: inline-block;
   line-height: 18px;

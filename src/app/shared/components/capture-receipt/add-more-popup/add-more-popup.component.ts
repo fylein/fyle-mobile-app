@@ -15,12 +15,12 @@ export class AddMorePopupComponent implements OnInit {
     this.actionButtons = [
       {
         icon: 'camera',
-        title: 'Capture Receipts',
+        title: 'Capture receipts',
         mode: 'camera',
       },
       {
         icon: 'image',
-        title: 'Upload from Gallery',
+        title: 'Upload files',
         mode: 'gallery',
       },
     ];

@@ -9,7 +9,7 @@
       mode="md"
       class="page-title"
       [ngClass]="{'view-expense--title': reportExpenseCount > 1, 'pl-0': isDeviceWidthSmall}"
-      >View Expense
+      >View expense
       <p class="view-expense--subtitle" *ngIf="reportExpenseCount > 1">
         Showing {{ activeExpenseIndex + 1 }} of {{ reportExpenseCount }} expenses
       </p>
@@ -62,7 +62,8 @@
               {{ projectFieldName | titlecase }}: {{ expense.project?.name || '-' }}
             </div>
             <div *ngIf="isCCCTransaction && cardNumber">
-              Card: {{ cardNumber | maskNumber }} <span *ngIf="cardNickname">{{'(' + cardNickname + ')'}}</span>
+              Card ending in... {{ cardNumber | maskNumber }}
+              <span *ngIf="cardNickname">{{'(' + cardNickname + ')'}}</span>
             </div>
           </div>
 
@@ -90,13 +91,6 @@
               {{ expense.foreign_amount | humanizeCurrency: expense.foreign_currency }} at {{ expense.amount /
               expense.foreign_amount | currency: expense.currency: 'symbol-narrow' }}
             </div>
-
-            <div *ngIf="isProjectShown" class="view-expense--card-container__project">
-              {{ projectFieldName | titlecase }}: {{ expense.project?.name || '-' }}
-            </div>
-            <div *ngIf="isCCCTransaction && cardNumber">
-              Card: {{ cardNumber | maskNumber }} <span *ngIf="cardNickname">{{'(' + cardNickname + ')'}}</span>
-            </div>
           </div>
 
           <div class="ion-text-right view-expense--card-container__block">
@@ -105,7 +99,7 @@
               [ngClass]="{'view-expense--card-container__no-exchange': !foreignCurrencySymbol && isProjectShown}"
             >
               <div class="state-pill state-{{expense.state | expenseState}}">
-                {{ expense.state | expenseState : isNewReportsFlowEnabled | snakeCaseToSpaceCase | titlecase }}
+                {{ expense.state | expenseState | snakeCaseToSpaceCase | titlecase }}
               </div>
             </div>
           </div>
@@ -162,7 +156,7 @@
             </ion-col>
             <ion-col class="view-expense--content-container">
               <div class="view-expense--label">Receipt</div>
-              <div class="view-expense--value">Not Attached</div>
+              <div class="view-expense--value">Not attached</div>
             </ion-col>
           </ion-row>
         </ion-grid>
@@ -176,7 +170,7 @@
             </div>
           </ion-col>
           <ion-col class="view-expense--content-container">
-            <div class="view-expense--label">Report Name</div>
+            <div class="view-expense--label">Report name</div>
             <div class="view-expense--value">{{ expense.report?.title }}</div>
           </ion-col>
         </ion-row>
@@ -191,7 +185,7 @@
           </ion-col>
           <ion-col class="view-expense--content-container">
             <div class="view-expense--label">Employee</div>
-            <div class="view-expense--value">{{ expense.user.full_name }}</div>
+            <div class="view-expense--value smartlook-hide">{{ expense.user.full_name }}</div>
           </ion-col>
         </ion-row>
       </ion-grid>
@@ -204,7 +198,7 @@
             </div>
           </ion-col>
           <ion-col class="view-expense--content-container">
-            <div class="view-expense--label">Expense ID</div>
+            <div class="view-expense--label">Expense number</div>
             <div class="view-expense--value">{{ expense.seq_num }}</div>
           </ion-col>
         </ion-row>
@@ -226,7 +220,7 @@
                   </div>
                 </ion-col>
                 <ion-col class="view-expense--content-container">
-                  <div class="view-expense--label">Created Date</div>
+                  <div class="view-expense--label">Created date</div>
                   <div class="view-expense--value">{{ expense.created_at | date: 'MMM dd, YYYY' }}</div>
                 </ion-col>
               </ion-row>
@@ -245,7 +239,7 @@
                 </ion-col>
                 <ion-col class="view-expense--content-container">
                   <div class="d-flex">
-                    <div class="view-expense--label">Spend Date</div>
+                    <div class="view-expense--label">Spend date</div>
                     <ion-icon
                       *ngIf="expense.extracted_data && (expense.spent_at | date:'MMM dd, YYYY') === (expense.extracted_data.date | date:'MMM dd, YYYY')"
                       class="view-expense--sparkle-icon"
@@ -271,7 +265,7 @@
             </div>
           </ion-col>
           <ion-col class="view-expense--content-container">
-            <div class="view-expense--label">Payment Mode</div>
+            <div class="view-expense--label">Payment mode</div>
             <div class="view-expense--value">{{ paymentMode }}</div>
           </ion-col>
         </ion-row>
@@ -285,7 +279,7 @@
             </div>
           </ion-col>
           <ion-col class="view-expense--content-container">
-            <div class="view-expense--label">Card Transaction</div>
+            <div class="view-expense--label">Card transaction</div>
             <div class="view-expense--value">
               <ng-container
                 *ngIf="expense.matched_corporate_card_transactions[0] as matchedTransaction; else NoMatchingTxn"
@@ -320,7 +314,7 @@
             </div>
           </ion-col>
           <ion-col class="view-expense--content-container">
-            <div class="view-expense--label">Tax Group</div>
+            <div class="view-expense--label">Tax group</div>
             <div class="view-expense--value">{{ expense.tax_group?.name }}</div>
           </ion-col>
         </ion-row>
@@ -363,7 +357,7 @@
                       </div>
                     </ion-col>
                     <ion-col class="view-expense--content-container">
-                      <div class="view-expense--label">Cost Center</div>
+                      <div class="view-expense--label">Cost center</div>
                       <div class="view-expense--value">{{ expense.cost_center?.name }}</div>
                     </ion-col>
                   </ion-row>
@@ -381,7 +375,7 @@
                       </div>
                     </ion-col>
                     <ion-col class="view-expense--content-container">
-                      <div class="view-expense--label">Cost Center Code</div>
+                      <div class="view-expense--label">Cost center code</div>
                       <div class="view-expense--value">{{ expense.cost_center?.code }}</div>
                     </ion-col>
                   </ion-row>
@@ -480,7 +474,7 @@
                       </div>
                     </ion-col>
                     <ion-col class="view-expense--content-container">
-                      <div class="view-expense--label">Onward Date</div>
+                      <div class="view-expense--label">Onward date</div>
                       <div class="view-expense--value">{{ expense.started_at | date: 'MMM dd, YYYY' }}</div>
                     </ion-col>
                   </ion-row>
@@ -498,7 +492,7 @@
                       </div>
                     </ion-col>
                     <ion-col class="view-expense--content-container">
-                      <div class="view-expense--label">Return Date</div>
+                      <div class="view-expense--label">Return date</div>
                       <div class="view-expense--value">{{ expense.ended_at | date: 'MMM dd, YYYY' }}</div>
                     </ion-col>
                   </ion-row>
@@ -520,7 +514,7 @@
                 </div>
               </ion-col>
               <ion-col class="view-expense--content-container">
-                <div class="view-expense--label">Travel Class</div>
+                <div class="view-expense--label">Travel class</div>
                 <div class="view-expense--value">{{ expense.travel_classes[0] }}</div>
               </ion-col>
             </ion-row>
@@ -544,7 +538,7 @@
                       </div>
                     </ion-col>
                     <ion-col class="view-expense--content-container">
-                      <div class="view-expense--label">Onward Class</div>
+                      <div class="view-expense--label">Onward class</div>
                       <div class="view-expense--value">{{ expense.travel_classes[0] }}</div>
                     </ion-col>
                   </ion-row>
@@ -562,7 +556,7 @@
                       </div>
                     </ion-col>
                     <ion-col class="view-expense--content-container">
-                      <div class="view-expense--label">Return Class</div>
+                      <div class="view-expense--label">Return class</div>
                       <div class="view-expense--value">{{ expense.travel_classes[1] }}</div>
                     </ion-col>
                   </ion-row>
@@ -606,7 +600,7 @@
                       </div>
                     </ion-col>
                     <ion-col class="view-expense--content-container">
-                      <div class="view-expense--label">Check In</div>
+                      <div class="view-expense--label">Check in</div>
                       <div class="view-expense--value">{{ expense.started_at | date: 'MMM dd, YYYY' }}</div>
                     </ion-col>
                   </ion-row>
@@ -624,7 +618,7 @@
                       </div>
                     </ion-col>
                     <ion-col class="view-expense--content-container">
-                      <div class="view-expense--label">Check Out</div>
+                      <div class="view-expense--label">Check out</div>
                       <div class="view-expense--value">{{ expense.ended_at | date: 'MMM dd, YYYY' }}</div>
                     </ion-col>
                   </ion-row>
@@ -641,7 +635,7 @@
                 </div>
               </ion-col>
               <ion-col class="view-expense--content-container">
-                <div class="view-expense--label">Breakfast Provided</div>
+                <div class="view-expense--label">Breakfast provided</div>
                 <div class="view-expense--value">{{ expense.hotel_is_breakfast_provided ? 'Yes' : 'No' }}</div>
               </ion-col>
             </ion-row>

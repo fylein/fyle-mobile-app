@@ -287,8 +287,11 @@
 
   &--project-block {
     flex-grow: 1;
-    margin-right: 26px;
     margin-top: -12px;
+  }
+
+  &--billable-block {
+    margin-left: 26px;
   }
 
   &--primary-block {
@@ -643,7 +646,7 @@
   &--amount-error {
     color: $red;
     font-size: 12px;
-    margin: -8px 0 0 33%;
+    margin: -14px 0 0 53%;
   }
 
   &--orig-amount-error {

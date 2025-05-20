@@ -43,6 +43,10 @@ describe('TransactionStatusInfoComponent', () => {
     expect(popoverController.dismiss).toHaveBeenCalled();
   });
 
+  it('should return ExpenseTransactionStatus enum from TransactionStatus getter', () => {
+    expect(component.TransactionStatus).toBe(ExpenseTransactionStatus);
+  });
+
   describe('template', () => {
     describe('title', () => {
       it('should display the correct title when transaction status is PENDING', () => {
@@ -51,7 +55,7 @@ describe('TransactionStatusInfoComponent', () => {
         fixture.detectChanges();
 
         const title = getElementBySelector(fixture, '[data-testid="title"');
-        expect(title.textContent).toEqual('Transaction Status: Pending');
+        expect(title.textContent).toEqual('Transaction status: Pending');
       });
 
       it('should display the correct title when transaction status is POSTED', () => {
@@ -60,7 +64,7 @@ describe('TransactionStatusInfoComponent', () => {
         fixture.detectChanges();
 
         const title = getElementBySelector(fixture, '[data-testid="title"');
-        expect(title.textContent).toEqual('Transaction Status: Posted');
+        expect(title.textContent).toEqual('Transaction status: Posted');
       });
     });
 
@@ -72,7 +76,7 @@ describe('TransactionStatusInfoComponent', () => {
 
         const content = getElementBySelector(fixture, '[data-testid="content"');
         expect(content.textContent).toEqual(
-          'Your transaction status is Pending until your bank processes the transaction.'
+          `Your transaction status is 'Pending' until your bank processes the transaction.`
         );
       });
 

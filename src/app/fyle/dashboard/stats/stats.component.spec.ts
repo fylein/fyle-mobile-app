@@ -10,7 +10,7 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgService } from 'src/app/core/services/org.service';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { ReportStates } from '../stat-badge/report-states';
+import { ReportStates } from '../stat-badge/report-states.enum';
 import { of } from 'rxjs';
 import { EventEmitter } from '@angular/core';
 import { orgSettingsParamsWithSimplifiedReport, orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
@@ -18,6 +18,7 @@ import { expectedReportStats } from 'src/app/core/mock-data/report-stats.data';
 import { reportStatsData1, reportStatsData2 } from 'src/app/core/mock-data/report-stats-data.data';
 import { expectedIncompleteExpStats, expectedUnreportedExpStats } from 'src/app/core/mock-data/stats.data';
 import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
+import { orgData1 } from 'src/app/core/mock-data/org.data';
 
 describe('StatsComponent', () => {
   let component: StatsComponent;
@@ -48,7 +49,7 @@ describe('StatsComponent', () => {
       'statsClicked',
     ]);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
-    const orgServiceSpy = jasmine.createSpyObj('OrgService', ['getOrgs']);
+    const orgServiceSpy = jasmine.createSpyObj('OrgService', ['getOrgs', 'getCurrentOrg', 'getPrimaryOrg']);
     const paymentModeServiceSpy = jasmine.createSpyObj('PaymentModesService', ['isNonReimbursableOrg']);
 
     TestBed.configureTestingModule({
@@ -300,6 +301,8 @@ describe('StatsComponent', () => {
     });
 
     it('should call initializeReportStats(), initializeExpensesStats() and trackOrgLaunchTime() with false if org length is less than 1', () => {
+      orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
+      orgService.getPrimaryOrg.and.returnValue(of(orgData1[0]));
       component.init();
 
       expect(component.initializeReportStats).toHaveBeenCalledTimes(1);
@@ -314,6 +317,8 @@ describe('StatsComponent', () => {
     });
 
     it('should call initializeReportStats(), initializeExpensesStats() and trackOrgLaunchTime() with false if org is undefined', () => {
+      orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
+      orgService.getPrimaryOrg.and.returnValue(of(orgData1[0]));
       orgService.getOrgs.and.returnValue(of(undefined));
       component.init();
 

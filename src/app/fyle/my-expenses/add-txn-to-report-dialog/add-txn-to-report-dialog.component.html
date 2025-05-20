@@ -10,7 +10,7 @@
             class="report-list--header--row-icon"
           ></ion-icon>
         </ion-col>
-        <ion-col size="10" class="report-list--header--title text-center">Add to Report</ion-col>
+        <ion-col size="10" class="report-list--header--title text-center">Add to report</ion-col>
         <ion-col size="1" class="report-list--header--row-icon-container">
           <ion-icon
             data-testid="addIcon"
@@ -48,7 +48,7 @@
             <ion-col size="2.75" class="ion-no-padding ion-text-right">
               <div class="ion-text-right">
                 <div class="text-center report-list--state state-pill state-{{ report.state | reportState }}">
-                  {{ report.state | reportState : data.isNewReportsFlowEnabled | snakeCaseToSpaceCase | titlecase }}
+                  {{ report.state | reportState | titlecase }}
                 </div>
               </div>
             </ion-col>
@@ -59,10 +59,10 @@
   </div>
   <ng-template #zeroState>
     <app-fy-zero-state
-      image="../../../../../assets/images/zero-states/expenses.png"
-      header="No Reports found"
+      image="../../../../../assets/images/zero-states/reports.png"
+      message="You have no reports right now"
       [taskImageStyle]="{ 'max-width': '220px', 'max-height': '124px', width: '220px', height: '124px' }"
-      message='To create a draft report please click on <ion-icon class="report-list--zero-state__icon" slot="icon-only" src="../../../../../assets/svg/plus-square.svg"></ion-icon>'
+      submessage='To create a draft report please click on <ion-icon class="report-list--zero-state__icon" slot="icon-only" src="../../../../../assets/svg/plus-square.svg"></ion-icon>'
     ></app-fy-zero-state>
   </ng-template>
 </div>

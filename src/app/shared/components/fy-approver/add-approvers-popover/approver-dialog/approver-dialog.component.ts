@@ -1,12 +1,12 @@
 import { Component, Input, ViewChild, ElementRef, AfterViewInit, OnInit } from '@angular/core';
 import { Observable, from, fromEvent } from 'rxjs';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { OrgUserService } from 'src/app/core/services/org-user.service';
+import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
 import { switchMap, map, finalize, startWith, distinctUntilChanged } from 'rxjs/operators';
 import { ModalController } from '@ionic/angular';
 import { Employee } from 'src/app/core/models/spender/employee.model';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { MatChipInputEvent } from '@angular/material/chips';
+import { MatLegacyChipInputEvent as MatChipInputEvent } from '@angular/material/legacy-chips';
 import { Approver } from '../models/approver.model';
 import { EmployeeParams } from 'src/app/core/models/employee-params.model';
 
@@ -50,7 +50,7 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
 
   constructor(
     private loaderService: LoaderService,
-    private orgUserService: OrgUserService,
+    private employeesService: EmployeesService,
     private modalController: ModalController
   ) {}
 
@@ -95,10 +95,10 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
 
   onSelectApprover(approver: Employee, event: { checked: boolean }): void {
     if (event.checked) {
-      this.selectedApproversList.push({ name: approver.us_full_name, email: approver.us_email });
+      this.selectedApproversList.push({ name: approver.full_name, email: approver.email });
     } else {
       this.selectedApproversList = this.selectedApproversList.filter(
-        (selectedApprover) => selectedApprover.email !== approver.us_email
+        (selectedApprover) => selectedApprover.email !== approver.email
       );
     }
     this.areApproversAdded = this.selectedApproversList.length === 0;
@@ -115,18 +115,18 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
 
   getDefaultUsersList(): Observable<Partial<Employee>[]> {
     const params: Partial<EmployeeParams> = {
-      order: 'us_full_name.asc,us_email.asc,ou_id',
+      order: 'full_name.asc,email.asc',
     };
 
     if (this.approverEmailsList.length > 0) {
-      params.us_email = `in.(${this.approverEmailsList.join(',')})`;
+      params.email = `in.(${this.approverEmailsList.join(',')})`;
     } else {
       params.limit = 20;
     }
 
     return from(this.loaderService.showLoader('Loading...')).pipe(
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      switchMap((_) => this.orgUserService.getEmployeesBySearch(params)),
+      switchMap((_) => this.employeesService.getEmployeesBySearch(params)),
       map((approvers) =>
         approvers.map((approver) => {
           approver.is_selected = true;
@@ -140,22 +140,22 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
   getSearchedUsersList(searchText?: string): Observable<Partial<Employee>[]> {
     const params: Partial<EmployeeParams> = {
       limit: 20,
-      order: 'us_full_name.asc,us_email.asc,ou_id',
+      order: 'full_name.asc,email.asc',
     };
 
     if (searchText) {
-      params.or = `(us_email.ilike.*${searchText}*,us_full_name.ilike.*${searchText}*)`;
+      params.or = `(email.ilike.%${searchText}%,full_name.ilike.%${searchText}%)`;
     }
 
-    return this.orgUserService.getEmployeesBySearch(params).pipe(
-      map((eouc) => eouc.filter((eou) => this.approverEmailsList.indexOf(eou.us_email) === -1)),
+    return this.employeesService.getEmployeesBySearch(params).pipe(
+      map((eouc) => eouc.filter((eou) => this.approverEmailsList.indexOf(eou.email) === -1)),
       map((eouc) =>
         eouc
           .map((eou) => {
-            eou.is_selected = this.approverEmailsList.indexOf(eou.us_email) > -1;
+            eou.is_selected = this.approverEmailsList.indexOf(eou.email) > -1;
             return eou;
           })
-          .filter((employee) => employee.us_email !== this.ownerEmail)
+          .filter((employee) => employee.email !== this.ownerEmail)
       )
     );
   }
@@ -166,7 +166,7 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
     } else {
       return this.getDefaultUsersList().pipe(
         switchMap((employees) => {
-          employees = employees.filter((employee) => this.approverEmailsList.indexOf(employee.us_email) === -1);
+          employees = employees.filter((employee) => this.approverEmailsList.indexOf(employee.email) === -1);
           return this.getSearchedUsersList(null).pipe(
             map((searchedEmployees: Partial<Employee>[]) => {
               searchedEmployees = this.getSearchedEmployees(searchedEmployees, employees);
@@ -180,7 +180,7 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
 
   getSearchedEmployees(searchedEmployees: Partial<Employee>[], employees: Partial<Employee>[]): Partial<Employee>[] {
     searchedEmployees = searchedEmployees.filter(
-      (searchedEmployee) => !employees.find((employee) => employee.us_email === searchedEmployee.us_email)
+      (searchedEmployee) => !employees.find((employee) => employee.email === searchedEmployee.email)
     );
     return searchedEmployees;
   }

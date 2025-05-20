@@ -28,7 +28,7 @@ export const modalControllerParams = {
     filterOptions: [
       ...filterOptions1,
       {
-        name: 'Cards',
+        name: 'Cards ending in...',
         optionType: FilterOptionType.multiselect,
         options: [
           {
@@ -86,6 +86,44 @@ export const popoverControllerParams = {
       action: 'cancel',
     },
   },
+  cssClass: 'pop-up-in-center',
+};
+
+export const enrollmentErrorPopoverData1 = {
+  componentProps: {
+    title: 'Failed connecting',
+    message: 'Error message',
+    primaryCta: {
+      text: 'Proceed anyway',
+      action: 'close',
+    },
+    secondaryCta: {
+      text: 'Cancel',
+      action: 'cancel',
+    },
+    cardsList: {},
+    leftAlign: true,
+  },
+  component: PopupAlertComponent,
+  cssClass: 'pop-up-in-center',
+};
+
+export const enrollmentErrorPopoverData2 = {
+  componentProps: {
+    title: 'Status summary',
+    message: 'Error message',
+    primaryCta: {
+      text: 'Continue',
+      action: 'close',
+    },
+    secondaryCta: null,
+    cardsList: {
+      successfulCards: ['**** 1111'],
+      failedCards: ['**** 1111'],
+    },
+    leftAlign: true,
+  },
+  component: PopupAlertComponent,
   cssClass: 'pop-up-in-center',
 };
 
@@ -258,7 +296,7 @@ export const teamReportsModalControllerParams = {
         ],
       } as FilterOptions<string>,
       {
-        name: 'Submitted Date',
+        name: 'Submitted date',
         optionType: FilterOptionType.date,
         options: [
           {
@@ -284,15 +322,15 @@ export const teamReportsModalControllerParams = {
         ],
       } as FilterOptions<DateFilters>,
       {
-        name: 'Sort By',
+        name: 'Sort by',
         optionType: FilterOptionType.singleselect,
         options: [
           {
-            label: 'Submitted Date - New to Old',
+            label: 'Submitted date - New to Old',
             value: 'dateNewToOld',
           },
           {
-            label: 'Submitted Date - Old to New',
+            label: 'Submitted date - Old to New',
             value: 'dateOldToNew',
           },
           {
@@ -529,7 +567,7 @@ export const virtualSelectModalControllerParams = {
     cacheName: '',
     subheader: 'All',
     enableSearch: true,
-    selectModalHeader: 'Select Item',
+    selectModalHeader: 'Select item',
     placeholder: undefined,
     showSaveButton: false,
     defaultLabelProp: undefined,
@@ -550,10 +588,10 @@ export const virtualSelectModalControllerParams = {
 export const permissionDeniedPopoverParams = {
   component: PopupAlertComponent,
   componentProps: {
-    title: 'Photos Permission',
+    title: 'Photos permission',
     message: 'Please allow Fyle to access device photos. Click Settings and allow Photos access',
     primaryCta: {
-      text: 'Open Settings',
+      text: 'Open settings',
       action: 'OPEN_SETTINGS',
     },
     secondaryCta: {

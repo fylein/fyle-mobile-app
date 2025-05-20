@@ -14,9 +14,9 @@
     <div *ngIf="isVirtualCardsEnabled.enabled && showSegment" class="manage-corporate-cards__segment-container">
       <ion-segment (ionChange)="segmentChanged($event)" [value]="segmentValue" class="manage-corporate-cards__segment">
         <ion-segment-button [value]="Segment.CORPORATE_CARDS" class="text-capitalize"
-          >Corporate Cards</ion-segment-button
+          >Corporate cards</ion-segment-button
         >
-        <ion-segment-button [value]="Segment.VIRTUAL_CARDS" class="text-capitalize">Virtual Cards</ion-segment-button>
+        <ion-segment-button [value]="Segment.VIRTUAL_CARDS" class="text-capitalize">Virtual cards</ion-segment-button>
       </ion-segment>
     </div>
   </div>
@@ -47,7 +47,7 @@
 
           <div class="manage-corporate-cards__zero-state-heading">No corporate card added yet!</div>
           <div class="manage-corporate-cards__zero-state-subheading">
-            Add Corporate Cards to sync your transactions on Fyle.
+            Add corporate cards to sync your transactions on Fyle.
           </div>
         </div>
       </ng-template>
@@ -77,6 +77,7 @@
             [expiry]="virtualCardDetails[corporateCard.virtual_card_id]?.expiry_date"
             [cardStatus]="corporateCard.virtual_card_state"
             [cardNickname]="virtualCardDetails[corporateCard.virtual_card_id]?.nick_name"
+            [availableAmount]="virtualCardDetails[corporateCard.virtual_card_id]?.current_amount"
             class="manage-corporate-cards__virtual-cards__virtual-card"
           ></app-virtual-card>
         </div>
@@ -100,7 +101,7 @@
         data-testid="add-button"
         class="fy-footer-cta fy-footer-cta--primary"
         (click)="openAddCorporateCardPopover()"
-        >Add Corporate Card</ion-button
+        >Add corporate card</ion-button
       >
     </div>
   </ion-toolbar>

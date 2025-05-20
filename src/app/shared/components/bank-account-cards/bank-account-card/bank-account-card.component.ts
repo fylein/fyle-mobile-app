@@ -6,7 +6,7 @@ import { PersonalCardsService } from 'src/app/core/services/personal-cards.servi
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { from } from 'rxjs';
 import { finalize, switchMap } from 'rxjs/operators';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { SnackbarPropertiesService } from '../../../../core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { DeleteButtonComponent } from './delete-button/delete-button-component';

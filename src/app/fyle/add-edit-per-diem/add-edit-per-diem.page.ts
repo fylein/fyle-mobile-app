@@ -32,9 +32,9 @@ import {
 } from 'rxjs/operators';
 import {
   AbstractControl,
-  FormArray,
-  FormBuilder,
-  FormGroup,
+  UntypedFormArray,
+  UntypedFormBuilder,
+  UntypedFormGroup,
   ValidationErrors,
   ValidatorFn,
   Validators,
@@ -56,7 +56,6 @@ import { PolicyService } from 'src/app/core/services/policy.service';
 import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
 import { ModalController, NavController, PopoverController, Platform } from '@ionic/angular';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { StatusService } from 'src/app/core/services/status.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { TokenService } from 'src/app/core/services/token.service';
@@ -69,7 +68,7 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { FyPolicyViolationComponent } from 'src/app/shared/components/fy-policy-violation/fy-policy-violation.component';
@@ -112,6 +111,7 @@ import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expen
 import { AdvanceWallet } from 'src/app/core/models/platform/v1/advance-wallet.model';
 import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
+import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -145,7 +145,7 @@ export class AddEditPerDiemPage implements OnInit {
 
   homeCurrency$: Observable<string>;
 
-  fg: FormGroup;
+  fg: UntypedFormGroup;
 
   minDate: string;
 
@@ -235,6 +235,8 @@ export class AddEditPerDiemPage implements OnInit {
 
   billableDefaultValue: boolean;
 
+  showBillable = false;
+
   isRedirectedFromReport = false;
 
   canRemoveFromReport = false;
@@ -257,7 +259,7 @@ export class AddEditPerDiemPage implements OnInit {
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private dateService: DateService,
     private accountsService: AccountsService,
     private customInputsService: CustomInputsService,
@@ -273,7 +275,6 @@ export class AddEditPerDiemPage implements OnInit {
     private loaderService: LoaderService,
     private router: Router,
     private modalController: ModalController,
-    private statusService: StatusService,
     private networkService: NetworkService,
     private navController: NavController,
     private trackingService: TrackingService,
@@ -294,7 +295,8 @@ export class AddEditPerDiemPage implements OnInit {
     private platform: Platform,
     private storageService: StorageService,
     private expensesService: ExpensesService,
-    private advanceWalletsService: AdvanceWalletsService
+    private advanceWalletsService: AdvanceWalletsService,
+    private expenseCommentService: ExpenseCommentService
   ) {}
 
   get minPerDiemDate(): string {
@@ -531,6 +533,7 @@ export class AddEditPerDiemPage implements OnInit {
       ),
       map((expenseFieldsMap) => {
         if (expenseFieldsMap) {
+          this.showBillable = expenseFieldsMap.billable?.is_enabled;
           for (const tfc of Object.keys(expenseFieldsMap)) {
             const expenseField = expenseFieldsMap[tfc] as ExpenseField;
             const options = expenseField.options as string[];
@@ -589,7 +592,7 @@ export class AddEditPerDiemPage implements OnInit {
             (control.value === undefined || control.value === null) &&
             !control.touched
           ) {
-            control.patchValue(defaultValues[defaultValueColumn]);
+            control.patchValue(this.showBillable ? defaultValues[defaultValueColumn] : false);
           }
         }
       }
@@ -724,7 +727,7 @@ export class AddEditPerDiemPage implements OnInit {
         if (!this.fg.controls.project.value) {
           this.fg.patchValue({ billable: false });
         } else {
-          this.fg.patchValue({ billable: this.billableDefaultValue });
+          this.fg.patchValue({ billable: this.showBillable ? this.billableDefaultValue : false });
         }
       }),
       startWith(this.fg.controls.project.value),
@@ -824,7 +827,7 @@ export class AddEditPerDiemPage implements OnInit {
         this.isConnected$.pipe(
           take(1),
           map((isConnected) => {
-            const customFieldsFormArray = this.fg.controls.custom_inputs as FormArray;
+            const customFieldsFormArray = this.fg.controls.custom_inputs as UntypedFormArray;
             customFieldsFormArray.clear();
             for (const customField of customFields) {
               customFieldsFormArray.push(
@@ -963,14 +966,14 @@ export class AddEditPerDiemPage implements OnInit {
       report: [],
       from_dt: [],
       to_dt: [, this.customDateValidator.bind(this)],
-      custom_inputs: new FormArray([]),
+      custom_inputs: new UntypedFormArray([]),
       billable: [],
       costCenter: [],
       project_dependent_fields: this.fb.array([]),
       cost_center_dependent_fields: this.fb.array([]),
     });
 
-    this.title = 'Add Expense';
+    this.title = 'Add expense';
     this.activeIndex = this.activatedRoute.snapshot.params.activeIndex as number;
     this.reviewList =
       this.activatedRoute.snapshot.params.txnIds &&
@@ -1103,7 +1106,9 @@ export class AddEditPerDiemPage implements OnInit {
       ),
       map((projectCount) => projectCount > 0)
     );
-    this.comments$ = this.statusService.find('transactions', this.activatedRoute.snapshot.params.id as string);
+    this.comments$ = this.expenseCommentService.getTransformedComments(
+      this.activatedRoute.snapshot.params.id as string
+    );
 
     combineLatest([this.isConnected$, this.filteredCategories$])
       .pipe(distinctUntilChanged((a, b) => isEqual(a, b)))
@@ -1587,10 +1592,7 @@ export class AddEditPerDiemPage implements OnInit {
 
           // Check if recent projects exist
           const doRecentProjectIdsExist =
-            isAutofillsEnabled &&
-            recentValue &&
-            recentValue.recent_project_ids &&
-            recentValue.recent_project_ids.length > 0;
+            isAutofillsEnabled && recentValue && recentValue.project_ids && recentValue.project_ids.length > 0;
 
           if (recentProjects && recentProjects.length > 0) {
             this.recentProjects = recentProjects.map((item) => ({ label: item.project_name, value: item }));
@@ -1619,10 +1621,7 @@ export class AddEditPerDiemPage implements OnInit {
 
           // Check if recent cost centers exist
           const doRecentCostCenterIdsExist =
-            isAutofillsEnabled &&
-            recentValue &&
-            recentValue.recent_cost_center_ids &&
-            recentValue.recent_cost_center_ids.length > 0;
+            isAutofillsEnabled && recentValue && recentValue.cost_center_ids && recentValue.cost_center_ids.length > 0;
 
           if (recentCostCenters && recentCostCenters.length > 0) {
             this.recentCostCenters = recentCostCenters;
@@ -2146,6 +2145,10 @@ export class AddEditPerDiemPage implements OnInit {
             }
 
             return this.transactionService.upsert(etxn.tx).pipe(
+              catchError((error: Error) => {
+                this.trackingService.editPerDiemError({ label: error });
+                return throwError(() => error);
+              }),
               switchMap((txn) => this.expensesService.getExpenseById(txn.id)),
               map((expense) => this.transactionService.transformExpense(expense).tx),
               switchMap((tx) => {
@@ -2181,10 +2184,17 @@ export class AddEditPerDiemPage implements OnInit {
           }),
           switchMap((txn) => {
             if (comment) {
-              return this.statusService.findLatestComment(txn.id, 'transactions', txn.org_user_id).pipe(
+              return this.expenseCommentService.findLatestExpenseComment(txn.id, txn.creator_id).pipe(
                 switchMap((result) => {
                   if (result !== comment) {
-                    return this.statusService.post('transactions', txn.id, { comment }, true).pipe(map(() => txn));
+                    const commentsPayload = [
+                      {
+                        expense_id: txn.id,
+                        comment,
+                        notify: true,
+                      },
+                    ];
+                    return this.expenseCommentService.post(commentsPayload).pipe(map(() => txn));
                   } else {
                     return of(txn);
                   }
@@ -2390,7 +2400,7 @@ export class AddEditPerDiemPage implements OnInit {
           if (removePerDiemFromReport) {
             return this.platformReportService.ejectExpenses(reportId, id);
           }
-          return this.transactionService.delete(id);
+          return this.expensesService.deleteExpenses([id]);
         },
       },
     };

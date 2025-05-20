@@ -6,7 +6,7 @@ import { NetworkService } from '../../core/services/network.service';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { StatsComponent } from './stats/stats.component';
 import { ActivatedRoute, NavigationStart, Params, Router } from '@angular/router';
-import { FooterState } from '../../shared/components/footer/footer-state';
+import { FooterState } from '../../shared/components/footer/footer-state.enum';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TasksComponent } from './tasks/tasks.component';
 import { TasksService } from 'src/app/core/services/tasks.service';
@@ -29,9 +29,13 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { DashboardState } from 'src/app/core/enums/dashboard-state.enum';
 import { FyOptInComponent } from 'src/app/shared/components/fy-opt-in/fy-opt-in.component';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { driver } from 'driver.js';
+import { WalkthroughService } from 'src/app/core/services/walkthrough.service';
+import { FooterService } from 'src/app/core/services/footer.service';
+import { TimezoneService } from 'src/app/core/services/timezone.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -75,6 +79,21 @@ export class DashboardPage {
 
   isUserFromINCluster$: Observable<boolean>;
 
+  isWalkthroughComplete = false;
+
+  isWalkthroughPaused = false;
+
+  // variable to check for the overlay bg click for the walkthrough
+  // This needs to be true at the start as driver.js does not have a default overlay click event
+  // We make this false if the driver is destroyed by other than overlay click
+  isOverlayClicked = true;
+
+  overlayClickCount = 0;
+
+  walkthroughOverlayStartIndex = 0;
+
+  userName = '';
+
   constructor(
     private currencyService: CurrencyService,
     private networkService: NetworkService,
@@ -96,7 +115,10 @@ export class DashboardPage {
     private modalProperties: ModalPropertiesService,
     private authService: AuthService,
     private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService
+    private snackbarProperties: SnackbarPropertiesService,
+    private walkthroughService: WalkthroughService,
+    private footerService: FooterService,
+    private timezoneService: TimezoneService
   ) {}
 
   get displayedTaskCount(): number {
@@ -115,7 +137,132 @@ export class DashboardPage {
     return this.tasksComponent.filterPills;
   }
 
+  setNavbarWalkthroughFeatureConfigFlag(overlayClicked: boolean): void {
+    const featureConfigParams = {
+      feature: 'WALKTHROUGH',
+      key: 'DASHBOARD_SHOW_NAVBAR',
+    };
+
+    const eventTrackName =
+      overlayClicked && this.overlayClickCount < 1
+        ? 'Navbar Walkthrough Skipped with overlay clicked'
+        : 'Navbar Walkthrough Completed';
+
+    const featureConfigValue =
+      overlayClicked && this.overlayClickCount < 1
+        ? {
+            isShown: true,
+            isFinished: false,
+            overlayClickCount: this.overlayClickCount + 1,
+            currentStepIndex: this.walkthroughService.getActiveWalkthroughIndex(),
+          }
+        : {
+            isShown: true,
+            isFinished: true,
+          };
+
+    this.trackingService.eventTrack(eventTrackName, {
+      Asset: 'Mobile',
+      from: 'Dashboard',
+    });
+
+    this.featureConfigService
+      .saveConfiguration({
+        ...featureConfigParams,
+        value: featureConfigValue,
+      })
+      .subscribe(noop);
+  }
+
+  startTour(isApprover: boolean): void {
+    const navbarWalkthroughSteps = this.walkthroughService.getNavBarWalkthroughConfig(isApprover);
+    const driverInstance = driver({
+      overlayOpacity: 0.5,
+      allowClose: true,
+      overlayClickBehavior: 'close',
+      showProgress: true,
+      overlayColor: '#161528',
+      stageRadius: 6,
+      stagePadding: 4,
+      popoverClass: 'custom-popover',
+      doneBtnText: 'Ok',
+      nextBtnText: 'Next',
+      prevBtnText: 'Back',
+      // Callback used for the cancel walkthrough button
+      onCloseClick: () => {
+        this.walkthroughService.setIsOverlayClicked(false);
+        this.setNavbarWalkthroughFeatureConfigFlag(false);
+        driverInstance.destroy();
+      },
+      //Callback used for registering the active index of the walkthrough
+      onDeselected: () => {
+        const activeIndex = driverInstance.getActiveIndex();
+        if (activeIndex) {
+          this.walkthroughService.setActiveWalkthroughIndex(activeIndex);
+        }
+      },
+      // Callback used to check for the next step and finish button
+      onNextClick: () => {
+        driverInstance.moveNext();
+        if (this.walkthroughService.getActiveWalkthroughIndex() === navbarWalkthroughSteps.length - 1) {
+          this.walkthroughService.setIsOverlayClicked(false);
+        }
+      },
+      // Callback used for performing actions when the walkthrough is destroyed
+      onDestroyStarted: () => {
+        if (this.walkthroughService.getIsOverlayClicked()) {
+          this.setNavbarWalkthroughFeatureConfigFlag(true);
+          driverInstance.destroy();
+        } else {
+          this.setNavbarWalkthroughFeatureConfigFlag(false);
+          driverInstance.destroy();
+        }
+      },
+    });
+
+    let activeStepIndex = this.walkthroughService.getActiveWalkthroughIndex();
+
+    driverInstance.setSteps(navbarWalkthroughSteps);
+    if (this.overlayClickCount > 0) {
+      activeStepIndex = this.walkthroughOverlayStartIndex;
+    }
+    driverInstance.drive(activeStepIndex);
+  }
+
+  showNavbarWalkthrough(isApprover: boolean): void {
+    const showNavbarWalkthroughConfig = {
+      feature: 'WALKTHROUGH',
+      key: 'DASHBOARD_SHOW_NAVBAR',
+    };
+
+    this.featureConfigService
+      .getConfiguration<{
+        isShown?: boolean;
+        isFinished?: boolean;
+        overlayClickCount?: number;
+        currentStepIndex?: number;
+      }>(showNavbarWalkthroughConfig)
+      .subscribe((config) => {
+        const featureConfigValue = config?.value || {};
+        const isFinished = featureConfigValue?.isFinished || false;
+        this.overlayClickCount = featureConfigValue?.overlayClickCount || 0;
+        // index to start the walkthrough from is destroyed due to overlay click
+        this.walkthroughOverlayStartIndex = featureConfigValue?.currentStepIndex || 0;
+        this.isWalkthroughComplete = isFinished;
+
+        if (!isFinished) {
+          this.startTour(isApprover);
+        }
+      });
+  }
+
   ionViewWillLeave(): void {
+    // handling the pause walkthrough when the user navigates to other pages
+    if (!this.isWalkthroughComplete) {
+      this.isWalkthroughPaused = true;
+      this.walkthroughService.setActiveWalkthroughIndex(driver().getActiveIndex());
+      driver().destroy();
+    }
     clearTimeout(this.optInShowTimer as number);
     this.navigationSubscription?.unsubscribe();
     this.utilityService.toggleShowOptInAfterAddingCard(false);
@@ -180,9 +327,13 @@ export class DashboardPage {
   }
 
   ionViewWillEnter(): void {
+    this.isWalkthroughPaused = false;
     this.setupNetworkWatcher();
     this.registerBackButtonAction();
     this.smartlookService.init();
+    this.footerService.footerCurrentStateIndex$.subscribe((index) => {
+      this.currentStateIndex = index;
+    });
     this.taskCount = 0;
     const currentState =
       this.activatedRoute.snapshot.queryParams.state === 'tasks' ? DashboardState.tasks : DashboardState.home;
@@ -198,10 +349,30 @@ export class DashboardPage {
     this.homeCurrency$ = this.currencyService.getHomeCurrency().pipe(shareReplay(1));
     this.eou$ = from(this.authService.getEou()).pipe(shareReplay(1));
     this.isUserFromINCluster$ = from(this.utilityService.isUserFromINCluster());
+    const openSMSOptInDialog = this.activatedRoute.snapshot.params.openSMSOptInDialog as string;
+
+    this.orgUserSettings$.subscribe((orgUserSettings) => {
+      this.timezoneService.setTimezone(orgUserSettings?.locale);
+    });
+
+    if (openSMSOptInDialog !== 'true') {
+      this.eou$
+        .pipe(
+          map((eou) => {
+            if (eou.ou.roles.includes('APPROVER') && eou.ou.is_primary) {
+              this.showNavbarWalkthrough(true);
+            } else {
+              this.showNavbarWalkthrough(false);
+            }
+
+            this.userName = eou.us.full_name;
+          })
+        )
+        .subscribe(noop);
+    }
 
     this.setShowOptInBanner();
 
-    const openSMSOptInDialog = this.activatedRoute.snapshot.params.openSMSOptInDialog as string;
     if (openSMSOptInDialog === 'true') {
       this.eou$
         .pipe(
@@ -340,34 +511,34 @@ export class DashboardPage {
     const isPerDiemEnabled = orgSettings.per_diem.enabled && allowedExpenseTypes.perDiem;
     that.actionSheetButtons = [
       {
-        text: 'Capture Receipt',
+        text: 'Capture receipt',
         icon: 'assets/svg/camera.svg',
         cssClass: 'capture-receipt',
-        handler: this.actionSheetButtonsHandler('Capture Receipt', 'camera_overlay'),
+        handler: this.actionSheetButtonsHandler('Capture receipt', 'camera_overlay'),
       },
       {
-        text: 'Add Manually',
+        text: 'Add manually',
         icon: 'assets/svg/list.svg',
         cssClass: 'capture-receipt',
-        handler: this.actionSheetButtonsHandler('Add Manually', 'add_edit_expense'),
+        handler: this.actionSheetButtonsHandler('Add manually', 'add_edit_expense'),
       },
     ];
 
     if (mileageEnabled) {
       that.actionSheetButtons.push({
-        text: 'Add Mileage',
+        text: 'Add mileage',
         icon: 'assets/svg/mileage.svg',
         cssClass: 'capture-receipt',
-        handler: this.actionSheetButtonsHandler('Add Mileage', 'add_edit_mileage'),
+        handler: this.actionSheetButtonsHandler('Add mileage', 'add_edit_mileage'),
       });
     }
 
     if (isPerDiemEnabled) {
       that.actionSheetButtons.push({
-        text: 'Add Per Diem',
+        text: 'Add per diem',
         icon: 'assets/svg/calendar.svg',
         cssClass: 'capture-receipt',
-        handler: this.actionSheetButtonsHandler('Add Per Diem', 'add_edit_per_diem'),
+        handler: this.actionSheetButtonsHandler('Add per diem', 'add_edit_per_diem'),
       });
     }
   }

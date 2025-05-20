@@ -1,14 +1,14 @@
-import { AsyncPipe, CurrencyPipe } from '@angular/common';
+import { CurrencyPipe } from '@angular/common';
 import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { By } from '@angular/platform-browser';
 import { ActivatedRoute, Router, UrlSerializer } from '@angular/router';
 import { IonicModule, ModalController, NavController, PopoverController, SegmentCustomEvent } from '@ionic/angular';
 import { cloneDeep } from 'lodash';
-import { Subscription, of } from 'rxjs';
+import { BehaviorSubject, Subscription, of } from 'rxjs';
 import { click, getElementBySelector } from 'src/app/core/dom-helpers';
 import { ReportPageSegment } from 'src/app/core/enums/report-page-segment.enum';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
@@ -60,6 +60,9 @@ import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { orgSettingsPendingRestrictions } from 'src/app/core/mock-data/org-settings.data';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
+import { LaunchDarklyService } from '../../core/services/launch-darkly.service';
+import { DateWithTimezonePipe } from 'src/app/shared/pipes/date-with-timezone.pipe';
+import { TIMEZONE } from 'src/app/constants';
 
 describe('MyViewReportPage', () => {
   let component: MyViewReportPage;
@@ -80,9 +83,11 @@ describe('MyViewReportPage', () => {
   let statusService: jasmine.SpyObj<StatusService>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
+  let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
 
   beforeEach(waitForAsync(() => {
     const reportServiceSpy = jasmine.createSpyObj('ReportService', ['updateReportPurpose']);
+    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
     const expnesesServicespy = jasmine.createSpyObj('ExpensesService', [
       'getReportExpenses',
       'getExpenses',
@@ -128,7 +133,7 @@ describe('MyViewReportPage', () => {
         ExactCurrencyPipe,
         ReportState,
         SnakeCaseToSpaceCase,
-        AsyncPipe,
+        DateWithTimezonePipe,
       ],
       imports: [IonicModule.forRoot(), MatIconTestingModule, MatIconModule],
       providers: [
@@ -206,7 +211,12 @@ describe('MyViewReportPage', () => {
           provide: SpenderReportsService,
           useValue: spenderReportsServiceSpy,
         },
+        {
+          provide: LaunchDarklyService,
+          useValue: launchDarklyServiceSpy,
+        },
         { provide: NavController, useValue: { push: NavController.prototype.back } },
+        { provide: TIMEZONE, useValue: new BehaviorSubject<string>('UTC') },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -228,11 +238,13 @@ describe('MyViewReportPage', () => {
     statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
+    launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
 
     component.report$ = of(platformReportData);
     component.canEdit$ = of(true);
     component.canDelete$ = of(true);
 
+    launchDarklyService.getVariation.and.returnValue(of(true));
     fixture.detectChanges();
   }));
 
@@ -556,6 +568,27 @@ describe('MyViewReportPage', () => {
       });
       expect(component.updateReportName).not.toHaveBeenCalled();
     }));
+  });
+
+  describe('setupApproverToShow(): ', () => {
+    it('should set approverToShow to matching next approver if only one match', () => {
+      component.approvals = platformReportData.approvals;
+
+      const reportData = { ...platformReportData, next_approver_user_ids: ['usRjTPO4r69K'] };
+      component.setupApproverToShow(reportData);
+
+      expect(component.approverToShow).toEqual(component.approvals[1]);
+    });
+
+    it('should set approverToShow to highest rank approver if no match', () => {
+      component.approvals = platformReportData.approvals;
+
+      const reportData = { ...platformReportData, next_approver_user_ids: ['usRjTPO4r6'] };
+
+      component.setupApproverToShow(reportData);
+
+      expect(component.approverToShow).toEqual(component.approvals[1]);
+    });
   });
 
   it('deleteReport(): should delete report', () => {
@@ -886,21 +919,21 @@ describe('MyViewReportPage', () => {
     it('should change segment value', () => {
       component.segmentChanged({
         detail: {
-          value: '100',
+          value: ReportPageSegment.COMMENTS,
         },
       } as SegmentCustomEvent);
 
-      expect(component.segmentValue).toEqual(parseInt('100', 10));
+      expect(component.segmentValue).toEqual(ReportPageSegment.COMMENTS);
     });
 
     it('should not change segment value if event does not contain the value', () => {
-      component.segmentValue = parseInt('100', 10);
+      component.segmentValue = ReportPageSegment.EXPENSES;
       fixture.detectChanges();
-      expect(component.segmentValue).toEqual(parseInt('100', 10));
+      expect(component.segmentValue).toEqual(ReportPageSegment.EXPENSES);
 
       component.segmentChanged(null);
 
-      expect(component.segmentValue).toEqual(parseInt('100', 10));
+      expect(component.segmentValue).toEqual(ReportPageSegment.EXPENSES);
     });
   });
 

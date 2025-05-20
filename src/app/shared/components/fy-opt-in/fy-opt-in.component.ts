@@ -12,7 +12,7 @@ import { ToastType } from 'src/app/core/enums/toast-type.enum';
 import { ToastMessageComponent } from '../toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { BrowserHandlerService } from 'src/app/core/services/browser-handler.service';
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
@@ -279,7 +279,7 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
     this.trackingService.clickedOnHelpArticle();
     await this.browserHandlerService.openLinkWithToolbarColor(
       '#280a31',
-      'https://help.fylehq.com/en/articles/8045065-submit-your-receipts-via-text-message'
+      'https://www.fylehq.com/help/en/articles/8045065-submit-your-receipts-via-text-message'
     );
   }
 

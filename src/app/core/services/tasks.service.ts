@@ -872,7 +872,7 @@ export class TasksService {
           icon: TaskIcon.WARNING,
           ctas: [
             {
-              content: `Review Expense${aggregate.totalCount === 1 ? '' : 's'}`,
+              content: `Review expense${aggregate.totalCount === 1 ? '' : 's'}`,
               event: TASKEVENT.reviewExpenses,
             },
           ],
@@ -903,7 +903,7 @@ export class TasksService {
         icon: TaskIcon.REPORT,
         ctas: [
           {
-            content: 'Add to Report',
+            content: 'Add to report',
             event: TASKEVENT.expensesAddToReport,
           },
         ],

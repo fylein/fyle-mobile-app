@@ -132,16 +132,16 @@ export class MyAdvancesPage implements AfterViewChecked {
           count = count > 200 ? count / 200 : 1;
           return range(0, count);
         }),
-        concatMap((count) => {
-          return this.advanceRequestService.getSpenderAdvanceRequests({
+        concatMap((count) =>
+          this.advanceRequestService.getSpenderAdvanceRequests({
             offset: 200 * count,
             limit: 200,
             queryParams: {
               advance_id: 'eq.null',
               order: 'created_at.desc,id.desc',
             },
-          });
-        }),
+          })
+        ),
         map((res) => res.data),
         reduce((acc, curr) => acc.concat(curr))
       );
@@ -330,7 +330,7 @@ export class MyAdvancesPage implements AfterViewChecked {
   async onFilterClick(filterType: 'state' | 'sort'): Promise<void> {
     const filterTypes = {
       state: 'State',
-      sort: 'Sort By',
+      sort: 'Sort by',
     };
     await this.openFilters(filterTypes[filterType]);
   }
@@ -358,23 +358,23 @@ export class MyAdvancesPage implements AfterViewChecked {
         ],
       } as FilterOptions<string>,
       {
-        name: 'Sort By',
+        name: 'Sort by',
         optionType: FilterOptionType.singleselect,
         options: [
           {
-            label: 'Created At - New to Old',
+            label: 'Created date - New to Old',
             value: SortingValue.creationDateAsc,
           },
           {
-            label: 'Created At - Old to New',
+            label: 'Created date - Old to New',
             value: SortingValue.creationDateDesc,
           },
           {
-            label: 'Approved At - New to Old',
+            label: 'Approved date - New to Old',
             value: SortingValue.approvalDateAsc,
           },
           {
-            label: 'Approved At - Old to New',
+            label: 'Approved date - Old to New',
             value: SortingValue.approvalDateDesc,
           },
           {

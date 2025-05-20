@@ -1,4 +1,6 @@
-import { Component, forwardRef, Input, TemplateRef } from '@angular/core';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import { Component, EventEmitter, forwardRef, Input, Output, TemplateRef } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
@@ -46,13 +48,17 @@ export class FySelectComponent implements ControlValueAccessor {
 
   @Input() placeholder: string;
 
-  @Input() defaultLabelProp;
+  @Input() defaultLabelProp?: string;
 
   @Input() recentlyUsed: { label: string; value: any; selected?: boolean }[];
 
   @Input() touchedInParent: boolean;
 
   @Input() validInParent: boolean;
+
+  @Input() isCustomSelect?: boolean;
+
+  @Output() valueChange = new EventEmitter<string | Value>();
 
   displayValue: string | number | boolean;
 
@@ -64,7 +70,7 @@ export class FySelectComponent implements ControlValueAccessor {
 
   constructor(private modalController: ModalController, private modalProperties: ModalPropertiesService) {}
 
-  get valid() {
+  get valid(): boolean {
     if (this.touchedInParent) {
       return this.validInParent;
     } else {
@@ -93,13 +99,14 @@ export class FySelectComponent implements ControlValueAccessor {
       }
 
       this.onChangeCallback(v);
+      this.valueChange.emit(v);
     }
   }
 
-  async openModal() {
+  async openModal(): Promise<void> {
     let cssClass: string;
 
-    if (this.label === 'Payment Mode') {
+    if (this.label === 'Payment mode') {
       cssClass = 'payment-mode-modal';
     } else if (this.label === 'Commute Deduction') {
       cssClass = 'add-location-modal';
@@ -118,11 +125,12 @@ export class FySelectComponent implements ControlValueAccessor {
         customInput: this.customInput,
         subheader: this.subheader,
         enableSearch: this.enableSearch,
-        selectModalHeader: this.selectModalHeader || 'Select Item',
+        selectModalHeader: this.selectModalHeader || 'Select item',
         placeholder: this.placeholder,
         showSaveButton: this.showSaveButton,
         defaultLabelProp: this.defaultLabelProp,
         recentlyUsed: this.recentlyUsed,
+        isCustomSelect: this.isCustomSelect,
         label: this.label,
       },
       mode: 'ios',
@@ -131,14 +139,14 @@ export class FySelectComponent implements ControlValueAccessor {
 
     await selectionModal.present();
 
-    const { data } = await selectionModal.onWillDismiss();
+    const { data } = (await selectionModal.onWillDismiss()) as { data: { value: string } };
 
     if (data) {
       this.value = data.value;
     }
   }
 
-  onBlur() {
+  onBlur(): void {
     this.onTouchedCallback();
   }
 
@@ -161,11 +169,11 @@ export class FySelectComponent implements ControlValueAccessor {
     }
   }
 
-  registerOnChange(fn: any) {
+  registerOnChange(fn: any): void {
     this.onChangeCallback = fn;
   }
 
-  registerOnTouched(fn: any) {
+  registerOnTouched(fn: any): void {
     this.onTouchedCallback = fn;
   }
 }

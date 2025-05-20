@@ -10,17 +10,14 @@
     "module": "esnext",
     "moduleResolution": "node",
     "importHelpers": true,
-    "target": "es2015",
+    "target": "ES2022",
     "lib": [
       "es2018",
       "dom"
     ],
-    /**
-    * Remove this later
-    * @link https://github.com/ionic-team/ionicons/issues/1011#issuecomment-962038754
-    */
-  "skipLibCheck": true,
-  "allowSyntheticDefaultImports": true
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "useDefineForClassFields": false
   },
   "angularCompilerOptions": {
     "fullTemplateTypeCheck": true,

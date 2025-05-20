@@ -1,9 +1,9 @@
 import { Component, EventEmitter } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { ActivatedRoute } from '@angular/router';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { Observable, Subscription, concat, forkJoin, from, noop } from 'rxjs';
-import { finalize, shareReplay, switchMap } from 'rxjs/operators';
+import { finalize, map, shareReplay, switchMap } from 'rxjs/operators';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { InfoCardData } from 'src/app/core/models/info-card-data.model';
 import { Org } from 'src/app/core/models/org.model';
@@ -44,6 +44,7 @@ import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup
 import { OrgUser } from 'src/app/core/models/org-user.model';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { UpdateMobileNumberComponent } from './update-mobile-number/update-mobile-number.component';
+import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
 
 @Component({
   selector: 'app-my-profile',
@@ -73,7 +74,7 @@ export class MyProfilePage {
     formAutofill: 'expense_form_autofills',
   };
 
-  preferenceSettings: PreferenceSetting[];
+  preferenceSettings: PreferenceSetting[] = [];
 
   infoCardsData: CopyCardDetails[];
 
@@ -101,6 +102,8 @@ export class MyProfilePage {
 
   isUserFromINCluster$: Observable<boolean>;
 
+  onboardingPending$: Observable<{ hideOtherOptions: boolean }>;
+
   constructor(
     private authService: AuthService,
     private orgUserSettingsService: OrgUserSettingsService,
@@ -124,7 +127,8 @@ export class MyProfilePage {
     private employeesService: EmployeesService,
     private paymentModeService: PaymentModesService,
     private utilityService: UtilityService,
-    private orgUserService: OrgUserService
+    private orgUserService: OrgUserService,
+    private spenderOnboardingService: SpenderOnboardingService
   ) {}
 
   setupNetworkWatcher(): void {
@@ -144,7 +148,7 @@ export class MyProfilePage {
         .pipe(
           switchMap(({ device, eou }) =>
             this.authService.logout({
-              device_id: device.uuid,
+              device_id: device.identifier,
               user_id: eou.us.id,
             })
           ),
@@ -185,7 +189,11 @@ export class MyProfilePage {
     this.setupNetworkWatcher();
     this.eou$ = from(this.authService.getEou());
     this.isUserFromINCluster$ = from(this.utilityService.isUserFromINCluster());
-
+    this.onboardingPending$ = this.spenderOnboardingService.checkForRedirectionToOnboarding().pipe(
+      map((redirectionAllowed) => ({
+        hideOtherOptions: redirectionAllowed,
+      }))
+    );
     this.reset();
     from(this.tokenService.getClusterDomain()).subscribe((clusterDomain) => {
       this.clusterDomain = clusterDomain;
@@ -286,7 +294,7 @@ export class MyProfilePage {
           this.orgUserSettings.expense_form_autofills.allowed,
       },
       {
-        title: 'Default Currency',
+        title: 'Default currency',
         content: 'Select the default currency to be used for creating expenses.',
         key: 'defaultCurrency',
         defaultCurrency: this.orgUserSettings.currency_settings.preferred_currency,
@@ -302,10 +310,10 @@ export class MyProfilePage {
 
     const allInfoCardsData: InfoCardData[] = [
       {
-        title: 'Email Receipts',
+        title: 'Email receipts',
         content: `Forward your receipts to Fyle at ${fyleEmail}.`,
         contentToCopy: fyleEmail,
-        toastMessageContent: 'Email Copied Successfully',
+        toastMessageContent: 'Email copied successfully',
         isShown: true,
       },
     ];
@@ -342,7 +350,7 @@ export class MyProfilePage {
     const verificationSuccessfulPopover = await this.popoverController.create({
       component: PopupWithBulletsComponent,
       componentProps: {
-        title: 'Verification Successful',
+        title: 'Verification successful',
         listHeader: 'Now you can:',
         listItems,
         ctaText: 'Got it',
@@ -538,14 +546,14 @@ export class MyProfilePage {
 
   async updateMobileNumber(eou: ExtendedOrgUser): Promise<void> {
     this.trackingService.updateMobileNumberClicked({
-      popoverTitle: (eou.ou.mobile?.length ? 'Edit' : 'Add') + ' Mobile Number',
+      popoverTitle: (eou.ou.mobile?.length ? 'Edit' : 'Add') + ' mobile number',
     });
 
     const updateMobileNumberPopover = await this.popoverController.create({
       component: UpdateMobileNumberComponent,
       componentProps: {
-        title: (eou.ou.mobile?.length ? 'Edit' : 'Add') + ' Mobile Number',
-        inputLabel: 'Mobile Number',
+        title: (eou.ou.mobile?.length ? 'Edit' : 'Add') + ' mobile number',
+        inputLabel: 'Mobile number',
         extendedOrgUser: eou,
         placeholder: 'Enter mobile number e.g. +129586736556',
       },

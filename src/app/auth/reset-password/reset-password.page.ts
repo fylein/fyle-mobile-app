@@ -3,8 +3,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { finalize } from 'rxjs/operators';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { PageState } from 'src/app/core/models/page-state.enum';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 
@@ -18,7 +18,7 @@ export class ResetPasswordPage {
 
   isLoading = false;
 
-  fg: FormGroup;
+  fg: UntypedFormGroup;
 
   resetEmail: string;
 
@@ -26,8 +26,10 @@ export class ResetPasswordPage {
 
   PageState: typeof PageState = PageState;
 
+  isTmpPwdExpired = false;
+
   constructor(
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     private routerAuthService: RouterAuthService,
     private router: Router,
     private activatedRoute: ActivatedRoute,
@@ -38,6 +40,7 @@ export class ResetPasswordPage {
   ionViewWillEnter(): void {
     this.currentPageState = PageState.notSent;
     this.isEmailSentOnce = false;
+    this.isTmpPwdExpired = this.activatedRoute.snapshot.queryParams.tmp_pwd_expired === 'true';
     const email = (this.activatedRoute.snapshot.params.email as string) || '';
     this.fg = this.formBuilder.group({
       email: [email, Validators.compose([Validators.required, Validators.pattern('\\S+@\\S+\\.\\S{2,}')])],

@@ -9,7 +9,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { ApiV2Service } from 'src/app/core/services/api-v2.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { BehaviorSubject, of } from 'rxjs';
@@ -50,7 +49,6 @@ export function TestCases4(getTestBed) {
     let currencyService: jasmine.SpyObj<CurrencyService>;
     let popupService: jasmine.SpyObj<PopupService>;
     let trackingService: jasmine.SpyObj<TrackingService>;
-    let apiV2Service: jasmine.SpyObj<ApiV2Service>;
     let tasksService: jasmine.SpyObj<TasksService>;
     let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
     let inputElement: HTMLInputElement;
@@ -69,7 +67,6 @@ export function TestCases4(getTestBed) {
       popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
       activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
-      apiV2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
       tasksService = TestBed.inject(TasksService) as jasmine.SpyObj<TasksService>;
       orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
       authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
@@ -98,7 +95,7 @@ export function TestCases4(getTestBed) {
 
         expect(filterPill).toEqual([
           {
-            label: 'Submitted Date',
+            label: 'Submitted date',
             type: 'date',
             value: '2023-01-1 to 2023-02-2',
           },
@@ -113,7 +110,7 @@ export function TestCases4(getTestBed) {
 
         expect(filterPill).toEqual([
           {
-            label: 'Submitted Date',
+            label: 'Submitted date',
             type: 'date',
             value: '>= 2023-01-1',
           },
@@ -128,7 +125,7 @@ export function TestCases4(getTestBed) {
 
         expect(filterPill).toEqual([
           {
-            label: 'Submitted Date',
+            label: 'Submitted date',
             type: 'date',
             value: '<= 2023-02-2',
           },
@@ -152,7 +149,7 @@ export function TestCases4(getTestBed) {
         component.generateDateFilterPills(mockTeamReportsFilters, filterPill);
         expect(filterPill).toEqual([
           {
-            label: 'Submitted Date',
+            label: 'Submitted date',
             type: 'date',
             value: 'this Week',
           },
@@ -167,7 +164,7 @@ export function TestCases4(getTestBed) {
         component.generateDateFilterPills(mockTeamReportsFilters, filterPill);
         expect(filterPill).toEqual([
           {
-            label: 'Submitted Date',
+            label: 'Submitted date',
             type: 'date',
             value: 'this Month',
           },
@@ -182,7 +179,7 @@ export function TestCases4(getTestBed) {
         component.generateDateFilterPills(mockTeamReportsFilters, filterPill);
         expect(filterPill).toEqual([
           {
-            label: 'Submitted Date',
+            label: 'Submitted date',
             type: 'date',
             value: 'All',
           },
@@ -197,7 +194,7 @@ export function TestCases4(getTestBed) {
         component.generateDateFilterPills(mockTeamReportsFilters, filterPill);
         expect(filterPill).toEqual([
           {
-            label: 'Submitted Date',
+            label: 'Submitted date',
             type: 'date',
             value: 'Last Month',
           },
@@ -215,7 +212,7 @@ export function TestCases4(getTestBed) {
         expect(component.generateCustomDatePill).toHaveBeenCalledOnceWith(mockTeamReportsFilters, filterPill);
         expect(filterPill).toEqual([
           {
-            label: 'Submitted Date',
+            label: 'Submitted date',
             type: 'date',
             value: '>= 2023-01-1',
           },
@@ -229,7 +226,7 @@ export function TestCases4(getTestBed) {
         component.generateSortRptDatePills(teamReportsFiltersParams4, filterPill);
         expect(filterPill).toEqual([
           {
-            label: 'Sort By',
+            label: 'Sort by',
             type: 'sort',
             value: 'Submitted date - old to new',
           },
@@ -243,7 +240,7 @@ export function TestCases4(getTestBed) {
         component.generateSortRptDatePills(mockTeamReportsFiltersParams, filterPill);
         expect(filterPill).toEqual([
           {
-            label: 'Sort By',
+            label: 'Sort by',
             type: 'sort',
             value: 'Submitted date - new to old',
           },
@@ -257,7 +254,7 @@ export function TestCases4(getTestBed) {
         component.generateSortAmountPills(teamReportsFiltersParams5, filterPill);
         expect(filterPill).toEqual([
           {
-            label: 'Sort By',
+            label: 'Sort by',
             type: 'sort',
             value: 'amount - high to low',
           },
@@ -271,7 +268,7 @@ export function TestCases4(getTestBed) {
         component.generateSortAmountPills(mockTeamReportsFiltersParams, filterPill);
         expect(filterPill).toEqual([
           {
-            label: 'Sort By',
+            label: 'Sort by',
             type: 'sort',
             value: 'amount - low to high',
           },
@@ -285,7 +282,7 @@ export function TestCases4(getTestBed) {
         component.generateSortNamePills(teamReportsFiltersParams6, filterPill);
         expect(filterPill).toEqual([
           {
-            label: 'Sort By',
+            label: 'Sort by',
             type: 'sort',
             value: 'Name - a to z',
           },
@@ -299,7 +296,7 @@ export function TestCases4(getTestBed) {
         component.generateSortNamePills(mockTeamReportsFiltersParams, filterPill);
         expect(filterPill).toEqual([
           {
-            label: 'Sort By',
+            label: 'Sort by',
             type: 'sort',
             value: 'Name - z to a',
           },
@@ -318,7 +315,7 @@ export function TestCases4(getTestBed) {
       expect(component.generateSortNamePills).toHaveBeenCalledOnceWith(teamReportsFiltersParams5, filterPill);
       expect(filterPill).toEqual([
         {
-          label: 'Sort By',
+          label: 'Sort by',
           type: 'sort',
           value: 'amount - high to low',
         },
@@ -359,7 +356,7 @@ export function TestCases4(getTestBed) {
         expect(component.generateSortFilterPills).not.toHaveBeenCalled();
         expect(filterPill).toEqual([
           {
-            label: 'Submitted Date',
+            label: 'Submitted date',
             type: 'date',
             value: 'this Week',
           },
@@ -373,7 +370,7 @@ export function TestCases4(getTestBed) {
         expect(component.generateSortFilterPills).toHaveBeenCalledTimes(1);
         expect(filterPill).toEqual([
           {
-            label: 'Sort By',
+            label: 'Sort by',
             type: 'sort',
             value: 'amount - high to low',
           },
@@ -387,7 +384,7 @@ export function TestCases4(getTestBed) {
         component.convertAmountSortToSelectedFilters(teamReportsFiltersParams5, generatedFilters);
         expect(generatedFilters).toEqual([
           {
-            name: 'Sort By',
+            name: 'Sort by',
             value: 'amountHighToLow',
           },
         ]);
@@ -400,7 +397,7 @@ export function TestCases4(getTestBed) {
         component.convertAmountSortToSelectedFilters(mockTeamReportsFiltersParams, generatedFilters);
         expect(generatedFilters).toEqual([
           {
-            name: 'Sort By',
+            name: 'Sort by',
             value: 'amountLowToHigh',
           },
         ]);

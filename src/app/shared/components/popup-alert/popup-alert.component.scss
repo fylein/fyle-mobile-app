@@ -16,13 +16,22 @@ $small-screen: 700px;
     color: $blue-black;
   }
 
+  &--secondary-msg {
+    margin-top: 8px;
+  }
+
   &--cta-container {
-    padding-top: 8px;
+    margin-top: 16px;
     display: flex;
     justify-content: space-between;
     &__single-content {
       justify-content: center;
     }
+  }
+
+  &--primary-cta-container {
+    width: 100%;
+    padding-top: 16px;
   }
 
   &--cta-button {
@@ -50,9 +59,62 @@ $small-screen: 700px;
     border-radius: 4px;
     padding: 10px 12px;
     min-width: 50%;
+    width: 100%;
 
     &__alert {
       background: $red;
     }
+  }
+
+  &--success-tick-container {
+    border-radius: 4px;
+    background: $success-bg;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &--success-tick {
+    height: 14px;
+    width: 14px;
+    fill: $green;
+  }
+
+  &--error-tick-container {
+    border-radius: 4px;
+    background: $pale-pink;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &--error-icon {
+    height: 14px;
+    width: 14px;
+    fill: $red;
+  }
+
+  &--content-container {
+    display: flex;
+    padding: 12px;
+    align-items: flex-start;
+    gap: 12px;
+    align-self: stretch;
+    border-radius: 4px;
+    border: 1px solid $border-tertiary;
+    margin-bottom: 16px;
+  }
+
+  &--content-header {
+    color: $black;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 1.4;
+    margin-bottom: 6px;
   }
 }

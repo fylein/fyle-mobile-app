@@ -36,7 +36,7 @@ describe('ShareReportComponent', () => {
 
   it('should display the correct title and details', () => {
     const shareReportTitle = getElementBySelector(fixture, '.share-report--title');
-    expect(getTextContent(shareReportTitle)).toContain('Share Report');
+    expect(getTextContent(shareReportTitle)).toContain('Share report');
     const shareReportDesc = getAllElementsBySelector(fixture, '.share-report--details');
     expect(getTextContent(shareReportDesc[0])).toContain('Share report via email.');
   });

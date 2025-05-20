@@ -1,6 +1,6 @@
 import { AfterViewChecked, ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { AbstractControl, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NavController } from '@ionic/angular';
 import { BehaviorSubject, Observable, forkJoin, noop } from 'rxjs';
@@ -20,13 +20,13 @@ import { GenericFieldsOptions } from 'src/app/core/models/generic-fields-options
 import { MergeExpensesOption } from 'src/app/core/models/merge-expenses-option.model';
 import { MergeExpensesOptionsData } from 'src/app/core/models/merge-expenses-options-data.model';
 import { TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
-import { CorporateCardExpense } from 'src/app/core/models/v2/corporate-card-expense.model';
+import { corporateCardTransaction } from 'src/app/core/models/platform/v1/cc-transaction.model';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
-import { ExpensesInfo } from 'src/app/core/services/expenses-info.model';
+import { ExpensesInfo } from 'src/app/core/models/expenses-info.model';
 import { MergeExpensesService } from 'src/app/core/services/merge-expenses.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -42,7 +42,7 @@ import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expen
 export class MergeExpensePage implements OnInit, AfterViewChecked {
   expenses: Partial<Expense>[];
 
-  fg: FormGroup;
+  fg: UntypedFormGroup;
 
   expenseOptions$: Observable<MergeExpensesOption<string>[]>;
 
@@ -118,7 +118,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
 
   expenseToKeepInfoText: string;
 
-  CCCTxns: CorporateCardExpense[];
+  CCCTxns: corporateCardTransaction[];
 
   redirectedFrom: string;
 
@@ -134,11 +134,13 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
 
   txnIDs: string[];
 
+  showBillable = false;
+
   constructor(
     private router: Router,
     private transcationService: TransactionService,
     private categoriesService: CategoriesService,
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     private customInputsService: CustomInputsService,
     private customFieldsService: CustomFieldsService,
     private navController: NavController,
@@ -633,7 +635,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
       txn_dt: this.genericFieldsFormValues.dateOfSpend,
       receipt_ids: this.selectedReceiptsId,
       custom_properties: [
-        ...this.customInputsFormValues.fields,
+        ...(Array.isArray(this.customInputsFormValues?.fields) ? this.customInputsFormValues.fields : []),
         ...projectDependantFieldValues,
         ...costCenterDependentFieldValues,
       ],
@@ -694,6 +696,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
 
     return expenseFields$.pipe(
       switchMap((expenseFields) => {
+        this.showBillable = expenseFields?.billable?.[0]?.is_enabled;
         let parentFieldId: number;
         if (parentField === 'PROJECT') {
           parentFieldId = expenseFields.project_id[0].id;

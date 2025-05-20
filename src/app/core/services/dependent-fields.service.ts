@@ -38,7 +38,7 @@ export class DependentFieldsService {
         parent_expense_field_value: `eq."${parentFieldValue}"`,
         is_enabled: 'eq.true',
         offset: 0,
-        limit: 20,
+        limit: 200,
         order: 'expense_field_value.asc',
       },
     };

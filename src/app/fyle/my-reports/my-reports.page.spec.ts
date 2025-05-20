@@ -5,7 +5,7 @@ import { MyReportsPage } from './my-reports.page';
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ReportService } from 'src/app/core/services/report.service';
-import { ApiV2Service } from 'src/app/core/services/api-v2.service';
+import { ExtendQueryParamsService } from 'src/app/core/services/extend-query-params.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -15,7 +15,6 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { orgSettingsRes, orgSettingsParamsWithSimplifiedReport } from 'src/app/core/mock-data/org-settings.data';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { cardAggregateStatParam, cardAggregateStatParam2 } from 'src/app/core/mock-data/card-aggregate-stats.data';
 import { AdvancesStates } from 'src/app/core/models/advances-states.model';
 import { HeaderState } from 'src/app/shared/components/fy-header/header-state.enum';
 import { NetworkService } from 'src/app/core/services/network.service';
@@ -92,7 +91,7 @@ describe('MyReportsPage', () => {
   let tasksService: jasmine.SpyObj<TasksService>;
   let currencyService: jasmine.SpyObj<CurrencyService>;
   let reportService: jasmine.SpyObj<ReportService>;
-  let apiV2Service: jasmine.SpyObj<ApiV2Service>;
+  let extendQueryParamsService: jasmine.SpyObj<ExtendQueryParamsService>;
   let expensesService: jasmine.SpyObj<ExpensesService>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
@@ -111,7 +110,9 @@ describe('MyReportsPage', () => {
     const tasksServiceSpy = jasmine.createSpyObj('TasksService', ['getReportsTaskCount']);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     const reportServiceSpy = jasmine.createSpyObj('ReportService', ['clearTransactionCache']);
-    const apiV2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['extendQueryParamsForTextSearch']);
+    const extendQueryParamsServiceSpy = jasmine.createSpyObj('ExtendQueryParamsService', [
+      'extendQueryParamsForTextSearch',
+    ]);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseStats']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
@@ -149,7 +150,7 @@ describe('MyReportsPage', () => {
         { provide: TasksService, useValue: tasksServiceSpy },
         { provide: CurrencyService, useValue: currencyServiceSpy },
         { provide: ReportService, useValue: reportServiceSpy },
-        { provide: ApiV2Service, useValue: apiV2ServiceSpy },
+        { provide: ExtendQueryParamsService, useValue: extendQueryParamsServiceSpy },
         { provide: ExpensesService, useValue: expensesServiceSpy },
         { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
         { provide: ActivatedRoute, useValue: activatedRouteSpy },
@@ -207,7 +208,7 @@ describe('MyReportsPage', () => {
     reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
     tasksService = TestBed.inject(TasksService) as jasmine.SpyObj<TasksService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
-    apiV2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
+    extendQueryParamsService = TestBed.inject(ExtendQueryParamsService) as jasmine.SpyObj<ExtendQueryParamsService>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
     dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
@@ -225,7 +226,7 @@ describe('MyReportsPage', () => {
   describe('ionViewWillEnter(): ', () => {
     it('should initialize component properties and load data', fakeAsync(() => {
       tasksService.getReportsTaskCount.and.returnValue(of(5));
-      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
+      extendQueryParamsService.extendQueryParamsForTextSearch.and.returnValue({
         state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
         q: 'example:*',
       });
@@ -355,7 +356,7 @@ describe('MyReportsPage', () => {
 
     it('should initialize component properties and load data when search string is empty', fakeAsync(() => {
       tasksService.getReportsTaskCount.and.returnValue(of(5));
-      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
+      extendQueryParamsService.extendQueryParamsForTextSearch.and.returnValue({
         state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
       });
       const homeCurrency = 'USD';
@@ -482,7 +483,7 @@ describe('MyReportsPage', () => {
 
     it('should initialize component properties and set simplifyReportsSetting$ to undefined if orgSetting$ is undefined', fakeAsync(() => {
       tasksService.getReportsTaskCount.and.returnValue(of(5));
-      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
+      extendQueryParamsService.extendQueryParamsForTextSearch.and.returnValue({
         state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
       });
       const homeCurrency = 'USD';
@@ -609,7 +610,7 @@ describe('MyReportsPage', () => {
 
     it('should initialize component properties and set simplifyReportsSetting$ to false if orgSetting$.payment_mode_setting.payment_modes_order is not defined', fakeAsync(() => {
       tasksService.getReportsTaskCount.and.returnValue(of(5));
-      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
+      extendQueryParamsService.extendQueryParamsForTextSearch.and.returnValue({
         state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
       });
       const homeCurrency = 'USD';
@@ -735,7 +736,7 @@ describe('MyReportsPage', () => {
 
     it('should initialize component properties and get report by order if sortParam and sortDir is defined, aggregates is empty array and simplified_report is enabled', fakeAsync(() => {
       tasksService.getReportsTaskCount.and.returnValue(of(5));
-      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
+      extendQueryParamsService.extendQueryParamsForTextSearch.and.returnValue({
         state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
       });
       const homeCurrency = 'USD';
@@ -854,7 +855,7 @@ describe('MyReportsPage', () => {
 
     it('should initialize component properties and load data if filters is defined in activatedRoute.snapshot', fakeAsync(() => {
       tasksService.getReportsTaskCount.and.returnValue(of(5));
-      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
+      extendQueryParamsService.extendQueryParamsForTextSearch.and.returnValue({
         state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
       });
       const homeCurrency = 'USD';
@@ -994,7 +995,7 @@ describe('MyReportsPage', () => {
 
     it('should initialize component properties and load data if state is defined in activatedRoute.snapshot', fakeAsync(() => {
       tasksService.getReportsTaskCount.and.returnValue(of(5));
-      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
+      extendQueryParamsService.extendQueryParamsForTextSearch.and.returnValue({
         state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
         q: 'example:*',
       });
@@ -1610,7 +1611,7 @@ describe('MyReportsPage', () => {
 
       component.onFilterClick('sort');
 
-      expect(component.openFilters).toHaveBeenCalledOnceWith('Sort By');
+      expect(component.openFilters).toHaveBeenCalledOnceWith('Sort by');
     });
   });
 
@@ -1686,7 +1687,7 @@ describe('MyReportsPage', () => {
       component.convertRptDtSortToSelectedFilters(filter, generatedFilters);
 
       expect(generatedFilters.length).toEqual(1);
-      expect(generatedFilters[0].name).toEqual('Sort By');
+      expect(generatedFilters[0].name).toEqual('Sort by');
       expect(generatedFilters[0].value).toEqual('dateOldToNew');
     });
 
@@ -1700,7 +1701,7 @@ describe('MyReportsPage', () => {
       component.convertRptDtSortToSelectedFilters(filter, generatedFilters);
 
       expect(generatedFilters.length).toEqual(1);
-      expect(generatedFilters[0].name).toEqual('Sort By');
+      expect(generatedFilters[0].name).toEqual('Sort by');
       expect(generatedFilters[0].value).toEqual('dateNewToOld');
     });
 
@@ -1711,7 +1712,7 @@ describe('MyReportsPage', () => {
       };
       const generatedFilters: SelectedFilters<string>[] = [
         {
-          name: 'Sort By',
+          name: 'Sort by',
           value: 'dateOldToNew',
         },
       ];
@@ -1719,7 +1720,7 @@ describe('MyReportsPage', () => {
       component.convertRptDtSortToSelectedFilters(filter, generatedFilters);
 
       expect(generatedFilters.length).toEqual(1);
-      expect(generatedFilters[0].name).toEqual('Sort By');
+      expect(generatedFilters[0].name).toEqual('Sort by');
       expect(generatedFilters[0].value).toEqual('dateOldToNew');
     });
   });
@@ -1775,7 +1776,7 @@ describe('MyReportsPage', () => {
 
       expect(generatedFilters).toEqual([
         {
-          name: 'Sort By',
+          name: 'Sort by',
           value: 'nameAToZ',
         },
       ]);
@@ -1792,7 +1793,7 @@ describe('MyReportsPage', () => {
 
       expect(generatedFilters).toEqual([
         {
-          name: 'Sort By',
+          name: 'Sort by',
           value: 'nameZToA',
         },
       ]);
@@ -1826,7 +1827,7 @@ describe('MyReportsPage', () => {
   describe('convertSelectedSortFiltersToFilters(): ', () => {
     it('should convert selected sort filter to corresponding sortParam and sortDir', () => {
       const sortBy = {
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'dateNewToOld',
       };
       const generatedFilters = {};
@@ -1841,7 +1842,7 @@ describe('MyReportsPage', () => {
 
     it('should convert selected sort filter to corresponding sortParam and sortDir (dateOldToNew)', () => {
       const sortBy = {
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'dateOldToNew',
       };
       const generatedFilters = {};
@@ -1856,7 +1857,7 @@ describe('MyReportsPage', () => {
 
     it('should convert selected sort filter to corresponding sortParam and sortDir (amountHighToLow)', () => {
       const sortBy = {
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'amountHighToLow',
       };
       const generatedFilters = {};
@@ -1871,7 +1872,7 @@ describe('MyReportsPage', () => {
 
     it('should convert selected sort filter to corresponding sortParam and sortDir (amountLowToHigh)', () => {
       const sortBy = {
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'amountLowToHigh',
       };
       const generatedFilters = {};
@@ -1886,7 +1887,7 @@ describe('MyReportsPage', () => {
 
     it('should convert selected sort filter to corresponding sortParam and sortDir (nameAToZ)', () => {
       const sortBy = {
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'nameAToZ',
       };
       const generatedFilters = {};
@@ -1901,7 +1902,7 @@ describe('MyReportsPage', () => {
 
     it('should convert selected sort filter to corresponding sortParam and sortDir (nameZToA)', () => {
       const sortBy = {
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'nameZToA',
       };
       const generatedFilters = {};
@@ -1931,7 +1932,7 @@ describe('MyReportsPage', () => {
 
     it('should not modify generatedFilters if sortBy value is not recognized', () => {
       const sortBy = {
-        name: 'Sort By',
+        name: 'Sort by',
         value: 'invalid',
       };
       const generatedFilters = {
@@ -2335,7 +2336,7 @@ describe('MyReportsPage', () => {
 
     spyOn(component, 'generateSortFilterPills').and.callFake((filter, filterPills) => {
       filterPills.push({
-        label: 'Sort By',
+        label: 'Sort by',
         type: 'sort',
         value: 'date - old to new',
       });
@@ -2361,7 +2362,7 @@ describe('MyReportsPage', () => {
 
       expect(generatedFilters).toEqual([
         {
-          name: 'Sort By',
+          name: 'Sort by',
           value: 'amountHighToLow',
         },
       ]);
@@ -2378,7 +2379,7 @@ describe('MyReportsPage', () => {
 
       expect(generatedFilters).toEqual([
         {
-          name: 'Sort By',
+          name: 'Sort by',
           value: 'amountLowToHigh',
         },
       ]);

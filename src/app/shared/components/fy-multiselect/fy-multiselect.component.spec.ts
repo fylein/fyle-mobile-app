@@ -58,21 +58,19 @@ describe('FyMultiselectComponent', () => {
     component.validInParent = false;
 
     const res = component.valid;
-    expect(res).toEqual(false);
+    expect(res).toBeFalse();
   });
 
   it('openModal(): should open modal', async () => {
     const selectionModalSpy = jasmine.createSpyObj('selectionModal', ['present', 'onWillDismiss']);
-    selectionModalSpy.onWillDismiss.and.returnValue(
-      Promise.resolve({
-        data: {
-          selected: ['value'],
-        },
-      })
-    );
+    selectionModalSpy.onWillDismiss.and.resolveTo({
+      data: {
+        selected: ['value'],
+      },
+    });
 
     modalProperties.getModalDefaultProperties.and.callThrough();
-    modalController.create.and.returnValue(Promise.resolve(selectionModalSpy));
+    modalController.create.and.resolveTo(selectionModalSpy);
 
     await component.openModal();
 
@@ -116,16 +114,14 @@ describe('FyMultiselectComponent', () => {
     component.registerOnChange(callbackFn);
 
     const selectionModalSpy = jasmine.createSpyObj('selectionModal', ['present', 'onWillDismiss']);
-    selectionModalSpy.onWillDismiss.and.returnValue(
-      Promise.resolve({
-        data: {
-          selected: ['value'],
-        },
-      })
-    );
+    selectionModalSpy.onWillDismiss.and.resolveTo({
+      data: {
+        selected: ['value'],
+      },
+    });
 
     modalProperties.getModalDefaultProperties.and.callThrough();
-    modalController.create.and.returnValue(Promise.resolve(selectionModalSpy));
+    modalController.create.and.resolveTo(selectionModalSpy);
 
     await component.openModal();
     await fixture.detectChanges();

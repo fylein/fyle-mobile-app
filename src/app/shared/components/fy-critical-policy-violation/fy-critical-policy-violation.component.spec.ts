@@ -35,22 +35,22 @@ describe('FyCriticalPolicyViolationComponent', () => {
   });
 
   it('cancel(): cancel function should be called from CTA', () => {
-    modalController.dismiss.and.returnValue(Promise.resolve(false));
+    modalController.dismiss.and.resolveTo(false);
 
     component.cancel();
     expect(modalController.dismiss).toHaveBeenCalledOnceWith(false);
   });
 
   it('continue(): continue function should be called from CTA', () => {
-    modalController.dismiss.and.returnValue(Promise.resolve(true));
+    modalController.dismiss.and.resolveTo(true);
 
     component.continue();
     expect(modalController.dismiss).toHaveBeenCalledOnceWith(true);
   });
 
   it('should check if CTAs are displayed and functional', () => {
-    modalController.dismiss.withArgs(true).and.returnValue(Promise.resolve(true));
-    modalController.dismiss.withArgs(false).and.returnValue(Promise.resolve(false));
+    modalController.dismiss.withArgs(true).and.resolveTo(true);
+    modalController.dismiss.withArgs(false).and.resolveTo(false);
     spyOn(component, 'cancel').and.callThrough();
     spyOn(component, 'continue').and.callThrough();
     component.showCTA = true;

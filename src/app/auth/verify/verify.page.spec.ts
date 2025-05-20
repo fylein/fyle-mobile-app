@@ -7,10 +7,8 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { of, throwError } from 'rxjs';
+import { of } from 'rxjs';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
-import { getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
-import { VerifyPageState } from './verify.enum';
 import { UserEventService } from 'src/app/core/services/user-event.service';
 
 describe('VerifyPage', () => {
@@ -25,8 +23,8 @@ describe('VerifyPage', () => {
   beforeEach(waitForAsync(() => {
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const routerAuthServiceSpy = jasmine.createSpyObj('RouterAuthService', ['emailVerify']);
-    const authServiceSpy = jasmine.createSpyObj('AuthService', ['newRefreshToken']);
-    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['emailVerified', 'onSignin']);
+    const authServiceSpy = jasmine.createSpyObj('AuthService', ['refreshEou']);
+    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['emailVerified', 'onSignin', 'eventTrack']);
     const userEventServiceSpy = jasmine.createSpyObj('UserEventService', ['logout']);
 
     TestBed.configureTestingModule({
@@ -81,10 +79,10 @@ describe('VerifyPage', () => {
     it('should navigate to switch_org route when verification is successful', () => {
       const mockResponse = { refresh_token: 'xyz123' };
       routerAuthService.emailVerify.and.returnValue(of(mockResponse));
-      authService.newRefreshToken.and.returnValue(of(apiEouRes));
+      authService.refreshEou.and.returnValue(of(apiEouRes));
       fixture.detectChanges();
       expect(trackingService.emailVerified).toHaveBeenCalledTimes(1);
-      expect(trackingService.onSignin).toHaveBeenCalledOnceWith('ajain@fyle.in');
+      expect(trackingService.onSignin).toHaveBeenCalledOnceWith(apiEouRes.us.id);
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'switch_org', { invite_link: true }]);
     });
   });

@@ -2,14 +2,9 @@ import { Component, Input } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { ClipboardService } from 'src/app/core/services/clipboard.service';
 import { ToastMessageComponent } from '../toast-message/toast-message.component';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-
-interface ListItems {
-  icon: string;
-  text: string;
-  textToCopy?: string;
-}
+import { ListItem } from 'src/app/core/models/list-item.model';
 
 @Component({
   selector: 'app-popup-with-bullets',
@@ -21,7 +16,7 @@ export class PopupWithBulletsComponent {
 
   @Input() listHeader: string;
 
-  @Input() listItems: ListItems[];
+  @Input() listItems: ListItem[];
 
   @Input() ctaText: string;
 

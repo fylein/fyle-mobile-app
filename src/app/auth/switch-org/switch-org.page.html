@@ -42,7 +42,7 @@
       <div class="switch-org__content-container__content d-flex">
         <div class="switch-org__content-container__content__sub-block">
           <div class="switch-org__content-container__content__title">
-            {{ navigateBack ? 'Switch' : 'Select' }} Organization
+            {{ navigateBack ? 'Switch' : 'Select' }} organization
           </div>
           <div class="switch-org__content-container__content__sub-title">
             Select the organization you want to {{ navigateBack ? 'switch to' : 'view' }}.
@@ -115,9 +115,9 @@
       <ng-container *ngIf="orgs$ | async as orgs">
         <ng-container *ngIf="orgs.length > 1">
           <app-fy-zero-state
-            header="Sorry, no results found!"
-            [message]="'We could not find what you were looking for.\nKindly check the keywords again.'"
-            image="../../../assets/images/zero-states/search-not-found.svg"
+            [message]="'No results found'"
+            submessage="Try a different keyword"
+            image="../../../assets/images/zero-states/search.png"
             [unscaledImage]="true"
             [useNewStyling]="true"
           ></app-fy-zero-state>

@@ -1,7 +1,7 @@
 import { TitleCasePipe } from '@angular/common';
 import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
-import { FormArray, FormBuilder, FormControl, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { UntypedFormArray, UntypedFormBuilder, UntypedFormControl, Validators } from '@angular/forms';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
@@ -56,7 +56,7 @@ import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-loc
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { StatusService } from 'src/app/core/services/status.service';
+import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { TaxGroupService } from 'src/app/core/services/tax-group.service';
 import { TokenService } from 'src/app/core/services/token.service';
@@ -90,7 +90,7 @@ export function TestCases1(getTestBed) {
     let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
     let accountsService: jasmine.SpyObj<AccountsService>;
     let authService: jasmine.SpyObj<AuthService>;
-    let formBuilder: FormBuilder;
+    let formBuilder: UntypedFormBuilder;
     let categoriesService: jasmine.SpyObj<CategoriesService>;
     let dateService: jasmine.SpyObj<DateService>;
     let projectsService: jasmine.SpyObj<ProjectsService>;
@@ -105,7 +105,7 @@ export function TestCases1(getTestBed) {
     let router: jasmine.SpyObj<Router>;
     let loaderService: jasmine.SpyObj<LoaderService>;
     let modalController: jasmine.SpyObj<ModalController>;
-    let statusService: jasmine.SpyObj<StatusService>;
+    let expenseCommentService: jasmine.SpyObj<ExpenseCommentService>;
     let fileService: jasmine.SpyObj<FileService>;
     let popoverController: jasmine.SpyObj<PopoverController>;
     let currencyService: jasmine.SpyObj<CurrencyService>;
@@ -147,7 +147,7 @@ export function TestCases1(getTestBed) {
       activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
       accountsService = TestBed.inject(AccountsService) as jasmine.SpyObj<AccountsService>;
       authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-      formBuilder = TestBed.inject(FormBuilder);
+      formBuilder = TestBed.inject(UntypedFormBuilder);
       categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
       dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
       reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
@@ -161,7 +161,7 @@ export function TestCases1(getTestBed) {
       router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
       loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
       modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
-      statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
+      expenseCommentService = TestBed.inject(ExpenseCommentService) as jasmine.SpyObj<ExpenseCommentService>;
       fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
       popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
       currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
@@ -207,7 +207,7 @@ export function TestCases1(getTestBed) {
         project: [],
         billable: [],
         sub_category: [, Validators.required],
-        custom_inputs: new FormArray([]),
+        custom_inputs: new UntypedFormArray([]),
         costCenter: [],
         report: [],
         project_dependent_fields: formBuilder.array([]),
@@ -632,7 +632,7 @@ export function TestCases1(getTestBed) {
       });
 
       it('should get config params for delete report modal and call method to delete expense', () => {
-        transactionService.delete.and.returnValue(of(policyExpense2));
+        expensesService.deleteExpenses.and.returnValue(of());
 
         const result = component.getDeleteReportParams({
           header,
@@ -644,7 +644,7 @@ export function TestCases1(getTestBed) {
         });
 
         result.componentProps.deleteMethod();
-        expect(transactionService.delete).toHaveBeenCalledOnceWith('txn123');
+        expect(expensesService.deleteExpenses).toHaveBeenCalledOnceWith(['txn123']);
       });
     });
 
@@ -946,7 +946,7 @@ export function TestCases1(getTestBed) {
 
     describe('customDateValidator():', () => {
       it('should return null when the date is within the valid range', () => {
-        const control = new FormControl('2023-06-15');
+        const control = new UntypedFormControl('2023-06-15');
         const result = component.customDateValidator(control);
         expect(result).toBeNull();
       });
@@ -954,7 +954,7 @@ export function TestCases1(getTestBed) {
       it('should return an error object when the date is after the upper bound of the valid range', () => {
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 3);
-        const control = new FormControl(tomorrow.toDateString());
+        const control = new UntypedFormControl(tomorrow.toDateString());
         const result = component.customDateValidator(control);
         expect(result).toEqual({ invalidDateSelection: true });
       });

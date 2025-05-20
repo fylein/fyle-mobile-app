@@ -68,13 +68,15 @@ $advance_rejected_color: #d50000;
   &--currency {
     color: $black-light;
     font-weight: 500;
-    font-size: 14px;
+    font-size: 16px;
+    line-height: 1.3;
   }
 
   &--amount {
     color: $black;
     font-size: 16px;
     font-weight: 500;
+    line-height: 1.3;
   }
 
   &--secondary-info-block {

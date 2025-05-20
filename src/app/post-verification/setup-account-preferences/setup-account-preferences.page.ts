@@ -6,7 +6,7 @@ import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { map, shareReplay, switchMap, tap, finalize } from 'rxjs/operators';
 import { OrgService } from 'src/app/core/services/org.service';
 import { Org } from 'src/app/core/models/org.model';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
@@ -29,14 +29,14 @@ export class SetupAccountPreferencesPage implements OnInit {
 
   orgSettings$: Observable<any>;
 
-  fg: FormGroup;
+  fg: UntypedFormGroup;
 
   constructor(
     private networkService: NetworkService,
     private authService: AuthService,
     private orgService: OrgService,
     private orgSettingsService: OrgSettingsService,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private loadingService: LoaderService,
     private orgUserService: OrgUserService,
     private router: Router,

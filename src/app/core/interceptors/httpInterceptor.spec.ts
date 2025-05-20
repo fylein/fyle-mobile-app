@@ -9,7 +9,7 @@ import { UserEventService } from '../services/user-event.service';
 import { StorageService } from '../services/storage.service';
 import { SecureStorageService } from '../services/secure-storage.service';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { apiAuthRes, authResData2 } from '../mock-data/auth-reponse.data';
+import { apiAuthRes, authResData2 } from '../mock-data/auth-response.data';
 import { BehaviorSubject, of, throwError } from 'rxjs';
 import { extendedDeviceInfoMockData, extendedDeviceInfoMockDataWoApp } from '../mock-data/extended-device-info.data';
 import { HttpErrorResponse, HttpHeaders, HttpRequest } from '@angular/common/http';
@@ -296,7 +296,7 @@ describe('HttpConfigInterceptor', () => {
         done();
       });
 
-      it('should throw an error if the next handler returns a 404 and device information could be retrived', (done) => {
+      it('should throw an error if the next handler returns a 404 and device information could be retrieved', (done) => {
         spyOn(httpInterceptor, 'expiringSoon').and.returnValue(false);
         spyOn(httpInterceptor, 'getAccessToken').and.returnValue(of(authResData2.accessToken));
         deviceService.getDeviceInfo.and.returnValue(of(extendedDeviceInfoMockDataWoApp));

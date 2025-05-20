@@ -34,12 +34,12 @@ $advance_paid_color: darken(#5cb85c, 15%);
 
     &__merchant {
       padding-top: 2px;
-      font-size: 12px;
+      font-size: 14px;
       color: $dark-grey;
     }
 
     &__project {
-      font-size: 12px;
+      font-size: 14px;
       color: $dark-grey;
     }
 
@@ -94,8 +94,8 @@ $advance_paid_color: darken(#5cb85c, 15%);
   }
 
   &--approval-state {
-    &__reported {
-      color: $reported-color;
+    &__submitted {
+      color: $submitted-color;
     }
     &__complete {
       color: $fyled-color;

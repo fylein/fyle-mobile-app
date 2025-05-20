@@ -5,7 +5,38 @@
     </div>
   </ion-header>
 
+  <div *ngIf="cardsList?.successfulCards?.length > 0" class="popup-alert--card-details-container">
+    <div class="popup-alert--content-container">
+      <div class="popup-alert--success-tick-container">
+        <ion-icon class="popup-alert--success-tick" src="/assets/svg/check.svg"></ion-icon>
+      </div>
+      <div>
+        <div class="popup-alert--content-header">Successfully connected</div>
+        <div class="popup-alert--card-numbers">
+          {{ cardsList?.successfulCards?.join() }}
+        </div>
+      </div>
+    </div>
+    <div class="popup-alert--content-container">
+      <div class="popup-alert--error-tick-container">
+        <ion-icon class="popup-alert--error-icon" src="/assets/svg/error-outlined.svg"></ion-icon>
+      </div>
+      <div>
+        <div class="popup-alert--content-header">Failed connecting</div>
+        <div class="popup-alert--card-numbers">
+          {{ cardsList?.failedCards?.join(', ') }}
+        </div>
+      </div>
+    </div>
+  </div>
   <div class="popup-alert--body" [ngClass]="leftAlign ? 'text-left' : 'text-center'" [innerHtml]="message"></div>
+
+  <div
+    *ngIf="secondaryMsg"
+    class="popup-alert--body popup-alert--secondary-msg"
+    [ngClass]="leftAlign ? 'text-left' : 'text-center'"
+    [innerHtml]="secondaryMsg"
+  ></div>
 
   <div class="popup-alert--info-container" *ngIf="flaggedExpensesCount">
     <app-fy-alert-info [message]="'This report has ' + flaggedExpensesCount + ' violations'" [type]="'warning'">
@@ -13,7 +44,12 @@
   </div>
 
   <ion-footer class="popup-alert--footer">
-    <div [ngClass]="{ 'popup-alert--cta-container': secondaryCta, 'text-center': !secondaryCta }">
+    <div
+      [ngClass]="{
+        'popup-alert--cta-container': secondaryCta,
+        'popup-alert--primary-cta-container text-center': !secondaryCta
+      }"
+    >
       <button
         *ngIf="secondaryCta"
         type="button"

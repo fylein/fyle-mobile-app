@@ -30,7 +30,7 @@ describe('ShareReportComponent', () => {
   });
 
   it('should dismiss the popover when cancel is clicked', async () => {
-    modalController.dismiss.and.returnValue(Promise.resolve(true));
+    modalController.dismiss.and.resolveTo(true);
     await component.cancel();
     expect(modalController.dismiss).toHaveBeenCalledTimes(1);
   });
@@ -42,7 +42,7 @@ describe('ShareReportComponent', () => {
   });
 
   it('should do nothing when the email input field is empty or invalid', async () => {
-    modalController.dismiss.and.returnValue(Promise.resolve(true));
+    modalController.dismiss.and.resolveTo(true);
 
     component.shareReport({ value: '', invalid: false, control: { markAllAsTouched: () => {} } });
     expect(modalController.dismiss).not.toHaveBeenCalled();
@@ -52,7 +52,7 @@ describe('ShareReportComponent', () => {
   });
 
   it('should dismiss the modal and return the email value when the email input field is valid', async () => {
-    modalController.dismiss.and.returnValue(Promise.resolve(true));
+    modalController.dismiss.and.resolveTo(true);
 
     component.email = 'johnD@fyle.in';
     const emailInput = {

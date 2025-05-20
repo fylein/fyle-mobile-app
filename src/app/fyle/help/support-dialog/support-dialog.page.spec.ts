@@ -61,7 +61,7 @@ describe('SupportDialogPage', () => {
       expect(trackingService.engageWithHelpCard).toHaveBeenCalledTimes(1);
       expect(browserHandlerService.openLinkWithToolbarColor).toHaveBeenCalledOnceWith(
         '#280a31',
-        'https://help.fylehq.com'
+        'https://www.fylehq.com/help'
       );
     });
 

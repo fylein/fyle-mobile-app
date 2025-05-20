@@ -3,9 +3,6 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { YodleeAccessToken } from '../models/yoodle-token.model';
 import { PersonalCardFilter } from '../models/personal-card-filters.model';
-import { ApiV2Service } from './api-v2.service';
-import { ApiService } from './api.service';
-import { ExpenseAggregationService } from './expense-aggregation.service';
 import { Expense } from '../models/platform/v1/expense.model';
 import { DateService } from './date.service';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
@@ -26,13 +23,7 @@ import { environment } from 'src/environments/environment';
   providedIn: 'root',
 })
 export class PersonalCardsService {
-  constructor(
-    private apiv2Service: ApiV2Service,
-    private expenseAggregationService: ExpenseAggregationService,
-    private apiService: ApiService,
-    private dateService: DateService,
-    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService
-  ) {}
+  constructor(private dateService: DateService, private spenderPlatformV1ApiService: SpenderPlatformV1ApiService) {}
 
   addTransactionTypeToTxns(txns: PlatformPersonalCardTxn[]): PlatformPersonalCardTxn[] {
     return txns.map((txn) => ({
@@ -142,6 +133,7 @@ export class PersonalCardsService {
           limit: config.limit,
           offset: config.offset,
           ...config.queryParams,
+          order: 'spent_at.desc,id.desc',
         },
       })
       .pipe(
@@ -246,7 +238,7 @@ export class PersonalCardsService {
 
   convertFilters(selectedFilters: SelectedFilters<string>[]): Partial<PersonalCardFilter> {
     const generatedFilters: PersonalCardFilter = {} as PersonalCardFilter;
-    const createdOnDateFilter = selectedFilters.find((filter) => filter.name === 'Created On');
+    const createdOnDateFilter = selectedFilters.find((filter) => filter.name === 'Created date');
     if (createdOnDateFilter) {
       generatedFilters.createdOn = { name: createdOnDateFilter.value };
       if (createdOnDateFilter.associatedData) {
@@ -255,7 +247,7 @@ export class PersonalCardsService {
       }
     }
 
-    const updatedOnDateFilter = selectedFilters.find((filter) => filter.name === 'Updated On');
+    const updatedOnDateFilter = selectedFilters.find((filter) => filter.name === 'Updated date');
     if (updatedOnDateFilter) {
       generatedFilters.updatedOn = { name: updatedOnDateFilter.value };
       if (updatedOnDateFilter.associatedData) {
@@ -279,7 +271,7 @@ export class PersonalCardsService {
     if (filter?.updatedOn) {
       const dateFilter = filter;
       generatedFilters.push({
-        name: 'Updated On',
+        name: 'Updated date',
         value: dateFilter.updatedOn.name,
         associatedData: {
           startDate: dateFilter.updatedOn.customDateStart,
@@ -291,7 +283,7 @@ export class PersonalCardsService {
     if (filter?.createdOn) {
       const dateFilter = filter;
       generatedFilters.push({
-        name: 'Created On',
+        name: 'Created date',
         value: dateFilter.createdOn.name,
         associatedData: {
           startDate: dateFilter.createdOn.customDateStart,
@@ -405,19 +397,19 @@ export class PersonalCardsService {
 
     if (startDate && endDate) {
       filterPills.push({
-        label: 'Updated On',
+        label: 'Updated date',
         type: 'date',
         value: `${startDate} to ${endDate}`,
       });
     } else if (startDate) {
       filterPills.push({
-        label: 'Updated On',
+        label: 'Updated date',
         type: 'date',
         value: `>= ${startDate}`,
       });
     } else if (endDate) {
       filterPills.push({
-        label: 'Updated On',
+        label: 'Updated date',
         type: 'date',
         value: `<= ${endDate}`,
       });
@@ -448,19 +440,19 @@ export class PersonalCardsService {
 
     if (startDate && endDate) {
       filterPills.push({
-        label: 'Created On',
+        label: 'Created date',
         type: 'date',
         value: `${startDate} to ${endDate}`,
       });
     } else if (startDate) {
       filterPills.push({
-        label: 'Created On',
+        label: 'Created date',
         type: 'date',
         value: `>= ${startDate}`,
       });
     } else if (endDate) {
       filterPills.push({
-        label: 'Created On',
+        label: 'Created date',
         type: 'date',
         value: `<= ${endDate}`,
       });
@@ -471,7 +463,7 @@ export class PersonalCardsService {
     const dateFilter = filters[type] as PersonalCardDateFilter;
     if (dateFilter.name === DateFilters.thisWeek) {
       filterPills.push({
-        label: 'Created On',
+        label: 'Created date',
         type: 'date',
         value: 'this Week',
       });
@@ -479,7 +471,7 @@ export class PersonalCardsService {
 
     if (dateFilter.name === DateFilters.thisMonth) {
       filterPills.push({
-        label: 'Created On',
+        label: 'Created date',
         type: 'date',
         value: 'this Month',
       });
@@ -487,7 +479,7 @@ export class PersonalCardsService {
 
     if (dateFilter.name === DateFilters.all) {
       filterPills.push({
-        label: 'Created On',
+        label: 'Created date',
         type: 'date',
         value: 'All',
       });
@@ -495,7 +487,7 @@ export class PersonalCardsService {
 
     if (dateFilter.name === DateFilters.lastMonth) {
       filterPills.push({
-        label: 'Created On',
+        label: 'Created date',
         type: 'date',
         value: 'Last Month',
       });

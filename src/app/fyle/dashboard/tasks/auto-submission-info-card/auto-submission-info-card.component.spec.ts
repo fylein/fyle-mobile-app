@@ -1,4 +1,3 @@
-import { DatePipe } from '@angular/common';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
@@ -11,7 +10,7 @@ describe('AutoSubmissionInfoCardComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [AutoSubmissionInfoCardComponent, DatePipe],
+      declarations: [AutoSubmissionInfoCardComponent],
       imports: [IonicModule.forRoot()],
     }).compileComponents();
 

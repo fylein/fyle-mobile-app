@@ -6,21 +6,22 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
 import { getElementRef } from 'src/app/core/dom-helpers';
-import { apiEouRes, eouFlattended, eouRes2, eouUnFlattended } from 'src/app/core/mock-data/extended-org-user.data';
+import { apiEouRes, eouUnFlattended } from 'src/app/core/mock-data/extended-org-user.data';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
+import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
 import { OrgService } from 'src/app/core/services/org.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { DelegatedAccountsPage } from './delegated-accounts.page';
 import { delegatorData } from 'src/app/core/mock-data/platform/v1/delegator.data';
-import { employeesParamsRes } from 'src/app/core/test-data/org-user.service.spec.data';
 import { AuthService } from 'src/app/core/services/auth.service';
 
 describe('DelegatedAccountsPage', () => {
   let component: DelegatedAccountsPage;
   let fixture: ComponentFixture<DelegatedAccountsPage>;
   let orgUserService: jasmine.SpyObj<OrgUserService>;
+  let employeesService: jasmine.SpyObj<EmployeesService>;
   let orgService: jasmine.SpyObj<OrgService>;
   let router: jasmine.SpyObj<Router>;
   let authService: jasmine.SpyObj<AuthService>;
@@ -34,9 +35,9 @@ describe('DelegatedAccountsPage', () => {
       'switchToDelegatee',
       'findDelegatedAccounts',
       'excludeByStatus',
-      'getEmployeesByParams',
       'getUserById',
     ]);
+    const employeesServiceSpy = jasmine.createSpyObj('EmployeesService', ['getEmployeesByParams']);
     const orgServiceSpy = jasmine.createSpyObj('OrgService', ['getCurrentOrg']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
@@ -68,6 +69,10 @@ describe('DelegatedAccountsPage', () => {
           useValue: orgServiceSpy,
         },
         {
+          provide: EmployeesService,
+          useValue: employeesServiceSpy,
+        },
+        {
           provide: AuthService,
           useValue: authServiceSpy,
         },
@@ -92,6 +97,7 @@ describe('DelegatedAccountsPage', () => {
 
     orgUserService = TestBed.inject(OrgUserService) as jasmine.SpyObj<OrgUserService>;
     orgService = TestBed.inject(OrgService) as jasmine.SpyObj<OrgService>;
+    employeesService = TestBed.inject(EmployeesService) as jasmine.SpyObj<EmployeesService>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
@@ -112,7 +118,7 @@ describe('DelegatedAccountsPage', () => {
     loaderService.hideLoader.and.resolveTo();
     recentLocalStorageItemsService.clearRecentLocalStorageCache.and.returnValue(null);
     orgUserService.switchToDelegator.and.returnValue(of(eouUnFlattended));
-    authService.getEou.and.returnValue(Promise.resolve(eouUnFlattended));
+    authService.getEou.and.resolveTo(eouUnFlattended);
 
     component.switchToDelegatee(delegatorData);
     tick(500);

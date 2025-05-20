@@ -87,6 +87,21 @@ export const splitExpense7 = deepFreeze({
   percentage: null,
 });
 
+export const splitExpense8 = deepFreeze({
+  ...splitExpense7,
+  project: '',
+  purpose: '',
+  cost_center: '',
+});
+
+export const splitExpense9 = deepFreeze({
+  ...splitExpense3,
+  category: null,
+  project: null,
+  purpose: '',
+  cost_center: null,
+});
+
 export const splitExpenseDataWithProject: SplitExpense = deepFreeze({
   amount: 120,
   currency: 'INR',

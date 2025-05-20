@@ -395,7 +395,7 @@ export const notificationEventsData2: NotificationEvents = deepFreeze({
 export const notificationEventsData3: NotificationEvents = deepFreeze({
   features: {
     expensesAndReports: {
-      textLabel: 'Expenses and Reports',
+      textLabel: 'Expenses and reports',
       selected: true,
     },
     advances: {

@@ -8,7 +8,7 @@ import { AppVersionPageRoutingModule } from './app-version-routing.module';
 
 import { AppVersionPage } from './app-version.page';
 
-import { MatButtonModule } from '@angular/material/button';
+import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button';
 
 @NgModule({
   imports: [CommonModule, FormsModule, IonicModule, AppVersionPageRoutingModule, MatButtonModule],

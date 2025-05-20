@@ -21,12 +21,12 @@ export const sidemenuItemData2: SidemenuItem = deepFreeze({
   disabled: false,
   dropdownOptions: [
     {
-      title: 'Team Reports',
+      title: 'Expense reports',
       isVisible: true,
       route: ['/', 'enterprise', 'team_reports'],
     },
     {
-      title: 'Team Advances',
+      title: 'Advances',
       isVisible: true,
       route: ['/', 'enterprise', 'team_advance'],
     },
@@ -36,7 +36,7 @@ export const sidemenuItemData2: SidemenuItem = deepFreeze({
 });
 
 export const sidemenuItemData3: Partial<SidemenuItem> = deepFreeze({
-  title: 'Live Chat',
+  title: 'Live chat',
   isVisible: true,
   icon: 'chat',
   openLiveChat: true,
@@ -44,7 +44,7 @@ export const sidemenuItemData3: Partial<SidemenuItem> = deepFreeze({
 });
 
 export const sidemenuItemData4: Partial<SidemenuItem> = deepFreeze({
-  title: 'Switch Organization',
+  title: 'Switch organization',
   isVisible: true,
   icon: 'swap',
   route: [

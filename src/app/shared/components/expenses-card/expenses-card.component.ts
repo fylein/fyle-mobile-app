@@ -1,5 +1,5 @@
 import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { ModalController, Platform, PopoverController } from '@ionic/angular';
 import * as dayjs from 'dayjs';
 import { isEqual, isNumber } from 'lodash';
@@ -322,7 +322,7 @@ export class ExpensesCardComponent implements OnInit {
       };
       this.attachReceipt(receiptDetails);
     } else {
-      this.showSizeLimitExceededPopover();
+      this.showSizeLimitExceededPopover(MAX_FILE_SIZE);
     }
   }
 
@@ -434,12 +434,14 @@ export class ExpensesCardComponent implements OnInit {
     this.dismissed.emit(this.expense);
   }
 
-  async showSizeLimitExceededPopover(): Promise<void> {
+  async showSizeLimitExceededPopover(maxFileSize: number): Promise<void> {
     const sizeLimitExceededPopover = await this.popoverController.create({
       component: PopupAlertComponent,
       componentProps: {
         title: 'Size limit exceeded',
-        message: 'The uploaded file is greater than 5MB in size. Please reduce the file size and try again.',
+        message: `The uploaded file is greater than ${(maxFileSize / (1024 * 1024)).toFixed(
+          0
+        )}MB in size. Please reduce the file size and try again.`,
         primaryCta: {
           text: 'OK',
         },

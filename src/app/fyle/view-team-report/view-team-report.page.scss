@@ -1,7 +1,7 @@
 @import './../../../theme/colors.scss';
-$reported-color: #4798ff;
+$submitted-color: #4798ff;
 $approved-color: #67bc53;
-$paid-color: #64b5a6;
+$closed-color: #64b5a6;
 $fyled-color: #f90;
 $sent-back-color: #da1e28;
 
@@ -115,6 +115,7 @@ $sent-back-color: #da1e28;
   &--approvers-title-block {
     display: flex;
     align-items: baseline;
+    justify-content: space-between;
   }
 
   &--approvers-list {
@@ -136,8 +137,8 @@ $sent-back-color: #da1e28;
 
   &--approver-state-pill {
     border-radius: 50%;
-    height: 12px;
-    width: 12px;
+    height: 8px;
+    width: 8px;
     margin-right: 4px;
 
     &__approval_pending {
@@ -150,6 +151,13 @@ $sent-back-color: #da1e28;
 
     &__approval_disabled {
       background-color: $gray-3;
+    }
+
+    &__text {
+      color: $black-light;
+      font-size: 12px;
+      font-weight: 500;
+      line-height: 1.5;
     }
   }
 
@@ -199,9 +207,35 @@ $sent-back-color: #da1e28;
     }
   }
 
+  &--view-approvers {
+    display: flex;
+    padding: 0;
+    justify-content: center;
+    align-items: center;
+    gap: 2px;
+    border-radius: 4px;
+    color: $blue-black;
+    text-align: center;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 18px;
+    text-decoration-line: underline;
+    text-decoration-style: solid;
+    text-decoration-skip-ink: none;
+    text-decoration-thickness: auto;
+    text-underline-offset: auto;
+    text-underline-position: from-font;
+  }
+
+  &--approvers-edit-container {
+    display: flex;
+    align-items: baseline;
+  }
+
   &--approval-state {
-    &__reported {
-      color: $reported-color;
+    &__submitted {
+      color: $submitted-color;
     }
     &__complete {
       color: $fyled-color;
@@ -212,8 +246,8 @@ $sent-back-color: #da1e28;
     &__approved {
       color: $approved-color;
     }
-    &__paid {
-      color: $paid-color;
+    &__closed {
+      color: $closed-color;
     }
   }
 
@@ -346,6 +380,102 @@ $sent-back-color: #da1e28;
 
     &__disabled {
       opacity: 0.5;
+    }
+  }
+
+  &--info-msg-container {
+    margin: 4px;
+  }
+
+  &--info-message-simple-panel {
+    border-radius: 4px;
+    border: 1px solid $grey-lighter;
+    background-color: $pure-white;
+    padding: 8px 12px;
+    display: flex;
+    justify-content: start;
+    align-items: start;
+    gap: 12px;
+    font-size: 12px;
+    line-height: 18px;
+    color: $blue-black;
+  }
+
+  &--info-icon {
+    color: $highlight-blue;
+    font-size: 18px;
+    height: 18px;
+    width: 18px;
+    flex-shrink: 0;
+  }
+
+  &--info-message-expansion-panel {
+    border-radius: 4px;
+    border: 1px solid $grey-lighter;
+    background-color: $pure-white;
+
+    ::ng-deep .mat-expansion-panel-header {
+      padding: 8px 12px 0 12px;
+      height: auto;
+    }
+
+    ::ng-deep .mat-expansion-panel-body {
+      padding: 0;
+    }
+
+    ::ng-deep .mat-expansion-indicator {
+      align-self: flex-start;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 20px;
+      width: 20px;
+    }
+
+    .info-icon {
+      margin-right: 12px;
+      color: $highlight-blue;
+      font-size: 18px;
+      height: 18px;
+      width: 18px;
+      flex-shrink: 0;
+      align-self: flex-start;
+    }
+
+    .info-text-container {
+      display: flex;
+      color: $blue-black;
+      font-size: 12px;
+      line-height: 18px;
+      padding: 0 16px 8px 0;
+    }
+
+    &:not(.mat-expanded) {
+      .info-text-container {
+        span {
+          display: -webkit-box;
+          -webkit-line-clamp: 3;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+      }
+    }
+  }
+
+  &--article-link {
+    text-decoration: none;
+    font-size: 12px;
+    color: $blue-4;
+    white-space: nowrap;
+  }
+
+  &--link-icon {
+    width: 12px;
+    height: 12px;
+
+    &::ng-deep svg path {
+      fill: $blue-4 !important;
     }
   }
 }

@@ -1,8 +1,8 @@
 import { TitleCasePipe } from '@angular/common';
 import { DebugElement } from '@angular/core';
 import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
-import { FormArray, FormBuilder, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { UntypedFormArray, UntypedFormBuilder, Validators } from '@angular/forms';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
@@ -62,7 +62,7 @@ import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-loc
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { StatusService } from 'src/app/core/services/status.service';
+import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { TaxGroupService } from 'src/app/core/services/tax-group.service';
 import { TokenService } from 'src/app/core/services/token.service';
@@ -87,6 +87,8 @@ import {
 } from 'src/app/core/mock-data/transformed-expense.data';
 import { cloneDeep } from 'lodash';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { MAX_FILE_SIZE } from 'src/app/core/constants';
+import { expenseCommentData } from 'src/app/core/mock-data/expense-comment.data';
 
 export function TestCases4(getTestBed) {
   return describe('AddEditExpensePage-4', () => {
@@ -95,7 +97,7 @@ export function TestCases4(getTestBed) {
     let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
     let accountsService: jasmine.SpyObj<AccountsService>;
     let authService: jasmine.SpyObj<AuthService>;
-    let formBuilder: FormBuilder;
+    let formBuilder: UntypedFormBuilder;
     let categoriesService: jasmine.SpyObj<CategoriesService>;
     let dateService: jasmine.SpyObj<DateService>;
     let projectsService: jasmine.SpyObj<ProjectsService>;
@@ -110,7 +112,7 @@ export function TestCases4(getTestBed) {
     let router: jasmine.SpyObj<Router>;
     let loaderService: jasmine.SpyObj<LoaderService>;
     let modalController: jasmine.SpyObj<ModalController>;
-    let statusService: jasmine.SpyObj<StatusService>;
+    let expenseCommentService: jasmine.SpyObj<ExpenseCommentService>;
     let fileService: jasmine.SpyObj<FileService>;
     let popoverController: jasmine.SpyObj<PopoverController>;
     let currencyService: jasmine.SpyObj<CurrencyService>;
@@ -149,7 +151,7 @@ export function TestCases4(getTestBed) {
       activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
       accountsService = TestBed.inject(AccountsService) as jasmine.SpyObj<AccountsService>;
       authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-      formBuilder = TestBed.inject(FormBuilder);
+      formBuilder = TestBed.inject(UntypedFormBuilder);
       categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
       dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
       reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
@@ -164,7 +166,7 @@ export function TestCases4(getTestBed) {
       router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
       loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
       modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
-      statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
+      expenseCommentService = TestBed.inject(ExpenseCommentService) as jasmine.SpyObj<ExpenseCommentService>;
       fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
       popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
       currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
@@ -217,7 +219,7 @@ export function TestCases4(getTestBed) {
         bus_travel_class: [],
         distance: [],
         distance_unit: [],
-        custom_inputs: new FormArray([]),
+        custom_inputs: new UntypedFormArray([]),
         billable: [],
         costCenter: [],
         hotel_is_breakfast_provided: [],
@@ -255,16 +257,17 @@ export function TestCases4(getTestBed) {
         });
       }));
 
-      it('should show file size exceeded popover if uploaded file is larger than 5MB', fakeAsync(() => {
+      it('should show file size exceeded popover if uploaded file is larger than 11MB', fakeAsync(() => {
         spyOn(component, 'showSizeLimitExceededPopover');
 
-        const myBlob = new Blob([new ArrayBuffer(100 * 100 * 1000)], { type: 'application/octet-stream' });
+        const newSize = MAX_FILE_SIZE + 1;
+        const myBlob = new Blob([new ArrayBuffer(newSize)], { type: 'application/octet-stream' });
         const file = new File([myBlob], 'file');
 
         component.uploadFileCallback(file);
         tick(500);
 
-        expect(component.showSizeLimitExceededPopover).toHaveBeenCalledOnceWith();
+        expect(component.showSizeLimitExceededPopover).toHaveBeenCalledOnceWith(MAX_FILE_SIZE);
       }));
     });
 
@@ -641,7 +644,9 @@ export function TestCases4(getTestBed) {
           'success',
           ['msb-success']
         );
-        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'personal_cards']);
+        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'personal_cards'], {
+          queryParams: { refresh: true },
+        });
         expect(trackingService.newExpenseCreatedFromPersonalCard).toHaveBeenCalledOnceWith();
       });
 
@@ -695,7 +700,9 @@ export function TestCases4(getTestBed) {
           'success',
           ['msb-success']
         );
-        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'personal_cards']);
+        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'personal_cards'], {
+          queryParams: { refresh: true },
+        });
         expect(trackingService.newExpenseCreatedFromPersonalCard).toHaveBeenCalledOnceWith();
       });
 
@@ -751,7 +758,9 @@ export function TestCases4(getTestBed) {
           'success',
           ['msb-success']
         );
-        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'personal_cards']);
+        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'personal_cards'], {
+          queryParams: { refresh: true },
+        });
         expect(trackingService.newExpenseCreatedFromPersonalCard).toHaveBeenCalledOnceWith();
       });
 
@@ -798,7 +807,9 @@ export function TestCases4(getTestBed) {
           'success',
           ['msb-success']
         );
-        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'personal_cards']);
+        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'personal_cards'], {
+          queryParams: { refresh: true },
+        });
         expect(trackingService.newExpenseCreatedFromPersonalCard).toHaveBeenCalledOnceWith();
       });
 
@@ -845,7 +856,9 @@ export function TestCases4(getTestBed) {
           'success',
           ['msb-success']
         );
-        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'personal_cards']);
+        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'personal_cards'], {
+          queryParams: { refresh: true },
+        });
         expect(trackingService.newExpenseCreatedFromPersonalCard).toHaveBeenCalledOnceWith();
       });
     });
@@ -1095,8 +1108,8 @@ export function TestCases4(getTestBed) {
         authService.getEou.and.resolveTo(apiEouRes);
 
         transactionService.upsert.and.returnValue(of(transformedExpenseDataWithReportId.tx));
-        statusService.findLatestComment.and.returnValue(of('a comment'));
-        statusService.post.and.returnValue(of(expenseStatusData));
+        expenseCommentService.findLatestExpenseComment.and.returnValue(of('a comment'));
+        expenseCommentService.post.and.returnValue(of([expenseCommentData]));
         fixture.detectChanges();
 
         component.editExpense('SAVE_AND_NEW_EXPENSE').subscribe((res) => {
@@ -1123,17 +1136,17 @@ export function TestCases4(getTestBed) {
           expect(component.trackEditExpense).toHaveBeenCalledOnceWith(transformedExpenseDataWithReportId);
           expect(transactionService.upsert).toHaveBeenCalledOnceWith(transformedExpenseDataWithReportId.tx);
 
-          expect(statusService.findLatestComment).toHaveBeenCalledOnceWith(
+          expect(expenseCommentService.findLatestExpenseComment).toHaveBeenCalledOnceWith(
             transformedExpenseDataWithReportId.tx.id,
-            'transactions',
             transformedExpenseDataWithReportId.tx.org_user_id
           );
-          expect(statusService.post).toHaveBeenCalledOnceWith(
-            'transactions',
-            transformedExpenseDataWithReportId.tx.id,
-            { comment: 'A comment' },
-            true
-          );
+          expect(expenseCommentService.post).toHaveBeenCalledOnceWith([
+            {
+              expense_id: transformedExpenseDataWithReportId.tx.id,
+              comment: 'A comment',
+              notify: true,
+            },
+          ]);
           expect(component.getIsPolicyExpense).toHaveBeenCalledTimes(1);
           done();
         });
@@ -1156,7 +1169,7 @@ export function TestCases4(getTestBed) {
         component.etxn$ = of(transformedExpenseDataWithReportId2);
         authService.getEou.and.resolveTo(apiEouRes);
         transactionService.upsert.and.returnValue(of(transformedExpenseDataWithReportId2.tx));
-        statusService.findLatestComment.and.returnValue(of('comment'));
+        expenseCommentService.findLatestExpenseComment.and.returnValue(of('comment'));
         fixture.detectChanges();
 
         component.editExpense('SAVE_AND_NEW_EXPENSE').subscribe((res) => {
@@ -1182,9 +1195,8 @@ export function TestCases4(getTestBed) {
           expect(authService.getEou).toHaveBeenCalledTimes(1);
           expect(component.trackEditExpense).toHaveBeenCalledOnceWith(transformedExpenseDataWithReportId2);
           expect(transactionService.upsert).toHaveBeenCalledOnceWith(transformedExpenseDataWithReportId2.tx);
-          expect(statusService.findLatestComment).toHaveBeenCalledOnceWith(
+          expect(expenseCommentService.findLatestExpenseComment).toHaveBeenCalledOnceWith(
             transformedExpenseDataWithReportId2.tx.id,
-            'transactions',
             transformedExpenseDataWithReportId2.tx.org_user_id
           );
           done();

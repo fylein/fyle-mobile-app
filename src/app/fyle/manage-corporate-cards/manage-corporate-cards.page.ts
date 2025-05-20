@@ -35,6 +35,7 @@ import { FeatureConfigService } from 'src/app/core/services/platform/v1/spender/
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { PromoteOptInModalComponent } from 'src/app/shared/components/promote-opt-in-modal/promote-opt-in-modal.component';
 import { AuthService } from 'src/app/core/services/auth.service';
+import { isNumber } from 'lodash';
 @Component({
   selector: 'app-manage-corporate-cards',
   templateUrl: './manage-corporate-cards.page.html',
@@ -89,8 +90,8 @@ export class ManageCorporateCardsPage {
   }
 
   segmentChanged(event: SegmentCustomEvent): void {
-    if (event.detail.value) {
-      this.segmentValue = parseInt(event.detail.value, 10);
+    if (isNumber(event.detail.value)) {
+      this.segmentValue = event.detail.value;
     }
   }
 
@@ -117,6 +118,7 @@ export class ManageCorporateCardsPage {
           .map((card) => card.virtual_card_id);
         const virtualCardsParams = {
           virtualCardIds,
+          includeCurrentAmount: true,
         };
         return this.virtualCardsService.getCardDetailsMap(virtualCardsParams);
       })
@@ -198,7 +200,7 @@ export class ManageCorporateCardsPage {
         } else if (card.data_feed_source === DataFeedSource.STATEMENT_UPLOAD) {
           if (isVisaRTFEnabled) {
             actionSheetButtons.push({
-              text: 'Connect to Visa Real-time Feed',
+              text: 'Connect to Visa real-time feed',
               handler: () => {
                 this.openAddCorporateCardPopover(card, CardNetworkType.VISA);
               },
@@ -207,7 +209,7 @@ export class ManageCorporateCardsPage {
 
           if (isMastercardRTFEnabled) {
             actionSheetButtons.push({
-              text: 'Connect to Mastercard Real-time Feed',
+              text: 'Connect to Mastercard real-time feed',
               handler: () => {
                 this.openAddCorporateCardPopover(card, CardNetworkType.MASTERCARD);
               },

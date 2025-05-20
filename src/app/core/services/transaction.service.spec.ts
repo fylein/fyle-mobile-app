@@ -2,29 +2,23 @@ import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import {
-  etxncData,
   expenseData2,
   expenseData1,
-  etxnData,
   mileageExpenseWithDistance,
   mileageExpenseWithoutDistance,
   perDiemExpenseSingleNumDays,
   perDiemExpenseMultipleNumDays,
   apiExpenseRes,
   expenseList2,
-  expenseData3,
   expenseList3,
   expenseList4,
 } from '../mock-data/expense.data';
 import { UndoMergeData } from '../mock-data/undo-merge.data';
 import { AccountsService } from './accounts.service';
-import { ApiV2Service } from './api-v2.service';
 import { ApiService } from './api.service';
-import { AuthService } from './auth.service';
 import { DataTransformService } from './data-transform.service';
 import { DateService } from './date.service';
 import { FileService } from './file.service';
-import { NetworkService } from './network.service';
 import { OrgSettingsService } from './org-settings.service';
 import { OrgUserSettingsService } from './org-user-settings.service';
 import { PaymentModesService } from './payment-modes.service';
@@ -65,14 +59,12 @@ import { cloneDeep } from 'lodash';
 import { expensesCacheBuster$ } from '../cache-buster/expense-cache-buster';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { expenseData } from '../mock-data/platform/v1/expense.data';
+import { TrackingService } from './tracking.service';
 
 describe('TransactionService', () => {
   let transactionService: TransactionService;
-  let networkService: jasmine.SpyObj<NetworkService>;
   let storageService: jasmine.SpyObj<StorageService>;
-  let authService: jasmine.SpyObj<AuthService>;
   let apiService: jasmine.SpyObj<ApiService>;
-  let apiV2Service: jasmine.SpyObj<ApiV2Service>;
   let dataTransformService: jasmine.SpyObj<DataTransformService>;
   let dateService: jasmine.SpyObj<DateService>;
   let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
@@ -85,9 +77,9 @@ describe('TransactionService', () => {
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let accountsService: jasmine.SpyObj<AccountsService>;
   let expensesService: jasmine.SpyObj<ExpensesService>;
+  let trackingService: jasmine.SpyObj<TrackingService>;
 
   beforeEach(() => {
-    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['isOnline']);
     const storageServiceSpy = jasmine.createSpyObj('StorageService', ['get', 'set']);
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post', 'delete']);
     const dataTransformServiceSpy = jasmine.createSpyObj('DataTransformService', ['unflatten']);
@@ -113,6 +105,7 @@ describe('TransactionService', () => {
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const accountsServiceSpy = jasmine.createSpyObj('AccountsService', ['getEMyAccounts']);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['transformTo', 'post', 'createFromFile']);
+    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['patchExpensesError']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -132,10 +125,6 @@ describe('TransactionService', () => {
         {
           provide: FileService,
           useValue: fileServiceSpy,
-        },
-        {
-          provide: NetworkService,
-          useValue: networkServiceSpy,
         },
         {
           provide: OrgSettingsService,
@@ -178,6 +167,10 @@ describe('TransactionService', () => {
           useValue: expensesServiceSpy,
         },
         {
+          provide: TrackingService,
+          useValue: trackingServiceSpy,
+        },
+        {
           provide: PAGINATION_SIZE,
           useValue: 2,
         },
@@ -185,7 +178,6 @@ describe('TransactionService', () => {
     });
 
     transactionService = TestBed.inject(TransactionService);
-    networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
     storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
     apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
     dataTransformService = TestBed.inject(DataTransformService) as jasmine.SpyObj<DataTransformService>;
@@ -202,6 +194,7 @@ describe('TransactionService', () => {
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     accountsService = TestBed.inject(AccountsService) as jasmine.SpyObj<AccountsService>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
+    trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
   });
 
   it('should be created', () => {
@@ -213,17 +206,6 @@ describe('TransactionService', () => {
     transactionService.clearCache().subscribe((res) => {
       expect(notifierSpy).toHaveBeenCalledTimes(1);
       expect(res).toBeNull();
-      done();
-    });
-  });
-
-  it('delete(): should delete a transaction', (done) => {
-    const transactionID = 'tx5fBcPBAxLv';
-    apiService.delete.and.returnValue(of(expenseData1));
-
-    transactionService.delete(transactionID).subscribe((res) => {
-      expect(res).toEqual(expenseData1);
-      expect(apiService.delete).toHaveBeenCalledOnceWith('/transactions/' + transactionID);
       done();
     });
   });
@@ -849,19 +831,6 @@ describe('TransactionService', () => {
       expect(res).toEqual(unmatchCCCExpenseResponseData);
       expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/corporate_card_transactions/unmatch', {
         data: payload,
-      });
-      done();
-    });
-  });
-
-  it('deleteBulk(): should delete bulk transactions', (done) => {
-    apiService.post.and.returnValue(of(txnList));
-    const transactionIds = ['txzLsDY1IAAw', 'txAzvMhbD71q'];
-
-    transactionService.deleteBulk(transactionIds).subscribe((res) => {
-      expect(res).toEqual(txnList);
-      expect(apiService.post).toHaveBeenCalledOnceWith('/transactions/delete/bulk', {
-        txn_ids: transactionIds,
       });
       done();
     });

@@ -5,11 +5,11 @@ import { CategoriesService } from 'src/app/core/services/categories.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
 import { NavController } from '@ionic/angular';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { MergeExpensesService } from 'src/app/core/services/merge-expenses.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { FormBuilder, FormControl, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormControl, Validators } from '@angular/forms';
 import { cloneDeep } from 'lodash';
 import { expenseList2, transformedPlatformedExpense1 } from 'src/app/core/mock-data/expense.data';
 import { mergeExpensesOptionsData } from 'src/app/core/mock-data/merge-expenses-option.data';
@@ -54,7 +54,7 @@ export function TestCases1(getTestBed) {
     let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
     let mergeExpensesService: jasmine.SpyObj<MergeExpensesService>;
     let trackingService: jasmine.SpyObj<TrackingService>;
-    let formBuilder: FormBuilder;
+    let formBuilder: UntypedFormBuilder;
     let transactionService: jasmine.SpyObj<TransactionService>;
     let expensesService: jasmine.SpyObj<ExpensesService>;
 
@@ -74,7 +74,7 @@ export function TestCases1(getTestBed) {
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
       transactionService = TestBed.inject(TransactionService);
       expensesService = TestBed.inject(ExpensesService);
-      formBuilder = TestBed.inject(FormBuilder);
+      formBuilder = TestBed.inject(UntypedFormBuilder);
       component.fg = formBuilder.group({
         target_txn_id: [, Validators.required],
         genericFields: [],
@@ -89,7 +89,7 @@ export function TestCases1(getTestBed) {
 
     it('genericFieldsForm(): should return the genericFields form control', () => {
       component.fg = formBuilder.group({
-        genericFields: new FormControl([]),
+        genericFields: new UntypedFormControl([]),
       });
 
       const genericFieldsForm = component.genericFieldsForm;
@@ -99,7 +99,7 @@ export function TestCases1(getTestBed) {
 
     it('categoryDependentForm(): should return the categoryDependent form control', () => {
       component.fg = formBuilder.group({
-        categoryDependent: new FormControl([]),
+        categoryDependent: new UntypedFormControl([]),
       });
 
       const categoryDependentForm = component.categoryDependentForm;
@@ -156,11 +156,11 @@ export function TestCases1(getTestBed) {
         component.expenses = transformedPlatformedExpense1;
         component.ionViewWillEnter();
 
-        expect(component.fg.controls.target_txn_id.value).toEqual(null);
+        expect(component.fg.controls.target_txn_id.value).toBeNull();
         expect(component.fg.controls.target_txn_id.validator).toBe(Validators.required);
-        expect(component.fg.controls.genericFields.value).toEqual(null);
-        expect(component.fg.controls.categoryDependent.value).toEqual(null);
-        expect(component.fg.controls.custom_inputs.value).toEqual(null);
+        expect(component.fg.controls.genericFields.value).toBeNull();
+        expect(component.fg.controls.categoryDependent.value).toBeNull();
+        expect(component.fg.controls.custom_inputs.value).toBeNull();
 
         expect(expensesService.getAllExpenses).toHaveBeenCalledOnceWith({
           offset: 0,
@@ -324,7 +324,7 @@ export function TestCases1(getTestBed) {
 
       it('should set receipts_from as null if none of the merged expense has receipt', () => {
         component.setupDefaultReceipts(component.expenses);
-        expect(component.fg.controls.genericFields.value.receipts_from).toEqual(null);
+        expect(component.fg.controls.genericFields.value.receipts_from).toBeNull();
       });
     });
 

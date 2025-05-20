@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
+import { PopoverCardsList } from 'src/app/core/models/popover-cards-list.model';
 @Component({
   selector: 'app-popup-alert',
   templateUrl: './popup-alert.component.html',
@@ -10,6 +11,8 @@ export class PopupAlertComponent {
 
   @Input() message: string;
 
+  @Input() secondaryMsg: string;
+
   @Input() leftAlign = false;
 
   @Input() primaryCta: { text: string; action: string; type?: string };
@@ -17,6 +20,8 @@ export class PopupAlertComponent {
   @Input() secondaryCta: { text: string; action: string; type?: string };
 
   @Input() flaggedExpensesCount = 0;
+
+  @Input() cardsList: PopoverCardsList;
 
   constructor(private popoverController: PopoverController) {}
 

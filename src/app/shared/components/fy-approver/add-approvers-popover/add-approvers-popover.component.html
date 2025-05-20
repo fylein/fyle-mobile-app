@@ -5,7 +5,7 @@
         <mat-icon class="fy-icon-close" svgIcon="cross"></mat-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title class="add-approvers-popover--toolbar__title"> Add Approvers </ion-title>
+    <ion-title class="add-approvers-popover--toolbar__title"> Add approvers </ion-title>
     <ion-buttons slot="end">
       <ion-button
         class="add-approvers-popover--toolbar__btn-save"
@@ -29,7 +29,7 @@
         <input
           class="add-approvers-popover--input-container__input smartlook-show"
           type="text"
-          [placeholder]="'Select Approvers'"
+          [placeholder]="'Select approvers'"
           [ngModel]="displayValue"
           (click)="openModal()"
           readonly
@@ -63,8 +63,7 @@
     <div>
       <app-fy-alert-info
         [message]="
-          'You are adding additional approver(s) to the report. Note that the report
-        will not be moved to the next stage until all approvers have approved it.'
+          'You are adding additional approver(s) to the report. The report will go the them at the end and include all the expenses.'
         "
         [type]="'information'"
       >

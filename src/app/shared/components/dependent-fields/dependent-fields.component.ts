@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
-import { FormArray, FormBuilder, Validators } from '@angular/forms';
+import { UntypedFormArray, UntypedFormBuilder, Validators } from '@angular/forms';
 import { Observable, Subject, distinctUntilKeyChanged, finalize, map, of, takeUntil } from 'rxjs';
 import { CustomProperty } from 'src/app/core/models/custom-properties.model';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
@@ -11,7 +11,7 @@ import { DependentFieldsService } from 'src/app/core/services/dependent-fields.s
   styleUrls: ['./dependent-fields.component.scss'],
 })
 export class DependentFieldsComponent implements OnInit, OnDestroy, OnChanges {
-  @Input() dependentFieldsFormArray: FormArray;
+  @Input() dependentFieldsFormArray: UntypedFormArray;
 
   @Input() dependentCustomFields: ExpenseField[];
 
@@ -27,7 +27,7 @@ export class DependentFieldsComponent implements OnInit, OnDestroy, OnChanges {
 
   onPageExit$: Subject<void>;
 
-  constructor(private dependentFieldsService: DependentFieldsService, private formBuilder: FormBuilder) {}
+  constructor(private dependentFieldsService: DependentFieldsService, private formBuilder: UntypedFormBuilder) {}
 
   ngOnInit(): void {
     return;

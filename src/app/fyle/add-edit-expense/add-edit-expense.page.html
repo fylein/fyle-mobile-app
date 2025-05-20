@@ -17,21 +17,21 @@
       mode="md"
       [ngClass]="{'add-edit-expense--title__review': reviewList?.length}"
     >
-      <div *ngIf="mode === 'add'" class="add-edit-expense--toolbar__title">Add Expense</div>
+      <div *ngIf="mode === 'add'" class="add-edit-expense--toolbar__title">Add expense</div>
       <div *ngIf="mode === 'edit'">
         <ng-container *ngIf="reviewList?.length;else editMode">
-          Review Expense
+          Review expense
           <div class="add-edit-expense--sub-header">
             {{ +activeIndex + 1 }} of {{ reviewList?.length }} expense{{reviewList?.length > 1 ? 's' : ''}}
           </div>
         </ng-container>
         <ng-template #editMode>
-          <div>{{isIncompleteExpense ? 'Review' : 'Edit'}} Expense</div>
+          <div>{{isIncompleteExpense ? 'Review' : 'Edit'}} expense</div>
         </ng-template>
       </div>
     </ion-title>
 
-    <ion-buttons class="add-edit-expense--header-btn-container" slot="end">
+    <ion-buttons *ngIf="!fromSplitExpenseReview" class="add-edit-expense--header-btn-container" slot="end">
       <ion-button
         *ngIf="reviewList?.length || mode === 'edit'"
         class="add-edit-expense--header-btn-container__btn"
@@ -146,7 +146,7 @@
           <ion-grid class="add-edit-expense--card-container">
             <ion-row>
               <ion-col>
-                <div class="add-edit-expense--card-container__label">Card</div>
+                <div class="add-edit-expense--card-container__label">Card ending in...</div>
                 <div class="add-edit-expense--card-container__value">
                   {{ cardNumber ? (cardNumber | maskNumber) : '-' }}
                 </div>
@@ -155,13 +155,13 @@
                 </div>
               </ion-col>
               <ion-col>
-                <div class="add-edit-expense--card-container__label">Spend Date</div>
+                <div class="add-edit-expense--card-container__label">Spend date</div>
                 <div class="add-edit-expense--card-container__value">
                   {{ selectedCCCTransaction?.txn_dt | date: 'MMM dd, YYYY' }}
                 </div>
               </ion-col>
               <ion-col>
-                <div class="add-edit-expense--card-container__label">Spend Amount</div>
+                <div class="add-edit-expense--card-container__label">Spend amount</div>
                 <div *ngIf="selectedCCCTransaction?.amount > 0">
                   <span class="add-edit-expense--card-container__value"
                     >{{ selectedCCCTransaction?.amount | humanizeCurrency: selectedCCCTransaction?.currency }}</span
@@ -182,7 +182,7 @@
             <ng-container *ngIf="selectedCCCTransaction?.description">
               <ion-row>
                 <ion-col>
-                  <div class="add-edit-expense--card-container__label">Card Transaction</div>
+                  <div class="add-edit-expense--card-container__label">Card transaction</div>
                   <div class="add-edit-expense--card-container__value">{{ selectedCCCTransaction.description }}</div>
                 </ion-col>
               </ion-row>
@@ -329,7 +329,7 @@
                       (keydown)="$event.preventDefault()"
                       [max]="maxDate"
                       [min]="minDate"
-                      [placeholder]="txnFields.txn_dt?.placeholder || 'Date of Spend'"
+                      [placeholder]="txnFields.txn_dt?.placeholder || 'Date of spend'"
                       class="add-edit-expense--date-input date-input__format smartlook-show"
                       formControlName="dateOfSpend"
                       type="date"
@@ -360,14 +360,14 @@
                     <app-fy-select
                       [disabled]="isExpenseBankTxn"
                       [enableSearch]="false"
-                      [label]="'Payment Mode'"
+                      [label]="'Payment mode'"
                       [mandatory]="true"
                       [nullOption]="false"
                       [options]="paymentModes"
-                      [selectModalHeader]="'Select Payment Mode'"
+                      [selectModalHeader]="'Select payment mode'"
                       [selectionElement]="paymentMode"
                       formControlName="paymentMode"
-                      [placeholder]="'Payment Mode'"
+                      [placeholder]="'Payment mode'"
                       [touchedInParent]="fg.controls.paymentMode.touched"
                       [validInParent]="fg.controls.paymentMode.valid"
                     >
@@ -454,7 +454,7 @@
 
               <div *ngIf="isProjectsEnabled$|async">
                 <div *ngIf="isProjectsVisible$|async">
-                  <div *ngIf="fg.controls.project.value">
+                  <div *ngIf="fg.controls.project.value && showBillable" class="add-edit-expense--billable-block">
                     <mat-checkbox formControlName="billable">
                       <span class="add-edit-expense--checkbox"> Billable </span>
                     </mat-checkbox>
@@ -505,7 +505,7 @@
                       [label]="'Category'"
                       [mandatory]="txnFields?.org_category_id?.is_mandatory"
                       [options]="categories"
-                      [selectModalHeader]="'Select Category'"
+                      [selectModalHeader]="'Select category'"
                       [recentlyUsed]="recentCategories"
                       formControlName="category"
                       [placeholder]="txnFields.org_category_id.placeholder"
@@ -539,7 +539,7 @@
                     [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.tax_group.touched && !fg.controls.tax_group.valid}"
                   >
                     <app-fy-select
-                      [label]="(txnFields.tax_group_id.field_name || 'Tax Group')"
+                      [label]="(txnFields.tax_group_id.field_name || 'Tax group')"
                       [options]="taxGroups"
                       [mandatory]="txnFields.tax_group_id.is_mandatory"
                       [selectModalHeader]="'Select ' + (txnFields.tax_group_id.field_name || 'Tax Group')"
@@ -564,15 +564,21 @@
                       [ngClass]="{'add-edit-expense--text-label__invalid': (fg.controls.tax_amount.touched && (!fg.controls.tax_amount.valid || fg.controls.tax_amount.hasError('invalid')))}"
                       class="add-edit-expense--text-label"
                     >
-                      {{(taxSettings.name || 'Tax Amount') | ellipsis: 30 }}
+                      {{(taxSettings.name || 'Tax amount') | ellipsis: 30 }}
                     </div>
-                    <app-fy-number formControlName="tax_amount" [placeholder]="'Enter Tax Amount'"></app-fy-number>
+                    <app-fy-number formControlName="tax_amount" [placeholder]="'Enter tax amount'"></app-fy-number>
                   </div>
                   <div
-                    *ngIf="(fg.controls.tax_amount.touched && (!fg.controls.tax_amount.valid || fg.controls.tax_amount.hasError('invalid')))"
+                    *ngIf="(fg.controls.tax_amount.touched && (!fg.controls.tax_amount.valid || fg.controls.tax_amount.hasError('invalid')) && !fg.controls.tax_amount.hasError('taxAmountGreaterThanAmount'))"
                     class="add-edit-expense--error"
                   >
                     Please enter a valid tax amount.
+                  </div>
+                  <div
+                    *ngIf="fg.controls.tax_amount.touched && fg.controls.tax_amount.hasError('taxAmountGreaterThanAmount')"
+                    class="add-edit-expense--error"
+                  >
+                    Tax amount cannot be greater than amount
                   </div>
                 </div>
               </ng-container>
@@ -714,7 +720,7 @@
                           [label]="txnFields.flight_journey_travel_class?.field_name"
                           [mandatory]="txnFields.flight_journey_travel_class?.is_mandatory"
                           [options]="txnFields.flight_journey_travel_class?.options"
-                          [selectModalHeader]="'Select Travel Class'"
+                          [selectModalHeader]="'Select travel class'"
                           formControlName="flight_journey_travel_class"
                           [placeholder]="txnFields.flight_journey_travel_class?.placeholder"
                           [touchedInParent]="fg.controls.flight_journey_travel_class.touched"
@@ -741,7 +747,7 @@
                           [label]="txnFields.flight_return_travel_class?.field_name"
                           [mandatory]="txnFields.flight_return_travel_class?.is_mandatory"
                           [options]="txnFields.flight_journey_travel_class?.options"
-                          [selectModalHeader]="'Select Travel Class'"
+                          [selectModalHeader]="'Select travel class'"
                           formControlName="flight_return_travel_class"
                           name="flightReturnClass"
                           [placeholder]="txnFields.flight_return_travel_class?.placeholder"
@@ -829,7 +835,7 @@
                     [label]="txnFields.bus_travel_class?.field_name"
                     [mandatory]="txnFields.bus_travel_class?.is_mandatory"
                     [options]="txnFields.bus_travel_class?.options"
-                    [selectModalHeader]="'Select Travel Class'"
+                    [selectModalHeader]="'Select travel class'"
                     formControlName="bus_travel_class"
                     hide-none="true"
                     [placeholder]="txnFields.bus_travel_class?.placeholder"
@@ -850,7 +856,7 @@
                   class="add-edit-expense--internal-block"
                 >
                   <mat-checkbox formControlName="hotel_is_breakfast_provided">
-                    <span class="add-edit-expense--text-label"> Breakfast Provided </span>
+                    <span class="add-edit-expense--text-label"> Breakfast provided </span>
                   </mat-checkbox>
                 </div>
 
@@ -890,7 +896,7 @@
                       formControlName="distance_unit"
                       name="taxiDistanceUnit"
                       sub-title="Units"
-                      title="Select Unit"
+                      title="Select unit"
                       [placeholder]="txnFields.distance_unit?.placeholder"
                       [touchedInParent]="fg.controls.distance_unit.touched"
                       [validInParent]="fg.controls.distance_unit.valid"
@@ -959,7 +965,7 @@
                       [label]="txnFields.cost_center_id?.field_name"
                       [mandatory]="txnFields.cost_center_id?.is_mandatory"
                       [options]="costCenters"
-                      [selectModalHeader]="'Select Cost Center'"
+                      [selectModalHeader]="'Select cost center'"
                       [recentlyUsed]="recentCostCenters"
                       formControlName="costCenter"
                       [placeholder]="txnFields.cost_center_id?.placeholder"
@@ -1119,6 +1125,7 @@
                       [placeholder]="customInput.placeholder | ellipsis: 30"
                       [touchedInParent]="customInput.control.controls.value.touched"
                       [validInParent]="customInput.control.controls.value.valid"
+                      [isCustomSelect]="true"
                     >
                     </app-fy-select>
                   </div>
@@ -1172,7 +1179,7 @@
                 <ng-container *ngIf="pendingTransactionAllowedToReportAndSplit">
                   <div class="add-edit-expense--internal-block">
                     <app-fy-add-to-report
-                      [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'"
+                      [label]="etxn.tx.report_id ? 'Report' : 'Add to report'"
                       [autoSubmissionReportName]="autoSubmissionReportName$|async"
                       [options]="reports"
                       [isNewReportsFlowEnabled]="isNewReportsFlowEnabled"
@@ -1292,7 +1299,7 @@
             Save and new
           </ion-button>
           <ion-button
-            (click)="closeAddEditExpenses()"
+            (click)="goBack()"
             *ngIf="mode === 'edit' && !navigateBack"
             [disabled]="saveExpenseLoader"
             class="btn-secondary"
@@ -1307,7 +1314,7 @@
             appFormButtonValidation
             class="btn-primary"
           >
-            Save Expense
+            Save expense
           </ion-button>
         </ion-buttons>
       </div>

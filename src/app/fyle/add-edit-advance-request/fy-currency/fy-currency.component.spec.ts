@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angul
 import { IonicModule, ModalController } from '@ionic/angular';
 
 import { FyCurrencyComponent } from './fy-currency.component';
-import { FormBuilder, FormControl, FormGroup, NG_VALUE_ACCESSOR, NgControl } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormControl, FormGroup, NG_VALUE_ACCESSOR, NgControl } from '@angular/forms';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { Injector, NO_ERRORS_SCHEMA } from '@angular/core';
 import { FyCurrencyChooseCurrencyComponent } from './fy-currency-choose-currency/fy-currency-choose-currency.component';
@@ -11,7 +11,7 @@ import { properties } from 'src/app/core/mock-data/modal-properties.data';
 describe('FyCurrencyComponent', () => {
   let component: FyCurrencyComponent;
   let fixture: ComponentFixture<FyCurrencyComponent>;
-  let formBuilder: FormBuilder;
+  let formBuilder: UntypedFormBuilder;
   let modalController: jasmine.SpyObj<ModalController>;
   let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
 
@@ -29,14 +29,14 @@ describe('FyCurrencyComponent', () => {
       declarations: [FyCurrencyComponent],
       imports: [IonicModule.forRoot()],
       providers: [
-        FormBuilder,
+        UntypedFormBuilder,
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: ModalPropertiesService, useValue: modalPropertiesSpy },
         { provide: Injector, useValue: injectorSpy },
         {
           provide: NgControl,
           useValue: {
-            control: new FormControl(),
+            control: new UntypedFormControl(),
           },
         },
       ],
@@ -45,7 +45,7 @@ describe('FyCurrencyComponent', () => {
 
     fixture = TestBed.createComponent(FyCurrencyComponent);
     component = fixture.componentInstance;
-    formBuilder = TestBed.inject(FormBuilder);
+    formBuilder = TestBed.inject(UntypedFormBuilder);
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
     fixture.debugElement.injector.get(NG_VALUE_ACCESSOR);

@@ -3,12 +3,10 @@
 .stat-badge {
   background-color: $pure-white;
   border-radius: 8px;
-  min-height: 64px;
-  max-height: 64px;
   border: 1px solid $lighter-grey;
 
   &--container {
-    padding: 8px;
+    padding: 10px 16px;
   }
 
   &--grid {
@@ -26,7 +24,17 @@
   }
 
   &--grid-outer-col {
-    --ion-grid-column-padding: 4px;
+    --ion-grid-column-padding: 0px;
+    padding-left: 8px;
+  }
+
+  &--count-col {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 0;
+    min-width: 30px;
+    max-width: 30px;
   }
 
   &--count {
@@ -40,20 +48,34 @@
     border-radius: 50%;
     color: $pure-white;
     font-weight: 500;
-    margin-top: 4px;
+
     &__draft {
-      background-color: $highlight-black;
+      background-color: map-get($fdl-state-bg-map, 'draft');
+      color: map-get($fdl-state-color-map, 'draft');
     }
 
-    &__approver_pending {
-      background-color: $highlight-blue;
+    &__incomplete_expense {
+      background-color: map-get($fdl-state-bg-map, 'incomplete');
+      color: map-get($fdl-state-color-map, 'incomplete');
+    }
+
+    &__incomplete,
+    &__approver_pending,
+    &__unapproved_team_reports {
+      background-color: map-get($fdl-state-bg-map, 'submitted');
+      color: map-get($fdl-state-color-map, 'submitted');
+    }
+
+    &__complete {
+      background-color: map-get($fdl-state-bg-map, 'complete');
+      color: map-get($fdl-state-color-map, 'complete');
     }
 
     &__approved,
-    &__complete,
     &__payment_pending,
     &__payment_processing {
-      background-color: $highlight-green;
+      background-color: map-get($fdl-state-bg-map, 'approved');
+      color: map-get($fdl-state-color-map, 'approved');
     }
   }
 
@@ -76,17 +98,16 @@
 
   &--amount {
     font-weight: 500;
-    font-size: 12px;
+    font-size: 16px;
     color: $black;
   }
 
   &--name {
-    font-size: 12px;
+    font-size: 14px;
     line-height: 18px;
     color: $blue-black;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow-x: hidden;
-    padding-bottom: 2px;
   }
 }

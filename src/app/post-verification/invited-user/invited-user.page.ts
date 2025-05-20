@@ -1,8 +1,8 @@
 import { Component, EventEmitter, OnInit } from '@angular/core';
 import { Observable, noop, concat, from } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
-import { switchMap, finalize, tap } from 'rxjs/operators';
+import { UntypedFormBuilder, UntypedFormGroup, ValidationErrors, Validators } from '@angular/forms';
+import { switchMap, finalize, tap, map } from 'rxjs/operators';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -10,8 +10,10 @@ import { Router } from '@angular/router';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { TrackingService } from '../../core/services/tracking.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
 
 @Component({
   selector: 'app-invited-user',
@@ -21,7 +23,7 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
 export class InvitedUserPage implements OnInit {
   isConnected$: Observable<boolean>;
 
-  fg: FormGroup;
+  fg: UntypedFormGroup;
 
   eou$: Observable<ExtendedOrgUser>;
 
@@ -49,16 +51,22 @@ export class InvitedUserPage implements OnInit {
 
   isLoading = false;
 
+  focusOnPassword = false;
+
+  focusOnConfirmPassword = false;
+
   constructor(
     private networkService: NetworkService,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private orgUserService: OrgUserService,
     private loaderService: LoaderService,
     private authService: AuthService,
     private router: Router,
     private trackingService: TrackingService,
     private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService
+    private snackbarProperties: SnackbarPropertiesService,
+    private orgSettingsService: OrgSettingsService,
+    private spenderOnboardingService: SpenderOnboardingService
   ) {}
 
   ngOnInit(): void {
@@ -78,6 +86,8 @@ export class InvitedUserPage implements OnInit {
       this.fg.controls.fullName.setValue(eou?.us?.full_name);
       this.orgName = eou.ou.org_name;
     });
+
+    this.trackingService.eventTrack('Setup user page opened');
   }
 
   onPasswordValid(isValid: boolean): void {
@@ -87,7 +97,23 @@ export class InvitedUserPage implements OnInit {
   }
 
   setPasswordTooltip(value: boolean): void {
+    this.focusOnPassword = value;
     this.showPasswordTooltip = value;
+  }
+
+  navigateToDashboard(): void {
+    this.spenderOnboardingService
+      .checkForRedirectionToOnboarding()
+      .pipe(
+        map((shouldProceedToOnboarding) => {
+          if (shouldProceedToOnboarding) {
+            this.router.navigate(['/', 'enterprise', 'spender_onboarding']);
+          } else {
+            this.router.navigate(['/', 'enterprise', 'my_dashboard']);
+          }
+        })
+      )
+      .subscribe();
   }
 
   async saveData(): Promise<void> {
@@ -113,8 +139,7 @@ export class InvitedUserPage implements OnInit {
           })
         )
         .subscribe(() => {
-          this.router.navigate(['/', 'enterprise', 'my_dashboard']);
-          // return $state.go('enterprise.my_dashboard');
+          this.navigateToDashboard();
         });
     } else {
       const message = `Please enter a valid ${!this.fg.controls.fullName.valid ? 'name' : 'password'}`;

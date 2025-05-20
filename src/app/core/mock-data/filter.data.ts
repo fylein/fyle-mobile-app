@@ -70,7 +70,7 @@ export const filterOptions1 = deepFreeze([
     ],
   } as FilterOptions<string>,
   {
-    name: 'Created On',
+    name: 'Created date',
     optionType: FilterOptionType.date,
     options: [
       {

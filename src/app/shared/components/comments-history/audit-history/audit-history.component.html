@@ -14,17 +14,20 @@
             'icon--alert-warning': estatus.st.icon === 'warning-fill',
             'audit-history--flagged': estatus.st.category === 'Flagged',
             'audit-history--unflagged': estatus.st.category === 'Unflagged',
-            'audit-history--card-filled': estatus.st.category === ('Card Transaction Matched' || 'Expense Matched')
+            'audit-history--card-filled':
+              estatus.st.category === 'Card Transaction Matched' || estatus.st.category === 'Expense Matched'
           }"
         ></mat-icon>
         <span class="text-capitalize audit-history--category">{{ estatus.st.category }}</span>
         <div class="audit-history--timestamp">
-          <span>{{ estatus.st_created_at | date : 'MMM d, YYYY h:mm a' }}</span>
+          <span>{{ estatus.st_created_at | dateWithTimezone : 'MMM D, YYYY h:mm a' }}</span>
         </div>
       </div>
 
       <div id="{{ estatus.st_id }}" class="audit-history--comment-block">
-        <span *ngIf="estatus.st.category !== 'Expense Issues'" class="comment-text">{{ estatus.st_comment }}</span>
+        <span *ngIf="estatus.st.category !== 'Expense Issues'" class="comment-text smartlook-hide">{{
+          estatus.st_comment
+        }}</span>
         <div class="audit-history--details" *ngIf="estatus.has_details">
           <span
             *ngIf="
@@ -36,7 +39,7 @@
             "
             >Details:
           </span>
-          <span *ngIf="estatus.st.category === 'Card Transaction Matched'">Card Transaction Details: </span>
+          <span *ngIf="estatus.st.category === 'Card Transaction Matched'">Card transaction details: </span>
           <span
             *ngIf="estatus.st.category === 'Expense automatically merged' || estatus.st.category === 'Expense merged'"
             >Details of the merged expense:

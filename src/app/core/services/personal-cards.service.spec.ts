@@ -1,8 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { PersonalCardsService } from './personal-cards.service';
-import { ApiV2Service } from './api-v2.service';
 import { ApiService } from './api.service';
-import { ExpenseAggregationService } from './expense-aggregation.service';
 import { DateService } from './date.service';
 import { allFilterPills, creditTxnFilterPill, debitTxnFilterPill } from '../mock-data/filter-pills.data';
 import { deletePersonalCardPlatformRes, platformApiLinkedAccRes } from '../mock-data/personal-cards.data';
@@ -16,8 +14,6 @@ import {
 import { selectedFilters1, selectedFilters2 } from '../mock-data/selected-filters.data';
 import { filterData1 } from '../mock-data/filter.data';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
-import { apiExpenseRes, etxncData } from '../mock-data/expense.data';
-import { apiToken } from '../mock-data/yoodle-token.data';
 import * as dayjs from 'dayjs';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformPersonalCardQueryParams } from '../models/platform/platform-personal-card-query-params.model';
@@ -27,32 +23,20 @@ import { PlatformPersonalCardFilterParams } from '../models/platform/platform-pe
 
 describe('PersonalCardsService', () => {
   let personalCardsService: PersonalCardsService;
-  let apiV2Service: jasmine.SpyObj<ApiV2Service>;
   let apiService: jasmine.SpyObj<ApiService>;
-  let expenseAggregationService: jasmine.SpyObj<ExpenseAggregationService>;
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
   let dateService: DateService;
 
   beforeEach(() => {
-    const apiV2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['get']);
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['post', 'get']);
-    const expenseAggregationServiceSpy = jasmine.createSpyObj('ExpenseAggregationService', ['get', 'post', 'delete']);
     const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get', 'post']);
     TestBed.configureTestingModule({
       providers: [
         PersonalCardsService,
         DateService,
         {
-          provide: ApiV2Service,
-          useValue: apiV2ServiceSpy,
-        },
-        {
           provide: ApiService,
           useValue: apiServiceSpy,
-        },
-        {
-          provide: ExpenseAggregationService,
-          useValue: expenseAggregationServiceSpy,
         },
         {
           provide: SpenderPlatformV1ApiService,
@@ -63,8 +47,6 @@ describe('PersonalCardsService', () => {
     personalCardsService = TestBed.inject(PersonalCardsService);
     dateService = TestBed.inject(DateService);
     apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
-    apiV2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
-    expenseAggregationService = TestBed.inject(ExpenseAggregationService) as jasmine.SpyObj<ExpenseAggregationService>;
     spenderPlatformV1ApiService = TestBed.inject(
       SpenderPlatformV1ApiService
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
@@ -89,7 +71,6 @@ describe('PersonalCardsService', () => {
       personalCardsService.getPersonalCards().subscribe((res) => {
         expect(res).toEqual(platformApiLinkedAccRes.data);
         expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/personal_cards');
-        expect(apiV2Service.get).not.toHaveBeenCalled();
         done();
       });
     });
@@ -102,7 +83,6 @@ describe('PersonalCardsService', () => {
       personalCardsService.getPersonalCardsCount().subscribe((res) => {
         expect(res).toEqual(platformApiLinkedAccRes.count);
         expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/personal_cards');
-        expect(apiV2Service.get).not.toHaveBeenCalled();
         done();
       });
     });
@@ -122,7 +102,6 @@ describe('PersonalCardsService', () => {
       personalCardsService.deleteAccount(accountId).subscribe((res) => {
         expect(res).toEqual(deletePersonalCardPlatformRes.data);
         expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/personal_cards/delete', payload);
-        expect(apiV2Service.get).not.toHaveBeenCalled();
         done();
       });
     });
@@ -139,6 +118,7 @@ describe('PersonalCardsService', () => {
             limit: platformTxnsConfig.limit,
             offset: platformTxnsConfig.offset,
             ...platformTxnsConfig.queryParams,
+            order: 'spent_at.desc,id.desc',
           },
         });
         done();
@@ -368,7 +348,7 @@ describe('PersonalCardsService', () => {
       personalCardsService.generateCreatedOnCustomDatePill(filters, filterPills);
       expect(filterPills).toEqual([
         {
-          label: 'Created On',
+          label: 'Created date',
           type: 'date',
           value: '2023-02-21 to 2023-02-23',
         },
@@ -389,7 +369,7 @@ describe('PersonalCardsService', () => {
       personalCardsService.generateCreatedOnCustomDatePill(filters, filterPills);
       expect(filterPills).toEqual([
         {
-          label: 'Created On',
+          label: 'Created date',
           type: 'date',
           value: '>= 2023-02-21',
         },
@@ -410,7 +390,7 @@ describe('PersonalCardsService', () => {
       personalCardsService.generateCreatedOnCustomDatePill(filters, filterPills);
       expect(filterPills).toEqual([
         {
-          label: 'Created On',
+          label: 'Created date',
           type: 'date',
           value: '<= 2023-02-23',
         },
@@ -434,7 +414,7 @@ describe('PersonalCardsService', () => {
       personalCardsService.generateUpdatedOnCustomDatePill(filters, filterPills);
       expect(filterPills).toEqual([
         {
-          label: 'Updated On',
+          label: 'Updated date',
           type: 'date',
           value: '2023-02-21 to 2023-02-23',
         },
@@ -455,7 +435,7 @@ describe('PersonalCardsService', () => {
       personalCardsService.generateUpdatedOnCustomDatePill(filters, filterPills);
       expect(filterPills).toEqual([
         {
-          label: 'Updated On',
+          label: 'Updated date',
           type: 'date',
           value: '>= 2023-02-21',
         },
@@ -476,7 +456,7 @@ describe('PersonalCardsService', () => {
       personalCardsService.generateUpdatedOnCustomDatePill(filters, filterPills);
       expect(filterPills).toEqual([
         {
-          label: 'Updated On',
+          label: 'Updated date',
           type: 'date',
           value: '<= 2023-02-23',
         },
@@ -498,7 +478,7 @@ describe('PersonalCardsService', () => {
       personalCardsService.generateDateFilterPills('createdOn', filters, filterPills);
       expect(filterPills).toEqual([
         {
-          label: 'Created On',
+          label: 'Created date',
           type: 'date',
           value: 'this Week',
         },
@@ -518,7 +498,7 @@ describe('PersonalCardsService', () => {
       personalCardsService.generateDateFilterPills('createdOn', filters, filterPills);
       expect(filterPills).toEqual([
         {
-          label: 'Created On',
+          label: 'Created date',
           type: 'date',
           value: 'this Month',
         },
@@ -538,7 +518,7 @@ describe('PersonalCardsService', () => {
       personalCardsService.generateDateFilterPills('createdOn', filters, filterPills);
       expect(filterPills).toEqual([
         {
-          label: 'Created On',
+          label: 'Created date',
           type: 'date',
           value: 'All',
         },
@@ -558,7 +538,7 @@ describe('PersonalCardsService', () => {
       personalCardsService.generateDateFilterPills('createdOn', filters, filterPills);
       expect(filterPills).toEqual([
         {
-          label: 'Created On',
+          label: 'Created date',
           type: 'date',
           value: 'Last Month',
         },
@@ -579,7 +559,7 @@ describe('PersonalCardsService', () => {
       personalCardsService.generateDateFilterPills('createdOn', filters, filterPills);
       expect(filterPills).toEqual([
         {
-          label: 'Created On',
+          label: 'Created date',
           type: 'date',
           value: '>= 2023-02-21',
         },
@@ -600,7 +580,7 @@ describe('PersonalCardsService', () => {
       personalCardsService.generateDateFilterPills('updatedOn', filters, filterPills);
       expect(filterPills).toEqual([
         {
-          label: 'Updated On',
+          label: 'Updated date',
           type: 'date',
           value: '>= 2023-02-21',
         },

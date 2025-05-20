@@ -12,7 +12,7 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CaptureReceiptComponent } from './capture-receipt.component';
 import { ModalController, NavController, PopoverController } from '@ionic/angular';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { DEVICE_PLATFORM } from 'src/app/constants';
 import { RouterTestingModule } from '@angular/router/testing';
 import { CameraPreviewComponent } from './camera-preview/camera-preview.component';
@@ -600,11 +600,11 @@ describe('CaptureReceiptComponent', () => {
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         component: PopupAlertComponent,
         componentProps: {
-          title: 'Camera Permission',
+          title: 'Camera permission',
           message:
-            'To capture photos, please allow Fyle to access your camera. Click Settings and allow access to Camera and Storage',
+            'To capture photos, please allow Fyle to access your camera. Click Open Settings and allow access to Camera and Storage',
           primaryCta: {
-            text: 'Open Settings',
+            text: 'Open settings',
             action: 'OPEN_SETTINGS',
           },
           secondaryCta: {
@@ -624,10 +624,10 @@ describe('CaptureReceiptComponent', () => {
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         component: PopupAlertComponent,
         componentProps: {
-          title: 'Storage Permission',
+          title: 'Storage permission',
           message: 'Please allow Fyle to access device photos. Click Settings and allow Storage access',
           primaryCta: {
-            text: 'Open Settings',
+            text: 'Open settings',
             action: 'OPEN_SETTINGS',
           },
           secondaryCta: {

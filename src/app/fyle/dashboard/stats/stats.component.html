@@ -2,7 +2,9 @@
   <ion-grid class="stats--body">
     <ion-row class="stats--expenses-stats-row" *ngIf="isConnected$ | async">
       <ion-col class="stats--expenses-stats-col">
-        <div class="stats--header">ALL EXPENSES</div>
+        <div class="stats--header">
+          <span>My expenses</span>
+        </div>
       </ion-col>
     </ion-row>
     <ion-row *ngIf="isConnected$ | async">
@@ -11,7 +13,7 @@
           [currency]="homeCurrency$ | async"
           [currencySymbol]="currencySymbol$ | async"
           [name]="'Incomplete'"
-          [expenseState]="'DRAFT'"
+          [expenseState]="'INCOMPLETE_EXPENSE'"
           [count]="(incompleteExpensesStats$ | async)?.count"
           [value]="(incompleteExpensesStats$ | async)?.sum"
           [loading]="isIncompleteExpensesStatsLoading"
@@ -33,7 +35,9 @@
     </ion-row>
     <ion-row class="stats--report-stats-row" *ngIf="isConnected$ | async">
       <ion-col class="stats--report-stats-col">
-        <div class="stats--header">EXPENSE REPORTS</div>
+        <div class="stats--header">
+          <span>My expense reports</span>
+        </div>
       </ion-col>
     </ion-row>
     <ng-container *ngIf="isConnected$ | async">
@@ -106,6 +110,29 @@
           </ion-col>
         </ion-row>
       </ng-container>
+      <div class="approval-pending-stat" id="approval-pending-stat" *ngIf="unapprovedTeamReportsStats$ | async">
+        <ion-row class="stats--report-stats-row-team" *ngIf="isConnected$ | async">
+          <ion-col class="stats--report-stats-col">
+            <div class="stats--header">
+              <span>Team expense reports</span>
+            </div>
+          </ion-col>
+        </ion-row>
+        <ion-row *ngIf="isConnected$ | async">
+          <ion-col class="stats--report-badge-col stats--report-badge-col__left stats--report-badge-col__top">
+            <app-stat-badge
+              [currency]="homeCurrency$ | async"
+              [currencySymbol]="currencySymbol$ | async"
+              [name]="'Approval pending'"
+              [reportState]="ReportStates.UNAPPROVED_TEAM_REPORTS"
+              [count]="(unapprovedTeamReportsStats$ | async)?.count"
+              [value]="(unapprovedTeamReportsStats$ | async)?.total_amount"
+              [loading]="isIncompleteExpensesStatsLoading"
+              (badgeClicked)="goToTeamReportsPage($event)"
+            ></app-stat-badge>
+          </ion-col>
+        </ion-row>
+      </div>
 
       <ng-template #reportStatsLoading>
         <ion-row>

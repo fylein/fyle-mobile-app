@@ -8,8 +8,10 @@ import { environment } from 'src/environments/environment';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
 import { map, take } from 'rxjs/operators';
 import { OrgUserService } from './org-user.service';
-import { IdentifyUserPayload, RefinerProperties } from '../models/refiner_properties.model';
+import { RefinerProperties } from '../models/refiner_properties.model';
 import { CurrencyService } from './currency.service';
+import { IdentifyUserPayload } from '../models/identify-user-payload.model';
+import { TokenService } from './token.service';
 
 @Injectable({
   providedIn: 'root',
@@ -200,7 +202,8 @@ export class RefinerService {
     private currencyService: CurrencyService,
     private authService: AuthService,
     private networkService: NetworkService,
-    private orgUserService: OrgUserService
+    private orgUserService: OrgUserService,
+    private tokenService: TokenService
   ) {
     this.setupNetworkWatcher();
   }
@@ -247,22 +250,23 @@ export class RefinerService {
       eou: this.authService.getEou(),
       homeCurrency: this.currencyService.getHomeCurrency(),
       deviceInfo: Device.getInfo(),
-    }).subscribe(({ isConnected, eou, homeCurrency, deviceInfo }) => {
+      clusterDomain: this.tokenService.getClusterDomain(),
+    }).subscribe(({ isConnected, eou, homeCurrency, deviceInfo, clusterDomain }) => {
       if (this.canStartSurvey(homeCurrency, eou) && isConnected) {
         const device = deviceInfo.operatingSystem.toUpperCase();
         (window as typeof window & { _refiner: (eventName: string, payload: IdentifyUserPayload) => void })._refiner(
           'identifyUser',
           {
             id: eou.us.id, // Replace with your user ID
-            email: eou.us.email, // Replace with user Email
-            name: eou.us.full_name, // Replace with user name
+            orgUserId: eou.ou.id,
+            orgId: eou.ou.org_id,
+            clusterDomain,
             account: {
               company_id: eou.ou.org_id,
-              company_name: eou.ou.org_name,
               region: `${this.getRegion(homeCurrency)} - ${homeCurrency}`,
             },
             source: `Mobile - ${device}`,
-            is_admin: eou?.ou?.roles?.includes('ADMIN') ? 'T' : 'F',
+            is_admin: eou?.ou?.roles?.some((role) => !['FYLER', 'APPROVER'].includes(role)) ? 'T' : 'F',
             action_name: properties.actionName,
           }
         );

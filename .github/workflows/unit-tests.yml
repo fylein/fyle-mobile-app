@@ -4,23 +4,20 @@ on:
   push:
     branches: [master]
   pull_request:
-    types: [opened, synchronize, edited]
+    types: [opened, synchronize]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [12.x]
 
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: lts/*
 
       - name: Install dependencies
         run: npm install --save-dev --legacy-peer-deps

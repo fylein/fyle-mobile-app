@@ -1,7 +1,7 @@
 import { TitleCasePipe } from '@angular/common';
 import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
-import { FormArray, FormBuilder, FormControl, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { UntypedFormArray, UntypedFormBuilder, UntypedFormControl, Validators } from '@angular/forms';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
@@ -77,7 +77,7 @@ import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-loc
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { StatusService } from 'src/app/core/services/status.service';
+import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { TaxGroupService } from 'src/app/core/services/tax-group.service';
 import { TokenService } from 'src/app/core/services/token.service';
@@ -102,6 +102,7 @@ import {
   transformedExpenseDataWithoutAdvanceWallet,
 } from 'src/app/core/mock-data/transformed-expense.data';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { expenseCommentData } from 'src/app/core/mock-data/expense-comment.data';
 
 export function TestCases3(getTestBed) {
   return describe('AddEditMileage-3', () => {
@@ -110,7 +111,7 @@ export function TestCases3(getTestBed) {
     let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
     let accountsService: jasmine.SpyObj<AccountsService>;
     let authService: jasmine.SpyObj<AuthService>;
-    let formBuilder: FormBuilder;
+    let formBuilder: UntypedFormBuilder;
     let categoriesService: jasmine.SpyObj<CategoriesService>;
     let dateService: jasmine.SpyObj<DateService>;
     let projectsService: jasmine.SpyObj<ProjectsService>;
@@ -124,7 +125,7 @@ export function TestCases3(getTestBed) {
     let router: jasmine.SpyObj<Router>;
     let loaderService: jasmine.SpyObj<LoaderService>;
     let modalController: jasmine.SpyObj<ModalController>;
-    let statusService: jasmine.SpyObj<StatusService>;
+    let expenseCommentService: jasmine.SpyObj<ExpenseCommentService>;
     let fileService: jasmine.SpyObj<FileService>;
     let popoverController: jasmine.SpyObj<PopoverController>;
     let currencyService: jasmine.SpyObj<CurrencyService>;
@@ -166,7 +167,7 @@ export function TestCases3(getTestBed) {
       activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
       accountsService = TestBed.inject(AccountsService) as jasmine.SpyObj<AccountsService>;
       authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-      formBuilder = TestBed.inject(FormBuilder);
+      formBuilder = TestBed.inject(UntypedFormBuilder);
       categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
       dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
       reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
@@ -180,7 +181,7 @@ export function TestCases3(getTestBed) {
       router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
       loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
       modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
-      statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
+      expenseCommentService = TestBed.inject(ExpenseCommentService) as jasmine.SpyObj<ExpenseCommentService>;
       fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
       popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
       currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
@@ -225,7 +226,7 @@ export function TestCases3(getTestBed) {
         project: [],
         billable: [],
         sub_category: [, Validators.required],
-        custom_inputs: new FormArray([]),
+        custom_inputs: new UntypedFormArray([]),
         costCenter: [],
         report: [],
         project_dependent_fields: formBuilder.array([]),
@@ -605,11 +606,11 @@ export function TestCases3(getTestBed) {
       expect(trackingService.editExpense).toHaveBeenCalledOnceWith(editExpenseProperties1);
     });
 
-    const mileageControl = new FormControl();
+    const mileageControl = new UntypedFormControl();
     describe('editExpense():', () => {
       beforeEach(() => {
         spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomPropertiesData4));
-        const mileageControl = new FormControl();
+        const mileageControl = new UntypedFormControl();
         mileageControl.setValue({
           mileageLocations: [locationData1, locationData2],
         });
@@ -860,7 +861,7 @@ export function TestCases3(getTestBed) {
           report: expectedReportsPaginated[0],
         });
         spyOn(component, 'getIsPolicyExpense').and.returnValue(true);
-        statusService.findLatestComment.and.returnValue(of('A comment'));
+        expenseCommentService.findLatestExpenseComment.and.returnValue(of('A comment'));
         fixture.detectChanges();
 
         component.editExpense('SAVE_MILEAGE').subscribe((res) => {
@@ -891,9 +892,8 @@ export function TestCases3(getTestBed) {
           expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseDataWithSubCategory);
 
           expect(component.getFormValues).toHaveBeenCalledTimes(1);
-          expect(statusService.findLatestComment).toHaveBeenCalledOnceWith(
+          expect(expenseCommentService.findLatestExpenseComment).toHaveBeenCalledOnceWith(
             transformedExpenseDataWithSubCategory.tx.id,
-            'transactions',
             transformedExpenseDataWithSubCategory.tx.org_user_id
           );
           done();
@@ -923,8 +923,8 @@ export function TestCases3(getTestBed) {
         });
 
         spyOn(component, 'getIsPolicyExpense').and.returnValue(true);
-        statusService.findLatestComment.and.returnValue(of(null));
-        statusService.post.and.returnValue(of(expenseStatusData));
+        expenseCommentService.findLatestExpenseComment.and.returnValue(of(null));
+        expenseCommentService.post.and.returnValue(of([expenseCommentData]));
         fixture.detectChanges();
 
         component.editExpense('SAVE_MILEAGE').subscribe((res) => {
@@ -954,17 +954,17 @@ export function TestCases3(getTestBed) {
           expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(newExpFromFgPlatform.tx.id);
           expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseDataWithReportId);
           expect(component.getFormValues).toHaveBeenCalledTimes(1);
-          expect(statusService.findLatestComment).toHaveBeenCalledOnceWith(
+          expect(expenseCommentService.findLatestExpenseComment).toHaveBeenCalledOnceWith(
             transformedExpenseDataWithReportId.tx.id,
-            'transactions',
             transformedExpenseDataWithReportId.tx.org_user_id
           );
-          expect(statusService.post).toHaveBeenCalledOnceWith(
-            'transactions',
-            transformedExpenseDataWithReportId.tx.id,
-            { comment: 'A comment' },
-            true
-          );
+          expect(expenseCommentService.post).toHaveBeenCalledOnceWith([
+            {
+              expense_id: transformedExpenseDataWithReportId.tx.id,
+              comment: 'A comment',
+              notify: true,
+            },
+          ]);
           done();
         });
       });
@@ -1034,7 +1034,7 @@ export function TestCases3(getTestBed) {
     describe('getCalculatedDistance():', () => {
       it('should calculate distance between two location for a single trip', (done) => {
         component.isConnected$ = of(true);
-        const mileageControl = new FormControl();
+        const mileageControl = new UntypedFormControl();
         mileageControl.setValue({
           mileageLocations: [locationData1, locationData2],
         });
@@ -1060,7 +1060,7 @@ export function TestCases3(getTestBed) {
 
       it('should calculate distance between two location for a round trip in MILES', (done) => {
         component.isConnected$ = of(true);
-        const mileageControl = new FormControl();
+        const mileageControl = new UntypedFormControl();
         mileageControl.setValue({
           mileageLocations: [locationData1, locationData2],
         });
@@ -1096,7 +1096,7 @@ export function TestCases3(getTestBed) {
 
       it('should return null if distance could not be determined', (done) => {
         component.isConnected$ = of(true);
-        const mileageControl = new FormControl();
+        const mileageControl = new UntypedFormControl();
         mileageControl.setValue({
           mileageLocations: [locationData1, locationData2],
         });

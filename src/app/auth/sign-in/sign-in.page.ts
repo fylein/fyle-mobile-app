@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { from, throwError, Observable, of, noop, Subscription } from 'rxjs';
 import { PopoverController } from '@ionic/angular';
@@ -27,7 +27,7 @@ import { BackButtonService } from 'src/app/core/services/back-button.service';
   styleUrls: ['./sign-in.page.scss'],
 })
 export class SignInPage implements OnInit {
-  fg: FormGroup;
+  fg: UntypedFormGroup;
 
   emailLoading = false;
 
@@ -45,8 +45,10 @@ export class SignInPage implements OnInit {
 
   hardwareBackButtonAction: Subscription;
 
+  focusOnPassword = false;
+
   constructor(
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     private routerAuthService: RouterAuthService,
     private popoverController: PopoverController,
     private loaderService: LoaderService,
@@ -79,11 +81,9 @@ export class SignInPage implements OnInit {
         .pipe(
           take(1),
           switchMap(() => this.authService.refreshEou()),
-          tap(async () => {
+          tap(async (eou) => {
             await this.trackLoginInfo();
-            this.trackingService.onSignin(this.fg.controls.email.value as string, {
-              label: 'Email',
-            });
+            this.trackingService.onSignin(eou.us.id);
           })
         )
         .subscribe(() => {
@@ -153,22 +153,44 @@ export class SignInPage implements OnInit {
   }
 
   goToForgotPasswordPage(): void {
+    this.trackingService.eventTrack('Go to Forgot Password page');
     this.router.navigate(['/', 'auth', 'reset_password', { email: this.fg.controls.email.value as string }]);
   }
 
   async handleError(error: HttpErrorResponse): Promise<void> {
     let header = 'Incorrect email or password';
 
-    if (error?.status === 400) {
-      this.router.navigate(['/', 'auth', 'pending_verification', { email: this.fg.controls.email.value as string }]);
-      return;
-    } else if (error?.status === 422) {
-      this.router.navigate(['/', 'auth', 'disabled']);
-      return;
-    } else if (error?.status === 500) {
-      header = 'Sorry... Something went wrong!';
-    } else if (error?.status === 433) {
-      header = 'Temporary Lockout';
+    switch (error?.status) {
+      case 400:
+        this.trackingService.eventTrack('Go to Invite Expired page');
+        this.router.navigate(['/', 'auth', 'pending_verification', { email: this.fg.controls.email.value as string }]);
+        break;
+
+      case 406:
+        this.trackingService.eventTrack('Go to Password Expired page');
+        const queryParams: Record<string, boolean> = {
+          tmp_pwd_expired: true,
+        };
+        this.router.navigate(['/', 'auth', 'reset_password', { email: this.fg.controls.email.value as string }], {
+          queryParams,
+        });
+        break;
+
+      case 422:
+        this.trackingService.eventTrack('Go to Disabled User page');
+        this.router.navigate(['/', 'auth', 'disabled']);
+        break;
+
+      case 500:
+        header = 'Sorry... Something went wrong!';
+        break;
+
+      case 433:
+        header = 'Temporary Lockout';
+        break;
+
+      default:
+        break;
     }
 
     const errorPopover = await this.popoverController.create({
@@ -197,10 +219,8 @@ export class SignInPage implements OnInit {
         .basicSignin(this.fg.controls.email.value as string, this.fg.controls.password.value as string)
         .pipe(
           switchMap(() => this.authService.refreshEou()),
-          tap(async () => {
-            this.trackingService.onSignin(this.fg.controls.email.value as string, {
-              label: 'Email',
-            });
+          tap(async (eou) => {
+            this.trackingService.onSignin(eou.us.id);
             await this.trackLoginInfo();
           }),
           finalize(() => (this.passwordLoading = false))
@@ -239,10 +259,8 @@ export class SignInPage implements OnInit {
         switchMap((googleAuthResponse) =>
           this.routerAuthService.googleSignin(googleAuthResponse.accessToken).pipe(
             switchMap(() => this.authService.refreshEou()),
-            tap(async () => {
-              this.trackingService.onSignin(this.fg.controls.email.value as string, {
-                label: 'Email',
-              });
+            tap(async (eou) => {
+              this.trackingService.onSignin(eou.us.id);
               await this.trackLoginInfo();
             })
           )
@@ -257,6 +275,7 @@ export class SignInPage implements OnInit {
           this.fg.reset();
           this.router.navigate(['/', 'auth', 'switch_org', { choose: true }]);
         },
+        error: (err: HttpErrorResponse) => this.handleError(err),
       });
   }
 
@@ -282,8 +301,10 @@ export class SignInPage implements OnInit {
   ionViewWillEnter(): void {
     if (this.activatedRoute.snapshot.params.email) {
       this.currentStep = SignInPageState.ENTER_PASSWORD;
+      this.trackingService.eventTrack('Sign In page opened - enter password state');
     } else {
       this.currentStep = SignInPageState.SELECT_SIGN_IN_METHOD;
+      this.trackingService.eventTrack('Sign In page opened - select sign in state');
     }
     const fn = (): void => {
       this.goBack(this.currentStep);
@@ -293,6 +314,7 @@ export class SignInPage implements OnInit {
   }
 
   changeState(state: SignInPageState): void {
+    this.trackingService.eventTrack('Sign in page navigation', { state });
     this.currentStep = state;
   }
 

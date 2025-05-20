@@ -1,0 +1,27 @@
+<ion-header mode="md" class="review-split-expense-modal">
+  <ion-toolbar>
+    <div class="review-split-expense-modal--header">
+      <ion-buttons>
+        <ion-button (click)="close()">
+          <mat-icon class="fy-icon-close" svgIcon="cross"></mat-icon>
+        </ion-button>
+      </ion-buttons>
+      <ion-title>Review split expenses</ion-title>
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ng-container>
+    <div *ngFor="let expense of splitExpenses; let i = index" class="review-split-expense-modal--expense-container">
+      <app-expense-card-v2
+        [expense]="expense"
+        [expenseIndex]="i"
+        [showDt]="false"
+        (goToTransaction)="goToExpense($event)"
+      >
+      </app-expense-card-v2>
+      <div class="review-split-expense-modal--divider"></div>
+    </div>
+  </ng-container>
+</ion-content>

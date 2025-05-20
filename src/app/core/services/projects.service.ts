@@ -1,6 +1,4 @@
 import { Injectable } from '@angular/core';
-import { ApiService } from './api.service';
-import { ApiV2Service } from './api-v2.service';
 import { map } from 'rxjs/operators';
 import { Cacheable } from 'ts-cacheable';
 import { Observable } from 'rxjs';
@@ -18,11 +16,7 @@ import { PlatformProjectArgs } from '../models/platform/v1/platform-project-args
   providedIn: 'root',
 })
 export class ProjectsService {
-  constructor(
-    private apiService: ApiService,
-    private apiV2Service: ApiV2Service,
-    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService
-  ) {}
+  constructor(private spenderPlatformV1ApiService: SpenderPlatformV1ApiService) {}
 
   @Cacheable()
   getByParamsUnformatted(
@@ -116,7 +110,7 @@ export class ProjectsService {
     isProjectCategoryRestrictionsEnabled: boolean
   ): OrgCategory[] {
     let categoryList: OrgCategory[] = [];
-    if (project && isProjectCategoryRestrictionsEnabled) {
+    if (project && isProjectCategoryRestrictionsEnabled && project.project_org_category_ids) {
       categoryList = activeCategoryList.filter((category: OrgCategory) => {
         const catId = category.id;
         return project.project_org_category_ids.indexOf(catId as never) > -1;

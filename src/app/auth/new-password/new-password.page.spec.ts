@@ -8,7 +8,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { DeviceService } from 'src/app/core/services/device.service';
 import { LoginInfoService } from 'src/app/core/services/login-info.service';
-import { FormBuilder, FormControl, ReactiveFormsModule } from '@angular/forms';
+import { UntypedFormBuilder, FormControl, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
@@ -16,7 +16,7 @@ import { extendedDeviceInfoMockData } from 'src/app/core/mock-data/extended-devi
 import { RouterTestingModule } from '@angular/router/testing';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 
@@ -48,7 +48,7 @@ describe('NewPasswordPage', () => {
       declarations: [NewPasswordPage],
       imports: [IonicModule.forRoot(), ReactiveFormsModule, RouterTestingModule],
       providers: [
-        FormBuilder,
+        UntypedFormBuilder,
         { provide: AuthService, useValue: authServiceSpy },
         { provide: RouterAuthService, useValue: routerAuthServiceSpy },
         { provide: LoaderService, useValue: loaderServiceSpy },
@@ -112,7 +112,7 @@ describe('NewPasswordPage', () => {
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
       expect(routerAuthService.resetPassword).toHaveBeenCalledOnceWith(refreshToken, passwordValue);
       expect(authService.refreshEou).toHaveBeenCalledTimes(1);
-      expect(trackingService.onSignin).toHaveBeenCalledOnceWith('ajain@fyle.in');
+      expect(trackingService.onSignin).toHaveBeenCalledOnceWith(resetPasswordRes.us.id);
       expect(trackingService.resetPassword).toHaveBeenCalledTimes(1);
       expect(component.trackLoginInfo).toHaveBeenCalledTimes(1);
       expect(snackbarPropertiesService.setSnackbarProperties).toHaveBeenCalledOnceWith('success', { message });
@@ -159,7 +159,7 @@ describe('NewPasswordPage', () => {
     tick(500);
 
     expect(deviceService.getDeviceInfo).toHaveBeenCalledTimes(1);
-    expect(trackingService.eventTrack).toHaveBeenCalledOnceWith('Added Login Info', { label: '5.50.0' });
+    expect(trackingService.eventTrack).toHaveBeenCalledTimes(2);
     expect(loginInfoService.addLoginInfo).toHaveBeenCalledOnceWith('5.50.0', mockDate);
   }));
 

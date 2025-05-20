@@ -5752,7 +5752,7 @@ export const policyExpense3: Expense = deepFreeze({
   tx_policy_amount: 0.0000001,
 });
 
-export const expenseListwithoutID: Expense[] = deepFreeze([
+export const expenseListWithoutID: Expense[] = deepFreeze([
   { ...expenseList4[0], tx_id: null },
   { ...expenseList4[1], tx_id: null },
 ]);

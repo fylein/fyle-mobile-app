@@ -1,7 +1,7 @@
 import { getCurrencySymbol } from '@angular/common';
 import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { ActivatedRoute, NavigationStart, Params, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, PopoverController } from '@ionic/angular';
 import { cloneDeep, isEqual, isNumber } from 'lodash';
@@ -84,6 +84,9 @@ import { UtilityService } from 'src/app/core/services/utility.service';
 import { FeatureConfigService } from 'src/app/core/services/platform/v1/spender/feature-config.service';
 import * as dayjs from 'dayjs';
 import { ExpensesQueryParams } from 'src/app/core/models/platform/v1/expenses-query-params.model';
+import { ExtendQueryParamsService } from 'src/app/core/services/extend-query-params.service';
+import { FooterState } from 'src/app/shared/components/footer/footer-state.enum';
+import { FooterService } from 'src/app/core/services/footer.service';
 
 @Component({
   selector: 'app-my-expenses',
@@ -195,7 +198,7 @@ export class MyExpensesPage implements OnInit {
 
   isNewReportsFlowEnabled = false;
 
-  isDisabled = false;
+  isDeleteDisabled = false;
 
   restrictPendingTransactionsEnabled = false;
 
@@ -235,11 +238,17 @@ export class MyExpensesPage implements OnInit {
     private spenderReportsService: SpenderReportsService,
     private authService: AuthService,
     private utilityService: UtilityService,
-    private featureConfigService: FeatureConfigService
+    private featureConfigService: FeatureConfigService,
+    private extendQueryParamsService: ExtendQueryParamsService,
+    private footerService: FooterService
   ) {}
 
   get HeaderState(): typeof HeaderState {
     return HeaderState;
+  }
+
+  get FooterState(): typeof FooterState {
+    return FooterState;
   }
 
   clearText(isFromCancel: string): void {
@@ -274,6 +283,7 @@ export class MyExpensesPage implements OnInit {
 
   switchSelectionMode(expense?: PlatformExpense): void {
     this.selectionMode = !this.selectionMode;
+    this.footerService.updateSelectionMode(this.selectionMode);
     if (!this.selectionMode) {
       if (this.loadExpenses$.getValue().searchString) {
         this.headerState = HeaderState.simpleSearch;
@@ -295,10 +305,13 @@ export class MyExpensesPage implements OnInit {
     if (expense) {
       this.selectExpense(expense);
     }
+
+    this.checkDeleteDisabled().pipe(take(1)).subscribe();
   }
 
   switchOutboxSelectionMode(expense?: Expense): void {
     this.selectionMode = !this.selectionMode;
+    this.footerService.updateSelectionMode(this.selectionMode);
     if (!this.selectionMode) {
       if (this.loadExpenses$.getValue().searchString) {
         this.headerState = HeaderState.simpleSearch;
@@ -385,13 +398,13 @@ export class MyExpensesPage implements OnInit {
     const isPerDiemEnabled = orgSettings.per_diem.enabled && allowedExpenseTypes.perDiem;
     that.actionSheetButtons = [
       {
-        text: 'Capture Receipt',
+        text: 'Capture receipt',
         icon: 'assets/svg/camera.svg',
         cssClass: 'capture-receipt',
         handler: this.actionSheetButtonsHandler('capture receipts', 'camera_overlay'),
       },
       {
-        text: 'Add Manually',
+        text: 'Add manually',
         icon: 'assets/svg/list.svg',
         cssClass: 'capture-receipt',
         handler: this.actionSheetButtonsHandler('Add Expense', 'add_edit_expense'),
@@ -400,19 +413,19 @@ export class MyExpensesPage implements OnInit {
 
     if (mileageEnabled) {
       that.actionSheetButtons.push({
-        text: 'Add Mileage',
+        text: 'Add mileage',
         icon: 'assets/svg/mileage.svg',
         cssClass: 'capture-receipt',
-        handler: this.actionSheetButtonsHandler('Add Mileage', 'add_edit_mileage'),
+        handler: this.actionSheetButtonsHandler('Add mileage', 'add_edit_mileage'),
       });
     }
 
     if (isPerDiemEnabled) {
       that.actionSheetButtons.push({
-        text: 'Add Per Diem',
+        text: 'Add per diem',
         icon: 'assets/svg/calendar.svg',
         cssClass: 'capture-receipt',
-        handler: this.actionSheetButtonsHandler('Add Per Diem', 'add_edit_per_diem'),
+        handler: this.actionSheetButtonsHandler('Add per diem', 'add_edit_per_diem'),
       });
     }
   }
@@ -448,12 +461,19 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
+  initClassObservables(): void {
+    const fn = (): void => {
+      this.backButtonAction();
+    };
+    const priority = BackButtonActionPriority.MEDIUM;
+    this.hardwareBackButton = this.platformHandlerService.registerBackButtonAction(priority, fn);
+  }
+
   ionViewWillEnter(): void {
     this.isNewReportsFlowEnabled = false;
-    this.hardwareBackButton = this.platformHandlerService.registerBackButtonAction(
-      BackButtonActionPriority.MEDIUM,
-      this.backButtonAction
-    );
+    this.initClassObservables();
+
+    this.checkDeleteDisabled().pipe(takeUntil(this.onPageExit$)).subscribe();
 
     this.tasksService.getExpensesTaskCount().subscribe((expensesTaskCount) => {
       this.expensesTaskCount = expensesTaskCount;
@@ -501,14 +521,16 @@ export class MyExpensesPage implements OnInit {
         switchMap(() => this.getCardDetail())
       )
       .subscribe((cards) => {
+        const cardNumbers: Array<{ label: string; value: string }> = [];
         cards.forEach((card) => {
           const cardNickname = card.cardNickname ? ` (${card.cardNickname})` : '';
           const cardDetail = {
             label: this.maskNumber.transform(card.cardNumber) + cardNickname,
             value: card.cardNumber,
           };
-          this.cardNumbers.push(cardDetail);
+          cardNumbers.push(cardDetail);
         });
+        this.cardNumbers = cardNumbers;
       });
 
     this.headerState = HeaderState.base;
@@ -533,6 +555,7 @@ export class MyExpensesPage implements OnInit {
     });
 
     this.selectionMode = false;
+    this.footerService.updateSelectionMode(this.selectionMode);
     this.selectedElements = [];
 
     this.syncOutboxExpenses();
@@ -569,14 +592,13 @@ export class MyExpensesPage implements OnInit {
 
     const paginatedPipe = this.loadExpenses$.pipe(
       switchMap((params) => {
-        const queryParams = params.queryParams || {};
+        let queryParams = params.queryParams || {};
 
         queryParams.report_id = queryParams.report_id || 'is.null';
         queryParams.state = 'in.(COMPLETE,DRAFT)';
 
         if (params.searchString) {
-          queryParams.q = params.searchString;
-          queryParams.q = queryParams.q + ':*';
+          queryParams = this.extendQueryParamsService.extendQueryParamsForTextSearch(queryParams, params.searchString);
         } else if (params.searchString === '') {
           delete queryParams.q;
         }
@@ -735,8 +757,6 @@ export class MyExpensesPage implements OnInit {
       )
     );
     this.doRefresh();
-
-    this.checkDeleteDisabled();
 
     const optInModalPostExpenseCreationFeatureConfig = {
       feature: 'OPT_IN_POPUP_POST_EXPENSE_CREATION',
@@ -967,7 +987,7 @@ export class MyExpensesPage implements OnInit {
     const filterMain = this.myExpensesService.getFilters();
     if (this.cardNumbers?.length > 0) {
       filterMain.push({
-        name: 'Cards',
+        name: 'Cards ending in...',
         optionType: FilterOptionType.multiselect,
         options: this.cardNumbers,
       } as FilterOptions<string>);
@@ -997,10 +1017,9 @@ export class MyExpensesPage implements OnInit {
       const params = this.addNewFiltersToParams();
 
       this.loadExpenses$.next(params);
-
       this.filterPills = this.generateFilterPills(this.filters);
       this.trackingService.myExpensesFilterApplied({
-        ...this.filters,
+        filterLabels: Object.keys(this.filters),
       });
     }
   }
@@ -1098,6 +1117,7 @@ export class MyExpensesPage implements OnInit {
     }
     this.setExpenseStatsOnSelect();
     this.isMergeAllowed = this.sharedExpenseService.isMergeAllowed(this.selectedElements);
+    this.checkDeleteDisabled().pipe(take(1)).subscribe();
   }
 
   goToTransaction(event: { expense: PlatformExpense; expenseIndex: number }): void {
@@ -1444,6 +1464,7 @@ export class MyExpensesPage implements OnInit {
 
     this.isReportableExpensesSelected = false;
     this.selectionMode = false;
+    this.footerService.updateSelectionMode(this.selectionMode);
     this.headerState = HeaderState.base;
     this.doRefresh();
 
@@ -1509,14 +1530,14 @@ export class MyExpensesPage implements OnInit {
     await actionSheet.present();
   }
 
-  deleteSelectedExpenses(offlineExpenses: Partial<Expense>[]): Observable<Transaction[]> {
+  deleteSelectedExpenses(offlineExpenses: Partial<Expense>[]): Observable<void> {
     if (offlineExpenses?.length > 0) {
       this.transactionOutboxService.deleteBulkOfflineExpenses(this.pendingTransactions, offlineExpenses);
       return of(null);
     } else {
       this.selectedElements = this.expensesToBeDeleted.filter((expense) => expense.id);
       if (this.selectedElements.length > 0) {
-        return this.transactionService.deleteBulk(this.selectedElements.map((selectedExpense) => selectedExpense.id));
+        return this.expenseService.deleteExpenses(this.selectedElements.map((selectedExpense) => selectedExpense.id));
       } else {
         return of(null);
       }
@@ -1595,6 +1616,7 @@ export class MyExpensesPage implements OnInit {
 
       this.isReportableExpensesSelected = false;
       this.selectionMode = false;
+      this.footerService.updateSelectionMode(this.selectionMode);
       this.headerState = HeaderState.base;
 
       this.doRefresh();
@@ -1611,6 +1633,7 @@ export class MyExpensesPage implements OnInit {
           this.transactionService.getReportableExpenses(this.selectedOutboxExpenses).length > 0;
         this.outboxExpensesToBeDeleted = this.selectedOutboxExpenses;
         this.setOutboxExpenseStatsOnSelect();
+        this.checkDeleteDisabled().pipe(take(1)).subscribe();
       } else {
         this.loadExpenses$
           .pipe(
@@ -1641,6 +1664,7 @@ export class MyExpensesPage implements OnInit {
                 this.restrictPendingTransactionsEnabled
               ).length > 0;
             this.setExpenseStatsOnSelect();
+            this.checkDeleteDisabled().pipe(take(1)).subscribe();
           });
       }
     } else {
@@ -1650,6 +1674,7 @@ export class MyExpensesPage implements OnInit {
       this.isReportableExpensesSelected =
         this.sharedExpenseService.getReportableExpenses(this.selectedElements).length > 0;
       this.setExpenseStatsOnSelect();
+      this.checkDeleteDisabled().pipe(take(1)).subscribe();
     }
   }
 
@@ -1672,11 +1697,13 @@ export class MyExpensesPage implements OnInit {
     } else if (filterType === 'date') {
       await this.openFilters('Date');
     } else if (filterType === 'sort') {
-      await this.openFilters('Sort By');
+      await this.openFilters('Sort by');
     } else if (filterType === 'splitExpense') {
       await this.openFilters('Split Expense');
     } else if (filterType === 'potentialDuplicates') {
       await this.openFilters('Potential duplicates');
+    } else if (filterType === 'cardNumbers') {
+      await this.openFilters('Cards ending in...');
     }
   }
 
@@ -1755,12 +1782,12 @@ export class MyExpensesPage implements OnInit {
     return this.isConnected$.pipe(
       map((isConnected) => {
         if (isConnected) {
-          this.isDisabled =
+          this.isDeleteDisabled =
             this.selectedElements?.length === 0 ||
             !this.expensesToBeDeleted ||
             (this.expensesToBeDeleted?.length === 0 && this.cccExpenses > 0);
         } else if (!isConnected) {
-          this.isDisabled = this.selectedOutboxExpenses.length === 0 || !this.outboxExpensesToBeDeleted;
+          this.isDeleteDisabled = this.selectedOutboxExpenses.length === 0 || !this.outboxExpensesToBeDeleted;
         }
       })
     );

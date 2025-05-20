@@ -2,7 +2,10 @@ import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angul
 import { IonicModule, ModalController, Platform } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import {
+  MatLegacySnackBar as MatSnackBar,
+  MatLegacySnackBarModule as MatSnackBarModule,
+} from '@angular/material/legacy-snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExpensePreviewComponent } from './expense-preview.component';
@@ -128,7 +131,9 @@ describe('ExpensePreviewComponent', () => {
 
     expect(personalCardsService.matchExpense).toHaveBeenCalledWith('testExpenseId', 'testCardTxnId');
     expect(modalController.dismiss).toHaveBeenCalledTimes(1);
-    expect(router.navigate).toHaveBeenCalledWith(['/', 'enterprise', 'personal_cards']);
+    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'personal_cards'], {
+      queryParams: { refresh: true },
+    });
     expect(trackingService.oldExpensematchedFromPersonalCard).toHaveBeenCalledTimes(1);
   });
 });

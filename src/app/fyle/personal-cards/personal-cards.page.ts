@@ -5,6 +5,7 @@ import {
   ElementRef,
   EventEmitter,
   NgZone,
+  OnDestroy,
   OnInit,
   ViewChild,
 } from '@angular/core';
@@ -34,11 +35,11 @@ import { HeaderState } from 'src/app/shared/components/fy-header/header-state.en
 import * as dayjs from 'dayjs';
 import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
 import { DateRangeModalComponent } from './date-range-modal/date-range-modal.component';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { SpinnerDialog } from '@awesome-cordova-plugins/spinner-dialog/ngx';
 import { ModalController, Platform } from '@ionic/angular';
-import { ApiV2Service } from 'src/app/core/services/api-v2.service';
+import { ExtendQueryParamsService } from 'src/app/core/services/extend-query-params.service';
 import { InAppBrowserService } from 'src/app/core/services/in-app-browser.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
@@ -47,7 +48,7 @@ import { PersonalCardsService } from 'src/app/core/services/personal-cards.servi
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExpensePreviewComponent } from '../personal-cards-matched-expenses/expense-preview/expense-preview.component';
-import { MatCheckboxChange } from '@angular/material/checkbox';
+import { MatLegacyCheckboxChange as MatCheckboxChange } from '@angular/material/legacy-checkbox';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-option-type.enum';
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
@@ -67,7 +68,7 @@ type Filters = Partial<PersonalCardFilter>;
   templateUrl: './personal-cards.page.html',
   styleUrls: ['./personal-cards.page.scss'],
 })
-export class PersonalCardsPage implements OnInit, AfterViewInit {
+export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef<HTMLInputElement>;
 
   headerState: HeaderState = HeaderState.base;
@@ -138,7 +139,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
   scrolled = false;
 
-  onPageExit$ = new Subject();
+  onComponentDestroy$ = new Subject();
 
   constructor(
     private personalCardsService: PersonalCardsService,
@@ -151,7 +152,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
     private modalController: ModalController,
-    private apiV2Service: ApiV2Service,
+    private extendQueryParamsService: ExtendQueryParamsService,
     private platform: Platform,
     private spinnerDialog: SpinnerDialog,
     private trackingService: TrackingService,
@@ -168,6 +169,17 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     } else {
       this.mode = 'md';
     }
+  }
+
+  ionViewWillEnter(): void {
+    this.activatedRoute.queryParams.subscribe((params) => {
+      if (params?.refresh) {
+        const currentParams = this.loadData$.getValue();
+        this.currentPageNumber = 1;
+        currentParams.pageNumber = this.currentPageNumber;
+        this.loadData$.next(currentParams);
+      }
+    });
   }
 
   loadLinkedAccounts(): void {
@@ -190,11 +202,8 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
   loadTransactionCount(): void {
     this.transactionsCount$ = this.loadData$.pipe(
       switchMap((params) => {
-        const queryParams: Partial<PlatformPersonalCardQueryParams> = this.apiV2Service.extendQueryParamsForTextSearch(
-          params.queryParams,
-          params.searchString,
-          true
-        );
+        const queryParams: Partial<PlatformPersonalCardQueryParams> =
+          this.extendQueryParamsService.extendQueryParamsForTextSearch(params.queryParams, params.searchString);
         return this.personalCardsService.getBankTransactionsCount(queryParams);
       }),
       shareReplay(1)
@@ -230,7 +239,10 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
         } else {
           queryParams = params.queryParams as Record<string, string>;
         }
-        queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams as {}, params.searchString, true);
+        queryParams = this.extendQueryParamsService.extendQueryParamsForTextSearch(
+          queryParams as {},
+          params.searchString
+        );
         return this.personalCardsService.getBankTransactionsCount(queryParams).pipe(
           switchMap((count) => {
             if (count > (params.pageNumber - 1) * 10) {
@@ -287,7 +299,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
         map((event) => event.srcElement.value),
         distinctUntilChanged(),
         debounceTime(400),
-        takeUntil(this.onPageExit$)
+        takeUntil(this.onComponentDestroy$)
       )
       .subscribe((searchString) => {
         const currentParams = this.loadData$.getValue();
@@ -299,16 +311,16 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.cdr.detectChanges();
   }
 
-  ionViewWillLeave(): void {
-    this.onPageExit$.next(null);
-    this.onPageExit$.complete();
+  ngOnDestroy(): void {
+    this.onComponentDestroy$.next(null);
+    this.onComponentDestroy$.complete();
   }
 
   setupNetworkWatcher(): void {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
-      takeUntil(this.onPageExit$),
+      takeUntil(this.onComponentDestroy$),
       shareReplay(1)
     );
 
@@ -575,7 +587,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       componentProps: {
         filterOptions: [
           {
-            name: 'Created On',
+            name: 'Created date',
             optionType: FilterOptionType.date,
             options: [
               {
@@ -601,7 +613,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
             ],
           } as FilterOptions<DateFilters>,
           {
-            name: 'Updated On',
+            name: 'Updated date',
             optionType: FilterOptionType.date,
             options: [
               {
@@ -706,11 +718,11 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
   }
 
   onFilterClose(filterLabel: string): void {
-    if (filterLabel === 'Created On') {
+    if (filterLabel === 'Created date') {
       delete this.filters.createdOn;
     }
 
-    if (filterLabel === 'Updated On') {
+    if (filterLabel === 'Updated date') {
       delete this.filters.updatedOn;
     }
 

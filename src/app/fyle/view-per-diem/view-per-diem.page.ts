@@ -9,7 +9,6 @@ import { PerDiemService } from 'src/app/core/services/per-diem.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { switchMap, finalize, shareReplay, map, filter, take } from 'rxjs/operators';
 import { PopoverController, ModalController } from '@ionic/angular';
-import { StatusService } from 'src/app/core/services/status.service';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { TrackingService } from '../../core/services/tracking.service';
@@ -32,6 +31,8 @@ import { ExpensesService as SpenderExpensesService } from 'src/app/core/services
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
+import { ExpenseCommentService as SpenderExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
+import { ExpenseCommentService as ApproverExpenseCommentService } from 'src/app/core/services/platform/v1/approver/expense-comment.service';
 
 @Component({
   selector: 'app-view-per-diem',
@@ -102,7 +103,6 @@ export class ViewPerDiemPage {
     private policyService: PolicyService,
     private router: Router,
     private popoverController: PopoverController,
-    private statusService: StatusService,
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService,
@@ -111,7 +111,9 @@ export class ViewPerDiemPage {
     private dependentFieldsService: DependentFieldsService,
     private spenderExpensesService: SpenderExpensesService,
     private approverExpensesService: ApproverExpensesService,
-    private approverReportsService: ApproverReportsService
+    private approverReportsService: ApproverReportsService,
+    private spenderExpenseCommentService: SpenderExpenseCommentService,
+    private approverExpenseCommentService: ApproverExpenseCommentService
   ) {}
 
   get ExpenseView(): typeof ExpenseView {
@@ -154,6 +156,7 @@ export class ViewPerDiemPage {
       componentProps: {
         objectType: 'transactions',
         objectId: this.expenseId,
+        view: this.view,
       },
       ...this.modalProperties.getModalDefaultProperties(),
     });
@@ -298,7 +301,10 @@ export class ViewPerDiemPage {
       this.policyViolations$ = of(null);
     }
 
-    this.comments$ = this.statusService.find('transactions', this.expenseId);
+    this.comments$ =
+      this.view === ExpenseView.team
+        ? this.approverExpenseCommentService.getTransformedComments(this.expenseId)
+        : this.spenderExpenseCommentService.getTransformedComments(this.expenseId);
 
     this.isCriticalPolicyViolated$ = this.perDiemExpense$.pipe(
       map((expense) => this.isNumber(expense.policy_amount) && expense.policy_amount < 0.0001)

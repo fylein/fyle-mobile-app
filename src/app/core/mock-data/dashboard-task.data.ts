@@ -26,7 +26,7 @@ export const dashboardTasksData: DashboardTask[] = deepFreeze([
     subheader: '5 expenses  worth ₹37.04K  can be added to a report',
     amount: '37.04K',
     count: 5,
-    ctas: [{ content: 'Add to Report', event: 1 }],
+    ctas: [{ content: 'Add to report', event: 1 }],
   },
   {
     icon: TaskIcon.REPORT,

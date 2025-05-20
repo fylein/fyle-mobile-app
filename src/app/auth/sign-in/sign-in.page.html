@@ -22,7 +22,7 @@
 
       <div class="sign-in__divider-container">
         <div class="sign-in__divider"></div>
-        or
+        Or
         <div class="sign-in__divider"></div>
       </div>
 
@@ -109,7 +109,7 @@
           </div>
           <div
             class="sign-in__enter-password__text sign-in__enter-password__text-block"
-            [ngClass]="{'sign-in__enter-password__text__invalid': fg.controls.password.touched && !fg.controls.password.valid}"
+            [ngClass]="{'sign-in__enter-password__text__password-focus': focusOnPassword && !(fg.controls.password.touched && !fg.controls.password.valid),'sign-in__enter-password__text__invalid': fg.controls.password.touched && !fg.controls.password.valid}"
           >
             <div class="sign-in__enter-password__input-container__label">Password</div>
             <div class="sign-in__enter-password__password-container">
@@ -119,6 +119,8 @@
                 [type]="hidePassword ? 'password': 'text'"
                 class="sign-in__enter-password__text-input smartlook-show"
                 formControlName="password"
+                (focus)="focusOnPassword = true"
+                (blur)="focusOnPassword = false"
               />
               <div
                 class="sign-in__enter-password__password-icon-container"

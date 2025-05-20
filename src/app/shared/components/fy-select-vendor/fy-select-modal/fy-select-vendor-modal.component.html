@@ -2,7 +2,7 @@
   <mat-icon class="fy-modal-top-bar" svgIcon="notch"></mat-icon>
   <ion-toolbar mode="md" class="fy-modal-toolbar">
     <ion-title>
-      <div class="selection-modal--title">Select Merchant</div>
+      <div class="selection-modal--title">Select merchant</div>
     </ion-title>
     <ion-buttons slot="start">
       <ion-button (click)="onDoneClick()">
@@ -47,7 +47,7 @@
     <div class="selection-modal--container">
       <div *ngIf="value && value.trim().length">
         <div *ngIf="!(selectableOptions?.length > 0)" class="selection-modal--list-element">
-          <i> No Results Found </i>
+          <i> No results found </i>
         </div>
         <div matRipple class="selection-modal--list-element" (click)="onNewSelect()">
           <div class="selection-modal--add-item-block">

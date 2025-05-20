@@ -1,16 +1,22 @@
 import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } from '@angular/core';
-import { AbstractControl, FormArray, FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  UntypedFormArray,
+  UntypedFormBuilder,
+  UntypedFormGroup,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, PopoverController } from '@ionic/angular';
-import { concat, forkJoin, from, iif, noop, Observable, of, throwError } from 'rxjs';
-import { catchError, concatMap, finalize, map, reduce, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { concat, forkJoin, from, iif, noop, Observable, of } from 'rxjs';
+import { concatMap, finalize, map, reduce, shareReplay, switchMap } from 'rxjs/operators';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advance-requests-custom-fields.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { FileService } from 'src/app/core/services/file.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
-import { StatusService } from 'src/app/core/services/status.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
 import { NetworkService } from 'src/app/core/services/network.service';
@@ -54,7 +60,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
   mode: string;
 
-  fg: FormGroup;
+  fg: UntypedFormGroup;
 
   homeCurrency$: Observable<string>;
 
@@ -90,11 +96,10 @@ export class AddEditAdvanceRequestPage implements OnInit {
     private activatedRoute: ActivatedRoute,
     private authService: AuthService,
     private router: Router,
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     private advanceRequestsCustomFieldsService: AdvanceRequestsCustomFieldsService,
     private advanceRequestService: AdvanceRequestService,
     private modalController: ModalController,
-    private statusService: StatusService,
     private loaderService: LoaderService,
     private projectsService: ProjectsService,
     private popoverController: PopoverController,
@@ -145,7 +150,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
       purpose: [, Validators.required],
       notes: [],
       project: [],
-      customFieldValues: new FormArray([]),
+      customFieldValues: new UntypedFormArray([]),
     });
 
     if (!this.id) {
@@ -184,6 +189,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
       return this.saveDraftAdvanceRequest(advanceRequest);
     }
   }
+
   showFormValidationErrors(): void {
     this.fg.markAllAsTouched();
     const formContainer = this.formContainer.nativeElement as HTMLElement;
@@ -239,8 +245,8 @@ export class AddEditAdvanceRequestPage implements OnInit {
       }
       this.generateAdvanceRequestFromFg(this.extendedAdvanceRequest$)
         .pipe(
-          switchMap((advanceRequest) => {
-            return this.saveAndSubmit(event, advanceRequest).pipe(
+          switchMap((advanceRequest) =>
+            this.saveAndSubmit(event, advanceRequest).pipe(
               finalize(() => {
                 this.fg.reset();
                 if (event === 'draft') {
@@ -254,8 +260,8 @@ export class AddEditAdvanceRequestPage implements OnInit {
                   return this.router.navigate(['/', 'enterprise', 'my_advances']);
                 }
               })
-            );
-          })
+            )
+          )
         )
         .subscribe(noop);
     } else {
@@ -583,7 +589,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
     this.customFields$ = this.advanceRequestsCustomFieldsService.getAll().pipe(
       map((customFields) => {
-        const customFieldsFormArray = this.fg.controls.customFieldValues as FormArray;
+        const customFieldsFormArray = this.fg.controls.customFieldValues as UntypedFormArray;
         customFieldsFormArray.clear();
         for (const customField of customFields) {
           let value;

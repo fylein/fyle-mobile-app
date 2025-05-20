@@ -6,7 +6,7 @@
       </button>
       <ion-back-button mode="md" *ngIf="navigateBack"></ion-back-button>
     </ion-buttons>
-    <ion-title mode="md" class="page-title"> View Report </ion-title>
+    <ion-title mode="md" class="page-title">View expense report</ion-title>
     <ion-buttons mode="md" slot="end">
       <ng-container *ngIf="report$|async as report">
         <ng-container *ngIf="report.num_expenses">
@@ -47,7 +47,7 @@
             <ion-col size="3.5">
               <ng-container *ngIf="(simplifyReportsSettings$ | async) as simplifyReportsSettings">
                 <div class="view-reports--report-state-pill state-pill state-{{report.state | reportState}}">
-                  {{report.state | reportState : simplifyReportsSettings.enabled | snakeCaseToSpaceCase}}
+                  {{report.state | reportState | titlecase }}
                 </div>
               </ng-container>
             </ion-col>
@@ -70,8 +70,8 @@
                 <div class="view-reports--submitted-date">
                   <div>
                     <span class="view-reports--submitted-date__text"
-                      >{{report.state === "DRAFT" ? "Created on : " : (report.last_resubmitted_at ? "Resubmitted on : "
-                      : "Submitted on : " )}}
+                      >{{report.state === "DRAFT" ? "Created date : " : (report.last_resubmitted_at ? "Resubmitted date
+                      : " : "Submitted date : " )}}
                     </span>
                     <span *ngIf="report.state === 'DRAFT'" class="view-reports--submitted-date__date"
                       >{{report.created_at | date: 'MMM dd, YYYY'}}</span
@@ -89,7 +89,7 @@
                   class="view-reports--view-info__icon"
                   src="../../../assets/svg/info-circle-gradient.svg"
                 ></ion-icon>
-                <span class="view-reports--view-info__content">View Info</span>
+                <span class="view-reports--view-info__content">View info</span>
               </div>
             </ion-col>
           </ion-row>
@@ -99,19 +99,42 @@
       <div class="view-reports--approvers-wrapper">
         <div class="view-reports--approvers-section" *ngIf="(report.state !== 'DRAFT')">
           <div *ngIf="report.approvals.length > 0" class="view-reports--approval-state-block">
-            <div class="view-reports--approvers">Approvers</div>
-            <div *ngFor="let approver of report.approvals">
-              <div class="view-reports--approvers-list">
-                <div>{{ approver.approver_user.full_name }}</div>
-                <div class="view-reports--approver-state-section">
-                  <div
-                    class="view-reports--approver-state-pill view-reports--approver-state-pill__{{approver.state | lowercase}}"
-                  ></div>
-                  <span
-                    >{{ approver.state === 'APPROVAL_DONE' ? 'Approved' : (approver.state | titlecase |
-                    snakeCaseToSpaceCase)}}</span
-                  >
+            <div class="view-reports--approvers">
+              Approvers
+              <div
+                *ngIf="showViewApproverModal && approvals.length > 1"
+                class="view-reports--view-approvers"
+                (click)="openViewApproverModal()"
+              >
+                View all
+              </div>
+            </div>
+            <div *ngIf="!showViewApproverModal">
+              <div *ngFor="let approver of report.approvals">
+                <div class="view-reports--approvers-list">
+                  <div class="smartlook-hide">{{ approver?.approver_user?.full_name | ellipsis: 15 }}</div>
+                  <div class="view-reports--approver-state-section">
+                    <div
+                      class="view-reports--approver-state-pill view-reports--approver-state-pill__{{approver.state | lowercase}}"
+                    ></div>
+                    <span class="view-reports--approver-state-pill__text"
+                      >{{ approver.state === 'APPROVAL_DONE' ? 'Approved' : (approver.state | titlecase |
+                      snakeCaseToSpaceCase)}}</span
+                    >
+                  </div>
                 </div>
+              </div>
+            </div>
+            <div *ngIf="showViewApproverModal && approverToShow" class="view-reports--approvers-list">
+              <div class="smartlook-hide">{{ approverToShow?.approver_user?.full_name | ellipsis: 15 }}</div>
+              <div class="view-reports--approver-state-section">
+                <div
+                  class="view-reports--approver-state-pill view-reports--approver-state-pill__{{approverToShow?.state | lowercase}}"
+                ></div>
+                <span class="view-reports--approver-state-pill__text"
+                  >{{ approverToShow?.state === 'APPROVAL_DONE' ? 'Approved' : (approverToShow?.state | titlecase |
+                  snakeCaseToSpaceCase)}}</span
+                >
               </div>
             </div>
           </div>
@@ -173,10 +196,10 @@
           <div class="view-reports--expenses-zero-state" *ngIf="!isExpensesLoading && report.num_expenses === 0">
             <div class="text-center">
               <div class="view-reports--zero-state-image-container">
-                <img src="../../../assets/images/zero-states/invoice.png" alt="No expense in this report" />
+                <img src="../../../assets/images/zero-states/new-expenses.png" alt="No expense in this report" />
               </div>
-              <div class="view-reports--zero-state-semibold-header">Looks like you’ve got</div>
-              <div class="view-reports--zero-state-header">0 expense right now</div>
+              <div class="view-reports--zero-state-semibold-header">You have no expenses</div>
+              <div class="view-reports--zero-state-semibold-header">added to this report</div>
             </div>
             <div class="view-reports--footer-container">
               <button
@@ -202,7 +225,7 @@
           <div *ngIf="userComments?.length > 0" class="view-comment--container">
             <div *ngFor="let estatus of userComments">
               <div *ngIf="estatus.show_dt">
-                <div class="view-comment--date text-center">{{ estatus.created_at | dateFormat }}</div>
+                <div class="view-comment--date text-center">{{ estatus.created_at | dateWithTimezone }}</div>
               </div>
               <div
                 class="view-comment--block"
@@ -212,7 +235,9 @@
                 <ion-grid class="view-comment--card view-comment--self-comment text-right">
                   <ion-row>
                     <ion-col size="12">
-                      <div class="view-comment--name-container">{{ estatus.creator_user?.full_name }}</div>
+                      <div class="view-comment--name-container smartlook-hide">
+                        {{ estatus.creator_user?.full_name }}
+                      </div>
                     </ion-col>
                   </ion-row>
                   <ion-row>
@@ -233,7 +258,9 @@
                   </ion-row>
                   <ion-row>
                     <ion-col size="12">
-                      <div class="view-comment--comment-timestamp">{{ estatus.created_at | date: 'h:mm a' }}</div>
+                      <div class="view-comment--comment-timestamp">
+                        {{ estatus.created_at | dateWithTimezone: 'h:mm a' }}
+                      </div>
                     </ion-col>
                   </ion-row>
                 </ion-grid>
@@ -252,7 +279,9 @@
                 <ion-grid class="view-comment--card view-comment--others-comment text-left">
                   <ion-row>
                     <ion-col size="12">
-                      <div class="view-comment--name-container">{{ estatus.creator_user?.full_name }}</div>
+                      <div class="view-comment--name-container smartlook-hide">
+                        {{ estatus.creator_user?.full_name }}
+                      </div>
                     </ion-col>
                   </ion-row>
                   <ion-row>
@@ -273,7 +302,9 @@
                   </ion-row>
                   <ion-row>
                     <ion-col size="12">
-                      <div class="view-comment--comment-timestamp">{{ estatus.created_at | date: 'h:mm a' }}</div>
+                      <div class="view-comment--comment-timestamp">
+                        {{ estatus.created_at | dateWithTimezone: 'h:mm a' }}
+                      </div>
                     </ion-col>
                   </ion-row>
                 </ion-grid>
@@ -283,9 +314,9 @@
 
           <div class="view-comment--zero-state" *ngIf="userComments?.length === 0">
             <app-fy-zero-state
-              [image]="'../../../assets/images/zero-states/comments.svg'"
-              [header]="'Need to clarify something?'"
-              [message]="'Post a comment.'"
+              [image]="'../../../assets/images/zero-states/new-comments.png'"
+              [message]="'Need to clarify something?'"
+              [submessage]="'Post a comment'"
               [useNewStyling]="true"
               [unscaledImage]="true"
             ></app-fy-zero-state>
@@ -334,7 +365,7 @@
         [loading]="submitReportLoader"
         (click)="resubmitReport()"
       >
-        Resubmit Report
+        Resubmit report
       </ion-button>
       <ion-button
         class="fy-footer-cta fy-footer-cta--primary"
@@ -345,7 +376,7 @@
         [loading]="submitReportLoader"
         (click)="submitReport()"
       >
-        Submit Report
+        Submit report
       </ion-button>
     </div>
   </ion-toolbar>

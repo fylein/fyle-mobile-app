@@ -1,12 +1,12 @@
 import deepFreeze from 'deep-freeze-strict';
 
-import { ExpenseProperties } from '../models/tracking-properties.model';
 import {
   expectedUnflattendedTxnData4,
   expenseTrackCreate,
   trackAddExpenseWoCurrency,
   unflattenedTxnWithTrackData,
 } from './unflattened-txn.data';
+import { ExpenseProperties } from '../models/expense-properties.model';
 
 export const createExpenseProperties: ExpenseProperties = deepFreeze({
   Type: 'Receipt',

@@ -1,14 +1,14 @@
 import { Inject, Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { DateService } from './date.service';
-import { map, switchMap, concatMap, reduce, tap } from 'rxjs/operators';
+import { map, switchMap, tap, catchError } from 'rxjs/operators';
 import { StorageService } from './storage.service';
-import { from, Observable, range, forkJoin, of } from 'rxjs';
+import { from, Observable, forkJoin, of } from 'rxjs';
 import { OrgUserSettingsService } from './org-user-settings.service';
 import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
 import { Expense } from '../models/expense.model';
-import { Cacheable, CacheBuster } from 'ts-cacheable';
+import { CacheBuster } from 'ts-cacheable';
 import { UserEventService } from './user-event.service';
 import { UndoMerge } from '../models/undo-merge.model';
 import { cloneDeep } from 'lodash';
@@ -38,6 +38,7 @@ import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { expensesCacheBuster$ } from '../cache-buster/expense-cache-buster';
 import { FilterState } from '../enums/filter-state.enum';
 import { PaymentMode } from '../models/payment-mode.model';
+import { TrackingService } from './tracking.service';
 
 @Injectable({
   providedIn: 'root',
@@ -58,7 +59,8 @@ export class TransactionService {
     private paymentModesService: PaymentModesService,
     private orgSettingsService: OrgSettingsService,
     private accountsService: AccountsService,
-    private expensesService: ExpensesService
+    private expensesService: ExpensesService,
+    private trackingService: TrackingService
   ) {
     expensesCacheBuster$.subscribe(() => {
       if (this.clearTaskCache) {
@@ -81,33 +83,6 @@ export class TransactionService {
       tap(() => {
         this.clearTaskCache = clearTaskCache;
       })
-    );
-  }
-
-  @Cacheable({
-    cacheBusterObserver: expensesCacheBuster$,
-  })
-  @CacheBuster({
-    cacheBusterNotifier: expensesCacheBuster$,
-  })
-  delete(txnId: string): Observable<Expense> {
-    return this.apiService.delete<Expense>('/transactions/' + txnId);
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: expensesCacheBuster$,
-  })
-  deleteBulk(txnIds: string[]): Observable<Transaction[]> {
-    const chunkSize = 10;
-    const count = txnIds.length > chunkSize ? txnIds.length / chunkSize : 1;
-    return range(0, count).pipe(
-      concatMap((page) => {
-        const filteredtxnIds = txnIds.slice(chunkSize * page, chunkSize * page + chunkSize);
-        return this.apiService.post<Transaction>('/transactions/delete/bulk', {
-          txn_ids: filteredtxnIds,
-        });
-      }),
-      reduce((acc, curr) => acc.concat(curr), [] as Transaction[])
     );
   }
 
@@ -201,10 +176,23 @@ export class TransactionService {
         if ((isReceiptUpload || !isAmountPresent) && fileIds.length > 0) {
           return this.expensesService.createFromFile(fileIds[0], txn.source).pipe(
             switchMap((result) => {
-              // capture receipt flow: patching the expense in case of amount not present
+              /** capture receipt flow: patching the expense in case of amount not present
+               * if not receiptUpload and amount is not present, then it is the capture receipt
+               * flow where the user has captured a receipt and saved without entering the amount.
+               */
               if (!isReceiptUpload && !isAmountPresent) {
                 txn.id = result.data[0].id;
-                return this.upsert(this.cleanupExpensePayload(txn));
+                return this.upsert(this.cleanupExpensePayload(txn)).pipe(
+                  /**
+                   * ignoring error in case of patching the expense during the capture receipt flow
+                   * as the expense is already created with the receipt and we don't want the caller
+                   * to recall this function due to this patch expense failure
+                   */
+                  catchError((err: Error) => {
+                    this.trackingService.patchExpensesError({ label: err });
+                    return of(this.transformExpense(result.data[0]).tx);
+                  })
+                );
               } else {
                 return of(this.transformExpense(result.data[0]).tx);
               }
@@ -673,7 +661,7 @@ export class TransactionService {
         flight_return_travel_class: expense.travel_classes && expense.travel_classes[1],
         hotel_is_breakfast_provided: expense.hotel_is_breakfast_provided,
         tax_group_id: expense.tax_group_id,
-        creator_id: expense.employee?.id,
+        creator_id: expense.creator_user_id,
         request_id: expense.is_receipt_mandatory,
         report_id: expense.report_id,
         org_category_id: expense.category_id,
@@ -766,7 +754,7 @@ export class TransactionService {
       tx_split_group_user_amount: expense.split_group_amount,
       tx_skip_reimbursement: !expense.is_reimbursable,
       tx_file_ids: expense.file_ids,
-      tx_creator_id: expense.employee?.id,
+      tx_creator_id: expense.creator_user_id,
       tx_state: expense.state,
       tx_org_category_id: expense.category_id,
       tx_from_dt: expense.started_at,

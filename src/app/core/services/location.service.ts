@@ -23,25 +23,42 @@ export class LocationService {
     this.ROOT_ENDPOINT = environment.ROOT_URL;
   }
 
+  @Cacheable({
+    cacheBusterObserver: currentLocationCacheBuster$,
+    maxAge: 10 * 60 * 1000, // 10 minutes
+  })
+  getCurrentLocation(config: { enableHighAccuracy: boolean } = { enableHighAccuracy: false }): Observable<Position | null> {
+    return from(
+      Geolocation.getCurrentPosition({
+        timeout: 5000,
+        enableHighAccuracy: config.enableHighAccuracy,
+      }).catch((err: { message?: string; errorMessage?: string }) => {
+        if (
+          err?.message === "Location permission request was denied." ||
+          err?.errorMessage === "Location permission request was denied."
+        ) {
+          // Swallow this specific error by returning null
+          return null;
+        }
+        // Re-throw all other errors
+        throw err;
+      }) as Promise<Position | null>
+    ).pipe(
+      this.timeoutWhen(!config.enableHighAccuracy, 5000),
+      catchError(() => of(null))
+    );
+  }
+
   @Cacheable()
   get<T>(url: string, config = {}): Observable<T> {
     return this.httpClient.get<T>(this.ROOT_ENDPOINT + '/location' + url, config);
   }
 
-  @Cacheable({
-    cacheBusterObserver: currentLocationCacheBuster$,
-    maxAge: 10 * 60 * 1000, // 10 minutes
-  })
-  getCurrentLocation(config: { enableHighAccuracy: boolean } = { enableHighAccuracy: false }): Observable<Position> {
-    return from(
-      Geolocation.getCurrentPosition({
-        timeout: 5000,
-        enableHighAccuracy: config.enableHighAccuracy,
-      })
-    ).pipe(
-      this.timeoutWhen(!config.enableHighAccuracy, 5000),
-      catchError(() => of(null))
-    );
+  /**
+   * Busts the cache for the getCurrentLocation method.
+   */
+  clearCurrentLocationCache(): void {
+    currentLocationCacheBuster$.next();
   }
 
   timeoutWhen<T>(cond: boolean, value: number): OperatorFunction<T, T> {

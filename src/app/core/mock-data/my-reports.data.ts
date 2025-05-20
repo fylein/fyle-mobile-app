@@ -22,7 +22,7 @@ export const generatedFiltersStateDateSortParams = deepFreeze([
     },
   },
   {
-    name: 'Sort By',
+    name: 'Sort by',
     value: 'dateOldToNew',
   },
 ]);
@@ -54,7 +54,7 @@ export const expectedGenerateFilterPillsData = deepFreeze([
     value: 'this Week',
   },
   {
-    label: 'Sort By',
+    label: 'Sort by',
     type: 'sort',
     value: 'date - old to new',
   },
@@ -170,7 +170,7 @@ export const openFiltersOptions = deepFreeze([
     ],
   } as FilterOptions<DateFilters>,
   {
-    name: 'Sort By',
+    name: 'Sort by',
     optionType: FilterOptionType.singleselect,
     options: [
       {

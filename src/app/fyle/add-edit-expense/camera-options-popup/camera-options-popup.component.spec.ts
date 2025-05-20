@@ -5,6 +5,8 @@ import { FileService } from 'src/app/core/services/file.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { CameraOptionsPopupComponent } from './camera-options-popup.component';
+import { MAX_FILE_SIZE } from 'src/app/core/constants';
+import { LoaderService } from 'src/app/core/services/loader.service';
 
 describe('CameraOptionsPopupComponent', () => {
   let component: CameraOptionsPopupComponent;
@@ -12,11 +14,13 @@ describe('CameraOptionsPopupComponent', () => {
   let popoverController: jasmine.SpyObj<PopoverController>;
   let fileService: jasmine.SpyObj<FileService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
+  let loaderService: jasmine.SpyObj<LoaderService>;
 
   beforeEach(waitForAsync(() => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create', 'dismiss']);
     const fileServiceSpy = jasmine.createSpyObj('FileService', ['readFile']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['addAttachment']);
+    const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
 
     TestBed.configureTestingModule({
       declarations: [CameraOptionsPopupComponent],
@@ -34,6 +38,10 @@ describe('CameraOptionsPopupComponent', () => {
           provide: TrackingService,
           useValue: trackingServiceSpy,
         },
+        {
+          provide: LoaderService,
+          useValue: loaderServiceSpy,
+        },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
@@ -44,6 +52,7 @@ describe('CameraOptionsPopupComponent', () => {
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
+    loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
 
     fixture.detectChanges();
   }));
@@ -72,14 +81,14 @@ describe('CameraOptionsPopupComponent', () => {
     const sizeLimitExceededPopoverSpy = jasmine.createSpyObj('sizeLimitExceededPopover', ['present']);
     popoverController.create.and.resolveTo(sizeLimitExceededPopoverSpy);
 
-    component.showSizeLimitExceededPopover();
+    component.showSizeLimitExceededPopover(11534337);
     tick(500);
 
     expect(popoverController.create).toHaveBeenCalledOnceWith({
       component: PopupAlertComponent,
       componentProps: {
         title: 'Size limit exceeded',
-        message: 'The uploaded file is greater than 5MB in size. Please reduce the file size and try again.',
+        message: 'The uploaded file is greater than 11MB in size. Please reduce the file size and try again.',
         primaryCta: {
           text: 'OK',
         },
@@ -145,7 +154,8 @@ describe('CameraOptionsPopupComponent', () => {
     }));
 
     it('should show warning popup to the user when the file size exceeds the maximum file size limit  allowed', fakeAsync(() => {
-      const myBlob = new Blob([new ArrayBuffer(100 * 100 * 1000)], { type: 'application/octet-stream' });
+      const newSize = MAX_FILE_SIZE + 1;
+      const myBlob = new Blob([new ArrayBuffer(newSize)], { type: 'application/octet-stream' });
       const file = new File([myBlob], 'file');
 
       spyOn(component, 'closeClicked');
@@ -169,6 +179,36 @@ describe('CameraOptionsPopupComponent', () => {
       expect(popoverController.dismiss).not.toHaveBeenCalled();
       expect(component.closeClicked).toHaveBeenCalledTimes(1);
       expect(component.showSizeLimitExceededPopover).not.toHaveBeenCalled();
+    }));
+
+    it('should show loader if file reading takes more than 300ms', fakeAsync(() => {
+      // Setup delayed file read response
+      let resolveFileRead;
+      const fileReadPromise: Promise<string> = new Promise((resolve) => {
+        resolveFileRead = resolve;
+      });
+      fileService.readFile.and.returnValue(fileReadPromise);
+      loaderService.showLoader.and.resolveTo();
+
+      const myBlob = new Blob([new ArrayBuffer(100 * 100)], { type: 'application/octet-stream' });
+      const file = new File([myBlob], 'file');
+
+      component.uploadFileCallback(file);
+
+      // Fast-forward just beyond the 300ms threshold
+      tick(301);
+      expect(loaderService.showLoader).toHaveBeenCalledWith('Please wait...', 5000);
+
+      // Resolve file read and complete the operation
+      resolveFileRead('file-data');
+      tick(100);
+
+      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+      expect(popoverController.dismiss).toHaveBeenCalledOnceWith({
+        type: file.type,
+        dataUrl: 'file-data',
+        actionSource: 'gallery_upload',
+      });
     }));
   });
 });

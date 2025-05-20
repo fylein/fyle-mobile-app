@@ -8,7 +8,7 @@
       {{ expense.spent_at || expense.created_at | dateFormat }}
     </ng-container>
 
-    <ng-template #isOffline> Offline Expenses </ng-template>
+    <ng-template #isOffline> Offline expenses </ng-template>
   </ng-container>
 </div>
 
@@ -124,9 +124,9 @@
           <ng-container *ngIf="isSycing$ | async; else expenseCardScanning">
             <div class="expenses-card--scaning-receipt__container">
               <div class="expenses-card--scaning-receipt__header">
-                <ng-container *ngIf="category === 'mileage'; else uploadPerDiem"> Syncing Mileage </ng-container>
+                <ng-container *ngIf="category === 'mileage'; else uploadPerDiem"> Syncing mileage </ng-container>
                 <ng-template #uploadPerDiem>
-                  <ng-container *ngIf="category === 'per diem'; else uploadDefault"> Syncing Per Diem </ng-container>
+                  <ng-container *ngIf="category === 'per diem'; else uploadDefault"> Syncing per diem </ng-container>
                 </ng-template>
                 <ng-template #uploadDefault>
                   {{ expense.amount || expense.claim_amount ? 'Syncing' : 'Uploading' }} receipt...
@@ -137,7 +137,7 @@
                 <ng-container *ngIf="category === 'mileage' || category === 'per diem'; else receiptContent">
                   {{ category }}
                 </ng-container>
-                <ng-template #receiptContent> receipt </ng-template>
+                <ng-template #receiptContent> Receipt </ng-template>
                 will be added shortly.
               </div>
             </div>
@@ -150,7 +150,7 @@
             <ng-container *ngIf="isScanInProgress; else scanFailed">
               <div class="expenses-card--scaning-receipt__container">
                 <div class="expenses-card--scaning-receipt__header expenses-card--scaning-receipt__header-scanning">
-                  Scanning Receipt...
+                  Scanning receipt...
                 </div>
                 <div class="expenses-card--scaning-receipt__content">This takes a short while</div>
               </div>
@@ -193,7 +193,7 @@
                 >
                   {{ expense?.category?.name }}
                 </ng-container>
-                <ng-template #unspecifiedCategory> Unspecified Category </ng-template>
+                <ng-template #unspecifiedCategory> Unspecified category </ng-template>
               </div>
               <div class="expenses-card--icons">
                 <mat-icon
@@ -286,7 +286,7 @@
             </div>
 
             <div class="expenses-card--critical-policy-violatios" *ngIf="isCriticalPolicyViolated">
-              Critical Policy violations
+              Critical policy violations
             </div>
           </div>
         </ng-template>

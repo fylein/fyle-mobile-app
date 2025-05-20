@@ -46,7 +46,7 @@ cd fyle-mobile-app
 2. **Install dependencies:**
 
 ```bash
-npm install
+npm ci
 ```
 
 3. **Set Environment Variables**: Add the environment files corresponding to the build you want in the environment folder. ([Follow Environment Setup](#-environment-setup))
@@ -87,8 +87,8 @@ Here are some common issues and how to fix them:
 
 ```bash
   Property 'LIVE_UPDATE_APP_VERSION' does not exist on type
-  '{ production: boolean; NAME: string; CLUSTER_DOMAIN: string; ROOT_URL: string; ROUTER_API_ENDPOINT: string;
-  ANDROID_CLIENT_ID: string; IP_FIND_KEY: string; GOOGLE_MAPS_API_KEY: string; FRESHCHAT_TOKEN: string;
+  '{ production: boolean; NAME: string; ROOT_URL: string; ROUTER_API_ENDPOINT: string;
+  ANDROID_CLIENT_ID: string; GOOGLE_MAPS_API_KEY: string; FRESHCHAT_TOKEN: string;
   SENTRY_DSN: string; REFINER_NPS_FORM_ID: string; }'
 ```
 
@@ -111,7 +111,7 @@ rm -rf node_modules
 - Reinstall the dependencies by running:
 
 ```bash
-npm install
+npm ci
 ```
 
 This will ensure that all required packages are correctly installed, resolving the issue.
@@ -171,8 +171,6 @@ This will ensure that all required packages are correctly installed, resolving t
 ├── appflow.config.json              # Configuration for Appflow
 ├── browserslist                     # Browser compatibility configuration
 ├── build_appflow.sh                 # Shell script for Appflow build
-├── build_prod.sh                    # Shell script for production build
-├── build_staging.sh                 # Shell script for staging build
 ├── capacitor.config.ts              # Capacitor configuration
 ├── ionic.config.json                # Ionic CLI configuration
 ├── karma.conf.js                    # Karma test runner configuration
@@ -193,7 +191,7 @@ This will ensure that all required packages are correctly installed, resolving t
 - Run unit tests:
 
 ```bash
-npm run test
+npx ng test
 ```
 
 - For non-parallel execution (Recommended method for preventing excessive CPU utilization and memory hogging.):
@@ -224,9 +222,11 @@ In this file, you will see 4 metrics for the files you have changed:
 
 For running the app directly on an Android device for staging
 
-1. Build and sync the app:
+- Add .env file to project (ping mobile app team for the file)
+- Build and run the app:
 
 ```bash
+ionic build -c staging
 ionic capacitor run android -l --external --configuration=staging
 
 ```
@@ -239,15 +239,12 @@ For running the app directly on an ios device for staging
 
 - Add .env file to project (ping mobile app team for the file)
 - Install Xcode from the App Store
-- Build and sync:
+- Build and run the app:
 
 ```bash
 ionic build --staging
-npx cap sync
-npx cap open ios
+ionic capacitor run ios -l --external --configuration=staging
 ```
-
-- Open Xcode, select the connected device from the top bar and click on the run button.
 
 <br/>
 

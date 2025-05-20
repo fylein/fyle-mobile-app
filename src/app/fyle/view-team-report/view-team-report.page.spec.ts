@@ -2,11 +2,11 @@ import { CurrencyPipe } from '@angular/common';
 import { CUSTOM_ELEMENTS_SCHEMA, EventEmitter } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, flush, tick, waitForAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { By } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IonicModule, ModalController, PopoverController } from '@ionic/angular';
-import { finalize, of } from 'rxjs';
+import { BehaviorSubject, finalize, of } from 'rxjs';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { apiReportPermissions } from 'src/app/core/mock-data/report-permissions.data';
@@ -58,6 +58,9 @@ import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-rep
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { RefinerService } from 'src/app/core/services/refiner.service';
+import { DateWithTimezonePipe } from 'src/app/shared/pipes/date-with-timezone.pipe';
+import { TIMEZONE } from 'src/app/constants';
+import { ShowAllApproversPopoverComponent } from 'src/app/shared/components/fy-approver/show-all-approvers-popover/show-all-approvers-popover.component';
 
 describe('ViewTeamReportPageV2', () => {
   let component: ViewTeamReportPage;
@@ -104,6 +107,7 @@ describe('ViewTeamReportPageV2', () => {
       'showToastMessage',
       'clickViewReportInfo',
       'reportNameChange',
+      'eventTrack',
     ]);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
@@ -122,7 +126,7 @@ describe('ViewTeamReportPageV2', () => {
     refinerService = jasmine.createSpyObj('RefinerService', ['startSurvey']);
 
     TestBed.configureTestingModule({
-      declarations: [ViewTeamReportPage, EllipsisPipe, HumanizeCurrencyPipe, ExactCurrencyPipe],
+      declarations: [ViewTeamReportPage, EllipsisPipe, HumanizeCurrencyPipe, ExactCurrencyPipe, DateWithTimezonePipe],
       imports: [IonicModule.forRoot(), FormsModule],
       providers: [
         FyCurrencyPipe,
@@ -218,6 +222,10 @@ describe('ViewTeamReportPageV2', () => {
           provide: ApproverReportsService,
           useValue: approverReportsServiceSpy,
         },
+        {
+          provide: TIMEZONE,
+          useValue: new BehaviorSubject<string>('UTC'),
+        },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
@@ -245,7 +253,7 @@ describe('ViewTeamReportPageV2', () => {
     approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
     launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
     refinerService = TestBed.inject(RefinerService) as jasmine.SpyObj<RefinerService>;
-
+    launchDarklyService.getVariation.and.returnValue(of(true));
     fixture.detectChanges();
   }));
 
@@ -258,6 +266,26 @@ describe('ViewTeamReportPageV2', () => {
 
     component.ionViewWillLeave();
     expect(component.onPageExit.next).toHaveBeenCalledOnceWith(null);
+  });
+
+  describe('setupApproverToShow(): ', () => {
+    it('should set approverToShow to matching next approver if only one match', () => {
+      component.approvals = platformReportData.approvals;
+      const reportData = { ...platformReportData, next_approver_user_ids: ['usRjTPO4r69K'] };
+
+      component.setupApproverToShow(reportData);
+
+      expect(component.approverToShow).toEqual(component.approvals[1]);
+    });
+
+    it('should set approverToShow to highest rank approver if no match', () => {
+      component.approvals = platformReportData.approvals;
+      const reportData = { ...platformReportData, next_approver_user_ids: ['usRjTPO4r6'] };
+
+      component.setupApproverToShow(reportData);
+
+      expect(component.approverToShow).toEqual(component.approvals[1]);
+    });
   });
 
   it('loadReports(): should load reports', (done) => {
@@ -717,6 +745,36 @@ describe('ViewTeamReportPageV2', () => {
 
     component.onUpdateApprover(true);
     expect(component.refreshApprovals$.next).toHaveBeenCalledOnceWith(null);
+  });
+
+  describe('openViewApproverModal():', () => {
+    it('should open the modal and track the event', fakeAsync(() => {
+      const popoverSpy = jasmine.createSpyObj('popover', ['present', 'onWillDismiss']);
+      popoverSpy.present.and.resolveTo();
+      popoverSpy.onWillDismiss.and.resolveTo();
+
+      popoverController.create.and.resolveTo(popoverSpy);
+
+      component.approvals = platformReportData.approvals;
+
+      component.openViewApproverModal();
+      tick();
+
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        component: ShowAllApproversPopoverComponent,
+        componentProps: {
+          approvals: component.approvals,
+        },
+        cssClass: 'fy-dialog-popover',
+        backdropDismiss: false,
+      });
+
+      expect(popoverSpy.present).toHaveBeenCalled();
+      expect(popoverSpy.onWillDismiss).toHaveBeenCalled();
+      expect(trackingService.eventTrack).toHaveBeenCalledOnceWith('All approvers modal closed', {
+        view: ExpenseView.team,
+      });
+    }));
   });
 
   describe('goToTransaction(): ', () => {

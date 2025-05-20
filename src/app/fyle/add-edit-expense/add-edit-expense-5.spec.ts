@@ -1,7 +1,7 @@
 import { TitleCasePipe } from '@angular/common';
 import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
-import { FormArray, FormBuilder, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { UntypedFormArray, UntypedFormBuilder, Validators } from '@angular/forms';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
@@ -90,7 +90,7 @@ import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-it
 import { ReportService } from 'src/app/core/services/report.service';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { StatusService } from 'src/app/core/services/status.service';
+import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { TaxGroupService } from 'src/app/core/services/tax-group.service';
 import { TokenService } from 'src/app/core/services/token.service';
@@ -136,7 +136,7 @@ export function TestCases5(getTestBed) {
     let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
     let accountsService: jasmine.SpyObj<AccountsService>;
     let authService: jasmine.SpyObj<AuthService>;
-    let formBuilder: FormBuilder;
+    let formBuilder: UntypedFormBuilder;
     let categoriesService: jasmine.SpyObj<CategoriesService>;
     let dateService: jasmine.SpyObj<DateService>;
     let projectsService: jasmine.SpyObj<ProjectsService>;
@@ -150,7 +150,7 @@ export function TestCases5(getTestBed) {
     let router: jasmine.SpyObj<Router>;
     let loaderService: jasmine.SpyObj<LoaderService>;
     let modalController: jasmine.SpyObj<ModalController>;
-    let statusService: jasmine.SpyObj<StatusService>;
+    let expenseCommentService: jasmine.SpyObj<ExpenseCommentService>;
     let fileService: jasmine.SpyObj<FileService>;
     let spenderFileService: jasmine.SpyObj<SpenderFileService>;
     let popoverController: jasmine.SpyObj<PopoverController>;
@@ -190,7 +190,7 @@ export function TestCases5(getTestBed) {
       activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
       accountsService = TestBed.inject(AccountsService) as jasmine.SpyObj<AccountsService>;
       authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-      formBuilder = TestBed.inject(FormBuilder);
+      formBuilder = TestBed.inject(UntypedFormBuilder);
       categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
       dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
       reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
@@ -204,7 +204,7 @@ export function TestCases5(getTestBed) {
       router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
       loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
       modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
-      statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
+      expenseCommentService = TestBed.inject(ExpenseCommentService) as jasmine.SpyObj<ExpenseCommentService>;
       fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
       spenderFileService = TestBed.inject(SpenderFileService) as jasmine.SpyObj<SpenderFileService>;
       popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
@@ -257,7 +257,7 @@ export function TestCases5(getTestBed) {
         bus_travel_class: [],
         distance: [],
         distance_unit: [],
-        custom_inputs: new FormArray([]),
+        custom_inputs: new UntypedFormArray([]),
         billable: [],
         costCenter: [],
         hotel_is_breakfast_provided: [],
@@ -469,7 +469,10 @@ export function TestCases5(getTestBed) {
     });
 
     describe('setupFilteredCategories():', () => {
-      beforeEach(() => (component.isProjectCategoryRestrictionsEnabled$ = of(true)));
+      beforeEach(() => {
+        component.isProjectCategoryRestrictionsEnabled$ = of(true);
+        component.txnFields$ = of(expenseFieldObjData);
+      });
 
       it('should get filtered categories for a project', fakeAsync(() => {
         component.etxn$ = of(unflattenedTxnData);
@@ -1497,7 +1500,7 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'setupCostCenters');
         storageService.get.and.resolveTo(true);
         spyOn(component, 'setupBalanceFlag');
-        statusService.find.and.returnValue(of(getEstatusApiResponse));
+        expenseCommentService.getTransformedComments.and.returnValue(of(getEstatusApiResponse));
         spyOn(component, 'getNewExpenseObservable').and.returnValue(of(expectedExpenseObservable));
         spyOn(component, 'getEditExpenseObservable').and.returnValue(of(expectedUnflattendedTxnData1));
         fileService.getReceiptsDetails.and.returnValue({
@@ -1591,7 +1594,7 @@ export function TestCases5(getTestBed) {
         expect(component.setupCostCenters).toHaveBeenCalledTimes(1);
 
         expect(storageService.get).toHaveBeenCalledOnceWith('isExpandedView');
-        expect(statusService.find).toHaveBeenCalledTimes(1);
+        expect(expenseCommentService.getTransformedComments).toHaveBeenCalledTimes(1);
 
         component.isProjectsEnabled$.subscribe((res) => {
           expect(res).toBeTrue();
@@ -1708,7 +1711,7 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'setupCostCenters');
         storageService.get.and.resolveTo(true);
         spyOn(component, 'setupBalanceFlag');
-        statusService.find.and.returnValue(of(getEstatusApiResponse));
+        expenseCommentService.getTransformedComments.and.returnValue(of(getEstatusApiResponse));
         spyOn(component, 'getNewExpenseObservable').and.returnValue(of(expectedExpenseObservable));
         spyOn(component, 'getEditExpenseObservable').and.returnValue(of(expectedUnflattendedTxnData1));
         fileService.findByTransactionId.and.returnValue(of(expectedFileData1));
@@ -1784,7 +1787,7 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'setupCostCenters');
         storageService.get.and.resolveTo(true);
         spyOn(component, 'setupBalanceFlag');
-        statusService.find.and.returnValue(of(getEstatusApiResponse));
+        expenseCommentService.getTransformedComments.and.returnValue(of(getEstatusApiResponse));
         spyOn(component, 'getNewExpenseObservable').and.returnValue(of(expectedExpenseObservable));
         spyOn(component, 'getEditExpenseObservable').and.returnValue(of(expectedUnflattendedTxnData1));
         expensesService.getSplitExpenses.and.returnValue(of(splitExpensesData));
@@ -1878,7 +1881,7 @@ export function TestCases5(getTestBed) {
         expect(component.setupCostCenters).toHaveBeenCalledTimes(1);
 
         expect(storageService.get).toHaveBeenCalledOnceWith('isExpandedView');
-        expect(statusService.find).toHaveBeenCalledTimes(1);
+        expect(expenseCommentService.getTransformedComments).toHaveBeenCalledTimes(1);
 
         component.isProjectsEnabled$.subscribe((res) => {
           expect(res).toBeTrue();

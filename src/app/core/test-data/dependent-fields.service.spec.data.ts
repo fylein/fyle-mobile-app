@@ -19,7 +19,7 @@ export const dependentFieldValuesApiParams: DependentFieldValuesApiParams = deep
     parent_expense_field_value: `eq."Project 1"`,
     is_enabled: 'eq.true',
     offset: 0,
-    limit: 20,
+    limit: 200,
     order: 'expense_field_value.asc',
   },
 });
@@ -68,7 +68,7 @@ export const dependentFieldValuesWithSearchQueryApiParams: DependentFieldValuesA
     parent_expense_field_value: `eq."Project 1"`,
     is_enabled: 'eq.true',
     offset: 0,
-    limit: 20,
+    limit: 200,
     order: 'expense_field_value.asc',
   },
 });

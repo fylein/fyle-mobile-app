@@ -12,7 +12,7 @@ import { StorageService } from 'src/app/core/services/storage.service';
 import { OrgService } from 'src/app/core/services/org.service';
 import { UserEventService } from 'src/app/core/services/user-event.service';
 import { globalCacheBusterNotifier } from 'ts-cacheable';
-import * as Sentry from '@sentry/angular';
+import * as Sentry from '@sentry/angular-ivy';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { DeviceService } from 'src/app/core/services/device.service';
@@ -23,7 +23,7 @@ import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { ExtendedDeviceInfo } from 'src/app/core/models/extended-device-info.model';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ResendEmailVerification } from 'src/app/core/models/resend-email-verification.model';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
@@ -31,6 +31,8 @@ import { TransactionService } from 'src/app/core/services/transaction.service';
 import { DeepLinkService } from 'src/app/core/services/deep-link.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
 
 @Component({
   selector: 'app-switch-org',
@@ -86,7 +88,9 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     private transactionService: TransactionService,
     private deepLinkService: DeepLinkService,
     private expensesService: ExpensesService,
-    private launchDarklyService: LaunchDarklyService
+    private launchDarklyService: LaunchDarklyService,
+    private orgSettingsService: OrgSettingsService,
+    private spenderOnboardingService: SpenderOnboardingService
   ) {}
 
   ngOnInit(): void {
@@ -168,9 +172,10 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
   setSentryUser(eou: ExtendedOrgUser): void {
     if (eou) {
       Sentry.setUser({
-        id: eou.us.email + ' - ' + eou.ou.id,
-        email: eou.us.email,
+        id: eou.ou.id,
         orgUserId: eou.ou.id,
+        orgId: eou.ou.org_id,
+        userId: eou.ou.user_id,
       });
     }
   }
@@ -208,14 +213,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       )
       .subscribe({
         next: () => {
-          this.router.navigate([
-            '/',
-            'enterprise',
-            'my_dashboard',
-            {
-              openSMSOptInDialog: true,
-            },
-          ]);
+          this.navigateToDashboard(true);
         },
         error: () => this.router.navigate(['/', 'auth', 'switch_org']),
       });
@@ -269,7 +267,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
           })
         )
         .subscribe(() => {
-          this.showToastNotification('Verification Email Sent');
+          this.showToastNotification('Verification email sent');
           this.logoutIfSingleOrg(orgs);
         });
     } else {
@@ -288,10 +286,10 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       const email = eou.us.email;
       const popover = await this.popoverController.create({
         componentProps: {
-          title: 'Invite Not Accepted',
+          title: 'Invite not accepted',
           message: `You have been invited to ${orgName} organization, please check your previous emails and accept the invite or resend invite.`,
           primaryCta: {
-            text: 'Resend Invite',
+            text: 'Resend invite',
             action: 'resend',
           },
           secondaryCta: {
@@ -319,13 +317,35 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     }
   }
 
+  navigateToDashboard(openOptInDialog?: boolean): void {
+    this.spenderOnboardingService
+      .checkForRedirectionToOnboarding()
+      .pipe(
+        map((shouldProceedToOnboarding) => {
+          if (shouldProceedToOnboarding) {
+            this.router.navigate(['/', 'enterprise', 'spender_onboarding']);
+          } else {
+            this.router.navigate([
+              '/',
+              'enterprise',
+              'my_dashboard',
+              {
+                openSMSOptInDialog: openOptInDialog,
+              },
+            ]);
+          }
+        })
+      )
+      .subscribe();
+  }
+
   // Mark the user active in the selected org and redirect them to the dashboard.
   markUserActive(): Observable<ExtendedOrgUser> {
     return from(this.loaderService.showLoader()).pipe(
       switchMap(() => this.orgUserService.markActive()),
       finalize(() => {
         this.loaderService.hideLoader();
-        this.router.navigate(['/', 'enterprise', 'my_dashboard']);
+        this.navigateToDashboard();
       })
     );
   }
@@ -370,7 +390,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     if (config.isPendingDetails) {
       return this.handlePendingDetails(config.roles, config?.isFromInviteLink);
     } else if (config.eou.ou.status === 'ACTIVE') {
-      this.router.navigate(['/', 'enterprise', 'my_dashboard']);
+      this.navigateToDashboard();
     } else if (config.eou.ou.status === 'DISABLED') {
       this.router.navigate(['/', 'auth', 'disabled']);
     }
@@ -427,10 +447,9 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
         filter((userAppVersionDetails) => !!userAppVersionDetails)
       )
       .subscribe((userAppVersionDetails) => {
-        const { appSupportDetails, lastLoggedInVersion, eou, deviceInfo } = userAppVersionDetails;
+        const { appSupportDetails, lastLoggedInVersion, deviceInfo } = userAppVersionDetails;
         this.trackingService.eventTrack('Auto Logged out', {
           lastLoggedInVersion,
-          user_email: eou?.us?.email,
           appVersion: deviceInfo.appVersion,
         });
         this.router.navigate(['/', 'auth', 'app_version', { message: appSupportDetails.message }]);
@@ -443,15 +462,12 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     from(this.authService.getEou()).subscribe((currentEou) => {
       const properties = {
         Asset: 'Mobile',
-        'Switch To': org.name,
+        'Switch To': org.id,
         'Is Destination Org Active': isDestinationOrgActive,
         'Is Destination Org Primary': currentEou && currentEou.ou && currentEou.ou.is_primary,
         'Is Current Org Primary': isCurrentOrgPrimary,
         Source: 'User Clicked',
-        'User Email': originalEou.us && originalEou.us.email,
-        'User Org Name': originalEou.ou && originalEou.ou.org_name,
         'User Org ID': originalEou.ou && originalEou.ou.org_id,
-        'User Full Name': originalEou.us && originalEou.us.full_name,
       };
       this.trackingService.onSwitchOrg(properties);
     });
@@ -492,7 +508,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
         .pipe(
           switchMap(({ device, eou }) =>
             this.authService.logout({
-              device_id: device.uuid,
+              device_id: device.identifier,
               user_id: eou.us.id,
             })
           ),

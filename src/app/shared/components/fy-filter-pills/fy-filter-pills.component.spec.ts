@@ -1,4 +1,3 @@
-import { TitleCasePipe } from '@angular/common';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { click, getElementBySelector } from 'src/app/core/dom-helpers';
@@ -12,7 +11,7 @@ describe('FyFilterPillsComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [FyFilterPillsComponent, SnakeCaseToSpaceCase, TitleCasePipe],
+      declarations: [FyFilterPillsComponent, SnakeCaseToSpaceCase],
       imports: [IonicModule.forRoot()],
     }).compileComponents();
 

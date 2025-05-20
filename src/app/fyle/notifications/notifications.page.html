@@ -5,7 +5,7 @@
         <mat-icon>keyboard_backspace</mat-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title class="notifications--title" mode="md">Email Notifications</ion-title>
+    <ion-title class="notifications--title" mode="md">Email notifications</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -15,7 +15,7 @@
 
     <form [formGroup]="notificationForm">
       <ng-container *ngIf="isDelegateePresent$|async">
-        <h2>Delegatee Notification</h2>
+        <h2>Delegatee notification</h2>
         <mat-form-field>
           <mat-select formControlName="notifyOption" (selectionChange)="updateDelegateeNotifyPreference($event)">
             <mat-option *ngFor="let option of delegationOptions" [value]="option"> {{option}} </mat-option>

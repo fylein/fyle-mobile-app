@@ -5,13 +5,13 @@ import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { PlatformCategory } from 'src/app/core/models/platform/platform-category.model';
 import { MileageUnitEnum } from 'src/app/core/models/platform/platform-mileage-rates.model';
 import { ReportState } from 'src/app/core/models/platform/v1/report.model';
-import { ApprovalState } from 'src/app/core/models/platform/report-approvals.model';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { FileType } from 'src/app/core/models/platform/v1/file.model';
 import { CustomFieldTypes } from 'src/app/core/enums/platform/v1/custom-fields-type.enum';
 import { CommuteDeduction } from 'src/app/core/enums/commute-deduction.enum';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
+import { ApprovalState } from 'src/app/core/models/platform/approval-state.enum';
 
 export const expenseData: Expense = deepFreeze({
   accounting_export_summary: {},
@@ -26,6 +26,7 @@ export const expenseData: Expense = deepFreeze({
         id: 'usFjaCwwhEjD',
       },
       approver_user_id: 'usFjaCwwhEjD',
+      approver_order: 0,
       state: ApprovalState.APPROVAL_DONE,
     },
   ],
@@ -190,6 +191,7 @@ export const expenseData: Expense = deepFreeze({
         },
         approver_user_id: 'usFjaCwwhEjD',
         state: ApprovalState.APPROVAL_DONE,
+        approver_order: 0,
       },
     ],
     id: 'rp96APY6Efph',
@@ -250,6 +252,7 @@ export const mileageExpense: Expense = deepFreeze({
       },
       approver_user_id: 'usPRnlrMNauG',
       state: ApprovalState.APPROVAL_PENDING,
+      approver_order: 0,
     },
   ],
   approver_comments: [],
@@ -590,6 +593,7 @@ export const mileageExpense: Expense = deepFreeze({
         },
         approver_user_id: 'usPRnlrMNauG',
         state: ApprovalState.APPROVAL_PENDING,
+        approver_order: 0,
       },
     ],
     id: 'rpynbzxa3psU',
@@ -650,6 +654,7 @@ export const perDiemExpense: Expense = deepFreeze({
       },
       approver_user_id: 'us6z24IHcdEa',
       state: ApprovalState.APPROVAL_PENDING,
+      approver_order: 0,
     },
   ],
   approver_comments: [],
@@ -941,6 +946,7 @@ export const perDiemExpense: Expense = deepFreeze({
         },
         approver_user_id: 'us6z24IHcdEa',
         state: ApprovalState.APPROVAL_PENDING,
+        approver_order: 0,
       },
     ],
     id: 'rpFvmTgyeBjN',
@@ -2374,6 +2380,7 @@ export const platformExpenseData: Expense = deepFreeze({
       },
       approver_user_id: 'usyg6aRkXnl8',
       state: ApprovalState.APPROVAL_DISABLED,
+      approver_order: 0,
     },
   ],
   approver_comments: [],
@@ -2681,6 +2688,7 @@ export const platformExpenseDataWithSubCategory: Expense = deepFreeze({
         },
         approver_user_id: 'us2zNEhtHp8d',
         state: ApprovalState.APPROVAL_PENDING,
+        approver_order: 0,
       },
       {
         approver_user: {
@@ -2690,6 +2698,7 @@ export const platformExpenseDataWithSubCategory: Expense = deepFreeze({
         },
         approver_user_id: 'usyg6aRkXnl8',
         state: ApprovalState.APPROVAL_DISABLED,
+        approver_order: 0,
       },
     ],
     id: null,
@@ -2745,6 +2754,11 @@ export const platformExpenseDataForAdvanceWallet: Expense = deepFreeze({
 export const platformExpenseDataWithReportId: Expense = deepFreeze({
   ...platformExpenseDataWithSubCategory,
   report_id: 'rpbNc3kn5baq',
+});
+
+export const platformExpenseDataWithoutReportId: Expense = deepFreeze({
+  ...platformExpenseDataWithSubCategory,
+  report_id: null,
 });
 
 export const platformExpenseDataWithReportId2: Expense = deepFreeze({

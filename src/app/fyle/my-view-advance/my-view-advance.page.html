@@ -5,7 +5,7 @@
         <img [src]="'../../../../assets/svg/arrow-left.svg'" />
       </ion-button>
     </ion-buttons>
-    <ion-title mode="md" class="page-title">View Advance</ion-title>
+    <ion-title mode="md" class="page-title">View advance</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -24,7 +24,7 @@
           <app-fy-statistic
             [icon]="'../../../../assets/svg/wallet.svg'"
             [type]="StatisticTypes.STRING"
-            [label]="'Advance Number'"
+            [label]="'Advance number'"
             [value]="advance.adv_advance_number || '-'"
           ></app-fy-statistic>
         </div>
@@ -48,7 +48,7 @@
                   <app-fy-statistic
                     [icon]="'../../../../assets/svg/calendar.svg'"
                     [type]="StatisticTypes.DATE"
-                    [label]="'Approved On'"
+                    [label]="'Approved date'"
                     [value]="advance.areq_approved_at | date: 'MMM dd, YYYY'"
                   ></app-fy-statistic>
                 </div>
@@ -57,7 +57,7 @@
                 <app-fy-statistic
                   [icon]="'../../../../assets/svg/calendar.svg'"
                   [type]="StatisticTypes.DATE"
-                  [label]="'Issued On'"
+                  [label]="'Issued date'"
                   [value]="advance.adv_issued_at | date: 'MMM dd, YYYY'"
                 ></app-fy-statistic>
               </ion-col>
@@ -69,7 +69,7 @@
           <app-fy-statistic
             [icon]="'../../../../assets/svg/card.svg'"
             [type]="StatisticTypes.STRING"
-            [label]="'Payment Mode'"
+            [label]="'Payment mode'"
             [value]="advance.adv_mode || '-'"
           ></app-fy-statistic>
         </div>
@@ -90,7 +90,7 @@
           <app-fy-statistic
             [icon]="'../../../../assets/svg/list.svg'"
             [type]="StatisticTypes.STRING"
-            [label]="'Additional Notes'"
+            [label]="'Additional notes'"
             [value]="'-'"
           ></app-fy-statistic>
         </div>
@@ -99,7 +99,7 @@
           <app-fy-statistic
             [icon]="'../../../../assets/svg/list.svg'"
             [type]="StatisticTypes.STRING"
-            [label]="'Additional Notes'"
+            [label]="'Additional notes'"
             [value]="advanceRequest?.areq_notes || '-'"
           ></app-fy-statistic>
         </div>
@@ -116,7 +116,7 @@
             class="view-advance--anchor"
             [routerLink]="['/', 'enterprise', 'my_view_advance_request', {id: advance.areq_id}]"
           >
-            View Advance Request</a
+            View advance request</a
           >
         </div>
       </div>

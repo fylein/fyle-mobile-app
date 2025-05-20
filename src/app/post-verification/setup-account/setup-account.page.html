@@ -11,7 +11,7 @@
           [ngClass]="{'setup-account--form-label__invalid': (!fg.controls.companyName.valid && fg.controls.companyName.touched) }"
           class="setup-account--form-label"
         >
-          Company Name
+          Company name
         </div>
         <mat-form-field class="mat-form-field-no-padding setup-account--form-field" appearance="outline">
           <input
@@ -26,7 +26,7 @@
           [ngClass]="{'setup-account--form-label__invalid': (!fg.controls.homeCurrency.valid && fg.controls.homeCurrency.touched) }"
           class="setup-account--form-label"
         >
-          Home Currency
+          Home currency
         </div>
         <mat-form-field
           class="mat-form-field-no-padding setup-account--form-field"
@@ -52,7 +52,7 @@
             type="password"
             matInput
             [type]="hide ? 'text': 'password'"
-            placeholder="minimum 12 chars"
+            placeholder="Minimum 12 chars"
           />
           <div class="setup-account--password-visibility" matSuffix (click)="hide = !hide">
             {{hide ? 'Hide' : 'Show'}}
@@ -157,7 +157,7 @@
     />
     <div class="setup-account-offline--title">Looks like you are offline</div>
     <div class="setup-account-offline--sub-title">
-      You need to be connected to Internet to be able to login to the app. Please check if your Internet connection is
+      You need to be connected to internet to be able to login to the app. Please check if your internet connection is
       working.
     </div>
   </div>

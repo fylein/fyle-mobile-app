@@ -1,7 +1,7 @@
 <app-fy-header
   [currentState]="headerState"
   [navigateBack]="navigateBack"
-  [title]="'Personal Cards'"
+  [title]="'Personal cards'"
   (simpleSearchCancel)="onSimpleSearchCancel()"
   (multiselectBack)="switchSelectionMode()"
   [isHiddenBorder]="true"
@@ -32,7 +32,7 @@
       </ion-button>
     </ion-buttons>
   </ng-container>
-  <ng-container personalCardContent *ngIf="!isLoading && ((linkedAccountsCount$ | async) !== 0)">
+  <ng-container personalCardContent *ngIf="(linkedAccountsCount$ | async) !== 0">
     <ion-toolbar mode="{{mode}}" class="personal-cards--segment-container">
       <ion-segment
         class="personal-cards-segment-block"
@@ -46,7 +46,7 @@
           value="MATCHED"
           class="personal-cards--segment-block__btn personal-cards--segment-block__space-left"
         >
-          Expenses Created
+          Expenses created
         </ion-segment-button>
         <ion-segment-button value="HIDDEN" class="personal-cards--segment-block__btn"> Hidden </ion-segment-button>
       </ion-segment>
@@ -109,7 +109,7 @@
       (click)="fetchNewTransactions()"
       [disabled]="isfetching"
     >
-      <ng-container *ngIf="!isfetching"> Fetch Transactions </ng-container>
+      <ng-container *ngIf="!isfetching"> Fetch transactions </ng-container>
       <ng-container *ngIf="isfetching">
         Fetching <ion-spinner name="crescent" class="personal-cards--fetching-spinner"></ion-spinner>
       </ng-container>
@@ -142,8 +142,9 @@
     <div class="personal-cards--zero-state">
       <app-fy-zero-state
         class="stats--zero-state"
-        image="../../../../assets/images/no-card.svg"
-        message="Paying your work bills using your personal card? View your transactions here by linking your card."
+        image="../../../../assets/images/zero-states/cards.png"
+        message="You have no linked cards right now"
+        submessage="Link your card to view transactions"
         [unscaledImage]="true"
         [useNewStyling]="true"
       ></app-fy-zero-state>
@@ -157,7 +158,7 @@
     <ng-container *ngIf="selectionMode">
       <ion-item class="personal-cards--select-all-container">
         <mat-checkbox class="custom-mat-checkbox" [(ngModel)]="selectAll" (ngModelChange)="onSelectAll($event)">
-          Select All
+          Select all
         </mat-checkbox>
       </ion-item>
     </ng-container>
@@ -193,7 +194,7 @@
               (click)="createExpense(transaction)"
               *ngIf="!isTransactionsLoading"
               [transaction]="transaction"
-              [previousTxnDate]="transactions[i-1]?.btxn_transaction_dt"
+              [previousTxnDate]="transactions[i-1]?.spent_at"
               [isMatchedCountLoading]="transaction.id === loadingTxnId"
               [status]="selectedTransactionType"
               [isSelectionModeEnabled]="selectionMode"

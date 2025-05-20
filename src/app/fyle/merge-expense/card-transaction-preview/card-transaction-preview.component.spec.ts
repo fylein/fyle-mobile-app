@@ -1,10 +1,9 @@
-import { CurrencyPipe, DatePipe } from '@angular/common';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { IonicModule } from '@ionic/angular';
 import { getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
-import { MatchedCCCTransaction } from 'src/app/core/models/matchedCCCTransaction.model';
+import { corporateCardTransaction } from 'src/app/core/models/platform/v1/cc-transaction.model';
 import { EllipsisPipe } from 'src/app/shared/pipes/ellipses.pipe';
 
 import { CardTransactionPreviewComponent } from './card-transaction-preview.component';
@@ -15,7 +14,7 @@ describe('CardTransactionPreviewComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [CardTransactionPreviewComponent, EllipsisPipe, DatePipe, CurrencyPipe],
+      declarations: [CardTransactionPreviewComponent, EllipsisPipe],
       imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule],
     }).compileComponents();
 
@@ -29,10 +28,10 @@ describe('CardTransactionPreviewComponent', () => {
   });
 
   it('should render transaction details', () => {
-    const mockTransactionDetails: Partial<MatchedCCCTransaction> = {
-      vendor: 'Amazon',
+    const mockTransactionDetails: Partial<corporateCardTransaction> = {
+      merchant: 'Amazon',
       description: 'Amazon purchase',
-      txn_dt: '2022-02-20',
+      spent_at: '2022-02-20',
       amount: 100,
       currency: 'USD',
     };
@@ -40,10 +39,10 @@ describe('CardTransactionPreviewComponent', () => {
     fixture.detectChanges();
 
     const header = getElementBySelector(fixture, '.card-transaction--header');
-    expect(getTextContent(header)).toBe('Card Transaction');
+    expect(getTextContent(header)).toBe('Card transaction');
 
-    const vendor = getElementBySelector(fixture, '.card-transaction--matching-content span:nth-child(1)');
-    expect(getTextContent(vendor)).toBe('Amazon,');
+    const merchant = getElementBySelector(fixture, '.card-transaction--matching-content span:nth-child(1)');
+    expect(getTextContent(merchant)).toBe('Amazon,');
 
     const date = getElementBySelector(fixture, '.card-transaction--matching-content span:nth-child(2)');
     expect(getTextContent(date)).toBe('Feb 20, 2022 -');

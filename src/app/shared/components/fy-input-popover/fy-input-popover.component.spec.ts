@@ -37,7 +37,7 @@ describe('FyInputPopoverComponent', () => {
   });
 
   it('closePopover(): should close popover', fakeAsync(() => {
-    popoverController.dismiss.and.returnValue(Promise.resolve(true));
+    popoverController.dismiss.and.resolveTo(true);
 
     tick();
     component.closePopover();
@@ -100,7 +100,7 @@ describe('FyInputPopoverComponent', () => {
     fixture.detectChanges();
 
     component.onFocus();
-    expect(component.error).toEqual(null);
+    expect(component.error).toBeNull();
   });
 
   it('ngAfterViewInit(): should focus on input element', fakeAsync(() => {

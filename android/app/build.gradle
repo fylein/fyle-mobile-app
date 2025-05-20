@@ -1,7 +1,8 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion rootProject.ext.compileSdkVersion
+    namespace "com.ionicframework.fyle595781"
+    compileSdk rootProject.ext.compileSdkVersion
     defaultConfig {
         applicationId "com.ionicframework.fyle595781"
         minSdkVersion rootProject.ext.minSdkVersion

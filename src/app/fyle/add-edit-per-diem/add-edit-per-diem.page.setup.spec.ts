@@ -1,7 +1,7 @@
 import { CurrencyPipe } from '@angular/common';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { ReactiveFormsModule, FormsModule, FormBuilder } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule, UntypedFormBuilder } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { IonicModule, ModalController, NavController, PopoverController } from '@ionic/angular';
@@ -22,13 +22,13 @@ import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expen
 import { AuthService } from 'src/app/core/services/auth.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { StatusService } from 'src/app/core/services/status.service';
+import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
@@ -83,9 +83,8 @@ describe('AddEditPerDiemPage', () => {
       'checkPolicy',
       'upsert',
       'review',
-      'delete',
     ]);
-    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById', 'post']);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById', 'post', 'deleteExpenses']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const policyServiceSpy = jasmine.createSpyObj('PolicyService', [
       'transformTo',
@@ -96,7 +95,11 @@ describe('AddEditPerDiemPage', () => {
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate', 'navigateByUrl']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create', 'getTop']);
-    const statusServiceSpy = jasmine.createSpyObj('StatusService', ['find', 'findLatestComment', 'post']);
+    const expenseCommentServiceSpy = jasmine.createSpyObj('ExpenseCommentService', [
+      'getTransformedComments',
+      'findLatestExpenseComment',
+      'post',
+    ]);
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
     const navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
     const advanceWalletsServiceSpy = jasmine.createSpyObj('AdvanceWalletsService', ['getAllAdvanceWallets']);
@@ -151,7 +154,7 @@ describe('AddEditPerDiemPage', () => {
       declarations: [AddEditPerDiemPage],
       imports: [IonicModule.forRoot(), ReactiveFormsModule, FormsModule, RouterTestingModule, RouterModule],
       providers: [
-        FormBuilder,
+        UntypedFormBuilder,
         FyCurrencyPipe,
         CurrencyPipe,
         { provide: PAGINATION_SIZE, useValue: 2 },
@@ -212,8 +215,8 @@ describe('AddEditPerDiemPage', () => {
           useValue: modalControllerSpy,
         },
         {
-          provide: StatusService,
-          useValue: statusServiceSpy,
+          provide: ExpenseCommentService,
+          useValue: expenseCommentServiceSpy,
         },
         {
           provide: NetworkService,

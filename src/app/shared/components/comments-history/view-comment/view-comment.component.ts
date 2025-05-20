@@ -5,25 +5,30 @@ import { finalize, map, startWith, switchMap } from 'rxjs/operators';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { StatusService } from 'src/app/core/services/status.service';
-import { Expense } from '../../../../core/models/expense.model';
-import { Router } from '@angular/router';
 import { TrackingService } from '../../../../core/services/tracking.service';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import * as dayjs from 'dayjs';
+import { DateWithTimezonePipe } from 'src/app/shared/pipes/date-with-timezone.pipe';
+import { ExpenseCommentService as SpenderExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
+import { ExpenseCommentService as ApproverExpenseCommentService } from 'src/app/core/services/platform/v1/approver/expense-comment.service';
+import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 
 @Component({
   selector: 'app-view-comment',
   templateUrl: './view-comment.component.html',
   styleUrls: ['./view-comment.component.scss'],
+  providers: [DateWithTimezonePipe],
 })
 export class ViewCommentComponent implements OnInit {
   @Input() objectType: string;
 
-  @Input() objectId: any;
+  @Input() objectId: string;
+
+  @Input() view: ExpenseView;
 
   @ViewChild(IonContent, { static: false }) content: IonContent;
 
-  @ViewChild('commentInput') commentInput: ElementRef;
+  @ViewChild('commentInput') commentInput: ElementRef<HTMLInputElement>;
 
   estatuses$: Observable<ExtendedStatus[]>;
 
@@ -39,7 +44,7 @@ export class ViewCommentComponent implements OnInit {
 
   systemComments: ExtendedStatus[];
 
-  userComments: any;
+  userComments: ExtendedStatus[];
 
   type: string;
 
@@ -54,17 +59,19 @@ export class ViewCommentComponent implements OnInit {
     private authService: AuthService,
     private modalController: ModalController,
     private popoverController: PopoverController,
-    private router: Router,
     private trackingService: TrackingService,
     private elementRef: ElementRef,
-    public platform: Platform
+    public platform: Platform,
+    private dateWithTimezonePipe: DateWithTimezonePipe,
+    private spenderExpenseCommentService: SpenderExpenseCommentService,
+    private approverExpenseCommentService: ApproverExpenseCommentService
   ) {}
 
   setContentScrollToBottom(): void {
     this.content.scrollToBottom(500);
   }
 
-  addComment() {
+  addComment(): void {
     if (this.newComment) {
       const data = {
         comment: this.newComment,
@@ -74,16 +81,37 @@ export class ViewCommentComponent implements OnInit {
       this.commentInput.nativeElement.focus();
       this.isCommentAdded = true;
 
-      this.statusService
-        .post(this.objectType, this.objectId, data)
-        .pipe()
-        .subscribe((res) => {
+      const isExpense = this.objectType === 'transactions';
+
+      if (isExpense) {
+        const commentsPayload = [
+          {
+            expense_id: this.objectId,
+            comment: data.comment,
+            notify: false,
+          },
+        ];
+
+        const post$ =
+          this.view === ExpenseView.team
+            ? this.approverExpenseCommentService.post(commentsPayload)
+            : this.spenderExpenseCommentService.post(commentsPayload);
+
+        post$.pipe().subscribe(() => {
           this.refreshEstatuses$.next(null);
         });
+      } else {
+        this.statusService
+          .post(this.objectType, this.objectId, data)
+          .pipe()
+          .subscribe(() => {
+            this.refreshEstatuses$.next(null);
+          });
+      }
     }
   }
 
-  async closeCommentModal() {
+  async closeCommentModal(): Promise<void> {
     if (this.newComment) {
       const unsavedChangesPopOver = await this.popoverController.create({
         component: PopupAlertComponent,
@@ -103,7 +131,7 @@ export class ViewCommentComponent implements OnInit {
       });
 
       await unsavedChangesPopOver.present();
-      const { data } = await unsavedChangesPopOver.onWillDismiss();
+      const { data } = await unsavedChangesPopOver.onWillDismiss<{ action: string }>();
 
       if (data && data.action === 'discard') {
         this.trackingService.viewComment();
@@ -120,7 +148,7 @@ export class ViewCommentComponent implements OnInit {
     }
   }
 
-  segmentChanged() {
+  segmentChanged(): void {
     this.isCommentsView = !this.isCommentsView;
     if (!this.isSwipe) {
       this.trackingService.commentsHistoryActions({
@@ -131,10 +159,12 @@ export class ViewCommentComponent implements OnInit {
     this.isSwipe = false;
   }
 
-  swipeRightToHistory(event) {
+  swipeRightToHistory(event: { direction: number }): void {
     this.isSwipe = true;
     if (event && event.direction === 2) {
-      const historyBtn = this.elementRef.nativeElement.getElementsByClassName('view-comment--segment-block__btn')[1];
+      const historyBtn = (this.elementRef.nativeElement as HTMLElement).getElementsByClassName(
+        'view-comment--segment-block__btn'
+      )[1] as HTMLElement;
       historyBtn.click();
       this.trackingService.commentsHistoryActions({
         action: 'swipe',
@@ -143,10 +173,12 @@ export class ViewCommentComponent implements OnInit {
     }
   }
 
-  swipeLeftToComments(event) {
+  swipeLeftToComments(event: { direction: number }): void {
     this.isSwipe = true;
     if (event && event.direction === 4) {
-      const commentsBtn = this.elementRef.nativeElement.getElementsByClassName('view-comment--segment-block__btn')[0];
+      const commentsBtn = (this.elementRef.nativeElement as HTMLElement).getElementsByClassName(
+        'view-comment--segment-block__btn'
+      )[0] as HTMLElement;
       commentsBtn.click();
       this.trackingService.commentsHistoryActions({
         action: 'swipe',
@@ -155,30 +187,42 @@ export class ViewCommentComponent implements OnInit {
     }
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     const eou$ = from(this.authService.getEou());
 
     this.estatuses$ = this.refreshEstatuses$.pipe(
       startWith(0),
       switchMap(() => eou$),
-      switchMap((eou) =>
-        this.statusService.find(this.objectType, this.objectId).pipe(
+      switchMap((eou) => {
+        const isExpense = this.objectType === 'transactions';
+        // Determine the correct userId based on the object type:
+        // - For Expenses (Platform API), the status object contains `user_id`, so we compare with `eou.us.id`.
+        // - For Advance Requests (Public API), the status object contains `org_user_id`, so we compare with `eou.ou.id`.
+        const userId = isExpense ? eou?.us?.id : eou?.ou?.id;
+
+        const comments$ = isExpense
+          ? this.view === ExpenseView.team
+            ? this.approverExpenseCommentService.getTransformedComments(this.objectId)
+            : this.spenderExpenseCommentService.getTransformedComments(this.objectId)
+          : this.statusService.find(this.objectType, this.objectId);
+
+        return comments$.pipe(
           map((res) =>
             res.map((status) => {
-              status.isBotComment = status && ['SYSTEM', 'POLICY'].indexOf(status.st_org_user_id) > -1;
-              status.isSelfComment = status && eou && eou.ou && status.st_org_user_id === eou.ou.id;
-              status.isOthersComment = status && eou && eou.ou && status.st_org_user_id !== eou.ou.id;
+              status.isBotComment = ['SYSTEM', 'POLICY'].includes(status?.st_org_user_id);
+              status.isSelfComment = userId === status?.st_org_user_id;
+              status.isOthersComment = userId !== status?.st_org_user_id;
               return status;
             })
           ),
-          map((res) => res.sort((a, b) => a.st_created_at.valueOf() - b.st_created_at.valueOf())),
+          map((res) => res.sort((a, b) => new Date(a.st_created_at).valueOf() - new Date(b.st_created_at).valueOf())),
           finalize(() => {
             setTimeout(() => {
               this.setContentScrollToBottom();
             }, 500);
           })
-        )
-      )
+        );
+      })
     );
 
     this.estatuses$.subscribe((estatuses) => {
@@ -194,8 +238,12 @@ export class ViewCommentComponent implements OnInit {
       this.userComments = estatuses.filter((status) => status.us_full_name);
 
       for (let i = 0; i < this.userComments.length; i++) {
-        const prevCommentDt = dayjs(this.userComments[i - 1] && this.userComments[i - 1].st_created_at);
-        const currentCommentDt = dayjs(this.userComments[i] && this.userComments[i].st_created_at);
+        const prevCommentDt = this.dateWithTimezonePipe.transform(
+          this.userComments[i - 1] && this.userComments[i - 1].st_created_at
+        );
+        const currentCommentDt = this.dateWithTimezonePipe.transform(
+          this.userComments[i] && this.userComments[i].st_created_at
+        );
         if (dayjs(prevCommentDt).isSame(currentCommentDt, 'day')) {
           this.userComments[i].show_dt = false;
         } else {

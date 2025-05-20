@@ -11,17 +11,17 @@
 <ion-content class="support">
   <div *ngIf="dialogType === 'contact_support'">
     <div class="support--header">
-      <div class="support_title">Contact Support</div>
+      <div class="support_title">Contact support</div>
     </div>
 
     <div class="support--content">
       <p class="support--heading">Having trouble with the process?</p>
-      <p>contact your admin</p>
+      <p>Contact your admin</p>
 
       <div class="support--admin-list">
-        <div *ngFor="let admin of adminList let i=index" class="support--admin-list-contact-card">
-          <div>{{ admin.us_full_name }}</div>
-          <a href="mailto:{{ admin.us_email }}">{{ admin.us_email }}</a>
+        <div *ngFor="let admin of adminList let i=index" class="support--admin-list-contact-card smartlook-hide">
+          <div>{{ admin.full_name }}</div>
+          <a href="mailto:{{ admin.email }}">{{ admin.email }}</a>
         </div>
       </div>
       <div class="support--page-divider"></div>
@@ -29,7 +29,7 @@
         <p class="support--heading">Having trouble understanding fyle</p>
         <p>We have everything to clear up in our help center</p>
         <div>
-          <button (click)="openHelpLink()" mat-flat-button class="support--helpLinkBtn">Visit Help Center</button>
+          <button (click)="openHelpLink()" mat-flat-button class="support--helpLinkBtn">Visit help center</button>
         </div>
         <p>Still facing issues that you need help with?</p>
         <p>We are happy to help</p>
@@ -37,59 +37,6 @@
         <p>
           <a href="mailto:support@fylehq.com">support@fylehq.com</a>
         </p>
-      </div>
-    </div>
-  </div>
-
-  <div *ngIf="dialogType === 'log_mileage'">
-    <div class="support--header">
-      <div class="support_title">Log Mileage Using Fyle</div>
-    </div>
-    <div class="support--content">
-      <img
-        class="support--image-container"
-        src="../../../../assets/images/contact-support/mileage-settings.png"
-        alt="Mileage Setting Images"
-      />
-      <div class="support--content-container">
-        On mobile or web, choose to create a new expense and select 'Log Mileage'. Add your travel end points and we'll
-        automatically calculate mileage and log it.
-      </div>
-      <div class="support--note-container">
-        Please login to the web application at <a href="https://app.fylehq.com">https://app.fylehq.com</a> to change
-        mileage settings.
-      </div>
-    </div>
-  </div>
-
-  <div *ngIf="dialogType === 'capture_email'">
-    <div class="support--header">
-      <div class="support_title">Capture Email Receipts in One-Click</div>
-    </div>
-    <div class="support--content">
-      <img
-        class="support--image-container"
-        src="../../../../assets/images/contact-support/fy-extension.gif"
-        alt="Mileage Setting Images"
-      />
-      <div class="support--content-container">
-        Just open your email receipt on Gmail or Outlook, and click on the Fyle button to see the magic.
-      </div>
-      <div>
-        <ion-grid fixed>
-          <ion-row>
-            <ion-col size="6"
-              ><button (click)="openChromeExtLink()" mat-flat-button class="support--helpLinkBtn">
-                For Gmail
-              </button></ion-col
-            >
-            <ion-col size="6"
-              ><button (click)="openOutlookExtLink()" mat-flat-button class="support--helpLinkBtn">
-                For Outlook
-              </button></ion-col
-            >
-          </ion-row>
-        </ion-grid>
       </div>
     </div>
   </div>

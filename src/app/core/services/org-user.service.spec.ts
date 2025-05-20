@@ -14,7 +14,6 @@ import {
   accessTokenData,
   accessTokenWithProxyOrgUserId,
 } from '../test-data/org-user.service.spec.data';
-import { ApiV2Service } from './api-v2.service';
 import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
 import { DataTransformService } from './data-transform.service';
@@ -31,12 +30,10 @@ describe('OrgUserService', () => {
   let apiService: jasmine.SpyObj<ApiService>;
   let authService: jasmine.SpyObj<AuthService>;
   let dataTransformService: jasmine.SpyObj<DataTransformService>;
-  let apiV2Service: jasmine.SpyObj<ApiV2Service>;
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
 
   beforeEach(() => {
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post']);
-    const apiv2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['get']);
     const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('spenderPlatformV1ApiService', ['get']);
     const jwtHelperServiceSpy = jasmine.createSpyObj('JwtHelperService', ['decodeToken']);
     const tokenServiceSpy = jasmine.createSpyObj('TokenService', ['getAccessToken']);
@@ -49,10 +46,6 @@ describe('OrgUserService', () => {
         {
           provide: ApiService,
           useValue: apiServiceSpy,
-        },
-        {
-          provide: ApiV2Service,
-          useValue: apiv2ServiceSpy,
         },
         {
           provide: SpenderPlatformV1ApiService,
@@ -78,7 +71,6 @@ describe('OrgUserService', () => {
     });
     orgUserService = TestBed.inject(OrgUserService);
     apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
-    apiV2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
     spenderPlatformV1ApiService = TestBed.inject(
       SpenderPlatformV1ApiService
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
@@ -108,55 +100,6 @@ describe('OrgUserService', () => {
     orgUserService.getUserById(userId).subscribe((res) => {
       expect(res).toEqual(currentEouUnflatted);
       expect(apiService.get).toHaveBeenCalledWith('/eous/' + userId);
-      done();
-    });
-  });
-
-  it('should be able to get employees by params', (done) => {
-    apiV2Service.get.and.returnValue(of(employeesRes));
-    const params = {
-      limit: 5,
-      order: 'us_full_name.asc,ou_id',
-      ou_id: 'not.eq.ouX8dwsbLCLv',
-      ou_org_id: 'eq.orNVthTo2Zyo',
-      ou_roles: 'like.%ADMIN%',
-      ou_status: 'eq."ACTIVE"',
-      select: 'us_full_name,us_email',
-    };
-    orgUserService.getEmployeesByParams(params).subscribe((res) => {
-      expect(res).toEqual(employeesRes);
-      expect(apiV2Service.get).toHaveBeenCalledWith('/spender_employees', { params });
-      done();
-    });
-  });
-
-  it('should be able to get employees by search with OR param', (done) => {
-    const params = {
-      order: 'us_full_name.asc,us_email.asc,ou_id',
-      us_email: 'in.(ajain@fyle.in)',
-      or: '(ou_status.like.*"ACTIVE",ou_status.like.*"PENDING_DETAILS")',
-      and: '(or(ou_status.like.*"ACTIVE",ou_status.like.*"PENDING_DETAILS"),or(ou_status.like.*"ACTIVE",ou_status.like.*"PENDING_DETAILS"))',
-    };
-    apiV2Service.get.and.returnValue(of(employeesParamsRes));
-
-    orgUserService.getEmployeesBySearch(params).subscribe((res) => {
-      expect(res).toEqual(employeesParamsRes.data);
-      expect(apiV2Service.get).toHaveBeenCalledWith('/spender_employees', { params });
-      done();
-    });
-  });
-
-  it('should be able to get employees by search without OR param', (done) => {
-    const params = {
-      order: 'us_full_name.asc,us_email.asc,ou_id',
-      us_email: 'in.(ajain@fyle.in)',
-      and: '(or(ou_status.like.*"ACTIVE",ou_status.like.*"PENDING_DETAILS"),or(ou_status.like.*"ACTIVE",ou_status.like.*"PENDING_DETAILS"))',
-    };
-    apiV2Service.get.and.returnValue(of(employeesParamsRes));
-
-    orgUserService.getEmployeesBySearch(params).subscribe((res) => {
-      expect(res).toEqual(employeesParamsRes.data);
-      expect(apiV2Service.get).toHaveBeenCalledWith('/spender_employees', { params });
       done();
     });
   });

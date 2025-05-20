@@ -1,8 +1,8 @@
 <div class="stat-badge" matRipple (click)="onBadgeClicked()">
   <div class="stat-badge--container">
     <ion-grid class="stat-badge--grid">
-      <ion-row>
-        <ion-col class="stat-badge--count-col" size="3">
+      <ion-row class="stat-badge--grid-row">
+        <ion-col class="stat-badge--count-col">
           <div *ngIf="!loading && reportState">
             <div
               *ngIf="!loading"
@@ -23,7 +23,7 @@
             <ion-skeleton-text animated></ion-skeleton-text>
           </div>
         </ion-col>
-        <ion-col class="stat-badge--grid-outer-col" size="9">
+        <ion-col class="stat-badge--grid-outer-col">
           <ion-grid class="stat-badge--grid">
             <ion-row>
               <ion-col class="stat-badge--grid-col">
@@ -41,15 +41,11 @@
             <ion-row>
               <ion-col class="stat-badge--grid-col">
                 <div *ngIf="!loading" class="stat-badge--amount">
-                  <span class="stat-badge--currency">
-                    {{ currencySymbol }}
-                  </span>
-                  <ng-container *ngIf="!isSmallScreen && value > -1000000000 && value < 1000000000; else humanize">
-                    {{ { value: value, currencyCode: currency, skipSymbol: true } | exactCurrency }}
-                  </ng-container>
-                  <ng-template #humanize>
-                    {{ value | humanizeCurrency : currency : true }}
-                  </ng-template>
+                  {{ currencySymbol
+                  }}<ng-container *ngIf="shouldDisplayExact; else humanize">{{
+                    { value: value, currencyCode: currency, skipSymbol: true } | exactCurrency
+                  }}</ng-container>
+                  <ng-template #humanize>{{ value | humanizeCurrency : currency : true }}</ng-template>
                 </div>
                 <div *ngIf="loading">
                   <ion-skeleton-text

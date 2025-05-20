@@ -260,7 +260,7 @@ describe('ManageCorporateCardsPage', () => {
     it('should show Virtual Card page', () => {
       component.segmentChanged({
         detail: {
-          value: '1',
+          value: ManageCardsPageSegment.VIRTUAL_CARDS,
         },
       } as SegmentCustomEvent);
       expect(component.segmentValue).toEqual(ManageCardsPageSegment.VIRTUAL_CARDS);
@@ -269,7 +269,7 @@ describe('ManageCorporateCardsPage', () => {
     it('should show Corporate Card page', () => {
       component.segmentChanged({
         detail: {
-          value: '0',
+          value: ManageCardsPageSegment.CORPORATE_CARDS,
         },
       } as SegmentCustomEvent);
       expect(component.segmentValue).toEqual(ManageCardsPageSegment.CORPORATE_CARDS);
@@ -534,11 +534,11 @@ describe('ManageCorporateCardsPage', () => {
       expect(actionSheetController.create).toHaveBeenCalledOnceWith({
         buttons: [
           {
-            text: 'Connect to Visa Real-time Feed',
+            text: 'Connect to Visa real-time feed',
             handler: jasmine.any(Function),
           },
           {
-            text: 'Connect to Mastercard Real-time Feed',
+            text: 'Connect to Mastercard real-time feed',
             handler: jasmine.any(Function),
           },
         ],

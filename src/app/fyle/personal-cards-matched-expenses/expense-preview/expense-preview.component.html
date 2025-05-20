@@ -8,8 +8,8 @@
     </ion-buttons>
     <ion-title>
       <div class="expense-preview--toolbar__title">
-        <ng-container *ngIf="type === 'match'"> Confirm Matching Expense </ng-container>
-        <ng-container *ngIf="type === 'edit'"> View matching Expense </ng-container>
+        <ng-container *ngIf="type === 'match'"> Confirm matching expense </ng-container>
+        <ng-container *ngIf="type === 'edit'"> View matching expense </ng-container>
       </div>
     </ion-title>
   </ion-toolbar>
@@ -20,7 +20,7 @@
     <ion-grid class="expense-preview--body-container">
       <ion-row class="expense-preview--body-container__content">
         <ion-col size="5">
-          <div class="expense-preview--body-container__title">Expense Id</div>
+          <div class="expense-preview--body-container__title">Expense number</div>
         </ion-col>
         <ion-col size="7" (click)="editExpense()">
           <div class="expense-preview--body-container__value expense-preview--link">
@@ -40,7 +40,7 @@
       </ion-row>
       <ion-row class="expense-preview--body-container__content">
         <ion-col size="5">
-          <div class="expense-preview--body-container__title">Created Date</div>
+          <div class="expense-preview--body-container__title">Created date</div>
         </ion-col>
         <ion-col size="7">
           <div class="expense-preview--body-container__value">
@@ -50,7 +50,7 @@
       </ion-row>
       <ion-row class="expense-preview--body-container__content">
         <ion-col size="5">
-          <div class="expense-preview--body-container__title">Spent Date</div>
+          <div class="expense-preview--body-container__title">Spent date</div>
         </ion-col>
         <ion-col size="7">
           <div class="expense-preview--body-container__value">
@@ -81,7 +81,7 @@
       </ion-row>
       <ion-row class="expense-preview--body-container__content">
         <ion-col size="5">
-          <div class="expense-preview--body-container__title">Card</div>
+          <div class="expense-preview--body-container__title">Card ending in...</div>
         </ion-col>
         <ion-col size="7">
           <div class="expense-preview--body-container__value">
@@ -96,7 +96,7 @@
         <ion-col size="7">
           <div class="expense-preview--body-container__value">
             <ng-container *ngIf="!expenseDetails.file_ids?.length"
-              >Not Attached
+              >Not attached
               <ion-icon
                 [src]="'assets/svg/attachment-none.svg'"
                 class="expense-preview--icon"
@@ -131,7 +131,7 @@
           appFormButtonValidation
           class="btn-primary"
         >
-          Confirm Match
+          Confirm match
         </ion-button>
       </ion-buttons>
       <ion-buttons *ngIf="type === 'edit'">

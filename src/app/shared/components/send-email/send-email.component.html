@@ -18,7 +18,7 @@
         <div *ngIf="subcontent" class="send-email__form__content">{{ subcontent }}</div>
         <form [formGroup]="fg">
           <mat-form-field class="full-width mat-form-field-no-padding" appearance="outline">
-            <input class="smartlook-show" formControlName="email" type="email" matInput placeholder="Work Email" />
+            <input class="smartlook-show" formControlName="email" type="email" matInput placeholder="Work email" />
           </mat-form-field>
           <div class="send-email__error-message" *ngIf="fg.controls.email.touched && !fg.controls.email.valid">
             Please enter a valid email.
@@ -50,7 +50,7 @@
       </div>
     </div>
     <ion-toolbar class="send-email__footer" mode="md">
-      <ion-button fill="clear" expand="full" [routerLink]="['/', 'auth', 'sign_in']"> Back to Sign in </ion-button>
+      <ion-button fill="clear" expand="full" [routerLink]="['/', 'auth', 'sign_in']"> Back to sign in </ion-button>
     </ion-toolbar>
   </div>
 </ion-content>

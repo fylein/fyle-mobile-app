@@ -27,7 +27,6 @@ jobs:
           app-id: 32316914
           platform: iOS
           build-type: App Store
-          build-stack: macOS - 2024.04 - Apple silicon
           certificate: iOS Prod Release
           environment: production
           native-config: prod

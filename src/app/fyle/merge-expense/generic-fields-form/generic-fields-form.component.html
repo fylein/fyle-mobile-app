@@ -59,7 +59,7 @@
           >
             <app-fy-select
               [enableSearch]="false"
-              [label]="'Payment Mode'"
+              [label]="'Payment mode'"
               [mandatory]="true"
               [nullOption]="false"
               [disabled]="
@@ -68,7 +68,7 @@
                 paymentModeOptionsData?.areSameValues
               "
               [options]="paymentModeOptionsData?.options"
-              [selectModalHeader]="'Select Payment Mode'"
+              [selectModalHeader]="'Select payment mode'"
               formControlName="paymentMode"
               [touchedInParent]="genericFieldsFormGroup.controls.paymentMode.touched"
               [validInParent]="genericFieldsFormGroup.controls.paymentMode.valid"
@@ -110,7 +110,7 @@
     <div class="merge-expenses--disabled">
       <input
         [disabled]="disableFormElements || true"
-        [placeholder]="'No Receipt'"
+        [placeholder]="'No receipt'"
         class="merge-expenses--text-input smartlook-show"
         type="text"
       />
@@ -136,7 +136,7 @@
   <div class="merge-expenses--primary-block" *ngIf="projectOptionsData?.options?.length !== 0">
     <ion-grid class="merge-expenses--grid">
       <ion-row>
-        <ion-col size="6">
+        <ion-col [size]="!showBillable ? '12.3' : '6'">
           <div
             [ngClass]="{ 'merge-expenses--internal-block_special': genericFieldsFormGroup.controls.project.value }"
             class="merge-expenses--internal-block merge-expenses--internal-block__margin"
@@ -159,28 +159,32 @@
           </div>
         </ion-col>
 
-        <ion-col size="6">
-          <div
-            [ngClass]="{ 'merge-expenses--internal-block_special': genericFieldsFormGroup.controls.billable.value }"
-            class="merge-expenses--internal-block"
-          >
-            <app-fy-select
-              [enableSearch]="false"
-              [label]="'Billable'"
-              [mandatory]="false"
-              [nullOption]="false"
-              [disabled]="
-                disableFormElements || billableOptionsData?.options?.length === 0 || billableOptionsData?.areSameValues
-              "
-              [options]="billableOptionsData?.options"
-              [selectModalHeader]="'Select billable'"
-              formControlName="billable"
-              [touchedInParent]="genericFieldsFormGroup.controls.billable.touched"
-              [validInParent]="genericFieldsFormGroup.controls.billable.valid"
+        <ng-container *ngIf="showBillable">
+          <ion-col size="6">
+            <div
+              [ngClass]="{ 'merge-expenses--internal-block_special': genericFieldsFormGroup.controls.billable.value }"
+              class="merge-expenses--internal-block"
             >
-            </app-fy-select>
-          </div>
-        </ion-col>
+              <app-fy-select
+                [enableSearch]="false"
+                [label]="'Billable'"
+                [mandatory]="false"
+                [nullOption]="false"
+                [disabled]="
+                  disableFormElements ||
+                  billableOptionsData?.options?.length === 0 ||
+                  billableOptionsData?.areSameValues
+                "
+                [options]="billableOptionsData?.options"
+                [selectModalHeader]="'Select billable'"
+                formControlName="billable"
+                [touchedInParent]="genericFieldsFormGroup.controls.billable.touched"
+                [validInParent]="genericFieldsFormGroup.controls.billable.valid"
+              >
+              </app-fy-select>
+            </div>
+          </ion-col>
+        </ng-container>
       </ion-row>
     </ion-grid>
   </div>
@@ -250,7 +254,7 @@
         disableFormElements || taxGroupOptionsData?.options?.length === 0 || taxGroupOptionsData?.areSameValues
       "
       [options]="taxGroupOptionsData?.options"
-      [selectModalHeader]="'Select Tax Group'"
+      [selectModalHeader]="'Select tax group'"
       formControlName="tax_group"
       [touchedInParent]="genericFieldsFormGroup.controls.tax_group.touched"
       [validInParent]="genericFieldsFormGroup.controls.tax_group.valid"
@@ -271,7 +275,7 @@
       "
       [nullOption]="false"
       [options]="taxAmountOptionsData?.options"
-      [selectModalHeader]="'Select Tax'"
+      [selectModalHeader]="'Select tax'"
       formControlName="tax_amount"
       [touchedInParent]="genericFieldsFormGroup.controls.tax_amount.touched"
       [validInParent]="genericFieldsFormGroup.controls.tax_amount.valid"
@@ -292,7 +296,7 @@
         disableFormElements || constCenterOptionsData?.options?.length === 0 || constCenterOptionsData?.areSameValues
       "
       [options]="constCenterOptionsData?.options"
-      [selectModalHeader]="'Select Cost center'"
+      [selectModalHeader]="'Select cost center'"
       formControlName="costCenter"
       [touchedInParent]="genericFieldsFormGroup.controls.costCenter.touched"
       [validInParent]="genericFieldsFormGroup.controls.costCenter.valid"
@@ -320,7 +324,7 @@
       [nullOption]="false"
       [disabled]="disableFormElements || purposeOptionsData?.options?.length === 0 || purposeOptionsData?.areSameValues"
       [options]="purposeOptionsData?.options"
-      [selectModalHeader]="'Select Purpose'"
+      [selectModalHeader]="'Select purpose'"
       formControlName="purpose"
       [touchedInParent]="genericFieldsFormGroup.controls.purpose.touched"
       [validInParent]="genericFieldsFormGroup.controls.purpose.valid"

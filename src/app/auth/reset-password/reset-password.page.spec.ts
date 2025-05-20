@@ -1,12 +1,12 @@
 import { ComponentFixture, fakeAsync, TestBed, tick, waitForAsync } from '@angular/core/testing';
 import { ResetPasswordPage } from './reset-password.page';
-import { ReactiveFormsModule, FormsModule, FormBuilder, Validators, FormGroup } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule, UntypedFormBuilder, Validators, FormGroup } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 import { IonicModule } from '@ionic/angular';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { PageState } from 'src/app/core/models/page-state.enum';
 import { getElementRef } from 'src/app/core/dom-helpers';
@@ -22,8 +22,8 @@ describe('ResetPasswordPage', () => {
   let matSnackBar: jasmine.SpyObj<MatSnackBar>;
   let snackbarPropertiesService: jasmine.SpyObj<SnackbarPropertiesService>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
-  let formBuilder: jasmine.SpyObj<FormBuilder>;
-  let fb: FormBuilder;
+  let formBuilder: jasmine.SpyObj<UntypedFormBuilder>;
+  let fb: UntypedFormBuilder;
 
   beforeEach(waitForAsync(() => {
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
@@ -34,7 +34,7 @@ describe('ResetPasswordPage', () => {
       declarations: [ResetPasswordPage],
       imports: [IonicModule.forRoot(), RouterTestingModule, RouterModule, FormsModule, ReactiveFormsModule],
       providers: [
-        FormBuilder,
+        UntypedFormBuilder,
         {
           provide: RouterAuthService,
           useValue: routerAuthServiceSpy,
@@ -53,7 +53,7 @@ describe('ResetPasswordPage', () => {
         },
         {
           provide: ActivatedRoute,
-          useValue: { snapshot: { params: { email: 'aastha.b@fyle.in' } } },
+          useValue: { snapshot: { params: { email: 'aastha.b@fyle.in' }, queryParams: { tmp_pwd_expired: 'true' } } },
         },
       ],
     }).compileComponents();
@@ -65,7 +65,7 @@ describe('ResetPasswordPage', () => {
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
     snackbarPropertiesService = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
     activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
-    fb = TestBed.inject(FormBuilder);
+    fb = TestBed.inject(UntypedFormBuilder);
     component.fg = fb.group({
       email: [Validators.compose([Validators.required, Validators.pattern('\\S+@\\S+\\.\\S{2,}')])],
     });

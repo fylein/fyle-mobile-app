@@ -11,12 +11,15 @@ describe('ReportStatePipe', () => {
     expect(pipe.transform('DRAFT')).toBe('draft');
   });
 
-  it('transforms "APPROVER_PENDING" state to "reported", to "submitted" for an account in the new reports flow', () => {
-    expect(pipe.transform('APPROVER_PENDING')).toBe('reported');
-    expect(pipe.transform('APPROVER_PENDING', true)).toBe('submitted');
+  it('transforms "APPROVER_PENDING" state to "submitted"', () => {
+    expect(pipe.transform('APPROVER_PENDING')).toBe('submitted');
   });
 
-  it('transforms "APPROVER_INQUIRY" state to "inquiry"', () => {
+  it('transforms "SUBMITTED" state to "reported"', () => {
+    expect(pipe.transform('SUBMITTED')).toBe('reported');
+  });
+
+  it('transforms "APPROVER_INQUIRY" state to "sent_back"', () => {
     expect(pipe.transform('APPROVER_INQUIRY')).toBe('sent_back');
   });
 
@@ -32,27 +35,24 @@ describe('ReportStatePipe', () => {
     expect(pipe.transform('APPROVED')).toBe('approved');
   });
 
-  it('transforms "PAID" state to "paid", to "submitted" for an account in the new reports flow', () => {
-    expect(pipe.transform('PAID')).toBe('paid');
-    expect(pipe.transform('PAID', true)).toBe('closed');
+  it('transforms "PAID" state to "closed"', () => {
+    expect(pipe.transform('PAID')).toBe('closed');
   });
 
   it('transforms "PAYMENT_PENDING" state to "payment_pending"', () => {
     expect(pipe.transform('PAYMENT_PENDING')).toBe('payment_pending');
   });
 
-  it('transforms "PAYMENT_PROCESSING" state to "payment_processing", to "processing" for an account in the new reports flow', () => {
-    expect(pipe.transform('PAYMENT_PROCESSING')).toBe('payment_processing');
-    expect(pipe.transform('PAYMENT_PROCESSING', true)).toBe('processing');
+  it('transforms "PAYMENT_PROCESSING" state to "processing"', () => {
+    expect(pipe.transform('PAYMENT_PROCESSING')).toBe('processing');
   });
 
   it('transforms "CANCELLED" state to "cancelled"', () => {
     expect(pipe.transform('CANCELLED')).toBe('cancelled');
   });
 
-  it('transforms "APPROVAL_PENDING" state to "reported", to "submitted" for an account in the new reports flow', () => {
-    expect(pipe.transform('APPROVAL_PENDING')).toBe('reported');
-    expect(pipe.transform('APPROVAL_PENDING', true)).toBe('submitted');
+  it('transforms "APPROVAL_PENDING" state to "submitted"', () => {
+    expect(pipe.transform('APPROVAL_PENDING')).toBe('submitted');
   });
 
   it('transforms "APPROVAL_DONE" state to "approved"', () => {

@@ -20,16 +20,10 @@ jobs:
           build-type: debug
           environment: staging
           native-config: staging
-          upload-artifact: Android
+          filename: android.apk
 
-      - uses: actions/download-artifact@v3
-        id: download
-        with:
-          name: 'Android'
-          path: ./
-
-      - name: Rename file
-        run: mv *.apk android.apk
+      - name: Move android.apk to current directory
+        run: mv ~/android.apk .
 
       - name: Upload apk to diawi Slack
         uses: rnkdsh/action-upload-diawi@v1.2.0
@@ -45,20 +39,13 @@ jobs:
           app-id: 32316914
           platform: iOS
           build-type: development
-          build-stack: macOS - 2024.04 - Apple silicon
           certificate: Fyle signing
           environment: staging
-          native-config: prod
-          upload-artifact: ios
+          native-config: staging
+          filename: ios.ipa
 
-      - uses: actions/download-artifact@v3
-        id: ios
-        with:
-          name: 'ios'
-          path: ./
-
-      - name: Rename file
-        run: mv *.ipa ios.ipa
+      - name: Move ios.ipa to current directory
+        run: mv ~/ios.ipa .
 
       - name: Upload ipa to diawi Slack
         uses: rnkdsh/action-upload-diawi@v1.2.0

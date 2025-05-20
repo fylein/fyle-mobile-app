@@ -451,6 +451,7 @@ export const orgSettingsGetData: OrgSettings = deepFreeze({
     enabled: true,
   },
   pending_cct_expense_restriction: { enabled: true, allowed: true },
+  simplified_multi_stage_approvals: { enabled: true, allowed: true },
 });
 
 export const orgSettingsPostData: OrgSettingsResponse = deepFreeze({
@@ -892,11 +893,32 @@ export const orgSettingsPostData: OrgSettingsResponse = deepFreeze({
     enabled: true,
   },
   pending_cct_expense_restriction: { enabled: true, allowed: true },
+  simplified_multi_stage_approvals: {
+    enabled: true,
+    allowed: true,
+  },
 });
 
 export const orgSettingsAmexFeedDataRequest: OrgSettingsResponse = deepFreeze({
   ...orgSettingsPostData,
   amex_feed_enrollment_settings: null,
+});
+
+export const orgSettingsCardsDisabled: OrgSettingsResponse = deepFreeze({
+  ...orgSettingsPostData,
+  amex_feed_enrollment_settings: {
+    allowed: false,
+    enabled: false,
+    virtual_card_settings_enabled: false,
+  },
+  visa_enrollment_settings: {
+    allowed: false,
+    enabled: false,
+  },
+  mastercard_enrollment_settings: {
+    allowed: false,
+    enabled: false,
+  },
 });
 
 export const orgSettingsAmexFeedDataResponse: OrgSettingsResponse = deepFreeze({

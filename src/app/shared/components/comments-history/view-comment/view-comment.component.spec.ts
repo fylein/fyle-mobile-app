@@ -2,6 +2,8 @@ import { ComponentFixture, TestBed, fakeAsync, flush, tick, waitForAsync } from 
 import { IonicModule } from '@ionic/angular';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { StatusService } from 'src/app/core/services/status.service';
+import { ExpenseCommentService as SpenderExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
+import { ExpenseCommentService as ApproverExpenseCommentService } from 'src/app/core/services/platform/v1/approver/expense-comment.service';
 import { Router } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TrackingService } from '../../../../core/services/tracking.service';
@@ -12,7 +14,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { DateFormatPipe } from 'src/app/shared/pipes/date-format.pipe';
 import { PopupAlertComponent } from '../../popup-alert/popup-alert.component';
-import { of } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
 
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import {
@@ -21,11 +23,16 @@ import {
   updateReponseWithFlattenedEStatus,
 } from 'src/app/core/test-data/status.service.spec.data';
 import { cloneDeep } from 'lodash';
+import { DateWithTimezonePipe } from 'src/app/shared/pipes/date-with-timezone.pipe';
+import { TIMEZONE } from 'src/app/constants';
+import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 
 describe('ViewCommentComponent', () => {
   let component: ViewCommentComponent;
   let fixture: ComponentFixture<ViewCommentComponent>;
   let statusService: jasmine.SpyObj<StatusService>;
+  let spenderExpenseCommentService: jasmine.SpyObj<SpenderExpenseCommentService>;
+  let approverExpenseCommentService: jasmine.SpyObj<ApproverExpenseCommentService>;
   let authService: jasmine.SpyObj<AuthService>;
   let modalController: jasmine.SpyObj<ModalController>;
   let popoverController: jasmine.SpyObj<PopoverController>;
@@ -36,6 +43,14 @@ describe('ViewCommentComponent', () => {
 
   beforeEach(waitForAsync(() => {
     statusService = jasmine.createSpyObj('StatusService', ['post', 'find', 'createStatusMap']);
+    spenderExpenseCommentService = jasmine.createSpyObj('SpenderExpenseCommentService', [
+      'getTransformedComments',
+      'post',
+    ]);
+    approverExpenseCommentService = jasmine.createSpyObj('ApproverExpenseCommentService', [
+      'getTransformedComments',
+      'post',
+    ]);
     authService = jasmine.createSpyObj('AuthService', ['getEou']);
     modalController = jasmine.createSpyObj('ModalController', ['dismiss']);
     popoverController = jasmine.createSpyObj('PopoverController', ['create']);
@@ -46,7 +61,7 @@ describe('ViewCommentComponent', () => {
     const dateFormatPipeSpy = jasmine.createSpyObj('DateFormatPipe', ['transform']);
 
     TestBed.configureTestingModule({
-      declarations: [ViewCommentComponent, DateFormatPipe],
+      declarations: [ViewCommentComponent, DateFormatPipe, DateWithTimezonePipe],
       imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, FormsModule],
       providers: [
         { provide: StatusService, useValue: statusService },
@@ -58,12 +73,14 @@ describe('ViewCommentComponent', () => {
         { provide: ElementRef, useValue: elementRef },
         { provide: Platform, useValue: platform },
         { provide: DateFormatPipe, useValue: dateFormatPipeSpy },
+        { provide: TIMEZONE, useValue: new BehaviorSubject<string>('UTC') },
+        { provide: SpenderExpenseCommentService, useValue: spenderExpenseCommentService },
+        { provide: ApproverExpenseCommentService, useValue: approverExpenseCommentService },
       ],
     }).compileComponents();
 
     authService.getEou.and.resolveTo(apiEouRes);
     const mockCommentResponse = cloneDeep(apiCommentsResponse);
-    statusService.find.and.returnValue(of(mockCommentResponse));
     const mockStatusMap = cloneDeep(updateReponseWithFlattenedEStatus);
     statusService.createStatusMap.and.returnValue(mockStatusMap);
 
@@ -73,6 +90,8 @@ describe('ViewCommentComponent', () => {
     component.objectType = 'transactions';
     component.objectId = 'tx1oTNwgRdRq';
     component.newComment = 'This is a new comment';
+    component.view = ExpenseView.team;
+    approverExpenseCommentService.getTransformedComments.and.returnValue(of(mockCommentResponse));
   }));
 
   it('should create', () => {
@@ -81,15 +100,15 @@ describe('ViewCommentComponent', () => {
 
   it('should add comment to status and reset input field', () => {
     const newComment = 'This is a new comment';
-    const data = { comment: newComment };
+    const commentsPayload = [{ expense_id: component.objectId, comment: newComment, notify: false }];
     component.newComment = newComment;
-    statusService.post.and.returnValue(of(null));
+    approverExpenseCommentService.post.and.returnValue(of(null));
     fixture.detectChanges();
     const focusSpy = spyOn(component.commentInput.nativeElement, 'focus');
     component.addComment();
 
     fixture.detectChanges();
-    expect(statusService.post).toHaveBeenCalledOnceWith(component.objectType, component.objectId, data);
+    expect(approverExpenseCommentService.post).toHaveBeenCalledOnceWith(commentsPayload);
     expect(component.newComment).toBeNull();
     expect(focusSpy).toHaveBeenCalledTimes(1);
     expect(component.isCommentAdded).toBeTrue();
@@ -219,7 +238,7 @@ describe('ViewCommentComponent', () => {
       spyOn(component, 'setContentScrollToBottom');
       const totalCommentsCount = 33;
       authService.getEou.and.resolveTo(apiEouRes);
-      statusService.find.and.returnValue(of(updatedApiCommentsResponse));
+      approverExpenseCommentService.getTransformedComments.and.returnValue(of(updatedApiCommentsResponse));
       statusService.createStatusMap.and.returnValue(updateReponseWithFlattenedEStatus);
       component.ngOnInit();
       tick(500);
@@ -235,13 +254,13 @@ describe('ViewCommentComponent', () => {
       });
       tick(500);
       expect(authService.getEou).toHaveBeenCalled();
-      expect(statusService.find).toHaveBeenCalledWith(component.objectType, component.objectId);
+      expect(approverExpenseCommentService.getTransformedComments).toHaveBeenCalledWith(component.objectId);
       expect(statusService.createStatusMap).toHaveBeenCalledWith(component.systemComments, component.type);
     }));
 
     it('should set type correctly for a given objectType', fakeAsync(() => {
       spyOn(component, 'setContentScrollToBottom');
-      component.objectType = 'Expenses';
+      component.objectType = 'transactions';
       component.ngOnInit();
       tick(500);
       expect(component.type).toEqual('Expense');

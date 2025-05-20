@@ -1,21 +1,21 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { NavParams } from '@ionic/angular';
-import { Browser } from '@capacitor/browser';
 import { TrackingService } from '../../../core/services/tracking.service';
 import { BrowserHandlerService } from 'src/app/core/services/browser-handler.service';
+import { HelpAdminInfo } from 'src/app/core/models/help-admin-info.model';
 
 @Component({
   selector: 'app-support-dialog',
   templateUrl: './support-dialog.page.html',
   styleUrls: ['./support-dialog.page.scss'],
 })
-export class SupportDialogPage implements OnInit {
-  @Input() adminEous: [];
+export class SupportDialogPage {
+  @Input() adminEous: HelpAdminInfo[] = [];
 
-  dialogType = this.navParams.get('type');
+  dialogType = this.navParams.get<string>('type');
 
-  adminList = this.navParams.get('adminEous');
+  adminList = this.navParams.get<HelpAdminInfo[]>('adminEous');
 
   constructor(
     private modalController: ModalController,
@@ -24,12 +24,12 @@ export class SupportDialogPage implements OnInit {
     private browserHandlerService: BrowserHandlerService
   ) {}
 
-  async openHelpLink() {
+  async openHelpLink(): Promise<void> {
     this.trackingService.engageWithHelpCard();
-    await this.browserHandlerService.openLinkWithToolbarColor('#280a31', 'https://help.fylehq.com');
+    await this.browserHandlerService.openLinkWithToolbarColor('#280a31', 'https://www.fylehq.com/help');
   }
 
-  async openChromeExtLink() {
+  async openChromeExtLink(): Promise<void> {
     this.trackingService.engageWithHelpCard();
     await this.browserHandlerService.openLinkWithToolbarColor(
       '#280a31',
@@ -37,7 +37,7 @@ export class SupportDialogPage implements OnInit {
     );
   }
 
-  async openOutlookExtLink() {
+  async openOutlookExtLink(): Promise<void> {
     this.trackingService.engageWithHelpCard();
     await this.browserHandlerService.openLinkWithToolbarColor(
       '#280a31',
@@ -45,11 +45,9 @@ export class SupportDialogPage implements OnInit {
     );
   }
 
-  closeDialog() {
+  closeDialog(): void {
     this.modalController.dismiss({
       dismissed: true,
     });
   }
-
-  ngOnInit() {}
 }

@@ -2,22 +2,18 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule, ModalController } from '@ionic/angular';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { SplitExpensePolicyViolationComponent } from './split-expense-policy-violation.component';
-import { FormArray, FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { UntypedFormArray, UntypedFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { cloneDeep } from 'lodash';
 import {
   filteredSplitPolicyViolationsData,
   filteredSplitPolicyViolationsData2,
 } from 'src/app/core/mock-data/filtered-split-policy-violations.data';
-import {
-  filteredMissingFieldsViolationsData,
-  filteredMissingFieldsViolationsData2,
-} from 'src/app/core/mock-data/filtered-missing-fields-violations.data';
 
 describe('SplitExpensePolicyViolationComponent', () => {
   let component: SplitExpensePolicyViolationComponent;
   let fixture: ComponentFixture<SplitExpensePolicyViolationComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
-  let comments: FormArray;
+  let comments: UntypedFormArray;
 
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
@@ -26,7 +22,7 @@ describe('SplitExpensePolicyViolationComponent', () => {
       imports: [IonicModule.forRoot(), ReactiveFormsModule],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
       providers: [
-        FormBuilder,
+        UntypedFormBuilder,
         {
           provide: ModalController,
           useValue: modalControllerSpy,
@@ -41,10 +37,7 @@ describe('SplitExpensePolicyViolationComponent', () => {
       0: cloneDeep(filteredSplitPolicyViolationsData),
       1: cloneDeep(filteredSplitPolicyViolationsData2),
     };
-    component.missingFieldsViolations = {
-      0: cloneDeep(filteredMissingFieldsViolationsData),
-    };
-    comments = component.form.controls.comments as FormArray;
+    comments = component.form.controls.comments as UntypedFormArray;
     fixture.detectChanges();
   }));
 
@@ -61,7 +54,6 @@ describe('SplitExpensePolicyViolationComponent', () => {
     expect(firstComment.value).toBe('');
     expect(secondComment.value).toBe('');
     expect(component.transactionIDs).toEqual(['0', '1']);
-    expect(component.missingFieldsIDs).toEqual(['0']);
   });
 
   it('toggleExpansion() should expand the clicked transaction and collapse the others', () => {
@@ -88,20 +80,6 @@ describe('SplitExpensePolicyViolationComponent', () => {
     expect(modalController.dismiss).toHaveBeenCalledTimes(1);
   });
 
-  it('hidePolicyViolations(): should hide the policy violations in the modal if for that ID missing fields is present', () => {
-    component.policyViolations = cloneDeep({
-      0: filteredSplitPolicyViolationsData,
-      1: filteredSplitPolicyViolationsData2,
-    });
-    component.transactionIDs = ['0', '1'];
-    component.missingFieldsViolations = cloneDeep({
-      0: { ...filteredMissingFieldsViolationsData, isMissingFields: true },
-    });
-    component.hidePolicyViolations();
-    expect(component.policyViolations[0]).toBeUndefined();
-    expect(component.isSplitBlocked).toBeTrue();
-  });
-
   describe('checkIfSplitBlocked():', () => {
     it('should set isSplitBlocked to true if critical policy violations are present and report is attached', () => {
       component.isPartOfReport = true;
@@ -113,29 +91,5 @@ describe('SplitExpensePolicyViolationComponent', () => {
       component.checkIfSplitBlocked();
       expect(component.isSplitBlocked).toBeTrue();
     });
-
-    it('should set isSplitBlocked to true if missing fields are present', () => {
-      component.isPartOfReport = true;
-      component.missingFieldsIDs = ['0', '1', '2'];
-      component.missingFieldsViolations = cloneDeep({
-        0: { ...filteredMissingFieldsViolationsData, isMissingFields: true },
-      });
-      component.checkIfSplitBlocked();
-      expect(component.isSplitBlocked).toBeTrue();
-    });
-  });
-
-  it('toggleMissingFieldsExpansion() should expand the clicked transaction missing fields and collapse the others', () => {
-    component.missingFieldsViolations = {
-      0: cloneDeep(filteredMissingFieldsViolationsData),
-      1: cloneDeep({ ...filteredMissingFieldsViolationsData2, isExpanded: false }),
-    };
-    component.toggleMissingFieldsExpansion('0');
-    expect(component.missingFieldsViolations[0].isExpanded).toBeTrue();
-    expect(component.missingFieldsViolations[1].isExpanded).toBeFalse();
-
-    component.toggleMissingFieldsExpansion('1');
-    expect(component.missingFieldsViolations[0].isExpanded).toBeFalse();
-    expect(component.missingFieldsViolations[1].isExpanded).toBeTrue();
   });
 });

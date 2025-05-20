@@ -209,6 +209,7 @@
     width: fit-content;
     margin-left: auto;
     margin-right: auto;
+    margin-top: 20px;
   }
 
   &--fetch-button {
@@ -254,7 +255,6 @@
       color: $blue-black;
       font-size: 3.2vw;
       font-weight: 500;
-      width: 150px;
       text-transform: none;
     }
 

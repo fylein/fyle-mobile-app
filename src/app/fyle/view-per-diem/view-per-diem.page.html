@@ -10,7 +10,7 @@
       class="page-title"
       [ngClass]="{'view-per-diem--title': reportExpenseCount > 1, 'pl-0': isDeviceWidthSmall}"
     >
-      View Per Diem
+      View per diem
       <p class="view-per-diem--subtitle" *ngIf="reportExpenseCount > 1">
         Showing {{ activeExpenseIndex + 1 }} of {{ reportExpenseCount }} expenses
       </p>
@@ -49,7 +49,7 @@
 
     <div class="d-flex view-per-diem--card-container">
       <div class="view-per-diem--card-container__block">
-        <div class="view-per-diem--card-container__category">Per Diem</div>
+        <div class="view-per-diem--card-container__category">Per diem</div>
         <div *ngIf="perDiemExpense.per_diem_num_days" class="view-per-diem--card-container__merchant">
           {{perDiemExpense.per_diem_num_days}} {{perDiemExpense.per_diem_num_days === 1 ? 'Day' : 'Days'}}
         </div>
@@ -74,7 +74,7 @@
           [ngClass]="{'view-per-diem--card-container__state-pill--with-project': isProjectShown}"
         >
           <div class="state-pill state-{{perDiemExpense.state | expenseState}}">
-            {{ perDiemExpense.state | expenseState : isNewReportsFlowEnabled | snakeCaseToSpaceCase | titlecase }}
+            {{ perDiemExpense.state | expenseState | snakeCaseToSpaceCase | titlecase }}
           </div>
         </div>
       </div>
@@ -88,7 +88,7 @@
           </div>
         </ion-col>
         <ion-col class="view-per-diem--content-container">
-          <div class="view-per-diem--label">Report Name</div>
+          <div class="view-per-diem--label">Report name</div>
           <div class="view-per-diem--value">{{ perDiemExpense.report?.title }}</div>
         </ion-col>
       </ion-row>
@@ -103,7 +103,7 @@
         </ion-col>
         <ion-col class="view-per-diem--content-container">
           <div class="view-per-diem--label">Employee</div>
-          <div class="view-per-diem--value">{{ perDiemExpense.user.full_name }}</div>
+          <div class="view-per-diem--value smartlook-hide">{{ perDiemExpense.user.full_name }}</div>
         </ion-col>
       </ion-row>
     </ion-grid>
@@ -116,7 +116,7 @@
           </div>
         </ion-col>
         <ion-col class="view-per-diem--content-container">
-          <div class="view-per-diem--label">Expense ID</div>
+          <div class="view-per-diem--label">Expense number</div>
           <div class="view-per-diem--value">{{ perDiemExpense.seq_num }}</div>
         </ion-col>
       </ion-row>
@@ -132,7 +132,7 @@
           </div>
         </ion-col>
         <ion-col class="view-per-diem--content-container">
-          <div class="view-per-diem--label">Created Date</div>
+          <div class="view-per-diem--label">Created date</div>
           <div class="view-per-diem--value">{{ perDiemExpense.created_at | date: 'MMM dd, YYYY' }}</div>
         </ion-col>
       </ion-row>
@@ -152,7 +152,7 @@
                 </div>
               </ion-col>
               <ion-col class="view-per-diem--content-container">
-                <div class="view-per-diem--label">Onward Date</div>
+                <div class="view-per-diem--label">Onward date</div>
                 <div class="view-per-diem--value">{{ perDiemExpense.started_at | date: 'MMM dd, YYYY' }}</div>
               </ion-col>
             </ion-row>
@@ -170,7 +170,7 @@
                 </div>
               </ion-col>
               <ion-col class="view-per-diem--content-container">
-                <div class="view-per-diem--label">Return Date</div>
+                <div class="view-per-diem--label">Return date</div>
                 <div class="view-per-diem--value">{{ perDiemExpense.ended_at | date: 'MMM dd, YYYY' }}</div>
               </ion-col>
             </ion-row>
@@ -190,7 +190,7 @@
           </div>
         </ion-col>
         <ion-col class="view-per-diem--content-container">
-          <div class="view-per-diem--label">Payment Mode</div>
+          <div class="view-per-diem--label">Payment mode</div>
           <div class="view-per-diem--value">{{ paymentMode }}</div>
         </ion-col>
       </ion-row>
@@ -221,7 +221,7 @@
           </div>
         </ion-col>
         <ion-col class="view-per-diem--content-container">
-          <div class="view-per-diem--label">Subcategory</div>
+          <div class="view-per-diem--label">Sub-category</div>
           <div class="view-per-diem--value">{{ perDiemExpense.category.sub_category }}</div>
         </ion-col>
       </ion-row>
@@ -235,7 +235,7 @@
           </div>
         </ion-col>
         <ion-col class="view-per-diem--content-container">
-          <div class="view-per-diem--label">Per Diem Type</div>
+          <div class="view-per-diem--label">Per diem type</div>
           <div class="view-per-diem--value">
             {{perDiemRate.name}} ({{ perDiemRate.rate | currency: perDiemRate.currency: 'symbol-narrow' }} per day)
           </div>
@@ -262,7 +262,7 @@
                     </div>
                   </ion-col>
                   <ion-col class="view-per-diem--content-container">
-                    <div class="view-per-diem--label">Cost Center</div>
+                    <div class="view-per-diem--label">Cost center</div>
                     <div class="view-per-diem--value">{{ perDiemExpense.cost_center?.name }}</div>
                   </ion-col>
                 </ion-row>
@@ -280,7 +280,7 @@
                     </div>
                   </ion-col>
                   <ion-col class="view-per-diem--content-container">
-                    <div class="view-per-diem--label">Cost Center Code</div>
+                    <div class="view-per-diem--label">Cost center code</div>
                     <div class="view-per-diem--value">{{ perDiemExpense.cost_center?.code }}</div>
                   </ion-col>
                 </ion-row>

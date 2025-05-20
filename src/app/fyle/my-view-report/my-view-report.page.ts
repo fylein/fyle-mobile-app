@@ -10,7 +10,7 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { NetworkService } from '../../core/services/network.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { getCurrencySymbol } from '@angular/common';
@@ -18,7 +18,7 @@ import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-rep
 import * as dayjs from 'dayjs';
 import { StatusService } from 'src/app/core/services/status.service';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, isNumber } from 'lodash';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
@@ -37,7 +37,12 @@ import { ReportPermissions } from 'src/app/core/models/report-permissions.model'
 import { ExtendedComment } from 'src/app/core/models/platform/v1/extended-comment.model';
 import { Comment } from 'src/app/core/models/platform/v1/comment.model';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
-import * as Sentry from '@sentry/angular';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { ShowAllApproversPopoverComponent } from 'src/app/shared/components/fy-approver/show-all-approvers-popover/show-all-approvers-popover.component';
+import { ReportApprovals } from 'src/app/core/models/platform/report-approvals.model';
+import * as Sentry from '@sentry/angular-ivy';
+import { ApprovalState } from 'src/app/core/models/platform/approval-state.enum';
+import { DateWithTimezonePipe } from 'src/app/shared/pipes/date-with-timezone.pipe';
 
 @Component({
   selector: 'app-my-view-report',
@@ -115,6 +120,12 @@ export class MyViewReportPage {
 
   submitReportLoader = false;
 
+  showViewApproverModal = false;
+
+  approvals: ReportApprovals[];
+
+  approverToShow: ReportApprovals;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
@@ -132,7 +143,9 @@ export class MyViewReportPage {
     private statusService: StatusService,
     private orgSettingsService: OrgSettingsService,
     private platformHandlerService: PlatformHandlerService,
-    private spenderReportsService: SpenderReportsService
+    private spenderReportsService: SpenderReportsService,
+    private launchDarklyService: LaunchDarklyService,
+    private dateWithTimezonePipe: DateWithTimezonePipe
   ) {}
 
   get Segment(): typeof ReportPageSegment {
@@ -212,8 +225,8 @@ export class MyViewReportPage {
       this.userComments.sort((a, b) => (a.created_at > b.created_at ? 1 : -1));
 
       for (let i = 0; i < this.userComments.length; i++) {
-        const prevCommentDt = dayjs(this.userComments[i - 1] && this.userComments[i - 1].created_at);
-        const currentCommentDt = dayjs(this.userComments[i] && this.userComments[i].created_at);
+        const prevCommentDt = this.dateWithTimezonePipe.transform(this.userComments?.[i - 1]?.created_at);
+        const currentCommentDt = this.dateWithTimezonePipe.transform(this.userComments?.[i]?.created_at);
         if (dayjs(prevCommentDt).isSame(currentCommentDt, 'day')) {
           this.userComments[i].show_dt = false;
         } else {
@@ -221,6 +234,17 @@ export class MyViewReportPage {
         }
       }
     });
+  }
+
+  setupApproverToShow(report: Report): void {
+    const filteredApprover = this.approvals.filter(
+      (approver) => report.next_approver_user_ids?.[0] === approver.approver_user.id
+    );
+    const highestRankApprover = this.approvals.reduce(
+      (max, approver) => (approver.approver_order > max.approver_order ? approver : max),
+      this.approvals[0]
+    );
+    this.approverToShow = filteredApprover.length === 1 ? filteredApprover[0] : highestRankApprover;
   }
 
   ionViewWillEnter(): void {
@@ -231,12 +255,21 @@ export class MyViewReportPage {
     this.segmentValue = ReportPageSegment.EXPENSES;
 
     this.report$ = this.loadReportDetails$.pipe(
-      tap(() => this.loaderService.showLoader()),
+      map(() => from(this.loaderService.showLoader())),
       switchMap(() =>
         this.spenderReportsService.getReportById(this.reportId).pipe(finalize(() => this.loaderService.hideLoader()))
       ),
       map((report) => {
         this.setupComments(report);
+        this.approvals = report?.approvals;
+        // filtering out disabled approvals from my view report page
+        this.approvals = report?.approvals?.filter((approval) =>
+          [ApprovalState.APPROVAL_PENDING, ApprovalState.APPROVAL_DONE].includes(approval.state)
+        );
+        if (this.showViewApproverModal) {
+          this.approvals.sort((a, b) => a.approver_order - b.approver_order);
+          this.setupApproverToShow(report);
+        }
         return report;
       }),
       shareReplay(1)
@@ -317,6 +350,12 @@ export class MyViewReportPage {
       map((orgSettings) => ({ enabled: this.getSimplifyReportSettings(orgSettings) }))
     );
 
+    orgSettings$.subscribe((orgSettings) => {
+      this.showViewApproverModal =
+        orgSettings?.simplified_multi_stage_approvals?.allowed &&
+        orgSettings?.simplified_multi_stage_approvals?.enabled;
+    });
+
     this.hardwareBackButtonAction = this.platformHandlerService.registerBackButtonAction(
       BackButtonActionPriority.MEDIUM,
       () => {
@@ -332,6 +371,22 @@ export class MyViewReportPage {
       Time_spent: this.timeSpentOnEditingReportName,
       Roles: this.eou?.ou.roles,
     });
+  }
+
+  async openViewApproverModal(): Promise<void> {
+    const viewApproversModal = await this.popoverController.create({
+      component: ShowAllApproversPopoverComponent,
+      componentProps: {
+        approvals: this.approvals,
+      },
+      cssClass: 'fy-dialog-popover',
+      backdropDismiss: false,
+    });
+
+    await viewApproversModal.present();
+    await viewApproversModal.onWillDismiss();
+
+    this.trackingService.eventTrack('All approvers modal closed', { view: ExpenseView.team });
   }
 
   showReportNameChangeSuccessToast(): void {
@@ -580,8 +635,8 @@ export class MyViewReportPage {
   }
 
   segmentChanged(event: SegmentCustomEvent): void {
-    if (event?.detail?.value) {
-      this.segmentValue = parseInt(event.detail.value, 10);
+    if (isNumber(event?.detail?.value)) {
+      this.segmentValue = event.detail.value;
     }
   }
 

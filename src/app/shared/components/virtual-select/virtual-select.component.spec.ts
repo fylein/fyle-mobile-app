@@ -4,7 +4,7 @@ import { IonicModule, ModalController } from '@ionic/angular';
 import { Injector, NO_ERRORS_SCHEMA } from '@angular/core';
 import { VirtualSelectComponent } from './virtual-select.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
-import { FormControl, NG_VALUE_ACCESSOR, NgControl } from '@angular/forms';
+import { UntypedFormControl, NG_VALUE_ACCESSOR, NgControl } from '@angular/forms';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
 import { virtualSelectModalControllerParams } from 'src/app/core/mock-data/modal-controller.data';
 
@@ -38,7 +38,7 @@ describe('VirtualSelectModalComponent', () => {
         {
           provide: NgControl,
           useValue: {
-            control: new FormControl(),
+            control: new UntypedFormControl(),
           },
         },
       ],
@@ -82,13 +82,13 @@ describe('VirtualSelectModalComponent', () => {
     }));
 
     it('should open select modal and set value equals to value returned by modal if label is Payment Mode', fakeAsync(() => {
-      component.label = 'Payment Mode';
+      component.label = 'Payment mode';
       component.openModal();
       tick(100);
 
       expect(modalController.create).toHaveBeenCalledOnceWith({
         ...virtualSelectModalControllerParams,
-        componentProps: { ...virtualSelectModalControllerParams.componentProps, label: 'Payment Mode' },
+        componentProps: { ...virtualSelectModalControllerParams.componentProps, label: 'Payment mode' },
       });
       expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledOnceWith('payment-mode-modal');
       expect(selectionModalSpy.present).toHaveBeenCalledTimes(1);

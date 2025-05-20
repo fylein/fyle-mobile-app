@@ -19,10 +19,10 @@
       mode="md"
       [ngClass]="{'add-edit-per-diem--title__review': reviewList?.length}"
     >
-      <div *ngIf="mode === 'add'" class="add-edit-per-diem--toolbar__title">Add Per Diem</div>
+      <div *ngIf="mode === 'add'" class="add-edit-per-diem--toolbar__title">Add per diem</div>
       <div *ngIf="mode === 'edit'">
-        <div *ngIf="reviewList?.length; else EditPerDiem">Review Per Diem</div>
-        <ng-template #EditPerDiem> Edit Per Diem </ng-template>
+        <div *ngIf="reviewList?.length; else EditPerDiem">Review per diem</div>
+        <ng-template #EditPerDiem> Edit per diem </ng-template>
         <div *ngIf="reviewList?.length" class="add-edit-per-diem--sub-header">
           {{ +activeIndex + 1 }} of {{ reviewList?.length }} expense{{reviewList?.length > 1 ? 's' : ''}}
         </div>
@@ -116,11 +116,11 @@
                     >
                       <app-fy-select
                         [disabled]="isAmountDisabled"
-                        [label]="'Per Diem Type'"
+                        [label]="'Per diem type'"
                         [mandatory]="true"
                         [nullOption]="false"
                         [options]="allowedPerDiemRateOptions"
-                        [selectModalHeader]="'Select Per Diem Type'"
+                        [selectModalHeader]="'Select per diem type'"
                         [selectionElement]="perDiemType"
                         formControlName="per_diem_rate"
                         [touchedInParent]="fg.controls.per_diem_rate.touched"
@@ -263,12 +263,12 @@
                     >
                       <app-fy-select
                         [enableSearch]="false"
-                        [label]="'Payment Mode'"
+                        [label]="'Payment mode'"
                         [mandatory]="true"
                         [mandatory]="true"
                         [nullOption]="false"
                         [options]="paymentModes"
-                        [selectModalHeader]="'Select Payment Mode'"
+                        [selectModalHeader]="'Select payment mode'"
                         [selectionElement]="paymentMode"
                         formControlName="paymentMode"
                         [touchedInParent]="fg.controls.paymentMode.touched"
@@ -289,7 +289,7 @@
                               *ngIf="!paymentMode.acc.isReimbursable"
                               class="add-edit-per-diem--payment-mode-section"
                             >
-                              (Non Reimbursable)
+                              (Non reimbursable)
                             </div>
                           </ng-container>
                         </div>
@@ -352,9 +352,12 @@
                       </ng-container>
 
                       <div
-                        *ngIf="(isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) && (individualProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))"
+                        *ngIf="showBillable && (isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) && (individualProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))"
                       >
-                        <div *ngIf="fg.controls.project.value" class="add-edit-per-diem--internal-block">
+                        <div
+                          *ngIf="fg.controls.project.value"
+                          class="add-edit-per-diem--internal-block add-edit-per-diem--billable-block"
+                        >
                           <mat-checkbox formControlName="billable">
                             <span class="add-edit-per-diem--checkbox"> Billable </span>
                           </mat-checkbox>
@@ -402,10 +405,10 @@
                         >
                           <app-fy-select
                             [cacheName]="'perDiemSubCategoryCache'"
-                            [label]="'Sub Category'"
+                            [label]="'Subcategory'"
                             [mandatory]="true"
                             [options]="subCategories"
-                            [selectModalHeader]="'Select Sub Category'"
+                            [selectModalHeader]="'Select subcategory'"
                             [nullOption]="false"
                             formControlName="sub_category"
                             [touchedInParent]="fg.controls.sub_category.touched"
@@ -417,7 +420,7 @@
                           *ngIf="fg.controls.sub_category.touched && !fg.controls.sub_category.valid"
                           class="add-edit-per-diem--error"
                         >
-                          Please select a sub Category.
+                          Please select a sub-category.
                         </div>
                       </ng-container>
                     </ng-container>
@@ -436,7 +439,7 @@
                             [label]="txnFields.cost_center_id?.field_name  | ellipsis: 30"
                             [mandatory]="txnFields.cost_center_id?.is_mandatory"
                             [options]="costCenters"
-                            [selectModalHeader]="'Select Cost Center'"
+                            [selectModalHeader]="'Select cost center'"
                             [recentlyUsed]="recentCostCenters"
                             formControlName="costCenter"
                             [placeholder]="txnFields.cost_center_id?.placeholder | ellipsis: 30"
@@ -447,7 +450,7 @@
                           *ngIf="fg.controls.costCenter.touched && !fg.controls.costCenter.valid"
                           class="add-edit-per-diem--error"
                         >
-                          Please select a Cost Center.
+                          Please select a cost center.
                         </div>
 
                         <ng-container *ngIf="dependentFields$|async as dependentFields">
@@ -499,7 +502,7 @@
                             [label]="txnFields?.purpose.field_name"
                             [options]="txnFields?.purpose?.options"
                             [mandatory]="txnFields?.purpose?.is_mandatory"
-                            [selectModalHeader]="'Enter Purpose'"
+                            [selectModalHeader]="'Enter purpose'"
                             class="add-edit-per-diem--text-input"
                             formControlName="purpose"
                             [placeholder]="txnFields.purpose.placeholder | ellipsis: 30"
@@ -593,6 +596,7 @@
                               [placeholder]="customInput.placeholder | ellipsis: 30"
                               [touchedInParent]="customInput.control.controls.value.touched"
                               [validInParent]="customInput.control.controls.value.valid"
+                              [isCustomSelect]="true"
                             >
                             </app-fy-select>
                           </div>
@@ -629,7 +633,7 @@
                           <ng-container *ngIf="canRemoveFromReport || !etxn?.tx?.report_id">
                             <div class="add-edit-per-diem--internal-block">
                               <app-fy-add-to-report
-                                [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'"
+                                [label]="etxn.tx.report_id ? 'Report' : 'Add to report'"
                                 [options]="reports"
                                 formControlName="report"
                                 [autoSubmissionReportName]="autoSubmissionReportName$|async"
@@ -723,7 +727,7 @@
                 />
               </div>
               <div class="add-edit-per-diem--zero-state-text">
-                Looks like no Per diem rates are set for your org yet.
+                Looks like no per diem rates are set for your org yet.
               </div>
             </div>
           </ng-template>

@@ -53,7 +53,7 @@ describe('AuthGuard', () => {
     it('should return the user org', async () => {
       authService.getEou.and.resolveTo(apiEouRes);
 
-      const result = await guard.canActivate(activatedRoute.snapshot, { url: '/test', root: null });
+      const result = await guard.canActivate();
 
       expect(result).toBeTrue();
       expect(authService.getEou).toHaveBeenCalledTimes(1);
@@ -62,7 +62,7 @@ describe('AuthGuard', () => {
     it('should navigate to sign in page if org is not present', async () => {
       authService.getEou.and.resolveTo(null);
 
-      await guard.canActivate(activatedRoute.snapshot, { url: '/test', root: null });
+      await guard.canActivate();
 
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'sign_in']);
     });

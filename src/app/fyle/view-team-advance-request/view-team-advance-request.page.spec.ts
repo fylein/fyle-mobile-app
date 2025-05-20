@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { ActionSheetController, IonicModule, ModalController, NavController, PopoverController } from '@ionic/angular';
+import { ActionSheetController, IonicModule, ModalController, PopoverController } from '@ionic/angular';
 
 import { ViewTeamAdvanceRequestPage } from './view-team-advance-request.page';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
@@ -16,9 +16,8 @@ import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pip
 import { MIN_SCREEN_WIDTH } from 'src/app/app.module';
 import { StatisticTypes } from 'src/app/shared/components/fy-statistic/statistic-type.enum';
 import { transformedResponse2 } from 'src/app/core/mock-data/expense-field.data';
-import { Subject, finalize, of } from 'rxjs';
-import { singleExtendedAdvancesData } from 'src/app/core/mock-data/extended-advance.data';
-import { extendedAdvReqDraft, myAdvanceRequestsData2 } from 'src/app/core/mock-data/extended-advance-request.data';
+import { finalize, of } from 'rxjs';
+import { extendedAdvReqDraft } from 'src/app/core/mock-data/extended-advance-request.data';
 import { apiAdvanceRequestAction } from 'src/app/core/mock-data/advance-request-actions.data';
 import { advanceReqApprovals } from 'src/app/core/mock-data/approval.data';
 import { advanceRequestFileUrlData, fileObject10, fileObject4 } from 'src/app/core/mock-data/file-object.data';
@@ -59,7 +58,7 @@ describe('ViewTeamAdvanceRequestPage', () => {
 
   beforeEach(waitForAsync(() => {
     const advanceRequestServiceSpy = jasmine.createSpyObj('AdvanceRequestService', [
-      'getAdvanceRequest',
+      'getApproverAdvanceRequest',
       'getActions',
       'getActiveApproversByAdvanceRequestId',
       'modifyAdvanceRequestCustomFields',
@@ -176,7 +175,7 @@ describe('ViewTeamAdvanceRequestPage', () => {
     beforeEach(() => {
       loaderService.showLoader.and.resolveTo();
       loaderService.hideLoader.and.resolveTo();
-      advanceRequestService.getAdvanceRequest.and.returnValue(of(extendedAdvReqDraft));
+      advanceRequestService.getApproverAdvanceRequest.and.returnValue(of(extendedAdvReqDraft));
       advanceRequestService.getActions.and.returnValue(of(apiAdvanceRequestAction));
       advanceRequestService.getActiveApproversByAdvanceRequestId.and.returnValue(of(advanceReqApprovals));
       spyOn(component, 'getAttachedReceipts').and.returnValue(of(fileObject4));
@@ -201,7 +200,7 @@ describe('ViewTeamAdvanceRequestPage', () => {
         .subscribe((data) => {
           expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
           expect(data).toEqual(extendedAdvReqDraft);
-          expect(advanceRequestService.getAdvanceRequest).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
+          expect(advanceRequestService.getApproverAdvanceRequest).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
         });
 
       component.actions$.subscribe((data) => {
@@ -210,7 +209,7 @@ describe('ViewTeamAdvanceRequestPage', () => {
       });
 
       component.showAdvanceActions$.subscribe((data) => {
-        expect(data).toEqual(false);
+        expect(data).toBeFalse();
       });
     }));
 
@@ -255,7 +254,7 @@ describe('ViewTeamAdvanceRequestPage', () => {
       const eouRes = cloneDeep(apiEouRes);
       eouRes.ou.org_id = 'or2390Fjsd';
       authService.getEou.and.resolveTo(eouRes);
-      let customField: CustomField[] = JSON.parse(extendedAdvReqDraft.areq_custom_field_values);
+      const customField: CustomField[] = extendedAdvReqDraft.areq_custom_field_values;
       component.ionViewWillEnter();
       tick(100);
 
@@ -312,7 +311,7 @@ describe('ViewTeamAdvanceRequestPage', () => {
 
     it('getApproverEmails(): should return undefined if approvals are undefined', () => {
       const approvalEmails = component.getApproverEmails(undefined);
-      expect(approvalEmails).toEqual(undefined);
+      expect(approvalEmails).toBeUndefined();
     });
   });
 
@@ -351,9 +350,9 @@ describe('ViewTeamAdvanceRequestPage', () => {
     expect(component.showApproveAdvanceSummaryPopover).toHaveBeenCalledTimes(1);
     expect(component.showSendBackAdvanceSummaryPopover).toHaveBeenCalledTimes(1);
     expect(component.showRejectAdvanceSummaryPopup).toHaveBeenCalledTimes(1);
-    expect(component.actionSheetButtons[0].text).toEqual('Approve Advance');
-    expect(component.actionSheetButtons[1].text).toEqual('Send Back Advance');
-    expect(component.actionSheetButtons[2].text).toEqual('Reject Advance');
+    expect(component.actionSheetButtons[0].text).toEqual('Approve advance');
+    expect(component.actionSheetButtons[1].text).toEqual('Send back advance');
+    expect(component.actionSheetButtons[2].text).toEqual('Reject advance');
   }));
 
   it('openActionSheet(): should call actionSheetController.create with correct params', fakeAsync(() => {

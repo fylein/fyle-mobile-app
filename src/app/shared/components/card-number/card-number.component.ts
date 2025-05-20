@@ -10,5 +10,5 @@ export class CardNumberComponent {
 
   @Input() cardNickname: string;
 
-  maskedDots: number[] = Array<number>(12).fill(0);
+  maskedAsterisks: number[] = Array<number>(12).fill(0);
 }

@@ -50,19 +50,19 @@ describe('FySelectComponent', () => {
     component.touchedInParent = true;
 
     component.validInParent = false;
-    expect(component.valid).toBe(false);
+    expect(component.valid).toBeFalse();
 
     component.validInParent = true;
-    expect(component.valid).toBe(true);
+    expect(component.valid).toBeTrue();
 
     component.touchedInParent = false;
     // valid should return true in any case
 
     component.validInParent = true;
-    expect(component.valid).toBe(true);
+    expect(component.valid).toBeTrue();
 
     component.validInParent = false;
-    expect(component.valid).toBe(true);
+    expect(component.valid).toBeTrue();
   });
 
   it('value: should return innerValue', () => {
@@ -95,6 +95,7 @@ describe('FySelectComponent', () => {
       expect(component.displayValue).toEqual('');
       expect(component.onChangeCallback).toHaveBeenCalledOnceWith('');
     });
+
     it('should set the value and update the displayValue if innerValue and defaultLabelProps is defined', () => {
       component.defaultLabelProp = 'vendor';
       component.value = { travelClass: 'BUSINESS', vendor: 'vendor1' };
@@ -102,6 +103,7 @@ describe('FySelectComponent', () => {
       expect(component.displayValue).toEqual('vendor1');
       expect(component.onChangeCallback).toHaveBeenCalledOnceWith({ travelClass: 'BUSINESS', vendor: 'vendor1' });
     });
+
     it('should set the value and update the displayValue if none of the conditions holds true', () => {
       component.defaultLabelProp = '';
       component.value = { travelClass: 'BUSINESS', vendor: 'vendor1' };
@@ -128,10 +130,10 @@ describe('FySelectComponent', () => {
       const mockCallback = jasmine.createSpy('mockCallback');
       component.value = 'PreviousValue';
       component.registerOnChange(mockCallback);
-      component.label = 'Payment Mode';
+      component.label = 'Payment mode';
       const modalSpy = jasmine.createSpyObj('HTMLIonModalElement', ['present', 'onWillDismiss']);
-      modalController.create.and.returnValue(Promise.resolve(modalSpy));
-      modalSpy.onWillDismiss.and.returnValue(Promise.resolve({ data: { value: 'UpdatedValue' } }));
+      modalController.create.and.resolveTo(modalSpy);
+      modalSpy.onWillDismiss.and.resolveTo({ data: { value: 'UpdatedValue' } });
 
       modalPropertiesService.getModalDefaultProperties.and.returnValue(mockDefaultProperties);
       const {
@@ -165,12 +167,13 @@ describe('FySelectComponent', () => {
           customInput,
           subheader,
           enableSearch,
-          selectModalHeader: selectModalHeader || 'Select Item',
+          selectModalHeader: selectModalHeader || 'Select item',
           placeholder,
           showSaveButton,
           defaultLabelProp,
           recentlyUsed,
           label,
+          isCustomSelect: undefined,
         },
         mode: 'ios',
         ...mockDefaultProperties,
@@ -190,8 +193,8 @@ describe('FySelectComponent', () => {
       component.registerOnChange(mockCallback);
       component.label = 'Travel Class';
       const modalSpy = jasmine.createSpyObj('HTMLIonModalElement', ['present', 'onWillDismiss']);
-      modalController.create.and.returnValue(Promise.resolve(modalSpy));
-      modalSpy.onWillDismiss.and.returnValue(Promise.resolve({ data: { value: 'UpdatedValue' } }));
+      modalController.create.and.resolveTo(modalSpy);
+      modalSpy.onWillDismiss.and.resolveTo({ data: { value: 'UpdatedValue' } });
 
       modalPropertiesService.getModalDefaultProperties.and.returnValue(mockDefaultProperties);
       const {
@@ -225,12 +228,13 @@ describe('FySelectComponent', () => {
           customInput,
           subheader,
           enableSearch,
-          selectModalHeader: selectModalHeader || 'Select Item',
+          selectModalHeader: selectModalHeader || 'Select item',
           placeholder,
           showSaveButton,
           defaultLabelProp,
           recentlyUsed,
           label,
+          isCustomSelect: undefined,
         },
         mode: 'ios',
         ...mockDefaultProperties,
@@ -276,12 +280,14 @@ describe('FySelectComponent', () => {
       expect(component.innerValue).toEqual('');
       expect(component.displayValue).toEqual('');
     });
+
     it('should set the value and update the displayValue if innerValue and defaultLabelProps is defined', () => {
       component.defaultLabelProp = 'vendor';
       component.writeValue({ travelClass: 'BUSINESS', vendor: 'vendor1' });
       expect(component.innerValue).toEqual({ travelClass: 'BUSINESS', vendor: 'vendor1' });
       expect(component.displayValue).toEqual('vendor1');
     });
+
     it('should set the value and update the displayValue if none of the conditions holds true', () => {
       component.defaultLabelProp = '';
       component.writeValue({ travelClass: 'BUSINESS', vendor: 'vendor1' });

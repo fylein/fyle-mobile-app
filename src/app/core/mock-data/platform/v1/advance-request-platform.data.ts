@@ -56,7 +56,6 @@ export const advanceRequestPlatform: PlatformApiResponse<AdvanceRequestPlatform[
         code: 'C1234',
         display_name: 'Fast and Furious / Formula One',
       },
-      is_policy_flagged: true,
       is_exported: true,
       employee_id: 'outGt9ju6qP',
       employee: {

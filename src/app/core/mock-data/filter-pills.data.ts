@@ -20,12 +20,12 @@ export const debitTxnFilterPill: FilterPill[] = deepFreeze([
 
 export const allFilterPills: FilterPill[] = deepFreeze([
   {
-    label: 'Created On',
+    label: 'Created date',
     type: 'date',
     value: '2023-02-20 to 2023-02-22',
   },
   {
-    label: 'Updated On',
+    label: 'Updated date',
     type: 'date',
     value: '2023-02-22 to 2023-02-24',
   },
@@ -75,12 +75,12 @@ export const expectedFilterPill1: FilterPill[] = deepFreeze([
     value: 'Per Diem, Mileage',
   },
   {
-    label: 'Sort By',
+    label: 'Sort by',
     type: 'sort',
     value: 'category - a to z',
   },
   {
-    label: 'Cards',
+    label: 'Cards ending in...',
     type: 'cardNumbers',
     value: '****1234, ****5678',
   },
@@ -98,7 +98,7 @@ export const expectedFilterPill2: FilterPill[] = deepFreeze([
     value: 'yes',
   },
   {
-    label: 'Sort By',
+    label: 'Sort by',
     type: 'sort',
     value: 'category - a to z',
   },
@@ -142,13 +142,13 @@ export const typeFilterPill: FilterPill = deepFreeze({
 });
 
 export const sortFilterPill: FilterPill = deepFreeze({
-  label: 'Sort By',
+  label: 'Sort by',
   type: 'sort',
   value: 'category - a to z',
 });
 
 export const cardFilterPill: FilterPill = deepFreeze({
-  label: 'Cards',
+  label: 'Cards ending in...',
   type: 'cardNumbers',
   value: '****1234, ****5678',
 });
@@ -170,7 +170,7 @@ export const filterTypeMappings: FilterPill[] = deepFreeze([
 
 export const sortByDescFilterPill: FilterPill[] = deepFreeze([
   {
-    label: 'Sort By',
+    label: 'Sort by',
     type: 'sort',
     value: 'amount - high to low',
   },
@@ -178,7 +178,7 @@ export const sortByDescFilterPill: FilterPill[] = deepFreeze([
 
 export const sortByAscFilterPill: FilterPill[] = deepFreeze([
   {
-    label: 'Sort By',
+    label: 'Sort by',
     type: 'sort',
     value: 'amount - low to high',
   },
@@ -186,7 +186,7 @@ export const sortByAscFilterPill: FilterPill[] = deepFreeze([
 
 export const sortByDateAscFilterPill: FilterPill[] = deepFreeze([
   {
-    label: 'Sort By',
+    label: 'Sort by',
     type: 'sort',
     value: 'date - old to new',
   },
@@ -194,7 +194,7 @@ export const sortByDateAscFilterPill: FilterPill[] = deepFreeze([
 
 export const sortByDateDescFilterPill: FilterPill[] = deepFreeze([
   {
-    label: 'Sort By',
+    label: 'Sort by',
     type: 'sort',
     value: 'date - new to old',
   },

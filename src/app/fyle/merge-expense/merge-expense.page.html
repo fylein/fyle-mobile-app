@@ -3,7 +3,7 @@
     <ion-buttons mode="md" slot="start">
       <ion-back-button mode="md"></ion-back-button>
     </ion-buttons>
-    <ion-title mode="md" class="fy-header--title"> Merge Duplicates </ion-title>
+    <ion-title mode="md" class="fy-header--title"> Merge duplicates </ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -15,7 +15,7 @@
           <app-fy-select
             [disabled]="disableFormElements || disableExpenseToKeep"
             [label]="'Expense to Keep'"
-            [selectModalHeader]="'Expense to Keep'"
+            [selectModalHeader]="'Expense to keep'"
             [mandatory]="true"
             [nullOption]="false"
             [options]="expenseOptions"
@@ -46,6 +46,7 @@
               [paymentModeOptionsData]="genericFieldsOptions.paymentModeOptionsData"
               [CCCTxns]="CCCTxns"
               [projectOptionsData]="genericFieldsOptions.projectOptionsData"
+              [showBillable]="showBillable"
               [billableOptionsData]="genericFieldsOptions.billableOptionsData"
               [vendorOptionsData]="genericFieldsOptions.vendorOptionsData"
               [categoryOptionsData]="genericFieldsOptions.categoryOptionsData"
