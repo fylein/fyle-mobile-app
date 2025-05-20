@@ -41,16 +41,12 @@ export class FyViewAttachmentComponent implements OnInit {
 
   loading = true;
 
-  // Indicates the current rotation direction for animation ('left', 'right', or null)
   rotatingDirection: 'left' | 'right' | null = null;
 
-  // Tracks which images have unsaved rotation changes
   isImageDirty: boolean[] = [];
 
-  // Indicates if a save operation is in progress
   saving = false;
 
-  // New property to track save completion
   saveComplete = false;
 
   // max params shouldnt effect constructors
@@ -73,7 +69,7 @@ export class FyViewAttachmentComponent implements OnInit {
       },
     };
 
-    // Use RxJS forkJoin to convert all image attachments to base64 before allowing interaction
+    // convert all image attachments to base64 before allowing interaction
     const conversionObservables = this.attachments.map((attachment) => {
       if (
         attachment.type === 'image' &&
@@ -207,17 +203,7 @@ export class FyViewAttachmentComponent implements OnInit {
     }
   }
 
-  /**
-   * Rotates the current image by 90 degrees in the specified direction.
-   * The rotation happens in two steps:
-   * 1. Visual rotation: Applies CSS transform immediately for smooth animation.
-   * 2. Data rotation: After a 400ms animation, the actual image data is rotated using canvas.
-   *
-   * @param direction - Direction to rotate the image ('left' = -90°, 'right' = 90°).
-   */
   async rotateAttachment(direction: 'left' | 'right'): Promise<void> {
-    // Prevents multiple rotations at the same time.
-    // If a rotation is already in progress, ignore further rotate requests until it's cleared.
     if (this.loading || this.rotatingDirection) {
       return;
     }
@@ -225,9 +211,7 @@ export class FyViewAttachmentComponent implements OnInit {
     if (!currentAttachment || currentAttachment.type === 'pdf') {
       return;
     }
-    // Step 1: Visual rotation (CSS animation)
     this.rotatingDirection = direction;
-    // Step 2: After animation, update the image data
     setTimeout(() => {
       const imageToBeRotated = new window.Image();
       imageToBeRotated.src = currentAttachment.url;
@@ -249,22 +233,21 @@ export class FyViewAttachmentComponent implements OnInit {
           thumbnail: canvas.toDataURL('image/jpeg', 0.9),
         };
         this.rotatingDirection = null;
-        // Mark this image as dirty (needs saving)
         this.isImageDirty[this.activeIndex] = true;
       };
-    }, 400); // Match this with the CSS transition duration
+    }, 400);
   }
 
   /**
    * Saves the rotated image by deleting the old file (if any) and uploading the new one.
    * Shows a loader while saving and updates the attachment in the array.
    */
+  //TODO - Rishabh: Refactor this function to reduce complexity
   // eslint-disable-next-line complexity
   async saveRotatedImage(): Promise<void> {
     this.saving = true;
     this.saveComplete = false;
     const attachment = this.attachments[this.activeIndex];
-    // 1. Request a pre-signed S3 upload URL
     let fileObj: PlatformFile | undefined;
     try {
       const result = await this.spenderFileService
@@ -273,17 +256,15 @@ export class FyViewAttachmentComponent implements OnInit {
           type: 'RECEIPT',
         })
         .toPromise();
-      // Type guard for fileObj
       if (!result || typeof result !== 'object' || !('upload_url' in result) || !('id' in result)) {
         throw new Error('Invalid file object returned from createFile');
       }
-      fileObj = result ;
+      fileObj = result;
     } catch (e) {
       this.saving = false;
-      // Handle error (show toast, etc.)
       return;
     }
-    // 2. Convert base64 data URL to Blob
+    // Convert base64 data URL to Blob
     const dataUrl = attachment.url;
     let blob: Blob;
     try {
@@ -298,7 +279,7 @@ export class FyViewAttachmentComponent implements OnInit {
       return;
     }
 
-    // 3. Upload the Blob to S3 using the pre-signed URL
+    // Upload the Blob to S3 using the pre-signed URL
     try {
       if (!fileObj.upload_url) {
         throw new Error('No upload_url found in file object');
@@ -316,13 +297,12 @@ export class FyViewAttachmentComponent implements OnInit {
       return;
     }
 
-    // 4. Attach the new file to the expense
+    // Attach the new file to the expense
     try {
       const expenseId = String(this.expenseId);
       const fileId = String(fileObj.id);
       await this.expensesService.attachReceiptToExpense(expenseId, fileId).toPromise();
 
-      // 5. Update the UI
       this.attachments[this.activeIndex] = {
         ...attachment,
         ...fileObj,
@@ -333,7 +313,7 @@ export class FyViewAttachmentComponent implements OnInit {
       // Handle error (show toast, etc.)
     }
 
-    // 6. Delete old image if it has an ID
+    // Delete old image if it has an ID
     if (attachment.id) {
       try {
         await this.spenderFileService.deleteFilesBulk([attachment.id]).toPromise();
@@ -345,7 +325,6 @@ export class FyViewAttachmentComponent implements OnInit {
     this.isImageDirty[this.activeIndex] = false;
     this.saving = false;
     this.saveComplete = true;
-    // Reset saveComplete after 5 seconds
     setTimeout(() => {
       this.saveComplete = false;
     }, 5000);
