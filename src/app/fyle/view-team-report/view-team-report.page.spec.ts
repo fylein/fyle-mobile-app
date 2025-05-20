@@ -1143,6 +1143,7 @@ describe('ViewTeamReportPageV2', () => {
       mockReport.currency = 'USD';
       mockReport.num_expenses = 3;
       component.approvalAmount = 300;
+      component.canApproveReport = true;
 
       component.setApproverInfoMessage(expenseResponseData, mockReport);
 
@@ -1163,6 +1164,7 @@ describe('ViewTeamReportPageV2', () => {
       mockReport.currency = 'USD';
       mockReport.num_expenses = 3;
       component.approvalAmount = 300;
+      component.canApproveReport = true;
 
       component.setApproverInfoMessage(expenseResponseData, mockReport);
 
@@ -1181,6 +1183,7 @@ describe('ViewTeamReportPageV2', () => {
       mockReport.currency = 'USD';
       mockReport.num_expenses = expenseResponseData.length;
       component.approvalAmount = 300;
+      component.canApproveReport = true;
 
       component.setApproverInfoMessage(expenseResponseData, mockReport);
       expect(component.showApprovalInfoMessage).toBeFalse();
