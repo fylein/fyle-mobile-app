@@ -138,6 +138,16 @@ export class ViewTeamReportPage {
 
   approverToShow: ReportApprovals;
 
+  approvalAmount: number;
+
+  showApprovalInfoMessage = false;
+
+  approvalInfoMessage = '';
+
+  showExpansionPanel = false;
+
+  helpLink = '';
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
@@ -368,6 +378,13 @@ export class ViewTeamReportPage {
       if (this.showViewApproverModal) {
         this.approvals.sort((a, b) => a.approver_order - b.approver_order);
         this.setupApproverToShow(report);
+      }
+
+      if (this.expensesAmountSum$) {
+        this.expensesAmountSum$.pipe(take(1)).subscribe((sum) => {
+          this.approvalAmount = sum;
+          this.setApproverInfoMessage(expenses, report);
+        });
       }
     });
 
@@ -619,5 +636,52 @@ export class ViewTeamReportPage {
           this.updateReportName(newReportName);
         }
       });
+  }
+
+  setApproverInfoMessage(expenses: Expense[], report: Report): void {
+    this.showApprovalInfoMessage = true;
+    if (this.approvalAmount > report.amount) {
+      this.showExpansionPanel = true;
+      this.helpLink = 'https://help.fylehq.com/en/articles/1205138-view-and-approve-expense-reports#h_4d7cb8ac1f';
+
+      let message = `You are reviewing ${this.formatCurrency(
+        this.approvalAmount,
+        report.currency
+      )} in expenses requiring your approval. `;
+      message += `The total report amount is ${this.formatCurrency(
+        report.amount,
+        report.currency
+      )}, including other expenses not requiring your approval: `;
+
+      const noOfExpNotRequireApproval = report.num_expenses - expenses.length;
+      const totalAmountOfExpNotRequireApproval = report.amount - this.approvalAmount;
+      const expenseText = noOfExpNotRequireApproval > 1 ? 'expenses' : 'expense';
+
+      message += `${noOfExpNotRequireApproval} ${expenseText} totalling ${this.formatCurrency(
+        totalAmountOfExpNotRequireApproval,
+        report.currency
+      )} (includes credits).`;
+      this.approvalInfoMessage = message;
+    } else if (this.approvalAmount < report.amount) {
+      this.showExpansionPanel = false;
+      this.helpLink = 'https://help.fylehq.com/en/articles/1205138-view-and-approve-expense-reports#h_1672226e87';
+      this.approvalInfoMessage = `The total report amount is ${this.formatCurrency(
+        report.amount,
+        report.currency
+      )}, but only ${this.formatCurrency(
+        this.approvalAmount,
+        report.currency
+      )} needs your approval as per the policy set up by your admin.`;
+    } else {
+      this.showApprovalInfoMessage = false;
+    }
+  }
+
+  private formatCurrency(amount: number, currencyCode: string): string {
+    return this.exactCurrency.transform({
+      value: amount,
+      currencyCode,
+      skipSymbol: false,
+    });
   }
 }
