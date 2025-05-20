@@ -648,19 +648,16 @@ export class ViewTeamReportPage {
         this.approvalAmount,
         report.currency
       )} in expenses requiring your approval. `;
-      message += `The total report amount is ${this.formatCurrency(
-        report.amount,
-        report.currency
-      )}, including other expenses not requiring your approval: `;
+      message += `The total report amount is ${this.formatCurrency(report.amount, report.currency)}, `;
 
       const noOfExpNotRequireApproval = report.num_expenses - expenses.length;
       const totalAmountOfExpNotRequireApproval = report.amount - this.approvalAmount;
       const expenseText = noOfExpNotRequireApproval > 1 ? 'expenses' : 'expense';
 
-      message += `${noOfExpNotRequireApproval} ${expenseText} totalling ${this.formatCurrency(
+      message += `including ${noOfExpNotRequireApproval} other ${expenseText} totalling ${this.formatCurrency(
         totalAmountOfExpNotRequireApproval,
         report.currency
-      )} (includes credits).`;
+      )} (credits included) that do not require your approval.`;
       this.approvalInfoMessage = message;
     } else if (this.approvalAmount < report.amount) {
       this.showExpansionPanel = false;
