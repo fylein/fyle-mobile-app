@@ -1229,14 +1229,14 @@ export class AddEditExpensePage implements OnInit {
             parsedResponse: parsedResponse.data,
           };
         }),
-        catchError(() => {
-          return of({
+        catchError(() => 
+           of({
             error: true,
             parsedResponse: {
               source: 'MOBILE_INSTA',
             },
-          });
-        }),
+          })
+        ),
         switchMap((extractedDetails) => {
           const instaFyleImageData = {
             thumbnail: this.activatedRoute.snapshot.params.dataUrl as string,
