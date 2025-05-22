@@ -131,7 +131,7 @@ export class FyViewAttachmentComponent implements OnInit {
   }
 
   addAttachments(event: Event): void {
-    this.addMoreAttachments.emit(event);
+    this.modalController.dismiss({ action: 'addMoreAttachments', event });
   }
 
   goToNextSlide(): void {

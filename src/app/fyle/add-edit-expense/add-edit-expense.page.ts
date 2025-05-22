@@ -4882,6 +4882,8 @@ export class AddEditExpensePage implements OnInit {
           const { data } = (await attachmentsModal.onWillDismiss()) as {
             data: {
               attachments: FileObject[];
+              action?: String;
+              event?: Event;
             };
           };
 
@@ -4890,7 +4892,9 @@ export class AddEditExpensePage implements OnInit {
             switchMap((etxn) => this.expensesService.getExpenseById(etxn.tx.id).pipe(shareReplay(1)))
           );
 
-          if (this.mode === 'add') {
+          if (data && data.action === 'addMoreAttachments') {
+            this.addAttachments(data.event);
+          } else if (this.mode === 'add') {
             if (data && data.attachments) {
               this.newExpenseDataUrls = data.attachments;
               this.attachedReceiptsCount = data.attachments.length;
