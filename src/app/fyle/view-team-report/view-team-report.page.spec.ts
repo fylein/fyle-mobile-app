@@ -1039,6 +1039,7 @@ describe('ViewTeamReportPageV2', () => {
   it('should show report information correctly', () => {
     spyOn(component, 'openViewReportInfoModal');
     component.report$ = of(expectedReportsSinglePage[0]);
+    component.approvalAmount = 250.75;
     fixture.detectChanges();
 
     expect(getTextContent(getElementBySelector(fixture, '.view-reports--employee-name__name'))).toEqual(
@@ -1048,7 +1049,7 @@ describe('ViewTeamReportPageV2', () => {
       'Feb 01, 2023'
     );
     expect(getTextContent(getElementBySelector(fixture, '.view-reports--purpose-amount-block__amount'))).toEqual(
-      '100.00'
+      component.approvalAmount.toString()
     );
 
     const openButton = getElementBySelector(fixture, '.view-reports--view-info') as HTMLElement;
