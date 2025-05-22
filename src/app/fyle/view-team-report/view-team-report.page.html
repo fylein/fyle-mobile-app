@@ -88,7 +88,7 @@
               <div class="view-reports--amount">
                 <span class="view-reports--purpose-amount-block__currency"> {{ reportCurrencySymbol }} </span>
                 <span class="view-reports--purpose-amount-block__amount">
-                  {{ { value: report.amount || 0, currencyCode: report.currency, skipSymbol: true } | exactCurrency }}
+                  {{ { value: approvalAmount || 0, currencyCode: report.currency, skipSymbol: true } | exactCurrency }}
                 </span>
               </div>
             </ion-col>
