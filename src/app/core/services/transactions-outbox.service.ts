@@ -126,9 +126,7 @@ export class TransactionsOutboxService {
             .then((res) => res.blob())
             .then((blob) => {
               if (!blob || blob.size === 0) {
-                return reject(
-                  new Error('File content is empty: No content found in the file, Please Try uploading the file again')
-                );
+                return reject(Error('File appears to be empty. Please try uploading a different file.'));
               }
               return this.uploadData(uploadUrl, blob, contentType)
                 .toPromise()

@@ -2,8 +2,8 @@ import { Component, OnInit, Input, ViewChild, EventEmitter, Output } from '@angu
 import { ModalController, PopoverController } from '@ionic/angular';
 import { DomSanitizer } from '@angular/platform-browser';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { from, of, forkJoin } from 'rxjs';
-import { switchMap, finalize } from 'rxjs/operators';
+import { from, of, forkJoin, EMPTY } from 'rxjs';
+import { switchMap, finalize, catchError, tap } from 'rxjs/operators';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { SwiperComponent } from 'swiper/angular';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -12,7 +12,6 @@ import { FileObject } from 'src/app/core/models/file-obj.model';
 import { OverlayEventDetail } from '@ionic/core';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { ActivatedRoute } from '@angular/router';
-import { PlatformFile } from 'src/app/core/models/platform/platform-file.model';
 
 @Component({
   selector: 'app-fy-view-attachment',
@@ -244,89 +243,68 @@ export class FyViewAttachmentComponent implements OnInit {
    */
   //TODO - Rishabh: Refactor this function to reduce complexity
   // eslint-disable-next-line complexity
-  async saveRotatedImage(): Promise<void> {
+  saveRotatedImage(): void {
     this.saving = true;
     this.saveComplete = false;
+
     const attachment = this.attachments[this.activeIndex];
-    let fileObj: PlatformFile | undefined;
-    try {
-      const result = await this.spenderFileService
-        .createFile({
-          name: attachment.name || 'rotated-receipt.jpg',
-          type: 'RECEIPT',
+
+    from(
+      this.spenderFileService.createFile({
+        name: attachment.name || 'rotated-receipt.jpg',
+        type: 'RECEIPT',
+      })
+    )
+      .pipe(
+        switchMap((fileObj) => {
+          if (!fileObj || !fileObj.upload_url || !fileObj.id) {
+            throw new Error('Invalid file object returned from createFile');
+          }
+
+          return from(fetch(attachment.url).then((res) => res.blob())).pipe(
+            switchMap((blob) => {
+              if (!blob || !(blob instanceof Blob) || blob.size === 0) {
+                throw new Error('Rotated image content is empty');
+              }
+
+              return from(
+                fetch(fileObj.upload_url, {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'image/jpeg' },
+                  body: blob,
+                })
+              ).pipe(
+                switchMap(() =>
+                  this.expensesService.attachReceiptToExpense(String(this.expenseId), String(fileObj.id))
+                ),
+                tap(() => {
+                  this.attachments[this.activeIndex] = {
+                    ...attachment,
+                    ...fileObj,
+                    url: fileObj.download_url ?? attachment.url,
+                    thumbnail: fileObj.download_url ?? attachment.url,
+                  };
+                }),
+                switchMap(() => {
+                  if (attachment.id) {
+                    return this.spenderFileService.deleteFilesBulk([attachment.id]);
+                  }
+                  return of(null);
+                })
+              );
+            })
+          );
+        }),
+        catchError(() => EMPTY),
+        finalize(() => {
+          this.isImageDirty[this.activeIndex] = false;
+          this.saving = false;
+          this.saveComplete = true;
+          setTimeout(() => {
+            this.saveComplete = false;
+          }, 5000);
         })
-        .toPromise();
-      if (!result || typeof result !== 'object' || !('upload_url' in result) || !('id' in result)) {
-        throw new Error('Invalid file object returned from createFile');
-      }
-      fileObj = result;
-    } catch (e) {
-      this.saving = false;
-      return;
-    }
-    // Convert base64 data URL to Blob
-    const dataUrl = attachment.url;
-    let blob: Blob;
-    try {
-      const fetchedBlob = await fetch(dataUrl).then((res) => res.blob());
-      if (!fetchedBlob || !(fetchedBlob instanceof Blob) || fetchedBlob.size === 0) {
-        throw new Error('Rotated image content is empty');
-      }
-      blob = fetchedBlob;
-    } catch (e) {
-      this.saving = false;
-      // Handle error (show toast, etc.)
-      return;
-    }
-
-    // Upload the Blob to S3 using the pre-signed URL
-    try {
-      if (!fileObj.upload_url) {
-        throw new Error('No upload_url found in file object');
-      }
-      await fetch(fileObj.upload_url, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'image/jpeg',
-        },
-        body: blob,
-      });
-    } catch (e) {
-      this.saving = false;
-      // Handle error (show toast, etc.)
-      return;
-    }
-
-    // Attach the new file to the expense
-    try {
-      const expenseId = String(this.expenseId);
-      const fileId = String(fileObj.id);
-      await this.expensesService.attachReceiptToExpense(expenseId, fileId).toPromise();
-
-      this.attachments[this.activeIndex] = {
-        ...attachment,
-        ...fileObj,
-        url: fileObj.download_url ?? attachment.url,
-        thumbnail: fileObj.download_url ?? attachment.url,
-      };
-    } catch (e) {
-      // Handle error (show toast, etc.)
-    }
-
-    // Delete old image if it has an ID
-    if (attachment.id) {
-      try {
-        await this.spenderFileService.deleteFilesBulk([attachment.id]).toPromise();
-      } catch (e) {
-        // Handle delete error if needed
-      }
-    }
-
-    this.isImageDirty[this.activeIndex] = false;
-    this.saving = false;
-    this.saveComplete = true;
-    setTimeout(() => {
-      this.saveComplete = false;
-    }, 5000);
+      )
+      .subscribe();
   }
 }
