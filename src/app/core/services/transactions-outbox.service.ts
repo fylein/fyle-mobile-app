@@ -96,7 +96,7 @@ export class TransactionsOutboxService {
 
   async fileUpload(dataUrl: string, fileType: string): Promise<FileObject> {
     return new Promise((resolve, reject) => {
-      // Validation: Check if dataUrl is valid
+      // Validation: Check if dataUrl is valid and starts with 'data:' prefix which is required for base64 encoded data URLs
       if (!dataUrl || typeof dataUrl !== 'string' || !dataUrl.startsWith('data:')) {
         throw new Error('Invalid data URL format');
       }
