@@ -12,6 +12,7 @@ import { FileObject } from 'src/app/core/models/file-obj.model';
 import { OverlayEventDetail } from '@ionic/core';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { ActivatedRoute } from '@angular/router';
+import { FileService } from 'src/app/core/services/file.service';
 
 @Component({
   selector: 'app-fy-view-attachment',
@@ -57,7 +58,8 @@ export class FyViewAttachmentComponent implements OnInit {
     private trackingService: TrackingService,
     private spenderFileService: SpenderFileService,
     private expensesService: ExpensesService,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private fileService: FileService
   ) {}
 
   ngOnInit(): void {
@@ -75,22 +77,13 @@ export class FyViewAttachmentComponent implements OnInit {
         typeof attachment.url === 'string' &&
         !attachment.url.startsWith('data:image/')
       ) {
-        return from(
-          fetch(attachment.url, { mode: 'cors' })
-            .then((response) => response.blob())
-            .then(
-              (blob) =>
-                new Promise<string>((resolve: (value: string) => void, reject): void => {
-                  const reader = new FileReader();
-                  reader.onloadend = (): void => resolve(reader.result as string);
-                  reader.onerror = reject;
-                  reader.readAsDataURL(blob);
-                })
-            )
-            .then((base64Url) => {
-              attachment.url = base64Url;
-              attachment.thumbnail = base64Url;
-            })
+        return from(fetch(attachment.url, { mode: 'cors' })).pipe(
+          switchMap((response: Response) => from(response.blob())),
+          switchMap((blob: Blob) => from(this.fileService.readFile(blob))),
+          tap((base64Url: string) => {
+            attachment.url = base64Url;
+            attachment.thumbnail = base64Url;
+          })
         );
       } else {
         if (attachment.type === 'pdf') {
@@ -99,14 +92,18 @@ export class FyViewAttachmentComponent implements OnInit {
         return of(null);
       }
     });
-    forkJoin(conversionObservables).subscribe({
-      next: () => {
-        this.loading = false;
-      },
-      error: () => {
-        this.loading = false;
-      },
-    });
+
+    forkJoin(conversionObservables)
+      .pipe(
+        finalize(() => {
+          this.loading = false;
+        })
+      )
+      .subscribe({
+        error: () => {
+          this.loading = false;
+        },
+      });
   }
 
   ionViewWillEnter(): void {
@@ -212,37 +209,10 @@ export class FyViewAttachmentComponent implements OnInit {
     }
     this.rotatingDirection = direction;
     setTimeout(() => {
-      const imageToBeRotated = new window.Image();
-      imageToBeRotated.src = currentAttachment.url;
-      imageToBeRotated.onload = (): void => {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        if (!ctx) {
-          this.rotatingDirection = null;
-          return;
-        }
-        canvas.width = imageToBeRotated.height;
-        canvas.height = imageToBeRotated.width;
-        ctx.translate(canvas.width / 2, canvas.height / 2);
-        ctx.rotate(((direction === 'left' ? -90 : 90) * Math.PI) / 180);
-        ctx.drawImage(imageToBeRotated, -imageToBeRotated.width / 2, -imageToBeRotated.height / 2);
-        this.attachments[this.activeIndex] = {
-          ...currentAttachment,
-          url: canvas.toDataURL('image/jpeg', 0.9),
-          thumbnail: canvas.toDataURL('image/jpeg', 0.9),
-        };
-        this.rotatingDirection = null;
-        this.isImageDirty[this.activeIndex] = true;
-      };
+      this.rotateImage(currentAttachment, direction);
     }, 400);
   }
 
-  /**
-   * Saves the rotated image by deleting the old file (if any) and uploading the new one.
-   * Shows a loader while saving and updates the attachment in the array.
-   */
-  //TODO - Rishabh: Refactor this function to reduce complexity
-  // eslint-disable-next-line complexity
   saveRotatedImage(): void {
     this.saving = true;
     this.saveComplete = false;
@@ -306,5 +276,30 @@ export class FyViewAttachmentComponent implements OnInit {
         })
       )
       .subscribe();
+  }
+
+  private rotateImage(attachment: FileObject, direction: 'left' | 'right'): void {
+    const imageToBeRotated = new window.Image();
+    imageToBeRotated.src = attachment.url;
+    imageToBeRotated.onload = (): void => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        this.rotatingDirection = null;
+        return;
+      }
+      canvas.width = imageToBeRotated.height;
+      canvas.height = imageToBeRotated.width;
+      ctx.translate(canvas.width / 2, canvas.height / 2);
+      ctx.rotate(((direction === 'left' ? -90 : 90) * Math.PI) / 180);
+      ctx.drawImage(imageToBeRotated, -imageToBeRotated.width / 2, -imageToBeRotated.height / 2);
+      this.attachments[this.activeIndex] = {
+        ...attachment,
+        url: canvas.toDataURL('image/jpeg', 0.9),
+        thumbnail: canvas.toDataURL('image/jpeg', 0.9),
+      };
+      this.rotatingDirection = null;
+      this.isImageDirty[this.activeIndex] = true;
+    };
   }
 }

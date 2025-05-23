@@ -98,12 +98,12 @@ export class TransactionsOutboxService {
     return new Promise((resolve, reject) => {
       // Validation: Check if dataUrl is valid
       if (!dataUrl || typeof dataUrl !== 'string' || !dataUrl.startsWith('data:')) {
-        return reject(new Error('Invalid data URL: No content found in the file, Please Try uploading the file again'));
+        throw new Error('Invalid data URL format');
       }
       // Validation: Check if base64 data is present
       const base64Data = dataUrl.split(',')[1];
       if (!base64Data) {
-        return reject(new Error('No content found in the file, Please Try uploading the file again'));
+        throw new Error('No base64 data found in data URL');
       }
       let fileExtension = fileType;
       let contentType = 'application/pdf';
@@ -126,19 +126,22 @@ export class TransactionsOutboxService {
             .then((res) => res.blob())
             .then((blob) => {
               if (!blob || blob.size === 0) {
-                return reject(Error('File appears to be empty. Please try uploading a different file.'));
+                throw new Error('Empty file content');
               }
               return this.uploadData(uploadUrl, blob, contentType)
                 .toPromise()
-                .then(() => resolve(fileObj))
-                .catch((err) => {
-                  reject(err);
-                });
+                .then(() => {
+                  this.trackingService.fileUploadComplete({
+                    'File ID': fileObj.id,
+                    'File Type': fileType,
+                    'File Size': blob.size,
+                  });
+                  resolve(fileObj);
+                })
+                .catch(reject);
             });
         })
-        .catch((err) => {
-          reject(err);
-        });
+        .catch(reject);
     });
   }
 
