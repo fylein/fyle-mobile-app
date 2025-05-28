@@ -158,12 +158,12 @@ export const addMobileNumberTask = deepFreeze({
 
 export const verifyMobileNumberTask = deepFreeze({
   hideAmount: true,
-  header: 'Opt in to text receipts',
+  header: 'Opt-in to text receipts',
   subheader: 'Opt-in to activate text messages for instant expense submission',
   icon: TaskIcon.STARS,
   ctas: [
     {
-      content: 'Opt in',
+      content: 'Opt-in',
       event: TASKEVENT.mobileNumberVerification,
     },
   ],
