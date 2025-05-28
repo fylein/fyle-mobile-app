@@ -218,6 +218,7 @@ export class FyViewAttachmentComponent implements OnInit {
     this.saveComplete[this.activeIndex] = false;
 
     const attachment = this.attachments[this.activeIndex];
+    const currentBase64Url = attachment.url;
 
     from(
       this.spenderFileService.createFile({
@@ -251,8 +252,8 @@ export class FyViewAttachmentComponent implements OnInit {
                   this.attachments[this.activeIndex] = {
                     ...attachment,
                     ...fileObj,
-                    url: fileObj.download_url ?? attachment.url,
-                    thumbnail: fileObj.download_url ?? attachment.url,
+                    url: currentBase64Url,
+                    thumbnail: currentBase64Url,
                   };
                 }),
                 switchMap(() => {
@@ -279,7 +280,9 @@ export class FyViewAttachmentComponent implements OnInit {
 
   private rotateImage(attachment: FileObject, direction: 'left' | 'right'): void {
     const imageToBeRotated = new window.Image();
+    imageToBeRotated.crossOrigin = 'anonymous';
     imageToBeRotated.src = attachment.url;
+
     imageToBeRotated.onload = (): void => {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
@@ -292,13 +295,19 @@ export class FyViewAttachmentComponent implements OnInit {
       ctx.translate(canvas.width / 2, canvas.height / 2);
       ctx.rotate(((direction === 'left' ? -90 : 90) * Math.PI) / 180);
       ctx.drawImage(imageToBeRotated, -imageToBeRotated.width / 2, -imageToBeRotated.height / 2);
+
+      const base64Url = canvas.toDataURL('image/jpeg', 0.9);
       this.attachments[this.activeIndex] = {
         ...attachment,
-        url: canvas.toDataURL('image/jpeg', 0.9),
-        thumbnail: canvas.toDataURL('image/jpeg', 0.9),
+        url: base64Url,
+        thumbnail: base64Url,
       };
       this.rotatingDirection = null;
       this.isImageDirty[this.activeIndex] = true;
+    };
+
+    imageToBeRotated.onerror = (): void => {
+      this.rotatingDirection = null;
     };
   }
 }
