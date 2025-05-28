@@ -42,7 +42,7 @@ export class DashboardOptInComponent {
 
   getSkipOptInMessageBody(): string {
     return `<div>
-              <p>You can't send receipts and expense details via text message if you don't opt in.</p>
+              <p>You can't send receipts and expense details via text message if you don't opt-in.</p>
               <p>Are you sure you want to skip?<p>  
             </div>`;
   }
@@ -54,7 +54,7 @@ export class DashboardOptInComponent {
         title: 'Are you sure?',
         message: this.getSkipOptInMessageBody(),
         primaryCta: {
-          text: 'Yes, skip opt in',
+          text: 'Yes, skip opt-in',
           action: 'continue',
         },
         secondaryCta: {

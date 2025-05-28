@@ -79,7 +79,7 @@ describe('ProfileOptInCardComponent', () => {
       expect(component.optInClicked.emit).toHaveBeenCalledOnceWith(component.extendedOrgUser);
     });
 
-    it('should not emit optInClicked if user is already opted in', () => {
+    it('should not emit optInClicked if user is already opted-in', () => {
       spyOn(component.optInClicked, 'emit');
       component.isUserOptedIn = true;
       component.clickedOnOptIn();

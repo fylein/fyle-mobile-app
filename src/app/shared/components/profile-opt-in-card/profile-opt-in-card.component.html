@@ -1,26 +1,46 @@
 <ng-container>
   <div class="profile-opt-in-card__container">
     <div>
-      <div (click)="clickedOnOptIn()" class="profile-opt-in-card__title-container">
+      <div (click)="optOutSource !== 'SMS' && clickedOnOptIn()" class="profile-opt-in-card__title-container">
         <div class="profile-opt-in-card__title">
           <span>Opt-in to text receipts</span>
           <div class="profile-opt-in-card__description">
             Opt-in to activate text messages for instant expense submission.
           </div>
         </div>
-        <span *ngIf="!isUserOptedIn && !isMobileAddedButNotVerified" class="profile-opt-in-card__opt-in-btn"
-          >Opt in</span
+        <span
+          *ngIf="!isUserOptedIn && !isMobileAddedButNotVerified && optOutSource !== 'SMS'"
+          class="profile-opt-in-card__opt-in-btn"
+          >Opt-in</span
         >
       </div>
 
-      <ng-container *ngIf="isUserOptedIn">
+      <app-fy-alert-info
+        *ngIf="optOutSource === 'SMS'"
+        message="Opt-in to receive text message by sending <strong>START</strong> to <strong>302-440-2921</strong>"
+        type="warning"
+      ></app-fy-alert-info>
+
+      <ng-container *ngIf="isUserOptedIn || optOutSource === 'SMS'">
         <div class="profile-opt-in-card__status__label">
           <span>Status</span>
-          <span class="profile-opt-in-card__opt-out-btn" (click)="clickedOnOptOut()"> Opt out </span>
+          <span
+            class="profile-opt-in-card__opt-out-btn"
+            [class.profile-opt-in-card__opt-in-btn--disabled]="optOutSource === 'SMS'"
+            [style.pointer-events]="optOutSource === 'SMS' ? 'none' : 'auto'"
+            (click)="optOutSource !== 'SMS' && clickedOnOptOut()"
+          >
+            {{ optOutSource === 'SMS' ? 'Opt-in' : 'Opt-out' }}
+          </span>
         </div>
         <div class="profile-opt-in-card__status__icon-container">
-          <div class="profile-opt-in-card__status__icon"></div>
-          <div class="profile-opt-in-card__status__text">Opted in</div>
+          <div
+            class="profile-opt-in-card__status__icon"
+            [class.profile-opt-in-card__status__icon--inactive]="optOutSource === 'SMS'"
+          ></div>
+          <div class="profile-opt-in-card__status__text">
+            {{ optOutSource === 'SMS' ? 'Opted-out' : 'Opted-in' }}
+          </div>
         </div>
         <div class="profile-opt-in-card__divider"></div>
         <div class="profile-opt-in-card__mobile">
@@ -37,7 +57,11 @@
             ></ion-icon>
           </div>
           <div class="profile-opt-in-card__divider"></div>
-          <div class="profile-opt-in-card__usage-description" (click)="copyToClipboard()">
+          <div
+            *ngIf="optOutSource !== 'SMS'"
+            class="profile-opt-in-card__usage-description"
+            (click)="copyToClipboard()"
+          >
             <div class="profile-opt-in-card__usage-description__text">
               You can now text your receipts to Fyle at 302-440-2921
             </div>
@@ -56,11 +80,11 @@
         <div (click)="clickedOnOptIn()">
           <div class="profile-opt-in-card__status__label">
             <span>Status</span>
-            <span *ngIf="!isInvalidUSNumber" class="profile-opt-in-card__opt-in-btn"> Opt in </span>
+            <span *ngIf="!isInvalidUSNumber" class="profile-opt-in-card__opt-in-btn"> Opt-in </span>
           </div>
           <div class="profile-opt-in-card__status__icon-container">
             <div class="profile-opt-in-card__status__icon--inactive"></div>
-            <div>Not opted in</div>
+            <div>Not opted-in</div>
           </div>
         </div>
         <div class="profile-opt-in-card__divider"></div>
@@ -83,7 +107,7 @@
           <div>
             <div class="profile-opt-in-card__non-us-number-card" (click)="editMobileNumber()">
               <span> Add a +1 country code to your mobile number to receive text message receipts. </span>
-              <span class="profile-opt-in-card__non-us-number-card__cta"> Update and opt in </span>
+              <span class="profile-opt-in-card__non-us-number-card__cta"> Update and opt-in </span>
             </div>
           </div>
         </ng-container>
