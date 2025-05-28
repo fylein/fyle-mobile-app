@@ -56,7 +56,7 @@
               class="fy-icon profile-opt-in-card__mobile__edit-icon"
             ></ion-icon>
           </div>
-          <div class="profile-opt-in-card__divider"></div>
+          <div *ngIf="optOutSource !== 'SMS'" class="profile-opt-in-card__divider"></div>
           <div
             *ngIf="optOutSource !== 'SMS'"
             class="profile-opt-in-card__usage-description"
