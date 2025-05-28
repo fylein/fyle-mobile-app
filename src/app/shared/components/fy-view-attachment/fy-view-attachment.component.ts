@@ -2,8 +2,8 @@ import { Component, OnInit, Input, ViewChild, EventEmitter, Output } from '@angu
 import { ModalController, PopoverController } from '@ionic/angular';
 import { DomSanitizer } from '@angular/platform-browser';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { from, of, forkJoin, EMPTY } from 'rxjs';
-import { switchMap, finalize, catchError, tap } from 'rxjs/operators';
+import { from, of, forkJoin } from 'rxjs';
+import { switchMap, finalize, tap } from 'rxjs/operators';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { SwiperComponent } from 'swiper/angular';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -41,13 +41,13 @@ export class FyViewAttachmentComponent implements OnInit {
 
   loading = true;
 
-  rotatingDirection: 'left' | 'right' | null = null;
-
-  isImageDirty: boolean[] = [];
-
   saving = false;
 
-  saveComplete = false;
+  rotatingDirection: 'left' | 'right' | null = null;
+
+  isImageDirty: { [key: number]: boolean } = {};
+
+  saveComplete: { [key: number]: boolean } = {};
 
   // max params shouldnt effect constructors
   constructor(
@@ -215,7 +215,7 @@ export class FyViewAttachmentComponent implements OnInit {
 
   saveRotatedImage(): void {
     this.saving = true;
-    this.saveComplete = false;
+    this.saveComplete[this.activeIndex] = false;
 
     const attachment = this.attachments[this.activeIndex];
 
@@ -265,13 +265,12 @@ export class FyViewAttachmentComponent implements OnInit {
             })
           );
         }),
-        catchError(() => EMPTY),
         finalize(() => {
-          this.isImageDirty[this.activeIndex] = false;
           this.saving = false;
-          this.saveComplete = true;
+          this.isImageDirty[this.activeIndex] = false;
+          this.saveComplete[this.activeIndex] = true;
           setTimeout(() => {
-            this.saveComplete = false;
+            this.saveComplete[this.activeIndex] = false;
           }, 5000);
         })
       )

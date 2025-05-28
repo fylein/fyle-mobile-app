@@ -75,6 +75,7 @@
     <!-- Left side buttons: rotate left, rotate right, delete -->
     <div class="view-attachments--footer-left-buttons">
       <div
+        *ngIf="attachments[activeIndex]?.type !== 'pdf'"
         class="icon-button"
         (click)="!loading && !saving && rotateAttachment('left')"
         [class.disabled]="loading || saving"
@@ -83,6 +84,7 @@
       </div>
 
       <div
+        *ngIf="attachments[activeIndex]?.type !== 'pdf'"
         class="icon-button"
         (click)="!loading && !saving && rotateAttachment('right')"
         [class.disabled]="loading || saving"
@@ -112,10 +114,10 @@
           appFormButtonValidation
           class="btn-primary action-button"
         >
-          <span *ngIf="!saving && !saveComplete">Save changes</span>
+          <span *ngIf="!saving && !saveComplete[activeIndex]">Save changes</span>
         </ion-button>
+        <span *ngIf="!saving && saveComplete[activeIndex]" class="saved-text btn-text-primary">Saved</span>
       </ion-buttons>
-      <span *ngIf="!saving && saveComplete" class="saved-text btn-text-primary">Saved</span>
     </div>
   </div>
 </ion-footer>
