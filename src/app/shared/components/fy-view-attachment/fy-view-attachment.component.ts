@@ -13,6 +13,7 @@ import { OverlayEventDetail } from '@ionic/core';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { ActivatedRoute } from '@angular/router';
 import { FileService } from 'src/app/core/services/file.service';
+import { RotationDirection } from 'src/app/core/enums/rotation-direction.enum';
 
 @Component({
   selector: 'app-fy-view-attachment',
@@ -43,11 +44,13 @@ export class FyViewAttachmentComponent implements OnInit {
 
   saving = false;
 
-  rotatingDirection: 'left' | 'right' | null = null;
+  rotatingDirection: RotationDirection | null = null;
 
   isImageDirty: { [key: number]: boolean } = {};
 
   saveComplete: { [key: number]: boolean } = {};
+
+  RotationDirection = RotationDirection; // Make enum available in template
 
   // max params shouldnt effect constructors
   constructor(
@@ -77,7 +80,7 @@ export class FyViewAttachmentComponent implements OnInit {
         typeof attachment.url === 'string' &&
         !attachment.url.startsWith('data:image/')
       ) {
-        return from(fetch(attachment.url, { mode: 'cors' })).pipe(
+        return from(fetch(attachment.url)).pipe(
           switchMap((response: Response) => from(response.blob())),
           switchMap((blob: Blob) => from(this.fileService.readFile(blob))),
           tap((base64Url: string) => {
@@ -99,11 +102,7 @@ export class FyViewAttachmentComponent implements OnInit {
           this.loading = false;
         })
       )
-      .subscribe({
-        error: () => {
-          this.loading = false;
-        },
-      });
+      .subscribe();
   }
 
   ionViewWillEnter(): void {
@@ -199,12 +198,12 @@ export class FyViewAttachmentComponent implements OnInit {
     }
   }
 
-  async rotateAttachment(direction: 'left' | 'right'): Promise<void> {
+  async rotateAttachment(direction: RotationDirection): Promise<void> {
     if (this.loading || this.rotatingDirection) {
       return;
     }
     const currentAttachment = this.attachments[this.activeIndex];
-    if (!currentAttachment || currentAttachment.type === 'pdf') {
+    if (!currentAttachment) {
       return;
     }
     this.rotatingDirection = direction;
@@ -278,7 +277,7 @@ export class FyViewAttachmentComponent implements OnInit {
       .subscribe();
   }
 
-  private rotateImage(attachment: FileObject, direction: 'left' | 'right'): void {
+  private rotateImage(attachment: FileObject, direction: RotationDirection): void {
     const imageToBeRotated = new window.Image();
     imageToBeRotated.crossOrigin = 'anonymous';
     imageToBeRotated.src = attachment.url;
@@ -293,7 +292,7 @@ export class FyViewAttachmentComponent implements OnInit {
       canvas.width = imageToBeRotated.height;
       canvas.height = imageToBeRotated.width;
       ctx.translate(canvas.width / 2, canvas.height / 2);
-      ctx.rotate(((direction === 'left' ? -90 : 90) * Math.PI) / 180);
+      ctx.rotate(((direction === RotationDirection.LEFT ? -90 : 90) * Math.PI) / 180);
       ctx.drawImage(imageToBeRotated, -imageToBeRotated.width / 2, -imageToBeRotated.height / 2);
 
       const base64Url = canvas.toDataURL('image/jpeg', 0.9);

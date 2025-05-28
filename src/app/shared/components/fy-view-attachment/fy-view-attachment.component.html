@@ -77,7 +77,7 @@
       <div
         *ngIf="attachments[activeIndex]?.type !== 'pdf'"
         class="icon-button"
-        (click)="!loading && !saving && rotateAttachment('left')"
+        (click)="!loading && !saving && rotateAttachment(RotationDirection.LEFT)"
         [class.disabled]="loading || saving"
       >
         <ion-icon src="assets/svg/arrow-anticlockwise.svg"></ion-icon>
@@ -86,7 +86,7 @@
       <div
         *ngIf="attachments[activeIndex]?.type !== 'pdf'"
         class="icon-button"
-        (click)="!loading && !saving && rotateAttachment('right')"
+        (click)="!loading && !saving && rotateAttachment(RotationDirection.RIGHT)"
         [class.disabled]="loading || saving"
       >
         <ion-icon src="assets/svg/arrow-clockwise.svg"></ion-icon>
@@ -116,8 +116,8 @@
         >
           <span *ngIf="!saving && !saveComplete[activeIndex]">Save changes</span>
         </ion-button>
-        <span *ngIf="!saving && saveComplete[activeIndex]" class="saved-text btn-text-primary">Saved</span>
       </ion-buttons>
+      <span *ngIf="!saving && saveComplete[activeIndex]" class="saved-text btn-text-primary">Saved</span>
     </div>
   </div>
 </ion-footer>
