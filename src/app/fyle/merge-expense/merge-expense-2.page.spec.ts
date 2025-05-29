@@ -60,6 +60,8 @@ import {
   mergeExpenseFormData5,
 } from 'src/app/core/mock-data/merge-expense-form-data.data';
 import { dependentCustomFields } from 'src/app/core/mock-data/expense-field.data';
+import { expenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 
 export function TestCases2(getTestBed) {
   return describe('test cases set 2', () => {
@@ -78,7 +80,7 @@ export function TestCases2(getTestBed) {
     let expenseFieldsService: jasmine.SpyObj<ExpenseFieldsService>;
     let dependantFieldsService: jasmine.SpyObj<DependentFieldsService>;
     let formBuilder: UntypedFormBuilder;
-
+    let expensesService: jasmine.SpyObj<ExpensesService>;
     beforeEach(waitForAsync(() => {
       const TestBed = getTestBed();
       fixture = TestBed.createComponent(MergeExpensePage);
@@ -96,6 +98,7 @@ export function TestCases2(getTestBed) {
       expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
       dependantFieldsService = TestBed.inject(DependentFieldsService) as jasmine.SpyObj<DependentFieldsService>;
       formBuilder = TestBed.inject(UntypedFormBuilder);
+      expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
       component.fg = formBuilder.group({
         target_txn_id: [, Validators.required],
         genericFields: [],
@@ -390,7 +393,7 @@ export function TestCases2(getTestBed) {
         component.expenses = cloneDeep(expenseList2);
         component.projectDependentFieldsMapping$ = of(projectDependentFieldsMappingData1);
         component.costCenterDependentFieldsMapping$ = of(CostCenterDependentFieldsMappingData1);
-        mergeExpensesService.mergeExpenses.and.returnValue(of('txVNpvgTPW4Z'));
+        expensesService.mergeExpenses.and.returnValue(of(expenseData));
         spyOn(component, 'generateFromFg').and.returnValue(generatedFormPropertiesData1);
         spyOn(component, 'showMergedSuccessToast');
         spyOn(component, 'goBack');
@@ -402,13 +405,13 @@ export function TestCases2(getTestBed) {
         expect(component.isMerging).toBeFalse();
       });
 
-      it('should call mergeExpensesService.mergeExpenses once', () => {
+      it('should call expensesService.mergeExpenses once', () => {
         component.mergeExpense();
-        expect(mergeExpensesService.mergeExpenses).toHaveBeenCalledOnceWith(
-          ['tx3nHShG60zq'],
-          'txBphgnCHHeO',
-          generatedFormPropertiesData1
-        );
+        expect(expensesService.mergeExpenses).toHaveBeenCalledOnceWith({
+          source_expense_ids: ['tx3nHShG60zq'],
+          target_expense_id: 'txBphgnCHHeO',
+          target_expense_fields: generatedFormPropertiesData1,
+        });
         expect(component.generateFromFg).toHaveBeenCalledOnceWith({
           ...projectDependentFieldsMappingData1,
           ...CostCenterDependentFieldsMappingData1,
@@ -508,7 +511,7 @@ export function TestCases2(getTestBed) {
         mockExpense[1].source_account_type = 'CORPORATE_CARD';
         component.expenses = cloneDeep(mockExpense);
         const generatedFormProperties = component.generateFromFg(CostCenterDependentFieldsMappingData1);
-        expect(generatedFormProperties).toEqual({ ...generatedFormPropertiesData2, ccce_group_id: 'ae593zqtepw' });
+        expect(generatedFormProperties).toEqual({ ...generatedFormPropertiesData2 });
       });
 
       it('should return generated form properties with custom_properties as empty array if dependentFieldsMapping is empty', () => {
