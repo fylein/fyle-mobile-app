@@ -124,14 +124,18 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     const openSMSOptInDialog = this.activatedRoute.snapshot.params.openSMSOptInDialog as string;
 
     if (orgId && txnId) {
+      console.log('expense id flow')
       return this.redirectToExpensePage(orgId, txnId);
     } else if (openSMSOptInDialog === 'true' && orgId) {
+      console.log('SMS Opt in flow')
       return this.redirectToDashboard(orgId);
     } else if (!choose) {
+      console.log('choose flow')
       from(that.loaderService.showLoader())
         .pipe(switchMap(() => from(that.proceed(isFromInviteLink))))
         .subscribe(noop);
     } else {
+      console.log('verification on switch org page')
       that.orgs$.subscribe((orgs) => {
         if (orgs.length === 1) {
           from(that.loaderService.showLoader())
@@ -358,9 +362,12 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
   handleInviteLinkFlow(roles: string[]): Observable<ExtendedOrgUser> {
     return this.userService.getUserPasswordStatus().pipe(
       switchMap((passwordStatus) => {
+        console.log('passwordstatus', passwordStatus);
         if (passwordStatus.is_password_required && !passwordStatus.is_password_set) {
+          console.log('to setup page')
           this.navigateToSetupPage(roles);
         } else {
+          console.log('mark user active');
           return this.markUserActive();
         }
         return of(null);
@@ -374,6 +381,8 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
    */
   handlePendingDetails(roles: string[], isFromInviteLink?: boolean): Observable<ExtendedOrgUser> {
     if (isFromInviteLink) {
+      console.log('roles', roles);
+      console.log('from invite link', isFromInviteLink);
       return this.handleInviteLinkFlow(roles);
     } else {
       this.showEmailNotVerifiedAlert();
@@ -387,9 +396,12 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     eou: ExtendedOrgUser;
     isFromInviteLink?: boolean;
   }): Observable<ExtendedOrgUser> {
+    console.log(config);
     if (config.isPendingDetails) {
+      console.log('handle pending details');
       return this.handlePendingDetails(config.roles, config?.isFromInviteLink);
     } else if (config.eou.ou.status === 'ACTIVE') {
+      console.log('Active user');
       this.navigateToDashboard();
     } else if (config.eou.ou.status === 'DISABLED') {
       this.router.navigate(['/', 'auth', 'disabled']);
@@ -406,6 +418,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       .pipe(
         switchMap(([isPendingDetails, eou, roles]) => {
           this.setSentryUser(eou);
+          console.log('just before navigate based on user status')
           return this.navigateBasedOnUserStatus({ isPendingDetails, roles, eou, isFromInviteLink });
         }),
         finalize(() => this.loaderService.hideLoader())
