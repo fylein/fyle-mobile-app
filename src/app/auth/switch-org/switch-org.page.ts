@@ -123,19 +123,13 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     const txnId = this.activatedRoute.snapshot.params.txnId as string;
     const openSMSOptInDialog = this.activatedRoute.snapshot.params.openSMSOptInDialog as string;
 
-    if (orgId && txnId) {
-      return this.redirectToExpensePage(orgId, txnId);
-    } else if (openSMSOptInDialog === 'true' && orgId) {
-      return this.redirectToDashboard(orgId);
-    } else {
-      that.orgs$.subscribe((orgs) => {
-        if (orgs.length === 1) {
-          from(that.loaderService.showLoader())
-            .pipe(switchMap(() => from(that.proceed(isFromInviteLink))))
-            .subscribe(noop);
-        }
-      });
-    }
+    that.orgs$.subscribe((orgs) => {
+      if (orgs.length === 1) {
+        from(that.loaderService.showLoader())
+          .pipe(switchMap(() => from(that.proceed(isFromInviteLink))))
+          .subscribe(noop);
+      }
+    });
 
     this.activeOrg$ = this.orgService.getCurrentOrg();
     this.primaryOrg$ = this.orgService.getPrimaryOrg();
