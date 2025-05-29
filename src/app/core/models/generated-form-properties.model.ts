@@ -18,7 +18,7 @@ export interface GeneratedFormProperties {
   custom_fields: Partial<CustomInput>[];
   started_at: Date;
   ended_at: Date;
-  travel_classes: (string | null)[];
+  travel_classes: string[];
   distance: number;
   distance_unit: string;
   locations: Location[];

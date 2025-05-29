@@ -33,6 +33,7 @@ import { Transaction } from 'src/app/core/models/v1/transaction.model';
 import { transformedExpensePayload, txnAmount1 } from 'src/app/core/mock-data/transaction.data';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
+import { generatedFormPropertiesData1 } from 'src/app/core/mock-data/generated-form-properties.data';
 
 describe('ExpensesService', () => {
   let service: ExpensesService;
@@ -526,6 +527,22 @@ describe('ExpensesService', () => {
         expect(result).toBeUndefined();
         done();
       });
+    });
+  });
+
+  it('mergeExpenses(): should call spenderService.post with correct payload and return expense', (done) => {
+    const mergeExpensesPayload = {
+      source_expense_ids: ['tx3nHShG60zq'],
+      target_expense_id: 'txBphgnCHHeO',
+      target_expense_fields: generatedFormPropertiesData1,
+    };
+
+    spenderService.post.and.returnValue(of({ data: expenseData }));
+
+    service.mergeExpenses(mergeExpensesPayload).subscribe((res) => {
+      expect(res).toEqual(expenseData);
+      expect(spenderService.post).toHaveBeenCalledOnceWith('/expenses/merge', mergeExpensesPayload);
+      done();
     });
   });
 });

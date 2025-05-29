@@ -605,7 +605,9 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
   }
 
   generateFromFg(dependentFieldsMapping: DependentFieldsMapping): GeneratedFormProperties {
-    const amountExpense = this.expenses.find((expense) => expense.tx_id === this.genericFieldsFormValues.amount);
+    const amountExpense = this.expenses.find(
+      (expense) => expense.tx_amount.toString() === this.genericFieldsFormValues.amount
+    );
     const sourceExpense = this.expenses.find(
       (expense) => expense.source_account_type === this.genericFieldsFormValues.paymentMode
     );
