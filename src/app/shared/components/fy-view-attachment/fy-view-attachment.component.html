@@ -114,10 +114,10 @@
           appFormButtonValidation
           class="btn-primary action-button"
         >
-          <span *ngIf="!saving && !saveComplete[activeIndex]">Save changes</span>
+          <span *ngIf="!saving">Save changes</span>
         </ion-button>
       </ion-buttons>
-      <span *ngIf="!saving && saveComplete[activeIndex]" class="saved-text btn-text-primary">Saved</span>
+      <span *ngIf="saveComplete[activeIndex]" class="saved-text btn-text-primary">Saved</span>
     </div>
   </div>
 </ion-footer>

@@ -122,15 +122,16 @@
   }
 
   &--footer {
-    padding: 8px 16px;
+    padding: 16px;
     border-top: 1px solid $grey-lighter;
+    margin-bottom: env(safe-area-inset-bottom, 0);
   }
 
   &--footer-content {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    min-height: 40px; // ensures consistent height
+    min-height: 48px;
   }
 
   &--footer-left-buttons {

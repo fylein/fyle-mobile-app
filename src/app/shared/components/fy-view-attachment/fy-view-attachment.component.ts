@@ -206,6 +206,7 @@ export class FyViewAttachmentComponent implements OnInit {
     if (!currentAttachment) {
       return;
     }
+    this.saveComplete[this.activeIndex] = false;
     this.rotatingDirection = direction;
     setTimeout(() => {
       this.rotateImage(currentAttachment, direction);
