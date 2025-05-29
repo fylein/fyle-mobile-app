@@ -127,10 +127,6 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       return this.redirectToExpensePage(orgId, txnId);
     } else if (openSMSOptInDialog === 'true' && orgId) {
       return this.redirectToDashboard(orgId);
-    } else if (!choose) {
-      from(that.loaderService.showLoader())
-        .pipe(switchMap(() => from(that.proceed(isFromInviteLink))))
-        .subscribe(noop);
     } else {
       that.orgs$.subscribe((orgs) => {
         if (orgs.length === 1) {
