@@ -386,10 +386,11 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     roles: string[];
     eou: ExtendedOrgUser;
     isFromInviteLink?: boolean;
+    isUserActive: boolean;
   }): Observable<ExtendedOrgUser> {
     if (config.isPendingDetails) {
       return this.handlePendingDetails(config.roles, config?.isFromInviteLink);
-    } else if (config.eou.ou.status === 'ACTIVE') {
+    } else if (config.isUserActive) {
       this.navigateToDashboard();
     } else if (config.eou.ou.status === 'DISABLED') {
       this.router.navigate(['/', 'auth', 'disabled']);
@@ -399,14 +400,15 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
 
   async proceed(isFromInviteLink?: boolean): Promise<void> {
     const pendingDetails$ = this.userService.isPendingDetails().pipe(shareReplay(1));
+    const isUserActive$ = this.userService.isUserActive();
     const eou$ = from(this.authService.getEou());
     const roles$ = from(this.authService.getRoles().pipe(shareReplay(1)));
 
-    forkJoin([pendingDetails$, eou$, roles$])
+    forkJoin([pendingDetails$, eou$, roles$, isUserActive$])
       .pipe(
-        switchMap(([isPendingDetails, eou, roles]) => {
+        switchMap(([isPendingDetails, eou, roles, isUserActive]) => {
           this.setSentryUser(eou);
-          return this.navigateBasedOnUserStatus({ isPendingDetails, roles, eou, isFromInviteLink });
+          return this.navigateBasedOnUserStatus({ isPendingDetails, roles, eou, isFromInviteLink, isUserActive });
         }),
         finalize(() => this.loaderService.hideLoader())
       )
