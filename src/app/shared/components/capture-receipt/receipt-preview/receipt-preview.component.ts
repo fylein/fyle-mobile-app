@@ -11,7 +11,7 @@ import { SwiperComponent } from 'swiper/angular';
 import SwiperCore, { Pagination } from 'swiper';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { Image } from 'src/app/core/models/image-type.model';
-import { RotationDirection } from './rotation-direction.enum';
+import { RotationDirection } from 'src/app/core/enums/rotation-direction.enum';
 
 // install Swiper modules
 SwiperCore.use([Pagination]);
