@@ -1,7 +1,7 @@
 <ng-container>
   <div class="profile-opt-in-card__container">
     <div>
-      <div (click)="optOutSource !== 'SMS' && clickedOnOptIn()" class="profile-opt-in-card__title-container">
+      <div (click)="!isOptedOutViaSms && clickedOnOptIn()" class="profile-opt-in-card__title-container">
         <div class="profile-opt-in-card__title">
           <span>Opt-in to text receipts</span>
           <div class="profile-opt-in-card__description">
@@ -9,37 +9,37 @@
           </div>
         </div>
         <span
-          *ngIf="!isUserOptedIn && !isMobileAddedButNotVerified && optOutSource !== 'SMS'"
+          *ngIf="!isUserOptedIn && !isMobileAddedButNotVerified && !isOptedOutViaSms"
           class="profile-opt-in-card__opt-in-btn"
           >Opt-in</span
         >
       </div>
 
       <app-fy-alert-info
-        *ngIf="optOutSource === 'SMS'"
+        *ngIf="isOptedOutViaSms"
         message="Opt-in to receive text message by sending <strong>START</strong> to <strong>302-440-2921</strong>"
         type="warning"
       ></app-fy-alert-info>
 
-      <ng-container *ngIf="isUserOptedIn || optOutSource === 'SMS'">
+      <ng-container *ngIf="isUserOptedIn || isOptedOutViaSms">
         <div class="profile-opt-in-card__status__label">
           <span>Status</span>
           <span
             class="profile-opt-in-card__opt-out-btn"
-            [class.profile-opt-in-card__opt-in-btn--disabled]="optOutSource === 'SMS'"
-            [style.pointer-events]="optOutSource === 'SMS' ? 'none' : 'auto'"
-            (click)="optOutSource !== 'SMS' && clickedOnOptOut()"
+            [class.profile-opt-in-card__opt-in-btn--disabled]="isOptedOutViaSms"
+            [style.pointer-events]="isOptedOutViaSms ? 'none' : 'auto'"
+            (click)="!isOptedOutViaSms && clickedOnOptOut()"
           >
-            {{ optOutSource === 'SMS' ? 'Opt-in' : 'Opt-out' }}
+            {{ isOptedOutViaSms ? 'Opt-in' : 'Opt-out' }}
           </span>
         </div>
         <div class="profile-opt-in-card__status__icon-container">
           <div
             class="profile-opt-in-card__status__icon"
-            [class.profile-opt-in-card__status__icon--inactive]="optOutSource === 'SMS'"
+            [class.profile-opt-in-card__status__icon--inactive]="isOptedOutViaSms"
           ></div>
           <div class="profile-opt-in-card__status__text">
-            {{ optOutSource === 'SMS' ? 'Opted-out' : 'Opted-in' }}
+            {{ isOptedOutViaSms ? 'Opted-out' : 'Opted-in' }}
           </div>
         </div>
         <div class="profile-opt-in-card__divider"></div>
@@ -56,12 +56,8 @@
               class="fy-icon profile-opt-in-card__mobile__edit-icon"
             ></ion-icon>
           </div>
-          <div *ngIf="optOutSource !== 'SMS'" class="profile-opt-in-card__divider"></div>
-          <div
-            *ngIf="optOutSource !== 'SMS'"
-            class="profile-opt-in-card__usage-description"
-            (click)="copyToClipboard()"
-          >
+          <div *ngIf="!isOptedOutViaSms" class="profile-opt-in-card__divider"></div>
+          <div *ngIf="!isOptedOutViaSms" class="profile-opt-in-card__usage-description" (click)="copyToClipboard()">
             <div class="profile-opt-in-card__usage-description__text">
               You can now text your receipts to Fyle at 302-440-2921
             </div>

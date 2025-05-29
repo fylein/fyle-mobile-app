@@ -13,10 +13,6 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 export class ProfileOptInCardComponent implements OnInit {
   @Input() extendedOrgUser: ExtendedOrgUser;
 
-  @Input() employee: PlatformEmployee;
-
-  @Input() optOutSource: 'SMS' | 'WEBAPP' | null;
-
   @Output() copiedText = new EventEmitter<string>();
 
   @Output() optInClicked = new EventEmitter<ExtendedOrgUser>();
@@ -26,6 +22,10 @@ export class ProfileOptInCardComponent implements OnInit {
   @Output() editMobileNumberClicked = new EventEmitter<ExtendedOrgUser>();
 
   @Output() deleteMobileNumberClicked = new EventEmitter<void>();
+
+  employee: PlatformEmployee;
+
+  isOptedOutViaSms = false;
 
   isUserOptedIn = false;
 
@@ -48,7 +48,7 @@ export class ProfileOptInCardComponent implements OnInit {
     this.isInvalidUSNumber = this.isMobileAddedButNotVerified && !this.extendedOrgUser.ou.mobile.startsWith('+1');
     this.employeesService.getByParams({ user_id: `eq.${this.extendedOrgUser.ou.user_id}` }).subscribe((res) => {
       this.employee = res.data[0];
-      this.optOutSource = this.employee.sms_opt_out_source;
+      this.isOptedOutViaSms = this.employee.sms_opt_out_source === 'SMS';
     });
   }
 

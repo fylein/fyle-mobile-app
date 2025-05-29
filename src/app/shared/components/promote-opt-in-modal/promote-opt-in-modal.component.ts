@@ -34,7 +34,7 @@ export class PromoteOptInModalComponent {
   getSkipOptInMessageBody(): string {
     return `<div>
               <p>You can't send receipts and expense details via text message if you don't opt-in.</p>
-              <p>Are you sure you want to skip?<p>  
+              <p>Are you sure you want to skip?</p>  
             </div>`;
   }
 
