@@ -645,10 +645,12 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
       started_at: this.categoryDependentFieldsFormValues.from_dt,
       ended_at: this.categoryDependentFieldsFormValues.to_dt,
       travel_classes: [
-        this.categoryDependentFieldsFormValues.flight_journey_travel_class,
-        this.categoryDependentFieldsFormValues.flight_return_travel_class,
-        this.categoryDependentFieldsFormValues.train_travel_class,
-        this.categoryDependentFieldsFormValues.bus_travel_class,
+        ...[
+          this.categoryDependentFieldsFormValues.flight_journey_travel_class,
+          this.categoryDependentFieldsFormValues.flight_return_travel_class,
+          this.categoryDependentFieldsFormValues.train_travel_class,
+          this.categoryDependentFieldsFormValues.bus_travel_class,
+        ].filter((travelClass) => travelClass !== null && travelClass !== undefined),
       ],
       distance: this.categoryDependentFieldsFormValues.distance,
       distance_unit: this.categoryDependentFieldsFormValues.distance_unit,

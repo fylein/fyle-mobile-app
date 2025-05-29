@@ -77,7 +77,7 @@ describe('MergeExpensePage', () => {
       'isMoreThanOneAdvancePresent',
       'isAdvancePresent',
     ]);
-    const expensesServiceSpy = jasmine.createSpyObj('ExpenseService', ['mergeExpenses']);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpenseService', ['mergeExpenses', 'getAllExpenses']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['expensesMerged']);
     const expenseFieldsServiceSpy = jasmine.createSpyObj('ExpenseFieldsService', ['getAllMap']);
     const dependentFieldsServiceSpy = jasmine.createSpyObj('DependentFieldsService', [
