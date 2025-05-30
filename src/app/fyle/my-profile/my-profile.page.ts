@@ -432,15 +432,15 @@ export class MyProfilePage {
 
   getOptOutMessageBody(): string {
     return `<div>
-              <p>Once you opt out, you can't send receipts and expense details via text message. Your mobile number will be deleted</p>
+              <p>Once you opt-out, you can't send receipts and expense details via text message. Your mobile number will be deleted</p>
               <p>Would you like to continue?<p>  
             </div>`;
   }
 
   getDeleteMobileMessageBody(): string {
     return `<div>
-              <p>Your mobile number will be deleted.</p>
-              <p>Would you like to continue?<p>  
+              <p>Are you sure you want to delete your mobile number?</p>
+              <p>You won’t be able to send receipts or complete expenses via text messages.<p>  
             </div>`;
   }
 
@@ -472,7 +472,7 @@ export class MyProfilePage {
         title: 'Opt out of text messages',
         message: this.getOptOutMessageBody(),
         primaryCta: {
-          text: 'Yes, opt out',
+          text: 'Yes, opt-out',
           action: 'continue',
         },
         secondaryCta: {
