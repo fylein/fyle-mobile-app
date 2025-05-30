@@ -439,8 +439,8 @@ export class MyProfilePage {
 
   getDeleteMobileMessageBody(): string {
     return `<div>
-              <p>Your mobile number will be deleted.</p>
-              <p>Would you like to continue?<p>  
+              <p>Are you sure you want to delete your mobile number?</p>
+              <p>You won’t be able to send receipts or complete expenses via text messages.<p>  
             </div>`;
   }
 
