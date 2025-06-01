@@ -70,9 +70,11 @@ export class PaymentModesService {
            */
           const mappedAccountType =
             defaultAccountType === AccountType.COMPANY ? AccountType.PERSONAL : defaultAccountType;
-          return account.acc.type === mappedAccountType;
+          return account.acc && account.acc.type === mappedAccountType;
         });
-        return this.accountsService.setAccountProperties(defaultAccount, defaultAccountType, false);
+        return defaultAccount
+          ? this.accountsService.setAccountProperties(defaultAccount, defaultAccountType, false)
+          : null;
       })
     );
   }

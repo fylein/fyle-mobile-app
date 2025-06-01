@@ -689,7 +689,12 @@ export class AddEditExpensePage implements OnInit {
         const originalSourceAccountId = etxn && etxn.tx && etxn.tx.source_account_id;
         const originalAdvanceWalletId = etxn && etxn.tx && etxn.tx.advance_wallet_id;
         let isPaymentModeInvalid = false;
-        if (!isAdvanceWalletEnabled && paymentMode && paymentMode.acc && paymentMode.acc.type === AccountType.ADVANCE) {
+
+        // Only check balance for advance wallets
+        const isAdvanceWallet = paymentMode?.id && isAdvanceWalletEnabled && paymentMode.type === 'PERSONAL_ADVANCE_ACCOUNT';
+        const isAdvanceAccount = paymentMode?.acc?.type === AccountType.ADVANCE && !isAdvanceWalletEnabled;
+
+        if (isAdvanceAccount) {
           if (paymentMode.acc.id !== originalSourceAccountId) {
             isPaymentModeInvalid =
               paymentMode.acc.tentative_balance_amount < (formValues.currencyObj && formValues.currencyObj.amount);
@@ -700,7 +705,7 @@ export class AddEditExpensePage implements OnInit {
           }
         }
 
-        if (isAdvanceWalletEnabled && paymentMode?.id) {
+        if (isAdvanceWallet) {
           if (etxn.tx.id && paymentMode.id === originalAdvanceWalletId) {
             isPaymentModeInvalid =
               paymentMode.balance_amount + etxn.tx.amount < (formValues.currencyObj && formValues.currencyObj.amount);
@@ -710,7 +715,8 @@ export class AddEditExpensePage implements OnInit {
           }
         }
 
-        if (isPaymentModeInvalid) {
+        // Only show toast for advance wallets/accounts
+        if (isPaymentModeInvalid && (isAdvanceWallet || isAdvanceAccount)) {
           this.paymentModesService.showInvalidPaymentModeToast();
         }
         return isPaymentModeInvalid;
@@ -1186,7 +1192,6 @@ export class AddEditExpensePage implements OnInit {
       map(
         ({ accounts, advanceWallets, orgSettings, etxn, allowedPaymentModes, isPaymentModeConfigurationsEnabled }) => {
           const isCCCEnabled = this.getCCCSettings(orgSettings);
-          const isAdvanceWalletEnabled = orgSettings?.advances?.advance_wallets_enabled;
 
           if (!isCCCEnabled && !etxn.tx.corporate_credit_card_expense_group_id) {
             this.showCardTransaction = false;
@@ -1198,7 +1203,7 @@ export class AddEditExpensePage implements OnInit {
             isPaymentModeConfigurationsEnabled,
           };
 
-          if (isAdvanceWalletEnabled) {
+          if (isPaymentModeConfigurationsEnabled) {
             return this.accountsService.getPaymentModesWithAdvanceWallets(
               accounts,
               advanceWallets,
@@ -1578,25 +1583,32 @@ export class AddEditExpensePage implements OnInit {
     return forkJoin({
       etxn: this.etxn$,
       paymentModes: this.paymentModes$,
-    }).pipe(map(({ etxn, paymentModes }) => this.accountsService.getEtxnSelectedPaymentMode(etxn, paymentModes)));
+    }).pipe(
+      map(({ etxn, paymentModes }) => {
+        const selectedMode = this.accountsService.getEtxnSelectedPaymentMode(etxn, paymentModes);
+        return selectedMode;
+      })
+    );
   }
 
   getDefaultPaymentModes(): Observable<ExtendedAccount | AdvanceWallet> {
-    return forkJoin({
-      paymentModes: this.paymentModes$,
-      orgUserSettings: this.orgUserSettings$,
-      isPaymentModeConfigurationsEnabled: this.paymentModesService.checkIfPaymentModeConfigurationsIsEnabled(),
-    }).pipe(
-      map(({ paymentModes }) => {
-        //If the user is creating expense from Corporate cards page, the default payment mode should be CCC
-        if (this.isCreatedFromCCC) {
-          const CCCAccount = paymentModes.find(
-            (paymentMode) => (paymentMode.value as ExtendedAccount).acc.type === AccountType.CCC
-          );
-          return CCCAccount.value;
+    return combineLatest([this.etxn$, this.paymentModes$]).pipe(
+      map(([etxn, paymentModes]) => {
+        // First check if there's an existing expense and use its payment mode
+        const selectedMode = this.accountsService.getEtxnSelectedPaymentMode(etxn, paymentModes);
+        if (selectedMode) {
+          return selectedMode;
         }
 
-        return paymentModes[0].value;
+        // Then check if there's a payment mode in the form
+        const formValues = this.getFormValues();
+        if (formValues.paymentMode) {
+          return formValues.paymentMode;
+        }
+
+        // Finally, fall back to the first available payment mode
+        const firstPaymentMode = paymentModes[0]?.value;
+        return firstPaymentMode;
       })
     );
   }
@@ -3447,12 +3459,25 @@ export class AddEditExpensePage implements OnInit {
     return formValue?.paymentMode?.acc?.id;
   }
 
-  getAdvanceWalletId(isAdvanceWalletEnabled: boolean): string {
+  getAdvanceWalletId(isAdvanceWalletEnabled: boolean): string | null {
     const formValue = this.getFormValues();
-    if (!formValue?.paymentMode?.acc?.id) {
-      return isAdvanceWalletEnabled && formValue?.paymentMode?.id;
+    if (isAdvanceWalletEnabled && formValue?.paymentMode?.id) {
+      const paymentMode = formValue.paymentMode;
+      // Treat as AdvanceWallet if it has these properties and type is not a normal account
+      if (
+        paymentMode &&
+        typeof paymentMode === 'object' &&
+        'balance_amount' in paymentMode &&
+        'org_id' in paymentMode &&
+        'user_id' in paymentMode &&
+        paymentMode.balance_amount > 0 &&
+        (!('type' in paymentMode) ||
+          paymentMode.type === undefined ||
+          paymentMode.type === 'PERSONAL_ADVANCE_ACCOUNT')
+      ) {
+        return paymentMode.id;
+      }
     }
-    // setting advance_wallet_id as null when the source account id is set.
     return null;
   }
 
@@ -3568,6 +3593,7 @@ export class AddEditExpensePage implements OnInit {
       map((res) => {
         const etxn: Partial<UnflattenedTransaction> = res.etxn;
         const isAdvanceWalletEnabled = res.orgSettings?.advances?.advance_wallets_enabled;
+        const formValue = this.getFormValues();
         let customProperties = res.customProperties;
         customProperties = customProperties.map((customProperty) => {
           if (!customProperty.value) {
@@ -3613,15 +3639,40 @@ export class AddEditExpensePage implements OnInit {
         }
 
         const category_id = this.getOrgCategoryID() || unspecifiedCategory.id;
+
+         // Handle payment mode type and source account
+         const paymentMode = formValue.paymentMode;
+         let sourceAccountId = null;
+         let advanceWalletId = null;
+         let skipReimbursement = false;
+ 
+         if (paymentMode) {
+           if (paymentMode.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT') {
+             sourceAccountId = paymentMode.id;
+             skipReimbursement = true;
+           } else if (paymentMode.type === 'PERSONAL_CASH_ACCOUNT') {
+             sourceAccountId = paymentMode.id;
+             // Check if this is a Paid by Company account
+             if (paymentMode.acc?.displayName === 'Paid by Company' || !paymentMode.isReimbursable) {
+               skipReimbursement = true;
+             } else {
+               skipReimbursement = false;
+             }
+           } else if (paymentMode.type === 'PERSONAL_ADVANCE_ACCOUNT' || (paymentMode.id && isAdvanceWalletEnabled)) {
+             advanceWalletId = paymentMode.id;
+             skipReimbursement = true;
+           }
+         }
+
         //TODO: Add dependent fields to custom_properties array once APIs are available
         return {
           tx: {
             ...etxn.tx,
             source: this.source || etxn.tx.source,
-            source_account_id: this.getSourceAccID(),
-            advance_wallet_id: this.getAdvanceWalletId(isAdvanceWalletEnabled),
+            source_account_id: sourceAccountId,
+            advance_wallet_id: advanceWalletId,
             billable: this.getBillable(),
-            skip_reimbursement: this.getSkipRemibursement(),
+            skip_reimbursement: skipReimbursement,
             txn_dt: this.getTxnDate(),
             currency: this.getCurrency(),
             amount,
@@ -4334,17 +4385,32 @@ export class AddEditExpensePage implements OnInit {
 
     this.trackAddExpense();
     return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+      tap(etxn => {
+        console.log('[DEBUG] Generated etxn:', {
+          id: etxn.tx.id,
+          source_account_id: etxn.tx.source_account_id,
+          advance_wallet_id: etxn.tx.advance_wallet_id,
+          skip_reimbursement: etxn.tx.skip_reimbursement
+        });
+      }),
       switchMap((etxn) =>
         this.isConnected$.pipe(
           take(1),
+          tap(isConnected => {
+            console.log('[DEBUG] Network connection status:', isConnected);
+          }),
           switchMap((isConnected) => {
             if (isConnected) {
               const policyViolations$ = this.checkPolicyViolation(
                 etxn as unknown as { tx: PublicPolicyExpense; dataUrls: Partial<FileObject>[] }
               ).pipe(shareReplay(1));
               return policyViolations$.pipe(
+                tap(policyViolations => {
+                  console.log('[DEBUG] Policy violations:', policyViolations);
+                }),
                 map(this.policyService.getCriticalPolicyRules),
                 switchMap((criticalPolicyViolations) => {
+                  console.log('[DEBUG] Critical policy violations:', criticalPolicyViolations);
                   if (criticalPolicyViolations.length > 0) {
                     return throwError({
                       type: 'criticalPolicyViolations',
@@ -4360,6 +4426,7 @@ export class AddEditExpensePage implements OnInit {
                   policyViolations?.data?.final_desired_state,
                 ]),
                 switchMap(([policyViolations, policyAction]: [string[], FinalExpensePolicyState]) => {
+                  console.log('[DEBUG] Policy action:', policyAction);
                   if (policyViolations.length > 0) {
                     return throwError({
                       type: 'policyViolations',
@@ -4391,6 +4458,7 @@ export class AddEditExpensePage implements OnInit {
           policyAction?: FinalExpensePolicyState;
           etxn?: Partial<UnflattenedTransaction>;
         }) => {
+          console.log('[DEBUG] Error caught:', err);
           if (err.status === 500) {
             return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(map((etxn) => ({ etxn })));
           }
@@ -4406,6 +4474,9 @@ export class AddEditExpensePage implements OnInit {
       ),
       switchMap(({ etxn, comment }: { etxn: Partial<UnflattenedTransaction>; comment: string }) =>
         from(this.authService.getEou()).pipe(
+          tap(eou => {
+            console.log('[DEBUG] EOU data:', eou);
+          }),
           switchMap(() => {
             const comments: string[] = [];
             const isInstaFyleExpense = !!this.activatedRoute.snapshot.params.dataUrl;
@@ -4439,6 +4510,7 @@ export class AddEditExpensePage implements OnInit {
             });
 
             if (this.activatedRoute.snapshot.params.bankTxn) {
+              console.log('[DEBUG] Processing bank transaction');
               return from(
                 this.transactionOutboxService.addEntryAndSync(
                   etxn.tx,
@@ -4450,11 +4522,13 @@ export class AddEditExpensePage implements OnInit {
               return this.isConnected$.pipe(
                 take(1),
                 switchMap((isConnected) => {
+                  console.log('[DEBUG] Processing regular transaction, connected:', isConnected);
                   if (!isConnected) {
                     etxn.tx.source += '_OFFLINE';
                   }
 
                   if (this.activatedRoute.snapshot.params.rp_id) {
+                    console.log('[DEBUG] Adding to report:', this.activatedRoute.snapshot.params.rp_id);
                     return of(
                       this.transactionOutboxService.addEntryAndSync(
                         etxn.tx,
@@ -4463,9 +4537,83 @@ export class AddEditExpensePage implements OnInit {
                       )
                     );
                   } else {
+                    console.log('[DEBUG] Adding standalone transaction');
                     this.transactionOutboxService
                       .addEntry(etxn.tx, etxn.dataUrls as { url: string; type: string }[], comments)
-                      .then(noop);
+                      .then(res => {
+                        console.log('[DEBUG] Transaction added successfully:', {
+                          result: res,
+                          transaction: etxn.tx,
+                          source_account_id: etxn.tx.source_account_id,
+                          created_at: etxn.tx.created_at,
+                          updated_at: etxn.tx.updated_at,
+                          report_id: etxn.tx.report_id,
+                          org_user_id: etxn.tx.org_user_id,
+                          id: etxn.tx.id,
+                          source: etxn.tx.source
+                        });
+
+                        // Check if transaction is in outbox
+                        const outboxEntries = this.transactionOutboxService.getPendingTransactions();
+                        console.log('[DEBUG] Outbox entries:', outboxEntries);
+                        const matchingEntry = outboxEntries?.find(entry => entry.id === etxn.tx.id);
+                        console.log('[DEBUG] Matching outbox entry:', matchingEntry);
+
+                        // Check if transaction is in local storage
+                        this.storageService.get('etxns').then(etxns => {
+                          console.log('[DEBUG] Local storage etxns:', etxns);
+                          const matchingEtxn = (etxns as any[])?.find(txn => txn.tx.id === etxn.tx.id);
+                          console.log('[DEBUG] Matching local storage etxn:', matchingEtxn);
+
+                          // Force sync the transaction
+                          console.log('[DEBUG] About to start sync process');
+                          console.log('[DEBUG] Outbox state before sync:', this.transactionOutboxService.getPendingTransactions());
+                          
+                          // Store the transaction ID before sync
+                          const transactionId = etxn.tx.id;
+                          console.log('[DEBUG] Transaction ID to sync:', transactionId);
+
+                          // Log the full transaction object before sync
+                          console.log('[DEBUG] Full transaction before sync:', etxn.tx);
+
+                          this.transactionOutboxService.sync().then(syncResult => {
+                            console.log('[DEBUG] Starting sync process');
+                            console.log('[DEBUG] Current outbox state:', this.transactionOutboxService.getPendingTransactions());
+                            console.log('[DEBUG] Sync result:', syncResult);
+                            
+                            // Check if transaction was synced to server
+                            if (transactionId) {
+                              console.log('[DEBUG] Attempting to fetch transaction from server with ID:', transactionId);
+                              this.expensesService.getExpenseById(transactionId).subscribe(
+                                serverTxn => {
+                                  console.log('[DEBUG] Transaction from server:', serverTxn);
+                                },
+                                error => {
+                                  console.error('[DEBUG] Error fetching transaction from server:', error);
+                                  // Log the outbox state again to see if transaction is still there
+                                  console.log('[DEBUG] Outbox state after failed server fetch:', this.transactionOutboxService.getPendingTransactions());
+                                  // Check local storage again
+                                  this.storageService.get('etxns').then(etxns => {
+                                    console.log('[DEBUG] Local storage state after failed server fetch:', etxns);
+                                  });
+                                }
+                              );
+                            } else {
+                              console.error('[DEBUG] No transaction ID available for sync verification');
+                            }
+                          }).catch(syncError => {
+                            console.error('[DEBUG] Sync error:', syncError);
+                            console.log('[DEBUG] Outbox state at error:', this.transactionOutboxService.getPendingTransactions());
+                          });
+                        });
+                      })
+                      .catch(err => {
+                        console.error('[DEBUG] Error adding transaction:', {
+                          error: err,
+                          transaction: etxn.tx,
+                          source_account_id: etxn.tx.source_account_id
+                        });
+                      });
 
                     return of(null);
                   }
@@ -4475,7 +4623,11 @@ export class AddEditExpensePage implements OnInit {
           })
         )
       ),
+      tap(result => {
+        console.log('[DEBUG] Final result:', result);
+      }),
       finalize(() => {
+        console.log('[DEBUG] Finalizing expense save');
         this.hideSaveExpenseLoader();
         this.triggerNpsSurvey();
       })

@@ -4,8 +4,8 @@ import { Org } from './org.model';
 import { User } from './user.model';
 
 export interface ExtendedAccount {
-  acc: AccountDetail;
-  ou: Pick<OrgUser, 'id' | 'org_id'>;
+  acc?: AccountDetail;
+  ou?: Pick<OrgUser, 'id' | 'org_id'>;
   org: Pick<Org, 'id' | 'domain'>;
   advance: {
     id: string;
@@ -17,7 +17,7 @@ export interface ExtendedAccount {
     currency: string;
     amount: number;
   };
-  us: Pick<User, 'email' | 'full_name'>;
+  us?: Pick<User, 'email' | 'full_name'>;
   currency: string;
   amount: number;
   id?: string;

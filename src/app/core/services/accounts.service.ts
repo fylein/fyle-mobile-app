@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { map } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import { DataTransformService } from './data-transform.service';
 import { ApiService } from './api.service';
 import { cloneDeep } from 'lodash';
@@ -14,12 +14,14 @@ import { UnflattenedTransaction } from '../models/unflattened-transaction.model'
 import { OrgSettings } from '../models/org-settings.model';
 import { FlattenedAccount } from '../models/flattened-account.model';
 import { AdvanceWallet } from 'src/app/core/models/platform/v1/advance-wallet.model';
-
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
+import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 @Injectable({
   providedIn: 'root',
 })
 export class AccountsService {
   constructor(
+    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
     private apiService: ApiService,
     private dataTransformService: DataTransformService,
     private fyCurrencyPipe: FyCurrencyPipe
@@ -27,18 +29,42 @@ export class AccountsService {
 
   @Cacheable()
   getEMyAccounts(): Observable<ExtendedAccount[]> {
-    return this.apiService.get<FlattenedAccount[]>('/eaccounts/').pipe(
-      map((accountsRaw: FlattenedAccount[]) => {
-        const accounts: ExtendedAccount[] = [];
-
-        accountsRaw.forEach((accountRaw) => {
-          const account = this.dataTransformService.unflatten<ExtendedAccount, FlattenedAccount>(accountRaw);
-          accounts.push(account);
-        });
-
-        return accounts;
+    return this.spenderPlatformV1ApiService.get<PlatformApiResponse<FlattenedAccount[]>>('/accounts').pipe(
+      map((response: PlatformApiResponse<FlattenedAccount[]>) => {
+        return response.data.map((accountRaw) => this.transformToExtendedAccount(accountRaw));
       })
     );
+  }
+
+  private transformToExtendedAccount(accountRaw: FlattenedAccount): ExtendedAccount {
+    const isPersonalCashAccount = accountRaw.type === 'PERSONAL_CASH_ACCOUNT';
+    
+    const transformedAccount: ExtendedAccount = {
+      id: accountRaw.id,
+      type: accountRaw.type,
+      currency: accountRaw.currency,
+      amount: accountRaw.current_balance_amount,
+      balance_amount: accountRaw.current_balance_amount,
+      created_at: accountRaw.created_at,
+      updated_at: accountRaw.updated_at,
+      org_id: accountRaw.org_id,
+      user_id: accountRaw.user_id,
+      isReimbursable: isPersonalCashAccount,
+      org: {
+        id: accountRaw.org_id,
+        domain: accountRaw.org_domain || ''
+      },
+      advance: {
+        id: accountRaw.advance_id || '',
+        purpose: accountRaw.advance_purpose || '',
+        number: accountRaw.advance_number || ''
+      },
+      orig: {
+        currency: accountRaw.orig_currency || accountRaw.currency,
+        amount: accountRaw.orig_amount || accountRaw.current_balance_amount
+      }
+    };
+    return transformedAccount;
   }
 
   // Filter user accounts by allowed payment modes and return an observable of allowed accounts
@@ -54,9 +80,10 @@ export class AccountsService {
   ): AccountOption[] {
     const { etxn, expenseType } = config;
     const isMileageOrPerDiemExpense = [ExpenseType.MILEAGE, ExpenseType.PER_DIEM].includes(expenseType);
-    const userAccounts = accounts.filter((account) =>
-      [AccountType.PERSONAL, AccountType.CCC].includes(account.acc.type)
-    );
+    const userAccounts = accounts.filter((account) => {
+      const isAllowed = account.type === 'PERSONAL_CASH_ACCOUNT' || account.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT';
+      return isAllowed;
+    });
 
     const allowedAccounts = this.getAllowedAccountsWithAdvanceWallets(
       userAccounts,
@@ -74,22 +101,53 @@ export class AccountsService {
       );
     }
 
-    const formattedAccounts = allowedAccounts.map((account) => ({
-      label: account.acc.displayName,
-      value: account,
-    }));
+    const formattedAccounts = allowedAccounts.map((account) => {
+      const displayName = account.acc?.displayName || this.getAccountDisplayName(account.type as AccountType);
+      return {
+        label: displayName,
+        value: account,
+      };
+    });
 
     const formattedAdvanceWallets = allowedAdvanceWallets.map((advanceWallet) => {
-      const formattedAdvanceWallet = {
-        label: this.getAdvanceWalletDisplayName(advanceWallet),
-        value: advanceWallet,
+      // Create a fake ExtendedAccount for advance wallet
+      const fakeAccount: ExtendedAccount = {
+        ...advanceWallet,
+        acc: {
+          displayName: this.getAdvanceWalletDisplayName(advanceWallet),
+          isReimbursable: false
+        }
+      } as any;
+      return {
+        label: fakeAccount.acc.displayName,
+        value: fakeAccount
       };
-      return formattedAdvanceWallet;
     });
 
     const finalPaymentModes = [...formattedAccounts, ...formattedAdvanceWallets];
 
+    // Ensure we always return at least one payment mode
+    if (finalPaymentModes.length === 0 && userAccounts.length > 0) {
+      // If no payment modes were allowed but we have user accounts, add the first one
+      const firstAccount = userAccounts[0];
+      return [{
+        label: this.getAccountDisplayName(firstAccount.type as AccountType),
+        value: firstAccount
+      }];
+    }
+
     return finalPaymentModes;
+  }
+
+  private getAccountDisplayName(type: AccountType): string {
+    const accountDisplayNameMapping: Record<string, string> = {
+      'PERSONAL_CASH_ACCOUNT': 'Personal Card/Cash',
+      'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT': 'Corporate Card',
+      'PERSONAL_ADVANCE_ACCOUNT': 'Advance Wallet',
+      'COMPANY_ACCOUNT': 'Paid by Company'
+    };
+    const displayName = accountDisplayNameMapping[type] || type;
+    return displayName;
   }
 
   // Filter user accounts by allowed payment modes and return an observable of allowed accounts
@@ -138,14 +196,63 @@ export class AccountsService {
     etxn: Partial<UnflattenedTransaction>,
     paymentModes: AccountOption[]
   ): ExtendedAccount | AdvanceWallet {
+    // Check for advance wallet first
+    if (etxn.tx.advance_wallet_id) {
+      const advanceWalletMode = paymentModes
+        .map((res) => res.value)
+        .find((paymentMode) => paymentMode.id === etxn.tx.advance_wallet_id);
+
+      if (advanceWalletMode) {
+        return advanceWalletMode;
+      }
+    }
+
+    // Then check for source account
     if (etxn.tx.source_account_id) {
-      return paymentModes
-        .map((res) => res.value)
-        .find((paymentMode) => this.checkIfEtxnHasSamePaymentMode(etxn, paymentMode));
-    } else if (etxn.tx.advance_wallet_id) {
-      return paymentModes
-        .map((res) => res.value)
-        .find((paymentMode) => this.checkIfEtxnHasSamePaymentMode(etxn, paymentMode));
+      // For personal accounts, we need to check both id and reimbursable status
+      if (etxn.source.account_type === AccountType.PERSONAL || etxn.source.account_type === 'PERSONAL_ACCOUNT') {
+        // For personal accounts, if skip_reimbursement is true, we want the non-reimbursable version
+        // If skip_reimbursement is false, we want the reimbursable version
+        const selectedMode = paymentModes
+          .map((res) => res.value)
+          .find((paymentMode) => {
+            const mode = paymentMode as ExtendedAccount;
+            // Match on:
+            // 1. Same account ID
+            // 2. Type is PERSONAL_CASH_ACCOUNT
+            // 3. isReimbursable matches the opposite of skip_reimbursement
+            return mode.id === etxn.tx.source_account_id &&
+                   mode.type === 'PERSONAL_CASH_ACCOUNT' &&
+                   mode.isReimbursable === !etxn.tx.skip_reimbursement;
+          });
+
+        if (selectedMode) {
+          return selectedMode;
+        }
+
+        // If no match found, try to find a mode with the same ID
+        const fallbackMode = paymentModes
+          .map((res) => res.value)
+          .find((paymentMode) => {
+            const mode = paymentMode as ExtendedAccount;
+            return mode.id === etxn.tx.source_account_id && mode.type === 'PERSONAL_CASH_ACCOUNT';
+          });
+
+        if (fallbackMode) {
+          // Update the reimbursable status to match the transaction
+          (fallbackMode as ExtendedAccount).isReimbursable = !etxn.tx.skip_reimbursement;
+          if ((fallbackMode as ExtendedAccount).acc) {
+            (fallbackMode as ExtendedAccount).acc.isReimbursable = !etxn.tx.skip_reimbursement;
+            (fallbackMode as ExtendedAccount).acc.displayName = etxn.tx.skip_reimbursement ? 'Paid by Company' : 'Personal Card/Cash';
+          }
+          return fallbackMode;
+        }
+      } else {
+        // For other account types, match on id
+        return paymentModes
+          .map((res) => res.value)
+          .find((paymentMode) => (paymentMode as ExtendedAccount).id === etxn.tx.source_account_id);
+      }
     }
     return null;
   }
@@ -157,37 +264,72 @@ export class AccountsService {
     isMultipleAdvanceEnabled: boolean
   ): ExtendedAccount {
     const accountDisplayNameMapping: Record<string, string> = {
-      PERSONAL_ACCOUNT: 'Personal Card/Cash',
-      COMPANY_ACCOUNT: 'Paid by Company',
-      PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT: 'Corporate Card',
+      'PERSONAL_CASH_ACCOUNT': 'Personal Card/Cash',
+      'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT': 'Corporate Card',
+      'PERSONAL_ADVANCE_ACCOUNT': 'Advance Wallet',
+      'COMPANY_ACCOUNT': 'Paid by Company'
     };
 
     const accountCopy = cloneDeep(account);
     if (accountCopy) {
-      accountCopy.acc.displayName =
-        paymentMode === AccountType.ADVANCE
-          ? this.getAdvanceAccountDisplayName(accountCopy, isMultipleAdvanceEnabled)
-          : accountDisplayNameMapping[paymentMode];
-      accountCopy.acc.isReimbursable = paymentMode === AccountType.PERSONAL;
+      if (!accountCopy.acc) {
+        accountCopy.acc = {} as any;
+      }
+      if (account.type === 'PERSONAL_CASH_ACCOUNT' || paymentMode === 'PERSONAL_ACCOUNT') {
+        accountCopy.isReimbursable = true;
+        accountCopy.acc.isReimbursable = true;
+        accountCopy.acc.displayName = accountDisplayNameMapping[account.type] + ' (Reimbursable)';
+      } else if (
+        account.type === 'PERSONAL_ADVANCE_ACCOUNT' ||
+        account.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT' ||
+        account.type === 'COMPANY_ACCOUNT' ||
+        paymentMode === 'COMPANY_ACCOUNT'
+      ) {
+        accountCopy.isReimbursable = false;
+        accountCopy.acc.isReimbursable = false;
+        accountCopy.acc.displayName = accountDisplayNameMapping[account.type] + ' (Non Reimbursable)';
+      } else {
+        accountCopy.isReimbursable = false;
+        accountCopy.acc.isReimbursable = false;
+        accountCopy.acc.displayName = accountDisplayNameMapping[account.type] || account.type;
+      }
     }
-
     return accountCopy;
   }
 
   // Add display name and isReimbursable properties to account object
   setAccountPropertiesWithoutAdvances(account: ExtendedAccount, paymentMode: string): ExtendedAccount {
     const accountDisplayNameMapping: Record<string, string> = {
-      PERSONAL_ACCOUNT: 'Personal Card/Cash',
-      COMPANY_ACCOUNT: 'Paid by Company',
-      PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT: 'Corporate Card',
+      'PERSONAL_CASH_ACCOUNT': 'Personal Card/Cash',
+      'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT': 'Corporate Card',
+      'PERSONAL_ADVANCE_ACCOUNT': 'Advance Wallet',
+      'COMPANY_ACCOUNT': 'Paid by Company'
     };
 
     const accountCopy = cloneDeep(account);
     if (accountCopy) {
-      accountCopy.acc.displayName = accountDisplayNameMapping[paymentMode];
-      accountCopy.acc.isReimbursable = paymentMode === AccountType.PERSONAL;
+      if (!accountCopy.acc) {
+        accountCopy.acc = {} as any;
+      }
+      if (account.type === 'PERSONAL_CASH_ACCOUNT' || paymentMode === 'PERSONAL_ACCOUNT') {
+        accountCopy.isReimbursable = true;
+        accountCopy.acc.isReimbursable = true;
+        accountCopy.acc.displayName = accountDisplayNameMapping[account.type] + ' (Reimbursable)';
+      } else if (
+        account.type === 'PERSONAL_ADVANCE_ACCOUNT' ||
+        account.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT' ||
+        account.type === 'COMPANY_ACCOUNT' ||
+        paymentMode === 'COMPANY_ACCOUNT'
+      ) {
+        accountCopy.isReimbursable = false;
+        accountCopy.acc.isReimbursable = false;
+        accountCopy.acc.displayName = accountDisplayNameMapping[account.type] + ' (Non Reimbursable)';
+      } else {
+        accountCopy.isReimbursable = false;
+        accountCopy.acc.isReimbursable = false;
+        accountCopy.acc.displayName = accountDisplayNameMapping[account.type] || account.type;
+      }
     }
-
     return accountCopy;
   }
 
@@ -213,9 +355,11 @@ export class AccountsService {
   filterAccountsWithSufficientBalance(accounts: ExtendedAccount[], isAdvanceEnabled: boolean): ExtendedAccount[] {
     return accounts.filter(
       (account) =>
-        // Personal Account and CCC account are considered to always have sufficient funds
-        (isAdvanceEnabled && account.acc.tentative_balance_amount > 0) ||
-        [AccountType.PERSONAL, AccountType.CCC].indexOf(account.acc.type) > -1
+        account?.acc && (
+          // Personal Account and CCC account are considered to always have sufficient funds
+          (isAdvanceEnabled && account.acc.tentative_balance_amount > 0) ||
+          [AccountType.PERSONAL, AccountType.CCC].indexOf(account.acc.type) > -1
+        )
     );
   }
 
@@ -281,11 +425,8 @@ export class AccountsService {
       allowedPaymentModes = allowedPaymentModes.filter((allowedPaymentMode) => allowedPaymentMode !== AccountType.CCC);
     }
 
-    //PERSONAL_ACCOUNT should always be present for mileage/per-diem or in case backend does not return any payment mode
-    if (
-      !allowedPaymentModes.length ||
-      (isMileageOrPerDiemExpense && !allowedPaymentModes.includes(AccountType.PERSONAL))
-    ) {
+    //PERSONAL_ACCOUNT should always be present
+    if (!allowedPaymentModes.includes(AccountType.PERSONAL)) {
       allowedPaymentModes = [AccountType.PERSONAL, ...allowedPaymentModes];
     }
 
@@ -300,21 +441,81 @@ export class AccountsService {
       }
     }
 
-    return allowedPaymentModes
+    // Only filter for advance wallets, not for personal/corporate/company
+    const result = allowedPaymentModes
       .map((allowedPaymentMode) => {
-        const accountsForPaymentMode = allAccounts.filter((account) => {
-          if (allowedPaymentMode === AccountType.COMPANY) {
-            return account.acc.type === AccountType.PERSONAL;
-          }
-          return account.acc.type === allowedPaymentMode;
-        });
+        let accountsForPaymentMode: ExtendedAccount[] = [];
+        if (allowedPaymentMode === AccountType.PERSONAL) {
+          // Always include personal cash account, regardless of balance
+          accountsForPaymentMode = allAccounts.filter((account) => account.type === 'PERSONAL_CASH_ACCOUNT');
+        } else if (allowedPaymentMode === AccountType.COMPANY) {
+          // Map personal cash account as Paid by Company (non-reimbursable)
+          accountsForPaymentMode = allAccounts
+            .filter((account) => account.type === 'PERSONAL_CASH_ACCOUNT')
+            .map((account) => {
+              const accountCopy = { ...account };
+              accountCopy.isReimbursable = false;
+              if (!accountCopy.acc) accountCopy.acc = {} as any;
+              accountCopy.acc.isReimbursable = false;
+              accountCopy.acc.displayName = 'Paid by Company';
+              return accountCopy;
+            });
+        } else if (allowedPaymentMode === AccountType.CCC) {
+          accountsForPaymentMode = allAccounts
+            .filter((account) => account.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT')
+            .map((account) => {
+              const accountCopy = { ...account };
+              accountCopy.isReimbursable = false;
+              if (!accountCopy.acc) accountCopy.acc = {} as any;
+              accountCopy.acc.isReimbursable = false;
+              accountCopy.acc.displayName = 'Corporate Card';
+              return accountCopy;
+            });
+        } else {
+          // Only for advance wallets, filter by balance if needed (handled elsewhere)
+          accountsForPaymentMode = allAccounts.filter((account) => account.type === allowedPaymentMode);
+        }
 
-        const accountsWithRenamedProperties = accountsForPaymentMode.map((accountForPaymentMode) =>
-          this.setAccountPropertiesWithoutAdvances(accountForPaymentMode, allowedPaymentMode)
-        );
-        return accountsWithRenamedProperties;
+        // Set display names and reimbursable status for personal/corporate/advance
+        accountsForPaymentMode = accountsForPaymentMode.map((accountForPaymentMode) => {
+          const accountCopy = { ...accountForPaymentMode };
+          if (!accountCopy.acc) accountCopy.acc = {} as any;
+          if (allowedPaymentMode === AccountType.PERSONAL) {
+            accountCopy.isReimbursable = true;
+            accountCopy.acc.isReimbursable = true;
+            accountCopy.acc.displayName = 'Personal Card/Cash';
+          } else if (allowedPaymentMode === AccountType.CCC) {
+            accountCopy.isReimbursable = false;
+            accountCopy.acc.isReimbursable = false;
+            accountCopy.acc.displayName = 'Corporate Card';
+          } else if (allowedPaymentMode === AccountType.COMPANY) {
+            // Already handled above for Paid by Company
+          }
+          return accountCopy;
+        });
+        return accountsForPaymentMode;
       })
-      .reduce((allowedAccounts, accountsForPaymentMode) => [...allowedAccounts, ...accountsForPaymentMode]);
+      .reduce((allowedAccounts, accountsForPaymentMode) => {
+        // Remove duplicates by account id and reimbursable status
+        accountsForPaymentMode.forEach((acc) => {
+          if (!allowedAccounts.some((a) => a.id === acc.id && a.isReimbursable === acc.isReimbursable)) {
+            allowedAccounts.push(acc);
+          }
+        });
+        return allowedAccounts;
+      }, []);
+
+    // If no accounts were allowed but we have user accounts, add the first one
+    if (result.length === 0 && allAccounts.length > 0) {
+      const firstAccount = allAccounts[0];
+      firstAccount.isReimbursable = true;
+      if (!firstAccount.acc) firstAccount.acc = {} as any;
+      firstAccount.acc.isReimbursable = true;
+      firstAccount.acc.displayName = 'Personal Card/Cash (Reimbursable)';
+      return [firstAccount];
+    }
+
+    return result;
   }
 
   // `Paid by Company` and `Paid by Employee` have same account id so explicitly checking for them.
@@ -322,14 +523,21 @@ export class AccountsService {
     etxn: Partial<UnflattenedTransaction>,
     paymentMode: ExtendedAccount | AdvanceWallet
   ): boolean {
-    if (etxn.source.account_type === AccountType.PERSONAL && !etxn.tx.advance_wallet_id) {
-      return (
-        (paymentMode as ExtendedAccount).acc.id === etxn.tx.source_account_id &&
-        (paymentMode as ExtendedAccount).acc.isReimbursable !== etxn.tx.skip_reimbursement
-      );
-    } else if (etxn.tx.id && etxn.tx.advance_wallet_id) {
-      return (paymentMode as AdvanceWallet).id === etxn.tx.advance_wallet_id;
+    // Check for advance wallet first
+    if (etxn.tx.advance_wallet_id) {
+      return paymentMode.id === etxn.tx.advance_wallet_id;
     }
-    return (paymentMode as ExtendedAccount).acc.id === etxn.tx.source_account_id;
+
+    if ((etxn.source?.account_type === AccountType.PERSONAL || etxn.source?.account_type === 'PERSONAL_ACCOUNT') && !etxn.tx.advance_wallet_id) {
+      const isPaidByCompany = etxn.tx.skip_reimbursement;
+      const isPaymentModePaidByCompany = !(paymentMode as ExtendedAccount).isReimbursable;
+      
+      return (
+        (paymentMode as ExtendedAccount).id === etxn.tx.source_account_id &&
+        (paymentMode as ExtendedAccount).type === 'PERSONAL_CASH_ACCOUNT' &&
+        isPaymentModePaidByCompany === isPaidByCompany
+      );
+    }
+    return (paymentMode as ExtendedAccount).id === etxn.tx.source_account_id;
   }
 }
