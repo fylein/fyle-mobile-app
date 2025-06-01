@@ -4385,32 +4385,17 @@ export class AddEditExpensePage implements OnInit {
 
     this.trackAddExpense();
     return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
-      tap(etxn => {
-        console.log('[DEBUG] Generated etxn:', {
-          id: etxn.tx.id,
-          source_account_id: etxn.tx.source_account_id,
-          advance_wallet_id: etxn.tx.advance_wallet_id,
-          skip_reimbursement: etxn.tx.skip_reimbursement
-        });
-      }),
       switchMap((etxn) =>
         this.isConnected$.pipe(
           take(1),
-          tap(isConnected => {
-            console.log('[DEBUG] Network connection status:', isConnected);
-          }),
           switchMap((isConnected) => {
             if (isConnected) {
               const policyViolations$ = this.checkPolicyViolation(
                 etxn as unknown as { tx: PublicPolicyExpense; dataUrls: Partial<FileObject>[] }
               ).pipe(shareReplay(1));
               return policyViolations$.pipe(
-                tap(policyViolations => {
-                  console.log('[DEBUG] Policy violations:', policyViolations);
-                }),
                 map(this.policyService.getCriticalPolicyRules),
                 switchMap((criticalPolicyViolations) => {
-                  console.log('[DEBUG] Critical policy violations:', criticalPolicyViolations);
                   if (criticalPolicyViolations.length > 0) {
                     return throwError({
                       type: 'criticalPolicyViolations',
@@ -4426,7 +4411,6 @@ export class AddEditExpensePage implements OnInit {
                   policyViolations?.data?.final_desired_state,
                 ]),
                 switchMap(([policyViolations, policyAction]: [string[], FinalExpensePolicyState]) => {
-                  console.log('[DEBUG] Policy action:', policyAction);
                   if (policyViolations.length > 0) {
                     return throwError({
                       type: 'policyViolations',
@@ -4458,7 +4442,6 @@ export class AddEditExpensePage implements OnInit {
           policyAction?: FinalExpensePolicyState;
           etxn?: Partial<UnflattenedTransaction>;
         }) => {
-          console.log('[DEBUG] Error caught:', err);
           if (err.status === 500) {
             return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(map((etxn) => ({ etxn })));
           }
@@ -4474,9 +4457,6 @@ export class AddEditExpensePage implements OnInit {
       ),
       switchMap(({ etxn, comment }: { etxn: Partial<UnflattenedTransaction>; comment: string }) =>
         from(this.authService.getEou()).pipe(
-          tap(eou => {
-            console.log('[DEBUG] EOU data:', eou);
-          }),
           switchMap(() => {
             const comments: string[] = [];
             const isInstaFyleExpense = !!this.activatedRoute.snapshot.params.dataUrl;
@@ -4510,7 +4490,6 @@ export class AddEditExpensePage implements OnInit {
             });
 
             if (this.activatedRoute.snapshot.params.bankTxn) {
-              console.log('[DEBUG] Processing bank transaction');
               return from(
                 this.transactionOutboxService.addEntryAndSync(
                   etxn.tx,
@@ -4522,13 +4501,11 @@ export class AddEditExpensePage implements OnInit {
               return this.isConnected$.pipe(
                 take(1),
                 switchMap((isConnected) => {
-                  console.log('[DEBUG] Processing regular transaction, connected:', isConnected);
                   if (!isConnected) {
                     etxn.tx.source += '_OFFLINE';
                   }
 
                   if (this.activatedRoute.snapshot.params.rp_id) {
-                    console.log('[DEBUG] Adding to report:', this.activatedRoute.snapshot.params.rp_id);
                     return of(
                       this.transactionOutboxService.addEntryAndSync(
                         etxn.tx,
@@ -4537,83 +4514,9 @@ export class AddEditExpensePage implements OnInit {
                       )
                     );
                   } else {
-                    console.log('[DEBUG] Adding standalone transaction');
                     this.transactionOutboxService
                       .addEntry(etxn.tx, etxn.dataUrls as { url: string; type: string }[], comments)
-                      .then(res => {
-                        console.log('[DEBUG] Transaction added successfully:', {
-                          result: res,
-                          transaction: etxn.tx,
-                          source_account_id: etxn.tx.source_account_id,
-                          created_at: etxn.tx.created_at,
-                          updated_at: etxn.tx.updated_at,
-                          report_id: etxn.tx.report_id,
-                          org_user_id: etxn.tx.org_user_id,
-                          id: etxn.tx.id,
-                          source: etxn.tx.source
-                        });
-
-                        // Check if transaction is in outbox
-                        const outboxEntries = this.transactionOutboxService.getPendingTransactions();
-                        console.log('[DEBUG] Outbox entries:', outboxEntries);
-                        const matchingEntry = outboxEntries?.find(entry => entry.id === etxn.tx.id);
-                        console.log('[DEBUG] Matching outbox entry:', matchingEntry);
-
-                        // Check if transaction is in local storage
-                        this.storageService.get('etxns').then(etxns => {
-                          console.log('[DEBUG] Local storage etxns:', etxns);
-                          const matchingEtxn = (etxns as any[])?.find(txn => txn.tx.id === etxn.tx.id);
-                          console.log('[DEBUG] Matching local storage etxn:', matchingEtxn);
-
-                          // Force sync the transaction
-                          console.log('[DEBUG] About to start sync process');
-                          console.log('[DEBUG] Outbox state before sync:', this.transactionOutboxService.getPendingTransactions());
-                          
-                          // Store the transaction ID before sync
-                          const transactionId = etxn.tx.id;
-                          console.log('[DEBUG] Transaction ID to sync:', transactionId);
-
-                          // Log the full transaction object before sync
-                          console.log('[DEBUG] Full transaction before sync:', etxn.tx);
-
-                          this.transactionOutboxService.sync().then(syncResult => {
-                            console.log('[DEBUG] Starting sync process');
-                            console.log('[DEBUG] Current outbox state:', this.transactionOutboxService.getPendingTransactions());
-                            console.log('[DEBUG] Sync result:', syncResult);
-                            
-                            // Check if transaction was synced to server
-                            if (transactionId) {
-                              console.log('[DEBUG] Attempting to fetch transaction from server with ID:', transactionId);
-                              this.expensesService.getExpenseById(transactionId).subscribe(
-                                serverTxn => {
-                                  console.log('[DEBUG] Transaction from server:', serverTxn);
-                                },
-                                error => {
-                                  console.error('[DEBUG] Error fetching transaction from server:', error);
-                                  // Log the outbox state again to see if transaction is still there
-                                  console.log('[DEBUG] Outbox state after failed server fetch:', this.transactionOutboxService.getPendingTransactions());
-                                  // Check local storage again
-                                  this.storageService.get('etxns').then(etxns => {
-                                    console.log('[DEBUG] Local storage state after failed server fetch:', etxns);
-                                  });
-                                }
-                              );
-                            } else {
-                              console.error('[DEBUG] No transaction ID available for sync verification');
-                            }
-                          }).catch(syncError => {
-                            console.error('[DEBUG] Sync error:', syncError);
-                            console.log('[DEBUG] Outbox state at error:', this.transactionOutboxService.getPendingTransactions());
-                          });
-                        });
-                      })
-                      .catch(err => {
-                        console.error('[DEBUG] Error adding transaction:', {
-                          error: err,
-                          transaction: etxn.tx,
-                          source_account_id: etxn.tx.source_account_id
-                        });
-                      });
+                      .then(noop);
 
                     return of(null);
                   }
@@ -4623,11 +4526,7 @@ export class AddEditExpensePage implements OnInit {
           })
         )
       ),
-      tap(result => {
-        console.log('[DEBUG] Final result:', result);
-      }),
       finalize(() => {
-        console.log('[DEBUG] Finalizing expense save');
         this.hideSaveExpenseLoader();
         this.triggerNpsSurvey();
       })
