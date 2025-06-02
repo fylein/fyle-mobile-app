@@ -1,21 +1,30 @@
 import { Injectable } from '@angular/core';
 import { Router, UrlTree } from '@angular/router';
-import { Observable } from 'rxjs';
+import { Observable, from, forkJoin } from 'rxjs';
 import { AuthService } from '../services/auth.service';
+import { UserService } from '../services/user.service';
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
 })
 export class VerifiedOrgAuthGuard {
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private authService: AuthService, private router: Router, private userService: UserService) {}
 
   canActivate(): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
-    return this.authService.getEou().then((eou) => {
-      if (eou?.ou?.status === 'PENDING_DETAILS') {
-        this.router.navigate(['/', 'auth', 'switch_org']);
-      }
-
-      return !!eou;
-    });
+    return forkJoin({
+      eou: from(this.authService.getEou()),
+      passwordStatus: this.userService.getUserPasswordStatus(),
+    }).pipe(
+      map(({ eou, passwordStatus }) => {
+        const isPasswordSetRequired = passwordStatus.is_password_required && !passwordStatus.is_password_set;
+        const isPendingDetails = eou?.ou?.status === 'PENDING_DETAILS';
+        if (isPasswordSetRequired || (!isPasswordSetRequired && isPendingDetails)) {
+          this.router.navigate(['/', 'auth', 'switch_org']);
+          return false;
+        }
+        return !!eou;
+      })
+    );
   }
 }
