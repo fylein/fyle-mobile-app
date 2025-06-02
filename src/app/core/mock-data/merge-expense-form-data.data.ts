@@ -5,7 +5,7 @@ import { optionsData15, optionsData33 } from './merge-expenses-options-data.data
 export const mergeExpenseFormData1 = deepFreeze({
   genericFields: {
     paymentMode: 'CORPORATE_CARD',
-    amount: 'tx3nHShG60zq',
+    amount: '1024',
     project: 13795,
     costCenter: 13796,
   },
@@ -30,7 +30,7 @@ export const mergeExpenseFormData1 = deepFreeze({
 export const mergeExpenseFormData2 = deepFreeze({
   genericFields: {
     paymentMode: 'CORPORATE_CARD',
-    amount: 'tx3nHShG60zq',
+    amount: '1024',
     project: 13795,
     costCenter: 13796,
   },
@@ -54,7 +54,7 @@ export const mergeExpenseFormData2 = deepFreeze({
 export const mergeExpenseFormData3 = deepFreeze({
   genericFields: {
     paymentMode: 'CORPORATE_CARD',
-    amount: 'tx3nHShG60zq',
+    amount: '1024',
     project: 13795,
     costCenter: 13796,
   },
@@ -76,7 +76,7 @@ export const mergeExpenseFormData3 = deepFreeze({
 export const mergeExpenseFormData4 = deepFreeze({
   genericFields: {
     paymentMode: 'CORPORATE_CARD',
-    amount: 'tx3nHShG60zq',
+    amount: '3',
   },
   custom_inputs: {
     fields: [
@@ -99,7 +99,7 @@ export const mergeExpenseFormData4 = deepFreeze({
 export const mergeExpenseFormData5 = deepFreeze({
   genericFields: {
     paymentMode: 'CORPORATE_CARD',
-    amount: 'tx3nHShG6035',
+    amount: '1024',
   },
   custom_inputs: {
     fields: [
