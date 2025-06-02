@@ -387,14 +387,23 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     eou: ExtendedOrgUser;
     isFromInviteLink?: boolean;
   }): Observable<ExtendedOrgUser> {
-    if (config.isPendingDetails) {
-      return this.handlePendingDetails(config.roles, config?.isFromInviteLink);
-    } else if (config.eou.ou.status === 'ACTIVE') {
-      this.navigateToDashboard();
-    } else if (config.eou.ou.status === 'DISABLED') {
-      this.router.navigate(['/', 'auth', 'disabled']);
-    }
-    return of(null);
+    /**
+     * User status is marked as active during invite flow even though the user has not set password.
+     * Hence the API `getUserPasswordStatus` is mandatory
+     */
+    return this.userService.getUserPasswordStatus().pipe(
+      switchMap((passwordStatus) => {
+        const isPasswordSetRequired = passwordStatus.is_password_required && !passwordStatus.is_password_set;
+        if (isPasswordSetRequired || (!isPasswordSetRequired && config.isPendingDetails)) {
+          return this.handlePendingDetails(config.roles, config.isFromInviteLink);
+        } else if (config.eou.ou.status === 'ACTIVE') {
+          this.navigateToDashboard();
+        } else if (config.eou.ou.status === 'DISABLED') {
+          this.router.navigate(['/', 'auth', 'disabled']);
+        }
+        return of(null);
+      })
+    );
   }
 
   async proceed(isFromInviteLink?: boolean): Promise<void> {
