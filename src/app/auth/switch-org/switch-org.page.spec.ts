@@ -661,6 +661,7 @@ describe('SwitchOrgPage', () => {
   });
 
   describe('navigateBasedOnUserStatus(): ', () => {
+
     beforeEach(() => {
       userService.getUserPasswordStatus.and.returnValue(
         of({
@@ -669,6 +670,7 @@ describe('SwitchOrgPage', () => {
         })
       );
     });
+
     it('should navigate to dashboard if status is active', fakeAsync(() => {
       const config = {
         isPendingDetails: false,
