@@ -145,31 +145,31 @@ describe('AccountsService', () => {
   });
 
   it('should be able to set account properties', () => {
-    expect(
-      accountsService.setAccountProperties(paymentModeDataCCCWithoutAccountProperty, AccountType.CCC, false)
-    ).toEqual(paymentModeDataCCC);
+    expect(accountsService.setAccountProperties(paymentModeDataCCCWithoutAccountProperty, AccountType.CCC)).toEqual(
+      paymentModeDataCCC
+    );
   });
 
   it('should be able to set account properties for advance account', () => {
     fyCurrencyPipe.transform.and.returnValue('$223,146,386.93');
-    expect(accountsService.setAccountProperties(unflattenedAccount2Data, AccountType.ADVANCE, false)).toEqual(
+    expect(accountsService.setAccountProperties(unflattenedAccount2Data, AccountType.ADVANCE)).toEqual(
       paymentModeDataAdvance
     );
     expect(fyCurrencyPipe.transform).toHaveBeenCalledWith(223146386.93, 'USD');
   });
 
   it('should be able to set account properties for multiple advance account', () => {
-    expect(accountsService.setAccountProperties(unflattenedAccount3Data, AccountType.ADVANCE, true)).toEqual(
+    expect(accountsService.setAccountProperties(unflattenedAccount3Data, AccountType.ADVANCE)).toEqual(
       paymentModeDataMultipleAdvance
     );
   });
 
   it('should be able to set account properties for multiple advance account as default without account', () => {
-    expect(accountsService.setAccountProperties(null, AccountType.ADVANCE, true)).toBeNull();
+    expect(accountsService.setAccountProperties(null, AccountType.ADVANCE)).toBeNull();
   });
 
   it('should be able to set account properties for multiple advance account as default without orig amount', () => {
-    expect(accountsService.setAccountProperties(unflattenedAccount4Data, AccountType.ADVANCE, true)).toEqual(
+    expect(accountsService.setAccountProperties(unflattenedAccount4Data, AccountType.ADVANCE)).toEqual(
       paymentModeDataMultipleAdvWithoutOrigAmt
     );
   });
