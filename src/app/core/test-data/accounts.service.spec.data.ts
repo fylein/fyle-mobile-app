@@ -85,7 +85,7 @@ export const unflattenedAccount1Data = deepFreeze({
   org: { id: null, domain: null },
   advance: {
     purpose: null,
-    number: null,
+    advanceNumber: null,
     id: null,
   },
   orig: { currency: null, amount: null },
@@ -148,7 +148,7 @@ export const unflattenedAccount2Data = deepFreeze({
   },
   advance: {
     purpose: 'erertert',
-    number: 'A/2022/03/T/4',
+    advanceNumber: 'A/2022/03/T/4',
     id: 'adve6o3JdrDbI',
   },
   orig: {
@@ -175,7 +175,7 @@ export const unflattenedAccount3Data = deepFreeze({
   ou: { id: 'ouCI4UQ2G0K1', org_id: 'orrjqbDbeP9p' },
   us: { email: 'ajain@fyle.in', full_name: 'abhishek' },
   org: { id: null, domain: null },
-  advance: { purpose: 'ddsfd', number: 'A/2020/03/T/2', id: 'advT96eCXZtCo' },
+  advance: { purpose: 'ddsfd', advanceNumber: 'A/2020/03/T/2', id: 'advT96eCXZtCo' },
   orig: { currency: 'USD', amount: 500 },
   currency: 'USD',
   amount: 800000,
@@ -197,7 +197,7 @@ export const unflattenedAccount4Data = deepFreeze({
   ou: { id: 'ouCI4UQ2G0K1', org_id: 'orrjqbDbeP9p' },
   us: { email: 'ajain@fyle.in', full_name: 'abhishek' },
   org: { id: null, domain: null },
-  advance: { purpose: 'ddsfd', number: 'A/2020/03/T/2', id: 'advT96eCXZtCo' },
+  advance: { purpose: 'ddsfd', advanceNumber: 'A/2020/03/T/2', id: 'advT96eCXZtCo' },
   orig: null,
   currency: 'USD',
   amount: 800000,
@@ -1201,7 +1201,7 @@ export const paymentModeDataAdvance = deepFreeze({
   },
   advance: {
     purpose: 'erertert',
-    number: 'A/2022/03/T/4',
+    advanceNumber: 'A/2022/03/T/4',
     id: 'adve6o3JdrDbI',
   },
   orig: {
@@ -1230,7 +1230,7 @@ export const paymentModeDataMultipleAdvance = deepFreeze({
   ou: { id: 'ouCI4UQ2G0K1', org_id: 'orrjqbDbeP9p' },
   us: { email: 'ajain@fyle.in', full_name: 'abhishek' },
   org: { id: null, domain: null },
-  advance: { purpose: 'ddsfd', number: 'A/2020/03/T/2', id: 'advT96eCXZtCo' },
+  advance: { purpose: 'ddsfd', advanceNumber: 'A/2020/03/T/2', id: 'advT96eCXZtCo' },
   orig: { currency: 'USD', amount: 500 },
   currency: 'USD',
   amount: 800000,
@@ -1254,7 +1254,7 @@ export const paymentModeDataMultipleAdvWithoutOrigAmt = deepFreeze({
   ou: { id: 'ouCI4UQ2G0K1', org_id: 'orrjqbDbeP9p' },
   us: { email: 'ajain@fyle.in', full_name: 'abhishek' },
   org: { id: null, domain: null },
-  advance: { purpose: 'ddsfd', number: 'A/2020/03/T/2', id: 'advT96eCXZtCo' },
+  advance: { purpose: 'ddsfd', advanceNumber: 'A/2020/03/T/2', id: 'advT96eCXZtCo' },
   orig: null,
   currency: 'USD',
   amount: 800000,
@@ -1289,7 +1289,7 @@ export const multiplePaymentModesData: ExtendedAccount[] = deepFreeze([
     },
     advance: {
       purpose: null,
-      number: null,
+      advanceNumber: null,
       id: null,
     },
     orig: {
@@ -1363,7 +1363,7 @@ export const multiplePaymentModesData: ExtendedAccount[] = deepFreeze([
     },
     advance: {
       purpose: 'erertert',
-      number: 'A/2022/03/T/4',
+      advanceNumber: 'A/2022/03/T/4',
       id: 'adve6o3JdrDbI',
     },
     orig: {
@@ -1559,7 +1559,7 @@ export const multiplePaymentModesWithCompanyAccData: ExtendedAccount[] = deepFre
     },
     advance: {
       purpose: null,
-      number: null,
+      advanceNumber: null,
       id: null,
     },
     orig: {
@@ -1841,7 +1841,7 @@ export const multipleAdvAccountsData: ExtendedAccount[] = deepFreeze([
     },
     advance: {
       purpose: 'erertert',
-      number: 'A/2022/03/T/4',
+      advanceNumber: 'A/2022/03/T/4',
       id: 'adve6o3JdrDbI',
     },
     orig: {
@@ -1880,7 +1880,7 @@ export const multipleAdvAccountsData: ExtendedAccount[] = deepFreeze([
     },
     advance: {
       purpose: 'erertert',
-      number: 'A/2022/03/T/5',
+      advanceNumber: 'A/2022/03/T/5',
       id: 'adve6o3JdrDbj',
     },
     orig: {
@@ -3220,7 +3220,7 @@ export const paymentModesResData = deepFreeze([
       },
       advance: {
         purpose: 'erertert',
-        number: 'A/2022/03/T/4',
+        advanceNumber: 'A/2022/03/T/4',
         id: 'adve6o3JdrDbI',
       },
       orig: {
@@ -3335,7 +3335,7 @@ export const paymentModesAccountsData = deepFreeze([
     },
     advance: {
       purpose: 'erertert',
-      number: 'A/2022/03/T/4',
+      advanceNumber: 'A/2022/03/T/4',
       id: 'adve6o3JdrDbI',
     },
     orig: {
@@ -3375,7 +3375,7 @@ export const accountsData: ExtendedAccount[] = deepFreeze([
     },
     advance: {
       purpose: null,
-      number: null,
+      advanceNumber: null,
       id: null,
     },
     orig: {
@@ -3412,7 +3412,7 @@ export const accountsData: ExtendedAccount[] = deepFreeze([
     },
     advance: {
       purpose: null,
-      number: null,
+      advanceNumber: null,
       id: null,
     },
     orig: {
@@ -3449,7 +3449,7 @@ export const accountsData: ExtendedAccount[] = deepFreeze([
     },
     advance: {
       purpose: 'test',
-      number: 'A/2022/04/T/1',
+      advanceNumber: 'A/2022/04/T/1',
       id: 'adv7pbzHwP5ci',
     },
     orig: {

@@ -33,9 +33,13 @@ export class AccountsService {
 
   @Cacheable()
   getEMyAccounts(): Observable<ExtendedAccount[]> {
-    return this.spenderPlatformV1ApiService.get<PlatformApiResponse<FlattenedAccount[]>>('/accounts').pipe(
-      map((response: PlatformApiResponse<FlattenedAccount[]>) => response.data.map((accountRaw) => this.transformToExtendedAccount(accountRaw)))
-    );
+    return this.spenderPlatformV1ApiService
+      .get<PlatformApiResponse<FlattenedAccount[]>>('/accounts')
+      .pipe(
+        map((response: PlatformApiResponse<FlattenedAccount[]>) =>
+          response.data.map((accountRaw) => this.transformToExtendedAccount(accountRaw))
+        )
+      );
   }
 
   // Filter user accounts by allowed payment modes and return an observable of allowed accounts
@@ -82,9 +86,9 @@ export class AccountsService {
     });
 
     const formattedAdvanceWallets = allowedAdvanceWallets.map((advanceWallet) => ({
-        label: this.getAdvanceWalletDisplayName(advanceWallet),
-        value: advanceWallet,
-      }));
+      label: this.getAdvanceWalletDisplayName(advanceWallet),
+      value: advanceWallet,
+    }));
 
     const finalPaymentModes = [...formattedAccounts, ...formattedAdvanceWallets];
 
@@ -382,7 +386,8 @@ export class AccountsService {
       advance: {
         id: accountRaw.advance_id || '',
         purpose: accountRaw.advance_purpose || '',
-        advanceNumber: accountRaw.advance_number || '',
+        // eslint-disable-next-line id-blacklist
+        number: accountRaw.advance_number || '',
       },
       orig: {
         currency: accountRaw.orig_currency || accountRaw.currency,
@@ -449,7 +454,9 @@ export class AccountsService {
             .map((account) => {
               const accountCopy = { ...account };
               accountCopy.isReimbursable = false;
-              if (!accountCopy.acc) {accountCopy.acc = {} as unknown as AccountDetail;}
+              if (!accountCopy.acc) {
+                accountCopy.acc = {} as unknown as AccountDetail;
+              }
               accountCopy.acc.isReimbursable = false;
               accountCopy.acc.displayName = 'Paid by Company';
               return accountCopy;
@@ -460,7 +467,9 @@ export class AccountsService {
             .map((account) => {
               const accountCopy = { ...account };
               accountCopy.isReimbursable = false;
-              if (!accountCopy.acc) {accountCopy.acc = {} as unknown as AccountDetail;}
+              if (!accountCopy.acc) {
+                accountCopy.acc = {} as unknown as AccountDetail;
+              }
               accountCopy.acc.isReimbursable = false;
               accountCopy.acc.displayName = 'Corporate Card';
               return accountCopy;
@@ -472,7 +481,9 @@ export class AccountsService {
         // Set display names and reimbursable status
         accountsForPaymentMode = accountsForPaymentMode.map((account) => {
           const accountCopy = { ...account };
-          if (!accountCopy.acc) {accountCopy.acc = {} as unknown as AccountDetail;}
+          if (!accountCopy.acc) {
+            accountCopy.acc = {} as unknown as AccountDetail;
+          }
 
           if (allowedPaymentMode === AccountType.PERSONAL) {
             accountCopy.isReimbursable = true;
@@ -503,7 +514,9 @@ export class AccountsService {
     if (result.length === 0 && allAccounts.length > 0) {
       const firstAccount = allAccounts[0];
       firstAccount.isReimbursable = true;
-      if (!firstAccount.acc) {firstAccount.acc = {} as unknown as AccountDetail;}
+      if (!firstAccount.acc) {
+        firstAccount.acc = {} as unknown as AccountDetail;
+      }
       firstAccount.acc.isReimbursable = true;
       firstAccount.acc.displayName = 'Personal Card/Cash (Reimbursable)';
       return [firstAccount];
