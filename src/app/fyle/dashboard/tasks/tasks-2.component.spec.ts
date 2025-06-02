@@ -264,7 +264,7 @@ export function TestCases2(getTestBed) {
       expect(mockPopover.present).toHaveBeenCalled();
     }));
 
-    it('onMobileNumberVerificationTaskClick(): should open opt in modal', fakeAsync(() => {
+    it('onMobileNumberVerificationTaskClick(): should open opt-in modal', fakeAsync(() => {
       authService.getEou.and.resolveTo(apiEouRes);
       const optInModalSpy = jasmine.createSpyObj('optInModal', ['present', 'onWillDismiss']);
       optInModalSpy.onWillDismiss.and.resolveTo({ data: { action: 'SUCCESS' } });
