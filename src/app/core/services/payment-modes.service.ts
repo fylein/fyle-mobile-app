@@ -47,34 +47,14 @@ export class PaymentModesService {
       isPaymentModeConfigurationsEnabled: this.checkIfPaymentModeConfigurationsIsEnabled(),
     }).pipe(
       map(({ allowedPaymentModes, isPaymentModeConfigurationsEnabled }) => {
-        let defaultAccountType = AccountType.PERSONAL;
+        const defaultAccountType = this.determineDefaultAccountType(
+          orgSettings,
+          orgUserSettings,
+          allowedPaymentModes,
+          isPaymentModeConfigurationsEnabled
+        );
 
-        if (isPaymentModeConfigurationsEnabled) {
-          defaultAccountType = allowedPaymentModes[0];
-        } else {
-          const userDefaultPaymentMode = orgUserSettings.preferences.default_payment_mode;
-          const isCCCEnabled =
-            orgSettings.corporate_credit_card_settings?.allowed && orgSettings.corporate_credit_card_settings?.enabled;
-          if (isCCCEnabled && userDefaultPaymentMode === AccountType.CCC) {
-            defaultAccountType = AccountType.CCC;
-          } else if (orgUserSettings.preferences?.default_payment_mode === AccountType.COMPANY) {
-            defaultAccountType = AccountType.COMPANY;
-          }
-        }
-
-        const defaultAccount = accounts.find((account) => {
-          /*
-           * Accounts array does not have anything called COMPANY_ACCOUNT
-           * We map PERSONAL_ACCOUNT to 'Peronsal Card/Cash' and 'Paid by Company' in the frontend
-           * which happens in the setAccountProperties() method below
-           */
-          const mappedAccountType =
-            defaultAccountType === AccountType.COMPANY ? AccountType.PERSONAL : defaultAccountType;
-          return account.acc && account.acc.type === mappedAccountType;
-        });
-        return defaultAccount
-          ? this.accountsService.setAccountProperties(defaultAccount, defaultAccountType, false)
-          : null;
+        return this.findAndTransformDefaultAccount(accounts, defaultAccountType);
       })
     );
   }
@@ -112,5 +92,59 @@ export class PaymentModesService {
       default:
         return 'Personal Cash/Card';
     }
+  }
+
+  private determineDefaultAccountType(
+    orgSettings: OrgSettings,
+    orgUserSettings: OrgUserSettings,
+    allowedPaymentModes: AccountType[],
+    isPaymentModeConfigurationsEnabled: boolean
+  ): AccountType {
+    if (isPaymentModeConfigurationsEnabled) {
+      return this.getAccountTypeFromOrgSettings(orgSettings, allowedPaymentModes);
+    } else {
+      return this.getAccountTypeFromUserPreferences(orgSettings, orgUserSettings);
+    }
+  }
+
+  private getAccountTypeFromOrgSettings(orgSettings: OrgSettings, allowedPaymentModes: AccountType[]): AccountType {
+    if (orgSettings.payment_mode_settings?.payment_modes_order?.length > 0) {
+      const orgDefaultMode = orgSettings.payment_mode_settings.payment_modes_order[0];
+      switch (orgDefaultMode) {
+        case AllowedPaymentModes.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT:
+          return AccountType.CCC;
+        case AllowedPaymentModes.COMPANY_ACCOUNT:
+          return AccountType.COMPANY;
+        case AllowedPaymentModes.PERSONAL_ADVANCE_ACCOUNT:
+          return AccountType.ADVANCE;
+        default:
+          return AccountType.PERSONAL;
+      }
+    }
+    return allowedPaymentModes[0];
+  }
+
+  private getAccountTypeFromUserPreferences(orgSettings: OrgSettings, orgUserSettings: OrgUserSettings): AccountType {
+    const userDefaultPaymentMode = orgUserSettings.preferences.default_payment_mode;
+    const isCCCEnabled =
+      orgSettings.corporate_credit_card_settings?.allowed && orgSettings.corporate_credit_card_settings?.enabled;
+
+    if (isCCCEnabled && userDefaultPaymentMode === AccountType.CCC) {
+      return AccountType.CCC;
+    } else if (orgUserSettings.preferences?.default_payment_mode === AccountType.COMPANY) {
+      return AccountType.COMPANY;
+    }
+    return AccountType.PERSONAL;
+  }
+
+  private findAndTransformDefaultAccount(
+    accounts: ExtendedAccount[],
+    defaultAccountType: AccountType
+  ): ExtendedAccount | null {
+    const mappedAccountType = defaultAccountType === AccountType.COMPANY ? AccountType.PERSONAL : defaultAccountType;
+
+    const defaultAccount = accounts.find((account) => account.acc && account.acc.type === mappedAccountType);
+
+    return defaultAccount ? this.accountsService.setAccountProperties(defaultAccount, defaultAccountType) : null;
   }
 }
