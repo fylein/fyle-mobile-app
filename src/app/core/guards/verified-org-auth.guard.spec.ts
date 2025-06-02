@@ -5,6 +5,7 @@ import { UserService } from '../services/user.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { of } from 'rxjs';
+import { apiEouRes } from '../mock-data/extended-org-user.data';
 
 describe('VerifiedOrgAuthGuard', () => {
   let guard: VerifiedOrgAuthGuard;
@@ -35,27 +36,8 @@ describe('VerifiedOrgAuthGuard', () => {
   });
 
   describe('canActivate(): ', () => {
-    const baseEou = {
-      ou: {
-        id: 'ou1',
-        org_id: 'org1',
-        location: 'loc',
-        status: 'ACTIVE',
-        mobile: '123',
-        org_name: 'OrgName',
-      },
-      us: { full_name: 'User', email: 'user@email.com' },
-      ap1: { full_name: 'Approver1', email: 'ap1@email.com' },
-      ap2: { full_name: 'Approver2', email: 'ap2@email.com' },
-      ap3: { full_name: 'Approver3', email: 'ap3@email.com' },
-      bb: {},
-      dwolla: {},
-      org: { domain: 'domain', currency: 'USD' },
-    };
-
     it('should return true if eou is present and password is set or not required', (done) => {
-      const eou = { ...baseEou, ou: { ...baseEou.ou, status: 'ACTIVE' } };
-      authService.getEou.and.resolveTo(eou);
+      authService.getEou.and.resolveTo(apiEouRes);
       userService.getUserPasswordStatus.and.returnValue(of({ is_password_required: false, is_password_set: true }));
       const canActivate = guard.canActivate() as any;
       canActivate.subscribe((res: boolean) => {
@@ -67,8 +49,7 @@ describe('VerifiedOrgAuthGuard', () => {
     });
 
     it('should return false and navigate if password is required and not set', (done) => {
-      const eou = { ...baseEou, ou: { ...baseEou.ou, status: 'ACTIVE' } };
-      authService.getEou.and.resolveTo(eou);
+      authService.getEou.and.resolveTo(apiEouRes);
       userService.getUserPasswordStatus.and.returnValue(of({ is_password_required: true, is_password_set: false }));
       const canActivate = guard.canActivate() as any;
       canActivate.subscribe((res: boolean) => {
@@ -81,8 +62,7 @@ describe('VerifiedOrgAuthGuard', () => {
     });
 
     it('should return false and navigate if status is PENDING_DETAILS and password is not required', (done) => {
-      const eou = { ...baseEou, ou: { ...baseEou.ou, status: 'PENDING_DETAILS' } };
-      authService.getEou.and.resolveTo(eou);
+      authService.getEou.and.resolveTo({ ...apiEouRes, ou: { ...apiEouRes.ou, status: 'PENDING_DETAILS' } });
       userService.getUserPasswordStatus.and.returnValue(of({ is_password_required: false, is_password_set: true }));
       const canActivate = guard.canActivate() as any;
       canActivate.subscribe((res: boolean) => {
