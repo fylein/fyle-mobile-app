@@ -292,8 +292,7 @@ export function TestCases2(getTestBed) {
     });
 
     describe('saveAndNewExpense():', () => {
-      it('should add an expense in add mode if the payment mode is valid', () => {
-        spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(false));
+      it('should add an expense in add mode', () => {
         setFormValid(component);
         component.mode = 'add';
         spyOn(component, 'addExpense').and.returnValue(of(true));
@@ -302,14 +301,12 @@ export function TestCases2(getTestBed) {
 
         component.saveAndNewExpense();
 
-        expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledTimes(1);
         expect(component.addExpense).toHaveBeenCalledTimes(1);
         expect(component.reloadCurrentRoute).toHaveBeenCalledTimes(1);
         expect(trackingService.clickSaveAddNew).toHaveBeenCalledTimes(1);
       });
 
-      it('should edit an expense in edit mode if the payment mode is valid', () => {
-        spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(false));
+      it('should edit an expense in edit mode', () => {
         setFormValid(component);
         component.mode = 'edit';
         spyOn(component, 'editExpense').and.returnValue(of(null));
@@ -318,43 +315,26 @@ export function TestCases2(getTestBed) {
 
         component.saveAndNewExpense();
 
-        expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledTimes(1);
         expect(component.editExpense).toHaveBeenCalledTimes(1);
         expect(component.close).toHaveBeenCalledTimes(1);
       });
-
-      it('should show an error if payment mode is invalid', fakeAsync(() => {
-        spyOn(component, 'showFormValidationErrors');
-        spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(true));
-        fixture.detectChanges();
-
-        component.saveAndNewExpense();
-        tick(4000);
-
-        expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledTimes(1);
-        expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
-      }));
     });
 
     describe('saveExpense():', () => {
-      it('should add an expense in add mode if the payment mode is valid', () => {
-        spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(false));
+      it('should add an expense in add mode', () => {
         setFormValid(component);
         component.mode = 'add';
         spyOn(component, 'addExpense').and.returnValue(of(true));
-
         spyOn(component, 'close');
         fixture.detectChanges();
 
         component.saveExpense();
 
-        expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledTimes(1);
         expect(component.addExpense).toHaveBeenCalledTimes(1);
         expect(component.close).toHaveBeenCalledTimes(1);
       });
 
-      it('should edit an expense in edit mode if the payment mode is valid', () => {
-        spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(false));
+      it('should edit an expense in edit mode', () => {
         setFormValid(component);
         component.mode = 'edit';
         spyOn(component, 'editExpense').and.returnValue(of(null));
@@ -363,22 +343,9 @@ export function TestCases2(getTestBed) {
 
         component.saveExpense();
 
-        expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledTimes(1);
         expect(component.editExpense).toHaveBeenCalledTimes(1);
         expect(component.close).toHaveBeenCalledTimes(1);
       });
-
-      it('should show an error if payment mode is invalid', fakeAsync(() => {
-        spyOn(component, 'showFormValidationErrors');
-        spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(true));
-        fixture.detectChanges();
-
-        component.saveExpense();
-        tick(4000);
-
-        expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledTimes(1);
-        expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
-      }));
     });
 
     describe('getNewExpense():', () => {
@@ -506,110 +473,6 @@ export function TestCases2(getTestBed) {
 
       afterEach(function () {
         jasmine.clock().uninstall();
-      });
-    });
-
-    describe('checkIfInvalidPaymentMode():', () => {
-      it('should return false if source ID is same and if txn amount and tentative amount is less than the current amount', (done) => {
-        spyOn(component, 'getFormValues').and.returnValue({ paymentMode: multiplePaymentModesData[2] });
-        component.etxn$ = of(unflattenedTxnWithSourceID);
-        orgSettingsService.get.and.returnValue(of(orgSettingsRes));
-        component.amount$ = of(101);
-        fixture.detectChanges();
-
-        component.checkIfInvalidPaymentMode().subscribe((res) => {
-          expect(res).toBeFalse();
-          expect(component.getFormValues).toHaveBeenCalledTimes(1);
-          done();
-        });
-      });
-
-      it('should return true if source ID is different and if tentative amount less than expense amount', (done) => {
-        spyOn(component, 'getFormValues').and.returnValue({ paymentMode: accountsData[2] });
-        component.etxn$ = of(unflattenedTxnWithSourceID2);
-        orgSettingsService.get.and.returnValue(of(orgSettingsRes));
-        component.amount$ = of(600);
-        fixture.detectChanges();
-
-        component.checkIfInvalidPaymentMode().subscribe((res) => {
-          expect(res).toBeTrue();
-          expect(paymentModesService.showInvalidPaymentModeToast).toHaveBeenCalledTimes(1);
-          expect(component.getFormValues).toHaveBeenCalledTimes(1);
-          done();
-        });
-      });
-
-      it('should return false if payment account is null', (done) => {
-        spyOn(component, 'getFormValues').and.returnValue({ paymentMode: null });
-        component.etxn$ = of(unflattenedTxnWithSourceID2);
-        orgSettingsService.get.and.returnValue(of(orgSettingsRes));
-        component.amount$ = of(600);
-        fixture.detectChanges();
-
-        component.checkIfInvalidPaymentMode().subscribe((res) => {
-          expect(res).toBeFalse();
-          expect(component.getFormValues).toHaveBeenCalledTimes(1);
-          done();
-        });
-      });
-
-      it('should return false if org setting is null', (done) => {
-        spyOn(component, 'getFormValues').and.returnValue({ paymentMode: multiplePaymentModesData[2] });
-        component.etxn$ = of(unflattenedTxnWithSourceID);
-        orgSettingsService.get.and.returnValue(of(null));
-        component.amount$ = of(101);
-        fixture.detectChanges();
-
-        component.checkIfInvalidPaymentMode().subscribe((res) => {
-          expect(res).toBeFalse();
-          expect(component.getFormValues).toHaveBeenCalledTimes(1);
-          done();
-        });
-      });
-
-      it('should return false if payment account is null and advance wallets is enabled', (done) => {
-        spyOn(component, 'getFormValues').and.returnValue({ paymentMode: null });
-        component.etxn$ = of(unflattenedTxnWithSourceID2);
-        orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithAdvanceWallet));
-        component.amount$ = of(600);
-        fixture.detectChanges();
-
-        component.checkIfInvalidPaymentMode().subscribe((res) => {
-          expect(res).toBeFalse();
-          expect(component.getFormValues).toHaveBeenCalledTimes(1);
-          done();
-        });
-      });
-
-      it('should check for invalid payment in case of Advance wallets', (done) => {
-        spyOn(component, 'getFormValues').and.returnValue({ paymentMode: paymentModeDataAdvanceWallet });
-        component.etxn$ = of(unflattenedTxnWithAdvanceWallet);
-        orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithAdvanceWallet));
-
-        component.fg.controls.paymentMode.setValue(paymentModeDataAdvanceWallet);
-        component.amount$ = of(2500);
-        fixture.detectChanges();
-
-        component.checkIfInvalidPaymentMode().subscribe((res) => {
-          expect(res).toBeTrue();
-          expect(paymentModesService.showInvalidPaymentModeToast).toHaveBeenCalledTimes(1);
-          done();
-        });
-      });
-
-      it('should check for invalid payment while adding expense with advance wallets', (done) => {
-        component.etxn$ = of(unflattenedExpDataWithAdvanceWalletWithoutId);
-        orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithAdvanceWallet));
-
-        component.fg.controls.paymentMode.setValue(paymentModeDataAdvanceWallet);
-        component.amount$ = of(2500);
-        fixture.detectChanges();
-
-        component.checkIfInvalidPaymentMode().subscribe((res) => {
-          expect(res).toBeTrue();
-          expect(paymentModesService.showInvalidPaymentModeToast).toHaveBeenCalledTimes(1);
-          done();
-        });
       });
     });
 
