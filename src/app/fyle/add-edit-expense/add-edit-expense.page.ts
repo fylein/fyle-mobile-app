@@ -3313,9 +3313,6 @@ export class AddEditExpensePage implements OnInit {
 
     this.paymentModes$ = this.getPaymentModes();
 
-    // Show payment mode if it is not a CCC expense
-    this.showPaymentMode = !this.isCccExpense;
-
     this.initSplitTxn(orgSettings$);
 
     this.setupFilteredCategories();
@@ -3386,6 +3383,8 @@ export class AddEditExpensePage implements OnInit {
     this.etxn$.subscribe((etxn) => {
       this.isSplitExpense = this.getCheckSpiltExpense(etxn);
       this.isCccExpense = etxn?.tx?.corporate_credit_card_expense_group_id;
+      // Show payment mode if it is not a CCC expense
+      this.showPaymentMode = !this.isCccExpense;
       this.isExpenseMatchedForDebitCCCE = this.getDebitCCCExpense(etxn);
       this.canDismissCCCE = this.getDismissCCCExpense(etxn);
       this.canRemoveCardExpense = this.getRemoveCCCExpense(etxn);
