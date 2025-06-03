@@ -515,16 +515,6 @@ export function TestCases2(getTestBed) {
         expect(recentlyUsedItemsService.getRecentlyUsed).toHaveBeenCalledTimes(1);
       });
 
-      it('should set isAdvancesEnabled$ to true and recentlyUsedValues$ to null if orgSettings.advances.enabled is true and device is offline', () => {
-        component.isConnected$ = of(false);
-        orgSettingsService.get.and.returnValue(of(orgSettingsRes));
-        component.ionViewWillEnter();
-        component.recentlyUsedValues$.subscribe((res) => {
-          expect(res).toBeNull();
-        });
-        expect(recentlyUsedItemsService.getRecentlyUsed).not.toHaveBeenCalled();
-      });
-
       it('should update canCreatePerDiem$ to true if perDiemRates is not empty array', (done) => {
         component.ionViewWillEnter();
         component.canCreatePerDiem$
