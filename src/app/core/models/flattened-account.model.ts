@@ -1,4 +1,3 @@
-import { ExtendedAccount } from './extended-account.model';
 import { AccountType } from '../enums/account-type.enum';
 
 export interface FlattenedAccount {
@@ -24,7 +23,7 @@ export interface FlattenedAccount {
   amount: number;
   advance_id: string;
 
-   // New platform API fields
+  // New platform API fields
   id: string;
   created_at: string;
   updated_at: string;
@@ -40,6 +39,6 @@ export interface FlattenedAccount {
   advance?: {
     id: string | null;
     purpose: string | null;
-    number: string | number | null;
+    advanceNumber: string | number | null;
   };
 }
