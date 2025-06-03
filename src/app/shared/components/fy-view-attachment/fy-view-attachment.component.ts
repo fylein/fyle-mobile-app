@@ -14,6 +14,7 @@ import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expen
 import { ActivatedRoute } from '@angular/router';
 import { FileService } from 'src/app/core/services/file.service';
 import { RotationDirection } from 'src/app/core/enums/rotation-direction.enum';
+import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 
 @Component({
   selector: 'app-fy-view-attachment',
@@ -62,7 +63,8 @@ export class FyViewAttachmentComponent implements OnInit {
     private spenderFileService: SpenderFileService,
     private expensesService: ExpensesService,
     private activatedRoute: ActivatedRoute,
-    private fileService: FileService
+    private fileService: FileService,
+    private transactionsOutboxService: TransactionsOutboxService
   ) {}
 
   ngOnInit(): void {
@@ -220,49 +222,21 @@ export class FyViewAttachmentComponent implements OnInit {
     const attachment = this.attachments[this.activeIndex];
     const currentBase64Url = attachment.url;
 
-    from(
-      this.spenderFileService.createFile({
-        name: attachment.name || 'rotated-receipt.jpg',
-        type: 'RECEIPT',
-      })
-    )
+    from(fetch(attachment.url).then((res) => res.blob()))
       .pipe(
-        switchMap((fileObj) => {
-          if (!fileObj || !fileObj.upload_url || !fileObj.id) {
-            throw new Error('Invalid file object returned from createFile');
+        switchMap((blob: Blob) => {
+          if (!blob || !(blob instanceof Blob) || blob.size === 0) {
+            throw new Error('Rotated image content is empty');
           }
 
-          return from(fetch(attachment.url).then((res) => res.blob())).pipe(
-            switchMap((blob) => {
-              if (!blob || !(blob instanceof Blob) || blob.size === 0) {
-                throw new Error('Rotated image content is empty');
-              }
-
-              return from(
-                fetch(fileObj.upload_url, {
-                  method: 'PUT',
-                  headers: { 'Content-Type': 'image/jpeg' },
-                  body: blob,
-                })
-              ).pipe(
-                switchMap(() =>
-                  this.expensesService.attachReceiptToExpense(String(this.expenseId), String(fileObj.id))
-                ),
-                tap(() => {
-                  this.attachments[this.activeIndex] = {
-                    ...attachment,
-                    ...fileObj,
-                    url: currentBase64Url,
-                    thumbnail: currentBase64Url,
-                  };
-                }),
-                switchMap(() => {
-                  if (attachment.id) {
-                    return this.spenderFileService.deleteFilesBulk([attachment.id]);
-                  }
-                  return of(null);
-                })
-              );
+          return this.fileService.uploadUrl(attachment.id).pipe(
+            switchMap((uploadUrl: string) => this.transactionsOutboxService.uploadData(uploadUrl, blob, 'image/jpeg')),
+            tap(() => {
+              this.attachments[this.activeIndex] = {
+                ...attachment,
+                url: currentBase64Url,
+                thumbnail: currentBase64Url,
+              };
             })
           );
         }),
@@ -275,7 +249,12 @@ export class FyViewAttachmentComponent implements OnInit {
           }, 5000);
         })
       )
-      .subscribe();
+      .subscribe({
+        error: () => {
+          this.saving = false;
+          this.isImageDirty[this.activeIndex] = true;
+        },
+      });
   }
 
   private rotateImage(attachment: FileObject, direction: RotationDirection): void {
