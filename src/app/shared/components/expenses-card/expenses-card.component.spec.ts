@@ -42,6 +42,7 @@ import {
   transformedExpenseData,
   transformedExpenseWithExtractedData,
 } from 'src/app/core/mock-data/transformed-expense.data';
+import { AccountType } from 'src/app/core/enums/account-type.enum';
 
 describe('ExpensesCardComponent', () => {
   let component: ExpensesCardComponent;
@@ -373,7 +374,7 @@ describe('ExpensesCardComponent', () => {
     it('should show payment mode icon if it is a personal expense and is reimbersable', () => {
       component.expense = {
         ...expenseData1,
-        source_account_type: 'PERSONAL_CASH_ACCOUNT',
+        source_account_type: AccountType.PERSONAL,
         tx_skip_reimbursement: false,
       };
       component.canShowPaymentModeIcon();
