@@ -284,7 +284,7 @@ export function TestCases2(getTestBed) {
         paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(
           of(orgSettingsData.payment_mode_settings.enabled && orgSettingsData.payment_mode_settings.allowed)
         );
-        accountsService.getPaymentModes.and.returnValue(paymentModesData);
+        accountsService.getPaymentModesWithAdvanceWallets.and.returnValue(paymentModesData);
         fixture.detectChanges();
 
         component.getPaymentModes().subscribe((res) => {
@@ -310,7 +310,7 @@ export function TestCases2(getTestBed) {
         paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(
           of(orgSettingsData.payment_mode_settings.enabled && orgSettingsData.payment_mode_settings.allowed)
         );
-        accountsService.getPaymentModes.and.returnValue(paymentModesData);
+        accountsService.getPaymentModesWithAdvanceWallets.and.returnValue(paymentModesData);
         spyOn(component, 'getCCCSettings').and.returnValue(false);
 
         component.getPaymentModes().subscribe((res) => {
@@ -338,7 +338,7 @@ export function TestCases2(getTestBed) {
           of(orgSettingsData.payment_mode_settings.enabled && orgSettingsData.payment_mode_settings.allowed)
         );
         spyOn(component, 'getCCCSettings').and.returnValue(true);
-        accountsService.getPaymentModes.and.returnValue(paymentModesData);
+        accountsService.getPaymentModesWithAdvanceWallets.and.returnValue(paymentModesData);
 
         component.getPaymentModes().subscribe((res) => {
           expect(res).toEqual(paymentModesData);
