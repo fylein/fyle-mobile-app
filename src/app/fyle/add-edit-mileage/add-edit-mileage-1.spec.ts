@@ -981,12 +981,24 @@ export function TestCases1(getTestBed) {
       accountsService.getPaymentModes.and.returnValue(accountOptionData1);
       fixture.detectChanges();
 
+      const config = {
+        etxn: unflattenedTxnData,
+        orgSettings: null,
+        expenseType: ExpenseType.MILEAGE,
+        isPaymentModeConfigurationsEnabled: true,
+      };
+
       component.getPaymentModes().subscribe((res) => {
         expect(res).toEqual(accountOptionData1);
         expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
         expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
         expect(orgUserSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
         expect(paymentModesService.checkIfPaymentModeConfigurationsIsEnabled).toHaveBeenCalledTimes(1);
+        expect(accountsService.getPaymentModes).toHaveBeenCalledOnceWith(
+          multiplePaymentModesData,
+          orgUserSettingsData.payment_mode_settings.allowed_payment_modes,
+          config
+        );
         done();
       });
     });
