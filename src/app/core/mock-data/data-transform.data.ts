@@ -199,6 +199,15 @@ export const unflattenedData = deepFreeze({
     currency: 'INR',
     amount: 2500,
   },
+
+  id: 'acct0vTdfNQrT',
+  created_at: '2019-09-19T10:19:37.764Z',
+  updated_at: '2023-03-10T11:29:40.049Z',
+  current_balance_amount: -65.060000000006,
+  tentative_balance_amount: -67645301481.37274,
+  type: AccountType.PERSONAL,
+  user_id: 'ourw7Hi4mmpO',
+  category_id: 'category1',
   currency: 'INR',
   amount: 2500,
 });
