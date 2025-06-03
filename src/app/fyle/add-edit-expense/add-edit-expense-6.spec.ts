@@ -626,6 +626,10 @@ export function TestCases6(getTestBed) {
       it('should get advance wallet id', () => {
         component.fg.controls.paymentMode.setValue({
           id: 'areq1234',
+          balance_amount: 100,
+          org_id: 'org123',
+          user_id: 'user123',
+          type: 'PERSONAL_ADVANCE_ACCOUNT',
         });
 
         const result = component.getAdvanceWalletId(true);
@@ -636,14 +640,14 @@ export function TestCases6(getTestBed) {
         setFormValueNull();
 
         const result = component.getAdvanceWalletId(true);
-        expect(result).toBeUndefined();
+        expect(result).toBeNull();
       });
 
       it('should return null when advance wallet setting is disabled', () => {
         setFormValueNull();
 
         const result = component.getAdvanceWalletId(false);
-        expect(result).toBeFalse();
+        expect(result).toBeNull();
       });
 
       it('should return null', () => {

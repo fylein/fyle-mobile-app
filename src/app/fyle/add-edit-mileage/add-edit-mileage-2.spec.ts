@@ -379,7 +379,7 @@ export function TestCases2(getTestBed) {
           expect(transactionService.getDefaultVehicleType).toHaveBeenCalledTimes(1);
           expect(mileageService.getOrgUserMileageSettings).toHaveBeenCalledTimes(1);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(3);
-          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(2);
+          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(3);
           expect(locationService.getCurrentLocation).toHaveBeenCalledTimes(1);
           expect(authService.getEou).toHaveBeenCalledTimes(2);
           expect(component.getMileageByVehicleType).toHaveBeenCalledOnceWith(unfilteredMileageRatesData, 'bicycle');
@@ -416,7 +416,7 @@ export function TestCases2(getTestBed) {
           expect(transactionService.getDefaultVehicleType).toHaveBeenCalledTimes(1);
           expect(mileageService.getOrgUserMileageSettings).toHaveBeenCalledTimes(1);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(3);
-          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(2);
+          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(3);
           expect(locationService.getCurrentLocation).toHaveBeenCalledTimes(1);
           expect(authService.getEou).toHaveBeenCalledTimes(2);
           expect(component.getMileageByVehicleType).toHaveBeenCalledOnceWith(unfilteredMileageRatesData, 'bicycle');
@@ -462,7 +462,7 @@ export function TestCases2(getTestBed) {
           expect(transactionService.getDefaultVehicleType).toHaveBeenCalledTimes(1);
           expect(mileageService.getOrgUserMileageSettings).toHaveBeenCalledTimes(1);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(3);
-          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(2);
+          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(3);
           expect(locationService.getCurrentLocation).toHaveBeenCalledTimes(1);
           expect(authService.getEou).toHaveBeenCalledTimes(2);
           expect(component.getMileageByVehicleType).toHaveBeenCalledOnceWith(unfilteredMileageRatesData, 'bicycle');

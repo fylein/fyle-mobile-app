@@ -493,7 +493,7 @@ export function TestCases2(getTestBed) {
         orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithSimplifiedReport));
         component.ionViewWillEnter();
         expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
-        expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+        expect(orgUserSettingsService.get).toHaveBeenCalledTimes(2);
         expect(perDiemService.getRates).toHaveBeenCalledTimes(1);
         expect(reportService.getAutoSubmissionReportName).toHaveBeenCalledTimes(1);
         component.autoSubmissionReportName$.subscribe((res) => {

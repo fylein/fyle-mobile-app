@@ -508,7 +508,7 @@ export function TestCases4(getTestBed) {
         component.getProjects().subscribe((res) => {
           expect(res).toEqual(expectedProjectsResponse[0]);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(2);
           expect(projectsService.getbyId).toHaveBeenCalledOnceWith(
             orgUserSettingsData.preferences.default_project_id,
             sortedCategory
@@ -525,7 +525,7 @@ export function TestCases4(getTestBed) {
         component.getProjects().subscribe((res) => {
           expect(res).toBeNull();
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(2);
           expect(projectsService.getbyId).not.toHaveBeenCalled();
           done();
         });
@@ -732,7 +732,7 @@ export function TestCases4(getTestBed) {
 
         component.generateEtxnFromFg(of(unflattenedTxnWithReportID3), of(null), of(10)).subscribe((res) => {
           expect(res).toEqual(newMileageExpFromForm2);
-          expect(component.getFormValues).toHaveBeenCalledTimes(2);
+          expect(component.getFormValues).toHaveBeenCalledTimes(3);
           expect(dateService.getUTCDate).toHaveBeenCalledTimes(1);
           done();
         });

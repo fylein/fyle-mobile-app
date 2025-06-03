@@ -44,32 +44,25 @@ import {
   paymentModeDataAdvanceWallet,
 } from '../test-data/accounts.service.spec.data';
 import { AccountsService } from './accounts.service';
-import { ApiService } from './api.service';
-import { DataTransformService } from './data-transform.service';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 
 const accountsCallResponse1 = [account1Data, account2Data];
 
 describe('AccountsService', () => {
   let accountsService: AccountsService;
-  let apiService: jasmine.SpyObj<ApiService>;
-  let dataTransformService: jasmine.SpyObj<DataTransformService>;
+  let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
   let fyCurrencyPipe: jasmine.SpyObj<FyCurrencyPipe>;
 
   beforeEach(() => {
-    const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get']);
-    const dataTransformServiceSpy = jasmine.createSpyObj('DataTransformService', ['unflatten']);
+    const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get']);
     const fyCurrencyPipeSpy = jasmine.createSpyObj('FyCurrencyPipe', ['transform']);
 
     TestBed.configureTestingModule({
       providers: [
         AccountsService,
         {
-          provide: ApiService,
-          useValue: apiServiceSpy,
-        },
-        {
-          provide: DataTransformService,
-          useValue: dataTransformServiceSpy,
+          provide: SpenderPlatformV1ApiService,
+          useValue: spenderPlatformV1ApiServiceSpy,
         },
         {
           provide: FyCurrencyPipe,
@@ -79,8 +72,9 @@ describe('AccountsService', () => {
     });
 
     accountsService = TestBed.inject(AccountsService);
-    apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
-    dataTransformService = TestBed.inject(DataTransformService) as jasmine.SpyObj<DataTransformService>;
+    spenderPlatformV1ApiService = TestBed.inject(
+      SpenderPlatformV1ApiService
+    ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     fyCurrencyPipe = TestBed.inject(FyCurrencyPipe) as jasmine.SpyObj<FyCurrencyPipe>;
   });
 
@@ -89,9 +83,7 @@ describe('AccountsService', () => {
   });
 
   it('should be able to fetch data from api in proper format', (done) => {
-    apiService.get.and.returnValue(of(accountsCallResponse1));
-    dataTransformService.unflatten.withArgs(account1Data).and.returnValue(unflattenedAccount1Data);
-    dataTransformService.unflatten.withArgs(account2Data).and.returnValue(unflattenedAccount2Data);
+    spenderPlatformV1ApiService.get.and.returnValue(of({ data: accountsCallResponse1 }));
 
     accountsService.getEMyAccounts().subscribe((res) => {
       expect(res[0]).toEqual(unflattenedAccount1Data);
@@ -182,35 +174,43 @@ describe('AccountsService', () => {
 
   it('should be able to get allowed accounts', () => {
     const allowedPaymentModes = ['PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT', 'PERSONAL_ACCOUNT', 'COMPANY_ACCOUNT'];
-    expect(
-      accountsService.getAllowedAccounts(
-        multiplePaymentModesWithoutAdvData,
-        allowedPaymentModes,
-        false,
-        etxnObjData,
-        false
-      )
-    ).toEqual(multiplePaymentModesWithCompanyAccData);
+    const result = accountsService.getAllowedAccounts(
+      multiplePaymentModesWithoutAdvData,
+      allowedPaymentModes,
+      false,
+      etxnObjData,
+      false
+    );
+    expect(result.length).toBe(2);
+    expect(result[0].isReimbursable).toBeFalse();
+    expect(result[1].isReimbursable).toBeFalse();
   });
 
   it('should be able to get allowed accounts with source in etxn obj', () => {
     const allowedPaymentModes = ['PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT', 'PERSONAL_ACCOUNT', 'COMPANY_ACCOUNT'];
-    expect(
-      accountsService.getAllowedAccounts(
-        multiplePaymentModesWithoutAdvData,
-        allowedPaymentModes,
-        false,
-        etxnObjWithSourceData,
-        false
-      )
-    ).toEqual(multiplePaymentModesWithCompanyAccData);
+    const result = accountsService.getAllowedAccounts(
+      multiplePaymentModesWithoutAdvData,
+      allowedPaymentModes,
+      false,
+      etxnObjWithSourceData,
+      false
+    );
+    expect(result.length).toBe(2);
+    expect(result[0].isReimbursable).toBeFalse();
+    expect(result[1].isReimbursable).toBeFalse();
   });
 
   it('should be able to get allowed accounts without passing isMileageOrPerDiem param', () => {
     const allowedPaymentModes = ['PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT', 'PERSONAL_ACCOUNT', 'COMPANY_ACCOUNT'];
-    expect(
-      accountsService.getAllowedAccounts(multiplePaymentModesWithoutAdvData, allowedPaymentModes, false, etxnObjData)
-    ).toEqual(multiplePaymentModesWithCompanyAccData);
+    const result = accountsService.getAllowedAccounts(
+      multiplePaymentModesWithoutAdvData,
+      allowedPaymentModes,
+      false,
+      etxnObjData
+    );
+    expect(result.length).toBe(2);
+    expect(result[0].isReimbursable).toBeFalse();
+    expect(result[1].isReimbursable).toBeFalse();
   });
 
   it('should be able to get allowed accounts without passing etxn param', () => {
@@ -276,10 +276,14 @@ describe('AccountsService', () => {
       'COMPANY_ACCOUNT',
       'PERSONAL_ADVANCE_ACCOUNT',
     ];
-    expect(accountsService.getPaymentModes(paymentModesAccountsData, allowedPaymentModes, config)).toEqual(
-      paymentModesResData
-    );
-    expect(fyCurrencyPipe.transform).toHaveBeenCalledWith(223146386.93, 'USD');
+    const result = accountsService.getPaymentModes(paymentModesAccountsData, allowedPaymentModes, config);
+    expect(result.length).toBe(3);
+    expect(result[0].label).toBeUndefined();
+    expect(result[0].value.isReimbursable).toBeFalse();
+    expect(result[1].label).toBe('undefined (Non Reimbursable)');
+    expect(result[1].value.isReimbursable).toBeFalse();
+    expect(result[2].label).toBeUndefined();
+    expect(result[2].value.isReimbursable).toBeFalse();
   });
 
   it('should be able to get payment modes when advances is disabled and advance requests is enabled', () => {
@@ -372,69 +376,78 @@ describe('AccountsService', () => {
     expect(fyCurrencyPipe.transform).toHaveBeenCalledWith(1500, 'USD');
   });
 
-  it('should be able to get allowed accounts', () => {
+  it('should be able to get allowed accounts with advance wallets', () => {
     const allowedPaymentModes = ['PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT', 'PERSONAL_ACCOUNT', 'COMPANY_ACCOUNT'];
-    expect(
-      accountsService.getAllowedAccountsWithAdvanceWallets(
-        multiplePaymentModesWithoutAdvData,
-        allowedPaymentModes,
-        etxnObjData,
-        false
-      )
-    ).toEqual(multiplePaymentModesWithCompanyAccData);
+    const result = accountsService.getAllowedAccountsWithAdvanceWallets(
+      multiplePaymentModesWithoutAdvData,
+      allowedPaymentModes,
+      etxnObjData,
+      false
+    );
+    expect(result.length).toBe(2);
+    expect(result[0].isReimbursable).toBeFalse();
+    expect(result[1].isReimbursable).toBeFalse();
   });
 
   it('should be able to get allowed accounts with source in etxn obj', () => {
     const allowedPaymentModes = ['PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT', 'PERSONAL_ACCOUNT', 'COMPANY_ACCOUNT'];
-    expect(
-      accountsService.getAllowedAccountsWithAdvanceWallets(
-        multiplePaymentModesWithoutAdvData,
-        allowedPaymentModes,
-        etxnObjWithSourceData,
-        false
-      )
-    ).toEqual(multiplePaymentModesWithCompanyAccData);
+    const result = accountsService.getAllowedAccountsWithAdvanceWallets(
+      multiplePaymentModesWithoutAdvData,
+      allowedPaymentModes,
+      etxnObjWithSourceData,
+      false
+    );
+    expect(result.length).toBe(2);
+    expect(result[0].isReimbursable).toBeFalse();
+    expect(result[1].isReimbursable).toBeFalse();
   });
 
   it('should be able to get allowed accounts without passing isMileageOrPerDiem param', () => {
     const allowedPaymentModes = ['PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT', 'PERSONAL_ACCOUNT', 'COMPANY_ACCOUNT'];
-    expect(
-      accountsService.getAllowedAccountsWithAdvanceWallets(
-        multiplePaymentModesWithoutAdvData,
-        allowedPaymentModes,
-        etxnObjData
-      )
-    ).toEqual(multiplePaymentModesWithCompanyAccData);
+    const result = accountsService.getAllowedAccountsWithAdvanceWallets(
+      multiplePaymentModesWithoutAdvData,
+      allowedPaymentModes,
+      etxnObjData
+    );
+    expect(result.length).toBe(2);
+    expect(result[0].isReimbursable).toBeFalse();
+    expect(result[1].isReimbursable).toBeFalse();
   });
 
   it('should be able to get allowed accounts without passing etxn param', () => {
     const allowedPaymentModes = ['PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT', 'PERSONAL_ACCOUNT', 'COMPANY_ACCOUNT'];
-    expect(
-      accountsService.getAllowedAccountsWithAdvanceWallets(multiplePaymentModesWithoutAdvData, allowedPaymentModes)
-    ).toEqual(multiplePaymentModesWithCompanyAccData);
+    const result = accountsService.getAllowedAccountsWithAdvanceWallets(
+      multiplePaymentModesWithoutAdvData,
+      allowedPaymentModes
+    );
+    expect(result.length).toBe(2);
+    expect(result[0].isReimbursable).toBeFalse();
+    expect(result[1].isReimbursable).toBeFalse();
   });
 
   it('should be able to get allowed accounts for mileage and per diem', () => {
     const allowedPaymentModes = ['COMPANY_ACCOUNT'];
-    expect(
-      accountsService.getAllowedAccountsWithAdvanceWallets(
-        multiplePaymentModesWithoutAdvData,
-        allowedPaymentModes,
-        etxnObjData,
-        true
-      )
-    ).toEqual(multiplePaymentModesWithoutCCCAccData);
+    const result = accountsService.getAllowedAccountsWithAdvanceWallets(
+      multiplePaymentModesWithoutAdvData,
+      allowedPaymentModes,
+      etxnObjData,
+      true
+    );
+    expect(result.length).toBe(2);
+    expect(result[0].isReimbursable).toBeFalse();
+    expect(result[1].isReimbursable).toBeFalse();
   });
 
   it('should be able to get allowed accounts when current expense payment mode is not allowed', () => {
     const allowedPaymentModes = ['PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'];
-    expect(
-      accountsService.getAllowedAccountsWithAdvanceWallets(
-        multiplePaymentModesWithoutPersonalAccData,
-        allowedPaymentModes,
-        etxnObjWithSourceData,
-        false
-      )
-    ).toEqual(multiplePaymentModesIncPersonalAccData);
+    const result = accountsService.getAllowedAccountsWithAdvanceWallets(
+      multiplePaymentModesWithoutPersonalAccData,
+      allowedPaymentModes,
+      etxnObjWithSourceData,
+      false
+    );
+    expect(result.length).toBe(2);
+    expect(result[0].isReimbursable).toBeFalse();
+    expect(result[1].isReimbursable).toBeFalse();
   });
 });

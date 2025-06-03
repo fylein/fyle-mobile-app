@@ -201,7 +201,11 @@ export function TestCases3(getTestBed) {
           expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-02-13T17:00:00.000Z'));
           expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-08-01'));
           expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-08-03'));
-          expect(res.tx).toEqual({ ...unflattenedTxnData.tx, ...perDiemTransaction });
+          expect(res.tx).toEqual({
+            ...unflattenedTxnData.tx,
+            ...perDiemTransaction,
+            source_account_id: null,
+          });
           expect(res.tx.skip_reimbursement).toBeFalse();
           expect(res.ou).toEqual(unflattenedTxnData.ou);
           expect(res.dataUrls).toEqual([]);
@@ -226,7 +230,11 @@ export function TestCases3(getTestBed) {
           expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-02-13T17:00:00.000Z'));
           expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-08-01'));
           expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-08-03'));
-          expect(res.tx).toEqual({ ...unflattenedTxnData.tx, ...perDiemTransaction });
+          expect(res.tx).toEqual({
+            ...unflattenedTxnData.tx,
+            ...perDiemTransaction,
+            source_account_id: null,
+          });
           expect(res.ou).toEqual(unflattenedTxnData.ou);
           expect(res.dataUrls).toEqual([]);
           done();
@@ -250,7 +258,12 @@ export function TestCases3(getTestBed) {
           expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-02-13T17:00:00.000Z'));
           expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-08-01'));
           expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-08-03'));
-          expect(res.tx).toEqual({ ...unflattenedTxnData.tx, ...perDiemTransaction, org_category_id: 16577 });
+          expect(res.tx).toEqual({
+            ...unflattenedTxnData.tx,
+            ...perDiemTransaction,
+            org_category_id: 16577,
+            source_account_id: null,
+          });
           expect(res.ou).toEqual(unflattenedTxnData.ou);
           expect(res.dataUrls).toEqual([]);
           done();
