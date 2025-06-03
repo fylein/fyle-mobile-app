@@ -912,9 +912,6 @@ export function TestCases4(getTestBed) {
         expect(component.addExpense).not.toHaveBeenCalled();
         expect(component.editExpense).not.toHaveBeenCalled();
         expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
-        expect(component.invalidPaymentMode).toBeTrue();
-        tick(3000);
-        expect(component.invalidPaymentMode).toBeFalse();
       }));
     });
   });

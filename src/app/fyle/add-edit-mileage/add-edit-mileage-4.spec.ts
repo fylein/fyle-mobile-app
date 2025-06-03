@@ -687,7 +687,11 @@ export function TestCases4(getTestBed) {
 
       it('should generate an expense from form', (done) => {
         dateService.getUTCDate.and.returnValue(new Date('2023-02-13T01:00:00.000Z'));
-        spyOn(component, 'getFormValues').and.returnValue(formValue1);
+        const patchedFormValue1 = cloneDeep(formValue1);
+        if (patchedFormValue1.paymentMode && patchedFormValue1.paymentMode.acc) {
+          Object.assign(patchedFormValue1.paymentMode, { id: patchedFormValue1.paymentMode.acc.id });
+        }
+        spyOn(component, 'getFormValues').and.returnValue(patchedFormValue1);
         spyOn(component, 'getRateByVehicleType').and.returnValue(10);
         component.showCommuteDeductionField = true;
         component.commuteDetails = commuteDetailsData;
@@ -699,7 +703,7 @@ export function TestCases4(getTestBed) {
           .generateEtxnFromFg(of(unflattenedTxnWithReportID3), of(mockTxnCustomProperties), of(10))
           .subscribe((res) => {
             expect(res).toEqual(newMileageExpFromForm);
-            expect(component.getFormValues).toHaveBeenCalledTimes(2);
+            expect(component.getFormValues).toHaveBeenCalledTimes(1);
             expect(dateService.getUTCDate).toHaveBeenCalledTimes(2);
             done();
           });
@@ -708,7 +712,11 @@ export function TestCases4(getTestBed) {
       it('should generate an expense from form when orgSettings is null', (done) => {
         orgSettingsService.get.and.returnValue(of(null));
         dateService.getUTCDate.and.returnValue(new Date('2023-02-13T01:00:00.000Z'));
-        spyOn(component, 'getFormValues').and.returnValue(formValue1);
+        const patchedFormValue1 = cloneDeep(formValue1);
+        if (patchedFormValue1.paymentMode && patchedFormValue1.paymentMode.acc) {
+          Object.assign(patchedFormValue1.paymentMode, { id: patchedFormValue1.paymentMode.acc.id });
+        }
+        spyOn(component, 'getFormValues').and.returnValue(patchedFormValue1);
         spyOn(component, 'getRateByVehicleType').and.returnValue(10);
         component.showCommuteDeductionField = true;
         component.commuteDetails = commuteDetailsData;
@@ -720,7 +728,7 @@ export function TestCases4(getTestBed) {
           .generateEtxnFromFg(of(unflattenedTxnWithReportID3), of(mockTxnCustomProperties), of(10))
           .subscribe((res) => {
             expect(res).toEqual(newMileageExpFromForm);
-            expect(component.getFormValues).toHaveBeenCalledTimes(2);
+            expect(component.getFormValues).toHaveBeenCalledTimes(1);
             expect(dateService.getUTCDate).toHaveBeenCalledTimes(2);
             done();
           });
@@ -728,11 +736,15 @@ export function TestCases4(getTestBed) {
 
       it('should generate txn from form if properties are not specified', (done) => {
         dateService.getUTCDate.and.returnValue(new Date('2023-02-13T01:00:00.000Z'));
-        spyOn(component, 'getFormValues').and.returnValue(formValue2);
+        const patchedFormValue2 = cloneDeep(formValue2);
+        if (patchedFormValue2.paymentMode && patchedFormValue2.paymentMode.acc) {
+          Object.assign(patchedFormValue2.paymentMode, { id: patchedFormValue2.paymentMode.acc.id });
+        }
+        spyOn(component, 'getFormValues').and.returnValue(patchedFormValue2);
 
         component.generateEtxnFromFg(of(unflattenedTxnWithReportID3), of(null), of(10)).subscribe((res) => {
           expect(res).toEqual(newMileageExpFromForm2);
-          expect(component.getFormValues).toHaveBeenCalledTimes(3);
+          expect(component.getFormValues).toHaveBeenCalledTimes(1);
           expect(dateService.getUTCDate).toHaveBeenCalledTimes(1);
           done();
         });

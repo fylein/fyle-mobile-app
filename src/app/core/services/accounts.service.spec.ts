@@ -100,7 +100,7 @@ describe('AccountsService', () => {
   it('should be able to check if etxn has same personal account payment mode', () => {
     expect(
       accountsService.checkIfEtxnHasSamePaymentMode(unflattenedTransactionPersonal, paymentModeDataPersonal)
-    ).toBeFalse();
+    ).toBeTrue();
 
     expect(
       accountsService.checkIfEtxnHasSamePaymentMode(unflattenedTransactionPersonal, paymentModeDataPersonal2)

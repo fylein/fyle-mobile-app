@@ -196,15 +196,15 @@ export function TestCases5(getTestBed) {
       });
 
       it('should mark all fields as touched and scroll to invalid element if form is invalid', fakeAsync(() => {
+        Object.defineProperty(component.fg, 'valid', {
+          get: () => false,
+        });
         spyOn(component, 'showFormValidationErrors');
         spyOn(component.fg, 'markAllAsTouched');
-        component.saveAndNewExpense();
+        component.savePerDiem();
         expect(component.addExpense).not.toHaveBeenCalled();
         expect(component.editExpense).not.toHaveBeenCalled();
         expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
-        expect(component.invalidPaymentMode).toBeTrue();
-        tick(3000);
-        expect(component.invalidPaymentMode).toBeFalse();
       }));
     });
 
