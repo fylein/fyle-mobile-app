@@ -96,15 +96,6 @@ export class TransactionsOutboxService {
 
   async fileUpload(dataUrl: string, fileType: string): Promise<FileObject> {
     return new Promise((resolve, reject) => {
-      // Validation: Check if dataUrl is valid and starts with 'data:' prefix which is required for base64 encoded data URLs
-      if (!dataUrl || typeof dataUrl !== 'string' || !dataUrl.startsWith('data:')) {
-        throw new Error('Invalid data URL format');
-      }
-      // Validation: Check if base64 data is present
-      const base64Data = dataUrl.split(',')[1];
-      if (!base64Data) {
-        throw new Error('No base64 data found in data URL');
-      }
       let fileExtension = fileType;
       let contentType = 'application/pdf';
 
@@ -121,27 +112,21 @@ export class TransactionsOutboxService {
         .toPromise()
         .then((fileObj: PlatformFile) => {
           const uploadUrl = fileObj.upload_url;
-          // Convert dataUrl to blob and check blob size
+          // check from here
           return fetch(dataUrl)
             .then((res) => res.blob())
-            .then((blob) => {
-              if (!blob || blob.size === 0) {
-                throw new Error('Empty file content');
-              }
-              return this.uploadData(uploadUrl, blob, contentType)
+            .then((blob) =>
+              this.uploadData(uploadUrl, blob, contentType)
                 .toPromise()
-                .then(() => {
-                  this.trackingService.fileUploadComplete({
-                    'File ID': fileObj.id,
-                    'File Type': fileType,
-                    'File Size': blob.size,
-                  });
-                  resolve(fileObj);
+                .then(() => resolve(fileObj))
+                .catch((err) => {
+                  reject(err);
                 })
-                .catch(reject);
-            });
+            );
         })
-        .catch(reject);
+        .catch((err) => {
+          reject(err);
+        });
     });
   }
 
