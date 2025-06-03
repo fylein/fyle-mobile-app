@@ -15,6 +15,7 @@ import { AdvanceWallet } from 'src/app/core/models/platform/v1/advance-wallet.mo
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { AccountDetail } from '../models/account-detail.model';
+
 @Injectable({
   providedIn: 'root',
 })
@@ -40,6 +41,37 @@ export class AccountsService {
           response.data.map((accountRaw) => this.transformToExtendedAccount(accountRaw))
         )
       );
+  }
+
+  private transformToExtendedAccount(accountRaw: FlattenedAccount): ExtendedAccount {
+    const isPersonalCashAccount = accountRaw.type === 'PERSONAL_CASH_ACCOUNT';
+    
+    const transformedAccount: ExtendedAccount = {
+      id: accountRaw.id,
+      type: accountRaw.type,
+      currency: accountRaw.currency,
+      amount: accountRaw.current_balance_amount,
+      balance_amount: accountRaw.current_balance_amount,
+      created_at: accountRaw.created_at,
+      updated_at: accountRaw.updated_at,
+      org_id: accountRaw.org_id,
+      user_id: accountRaw.user_id,
+      isReimbursable: isPersonalCashAccount,
+      org: {
+        id: accountRaw.org_id,
+        domain: accountRaw.org_domain || ''
+      },
+      advance: {
+        id: accountRaw.advance_id || '',
+        purpose: accountRaw.advance_purpose || '',
+        number: accountRaw.advance_number || ''
+      },
+      orig: {
+        currency: accountRaw.orig_currency || accountRaw.currency,
+        amount: accountRaw.orig_amount || accountRaw.current_balance_amount
+      }
+    };
+    return transformedAccount;
   }
 
   // Filter user accounts by allowed payment modes and return an observable of allowed accounts
@@ -104,6 +136,17 @@ export class AccountsService {
     }
 
     return finalPaymentModes;
+  }
+
+  private getAccountDisplayName(type: AccountType): string {
+    const accountDisplayNameMapping: Record<string, string> = {
+      'PERSONAL_CASH_ACCOUNT': 'Personal Card/Cash',
+      'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT': 'Corporate Card',
+      'PERSONAL_ADVANCE_ACCOUNT': 'Advance Wallet',
+      'COMPANY_ACCOUNT': 'Paid by Company'
+    };
+    const displayName = accountDisplayNameMapping[type] || type;
+    return displayName;
   }
 
   // Filter user accounts by allowed payment modes and return an observable of allowed accounts
@@ -470,6 +513,7 @@ export class AccountsService {
               if (!accountCopy.acc) {
                 accountCopy.acc = {} as unknown as AccountDetail;
               }
+
               accountCopy.acc.isReimbursable = false;
               accountCopy.acc.displayName = 'Corporate Card';
               return accountCopy;
