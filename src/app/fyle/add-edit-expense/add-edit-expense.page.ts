@@ -1218,13 +1218,19 @@ export class AddEditExpensePage implements OnInit {
     if (this.activatedRoute.snapshot.params.dataUrl && this.activatedRoute.snapshot.params.canExtractData !== 'false') {
       const dataUrl = this.activatedRoute.snapshot.params.dataUrl as string;
       const b64Image = dataUrl.replace('data:image/jpeg;base64,', '');
+      const scanStartTime = Date.now();
       return from(this.transactionOutboxService.parseReceipt(b64Image)).pipe(
         timeout(15000),
-        map((parsedResponse) => ({
-          parsedResponse: parsedResponse.data,
-        })),
+        map((parsedResponse) => {
+          const scanEndTime = Date.now();
+          const scanDuration = (scanEndTime - scanStartTime) / 1000; // in seconds
+          this.trackingService.receiptScanTimeInstaFyle({ duration: scanDuration, fileType: 'image' });
+          return {
+            parsedResponse: parsedResponse.data,
+          };
+        }),
         catchError(() =>
-          of({
+           of({
             error: true,
             parsedResponse: {
               source: 'MOBILE_INSTA',

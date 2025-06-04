@@ -188,7 +188,8 @@ describe('AddEditExpensePage', () => {
       'showSuggestedDuplicates',
       'fileUploadComplete',
       'eventTrack',
-      'receiptScanTime'
+      'receiptScanTime',
+      'receiptScanTimeInstaFyle',
     ]);
     const recentLocalStorageItemsServiceSpy = jasmine.createSpyObj('RecentLocalStorageItemsService', ['get']);
     const recentlyUsedItemsServiceSpy = jasmine.createSpyObj('RecentlyUsedItemsService', [

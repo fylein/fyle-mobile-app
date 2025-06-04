@@ -355,26 +355,22 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
    * If yes, Mark user active directly.
    * If no, Redirect user to setup password page.
    */
-  handleInviteLinkFlow(roles: string[]): Observable<ExtendedOrgUser> {
-    return this.userService.getUserPasswordStatus().pipe(
-      switchMap((passwordStatus) => {
-        if (passwordStatus.is_password_required && !passwordStatus.is_password_set) {
-          this.navigateToSetupPage(roles);
-        } else {
-          return this.markUserActive();
-        }
-        return of(null);
-      })
-    );
+  handleInviteLinkFlow(roles: string[], isPasswordSetRequired?: boolean): Observable<ExtendedOrgUser> {
+    if (isPasswordSetRequired) {
+      this.navigateToSetupPage(roles);
+    } else {
+      return this.markUserActive();
+    }
+    return of(null);
   }
 
   /*
    * If the user is coming from the invite link, Follow the invite link flow.
    * Otherwise, show the user a popup to verify their email.
    */
-  handlePendingDetails(roles: string[], isFromInviteLink?: boolean): Observable<ExtendedOrgUser> {
+  handlePendingDetails(roles: string[], isFromInviteLink?: boolean, isPasswordSetRequired?: boolean): Observable<ExtendedOrgUser> {
     if (isFromInviteLink) {
-      return this.handleInviteLinkFlow(roles);
+      return this.handleInviteLinkFlow(roles, isPasswordSetRequired);
     } else {
       this.showEmailNotVerifiedAlert();
     }
@@ -387,14 +383,23 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     eou: ExtendedOrgUser;
     isFromInviteLink?: boolean;
   }): Observable<ExtendedOrgUser> {
-    if (config.isPendingDetails) {
-      return this.handlePendingDetails(config.roles, config?.isFromInviteLink);
-    } else if (config.eou.ou.status === 'ACTIVE') {
-      this.navigateToDashboard();
-    } else if (config.eou.ou.status === 'DISABLED') {
-      this.router.navigate(['/', 'auth', 'disabled']);
-    }
-    return of(null);
+    /**
+     * User status is marked as active during invite flow even though the user has not set password.
+     * Hence the API `getUserPasswordStatus` is mandatory
+     */
+    return this.userService.getUserPasswordStatus().pipe(
+      switchMap((passwordStatus) => {
+        const isPasswordSetRequired = passwordStatus.is_password_required && !passwordStatus.is_password_set;
+        if (isPasswordSetRequired || (!isPasswordSetRequired && config.isPendingDetails)) {
+          return this.handlePendingDetails(config.roles, config.isFromInviteLink, isPasswordSetRequired);
+        } else if (config.eou.ou.status === 'ACTIVE') {
+          this.navigateToDashboard();
+        } else if (config.eou.ou.status === 'DISABLED') {
+          this.router.navigate(['/', 'auth', 'disabled']);
+        }
+        return of(null);
+      })
+    );
   }
 
   async proceed(isFromInviteLink?: boolean): Promise<void> {
