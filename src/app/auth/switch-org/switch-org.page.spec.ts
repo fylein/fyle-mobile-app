@@ -661,7 +661,6 @@ describe('SwitchOrgPage', () => {
   });
 
   describe('navigateBasedOnUserStatus(): ', () => {
-
     beforeEach(() => {
       userService.getUserPasswordStatus.and.returnValue(
         of({
@@ -761,7 +760,11 @@ describe('SwitchOrgPage', () => {
       component.navigateBasedOnUserStatus(config).subscribe((res) => {
         expect(res).toEqual(apiEouRes);
         expect(userService.getUserPasswordStatus).toHaveBeenCalledTimes(1);
-        expect(component.handlePendingDetails).toHaveBeenCalledOnceWith(config.roles, config.isFromInviteLink, config.isPasswordSetRequired);
+        expect(component.handlePendingDetails).toHaveBeenCalledOnceWith(
+          config.roles,
+          config.isFromInviteLink,
+          config.isPasswordSetRequired
+        );
         done();
       });
     });
@@ -912,10 +915,16 @@ describe('SwitchOrgPage', () => {
     }));
   });
 
-  it('getOrgsWhichContainSearchText(): should return orgs with matching search text', () => {
-    const result = component.getOrgsWhichContainSearchText(orgData2, 'Fyle Loaded');
+  describe('getOrgsWhichContainSearchText(): ', () => {
+    it('should return orgs with matching search text', () => {
+      const result = component.getOrgsWhichContainSearchText(orgData2, 'Fyle Loaded');
+      expect(result).toEqual([orgData2[1]]);
+    });
 
-    expect(result).toEqual([orgData2[1]]);
+    it('should return orgs sorted by name', () => {
+      const result = component.getOrgsWhichContainSearchText(orgData2, 'Loaded');
+      expect(result).toEqual([orgData2[1], orgData2[0]]);
+    });
   });
 
   it('resetSearch(): should reset search bar', () => {
