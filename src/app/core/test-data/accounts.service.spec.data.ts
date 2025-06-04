@@ -835,6 +835,7 @@ export const paymentModeDataCCC = deepFreeze({
   },
   currency: null,
   amount: null,
+  isReimbursable: false,
 });
 
 export const paymentModesData = deepFreeze([
@@ -3491,3 +3492,50 @@ export const paymentModesConfig = deepFreeze({
   expenseType: ExpenseType.MILEAGE,
   isPaymentModeConfigurationsEnabled: true,
 });
+
+export const paymentModesWithAdvanceWalletsTestData = deepFreeze([
+  {
+    type: 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT',
+    acc: {
+      id: 'acc1',
+      type: AccountType.CCC,
+      displayName: 'Corporate Card',
+      isReimbursable: false,
+      created_at: new Date(),
+      updated_at: new Date(),
+      name: 'Corporate Credit Card Account',
+      currency: 'USD',
+      target_balance_amount: 0,
+      current_balance_amount: 0,
+      tentative_balance_amount: 0,
+      category: null,
+    },
+    org: { id: null, domain: null },
+    advance: { purpose: null, number: null, id: null },
+    orig: { currency: null, amount: null },
+    currency: null,
+    amount: null,
+  },
+  {
+    type: 'PERSONAL_CASH_ACCOUNT',
+    acc: {
+      id: 'acc2',
+      type: AccountType.PERSONAL,
+      displayName: 'Personal Card/Cash',
+      isReimbursable: true,
+      created_at: new Date(),
+      updated_at: new Date(),
+      name: 'Personal Account',
+      currency: 'USD',
+      target_balance_amount: 0,
+      current_balance_amount: 0,
+      tentative_balance_amount: 0,
+      category: null,
+    },
+    org: { id: null, domain: null },
+    advance: { purpose: null, number: null, id: null },
+    orig: { currency: null, amount: null },
+    currency: null,
+    amount: null,
+  },
+]);
