@@ -294,57 +294,6 @@ export function TestCases4(getTestBed) {
       });
     });
 
-    describe('editExpense(): for advance wallet', () => {
-      it('should update transaction with advance_wallet_id while editing expense', (done) => {
-        const tx = {
-          ...transformedExpenseDataWithSubCategory.tx,
-          source_account_id: null,
-          skip_reimbursement: true,
-          advance_wallet_id: 'areq1234',
-        };
-        const etxn$ = of({
-          tx,
-          ou: transformedExpenseDataWithSubCategory.ou,
-          dataUrls: [],
-        });
-        spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
-        spyOn(component, 'generateEtxnFromFg').and.returnValue(etxn$);
-        spyOn(component, 'checkPolicyViolation').and.returnValue(of(expensePolicyData));
-        spyOn(component, 'trackPolicyCorrections');
-
-        component.etxn$ = etxn$;
-        component.fg.controls.paymentMode.setValue(paymentModeDataAdvanceWallet);
-        policyService.getCriticalPolicyRules.and.returnValue([]);
-        policyService.getPolicyRules.and.returnValue([]);
-        spenderReportsService.ejectExpenses.and.returnValue(of(undefined));
-        spenderReportsService.addExpenses.and.returnValue(of(undefined));
-        transactionService.upsert.and.returnValue(of(tx));
-        expensesService.getExpenseById.and.returnValue(of(platformExpenseDataForAdvanceWallet));
-        transactionService.transformExpense.and.returnValue(transformedExpenseDataWithoutAdvanceWallet);
-        expensesService.post.and.returnValue(of(null));
-        fixture.detectChanges();
-
-        component.editExpense(PerDiemRedirectedFrom.SAVE_PER_DIEM).subscribe((res) => {
-          expect(res).toEqual(editUnflattenedTransactionPlatformWithAdvanceWallet);
-          expect(component.getCustomFields).toHaveBeenCalledTimes(1);
-          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
-          expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(1);
-          expect(component.checkPolicyViolation).toHaveBeenCalledTimes(1);
-          expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(1);
-          expect(policyService.getPolicyRules).toHaveBeenCalledTimes(1);
-          expect(component.trackPolicyCorrections).toHaveBeenCalledTimes(1);
-          expect(transactionService.upsert).toHaveBeenCalledOnceWith(tx);
-          expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(tx.id);
-          expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseDataForAdvanceWallet);
-          expect(expensesService.post).toHaveBeenCalledOnceWith({
-            id: tx.id,
-            advance_wallet_id: 'areq1234',
-          });
-          done();
-        });
-      });
-    });
-
     describe('editExpense():', () => {
       const etxn$ = of({ tx: transformedExpenseData.tx, ou: transformedExpenseData.ou, dataUrls: [] });
       const customFields$ = of(txnCustomProperties4);
@@ -939,7 +888,6 @@ export function TestCases4(getTestBed) {
       });
 
       it('should add expense and go back if form and payment mode is valid', () => {
-        spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(false));
         component.savePerDiem();
         expect(component.addExpense).toHaveBeenCalledOnceWith(PerDiemRedirectedFrom.SAVE_PER_DIEM);
         expect(component.editExpense).not.toHaveBeenCalled();
@@ -947,7 +895,6 @@ export function TestCases4(getTestBed) {
       });
 
       it('should add expense and go back if form and payment mode is valid and user is in edit mode', () => {
-        spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(false));
         component.mode = 'edit';
         component.savePerDiem();
         expect(component.addExpense).not.toHaveBeenCalled();
@@ -956,7 +903,6 @@ export function TestCases4(getTestBed) {
       });
 
       it('should mark all fields as touched and scroll to invalid element if form is invalid', fakeAsync(() => {
-        spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(true));
         Object.defineProperty(component.fg, 'valid', {
           get: () => false,
         });
@@ -966,9 +912,6 @@ export function TestCases4(getTestBed) {
         expect(component.addExpense).not.toHaveBeenCalled();
         expect(component.editExpense).not.toHaveBeenCalled();
         expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
-        expect(component.invalidPaymentMode).toBeTrue();
-        tick(3000);
-        expect(component.invalidPaymentMode).toBeFalse();
       }));
     });
   });

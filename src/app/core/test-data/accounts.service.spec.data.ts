@@ -85,7 +85,7 @@ export const unflattenedAccount1Data = deepFreeze({
   org: { id: null, domain: null },
   advance: {
     purpose: null,
-    advanceNumber: null,
+    number: null,
     id: null,
   },
   orig: { currency: null, amount: null },
@@ -148,7 +148,7 @@ export const unflattenedAccount2Data = deepFreeze({
   },
   advance: {
     purpose: 'erertert',
-    advanceNumber: 'A/2022/03/T/4',
+    number: 'A/2022/03/T/4',
     id: 'adve6o3JdrDbI',
   },
   orig: {
@@ -175,7 +175,7 @@ export const unflattenedAccount3Data = deepFreeze({
   ou: { id: 'ouCI4UQ2G0K1', org_id: 'orrjqbDbeP9p' },
   us: { email: 'ajain@fyle.in', full_name: 'abhishek' },
   org: { id: null, domain: null },
-  advance: { purpose: 'ddsfd', advanceNumber: 'A/2020/03/T/2', id: 'advT96eCXZtCo' },
+  advance: { purpose: 'ddsfd', number: 'A/2020/03/T/2', id: 'advT96eCXZtCo' },
   orig: { currency: 'USD', amount: 500 },
   currency: 'USD',
   amount: 800000,
@@ -197,7 +197,7 @@ export const unflattenedAccount4Data = deepFreeze({
   ou: { id: 'ouCI4UQ2G0K1', org_id: 'orrjqbDbeP9p' },
   us: { email: 'ajain@fyle.in', full_name: 'abhishek' },
   org: { id: null, domain: null },
-  advance: { purpose: 'ddsfd', advanceNumber: 'A/2020/03/T/2', id: 'advT96eCXZtCo' },
+  advance: { purpose: 'ddsfd', number: 'A/2020/03/T/2', id: 'advT96eCXZtCo' },
   orig: null,
   currency: 'USD',
   amount: 800000,
@@ -360,7 +360,7 @@ export const unflattenedTransactionPersonal: UnflattenedTransaction = deepFreeze
   },
   source: {
     account_type: AccountType.PERSONAL,
-    account_id: 'accZ1IWjhjLv4',
+    account_id: 'accZ1IWjhjLyu4',
   },
   external: {
     expense_id: null,
@@ -835,6 +835,7 @@ export const paymentModeDataCCC = deepFreeze({
   },
   currency: null,
   amount: null,
+  isReimbursable: false,
 });
 
 export const paymentModesData = deepFreeze([
@@ -1201,7 +1202,7 @@ export const paymentModeDataAdvance = deepFreeze({
   },
   advance: {
     purpose: 'erertert',
-    advanceNumber: 'A/2022/03/T/4',
+    number: 'A/2022/03/T/4',
     id: 'adve6o3JdrDbI',
   },
   orig: {
@@ -1230,7 +1231,7 @@ export const paymentModeDataMultipleAdvance = deepFreeze({
   ou: { id: 'ouCI4UQ2G0K1', org_id: 'orrjqbDbeP9p' },
   us: { email: 'ajain@fyle.in', full_name: 'abhishek' },
   org: { id: null, domain: null },
-  advance: { purpose: 'ddsfd', advanceNumber: 'A/2020/03/T/2', id: 'advT96eCXZtCo' },
+  advance: { purpose: 'ddsfd', number: 'A/2020/03/T/2', id: 'advT96eCXZtCo' },
   orig: { currency: 'USD', amount: 500 },
   currency: 'USD',
   amount: 800000,
@@ -1254,7 +1255,7 @@ export const paymentModeDataMultipleAdvWithoutOrigAmt = deepFreeze({
   ou: { id: 'ouCI4UQ2G0K1', org_id: 'orrjqbDbeP9p' },
   us: { email: 'ajain@fyle.in', full_name: 'abhishek' },
   org: { id: null, domain: null },
-  advance: { purpose: 'ddsfd', advanceNumber: 'A/2020/03/T/2', id: 'advT96eCXZtCo' },
+  advance: { purpose: 'ddsfd', number: 'A/2020/03/T/2', id: 'advT96eCXZtCo' },
   orig: null,
   currency: 'USD',
   amount: 800000,
@@ -1289,7 +1290,7 @@ export const multiplePaymentModesData: ExtendedAccount[] = deepFreeze([
     },
     advance: {
       purpose: null,
-      advanceNumber: null,
+      number: null,
       id: null,
     },
     orig: {
@@ -1363,7 +1364,7 @@ export const multiplePaymentModesData: ExtendedAccount[] = deepFreeze([
     },
     advance: {
       purpose: 'erertert',
-      advanceNumber: 'A/2022/03/T/4',
+      number: 'A/2022/03/T/4',
       id: 'adve6o3JdrDbI',
     },
     orig: {
@@ -1559,7 +1560,7 @@ export const multiplePaymentModesWithCompanyAccData: ExtendedAccount[] = deepFre
     },
     advance: {
       purpose: null,
-      advanceNumber: null,
+      number: null,
       id: null,
     },
     orig: {
@@ -1841,7 +1842,7 @@ export const multipleAdvAccountsData: ExtendedAccount[] = deepFreeze([
     },
     advance: {
       purpose: 'erertert',
-      advanceNumber: 'A/2022/03/T/4',
+      number: 'A/2022/03/T/4',
       id: 'adve6o3JdrDbI',
     },
     orig: {
@@ -1880,7 +1881,7 @@ export const multipleAdvAccountsData: ExtendedAccount[] = deepFreeze([
     },
     advance: {
       purpose: 'erertert',
-      advanceNumber: 'A/2022/03/T/5',
+      number: 'A/2022/03/T/5',
       id: 'adve6o3JdrDbj',
     },
     orig: {
@@ -3220,7 +3221,7 @@ export const paymentModesResData = deepFreeze([
       },
       advance: {
         purpose: 'erertert',
-        advanceNumber: 'A/2022/03/T/4',
+        number: 'A/2022/03/T/4',
         id: 'adve6o3JdrDbI',
       },
       orig: {
@@ -3335,7 +3336,7 @@ export const paymentModesAccountsData = deepFreeze([
     },
     advance: {
       purpose: 'erertert',
-      advanceNumber: 'A/2022/03/T/4',
+      number: 'A/2022/03/T/4',
       id: 'adve6o3JdrDbI',
     },
     orig: {
@@ -3375,7 +3376,7 @@ export const accountsData: ExtendedAccount[] = deepFreeze([
     },
     advance: {
       purpose: null,
-      advanceNumber: null,
+      number: null,
       id: null,
     },
     orig: {
@@ -3412,7 +3413,7 @@ export const accountsData: ExtendedAccount[] = deepFreeze([
     },
     advance: {
       purpose: null,
-      advanceNumber: null,
+      number: null,
       id: null,
     },
     orig: {
@@ -3449,7 +3450,7 @@ export const accountsData: ExtendedAccount[] = deepFreeze([
     },
     advance: {
       purpose: 'test',
-      advanceNumber: 'A/2022/04/T/1',
+      number: 'A/2022/04/T/1',
       id: 'adv7pbzHwP5ci',
     },
     orig: {
@@ -3491,3 +3492,50 @@ export const paymentModesConfig = deepFreeze({
   expenseType: ExpenseType.MILEAGE,
   isPaymentModeConfigurationsEnabled: true,
 });
+
+export const paymentModesWithAdvanceWalletsTestData = deepFreeze([
+  {
+    type: 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT',
+    acc: {
+      id: 'acc1',
+      type: AccountType.CCC,
+      displayName: 'Corporate Card',
+      isReimbursable: false,
+      created_at: new Date(),
+      updated_at: new Date(),
+      name: 'Corporate Credit Card Account',
+      currency: 'USD',
+      target_balance_amount: 0,
+      current_balance_amount: 0,
+      tentative_balance_amount: 0,
+      category: null,
+    },
+    org: { id: null, domain: null },
+    advance: { purpose: null, number: null, id: null },
+    orig: { currency: null, amount: null },
+    currency: null,
+    amount: null,
+  },
+  {
+    type: 'PERSONAL_CASH_ACCOUNT',
+    acc: {
+      id: 'acc2',
+      type: AccountType.PERSONAL,
+      displayName: 'Personal Card/Cash',
+      isReimbursable: true,
+      created_at: new Date(),
+      updated_at: new Date(),
+      name: 'Personal Account',
+      currency: 'USD',
+      target_balance_amount: 0,
+      current_balance_amount: 0,
+      tentative_balance_amount: 0,
+      category: null,
+    },
+    org: { id: null, domain: null },
+    advance: { purpose: null, number: null, id: null },
+    orig: { currency: null, amount: null },
+    currency: null,
+    amount: null,
+  },
+]);

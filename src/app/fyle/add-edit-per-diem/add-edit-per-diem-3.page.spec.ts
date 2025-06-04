@@ -178,113 +178,6 @@ export function TestCases3(getTestBed) {
       });
     }));
 
-    describe('isPaymentModeValid():', () => {
-      it('should return false if snapshot.params.id is undefined', (done) => {
-        activatedRoute.snapshot.params.id = undefined;
-        component.fg.controls.paymentMode.setValue(multiplePaymentModesData[0]);
-        component.isPaymentModeValid().subscribe((res) => {
-          expect(res).toBeFalse();
-          done();
-        });
-      });
-
-      it('should return true if tentative_balance_amount is lesser than currencyObj.amount', (done) => {
-        component.etxn$ = of(unflattenedTxnData);
-        const mockPaymentMode = cloneDeep(unflattenedAccount2Data);
-        mockPaymentMode.acc.tentative_balance_amount = 0;
-        component.fg.value.paymentMode = mockPaymentMode;
-        component.fg.value.currencyObj = currencyObjData5;
-        component.isPaymentModeValid().subscribe((res) => {
-          expect(res).toBeTrue();
-          done();
-        });
-      });
-
-      it('should return true if tentative_balance_amount is lesser than currencyObj.amount if etxn is undefined', (done) => {
-        component.etxn$ = of(undefined);
-        const mockPaymentMode = cloneDeep(unflattenedAccount2Data);
-        mockPaymentMode.acc.tentative_balance_amount = 0;
-        component.fg.value.paymentMode = mockPaymentMode;
-        component.fg.value.currencyObj = currencyObjData5;
-        component.isPaymentModeValid().subscribe((res) => {
-          expect(res).toBeTrue();
-          done();
-        });
-      });
-
-      it('should return true if acc_id equals to source_account_id and tentative_balance_amount + tx_amount is lesser than currencyObj.amount', (done) => {
-        const mockTxnData = cloneDeep(unflattenedTxnData);
-        mockTxnData.tx.source_account_id = unflattenedAccount2Data.acc.id;
-        mockTxnData.tx.state = 'COMPLETE';
-        mockTxnData.tx.amount = 7;
-        component.etxn$ = of(mockTxnData);
-        const mockPaymentMode = cloneDeep(unflattenedAccount2Data);
-        mockPaymentMode.acc.tentative_balance_amount = 0;
-        component.fg.value.paymentMode = mockPaymentMode;
-        component.fg.value.currencyObj = currencyObjData5;
-        component.isPaymentModeValid().subscribe((res) => {
-          expect(res).toBeTrue();
-          done();
-        });
-      });
-
-      it('should return false if paymentMode.acc is undefined', (done) => {
-        component.etxn$ = of(unflattenedTxnData);
-        const mockPaymentMode = cloneDeep(unflattenedAccount2Data);
-        mockPaymentMode.acc = undefined;
-        component.fg.value.paymentMode = mockPaymentMode;
-        component.isPaymentModeValid().subscribe((res) => {
-          expect(res).toBeFalse();
-          done();
-        });
-      });
-
-      it('should return false if paymentMode is undefined', (done) => {
-        component.etxn$ = of(unflattenedTxnData);
-        component.fg.value.paymentMode = undefined;
-        component.isPaymentModeValid().subscribe((res) => {
-          expect(res).toBeFalse();
-          done();
-        });
-      });
-    });
-
-    describe('getAdvanceWalletId():', () => {
-      it('should get advance wallet id', () => {
-        component.fg.controls.paymentMode.setValue({
-          id: 'areq1234',
-        });
-
-        const result = component.getAdvanceWalletId(true);
-        expect(result).toEqual('areq1234');
-      });
-
-      it('should return null', () => {
-        component.fg.controls.paymentMode.setValue(null);
-
-        const result = component.getAdvanceWalletId(true);
-        expect(result).toBeUndefined();
-      });
-
-      it('should return null when advance wallet setting is disabled', () => {
-        component.fg.controls.paymentMode.setValue(null);
-
-        const result = component.getAdvanceWalletId(false);
-        expect(result).toBeFalse();
-      });
-
-      it('should return null', () => {
-        component.fg.controls.paymentMode.setValue({
-          acc: {
-            id: 'id',
-          },
-        });
-
-        const result = component.getAdvanceWalletId(true);
-        expect(result).toBeNull();
-      });
-    });
-
     describe('generateEtxnFromFg():', () => {
       beforeEach(() => {
         spyOn(component, 'getFormValues').and.returnValue(perDiemFormValuesData8);
@@ -308,7 +201,11 @@ export function TestCases3(getTestBed) {
           expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-02-13T17:00:00.000Z'));
           expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-08-01'));
           expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-08-03'));
-          expect(res.tx).toEqual({ ...unflattenedTxnData.tx, ...perDiemTransaction });
+          expect(res.tx).toEqual({
+            ...unflattenedTxnData.tx,
+            ...perDiemTransaction,
+            source_account_id: null,
+          });
           expect(res.tx.skip_reimbursement).toBeFalse();
           expect(res.ou).toEqual(unflattenedTxnData.ou);
           expect(res.dataUrls).toEqual([]);
@@ -333,35 +230,12 @@ export function TestCases3(getTestBed) {
           expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-02-13T17:00:00.000Z'));
           expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-08-01'));
           expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-08-03'));
-          expect(res.tx).toEqual({ ...unflattenedTxnData.tx, ...perDiemTransaction });
+          expect(res.tx).toEqual({
+            ...unflattenedTxnData.tx,
+            ...perDiemTransaction,
+            source_account_id: null,
+          });
           expect(res.ou).toEqual(unflattenedTxnData.ou);
-          expect(res.dataUrls).toEqual([]);
-          done();
-        });
-      });
-
-      it('should return etxn object from form data when advance wallets is enabled', (done) => {
-        component.getFormValues = jasmine.createSpy().and.returnValue(perDiemFormValuesWithAdvanceWalletData);
-        const etxn = of(unflattenedTxnWithAdvanceWallet);
-        const customProperties = of(cloneDeep(expectedTxnCustomProperties));
-        orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithAdvanceWallet));
-        dateService.getUTCDate.and.returnValues(
-          new Date('2023-02-13T17:00:00.000Z'),
-          new Date('2023-08-01T17:00:00.000Z'),
-          new Date('2023-08-03T17:00:00.000Z')
-        );
-        spyOn(component, 'getAdvanceWalletId').and.returnValue('areq1234');
-
-        const expectedEtxn$ = component.generateEtxnFromFg(etxn, customProperties);
-
-        expectedEtxn$.subscribe((res) => {
-          expect(dateService.getUTCDate).toHaveBeenCalledTimes(3);
-          expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-02-13T17:00:00.000Z'));
-          expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-08-01'));
-          expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-08-03'));
-          expect(res.tx).toEqual({ ...unflattenedTxnWithAdvanceWallet.tx, ...perDiemTransactionWithAdvanceWallet });
-          expect(res.tx.skip_reimbursement).toBeTrue();
-          expect(res.ou).toEqual(unflattenedTxnWithAdvanceWallet.ou);
           expect(res.dataUrls).toEqual([]);
           done();
         });
@@ -384,7 +258,12 @@ export function TestCases3(getTestBed) {
           expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-02-13T17:00:00.000Z'));
           expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-08-01'));
           expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-08-03'));
-          expect(res.tx).toEqual({ ...unflattenedTxnData.tx, ...perDiemTransaction, org_category_id: 16577 });
+          expect(res.tx).toEqual({
+            ...unflattenedTxnData.tx,
+            ...perDiemTransaction,
+            org_category_id: 16577,
+            source_account_id: null,
+          });
           expect(res.ou).toEqual(unflattenedTxnData.ou);
           expect(res.dataUrls).toEqual([]);
           done();

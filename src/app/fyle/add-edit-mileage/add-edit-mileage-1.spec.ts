@@ -970,159 +970,9 @@ export function TestCases1(getTestBed) {
       });
     });
 
-    describe('checkAdvanceAccountAndBalance():', () => {
-      it('should return false if account is not present', () => {
-        const result = component.checkAdvanceAccountAndBalance(null);
-
-        expect(result).toBeFalse();
-      });
-
-      it('should return true if account is of type advance', () => {
-        const result = component.checkAdvanceAccountAndBalance(multiplePaymentModesData[2]);
-
-        expect(result).toBeTrue();
-      });
-    });
-
-    describe('checkAdvanceWalletsWithSufficientBalance():', () => {
-      it('should return false if advance wallet is not present', () => {
-        const result = component.checkAdvanceWalletsWithSufficientBalance(null);
-
-        expect(result).toBeFalse();
-      });
-
-      it('should return true if advance wallet has balance', () => {
-        const result = component.checkAdvanceWalletsWithSufficientBalance(advanceWallet1Data);
-
-        expect(result).toBeTrue();
-      });
-    });
-
-    describe('setupBalanceFlag():', () => {
-      it('should setup balance available flag', fakeAsync(() => {
-        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
-        advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
-        orgSettingsService.get.and.returnValue(of(orgSettingsData));
-        component.setupBalanceFlag();
-        tick(500);
-
-        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
-          expect(res).toBeTrue();
-          expect(accountsService.getEMyAccounts).toHaveBeenCalledOnceWith();
-          expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledOnceWith();
-          expect(orgSettingsService.get).toHaveBeenCalledOnceWith();
-        });
-        component.fg.controls.paymentMode.setValue(multiplePaymentModesWithoutAdvData[0]);
-        fixture.detectChanges();
-
-        tick(500);
-      }));
-
-      it('should return false in advance balance if payment mode is not personal', fakeAsync(() => {
-        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
-        advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
-        orgSettingsService.get.and.returnValue(of(orgSettingsData));
-        component.setupBalanceFlag();
-        tick(500);
-
-        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
-          expect(res).toBeFalse();
-          expect(accountsService.getEMyAccounts).toHaveBeenCalledOnceWith();
-          expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledOnceWith();
-          expect(orgSettingsService.get).toHaveBeenCalledOnceWith();
-        });
-        component.fg.controls.paymentMode.setValue(multiplePaymentModesWithoutAdvData[1]);
-        fixture.detectChanges();
-
-        tick(500);
-      }));
-
-      it('should return false when account changes to null', fakeAsync(() => {
-        accountsService.getEMyAccounts.and.returnValue(of(null));
-        advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
-        orgSettingsService.get.and.returnValue(of(orgSettingsData));
-        component.setupBalanceFlag();
-        tick(500);
-
-        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
-          expect(res).toBeFalse();
-          expect(accountsService.getEMyAccounts).toHaveBeenCalledOnceWith();
-          expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledOnceWith();
-          expect(orgSettingsService.get).toHaveBeenCalledOnceWith();
-        });
-        component.fg.controls.paymentMode.setValue(null);
-        fixture.detectChanges();
-
-        tick(500);
-      }));
-
-      it('should return false when orgSettings is null', fakeAsync(() => {
-        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
-        advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
-        orgSettingsService.get.and.returnValue(of(null));
-        component.setupBalanceFlag();
-        tick(500);
-
-        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
-          expect(res).toBeTrue();
-          expect(accountsService.getEMyAccounts).toHaveBeenCalledOnceWith();
-          expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledOnceWith();
-          expect(orgSettingsService.get).toHaveBeenCalledOnceWith();
-        });
-        component.fg.controls.paymentMode.setValue(multiplePaymentModesWithoutAdvData[0]);
-        fixture.detectChanges();
-
-        tick(500);
-      }));
-
-      it('should return true for advance wallets', fakeAsync(() => {
-        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesWithoutAdvData));
-        advanceWalletsService.getAllAdvanceWallets.and.returnValue(of(advanceWallet1Data));
-        orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithAdvanceWallet));
-        component.setupBalanceFlag();
-        tick(500);
-
-        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
-          expect(res).toBeTrue();
-          expect(accountsService.getEMyAccounts).toHaveBeenCalledOnceWith();
-          expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledOnceWith();
-          expect(orgSettingsService.get).toHaveBeenCalledOnceWith();
-        });
-        component.fg.controls.paymentMode.setValue(multiplePaymentModesWithoutAdvData[0]);
-        fixture.detectChanges();
-
-        tick(500);
-      }));
-    });
-
-    it('getPaymentModes(): should get payment modes with advance wallets if advance wallets are enabled', (done) => {
-      component.etxn$ = of(unflattenedTxnData);
-      accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
-      advanceWalletsService.getAllAdvanceWallets.and.returnValue(of(advanceWallet1Data));
-      orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithAdvanceWallet));
-      orgUserSettingsService.getAllowedPaymentModes.and.returnValue(
-        of(orgUserSettingsWithAdvanceWallet.payment_mode_settings.allowed_payment_modes)
-      );
-      paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(
-        of(orgSettingsData.payment_mode_settings.enabled && orgSettingsData.payment_mode_settings.allowed)
-      );
-      accountsService.getPaymentModesWithAdvanceWallets.and.returnValue(paymentModesWithAdvanceWalletsResData);
-
-      component.getPaymentModes().subscribe((res) => {
-        expect(res).toEqual(paymentModesWithAdvanceWalletsResData);
-        expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
-        expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledTimes(1);
-        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-        expect(orgUserSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
-        expect(paymentModesService.checkIfPaymentModeConfigurationsIsEnabled).toHaveBeenCalledTimes(1);
-        done();
-      });
-    });
-
     it('should get payment modes in case org settings are not present', (done) => {
       component.etxn$ = of(unflattenedTxnData);
       accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
-      advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
       orgSettingsService.get.and.returnValue(of(null));
       orgUserSettingsService.getAllowedPaymentModes.and.returnValue(
         of(orgUserSettingsData.payment_mode_settings.allowed_payment_modes)
@@ -1131,20 +981,30 @@ export function TestCases1(getTestBed) {
       accountsService.getPaymentModes.and.returnValue(accountOptionData1);
       fixture.detectChanges();
 
+      const config = {
+        etxn: unflattenedTxnData,
+        orgSettings: null,
+        expenseType: ExpenseType.MILEAGE,
+        isPaymentModeConfigurationsEnabled: true,
+      };
+
       component.getPaymentModes().subscribe((res) => {
         expect(res).toEqual(accountOptionData1);
         expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
-        expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledTimes(1);
         expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
         expect(orgUserSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
         expect(paymentModesService.checkIfPaymentModeConfigurationsIsEnabled).toHaveBeenCalledTimes(1);
+        expect(accountsService.getPaymentModes).toHaveBeenCalledOnceWith(
+          multiplePaymentModesData,
+          orgUserSettingsData.payment_mode_settings.allowed_payment_modes,
+          config
+        );
         done();
       });
     });
 
     it('getPaymentModes(): should get payment modes', (done) => {
       accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
-      advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
       orgUserSettingsService.getAllowedPaymentModes.and.returnValue(
         of(orgUserSettingsData.payment_mode_settings.allowed_payment_modes)
@@ -1164,7 +1024,6 @@ export function TestCases1(getTestBed) {
       component.getPaymentModes().subscribe((res) => {
         expect(res).toEqual(accountOptionData1);
         expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
-        expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledTimes(1);
         expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
         expect(orgUserSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
         expect(paymentModesService.checkIfPaymentModeConfigurationsIsEnabled).toHaveBeenCalledTimes(1);

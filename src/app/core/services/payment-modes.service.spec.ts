@@ -102,8 +102,7 @@ describe('PaymentModesService', () => {
           expect(orgUserSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
           expect(accountService.setAccountProperties).toHaveBeenCalledOnceWith(
             multiplePaymentModesData[0],
-            AccountType.PERSONAL,
-            false
+            AccountType.PERSONAL
           );
           done();
         });
@@ -127,8 +126,7 @@ describe('PaymentModesService', () => {
           expect(orgUserSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
           expect(accountService.setAccountProperties).toHaveBeenCalledOnceWith(
             multiplePaymentModesData[1],
-            AccountType.CCC,
-            false
+            AccountType.CCC
           );
           done();
         });
@@ -147,8 +145,7 @@ describe('PaymentModesService', () => {
           expect(orgUserSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
           expect(accountService.setAccountProperties).toHaveBeenCalledOnceWith(
             multiplePaymentModesData[0],
-            AccountType.COMPANY,
-            false
+            AccountType.COMPANY
           );
           done();
         });
@@ -167,8 +164,7 @@ describe('PaymentModesService', () => {
           expect(orgUserSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
           expect(accountService.setAccountProperties).toHaveBeenCalledOnceWith(
             multiplePaymentModesData[0],
-            AccountType.COMPANY,
-            false
+            AccountType.COMPANY
           );
           done();
         });

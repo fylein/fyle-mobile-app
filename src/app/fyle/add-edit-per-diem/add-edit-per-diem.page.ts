@@ -1651,12 +1651,15 @@ export class AddEditPerDiemPage implements OnInit {
 
         if (paymentMode) {
           if (paymentMode.type === 'PERSONAL_CASH_ACCOUNT') {
-            sourceAccountId = paymentMode.id ;
+            sourceAccountId = paymentMode.id;
             if (paymentMode.acc?.displayName === 'Paid by Company' || !paymentMode.isReimbursable) {
               skipReimbursement = true;
             } else {
               skipReimbursement = false;
             }
+          } else if (paymentMode.type === 'PERSONAL') {
+            sourceAccountId = paymentMode.id;
+            skipReimbursement = false;
           }
         }
 

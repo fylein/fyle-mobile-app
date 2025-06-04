@@ -958,8 +958,9 @@ describe('TransactionService', () => {
     paymentModesService.getDefaultAccount.and.returnValue(of(accountsData[0]));
 
     const expectedResult = {
-      source_account_id: 'acc5APeygFjRd',
+      source_account_id: accountsData[0].id,
       skip_reimbursement: true,
+      advance_wallet_id: null,
     };
 
     // @ts-ignore

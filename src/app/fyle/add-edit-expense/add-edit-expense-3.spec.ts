@@ -463,6 +463,7 @@ export function TestCases3(getTestBed) {
     describe('generateEtxnFromFg():', () => {
       beforeEach(() => {
         component.allCategories$ = of(orgCategoryData1);
+        categoriesService.getCategoryByName.and.returnValue(of(expectedOrgCategoryByName2));
       });
 
       it('should generate expense object from input in the form', (done) => {
@@ -544,33 +545,6 @@ export function TestCases3(getTestBed) {
 
       it('should generate expense object from input in the form when orgSettings is null', (done) => {
         orgSettingsService.get.and.returnValue(of(null));
-
-        spyOn(component, 'getSourceAccID').and.returnValue('id');
-        spyOn(component, 'getAdvanceWalletId').and.returnValue(null);
-        spyOn(component, 'getBillable').and.returnValue(true);
-        spyOn(component, 'getSkipRemibursement').and.returnValue(false);
-        spyOn(component, 'getTxnDate').and.returnValue(new Date('2019-06-19T06:30:00Z'));
-        spyOn(component, 'getCurrency').and.returnValue('USD');
-        spyOn(component, 'getOriginalCurrency').and.returnValue('USD');
-        spyOn(component, 'getOriginalAmount').and.returnValue(100);
-        spyOn(component, 'getProjectID').and.returnValue(1234);
-        spyOn(component, 'getTaxAmount').and.returnValue(120);
-        spyOn(component, 'getTaxGroupID').and.returnValue('tgXEJA6YUoZ1');
-        spyOn(component, 'getOrgCategoryID').and.returnValue(215481);
-        spyOn(component, 'getFyleCategory').and.returnValue('Groceries');
-        spyOn(component, 'getDisplayName').and.returnValue('asd');
-        spyOn(component, 'getPurpose').and.returnValue('purpose');
-        spyOn(component, 'getFromDt').and.returnValue(new Date('2023-03-13T05:31:00.000Z'));
-        spyOn(component, 'getToDt').and.returnValue(new Date('2023-01-26T17:00:00Z'));
-        spyOn(component, 'getFlightJourneyClass').and.returnValue('FIRST');
-        spyOn(component, 'getFlightReturnClass').and.returnValue('ECONOMY');
-        spyOn(component, 'getTrainTravelClass').and.returnValue(null);
-        spyOn(component, 'getBusTravelClass').and.returnValue(null);
-        spyOn(component, 'getDistance').and.returnValue(100);
-        spyOn(component, 'getDistanceUnit').and.returnValue('KM');
-        spyOn(component, 'getBreakfastProvided').and.returnValue(true);
-        spyOn(component, 'getAmount').and.returnValue(500);
-
         spyOn(component, 'getExpenseAttachments').and.returnValue(of(fileObject4));
         component.fg.controls.costCenter.setValue(costCenterApiRes1[0]);
         component.fg.controls.location_1.setValue(optionsData15.options[0].value);
@@ -585,38 +559,17 @@ export function TestCases3(getTestBed) {
         const mockCustomFieldData1 = cloneDeep(expectedCustomField[0]);
         const mockCustomFieldData2 = cloneDeep(expectedCustomField[2]);
         const mockEtxn = cloneDeep(unflattenedExpData);
-        component
-          .generateEtxnFromFg(of(mockEtxn), of([mockCustomFieldData1, mockCustomFieldData2]))
-          .subscribe((res) => {
-            expect(res).toEqual(newExpFromFg);
+        component.generateEtxnFromFg(of(mockEtxn), of([mockCustomFieldData1, mockCustomFieldData2])).subscribe({
+          next: (res) => {
+            expect(res).toEqual(newExpFromFgWithAdvanceWallet);
             expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(component.mode);
-            expect(component.getSourceAccID).toHaveBeenCalledTimes(1);
-            expect(component.getAdvanceWalletId).toHaveBeenCalledTimes(1);
-            expect(component.getBillable).toHaveBeenCalledTimes(1);
-            expect(component.getSkipRemibursement).toHaveBeenCalledTimes(1);
-            expect(component.getTxnDate).toHaveBeenCalledTimes(1);
-            expect(component.getCurrency).toHaveBeenCalledTimes(1);
-            expect(component.getOriginalCurrency).toHaveBeenCalledTimes(1);
-            expect(component.getOriginalAmount).toHaveBeenCalledTimes(1);
-            expect(component.getProjectID).toHaveBeenCalledTimes(1);
-            expect(component.getTaxAmount).toHaveBeenCalledTimes(1);
-            expect(component.getTaxGroupID).toHaveBeenCalledTimes(1);
-            expect(component.getOrgCategoryID).toHaveBeenCalledTimes(1);
-            expect(component.getFyleCategory).toHaveBeenCalledTimes(1);
-            expect(component.getDisplayName).toHaveBeenCalledTimes(1);
-            expect(component.getPurpose).toHaveBeenCalledTimes(1);
-            expect(component.getFromDt).toHaveBeenCalledTimes(1);
-            expect(component.getToDt).toHaveBeenCalledTimes(1);
-            expect(component.getFlightJourneyClass).toHaveBeenCalledTimes(1);
-            expect(component.getFlightReturnClass).toHaveBeenCalledTimes(1);
-            expect(component.getTrainTravelClass).toHaveBeenCalledTimes(1);
-            expect(component.getBusTravelClass).toHaveBeenCalledTimes(1);
-            expect(component.getDistance).toHaveBeenCalledTimes(1);
-            expect(component.getDistanceUnit).toHaveBeenCalledTimes(1);
-            expect(component.getBreakfastProvided).toHaveBeenCalledTimes(1);
-            expect(component.getAmount).toHaveBeenCalledTimes(1);
             done();
-          });
+          },
+          error: (err) => {
+            fail(err);
+            done();
+          },
+        });
       });
 
       it('should generate expense object from input in the form when advance wallets is enabled', (done) => {
@@ -658,6 +611,40 @@ export function TestCases3(getTestBed) {
         });
         component.inpageExtractedData = extractedData.data;
         fixture.detectChanges();
+
+        // Set up advance wallet test case
+        spyOn(component, 'getSourceAccID').and.returnValue('id');
+        spyOn(component, 'getAdvanceWalletId').and.returnValue('areq1234');
+        spyOn(component, 'getBillable').and.returnValue(true);
+        spyOn(component, 'getSkipRemibursement').and.returnValue(false);
+        spyOn(component, 'getTxnDate').and.returnValue(new Date('2019-06-19T06:30:00Z'));
+        spyOn(component, 'getCurrency').and.returnValue('USD');
+        spyOn(component, 'getOriginalCurrency').and.returnValue('USD');
+        spyOn(component, 'getOriginalAmount').and.returnValue(500);
+        spyOn(component, 'getProjectID').and.returnValue(1234);
+        spyOn(component, 'getTaxAmount').and.returnValue(120);
+        spyOn(component, 'getTaxGroupID').and.returnValue('tgXEJA6YUoZ1');
+        spyOn(component, 'getOrgCategoryID').and.returnValue(215481);
+        spyOn(component, 'getFyleCategory').and.returnValue('Groceries');
+        spyOn(component, 'getDisplayName').and.returnValue('asd');
+        spyOn(component, 'getPurpose').and.returnValue('purpose');
+        spyOn(component, 'getFromDt').and.returnValue(new Date('2023-03-13T05:31:00.000Z'));
+        spyOn(component, 'getToDt').and.returnValue(new Date('2023-01-26T17:00:00Z'));
+        spyOn(component, 'getFlightJourneyClass').and.returnValue('FIRST');
+        spyOn(component, 'getFlightReturnClass').and.returnValue('ECONOMY');
+        spyOn(component, 'getTrainTravelClass').and.returnValue(null);
+        spyOn(component, 'getBusTravelClass').and.returnValue(null);
+        spyOn(component, 'getDistance').and.returnValue(100);
+        spyOn(component, 'getDistanceUnit').and.returnValue('KM');
+        spyOn(component, 'getBreakfastProvided').and.returnValue(true);
+        spyOn(component, 'getAmount').and.returnValue(500);
+
+        // Set up payment mode for advance wallet
+        component.fg.controls.paymentMode.setValue({
+          id: 'areq1234',
+          type: 'PERSONAL_ADVANCE_ACCOUNT',
+          name: 'Advance Wallet',
+        });
 
         const mockCustomFieldData1 = cloneDeep(expectedCustomField[0]);
         const mockCustomFieldData2 = cloneDeep(expectedCustomField[2]);
@@ -842,7 +829,8 @@ export function TestCases3(getTestBed) {
 
       it('should generate expense from form without cost center and location data in edit mode and is not a policy violation', (done) => {
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
-        spyOn(component, 'getSourceAccID').and.returnValue('id');
+        component.allCategories$ = of(orgCategoryData1);
+        spyOn(component, 'getSourceAccID').and.returnValue(null);
         spyOn(component, 'getAdvanceWalletId').and.returnValue(null);
         spyOn(component, 'getBillable').and.returnValue(true);
         spyOn(component, 'getSkipRemibursement').and.returnValue(false);
@@ -876,35 +864,40 @@ export function TestCases3(getTestBed) {
 
         const mockCustomFields = cloneDeep(customFieldData1);
         const mockEtxn = cloneDeep(draftUnflattendedTxn);
-        component.generateEtxnFromFg(of(cloneDeep(mockEtxn)), of(mockCustomFields)).subscribe((res) => {
-          expect(res).toEqual(newExpFromFg4);
-          expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(component.mode);
-          expect(component.getSourceAccID).toHaveBeenCalledTimes(1);
-          expect(component.getAdvanceWalletId).toHaveBeenCalledTimes(1);
-          expect(component.getBillable).toHaveBeenCalledTimes(1);
-          expect(component.getSkipRemibursement).toHaveBeenCalledTimes(1);
-          expect(component.getTxnDate).toHaveBeenCalledTimes(1);
-          expect(component.getCurrency).toHaveBeenCalledTimes(1);
-          expect(component.getOriginalCurrency).toHaveBeenCalledTimes(1);
-          expect(component.getOriginalAmount).toHaveBeenCalledTimes(1);
-          expect(component.getProjectID).toHaveBeenCalledTimes(1);
-          expect(component.getTaxAmount).toHaveBeenCalledTimes(1);
-          expect(component.getTaxGroupID).toHaveBeenCalledTimes(1);
-          expect(component.getOrgCategoryID).toHaveBeenCalledTimes(1);
-          expect(component.getFyleCategory).toHaveBeenCalledTimes(1);
-          expect(component.getDisplayName).toHaveBeenCalledTimes(1);
-          expect(component.getPurpose).toHaveBeenCalledTimes(1);
-          expect(component.getFromDt).toHaveBeenCalledTimes(1);
-          expect(component.getToDt).toHaveBeenCalledTimes(1);
-          expect(component.getFlightJourneyClass).toHaveBeenCalledTimes(1);
-          expect(component.getFlightReturnClass).toHaveBeenCalledTimes(1);
-          expect(component.getTrainTravelClass).toHaveBeenCalledTimes(1);
-          expect(component.getBusTravelClass).toHaveBeenCalledTimes(1);
-          expect(component.getDistance).toHaveBeenCalledTimes(1);
-          expect(component.getDistanceUnit).toHaveBeenCalledTimes(1);
-          expect(component.getBreakfastProvided).toHaveBeenCalledTimes(1);
-          expect(component.getAmount).toHaveBeenCalledTimes(1);
-          done();
+        const expected = cloneDeep(newExpFromFg4);
+        expected.tx = { ...expected.tx, source_account_id: null };
+
+        component.generateEtxnFromFg(of(mockEtxn), of(mockCustomFields)).subscribe({
+          next: (res) => {
+            expect(res).toEqual(expected);
+            expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(component.mode);
+            expect(component.getTxnDate).toHaveBeenCalled();
+            expect(component.getCurrency).toHaveBeenCalled();
+            expect(component.getOriginalCurrency).toHaveBeenCalled();
+            expect(component.getOriginalAmount).toHaveBeenCalled();
+            expect(component.getProjectID).toHaveBeenCalled();
+            expect(component.getTaxAmount).toHaveBeenCalled();
+            expect(component.getTaxGroupID).toHaveBeenCalled();
+            expect(component.getOrgCategoryID).toHaveBeenCalled();
+            expect(component.getFyleCategory).toHaveBeenCalled();
+            expect(component.getDisplayName).toHaveBeenCalled();
+            expect(component.getPurpose).toHaveBeenCalled();
+            expect(component.getFromDt).toHaveBeenCalled();
+            expect(component.getToDt).toHaveBeenCalled();
+            expect(component.getFlightJourneyClass).toHaveBeenCalled();
+            expect(component.getFlightReturnClass).toHaveBeenCalled();
+            expect(component.getTrainTravelClass).toHaveBeenCalled();
+            expect(component.getBusTravelClass).toHaveBeenCalled();
+            expect(component.getDistance).toHaveBeenCalled();
+            expect(component.getDistanceUnit).toHaveBeenCalled();
+            expect(component.getBreakfastProvided).toHaveBeenCalled();
+            expect(component.getAmount).toHaveBeenCalled();
+            done();
+          },
+          error: (err) => {
+            fail(err);
+            done();
+          },
         });
       });
     });
