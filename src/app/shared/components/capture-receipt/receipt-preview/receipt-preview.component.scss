@@ -86,7 +86,8 @@
     background-color: #f5f5f5;
     border-radius: 8px;
     margin: 16px;
-    background-color: white;
+    background-color: white !important;
+    z-index: 12;
 
     .receipt-preview__image--arrow-anticlockwise {
       transform: rotate(-90deg);
