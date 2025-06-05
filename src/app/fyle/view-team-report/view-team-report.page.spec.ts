@@ -1130,4 +1130,32 @@ describe('ViewTeamReportPageV2', () => {
       expect(component.updateReportName).not.toHaveBeenCalled();
     }));
   });
+
+  describe('showReportNameChangeSuccessToast():', () => {
+    it('should show success toast with correct message and track event', () => {
+      const properties = {
+        data: {
+          icon: 'check-square-fill',
+          showCloseButton: true,
+          message: 'Report name changed successfully.',
+        },
+        duration: 3000,
+      };
+
+      snackbarProperties.setSnackbarProperties.and.returnValue(properties);
+
+      component.showReportNameChangeSuccessToast();
+
+      expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith('success', {
+        message: 'Report name changed successfully.',
+      });
+      expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
+        ...properties,
+        panelClass: ['msb-success'],
+      });
+      expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
+        ToastContent: 'Report name changed successfully.',
+      });
+    });
+  });
 });
