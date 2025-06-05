@@ -24,6 +24,7 @@ import {
   newEstatusData1,
   systemComments1,
   systemCommentsWithSt,
+  systemExtendedComments,
   userComments,
 } from 'src/app/core/test-data/status.service.spec.data';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
@@ -1129,6 +1130,38 @@ describe('ViewTeamReportPageV2', () => {
       });
       expect(component.updateReportName).not.toHaveBeenCalled();
     }));
+  });
+
+  describe('convertToEstatus():', () => {
+    it('should convert comments to extended status array', () => {
+      const result = component.convertToEstatus(systemExtendedComments);
+
+      expect(result).toEqual([
+        {
+          st_comment: 'changed to APPROVER_PENDING by Suyash (suyash.p@fyle.in)',
+          isSelfComment: false,
+          isBotComment: true,
+          isOthersComment: true,
+          st_created_at: new Date('2024-05-21T11:07:01.99036+00:00'),
+          st_id: 'styBS6Mt3srX',
+          st_diff: null,
+        },
+        {
+          st_comment: 'submitted by Suyash (suyash.p@fyle.in)',
+          isSelfComment: false,
+          isBotComment: true,
+          isOthersComment: true,
+          st_created_at: new Date('2024-05-21T11:07:02.102867+00:00'),
+          st_id: 'stI6NDy8La7b',
+          st_diff: null,
+        },
+      ]);
+    });
+
+    it('should handle empty comments array', () => {
+      const result = component.convertToEstatus([]);
+      expect(result).toEqual([]);
+    });
   });
 
   describe('showReportNameChangeSuccessToast():', () => {
