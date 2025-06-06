@@ -720,8 +720,8 @@ export class TransactionService {
               corporate_card_nickname: transaction?.corporate_card_nickname,
             }))
           : null,
-        source_account_id: expense.source_account_id,
-        advance_wallet_id: expense.advance_wallet_id,
+        source_account_id: expense.advance_wallet_id ? null : expense.source_account_id,
+        advance_wallet_id: expense.advance_wallet_id || null,
         org_category_code: expense.category?.code,
         project_code: expense.project?.code,
       },
@@ -828,7 +828,7 @@ export class TransactionService {
   private getPersonalAccount(): Observable<{ source_account_id: string }> {
     return this.accountsService.getEMyAccounts().pipe(
       map((accounts) => {
-        const account = accounts?.find((account) => account?.acc?.type === 'PERSONAL_ACCOUNT');
+        const account = accounts?.find((account) => account?.acc?.type === 'PERSONAL_CASH_ACCOUNT');
         return {
           source_account_id: account?.acc?.id,
         };
@@ -836,7 +836,7 @@ export class TransactionService {
     );
   }
 
-  private getTxnAccount(): Observable<{ source_account_id: string; skip_reimbursement: boolean }> {
+  private getTxnAccount(): Observable<{ source_account_id: string; skip_reimbursement: boolean; advance_wallet_id?: string }> {
     return forkJoin({
       orgSettings: this.orgSettingsService.get(),
       accounts: this.accountsService.getEMyAccounts(),
@@ -845,12 +845,31 @@ export class TransactionService {
       switchMap(({ orgSettings, accounts, orgUserSettings }) =>
         this.paymentModesService.getDefaultAccount(orgSettings, accounts, orgUserSettings)
       ),
-      map((account) => {
-        const accountDetails = {
-          source_account_id: account.acc.id,
-          skip_reimbursement: !account.acc.isReimbursable || false,
-        };
-        return accountDetails;
+      switchMap(account => {
+        if (!account) {
+          return this.getPersonalAccount().pipe(
+            map(personalAccount => ({
+              source_account_id: personalAccount.source_account_id,
+              skip_reimbursement: false,
+              advance_wallet_id: null
+            }))
+          );
+        }
+
+        // For advance wallet accounts, ensure source_account_id is null
+        if (account.type === 'PERSONAL_ADVANCE_ACCOUNT') {
+          return of({
+            source_account_id: null,
+            skip_reimbursement: true,
+            advance_wallet_id: account.id
+          });
+        }
+
+        return of({
+          source_account_id: account.id,
+          skip_reimbursement: account.type === 'PERSONAL_CASH_ACCOUNT' ? false : true,
+          advance_wallet_id: null
+        });
       })
     );
   }
