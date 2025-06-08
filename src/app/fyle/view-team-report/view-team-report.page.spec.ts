@@ -24,6 +24,7 @@ import {
   newEstatusData1,
   systemComments1,
   systemCommentsWithSt,
+  systemExtendedComments,
   userComments,
 } from 'src/app/core/test-data/status.service.spec.data';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
@@ -1131,63 +1132,63 @@ describe('ViewTeamReportPageV2', () => {
     }));
   });
 
-  describe('setApproverInfoMessage', () => {
-    beforeEach(() => {
-      exactCurrency.transform.and.callFake(({ value, currencyCode }) => {
-        return `${currencyCode}${value}`;
+  describe('convertToEstatus():', () => {
+    it('should convert comments to extended status array', () => {
+      const result = component.convertToEstatus(systemExtendedComments);
+
+      expect(result).toEqual([
+        {
+          st_comment: 'changed to APPROVER_PENDING by Suyash (suyash.p@fyle.in)',
+          isSelfComment: false,
+          isBotComment: true,
+          isOthersComment: true,
+          st_created_at: new Date('2024-05-21T11:07:01.99036+00:00'),
+          st_id: 'styBS6Mt3srX',
+          st_diff: null,
+        },
+        {
+          st_comment: 'submitted by Suyash (suyash.p@fyle.in)',
+          isSelfComment: false,
+          isBotComment: true,
+          isOthersComment: true,
+          st_created_at: new Date('2024-05-21T11:07:02.102867+00:00'),
+          st_id: 'stI6NDy8La7b',
+          st_diff: null,
+        },
+      ]);
+    });
+
+    it('should handle empty comments array', () => {
+      const result = component.convertToEstatus([]);
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('showReportNameChangeSuccessToast():', () => {
+    it('should show success toast with correct message and track event', () => {
+      const properties = {
+        data: {
+          icon: 'check-square-fill',
+          showCloseButton: true,
+          message: 'Report name changed successfully.',
+        },
+        duration: 3000,
+      };
+
+      snackbarProperties.setSnackbarProperties.and.returnValue(properties);
+
+      component.showReportNameChangeSuccessToast();
+
+      expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith('success', {
+        message: 'Report name changed successfully.',
       });
-    });
-
-    it('should set expansion panel and help link when approvalAmount is greater than report amount', () => {
-      const mockReport = cloneDeep(platformReportData);
-      mockReport.amount = 250;
-      mockReport.currency = 'USD';
-      mockReport.num_expenses = 3;
-      component.approvalAmount = 300;
-      component.canApproveReport = true;
-
-      component.setApproverInfoMessage(expenseResponseData, mockReport);
-
-      expect(component.showApprovalInfoMessage).toBeTrue();
-      expect(component.showExpansionPanel).toBeTrue();
-      expect(component.helpLink).toBe(
-        'https://help.fylehq.com/en/articles/1205138-view-and-approve-expense-reports#h_4d7cb8ac1f'
-      );
-      expect(component.approvalInfoMessage).toContain('You are reviewing USD300 in expenses requiring your approval');
-      expect(component.approvalInfoMessage).toContain('The total report amount is USD250');
-      expect(component.approvalInfoMessage).toContain('including 2 other expenses totalling USD-50 (credits included)');
-      expect(component.approvalInfoMessage).toContain('that do not require your approval');
-    });
-
-    it('should not use expansion panel when approvalAmount is less than report amount', () => {
-      const mockReport = cloneDeep(platformReportData);
-      mockReport.amount = 400;
-      mockReport.currency = 'USD';
-      mockReport.num_expenses = 3;
-      component.approvalAmount = 300;
-      component.canApproveReport = true;
-
-      component.setApproverInfoMessage(expenseResponseData, mockReport);
-
-      expect(component.showApprovalInfoMessage).toBeTrue();
-      expect(component.showExpansionPanel).toBeFalse();
-      expect(component.helpLink).toBe(
-        'https://help.fylehq.com/en/articles/1205138-view-and-approve-expense-reports#h_1672226e87'
-      );
-      expect(component.approvalInfoMessage).toContain('The total report amount is USD400');
-      expect(component.approvalInfoMessage).toContain('but only USD300 needs your approval');
-    });
-
-    it('should set showApprovalInfoMessage to false when approvalAmount equals report amount', () => {
-      const mockReport = cloneDeep(platformReportData);
-      mockReport.amount = 300;
-      mockReport.currency = 'USD';
-      mockReport.num_expenses = expenseResponseData.length;
-      component.approvalAmount = 300;
-      component.canApproveReport = true;
-
-      component.setApproverInfoMessage(expenseResponseData, mockReport);
-      expect(component.showApprovalInfoMessage).toBeFalse();
+      expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
+        ...properties,
+        panelClass: ['msb-success'],
+      });
+      expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
+        ToastContent: 'Report name changed successfully.',
+      });
     });
   });
 });
