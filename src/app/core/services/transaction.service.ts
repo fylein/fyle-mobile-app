@@ -829,7 +829,7 @@ export class TransactionService {
   private getPersonalAccount(): Observable<{ source_account_id: string }> {
     return this.accountsService.getEMyAccounts().pipe(
       map((accounts) => {
-        const account = accounts?.find((account) => account?.acc?.type === 'PERSONAL_CASH_ACCOUNT');
+        const account = accounts?.find((account) => account?.acc?.type === AccountType.PERSONAL);
         return {
           source_account_id: account?.acc?.id,
         };
@@ -842,7 +842,6 @@ export class TransactionService {
     skip_reimbursement: boolean;
     advance_wallet_id?: string;
   }> {
-
     return forkJoin({
       orgSettings: this.orgSettingsService.get(),
       accounts: this.accountsService.getEMyAccounts(),
@@ -863,7 +862,7 @@ export class TransactionService {
         }
 
         // For advance wallet accounts, ensure source_account_id is null
-        if (account.type === 'PERSONAL_ADVANCE_ACCOUNT') {
+        if (account.type === AccountType.ADVANCE) {
           return of({
             source_account_id: null,
             skip_reimbursement: true,
@@ -873,7 +872,7 @@ export class TransactionService {
 
         return of({
           source_account_id: account.id,
-          skip_reimbursement: account.type === 'PERSONAL_CASH_ACCOUNT' ? false : true,
+          skip_reimbursement: account.type === AccountType.PERSONAL ? false : true,
           advance_wallet_id: null,
         });
       })

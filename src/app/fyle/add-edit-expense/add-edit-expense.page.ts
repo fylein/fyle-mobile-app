@@ -3669,12 +3669,9 @@ export class AddEditExpensePage implements OnInit {
             skipReimbursement = true;
           } else if (paymentMode.type === 'PERSONAL_CASH_ACCOUNT') {
             sourceAccountId = paymentMode.id;
-            // Check if this is a Paid by Company account
-            if (paymentMode.acc?.displayName === 'Paid by Company' || !paymentMode.isReimbursable) {
-              skipReimbursement = true;
-            } else {
-              skipReimbursement = false;
-            }
+            // Personal Card/Cash should always be reimbursable
+            // Only Paid by Company should be non-reimbursable
+            skipReimbursement = paymentMode.acc?.displayName === 'Paid by Company';
           } else if (paymentMode.type === 'PERSONAL_ADVANCE_ACCOUNT' || (paymentMode.id && isAdvanceWalletEnabled)) {
             advanceWalletId = paymentMode.id;
             skipReimbursement = true;
@@ -3685,7 +3682,7 @@ export class AddEditExpensePage implements OnInit {
         return {
           tx: {
             ...etxn.tx,
-            source: (this.source || etxn.tx.source),
+            source: this.source || etxn.tx.source,
             source_account_id: sourceAccountId as string | null,
             advance_wallet_id: advanceWalletId as string | null,
             billable: this.getBillable(),
