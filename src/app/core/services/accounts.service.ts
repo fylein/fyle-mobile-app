@@ -484,6 +484,7 @@ export class AccountsService {
       firstAccount.acc.displayName = 'Personal Card/Cash (Reimbursable)';
       return [firstAccount];
     }
+
     return result;
   }
 
