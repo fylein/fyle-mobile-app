@@ -625,6 +625,7 @@ export class TransactionService {
   }
 
   // Todo : Remove transformExpense method once upsert in migrated to platform
+  // eslint-disable-next-line complexity
   transformExpense(expense: PlatformExpense): Partial<UnflattenedTransaction> {
     const updatedExpense = {
       tx: {
@@ -828,7 +829,7 @@ export class TransactionService {
   private getPersonalAccount(): Observable<{ source_account_id: string }> {
     return this.accountsService.getEMyAccounts().pipe(
       map((accounts) => {
-        const account = accounts?.find((account) => account?.acc?.type === 'PERSONAL_CASH_ACCOUNT');
+        const account = accounts?.find((account) => account?.acc?.type === AccountType.PERSONAL);
         return {
           source_account_id: account?.acc?.id,
         };
@@ -836,7 +837,11 @@ export class TransactionService {
     );
   }
 
-  private getTxnAccount(): Observable<{ source_account_id: string; skip_reimbursement: boolean; advance_wallet_id?: string }> {
+  private getTxnAccount(): Observable<{
+    source_account_id: string;
+    skip_reimbursement: boolean;
+    advance_wallet_id?: string;
+  }> {
     return forkJoin({
       orgSettings: this.orgSettingsService.get(),
       accounts: this.accountsService.getEMyAccounts(),
@@ -845,13 +850,13 @@ export class TransactionService {
       switchMap(({ orgSettings, accounts, orgUserSettings }) =>
         this.paymentModesService.getDefaultAccount(orgSettings, accounts, orgUserSettings)
       ),
-      switchMap(account => {
+      switchMap((account) => {
         if (!account) {
           return this.getPersonalAccount().pipe(
-            map(personalAccount => ({
+            map((personalAccount) => ({
               source_account_id: personalAccount.source_account_id,
               skip_reimbursement: false,
-              advance_wallet_id: null
+              advance_wallet_id: null,
             }))
           );
         }
@@ -861,14 +866,14 @@ export class TransactionService {
           return of({
             source_account_id: null,
             skip_reimbursement: true,
-            advance_wallet_id: account.id
+            advance_wallet_id: account.id,
           });
         }
 
         return of({
           source_account_id: account.id,
           skip_reimbursement: account.type === 'PERSONAL_CASH_ACCOUNT' ? false : true,
-          advance_wallet_id: null
+          advance_wallet_id: null,
         });
       })
     );

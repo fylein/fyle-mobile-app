@@ -20,11 +20,11 @@ import { AccountDetail } from '../models/account-detail.model';
   providedIn: 'root',
 })
 export class AccountsService {
-  private readonly accountDisplayNameMapping: Record<AccountType, string> = {
-    [AccountType.PERSONAL]: 'Personal Card/Cash',
-    [AccountType.CCC]: 'Corporate Card',
-    [AccountType.ADVANCE]: 'Advance Wallet',
-    [AccountType.COMPANY]: 'Paid by Company',
+  private readonly accountDisplayNameMapping: Record<string, string> = {
+    PERSONAL_CASH_ACCOUNT: 'Personal Card/Cash',
+    PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT: 'Corporate Card',
+    PERSONAL_ADVANCE_ACCOUNT: 'Advance Wallet',
+    COMPANY_ACCOUNT: 'Paid by Company',
   };
 
   constructor(
@@ -165,8 +165,10 @@ export class AccountsService {
 
     // Then check for source account
     if (etxn.tx.source_account_id) {
+      const normalizedAccountType = this.normalizeAccountType(etxn.source.account_type);
+
       // For personal accounts, we need to check both id and reimbursable status
-      if (etxn.source.account_type === AccountType.PERSONAL || etxn.source.account_type === AccountType.PERSONAL) {
+      if (normalizedAccountType === AccountType.PERSONAL) {
         // For personal accounts, if skip_reimbursement is true, we want the non-reimbursable version
         // If skip_reimbursement is false, we want the reimbursable version
         const selectedMode = paymentModes
@@ -175,7 +177,7 @@ export class AccountsService {
             const mode = paymentMode as ExtendedAccount;
             // Match on:
             // 1. Same account ID
-            // 2. Type is PERSONAL_CASH_ACCOUNT
+            // 2. Type is PERSONAL
             // 3. isReimbursable matches the opposite of skip_reimbursement
             return (
               mode.id === etxn.tx.source_account_id &&
@@ -198,14 +200,13 @@ export class AccountsService {
 
         if (fallbackMode) {
           // Update the reimbursable status to match the transaction
-          (fallbackMode as ExtendedAccount).isReimbursable = !etxn.tx.skip_reimbursement;
-          if ((fallbackMode as ExtendedAccount).acc) {
-            (fallbackMode as ExtendedAccount).acc.isReimbursable = !etxn.tx.skip_reimbursement;
-            (fallbackMode as ExtendedAccount).acc.displayName = etxn.tx.skip_reimbursement
-              ? 'Paid by Company'
-              : 'Personal Card/Cash';
+          const updatedMode = cloneDeep(fallbackMode) as ExtendedAccount;
+          updatedMode.isReimbursable = !etxn.tx.skip_reimbursement;
+          if (updatedMode.acc) {
+            updatedMode.acc.isReimbursable = !etxn.tx.skip_reimbursement;
+            updatedMode.acc.displayName = etxn.tx.skip_reimbursement ? 'Paid by Company' : 'Personal Card/Cash';
           }
-          return fallbackMode;
+          return updatedMode;
         }
       } else {
         // For other account types, match on id
@@ -224,24 +225,26 @@ export class AccountsService {
       if (!accountCopy.acc) {
         accountCopy.acc = {} as unknown as AccountDetail;
       }
-      if (account.type === AccountType.PERSONAL || paymentMode === AccountType.PERSONAL) {
+      if (paymentMode === AccountType.PERSONAL) {
         accountCopy.isReimbursable = true;
         accountCopy.acc.isReimbursable = true;
-        accountCopy.acc.displayName = this.accountDisplayNameMapping[account.type as AccountType] + ' (Reimbursable)';
-      } else if (
-        account.type === AccountType.ADVANCE ||
-        account.type === AccountType.CCC ||
-        account.type === AccountType.COMPANY ||
-        paymentMode === AccountType.COMPANY
-      ) {
+        accountCopy.acc.displayName = 'Personal Card/Cash';
+      } else if (paymentMode === AccountType.COMPANY) {
         accountCopy.isReimbursable = false;
         accountCopy.acc.isReimbursable = false;
-        accountCopy.acc.displayName =
-          this.accountDisplayNameMapping[account.type as AccountType] + ' (Non Reimbursable)';
+        accountCopy.acc.displayName = 'Paid by Company';
+      } else if (account.type === AccountType.CCC) {
+        accountCopy.isReimbursable = false;
+        accountCopy.acc.isReimbursable = false;
+        accountCopy.acc.displayName = 'Corporate Card';
+      } else if (account.type === AccountType.ADVANCE) {
+        accountCopy.isReimbursable = false;
+        accountCopy.acc.isReimbursable = false;
+        accountCopy.acc.displayName = 'Advance Wallet';
       } else {
         accountCopy.isReimbursable = false;
         accountCopy.acc.isReimbursable = false;
-        accountCopy.acc.displayName = this.accountDisplayNameMapping[account.type as AccountType] || account.type;
+        accountCopy.acc.displayName = account.type;
       }
     }
     return accountCopy;
@@ -345,19 +348,32 @@ export class AccountsService {
       org_id: accountRaw.org_id,
       user_id: accountRaw.user_id,
       isReimbursable: isPersonalCashAccount,
+      acc: {
+        id: accountRaw.id,
+        type: accountRaw.type,
+        currency: accountRaw.currency,
+        current_balance_amount: accountRaw.current_balance_amount,
+        tentative_balance_amount: accountRaw.tentative_balance_amount,
+        displayName: isPersonalCashAccount ? 'Personal Card/Cash' : this.accountDisplayNameMapping[accountRaw.type],
+        isReimbursable: isPersonalCashAccount,
+        created_at: new Date(accountRaw.created_at),
+        updated_at: new Date(accountRaw.updated_at),
+        name: isPersonalCashAccount ? 'Personal Card/Cash' : this.accountDisplayNameMapping[accountRaw.type],
+        category: accountRaw.category_id || '',
+      },
       org: {
         id: accountRaw.org_id,
-        domain: accountRaw.org_domain || '',
+        domain: '',
       },
-      advance: {
-        id: accountRaw.advance_id || '',
-        purpose: accountRaw.advance_purpose || '',
+      advance: accountRaw.advance || {
+        id: null,
+        purpose: null,
         // eslint-disable-next-line id-blacklist
-        number: accountRaw.advance_number || '',
+        number: null,
       },
       orig: {
-        currency: accountRaw.orig_currency || accountRaw.currency,
-        amount: accountRaw.orig_amount || accountRaw.current_balance_amount,
+        currency: accountRaw.currency,
+        amount: accountRaw.current_balance_amount,
       },
     };
     return transformedAccount;
@@ -412,63 +428,44 @@ export class AccountsService {
         let accountsForPaymentMode: ExtendedAccount[] = [];
 
         if (allowedPaymentMode === AccountType.PERSONAL && !isOnlyCCCAllowed) {
-          accountsForPaymentMode = allAccounts.filter((account) => account.type === AccountType.PERSONAL);
+          accountsForPaymentMode = allAccounts
+            .filter((account) => account.type === AccountType.PERSONAL)
+            .map((account) => this.setAccountProperties(account, AccountType.PERSONAL));
         } else if (allowedPaymentMode === AccountType.COMPANY && !isOnlyCCCAllowed) {
           accountsForPaymentMode = allAccounts
             .filter((account) => account.type === AccountType.PERSONAL)
             .map((account) => {
-              const accountCopy = { ...account };
-              accountCopy.isReimbursable = false;
-              if (!accountCopy.acc) {
-                accountCopy.acc = {} as unknown as AccountDetail;
+              const companyAccount = cloneDeep(account);
+              companyAccount.isReimbursable = false;
+              if (!companyAccount.acc) {
+                companyAccount.acc = {} as unknown as AccountDetail;
               }
-              accountCopy.acc.isReimbursable = false;
-              accountCopy.acc.displayName = 'Paid by Company';
-              return accountCopy;
+              companyAccount.acc.isReimbursable = false;
+              companyAccount.acc.displayName = 'Paid by Company';
+              return companyAccount;
             });
         } else if (allowedPaymentMode === AccountType.CCC) {
           accountsForPaymentMode = allAccounts
             .filter((account) => account.type === AccountType.CCC)
-            .map((account) => {
-              const accountCopy = { ...account };
-              accountCopy.isReimbursable = false;
-              if (!accountCopy.acc) {
-                accountCopy.acc = {} as unknown as AccountDetail;
-              }
-
-              accountCopy.acc.isReimbursable = false;
-              accountCopy.acc.displayName = 'Corporate Card';
-              return accountCopy;
-            });
+            .map((account) => this.setAccountProperties(account, AccountType.CCC));
         } else {
-          accountsForPaymentMode = allAccounts.filter((account) => account.type === allowedPaymentMode);
+          accountsForPaymentMode = allAccounts
+            .filter((account) => account.type === allowedPaymentMode)
+            .map((account) => this.setAccountProperties(account, allowedPaymentMode));
         }
-
-        // Set display names and reimbursable status
-        accountsForPaymentMode = accountsForPaymentMode.map((account) => {
-          const accountCopy = { ...account };
-          if (!accountCopy.acc) {
-            accountCopy.acc = {} as unknown as AccountDetail;
-          }
-
-          if (allowedPaymentMode === AccountType.PERSONAL) {
-            accountCopy.isReimbursable = true;
-            accountCopy.acc.isReimbursable = true;
-            accountCopy.acc.displayName = 'Personal Card/Cash';
-          } else if (allowedPaymentMode === AccountType.CCC) {
-            accountCopy.isReimbursable = false;
-            accountCopy.acc.isReimbursable = false;
-            accountCopy.acc.displayName = 'Corporate Card';
-          }
-
-          return accountCopy;
-        });
 
         return accountsForPaymentMode;
       })
       .reduce((allowedAccounts, accountsForPaymentMode) => {
         accountsForPaymentMode.forEach((acc) => {
-          if (!allowedAccounts.some((a) => a.id === acc.id && a.isReimbursable === acc.isReimbursable)) {
+          if (
+            !allowedAccounts.some(
+              (a) =>
+                a.id === acc.id &&
+                a.isReimbursable === acc.isReimbursable &&
+                a.acc?.displayName === acc.acc?.displayName
+            )
+          ) {
             allowedAccounts.push(acc);
           }
         });
@@ -489,5 +486,12 @@ export class AccountsService {
     }
 
     return result;
+  }
+
+  private normalizeAccountType(type: string): string {
+    if (type === 'PERSONAL_CASH_ACCOUNT' || type === 'PERSONAL_ACCOUNT') {
+      return AccountType.PERSONAL;
+    }
+    return type;
   }
 }
