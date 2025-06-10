@@ -140,6 +140,14 @@ export class ViewTeamReportPage {
 
   approvalAmount: number;
 
+  showApprovalInfoMessage = false;
+
+  approvalInfoMessage = '';
+
+  canApproveReport = false;
+
+  helpLink = 'https://help.fylehq.com/en/articles/1205138-view-and-approve-expense-reports#h_1672226e87';
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
@@ -375,8 +383,13 @@ export class ViewTeamReportPage {
       if (this.expensesAmountSum$) {
         this.expensesAmountSum$.pipe(take(1)).subscribe((sum) => {
           this.approvalAmount = sum;
+          this.setApproverInfoMessage(expenses, report);
         });
       }
+    });
+
+    this.permissions$.subscribe((permissions) => {
+      this.canApproveReport = permissions.can_approve;
     });
 
     this.refreshApprovals$.next(null);
@@ -627,5 +640,28 @@ export class ViewTeamReportPage {
           this.updateReportName(newReportName);
         }
       });
+  }
+
+  setApproverInfoMessage(expenses: Expense[], report: Report): void {
+    const noOfExpensesRequireApproval = expenses.length;
+    const totalNoOfExpenses = report.num_expenses;
+    if (noOfExpensesRequireApproval === totalNoOfExpenses) {
+      this.showApprovalInfoMessage = false;
+    } else {
+      this.showApprovalInfoMessage = true;
+      const noOfExpensesNotRequireApproval = totalNoOfExpenses - noOfExpensesRequireApproval;
+      this.approvalInfoMessage = `You are approving ${this.formatCurrency(
+        this.approvalAmount,
+        report.currency
+      )} in expenses, which differs from the report total since the report also includes ${noOfExpensesNotRequireApproval} other expenses (which may include credits) that don't require your approval based on your company's policies`;
+    }
+  }
+
+  private formatCurrency(amount: number, currencyCode: string): string {
+    return this.exactCurrency.transform({
+      value: amount,
+      currencyCode,
+      skipSymbol: false,
+    });
   }
 }

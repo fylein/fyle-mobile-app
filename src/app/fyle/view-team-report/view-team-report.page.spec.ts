@@ -1191,4 +1191,38 @@ describe('ViewTeamReportPageV2', () => {
       });
     });
   });
+
+  describe('setApproverInfoMessage():', () => {
+    beforeEach(() => {
+      exactCurrency.transform.and.returnValue('$250.75');
+    });
+
+    it('should hide approval info message when all expenses require approval', () => {
+      const expenses = cloneDeep(expenseResponseData2);
+      const report = { ...platformReportData, num_expenses: 2, currency: 'USD' };
+      component.approvalAmount = 250.75;
+
+      component.setApproverInfoMessage(expenses, report);
+
+      expect(component.showApprovalInfoMessage).toBeFalse();
+    });
+
+    it('should show approval info message when some expenses do not require approval', () => {
+      const expenses = cloneDeep(expenseResponseData);
+      const report = { ...platformReportData, num_expenses: 3, currency: 'USD' };
+      component.approvalAmount = 150.5;
+
+      component.setApproverInfoMessage(expenses, report);
+
+      expect(component.showApprovalInfoMessage).toBeTrue();
+      expect(component.approvalInfoMessage).toEqual(
+        `You are approving $250.75 in expenses, which differs from the report total since the report also includes 2 other expenses (which may include credits) that don't require your approval based on your company's policies`
+      );
+      expect(exactCurrency.transform).toHaveBeenCalledOnceWith({
+        value: 150.5,
+        currencyCode: 'USD',
+        skipSymbol: false,
+      });
+    });
+  });
 });
