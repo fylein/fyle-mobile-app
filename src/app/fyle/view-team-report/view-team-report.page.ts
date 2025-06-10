@@ -653,7 +653,7 @@ export class ViewTeamReportPage {
       this.approvalInfoMessage = `You are approving ${this.formatCurrency(
         this.approvalAmount,
         report.currency
-      )} in expenses, which differs from the report total since the report also includes ${noOfExpensesNotRequireApproval} other expenses (which may include credits) that don't require your approval based on your company's policies`;
+      )} in expenses, which differs from the report total since the report also includes ${noOfExpensesNotRequireApproval} other expenses (which may include credits) that don't require your approval based on your company's policies.`;
     }
   }
 

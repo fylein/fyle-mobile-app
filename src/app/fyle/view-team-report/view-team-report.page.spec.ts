@@ -1216,7 +1216,7 @@ describe('ViewTeamReportPageV2', () => {
 
       expect(component.showApprovalInfoMessage).toBeTrue();
       expect(component.approvalInfoMessage).toEqual(
-        `You are approving $250.75 in expenses, which differs from the report total since the report also includes 2 other expenses (which may include credits) that don't require your approval based on your company's policies`
+        `You are approving $250.75 in expenses, which differs from the report total since the report also includes 2 other expenses (which may include credits) that don't require your approval based on your company's policies.`
       );
       expect(exactCurrency.transform).toHaveBeenCalledOnceWith({
         value: 150.5,
