@@ -78,7 +78,7 @@ export class AccountsService {
     }
 
     const formattedAccounts = allowedAccounts.map((account) => {
-      const displayName = account.acc?.displayName || this.getAccountDisplayName(account.type as AccountType);
+      const displayName = account.acc.displayName;
       return {
         label: displayName,
         value: account,
@@ -91,17 +91,6 @@ export class AccountsService {
     }));
 
     const finalPaymentModes = [...formattedAccounts, ...formattedAdvanceWallets];
-
-    // Ensure we always return at least one payment mode
-    if (finalPaymentModes.length === 0 && userAccounts.length > 0) {
-      const firstAccount = userAccounts[0];
-      return [
-        {
-          label: this.getAccountDisplayName(firstAccount.type as AccountType),
-          value: firstAccount,
-        },
-      ];
-    }
 
     return finalPaymentModes;
   }
@@ -152,7 +141,10 @@ export class AccountsService {
     etxn: Partial<UnflattenedTransaction>,
     paymentModes: AccountOption[]
   ): ExtendedAccount | AdvanceWallet {
-    // Check for advance wallet first
+    // Check for advance wallet first because:
+    // 1. Advance wallet transactions are pre-funded by the company and should be used before personal/corporate cards
+    // 2. This ensures expenses are properly tracked against the advance balance
+    // 3. Prevents double-counting of expenses that should be deducted from advance balance
     if (etxn.tx.advance_wallet_id) {
       const advanceWalletMode = paymentModes
         .map((res) => res.value)
@@ -167,7 +159,8 @@ export class AccountsService {
     if (etxn.tx.source_account_id) {
       const normalizedAccountType = this.normalizeAccountType(etxn.source.account_type);
 
-      // For personal accounts, we need to check both id and reimbursable status
+      // For personal accounts, we need to handle both reimbursable and non-reimbursable cases
+      // since the same account ID can represent both "Paid by Company" and "Personal Card/Cash"
       if (normalizedAccountType === AccountType.PERSONAL) {
         // For personal accounts, if skip_reimbursement is true, we want the non-reimbursable version
         // If skip_reimbursement is false, we want the reimbursable version
