@@ -44,32 +44,25 @@ import {
   paymentModeDataAdvanceWallet,
 } from '../test-data/accounts.service.spec.data';
 import { AccountsService } from './accounts.service';
-import { ApiService } from './api.service';
-import { DataTransformService } from './data-transform.service';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 
 const accountsCallResponse1 = [account1Data, account2Data];
 
-describe('AccountsService', () => {
+fdescribe('AccountsService', () => {
   let accountsService: AccountsService;
-  let apiService: jasmine.SpyObj<ApiService>;
-  let dataTransformService: jasmine.SpyObj<DataTransformService>;
+  let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
   let fyCurrencyPipe: jasmine.SpyObj<FyCurrencyPipe>;
 
   beforeEach(() => {
-    const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get']);
-    const dataTransformServiceSpy = jasmine.createSpyObj('DataTransformService', ['unflatten']);
+    const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get']);
     const fyCurrencyPipeSpy = jasmine.createSpyObj('FyCurrencyPipe', ['transform']);
 
     TestBed.configureTestingModule({
       providers: [
         AccountsService,
         {
-          provide: ApiService,
-          useValue: apiServiceSpy,
-        },
-        {
-          provide: DataTransformService,
-          useValue: dataTransformServiceSpy,
+          provide: SpenderPlatformV1ApiService,
+          useValue: spenderPlatformV1ApiServiceSpy,
         },
         {
           provide: FyCurrencyPipe,
@@ -79,8 +72,9 @@ describe('AccountsService', () => {
     });
 
     accountsService = TestBed.inject(AccountsService);
-    apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
-    dataTransformService = TestBed.inject(DataTransformService) as jasmine.SpyObj<DataTransformService>;
+    spenderPlatformV1ApiService = TestBed.inject(
+      SpenderPlatformV1ApiService
+    ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     fyCurrencyPipe = TestBed.inject(FyCurrencyPipe) as jasmine.SpyObj<FyCurrencyPipe>;
   });
 
@@ -89,9 +83,7 @@ describe('AccountsService', () => {
   });
 
   it('should be able to fetch data from api in proper format', (done) => {
-    apiService.get.and.returnValue(of(accountsCallResponse1));
-    dataTransformService.unflatten.withArgs(account1Data).and.returnValue(unflattenedAccount1Data);
-    dataTransformService.unflatten.withArgs(account2Data).and.returnValue(unflattenedAccount2Data);
+    spenderPlatformV1ApiService.get.and.returnValue(of({ data: accountsCallResponse1 }));
 
     accountsService.getEMyAccounts().subscribe((res) => {
       expect(res[0]).toEqual(unflattenedAccount1Data);
@@ -145,31 +137,31 @@ describe('AccountsService', () => {
   });
 
   it('should be able to set account properties', () => {
-    expect(
-      accountsService.setAccountProperties(paymentModeDataCCCWithoutAccountProperty, AccountType.CCC, false)
-    ).toEqual(paymentModeDataCCC);
+    expect(accountsService.setAccountProperties(paymentModeDataCCCWithoutAccountProperty, AccountType.CCC)).toEqual(
+      paymentModeDataCCC
+    );
   });
 
   it('should be able to set account properties for advance account', () => {
     fyCurrencyPipe.transform.and.returnValue('$223,146,386.93');
-    expect(accountsService.setAccountProperties(unflattenedAccount2Data, AccountType.ADVANCE, false)).toEqual(
+    expect(accountsService.setAccountProperties(unflattenedAccount2Data, AccountType.ADVANCE)).toEqual(
       paymentModeDataAdvance
     );
     expect(fyCurrencyPipe.transform).toHaveBeenCalledWith(223146386.93, 'USD');
   });
 
   it('should be able to set account properties for multiple advance account', () => {
-    expect(accountsService.setAccountProperties(unflattenedAccount3Data, AccountType.ADVANCE, true)).toEqual(
+    expect(accountsService.setAccountProperties(unflattenedAccount3Data, AccountType.ADVANCE)).toEqual(
       paymentModeDataMultipleAdvance
     );
   });
 
   it('should be able to set account properties for multiple advance account as default without account', () => {
-    expect(accountsService.setAccountProperties(null, AccountType.ADVANCE, true)).toBeNull();
+    expect(accountsService.setAccountProperties(null, AccountType.ADVANCE)).toBeNull();
   });
 
   it('should be able to set account properties for multiple advance account as default without orig amount', () => {
-    expect(accountsService.setAccountProperties(unflattenedAccount4Data, AccountType.ADVANCE, true)).toEqual(
+    expect(accountsService.setAccountProperties(unflattenedAccount4Data, AccountType.ADVANCE)).toEqual(
       paymentModeDataMultipleAdvWithoutOrigAmt
     );
   });
