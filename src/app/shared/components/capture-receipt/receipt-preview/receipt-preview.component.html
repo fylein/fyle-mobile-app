@@ -5,7 +5,7 @@
     [ngClass]="{ 'receipt-preview__toolbar--no-index': base64ImagesWithSource.length === 1 }"
   >
     <ion-title [ngClass]="{ 'receipt-preview__title--with-delete': base64ImagesWithSource.length > 1 }">
-      <div class="receipt-preview__title">Receipts Preview</div>
+      <div class="receipt-preview__title">Receipt Previews</div>
       <div *ngIf="base64ImagesWithSource.length > 1" class="receipt-preview__sub-title">
         {{ activeIndex + 1 }}/{{ base64ImagesWithSource.length }}
       </div>
@@ -37,7 +37,7 @@
         <ion-icon src="../../../../assets/svg/crop.svg"></ion-icon>
       </ion-button>
       <ion-button *ngIf="base64ImagesWithSource.length > 1" (click)="deleteReceipt()">
-        <mat-icon class="fy-icon-close receipt-preview__btn--delete" svgIcon="bin"></mat-icon>
+        <ion-icon src="../../../../assets/svg/bin-dark.svg"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
