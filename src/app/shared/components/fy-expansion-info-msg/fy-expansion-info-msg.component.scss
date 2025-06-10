@@ -19,13 +19,6 @@
       align-items: flex-start;
     }
 
-    ::ng-deep ion-item[slot='header'] ion-icon[slot='end'] {
-      align-self: flex-start;
-      width: 18px;
-      height: 18px;
-      margin-top: 2px;
-    }
-
     ion-item[slot='header'] {
       --inner-padding-end: 0px;
     }
@@ -73,7 +66,7 @@
     height: 12px;
 
     &::ng-deep svg path {
-      fill: $blue-4 !important;
+      fill: $blue-4;
     }
   }
 }
