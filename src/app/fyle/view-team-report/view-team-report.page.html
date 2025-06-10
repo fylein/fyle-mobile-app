@@ -24,13 +24,13 @@
   <div class="view-reports--body" *ngIf="report$|async as report">
     <div>
       <div *ngIf="showApprovalInfoMessage && canApproveReport" class="view-reports--info-msg-container">
-        <mat-expansion-panel class="view-reports--info-message-expansion-panel" style="box-shadow: none !important">
+        <mat-expansion-panel class="view-reports--info-message-expansion-panel">
           <mat-expansion-panel-header>
             <div class="info-text-container">
               <mat-icon class="info-icon" svgIcon="info-circle-fill"></mat-icon>
               <span>
                 {{approvalInfoMessage}}
-                <a [href]="helpLink" class="view-reports--article-link">
+                <a (click)="openHelpArticle()" class="view-reports--article-link" role="button" tabindex="0">
                   <span>
                     Learn more
                     <mat-icon class="view-reports--link-icon" svgIcon="open-in-new-tab"></mat-icon>

@@ -391,6 +391,7 @@ $sent-back-color: #da1e28;
     border-radius: 4px;
     border: 1px solid $grey-lighter;
     background-color: $pure-white;
+    box-shadow: none !important;
 
     ::ng-deep .mat-expansion-panel-header {
       padding: 8px 12px 0 12px;
@@ -433,9 +434,9 @@ $sent-back-color: #da1e28;
         span {
           display: -webkit-box;
           -webkit-line-clamp: 3;
+          line-clamp: 3;
           -webkit-box-orient: vertical;
           overflow: hidden;
-          text-overflow: ellipsis;
         }
       }
     }

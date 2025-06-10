@@ -62,6 +62,7 @@ import { RefinerService } from 'src/app/core/services/refiner.service';
 import { DateWithTimezonePipe } from 'src/app/shared/pipes/date-with-timezone.pipe';
 import { TIMEZONE } from 'src/app/constants';
 import { ShowAllApproversPopoverComponent } from 'src/app/shared/components/fy-approver/show-all-approvers-popover/show-all-approvers-popover.component';
+import { BrowserHandlerService } from 'src/app/core/services/browser-handler.service';
 
 describe('ViewTeamReportPageV2', () => {
   let component: ViewTeamReportPage;
@@ -87,6 +88,7 @@ describe('ViewTeamReportPageV2', () => {
   let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
   let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
   let refinerService: jasmine.SpyObj<RefinerService>;
+  let browserHandlerService: jasmine.SpyObj<BrowserHandlerService>;
 
   beforeEach(waitForAsync(() => {
     const approverExpensesServiceSpy = jasmine.createSpyObj('ApproverExpensesService', [
@@ -125,6 +127,7 @@ describe('ViewTeamReportPageV2', () => {
     ]);
     launchDarklyService = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
     refinerService = jasmine.createSpyObj('RefinerService', ['startSurvey']);
+    const browserHandlerServiceSpy = jasmine.createSpyObj('BrowserHandlerService', ['openLinkWithToolbarColor']);
 
     TestBed.configureTestingModule({
       declarations: [ViewTeamReportPage, EllipsisPipe, HumanizeCurrencyPipe, ExactCurrencyPipe, DateWithTimezonePipe],
@@ -224,6 +227,10 @@ describe('ViewTeamReportPageV2', () => {
           useValue: approverReportsServiceSpy,
         },
         {
+          provide: BrowserHandlerService,
+          useValue: browserHandlerServiceSpy,
+        },
+        {
           provide: TIMEZONE,
           useValue: new BehaviorSubject<string>('UTC'),
         },
@@ -254,6 +261,7 @@ describe('ViewTeamReportPageV2', () => {
     approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
     launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
     refinerService = TestBed.inject(RefinerService) as jasmine.SpyObj<RefinerService>;
+    browserHandlerService = TestBed.inject(BrowserHandlerService) as jasmine.SpyObj<BrowserHandlerService>;
     launchDarklyService.getVariation.and.returnValue(of(true));
     fixture.detectChanges();
   }));
@@ -1223,6 +1231,17 @@ describe('ViewTeamReportPageV2', () => {
         currencyCode: 'USD',
         skipSymbol: false,
       });
+    });
+  });
+
+  describe('openHelpArticle():', () => {
+    it('should open help article with correct URL and toolbar color', async () => {
+      await component.openHelpArticle();
+
+      expect(browserHandlerService.openLinkWithToolbarColor).toHaveBeenCalledOnceWith(
+        '#280a31',
+        'https://help.fylehq.com/en/articles/1205138-view-and-approve-expense-reports#h_1672226e87'
+      );
     });
   });
 });

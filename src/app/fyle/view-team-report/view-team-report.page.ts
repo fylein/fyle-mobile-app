@@ -39,6 +39,7 @@ import { RefinerService } from 'src/app/core/services/refiner.service';
 import { ShowAllApproversPopoverComponent } from 'src/app/shared/components/fy-approver/show-all-approvers-popover/show-all-approvers-popover.component';
 import { ApprovalState } from 'src/app/core/models/platform/approval-state.enum';
 import { DateWithTimezonePipe } from 'src/app/shared/pipes/date-with-timezone.pipe';
+import { BrowserHandlerService } from 'src/app/core/services/browser-handler.service';
 
 @Component({
   selector: 'app-view-team-report',
@@ -146,8 +147,6 @@ export class ViewTeamReportPage {
 
   canApproveReport = false;
 
-  helpLink = 'https://help.fylehq.com/en/articles/1205138-view-and-approve-expense-reports#h_1672226e87';
-
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
@@ -169,7 +168,8 @@ export class ViewTeamReportPage {
     private exactCurrency: ExactCurrencyPipe,
     private orgSettingsService: OrgSettingsService,
     private approverReportsService: ApproverReportsService,
-    private dateWithTimezonePipe: DateWithTimezonePipe
+    private dateWithTimezonePipe: DateWithTimezonePipe,
+    private browserHandlerService: BrowserHandlerService
   ) {}
 
   ionViewWillLeave(): void {
@@ -655,6 +655,13 @@ export class ViewTeamReportPage {
         report.currency
       )} in expenses, which differs from the report total since the report also includes ${noOfExpensesNotRequireApproval} other expenses (which may include credits) that don't require your approval based on your company's policies.`;
     }
+  }
+
+  async openHelpArticle(): Promise<void> {
+    await this.browserHandlerService.openLinkWithToolbarColor(
+      '#280a31',
+      'https://help.fylehq.com/en/articles/1205138-view-and-approve-expense-reports#h_1672226e87'
+    );
   }
 
   private formatCurrency(amount: number, currencyCode: string): string {
