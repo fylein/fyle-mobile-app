@@ -8,7 +8,6 @@ import { MatRippleModule } from '@angular/material/core';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { MatLegacyFormFieldModule as MatFormFieldModule } from '@angular/material/legacy-form-field';
 import { MatLegacySnackBarModule as MatSnackBarModule } from '@angular/material/legacy-snack-bar';
-import { MatExpansionModule } from '@angular/material/expansion';
 import { ViewTeamReportPage } from './view-team-report.page';
 import { ViewTeamReportPageRoutingModule } from './view-team-report-routing.module';
 import { ShareReportComponent } from './share-report/share-report.component';
@@ -25,7 +24,6 @@ import { ShareReportComponent } from './share-report/share-report.component';
     SharedModule,
     MatFormFieldModule,
     MatSnackBarModule,
-    MatExpansionModule,
   ],
   declarations: [ViewTeamReportPage, ShareReportComponent],
 })
