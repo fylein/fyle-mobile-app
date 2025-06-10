@@ -13,11 +13,11 @@
   }
 
   &__title {
-    font-size: 20px;
+    font-size: 16px;
     color: $black;
 
     &--with-delete {
-      padding-left: 40px;
+      padding-left: 12px;
     }
   }
 
@@ -78,7 +78,6 @@
 
   &__image-container {
     position: relative;
-    width: 100%;
     height: 100%;
     display: flex;
     justify-content: center;
@@ -110,5 +109,16 @@
     background-color: $pure-white;
     box-shadow: 0 -2px 12px $pink-shadow;
     z-index: 999;
+  }
+}
+
+.view-attachments--ion-buttons__delete {
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
+
+  svg {
+    width: 18px;
+    height: 18px;
   }
 }
