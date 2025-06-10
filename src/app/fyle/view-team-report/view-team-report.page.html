@@ -25,9 +25,9 @@
     <div>
       <div *ngIf="showApprovalInfoMessage && canApproveReport" class="view-reports--info-msg-container">
         <app-fy-expansion-info-msg
-          [infomsgcontent]="approvalInfoMessage"
-          [showhelplink]="true"
-          helplinklabel="Learn more"
+          [infoMsgContent]="approvalInfoMessage"
+          [showHelpLink]="true"
+          helpLinkLabel="Learn more"
           (helpLinkClick)="openHelpArticle()"
         >
         </app-fy-expansion-info-msg>

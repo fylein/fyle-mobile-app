@@ -4,7 +4,7 @@ import { IonicModule } from '@ionic/angular';
 import { By } from '@angular/platform-browser';
 import { FyExpansionInfoMsgComponent } from './fy-expansion-info-msg.component';
 
-fdescribe('FyExpansionInfoMsgComponent', () => {
+describe('FyExpansionInfoMsgComponent', () => {
   let component: FyExpansionInfoMsgComponent;
   let fixture: ComponentFixture<FyExpansionInfoMsgComponent>;
 
@@ -24,17 +24,17 @@ fdescribe('FyExpansionInfoMsgComponent', () => {
   });
 
   it('should display the info message content', () => {
-    component.infomsgcontent = 'Test message content';
+    component.infoMsgContent = 'Test message content';
     fixture.detectChanges();
 
     const messageText = fixture.debugElement.query(By.css('.info-text-container span'));
     expect(messageText.nativeElement.textContent.trim()).toContain('Test message content');
   });
 
-  it('should show help link when showhelplink is true', () => {
-    component.infomsgcontent = 'Test content';
-    component.showhelplink = true;
-    component.helplinklabel = 'Learn more';
+  it('should show help link when showHelpLink is true', () => {
+    component.infoMsgContent = 'Test content';
+    component.showHelpLink = true;
+    component.helpLinkLabel = 'Learn more';
     fixture.detectChanges();
 
     const helpLink = fixture.debugElement.query(By.css('.fy-expansion--article-link'));
@@ -42,9 +42,9 @@ fdescribe('FyExpansionInfoMsgComponent', () => {
     expect(helpLink.nativeElement.textContent.trim()).toContain('Learn more');
   });
 
-  it('should hide help link when showhelplink is false', () => {
-    component.infomsgcontent = 'Test content';
-    component.showhelplink = false;
+  it('should hide help link when showHelpLink is false', () => {
+    component.infoMsgContent = 'Test content';
+    component.showHelpLink = false;
     fixture.detectChanges();
 
     const helpLink = fixture.debugElement.query(By.css('.fy-expansion--article-link'));
@@ -53,8 +53,8 @@ fdescribe('FyExpansionInfoMsgComponent', () => {
 
   it('should emit helpLinkClick when help link is clicked', () => {
     spyOn(component.helpLinkClick, 'emit');
-    component.infomsgcontent = 'Test content';
-    component.showhelplink = true;
+    component.infoMsgContent = 'Test content';
+    component.showHelpLink = true;
     fixture.detectChanges();
 
     const helpLink = fixture.debugElement.query(By.css('.fy-expansion--article-link'));
@@ -64,7 +64,7 @@ fdescribe('FyExpansionInfoMsgComponent', () => {
   });
 
   it('should render ion-accordion-group structure', () => {
-    component.infomsgcontent = 'Test content';
+    component.infoMsgContent = 'Test content';
     fixture.detectChanges();
 
     const accordionGroup = fixture.debugElement.query(By.css('ion-accordion-group'));
@@ -73,7 +73,7 @@ fdescribe('FyExpansionInfoMsgComponent', () => {
   });
 
   it('should render ion-accordion with correct class', () => {
-    component.infomsgcontent = 'Test content';
+    component.infoMsgContent = 'Test content';
     fixture.detectChanges();
 
     const accordion = fixture.debugElement.query(By.css('ion-accordion'));
@@ -82,7 +82,7 @@ fdescribe('FyExpansionInfoMsgComponent', () => {
   });
 
   it('should render info icon', () => {
-    component.infomsgcontent = 'Test content';
+    component.infoMsgContent = 'Test content';
     fixture.detectChanges();
 
     const infoIcon = fixture.debugElement.query(By.css('.info-icon'));
@@ -91,9 +91,9 @@ fdescribe('FyExpansionInfoMsgComponent', () => {
   });
 
   it('should set custom help link label', () => {
-    component.infomsgcontent = 'Test content';
-    component.showhelplink = true;
-    component.helplinklabel = 'Custom Link Text';
+    component.infoMsgContent = 'Test content';
+    component.showHelpLink = true;
+    component.helpLinkLabel = 'Custom Link Text';
     fixture.detectChanges();
 
     const helpLink = fixture.debugElement.query(By.css('.fy-expansion--article-link span'));

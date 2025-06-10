@@ -650,10 +650,11 @@ export class ViewTeamReportPage {
     } else {
       this.showApprovalInfoMessage = true;
       const noOfExpensesNotRequireApproval = totalNoOfExpenses - noOfExpensesRequireApproval;
+      const expenseText = noOfExpensesNotRequireApproval === 1 ? 'other expense' : 'other expenses';
       this.approvalInfoMessage = `You are approving ${this.formatCurrency(
         this.approvalAmount,
         report.currency
-      )} in expenses, which differs from the report total since the report also includes ${noOfExpensesNotRequireApproval} other expenses (which may include credits) that don't require your approval based on your company's policies.`;
+      )} in expenses, which differs from the report total since the report also includes ${noOfExpensesNotRequireApproval} ${expenseText} (which may include credits) that don't require your approval based on your company's policies.`;
     }
   }
 

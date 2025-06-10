@@ -6,11 +6,11 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
   styleUrls: ['./fy-expansion-info-msg.component.scss'],
 })
 export class FyExpansionInfoMsgComponent {
-  @Input() infomsgcontent = '';
+  @Input() infoMsgContent = '';
 
-  @Input() showhelplink = false;
+  @Input() showHelpLink = false;
 
-  @Input() helplinklabel = 'Learn more';
+  @Input() helpLinkLabel = 'Learn more';
 
   @Output() helpLinkClick = new EventEmitter<void>();
 

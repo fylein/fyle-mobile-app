@@ -10,16 +10,16 @@
         <div class="info-text-container">
           <mat-icon class="info-icon" svgIcon="info-circle-fill"></mat-icon>
           <span>
-            {{ infomsgcontent }}
+            {{ infoMsgContent }}
             <a
-              *ngIf="showhelplink"
+              *ngIf="showHelpLink"
               (click)="onHelpLinkClick()"
               class="fy-expansion--article-link"
               role="button"
               tabindex="0"
             >
               <span>
-                {{ helplinklabel }}
+                {{ helpLinkLabel }}
                 <mat-icon class="fy-expansion--link-icon" svgIcon="open-in-new-tab"></mat-icon>
               </span>
             </a>
