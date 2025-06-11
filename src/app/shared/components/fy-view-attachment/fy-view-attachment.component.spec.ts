@@ -397,4 +397,157 @@ describe('FyViewAttachmentComponent', () => {
     expect(trackingService.deleteFileClicked).toHaveBeenCalledOnceWith({ 'File ID': null });
     expect(trackingService.fileDeleted).toHaveBeenCalledOnceWith({ 'File ID': null });
   }));
+
+  describe('rotation and save logic', () => {
+    beforeEach(() => {
+      component.attachments = [{ url: 'test', id: '1', type: 'image' }];
+      component.activeIndex = 0;
+      component.rotatingDirection = null;
+      component.loading = false;
+    });
+
+    it('should return early if loading or rotatingDirection is set', async () => {
+      component.loading = true;
+      await component.rotateAttachment(1 as any);
+      expect(component.rotatingDirection).toBeNull();
+
+      component.loading = false;
+      component.rotatingDirection = 1 as any;
+      await component.rotateAttachment(1 as any);
+      expect(component.rotatingDirection).toBe(1);
+      component.rotatingDirection = null;
+    });
+
+    it('should return early if currentAttachment is falsy', async () => {
+      component.attachments = [];
+      component.activeIndex = 0;
+      await component.rotateAttachment(1 as any);
+      expect(component.rotatingDirection).toBeNull();
+    });
+
+    it('should call rotateImage after timeout', fakeAsync(() => {
+      spyOn(component as any, 'rotateImage');
+      component.attachments = [{ url: 'test', id: '1', type: 'image' }];
+      component.activeIndex = 0;
+      component.loading = false;
+      component.rotatingDirection = null;
+      component.rotateAttachment(1 as any);
+      tick(401);
+      expect((component as any).rotateImage).toHaveBeenCalled();
+    }));
+
+    it('should handle error if blob is empty or not a Blob', (done) => {
+      spyOn(window, 'fetch').and.resolveTo({ blob: () => Promise.resolve(null) } as any);
+      component.saveRotatedImage();
+      setTimeout(() => {
+        expect(component.saving).toBeFalse();
+        expect(component.isImageDirty[0]).toBeTrue();
+        done();
+      }, 10);
+    });
+
+    it('should upload and update attachment if blob is valid', fakeAsync(() => {
+      const fakeBlob = new Blob(['test'], { type: 'image/jpeg' });
+      spyOn(window, 'fetch').and.resolveTo({ blob: () => Promise.resolve(fakeBlob) } as any);
+      fileService.uploadUrl.and.returnValue(of('upload-url'));
+      transactionsOutboxService.uploadData.and.returnValue(of(null));
+      component.saveRotatedImage();
+      tick();
+      expect(fileService.uploadUrl).toHaveBeenCalled();
+      expect(transactionsOutboxService.uploadData).toHaveBeenCalled();
+      expect(component.attachments[0].url).toBe('test');
+      expect(component.saving).toBeFalse();
+      expect(component.saveComplete[0]).toBeTrue();
+      tick(5001);
+      expect(component.saveComplete[0]).toBeFalse();
+    }));
+
+    it('should handle error in observable chain', (done) => {
+      const fakeBlob = new Blob(['test'], { type: 'image/jpeg' });
+      spyOn(window, 'fetch').and.resolveTo({ blob: () => Promise.resolve(fakeBlob) } as any);
+      fileService.uploadUrl.and.returnValue(of('upload-url'));
+      transactionsOutboxService.uploadData.and.returnValue(of(null));
+      const orig = component.attachments[0];
+      Object.defineProperty(component.attachments, '0', { writable: false });
+      component.saveRotatedImage();
+      setTimeout(() => {
+        expect(component.saving).toBeFalse();
+        expect(component.isImageDirty[0]).toBeTrue();
+        Object.defineProperty(component.attachments, '0', { writable: true, value: orig });
+        done();
+      }, 10);
+    });
+
+    it('should return early if canvas context is null', (done) => {
+      const mockImage = {
+        set onload(fn) {
+          setTimeout(fn, 0);
+        },
+        set src(val) {},
+        get src() {
+          return '';
+        },
+      };
+      spyOn(window as any, 'Image').and.returnValue(mockImage);
+      spyOn(document, 'createElement').and.returnValue({ getContext: () => null } as any);
+      component.attachments = [{ url: 'test', id: '1', type: 'image' }];
+      component.activeIndex = 0;
+      component.rotatingDirection = 1 as any;
+      (component as any).rotateImage(component.attachments[0], 1 as any);
+      setTimeout(() => {
+        expect(component.rotatingDirection).toBeNull();
+        done();
+      }, 10);
+    });
+
+    it('should update attachment and flags on successful rotation', (done) => {
+      const mockImage = {
+        set onload(fn) {
+          setTimeout(fn, 0);
+        },
+        set src(val) {},
+        get src() {
+          return '';
+        },
+      };
+      spyOn(window as any, 'Image').and.returnValue(mockImage);
+      const mockCtx = {
+        translate: jasmine.createSpy(),
+        rotate: jasmine.createSpy(),
+        drawImage: jasmine.createSpy(),
+      };
+      const mockCanvas = {
+        getContext: () => mockCtx,
+        toDataURL: () => 'data:image/jpeg;base64,rotated',
+        width: 0,
+        height: 0,
+      };
+      spyOn(document, 'createElement').and.returnValue(mockCanvas as any);
+      component.attachments = [{ url: 'test', id: '1', type: 'image' }];
+      component.activeIndex = 0;
+      component.rotatingDirection = 1 as any;
+      (component as any).rotateImage(component.attachments[0], 1 as any);
+      setTimeout(() => {
+        expect(component.attachments[0].url).toBe('data:image/jpeg;base64,rotated');
+        expect(component.rotatingDirection).toBeNull();
+        expect(component.isImageDirty[0]).toBeTrue();
+        done();
+      }, 10);
+    });
+
+    it('should handle image onerror', () => {
+      const mockImage: any = {};
+      Object.defineProperty(mockImage, 'onerror', {
+        set(fn) {
+          fn();
+        },
+      });
+      spyOn(window as any, 'Image').and.returnValue(mockImage);
+      component.attachments = [{ url: 'test', id: '1', type: 'image' }];
+      component.activeIndex = 0;
+      component.rotatingDirection = 1 as any;
+      (component as any).rotateImage(component.attachments[0], 1 as any);
+      expect(component.rotatingDirection).toBeNull();
+    });
+  });
 });

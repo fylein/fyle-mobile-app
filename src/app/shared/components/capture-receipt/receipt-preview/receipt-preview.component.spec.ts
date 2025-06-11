@@ -64,7 +64,7 @@ describe('ReceiptPreviewComponent', () => {
       'getPictures',
       'requestReadPermission',
     ]);
-    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['cropReceipt']);
+    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['cropReceipt', 'rotateReceipt']);
     const swiperSpy = jasmine.createSpyObj('SwiperStubComponent', ['update', 'slidePrev', 'slideNext']);
 
     TestBed.configureTestingModule({
@@ -387,6 +387,95 @@ describe('ReceiptPreviewComponent', () => {
 
       await component.addMore();
       expect(component.galleryUpload).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('rotateImage and rotateImageData coverage', () => {
+    beforeEach(() => {
+      component.base64ImagesWithSource = [{ base64Image: 'data:image/jpeg;base64,original' }];
+      component.activeIndex = 0;
+      component.rotatingDirection = null;
+      component.swiper = { swiperRef: { update: jasmine.createSpy() } } as any;
+    });
+
+    it('should return early if already rotating', () => {
+      component.rotatingDirection = 1;
+      component.rotateImage(1);
+      expect(component.rotatingDirection).toBe(1);
+    });
+
+    it('should return early if current image is missing or has no base64Image', (done) => {
+      component.base64ImagesWithSource = [{} as any];
+      component.activeIndex = 0;
+      component.rotatingDirection = null;
+      component.rotateImage(1);
+      setTimeout(() => {
+        expect(component.rotatingDirection).toBeNull();
+        done();
+      }, 500);
+    });
+
+    it('should rotate the image and update the base64ImagesWithSource', (done) => {
+      // Mock image and canvas
+      const mockImage = {
+        set onload(fn) {
+          setTimeout(fn, 0);
+        },
+        set src(val) {},
+        get src() {
+          return '';
+        },
+      };
+      spyOn(window as any, 'Image').and.returnValue(mockImage);
+      const mockCtx = {
+        translate: jasmine.createSpy(),
+        rotate: jasmine.createSpy(),
+        drawImage: jasmine.createSpy(),
+      };
+      const mockCanvas = {
+        getContext: () => mockCtx,
+        toDataURL: () => 'data:image/jpeg;base64,rotated',
+        width: 0,
+        height: 0,
+      };
+      spyOn(document, 'createElement').and.returnValue(mockCanvas as any);
+      component.base64ImagesWithSource = [{ base64Image: 'data:image/jpeg;base64,original' }];
+      component.activeIndex = 0;
+      component.rotatingDirection = null;
+      component.swiper = { swiperRef: { update: jasmine.createSpy() } } as any;
+      component.rotateImage(1);
+      setTimeout(() => {
+        expect(component.base64ImagesWithSource[0].base64Image).toBe('data:image/jpeg;base64,rotated');
+        expect(component.rotatingDirection).toBeNull();
+        done();
+      }, 500);
+    });
+
+    it('should return early if canvas context is null', (done) => {
+      const mockImage = {
+        set onload(fn) {
+          setTimeout(fn, 0);
+        },
+        set src(val) {},
+        get src() {
+          return '';
+        },
+      };
+      spyOn(window as any, 'Image').and.returnValue(mockImage);
+      const mockCanvas = {
+        getContext: () => null,
+        width: 0,
+        height: 0,
+      };
+      spyOn(document, 'createElement').and.returnValue(mockCanvas as any);
+      component.base64ImagesWithSource = [{ base64Image: 'data:image/jpeg;base64,original' }];
+      component.activeIndex = 0;
+      component.rotatingDirection = null;
+      component.rotateImage(1);
+      setTimeout(() => {
+        expect(component.rotatingDirection).toBeNull();
+        done();
+      }, 500);
     });
   });
 });
