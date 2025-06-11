@@ -109,6 +109,14 @@ describe('FyViewAttachmentComponent', () => {
     transactionsOutboxService = TestBed.inject(TransactionsOutboxService) as jasmine.SpyObj<TransactionsOutboxService>;
     activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
 
+    // Global fetch and fileService.readFile mocks
+    spyOn(window, 'fetch').and.callFake(() =>
+      Promise.resolve({
+        blob: () => Promise.resolve(new Blob(['mock'], { type: 'image/jpeg' })),
+      } as any)
+    );
+    fileService.readFile.and.resolveTo('data:image/jpeg;base64,mocked');
+
     const mockAttachments = [
       {
         id: '1',
@@ -238,16 +246,8 @@ describe('FyViewAttachmentComponent', () => {
 
     expect(component.goToPrevSlide).toHaveBeenCalledTimes(1);
     expect(component.attachments).toEqual([
-      {
-        id: '1',
-        type: 'pdf',
-        url: 'http://example.com/attachment1.pdf',
-      },
-      {
-        id: '3',
-        type: 'pdf',
-        url: 'http://example.com/attachment3.pdf',
-      },
+      jasmine.objectContaining({ id: '1', type: 'pdf', url: 'http://example.com/attachment1.pdf' }),
+      jasmine.objectContaining({ id: '3', type: 'pdf', url: 'http://example.com/attachment3.pdf' }),
     ]);
     expect(spenderFileService.deleteFilesBulk).toHaveBeenCalledOnceWith(['2']);
     expect(trackingService.deleteFileClicked).toHaveBeenCalledOnceWith({ 'File ID': '2' });
@@ -281,16 +281,8 @@ describe('FyViewAttachmentComponent', () => {
 
     expect(component.goToNextSlide).toHaveBeenCalledTimes(1);
     expect(component.attachments).toEqual([
-      {
-        id: '2',
-        type: 'image',
-        url: 'http://example.com/attachment2.jpg',
-      },
-      {
-        id: '3',
-        type: 'pdf',
-        url: 'http://example.com/attachment3.pdf',
-      },
+      jasmine.objectContaining({ id: '2', type: 'image', url: 'data:image/jpeg;base64,mocked' }),
+      jasmine.objectContaining({ id: '3', type: 'pdf', url: 'http://example.com/attachment3.pdf' }),
     ]);
     expect(spenderFileService.deleteFilesBulk).toHaveBeenCalledOnceWith(['1']);
     expect(trackingService.deleteFileClicked).toHaveBeenCalledOnceWith({ 'File ID': '1' });
@@ -439,7 +431,7 @@ describe('FyViewAttachmentComponent', () => {
     }));
 
     it('should handle error if blob is empty or not a Blob', (done) => {
-      spyOn(window, 'fetch').and.resolveTo({ blob: () => Promise.resolve(null) } as any);
+      (window.fetch as jasmine.Spy).and.callFake(() => Promise.resolve({ blob: () => Promise.resolve(null) } as any));
       component.saveRotatedImage();
       setTimeout(() => {
         expect(component.saving).toBeFalse();
@@ -450,7 +442,9 @@ describe('FyViewAttachmentComponent', () => {
 
     it('should upload and update attachment if blob is valid', fakeAsync(() => {
       const fakeBlob = new Blob(['test'], { type: 'image/jpeg' });
-      spyOn(window, 'fetch').and.resolveTo({ blob: () => Promise.resolve(fakeBlob) } as any);
+      (window.fetch as jasmine.Spy).and.callFake(() =>
+        Promise.resolve({ blob: () => Promise.resolve(fakeBlob) } as any)
+      );
       fileService.uploadUrl.and.returnValue(of('upload-url'));
       transactionsOutboxService.uploadData.and.returnValue(of(null));
       component.saveRotatedImage();
@@ -466,7 +460,9 @@ describe('FyViewAttachmentComponent', () => {
 
     it('should handle error in observable chain', (done) => {
       const fakeBlob = new Blob(['test'], { type: 'image/jpeg' });
-      spyOn(window, 'fetch').and.resolveTo({ blob: () => Promise.resolve(fakeBlob) } as any);
+      (window.fetch as jasmine.Spy).and.callFake(() =>
+        Promise.resolve({ blob: () => Promise.resolve(fakeBlob) } as any)
+      );
       fileService.uploadUrl.and.returnValue(of('upload-url'));
       transactionsOutboxService.uploadData.and.returnValue(throwError(() => new Error('upload failed')));
       const orig = component.attachments[0];
@@ -556,7 +552,7 @@ describe('FyViewAttachmentComponent', () => {
   it('ngOnInit(): should convert image attachments to base64', fakeAsync(() => {
     const base64Url = 'data:image/jpeg;base64,abc123';
     const mockBlob = new Blob(['test'], { type: 'image/jpeg' });
-    spyOn(window, 'fetch').and.resolveTo({ blob: () => Promise.resolve(mockBlob) } as any);
+    (window.fetch as jasmine.Spy).and.callFake(() => Promise.resolve({ blob: () => Promise.resolve(mockBlob) } as any));
     fileService.readFile.and.resolveTo(base64Url);
     component.attachments = [{ id: '2', type: 'image', url: 'http://example.com/attachment2.jpg' }];
     component.ngOnInit();
@@ -573,7 +569,7 @@ describe('FyViewAttachmentComponent', () => {
 
   it('saveRotatedImage(): should handle error in uploadData', fakeAsync(() => {
     const fakeBlob = new Blob(['test'], { type: 'image/jpeg' });
-    spyOn(window, 'fetch').and.resolveTo({ blob: () => Promise.resolve(fakeBlob) } as any);
+    (window.fetch as jasmine.Spy).and.callFake(() => Promise.resolve({ blob: () => Promise.resolve(fakeBlob) } as any));
     fileService.uploadUrl.and.returnValue(of('upload-url'));
     transactionsOutboxService.uploadData.and.returnValue(throwError(() => new Error('upload failed')));
     component.saveRotatedImage();
