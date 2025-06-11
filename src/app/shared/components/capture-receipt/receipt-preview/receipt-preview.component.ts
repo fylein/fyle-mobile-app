@@ -260,12 +260,12 @@ export class ReceiptPreviewComponent implements OnInit, OnDestroy {
 
   async goToNextSlide(): Promise<void> {
     await this.swiper?.swiperRef.slideNext();
-    this.activeIndex = (await this.swiper?.swiperRef.activeIndex) ?? 0;
+    await this.swiper?.swiperRef.update();
   }
 
   async goToPrevSlide(): Promise<void> {
     await this.swiper?.swiperRef.slidePrev();
-    this.activeIndex = (await this.swiper?.swiperRef.activeIndex) ?? 0;
+    await this.swiper?.swiperRef.update();
   }
 
   async ionSlideDidChange(): Promise<void> {

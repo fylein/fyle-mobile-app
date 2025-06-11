@@ -7,6 +7,10 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { of } from 'rxjs';
 import { TrackingService } from 'src/app/core/services/tracking.service';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { FileService } from 'src/app/core/services/file.service';
+import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
+import { ActivatedRoute } from '@angular/router';
 
 describe('FyViewAttachmentComponent', () => {
   let component: FyViewAttachmentComponent;
@@ -17,6 +21,10 @@ describe('FyViewAttachmentComponent', () => {
   let spenderFileService: jasmine.SpyObj<SpenderFileService>;
   let loaderService: jasmine.SpyObj<LoaderService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
+  let expensesService: jasmine.SpyObj<ExpensesService>;
+  let fileService: jasmine.SpyObj<FileService>;
+  let transactionsOutboxService: jasmine.SpyObj<TransactionsOutboxService>;
+  let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
 
   beforeEach(waitForAsync(() => {
     const domSantizerSpy = jasmine.createSpyObj('DomSanitizer', ['bypassSecurityTrustUrl']);
@@ -25,6 +33,16 @@ describe('FyViewAttachmentComponent', () => {
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['hideLoader', 'showLoader']);
     const trackingServiceSpy = jasmine.createSpyObj('TracingService', ['deleteFileClicked', 'fileDeleted']);
     const spenderFileServiceSpy = jasmine.createSpyObj('SpenderFileService', ['deleteFilesBulk']);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['attachReceiptToExpense']);
+    const fileServiceSpy = jasmine.createSpyObj('FileService', ['readFile', 'uploadUrl']);
+    const transactionsOutboxServiceSpy = jasmine.createSpyObj('TransactionsOutboxService', ['uploadData']);
+    const activatedRouteSpy = jasmine.createSpyObj('ActivatedRoute', [], {
+      snapshot: {
+        params: {},
+        queryParams: {},
+      },
+    });
+
     TestBed.configureTestingModule({
       declarations: [FyViewAttachmentComponent],
       providers: [
@@ -52,6 +70,26 @@ describe('FyViewAttachmentComponent', () => {
           provide: TrackingService,
           useValue: trackingServiceSpy,
         },
+        {
+          provide: ExpensesService,
+          useValue: expensesServiceSpy,
+        },
+        {
+          provide: FileService,
+          useValue: fileServiceSpy,
+        },
+        {
+          provide: TransactionsOutboxService,
+          useValue: transactionsOutboxServiceSpy,
+        },
+        {
+          provide: 'API_PAGINATION_SIZE',
+          useValue: 10,
+        },
+        {
+          provide: ActivatedRoute,
+          useValue: activatedRouteSpy,
+        },
       ],
       imports: [IonicModule.forRoot()],
       schemas: [NO_ERRORS_SCHEMA],
@@ -65,6 +103,10 @@ describe('FyViewAttachmentComponent', () => {
     spenderFileService = TestBed.inject(SpenderFileService) as jasmine.SpyObj<SpenderFileService>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
+    expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
+    fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
+    transactionsOutboxService = TestBed.inject(TransactionsOutboxService) as jasmine.SpyObj<TransactionsOutboxService>;
+    activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
 
     const mockAttachments = [
       {
