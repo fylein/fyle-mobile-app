@@ -361,16 +361,7 @@ export class AccountsService {
         } else if (allowedPaymentMode === AccountType.COMPANY && !isOnlyCCCAllowed) {
           accountsForPaymentMode = allAccounts
             .filter((account) => account.type === AccountType.PERSONAL)
-            .map((account) => {
-              const companyAccount = cloneDeep(account);
-              companyAccount.isReimbursable = false;
-              if (!companyAccount.acc) {
-                companyAccount.acc = {} as unknown as AccountDetail;
-              }
-              companyAccount.acc.isReimbursable = false;
-              companyAccount.acc.displayName = 'Paid by Company';
-              return companyAccount;
-            });
+            .map((account) => this.setAccountProperties(account, AccountType.COMPANY));
         } else if (allowedPaymentMode === AccountType.CCC) {
           accountsForPaymentMode = allAccounts
             .filter((account) => account.type === AccountType.CCC)

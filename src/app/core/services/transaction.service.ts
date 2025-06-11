@@ -620,10 +620,6 @@ export class TransactionService {
     }
   }
 
-  sourceAccountTypePublicMapping(type: string): string {
-    return type === 'PERSONAL_CASH_ACCOUNT' ? 'PERSONAL_ACCOUNT' : type;
-  }
-
   // Todo : Remove transformExpense method once upsert in migrated to platform
   // eslint-disable-next-line complexity
   transformExpense(expense: PlatformExpense): Partial<UnflattenedTransaction> {
@@ -728,7 +724,7 @@ export class TransactionService {
       },
       source: {
         account_id: expense.source_account?.id,
-        account_type: this.sourceAccountTypePublicMapping(expense.source_account?.type),
+        account_type: expense.source_account?.type,
       },
       ou: {
         id: expense.employee?.id,
@@ -821,7 +817,7 @@ export class TransactionService {
       tx_project_code: expense.project?.code,
       tx_advance_wallet_id: expense.advance_wallet_id,
       source_account_id: expense.source_account_id,
-      source_account_type: this.sourceAccountTypePublicMapping(expense.source_account?.type),
+      source_account_type: expense.source_account?.type,
     };
     return updatedExpense;
   }
