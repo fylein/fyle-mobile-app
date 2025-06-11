@@ -61,7 +61,7 @@ import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { expenseData } from '../mock-data/platform/v1/expense.data';
 import { TrackingService } from './tracking.service';
 
-fdescribe('TransactionService', () => {
+describe('TransactionService', () => {
   let transactionService: TransactionService;
   let storageService: jasmine.SpyObj<StorageService>;
   let apiService: jasmine.SpyObj<ApiService>;
@@ -103,7 +103,7 @@ fdescribe('TransactionService', () => {
     const userEventServiceSpy = jasmine.createSpyObj('UserEventService', ['clearTaskCache']);
     const paymentModesServiceSpy = jasmine.createSpyObj('PaymentModesService', ['getDefaultAccount']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
-    const accountsServiceSpy = jasmine.createSpyObj('AccountsService', ['getEMyAccounts']);
+    const accountsServiceSpy = jasmine.createSpyObj('AccountsService', ['getMyAccounts']);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['transformTo', 'post', 'createFromFile']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['patchExpensesError']);
 
