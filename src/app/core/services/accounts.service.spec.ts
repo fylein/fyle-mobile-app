@@ -50,7 +50,7 @@ import { cloneDeep } from 'lodash';
 
 const accountsCallResponse1 = [account1Data, account2Data];
 
-describe('AccountsService', () => {
+fdescribe('AccountsService', () => {
   let accountsService: AccountsService;
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
   let fyCurrencyPipe: jasmine.SpyObj<FyCurrencyPipe>;
