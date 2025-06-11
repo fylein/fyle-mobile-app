@@ -1,6 +1,6 @@
 import deepFreeze from 'deep-freeze-strict';
 
-import { FlattenedAccount } from '../models/flattened-account.model';
+import { PlatformAccount } from '../models/platform-account.model';
 import { AccountType } from '../enums/account-type.enum';
 
 export const dataErtpTransformed = deepFreeze({
@@ -129,7 +129,7 @@ export const apiErptReporDataParam = deepFreeze({
   },
 });
 
-export const flattenedData: FlattenedAccount = deepFreeze({
+export const flattenedData: PlatformAccount = deepFreeze({
   acc_id: 'acct0vTdfNQrT',
   acc_created_at: '2019-09-19T10:19:37.764Z',
   acc_updated_at: '2023-03-10T11:29:40.049Z',
