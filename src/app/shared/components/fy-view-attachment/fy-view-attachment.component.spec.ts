@@ -5,12 +5,13 @@ import { FyViewAttachmentComponent } from './fy-view-attachment.component';
 import { DomSanitizer } from '@angular/platform-browser';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { FileService } from 'src/app/core/services/file.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { ActivatedRoute } from '@angular/router';
+import { RotationDirection } from 'src/app/core/enums/rotation-direction.enum';
 
 describe('FyViewAttachmentComponent', () => {
   let component: FyViewAttachmentComponent;
@@ -467,7 +468,7 @@ describe('FyViewAttachmentComponent', () => {
       const fakeBlob = new Blob(['test'], { type: 'image/jpeg' });
       spyOn(window, 'fetch').and.resolveTo({ blob: () => Promise.resolve(fakeBlob) } as any);
       fileService.uploadUrl.and.returnValue(of('upload-url'));
-      transactionsOutboxService.uploadData.and.returnValue(of(null));
+      transactionsOutboxService.uploadData.and.returnValue(throwError(() => new Error('upload failed')));
       const orig = component.attachments[0];
       Object.defineProperty(component.attachments, '0', { writable: false });
       component.saveRotatedImage();
@@ -550,5 +551,120 @@ describe('FyViewAttachmentComponent', () => {
       (component as any).rotateImage(component.attachments[0], 1 as any);
       expect(component.rotatingDirection).toBeNull();
     });
+  });
+
+  it('ngOnInit(): should convert image attachments to base64', fakeAsync(() => {
+    const base64Url = 'data:image/jpeg;base64,abc123';
+    const mockBlob = new Blob(['test'], { type: 'image/jpeg' });
+    spyOn(window, 'fetch').and.resolveTo({ blob: () => Promise.resolve(mockBlob) } as any);
+    fileService.readFile.and.resolveTo(base64Url);
+    component.attachments = [{ id: '2', type: 'image', url: 'http://example.com/attachment2.jpg' }];
+    component.ngOnInit();
+    tick();
+    expect(component.attachments[0].url).toBe(base64Url);
+    expect(component.attachments[0].thumbnail).toBe(base64Url);
+  }));
+
+  it('addAttachments(): should dismiss modal with addMoreAttachments action', () => {
+    const event = new Event('click');
+    component.addAttachments(event);
+    expect(modalController.dismiss).toHaveBeenCalledOnceWith({ action: 'addMoreAttachments', event });
+  });
+
+  it('saveRotatedImage(): should handle error in uploadData', fakeAsync(() => {
+    const fakeBlob = new Blob(['test'], { type: 'image/jpeg' });
+    spyOn(window, 'fetch').and.resolveTo({ blob: () => Promise.resolve(fakeBlob) } as any);
+    fileService.uploadUrl.and.returnValue(of('upload-url'));
+    transactionsOutboxService.uploadData.and.returnValue(throwError(() => new Error('upload failed')));
+    component.saveRotatedImage();
+    tick();
+    expect(component.saving).toBeFalse();
+    expect(component.isImageDirty[0]).toBeTrue();
+  }));
+
+  it('goToNextSlide(): should call swiperRef.slideNext', () => {
+    const mockSwiperRef = jasmine.createSpyObj('swiperRef', ['slideNext']);
+    component.imageSlides = { swiperRef: mockSwiperRef } as any;
+    component.goToNextSlide();
+    expect(mockSwiperRef.slideNext).toHaveBeenCalled();
+  });
+
+  it('goToPrevSlide(): should call swiperRef.slidePrev', () => {
+    const mockSwiperRef = jasmine.createSpyObj('swiperRef', ['slidePrev']);
+    component.imageSlides = { swiperRef: mockSwiperRef } as any;
+    component.goToPrevSlide();
+    expect(mockSwiperRef.slidePrev).toHaveBeenCalled();
+  });
+
+  it('getActiveIndex(): should set activeIndex from swiperRef', () => {
+    component.imageSlides = { swiperRef: { activeIndex: 42 } } as any;
+    component.getActiveIndex();
+    expect(component.activeIndex).toBe(42);
+  });
+
+  it('rotateImage(): should rotate image LEFT', (done) => {
+    const mockImage = {
+      set onload(fn) {
+        setTimeout(fn, 0);
+      },
+      set src(val) {},
+      get src() {
+        return '';
+      },
+    };
+    spyOn(window as any, 'Image').and.returnValue(mockImage);
+    const mockCtx = {
+      translate: jasmine.createSpy(),
+      rotate: jasmine.createSpy(),
+      drawImage: jasmine.createSpy(),
+    };
+    const mockCanvas = {
+      getContext: () => mockCtx,
+      toDataURL: () => 'data:image/jpeg;base64,left',
+      width: 0,
+      height: 0,
+    };
+    spyOn(document, 'createElement').and.returnValue(mockCanvas as any);
+    component.attachments = [{ url: 'test', id: '1', type: 'image' }];
+    component.activeIndex = 0;
+    component.rotatingDirection = RotationDirection.RIGHT;
+    (component as any).rotateImage(component.attachments[0], RotationDirection.LEFT);
+    setTimeout(() => {
+      expect(component.attachments[0].url).toBe('data:image/jpeg;base64,left');
+      done();
+    }, 10);
+  });
+
+  it('rotateImage(): should rotate image RIGHT', (done) => {
+    const mockImage = {
+      set onload(fn) {
+        setTimeout(fn, 0);
+      },
+      set src(val) {},
+      get src() {
+        return '';
+      },
+    };
+    spyOn(window as any, 'Image').and.returnValue(mockImage);
+    const mockCtx = {
+      translate: jasmine.createSpy(),
+      rotate: jasmine.createSpy(),
+      drawImage: jasmine.createSpy(),
+    };
+    const mockCanvas = {
+      getContext: () => mockCtx,
+      toDataURL: () => 'data:image/jpeg;base64,right',
+      width: 0,
+      height: 0,
+    };
+    spyOn(document, 'createElement').and.returnValue(mockCanvas as any);
+    component.attachments = [{ url: 'test', id: '1', type: 'image' }];
+    component.activeIndex = 0;
+    component.rotatingDirection = RotationDirection.LEFT;
+    (component as any).rotateImage(component.attachments[0], RotationDirection.RIGHT);
+    setTimeout(() => {
+      expect(component.attachments[0].url).toBe('data:image/jpeg;base64,right');
+      done();
+    }, 10);
   });
 });
