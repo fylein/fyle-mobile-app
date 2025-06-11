@@ -1,6 +1,6 @@
 import { AccountType } from '../enums/account-type.enum';
 
-export interface FlattenedAccount {
+export interface PlatformAccount {
   // New platform API fields
   id: string;
   created_at: string;
