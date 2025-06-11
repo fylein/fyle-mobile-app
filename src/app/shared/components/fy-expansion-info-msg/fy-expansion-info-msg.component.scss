@@ -73,10 +73,10 @@
   ion-accordion-group.accordion-group-expand-inset {
     > ion-accordion:first-of-type,
     > ion-accordion:last-of-type {
-      border-top-left-radius: 0 !important;
-      border-top-right-radius: 0 !important;
-      border-bottom-left-radius: 0 !important;
-      border-bottom-right-radius: 0 !important;
+      border-top-left-radius: 4px !important;
+      border-top-right-radius: 4px !important;
+      border-bottom-left-radius: 4px !important;
+      border-bottom-right-radius: 4px !important;
     }
 
     > ion-accordion {
