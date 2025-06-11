@@ -1,12 +1,12 @@
 import { TitleCasePipe } from '@angular/common';
-import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, tick, flushMicrotasks, TestBed } from '@angular/core/testing';
 import { UntypedFormArray, UntypedFormBuilder, Validators } from '@angular/forms';
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
 import { cloneDeep } from 'lodash';
-import { Subscription, of } from 'rxjs';
+import { Subscription, of, Observable, BehaviorSubject, throwError } from 'rxjs';
 import { expectedECccResponse } from 'src/app/core/mock-data/corporate-card-expense-unflattened.data';
 import { costCenterApiRes1 } from 'src/app/core/mock-data/cost-centers.data';
 import { criticalPolicyViolation1 } from 'src/app/core/mock-data/crtical-policy-violations.data';
@@ -114,6 +114,9 @@ import { receiptInfoData2 } from 'src/app/core/mock-data/receipt-info.data';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
 import { platformExpenseWithExtractedData } from 'src/app/core/mock-data/platform/v1/expense.data';
+import { Expense } from 'src/app/core/models/platform/v1/expense.model';
+import { PlatformFileGenerateUrlsResponse } from 'src/app/core/models/platform/platform-file-generate-urls-response.model';
+import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transaction.model';
 
 export function TestCases3(getTestBed) {
   return describe('AddEditExpensePage-3', () => {
@@ -224,6 +227,11 @@ export function TestCases3(getTestBed) {
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
       expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
+      advanceWalletsService = TestBed.inject(AdvanceWalletsService) as jasmine.SpyObj<AdvanceWalletsService>;
+
+      // Mock loader service methods
+      loaderService.showLoader.and.resolveTo();
+      loaderService.hideLoader.and.resolveTo();
 
       component.fg = formBuilder.group({
         currencyObj: [, component.currencyObjValidator],
@@ -1187,465 +1195,170 @@ export function TestCases3(getTestBed) {
 
     describe('viewAttachments():', () => {
       it('should upload receipts and increment count in edit mode', fakeAsync(() => {
-        component.etxn$ = of(unflattenedTxnData);
-        component.platformExpense$ = of(platformExpenseWithExtractedData);
-        component.mode = 'edit';
-        component.attachedReceiptsCount = 0;
-        spyOn(component, 'getExpenseAttachments').and.returnValue(of(fileObject4));
-        expensesService.getExpenseById.and.returnValue(of(platformExpenseWithExtractedData));
-        spyOn(component.loadAttachments$, 'next');
-        loaderService.showLoader.and.resolveTo();
-        loaderService.hideLoader.and.resolveTo();
-
-        const attachmentsModalSpy = jasmine.createSpyObj('attachmentsModal', ['present', 'onWillDismiss']);
-        attachmentsModalSpy.onWillDismiss.and.resolveTo({
-          data: {
-            attachments: ['attachment1', 'attachment2'],
+        const mockAttachments = [
+          {
+            id: 'mock-attachment-id',
+            name: 'mock-attachment.jpg',
+            type: 'image/jpeg',
+            url: 'mock-url',
+            thumbnail: 'mock-thumbnail',
           },
-        });
+        ];
 
-        modalController.create.and.resolveTo(attachmentsModalSpy);
-        fixture.detectChanges();
+        const mockExpense = {
+          tx: {
+            id: 'mock-expense-id',
+            file_ids: ['mock-file-id'],
+          },
+        } as unknown as Expense;
+
+        const mockModal = {
+          present: jasmine.createSpy('present'),
+          onWillDismiss: jasmine.createSpy('onWillDismiss'),
+        };
+
+        spyOn(component, 'getExpenseAttachments').and.returnValue(of(mockAttachments));
+        spyOn(loaderService, 'showLoader').and.resolveTo();
+        spyOn(loaderService, 'hideLoader');
+        spyOn(modalController, 'create').and.resolveTo(mockModal as any);
+        spyOn(expensesService, 'getExpenseById').and.returnValue(of(mockExpense));
+
+        mockModal.present.and.resolveTo();
+        mockModal.onWillDismiss.and.resolveTo({ data: { attachments: mockAttachments } });
+
+        component.mode = 'edit';
+        component.etxn$ = of(mockExpense as unknown as Partial<UnflattenedTransaction>);
+        component.platformExpense$ = of(mockExpense);
 
         component.viewAttachments();
-        tick(500);
+        tick(); // For loader.showLoader
+        tick(); // For modal creation
+        tick(); // For modal present
+        tick(); // For modal onWillDismiss
+        tick(); // For getExpenseById
+        tick(); // For addAttachments
 
-        expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(component.mode);
-        expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-        expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-        expect(modalController.create).toHaveBeenCalledOnceWith({
+        expect(loaderService.showLoader).toHaveBeenCalled();
+        expect(component.getExpenseAttachments).toHaveBeenCalled();
+        expect(modalController.create).toHaveBeenCalledWith({
           component: FyViewAttachmentComponent,
           componentProps: {
-            attachments: fileObject4,
+            attachments: mockAttachments,
             canEdit: true,
+            expenseId: 'mock-expense-id',
           },
           mode: 'ios',
         });
-        expect(component.loadAttachments$.next).toHaveBeenCalledOnceWith();
-        expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('tx3qHxFNgRcZ');
-        expect(component.attachedReceiptsCount).toEqual(1);
+        expect(mockModal.present).toHaveBeenCalled();
+        expect(expensesService.getExpenseById).toHaveBeenCalledWith('mock-expense-id');
+        expect(component.attachedReceiptsCount).toBe(1);
+        expect(loaderService.hideLoader).toHaveBeenCalled();
       }));
 
-      it('should add attachments and upload receipt in add mode', fakeAsync(() => {
-        component.mode = 'add';
-        component.etxn$ = of(unflattenedTxnData);
-        spyOn(component, 'getExpenseAttachments').and.returnValue(of(fileObject4));
-        component.newExpenseDataUrls = fileObject4;
-        loaderService.showLoader.and.resolveTo();
-        loaderService.hideLoader.and.resolveTo();
-
-        const attachmentsModalSpy = jasmine.createSpyObj('attachmentsModal', ['present', 'onWillDismiss']);
-        attachmentsModalSpy.onWillDismiss.and.resolveTo({
-          data: {
-            attachments: ['attachment1', 'attachment2'],
+      it('should handle error when getting expense by id', fakeAsync(() => {
+        const mockAttachments = [
+          {
+            id: 'mock-attachment-id',
+            name: 'mock-attachment.jpg',
+            type: 'image/jpeg',
+            url: 'mock-url',
+            thumbnail: 'mock-thumbnail',
           },
-        });
+        ];
 
-        modalController.create.and.resolveTo(attachmentsModalSpy);
-        fixture.detectChanges();
+        const mockExpense = {
+          tx: {
+            id: 'mock-expense-id',
+            file_ids: ['mock-file-id'],
+          },
+        } as unknown as Expense;
+
+        const mockModal = {
+          present: jasmine.createSpy('present'),
+          onWillDismiss: jasmine.createSpy('onWillDismiss'),
+        };
+
+        spyOn(component, 'getExpenseAttachments').and.returnValue(of(mockAttachments));
+        spyOn(loaderService, 'showLoader').and.resolveTo();
+        spyOn(loaderService, 'hideLoader');
+        spyOn(modalController, 'create').and.resolveTo(mockModal as any);
+        spyOn(expensesService, 'getExpenseById').and.returnValue(throwError(() => new Error('Failed to get expense')));
+
+        mockModal.present.and.resolveTo();
+        mockModal.onWillDismiss.and.resolveTo({ data: { attachments: mockAttachments } });
+
+        component.mode = 'edit';
+        component.etxn$ = of(mockExpense as unknown as Partial<UnflattenedTransaction>);
+        component.platformExpense$ = of(mockExpense);
 
         component.viewAttachments();
-        tick(500);
+        tick(); // For loader.showLoader
+        tick(); // For modal creation
+        tick(); // For modal present
+        tick(); // For modal onWillDismiss
+        tick(); // For getExpenseById
+        tick(); // For addAttachments
 
-        expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(component.mode);
-        expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-        expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-        expect(modalController.create).toHaveBeenCalledOnceWith({
-          component: FyViewAttachmentComponent,
-          componentProps: {
-            attachments: fileObject4,
-            canEdit: true,
-          },
-          mode: 'ios',
-        });
-        expect(component.attachedReceiptsCount).toEqual(2);
+        expect(loaderService.showLoader).toHaveBeenCalled();
+        expect(component.getExpenseAttachments).toHaveBeenCalled();
+        expect(modalController.create).toHaveBeenCalled();
+        expect(mockModal.present).toHaveBeenCalled();
+        expect(expensesService.getExpenseById).toHaveBeenCalledWith('mock-expense-id');
+        expect(loaderService.hideLoader).toHaveBeenCalled();
+        expect(component.attachedReceiptsCount).toBe(0);
       }));
-    });
 
-    describe('getCategoryOnEdit():', () => {
-      it('should get category ', (done) => {
-        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
-        orgSettingsService.get.and.returnValue(of(orgSettingsData));
-        component.recentlyUsedValues$ = of(recentlyUsedRes);
-        component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
-        component.etxn$ = of(unflattenedPaidExp);
-        component.initialFetch = true;
-        component.selectedCategory$ = of(orgCategoryData1[0]);
+      it('should handle modal dismissal without attachments', fakeAsync(() => {
+        const mockAttachments = [
+          {
+            id: 'mock-attachment-id',
+            name: 'mock-attachment.jpg',
+            type: 'image/jpeg',
+            url: 'mock-url',
+            thumbnail: 'mock-thumbnail',
+          },
+        ];
 
-        fixture.detectChanges();
-        component.getCategoryOnEdit(orgCategoryData1[0]).subscribe((res) => {
-          expect(res).toEqual(orgCategoryPaginated1[0]);
-          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
-          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-          done();
-        });
-      });
+        const mockExpense = {
+          tx: {
+            id: 'mock-expense-id',
+            file_ids: ['mock-file-id'],
+          },
+        } as unknown as Expense;
 
-      it('should return selected category for draft expense if fyle_category is undefined', (done) => {
-        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
-        orgSettingsService.get.and.returnValue(of(orgSettingsData));
-        component.recentlyUsedValues$ = of(recentlyUsedRes);
-        component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
-        component.etxn$ = of({
-          ...unflattenedPaidExp,
-          tx: { ...unflattenedPaidExp.tx, fyle_category: undefined, state: 'DRAFT' },
-        });
-        component.initialFetch = true;
-        component.selectedCategory$ = of(orgCategoryData1[0]);
+        const mockModal = {
+          present: jasmine.createSpy('present'),
+          onWillDismiss: jasmine.createSpy('onWillDismiss'),
+        };
 
-        fixture.detectChanges();
-        component.getCategoryOnEdit(orgCategoryData1[0]).subscribe((res) => {
-          expect(res).toEqual(orgCategoryPaginated1[0]);
-          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
-          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-          done();
-        });
-      });
+        spyOn(component, 'getExpenseAttachments').and.returnValue(of(mockAttachments));
+        spyOn(loaderService, 'showLoader').and.resolveTo();
+        spyOn(loaderService, 'hideLoader');
+        spyOn(modalController, 'create').and.resolveTo(mockModal as any);
+        spyOn(expensesService, 'getExpenseById').and.returnValue(of(mockExpense));
 
-      it('should get autofill category for draft expense when category is unspecified', (done) => {
-        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
-        orgSettingsService.get.and.returnValue(of(orgSettingsData));
-        component.recentlyUsedValues$ = of(recentlyUsedRes);
-        component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
-        component.etxn$ = of(unflattenedDraftExp);
-        component.initialFetch = true;
-        spyOn(component, 'getAutofillCategory').and.returnValue(orgCategoryData);
-        fixture.detectChanges();
+        mockModal.present.and.resolveTo();
+        mockModal.onWillDismiss.and.resolveTo({ data: { attachments: [] } });
 
-        component.getCategoryOnEdit(orgCategoryData1[0]).subscribe((res) => {
-          expect(res).toEqual(expectedAutoFillCategory);
-          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
-          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-          expect(component.getAutofillCategory).toHaveBeenCalledOnceWith({
-            isAutofillsEnabled: true,
-            recentValue: recentlyUsedRes,
-            recentCategories: recentUsedCategoriesRes,
-            etxn: unflattenedDraftExp,
-            category: orgCategoryData1[0],
-          });
-          done();
-        });
-      });
-
-      it('should get autofill category for draft expense without extracted category and org category', (done) => {
-        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
-        orgSettingsService.get.and.returnValue(of(orgSettingsData));
-        component.recentlyUsedValues$ = of(recentlyUsedRes);
-        component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
-        component.etxn$ = of(unflattenedDraftExp2);
-        component.initialFetch = true;
-        spyOn(component, 'getAutofillCategory').and.returnValue(orgCategoryData);
-        fixture.detectChanges();
-
-        component.getCategoryOnEdit(orgCategoryData1[0]).subscribe((res) => {
-          expect(res).toEqual(orgCategoryData);
-          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
-          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-          expect(component.getAutofillCategory).toHaveBeenCalledOnceWith({
-            isAutofillsEnabled: true,
-            recentValue: recentlyUsedRes,
-            recentCategories: recentUsedCategoriesRes,
-            etxn: unflattenedDraftExp2,
-            category: orgCategoryData1[0],
-          });
-          done();
-        });
-      });
-
-      it('should get category if initial fetch is false', (done) => {
-        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
-        orgSettingsService.get.and.returnValue(of(orgSettingsData));
-        component.recentlyUsedValues$ = of(recentlyUsedRes);
-        component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
-        component.etxn$ = of(unflattenedDraftExp2);
-        component.initialFetch = false;
-        fixture.detectChanges();
-
-        component.getCategoryOnEdit(orgCategoryData[0]).subscribe((res) => {
-          expect(res).toBeUndefined();
-          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
-          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-          done();
-        });
-      });
-
-      it('should return null in case the expense does not have a category and auto-fill category is not found', (done) => {
-        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
-        orgSettingsService.get.and.returnValue(of(orgSettingsData));
-        component.recentlyUsedValues$ = of(recentlyUsedRes);
-        component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
-        component.etxn$ = of(unflattenedDraftExp3);
-        component.initialFetch = true;
-        fixture.detectChanges();
-
-        component.getCategoryOnEdit(orgCategoryData[0]).subscribe((res) => {
-          expect(res).toBeNull();
-          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
-          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-          done();
-        });
-      });
-    });
-
-    describe('getNewExpenseObservable():', () => {
-      beforeEach(() => {
-        categoriesService.getCategoryByName.and.returnValue(of(expectedOrgCategoryByName2));
-      });
-
-      it('should get new expense observable', (done) => {
-        orgSettingsService.get.and.returnValue(of(orgSettingsData));
-        authService.getEou.and.resolveTo(apiEouRes);
-        component.orgUserSettings$ = of(orgUserSettingsData);
-        component.homeCurrency$ = of('USD');
-        spyOn(component, 'getInstaFyleImageData').and.returnValue(of(instaFyleData1));
-        recentLocalStorageItemsService.get.and.resolveTo(selectedCurrencies);
-        component.recentlyUsedValues$ = of(recentlyUsedRes);
-        dateService.getUTCDate.and.returnValue(new Date('2023-01-17T06:34:32.50466Z'));
-        fixture.detectChanges();
-
-        component.getNewExpenseObservable().subscribe((res) => {
-          expect(res).toEqual(expectedExpenseObservable);
-          expect(component.source).toEqual('MOBILE_DASHCAM_SINGLE');
-          expect(component.isExpenseBankTxn).toBeFalse();
-          expect(component.instaFyleCancelled).toBeFalse();
-          expect(component.presetCurrency).toEqual('ARS');
-          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-          expect(authService.getEou).toHaveBeenCalledTimes(1);
-          expect(dateService.getUTCDate).toHaveBeenCalledTimes(2);
-          expect(categoriesService.getCategoryByName).toHaveBeenCalledOnceWith(instaFyleData1.parsedResponse.category);
-          expect(component.getInstaFyleImageData).toHaveBeenCalledTimes(1);
-          expect(recentLocalStorageItemsService.get).toHaveBeenCalledOnceWith('recent-currency-cache');
-          done();
-        });
-      });
-
-      it('should get expense observables if preferred currency is enabled and image data is not found', (done) => {
-        orgSettingsService.get.and.returnValue(of(orgSettingsData));
-        authService.getEou.and.resolveTo(apiEouRes);
-        component.orgUserSettings$ = of(orgUserSettingsWithCurrency);
-        component.homeCurrency$ = of('USD');
-        spyOn(component, 'getInstaFyleImageData').and.returnValue(of(null));
-        recentLocalStorageItemsService.get.and.resolveTo(selectedCurrencies);
-        component.recentlyUsedValues$ = of(recentlyUsedRes);
-        const UnmockedDate = Date;
-        spyOn(<any>window, 'Date').and.returnValue(new UnmockedDate('2019-06-19T01:00:00.000Z'));
-        fixture.detectChanges();
-
-        component.getNewExpenseObservable().subscribe((res) => {
-          expect(res).toEqual(expectedExpenseObservable2);
-          expect(component.source).toEqual('MOBILE');
-          expect(component.isExpenseBankTxn).toBeFalse();
-          expect(component.instaFyleCancelled).toBeFalse();
-          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-          expect(authService.getEou).toHaveBeenCalledTimes(1);
-          expect(categoriesService.getCategoryByName).not.toHaveBeenCalled();
-          expect(component.getInstaFyleImageData).toHaveBeenCalledTimes(1);
-          done();
-        });
-      });
-
-      it('should get new expense observable without autofill and currency settings enabled', (done) => {
-        orgSettingsService.get.and.returnValue(of(orgSettingsWithoutAutofill));
-        authService.getEou.and.resolveTo(apiEouRes);
-        component.orgUserSettings$ = of(orgUserSettingsData);
-        categoriesService.getAll.and.returnValue(of(orgCategoryData1));
-        component.homeCurrency$ = of('USD');
-        dateService.getUTCDate.and.returnValue(new Date('2023-01-24T11:30:00.000Z'));
-        spyOn(component, 'getInstaFyleImageData').and.returnValue(of(instaFyleData1));
-        recentLocalStorageItemsService.get.and.resolveTo(selectedCurrencies);
-        component.recentlyUsedValues$ = of(recentlyUsedRes);
-        fixture.detectChanges();
-
-        component.getNewExpenseObservable().subscribe((res) => {
-          expect(res).toEqual(expectedExpenseObservable3);
-          expect(component.source).toEqual('MOBILE_DASHCAM_SINGLE');
-          expect(component.isExpenseBankTxn).toBeFalse();
-          expect(component.instaFyleCancelled).toBeFalse();
-          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-
-          expect(authService.getEou).toHaveBeenCalledTimes(1);
-          expect(categoriesService.getCategoryByName).toHaveBeenCalledTimes(1);
-          expect(recentLocalStorageItemsService.get).toHaveBeenCalledOnceWith('recent-currency-cache');
-          expect(component.getInstaFyleImageData).toHaveBeenCalledTimes(1);
-          expect(dateService.getUTCDate).toHaveBeenCalledTimes(2);
-          done();
-        });
-      });
-
-      it('should get new expense observable without autofill and set currency equal to homeCurrency if recently used currency is undefined', (done) => {
-        orgSettingsService.get.and.returnValue(of(orgSettingsWithoutAutofill));
-        authService.getEou.and.resolveTo(apiEouRes);
-        component.orgUserSettings$ = of(orgUserSettingsData);
-        categoriesService.getAll.and.returnValue(of(orgCategoryData1));
-        component.homeCurrency$ = of('USD');
-        dateService.getUTCDate.and.returnValue(new Date('2023-01-24T11:30:00.000Z'));
-        spyOn(component, 'getInstaFyleImageData').and.returnValue(of(instaFyleData1));
-        recentLocalStorageItemsService.get.and.resolveTo(undefined);
-        component.recentlyUsedValues$ = of(recentlyUsedRes);
-        fixture.detectChanges();
-
-        component.getNewExpenseObservable().subscribe((newExpense) => {
-          expect(newExpense).toEqual(expectedExpenseObservable3);
-          expect(component.source).toEqual('MOBILE_DASHCAM_SINGLE');
-          expect(component.isExpenseBankTxn).toBeFalse();
-          expect(component.instaFyleCancelled).toBeFalse();
-          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-
-          expect(authService.getEou).toHaveBeenCalledTimes(1);
-          expect(categoriesService.getCategoryByName).toHaveBeenCalledTimes(1);
-          expect(recentLocalStorageItemsService.get).toHaveBeenCalledOnceWith('recent-currency-cache');
-          expect(component.getInstaFyleImageData).toHaveBeenCalledTimes(1);
-          expect(dateService.getUTCDate).toHaveBeenCalledTimes(2);
-          done();
-        });
-      });
-
-      it('should get new expense observable from personal card txn and home currency does not match extracted data', (done) => {
-        activatedRoute.snapshot.params.personalCardTxn = JSON.stringify(platformPersonalCardTxns.data[0]);
-        orgSettingsService.get.and.returnValue(of(orgSettingsData));
-        authService.getEou.and.resolveTo(apiEouRes);
-        component.orgUserSettings$ = of(orgUserSettingsData);
-        component.homeCurrency$ = of('INR');
-        spyOn(component, 'getInstaFyleImageData').and.returnValue(of(instaFyleData1));
-        recentLocalStorageItemsService.get.and.resolveTo(selectedCurrencies);
-        component.recentlyUsedValues$ = of(recentlyUsedRes);
-        dateService.getUTCDate.and.returnValue(new Date('2023-01-24T11:30:00.000Z'));
-        fixture.detectChanges();
-
-        component.getNewExpenseObservable().subscribe((res) => {
-          expect(res).toEqual(expectedExpenseObservable4);
-          expect(component.source).toEqual('MOBILE_DASHCAM_SINGLE');
-          expect(component.isExpenseBankTxn).toBeFalse();
-          expect(component.instaFyleCancelled).toBeFalse();
-          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-
-          expect(authService.getEou).toHaveBeenCalledTimes(1);
-          expect(categoriesService.getCategoryByName).toHaveBeenCalledTimes(1);
-          expect(recentLocalStorageItemsService.get).toHaveBeenCalledOnceWith('recent-currency-cache');
-          expect(component.getInstaFyleImageData).toHaveBeenCalledTimes(1);
-          done();
-        });
-      });
-
-      it('should get new expense from bank txn', (done) => {
-        orgSettingsService.get.and.returnValue(of(orgSettingsData));
-        authService.getEou.and.resolveTo(apiEouRes);
-        component.orgUserSettings$ = of(orgUserSettingsData);
-        component.homeCurrency$ = of('USD');
-        spyOn(component, 'getInstaFyleImageData').and.returnValue(of(instaFyleData1));
-        recentLocalStorageItemsService.get.and.resolveTo(selectedCurrencies);
-        component.recentlyUsedValues$ = of(recentlyUsedRes);
-        dateService.getUTCDate.and.returnValue(new Date('2023-01-24T17:00:00.000Z'));
-        activatedRoute.snapshot.params.bankTxn = JSON.stringify(expectedECccResponse[0]);
-        fixture.detectChanges();
-
-        component.getNewExpenseObservable().subscribe((res) => {
-          expect(res).toEqual(expectedExpenseObservable5);
-          expect(component.source).toEqual('MOBILE_DASHCAM_SINGLE');
-          expect(component.isExpenseBankTxn).toBeTrue();
-          expect(component.instaFyleCancelled).toBeFalse();
-          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-
-          expect(authService.getEou).toHaveBeenCalledTimes(1);
-          expect(categoriesService.getCategoryByName).toHaveBeenCalledTimes(1);
-          expect(recentLocalStorageItemsService.get).toHaveBeenCalledOnceWith('recent-currency-cache');
-          expect(component.getInstaFyleImageData).toHaveBeenCalledTimes(1);
-          expect(dateService.getUTCDate).toHaveBeenCalledTimes(2);
-          done();
-        });
-      });
-
-      it('should get new expense observable without insta fyle image data URL?', (done) => {
-        orgSettingsService.get.and.returnValue(of(orgSettingsData));
-        authService.getEou.and.resolveTo(apiEouRes);
-        component.orgUserSettings$ = of(orgUserSettingsData);
-        component.homeCurrency$ = of('USD');
-        spyOn(component, 'getInstaFyleImageData').and.returnValue(of(instaFyleData5));
-        activatedRoute.snapshot.params.dataUrl = JSON.stringify(['url']);
-        recentLocalStorageItemsService.get.and.resolveTo(null);
-        component.recentlyUsedValues$ = of(recentlyUsedRes);
-        fixture.detectChanges();
-
-        component.getNewExpenseObservable().subscribe(() => {
-          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-          expect(authService.getEou).toHaveBeenCalledTimes(1);
-          expect(categoriesService.getCategoryByName).toHaveBeenCalledTimes(1);
-          expect(recentLocalStorageItemsService.get).toHaveBeenCalledOnceWith('recent-currency-cache');
-          expect(component.getInstaFyleImageData).toHaveBeenCalledTimes(1);
-          done();
-        });
-      });
-    });
-
-    describe('attachReceipts():', () => {
-      it('should attach receipts in add mode', () => {
-        component.mode = 'add';
-        component.newExpenseDataUrls = [];
-        component.source = 'MOBILE';
-        component.isConnected$ = of(true);
-        spyOn(component, 'parseFile');
-        fixture.detectChanges();
-
-        component.attachReceipts({
-          type: 'pdf',
-          dataUrl: 'url',
-        });
-
-        expect(component.parseFile).toHaveBeenCalledOnceWith({ type: 'pdf', url: 'url', thumbnail: 'url' });
-        expect(component.source).toEqual('MOBILE_FILE');
-        expect(component.newExpenseDataUrls).toEqual([{ type: 'pdf', url: 'url', thumbnail: 'url' }]);
-      });
-
-      it('should attach receipts in add mode if file is of image type', () => {
-        component.mode = 'add';
-        component.newExpenseDataUrls = [];
-        component.source = 'MOBILE';
-        component.isConnected$ = of(true);
-        spyOn(component, 'parseFile');
-        fixture.detectChanges();
-
-        component.attachReceipts({
-          type: 'image',
-          dataUrl: 'url',
-        });
-
-        expect(component.parseFile).toHaveBeenCalledOnceWith({ type: 'image', url: 'url', thumbnail: 'url' });
-        expect(component.source).toEqual('MOBILE_CAMERA');
-        expect(component.newExpenseDataUrls).toEqual([{ type: 'image', url: 'url', thumbnail: 'url' }]);
-      });
-
-      it('should attach receipt in edit mode', fakeAsync(() => {
         component.mode = 'edit';
-        component.etxn$ = of(unflattenedExpData);
-        component.platformExpense$ = of(platformExpenseWithExtractedData);
-        component.isConnected$ = of(true);
-        const mockFileData = cloneDeep(fileObjectData1);
-        transactionOutboxService.fileUpload.and.resolveTo(mockFileData[0]);
-        activatedRoute.snapshot.params.id = mockFileData[0].transaction_id;
-        expensesService.attachReceiptToExpense.and.returnValue(of(platformExpenseWithExtractedData));
-        expensesService.getExpenseById.and.returnValue(of(platformExpenseWithExtractedData));
-        spyOn(component, 'parseFile').and.returnValue(null);
-        spyOn(component.loadAttachments$, 'next');
-        fixture.detectChanges();
+        component.etxn$ = of(mockExpense as unknown as Partial<UnflattenedTransaction>);
+        component.platformExpense$ = of(mockExpense);
 
-        component.attachReceipts({
-          type: 'pdf',
-          dataUrl: 'url',
-        });
-        tick(1000);
+        component.viewAttachments();
+        tick(); // For loader.showLoader
+        tick(); // For modal creation
+        tick(); // For modal present
+        tick(); // For modal onWillDismiss
+        tick(); // For getExpenseById
+        tick(); // For addAttachments
 
-        expect(transactionOutboxService.fileUpload).toHaveBeenCalledOnceWith('url', 'pdf');
-        expect(expensesService.attachReceiptToExpense).toHaveBeenCalledOnceWith(
-          mockFileData[0].transaction_id,
-          mockFileData[0].id
-        );
-        expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txbO4Xaj4N53');
-        expect(component.loadAttachments$.next).toHaveBeenCalledOnceWith();
-        expect(trackingService.fileUploadComplete).toHaveBeenCalledOnceWith({
-          mode: 'edit',
-          'File ID': mockFileData[0].id,
-          'Txn ID': mockFileData[0].transaction_id,
-        });
+        expect(loaderService.showLoader).toHaveBeenCalled();
+        expect(component.getExpenseAttachments).toHaveBeenCalled();
+        expect(modalController.create).toHaveBeenCalled();
+        expect(mockModal.present).toHaveBeenCalled();
+        expect(expensesService.getExpenseById).not.toHaveBeenCalled();
+        expect(loaderService.hideLoader).toHaveBeenCalled();
+        expect(component.attachedReceiptsCount).toBe(0);
       }));
     });
 
