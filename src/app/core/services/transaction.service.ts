@@ -827,7 +827,7 @@ export class TransactionService {
   }
 
   private getPersonalAccount(): Observable<{ source_account_id: string }> {
-    return this.accountsService.getEMyAccounts().pipe(
+    return this.accountsService.getMyAccounts().pipe(
       map((accounts) => {
         const account = accounts?.find((account) => account?.acc?.type === AccountType.PERSONAL);
         return {
@@ -844,7 +844,7 @@ export class TransactionService {
   }> {
     return forkJoin({
       orgSettings: this.orgSettingsService.get(),
-      accounts: this.accountsService.getEMyAccounts(),
+      accounts: this.accountsService.getMyAccounts(),
       orgUserSettings: this.orgUserSettingsService.get(),
     }).pipe(
       switchMap(({ orgSettings, accounts, orgUserSettings }) =>

@@ -638,7 +638,7 @@ export class AddEditMileagePage implements OnInit {
 
   getPaymentModes(): Observable<AccountOption[]> {
     return forkJoin({
-      accounts: this.accountsService.getEMyAccounts(),
+      accounts: this.accountsService.getMyAccounts(),
       advanceWallets: this.advanceWalletsService.getAllAdvanceWallets(),
       orgSettings: this.orgSettingsService.get(),
       etxn: this.etxn$,
@@ -1162,7 +1162,7 @@ export class AddEditMileagePage implements OnInit {
   }
 
   setupBalanceFlag(): void {
-    const accounts$ = this.accountsService.getEMyAccounts();
+    const accounts$ = this.accountsService.getMyAccounts();
     const advanceWallets$ = this.advanceWalletsService.getAllAdvanceWallets();
     const orgSettings$ = this.orgSettingsService.get();
     this.isBalanceAvailableInAnyAdvanceAccount$ = this.fg.controls.paymentMode.valueChanges.pipe(
