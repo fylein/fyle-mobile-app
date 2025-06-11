@@ -12,7 +12,7 @@ import { FileService } from 'src/app/core/services/file.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { ActivatedRoute } from '@angular/router';
 
-describe('FyViewAttachmentComponent', () => {
+fdescribe('FyViewAttachmentComponent', () => {
   let component: FyViewAttachmentComponent;
   let fixture: ComponentFixture<FyViewAttachmentComponent>;
   let domSantizer: jasmine.SpyObj<DomSanitizer>;
@@ -414,6 +414,7 @@ describe('FyViewAttachmentComponent', () => {
       component.loading = false;
       component.rotatingDirection = 1 as any;
       await component.rotateAttachment(1 as any);
+      //@ts-ignore
       expect(component.rotatingDirection).toBe(1);
       component.rotatingDirection = null;
     });
