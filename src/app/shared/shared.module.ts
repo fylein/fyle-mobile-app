@@ -157,6 +157,7 @@ import { CCExpenseMerchantInfoModalComponent } from './components/cc-expense-mer
 import { FyMsgPopoverComponent } from './components/fy-msg-popover/fy-msg-popover.component';
 import { ShowAllApproversPopoverComponent } from './components/fy-approver/show-all-approvers-popover/show-all-approvers-popover.component';
 import { DateWithTimezonePipe } from './pipes/date-with-timezone.pipe';
+import { FyExpansionInfoMsgComponent } from './components/fy-expansion-info-msg/fy-expansion-info-msg.component';
 
 @NgModule({
   declarations: [
@@ -290,6 +291,7 @@ import { DateWithTimezonePipe } from './pipes/date-with-timezone.pipe';
     ExactCurrencyPipe,
     CCExpenseMerchantInfoModalComponent,
     DateWithTimezonePipe,
+    FyExpansionInfoMsgComponent,
   ],
   imports: [
     CommonModule,
@@ -427,6 +429,7 @@ import { DateWithTimezonePipe } from './pipes/date-with-timezone.pipe';
     CCExpenseMerchantInfoModalComponent,
     ReviewSplitExpenseComponent,
     DateWithTimezonePipe,
+    FyExpansionInfoMsgComponent,
   ],
   providers: [
     DecimalPipe,

@@ -23,6 +23,15 @@
 <ion-content class="view-reports--container">
   <div class="view-reports--body" *ngIf="report$|async as report">
     <div>
+      <div *ngIf="showApprovalInfoMessage && canApproveReport" class="view-reports--info-msg-container">
+        <app-fy-expansion-info-msg
+          [infoMsgContent]="approvalInfoMessage"
+          [showHelpLink]="true"
+          helpLinkLabel="Learn more"
+          (helpLinkClick)="openHelpArticle()"
+        >
+        </app-fy-expansion-info-msg>
+      </div>
       <div class="view-reports--card">
         <ion-grid>
           <ion-row class="view-reports--purpose-state">
