@@ -12,7 +12,7 @@ import { FileService } from 'src/app/core/services/file.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { ActivatedRoute } from '@angular/router';
 
-fdescribe('FyViewAttachmentComponent', () => {
+describe('FyViewAttachmentComponent', () => {
   let component: FyViewAttachmentComponent;
   let fixture: ComponentFixture<FyViewAttachmentComponent>;
   let domSantizer: jasmine.SpyObj<DomSanitizer>;
