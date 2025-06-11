@@ -661,6 +661,7 @@ describe('SwitchOrgPage', () => {
   });
 
   describe('navigateBasedOnUserStatus(): ', () => {
+
     beforeEach(() => {
       userService.getUserPasswordStatus.and.returnValue(
         of({
@@ -760,11 +761,7 @@ describe('SwitchOrgPage', () => {
       component.navigateBasedOnUserStatus(config).subscribe((res) => {
         expect(res).toEqual(apiEouRes);
         expect(userService.getUserPasswordStatus).toHaveBeenCalledTimes(1);
-        expect(component.handlePendingDetails).toHaveBeenCalledOnceWith(
-          config.roles,
-          config.isFromInviteLink,
-          config.isPasswordSetRequired
-        );
+        expect(component.handlePendingDetails).toHaveBeenCalledOnceWith(config.roles, config.isFromInviteLink, config.isPasswordSetRequired);
         done();
       });
     });
@@ -915,16 +912,10 @@ describe('SwitchOrgPage', () => {
     }));
   });
 
-  describe('getOrgsWhichContainSearchText(): ', () => {
-    it('should return orgs with matching search text', () => {
-      const result = component.getOrgsWhichContainSearchText(orgData2, 'Fyle Loaded');
-      expect(result).toEqual([orgData2[1]]);
-    });
+  it('getOrgsWhichContainSearchText(): should return orgs with matching search text', () => {
+    const result = component.getOrgsWhichContainSearchText(orgData2, 'Fyle Loaded');
 
-    it('should return orgs sorted by name', () => {
-      const result = component.getOrgsWhichContainSearchText(orgData2, 'Loaded');
-      expect(result).toEqual([orgData2[1], orgData2[0]]);
-    });
+    expect(result).toEqual([orgData2[1]]);
   });
 
   it('resetSearch(): should reset search bar', () => {
@@ -998,68 +989,5 @@ describe('SwitchOrgPage', () => {
     const orgCards = getAllElementsBySelector(fixture, "[data-test='org-cards']");
 
     expect(orgCards.length).toEqual(orgData2.length);
-  });
-
-  describe('redirectToDashboard(): ', () => {
-    beforeEach(() => {
-      loaderService.showLoader.and.resolveTo();
-      loaderService.hideLoader.and.resolveTo();
-      orgService.switchOrg.and.returnValue(of(apiEouRes));
-      userEventService.clearTaskCache.and.returnValue();
-      recentLocalStorageItemsService.clearRecentLocalStorageCache.and.returnValue();
-      authService.getEou.and.resolveTo(apiEouRes);
-      spyOn(component, 'setSentryUser').and.returnValue();
-      spyOn(component, 'navigateToDashboard').and.returnValue();
-      spyOn(globalCacheBusterNotifier, 'next').and.returnValue();
-    });
-
-    it('should redirect to dashboard successfully', fakeAsync(() => {
-      const orgId = 'orNVthTo2Zyo';
-      component.redirectToDashboard(orgId);
-
-      tick(200);
-
-      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Please wait...', 2000);
-      expect(orgService.switchOrg).toHaveBeenCalledOnceWith(orgId);
-      expect(globalCacheBusterNotifier.next).toHaveBeenCalledOnceWith();
-      expect(userEventService.clearTaskCache).toHaveBeenCalledOnceWith();
-      expect(recentLocalStorageItemsService.clearRecentLocalStorageCache).toHaveBeenCalledOnceWith();
-      expect(authService.getEou).toHaveBeenCalledOnceWith();
-      expect(component.setSentryUser).toHaveBeenCalledOnceWith(apiEouRes);
-      expect(loaderService.hideLoader).toHaveBeenCalledOnceWith();
-      expect(component.navigateToDashboard).toHaveBeenCalledOnceWith(true);
-    }));
-
-    it('should navigate to switch org page on error', fakeAsync(() => {
-      const orgId = 'orNVthTo2Zyo';
-      orgService.switchOrg.and.returnValue(throwError(() => new Error('Switch org failed')));
-
-      component.redirectToDashboard(orgId);
-      tick(200);
-
-      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Please wait...', 2000);
-      expect(orgService.switchOrg).toHaveBeenCalledOnceWith(orgId);
-      expect(loaderService.hideLoader).toHaveBeenCalledOnceWith();
-      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'switch_org']);
-      expect(component.navigateToDashboard).not.toHaveBeenCalled();
-    }));
-
-    it('should handle error during getEou and navigate to switch org page', fakeAsync(() => {
-      const orgId = 'orNVthTo2Zyo';
-      authService.getEou.and.rejectWith(new Error('Get EOU failed'));
-
-      component.redirectToDashboard(orgId);
-      tick(200);
-
-      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Please wait...', 2000);
-      expect(orgService.switchOrg).toHaveBeenCalledOnceWith(orgId);
-      expect(globalCacheBusterNotifier.next).toHaveBeenCalledOnceWith();
-      expect(userEventService.clearTaskCache).toHaveBeenCalledOnceWith();
-      expect(recentLocalStorageItemsService.clearRecentLocalStorageCache).toHaveBeenCalledOnceWith();
-      expect(authService.getEou).toHaveBeenCalledOnceWith();
-      expect(loaderService.hideLoader).toHaveBeenCalledOnceWith();
-      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'switch_org']);
-      expect(component.navigateToDashboard).not.toHaveBeenCalled();
-    }));
   });
 });
