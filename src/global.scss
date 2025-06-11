@@ -1424,6 +1424,13 @@ ion-toggle.toggle-checked::before {
   }
 }
 
+.fy-expansion--info-message-accordion ion-item[slot='header'] ion-icon[slot='end'] {
+  align-self: flex-start;
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+}
+
 .custom-loading {
   display: flex;
   align-items: center;
