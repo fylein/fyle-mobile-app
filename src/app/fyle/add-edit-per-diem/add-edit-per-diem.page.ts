@@ -549,7 +549,7 @@ export class AddEditPerDiemPage implements OnInit {
   getPaymentModes(): Observable<AccountOption[]> {
     return combineLatest({
       etxn: this.etxn$,
-      accounts: this.accountsService.getEMyAccounts(),
+      accounts: this.accountsService.getMyAccounts(),
       allowedPaymentModes: this.orgUserSettingsService.getAllowedPaymentModes(),
     }).pipe(
       map(({ etxn, accounts, allowedPaymentModes }) => {
@@ -602,7 +602,7 @@ export class AddEditPerDiemPage implements OnInit {
     return combineLatest({
       etxn: this.etxn$,
       paymentModes: this.paymentModes$,
-      accounts: this.accountsService.getEMyAccounts(),
+      accounts: this.accountsService.getMyAccounts(),
       orgSettings: this.orgSettingsService.get(),
       orgUserSettings: this.orgUserSettingsService.get(),
     }).pipe(
@@ -1651,7 +1651,7 @@ export class AddEditPerDiemPage implements OnInit {
 
         if (paymentMode) {
           if (paymentMode.type === 'PERSONAL_CASH_ACCOUNT') {
-            sourceAccountId = paymentMode.id ;
+            sourceAccountId = paymentMode.id;
             if (paymentMode.acc?.displayName === 'Paid by Company' || !paymentMode.isReimbursable) {
               skipReimbursement = true;
             } else {
