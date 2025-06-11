@@ -87,7 +87,7 @@ describe('AccountsService', () => {
   it('should be able to fetch data from api in proper format', (done) => {
     spenderPlatformV1ApiService.get.and.returnValue(of({ data: accountsCallResponse1 }));
 
-    accountsService.getEMyAccounts().subscribe((res) => {
+    accountsService.getMyAccounts().subscribe((res) => {
       expect(res[0]).toEqual(unflattenedAccount1Data);
       expect(res[1]).toEqual(unflattenedAccount2Data);
       expect(res.length === 2);

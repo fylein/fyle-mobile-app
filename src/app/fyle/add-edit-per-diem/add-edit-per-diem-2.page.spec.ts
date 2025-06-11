@@ -420,7 +420,7 @@ export function TestCases2(getTestBed) {
         expenseCommentService.getTransformedComments.and.returnValue(of(getEstatusApiResponse));
         currencyService.getAmountWithCurrencyFraction.and.returnValue(23);
         currencyService.getExchangeRate.and.returnValue(of(12));
-        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
+        accountsService.getMyAccounts.and.returnValue(of(multiplePaymentModesData));
         projectsService.getbyId.and.returnValue(of(projects[0]));
         accountsService.getEtxnSelectedPaymentMode.and.returnValue(multiplePaymentModesData[0]);
         perDiemService.getRates.and.returnValue(of(expectedPerDiems));

@@ -534,7 +534,7 @@ export function TestCases1(getTestBed) {
 
     it('getPaymentModes(): should get payment modes', (done) => {
       component.etxn$ = of(unflattenedTxn);
-      accountsService.getEMyAccounts.and.returnValue(of(accountsData));
+      accountsService.getMyAccounts.and.returnValue(of(accountsData));
       advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
       orgSettingsService.get.and.returnValue(of(orgSettingsCCCDisabled));
       orgUserSettingsService.getAllowedPaymentModes.and.returnValue(
@@ -546,7 +546,7 @@ export function TestCases1(getTestBed) {
 
       component.getPaymentModes().subscribe((res) => {
         expect(res).toEqual(paymentModesData);
-        expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+        expect(accountsService.getMyAccounts).toHaveBeenCalledTimes(1);
         expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledTimes(1);
         expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
         expect(orgUserSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
@@ -563,7 +563,7 @@ export function TestCases1(getTestBed) {
 
     it('should get payment modes with advance wallets if advance wallets are enabled', (done) => {
       component.etxn$ = of(unflattenedTxnData);
-      accountsService.getEMyAccounts.and.returnValue(of(accountsData));
+      accountsService.getMyAccounts.and.returnValue(of(accountsData));
       advanceWalletsService.getAllAdvanceWallets.and.returnValue(of(advanceWallet1Data));
       orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithAdvanceWallet));
       orgUserSettingsService.getAllowedPaymentModes.and.returnValue(
@@ -577,7 +577,7 @@ export function TestCases1(getTestBed) {
 
       component.getPaymentModes().subscribe((res) => {
         expect(res).toEqual(paymentModesWithAdvanceWalletsResData);
-        expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+        expect(accountsService.getMyAccounts).toHaveBeenCalledTimes(1);
         expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledTimes(1);
         expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
         expect(orgUserSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
@@ -588,7 +588,7 @@ export function TestCases1(getTestBed) {
 
     it('getPaymentModes(): should get payment modes when orgSettings is null', (done) => {
       component.etxn$ = of(unflattenedTxn);
-      accountsService.getEMyAccounts.and.returnValue(of(accountsData));
+      accountsService.getMyAccounts.and.returnValue(of(accountsData));
       advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
       orgSettingsService.get.and.returnValue(of(null));
       orgUserSettingsService.getAllowedPaymentModes.and.returnValue(
@@ -600,7 +600,7 @@ export function TestCases1(getTestBed) {
 
       component.getPaymentModes().subscribe((res) => {
         expect(res).toEqual(paymentModesData);
-        expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+        expect(accountsService.getMyAccounts).toHaveBeenCalledTimes(1);
         expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledTimes(1);
         expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
         expect(orgUserSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);

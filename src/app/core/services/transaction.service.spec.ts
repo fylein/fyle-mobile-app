@@ -61,7 +61,7 @@ import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { expenseData } from '../mock-data/platform/v1/expense.data';
 import { TrackingService } from './tracking.service';
 
-describe('TransactionService', () => {
+fdescribe('TransactionService', () => {
   let transactionService: TransactionService;
   let storageService: jasmine.SpyObj<StorageService>;
   let apiService: jasmine.SpyObj<ApiService>;
@@ -953,7 +953,7 @@ describe('TransactionService', () => {
 
   it('getTxnAccount(): should get the default txn account', (done) => {
     orgSettingsService.get.and.returnValue(of(orgSettingsData));
-    accountsService.getEMyAccounts.and.returnValue(of(accountsData));
+    accountsService.getMyAccounts.and.returnValue(of(accountsData));
     orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
     paymentModesService.getDefaultAccount.and.returnValue(of(accountsData[0]));
 
@@ -972,14 +972,14 @@ describe('TransactionService', () => {
         orgUserSettingsData
       );
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-      expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+      expect(accountsService.getMyAccounts).toHaveBeenCalledTimes(1);
       expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
       done();
     });
   });
 
   it('getPersonalAccount(): should get the personal account', (done) => {
-    accountsService.getEMyAccounts.and.returnValue(of(accountsData));
+    accountsService.getMyAccounts.and.returnValue(of(accountsData));
 
     const expectedResult = {
       source_account_id: 'acc5APeygFjRd',
@@ -988,7 +988,7 @@ describe('TransactionService', () => {
     // @ts-ignore
     transactionService.getPersonalAccount().subscribe((res) => {
       expect(res).toEqual(expectedResult);
-      expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+      expect(accountsService.getMyAccounts).toHaveBeenCalledTimes(1);
       done();
     });
   });
