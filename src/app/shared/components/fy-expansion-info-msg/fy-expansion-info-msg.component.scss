@@ -38,7 +38,7 @@
       color: $blue-black;
       font-size: 12px;
       line-height: 18px;
-      padding: 0 16px 8px 0;
+      padding: 0 8px 8px 0;
     }
 
     &:not(.accordion-expanded) {
@@ -65,8 +65,27 @@
     width: 12px;
     height: 12px;
 
-    &::ng-deep svg path {
+    svg path {
       fill: $blue-4;
+    }
+  }
+
+  ion-accordion-group.accordion-group-expand-inset {
+    > ion-accordion:first-of-type,
+    > ion-accordion:last-of-type {
+      border-top-left-radius: 0 !important;
+      border-top-right-radius: 0 !important;
+      border-bottom-left-radius: 0 !important;
+      border-bottom-right-radius: 0 !important;
+    }
+
+    > ion-accordion {
+      box-shadow: none !important;
+    }
+
+    > ion-accordion.accordion-expanding,
+    > ion-accordion.accordion-expanded {
+      margin-bottom: 0 !important;
     }
   }
 }
