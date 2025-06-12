@@ -85,7 +85,6 @@ export class ReceiptPreviewComponent implements OnInit, OnDestroy {
       return;
     }
     this.rotatingDirection = direction;
-    this.trackingService.rotateReceipt();
 
     this.trackingService.rotateReceipt({
       Direction: direction,
