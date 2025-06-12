@@ -75,7 +75,7 @@
     <!-- Left side buttons: rotate left, rotate right, delete -->
     <div class="view-attachments--footer-left-buttons">
       <div
-        *ngIf="attachments[activeIndex]?.type !== 'pdf'"
+        *ngIf="attachments[activeIndex]?.type !== 'pdf' && attachment.id"
         class="icon-button"
         (click)="!loading && !saving && rotateAttachment(RotationDirection.LEFT)"
         [class.disabled]="loading || saving"
@@ -84,7 +84,7 @@
       </div>
 
       <div
-        *ngIf="attachments[activeIndex]?.type !== 'pdf'"
+        *ngIf="attachments[activeIndex]?.type !== 'pdf' && attachment.id"
         class="icon-button"
         (click)="!loading && !saving && rotateAttachment(RotationDirection.RIGHT)"
         [class.disabled]="loading || saving"

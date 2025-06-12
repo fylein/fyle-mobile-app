@@ -45,6 +45,8 @@ export class FyViewAttachmentComponent implements OnInit {
 
   saving = false;
 
+  attachment: FileObject;
+
   rotatingDirection: RotationDirection | null = null;
 
   isImageDirty: { [key: number]: boolean } = {};
@@ -68,6 +70,7 @@ export class FyViewAttachmentComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.attachment = this.attachments[this.activeIndex];
     this.zoomScale = 1;
     this.sliderOptions = {
       zoom: {
