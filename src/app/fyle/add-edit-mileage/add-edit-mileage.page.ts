@@ -36,12 +36,12 @@ import {
   tap,
 } from 'rxjs/operators';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
+import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
 import { AccountOption } from 'src/app/core/models/account-option.model';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { CostCenterOptions } from 'src/app/core/models/cost-center-options.model';
 import { Destination } from 'src/app/core/models/destination.model';
 import { Expense } from 'src/app/core/models/expense.model';
-import { ExtendedAccount } from 'src/app/core/models/extended-account.model';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { Location } from 'src/app/core/models/location.model';
@@ -108,7 +108,6 @@ import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
 import { CommuteDeductionOptions } from 'src/app/core/models/commute-deduction-options.model';
 import { MileageFormValue } from 'src/app/core/models/mileage-form-value.model';
 import { CommuteDetailsResponse } from 'src/app/core/models/platform/commute-details-response.model';
-import { AdvanceWallet } from 'src/app/core/models/platform/v1/advance-wallet.model';
 import { LocationInfo } from 'src/app/core/models/location-info.model';
 import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 
@@ -262,8 +261,6 @@ export class AddEditMileagePage implements OnInit {
 
   dependentFields$: Observable<ExpenseField[]>;
 
-  orgUserSettings$: Observable<OrgUserSettings>;
-
   selectedProject$: BehaviorSubject<ProjectV2>;
 
   selectedCostCenter$: BehaviorSubject<CostCenter>;
@@ -329,9 +326,7 @@ export class AddEditMileagePage implements OnInit {
     private expensesService: ExpensesService,
     private changeDetectorRef: ChangeDetectorRef,
     private expenseCommentService: ExpenseCommentService
-  ) {
-    this.orgUserSettings$ = this.orgUserSettingsService.get();
-  }
+  ) {}
 
   get showSaveAndNext(): boolean {
     return this.activeIndex !== null && this.reviewList !== null && +this.activeIndex === this.reviewList.length - 1;
@@ -632,102 +627,24 @@ export class AddEditMileagePage implements OnInit {
   }
 
   getPaymentModes(): Observable<AccountOption[]> {
-    return combineLatest({
-      etxn: this.etxn$,
-      accounts: this.accountsService.getMyAccounts(),
-      allowedPaymentModes: this.orgUserSettingsService.getAllowedPaymentModes(),
-    }).pipe(
-      map(({ etxn, accounts, allowedPaymentModes }) => {
-        // Get personal cash accounts
-        const personalAccounts = accounts.filter((account) => account?.type === 'PERSONAL_CASH_ACCOUNT');
-
-        // Create account options with reimbursable and non-reimbursable versions
-        const accountOptions = personalAccounts.reduce((options: ExtendedAccount[], account) => {
-          // Always add Personal Card/Cash (reimbursable)
-          const personalAccount = { ...account, isReimbursable: true };
-          personalAccount.acc = { ...account.acc, isReimbursable: true, displayName: 'Personal Card/Cash' };
-          options.push(personalAccount);
-
-          // Add Paid by Company if COMPANY_ACCOUNT is allowed
-          if (allowedPaymentModes.includes(AccountType.COMPANY)) {
-            const companyAccount = { ...account, isReimbursable: false };
-            companyAccount.acc = { ...account.acc, isReimbursable: false, displayName: 'Paid by Company' };
-            options.push(companyAccount);
-          }
-
-          return options;
-        }, []);
-
-        // Handle existing expense payment mode
-        if (etxn?.source?.account_id) {
-          const existingAccount = accountOptions.find((account) => account.id === etxn.source.account_id);
-          if (!existingAccount) {
-            const matchingAccount = personalAccounts.find((account) => account.id === etxn.source.account_id);
-            if (matchingAccount) {
-              const newAccount = { ...matchingAccount, isReimbursable: !etxn.tx.skip_reimbursement };
-              newAccount.acc = {
-                ...matchingAccount.acc,
-                isReimbursable: !etxn.tx.skip_reimbursement,
-                displayName: etxn.tx.skip_reimbursement ? 'Paid by Company' : 'Personal Card/Cash',
-              };
-              accountOptions.unshift(newAccount);
-            }
-          }
-        }
-
-        return accountOptions.map((account) => ({
-          label: account.acc?.displayName,
-          value: account,
-        }));
-      })
-    );
-  }
-
-  getDefaultPaymentModes(): Observable<ExtendedAccount | AdvanceWallet> {
-    return combineLatest({
-      etxn: this.etxn$,
-      paymentModes: this.paymentModes$,
+    return forkJoin({
       accounts: this.accountsService.getMyAccounts(),
       orgSettings: this.orgSettingsService.get(),
-      orgUserSettings: this.orgUserSettingsService.get(),
+      etxn: this.etxn$,
+      allowedPaymentModes: this.orgUserSettingsService.getAllowedPaymentModes(),
+      isPaymentModeConfigurationsEnabled: this.paymentModesService.checkIfPaymentModeConfigurationsIsEnabled(),
     }).pipe(
-      map(({ etxn, paymentModes, accounts }) => {
-        // First check if there's an existing expense and use its payment mode
-        const selectedMode = this.accountsService.getEtxnSelectedPaymentMode(etxn, paymentModes);
-        if (selectedMode) {
-          return selectedMode;
-        }
+      map(({ accounts, orgSettings, etxn, allowedPaymentModes, isPaymentModeConfigurationsEnabled }) => {
+        const config = {
+          etxn,
+          orgSettings,
+          expenseType: ExpenseType.MILEAGE,
+          isPaymentModeConfigurationsEnabled,
+        };
 
-        // Then check if there's a payment mode in the form
-        const formValues = this.getFormValues();
-        if (formValues.paymentMode) {
-          return formValues.paymentMode;
-        }
-
-        // For per diem, default to personal account (reimbursable)
-        const personalAccount = accounts.find((account) => account?.type === 'PERSONAL_CASH_ACCOUNT');
-        if (personalAccount) {
-          return {
-            ...personalAccount,
-            isReimbursable: true,
-            acc: {
-              ...personalAccount.acc,
-              isReimbursable: true,
-              displayName: 'Personal Card/Cash',
-            },
-          };
-        }
-
-        // If no personal account found, return default personal account
-        return {
-          type: 'PERSONAL_CASH_ACCOUNT',
-          isReimbursable: true,
-          acc: {
-            displayName: 'Personal Card/Cash',
-            isReimbursable: true,
-          },
-        } as ExtendedAccount;
-      })
+        return this.accountsService.getPaymentModes(accounts, allowedPaymentModes, config);
+      }),
+      shareReplay(1)
     );
   }
 
@@ -1749,7 +1666,16 @@ export class AddEditMileagePage implements OnInit {
       paymentModes: this.paymentModes$,
     }).pipe(map(({ etxn, paymentModes }) => this.accountsService.getEtxnSelectedPaymentMode(etxn, paymentModes)));
 
-    const defaultPaymentMode$ = this.getDefaultPaymentModes();
+    const defaultPaymentMode$ = this.paymentModes$.pipe(
+      map((paymentModes) =>
+        paymentModes
+          .map((extendedPaymentMode) => extendedPaymentMode.value)
+          .find((paymentMode) => {
+            const accountType = this.accountsService.getAccountTypeFromPaymentMode(paymentMode);
+            return accountType === AccountType.PERSONAL;
+          })
+      )
+    );
 
     const eou$ = from(this.authService.getEou()).pipe(shareReplay(1));
 
