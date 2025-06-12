@@ -154,7 +154,6 @@ import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 import { CCExpenseMerchantInfoModalComponent } from 'src/app/shared/components/cc-expense-merchant-info-modal/cc-expense-merchant-info-modal.component';
 import { CorporateCardExpenseProperties } from 'src/app/core/models/corporate-card-expense-properties.model';
 import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
-import { AllowedPaymentModes } from 'src/app/core/models/allowed-payment-modes.enum';
 
 // eslint-disable-next-line
 type FormValue = {
@@ -3575,7 +3574,6 @@ export class AddEditExpensePage implements OnInit {
       map((res) => {
         const etxn: Partial<UnflattenedTransaction> = res.etxn;
         const isAdvanceWalletEnabled = res.orgSettings?.advances?.advance_wallets_enabled;
-        const formValue = this.getFormValues();
         let customProperties = res.customProperties;
         customProperties = customProperties.map((customProperty) => {
           if (!customProperty.value) {
@@ -3622,36 +3620,15 @@ export class AddEditExpensePage implements OnInit {
 
         const category_id = this.getOrgCategoryID() || unspecifiedCategory.id;
 
-        // Handle payment mode type and source account
-        const paymentMode = formValue.paymentMode;
-        let sourceAccountId = null;
-        let advanceWalletId = null;
-        let skipReimbursement = false;
-
-        if (paymentMode) {
-          if (paymentMode.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT') {
-            sourceAccountId = paymentMode.id;
-            skipReimbursement = true;
-          } else if (paymentMode.type === 'PERSONAL_CASH_ACCOUNT') {
-            sourceAccountId = paymentMode.id;
-            // Personal Card/Cash should always be reimbursable
-            // Only Paid by Company should be non-reimbursable
-            skipReimbursement = paymentMode.acc?.displayName === 'Paid by Company';
-          } else if (paymentMode.type === 'PERSONAL_ADVANCE_ACCOUNT' || (paymentMode.id && isAdvanceWalletEnabled)) {
-            advanceWalletId = paymentMode.id;
-            skipReimbursement = true;
-          }
-        }
-
         //TODO: Add dependent fields to custom_properties array once APIs are available
         return {
           tx: {
             ...etxn.tx,
             source: this.source || etxn.tx.source,
-            source_account_id: sourceAccountId as string | null,
-            advance_wallet_id: advanceWalletId as string | null,
+            source_account_id: this.getSourceAccID(),
+            advance_wallet_id: this.getAdvanceWalletId(isAdvanceWalletEnabled),
             billable: this.getBillable(),
-            skip_reimbursement: skipReimbursement,
+            skip_reimbursement: this.getSkipRemibursement(),
             txn_dt: this.getTxnDate(),
             currency: this.getCurrency(),
             amount,
@@ -5417,15 +5394,5 @@ export class AddEditExpensePage implements OnInit {
         expenses: updatedExpenses,
       });
     }
-  }
-
-  private mapPaymentModeToAccountType(paymentMode: AllowedPaymentModes): AccountType {
-    const paymentModeToAccountTypeMap = {
-      [AllowedPaymentModes.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT]: AccountType.CCC,
-      [AllowedPaymentModes.COMPANY_ACCOUNT]: AccountType.COMPANY,
-      [AllowedPaymentModes.PERSONAL_ADVANCE_ACCOUNT]: AccountType.ADVANCE,
-      [AllowedPaymentModes.PERSONAL_ACCOUNT]: AccountType.PERSONAL,
-    };
-    return paymentModeToAccountTypeMap[paymentMode] || AccountType.PERSONAL;
   }
 }
