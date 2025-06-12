@@ -374,10 +374,7 @@ export class AccountsService {
 
         return accountsForPaymentMode;
       })
-      .reduce((allowedAccounts, accountsForPaymentMode) => {
-        allowedAccounts.push(...accountsForPaymentMode);
-        return allowedAccounts;
-      }, []);
+      .reduce((acc, curr) => [...acc, ...curr], []);
   }
 
   private ensureMinimumOneAccount(result: ExtendedAccount[], allAccounts: ExtendedAccount[]): ExtendedAccount[] {
