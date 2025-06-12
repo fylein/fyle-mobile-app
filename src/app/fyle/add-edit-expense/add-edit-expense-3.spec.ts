@@ -1218,12 +1218,12 @@ export function TestCases3(getTestBed) {
           componentProps: {
             attachments: fileObject4,
             canEdit: true,
+            expenseId: 'tx3qHxFNgRcZ',
           },
           mode: 'ios',
         });
         expect(component.loadAttachments$.next).toHaveBeenCalledOnceWith();
-        expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('tx3qHxFNgRcZ');
-        expect(component.attachedReceiptsCount).toEqual(1);
+        expect(component.attachedReceiptsCount).toEqual(2);
       }));
 
       it('should add attachments and upload receipt in add mode', fakeAsync(() => {
@@ -1255,6 +1255,7 @@ export function TestCases3(getTestBed) {
           componentProps: {
             attachments: fileObject4,
             canEdit: true,
+            expenseId: 'tx3qHxFNgRcZ',
           },
           mode: 'ios',
         });

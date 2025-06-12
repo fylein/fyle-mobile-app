@@ -230,28 +230,27 @@ export class FyViewAttachmentComponent implements OnInit {
           }
 
           return this.fileService.uploadUrl(attachment.id).pipe(
-            switchMap((uploadUrl: string) => this.transactionsOutboxService.uploadData(uploadUrl, blob, 'image/jpeg')),
+            switchMap((uploadUrl) => this.transactionsOutboxService.uploadData(uploadUrl, blob, 'image/jpeg')),
             tap(() => {
               this.attachments[this.activeIndex] = {
                 ...attachment,
                 url: currentBase64Url,
                 thumbnail: currentBase64Url,
               };
+              this.isImageDirty[this.activeIndex] = false;
+              this.saveComplete[this.activeIndex] = true;
+              // auto-hide “Saved” chip
+              setTimeout(() => (this.saveComplete[this.activeIndex] = false), 5000);
             })
           );
         }),
         finalize(() => {
           this.saving = false;
-          this.isImageDirty[this.activeIndex] = false;
-          this.saveComplete[this.activeIndex] = true;
-          setTimeout(() => {
-            this.saveComplete[this.activeIndex] = false;
-          }, 5000);
         })
       )
       .subscribe({
         error: () => {
-          this.saving = false;
+          // leave the image marked dirty on failure
           this.isImageDirty[this.activeIndex] = true;
         },
       });
