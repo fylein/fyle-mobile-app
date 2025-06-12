@@ -32,7 +32,12 @@ describe('FyViewAttachmentComponent', () => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['hideLoader', 'showLoader']);
-    const trackingServiceSpy = jasmine.createSpyObj('TracingService', ['deleteFileClicked', 'fileDeleted']);
+    const trackingServiceSpy = jasmine.createSpyObj('TracingService', [
+      'deleteFileClicked',
+      'fileDeleted',
+      'rotateReceipt',
+      'receiptSavedRotation',
+    ]);
     const spenderFileServiceSpy = jasmine.createSpyObj('SpenderFileService', ['deleteFilesBulk']);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['attachReceiptToExpense']);
     const fileServiceSpy = jasmine.createSpyObj('FileService', ['readFile', 'uploadUrl']);
