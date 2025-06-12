@@ -227,9 +227,7 @@ export class AccountsService {
   ): ExtendedAccount[] {
     const filteredPaymentModes = this.handlePaymentModeFiltering(allowedPaymentModes, isMileageOrPerDiemExpense, etxn);
 
-    const result = this.processAccountsByPaymentMode(allAccounts, filteredPaymentModes, isMultipleAdvanceEnabled);
-
-    return this.ensureMinimumOneAccount(result, allAccounts);
+    return this.processAccountsByPaymentMode(allAccounts, filteredPaymentModes, isMultipleAdvanceEnabled);
   }
 
   // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
@@ -241,9 +239,7 @@ export class AccountsService {
   ): ExtendedAccount[] {
     const filteredPaymentModes = this.handlePaymentModeFiltering(allowedPaymentModes, isMileageOrPerDiemExpense, etxn);
 
-    const result = this.processAccountsByPaymentMode(allAccounts, filteredPaymentModes);
-
-    return this.ensureMinimumOneAccount(result, allAccounts);
+    return this.processAccountsByPaymentMode(allAccounts, filteredPaymentModes);
   }
 
   // `Paid by Company` and `Paid by Employee` have same account id so explicitly checking for them.
@@ -375,20 +371,5 @@ export class AccountsService {
         return accountsForPaymentMode;
       })
       .reduce((acc, curr) => [...acc, ...curr], []);
-  }
-
-  private ensureMinimumOneAccount(result: ExtendedAccount[], allAccounts: ExtendedAccount[]): ExtendedAccount[] {
-    if (result.length === 0 && allAccounts.length > 0) {
-      const firstAccount = allAccounts[0];
-      firstAccount.isReimbursable = true;
-      if (!firstAccount.acc) {
-        firstAccount.acc = {} as unknown as AccountDetail;
-      }
-      firstAccount.acc.isReimbursable = true;
-      firstAccount.acc.displayName = 'Personal Card/Cash (Reimbursable)';
-      return [firstAccount];
-    }
-
-    return result;
   }
 }
