@@ -5,8 +5,8 @@
     [ngClass]="{ 'receipt-preview__toolbar--no-index': base64ImagesWithSource.length === 1 }"
   >
     <ion-title [ngClass]="{ 'receipt-preview__title--with-delete': base64ImagesWithSource.length > 1 }">
-      <div class="text-center receipt-preview__title">Receipt preview</div>
-      <div *ngIf="base64ImagesWithSource.length > 1" class="receipt-preview__sub-title text-center">
+      <div class="receipt-preview__title">Receipt Previews</div>
+      <div *ngIf="base64ImagesWithSource.length > 1" class="receipt-preview__sub-title">
         {{ activeIndex + 1 }}/{{ base64ImagesWithSource.length }}
       </div>
     </ion-title>
@@ -16,11 +16,28 @@
       </ion-button>
     </ion-buttons>
     <ion-buttons class="receipt-preview__btn" slot="end">
+      <!-- Show only right rotation on small screens -->
+      <ion-button
+        *ngIf="isSmallScreen; else rotateCTAs"
+        class="receipt-preview__btn--rotate"
+        (click)="rotateImage(RotationDirection.RIGHT)"
+      >
+        <ion-icon src="../../../../assets/svg/arrow-clockwise.svg"></ion-icon>
+      </ion-button>
+      <!-- Show both left and right rotation icons on larger screens -->
+      <ng-template #rotateCTAs>
+        <ion-button class="receipt-preview__btn--rotate" (click)="rotateImage(RotationDirection.LEFT)">
+          <ion-icon src="../../../../assets/svg/arrow-anticlockwise.svg"></ion-icon>
+        </ion-button>
+        <ion-button class="receipt-preview__btn--rotate" (click)="rotateImage(RotationDirection.RIGHT)">
+          <ion-icon src="../../../../assets/svg/arrow-clockwise.svg"></ion-icon>
+        </ion-button>
+      </ng-template>
       <ion-button class="receipt-preview__btn--crop" (click)="openCropReceiptModal()">
         <ion-icon src="../../../../assets/svg/crop.svg"></ion-icon>
       </ion-button>
       <ion-button *ngIf="base64ImagesWithSource.length > 1" (click)="deleteReceipt()">
-        <mat-icon class="fy-icon-close receipt-preview__btn--delete" svgIcon="bin"></mat-icon>
+        <ion-icon src="../../../../assets/svg/bin-dark.svg"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -36,7 +53,15 @@
   >
     <ng-template *ngFor="let base64ImageWithSource of base64ImagesWithSource; index as i" swiperSlide>
       <pinch-zoom class="receipt-preview__image-container">
-        <img [src]="base64ImageWithSource.base64Image" />
+        <img
+          [src]="base64ImageWithSource.base64Image"
+          [ngClass]="{
+            'receipt-preview__image--arrow-anticlockwise':
+              rotatingDirection === RotationDirection.LEFT && i === activeIndex,
+            'receipt-preview__image--arrow-clockwise':
+              rotatingDirection === RotationDirection.RIGHT && i === activeIndex
+          }"
+        />
       </pinch-zoom>
     </ng-template>
   </swiper>
