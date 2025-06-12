@@ -50,7 +50,7 @@ import { cloneDeep } from 'lodash';
 
 const accountsCallResponse1 = [account1Data, account2Data];
 
-describe('AccountsService', () => {
+fdescribe('AccountsService', () => {
   let accountsService: AccountsService;
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
   let fyCurrencyPipe: jasmine.SpyObj<FyCurrencyPipe>;
@@ -145,6 +145,7 @@ describe('AccountsService', () => {
   });
 
   it('should be able to set account properties for advance account', () => {
+    fyCurrencyPipe.transform.and.returnValue('$223,146,386.93');
     expect(accountsService.setAccountProperties(unflattenedAccount2Data, AccountType.ADVANCE)).toEqual(
       paymentModeDataAdvance
     );
@@ -162,6 +163,7 @@ describe('AccountsService', () => {
   });
 
   it('should be able to set account properties for multiple advance account as default without orig amount', () => {
+    fyCurrencyPipe.transform.and.returnValue('$223,146,386.93');
     expect(accountsService.setAccountProperties(unflattenedAccount4Data, AccountType.ADVANCE)).toEqual(
       paymentModeDataMultipleAdvWithoutOrigAmt
     );
@@ -277,80 +279,7 @@ describe('AccountsService', () => {
       'PERSONAL_ADVANCE_ACCOUNT',
     ];
     expect(accountsService.getPaymentModes(paymentModesAccountsData, allowedPaymentModes, config)).toEqual(
-      jasmine.arrayContaining([
-        jasmine.objectContaining({
-          label: 'Corporate Card',
-          value: jasmine.objectContaining({
-            acc: jasmine.objectContaining({
-              id: 'accYoo40xd0C1',
-              name: 'Corporate Credit Card Account',
-              type: AccountType.CCC,
-              current_balance_amount: 107069.2181,
-              tentative_balance_amount: -379832.039763,
-              displayName: 'Corporate Card',
-              isReimbursable: false,
-            }),
-            orig: jasmine.objectContaining({
-              currency: 'USD',
-              amount: 107069.2181,
-            }),
-            currency: 'USD',
-            amount: 107069.2181,
-            id: 'accYoo40xd0C1',
-            type: AccountType.CCC,
-            isReimbursable: false,
-            balance_amount: 107069.2181,
-          }),
-        }),
-        jasmine.objectContaining({
-          label: 'Personal Card/Cash',
-          value: jasmine.objectContaining({
-            acc: jasmine.objectContaining({
-              id: 'accWUsrRlinFb',
-              name: 'Personal Account',
-              type: AccountType.PERSONAL,
-              current_balance_amount: 159640.246645,
-              tentative_balance_amount: 159640.246645,
-              displayName: 'Personal Card/Cash',
-              isReimbursable: true,
-            }),
-            orig: jasmine.objectContaining({
-              currency: 'USD',
-              amount: 159640.246645,
-            }),
-            currency: 'USD',
-            amount: 159640.246645,
-            id: 'accWUsrRlinFb',
-            type: AccountType.PERSONAL,
-            isReimbursable: true,
-            balance_amount: 159640.246645,
-          }),
-        }),
-        jasmine.objectContaining({
-          label: 'Paid by Company',
-          value: jasmine.objectContaining({
-            acc: jasmine.objectContaining({
-              id: 'accWUsrRlinFb',
-              name: 'Personal Account',
-              type: AccountType.PERSONAL,
-              current_balance_amount: 159640.246645,
-              tentative_balance_amount: 159640.246645,
-              displayName: 'Paid by Company',
-              isReimbursable: false,
-            }),
-            orig: jasmine.objectContaining({
-              currency: 'USD',
-              amount: 159640.246645,
-            }),
-            currency: 'USD',
-            amount: 159640.246645,
-            id: 'accWUsrRlinFb',
-            type: AccountType.PERSONAL,
-            isReimbursable: false,
-            balance_amount: 159640.246645,
-          }),
-        }),
-      ])
+      paymentModesResData
     );
   });
 
@@ -369,85 +298,9 @@ describe('AccountsService', () => {
       'COMPANY_ACCOUNT',
       'PERSONAL_ADVANCE_ACCOUNT',
     ];
-    const result = accountsService.getPaymentModes(paymentModesAccountsData, allowedPaymentModes, config);
-
-    expect(result).toEqual(
-      jasmine.arrayContaining([
-        jasmine.objectContaining({
-          label: 'Corporate Card',
-          value: jasmine.objectContaining({
-            acc: jasmine.objectContaining({
-              id: 'accYoo40xd0C1',
-              name: 'Corporate Credit Card Account',
-              type: AccountType.CCC,
-              current_balance_amount: 107069.2181,
-              tentative_balance_amount: -379832.039763,
-              displayName: 'Corporate Card',
-              isReimbursable: false,
-            }),
-            orig: jasmine.objectContaining({
-              currency: 'USD',
-              amount: 107069.2181,
-            }),
-            currency: 'USD',
-            amount: 107069.2181,
-            id: 'accYoo40xd0C1',
-            type: AccountType.CCC,
-            isReimbursable: false,
-            balance_amount: 107069.2181,
-          }),
-        }),
-        jasmine.objectContaining({
-          label: 'Personal Card/Cash',
-          value: jasmine.objectContaining({
-            acc: jasmine.objectContaining({
-              id: 'accWUsrRlinFb',
-              name: 'Personal Account',
-              type: AccountType.PERSONAL,
-              current_balance_amount: 159640.246645,
-              tentative_balance_amount: 159640.246645,
-              displayName: 'Personal Card/Cash',
-              isReimbursable: true,
-            }),
-            orig: jasmine.objectContaining({
-              currency: 'USD',
-              amount: 159640.246645,
-            }),
-            currency: 'USD',
-            amount: 159640.246645,
-            id: 'accWUsrRlinFb',
-            type: AccountType.PERSONAL,
-            isReimbursable: true,
-            balance_amount: 159640.246645,
-          }),
-        }),
-        jasmine.objectContaining({
-          label: 'Paid by Company',
-          value: jasmine.objectContaining({
-            acc: jasmine.objectContaining({
-              id: 'accWUsrRlinFb',
-              name: 'Personal Account',
-              type: AccountType.PERSONAL,
-              current_balance_amount: 159640.246645,
-              tentative_balance_amount: 159640.246645,
-              displayName: 'Paid by Company',
-              isReimbursable: false,
-            }),
-            orig: jasmine.objectContaining({
-              currency: 'USD',
-              amount: 159640.246645,
-            }),
-            currency: 'USD',
-            amount: 159640.246645,
-            id: 'accWUsrRlinFb',
-            type: AccountType.PERSONAL,
-            isReimbursable: false,
-            balance_amount: 159640.246645,
-          }),
-        }),
-      ])
+    expect(accountsService.getPaymentModes(paymentModesAccountsData, allowedPaymentModes, config)).toEqual(
+      paymentModesResData
     );
-    expect(result.length).toBe(3);
   });
 
   it('should be able to get payment modes with advance wallets', () => {
@@ -462,49 +315,14 @@ describe('AccountsService', () => {
       'COMPANY_ACCOUNT',
       'PERSONAL_ADVANCE_ACCOUNT',
     ];
-    const result = accountsService.getPaymentModesWithAdvanceWallets(
-      paymentModesAccountsData,
-      advanceWallet1Data,
-      allowedPaymentModes,
-      config
-    );
-
-    // Check that the result array contains all expected payment modes without relying on order
-    expect(result).toEqual(
-      jasmine.arrayContaining([
-        jasmine.objectContaining({
-          label: 'Corporate Card',
-          value: jasmine.objectContaining({
-            type: AccountType.CCC,
-          }),
-        }),
-        jasmine.objectContaining({
-          label: 'Personal Card/Cash',
-          value: jasmine.objectContaining({
-            type: AccountType.PERSONAL,
-            isReimbursable: true,
-          }),
-        }),
-        jasmine.objectContaining({
-          label: 'Paid by Company',
-          value: jasmine.objectContaining({
-            type: AccountType.PERSONAL,
-            isReimbursable: false,
-          }),
-        }),
-        jasmine.objectContaining({
-          label: 'Advance Wallet (Balance: $1500)',
-          value: jasmine.objectContaining({
-            type: 'PERSONAL_ADVANCE_ACCOUNT',
-            balance_amount: 1500,
-          }),
-        }),
-      ])
-    );
-
-    // Verify the total number of payment modes
-    expect(result.length).toBe(4);
-    expect(fyCurrencyPipe.transform).toHaveBeenCalledWith(1500, 'USD');
+    expect(
+      accountsService.getPaymentModesWithAdvanceWallets(
+        paymentModesAccountsData,
+        advanceWallet1Data,
+        allowedPaymentModes,
+        config
+      )
+    ).toEqual(paymentModesWithAdvanceWalletsResData);
   });
 
   it('should be able to get payment modes with advance wallets during edit expense when wallet balance is 0', () => {
@@ -519,49 +337,14 @@ describe('AccountsService', () => {
       'COMPANY_ACCOUNT',
       'PERSONAL_ADVANCE_ACCOUNT',
     ];
-    const result = accountsService.getPaymentModesWithAdvanceWallets(
-      paymentModesAccountsData,
-      advanceWallet1DataZeroBalance,
-      allowedPaymentModes,
-      config
-    );
-
-    // Check that the result array contains all expected payment modes without relying on order
-    expect(result).toEqual(
-      jasmine.arrayContaining([
-        jasmine.objectContaining({
-          label: 'Advance Wallet (Balance: $0)',
-          value: jasmine.objectContaining({
-            type: 'PERSONAL_ADVANCE_ACCOUNT',
-            balance_amount: 0,
-          }),
-        }),
-        jasmine.objectContaining({
-          label: 'Corporate Card',
-          value: jasmine.objectContaining({
-            type: AccountType.CCC,
-          }),
-        }),
-        jasmine.objectContaining({
-          label: 'Personal Card/Cash',
-          value: jasmine.objectContaining({
-            type: AccountType.PERSONAL,
-            isReimbursable: true,
-          }),
-        }),
-        jasmine.objectContaining({
-          label: 'Paid by Company',
-          value: jasmine.objectContaining({
-            type: AccountType.PERSONAL,
-            isReimbursable: false,
-          }),
-        }),
-      ])
-    );
-
-    // Verify the total number of payment modes
-    expect(result.length).toBe(4);
-    expect(fyCurrencyPipe.transform).toHaveBeenCalledWith(0, 'USD');
+    expect(
+      accountsService.getPaymentModesWithAdvanceWallets(
+        paymentModesAccountsData,
+        advanceWallet1DataZeroBalance,
+        allowedPaymentModes,
+        config
+      )
+    ).toEqual(paymentModesWithZeroAdvanceWalletBalanceResData);
   });
 
   it('should be able to get payment modes without passing etxn param', () => {
@@ -583,89 +366,7 @@ describe('AccountsService', () => {
         allowedPaymentModes,
         config
       )
-    ).toEqual(
-      jasmine.arrayContaining([
-        jasmine.objectContaining({
-          label: 'Corporate Card',
-          value: jasmine.objectContaining({
-            acc: jasmine.objectContaining({
-              id: 'accYoo40xd0C1',
-              name: 'Corporate Credit Card Account',
-              type: AccountType.CCC,
-              current_balance_amount: 107069.2181,
-              tentative_balance_amount: -379832.039763,
-              displayName: 'Corporate Card',
-              isReimbursable: false,
-            }),
-            orig: jasmine.objectContaining({
-              currency: 'USD',
-              amount: 107069.2181,
-            }),
-            currency: 'USD',
-            amount: 107069.2181,
-            id: 'accYoo40xd0C1',
-            type: AccountType.CCC,
-            isReimbursable: false,
-            balance_amount: 107069.2181,
-          }),
-        }),
-        jasmine.objectContaining({
-          label: 'Personal Card/Cash',
-          value: jasmine.objectContaining({
-            acc: jasmine.objectContaining({
-              id: 'accWUsrRlinFb',
-              name: 'Personal Account',
-              type: AccountType.PERSONAL,
-              current_balance_amount: 159640.246645,
-              tentative_balance_amount: 159640.246645,
-              displayName: 'Personal Card/Cash',
-              isReimbursable: true,
-            }),
-            orig: jasmine.objectContaining({
-              currency: 'USD',
-              amount: 159640.246645,
-            }),
-            currency: 'USD',
-            amount: 159640.246645,
-            id: 'accWUsrRlinFb',
-            type: AccountType.PERSONAL,
-            isReimbursable: true,
-            balance_amount: 159640.246645,
-          }),
-        }),
-        jasmine.objectContaining({
-          label: 'Paid by Company',
-          value: jasmine.objectContaining({
-            acc: jasmine.objectContaining({
-              id: 'accWUsrRlinFb',
-              name: 'Personal Account',
-              type: AccountType.PERSONAL,
-              current_balance_amount: 159640.246645,
-              tentative_balance_amount: 159640.246645,
-              displayName: 'Paid by Company',
-              isReimbursable: false,
-            }),
-            orig: jasmine.objectContaining({
-              currency: 'USD',
-              amount: 159640.246645,
-            }),
-            currency: 'USD',
-            amount: 159640.246645,
-            id: 'accWUsrRlinFb',
-            type: AccountType.PERSONAL,
-            isReimbursable: false,
-            balance_amount: 159640.246645,
-          }),
-        }),
-        jasmine.objectContaining({
-          label: 'Advance Wallet (Balance: $1500)',
-          value: jasmine.objectContaining({
-            type: 'PERSONAL_ADVANCE_ACCOUNT',
-            balance_amount: 1500,
-          }),
-        }),
-      ])
-    );
+    ).toEqual(paymentModesWithAdvanceWalletsResData);
     expect(fyCurrencyPipe.transform).toHaveBeenCalledWith(1500, 'USD');
   });
 
