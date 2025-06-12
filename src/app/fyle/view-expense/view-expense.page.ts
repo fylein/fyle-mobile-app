@@ -5,7 +5,6 @@ import { TransactionService } from 'src/app/core/services/transaction.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { switchMap, shareReplay, concatMap, map, finalize, takeUntil, take, filter } from 'rxjs/operators';
-import { StatusService } from 'src/app/core/services/status.service';
 import { FileService } from 'src/app/core/services/file.service';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { NetworkService } from '../../core/services/network.service';
@@ -141,7 +140,6 @@ export class ViewExpensePage {
     private transactionService: TransactionService,
     private activatedRoute: ActivatedRoute,
     private customInputsService: CustomInputsService,
-    private statusService: StatusService,
     private fileService: FileService,
     private modalController: ModalController,
     private router: Router,

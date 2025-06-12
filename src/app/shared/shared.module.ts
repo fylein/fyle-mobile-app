@@ -39,7 +39,6 @@ import { MatLegacySnackBarModule as MatSnackBarModule } from '@angular/material/
 // component imports
 import { DelegatedAccMessageComponent } from './components/delegated-acc-message/delegated-acc-message.component';
 import { IconModule } from './icon/icon.module';
-import { CommentsHistoryComponent } from './components/comments-history/comments-history.component';
 import { ViewCommentComponent } from './components/comments-history/view-comment/view-comment.component';
 import { AuditHistoryComponent } from './components/comments-history/audit-history/audit-history.component';
 import { StatusesDiffComponent } from './components/comments-history/audit-history/statuses-diff/statuses-diff.component';
@@ -158,6 +157,7 @@ import { CCExpenseMerchantInfoModalComponent } from './components/cc-expense-mer
 import { FyMsgPopoverComponent } from './components/fy-msg-popover/fy-msg-popover.component';
 import { ShowAllApproversPopoverComponent } from './components/fy-approver/show-all-approvers-popover/show-all-approvers-popover.component';
 import { DateWithTimezonePipe } from './pipes/date-with-timezone.pipe';
+import { FyExpansionInfoMsgComponent } from './components/fy-expansion-info-msg/fy-expansion-info-msg.component';
 
 @NgModule({
   declarations: [
@@ -180,7 +180,6 @@ import { DateWithTimezonePipe } from './pipes/date-with-timezone.pipe';
     FyMultiselectModalComponent,
     FyUserlistModalComponent,
     DelegatedAccMessageComponent,
-    CommentsHistoryComponent,
     ViewCommentComponent,
     AuditHistoryComponent,
     StatusesDiffComponent,
@@ -292,6 +291,7 @@ import { DateWithTimezonePipe } from './pipes/date-with-timezone.pipe';
     ExactCurrencyPipe,
     CCExpenseMerchantInfoModalComponent,
     DateWithTimezonePipe,
+    FyExpansionInfoMsgComponent,
   ],
   imports: [
     CommonModule,
@@ -335,7 +335,6 @@ import { DateWithTimezonePipe } from './pipes/date-with-timezone.pipe';
     InitialsPipe,
     DelegatedAccMessageComponent,
     IconModule,
-    CommentsHistoryComponent,
     AuditHistoryComponent,
     StatusesDiffComponent,
     FormButtonValidationDirective,
@@ -430,6 +429,7 @@ import { DateWithTimezonePipe } from './pipes/date-with-timezone.pipe';
     CCExpenseMerchantInfoModalComponent,
     ReviewSplitExpenseComponent,
     DateWithTimezonePipe,
+    FyExpansionInfoMsgComponent,
   ],
   providers: [
     DecimalPipe,

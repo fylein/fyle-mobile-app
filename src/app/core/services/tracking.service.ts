@@ -879,6 +879,15 @@ export class TrackingService {
     this.eventTrack('Clicked On Dashboard Banner');
   }
 
+  // Track receipt scan duration event
+  receiptScanTime(properties: { duration: number; fileType: string }): void {
+    this.eventTrack('Receipt Scan Time', properties);
+  }
+
+  receiptScanTimeInstaFyle(properties: { duration: number; fileType: string }): void {
+    this.eventTrack('Receipt Scan Time InstaFyle', properties);
+  }
+
   private isDemoAccount(eou: ExtendedOrgUser): boolean {
     const email = eou.us.email.toLowerCase();
     const orgName = eou.ou.org_name.toLowerCase();

@@ -24,6 +24,7 @@ import {
   newEstatusData1,
   systemComments1,
   systemCommentsWithSt,
+  systemExtendedComments,
   userComments,
 } from 'src/app/core/test-data/status.service.spec.data';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
@@ -60,6 +61,8 @@ import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service
 import { RefinerService } from 'src/app/core/services/refiner.service';
 import { DateWithTimezonePipe } from 'src/app/shared/pipes/date-with-timezone.pipe';
 import { TIMEZONE } from 'src/app/constants';
+import { ShowAllApproversPopoverComponent } from 'src/app/shared/components/fy-approver/show-all-approvers-popover/show-all-approvers-popover.component';
+import { BrowserHandlerService } from 'src/app/core/services/browser-handler.service';
 
 describe('ViewTeamReportPageV2', () => {
   let component: ViewTeamReportPage;
@@ -85,6 +88,7 @@ describe('ViewTeamReportPageV2', () => {
   let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
   let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
   let refinerService: jasmine.SpyObj<RefinerService>;
+  let browserHandlerService: jasmine.SpyObj<BrowserHandlerService>;
 
   beforeEach(waitForAsync(() => {
     const approverExpensesServiceSpy = jasmine.createSpyObj('ApproverExpensesService', [
@@ -106,6 +110,7 @@ describe('ViewTeamReportPageV2', () => {
       'showToastMessage',
       'clickViewReportInfo',
       'reportNameChange',
+      'eventTrack',
     ]);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
@@ -122,6 +127,7 @@ describe('ViewTeamReportPageV2', () => {
     ]);
     launchDarklyService = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
     refinerService = jasmine.createSpyObj('RefinerService', ['startSurvey']);
+    const browserHandlerServiceSpy = jasmine.createSpyObj('BrowserHandlerService', ['openLinkWithToolbarColor']);
 
     TestBed.configureTestingModule({
       declarations: [ViewTeamReportPage, EllipsisPipe, HumanizeCurrencyPipe, ExactCurrencyPipe, DateWithTimezonePipe],
@@ -221,6 +227,10 @@ describe('ViewTeamReportPageV2', () => {
           useValue: approverReportsServiceSpy,
         },
         {
+          provide: BrowserHandlerService,
+          useValue: browserHandlerServiceSpy,
+        },
+        {
           provide: TIMEZONE,
           useValue: new BehaviorSubject<string>('UTC'),
         },
@@ -251,6 +261,7 @@ describe('ViewTeamReportPageV2', () => {
     approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
     launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
     refinerService = TestBed.inject(RefinerService) as jasmine.SpyObj<RefinerService>;
+    browserHandlerService = TestBed.inject(BrowserHandlerService) as jasmine.SpyObj<BrowserHandlerService>;
     launchDarklyService.getVariation.and.returnValue(of(true));
     fixture.detectChanges();
   }));
@@ -745,6 +756,36 @@ describe('ViewTeamReportPageV2', () => {
     expect(component.refreshApprovals$.next).toHaveBeenCalledOnceWith(null);
   });
 
+  describe('openViewApproverModal():', () => {
+    it('should open the modal and track the event', fakeAsync(() => {
+      const popoverSpy = jasmine.createSpyObj('popover', ['present', 'onWillDismiss']);
+      popoverSpy.present.and.resolveTo();
+      popoverSpy.onWillDismiss.and.resolveTo();
+
+      popoverController.create.and.resolveTo(popoverSpy);
+
+      component.approvals = platformReportData.approvals;
+
+      component.openViewApproverModal();
+      tick();
+
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        component: ShowAllApproversPopoverComponent,
+        componentProps: {
+          approvals: component.approvals,
+        },
+        cssClass: 'fy-dialog-popover',
+        backdropDismiss: false,
+      });
+
+      expect(popoverSpy.present).toHaveBeenCalled();
+      expect(popoverSpy.onWillDismiss).toHaveBeenCalled();
+      expect(trackingService.eventTrack).toHaveBeenCalledOnceWith('All approvers modal closed', {
+        view: ExpenseView.team,
+      });
+    }));
+  });
+
   describe('goToTransaction(): ', () => {
     it('it should go to view EXPENSE page and display the expense', () => {
       component.reportExpensesIds = ['rpDyD26O3qpV', 'rpqzKD4bPXpW'];
@@ -1007,6 +1048,7 @@ describe('ViewTeamReportPageV2', () => {
   it('should show report information correctly', () => {
     spyOn(component, 'openViewReportInfoModal');
     component.report$ = of(expectedReportsSinglePage[0]);
+    component.approvalAmount = 250.75;
     fixture.detectChanges();
 
     expect(getTextContent(getElementBySelector(fixture, '.view-reports--employee-name__name'))).toEqual(
@@ -1016,7 +1058,7 @@ describe('ViewTeamReportPageV2', () => {
       'Feb 01, 2023'
     );
     expect(getTextContent(getElementBySelector(fixture, '.view-reports--purpose-amount-block__amount'))).toEqual(
-      '100.00'
+      component.approvalAmount.toString()
     );
 
     const openButton = getElementBySelector(fixture, '.view-reports--view-info') as HTMLElement;
@@ -1096,5 +1138,110 @@ describe('ViewTeamReportPageV2', () => {
       });
       expect(component.updateReportName).not.toHaveBeenCalled();
     }));
+  });
+
+  describe('convertToEstatus():', () => {
+    it('should convert comments to extended status array', () => {
+      const result = component.convertToEstatus(systemExtendedComments);
+
+      expect(result).toEqual([
+        {
+          st_comment: 'changed to APPROVER_PENDING by Suyash (suyash.p@fyle.in)',
+          isSelfComment: false,
+          isBotComment: true,
+          isOthersComment: true,
+          st_created_at: new Date('2024-05-21T11:07:01.99036+00:00'),
+          st_id: 'styBS6Mt3srX',
+          st_diff: null,
+        },
+        {
+          st_comment: 'submitted by Suyash (suyash.p@fyle.in)',
+          isSelfComment: false,
+          isBotComment: true,
+          isOthersComment: true,
+          st_created_at: new Date('2024-05-21T11:07:02.102867+00:00'),
+          st_id: 'stI6NDy8La7b',
+          st_diff: null,
+        },
+      ]);
+    });
+
+    it('should handle empty comments array', () => {
+      const result = component.convertToEstatus([]);
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('showReportNameChangeSuccessToast():', () => {
+    it('should show success toast with correct message and track event', () => {
+      const properties = {
+        data: {
+          icon: 'check-square-fill',
+          showCloseButton: true,
+          message: 'Report name changed successfully.',
+        },
+        duration: 3000,
+      };
+
+      snackbarProperties.setSnackbarProperties.and.returnValue(properties);
+
+      component.showReportNameChangeSuccessToast();
+
+      expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith('success', {
+        message: 'Report name changed successfully.',
+      });
+      expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
+        ...properties,
+        panelClass: ['msb-success'],
+      });
+      expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
+        ToastContent: 'Report name changed successfully.',
+      });
+    });
+  });
+
+  describe('setApproverInfoMessage():', () => {
+    beforeEach(() => {
+      exactCurrency.transform.and.returnValue('$250.75');
+    });
+
+    it('should hide approval info message when all expenses require approval', () => {
+      const expenses = cloneDeep(expenseResponseData2);
+      const report = { ...platformReportData, num_expenses: 2, currency: 'USD' };
+      component.approvalAmount = 250.75;
+
+      component.setApproverInfoMessage(expenses, report);
+
+      expect(component.showApprovalInfoMessage).toBeFalse();
+    });
+
+    it('should show approval info message when some expenses do not require approval', () => {
+      const expenses = cloneDeep(expenseResponseData);
+      const report = { ...platformReportData, num_expenses: 3, currency: 'USD' };
+      component.approvalAmount = 150.5;
+
+      component.setApproverInfoMessage(expenses, report);
+
+      expect(component.showApprovalInfoMessage).toBeTrue();
+      expect(component.approvalInfoMessage).toEqual(
+        `You are approving $250.75 in expenses, which differs from the report total since the report also includes 2 other expenses (which may include credits) that don't require your approval based on your company's policies.`
+      );
+      expect(exactCurrency.transform).toHaveBeenCalledOnceWith({
+        value: 150.5,
+        currencyCode: 'USD',
+        skipSymbol: false,
+      });
+    });
+  });
+
+  describe('openHelpArticle():', () => {
+    it('should open help article with correct URL and toolbar color', async () => {
+      await component.openHelpArticle();
+
+      expect(browserHandlerService.openLinkWithToolbarColor).toHaveBeenCalledOnceWith(
+        '#280a31',
+        'https://help.fylehq.com/en/articles/1205138-view-and-approve-expense-reports#h_1672226e87'
+      );
+    });
   });
 });

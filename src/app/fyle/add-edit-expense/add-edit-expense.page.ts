@@ -120,7 +120,6 @@ import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-it
 import { ReportService } from 'src/app/core/services/report.service';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { StatusService } from 'src/app/core/services/status.service';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { TaxGroupService } from 'src/app/core/services/tax-group.service';
 import { TokenService } from 'src/app/core/services/token.service';
@@ -486,7 +485,6 @@ export class AddEditExpensePage implements OnInit {
     private router: Router,
     private loaderService: LoaderService,
     private modalController: ModalController,
-    private statusService: StatusService,
     private fileService: FileService,
     private spenderFileService: SpenderFileService,
     private popoverController: PopoverController,
@@ -1220,13 +1218,19 @@ export class AddEditExpensePage implements OnInit {
     if (this.activatedRoute.snapshot.params.dataUrl && this.activatedRoute.snapshot.params.canExtractData !== 'false') {
       const dataUrl = this.activatedRoute.snapshot.params.dataUrl as string;
       const b64Image = dataUrl.replace('data:image/jpeg;base64,', '');
+      const scanStartTime = Date.now();
       return from(this.transactionOutboxService.parseReceipt(b64Image)).pipe(
         timeout(15000),
-        map((parsedResponse) => ({
-          parsedResponse: parsedResponse.data,
-        })),
+        map((parsedResponse) => {
+          const scanEndTime = Date.now();
+          const scanDuration = (scanEndTime - scanStartTime) / 1000; // in seconds
+          this.trackingService.receiptScanTimeInstaFyle({ duration: scanDuration, fileType: 'image' });
+          return {
+            parsedResponse: parsedResponse.data,
+          };
+        }),
         catchError(() =>
-          of({
+           of({
             error: true,
             parsedResponse: {
               source: 'MOBILE_INSTA',
@@ -3315,9 +3319,6 @@ export class AddEditExpensePage implements OnInit {
 
     this.paymentModes$ = this.getPaymentModes();
 
-    // Show payment mode if it is not a CCC expense
-    this.showPaymentMode = !this.isCccExpense;
-
     this.initSplitTxn(orgSettings$);
 
     this.setupFilteredCategories();
@@ -3388,6 +3389,8 @@ export class AddEditExpensePage implements OnInit {
     this.etxn$.subscribe((etxn) => {
       this.isSplitExpense = this.getCheckSpiltExpense(etxn);
       this.isCccExpense = etxn?.tx?.corporate_credit_card_expense_group_id;
+      // Show payment mode if it is not a CCC expense
+      this.showPaymentMode = !this.isCccExpense;
       this.isExpenseMatchedForDebitCCCE = this.getDebitCCCExpense(etxn);
       this.canDismissCCCE = this.getDismissCCCExpense(etxn);
       this.canRemoveCardExpense = this.getRemoveCCCExpense(etxn);
@@ -4141,7 +4144,14 @@ export class AddEditExpensePage implements OnInit {
                   return this.expenseCommentService.findLatestExpenseComment(txn.id, txn.creator_id).pipe(
                     switchMap((result) => {
                       if (result !== comment) {
-                        return this.statusService.post('transactions', txn.id, { comment }, true).pipe(map(() => txn));
+                        const commentsPayload = [
+                          {
+                            expense_id: txn.id,
+                            comment,
+                            notify: true,
+                          },
+                        ];
+                        return this.expenseCommentService.post(commentsPayload).pipe(map(() => txn));
                       } else {
                         return of(txn);
                       }
@@ -4478,7 +4488,12 @@ export class AddEditExpensePage implements OnInit {
       'assets/images/scanning.gif'
     );
 
+    const scanStartTime = Date.now();
     const parsedData: ParsedReceipt = await this.transactionOutboxService.parseReceipt(base64Image, fileType);
+    const scanEndTime = Date.now();
+    const scanDuration = (scanEndTime - scanStartTime) / 1000; // in seconds
+    this.trackingService.receiptScanTime({ duration: scanDuration, fileType });
+
     const homeCurrency = await this.currencyService.getHomeCurrency().toPromise();
 
     if (
@@ -4941,7 +4956,7 @@ export class AddEditExpensePage implements OnInit {
           if (removeExpenseFromReport) {
             return this.platformReportService.ejectExpenses(reportId, this.activatedRoute.snapshot.params.id as string);
           }
-          return this.transactionService.delete(this.activatedRoute.snapshot.params.id as string);
+          return this.expensesService.deleteExpenses([this.activatedRoute.snapshot.params.id as string]);
         },
       },
     };

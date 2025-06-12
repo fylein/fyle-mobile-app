@@ -23,6 +23,15 @@
 <ion-content class="view-reports--container">
   <div class="view-reports--body" *ngIf="report$|async as report">
     <div>
+      <div *ngIf="showApprovalInfoMessage && canApproveReport" class="view-reports--info-msg-container">
+        <app-fy-expansion-info-msg
+          [infoMsgContent]="approvalInfoMessage"
+          [showHelpLink]="true"
+          helpLinkLabel="Learn more"
+          (helpLinkClick)="openHelpArticle()"
+        >
+        </app-fy-expansion-info-msg>
+      </div>
       <div class="view-reports--card">
         <ion-grid>
           <ion-row class="view-reports--purpose-state">
@@ -54,7 +63,7 @@
               <div class="view-reports--amount">
                 <span class="view-reports--purpose-amount-block__currency"> {{ reportCurrencySymbol }} </span>
                 <span class="view-reports--purpose-amount-block__amount">
-                  {{ { value: report.amount || 0, currencyCode: report.currency, skipSymbol: true } | exactCurrency }}
+                  {{ { value: approvalAmount || 0, currencyCode: report.currency, skipSymbol: true } | exactCurrency }}
                 </span>
               </div>
             </ion-col>
