@@ -959,8 +959,7 @@ describe('TransactionService', () => {
 
     const expectedResult = {
       source_account_id: 'acc5APeygFjRd',
-      skip_reimbursement: false,
-      advance_wallet_id: null,
+      skip_reimbursement: true,
     };
 
     // @ts-ignore
