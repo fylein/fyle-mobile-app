@@ -42,6 +42,7 @@ import {
   paymentModesWithZeroAdvanceWalletBalanceResData,
   unflattenedTransactionAdvanceWallet,
   paymentModeDataAdvanceWallet,
+  multiplePaymentModesWithCompanyAccData2,
 } from '../test-data/accounts.service.spec.data';
 import { AccountsService } from './accounts.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
@@ -202,14 +203,14 @@ describe('AccountsService', () => {
   });
 
   it('should be able to get allowed accounts without passing isMileageOrPerDiem param', () => {
-    const allowedPaymentModes = ['PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT', 'PERSONAL_ACCOUNT', 'COMPANY_ACCOUNT'];
+    const allowedPaymentModes = [AccountType.CCC, AccountType.PERSONAL];
     expect(
       accountsService.getAllowedAccountsWithAdvanceWallets(
         multiplePaymentModesWithCompanyAccData,
         allowedPaymentModes,
         etxnObjData
       )
-    ).toEqual(multiplePaymentModesWithCompanyAccData);
+    ).toEqual(multiplePaymentModesWithCompanyAccData2);
   });
 
   it('should be able to get allowed accounts without passing etxn param', () => {
@@ -220,10 +221,10 @@ describe('AccountsService', () => {
   });
 
   it('should be able to get allowed accounts for mileage and per diem', () => {
-    const allowedPaymentModes = ['COMPANY_ACCOUNT'];
+    const allowedPaymentModes = [AccountType.CCC];
     expect(
       accountsService.getAllowedAccounts(
-        cloneDeep(multiplePaymentModesWithoutAdvData),
+        multiplePaymentModesWithoutAdvData,
         allowedPaymentModes,
         false,
         etxnObjData,
@@ -395,7 +396,7 @@ describe('AccountsService', () => {
   });
 
   it('should be able to get allowed accounts without passing isMileageOrPerDiem param', () => {
-    const allowedPaymentModes = ['PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT', 'PERSONAL_ACCOUNT', 'COMPANY_ACCOUNT'];
+    const allowedPaymentModes = [AccountType.CCC, AccountType.COMPANY, AccountType.PERSONAL];
     expect(
       accountsService.getAllowedAccountsWithAdvanceWallets(
         multiplePaymentModesWithoutAdvData,
@@ -413,10 +414,10 @@ describe('AccountsService', () => {
   });
 
   it('should be able to get allowed accounts for mileage and per diem', () => {
-    const allowedPaymentModes = ['COMPANY_ACCOUNT'];
+    const allowedPaymentModes = [AccountType.CCC];
     expect(
       accountsService.getAllowedAccountsWithAdvanceWallets(
-        cloneDeep(multiplePaymentModesWithoutAdvData),
+        multiplePaymentModesWithoutAdvData,
         allowedPaymentModes,
         etxnObjData,
         true

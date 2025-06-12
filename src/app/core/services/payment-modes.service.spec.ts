@@ -26,7 +26,7 @@ import {
 } from '../mock-data/org-payment-mode-settings.data';
 import { AllowedPaymentModes } from '../models/allowed-payment-modes.enum';
 
-fdescribe('PaymentModesService', () => {
+describe('PaymentModesService', () => {
   let paymentModesService: PaymentModesService;
   let accountService: jasmine.SpyObj<AccountsService>;
   let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
