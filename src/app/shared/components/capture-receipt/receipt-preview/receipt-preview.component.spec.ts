@@ -1,5 +1,5 @@
 //@ts-nocheck
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync, fakeAsync, tick } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
@@ -419,22 +419,21 @@ describe('ReceiptPreviewComponent', () => {
       expect(component.rotatingDirection).toBe(1);
     });
 
-    it('should return early if current image is missing or has no base64Image', (done) => {
+    it('should return early if current image is missing or has no base64Image', fakeAsync(() => {
       component.base64ImagesWithSource = [{} as any];
       component.activeIndex = 0;
       component.rotatingDirection = null;
       component.rotateImage(1);
-      setTimeout(() => {
-        expect(component.rotatingDirection).toBeNull();
-        done();
-      }, 500);
-    });
+      tick(500);
+      expect(component.rotatingDirection).toBeNull();
+    }));
 
-    it('should rotate the image and update the base64ImagesWithSource', (done) => {
+    it('should rotate the image and update the base64ImagesWithSource', fakeAsync(() => {
       // Mock image and canvas
       const mockImage = {
         set onload(fn) {
-          setTimeout(fn, 0);
+          // Use tick(0) to simulate immediate callback
+          fn();
         },
         set src(val) {},
         get src() {
@@ -459,17 +458,15 @@ describe('ReceiptPreviewComponent', () => {
       component.rotatingDirection = null;
       component.swiper = { swiperRef: { update: jasmine.createSpy() } } as any;
       component.rotateImage(1);
-      setTimeout(() => {
-        expect(component.base64ImagesWithSource[0].base64Image).toBe('data:image/jpeg;base64,rotated');
-        expect(component.rotatingDirection).toBeNull();
-        done();
-      }, 500);
-    });
+      tick(500);
+      expect(component.base64ImagesWithSource[0].base64Image).toBe('data:image/jpeg;base64,rotated');
+      expect(component.rotatingDirection).toBeNull();
+    }));
 
-    it('should return early if canvas context is null', (done) => {
+    it('should return early if canvas context is null', fakeAsync(() => {
       const mockImage = {
         set onload(fn) {
-          setTimeout(fn, 0);
+          fn();
         },
         set src(val) {},
         get src() {
@@ -487,11 +484,9 @@ describe('ReceiptPreviewComponent', () => {
       component.activeIndex = 0;
       component.rotatingDirection = null;
       component.rotateImage(1);
-      setTimeout(() => {
-        expect(component.rotatingDirection).toBeNull();
-        done();
-      }, 500);
-    });
+      tick(500);
+      expect(component.rotatingDirection).toBeNull();
+    }));
 
     it('should set activeIndex to 0 if swiperRef.activeIndex is null in deleteReceipt', async () => {
       component.swiper = { swiperRef: { activeIndex: null, update: async () => {} } } as any;
@@ -515,10 +510,10 @@ describe('ReceiptPreviewComponent', () => {
       expect(component.activeIndex).toBe(0);
     });
 
-    it('should rotate -90 degrees if direction is LEFT', (done) => {
+    it('should rotate -90 degrees if direction is LEFT', fakeAsync(() => {
       const mockImage = {
         set onload(fn) {
-          setTimeout(fn, 0);
+          fn();
         },
         set src(val) {},
         get src() {
@@ -544,16 +539,14 @@ describe('ReceiptPreviewComponent', () => {
       component.swiper = { swiperRef: { update: jasmine.createSpy() } } as any;
       // Call with LEFT
       component.rotateImageData({ base64Image: 'data:image/jpeg;base64,original' }, component.RotationDirection.LEFT);
-      setTimeout(() => {
-        expect(mockCtx.rotate).toHaveBeenCalledWith((-90 * Math.PI) / 180);
-        done();
-      }, 10);
-    });
+      tick(10);
+      expect(mockCtx.rotate).toHaveBeenCalledWith((-90 * Math.PI) / 180);
+    }));
 
-    it('should rotate 90 degrees if direction is not LEFT', (done) => {
+    it('should rotate 90 degrees if direction is not LEFT', fakeAsync(() => {
       const mockImage = {
         set onload(fn) {
-          setTimeout(fn, 0);
+          fn();
         },
         set src(val) {},
         get src() {
@@ -579,11 +572,9 @@ describe('ReceiptPreviewComponent', () => {
       component.swiper = { swiperRef: { update: jasmine.createSpy() } } as any;
       // Call with RIGHT
       component.rotateImageData({ base64Image: 'data:image/jpeg;base64,original' }, component.RotationDirection.RIGHT);
-      setTimeout(() => {
-        expect(mockCtx.rotate).toHaveBeenCalledWith((90 * Math.PI) / 180);
-        done();
-      }, 10);
-    });
+      tick(10);
+      expect(mockCtx.rotate).toHaveBeenCalledWith((90 * Math.PI) / 180);
+    }));
   });
 
   it('should call closeModal when back button is pressed in ionViewWillEnter', () => {
@@ -600,7 +591,7 @@ describe('ReceiptPreviewComponent', () => {
     expect(component.closeModal).toHaveBeenCalled();
   });
 
-  it('should request permission and call galleryUpload again if permission is denied', (done) => {
+  it('should request permission and call galleryUpload again if permission is denied', fakeAsync(() => {
     let callCount = 0;
     const requestReadPermissionSpy = jasmine.createSpy('requestReadPermission');
     component.imagePicker = {
@@ -620,9 +611,7 @@ describe('ReceiptPreviewComponent', () => {
 
     component.galleryUpload();
 
-    setTimeout(() => {
-      expect(requestReadPermissionSpy).toHaveBeenCalled();
-      done();
-    }, 10);
-  });
+    tick(10);
+    expect(requestReadPermissionSpy).toHaveBeenCalled();
+  }));
 });

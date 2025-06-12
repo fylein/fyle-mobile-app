@@ -250,7 +250,7 @@ export class FyViewAttachmentComponent implements OnInit {
       )
       .subscribe({
         error: () => {
-          // ✅ leave the image marked dirty on failure
+          // leave the image marked dirty on failure
           this.isImageDirty[this.activeIndex] = true;
         },
       });
