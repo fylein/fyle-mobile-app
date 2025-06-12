@@ -606,6 +606,10 @@ export class TrackingService {
     this.eventTrack('Save receipt with invalid form', properties);
   }
 
+  receiptSavedRotation(properties: { Count?: number; Source?: string; 'File ID'?: string }): void {
+    this.eventTrack('Receipt Saved After Rotation', properties);
+  }
+
   // Merge related trackings
   expensesMerged(properties = {}): void {
     this.eventTrack('Expenses merged successfully', properties);
