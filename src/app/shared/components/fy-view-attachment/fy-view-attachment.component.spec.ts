@@ -5,8 +5,13 @@ import { FyViewAttachmentComponent } from './fy-view-attachment.component';
 import { DomSanitizer } from '@angular/platform-browser';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { TrackingService } from 'src/app/core/services/tracking.service';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { FileService } from 'src/app/core/services/file.service';
+import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
+import { ActivatedRoute } from '@angular/router';
+import { RotationDirection } from 'src/app/core/enums/rotation-direction.enum';
 
 describe('FyViewAttachmentComponent', () => {
   let component: FyViewAttachmentComponent;
@@ -17,6 +22,10 @@ describe('FyViewAttachmentComponent', () => {
   let spenderFileService: jasmine.SpyObj<SpenderFileService>;
   let loaderService: jasmine.SpyObj<LoaderService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
+  let expensesService: jasmine.SpyObj<ExpensesService>;
+  let fileService: jasmine.SpyObj<FileService>;
+  let transactionsOutboxService: jasmine.SpyObj<TransactionsOutboxService>;
+  let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
 
   beforeEach(waitForAsync(() => {
     const domSantizerSpy = jasmine.createSpyObj('DomSanitizer', ['bypassSecurityTrustUrl']);
@@ -25,6 +34,16 @@ describe('FyViewAttachmentComponent', () => {
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['hideLoader', 'showLoader']);
     const trackingServiceSpy = jasmine.createSpyObj('TracingService', ['deleteFileClicked', 'fileDeleted']);
     const spenderFileServiceSpy = jasmine.createSpyObj('SpenderFileService', ['deleteFilesBulk']);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['attachReceiptToExpense']);
+    const fileServiceSpy = jasmine.createSpyObj('FileService', ['readFile', 'uploadUrl']);
+    const transactionsOutboxServiceSpy = jasmine.createSpyObj('TransactionsOutboxService', ['uploadData']);
+    const activatedRouteSpy = jasmine.createSpyObj('ActivatedRoute', [], {
+      snapshot: {
+        params: {},
+        queryParams: {},
+      },
+    });
+
     TestBed.configureTestingModule({
       declarations: [FyViewAttachmentComponent],
       providers: [
@@ -52,6 +71,26 @@ describe('FyViewAttachmentComponent', () => {
           provide: TrackingService,
           useValue: trackingServiceSpy,
         },
+        {
+          provide: ExpensesService,
+          useValue: expensesServiceSpy,
+        },
+        {
+          provide: FileService,
+          useValue: fileServiceSpy,
+        },
+        {
+          provide: TransactionsOutboxService,
+          useValue: transactionsOutboxServiceSpy,
+        },
+        {
+          provide: 'API_PAGINATION_SIZE',
+          useValue: 10,
+        },
+        {
+          provide: ActivatedRoute,
+          useValue: activatedRouteSpy,
+        },
       ],
       imports: [IonicModule.forRoot()],
       schemas: [NO_ERRORS_SCHEMA],
@@ -65,6 +104,18 @@ describe('FyViewAttachmentComponent', () => {
     spenderFileService = TestBed.inject(SpenderFileService) as jasmine.SpyObj<SpenderFileService>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
+    expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
+    fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
+    transactionsOutboxService = TestBed.inject(TransactionsOutboxService) as jasmine.SpyObj<TransactionsOutboxService>;
+    activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
+
+    // Global fetch and fileService.readFile mocks
+    spyOn(window, 'fetch').and.callFake(() =>
+      Promise.resolve({
+        blob: () => Promise.resolve(new Blob(['mock'], { type: 'image/jpeg' })),
+      } as any)
+    );
+    fileService.readFile.and.resolveTo('data:image/jpeg;base64,mocked');
 
     const mockAttachments = [
       {
@@ -195,16 +246,8 @@ describe('FyViewAttachmentComponent', () => {
 
     expect(component.goToPrevSlide).toHaveBeenCalledTimes(1);
     expect(component.attachments).toEqual([
-      {
-        id: '1',
-        type: 'pdf',
-        url: 'http://example.com/attachment1.pdf',
-      },
-      {
-        id: '3',
-        type: 'pdf',
-        url: 'http://example.com/attachment3.pdf',
-      },
+      jasmine.objectContaining({ id: '1', type: 'pdf', url: 'http://example.com/attachment1.pdf' }),
+      jasmine.objectContaining({ id: '3', type: 'pdf', url: 'http://example.com/attachment3.pdf' }),
     ]);
     expect(spenderFileService.deleteFilesBulk).toHaveBeenCalledOnceWith(['2']);
     expect(trackingService.deleteFileClicked).toHaveBeenCalledOnceWith({ 'File ID': '2' });
@@ -238,16 +281,8 @@ describe('FyViewAttachmentComponent', () => {
 
     expect(component.goToNextSlide).toHaveBeenCalledTimes(1);
     expect(component.attachments).toEqual([
-      {
-        id: '2',
-        type: 'image',
-        url: 'http://example.com/attachment2.jpg',
-      },
-      {
-        id: '3',
-        type: 'pdf',
-        url: 'http://example.com/attachment3.pdf',
-      },
+      jasmine.objectContaining({ id: '2', type: 'image', url: 'data:image/jpeg;base64,mocked' }),
+      jasmine.objectContaining({ id: '3', type: 'pdf', url: 'http://example.com/attachment3.pdf' }),
     ]);
     expect(spenderFileService.deleteFilesBulk).toHaveBeenCalledOnceWith(['1']);
     expect(trackingService.deleteFileClicked).toHaveBeenCalledOnceWith({ 'File ID': '1' });
@@ -355,4 +390,277 @@ describe('FyViewAttachmentComponent', () => {
     expect(trackingService.deleteFileClicked).toHaveBeenCalledOnceWith({ 'File ID': null });
     expect(trackingService.fileDeleted).toHaveBeenCalledOnceWith({ 'File ID': null });
   }));
+
+  describe('rotation and save logic', () => {
+    beforeEach(() => {
+      component.attachments = [{ url: 'test', id: '1', type: 'image' }];
+      component.activeIndex = 0;
+      component.rotatingDirection = null;
+      component.loading = false;
+    });
+
+    it('should return early if loading or rotatingDirection is set', async () => {
+      component.loading = true;
+      await component.rotateAttachment(1 as any);
+      expect(component.rotatingDirection).toBeNull();
+
+      component.loading = false;
+      component.rotatingDirection = 1 as any;
+      await component.rotateAttachment(1 as any);
+      //@ts-ignore
+      expect(component.rotatingDirection).toBe(1);
+      component.rotatingDirection = null;
+    });
+
+    it('should return early if currentAttachment is falsy', async () => {
+      component.attachments = [];
+      component.activeIndex = 0;
+      await component.rotateAttachment(1 as any);
+      expect(component.rotatingDirection).toBeNull();
+    });
+
+    it('should call rotateImage after timeout', fakeAsync(() => {
+      spyOn(component as any, 'rotateImage');
+      component.attachments = [{ url: 'test', id: '1', type: 'image' }];
+      component.activeIndex = 0;
+      component.loading = false;
+      component.rotatingDirection = null;
+      component.rotateAttachment(1 as any);
+      tick(401);
+      expect((component as any).rotateImage).toHaveBeenCalled();
+    }));
+
+    it('should handle error if blob is empty or not a Blob', (done) => {
+      (window.fetch as jasmine.Spy).and.callFake(() => Promise.resolve({ blob: () => Promise.resolve(null) } as any));
+      component.saveRotatedImage();
+      setTimeout(() => {
+        expect(component.saving).toBeFalse();
+        expect(component.isImageDirty[0]).toBeTrue();
+        done();
+      }, 10);
+    });
+
+    it('should upload and update attachment if blob is valid', fakeAsync(() => {
+      const fakeBlob = new Blob(['test'], { type: 'image/jpeg' });
+      (window.fetch as jasmine.Spy).and.callFake(() =>
+        Promise.resolve({ blob: () => Promise.resolve(fakeBlob) } as any)
+      );
+      fileService.uploadUrl.and.returnValue(of('upload-url'));
+      transactionsOutboxService.uploadData.and.returnValue(of(null));
+      component.saveRotatedImage();
+      tick();
+      expect(fileService.uploadUrl).toHaveBeenCalled();
+      expect(transactionsOutboxService.uploadData).toHaveBeenCalled();
+      expect(component.attachments[0].url).toBe('test');
+      expect(component.saving).toBeFalse();
+      expect(component.saveComplete[0]).toBeTrue();
+      tick(5001);
+      expect(component.saveComplete[0]).toBeFalse();
+    }));
+
+    it('should handle error in observable chain', (done) => {
+      const fakeBlob = new Blob(['test'], { type: 'image/jpeg' });
+      (window.fetch as jasmine.Spy).and.callFake(() =>
+        Promise.resolve({ blob: () => Promise.resolve(fakeBlob) } as any)
+      );
+      fileService.uploadUrl.and.returnValue(of('upload-url'));
+      transactionsOutboxService.uploadData.and.returnValue(throwError(() => new Error('upload failed')));
+      const orig = component.attachments[0];
+      Object.defineProperty(component.attachments, '0', { writable: false });
+      component.saveRotatedImage();
+      setTimeout(() => {
+        expect(component.saving).toBeFalse();
+        expect(component.isImageDirty[0]).toBeTrue();
+        Object.defineProperty(component.attachments, '0', { writable: true, value: orig });
+        done();
+      }, 10);
+    });
+
+    it('should return early if canvas context is null', (done) => {
+      const mockImage = {
+        set onload(fn) {
+          setTimeout(fn, 0);
+        },
+        set src(val) {},
+        get src() {
+          return '';
+        },
+      };
+      spyOn(window as any, 'Image').and.returnValue(mockImage);
+      spyOn(document, 'createElement').and.returnValue({ getContext: () => null } as any);
+      component.attachments = [{ url: 'test', id: '1', type: 'image' }];
+      component.activeIndex = 0;
+      component.rotatingDirection = 1 as any;
+      (component as any).rotateImage(component.attachments[0], 1 as any);
+      setTimeout(() => {
+        expect(component.rotatingDirection).toBeNull();
+        done();
+      }, 10);
+    });
+
+    it('should update attachment and flags on successful rotation', (done) => {
+      const mockImage = {
+        set onload(fn) {
+          setTimeout(fn, 0);
+        },
+        set src(val) {},
+        get src() {
+          return '';
+        },
+      };
+      spyOn(window as any, 'Image').and.returnValue(mockImage);
+      const mockCtx = {
+        translate: jasmine.createSpy(),
+        rotate: jasmine.createSpy(),
+        drawImage: jasmine.createSpy(),
+      };
+      const mockCanvas = {
+        getContext: () => mockCtx,
+        toDataURL: () => 'data:image/jpeg;base64,rotated',
+        width: 0,
+        height: 0,
+      };
+      spyOn(document, 'createElement').and.returnValue(mockCanvas as any);
+      component.attachments = [{ url: 'test', id: '1', type: 'image' }];
+      component.activeIndex = 0;
+      component.rotatingDirection = 1 as any;
+      (component as any).rotateImage(component.attachments[0], 1 as any);
+      setTimeout(() => {
+        expect(component.attachments[0].url).toBe('data:image/jpeg;base64,rotated');
+        expect(component.rotatingDirection).toBeNull();
+        expect(component.isImageDirty[0]).toBeTrue();
+        done();
+      }, 10);
+    });
+
+    it('should handle image onerror', () => {
+      const mockImage: any = {};
+      Object.defineProperty(mockImage, 'onerror', {
+        set(fn) {
+          fn();
+        },
+      });
+      spyOn(window as any, 'Image').and.returnValue(mockImage);
+      component.attachments = [{ url: 'test', id: '1', type: 'image' }];
+      component.activeIndex = 0;
+      component.rotatingDirection = 1 as any;
+      (component as any).rotateImage(component.attachments[0], 1 as any);
+      expect(component.rotatingDirection).toBeNull();
+    });
+  });
+
+  it('ngOnInit(): should convert image attachments to base64', fakeAsync(() => {
+    const base64Url = 'data:image/jpeg;base64,abc123';
+    const mockBlob = new Blob(['test'], { type: 'image/jpeg' });
+    (window.fetch as jasmine.Spy).and.callFake(() => Promise.resolve({ blob: () => Promise.resolve(mockBlob) } as any));
+    fileService.readFile.and.resolveTo(base64Url);
+    component.attachments = [{ id: '2', type: 'image', url: 'http://example.com/attachment2.jpg' }];
+    component.ngOnInit();
+    tick();
+    expect(component.attachments[0].url).toBe(base64Url);
+    expect(component.attachments[0].thumbnail).toBe(base64Url);
+  }));
+
+  it('addAttachments(): should dismiss modal with addMoreAttachments action', () => {
+    const event = new Event('click');
+    component.addAttachments(event);
+    expect(modalController.dismiss).toHaveBeenCalledOnceWith({ action: 'addMoreAttachments', event });
+  });
+
+  it('saveRotatedImage(): should handle error in uploadData', fakeAsync(() => {
+    const fakeBlob = new Blob(['test'], { type: 'image/jpeg' });
+    (window.fetch as jasmine.Spy).and.callFake(() => Promise.resolve({ blob: () => Promise.resolve(fakeBlob) } as any));
+    fileService.uploadUrl.and.returnValue(of('upload-url'));
+    transactionsOutboxService.uploadData.and.returnValue(throwError(() => new Error('upload failed')));
+    component.saveRotatedImage();
+    tick();
+    expect(component.saving).toBeFalse();
+    expect(component.isImageDirty[0]).toBeTrue();
+  }));
+
+  it('goToNextSlide(): should call swiperRef.slideNext', () => {
+    const mockSwiperRef = jasmine.createSpyObj('swiperRef', ['slideNext']);
+    component.imageSlides = { swiperRef: mockSwiperRef } as any;
+    component.goToNextSlide();
+    expect(mockSwiperRef.slideNext).toHaveBeenCalled();
+  });
+
+  it('goToPrevSlide(): should call swiperRef.slidePrev', () => {
+    const mockSwiperRef = jasmine.createSpyObj('swiperRef', ['slidePrev']);
+    component.imageSlides = { swiperRef: mockSwiperRef } as any;
+    component.goToPrevSlide();
+    expect(mockSwiperRef.slidePrev).toHaveBeenCalled();
+  });
+
+  it('getActiveIndex(): should set activeIndex from swiperRef', () => {
+    component.imageSlides = { swiperRef: { activeIndex: 42 } } as any;
+    component.getActiveIndex();
+    expect(component.activeIndex).toBe(42);
+  });
+
+  it('rotateImage(): should rotate image LEFT', (done) => {
+    const mockImage = {
+      set onload(fn) {
+        setTimeout(fn, 0);
+      },
+      set src(val) {},
+      get src() {
+        return '';
+      },
+    };
+    spyOn(window as any, 'Image').and.returnValue(mockImage);
+    const mockCtx = {
+      translate: jasmine.createSpy(),
+      rotate: jasmine.createSpy(),
+      drawImage: jasmine.createSpy(),
+    };
+    const mockCanvas = {
+      getContext: () => mockCtx,
+      toDataURL: () => 'data:image/jpeg;base64,left',
+      width: 0,
+      height: 0,
+    };
+    spyOn(document, 'createElement').and.returnValue(mockCanvas as any);
+    component.attachments = [{ url: 'test', id: '1', type: 'image' }];
+    component.activeIndex = 0;
+    component.rotatingDirection = RotationDirection.RIGHT;
+    (component as any).rotateImage(component.attachments[0], RotationDirection.LEFT);
+    setTimeout(() => {
+      expect(component.attachments[0].url).toBe('data:image/jpeg;base64,left');
+      done();
+    }, 10);
+  });
+
+  it('rotateImage(): should rotate image RIGHT', (done) => {
+    const mockImage = {
+      set onload(fn) {
+        setTimeout(fn, 0);
+      },
+      set src(val) {},
+      get src() {
+        return '';
+      },
+    };
+    spyOn(window as any, 'Image').and.returnValue(mockImage);
+    const mockCtx = {
+      translate: jasmine.createSpy(),
+      rotate: jasmine.createSpy(),
+      drawImage: jasmine.createSpy(),
+    };
+    const mockCanvas = {
+      getContext: () => mockCtx,
+      toDataURL: () => 'data:image/jpeg;base64,right',
+      width: 0,
+      height: 0,
+    };
+    spyOn(document, 'createElement').and.returnValue(mockCanvas as any);
+    component.attachments = [{ url: 'test', id: '1', type: 'image' }];
+    component.activeIndex = 0;
+    component.rotatingDirection = RotationDirection.LEFT;
+    (component as any).rotateImage(component.attachments[0], RotationDirection.RIGHT);
+    setTimeout(() => {
+      expect(component.attachments[0].url).toBe('data:image/jpeg;base64,right');
+      done();
+    }, 10);
+  });
 });
