@@ -1194,6 +1194,7 @@ export class AddEditExpensePage implements OnInit {
       map(
         ({ accounts, advanceWallets, orgSettings, etxn, allowedPaymentModes, isPaymentModeConfigurationsEnabled }) => {
           const isCCCEnabled = this.getCCCSettings(orgSettings);
+          const isAdvanceWalletEnabled = orgSettings?.advances?.advance_wallets_enabled;
 
           if (!isCCCEnabled && !etxn.tx.corporate_credit_card_expense_group_id) {
             this.showCardTransaction = false;
@@ -1205,7 +1206,7 @@ export class AddEditExpensePage implements OnInit {
             isPaymentModeConfigurationsEnabled,
           };
 
-          if (isPaymentModeConfigurationsEnabled) {
+          if (isAdvanceWalletEnabled) {
             return this.accountsService.getPaymentModesWithAdvanceWallets(
               accounts,
               advanceWallets,
@@ -1585,36 +1586,15 @@ export class AddEditExpensePage implements OnInit {
     return forkJoin({
       etxn: this.etxn$,
       paymentModes: this.paymentModes$,
-    }).pipe(
-      map(({ etxn, paymentModes }) => {
-        const selectedMode = this.accountsService.getEtxnSelectedPaymentMode(etxn, paymentModes);
-        return selectedMode;
-      })
-    );
+    }).pipe(map(({ etxn, paymentModes }) => this.accountsService.getEtxnSelectedPaymentMode(etxn, paymentModes)));
   }
 
   getDefaultPaymentModes(): Observable<ExtendedAccount | AdvanceWallet> {
-    return combineLatest([
-      this.etxn$,
-      this.paymentModes$,
-      this.orgSettingsService.get(),
-      this.accountsService.getMyAccounts(),
-      this.orgUserSettings$,
-      this.orgUserSettingsService.getAllowedPaymentModes(),
-    ]).pipe(
-      map(([etxn, paymentModes, orgSettings]) => {
-        // First check if there's an existing expense and use its payment mode
-        const selectedMode = this.accountsService.getEtxnSelectedPaymentMode(etxn, paymentModes);
-        if (selectedMode) {
-          return selectedMode;
-        }
-
-        // Then check if there's a payment mode in the form
-        const formValues = this.getFormValues();
-        if (formValues.paymentMode) {
-          return formValues.paymentMode;
-        }
-
+    return forkJoin({
+      paymentModes: this.paymentModes$,
+      orgSettings: this.orgSettingsService.get(),
+    }).pipe(
+      map(({ paymentModes, orgSettings }) => {
         // Get the default account type from org settings
         const defaultAccountType = orgSettings.payment_mode_settings?.payment_modes_order?.[0]
           ? this.mapPaymentModeToAccountType(orgSettings.payment_mode_settings.payment_modes_order[0])
@@ -1626,8 +1606,7 @@ export class AddEditExpensePage implements OnInit {
           return account.type === defaultAccountType;
         });
 
-        // If no matching mode found, fall back to first available payment mode
-        return defaultMode?.value || paymentModes[0]?.value;
+        return defaultMode.value;
       })
     );
   }
@@ -3350,9 +3329,6 @@ export class AddEditExpensePage implements OnInit {
 
     this.paymentModes$ = this.getPaymentModes();
 
-    // Show payment mode if it is not a CCC expense
-    this.showPaymentMode = !this.isCccExpense;
-
     this.initSplitTxn(orgSettings$);
 
     this.setupFilteredCategories();
@@ -3423,6 +3399,8 @@ export class AddEditExpensePage implements OnInit {
     this.etxn$.subscribe((etxn) => {
       this.isSplitExpense = this.getCheckSpiltExpense(etxn);
       this.isCccExpense = etxn?.tx?.corporate_credit_card_expense_group_id;
+      // Show payment mode if it is not a CCC expense
+      this.showPaymentMode = !this.isCccExpense;
       this.isExpenseMatchedForDebitCCCE = this.getDebitCCCExpense(etxn);
       this.canDismissCCCE = this.getDismissCCCExpense(etxn);
       this.canRemoveCardExpense = this.getRemoveCCCExpense(etxn);
@@ -3478,23 +3456,12 @@ export class AddEditExpensePage implements OnInit {
     return formValue?.paymentMode?.acc?.id;
   }
 
-  getAdvanceWalletId(isAdvanceWalletEnabled: boolean): string | null {
+  getAdvanceWalletId(isAdvanceWalletEnabled: boolean): string {
     const formValue = this.getFormValues();
-    if (isAdvanceWalletEnabled && formValue?.paymentMode?.id) {
-      const paymentMode = formValue.paymentMode;
-      // Treat as AdvanceWallet if it has these properties and type is not a normal account
-      if (
-        paymentMode &&
-        typeof paymentMode === 'object' &&
-        'balance_amount' in paymentMode &&
-        'org_id' in paymentMode &&
-        'user_id' in paymentMode &&
-        paymentMode.balance_amount > 0 &&
-        (!('type' in paymentMode) || paymentMode.type === undefined || paymentMode.type === 'PERSONAL_ADVANCE_ACCOUNT')
-      ) {
-        return paymentMode.id;
-      }
+    if (!formValue?.paymentMode?.acc?.id) {
+      return isAdvanceWalletEnabled && formValue?.paymentMode?.id;
     }
+    // setting advance_wallet_id as null when the source account id is set.
     return null;
   }
 

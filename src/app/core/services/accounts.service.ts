@@ -375,18 +375,7 @@ export class AccountsService {
         return accountsForPaymentMode;
       })
       .reduce((allowedAccounts, accountsForPaymentMode) => {
-        accountsForPaymentMode.forEach((acc) => {
-          if (
-            !allowedAccounts.some(
-              (a) =>
-                a.id === acc.id &&
-                a.isReimbursable === acc.isReimbursable &&
-                a.acc?.displayName === acc.acc?.displayName
-            )
-          ) {
-            allowedAccounts.push(acc);
-          }
-        });
+        allowedAccounts.push(...accountsForPaymentMode);
         return allowedAccounts;
       }, []);
   }
