@@ -85,7 +85,11 @@ export class ReceiptPreviewComponent implements OnInit, OnDestroy {
       return;
     }
     this.rotatingDirection = direction;
-    this.trackingService.rotateReceipt();
+
+    this.trackingService.rotateReceipt({
+      Direction: direction,
+      Index: this.activeIndex,
+    });
 
     setTimeout(() => {
       const currentImage = this.base64ImagesWithSource[this.activeIndex];
@@ -131,6 +135,10 @@ export class ReceiptPreviewComponent implements OnInit, OnDestroy {
   }
 
   saveReceipt(): void {
+    this.trackingService.receiptSavedRotation({
+      Count: this.base64ImagesWithSource.length,
+      Source: 'ReceiptPreviewComponent',
+    });
     this.modalController.dismiss({
       base64ImagesWithSource: this.base64ImagesWithSource,
     });

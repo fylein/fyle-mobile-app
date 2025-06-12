@@ -244,6 +244,9 @@ export class FyViewAttachmentComponent implements OnInit {
               this.saveComplete[this.activeIndex] = true;
               // auto-hide “Saved” chip
               setTimeout(() => (this.saveComplete[this.activeIndex] = false), 5000);
+              this.trackingService.receiptSavedRotation({
+                'File ID': attachment.id,
+              });
             })
           );
         }),
@@ -285,6 +288,10 @@ export class FyViewAttachmentComponent implements OnInit {
       };
       this.rotatingDirection = null;
       this.isImageDirty[this.activeIndex] = true;
+      this.trackingService.rotateReceipt({
+        'File ID': attachment.id,
+        Direction: direction,
+      });
     };
 
     imageToBeRotated.onerror = (): void => {
