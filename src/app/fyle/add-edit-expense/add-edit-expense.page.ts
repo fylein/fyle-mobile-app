@@ -1592,21 +1592,19 @@ export class AddEditExpensePage implements OnInit {
   getDefaultPaymentModes(): Observable<ExtendedAccount | AdvanceWallet> {
     return forkJoin({
       paymentModes: this.paymentModes$,
-      orgSettings: this.orgSettingsService.get(),
+      orgUserSettings: this.orgUserSettings$,
+      isPaymentModeConfigurationsEnabled: this.paymentModesService.checkIfPaymentModeConfigurationsIsEnabled(),
     }).pipe(
-      map(({ paymentModes, orgSettings }) => {
-        // Get the default account type from org settings
-        const defaultAccountType = orgSettings.payment_mode_settings?.payment_modes_order?.[0]
-          ? this.mapPaymentModeToAccountType(orgSettings.payment_mode_settings.payment_modes_order[0])
-          : AccountType.PERSONAL;
+      map(({ paymentModes }) => {
+        //If the user is creating expense from Corporate cards page, the default payment mode should be CCC
+        if (this.isCreatedFromCCC) {
+          const CCCAccount = paymentModes.find(
+            (paymentMode) => (paymentMode.value as ExtendedAccount).acc.type === AccountType.CCC
+          );
+          return CCCAccount.value;
+        }
 
-        // Find the first payment mode that matches the default account type
-        const defaultMode = paymentModes.find((mode) => {
-          const account = mode.value as ExtendedAccount;
-          return account.type === defaultAccountType;
-        });
-
-        return defaultMode.value;
+        return paymentModes[0].value;
       })
     );
   }

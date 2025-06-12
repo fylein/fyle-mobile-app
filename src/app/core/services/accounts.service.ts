@@ -57,7 +57,7 @@ export class AccountsService {
     const { etxn, expenseType } = config;
     const isMileageOrPerDiemExpense = [ExpenseType.MILEAGE, ExpenseType.PER_DIEM].includes(expenseType);
     const userAccounts = accounts.filter((account) =>
-      [AccountType.PERSONAL, AccountType.CCC].includes(account.type as AccountType)
+      [AccountType.PERSONAL, AccountType.CCC].includes(account.acc.type)
     );
 
     const allowedAccounts = this.getAllowedAccountsWithAdvanceWallets(
@@ -76,18 +76,18 @@ export class AccountsService {
       );
     }
 
-    const formattedAccounts = allowedAccounts.map((account) => {
-      const displayName = account.acc.displayName;
-      return {
-        label: displayName,
-        value: account,
-      };
-    });
-
-    const formattedAdvanceWallets = allowedAdvanceWallets.map((advanceWallet) => ({
-      label: this.getAdvanceWalletDisplayName(advanceWallet),
-      value: advanceWallet,
+    const formattedAccounts = allowedAccounts.map((account) => ({
+      label: account.acc.displayName,
+      value: account,
     }));
+
+    const formattedAdvanceWallets = allowedAdvanceWallets.map((advanceWallet) => {
+      const formattedAdvanceWallet = {
+        label: this.getAdvanceWalletDisplayName(advanceWallet),
+        value: advanceWallet,
+      };
+      return formattedAdvanceWallet;
+    });
 
     const finalPaymentModes = [...formattedAccounts, ...formattedAdvanceWallets];
 
@@ -324,9 +324,9 @@ export class AccountsService {
     // Check if only CCC is allowed
     const isOnlyCCCAllowed = updatedModes.length === 1 && updatedModes[0] === AccountType.CCC;
 
-    // PERSONAL_ACCOUNT should always be present unless only CCC is allowed
+    // Add PERSONAL_ACCOUNT if not present (unless only CCC is allowed)
     if (!isOnlyCCCAllowed && !updatedModes.includes(AccountType.PERSONAL)) {
-      updatedModes = [AccountType.PERSONAL, ...updatedModes];
+      updatedModes.push(AccountType.PERSONAL);
     }
 
     // Add current expense account to allowedPaymentModes if it's not present
@@ -336,7 +336,7 @@ export class AccountsService {
         paymentModeOfExpense = AccountType.COMPANY;
       }
       if (!updatedModes.includes(paymentModeOfExpense)) {
-        updatedModes = [paymentModeOfExpense, ...updatedModes];
+        updatedModes.push(paymentModeOfExpense);
       }
     }
 
