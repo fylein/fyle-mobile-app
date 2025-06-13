@@ -91,7 +91,7 @@ import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense
 import { CCExpenseMerchantInfoModalComponent } from 'src/app/shared/components/cc-expense-merchant-info-modal/cc-expense-merchant-info-modal.component';
 
 export function TestCases6(getTestBed) {
-  fdescribe('AddEditExpensePage-6', () => {
+  describe('AddEditExpensePage-6', () => {
     let component: AddEditExpensePage;
     let fixture: ComponentFixture<AddEditExpensePage>;
     let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
