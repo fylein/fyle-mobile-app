@@ -541,7 +541,7 @@ describe('ExpensesService', () => {
 
     service.mergeExpenses(mergeExpensesPayload).subscribe((res) => {
       expect(res).toEqual(expenseData);
-      expect(spenderService.post).toHaveBeenCalledOnceWith('/expenses/merge', mergeExpensesPayload);
+      expect(spenderService.post).toHaveBeenCalledOnceWith('/expenses/merge', { data: mergeExpensesPayload });
       done();
     });
   });
