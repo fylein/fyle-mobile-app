@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
 import { ModalController, Platform, PopoverController } from '@ionic/angular';
@@ -10,20 +10,18 @@ import { CropReceiptComponent } from '../crop-receipt/crop-receipt.component';
 import { SwiperComponent } from 'swiper/angular';
 import SwiperCore, { Pagination } from 'swiper';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
+import { Image } from 'src/app/core/models/image-type.model';
+import { RotationDirection } from 'src/app/core/enums/rotation-direction.enum';
 
 // install Swiper modules
 SwiperCore.use([Pagination]);
 
-type Image = Partial<{
-  source: string;
-  base64Image: string;
-}>;
 @Component({
   selector: 'app-receipt-preview',
   templateUrl: './receipt-preview.component.html',
   styleUrls: ['./receipt-preview.component.scss'],
 })
-export class ReceiptPreviewComponent implements OnInit {
+export class ReceiptPreviewComponent implements OnInit, OnDestroy {
   @ViewChild('swiper', { static: false }) swiper?: SwiperComponent;
 
   @Input() base64ImagesWithSource: Image[];
@@ -38,6 +36,12 @@ export class ReceiptPreviewComponent implements OnInit {
 
   isCropModalOpen = false;
 
+  rotatingDirection: RotationDirection;
+
+  RotationDirection = RotationDirection;
+
+  isSmallScreen: boolean;
+
   constructor(
     private platform: Platform,
     private modalController: ModalController,
@@ -47,7 +51,7 @@ export class ReceiptPreviewComponent implements OnInit {
     private trackingService: TrackingService
   ) {}
 
-  async openCropReceiptModal() {
+  async openCropReceiptModal(): Promise<void> {
     const cropReceiptModal = await this.modalController.create({
       component: CropReceiptComponent,
       componentProps: {
@@ -56,47 +60,92 @@ export class ReceiptPreviewComponent implements OnInit {
     });
     await cropReceiptModal.present();
     this.isCropModalOpen = true;
-    const { data } = await cropReceiptModal.onWillDismiss();
+    const { data }: { data?: { base64ImageWithSource: Image } } = await cropReceiptModal.onWillDismiss();
     this.isCropModalOpen = false;
 
     if (data && data.base64ImageWithSource) {
       this.base64ImagesWithSource[this.activeIndex] = data.base64ImageWithSource;
-      await this.swiper.swiperRef.update();
+      await this.swiper?.swiperRef.update();
       this.trackingService.cropReceipt();
     }
   }
 
-  ngOnInit() {
+  /**
+   * Rotates the current image by 90 degrees in the specified direction.
+   *
+   * The rotation happens in two steps:
+   * 1. Visual rotation: Applies CSS transform immediately for smooth animation.
+   * 2. Data rotation: After a 400ms animation, the actual image data is rotated using canvas.
+   *
+   * @param direction - Direction to rotate the image (LEFT = -90°, RIGHT = 90°).
+   */
+
+  rotateImage(direction: RotationDirection): void {
+    if (this.rotatingDirection) {
+      return;
+    }
+    this.rotatingDirection = direction;
+
+    this.trackingService.rotateReceipt({
+      Direction: direction,
+      Index: this.activeIndex,
+    });
+
+    setTimeout(() => {
+      const currentImage = this.base64ImagesWithSource[this.activeIndex];
+      if (!currentImage?.base64Image) {
+        this.rotatingDirection = null;
+        return;
+      }
+      this.rotateImageData(currentImage, direction);
+    }, 400);
+  }
+
+  checkScreenSize = (): void => {
+    this.isSmallScreen = window.innerWidth < 400;
+  };
+
+  ngOnInit(): void {
     this.sliderOptions = {
       zoom: {
         maxRatio: 1,
       },
     };
     this.activeIndex = 0;
+    this.checkScreenSize();
+    window.addEventListener('resize', this.checkScreenSize);
   }
 
-  ionViewWillEnter() {
+  ngOnDestroy(): void {
+    window.removeEventListener('resize', this.checkScreenSize);
+  }
+
+  ionViewWillEnter(): void {
     this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
       BackButtonActionPriority.HIGH,
       () => {
         this.closeModal();
       }
     );
-    this.swiper.swiperRef.update();
+    this.swiper?.swiperRef.update();
   }
 
-  ionViewWillLeave() {
+  ionViewWillLeave(): void {
     this.hardwareBackButtonAction.unsubscribe();
   }
 
-  saveReceipt() {
+  saveReceipt(): void {
+    this.trackingService.receiptSavedRotation({
+      Count: this.base64ImagesWithSource.length,
+      Source: 'ReceiptPreviewComponent',
+    });
     this.modalController.dismiss({
       base64ImagesWithSource: this.base64ImagesWithSource,
     });
   }
 
-  async closeModal() {
-    let message;
+  async closeModal(): Promise<void> {
+    let message: string;
     if (this.base64ImagesWithSource.length > 1) {
       message = `Are you sure you want to discard the ${this.base64ImagesWithSource.length} receipts you just captured?`;
     } else {
@@ -119,11 +168,8 @@ export class ReceiptPreviewComponent implements OnInit {
       },
       cssClass: 'pop-up-in-center',
     });
-
     await closePopOver.present();
-
-    const { data } = await closePopOver.onWillDismiss();
-
+    const { data }: { data?: { action?: string } } = await closePopOver.onWillDismiss();
     if (data && data.action) {
       if (data.action === 'discard') {
         this.retake();
@@ -131,13 +177,12 @@ export class ReceiptPreviewComponent implements OnInit {
     }
   }
 
-  async addMore() {
+  async addMore(): Promise<void> {
     const addMoreDialog = this.matBottomSheet.open(AddMorePopupComponent, {
       data: {},
       panelClass: ['mat-bottom-sheet-2'],
     });
-
-    const data = await addMoreDialog.afterDismissed().toPromise();
+    const data = (await addMoreDialog.afterDismissed().toPromise()) as { mode?: string };
     if (data) {
       if (data.mode === 'camera') {
         this.captureReceipts();
@@ -147,18 +192,17 @@ export class ReceiptPreviewComponent implements OnInit {
     }
   }
 
-  galleryUpload() {
-    this.imagePicker.hasReadPermission().then((permission) => {
+  galleryUpload(): void {
+    this.imagePicker.hasReadPermission().then((permission: boolean) => {
       if (permission) {
         const options = {
           maximumImagesCount: 10,
           outputType: 1,
           quality: 70,
         };
-        // If android app start crashing then convert outputType to 0 to get file path and then convert it to base64 before upload to s3.
-        from(this.imagePicker.getPictures(options)).subscribe(async (imageBase64Strings) => {
-          if (imageBase64Strings.length > 0) {
-            imageBase64Strings.forEach((base64String, key) => {
+        from(this.imagePicker.getPictures(options)).subscribe((imageBase64Strings: string[]) => {
+          if (Array.isArray(imageBase64Strings) && imageBase64Strings.length > 0) {
+            imageBase64Strings.forEach((base64String: string) => {
               const base64PictureData = 'data:image/jpeg;base64,' + base64String;
               this.base64ImagesWithSource.push({
                 source: 'MOBILE_DASHCAM_GALLERY',
@@ -174,15 +218,15 @@ export class ReceiptPreviewComponent implements OnInit {
     });
   }
 
-  captureReceipts() {
+  captureReceipts(): void {
     this.modalController.dismiss({
       base64ImagesWithSource: this.base64ImagesWithSource,
       continueCaptureReceipt: true,
     });
   }
 
-  async deleteReceipt() {
-    const activeIndex = await this.swiper.swiperRef.activeIndex;
+  async deleteReceipt(): Promise<void> {
+    const activeIndex = await this.swiper?.swiperRef.activeIndex;
     const deletePopOver = await this.popoverController.create({
       component: PopupAlertComponent,
       componentProps: {
@@ -200,43 +244,63 @@ export class ReceiptPreviewComponent implements OnInit {
       },
       cssClass: 'pop-up-in-center',
     });
-
     await deletePopOver.present();
-
-    const { data } = await deletePopOver.onWillDismiss();
-
+    const { data }: { data?: { action?: string } } = await deletePopOver.onWillDismiss();
     if (data && data.action) {
       if (data.action === 'remove') {
-        this.base64ImagesWithSource.splice(activeIndex, 1);
+        this.base64ImagesWithSource.splice(activeIndex ?? 0, 1);
         if (this.base64ImagesWithSource.length === 0) {
           this.retake();
         } else {
-          await this.swiper.swiperRef.update();
-          this.activeIndex = await this.swiper.swiperRef.activeIndex;
+          await this.swiper?.swiperRef.update();
+          this.activeIndex = (await this.swiper?.swiperRef.activeIndex) ?? 0;
         }
       }
     }
   }
 
-  retake() {
+  retake(): void {
     this.base64ImagesWithSource = [];
     this.modalController.dismiss({
       base64ImagesWithSource: this.base64ImagesWithSource,
     });
   }
 
-  async goToNextSlide() {
-    await this.swiper.swiperRef.slideNext();
-    await this.swiper.swiperRef.update();
+  async goToNextSlide(): Promise<void> {
+    await this.swiper?.swiperRef.slideNext();
+    await this.swiper?.swiperRef.update();
   }
 
-  async goToPrevSlide() {
-    await this.swiper.swiperRef.slidePrev();
-    await this.swiper.swiperRef.update();
+  async goToPrevSlide(): Promise<void> {
+    await this.swiper?.swiperRef.slidePrev();
+    await this.swiper?.swiperRef.update();
   }
 
-  async ionSlideDidChange() {
-    const activeIndex = await this.swiper.swiperRef.activeIndex;
-    this.activeIndex = activeIndex;
+  async ionSlideDidChange(): Promise<void> {
+    this.activeIndex = (await this.swiper?.swiperRef.activeIndex) ?? 0;
+  }
+
+  private rotateImageData(currentImage: Image, direction: RotationDirection): void {
+    const imageToBeRotated = new window.Image();
+    imageToBeRotated.src = currentImage.base64Image;
+    imageToBeRotated.onload = (): void => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        this.rotatingDirection = null;
+        return;
+      }
+      canvas.width = imageToBeRotated.height;
+      canvas.height = imageToBeRotated.width;
+      ctx.translate(canvas.width / 2, canvas.height / 2);
+      ctx.rotate(((direction === RotationDirection.LEFT ? -90 : 90) * Math.PI) / 180);
+      ctx.drawImage(imageToBeRotated, -imageToBeRotated.width / 2, -imageToBeRotated.height / 2);
+      this.base64ImagesWithSource[this.activeIndex] = {
+        ...currentImage,
+        base64Image: canvas.toDataURL('image/jpeg', 0.9),
+      };
+      this.swiper?.swiperRef.update();
+      this.rotatingDirection = null;
+    };
   }
 }

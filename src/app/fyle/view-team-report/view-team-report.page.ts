@@ -39,6 +39,7 @@ import { RefinerService } from 'src/app/core/services/refiner.service';
 import { ShowAllApproversPopoverComponent } from 'src/app/shared/components/fy-approver/show-all-approvers-popover/show-all-approvers-popover.component';
 import { ApprovalState } from 'src/app/core/models/platform/approval-state.enum';
 import { DateWithTimezonePipe } from 'src/app/shared/pipes/date-with-timezone.pipe';
+import { BrowserHandlerService } from 'src/app/core/services/browser-handler.service';
 
 @Component({
   selector: 'app-view-team-report',
@@ -140,6 +141,12 @@ export class ViewTeamReportPage {
 
   approvalAmount: number;
 
+  showApprovalInfoMessage = false;
+
+  approvalInfoMessage = '';
+
+  canApproveReport = false;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
@@ -161,7 +168,8 @@ export class ViewTeamReportPage {
     private exactCurrency: ExactCurrencyPipe,
     private orgSettingsService: OrgSettingsService,
     private approverReportsService: ApproverReportsService,
-    private dateWithTimezonePipe: DateWithTimezonePipe
+    private dateWithTimezonePipe: DateWithTimezonePipe,
+    private browserHandlerService: BrowserHandlerService
   ) {}
 
   ionViewWillLeave(): void {
@@ -375,8 +383,13 @@ export class ViewTeamReportPage {
       if (this.expensesAmountSum$) {
         this.expensesAmountSum$.pipe(take(1)).subscribe((sum) => {
           this.approvalAmount = sum;
+          this.setApproverInfoMessage(expenses, report);
         });
       }
+    });
+
+    this.permissions$.subscribe((permissions) => {
+      this.canApproveReport = permissions.can_approve;
     });
 
     this.refreshApprovals$.next(null);
@@ -627,5 +640,36 @@ export class ViewTeamReportPage {
           this.updateReportName(newReportName);
         }
       });
+  }
+
+  setApproverInfoMessage(expenses: Expense[], report: Report): void {
+    const noOfExpensesRequireApproval = expenses.length;
+    const totalNoOfExpenses = report.num_expenses;
+    if (noOfExpensesRequireApproval === totalNoOfExpenses) {
+      this.showApprovalInfoMessage = false;
+    } else {
+      this.showApprovalInfoMessage = true;
+      const noOfExpensesNotRequireApproval = totalNoOfExpenses - noOfExpensesRequireApproval;
+      const expenseText = noOfExpensesNotRequireApproval === 1 ? 'other expense' : 'other expenses';
+      this.approvalInfoMessage = `You are approving ${this.formatCurrency(
+        this.approvalAmount,
+        report.currency
+      )} in expenses, which differs from the report total since the report also includes ${noOfExpensesNotRequireApproval} ${expenseText} (which may include credits) that don't require your approval based on your company's policies.`;
+    }
+  }
+
+  async openHelpArticle(): Promise<void> {
+    await this.browserHandlerService.openLinkWithToolbarColor(
+      '#280a31',
+      'https://help.fylehq.com/en/articles/1205138-view-and-approve-expense-reports#h_1672226e87'
+    );
+  }
+
+  private formatCurrency(amount: number, currencyCode: string): string {
+    return this.exactCurrency.transform({
+      value: amount,
+      currencyCode,
+      skipSymbol: false,
+    });
   }
 }
