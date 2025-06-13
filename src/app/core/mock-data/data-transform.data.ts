@@ -1,6 +1,6 @@
 import deepFreeze from 'deep-freeze-strict';
 
-import { FlattenedAccount } from '../models/flattened-account.model';
+import { FlattenedAccount } from '../models/platform-account.model';
 
 export const dataErtpTransformed = deepFreeze({
   '': {
