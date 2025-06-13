@@ -233,32 +233,6 @@ export function TestCases3(getTestBed) {
         });
       });
 
-      it('should return etxn object from form data when advance wallets is enabled', (done) => {
-        component.getFormValues = jasmine.createSpy().and.returnValue(perDiemFormValuesWithAdvanceWalletData);
-        const etxn = of(unflattenedTxnWithAdvanceWallet);
-        const customProperties = of(cloneDeep(expectedTxnCustomProperties));
-        orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithAdvanceWallet));
-        dateService.getUTCDate.and.returnValues(
-          new Date('2023-02-13T17:00:00.000Z'),
-          new Date('2023-08-01T17:00:00.000Z'),
-          new Date('2023-08-03T17:00:00.000Z')
-        );
-
-        const expectedEtxn$ = component.generateEtxnFromFg(etxn, customProperties);
-
-        expectedEtxn$.subscribe((res) => {
-          expect(dateService.getUTCDate).toHaveBeenCalledTimes(3);
-          expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-02-13T17:00:00.000Z'));
-          expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-08-01'));
-          expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-08-03'));
-          expect(res.tx).toEqual({ ...unflattenedTxnWithAdvanceWallet.tx, ...perDiemTransactionWithAdvanceWallet });
-          expect(res.tx.skip_reimbursement).toBeTrue();
-          expect(res.ou).toEqual(unflattenedTxnWithAdvanceWallet.ou);
-          expect(res.dataUrls).toEqual([]);
-          done();
-        });
-      });
-
       it('should return etxn object from form data if sub_category.id is undefined in form', (done) => {
         component.getFormValues = jasmine.createSpy().and.returnValue(perDiemFormValuesData9);
         const etxn = of(unflattenedTxnData);

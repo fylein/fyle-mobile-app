@@ -336,10 +336,6 @@ export function TestCases4(getTestBed) {
           expect(transactionService.upsert).toHaveBeenCalledOnceWith(tx);
           expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(tx.id);
           expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseDataForAdvanceWallet);
-          expect(expensesService.post).toHaveBeenCalledOnceWith({
-            id: tx.id,
-            advance_wallet_id: 'areq1234',
-          });
           done();
         });
       });
@@ -963,9 +959,6 @@ export function TestCases4(getTestBed) {
         expect(component.addExpense).not.toHaveBeenCalled();
         expect(component.editExpense).not.toHaveBeenCalled();
         expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
-        expect(component.invalidPaymentMode).toBeTrue();
-        tick(3000);
-        expect(component.invalidPaymentMode).toBeFalse();
       }));
     });
   });

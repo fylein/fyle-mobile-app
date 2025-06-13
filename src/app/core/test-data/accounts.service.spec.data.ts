@@ -3320,14 +3320,6 @@ export const accountsData: ExtendedAccount[] = deepFreeze([
       tentative_balance_amount: 159097.536645,
       category: null,
     },
-    ou: {
-      id: 'ouvyOFOSx5bh',
-      org_id: 'orrb8EW1zZsy',
-    },
-    us: {
-      email: 'ajain@fyle.in',
-      full_name: 'Abhishek Jain',
-    },
     org: {
       id: null,
       domain: null,
