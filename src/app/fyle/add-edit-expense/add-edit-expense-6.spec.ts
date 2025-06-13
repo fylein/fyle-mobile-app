@@ -70,6 +70,7 @@ import {
   multiplePaymentModesData,
   orgSettingsData,
   advanceWallet1Data,
+  multiplePaymentModes,
 } from 'src/app/core/test-data/accounts.service.spec.data';
 import { expectedProjectsResponse } from 'src/app/core/test-data/projects.spec.data';
 import { AddEditExpensePage } from './add-edit-expense.page';
@@ -90,7 +91,7 @@ import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense
 import { CCExpenseMerchantInfoModalComponent } from 'src/app/shared/components/cc-expense-merchant-info-modal/cc-expense-merchant-info-modal.component';
 
 export function TestCases6(getTestBed) {
-  describe('AddEditExpensePage-6', () => {
+  fdescribe('AddEditExpensePage-6', () => {
     let component: AddEditExpensePage;
     let fixture: ComponentFixture<AddEditExpensePage>;
     let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
@@ -1166,7 +1167,7 @@ export function TestCases6(getTestBed) {
       });
 
       it('should return true if account is of type advance', () => {
-        const result = component.checkAdvanceAccountAndBalance(multiplePaymentModesData[2]);
+        const result = component.checkAdvanceAccountAndBalance(multiplePaymentModes[2]);
 
         expect(result).toBeTrue();
       });

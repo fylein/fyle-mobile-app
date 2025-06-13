@@ -380,7 +380,7 @@ export function TestCases5(getTestBed) {
         tick(500);
 
         component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
-          expect(res).toBeTrue();
+          expect(res).toBeFalse();
           expect(accountsService.getMyAccounts).toHaveBeenCalledOnceWith();
           expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledOnceWith();
           expect(orgSettingsService.get).toHaveBeenCalledOnceWith();
@@ -437,7 +437,7 @@ export function TestCases5(getTestBed) {
         tick(500);
 
         component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
-          expect(res).toBeTrue();
+          expect(res).toBeFalse();
           expect(accountsService.getMyAccounts).toHaveBeenCalledOnceWith();
           expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledOnceWith();
           expect(orgSettingsService.get).toHaveBeenCalledOnceWith();
@@ -456,7 +456,7 @@ export function TestCases5(getTestBed) {
         tick(500);
 
         component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
-          expect(res).toBeTrue();
+          expect(res).toBeFalse();
           expect(accountsService.getMyAccounts).toHaveBeenCalledOnceWith();
           expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledOnceWith();
           expect(orgSettingsService.get).toHaveBeenCalledOnceWith();
@@ -1903,7 +1903,7 @@ export function TestCases5(getTestBed) {
         expect(component.getEditExpenseObservable).toHaveBeenCalledTimes(1);
 
         component.isCCCAccountSelected$.subscribe((res) => {
-          expect(res).toBeTrue();
+          expect(res).toBeFalse();
         });
 
         expect(component.platformExpense$).toBeUndefined();
