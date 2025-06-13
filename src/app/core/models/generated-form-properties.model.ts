@@ -4,7 +4,6 @@ import { Location } from './location.model';
 export interface GeneratedFormProperties {
   source_account_id: string;
   is_billable: boolean;
-  currency: string;
   amount: number;
   project_id: number;
   cost_center_id: number;

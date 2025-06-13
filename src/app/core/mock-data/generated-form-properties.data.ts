@@ -7,7 +7,6 @@ import { optionsData15, optionsData33 } from './merge-expenses-options-data.data
 export const generatedFormPropertiesData1: GeneratedFormProperties = deepFreeze({
   source_account_id: '1234',
   is_billable: true,
-  currency: 'INR',
   amount: 100,
   project_id: 3943,
   cost_center_id: 91842,
@@ -41,7 +40,6 @@ export const generatedFormPropertiesData1: GeneratedFormProperties = deepFreeze(
 export const generatedFormPropertiesData2: GeneratedFormProperties = deepFreeze({
   source_account_id: 'accDDeaVIs6p6',
   is_billable: undefined,
-  currency: 'INR',
   amount: 1024,
   project_id: 13795,
   cost_center_id: 13796,
@@ -75,7 +73,6 @@ export const generatedFormPropertiesData2: GeneratedFormProperties = deepFreeze(
 export const generatedFormPropertiesData3: GeneratedFormProperties = deepFreeze({
   source_account_id: 'accDDeaVIs6p6',
   is_billable: undefined,
-  currency: 'USD',
   amount: 3,
   project_id: undefined,
   cost_center_id: undefined,
@@ -107,14 +104,12 @@ export const generatedFormPropertiesData3: GeneratedFormProperties = deepFreeze(
 export const generatedFormPropertiesData4: GeneratedFormProperties = deepFreeze({
   ...generatedFormPropertiesData3,
   source_account_id: undefined,
-  currency: 'INR',
   amount: 1024,
 });
 
 export const generatedFormPropertiesData5: GeneratedFormProperties = deepFreeze({
   source_account_id: 'accDDeaVIs6p6',
   is_billable: undefined,
-  currency: 'INR',
   amount: 1024,
   project_id: 13795,
   cost_center_id: 13796,

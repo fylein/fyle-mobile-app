@@ -626,7 +626,6 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
     return {
       source_account_id: sourceExpense?.tx_source_account_id,
       is_billable: this.genericFieldsFormValues.billable,
-      currency: amountExpense?.tx_currency,
       amount: amountExpense?.tx_amount,
       project_id: this.genericFieldsFormValues.project,
       cost_center_id: this.genericFieldsFormValues.costCenter,

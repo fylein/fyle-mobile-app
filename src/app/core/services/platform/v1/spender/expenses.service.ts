@@ -390,7 +390,7 @@ export class ExpensesService {
 
   mergeExpenses(payload: MergeExpensesPayload): Observable<Expense> {
     return this.spenderService
-      .post<PlatformApiResponse<Expense>>('/expenses/merge', payload)
+      .post<PlatformApiResponse<Expense>>('/expenses/merge', { data: payload })
       .pipe(map((response) => response.data));
   }
 }
