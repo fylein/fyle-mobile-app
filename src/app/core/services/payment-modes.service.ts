@@ -1,38 +1,36 @@
 import { Injectable } from '@angular/core';
 import { AccountsService } from './accounts.service';
-import { LaunchDarklyService } from './launch-darkly.service';
 import { map } from 'rxjs/operators';
 import { forkJoin, Observable } from 'rxjs';
 import { AccountType } from '../enums/account-type.enum';
 import { ExtendedAccount } from '../models/extended-account.model';
-import { OrgUserSettings } from '../models/org_user_settings.model';
-import { OrgUserSettingsService } from './org-user-settings.service';
+import { EmployeeSettings } from '../models/employee-settings.model';
 import { TrackingService } from '../../core/services/tracking.service';
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { OrgSettings, PaymentmodeSettings } from '../models/org-settings.model';
 import { AllowedPaymentModes } from '../models/allowed-payment-modes.enum';
+import { PlatformEmployeeSettingsService } from './platform/v1/spender/employee-settings.service';
 @Injectable({
   providedIn: 'root',
 })
 export class PaymentModesService {
   constructor(
     private accountsService: AccountsService,
-    private launchDarklyService: LaunchDarklyService,
-    private orgUserSettingsService: OrgUserSettingsService,
+    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
     private trackingService: TrackingService
   ) {}
 
   checkIfPaymentModeConfigurationsIsEnabled(): Observable<boolean> {
-    return this.orgUserSettingsService
+    return this.platformEmployeeSettingsService
       .get()
       .pipe(
         map(
-          (orgUserSettings) =>
-            orgUserSettings.payment_mode_settings.allowed && orgUserSettings.payment_mode_settings.enabled
+          (employeeSettings) =>
+            employeeSettings.payment_mode_settings.allowed && employeeSettings.payment_mode_settings.enabled
         )
       );
   }
@@ -40,10 +38,10 @@ export class PaymentModesService {
   getDefaultAccount(
     orgSettings: OrgSettings,
     accounts: ExtendedAccount[],
-    orgUserSettings: OrgUserSettings
+    employeeSettings: EmployeeSettings
   ): Observable<ExtendedAccount> {
     return forkJoin({
-      allowedPaymentModes: this.orgUserSettingsService.getAllowedPaymentModes(),
+      allowedPaymentModes: this.platformEmployeeSettingsService.getAllowedPaymentModes(),
       isPaymentModeConfigurationsEnabled: this.checkIfPaymentModeConfigurationsIsEnabled(),
     }).pipe(
       map(({ allowedPaymentModes, isPaymentModeConfigurationsEnabled }) => {
@@ -52,12 +50,12 @@ export class PaymentModesService {
         if (isPaymentModeConfigurationsEnabled) {
           defaultAccountType = allowedPaymentModes[0];
         } else {
-          const userDefaultPaymentMode = orgUserSettings.preferences.default_payment_mode;
+          const userDefaultPaymentMode = employeeSettings.default_payment_mode;
           const isCCCEnabled =
             orgSettings.corporate_credit_card_settings?.allowed && orgSettings.corporate_credit_card_settings?.enabled;
           if (isCCCEnabled && userDefaultPaymentMode === AccountType.CCC) {
             defaultAccountType = AccountType.CCC;
-          } else if (orgUserSettings.preferences?.default_payment_mode === AccountType.COMPANY) {
+          } else if (employeeSettings.default_payment_mode === AccountType.COMPANY) {
             defaultAccountType = AccountType.COMPANY;
           }
         }
