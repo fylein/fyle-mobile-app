@@ -699,7 +699,7 @@ export function TestCases4(getTestBed) {
           .generateEtxnFromFg(of(unflattenedTxnWithReportID3), of(mockTxnCustomProperties), of(10))
           .subscribe((res) => {
             expect(res).toEqual(newMileageExpFromForm);
-            expect(component.getFormValues).toHaveBeenCalledTimes(2);
+            expect(component.getFormValues).toHaveBeenCalledTimes(1);
             expect(dateService.getUTCDate).toHaveBeenCalledTimes(2);
             done();
           });
@@ -720,7 +720,7 @@ export function TestCases4(getTestBed) {
           .generateEtxnFromFg(of(unflattenedTxnWithReportID3), of(mockTxnCustomProperties), of(10))
           .subscribe((res) => {
             expect(res).toEqual(newMileageExpFromForm);
-            expect(component.getFormValues).toHaveBeenCalledTimes(2);
+            expect(component.getFormValues).toHaveBeenCalledTimes(1);
             expect(dateService.getUTCDate).toHaveBeenCalledTimes(2);
             done();
           });
@@ -753,7 +753,7 @@ export function TestCases4(getTestBed) {
 
         component.generateEtxnFromFg(of(unflattenedTxnWithReportID3), of(null), of(10)).subscribe((res) => {
           expect(res).toEqual(newMileageExpFromForm2);
-          expect(component.getFormValues).toHaveBeenCalledTimes(2);
+          expect(component.getFormValues).toHaveBeenCalledTimes(1);
           expect(dateService.getUTCDate).toHaveBeenCalledTimes(1);
           done();
         });
