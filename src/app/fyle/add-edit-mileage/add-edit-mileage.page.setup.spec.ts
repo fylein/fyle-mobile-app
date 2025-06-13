@@ -77,7 +77,7 @@ export function setFormValid(component) {
 describe('AddEditMileagePage', () => {
   const getTestBed = () => {
     const accountsServiceSpy = jasmine.createSpyObj('AccountsService', [
-      'getEMyAccounts',
+      'getMyAccounts',
       'getPaymentModes',
       'getEtxnSelectedPaymentMode',
       'getAccountTypeFromPaymentMode',

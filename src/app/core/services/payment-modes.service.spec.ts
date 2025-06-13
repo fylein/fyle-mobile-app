@@ -12,7 +12,10 @@ import {
   orgUserSettingsWoPayModesCompany,
 } from '../mock-data/org-user-settings.data';
 import { orgSettingsRes, orgSettingsParamWoCCC } from '../mock-data/org-settings.data';
-import { multiplePaymentModesData } from '../test-data/accounts.service.spec.data';
+import {
+  multiplePaymentModesData,
+  multiplePaymentModesWithCompanyAccData,
+} from '../test-data/accounts.service.spec.data';
 import { AccountType } from '../enums/account-type.enum';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import {
@@ -121,12 +124,12 @@ describe('PaymentModesService', () => {
       );
 
       paymentModesService
-        .getDefaultAccount(orgSettingsRes, multiplePaymentModesData, orgUserSettingsWoPaymentModes)
+        .getDefaultAccount(orgSettingsRes, multiplePaymentModesWithCompanyAccData, orgUserSettingsWoPaymentModes)
         .subscribe((res) => {
           expect(res).toBeUndefined();
           expect(orgUserSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
           expect(accountService.setAccountProperties).toHaveBeenCalledOnceWith(
-            multiplePaymentModesData[1],
+            multiplePaymentModesWithCompanyAccData[0],
             AccountType.CCC,
             false
           );
