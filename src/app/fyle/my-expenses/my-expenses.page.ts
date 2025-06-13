@@ -50,7 +50,6 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
 import { ExpensesService as SharedExpenseService } from 'src/app/core/services/platform/v1/shared/expenses.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
@@ -87,6 +86,7 @@ import { ExpensesQueryParams } from 'src/app/core/models/platform/v1/expenses-qu
 import { ExtendQueryParamsService } from 'src/app/core/services/extend-query-params.service';
 import { FooterState } from 'src/app/shared/components/footer/footer-state.enum';
 import { FooterService } from 'src/app/core/services/footer.service';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 
 @Component({
   selector: 'app-my-expenses',
@@ -229,7 +229,7 @@ export class MyExpensesPage implements OnInit {
     private myExpensesService: MyExpensesService,
     private orgSettingsService: OrgSettingsService,
     private currencyService: CurrencyService,
-    private orgUserSettingsService: OrgUserSettingsService,
+    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
     private platformHandlerService: PlatformHandlerService,
     private categoriesService: CategoriesService,
     private navController: NavController,
@@ -479,12 +479,12 @@ export class MyExpensesPage implements OnInit {
       this.expensesTaskCount = expensesTaskCount;
     });
 
-    const getOrgUserSettingsService$ = this.orgUserSettingsService.get().pipe(shareReplay(1));
+    const getEmployeeSettings$ = this.platformEmployeeSettingsService.get().pipe(shareReplay(1));
 
-    this.isInstaFyleEnabled$ = getOrgUserSettingsService$.pipe(
+    this.isInstaFyleEnabled$ = getEmployeeSettings$.pipe(
       map(
-        (orgUserSettings) =>
-          orgUserSettings?.insta_fyle_settings?.allowed && orgUserSettings.insta_fyle_settings.enabled
+        (employeeSettings) =>
+          employeeSettings?.insta_fyle_settings?.allowed && employeeSettings.insta_fyle_settings.enabled
       )
     );
 

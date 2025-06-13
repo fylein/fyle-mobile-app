@@ -18,7 +18,6 @@ import { DataFeedSource } from 'src/app/core/enums/data-feed-source.enum';
 import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { AddCorporateCardComponent } from './add-corporate-card/add-corporate-card.component';
 import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
 import { CardAddedComponent } from './card-added/card-added.component';
@@ -36,6 +35,7 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { PromoteOptInModalComponent } from 'src/app/shared/components/promote-opt-in-modal/promote-opt-in-modal.component';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { isNumber } from 'lodash';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 @Component({
   selector: 'app-manage-corporate-cards',
   templateUrl: './manage-corporate-cards.page.html',
@@ -74,7 +74,7 @@ export class ManageCorporateCardsPage {
     private actionSheetController: ActionSheetController,
     private popoverController: PopoverController,
     private orgSettingsService: OrgSettingsService,
-    private orgUserSettingsService: OrgUserSettingsService,
+    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
     private realTimeFeedService: RealTimeFeedService,
     private trackingService: TrackingService,
     private virtualCardsService: VirtualCardsService,
@@ -140,7 +140,6 @@ export class ManageCorporateCardsPage {
     );
 
     const orgSettings$ = this.orgSettingsService.get();
-    const orgUserSettings$ = this.orgUserSettingsService.get();
     this.isVirtualCardsEnabled$ = orgSettings$.pipe(
       map((orgSettings) => ({
         enabled:
@@ -162,12 +161,11 @@ export class ManageCorporateCardsPage {
       )
     );
 
-    this.isYodleeEnabled$ = forkJoin([orgSettings$, orgUserSettings$]).pipe(
+    this.isYodleeEnabled$ = forkJoin([orgSettings$]).pipe(
       map(
-        ([orgSettings, orgUserSettings]) =>
+        ([orgSettings]) =>
           orgSettings.bank_data_aggregation_settings.allowed &&
-          orgSettings.bank_data_aggregation_settings.enabled &&
-          orgUserSettings.bank_data_aggregation_settings.enabled
+          orgSettings.bank_data_aggregation_settings.enabled
       )
     );
     this.isAddCorporateCardVisible$ = this.checkAddCorporateCardVisibility();

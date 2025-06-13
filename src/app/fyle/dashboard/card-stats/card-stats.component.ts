@@ -6,7 +6,6 @@ import { BehaviorSubject, Observable, concat, filter, forkJoin, map, shareReplay
 import { getCurrencySymbol } from '@angular/common';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { PlatformCorporateCardDetail } from 'src/app/core/models/platform-corporate-card-detail.model';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { PopoverController } from '@ionic/angular';
 import { AddCorporateCardComponent } from '../../manage-corporate-cards/add-corporate-card/add-corporate-card.component';
 import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
@@ -14,6 +13,7 @@ import { CardAddedComponent } from '../../manage-corporate-cards/card-added/card
 import { NetworkService } from 'src/app/core/services/network.service';
 import { VirtualCardsService } from 'src/app/core/services/virtual-cards.service';
 import { CardStatus } from 'src/app/core/enums/card-status.enum';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 
 @Component({
   selector: 'app-card-stats',
@@ -54,7 +54,7 @@ export class CardStatsComponent implements OnInit {
     private dashboardService: DashboardService,
     private orgSettingsService: OrgSettingsService,
     private networkService: NetworkService,
-    private orgUserSettingsService: OrgUserSettingsService,
+    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
     private popoverController: PopoverController,
     private virtualCardsService: VirtualCardsService
@@ -114,7 +114,7 @@ export class CardStatsComponent implements OnInit {
     this.currencySymbol$ = this.homeCurrency$.pipe(map((homeCurrency) => getCurrencySymbol(homeCurrency, 'wide')));
 
     const orgSettings$ = this.orgSettingsService.get();
-    const orgUserSettings$ = this.orgUserSettingsService.get();
+    const employeeSettings$ = this.platformEmployeeSettingsService.get();
 
     this.isCCCEnabled$ = orgSettings$.pipe(
       map(
@@ -134,12 +134,11 @@ export class CardStatsComponent implements OnInit {
       )
     );
 
-    this.isYodleeEnabled$ = forkJoin([orgSettings$, orgUserSettings$]).pipe(
+    this.isYodleeEnabled$ = forkJoin([orgSettings$]).pipe(
       map(
-        ([orgSettings, orgUserSettings]) =>
+        ([orgSettings]) =>
           orgSettings.bank_data_aggregation_settings.allowed &&
-          orgSettings.bank_data_aggregation_settings.enabled &&
-          orgUserSettings.bank_data_aggregation_settings.enabled
+          orgSettings.bank_data_aggregation_settings.enabled
       )
     );
 
