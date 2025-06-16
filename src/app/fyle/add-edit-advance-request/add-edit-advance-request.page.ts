@@ -30,7 +30,7 @@ import { CaptureReceiptComponent } from 'src/app/shared/components/capture-recei
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { ProjectV1 } from 'src/app/core/models/v1/extended-project.model';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { AdvanceRequests } from 'src/app/core/models/advance-requests.model';
@@ -111,7 +111,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
     private trackingService: TrackingService,
     private expenseFieldsService: ExpenseFieldsService,
     private currencyService: CurrencyService,
-    private orgUserSettingsService: OrgUserSettingsService
+    private platformEmployeeSettingsService: PlatformEmployeeSettingsService
   ) {}
 
   @HostListener('keydown')
@@ -493,7 +493,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
   ionViewWillEnter(): void {
     this.mode = (this.activatedRoute.snapshot.params.id as string) ? 'edit' : 'add';
     const orgSettings$ = this.orgSettingsService.get();
-    const orgUserSettings$ = this.orgUserSettingsService.get();
+    const employeeSettings$ = this.platformEmployeeSettingsService.get();
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
     const eou$ = from(this.authService.getEou());
     this.dataUrls = [];
@@ -550,15 +550,16 @@ export class AddEditAdvanceRequestPage implements OnInit {
     );
 
     const newAdvanceRequestPipe$ = forkJoin({
-      orgUserSettings: orgUserSettings$,
+      employeeSettings: employeeSettings$,
       homeCurrency: this.homeCurrency$,
       eou: eou$,
     }).pipe(
       map((res) => {
-        const { orgUserSettings, homeCurrency, eou } = res;
+        const { employeeSettings, homeCurrency, eou } = res;
         const advanceRequest = {
           org_user_id: eou.ou.id,
-          currency: orgUserSettings.currency_settings.preferred_currency || homeCurrency,
+          // currency: employeeSettings.currency_settings.preferred_currency || homeCurrency, -- To Do: Confirm Currency Settings with backend team
+          currency: homeCurrency || employeeSettings.id,
           source: 'MOBILE',
           created_at: new Date(),
         };
@@ -580,7 +581,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
       switchMap((orgSettings) =>
         iif(
           () => orgSettings.advanced_projects.enable_individual_projects,
-          this.orgUserSettingsService.get().pipe(map((orgUserSettings) => orgUserSettings.project_ids || [])),
+          employeeSettings$.pipe(map((employeeSettings) => employeeSettings.project_ids || [])),
           this.projects$
         )
       ),

@@ -6,7 +6,6 @@ import { BehaviorSubject, Observable, concat, filter, forkJoin, map, shareReplay
 import { getCurrencySymbol } from '@angular/common';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { PlatformCorporateCardDetail } from 'src/app/core/models/platform-corporate-card-detail.model';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { PopoverController } from '@ionic/angular';
 import { AddCorporateCardComponent } from '../../manage-corporate-cards/add-corporate-card/add-corporate-card.component';
 import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
@@ -54,7 +53,6 @@ export class CardStatsComponent implements OnInit {
     private dashboardService: DashboardService,
     private orgSettingsService: OrgSettingsService,
     private networkService: NetworkService,
-    private orgUserSettingsService: OrgUserSettingsService,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
     private popoverController: PopoverController,
     private virtualCardsService: VirtualCardsService
@@ -114,7 +112,6 @@ export class CardStatsComponent implements OnInit {
     this.currencySymbol$ = this.homeCurrency$.pipe(map((homeCurrency) => getCurrencySymbol(homeCurrency, 'wide')));
 
     const orgSettings$ = this.orgSettingsService.get();
-    const orgUserSettings$ = this.orgUserSettingsService.get();
 
     this.isCCCEnabled$ = orgSettings$.pipe(
       map(
@@ -134,12 +131,10 @@ export class CardStatsComponent implements OnInit {
       )
     );
 
-    this.isYodleeEnabled$ = forkJoin([orgSettings$, orgUserSettings$]).pipe(
+    this.isYodleeEnabled$ = forkJoin([orgSettings$]).pipe(
       map(
-        ([orgSettings, orgUserSettings]) =>
-          orgSettings.bank_data_aggregation_settings.allowed &&
-          orgSettings.bank_data_aggregation_settings.enabled &&
-          orgUserSettings.bank_data_aggregation_settings.enabled
+        ([orgSettings]) =>
+          orgSettings.bank_data_aggregation_settings.allowed && orgSettings.bank_data_aggregation_settings.enabled
       )
     );
 

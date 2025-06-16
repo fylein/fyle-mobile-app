@@ -48,7 +48,6 @@ import { FileObject } from 'src/app/core/models/file-obj.model';
 import { Location } from 'src/app/core/models/location.model';
 import { MileageDetails } from 'src/app/core/models/mileage.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
-import { MileageSettings, OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { ExpensePolicy } from 'src/app/core/models/platform/platform-expense-policy.model';
 import { FinalExpensePolicyState } from 'src/app/core/models/platform/platform-final-expense-policy-state.model';
 import { PlatformMileageRates } from 'src/app/core/models/platform/platform-mileage-rates.model';
@@ -78,7 +77,6 @@ import { MileageService } from 'src/app/core/services/mileage.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
@@ -113,6 +111,9 @@ import { AdvanceWallet } from 'src/app/core/models/platform/v1/advance-wallet.mo
 import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
 import { LocationInfo } from 'src/app/core/models/location-info.model';
 import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
+import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
+import { MileageSettings } from 'src/app/core/models/mileage-settings.model';
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -325,7 +326,7 @@ export class AddEditMileagePage implements OnInit {
     private paymentModesService: PaymentModesService,
     private currencyService: CurrencyService,
     private mileageRateService: MileageRatesService,
-    private orgUserSettingsService: OrgUserSettingsService,
+    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
     private costCentersService: CostCentersService,
     private categoriesService: CategoriesService,
     private orgSettingsService: OrgSettingsService,
@@ -642,7 +643,7 @@ export class AddEditMileagePage implements OnInit {
       advanceWallets: this.advanceWalletsService.getAllAdvanceWallets(),
       orgSettings: this.orgSettingsService.get(),
       etxn: this.etxn$,
-      allowedPaymentModes: this.orgUserSettingsService.getAllowedPaymentModes(),
+      allowedPaymentModes: this.platformEmployeeSettingsService.getAllowedPaymentModes(),
       isPaymentModeConfigurationsEnabled: this.paymentModesService.checkIfPaymentModeConfigurationsIsEnabled(),
     }).pipe(
       map(
@@ -777,25 +778,25 @@ export class AddEditMileagePage implements OnInit {
   getNewExpense(): Observable<Partial<UnflattenedTransaction>> {
     const defaultVehicle$ = forkJoin({
       vehicleType: this.transactionService.getDefaultVehicleType(),
-      orgUserMileageSettings: this.mileageService.getOrgUserMileageSettings(),
+      employeeMileageSettings: this.mileageService.getEmployeeMileageSettings(),
       orgSettings: this.orgSettingsService.get(),
-      orgUserSettings: this.orgUserSettingsService.get(),
+      employeeSettings: this.platformEmployeeSettingsService.get(),
       recentValue: this.recentlyUsedValues$,
       mileageRates: this.mileageRates$,
     }).pipe(
       map(
         ({
           vehicleType,
-          orgUserMileageSettings,
+          employeeMileageSettings,
           orgSettings,
-          orgUserSettings,
+          employeeSettings,
           recentValue,
           mileageRates,
         }: {
           vehicleType: string;
-          orgUserMileageSettings: MileageSettings;
+          employeeMileageSettings: MileageSettings;
           orgSettings: OrgSettings;
-          orgUserSettings: OrgUserSettings;
+          employeeSettings: EmployeeSettings;
           recentValue: RecentlyUsed;
           mileageRates: PlatformMileageRates[];
         }) => {
@@ -803,8 +804,8 @@ export class AddEditMileagePage implements OnInit {
             orgSettings.org_expense_form_autofills &&
             orgSettings.org_expense_form_autofills.allowed &&
             orgSettings.org_expense_form_autofills.enabled &&
-            orgUserSettings.expense_form_autofills.allowed &&
-            orgUserSettings.expense_form_autofills.enabled &&
+            employeeSettings.expense_form_autofills.allowed &&
+            employeeSettings.expense_form_autofills.enabled &&
             recentValue &&
             recentValue.vehicle_types &&
             recentValue.vehicle_types.length > 0;
@@ -815,9 +816,9 @@ export class AddEditMileagePage implements OnInit {
 
           // if any employee assigned mileage rate is present
           // -> the recently used mileage rate should be part of the allowed mileage rates.
-          const mileageRateLabel = orgUserMileageSettings?.mileage_rate_labels;
+          const mileageRateLabel = employeeMileageSettings?.mileage_rate_labels;
           if (mileageRateLabel?.length > 0 && !mileageRateLabel.some((label) => vehicleType === label)) {
-            vehicleType = orgUserMileageSettings.mileage_rate_labels[0];
+            vehicleType = mileageRateLabel[0];
           }
 
           const finalMileageRateNames = mileageRates.map((rate) => rate.vehicle_type);
@@ -845,17 +846,17 @@ export class AddEditMileagePage implements OnInit {
     const autofillLocation$ = forkJoin({
       eou: this.authService.getEou(),
       currentLocation: this.locationService.getCurrentLocation({ enableHighAccuracy: true }),
-      orgUserSettings: this.orgUserSettingsService.get(),
+      employeeSettings: this.platformEmployeeSettingsService.get(),
       orgSettings: this.orgSettingsService.get(),
       recentValue: this.recentlyUsedValues$,
     }).pipe(
-      map(({ eou, currentLocation, orgUserSettings, orgSettings, recentValue }) => {
+      map(({ eou, currentLocation, employeeSettings, orgSettings, recentValue }) => {
         const isRecentLocationPresent =
           orgSettings.org_expense_form_autofills &&
           orgSettings.org_expense_form_autofills.allowed &&
           orgSettings.org_expense_form_autofills.enabled &&
-          orgUserSettings.expense_form_autofills.allowed &&
-          orgUserSettings.expense_form_autofills.enabled &&
+          employeeSettings.expense_form_autofills.allowed &&
+          employeeSettings.expense_form_autofills.enabled &&
           recentValue &&
           recentValue.start_locations &&
           recentValue.start_locations.length > 0;
@@ -1194,11 +1195,11 @@ export class AddEditMileagePage implements OnInit {
         } else {
           return forkJoin({
             orgSettings: this.orgSettingsService.get(),
-            orgUserSettings: this.orgUserSettingsService.get(),
+            employeeSettings: this.platformEmployeeSettingsService.get(),
           }).pipe(
-            map(({ orgSettings, orgUserSettings }) => {
+            map(({ orgSettings, employeeSettings }) => {
               if (orgSettings.projects.enabled) {
-                return orgUserSettings && orgUserSettings.preferences && orgUserSettings.preferences.default_project_id;
+                return employeeSettings?.default_project_id;
               }
             })
           );
@@ -1588,7 +1589,7 @@ export class AddEditMileagePage implements OnInit {
     });
 
     const orgSettings$ = this.orgSettingsService.get();
-    const orgUserSettings$ = this.orgUserSettingsService.get();
+    const employeeSettings$ = this.platformEmployeeSettingsService.get();
 
     this.mileageConfig$ = orgSettings$.pipe(map((orgSettings) => orgSettings.mileage));
     this.isAdvancesEnabled$ = this.checkAdvanceEnabled(orgSettings$);
@@ -1644,13 +1645,13 @@ export class AddEditMileagePage implements OnInit {
     this.allMileageRates$ = this.mileageRateService.getAllMileageRates();
 
     this.mileageRates$ = forkJoin({
-      orgUserMileageSettings: this.mileageService.getOrgUserMileageSettings(),
+      employeeMileageSettings: this.mileageService.getEmployeeMileageSettings(),
       allMileageRates: this.mileageRateService.getAllMileageRates(),
       orgSettings: orgSettings$,
     }).pipe(
-      map(({ orgUserMileageSettings, allMileageRates, orgSettings }) => {
+      map(({ employeeMileageSettings, allMileageRates, orgSettings }) => {
         let enabledMileageRates = this.mileageRatesService.filterEnabledMileageRates(allMileageRates);
-        const mileageRateSettings = orgUserMileageSettings?.mileage_rate_labels || [];
+        const mileageRateSettings = employeeMileageSettings?.mileage_rate_labels || [];
         if (orgSettings.mileage?.enable_individual_mileage_rates && mileageRateSettings.length > 0) {
           enabledMileageRates = enabledMileageRates.filter((rate) => mileageRateSettings.includes(rate.vehicle_type));
         }
@@ -1668,8 +1669,8 @@ export class AddEditMileagePage implements OnInit {
       map((orgSettings) => !!orgSettings.advanced_projects?.enable_individual_projects)
     );
 
-    this.individualProjectIds$ = orgUserSettings$.pipe(
-      map((orgUserSettings: OrgUserSettings) => orgUserSettings.project_ids || [])
+    this.individualProjectIds$ = employeeSettings$.pipe(
+      map((employeeSettings: EmployeeSettings) => employeeSettings.project_ids || [])
     );
 
     this.isProjectsEnabled$ = orgSettings$.pipe(map((orgSettings) => !!orgSettings.projects?.enabled));
@@ -1819,7 +1820,7 @@ export class AddEditMileagePage implements OnInit {
             customExpenseFields: customExpenseFields$,
             allMileageRates: this.allMileageRates$,
             defaultPaymentMode: defaultPaymentMode$,
-            orgUserSettings: orgUserSettings$,
+            employeeSettings: employeeSettings$,
             orgSettings: orgSettings$,
             recentValue: this.recentlyUsedValues$,
             recentProjects: this.recentlyUsedProjects$,
@@ -1841,7 +1842,7 @@ export class AddEditMileagePage implements OnInit {
           customExpenseFields,
           allMileageRates,
           defaultPaymentMode,
-          orgUserSettings,
+          employeeSettings,
           orgSettings,
           recentValue,
           recentProjects,
@@ -1920,8 +1921,8 @@ export class AddEditMileagePage implements OnInit {
             orgSettings.org_expense_form_autofills &&
             orgSettings.org_expense_form_autofills.allowed &&
             orgSettings.org_expense_form_autofills.enabled &&
-            orgUserSettings.expense_form_autofills.allowed &&
-            orgUserSettings.expense_form_autofills.enabled;
+            employeeSettings.expense_form_autofills.allowed &&
+            employeeSettings.expense_form_autofills.enabled;
 
           // Check if recent projects exist
           const doRecentProjectIdsExist =
@@ -1984,8 +1985,8 @@ export class AddEditMileagePage implements OnInit {
             orgSettings.org_expense_form_autofills &&
             orgSettings.org_expense_form_autofills.allowed &&
             orgSettings.org_expense_form_autofills.enabled &&
-            orgUserSettings.expense_form_autofills.allowed &&
-            orgUserSettings.expense_form_autofills.enabled &&
+            employeeSettings.expense_form_autofills.allowed &&
+            employeeSettings.expense_form_autofills.enabled &&
             recentValue &&
             recentValue.start_locations &&
             recentValue.start_locations.length > 0;
