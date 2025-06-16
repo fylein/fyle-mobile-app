@@ -44,7 +44,6 @@ import {
   perDiemFormValuesData10,
   perDiemFormValuesData8,
   perDiemFormValuesData9,
-  perDiemFormValuesWithAdvanceWalletData,
 } from 'src/app/core/mock-data/per-diem-form-value.data';
 import { orgSettingsRes, orgSettingsParamsWithAdvanceWallet } from 'src/app/core/mock-data/org-settings.data';
 import {
