@@ -23,6 +23,7 @@ import { MileageUnitEnum } from 'src/app/core/models/platform/platform-mileage-r
 import { Location } from 'src/app/core/models/location.model';
 import { CommuteDeduction } from 'src/app/core/enums/commute-deduction.enum';
 import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
+import { MergeExpensesPayload } from 'src/app/core/models/merge-expenses-payload.model';
 
 @Injectable({
   providedIn: 'root',
@@ -385,5 +386,11 @@ export class ExpensesService {
     return this.spenderService
       .post<PlatformApiResponse<null>>('/expenses/delete/bulk', payload)
       .pipe(map((): void => void 0));
+  }
+
+  mergeExpenses(payload: MergeExpensesPayload): Observable<Expense> {
+    return this.spenderService
+      .post<PlatformApiResponse<Expense>>('/expenses/merge', { data: payload })
+      .pipe(map((response) => response.data));
   }
 }

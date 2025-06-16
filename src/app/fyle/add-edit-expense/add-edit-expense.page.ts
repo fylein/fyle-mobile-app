@@ -4887,48 +4887,51 @@ export class AddEditExpensePage implements OnInit {
         })
       )
       .subscribe(async (attachments) => {
-        const attachmentsModal = await this.modalController.create({
-          component: FyViewAttachmentComponent,
-          componentProps: {
-            attachments,
-            canEdit: true,
-          },
-          mode: 'ios',
-        });
+        // Get the current expense object before opening the modal
+        this.etxn$.pipe(take(1)).subscribe(async (etxn) => {
+          const expenseId = etxn.tx?.id;
+          const attachmentsModal = await this.modalController.create({
+            component: FyViewAttachmentComponent,
+            componentProps: {
+              attachments,
+              canEdit: true,
+              expenseId,
+            },
+            mode: 'ios',
+          });
 
-        await attachmentsModal.present();
+          await attachmentsModal.present();
 
-        const { data } = (await attachmentsModal.onWillDismiss()) as {
-          data: {
-            attachments: File[];
+          const { data } = (await attachmentsModal.onWillDismiss()) as {
+            data: {
+              attachments: FileObject[];
+              action?: String;
+              event?: Event;
+            };
           };
-        };
 
-        this.platformExpense$ = this.etxn$.pipe(
-          switchMap((etxn) => this.expensesService.getExpenseById(etxn.tx.id).pipe(shareReplay(1)))
-        );
+          // Refresh the platform expense to get latest data
+          this.platformExpense$ = this.etxn$.pipe(
+            switchMap((etxn) => this.expensesService.getExpenseById(etxn.tx.id).pipe(shareReplay(1)))
+          );
 
-        if (this.mode === 'add') {
-          if (data && data.attachments) {
-            this.newExpenseDataUrls = data.attachments;
-            this.attachedReceiptsCount = data.attachments.length;
+          if (data && data.action === 'addMoreAttachments') {
+            this.addAttachments(data.event);
+          } else if (this.mode === 'add') {
+            if (data && data.attachments) {
+              this.newExpenseDataUrls = data.attachments;
+              this.attachedReceiptsCount = data.attachments.length;
+            }
+          } else {
+            // Always trigger a refresh of attachments when modal is dismissed
+            this.loadAttachments$.next();
+
+            // Update the count if attachments were modified
+            if (data && data.attachments) {
+              this.attachedReceiptsCount = data.attachments.length;
+            }
           }
-        } else {
-          if ((data && data.attachments.length !== this.attachedReceiptsCount) || !data) {
-            this.etxn$
-              .pipe(
-                switchMap((etxn) => (etxn.tx.id ? this.platformExpense$ : of({}))),
-                map((expense: PlatformExpense) => expense.file_ids?.length || 0)
-              )
-              .subscribe((attachedReceipts) => {
-                this.loadAttachments$.next();
-                if (this.attachedReceiptsCount === attachedReceipts) {
-                  this.trackingService.viewAttachment();
-                }
-                this.attachedReceiptsCount = attachedReceipts;
-              });
-          }
-        }
+        });
       });
   }
 

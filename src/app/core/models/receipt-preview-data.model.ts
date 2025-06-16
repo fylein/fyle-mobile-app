@@ -1,7 +1,6 @@
+import { Image } from 'src/app/core/models/image-type.model';
+
 export interface ReceiptPreviewData {
-  base64ImagesWithSource: Partial<{
-    source: string;
-    base64Image: string;
-  }>[];
+  base64ImagesWithSource: Image[];
   continueCaptureReceipt?: boolean;
 }

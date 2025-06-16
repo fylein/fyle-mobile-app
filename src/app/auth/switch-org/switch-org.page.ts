@@ -368,11 +368,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
    * If the user is coming from the invite link, Follow the invite link flow.
    * Otherwise, show the user a popup to verify their email.
    */
-  handlePendingDetails(
-    roles: string[],
-    isFromInviteLink?: boolean,
-    isPasswordSetRequired?: boolean
-  ): Observable<ExtendedOrgUser> {
+  handlePendingDetails(roles: string[], isFromInviteLink?: boolean, isPasswordSetRequired?: boolean): Observable<ExtendedOrgUser> {
     if (isFromInviteLink) {
       return this.handleInviteLinkFlow(roles, isPasswordSetRequired);
     } else {
@@ -537,14 +533,12 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
   }
 
   getOrgsWhichContainSearchText(orgs: Org[], searchText: string): Org[] {
-    return orgs
-      .filter((org) =>
-        Object.values(org)
-          .map((value: string | Date | number | boolean) => value && value.toString().toLowerCase())
-          .filter((value) => !!value)
-          .some((value) => value.toLowerCase().includes(searchText.toLowerCase()))
-      )
-      .sort((a, b) => a.name.localeCompare(b.name));
+    return orgs.filter((org) =>
+      Object.values(org)
+        .map((value: string | Date | number | boolean) => value && value.toString().toLowerCase())
+        .filter((value) => !!value)
+        .some((value) => value.toLowerCase().includes(searchText.toLowerCase()))
+    );
   }
 
   resetSearch(): void {
