@@ -179,7 +179,6 @@ export function TestCases5(getTestBed) {
       });
 
       it('should add expense and reload current route if form and payment mode is valid', () => {
-        spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(false));
         component.saveAndNewExpense();
         expect(component.addExpense).toHaveBeenCalledOnceWith(PerDiemRedirectedFrom.SAVE_AND_NEW_PER_DIEM);
         expect(component.editExpense).not.toHaveBeenCalled();
@@ -188,7 +187,6 @@ export function TestCases5(getTestBed) {
       });
 
       it('should add expense and go back if form and payment mode is valid and user is in edit mode', () => {
-        spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(false));
         component.mode = 'edit';
         component.saveAndNewExpense();
         expect(component.addExpense).not.toHaveBeenCalled();
@@ -198,16 +196,13 @@ export function TestCases5(getTestBed) {
       });
 
       it('should mark all fields as touched and scroll to invalid element if form is invalid', fakeAsync(() => {
-        spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(true));
         spyOn(component, 'showFormValidationErrors');
         spyOn(component.fg, 'markAllAsTouched');
+        setMockFormValidity(false);
         component.saveAndNewExpense();
         expect(component.addExpense).not.toHaveBeenCalled();
         expect(component.editExpense).not.toHaveBeenCalled();
         expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
-        expect(component.invalidPaymentMode).toBeTrue();
-        tick(3000);
-        expect(component.invalidPaymentMode).toBeFalse();
       }));
     });
 

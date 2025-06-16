@@ -74,7 +74,7 @@ export function setFormValid(component) {
 describe('AddEditExpensePage', () => {
   const getTestBed = () => {
     const accountsServiceSpy = jasmine.createSpyObj('AccountsService', [
-      'getEMyAccounts',
+      'getMyAccounts',
       'getPaymentModes',
       'getPaymentModesWithAdvanceWallets',
       'getEtxnSelectedPaymentMode',
