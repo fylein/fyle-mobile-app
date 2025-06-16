@@ -3,7 +3,7 @@ import { UntypedFormArray, UntypedFormBuilder, UntypedFormControl, UntypedFormGr
 import { Router } from '@angular/router';
 import { NavController } from '@ionic/angular';
 import { Observable, from, noop, zip } from 'rxjs';
-import { finalize, map, switchMap, tap } from 'rxjs/operators';
+import { finalize, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import {
   EmailEvents,
   NotificationEventFeatures,
@@ -266,7 +266,7 @@ export class NotificationsPage implements OnInit {
       emailEvents: false,
       pushEvents: false,
     };
-    this.employeeSettings$ = this.platformEmployeeSettingsService.get();
+    this.employeeSettings$ = this.platformEmployeeSettingsService.get().pipe(shareReplay(1));
 
     // creating form
     this.notificationForm = this.formBuilder.group({

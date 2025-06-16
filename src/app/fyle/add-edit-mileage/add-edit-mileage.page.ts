@@ -801,10 +801,10 @@ export class AddEditMileagePage implements OnInit {
           mileageRates: PlatformMileageRates[];
         }) => {
           const isRecentVehicleTypePresent =
-            orgSettings.org_expense_form_autofills?.allowed &&
-            orgSettings.org_expense_form_autofills?.enabled &&
-            employeeSettings.expense_form_autofills?.allowed &&
-            employeeSettings.expense_form_autofills?.enabled &&
+            orgSettings?.org_expense_form_autofills?.allowed &&
+            orgSettings?.org_expense_form_autofills?.enabled &&
+            employeeSettings?.expense_form_autofills?.allowed &&
+            employeeSettings?.expense_form_autofills?.enabled &&
             recentValue &&
             recentValue.vehicle_types &&
             recentValue.vehicle_types.length > 0;
@@ -851,10 +851,10 @@ export class AddEditMileagePage implements OnInit {
     }).pipe(
       map(({ eou, currentLocation, employeeSettings, orgSettings, recentValue }) => {
         const isRecentLocationPresent =
-          orgSettings.org_expense_form_autofills?.allowed &&
-          orgSettings.org_expense_form_autofills?.enabled &&
-          employeeSettings.expense_form_autofills?.allowed &&
-          employeeSettings.expense_form_autofills?.enabled &&
+          orgSettings?.org_expense_form_autofills?.allowed &&
+          orgSettings?.org_expense_form_autofills?.enabled &&
+          employeeSettings?.expense_form_autofills?.allowed &&
+          employeeSettings?.expense_form_autofills?.enabled &&
           recentValue &&
           recentValue.start_locations &&
           recentValue.start_locations.length > 0;
@@ -1587,7 +1587,7 @@ export class AddEditMileagePage implements OnInit {
     });
 
     const orgSettings$ = this.orgSettingsService.get();
-    const employeeSettings$ = this.platformEmployeeSettingsService.get();
+    const employeeSettings$ = this.platformEmployeeSettingsService.get().pipe(shareReplay(1));
 
     this.mileageConfig$ = orgSettings$.pipe(map((orgSettings) => orgSettings.mileage));
     this.isAdvancesEnabled$ = this.checkAdvanceEnabled(orgSettings$);
@@ -1916,10 +1916,10 @@ export class AddEditMileagePage implements OnInit {
 
           // Check if auto-fills is enabled
           const isAutofillsEnabled =
-            orgSettings.org_expense_form_autofills?.allowed &&
-            orgSettings.org_expense_form_autofills?.enabled &&
-            employeeSettings.expense_form_autofills?.allowed &&
-            employeeSettings.expense_form_autofills?.enabled;
+            orgSettings?.org_expense_form_autofills?.allowed &&
+            orgSettings?.org_expense_form_autofills?.enabled &&
+            employeeSettings?.expense_form_autofills?.allowed &&
+            employeeSettings?.expense_form_autofills?.enabled;
 
           // Check if recent projects exist
           const doRecentProjectIdsExist =

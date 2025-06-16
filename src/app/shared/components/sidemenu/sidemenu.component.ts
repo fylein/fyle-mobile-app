@@ -107,7 +107,7 @@ export class SidemenuComponent implements OnInit {
     const currentOrg$ = this.orgService.getCurrentOrg().pipe(shareReplay(1));
     const primaryOrg$ = this.orgService.getPrimaryOrg().pipe(shareReplay(1));
     const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
-    const employeeSettings$ = this.platformEmployeeSettingsService.get();
+    const employeeSettings$ = this.platformEmployeeSettingsService.get().pipe(shareReplay(1));
     const delegatedAccounts$ = this.orgUserService.findDelegatedAccounts();
     const deviceInfo$ = this.deviceService.getDeviceInfo().pipe(shareReplay(1));
     const isSwitchedToDelegator$ = from(this.orgUserService.isSwitchedToDelegator());

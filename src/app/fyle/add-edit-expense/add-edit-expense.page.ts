@@ -1292,7 +1292,7 @@ export class AddEditExpensePage implements OnInit {
 
     return forkJoin({
       orgSettings: orgSettings$,
-      employeeSettings: this.platformEmployeeSettingsService.get(),
+      employeeSettings: this.employeeSettings$,
       homeCurrency: this.homeCurrency$,
       eou: eou$,
       imageData: this.getInstaFyleImageData(),
@@ -1860,8 +1860,8 @@ export class AddEditExpensePage implements OnInit {
 
           // Check if auto-fills is enabled
           const isAutofillsEnabled =
-            orgSettings.org_expense_form_autofills?.allowed &&
-            orgSettings.org_expense_form_autofills?.enabled &&
+            orgSettings?.org_expense_form_autofills?.allowed &&
+            orgSettings?.org_expense_form_autofills?.enabled &&
             employeeSettings?.expense_form_autofills?.allowed &&
             employeeSettings?.expense_form_autofills?.enabled;
 
@@ -2131,10 +2131,10 @@ export class AddEditExpensePage implements OnInit {
       ),
       map(({ employeeSettings, orgSettings, recentValues, recentCategories, etxn, selectedCategory }) => {
         const isAutofillsEnabled =
-          orgSettings.org_expense_form_autofills?.allowed &&
-          orgSettings.org_expense_form_autofills?.enabled &&
-          employeeSettings.expense_form_autofills?.allowed &&
-          employeeSettings.expense_form_autofills?.enabled;
+          orgSettings?.org_expense_form_autofills?.allowed &&
+          orgSettings?.org_expense_form_autofills?.enabled &&
+          employeeSettings?.expense_form_autofills?.allowed &&
+          employeeSettings?.expense_form_autofills?.enabled;
         const isCategoryExtracted = etxn.tx?.extracted_data?.category;
         if (this.initialFetch) {
           if (etxn.tx.org_category_id) {
@@ -2180,10 +2180,10 @@ export class AddEditExpensePage implements OnInit {
       }).pipe(
         map(({ employeeSettings, orgSettings, recentValues, recentCategories, etxn }) => {
           const isAutofillsEnabled =
-            orgSettings.org_expense_form_autofills?.allowed &&
-            orgSettings.org_expense_form_autofills?.enabled &&
-            employeeSettings.expense_form_autofills?.allowed &&
-            employeeSettings.expense_form_autofills?.enabled;
+            orgSettings?.org_expense_form_autofills?.allowed &&
+            orgSettings?.org_expense_form_autofills?.enabled &&
+            employeeSettings?.expense_form_autofills?.allowed &&
+            employeeSettings?.expense_form_autofills?.enabled;
           const isCategoryExtracted = etxn.tx && etxn.tx.extracted_data && etxn.tx.extracted_data.category;
           if (
             !isCategoryExtracted &&
@@ -3089,7 +3089,7 @@ export class AddEditExpensePage implements OnInit {
     this.setUpTaxCalculations();
 
     const orgSettings$ = this.orgSettingsService.get();
-    this.employeeSettings$ = this.platformEmployeeSettingsService.get();
+    this.employeeSettings$ = this.platformEmployeeSettingsService.get().pipe(shareReplay(1));
 
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
     const accounts$ = this.accountsService.getEMyAccounts();
