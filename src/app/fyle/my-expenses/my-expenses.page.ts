@@ -484,7 +484,7 @@ export class MyExpensesPage implements OnInit {
     this.isInstaFyleEnabled$ = getEmployeeSettings$.pipe(
       map(
         (employeeSettings) =>
-          employeeSettings?.insta_fyle_settings?.allowed && employeeSettings.insta_fyle_settings.enabled
+          employeeSettings?.insta_fyle_settings?.allowed && employeeSettings?.insta_fyle_settings?.enabled
       )
     );
 

@@ -30,7 +30,6 @@ import { CaptureReceiptComponent } from 'src/app/shared/components/capture-recei
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
-import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { ProjectV1 } from 'src/app/core/models/v1/extended-project.model';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { AdvanceRequests } from 'src/app/core/models/advance-requests.model';
@@ -43,6 +42,7 @@ import { AdvanceRequestsCustomFields } from 'src/app/core/models/advance-request
 import { File } from 'src/app/core/models/file.model';
 import { AdvanceRequestCustomFieldValues } from 'src/app/core/models/advance-request-custom-field-values.model';
 import { AdvanceRequestDeleteParams } from 'src/app/core/models/advance-request-delete-params.model';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 
 @Component({
   selector: 'app-add-edit-advance-request',
@@ -493,7 +493,6 @@ export class AddEditAdvanceRequestPage implements OnInit {
   ionViewWillEnter(): void {
     this.mode = (this.activatedRoute.snapshot.params.id as string) ? 'edit' : 'add';
     const orgSettings$ = this.orgSettingsService.get();
-    const employeeSettings$ = this.platformEmployeeSettingsService.get();
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
     const eou$ = from(this.authService.getEou());
     this.dataUrls = [];
@@ -550,16 +549,14 @@ export class AddEditAdvanceRequestPage implements OnInit {
     );
 
     const newAdvanceRequestPipe$ = forkJoin({
-      employeeSettings: employeeSettings$,
       homeCurrency: this.homeCurrency$,
       eou: eou$,
     }).pipe(
       map((res) => {
-        const { employeeSettings, homeCurrency, eou } = res;
+        const { homeCurrency, eou } = res;
         const advanceRequest = {
           org_user_id: eou.ou.id,
-          // currency: employeeSettings.currency_settings.preferred_currency || homeCurrency, -- To Do: Confirm Currency Settings with backend team
-          currency: homeCurrency || employeeSettings.id,
+          currency: homeCurrency || null,
           source: 'MOBILE',
           created_at: new Date(),
         };
@@ -581,7 +578,9 @@ export class AddEditAdvanceRequestPage implements OnInit {
       switchMap((orgSettings) =>
         iif(
           () => orgSettings.advanced_projects.enable_individual_projects,
-          employeeSettings$.pipe(map((employeeSettings) => employeeSettings.project_ids || [])),
+          this.platformEmployeeSettingsService
+            .get()
+            .pipe(map((employeeSettings) => employeeSettings.project_ids || [])),
           this.projects$
         )
       ),

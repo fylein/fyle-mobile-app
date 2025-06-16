@@ -1363,19 +1363,12 @@ export class AddEditExpensePage implements OnInit {
 
             this.source = 'MOBILE';
 
-            // To Do: Confirm Currency Settings with backend team
-            // if (employeeSettings.currency_settings?.enabled) {
-            //   if (employeeSettings.currency_settings?.preferred_currency) {
-            //     etxn.tx.currency = employeeSettings.currency_settings.preferred_currency;
-            //   }
-            if (false) {
-              etxn.tx.currency = 'USD';
-            } else if (
+            if (
               orgSettings.org_expense_form_autofills &&
               orgSettings.org_expense_form_autofills.allowed &&
               orgSettings.org_expense_form_autofills.enabled &&
-              employeeSettings.expense_form_autofills.allowed &&
-              employeeSettings.expense_form_autofills.enabled &&
+              employeeSettings.expense_form_autofills?.allowed &&
+              employeeSettings.expense_form_autofills?.enabled &&
               recentValue &&
               recentValue.currencies &&
               recentValue.currencies.length > 0
@@ -1867,12 +1860,10 @@ export class AddEditExpensePage implements OnInit {
 
           // Check if auto-fills is enabled
           const isAutofillsEnabled =
-            orgSettings.org_expense_form_autofills &&
-            orgSettings.org_expense_form_autofills.allowed &&
-            orgSettings.org_expense_form_autofills.enabled &&
-            employeeSettings.expense_form_autofills &&
-            employeeSettings.expense_form_autofills.allowed &&
-            employeeSettings.expense_form_autofills.enabled;
+            orgSettings.org_expense_form_autofills?.allowed &&
+            orgSettings.org_expense_form_autofills?.enabled &&
+            employeeSettings?.expense_form_autofills?.allowed &&
+            employeeSettings?.expense_form_autofills?.enabled;
 
           // Check if recent projects exist
           const doRecentProjectIdsExist =
@@ -2140,12 +2131,10 @@ export class AddEditExpensePage implements OnInit {
       ),
       map(({ employeeSettings, orgSettings, recentValues, recentCategories, etxn, selectedCategory }) => {
         const isAutofillsEnabled =
-          orgSettings.org_expense_form_autofills &&
-          orgSettings.org_expense_form_autofills.allowed &&
-          orgSettings.org_expense_form_autofills.enabled &&
-          employeeSettings.expense_form_autofills &&
-          employeeSettings.expense_form_autofills.allowed &&
-          employeeSettings.expense_form_autofills.enabled;
+          orgSettings.org_expense_form_autofills?.allowed &&
+          orgSettings.org_expense_form_autofills?.enabled &&
+          employeeSettings.expense_form_autofills?.allowed &&
+          employeeSettings.expense_form_autofills?.enabled;
         const isCategoryExtracted = etxn.tx?.extracted_data?.category;
         if (this.initialFetch) {
           if (etxn.tx.org_category_id) {
@@ -2191,12 +2180,10 @@ export class AddEditExpensePage implements OnInit {
       }).pipe(
         map(({ employeeSettings, orgSettings, recentValues, recentCategories, etxn }) => {
           const isAutofillsEnabled =
-            orgSettings.org_expense_form_autofills &&
-            orgSettings.org_expense_form_autofills.allowed &&
-            orgSettings.org_expense_form_autofills.enabled &&
-            employeeSettings.expense_form_autofills &&
-            employeeSettings.expense_form_autofills.allowed &&
-            employeeSettings.expense_form_autofills.enabled;
+            orgSettings.org_expense_form_autofills?.allowed &&
+            orgSettings.org_expense_form_autofills?.enabled &&
+            employeeSettings.expense_form_autofills?.allowed &&
+            employeeSettings.expense_form_autofills?.enabled;
           const isCategoryExtracted = etxn.tx && etxn.tx.extracted_data && etxn.tx.extracted_data.category;
           if (
             !isCategoryExtracted &&
@@ -4531,7 +4518,7 @@ export class AddEditExpensePage implements OnInit {
     const instaFyleEnabled$ = this.employeeSettings$.pipe(
       map(
         (employeeSettings) =>
-          employeeSettings.insta_fyle_settings.allowed && employeeSettings.insta_fyle_settings.enabled
+          employeeSettings.insta_fyle_settings?.allowed && employeeSettings.insta_fyle_settings?.enabled
       )
     );
 

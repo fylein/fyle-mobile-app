@@ -131,9 +131,9 @@ export class CardStatsComponent implements OnInit {
       )
     );
 
-    this.isYodleeEnabled$ = forkJoin([orgSettings$]).pipe(
+    this.isYodleeEnabled$ = orgSettings$.pipe(
       map(
-        ([orgSettings]) =>
+        (orgSettings) =>
           orgSettings.bank_data_aggregation_settings.allowed && orgSettings.bank_data_aggregation_settings.enabled
       )
     );

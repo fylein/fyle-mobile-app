@@ -801,11 +801,10 @@ export class AddEditMileagePage implements OnInit {
           mileageRates: PlatformMileageRates[];
         }) => {
           const isRecentVehicleTypePresent =
-            orgSettings.org_expense_form_autofills &&
-            orgSettings.org_expense_form_autofills.allowed &&
-            orgSettings.org_expense_form_autofills.enabled &&
-            employeeSettings.expense_form_autofills.allowed &&
-            employeeSettings.expense_form_autofills.enabled &&
+            orgSettings.org_expense_form_autofills?.allowed &&
+            orgSettings.org_expense_form_autofills?.enabled &&
+            employeeSettings.expense_form_autofills?.allowed &&
+            employeeSettings.expense_form_autofills?.enabled &&
             recentValue &&
             recentValue.vehicle_types &&
             recentValue.vehicle_types.length > 0;
@@ -816,9 +815,9 @@ export class AddEditMileagePage implements OnInit {
 
           // if any employee assigned mileage rate is present
           // -> the recently used mileage rate should be part of the allowed mileage rates.
-          const mileageRateLabel = employeeMileageSettings?.mileage_rate_labels;
-          if (mileageRateLabel?.length > 0 && !mileageRateLabel.some((label) => vehicleType === label)) {
-            vehicleType = mileageRateLabel[0];
+          const mileageRateLabels = employeeMileageSettings?.mileage_rate_labels;
+          if (mileageRateLabels?.length > 0 && !mileageRateLabels.some((label) => vehicleType === label)) {
+            vehicleType = mileageRateLabels[0];
           }
 
           const finalMileageRateNames = mileageRates.map((rate) => rate.vehicle_type);
@@ -852,11 +851,10 @@ export class AddEditMileagePage implements OnInit {
     }).pipe(
       map(({ eou, currentLocation, employeeSettings, orgSettings, recentValue }) => {
         const isRecentLocationPresent =
-          orgSettings.org_expense_form_autofills &&
-          orgSettings.org_expense_form_autofills.allowed &&
-          orgSettings.org_expense_form_autofills.enabled &&
-          employeeSettings.expense_form_autofills.allowed &&
-          employeeSettings.expense_form_autofills.enabled &&
+          orgSettings.org_expense_form_autofills?.allowed &&
+          orgSettings.org_expense_form_autofills?.enabled &&
+          employeeSettings.expense_form_autofills?.allowed &&
+          employeeSettings.expense_form_autofills?.enabled &&
           recentValue &&
           recentValue.start_locations &&
           recentValue.start_locations.length > 0;
@@ -1918,11 +1916,10 @@ export class AddEditMileagePage implements OnInit {
 
           // Check if auto-fills is enabled
           const isAutofillsEnabled =
-            orgSettings.org_expense_form_autofills &&
-            orgSettings.org_expense_form_autofills.allowed &&
-            orgSettings.org_expense_form_autofills.enabled &&
-            employeeSettings.expense_form_autofills.allowed &&
-            employeeSettings.expense_form_autofills.enabled;
+            orgSettings.org_expense_form_autofills?.allowed &&
+            orgSettings.org_expense_form_autofills?.enabled &&
+            employeeSettings.expense_form_autofills?.allowed &&
+            employeeSettings.expense_form_autofills?.enabled;
 
           // Check if recent projects exist
           const doRecentProjectIdsExist =
@@ -1982,11 +1979,10 @@ export class AddEditMileagePage implements OnInit {
 
           // Check if recent location exists
           const isRecentLocationPresent =
-            orgSettings.org_expense_form_autofills &&
-            orgSettings.org_expense_form_autofills.allowed &&
-            orgSettings.org_expense_form_autofills.enabled &&
-            employeeSettings.expense_form_autofills.allowed &&
-            employeeSettings.expense_form_autofills.enabled &&
+            orgSettings.org_expense_form_autofills?.allowed &&
+            orgSettings.org_expense_form_autofills?.enabled &&
+            employeeSettings.expense_form_autofills?.allowed &&
+            employeeSettings.expense_form_autofills?.enabled &&
             recentValue &&
             recentValue.start_locations &&
             recentValue.start_locations.length > 0;

@@ -188,7 +188,7 @@ export class SidemenuComponent implements OnInit {
         isVisible:
           this.orgSettings.org_personal_cards_settings.allowed &&
           this.orgSettings.org_personal_cards_settings.enabled &&
-          this.employeeSettings.is_personal_card_enabled &&
+          this.employeeSettings?.is_personal_card_enabled &&
           !isOnboardingPending,
         route: ['/', 'enterprise', 'personal_cards'],
       },

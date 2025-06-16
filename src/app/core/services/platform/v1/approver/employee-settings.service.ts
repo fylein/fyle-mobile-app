@@ -20,8 +20,8 @@ export class PlatformEmployeeSettingsService {
   })
   getByEmployeeId(employeeId: string): Observable<EmployeeSettings> {
     return this.approverService
-      .get<PlatformApiResponse<EmployeeSettings>>('/employee_settings', { params: { employee_id: employeeId } })
-      .pipe(map((response) => response.data[0] as EmployeeSettings));
+      .get<PlatformApiResponse<EmployeeSettings[]>>('/employee_settings', { params: { employee_id: employeeId } })
+      .pipe(map((response) => (response.data.length > 0 ? (response.data[0] ) : null)));
   }
 
   @Cacheable({
@@ -30,15 +30,12 @@ export class PlatformEmployeeSettingsService {
   getAllowedCostCentersByEmployeeId(employeeId: string): Observable<CostCenter[]> {
     return this.getByEmployeeId(employeeId).pipe(
       switchMap((employeeSettings) => {
-        if (employeeSettings?.cost_center_ids.length > 0) {
+        if (employeeSettings?.cost_center_ids?.length > 0) {
           return this.costCentersService
             .getAllActive()
             .pipe(
-              map(
-                (costCenters) =>
-                  costCenters.filter(
-                    (costCenter) => employeeSettings.cost_center_ids.indexOf(costCenter.id) > -1
-                  )
+              map((costCenters) =>
+                costCenters.filter((costCenter) => employeeSettings.cost_center_ids?.includes(costCenter.id))
               )
             );
         }

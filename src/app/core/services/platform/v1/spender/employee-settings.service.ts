@@ -25,8 +25,8 @@ export class PlatformEmployeeSettingsService {
   })
   get(): Observable<EmployeeSettings> {
     return this.spenderService
-      .get<PlatformApiResponse<EmployeeSettings>>('/employee_settings', {})
-      .pipe(map((response) => response.data[0] as EmployeeSettings));
+      .get<PlatformApiResponse<EmployeeSettings[]>>('/employee_settings', {})
+      .pipe(map((response) => (response.data.length > 0 ? (response.data[0] ) : null)));
   }
 
   @CacheBuster({

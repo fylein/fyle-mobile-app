@@ -70,7 +70,7 @@ export class MyProfilePage {
     [key: string]: keyof EmployeeSettings;
   } = {
     instaFyle: 'insta_fyle_settings',
-    // defaultCurrency: 'currency_settings', // To Do: Confirm Currency Settings with backend team
+    defaultCurrency: 'currency_settings',
     formAutofill: 'expense_form_autofills',
   };
 
@@ -171,10 +171,6 @@ export class MyProfilePage {
     const settingName = this.settingsMap[eventData.key];
     const setting = this.employeeSettings[settingName] as CommonEmployeeSettings;
     setting.enabled = eventData.isEnabled;
-
-    if (eventData.key === 'defaultCurrency' && eventData.isEnabled && eventData.selectedCurrency) {
-      // this.employeeSettings.currency_settings.preferred_currency = eventData.selectedCurrency.shortCode || null; // To Do: Confirm Currency Settings with backend team
-    }
 
     this.trackingService.onSettingsToggle({
       userSetting: eventData.key,
@@ -287,18 +283,18 @@ export class MyProfilePage {
         title: 'Expense auto-fill',
         content: 'Auto-fill expense form fields based on most recently used values.',
         key: 'formAutofill',
-        isEnabled: this.employeeSettings.expense_form_autofills.enabled,
+        isEnabled: this.employeeSettings.expense_form_autofills?.enabled,
         isAllowed:
           this.orgSettings.org_expense_form_autofills.allowed &&
           this.orgSettings.org_expense_form_autofills.enabled &&
-          this.employeeSettings.expense_form_autofills.allowed,
+          this.employeeSettings.expense_form_autofills?.allowed,
       },
       {
         title: 'Default currency',
         content: 'Select the default currency to be used for creating expenses.',
         key: 'defaultCurrency',
-        defaultCurrency: 'USD', // To Do: Remove this once the default currency is implemented, confirm with backend team
-        isEnabled: true, // To Do: Remove this once the default currency is implemented, confirm with backend team
+        defaultCurrency: null,
+        isEnabled: false,
         isAllowed: this.orgSettings.org_currency_settings.enabled,
       },
     ];

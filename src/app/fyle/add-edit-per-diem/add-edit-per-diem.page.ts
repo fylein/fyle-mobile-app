@@ -1584,11 +1584,10 @@ export class AddEditPerDiemPage implements OnInit {
 
           // Check if auto-fills is enabled
           const isAutofillsEnabled =
-            orgSettings.org_expense_form_autofills &&
-            orgSettings.org_expense_form_autofills.allowed &&
-            orgSettings.org_expense_form_autofills.enabled &&
-            employeeSettings.expense_form_autofills.allowed &&
-            employeeSettings.expense_form_autofills.enabled;
+            orgSettings.org_expense_form_autofills?.allowed &&
+            orgSettings.org_expense_form_autofills?.enabled &&
+            employeeSettings.expense_form_autofills?.allowed &&
+            employeeSettings.expense_form_autofills?.enabled;
 
           // Check if recent projects exist
           const doRecentProjectIdsExist =
