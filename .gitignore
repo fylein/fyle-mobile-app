@@ -37,6 +37,7 @@ src/environments/environment.staging.ts
 **/i18n/services/
 **/i18n/pipes/
 **/i18n/directives/
+**/i18n/.env
 
 .gradle
 android/app/google-services.json

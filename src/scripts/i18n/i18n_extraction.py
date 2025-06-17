@@ -25,9 +25,9 @@ def build_prompt(file_batch):
         file_sections.append(f"File: {file_name}\n{file_content}")
     files_str = '\n\n'.join(file_sections)
     return f"""
-You are an expert Angular internationalization assistant.
+You are an expert Angular 16 internationalization assistant.
 
-Here are the contents of multiple Angular component, service, pipe, and directive files:
+Here are the contents of multiple Angular 16 component, service, pipe, and directive files:
 {files_str}
 
 Your task is:
@@ -90,19 +90,24 @@ Your task is:
    - Prefer keys like 'signIn.title', 'error.accountDisabled', 'button.submit', etc., over generic names like 'label1', 'text1', etc.
    - The key should help a developer understand where and why the string is used, just by reading the key.
 
-4. **Replace hardcoded user-facing strings with Transloco usage:**
-   - **Angular Binding Rules:**
+4. **Replace hardcoded user-facing strings with Transloco usage (Angular 16 syntax):**
+   - **Angular 16 Template Binding Rules:**
      - For attributes such as placeholder, title, alt, always use property binding:  
        [placeholder]="'componentName.keyName' | transloco"
      - For static text nodes or static attributes, use interpolation:  
        attr="{{ 'componentName.keyName' | transloco }}"
+     - For Angular 16 standalone components, ensure TranslocoModule is imported in the imports array
      - Do not change existing translation keys or pipes.
      - When in doubt, prefer property binding for user-facing attributes.
-   - In TypeScript:  
+   - In TypeScript (Angular 16):  
      this.translocoService.translate('componentName.keyName')
+   - For Angular 16 inject() syntax (if used):  
+     private translocoService = inject(TranslocoService);
 
-5. **Update import statements** in each file to import Transloco packages if they are not already present.  
-   - For example, in TypeScript files, add import {{ TranslocoService, TranslocoModule }} from '@jsverse/transloco'; if missing.
+5. **Update import statements** in each file to import Transloco packages if they are not already present (Angular 16 syntax):  
+   - For TypeScript files, add import {{ TranslocoService, TranslocoModule }} from '@ngneat/transloco'; if missing.
+   - For Angular 16 standalone components, add TranslocoModule to the imports array in the @Component decorator.
+   - For Angular 16 modules, add TranslocoModule to the imports array in the @NgModule decorator.
 
 6. **Output formatting:**
    - In your response, for each file in the files array, the fileName field must contain the full file path (as provided above, e.g., 'src/app/auth/sign-in/sign-in.component.html').
@@ -114,6 +119,7 @@ Your task is:
 7. **Special cases:**
    - Do not extract strings that are used for tracking or analytics (e.g., this.trackingService.trackEvent('User clicking on the button') or this.trackingService.eventTrack('User clicking on the button')).
    - Do NOT alter the code or formatting in any way except for the string replacement and necessary import updates. Do not optimize, reformat, or change indentation. Only perform the minimal necessary code change for i18n.
+   - For Angular 16, respect the existing architecture (standalone components vs modules) and add imports accordingly.
 
 **IMPORTANT:**  
 Your response MUST be ONLY valid, complete, and parseable JSON.  
