@@ -33,6 +33,11 @@ npm-debug.log*
 src/environments/environment.prod.ts
 src/environments/environment.staging.ts
 
+**/i18n/components/
+**/i18n/services/
+**/i18n/pipes/
+**/i18n/directives/
+
 .gradle
 android/app/google-services.json
 ios/App/App/GoogleService-Info.plist
