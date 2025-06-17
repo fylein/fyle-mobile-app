@@ -60,7 +60,6 @@ export const generatedFormPropertiesData2: GeneratedFormProperties = deepFreeze(
       value: 'Cost Code 1',
     },
     ...dependentCustomProperties,
-    ...dependentCustomProperties,
   ],
   started_at: undefined,
   ended_at: undefined,
