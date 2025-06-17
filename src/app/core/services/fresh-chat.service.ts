@@ -5,7 +5,7 @@ import { StorageService } from './storage.service';
 import { Device } from '@capacitor/device';
 import { PlatformEmployeeSettingsService } from './platform/v1/spender/employee-settings.service';
 import { NetworkService } from './network.service';
-import { concat } from 'rxjs';
+import { concat, firstValueFrom } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { EmployeeSettings } from '../models/employee-settings.model';
 import { FreshChatWidget } from '../models/fresh-chat-widget.model';
@@ -58,7 +58,7 @@ export class FreshChatService {
   }
 
   private getEmployeeSettings(): Promise<EmployeeSettings> {
-    return this.platformEmployeeSettingsService.get().toPromise();
+    return firstValueFrom(this.platformEmployeeSettingsService.get());
   }
 
   private async initFreshChat(): Promise<void> {
