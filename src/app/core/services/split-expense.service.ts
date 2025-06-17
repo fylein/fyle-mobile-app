@@ -425,12 +425,12 @@ export class SplitExpenseService {
 
     const precision = this.getCurrencyPrecision(currency);
     const threshold = this.getThresholdTolerance(precision);
-    const roundedTargetAmount = parseFloat(targetAmount.toFixed(precision));
+    const roundedTargetAmount = Number.parseFloat(targetAmount.toFixed(precision));
     let totalRoundedAmount = 0;
 
     splitExpensesFormArray.controls.forEach((control) => {
       const currentAmount = (control.get('amount')?.value as number) || 0;
-      const roundedAmount = parseFloat(currentAmount.toFixed(precision));
+      const roundedAmount = Number.parseFloat(currentAmount.toFixed(precision));
 
       control.patchValue(
         {
@@ -443,13 +443,13 @@ export class SplitExpenseService {
       totalRoundedAmount += roundedAmount;
     });
 
-    const difference = parseFloat((roundedTargetAmount - totalRoundedAmount).toFixed(precision + 1));
+    const difference = Number.parseFloat((roundedTargetAmount - totalRoundedAmount).toFixed(precision + 1));
 
     if (Math.abs(difference) > threshold) {
       const lastIndex = splitExpensesFormArray.length - 1;
       const lastControl = splitExpensesFormArray.at(lastIndex);
       const lastAmount = (lastControl.get('amount')?.value as number) || 0;
-      const adjustedAmount = parseFloat((lastAmount + difference).toFixed(precision));
+      const adjustedAmount = Number.parseFloat((lastAmount + difference).toFixed(precision));
 
       lastControl.patchValue(
         {
