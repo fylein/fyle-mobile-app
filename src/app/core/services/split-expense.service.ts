@@ -435,7 +435,7 @@ export class SplitExpenseService {
       control.patchValue(
         {
           amount: roundedAmount,
-          percentage: targetAmount > 0 ? parseFloat(((roundedAmount / targetAmount) * 100).toFixed(3)) : 0,
+          percentage: targetAmount !== 0 ? Number.parseFloat(((roundedAmount / targetAmount) * 100).toFixed(3)) : 0,
         },
         { emitEvent: false }
       );
@@ -454,7 +454,7 @@ export class SplitExpenseService {
       lastControl.patchValue(
         {
           amount: adjustedAmount,
-          percentage: targetAmount > 0 ? parseFloat(((adjustedAmount / targetAmount) * 100).toFixed(3)) : 0,
+          percentage: targetAmount !== 0 ? Number.parseFloat(((adjustedAmount / targetAmount) * 100).toFixed(3)) : 0,
         },
         { emitEvent: false }
       );
