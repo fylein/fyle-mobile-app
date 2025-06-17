@@ -818,7 +818,6 @@ export class SplitExpensePage implements OnDestroy {
 
   save(): void {
     if (this.splitExpensesFormArray.valid) {
-      this.normalizeSplitAmounts();
       this.showErrorBlock = false;
       if (this.amount && parseFloat(this.amount.toFixed(3)) !== this.totalSplitAmount) {
         this.showErrorBlock = true;
@@ -857,6 +856,7 @@ export class SplitExpensePage implements OnDestroy {
           return;
         }
 
+        this.normalizeSplitAmounts();
         const generatedSplitEtxn$ = (this.splitExpensesFormArray.value as SplitExpense[]).map((splitExpenseValue) =>
           this.generateSplitEtxnFromFg(splitExpenseValue)
         );

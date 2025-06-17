@@ -435,7 +435,8 @@ export class SplitExpenseService {
       control.patchValue(
         {
           amount: roundedAmount,
-          percentage: targetAmount !== 0 ? Number.parseFloat(((roundedAmount / targetAmount) * 100).toFixed(3)) : 0,
+          percentage:
+            roundedTargetAmount !== 0 ? Number.parseFloat(((roundedAmount / roundedTargetAmount) * 100).toFixed(3)) : 0,
         },
         { emitEvent: false }
       );
@@ -445,7 +446,7 @@ export class SplitExpenseService {
 
     const difference = Number.parseFloat((roundedTargetAmount - totalRoundedAmount).toFixed(precision + 1));
 
-    if (Math.abs(difference) > threshold) {
+    if (Math.abs(difference) >= threshold) {
       const lastIndex = splitExpensesFormArray.length - 1;
       const lastControl = splitExpensesFormArray.at(lastIndex);
       const lastAmount = (lastControl.get('amount')?.value as number) || 0;
@@ -454,7 +455,10 @@ export class SplitExpenseService {
       lastControl.patchValue(
         {
           amount: adjustedAmount,
-          percentage: targetAmount !== 0 ? Number.parseFloat(((adjustedAmount / targetAmount) * 100).toFixed(3)) : 0,
+          percentage:
+            roundedTargetAmount !== 0
+              ? Number.parseFloat(((adjustedAmount / roundedTargetAmount) * 100).toFixed(3))
+              : 0,
         },
         { emitEvent: false }
       );
