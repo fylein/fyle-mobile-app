@@ -811,8 +811,14 @@ export class SplitExpensePage implements OnDestroy {
     };
   }
 
+  normalizeSplitAmounts(): void {
+    this.splitExpenseService.normalizeSplitAmounts(this.splitExpensesFormArray, this.amount, this.currency);
+    this.getTotalSplitAmount();
+  }
+
   save(): void {
     if (this.splitExpensesFormArray.valid) {
+      this.normalizeSplitAmounts();
       this.showErrorBlock = false;
       if (this.amount && parseFloat(this.amount.toFixed(3)) !== this.totalSplitAmount) {
         this.showErrorBlock = true;

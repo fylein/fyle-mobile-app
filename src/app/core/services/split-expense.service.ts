@@ -19,6 +19,8 @@ import { TransformedSplitExpenseMissingFields } from '../models/transformed-spli
 import { TxnCustomProperties } from '../models/txn-custom-properties.model';
 import { ExpenseCommentService } from './platform/v1/spender/expense-comment.service';
 import { ExpenseComment } from '../models/expense-comment.model';
+import { UntypedFormArray } from '@angular/forms';
+import { CurrencyConfig } from '../models/currency-config.model';
 
 @Injectable({
   providedIn: 'root',
@@ -414,5 +416,105 @@ export class SplitExpenseService {
     }));
 
     return this.expenseCommentService.post(commentsPayload);
+  }
+
+  normalizeSplitAmounts(splitExpensesFormArray: UntypedFormArray, targetAmount: number, currency: string): void {
+    if (splitExpensesFormArray.length === 0) {
+      return;
+    }
+
+    const precision = this.getCurrencyPrecision(currency);
+    const threshold = this.getThresholdTolerance(precision);
+    const roundedTargetAmount = parseFloat(targetAmount.toFixed(precision));
+    let totalRoundedAmount = 0;
+
+    splitExpensesFormArray.controls.forEach((control) => {
+      const currentAmount = (control.get('amount')?.value as number) || 0;
+      const roundedAmount = parseFloat(currentAmount.toFixed(precision));
+
+      control.patchValue(
+        {
+          amount: roundedAmount,
+          percentage: targetAmount > 0 ? parseFloat(((roundedAmount / targetAmount) * 100).toFixed(3)) : 0,
+        },
+        { emitEvent: false }
+      );
+
+      totalRoundedAmount += roundedAmount;
+    });
+
+    const difference = parseFloat((roundedTargetAmount - totalRoundedAmount).toFixed(precision + 1));
+
+    if (Math.abs(difference) > threshold) {
+      const lastIndex = splitExpensesFormArray.length - 1;
+      const lastControl = splitExpensesFormArray.at(lastIndex);
+      const lastAmount = (lastControl.get('amount')?.value as number) || 0;
+      const adjustedAmount = parseFloat((lastAmount + difference).toFixed(precision));
+
+      lastControl.patchValue(
+        {
+          amount: adjustedAmount,
+          percentage: targetAmount > 0 ? parseFloat(((adjustedAmount / targetAmount) * 100).toFixed(3)) : 0,
+        },
+        { emitEvent: false }
+      );
+    }
+  }
+
+  private getThresholdTolerance(precision: number): number {
+    const toleranceMap = new Map<number, number>([
+      [0, 1.0],
+      [2, 0.001],
+      [3, 0.001],
+      [4, 0.0001],
+    ]);
+
+    return toleranceMap.get(precision) ?? 0.001;
+  }
+
+  private getCurrencyPrecision(currencyCode: string): number {
+    if (!currencyCode) {
+      return 2;
+    }
+
+    try {
+      const { maximumFractionDigits } = new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: currencyCode,
+      }).resolvedOptions();
+      return maximumFractionDigits;
+    } catch (_) {
+      const fallbackCurrencies: CurrencyConfig[] = [
+        { code: 'USD', decimalPlaces: 2 },
+        { code: 'EUR', decimalPlaces: 2 },
+        { code: 'GBP', decimalPlaces: 2 },
+        { code: 'INR', decimalPlaces: 2 },
+        { code: 'CAD', decimalPlaces: 2 },
+        { code: 'AUD', decimalPlaces: 2 },
+        { code: 'CNY', decimalPlaces: 2 },
+        { code: 'SGD', decimalPlaces: 2 },
+        { code: 'HKD', decimalPlaces: 2 },
+        { code: 'THB', decimalPlaces: 2 },
+        { code: 'MYR', decimalPlaces: 2 },
+        { code: 'PHP', decimalPlaces: 2 },
+        { code: 'NZD', decimalPlaces: 2 },
+        { code: 'JPY', decimalPlaces: 0 },
+        { code: 'KRW', decimalPlaces: 0 },
+        { code: 'VND', decimalPlaces: 0 },
+        { code: 'IDR', decimalPlaces: 0 },
+        { code: 'CLP', decimalPlaces: 0 },
+        { code: 'OMR', decimalPlaces: 3 },
+        { code: 'KWD', decimalPlaces: 3 },
+        { code: 'BHD', decimalPlaces: 3 },
+        { code: 'IQD', decimalPlaces: 3 },
+        { code: 'TND', decimalPlaces: 3 },
+        { code: 'JOD', decimalPlaces: 3 },
+        { code: 'LYD', decimalPlaces: 3 },
+        { code: 'CLF', decimalPlaces: 4 },
+      ];
+
+      const currencyConfig = fallbackCurrencies.find((config) => config.code === currencyCode.toUpperCase());
+      return currencyConfig ? currencyConfig.decimalPlaces : 2;
+    }
   }
 }
