@@ -98,11 +98,7 @@ import { taxGroupData } from '../mock-data/tax-group.data';
 import { cloneDeep } from 'lodash';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { SpenderFileService } from './platform/v1/spender/file.service';
-import {
-  expenseData,
-  platformExpenseData,
-  platformExpenseWithExtractedData,
-} from '../mock-data/platform/v1/expense.data';
+import { platformExpenseData, platformExpenseWithExtractedData } from '../mock-data/platform/v1/expense.data';
 import { generateUrlsBulkData1 } from '../mock-data/generate-urls-bulk-response.data';
 
 describe('MergeExpensesService', () => {
@@ -230,6 +226,31 @@ describe('MergeExpensesService', () => {
     it('should return empty list if expense list is empty', () => {
       expect(mergeExpensesService.checkIfAdvanceExpensePresent([null])).toEqual([]);
     });
+  });
+
+  it('mergeExpenses(): should merge the expenses', (done) => {
+    const mergeExpensesRes = {
+      txn_id: 'txVNpvgTPW4Z',
+    };
+
+    apiService.post.and.returnValue(of(mergeExpensesRes));
+
+    mergeExpensesService
+      .mergeExpenses(
+        mergeExpensesPayload.source_txn_ids,
+        mergeExpensesPayload.target_txn_id,
+        mergeExpensesPayload.target_txn_fields
+      )
+      .subscribe((res) => {
+        expect(res).toEqual(Object(mergeExpensesRes));
+
+        expect(apiService.post).toHaveBeenCalledOnceWith('/transactions/merge', {
+          source_txn_ids: mergeExpensesPayload.source_txn_ids,
+          target_txn_id: mergeExpensesPayload.target_txn_id,
+          target_txn_fields: mergeExpensesPayload.target_txn_fields,
+        });
+        done();
+      });
   });
 
   it('isApprovedAndAbove(): should return the expenses that are approved and above', () => {
@@ -402,7 +423,7 @@ describe('MergeExpensesService', () => {
     });
   });
 
-  //Disabling this test case as it fails at times due to some weird issue in the method
+  //Disabling this test for now
   it('getCustomInputValues(): should return the custom input values', () => {
     const result = mergeExpensesService.getCustomInputValues(lodash.cloneDeep(apiExpenseRes));
 

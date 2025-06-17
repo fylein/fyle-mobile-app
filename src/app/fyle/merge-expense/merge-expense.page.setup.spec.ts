@@ -66,6 +66,7 @@ describe('MergeExpensePage', () => {
       'isAllAdvanceExpenses',
       'getFieldValueOnChange',
       'getAttachements',
+      'mergeExpenses',
       'getCategoryName',
       'getDependentFieldsMapping',
       'getCorporateCardTransactions',
@@ -77,13 +78,13 @@ describe('MergeExpensePage', () => {
       'isMoreThanOneAdvancePresent',
       'isAdvancePresent',
     ]);
-    const expensesServiceSpy = jasmine.createSpyObj('ExpenseService', ['mergeExpenses', 'getAllExpenses']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['expensesMerged']);
     const expenseFieldsServiceSpy = jasmine.createSpyObj('ExpenseFieldsService', ['getAllMap']);
     const dependentFieldsServiceSpy = jasmine.createSpyObj('DependentFieldsService', [
       'getDependentFieldsForBaseField',
     ]);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['transformRawExpense']);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpenseService', ['getAllExpenses']);
 
     TestBed.configureTestingModule({
       declarations: [MergeExpensePage],

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { from, Observable, of } from 'rxjs';
 import { filter, map, mergeMap, reduce, shareReplay, switchMap } from 'rxjs/operators';
+import { ApiService } from './api.service';
 import { Expense } from '../models/expense.model';
 import { Expense as PlatformExpense } from '../models/platform/v1/expense.model';
 import { ExpensesInfo } from '../models/expenses-info.model';
@@ -21,6 +22,7 @@ import { cloneDeep } from 'lodash';
 import { TxnCustomProperties } from '../models/txn-custom-properties.model';
 import { MergeExpensesOption } from '../models/merge-expenses-option.model';
 import { MergeExpensesOptionsData } from '../models/merge-expenses-options-data.model';
+import { GeneratedFormProperties } from '../models/generated-form-properties.model';
 import { Location } from '../models/location.model';
 import { DependentFieldsMapping } from '../models/dependent-field-mapping.model';
 import { CustomInput } from '../models/custom-input.model';
@@ -33,6 +35,7 @@ import { PlatformConfig } from '../models/platform/platform-config.model';
 })
 export class MergeExpensesService {
   constructor(
+    private apiService: ApiService,
     private fileService: FileService,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
     private customInputsService: CustomInputsService,
@@ -44,6 +47,18 @@ export class MergeExpensesService {
     private expensesService: ExpensesService,
     private spenderFileService: SpenderFileService
   ) {}
+
+  mergeExpenses(
+    sourceTxnIds: string[],
+    targetTxnId: string,
+    targetTxnFields: Partial<GeneratedFormProperties>
+  ): Observable<string> {
+    return this.apiService.post('/transactions/merge', {
+      source_txn_ids: sourceTxnIds,
+      target_txn_id: targetTxnId,
+      target_txn_fields: targetTxnFields,
+    });
+  }
 
   isAllAdvanceExpenses(expenses: Partial<Expense>[]): boolean {
     return expenses.every((expense) => expense?.source_account_type === AccountType.ADVANCE);
