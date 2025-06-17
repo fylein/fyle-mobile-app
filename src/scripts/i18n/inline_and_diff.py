@@ -2,9 +2,9 @@
 """
 inline_and_diff.py
 
-1. List all source files for a given type, and create a map of <file_path>: <file_content> (input.json).
-2. Apply inline translation to each file and write it to inlined_translation_file.json.
-3. Compare the diff of input.json and inlined_translation_file.json, writing unified diffs to a diffs/ directory.
+1. Read original files from src/app based on type
+2. Create a map with translations replaced using en.json
+3. Compare with input.json and generate diffs
 
 Usage:
 python inline_and_diff.py --type components
@@ -51,18 +51,14 @@ def find_files(root_dir: str, suffixes: List[str]) -> List[str]:
                 matches.append(os.path.join(dirpath, filename))
     return matches
 
-# Mobile app has a single src/app structure
 root = "src/app"
 suffixes = SUFFIX_MAP[type_name]
 all_files = []
 if os.path.exists(root):
     all_files.extend(find_files(root, suffixes))
 
-input_map = {file_path: Path(file_path).read_text(encoding='utf-8') for file_path in all_files}
-input_json_path = base_dir / 'input.json'
-with open(input_json_path, 'w', encoding='utf-8') as f:
-    json.dump(input_map, f, ensure_ascii=False, indent=2)
-print(f"Wrote {len(input_map)} files to {input_json_path}")
+# Read original files
+original_files_map = {file_path: Path(file_path).read_text(encoding='utf-8') for file_path in all_files}
 
 # ---------------------- 2. Inline translation  --------------------- #
 # Load translation JSON (en.json)
@@ -158,21 +154,32 @@ def replace_in_file(path: str, content: str) -> str:
     new = attr_binding_redundant_quotes.sub(r'\1="\2"', new)
     return new
 
-inlined_map = {p: replace_in_file(p, c) for p, c in input_map.items()}
-inlined_json_path = base_dir / 'inlined_translation_file.json'
-with open(inlined_json_path, 'w', encoding='utf-8') as f:
-    json.dump(inlined_map, f, ensure_ascii=False, indent=2)
-print(f"Wrote inlined translations to {inlined_json_path}")
+# Create a map with translations replaced
+translated_map = {path: replace_in_file(path, content) for path, content in original_files_map.items()}
+
+# Write the translated map to a new file
+translated_json_path = base_dir / 'translated.json'
+with open(translated_json_path, 'w', encoding='utf-8') as f:
+    json.dump(translated_map, f, ensure_ascii=False, indent=2)
+print(f"Wrote translated content to {translated_json_path}")
 
 # ---------------------- 3. Diff output  ---------------------------- #
 if args.skip_diff:
     sys.exit(0)
 
+# Read the original input.json
+input_json_path = base_dir / 'input.json'
+if not input_json_path.exists():
+    sys.exit(f"Input file not found: {input_json_path}")
+
+with open(input_json_path, 'r', encoding='utf-8') as f:
+    input_map = json.load(f)
+
 diffs_dir = base_dir / 'diffs'
 diffs_dir.mkdir(exist_ok=True)
 diff_count = 0
 for file_path, old_content in input_map.items():
-    new_content = inlined_map.get(file_path)
+    new_content = translated_map.get(file_path)
     if new_content is None or old_content == new_content:
         continue
     diff_lines = list(
