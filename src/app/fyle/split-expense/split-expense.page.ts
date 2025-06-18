@@ -811,7 +811,7 @@ export class SplitExpensePage implements OnDestroy {
     };
   }
 
-  normalizeSplitAmounts(): void {
+  normalizeSplitAmount(): void {
     this.splitExpenseService.normalizeSplitAmounts(this.splitExpensesFormArray, this.amount, this.currency);
     this.getTotalSplitAmount();
   }
@@ -856,7 +856,7 @@ export class SplitExpensePage implements OnDestroy {
           return;
         }
 
-        this.normalizeSplitAmounts();
+        this.normalizeSplitAmount();
         const generatedSplitEtxn$ = (this.splitExpensesFormArray.value as SplitExpense[]).map((splitExpenseValue) =>
           this.generateSplitEtxnFromFg(splitExpenseValue)
         );

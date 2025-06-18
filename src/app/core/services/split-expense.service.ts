@@ -19,8 +19,9 @@ import { TransformedSplitExpenseMissingFields } from '../models/transformed-spli
 import { TxnCustomProperties } from '../models/txn-custom-properties.model';
 import { ExpenseCommentService } from './platform/v1/spender/expense-comment.service';
 import { ExpenseComment } from '../models/expense-comment.model';
-import { UntypedFormArray } from '@angular/forms';
-import { CurrencyConfig } from '../models/currency-config.model';
+import { UntypedFormArray, AbstractControl } from '@angular/forms';
+import { fallbackCurrencies } from '../mock-data/fallback-currency-data';
+import { cloneDeep } from 'lodash';
 
 @Injectable({
   providedIn: 'root',
@@ -425,45 +426,26 @@ export class SplitExpenseService {
 
     const precision = this.getCurrencyPrecision(currency);
     const threshold = this.getThresholdTolerance(precision);
-    const roundedTargetAmount = Number.parseFloat(targetAmount.toFixed(precision));
+    const roundedTargetAmount = this.roundToPrecision(targetAmount, precision);
     let totalRoundedAmount = 0;
 
     splitExpensesFormArray.controls.forEach((control) => {
       const currentAmount = (control.get('amount')?.value as number) || 0;
-      const roundedAmount = Number.parseFloat(currentAmount.toFixed(precision));
+      const roundedAmount = this.roundToPrecision(currentAmount, precision);
 
-      control.patchValue(
-        {
-          amount: roundedAmount,
-          percentage:
-            roundedTargetAmount !== 0
-              ? Number.parseFloat(((Math.abs(roundedAmount) / Math.abs(roundedTargetAmount)) * 100).toFixed(3))
-              : 0,
-        },
-        { emitEvent: false }
-      );
-
+      this.setSplitValues(control, roundedAmount, roundedTargetAmount);
       totalRoundedAmount += roundedAmount;
     });
 
-    const difference = Number.parseFloat((roundedTargetAmount - totalRoundedAmount).toFixed(precision + 1));
+    const difference = this.roundToPrecision(roundedTargetAmount - totalRoundedAmount, precision + 1);
 
     if (Math.abs(difference) >= threshold) {
       const lastIndex = splitExpensesFormArray.length - 1;
       const lastControl = splitExpensesFormArray.at(lastIndex);
       const lastAmount = (lastControl.get('amount')?.value as number) || 0;
-      const adjustedAmount = Number.parseFloat((lastAmount + difference).toFixed(precision));
+      const adjustedAmount = this.roundToPrecision(lastAmount + difference, precision);
 
-      lastControl.patchValue(
-        {
-          amount: adjustedAmount,
-          percentage:
-            roundedTargetAmount !== 0
-              ? Number.parseFloat(((Math.abs(adjustedAmount) / Math.abs(roundedTargetAmount)) * 100).toFixed(3))
-              : 0,
-        },
-        { emitEvent: false }
-      );
+      this.setSplitValues(lastControl, adjustedAmount, roundedTargetAmount);
     }
   }
 
@@ -490,37 +472,19 @@ export class SplitExpenseService {
       }).resolvedOptions();
       return maximumFractionDigits;
     } catch (_) {
-      const fallbackCurrencies: CurrencyConfig[] = [
-        { code: 'USD', decimalPlaces: 2 },
-        { code: 'EUR', decimalPlaces: 2 },
-        { code: 'GBP', decimalPlaces: 2 },
-        { code: 'INR', decimalPlaces: 2 },
-        { code: 'CAD', decimalPlaces: 2 },
-        { code: 'AUD', decimalPlaces: 2 },
-        { code: 'CNY', decimalPlaces: 2 },
-        { code: 'SGD', decimalPlaces: 2 },
-        { code: 'HKD', decimalPlaces: 2 },
-        { code: 'THB', decimalPlaces: 2 },
-        { code: 'MYR', decimalPlaces: 2 },
-        { code: 'PHP', decimalPlaces: 2 },
-        { code: 'NZD', decimalPlaces: 2 },
-        { code: 'JPY', decimalPlaces: 0 },
-        { code: 'KRW', decimalPlaces: 0 },
-        { code: 'VND', decimalPlaces: 0 },
-        { code: 'IDR', decimalPlaces: 0 },
-        { code: 'CLP', decimalPlaces: 0 },
-        { code: 'OMR', decimalPlaces: 3 },
-        { code: 'KWD', decimalPlaces: 3 },
-        { code: 'BHD', decimalPlaces: 3 },
-        { code: 'IQD', decimalPlaces: 3 },
-        { code: 'TND', decimalPlaces: 3 },
-        { code: 'JOD', decimalPlaces: 3 },
-        { code: 'LYD', decimalPlaces: 3 },
-        { code: 'CLF', decimalPlaces: 4 },
-      ];
-
-      const currencyConfig = fallbackCurrencies.find((config) => config.code === currencyCode.toUpperCase());
+      const fallbackCurrencyData = cloneDeep(fallbackCurrencies);
+      const currencyConfig = fallbackCurrencyData.find((config) => config.code === currencyCode.toUpperCase());
       return currencyConfig ? currencyConfig.decimalPlaces : 2;
     }
+  }
+
+  private roundToPrecision(value: number, precision: number): number {
+    const factor = Math.pow(10, precision);
+    return Math.round(value * factor) / factor;
+  }
+
+  private setSplitValues(control: AbstractControl, amount: number, total: number): void {
+    const percentage = total !== 0 ? this.roundToPrecision((Math.abs(amount) / Math.abs(total)) * 100, 3) : 0;
+    control.patchValue({ amount, percentage }, { emitEvent: false });
   }
 }
