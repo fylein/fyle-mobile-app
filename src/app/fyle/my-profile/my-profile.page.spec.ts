@@ -388,7 +388,6 @@ describe('MyProfilePage', () => {
     it('should navigate to notifications beta page if launch darkly flag is true', fakeAsync(() => {
       launchDarklyService.getVariation.and.returnValue(of(true));
       component.goToNotificationsPage();
-      tick(500);
 
       expect(router.navigate).toHaveBeenCalledOnceWith(['/enterprise', 'notifications', 'beta']);
     }));
@@ -396,7 +395,6 @@ describe('MyProfilePage', () => {
     it('should navigate to notifications page if launch darkly flag is false', fakeAsync(() => {
       launchDarklyService.getVariation.and.returnValue(of(false));
       component.goToNotificationsPage();
-      tick(500);
 
       expect(router.navigate).toHaveBeenCalledOnceWith(['/enterprise', 'notifications']);
     }));
@@ -404,7 +402,6 @@ describe('MyProfilePage', () => {
     it('should navigate to regular notifications page on error', fakeAsync(() => {
       launchDarklyService.getVariation.and.returnValue(throwError(() => new Error('Feature flag error')));
       component.goToNotificationsPage();
-      tick(500);
 
       expect(router.navigate).toHaveBeenCalledOnceWith(['/enterprise', 'notifications']);
     }));
