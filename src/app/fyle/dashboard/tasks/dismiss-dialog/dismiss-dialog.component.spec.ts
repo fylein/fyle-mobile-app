@@ -8,17 +8,19 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { FormsModule } from '@angular/forms';
 import { of, throwError } from 'rxjs';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
+import { TranslocoService } from '@jsverse/transloco';
 
 describe('DismissDialogComponent', () => {
   let component: DismissDialogComponent;
   let fixture: ComponentFixture<DismissDialogComponent>;
   let popoverController: jasmine.SpyObj<PopoverController>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   const dismissMethod = () => of(true);
   const errMethod = () => throwError(() => new Error('error'));
 
   beforeEach(waitForAsync(() => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['dismiss']);
+    translocoService = jasmine.createSpyObj('TranslocoService', ['translate']);
     TestBed.configureTestingModule({
       declarations: [DismissDialogComponent, FormButtonValidationDirective],
       imports: [IonicModule.forRoot(), FormsModule, MatIconTestingModule, MatIconModule],
@@ -27,12 +29,17 @@ describe('DismissDialogComponent', () => {
           provide: PopoverController,
           useValue: popoverControllerSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoService,
+        },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(DismissDialogComponent);
     component = fixture.componentInstance;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     fixture.detectChanges();
   }));
 

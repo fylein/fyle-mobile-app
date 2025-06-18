@@ -13,6 +13,7 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { ErrorType } from './error-type.model';
 import { errorMappings } from 'src/app/core/mock-data/error-mapping-for-verify-number-popover.data';
+import { TranslocoService } from '@jsverse/transloco';
 
 describe('VerifyNumberPopoverComponent', () => {
   let component: VerifyNumberPopoverComponent;
@@ -20,20 +21,21 @@ describe('VerifyNumberPopoverComponent', () => {
   let popoverController: jasmine.SpyObj<PopoverController>;
   let mobileNumberVerificationService: jasmine.SpyObj<MobileNumberVerificationService>;
   let resendOtpSpy: jasmine.Spy;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['dismiss']);
     const mobileNumberVerificationServiceSpy = jasmine.createSpyObj('MobileNumberVerificationService', [
       'sendOtp',
       'verifyOtp',
     ]);
-
+    translocoService = jasmine.createSpyObj('TranslocoService', ['translate']);
     TestBed.configureTestingModule({
       declarations: [VerifyNumberPopoverComponent, FyAlertInfoComponent, FormButtonValidationDirective],
       imports: [IonicModule.forRoot(), FormsModule, MatIconModule, MatIconTestingModule],
       providers: [
         { provide: PopoverController, useValue: popoverControllerSpy },
         { provide: MobileNumberVerificationService, useValue: mobileNumberVerificationServiceSpy },
+        { provide: TranslocoService, useValue: translocoService },
       ],
     }).compileComponents();
 
@@ -44,6 +46,7 @@ describe('VerifyNumberPopoverComponent', () => {
     mobileNumberVerificationService = TestBed.inject(
       MobileNumberVerificationService
     ) as jasmine.SpyObj<MobileNumberVerificationService>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
 
     component.extendedOrgUser = apiEouRes;
     component.showOtpTimer = false;
@@ -51,7 +54,6 @@ describe('VerifyNumberPopoverComponent', () => {
     component.error = null;
     component.value = '';
     resendOtpSpy = spyOn(component, 'resendOtp');
-
     fixture.detectChanges();
   }));
 

@@ -7,16 +7,18 @@ import { of, throwError } from 'rxjs';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { FormButtonValidationDirective } from '../../directive/form-button-validation.directive';
 import { FyDeleteDialogComponent } from './fy-delete-dialog.component';
+import { TranslocoService } from '@jsverse/transloco';
 
 describe('FyDeleteDialogComponent', () => {
   let component: FyDeleteDialogComponent;
   let fixture: ComponentFixture<FyDeleteDialogComponent>;
   let popoverController: jasmine.SpyObj<PopoverController>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   const deleteMethod = () => of(true);
   const errMethod = () => throwError(() => new Error('error'));
 
   beforeEach(waitForAsync(() => {
+    translocoService = jasmine.createSpyObj('TranslocoService', ['translate']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['dismiss']);
     TestBed.configureTestingModule({
       declarations: [FyDeleteDialogComponent, FormButtonValidationDirective],
@@ -25,6 +27,10 @@ describe('FyDeleteDialogComponent', () => {
         {
           provide: PopoverController,
           useValue: popoverControllerSpy,
+        },
+        {
+          provide: TranslocoService,
+          useValue: translocoService,
         },
       ],
     }).compileComponents();
