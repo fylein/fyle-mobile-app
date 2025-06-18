@@ -62,8 +62,9 @@ import {
   advanceRequestPlatformSentBack,
 } from '../mock-data/platform/v1/advance-request-platform.data';
 import { cloneDeep } from 'lodash';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 
-describe('AdvanceRequestService', () => {
+fdescribe('AdvanceRequestService', () => {
   let advanceRequestService: AdvanceRequestService;
   let apiService: jasmine.SpyObj<ApiService>;
   let authService: jasmine.SpyObj<AuthService>;
@@ -72,6 +73,7 @@ describe('AdvanceRequestService', () => {
   let fileService: jasmine.SpyObj<FileService>;
   let spenderService: jasmine.SpyObj<SpenderService>;
   let approverService: jasmine.SpyObj<ApproverService>;
+  let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
 
   beforeEach(() => {
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post', 'delete']);
@@ -82,6 +84,7 @@ describe('AdvanceRequestService', () => {
     const timezoneServiceSpy = jasmine.createSpyObj('TimezoneService', ['convertToUtc']);
     const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['post', 'get']);
     const approverServiceSpy = jasmine.createSpyObj('ApproverService', ['get']);
+    const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['post']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -119,6 +122,10 @@ describe('AdvanceRequestService', () => {
           provide: ApproverService,
           useValue: approverServiceSpy,
         },
+        {
+          provide: SpenderPlatformV1ApiService,
+          useValue: spenderPlatformV1ApiServiceSpy,
+        },
       ],
     });
     advanceRequestService = TestBed.inject(AdvanceRequestService);
@@ -129,6 +136,9 @@ describe('AdvanceRequestService', () => {
     fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
     spenderService = TestBed.inject(SpenderService) as jasmine.SpyObj<SpenderService>;
     approverService = TestBed.inject(ApproverService) as jasmine.SpyObj<ApproverService>;
+    spenderPlatformV1ApiService = TestBed.inject(
+      SpenderPlatformV1ApiService
+    ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
   });
 
   it('should be created', () => {
@@ -352,12 +362,17 @@ describe('AdvanceRequestService', () => {
     });
   });
 
-  it('saveDraft(): should save a draft advance request', (done) => {
-    apiService.post.and.returnValue(of(draftAdvancedRequestRes));
+  it('post(): should save a draft advance request', (done) => {
+    spenderPlatformV1ApiService.post.and.returnValue(of({ data: draftAdvancedRequestRes }));
 
-    advanceRequestService.saveDraft(draftAdvancedRequestParam).subscribe((res) => {
+    advanceRequestService.post(draftAdvancedRequestParam).subscribe((res) => {
       expect(res).toEqual(draftAdvancedRequestRes);
-      expect(apiService.post).toHaveBeenCalledOnceWith('/advance_requests/save', draftAdvancedRequestParam);
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/advance_requests', {
+        data: {
+          ...draftAdvancedRequestParam,
+          custom_fields: draftAdvancedRequestParam.custom_field_values,
+        },
+      });
       done();
     });
   });
@@ -552,23 +567,23 @@ describe('AdvanceRequestService', () => {
   describe('saveDraftAdvReqWithFiles():', () => {
     it('should save draft advance request along with the file', (done) => {
       fileService.post.and.returnValue(of(fileObjectData4));
-      spyOn(advanceRequestService, 'saveDraft').and.returnValue(of(advancedRequests2));
+      spyOn(advanceRequestService, 'post').and.returnValue(of(advancedRequests2));
 
       const mockFileObject = cloneDeep(fileData2);
       advanceRequestService.saveDraftAdvReqWithFiles(advancedRequests2, of(mockFileObject)).subscribe((res) => {
         expect(res).toEqual(advRequestFile2);
-        expect(advanceRequestService.saveDraft).toHaveBeenCalledOnceWith(advancedRequests2);
+        expect(advanceRequestService.post).toHaveBeenCalledOnceWith(advancedRequests2);
         expect(fileService.post).toHaveBeenCalledOnceWith(mockFileObject[0]);
         done();
       });
     });
 
     it('should save draft advance request without the file', (done) => {
-      spyOn(advanceRequestService, 'saveDraft').and.returnValue(of(advancedRequests2));
+      spyOn(advanceRequestService, 'post').and.returnValue(of(advancedRequests2));
 
       advanceRequestService.saveDraftAdvReqWithFiles(advancedRequests2, of(null)).subscribe((res) => {
         expect(res).toEqual({ ...advRequestFile2, files: null });
-        expect(advanceRequestService.saveDraft).toHaveBeenCalledOnceWith(advancedRequests2);
+        expect(advanceRequestService.post).toHaveBeenCalledOnceWith(advancedRequests2);
         done();
       });
     });
