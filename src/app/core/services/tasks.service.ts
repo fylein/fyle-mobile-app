@@ -747,7 +747,7 @@ export class TasksService {
 
   getAmountString(amount: number, currency: string): string {
     return amount > 0
-      ? ` ${this.translocoService.translate('services.tasks.worth')} ${this.exactCurrency.transform({
+      ? `${this.translocoService.translate('services.tasks.worth')} ${this.exactCurrency.transform({
           value: amount,
           currencyCode: currency,
         })} `

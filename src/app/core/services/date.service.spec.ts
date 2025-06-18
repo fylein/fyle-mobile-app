@@ -4,12 +4,14 @@ import * as dayjs from 'dayjs';
 import * as timezone from 'dayjs/plugin/timezone';
 import * as utc from 'dayjs/plugin/utc';
 import { DateParams } from '../models/date-parameters.model';
+import { TranslocoService } from '@jsverse/transloco';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
 describe('DateService', () => {
   let dateService: DateService;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
 
   const today = new Date();
 

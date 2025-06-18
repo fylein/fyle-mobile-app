@@ -14,17 +14,42 @@ import { emailEvents } from '../mock-data/email-events.data';
 import { notificationEventsData, notificationEventsData3 } from '../mock-data/notification-events.data';
 import { costCentersData2, costCentersData3 } from '../mock-data/cost-centers.data';
 import { cloneDeep } from 'lodash';
-
+import { TranslocoService } from '@jsverse/transloco';
 describe('OrgUserSettingsService', () => {
   let orgUserSettingsService: OrgUserSettingsService;
   let apiService: jasmine.SpyObj<ApiService>;
   let orgUserService: jasmine.SpyObj<OrgUserService>;
   let costCentersService: jasmine.SpyObj<CostCentersService>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(() => {
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post']);
     const orgUserServiceSpy = jasmine.createSpyObj('OrgUserService', ['getUserById']);
     const costCentersServiceSpy = jasmine.createSpyObj('CostCentersService', ['getAllActive']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+
+    // Mock translate method to return expected strings
+    translocoServiceSpy.translate.and.callFake((key: string) => {
+      const translations: { [key: string]: string } = {
+        'services.orgUserSettings.expensesAndReports': 'Expenses and reports',
+        'services.orgUserSettings.advances': 'Advances',
+        'services.orgUserSettings.expenseCreatedViaEmail': 'When an expense is created via email',
+        'services.orgUserSettings.reportSubmitted': 'On submission of expense report',
+        'services.orgUserSettings.commentOnExpense': 'When a comment is left on an expense',
+        'services.orgUserSettings.commentOnReport': 'When a comment is left on a report',
+        'services.orgUserSettings.expenseRemoved': 'When an expense is removed',
+        'services.orgUserSettings.expenseEditedByOther': 'When an expense is edited by someone else',
+        'services.orgUserSettings.reportSentBack': 'When a reported expense is sent back',
+        'services.orgUserSettings.reportApproved': 'When a report is approved',
+        'services.orgUserSettings.reimbursementDone': 'When a reimbursement is done',
+        'services.orgUserSettings.advanceRequestSubmitted': 'When an advance request is submitted',
+        'services.orgUserSettings.advanceRequestUpdated': 'When an advance request is updated',
+        'services.orgUserSettings.advanceRequestSentBack': 'When an advance request is sent back',
+        'services.orgUserSettings.advanceRequestApproved': 'When an advance request is approved',
+        'services.orgUserSettings.advanceAssigned': 'When an advance is assigned',
+        'services.orgUserSettings.advanceRequestRejected': 'When an advance request is rejected',
+      };
+      return translations[key] || key;
+    });
 
     TestBed.configureTestingModule({
       providers: [
@@ -41,6 +66,10 @@ describe('OrgUserSettingsService', () => {
           provide: CostCentersService,
           useValue: costCentersServiceSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
     });
 
@@ -48,6 +77,7 @@ describe('OrgUserSettingsService', () => {
     apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
     orgUserService = TestBed.inject(OrgUserService) as jasmine.SpyObj<OrgUserService>;
     costCentersService = TestBed.inject(CostCentersService) as jasmine.SpyObj<CostCentersService>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
   });
 
   it('should be created', () => {

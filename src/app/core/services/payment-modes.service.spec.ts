@@ -22,7 +22,7 @@ import {
   reimbursableOnlyPaymentModeSettingsParam,
 } from '../mock-data/org-payment-mode-settings.data';
 import { AllowedPaymentModes } from '../models/allowed-payment-modes.enum';
-
+import { TranslocoService } from '@jsverse/transloco';
 describe('PaymentModesService', () => {
   let paymentModesService: PaymentModesService;
   let accountService: jasmine.SpyObj<AccountsService>;
@@ -30,13 +30,27 @@ describe('PaymentModesService', () => {
   let trackingService: jasmine.SpyObj<TrackingService>;
   let matSnackBar: jasmine.SpyObj<MatSnackBar>;
   let snackbarPropertiesService: jasmine.SpyObj<SnackbarPropertiesService>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(() => {
     const accountServiceSpy = jasmine.createSpyObj('AccountService', ['setAccountProperties']);
     const orgUserSettingsSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get', 'getAllowedPaymentModes']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['showToastMessage']);
     const snackbarPropertiesServiceSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+
+    // Mock translate method to return expected strings
+    translocoServiceSpy.translate.and.callFake((key: string) => {
+      const translations: { [key: string]: string } = {
+        'services.paymentModes.insufficientBalance':
+          'Insufficient balance in the selected account. Please choose a different payment mode.',
+        'services.paymentModes.personalAdvances': 'Personal Advances',
+        'services.paymentModes.corporateCreditCard': 'Corporate Credit Card',
+        'services.paymentModes.personalCashCard': 'Personal Cash/Card',
+      };
+      return translations[key] || key;
+    });
+
     TestBed.configureTestingModule({
       providers: [
         AccountsService,
@@ -60,6 +74,10 @@ describe('PaymentModesService', () => {
           provide: SnackbarPropertiesService,
           useValue: snackbarPropertiesServiceSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
     });
     paymentModesService = TestBed.inject(PaymentModesService);
@@ -68,6 +86,7 @@ describe('PaymentModesService', () => {
     orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     snackbarPropertiesService = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
   });
 
   it('should be created', () => {

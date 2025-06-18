@@ -44,6 +44,7 @@ import { filteredSplitPolicyViolationsData2 } from '../mock-data/filtered-split-
 import { filteredMissingFieldsViolationsData2 } from '../mock-data/filtered-missing-fields-violations.data';
 import { ExpenseCommentService } from './platform/v1/spender/expense-comment.service';
 import { expenseCommentData, expenseCommentData2 } from '../mock-data/expense-comment.data';
+import { TranslocoService } from '@jsverse/transloco';
 
 describe('SplitExpenseService', () => {
   let splitExpenseService: SplitExpenseService;
@@ -52,6 +53,7 @@ describe('SplitExpenseService', () => {
   let expenseCommentService: jasmine.SpyObj<ExpenseCommentService>;
   let categoriesService: jasmine.SpyObj<CategoriesService>;
   let utilityService: jasmine.SpyObj<UtilityService>;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
 
   beforeEach(() => {
     const policyServiceSpy = jasmine.createSpyObj('PolicyService', [
@@ -62,6 +64,15 @@ describe('SplitExpenseService', () => {
     const expenseCommentServiceSpy = jasmine.createSpyObj('ExpenseCommentService', ['post']);
     const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', ['filterByOrgCategoryId']);
     const utilityServiceSpy = jasmine.createSpyObj('UtiltyService', ['generateRandomString']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+    translocoServiceSpy.translate.and.callFake((key: string) => {
+      const translations: { [key: string]: string } = {
+        // Split expense service translations
+        'services.splitExpense.policyViolationExplanationPrefix': 'Policy violation explanation:',
+        'services.splitExpense.noPolicyViolationExplanation': 'No policy violation explanation provided',
+      };
+      return translations[key] || key; // Return the key if no translation found
+    });
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', [
       'splitExpenseCheckPolicies',
       'splitExpenseCheckMissingFields',
@@ -95,6 +106,10 @@ describe('SplitExpenseService', () => {
         {
           provide: ExpensesService,
           useValue: expensesServiceSpy,
+        },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
       ],
     });
