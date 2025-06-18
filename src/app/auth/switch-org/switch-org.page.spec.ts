@@ -925,6 +925,9 @@ describe('SwitchOrgPage', () => {
       const result = component.getOrgsWhichContainSearchText(orgData2, 'Loaded');
       expect(result).toEqual([orgData2[1], orgData2[0]]);
     });
+
+
+    
   });
 
   it('resetSearch(): should reset search bar', () => {
