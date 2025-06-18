@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { getElementRef } from 'src/app/core/dom-helpers';
 import { FormButtonValidationDirective } from './form-button-validation.directive';
 import { LoaderPosition } from './loader-position.enum';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   template: `<button appFormButtonValidation>Save</button>`,
@@ -14,16 +15,52 @@ describe('FormButtonValidationDirective', () => {
   let fixture: ComponentFixture<TestFormValidationButtonComponent>;
   let buttonElement: DebugElement;
   let directive: FormButtonValidationDirective;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
 
   beforeEach(() => {
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+
     TestBed.configureTestingModule({
       declarations: [TestFormValidationButtonComponent, FormButtonValidationDirective],
+      providers: [
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
+      ],
     });
 
     fixture = TestBed.createComponent(TestFormValidationButtonComponent);
     component = fixture.componentInstance;
     buttonElement = getElementRef(fixture, 'button') as DebugElement;
     directive = buttonElement.injector.get(FormButtonValidationDirective);
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+
+    // Mock translate method to return expected strings
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'directives.formButtonValidation.saving': 'Saving',
+        'directives.formButtonValidation.confirming': 'Confirming',
+        'directives.formButtonValidation.updating': 'Updating',
+        'directives.formButtonValidation.adding': 'Adding',
+        'directives.formButtonValidation.deleting': 'Deleting',
+        'directives.formButtonValidation.creating': 'Creating',
+        'directives.formButtonValidation.approving': 'Approving',
+        'directives.formButtonValidation.rejecting': 'Rejecting',
+        'directives.formButtonValidation.pullingBack': 'Pulling Back',
+        'directives.formButtonValidation.sendingBack': 'Sending Back',
+        'directives.formButtonValidation.flagging': 'Flagging',
+        'directives.formButtonValidation.verifying': 'Verifying',
+        'directives.formButtonValidation.sharing': 'Sharing',
+        'directives.formButtonValidation.sendingEmail': 'Sending Email',
+        'directives.formButtonValidation.continuing': 'Continuing',
+        'directives.formButtonValidation.settingExchangeRate': 'Setting Exchange Rate',
+        'directives.formButtonValidation.signingIn': 'Signing In',
+        'directives.formButtonValidation.signingUp': 'Signing Up',
+        'directives.formButtonValidation.gettingStarted': 'Getting Started',
+      };
+      return translations[key] || key;
+    });
   });
 
   it('should create an instance', () => {
@@ -76,7 +113,7 @@ describe('FormButtonValidationDirective', () => {
 
     it('should change the button text as defined in the text map', () => {
       directive.defaultText = 'Directive';
-      directive.loadingTextMap = {
+      directive.loadingTextKeyMap = {
         Directive: 'Loading Text',
       };
 

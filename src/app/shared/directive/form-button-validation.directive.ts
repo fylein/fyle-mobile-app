@@ -1,5 +1,6 @@
 import { Directive, ElementRef, Input, OnChanges } from '@angular/core';
 import { LoaderPosition } from './loader-position.enum';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Directive({
   selector: '[appFormButtonValidation]',
@@ -17,29 +18,29 @@ export class FormButtonValidationDirective implements OnChanges {
 
   loaderAdded = false;
 
-  loadingTextMap: Record<string, string> = {
-    Save: 'Saving',
-    Confirm: 'Confirming',
-    Update: 'Updating',
-    Add: 'Adding',
-    Delete: 'Deleting',
-    Create: 'Creating',
-    Approve: 'Approving',
-    Reject: 'Rejecting',
-    'Pull Back': 'Pulling Back',
-    'Send Back': 'Sending Back',
-    Flag: 'Flagging',
-    Verify: 'Verifying',
-    Share: 'Sharing',
-    Email: 'Sending Email',
-    Continue: 'Continuing',
-    'Set Exchange Rate': 'Setting Exchange Rate',
-    'Sign In': 'Signing In',
-    'Sign Up': 'Signing Up',
-    'Get Started': 'Getting Started',
+  loadingTextKeyMap: Record<string, string> = {
+    Save: 'directives.formButtonValidation.saving',
+    Confirm: 'directives.formButtonValidation.confirming',
+    Update: 'directives.formButtonValidation.updating',
+    Add: 'directives.formButtonValidation.adding',
+    Delete: 'directives.formButtonValidation.deleting',
+    Create: 'directives.formButtonValidation.creating',
+    Approve: 'directives.formButtonValidation.approving',
+    Reject: 'directives.formButtonValidation.rejecting',
+    'Pull Back': 'directives.formButtonValidation.pullingBack',
+    'Send Back': 'directives.formButtonValidation.sendingBack',
+    Flag: 'directives.formButtonValidation.flagging',
+    Verify: 'directives.formButtonValidation.verifying',
+    Share: 'directives.formButtonValidation.sharing',
+    Email: 'directives.formButtonValidation.sendingEmail',
+    Continue: 'directives.formButtonValidation.continuing',
+    'Set Exchange Rate': 'directives.formButtonValidation.settingExchangeRate',
+    'Sign In': 'directives.formButtonValidation.signingIn',
+    'Sign Up': 'directives.formButtonValidation.signingUp',
+    'Get Started': 'directives.formButtonValidation.gettingStarted',
   };
 
-  constructor(private elementRef: ElementRef) {}
+  constructor(private elementRef: ElementRef, private translocoService: TranslocoService) {}
 
   get selectedElement(): HTMLElement & { disabled?: boolean } {
     return this.elementRef?.nativeElement as HTMLElement & { disabled?: boolean };
@@ -60,8 +61,8 @@ export class FormButtonValidationDirective implements OnChanges {
   changeLoadingText(): void {
     if (this.loadingText) {
       this.selectedElement.innerHTML = `${this.loadingText}`;
-    } else if (this.defaultText && this.loadingTextMap[this.defaultText]) {
-      this.selectedElement.innerHTML = `${this.loadingTextMap[this.defaultText]}`;
+    } else if (this.defaultText && this.loadingTextKeyMap[this.defaultText]) {
+      this.selectedElement.innerHTML = `${this.translocoService.translate(this.loadingTextKeyMap[this.defaultText])}`;
     } else {
       this.selectedElement.innerHTML = this.defaultText;
     }

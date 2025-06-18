@@ -324,5 +324,32 @@
       "personalCardCash": "Personal Card/Cash",
       "advance": "Advance"
     }
+  },
+  "directives": {
+    "formButtonValidation": {
+      "saving": "Saving",
+      "confirming": "Confirming",
+      "updating": "Updating",
+      "adding": "Adding",
+      "deleting": "Deleting",
+      "creating": "Creating",
+      "approving": "Approving",
+      "rejecting": "Rejecting",
+      "pullingBack": "Pulling Back",
+      "sendingBack": "Sending Back",
+      "flagging": "Flagging",
+      "verifying": "Verifying",
+      "sharing": "Sharing",
+      "sendingEmail": "Sending Email",
+      "continuing": "Continuing",
+      "settingExchangeRate": "Setting Exchange Rate",
+      "signingIn": "Signing In",
+      "signingUp": "Signing Up",
+      "gettingStarted": "Getting Started"
+    },
+    "formatDate": {
+      "selectNamePlaceholder": "Select {{name}}",
+      "selectDatePlaceholder": "Select date"
+    }
   }
 }
