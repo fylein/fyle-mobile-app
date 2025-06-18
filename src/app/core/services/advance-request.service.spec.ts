@@ -64,7 +64,7 @@ import {
 import { cloneDeep } from 'lodash';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 
-fdescribe('AdvanceRequestService', () => {
+describe('AdvanceRequestService', () => {
   let advanceRequestService: AdvanceRequestService;
   let apiService: jasmine.SpyObj<ApiService>;
   let authService: jasmine.SpyObj<AuthService>;
