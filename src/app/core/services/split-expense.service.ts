@@ -436,7 +436,9 @@ export class SplitExpenseService {
         {
           amount: roundedAmount,
           percentage:
-            roundedTargetAmount !== 0 ? Number.parseFloat(((roundedAmount / roundedTargetAmount) * 100).toFixed(3)) : 0,
+            roundedTargetAmount !== 0
+              ? Number.parseFloat(((Math.abs(roundedAmount) / Math.abs(roundedTargetAmount)) * 100).toFixed(3))
+              : 0,
         },
         { emitEvent: false }
       );
@@ -457,7 +459,7 @@ export class SplitExpenseService {
           amount: adjustedAmount,
           percentage:
             roundedTargetAmount !== 0
-              ? Number.parseFloat(((adjustedAmount / roundedTargetAmount) * 100).toFixed(3))
+              ? Number.parseFloat(((Math.abs(adjustedAmount) / Math.abs(roundedTargetAmount)) * 100).toFixed(3))
               : 0,
         },
         { emitEvent: false }
