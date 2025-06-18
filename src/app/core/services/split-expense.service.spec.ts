@@ -740,6 +740,9 @@ describe('SplitExpenseService', () => {
   });
 
   it('postSplitExpenseComments(): should post split expense comments using expenseCommentService', (done) => {
+    const defaultPolicyViolationMessage = 'No policy violation explanation provided';
+    const prependPolicyViolationMessage = 'Policy violation explanation:';
+
     const txnIds = ['txn1', 'txn2'];
     const comments = {
       0: 'First reason',
@@ -748,12 +751,12 @@ describe('SplitExpenseService', () => {
     const expectedPayload = [
       {
         expense_id: 'txn1',
-        comment: splitExpenseService.prependPolicyViolationMessage + 'First reason',
+        comment: prependPolicyViolationMessage + 'First reason',
         notify: true,
       },
       {
         expense_id: 'txn2',
-        comment: splitExpenseService.defaultPolicyViolationMessage,
+        comment: defaultPolicyViolationMessage,
         notify: true,
       },
     ];
