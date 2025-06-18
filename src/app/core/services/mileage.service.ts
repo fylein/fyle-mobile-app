@@ -9,11 +9,16 @@ import { Location } from '../models/location.model';
 import { OrgSettings } from '../models/org-settings.model';
 import { CommuteDeductionOptions } from '../models/commute-deduction-options.model';
 import { CommuteDeduction } from '../enums/commute-deduction.enum';
+import { TranslocoService } from '@jsverse/transloco';
 @Injectable({
   providedIn: 'root',
 })
 export class MileageService {
-  constructor(private locationService: LocationService, private orgUserSettingsService: OrgUserSettingsService) {}
+  constructor(
+    private locationService: LocationService,
+    private orgUserSettingsService: OrgUserSettingsService,
+    private translocoService: TranslocoService
+  ) {}
 
   @Cacheable()
   getOrgUserMileageSettings(): Observable<MileageSettings> {
@@ -51,20 +56,24 @@ export class MileageService {
   getCommuteDeductionOptions(distance: number): CommuteDeductionOptions[] {
     return [
       {
-        label: 'One Way Distance',
+        label: this.translocoService.translate('services.mileage.oneWayDistance'),
         value: CommuteDeduction.ONE_WAY,
         distance: distance === null || distance === undefined ? null : distance,
       },
       {
-        label: 'Round Trip Distance',
+        label: this.translocoService.translate('services.mileage.roundTripDistance'),
         value: CommuteDeduction.ROUND_TRIP,
         distance: distance === null || distance === undefined ? null : distance * 2,
       },
-      { label: 'No Deduction', value: CommuteDeduction.NO_DEDUCTION, distance: 0 },
+      {
+        label: this.translocoService.translate('services.mileage.noDeduction'),
+        value: CommuteDeduction.NO_DEDUCTION,
+        distance: 0,
+      },
     ];
   }
 
-  private getChunks(locations: Location[], chunks: Array<Location[]>) {
+  private getChunks(locations: Location[], chunks: Array<Location[]>): void {
     for (let index = 0, len = locations.length - 1; index < len; index++) {
       const from = locations[index];
       const to = locations[index + 1];

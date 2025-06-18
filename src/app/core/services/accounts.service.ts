@@ -14,6 +14,7 @@ import { UnflattenedTransaction } from '../models/unflattened-transaction.model'
 import { OrgSettings } from '../models/org-settings.model';
 import { FlattenedAccount } from '../models/flattened-account.model';
 import { AdvanceWallet } from 'src/app/core/models/platform/v1/advance-wallet.model';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Injectable({
   providedIn: 'root',
@@ -22,7 +23,8 @@ export class AccountsService {
   constructor(
     private apiService: ApiService,
     private dataTransformService: DataTransformService,
-    private fyCurrencyPipe: FyCurrencyPipe
+    private fyCurrencyPipe: FyCurrencyPipe,
+    private translocoService: TranslocoService
   ) {}
 
   @Cacheable()
@@ -157,9 +159,9 @@ export class AccountsService {
     isMultipleAdvanceEnabled: boolean
   ): ExtendedAccount {
     const accountDisplayNameMapping: Record<string, string> = {
-      PERSONAL_ACCOUNT: 'Personal Card/Cash',
-      COMPANY_ACCOUNT: 'Paid by Company',
-      PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT: 'Corporate Card',
+      PERSONAL_ACCOUNT: this.translocoService.translate('services.accounts.personalCardCash'),
+      COMPANY_ACCOUNT: this.translocoService.translate('services.accounts.paidByCompany'),
+      PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT: this.translocoService.translate('services.accounts.corporateCard'),
     };
 
     const accountCopy = cloneDeep(account);
@@ -177,9 +179,9 @@ export class AccountsService {
   // Add display name and isReimbursable properties to account object
   setAccountPropertiesWithoutAdvances(account: ExtendedAccount, paymentMode: string): ExtendedAccount {
     const accountDisplayNameMapping: Record<string, string> = {
-      PERSONAL_ACCOUNT: 'Personal Card/Cash',
-      COMPANY_ACCOUNT: 'Paid by Company',
-      PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT: 'Corporate Card',
+      PERSONAL_ACCOUNT: this.translocoService.translate('services.accounts.personalCardCash'),
+      COMPANY_ACCOUNT: this.translocoService.translate('services.accounts.paidByCompany'),
+      PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT: this.translocoService.translate('services.accounts.corporateCard'),
     };
 
     const accountCopy = cloneDeep(account);
@@ -192,11 +194,9 @@ export class AccountsService {
   }
 
   getAdvanceWalletDisplayName(advanceWallet: AdvanceWallet): string {
-    return (
-      'Advance Wallet (Balance: ' +
-      this.fyCurrencyPipe.transform(advanceWallet.balance_amount, advanceWallet.currency) +
-      ')'
-    );
+    return this.translocoService.translate('services.accounts.advanceWalletDisplayName', {
+      balance: this.fyCurrencyPipe.transform(advanceWallet.balance_amount, advanceWallet.currency),
+    });
   }
 
   getAdvanceAccountDisplayName(account: ExtendedAccount, isMultipleAdvanceEnabled: boolean): string {
@@ -207,7 +207,9 @@ export class AccountsService {
       accountBalance =
         (account.acc.tentative_balance_amount * account.orig.amount) / account.acc.current_balance_amount;
     }
-    return 'Advance (Balance: ' + this.fyCurrencyPipe.transform(accountBalance, accountCurrency) + ')';
+    return this.translocoService.translate('services.accounts.advanceAccountDisplayName', {
+      balance: this.fyCurrencyPipe.transform(accountBalance, accountCurrency),
+    });
   }
 
   filterAccountsWithSufficientBalance(accounts: ExtendedAccount[], isAdvanceEnabled: boolean): ExtendedAccount[] {
