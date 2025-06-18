@@ -3495,8 +3495,8 @@ export const newMileageExpFromFgWithAdvanceWallet: Partial<UnflattenedTransactio
   ...newMileageExpFromForm,
   tx: {
     ...newMileageExpFromForm.tx,
-    source_account_id: undefined,
-    advance_wallet_id: 'areq1234',
+    source_account_id: null,
+    advance_wallet_id: null,
   },
 });
 

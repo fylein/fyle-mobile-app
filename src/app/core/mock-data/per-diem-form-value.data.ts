@@ -1,7 +1,7 @@
 import deepFreeze from 'deep-freeze-strict';
 
 import { PerDiemFormValue } from '../models/per-diem-form-value.model';
-import { multiplePaymentModesData, paymentModeDataAdvanceWallet } from '../test-data/accounts.service.spec.data';
+import { multiplePaymentModesData } from '../test-data/accounts.service.spec.data';
 import { costCentersData2, expectedCCdata3 } from './cost-centers.data';
 import { currencyObjData6 } from './currency-obj.data';
 import { projects } from './extended-projects.data';
@@ -145,22 +145,4 @@ export const perDiemFormValuesData10: PerDiemFormValue = deepFreeze({
       displayValue: null,
     },
   ],
-});
-
-export const perDiemFormValuesWithAdvanceWalletData: PerDiemFormValue = deepFreeze({
-  currencyObj: currencyObjData6,
-  paymentMode: paymentModeDataAdvanceWallet,
-  sub_category: undefined,
-  per_diem_rate: perDiemRatesData1,
-  purpose: 'test_term',
-  num_days: 3,
-  report: null,
-  from_dt: '2023-08-01',
-  to_dt: '2023-08-03',
-  billable: true,
-  costCenter: costCentersData2[0],
-  project: projects[0],
-  custom_inputs: [],
-  project_dependent_fields: [],
-  cost_center_dependent_fields: [],
 });

@@ -279,9 +279,6 @@
                         <div>
                           <div class="add-edit-per-diem--payment-mode-header">{{label}}</div>
                           <ng-container *ngIf="paymentMode?.acc">
-                            <ng-container *ngIf="paymentMode.acc.type === 'PERSONAL_ADVANCE_ACCOUNT'">
-                              <div class="add-edit-per-diem--payment-mode-section">{{paymentMode.advance.purpose}}</div>
-                            </ng-container>
                             <div *ngIf="paymentMode.acc.isReimbursable" class="add-edit-per-diem--payment-mode-section">
                               (Reimbursable)
                             </div>
@@ -302,17 +299,6 @@
                     >
                       Please select a payment mode.
                     </div>
-                  </ng-container>
-
-                  <ng-container *ngIf="isAdvancesEnabled$">
-                    <ng-container
-                      *ngIf="isBalanceAvailableInAnyAdvanceAccount$|async as isBalanceAvailableInAnyAdvanceAccount"
-                    >
-                      <app-fy-alert-info
-                        [message]="'You have outstanding balance in your advance account(s)'"
-                        [type]="'information'"
-                      ></app-fy-alert-info>
-                    </ng-container>
                   </ng-container>
 
                   <ng-container *ngIf="txnFields$|async as txnFields">

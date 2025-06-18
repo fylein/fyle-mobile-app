@@ -49,7 +49,7 @@ import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 describe('AddEditPerDiemPage', () => {
   const getTestBed = () => {
     const accountsServiceSpy = jasmine.createSpyObj('AccountsService', [
-      'getEMyAccounts',
+      'getMyAccounts',
       'getPaymentModes',
       'getEtxnSelectedPaymentMode',
       'getAccountTypeFromPaymentMode',
