@@ -23,7 +23,7 @@ import { ExtendedAdvanceRequestPublic } from 'src/app/core/models/extended-advan
 import { ApprovalPublic } from 'src/app/core/models/approval-public.model';
 import { AdvanceRequestActions } from 'src/app/core/models/advance-request-actions.model';
 import { AdvanceRequestsCustomFields } from 'src/app/core/models/advance-requests-custom-fields.model';
-import { PopoverData } from 'src/app/core/models/popover-data.model';
+import { AdvanceRequestPopoverData } from 'src/app/core/models/popover-data.model';
 
 @Component({
   selector: 'app-my-view-advance-request',
@@ -189,7 +189,7 @@ export class MyViewAdvanceRequestPage {
     });
 
     await pullBackPopover.present();
-    const { data } = await pullBackPopover.onWillDismiss<PopoverData>();
+    const { data } = await pullBackPopover.onWillDismiss<AdvanceRequestPopoverData>();
 
     if (data?.comment) {
       const status = {
@@ -236,7 +236,7 @@ export class MyViewAdvanceRequestPage {
 
     await deletePopover.present();
 
-    const { data } = await deletePopover.onDidDismiss<PopoverData>();
+    const { data } = await deletePopover.onDidDismiss<AdvanceRequestPopoverData>();
 
     if (data?.status === 'success') {
       this.router.navigate(['/', 'enterprise', 'my_advances']);
@@ -255,7 +255,7 @@ export class MyViewAdvanceRequestPage {
     });
 
     await modal.present();
-    const { data } = await modal.onDidDismiss<PopoverData>();
+    const { data } = await modal.onDidDismiss<AdvanceRequestPopoverData>();
 
     if (data?.updated) {
       this.trackingService.addComment();
