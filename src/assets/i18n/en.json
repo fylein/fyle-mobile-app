@@ -346,6 +346,27 @@
     "formatDate": {
       "selectNamePlaceholder": "Select {{name}}",
       "selectDatePlaceholder": "Select date"
+    },
+    "buttonTranslationKeys": {
+      "save": "Save",
+      "confirm": "Confirm",
+      "update": "Update",
+      "add": "Add",
+      "delete": "Delete",
+      "create": "Create",
+      "approve": "Approve",
+      "reject": "Reject",
+      "pullBack": "Pull Back",
+      "sendBack": "Send Back",
+      "flag": "Flag",
+      "verify": "Verify",
+      "share": "Share",
+      "email": "Email",
+      "continue": "Continue",
+      "setExchangeRate": "Set Exchange Rate",
+      "signIn": "Sign In",
+      "signUp": "Sign Up",
+      "getStarted": "Get Started"
     }
   }
 }
