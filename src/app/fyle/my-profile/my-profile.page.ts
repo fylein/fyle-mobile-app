@@ -1,9 +1,9 @@
 import { Component, EventEmitter } from '@angular/core';
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, PopoverController } from '@ionic/angular';
-import { Observable, Subscription, concat, forkJoin, from, noop } from 'rxjs';
-import { finalize, map, shareReplay, switchMap } from 'rxjs/operators';
+import { Observable, Subscription, concat, forkJoin, from, noop, take, finalize } from 'rxjs';
+import { map, shareReplay, switchMap } from 'rxjs/operators';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { InfoCardData } from 'src/app/core/models/info-card-data.model';
 import { Org } from 'src/app/core/models/org.model';
@@ -45,6 +45,7 @@ import { OrgUser } from 'src/app/core/models/org-user.model';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { UpdateMobileNumberComponent } from './update-mobile-number/update-mobile-number.component';
 import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-my-profile',
@@ -128,8 +129,28 @@ export class MyProfilePage {
     private paymentModeService: PaymentModesService,
     private utilityService: UtilityService,
     private orgUserService: OrgUserService,
-    private spenderOnboardingService: SpenderOnboardingService
+    private spenderOnboardingService: SpenderOnboardingService,
+    private router: Router,
+    private launchDarklyService: LaunchDarklyService
   ) {}
+
+  goToNotificationsPage(): void {
+    this.launchDarklyService
+      .getVariation('update_admin_notifs_design', false)
+      .pipe(take(1))
+      .subscribe({
+        next: (goToNotificationsPageBeta) => {
+          if (goToNotificationsPageBeta) {
+            this.router.navigate(['/enterprise', 'notifications', 'beta']);
+          } else {
+            this.router.navigate(['/enterprise', 'notifications']);
+          }
+        },
+        error: () => {
+          this.router.navigate(['/enterprise', 'notifications']);
+        },
+      });
+  }
 
   setupNetworkWatcher(): void {
     const networkWatcherEmitter = new EventEmitter<boolean>();
