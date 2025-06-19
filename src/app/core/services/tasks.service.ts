@@ -750,7 +750,7 @@ export class TasksService {
       ? `${this.translocoService.translate('services.tasks.worth')} ${this.exactCurrency.transform({
           value: amount,
           currencyCode: currency,
-        })} `
+        })}`
       : '';
   }
 
