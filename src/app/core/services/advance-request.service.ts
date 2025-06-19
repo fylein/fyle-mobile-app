@@ -31,7 +31,6 @@ import { AdvanceRequestState } from '../models/advance-request-state.model';
 import { ApprovalPublic } from '../models/approval-public.model';
 import { StatsResponse } from '../models/platform/v1/stats-response.model';
 import { PlatformConfig } from '../models/platform/platform-config.model';
-import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 
 const advanceRequestsCacheBuster$ = new Subject<void>();
 
@@ -77,8 +76,7 @@ export class AdvanceRequestService {
     private dateService: DateService,
     private fileService: FileService,
     private approverService: ApproverService,
-    private spenderService: SpenderService,
-    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService
+    private spenderService: SpenderService
   ) {}
 
   @Cacheable({
@@ -176,7 +174,7 @@ export class AdvanceRequestService {
         custom_fields: advanceRequest.custom_field_values,
       },
     };
-    return this.spenderPlatformV1ApiService
+    return this.spenderService
       .post<PlatformApiResponse<AdvanceRequests>>('/advance_requests', payload)
       .pipe(map((response) => response.data));
   }
