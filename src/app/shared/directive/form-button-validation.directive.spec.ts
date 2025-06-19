@@ -111,15 +111,16 @@ describe('FormButtonValidationDirective', () => {
       expect(directive.selectedElement.innerText).toEqual('Default');
     });
 
-    it('should change the button text as defined in the text map', () => {
-      directive.defaultText = 'Directive';
+    it('should change the button text as defined in the text map using translation keys', () => {
+      directive.defaultText = 'Save';
       directive.loadingTextKeyMap = {
-        Directive: 'Loading Text',
+        Save: 'directives.formButtonValidation.saving',
       };
 
       directive.changeLoadingText();
 
-      expect(directive.selectedElement.innerText).toEqual('Loading Text');
+      expect(translocoService.translate).toHaveBeenCalledWith('directives.formButtonValidation.saving');
+      expect(directive.selectedElement.innerText).toEqual('Saving');
     });
   });
 
