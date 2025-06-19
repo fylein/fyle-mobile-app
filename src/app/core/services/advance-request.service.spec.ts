@@ -81,7 +81,7 @@ describe('AdvanceRequestService', () => {
     const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
     const timezoneServiceSpy = jasmine.createSpyObj('TimezoneService', ['convertToUtc']);
     const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['post', 'get']);
-    const approverServiceSpy = jasmine.createSpyObj('ApproverService', ['get']);
+    const approverServiceSpy = jasmine.createSpyObj('ApproverService', ['get', 'post']);
 
     TestBed.configureTestingModule({
       providers: [
