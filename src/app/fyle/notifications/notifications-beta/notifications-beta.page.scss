@@ -1,0 +1,22 @@
+@import '../../../../theme/colors.scss';
+
+.notifications {
+  &--toolbar {
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+  }
+
+  &--title {
+    font-weight: 700;
+    font-size: 24px;
+    color: #000;
+  }
+
+  &--container {
+    margin: 0 16px;
+  }
+
+  &--notif-setting-header {
+    color: #ababab;
+    padding: 10px 0;
+  }
+}

@@ -1,7 +1,7 @@
 import { EventEmitter } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { IonicModule, ModalController, PopoverController } from '@ionic/angular';
 import { cloneDeep } from 'lodash';
@@ -36,6 +36,7 @@ import { FyOptInComponent } from 'src/app/shared/components/fy-opt-in/fy-opt-in.
 import { UtilityService } from 'src/app/core/services/utility.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 describe('MyProfilePage', () => {
   let component: MyProfilePage;
@@ -60,6 +61,8 @@ describe('MyProfilePage', () => {
   let utilityService: jasmine.SpyObj<UtilityService>;
   let orgUserService: jasmine.SpyObj<OrgUserService>;
   let spenderOnboardingService: jasmine.SpyObj<SpenderOnboardingService>;
+  let router: jasmine.SpyObj<Router>;
+  let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
 
   beforeEach(waitForAsync(() => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou', 'logout', 'refreshEou']);
@@ -95,6 +98,8 @@ describe('MyProfilePage', () => {
     const spenderOnboardingServiceSpy = jasmine.createSpyObj('SpenderOnboardingService', [
       'checkForRedirectionToOnboarding',
     ]);
+    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
+    const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     TestBed.configureTestingModule({
       declarations: [MyProfilePage],
@@ -194,6 +199,14 @@ describe('MyProfilePage', () => {
           provide: SpenderOnboardingService,
           useValue: spenderOnboardingServiceSpy,
         },
+        {
+          provide: LaunchDarklyService,
+          useValue: launchDarklyServiceSpy,
+        },
+        {
+          provide: Router,
+          useValue: routerSpy,
+        },
         SpenderService,
       ],
     }).compileComponents();
@@ -222,6 +235,8 @@ describe('MyProfilePage', () => {
     utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
     orgUserService = TestBed.inject(OrgUserService) as jasmine.SpyObj<OrgUserService>;
     spenderOnboardingService = TestBed.inject(SpenderOnboardingService) as jasmine.SpyObj<SpenderOnboardingService>;
+    launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
+    router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     component.eou$ = of(apiEouRes);
 
     fixture.detectChanges();
@@ -366,6 +381,29 @@ describe('MyProfilePage', () => {
       expect(authService.getEou).toHaveBeenCalledTimes(1);
       expect(tokenService.getClusterDomain).toHaveBeenCalledTimes(1);
       expect(component.reset).toHaveBeenCalledTimes(1);
+    }));
+  });
+
+  describe('goToNotificationsPage():', () => {
+    it('should navigate to notifications beta page if launch darkly flag is true', fakeAsync(() => {
+      launchDarklyService.getVariation.and.returnValue(of(true));
+      component.goToNotificationsPage();
+
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/enterprise', 'notifications', 'beta']);
+    }));
+
+    it('should navigate to notifications page if launch darkly flag is false', fakeAsync(() => {
+      launchDarklyService.getVariation.and.returnValue(of(false));
+      component.goToNotificationsPage();
+
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/enterprise', 'notifications']);
+    }));
+
+    it('should navigate to regular notifications page on error', fakeAsync(() => {
+      launchDarklyService.getVariation.and.returnValue(throwError(() => new Error('Feature flag error')));
+      component.goToNotificationsPage();
+
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/enterprise', 'notifications']);
     }));
   });
 
