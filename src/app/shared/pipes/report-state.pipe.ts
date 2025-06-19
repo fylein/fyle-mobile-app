@@ -31,7 +31,6 @@ export class ReportState implements PipeTransform {
     }
 
     const translationKey = this.stateKeyMap[val];
-
     return translationKey ? this.translocoService.translate(translationKey) : val;
   }
 }
