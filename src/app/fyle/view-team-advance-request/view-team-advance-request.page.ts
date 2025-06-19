@@ -125,7 +125,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
       shareReplay(1)
     );
 
-    this.actions$ = this.advanceRequestService.getActions(id).pipe(shareReplay(1));
+    this.actions$ = this.advanceRequestService.getApproverPermissions(id).pipe(shareReplay(1));
 
     this.showAdvanceActions$ = this.actions$.pipe(
       map((advanceActions) => advanceActions.can_approve || advanceActions.can_inquire || advanceActions.can_reject)

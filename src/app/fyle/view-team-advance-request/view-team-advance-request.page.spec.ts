@@ -59,7 +59,7 @@ describe('ViewTeamAdvanceRequestPage', () => {
   beforeEach(waitForAsync(() => {
     const advanceRequestServiceSpy = jasmine.createSpyObj('AdvanceRequestService', [
       'getApproverAdvanceRequest',
-      'getActions',
+      'getApproverPermissions',
       'getActiveApproversByAdvanceRequestId',
       'modifyAdvanceRequestCustomFields',
       'delete',
@@ -176,7 +176,7 @@ describe('ViewTeamAdvanceRequestPage', () => {
       loaderService.showLoader.and.resolveTo();
       loaderService.hideLoader.and.resolveTo();
       advanceRequestService.getApproverAdvanceRequest.and.returnValue(of(extendedAdvReqDraft));
-      advanceRequestService.getActions.and.returnValue(of(apiAdvanceRequestAction));
+      advanceRequestService.getApproverPermissions.and.returnValue(of(apiAdvanceRequestAction));
       advanceRequestService.getActiveApproversByAdvanceRequestId.and.returnValue(of(advanceReqApprovals));
       spyOn(component, 'getAttachedReceipts').and.returnValue(of(fileObject4));
       advanceRequestsCustomFieldsService.getAll.and.returnValue(of(advanceRequestCustomFieldData2));
@@ -205,7 +205,7 @@ describe('ViewTeamAdvanceRequestPage', () => {
 
       component.actions$.subscribe((data) => {
         expect(data).toEqual(apiAdvanceRequestAction);
-        expect(advanceRequestService.getActions).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
+        expect(advanceRequestService.getApproverPermissions).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
       });
 
       component.showAdvanceActions$.subscribe((data) => {
