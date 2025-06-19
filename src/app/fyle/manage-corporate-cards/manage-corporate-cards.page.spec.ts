@@ -694,7 +694,7 @@ describe('ManageCorporateCardsPage', () => {
       expect(trackingService.optInFromPostPostCardAdditionInSettings).not.toHaveBeenCalled();
     }));
 
-    it('should show promote opt-in modal and track opt-in event if user opted in', fakeAsync(() => {
+    it('should show promote opt-in modal and track opt-in event if user opted-in', fakeAsync(() => {
       const modal = jasmine.createSpyObj('HTMLIonModalElement', ['present', 'onDidDismiss']);
       modal.onDidDismiss.and.resolveTo({ data: { skipOptIn: false } });
       modalController.create.and.resolveTo(modal);

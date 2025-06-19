@@ -514,7 +514,7 @@ describe('FyOptInComponent', () => {
     );
   });
 
-  it('onGotItClicked(): should dismiss the modal and track opt in event', () => {
+  it('onGotItClicked(): should dismiss the modal and track opt-in event', () => {
     component.onGotItClicked();
     expect(modalController.dismiss).toHaveBeenCalledOnceWith({
       action: 'SUCCESS',

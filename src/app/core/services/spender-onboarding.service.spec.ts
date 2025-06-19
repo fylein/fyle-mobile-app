@@ -86,7 +86,7 @@ describe('SpenderOnboardingService', () => {
     });
   });
 
-  it('processSmsOptInStep(): should process opt in step', (done) => {
+  it('processSmsOptInStep(): should process opt-in step', (done) => {
     const onboardingRequestResponse: OnboardingStepStatus = {
       is_configured: true,
       is_skipped: false,
