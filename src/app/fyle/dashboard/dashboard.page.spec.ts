@@ -42,6 +42,7 @@ import {
 } from 'src/app/core/mock-data/feature-config.data';
 import { FooterService } from 'src/app/core/services/footer.service';
 import { TimezoneService } from 'src/app/core/services/timezone.service';
+import { TranslocoService } from '@jsverse/transloco';
 
 describe('DashboardPage', () => {
   let component: DashboardPage;
@@ -67,7 +68,7 @@ describe('DashboardPage', () => {
   let modalController: jasmine.SpyObj<ModalController>;
   let footerService: jasmine.SpyObj<FooterService>;
   let timezoneService: jasmine.SpyObj<TimezoneService>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
@@ -112,6 +113,7 @@ describe('DashboardPage', () => {
     });
 
     const timezoneServiceSpy = jasmine.createSpyObj('TimezoneService', ['setTimezone']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
     TestBed.configureTestingModule({
       declarations: [DashboardPage],
       imports: [IonicModule.forRoot()],
@@ -158,6 +160,10 @@ describe('DashboardPage', () => {
           provide: TimezoneService,
           useValue: timezoneServiceSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -186,6 +192,7 @@ describe('DashboardPage', () => {
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     footerService = TestBed.inject(FooterService) as jasmine.SpyObj<FooterService>;
     timezoneService = TestBed.inject(TimezoneService) as jasmine.SpyObj<TimezoneService>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     fixture.detectChanges();
   }));
 

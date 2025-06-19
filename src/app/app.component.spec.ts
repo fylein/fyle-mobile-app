@@ -18,6 +18,7 @@ import { of } from 'rxjs';
 import { FooterState } from './shared/components/footer/footer-state.enum';
 import { TrackingService } from './core/services/tracking.service';
 import { NavController } from '@ionic/angular';
+import { TranslocoService } from '@jsverse/transloco';
 
 describe('AppComponent', () => {
   let platformReadySpy;
@@ -34,7 +35,7 @@ describe('AppComponent', () => {
   let router: jasmine.SpyObj<Router>;
   let trackingService: jasmine.SpyObj<TrackingService>;
   let navController: jasmine.SpyObj<NavController>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     platformReadySpy = Promise.resolve();
     platformSpy = jasmine.createSpyObj('Platform', { ready: platformReadySpy });
@@ -77,7 +78,7 @@ describe('AppComponent', () => {
     ]);
     const navControllerSpy = jasmine.createSpyObj('NavController', ['navigateRoot', 'back']);
     spenderOnboardingServiceSpy.setOnboardingStatusAsComplete.and.returnValue(of(null));
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
     TestBed.configureTestingModule({
       declarations: [AppComponent],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -105,6 +106,7 @@ describe('AppComponent', () => {
         { provide: Router, useValue: routerSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },
         { provide: NavController, useValue: navControllerSpy },
+        { provide: TranslocoService, useValue: translocoServiceSpy },
       ],
       imports: [IonicModule.forRoot()],
     }).compileComponents();
@@ -121,6 +123,7 @@ describe('AppComponent', () => {
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
   }));
 
   it('should create the app', async () => {

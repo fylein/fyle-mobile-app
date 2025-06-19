@@ -11,6 +11,7 @@ import { ReportStates } from './stat-badge/report-states.enum';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { PlatformReportsStatsResponse } from 'src/app/core/models/platform/v1/report-stats-response.model';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Injectable()
 export class DashboardService {
@@ -19,7 +20,8 @@ export class DashboardService {
     private expensesService: ExpensesService,
     private spenderReportsService: SpenderReportsService,
     private approverReportsService: ApproverReportsService,
-    private authService: AuthService
+    private authService: AuthService,
+    private translocoService: TranslocoService
   ) {}
 
   getUnreportedExpensesStats(): Observable<Stats> {
@@ -100,15 +102,15 @@ export class DashboardService {
   getReportStateMapping(state: ReportStates): string {
     switch (state) {
       case ReportStates.DRAFT:
-        return 'Draft';
+        return this.translocoService.translate('services.dashboard.draft');
       case ReportStates.APPROVER_PENDING:
-        return 'Reported';
+        return this.translocoService.translate('services.dashboard.reported');
       case ReportStates.APPROVED:
-        return 'Approved';
+        return this.translocoService.translate('services.dashboard.approved');
       case ReportStates.PAYMENT_PENDING:
-        return 'Payment Pending';
+        return this.translocoService.translate('services.dashboard.paymentPending');
       case ReportStates.PAYMENT_PROCESSING:
-        return 'Processing';
+        return this.translocoService.translate('services.dashboard.processing');
     }
   }
 }

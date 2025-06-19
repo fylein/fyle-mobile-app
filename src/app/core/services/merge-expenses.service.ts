@@ -27,6 +27,7 @@ import { CustomInput } from '../models/custom-input.model';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { PlatformFileGenerateUrlsResponse } from '../models/platform/platform-file-generate-urls-response.model';
 import { PlatformConfig } from '../models/platform/platform-config.model';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Injectable({
   providedIn: 'root',
@@ -42,7 +43,8 @@ export class MergeExpensesService {
     private dateService: DateService,
     private taxGroupService: TaxGroupService,
     private expensesService: ExpensesService,
-    private spenderFileService: SpenderFileService
+    private spenderFileService: SpenderFileService,
+    private translocoService: TranslocoService
   ) {}
 
   isAllAdvanceExpenses(expenses: Partial<Expense>[]): boolean {
@@ -184,7 +186,7 @@ export class MergeExpensesService {
   generateReceiptOptions(expenses: Partial<Expense>[]): Observable<MergeExpensesOption<string>[]> {
     return from(expenses).pipe(
       map((expense, index) => ({
-        label: `Receipt From Expense ${index + 1} `,
+        label: `${this.translocoService.translate('services.mergeExpenses.receiptFromExpense')} ${index + 1} `,
         value: expense.tx_id,
       })),
       reduce((acc: MergeExpensesOption<string>[], curr) => {
@@ -732,7 +734,7 @@ export class MergeExpensesService {
       map((categories) => {
         option.label = categories[categories.map((category) => category.id).indexOf(option.value)]?.displayName;
         if (!option.label) {
-          option.label = 'Unspecified';
+          option.label = this.translocoService.translate('services.mergeExpenses.unspecified');
         }
         return option;
       })
@@ -752,20 +754,20 @@ export class MergeExpensesService {
 
   private formatBillableOptions(option: MergeExpensesOption<boolean>): MergeExpensesOption<boolean> {
     if (option.value === true) {
-      option.label = 'Yes';
+      option.label = this.translocoService.translate('services.mergeExpenses.yes');
     } else {
-      option.label = 'No';
+      option.label = this.translocoService.translate('services.mergeExpenses.no');
     }
     return option;
   }
 
   private formatPaymentModeOptions(option: MergeExpensesOption<string>): MergeExpensesOption<string> {
     if (option.value === AccountType.CCC) {
-      option.label = 'Corporate Card';
+      option.label = this.translocoService.translate('services.mergeExpenses.corporateCard');
     } else if (option.value === AccountType.PERSONAL) {
-      option.label = 'Personal Card/Cash';
+      option.label = this.translocoService.translate('services.mergeExpenses.personalCardCash');
     } else if (option.value === AccountType.ADVANCE) {
-      option.label = 'Advance';
+      option.label = this.translocoService.translate('services.mergeExpenses.advance');
     }
     return option;
   }

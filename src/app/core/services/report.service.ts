@@ -12,6 +12,7 @@ import { PermissionsService } from './permissions.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { TransactionService } from './transaction.service';
 import { UserEventService } from './user-event.service';
+import { TranslocoService } from '@jsverse/transloco';
 
 const reportsCacheBuster$ = new Subject<void>();
 
@@ -25,7 +26,8 @@ export class ReportService {
     private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
     private approverPlatformApiService: ApproverPlatformApiService,
     private datePipe: DatePipe,
-    private permissionsService: PermissionsService
+    private permissionsService: PermissionsService,
+    private translocoService: TranslocoService
   ) {
     reportsCacheBuster$.subscribe(() => {
       this.userEventService.clearTaskCache();
@@ -91,7 +93,9 @@ export class ReportService {
       map((reportAutoSubmissionDetails) => {
         const nextReportAutoSubmissionDate = reportAutoSubmissionDetails.data?.next_at;
         if (nextReportAutoSubmissionDate) {
-          return '(Automatic Submission On ' + this.datePipe.transform(nextReportAutoSubmissionDate, 'MMM d') + ')';
+          return this.translocoService.translate('services.report.automaticSubmissionOnDate', {
+            date: this.datePipe.transform(nextReportAutoSubmissionDate, 'MMM d'),
+          });
         }
         return null;
       })

@@ -2,14 +2,15 @@ import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { CostCentersService } from './cost-centers.service';
 import { map, switchMap } from 'rxjs/operators';
-import { forkJoin, Subject, of, Observable } from 'rxjs';
+import { Subject, of, Observable } from 'rxjs';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
 import { OrgUserSettings } from '../models/org_user_settings.model';
 import { OrgUserService } from './org-user.service';
 import { AccountType } from '../enums/account-type.enum';
 import { EmailEventsObject } from '../models/email-events.model';
 import { CostCenter } from '../models/v1/cost-center.model';
-import { NotificationEvents } from '../models/notification-events.model';
+import { NotificationEvents, EmailEvents } from '../models/notification-events.model';
+import { TranslocoService } from '@jsverse/transloco';
 
 const orgUserSettingsCacheBuster$ = new Subject<void>();
 
@@ -20,7 +21,8 @@ export class OrgUserSettingsService {
   constructor(
     private apiService: ApiService,
     private costCentersService: CostCentersService,
-    private orgUserService: OrgUserService
+    private orgUserService: OrgUserService,
+    private translocoService: TranslocoService
   ) {}
 
   @Cacheable({
@@ -33,7 +35,7 @@ export class OrgUserSettingsService {
   @CacheBuster({
     cacheBusterNotifier: orgUserSettingsCacheBuster$,
   })
-  post(data: OrgUserSettings) {
+  post(data: OrgUserSettings): Observable<OrgUserSettings> {
     return this.apiService.post('/org_user_settings', data);
   }
 
@@ -52,7 +54,7 @@ export class OrgUserSettingsService {
   @CacheBuster({
     cacheBusterNotifier: orgUserSettingsCacheBuster$,
   })
-  clearOrgUserSettings() {
+  clearOrgUserSettings(): Observable<void> {
     return of(null);
   }
 
@@ -62,7 +64,7 @@ export class OrgUserSettingsService {
   ): Observable<CostCenter[]> {
     return this.costCentersService.getAllActive().pipe(
       map((costCenters) => {
-        let allowedCostCenters = [];
+        let allowedCostCenters: CostCenter[] = [];
         if (orgUserSettings.cost_center_ids && orgUserSettings.cost_center_ids.length > 0) {
           allowedCostCenters = costCenters.filter(
             (costCenter) => orgUserSettings.cost_center_ids.indexOf(costCenter.id) > -1
@@ -89,17 +91,17 @@ export class OrgUserSettingsService {
     const featuresList = {
       features: {
         expensesAndReports: {
-          textLabel: 'Expenses and reports',
+          textLabel: this.translocoService.translate('services.orgUserSettings.expensesAndReports'),
           selected: true,
         },
         advances: {
-          textLabel: 'Advances',
+          textLabel: this.translocoService.translate('services.orgUserSettings.advances'),
           selected: true,
         },
       },
       expensesAndReports: {
         eous_forward_email_to_user: {
-          textLabel: 'When an expense is created via email',
+          textLabel: this.translocoService.translate('services.orgUserSettings.expenseCreatedViaEmail'),
           selected: true,
           email: {
             selected: true,
@@ -109,7 +111,7 @@ export class OrgUserSettingsService {
           },
         },
         erpts_submitted: {
-          textLabel: 'On submission of expense report',
+          textLabel: this.translocoService.translate('services.orgUserSettings.reportSubmitted'),
           selected: true,
           email: {
             selected: true,
@@ -119,7 +121,7 @@ export class OrgUserSettingsService {
           },
         },
         estatuses_created_txn: {
-          textLabel: 'When a comment is left on an expense',
+          textLabel: this.translocoService.translate('services.orgUserSettings.commentOnExpense'),
           selected: true,
           email: {
             selected: true,
@@ -129,7 +131,7 @@ export class OrgUserSettingsService {
           },
         },
         estatuses_created_rpt: {
-          textLabel: 'When a comment is left on a report',
+          textLabel: this.translocoService.translate('services.orgUserSettings.commentOnReport'),
           selected: true,
           email: {
             selected: true,
@@ -139,7 +141,7 @@ export class OrgUserSettingsService {
           },
         },
         etxns_admin_removed: {
-          textLabel: 'When an expense is removed',
+          textLabel: this.translocoService.translate('services.orgUserSettings.expenseRemoved'),
           selected: true,
           email: {
             selected: true,
@@ -149,7 +151,7 @@ export class OrgUserSettingsService {
           },
         },
         etxns_admin_updated: {
-          textLabel: 'When an expense is edited by someone else',
+          textLabel: this.translocoService.translate('services.orgUserSettings.expenseEditedByOther'),
           selected: true,
           email: {
             selected: true,
@@ -159,7 +161,7 @@ export class OrgUserSettingsService {
           },
         },
         erpts_inquiry: {
-          textLabel: 'When a reported expense is sent back',
+          textLabel: this.translocoService.translate('services.orgUserSettings.reportSentBack'),
           selected: true,
           email: {
             selected: true,
@@ -169,7 +171,7 @@ export class OrgUserSettingsService {
           },
         },
         erpts_approved: {
-          textLabel: 'When a report is approved',
+          textLabel: this.translocoService.translate('services.orgUserSettings.reportApproved'),
           selected: true,
           email: {
             selected: true,
@@ -179,7 +181,7 @@ export class OrgUserSettingsService {
           },
         },
         ereimbursements_completed: {
-          textLabel: 'When a reimbursement is done',
+          textLabel: this.translocoService.translate('services.orgUserSettings.reimbursementDone'),
           selected: true,
           email: {
             selected: true,
@@ -191,7 +193,7 @@ export class OrgUserSettingsService {
       },
       advances: {
         eadvance_requests_created: {
-          textLabel: 'When an advance request is submitted',
+          textLabel: this.translocoService.translate('services.orgUserSettings.advanceRequestSubmitted'),
           selected: true,
           email: {
             selected: true,
@@ -201,7 +203,7 @@ export class OrgUserSettingsService {
           },
         },
         eadvance_requests_updated: {
-          textLabel: 'When an advance request is updated',
+          textLabel: this.translocoService.translate('services.orgUserSettings.advanceRequestUpdated'),
           selected: true,
           email: {
             selected: true,
@@ -211,7 +213,7 @@ export class OrgUserSettingsService {
           },
         },
         eadvance_requests_inquiry: {
-          textLabel: 'When an advance request is sent back',
+          textLabel: this.translocoService.translate('services.orgUserSettings.advanceRequestSentBack'),
           selected: true,
           email: {
             selected: true,
@@ -221,7 +223,7 @@ export class OrgUserSettingsService {
           },
         },
         eadvance_requests_approved: {
-          textLabel: 'When an advance request is approved',
+          textLabel: this.translocoService.translate('services.orgUserSettings.advanceRequestApproved'),
           selected: true,
           email: {
             selected: true,
@@ -231,7 +233,7 @@ export class OrgUserSettingsService {
           },
         },
         eadvances_created: {
-          textLabel: 'When an advance is assigned',
+          textLabel: this.translocoService.translate('services.orgUserSettings.advanceAssigned'),
           selected: true,
           email: {
             selected: true,
@@ -241,7 +243,7 @@ export class OrgUserSettingsService {
           },
         },
         eadvance_requests_rejected: {
-          textLabel: 'When an advance request is rejected',
+          textLabel: this.translocoService.translate('services.orgUserSettings.advanceRequestRejected'),
           selected: true,
           email: {
             selected: true,
@@ -260,13 +262,19 @@ export class OrgUserSettingsService {
     const emailEvents = this.getEmailEvents();
     const notificationEvents = {
       features: emailEvents.features,
-      events: [],
+      events: [] as EmailEvents[],
     };
     Object.keys(emailEvents.features).forEach((featureKey) => {
-      Object.keys(emailEvents[featureKey]).forEach((notificationEvent) => {
-        const newNotificationEvent = emailEvents[featureKey][notificationEvent];
-        newNotificationEvent.feature = featureKey;
-        newNotificationEvent.eventType = notificationEvent;
+      const featureEvents = emailEvents[featureKey as keyof EmailEventsObject] as Record<
+        string,
+        Omit<EmailEvents, 'eventType' | 'feature'>
+      >;
+      Object.keys(featureEvents).forEach((notificationEvent) => {
+        const newNotificationEvent: EmailEvents = {
+          ...featureEvents[notificationEvent],
+          feature: featureKey,
+          eventType: notificationEvent,
+        };
         notificationEvents.events.push(newNotificationEvent);
       });
     });

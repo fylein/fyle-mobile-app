@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { DriveStep } from 'driver.js';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Injectable({
   providedIn: 'root',
@@ -9,13 +10,14 @@ export class WalkthroughService {
 
   isOverlayClicked = true;
 
+  constructor(private translocoService: TranslocoService) {}
+
   getNavBarWalkthroughConfig(isApprover: boolean): DriveStep[] {
     const steps: DriveStep[] = [
       {
         element: '#footer-walkthrough',
         popover: {
-          description:
-            'Expenses & Reports are now on the bottom bar of the home page for easy access and smooth navigation!',
+          description: this.translocoService.translate('services.walkthrough.navBarDescription'),
           side: 'top',
           align: 'center',
           showButtons: ['next', 'close'],
@@ -27,7 +29,7 @@ export class WalkthroughService {
       {
         element: '#tab-button-expenses',
         popover: {
-          description: 'Tap here to quickly access and manage your expenses!',
+          description: this.translocoService.translate('services.walkthrough.expensesTabDescription'),
           side: 'top',
           align: 'start',
         },
@@ -38,7 +40,7 @@ export class WalkthroughService {
       {
         element: '#tab-button-reports',
         popover: {
-          description: 'Tap here to quickly access and manage your expense reports!',
+          description: this.translocoService.translate('services.walkthrough.reportsTabDescription'),
           side: 'top',
           align: 'end',
         },
@@ -52,7 +54,7 @@ export class WalkthroughService {
       steps.push({
         element: '#approval-pending-stat',
         popover: {
-          description: `Easily manage and approve reports — Access your team's reports right from the home page!`,
+          description: this.translocoService.translate('services.walkthrough.approverDescription'),
           side: 'top',
           align: 'center',
         },

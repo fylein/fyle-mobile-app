@@ -39,6 +39,7 @@ import { expensesCacheBuster$ } from '../cache-buster/expense-cache-buster';
 import { FilterState } from '../enums/filter-state.enum';
 import { PaymentMode } from '../models/payment-mode.model';
 import { TrackingService } from './tracking.service';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Injectable({
   providedIn: 'root',
@@ -60,7 +61,8 @@ export class TransactionService {
     private orgSettingsService: OrgSettingsService,
     private accountsService: AccountsService,
     private expensesService: ExpensesService,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private translocoService: TranslocoService
   ) {
     expensesCacheBuster$.subscribe(() => {
       if (this.clearTaskCache) {
@@ -292,9 +294,9 @@ export class TransactionService {
     } else if (fyleCategory === 'per diem') {
       vendorDisplayName = expense.tx_num_days.toString();
       if (expense.tx_num_days > 1) {
-        vendorDisplayName += ' Days';
+        vendorDisplayName += ' ' + this.translocoService.translate('services.transaction.days');
       } else {
-        vendorDisplayName += ' Day';
+        vendorDisplayName += ' ' + this.translocoService.translate('services.transaction.day');
       }
     }
 
@@ -320,17 +322,21 @@ export class TransactionService {
   }
 
   getExpenseDeletionMessage(expensesToBeDeleted: Partial<Expense>[]): string {
-    return `You are about to permanently delete ${
-      expensesToBeDeleted.length === 1 ? '1 selected expense.' : expensesToBeDeleted.length + ' selected expenses.'
-    }`;
+    if (expensesToBeDeleted.length === 1) {
+      return this.translocoService.translate('services.transaction.deleteSingleExpenseMessage');
+    }
+    return this.translocoService.translate('services.transaction.deleteMultipleExpensesMessage', {
+      expenseCount: expensesToBeDeleted.length,
+    });
   }
 
   getCCCExpenseMessage(expensesToBeDeleted: Partial<Expense>[], cccExpenses: number): string {
-    return `There ${cccExpenses > 1 ? 'are' : 'is'} ${cccExpenses} corporate card ${
-      cccExpenses > 1 ? 'expenses' : 'expense'
-    } from the selection which can\'t be deleted. ${
-      expensesToBeDeleted?.length > 0 ? 'However you can delete the other expenses from the selection.' : ''
-    }`;
+    const messageKey = cccExpenses > 1 ? 'cccMultipleExpensesWarning' : 'cccSingleExpenseWarning';
+    let message = this.translocoService.translate(`services.transaction.${messageKey}`, { cccExpenses });
+    if (expensesToBeDeleted?.length > 0) {
+      message += ` ${this.translocoService.translate('services.transaction.deleteOtherExpensesInfo')}`;
+    }
+    return message;
   }
 
   getDeleteDialogBody(
@@ -344,15 +350,19 @@ export class TransactionService {
     if (expensesToBeDeleted.length > 0 && cccExpenses > 0) {
       dialogBody = `<ul class="text-left">
         <li>${cccExpensesMessage}</li>
-        <li>Once deleted, the action can't be reversed.</li>
+        <li>${this.translocoService.translate('services.transaction.actionCantBeReversed')}</li>
         </ul>
-        <p class="confirmation-message text-left">Are you sure to <b>permanently</b> delete the selected expenses?</p>`;
+        <p class="confirmation-message text-left">${this.translocoService.translate(
+          'services.transaction.confirmPermanentDelete'
+        )}</p>`;
     } else if (expensesToBeDeleted.length > 0 && cccExpenses === 0) {
       dialogBody = `<ul class="text-left">
       <li>${expenseDeletionMessage}</li>
-      <li>Once deleted, the action can't be reversed.</li>
+      <li>${this.translocoService.translate('services.transaction.actionCantBeReversed')}</li>
       </ul>
-      <p class="confirmation-message text-left">Are you sure to <b>permanently</b> delete the selected expenses?</p>`;
+      <p class="confirmation-message text-left">${this.translocoService.translate(
+        'services.transaction.confirmPermanentDelete'
+      )}</p>`;
     } else if (expensesToBeDeleted.length === 0 && cccExpenses > 0) {
       dialogBody = `<ul class="text-left">
       <li>${cccExpensesMessage}</li>
@@ -365,13 +375,13 @@ export class TransactionService {
   getRemoveCardExpenseDialogBody(isSplitExpensesPresent: boolean): string {
     const dialogBody = isSplitExpensesPresent
       ? `<ul class="text-left">
-    <li>Since this is a split expense, clicking on <strong>Confirm</strong> will remove the card details from all the related split expenses.</li>
-    <li>A new expense will be created from the card expense removed here.</li>
-    <li>Are you sure to remove your card expense from this expense?</li>
+    <li>${this.translocoService.translate('services.transaction.splitExpenseRemovalInfo')}</li>
+    <li>${this.translocoService.translate('services.transaction.newExpenseCreationInfo')}</li>
+    <li>${this.translocoService.translate('services.transaction.confirmCardRemoval')}</li>
     </ul>`
       : `<ul class="text-left">
-    <li>A new expense will be created from the card expense removed here.</li>
-    <li>Are you sure to remove your card expense from this expense?</li>
+    <li>${this.translocoService.translate('services.transaction.newExpenseCreationInfo')}</li>
+    <li>${this.translocoService.translate('services.transaction.confirmCardRemoval')}</li>
     </ul>`;
 
     return dialogBody;
@@ -516,19 +526,19 @@ export class TransactionService {
   getPaymentModeWiseSummary(etxns: Expense[]): PaymentModeSummary {
     const paymentModes = [
       {
-        name: 'Reimbursable',
+        name: this.translocoService.translate('services.transaction.reimbursable'),
         key: 'reimbursable',
       },
       {
-        name: 'Non-Reimbursable',
+        name: this.translocoService.translate('services.transaction.nonReimbursable'),
         key: 'nonReimbursable',
       },
       {
-        name: 'Advance',
+        name: this.translocoService.translate('services.transaction.advance'),
         key: 'advance',
       },
       {
-        name: 'CCC',
+        name: this.translocoService.translate('services.transaction.ccc'),
         key: 'ccc',
       },
     ];

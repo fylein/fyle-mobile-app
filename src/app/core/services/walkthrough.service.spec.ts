@@ -1,13 +1,38 @@
 import { TestBed } from '@angular/core/testing';
 import { WalkthroughService } from './walkthrough.service';
 import { DriveStep } from 'driver.js';
+import { TranslocoService } from '@jsverse/transloco';
 
 describe('WalkthroughDriverService', () => {
   let service: WalkthroughService;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+
+    // Mock translate method to return expected strings
+    translocoServiceSpy.translate.and.callFake((key: string) => {
+      const translations: { [key: string]: string } = {
+        'services.walkthrough.navBarDescription':
+          'Expenses & Reports are now on the bottom bar of the home page for easy access and smooth navigation!',
+        'services.walkthrough.expensesTabDescription': 'Tap here to quickly access and manage your expenses!',
+        'services.walkthrough.reportsTabDescription': 'Tap here to quickly access and manage your expense reports!',
+        'services.walkthrough.approverDescription':
+          "Easily manage and approve reports — Access your team's reports right from the home page!",
+      };
+      return translations[key] || key;
+    });
+
+    TestBed.configureTestingModule({
+      providers: [
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
+      ],
+    });
     service = TestBed.inject(WalkthroughService);
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
   });
 
   it('should be created', () => {

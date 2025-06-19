@@ -8,6 +8,7 @@ import { PlatformApiResponse } from '../models/platform/platform-api-response.mo
 import { CurrencyPipe } from '@angular/common';
 import { switchMap, concatMap, map, reduce } from 'rxjs/operators';
 import { PAGINATION_SIZE } from 'src/app/constants';
+import { TranslocoService } from '@jsverse/transloco';
 
 const mileageRateCacheBuster$ = new Subject<void>();
 
@@ -19,7 +20,8 @@ export class MileageRatesService {
     @Inject(PAGINATION_SIZE) private paginationSize: number,
     private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
     private approverPlatformV1ApiService: ApproverPlatformApiService,
-    private currencyPipe: CurrencyPipe
+    private currencyPipe: CurrencyPipe,
+    private translocoService: TranslocoService
   ) {}
 
   @Cacheable({
@@ -97,20 +99,23 @@ export class MileageRatesService {
 
   formatMileageRateName(rateName: string): string {
     const names: Record<string, string> = {
-      two_wheeler: 'Two Wheeler',
-      four_wheeler: 'Four Wheeler - Type 1',
-      four_wheeler1: 'Four Wheeler - Type 2',
-      four_wheeler3: 'Four Wheeler - Type 3',
-      four_wheeler4: 'Four Wheeler - Type 4',
-      bicycle: 'Bicycle',
-      electric_car: 'Electric Car',
+      two_wheeler: this.translocoService.translate('services.mileageRates.twoWheeler'),
+      four_wheeler: this.translocoService.translate('services.mileageRates.fourWheelerType1'),
+      four_wheeler1: this.translocoService.translate('services.mileageRates.fourWheelerType2'),
+      four_wheeler3: this.translocoService.translate('services.mileageRates.fourWheelerType3'),
+      four_wheeler4: this.translocoService.translate('services.mileageRates.fourWheelerType4'),
+      bicycle: this.translocoService.translate('services.mileageRates.bicycle'),
+      electric_car: this.translocoService.translate('services.mileageRates.electricCar'),
     };
 
     return rateName && names[rateName] ? names[rateName] : rateName;
   }
 
   getReadableRate(rate: number, currency: string, unit: string): string {
-    unit = unit && unit.toLowerCase() === 'miles' ? 'mile' : 'km';
+    unit =
+      unit && unit.toLowerCase() === 'miles'
+        ? this.translocoService.translate('services.mileageRates.mile')
+        : this.translocoService.translate('services.mileageRates.km');
 
     return this.currencyPipe.transform(rate, currency, 'symbol', '1.2-2') + '/' + unit;
   }

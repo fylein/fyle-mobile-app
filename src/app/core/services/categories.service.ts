@@ -7,6 +7,7 @@ import { PlatformCategory } from '../models/platform/platform-category.model';
 import { OrgCategory } from '../models/v1/org-category.model';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { PAGINATION_SIZE } from 'src/app/constants';
+import { TranslocoService } from '@jsverse/transloco';
 
 const categoriesCacheBuster$ = new Subject<void>();
 
@@ -18,8 +19,22 @@ export class CategoriesService {
 
   constructor(
     @Inject(PAGINATION_SIZE) private paginationSize: number,
-    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService
+    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
+    private translocoService: TranslocoService
   ) {}
+
+  @Cacheable()
+  getMileageOrPerDiemCategories(): Observable<PlatformCategory[]> {
+    const data = {
+      params: {
+        is_enabled: 'eq.true',
+        system_category: 'in.(Mileage, Per Diem)',
+      },
+    };
+    return this.spenderPlatformV1ApiService
+      .get<PlatformApiResponse<PlatformCategory[]>>('/categories', data)
+      .pipe(map((res) => res.data));
+  }
 
   @Cacheable({
     cacheBusterObserver: categoriesCacheBuster$,
@@ -76,19 +91,6 @@ export class CategoriesService {
       map((res) => this.sortCategories(res)),
       map((res) => this.addDisplayName(res))
     );
-  }
-
-  @Cacheable()
-  getMileageOrPerDiemCategories(): Observable<PlatformCategory[]> {
-    const data = {
-      params: {
-        is_enabled: 'eq.true',
-        system_category: 'in.(Mileage, Per Diem)',
-      },
-    };
-    return this.spenderPlatformV1ApiService
-      .get<PlatformApiResponse<PlatformCategory[]>>('/categories', data)
-      .pipe(map((res) => res.data));
   }
 
   transformFrom(platformCategory: PlatformCategory[]): OrgCategory[] {
@@ -172,27 +174,42 @@ export class CategoriesService {
   }
 
   getSystemCategories(): string[] {
-    const systemCategories = ['Bus', 'Airlines', 'Lodging', 'Train'];
+    const systemCategories = [
+      this.translocoService.translate('services.categories.bus'),
+      this.translocoService.translate('services.categories.airlines'),
+      this.translocoService.translate('services.categories.lodging'),
+      this.translocoService.translate('services.categories.train'),
+    ];
     return systemCategories;
   }
 
   getSystemCategoriesWithTaxi(): string[] {
-    const systemCategoriesWithTaxi = ['Taxi', 'Bus', 'Airlines', 'Lodging', 'Train'];
+    const systemCategoriesWithTaxi = [
+      this.translocoService.translate('services.categories.taxi'),
+      this.translocoService.translate('services.categories.bus'),
+      this.translocoService.translate('services.categories.airlines'),
+      this.translocoService.translate('services.categories.lodging'),
+      this.translocoService.translate('services.categories.train'),
+    ];
     return systemCategoriesWithTaxi;
   }
 
   getBreakfastSystemCategories(): string[] {
-    const breakfastSystemCategories = ['Lodging'];
+    const breakfastSystemCategories = [this.translocoService.translate('services.categories.lodging')];
     return breakfastSystemCategories;
   }
 
   getTravelSystemCategories(): string[] {
-    const travelSystemCategories = ['Bus', 'Airlines', 'Train'];
+    const travelSystemCategories = [
+      this.translocoService.translate('services.categories.bus'),
+      this.translocoService.translate('services.categories.airlines'),
+      this.translocoService.translate('services.categories.train'),
+    ];
     return travelSystemCategories;
   }
 
   getFlightSystemCategories(): string[] {
-    const flightSystemCategories = ['Airlines'];
+    const flightSystemCategories = [this.translocoService.translate('services.categories.airlines')];
     return flightSystemCategories;
   }
 

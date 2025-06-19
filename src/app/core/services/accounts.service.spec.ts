@@ -46,6 +46,7 @@ import {
 import { AccountsService } from './accounts.service';
 import { ApiService } from './api.service';
 import { DataTransformService } from './data-transform.service';
+import { TranslocoService } from '@jsverse/transloco';
 
 const accountsCallResponse1 = [account1Data, account2Data];
 
@@ -54,11 +55,34 @@ describe('AccountsService', () => {
   let apiService: jasmine.SpyObj<ApiService>;
   let dataTransformService: jasmine.SpyObj<DataTransformService>;
   let fyCurrencyPipe: jasmine.SpyObj<FyCurrencyPipe>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(() => {
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get']);
     const dataTransformServiceSpy = jasmine.createSpyObj('DataTransformService', ['unflatten']);
     const fyCurrencyPipeSpy = jasmine.createSpyObj('FyCurrencyPipe', ['transform']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+
+    // Mock translate method to return expected strings
+    translocoServiceSpy.translate.and.callFake((key: string, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'services.accounts.personalCardCash': 'Personal Card/Cash',
+        'services.accounts.paidByCompany': 'Paid by Company',
+        'services.accounts.corporateCard': 'Corporate Card',
+        'services.accounts.advanceWalletDisplayName': 'Advance Wallet (Balance: {balance})',
+        'services.accounts.advanceAccountDisplayName': 'Advance (Balance: {balance})',
+      };
+
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && params.balance !== undefined) {
+        translation = translation.replace('{balance}', params.balance);
+      } else if (params && params.balance === undefined) {
+        translation = translation.replace('{balance}', 'undefined');
+      }
+
+      return translation;
+    });
 
     TestBed.configureTestingModule({
       providers: [
@@ -75,6 +99,10 @@ describe('AccountsService', () => {
           provide: FyCurrencyPipe,
           useValue: fyCurrencyPipeSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
     });
 
@@ -82,6 +110,7 @@ describe('AccountsService', () => {
     apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
     dataTransformService = TestBed.inject(DataTransformService) as jasmine.SpyObj<DataTransformService>;
     fyCurrencyPipe = TestBed.inject(FyCurrencyPipe) as jasmine.SpyObj<FyCurrencyPipe>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
   });
 
   it('should be created', () => {

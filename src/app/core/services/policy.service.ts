@@ -15,6 +15,7 @@ import { CategoriesService } from './categories.service';
 import { FileObject } from '../models/file-obj.model';
 import { MatchedCCCTransaction } from '../models/matchedCCCTransaction.model';
 import { TxnCustomProperties } from '../models/txn-custom-properties.model';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Injectable({
   providedIn: 'root',
@@ -23,7 +24,8 @@ export class PolicyService {
   constructor(
     private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
     private approverPlatformApiService: ApproverPlatformApiService,
-    private categoriesService: CategoriesService
+    private categoriesService: CategoriesService,
+    private translocoService: TranslocoService
   ) {}
 
   transformTo(transaction: PublicPolicyExpense | Partial<Transaction>): PlatformPolicyExpense {
@@ -144,26 +146,34 @@ export class PolicyService {
   }
 
   getApprovalString(emails: string[]): string {
-    let approverEmailsRequiredMsg = 'Expense will need additional approval from ';
+    let approverEmailsRequiredMsg = this.translocoService.translate('services.policy.expenseNeedsAdditionalApproval');
     approverEmailsRequiredMsg += emails.map((email) => '<b>' + email + '</b>').join(', ');
 
     return approverEmailsRequiredMsg;
   }
 
   isExpenseFlagged(policyActionDescription: string): boolean {
-    return policyActionDescription.toLowerCase().includes('expense will be flagged');
+    return policyActionDescription
+      .toLowerCase()
+      .includes(this.translocoService.translate('services.policy.expenseWillBeFlagged').toLowerCase());
   }
 
   isPrimaryApproverSkipped(policyActionDescription: string): boolean {
-    return policyActionDescription.toLowerCase().includes('primary approver will be skipped');
+    return policyActionDescription
+      .toLowerCase()
+      .includes(this.translocoService.translate('services.policy.primaryApproverSkipped').toLowerCase());
   }
 
   needAdditionalApproval(policyActionDescription: string): boolean {
-    return policyActionDescription.toLowerCase().includes('expense will need approval from');
+    return policyActionDescription
+      .toLowerCase()
+      .includes(this.translocoService.translate('services.policy.expenseNeedsApprovalFrom').toLowerCase());
   }
 
   isExpenseCapped(policyActionDescription: string): boolean {
-    return policyActionDescription.toLowerCase().includes('expense will be capped to');
+    return policyActionDescription
+      .toLowerCase()
+      .includes(this.translocoService.translate('services.policy.expenseCappedTo').toLowerCase());
   }
 
   prepareEtxnForPolicyCheck(
@@ -187,7 +197,7 @@ export class PolicyService {
     let transaction$ = of(transactionCopy);
     if (!transactionCopy.org_category_id) {
       // Set unspecified org category if expense doesn't have a category
-      const categoryName = 'Unspecified';
+      const categoryName = this.translocoService.translate('services.policy.unspecified');
       transaction$ = this.categoriesService.getCategoryByName(categoryName).pipe(
         map((category) => ({
           ...transactionCopy,

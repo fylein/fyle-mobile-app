@@ -38,13 +38,48 @@ import { DateService } from '../../../date.service';
 import { OrgSettingsService } from '../../../org-settings.service';
 import { of } from 'rxjs';
 import { orgSettingsPendingRestrictions } from 'src/app/core/mock-data/org-settings.data';
-
+import { TranslocoService } from '@jsverse/transloco';
 describe('ExpensesService', () => {
   let service: ExpensesService;
   let dateService: DateService;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(() => {
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+
+    // Mock translate method to return expected strings
+    translocoServiceSpy.translate.and.callFake((key: string, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'services.expenses.day': 'Day',
+        'services.expenses.days': 'Days',
+        'services.expenses.reimbursable': 'Reimbursable',
+        'services.expenses.nonReimbursable': 'Non-Reimbursable',
+        'services.expenses.advance': 'Advance',
+        'services.expenses.ccc': 'CCC',
+        'services.expenses.aboutToDelete': 'You are about to permanently delete',
+        'services.expenses.oneSelectedExpense': '1 selected expense.',
+        'services.expenses.multipleSelectedExpenses': '{count} selected expenses.',
+        'services.expenses.cccMessageSingular':
+          "There is {count} corporate card expense from the selection which can't be deleted.",
+        'services.expenses.cccMessagePlural':
+          "There are {count} corporate card expenses from the selection which can't be deleted.",
+        'services.expenses.deleteOthersMessage': 'However you can delete the other expenses from the selection.',
+        'services.expenses.actionCannotBeReversed': "Once deleted, the action can't be reversed.",
+        'services.expenses.permanentDeleteConfirmation':
+          'Are you sure to <b>permanently</b> delete the selected expenses?',
+      };
+
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && params.count !== undefined) {
+        translation = translation.replace('{count}', params.count.toString());
+      }
+
+      return translation;
+    });
+
     TestBed.configureTestingModule({
       providers: [
         DateService,
@@ -52,12 +87,17 @@ describe('ExpensesService', () => {
           provide: OrgSettingsService,
           useValue: orgSettingsServiceSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
     });
     service = TestBed.inject(ExpensesService);
     dateService = TestBed.inject(DateService);
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     orgSettingsService.get.and.returnValue(of(orgSettingsPendingRestrictions));
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
   });
 
   it('should be created', () => {
@@ -465,7 +505,7 @@ describe('ExpensesService', () => {
     it('should get ccc message for 0 expenses', () => {
       const result = service.getCCCExpenseMessage([], 0);
 
-      expect(result).toEqual(`There is 0 corporate card expense from the selection which can't be deleted. `);
+      expect(result).toEqual(`There is 0 corporate card expense from the selection which can't be deleted.`);
     });
   });
 

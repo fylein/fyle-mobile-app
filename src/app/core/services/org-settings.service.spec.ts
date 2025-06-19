@@ -27,6 +27,7 @@ import {
 
 import { OrgSettingsService } from './org-settings.service';
 import { cloneDeep } from 'lodash';
+import { TranslocoService } from '@jsverse/transloco';
 
 const getApiData: OrgSettings = orgSettingsGetData;
 const postApiData: OrgSettingsResponse = orgSettingsPostData;
@@ -48,9 +49,19 @@ const incomingQuickbooksAccountingObjectWithoutSettings: IncomingAccountObject =
 describe('OrgSettingsService', () => {
   let orgSettingsService: OrgSettingsService;
   let apiService: jasmine.SpyObj<ApiService>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(() => {
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+
+    // Mock translate method to return expected strings
+    translocoServiceSpy.translate.and.callFake((key: string) => {
+      const translations: { [key: string]: string } = {
+        'services.orgSettings.currencyLayer': 'Currency Layer',
+      };
+      return translations[key] || key;
+    });
+
     TestBed.configureTestingModule({
       providers: [
         OrgSettingsService,
@@ -58,10 +69,15 @@ describe('OrgSettingsService', () => {
           provide: ApiService,
           useValue: apiServiceSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
     });
     orgSettingsService = TestBed.inject(OrgSettingsService);
     apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
   });
 
   it('should be created', () => {

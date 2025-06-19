@@ -32,13 +32,26 @@ import {
   expectedOrgCategoryByName,
 } from '../mock-data/org-category.data';
 import { cloneDeep } from 'lodash';
-
+import { TranslocoService } from '@jsverse/transloco';
 describe('CategoriesService', () => {
   let categoriesService: CategoriesService;
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(() => {
     const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+
+    // Mock translate method to return expected strings
+    translocoServiceSpy.translate.and.callFake((key: string) => {
+      const translations: { [key: string]: string } = {
+        'services.categories.bus': 'Bus',
+        'services.categories.airlines': 'Airlines',
+        'services.categories.lodging': 'Lodging',
+        'services.categories.train': 'Train',
+        'services.categories.taxi': 'Taxi',
+      };
+      return translations[key] || key;
+    });
 
     TestBed.configureTestingModule({
       providers: [
@@ -51,12 +64,17 @@ describe('CategoriesService', () => {
           provide: PAGINATION_SIZE,
           useValue: 2,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
     });
     categoriesService = TestBed.inject(CategoriesService);
     spenderPlatformV1ApiService = TestBed.inject(
       SpenderPlatformV1ApiService
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
   });
 
   it('should be created', () => {

@@ -31,6 +31,7 @@ import { AdvanceRequestState } from '../models/advance-request-state.model';
 import { ApprovalPublic } from '../models/approval-public.model';
 import { StatsResponse } from '../models/platform/v1/stats-response.model';
 import { PlatformConfig } from '../models/platform/platform-config.model';
+import { TranslocoService } from '@jsverse/transloco';
 
 const advanceRequestsCacheBuster$ = new Subject<void>();
 
@@ -76,7 +77,8 @@ export class AdvanceRequestService {
     private dateService: DateService,
     private fileService: FileService,
     private approverService: ApproverService,
-    private spenderService: SpenderService
+    private spenderService: SpenderService,
+    private translocoService: TranslocoService
   ) {}
 
   @Cacheable({
@@ -346,27 +348,27 @@ export class AdvanceRequestService {
     } else if (advanceRequest.areq_state === 'INQUIRY') {
       internalRepresentation = {
         state: 'inquiry',
-        name: 'Sent Back',
+        name: this.translocoService.translate('services.advanceRequest.sentBack'),
       };
     } else if (advanceRequest.areq_state === 'SUBMITTED' || advanceRequest.areq_state === 'APPROVAL_PENDING') {
       internalRepresentation = {
         state: 'pendingApproval',
-        name: 'Pending',
+        name: this.translocoService.translate('services.advanceRequest.pending'),
       };
     } else if (advanceRequest.areq_state === 'APPROVED') {
       internalRepresentation = {
         state: 'approved',
-        name: 'Approved',
+        name: this.translocoService.translate('services.advanceRequest.approved'),
       };
     } else if (advanceRequest.areq_state === 'PAID') {
       internalRepresentation = {
         state: 'paid',
-        name: 'Paid',
+        name: this.translocoService.translate('services.advanceRequest.paid'),
       };
     } else if (advanceRequest.areq_state === 'REJECTED') {
       internalRepresentation = {
         state: 'rejected',
-        name: 'Rejected',
+        name: this.translocoService.translate('services.advanceRequest.rejected'),
       };
     }
 
@@ -592,13 +594,13 @@ export class AdvanceRequestService {
     };
     if (!advanceRequest.areq_is_pulled_back && !advanceRequest.areq_is_sent_back) {
       internalRepresentation.state = 'draft';
-      internalRepresentation.name = 'Draft';
+      internalRepresentation.name = this.translocoService.translate('services.advanceRequest.draft');
     } else if (advanceRequest.areq_is_pulled_back) {
       internalRepresentation.state = 'pulledBack';
-      internalRepresentation.name = 'Pulled Back';
+      internalRepresentation.name = this.translocoService.translate('services.advanceRequest.pulledBack');
     } else if (advanceRequest.areq_is_sent_back) {
       internalRepresentation.state = 'inquiry';
-      internalRepresentation.name = 'Sent Back';
+      internalRepresentation.name = this.translocoService.translate('services.advanceRequest.sentBack');
     }
     return internalRepresentation;
   }
