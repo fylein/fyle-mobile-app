@@ -1,7 +1,28 @@
 import { AdvanceState } from './advance-state.pipe';
+import { TranslocoService } from '@jsverse/transloco';
 
 describe('AdvanceStatePipe', () => {
-  const pipe = new AdvanceState();
+  let pipe: AdvanceState;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
+
+  beforeEach(() => {
+    translocoService = jasmine.createSpyObj('TranslocoService', ['translate']);
+    pipe = new AdvanceState(translocoService);
+
+    // Mock translate method to return expected strings
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'pipes.advanceState.draft': 'draft',
+        'pipes.advanceState.pending': 'pending',
+        'pipes.advanceState.approved': 'approved',
+        'pipes.advanceState.sentBack': 'sent back',
+        'pipes.advanceState.issued': 'issued',
+        'pipes.advanceState.disabled': 'disabled',
+        'pipes.advanceState.rejected': 'rejected',
+      };
+      return translations[key] || key;
+    });
+  });
 
   it('transforms "" state to ""', () => {
     expect(pipe.transform('')).toBe('');

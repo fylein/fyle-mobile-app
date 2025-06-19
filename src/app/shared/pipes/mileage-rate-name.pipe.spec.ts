@@ -1,7 +1,29 @@
 import { MileageRateName } from './mileage-rate-name.pipe';
+import { TranslocoService } from '@jsverse/transloco';
 
 describe('MileageRateNamePipe', () => {
-  const mileageRateName = new MileageRateName();
+  let mileageRateName: MileageRateName;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
+
+  beforeEach(() => {
+    translocoService = jasmine.createSpyObj('TranslocoService', ['translate']);
+
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'pipes.mileageRateName.twoWheeler': 'Two Wheeler',
+        'pipes.mileageRateName.fourWheelerType1': 'Four Wheeler - Type 1',
+        'pipes.mileageRateName.fourWheelerType2': 'Four Wheeler - Type 2',
+        'pipes.mileageRateName.fourWheelerType3': 'Four Wheeler - Type 3',
+        'pipes.mileageRateName.fourWheelerType4': 'Four Wheeler - Type 4',
+        'pipes.mileageRateName.bicycle': 'Bicycle',
+        'pipes.mileageRateName.electricCar': 'Electric Car',
+      };
+      return translations[key] || key;
+    });
+
+    mileageRateName = new MileageRateName(translocoService);
+  });
+
   it('create an instance', () => {
     expect(mileageRateName).toBeTruthy();
   });

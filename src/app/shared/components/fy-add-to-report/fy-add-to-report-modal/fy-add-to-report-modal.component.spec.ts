@@ -14,6 +14,7 @@ import { SnakeCaseToSpaceCase } from 'src/app/shared/pipes/snake-case-to-space-c
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { click, getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
+import { TranslocoService } from '@jsverse/transloco';
 
 describe('FyAddToReportModalComponent', () => {
   let component: FyAddToReportModalComponent;
@@ -21,10 +22,21 @@ describe('FyAddToReportModalComponent', () => {
   let modalController: jasmine.SpyObj<ModalController>;
   let cdr: jasmine.SpyObj<ChangeDetectorRef>;
   let currencyService: jasmine.SpyObj<CurrencyService>;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
     const cdrSpy = jasmine.createSpyObj('ChangeDetectorRef', ['detectChanges']);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+
+    // Mock the translate method
+    translocoServiceSpy.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'pipes.humanizeCurrency.kiloSuffix': 'K',
+      };
+      return translations[key] || key;
+    });
+
     TestBed.configureTestingModule({
       declarations: [FyAddToReportModalComponent, HumanizeCurrencyPipe, ReportState, SnakeCaseToSpaceCase],
       imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule],
@@ -43,6 +55,10 @@ describe('FyAddToReportModalComponent', () => {
           provide: CurrencyService,
           useValue: currencyServiceSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(FyAddToReportModalComponent);
@@ -50,6 +66,7 @@ describe('FyAddToReportModalComponent', () => {
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     cdr = TestBed.inject(ChangeDetectorRef) as jasmine.SpyObj<ChangeDetectorRef>;
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     component.currentSelection = optionData1[0].value;
     component.options = optionData1;
     currencyService.getHomeCurrency.and.returnValue(of('USD'));

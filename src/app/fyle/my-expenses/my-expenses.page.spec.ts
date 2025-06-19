@@ -133,6 +133,7 @@ import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
 import { ExpensesQueryParams } from 'src/app/core/models/platform/v1/expenses-query-params.model';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
+import { TranslocoService } from '@jsverse/transloco';
 
 describe('MyExpensesPage', () => {
   let component: MyExpensesPage;
@@ -170,7 +171,7 @@ describe('MyExpensesPage', () => {
   let utilityService: jasmine.SpyObj<UtilityService>;
   let featureConfigService: jasmine.SpyObj<FeatureConfigService>;
   let authService: jasmine.SpyObj<AuthService>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     const tasksServiceSpy = jasmine.createSpyObj('TasksService', ['getReportsTaskCount', 'getExpensesTaskCount']);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
@@ -302,7 +303,7 @@ describe('MyExpensesPage', () => {
     ]);
     const featureConfigServiceSpy = jasmine.createSpyObj('FeatureConfigService', ['saveConfiguration']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
     TestBed.configureTestingModule({
       declarations: [MyExpensesPage, ReportState, MaskNumber],
       imports: [IonicModule.forRoot(), RouterTestingModule, HttpClientTestingModule],
@@ -417,6 +418,10 @@ describe('MyExpensesPage', () => {
           provide: AuthService,
           useValue: authServiceSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
         ReportState,
         MaskNumber,
       ],
@@ -462,7 +467,7 @@ describe('MyExpensesPage', () => {
     utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
     featureConfigService = TestBed.inject(FeatureConfigService) as jasmine.SpyObj<FeatureConfigService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     component.loadExpenses$ = new BehaviorSubject({});
   }));
 

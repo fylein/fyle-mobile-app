@@ -23,6 +23,7 @@ import {
   cardEnrollmentErrorsProperties4,
   enrollingNonRTFCardProperties,
 } from 'src/app/core/mock-data/corporate-card-trackers.data';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-fy-alert-info',
@@ -42,7 +43,7 @@ describe('AddCorporateCardComponent', () => {
   let realTimeFeedService: jasmine.SpyObj<RealTimeFeedService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
   let router: jasmine.SpyObj<Router>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['dismiss']);
     const realTimeFeedServiceSpy = jasmine.createSpyObj('RealTimeFeedService', [
@@ -55,7 +56,7 @@ describe('AddCorporateCardComponent', () => {
       'cardEnrollmentErrors',
       'enrollingNonRTFCard',
     ]);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
     TestBed.configureTestingModule({
       declarations: [AddCorporateCardComponent, MockFyAlertInfoComponent, ArrayToCommaListPipe],
       imports: [IonicModule.forRoot(), NgxMaskModule.forRoot(), ReactiveFormsModule],
@@ -78,6 +79,10 @@ describe('AddCorporateCardComponent', () => {
             url: '/enterprise/manage_corporate_cards',
           },
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
     }).compileComponents();
 
@@ -88,6 +93,15 @@ describe('AddCorporateCardComponent', () => {
     realTimeFeedService = TestBed.inject(RealTimeFeedService) as jasmine.SpyObj<RealTimeFeedService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+
+    // Mock translate method to return expected strings
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'pipes.arrayToCommaList.and': 'and',
+      };
+      return translations[key] || key;
+    });
 
     // Default inputs
     component.isYodleeEnabled = false;

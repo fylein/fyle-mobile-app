@@ -16,6 +16,7 @@ import { SnakeCaseToSpaceCase } from 'src/app/shared/pipes/snake-case-to-space-c
 import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog.component';
 import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-report.data';
 import { ExactCurrencyPipe } from 'src/app/shared/pipes/exact-currency.pipe';
+import { TranslocoService } from '@jsverse/transloco';
 
 describe('AddTxnToReportDialogComponent', () => {
   let component: AddTxnToReportDialogComponent;
@@ -23,11 +24,21 @@ describe('AddTxnToReportDialogComponent', () => {
   let currencyService: jasmine.SpyObj<CurrencyService>;
   let matBottomsheet: jasmine.SpyObj<MatBottomSheet>;
   let router: jasmine.SpyObj<Router>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     const matBottomsheetSpy = jasmine.createSpyObj('MatBottomSheet', ['dismiss']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+
+    // Mock the translate method
+    translocoServiceSpy.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'pipes.reportState.draft': 'Draft',
+      };
+      return translations[key] || key;
+    });
+
     TestBed.configureTestingModule({
       declarations: [
         AddTxnToReportDialogComponent,
@@ -57,6 +68,10 @@ describe('AddTxnToReportDialogComponent', () => {
           provide: MAT_BOTTOM_SHEET_DATA,
           useValue: { openReports: expectedReportsSinglePage, isNewReportsFlowEnabled: true },
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
     }).compileComponents();
 
@@ -65,6 +80,7 @@ describe('AddTxnToReportDialogComponent', () => {
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
     matBottomsheet = TestBed.inject(MatBottomSheet) as jasmine.SpyObj<MatBottomSheet>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     currencyService.getHomeCurrency.and.returnValue(of('USD'));
     fixture.detectChanges();
   }));

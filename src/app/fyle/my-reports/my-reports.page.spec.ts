@@ -84,6 +84,7 @@ import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-repor
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { ReportState as PlatformReportState } from 'src/app/core/models/platform/v1/report.model';
 import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
+import { TranslocoService } from '@jsverse/transloco';
 
 describe('MyReportsPage', () => {
   let component: MyReportsPage;
@@ -105,7 +106,7 @@ describe('MyReportsPage', () => {
   let modalController: jasmine.SpyObj<ModalController>;
   let inputElement: HTMLInputElement;
   let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     const tasksServiceSpy = jasmine.createSpyObj('TasksService', ['getReportsTaskCount']);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
@@ -142,7 +143,7 @@ describe('MyReportsPage', () => {
       'getReportsCount',
       'getReportsByParams',
     ]);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
     TestBed.configureTestingModule({
       declarations: [MyReportsPage, ReportState],
       imports: [IonicModule.forRoot(), RouterTestingModule, HttpClientTestingModule],
@@ -192,6 +193,7 @@ describe('MyReportsPage', () => {
           useValue: spenderReportsServiceSpy,
         },
         ReportState,
+        { provide: TranslocoService, useValue: translocoServiceSpy },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -217,6 +219,26 @@ describe('MyReportsPage', () => {
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+
+    // Mock translate method to return expected strings
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'pipes.reportState.draft': 'draft',
+        'pipes.reportState.submitted': 'submitted',
+        'pipes.reportState.reported': 'reported',
+        'pipes.reportState.sentBack': 'sent_back',
+        'pipes.reportState.autoFlagged': 'auto_flagged',
+        'pipes.reportState.rejected': 'rejected',
+        'pipes.reportState.approved': 'approved',
+        'pipes.reportState.paymentPending': 'payment_pending',
+        'pipes.reportState.processing': 'processing',
+        'pipes.reportState.closed': 'closed',
+        'pipes.reportState.cancelled': 'cancelled',
+        'pipes.reportState.disabled': 'disabled',
+      };
+      return translations[key] || key;
+    });
   }));
 
   it('should create', () => {
