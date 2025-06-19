@@ -13,6 +13,7 @@ import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-he
 import { cloneDeep } from 'lodash';
 import { of, throwError } from 'rxjs';
 import { valueErrorMapping } from 'src/app/core/mock-data/value-error-mapping-for-update-mobile-number-popover.data';
+import { TranslocoService } from '@jsverse/transloco';
 
 describe('UpdateMobileNumberComponent', () => {
   let component: UpdateMobileNumberComponent;
@@ -20,12 +21,12 @@ describe('UpdateMobileNumberComponent', () => {
   let popoverController: jasmine.SpyObj<PopoverController>;
   let authService: jasmine.SpyObj<AuthService>;
   let orgUserService: jasmine.SpyObj<OrgUserService>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['dismiss']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['refreshEou']);
     const orgUserServiceSpy = jasmine.createSpyObj('OrgUserService', ['postOrgUser']);
-
+    translocoService = jasmine.createSpyObj('TranslocoService', ['translate']);
     TestBed.configureTestingModule({
       declarations: [UpdateMobileNumberComponent, FormButtonValidationDirective],
       imports: [IonicModule.forRoot(), FormsModule, MatIconModule, MatIconTestingModule],
@@ -42,6 +43,10 @@ describe('UpdateMobileNumberComponent', () => {
           provide: OrgUserService,
           useValue: orgUserServiceSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoService,
+        },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(UpdateMobileNumberComponent);
@@ -50,7 +55,7 @@ describe('UpdateMobileNumberComponent', () => {
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     orgUserService = TestBed.inject(OrgUserService) as jasmine.SpyObj<OrgUserService>;
-
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     component.extendedOrgUser = apiEouRes;
     fixture.detectChanges();
   }));
