@@ -83,7 +83,7 @@ describe('AdvanceRequestService', () => {
     const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
     const timezoneServiceSpy = jasmine.createSpyObj('TimezoneService', ['convertToUtc']);
     const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['post', 'get']);
-    const approverServiceSpy = jasmine.createSpyObj('ApproverService', ['get']);
+    const approverServiceSpy = jasmine.createSpyObj('ApproverService', ['get', 'post']);
     const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['post']);
 
     TestBed.configureTestingModule({
@@ -243,13 +243,28 @@ describe('AdvanceRequestService', () => {
     });
   });
 
-  it('getActions(): should get advance request actions from ID', (done) => {
+  it('getSpenderPermissions(): should get advance request permissions from ID', (done) => {
     const advReqID = 'areqoVuT5I8OOy';
-    apiService.get.and.returnValue(of(apiAdvanceRequestAction));
+    spenderPlatformV1ApiService.post.and.returnValue(of({ data: apiAdvanceRequestAction }));
 
-    advanceRequestService.getActions(advReqID).subscribe((res) => {
+    advanceRequestService.getSpenderPermissions(advReqID).subscribe((res) => {
       expect(res).toEqual(apiAdvanceRequestAction);
-      expect(apiService.get).toHaveBeenCalledOnceWith(`/advance_requests/${advReqID}/actions`);
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/advance_requests/permissions', {
+        data: { id: advReqID },
+      });
+      done();
+    });
+  });
+
+  it('getApproverPermissions(): should get advance request permissions from ID', (done) => {
+    const advReqID = 'areqoVuT5I8OOy';
+    approverService.post.and.returnValue(of({ data: apiAdvanceRequestAction }));
+
+    advanceRequestService.getApproverPermissions(advReqID).subscribe((res) => {
+      expect(res).toEqual(apiAdvanceRequestAction);
+      expect(approverService.post).toHaveBeenCalledOnceWith('/advance_requests/permissions', {
+        data: { id: advReqID },
+      });
       done();
     });
   });

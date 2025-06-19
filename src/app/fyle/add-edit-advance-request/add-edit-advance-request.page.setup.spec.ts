@@ -35,7 +35,8 @@ describe('AddEditAdvanceRequestPage', () => {
       'createAdvReqWithFilesAndSubmit',
       'saveDraftAdvReqWithFiles',
       'delete',
-      'getActions',
+      'getSpenderPermissions',
+      'getApproverPermissions',
       'getEReq',
       'getEReqFromPlatform',
     ]);

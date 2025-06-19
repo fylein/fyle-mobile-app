@@ -1,10 +1,10 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PopoverController, ModalController } from '@ionic/angular';
 import { forkJoin, from, Observable } from 'rxjs';
-import { concatMap, finalize, map, reduce, shareReplay, switchMap } from 'rxjs/operators';
+import { finalize, map, reduce, shareReplay, switchMap, concatMap } from 'rxjs/operators';
 import { CustomField } from 'src/app/core/models/custom_field.model';
-import { File } from 'src/app/core/models/file.model';
+import { FileObject } from 'src/app/core/models/file-obj.model';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { FileService } from 'src/app/core/services/file.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -21,24 +21,27 @@ import { getCurrencySymbol } from '@angular/common';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { ExtendedAdvanceRequestPublic } from 'src/app/core/models/extended-advance-request-public.model';
 import { ApprovalPublic } from 'src/app/core/models/approval-public.model';
+import { AdvanceRequestActions } from 'src/app/core/models/advance-request-actions.model';
+import { AdvanceRequestsCustomFields } from 'src/app/core/models/advance-requests-custom-fields.model';
+import { PopoverData } from 'src/app/core/models/popover-data.model';
 
 @Component({
   selector: 'app-my-view-advance-request',
   templateUrl: './my-view-advance-request.page.html',
   styleUrls: ['./my-view-advance-request.page.scss'],
 })
-export class MyViewAdvanceRequestPage implements OnInit {
+export class MyViewAdvanceRequestPage {
   advanceRequest$: Observable<ExtendedAdvanceRequestPublic>;
 
-  actions$: Observable<any>;
+  actions$: Observable<AdvanceRequestActions>;
 
   activeApprovals$: Observable<ApprovalPublic[]>;
 
-  attachedFiles$: Observable<File[]>;
+  attachedFiles$: Observable<FileObject[]>;
 
   advanceRequestCustomFields$: Observable<CustomField[]>;
 
-  customFields$: Observable<any>;
+  customFields$: Observable<AdvanceRequestsCustomFields[]>;
 
   isDeviceWidthSmall = window.innerWidth < this.minScreenWidth;
 
@@ -63,12 +66,12 @@ export class MyViewAdvanceRequestPage implements OnInit {
     @Inject(MIN_SCREEN_WIDTH) public minScreenWidth: number
   ) {}
 
-  get StatisticTypes() {
+  get StatisticTypes(): typeof StatisticTypes {
     return StatisticTypes;
   }
 
-  getReceiptExtension(name) {
-    let res = null;
+  getReceiptExtension(name: string): string | null {
+    let res: string | null = null;
 
     if (name) {
       const filename = name.toLowerCase();
@@ -82,9 +85,9 @@ export class MyViewAdvanceRequestPage implements OnInit {
     return res;
   }
 
-  getReceiptDetails(file) {
+  getReceiptDetails(file: FileObject): { type: string; thumbnail: string } {
     const ext = this.getReceiptExtension(file.name);
-    const res = {
+    const res: { type: string; thumbnail: string } = {
       type: 'unknown',
       thumbnail: 'img/fy-receipt.svg',
     };
@@ -101,7 +104,7 @@ export class MyViewAdvanceRequestPage implements OnInit {
   }
 
   // TODO - replace forEach with find
-  getAndUpdateProjectName() {
+  getAndUpdateProjectName(): void {
     this.expenseFieldsService.getAllEnabled().subscribe((expenseFields) => {
       expenseFields.forEach((expenseField) => {
         if (expenseField.column_name === 'project_id') {
@@ -111,8 +114,8 @@ export class MyViewAdvanceRequestPage implements OnInit {
     });
   }
 
-  ionViewWillEnter() {
-    const id = this.activatedRoute.snapshot.params.id;
+  ionViewWillEnter(): void {
+    const id: string = this.activatedRoute.snapshot.params.id as string;
     this.advanceRequest$ = from(this.loaderService.showLoader()).pipe(
       switchMap(() => this.advanceRequestService.getAdvanceRequestPlatform(id)),
       finalize(() => from(this.loaderService.hideLoader())),
@@ -124,22 +127,23 @@ export class MyViewAdvanceRequestPage implements OnInit {
       this.currencySymbol = getCurrencySymbol(advanceRequest?.areq_currency, 'wide');
     });
 
-    this.actions$ = this.advanceRequestService.getActions(id).pipe(shareReplay(1));
+    this.actions$ = this.advanceRequestService.getSpenderPermissions(id).pipe(shareReplay(1));
     this.activeApprovals$ = this.advanceRequestService.getActiveApproversByAdvanceRequestIdPlatform(id);
     this.attachedFiles$ = this.fileService.findByAdvanceRequestId(id).pipe(
-      switchMap((res) => from(res)),
-      concatMap((fileObj: any) =>
+      switchMap((res: FileObject[]) => from(res)),
+      concatMap((fileObj: FileObject) =>
         this.fileService.downloadUrl(fileObj.id).pipe(
-          map((downloadUrl) => {
-            fileObj.url = downloadUrl;
-            const details = this.getReceiptDetails(fileObj);
-            fileObj.type = details.type;
-            fileObj.thumbnail = details.thumbnail;
-            return fileObj;
+          map((downloadUrl: string) => {
+            const updatedFileObj = { ...fileObj };
+            updatedFileObj.url = downloadUrl;
+            const details = this.getReceiptDetails(updatedFileObj);
+            updatedFileObj.type = details.type;
+            updatedFileObj.thumbnail = details.thumbnail;
+            return updatedFileObj;
           })
         )
       ),
-      reduce((acc, curr) => acc.concat(curr), [] as File[])
+      reduce((acc: FileObject[], curr: FileObject) => acc.concat(curr), [] as FileObject[])
     );
 
     this.customFields$ = this.advanceRequestsCustomFieldsService.getAll();
@@ -149,7 +153,7 @@ export class MyViewAdvanceRequestPage implements OnInit {
       customFields: this.customFields$,
     }).pipe(
       map((res) => {
-        let customFieldValues = [];
+        let customFieldValues: CustomField[] = [];
         if (
           res.advanceRequest.areq_custom_field_values !== null &&
           res.advanceRequest.areq_custom_field_values.length > 0
@@ -159,22 +163,22 @@ export class MyViewAdvanceRequestPage implements OnInit {
           );
         }
 
-        res.customFields.map((customField) => {
-          customFieldValues.filter((customFieldValue) => {
-            if (customField.name === customFieldValue.name) {
-              customField.value = customFieldValue.value;
-            }
-          });
+        return res.customFields.map((customField) => {
+          const matchingCustomFieldValue = customFieldValues.find(
+            (customFieldValue) => customField.name === customFieldValue.name
+          );
+          return {
+            ...customField,
+            value: matchingCustomFieldValue ? matchingCustomFieldValue.value : null,
+          } as CustomField;
         });
-
-        return res.customFields;
       })
     );
 
     this.getAndUpdateProjectName();
   }
 
-  async pullBack() {
+  async pullBack(): Promise<void> {
     const pullBackPopover = await this.popoverController.create({
       component: FyPopoverComponent,
       componentProps: {
@@ -185,9 +189,9 @@ export class MyViewAdvanceRequestPage implements OnInit {
     });
 
     await pullBackPopover.present();
-    const { data } = await pullBackPopover.onWillDismiss();
+    const { data } = await pullBackPopover.onWillDismiss<PopoverData>();
 
-    if (data && data.comment) {
+    if (data?.comment) {
       const status = {
         comment: data.comment,
       };
@@ -195,7 +199,7 @@ export class MyViewAdvanceRequestPage implements OnInit {
         status,
         notify: false,
       };
-      const id = this.activatedRoute.snapshot.params.id;
+      const id = this.activatedRoute.snapshot.params.id as string;
 
       from(this.loaderService.showLoader())
         .pipe(
@@ -208,38 +212,38 @@ export class MyViewAdvanceRequestPage implements OnInit {
     }
   }
 
-  edit() {
+  edit(): void {
     this.router.navigate([
       '/',
       'enterprise',
       'add_edit_advance_request',
       {
-        id: this.activatedRoute.snapshot.params.id,
+        id: this.activatedRoute.snapshot.params.id as string,
       },
     ]);
   }
 
-  async delete() {
+  async delete(): Promise<void> {
     const deletePopover = await this.popoverController.create({
       component: FyDeleteDialogComponent,
       cssClass: 'delete-dialog',
       componentProps: {
         header: 'Delete Advance Request',
         body: 'Are you sure you want to delete this request?',
-        deleteMethod: () => this.advanceRequestService.delete(this.activatedRoute.snapshot.params.id),
+        deleteMethod: () => this.advanceRequestService.delete(this.activatedRoute.snapshot.params.id as string),
       },
     });
 
     await deletePopover.present();
 
-    const { data } = await deletePopover.onDidDismiss();
+    const { data } = await deletePopover.onDidDismiss<PopoverData>();
 
-    if (data && data.status === 'success') {
+    if (data?.status === 'success') {
       this.router.navigate(['/', 'enterprise', 'my_advances']);
     }
   }
 
-  async openCommentsModal() {
+  async openCommentsModal(): Promise<void> {
     const advanceRequest = await this.advanceRequest$.toPromise();
     const modal = await this.modalController.create({
       component: ViewCommentComponent,
@@ -251,16 +255,16 @@ export class MyViewAdvanceRequestPage implements OnInit {
     });
 
     await modal.present();
-    const { data } = await modal.onDidDismiss();
+    const { data } = await modal.onDidDismiss<PopoverData>();
 
-    if (data && data.updated) {
+    if (data?.updated) {
       this.trackingService.addComment();
     } else {
       this.trackingService.viewComment();
     }
   }
 
-  async viewAttachments(attachments) {
+  async viewAttachments(attachments: FileObject[]): Promise<void> {
     const attachmentsModal = await this.modalController.create({
       component: FyViewAttachmentComponent,
       componentProps: {
@@ -272,6 +276,4 @@ export class MyViewAdvanceRequestPage implements OnInit {
 
     await attachmentsModal.present();
   }
-
-  ngOnInit() {}
 }
