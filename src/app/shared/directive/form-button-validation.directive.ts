@@ -18,26 +18,27 @@ export class FormButtonValidationDirective implements OnChanges {
 
   loaderAdded = false;
 
+  // Map button translation keys to loading state translation keys
   loadingTextKeyMap: Record<string, string> = {
-    Save: 'directives.formButtonValidation.saving',
-    Confirm: 'directives.formButtonValidation.confirming',
-    Update: 'directives.formButtonValidation.updating',
-    Add: 'directives.formButtonValidation.adding',
-    Delete: 'directives.formButtonValidation.deleting',
-    Create: 'directives.formButtonValidation.creating',
-    Approve: 'directives.formButtonValidation.approving',
-    Reject: 'directives.formButtonValidation.rejecting',
-    'Pull Back': 'directives.formButtonValidation.pullingBack',
-    'Send Back': 'directives.formButtonValidation.sendingBack',
-    Flag: 'directives.formButtonValidation.flagging',
-    Verify: 'directives.formButtonValidation.verifying',
-    Share: 'directives.formButtonValidation.sharing',
-    Email: 'directives.formButtonValidation.sendingEmail',
-    Continue: 'directives.formButtonValidation.continuing',
-    'Set Exchange Rate': 'directives.formButtonValidation.settingExchangeRate',
-    'Sign In': 'directives.formButtonValidation.signingIn',
-    'Sign Up': 'directives.formButtonValidation.signingUp',
-    'Get Started': 'directives.formButtonValidation.gettingStarted',
+    'directives.buttonTranslationKeys.save': 'directives.formButtonValidation.saving',
+    'directives.buttonTranslationKeys.confirm': 'directives.formButtonValidation.confirming',
+    'directives.buttonTranslationKeys.update': 'directives.formButtonValidation.updating',
+    'directives.buttonTranslationKeys.add': 'directives.formButtonValidation.adding',
+    'directives.buttonTranslationKeys.delete': 'directives.formButtonValidation.deleting',
+    'directives.buttonTranslationKeys.create': 'directives.formButtonValidation.creating',
+    'directives.buttonTranslationKeys.approve': 'directives.formButtonValidation.approving',
+    'directives.buttonTranslationKeys.reject': 'directives.formButtonValidation.rejecting',
+    'directives.buttonTranslationKeys.pullBack': 'directives.formButtonValidation.pullingBack',
+    'directives.buttonTranslationKeys.sendBack': 'directives.formButtonValidation.sendingBack',
+    'directives.buttonTranslationKeys.flag': 'directives.formButtonValidation.flagging',
+    'directives.buttonTranslationKeys.verify': 'directives.formButtonValidation.verifying',
+    'directives.buttonTranslationKeys.share': 'directives.formButtonValidation.sharing',
+    'directives.buttonTranslationKeys.email': 'directives.formButtonValidation.sendingEmail',
+    'directives.buttonTranslationKeys.continue': 'directives.formButtonValidation.continuing',
+    'directives.buttonTranslationKeys.setExchangeRate': 'directives.formButtonValidation.settingExchangeRate',
+    'directives.buttonTranslationKeys.signIn': 'directives.formButtonValidation.signingIn',
+    'directives.buttonTranslationKeys.signUp': 'directives.formButtonValidation.signingUp',
+    'directives.buttonTranslationKeys.getStarted': 'directives.formButtonValidation.gettingStarted',
   };
 
   constructor(private elementRef: ElementRef, private translocoService: TranslocoService) {}
@@ -58,11 +59,33 @@ export class FormButtonValidationDirective implements OnChanges {
     this.defaultText = this.selectedElement.innerHTML;
   }
 
+  // Find the matching translation key for the button text
+  findButtonTranslationKey(buttonText: string): string | null {
+    // Clean the button text (remove extra whitespace)
+    const cleanButtonText = buttonText.trim();
+
+    // Check if the button text matches any of our translation keys
+    for (const [translationKey, loadingKey] of Object.entries(this.loadingTextKeyMap)) {
+      const translatedButtonText = this.translocoService.translate(translationKey);
+      if (translatedButtonText === cleanButtonText) {
+        return loadingKey;
+      }
+    }
+
+    return null;
+  }
+
   changeLoadingText(): void {
     if (this.loadingText) {
       this.selectedElement.innerHTML = `${this.loadingText}`;
-    } else if (this.defaultText && this.loadingTextKeyMap[this.defaultText]) {
-      this.selectedElement.innerHTML = `${this.translocoService.translate(this.loadingTextKeyMap[this.defaultText])}`;
+    } else if (this.defaultText) {
+      // Try to find a matching translation key for the button text
+      const loadingKey = this.findButtonTranslationKey(this.defaultText);
+      if (loadingKey) {
+        this.selectedElement.innerHTML = `${this.translocoService.translate(loadingKey)}`;
+      } else {
+        this.selectedElement.innerHTML = this.defaultText;
+      }
     } else {
       this.selectedElement.innerHTML = this.defaultText;
     }
