@@ -12,12 +12,14 @@ import { ReportState } from '../../pipes/report-state.pipe';
 import { SnakeCaseToSpaceCase } from '../../pipes/snake-case-to-space-case.pipe';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-report.data';
+import { TranslocoService } from '@jsverse/transloco';
 
 describe('ReportsCardComponent', () => {
   let component: ReportsCardComponent;
   let fixture: ComponentFixture<ReportsCardComponent>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
     TestBed.configureTestingModule({
       declarations: [
         ReportsCardComponent,
@@ -28,13 +30,14 @@ describe('ReportsCardComponent', () => {
         SnakeCaseToSpaceCase,
       ],
       imports: [IonicModule.forRoot(), MatIconTestingModule, MatIconModule],
-      providers: [FyCurrencyPipe, CurrencyPipe],
+      providers: [FyCurrencyPipe, CurrencyPipe, { provide: TranslocoService, useValue: translocoServiceSpy }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ReportsCardComponent);
     component = fixture.componentInstance;
     component.report = expectedReportsSinglePage[0];
     component.prevDate = new Date();
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     fixture.detectChanges();
   }));
 

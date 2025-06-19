@@ -347,5 +347,66 @@
       "selectNamePlaceholder": "Select {{name}}",
       "selectDatePlaceholder": "Select date"
     }
+  },
+  "pipes": {
+    "arrayToCommaList": {
+      "and": " and "
+    },
+    "humanizeCurrency": {
+      "kiloSuffix": "K",
+      "megaSuffix": "M",
+      "gigaSuffix": "B",
+      "teraSuffix": "t",
+      "quadrillionSuffix": "q",
+      "quintillionSuffix": "Q",
+      "sextillionSuffix": "s",
+      "septillionSuffix": "S",
+      "octillionSuffix": "o",
+      "nonillionSuffix": "n"
+    },
+    "expenseState": {
+      "incomplete": "incomplete",
+      "complete": "complete",
+      "submitted": "submitted",
+      "approved": "approved",
+      "paymentPending": "payment_pending",
+      "processing": "processing",
+      "closed": "closed"
+    },
+    "mileageRateName": {
+      "twoWheeler": "Two Wheeler",
+      "fourWheelerType1": "Four Wheeler - Type 1",
+      "fourWheelerType2": "Four Wheeler - Type 2",
+      "fourWheelerType3": "Four Wheeler - Type 3",
+      "fourWheelerType4": "Four Wheeler - Type 4",
+      "bicycle": "Bicycle",
+      "electricCar": "Electric Car"
+    },
+    "reportState": {
+      "draft": "draft",
+      "submitted": "submitted",
+      "reported": "reported",
+      "sentBack": "sent_back",
+      "autoFlagged": "auto_flagged",
+      "rejected": "rejected",
+      "approved": "approved",
+      "paymentPending": "payment_pending",
+      "processing": "processing",
+      "closed": "closed",
+      "cancelled": "cancelled",
+      "disabled": "disabled"
+    },
+    "dateFormat": {
+      "format": "MMM DD, YYYY"
+    },
+    "advanceState": {
+      "draft": "draft",
+      "pending": "pending",
+      "approved": "approved",
+      "sentBack": "sent back",
+      "issued": "issued",
+      "disabled": "disabled",
+      "rejected": "rejected"
+    }
   }
 }

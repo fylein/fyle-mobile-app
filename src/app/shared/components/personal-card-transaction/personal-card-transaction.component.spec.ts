@@ -10,13 +10,21 @@ import { CurrencyPipe } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { platformPersonalCardTxns } from 'src/app/core/mock-data/personal-card-txns.data';
+import { TranslocoService } from '@jsverse/transloco';
 
 describe('PersonalCardTransactionComponent', () => {
   let component: PersonalCardTransactionComponent;
   let fixture: ComponentFixture<PersonalCardTransactionComponent>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     const dateFormatPipeSpy = jasmine.createSpyObj('DateFormatPipe', ['transform']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+    translocoServiceSpy.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'pipes.dateFormat.format': 'MMM DD, YYYY',
+      };
+      return translations[key] || key;
+    });
     TestBed.configureTestingModule({
       declarations: [PersonalCardTransactionComponent, DateFormatPipe, ExactCurrencyPipe, FyCurrencyPipe],
       imports: [IonicModule.forRoot(), IconModule, MatIconTestingModule, MatIconModule],
@@ -27,6 +35,7 @@ describe('PersonalCardTransactionComponent', () => {
         },
         FyCurrencyPipe,
         CurrencyPipe,
+        { provide: TranslocoService, useValue: translocoServiceSpy },
       ],
     }).compileComponents();
 
@@ -34,6 +43,7 @@ describe('PersonalCardTransactionComponent', () => {
     component = fixture.componentInstance;
     component.transaction = platformPersonalCardTxns.data[0];
     component.selectedElements = [platformPersonalCardTxns.data[0].id, platformPersonalCardTxns.data[1].id];
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     fixture.detectChanges();
   }));
 
