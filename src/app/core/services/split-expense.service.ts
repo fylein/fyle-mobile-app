@@ -21,7 +21,6 @@ import { ExpenseCommentService } from './platform/v1/spender/expense-comment.ser
 import { ExpenseComment } from '../models/expense-comment.model';
 import { UntypedFormArray, AbstractControl } from '@angular/forms';
 import { fallbackCurrencies } from '../mock-data/fallback-currency-data';
-import { cloneDeep } from 'lodash';
 
 @Injectable({
   providedIn: 'root',
@@ -472,8 +471,7 @@ export class SplitExpenseService {
       }).resolvedOptions();
       return maximumFractionDigits;
     } catch (_) {
-      const fallbackCurrencyData = cloneDeep(fallbackCurrencies);
-      const currencyConfig = fallbackCurrencyData.find((config) => config.code === currencyCode.toUpperCase());
+      const currencyConfig = fallbackCurrencies.find((config) => config.code === currencyCode.toUpperCase());
       return currencyConfig ? currencyConfig.decimalPlaces : 2;
     }
   }
