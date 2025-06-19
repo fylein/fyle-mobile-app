@@ -189,7 +189,7 @@ describe('TasksService', () => {
         if (params.amount !== undefined) {
           // For amount parameter, replace with the actual amount or empty string if not provided
           // If amount is provided, it should include a space before it
-          const amountValue = params.amount ? ` ${params.amount}` : '';
+          const amountValue = params.amount ? `${params.amount}` : '';
           translation = translation.replace('{amount}', amountValue);
         }
       }
@@ -787,7 +787,7 @@ describe('TasksService', () => {
       },
       homeCurrency
     );
-    expect(tasks[0].subheader).toEqual('1 expense  worth ₹339.00  can be added to a report');
+    expect(tasks[0].subheader).toEqual('1 expense worth ₹339.00 can be added to a report');
   });
 
   it('should not be generating tasks when no corresponding data is present', () => {
@@ -1010,7 +1010,7 @@ describe('TasksService', () => {
         amount: '123370000.00',
         count: 1,
         header: 'Advance sent back!',
-        subheader: '1 advance  worth ₹123370000.00  was sent back by your approver',
+        subheader: '1 advance worth ₹123370000.00 was sent back by your approver',
         icon: TaskIcon.ADVANCE,
         ctas: [
           {
@@ -1050,7 +1050,7 @@ describe('TasksService', () => {
         amount: '44.53',
         count: 2,
         header: 'Reports sent back!',
-        subheader: '2 reports  worth ₹44.53  were sent back by your approver',
+        subheader: '2 reports worth ₹44.53 were sent back by your approver',
         icon: TaskIcon.REPORT,
         ctas: [
           {
@@ -1087,7 +1087,7 @@ describe('TasksService', () => {
         amount: '132573333762.37',
         count: 1,
         header: 'Incomplete expense',
-        subheader: '1 expense  worth ₹132573333762.37  require additional information',
+        subheader: '1 expense worth ₹132573333762.37 require additional information',
         icon: TaskIcon.WARNING,
         ctas: [
           {
@@ -1161,7 +1161,7 @@ describe('TasksService', () => {
         amount: '733479.83',
         count: 1,
         header: 'Report to be approved',
-        subheader: '1 report  worth ₹733479.83  requires your approval',
+        subheader: '1 report worth ₹733479.83 requires your approval',
         icon: TaskIcon.REPORT,
         ctas: [
           {
