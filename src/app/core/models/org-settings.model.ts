@@ -152,7 +152,7 @@ export interface AutoFyleSettings extends CommonOrgSettings {
   background_enabled?: boolean;
 }
 
-export interface DefaultOrgUserSettings {
+export interface DefaultOuSettings {
   auto_fyle_settings?: AutoFyleSettings;
 }
 
@@ -378,7 +378,7 @@ export interface OrgSettingsResponse {
   bank_feed_request_settings?: BankFeedRequestSettings;
   card_expense_creation_settings?: CommonOrgSettings;
   ach_settings?: AchSettings;
-  default_ou_settings?: DefaultOrgUserSettings;
+  default_ou_settings?: DefaultOuSettings;
   org_personal_cards_settings?: CommonOrgSettings;
   bank_data_aggregation_settings?: OrgBankDataAggregationSettings;
   per_diem_settings?: PerDiemSettings;
