@@ -70,7 +70,6 @@ export class MyProfilePage {
     [key: string]: keyof EmployeeSettings;
   } = {
     instaFyle: 'insta_fyle_settings',
-    defaultCurrency: 'currency_settings',
     formAutofill: 'expense_form_autofills',
   };
 
@@ -175,7 +174,6 @@ export class MyProfilePage {
     this.trackingService.onSettingsToggle({
       userSetting: eventData.key,
       action: eventData.isEnabled ? 'enabled' : 'disabled',
-      setDefaultCurrency: eventData.selectedCurrency ? true : false,
     });
 
     return this.platformEmployeeSettingsService.post(this.employeeSettings).subscribe(noop);
@@ -288,14 +286,6 @@ export class MyProfilePage {
           this.orgSettings.org_expense_form_autofills.allowed &&
           this.orgSettings.org_expense_form_autofills.enabled &&
           this.employeeSettings.expense_form_autofills?.allowed,
-      },
-      {
-        title: 'Default currency',
-        content: 'Select the default currency to be used for creating expenses.',
-        key: 'defaultCurrency',
-        defaultCurrency: null,
-        isEnabled: false,
-        isAllowed: this.orgSettings.org_currency_settings.enabled,
       },
     ];
     this.preferenceSettings = allPreferenceSettings.filter((setting) => setting.isAllowed);
