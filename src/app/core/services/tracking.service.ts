@@ -598,16 +598,8 @@ export class TrackingService {
     this.eventTrack('Receipt Cropped', properties);
   }
 
-  rotateReceipt(properties = {}): void {
-    this.eventTrack('Receipt Rotated', properties);
-  }
-
   saveReceiptWithInvalidForm(properties = {}): void {
     this.eventTrack('Save receipt with invalid form', properties);
-  }
-
-  receiptSavedRotation(properties: { Count?: number; Source?: string; 'File ID'?: string }): void {
-    this.eventTrack('Receipt Saved After Rotation', properties);
   }
 
   // Merge related trackings
