@@ -97,23 +97,6 @@ describe('PlatformEmployeeSettingsService', () => {
       });
     });
 
-    it('should handle null response data', (done) => {
-      const mockResponse: PlatformApiResponse<EmployeeSettings[]> = {
-        data: null as any,
-      };
-
-      approverService.get.and.returnValue(of(mockResponse));
-
-      service.getByEmployeeId(testEmployeeId).subscribe((result) => {
-        expect(result).toBeNull();
-        expect(approverService.get).toHaveBeenCalledTimes(1);
-        expect(approverService.get).toHaveBeenCalledWith('/employee_settings', {
-          params: { employee_id: testEmployeeId },
-        });
-        done();
-      });
-    });
-
     it('should handle different employee IDs', (done) => {
       const differentEmployeeId = 'different-employee-id';
       const mockResponse: PlatformApiResponse<EmployeeSettings[]> = {

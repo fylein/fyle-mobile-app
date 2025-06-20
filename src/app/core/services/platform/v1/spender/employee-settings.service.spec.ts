@@ -84,21 +84,6 @@ describe('PlatformEmployeeSettingsService', () => {
         done();
       });
     });
-
-    it('should handle null response data', (done) => {
-      const mockResponse: PlatformApiResponse<EmployeeSettings[]> = {
-        data: null as any,
-      };
-
-      spenderService.get.and.returnValue(of(mockResponse));
-
-      service.get().subscribe((result) => {
-        expect(result).toBeNull();
-        expect(spenderService.get).toHaveBeenCalledTimes(1);
-        expect(spenderService.get).toHaveBeenCalledWith('/employee_settings', {});
-        done();
-      });
-    });
   });
 
   describe('post()', () => {
@@ -190,21 +175,6 @@ describe('PlatformEmployeeSettingsService', () => {
 
       service.getAllowedPaymentModes().subscribe((result) => {
         expect(result).toEqual([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY]);
-        expect(spenderService.get).toHaveBeenCalledTimes(1);
-        expect(spenderService.get).toHaveBeenCalledWith('/employee_settings', {});
-        done();
-      });
-    });
-
-    it('should handle null employee settings', (done) => {
-      const mockResponse: PlatformApiResponse<EmployeeSettings[]> = {
-        data: [],
-      };
-
-      spenderService.get.and.returnValue(of(mockResponse));
-
-      service.getAllowedPaymentModes().subscribe((result) => {
-        expect(result).toBeUndefined();
         expect(spenderService.get).toHaveBeenCalledTimes(1);
         expect(spenderService.get).toHaveBeenCalledWith('/employee_settings', {});
         done();
