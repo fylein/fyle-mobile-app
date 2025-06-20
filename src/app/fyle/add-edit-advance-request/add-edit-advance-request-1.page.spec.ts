@@ -9,7 +9,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { StatusService } from 'src/app/core/services/status.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -48,7 +48,7 @@ export function TestCases1(getTestBed) {
     let trackingService: jasmine.SpyObj<TrackingService>;
     let expenseFieldsService: jasmine.SpyObj<ExpenseFieldsService>;
     let currencyService: jasmine.SpyObj<CurrencyService>;
-    let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
+    let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
     let router: jasmine.SpyObj<Router>;
     let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
 
@@ -77,7 +77,9 @@ export function TestCases1(getTestBed) {
       expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
       advanceRequestService = TestBed.inject(AdvanceRequestService) as jasmine.SpyObj<AdvanceRequestService>;
       currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
-      orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
+      platformEmployeeSettingsService = TestBed.inject(
+        PlatformEmployeeSettingsService
+      ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
       router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
       activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
     });

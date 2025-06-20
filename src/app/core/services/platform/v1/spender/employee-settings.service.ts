@@ -26,7 +26,7 @@ export class PlatformEmployeeSettingsService {
   get(): Observable<EmployeeSettings> {
     return this.spenderService
       .get<PlatformApiResponse<EmployeeSettings[]>>('/employee_settings', {})
-      .pipe(map((response) => (response.data.length > 0 ? (response.data[0] ) : null)));
+      .pipe(map((response) => (response.data.length > 0 ? response.data[0] : null)));
   }
 
   @CacheBuster({
@@ -49,7 +49,7 @@ export class PlatformEmployeeSettingsService {
     cacheBusterObserver: employeeSettingsCacheBuster$,
   })
   getAllowedPaymentModes(): Observable<AccountType[]> {
-    return this.get().pipe(map((employeeSettings) => employeeSettings.payment_mode_settings.allowed_payment_modes));
+    return this.get().pipe(map((employeeSettings) => employeeSettings.payment_mode_settings?.allowed_payment_modes));
   }
 
   getEmailEvents(): EmailEventsObject {

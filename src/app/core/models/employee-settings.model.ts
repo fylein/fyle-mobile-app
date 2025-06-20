@@ -41,11 +41,6 @@ export interface EmployeeSettings {
 
   payment_mode_settings: CommonEmployeeSettings & { allowed_payment_modes: AccountType[] };
 
-  currency_settings: {
-    enabled: boolean;
-    preferred_currency: string;
-  };
-
   locale: {
     timezone: string;
     abbreviation: string;

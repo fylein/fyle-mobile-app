@@ -13,7 +13,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
@@ -60,7 +60,7 @@ import {
   advanceWallet1Data,
   multiplePaymentModesWithoutAdvData,
 } from 'src/app/core/test-data/accounts.service.spec.data';
-import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
+import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
 import { expectedReportsPaginated, expectedSingleReport } from 'src/app/core/mock-data/platform-report.data';
 import { reportOptionsData3 } from 'src/app/core/mock-data/report-options.data';
 import { txnFieldsData3 } from 'src/app/core/mock-data/expense-field-obj.data';
@@ -131,7 +131,7 @@ export function TestCases2(getTestBed) {
     let platform: Platform;
     let paymentModesService: jasmine.SpyObj<PaymentModesService>;
     let costCentersService: jasmine.SpyObj<CostCentersService>;
-    let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
+    let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
     let storageService: jasmine.SpyObj<StorageService>;
     let perDiemService: jasmine.SpyObj<PerDiemService>;
     let advanceWalletsService: jasmine.SpyObj<AdvanceWalletsService>;
@@ -175,7 +175,9 @@ export function TestCases2(getTestBed) {
       platform = TestBed.inject(Platform);
       paymentModesService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
       costCentersService = TestBed.inject(CostCentersService) as jasmine.SpyObj<CostCentersService>;
-      orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
+      platformEmployeeSettingsService = TestBed.inject(
+        PlatformEmployeeSettingsService
+      ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       perDiemService = TestBed.inject(PerDiemService) as jasmine.SpyObj<PerDiemService>;
       advanceWalletsService = TestBed.inject(AdvanceWalletsService) as jasmine.SpyObj<AdvanceWalletsService>;
@@ -517,7 +519,7 @@ export function TestCases2(getTestBed) {
         tokenService.getClusterDomain.and.resolveTo(authResData1.cluster_domain);
         storageService.get.and.resolveTo(true);
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
-        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
         loaderService.showLoader.and.resolveTo();
         loaderService.hideLoader.and.resolveTo();
         platformReportService.getAllReportsByParams.and.returnValue(of(expectedReportsPaginated));
@@ -614,11 +616,11 @@ export function TestCases2(getTestBed) {
         expect(component.isExpandedView).toBeTrue();
       }));
 
-      it('should call orgSettingsService.get, orgUserSettingsService.get, perDiemService.getRates and reportService.getAutoSubmissionReportName once and update isNewReportsFlowEnabled', () => {
+      it('should call orgSettingsService.get, employeeSettingsService.get, perDiemService.getRates and reportService.getAutoSubmissionReportName once and update isNewReportsFlowEnabled', () => {
         orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithSimplifiedReport));
         component.ionViewWillEnter();
         expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
-        expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+        expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
         expect(perDiemService.getRates).toHaveBeenCalledTimes(1);
         expect(reportService.getAutoSubmissionReportName).toHaveBeenCalledTimes(1);
         component.autoSubmissionReportName$.subscribe((res) => {
@@ -790,10 +792,10 @@ export function TestCases2(getTestBed) {
         done();
       });
 
-      it('should set individualProjectIds$ to empty array if orgUserSettings.project_ids are undefined', (done) => {
-        const mockOrgUserSettings = cloneDeep(orgUserSettingsData);
-        mockOrgUserSettings.project_ids = undefined;
-        orgUserSettingsService.get.and.returnValue(of(mockOrgUserSettings));
+      it('should set individualProjectIds$ to empty array if employeeSettings.project_ids are undefined', (done) => {
+        const mockEmployeeSettings = cloneDeep(employeeSettingsData);
+        mockEmployeeSettings.project_ids = undefined;
+        platformEmployeeSettingsService.get.and.returnValue(of(mockEmployeeSettings));
         component.ionViewWillEnter();
 
         component.individualProjectIds$.subscribe((res) => {
@@ -959,13 +961,13 @@ export function TestCases2(getTestBed) {
         });
       }));
 
-      it('should set project to null in form if orgUserSettings.preferences is undefined', fakeAsync(() => {
+      it('should set project to null in form if employeeSettings.default_project_id is undefined', fakeAsync(() => {
         const mockTxnData = cloneDeep(unflattenedTxnData);
         mockTxnData.tx.project_id = undefined;
         component.getEditExpense = jasmine.createSpy().and.returnValue(of(mockTxnData));
-        const mockOrgUserSettings = cloneDeep(orgUserSettingsData);
-        mockOrgUserSettings.preferences = undefined;
-        orgUserSettingsService.get.and.returnValue(of(mockOrgUserSettings));
+        const mockEmployeeSettings = cloneDeep(employeeSettingsData);
+        mockEmployeeSettings.default_project_id = undefined;
+        platformEmployeeSettingsService.get.and.returnValue(of(mockEmployeeSettings));
         component.ionViewWillEnter();
         tick(1000);
         expect(component.fg.value).toEqual(perDiemFormValuesData2);
