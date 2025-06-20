@@ -195,6 +195,7 @@ describe('SplitExpensePage', () => {
       'handlePolicyAndMissingFieldsCheck',
       'checkIfMissingFieldsExist',
       'transformSplitTo',
+      'normalizeSplitAmounts',
     ]);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById'], {
