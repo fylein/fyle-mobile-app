@@ -622,6 +622,10 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
     }
     const projectDependantFieldValues = dependentFieldsMapping[this.genericFieldsFormValues.project] || [];
     const costCenterDependentFieldValues = dependentFieldsMapping[this.genericFieldsFormValues.costCenter] || [];
+    // In case of project and cost center have same value, we need to remove the duplicate dependent fields
+    const uniqueDependentFieldValues = [
+      ...new Set([...projectDependantFieldValues, ...costCenterDependentFieldValues]),
+    ];
 
     return {
       source_account_id: sourceExpense?.tx_source_account_id,
@@ -638,8 +642,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
       file_ids: this.selectedReceiptsId,
       custom_fields: [
         ...(Array.isArray(this.customInputsFormValues?.fields) ? this.customInputsFormValues.fields : []),
-        ...projectDependantFieldValues,
-        ...costCenterDependentFieldValues,
+        ...uniqueDependentFieldValues,
       ],
       started_at: this.categoryDependentFieldsFormValues.from_dt,
       ended_at: this.categoryDependentFieldsFormValues.to_dt,
