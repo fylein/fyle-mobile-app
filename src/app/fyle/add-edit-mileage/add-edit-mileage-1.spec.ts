@@ -18,7 +18,7 @@ import {
   mileageCategoryWithoutId,
   transformedOrgCategoryById,
 } from 'src/app/core/mock-data/org-category.data';
-import { orgUserSettingsData, orgUserSettingsWithAdvanceWallet } from 'src/app/core/mock-data/org-user-settings.data';
+import { employeeSettingsData, employeeSettingsWithAdvanceWallet } from 'src/app/core/mock-data/employee-settings.data';
 import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
 import { splitPolicyExp4 } from 'src/app/core/mock-data/policy-violation.data';
 import { txnData2 } from 'src/app/core/mock-data/transaction.data';
@@ -46,7 +46,7 @@ import { MileageService } from 'src/app/core/services/mileage.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
@@ -129,7 +129,7 @@ export function TestCases1(getTestBed) {
     let titleCasePipe: jasmine.SpyObj<TitleCasePipe>;
     let paymentModesService: jasmine.SpyObj<PaymentModesService>;
     let taxGroupService: jasmine.SpyObj<TaxGroupService>;
-    let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
+    let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
     let storageService: jasmine.SpyObj<StorageService>;
     let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
     let mileageService: jasmine.SpyObj<MileageService>;
@@ -189,7 +189,9 @@ export function TestCases1(getTestBed) {
       titleCasePipe = TestBed.inject(TitleCasePipe) as jasmine.SpyObj<TitleCasePipe>;
       paymentModesService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
       taxGroupService = TestBed.inject(TaxGroupService) as jasmine.SpyObj<TaxGroupService>;
-      orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
+      platformEmployeeSettingsService = TestBed.inject(
+        PlatformEmployeeSettingsService
+      ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
       mileageService = TestBed.inject(MileageService) as jasmine.SpyObj<MileageService>;
@@ -1100,8 +1102,8 @@ export function TestCases1(getTestBed) {
       accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
       advanceWalletsService.getAllAdvanceWallets.and.returnValue(of(advanceWallet1Data));
       orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithAdvanceWallet));
-      orgUserSettingsService.getAllowedPaymentModes.and.returnValue(
-        of(orgUserSettingsWithAdvanceWallet.payment_mode_settings.allowed_payment_modes)
+      platformEmployeeSettingsService.getAllowedPaymentModes.and.returnValue(
+        of(employeeSettingsWithAdvanceWallet.payment_mode_settings.allowed_payment_modes)
       );
       paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(
         of(orgSettingsData.payment_mode_settings.enabled && orgSettingsData.payment_mode_settings.allowed)
@@ -1113,7 +1115,7 @@ export function TestCases1(getTestBed) {
         expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
         expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledTimes(1);
         expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-        expect(orgUserSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
+        expect(platformEmployeeSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
         expect(paymentModesService.checkIfPaymentModeConfigurationsIsEnabled).toHaveBeenCalledTimes(1);
         done();
       });
@@ -1124,8 +1126,8 @@ export function TestCases1(getTestBed) {
       accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
       advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
       orgSettingsService.get.and.returnValue(of(null));
-      orgUserSettingsService.getAllowedPaymentModes.and.returnValue(
-        of(orgUserSettingsData.payment_mode_settings.allowed_payment_modes)
+      platformEmployeeSettingsService.getAllowedPaymentModes.and.returnValue(
+        of(employeeSettingsData.payment_mode_settings.allowed_payment_modes)
       );
       paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(of(true));
       accountsService.getPaymentModes.and.returnValue(accountOptionData1);
@@ -1136,7 +1138,7 @@ export function TestCases1(getTestBed) {
         expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
         expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledTimes(1);
         expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-        expect(orgUserSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
+        expect(platformEmployeeSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
         expect(paymentModesService.checkIfPaymentModeConfigurationsIsEnabled).toHaveBeenCalledTimes(1);
         done();
       });
@@ -1146,8 +1148,8 @@ export function TestCases1(getTestBed) {
       accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
       advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
-      orgUserSettingsService.getAllowedPaymentModes.and.returnValue(
-        of(orgUserSettingsData.payment_mode_settings.allowed_payment_modes)
+      platformEmployeeSettingsService.getAllowedPaymentModes.and.returnValue(
+        of(employeeSettingsData.payment_mode_settings.allowed_payment_modes)
       );
       paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(of(true));
       accountsService.getPaymentModes.and.returnValue(accountOptionData1);
@@ -1166,11 +1168,11 @@ export function TestCases1(getTestBed) {
         expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
         expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledTimes(1);
         expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-        expect(orgUserSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
+        expect(platformEmployeeSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
         expect(paymentModesService.checkIfPaymentModeConfigurationsIsEnabled).toHaveBeenCalledTimes(1);
         expect(accountsService.getPaymentModes).toHaveBeenCalledOnceWith(
           multiplePaymentModesData,
-          orgUserSettingsData.payment_mode_settings.allowed_payment_modes,
+          employeeSettingsData.payment_mode_settings.allowed_payment_modes,
           config
         );
         done();

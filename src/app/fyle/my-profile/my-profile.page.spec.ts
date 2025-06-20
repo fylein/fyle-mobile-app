@@ -10,13 +10,13 @@ import { selectedCurrencies } from 'src/app/core/mock-data/currency.data';
 import { extendedDeviceInfoMockData } from 'src/app/core/mock-data/extended-device-info.data';
 import { apiEouRes, eouRes2, eouRes3, eouWithNoAttempts } from 'src/app/core/mock-data/extended-org-user.data';
 import { allInfoCardsData } from 'src/app/core/mock-data/info-card-data.data';
-import { orgUserSettingsData, orgUserSettingsWoInstaFyle } from 'src/app/core/mock-data/org-user-settings.data';
+import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { DeviceService } from 'src/app/core/services/device.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { OrgService } from 'src/app/core/services/org.service';
 import { SecureStorageService } from 'src/app/core/services/secure-storage.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
@@ -42,7 +42,7 @@ describe('MyProfilePage', () => {
   let component: MyProfilePage;
   let fixture: ComponentFixture<MyProfilePage>;
   let authService: jasmine.SpyObj<AuthService>;
-  let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
+  let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
   let userEventService: jasmine.SpyObj<UserEventService>;
   let secureStorageService: jasmine.SpyObj<SecureStorageService>;
   let storageService: jasmine.SpyObj<StorageService>;
@@ -66,7 +66,7 @@ describe('MyProfilePage', () => {
 
   beforeEach(waitForAsync(() => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou', 'logout', 'refreshEou']);
-    const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['post', 'get']);
+    const platformEmployeeSettingsServiceSpy = jasmine.createSpyObj('PlatformEmployeeSettingsService', ['post', 'get']);
     const userEventServiceSpy = jasmine.createSpyObj('UserEventService', ['logout']);
     const secureStorageServiceSpy = jasmine.createSpyObj('SecureStorageService', ['clearAll']);
     const storageServiceSpy = jasmine.createSpyObj('StorageService', ['clearAll']);
@@ -120,8 +120,8 @@ describe('MyProfilePage', () => {
           useValue: authServiceSpy,
         },
         {
-          provide: OrgUserSettingsService,
-          useValue: orgUserSettingsServiceSpy,
+          provide: PlatformEmployeeSettingsService,
+          useValue: platformEmployeeSettingsServiceSpy,
         },
         {
           provide: UserEventService,
@@ -160,8 +160,8 @@ describe('MyProfilePage', () => {
           useValue: networkServiceSpy,
         },
         {
-          provide: OrgUserSettingsService,
-          useValue: orgUserSettingsServiceSpy,
+          provide: PlatformEmployeeSettingsService,
+          useValue: platformEmployeeSettingsServiceSpy,
         },
         {
           provide: OrgSettingsService,
@@ -215,7 +215,9 @@ describe('MyProfilePage', () => {
     component = fixture.componentInstance;
 
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-    orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
+    platformEmployeeSettingsService = TestBed.inject(
+      PlatformEmployeeSettingsService
+    ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     userEventService = TestBed.inject(UserEventService) as jasmine.SpyObj<UserEventService>;
     secureStorageService = TestBed.inject(SecureStorageService) as jasmine.SpyObj<SecureStorageService>;
     storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
@@ -225,7 +227,9 @@ describe('MyProfilePage', () => {
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     orgService = TestBed.inject(OrgService) as jasmine.SpyObj<OrgService>;
     networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
-    orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
+    platformEmployeeSettingsService = TestBed.inject(
+      PlatformEmployeeSettingsService
+    ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
@@ -408,7 +412,7 @@ describe('MyProfilePage', () => {
   });
 
   it('reset(): should reset all settings', fakeAsync(() => {
-    orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+    platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
     orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
     orgSettingsService.get.and.returnValue(of(orgSettingsData));
     loaderService.showLoader.and.resolveTo();
@@ -423,7 +427,7 @@ describe('MyProfilePage', () => {
     component.reset();
     tick(500);
 
-    expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+    expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
     expect(orgService.getCurrentOrg).toHaveBeenCalledTimes(1);
     expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
     expect(component.setInfoCardsData).toHaveBeenCalledTimes(1);
@@ -432,7 +436,7 @@ describe('MyProfilePage', () => {
     expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
     expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
 
-    expect(component.orgUserSettings).toEqual(orgUserSettingsData);
+    expect(component.employeeSettings).toEqual(employeeSettingsData);
     expect(component.orgSettings).toEqual(orgSettingsData);
     expect(paymentModeService.getPaymentModeDisplayName).toHaveBeenCalledOnceWith(
       orgSettingsData.payment_mode_settings.payment_modes_order[0]
@@ -452,7 +456,7 @@ describe('MyProfilePage', () => {
 
   it('setPreferenceSettings(): should set preference settings', () => {
     component.orgSettings = orgSettingsData;
-    component.orgUserSettings = orgUserSettingsWoInstaFyle;
+    component.employeeSettings = employeeSettingsData;
     fixture.detectChanges();
 
     component.setPreferenceSettings();
@@ -467,41 +471,37 @@ describe('MyProfilePage', () => {
 
   describe('toggleSetting():', () => {
     it('should toggle settings to true', () => {
-      const mockOrgUserSettings = cloneDeep(orgUserSettingsData);
-      component.orgUserSettings = mockOrgUserSettings;
-      orgUserSettingsService.post.and.returnValue(of(null));
+      const mockEmployeeSettings = cloneDeep(employeeSettingsData);
+      component.employeeSettings = mockEmployeeSettings;
+      platformEmployeeSettingsService.post.and.returnValue(of(null));
 
       component.toggleSetting({
-        key: 'defaultCurrency',
+        key: 'instaFyle',
         isEnabled: true,
-        selectedCurrency: selectedCurrencies[0],
       });
 
       expect(trackingService.onSettingsToggle).toHaveBeenCalledOnceWith({
-        userSetting: 'defaultCurrency',
+        userSetting: 'instaFyle',
         action: 'enabled',
-        setDefaultCurrency: true,
       });
-      expect(orgUserSettingsService.post).toHaveBeenCalledOnceWith(mockOrgUserSettings);
+      expect(platformEmployeeSettingsService.post).toHaveBeenCalledOnceWith(mockEmployeeSettings);
     });
 
     it('should toggle settings to false for default currency', () => {
-      const mockOrgUserSettings = cloneDeep(orgUserSettingsData);
-      component.orgUserSettings = mockOrgUserSettings;
-      orgUserSettingsService.post.and.returnValue(of(null));
+      const mockEmployeeSettings = cloneDeep(employeeSettingsData);
+      component.employeeSettings = mockEmployeeSettings;
+      platformEmployeeSettingsService.post.and.returnValue(of(null));
 
       component.toggleSetting({
-        key: 'defaultCurrency',
+        key: 'instaFyle',
         isEnabled: false,
-        selectedCurrency: null,
       });
 
       expect(trackingService.onSettingsToggle).toHaveBeenCalledOnceWith({
-        userSetting: 'defaultCurrency',
+        userSetting: 'instaFyle',
         action: 'disabled',
-        setDefaultCurrency: false,
       });
-      expect(orgUserSettingsService.post).toHaveBeenCalledOnceWith(mockOrgUserSettings);
+      expect(platformEmployeeSettingsService.post).toHaveBeenCalledOnceWith(mockEmployeeSettings);
     });
   });
 

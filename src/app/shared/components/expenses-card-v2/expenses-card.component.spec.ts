@@ -11,7 +11,7 @@ import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { ExpensesCardComponent } from './expenses-card.component';
 import { PopoverController, ModalController, Platform } from '@ionic/angular';
 import { MatIconModule } from '@angular/material/icon';
@@ -30,7 +30,6 @@ import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data'
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 import { cloneDeep } from 'lodash';
 import * as dayjs from 'dayjs';
-import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import { CameraOptionsPopupComponent } from 'src/app/fyle/add-edit-expense/camera-options-popup/camera-options-popup.component';
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 import { ToastMessageComponent } from '../toast-message/toast-message.component';
@@ -44,6 +43,7 @@ import {
   transformedExpenseData,
   transformedExpenseWithExtractedData,
 } from 'src/app/core/mock-data/transformed-expense.data';
+import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
 
 describe('ExpensesCardComponent', () => {
   let component: ExpensesCardComponent;
@@ -51,7 +51,7 @@ describe('ExpensesCardComponent', () => {
   let transactionService: jasmine.SpyObj<TransactionService>;
   let expensesService: jasmine.SpyObj<ExpensesService>;
   let sharedExpenseService: jasmine.SpyObj<SharedExpenseService>;
-  let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
+  let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
   let fileService: jasmine.SpyObj<FileService>;
   let popoverController: jasmine.SpyObj<PopoverController>;
   let networkService: jasmine.SpyObj<NetworkService>;
@@ -74,7 +74,7 @@ describe('ExpensesCardComponent', () => {
       'isCriticalPolicyViolatedExpense',
       'getVendorDetails',
     ]);
-    const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
+    const platformEmployeeSettingsServiceSpy = jasmine.createSpyObj('PlatformEmployeeSettingsService', ['get']);
     const fileServiceSpy = jasmine.createSpyObj('FileService', [
       'downloadUrl',
       'getReceiptDetails',
@@ -110,7 +110,7 @@ describe('ExpensesCardComponent', () => {
         { provide: TransactionService, useValue: transactionServiceSpy },
         { provide: ExpensesService, useValue: expensesServiceSpy },
         { provide: SharedExpenseService, useValue: sharedExpenseServiceSpy },
-        { provide: OrgUserSettingsService, useValue: orgUserSettingsServiceSpy },
+        { provide: PlatformEmployeeSettingsService, useValue: platformEmployeeSettingsServiceSpy },
         { provide: FileService, useValue: fileServiceSpy },
         { provide: PopoverController, useValue: popoverControllerSpy },
         { provide: NetworkService, useValue: networkServiceSpy },
@@ -129,7 +129,9 @@ describe('ExpensesCardComponent', () => {
       ],
     }).compileComponents();
 
-    orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
+    platformEmployeeSettingsService = TestBed.inject(
+      PlatformEmployeeSettingsService
+    ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
@@ -341,12 +343,12 @@ describe('ExpensesCardComponent', () => {
       component.isOutboxExpense = false;
       component.homeCurrency = 'INR';
       component.expense = cloneDeep(apiExpenses1[0]);
-      orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+      platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
       const isScanCompletedSpy = spyOn(component, 'checkIfScanIsCompleted').and.returnValue(true);
 
       component.handleScanStatus();
 
-      expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+      expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
       expect(isScanCompletedSpy).toHaveBeenCalledTimes(1);
       expect(component.isScanCompleted).toBeTrue();
       expect(component.isScanInProgress).toBeFalse();
@@ -355,13 +357,13 @@ describe('ExpensesCardComponent', () => {
     it('should handle status when the sync is in progress and there is no extracted data present', () => {
       component.isOutboxExpense = false;
       component.expense = cloneDeep(expenseData);
-      orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+      platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
       const isScanCompletedSpy = spyOn(component, 'checkIfScanIsCompleted').and.returnValue(false);
       component.isScanInProgress = true;
 
       component.handleScanStatus();
 
-      expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+      expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
       expect(component.checkIfScanIsCompleted).toHaveBeenCalledTimes(1);
       expect(isScanCompletedSpy).toHaveBeenCalledTimes(1);
       expect(component.isScanCompleted).toBeFalse();
@@ -371,8 +373,8 @@ describe('ExpensesCardComponent', () => {
     it('should handle status when the scanning is not in progress', () => {
       component.isOutboxExpense = false;
       component.homeCurrency = 'USD';
-      const orguserSettRes = {
-        ...orgUserSettingsData,
+      const employeeSettingsRes = {
+        ...employeeSettingsData,
         insta_fyle_settings: {
           allowed: false,
           enabled: false,
@@ -380,9 +382,9 @@ describe('ExpensesCardComponent', () => {
           extract_fields: ['AMOUNT', 'CURRENCY', 'CATEGORY', 'TXN_DT'],
         },
       };
-      orgUserSettingsService.get.and.returnValue(of(orguserSettRes));
+      platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsRes));
       component.handleScanStatus();
-      expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+      expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
       expect(component.isScanCompleted).toBeTrue();
       expect(component.isScanInProgress).toBeFalse();
     });
