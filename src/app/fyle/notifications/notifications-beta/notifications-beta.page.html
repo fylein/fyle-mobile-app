@@ -11,6 +11,59 @@
 
 <ion-content>
   <div class="notifications--container">
-    <div class="notifications--notif-setting-header">Set notifications you want to receive</div>
+    <div
+      class="notifications--card"
+      matRipple
+      *ngIf="expenseNotificationsConfig.notifications.length > 0"
+      (click)="openNotificationModal(expenseNotificationsConfig)"
+    >
+      <div class="notifications--card--title">{{ expenseNotificationsConfig.title }}</div>
+      <ion-icon
+        class="notifications--navigate-icon"
+        src="../../../assets/svg/arrow-right.svg"
+        slot="icon-only"
+      ></ion-icon>
+    </div>
+
+    <div
+      class="notifications--card"
+      matRipple
+      *ngIf="expenseReportNotificationsConfig.notifications.length > 0"
+      (click)="openNotificationModal(expenseReportNotificationsConfig)"
+    >
+      <div class="notifications--card--title">{{ expenseReportNotificationsConfig.title }}</div>
+      <ion-icon
+        class="notifications--navigate-icon"
+        src="../../../assets/svg/arrow-right.svg"
+        slot="icon-only"
+      ></ion-icon>
+    </div>
+
+    <div
+      class="notifications--card"
+      matRipple
+      *ngIf="isAdvancesEnabled && advanceNotificationsConfig.notifications.length > 0"
+      (click)="openNotificationModal(advanceNotificationsConfig)"
+    >
+      <div class="notifications--card--title">{{ advanceNotificationsConfig.title }}</div>
+      <ion-icon
+        class="notifications--navigate-icon"
+        src="../../../assets/svg/arrow-right.svg"
+        slot="icon-only"
+      ></ion-icon>
+    </div>
+
+    <ng-container *ngIf="isDelegateePresent$|async">
+      <div>Notification preferences</div>
+      <div>Select the option for which you'd like to receive notifications</div>
+      <form [formGroup]="delegateNotificationForm">
+        <div>
+          <div *ngFor="let option of delegateNotificationOptions">
+            <input type="radio" [id]="option.value" formControlName="preference" [value]="option.value" />
+            <label [for]="option.value">{{ option.label }}</label>
+          </div>
+        </div>
+      </form>
+    </ng-container>
   </div>
 </ion-content>
