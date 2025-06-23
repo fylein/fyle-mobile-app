@@ -3,7 +3,6 @@ import { concat, forkJoin, from, noop, Observable, of, Subject, Subscription } f
 import { map, shareReplay, switchMap, takeUntil } from 'rxjs/operators';
 import { ActionSheetButton, ActionSheetController, ModalController, NavController, Platform } from '@ionic/angular';
 import { NetworkService } from '../../core/services/network.service';
-import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { StatsComponent } from './stats/stats.component';
 import { ActivatedRoute, NavigationStart, Params, Router } from '@angular/router';
 import { FooterState } from '../../shared/components/footer/footer-state.enum';
@@ -13,7 +12,6 @@ import { TasksService } from 'src/app/core/services/tasks.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { SmartlookService } from 'src/app/core/services/smartlook.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { BackButtonService } from 'src/app/core/services/back-button.service';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
@@ -36,6 +34,8 @@ import { driver } from 'driver.js';
 import { WalkthroughService } from 'src/app/core/services/walkthrough.service';
 import { FooterService } from 'src/app/core/services/footer.service';
 import { TimezoneService } from 'src/app/core/services/timezone.service';
+import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -49,7 +49,7 @@ export class DashboardPage {
 
   @ViewChild(TasksComponent) tasksComponent: TasksComponent;
 
-  orgUserSettings$: Observable<OrgUserSettings>;
+  employeeSettings$: Observable<EmployeeSettings>;
 
   orgSettings$: Observable<OrgSettings>;
 
@@ -103,7 +103,7 @@ export class DashboardPage {
     private actionSheetController: ActionSheetController,
     private tasksService: TasksService,
     private smartlookService: SmartlookService,
-    private orgUserSettingsService: OrgUserSettingsService,
+    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
     private orgSettingsService: OrgSettingsService,
     private categoriesService: CategoriesService,
     private platform: Platform,
@@ -343,7 +343,7 @@ export class DashboardPage {
       this.currentStateIndex = 0;
     }
 
-    this.orgUserSettings$ = this.orgUserSettingsService.get().pipe(shareReplay(1));
+    this.employeeSettings$ = this.platformEmployeeSettingsService.get().pipe(shareReplay(1));
     this.orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
     this.specialCategories$ = this.categoriesService.getMileageOrPerDiemCategories().pipe(shareReplay(1));
     this.homeCurrency$ = this.currencyService.getHomeCurrency().pipe(shareReplay(1));
@@ -351,8 +351,8 @@ export class DashboardPage {
     this.isUserFromINCluster$ = from(this.utilityService.isUserFromINCluster());
     const openSMSOptInDialog = this.activatedRoute.snapshot.params.openSMSOptInDialog as string;
 
-    this.orgUserSettings$.subscribe((orgUserSettings) => {
-      this.timezoneService.setTimezone(orgUserSettings?.locale);
+    this.employeeSettings$.subscribe((employeeSettings) => {
+      this.timezoneService.setTimezone(employeeSettings?.locale);
     });
 
     if (openSMSOptInDialog !== 'true') {

@@ -12,7 +12,7 @@ import { concatMap, filter, finalize, map, reduce, shareReplay, switchMap, take,
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
 import { OrgService } from 'src/app/core/services/org.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { CameraPreviewComponent } from './camera-preview/camera-preview.component';
 import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-settings';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
@@ -75,7 +75,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     private popoverController: PopoverController,
     private loaderService: LoaderService,
     private orgService: OrgService,
-    private orgUserSettingsService: OrgUserSettingsService,
+    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
     private authService: AuthService,
@@ -181,12 +181,12 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   navigateToExpenseForm(): void {
-    const isInstafyleEnabled$ = this.orgUserSettingsService
+    const isInstafyleEnabled$ = this.platformEmployeeSettingsService
       .get()
       .pipe(
         map(
-          (orgUserSettings) =>
-            orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled
+          (employeeSettings) =>
+            employeeSettings.insta_fyle_settings.allowed && employeeSettings.insta_fyle_settings.enabled
         )
       );
 

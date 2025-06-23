@@ -12,7 +12,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { StatusService } from 'src/app/core/services/status.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -57,7 +57,7 @@ describe('AddEditAdvanceRequestPage', () => {
     const trackingServiceSpyObj = jasmine.createSpyObj('TrackingService', ['addComment', 'viewComment']);
     const expenseFieldsServiceSpyObj = jasmine.createSpyObj('ExpenseFieldsService', ['getAllMap']);
     const currencyServiceSpyObj = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
-    const orgUserSettingsServiceSpyObj = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
+    const platformEmployeeSettingsServiceSpyObj = jasmine.createSpyObj('PlatformEmployeeSettingsService', ['get']);
     const routerSpyObj = jasmine.createSpyObj('Router', ['navigate']);
 
     TestBed.configureTestingModule({
@@ -80,7 +80,7 @@ describe('AddEditAdvanceRequestPage', () => {
         { provide: TrackingService, useValue: trackingServiceSpyObj },
         { provide: ExpenseFieldsService, useValue: expenseFieldsServiceSpyObj },
         { provide: CurrencyService, useValue: currencyServiceSpyObj },
-        { provide: OrgUserSettingsService, useValue: orgUserSettingsServiceSpyObj },
+        { provide: PlatformEmployeeSettingsService, useValue: platformEmployeeSettingsServiceSpyObj },
         { provide: Router, useValue: routerSpyObj },
         {
           provide: ActivatedRoute,

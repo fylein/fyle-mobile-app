@@ -1315,7 +1315,7 @@ export const expectedExpenseObservable2 = deepFreeze({
     skip_reimbursement: false,
     source: 'MOBILE',
     txn_dt: new Date('2019-06-19T01:00:00.000Z'),
-    currency: 'USD',
+    currency: 'ARS',
     amount: null,
     orig_currency: null,
     orig_amount: null,
