@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, flush, tick, waitForAsync } from '@angular/core/testing';
+import { TranslocoService } from '@jsverse/transloco';
 import { IonicModule } from '@ionic/angular';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { StatusService } from 'src/app/core/services/status.service';
@@ -40,6 +41,7 @@ describe('ViewCommentComponent', () => {
   let trackingService: jasmine.SpyObj<TrackingService>;
   let elementRef: jasmine.SpyObj<ElementRef>;
   let platform: jasmine.SpyObj<Platform>;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
 
   beforeEach(waitForAsync(() => {
     statusService = jasmine.createSpyObj('StatusService', ['post', 'find', 'createStatusMap']);
@@ -59,7 +61,7 @@ describe('ViewCommentComponent', () => {
     elementRef = jasmine.createSpyObj('ElementRef', ['nativeElement']);
     platform = jasmine.createSpyObj('Platform', ['is']);
     const dateFormatPipeSpy = jasmine.createSpyObj('DateFormatPipe', ['transform']);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
     TestBed.configureTestingModule({
       declarations: [ViewCommentComponent, DateFormatPipe, DateWithTimezonePipe],
       imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, FormsModule],
@@ -76,6 +78,7 @@ describe('ViewCommentComponent', () => {
         { provide: TIMEZONE, useValue: new BehaviorSubject<string>('UTC') },
         { provide: SpenderExpenseCommentService, useValue: spenderExpenseCommentService },
         { provide: ApproverExpenseCommentService, useValue: approverExpenseCommentService },
+        { provide: TranslocoService, useValue: translocoServiceSpy },
       ],
     }).compileComponents();
 
@@ -92,6 +95,17 @@ describe('ViewCommentComponent', () => {
     component.newComment = 'This is a new comment';
     component.view = ExpenseView.team;
     approverExpenseCommentService.getTransformedComments.and.returnValue(of(mockCommentResponse));
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'viewComment.discardMessage': 'Discard Message',
+        'viewComment.confirmDiscard': 'Are you sure you want to discard the message?',
+        'viewComment.discard': 'Discard',
+        'viewComment.cancel': 'Cancel',
+        'viewComment.expense': 'Expense',
+      };
+      return translations[key] || key;
+    });
   }));
 
   it('should create', () => {

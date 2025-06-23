@@ -161,6 +161,16 @@ describe('ExpensesCardComponent', () => {
     transactionService.transformExpense.and.returnValue(transformedExpenseData);
     networkService.isOnline.and.returnValue(of(true));
     sharedExpenseService.isExpenseInDraft.and.returnValue(true);
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'expensesCard.countSelected': '{{count}} selected',
+        'expensesCard.offlineExpenses': 'Offline expenses',
+        'expensesCard.sizeLimitExceeded': 'Size limit exceeded',
+        'expensesCard.fileSizeError': 'File size error',
+        'expensesCard.ok': 'OK',
+      };
+      return translations[key] || key;
+    });
 
     networkService.connectivityWatcher.and.returnValue(new EventEmitter());
     fixture = TestBed.createComponent(ExpensesCardComponent);

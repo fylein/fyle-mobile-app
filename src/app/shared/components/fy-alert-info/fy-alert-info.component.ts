@@ -1,4 +1,5 @@
 import { Component, Input, EventEmitter, Output } from '@angular/core';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-fy-alert-info',
@@ -12,9 +13,13 @@ export class FyAlertInfoComponent {
 
   @Input() showActionButton = false;
 
-  @Input() actionButtonContent = 'Action;';
+  @Input() actionButtonContent: string;
 
   @Output() actionClick = new EventEmitter<void>();
+
+  constructor(private translocoService: TranslocoService) {
+    this.actionButtonContent = this.translocoService.translate('fyAlertInfo.action');
+  }
 
   onActionClick(): void {
     this.actionClick.emit();

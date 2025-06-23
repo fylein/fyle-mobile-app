@@ -56,6 +56,13 @@ describe('UpdateMobileNumberComponent', () => {
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     orgUserService = TestBed.inject(OrgUserService) as jasmine.SpyObj<OrgUserService>;
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'updateMobileNumber.errorEnterNumber': 'Enter mobile number',
+        'updateMobileNumber.errorEnterNumberWithCountryCode': 'Enter mobile number with country code',
+      };
+      return translations[key] || key;
+    });
     component.extendedOrgUser = apiEouRes;
     fixture.detectChanges();
   }));

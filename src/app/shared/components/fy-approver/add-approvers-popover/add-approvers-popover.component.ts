@@ -10,6 +10,7 @@ import { ApproverReportsService } from 'src/app/core/services/platform/v1/approv
 import { Approver } from './models/approver.model';
 import { AdvanceRequests } from 'src/app/core/models/advance-requests.model';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
+import { TranslocoService } from '@jsverse/transloco';
 @Component({
   selector: 'app-add-approvers-popover',
   templateUrl: './add-approvers-popover.component.html',
@@ -36,7 +37,8 @@ export class AddApproversPopoverComponent {
     private popoverController: PopoverController,
     private advanceRequestService: AdvanceRequestService,
     private loaderService: LoaderService,
-    private approverReportsService: ApproverReportsService
+    private approverReportsService: ApproverReportsService,
+    private translocoService: TranslocoService
   ) {}
 
   async openModal(): Promise<void> {
@@ -64,7 +66,7 @@ export class AddApproversPopoverComponent {
         .slice(0, 3)
         .join(', ');
       if (this.selectedApproversList && this.selectedApproversList.length > 3) {
-        this.displayValue = this.displayValue + ', ...';
+        this.displayValue = this.displayValue + this.translocoService.translate('addApproversPopover.moreEllipsis');
       }
     }
   }

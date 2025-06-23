@@ -57,6 +57,7 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { CardAddedComponent } from '../../manage-corporate-cards/card-added/card-added.component';
 import { orgSettingsPendingRestrictions } from 'src/app/core/mock-data/org-settings.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
+import { TranslocoService } from '@jsverse/transloco';
 
 export function TestCases2(getTestBed) {
   return describe('test case set 2', () => {
@@ -84,7 +85,7 @@ export function TestCases2(getTestBed) {
     let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
     let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
     let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
-
+    let translocoService: jasmine.SpyObj<TranslocoService>;
     beforeEach(waitForAsync(() => {
       const TestBed = getTestBed();
       fixture = TestBed.createComponent(TasksComponent);
@@ -117,6 +118,32 @@ export function TestCases2(getTestBed) {
       orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
       networkService.isOnline.and.returnValue(of(true));
       networkService.connectivityWatcher.and.returnValue(null);
+      translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+      translocoService.translate.and.callFake((key: any, params?: any) => {
+        const translations: { [key: string]: string } = {
+          'tasks.expenses': 'Expenses',
+          'tasks.complete': 'Complete',
+          'tasks.draft': 'Draft',
+          'tasks.duplicate': 'Duplicate',
+          'tasks.reports': 'Reports',
+          'tasks.sentBack': 'Sent Back',
+          'tasks.unsubmitted': 'Unsubmitted',
+          'tasks.unapproved': 'Unapproved',
+          'tasks.advances': 'Advances',
+          'tasks.loadingExpenses': 'please wait while we load your expenses',
+          'tasks.openingReport': 'Opening your report...',
+          'tasks.openingAdvance': 'Opening your advance request...',
+          'tasks.addingExpenseToReport': 'Adding expense to report',
+          'tasks.viewReport': 'View Report',
+          'tasks.expensesAddedToDraft': 'Expenses added to an existing draft report',
+          'tasks.expensesAddedSuccessfully': 'Expenses added to report successfully',
+          'tasks.commuteDetailsSaved': 'Commute details saved successfully',
+          'tasks.noTasks': 'You have no tasks right now',
+          'tasks.noTasksFiltered': 'You have no tasks',
+          'tasks.matchingFilters': 'matching the applied filters',
+        };
+        return translations[key] || key;
+      });
     }));
 
     describe('init():', () => {

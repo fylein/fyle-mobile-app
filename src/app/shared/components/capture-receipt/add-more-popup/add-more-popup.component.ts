@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-add-more-popup',
@@ -9,24 +10,24 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
 export class AddMorePopupComponent implements OnInit {
   actionButtons: { icon: string; title: string; mode: string }[];
 
-  constructor(private matBottomSheet: MatBottomSheet) {}
+  constructor(private matBottomSheet: MatBottomSheet, private translocoService: TranslocoService) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.actionButtons = [
       {
         icon: 'camera',
-        title: 'Capture receipts',
+        title: this.translocoService.translate('addMorePopup.captureReceipts'),
         mode: 'camera',
       },
       {
         icon: 'image',
-        title: 'Upload files',
+        title: this.translocoService.translate('addMorePopup.uploadFiles'),
         mode: 'gallery',
       },
     ];
   }
 
-  ctaClickedEvent(mode) {
+  ctaClickedEvent(mode: string): void {
     this.matBottomSheet.dismiss({ mode });
   }
 }

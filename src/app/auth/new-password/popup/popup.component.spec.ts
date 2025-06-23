@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { TranslocoService } from '@jsverse/transloco';
 import { Router } from '@angular/router';
 import { IonicModule, PopoverController } from '@ionic/angular';
 import { of } from 'rxjs';
@@ -10,22 +11,33 @@ describe('ErrorComponent', () => {
   let fixture: ComponentFixture<PopupComponent>;
   let popoverController: jasmine.SpyObj<PopoverController>;
   let router: jasmine.SpyObj<Router>;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
 
   beforeEach(waitForAsync(() => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['dismiss']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+    translocoServiceSpy.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'popup.errorHeader': 'Error',
+        'popup.close': 'Close',
+      };
+      return translations[key];
+    });
     TestBed.configureTestingModule({
       declarations: [PopupComponent],
       imports: [IonicModule.forRoot()],
       providers: [
         { provide: PopoverController, useValue: popoverControllerSpy },
         { provide: Router, useValue: routerSpy },
+        { provide: TranslocoService, useValue: translocoServiceSpy },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(PopupComponent);
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     component = fixture.componentInstance;
     fixture.detectChanges();
   }));

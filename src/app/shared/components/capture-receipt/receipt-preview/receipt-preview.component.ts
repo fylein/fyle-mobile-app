@@ -12,6 +12,7 @@ import SwiperCore, { Pagination } from 'swiper';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { Image } from 'src/app/core/models/image-type.model';
 import { RotationDirection } from 'src/app/core/enums/rotation-direction.enum';
+import { TranslocoService } from '@jsverse/transloco';
 
 // install Swiper modules
 SwiperCore.use([Pagination]);
@@ -48,7 +49,8 @@ export class ReceiptPreviewComponent implements OnInit, OnDestroy {
     private popoverController: PopoverController,
     private matBottomSheet: MatBottomSheet,
     private imagePicker: ImagePicker,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private translocoService: TranslocoService
   ) {}
 
   async openCropReceiptModal(): Promise<void> {
@@ -147,24 +149,29 @@ export class ReceiptPreviewComponent implements OnInit, OnDestroy {
   async closeModal(): Promise<void> {
     let message: string;
     if (this.base64ImagesWithSource.length > 1) {
-      message = `Are you sure you want to discard the ${this.base64ImagesWithSource.length} receipts you just captured?`;
+      message = this.translocoService.translate('receiptPreview.discardMultipleReceiptsMessage', {
+        count: this.base64ImagesWithSource.length,
+      });
     } else {
-      message = 'Not a good picture? No worries. Discard and click again.';
+      message = this.translocoService.translate('receiptPreview.discardSingleReceiptMessage');
     }
+    const title = this.translocoService.translate('receiptPreview.discardReceiptTitle');
+    const primaryCta = {
+      text: this.translocoService.translate('receiptPreview.discard'),
+      action: 'discard',
+      type: 'alert',
+    };
+    const secondaryCta = {
+      text: this.translocoService.translate('receiptPreview.cancel'),
+      action: 'cancel',
+    };
     const closePopOver = await this.popoverController.create({
       component: PopupAlertComponent,
       componentProps: {
-        title: 'Discard Receipt',
+        title,
         message,
-        primaryCta: {
-          text: 'Discard',
-          action: 'discard',
-          type: 'alert',
-        },
-        secondaryCta: {
-          text: 'Cancel',
-          action: 'cancel',
-        },
+        primaryCta,
+        secondaryCta,
       },
       cssClass: 'pop-up-in-center',
     });
@@ -227,18 +234,20 @@ export class ReceiptPreviewComponent implements OnInit, OnDestroy {
 
   async deleteReceipt(): Promise<void> {
     const activeIndex = await this.swiper?.swiperRef.activeIndex;
+    const title = this.translocoService.translate('receiptPreview.removeReceiptTitle');
+    const message = this.translocoService.translate('receiptPreview.removeReceiptMessage');
     const deletePopOver = await this.popoverController.create({
       component: PopupAlertComponent,
       componentProps: {
-        title: 'Remove Receipt',
-        message: 'Are you sure you want to remove this receipt?',
+        title,
+        message,
         primaryCta: {
-          text: 'Remove',
+          text: this.translocoService.translate('receiptPreview.remove'),
           action: 'remove',
           type: 'alert',
         },
         secondaryCta: {
-          text: 'Cancel',
+          text: this.translocoService.translate('receiptPreview.cancel'),
           action: 'cancel',
         },
       },

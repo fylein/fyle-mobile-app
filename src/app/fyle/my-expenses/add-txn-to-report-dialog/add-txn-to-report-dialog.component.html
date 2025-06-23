@@ -10,7 +10,9 @@
             class="report-list--header--row-icon"
           ></ion-icon>
         </ion-col>
-        <ion-col size="10" class="report-list--header--title text-center">Add to report</ion-col>
+        <ion-col size="10" class="report-list--header--title text-center">{{
+          'addTxnToReportDialog.title' | transloco
+        }}</ion-col>
         <ion-col size="1" class="report-list--header--row-icon-container">
           <ion-icon
             data-testid="addIcon"
@@ -36,7 +38,11 @@
             <ion-col size="8.25" class="ion-no-padding">
               <div class="report-list--purpose">{{ report.purpose }}</div>
               <div class="report-list--count">
-                {{ report.num_expenses }} Expense{{ report.num_expenses > 1 ? 's' : '' }}
+                {{ report.num_expenses }}
+                {{
+                  (report.num_expenses === 1 ? 'addTxnToReportDialog.expense' : 'addTxnToReportDialog.expenses')
+                    | transloco
+                }}
               </div>
               <div class="report-list--currency-amount-container">
                 <span class="report-list--currency">{{ reportCurrencySymbol }}</span>
@@ -60,9 +66,9 @@
   <ng-template #zeroState>
     <app-fy-zero-state
       image="../../../../../assets/images/zero-states/reports.png"
-      message="You have no reports right now"
+      [message]="'addTxnToReportDialog.noReports' | transloco"
       [taskImageStyle]="{ 'max-width': '220px', 'max-height': '124px', width: '220px', height: '124px' }"
-      submessage='To create a draft report please click on <ion-icon class="report-list--zero-state__icon" slot="icon-only" src="../../../../../assets/svg/plus-square.svg"></ion-icon>'
+      [submessage]="'addTxnToReportDialog.createDraftReportCta' | transloco"
     ></app-fy-zero-state>
   </ng-template>
 </div>

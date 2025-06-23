@@ -1,5 +1,5 @@
 <div *ngIf="transactionDetails" class="card-transaction">
-  <div class="card-transaction--header">Card transaction</div>
+  <div class="card-transaction--header">{{ 'cardTransactionPreview.header' | transloco }}</div>
   <div class="card-transaction--matching-card">
     <mat-icon svgIcon="card" class="card-transaction--icon-corporate-card"></mat-icon>
     <div class="card-transaction--matching-content card-transaction--ccc-expense">

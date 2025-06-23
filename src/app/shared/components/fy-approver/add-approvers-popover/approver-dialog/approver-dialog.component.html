@@ -2,7 +2,7 @@
   <mat-icon class="fy-modal-top-bar" svgIcon="notch"></mat-icon>
   <ion-toolbar mode="md" class="fy-modal-toolbar">
     <ion-title>
-      <div class="selection-modal--title">Select approvers</div>
+      <div class="selection-modal--title">{{ 'approverDialog.selectApprovers' | transloco }}</div>
     </ion-title>
     <ion-buttons slot="start">
       <ion-button data-testid="closeBtn" (click)="closeApproverModal()">
@@ -10,7 +10,9 @@
       </ion-button>
     </ion-buttons>
     <ion-buttons slot="end">
-      <ion-button class="selection-modal--cta" (click)="saveUpdatedApproveList()"> Done </ion-button>
+      <ion-button class="selection-modal--cta" (click)="saveUpdatedApproveList()">
+        {{ 'approverDialog.done' | transloco }}
+      </ion-button>
     </ion-buttons>
   </ion-toolbar>
   <ion-toolbar class="text-center" [ngClass]="{ 'selection-modal--toolbar': selectedApproversList?.length > 0 }">
@@ -19,7 +21,7 @@
       appearance="none"
       [ngClass]="{ 'selection-modal--form-container__chips': selectedApproversList?.length > 0 }"
     >
-      <mat-chip-list #chipList aria-label="Multi select">
+      <mat-chip-list #chipList [attr.aria-label]="'approverDialog.multiSelect' | transloco">
         <mat-chip
           *ngFor="let approver of selectedApproversList"
           data-testid="approvers"
@@ -45,12 +47,12 @@
           [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
           [matChipInputAddOnBlur]="addOnBlur"
           (matChipInputTokenEnd)="addChip($event)"
-          [placeholder]="!(selectedApproversList?.length > 0) ? 'Search' : ''"
+          [placeholder]="!(selectedApproversList?.length > 0) ? ('approverDialog.search' | transloco) : ''"
         />
       </mat-chip-list>
     </mat-form-field>
     <div class="selection-modal--selected-count" *ngIf="selectedApproversList?.length > 0">
-      {{ selectedApproversList.length }} selected
+      {{ selectedApproversList.length }} {{ 'approverDialog.selected' | transloco }}
     </div>
   </ion-toolbar>
 </ion-header>

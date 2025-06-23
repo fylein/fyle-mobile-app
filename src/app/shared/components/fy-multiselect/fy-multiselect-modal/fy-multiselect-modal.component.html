@@ -3,7 +3,7 @@
   <ion-toolbar mode="md" class="fy-modal-toolbar">
     <ion-title>
       <div class="selection-modal--title">
-        {{ selectModalHeader }}
+        {{ selectModalHeader || ('fyMultiselectModal.selectItems' | transloco) }}
       </div>
     </ion-title>
     <ion-buttons slot="start">
@@ -12,7 +12,9 @@
       </ion-button>
     </ion-buttons>
     <ion-buttons slot="end">
-      <ion-button class="selection-modal--cta" (click)="useSelected()"> Done </ion-button>
+      <ion-button class="selection-modal--cta" (click)="useSelected()">
+        {{ 'fyMultiselectModal.done' | transloco }}
+      </ion-button>
     </ion-buttons>
   </ion-toolbar>
   <ion-toolbar class="text-center" [ngClass]="{ 'selection-modal--toolbar': currentSelections?.length > 0 }">
@@ -21,7 +23,7 @@
       appearance="none"
       [ngClass]="{ 'selection-modal--form-container__chips': currentSelections?.length > 0 }"
     >
-      <mat-chip-list #chipList aria-label="Multi select">
+      <mat-chip-list #chipList [attr.aria-label]="'fyMultiselectModal.multiSelect' | transloco">
         <mat-chip
           data-testid="chips"
           *ngFor="let item of currentSelections"
@@ -47,12 +49,12 @@
           [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
           [matChipInputAddOnBlur]="addOnBlur"
           (matChipInputTokenEnd)="addChip($event)"
-          [placeholder]="!(currentSelections?.length > 0) ? 'Search' : ''"
+          [placeholder]="!(currentSelections?.length > 0) ? ('fyMultiselectModal.search' | transloco) : ''"
         />
       </mat-chip-list>
     </mat-form-field>
     <div class="selection-modal--selected-count" *ngIf="currentSelections?.length > 0">
-      {{ currentSelections.length }} selected
+      {{ 'fyMultiselectModal.countSelected' | transloco : { count: currentSelections.length } }}
     </div>
   </ion-toolbar>
 </ion-header>

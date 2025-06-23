@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+import { TranslocoService } from '@jsverse/transloco';
 import { IonicModule, ModalController } from '@ionic/angular';
 
 import { FyCurrencyComponent } from './fy-currency.component';
@@ -14,6 +15,7 @@ describe('FyCurrencyComponent', () => {
   let formBuilder: UntypedFormBuilder;
   let modalController: jasmine.SpyObj<ModalController>;
   let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
+  let translocoService: TranslocoService;
 
   const mockCurrency = {
     amount: 100,
@@ -24,6 +26,7 @@ describe('FyCurrencyComponent', () => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
     const injectorSpy = jasmine.createSpyObj('Injector', ['get']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
 
     TestBed.configureTestingModule({
       declarations: [FyCurrencyComponent],
@@ -39,6 +42,12 @@ describe('FyCurrencyComponent', () => {
             control: new UntypedFormControl(),
           },
         },
+        {
+          provide: TranslocoService,
+          useValue: {
+            translate: translocoServiceSpy,
+          },
+        },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -48,6 +57,7 @@ describe('FyCurrencyComponent', () => {
     formBuilder = TestBed.inject(UntypedFormBuilder);
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
+    translocoService = TestBed.inject(TranslocoService);
     fixture.debugElement.injector.get(NG_VALUE_ACCESSOR);
     fixture.detectChanges();
   }));

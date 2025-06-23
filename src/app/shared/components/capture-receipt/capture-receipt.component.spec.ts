@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+import { TranslocoService } from '@jsverse/transloco';
 import { IonicModule } from '@ionic/angular';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { Router } from '@angular/router';
@@ -56,6 +57,7 @@ describe('CaptureReceiptComponent', () => {
   let authService: jasmine.SpyObj<AuthService>;
   let cameraService: jasmine.SpyObj<CameraService>;
   let cameraPreviewService: jasmine.SpyObj<CameraPreviewService>;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
 
   const images = [
     {
@@ -114,7 +116,7 @@ describe('CaptureReceiptComponent', () => {
     const cameraPreviewSpy = jasmine.createSpyObj('CameraPreviewComponent', ['setUpAndStartCamera', 'stopCamera']);
     const cameraPreviewServiceSpy = jasmine.createSpyObj('CameraPreviewService', ['capture']);
     const cameraServiceSpy = jasmine.createSpyObj('CameraService', ['requestCameraPermissions']);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
     TestBed.configureTestingModule({
       declarations: [CaptureReceiptComponent, CameraPreviewStubComponent],
       imports: [IonicModule.forRoot(), RouterTestingModule],
@@ -187,6 +189,10 @@ describe('CaptureReceiptComponent', () => {
           provide: CameraService,
           useValue: cameraServiceSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
       schemas: [NO_ERRORS_SCHEMA, CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
@@ -209,12 +215,34 @@ describe('CaptureReceiptComponent', () => {
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     cameraPreviewService = TestBed.inject(CameraPreviewService) as jasmine.SpyObj<CameraPreviewService>;
     cameraService = TestBed.inject(CameraService) as jasmine.SpyObj<CameraService>;
-
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     component.cameraPreview = cameraPreviewSpy;
     networkService.isOnline.and.returnValue(of(true));
     orgService.getOrgs.and.returnValue(of(orgData1));
     orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
     fixture.detectChanges();
+
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'captureReceipt.bulkModeInfo':
+          'If you have multiple receipts to upload, please use <b>BULK MODE</b> to upload all the receipts at once.',
+        'captureReceipt.pleaseWait': 'Please wait...',
+        'captureReceipt.limitReachedTitle': 'Limit Reached',
+        'captureReceipt.limitReachedMessage':
+          "You've added the maximum limit of 20 receipts. Please review and save these as expenses before adding more.",
+        'captureReceipt.ok': 'Ok',
+        'captureReceipt.cameraPermissionTitle': 'Camera permission',
+        'captureReceipt.photosPermissionTitle': 'Photos permission',
+        'captureReceipt.storagePermissionTitle': 'Storage permission',
+        'captureReceipt.cameraPermissionMessage':
+          'To capture photos, please allow Fyle to access your camera. Click Open Settings and allow access to Camera and {galleryPermissionName}',
+        'captureReceipt.galleryPermissionMessage':
+          'Please allow Fyle to access device photos. Click Settings and allow {galleryPermissionName} access',
+        'captureReceipt.openSettings': 'Open settings',
+        'captureReceipt.cancel': 'Cancel',
+      };
+      return translations[key] || key;
+    });
   }));
 
   it('should create', () => {
@@ -534,7 +562,7 @@ describe('CaptureReceiptComponent', () => {
         componentProps: {
           title: 'Limit Reached',
           message:
-            'You’ve added the maximum limit of 20 receipts. Please review and save these as expenses before adding more.',
+            "You've added the maximum limit of 20 receipts. Please review and save these as expenses before adding more.",
           primaryCta: {
             text: 'Ok',
           },
@@ -602,7 +630,7 @@ describe('CaptureReceiptComponent', () => {
         componentProps: {
           title: 'Camera permission',
           message:
-            'To capture photos, please allow Fyle to access your camera. Click Open Settings and allow access to Camera and Storage',
+            'To capture photos, please allow Fyle to access your camera. Click Open Settings and allow access to Camera and {galleryPermissionName}',
           primaryCta: {
             text: 'Open settings',
             action: 'OPEN_SETTINGS',
@@ -625,7 +653,7 @@ describe('CaptureReceiptComponent', () => {
         component: PopupAlertComponent,
         componentProps: {
           title: 'Storage permission',
-          message: 'Please allow Fyle to access device photos. Click Settings and allow Storage access',
+          message: 'Please allow Fyle to access device photos. Click Settings and allow {galleryPermissionName} access',
           primaryCta: {
             text: 'Open settings',
             action: 'OPEN_SETTINGS',

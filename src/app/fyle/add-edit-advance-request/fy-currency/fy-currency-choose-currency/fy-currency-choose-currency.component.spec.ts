@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+import { TranslocoService } from '@jsverse/transloco';
 import { IonicModule, ModalController } from '@ionic/angular';
 
 import { FyCurrencyChooseCurrencyComponent } from './fy-currency-choose-currency.component';
@@ -21,13 +22,14 @@ describe('FyCurrencyChooseCurrencyComponent', () => {
   let currencyService: jasmine.SpyObj<CurrencyService>;
   let modalController: jasmine.SpyObj<ModalController>;
   let loaderService: jasmine.SpyObj<LoaderService>;
+  let translocoService: TranslocoService;
   let inputElement: HTMLInputElement;
 
   beforeEach(waitForAsync(() => {
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getAll']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
     TestBed.configureTestingModule({
       declarations: [FyCurrencyChooseCurrencyComponent],
       imports: [IonicModule.forRoot()],
@@ -44,6 +46,10 @@ describe('FyCurrencyChooseCurrencyComponent', () => {
           provide: LoaderService,
           useValue: loaderServiceSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -53,6 +59,13 @@ describe('FyCurrencyChooseCurrencyComponent', () => {
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
+    translocoService = TestBed.inject(TranslocoService);
+    translocoServiceSpy.translate.and.callFake((key: string) => {
+      if (key === 'fyCurrencyChooseCurrency.indianRupee') {
+        return 'Indian Rupee';
+      }
+      return key;
+    });
   }));
 
   it('should create', () => {

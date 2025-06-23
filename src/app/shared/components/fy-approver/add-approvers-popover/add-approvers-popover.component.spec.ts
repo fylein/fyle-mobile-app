@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+import { TranslocoService } from '@jsverse/transloco';
 import { IonicModule, ModalController, PopoverController } from '@ionic/angular';
 import { AddApproversPopoverComponent } from './add-approvers-popover.component';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -23,6 +24,7 @@ describe('AddApproversPopoverComponent', () => {
   let advanceRequestService: jasmine.SpyObj<AdvanceRequestService>;
   let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
   let loaderService: jasmine.SpyObj<LoaderService>;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
 
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
@@ -31,7 +33,7 @@ describe('AddApproversPopoverComponent', () => {
     const advanceRequestServiceSpy = jasmine.createSpyObj('AdvanceRequestService', ['addApprover']);
     const approverReportsServiceSpy = jasmine.createSpyObj('ApproverReportsService', ['addApprover']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
     TestBed.configureTestingModule({
       declarations: [ApproverDialogComponent],
       imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, FormsModule],
@@ -60,6 +62,10 @@ describe('AddApproversPopoverComponent', () => {
           provide: LoaderService,
           useValue: loaderServiceSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
     }).compileComponents();
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
@@ -68,7 +74,13 @@ describe('AddApproversPopoverComponent', () => {
     advanceRequestService = TestBed.inject(AdvanceRequestService) as jasmine.SpyObj<AdvanceRequestService>;
     approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
-
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'addApproversPopover.moreEllipsis': ', ...',
+      };
+      return translations[key] || key;
+    });
     fixture = TestBed.createComponent(AddApproversPopoverComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

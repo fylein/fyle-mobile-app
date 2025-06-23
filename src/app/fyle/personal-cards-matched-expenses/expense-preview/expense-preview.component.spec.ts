@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+import { TranslocoService } from '@jsverse/transloco';
 import { IonicModule, ModalController, Platform } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
@@ -28,6 +29,7 @@ describe('ExpensePreviewComponent', () => {
   let platform: jasmine.SpyObj<Platform>;
   let trackingService: jasmine.SpyObj<TrackingService>;
   let expensesService: jasmine.SpyObj<ExpensesService>;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
 
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
@@ -38,7 +40,7 @@ describe('ExpensePreviewComponent', () => {
     const platformSpy = jasmine.createSpyObj('Platform', ['is']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['oldExpensematchedFromPersonalCard']);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenses']);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
     TestBed.configureTestingModule({
       declarations: [ExpensePreviewComponent, ExpensePreviewShimmerComponent],
       imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, FormsModule, MatSnackBarModule],
@@ -51,6 +53,7 @@ describe('ExpensePreviewComponent', () => {
         { provide: Platform, useValue: platformSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },
         { provide: ExpensesService, useValue: expensesServiceSpy },
+        { provide: TranslocoService, useValue: translocoServiceSpy },
       ],
     }).compileComponents();
 
@@ -62,7 +65,13 @@ describe('ExpensePreviewComponent', () => {
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
-
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'expensePreview.successfullyMatched': 'Expense successfully matched',
+      };
+      return translations[key] || key;
+    });
     fixture = TestBed.createComponent(ExpensePreviewComponent);
     component = fixture.componentInstance;
     component.expenseId = 'txOJVaaPxo9O';

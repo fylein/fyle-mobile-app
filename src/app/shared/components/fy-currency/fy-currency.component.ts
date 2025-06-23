@@ -12,6 +12,7 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { ParsedResponse } from 'src/app/core/models/parsed_response.model';
 import { CurrencyObj } from 'src/app/core/models/currency-obj.model';
 import { CurrencyAmountFormValues } from 'src/app/core/models/currency-amount-form-values.model';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-currency',
@@ -58,7 +59,8 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
     private fb: UntypedFormBuilder,
     private modalController: ModalController,
     private currencyService: CurrencyService,
-    private modalProperties: ModalPropertiesService
+    private modalProperties: ModalPropertiesService,
+    private translocoService: TranslocoService
   ) {}
 
   get valid(): boolean {
@@ -185,8 +187,10 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
     const isCurrencyAutoCoded = currency && currency === formCurrency;
     const isAmountAutoCoded = amount && amount === formAmount;
 
-    this.currencyAutoCodeMessage = isCurrencyAutoCoded ? 'Currency is auto coded.' : '';
-    this.amountAutoCodeMessage = isAmountAutoCoded ? 'Amount is auto coded.' : '';
+    this.currencyAutoCodeMessage = isCurrencyAutoCoded
+      ? this.translocoService.translate('fyCurrency.currencyAutoCoded')
+      : '';
+    this.amountAutoCodeMessage = isAmountAutoCoded ? this.translocoService.translate('fyCurrency.amountAutoCoded') : '';
   }
 
   convertInnerValueToFormValue(innerVal: CurrencyObj): CurrencyAmountFormValues {

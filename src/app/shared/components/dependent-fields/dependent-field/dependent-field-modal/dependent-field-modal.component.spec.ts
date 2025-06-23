@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, flush, tick, waitForAsync } from '@angular/core/testing';
+import { TranslocoService } from '@jsverse/transloco';
 import { IonicModule, ModalController } from '@ionic/angular';
 import { MatLegacyFormFieldModule as MatFormFieldModule } from '@angular/material/legacy-form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -29,11 +30,12 @@ describe('DependentFieldModalComponent', () => {
   let fixture: ComponentFixture<DependentFieldModalComponent>;
   let dependentFieldsService: jasmine.SpyObj<DependentFieldsService>;
   let modalController: jasmine.SpyObj<ModalController>;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
 
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
     const dependentFieldsServiceSpy = jasmine.createSpyObj('DependentFieldsService', ['getOptionsForDependentField']);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
     TestBed.configureTestingModule({
       declarations: [DependentFieldModalComponent, FyZeroStateComponent, FyHighlightTextComponent, HighlightPipe],
       imports: [
@@ -56,6 +58,10 @@ describe('DependentFieldModalComponent', () => {
           provide: DependentFieldsService,
           useValue: dependentFieldsServiceSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
     })
       .compileComponents()
@@ -65,7 +71,13 @@ describe('DependentFieldModalComponent', () => {
         modalElement = fixture.debugElement;
         modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
         dependentFieldsService = TestBed.inject(DependentFieldsService) as jasmine.SpyObj<DependentFieldsService>;
-
+        translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+        translocoService.translate.and.callFake((key: any, params?: any) => {
+          const translations: { [key: string]: string } = {
+            'dependentFieldModal.none': 'None',
+          };
+          return translations[key] || key;
+        });
         component.fieldId = 221309;
         component.parentFieldId = 221284;
         component.parentFieldValue = 'Project 1';

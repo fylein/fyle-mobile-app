@@ -1,4 +1,5 @@
 import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
+import { TranslocoService } from '@jsverse/transloco';
 import { IonicModule } from '@ionic/angular';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -9,8 +10,9 @@ import { HeaderState } from './header-state.enum';
 describe('FyHeaderComponent', () => {
   let component: FyHeaderComponent;
   let fixture: ComponentFixture<FyHeaderComponent>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['menuButtonClicked']);
+  const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
@@ -21,9 +23,19 @@ describe('FyHeaderComponent', () => {
           provide: TrackingService,
           useValue: trackingServiceSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
     }).compileComponents();
-
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'fyHeader.fyle': 'Fyle',
+      };
+      return translations[key] || key;
+    });
     fixture = TestBed.createComponent(FyHeaderComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

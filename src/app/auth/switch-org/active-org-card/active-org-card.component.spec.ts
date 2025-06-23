@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { TranslocoService } from '@jsverse/transloco';
 import { ActiveOrgCardComponent } from './active-org-card.component';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
@@ -7,11 +8,14 @@ import { IonicModule } from '@ionic/angular';
 describe('ActiveOrgCardComponent', () => {
   let component: ActiveOrgCardComponent;
   let fixture: ComponentFixture<ActiveOrgCardComponent>;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
 
   beforeEach(waitForAsync(() => {
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
     TestBed.configureTestingModule({
       imports: [IonicModule.forRoot()],
       declarations: [ActiveOrgCardComponent],
+      providers: [{ provide: TranslocoService, useValue: translocoServiceSpy }],
     }).compileComponents();
   }));
 
@@ -19,6 +23,7 @@ describe('ActiveOrgCardComponent', () => {
     fixture = TestBed.createComponent(ActiveOrgCardComponent);
     component = fixture.componentInstance;
     component.org = orgData1[0];
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     fixture.detectChanges();
   });
 

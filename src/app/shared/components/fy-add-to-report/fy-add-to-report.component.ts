@@ -10,6 +10,7 @@ import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender
 import { FyInputPopoverComponent } from '../fy-input-popover/fy-input-popover.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-fy-add-to-report',
@@ -64,7 +65,8 @@ export class FyAddToReportComponent implements OnInit, OnChanges, ControlValueAc
     private injector: Injector,
     private popoverController: PopoverController,
     private platformReportService: SpenderReportsService,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private translocoService: TranslocoService
   ) {}
 
   get valid(): boolean {
@@ -89,13 +91,16 @@ export class FyAddToReportComponent implements OnInit, OnChanges, ControlValueAc
 
   ngOnInit(): void {
     this.ngControl = this.injector.get(NgControl);
+    if (this.subheader === 'All') {
+      this.subheader = this.translocoService.translate('fyAddToReport.all');
+    }
   }
 
   ngOnChanges(): void {
     //If Report auto submission is scheduled, 'None' option won't be shown in reports list
     if (this.autoSubmissionReportName) {
       this.showNullOption = false;
-      this.label = 'Expense Report';
+      this.label = this.translocoService.translate('fyAddToReport.expenseReport');
     }
   }
 
@@ -129,13 +134,17 @@ export class FyAddToReportComponent implements OnInit, OnChanges, ControlValueAc
     if (data && data.createDraftReport) {
       const reportTitle = await this.platformReportService.suggestPurpose([]).toPromise();
 
+      const title = this.translocoService.translate('fyAddToReport.newDraftReport');
+      const ctaText = this.translocoService.translate('fyAddToReport.save');
+      const inputLabel = this.translocoService.translate('fyAddToReport.reportName');
+
       const draftReportPopover = await this.popoverController.create({
         component: FyInputPopoverComponent,
         componentProps: {
-          title: 'New Draft Report',
-          ctaText: 'Save',
+          title,
+          ctaText,
           inputValue: reportTitle,
-          inputLabel: 'Report Name',
+          inputLabel,
           isRequired: true,
         },
         cssClass: 'fy-dialog-popover',
@@ -159,9 +168,11 @@ export class FyAddToReportComponent implements OnInit, OnChanges, ControlValueAc
               this.platformReportService
                 .getAllReportsByParams({ state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' })
                 .pipe(
-                  map((reports) => reports
+                  map((reports) =>
+                    reports
                       .filter((report) => !report.approvals.some((approval) => approval.state === 'APPROVAL_DONE'))
-                      .map((report) => ({ label: report.purpose, value: report }))),
+                      .map((report) => ({ label: report.purpose, value: report }))
+                  ),
                   tap((options) => {
                     this.options = options;
                     this.value = this.options.find((option) => newReport.id === option.value.id)?.value;

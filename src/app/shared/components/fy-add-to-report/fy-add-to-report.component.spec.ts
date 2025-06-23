@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+import { TranslocoService } from '@jsverse/transloco';
 import { IonicModule, ModalController, PopoverController } from '@ionic/angular';
 
 import { FyAddToReportComponent } from './fy-add-to-report.component';
@@ -26,6 +27,7 @@ describe('FyAddToReportComponent', () => {
   let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
   let popoverController: jasmine.SpyObj<PopoverController>;
   let trackingService: jasmine.SpyObj<TrackingService>;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
 
   beforeEach(waitForAsync(() => {
     const injectorSpy = jasmine.createSpyObj('Injector', ['get']);
@@ -45,7 +47,7 @@ describe('FyAddToReportComponent', () => {
       'openCreateDraftReportPopover',
       'openAddToReportModal',
     ]);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
     TestBed.configureTestingModule({
       declarations: [FyAddToReportComponent],
       imports: [IonicModule.forRoot()],
@@ -80,6 +82,10 @@ describe('FyAddToReportComponent', () => {
           provide: TrackingService,
           useValue: trackingServiceSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -92,6 +98,18 @@ describe('FyAddToReportComponent', () => {
     modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'fyAddToReport.newDraftReport': 'New draft report',
+        'fyAddToReport.save': 'Save',
+        'fyAddToReport.reportName': 'Report name',
+        'fyAddToReport.expenseReport': 'Expense report',
+        'fyAddToReport.all': 'All',
+        'fyAddToReport.selectExpenseReport': 'Select expense report',
+      };
+      return translations[key] || key;
+    });
     fixture.detectChanges();
   }));
 

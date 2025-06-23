@@ -1,1 +1,3 @@
-<span class="delegated-acc"> You're now managing {{ delegateeName | ellipsis: 15 }}'s account </span>
+<span class="delegated-acc">
+  {{ 'delegatedAccMessage.managingAccount' | transloco : { delegateeName: (delegateeName | ellipsis : 15) } }}
+</span>

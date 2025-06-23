@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { TranslocoService } from '@jsverse/transloco';
 import { Router } from '@angular/router';
 import { IonicModule, PopoverController } from '@ionic/angular';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
@@ -10,10 +11,17 @@ describe('ErrorComponent', () => {
   let fixture: ComponentFixture<ErrorComponent>;
   let popoverController: jasmine.SpyObj<PopoverController>;
   let router: jasmine.SpyObj<Router>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['dismiss']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+    translocoServiceSpy.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'error.accountDoesNotExist': 'Account does not exist',
+      };
+      return translations[key];
+    });
     TestBed.configureTestingModule({
       declarations: [ErrorComponent],
       imports: [IonicModule.forRoot()],
@@ -26,6 +34,7 @@ describe('ErrorComponent', () => {
     fixture = TestBed.createComponent(ErrorComponent);
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     component = fixture.componentInstance;
     fixture.detectChanges();
   }));

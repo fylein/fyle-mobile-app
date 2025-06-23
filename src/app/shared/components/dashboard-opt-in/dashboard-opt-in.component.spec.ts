@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { TranslocoService } from '@jsverse/transloco';
 import { IonicModule, ModalController, PopoverController } from '@ionic/angular';
 
 import { DashboardOptInComponent } from './dashboard-opt-in.component';
@@ -11,12 +12,13 @@ describe('DashboardOptInComponent', () => {
   let modalController: jasmine.SpyObj<ModalController>;
   let popoverController: jasmine.SpyObj<PopoverController>;
   let trackingService: jasmine.SpyObj<TrackingService>;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
 
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create', 'dismiss', 'onWillDismiss']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['clickedOnDashboardBanner']);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
     TestBed.configureTestingModule({
       declarations: [DashboardOptInComponent],
       imports: [IonicModule.forRoot()],
@@ -33,6 +35,10 @@ describe('DashboardOptInComponent', () => {
           provide: TrackingService,
           useValue: trackingServiceSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -42,6 +48,16 @@ describe('DashboardOptInComponent', () => {
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'dashboardOptIn.areYouSure': 'Are you sure?',
+        'dashboardOptIn.skipOptInMessage': 'Are you sure you want to skip the opt-in?',
+        'dashboardOptIn.yesSkipOptIn': 'Yes, skip',
+        'dashboardOptIn.noGoBack': 'No, go back',
+      };
+      return translations[key] || key;
+    });
     fixture.detectChanges();
   }));
 

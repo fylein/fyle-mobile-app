@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { TranslocoService } from '@jsverse/transloco';
 import { IonicModule, ModalController } from '@ionic/angular';
 
 import { FyPolicyViolationComponent } from './fy-policy-violation.component';
@@ -13,6 +14,7 @@ describe('FyPolicyViolationComponent', () => {
   let policyService: jasmine.SpyObj<PolicyService>;
   let utilityService: jasmine.SpyObj<UtilityService>;
   let modalController: jasmine.SpyObj<ModalController>;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
 
   beforeEach(waitForAsync(() => {
     const policyServiceSpy = jasmine.createSpyObj('PolicyService', ['getApprovalString']);
@@ -21,7 +23,7 @@ describe('FyPolicyViolationComponent', () => {
       'getAmountWithCurrencyFromString',
     ]);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
     TestBed.configureTestingModule({
       declarations: [FyPolicyViolationComponent],
       providers: [
@@ -37,6 +39,10 @@ describe('FyPolicyViolationComponent', () => {
           provide: ModalController,
           useValue: modalControllerSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
       imports: [IonicModule.forRoot(), FormsModule, ReactiveFormsModule],
       schemas: [NO_ERRORS_SCHEMA],
@@ -47,6 +53,22 @@ describe('FyPolicyViolationComponent', () => {
     policyService = TestBed.inject(PolicyService) as jasmine.SpyObj<PolicyService>;
     utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'fyPolicyViolation.cappedTo': 'Expense will be capped to {{amount}}',
+        'fyPolicyViolation.singleViolationFound': 'Policy violation found',
+        'fyPolicyViolation.multipleViolationsFound': 'Policy violations found',
+        'fyPolicyViolation.policyActionHeader': 'The policy violation will trigger the following action(s):',
+        'fyPolicyViolation.flaggedMessage': 'Expense will be flagged for verification and approval',
+        'fyPolicyViolation.skippedMessage': 'Primary approver will be skipped',
+        'fyPolicyViolation.additionalDetailsHeader': 'Please provide additional details for approval',
+        'fyPolicyViolation.detailsPlaceholder': 'Enter the details here',
+        'fyPolicyViolation.cancel': 'Cancel',
+        'fyPolicyViolation.continue': 'Continue',
+      };
+      return translations[key] || key;
+    });
     fixture.detectChanges();
   }));
 

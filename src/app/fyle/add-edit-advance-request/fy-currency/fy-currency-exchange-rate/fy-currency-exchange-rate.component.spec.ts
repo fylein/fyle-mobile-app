@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+import { TranslocoService } from '@jsverse/transloco';
 import { IonicModule, ModalController } from '@ionic/angular';
 
 import { FyCurrencyExchangeRateComponent } from './fy-currency-exchange-rate.component';
@@ -14,7 +15,7 @@ describe('FyCurrencyExchangeRateComponent', () => {
   let modalController: jasmine.SpyObj<ModalController>;
   let loaderService: jasmine.SpyObj<LoaderService>;
   let formBuilder: UntypedFormBuilder;
-
+  let translocoService: TranslocoService;
   beforeEach(waitForAsync(() => {
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', [
       'getExchangeRate',
@@ -22,7 +23,7 @@ describe('FyCurrencyExchangeRateComponent', () => {
     ]);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
     TestBed.configureTestingModule({
       declarations: [FyCurrencyExchangeRateComponent],
       imports: [IonicModule.forRoot(), FormsModule, ReactiveFormsModule],
@@ -40,6 +41,10 @@ describe('FyCurrencyExchangeRateComponent', () => {
           provide: LoaderService,
           useValue: loaderServiceSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
     }).compileComponents();
 
@@ -49,6 +54,7 @@ describe('FyCurrencyExchangeRateComponent', () => {
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
+    translocoService = TestBed.inject(TranslocoService);
     component.txnDt = new Date();
     component.amount = 100;
     component.currentCurrency = 'USD';

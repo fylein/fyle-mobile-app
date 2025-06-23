@@ -99,6 +99,7 @@ describe('AddCorporateCardComponent', () => {
     translocoService.translate.and.callFake((key: any, params?: any) => {
       const translations: { [key: string]: string } = {
         'pipes.arrayToCommaList.and': 'and',
+        'addCorporateCard.enrollmentFailure': 'Something went wrong. Please try after some time.',
       };
       return translations[key] || key;
     });

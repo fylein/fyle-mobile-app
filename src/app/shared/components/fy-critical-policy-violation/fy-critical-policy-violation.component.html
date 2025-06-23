@@ -6,7 +6,7 @@
         <span class="critical-policy-violation--toolbar__close-icon" *ngIf="showCloseIcon" slot="start">
           <mat-icon (click)="cancel()" class="fy-icon-close" svgIcon="cross"></mat-icon>
         </span>
-        Expense blocked
+        {{ 'fyCriticalPolicyViolation.expenseBlocked' | transloco }}
       </div>
     </div>
   </div>
@@ -14,7 +14,7 @@
 
 <div *ngIf="!isSplitBlocked" class="critical-policy-violation--content-section">
   <div class="critical-policy-violation--content">
-    <div class="critical-policy-violation--info">You cannot report this expense due to the following violation(s):</div>
+    <div class="critical-policy-violation--info">{{ 'fyCriticalPolicyViolation.cannotReportWarning' | transloco }}</div>
     <div class="inner-content">
       <ng-container *ngIf="criticalViolationMessages">
         <ng-container *ngFor="let violation of criticalViolationMessages">
@@ -23,7 +23,7 @@
         <app-fy-alert-info
           *ngIf="isReceiptMissing"
           type="information"
-          message="Splitting this expense will create incomplete expenses since receipt is missing."
+          [message]="'fyCriticalPolicyViolation.splitIncompleteMissingReceipt' | transloco"
         ></app-fy-alert-info>
       </ng-container>
     </div>
@@ -35,13 +35,13 @@
     <div class="critical-policy-violation--content-split-info">
       <app-fy-alert-info
         type="danger"
-        message="Splitting this expense will create incomplete expenses."
+        [message]="'fyCriticalPolicyViolation.splitIncomplete' | transloco"
       ></app-fy-alert-info>
     </div>
     <div class="critical-policy-violation--content-split-info">
       <app-fy-alert-info
         type="information"
-        message="Please remove this expense from the report and split it from the Expenses section."
+        [message]="'fyCriticalPolicyViolation.removeAndSplit' | transloco"
       ></app-fy-alert-info>
     </div>
   </ng-container>
@@ -49,13 +49,13 @@
     <div class="critical-policy-violation--content-split-info">
       <app-fy-alert-info
         type="danger"
-        message="Splitting this expense will create blocked expenses."
+        [message]="'fyCriticalPolicyViolation.splitBlocked' | transloco"
       ></app-fy-alert-info>
     </div>
     <div class="critical-policy-violation--content-split-info">
       <app-fy-alert-info
         type="information"
-        message="Please remove this expense from the report and split it from the Expenses section."
+        [message]="'fyCriticalPolicyViolation.removeAndSplit' | transloco"
       ></app-fy-alert-info>
     </div>
   </ng-template>
@@ -64,8 +64,12 @@
 <ion-footer *ngIf="showCTA">
   <ion-toolbar mode="md">
     <div class="fy-footer-cta-container">
-      <ion-button class="fy-footer-cta fy-footer-cta--tertiary-secondary" (click)="cancel()"> Cancel </ion-button>
-      <ion-button class="fy-footer-cta fy-footer-cta--primary" (click)="continue()"> Continue </ion-button>
+      <ion-button class="fy-footer-cta fy-footer-cta--tertiary-secondary" (click)="cancel()">
+        {{ 'fyCriticalPolicyViolation.cancel' | transloco }}
+      </ion-button>
+      <ion-button class="fy-footer-cta fy-footer-cta--primary" (click)="continue()">
+        {{ 'fyCriticalPolicyViolation.continue' | transloco }}
+      </ion-button>
     </div>
   </ion-toolbar>
 </ion-footer>

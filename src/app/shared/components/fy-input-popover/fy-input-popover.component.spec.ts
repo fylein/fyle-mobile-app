@@ -1,4 +1,5 @@
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { TranslocoService } from '@jsverse/transloco';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
@@ -10,9 +11,11 @@ describe('FyInputPopoverComponent', () => {
   let component: FyInputPopoverComponent;
   let fixture: ComponentFixture<FyInputPopoverComponent>;
   let popoverController: jasmine.SpyObj<PopoverController>;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
 
   beforeEach(async () => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['dismiss']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
     await TestBed.configureTestingModule({
       imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, FormsModule],
       declarations: [FyInputPopoverComponent],
@@ -21,8 +24,20 @@ describe('FyInputPopoverComponent', () => {
           provide: PopoverController,
           useValue: popoverControllerSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
     }).compileComponents();
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'fyInputPopover.errorEnterLabel': 'Please enter a {inputLabel}',
+        'fyInputPopover.errorValidMobile': 'Please enter a valid mobile number',
+      };
+      return translations[key] || key;
+    });
   });
 
   beforeEach(() => {

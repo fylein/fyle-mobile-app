@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { TranslocoService } from '@jsverse/transloco';
 import { IonicModule } from '@ionic/angular';
 import { MatRippleModule } from '@angular/material/core';
 import { OrgCardComponent } from './org-card.component';
@@ -8,16 +9,26 @@ import { getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 describe('OrgCardComponent', () => {
   let component: OrgCardComponent;
   let fixture: ComponentFixture<OrgCardComponent>;
+  let translocoService: TranslocoService;
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [OrgCardComponent],
       imports: [IonicModule.forRoot(), MatRippleModule],
+      providers: [
+        {
+          provide: TranslocoService,
+          useValue: {
+            instant: jasmine.createSpy('instant'),
+          },
+        },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(OrgCardComponent);
     component = fixture.componentInstance;
     component.org = orgData1[0];
+    translocoService = TestBed.inject(TranslocoService);
     fixture.detectChanges();
   }));
 

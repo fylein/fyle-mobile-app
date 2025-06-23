@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { TranslocoService } from '@jsverse/transloco';
 import { IonicModule, ModalController } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -30,7 +31,7 @@ describe('SuggestedDuplicatesComponent', () => {
   let matSnackBar: jasmine.SpyObj<MatSnackBar>;
   let router: jasmine.SpyObj<Router>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
-
+  let translocoService: TranslocoService;
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenses', 'dismissDuplicates']);
@@ -38,7 +39,7 @@ describe('SuggestedDuplicatesComponent', () => {
     const snackbarPropertiesServiceSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
     TestBed.configureTestingModule({
       declarations: [SuggestedDuplicatesComponent],
       imports: [
@@ -57,6 +58,7 @@ describe('SuggestedDuplicatesComponent', () => {
         { provide: SnackbarPropertiesService, useValue: snackbarPropertiesServiceSpy },
         { provide: Router, useValue: routerSpy },
         { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
+        { provide: TranslocoService, useValue: translocoServiceSpy },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA], //this is added temporarily and is not recommended
     }).compileComponents();
@@ -67,7 +69,13 @@ describe('SuggestedDuplicatesComponent', () => {
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
-
+    translocoService = TestBed.inject(TranslocoService);
+    translocoServiceSpy.translate.and.callFake((key: string) => {
+      const translations: { [key: string]: string } = {
+        'suggestedDuplicates.dismissSuccess': 'Duplicates was successfully dismissed',
+      };
+      return translations[key] || key;
+    });
     fixture = TestBed.createComponent(SuggestedDuplicatesComponent);
     component = fixture.componentInstance;
 

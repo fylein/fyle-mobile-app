@@ -7,6 +7,7 @@ import { CardNetworkType } from 'src/app/core/enums/card-network-type';
 import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
 import { RealTimeFeedService } from 'src/app/core/services/real-time-feed.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-add-corporate-card',
@@ -40,7 +41,8 @@ export class AddCorporateCardComponent implements OnInit {
     private popoverController: PopoverController,
     private realTimeFeedService: RealTimeFeedService,
     private trackingService: TrackingService,
-    private router: Router
+    private router: Router,
+    private translocoService: TranslocoService
   ) {}
 
   ngOnInit(): void {
@@ -178,7 +180,8 @@ export class AddCorporateCardComponent implements OnInit {
   }
 
   private handleEnrollmentFailures(error: Error): void {
-    this.enrollmentFailureMessage = error.message || 'Something went wrong. Please try after some time.';
+    this.enrollmentFailureMessage =
+      error.message || this.translocoService.translate('addCorporateCard.enrollmentFailure');
     this.cardForm.setErrors({ enrollmentError: true });
 
     this.trackEnrollmentErrors();

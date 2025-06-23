@@ -47,7 +47,20 @@ describe('VerifyNumberPopoverComponent', () => {
       MobileNumberVerificationService
     ) as jasmine.SpyObj<MobileNumberVerificationService>;
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
-
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'verifyNumberPopover.infoBoxText':
+          'Please verify your mobile number using the 6-digit OTP sent to {{mobileNumber}}',
+        'verifyNumberPopover.limitReached':
+          'You have exhausted the limit to request OTP for your mobile number. Please try again after 24 hours.',
+        'verifyNumberPopover.invalidMobileNumber': 'Invalid mobile number. Please try again',
+        'verifyNumberPopover.invalidOtp': 'Incorrect mobile number or OTP. Please try again.',
+        'verifyNumberPopover.invalidInput': 'Please enter 6 digit OTP',
+        'verifyNumberPopover.attemptsLeft':
+          'You have {{attemptsLeft}} attempt{{plural}} left to verify your mobile number.',
+      };
+      return translations[key] || key;
+    });
     component.extendedOrgUser = apiEouRes;
     component.showOtpTimer = false;
     component.disableResendOtp = false;

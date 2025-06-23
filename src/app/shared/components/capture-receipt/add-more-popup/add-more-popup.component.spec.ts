@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { TranslocoService } from '@jsverse/transloco';
 import { IonicModule } from '@ionic/angular';
 import { MatBottomSheet, MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { AddMorePopupComponent } from './add-more-popup.component';
@@ -9,15 +10,30 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 describe('AddMorePopupComponent', () => {
   let addMorePopupComponent: AddMorePopupComponent;
   let fixture: ComponentFixture<AddMorePopupComponent>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
     TestBed.configureTestingModule({
       declarations: [AddMorePopupComponent],
       imports: [IonicModule.forRoot(), MatBottomSheetModule, MatIconModule, MatIconTestingModule],
+      providers: [
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(AddMorePopupComponent);
     addMorePopupComponent = fixture.componentInstance;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'addMorePopup.captureReceipts': 'Capture receipts',
+        'addMorePopup.uploadFiles': 'Upload files',
+      };
+      return translations[key] || key;
+    });
     fixture.detectChanges();
   }));
 

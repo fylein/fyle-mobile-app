@@ -1,5 +1,6 @@
 //@ts-nocheck
 import { ComponentFixture, TestBed, waitForAsync, fakeAsync, tick } from '@angular/core/testing';
+import { TranslocoService } from '@jsverse/transloco';
 import { IonicModule } from '@ionic/angular';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
@@ -24,6 +25,7 @@ describe('ReceiptPreviewComponent', () => {
   let matBottomSheet: jasmine.SpyObj<MatBottomSheet>;
   let imagePicker: jasmine.SpyObj<ImagePicker>;
   let trackingService: jasmine.SpyObj<TrackingService>;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
 
   @Component({
     // eslint-disable-next-line @angular-eslint/component-selector
@@ -70,7 +72,7 @@ describe('ReceiptPreviewComponent', () => {
       'receiptSavedRotation',
     ]);
     const swiperSpy = jasmine.createSpyObj('SwiperStubComponent', ['update', 'slidePrev', 'slideNext']);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
     TestBed.configureTestingModule({
       declarations: [ReceiptPreviewComponent, SwiperStubComponent],
       imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, PinchZoomModule],
@@ -96,6 +98,10 @@ describe('ReceiptPreviewComponent', () => {
           provide: TrackingService,
           useValue: trackingServiceSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
     }).compileComponents();
 
@@ -108,7 +114,18 @@ describe('ReceiptPreviewComponent', () => {
     matBottomSheet = TestBed.inject(MatBottomSheet) as jasmine.SpyObj<MatBottomSheet>;
     imagePicker = TestBed.inject(ImagePicker) as jasmine.SpyObj<ImagePicker>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
-
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'receiptPreview.discardReceiptTitle': 'Discard Receipt',
+        'receiptPreview.cancel': 'Cancel',
+        'receiptPreview.removeReceiptTitle': 'Remove Receipt',
+        'receiptPreview.removeReceiptMessage': 'Are you sure you want to remove this receipt?',
+        'receiptPreview.remove': 'Remove',
+        'receiptPreview.discard': 'Discard',
+        'receiptPreview.cancel': 'Cancel',
+      };
+    });
     component.base64ImagesWithSource = images;
     component.swiper = swiperSpy;
     fixture.detectChanges();

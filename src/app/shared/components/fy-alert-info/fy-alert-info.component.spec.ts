@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { TranslocoService } from '@jsverse/transloco';
 import { MatIconModule } from '@angular/material/icon';
 import { IonicModule } from '@ionic/angular';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
@@ -8,11 +9,19 @@ import { FyAlertInfoComponent } from './fy-alert-info.component';
 describe('FyAlertComponent', () => {
   let component: FyAlertInfoComponent;
   let fixture: ComponentFixture<FyAlertInfoComponent>;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
 
   beforeEach(waitForAsync(() => {
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
     TestBed.configureTestingModule({
       declarations: [FyAlertInfoComponent],
       imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule],
+      providers: [
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(FyAlertInfoComponent);
@@ -21,6 +30,13 @@ describe('FyAlertComponent', () => {
     component.type = 'warning';
     component.showActionButton = true;
     component.actionButtonContent = 'View';
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'fyAlertInfo.action': 'Action',
+      };
+      return translations[key] || key;
+    });
     fixture.detectChanges();
   }));
 

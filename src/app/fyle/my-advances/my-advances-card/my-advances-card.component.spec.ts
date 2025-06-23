@@ -1,4 +1,5 @@
 import { CurrencyPipe } from '@angular/common';
+import { TranslocoService } from '@jsverse/transloco';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { extendedAdvReqDraft } from 'src/app/core/mock-data/extended-advance-request.data';
@@ -16,9 +17,11 @@ describe('MyAdvancesCardComponent', () => {
   let component: MyAdvancesCardComponent;
   let fixture: ComponentFixture<MyAdvancesCardComponent>;
   let advanceRequestService: jasmine.SpyObj<AdvanceRequestService>;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
 
   beforeEach(waitForAsync(() => {
     const advanceRequestServiceSpy = jasmine.createSpyObj('AdvanceRequestService', ['getInternalStateAndDisplayName']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
     TestBed.configureTestingModule({
       declarations: [MyAdvancesCardComponent, EllipsisPipe, HumanizeCurrencyPipe, ExactCurrencyPipe],
       imports: [IonicModule.forRoot()],
@@ -29,6 +32,10 @@ describe('MyAdvancesCardComponent', () => {
           provide: AdvanceRequestService,
           useValue: advanceRequestServiceSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
     }).compileComponents();
 
@@ -36,6 +43,13 @@ describe('MyAdvancesCardComponent', () => {
     component = fixture.componentInstance;
     advanceRequestService = TestBed.inject(AdvanceRequestService) as jasmine.SpyObj<AdvanceRequestService>;
     component.advanceRequest = extendedAdvReqDraft;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'myAdvancesCard.paid': 'Paid',
+      };
+      return translations[key] || key;
+    });
     fixture.detectChanges();
   }));
 
