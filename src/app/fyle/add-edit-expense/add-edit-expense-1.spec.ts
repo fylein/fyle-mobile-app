@@ -17,7 +17,6 @@ import { txnFieldsMap2 } from 'src/app/core/mock-data/expense-fields-map.data';
 import { expenseData1 } from 'src/app/core/mock-data/expense.data';
 import { categorieListRes } from 'src/app/core/mock-data/org-category-list-item.data';
 import { orgSettingsRes, orgSettingsParamsWithAdvanceWallet } from 'src/app/core/mock-data/org-settings.data';
-import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import {
   getMarkDismissModalParamsData1,
   getMarkDismissModalParamsData2,
@@ -46,7 +45,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
@@ -78,6 +77,7 @@ import { expectedProjects4 } from 'src/app/core/mock-data/extended-projects.data
 import { reportData1 } from 'src/app/core/mock-data/report.data';
 import { sortedCategory } from 'src/app/core/mock-data/org-category.data';
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
+import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
 
 export function TestCases1(getTestBed) {
   return describe('AddEditExpensePage-1', () => {
@@ -124,7 +124,7 @@ export function TestCases1(getTestBed) {
     let paymentModesService: jasmine.SpyObj<PaymentModesService>;
     let taxGroupService: jasmine.SpyObj<TaxGroupService>;
     let costCentersService: jasmine.SpyObj<CostCentersService>;
-    let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
+    let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
     let storageService: jasmine.SpyObj<StorageService>;
     let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
     let advanceWalletsService: jasmine.SpyObj<AdvanceWalletsService>;
@@ -181,7 +181,9 @@ export function TestCases1(getTestBed) {
       paymentModesService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
       taxGroupService = TestBed.inject(TaxGroupService) as jasmine.SpyObj<TaxGroupService>;
       costCentersService = TestBed.inject(CostCentersService) as jasmine.SpyObj<CostCentersService>;
-      orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
+      platformEmployeeSettingsService = TestBed.inject(
+        PlatformEmployeeSettingsService
+      ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
 
@@ -1337,7 +1339,7 @@ export function TestCases1(getTestBed) {
 
     describe('setupCostCenters():', () => {
       it('should return list of cost centers if enabled', (done) => {
-        component.orgUserSettings$ = of(orgUserSettingsData);
+        component.employeeSettings$ = of(employeeSettingsData);
         orgSettingsService.get.and.returnValue(of(orgSettingsRes));
         costCentersService.getAllActive.and.returnValue(of(costCenterApiRes1));
         fixture.detectChanges();
@@ -1358,7 +1360,7 @@ export function TestCases1(getTestBed) {
       });
 
       it('should return empty array if cost centers are not enabled', (done) => {
-        component.orgUserSettings$ = of(orgUserSettingsData);
+        component.employeeSettings$ = of(employeeSettingsData);
         orgSettingsService.get.and.returnValue(
           of({ ...orgSettingsRes, cost_centers: { ...orgSettingsRes.cost_centers, enabled: false } })
         );

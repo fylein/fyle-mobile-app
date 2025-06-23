@@ -3,18 +3,18 @@ import { UntypedFormArray, UntypedFormBuilder, UntypedFormControl, UntypedFormGr
 import { Router } from '@angular/router';
 import { NavController } from '@ionic/angular';
 import { Observable, from, noop, zip } from 'rxjs';
-import { finalize, map, switchMap, tap } from 'rxjs/operators';
+import { finalize, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import {
   EmailEvents,
   NotificationEventFeatures,
   NotificationEvents,
 } from 'src/app/core/models/notification-events.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
-import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
+import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 
 @Component({
   selector: 'app-notifications',
@@ -24,7 +24,7 @@ import { EmployeesService } from 'src/app/core/services/platform/v1/spender/empl
 export class NotificationsPage implements OnInit {
   isDelegateePresent$: Observable<boolean>;
 
-  orgUserSettings$: Observable<OrgUserSettings>;
+  employeeSettings$: Observable<EmployeeSettings>;
 
   notificationEvents$: Observable<NotificationEvents>;
 
@@ -34,7 +34,7 @@ export class NotificationsPage implements OnInit {
 
   notificationEvents: NotificationEvents;
 
-  orgUserSettings: OrgUserSettings;
+  employeeSettings: EmployeeSettings;
 
   orgSettings: OrgSettings;
 
@@ -51,7 +51,7 @@ export class NotificationsPage implements OnInit {
 
   constructor(
     private authService: AuthService,
-    private orgUserSettingsService: OrgUserSettingsService,
+    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
     private formBuilder: UntypedFormBuilder,
     private orgSettingsService: OrgSettingsService,
     private router: Router,
@@ -68,16 +68,16 @@ export class NotificationsPage implements OnInit {
   }
 
   getDelegateeSubscription(): Observable<string> {
-    return this.orgUserSettings$.pipe(
-      map((ouSetting) => {
+    return this.employeeSettings$.pipe(
+      map((employeeSettings) => {
         if (
-          ouSetting.notification_settings.notify_delegatee === true &&
-          ouSetting.notification_settings.notify_user === false
+          employeeSettings.notification_settings.notify_delegatee === true &&
+          employeeSettings.notification_settings.notify_user === false
         ) {
           return this.delegationOptions[1];
         } else if (
-          ouSetting.notification_settings.notify_delegatee === true &&
-          ouSetting.notification_settings.notify_user === true
+          employeeSettings.notification_settings.notify_delegatee === true &&
+          employeeSettings.notification_settings.notify_user === true
         ) {
           return this.delegationOptions[0];
         } else {
@@ -87,9 +87,9 @@ export class NotificationsPage implements OnInit {
     );
   }
 
-  setEvents(notificationEvents: NotificationEvents, orgUserSettings: OrgUserSettings): void {
-    const unSubscribedPushNotifications = orgUserSettings.notification_settings.push.unsubscribed_events;
-    const unSubscribedEmailNotifications = orgUserSettings.notification_settings.email.unsubscribed_events;
+  setEvents(notificationEvents: NotificationEvents, employeeSettings: EmployeeSettings): void {
+    const unSubscribedPushNotifications = employeeSettings.notification_settings.push_unsubscribed_events;
+    const unSubscribedEmailNotifications = employeeSettings.notification_settings.email_unsubscribed_events;
 
     notificationEvents.events.forEach((event) => {
       const a = new UntypedFormControl(true);
@@ -138,15 +138,15 @@ export class NotificationsPage implements OnInit {
       }
     });
 
-    this.orgUserSettings.notification_settings.email.unsubscribed_events = [];
-    this.orgUserSettings.notification_settings.email.unsubscribed_events = unsubscribedEmailEvents;
+    this.employeeSettings.notification_settings.email_unsubscribed_events = [];
+    this.employeeSettings.notification_settings.email_unsubscribed_events = unsubscribedEmailEvents;
 
-    this.orgUserSettings.notification_settings.push.unsubscribed_events = [];
-    this.orgUserSettings.notification_settings.push.unsubscribed_events = unsubscribedPushEvents;
+    this.employeeSettings.notification_settings.push_unsubscribed_events = [];
+    this.employeeSettings.notification_settings.push_unsubscribed_events = unsubscribedPushEvents;
 
-    this.orgUserSettingsService
-      .post(this.orgUserSettings)
-      .pipe(tap(() => this.orgUserSettingsService.clearOrgUserSettings()))
+    this.platformEmployeeSettingsService
+      .post(this.employeeSettings)
+      .pipe(tap(() => this.platformEmployeeSettingsService.clearEmployeeSettings()))
       .pipe(finalize(() => (this.saveNotifLoading = false)))
       .subscribe(() => {
         this.navBack();
@@ -158,8 +158,8 @@ export class NotificationsPage implements OnInit {
   }
 
   isAllEventsSubscribed(): void {
-    this.isAllSelected.emailEvents = this.orgUserSettings.notification_settings.email.unsubscribed_events.length === 0;
-    this.isAllSelected.pushEvents = this.orgUserSettings.notification_settings.push.unsubscribed_events.length === 0;
+    this.isAllSelected.emailEvents = this.employeeSettings.notification_settings.email_unsubscribed_events.length === 0;
+    this.isAllSelected.pushEvents = this.employeeSettings.notification_settings.push_unsubscribed_events.length === 0;
   }
 
   removeAdminUnsbscribedEvents(): void {
@@ -195,14 +195,14 @@ export class NotificationsPage implements OnInit {
   updateDelegateeNotifyPreference(event: { value: string }): void {
     if (event) {
       if (event.value === 'Notify my delegate') {
-        this.orgUserSettings.notification_settings.notify_delegatee = true;
-        this.orgUserSettings.notification_settings.notify_user = false;
+        this.employeeSettings.notification_settings.notify_delegatee = true;
+        this.employeeSettings.notification_settings.notify_user = false;
       } else if (event.value === 'Notify me and my delegate') {
-        this.orgUserSettings.notification_settings.notify_delegatee = true;
-        this.orgUserSettings.notification_settings.notify_user = true;
+        this.employeeSettings.notification_settings.notify_delegatee = true;
+        this.employeeSettings.notification_settings.notify_user = true;
       } else if (event.value === 'Notify me only') {
-        this.orgUserSettings.notification_settings.notify_delegatee = false;
-        this.orgUserSettings.notification_settings.notify_user = true;
+        this.employeeSettings.notification_settings.notify_delegatee = false;
+        this.employeeSettings.notification_settings.notify_user = true;
       }
     }
   }
@@ -266,7 +266,7 @@ export class NotificationsPage implements OnInit {
       emailEvents: false,
       pushEvents: false,
     };
-    this.orgUserSettings$ = this.orgUserSettingsService.get();
+    this.employeeSettings$ = this.platformEmployeeSettingsService.get().pipe(shareReplay(1));
 
     // creating form
     this.notificationForm = this.formBuilder.group({
@@ -287,9 +287,9 @@ export class NotificationsPage implements OnInit {
     );
 
     this.orgSettings$ = this.orgSettingsService.get();
-    this.notificationEvents$ = this.orgUserSettingsService.getNotificationEvents();
+    this.notificationEvents$ = this.platformEmployeeSettingsService.getNotificationEvents();
 
-    zip(this.notificationEvents$, this.orgUserSettings$, this.orgSettings$)
+    zip(this.notificationEvents$, this.employeeSettings$, this.orgSettings$)
       .pipe(
         finalize(() => {
           this.isAllEventsSubscribed();
@@ -298,8 +298,8 @@ export class NotificationsPage implements OnInit {
       )
       .subscribe((res) => {
         this.notificationEvents = res[0];
-        this.orgUserSettings = res[1];
-        this.setEvents(this.notificationEvents, this.orgUserSettings);
+        this.employeeSettings = res[1];
+        this.setEvents(this.notificationEvents, this.employeeSettings);
       });
 
     /**
