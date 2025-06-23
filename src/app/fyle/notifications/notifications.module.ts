@@ -9,6 +9,7 @@ import { MatLegacySelectModule as MatSelectModule } from '@angular/material/lega
 import { SharedModule } from '../../shared/shared.module';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatLegacyCheckboxModule as MatCheckboxModule } from '@angular/material/legacy-checkbox';
+import { EmailNotificationsComponent } from './email-notifications/email-notifications.component';
 
 @NgModule({
   imports: [
@@ -21,6 +22,6 @@ import { MatLegacyCheckboxModule as MatCheckboxModule } from '@angular/material/
     SharedModule,
     MatCheckboxModule,
   ],
-  declarations: [NotificationsPage, NotificationsBetaPage],
+  declarations: [NotificationsPage, NotificationsBetaPage, EmailNotificationsComponent],
 })
 export class NotificationsPageModule {}

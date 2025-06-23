@@ -21,7 +21,7 @@ export class PlatformEmployeeSettingsService {
   getByEmployeeId(employeeId: string): Observable<EmployeeSettings> {
     return this.approverService
       .get<PlatformApiResponse<EmployeeSettings[]>>('/employee_settings', { params: { employee_id: employeeId } })
-      .pipe(map((response) => (response.data.length > 0 ? (response.data[0] ) : null)));
+      .pipe(map((response) => (response.data.length > 0 ? response.data[0] : null)));
   }
 
   @Cacheable({
