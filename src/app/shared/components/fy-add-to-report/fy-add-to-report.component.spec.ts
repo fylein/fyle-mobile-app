@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { IonicModule, ModalController, PopoverController } from '@ionic/angular';
 
 import { FyAddToReportComponent } from './fy-add-to-report.component';
@@ -47,10 +47,16 @@ describe('FyAddToReportComponent', () => {
       'openCreateDraftReportPopover',
       'openAddToReportModal',
     ]);
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [FyAddToReportComponent],
-      imports: [IonicModule.forRoot()],
+      imports: [IonicModule.forRoot(), TranslocoModule],
       providers: [
         {
           provide: Injector,
@@ -101,14 +107,24 @@ describe('FyAddToReportComponent', () => {
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     translocoService.translate.and.callFake((key: any, params?: any) => {
       const translations: { [key: string]: string } = {
-        'fyAddToReport.newDraftReport': 'New draft report',
-        'fyAddToReport.save': 'Save',
-        'fyAddToReport.reportName': 'Report name',
-        'fyAddToReport.expenseReport': 'Expense report',
+        'fyAddToReport.expenseReport': 'Expense Report',
         'fyAddToReport.all': 'All',
-        'fyAddToReport.selectExpenseReport': 'Select expense report',
+        'fyAddToReport.newDraftReport': 'New Draft Report',
+        'fyAddToReport.save': 'Save',
+        'fyAddToReport.reportName': 'Report Name',
+        'fyAddToReport.selectExpenseReport': 'Select a expense report',
       };
-      return translations[key] || key;
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
     });
     fixture.detectChanges();
   }));

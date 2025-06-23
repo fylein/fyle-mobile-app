@@ -1,11 +1,11 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { IonicModule, ModalController, PopoverController } from '@ionic/angular';
 
 import { DashboardOptInComponent } from './dashboard-opt-in.component';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-
+import { of } from 'rxjs';
 describe('DashboardOptInComponent', () => {
   let component: DashboardOptInComponent;
   let fixture: ComponentFixture<DashboardOptInComponent>;
@@ -18,10 +18,16 @@ describe('DashboardOptInComponent', () => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create', 'dismiss', 'onWillDismiss']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['clickedOnDashboardBanner']);
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [DashboardOptInComponent],
-      imports: [IonicModule.forRoot()],
+      imports: [IonicModule.forRoot(), TranslocoModule],
       providers: [
         {
           provide: ModalController,
@@ -51,12 +57,28 @@ describe('DashboardOptInComponent', () => {
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     translocoService.translate.and.callFake((key: any, params?: any) => {
       const translations: { [key: string]: string } = {
+        'dashboardOptIn.skipOptInMessage':
+          "<div>\n              <p>You can't send receipts and expense details via text message if you don't opt in.</p>\n              <p>Are you sure you want to skip?<p>  \n            </div>",
         'dashboardOptIn.areYouSure': 'Are you sure?',
-        'dashboardOptIn.skipOptInMessage': 'Are you sure you want to skip the opt-in?',
-        'dashboardOptIn.yesSkipOptIn': 'Yes, skip',
+        'dashboardOptIn.yesSkipOptIn': 'Yes, skip opt in',
         'dashboardOptIn.noGoBack': 'No, go back',
+        'dashboardOptIn.skip': 'Skip',
+        'dashboardOptIn.altOptInToTextReceipts': 'Opt in to text receipts',
+        'dashboardOptIn.tryAI': 'Try AI',
+        'dashboardOptIn.description':
+          'Text receipts for <span class="dashboard-opt-in__instant-text-decoration">instant</span>\n      <span class="dashboard-opt-in__underline"></span> expense submission',
       };
-      return translations[key] || key;
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
     });
     fixture.detectChanges();
   }));

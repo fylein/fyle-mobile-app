@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { IonicModule, ModalController } from '@ionic/angular';
 
 import { SpenderOnboardingOptInStepComponent } from './spender-onboarding-opt-in-step.component';
@@ -15,7 +15,7 @@ import { PlatformHandlerService } from 'src/app/core/services/platform-handler.s
 import { cloneDeep } from 'lodash';
 import { eouRes2 } from 'src/app/core/mock-data/extended-org-user.data';
 import { OptInFlowState } from 'src/app/core/enums/opt-in-flow-state.enum';
-import { of, throwError } from 'rxjs';
+import { of, throwError, from } from 'rxjs';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ToastType } from 'src/app/core/enums/toast-type.enum';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -58,10 +58,16 @@ describe('SpenderOnboardingOptInStepComponent', () => {
     const platformHandlerServiceSpy = jasmine.createSpyObj('PlatformHandlerService', ['registerBackButtonAction']);
     const userEventServiceSpy = jasmine.createSpyObj('UserEventService', ['clearTaskCache']);
     const spenderOnboardingServiceSpy = jasmine.createSpyObj('SpenderOnboardingService', ['getOnboardingStatus']);
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [SpenderOnboardingOptInStepComponent],
-      imports: [IonicModule.forRoot()],
+      imports: [IonicModule.forRoot(), TranslocoModule],
       providers: [
         UntypedFormBuilder,
         { provide: ModalController, useValue: modalControllerSpy },
@@ -124,7 +130,17 @@ describe('SpenderOnboardingOptInStepComponent', () => {
         'spenderOnboardingOptInStep.invalidCode': 'Code is invalid',
         'spenderOnboardingOptInStep.verifyingCodeLoader': 'Verifying code...',
       };
-      return translations[key] || key;
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
     });
   }));
 

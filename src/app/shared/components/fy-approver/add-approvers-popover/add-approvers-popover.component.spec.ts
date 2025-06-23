@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { IonicModule, ModalController, PopoverController } from '@ionic/angular';
 import { AddApproversPopoverComponent } from './add-approvers-popover.component';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -14,6 +14,7 @@ import { pullBackAdvancedRequests } from 'src/app/core/mock-data/advance-request
 import { getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { of } from 'rxjs';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 
 describe('AddApproversPopoverComponent', () => {
   let component: AddApproversPopoverComponent;
@@ -33,10 +34,16 @@ describe('AddApproversPopoverComponent', () => {
     const advanceRequestServiceSpy = jasmine.createSpyObj('AdvanceRequestService', ['addApprover']);
     const approverReportsServiceSpy = jasmine.createSpyObj('ApproverReportsService', ['addApprover']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
-      declarations: [ApproverDialogComponent],
-      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, FormsModule],
+      declarations: [AddApproversPopoverComponent, ApproverDialogComponent],
+      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, FormsModule, TranslocoModule],
       providers: [
         {
           provide: ModalController,
@@ -77,9 +84,28 @@ describe('AddApproversPopoverComponent', () => {
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     translocoService.translate.and.callFake((key: any, params?: any) => {
       const translations: { [key: string]: string } = {
+        'addApproversPopover.title': 'Add approvers',
+        'addApproversPopover.save': 'Save',
+        'addApproversPopover.approversToBeAdded': 'Approver(s) to be added',
+        'addApproversPopover.selectApprovers': 'Select approvers',
+        'addApproversPopover.moreApprovers': '+{{count}} more',
+        'addApproversPopover.reasonForAdding': 'Reason for adding approver(s)',
+        'addApproversPopover.typeYourReason': 'Type your reason here',
+        'addApproversPopover.infoMessage':
+          'You are adding additional approver(s) to the report. The report will go the them at the end and include all the expenses.',
         'addApproversPopover.moreEllipsis': ', ...',
       };
-      return translations[key] || key;
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
     });
     fixture = TestBed.createComponent(AddApproversPopoverComponent);
     component = fixture.componentInstance;
@@ -179,19 +205,24 @@ describe('AddApproversPopoverComponent', () => {
     expect(popoverController.dismiss).toHaveBeenCalledOnceWith({ reload: true });
   }));
 
-  it('should have the "Add Approvers" title in the header', () => {
+  it('should have the "Add Approvers" title in the header', fakeAsync(() => {
+    fixture.detectChanges();
+    tick();
+    fixture.detectChanges();
     const title = getElementBySelector(fixture, '.add-approvers-popover--toolbar__title');
     expect(getTextContent(title)).toContain('Add approvers');
-  });
+  }));
 
-  it('should display the "+n more" chip when there are more than 3 selected approvers', () => {
+  it('should display the "+n more" chip when there are more than 3 selected approvers', fakeAsync(() => {
     const selectedApproversList = ['ajain@fyle.in', 'aiyush.dhar@fyle.in', 'chetan.m@fyle.in', 'john.d@fyle.in'];
     component.selectedApproversList = selectedApproversList.map((email) => {
       return { email };
     });
     fixture.detectChanges();
+    tick();
+    fixture.detectChanges();
     const moreChip = getElementBySelector(fixture, '.add-approvers-popover--input-container__chip');
     expect(moreChip).toBeTruthy();
     expect(getTextContent(moreChip)).toContain('+1 more');
-  });
+  }));
 });

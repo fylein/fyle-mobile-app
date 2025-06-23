@@ -5,7 +5,8 @@ import { ModalController } from '@ionic/angular';
 import { FyLocationModalComponent } from './fy-location-modal/fy-location-modal.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
+import { of } from 'rxjs';
 
 describe('FyLocationComponent', () => {
   let component: FyLocationComponent;
@@ -16,9 +17,35 @@ describe('FyLocationComponent', () => {
 
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
 
-    translocoServiceSpy.translate.and.callFake((key: any, params?: any) => {
+    TestBed.configureTestingModule({
+      imports: [FormsModule, TranslocoModule],
+      declarations: [FyLocationComponent],
+      providers: [
+        {
+          provide: ModalController,
+          useValue: modalControllerSpy,
+        },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
+      ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(FyLocationComponent);
+    component = fixture.componentInstance;
+    modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
       const translations: { [key: string]: string } = {
         'fyLocation.label': 'location',
         'fyLocation.selectLocation': 'Select {{label}}',
@@ -43,29 +70,18 @@ describe('FyLocationComponent', () => {
         'fyLocationModal.locationError': "Couldn't get current location. Please enter manually.",
         'fyLocationModal.useCurrentLocation': 'Use current location',
       };
-      return translations[key] || key;
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
     });
-
-    TestBed.configureTestingModule({
-      imports: [FormsModule],
-      declarations: [FyLocationComponent],
-      providers: [
-        {
-          provide: ModalController,
-          useValue: modalControllerSpy,
-        },
-        {
-          provide: TranslocoService,
-          useValue: translocoServiceSpy,
-        },
-      ],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA],
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(FyLocationComponent);
-    component = fixture.componentInstance;
-    modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
-    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     fixture.detectChanges();
   }));
 

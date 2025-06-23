@@ -40,7 +40,7 @@
               <div class="report-list--count">
                 {{ report.num_expenses }}
                 {{
-                  (report.num_expenses === 1 ? 'addTxnToReportDialog.expense' : 'addTxnToReportDialog.expenses')
+                  (report.num_expenses > 1 ? 'addTxnToReportDialog.expenses' : 'addTxnToReportDialog.expense')
                     | transloco
                 }}
               </div>

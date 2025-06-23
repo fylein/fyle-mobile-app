@@ -57,7 +57,7 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { CardAddedComponent } from '../../manage-corporate-cards/card-added/card-added.component';
 import { orgSettingsPendingRestrictions } from 'src/app/core/mock-data/org-settings.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 
 export function TestCases2(getTestBed) {
   return describe('test case set 2', () => {
@@ -88,6 +88,10 @@ export function TestCases2(getTestBed) {
     let translocoService: jasmine.SpyObj<TranslocoService>;
     beforeEach(waitForAsync(() => {
       const TestBed = getTestBed();
+      TestBed.configureTestingModule({
+        declarations: [TasksComponent],
+        imports: [TranslocoModule],
+      });
       fixture = TestBed.createComponent(TasksComponent);
       component = fixture.componentInstance;
       tasksService = TestBed.inject(TasksService) as jasmine.SpyObj<TasksService>;
@@ -142,7 +146,13 @@ export function TestCases2(getTestBed) {
           'tasks.noTasksFiltered': 'You have no tasks',
           'tasks.matchingFilters': 'matching the applied filters',
         };
-        return translations[key] || key;
+        let translation = translations[key] || key;
+        if (params) {
+          Object.keys(params).forEach((key) => {
+            translation = translation.replace(`{{${key}}}`, params[key]);
+          });
+        }
+        return translation;
       });
     }));
 

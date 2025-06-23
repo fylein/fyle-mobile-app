@@ -13,7 +13,7 @@ import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-he
 import { cloneDeep } from 'lodash';
 import { of, throwError } from 'rxjs';
 import { valueErrorMapping } from 'src/app/core/mock-data/value-error-mapping-for-update-mobile-number-popover.data';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 
 describe('UpdateMobileNumberComponent', () => {
   let component: UpdateMobileNumberComponent;
@@ -26,10 +26,17 @@ describe('UpdateMobileNumberComponent', () => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['dismiss']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['refreshEou']);
     const orgUserServiceSpy = jasmine.createSpyObj('OrgUserService', ['postOrgUser']);
-    translocoService = jasmine.createSpyObj('TranslocoService', ['translate']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
+
     TestBed.configureTestingModule({
       declarations: [UpdateMobileNumberComponent, FormButtonValidationDirective],
-      imports: [IonicModule.forRoot(), FormsModule, MatIconModule, MatIconTestingModule],
+      imports: [IonicModule.forRoot(), FormsModule, MatIconModule, MatIconTestingModule, TranslocoModule],
       providers: [
         {
           provide: PopoverController,
@@ -45,7 +52,7 @@ describe('UpdateMobileNumberComponent', () => {
         },
         {
           provide: TranslocoService,
-          useValue: translocoService,
+          useValue: translocoServiceSpy,
         },
       ],
     }).compileComponents();
@@ -60,8 +67,20 @@ describe('UpdateMobileNumberComponent', () => {
       const translations: { [key: string]: string } = {
         'updateMobileNumber.errorEnterNumber': 'Enter mobile number',
         'updateMobileNumber.errorEnterNumberWithCountryCode': 'Enter mobile number with country code',
+        'updateMobileNumber.enterInputLabel': 'Enter {{inputLabel}}',
+        'updateMobileNumber.saving': 'Saving...',
       };
-      return translations[key] || key;
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
     });
     component.extendedOrgUser = apiEouRes;
     fixture.detectChanges();

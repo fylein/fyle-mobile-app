@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { IonicModule, ModalController } from '@ionic/angular';
 
 import { FyPolicyViolationComponent } from './fy-policy-violation.component';
@@ -7,6 +7,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { of } from 'rxjs';
 
 describe('FyPolicyViolationComponent', () => {
   let component: FyPolicyViolationComponent;
@@ -23,7 +24,13 @@ describe('FyPolicyViolationComponent', () => {
       'getAmountWithCurrencyFromString',
     ]);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [FyPolicyViolationComponent],
       providers: [
@@ -44,7 +51,7 @@ describe('FyPolicyViolationComponent', () => {
           useValue: translocoServiceSpy,
         },
       ],
-      imports: [IonicModule.forRoot(), FormsModule, ReactiveFormsModule],
+      imports: [IonicModule.forRoot(), FormsModule, ReactiveFormsModule, TranslocoModule],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
@@ -67,7 +74,17 @@ describe('FyPolicyViolationComponent', () => {
         'fyPolicyViolation.cancel': 'Cancel',
         'fyPolicyViolation.continue': 'Continue',
       };
-      return translations[key] || key;
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
     });
     fixture.detectChanges();
   }));

@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import {
   UntypedFormBuilder,
   UntypedFormControl,
@@ -30,7 +30,13 @@ describe('FyCurrencyComponent', () => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss', 'create']);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getExchangeRate']);
     const modalPropertiesServiceSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [
         FyCurrencyComponent,
@@ -38,7 +44,7 @@ describe('FyCurrencyComponent', () => {
         FyCurrencyExchangeRateComponent,
         FyNumberComponent,
       ],
-      imports: [IonicModule.forRoot(), FormsModule, ReactiveFormsModule],
+      imports: [IonicModule.forRoot(), FormsModule, ReactiveFormsModule, TranslocoModule],
       providers: [
         {
           provide: ModalController,
@@ -72,8 +78,23 @@ describe('FyCurrencyComponent', () => {
       const translations: { [key: string]: string } = {
         'fyCurrency.currencyAutoCoded': 'Currency is auto coded.',
         'fyCurrency.amountAutoCoded': 'Amount is auto coded.',
+        'fyCurrency.currency': 'Currency',
+        'fyCurrency.amount': 'Amount',
+        'fyCurrency.amountPlaceholder': '00.00',
+        'fyCurrency.exchangeRateInfo': 'at {{exchangeRate}} {{currency}} / {{origCurrency}}',
+        'fyCurrency.modifyButton': 'Modify',
       };
-      return translations[key] || key;
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
     });
     component.txnDt = new Date();
     component.recentlyUsed = [];

@@ -13,7 +13,7 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { ErrorType } from './error-type.model';
 import { errorMappings } from 'src/app/core/mock-data/error-mapping-for-verify-number-popover.data';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 
 describe('VerifyNumberPopoverComponent', () => {
   let component: VerifyNumberPopoverComponent;
@@ -22,20 +22,27 @@ describe('VerifyNumberPopoverComponent', () => {
   let mobileNumberVerificationService: jasmine.SpyObj<MobileNumberVerificationService>;
   let resendOtpSpy: jasmine.Spy;
   let translocoService: jasmine.SpyObj<TranslocoService>;
+
   beforeEach(waitForAsync(() => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['dismiss']);
     const mobileNumberVerificationServiceSpy = jasmine.createSpyObj('MobileNumberVerificationService', [
       'sendOtp',
       'verifyOtp',
     ]);
-    translocoService = jasmine.createSpyObj('TranslocoService', ['translate']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [VerifyNumberPopoverComponent, FyAlertInfoComponent, FormButtonValidationDirective],
-      imports: [IonicModule.forRoot(), FormsModule, MatIconModule, MatIconTestingModule],
+      imports: [IonicModule.forRoot(), FormsModule, MatIconModule, MatIconTestingModule, TranslocoModule],
       providers: [
         { provide: PopoverController, useValue: popoverControllerSpy },
         { provide: MobileNumberVerificationService, useValue: mobileNumberVerificationServiceSpy },
-        { provide: TranslocoService, useValue: translocoService },
+        { provide: TranslocoService, useValue: translocoServiceSpy },
       ],
     }).compileComponents();
 
@@ -49,6 +56,13 @@ describe('VerifyNumberPopoverComponent', () => {
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     translocoService.translate.and.callFake((key: any, params?: any) => {
       const translations: { [key: string]: string } = {
+        'verifyNumberPopover.title': 'Verify mobile number',
+        'verifyNumberPopover.verifyButton': 'Verify',
+        'verifyNumberPopover.otpLabel': 'One Time Password (OTP)',
+        'verifyNumberPopover.resendTimerPrefix': 'Resend OTP in',
+        'verifyNumberPopover.resendButton': 'Resend OTP',
+        'verifyNumberPopover.resendButtonLoading': 'Sending OTP',
+        'verifyNumberPopover.otpPlaceholder': 'Enter 6 digit OTP',
         'verifyNumberPopover.infoBoxText':
           'Please verify your mobile number using the 6-digit OTP sent to {{mobileNumber}}',
         'verifyNumberPopover.limitReached':
@@ -59,7 +73,17 @@ describe('VerifyNumberPopoverComponent', () => {
         'verifyNumberPopover.attemptsLeft':
           'You have {{attemptsLeft}} attempt{{plural}} left to verify your mobile number.',
       };
-      return translations[key] || key;
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
     });
     component.extendedOrgUser = apiEouRes;
     component.showOtpTimer = false;

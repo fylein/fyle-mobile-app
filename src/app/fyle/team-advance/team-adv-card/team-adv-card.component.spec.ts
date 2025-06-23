@@ -9,15 +9,24 @@ import { ExactCurrencyPipe } from 'src/app/shared/pipes/exact-currency.pipe';
 import { extendedAdvReqDraft } from 'src/app/core/mock-data/extended-advance-request.data';
 import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
+import { of } from 'rxjs';
 
 describe('TeamAdvCardComponent', () => {
   let teamAdvCardComponent: TeamAdvCardComponent;
   let fixture: ComponentFixture<TeamAdvCardComponent>;
   let advanceRequestServiceSpy: jasmine.SpyObj<AdvanceRequestService>;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
 
   beforeEach(waitForAsync(() => {
     const fyCurrencyPipeSpy = jasmine.createSpyObj('FyCurrencyPipe', ['transform']);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     advanceRequestServiceSpy = jasmine.createSpyObj('AdvanceRequestService', ['getInternalStateAndDisplayName']);
 
     advanceRequestServiceSpy.getInternalStateAndDisplayName.and.returnValue({
@@ -27,18 +36,39 @@ describe('TeamAdvCardComponent', () => {
 
     TestBed.configureTestingModule({
       declarations: [TeamAdvCardComponent, HumanizeCurrencyPipe, ExactCurrencyPipe, EllipsisPipe, FyCurrencyPipe],
-      imports: [IonicModule.forRoot(), MatRippleModule],
+      imports: [IonicModule.forRoot(), MatRippleModule, TranslocoModule],
       providers: [
         { provide: AdvanceRequestService, useValue: advanceRequestServiceSpy },
         {
           provide: FyCurrencyPipe,
           useValue: fyCurrencyPipeSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TeamAdvCardComponent);
     teamAdvCardComponent = fixture.componentInstance;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'teamAdvCard.approvedDate': 'Approved date',
+      };
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
+    });
     teamAdvCardComponent.advanceRequest = {
       ...extendedAdvReqDraft,
       areq_created_at: new Date('2023-01-16T06:22:47.058Z'),

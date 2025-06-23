@@ -1,5 +1,5 @@
 import { ComponentFixture, fakeAsync, flush, TestBed, tick, waitForAsync } from '@angular/core/testing';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { SpenderOnboardingConnectCardStepComponent } from './spender-onboarding-connect-card-step.component';
 import { RealTimeFeedService } from 'src/app/core/services/real-time-feed.service';
@@ -36,10 +36,16 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
       'getCardTypeFromNumber',
       'isCardNumberValid',
     ]);
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [SpenderOnboardingConnectCardStepComponent],
-      imports: [IonicModule.forRoot(), NgxMaskModule.forRoot(), ReactiveFormsModule],
+      imports: [IonicModule.forRoot(), NgxMaskModule.forRoot(), ReactiveFormsModule, TranslocoModule],
       providers: [
         UntypedFormBuilder,
         { provide: RealTimeFeedService, useValue: realTimeFeedServiceSpy },
@@ -88,16 +94,26 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
         'spenderOnboardingConnectCardStep.partialEnrollmentError':
           'Some cards were not enrolled. You can enroll them later from Settings.',
         'spenderOnboardingConnectCardStep.multipleEnrollmentError':
-          'We ran into an issue while processing your request for the cards <span class="text-bold">{{allButLast}}</span> and <span class="text-bold">{{lastCard}}</span>.<br><br>You can cancel and retry connecting the failed card or proceed to the next step.',
+          "We ran into an issue while processing your request for the cards <span class='text-bold'>{{allButLast}}</span> and <span class='text-bold'>{{lastCard}}</span>.<br><br>You can cancel and retry connecting the failed card or proceed to the next step.",
         'spenderOnboardingConnectCardStep.singleEnrollmentError':
-          'We ran into an issue while processing your request for the card <span class="text-bold">{{failedCard}}</span>.<br><br> You can cancel and retry connecting the failed card or proceed to the next step.',
+          "We ran into an issue while processing your request for the card <span class='text-bold'>{{failedCard}}</span>.<br><br> You can cancel and retry connecting the failed card or proceed to the next step.",
         'spenderOnboardingConnectCardStep.statusSummaryTitle': 'Status summary',
         'spenderOnboardingConnectCardStep.failedConnectingTitle': 'Failed connecting',
         'spenderOnboardingConnectCardStep.proceedAnyway': 'Proceed anyway',
         'spenderOnboardingConnectCardStep.cancel': 'Cancel',
         'spenderOnboardingConnectCardStep.genericEnrollmentError': 'Something went wrong. Please try after some time.',
       };
-      return translations[key] || key;
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
     });
   }));
 

@@ -241,7 +241,18 @@ describe('CaptureReceiptComponent', () => {
         'captureReceipt.openSettings': 'Open settings',
         'captureReceipt.cancel': 'Cancel',
       };
-      return translations[key] || key;
+
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{${paramKey}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
     });
   }));
 
@@ -630,7 +641,7 @@ describe('CaptureReceiptComponent', () => {
         componentProps: {
           title: 'Camera permission',
           message:
-            'To capture photos, please allow Fyle to access your camera. Click Open Settings and allow access to Camera and {galleryPermissionName}',
+            'To capture photos, please allow Fyle to access your camera. Click Open Settings and allow access to Camera and Storage',
           primaryCta: {
             text: 'Open settings',
             action: 'OPEN_SETTINGS',
@@ -653,7 +664,7 @@ describe('CaptureReceiptComponent', () => {
         component: PopupAlertComponent,
         componentProps: {
           title: 'Storage permission',
-          message: 'Please allow Fyle to access device photos. Click Settings and allow {galleryPermissionName} access',
+          message: 'Please allow Fyle to access device photos. Click Settings and allow Storage access',
           primaryCta: {
             text: 'Open settings',
             action: 'OPEN_SETTINGS',

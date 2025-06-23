@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { IonicModule } from '@ionic/angular';
 import { PopoverController } from '@ionic/angular';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
@@ -25,7 +25,6 @@ describe('BankAccountCardComponent', () => {
   let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
   let dateService: jasmine.SpyObj<DateService>;
   let translocoService: jasmine.SpyObj<TranslocoService>;
-
   beforeEach(waitForAsync(() => {
     const personalCardsServiceSpy = jasmine.createSpyObj('PersonalCardsService', ['deleteAccount']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
@@ -33,10 +32,16 @@ describe('BankAccountCardComponent', () => {
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     const dateServiceSpy = jasmine.createSpyObj('DateService', ['convertUTCDateToLocalDate']);
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [BankAccountCardComponent],
-      imports: [IonicModule.forRoot()],
+      imports: [IonicModule.forRoot(), TranslocoModule],
       providers: [
         {
           provide: PersonalCardsService,
@@ -87,7 +92,17 @@ describe('BankAccountCardComponent', () => {
         'bankAccountCard.delete': 'Delete',
         'bankAccountCard.cancel': 'Cancel',
       };
-      return translations[key] || key;
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
     });
 
     component = fixture.componentInstance;

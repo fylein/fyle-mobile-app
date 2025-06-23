@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { IonicModule } from '@ionic/angular';
 import { ModalController } from '@ionic/angular';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
@@ -10,6 +10,7 @@ import { FormsModule } from '@angular/forms';
 import { FyMultiselectModalComponent } from './fy-multiselect-modal/fy-multiselect-modal.component';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { By } from '@angular/platform-browser';
+import { of } from 'rxjs';
 
 describe('FyMultiselectComponent', () => {
   let component: FyMultiselectComponent;
@@ -21,10 +22,16 @@ describe('FyMultiselectComponent', () => {
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [FyMultiselectComponent],
-      imports: [IonicModule.forRoot(), MatIconTestingModule, MatIconModule, FormsModule],
+      imports: [IonicModule.forRoot(), MatIconTestingModule, MatIconModule, FormsModule, TranslocoModule],
       providers: [
         {
           provide: ModalController,
@@ -52,7 +59,17 @@ describe('FyMultiselectComponent', () => {
         'fyMultiselect.selectItems': 'Select items',
         'fyMultiselect.allItems': 'All items',
       };
-      return translations[key] || key;
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
     });
 
     component.options = [
@@ -93,7 +110,7 @@ describe('FyMultiselectComponent', () => {
       component: FyMultiselectModalComponent,
       componentProps: {
         options: component.options,
-        currentSelections: undefined,
+        currentSelections: [],
         selectModalHeader: component.selectModalHeader,
         subheader: component.subheader,
       },

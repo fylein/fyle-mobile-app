@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, flush, tick, waitForAsync } from '@angular/core/testing';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { IonicModule } from '@ionic/angular';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { StatusService } from 'src/app/core/services/status.service';
@@ -61,10 +61,16 @@ describe('ViewCommentComponent', () => {
     elementRef = jasmine.createSpyObj('ElementRef', ['nativeElement']);
     platform = jasmine.createSpyObj('Platform', ['is']);
     const dateFormatPipeSpy = jasmine.createSpyObj('DateFormatPipe', ['transform']);
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [ViewCommentComponent, DateFormatPipe, DateWithTimezonePipe],
-      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, FormsModule],
+      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, FormsModule, TranslocoModule],
       providers: [
         { provide: StatusService, useValue: statusService },
         { provide: AuthService, useValue: authService },
@@ -103,8 +109,23 @@ describe('ViewCommentComponent', () => {
         'viewComment.discard': 'Discard',
         'viewComment.cancel': 'Cancel',
         'viewComment.expense': 'Expense',
+        'viewComment.comments': 'Comments',
+        'viewComment.history': 'History',
+        'viewComment.clarificationPrompt': 'Need to clarify something?',
+        'viewComment.postCommentPrompt': 'Post a comment.',
+        'viewComment.commentPlaceholder': 'Type your comment here...',
       };
-      return translations[key] || key;
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
     });
   }));
 

@@ -1,23 +1,30 @@
 import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { IonicModule } from '@ionic/angular';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { FyMenuIconComponent } from '../fy-menu-icon/fy-menu-icon.component';
 import { FyHeaderComponent } from './fy-header.component';
 import { HeaderState } from './header-state.enum';
+import { of } from 'rxjs';
 
 describe('FyHeaderComponent', () => {
   let component: FyHeaderComponent;
   let fixture: ComponentFixture<FyHeaderComponent>;
   let translocoService: jasmine.SpyObj<TranslocoService>;
   const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['menuButtonClicked']);
-  const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
 
   beforeEach(waitForAsync(() => {
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [FyHeaderComponent, FyMenuIconComponent],
-      imports: [IonicModule.forRoot()],
+      imports: [IonicModule.forRoot(), TranslocoModule],
       providers: [
         {
           provide: TrackingService,
@@ -33,8 +40,19 @@ describe('FyHeaderComponent', () => {
     translocoService.translate.and.callFake((key: any, params?: any) => {
       const translations: { [key: string]: string } = {
         'fyHeader.fyle': 'Fyle',
+        'fyHeader.cancel': 'Cancel',
       };
-      return translations[key] || key;
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
     });
     fixture = TestBed.createComponent(FyHeaderComponent);
     component = fixture.componentInstance;

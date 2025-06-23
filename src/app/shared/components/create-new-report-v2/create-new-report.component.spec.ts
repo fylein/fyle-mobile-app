@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { IonicModule } from '@ionic/angular';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
@@ -46,7 +46,13 @@ describe('CreateNewReportComponent', () => {
     const humanizeCurrencyPipeSpy = jasmine.createSpyObj('HumanizeCurrency', ['transform']);
     const exactCurrencyPipeSpy = jasmine.createSpyObj('ExactCurrency', ['transform']);
     const fyCurrencyPipeSpy = jasmine.createSpyObj('FyCurrencyPipe', ['transform']);
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [CreateNewReportComponent, HumanizeCurrencyPipe, ExactCurrencyPipe, FyCurrencyPipe],
       imports: [
@@ -56,6 +62,7 @@ describe('CreateNewReportComponent', () => {
         FormsModule,
         ReactiveFormsModule,
         MatCheckboxModule,
+        TranslocoModule,
       ],
       providers: [
         { provide: ModalController, useValue: modalController },
@@ -79,10 +86,32 @@ describe('CreateNewReportComponent', () => {
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     translocoService.translate.and.callFake((key: any, params?: any) => {
       const translations: { [key: string]: string } = {
+        'createNewReport.title': 'Create new report',
+        'createNewReport.expenseSingular': 'expense',
+        'createNewReport.expensePlural': 'expenses',
+        'createNewReport.reportNameLabel': 'Expense report name',
+        'createNewReport.reportNamePlaceholder': 'Enter expense report name',
+        'createNewReport.reportNameError': 'Please enter expense report name.',
+        'createNewReport.expensesHeading': 'Expenses',
+        'createNewReport.selectAll': 'Select all',
+        'createNewReport.savingReport': 'Saving Report',
+        'createNewReport.saveAsDraft': 'Save as draft',
+        'createNewReport.submittingReport': 'Submitting Report',
+        'createNewReport.submitReport': 'Submit report',
         'createNewReport.draftSuccessMessage': 'Expenses added to a new report',
         'createNewReport.submitSuccessMessage': 'Expenses submitted for approval',
       };
-      return translations[key] || key;
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
     });
     currencyService.getHomeCurrency.and.returnValue(of(orgData1[0].currency));
     expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse2));

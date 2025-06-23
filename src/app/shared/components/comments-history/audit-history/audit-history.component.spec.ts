@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { IonicModule } from '@ionic/angular';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { AuditHistoryComponent } from './audit-history.component';
@@ -28,10 +28,16 @@ describe('AuditHistoryComponent', () => {
 
   beforeEach(waitForAsync(() => {
     const expenseFieldsServiceSpy = jasmine.createSpyObj('ExpenseFieldsService', ['getAllEnabled']);
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [AuditHistoryComponent, StatusesDiffComponent, SnakeCaseToSpaceCase, DateWithTimezonePipe],
-      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule],
+      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, TranslocoModule],
       providers: [
         {
           provide: ExpenseFieldsService,
@@ -59,12 +65,25 @@ describe('AuditHistoryComponent', () => {
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     translocoService.translate.and.callFake((key: any, params?: any) => {
       const translations: { [key: string]: string } = {
+        'auditHistory.detailsLabel': 'Details:',
+        'auditHistory.cardTransactionDetailsLabel': 'Card transaction details: ',
+        'auditHistory.mergedExpenseDetailsLabel': 'Details of the merged expense: ',
+        'auditHistory.defaultProjectFieldName': 'project',
+        'auditHistory.projectNameCollision': 'project name ({{projectFieldName}})',
         'auditHistory.reimbursableNo': 'No',
         'auditHistory.reimbursableYes': 'Yes',
-        'auditHistory.projectNameCollision': 'Project name (Purpose)',
-        'auditHistory.defaultProjectFieldName': 'project name (Purpose)',
       };
-      return translations[key] || key;
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
     });
     fixture.detectChanges();
   }));

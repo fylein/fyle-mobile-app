@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { IonicModule, ModalController, Platform } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
@@ -40,10 +40,23 @@ describe('ExpensePreviewComponent', () => {
     const platformSpy = jasmine.createSpyObj('Platform', ['is']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['oldExpensematchedFromPersonalCard']);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenses']);
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [ExpensePreviewComponent, ExpensePreviewShimmerComponent],
-      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, FormsModule, MatSnackBarModule],
+      imports: [
+        IonicModule.forRoot(),
+        MatIconModule,
+        MatIconTestingModule,
+        FormsModule,
+        MatSnackBarModule,
+        TranslocoModule,
+      ],
       providers: [
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: MatSnackBar, useValue: matSnackBarSpy },
@@ -68,9 +81,35 @@ describe('ExpensePreviewComponent', () => {
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     translocoService.translate.and.callFake((key: any, params?: any) => {
       const translations: { [key: string]: string } = {
-        'expensePreview.successfullyMatched': 'Expense successfully matched',
+        'expensePreview.confirmMatchingExpense': 'Confirm matching expense',
+        'expensePreview.viewMatchingExpense': 'View matching expense',
+        'expensePreview.expenseNumber': 'Expense number',
+        'expensePreview.amount': 'Amount',
+        'expensePreview.createdDate': 'Created date',
+        'expensePreview.spentDate': 'Spent date',
+        'expensePreview.merchant': 'Merchant',
+        'expensePreview.category': 'Category',
+        'expensePreview.cardEndingIn': 'Card ending in...',
+        'expensePreview.receipt': 'Receipt',
+        'expensePreview.notAttached': 'Not attached',
+        'expensePreview.attached': 'Attached',
+        'expensePreview.cancel': 'Cancel',
+        'expensePreview.matching': 'matching',
+        'expensePreview.confirmMatch': 'Confirm match',
+        'expensePreview.edit': 'Edit',
+        'expensePreview.successfullyMatched': 'Successfully matched the expense.',
       };
-      return translations[key] || key;
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
     });
     fixture = TestBed.createComponent(ExpensePreviewComponent);
     component = fixture.componentInstance;

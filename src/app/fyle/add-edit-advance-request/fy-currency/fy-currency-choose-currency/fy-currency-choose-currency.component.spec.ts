@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { IonicModule, ModalController } from '@ionic/angular';
 
 import { FyCurrencyChooseCurrencyComponent } from './fy-currency-choose-currency.component';
@@ -22,17 +22,23 @@ describe('FyCurrencyChooseCurrencyComponent', () => {
   let currencyService: jasmine.SpyObj<CurrencyService>;
   let modalController: jasmine.SpyObj<ModalController>;
   let loaderService: jasmine.SpyObj<LoaderService>;
-  let translocoService: TranslocoService;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   let inputElement: HTMLInputElement;
 
   beforeEach(waitForAsync(() => {
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getAll']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [FyCurrencyChooseCurrencyComponent],
-      imports: [IonicModule.forRoot()],
+      imports: [IonicModule.forRoot(), TranslocoModule],
       providers: [
         {
           provide: CurrencyService,
@@ -59,12 +65,28 @@ describe('FyCurrencyChooseCurrencyComponent', () => {
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
-    translocoService = TestBed.inject(TranslocoService);
-    translocoServiceSpy.translate.and.callFake((key: string) => {
-      if (key === 'fyCurrencyChooseCurrency.indianRupee') {
-        return 'Indian Rupee';
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'fyCurrencyChooseCurrency.selectCurrency': 'Select Currency',
+        'fyCurrencyChooseCurrency.search': 'Search',
+        'fyCurrencyChooseCurrency.clear': 'Clear',
+        'fyCurrencyChooseCurrency.allCurrencies': 'All Currencies',
+        'fyCurrencyChooseCurrency.indianRupee': 'Indian Rupee',
+        'fyCurrencyChooseCurrency.title': 'Select Currency',
+        'fyCurrencyChooseCurrency.searchPlaceholder': 'Search',
+      };
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
       }
-      return key;
+
+      return translation;
     });
   }));
 

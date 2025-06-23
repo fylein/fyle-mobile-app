@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { IonicModule, ModalController } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -31,7 +31,7 @@ describe('SuggestedDuplicatesComponent', () => {
   let matSnackBar: jasmine.SpyObj<MatSnackBar>;
   let router: jasmine.SpyObj<Router>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
-  let translocoService: TranslocoService;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenses', 'dismissDuplicates']);
@@ -39,7 +39,13 @@ describe('SuggestedDuplicatesComponent', () => {
     const snackbarPropertiesServiceSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [SuggestedDuplicatesComponent],
       imports: [
@@ -50,6 +56,7 @@ describe('SuggestedDuplicatesComponent', () => {
         MatSnackBarModule,
         NoopAnimationsModule,
         CommonModule,
+        TranslocoModule,
       ],
       providers: [
         { provide: ModalController, useValue: modalControllerSpy },
@@ -69,12 +76,28 @@ describe('SuggestedDuplicatesComponent', () => {
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
-    translocoService = TestBed.inject(TranslocoService);
-    translocoServiceSpy.translate.and.callFake((key: string) => {
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
       const translations: { [key: string]: string } = {
         'suggestedDuplicates.dismissSuccess': 'Duplicates was successfully dismissed',
+        'suggestedDuplicates.dismissAll': 'Dismiss all',
+        'suggestedDuplicates.dismiss': 'Dismiss',
+        'suggestedDuplicates.merge': 'Merge',
+        'suggestedDuplicates.mergeExpense': 'Merge expense',
+        'suggestedDuplicates.header': '{{count}} expenses for {{amount}}',
+        'suggestedDuplicates.expensesFor': 'expenses for',
       };
-      return translations[key] || key;
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
     });
     fixture = TestBed.createComponent(SuggestedDuplicatesComponent);
     component = fixture.componentInstance;

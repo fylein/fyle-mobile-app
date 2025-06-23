@@ -25,6 +25,7 @@ import { AddCorporateCardComponent } from '../../manage-corporate-cards/add-corp
 import { CardAddedComponent } from '../../manage-corporate-cards/card-added/card-added.component';
 import { VirtualCardsService } from 'src/app/core/services/virtual-cards.service';
 import { virtualCardCombinedResponse } from 'src/app/core/mock-data/virtual-card-combined-response.data';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-spent-cards',
@@ -64,6 +65,7 @@ describe('CardStatsComponent', () => {
   let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
   let popoverController: jasmine.SpyObj<PopoverController>;
   let virtualCardsService: jasmine.SpyObj<VirtualCardsService>;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
 
   beforeEach(waitForAsync(() => {
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
@@ -78,10 +80,16 @@ describe('CardStatsComponent', () => {
     ]);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const virtualCardsServiceSpy = jasmine.createSpyObj('VirtualCardsService', ['getCardDetailsMap']);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [CardStatsComponent, MockSpentCardsComponent, MockAddCardComponent],
-      imports: [IonicModule.forRoot()],
+      imports: [IonicModule.forRoot(), TranslocoModule],
       providers: [
         {
           provide: CurrencyService,
@@ -115,6 +123,10 @@ describe('CardStatsComponent', () => {
           provide: PopoverController,
           useValue: popoverControllerSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
     }).compileComponents();
 
@@ -131,6 +143,23 @@ describe('CardStatsComponent', () => {
       CorporateCreditCardExpenseService
     ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'cardStats.myCards': 'My cards',
+      };
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
+    });
 
     // Default return values
     currencyService.getHomeCurrency.and.returnValue(of('USD'));

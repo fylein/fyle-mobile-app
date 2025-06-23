@@ -1,6 +1,6 @@
 //@ts-nocheck
 import { ComponentFixture, TestBed, waitForAsync, fakeAsync, tick } from '@angular/core/testing';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { IonicModule } from '@ionic/angular';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
@@ -72,10 +72,16 @@ describe('ReceiptPreviewComponent', () => {
       'receiptSavedRotation',
     ]);
     const swiperSpy = jasmine.createSpyObj('SwiperStubComponent', ['update', 'slidePrev', 'slideNext']);
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [ReceiptPreviewComponent, SwiperStubComponent],
-      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, PinchZoomModule],
+      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, PinchZoomModule, TranslocoModule],
       providers: [
         Platform,
         {
@@ -117,14 +123,31 @@ describe('ReceiptPreviewComponent', () => {
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     translocoService.translate.and.callFake((key: any, params?: any) => {
       const translations: { [key: string]: string } = {
+        'receiptPreview.receiptPreviews': 'Receipt Previews',
+        'receiptPreview.retake': 'Retake',
+        'receiptPreview.addMore': 'Add more',
+        'receiptPreview.finish': 'Finish',
         'receiptPreview.discardReceiptTitle': 'Discard Receipt',
+        'receiptPreview.discardMultipleReceiptsMessage':
+          'Are you sure you want to discard the {{count}} receipts you just captured?',
+        'receiptPreview.discardSingleReceiptMessage': 'Not a good picture? No worries. Discard and click again.',
+        'receiptPreview.discard': 'Discard',
         'receiptPreview.cancel': 'Cancel',
         'receiptPreview.removeReceiptTitle': 'Remove Receipt',
         'receiptPreview.removeReceiptMessage': 'Are you sure you want to remove this receipt?',
         'receiptPreview.remove': 'Remove',
-        'receiptPreview.discard': 'Discard',
-        'receiptPreview.cancel': 'Cancel',
       };
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
     });
     component.base64ImagesWithSource = images;
     component.swiper = swiperSpy;

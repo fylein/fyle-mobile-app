@@ -34,7 +34,7 @@ import {
   expectedReportsSinglePageWithApproval,
 } from 'src/app/core/mock-data/platform-report.data';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 
 export function TestCases3(getTestBed) {
   return describe('test case set 3', () => {
@@ -60,6 +60,10 @@ export function TestCases3(getTestBed) {
     let translocoService: jasmine.SpyObj<TranslocoService>;
     beforeEach(waitForAsync(() => {
       const TestBed = getTestBed();
+      TestBed.configureTestingModule({
+        declarations: [TasksComponent],
+        imports: [TranslocoModule],
+      });
       fixture = TestBed.createComponent(TasksComponent);
       component = fixture.componentInstance;
       tasksService = TestBed.inject(TasksService) as jasmine.SpyObj<TasksService>;
@@ -105,7 +109,13 @@ export function TestCases3(getTestBed) {
           'tasks.noTasksFiltered': 'You have no tasks',
           'tasks.matchingFilters': 'matching the applied filters',
         };
-        return translations[key] || key;
+        let translation = translations[key] || key;
+        if (params) {
+          Object.keys(params).forEach((key) => {
+            translation = translation.replace(`{{${key}}}`, params[key]);
+          });
+        }
+        return translation;
       });
     }));
 

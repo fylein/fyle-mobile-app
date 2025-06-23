@@ -26,7 +26,7 @@ import { ApproverReportsService } from 'src/app/core/services/platform/v1/approv
 import { OrgService } from 'src/app/core/services/org.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 
 describe('TasksComponent', () => {
   const getTestBed = () => {
@@ -90,7 +90,7 @@ describe('TasksComponent', () => {
     const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
     TestBed.configureTestingModule({
       declarations: [TasksComponent],
-      imports: [IonicModule.forRoot(), RouterTestingModule],
+      imports: [IonicModule.forRoot(), RouterTestingModule, TranslocoModule],
       providers: [
         { provide: TasksService, useValue: tasksServiceSpy },
         { provide: TransactionService, useValue: transactionServiceSpy },

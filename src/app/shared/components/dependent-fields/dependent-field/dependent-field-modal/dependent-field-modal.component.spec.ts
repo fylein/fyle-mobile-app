@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, flush, tick, waitForAsync } from '@angular/core/testing';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { IonicModule, ModalController } from '@ionic/angular';
 import { MatLegacyFormFieldModule as MatFormFieldModule } from '@angular/material/legacy-form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -35,7 +35,13 @@ describe('DependentFieldModalComponent', () => {
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
     const dependentFieldsServiceSpy = jasmine.createSpyObj('DependentFieldsService', ['getOptionsForDependentField']);
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [DependentFieldModalComponent, FyZeroStateComponent, FyHighlightTextComponent, HighlightPipe],
       imports: [
@@ -47,6 +53,7 @@ describe('DependentFieldModalComponent', () => {
         MatIconModule,
         MatInputModule,
         BrowserAnimationsModule,
+        TranslocoModule,
       ],
       providers: [
         ChangeDetectorRef,
@@ -75,8 +82,23 @@ describe('DependentFieldModalComponent', () => {
         translocoService.translate.and.callFake((key: any, params?: any) => {
           const translations: { [key: string]: string } = {
             'dependentFieldModal.none': 'None',
+            'dependentFieldModal.selectLabel': 'Select {{label}}',
+            'dependentFieldModal.search': 'Search',
+            'dependentFieldModal.clear': 'Clear',
+            'dependentFieldModal.noResultFound': 'No result found for {{label}}',
+            'dependentFieldModal.searchOrSelect': 'Try searching or selecting a different {{label}}',
           };
-          return translations[key] || key;
+          let translation = translations[key] || key;
+
+          // Handle parameter interpolation
+          if (params && typeof translation === 'string') {
+            Object.keys(params).forEach((paramKey) => {
+              const placeholder = `{{${paramKey}}}`;
+              translation = translation.replace(placeholder, params[paramKey]);
+            });
+          }
+
+          return translation;
         });
         component.fieldId = 221309;
         component.parentFieldId = 221284;

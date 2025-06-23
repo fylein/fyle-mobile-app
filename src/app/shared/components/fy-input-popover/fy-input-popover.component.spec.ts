@@ -1,11 +1,12 @@
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { IonicModule, PopoverController } from '@ionic/angular';
 import { click, getElementBySelector, getElementRef, getTextContent } from 'src/app/core/dom-helpers';
 import { FyInputPopoverComponent } from './fy-input-popover.component';
+import { of } from 'rxjs';
 
 describe('FyInputPopoverComponent', () => {
   let component: FyInputPopoverComponent;
@@ -15,9 +16,15 @@ describe('FyInputPopoverComponent', () => {
 
   beforeEach(async () => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['dismiss']);
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     await TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, FormsModule],
+      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, FormsModule, TranslocoModule],
       declarations: [FyInputPopoverComponent],
       providers: [
         {
@@ -33,10 +40,21 @@ describe('FyInputPopoverComponent', () => {
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     translocoService.translate.and.callFake((key: any, params?: any) => {
       const translations: { [key: string]: string } = {
-        'fyInputPopover.errorEnterLabel': 'Please enter a {inputLabel}',
-        'fyInputPopover.errorValidMobile': 'Please enter a valid mobile number',
+        'fyInputPopover.errorEnterLabel': 'Please enter a {{inputLabel}}',
+        'fyInputPopover.errorValidMobile': 'Please enter a valid mobile number with country code. e.g. +12025559975',
+        'fyInputPopover.enterLabelPlaceholder': 'Enter {{inputLabel}}',
       };
-      return translations[key] || key;
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
     });
   });
 
