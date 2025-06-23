@@ -52,7 +52,6 @@ import { AuthService } from './auth.service';
 import { DataTransformService } from './data-transform.service';
 import { DateService } from './date.service';
 import { FileService } from './file.service';
-import { OrgUserSettingsService } from './org-user-settings.service';
 import { TimezoneService } from './timezone.service';
 import { SpenderService } from './platform/v1/spender/spender.service';
 import { ApproverService } from './platform/v1/approver/approver.service';
@@ -62,6 +61,7 @@ import {
   advanceRequestPlatformSentBack,
 } from '../mock-data/platform/v1/advance-request-platform.data';
 import { cloneDeep } from 'lodash';
+import { PlatformEmployeeSettingsService } from './platform/v1/spender/employee-settings.service';
 
 describe('AdvanceRequestService', () => {
   let advanceRequestService: AdvanceRequestService;
@@ -78,7 +78,7 @@ describe('AdvanceRequestService', () => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const dataTransformServiceSpy = jasmine.createSpyObj('DataTransformService', ['unflatten']);
     const fileServiceSpy = jasmine.createSpyObj('FileService', ['post']);
-    const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
+    const platformEmployeeSettingsServiceSpy = jasmine.createSpyObj('PlatformEmployeeSettingsService', ['get']);
     const timezoneServiceSpy = jasmine.createSpyObj('TimezoneService', ['convertToUtc']);
     const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['post', 'get']);
     const approverServiceSpy = jasmine.createSpyObj('ApproverService', ['get', 'post']);
@@ -104,8 +104,8 @@ describe('AdvanceRequestService', () => {
           useValue: fileServiceSpy,
         },
         {
-          provide: OrgUserSettingsService,
-          useValue: orgUserSettingsServiceSpy,
+          provide: PlatformEmployeeSettingsService,
+          useValue: platformEmployeeSettingsServiceSpy,
         },
         {
           provide: TimezoneService,

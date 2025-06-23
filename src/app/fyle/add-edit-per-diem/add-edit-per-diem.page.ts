@@ -79,7 +79,6 @@ import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { ExpensePolicy } from 'src/app/core/models/platform/platform-expense-policy.model';
 import { FinalExpensePolicyState } from 'src/app/core/models/platform/platform-final-expense-policy-state.model';
@@ -112,6 +111,7 @@ import { AdvanceWallet } from 'src/app/core/models/platform/v1/advance-wallet.mo
 import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -290,7 +290,7 @@ export class AddEditPerDiemPage implements OnInit {
     private perDiemService: PerDiemService,
     private categoriesService: CategoriesService,
     private costCentersService: CostCentersService,
-    private orgUserSettingsService: OrgUserSettingsService,
+    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
     private orgSettingsService: OrgSettingsService,
     private platform: Platform,
     private storageService: StorageService,
@@ -605,7 +605,7 @@ export class AddEditPerDiemPage implements OnInit {
       advanceWallets: this.advanceWalletsService.getAllAdvanceWallets(),
       orgSettings: this.orgSettingsService.get(),
       etxn: this.etxn$,
-      allowedPaymentModes: this.orgUserSettingsService.getAllowedPaymentModes(),
+      allowedPaymentModes: this.platformEmployeeSettingsService.getAllowedPaymentModes(),
       isPaymentModeConfigurationsEnabled: this.paymentModesService.checkIfPaymentModeConfigurationsIsEnabled(),
     }).pipe(
       map(
@@ -999,7 +999,7 @@ export class AddEditPerDiemPage implements OnInit {
 
     const orgSettings$ = this.orgSettingsService.get();
     const perDiemRates$ = this.perDiemService.getRates();
-    const orgUserSettings$ = this.orgUserSettingsService.get();
+    const employeeSettings$ = this.platformEmployeeSettingsService.get().pipe(shareReplay(1));
     this.autoSubmissionReportName$ = this.reportService.getAutoSubmissionReportName();
 
     this.isAdvancesEnabled$ = orgSettings$.pipe(
@@ -1133,7 +1133,7 @@ export class AddEditPerDiemPage implements OnInit {
       map((orgSettings) => orgSettings.advanced_projects && orgSettings.advanced_projects.enable_individual_projects)
     );
 
-    this.individualProjectIds$ = orgUserSettings$.pipe(map((orgUserSettings) => orgUserSettings.project_ids || []));
+    this.individualProjectIds$ = employeeSettings$.pipe(map((employeeSettings) => employeeSettings.project_ids || []));
 
     this.etxn$ = iif(() => this.mode === 'add', this.getNewExpense(), this.getEditExpense());
 
@@ -1371,11 +1371,11 @@ export class AddEditPerDiemPage implements OnInit {
         } else {
           return forkJoin({
             orgSettings: this.orgSettingsService.get(),
-            orgUserSettings: this.orgUserSettingsService.get(),
+            employeeSettings: this.platformEmployeeSettingsService.get(),
           }).pipe(
-            map(({ orgSettings, orgUserSettings }) => {
+            map(({ orgSettings, employeeSettings }) => {
               if (orgSettings.projects.enabled) {
-                return orgUserSettings && orgUserSettings.preferences && orgUserSettings.preferences.default_project_id;
+                return employeeSettings?.default_project_id;
               }
             })
           );
@@ -1523,7 +1523,7 @@ export class AddEditPerDiemPage implements OnInit {
             costCenter: selectedCostCenter$,
             customExpenseFields: customExpenseFields$,
             defaultPaymentMode: defaultPaymentMode$,
-            orgUserSettings: orgUserSettings$,
+            employeeSettings: employeeSettings$,
             orgSettings: orgSettings$,
             recentValue: this.recentlyUsedValues$,
             recentProjects: this.recentlyUsedProjects$,
@@ -1544,7 +1544,7 @@ export class AddEditPerDiemPage implements OnInit {
           costCenter,
           customExpenseFields,
           defaultPaymentMode,
-          orgUserSettings,
+          employeeSettings,
           orgSettings,
           recentValue,
           recentProjects,
@@ -1584,11 +1584,10 @@ export class AddEditPerDiemPage implements OnInit {
 
           // Check if auto-fills is enabled
           const isAutofillsEnabled =
-            orgSettings.org_expense_form_autofills &&
-            orgSettings.org_expense_form_autofills.allowed &&
-            orgSettings.org_expense_form_autofills.enabled &&
-            orgUserSettings.expense_form_autofills.allowed &&
-            orgUserSettings.expense_form_autofills.enabled;
+            orgSettings?.org_expense_form_autofills?.allowed &&
+            orgSettings?.org_expense_form_autofills?.enabled &&
+            employeeSettings?.expense_form_autofills?.allowed &&
+            employeeSettings?.expense_form_autofills?.enabled;
 
           // Check if recent projects exist
           const doRecentProjectIdsExist =

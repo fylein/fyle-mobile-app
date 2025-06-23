@@ -9,7 +9,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
@@ -46,7 +46,6 @@ import {
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
-import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import { expenseFieldsMapResponse } from 'src/app/core/mock-data/expense-fields-map.data';
 import { apiAdvanceRequestAction } from 'src/app/core/mock-data/advance-request-actions.data';
 import { unflattenedAdvanceRequestData } from 'src/app/core/mock-data/unflattened-advance-request.data';
@@ -58,6 +57,7 @@ import {
 } from 'src/app/core/mock-data/advance-requests-custom-fields.data';
 import { EventEmitter } from '@angular/core';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
+import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
 
 export function TestCases2(getTestBed) {
   return describe('test cases 2', () => {
@@ -78,7 +78,7 @@ export function TestCases2(getTestBed) {
     let trackingService: jasmine.SpyObj<TrackingService>;
     let expenseFieldsService: jasmine.SpyObj<ExpenseFieldsService>;
     let currencyService: jasmine.SpyObj<CurrencyService>;
-    let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
+    let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
     let router: jasmine.SpyObj<Router>;
     let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
 
@@ -106,7 +106,9 @@ export function TestCases2(getTestBed) {
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
       expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
       currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
-      orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
+      platformEmployeeSettingsService = TestBed.inject(
+        PlatformEmployeeSettingsService
+      ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
       router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
       activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
     });
@@ -316,7 +318,7 @@ export function TestCases2(getTestBed) {
         expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse));
         authService.getEou.and.resolveTo(apiEouRes);
         orgSettingsService.get.and.returnValue(of(orgSettingsRes));
-        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
         currencyService.getHomeCurrency.and.returnValue(of('USD'));
         advanceRequestService.getSpenderPermissions.and.returnValue(of(apiAdvanceRequestAction));
         advanceRequestService.getApproverPermissions.and.returnValue(of(apiAdvanceRequestAction));
@@ -395,10 +397,8 @@ export function TestCases2(getTestBed) {
         });
       }));
 
-      it('should get new advance request observable if mode is add with currency equal to homeCurrency if no preferred_currency is selected', fakeAsync(() => {
-        const mockOrgUserData = cloneDeep(orgUserSettingsData);
-        mockOrgUserData.currency_settings.preferred_currency = null;
-        orgUserSettingsService.get.and.returnValue(of(mockOrgUserData));
+      it('should get new advance request observable if mode is add with currency equal to homeCurrency', fakeAsync(() => {
+        platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
         activatedRoute.snapshot.params = {
           id: undefined,
         };
@@ -491,10 +491,10 @@ export function TestCases2(getTestBed) {
       it('should set isProjectsEnabled$ to false if project_ids are undefined in org user settings data', fakeAsync(() => {
         const mockOrgSettingsData = cloneDeep(orgSettingsRes);
         mockOrgSettingsData.advanced_projects.enable_individual_projects = true;
-        orgSettingsService.get.and.returnValue(of(mockOrgSettingsData));
-        const mockOrgUserSettingsData = cloneDeep(orgUserSettingsData);
-        mockOrgUserSettingsData.project_ids = undefined;
-        orgUserSettingsService.get.and.returnValue(of(mockOrgUserSettingsData));
+        orgSettingsService.get.and.returnValue(of(orgSettingsRes));
+        const mockEmployeeSettingsData = cloneDeep(employeeSettingsData);
+        mockEmployeeSettingsData.project_ids = undefined;
+        platformEmployeeSettingsService.get.and.returnValue(of(mockEmployeeSettingsData));
         component.ionViewWillEnter();
         tick(100);
         component.isProjectsVisible$.subscribe((res) => {

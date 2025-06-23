@@ -72,7 +72,6 @@ import { FileObject } from 'src/app/core/models/file-obj.model';
 import { InstaFyleResponse } from 'src/app/core/models/insta-fyle-data.model';
 import { MatchedCCCTransaction } from 'src/app/core/models/matchedCCCTransaction.model';
 import { OrgSettings, TaxSettings } from 'src/app/core/models/org-settings.model';
-import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { OutboxQueue } from 'src/app/core/models/outbox-queue.model';
 import { ParsedReceipt } from 'src/app/core/models/parsed_receipt.model';
 import { ParsedResponse } from 'src/app/core/models/parsed_response.model';
@@ -108,7 +107,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
@@ -153,6 +152,7 @@ import { RefinerService } from 'src/app/core/services/refiner.service';
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 import { CCExpenseMerchantInfoModalComponent } from 'src/app/shared/components/cc-expense-merchant-info-modal/cc-expense-merchant-info-modal.component';
 import { CorporateCardExpenseProperties } from 'src/app/core/models/corporate-card-expense-properties.model';
+import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
 import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 
 // eslint-disable-next-line
@@ -353,7 +353,7 @@ export class AddEditExpensePage implements OnInit {
 
   clusterDomain: string;
 
-  orgUserSettings$: Observable<OrgUserSettings>;
+  employeeSettings$: Observable<EmployeeSettings>;
 
   recentProjects: { label: string; value: ProjectV2; selected?: boolean }[];
 
@@ -510,7 +510,7 @@ export class AddEditExpensePage implements OnInit {
     private paymentModesService: PaymentModesService,
     private taxGroupService: TaxGroupService,
     private costCentersService: CostCentersService,
-    private orgUserSettingsService: OrgUserSettingsService,
+    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
     private storageService: StorageService,
     private launchDarklyService: LaunchDarklyService,
     private refinerService: RefinerService,
@@ -1180,7 +1180,7 @@ export class AddEditExpensePage implements OnInit {
       advanceWallets: this.advanceWalletsService.getAllAdvanceWallets(),
       orgSettings: this.orgSettingsService.get(),
       etxn: this.etxn$,
-      allowedPaymentModes: this.orgUserSettingsService.getAllowedPaymentModes(),
+      allowedPaymentModes: this.platformEmployeeSettingsService.getAllowedPaymentModes(),
       isPaymentModeConfigurationsEnabled: this.paymentModesService.checkIfPaymentModeConfigurationsIsEnabled(),
     }).pipe(
       map(
@@ -1230,7 +1230,7 @@ export class AddEditExpensePage implements OnInit {
           };
         }),
         catchError(() =>
-           of({
+          of({
             error: true,
             parsedResponse: {
               source: 'MOBILE_INSTA',
@@ -1292,7 +1292,7 @@ export class AddEditExpensePage implements OnInit {
 
     return forkJoin({
       orgSettings: orgSettings$,
-      orgUserSettings: this.orgUserSettings$,
+      employeeSettings: this.employeeSettings$,
       homeCurrency: this.homeCurrency$,
       eou: eou$,
       imageData: this.getInstaFyleImageData(),
@@ -1315,7 +1315,7 @@ export class AddEditExpensePage implements OnInit {
       map(
         (dependencies: {
           orgSettings: OrgSettings;
-          orgUserSettings: OrgUserSettings;
+          employeeSettings: EmployeeSettings;
           extractedCategory: OrgCategory;
           homeCurrency: string;
           eou: ExtendedOrgUser;
@@ -1325,7 +1325,7 @@ export class AddEditExpensePage implements OnInit {
         }) => {
           const {
             orgSettings,
-            orgUserSettings,
+            employeeSettings,
             extractedCategory,
             homeCurrency,
             eou,
@@ -1363,16 +1363,12 @@ export class AddEditExpensePage implements OnInit {
 
             this.source = 'MOBILE';
 
-            if (orgUserSettings.currency_settings && orgUserSettings.currency_settings.enabled) {
-              if (orgUserSettings.currency_settings.preferred_currency) {
-                etxn.tx.currency = orgUserSettings.currency_settings.preferred_currency;
-              }
-            } else if (
+            if (
               orgSettings.org_expense_form_autofills &&
               orgSettings.org_expense_form_autofills.allowed &&
               orgSettings.org_expense_form_autofills.enabled &&
-              orgUserSettings.expense_form_autofills.allowed &&
-              orgUserSettings.expense_form_autofills.enabled &&
+              employeeSettings.expense_form_autofills?.allowed &&
+              employeeSettings.expense_form_autofills?.enabled &&
               recentValue &&
               recentValue.currencies &&
               recentValue.currencies.length > 0
@@ -1384,8 +1380,8 @@ export class AddEditExpensePage implements OnInit {
                 (recentCurrency && recentCurrency[0] && recentCurrency[0].shortCode) || etxn.tx.currency;
             }
 
-            if (projectEnabled && orgUserSettings.preferences && orgUserSettings.preferences.default_project_id) {
-              etxn.tx.project_id = orgUserSettings.preferences.default_project_id;
+            if (projectEnabled && employeeSettings.default_project_id) {
+              etxn.tx.project_id = employeeSettings.default_project_id;
             }
           } else if (personalCardTxn) {
             etxn = {
@@ -1501,11 +1497,11 @@ export class AddEditExpensePage implements OnInit {
         } else {
           return forkJoin({
             orgSettings: this.orgSettingsService.get(),
-            orgUserSettings: this.orgUserSettings$,
+            employeeSettings: this.employeeSettings$,
           }).pipe(
-            map(({ orgSettings, orgUserSettings }) => {
+            map(({ orgSettings, employeeSettings }) => {
               if (orgSettings.projects.enabled) {
-                return orgUserSettings && orgUserSettings.preferences && orgUserSettings.preferences.default_project_id;
+                return employeeSettings.default_project_id;
               }
             })
           );
@@ -1584,7 +1580,7 @@ export class AddEditExpensePage implements OnInit {
   getDefaultPaymentModes(): Observable<ExtendedAccount | AdvanceWallet> {
     return forkJoin({
       paymentModes: this.paymentModes$,
-      orgUserSettings: this.orgUserSettings$,
+      employeeSettings: this.employeeSettings$,
       isPaymentModeConfigurationsEnabled: this.paymentModesService.checkIfPaymentModeConfigurationsIsEnabled(),
     }).pipe(
       map(({ paymentModes }) => {
@@ -1746,7 +1742,7 @@ export class AddEditExpensePage implements OnInit {
             homeCurrency: this.currencyService.getHomeCurrency(),
             orgSettings: this.orgSettingsService.get(),
             defaultPaymentMode: defaultPaymentMode$,
-            orgUserSettings: this.orgUserSettings$,
+            employeeSettings: this.employeeSettings$,
             recentValue: this.recentlyUsedValues$,
             recentProjects: this.recentlyUsedProjects$,
             recentCurrencies: this.recentlyUsedCurrencies$,
@@ -1772,7 +1768,7 @@ export class AddEditExpensePage implements OnInit {
           homeCurrency,
           orgSettings,
           defaultPaymentMode,
-          orgUserSettings,
+          employeeSettings,
           recentValue,
           recentCategories,
           recentProjects,
@@ -1864,12 +1860,10 @@ export class AddEditExpensePage implements OnInit {
 
           // Check if auto-fills is enabled
           const isAutofillsEnabled =
-            orgSettings.org_expense_form_autofills &&
-            orgSettings.org_expense_form_autofills.allowed &&
-            orgSettings.org_expense_form_autofills.enabled &&
-            orgUserSettings.expense_form_autofills &&
-            orgUserSettings.expense_form_autofills.allowed &&
-            orgUserSettings.expense_form_autofills.enabled;
+            orgSettings?.org_expense_form_autofills?.allowed &&
+            orgSettings?.org_expense_form_autofills?.enabled &&
+            employeeSettings?.expense_form_autofills?.allowed &&
+            employeeSettings?.expense_form_autofills?.enabled;
 
           // Check if recent projects exist
           const doRecentProjectIdsExist =
@@ -2092,7 +2086,7 @@ export class AddEditExpensePage implements OnInit {
 
   getCategoryOnEdit(category: OrgCategory): Observable<OrgCategory | null> {
     return forkJoin({
-      orgUserSettings: this.orgUserSettingsService.get(),
+      employeeSettings: this.platformEmployeeSettingsService.get(),
       orgSettings: this.orgSettingsService.get(),
       recentValues: this.recentlyUsedValues$,
       recentCategories: this.recentlyUsedCategories$,
@@ -2100,13 +2094,13 @@ export class AddEditExpensePage implements OnInit {
     }).pipe(
       switchMap(
         ({
-          orgUserSettings,
+          employeeSettings,
           orgSettings,
           recentValues,
           recentCategories,
           etxn,
         }: {
-          orgUserSettings: OrgUserSettings;
+          employeeSettings: EmployeeSettings;
           orgSettings: OrgSettings;
           recentValues: RecentlyUsed;
           recentCategories: OrgCategoryListItem[];
@@ -2116,7 +2110,7 @@ export class AddEditExpensePage implements OnInit {
           if (this.initialFetch && etxn.tx.org_category_id && !isExpenseCategoryUnspecified) {
             return this.selectedCategory$.pipe(
               map((selectedCategory) => ({
-                orgUserSettings,
+                employeeSettings,
                 orgSettings,
                 recentValues,
                 recentCategories,
@@ -2126,7 +2120,7 @@ export class AddEditExpensePage implements OnInit {
             );
           }
           return of({
-            orgUserSettings,
+            employeeSettings,
             orgSettings,
             recentValues,
             recentCategories,
@@ -2135,14 +2129,12 @@ export class AddEditExpensePage implements OnInit {
           });
         }
       ),
-      map(({ orgUserSettings, orgSettings, recentValues, recentCategories, etxn, selectedCategory }) => {
+      map(({ employeeSettings, orgSettings, recentValues, recentCategories, etxn, selectedCategory }) => {
         const isAutofillsEnabled =
-          orgSettings.org_expense_form_autofills &&
-          orgSettings.org_expense_form_autofills.allowed &&
-          orgSettings.org_expense_form_autofills.enabled &&
-          orgUserSettings.expense_form_autofills &&
-          orgUserSettings.expense_form_autofills.allowed &&
-          orgUserSettings.expense_form_autofills.enabled;
+          orgSettings?.org_expense_form_autofills?.allowed &&
+          orgSettings?.org_expense_form_autofills?.enabled &&
+          employeeSettings?.expense_form_autofills?.allowed &&
+          employeeSettings?.expense_form_autofills?.enabled;
         const isCategoryExtracted = etxn.tx?.extracted_data?.category;
         if (this.initialFetch) {
           if (etxn.tx.org_category_id) {
@@ -2180,20 +2172,18 @@ export class AddEditExpensePage implements OnInit {
       return of(category);
     } else {
       return forkJoin({
-        orgUserSettings: this.orgUserSettingsService.get(),
+        employeeSettings: this.platformEmployeeSettingsService.get(),
         orgSettings: this.orgSettingsService.get(),
         recentValues: this.recentlyUsedValues$,
         recentCategories: this.recentlyUsedCategories$,
         etxn: this.etxn$,
       }).pipe(
-        map(({ orgUserSettings, orgSettings, recentValues, recentCategories, etxn }) => {
+        map(({ employeeSettings, orgSettings, recentValues, recentCategories, etxn }) => {
           const isAutofillsEnabled =
-            orgSettings.org_expense_form_autofills &&
-            orgSettings.org_expense_form_autofills.allowed &&
-            orgSettings.org_expense_form_autofills.enabled &&
-            orgUserSettings.expense_form_autofills &&
-            orgUserSettings.expense_form_autofills.allowed &&
-            orgUserSettings.expense_form_autofills.enabled;
+            orgSettings?.org_expense_form_autofills?.allowed &&
+            orgSettings?.org_expense_form_autofills?.enabled &&
+            employeeSettings?.expense_form_autofills?.allowed &&
+            employeeSettings?.expense_form_autofills?.enabled;
           const isCategoryExtracted = etxn.tx && etxn.tx.extracted_data && etxn.tx.extracted_data.category;
           if (
             !isCategoryExtracted &&
@@ -3099,7 +3089,8 @@ export class AddEditExpensePage implements OnInit {
     this.setUpTaxCalculations();
 
     const orgSettings$ = this.orgSettingsService.get();
-    this.orgUserSettings$ = this.orgUserSettingsService.get();
+    this.employeeSettings$ = this.platformEmployeeSettingsService.get().pipe(shareReplay(1));
+
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
     const accounts$ = this.accountsService.getEMyAccounts();
 
@@ -3168,8 +3159,8 @@ export class AddEditExpensePage implements OnInit {
       shareReplay(1)
     );
 
-    this.individualProjectIds$ = this.orgUserSettings$.pipe(
-      map((orgUserSettings: OrgUserSettings) => orgUserSettings.project_ids || []),
+    this.individualProjectIds$ = this.employeeSettings$.pipe(
+      map((employeeSettings: EmployeeSettings) => employeeSettings.project_ids || []),
       shareReplay(1)
     );
 
@@ -4524,9 +4515,10 @@ export class AddEditExpensePage implements OnInit {
       fileType = 'pdf';
     }
 
-    const instaFyleEnabled$ = this.orgUserSettings$.pipe(
+    const instaFyleEnabled$ = this.employeeSettings$.pipe(
       map(
-        (orgUserSettings) => orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled
+        (employeeSettings) =>
+          employeeSettings.insta_fyle_settings?.allowed && employeeSettings.insta_fyle_settings?.enabled
       )
     );
 

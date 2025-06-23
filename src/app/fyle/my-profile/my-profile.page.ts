@@ -1,19 +1,17 @@
 import { Component, EventEmitter } from '@angular/core';
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, PopoverController } from '@ionic/angular';
-import { Observable, Subscription, concat, forkJoin, from, noop } from 'rxjs';
-import { finalize, map, shareReplay, switchMap } from 'rxjs/operators';
+import { Observable, Subscription, concat, forkJoin, from, noop, take, finalize } from 'rxjs';
+import { map, shareReplay, switchMap } from 'rxjs/operators';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { InfoCardData } from 'src/app/core/models/info-card-data.model';
 import { Org } from 'src/app/core/models/org.model';
-import { CommonOrgUserSettings, OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { DeviceService } from 'src/app/core/services/device.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { OrgService } from 'src/app/core/services/org.service';
 import { SecureStorageService } from 'src/app/core/services/secure-storage.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
@@ -45,6 +43,10 @@ import { OrgUser } from 'src/app/core/models/org-user.model';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { UpdateMobileNumberComponent } from './update-mobile-number/update-mobile-number.component';
 import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
+import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
+import { CommonEmployeeSettings } from 'src/app/core/models/common-employee-settings.model';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-my-profile',
@@ -52,7 +54,7 @@ import { SpenderOnboardingService } from 'src/app/core/services/spender-onboardi
   styleUrls: ['./my-profile.page.scss'],
 })
 export class MyProfilePage {
-  orgUserSettings: OrgUserSettings;
+  employeeSettings: EmployeeSettings;
 
   orgSettings: OrgSettings;
 
@@ -67,10 +69,9 @@ export class MyProfilePage {
   isConnected$: Observable<boolean>;
 
   settingsMap: {
-    [key: string]: keyof OrgUserSettings;
+    [key: string]: keyof EmployeeSettings;
   } = {
     instaFyle: 'insta_fyle_settings',
-    defaultCurrency: 'currency_settings',
     formAutofill: 'expense_form_autofills',
   };
 
@@ -106,7 +107,6 @@ export class MyProfilePage {
 
   constructor(
     private authService: AuthService,
-    private orgUserSettingsService: OrgUserSettingsService,
     private userEventService: UserEventService,
     private secureStorageService: SecureStorageService,
     private storageService: StorageService,
@@ -128,8 +128,29 @@ export class MyProfilePage {
     private paymentModeService: PaymentModesService,
     private utilityService: UtilityService,
     private orgUserService: OrgUserService,
-    private spenderOnboardingService: SpenderOnboardingService
+    private spenderOnboardingService: SpenderOnboardingService,
+    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
+    private router: Router,
+    private launchDarklyService: LaunchDarklyService
   ) {}
+
+  goToNotificationsPage(): void {
+    this.launchDarklyService
+      .getVariation('update_admin_notifs_design', false)
+      .pipe(take(1))
+      .subscribe({
+        next: (goToNotificationsPageBeta) => {
+          if (goToNotificationsPageBeta) {
+            this.router.navigate(['/enterprise', 'notifications', 'beta']);
+          } else {
+            this.router.navigate(['/enterprise', 'notifications']);
+          }
+        },
+        error: () => {
+          this.router.navigate(['/enterprise', 'notifications']);
+        },
+      });
+  }
 
   setupNetworkWatcher(): void {
     const networkWatcherEmitter = new EventEmitter<boolean>();
@@ -169,20 +190,15 @@ export class MyProfilePage {
 
   toggleSetting(eventData: EventData): Subscription {
     const settingName = this.settingsMap[eventData.key];
-    const setting = this.orgUserSettings[settingName] as CommonOrgUserSettings;
+    const setting = this.employeeSettings[settingName] as CommonEmployeeSettings;
     setting.enabled = eventData.isEnabled;
-
-    if (eventData.key === 'defaultCurrency' && eventData.isEnabled && eventData.selectedCurrency) {
-      this.orgUserSettings.currency_settings.preferred_currency = eventData.selectedCurrency.shortCode || null;
-    }
 
     this.trackingService.onSettingsToggle({
       userSetting: eventData.key,
       action: eventData.isEnabled ? 'enabled' : 'disabled',
-      setDefaultCurrency: eventData.selectedCurrency ? true : false,
     });
 
-    return this.orgUserSettingsService.post(this.orgUserSettings).subscribe(noop);
+    return this.platformEmployeeSettingsService.post(this.employeeSettings).subscribe(noop);
   }
 
   ionViewWillEnter(): void {
@@ -207,7 +223,7 @@ export class MyProfilePage {
   }
 
   reset(): void {
-    const orgUserSettings$ = this.orgUserSettingsService.get().pipe(shareReplay(1));
+    const employeeSettings$ = this.platformEmployeeSettingsService.get().pipe(shareReplay(1));
     this.org$ = this.orgService.getCurrentOrg();
     const orgSettings$ = this.orgSettingsService.get();
 
@@ -217,14 +233,14 @@ export class MyProfilePage {
       .pipe(
         switchMap(() =>
           forkJoin({
-            orgUserSettings: orgUserSettings$,
+            employeeSettings: employeeSettings$,
             orgSettings: orgSettings$,
           })
         ),
         finalize(() => from(this.loaderService.hideLoader()))
       )
       .subscribe(async (res) => {
-        this.orgUserSettings = res.orgUserSettings;
+        this.employeeSettings = res.employeeSettings;
         this.orgSettings = res.orgSettings;
 
         this.isMileageEnabled = this.orgSettings.mileage?.allowed && this.orgSettings.mileage.enabled;
@@ -280,26 +296,18 @@ export class MyProfilePage {
         title: 'Extract receipt details',
         content: 'Turn paper receipts to expenses with our in-app camera.',
         key: 'instaFyle',
-        isEnabled: this.orgUserSettings.insta_fyle_settings.enabled,
-        isAllowed: this.orgUserSettings.insta_fyle_settings.allowed,
+        isEnabled: this.employeeSettings.insta_fyle_settings.enabled,
+        isAllowed: this.employeeSettings.insta_fyle_settings.allowed,
       },
       {
         title: 'Expense auto-fill',
         content: 'Auto-fill expense form fields based on most recently used values.',
         key: 'formAutofill',
-        isEnabled: this.orgUserSettings.expense_form_autofills.enabled,
+        isEnabled: this.employeeSettings.expense_form_autofills?.enabled,
         isAllowed:
           this.orgSettings.org_expense_form_autofills.allowed &&
           this.orgSettings.org_expense_form_autofills.enabled &&
-          this.orgUserSettings.expense_form_autofills.allowed,
-      },
-      {
-        title: 'Default currency',
-        content: 'Select the default currency to be used for creating expenses.',
-        key: 'defaultCurrency',
-        defaultCurrency: this.orgUserSettings.currency_settings.preferred_currency,
-        isEnabled: this.orgUserSettings.currency_settings.enabled,
-        isAllowed: this.orgSettings.org_currency_settings.enabled,
+          this.employeeSettings.expense_form_autofills?.allowed,
       },
     ];
     this.preferenceSettings = allPreferenceSettings.filter((setting) => setting.isAllowed);

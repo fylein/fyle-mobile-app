@@ -33,7 +33,7 @@ import {
   orgSettingsWoMileage,
   orgSettingsParamsWithAdvanceWallet,
 } from 'src/app/core/mock-data/org-settings.data';
-import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
+import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
 import { recentlyUsedRes } from 'src/app/core/mock-data/recently-used.data';
 import { expectedReportsPaginated } from 'src/app/core/mock-data/platform-report.data';
 import {
@@ -72,7 +72,7 @@ import { MileageService } from 'src/app/core/services/mileage.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
@@ -142,7 +142,7 @@ export function TestCases4(getTestBed) {
     let paymentModesService: jasmine.SpyObj<PaymentModesService>;
     let taxGroupService: jasmine.SpyObj<TaxGroupService>;
     let costCentersService: jasmine.SpyObj<CostCentersService>;
-    let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
+    let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
     let storageService: jasmine.SpyObj<StorageService>;
     let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
     let mileageService: jasmine.SpyObj<MileageService>;
@@ -201,7 +201,9 @@ export function TestCases4(getTestBed) {
       paymentModesService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
       taxGroupService = TestBed.inject(TaxGroupService) as jasmine.SpyObj<TaxGroupService>;
       costCentersService = TestBed.inject(CostCentersService) as jasmine.SpyObj<CostCentersService>;
-      orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
+      platformEmployeeSettingsService = TestBed.inject(
+        PlatformEmployeeSettingsService
+      ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
       mileageService = TestBed.inject(MileageService) as jasmine.SpyObj<MileageService>;
@@ -517,16 +519,16 @@ export function TestCases4(getTestBed) {
         component.projectCategories$ = of(sortedCategory);
         component.subCategories$ = of(sortedCategory);
         orgSettingsService.get.and.returnValue(of(orgSettingsRes));
-        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
         projectsService.getbyId.and.returnValue(of(expectedProjectsResponse[0]));
         fixture.detectChanges();
 
         component.getProjects().subscribe((res) => {
           expect(res).toEqual(expectedProjectsResponse[0]);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
           expect(projectsService.getbyId).toHaveBeenCalledOnceWith(
-            orgUserSettingsData.preferences.default_project_id,
+            employeeSettingsData.default_project_id,
             sortedCategory
           );
           done();
@@ -536,12 +538,12 @@ export function TestCases4(getTestBed) {
       it('should return null if no project could be found', (done) => {
         component.etxn$ = of(newUnflattenedTxn);
         orgSettingsService.get.and.returnValue(of(orgSettingsRes));
-        orgUserSettingsService.get.and.returnValue(of(null));
+        platformEmployeeSettingsService.get.and.returnValue(of(null));
 
         component.getProjects().subscribe((res) => {
           expect(res).toBeNull();
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
           expect(projectsService.getbyId).not.toHaveBeenCalled();
           done();
         });

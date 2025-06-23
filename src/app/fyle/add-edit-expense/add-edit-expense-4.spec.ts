@@ -52,7 +52,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
@@ -135,7 +135,7 @@ export function TestCases4(getTestBed) {
     let titleCasePipe: jasmine.SpyObj<TitleCasePipe>;
     let paymentModesService: jasmine.SpyObj<PaymentModesService>;
     let taxGroupService: jasmine.SpyObj<TaxGroupService>;
-    let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
+    let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
     let storageService: jasmine.SpyObj<StorageService>;
     let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
     let platform: jasmine.SpyObj<Platform>;
@@ -194,7 +194,9 @@ export function TestCases4(getTestBed) {
       titleCasePipe = TestBed.inject(TitleCasePipe) as jasmine.SpyObj<TitleCasePipe>;
       paymentModesService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
       taxGroupService = TestBed.inject(TaxGroupService) as jasmine.SpyObj<TaxGroupService>;
-      orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
+      platformEmployeeSettingsService = TestBed.inject(
+        PlatformEmployeeSettingsService
+      ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
 
