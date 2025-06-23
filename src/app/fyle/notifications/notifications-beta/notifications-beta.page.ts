@@ -127,7 +127,7 @@ export class NotificationsBetaPage implements OnInit {
         orgUserSettings: this.orgUserSettings,
         unsubscribedEventsByUser,
       },
-      ...this.modalPropertiesService.getModalDefaultProperties(),
+      ...this.modalPropertiesService.getModalDefaultProperties('email-notifications-modal'),
     });
 
     await emailNotificationsModal.present();

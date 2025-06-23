@@ -1,12 +1,38 @@
+@import '../../../../theme/colors.scss';
+
 .email-notifications {
   &--container {
     margin: 16px;
+  }
+
+  &--saved-text {
+    font-size: 12px;
+    font-weight: 500;
+    color: $blue-black;
+    margin-right: 16px;
+    margin-bottom: -6px;
+    min-width: 40px;
   }
 
   &--flex-row {
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: space-between;
+    padding: 6px;
+    margin: 6px 0;
+    font-size: 14px;
+    font-weight: 400;
+    color: $blue-black;
   }
+
+  &--event-name {
+    width: 75vw;
+  }
+}
+
+.table-header {
+  background-color: $off-white;
+  margin-bottom: 12px;
+  justify-content: space-between;
+  font-weight: 500;
 }
