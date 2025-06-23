@@ -10,7 +10,7 @@ import {
   expenseReportNotifications,
 } from 'src/app/core/mock-data/notification-events.data';
 
-fdescribe('NotificationsBetaPageService', () => {
+describe('NotificationsBetaPageService', () => {
   let service: NotificationsBetaPageService;
 
   beforeEach(() => {

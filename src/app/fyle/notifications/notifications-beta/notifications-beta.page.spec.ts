@@ -29,7 +29,7 @@ import {
 import { EmailNotificationsComponent } from '../email-notifications/email-notifications.component';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
 
-fdescribe('NotificationsBetaPage', () => {
+describe('NotificationsBetaPage', () => {
   let component: NotificationsBetaPage;
   let fixture: ComponentFixture<NotificationsBetaPage>;
   let router: jasmine.SpyObj<Router>;

@@ -10,7 +10,7 @@ import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { EmailNotificationsComponent } from './email-notifications.component';
 
-fdescribe('EmailNotificationsComponent', () => {
+describe('EmailNotificationsComponent', () => {
   let component: EmailNotificationsComponent;
   let fixture: ComponentFixture<EmailNotificationsComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
