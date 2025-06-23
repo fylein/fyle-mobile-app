@@ -14,7 +14,7 @@
     <div
       class="notifications--card"
       matRipple
-      *ngIf="expenseNotificationsConfig.notifications.length > 0"
+      *ngIf="expenseNotificationsConfig?.notifications?.length > 0"
       (click)="openNotificationModal(expenseNotificationsConfig)"
     >
       <div class="notifications--card--title">{{ expenseNotificationsConfig.title }}</div>
@@ -28,7 +28,7 @@
     <div
       class="notifications--card"
       matRipple
-      *ngIf="expenseReportNotificationsConfig.notifications.length > 0"
+      *ngIf="expenseReportNotificationsConfig?.notifications?.length > 0"
       (click)="openNotificationModal(expenseReportNotificationsConfig)"
     >
       <div class="notifications--card--title">{{ expenseReportNotificationsConfig.title }}</div>
@@ -42,7 +42,7 @@
     <div
       class="notifications--card"
       matRipple
-      *ngIf="isAdvancesEnabled && advanceNotificationsConfig.notifications.length > 0"
+      *ngIf="isAdvancesEnabled && advanceNotificationsConfig?.notifications?.length > 0"
       (click)="openNotificationModal(advanceNotificationsConfig)"
     >
       <div class="notifications--card--title">{{ advanceNotificationsConfig.title }}</div>
