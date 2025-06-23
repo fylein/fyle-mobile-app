@@ -167,8 +167,16 @@ export class AdvanceRequestService {
   @CacheBuster({
     cacheBusterNotifier: advanceRequestsCacheBuster$,
   })
-  saveDraft(advanceRequest: Partial<AdvanceRequests>): Observable<AdvanceRequests> {
-    return this.apiService.post('/advance_requests/save', advanceRequest);
+  post(advanceRequest: Partial<AdvanceRequests>): Observable<AdvanceRequests> {
+    const payload = {
+      data: {
+        ...advanceRequest,
+        custom_fields: advanceRequest.custom_field_values,
+      },
+    };
+    return this.spenderService
+      .post<PlatformApiResponse<AdvanceRequests>>('/advance_requests', payload)
+      .pipe(map((response) => response.data));
   }
 
   @CacheBuster({
@@ -403,7 +411,7 @@ export class AdvanceRequestService {
   ): Observable<AdvanceRequestFile> {
     return forkJoin({
       files: fileObservables,
-      advanceReq: this.saveDraft(advanceRequest),
+      advanceReq: this.post(advanceRequest),
     }).pipe(
       switchMap((res) => {
         if (res.files && res.files.length > 0) {
