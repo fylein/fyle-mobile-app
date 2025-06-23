@@ -148,6 +148,7 @@ import { FyMsgPopoverComponent } from 'src/app/shared/components/fy-msg-popover/
 import { ReviewSplitExpenseComponent } from 'src/app/shared/components/review-split-expense/review-split-expense.component';
 import { splitConfig } from 'src/app/core/mock-data/split-config.data';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 describe('SplitExpensePage', () => {
   let component: SplitExpensePage;
   let fixture: ComponentFixture<SplitExpensePage>;
@@ -177,7 +178,7 @@ describe('SplitExpensePage', () => {
   let activateRouteMock: ActivatedRoute;
   let destroy$: Subject<void>;
   let formControlSpy: jasmine.SpyObj<UntypedFormControl>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     const navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
     const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', [
@@ -229,7 +230,13 @@ describe('SplitExpensePage', () => {
       'convertToUtc',
       'convertAllDatesToProperLocale',
     ]);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [SplitExpensePage, FyAlertInfoComponent],
       imports: [
@@ -243,6 +250,7 @@ describe('SplitExpensePage', () => {
         RouterModule,
         RouterTestingModule,
         MatIconTestingModule,
+        TranslocoModule,
       ],
       providers: [
         UntypedFormBuilder,
@@ -302,6 +310,10 @@ describe('SplitExpensePage', () => {
           provide: TimezoneService,
           useValue: timezoneServiceSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -334,7 +346,7 @@ describe('SplitExpensePage', () => {
     activateRouteMock = TestBed.inject(ActivatedRoute);
     destroy$ = new Subject<void>();
     component.destroy$ = destroy$;
-
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     fixture.detectChanges();
   }));
 

@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { UntypedFormBuilder, FormsModule } from '@angular/forms';
 import { MatLegacyFormFieldModule as MatFormFieldModule } from '@angular/material/legacy-form-field';
 import { ActivatedRoute, RouterModule } from '@angular/router';
@@ -6,15 +7,30 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { IonicModule } from '@ionic/angular';
 
 import { SendEmailComponent } from './send-email.component';
+import { of } from 'rxjs';
 
 describe('SendEmailComponent', () => {
   let component: SendEmailComponent;
   let fixture: ComponentFixture<SendEmailComponent>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [SendEmailComponent],
-      imports: [IonicModule.forRoot(), MatFormFieldModule, FormsModule, RouterModule, RouterTestingModule],
+      imports: [
+        IonicModule.forRoot(),
+        MatFormFieldModule,
+        FormsModule,
+        RouterModule,
+        RouterTestingModule,
+        TranslocoModule,
+      ],
       providers: [
         UntypedFormBuilder,
         {
@@ -27,11 +43,34 @@ describe('SendEmailComponent', () => {
             },
           },
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(SendEmailComponent);
     component = fixture.componentInstance;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'sendEmail.fyleLogoAlt': 'fyle-logo-light',
+        'sendEmail.placeholderWorkEmail': 'Work email',
+        'sendEmail.invalidEmailError': 'Please enter a valid email.',
+        'sendEmail.sendingLink': 'Sending link',
+        'sendEmail.requestFailedTitle': 'Request failed',
+        'sendEmail.requestFailedContent': 'Something went wrong. Please send us a note at support@fylehq.com',
+        'sendEmail.backToSignIn': 'Back to sign in',
+      };
+      let translation = translations[key] || key;
+      if (params) {
+        Object.keys(params).forEach((key) => {
+          translation = translation.replace(`{${key}}`, params[key]);
+        });
+      }
+      return translation;
+    });
     fixture.detectChanges();
   }));
 

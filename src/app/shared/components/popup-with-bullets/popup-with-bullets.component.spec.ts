@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { IonicModule } from '@ionic/angular';
 import { PopoverController } from '@ionic/angular';
 import { ClipboardService } from 'src/app/core/services/clipboard.service';
@@ -7,6 +8,7 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
 import { PopupWithBulletsComponent } from './popup-with-bullets.component';
 import { By } from '@angular/platform-browser';
 import { ToastMessageComponent } from '../toast-message/toast-message.component';
+import { of } from 'rxjs';
 
 describe('PopupWithBulletsComponent', () => {
   let component: PopupWithBulletsComponent;
@@ -15,16 +17,23 @@ describe('PopupWithBulletsComponent', () => {
   let clipboardService: jasmine.SpyObj<ClipboardService>;
   let matSnackBar: jasmine.SpyObj<MatSnackBar>;
   let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
 
   beforeEach(waitForAsync(() => {
     const snackbarPropertiesServiceSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const clipboardServiceSpy = jasmine.createSpyObj('ClipboardService', ['writeString']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['dismiss']);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [PopupWithBulletsComponent],
-      imports: [IonicModule.forRoot()],
+      imports: [IonicModule.forRoot(), TranslocoModule],
       providers: [
         {
           provide: PopoverController,
@@ -42,6 +51,7 @@ describe('PopupWithBulletsComponent', () => {
           provide: SnackbarPropertiesService,
           useValue: snackbarPropertiesServiceSpy,
         },
+        { provide: TranslocoService, useValue: translocoServiceSpy },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(PopupWithBulletsComponent);
@@ -51,7 +61,19 @@ describe('PopupWithBulletsComponent', () => {
     clipboardService = TestBed.inject(ClipboardService) as jasmine.SpyObj<ClipboardService>;
     snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
-
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'popupWithBullets.phoneNumberCopied': 'Phone Number Copied Successfully',
+      };
+      let translation = translations[key] || key;
+      if (params) {
+        Object.keys(params).forEach((key) => {
+          translation = translation.replace(`{{${key}}}`, params[key]);
+        });
+      }
+      return translation;
+    });
     component.title = 'Verification Successful';
     component.listHeader = 'Now you can:';
     component.listItems = [

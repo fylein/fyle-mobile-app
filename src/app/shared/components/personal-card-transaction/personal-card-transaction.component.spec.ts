@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick, waitForAsync } from '@angular/core/testing';
 import { IconModule } from '../../icon/icon.module';
 import { PersonalCardTransactionComponent } from './personal-card-transaction.component';
 import { IonicModule } from '@ionic/angular';
@@ -10,7 +10,8 @@ import { CurrencyPipe } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { platformPersonalCardTxns } from 'src/app/core/mock-data/personal-card-txns.data';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
+import { of } from 'rxjs';
 
 describe('PersonalCardTransactionComponent', () => {
   let component: PersonalCardTransactionComponent;
@@ -18,16 +19,32 @@ describe('PersonalCardTransactionComponent', () => {
   let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     const dateFormatPipeSpy = jasmine.createSpyObj('DateFormatPipe', ['transform']);
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     translocoServiceSpy.translate.and.callFake((key: any, params?: any) => {
       const translations: { [key: string]: string } = {
         'pipes.dateFormat.format': 'MMM DD, YYYY',
+        'personalCardTransaction.debit': 'DR',
+        'personalCardTransaction.credit': 'CR',
+        'personalCardTransaction.createExpense': 'Create expense',
+        'personalCardTransaction.viewExpense': 'View expense',
       };
-      return translations[key] || key;
+      let translation = translations[key] || key;
+      if (params) {
+        Object.keys(params).forEach((key) => {
+          translation = translation.replace(`{{${key}}}`, params[key]);
+        });
+      }
+      return translation;
     });
     TestBed.configureTestingModule({
       declarations: [PersonalCardTransactionComponent, DateFormatPipe, ExactCurrencyPipe, FyCurrencyPipe],
-      imports: [IonicModule.forRoot(), IconModule, MatIconTestingModule, MatIconModule],
+      imports: [IonicModule.forRoot(), IconModule, MatIconTestingModule, MatIconModule, TranslocoModule],
       providers: [
         {
           provide: DateFormatPipe,
@@ -104,26 +121,32 @@ describe('PersonalCardTransactionComponent', () => {
     expect(getTextContent(dateElement)).toEqual('Sep 22, 2024');
   });
 
-  it('should display the "Create expense" button for INITIALIZED status', () => {
+  it('should display the "Create expense" button for INITIALIZED status', fakeAsync(() => {
     component.status = 'INITIALIZED';
     fixture.detectChanges();
-    const buttonElement = getElementBySelector(fixture, '.personal-card-transaction--button') as HTMLButtonElement;
-    expect(getTextContent(buttonElement)).toEqual('Create expense');
-  });
-
-  it('should display the "Create expense" button for HIDDEN status', () => {
-    component.status = 'HIDDEN';
+    tick();
     fixture.detectChanges();
     const buttonElement = getElementBySelector(fixture, '.personal-card-transaction--button') as HTMLButtonElement;
     expect(getTextContent(buttonElement)).toEqual('Create expense');
-  });
+  }));
 
-  it('should display the "View expense" button for MATCHED status', () => {
+  it('should display the "Create expense" button for HIDDEN status', fakeAsync(() => {
+    component.status = 'HIDDEN';
+    fixture.detectChanges();
+    tick();
+    fixture.detectChanges();
+    const buttonElement = getElementBySelector(fixture, '.personal-card-transaction--button') as HTMLButtonElement;
+    expect(getTextContent(buttonElement)).toEqual('Create expense');
+  }));
+
+  it('should display the "View expense" button for MATCHED status', fakeAsync(() => {
     component.status = 'MATCHED';
+    fixture.detectChanges();
+    tick();
     fixture.detectChanges();
     const buttonElement = getElementBySelector(fixture, '.personal-card-transaction--button') as HTMLButtonElement;
     expect(getTextContent(buttonElement)).toEqual('View expense');
-  });
+  }));
 
   it('should display the currency, amount, and type', () => {
     component.currency = 'USD';

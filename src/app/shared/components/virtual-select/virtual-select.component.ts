@@ -6,6 +6,7 @@ import { VirtualSelectModalComponent } from './virtual-select-modal/virtual-sele
 import { isEqual } from 'lodash';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { SelectionReturnType, VirtualSelectOptions } from './virtual-select.model';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-virtual-select',
@@ -35,7 +36,7 @@ export class VirtualSelectComponent implements ControlValueAccessor, OnInit {
 
   @Input() cacheName = '';
 
-  @Input() subheader = 'All';
+  @Input() subheader: string;
 
   @Input() enableSearch = true;
 
@@ -62,8 +63,11 @@ export class VirtualSelectComponent implements ControlValueAccessor, OnInit {
   constructor(
     private modalController: ModalController,
     private injector: Injector,
-    private modalProperties: ModalPropertiesService
-  ) {}
+    private modalProperties: ModalPropertiesService,
+    private translocoService: TranslocoService
+  ) {
+    this.subheader = this.translocoService.translate('virtualSelect.subheader');
+  }
 
   get valid(): boolean {
     if (this.ngControl.touched) {
@@ -102,7 +106,11 @@ export class VirtualSelectComponent implements ControlValueAccessor, OnInit {
   }
 
   async openModal(): Promise<void> {
-    const cssClass = this.label === 'Payment mode' ? 'payment-mode-modal' : 'virtual-modal';
+    const selectModalHeader = this.translocoService.translate('virtualSelect.selectItemHeader');
+    const cssClass =
+      this.label === this.translocoService.translate('virtualSelect.paymentModeLabel')
+        ? 'payment-mode-modal'
+        : 'virtual-modal';
 
     const selectionModal = await this.modalController.create({
       component: VirtualSelectModalComponent,
@@ -114,7 +122,7 @@ export class VirtualSelectComponent implements ControlValueAccessor, OnInit {
         cacheName: this.cacheName,
         subheader: this.subheader,
         enableSearch: this.enableSearch,
-        selectModalHeader: this.selectModalHeader || 'Select item',
+        selectModalHeader: this.selectModalHeader || selectModalHeader,
         placeholder: this.placeholder,
         showSaveButton: this.showSaveButton,
         defaultLabelProp: this.defaultLabelProp,

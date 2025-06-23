@@ -10,7 +10,7 @@
     <input
       class="fy-select--input smartlook-show"
       type="text"
-      [placeholder]="!disabled ? placeholder || 'Select ' + label : ''"
+      [placeholder]="!disabled ? placeholder || ('virtualSelect.placeholder' | transloco : { label: label }) : ''"
       [ngModel]="displayValue"
       (blur)="onBlur()"
       (click)="openModal()"

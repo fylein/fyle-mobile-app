@@ -9,7 +9,7 @@
     <input
       class="fy-select-vendor--input smartlook-show"
       type="text"
-      [placeholder]="placeholder || 'Select ' + label"
+      [placeholder]="placeholder || ('fySelectVendor.select' | transloco) + ' ' + label"
       [ngModel]="displayValue"
       (blur)="onBlur()"
       (click)="openModal()"

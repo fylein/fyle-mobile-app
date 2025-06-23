@@ -1,7 +1,7 @@
 <label class="fy-select--label">
   <div class="fy-select--label-content">
     {{ label }}
-    <span *ngIf="mandatory" class="fy-select--mandatory"> * </span>
+    <span *ngIf="mandatory" class="fy-select--mandatory"> {{ 'fySelect.mandatoryMarker' | transloco }} </span>
   </div>
   <div
     class="fy-select--input-container"
@@ -10,7 +10,7 @@
     <input
       class="fy-select--input smartlook-show"
       type="text"
-      [placeholder]="!disabled ? placeholder || 'Select ' + label : ''"
+      [placeholder]="!disabled ? placeholder || ('fySelect.selectLabel' | transloco : { label: label }) : ''"
       [ngModel]="displayValue"
       (blur)="onBlur()"
       (click)="openModal()"

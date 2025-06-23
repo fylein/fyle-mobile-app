@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { FyViewReportInfoComponent } from './fy-view-report-info.component';
 import { of } from 'rxjs';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
@@ -29,7 +30,7 @@ describe('FyViewReportInfoComponent', () => {
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let modalController: jasmine.SpyObj<ModalController>;
   let datePipe: DatePipe;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     const mockOrgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', [
       'get',
@@ -43,8 +44,15 @@ describe('FyViewReportInfoComponent', () => {
     const mockAuthServiceSpy = jasmine.createSpyObj('AuthService', ['getUserDetails', 'getEou']);
     const mockOrgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const mockModalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
+      imports: [TranslocoModule],
       declarations: [FyViewReportInfoComponent],
       providers: [
         {
@@ -73,6 +81,7 @@ describe('FyViewReportInfoComponent', () => {
           useValue: mockModalControllerSpy,
         },
         DatePipe,
+        { provide: TranslocoService, useValue: translocoServiceSpy },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
@@ -93,7 +102,45 @@ describe('FyViewReportInfoComponent', () => {
     component.amountCurrencyWiseDetails = {};
     component.employeeDetails = {};
     component.isSwipe = false;
-
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'fyViewReportInfo.viewInfo': 'View info',
+        'fyViewReportInfo.report': 'Report',
+        'fyViewReportInfo.amount': 'Amount',
+        'fyViewReportInfo.employee': 'Employee',
+        'fyViewReportInfo.reportName': 'Report Name',
+        'fyViewReportInfo.owner': 'Owner',
+        'fyViewReportInfo.reportNumber': 'Report Number',
+        'fyViewReportInfo.createdDate': 'Created date',
+        'fyViewReportInfo.totalAmount': 'Total Amount',
+        'fyViewReportInfo.reimbursable': 'Reimbursable',
+        'fyViewReportInfo.employeeId': 'Employee ID',
+        'fyViewReportInfo.organization': 'Organization',
+        'fyViewReportInfo.department': 'Department',
+        'fyViewReportInfo.subDepartment': 'Sub Department',
+        'fyViewReportInfo.location': 'Location',
+        'fyViewReportInfo.level': 'Level',
+        'fyViewReportInfo.employeeTitle': 'Employee Title',
+        'fyViewReportInfo.businessUnit': 'Business Unit',
+        'fyViewReportInfo.mobile': 'Mobile',
+        'fyViewReportInfo.allowedCostCenters': 'Allowed Cost Centers',
+        'fyViewReportInfo.ccc': 'CCC',
+        'fyViewReportInfo.advance': 'Advance',
+        'fyViewReportInfo.componentWiseSplit': 'Component wise split',
+        'fyViewReportInfo.nonReimbursable': 'Non-reimbursable',
+        'fyViewReportInfo.currencyWiseSplit': 'Currency wise split',
+        'fyViewReportInfo.oneExpense': '1 Expense',
+        'fyViewReportInfo.expenses': ' Expenses',
+      };
+      let translation = translations[key] || key;
+      if (params) {
+        Object.keys(params).forEach((key) => {
+          translation = translation.replace(`{{${key}}}`, params[key]);
+        });
+      }
+      return translation;
+    });
     fixture.detectChanges();
   }));
 

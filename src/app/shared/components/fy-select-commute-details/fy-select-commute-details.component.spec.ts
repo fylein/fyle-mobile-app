@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { IonicModule, ModalController } from '@ionic/angular';
 
 import { FySelectCommuteDetailsComponent } from './fy-select-commute-details.component';
@@ -33,7 +34,7 @@ describe('FySelectCommuteDetailsComponent', () => {
   let matSnackBar: jasmine.SpyObj<MatSnackBar>;
   let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
     const formBuilderSpy = jasmine.createSpyObj('FormBuilder', ['group']);
@@ -46,10 +47,16 @@ describe('FySelectCommuteDetailsComponent', () => {
       'showToastMessage',
       'commuteDeductionDetailsError',
     ]);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [FySelectCommuteDetailsComponent],
-      imports: [IonicModule.forRoot()],
+      imports: [IonicModule.forRoot(), TranslocoModule],
       providers: [
         UntypedFormBuilder,
         { provide: ModalController, useValue: modalControllerSpy },
@@ -59,6 +66,7 @@ describe('FySelectCommuteDetailsComponent', () => {
         { provide: MatSnackBar, useValue: matSnackBarSpy },
         { provide: SnackbarPropertiesService, useValue: snackbarPropertiesSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },
+        { provide: TranslocoService, useValue: translocoServiceSpy },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -73,6 +81,28 @@ describe('FySelectCommuteDetailsComponent', () => {
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
     snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'fySelectCommuteDetails.saving': 'Saving',
+        'fySelectCommuteDetails.save': 'Save',
+        'fySelectCommuteDetails.title': 'Commute details',
+        'fySelectCommuteDetails.homeLabel': 'Home',
+        'fySelectCommuteDetails.enterLocation': 'Enter location',
+        'fySelectCommuteDetails.errorSelectHome': 'Please select home location',
+        'fySelectCommuteDetails.workLabel': 'Work',
+        'fySelectCommuteDetails.errorSelectWork': 'Please select work location',
+        'fySelectCommuteDetails.saveError':
+          'We were unable to save your commute details. Please enter correct home and work location.',
+      };
+      let translation = translations[key] || key;
+      if (params) {
+        Object.keys(params).forEach((key) => {
+          translation = translation.replace(`{{${key}}}`, params[key]);
+        });
+      }
+      return translation;
+    });
   }));
 
   it('should create', () => {

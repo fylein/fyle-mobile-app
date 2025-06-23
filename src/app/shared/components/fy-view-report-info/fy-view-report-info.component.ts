@@ -14,8 +14,8 @@ import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpensesService as SharedExpensesService } from 'src/app/core/services/platform/v1/shared/expenses.service';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
-import { AmountDetails } from 'src/app/core/models/amount-details.model';
 import { ReportInfoPaymentMode } from 'src/app/core/models/report-info-payment-mode.model';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-fy-view-report-info-v2',
@@ -39,7 +39,7 @@ export class FyViewReportInfoComponent {
 
   reportDetails = {};
 
-  amountComponentWiseDetails: AmountDetails;
+  amountComponentWiseDetails: { [key: string]: number };
 
   amountCurrencyWiseDetails = {};
 
@@ -56,7 +56,8 @@ export class FyViewReportInfoComponent {
     private elementRef: ElementRef,
     private trackingService: TrackingService,
     private orgSettingsService: OrgSettingsService,
-    private authService: AuthService
+    private authService: AuthService,
+    private translocoService: TranslocoService
   ) {}
 
   get ExpenseView(): typeof ExpenseView {
@@ -67,10 +68,10 @@ export class FyViewReportInfoComponent {
     this.report$.pipe(filter((report) => !!report)).subscribe((report) => {
       const createdDate = this.datePipe.transform(report.created_at, 'MMM d, y');
       this.reportDetails = {
-        'Report Name': report.purpose,
-        Owner: report.employee.user.full_name,
-        'Report Number': report.seq_num,
-        'Created date': createdDate,
+        [this.translocoService.translate('fyViewReportInfo.reportName')]: report.purpose,
+        [this.translocoService.translate('fyViewReportInfo.owner')]: report.employee.user.full_name,
+        [this.translocoService.translate('fyViewReportInfo.reportNumber')]: report.seq_num,
+        [this.translocoService.translate('fyViewReportInfo.createdDate')]: createdDate,
       };
       this.reportCurrency = report.currency;
 
@@ -83,8 +84,9 @@ export class FyViewReportInfoComponent {
     combineLatest([this.expenses$, this.report$, orgSettings$]).subscribe(([expenses, report, orgSettings]) => {
       const paymentModeWiseData: PaymentModeSummary = this.sharedExpensesService.getPaymentModeWiseSummary(expenses);
       this.amountComponentWiseDetails = {
-        'Total Amount': report.amount,
-        Reimbursable: paymentModeWiseData.reimbursable?.amount || 0,
+        [this.translocoService.translate('fyViewReportInfo.totalAmount')]: report.amount,
+        [this.translocoService.translate('fyViewReportInfo.reimbursable')]:
+          paymentModeWiseData.reimbursable?.amount || 0,
       };
       if (orgSettings) {
         this.getCCCAdvanceSummary(paymentModeWiseData, orgSettings);
@@ -183,22 +185,23 @@ export class FyViewReportInfoComponent {
 
   async createEmployeeDetails(report: Report): Promise<void> {
     this.employeeDetails = {
-      'Employee ID': report.employee.code,
-      Organization: report.employee.org_name,
-      Department: report.employee.department?.name,
-      'Sub Department': report.employee.department?.sub_department,
-      Location: report.employee.location,
-      Level: report.employee.level?.name,
-      'Employee Title': report.employee.title,
-      'Business Unit': report.employee.business_unit,
-      Mobile: report.employee.mobile,
+      [this.translocoService.translate('fyViewReportInfo.employeeId')]: report.employee.code,
+      [this.translocoService.translate('fyViewReportInfo.organization')]: report.employee.org_name,
+      [this.translocoService.translate('fyViewReportInfo.department')]: report.employee.department?.name,
+      [this.translocoService.translate('fyViewReportInfo.subDepartment')]: report.employee.department?.sub_department,
+      [this.translocoService.translate('fyViewReportInfo.location')]: report.employee.location,
+      [this.translocoService.translate('fyViewReportInfo.level')]: report.employee.level?.name,
+      [this.translocoService.translate('fyViewReportInfo.employeeTitle')]: report.employee.title,
+      [this.translocoService.translate('fyViewReportInfo.businessUnit')]: report.employee.business_unit,
+      [this.translocoService.translate('fyViewReportInfo.mobile')]: report.employee.mobile,
     };
     try {
       const orgUser = await this.authService.getEou();
       if (report.org_id === orgUser.ou.org_id) {
         this.orgUserSettingsService.getAllowedCostCentersByOuId(report.employee.id).subscribe((costCenters) => {
           const allowedCostCenters = costCenters.map((costCenter) => costCenter.name).join(', ');
-          this.employeeDetails['Allowed Cost Centers'] = allowedCostCenters;
+          this.employeeDetails[this.translocoService.translate('fyViewReportInfo.allowedCostCenters')] =
+            allowedCostCenters;
         });
       }
     } catch (err) {

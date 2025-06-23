@@ -75,6 +75,7 @@ describe('CameraOptionsPopupComponent', () => {
         'cameraOptionsPopup.addMoreUsing': 'Add more using',
         'cameraOptionsPopup.clickPicture': 'Click picture',
         'cameraOptionsPopup.uploadFiles': 'Upload files',
+        'cameraOptionsPopup.loaderMessage': 'Please wait...',
       };
       return translations[key] || key;
     });

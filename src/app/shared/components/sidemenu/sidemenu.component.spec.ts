@@ -1,4 +1,5 @@
 import { ComponentFixture, fakeAsync, TestBed, tick, waitForAsync } from '@angular/core/testing';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { IonicModule } from '@ionic/angular';
 import { DeviceService } from 'src/app/core/services/device.service';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
@@ -52,7 +53,7 @@ describe('SidemenuComponent', () => {
   let authService: jasmine.SpyObj<AuthService>;
   let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
   let spenderOnboardingService: jasmine.SpyObj<SpenderOnboardingService>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   @Component({
     selector: 'app-sidemenu',
     template: '<ion-menu></ion-menu>',
@@ -88,10 +89,16 @@ describe('SidemenuComponent', () => {
     const spenderOnboardingServiceSpy = jasmine.createSpyObj('SpenderOnboardingService', [
       'checkForRedirectionToOnboarding',
     ]);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [SidemenuComponent],
-      imports: [IonicModule.forRoot(), MatMenuModule],
+      imports: [IonicModule.forRoot(), MatMenuModule, TranslocoModule],
       providers: [
         { provide: DeviceService, useValue: deviceServiceSpy },
         { provide: RouterAuthService, useValue: routerAuthServiceSpy },
@@ -106,6 +113,7 @@ describe('SidemenuComponent', () => {
         { provide: AuthService, useValue: authServiceSpy },
         { provide: OrgUserSettingsService, useValue: orgUserSettingsServiceSpy },
         { provide: SpenderOnboardingService, useValue: spenderOnboardingServiceSpy },
+        { provide: TranslocoService, useValue: translocoServiceSpy },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -123,7 +131,34 @@ describe('SidemenuComponent', () => {
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
     spenderOnboardingService = TestBed.inject(SpenderOnboardingService) as jasmine.SpyObj<SpenderOnboardingService>;
-
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'sidemenu.personalCards': 'Personal cards',
+        'sidemenu.expenseReports': 'Expense reports',
+        'sidemenu.advances': 'Advances',
+        'sidemenu.home': 'Home',
+        'sidemenu.getStarted': 'Get started',
+        'sidemenu.myExpenses': 'My expenses',
+        'sidemenu.cards': 'Cards',
+        'sidemenu.myExpenseReports': 'My expense reports',
+        'sidemenu.myAdvances': 'My advances',
+        'sidemenu.team': 'Team',
+        'sidemenu.settings': 'Settings',
+        'sidemenu.delegatedAccounts': 'Delegated accounts',
+        'sidemenu.switchBackToMyAccount': 'Switch back to my account',
+        'sidemenu.switchOrganization': 'Switch organization',
+        'sidemenu.liveChat': 'Live chat',
+        'sidemenu.help': 'Help',
+      };
+      let translation = translations[key] || key;
+      if (params) {
+        Object.keys(params).forEach((key) => {
+          translation = translation.replace(`{{${key}}}`, params[key]);
+        });
+      }
+      return translation;
+    });
     networkService.connectivityWatcher.and.returnValue(new EventEmitter());
 
     spyOn(document, 'getElementById').and.returnValue(document.createElement('div'));

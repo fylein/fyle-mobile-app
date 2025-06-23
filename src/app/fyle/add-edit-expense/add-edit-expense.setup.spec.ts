@@ -64,6 +64,8 @@ import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
+import { of } from 'rxjs';
 
 export function setFormValid(component) {
   Object.defineProperty(component.fg, 'valid', {
@@ -236,10 +238,16 @@ describe('AddEditExpensePage', () => {
     ]);
     const advanceWalletsServiceSpy = jasmine.createSpyObj('AdvanceWalletsService', ['getAllAdvanceWallets']);
     const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['get', 'post']);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [AddEditExpensePage, MaskNumber, FySelectComponent, EllipsisPipe, DependentFieldComponent],
-      imports: [HttpClientTestingModule, IonicModule.forRoot(), RouterTestingModule, RouterModule],
+      imports: [HttpClientTestingModule, IonicModule.forRoot(), RouterTestingModule, RouterModule, TranslocoModule],
       providers: [
         UntypedFormBuilder,
         {
@@ -442,6 +450,10 @@ describe('AddEditExpensePage', () => {
         {
           provide: AdvanceWalletsService,
           useValue: advanceWalletsServiceSpy,
+        },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],

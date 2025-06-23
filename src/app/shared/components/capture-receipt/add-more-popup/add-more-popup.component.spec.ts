@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick, waitForAsync } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { IonicModule } from '@ionic/angular';
 import { MatBottomSheet, MatBottomSheetModule } from '@angular/material/bottom-sheet';
@@ -39,6 +39,7 @@ describe('AddMorePopupComponent', () => {
         'addMorePopup.captureReceipts': 'Capture receipts',
         'addMorePopup.uploadFiles': 'Upload files',
         'addMorePopup.addMoreUsing': 'Add more using',
+        'cameraOptionsPopup.loaderMessage': 'Please wait...',
       };
       let translation = translations[key] || key;
       if (params) {
@@ -55,10 +56,13 @@ describe('AddMorePopupComponent', () => {
     expect(addMorePopupComponent).toBeTruthy();
   });
 
-  it('should display the heading correctly', () => {
+  it('should display the heading correctly', fakeAsync(() => {
     const headingElement = getElementBySelector(fixture, '.add-more--heading');
+    fixture.detectChanges();
+    tick();
+    fixture.detectChanges();
     expect(getTextContent(headingElement)).toContain('Add more using');
-  });
+  }));
 
   it('should initialize actionButtons correctly', () => {
     const containerElements = getAllElementsBySelector(fixture, '.add-more--container');

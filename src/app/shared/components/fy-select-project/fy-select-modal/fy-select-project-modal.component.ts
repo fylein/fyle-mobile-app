@@ -14,6 +14,7 @@ import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { ProjectOption } from 'src/app/core/models/project-options.model';
 import { OrgCategory } from 'src/app/core/models/v1/org-category.model';
 import { CategoriesService } from 'src/app/core/services/categories.service';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-fy-select-modal',
@@ -58,7 +59,8 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
     private utilityService: UtilityService,
     private orgUserSettingsService: OrgUserSettingsService,
     private orgSettingsService: OrgSettingsService,
-    private categoriesService: CategoriesService
+    private categoriesService: CategoriesService,
+    private translocoService: TranslocoService
   ) {}
 
   getProjects(searchNameText: string): Observable<ProjectOption[]> {
@@ -139,7 +141,7 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
           });
         }
 
-        return [{ label: 'None', value: null }]
+        return [{ label: this.translocoService.translate('fyProjectSelectModal.none'), value: null }]
           .concat(currentElement)
           .concat(projects.map((project) => ({ label: project.project_name, value: project })));
       }),

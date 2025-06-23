@@ -1,22 +1,30 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { IonicModule, ModalController, PopoverController } from '@ionic/angular';
 
 import { PromoteOptInModalComponent } from './promote-opt-in-modal.component';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { of } from 'rxjs';
 
 describe('PromoteOptInModalComponent', () => {
   let component: PromoteOptInModalComponent;
   let fixture: ComponentFixture<PromoteOptInModalComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
   let popoverController: jasmine.SpyObj<PopoverController>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create', 'dismiss', 'onDidDismiss']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [PromoteOptInModalComponent],
-      imports: [IonicModule.forRoot()],
+      imports: [IonicModule.forRoot(), TranslocoModule],
       providers: [
         {
           provide: ModalController,
@@ -26,6 +34,7 @@ describe('PromoteOptInModalComponent', () => {
           provide: PopoverController,
           useValue: popoverControllerSpy,
         },
+        { provide: TranslocoService, useValue: translocoServiceSpy },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -34,6 +43,28 @@ describe('PromoteOptInModalComponent', () => {
     component = fixture.componentInstance;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'promoteOptInModal.skipMessageBody':
+          "<div>\n              <p>You can't send receipts and expense details via text message if you don't opt in.</p>\n              <p>Are you sure you want to skip?<p>  \n            </div>",
+        'promoteOptInModal.areYouSure': 'Are you sure?',
+        'promoteOptInModal.yesSkipOptIn': 'Yes, skip opt in',
+        'promoteOptInModal.noGoBack': 'No, go back',
+        'promoteOptInModal.skip': 'Skip',
+        'promoteOptInModal.altOptInGif': 'Opt in to text receipts',
+        'promoteOptInModal.tryAI': ' Try AI ',
+        'promoteOptInModal.description':
+          'Text receipts for <span class="promote-opt-in-modal__instant-text-decoration">instant</span>\n      <span class="promote-opt-in-modal__underline"></span> expense submission',
+      };
+      let translation = translations[key] || key;
+      if (params) {
+        Object.keys(params).forEach((key) => {
+          translation = translation.replace(`{{${key}}}`, params[key]);
+        });
+      }
+      return translation;
+    });
     fixture.detectChanges();
   }));
 

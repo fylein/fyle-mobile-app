@@ -22,6 +22,7 @@ import { MenuController } from '@ionic/angular';
 import { SidemenuAllowedActions } from 'src/app/core/models/sidemenu-allowed-actions.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-sidemenu',
@@ -68,7 +69,8 @@ export class SidemenuComponent implements OnInit {
     private orgService: OrgService,
     private authService: AuthService,
     private orgUserSettingsService: OrgUserSettingsService,
-    private spenderOnboardingService: SpenderOnboardingService
+    private spenderOnboardingService: SpenderOnboardingService,
+    private translocoService: TranslocoService
   ) {}
 
   ngOnInit(): void {
@@ -184,7 +186,7 @@ export class SidemenuComponent implements OnInit {
   getCardOptions(isOnboardingPending: boolean): Partial<SidemenuItem>[] {
     const cardOptions = [
       {
-        title: 'Personal cards',
+        title: this.translocoService.translate('sidemenu.personalCards'),
         isVisible:
           this.orgSettings.org_personal_cards_settings.allowed &&
           this.orgSettings.org_personal_cards_settings.enabled &&
@@ -202,12 +204,12 @@ export class SidemenuComponent implements OnInit {
     const { allowedReportsActions, allowedAdvancesActions } = this.allowedActions;
     const teamOptions = [
       {
-        title: 'Expense reports',
+        title: this.translocoService.translate('sidemenu.expenseReports'),
         isVisible: allowedReportsActions?.approve && showTeamReportsPage && !isOnboardingPending,
         route: ['/', 'enterprise', 'team_reports'],
       },
       {
-        title: 'Advances',
+        title: this.translocoService.translate('sidemenu.advances'),
         isVisible: allowedAdvancesActions && allowedAdvancesActions.approve && !isOnboardingPending,
         route: ['/', 'enterprise', 'team_advance'],
       },
@@ -221,25 +223,25 @@ export class SidemenuComponent implements OnInit {
 
     const primaryOptions = [
       {
-        title: 'Home',
+        title: this.translocoService.translate('sidemenu.home'),
         isVisible: !isOnboardingPending,
         icon: 'dashboard',
         route: ['/', 'enterprise', 'my_dashboard'],
       },
       {
-        title: 'Get started',
+        title: this.translocoService.translate('sidemenu.getStarted'),
         isVisible: isOnboardingPending,
         icon: 'dashboard',
         route: ['/', 'enterprise', 'spender_onboarding'],
       },
       {
-        title: 'My expenses',
+        title: this.translocoService.translate('sidemenu.myExpenses'),
         isVisible: !isOnboardingPending,
         icon: 'list',
         route: ['/', 'enterprise', 'my_expenses'],
       },
       {
-        title: 'Cards',
+        title: this.translocoService.translate('sidemenu.cards'),
         isVisible: !!cardOptions.length && !isOnboardingPending,
         icon: 'card',
         disabled: !isConnected,
@@ -247,14 +249,14 @@ export class SidemenuComponent implements OnInit {
         dropdownOptions: cardOptions,
       },
       {
-        title: 'My expense reports',
+        title: this.translocoService.translate('sidemenu.myExpenseReports'),
         isVisible: !isOnboardingPending,
         icon: 'folder',
         route: ['/', 'enterprise', 'my_reports'],
         disabled: !isConnected,
       },
       {
-        title: 'My advances',
+        title: this.translocoService.translate('sidemenu.myAdvances'),
         isVisible:
           (this.orgSettings.advances.enabled || this.orgSettings.advance_requests.enabled) && !isOnboardingPending,
         icon: 'wallet',
@@ -262,7 +264,7 @@ export class SidemenuComponent implements OnInit {
         disabled: !isConnected,
       },
       {
-        title: 'Team',
+        title: this.translocoService.translate('sidemenu.team'),
         isVisible: !!teamOptions.length && !isOnboardingPending,
         icon: 'user-three',
         isDropdownOpen: false,
@@ -274,7 +276,7 @@ export class SidemenuComponent implements OnInit {
     this.primaryOptionsCount = primaryOptions.length;
 
     if (cardOptions.length === 1) {
-      this.updateSidemenuOption(primaryOptions, 'Cards', {
+      this.updateSidemenuOption(primaryOptions, this.translocoService.translate('sidemenu.cards'), {
         ...cardOptions[0],
         icon: 'card',
         disabled: !isConnected,
@@ -282,7 +284,7 @@ export class SidemenuComponent implements OnInit {
     }
 
     if (teamOptions.length === 1) {
-      this.updateSidemenuOption(primaryOptions, 'Team', {
+      this.updateSidemenuOption(primaryOptions, this.translocoService.translate('sidemenu.team'), {
         ...teamOptions[0],
         icon: 'user-three',
         disabled: !isConnected,
@@ -307,19 +309,19 @@ export class SidemenuComponent implements OnInit {
   getPrimarySidemenuOptionsOffline(): Partial<SidemenuItem>[] {
     return [
       {
-        title: 'Home',
+        title: this.translocoService.translate('sidemenu.home'),
         isVisible: true,
         icon: 'dashboard',
         route: ['/', 'enterprise', 'my_dashboard'],
       },
       {
-        title: 'My expenses',
+        title: this.translocoService.translate('sidemenu.myExpenses'),
         isVisible: true,
         icon: 'list',
         route: ['/', 'enterprise', 'my_expenses'],
       },
       {
-        title: 'Settings',
+        title: this.translocoService.translate('sidemenu.settings'),
         isVisible: true,
         icon: 'gear',
         route: ['/', 'enterprise', 'my_profile'],
@@ -335,34 +337,34 @@ export class SidemenuComponent implements OnInit {
   ): Partial<SidemenuItem>[] {
     return [
       {
-        title: 'Delegated accounts',
+        title: this.translocoService.translate('sidemenu.delegatedAccounts'),
         isVisible: isDelegatee && !this.isSwitchedToDelegator && !isOnboardingPending,
         icon: 'user-two',
         route: ['/', 'enterprise', 'delegated_accounts'],
         disabled: !isConnected,
       },
       {
-        title: 'Switch back to my account',
+        title: this.translocoService.translate('sidemenu.switchBackToMyAccount'),
         isVisible: this.isSwitchedToDelegator && !isOnboardingPending,
         icon: 'fy-switch',
         route: ['/', 'enterprise', 'delegated_accounts', { switchToOwn: true }],
         disabled: !isConnected,
       },
       {
-        title: 'Switch organization',
+        title: this.translocoService.translate('sidemenu.switchOrganization'),
         isVisible: orgs.length > 1 && !this.isSwitchedToDelegator,
         icon: 'swap',
         route: ['/', 'auth', 'switch_org', { choose: true, navigate_back: true }],
         disabled: !isConnected,
       },
       {
-        title: 'Settings',
+        title: this.translocoService.translate('sidemenu.settings'),
         isVisible: true,
         icon: 'gear',
         route: ['/', 'enterprise', 'my_profile'],
       },
       {
-        title: 'Live chat',
+        title: this.translocoService.translate('sidemenu.liveChat'),
         isVisible:
           this.orgUserSettings &&
           this.orgUserSettings.in_app_chat_settings &&
@@ -373,7 +375,7 @@ export class SidemenuComponent implements OnInit {
         disabled: !isConnected,
       },
       {
-        title: 'Help',
+        title: this.translocoService.translate('sidemenu.help'),
         isVisible: true,
         icon: 'question-square-outline',
         route: ['/', 'enterprise', 'help'],
