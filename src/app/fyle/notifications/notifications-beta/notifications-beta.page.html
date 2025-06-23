@@ -1,15 +1,15 @@
-<ion-header mode="md">
+<ion-header mode="md" class="ion-no-border">
   <ion-toolbar class="notifications--toolbar">
     <ion-buttons mode="md" slot="start">
-      <ion-button (click)="goBack()">
+      <ion-button (click)="goBack()" data-testid="back-button">
         <mat-icon>keyboard_backspace</mat-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title class="notifications--title" mode="md">Email notifications</ion-title>
+    <ion-title class="notifications--toolbar-title" mode="md">Manage notifications</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content class="notifications--content-container">
   <div class="notifications--container">
     <div
       class="notifications--card"
@@ -53,17 +53,38 @@
       ></ion-icon>
     </div>
 
-    <ng-container *ngIf="isDelegateePresent$|async">
-      <div>Notification preferences</div>
-      <div>Select the option for which you'd like to receive notifications</div>
-      <form [formGroup]="delegateNotificationForm">
-        <div>
-          <div *ngFor="let option of delegateNotificationOptions">
-            <input type="radio" [id]="option.value" formControlName="preference" [value]="option.value" />
-            <label [for]="option.value">{{ option.label }}</label>
-          </div>
+    <div *ngIf="isDelegateePresent$|async">
+      <div class="notifications--preferences-container">
+        <div class="notifications--preferences-container--title">Notification preferences</div>
+        <div class="notifications--preferences-container--description">
+          Select the option for which you'd like to receive notifications
         </div>
-      </form>
-    </ng-container>
+      </div>
+      <div class="notifications--preferences-form">
+        <div
+          class="notifications--preferences-form--radio-button"
+          mode="md"
+          *ngFor="let option of delegateNotificationOptions"
+          button
+          (click)="selectPreference(option.value)"
+        >
+          <ng-container *ngIf="selectedPreference === option.value; else uncheckedRadioBtn">
+            <ion-icon
+              class="notifications--radio"
+              size="medium"
+              src="../../../assets/svg/radio-circle-fill.svg"
+            ></ion-icon>
+          </ng-container>
+          <ng-template #uncheckedRadioBtn>
+            <ion-icon
+              class="notifications--radio"
+              size="medium"
+              src="../../../assets/svg/radio-circle-outline.svg"
+            ></ion-icon>
+          </ng-template>
+          {{ option.label }}
+        </div>
+      </div>
+    </div>
   </div>
 </ion-content>

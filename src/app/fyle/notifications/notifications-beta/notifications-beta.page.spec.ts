@@ -236,7 +236,7 @@ fdescribe('NotificationsBetaPage', () => {
   describe('initializeDelegateNotification():', () => {
     it('should initialize delegate notification when user has delegatees', (done) => {
       employeesService.getByParams.and.returnValue(of(platformEmployeeResponse));
-      spyOn(component, 'initializeDelegateNotificationForm');
+      spyOn(component, 'initializeSelectedPreference');
 
       component.initializeDelegateNotification();
 
@@ -244,12 +244,12 @@ fdescribe('NotificationsBetaPage', () => {
         expect(isDelegateePresent).toBeTrue();
         expect(authService.getEou).toHaveBeenCalledTimes(1);
         expect(employeesService.getByParams).toHaveBeenCalledWith({ user_id: `eq.${apiEouRes.us.id}` });
-        expect(component.initializeDelegateNotificationForm).toHaveBeenCalledTimes(1);
+        expect(component.initializeSelectedPreference).toHaveBeenCalledTimes(1);
         done();
       });
     });
 
-    it('should not initialize delegate notification form when user has no delegatees', (done) => {
+    it('should not initialize delegate notification when user has no delegatees', (done) => {
       const mockEmployeesResponseWithoutDelegatees = {
         ...platformEmployeeResponse,
         data: [
@@ -261,7 +261,7 @@ fdescribe('NotificationsBetaPage', () => {
       };
 
       employeesService.getByParams.and.returnValue(of(mockEmployeesResponseWithoutDelegatees));
-      spyOn(component, 'initializeDelegateNotificationForm');
+      spyOn(component, 'initializeSelectedPreference');
 
       component.initializeDelegateNotification();
 
@@ -269,42 +269,9 @@ fdescribe('NotificationsBetaPage', () => {
         expect(isDelegateePresent).toBeFalse();
         expect(authService.getEou).toHaveBeenCalledTimes(1);
         expect(employeesService.getByParams).toHaveBeenCalledWith({ user_id: `eq.${apiEouRes.us.id}` });
-        expect(component.initializeDelegateNotificationForm).not.toHaveBeenCalled();
+        expect(component.initializeSelectedPreference).not.toHaveBeenCalled();
         done();
       });
-    });
-  });
-
-  describe('initializeDelegateNotificationForm():', () => {
-    beforeEach(() => {
-      spyOn(component, 'updateDelegateNotificationPreference');
-    });
-
-    it('should handle different initial preferences', () => {
-      const testCases = ['onlyMe', 'onlyDelegate', 'both'] as const;
-
-      testCases.forEach((preference) => {
-        notificationsBetaPageService.getInitialDelegateNotificationPreference.and.returnValue(preference);
-
-        component.orgUserSettings = orgUserSettingsData;
-        component.initializeDelegateNotificationForm();
-
-        expect(component.delegateNotificationForm.get('preference')?.value).toBe(preference);
-      });
-    });
-
-    it('should call updateDelegateNotificationPreference when form value changes', () => {
-      const initialPreference = 'onlyMe';
-      const newPreference = 'both';
-      notificationsBetaPageService.getInitialDelegateNotificationPreference.and.returnValue(initialPreference);
-
-      component.orgUserSettings = orgUserSettingsData;
-      component.initializeDelegateNotificationForm();
-
-      // Simulate form value change
-      component.delegateNotificationForm.get('preference')?.setValue(newPreference);
-
-      expect(component.updateDelegateNotificationPreference).toHaveBeenCalledWith(newPreference);
     });
   });
 
@@ -323,8 +290,9 @@ fdescribe('NotificationsBetaPage', () => {
 
       testCases.forEach(({ preference, expectedDelegatee, expectedUser }) => {
         component.orgUserSettings = cloneDeep(orgUserSettingsData);
+        component.selectedPreference = preference;
 
-        component.updateDelegateNotificationPreference(preference);
+        component.updateDelegateNotificationPreference();
 
         expect(component.orgUserSettings.notification_settings.notify_delegatee).toBe(expectedDelegatee);
         expect(component.orgUserSettings.notification_settings.notify_user).toBe(expectedUser);
@@ -337,6 +305,18 @@ fdescribe('NotificationsBetaPage', () => {
         );
         expect(orgUserSettingsService.clearOrgUserSettings).toHaveBeenCalled();
       });
+    });
+  });
+
+  describe('initializeSelectedPreference():', () => {
+    it('should initialize selected preference', () => {
+      notificationsBetaPageService.getInitialDelegateNotificationPreference.and.returnValue('onlyMe');
+      component.initializeSelectedPreference();
+      expect(component.selectedPreference).toBe('onlyMe');
+
+      notificationsBetaPageService.getInitialDelegateNotificationPreference.and.returnValue('onlyDelegate');
+      component.initializeSelectedPreference();
+      expect(component.selectedPreference).toBe('onlyDelegate');
     });
   });
 
@@ -397,5 +377,14 @@ fdescribe('NotificationsBetaPage', () => {
       expect(notificationModalSpy.onWillDismiss).toHaveBeenCalledTimes(1);
       expect(component.ngOnInit).not.toHaveBeenCalled();
     }));
+  });
+
+  describe('selectPreference():', () => {
+    it('should select preference', () => {
+      spyOn(component, 'updateDelegateNotificationPreference');
+      component.selectPreference('onlyMe');
+      expect(component.selectedPreference).toBe('onlyMe');
+      expect(component.updateDelegateNotificationPreference).toHaveBeenCalledTimes(1);
+    });
   });
 });

@@ -1,6 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { FormBuilder, FormGroup } from '@angular/forms';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { finalize, forkJoin, from, map, Observable, switchMap, tap } from 'rxjs';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
@@ -22,7 +21,7 @@ import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
   styleUrls: ['./notifications-beta.page.scss'],
 })
 export class NotificationsBetaPage implements OnInit {
-  delegateNotificationForm: FormGroup;
+  selectedPreference: 'onlyMe' | 'onlyDelegate' | 'both';
 
   isDelegateePresent$: Observable<boolean>;
 
@@ -47,8 +46,6 @@ export class NotificationsBetaPage implements OnInit {
   orgSettings: OrgSettings;
 
   private router = inject(Router);
-
-  private fb = inject(FormBuilder);
 
   private notificationsBetaPageService = inject(NotificationsBetaPageService);
 
@@ -106,26 +103,16 @@ export class NotificationsBetaPage implements OnInit {
       map((employeesResponse) => employeesResponse?.data[0]?.delegatees?.length > 0),
       tap((isDelegateePresent) => {
         if (isDelegateePresent) {
-          this.initializeDelegateNotificationForm();
+          this.initializeSelectedPreference();
         }
       })
     );
   }
 
-  initializeDelegateNotificationForm(): void {
-    const initialPreference = this.notificationsBetaPageService.getInitialDelegateNotificationPreference(
+  initializeSelectedPreference(): void {
+    this.selectedPreference = this.notificationsBetaPageService.getInitialDelegateNotificationPreference(
       this.orgUserSettings
     );
-    this.delegateNotificationForm = this.fb.group({
-      preference: [initialPreference],
-    });
-
-    // Handle value changes
-    this.delegateNotificationForm
-      .get('preference')
-      ?.valueChanges.subscribe((value: 'onlyMe' | 'onlyDelegate' | 'both') => {
-        this.updateDelegateNotificationPreference(value);
-      });
   }
 
   async openNotificationModal(notificationConfig: NotificationConfig): Promise<void> {
@@ -152,8 +139,13 @@ export class NotificationsBetaPage implements OnInit {
     }
   }
 
-  updateDelegateNotificationPreference(value: 'onlyMe' | 'onlyDelegate' | 'both'): void {
-    switch (value) {
+  selectPreference(value: 'onlyMe' | 'onlyDelegate' | 'both'): void {
+    this.selectedPreference = value;
+    this.updateDelegateNotificationPreference();
+  }
+
+  updateDelegateNotificationPreference(): void {
+    switch (this.selectedPreference) {
       case 'onlyMe':
         this.orgUserSettings.notification_settings.notify_delegatee = false;
         this.orgUserSettings.notification_settings.notify_user = true;
@@ -170,7 +162,7 @@ export class NotificationsBetaPage implements OnInit {
 
     this.orgUserSettingsService.post(this.orgUserSettings).subscribe(() => {
       this.trackingService.eventTrack('Delegate notification preference updated from mobile app', {
-        preference: value,
+        preference: this.selectedPreference,
       });
       this.orgUserSettingsService.clearOrgUserSettings();
     });
