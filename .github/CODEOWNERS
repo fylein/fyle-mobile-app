@@ -1,3 +1,4 @@
 # This file specifies codeowners for different parts of the Fyle Mobile App.
 
 * @Chethan-Fyle @arjunaj5
+package-lock.json @mvaishnavi
