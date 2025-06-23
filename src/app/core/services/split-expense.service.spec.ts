@@ -305,6 +305,9 @@ describe('SplitExpenseService', () => {
       const mockTxn = cloneDeep(txnData5);
       mockTxn.source = undefined;
       const mockSplitExpenses = cloneDeep(txnList);
+      spyOn(splitExpenseService as any, 'normalizeForeignCurrencySplitAmounts').and.callFake(
+        (sourceTxn, transactions, homeCurrency) => transactions
+      );
       splitExpenseService
         .createTxns(mockTxn, mockSplitExpenses, 100, 'txOJVaaPxo9O', 100, expenseFieldResponse, 'USD')
         .subscribe((expectedTxnRes) => {
