@@ -341,13 +341,7 @@
       "settingExchangeRate": "Setting Exchange Rate",
       "signingIn": "Signing In",
       "signingUp": "Signing Up",
-      "gettingStarted": "Getting Started"
-    },
-    "formatDate": {
-      "selectNamePlaceholder": "Select {{name}}",
-      "selectDatePlaceholder": "Select date"
-    },
-    "buttonTranslationKeys": {
+      "gettingStarted": "Getting Started",
       "save": "Save",
       "confirm": "Confirm",
       "update": "Update",
@@ -367,6 +361,10 @@
       "signIn": "Sign In",
       "signUp": "Sign Up",
       "getStarted": "Get Started"
+    },
+    "formatDate": {
+      "selectNamePlaceholder": "Select {{name}}",
+      "selectDatePlaceholder": "Select date"
     }
   }
 }
