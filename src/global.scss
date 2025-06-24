@@ -1491,6 +1491,60 @@ ion-toggle.toggle-checked::before {
   }
 }
 
+.promote-opt-in-modal {
+  &__instant-text-decoration {
+    position: relative;
+
+    &:after {
+      background-color: $bright-yellow;
+      content: ' ';
+      height: 14px;
+      width: 68px;
+      position: absolute;
+      left: 0;
+      top: 45%;
+      z-index: -1;
+      transform: rotate(-2deg);
+    }
+  }
+}
+
+.dashboard-opt-in {
+  &__instant-text-decoration {
+    position: relative;
+
+    &:after {
+      background-color: $bright-yellow;
+      content: ' ';
+      height: 14px;
+      width: 68px;
+      position: absolute;
+      left: 0;
+      top: 45%;
+      z-index: -1;
+      transform: rotate(-2deg);
+    }
+  }
+}
+
+.report-list {
+  &--zero-state {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    height: 80%;
+    color: $blue-black;
+
+    &__icon {
+      height: 16px;
+      width: 16px;
+      padding: 0 2px;
+      vertical-align: text-bottom;
+    }
+  }
+}
+
 .ios {
   .add-edit-expense--title__review,
   .add-edit-mileage--title__review,
