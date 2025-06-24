@@ -551,11 +551,11 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
     this.fg.markAllAsTouched();
     if (this.fg.valid) {
       this.isMerging = true;
-      let sourceTxnIds: string[] = [];
+      let sourceExpenseIds: string[] = [];
       this.expenses.map((expense) => {
-        sourceTxnIds.push(expense.tx_id);
+        sourceExpenseIds.push(expense.tx_id);
       });
-      sourceTxnIds = sourceTxnIds.filter((id) => id !== selectedExpense);
+      sourceExpenseIds = sourceExpenseIds.filter((id) => id !== selectedExpense);
 
       forkJoin({
         projectDependentFieldsMapping: this.projectDependentFieldsMapping$,
@@ -563,11 +563,14 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
       })
         .pipe(
           switchMap(({ projectDependentFieldsMapping, costCenterDependentFieldsMapping }) =>
-            this.mergeExpensesService.mergeExpenses(
-              sourceTxnIds,
-              selectedExpense,
-              this.generateFromFg({ ...projectDependentFieldsMapping, ...costCenterDependentFieldsMapping })
-            )
+            this.expensesService.mergeExpenses({
+              source_expense_ids: sourceExpenseIds,
+              target_expense_id: selectedExpense,
+              target_expense_fields: this.generateFromFg({
+                ...projectDependentFieldsMapping,
+                ...costCenterDependentFieldsMapping,
+              }),
+            })
           ),
           finalize(() => {
             this.isMerging = false;
@@ -602,11 +605,12 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
   }
 
   generateFromFg(dependentFieldsMapping: DependentFieldsMapping): GeneratedFormProperties {
+    const amountExpense = this.expenses.find(
+      (expense) => expense.tx_amount.toString() === this.genericFieldsFormValues.amount
+    );
     const sourceExpense = this.expenses.find(
       (expense) => expense.source_account_type === this.genericFieldsFormValues.paymentMode
     );
-    const amountExpense = this.expenses.find((expense) => expense.tx_id === this.genericFieldsFormValues.amount);
-    const CCCMatchedExpense = this.expenses.find((expense) => !!expense.tx_corporate_credit_card_expense_group_id);
     let locations: Destination[];
     if (this.categoryDependentFieldsFormValues.location_1 && this.categoryDependentFieldsFormValues.location_2) {
       locations = [
@@ -618,34 +622,38 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
     }
     const projectDependantFieldValues = dependentFieldsMapping[this.genericFieldsFormValues.project] || [];
     const costCenterDependentFieldValues = dependentFieldsMapping[this.genericFieldsFormValues.costCenter] || [];
+    // In case of project and cost center have same value, we need to remove the duplicate dependent fields
+    const uniqueDependentFieldValues = [
+      ...new Set([...projectDependantFieldValues, ...costCenterDependentFieldValues]),
+    ];
 
     return {
       source_account_id: sourceExpense?.tx_source_account_id,
-      billable: this.genericFieldsFormValues.billable,
-      currency: amountExpense?.tx_currency,
+      is_billable: this.genericFieldsFormValues.billable,
       amount: amountExpense?.tx_amount,
       project_id: this.genericFieldsFormValues.project,
       cost_center_id: this.genericFieldsFormValues.costCenter,
       tax_amount: this.genericFieldsFormValues.tax_amount,
       tax_group_id: this.genericFieldsFormValues.tax_group,
-      org_category_id: this.genericFieldsFormValues.category,
-      fyle_category: this.genericFieldsFormValues.category?.toString(),
-      vendor: this.genericFieldsFormValues.vendor,
+      category_id: this.genericFieldsFormValues.category,
+      merchant: this.genericFieldsFormValues.vendor,
       purpose: this.genericFieldsFormValues.purpose,
-      txn_dt: this.genericFieldsFormValues.dateOfSpend,
-      receipt_ids: this.selectedReceiptsId,
-      custom_properties: [
+      spent_at: this.genericFieldsFormValues.dateOfSpend,
+      file_ids: this.selectedReceiptsId,
+      custom_fields: [
         ...(Array.isArray(this.customInputsFormValues?.fields) ? this.customInputsFormValues.fields : []),
-        ...projectDependantFieldValues,
-        ...costCenterDependentFieldValues,
+        ...uniqueDependentFieldValues,
       ],
-      ccce_group_id: CCCMatchedExpense?.tx_corporate_credit_card_expense_group_id,
-      from_dt: this.categoryDependentFieldsFormValues.from_dt,
-      to_dt: this.categoryDependentFieldsFormValues.to_dt,
-      flight_journey_travel_class: this.categoryDependentFieldsFormValues.flight_journey_travel_class,
-      flight_return_travel_class: this.categoryDependentFieldsFormValues.flight_return_travel_class,
-      train_travel_class: this.categoryDependentFieldsFormValues.train_travel_class,
-      bus_travel_class: this.categoryDependentFieldsFormValues.bus_travel_class,
+      started_at: this.categoryDependentFieldsFormValues.from_dt,
+      ended_at: this.categoryDependentFieldsFormValues.to_dt,
+      travel_classes: [
+        ...[
+          this.categoryDependentFieldsFormValues.flight_journey_travel_class,
+          this.categoryDependentFieldsFormValues.flight_return_travel_class,
+          this.categoryDependentFieldsFormValues.train_travel_class,
+          this.categoryDependentFieldsFormValues.bus_travel_class,
+        ].filter((travelClass) => travelClass !== null && travelClass !== undefined),
+      ],
       distance: this.categoryDependentFieldsFormValues.distance,
       distance_unit: this.categoryDependentFieldsFormValues.distance_unit,
       locations: locations || [],

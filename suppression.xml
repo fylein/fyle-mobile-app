@@ -7,4 +7,32 @@
       <packageUrl regex="true">^pkg:npm/express@.*$</packageUrl>
       <vulnerabilityName>CVE-2024-10491</vulnerabilityName>
    </suppress>
+   <suppress>
+      <packageUrl regex="true">^pkg:npm/rc@.*$</packageUrl>
+      <cve>CVE-2014-1936</cve>
+   </suppress>
+   <suppress>
+      <packageUrl regex="true">^pkg:npm/parseurl@.*$</packageUrl>
+      <cve>CVE-2022-2216</cve>
+    </suppress>
+	<suppress>
+      <packageUrl regex="true">^pkg:npm/parseurl@.*$</packageUrl>
+      <cve>CVE-2022-2900</cve>
+    </suppress>
+	<suppress>
+      <packageUrl regex="true">^pkg:npm/parseurl@.*$</packageUrl>
+      <cve>CVE-2022-0722</cve>
+    </suppress>
+	<suppress>
+      <packageUrl regex="true">^pkg:npm/parseurl@.*$</packageUrl>
+      <cve>CVE-2022-2217</cve>
+    </suppress>
+	<suppress>
+      <packageUrl regex="true">^pkg:npm/parseurl@.*$</packageUrl>
+      <cve>CVE-2022-2218</cve>
+    </suppress>
+	<suppress>
+      <packageUrl regex="true">^pkg:npm/parseurl@.*$</packageUrl>
+      <cve>CVE-2022-3224</cve>
+    </suppress>
 </suppressions>

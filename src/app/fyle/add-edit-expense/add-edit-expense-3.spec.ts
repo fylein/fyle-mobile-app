@@ -33,7 +33,7 @@ import {
   orgCategoryData1,
   orgCategoryPaginated1,
 } from 'src/app/core/mock-data/org-category.data';
-import { orgUserSettingsData, orgUserSettingsWithCurrency } from 'src/app/core/mock-data/org-user-settings.data';
+import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
 import { extractedData, instaFyleData1, instaFyleData5 } from 'src/app/core/mock-data/parsed-receipt.data';
 import { platformPersonalCardTxns } from 'src/app/core/mock-data/personal-card-txns.data';
 import { platformPolicyExpenseData1 } from 'src/app/core/mock-data/platform-policy-expense.data';
@@ -86,7 +86,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
@@ -159,7 +159,7 @@ export function TestCases3(getTestBed) {
     let titleCasePipe: jasmine.SpyObj<TitleCasePipe>;
     let paymentModesService: jasmine.SpyObj<PaymentModesService>;
     let taxGroupService: jasmine.SpyObj<TaxGroupService>;
-    let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
+    let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
     let storageService: jasmine.SpyObj<StorageService>;
     let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
     let expensesService: jasmine.SpyObj<ExpensesService>;
@@ -217,7 +217,9 @@ export function TestCases3(getTestBed) {
       titleCasePipe = TestBed.inject(TitleCasePipe) as jasmine.SpyObj<TitleCasePipe>;
       paymentModesService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
       taxGroupService = TestBed.inject(TaxGroupService) as jasmine.SpyObj<TaxGroupService>;
-      orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
+      platformEmployeeSettingsService = TestBed.inject(
+        PlatformEmployeeSettingsService
+      ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
       expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
@@ -281,7 +283,7 @@ export function TestCases3(getTestBed) {
 
     describe('parseFile(): ', () => {
       it('should parse a pdf for expense information', () => {
-        component.orgUserSettings$ = of(orgUserSettingsData);
+        component.employeeSettings$ = of(employeeSettingsData);
         spyOn(component, 'getParsedReceipt').and.resolveTo(extractedData);
         component.filteredCategories$ = of(categorieListRes);
         currencyService.getHomeCurrency.and.returnValue(of('INR'));
@@ -314,7 +316,7 @@ export function TestCases3(getTestBed) {
       });
 
       it('should parse an image for expense information given there is pre-existing data', () => {
-        component.orgUserSettings$ = of(orgUserSettingsData);
+        component.employeeSettings$ = of(employeeSettingsData);
         spyOn(component, 'getParsedReceipt').and.resolveTo(extractedData);
         component.filteredCategories$ = of(categorieListRes);
         currencyService.getHomeCurrency.and.returnValue(of('USD'));
@@ -918,7 +920,7 @@ export function TestCases3(getTestBed) {
       });
 
       it('should return null if category is not extracted', (done) => {
-        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         component.recentlyUsedValues$ = of(recentlyUsedRes);
         component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
@@ -928,14 +930,14 @@ export function TestCases3(getTestBed) {
 
         component.getCategoryOnAdd(undefined).subscribe((res) => {
           expect(res).toBeNull();
-          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
           done();
         });
       });
 
       it('should return the extracted category', (done) => {
-        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         component.recentlyUsedValues$ = of(recentlyUsedRes);
         component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
@@ -945,7 +947,7 @@ export function TestCases3(getTestBed) {
 
         component.getCategoryOnAdd(undefined).subscribe((res) => {
           expect(res).toEqual(expectedAutoFillCategory);
-          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
           expect(component.getAutofillCategory).toHaveBeenCalledOnceWith({
             isAutofillsEnabled: true,
@@ -960,7 +962,7 @@ export function TestCases3(getTestBed) {
 
       it('should return autofill category if fyle category is unspecified', (done) => {
         component.etxn$ = of(unflattenedTxnDataWithoutCategoryData2);
-        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         component.recentlyUsedValues$ = of(recentlyUsedRes);
         component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
@@ -969,7 +971,7 @@ export function TestCases3(getTestBed) {
 
         component.getCategoryOnAdd(undefined).subscribe((res) => {
           expect(res).toEqual(expectedAutoFillCategory);
-          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
           expect(component.getAutofillCategory).toHaveBeenCalledOnceWith({
             isAutofillsEnabled: true,
@@ -984,7 +986,7 @@ export function TestCases3(getTestBed) {
 
       it('should return autofill category if autofill disabled', (done) => {
         component.etxn$ = of(unflattenedTxnDataWithoutCategoryData2);
-        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
         orgSettingsService.get.and.returnValue(of(orgSettingsWithoutAutofill));
         component.recentlyUsedValues$ = of(recentlyUsedRes);
         component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
@@ -993,7 +995,7 @@ export function TestCases3(getTestBed) {
 
         component.getCategoryOnAdd(undefined).subscribe((res) => {
           expect(res).toEqual(expectedAutoFillCategory);
-          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
           expect(component.getAutofillCategory).toHaveBeenCalledOnceWith({
             isAutofillsEnabled: false,
@@ -1215,12 +1217,12 @@ export function TestCases3(getTestBed) {
           componentProps: {
             attachments: fileObject4,
             canEdit: true,
+            expenseId: 'tx3qHxFNgRcZ',
           },
           mode: 'ios',
         });
         expect(component.loadAttachments$.next).toHaveBeenCalledOnceWith();
-        expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('tx3qHxFNgRcZ');
-        expect(component.attachedReceiptsCount).toEqual(1);
+        expect(component.attachedReceiptsCount).toEqual(2);
       }));
 
       it('should add attachments and upload receipt in add mode', fakeAsync(() => {
@@ -1252,6 +1254,7 @@ export function TestCases3(getTestBed) {
           componentProps: {
             attachments: fileObject4,
             canEdit: true,
+            expenseId: 'tx3qHxFNgRcZ',
           },
           mode: 'ios',
         });
@@ -1261,7 +1264,7 @@ export function TestCases3(getTestBed) {
 
     describe('getCategoryOnEdit():', () => {
       it('should get category ', (done) => {
-        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         component.recentlyUsedValues$ = of(recentlyUsedRes);
         component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
@@ -1272,14 +1275,14 @@ export function TestCases3(getTestBed) {
         fixture.detectChanges();
         component.getCategoryOnEdit(orgCategoryData1[0]).subscribe((res) => {
           expect(res).toEqual(orgCategoryPaginated1[0]);
-          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
           done();
         });
       });
 
       it('should return selected category for draft expense if fyle_category is undefined', (done) => {
-        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         component.recentlyUsedValues$ = of(recentlyUsedRes);
         component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
@@ -1293,14 +1296,14 @@ export function TestCases3(getTestBed) {
         fixture.detectChanges();
         component.getCategoryOnEdit(orgCategoryData1[0]).subscribe((res) => {
           expect(res).toEqual(orgCategoryPaginated1[0]);
-          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
           done();
         });
       });
 
       it('should get autofill category for draft expense when category is unspecified', (done) => {
-        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         component.recentlyUsedValues$ = of(recentlyUsedRes);
         component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
@@ -1311,7 +1314,7 @@ export function TestCases3(getTestBed) {
 
         component.getCategoryOnEdit(orgCategoryData1[0]).subscribe((res) => {
           expect(res).toEqual(expectedAutoFillCategory);
-          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
           expect(component.getAutofillCategory).toHaveBeenCalledOnceWith({
             isAutofillsEnabled: true,
@@ -1325,7 +1328,7 @@ export function TestCases3(getTestBed) {
       });
 
       it('should get autofill category for draft expense without extracted category and org category', (done) => {
-        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         component.recentlyUsedValues$ = of(recentlyUsedRes);
         component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
@@ -1336,7 +1339,7 @@ export function TestCases3(getTestBed) {
 
         component.getCategoryOnEdit(orgCategoryData1[0]).subscribe((res) => {
           expect(res).toEqual(orgCategoryData);
-          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
           expect(component.getAutofillCategory).toHaveBeenCalledOnceWith({
             isAutofillsEnabled: true,
@@ -1350,7 +1353,7 @@ export function TestCases3(getTestBed) {
       });
 
       it('should get category if initial fetch is false', (done) => {
-        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         component.recentlyUsedValues$ = of(recentlyUsedRes);
         component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
@@ -1360,14 +1363,14 @@ export function TestCases3(getTestBed) {
 
         component.getCategoryOnEdit(orgCategoryData[0]).subscribe((res) => {
           expect(res).toBeUndefined();
-          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
           done();
         });
       });
 
       it('should return null in case the expense does not have a category and auto-fill category is not found', (done) => {
-        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         component.recentlyUsedValues$ = of(recentlyUsedRes);
         component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
@@ -1377,7 +1380,7 @@ export function TestCases3(getTestBed) {
 
         component.getCategoryOnEdit(orgCategoryData[0]).subscribe((res) => {
           expect(res).toBeNull();
-          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
           done();
         });
@@ -1392,7 +1395,7 @@ export function TestCases3(getTestBed) {
       it('should get new expense observable', (done) => {
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         authService.getEou.and.resolveTo(apiEouRes);
-        component.orgUserSettings$ = of(orgUserSettingsData);
+        component.employeeSettings$ = of(employeeSettingsData);
         component.homeCurrency$ = of('USD');
         spyOn(component, 'getInstaFyleImageData').and.returnValue(of(instaFyleData1));
         recentLocalStorageItemsService.get.and.resolveTo(selectedCurrencies);
@@ -1419,7 +1422,7 @@ export function TestCases3(getTestBed) {
       it('should get expense observables if preferred currency is enabled and image data is not found', (done) => {
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         authService.getEou.and.resolveTo(apiEouRes);
-        component.orgUserSettings$ = of(orgUserSettingsWithCurrency);
+        component.employeeSettings$ = of(employeeSettingsData);
         component.homeCurrency$ = of('USD');
         spyOn(component, 'getInstaFyleImageData').and.returnValue(of(null));
         recentLocalStorageItemsService.get.and.resolveTo(selectedCurrencies);
@@ -1444,7 +1447,7 @@ export function TestCases3(getTestBed) {
       it('should get new expense observable without autofill and currency settings enabled', (done) => {
         orgSettingsService.get.and.returnValue(of(orgSettingsWithoutAutofill));
         authService.getEou.and.resolveTo(apiEouRes);
-        component.orgUserSettings$ = of(orgUserSettingsData);
+        component.employeeSettings$ = of(employeeSettingsData);
         categoriesService.getAll.and.returnValue(of(orgCategoryData1));
         component.homeCurrency$ = of('USD');
         dateService.getUTCDate.and.returnValue(new Date('2023-01-24T11:30:00.000Z'));
@@ -1472,7 +1475,7 @@ export function TestCases3(getTestBed) {
       it('should get new expense observable without autofill and set currency equal to homeCurrency if recently used currency is undefined', (done) => {
         orgSettingsService.get.and.returnValue(of(orgSettingsWithoutAutofill));
         authService.getEou.and.resolveTo(apiEouRes);
-        component.orgUserSettings$ = of(orgUserSettingsData);
+        component.employeeSettings$ = of(employeeSettingsData);
         categoriesService.getAll.and.returnValue(of(orgCategoryData1));
         component.homeCurrency$ = of('USD');
         dateService.getUTCDate.and.returnValue(new Date('2023-01-24T11:30:00.000Z'));
@@ -1501,7 +1504,7 @@ export function TestCases3(getTestBed) {
         activatedRoute.snapshot.params.personalCardTxn = JSON.stringify(platformPersonalCardTxns.data[0]);
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         authService.getEou.and.resolveTo(apiEouRes);
-        component.orgUserSettings$ = of(orgUserSettingsData);
+        component.employeeSettings$ = of(employeeSettingsData);
         component.homeCurrency$ = of('INR');
         spyOn(component, 'getInstaFyleImageData').and.returnValue(of(instaFyleData1));
         recentLocalStorageItemsService.get.and.resolveTo(selectedCurrencies);
@@ -1527,7 +1530,7 @@ export function TestCases3(getTestBed) {
       it('should get new expense from bank txn', (done) => {
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         authService.getEou.and.resolveTo(apiEouRes);
-        component.orgUserSettings$ = of(orgUserSettingsData);
+        component.employeeSettings$ = of(employeeSettingsData);
         component.homeCurrency$ = of('USD');
         spyOn(component, 'getInstaFyleImageData').and.returnValue(of(instaFyleData1));
         recentLocalStorageItemsService.get.and.resolveTo(selectedCurrencies);
@@ -1555,7 +1558,7 @@ export function TestCases3(getTestBed) {
       it('should get new expense observable without insta fyle image data URL?', (done) => {
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         authService.getEou.and.resolveTo(apiEouRes);
-        component.orgUserSettings$ = of(orgUserSettingsData);
+        component.employeeSettings$ = of(employeeSettingsData);
         component.homeCurrency$ = of('USD');
         spyOn(component, 'getInstaFyleImageData').and.returnValue(of(instaFyleData5));
         activatedRoute.snapshot.params.dataUrl = JSON.stringify(['url']);

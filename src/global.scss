@@ -1095,6 +1095,15 @@ ion-modal.add-location-modal {
   }
 }
 
+ion-modal.email-notifications-modal {
+  &::part(content) {
+    border-radius: 16px 16px 0 0;
+    position: absolute;
+    max-height: 50%;
+    bottom: 0;
+  }
+}
+
 ion-modal.promote-opt-in-modal {
   &::part(content) {
     border-radius: 32px 32px 0 0 !important;
@@ -1422,6 +1431,13 @@ ion-toggle.toggle-checked::before {
       }
     }
   }
+}
+
+.fy-expansion--info-message-accordion ion-item[slot='header'] ion-icon[slot='end'] {
+  align-self: flex-start;
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
 }
 
 .custom-loading {

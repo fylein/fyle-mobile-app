@@ -1,7 +1,7 @@
 <ion-header mode="md">
   <ion-toolbar mode="md" class="view-attachments--toolbar">
     <ion-title [ngClass]="{ 'view-attachments--title-container': !canEdit }">
-      <div class="text-center view-attachments--title">{{ isMileageExpense ? 'Map preview' : 'Receipt preview' }}</div>
+      <div class="text-center view-attachments--title">{{ isMileageExpense ? 'Map preview' : 'Receipt previews' }}</div>
       <div class="view-attachments--sub-title text-center">{{ activeIndex + 1 }}/{{ attachments.length }}</div>
     </ion-title>
     <ion-buttons class="view-attachments--ion-buttons" slot="start">
@@ -10,8 +10,8 @@
       </ion-button>
     </ion-buttons>
     <ion-buttons *ngIf="canEdit" class="view-attachments--ion-buttons" slot="end">
-      <ion-button (click)="deleteAttachment()">
-        <mat-icon class="view-attachments--ion-buttons__delete" svgIcon="bin"></mat-icon>
+      <ion-button (click)="addAttachments($event)">
+        <mat-icon class="view-attachments--ion-buttons__add" svgIcon="plus-square"></mat-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -38,7 +38,15 @@
     <ng-template *ngFor="let attachment of attachments" swiperSlide>
       <div>
         <pinch-zoom *ngIf="attachment?.type !== 'pdf'" class="view-attachments--container">
-          <img [src]="attachment?.url" />
+          <img
+            [src]="attachment?.url"
+            [ngClass]="{
+              'view-attachments--image-rotate-left':
+                rotatingDirection === 'left' && attachment === attachments[activeIndex],
+              'view-attachments--image-rotate-right':
+                rotatingDirection === 'right' && attachment === attachments[activeIndex]
+            }"
+          />
         </pinch-zoom>
 
         <div class="view-attachments--container" *ngIf="attachment?.type === 'pdf'">
@@ -62,4 +70,54 @@
   </swiper>
 </ion-content>
 
-<ion-footer class="view-attachments--footer-container"></ion-footer>
+<ion-footer class="view-attachments--footer">
+  <div class="view-attachments--footer-content">
+    <!-- Left side buttons: rotate left, rotate right, delete -->
+    <div class="view-attachments--footer-left-buttons">
+      <div
+        *ngIf="attachments[activeIndex]?.type !== 'pdf' && attachment.id"
+        class="icon-button"
+        (click)="!loading && !saving && rotateAttachment(RotationDirection.LEFT)"
+        [class.disabled]="loading || saving"
+      >
+        <ion-icon src="assets/svg/arrow-anticlockwise.svg"></ion-icon>
+      </div>
+
+      <div
+        *ngIf="attachments[activeIndex]?.type !== 'pdf' && attachment.id"
+        class="icon-button"
+        (click)="!loading && !saving && rotateAttachment(RotationDirection.RIGHT)"
+        [class.disabled]="loading || saving"
+      >
+        <ion-icon src="assets/svg/arrow-clockwise.svg"></ion-icon>
+      </div>
+
+      <div
+        *ngIf="canEdit"
+        class="icon-button"
+        (click)="!loading && !saving && deleteAttachment()"
+        [class.disabled]="loading || saving"
+      >
+        <mat-icon class="view-attachments--ion-buttons__delete" svgIcon="bin"></mat-icon>
+      </div>
+    </div>
+
+    <!-- Right side: save or saved text -->
+    <div class="view-attachments--footer-right-buttons">
+      <ion-buttons>
+        <ion-button
+          *ngIf="isImageDirty[activeIndex]"
+          (click)="saveRotatedImage()"
+          [disabled]="saving"
+          [loadingText]="'Saving'"
+          [loading]="saving"
+          appFormButtonValidation
+          class="btn-primary action-button"
+        >
+          <span *ngIf="!saving">Save changes</span>
+        </ion-button>
+      </ion-buttons>
+      <span *ngIf="saveComplete[activeIndex]" class="saved-text btn-text-primary">Saved</span>
+    </div>
+  </div>
+</ion-footer>

@@ -1,5 +1,5 @@
 //@ts-nocheck
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync, fakeAsync, tick } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
@@ -64,7 +64,7 @@ describe('ReceiptPreviewComponent', () => {
       'getPictures',
       'requestReadPermission',
     ]);
-    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['cropReceipt']);
+    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['cropReceipt', 'eventTrack']);
     const swiperSpy = jasmine.createSpyObj('SwiperStubComponent', ['update', 'slidePrev', 'slideNext']);
 
     TestBed.configureTestingModule({
@@ -331,6 +331,21 @@ describe('ReceiptPreviewComponent', () => {
       });
       expect(component.retake).toHaveBeenCalledTimes(1);
     });
+
+    it('should set activeIndex to 0 if swiperRef.activeIndex is null in deleteReceipt', async () => {
+      component.swiper = { swiperRef: { activeIndex: null, update: async () => {} } } as any;
+      component.base64ImagesWithSource = [{ base64Image: 'img1' }, { base64Image: 'img2' }];
+      component.activeIndex = 0;
+      component.popoverController = {
+        create: () =>
+          Promise.resolve({
+            present: () => Promise.resolve(),
+            onWillDismiss: () => Promise.resolve({ data: { action: 'remove' } }),
+          }),
+      } as any;
+      await component.deleteReceipt();
+      expect(component.activeIndex).toBe(0);
+    });
   });
 
   it('retake(): should clear the images taken and dismiss the modal', () => {
@@ -389,4 +404,214 @@ describe('ReceiptPreviewComponent', () => {
       expect(component.galleryUpload).toHaveBeenCalledTimes(1);
     });
   });
+
+  describe('rotateImage and rotateImageData coverage', () => {
+    beforeEach(() => {
+      component.base64ImagesWithSource = [{ base64Image: 'data:image/jpeg;base64,original' }];
+      component.activeIndex = 0;
+      component.rotatingDirection = null;
+      component.swiper = { swiperRef: { update: jasmine.createSpy() } } as any;
+    });
+
+    it('should return early if already rotating', () => {
+      component.rotatingDirection = 1;
+      component.rotateImage(1);
+      expect(component.rotatingDirection).toBe(1);
+    });
+
+    it('should return early if current image is missing or has no base64Image', fakeAsync(() => {
+      component.base64ImagesWithSource = [{} as any];
+      component.activeIndex = 0;
+      component.rotatingDirection = null;
+      component.rotateImage(1);
+      tick(500);
+      expect(component.rotatingDirection).toBeNull();
+    }));
+
+    it('should rotate the image and update the base64ImagesWithSource', fakeAsync(() => {
+      // Mock image and canvas
+      const mockImage = {
+        set onload(fn) {
+          // Use tick(0) to simulate immediate callback
+          fn();
+        },
+        set src(val) {},
+        get src() {
+          return '';
+        },
+      };
+      spyOn(window as any, 'Image').and.returnValue(mockImage);
+      const mockCtx = {
+        translate: jasmine.createSpy(),
+        rotate: jasmine.createSpy(),
+        drawImage: jasmine.createSpy(),
+      };
+      const mockCanvas = {
+        getContext: () => mockCtx,
+        toDataURL: () => 'data:image/jpeg;base64,rotated',
+        width: 0,
+        height: 0,
+      };
+      spyOn(document, 'createElement').and.returnValue(mockCanvas as any);
+      component.base64ImagesWithSource = [{ base64Image: 'data:image/jpeg;base64,original' }];
+      component.activeIndex = 0;
+      component.rotatingDirection = null;
+      component.swiper = { swiperRef: { update: jasmine.createSpy() } } as any;
+      component.rotateImage(1);
+      tick(500);
+      expect(component.base64ImagesWithSource[0].base64Image).toBe('data:image/jpeg;base64,rotated');
+      expect(component.rotatingDirection).toBeNull();
+    }));
+
+    it('should return early if canvas context is null', fakeAsync(() => {
+      const mockImage = {
+        set onload(fn) {
+          fn();
+        },
+        set src(val) {},
+        get src() {
+          return '';
+        },
+      };
+      spyOn(window as any, 'Image').and.returnValue(mockImage);
+      const mockCanvas = {
+        getContext: () => null,
+        width: 0,
+        height: 0,
+      };
+      spyOn(document, 'createElement').and.returnValue(mockCanvas as any);
+      component.base64ImagesWithSource = [{ base64Image: 'data:image/jpeg;base64,original' }];
+      component.activeIndex = 0;
+      component.rotatingDirection = null;
+      component.rotateImage(1);
+      tick(500);
+      expect(component.rotatingDirection).toBeNull();
+    }));
+
+    it('should set activeIndex to 0 if swiperRef.activeIndex is null in deleteReceipt', async () => {
+      component.swiper = { swiperRef: { activeIndex: null, update: async () => {} } } as any;
+      component.base64ImagesWithSource = [{ base64Image: 'img1' }, { base64Image: 'img2' }];
+      component.activeIndex = 0;
+      component.popoverController = {
+        create: () =>
+          Promise.resolve({
+            present: () => Promise.resolve(),
+            onWillDismiss: () => Promise.resolve({ data: { action: 'remove' } }),
+          }),
+      } as any;
+      await component.deleteReceipt();
+      expect(component.activeIndex).toBe(0);
+    });
+
+    it('should set activeIndex to 0 if swiperRef.activeIndex is null in ionSlideDidChange', async () => {
+      component.swiper = { swiperRef: { activeIndex: null } } as any;
+      component.activeIndex = 1;
+      await component.ionSlideDidChange();
+      expect(component.activeIndex).toBe(0);
+    });
+
+    it('should rotate -90 degrees if direction is LEFT', fakeAsync(() => {
+      const mockImage = {
+        set onload(fn) {
+          fn();
+        },
+        set src(val) {},
+        get src() {
+          return '';
+        },
+      };
+      spyOn(window as any, 'Image').and.returnValue(mockImage);
+      const mockCtx = {
+        translate: jasmine.createSpy(),
+        rotate: jasmine.createSpy(),
+        drawImage: jasmine.createSpy(),
+      };
+      const mockCanvas = {
+        getContext: () => mockCtx,
+        toDataURL: () => 'data:image/jpeg;base64,rotated',
+        width: 0,
+        height: 0,
+      };
+      spyOn(document, 'createElement').and.returnValue(mockCanvas as any);
+      component.base64ImagesWithSource = [{ base64Image: 'data:image/jpeg;base64,original' }];
+      component.activeIndex = 0;
+      component.rotatingDirection = null;
+      component.swiper = { swiperRef: { update: jasmine.createSpy() } } as any;
+      // Call with LEFT
+      component.rotateImageData({ base64Image: 'data:image/jpeg;base64,original' }, component.RotationDirection.LEFT);
+      tick(10);
+      expect(mockCtx.rotate).toHaveBeenCalledWith((-90 * Math.PI) / 180);
+    }));
+
+    it('should rotate 90 degrees if direction is not LEFT', fakeAsync(() => {
+      const mockImage = {
+        set onload(fn) {
+          fn();
+        },
+        set src(val) {},
+        get src() {
+          return '';
+        },
+      };
+      spyOn(window as any, 'Image').and.returnValue(mockImage);
+      const mockCtx = {
+        translate: jasmine.createSpy(),
+        rotate: jasmine.createSpy(),
+        drawImage: jasmine.createSpy(),
+      };
+      const mockCanvas = {
+        getContext: () => mockCtx,
+        toDataURL: () => 'data:image/jpeg;base64,rotated',
+        width: 0,
+        height: 0,
+      };
+      spyOn(document, 'createElement').and.returnValue(mockCanvas as any);
+      component.base64ImagesWithSource = [{ base64Image: 'data:image/jpeg;base64,original' }];
+      component.activeIndex = 0;
+      component.rotatingDirection = null;
+      component.swiper = { swiperRef: { update: jasmine.createSpy() } } as any;
+      // Call with RIGHT
+      component.rotateImageData({ base64Image: 'data:image/jpeg;base64,original' }, component.RotationDirection.RIGHT);
+      tick(10);
+      expect(mockCtx.rotate).toHaveBeenCalledWith((90 * Math.PI) / 180);
+    }));
+  });
+
+  it('should call closeModal when back button is pressed in ionViewWillEnter', () => {
+    spyOn(component, 'closeModal');
+    component.platform = {
+      backButton: {
+        subscribeWithPriority: (priority, fn) => {
+          fn(); // Call the callback immediately
+          return { unsubscribe: () => {} };
+        },
+      },
+    } as any;
+    component.ionViewWillEnter();
+    expect(component.closeModal).toHaveBeenCalled();
+  });
+
+  it('should request permission and call galleryUpload again if permission is denied', fakeAsync(() => {
+    let callCount = 0;
+    const requestReadPermissionSpy = jasmine.createSpy('requestReadPermission');
+    component.imagePicker = {
+      hasReadPermission: () => Promise.resolve(false),
+      requestReadPermission: requestReadPermissionSpy,
+    } as any;
+
+    // Patch galleryUpload to only allow one recursion
+    const originalGalleryUpload = component.galleryUpload.bind(component);
+    spyOn(component, 'galleryUpload').and.callFake(function () {
+      callCount++;
+      if (callCount < 2) {
+        // Call the original method only once to avoid infinite recursion
+        return originalGalleryUpload();
+      }
+    });
+
+    component.galleryUpload();
+
+    tick(10);
+    expect(requestReadPermissionSpy).toHaveBeenCalled();
+  }));
 });
