@@ -620,11 +620,8 @@ export class TransactionService {
     }
   }
 
-  sourceAccountTypePublicMapping(type: string): string {
-    return type === 'PERSONAL_CASH_ACCOUNT' ? 'PERSONAL_ACCOUNT' : type;
-  }
-
   // Todo : Remove transformExpense method once upsert in migrated to platform
+  // eslint-disable-next-line complexity
   transformExpense(expense: PlatformExpense): Partial<UnflattenedTransaction> {
     const updatedExpense = {
       tx: {
@@ -720,14 +717,14 @@ export class TransactionService {
               corporate_card_nickname: transaction?.corporate_card_nickname,
             }))
           : null,
-        source_account_id: expense.source_account_id,
-        advance_wallet_id: expense.advance_wallet_id,
+        source_account_id: expense.advance_wallet_id ? null : expense.source_account_id,
+        advance_wallet_id: expense.advance_wallet_id || null,
         org_category_code: expense.category?.code,
         project_code: expense.project?.code,
       },
       source: {
         account_id: expense.source_account?.id,
-        account_type: this.sourceAccountTypePublicMapping(expense.source_account?.type),
+        account_type: expense.source_account?.type,
       },
       ou: {
         id: expense.employee?.id,
@@ -820,15 +817,15 @@ export class TransactionService {
       tx_project_code: expense.project?.code,
       tx_advance_wallet_id: expense.advance_wallet_id,
       source_account_id: expense.source_account_id,
-      source_account_type: this.sourceAccountTypePublicMapping(expense.source_account?.type),
+      source_account_type: expense.source_account?.type,
     };
     return updatedExpense;
   }
 
   private getPersonalAccount(): Observable<{ source_account_id: string }> {
-    return this.accountsService.getEMyAccounts().pipe(
+    return this.accountsService.getMyAccounts().pipe(
       map((accounts) => {
-        const account = accounts?.find((account) => account?.acc?.type === 'PERSONAL_ACCOUNT');
+        const account = accounts?.find((account) => account?.acc?.type === AccountType.PERSONAL);
         return {
           source_account_id: account?.acc?.id,
         };
@@ -839,7 +836,7 @@ export class TransactionService {
   private getTxnAccount(): Observable<{ source_account_id: string; skip_reimbursement: boolean }> {
     return forkJoin({
       orgSettings: this.orgSettingsService.get(),
-      accounts: this.accountsService.getEMyAccounts(),
+      accounts: this.accountsService.getMyAccounts(),
       employeeSettings: this.platformEmployeeSettingsService.get(),
     }).pipe(
       switchMap(({ orgSettings, accounts, employeeSettings }) =>

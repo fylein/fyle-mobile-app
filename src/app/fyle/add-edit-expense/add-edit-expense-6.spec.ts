@@ -70,6 +70,7 @@ import {
   multiplePaymentModesData,
   orgSettingsData,
   advanceWallet1Data,
+  multiplePaymentModes,
 } from 'src/app/core/test-data/accounts.service.spec.data';
 import { expectedProjectsResponse } from 'src/app/core/test-data/projects.spec.data';
 import { AddEditExpensePage } from './add-edit-expense.page';
@@ -1168,7 +1169,7 @@ export function TestCases6(getTestBed) {
       });
 
       it('should return true if account is of type advance', () => {
-        const result = component.checkAdvanceAccountAndBalance(multiplePaymentModesData[2]);
+        const result = component.checkAdvanceAccountAndBalance(multiplePaymentModes[2]);
 
         expect(result).toBeTrue();
       });

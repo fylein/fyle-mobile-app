@@ -42,34 +42,30 @@ import {
   paymentModesWithZeroAdvanceWalletBalanceResData,
   unflattenedTransactionAdvanceWallet,
   paymentModeDataAdvanceWallet,
+  multiplePaymentModesWithCompanyAccData2,
 } from '../test-data/accounts.service.spec.data';
 import { AccountsService } from './accounts.service';
-import { ApiService } from './api.service';
-import { DataTransformService } from './data-transform.service';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
+import { ExtendedAccount } from '../models/extended-account.model';
+import { cloneDeep } from 'lodash';
 
 const accountsCallResponse1 = [account1Data, account2Data];
 
 describe('AccountsService', () => {
   let accountsService: AccountsService;
-  let apiService: jasmine.SpyObj<ApiService>;
-  let dataTransformService: jasmine.SpyObj<DataTransformService>;
+  let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
   let fyCurrencyPipe: jasmine.SpyObj<FyCurrencyPipe>;
 
   beforeEach(() => {
-    const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get']);
-    const dataTransformServiceSpy = jasmine.createSpyObj('DataTransformService', ['unflatten']);
+    const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get']);
     const fyCurrencyPipeSpy = jasmine.createSpyObj('FyCurrencyPipe', ['transform']);
 
     TestBed.configureTestingModule({
       providers: [
         AccountsService,
         {
-          provide: ApiService,
-          useValue: apiServiceSpy,
-        },
-        {
-          provide: DataTransformService,
-          useValue: dataTransformServiceSpy,
+          provide: SpenderPlatformV1ApiService,
+          useValue: spenderPlatformV1ApiServiceSpy,
         },
         {
           provide: FyCurrencyPipe,
@@ -79,8 +75,9 @@ describe('AccountsService', () => {
     });
 
     accountsService = TestBed.inject(AccountsService);
-    apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
-    dataTransformService = TestBed.inject(DataTransformService) as jasmine.SpyObj<DataTransformService>;
+    spenderPlatformV1ApiService = TestBed.inject(
+      SpenderPlatformV1ApiService
+    ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     fyCurrencyPipe = TestBed.inject(FyCurrencyPipe) as jasmine.SpyObj<FyCurrencyPipe>;
   });
 
@@ -89,11 +86,9 @@ describe('AccountsService', () => {
   });
 
   it('should be able to fetch data from api in proper format', (done) => {
-    apiService.get.and.returnValue(of(accountsCallResponse1));
-    dataTransformService.unflatten.withArgs(account1Data).and.returnValue(unflattenedAccount1Data);
-    dataTransformService.unflatten.withArgs(account2Data).and.returnValue(unflattenedAccount2Data);
+    spenderPlatformV1ApiService.get.and.returnValue(of({ data: accountsCallResponse1 }));
 
-    accountsService.getEMyAccounts().subscribe((res) => {
+    accountsService.getMyAccounts().subscribe((res) => {
       expect(res[0]).toEqual(unflattenedAccount1Data);
       expect(res[1]).toEqual(unflattenedAccount2Data);
       expect(res.length === 2);
@@ -145,31 +140,32 @@ describe('AccountsService', () => {
   });
 
   it('should be able to set account properties', () => {
-    expect(
-      accountsService.setAccountProperties(paymentModeDataCCCWithoutAccountProperty, AccountType.CCC, false)
-    ).toEqual(paymentModeDataCCC);
+    expect(accountsService.setAccountProperties(paymentModeDataCCCWithoutAccountProperty, AccountType.CCC)).toEqual(
+      paymentModeDataCCC
+    );
   });
 
   it('should be able to set account properties for advance account', () => {
     fyCurrencyPipe.transform.and.returnValue('$223,146,386.93');
-    expect(accountsService.setAccountProperties(unflattenedAccount2Data, AccountType.ADVANCE, false)).toEqual(
+    expect(accountsService.setAccountProperties(unflattenedAccount2Data, AccountType.ADVANCE)).toEqual(
       paymentModeDataAdvance
     );
-    expect(fyCurrencyPipe.transform).toHaveBeenCalledWith(223146386.93, 'USD');
   });
 
   it('should be able to set account properties for multiple advance account', () => {
-    expect(accountsService.setAccountProperties(unflattenedAccount3Data, AccountType.ADVANCE, true)).toEqual(
+    fyCurrencyPipe.transform.and.returnValue('$223,146,386.93');
+    expect(accountsService.setAccountProperties(unflattenedAccount3Data, AccountType.ADVANCE)).toEqual(
       paymentModeDataMultipleAdvance
     );
   });
 
   it('should be able to set account properties for multiple advance account as default without account', () => {
-    expect(accountsService.setAccountProperties(null, AccountType.ADVANCE, true)).toBeNull();
+    expect(accountsService.setAccountProperties(null, AccountType.ADVANCE)).toBeNull();
   });
 
   it('should be able to set account properties for multiple advance account as default without orig amount', () => {
-    expect(accountsService.setAccountProperties(unflattenedAccount4Data, AccountType.ADVANCE, true)).toEqual(
+    fyCurrencyPipe.transform.and.returnValue('$223,146,386.93');
+    expect(accountsService.setAccountProperties(unflattenedAccount4Data, AccountType.ADVANCE)).toEqual(
       paymentModeDataMultipleAdvWithoutOrigAmt
     );
   });
@@ -207,10 +203,14 @@ describe('AccountsService', () => {
   });
 
   it('should be able to get allowed accounts without passing isMileageOrPerDiem param', () => {
-    const allowedPaymentModes = ['PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT', 'PERSONAL_ACCOUNT', 'COMPANY_ACCOUNT'];
+    const allowedPaymentModes = [AccountType.CCC, AccountType.PERSONAL];
     expect(
-      accountsService.getAllowedAccounts(multiplePaymentModesWithoutAdvData, allowedPaymentModes, false, etxnObjData)
-    ).toEqual(multiplePaymentModesWithCompanyAccData);
+      accountsService.getAllowedAccountsWithAdvanceWallets(
+        multiplePaymentModesWithCompanyAccData,
+        allowedPaymentModes,
+        etxnObjData
+      )
+    ).toEqual(multiplePaymentModesWithCompanyAccData2);
   });
 
   it('should be able to get allowed accounts without passing etxn param', () => {
@@ -221,7 +221,7 @@ describe('AccountsService', () => {
   });
 
   it('should be able to get allowed accounts for mileage and per diem', () => {
-    const allowedPaymentModes = ['COMPANY_ACCOUNT'];
+    const allowedPaymentModes = [AccountType.CCC];
     expect(
       accountsService.getAllowedAccounts(
         multiplePaymentModesWithoutAdvData,
@@ -258,6 +258,9 @@ describe('AccountsService', () => {
         false
       )
     ).toEqual(multipleAdvAccountsData);
+    expect(accountsService.getAdvanceAccountDisplayName(multipleAdvAccountsData[1], true)).toBe(
+      'Advance (Balance: $223,146,386.93)'
+    );
     expect(fyCurrencyPipe.transform).toHaveBeenCalledWith(223146386.93, 'USD');
   });
 
@@ -279,7 +282,6 @@ describe('AccountsService', () => {
     expect(accountsService.getPaymentModes(paymentModesAccountsData, allowedPaymentModes, config)).toEqual(
       paymentModesResData
     );
-    expect(fyCurrencyPipe.transform).toHaveBeenCalledWith(223146386.93, 'USD');
   });
 
   it('should be able to get payment modes when advances is disabled and advance requests is enabled', () => {
@@ -300,7 +302,6 @@ describe('AccountsService', () => {
     expect(accountsService.getPaymentModes(paymentModesAccountsData, allowedPaymentModes, config)).toEqual(
       paymentModesResData
     );
-    expect(fyCurrencyPipe.transform).toHaveBeenCalledWith(223146386.93, 'USD');
   });
 
   it('should be able to get payment modes with advance wallets', () => {
@@ -323,7 +324,6 @@ describe('AccountsService', () => {
         config
       )
     ).toEqual(paymentModesWithAdvanceWalletsResData);
-    expect(fyCurrencyPipe.transform).toHaveBeenCalledWith(1500, 'USD');
   });
 
   it('should be able to get payment modes with advance wallets during edit expense when wallet balance is 0', () => {
@@ -346,7 +346,6 @@ describe('AccountsService', () => {
         config
       )
     ).toEqual(paymentModesWithZeroAdvanceWalletBalanceResData);
-    expect(fyCurrencyPipe.transform).toHaveBeenCalledWith(0, 'USD');
   });
 
   it('should be able to get payment modes without passing etxn param', () => {
@@ -397,7 +396,7 @@ describe('AccountsService', () => {
   });
 
   it('should be able to get allowed accounts without passing isMileageOrPerDiem param', () => {
-    const allowedPaymentModes = ['PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT', 'PERSONAL_ACCOUNT', 'COMPANY_ACCOUNT'];
+    const allowedPaymentModes = [AccountType.CCC, AccountType.COMPANY, AccountType.PERSONAL];
     expect(
       accountsService.getAllowedAccountsWithAdvanceWallets(
         multiplePaymentModesWithoutAdvData,
@@ -415,7 +414,7 @@ describe('AccountsService', () => {
   });
 
   it('should be able to get allowed accounts for mileage and per diem', () => {
-    const allowedPaymentModes = ['COMPANY_ACCOUNT'];
+    const allowedPaymentModes = [AccountType.CCC];
     expect(
       accountsService.getAllowedAccountsWithAdvanceWallets(
         multiplePaymentModesWithoutAdvData,
