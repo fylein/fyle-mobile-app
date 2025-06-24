@@ -129,7 +129,7 @@ describe('PaymentModesService', () => {
       );
 
       paymentModesService
-        .getDefaultAccount(orgSettingsRes, multiplePaymentModesWithCompanyAccData, orgUserSettingsWoPaymentModes)
+        .getDefaultAccount(orgSettingsRes, multiplePaymentModesWithCompanyAccData, employeeSettingsWoPaymentModes)
         .subscribe((res) => {
           expect(res).toBeUndefined();
           expect(platformEmployeeSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
