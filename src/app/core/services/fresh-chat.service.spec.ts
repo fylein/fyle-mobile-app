@@ -2,24 +2,23 @@ import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { FreshChatService } from './fresh-chat.service';
 import { AuthService } from './auth.service';
 import { StorageService } from './storage.service';
-import { OrgUserSettingsService } from './org-user-settings.service';
+import { PlatformEmployeeSettingsService } from './platform/v1/spender/employee-settings.service';
 import { NetworkService } from './network.service';
 import { of } from 'rxjs';
-import { orgUserSettingsData, orgUserSettingsData2 } from '../mock-data/org-user-settings.data';
 import { apiEouRes } from '../mock-data/extended-org-user.data';
-import { FreshChatWidget } from '../models/fresh-chat-widget.model';
+import { employeeSettingsData } from '../mock-data/employee-settings.data';
 
 describe('FreshChatService', () => {
   let freshChatService: FreshChatService;
   let authService: jasmine.SpyObj<AuthService>;
   let storageService: jasmine.SpyObj<StorageService>;
-  let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
+  let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
   let networkService: jasmine.SpyObj<NetworkService>;
 
   beforeEach(() => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const storageServiceSpy = jasmine.createSpyObj('StorageService', ['get', 'set']);
-    const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get', 'post']);
+    const platformEmployeeSettingsServiceSpy = jasmine.createSpyObj('PlatformEmployeeSettingsService', ['get', 'post']);
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
     TestBed.configureTestingModule({
       providers: [
@@ -33,8 +32,8 @@ describe('FreshChatService', () => {
           useValue: storageServiceSpy,
         },
         {
-          provide: OrgUserSettingsService,
-          useValue: orgUserSettingsServiceSpy,
+          provide: PlatformEmployeeSettingsService,
+          useValue: platformEmployeeSettingsServiceSpy,
         },
         {
           provide: NetworkService,
@@ -45,7 +44,9 @@ describe('FreshChatService', () => {
     freshChatService = TestBed.inject(FreshChatService);
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
-    orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
+    platformEmployeeSettingsService = TestBed.inject(
+      PlatformEmployeeSettingsService
+    ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
   });
 
@@ -53,13 +54,13 @@ describe('FreshChatService', () => {
     expect(freshChatService).toBeTruthy();
   });
 
-  it('getOrgUserSettings(): should get org user settings', (done) => {
-    orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+  it('getEmployeeSettings(): should get employee settings', (done) => {
+    platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
 
     //@ts-ignore
-    freshChatService.getOrgUserSettings().then((res) => {
-      expect(res).toEqual(orgUserSettingsData);
-      expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+    freshChatService.getEmployeeSettings().then((res) => {
+      expect(res).toEqual(employeeSettingsData);
+      expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
       done();
     });
   });
@@ -81,7 +82,7 @@ describe('FreshChatService', () => {
       spyOn(freshChatService, 'initiateCall');
       networkService.isOnline.and.returnValue(of(true));
       authService.getEou.and.resolveTo(apiEouRes);
-      orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+      platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
     });
 
     it('should setup network watcher', fakeAsync(() => {
@@ -96,7 +97,9 @@ describe('FreshChatService', () => {
     }));
 
     it('should not setup freshchat sdk if fresh chat settings is undefined', fakeAsync(() => {
-      orgUserSettingsService.get.and.returnValue(of({ ...orgUserSettingsData, in_app_chat_settings: undefined }));
+      platformEmployeeSettingsService.get.and.returnValue(
+        of({ ...employeeSettingsData, in_app_chat_settings: undefined })
+      );
       freshChatService.setupNetworkWatcher();
       tick(100);
 
@@ -108,7 +111,7 @@ describe('FreshChatService', () => {
     }));
 
     it('should not setup freshchat sdk if org user setting is undefined', fakeAsync(() => {
-      orgUserSettingsService.get.and.returnValue(of(undefined));
+      platformEmployeeSettingsService.get.and.returnValue(of(undefined));
       freshChatService.setupNetworkWatcher();
       tick(100);
 

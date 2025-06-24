@@ -4,7 +4,7 @@ import { expenseList2 } from '../mock-data/expense.data';
 import { txnData2 } from '../mock-data/transaction.data';
 import { DateService } from './date.service';
 import { FileService } from './file.service';
-import { OrgUserSettingsService } from './org-user-settings.service';
+import { PlatformEmployeeSettingsService } from './platform/v1/spender/employee-settings.service';
 import { StatusService } from './status.service';
 import { StorageService } from './storage.service';
 import { TrackingService } from './tracking.service';
@@ -28,7 +28,7 @@ describe('TransactionsOutboxService', () => {
   let statusService: jasmine.SpyObj<StatusService>;
   let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
-  let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
+  let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
   const singleCaptureCountInSession = 0;
   let httpMock: HttpTestingController;
   let httpTestingController: HttpTestingController;
@@ -42,7 +42,7 @@ describe('TransactionsOutboxService', () => {
     const statusServiceSpy = jasmine.createSpyObj('StatusService', ['post']);
     const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', ['post']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['post']);
-    const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['post']);
+    const platformEmployeeSettingsServiceSpy = jasmine.createSpyObj('PlatformEmployeeSettingsService', ['get']);
 
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
@@ -56,7 +56,7 @@ describe('TransactionsOutboxService', () => {
         { provide: StatusService, useValue: statusServiceSpy },
         { provide: SpenderReportsService, useValue: spenderReportsServiceSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },
-        { provide: OrgUserSettingsService, useValue: orgUserSettingsServiceSpy },
+        { provide: PlatformEmployeeSettingsService, useValue: platformEmployeeSettingsServiceSpy },
       ],
     });
     transactionsOutboxService = TestBed.inject(TransactionsOutboxService);
@@ -68,7 +68,9 @@ describe('TransactionsOutboxService', () => {
     statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
     spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
-    orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
+    platformEmployeeSettingsService = TestBed.inject(
+      PlatformEmployeeSettingsService
+    ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     httpMock = TestBed.inject(HttpTestingController);
     httpTestingController = TestBed.inject(HttpTestingController);
     transactionsOutboxService.setRoot(rootUrl);

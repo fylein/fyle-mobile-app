@@ -52,7 +52,6 @@ import { AuthService } from './auth.service';
 import { DataTransformService } from './data-transform.service';
 import { DateService } from './date.service';
 import { FileService } from './file.service';
-import { OrgUserSettingsService } from './org-user-settings.service';
 import { TimezoneService } from './timezone.service';
 import { SpenderService } from './platform/v1/spender/spender.service';
 import { ApproverService } from './platform/v1/approver/approver.service';
@@ -62,6 +61,7 @@ import {
   advanceRequestPlatformSentBack,
 } from '../mock-data/platform/v1/advance-request-platform.data';
 import { cloneDeep } from 'lodash';
+import { PlatformEmployeeSettingsService } from './platform/v1/spender/employee-settings.service';
 import { TranslocoService } from '@jsverse/transloco';
 
 describe('AdvanceRequestService', () => {
@@ -79,10 +79,10 @@ describe('AdvanceRequestService', () => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const dataTransformServiceSpy = jasmine.createSpyObj('DataTransformService', ['unflatten']);
     const fileServiceSpy = jasmine.createSpyObj('FileService', ['post']);
-    const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
+    const platformEmployeeSettingsServiceSpy = jasmine.createSpyObj('PlatformEmployeeSettingsService', ['get']);
     const timezoneServiceSpy = jasmine.createSpyObj('TimezoneService', ['convertToUtc']);
     const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['post', 'get']);
-    const approverServiceSpy = jasmine.createSpyObj('ApproverService', ['get']);
+    const approverServiceSpy = jasmine.createSpyObj('ApproverService', ['get', 'post']);
     const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
 
     // Mock translate method to return expected strings
@@ -120,8 +120,8 @@ describe('AdvanceRequestService', () => {
           useValue: fileServiceSpy,
         },
         {
-          provide: OrgUserSettingsService,
-          useValue: orgUserSettingsServiceSpy,
+          provide: PlatformEmployeeSettingsService,
+          useValue: platformEmployeeSettingsServiceSpy,
         },
         {
           provide: TimezoneService,
@@ -254,13 +254,28 @@ describe('AdvanceRequestService', () => {
     });
   });
 
-  it('getActions(): should get advance request actions from ID', (done) => {
+  it('getSpenderPermissions(): should get advance request permissions from ID', (done) => {
     const advReqID = 'areqoVuT5I8OOy';
-    apiService.get.and.returnValue(of(apiAdvanceRequestAction));
+    spenderService.post.and.returnValue(of({ data: apiAdvanceRequestAction }));
 
-    advanceRequestService.getActions(advReqID).subscribe((res) => {
+    advanceRequestService.getSpenderPermissions(advReqID).subscribe((res) => {
       expect(res).toEqual(apiAdvanceRequestAction);
-      expect(apiService.get).toHaveBeenCalledOnceWith(`/advance_requests/${advReqID}/actions`);
+      expect(spenderService.post).toHaveBeenCalledOnceWith('/advance_requests/permissions', {
+        data: { id: advReqID },
+      });
+      done();
+    });
+  });
+
+  it('getApproverPermissions(): should get advance request permissions from ID', (done) => {
+    const advReqID = 'areqoVuT5I8OOy';
+    approverService.post.and.returnValue(of({ data: apiAdvanceRequestAction }));
+
+    advanceRequestService.getApproverPermissions(advReqID).subscribe((res) => {
+      expect(res).toEqual(apiAdvanceRequestAction);
+      expect(approverService.post).toHaveBeenCalledOnceWith('/advance_requests/permissions', {
+        data: { id: advReqID },
+      });
       done();
     });
   });
@@ -373,12 +388,17 @@ describe('AdvanceRequestService', () => {
     });
   });
 
-  it('saveDraft(): should save a draft advance request', (done) => {
-    apiService.post.and.returnValue(of(draftAdvancedRequestRes));
+  it('post(): should save a draft advance request', (done) => {
+    spenderService.post.and.returnValue(of({ data: draftAdvancedRequestRes }));
 
-    advanceRequestService.saveDraft(draftAdvancedRequestParam).subscribe((res) => {
+    advanceRequestService.post(draftAdvancedRequestParam).subscribe((res) => {
       expect(res).toEqual(draftAdvancedRequestRes);
-      expect(apiService.post).toHaveBeenCalledOnceWith('/advance_requests/save', draftAdvancedRequestParam);
+      expect(spenderService.post).toHaveBeenCalledOnceWith('/advance_requests', {
+        data: {
+          ...draftAdvancedRequestParam,
+          custom_fields: draftAdvancedRequestParam.custom_field_values,
+        },
+      });
       done();
     });
   });
@@ -573,23 +593,23 @@ describe('AdvanceRequestService', () => {
   describe('saveDraftAdvReqWithFiles():', () => {
     it('should save draft advance request along with the file', (done) => {
       fileService.post.and.returnValue(of(fileObjectData4));
-      spyOn(advanceRequestService, 'saveDraft').and.returnValue(of(advancedRequests2));
+      spyOn(advanceRequestService, 'post').and.returnValue(of(advancedRequests2));
 
       const mockFileObject = cloneDeep(fileData2);
       advanceRequestService.saveDraftAdvReqWithFiles(advancedRequests2, of(mockFileObject)).subscribe((res) => {
         expect(res).toEqual(advRequestFile2);
-        expect(advanceRequestService.saveDraft).toHaveBeenCalledOnceWith(advancedRequests2);
+        expect(advanceRequestService.post).toHaveBeenCalledOnceWith(advancedRequests2);
         expect(fileService.post).toHaveBeenCalledOnceWith(mockFileObject[0]);
         done();
       });
     });
 
     it('should save draft advance request without the file', (done) => {
-      spyOn(advanceRequestService, 'saveDraft').and.returnValue(of(advancedRequests2));
+      spyOn(advanceRequestService, 'post').and.returnValue(of(advancedRequests2));
 
       advanceRequestService.saveDraftAdvReqWithFiles(advancedRequests2, of(null)).subscribe((res) => {
         expect(res).toEqual({ ...advRequestFile2, files: null });
-        expect(advanceRequestService.saveDraft).toHaveBeenCalledOnceWith(advancedRequests2);
+        expect(advanceRequestService.post).toHaveBeenCalledOnceWith(advancedRequests2);
         done();
       });
     });

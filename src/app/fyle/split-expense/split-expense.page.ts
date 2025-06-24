@@ -32,7 +32,6 @@ import { OrgCategory, OrgCategoryListItem } from 'src/app/core/models/v1/org-cat
 import { PolicyViolation } from 'src/app/core/models/policy-violation.model';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { CustomInput } from 'src/app/core/models/custom-input.model';
 import { FileObject } from 'src/app/core/models/file-obj.model';
@@ -65,6 +64,7 @@ import { SplittingExpenseProperties } from 'src/app/core/models/splitting-expens
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { FilteredSplitPolicyViolations } from 'src/app/core/models/filtered-split-policy-violations.model';
 import { FilteredMissingFieldsViolations } from 'src/app/core/models/filtered-missing-fields-violations.model';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 
 @Component({
   selector: 'app-split-expense',
@@ -95,6 +95,8 @@ export class SplitExpensePage implements OnDestroy {
   totalSplitAmount: number;
 
   remainingAmount: number;
+
+  homeCurrency: string;
 
   categories$: Observable<OrgCategoryListItem[]>;
 
@@ -166,7 +168,7 @@ export class SplitExpensePage implements OnDestroy {
     private popoverController: PopoverController,
     private modalProperties: ModalPropertiesService,
     private costCentersService: CostCentersService,
-    private orgUserSettingsService: OrgUserSettingsService,
+    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
     private orgSettingsService: OrgSettingsService,
     private dependentFieldsService: DependentFieldsService,
     private launchDarklyService: LaunchDarklyService,
@@ -329,11 +331,11 @@ export class SplitExpensePage implements OnDestroy {
 
     return forkJoin({
       dependentCustomProperties: this.dependentCustomProperties$,
-      orgUserSettings: this.orgUserSettingsService.get(),
+      employeeSettings: this.platformEmployeeSettingsService.get(),
     }).pipe(
-      concatMap(({ dependentCustomProperties, orgUserSettings }) => {
+      concatMap(({ dependentCustomProperties, employeeSettings }) => {
         let txnCustomProperties = this.transaction.custom_properties;
-        const offset = orgUserSettings.locale.offset;
+        const offset = employeeSettings.locale.offset;
 
         const isDifferentProject =
           this.splitConfig.project.is_visible && splitExpenseValue.project?.project_id !== this.transaction.project_id;
@@ -526,7 +528,8 @@ export class SplitExpensePage implements OnDestroy {
         this.transaction,
         this.totalSplitAmount,
         splitExpenses,
-        this.expenseFields
+        this.expenseFields,
+        this.homeCurrency
       ),
     };
 
@@ -811,6 +814,11 @@ export class SplitExpensePage implements OnDestroy {
     };
   }
 
+  normalizeSplitAmount(): void {
+    this.splitExpenseService.normalizeSplitAmounts(this.splitExpensesFormArray, this.amount, this.currency);
+    this.getTotalSplitAmount();
+  }
+
   save(): void {
     if (this.splitExpensesFormArray.valid) {
       this.showErrorBlock = false;
@@ -851,6 +859,7 @@ export class SplitExpensePage implements OnDestroy {
           return;
         }
 
+        this.normalizeSplitAmount();
         const generatedSplitEtxn$ = (this.splitExpensesFormArray.value as SplitExpense[]).map((splitExpenseValue) =>
           this.generateSplitEtxnFromFg(splitExpenseValue)
         );
@@ -1061,6 +1070,7 @@ export class SplitExpensePage implements OnDestroy {
   }
 
   setValuesForCCC(currencyObj: CurrencyObj, homeCurrency: string, isCorporateCardsEnabled: boolean): void {
+    this.homeCurrency = homeCurrency;
     this.setAmountAndCurrency(currencyObj, homeCurrency);
 
     let amount1 = this.amount > 0.0001 || isCorporateCardsEnabled ? this.amount * 0.6 : null; // 60% split

@@ -11,7 +11,7 @@ import { PolicyService } from 'src/app/core/services/policy.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { SplitExpensePage } from './split-expense.page';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
@@ -82,7 +82,6 @@ import {
 } from 'src/app/core/mock-data/split-expense.data';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
-import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import { dependentFieldValues } from 'src/app/core/test-data/dependent-fields.service.spec.data';
 import {
   allowedActiveCategories,
@@ -148,6 +147,7 @@ import { FyMsgPopoverComponent } from 'src/app/shared/components/fy-msg-popover/
 import { ReviewSplitExpenseComponent } from 'src/app/shared/components/review-split-expense/review-split-expense.component';
 import { splitConfig } from 'src/app/core/mock-data/split-config.data';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
+import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
 describe('SplitExpensePage', () => {
   let component: SplitExpensePage;
   let fixture: ComponentFixture<SplitExpensePage>;
@@ -168,7 +168,7 @@ describe('SplitExpensePage', () => {
   let popoverController: jasmine.SpyObj<PopoverController>;
   let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
   let costCentersService: jasmine.SpyObj<CostCentersService>;
-  let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
+  let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let dependentFieldsService: jasmine.SpyObj<DependentFieldsService>;
   let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
@@ -195,6 +195,7 @@ describe('SplitExpensePage', () => {
       'handlePolicyAndMissingFieldsCheck',
       'checkIfMissingFieldsExist',
       'transformSplitTo',
+      'normalizeSplitAmounts',
     ]);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById'], {
@@ -217,7 +218,10 @@ describe('SplitExpensePage', () => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
     const costCentersServiceSpy = jasmine.createSpyObj('CostCentersService', ['getAllActive']);
-    const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['getAllowedCostCenters', 'get']);
+    const platformEmployeeSettingsServiceSpy = jasmine.createSpyObj('PlatformEmployeeSettingsService', [
+      'getAllowedCostCenters',
+      'get',
+    ]);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const dependentFieldsServiceSpy = jasmine.createSpyObj('DependentFieldsService', [
       'getDependentFieldValuesForBaseField',
@@ -266,7 +270,7 @@ describe('SplitExpensePage', () => {
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: ModalPropertiesService, useValue: modalPropertiesSpy },
         { provide: CostCentersService, useValue: costCentersServiceSpy },
-        { provide: OrgUserSettingsService, useValue: orgUserSettingsServiceSpy },
+        { provide: PlatformEmployeeSettingsService, useValue: platformEmployeeSettingsServiceSpy },
         { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
         { provide: DependentFieldsService, useValue: dependentFieldsServiceSpy },
         { provide: LaunchDarklyService, useValue: launchDarklyServiceSpy },
@@ -323,7 +327,9 @@ describe('SplitExpensePage', () => {
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
     costCentersService = TestBed.inject(CostCentersService) as jasmine.SpyObj<CostCentersService>;
-    orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
+    platformEmployeeSettingsService = TestBed.inject(
+      PlatformEmployeeSettingsService
+    ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     dependentFieldsService = TestBed.inject(DependentFieldsService) as jasmine.SpyObj<DependentFieldsService>;
     launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
@@ -764,7 +770,7 @@ describe('SplitExpensePage', () => {
       projectsService.getAllowedOrgCategoryIds.and.returnValue(allowedActiveCategories);
 
       orgSettingsService.get.and.returnValue(of(orgSettingsWithProjectCategoryRestrictions));
-      orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+      platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
 
       dependentFieldsService.getDependentFieldValuesForBaseField.and.returnValue(of(dependentFieldValues));
 
@@ -1045,7 +1051,7 @@ describe('SplitExpensePage', () => {
       };
       const homeCurrency = orgData1[0].currency;
       component.setAmountAndCurrency(mockCurrencyObj, homeCurrency);
-      expect(component.amount).toBe(800000);
+      expect(component.amount).toBe(23213);
       expect(component.currency).toEqual('USD');
     });
 
@@ -2115,7 +2121,7 @@ describe('SplitExpensePage', () => {
       spyOn(component, 'setUpSplitExpenseTax').and.returnValue(23);
       const mockDependentCustomProps = mockTxn.custom_properties.slice(0, 2);
       component.dependentCustomProperties$ = of(mockDependentCustomProps);
-      orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+      platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
       spyOn(component, 'correctDates');
       spyOn(component, 'setTransactionDate').and.returnValue(new Date('2023-08-04'));
       timezoneService.convertAllDatesToProperLocale.and.returnValue(txnCustomPropertiesData);
@@ -2518,7 +2524,8 @@ describe('SplitExpensePage', () => {
           component.transaction,
           component.totalSplitAmount,
           splitExpenses,
-          component.expenseFields
+          component.expenseFields,
+          component.homeCurrency
         );
         expect(component.setupCategoryAndProject).toHaveBeenCalledTimes(2);
         expect(component.setupCategoryAndProject).toHaveBeenCalledWith(txnList[0], splitExpenseForm1.value, true);

@@ -1315,7 +1315,7 @@ export const expectedExpenseObservable2 = deepFreeze({
     skip_reimbursement: false,
     source: 'MOBILE',
     txn_dt: new Date('2019-06-19T01:00:00.000Z'),
-    currency: 'USD',
+    currency: 'ARS',
     amount: null,
     orig_currency: null,
     orig_amount: null,
@@ -3495,8 +3495,8 @@ export const newMileageExpFromFgWithAdvanceWallet: Partial<UnflattenedTransactio
   ...newMileageExpFromForm,
   tx: {
     ...newMileageExpFromForm.tx,
-    source_account_id: undefined,
-    advance_wallet_id: 'areq1234',
+    source_account_id: null,
+    advance_wallet_id: null,
   },
 });
 

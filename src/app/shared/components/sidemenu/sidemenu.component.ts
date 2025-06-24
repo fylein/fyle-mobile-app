@@ -8,7 +8,6 @@ import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { SidemenuService } from 'src/app/core/services/sidemenu.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
-import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { Org } from 'src/app/core/models/org.model';
 import { SidemenuItem } from 'src/app/core/models/sidemenu-item.model';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
@@ -16,12 +15,13 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgService } from 'src/app/core/services/org.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { ExtendedDeviceInfo } from 'src/app/core/models/extended-device-info.model';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { Router } from '@angular/router';
 import { MenuController } from '@ionic/angular';
 import { SidemenuAllowedActions } from 'src/app/core/models/sidemenu-allowed-actions.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
+import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
 
 @Component({
   selector: 'app-sidemenu',
@@ -43,7 +43,7 @@ export class SidemenuComponent implements OnInit {
 
   orgSettings: OrgSettings;
 
-  orgUserSettings: OrgUserSettings;
+  employeeSettings: EmployeeSettings;
 
   allowedActions: SidemenuAllowedActions;
 
@@ -67,7 +67,7 @@ export class SidemenuComponent implements OnInit {
     private launchDarklyService: LaunchDarklyService,
     private orgService: OrgService,
     private authService: AuthService,
-    private orgUserSettingsService: OrgUserSettingsService,
+    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
     private spenderOnboardingService: SpenderOnboardingService
   ) {}
 
@@ -107,7 +107,7 @@ export class SidemenuComponent implements OnInit {
     const currentOrg$ = this.orgService.getCurrentOrg().pipe(shareReplay(1));
     const primaryOrg$ = this.orgService.getPrimaryOrg().pipe(shareReplay(1));
     const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
-    const orgUserSettings$ = this.orgUserSettingsService.get();
+    const employeeSettings$ = this.platformEmployeeSettingsService.get().pipe(shareReplay(1));
     const delegatedAccounts$ = this.orgUserService.findDelegatedAccounts();
     const deviceInfo$ = this.deviceService.getDeviceInfo().pipe(shareReplay(1));
     const isSwitchedToDelegator$ = from(this.orgUserService.isSwitchedToDelegator());
@@ -119,7 +119,7 @@ export class SidemenuComponent implements OnInit {
         currentOrg: currentOrg$,
         primaryOrg: primaryOrg$,
         orgSettings: orgSettings$,
-        orgUserSettings: orgUserSettings$,
+        employeeSettings: employeeSettings$,
         delegatedAccounts: delegatedAccounts$,
         allowedActions: allowedActions$,
         deviceInfo: deviceInfo$,
@@ -134,7 +134,7 @@ export class SidemenuComponent implements OnInit {
           currentOrg,
           primaryOrg,
           orgSettings,
-          orgUserSettings,
+          employeeSettings,
           delegatedAccounts,
           allowedActions,
           deviceInfo,
@@ -146,7 +146,7 @@ export class SidemenuComponent implements OnInit {
         this.activeOrg = currentOrg;
         this.primaryOrg = primaryOrg;
         this.orgSettings = orgSettings;
-        this.orgUserSettings = orgUserSettings;
+        this.employeeSettings = employeeSettings;
         const isDelegatee = delegatedAccounts?.length > 0;
         this.appVersion = (deviceInfo && deviceInfo.liveUpdateAppVersion) || '1.2.3';
         this.allowedActions = allowedActions;
@@ -188,7 +188,7 @@ export class SidemenuComponent implements OnInit {
         isVisible:
           this.orgSettings.org_personal_cards_settings.allowed &&
           this.orgSettings.org_personal_cards_settings.enabled &&
-          this.orgUserSettings.personal_cards_settings?.enabled &&
+          this.employeeSettings?.is_personal_cards_enabled &&
           !isOnboardingPending,
         route: ['/', 'enterprise', 'personal_cards'],
       },
@@ -364,10 +364,7 @@ export class SidemenuComponent implements OnInit {
       {
         title: 'Live chat',
         isVisible:
-          this.orgUserSettings &&
-          this.orgUserSettings.in_app_chat_settings &&
-          this.orgUserSettings.in_app_chat_settings.allowed &&
-          this.orgUserSettings.in_app_chat_settings.enabled,
+          this.employeeSettings?.in_app_chat_settings?.allowed && this.employeeSettings?.in_app_chat_settings?.enabled,
         icon: 'chat',
         openLiveChat: true,
         disabled: !isConnected,
