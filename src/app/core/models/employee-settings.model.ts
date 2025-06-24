@@ -47,7 +47,7 @@ export interface EmployeeSettings {
     offset: string;
   };
 
-  is_personal_card_enabled: boolean;
+  is_personal_cards_enabled: boolean;
   default_project_id: number | null;
   default_payment_mode: string | null;
   default_vehicle_type: string | null;
