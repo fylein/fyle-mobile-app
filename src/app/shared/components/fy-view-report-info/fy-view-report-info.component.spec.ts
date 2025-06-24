@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angul
 import { FyViewReportInfoComponent } from './fy-view-report-info.component';
 import { of } from 'rxjs';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/approver/employee-settings.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
@@ -23,7 +23,7 @@ describe('FyViewReportInfoComponent', () => {
   let component: FyViewReportInfoComponent;
   let fixture: ComponentFixture<FyViewReportInfoComponent>;
   let sharedExpensesService: jasmine.SpyObj<SharedExpensesService>;
-  let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
+  let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
   let authService: jasmine.SpyObj<AuthService>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
@@ -31,9 +31,9 @@ describe('FyViewReportInfoComponent', () => {
   let datePipe: DatePipe;
 
   beforeEach(waitForAsync(() => {
-    const mockOrgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', [
+    const mockPlatformEmployeeSettingsServiceSpy = jasmine.createSpyObj('PlatformEmployeeSettingsService', [
       'get',
-      'getAllowedCostCentersByOuId',
+      'getAllowedCostCentersByEmployeeId',
     ]);
     const mockSharedExpensesServiceSpy = jasmine.createSpyObj('SharedExpensesService', [
       'getPaymentModeWiseSummary',
@@ -52,8 +52,8 @@ describe('FyViewReportInfoComponent', () => {
           useValue: mockSharedExpensesServiceSpy,
         },
         {
-          provide: OrgUserSettingsService,
-          useValue: mockOrgUserSettingsServiceSpy,
+          provide: PlatformEmployeeSettingsService,
+          useValue: mockPlatformEmployeeSettingsServiceSpy,
         },
         {
           provide: TrackingService,
@@ -81,7 +81,9 @@ describe('FyViewReportInfoComponent', () => {
     component = fixture.componentInstance;
     sharedExpensesService = TestBed.inject(SharedExpensesService) as jasmine.SpyObj<SharedExpensesService>;
     datePipe = TestBed.inject(DatePipe);
-    orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
+    platformEmployeeSettingsService = TestBed.inject(
+      PlatformEmployeeSettingsService
+    ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
@@ -316,12 +318,12 @@ describe('FyViewReportInfoComponent', () => {
       const expectedAllowedCostCenters = 'SMS1, test cost, cost centers mock data 1, cost center service 2';
 
       authService.getEou.and.resolveTo(apiEouRes);
-      orgUserSettingsService.getAllowedCostCentersByOuId.and.returnValue(of(costCentersData));
+      platformEmployeeSettingsService.getAllowedCostCentersByEmployeeId.and.returnValue(of(costCentersData));
       component.createEmployeeDetails(platformReportData);
       expect(component.employeeDetails).toEqual(expectedEmployeeDetails);
       tick(1000);
       expect(authService.getEou).toHaveBeenCalledTimes(1);
-      expect(orgUserSettingsService.getAllowedCostCentersByOuId).toHaveBeenCalledOnceWith(
+      expect(platformEmployeeSettingsService.getAllowedCostCentersByEmployeeId).toHaveBeenCalledOnceWith(
         platformReportData.employee.id
       );
       expect(component.employeeDetails['Allowed Cost Centers']).toEqual(expectedAllowedCostCenters);
@@ -347,7 +349,7 @@ describe('FyViewReportInfoComponent', () => {
       expect(component.employeeDetails).toEqual(expectedEmployeeDetails);
       tick(1000);
       expect(authService.getEou).toHaveBeenCalledTimes(1);
-      expect(orgUserSettingsService.getAllowedCostCentersByOuId).not.toHaveBeenCalledOnceWith(
+      expect(platformEmployeeSettingsService.getAllowedCostCentersByEmployeeId).not.toHaveBeenCalledOnceWith(
         platformReportData.employee.id
       );
       expect(component.employeeDetails['Allowed Cost Centers']).not.toEqual(expectedAllowedCostCenters);
@@ -377,12 +379,12 @@ describe('FyViewReportInfoComponent', () => {
       const expectedAllowedCostCenters = 'SMS1, test cost, cost centers mock data 1, cost center service 2';
 
       authService.getEou.and.resolveTo(apiEouRes);
-      orgUserSettingsService.getAllowedCostCentersByOuId.and.returnValue(of(costCentersData));
+      platformEmployeeSettingsService.getAllowedCostCentersByEmployeeId.and.returnValue(of(costCentersData));
       component.createEmployeeDetails(modifiedPlatformReportData);
       expect(component.employeeDetails).toEqual(expectedEmployeeDetails);
       tick(1000);
       expect(authService.getEou).toHaveBeenCalledTimes(1);
-      expect(orgUserSettingsService.getAllowedCostCentersByOuId).toHaveBeenCalledOnceWith(
+      expect(platformEmployeeSettingsService.getAllowedCostCentersByEmployeeId).toHaveBeenCalledOnceWith(
         modifiedPlatformReportData.employee.id
       );
       expect(component.employeeDetails['Allowed Cost Centers']).toEqual(expectedAllowedCostCenters);

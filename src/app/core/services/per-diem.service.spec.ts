@@ -1,13 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 import { PerDiemService } from './per-diem.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
-import { OrgUserSettingsService } from './org-user-settings.service';
+import { PlatformEmployeeSettingsService } from './platform/v1/spender/employee-settings.service';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import {
   expectedPerDiems,
   apiPerDiemByID,
   allPerDiemRatesParam,
-  apiOrgUserSettings,
   expectPerDiemByID,
   allowedPerDiem,
   apiPerDiemFirst,
@@ -16,6 +15,7 @@ import {
   apiPerDiemSingleResponse,
 } from '../test-data/per-diem.service.spec.data';
 import { of } from 'rxjs';
+import { apiEmployeeSettings, employeeSettingsData } from '../mock-data/employee-settings.data';
 
 const fixDate = (data) =>
   data.map((data) => ({
@@ -27,11 +27,11 @@ const fixDate = (data) =>
 describe('PerDiemService', () => {
   let perDiemService: PerDiemService;
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
-  let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
+  let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
 
   beforeEach(() => {
     const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get']);
-    const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
+    const platformEmployeeSettingsServiceSpy = jasmine.createSpyObj('PlatformEmployeeSettingsService', ['get']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -41,8 +41,8 @@ describe('PerDiemService', () => {
           useValue: spenderPlatformV1ApiServiceSpy,
         },
         {
-          provide: OrgUserSettingsService,
-          useValue: orgUserSettingsServiceSpy,
+          provide: PlatformEmployeeSettingsService,
+          useValue: platformEmployeeSettingsServiceSpy,
         },
         {
           provide: PAGINATION_SIZE,
@@ -54,7 +54,9 @@ describe('PerDiemService', () => {
     spenderPlatformV1ApiService = TestBed.inject(
       SpenderPlatformV1ApiService
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
-    orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
+    platformEmployeeSettingsService = TestBed.inject(
+      PlatformEmployeeSettingsService
+    ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
   });
 
   it('should be created', () => {
@@ -146,7 +148,7 @@ describe('PerDiemService', () => {
   });
 
   it('should get all allowed per diems', (done) => {
-    orgUserSettingsService.get.and.returnValue(of(apiOrgUserSettings));
+    platformEmployeeSettingsService.get.and.returnValue(of(apiEmployeeSettings));
 
     perDiemService.getAllowedPerDiems(fixDate(allPerDiemRatesParam)).subscribe((res) => {
       expect(res).toEqual(fixDate(allowedPerDiem));
@@ -155,7 +157,7 @@ describe('PerDiemService', () => {
   });
 
   it('should return empty list if there are no allowed per diems', (done) => {
-    orgUserSettingsService.get.and.returnValue(of(apiOrgUserSettings));
+    platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
 
     perDiemService.getAllowedPerDiems(null).subscribe((res) => {
       expect(res).toEqual([]);

@@ -26,7 +26,7 @@ import {
   orgSettingsWithExpenseFormAutofill,
   orgSettingsParamsWithAdvanceWallet,
 } from 'src/app/core/mock-data/org-settings.data';
-import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
+import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
 import { recentlyUsedRes } from 'src/app/core/mock-data/recently-used.data';
 import {
   newExpenseMileageData1,
@@ -55,7 +55,7 @@ import { MileageService } from 'src/app/core/services/mileage.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
@@ -136,7 +136,7 @@ export function TestCases2(getTestBed) {
     let titleCasePipe: jasmine.SpyObj<TitleCasePipe>;
     let paymentModesService: jasmine.SpyObj<PaymentModesService>;
     let taxGroupService: jasmine.SpyObj<TaxGroupService>;
-    let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
+    let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
     let storageService: jasmine.SpyObj<StorageService>;
     let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
     let mileageService: jasmine.SpyObj<MileageService>;
@@ -194,7 +194,9 @@ export function TestCases2(getTestBed) {
       titleCasePipe = TestBed.inject(TitleCasePipe) as jasmine.SpyObj<TitleCasePipe>;
       paymentModesService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
       taxGroupService = TestBed.inject(TaxGroupService) as jasmine.SpyObj<TaxGroupService>;
-      orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
+      platformEmployeeSettingsService = TestBed.inject(
+        PlatformEmployeeSettingsService
+      ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
       mileageService = TestBed.inject(MileageService) as jasmine.SpyObj<MileageService>;
@@ -377,9 +379,9 @@ export function TestCases2(getTestBed) {
         const date = new Date('2023-08-21T07:43:15.592Z');
         jasmine.clock().mockDate(date);
         transactionService.getDefaultVehicleType.and.returnValue(of('CAR'));
-        mileageService.getOrgUserMileageSettings.and.returnValue(of(orgUserSettingsData.mileage_settings));
+        mileageService.getEmployeeMileageSettings.and.returnValue(of(employeeSettingsData.mileage_settings));
         orgSettingsService.get.and.returnValue(of(cloneDeep(orgSettingsParams2)));
-        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
         component.recentlyUsedValues$ = of(recentlyUsedRes);
         component.mileageRates$ = of(unfilteredMileageRatesData);
         spyOn(component, 'getMileageByVehicleType').and.returnValue(filterEnabledMileageRatesData[0]);
@@ -397,9 +399,9 @@ export function TestCases2(getTestBed) {
         component.getNewExpense().subscribe((res) => {
           expect(res).toEqual(newExpenseMileageData1);
           expect(transactionService.getDefaultVehicleType).toHaveBeenCalledTimes(1);
-          expect(mileageService.getOrgUserMileageSettings).toHaveBeenCalledTimes(1);
+          expect(mileageService.getEmployeeMileageSettings).toHaveBeenCalledTimes(1);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(3);
-          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(2);
+          expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(2);
           expect(locationService.getCurrentLocation).toHaveBeenCalledTimes(1);
           expect(authService.getEou).toHaveBeenCalledTimes(2);
           expect(component.getMileageByVehicleType).toHaveBeenCalledOnceWith(unfilteredMileageRatesData, 'bicycle');
@@ -412,9 +414,9 @@ export function TestCases2(getTestBed) {
         const date = new Date('2023-08-21T07:43:15.592Z');
         jasmine.clock().mockDate(date);
         transactionService.getDefaultVehicleType.and.returnValue(of('CAR'));
-        mileageService.getOrgUserMileageSettings.and.returnValue(of(orgUserSettingsData.mileage_settings));
+        mileageService.getEmployeeMileageSettings.and.returnValue(of(employeeSettingsData.mileage_settings));
         orgSettingsService.get.and.returnValue(of(orgSettingsWithExpenseFormAutofill));
-        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
         locationService.getAutocompletePredictions.and.returnValue(of(predictedLocation1));
         locationService.getGeocode.and.returnValue(of(locationData1));
         component.recentlyUsedValues$ = of(recentlyUsedRes);
@@ -434,9 +436,9 @@ export function TestCases2(getTestBed) {
         component.getNewExpense().subscribe((res) => {
           expect(res).toEqual(newExpenseMileageData2);
           expect(transactionService.getDefaultVehicleType).toHaveBeenCalledTimes(1);
-          expect(mileageService.getOrgUserMileageSettings).toHaveBeenCalledTimes(1);
+          expect(mileageService.getEmployeeMileageSettings).toHaveBeenCalledTimes(1);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(3);
-          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(2);
+          expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(2);
           expect(locationService.getCurrentLocation).toHaveBeenCalledTimes(1);
           expect(authService.getEou).toHaveBeenCalledTimes(2);
           expect(component.getMileageByVehicleType).toHaveBeenCalledOnceWith(unfilteredMileageRatesData, 'bicycle');
@@ -458,9 +460,9 @@ export function TestCases2(getTestBed) {
         const date = new Date('2023-08-21T07:43:15.592Z');
         jasmine.clock().mockDate(date);
         transactionService.getDefaultVehicleType.and.returnValue(of('CAR'));
-        mileageService.getOrgUserMileageSettings.and.returnValue(of(undefined));
+        mileageService.getEmployeeMileageSettings.and.returnValue(of(undefined));
         orgSettingsService.get.and.returnValue(of(cloneDeep(orgSettingsParams2)));
-        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
         component.recentlyUsedValues$ = of(recentlyUsedRes);
         component.mileageRates$ = of(unfilteredMileageRatesData);
         spyOn(component, 'getMileageByVehicleType').and.returnValue(filterEnabledMileageRatesData[0]);
@@ -480,9 +482,9 @@ export function TestCases2(getTestBed) {
         newExpense.subscribe((expectedNewExpense) => {
           expect(expectedNewExpense).toEqual(newExpenseMileageData1);
           expect(transactionService.getDefaultVehicleType).toHaveBeenCalledTimes(1);
-          expect(mileageService.getOrgUserMileageSettings).toHaveBeenCalledTimes(1);
+          expect(mileageService.getEmployeeMileageSettings).toHaveBeenCalledTimes(1);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(3);
-          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(2);
+          expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(2);
           expect(locationService.getCurrentLocation).toHaveBeenCalledTimes(1);
           expect(authService.getEou).toHaveBeenCalledTimes(2);
           expect(component.getMileageByVehicleType).toHaveBeenCalledOnceWith(unfilteredMileageRatesData, 'bicycle');

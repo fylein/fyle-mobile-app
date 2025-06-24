@@ -4,7 +4,7 @@ import { DateService } from './date.service';
 import { map, switchMap, tap, catchError } from 'rxjs/operators';
 import { StorageService } from './storage.service';
 import { from, Observable, forkJoin, of } from 'rxjs';
-import { OrgUserSettingsService } from './org-user-settings.service';
+import { PlatformEmployeeSettingsService } from './platform/v1/spender/employee-settings.service';
 import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
 import { Expense } from '../models/expense.model';
@@ -51,7 +51,7 @@ export class TransactionService {
     private storageService: StorageService,
     private apiService: ApiService,
     private dateService: DateService,
-    private orgUserSettingsService: OrgUserSettingsService,
+    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
     private timezoneService: TimezoneService,
     private utilityService: UtilityService,
     private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
@@ -106,12 +106,12 @@ export class TransactionService {
     }
 
     return forkJoin({
-      orgUserSettings: this.orgUserSettingsService.get(),
+      employeeSettings: this.platformEmployeeSettingsService.get(),
       txnAccount: this.getTxnAccount(),
       personalAccount: this.getPersonalAccount(),
     }).pipe(
-      switchMap(({ orgUserSettings, txnAccount, personalAccount }) => {
-        const offset = orgUserSettings.locale.offset;
+      switchMap(({ employeeSettings, txnAccount, personalAccount }) => {
+        const offset = employeeSettings.locale.offset;
 
         transaction.custom_properties = <TxnCustomProperties[]>(
           this.timezoneService.convertAllDatesToProperLocale(transaction.custom_properties, offset)
@@ -217,8 +217,8 @@ export class TransactionService {
   }
 
   checkPolicy(platformPolicyExpense: PlatformPolicyExpense): Observable<ExpensePolicy> {
-    return this.orgUserSettingsService.get().pipe(
-      switchMap((orgUserSettings) => {
+    return this.platformEmployeeSettingsService.get().pipe(
+      switchMap((employeeSettings) => {
         // setting txn_dt time to T10:00:00:000 in local time zone
         if (platformPolicyExpense.spent_at) {
           platformPolicyExpense.spent_at.setHours(12);
@@ -227,7 +227,7 @@ export class TransactionService {
           platformPolicyExpense.spent_at.setMilliseconds(0);
           platformPolicyExpense.spent_at = this.timezoneService.convertToUtc(
             platformPolicyExpense.spent_at,
-            orgUserSettings.locale.offset
+            employeeSettings.locale.offset
           );
         }
 
@@ -238,7 +238,7 @@ export class TransactionService {
           platformPolicyExpense.started_at.setMilliseconds(0);
           platformPolicyExpense.started_at = this.timezoneService.convertToUtc(
             platformPolicyExpense.started_at,
-            orgUserSettings.locale.offset
+            employeeSettings.locale.offset
           );
         }
 
@@ -249,7 +249,7 @@ export class TransactionService {
           platformPolicyExpense.ended_at.setMilliseconds(0);
           platformPolicyExpense.ended_at = this.timezoneService.convertToUtc(
             platformPolicyExpense.ended_at,
-            orgUserSettings.locale.offset
+            employeeSettings.locale.offset
           );
         }
         const payload = {
@@ -837,10 +837,10 @@ export class TransactionService {
     return forkJoin({
       orgSettings: this.orgSettingsService.get(),
       accounts: this.accountsService.getMyAccounts(),
-      orgUserSettings: this.orgUserSettingsService.get(),
+      employeeSettings: this.platformEmployeeSettingsService.get(),
     }).pipe(
-      switchMap(({ orgSettings, accounts, orgUserSettings }) =>
-        this.paymentModesService.getDefaultAccount(orgSettings, accounts, orgUserSettings)
+      switchMap(({ orgSettings, accounts, employeeSettings }) =>
+        this.paymentModesService.getDefaultAccount(orgSettings, accounts, employeeSettings)
       ),
       map((account) => {
         const accountDetails = {

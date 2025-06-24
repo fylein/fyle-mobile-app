@@ -19,6 +19,9 @@ import { TransformedSplitExpenseMissingFields } from '../models/transformed-spli
 import { TxnCustomProperties } from '../models/txn-custom-properties.model';
 import { ExpenseCommentService } from './platform/v1/spender/expense-comment.service';
 import { ExpenseComment } from '../models/expense-comment.model';
+import { UntypedFormArray, AbstractControl } from '@angular/forms';
+import { fallbackCurrencies } from '../mock-data/fallback-currency-data';
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -41,11 +44,13 @@ export class SplitExpenseService {
     return category?.displayName;
   }
 
+  // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
   createSplitTxns(
     sourceTxn: Transaction,
     totalSplitAmount: number,
     splitExpenses: Transaction[],
-    expenseFields: ExpenseField[]
+    expenseFields: ExpenseField[],
+    homeCurrency: string
   ): Observable<Transaction[]> {
     let splitGroupAmount = sourceTxn.split_group_user_amount || sourceTxn.amount;
     let splitGroupId = sourceTxn.split_group_id || sourceTxn.id;
@@ -65,7 +70,8 @@ export class SplitExpenseService {
       splitGroupAmount,
       splitGroupId,
       splitExpenses.length,
-      expenseFields
+      expenseFields,
+      homeCurrency
     );
   }
 
@@ -105,7 +111,8 @@ export class SplitExpenseService {
     splitGroupAmount: number,
     splitGroupId: string,
     totalSplitExpensesCount: number,
-    expenseFields: ExpenseField[]
+    expenseFields: ExpenseField[],
+    homeCurrency: string
   ): Observable<Transaction[]> {
     const txnsObservables = [];
 
@@ -116,7 +123,8 @@ export class SplitExpenseService {
         const exchangeRate = sourceTxn.amount / sourceTxn.orig_amount;
 
         transaction.orig_amount = splitExpense.amount;
-        transaction.amount = parseFloat((splitExpense.amount * exchangeRate).toFixed(3));
+        const precision = this.getCurrencyPrecision(homeCurrency);
+        transaction.amount = this.roundToPrecision(splitExpense.amount * exchangeRate, precision);
       } else {
         transaction.amount = splitExpense.amount;
       }
@@ -143,7 +151,9 @@ export class SplitExpenseService {
       txnsObservables.push(of(transaction));
     });
 
-    return forkJoin(txnsObservables);
+    return forkJoin(txnsObservables).pipe(
+      map((transactions) => this.normalizeForeignCurrencySplitAmounts(sourceTxn, transactions, homeCurrency))
+    );
   }
 
   setupSplitExpensePurpose(
@@ -414,5 +424,99 @@ export class SplitExpenseService {
     }));
 
     return this.expenseCommentService.post(commentsPayload);
+  }
+
+  normalizeSplitAmounts(splitExpensesFormArray: UntypedFormArray, targetAmount: number, currency: string): void {
+    if (splitExpensesFormArray.length === 0) {
+      return;
+    }
+
+    const precision = this.getCurrencyPrecision(currency);
+    const threshold = this.getThresholdTolerance(precision);
+    const roundedTargetAmount = this.roundToPrecision(targetAmount, precision);
+    let totalRoundedAmount = 0;
+
+    splitExpensesFormArray.controls.forEach((control) => {
+      const currentAmount = (control.get('amount')?.value as number) || 0;
+      const roundedAmount = this.roundToPrecision(currentAmount, precision);
+
+      this.setSplitValues(control, roundedAmount, roundedTargetAmount);
+      totalRoundedAmount += roundedAmount;
+    });
+
+    const difference = this.roundToPrecision(roundedTargetAmount - totalRoundedAmount, precision + 1);
+
+    if (Math.abs(difference) >= threshold) {
+      const lastIndex = splitExpensesFormArray.length - 1;
+      const lastControl = splitExpensesFormArray.at(lastIndex);
+      const lastAmount = (lastControl.get('amount')?.value as number) || 0;
+      const adjustedAmount = this.roundToPrecision(lastAmount + difference, precision);
+
+      this.setSplitValues(lastControl, adjustedAmount, roundedTargetAmount);
+    }
+  }
+
+  private getThresholdTolerance(precision: number): number {
+    const toleranceMap = new Map<number, number>([
+      [0, 1.0],
+      [2, 0.001],
+      [3, 0.001],
+      [4, 0.0001],
+    ]);
+
+    return toleranceMap.get(precision) ?? 0.001;
+  }
+
+  private getCurrencyPrecision(currencyCode: string): number {
+    if (!currencyCode) {
+      return 2;
+    }
+
+    try {
+      const { maximumFractionDigits } = new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: currencyCode,
+      }).resolvedOptions();
+      return maximumFractionDigits;
+    } catch (_) {
+      const currencyConfig = fallbackCurrencies.find((config) => config.code === currencyCode.toUpperCase());
+      return currencyConfig ? currencyConfig.decimalPlaces : 2;
+    }
+  }
+
+  private roundToPrecision(value: number, precision: number): number {
+    const factor = Math.pow(10, precision);
+    return Math.round(value * factor) / factor;
+  }
+
+  private setSplitValues(control: AbstractControl, amount: number, total: number): void {
+    const percentage = total !== 0 ? this.roundToPrecision((Math.abs(amount) / Math.abs(total)) * 100, 3) : 0;
+    control.patchValue({ amount, percentage }, { emitEvent: false });
+  }
+
+  private normalizeForeignCurrencySplitAmounts(
+    sourceTxn: Transaction,
+    transactionsPayload: Transaction[],
+    homeCurrency: string
+  ): Transaction[] {
+    if (!sourceTxn.orig_currency || transactionsPayload.length === 0) {
+      return transactionsPayload;
+    }
+
+    const exchangeRate = sourceTxn.amount / sourceTxn.orig_amount;
+    const homeCurrencyPrecision = this.getCurrencyPrecision(homeCurrency);
+    const threshold = this.getThresholdTolerance(homeCurrencyPrecision);
+
+    const totalExpectedAmount = this.roundToPrecision(sourceTxn.orig_amount * exchangeRate, homeCurrencyPrecision);
+    const totalSplitAmount = transactionsPayload.reduce((sum, txn) => sum + txn.amount, 0);
+
+    const difference = this.roundToPrecision(totalExpectedAmount - totalSplitAmount, homeCurrencyPrecision + 1);
+
+    if (Math.abs(difference) >= threshold) {
+      const lastTransaction = transactionsPayload[transactionsPayload.length - 1];
+      lastTransaction.amount = this.roundToPrecision(lastTransaction.amount + difference, homeCurrencyPrecision);
+    }
+
+    return transactionsPayload;
   }
 }

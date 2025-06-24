@@ -1,16 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 import { PaymentModesService } from './payment-modes.service';
 import { AccountsService } from './accounts.service';
-import { OrgUserSettingsService } from './org-user-settings.service';
+import { PlatformEmployeeSettingsService } from './platform/v1/spender/employee-settings.service';
 import { TrackingService } from './tracking.service';
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { SnackbarPropertiesService } from './snackbar-properties.service';
 import { of } from 'rxjs';
-import {
-  orgUserSettingsData,
-  orgUserSettingsWoPaymentModes,
-  orgUserSettingsWoPayModesCompany,
-} from '../mock-data/org-user-settings.data';
 import { orgSettingsRes, orgSettingsParamWoCCC } from '../mock-data/org-settings.data';
 import {
   multiplePaymentModesData,
@@ -25,18 +20,26 @@ import {
   reimbursableOnlyPaymentModeSettingsParam,
 } from '../mock-data/org-payment-mode-settings.data';
 import { AllowedPaymentModes } from '../models/allowed-payment-modes.enum';
+import {
+  employeeSettingsData,
+  employeeSettingsWoPaymentModes,
+  employeeSettingsWoPayModesCompany,
+} from '../mock-data/employee-settings.data';
 
 describe('PaymentModesService', () => {
   let paymentModesService: PaymentModesService;
   let accountService: jasmine.SpyObj<AccountsService>;
-  let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
+  let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
   let matSnackBar: jasmine.SpyObj<MatSnackBar>;
   let snackbarPropertiesService: jasmine.SpyObj<SnackbarPropertiesService>;
 
   beforeEach(() => {
     const accountServiceSpy = jasmine.createSpyObj('AccountService', ['setAccountProperties']);
-    const orgUserSettingsSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get', 'getAllowedPaymentModes']);
+    const platformEmployeeSettingsSpy = jasmine.createSpyObj('PlatformEmployeeSettingsService', [
+      'get',
+      'getAllowedPaymentModes',
+    ]);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['showToastMessage']);
     const snackbarPropertiesServiceSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
@@ -52,8 +55,8 @@ describe('PaymentModesService', () => {
           useValue: accountServiceSpy,
         },
         {
-          provide: OrgUserSettingsService,
-          useValue: orgUserSettingsSpy,
+          provide: PlatformEmployeeSettingsService,
+          useValue: platformEmployeeSettingsSpy,
         },
         {
           provide: TrackingService,
@@ -68,7 +71,9 @@ describe('PaymentModesService', () => {
     paymentModesService = TestBed.inject(PaymentModesService);
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
     accountService = TestBed.inject(AccountsService) as jasmine.SpyObj<AccountsService>;
-    orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
+    platformEmployeeSettingsService = TestBed.inject(
+      PlatformEmployeeSettingsService
+    ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     snackbarPropertiesService = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
   });
@@ -78,31 +83,31 @@ describe('PaymentModesService', () => {
   });
 
   it('checkIfPaymentModeConfigurationsIsEnabled(): should check if payment mode is enabled', (done) => {
-    orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+    platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
 
     paymentModesService.checkIfPaymentModeConfigurationsIsEnabled().subscribe((res) => {
       expect(res).toEqual(
-        orgUserSettingsData.payment_mode_settings.allowed && orgUserSettingsData.payment_mode_settings.enabled
+        employeeSettingsData.payment_mode_settings.allowed && employeeSettingsData.payment_mode_settings.enabled
       );
-      expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+      expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
       done();
     });
   });
 
   describe('getDefaultAccount():', () => {
     it('should get default account with payment modes enabled', (done) => {
-      orgUserSettingsService.getAllowedPaymentModes.and.returnValue(
-        of(orgUserSettingsData.payment_mode_settings.allowed_payment_modes)
+      platformEmployeeSettingsService.getAllowedPaymentModes.and.returnValue(
+        of(employeeSettingsData.payment_mode_settings.allowed_payment_modes)
       );
       spyOn(paymentModesService, 'checkIfPaymentModeConfigurationsIsEnabled').and.returnValue(
-        of(orgUserSettingsData.payment_mode_settings.allowed && orgUserSettingsData.payment_mode_settings.enabled)
+        of(employeeSettingsData.payment_mode_settings.allowed && employeeSettingsData.payment_mode_settings.enabled)
       );
 
       paymentModesService
-        .getDefaultAccount(orgSettingsRes, multiplePaymentModesData, orgUserSettingsData)
+        .getDefaultAccount(orgSettingsRes, multiplePaymentModesData, employeeSettingsData)
         .subscribe((res) => {
           expect(res).toBeUndefined();
-          expect(orgUserSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
+          expect(platformEmployeeSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
           expect(accountService.setAccountProperties).toHaveBeenCalledOnceWith(
             multiplePaymentModesData[0],
             AccountType.PERSONAL,
@@ -113,13 +118,13 @@ describe('PaymentModesService', () => {
     });
 
     it('should get default account without payment modes enabled', (done) => {
-      orgUserSettingsService.getAllowedPaymentModes.and.returnValue(
-        of(orgUserSettingsWoPaymentModes.payment_mode_settings.allowed_payment_modes)
+      platformEmployeeSettingsService.getAllowedPaymentModes.and.returnValue(
+        of(employeeSettingsWoPaymentModes.payment_mode_settings.allowed_payment_modes)
       );
       spyOn(paymentModesService, 'checkIfPaymentModeConfigurationsIsEnabled').and.returnValue(
         of(
-          orgUserSettingsWoPaymentModes.payment_mode_settings.allowed &&
-            orgUserSettingsData.payment_mode_settings.enabled
+          employeeSettingsWoPaymentModes.payment_mode_settings.allowed &&
+            employeeSettingsData.payment_mode_settings.enabled
         )
       );
 
@@ -127,7 +132,7 @@ describe('PaymentModesService', () => {
         .getDefaultAccount(orgSettingsRes, multiplePaymentModesWithCompanyAccData, orgUserSettingsWoPaymentModes)
         .subscribe((res) => {
           expect(res).toBeUndefined();
-          expect(orgUserSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
+          expect(platformEmployeeSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
           expect(accountService.setAccountProperties).toHaveBeenCalledOnceWith(
             multiplePaymentModesWithCompanyAccData[0],
             AccountType.CCC,
@@ -138,16 +143,16 @@ describe('PaymentModesService', () => {
     });
 
     it('should get default account without payment modes enabled and preference to COMPANY', (done) => {
-      orgUserSettingsService.getAllowedPaymentModes.and.returnValue(
-        of(orgUserSettingsWoPayModesCompany.payment_mode_settings.allowed_payment_modes)
+      platformEmployeeSettingsService.getAllowedPaymentModes.and.returnValue(
+        of(employeeSettingsWoPayModesCompany.payment_mode_settings.allowed_payment_modes)
       );
       spyOn(paymentModesService, 'checkIfPaymentModeConfigurationsIsEnabled').and.returnValue(of(false));
 
       paymentModesService
-        .getDefaultAccount(orgSettingsRes, multiplePaymentModesData, orgUserSettingsWoPayModesCompany)
+        .getDefaultAccount(orgSettingsRes, multiplePaymentModesData, employeeSettingsWoPayModesCompany)
         .subscribe((res) => {
           expect(res).toBeUndefined();
-          expect(orgUserSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
+          expect(platformEmployeeSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
           expect(accountService.setAccountProperties).toHaveBeenCalledOnceWith(
             multiplePaymentModesData[0],
             AccountType.COMPANY,
@@ -158,16 +163,16 @@ describe('PaymentModesService', () => {
     });
 
     it('should get default account without ccc enabled', (done) => {
-      orgUserSettingsService.getAllowedPaymentModes.and.returnValue(
-        of(orgUserSettingsWoPayModesCompany.payment_mode_settings.allowed_payment_modes)
+      platformEmployeeSettingsService.getAllowedPaymentModes.and.returnValue(
+        of(employeeSettingsWoPayModesCompany.payment_mode_settings.allowed_payment_modes)
       );
       spyOn(paymentModesService, 'checkIfPaymentModeConfigurationsIsEnabled').and.returnValue(of(false));
 
       paymentModesService
-        .getDefaultAccount(orgSettingsParamWoCCC, multiplePaymentModesData, orgUserSettingsWoPayModesCompany)
+        .getDefaultAccount(orgSettingsParamWoCCC, multiplePaymentModesData, employeeSettingsWoPayModesCompany)
         .subscribe((res) => {
           expect(res).toBeUndefined();
-          expect(orgUserSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
+          expect(platformEmployeeSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
           expect(accountService.setAccountProperties).toHaveBeenCalledOnceWith(
             multiplePaymentModesData[0],
             AccountType.COMPANY,
