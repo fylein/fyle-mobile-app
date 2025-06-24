@@ -2524,7 +2524,8 @@ describe('SplitExpensePage', () => {
           component.transaction,
           component.totalSplitAmount,
           splitExpenses,
-          component.expenseFields
+          component.expenseFields,
+          component.homeCurrency
         );
         expect(component.setupCategoryAndProject).toHaveBeenCalledTimes(2);
         expect(component.setupCategoryAndProject).toHaveBeenCalledWith(txnList[0], splitExpenseForm1.value, true);
