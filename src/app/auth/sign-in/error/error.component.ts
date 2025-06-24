@@ -18,7 +18,7 @@ export class ErrorComponent {
     private router: Router,
     private translocoService: TranslocoService
   ) {
-    this.header = this.translocoService.translate('error.accountDoesNotExist');
+    this.header = this.header || this.translocoService.translate('error.accountDoesNotExist');
   }
 
   async closePopover(): Promise<void> {

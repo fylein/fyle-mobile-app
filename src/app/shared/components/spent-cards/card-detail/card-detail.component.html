@@ -40,7 +40,11 @@
         </div>
       </div>
       <div class="stats--ccc-stats-title">
-        {{ 'cardDetail.incompleteCardExpense' | transloco : { count: cardDetail.stats.totalDraftTxns } }}
+        {{
+          cardDetail.stats.totalDraftTxns < 1
+            ? ('cardDetail.incompleteCardExpenseSingular' | transloco)
+            : ('cardDetail.incompleteCardExpensePlural' | transloco)
+        }}
       </div>
     </div>
 
@@ -70,7 +74,11 @@
         </div>
       </div>
       <div class="stats--ccc-stats-title">
-        {{ 'cardDetail.completeCardExpense' | transloco : { count: cardDetail.stats.totalCompleteTxns } }}
+        {{
+          cardDetail.stats.totalCompleteTxns < 1
+            ? ('cardDetail.completeCardExpenseSingular' | transloco)
+            : ('cardDetail.completeCardExpensePlural' | transloco)
+        }}
       </div>
     </div>
   </div>

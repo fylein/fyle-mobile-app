@@ -93,7 +93,6 @@ describe('AddApproversPopoverComponent', () => {
         'addApproversPopover.typeYourReason': 'Type your reason here',
         'addApproversPopover.infoMessage':
           'You are adding additional approver(s) to the report. The report will go the them at the end and include all the expenses.',
-        'addApproversPopover.moreEllipsis': ', ...',
       };
       let translation = translations[key] || key;
 

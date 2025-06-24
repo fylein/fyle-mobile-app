@@ -16,6 +16,7 @@ import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { ReportInfoPaymentMode } from 'src/app/core/models/report-info-payment-mode.model';
 import { TranslocoService } from '@jsverse/transloco';
+import { AmountDetails } from 'src/app/core/models/amount-details.model';
 
 @Component({
   selector: 'app-fy-view-report-info-v2',
@@ -39,7 +40,7 @@ export class FyViewReportInfoComponent {
 
   reportDetails = {};
 
-  amountComponentWiseDetails: { [key: string]: number };
+  amountComponentWiseDetails: Partial<AmountDetails>;
 
   amountCurrencyWiseDetails = {};
 

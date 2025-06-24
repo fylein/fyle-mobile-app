@@ -18,7 +18,7 @@ export class FyAlertInfoComponent {
   @Output() actionClick = new EventEmitter<void>();
 
   constructor(private translocoService: TranslocoService) {
-    this.actionButtonContent = this.translocoService.translate('fyAlertInfo.action');
+    this.actionButtonContent = this.actionButtonContent || this.translocoService.translate('fyAlertInfo.action');
   }
 
   onActionClick(): void {

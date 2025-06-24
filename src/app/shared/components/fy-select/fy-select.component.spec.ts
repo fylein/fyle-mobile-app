@@ -53,7 +53,6 @@ describe('FySelectComponent', () => {
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     translocoService.translate.and.callFake((key: any, params?: any) => {
       const translations: { [key: string]: string } = {
-        'fySelect.mandatoryMarker': ' * ',
         'fySelect.selectLabel': 'Select {{label}}',
         'fySelect.selectItem': 'Select item',
       };

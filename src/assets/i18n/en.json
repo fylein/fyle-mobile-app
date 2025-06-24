@@ -436,14 +436,14 @@
     "primaryLabel": "Primary"
   },
   "promoteOptInModal": {
-    "skipMessageBody": "<div>\n              <p>You can't send receipts and expense details via text message if you don't opt in.</p>\n              <p>Are you sure you want to skip?<p>  \n            </div>",
+    "skipMessageBody": "<div>\n <p>You can't send receipts and expense details via text message if you don't opt in.</p>\n <p>Are you sure you want to skip?<p>  \n  </div>",
     "areYouSure": "Are you sure?",
     "yesSkipOptIn": "Yes, skip opt in",
     "noGoBack": "No, go back",
     "skip": "Skip",
     "altOptInGif": "Opt in to text receipts",
     "tryAI": " Try AI ",
-    "description": "Text receipts for <span class=\"promote-opt-in-modal__instant-text-decoration\">instant</span>\n      <span class=\"promote-opt-in-modal__underline\"></span> expense submission"
+    "description": "Text receipts for <span class=\"promote-opt-in-modal__instant-text-decoration\">instant</span> <span class=\"promote-opt-in-modal__underline\"></span> expense submission"
   },
   "transactionStatus": {
     "statusLabel": "Transaction status:"
@@ -472,7 +472,6 @@
     "tryAgain": "Try again"
   },
   "fySelect": {
-    "mandatoryMarker": " * ",
     "selectLabel": "Select {{label}}",
     "selectItem": "Select item"
   },
@@ -589,8 +588,7 @@
     "multiSelectAriaLabel": "Multi select",
     "searchPlaceholder": "Search",
     "selected": "selected",
-    "addPrefix": "Add \"",
-    "addSuffix": "\""
+    "addPrefix": "Add \""
   },
   "expensesCard": {
     "receiptAdded": "Receipt added to Expense successfully",
@@ -789,8 +787,10 @@
     "delete": "Delete"
   },
   "cardDetail": {
-    "incompleteCardExpense": "Incomplete card {{count, plural, one {expense} other {expenses}}",
-    "completeCardExpense": "Complete card {{count, plural, one {expense} other {expenses}}"
+    "incompleteCardExpenseSingular": "Incomplete card expense",
+    "incompleteCardExpensePlural": "Incomplete card expenses",
+    "completeCardExpenseSingular": "Complete card expense",
+    "completeCardExpensePlural": "Complete card expenses"
   },
   "sendEmail": {
     "fyleLogoAlt": "fyle-logo-light",
@@ -900,8 +900,7 @@
     "moreApprovers": "+{{count}} more",
     "reasonForAdding": "Reason for adding approver(s)",
     "typeYourReason": "Type your reason here",
-    "infoMessage": "You are adding additional approver(s) to the report. The report will go the them at the end and include all the expenses.",
-    "moreEllipsis": ", ..."
+    "infoMessage": "You are adding additional approver(s) to the report. The report will go the them at the end and include all the expenses."
   },
   "fyViewAttachment": {
     "mapPreview": "Map preview",
@@ -1049,14 +1048,14 @@
     "expenses": " Expenses"
   },
   "dashboardOptIn": {
-    "skipOptInMessage": "<div>\n              <p>You can't send receipts and expense details via text message if you don't opt in.</p>\n              <p>Are you sure you want to skip?<p>  \n            </div>",
+    "skipOptInMessage": "<div> <p>You can't send receipts and expense details via text message if you don't opt in.</p> <p>Are you sure you want to skip?<p>  </div>",
     "areYouSure": "Are you sure?",
     "yesSkipOptIn": "Yes, skip opt in",
     "noGoBack": "No, go back",
     "skip": "Skip",
     "altOptInToTextReceipts": "Opt in to text receipts",
     "tryAI": "Try AI",
-    "description": "Text receipts for <span class=\"dashboard-opt-in__instant-text-decoration\">instant</span>\n      <span class=\"dashboard-opt-in__underline\"></span> expense submission"
+    "description": "Text receipts for <span class=\"dashboard-opt-in__instant-text-decoration\">instant</span> <span class=\"dashboard-opt-in__underline\"></span> expense submission"
   },
   "fySelectCommuteDetails": {
     "saving": "Saving",

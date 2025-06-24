@@ -91,16 +91,12 @@ describe('CardDetailComponent', () => {
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     translocoService.translate.and.callFake((key: any, params?: any) => {
       const translations: { [key: string]: string } = {
-        'cardDetail.incompleteCardExpense': '{{count}} incomplete expenses',
-        'cardDetail.completeCardExpense': '{{count}} complete expenses',
+        'cardDetail.incompleteCardExpenseSingular': 'Incomplete card expense',
+        'cardDetail.incompleteCardExpensePlural': 'Incomplete card expenses',
+        'cardDetail.completeCardExpenseSingular': 'Complete card expense',
+        'cardDetail.completeCardExpensePlural': 'Complete card expenses',
       };
-      let translation = translations[key] || key;
-      if (params) {
-        Object.keys(params).forEach((key) => {
-          translation = translation.replace(`{{${key}}}`, params[key]);
-        });
-      }
-      return translation;
+      return translations[key] || key;
     });
   }));
 

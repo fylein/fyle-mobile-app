@@ -66,7 +66,7 @@ export class AddApproversPopoverComponent {
         .slice(0, 3)
         .join(', ');
       if (this.selectedApproversList && this.selectedApproversList.length > 3) {
-        this.displayValue = this.displayValue + this.translocoService.translate('addApproversPopover.moreEllipsis');
+        this.displayValue = this.displayValue + ', ...';
       }
     }
   }

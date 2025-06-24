@@ -21,7 +21,7 @@ export class FyHeaderComponent {
   @Output() multiselectBack = new EventEmitter();
 
   constructor(private translocoService: TranslocoService) {
-    this.title = this.translocoService.translate('fyHeader.fyle');
+    this.title = this.title || this.translocoService.translate('fyHeader.fyle');
   }
 
   get HeaderState(): typeof HeaderState {

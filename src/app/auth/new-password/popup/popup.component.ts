@@ -21,7 +21,7 @@ export class PopupComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.header = this.translocoService.translate('popup.errorHeader');
+    this.header = this.header || this.translocoService.translate('popup.errorHeader');
   }
 
   closeClicked(): void {
