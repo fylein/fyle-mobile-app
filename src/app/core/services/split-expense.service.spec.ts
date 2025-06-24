@@ -186,7 +186,7 @@ describe('SplitExpenseService', () => {
     spyOn(splitExpenseService, 'createTxns').and.returnValue(of(splitTxn2));
 
     splitExpenseService
-      .createSplitTxns(createSourceTxn, createSourceTxn.amount, splitTxn2, expenseFieldResponse)
+      .createSplitTxns(createSourceTxn, createSourceTxn.amount, splitTxn2, expenseFieldResponse, 'USD')
       .subscribe((res) => {
         expect(res).toEqual(splitTxn2);
         expect(splitExpenseService.createTxns).toHaveBeenCalledOnceWith(
@@ -195,7 +195,8 @@ describe('SplitExpenseService', () => {
           createSourceTxn.split_group_user_amount,
           createSourceTxn.split_group_id,
           splitTxn2.length,
-          expenseFieldResponse
+          expenseFieldResponse,
+          'USD'
         );
         done();
       });
@@ -207,19 +208,22 @@ describe('SplitExpenseService', () => {
 
     const amount = 16428.56;
 
-    splitExpenseService.createSplitTxns(createSourceTxn2, amount, splitTxn2, expenseFieldResponse).subscribe((res) => {
-      expect(res).toEqual(splitTxn2);
-      expect(utilityService.generateRandomString).toHaveBeenCalledOnceWith(10);
-      expect(splitExpenseService.createTxns).toHaveBeenCalledOnceWith(
-        createSourceTxn2,
-        splitTxn2,
-        amount,
-        'tx0AGAoeQfQX',
-        splitTxn2.length,
-        expenseFieldResponse
-      );
-      done();
-    });
+    splitExpenseService
+      .createSplitTxns(createSourceTxn2, amount, splitTxn2, expenseFieldResponse, 'USD')
+      .subscribe((res) => {
+        expect(res).toEqual(splitTxn2);
+        expect(utilityService.generateRandomString).toHaveBeenCalledOnceWith(10);
+        expect(splitExpenseService.createTxns).toHaveBeenCalledOnceWith(
+          createSourceTxn2,
+          splitTxn2,
+          amount,
+          'tx0AGAoeQfQX',
+          splitTxn2.length,
+          expenseFieldResponse,
+          'USD'
+        );
+        done();
+      });
   });
 
   describe('createTxns(): ', () => {
@@ -241,7 +245,7 @@ describe('SplitExpenseService', () => {
       mockSplitExpenses[0].org_category_id = undefined;
       mockSplitExpenses[0].custom_properties = undefined;
       splitExpenseService
-        .createTxns(mockTxn, mockSplitExpenses, 100, 'txOJVaaPxo9O', 100, expenseFieldResponse)
+        .createTxns(mockTxn, mockSplitExpenses, 100, 'txOJVaaPxo9O', 100, expenseFieldResponse, 'USD')
         .subscribe((expectedTxnRes) => {
           expect(expectedTxnRes).toEqual([txnData7, txnData8]);
         });
@@ -271,7 +275,7 @@ describe('SplitExpenseService', () => {
       mockTxn.orig_currency = undefined;
       const mockSplitExpenses = cloneDeep(txnList);
       splitExpenseService
-        .createTxns(mockTxn, mockSplitExpenses, 100, 'txOJVaaPxo9O', 100, expenseFieldResponse)
+        .createTxns(mockTxn, mockSplitExpenses, 100, 'txOJVaaPxo9O', 100, expenseFieldResponse, 'USD')
         .subscribe((expectedTxnRes) => {
           expect(expectedTxnRes).toEqual([txnData9, txnData10]);
         });
@@ -301,8 +305,11 @@ describe('SplitExpenseService', () => {
       const mockTxn = cloneDeep(txnData5);
       mockTxn.source = undefined;
       const mockSplitExpenses = cloneDeep(txnList);
+      spyOn(splitExpenseService as any, 'normalizeForeignCurrencySplitAmounts').and.callFake(
+        (sourceTxn, transactions, homeCurrency) => transactions
+      );
       splitExpenseService
-        .createTxns(mockTxn, mockSplitExpenses, 100, 'txOJVaaPxo9O', 100, expenseFieldResponse)
+        .createTxns(mockTxn, mockSplitExpenses, 100, 'txOJVaaPxo9O', 100, expenseFieldResponse, 'USD')
         .subscribe((expectedTxnRes) => {
           expect(expectedTxnRes).toEqual([txnData11, txnData12]);
         });
