@@ -955,13 +955,8 @@ describe('TransactionService', () => {
 
   it('getTxnAccount(): should get the default txn account', (done) => {
     orgSettingsService.get.and.returnValue(of(orgSettingsData));
-<<<<<<< FYLE-86cz37q5m
     accountsService.getMyAccounts.and.returnValue(of(accountsData));
-    orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
-=======
-    accountsService.getEMyAccounts.and.returnValue(of(accountsData));
     platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
->>>>>>> master
     paymentModesService.getDefaultAccount.and.returnValue(of(accountsData[0]));
 
     const expectedResult = {
