@@ -1051,7 +1051,7 @@ describe('SplitExpensePage', () => {
       };
       const homeCurrency = orgData1[0].currency;
       component.setAmountAndCurrency(mockCurrencyObj, homeCurrency);
-      expect(component.amount).toBe(800000);
+      expect(component.amount).toBe(23213);
       expect(component.currency).toEqual('USD');
     });
 

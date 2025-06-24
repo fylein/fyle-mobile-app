@@ -689,7 +689,13 @@ export class AddEditExpensePage implements OnInit {
         const originalSourceAccountId = etxn && etxn.tx && etxn.tx.source_account_id;
         const originalAdvanceWalletId = etxn && etxn.tx && etxn.tx.advance_wallet_id;
         let isPaymentModeInvalid = false;
-        if (!isAdvanceWalletEnabled && paymentMode && paymentMode.acc && paymentMode.acc.type === AccountType.ADVANCE) {
+
+        // Only check balance for advance wallets
+        const isAdvanceWallet =
+          paymentMode?.id && isAdvanceWalletEnabled && paymentMode.type === 'PERSONAL_ADVANCE_ACCOUNT';
+        const isAdvanceAccount = paymentMode?.acc?.type === AccountType.ADVANCE && !isAdvanceWalletEnabled;
+
+        if (isAdvanceAccount) {
           if (paymentMode.acc.id !== originalSourceAccountId) {
             isPaymentModeInvalid =
               paymentMode.acc.tentative_balance_amount < (formValues.currencyObj && formValues.currencyObj.amount);
@@ -700,7 +706,7 @@ export class AddEditExpensePage implements OnInit {
           }
         }
 
-        if (isAdvanceWalletEnabled && paymentMode?.id) {
+        if (isAdvanceWallet) {
           if (etxn.tx.id && paymentMode.id === originalAdvanceWalletId) {
             isPaymentModeInvalid =
               paymentMode.balance_amount + etxn.tx.amount < (formValues.currencyObj && formValues.currencyObj.amount);
@@ -710,7 +716,8 @@ export class AddEditExpensePage implements OnInit {
           }
         }
 
-        if (isPaymentModeInvalid) {
+        // Only show toast for advance wallets/accounts
+        if (isPaymentModeInvalid && (isAdvanceWallet || isAdvanceAccount)) {
           this.paymentModesService.showInvalidPaymentModeToast();
         }
         return isPaymentModeInvalid;
@@ -1146,7 +1153,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   setupBalanceFlag(): void {
-    const accounts$ = this.accountsService.getEMyAccounts();
+    const accounts$ = this.accountsService.getMyAccounts();
     const advanceWallets$ = this.advanceWalletsService.getAllAdvanceWallets();
     const orgSettings$ = this.orgSettingsService.get();
     this.isBalanceAvailableInAnyAdvanceAccount$ = this.fg.controls.paymentMode.valueChanges.pipe(
@@ -1176,7 +1183,7 @@ export class AddEditExpensePage implements OnInit {
 
   getPaymentModes(): Observable<AccountOption[]> {
     return forkJoin({
-      accounts: this.accountsService.getEMyAccounts(),
+      accounts: this.accountsService.getMyAccounts(),
       advanceWallets: this.advanceWalletsService.getAllAdvanceWallets(),
       orgSettings: this.orgSettingsService.get(),
       etxn: this.etxn$,
@@ -3092,7 +3099,7 @@ export class AddEditExpensePage implements OnInit {
     this.employeeSettings$ = this.platformEmployeeSettingsService.get().pipe(shareReplay(1));
 
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
-    const accounts$ = this.accountsService.getEMyAccounts();
+    const accounts$ = this.accountsService.getMyAccounts();
 
     this.isRTFEnabled$ = orgSettings$.pipe(
       map(
@@ -3603,6 +3610,7 @@ export class AddEditExpensePage implements OnInit {
         }
 
         const category_id = this.getOrgCategoryID() || unspecifiedCategory.id;
+
         //TODO: Add dependent fields to custom_properties array once APIs are available
         return {
           tx: {

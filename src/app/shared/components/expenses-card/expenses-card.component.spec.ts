@@ -375,6 +375,7 @@ describe('ExpensesCardComponent', () => {
     it('should show payment mode icon if it is a personal expense and is reimbersable', () => {
       component.expense = {
         ...expenseData1,
+        source_account_type: 'PERSONAL_CASH_ACCOUNT',
         tx_skip_reimbursement: false,
       };
       component.canShowPaymentModeIcon();

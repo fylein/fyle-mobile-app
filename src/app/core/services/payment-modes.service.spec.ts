@@ -7,7 +7,10 @@ import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack
 import { SnackbarPropertiesService } from './snackbar-properties.service';
 import { of } from 'rxjs';
 import { orgSettingsRes, orgSettingsParamWoCCC } from '../mock-data/org-settings.data';
-import { multiplePaymentModesData } from '../test-data/accounts.service.spec.data';
+import {
+  multiplePaymentModesData,
+  multiplePaymentModesWithCompanyAccData,
+} from '../test-data/accounts.service.spec.data';
 import { AccountType } from '../enums/account-type.enum';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import {
@@ -126,12 +129,12 @@ describe('PaymentModesService', () => {
       );
 
       paymentModesService
-        .getDefaultAccount(orgSettingsRes, multiplePaymentModesData, employeeSettingsWoPaymentModes)
+        .getDefaultAccount(orgSettingsRes, multiplePaymentModesWithCompanyAccData, employeeSettingsWoPaymentModes)
         .subscribe((res) => {
           expect(res).toBeUndefined();
           expect(platformEmployeeSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
           expect(accountService.setAccountProperties).toHaveBeenCalledOnceWith(
-            multiplePaymentModesData[1],
+            multiplePaymentModesWithCompanyAccData[0],
             AccountType.CCC,
             false
           );
