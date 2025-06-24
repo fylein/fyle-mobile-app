@@ -27,6 +27,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { CameraService } from 'src/app/core/services/camera.service';
 import { CameraPreviewService } from 'src/app/core/services/camera-preview.service';
 import { ReceiptPreviewData } from 'src/app/core/models/receipt-preview-data.model';
+import { MAX_FILE_SIZE } from 'src/app/core/constants';
 
 // eslint-disable-next-line custom-rules/prefer-semantic-extension-name
 type Image = Partial<{
@@ -478,10 +479,14 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       .subscribe((receiptsFromGallery) => {
         receiptsFromGallery.forEach((receiptBase64) => {
           const receiptBase64Data = 'data:image/jpeg;base64,' + receiptBase64;
-          this.base64ImagesWithSource.push({
-            source: 'MOBILE_DASHCAM_GALLERY',
-            base64Image: receiptBase64Data,
-          });
+          if (this.calculateImageSize(receiptBase64Data) < MAX_FILE_SIZE) {
+            this.base64ImagesWithSource.push({
+              source: 'MOBILE_DASHCAM_GALLERY',
+              base64Image: receiptBase64Data,
+            });
+          } else {
+            this.showSizeLimitExceededPopover();
+          }
         });
         this.openReceiptPreviewModal();
       });
@@ -489,6 +494,28 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     receiptsFromGallery$
       .pipe(filter((receiptsFromGallery: string[]) => !receiptsFromGallery.length))
       .subscribe(() => this.setUpAndStartCamera());
+  }
+
+  calculateImageSize(base64Image: string): number {
+    const stringLength = base64Image.length - 'data:image/jpeg;base64,'.length;
+    const sizeInBytes = 4 * Math.ceil(stringLength / 3) * 0.5624896334383812;
+    return sizeInBytes;
+  }
+
+  async showSizeLimitExceededPopover(): Promise<void> {
+    const sizeLimitExceededPopover = await this.popoverController.create({
+      component: PopupAlertComponent,
+      componentProps: {
+        title: 'Size limit exceeded',
+        message: 'The uploaded file is greater than 5MB in size. Please reduce the file size and try again.',
+        primaryCta: {
+          text: 'OK',
+        },
+      },
+      cssClass: 'pop-up-in-center',
+    });
+
+    await sizeLimitExceededPopover.present();
   }
 
   ngAfterViewInit(): void {
