@@ -494,7 +494,7 @@ export function TestCases2(getTestBed) {
       it('should call orgSettingsService.get, employeeSettingsService.get, perDiemService.getRates and reportService.getAutoSubmissionReportName once and update isNewReportsFlowEnabled', () => {
         orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithSimplifiedReport));
         component.ionViewWillEnter();
-        expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
+        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
         expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
         expect(perDiemService.getRates).toHaveBeenCalledTimes(1);
         expect(reportService.getAutoSubmissionReportName).toHaveBeenCalledTimes(1);
