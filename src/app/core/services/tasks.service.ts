@@ -568,14 +568,14 @@ export class TasksService {
     const task = [
       {
         hideAmount: true,
-        header: isInvalidUSNumber ? 'Update phone number to opt in to text receipts' : 'Opt in to text receipts',
+        header: isInvalidUSNumber ? 'Update phone number to opt-in to text receipts' : 'Opt-in to text receipts',
         subheader: isInvalidUSNumber
           ? 'Add a +1 country code to your mobile number to receive text message receipts.'
           : 'Opt-in to activate text messages for instant expense submission',
         icon: TaskIcon.STARS,
         ctas: [
           {
-            content: isInvalidUSNumber ? 'Update and Opt in' : 'Opt in',
+            content: isInvalidUSNumber ? 'Update and Opt-in' : 'Opt-in',
             event: TASKEVENT.mobileNumberVerification,
           },
         ],

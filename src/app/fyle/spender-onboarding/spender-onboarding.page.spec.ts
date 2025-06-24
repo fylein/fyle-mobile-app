@@ -181,7 +181,7 @@ describe('SpenderOnboardingPage', () => {
   });
 
   describe('skipOnboardingStep(): ', () => {
-    it('should set onboarding as complete if mobile number is verified before navigating to opt in', fakeAsync(() => {
+    it('should set onboarding as complete if mobile number is verified before navigating to opt-in', fakeAsync(() => {
       component.currentStep = OnboardingStep.CONNECT_CARD;
       fixture.detectChanges();
 

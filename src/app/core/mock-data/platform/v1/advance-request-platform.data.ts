@@ -76,6 +76,8 @@ export const advanceRequestPlatform: PlatformApiResponse<AdvanceRequestPlatform[
           id: 'usJZ9bgfNB5n',
         },
         user_id: 'usJZ9bgfNB5n',
+        is_mobile_verified: true,
+        sms_opt_out_source: null,
       },
       last_approved_at: new Date('2020-06-14T13:14:55.201598+00:00'),
       custom_fields: [

@@ -141,6 +141,8 @@ export const platformAdvanceData: PlatformApiResponse<AdvancesPlatform[]> = deep
           id: 'usvKA4X8Ugcr',
         },
         user_id: 'usvKA4X8Ugcr',
+        is_mobile_verified: true,
+        sms_opt_out_source: null,
       },
       employee_id: 'ouX8dwsbLCLv',
       foreign_amount: null,
