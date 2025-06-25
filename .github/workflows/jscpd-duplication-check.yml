@@ -16,8 +16,8 @@ jobs:
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
     with:
-      duplication_threshold: 12
+      duplication_threshold: 11
       reviewer_1: 'mvaishnavi'
       reviewer_2: 'Julias0'
       tech_stack: 'Angular'
-      command_to_run: 'npx jscpd --ignore "**/node_modules/**,**/*.data.ts,**/*.spec.ts" --output report --reporters json --silent'
+      command_to_run: 'npx jscpd --ignore " "**/node_modules/**,**/*.spec.ts,**/*.data.ts,**/*.json,**/mock-data/**"" --output report --reporters json --silent'
