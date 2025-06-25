@@ -20,7 +20,7 @@ import { DataTransformService } from './data-transform.service';
 import { DateService } from './date.service';
 import { FileService } from './file.service';
 import { OrgSettingsService } from './org-settings.service';
-import { OrgUserSettingsService } from './org-user-settings.service';
+import { PlatformEmployeeSettingsService } from './platform/v1/spender/employee-settings.service';
 import { PaymentModesService } from './payment-modes.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { StorageService } from './storage.service';
@@ -42,7 +42,6 @@ import {
 } from '../mock-data/transaction.data';
 import { fileObjectData1 } from '../mock-data/file-object.data';
 import { AccountType } from '../enums/account-type.enum';
-import { orgUserSettingsData, orgUserSettingsData2, orgUserSettingsData3 } from '../mock-data/org-user-settings.data';
 import { orgSettingsData } from '../test-data/org-settings.service.spec.data';
 import { accountsData } from '../test-data/accounts.service.spec.data';
 import { currencySummaryData } from '../mock-data/currency-summary.data';
@@ -60,6 +59,7 @@ import { expensesCacheBuster$ } from '../cache-buster/expense-cache-buster';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { expenseData } from '../mock-data/platform/v1/expense.data';
 import { TrackingService } from './tracking.service';
+import { employeeSettingsData } from '../mock-data/employee-settings.data';
 import { TranslocoService } from '@jsverse/transloco';
 describe('TransactionService', () => {
   let transactionService: TransactionService;
@@ -67,7 +67,7 @@ describe('TransactionService', () => {
   let apiService: jasmine.SpyObj<ApiService>;
   let dataTransformService: jasmine.SpyObj<DataTransformService>;
   let dateService: jasmine.SpyObj<DateService>;
-  let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
+  let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
   let timezoneService: jasmine.SpyObj<TimezoneService>;
   let utilityService: jasmine.SpyObj<UtilityService>;
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
@@ -91,7 +91,7 @@ describe('TransactionService', () => {
       'getLastMonthRange',
       'getUTCMidAfternoonDate',
     ]);
-    const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
+    const platformEmployeeSettingsServiceSpy = jasmine.createSpyObj('PlatformEmployeeSettingsService', ['get']);
     const timezoneServiceSpy = jasmine.createSpyObj('TimezoneService', [
       'convertAllDatesToProperLocale',
       'convertToUtc',
@@ -103,7 +103,7 @@ describe('TransactionService', () => {
     const userEventServiceSpy = jasmine.createSpyObj('UserEventService', ['clearTaskCache']);
     const paymentModesServiceSpy = jasmine.createSpyObj('PaymentModesService', ['getDefaultAccount']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
-    const accountsServiceSpy = jasmine.createSpyObj('AccountsService', ['getEMyAccounts']);
+    const accountsServiceSpy = jasmine.createSpyObj('AccountsService', ['getMyAccounts']);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['transformTo', 'post', 'createFromFile']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['patchExpensesError']);
     const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
@@ -169,8 +169,8 @@ describe('TransactionService', () => {
           useValue: orgSettingsServiceSpy,
         },
         {
-          provide: OrgUserSettingsService,
-          useValue: orgUserSettingsServiceSpy,
+          provide: PlatformEmployeeSettingsService,
+          useValue: platformEmployeeSettingsServiceSpy,
         },
         {
           provide: PaymentModesService,
@@ -224,7 +224,9 @@ describe('TransactionService', () => {
     apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
     dataTransformService = TestBed.inject(DataTransformService) as jasmine.SpyObj<DataTransformService>;
     dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
-    orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
+    platformEmployeeSettingsService = TestBed.inject(
+      PlatformEmployeeSettingsService
+    ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     timezoneService = TestBed.inject(TimezoneService) as jasmine.SpyObj<TimezoneService>;
     utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
     spenderPlatformV1ApiService = TestBed.inject(
@@ -996,8 +998,8 @@ describe('TransactionService', () => {
 
   it('getTxnAccount(): should get the default txn account', (done) => {
     orgSettingsService.get.and.returnValue(of(orgSettingsData));
-    accountsService.getEMyAccounts.and.returnValue(of(accountsData));
-    orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+    accountsService.getMyAccounts.and.returnValue(of(accountsData));
+    platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
     paymentModesService.getDefaultAccount.and.returnValue(of(accountsData[0]));
 
     const expectedResult = {
@@ -1011,17 +1013,17 @@ describe('TransactionService', () => {
       expect(paymentModesService.getDefaultAccount).toHaveBeenCalledOnceWith(
         orgSettingsData,
         accountsData,
-        orgUserSettingsData
+        employeeSettingsData
       );
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-      expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
-      expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+      expect(accountsService.getMyAccounts).toHaveBeenCalledTimes(1);
+      expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
       done();
     });
   });
 
   it('getPersonalAccount(): should get the personal account', (done) => {
-    accountsService.getEMyAccounts.and.returnValue(of(accountsData));
+    accountsService.getMyAccounts.and.returnValue(of(accountsData));
 
     const expectedResult = {
       source_account_id: 'acc5APeygFjRd',
@@ -1030,7 +1032,7 @@ describe('TransactionService', () => {
     // @ts-ignore
     transactionService.getPersonalAccount().subscribe((res) => {
       expect(res).toEqual(expectedResult);
-      expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+      expect(accountsService.getMyAccounts).toHaveBeenCalledTimes(1);
       done();
     });
   });
@@ -1094,7 +1096,7 @@ describe('TransactionService', () => {
   });
 
   it('checkPolicy(): should check policy', (done) => {
-    orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData2));
+    platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
     spenderPlatformV1ApiService.post.and.returnValue(of(expensePolicyData));
 
     const mockPlatformExpense = cloneDeep(platformPolicyExpenseData1);
@@ -1103,7 +1105,7 @@ describe('TransactionService', () => {
       expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/expenses/check_policies', {
         data: mockPlatformExpense,
       });
-      expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+      expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
       done();
     });
   });
@@ -1142,8 +1144,8 @@ describe('TransactionService', () => {
   });
 
   it('upsert(): should upsert transaction', (done) => {
-    const offset = orgUserSettingsData3.locale.offset;
-    orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData3));
+    const offset = employeeSettingsData.locale.offset;
+    platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
     // @ts-ignore
     spyOn(transactionService, 'getTxnAccount').and.returnValue(of(txnAccountData));
     // @ts-ignore
@@ -1159,7 +1161,7 @@ describe('TransactionService', () => {
       expect(res).toEqual(txnData4);
       expect(expensesService.transformTo).toHaveBeenCalledOnceWith(txnDataPayload);
       expect(expensesService.post).toHaveBeenCalledOnceWith(transformedExpensePayload);
-      expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+      expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
       expect(timezoneService.convertAllDatesToProperLocale).toHaveBeenCalledOnceWith(txnCustomPropertiesData6, offset);
       expect(timezoneService.convertToUtc).toHaveBeenCalledTimes(2);
       // @ts-ignore
@@ -1171,8 +1173,8 @@ describe('TransactionService', () => {
   });
 
   it('upsert(): should upsert transaction', (done) => {
-    const offset = orgUserSettingsData3.locale.offset;
-    orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData3));
+    const offset = employeeSettingsData.locale.offset;
+    platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
     // @ts-ignore
     spyOn(transactionService, 'getTxnAccount').and.returnValue(of(txnAccountData));
     // @ts-ignore
@@ -1188,7 +1190,7 @@ describe('TransactionService', () => {
       expect(res).toEqual(txnData4);
       expect(expensesService.transformTo).toHaveBeenCalledOnceWith(txnDataPayload);
       expect(expensesService.post).toHaveBeenCalledOnceWith(transformedExpensePayload);
-      expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+      expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
       expect(timezoneService.convertAllDatesToProperLocale).toHaveBeenCalledOnceWith(txnCustomPropertiesData6, offset);
       expect(timezoneService.convertToUtc).toHaveBeenCalledTimes(2);
       // @ts-ignore

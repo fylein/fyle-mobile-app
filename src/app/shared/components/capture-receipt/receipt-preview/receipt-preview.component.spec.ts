@@ -66,11 +66,7 @@ describe('ReceiptPreviewComponent', () => {
       'getPictures',
       'requestReadPermission',
     ]);
-    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
-      'cropReceipt',
-      'rotateReceipt',
-      'receiptSavedRotation',
-    ]);
+    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['cropReceipt', 'eventTrack']);
     const swiperSpy = jasmine.createSpyObj('SwiperStubComponent', ['update', 'slidePrev', 'slideNext']);
     const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
       config: {

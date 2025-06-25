@@ -8,7 +8,7 @@ import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { OrgService } from 'src/app/core/services/org.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CaptureReceiptComponent } from './capture-receipt.component';
@@ -18,7 +18,6 @@ import { DEVICE_PLATFORM } from 'src/app/constants';
 import { RouterTestingModule } from '@angular/router/testing';
 import { CameraPreviewComponent } from './camera-preview/camera-preview.component';
 import { of } from 'rxjs';
-import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import { ReceiptPreviewComponent } from './receipt-preview/receipt-preview.component';
 import { PopupAlertComponent } from '../popup-alert/popup-alert.component';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
@@ -29,6 +28,7 @@ import { CameraService } from 'src/app/core/services/camera.service';
 import { CameraPreviewService } from 'src/app/core/services/camera-preview.service';
 import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
 import { permissionDeniedPopoverParams } from 'src/app/core/mock-data/modal-controller.data';
+import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
 
 class MatSnackBarStub {
   openFromComponent(props: any) {
@@ -51,7 +51,7 @@ describe('CaptureReceiptComponent', () => {
   let popoverController: jasmine.SpyObj<PopoverController>;
   let loaderService: jasmine.SpyObj<LoaderService>;
   let orgService: jasmine.SpyObj<OrgService>;
-  let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
+  let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
   let matSnackBar: jasmine.SpyObj<MatSnackBar>;
   let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
   let authService: jasmine.SpyObj<AuthService>;
@@ -108,7 +108,7 @@ describe('CaptureReceiptComponent', () => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const orgServiceSpy = jasmine.createSpyObj('OrgService', ['getOrgs']);
-    const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
+    const platformEmployeeSettingsServiceSpy = jasmine.createSpyObj('PlatformEmployeeSettingsService', ['get']);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesServiceSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     const performanceSpy = jasmine.createSpyObj('peformance', ['getEntriesByName', 'mark', 'measure']);
@@ -162,8 +162,8 @@ describe('CaptureReceiptComponent', () => {
           useValue: orgServiceSpy,
         },
         {
-          provide: OrgUserSettingsService,
-          useValue: orgUserSettingsServiceSpy,
+          provide: PlatformEmployeeSettingsService,
+          useValue: platformEmployeeSettingsServiceSpy,
         },
         {
           provide: MatSnackBar,
@@ -209,7 +209,9 @@ describe('CaptureReceiptComponent', () => {
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
     orgService = TestBed.inject(OrgService) as jasmine.SpyObj<OrgService>;
-    orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
+    platformEmployeeSettingsService = TestBed.inject(
+      PlatformEmployeeSettingsService
+    ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
     snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
@@ -219,7 +221,7 @@ describe('CaptureReceiptComponent', () => {
     component.cameraPreview = cameraPreviewSpy;
     networkService.isOnline.and.returnValue(of(true));
     orgService.getOrgs.and.returnValue(of(orgData1));
-    orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+    platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
     fixture.detectChanges();
 
     translocoService.translate.and.callFake((key: any, params?: any) => {
@@ -398,7 +400,7 @@ describe('CaptureReceiptComponent', () => {
 
   describe('navigateToExpenseForm():', () => {
     beforeEach(() => {
-      orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+      platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
       component.base64ImagesWithSource = [
         {
           source: '2023-02-23/orNVthTo2Zyo/receipts/fi1w2IE6JeqS.000.jpeg',
@@ -411,7 +413,7 @@ describe('CaptureReceiptComponent', () => {
 
     it('should navigate to expense form', () => {
       component.navigateToExpenseForm();
-      expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+      expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
       expect(router.navigate).toHaveBeenCalledOnceWith([
         '/',
         'enterprise',
@@ -426,7 +428,7 @@ describe('CaptureReceiptComponent', () => {
     it('should navigate to expense form with dataUrl params as undefined if base64ImagesWithSource is undefined', () => {
       component.base64ImagesWithSource = [];
       component.navigateToExpenseForm();
-      expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+      expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
       expect(router.navigate).toHaveBeenCalledOnceWith([
         '/',
         'enterprise',

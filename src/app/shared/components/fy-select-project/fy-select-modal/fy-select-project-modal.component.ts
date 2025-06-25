@@ -9,11 +9,11 @@ import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-loc
 import { ProjectV2 } from 'src/app/core/models/v2/project-v2.model';
 import { UtilityService } from 'src/app/core/services/utility.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
-import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { ProjectOption } from 'src/app/core/models/project-options.model';
 import { OrgCategory } from 'src/app/core/models/v1/org-category.model';
 import { CategoriesService } from 'src/app/core/services/categories.service';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
+import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
 import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
@@ -57,7 +57,7 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
     private authService: AuthService,
     private recentLocalStorageItemsService: RecentLocalStorageItemsService,
     private utilityService: UtilityService,
-    private orgUserSettingsService: OrgUserSettingsService,
+    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
     private orgSettingsService: OrgSettingsService,
     private categoriesService: CategoriesService,
     private translocoService: TranslocoService
@@ -70,11 +70,11 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
     // More details about CDR: https://angular.io/api/core/ChangeDetectorRef
     this.cdr.detectChanges();
     const defaultProject$ = forkJoin({
-      orgUserSettings: this.orgUserSettingsService.get(),
+      employeeSettings: this.platformEmployeeSettingsService.get(),
       activeCategories: this.activeCategories$,
     }).pipe(
-      switchMap(({ orgUserSettings, activeCategories }) => {
-        const defaultProjectId = orgUserSettings?.preferences?.default_project_id;
+      switchMap(({ employeeSettings, activeCategories }) => {
+        const defaultProjectId = employeeSettings?.default_project_id;
         if (defaultProjectId) {
           return this.projectsService.getbyId(defaultProjectId, activeCategories);
         } else {
@@ -86,9 +86,9 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
       switchMap((orgSettings) => {
         const allowedProjectIds$ = iif(
           () => orgSettings.advanced_projects.enable_individual_projects,
-          this.orgUserSettingsService
+          this.platformEmployeeSettingsService
             .get()
-            .pipe(map((orgUserSettings: OrgUserSettings) => orgUserSettings.project_ids || [])),
+            .pipe(map((employeeSettings: EmployeeSettings) => employeeSettings.project_ids || [])),
           of(null)
         );
 

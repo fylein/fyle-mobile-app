@@ -8,7 +8,6 @@ import { CurrencyService } from 'src/app/core/services/currency.service';
 import { DashboardService } from '../dashboard.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { of } from 'rxjs';
 import {
@@ -16,7 +15,7 @@ import {
   orgSettingsCCCEnabled,
   orgSettingsRTFDisabled,
 } from 'src/app/core/mock-data/org-settings.data';
-import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
+import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
 import { emptyCCCStats, mastercardCCCStats } from 'src/app/core/mock-data/ccc-expense.details.data';
 import { mastercardRTFCard } from 'src/app/core/mock-data/platform-corporate-card.data';
 import { By } from '@angular/platform-browser';
@@ -25,6 +24,7 @@ import { AddCorporateCardComponent } from '../../manage-corporate-cards/add-corp
 import { CardAddedComponent } from '../../manage-corporate-cards/card-added/card-added.component';
 import { VirtualCardsService } from 'src/app/core/services/virtual-cards.service';
 import { virtualCardCombinedResponse } from 'src/app/core/mock-data/virtual-card-combined-response.data';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 
 @Component({
@@ -61,7 +61,7 @@ describe('CardStatsComponent', () => {
   let dashboardService: jasmine.SpyObj<DashboardService>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let networkService: jasmine.SpyObj<NetworkService>;
-  let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
+  let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
   let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
   let popoverController: jasmine.SpyObj<PopoverController>;
   let virtualCardsService: jasmine.SpyObj<VirtualCardsService>;
@@ -72,7 +72,7 @@ describe('CardStatsComponent', () => {
     const dashboardServiceSpy = jasmine.createSpyObj('DashboardService', ['getCCCDetails']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
-    const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
+    const platformEmployeeSettingsServiceSpy = jasmine.createSpyObj('PlatformEmployeeSettingsService', ['get']);
     const corporateCreditCardExpenseServiceSpy = jasmine.createSpyObj('CorporateCreditCardExpenseService', [
       'getCorporateCards',
       'getPlatformCorporateCardDetails',
@@ -108,8 +108,8 @@ describe('CardStatsComponent', () => {
           useValue: networkServiceSpy,
         },
         {
-          provide: OrgUserSettingsService,
-          useValue: orgUserSettingsServiceSpy,
+          provide: PlatformEmployeeSettingsService,
+          useValue: platformEmployeeSettingsServiceSpy,
         },
         {
           provide: CorporateCreditCardExpenseService,
@@ -137,7 +137,9 @@ describe('CardStatsComponent', () => {
     dashboardService = TestBed.inject(DashboardService) as jasmine.SpyObj<DashboardService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
-    orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
+    platformEmployeeSettingsService = TestBed.inject(
+      PlatformEmployeeSettingsService
+    ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     virtualCardsService = TestBed.inject(VirtualCardsService) as jasmine.SpyObj<VirtualCardsService>;
     corporateCreditCardExpenseService = TestBed.inject(
       CorporateCreditCardExpenseService
@@ -164,7 +166,7 @@ describe('CardStatsComponent', () => {
     // Default return values
     currencyService.getHomeCurrency.and.returnValue(of('USD'));
     orgSettingsService.get.and.returnValue(of(orgSettingsCCCEnabled));
-    orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+    platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
     corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of(cards));
     dashboardService.getCCCDetails.and.returnValue(of(cardStats));
     corporateCreditCardExpenseService.getPlatformCorporateCardDetails.and.returnValue(cardDetails);

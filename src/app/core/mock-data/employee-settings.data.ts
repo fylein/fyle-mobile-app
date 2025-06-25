@@ -1,0 +1,478 @@
+import deepFreeze from 'deep-freeze-strict';
+
+import { AccountType } from '../enums/account-type.enum';
+import { EmployeeSettings } from '../models/employee-settings.model';
+
+export const employeeSettingsData: EmployeeSettings = deepFreeze({
+  id: 'ousS9MgDNQ6NB',
+  created_at: new Date('2018-02-01T02:32:25.275Z'),
+  updated_at: new Date('2023-01-23T09:47:32.266Z'),
+  employee_id: 'ouX8dwsbLCLv',
+  org_id: 'ouX8dwsbLCLv',
+  cost_center_ids: [13792, 13793, 13794, 14018, 13795, 13995, 9493, 9494, 13785, 13787, 13788, 13789, 13790, 13791],
+  project_ids: [290054, 316444, 316446, 149230, 316442, 316443],
+  per_diem_rate_ids: [606, 621, 634, 639, 1642, 2618, 3932, 508, 5017, 5465, 5812, 5814, 5835, 510, 5777, 5419],
+  mileage_settings: {
+    mileage_rate_labels: ['new policy test', 'test 2'],
+    annual_mileage_two_wheeler: 0,
+    annual_mileage_four_wheeler: 0,
+    annual_mileage_four_wheeler1: 0,
+    annual_mileage_four_wheeler3: 0,
+    annual_mileage_four_wheeler4: 0,
+    annual_mileage_bicycle: 0,
+    annual_mileage_electric_car: 0,
+  },
+  insta_fyle_settings: {
+    allowed: true,
+    enabled: true,
+    static_camera_overlay_enabled: true,
+    extract_fields: ['AMOUNT', 'CURRENCY', 'CATEGORY', 'TXN_DT'],
+  },
+  bulk_fyle_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  gmail_fmr_settings: {
+    allowed: false,
+    enabled: false,
+  },
+  notification_settings: {
+    email_allowed: true,
+    email_enabled: true,
+    email_unsubscribed_events: [
+      'ESTATUSES_CREATED_TXN',
+      'ETXNS_ADMIN_REMOVED',
+      'ETXNS_ADMIN_UPDATED',
+      'EREIMBURSEMENTS_COMPLETED',
+      'EADVANCE_REQUESTS_CREATED',
+      'EADVANCE_REQUESTS_UPDATED',
+      'EADVANCE_REQUESTS_INQUIRY',
+      'EADVANCE_REQUESTS_APPROVED',
+      'EADVANCES_CREATED',
+      'EADVANCE_REQUESTS_REJECTED',
+    ],
+    push_allowed: true,
+    push_enabled: true,
+    push_unsubscribed_events: ['ESTATUSES_CREATED_TXN', 'ESTATUSES_CREATED_RPT', 'EADVANCES_CREATED'],
+    notify_user: true,
+    notify_delegatee: true,
+  },
+  locale: {
+    timezone: 'America/North_Dakota/New_Salem',
+    abbreviation: 'CDT',
+    offset: '-05:00:00',
+  },
+  expense_form_autofills: {
+    allowed: true,
+    enabled: true,
+  },
+  data_extractor_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  in_app_chat_settings: {
+    allowed: true,
+    enabled: true,
+    restore_id: null,
+  },
+  payment_mode_settings: {
+    allowed: true,
+    enabled: true,
+    allowed_payment_modes: [AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY],
+  },
+  is_personal_cards_enabled: true,
+  default_project_id: 3943,
+  default_payment_mode: 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT',
+  default_vehicle_type: 'four_wheeler',
+});
+
+export const employeeSettingsWoPaymentModes: EmployeeSettings = deepFreeze({
+  ...employeeSettingsData,
+  payment_mode_settings: {
+    allowed: false,
+    enabled: false,
+    allowed_payment_modes: [AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY],
+  },
+});
+
+export const employeeSettingsWithAdvanceWallet: EmployeeSettings = deepFreeze({
+  ...employeeSettingsData,
+  payment_mode_settings: {
+    allowed: false,
+    enabled: false,
+    allowed_payment_modes: [AccountType.ADVANCE, AccountType.PERSONAL, AccountType.COMPANY],
+  },
+});
+
+export const employeeSettingsWoPayModesCompany: EmployeeSettings = deepFreeze({
+  ...employeeSettingsWoPaymentModes,
+  default_payment_mode: 'COMPANY_ACCOUNT',
+});
+
+export const employeeSettingsData2: EmployeeSettings = deepFreeze({
+  id: 'ousS9MgDNQ6NB',
+  created_at: new Date('2018-02-01T02:32:25.275Z'),
+  updated_at: new Date('2023-02-03T14:01:22.940Z'),
+  employee_id: 'ouX8dwsbLCLv',
+  org_id: 'ouX8dwsbLCLv',
+  cost_center_ids: [13792, 13793, 13794, 14018, 13795, 13995, 9493, 9494, 13785, 13787, 13788, 13789, 13790, 13791],
+  project_ids: [290054, 316444, 316446, 149230, 316442, 316443],
+  per_diem_rate_ids: [606, 621, 634, 639, 1642, 2618, 3932, 508, 5017, 5465, 5812, 5814, 5835, 510, 5777, 5419],
+  mileage_settings: {
+    mileage_rate_labels: ['new policy test', 'test 2'],
+    annual_mileage_two_wheeler: 0,
+    annual_mileage_four_wheeler: 0,
+    annual_mileage_four_wheeler1: 0,
+    annual_mileage_four_wheeler3: 0,
+    annual_mileage_four_wheeler4: 0,
+    annual_mileage_bicycle: 0,
+    annual_mileage_electric_car: 0,
+  },
+  expense_form_autofills: {
+    allowed: true,
+    enabled: true,
+  },
+  insta_fyle_settings: {
+    allowed: true,
+    enabled: true,
+    static_camera_overlay_enabled: true,
+    extract_fields: ['AMOUNT', 'CURRENCY', 'CATEGORY', 'TXN_DT'],
+  },
+  bulk_fyle_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  gmail_fmr_settings: {
+    allowed: false,
+    enabled: false,
+  },
+  notification_settings: {
+    email_allowed: true,
+    email_enabled: true,
+    email_unsubscribed_events: [
+      'ESTATUSES_CREATED_TXN',
+      'ETXNS_ADMIN_REMOVED',
+      'ETXNS_ADMIN_UPDATED',
+      'EREIMBURSEMENTS_COMPLETED',
+      'EADVANCE_REQUESTS_CREATED',
+      'EADVANCE_REQUESTS_UPDATED',
+      'EADVANCE_REQUESTS_INQUIRY',
+      'EADVANCE_REQUESTS_APPROVED',
+      'EADVANCES_CREATED',
+      'EADVANCE_REQUESTS_REJECTED',
+    ],
+    push_allowed: true,
+    push_enabled: true,
+    push_unsubscribed_events: ['ESTATUSES_CREATED_TXN', 'ESTATUSES_CREATED_RPT', 'EADVANCES_CREATED'],
+    notify_user: true,
+    notify_delegatee: true,
+  },
+  locale: {
+    timezone: 'America/North_Dakota/New_Salem',
+    abbreviation: 'CDT',
+    offset: '-05:00:00',
+  },
+  is_personal_cards_enabled: false,
+  default_project_id: 3943,
+  default_vehicle_type: 'four_wheeler',
+  default_payment_mode: 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT',
+  data_extractor_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  payment_mode_settings: {
+    allowed: true,
+    enabled: true,
+    allowed_payment_modes: [AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY],
+  },
+  in_app_chat_settings: {
+    allowed: true,
+    enabled: true,
+    restore_id: null,
+  },
+});
+
+export const employeeSettingsData3: EmployeeSettings = deepFreeze({
+  id: 'ousS9MgDNQ6NB',
+  created_at: new Date('2018-02-01T02:32:25.275Z'),
+  updated_at: new Date('2023-02-08T10:04:47.852Z'),
+  employee_id: 'ouX8dwsbLCLv',
+  org_id: 'ouX8dwsbLCLv',
+  mileage_settings: {
+    mileage_rate_labels: ['new policy test', 'test 2'],
+    annual_mileage_two_wheeler: 0,
+    annual_mileage_four_wheeler: 0,
+    annual_mileage_four_wheeler1: 0,
+    annual_mileage_four_wheeler3: 0,
+    annual_mileage_four_wheeler4: 0,
+    annual_mileage_bicycle: 0,
+    annual_mileage_electric_car: 0,
+  },
+  cost_center_ids: [13792, 13793, 13794, 14018, 13795, 13995, 9493, 9494, 13785, 13787, 13788, 13789, 13790, 13791],
+  project_ids: [290054, 316444, 316446, 149230, 316442, 316443],
+  per_diem_rate_ids: [606, 621, 634, 639, 1642, 2618, 3932, 508, 5017, 5465, 5812, 5814, 5835, 510, 5777, 5419],
+  insta_fyle_settings: {
+    allowed: true,
+    enabled: true,
+    static_camera_overlay_enabled: true,
+    extract_fields: ['AMOUNT', 'CURRENCY', 'CATEGORY', 'TXN_DT'],
+  },
+  bulk_fyle_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  gmail_fmr_settings: {
+    allowed: false,
+    enabled: false,
+  },
+  notification_settings: {
+    email_allowed: true,
+    email_enabled: true,
+    email_unsubscribed_events: [
+      'ESTATUSES_CREATED_TXN',
+      'ETXNS_ADMIN_REMOVED',
+      'ETXNS_ADMIN_UPDATED',
+      'EREIMBURSEMENTS_COMPLETED',
+      'EADVANCE_REQUESTS_CREATED',
+      'EADVANCE_REQUESTS_UPDATED',
+      'EADVANCE_REQUESTS_INQUIRY',
+      'EADVANCE_REQUESTS_APPROVED',
+      'EADVANCES_CREATED',
+      'EADVANCE_REQUESTS_REJECTED',
+    ],
+    push_allowed: true,
+    push_enabled: true,
+    push_unsubscribed_events: ['ESTATUSES_CREATED_TXN', 'ESTATUSES_CREATED_RPT', 'EADVANCES_CREATED'],
+    notify_user: true,
+    notify_delegatee: true,
+  },
+  is_personal_cards_enabled: false,
+  default_project_id: 3943,
+  default_vehicle_type: 'four_wheeler',
+  default_payment_mode: 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT',
+  locale: {
+    timezone: 'America/North_Dakota/New_Salem',
+    abbreviation: 'CDT',
+    offset: '-05:00:00',
+  },
+  in_app_chat_settings: {
+    allowed: true,
+    enabled: true,
+    restore_id: null,
+  },
+  expense_form_autofills: {
+    allowed: true,
+    enabled: true,
+  },
+  data_extractor_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  payment_mode_settings: {
+    allowed: true,
+    enabled: true,
+    allowed_payment_modes: [AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY],
+  },
+});
+
+export const employeeSettingsDataWoCCIDs: EmployeeSettings = deepFreeze({
+  id: 'ousS9MgDNQ6NB',
+  created_at: new Date('2018-02-01T02:32:25.275Z'),
+  updated_at: new Date('2023-01-23T09:47:32.266Z'),
+  employee_id: 'ouX8dwsbLCLv',
+  org_id: 'ouX8dwsbLCLv',
+  mileage_settings: {
+    mileage_rate_labels: ['new policy test', 'test 2'],
+    annual_mileage_two_wheeler: 0,
+    annual_mileage_four_wheeler: 0,
+    annual_mileage_four_wheeler1: 0,
+    annual_mileage_four_wheeler3: 0,
+    annual_mileage_four_wheeler4: 0,
+    annual_mileage_bicycle: 0,
+    annual_mileage_electric_car: 0,
+  },
+  cost_center_ids: [],
+  project_ids: [290054, 316444, 316446, 149230, 316442, 316443],
+  per_diem_rate_ids: [606, 621, 634, 639, 1642, 2618, 3932, 508, 5017, 5465, 5812, 5814, 5835, 510, 5777, 5419],
+  insta_fyle_settings: {
+    allowed: true,
+    enabled: true,
+    static_camera_overlay_enabled: true,
+    extract_fields: ['AMOUNT', 'CURRENCY', 'CATEGORY', 'TXN_DT'],
+  },
+  bulk_fyle_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  gmail_fmr_settings: {
+    allowed: false,
+    enabled: false,
+  },
+  notification_settings: {
+    email_allowed: true,
+    email_enabled: true,
+    email_unsubscribed_events: [
+      'ESTATUSES_CREATED_TXN',
+      'ETXNS_ADMIN_REMOVED',
+      'ETXNS_ADMIN_UPDATED',
+      'EREIMBURSEMENTS_COMPLETED',
+      'EADVANCE_REQUESTS_CREATED',
+      'EADVANCE_REQUESTS_UPDATED',
+      'EADVANCE_REQUESTS_INQUIRY',
+      'EADVANCE_REQUESTS_APPROVED',
+      'EADVANCES_CREATED',
+      'EADVANCE_REQUESTS_REJECTED',
+    ],
+    push_allowed: true,
+    push_enabled: true,
+    push_unsubscribed_events: ['ESTATUSES_CREATED_TXN', 'ESTATUSES_CREATED_RPT', 'EADVANCES_CREATED'],
+    notify_user: true,
+    notify_delegatee: true,
+  },
+  is_personal_cards_enabled: false,
+  default_project_id: 3943,
+  default_vehicle_type: 'four_wheeler',
+  default_payment_mode: 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT',
+  locale: {
+    timezone: 'America/North_Dakota/New_Salem',
+    abbreviation: 'CDT',
+    offset: '-05:00:00',
+  },
+  in_app_chat_settings: {
+    allowed: true,
+    enabled: true,
+    restore_id: null,
+  },
+  expense_form_autofills: {
+    allowed: true,
+    enabled: true,
+  },
+  data_extractor_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  payment_mode_settings: {
+    allowed: true,
+    enabled: true,
+    allowed_payment_modes: [AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY],
+  },
+});
+
+export const employeeSettingsWithCurrency: EmployeeSettings = deepFreeze({
+  ...employeeSettingsData,
+  default_payment_mode: 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT',
+});
+
+export const employeeSettingsWoDefaultProject: EmployeeSettings = deepFreeze({
+  ...employeeSettingsData,
+  default_project_id: null,
+});
+
+export const employeeSettingsWoInstaFyle: EmployeeSettings = deepFreeze({
+  ...employeeSettingsData,
+  insta_fyle_settings: {
+    ...employeeSettingsData.insta_fyle_settings,
+    allowed: true,
+  },
+});
+
+export const employeeSettingsWoProjects: EmployeeSettings = deepFreeze({
+  ...employeeSettingsData,
+  project_ids: null,
+});
+
+export const notificationDelegateeSettings1: EmployeeSettings = deepFreeze({
+  ...employeeSettingsData,
+  notification_settings: {
+    ...employeeSettingsData.notification_settings,
+    notify_delegatee: true,
+    notify_user: false,
+  },
+});
+
+export const notificationDelegateeSettings2: EmployeeSettings = deepFreeze({
+  ...employeeSettingsData,
+  notification_settings: {
+    ...employeeSettingsData.notification_settings,
+    notify_delegatee: false,
+    notify_user: true,
+  },
+});
+
+export const notificationDelegateeSettings3: EmployeeSettings = deepFreeze({
+  ...employeeSettingsData,
+  notification_settings: {
+    ...employeeSettingsData.notification_settings,
+    notify_delegatee: true,
+    notify_user: true,
+  },
+});
+
+export const apiEmployeeSettings: EmployeeSettings = deepFreeze({
+  id: 'ous7cvGj3iOsi',
+  created_at: new Date('2019-10-10T06:33:08.192Z'),
+  updated_at: new Date('2022-12-07T10:37:57.155Z'),
+  employee_id: 'ouWmQvnfr9x0',
+  org_id: 'ouWmQvnfr9x0',
+  cost_center_ids: [11910, 11911, 11912, 11913, 11914, 11915, 11916],
+  project_ids: [305678, 305679, 305672, 148287, 305674],
+  per_diem_rate_ids: [4213, 4224],
+  mileage_settings: {
+    mileage_rate_labels: ['new policy test', 'test 2'],
+    annual_mileage_two_wheeler: 0,
+    annual_mileage_four_wheeler: 0,
+    annual_mileage_four_wheeler1: 0,
+    annual_mileage_four_wheeler3: 0,
+    annual_mileage_four_wheeler4: 0,
+    annual_mileage_bicycle: 0,
+    annual_mileage_electric_car: 0,
+  },
+  insta_fyle_settings: {
+    allowed: true,
+    enabled: true,
+    static_camera_overlay_enabled: true,
+    extract_fields: ['AMOUNT', 'CURRENCY', 'CATEGORY', 'TXN_DT'],
+  },
+  notification_settings: {
+    email_allowed: true,
+    email_enabled: true,
+    email_unsubscribed_events: [],
+    push_allowed: false,
+    push_enabled: false,
+    push_unsubscribed_events: [
+      'ERPTS_SUBMITTED',
+      'EADVANCE_REQUESTS_CREATED',
+      'EADVANCE_REQUESTS_UPDATED',
+      'EADVANCE_REQUESTS_INQUIRY',
+    ],
+    notify_user: true,
+    notify_delegatee: false,
+  },
+  default_project_id: null,
+  default_vehicle_type: 'two_wheeler',
+  default_payment_mode: 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT',
+  locale: {
+    timezone: 'Asia/Kolkata',
+    abbreviation: 'IST',
+    offset: '05:30:00',
+  },
+  in_app_chat_settings: {
+    allowed: false,
+    enabled: false,
+    restore_id: null,
+  },
+  is_personal_cards_enabled: false,
+  expense_form_autofills: {
+    allowed: false,
+    enabled: true,
+  },
+  data_extractor_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  payment_mode_settings: {
+    allowed: true,
+    enabled: true,
+    allowed_payment_modes: [AccountType.PERSONAL],
+  },
+});

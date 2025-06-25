@@ -10,7 +10,7 @@ import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgService } from 'src/app/core/services/org.service';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { Router } from '@angular/router';
 import { MenuController } from '@ionic/angular';
 import { SidemenuComponent } from './sidemenu.component';
@@ -22,7 +22,7 @@ import { extendedDeviceInfoMockData } from 'src/app/core/mock-data/extended-devi
 import { orgData1 } from 'src/app/core/mock-data/org.data';
 import { currentEouRes, eouListWithDisabledUser } from 'src/app/core/test-data/org-user.service.spec.data';
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
-import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
+import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
 import { cloneDeep } from 'lodash';
 import { sidemenuAllowedActions } from 'src/app/core/mock-data/sidemenu-allowed-actions.data';
 import {
@@ -51,7 +51,7 @@ describe('SidemenuComponent', () => {
   let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
   let orgService: jasmine.SpyObj<OrgService>;
   let authService: jasmine.SpyObj<AuthService>;
-  let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
+  let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
   let spenderOnboardingService: jasmine.SpyObj<SpenderOnboardingService>;
   let translocoService: jasmine.SpyObj<TranslocoService>;
   @Component({
@@ -85,7 +85,7 @@ describe('SidemenuComponent', () => {
     const orgServiceSpy = jasmine.createSpyObj('OrgService', ['getOrgs', 'getCurrentOrg', 'getPrimaryOrg']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     authServiceSpy.getEou.and.resolveTo(apiEouRes);
-    const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
+    const platformEmployeeSettingsServiceSpy = jasmine.createSpyObj('PlatformEmployeeSettingsService', ['get']);
     const spenderOnboardingServiceSpy = jasmine.createSpyObj('SpenderOnboardingService', [
       'checkForRedirectionToOnboarding',
     ]);
@@ -111,7 +111,7 @@ describe('SidemenuComponent', () => {
         { provide: LaunchDarklyService, useValue: launchDarklyServiceSpy },
         { provide: OrgService, useValue: orgServiceSpy },
         { provide: AuthService, useValue: authServiceSpy },
-        { provide: OrgUserSettingsService, useValue: orgUserSettingsServiceSpy },
+        { provide: PlatformEmployeeSettingsService, useValue: platformEmployeeSettingsServiceSpy },
         { provide: SpenderOnboardingService, useValue: spenderOnboardingServiceSpy },
         { provide: TranslocoService, useValue: translocoServiceSpy },
       ],
@@ -129,7 +129,9 @@ describe('SidemenuComponent', () => {
     launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
     orgService = TestBed.inject(OrgService) as jasmine.SpyObj<OrgService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-    orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
+    platformEmployeeSettingsService = TestBed.inject(
+      PlatformEmployeeSettingsService
+    ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     spenderOnboardingService = TestBed.inject(SpenderOnboardingService) as jasmine.SpyObj<SpenderOnboardingService>;
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     translocoService.translate.and.callFake((key: any, params?: any) => {
@@ -167,11 +169,11 @@ describe('SidemenuComponent', () => {
     component.eou = apiEouRes;
 
     Object.freeze(orgSettingsRes);
-    Object.freeze(orgUserSettingsData);
+    Object.freeze(employeeSettingsData);
     Object.freeze(orgData1);
 
     component.orgSettings = cloneDeep(orgSettingsRes);
-    component.orgUserSettings = cloneDeep(orgUserSettingsData);
+    component.employeeSettings = cloneDeep(employeeSettingsData);
     component.allowedActions = sidemenuAllowedActions;
     component.activeOrg = { name: apiEouRes.ou.org_name };
     component.appVersion = extendedDeviceInfoMockData.appVersion;
@@ -555,7 +557,7 @@ describe('SidemenuComponent', () => {
       orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
       orgService.getPrimaryOrg.and.returnValue(of(orgData1[0]));
       orgSettingsService.get.and.returnValue(of(orgSettingsRes));
-      orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+      platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
       orgUserService.findDelegatedAccounts.and.returnValue(of([delegatorData]));
       deviceService.getDeviceInfo.and.returnValue(of(extendedDeviceInfoMockData));
       orgUserService.isSwitchedToDelegator.and.resolveTo(false);
@@ -573,7 +575,7 @@ describe('SidemenuComponent', () => {
       expect(orgService.getCurrentOrg).toHaveBeenCalledTimes(1);
       expect(orgService.getPrimaryOrg).toHaveBeenCalledTimes(1);
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-      expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+      expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
       expect(orgUserService.findDelegatedAccounts).toHaveBeenCalledTimes(1);
       expect(deviceService.getDeviceInfo).toHaveBeenCalledTimes(1);
     }));

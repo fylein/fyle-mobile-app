@@ -169,8 +169,16 @@ export class AdvanceRequestService {
   @CacheBuster({
     cacheBusterNotifier: advanceRequestsCacheBuster$,
   })
-  saveDraft(advanceRequest: Partial<AdvanceRequests>): Observable<AdvanceRequests> {
-    return this.apiService.post('/advance_requests/save', advanceRequest);
+  post(advanceRequest: Partial<AdvanceRequests>): Observable<AdvanceRequests> {
+    const payload = {
+      data: {
+        ...advanceRequest,
+        custom_fields: advanceRequest.custom_field_values,
+      },
+    };
+    return this.spenderService
+      .post<PlatformApiResponse<AdvanceRequests>>('/advance_requests', payload)
+      .pipe(map((response) => response.data));
   }
 
   @CacheBuster({
@@ -269,8 +277,22 @@ export class AdvanceRequestService {
     );
   }
 
-  getActions(advanceRequestId: string): Observable<AdvanceRequestActions> {
-    return this.apiService.get('/advance_requests/' + advanceRequestId + '/actions');
+  getSpenderPermissions(advanceRequestId: string): Observable<AdvanceRequestActions> {
+    const payload = {
+      data: { id: advanceRequestId },
+    };
+    return this.spenderService
+      .post<PlatformApiResponse<AdvanceRequestActions>>('/advance_requests/permissions', payload)
+      .pipe(map((response) => response.data));
+  }
+
+  getApproverPermissions(advanceRequestId: string): Observable<AdvanceRequestActions> {
+    const payload = {
+      data: { id: advanceRequestId },
+    };
+    return this.approverService
+      .post<PlatformApiResponse<AdvanceRequestActions>>('/advance_requests/permissions', payload)
+      .pipe(map((response) => response.data));
   }
 
   getActiveApproversByAdvanceRequestId(advanceRequestId: string): Observable<Approval[]> {
@@ -405,7 +427,7 @@ export class AdvanceRequestService {
   ): Observable<AdvanceRequestFile> {
     return forkJoin({
       files: fileObservables,
-      advanceReq: this.saveDraft(advanceRequest),
+      advanceReq: this.post(advanceRequest),
     }).pipe(
       switchMap((res) => {
         if (res.files && res.files.length > 0) {

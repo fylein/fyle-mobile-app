@@ -11,7 +11,7 @@ import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/fi
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { OverlayEventDetail } from '@ionic/core';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FileService } from 'src/app/core/services/file.service';
 import { RotationDirection } from 'src/app/core/enums/rotation-direction.enum';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
@@ -68,6 +68,7 @@ export class FyViewAttachmentComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private fileService: FileService,
     private transactionsOutboxService: TransactionsOutboxService,
+    private router: Router,
     private translocoService: TranslocoService
   ) {}
 
@@ -248,8 +249,10 @@ export class FyViewAttachmentComponent implements OnInit {
               this.saveComplete[this.activeIndex] = true;
               // auto-hide “Saved” chip
               setTimeout(() => (this.saveComplete[this.activeIndex] = false), 5000);
-              this.trackingService.receiptSavedRotation({
-                'File ID': attachment.id,
+              this.trackingService.eventTrack('Saved rotated receipt', {
+                ReceiptId: attachment.id,
+                Direction: this.rotatingDirection,
+                Source: this.router.url,
               });
             })
           );
@@ -292,9 +295,10 @@ export class FyViewAttachmentComponent implements OnInit {
       };
       this.rotatingDirection = null;
       this.isImageDirty[this.activeIndex] = true;
-      this.trackingService.rotateReceipt({
-        'File ID': attachment.id,
+      this.trackingService.eventTrack('Rotated receipt', {
+        ExpenseId: attachment.id,
         Direction: direction,
+        Source: this.router.url,
       });
     };
 

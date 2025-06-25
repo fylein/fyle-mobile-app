@@ -14,11 +14,11 @@ import {
   notificationDelegateeSettings1,
   notificationDelegateeSettings2,
   notificationDelegateeSettings3,
-  orgUserSettingsData,
-} from 'src/app/core/mock-data/org-user-settings.data';
+  employeeSettingsData,
+} from 'src/app/core/mock-data/employee-settings.data';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
 import { NotificationsPage } from './notifications.page';
 import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
@@ -33,7 +33,7 @@ describe('NotificationsPage', () => {
   let component: NotificationsPage;
   let fixture: ComponentFixture<NotificationsPage>;
   let authService: jasmine.SpyObj<AuthService>;
-  let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
+  let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
   let employeesService: jasmine.SpyObj<EmployeesService>;
   let fb: UntypedFormBuilder;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
@@ -42,9 +42,9 @@ describe('NotificationsPage', () => {
 
   beforeEach(waitForAsync(() => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
-    const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', [
+    const platformEmployeeSettingsServiceSpy = jasmine.createSpyObj('PlatformEmployeeSettingsService', [
       'post',
-      'clearOrgUserSettings',
+      'clearEmployeeSettings',
       'get',
       'getNotificationEvents',
     ]);
@@ -62,8 +62,8 @@ describe('NotificationsPage', () => {
           useValue: authServiceSpy,
         },
         {
-          provide: OrgUserSettingsService,
-          useValue: orgUserSettingsServiceSpy,
+          provide: PlatformEmployeeSettingsService,
+          useValue: platformEmployeeSettingsServiceSpy,
         },
         {
           provide: EmployeesService,
@@ -89,7 +89,9 @@ describe('NotificationsPage', () => {
     component = fixture.componentInstance;
 
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-    orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
+    platformEmployeeSettingsService = TestBed.inject(
+      PlatformEmployeeSettingsService
+    ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     employeesService = TestBed.inject(EmployeesService) as jasmine.SpyObj<EmployeesService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
@@ -102,11 +104,11 @@ describe('NotificationsPage', () => {
       emailEvents: new UntypedFormArray([]),
     });
 
-    orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+    platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
     employeesService.getByParams.and.returnValue(of(null));
     authService.getEou.and.resolveTo(apiEouRes);
     orgSettingsService.get.and.returnValue(of(orgSettingsData));
-    orgUserSettingsService.getNotificationEvents.and.returnValue(of(notificationEventsData));
+    platformEmployeeSettingsService.getNotificationEvents.and.returnValue(of(notificationEventsData));
 
     component.delegationOptions = ['Notify me and my delegate', 'Notify my delegate', 'Notify me only'];
 
@@ -122,7 +124,7 @@ describe('NotificationsPage', () => {
 
   describe('getDelegateeSubscription():', () => {
     it('should only notify the delegatee', (done) => {
-      component.orgUserSettings$ = of(notificationDelegateeSettings1);
+      component.employeeSettings$ = of(notificationDelegateeSettings1);
 
       component.getDelegateeSubscription().subscribe((res) => {
         expect(res).toEqual('Notify my delegate');
@@ -131,7 +133,7 @@ describe('NotificationsPage', () => {
     });
 
     it('should only notify the user', (done) => {
-      component.orgUserSettings$ = of(notificationDelegateeSettings2);
+      component.employeeSettings$ = of(notificationDelegateeSettings2);
 
       component.getDelegateeSubscription().subscribe((res) => {
         expect(res).toEqual('Notify me only');
@@ -140,7 +142,7 @@ describe('NotificationsPage', () => {
     });
 
     it('should notify both the user and delegatee', (done) => {
-      component.orgUserSettings$ = of(notificationDelegateeSettings3);
+      component.employeeSettings$ = of(notificationDelegateeSettings3);
 
       component.getDelegateeSubscription().subscribe((res) => {
         expect(res).toEqual('Notify me and my delegate');
@@ -150,7 +152,7 @@ describe('NotificationsPage', () => {
   });
 
   it('setEvents(): should set events', () => {
-    component.setEvents(cloneDeep(notificationEventsData), cloneDeep(orgUserSettingsData));
+    component.setEvents(cloneDeep(notificationEventsData), cloneDeep(employeeSettingsData));
 
     expect(component.emailEvents.length).not.toEqual(0);
     expect(component.pushEvents.length).not.toEqual(0);
@@ -163,22 +165,22 @@ describe('NotificationsPage', () => {
   });
 
   it('saveNotificationSettings(): should save notification settings', () => {
-    component.setEvents(notificationEventsData, orgUserSettingsData);
+    component.setEvents(notificationEventsData, employeeSettingsData);
     component.notificationEvents = cloneDeep(notificationEventsData);
-    component.orgUserSettings = cloneDeep(orgUserSettingsData);
-    orgUserSettingsService.post.and.returnValue(of(null));
-    orgUserSettingsService.clearOrgUserSettings.and.returnValue(of(null));
+    component.employeeSettings = cloneDeep(employeeSettingsData);
+    platformEmployeeSettingsService.post.and.returnValue(of(null));
+    platformEmployeeSettingsService.clearEmployeeSettings.and.returnValue(of(null));
     spyOn(component, 'navBack');
 
     component.saveNotificationSettings();
 
-    expect(orgUserSettingsService.post).toHaveBeenCalledOnceWith(component.orgUserSettings);
-    expect(orgUserSettingsService.clearOrgUserSettings).toHaveBeenCalledTimes(1);
+    expect(platformEmployeeSettingsService.post).toHaveBeenCalledOnceWith(component.employeeSettings);
+    expect(platformEmployeeSettingsService.clearEmployeeSettings).toHaveBeenCalledTimes(1);
     expect(component.navBack).toHaveBeenCalledTimes(1);
   });
 
   it('isAllEventsSubscribed(): should check if all events are subscribed', () => {
-    component.orgUserSettings = orgUserSettingsData;
+    component.employeeSettings = employeeSettingsData;
 
     component.isAllEventsSubscribed();
 
@@ -212,39 +214,39 @@ describe('NotificationsPage', () => {
 
   describe('updateDelegateeNotifyPreference():', () => {
     it('should set settings to notify delegatee', () => {
-      const mockOrgUserSettings = cloneDeep(orgUserSettingsData);
-      component.orgUserSettings = mockOrgUserSettings;
+      const mockEmployeeSettings = cloneDeep(employeeSettingsData);
+      component.employeeSettings = mockEmployeeSettings;
 
       component.updateDelegateeNotifyPreference({
         value: 'Notify my delegate',
       });
 
-      expect(component.orgUserSettings.notification_settings.notify_delegatee).toBeTrue();
-      expect(component.orgUserSettings.notification_settings.notify_user).toBeFalse();
+      expect(component.employeeSettings.notification_settings.notify_delegatee).toBeTrue();
+      expect(component.employeeSettings.notification_settings.notify_user).toBeFalse();
     });
 
     it('should set settings to notify delegatee and user', () => {
-      const mockOrgUserSettings = cloneDeep(orgUserSettingsData);
-      component.orgUserSettings = mockOrgUserSettings;
+      const mockEmployeeSettings = cloneDeep(employeeSettingsData);
+      component.employeeSettings = mockEmployeeSettings;
 
       component.updateDelegateeNotifyPreference({
         value: 'Notify me and my delegate',
       });
 
-      expect(component.orgUserSettings.notification_settings.notify_delegatee).toBeTrue();
-      expect(component.orgUserSettings.notification_settings.notify_user).toBeTrue();
+      expect(component.employeeSettings.notification_settings.notify_delegatee).toBeTrue();
+      expect(component.employeeSettings.notification_settings.notify_user).toBeTrue();
     });
 
     it('should set settings to notify user', () => {
-      const mockOrgUserSettings = cloneDeep(orgUserSettingsData);
-      component.orgUserSettings = mockOrgUserSettings;
+      const mockEmployeeSettings = cloneDeep(employeeSettingsData);
+      component.employeeSettings = mockEmployeeSettings;
 
       component.updateDelegateeNotifyPreference({
         value: 'Notify me only',
       });
 
-      expect(component.orgUserSettings.notification_settings.notify_delegatee).toBeFalse();
-      expect(component.orgUserSettings.notification_settings.notify_user).toBeTrue();
+      expect(component.employeeSettings.notification_settings.notify_delegatee).toBeFalse();
+      expect(component.employeeSettings.notification_settings.notify_user).toBeTrue();
     });
   });
 
@@ -269,7 +271,7 @@ describe('NotificationsPage', () => {
 
   describe('toggleAllSelected():', () => {
     beforeEach(() => {
-      component.setEvents(notificationEventsData, orgUserSettingsData);
+      component.setEvents(notificationEventsData, employeeSettingsData);
     });
 
     it('should set value if email event exists', fakeAsync(() => {
@@ -314,11 +316,11 @@ describe('NotificationsPage', () => {
   });
 
   it('ngOnInit(): should initialize the form and observables', (done) => {
-    orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+    platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
     spyOn(component, 'getDelegateeSubscription').and.returnValue(of('Notify my delegate'));
     authService.getEou.and.resolveTo(apiEouRes);
     orgSettingsService.get.and.returnValue(of(orgSettingsData));
-    orgUserSettingsService.getNotificationEvents.and.returnValue(of(notificationEventsData));
+    platformEmployeeSettingsService.getNotificationEvents.and.returnValue(of(notificationEventsData));
 
     spyOn(component, 'isAllEventsSubscribed');
     spyOn(component, 'updateNotificationEvents');
@@ -327,9 +329,9 @@ describe('NotificationsPage', () => {
 
     component.ngOnInit();
 
-    component.orgUserSettings$.subscribe((res) => {
-      expect(res).toEqual(orgUserSettingsData);
-      expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+    component.employeeSettings$.subscribe((res) => {
+      expect(res).toEqual(employeeSettingsData);
+      expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
     });
 
     component.isDelegateePresent$.subscribe((res) => {
@@ -344,7 +346,7 @@ describe('NotificationsPage', () => {
 
     component.notificationEvents$.subscribe((res) => {
       expect(res).toEqual(notificationEventsData);
-      expect(orgUserSettingsService.getNotificationEvents).toHaveBeenCalledTimes(1);
+      expect(platformEmployeeSettingsService.getNotificationEvents).toHaveBeenCalledTimes(1);
     });
 
     expect(component.isAllEventsSubscribed).toHaveBeenCalledTimes(1);
@@ -363,7 +365,7 @@ describe('NotificationsPage', () => {
     component.toggleEvents();
     tick(500);
 
-    component.setEvents(notificationEventsData, orgUserSettingsData);
+    component.setEvents(notificationEventsData, employeeSettingsData);
     tick(500);
 
     expect(component.isAllSelected).toEqual({

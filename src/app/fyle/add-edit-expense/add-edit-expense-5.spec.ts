@@ -36,10 +36,10 @@ import {
   orgSettingsWithProjectCategoryRestrictions,
 } from 'src/app/core/mock-data/org-settings.data';
 import {
-  orgUserSettingsData,
-  orgUserSettingsData2,
-  orgUserSettingsWoDefaultProject,
-} from 'src/app/core/mock-data/org-user-settings.data';
+  employeeSettingsData,
+  employeeSettingsWoDefaultProject,
+  employeeSettingsData2,
+} from 'src/app/core/mock-data/employee-settings.data';
 import {
   recentCurrencyRes,
   recentlyUsedCostCentersRes,
@@ -80,7 +80,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
@@ -174,7 +174,7 @@ export function TestCases5(getTestBed) {
     let titleCasePipe: jasmine.SpyObj<TitleCasePipe>;
     let paymentModesService: jasmine.SpyObj<PaymentModesService>;
     let taxGroupService: jasmine.SpyObj<TaxGroupService>;
-    let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
+    let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
     let storageService: jasmine.SpyObj<StorageService>;
     let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
     let platform: jasmine.SpyObj<Platform>;
@@ -242,7 +242,9 @@ export function TestCases5(getTestBed) {
       titleCasePipe = TestBed.inject(TitleCasePipe) as jasmine.SpyObj<TitleCasePipe>;
       paymentModesService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
       taxGroupService = TestBed.inject(TaxGroupService) as jasmine.SpyObj<TaxGroupService>;
-      orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
+      platformEmployeeSettingsService = TestBed.inject(
+        PlatformEmployeeSettingsService
+      ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
       expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
@@ -385,15 +387,15 @@ export function TestCases5(getTestBed) {
 
     describe('setupBalanceFlag():', () => {
       it('should setup balance available flag', fakeAsync(() => {
-        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
+        accountsService.getMyAccounts.and.returnValue(of(multiplePaymentModesData));
         advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         component.setupBalanceFlag();
         tick(500);
 
         component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
-          expect(res).toBeTrue();
-          expect(accountsService.getEMyAccounts).toHaveBeenCalledOnceWith();
+          expect(res).toBeFalse();
+          expect(accountsService.getMyAccounts).toHaveBeenCalledOnceWith();
           expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledOnceWith();
           expect(orgSettingsService.get).toHaveBeenCalledOnceWith();
         });
@@ -404,7 +406,7 @@ export function TestCases5(getTestBed) {
       }));
 
       it('should return false in advance balance if payment mode is not personal', fakeAsync(() => {
-        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
+        accountsService.getMyAccounts.and.returnValue(of(multiplePaymentModesData));
         advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         component.setupBalanceFlag();
@@ -412,7 +414,7 @@ export function TestCases5(getTestBed) {
 
         component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
           expect(res).toBeFalse();
-          expect(accountsService.getEMyAccounts).toHaveBeenCalledOnceWith();
+          expect(accountsService.getMyAccounts).toHaveBeenCalledOnceWith();
           expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledOnceWith();
           expect(orgSettingsService.get).toHaveBeenCalledOnceWith();
         });
@@ -423,7 +425,7 @@ export function TestCases5(getTestBed) {
       }));
 
       it('should return false when account changes to null', fakeAsync(() => {
-        accountsService.getEMyAccounts.and.returnValue(of(null));
+        accountsService.getMyAccounts.and.returnValue(of(null));
         advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         component.setupBalanceFlag();
@@ -431,7 +433,7 @@ export function TestCases5(getTestBed) {
 
         component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
           expect(res).toBeFalse();
-          expect(accountsService.getEMyAccounts).toHaveBeenCalledOnceWith();
+          expect(accountsService.getMyAccounts).toHaveBeenCalledOnceWith();
           expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledOnceWith();
           expect(orgSettingsService.get).toHaveBeenCalledOnceWith();
         });
@@ -442,15 +444,15 @@ export function TestCases5(getTestBed) {
       }));
 
       it('should return false when orgSettings is null', fakeAsync(() => {
-        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
+        accountsService.getMyAccounts.and.returnValue(of(multiplePaymentModesData));
         advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
         orgSettingsService.get.and.returnValue(of(null));
         component.setupBalanceFlag();
         tick(500);
 
         component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
-          expect(res).toBeTrue();
-          expect(accountsService.getEMyAccounts).toHaveBeenCalledOnceWith();
+          expect(res).toBeFalse();
+          expect(accountsService.getMyAccounts).toHaveBeenCalledOnceWith();
           expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledOnceWith();
           expect(orgSettingsService.get).toHaveBeenCalledOnceWith();
         });
@@ -461,15 +463,15 @@ export function TestCases5(getTestBed) {
       }));
 
       it('should return true for advance wallets', fakeAsync(() => {
-        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesWithoutAdvData));
+        accountsService.getMyAccounts.and.returnValue(of(multiplePaymentModesWithoutAdvData));
         advanceWalletsService.getAllAdvanceWallets.and.returnValue(of(advanceWallet1Data));
         orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithAdvanceWallet));
         component.setupBalanceFlag();
         tick(500);
 
         component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
-          expect(res).toBeTrue();
-          expect(accountsService.getEMyAccounts).toHaveBeenCalledOnceWith();
+          expect(res).toBeFalse();
+          expect(accountsService.getMyAccounts).toHaveBeenCalledOnceWith();
           expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledOnceWith();
           expect(orgSettingsService.get).toHaveBeenCalledOnceWith();
         });
@@ -702,7 +704,7 @@ export function TestCases5(getTestBed) {
         component.etxn$ = of(unflattenedExpWoProject);
         component.activeCategories$ = of(sortedCategory);
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
-        component.orgUserSettings$ = of(orgUserSettingsData);
+        component.employeeSettings$ = of(employeeSettingsData);
         projectsService.getbyId.and.returnValue(of(expectedProjectsResponse[0]));
         fixture.detectChanges();
 
@@ -710,7 +712,7 @@ export function TestCases5(getTestBed) {
           expect(res).toEqual(expectedProjectsResponse[0]);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
           expect(projectsService.getbyId).toHaveBeenCalledOnceWith(
-            orgUserSettingsData.preferences.default_project_id,
+            employeeSettingsData.default_project_id,
             sortedCategory
           );
           done();
@@ -720,7 +722,7 @@ export function TestCases5(getTestBed) {
       it('should return null if no project ID is available', (done) => {
         component.etxn$ = of(unflattenedExpWoProject);
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
-        component.orgUserSettings$ = of(orgUserSettingsWoDefaultProject);
+        component.employeeSettings$ = of(employeeSettingsWoDefaultProject);
 
         component.getSelectedProjects().subscribe((res) => {
           expect(res).toBeNull();
@@ -800,7 +802,7 @@ export function TestCases5(getTestBed) {
     describe('getDefaultPaymentModes():', () => {
       it('should get default payment modes', (done) => {
         component.paymentModes$ = of(accountOptionData1);
-        component.orgUserSettings$ = of(orgUserSettingsData2);
+        component.employeeSettings$ = of(employeeSettingsData);
         paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(of(true));
         component.isCreatedFromCCC = true;
         fixture.detectChanges();
@@ -814,7 +816,7 @@ export function TestCases5(getTestBed) {
 
       it('should return the first item in account options if expense was not created from CCC', (done) => {
         component.paymentModes$ = of(accountOptionData1);
-        component.orgUserSettings$ = of(orgUserSettingsData2);
+        component.employeeSettings$ = of(employeeSettingsData2);
         paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(of(true));
         component.isCreatedFromCCC = false;
         fixture.detectChanges();
@@ -987,7 +989,7 @@ export function TestCases5(getTestBed) {
         loaderService.showLoader.and.resolveTo();
         component.etxn$ = of(unflattenedTxnData);
         component.taxGroups$ = of(taxGroupData);
-        component.orgUserSettings$ = of(orgUserSettingsData);
+        component.employeeSettings$ = of(employeeSettingsData);
         component.recentlyUsedValues$ = of(recentlyUsedRes);
         component.recentlyUsedProjects$ = of(recentlyUsedProjectRes);
         component.recentlyUsedCurrencies$ = of(recentCurrencyRes);
@@ -1048,7 +1050,7 @@ export function TestCases5(getTestBed) {
         loaderService.showLoader.and.resolveTo();
         component.etxn$ = of(unflattenedTxnData);
         component.taxGroups$ = of(taxGroupData);
-        component.orgUserSettings$ = of(orgUserSettingsData);
+        component.employeeSettings$ = of(employeeSettingsData);
         component.recentlyUsedValues$ = of(recentlyUsedRes);
         component.recentlyUsedProjects$ = of(recentlyUsedProjectRes);
         component.recentlyUsedCurrencies$ = of(recentCurrencyRes);
@@ -1106,7 +1108,7 @@ export function TestCases5(getTestBed) {
           },
         });
         component.taxGroups$ = of(taxGroupData);
-        component.orgUserSettings$ = of(orgUserSettingsData);
+        component.employeeSettings$ = of(employeeSettingsData);
         component.recentlyUsedValues$ = of(recentlyUsedRes);
         component.recentlyUsedProjects$ = of(recentlyUsedProjectRes);
         component.recentlyUsedCurrencies$ = of(recentCurrencyRes);
@@ -1169,7 +1171,7 @@ export function TestCases5(getTestBed) {
         loaderService.showLoader.and.resolveTo();
         component.etxn$ = of(unflattenedExp2);
         component.taxGroups$ = of(taxGroupData);
-        component.orgUserSettings$ = of(orgUserSettingsData);
+        component.employeeSettings$ = of(employeeSettingsData);
         component.recentlyUsedValues$ = of(recentlyUsedRes);
         component.recentlyUsedProjects$ = of(recentlyUsedProjectRes);
         component.recentlyUsedCurrencies$ = of(recentCurrencyRes);
@@ -1226,7 +1228,7 @@ export function TestCases5(getTestBed) {
         loaderService.showLoader.and.resolveTo();
         component.etxn$ = of(setupFormExpenseWoCurrency);
         component.taxGroups$ = of(taxGroupData);
-        component.orgUserSettings$ = of(orgUserSettingsData);
+        component.employeeSettings$ = of(employeeSettingsData);
         component.recentlyUsedValues$ = of(recentlyUsedRes);
         component.recentlyUsedProjects$ = of(recentlyUsedProjectRes);
         component.recentlyUsedCurrencies$ = of(recentCurrencyRes);
@@ -1286,7 +1288,7 @@ export function TestCases5(getTestBed) {
         loaderService.showLoader.and.resolveTo();
         component.etxn$ = of(setupFormExpenseWoCurrency2);
         component.taxGroups$ = of(taxGroupData);
-        component.orgUserSettings$ = of(orgUserSettingsData);
+        component.employeeSettings$ = of(employeeSettingsData);
         component.recentlyUsedValues$ = of(recentlyUsedRes);
         component.recentlyUsedProjects$ = of(recentlyUsedProjectRes);
         component.recentlyUsedCurrencies$ = of(recentCurrencyRes);
@@ -1346,7 +1348,7 @@ export function TestCases5(getTestBed) {
         loaderService.showLoader.and.resolveTo();
         component.etxn$ = of(setupFormExpenseWoCurrency3);
         component.taxGroups$ = of(taxGroupData);
-        component.orgUserSettings$ = of(orgUserSettingsData);
+        component.employeeSettings$ = of(employeeSettingsData);
         component.recentlyUsedValues$ = of(recentlyUsedRes);
         component.recentlyUsedProjects$ = of(recentlyUsedProjectRes);
         component.recentlyUsedCurrencies$ = of(recentCurrencyRes);
@@ -1406,7 +1408,7 @@ export function TestCases5(getTestBed) {
         loaderService.showLoader.and.resolveTo();
         component.etxn$ = of(setupFormExpenseWoCurrency3);
         component.taxGroups$ = of(taxGroupData);
-        component.orgUserSettings$ = of(orgUserSettingsData);
+        component.employeeSettings$ = of(employeeSettingsData);
         component.recentlyUsedValues$ = of(recentlyUsedRes);
         component.recentlyUsedProjects$ = of(recentlyUsedProjectRes);
         component.recentlyUsedCurrencies$ = of(recentCurrencyRes);
@@ -1500,9 +1502,9 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'getCCCpaymentMode');
         spyOn(component, 'setUpTaxCalculations');
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
-        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
         currencyService.getHomeCurrency.and.returnValue(of('USD'));
-        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
+        accountsService.getMyAccounts.and.returnValue(of(multiplePaymentModesData));
         spyOn(component, 'setupNetworkWatcher');
         taxGroupService.get.and.returnValue(of(taxGroupData));
         recentlyUsedItemsService.getRecentlyUsed.and.returnValue(of(recentlyUsedRes));
@@ -1559,9 +1561,9 @@ export function TestCases5(getTestBed) {
         expect(component.setUpTaxCalculations).toHaveBeenCalledTimes(1);
 
         expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
-        expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+        expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
         expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
-        expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+        expect(accountsService.getMyAccounts).toHaveBeenCalledTimes(1);
 
         component.isRTFEnabled$.subscribe((isRTFEnabled) => {
           expect(isRTFEnabled).toBeTrue();
@@ -1711,9 +1713,9 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'getCCCpaymentMode');
         spyOn(component, 'setUpTaxCalculations');
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
-        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
         currencyService.getHomeCurrency.and.returnValue(of('USD'));
-        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
+        accountsService.getMyAccounts.and.returnValue(of(multiplePaymentModesData));
         spyOn(component, 'setupNetworkWatcher');
         taxGroupService.get.and.returnValue(of(taxGroupData));
         recentlyUsedItemsService.getRecentlyUsed.and.returnValue(of(recentlyUsedRes));
@@ -1787,9 +1789,9 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'setUpTaxCalculations');
 
         orgSettingsService.get.and.returnValue(of(orgSettingsWoTaxAndRtf));
-        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
         currencyService.getHomeCurrency.and.returnValue(of('USD'));
-        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
+        accountsService.getMyAccounts.and.returnValue(of(multiplePaymentModesData));
         spyOn(component, 'setupNetworkWatcher');
         taxGroupService.get.and.returnValue(of(taxGroupData));
         recentlyUsedItemsService.getRecentlyUsed.and.returnValue(of(recentlyUsedRes));
@@ -1847,9 +1849,9 @@ export function TestCases5(getTestBed) {
         expect(component.setUpTaxCalculations).toHaveBeenCalledTimes(1);
 
         expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-        expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+        expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
         expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
-        expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+        expect(accountsService.getMyAccounts).toHaveBeenCalledTimes(1);
 
         component.isRTFEnabled$.subscribe((isRTFEnabled) => {
           expect(isRTFEnabled).toBeFalse();
@@ -1915,7 +1917,7 @@ export function TestCases5(getTestBed) {
         expect(component.getEditExpenseObservable).toHaveBeenCalledTimes(1);
 
         component.isCCCAccountSelected$.subscribe((res) => {
-          expect(res).toBeTrue();
+          expect(res).toBeFalse();
         });
 
         expect(component.platformExpense$).toBeUndefined();

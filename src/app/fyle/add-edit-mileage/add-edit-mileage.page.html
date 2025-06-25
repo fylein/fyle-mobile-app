@@ -300,11 +300,6 @@
                           <div>
                             <div class="add-edit-mileage--payment-mode-header">{{label}}</div>
                             <ng-container *ngIf="paymentMode?.acc">
-                              <ng-container *ngIf="paymentMode.acc.type === 'PERSONAL_ADVANCE_ACCOUNT'">
-                                <div class="add-edit-mileage--payment-mode-section">
-                                  {{paymentMode.advance.purpose}}
-                                </div>
-                              </ng-container>
                               <div
                                 *ngIf="paymentMode.acc.isReimbursable"
                                 class="add-edit-mileage--payment-mode-section"
@@ -332,15 +327,6 @@
                   </ion-col>
                 </ion-row>
               </ion-grid>
-
-              <ng-container *ngIf="isAdvancesEnabled$">
-                <app-fy-alert-info
-                  *ngIf="(isBalanceAvailableInAnyAdvanceAccount$ | async)"
-                  [message]="'You have outstanding balance in your advance account(s)'"
-                  [type]="'information'"
-                >
-                </app-fy-alert-info>
-              </ng-container>
             </div>
 
             <ng-container *ngIf="txnFields$|async as txnFields">

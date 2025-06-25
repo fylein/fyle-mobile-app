@@ -26,7 +26,7 @@ import {
   orgSettingsWithExpenseFormAutofill,
   orgSettingsParamsWithAdvanceWallet,
 } from 'src/app/core/mock-data/org-settings.data';
-import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
+import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
 import { recentlyUsedRes } from 'src/app/core/mock-data/recently-used.data';
 import {
   newExpenseMileageData1,
@@ -55,7 +55,7 @@ import { MileageService } from 'src/app/core/services/mileage.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
@@ -136,7 +136,7 @@ export function TestCases2(getTestBed) {
     let titleCasePipe: jasmine.SpyObj<TitleCasePipe>;
     let paymentModesService: jasmine.SpyObj<PaymentModesService>;
     let taxGroupService: jasmine.SpyObj<TaxGroupService>;
-    let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
+    let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
     let storageService: jasmine.SpyObj<StorageService>;
     let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
     let mileageService: jasmine.SpyObj<MileageService>;
@@ -194,7 +194,9 @@ export function TestCases2(getTestBed) {
       titleCasePipe = TestBed.inject(TitleCasePipe) as jasmine.SpyObj<TitleCasePipe>;
       paymentModesService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
       taxGroupService = TestBed.inject(TaxGroupService) as jasmine.SpyObj<TaxGroupService>;
-      orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
+      platformEmployeeSettingsService = TestBed.inject(
+        PlatformEmployeeSettingsService
+      ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
       mileageService = TestBed.inject(MileageService) as jasmine.SpyObj<MileageService>;
@@ -292,8 +294,7 @@ export function TestCases2(getTestBed) {
     });
 
     describe('saveAndNewExpense():', () => {
-      it('should add an expense in add mode if the payment mode is valid', () => {
-        spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(false));
+      it('should add an expense in add mode', () => {
         setFormValid(component);
         component.mode = 'add';
         spyOn(component, 'addExpense').and.returnValue(of(true));
@@ -302,14 +303,12 @@ export function TestCases2(getTestBed) {
 
         component.saveAndNewExpense();
 
-        expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledTimes(1);
         expect(component.addExpense).toHaveBeenCalledTimes(1);
         expect(component.reloadCurrentRoute).toHaveBeenCalledTimes(1);
         expect(trackingService.clickSaveAddNew).toHaveBeenCalledTimes(1);
       });
 
-      it('should edit an expense in edit mode if the payment mode is valid', () => {
-        spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(false));
+      it('should edit an expense in edit mode', () => {
         setFormValid(component);
         component.mode = 'edit';
         spyOn(component, 'editExpense').and.returnValue(of(null));
@@ -318,43 +317,36 @@ export function TestCases2(getTestBed) {
 
         component.saveAndNewExpense();
 
-        expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledTimes(1);
         expect(component.editExpense).toHaveBeenCalledTimes(1);
         expect(component.close).toHaveBeenCalledTimes(1);
       });
 
-      it('should show an error if payment mode is invalid', fakeAsync(() => {
+      it('should show an error if form is invalid', fakeAsync(() => {
         spyOn(component, 'showFormValidationErrors');
-        spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(true));
         fixture.detectChanges();
 
         component.saveAndNewExpense();
         tick(4000);
 
-        expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledTimes(1);
         expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
       }));
     });
 
     describe('saveExpense():', () => {
-      it('should add an expense in add mode if the payment mode is valid', () => {
-        spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(false));
+      it('should add an expense in add mode', () => {
         setFormValid(component);
         component.mode = 'add';
         spyOn(component, 'addExpense').and.returnValue(of(true));
-
         spyOn(component, 'close');
         fixture.detectChanges();
 
         component.saveExpense();
 
-        expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledTimes(1);
         expect(component.addExpense).toHaveBeenCalledTimes(1);
         expect(component.close).toHaveBeenCalledTimes(1);
       });
 
-      it('should edit an expense in edit mode if the payment mode is valid', () => {
-        spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(false));
+      it('should edit an expense in edit mode', () => {
         setFormValid(component);
         component.mode = 'edit';
         spyOn(component, 'editExpense').and.returnValue(of(null));
@@ -363,20 +355,17 @@ export function TestCases2(getTestBed) {
 
         component.saveExpense();
 
-        expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledTimes(1);
         expect(component.editExpense).toHaveBeenCalledTimes(1);
         expect(component.close).toHaveBeenCalledTimes(1);
       });
 
-      it('should show an error if payment mode is invalid', fakeAsync(() => {
+      it('should show an error if form is invalid', fakeAsync(() => {
         spyOn(component, 'showFormValidationErrors');
-        spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(true));
         fixture.detectChanges();
 
         component.saveExpense();
         tick(4000);
 
-        expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledTimes(1);
         expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
       }));
     });
@@ -390,9 +379,9 @@ export function TestCases2(getTestBed) {
         const date = new Date('2023-08-21T07:43:15.592Z');
         jasmine.clock().mockDate(date);
         transactionService.getDefaultVehicleType.and.returnValue(of('CAR'));
-        mileageService.getOrgUserMileageSettings.and.returnValue(of(orgUserSettingsData.mileage_settings));
+        mileageService.getEmployeeMileageSettings.and.returnValue(of(employeeSettingsData.mileage_settings));
         orgSettingsService.get.and.returnValue(of(cloneDeep(orgSettingsParams2)));
-        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
         component.recentlyUsedValues$ = of(recentlyUsedRes);
         component.mileageRates$ = of(unfilteredMileageRatesData);
         spyOn(component, 'getMileageByVehicleType').and.returnValue(filterEnabledMileageRatesData[0]);
@@ -410,9 +399,9 @@ export function TestCases2(getTestBed) {
         component.getNewExpense().subscribe((res) => {
           expect(res).toEqual(newExpenseMileageData1);
           expect(transactionService.getDefaultVehicleType).toHaveBeenCalledTimes(1);
-          expect(mileageService.getOrgUserMileageSettings).toHaveBeenCalledTimes(1);
+          expect(mileageService.getEmployeeMileageSettings).toHaveBeenCalledTimes(1);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(3);
-          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(2);
+          expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(2);
           expect(locationService.getCurrentLocation).toHaveBeenCalledTimes(1);
           expect(authService.getEou).toHaveBeenCalledTimes(2);
           expect(component.getMileageByVehicleType).toHaveBeenCalledOnceWith(unfilteredMileageRatesData, 'bicycle');
@@ -425,9 +414,9 @@ export function TestCases2(getTestBed) {
         const date = new Date('2023-08-21T07:43:15.592Z');
         jasmine.clock().mockDate(date);
         transactionService.getDefaultVehicleType.and.returnValue(of('CAR'));
-        mileageService.getOrgUserMileageSettings.and.returnValue(of(orgUserSettingsData.mileage_settings));
+        mileageService.getEmployeeMileageSettings.and.returnValue(of(employeeSettingsData.mileage_settings));
         orgSettingsService.get.and.returnValue(of(orgSettingsWithExpenseFormAutofill));
-        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
         locationService.getAutocompletePredictions.and.returnValue(of(predictedLocation1));
         locationService.getGeocode.and.returnValue(of(locationData1));
         component.recentlyUsedValues$ = of(recentlyUsedRes);
@@ -447,9 +436,9 @@ export function TestCases2(getTestBed) {
         component.getNewExpense().subscribe((res) => {
           expect(res).toEqual(newExpenseMileageData2);
           expect(transactionService.getDefaultVehicleType).toHaveBeenCalledTimes(1);
-          expect(mileageService.getOrgUserMileageSettings).toHaveBeenCalledTimes(1);
+          expect(mileageService.getEmployeeMileageSettings).toHaveBeenCalledTimes(1);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(3);
-          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(2);
+          expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(2);
           expect(locationService.getCurrentLocation).toHaveBeenCalledTimes(1);
           expect(authService.getEou).toHaveBeenCalledTimes(2);
           expect(component.getMileageByVehicleType).toHaveBeenCalledOnceWith(unfilteredMileageRatesData, 'bicycle');
@@ -471,9 +460,9 @@ export function TestCases2(getTestBed) {
         const date = new Date('2023-08-21T07:43:15.592Z');
         jasmine.clock().mockDate(date);
         transactionService.getDefaultVehicleType.and.returnValue(of('CAR'));
-        mileageService.getOrgUserMileageSettings.and.returnValue(of(undefined));
+        mileageService.getEmployeeMileageSettings.and.returnValue(of(undefined));
         orgSettingsService.get.and.returnValue(of(cloneDeep(orgSettingsParams2)));
-        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
         component.recentlyUsedValues$ = of(recentlyUsedRes);
         component.mileageRates$ = of(unfilteredMileageRatesData);
         spyOn(component, 'getMileageByVehicleType').and.returnValue(filterEnabledMileageRatesData[0]);
@@ -493,9 +482,9 @@ export function TestCases2(getTestBed) {
         newExpense.subscribe((expectedNewExpense) => {
           expect(expectedNewExpense).toEqual(newExpenseMileageData1);
           expect(transactionService.getDefaultVehicleType).toHaveBeenCalledTimes(1);
-          expect(mileageService.getOrgUserMileageSettings).toHaveBeenCalledTimes(1);
+          expect(mileageService.getEmployeeMileageSettings).toHaveBeenCalledTimes(1);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(3);
-          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(2);
+          expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(2);
           expect(locationService.getCurrentLocation).toHaveBeenCalledTimes(1);
           expect(authService.getEou).toHaveBeenCalledTimes(2);
           expect(component.getMileageByVehicleType).toHaveBeenCalledOnceWith(unfilteredMileageRatesData, 'bicycle');
@@ -506,110 +495,6 @@ export function TestCases2(getTestBed) {
 
       afterEach(function () {
         jasmine.clock().uninstall();
-      });
-    });
-
-    describe('checkIfInvalidPaymentMode():', () => {
-      it('should return false if source ID is same and if txn amount and tentative amount is less than the current amount', (done) => {
-        spyOn(component, 'getFormValues').and.returnValue({ paymentMode: multiplePaymentModesData[2] });
-        component.etxn$ = of(unflattenedTxnWithSourceID);
-        orgSettingsService.get.and.returnValue(of(orgSettingsRes));
-        component.amount$ = of(101);
-        fixture.detectChanges();
-
-        component.checkIfInvalidPaymentMode().subscribe((res) => {
-          expect(res).toBeFalse();
-          expect(component.getFormValues).toHaveBeenCalledTimes(1);
-          done();
-        });
-      });
-
-      it('should return true if source ID is different and if tentative amount less than expense amount', (done) => {
-        spyOn(component, 'getFormValues').and.returnValue({ paymentMode: accountsData[2] });
-        component.etxn$ = of(unflattenedTxnWithSourceID2);
-        orgSettingsService.get.and.returnValue(of(orgSettingsRes));
-        component.amount$ = of(600);
-        fixture.detectChanges();
-
-        component.checkIfInvalidPaymentMode().subscribe((res) => {
-          expect(res).toBeTrue();
-          expect(paymentModesService.showInvalidPaymentModeToast).toHaveBeenCalledTimes(1);
-          expect(component.getFormValues).toHaveBeenCalledTimes(1);
-          done();
-        });
-      });
-
-      it('should return false if payment account is null', (done) => {
-        spyOn(component, 'getFormValues').and.returnValue({ paymentMode: null });
-        component.etxn$ = of(unflattenedTxnWithSourceID2);
-        orgSettingsService.get.and.returnValue(of(orgSettingsRes));
-        component.amount$ = of(600);
-        fixture.detectChanges();
-
-        component.checkIfInvalidPaymentMode().subscribe((res) => {
-          expect(res).toBeFalse();
-          expect(component.getFormValues).toHaveBeenCalledTimes(1);
-          done();
-        });
-      });
-
-      it('should return false if org setting is null', (done) => {
-        spyOn(component, 'getFormValues').and.returnValue({ paymentMode: multiplePaymentModesData[2] });
-        component.etxn$ = of(unflattenedTxnWithSourceID);
-        orgSettingsService.get.and.returnValue(of(null));
-        component.amount$ = of(101);
-        fixture.detectChanges();
-
-        component.checkIfInvalidPaymentMode().subscribe((res) => {
-          expect(res).toBeFalse();
-          expect(component.getFormValues).toHaveBeenCalledTimes(1);
-          done();
-        });
-      });
-
-      it('should return false if payment account is null and advance wallets is enabled', (done) => {
-        spyOn(component, 'getFormValues').and.returnValue({ paymentMode: null });
-        component.etxn$ = of(unflattenedTxnWithSourceID2);
-        orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithAdvanceWallet));
-        component.amount$ = of(600);
-        fixture.detectChanges();
-
-        component.checkIfInvalidPaymentMode().subscribe((res) => {
-          expect(res).toBeFalse();
-          expect(component.getFormValues).toHaveBeenCalledTimes(1);
-          done();
-        });
-      });
-
-      it('should check for invalid payment in case of Advance wallets', (done) => {
-        spyOn(component, 'getFormValues').and.returnValue({ paymentMode: paymentModeDataAdvanceWallet });
-        component.etxn$ = of(unflattenedTxnWithAdvanceWallet);
-        orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithAdvanceWallet));
-
-        component.fg.controls.paymentMode.setValue(paymentModeDataAdvanceWallet);
-        component.amount$ = of(2500);
-        fixture.detectChanges();
-
-        component.checkIfInvalidPaymentMode().subscribe((res) => {
-          expect(res).toBeTrue();
-          expect(paymentModesService.showInvalidPaymentModeToast).toHaveBeenCalledTimes(1);
-          done();
-        });
-      });
-
-      it('should check for invalid payment while adding expense with advance wallets', (done) => {
-        component.etxn$ = of(unflattenedExpDataWithAdvanceWalletWithoutId);
-        orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithAdvanceWallet));
-
-        component.fg.controls.paymentMode.setValue(paymentModeDataAdvanceWallet);
-        component.amount$ = of(2500);
-        fixture.detectChanges();
-
-        component.checkIfInvalidPaymentMode().subscribe((res) => {
-          expect(res).toBeTrue();
-          expect(paymentModesService.showInvalidPaymentModeToast).toHaveBeenCalledTimes(1);
-          done();
-        });
       });
     });
 

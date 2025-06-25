@@ -24,7 +24,7 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 import { OrgService } from 'src/app/core/services/org.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 
@@ -68,7 +68,7 @@ describe('TasksComponent', () => {
       'getAllReportsByParams',
     ]);
     const approverReportsServiceSpy = jasmine.createSpyObj('ApproverReportsService', ['getAllReportsByParams']);
-    const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
+    const platformEmployeeSettingsServiceSpy = jasmine.createSpyObj('PlatformEmployeeSettingsService', ['get']);
     const corporateCreditCardExpenseServiceSpy = jasmine.createSpyObj('CorporateCreditCardExpenseService', [
       'getCorporateCards',
       'clearCache',
@@ -112,7 +112,7 @@ describe('TasksComponent', () => {
         { provide: ApproverReportsService, useValue: approverReportsServiceSpy },
         { provide: OrgService, useValue: orgServiceSpy },
         { provide: PopoverController, useValue: popoverControllerSpy },
-        { provide: OrgUserSettingsService, useValue: orgUserSettingsServiceSpy },
+        { provide: PlatformEmployeeSettingsService, useValue: platformEmployeeSettingsServiceSpy },
         { provide: CorporateCreditCardExpenseService, useValue: corporateCreditCardExpenseServiceSpy },
         { provide: TranslocoService, useValue: translocoServiceSpy },
       ],

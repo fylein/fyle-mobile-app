@@ -395,7 +395,7 @@ export const advanceRequests2: Partial<AdvanceRequests> = deepFreeze({
 
 export const advanceRequests3: Partial<AdvanceRequests> = deepFreeze({
   org_user_id: 'ouX8dwsbLCLv',
-  currency: 'GNF',
+  currency: 'USD',
   source: 'MOBILE',
   created_at: new Date(),
 });

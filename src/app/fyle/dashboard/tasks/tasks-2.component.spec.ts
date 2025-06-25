@@ -51,12 +51,12 @@ import { FyOptInComponent } from 'src/app/shared/components/fy-opt-in/fy-opt-in.
 import { Component, Input } from '@angular/core';
 import { AddCorporateCardComponent } from '../../manage-corporate-cards/add-corporate-card/add-corporate-card.component';
 import { By } from '@angular/platform-browser';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { CardAddedComponent } from '../../manage-corporate-cards/card-added/card-added.component';
 import { orgSettingsPendingRestrictions } from 'src/app/core/mock-data/org-settings.data';
-import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
+import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 
 export function TestCases2(getTestBed) {
@@ -82,7 +82,7 @@ export function TestCases2(getTestBed) {
     let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
     let orgService: jasmine.SpyObj<OrgService>;
     let popoverController: jasmine.SpyObj<PopoverController>;
-    let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
+    let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
     let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
     let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
     let translocoService: jasmine.SpyObj<TranslocoService>;
@@ -113,7 +113,9 @@ export function TestCases2(getTestBed) {
       approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
       orgService = TestBed.inject(OrgService) as jasmine.SpyObj<OrgService>;
       popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
-      orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
+      platformEmployeeSettingsService = TestBed.inject(
+        PlatformEmployeeSettingsService
+      ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
       corporateCreditCardExpenseService = TestBed.inject(
         CorporateCreditCardExpenseService
       ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
@@ -245,7 +247,7 @@ export function TestCases2(getTestBed) {
     describe('onAddCorporateCardClick(): ', () => {
       it('should open card popover', () => {
         orgSettingsService.get.and.returnValue(of(orgSettingsPendingRestrictions));
-        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
         const addCardPopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onDidDismiss']);
         addCardPopoverSpy.present.and.resolveTo();
         addCardPopoverSpy.onDidDismiss.and.resolveTo({ data: { success: true } });
@@ -267,7 +269,7 @@ export function TestCases2(getTestBed) {
 
       it('should not open card popover when success is undefined', () => {
         orgSettingsService.get.and.returnValue(of(orgSettingsPendingRestrictions));
-        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
         const addCardPopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onDidDismiss']);
         addCardPopoverSpy.present.and.resolveTo();
         addCardPopoverSpy.onDidDismiss.and.resolveTo({ data: null });

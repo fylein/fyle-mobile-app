@@ -15,7 +15,6 @@ import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.servi
 import { FileService } from 'src/app/core/services/file.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { CameraOptionsPopupComponent } from 'src/app/fyle/add-edit-expense/camera-options-popup/camera-options-popup.component';
@@ -26,6 +25,7 @@ import { TrackingService } from '../../../core/services/tracking.service';
 import { PopupAlertComponent } from '../popup-alert/popup-alert.component';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { ReceiptDetail } from 'src/app/core/models/receipt-detail.model';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
@@ -121,7 +121,7 @@ export class ExpensesCardComponent implements OnInit {
 
   constructor(
     private transactionService: TransactionService,
-    private orgUserSettingsService: OrgUserSettingsService,
+    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
     private fileService: FileService,
     private popoverController: PopoverController,
     private networkService: NetworkService,
@@ -199,10 +199,10 @@ export class ExpensesCardComponent implements OnInit {
     that.isScanCompleted = false;
 
     if (!that.isOutboxExpense) {
-      that.orgUserSettingsService.get().subscribe((orgUserSettings) => {
+      that.platformEmployeeSettingsService.get().subscribe((employeeSettings) => {
         if (
-          orgUserSettings.insta_fyle_settings.allowed &&
-          orgUserSettings.insta_fyle_settings.enabled &&
+          employeeSettings.insta_fyle_settings.allowed &&
+          employeeSettings.insta_fyle_settings.enabled &&
           (that.homeCurrency === 'USD' || that.homeCurrency === 'INR')
         ) {
           that.isScanCompleted = that.checkIfScanIsCompleted();

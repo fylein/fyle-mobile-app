@@ -36,8 +36,7 @@ describe('FyViewAttachmentComponent', () => {
     const trackingServiceSpy = jasmine.createSpyObj('TracingService', [
       'deleteFileClicked',
       'fileDeleted',
-      'rotateReceipt',
-      'receiptSavedRotation',
+      'eventTrack',
     ]);
     const spenderFileServiceSpy = jasmine.createSpyObj('SpenderFileService', ['deleteFilesBulk']);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['attachReceiptToExpense']);

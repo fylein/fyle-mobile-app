@@ -38,7 +38,6 @@ import { OrgService } from 'src/app/core/services/org.service';
 import { FyOptInComponent } from 'src/app/shared/components/fy-opt-in/fy-opt-in.component';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { AddCorporateCardComponent } from '../../manage-corporate-cards/add-corporate-card/add-corporate-card.component';
 import { CardAddedComponent } from '../../manage-corporate-cards/card-added/card-added.component';
 import { TranslocoService } from '@jsverse/transloco';
@@ -97,7 +96,6 @@ export class TasksComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private networkService: NetworkService,
     private orgSettingsService: OrgSettingsService,
-    private orgUserSettingsService: OrgUserSettingsService,
     private authService: AuthService,
     private orgService: OrgService,
     private popoverController: PopoverController,
@@ -481,12 +479,10 @@ export class TasksComponent implements OnInit {
       )
     );
 
-    this.isYodleeEnabled$ = forkJoin([orgSettings$, this.orgUserSettingsService.get()]).pipe(
+    this.isYodleeEnabled$ = forkJoin([orgSettings$]).pipe(
       map(
-        ([orgSettings, orgUserSettings]) =>
-          orgSettings.bank_data_aggregation_settings.allowed &&
-          orgSettings.bank_data_aggregation_settings.enabled &&
-          orgUserSettings.bank_data_aggregation_settings.enabled
+        ([orgSettings]) =>
+          orgSettings.bank_data_aggregation_settings.allowed && orgSettings.bank_data_aggregation_settings.enabled
       )
     );
     forkJoin([this.isVisaRTFEnabled$, this.isMastercardRTFEnabled$, this.isYodleeEnabled$]).subscribe(

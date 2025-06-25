@@ -33,7 +33,7 @@ import {
   orgSettingsWoMileage,
   orgSettingsParamsWithAdvanceWallet,
 } from 'src/app/core/mock-data/org-settings.data';
-import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
+import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
 import { recentlyUsedRes } from 'src/app/core/mock-data/recently-used.data';
 import { expectedReportsPaginated } from 'src/app/core/mock-data/platform-report.data';
 import {
@@ -72,7 +72,7 @@ import { MileageService } from 'src/app/core/services/mileage.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
@@ -142,7 +142,7 @@ export function TestCases4(getTestBed) {
     let paymentModesService: jasmine.SpyObj<PaymentModesService>;
     let taxGroupService: jasmine.SpyObj<TaxGroupService>;
     let costCentersService: jasmine.SpyObj<CostCentersService>;
-    let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
+    let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
     let storageService: jasmine.SpyObj<StorageService>;
     let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
     let mileageService: jasmine.SpyObj<MileageService>;
@@ -201,7 +201,9 @@ export function TestCases4(getTestBed) {
       paymentModesService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
       taxGroupService = TestBed.inject(TaxGroupService) as jasmine.SpyObj<TaxGroupService>;
       costCentersService = TestBed.inject(CostCentersService) as jasmine.SpyObj<CostCentersService>;
-      orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
+      platformEmployeeSettingsService = TestBed.inject(
+        PlatformEmployeeSettingsService
+      ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
       mileageService = TestBed.inject(MileageService) as jasmine.SpyObj<MileageService>;
@@ -422,22 +424,6 @@ export function TestCases4(getTestBed) {
       });
     });
 
-    describe('checkAdvanceEnabled():', () => {
-      it('should check if advance is enabled', (done) => {
-        component.checkAdvanceEnabled(of(orgSettingsRes)).subscribe((res) => {
-          expect(res).toBeTrue();
-          done();
-        });
-      });
-
-      it('should check for advance request', (done) => {
-        component.checkAdvanceEnabled(of(orgSettingsWoAdvance)).subscribe((res) => {
-          expect(res).toBeTrue();
-          done();
-        });
-      });
-    });
-
     describe('getRecentlyUsedValues():', () => {
       it('should recently used values', (done) => {
         component.isConnected$ = of(true);
@@ -517,16 +503,16 @@ export function TestCases4(getTestBed) {
         component.projectCategories$ = of(sortedCategory);
         component.subCategories$ = of(sortedCategory);
         orgSettingsService.get.and.returnValue(of(orgSettingsRes));
-        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
         projectsService.getbyId.and.returnValue(of(expectedProjectsResponse[0]));
         fixture.detectChanges();
 
         component.getProjects().subscribe((res) => {
           expect(res).toEqual(expectedProjectsResponse[0]);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
           expect(projectsService.getbyId).toHaveBeenCalledOnceWith(
-            orgUserSettingsData.preferences.default_project_id,
+            employeeSettingsData.default_project_id,
             sortedCategory
           );
           done();
@@ -536,12 +522,12 @@ export function TestCases4(getTestBed) {
       it('should return null if no project could be found', (done) => {
         component.etxn$ = of(newUnflattenedTxn);
         orgSettingsService.get.and.returnValue(of(orgSettingsRes));
-        orgUserSettingsService.get.and.returnValue(of(null));
+        platformEmployeeSettingsService.get.and.returnValue(of(null));
 
         component.getProjects().subscribe((res) => {
           expect(res).toBeNull();
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
           expect(projectsService.getbyId).not.toHaveBeenCalled();
           done();
         });
@@ -692,43 +678,6 @@ export function TestCases4(getTestBed) {
       expect(result).toEqual([]);
     });
 
-    describe('getAdvanceWalletId():', () => {
-      it('should get advance wallet id', () => {
-        const paymentModeFormValue = {
-          id: 'areq1234',
-        };
-        component.fg.controls.paymentMode.setValue(paymentModeFormValue);
-
-        const result = component.getAdvanceWalletId(true);
-        expect(result).toEqual('areq1234');
-      });
-
-      it('should return null', () => {
-        component.fg.controls.paymentMode.setValue(null);
-
-        const result = component.getAdvanceWalletId(true);
-        expect(result).toBeUndefined();
-      });
-
-      it('should return null when advance wallet setting is disabled', () => {
-        component.fg.controls.paymentMode.setValue(null);
-
-        const result = component.getAdvanceWalletId(false);
-        expect(result).toBeFalse();
-      });
-
-      it('should return null', () => {
-        component.fg.controls.paymentMode.setValue({
-          acc: {
-            id: 'id',
-          },
-        });
-
-        const result = component.getAdvanceWalletId(true);
-        expect(result).toBeNull();
-      });
-    });
-
     describe('generateEtxnFromFg():', () => {
       beforeEach(() => {
         component.amount$ = of(100);
@@ -752,7 +701,7 @@ export function TestCases4(getTestBed) {
           .generateEtxnFromFg(of(unflattenedTxnWithReportID3), of(mockTxnCustomProperties), of(10))
           .subscribe((res) => {
             expect(res).toEqual(newMileageExpFromForm);
-            expect(component.getFormValues).toHaveBeenCalledTimes(2);
+            expect(component.getFormValues).toHaveBeenCalledTimes(1);
             expect(dateService.getUTCDate).toHaveBeenCalledTimes(2);
             done();
           });
@@ -773,7 +722,7 @@ export function TestCases4(getTestBed) {
           .generateEtxnFromFg(of(unflattenedTxnWithReportID3), of(mockTxnCustomProperties), of(10))
           .subscribe((res) => {
             expect(res).toEqual(newMileageExpFromForm);
-            expect(component.getFormValues).toHaveBeenCalledTimes(2);
+            expect(component.getFormValues).toHaveBeenCalledTimes(1);
             expect(dateService.getUTCDate).toHaveBeenCalledTimes(2);
             done();
           });
@@ -784,7 +733,6 @@ export function TestCases4(getTestBed) {
         dateService.getUTCDate.and.returnValue(new Date('2023-02-13T01:00:00.000Z'));
         spyOn(component, 'getFormValues').and.returnValue(formValueForAdvanceWalletExpense);
         spyOn(component, 'getRateByVehicleType').and.returnValue(10);
-        spyOn(component, 'getAdvanceWalletId').and.returnValue('areq1234');
         component.showCommuteDeductionField = true;
         component.commuteDetails = commuteDetailsData;
         component.fg.patchValue({ commuteDeduction: CommuteDeduction.ONE_WAY });
@@ -807,7 +755,7 @@ export function TestCases4(getTestBed) {
 
         component.generateEtxnFromFg(of(unflattenedTxnWithReportID3), of(null), of(10)).subscribe((res) => {
           expect(res).toEqual(newMileageExpFromForm2);
-          expect(component.getFormValues).toHaveBeenCalledTimes(2);
+          expect(component.getFormValues).toHaveBeenCalledTimes(1);
           expect(dateService.getUTCDate).toHaveBeenCalledTimes(1);
           done();
         });

@@ -1,0 +1,31 @@
+import deepFreeze from 'deep-freeze-strict';
+import { CurrencyConfig } from '../models/currency-config.model';
+
+export const fallbackCurrencies: CurrencyConfig[] = deepFreeze([
+  { code: 'USD', decimalPlaces: 2 },
+  { code: 'EUR', decimalPlaces: 2 },
+  { code: 'GBP', decimalPlaces: 2 },
+  { code: 'INR', decimalPlaces: 2 },
+  { code: 'CAD', decimalPlaces: 2 },
+  { code: 'AUD', decimalPlaces: 2 },
+  { code: 'CNY', decimalPlaces: 2 },
+  { code: 'SGD', decimalPlaces: 2 },
+  { code: 'HKD', decimalPlaces: 2 },
+  { code: 'THB', decimalPlaces: 2 },
+  { code: 'MYR', decimalPlaces: 2 },
+  { code: 'PHP', decimalPlaces: 2 },
+  { code: 'NZD', decimalPlaces: 2 },
+  { code: 'JPY', decimalPlaces: 0 },
+  { code: 'KRW', decimalPlaces: 0 },
+  { code: 'VND', decimalPlaces: 0 },
+  { code: 'IDR', decimalPlaces: 0 },
+  { code: 'CLP', decimalPlaces: 0 },
+  { code: 'OMR', decimalPlaces: 3 },
+  { code: 'KWD', decimalPlaces: 3 },
+  { code: 'BHD', decimalPlaces: 3 },
+  { code: 'IQD', decimalPlaces: 3 },
+  { code: 'TND', decimalPlaces: 3 },
+  { code: 'JOD', decimalPlaces: 3 },
+  { code: 'LYD', decimalPlaces: 3 },
+  { code: 'CLF', decimalPlaces: 4 },
+]);

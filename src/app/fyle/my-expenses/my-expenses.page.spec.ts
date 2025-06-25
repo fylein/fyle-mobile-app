@@ -69,7 +69,7 @@ import {
   orgSettingsPendingRestrictions,
   orgSettingsRes,
 } from 'src/app/core/mock-data/org-settings.data';
-import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
+import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
 import {
   apiExpenses1,
   expenseData,
@@ -96,7 +96,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
 import { ExpensesService as SharedExpenseService } from 'src/app/core/services/platform/v1/shared/expenses.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
@@ -155,7 +155,7 @@ describe('MyExpensesPage', () => {
   let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
   let storageService: jasmine.SpyObj<StorageService>;
   let corporateCreditCardService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
-  let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
+  let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
   let categoriesService: jasmine.SpyObj<CategoriesService>;
   let platformHandlerService: jasmine.SpyObj<PlatformHandlerService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
@@ -239,7 +239,7 @@ describe('MyExpensesPage', () => {
       'getExpenseDetailsInCards',
       'getCorporateCards',
     ]);
-    const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
+    const platformEmployeeSettingsServiceSpy = jasmine.createSpyObj('PlatformEmployeeSettingsService', ['get']);
     const platformHandlerServiceSpy = jasmine.createSpyObj('PlatformHandlerService', ['registerBackButtonAction']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
       'createFirstExpense',
@@ -359,8 +359,8 @@ describe('MyExpensesPage', () => {
           useValue: corporateCreditCardServiceSpy,
         },
         {
-          provide: OrgUserSettingsService,
-          useValue: orgUserSettingsServiceSpy,
+          provide: PlatformEmployeeSettingsService,
+          useValue: platformEmployeeSettingsServiceSpy,
         },
         {
           provide: PlatformHandlerService,
@@ -453,7 +453,9 @@ describe('MyExpensesPage', () => {
     corporateCreditCardService = TestBed.inject(
       CorporateCreditCardExpenseService
     ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
-    orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
+    platformEmployeeSettingsService = TestBed.inject(
+      PlatformEmployeeSettingsService
+    ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     platformHandlerService = TestBed.inject(PlatformHandlerService) as jasmine.SpyObj<PlatformHandlerService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
@@ -489,7 +491,7 @@ describe('MyExpensesPage', () => {
       backButtonSubscription = new Subscription();
       tasksService.getExpensesTaskCount.and.returnValue(of(10));
       platformHandlerService.registerBackButtonAction.and.returnValue(backButtonSubscription);
-      orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+      platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
       orgSettingsService.get.and.returnValue(of(orgSettingsRes));
       categoriesService.getMileageOrPerDiemCategories.and.returnValue(of(mileagePerDiemPlatformCategoryData));
       spyOn(component, 'getCardDetail').and.returnValue(of(uniqueCardsData));
@@ -520,13 +522,13 @@ describe('MyExpensesPage', () => {
       inputElement = component.simpleSearchInput.nativeElement;
     });
 
-    it('should set isNewReportsFlowEnabled, isInstaFyleEnabled, isMileageEnabled and isPerDiemEnabled to true if orgSettings and orgUserSettings properties are enabled', fakeAsync(() => {
+    it('should set isNewReportsFlowEnabled, isInstaFyleEnabled, isMileageEnabled and isPerDiemEnabled to true if orgSettings and employeeSettings properties are enabled', fakeAsync(() => {
       component.ionViewWillEnter();
       tick(500);
       expect(component.expensesTaskCount).toBe(10);
       expect(component.isNewReportsFlowEnabled).toBeFalse();
 
-      expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+      expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
       component.isInstaFyleEnabled$.subscribe((isInstaFyleEnabled) => {
         expect(isInstaFyleEnabled).toBeTrue();
@@ -539,14 +541,13 @@ describe('MyExpensesPage', () => {
       });
     }));
 
-    it('should set isNewReportsFlowEnabled, isInstaFyleEnabled, isMileageEnabled and isPerDiemEnabled to false if orgSettings and orgUserSettings properties are disabled', fakeAsync(() => {
-      const mockOrgUserSettingsData = cloneDeep(orgUserSettingsData);
+    it('should set isNewReportsFlowEnabled, isInstaFyleEnabled, isMileageEnabled and isPerDiemEnabled to false if orgSettings and employeeSettings properties are disabled', fakeAsync(() => {
+      const mockEmployeeSettingsData = cloneDeep(employeeSettingsData);
       const mockOrgSettingsData = cloneDeep(orgSettingsRes);
-      mockOrgUserSettingsData.insta_fyle_settings.enabled = false;
-      mockOrgUserSettingsData.bulk_fyle_settings.enabled = false;
+      mockEmployeeSettingsData.insta_fyle_settings.enabled = false;
       mockOrgSettingsData.mileage.enabled = false;
       mockOrgSettingsData.per_diem.enabled = false;
-      orgUserSettingsService.get.and.returnValue(of(mockOrgUserSettingsData));
+      platformEmployeeSettingsService.get.and.returnValue(of(mockEmployeeSettingsData));
       orgSettingsService.get.and.returnValue(of(mockOrgSettingsData));
 
       component.ionViewWillEnter();
@@ -554,7 +555,7 @@ describe('MyExpensesPage', () => {
       expect(component.expensesTaskCount).toBe(10);
       expect(component.isNewReportsFlowEnabled).toBeFalse();
 
-      expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+      expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
       component.isInstaFyleEnabled$.subscribe((isInstaFyleEnabled) => {
         expect(isInstaFyleEnabled).toBeFalse();
@@ -567,18 +568,17 @@ describe('MyExpensesPage', () => {
       });
     }));
 
-    it('should set isNewReportsFlowEnabled, isInstaFyleEnabled, isMileageEnabled and isPerDiemEnabled to false if orgSettings and orgUserSettings properties are not allowed', fakeAsync(() => {
-      const mockOrgUserSettingsData = cloneDeep(orgUserSettingsData);
-      mockOrgUserSettingsData.insta_fyle_settings.allowed = false;
-      mockOrgUserSettingsData.bulk_fyle_settings.allowed = false;
-      orgUserSettingsService.get.and.returnValue(of(mockOrgUserSettingsData));
+    it('should set isNewReportsFlowEnabled, isInstaFyleEnabled, isMileageEnabled and isPerDiemEnabled to false if orgSettings and employeeSettings properties are not allowed', fakeAsync(() => {
+      const mockEmployeeSettingsData = cloneDeep(employeeSettingsData);
+      mockEmployeeSettingsData.insta_fyle_settings.allowed = false;
+      platformEmployeeSettingsService.get.and.returnValue(of(mockEmployeeSettingsData));
 
       component.ionViewWillEnter();
       tick(500);
       expect(component.expensesTaskCount).toBe(10);
       expect(component.isNewReportsFlowEnabled).toBeFalse();
 
-      expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+      expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
       component.isInstaFyleEnabled$.subscribe((isInstaFyleEnabled) => {
         expect(isInstaFyleEnabled).toBeFalse();
@@ -591,8 +591,8 @@ describe('MyExpensesPage', () => {
       });
     }));
 
-    it('should set isInstaFyleEnabled, isMileageEnabled and isPerDiemEnabled to undefined if orgUserSettings and orgSettings are undefined', fakeAsync(() => {
-      orgUserSettingsService.get.and.returnValue(of(undefined));
+    it('should set isInstaFyleEnabled, isMileageEnabled and isPerDiemEnabled to undefined if employeeSettings and orgSettings are undefined', fakeAsync(() => {
+      platformEmployeeSettingsService.get.and.returnValue(of(undefined));
       orgSettingsService.get.and.returnValue(of(undefined));
 
       component.ionViewWillEnter();
@@ -600,7 +600,7 @@ describe('MyExpensesPage', () => {
       expect(component.expensesTaskCount).toBe(10);
       expect(component.isNewReportsFlowEnabled).toBeFalse();
 
-      expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+      expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
       component.isInstaFyleEnabled$.subscribe((isInstaFyleEnabled) => {
         expect(isInstaFyleEnabled).toBeUndefined();

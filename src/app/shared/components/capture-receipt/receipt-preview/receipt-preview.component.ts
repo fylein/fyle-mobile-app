@@ -12,6 +12,7 @@ import SwiperCore, { Pagination } from 'swiper';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { Image } from 'src/app/core/models/image-type.model';
 import { RotationDirection } from 'src/app/core/enums/rotation-direction.enum';
+import { Router } from '@angular/router';
 import { TranslocoService } from '@jsverse/transloco';
 
 // install Swiper modules
@@ -50,6 +51,7 @@ export class ReceiptPreviewComponent implements OnInit, OnDestroy {
     private matBottomSheet: MatBottomSheet,
     private imagePicker: ImagePicker,
     private trackingService: TrackingService,
+    private router: Router,
     private translocoService: TranslocoService
   ) {}
 
@@ -88,9 +90,10 @@ export class ReceiptPreviewComponent implements OnInit, OnDestroy {
     }
     this.rotatingDirection = direction;
 
-    this.trackingService.rotateReceipt({
-      Direction: direction,
+    this.trackingService.eventTrack('Rotated receipt', {
       Index: this.activeIndex,
+      Direction: direction,
+      Source: this.router.url,
     });
 
     setTimeout(() => {
@@ -137,10 +140,6 @@ export class ReceiptPreviewComponent implements OnInit, OnDestroy {
   }
 
   saveReceipt(): void {
-    this.trackingService.receiptSavedRotation({
-      Count: this.base64ImagesWithSource.length,
-      Source: 'ReceiptPreviewComponent',
-    });
     this.modalController.dismiss({
       base64ImagesWithSource: this.base64ImagesWithSource,
     });

@@ -7,7 +7,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { FyProjectSelectModalComponent } from './fy-select-project-modal.component';
 import { ChangeDetectorRef } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
@@ -17,7 +17,6 @@ import { FormsModule } from '@angular/forms';
 import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy-input';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { map, of } from 'rxjs';
-import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import { orgSettingsData, orgSettingsDataWithoutAdvPro } from 'src/app/core/test-data/accounts.service.spec.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { FyHighlightTextComponent } from '../../fy-highlight-text/fy-highlight-text.component';
@@ -43,6 +42,7 @@ import {
   orgCategoryPaginated1,
   sortedCategory,
 } from 'src/app/core/mock-data/org-category.data';
+import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
 
 describe('FyProjectSelectModalComponent', () => {
   let component: FyProjectSelectModalComponent;
@@ -54,7 +54,7 @@ describe('FyProjectSelectModalComponent', () => {
   let authService: jasmine.SpyObj<AuthService>;
   let recentLocalStorageItemsService: jasmine.SpyObj<RecentLocalStorageItemsService>;
   let utilityService: jasmine.SpyObj<UtilityService>;
-  let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
+  let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let inputElement: HTMLInputElement;
   let translocoService: jasmine.SpyObj<TranslocoService>;
@@ -64,7 +64,7 @@ describe('FyProjectSelectModalComponent', () => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const recentLocalStorageItemsServiceSpy = jasmine.createSpyObj('RecentLocalStorageItemsService', ['get', 'post']);
     const utilityServiceSpy = jasmine.createSpyObj('UtilityService', ['searchArrayStream']);
-    const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
+    const platformEmployeeSettingsServiceSpy = jasmine.createSpyObj('PlatformEmployeeSettingsService', ['get']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', [
       'getAll',
@@ -117,8 +117,8 @@ describe('FyProjectSelectModalComponent', () => {
           useValue: orgSettingsServiceSpy,
         },
         {
-          provide: OrgUserSettingsService,
-          useValue: orgUserSettingsServiceSpy,
+          provide: PlatformEmployeeSettingsService,
+          useValue: platformEmployeeSettingsServiceSpy,
         },
         {
           provide: CategoriesService,
@@ -143,7 +143,9 @@ describe('FyProjectSelectModalComponent', () => {
     ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
     utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
-    orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
+    platformEmployeeSettingsService = TestBed.inject(
+      PlatformEmployeeSettingsService
+    ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     translocoService.translate.and.callFake((key: any, params?: any) => {
       const translations: { [key: string]: string } = {
@@ -164,7 +166,7 @@ describe('FyProjectSelectModalComponent', () => {
 
     orgSettingsService.get.and.returnValue(of(orgSettingsData));
     authService.getEou.and.resolveTo(apiEouRes);
-    orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+    platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
 
     categoriesService.getAll.and.returnValue(of([orgCategoryData]));
     categoriesService.getCategoryById.and.returnValue(of(orgCategoryPaginated1[0]));
@@ -196,7 +198,7 @@ describe('FyProjectSelectModalComponent', () => {
         expect(res).toEqual(expectedProjects);
         expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
         expect(authService.getEou).toHaveBeenCalledTimes(2);
-        expect(orgUserSettingsService.get).toHaveBeenCalledTimes(4);
+        expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(4);
         expect(projectsService.getByParamsUnformatted).toHaveBeenCalledWith(
           {
             orgId: 'orNVthTo2Zyo',
@@ -226,7 +228,7 @@ describe('FyProjectSelectModalComponent', () => {
         expect(res).toEqual(expectedProjects2);
         expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
         expect(authService.getEou).toHaveBeenCalledTimes(2);
-        expect(orgUserSettingsService.get).toHaveBeenCalledTimes(4);
+        expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(4);
         expect(projectsService.getByParamsUnformatted).toHaveBeenCalledWith(
           {
             orgId: 'orNVthTo2Zyo',
@@ -257,7 +259,7 @@ describe('FyProjectSelectModalComponent', () => {
       component.getProjects('value').subscribe(() => {
         expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
         expect(authService.getEou).toHaveBeenCalledTimes(2);
-        expect(orgUserSettingsService.get).toHaveBeenCalledTimes(4);
+        expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(4);
         expect(projectsService.getByParamsUnformatted).toHaveBeenCalledWith(
           {
             orgId: 'orNVthTo2Zyo',
@@ -283,7 +285,7 @@ describe('FyProjectSelectModalComponent', () => {
       projectsService.getbyId.and.returnValue(of(null));
       authService.getEou.and.resolveTo(apiEouRes);
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
-      orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+      platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
       component.currentSelection = null;
       component.defaultValue = false;
       component.activeCategories$ = of([]);
@@ -292,7 +294,7 @@ describe('FyProjectSelectModalComponent', () => {
         expect(res).toEqual([{ label: 'None', value: null }]);
         expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
         expect(authService.getEou).toHaveBeenCalledTimes(2);
-        expect(orgUserSettingsService.get).toHaveBeenCalledTimes(4);
+        expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(4);
         expect(projectsService.getByParamsUnformatted).toHaveBeenCalledWith(
           {
             orgId: apiEouRes.ou.org_id,
