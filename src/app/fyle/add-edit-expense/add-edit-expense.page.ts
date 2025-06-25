@@ -3152,7 +3152,7 @@ export class AddEditExpensePage implements OnInit {
     );
 
     this.individualProjectIds$ = this.employeeSettings$.pipe(
-      map((employeeSettings: EmployeeSettings) => employeeSettings.project_ids || []),
+      map((employeeSettings: EmployeeSettings) => employeeSettings.project_ids?.map((id) => Number(id)) || []),
       shareReplay(1)
     );
 
