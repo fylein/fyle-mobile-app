@@ -16,7 +16,7 @@ import { SnakeCaseToSpaceCase } from 'src/app/shared/pipes/snake-case-to-space-c
 import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog.component';
 import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-report.data';
 import { ExactCurrencyPipe } from 'src/app/shared/pipes/exact-currency.pipe';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 
 describe('AddTxnToReportDialogComponent', () => {
   let component: AddTxnToReportDialogComponent;
@@ -29,14 +29,36 @@ describe('AddTxnToReportDialogComponent', () => {
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     const matBottomsheetSpy = jasmine.createSpyObj('MatBottomSheet', ['dismiss']);
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
 
     // Mock the translate method
     translocoServiceSpy.translate.and.callFake((key: any, params?: any) => {
       const translations: { [key: string]: string } = {
         'pipes.reportState.draft': 'Draft',
+        'addTxnToReportDialog.title': 'Add to report',
+        'addTxnToReportDialog.expense': 'Expense',
+        'addTxnToReportDialog.expenses': 'Expenses',
+        'addTxnToReportDialog.noReports': 'You have no reports right now',
+        'addTxnToReportDialog.createDraftReportCta':
+          'To create a draft report please click on <ion-icon class="report-list--zero-state__icon" slot="icon-only" src="../../../../../assets/svg/plus-square.svg"></ion-icon>',
       };
-      return translations[key] || key;
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
     });
 
     TestBed.configureTestingModule({
@@ -48,7 +70,7 @@ describe('AddTxnToReportDialogComponent', () => {
         ReportState,
         SnakeCaseToSpaceCase,
       ],
-      imports: [IonicModule.forRoot(), RouterTestingModule, RouterModule, MatBottomSheetModule],
+      imports: [IonicModule.forRoot(), RouterTestingModule, RouterModule, MatBottomSheetModule, TranslocoModule],
       providers: [
         FyCurrencyPipe,
         CurrencyPipe,

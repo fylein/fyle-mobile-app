@@ -27,6 +27,7 @@ import { ExpensesService as SharedExpenseService } from 'src/app/core/services/p
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { ReceiptDetail } from 'src/app/core/models/receipt-detail.model';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-expense-card-v2',
@@ -139,7 +140,8 @@ export class ExpensesCardComponent implements OnInit {
     private currencyService: CurrencyService,
     private expenseFieldsService: ExpenseFieldsService,
     private orgSettingsService: OrgSettingsService,
-    private expensesService: ExpensesService
+    private expensesService: ExpensesService,
+    private translocoService: TranslocoService
   ) {}
 
   get isSelected(): boolean {
@@ -406,7 +408,7 @@ export class ExpensesCardComponent implements OnInit {
         }
         if (receiptDetails && receiptDetails.dataUrl) {
           this.attachReceipt(receiptDetails as ReceiptDetail);
-          const message = 'Receipt added to Expense successfully';
+          const message = this.translocoService.translate('expensesCard.receiptAdded');
           this.matSnackBar.openFromComponent(ToastMessageComponent, {
             ...this.snackbarProperties.setSnackbarProperties('success', { message }),
             panelClass: ['msb-success-with-camera-icon'],
@@ -457,15 +459,17 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   async showSizeLimitExceededPopover(maxFileSize: number): Promise<void> {
+    const title = this.translocoService.translate('expensesCard.sizeLimitExceeded');
+    const message = this.translocoService.translate('expensesCard.fileTooLarge', {
+      maxFileSize: (maxFileSize / (1024 * 1024)).toFixed(0),
+    });
     const sizeLimitExceededPopover = await this.popoverController.create({
       component: PopupAlertComponent,
       componentProps: {
-        title: 'Size limit exceeded',
-        message: `The uploaded file is greater than ${(maxFileSize / (1024 * 1024)).toFixed(
-          0
-        )}MB in size. Please reduce the file size and try again.`,
+        title,
+        message,
         primaryCta: {
-          text: 'OK',
+          text: this.translocoService.translate('expensesCard.ok'),
         },
       },
       cssClass: 'pop-up-in-center',

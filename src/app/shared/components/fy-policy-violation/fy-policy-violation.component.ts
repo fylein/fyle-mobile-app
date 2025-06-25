@@ -5,6 +5,7 @@ import { PolicyService } from 'src/app/core/services/policy.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
 import { UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { FinalExpensePolicyState } from 'src/app/core/models/platform/platform-final-expense-policy-state.model';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-fy-policy-violation',
@@ -43,10 +44,11 @@ export class FyPolicyViolationComponent implements OnInit {
   constructor(
     private modalController: ModalController,
     private policyService: PolicyService,
-    private utilityService: UtilityService
+    private utilityService: UtilityService,
+    private translocoService: TranslocoService
   ) {}
 
-  constructAdditionalApproverAction() {
+  constructAdditionalApproverAction(): void {
     if (this.needAdditionalApproval) {
       let emails = [];
       this.policyAction.run_summary.forEach((summary: string) => {
@@ -56,12 +58,12 @@ export class FyPolicyViolationComponent implements OnInit {
       });
 
       if (emails && emails.length > 0) {
-        this.approverEmailsRequiredMsg = this.policyService.getApprovalString(emails);
+        this.approverEmailsRequiredMsg = this.policyService.getApprovalString(emails as string[]);
       }
     }
   }
 
-  constructCappingAction() {
+  constructCappingAction(): void {
     if (this.isExpenseCapped) {
       let cappedAmountMatches = [];
       this.policyAction.run_summary.forEach((summary: string) => {
@@ -71,17 +73,18 @@ export class FyPolicyViolationComponent implements OnInit {
       });
 
       if (cappedAmountMatches && cappedAmountMatches.length > 0) {
-        const cappedAmount = cappedAmountMatches[1];
+        const cappedAmount = cappedAmountMatches[1] as string;
         if (cappedAmount) {
           const cappedAmountSplit = cappedAmount.split(' ');
-          this.cappedAmountString =
-            'Expense will be capped to ' + getCurrencySymbol(cappedAmountSplit[0], 'wide', 'en') + cappedAmountSplit[1];
+          this.cappedAmountString = this.translocoService.translate('fyPolicyViolation.cappedTo', {
+            amount: getCurrencySymbol(cappedAmountSplit[0], 'wide', 'en') + cappedAmountSplit[1],
+          });
         }
       }
     }
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.form = new UntypedFormGroup({
       comment: new UntypedFormControl(''),
     });
@@ -97,12 +100,13 @@ export class FyPolicyViolationComponent implements OnInit {
     }
   }
 
-  cancel() {
+  cancel(): void {
     this.modalController.dismiss();
   }
 
-  continue() {
+  continue(): void {
     this.modalController.dismiss({
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
       comment: this.form.value.comment,
     });
   }

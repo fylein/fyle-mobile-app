@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+import { TranslocoService } from '@jsverse/transloco';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { TasksCardComponent } from './tasks-card.component';
 import { IonicModule } from '@ionic/angular';
@@ -15,17 +16,27 @@ describe('TasksCardComponent', () => {
   let component: TasksCardComponent;
   let fixture: ComponentFixture<TasksCardComponent>;
   let currencyService: jasmine.SpyObj<CurrencyService>;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
 
   beforeEach(waitForAsync(() => {
     currencyService = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     currencyService.getHomeCurrency.and.returnValue(of('INR'));
+    translocoService = jasmine.createSpyObj('TranslocoService', ['translate']);
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'tasksCard.incompleteExpense': 'Incomplete expense',
+      };
+      return translations[key] || key;
+    });
     TestBed.configureTestingModule({
       declarations: [TasksCardComponent],
       imports: [IonicModule.forRoot(), MatRippleModule, MatIconModule, MatIconTestingModule, HttpClientTestingModule],
+      providers: [{ provide: TranslocoService, useValue: translocoService }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TasksCardComponent);
     component = fixture.componentInstance;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     component.currencySymbol$ = of('₹');
     component.task = {
       amount: '14200.26',

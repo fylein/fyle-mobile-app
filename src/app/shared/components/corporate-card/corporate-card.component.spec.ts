@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync, fakeAsync, tick } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
 import { CorporateCardComponent } from './corporate-card.component';
@@ -15,7 +15,8 @@ import {
 import { bankFeedSourcesData } from 'src/app/core/mock-data/bank-feed-sources.data';
 import { Component, Input } from '@angular/core';
 import { By } from '@angular/platform-browser';
-
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
+import { of } from 'rxjs';
 @Component({
   selector: 'app-card-number',
   template: '<div></div>',
@@ -28,21 +29,31 @@ class MockCardNumberComponent {
 describe('CorporateCardComponent', () => {
   let component: CorporateCardComponent;
   let fixture: ComponentFixture<CorporateCardComponent>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
 
   beforeEach(waitForAsync(() => {
     const corporateCreditCardExpenseServiceSpy = jasmine.createSpyObj('CorporateCreditCardExpenseService', [
       'getBankFeedSources',
     ]);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [CorporateCardComponent, MockCardNumberComponent],
-      imports: [IonicModule.forRoot()],
+      imports: [IonicModule.forRoot(), TranslocoModule],
       providers: [
         {
           provide: CorporateCreditCardExpenseService,
           useValue: corporateCreditCardExpenseServiceSpy,
+        },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
       ],
     }).compileComponents();
@@ -53,6 +64,29 @@ describe('CorporateCardComponent', () => {
     corporateCreditCardExpenseService = TestBed.inject(
       CorporateCreditCardExpenseService
     ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'corporateCard.badge': 'Corporate card',
+        'corporateCard.transactionsFeed': 'Transactions feed',
+        'corporateCard.live': 'Live',
+        'corporateCard.lastSynced': 'Last synced',
+        'corporateCard.syncedUsing': 'Synced using',
+        'corporateCard.statementUpload': 'Statement upload',
+        'corporateCard.bankFeed': 'Bank Feed',
+      };
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
+    });
 
     corporateCreditCardExpenseService.getBankFeedSources.and.returnValue(bankFeedSourcesData);
 
@@ -241,28 +275,30 @@ describe('CorporateCardComponent', () => {
       expect(actualDateString).toEqual(expectedDateString);
     });
 
-    it('should show the data feed source when the card is connected to bank feed', () => {
+    it('should show the data feed source when the card is connected to bank feed', fakeAsync(() => {
       component.card = bankFeedCard;
 
       component.ngOnInit();
       fixture.detectChanges();
-
+      tick();
+      fixture.detectChanges();
       const feedInfo = getElementBySelector(fixture, '[data-testid="feed-info"]');
 
       expect(feedInfo).toBeTruthy();
       expect(feedInfo.textContent).toBe('Bank Feed');
-    });
+    }));
 
-    it('should show the data feed source when the card is connected to statement upload', () => {
+    it('should show the data feed source when the card is connected to statement upload', fakeAsync(() => {
       component.card = statementUploadedCard;
 
       component.ngOnInit();
       fixture.detectChanges();
-
+      tick();
+      fixture.detectChanges();
       const feedInfo = getElementBySelector(fixture, '[data-testid="feed-info"]');
 
       expect(feedInfo).toBeTruthy();
       expect(feedInfo.textContent).toBe('Statement upload');
-    });
+    }));
   });
 });

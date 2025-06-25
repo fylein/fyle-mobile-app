@@ -2,12 +2,12 @@
   <div class="merge-expenses--internal-block">
     <app-fy-select
       [enableSearch]="false"
-      [label]="'Amount'"
+      [label]="'genericFieldsForm.amount' | transloco"
       [mandatory]="false"
       [nullOption]="false"
       [disabled]="disableFormElements || amountOptionsData?.options?.length === 0 || amountOptionsData?.areSameValues"
       [options]="amountOptionsData?.options"
-      [selectModalHeader]="'Select amount'"
+      [selectModalHeader]="'genericFieldsForm.selectAmount' | transloco"
       formControlName="amount"
       [touchedInParent]="genericFieldsFormGroup.controls.amount.touched"
       [validInParent]="genericFieldsFormGroup.controls.amount.valid"
@@ -18,7 +18,7 @@
     *ngIf="genericFieldsFormGroup.controls.amount.touched && genericFieldsFormGroup.controls.amount.invalid"
     class="merge-expenses--error"
   >
-    Please select a valid amount
+    {{ 'genericFieldsForm.invalidAmountError' | transloco }}
   </div>
 
   <div class="merge-expenses--primary-block">
@@ -33,7 +33,7 @@
           >
             <app-fy-select
               [enableSearch]="false"
-              [label]="'Date of Spend'"
+              [label]="'genericFieldsForm.dateOfSpend' | transloco"
               [mandatory]="false"
               [nullOption]="false"
               [disabled]="
@@ -42,7 +42,7 @@
                 dateOfSpendOptionsData?.areSameValues
               "
               [options]="dateOfSpendOptionsData?.options"
-              [selectModalHeader]="'Select spend date'"
+              [selectModalHeader]="'genericFieldsForm.selectSpendDate' | transloco"
               formControlName="dateOfSpend"
               [touchedInParent]="genericFieldsFormGroup.controls.dateOfSpend.touched"
               [validInParent]="genericFieldsFormGroup.controls.dateOfSpend.valid"
@@ -59,7 +59,7 @@
           >
             <app-fy-select
               [enableSearch]="false"
-              [label]="'Payment mode'"
+              [label]="'genericFieldsForm.paymentMode' | transloco"
               [mandatory]="true"
               [nullOption]="false"
               [disabled]="
@@ -68,7 +68,7 @@
                 paymentModeOptionsData?.areSameValues
               "
               [options]="paymentModeOptionsData?.options"
-              [selectModalHeader]="'Select payment mode'"
+              [selectModalHeader]="'genericFieldsForm.selectPaymentMode' | transloco"
               formControlName="paymentMode"
               [touchedInParent]="genericFieldsFormGroup.controls.paymentMode.touched"
               [validInParent]="genericFieldsFormGroup.controls.paymentMode.valid"
@@ -82,7 +82,7 @@
             "
             class="merge-expenses--error"
           >
-            Please select a valid payment mode
+            {{ 'genericFieldsForm.invalidPaymentModeError' | transloco }}
           </div>
         </ion-col>
       </ion-row>
@@ -92,12 +92,12 @@
   <div *ngIf="receiptOptions?.length !== 0" class="merge-expenses--internal-block">
     <app-fy-select
       [enableSearch]="false"
-      [label]="'Receipt'"
+      [label]="'genericFieldsForm.receipt' | transloco"
       [disabled]="disableFormElements || receiptOptions?.length === 0"
       [mandatory]="false"
       [nullOption]="false"
       [options]="receiptOptions"
-      [selectModalHeader]="'Select receipt'"
+      [selectModalHeader]="'genericFieldsForm.selectReceipt' | transloco"
       formControlName="receipts_from"
       [touchedInParent]="genericFieldsFormGroup.controls.receipts_from.touched"
       [validInParent]="genericFieldsFormGroup.controls.receipts_from.valid"
@@ -106,11 +106,13 @@
   </div>
 
   <div class="merge-expenses--internal-block merge-expenses--text" *ngIf="receiptOptions?.length === 0">
-    <div class="merge-expenses--text-label merge-expenses--text-label__large">Select receipt</div>
+    <div class="merge-expenses--text-label merge-expenses--text-label__large">
+      {{ 'genericFieldsForm.selectReceipt' | transloco }}
+    </div>
     <div class="merge-expenses--disabled">
       <input
         [disabled]="disableFormElements || true"
-        [placeholder]="'No receipt'"
+        [placeholder]="'genericFieldsForm.noReceiptPlaceholder' | transloco"
         class="merge-expenses--text-input smartlook-show"
         type="text"
       />
@@ -143,14 +145,14 @@
           >
             <app-fy-select
               [enableSearch]="false"
-              [label]="'Project'"
+              [label]="'genericFieldsForm.project' | transloco"
               [mandatory]="false"
               [nullOption]="false"
               [disabled]="
                 disableFormElements || projectOptionsData?.options?.length === 0 || projectOptionsData?.areSameValues
               "
               [options]="projectOptionsData?.options"
-              [selectModalHeader]="'Select project'"
+              [selectModalHeader]="'genericFieldsForm.selectProject' | transloco"
               formControlName="project"
               [touchedInParent]="genericFieldsFormGroup.controls.project.touched"
               [validInParent]="genericFieldsFormGroup.controls.project.valid"
@@ -167,7 +169,7 @@
             >
               <app-fy-select
                 [enableSearch]="false"
-                [label]="'Billable'"
+                [label]="'genericFieldsForm.billable' | transloco"
                 [mandatory]="false"
                 [nullOption]="false"
                 [disabled]="
@@ -176,7 +178,7 @@
                   billableOptionsData?.areSameValues
                 "
                 [options]="billableOptionsData?.options"
-                [selectModalHeader]="'Select billable'"
+                [selectModalHeader]="'genericFieldsForm.selectBillable' | transloco"
                 formControlName="billable"
                 [touchedInParent]="genericFieldsFormGroup.controls.billable.touched"
                 [validInParent]="genericFieldsFormGroup.controls.billable.valid"
@@ -205,12 +207,12 @@
   >
     <app-fy-select
       [enableSearch]="false"
-      [label]="'Merchant'"
+      [label]="'genericFieldsForm.merchant' | transloco"
       [mandatory]="false"
       [nullOption]="false"
       [disabled]="disableFormElements || vendorOptionsData?.options?.length === 0 || vendorOptionsData?.areSameValues"
       [options]="vendorOptionsData?.options"
-      [selectModalHeader]="'Select merchant'"
+      [selectModalHeader]="'genericFieldsForm.selectMerchant' | transloco"
       formControlName="vendor"
       [touchedInParent]="genericFieldsFormGroup.controls.vendor.touched"
       [validInParent]="genericFieldsFormGroup.controls.vendor.valid"
@@ -224,14 +226,14 @@
   >
     <app-fy-select
       [enableSearch]="false"
-      [label]="'Category'"
+      [label]="'genericFieldsForm.category' | transloco"
       [mandatory]="false"
       [nullOption]="false"
       [disabled]="
         disableFormElements || categoryOptionsData?.options?.length === 0 || categoryOptionsData?.areSameValues
       "
       [options]="categoryOptionsData?.options"
-      [selectModalHeader]="'Select category'"
+      [selectModalHeader]="'genericFieldsForm.selectCategory' | transloco"
       formControlName="category"
       [touchedInParent]="genericFieldsFormGroup.controls.category.touched"
       [validInParent]="genericFieldsFormGroup.controls.category.valid"
@@ -247,14 +249,14 @@
   >
     <app-fy-select
       [enableSearch]="false"
-      [label]="'Tax Group'"
+      [label]="'genericFieldsForm.taxGroup' | transloco"
       [mandatory]="false"
       [nullOption]="false"
       [disabled]="
         disableFormElements || taxGroupOptionsData?.options?.length === 0 || taxGroupOptionsData?.areSameValues
       "
       [options]="taxGroupOptionsData?.options"
-      [selectModalHeader]="'Select tax group'"
+      [selectModalHeader]="'genericFieldsForm.selectTaxGroup' | transloco"
       formControlName="tax_group"
       [touchedInParent]="genericFieldsFormGroup.controls.tax_group.touched"
       [validInParent]="genericFieldsFormGroup.controls.tax_group.valid"
@@ -268,14 +270,14 @@
   >
     <app-fy-select
       [enableSearch]="false"
-      [label]="'Tax'"
+      [label]="'genericFieldsForm.tax' | transloco"
       [mandatory]="false"
       [disabled]="
         disableFormElements || taxAmountOptionsData?.options?.length === 0 || taxAmountOptionsData?.areSameValues
       "
       [nullOption]="false"
       [options]="taxAmountOptionsData?.options"
-      [selectModalHeader]="'Select tax'"
+      [selectModalHeader]="'genericFieldsForm.selectTax' | transloco"
       formControlName="tax_amount"
       [touchedInParent]="genericFieldsFormGroup.controls.tax_amount.touched"
       [validInParent]="genericFieldsFormGroup.controls.tax_amount.valid"
@@ -289,14 +291,14 @@
   >
     <app-fy-select
       [enableSearch]="false"
-      [label]="'Cost center'"
+      [label]="'genericFieldsForm.costCenter' | transloco"
       [mandatory]="false"
       [nullOption]="false"
       [disabled]="
         disableFormElements || constCenterOptionsData?.options?.length === 0 || constCenterOptionsData?.areSameValues
       "
       [options]="constCenterOptionsData?.options"
-      [selectModalHeader]="'Select cost center'"
+      [selectModalHeader]="'genericFieldsForm.selectCostCenter' | transloco"
       formControlName="costCenter"
       [touchedInParent]="genericFieldsFormGroup.controls.costCenter.touched"
       [validInParent]="genericFieldsFormGroup.controls.costCenter.valid"
@@ -319,12 +321,12 @@
   >
     <app-fy-select
       [enableSearch]="false"
-      [label]="'Purpose'"
+      [label]="'genericFieldsForm.purpose' | transloco"
       [mandatory]="false"
       [nullOption]="false"
       [disabled]="disableFormElements || purposeOptionsData?.options?.length === 0 || purposeOptionsData?.areSameValues"
       [options]="purposeOptionsData?.options"
-      [selectModalHeader]="'Select purpose'"
+      [selectModalHeader]="'genericFieldsForm.selectPurpose' | transloco"
       formControlName="purpose"
       [touchedInParent]="genericFieldsFormGroup.controls.purpose.touched"
       [validInParent]="genericFieldsFormGroup.controls.purpose.valid"

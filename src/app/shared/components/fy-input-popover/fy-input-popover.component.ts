@@ -1,13 +1,14 @@
-import { Component, OnInit, Input, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, Input, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-fy-input-popover',
   templateUrl: './fy-input-popover.component.html',
   styleUrls: ['./fy-input-popover.component.scss'],
 })
-export class FyInputPopoverComponent implements OnInit, AfterViewInit {
-  @ViewChild('input') inputEl: ElementRef;
+export class FyInputPopoverComponent implements AfterViewInit {
+  @ViewChild('input') inputEl: ElementRef<HTMLInputElement>;
 
   @Input() title: string;
 
@@ -25,33 +26,31 @@ export class FyInputPopoverComponent implements OnInit, AfterViewInit {
 
   error: string;
 
-  constructor(private popoverController: PopoverController) {}
+  constructor(private popoverController: PopoverController, private translocoService: TranslocoService) {}
 
-  ngOnInit(): void {}
-
-  ngAfterViewInit() {
+  ngAfterViewInit(): void {
     setTimeout(() => this.inputEl.nativeElement.focus(), 400);
   }
 
-  closePopover() {
+  closePopover(): void {
     this.popoverController.dismiss();
   }
 
-  validateInput() {
+  validateInput(): void {
     if (this.isRequired) {
       if (this.inputValue?.length === 0) {
-        this.error = `Please enter a ${this.inputLabel}`;
+        this.error = this.translocoService.translate('fyInputPopover.errorEnterLabel', { inputLabel: this.inputLabel });
       } else if (this.inputType === 'tel' && !this.inputValue.match(/[+]\d{7,}$/)) {
-        this.error = 'Please enter a valid mobile number with country code. e.g. +12025559975';
+        this.error = this.translocoService.translate('fyInputPopover.errorValidMobile');
       }
     }
   }
 
-  onFocus() {
+  onFocus(): void {
     this.error = null;
   }
 
-  saveValue() {
+  saveValue(): void {
     this.validateInput();
     if (!this.error?.length) {
       this.popoverController.dismiss({ newValue: this.inputValue });

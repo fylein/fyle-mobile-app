@@ -4,6 +4,7 @@ import { finalize, switchMap } from 'rxjs/operators';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-update-mobile-number',
@@ -32,7 +33,8 @@ export class UpdateMobileNumberComponent implements OnInit, AfterViewInit {
   constructor(
     private popoverController: PopoverController,
     private authService: AuthService,
-    private orgUserService: OrgUserService
+    private orgUserService: OrgUserService,
+    private translocoService: TranslocoService
   ) {}
 
   ngOnInit(): void {
@@ -49,9 +51,9 @@ export class UpdateMobileNumberComponent implements OnInit, AfterViewInit {
 
   validateInput(): void {
     if (!this.inputValue?.length) {
-      this.error = 'Enter mobile number';
+      this.error = this.translocoService.translate('updateMobileNumber.errorEnterNumber');
     } else if (!this.inputValue.match(/[+]\d{7,}$/)) {
-      this.error = 'Enter mobile number with country code';
+      this.error = this.translocoService.translate('updateMobileNumber.errorEnterNumberWithCountryCode');
     }
   }
 

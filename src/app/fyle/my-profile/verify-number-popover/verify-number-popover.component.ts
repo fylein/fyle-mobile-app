@@ -4,6 +4,7 @@ import { finalize } from 'rxjs/operators';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { MobileNumberVerificationService } from 'src/app/core/services/mobile-number-verification.service';
 import { ErrorType } from './error-type.model';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-verify-number-popover',
@@ -11,7 +12,7 @@ import { ErrorType } from './error-type.model';
   styleUrls: ['./verify-number-popover.component.scss'],
 })
 export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
-  @ViewChild('input') inputEl: ElementRef;
+  @ViewChild('input') inputEl: ElementRef<HTMLInputElement>;
 
   @Input() extendedOrgUser: ExtendedOrgUser;
 
@@ -33,16 +34,19 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
 
   constructor(
     private popoverController: PopoverController,
-    private mobileNumberVerificationService: MobileNumberVerificationService
+    private mobileNumberVerificationService: MobileNumberVerificationService,
+    private translocoService: TranslocoService
   ) {}
 
   ngOnInit(): void {
-    this.infoBoxText = `Please verify your mobile number using the 6-digit OTP sent to ${this.extendedOrgUser.ou.mobile}`;
+    this.infoBoxText = this.translocoService.translate('verifyNumberPopover.infoBoxText', {
+      mobileNumber: this.extendedOrgUser.ou.mobile,
+    });
     this.value = '';
     this.resendOtp('INITIAL');
   }
 
-  ngAfterViewInit() {
+  ngAfterViewInit(): void {
     setTimeout(() => {
       if (!this.error) {
         this.inputEl.nativeElement.focus();
@@ -50,21 +54,21 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
     }, 200);
   }
 
-  validateInput() {
+  validateInput(): void {
     if (!this.value || this.value.length < 6 || !this.value.match(/[0-9]{6}/)) {
       this.setError('INVALID_INPUT');
     }
   }
 
-  goBack() {
+  goBack(): void {
     this.popoverController.dismiss({ action: 'BACK' });
   }
 
-  onFocus() {
+  onFocus(): void {
     this.error = null;
   }
 
-  resendOtp(action: 'CLICK' | 'INITIAL') {
+  resendOtp(action: 'CLICK' | 'INITIAL'): void {
     this.sendingOtp = true;
     this.mobileNumberVerificationService
       .sendOtp()
@@ -83,7 +87,7 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
             this.disableResendOtp = true;
           }
         },
-        error: (err) => {
+        error: (err: { status: number; error: { message: string } }) => {
           if (err.status === 400) {
             const errorMessage = err.error.message?.toLowerCase() || '';
             if (errorMessage.includes('out of attempts') || errorMessage.includes('max send attempts reached')) {
@@ -99,7 +103,7 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
       });
   }
 
-  verifyOtp() {
+  verifyOtp(): void {
     this.validateInput();
     if (this.error) {
       return;
@@ -115,22 +119,22 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
       });
   }
 
-  setError(error: ErrorType, attemptsLeft = 5) {
+  setError(error: ErrorType, attemptsLeft = 5): void {
     const errorMapping = {
-      LIMIT_REACHED:
-        'You have exhausted the limit to request OTP for your mobile number. Please try again after 24 hours.',
-      INVALID_MOBILE_NUMBER: 'Invalid mobile number. Please try again',
-      INVALID_OTP: 'Incorrect mobile number or OTP. Please try again.',
-      INVALID_INPUT: 'Please enter 6 digit OTP',
-      ATTEMPTS_LEFT: `You have ${attemptsLeft} attempt${
-        attemptsLeft > 1 ? 's' : ''
-      } left to verify your mobile number.`,
+      LIMIT_REACHED: this.translocoService.translate('verifyNumberPopover.limitReached'),
+      INVALID_MOBILE_NUMBER: this.translocoService.translate('verifyNumberPopover.invalidMobileNumber'),
+      INVALID_OTP: this.translocoService.translate('verifyNumberPopover.invalidOtp'),
+      INVALID_INPUT: this.translocoService.translate('verifyNumberPopover.invalidInput'),
+      ATTEMPTS_LEFT: this.translocoService.translate('verifyNumberPopover.attemptsLeft', {
+        attemptsLeft,
+        plural: attemptsLeft > 1 ? 's' : '',
+      }),
     };
 
     this.error = errorMapping[error];
   }
 
-  startTimer() {
+  startTimer(): void {
     this.otpTimer = 30;
     this.showOtpTimer = true;
     const interval = setInterval(() => {

@@ -4,19 +4,52 @@ import { click, getElementBySelector } from 'src/app/core/dom-helpers';
 import { SnakeCaseToSpaceCase } from '../../pipes/snake-case-to-space-case.pipe';
 
 import { FyFilterPillsComponent } from './fy-filter-pills.component';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
+import { of } from 'rxjs';
 
 describe('FyFilterPillsComponent', () => {
   let component: FyFilterPillsComponent;
   let fixture: ComponentFixture<FyFilterPillsComponent>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(async(() => {
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
+
     TestBed.configureTestingModule({
       declarations: [FyFilterPillsComponent, SnakeCaseToSpaceCase],
-      imports: [IonicModule.forRoot()],
+      imports: [IonicModule.forRoot(), TranslocoModule],
+      providers: [
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(FyFilterPillsComponent);
     component = fixture.componentInstance;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'fyFilterPills.clearAll': 'Clear all',
+      };
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
+    });
     component.filterPills = [
       { label: 'Label 1', type: 'Type 1', value: 'Value 1' },
       { label: 'Label 2', type: 'Type 2', value: 'Value 2' },

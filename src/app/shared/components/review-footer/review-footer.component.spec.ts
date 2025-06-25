@@ -1,4 +1,5 @@
 import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { IonButton, IonicModule } from '@ionic/angular';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ReviewFooterComponent } from './review-footer.component';
@@ -6,28 +7,53 @@ import { apiExpenseRes } from 'src/app/core/mock-data/expense.data';
 import { expensesWithDependentFields } from 'src/app/core/mock-data/dependent-field-expenses.data';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-
+import { of } from 'rxjs';
 describe('ReviewFooterComponent', () => {
   let reviewFooterComponent: ReviewFooterComponent;
   let fixture: ComponentFixture<ReviewFooterComponent>;
   let trackingServiceSpy: jasmine.SpyObj<TrackingService>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
       'footerSaveAndNextClicked',
       'footerSaveAndPrevClicked',
     ]);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [ReviewFooterComponent],
-      imports: [IonicModule.forRoot()],
-      providers: [{ provide: TrackingService, useValue: trackingServiceSpy }],
+      imports: [IonicModule.forRoot(), TranslocoModule],
+      providers: [
+        { provide: TrackingService, useValue: trackingServiceSpy },
+        { provide: TranslocoService, useValue: translocoServiceSpy },
+      ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ReviewFooterComponent);
     reviewFooterComponent = fixture.componentInstance;
     reviewFooterComponent.reviewList = apiExpenseRes;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'reviewFooter.saveAndPrevious': 'Save and previous',
+        'reviewFooter.saveAndNext': 'Save and next',
+        'reviewFooter.save': 'Save',
+        'reviewFooter.saving': 'Saving',
+      };
+      let translation = translations[key] || key;
+      if (params) {
+        Object.keys(params).forEach((key) => {
+          translation = translation.replace(`{{${key}}}`, params[key]);
+        });
+      }
+      return translation;
+    });
     fixture.detectChanges();
   }));
 

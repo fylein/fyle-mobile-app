@@ -44,15 +44,15 @@
                 *ngIf="!filterPills?.length"
                 [useNewStyling]="true"
                 image="../../../../assets/images/zero-states/tasks.png"
-                message="You have no tasks right now"
+                [message]="'tasks.noTasks' | transloco"
               ></app-fy-zero-state>
               <app-fy-zero-state
                 *ngIf="filterPills?.length"
                 [unscaledImage]="true"
                 [useNewStyling]="true"
                 image="../../../../assets/images/zero-states/tasks.png"
-                message="You have no tasks"
-                submessage="matching the applied filters"
+                [message]="'tasks.noTasksFiltered' | transloco"
+                [submessage]="'tasks.matchingFilters' | transloco"
               ></app-fy-zero-state>
             </ion-col>
           </ion-row>

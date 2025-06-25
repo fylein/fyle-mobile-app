@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { IonicModule } from '@ionic/angular';
 import { ModalController } from '@ionic/angular';
 import { RouteSelectorComponent } from './route-selector.component';
@@ -21,13 +22,27 @@ describe('RouteSelectorComponent', () => {
   let fixture: ComponentFixture<RouteSelectorComponent>;
   let fb: jasmine.SpyObj<UntypedFormBuilder>;
   let modalController: jasmine.SpyObj<ModalController>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const injectorSpy = jasmine.createSpyObj('Injector', ['get']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [RouteSelectorComponent],
-      imports: [IonicModule.forRoot(), MatCheckboxModule, ReactiveFormsModule, MatIconTestingModule, MatIconModule],
+      imports: [
+        IonicModule.forRoot(),
+        MatCheckboxModule,
+        ReactiveFormsModule,
+        MatIconTestingModule,
+        MatIconModule,
+        TranslocoModule,
+      ],
       providers: [
         UntypedFormBuilder,
         {
@@ -38,6 +53,10 @@ describe('RouteSelectorComponent', () => {
           provide: Injector,
           useValue: injectorSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -45,6 +64,32 @@ describe('RouteSelectorComponent', () => {
     component = fixture.componentInstance;
     fb = TestBed.inject(UntypedFormBuilder) as jasmine.SpyObj<UntypedFormBuilder>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'routeSelector.routeLabel': 'Route',
+        'routeSelector.startLabel': 'Start',
+        'routeSelector.selectLocationError': 'Please select location',
+        'routeSelector.intermediateStop': 'Stop',
+        'routeSelector.stopLabel': 'Stop',
+        'routeSelector.enterRoute': 'Enter route',
+        'routeSelector.roundTripLabel': 'Round trip',
+        'routeSelector.distanceLabel': 'Distance',
+        'routeSelector.enterDistance': 'Enter distance',
+        'routeSelector.invalidDistance': 'Please enter valid distance',
+        'routeSelector.distance': 'Distance',
+        'routeSelector.roundTrip': 'Round Trip',
+        'routeSelector.oneWay': 'One Way',
+        'routeSelector.addMore': 'Add more',
+      };
+      let translation = translations[key] || key;
+      if (params) {
+        Object.keys(params).forEach((key) => {
+          translation = translation.replace(`{{${key}}}`, params[key]);
+        });
+      }
+      return translation;
+    });
     const mockOrgSettings = cloneDeep(orgSettingsRes);
     component.mileageConfig = mockOrgSettings.mileage;
     component.formInitialized = true;

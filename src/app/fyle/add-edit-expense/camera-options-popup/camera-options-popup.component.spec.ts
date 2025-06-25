@@ -1,4 +1,5 @@
 import { CUSTOM_ELEMENTS_SCHEMA, DebugElement } from '@angular/core';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { IonicModule, PopoverController } from '@ionic/angular';
 import { FileService } from 'src/app/core/services/file.service';
@@ -7,6 +8,7 @@ import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup
 import { CameraOptionsPopupComponent } from './camera-options-popup.component';
 import { MAX_FILE_SIZE } from 'src/app/core/constants';
 import { LoaderService } from 'src/app/core/services/loader.service';
+import { of } from 'rxjs';
 
 describe('CameraOptionsPopupComponent', () => {
   let component: CameraOptionsPopupComponent;
@@ -15,16 +17,22 @@ describe('CameraOptionsPopupComponent', () => {
   let fileService: jasmine.SpyObj<FileService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
   let loaderService: jasmine.SpyObj<LoaderService>;
-
+  let translocoService: TranslocoService;
   beforeEach(waitForAsync(() => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create', 'dismiss']);
     const fileServiceSpy = jasmine.createSpyObj('FileService', ['readFile']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['addAttachment']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [CameraOptionsPopupComponent],
-      imports: [IonicModule.forRoot()],
+      imports: [IonicModule.forRoot(), TranslocoModule],
       providers: [
         {
           provide: PopoverController,
@@ -42,6 +50,10 @@ describe('CameraOptionsPopupComponent', () => {
           provide: LoaderService,
           useValue: loaderServiceSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
@@ -53,7 +65,20 @@ describe('CameraOptionsPopupComponent', () => {
     fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
-
+    translocoService = TestBed.inject(TranslocoService);
+    translocoServiceSpy.translate.and.callFake((key: string) => {
+      const translations: { [key: string]: string } = {
+        'cameraOptionsPopup.sizeLimitExceededTitle': 'Size limit exceeded',
+        'cameraOptionsPopup.sizeLimitExceededMessage':
+          'The uploaded file is greater than 11MB in size. Please reduce the file size and try again.',
+        'cameraOptionsPopup.ok': 'OK',
+        'cameraOptionsPopup.addMoreUsing': 'Add more using',
+        'cameraOptionsPopup.clickPicture': 'Click picture',
+        'cameraOptionsPopup.uploadFiles': 'Upload files',
+        'cameraOptionsPopup.loaderMessage': 'Please wait...',
+      };
+      return translations[key] || key;
+    });
     fixture.detectChanges();
   }));
 

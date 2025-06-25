@@ -428,5 +428,1009 @@
       "disabled": "disabled",
       "rejected": "rejected"
     }
+  },
+  "orgCard": {
+    "primaryLabel": "Primary"
+  },
+  "activeOrgCard": {
+    "activeOrganization": "Active organization",
+    "primaryLabel": "Primary"
+  },
+  "promoteOptInModal": {
+    "skipMessageBody": "<div>\n <p>You can't send receipts and expense details via text message if you don't opt in.</p>\n <p>Are you sure you want to skip?<p>  \n  </div>",
+    "areYouSure": "Are you sure?",
+    "yesSkipOptIn": "Yes, skip opt in",
+    "noGoBack": "No, go back",
+    "skip": "Skip",
+    "altOptInGif": "Opt in to text receipts",
+    "tryAI": " Try AI ",
+    "description": "Text receipts for <span class=\"promote-opt-in-modal__instant-text-decoration\">instant</span> <span class=\"promote-opt-in-modal__underline\"></span> expense submission"
+  },
+  "transactionStatus": {
+    "statusLabel": "Transaction status:"
+  },
+  "selectCurrency": {
+    "searchInputPlaceholder": "Search",
+    "doneButtonText": "Done",
+    "headerText": "All currencies",
+    "title": "Select currency",
+    "searchPlaceholder": "Search",
+    "clear": "Clear"
+  },
+  "popup": {
+    "errorHeader": "Error",
+    "close": "Close"
+  },
+  "error": {
+    "accountDoesNotExist": "Account does not exist",
+    "lockedWarning": "This email address will be temporarily locked after 5 unsuccessful login attempts. Would you like to try",
+    "resettingLink": "resetting",
+    "yourPassword": "your password?",
+    "notVerified": "Your account is not verified. Please request a verification link, if required",
+    "serverError": "Please retry in a while. Send us a note to <a href=\"mailto:support@fylehq.com\">support@fylehq.com</a> if the problem persists.",
+    "temporarilyLocked": "This email address is locked temporarily, as there are too many unsuccessful login attempts recently. Please retry later.",
+    "restrictedAccess": "Your organization has restricted Fyle access to its corporate network.",
+    "tryAgain": "Try again"
+  },
+  "fySelect": {
+    "selectLabel": "Select {{label}}",
+    "selectItem": "Select item"
+  },
+  "fySelectModal": {
+    "search": "Search",
+    "clear": "Clear",
+    "noResultsHeader": "No such {{label}} found",
+    "noResultsSubmessage": "Search for another {{label}} or select one from the list.",
+    "save": "Save",
+    "none": "None"
+  },
+  "addCard": {
+    "noCardAddedYet": "No card added yet!",
+    "addCorporateCard": "Add corporate card"
+  },
+  "addMorePopup": {
+    "captureReceipts": "Capture receipts",
+    "uploadFiles": "Upload files",
+    "addMoreUsing": "Add more using"
+  },
+  "footer": {
+    "home": "Home",
+    "expenses": "Expenses",
+    "reports": "Reports",
+    "tasks": "Tasks"
+  },
+  "fyConnection": {
+    "disconnectedMessage": "No internet connection",
+    "reconnectedMessage": "Back online"
+  },
+  "captureReceipt": {
+    "bulkModeInfo": "If you have multiple receipts to upload, please use <b>BULK MODE</b> to upload all the receipts at once.",
+    "pleaseWait": "Please wait...",
+    "limitReachedTitle": "Limit Reached",
+    "limitReachedMessage": "You've added the maximum limit of 20 receipts. Please review and save these as expenses before adding more.",
+    "ok": "Ok",
+    "cameraPermissionTitle": "Camera permission",
+    "photosPermissionTitle": "Photos permission",
+    "storagePermissionTitle": "Storage permission",
+    "cameraPermissionMessage": "To capture photos, please allow Fyle to access your camera. Click Open Settings and allow access to Camera and {{galleryPermissionName}}",
+    "galleryPermissionMessage": "Please allow Fyle to access device photos. Click Settings and allow {{galleryPermissionName}} access",
+    "openSettings": "Open settings",
+    "cancel": "Cancel"
+  },
+  "receiptPreview": {
+    "receiptPreviews": "Receipt Previews",
+    "retake": "Retake",
+    "addMore": "Add more",
+    "finish": "Finish",
+    "discardReceiptTitle": "Discard Receipt",
+    "discardMultipleReceiptsMessage": "Are you sure you want to discard the {{count}} receipts you just captured?",
+    "discardSingleReceiptMessage": "Not a good picture? No worries. Discard and click again.",
+    "discard": "Discard",
+    "cancel": "Cancel",
+    "removeReceiptTitle": "Remove Receipt",
+    "removeReceiptMessage": "Are you sure you want to remove this receipt?",
+    "remove": "Remove"
+  },
+  "reviewSplitExpense": {
+    "title": "Review split expenses"
+  },
+  "fyHeader": {
+    "fyle": "Fyle",
+    "cancel": "Cancel"
+  },
+  "fyUserlist": {
+    "select": "Select"
+  },
+  "receiptPreviewThumbnail": {
+    "mapLabel": "Map",
+    "receiptLabel": "Receipt",
+    "addMore": "Add more",
+    "uploading": "Uploading",
+    "loading": "Loading",
+    "mapSuffix": " map",
+    "receiptSuffix": " receipt"
+  },
+  "fyPolicyViolation": {
+    "cappedTo": "Expense will be capped to {{amount}}",
+    "singleViolationFound": "Policy violation found",
+    "multipleViolationsFound": "Policy violations found",
+    "policyActionHeader": "The policy violation will trigger the following action(s):",
+    "flaggedMessage": "Expense will be flagged for verification and approval",
+    "skippedMessage": "Primary approver will be skipped",
+    "additionalDetailsHeader": "Please provide additional details for approval",
+    "detailsPlaceholder": "Enter the details here",
+    "cancel": "Cancel",
+    "continue": "Continue"
+  },
+  "corporateCard": {
+    "badge": "Corporate card",
+    "transactionsFeed": "Transactions feed",
+    "live": "Live",
+    "lastSynced": "Last synced",
+    "syncedUsing": "Synced using",
+    "statementUpload": "Statement upload",
+    "bankFeed": "Bank Feed"
+  },
+  "expenseCardLite": {
+    "unspecified": "Unspecified"
+  },
+  "virtualCard": {
+    "preActive": "Pre-Active",
+    "cvv": "CVV",
+    "expiry": "Expiry",
+    "available": "Available",
+    "copiedSuccessfully": "Copied Successfully!",
+    "availableMonthlyLimit": "Available monthly limit",
+    "availableLimitMessage": "Available limit on this card for the current month."
+  },
+  "fyUserlistModal": {
+    "title": "Select items",
+    "done": "Done",
+    "multiSelectAriaLabel": "Multi select",
+    "searchPlaceholder": "Search",
+    "selected": "selected",
+    "addPrefix": "Add \""
+  },
+  "expensesCard": {
+    "receiptAdded": "Receipt added to Expense successfully",
+    "sizeLimitExceeded": "Size limit exceeded",
+    "fileTooLarge": "The uploaded file is greater than {{maxFileSize}}MB in size. Please reduce the file size and try again.",
+    "ok": "OK",
+    "offlineExpenses": "Offline expenses",
+    "syncingMileage": "Syncing mileage",
+    "syncingPerDiem": "Syncing per diem",
+    "syncingReceipt": "Syncing receipt...",
+    "uploadingReceipt": "Uploading receipt...",
+    "yourPrefix": "Your",
+    "receipt": "receipt",
+    "addedShortlySuffix": "will be added shortly.",
+    "scanningReceipt": "Scanning receipt...",
+    "scanTakesTime": "This takes a short while",
+    "scanFailed": "Scan failed",
+    "unspecifiedCategory": "Unspecified category",
+    "expenseInfoMissing": "Expense information missing",
+    "exchangeRateAt": "at",
+    "criticalPolicyViolations": "Critical policy violations",
+    "receiptAddedSuccess": "Receipt added to Expense successfully",
+    "fileSizeError": "The uploaded file is greater than {{maxFileSize}}MB in size. Please reduce the file size and try again.",
+    "your": "Your",
+    "mileage": "mileage",
+    "perDiem": "per diem",
+    "addedShortly": "will be added shortly.",
+    "takesShortWhile": "This takes a short while",
+    "unspecifiedProject": "Unspecified",
+    "expenseInfo": "Expense information",
+    "missing": "missing",
+    "at": "at"
+  },
+  "transactionStatusInfoPopover": {
+    "title": "Transaction status:",
+    "pendingStatusInfo": "Your transaction status is 'Pending' until your bank processes the transaction.",
+    "postedStatusInfo": "The transaction has been processed by your bank."
+  },
+  "fyMultiselect": {
+    "selectItems": "Select Items",
+    "allItems": "All Items",
+    "select": "Select"
+  },
+  "fyMultiselectModal": {
+    "selectItems": "Select Items",
+    "allItems": "All Items",
+    "done": "Done",
+    "multiSelect": "Multi select",
+    "search": "Search",
+    "countSelected": "{{count}} selected"
+  },
+  "dependentField": {
+    "selectLabel": "Select {{label}}",
+    "validationError": "Please enter {{label}}."
+  },
+  "dependentFieldModal": {
+    "none": "None",
+    "selectLabel": "Select {{label}}",
+    "search": "Search",
+    "clear": "Clear",
+    "noResultFound": "No such {{label}} found",
+    "searchOrSelect": "Search for another {{label}} or select one from the list."
+  },
+  "fyZeroState": {
+    "altText": "zero"
+  },
+  "routeSelector": {
+    "routeLabel": "Route",
+    "startLabel": "Start",
+    "selectLocationError": "Please select location",
+    "intermediateStop": "Stop",
+    "stopLabel": "Stop",
+    "enterRoute": "Enter route",
+    "roundTripLabel": "Round trip",
+    "distanceLabel": "Distance",
+    "enterDistance": "Enter distance",
+    "invalidDistance": "Please enter valid distance"
+  },
+  "fyNavFooter": {
+    "previous": "Previous",
+    "next": "Next"
+  },
+  "routeSelectorModal": {
+    "title": "Route",
+    "save": "Save",
+    "totalDistance": "Total distance:",
+    "start": "Start",
+    "destination": "Destination",
+    "stop": "Stop ",
+    "selectLocationError": "Please select location",
+    "maxLocationsInfo": "You can add a maximum of 10 locations",
+    "roundTrip": "Round trip"
+  },
+  "fyCurrencyChooseCurrency": {
+    "title": "Select currency",
+    "searchPlaceholder": "Search",
+    "clear": "Clear",
+    "allCurrencies": "All currencies",
+    "selectCurrency": "Select currency",
+    "search": "Search",
+    "indianRupee": "Indian Rupee"
+  },
+  "fyFilters": {
+    "title": "Filter and sort",
+    "clearAll": "Clear all",
+    "startDate": "Start date",
+    "endDate": "End date",
+    "cancel": "Cancel",
+    "save": "Save"
+  },
+  "fyCurrency": {
+    "currency": "Currency",
+    "amount": "Amount",
+    "amountPlaceholder": "00.00",
+    "exchangeRateInfo": "at {{exchangeRate}} {{currency}} / {{origCurrency}}",
+    "modifyButton": "Modify",
+    "currencyAutoCoded": "Currency is auto coded.",
+    "amountAutoCoded": "Amount is auto coded."
+  },
+  "fyCurrencyExchangeRate": {
+    "title": "Currency",
+    "save": "Save",
+    "expenseAmountInCurrencyLabel": "Expense amount in {{currency}}",
+    "exchangeRateLabel": "Exchange rate 1 {{newCurrency}} =",
+    "placeholderAmount": "00.00",
+    "conversionMessage": "{{newCurrency}} {{newCurrencyAmount}} was converted to {{currentCurrency}} {{homeCurrencyAmount}} at the exchange rate of {{exchangeRate}} {{currentCurrency}}/{{newCurrency}}.",
+    "rateLabel": "Rate",
+    "placeholderExample": "e.g. 9.99",
+    "saveButton": "Save",
+    "conversionInfo": "{{newCurrency}} {{newCurrencyAmount}} will be converted to {{currentCurrency}} {{homeCurrencyAmount}} at {{exchangeRate}} {{newCurrency}}/{{currentCurrency}}"
+  },
+  "fyFilterPills": {
+    "clearAll": "Clear all"
+  },
+  "fyAddToReport": {
+    "expenseReport": "Expense Report",
+    "all": "All",
+    "newDraftReport": "New Draft Report",
+    "save": "Save",
+    "reportName": "Report Name",
+    "selectExpenseReport": "Select a expense report"
+  },
+  "reviewFooter": {
+    "saving": "Saving",
+    "saveAndPrevious": "Save and previous",
+    "saveAndNext": "Save and Next",
+    "save": "Save"
+  },
+  "fyAlertInfo": {
+    "action": "Action;"
+  },
+  "mobileNumberCard": {
+    "title": "Mobile number",
+    "description": "Add your mobile number to keep your profile information updated.",
+    "addButton": "Add",
+    "mobileNumberLabel": "Mobile number"
+  },
+  "fyAddToReportModal": {
+    "title": "Add to report",
+    "none": "None",
+    "expense": "Expense",
+    "expenses": "Expenses",
+    "noReports": "You have no reports right now",
+    "createNewReport": "To create a draft report please click on",
+    "zeroStateAlt": "No reports found"
+  },
+  "fyExpansionInfoMsg": {
+    "learnMore": "Learn more"
+  },
+  "personalCardTransaction": {
+    "debit": "DR",
+    "credit": "CR",
+    "createExpense": "Create expense",
+    "viewExpense": "View expense"
+  },
+  "popupWithBullets": {
+    "phoneNumberCopied": "Phone Number Copied Successfully"
+  },
+  "profileOptInCard": {
+    "copySuccess": "Phone Number Copied Successfully",
+    "title": "Opt-in to text receipts",
+    "description": "Opt-in to activate text messages for instant expense submission.",
+    "optIn": "Opt in",
+    "status": "Status",
+    "optOut": "Opt out",
+    "optedIn": "Opted in",
+    "mobileNumber": "Mobile number",
+    "usageDescription": "You can now text your receipts to Fyle at 302-440-2921",
+    "notOptedIn": "Not opted in",
+    "nonUSNumberInfo": "Add a +1 country code to your mobile number to receive text message receipts.",
+    "updateAndOptIn": "Update and opt in"
+  },
+  "fyDeleteDialog": {
+    "cancel": "Cancel",
+    "deleting": "Deleting",
+    "delete": "Delete"
+  },
+  "cardDetail": {
+    "incompleteCardExpenseSingular": "Incomplete card expense",
+    "incompleteCardExpensePlural": "Incomplete card expenses",
+    "completeCardExpenseSingular": "Complete card expense",
+    "completeCardExpensePlural": "Complete card expenses"
+  },
+  "sendEmail": {
+    "fyleLogoAlt": "fyle-logo-light",
+    "placeholderWorkEmail": "Work email",
+    "invalidEmailError": "Please enter a valid email.",
+    "sendingLink": "Sending link",
+    "requestFailedTitle": "Request failed",
+    "requestFailedContent": "Something went wrong. Please send us a note at support@fylehq.com",
+    "backToSignIn": "Back to sign in"
+  },
+  "bankAccountCard": {
+    "lastFetch": "Last fetch:",
+    "deletingCard": "Deleting your card...",
+    "cardDeletedSuccess": "Card successfully deleted.",
+    "deleteCardTitle": "Delete Card",
+    "deleteConfirmationMessage": "Are you sure want to delete this card <b> {{accountInfo}} </b>?",
+    "delete": "Delete",
+    "cancel": "Cancel"
+  },
+  "reportsCard": {
+    "expense": "Expense",
+    "expenses": "Expenses"
+  },
+  "auditHistory": {
+    "detailsLabel": "Details:",
+    "cardTransactionDetailsLabel": "Card transaction details: ",
+    "mergedExpenseDetailsLabel": "Details of the merged expense: ",
+    "defaultProjectFieldName": "project",
+    "projectNameCollision": "project name ({{projectFieldName}})",
+    "reimbursableNo": "No",
+    "reimbursableYes": "Yes"
+  },
+  "statusesDiff": {
+    "mileageRateName": "Mileage Rate Name"
+  },
+  "sidemenuFooter": {
+    "versionPrefix": "v"
+  },
+  "fyApprover": {
+    "addApprover": "Add approver"
+  },
+  "sidemenu": {
+    "personalCards": "Personal cards",
+    "expenseReports": "Expense reports",
+    "advances": "Advances",
+    "home": "Home",
+    "getStarted": "Get started",
+    "myExpenses": "My expenses",
+    "cards": "Cards",
+    "myExpenseReports": "My expense reports",
+    "myAdvances": "My advances",
+    "team": "Team",
+    "settings": "Settings",
+    "delegatedAccounts": "Delegated accounts",
+    "switchBackToMyAccount": "Switch back to my account",
+    "switchOrganization": "Switch organization",
+    "liveChat": "Live chat",
+    "help": "Help"
+  },
+  "viewComment": {
+    "discardMessage": "Discard Message",
+    "confirmDiscard": "Are you sure you want to discard the message?",
+    "discard": "Discard",
+    "cancel": "Cancel",
+    "expense": "Expense",
+    "comments": "Comments",
+    "history": "History",
+    "clarificationPrompt": "Need to clarify something?",
+    "postCommentPrompt": "Post a comment.",
+    "commentPlaceholder": "Type your comment here..."
+  },
+  "fyOptIn": {
+    "enterMobileNumber": "Please enter mobile number",
+    "invalidMobileNumber": "Please enter a valid number with +1 country code. Try re-entering your number.",
+    "codeSent": "Code sent successfully",
+    "otpLimitReached": "You have reached the limit for 6 digit code requests. Try again after 24 hours.",
+    "invalidMobileTryAgain": "Invalid mobile number. Please try again.",
+    "codeExpired": "The code has expired. Please request a new one.",
+    "invalidCode": "Code is invalid",
+    "verifyingCode": "Verifying code...",
+    "tryAI": "Try AI",
+    "optInDescription": "Opt into text messaging for instant expense submission",
+    "mobileNumberLabel": "Mobile number",
+    "mobileNumberPlaceholder": "Enter mobile number with country code e.g +155512345..",
+    "otpDescription": "Enter 6 digit code sent to your phone",
+    "resendCodeIn": "Resend code in",
+    "attemptsLeft": "attempts left",
+    "resendCode": "Resend code",
+    "sendingCode": "Sending Code",
+    "successHeader": "You are all set",
+    "successDescription": "We have sent you a confirmation message. You can now use text messages to create and submit your next expense!",
+    "sendCodeBtn": "Send code",
+    "sendCodeLoading": "Send Code",
+    "readHelpArticle": "Read help article",
+    "gotIt": "Got it"
+  },
+  "showAllApproversPopover": {
+    "title": "All approvers",
+    "approvalPending": "Approval pending",
+    "approved": "Approved"
+  },
+  "addApproversPopover": {
+    "title": "Add approvers",
+    "save": "Save",
+    "approversToBeAdded": "Approver(s) to be added",
+    "selectApprovers": "Select approvers",
+    "moreApprovers": "+{{count}} more",
+    "reasonForAdding": "Reason for adding approver(s)",
+    "typeYourReason": "Type your reason here",
+    "infoMessage": "You are adding additional approver(s) to the report. The report will go the them at the end and include all the expenses."
+  },
+  "fyViewAttachment": {
+    "mapPreview": "Map preview",
+    "receiptPreviews": "Receipt previews",
+    "saving": "Saving",
+    "saveChanges": "Save changes",
+    "saved": "Saved",
+    "removeReceiptTitle": "Remove Receipt",
+    "removeReceiptMessage": "Are you sure you want to remove this receipt?",
+    "remove": "Remove",
+    "cancel": "Cancel"
+  },
+  "approverDialog": {
+    "selectApprovers": "Select approvers",
+    "done": "Done",
+    "multiSelect": "Multi select",
+    "search": "Search",
+    "selected": "selected",
+    "loading": "Loading..."
+  },
+  "createNewReport": {
+    "title": "Create new report",
+    "expenseSingular": "expense",
+    "expensePlural": "expenses",
+    "reportNameLabel": "Expense report name",
+    "reportNamePlaceholder": "Enter expense report name",
+    "reportNameError": "Please enter expense report name.",
+    "expensesHeading": "Expenses",
+    "selectAll": "Select all",
+    "savingReport": "Saving Report",
+    "saveAsDraft": "Save as draft",
+    "submittingReport": "Submitting Report",
+    "submitReport": "Submit report",
+    "draftSuccessMessage": "Expenses added to a new report",
+    "submitSuccessMessage": "Expenses submitted for approval"
+  },
+  "viewDependentFields": {
+    "unspecified": "Unspecified",
+    "costCenterCode": "Cost center code"
+  },
+  "fyCriticalPolicyViolation": {
+    "expenseBlocked": "Expense blocked",
+    "cannotReportWarning": "You cannot report this expense due to the following violation(s):",
+    "splitIncompleteMissingReceipt": "Splitting this expense will create incomplete expenses since receipt is missing.",
+    "splitIncomplete": "Splitting this expense will create incomplete expenses.",
+    "removeAndSplit": "Please remove this expense from the report and split it from the Expenses section.",
+    "splitBlocked": "Splitting this expense will create blocked expenses.",
+    "cancel": "Cancel",
+    "continue": "Continue"
+  },
+  "splitExpensePolicyViolation": {
+    "policyViolationFound": "Policy Violation Found",
+    "expenseCannotBeSplit": "Expense cannot be split",
+    "splitBlockedMessage": "Expense cannot be split as it violates policies.",
+    "resolveViolationsMessage": "Resolve the violations before splitting.",
+    "critical": "Critical",
+    "policyViolation": "Policy Violation",
+    "pluralS": "(s)",
+    "additionalDetailsHeader": "Please provide additional details for approval",
+    "detailsPlaceholder": "Enter the details here",
+    "cancel": "Cancel",
+    "continue": "Continue",
+    "gotIt": "Got it"
+  },
+  "fyPopover": {
+    "done": "Done",
+    "placeholder": "Type your reason here"
+  },
+  "fyPopup": {
+    "cancel": "Cancel"
+  },
+  "virtualSelect": {
+    "subheader": "All",
+    "paymentModeLabel": "Payment mode",
+    "selectItemHeader": "Select item",
+    "placeholder": "Select {{label}}"
+  },
+  "virtualSelectModal": {
+    "searchPlaceholder": "Search",
+    "clearLabel": "Clear",
+    "noResultsHeader": "No such {{label}} found",
+    "noResultsSubmessage": "Search for another {{label}} or select one from the list.",
+    "saveButton": "Save",
+    "noneOption": "None"
+  },
+  "delegatedAccMessage": {
+    "managingAccount": "You're now managing {{delegateeName}}'s account"
+  },
+  "fyInputPopover": {
+    "errorEnterLabel": "Please enter a {{inputLabel}}",
+    "errorValidMobile": "Please enter a valid mobile number with country code. e.g. +12025559975",
+    "enterLabelPlaceholder": "Enter {{inputLabel}}"
+  },
+  "fySelectProject": {
+    "selectLabel": "Select {{label}}"
+  },
+  "fyProjectSelectModal": {
+    "selectLabel": "Select {{label}}",
+    "searchPlaceholder": "Search",
+    "clearAriaLabel": "Clear",
+    "none": "None"
+  },
+  "fySelectVendor": {
+    "select": "Select"
+  },
+  "fySelectVendorModal": {
+    "title": "Select merchant",
+    "searchPlaceholder": "Search",
+    "clear": "Clear",
+    "noResultsFound": "<i> No results found </i>",
+    "add": "Add",
+    "none": "None"
+  },
+  "ccExpenseMerchantInfoModal": {
+    "title": "Merchant",
+    "bodyText": "This merchant name comes from the transaction."
+  },
+  "fyViewReportInfo": {
+    "reportName": "Report Name",
+    "owner": "Owner",
+    "reportNumber": "Report Number",
+    "createdDate": "Created date",
+    "totalAmount": "Total Amount",
+    "reimbursable": "Reimbursable",
+    "employeeId": "Employee ID",
+    "organization": "Organization",
+    "department": "Department",
+    "subDepartment": "Sub Department",
+    "location": "Location",
+    "level": "Level",
+    "employeeTitle": "Employee Title",
+    "businessUnit": "Business Unit",
+    "mobile": "Mobile",
+    "allowedCostCenters": "Allowed Cost Centers",
+    "ccc": "CCC",
+    "advance": "Advance",
+    "viewInfo": "View info",
+    "report": "Report",
+    "amount": "Amount",
+    "employee": "Employee",
+    "componentWiseSplit": "Component wise split",
+    "nonReimbursable": "Non-reimbursable",
+    "currencyWiseSplit": "Currency wise split",
+    "oneExpense": "1 Expense",
+    "expenses": " Expenses"
+  },
+  "dashboardOptIn": {
+    "skipOptInMessage": "<div> <p>You can't send receipts and expense details via text message if you don't opt in.</p> <p>Are you sure you want to skip?<p>  </div>",
+    "areYouSure": "Are you sure?",
+    "yesSkipOptIn": "Yes, skip opt in",
+    "noGoBack": "No, go back",
+    "skip": "Skip",
+    "altOptInToTextReceipts": "Opt in to text receipts",
+    "tryAI": "Try AI",
+    "description": "Text receipts for <span class=\"dashboard-opt-in__instant-text-decoration\">instant</span> <span class=\"dashboard-opt-in__underline\"></span> expense submission"
+  },
+  "fySelectCommuteDetails": {
+    "saving": "Saving",
+    "save": "Save",
+    "title": "Commute details",
+    "homeLabel": "Home",
+    "enterLocation": "Enter location",
+    "errorSelectHome": "Please select home location",
+    "workLabel": "Work",
+    "errorSelectWork": "Please select work location",
+    "saveError": "We were unable to save your commute details. Please enter correct home and work location."
+  },
+  "fyPolicyViolationInfo": {
+    "policy": "Policy",
+    "violation": "violation",
+    "violations": "violations",
+    "found": "found.",
+    "viewDetails": "View details",
+    "criticalViolationNotice": "This expense has a critical policy violation. It cannot be added to a report until resolved."
+  },
+  "passwordCheckTooltip": {
+    "heading": "Password should contain:",
+    "ariaLabel": "Password requirements checklist",
+    "lengthRequirement": "12 to 32 characters",
+    "uppercaseRequirement": "1 uppercase character",
+    "lowercaseRequirement": "1 lowercase character",
+    "numberRequirement": "1 number",
+    "specialCharRequirement": "1 special character"
+  },
+  "popupAlert": {
+    "successfullyConnected": "Successfully connected",
+    "failedConnecting": "Failed connecting",
+    "reportViolations": "This report has {{count}} violations"
+  },
+  "cardTransactionPreview": {
+    "header": "Card transaction"
+  },
+  "categoryDependentFieldsForm": {
+    "from": "From",
+    "selectFrom": "Select from",
+    "to": "To",
+    "selectTo": "Select to",
+    "onwardDate": "Onward Date",
+    "selectOnwardDate": "Select onward date",
+    "returnDate": "Return Date",
+    "selectReturnDate": "Select return date",
+    "travelClass": "Travel Class",
+    "selectTravelClass": "Select travel class",
+    "returnTravelClass": "Return Travel Class",
+    "selectReturnTravelClass": "Select return travel class",
+    "distance": "Distance",
+    "selectDistance": "Select distance",
+    "selectDistanceUnit": "Select distance unit"
+  },
+  "fySummaryTile": {
+    "projectLabel": "Project:",
+    "approvers": "Approvers",
+    "approved": "Approved",
+    "pending": "Pending"
+  },
+  "genericFieldsForm": {
+    "amount": "Amount",
+    "selectAmount": "Select amount",
+    "invalidAmountError": "Please select a valid amount",
+    "dateOfSpend": "Date of Spend",
+    "selectSpendDate": "Select spend date",
+    "paymentMode": "Payment mode",
+    "selectPaymentMode": "Select payment mode",
+    "invalidPaymentModeError": "Please select a valid payment mode",
+    "receipt": "Receipt",
+    "selectReceipt": "Select receipt",
+    "noReceiptPlaceholder": "No receipt",
+    "project": "Project",
+    "selectProject": "Select project",
+    "billable": "Billable",
+    "selectBillable": "Select billable",
+    "merchant": "Merchant",
+    "selectMerchant": "Select merchant",
+    "category": "Category",
+    "selectCategory": "Select category",
+    "taxGroup": "Tax Group",
+    "selectTaxGroup": "Select tax group",
+    "tax": "Tax",
+    "selectTax": "Select tax",
+    "costCenter": "Cost center",
+    "selectCostCenter": "Select cost center",
+    "purpose": "Purpose",
+    "selectPurpose": "Select purpose"
+  },
+  "customInputsFieldsForm": {
+    "select": "Select"
+  },
+  "fyLocation": {
+    "label": "location",
+    "selectLocation": "Select {{label}}"
+  },
+  "fyLocationModal": {
+    "loadingLocation": "Loading location...",
+    "enableLocationServicesTitle": "Enable Location Services",
+    "enableLocationTitle": "Enable Location",
+    "enableLocationServicesMessage": "To fetch your current location, please enable Location Services. Click 'Open Settings',then go to Privacy & Security and turn on Location Services",
+    "enableLocationMessage": "To fetch your current location, please enable Location. Click 'Open Settings' and turn on Location",
+    "openSettings": "Open settings",
+    "cancel": "Cancel",
+    "locationPermissionTitle": "Location permission",
+    "locationPermissionMessage": "To fetch current location, please allow Fyle to access your Location. Click on 'Open Settings', then enable both 'Location' and 'Precise Location' to continue.",
+    "loadingCurrentLocation": "Loading current location...",
+    "search": "Search",
+    "clear": "Clear",
+    "save": "Save",
+    "enableLocationFromSettings": "Enable location from Settings to fetch current location",
+    "enable": "Enable",
+    "locationError": "Couldn't get current location. Please enter manually.",
+    "useCurrentLocation": "Use current location"
+  },
+  "myAdvancesCard": {
+    "approvedDate": "Approved date",
+    "paid": "Paid"
+  },
+  "cameraOptionsPopup": {
+    "clickAPicture": "Click a picture",
+    "uploadFiles": "Upload files",
+    "loaderMessage": "Please wait...",
+    "sizeLimitExceededTitle": "Size limit exceeded",
+    "sizeLimitExceededMessage": "The uploaded file is greater than {{maxFileSize}}MB in size. Please reduce the file size and try again.",
+    "ok": "OK",
+    "addMoreUsing": "Add more using",
+    "clickPicture": "Click a picture"
+  },
+  "teamAdvCard": {
+    "approvedDate": "Approved date "
+  },
+  "tasksCard": {
+    "incompleteExpense": "Incomplete expense"
+  },
+  "dismissDialog": {
+    "title": "Dismiss duplicate expenses",
+    "confirmation": "Are you sure you want to take this action?",
+    "cancel": "No, go back",
+    "confirm": "Yes, dismiss"
+  },
+  "spenderOnboardingOptInStep": {
+    "title": "Opt in to send text receipts",
+    "subTitle": "This will help you send receipts via text message.",
+    "mobileNumberLabel": "Mobile number",
+    "mobileNumberPlaceholder": "Enter mobile number with country code e.g +155512345..",
+    "otpDescription": "Enter 6-digit code sent to your phone",
+    "resendCodeTimerPrefix": "Resend code in",
+    "attemptsLeft": "attempts left",
+    "sendingCodeLoader": "Sending code",
+    "resendCode": "Resend code",
+    "successHeader": "You are all set",
+    "successDescription": "We have sent you a confirmation message. You can now use text messages to create and submit your next expense!",
+    "goBack": "Go back",
+    "continue": "Continue",
+    "mobileNumberError": "Please enter mobile number.",
+    "invalidMobileNumberError": "Please enter a valid number with +1 country code. Try re-entering your number.",
+    "codeSentSuccess": "Code sent successfully",
+    "otpLimitReached": "You have reached the limit for 6 digit code requests. Try again after 24 hours.",
+    "invalidMobileNumberToast": "Invalid mobile number. Please try again.",
+    "codeExpired": "The code has expired. Please request a new one.",
+    "invalidCode": "Code is invalid",
+    "verifyingCodeLoader": "Verifying code..."
+  },
+  "spenderOnboardingConnectCardStep": {
+    "title": "Connect corporate card",
+    "subTitle": "This will help you bring your card transactions into Fyle as expenses instantly.",
+    "cardLabel": "Corporate card",
+    "cardNumberPlaceholder": "XXXX XXXX XXXX",
+    "invalidCardNumberError": "Please enter a valid card number.",
+    "invalidCardNetworkVisaMastercardError": "Enter a valid Visa or Mastercard number. If you have other cards, please contact your admin.",
+    "invalidCardNetworkVisaError": "Enter a valid Visa number. If you have other cards, please contact your admin.",
+    "invalidCardNetworkMastercardError": "Enter a valid Mastercard number. If you have other cards, please contact your admin.",
+    "singularCardPlaceholder": "Enter corporate card number",
+    "continue": "Continue",
+    "partialEnrollmentError": "Some cards were not enrolled. You can enroll them later from Settings.",
+    "multipleEnrollmentError": "We ran into an issue while processing your request for the cards <span class='text-bold'>{{allButLast}}</span> and <span class='text-bold'>{{lastCard}}</span>.<br><br>You can cancel and retry connecting the failed card or proceed to the next step.",
+    "singleEnrollmentError": "We ran into an issue while processing your request for the card <span class='text-bold'>{{failedCard}}</span>.<br><br> You can cancel and retry connecting the failed card or proceed to the next step.",
+    "statusSummaryTitle": "Status summary",
+    "failedConnectingTitle": "Failed connecting",
+    "proceedAnyway": "Proceed anyway",
+    "cancel": "Cancel",
+    "genericEnrollmentError": "Something went wrong. Please try after some time."
+  },
+  "cardStats": {
+    "myCards": "My cards"
+  },
+  "tasks": {
+    "expenses": "Expenses",
+    "complete": "Complete",
+    "draft": "Draft",
+    "duplicate": "Duplicate",
+    "reports": "Reports",
+    "sentBack": "Sent Back",
+    "unsubmitted": "Unsubmitted",
+    "unapproved": "Unapproved",
+    "advances": "Advances",
+    "loadingExpenses": "please wait while we load your expenses",
+    "openingReport": "Opening your report...",
+    "openingAdvance": "Opening your advance request...",
+    "addingExpenseToReport": "Adding expense to report",
+    "viewReport": "View Report",
+    "expensesAddedToDraft": "Expenses added to an existing draft report",
+    "expensesAddedSuccessfully": "Expenses added to report successfully",
+    "commuteDetailsSaved": "Commute details saved successfully",
+    "noTasks": "You have no tasks right now",
+    "noTasksFiltered": "You have no tasks",
+    "matchingFilters": "matching the applied filters"
+  },
+  "autoSubmissionInfoCard": {
+    "nextSubmissionOn": "Next auto-submission of expense reports on",
+    "completeExpenses": "Add and complete your expenses for auto-submission"
+  },
+  "stats": {
+    "myExpenses": "My expenses",
+    "incomplete": "Incomplete",
+    "complete": "Complete",
+    "myExpenseReports": "My expense reports",
+    "draft": "Draft",
+    "submitted": "Submitted",
+    "reported": "Reported",
+    "approved": "Approved",
+    "processing": "Processing",
+    "paymentPending": "Payment Pending",
+    "teamExpenseReports": "Team expense reports",
+    "approvalPending": "Approval pending",
+    "offlineHeader": "You're Offline!",
+    "offlineMessage": "Fear not, you can still add expenses offline."
+  },
+  "shareReport": {
+    "title": "Share report",
+    "cancel": "Cancel",
+    "details": "Share report via email.",
+    "emailPlaceholder": "Email ID",
+    "invalidEmail": "Please enter a valid email",
+    "ctaButton": "Pull back",
+    "share": "Share",
+    "shareWith": "Share report with"
+  },
+  "advanceActions": {
+    "approveAdvance": "Approve advance",
+    "approveAdvanceInfo": "Approve this advance request",
+    "sendBackAdvance": "Send back advance",
+    "sendBackAdvanceInfo": "Send back advance request",
+    "rejectAdvance": "Reject advance",
+    "rejectAdvanceInfo": "Reject this advance request"
+  },
+  "expensePreview": {
+    "confirmMatchingExpense": "Confirm matching expense",
+    "viewMatchingExpense": "View matching expense",
+    "expenseNumber": "Expense number",
+    "amount": "Amount",
+    "createdDate": "Created date",
+    "spentDate": "Spent date",
+    "merchant": "Merchant",
+    "category": "Category",
+    "cardEndingIn": "Card ending in...",
+    "receipt": "Receipt",
+    "notAttached": "Not attached",
+    "attached": "Attached",
+    "cancel": "Cancel",
+    "matching": "matching",
+    "confirmMatch": "Confirm match",
+    "edit": "Edit",
+    "successfullyMatched": "Successfully matched the expense."
+  },
+  "addTxnToReportDialog": {
+    "title": "Add to report",
+    "expense": "Expense",
+    "expenses": "Expenses",
+    "noReports": "You have no reports right now",
+    "createDraftReportCta": "To create a draft report please click on <ion-icon class=\"report-list--zero-state__icon\" slot=\"icon-only\" src=\"../../../../../assets/svg/plus-square.svg\"></ion-icon>"
+  },
+  "addExpensePopover": {
+    "instafyleAltText": "Instafyle",
+    "captureReceipt": "Capture receipt",
+    "scanReceiptsInfo": "Scan paper receipts using camera",
+    "createExpenseAltText": "createExpense",
+    "addExpense": "Add expense",
+    "manualEntryInfo": "Enter details manually",
+    "createMileageAltText": "createMileage",
+    "addMileage": "Add mileage",
+    "mileageInfo": "For your daily travels",
+    "createPerDiemAltText": "createPerDiem",
+    "addPerDiem": "Add per diem",
+    "perDiemInfo": "Log your daily per diems"
+  },
+  "cardAdded": {
+    "cardAdded": "Card added",
+    "viewExpensesInfo": "View your corporate card expenses on the expenses page.",
+    "debitCardNote": "<b>Note on debit cards:</b> If you have enrolled a debit card please note that not all transactions with your enrolled debit card may be eligible for expense tracking including PIN-based purchases. Do not use a Personal Identification Number (PIN) when paying for your purchase if you want the transaction to be available under this service.",
+    "gotIt": "Got it"
+  },
+  "addCorporateCard": {
+    "enrollmentFailure": "Something went wrong. Please try after some time.",
+    "toolbarTitle": "Add corporate card",
+    "enterCardNumber": "Enter card number",
+    "errorInvalidCardNumber": "Please enter a valid card number.",
+    "errorInvalidCardNetworkBoth": "Enter a valid Visa or Mastercard number. If you have other cards, please contact your admin.",
+    "errorInvalidCardNetworkVisa": "Enter a valid Visa number. If you have other cards, please contact your admin.",
+    "errorInvalidCardNetworkMastercard": "Enter a valid Mastercard number. If you have other cards, please contact your admin.",
+    "infoNonRtfYodlee": "Enter a valid Visa or Mastercard number. If you have other cards, please add them on Fyle Web or contact your admin.",
+    "viewTnc": "View Terms and conditions",
+    "tncHeading": "By enrolling your card and clicking on 'add', you hereby agree to:",
+    "tncListItem1Part1": "Allow your employer,",
+    "tncListItem1Part2": "card network",
+    "tncListItem1Part3": " and Fyle Inc. to access details of all transactions made using the enrolled card. This includes the transaction amount, the name of the merchant, the date and time of the transaction, and any other relevant information deemed necessary to provide services.",
+    "tncListItem2": "Allow Fyle to use the above details to create expenses on your behalf and enable program notifications.",
+    "tncListItem3Part1": "Agree to our",
+    "tncLink1": "Terms and conditions",
+    "tncListItem3Part2": " and ",
+    "tncLink2": "Privacy policy",
+    "loadingText": "Adding",
+    "addButton": "Add"
+  },
+  "suggestedDuplicates": {
+    "dismissSuccess": "Duplicates was successfully dismissed",
+    "expensesFor": "expenses for",
+    "dismissAll": "Dismiss all",
+    "merge": "Merge"
+  },
+  "verifyNumberPopover": {
+    "title": "Verify mobile number",
+    "verifyButton": "Verify",
+    "otpLabel": "One Time Password (OTP)",
+    "resendTimerPrefix": "Resend OTP in",
+    "resendButton": "Resend OTP",
+    "resendButtonLoading": "Sending OTP",
+    "otpPlaceholder": "Enter 6 digit OTP",
+    "infoBoxText": "Please verify your mobile number using the 6-digit OTP sent to {{mobileNumber}}",
+    "limitReached": "You have exhausted the limit to request OTP for your mobile number. Please try again after 24 hours.",
+    "invalidMobileNumber": "Invalid mobile number. Please try again",
+    "invalidOtp": "Incorrect mobile number or OTP. Please try again.",
+    "invalidInput": "Please enter 6 digit OTP",
+    "attemptsLeft": "You have {{attemptsLeft}} attempt{{plural}} left to verify your mobile number."
+  },
+  "employeeDetailsCard": {
+    "employeeId": "Employee ID -"
+  },
+  "updateMobileNumber": {
+    "errorEnterNumber": "Enter mobile number",
+    "errorEnterNumberWithCountryCode": "Enter mobile number with country code",
+    "enterInputLabel": "Enter {{inputLabel}}",
+    "saving": "Saving",
+    "save": "Save"
+  },
+  "preferenceSetting": {
+    "selectCurrency": "Select currency"
+  },
+  "editReportNamePopover": {
+    "editName": "Edit name",
+    "save": "Save",
+    "reportName": "Report name"
+  },
+  "addExpensesToReport": {
+    "addExpenses": "Add expenses",
+    "expenses": "Expenses",
+    "expense": "Expense",
+    "selectAll": "Select all",
+    "noExpenseInReport": "No expense in this report",
+    "noCompleteExpenses": "You have no complete expenses",
+    "clickOnThe": "Click on the",
+    "toAddNewExpense": "to add a new expense to this report",
+    "addToReport": "Add to report"
+  },
+  "dateRangeModal": {
+    "dateRange": "Date range",
+    "thisMonth": "This month",
+    "lastMonth": "Last month",
+    "last30Days": "Last 30 days",
+    "last60Days": "Last 60 days",
+    "allTime": "All time",
+    "customRange": "Custom range",
+    "startDate": "Start date",
+    "endDate": "End date"
   }
 }

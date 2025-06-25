@@ -78,7 +78,7 @@ import { reportData1 } from 'src/app/core/mock-data/report.data';
 import { sortedCategory } from 'src/app/core/mock-data/org-category.data';
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 
 export function TestCases1(getTestBed) {
   return describe('AddEditExpensePage-1', () => {
@@ -133,8 +133,17 @@ export function TestCases1(getTestBed) {
     beforeEach(() => {
       const TestBed = getTestBed();
       TestBed.compileComponents();
-      const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
-      TestBed.overrideProvider(TranslocoService, { useValue: translocoServiceSpy });
+      const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+        config: {
+          reRenderOnLangChange: true,
+        },
+        langChanges$: of('en'),
+        _loadDependencies: () => Promise.resolve(),
+      });
+      TestBed.configureTestingModule({
+        imports: [TranslocoModule],
+        providers: [{ provide: TranslocoService, useValue: translocoServiceSpy }],
+      });
       fixture = TestBed.createComponent(AddEditExpensePage);
       component = fixture.componentInstance;
 

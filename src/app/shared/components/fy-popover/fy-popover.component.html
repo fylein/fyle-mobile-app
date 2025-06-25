@@ -15,7 +15,7 @@
     </ion-title>
     <ion-buttons *ngIf="!message" slot="end">
       <ion-button [disabled]="formValue.trim().length === 0" class="fy-popover--toolbar__btn" (click)="submit()">
-        Done
+        {{ 'fyPopover.done' | transloco }}
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -32,7 +32,7 @@
   </div>
   <textarea
     #simpleFormInput
-    placeholder="Type your reason here"
+    [placeholder]="'fyPopover.placeholder' | transloco"
     [(ngModel)]="formValue"
     class="fy-popover--input-container__textarea"
   ></textarea>

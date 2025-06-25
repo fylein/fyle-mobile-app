@@ -1,5 +1,6 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync, fakeAsync, tick } from '@angular/core/testing';
 import { IonicModule, PopoverController } from '@ionic/angular';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 
 import { AddCorporateCardComponent } from './add-corporate-card.component';
 import { RealTimeFeedService } from 'src/app/core/services/real-time-feed.service';
@@ -23,7 +24,7 @@ import {
   cardEnrollmentErrorsProperties4,
   enrollingNonRTFCardProperties,
 } from 'src/app/core/mock-data/corporate-card-trackers.data';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-fy-alert-info',
@@ -56,10 +57,21 @@ describe('AddCorporateCardComponent', () => {
       'cardEnrollmentErrors',
       'enrollingNonRTFCard',
     ]);
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+      events$: of({}),
+      loaderTranslations: {},
+      cache: new Map(),
+      interceptor: {},
+    });
     TestBed.configureTestingModule({
       declarations: [AddCorporateCardComponent, MockFyAlertInfoComponent, ArrayToCommaListPipe],
-      imports: [IonicModule.forRoot(), NgxMaskModule.forRoot(), ReactiveFormsModule],
+      imports: [IonicModule.forRoot(), NgxMaskModule.forRoot(), ReactiveFormsModule, TranslocoModule],
+      schemas: [NO_ERRORS_SCHEMA],
       providers: [
         {
           provide: PopoverController,
@@ -99,8 +111,45 @@ describe('AddCorporateCardComponent', () => {
     translocoService.translate.and.callFake((key: any, params?: any) => {
       const translations: { [key: string]: string } = {
         'pipes.arrayToCommaList.and': 'and',
+        'addCorporateCard.enrollmentFailure': 'Something went wrong. Please try after some time.',
+        'addCorporateCard.toolbarTitle': 'Add corporate card',
+        'addCorporateCard.enterCardNumber': 'Enter card number',
+        'addCorporateCard.errorInvalidCardNumber': 'Please enter a valid card number.',
+        'addCorporateCard.errorInvalidCardNetworkBoth':
+          'Enter a valid Visa or Mastercard number. If you have other cards, please contact your admin.',
+        'addCorporateCard.errorInvalidCardNetworkVisa':
+          'Enter a valid Visa number. If you have other cards, please contact your admin.',
+        'addCorporateCard.errorInvalidCardNetworkMastercard':
+          'Enter a valid Mastercard number. If you have other cards, please contact your admin.',
+        'addCorporateCard.infoNonRtfYodlee':
+          'Enter a valid Visa or Mastercard number. If you have other cards, please add them on Fyle Web or contact your admin.',
+        'addCorporateCard.viewTnc': 'View Terms and conditions',
+        'addCorporateCard.tncHeading': "By enrolling your card and clicking on 'add', you hereby agree to:",
+        'addCorporateCard.tncListItem1Part1': 'Allow your employer,',
+        'addCorporateCard.tncListItem1Part2': 'card network',
+        'addCorporateCard.tncListItem1Part3':
+          ' and Fyle Inc. to access details of all transactions made using the enrolled card. This includes the transaction amount, the name of the merchant, the date and time of the transaction, and any other relevant information deemed necessary to provide services.',
+        'addCorporateCard.tncListItem2':
+          'Allow Fyle to use the above details to create expenses on your behalf and enable program notifications.',
+        'addCorporateCard.tncListItem3Part1': 'Agree to our',
+        'addCorporateCard.tncLink1': 'Terms and conditions',
+        'addCorporateCard.tncListItem3Part2': ' and ',
+        'addCorporateCard.tncLink2': 'Privacy policy',
+        'addCorporateCard.loadingText': 'Adding',
+        'addCorporateCard.addButton': 'Add',
+        'addCorporateCard.addCorporateCard': 'Add corporate card',
       };
-      return translations[key] || key;
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
     });
 
     // Default inputs
@@ -182,7 +231,7 @@ describe('AddCorporateCardComponent', () => {
   });
 
   describe('card number validation errors', () => {
-    it('should show an error message when the user has entered an invalid card number', () => {
+    it('should show an error message when the user has entered an invalid card number', fakeAsync(() => {
       realTimeFeedService.isCardNumberValid.and.returnValue(false);
       realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.OTHERS);
 
@@ -195,12 +244,14 @@ describe('AddCorporateCardComponent', () => {
       cardNumberInput.dispatchEvent(new Event('blur'));
 
       fixture.detectChanges();
+      tick();
+      fixture.detectChanges();
 
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
       expect(errorMessage.textContent).toContain('Please enter a valid card number.');
-    });
+    }));
 
-    it('should show an error message if only mastercard rtf is enabled but the user has entered a non-mastercard number', () => {
+    it('should show an error message if only mastercard rtf is enabled but the user has entered a non-mastercard number', fakeAsync(() => {
       component.isMastercardRTFEnabled = true;
       component.isVisaRTFEnabled = false;
       component.isYodleeEnabled = false;
@@ -217,15 +268,17 @@ describe('AddCorporateCardComponent', () => {
       cardNumberInput.dispatchEvent(new Event('blur'));
 
       fixture.detectChanges();
+      tick();
+      fixture.detectChanges();
 
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
 
       expect(errorMessage.textContent).toContain(
         'Enter a valid Mastercard number. If you have other cards, please contact your admin.'
       );
-    });
+    }));
 
-    it('should show an error message if only visa rtf is enabled but the user has entered a non-visa number', () => {
+    it('should show an error message if only visa rtf is enabled but the user has entered a non-visa number', fakeAsync(() => {
       component.isVisaRTFEnabled = true;
       component.isMastercardRTFEnabled = false;
       component.isYodleeEnabled = false;
@@ -242,15 +295,17 @@ describe('AddCorporateCardComponent', () => {
       cardNumberInput.dispatchEvent(new Event('blur'));
 
       fixture.detectChanges();
+      tick();
+      fixture.detectChanges();
 
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
 
       expect(errorMessage.textContent).toContain(
         'Enter a valid Visa number. If you have other cards, please contact your admin.'
       );
-    });
+    }));
 
-    it('should show an error message if user has entered a non visa/mastercard card number and yodlee is disabled in the org', () => {
+    it('should show an error message if user has entered a non visa/mastercard card number and yodlee is disabled in the org', fakeAsync(() => {
       component.isVisaRTFEnabled = true;
       component.isMastercardRTFEnabled = true;
       component.isYodleeEnabled = false;
@@ -267,12 +322,14 @@ describe('AddCorporateCardComponent', () => {
       cardNumberInput.dispatchEvent(new Event('blur'));
 
       fixture.detectChanges();
+      tick();
+      fixture.detectChanges();
 
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
       expect(errorMessage.textContent).toContain(
         'Enter a valid Visa or Mastercard number. If you have other cards, please contact your admin.'
       );
-    });
+    }));
   });
 
   describe('card enrollment flow', () => {
@@ -429,7 +486,7 @@ describe('AddCorporateCardComponent', () => {
       expect(trackingService.cardEnrollmentErrors).toHaveBeenCalledOnceWith(cardEnrollmentErrorsProperties4);
     });
 
-    it('should disallow card enrollment and show a warning message if the user has entered a non visa/mastercard card number and yodlee is enabled in the org', () => {
+    it('should disallow card enrollment and show a warning message if the user has entered a non visa/mastercard card number and yodlee is enabled in the org', fakeAsync(() => {
       component.isYodleeEnabled = true;
 
       realTimeFeedService.isCardNumberValid.and.returnValue(true);
@@ -443,6 +500,8 @@ describe('AddCorporateCardComponent', () => {
       cardNumberInput.dispatchEvent(new Event('input'));
 
       fixture.detectChanges();
+      tick();
+      fixture.detectChanges();
 
       const alertMessageComponent = fixture.debugElement.query(By.directive(MockFyAlertInfoComponent));
       const addCorporateCardBtn = getElementBySelector(fixture, '[data-testid="add-btn"]') as HTMLButtonElement;
@@ -454,7 +513,7 @@ describe('AddCorporateCardComponent', () => {
       );
       expect(addCorporateCardBtn.disabled).toBeTrue();
       expect(trackingService.enrollingNonRTFCard).toHaveBeenCalledOnceWith(enrollingNonRTFCardProperties);
-    });
+    }));
   });
 
   describe('terms and conditions', () => {

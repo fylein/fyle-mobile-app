@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { IonicModule } from '@ionic/angular';
 import { ModalController } from '@ionic/angular';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
@@ -9,20 +10,28 @@ import { FormsModule } from '@angular/forms';
 import { FyMultiselectModalComponent } from './fy-multiselect-modal/fy-multiselect-modal.component';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { By } from '@angular/platform-browser';
+import { of } from 'rxjs';
 
 describe('FyMultiselectComponent', () => {
   let component: FyMultiselectComponent;
   let fixture: ComponentFixture<FyMultiselectComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
   let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
 
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [FyMultiselectComponent],
-      imports: [IonicModule.forRoot(), MatIconTestingModule, MatIconModule, FormsModule],
+      imports: [IonicModule.forRoot(), MatIconTestingModule, MatIconModule, FormsModule, TranslocoModule],
       providers: [
         {
           provide: ModalController,
@@ -32,6 +41,10 @@ describe('FyMultiselectComponent', () => {
           provide: ModalPropertiesService,
           useValue: modalPropertiesSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(FyMultiselectComponent);
@@ -39,6 +52,25 @@ describe('FyMultiselectComponent', () => {
 
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'fyMultiselect.select': 'Select',
+        'fyMultiselect.selectItems': 'Select items',
+        'fyMultiselect.allItems': 'All items',
+      };
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
+    });
 
     component.options = [
       {
@@ -78,7 +110,7 @@ describe('FyMultiselectComponent', () => {
       component: FyMultiselectModalComponent,
       componentProps: {
         options: component.options,
-        currentSelections: undefined,
+        currentSelections: [],
         selectModalHeader: component.selectModalHeader,
         subheader: component.subheader,
       },

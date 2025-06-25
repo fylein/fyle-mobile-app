@@ -6,18 +6,30 @@ import { IonicModule, PopoverController } from '@ionic/angular';
 import { getElementBySelector, getElementByTagName } from 'src/app/core/dom-helpers';
 
 import { EditReportNamePopoverComponent } from './edit-report-name-popover.component';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
+import { of } from 'rxjs';
 
 describe('EditReportNamePopoverComponent', () => {
   let component: EditReportNamePopoverComponent;
   let fixture: ComponentFixture<EditReportNamePopoverComponent>;
   let popoverController: jasmine.SpyObj<PopoverController>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(async () => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['dismiss']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     await TestBed.configureTestingModule({
       declarations: [EditReportNamePopoverComponent],
-      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, FormsModule],
-      providers: [{ provide: PopoverController, useValue: popoverControllerSpy }],
+      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, FormsModule, TranslocoModule],
+      providers: [
+        { provide: PopoverController, useValue: popoverControllerSpy },
+        { provide: TranslocoService, useValue: translocoServiceSpy },
+      ],
     }).compileComponents();
   });
 
@@ -25,6 +37,25 @@ describe('EditReportNamePopoverComponent', () => {
     fixture = TestBed.createComponent(EditReportNamePopoverComponent);
     component = fixture.componentInstance;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'editReportNamePopover.editName': 'Edit name',
+        'editReportNamePopover.save': 'Save',
+        'editReportNamePopover.reportName': 'Report name',
+      };
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
+    });
     component.reportName = 'Report 1';
     fixture.detectChanges();
   });

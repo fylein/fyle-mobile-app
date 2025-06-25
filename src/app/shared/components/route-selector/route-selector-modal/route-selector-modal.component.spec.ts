@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { IonicModule } from '@ionic/angular';
 import { ModalController } from '@ionic/angular';
 import { MileageService } from 'src/app/core/services/mileage.service';
@@ -19,10 +20,17 @@ describe('RouteSelectorModalComponent', () => {
   let fb: jasmine.SpyObj<UntypedFormBuilder>;
   let modalController: jasmine.SpyObj<ModalController>;
   let mileageService: jasmine.SpyObj<MileageService>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
     const mileageServiceSpy = jasmine.createSpyObj('MileageService', ['getDistance']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [RouteSelectorModalComponent, FyLocationComponent],
       imports: [
@@ -32,6 +40,7 @@ describe('RouteSelectorModalComponent', () => {
         MatIconTestingModule,
         MatIconModule,
         MatCheckboxModule,
+        TranslocoModule,
       ],
       providers: [
         UntypedFormBuilder,
@@ -43,6 +52,10 @@ describe('RouteSelectorModalComponent', () => {
           provide: MileageService,
           useValue: mileageServiceSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -51,7 +64,31 @@ describe('RouteSelectorModalComponent', () => {
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     mileageService = TestBed.inject(MileageService) as jasmine.SpyObj<MileageService>;
     fb = TestBed.inject(UntypedFormBuilder) as jasmine.SpyObj<UntypedFormBuilder>;
-
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'routeSelector.roundTrip': 'Round Trip',
+        'routeSelector.oneWay': 'One Way',
+        'routeSelector.distance': 'Distance',
+        'routeSelector.routeLabel': 'Route',
+        'routeSelector.startLabel': 'Start',
+        'routeSelector.selectLocationError': 'Please select location',
+        'routeSelector.intermediateStop': 'Stop',
+        'routeSelector.stopLabel': 'Stop',
+        'routeSelector.enterRoute': 'Enter route',
+        'routeSelector.roundTripLabel': 'Round trip',
+        'routeSelector.distanceLabel': 'Distance',
+        'routeSelector.enterDistance': 'Enter distance',
+        'routeSelector.invalidDistance': 'Please enter valid distance',
+      };
+      let translation = translations[key] || key;
+      if (params) {
+        Object.keys(params).forEach((key) => {
+          translation = translation.replace(`{{${key}}}`, params[key]);
+        });
+      }
+      return translation;
+    });
     mileageService.getDistance.and.returnValue(of(20));
     component.mileageConfig = orgSettingsRes.mileage;
     component.formInitialized = true;

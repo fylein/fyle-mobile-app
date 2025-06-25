@@ -18,6 +18,8 @@ import { MatRippleModule } from '@angular/material/core';
 
 import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button';
 
+import { TranslocoModule } from '@jsverse/transloco';
+
 @NgModule({
   imports: [
     CommonModule,
@@ -30,6 +32,7 @@ import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/lega
     MatInputModule,
     MatRippleModule,
     MatButtonModule,
+    TranslocoModule,
   ],
   declarations: [SetupAccountPage, SelectCurrencyComponent],
 })
