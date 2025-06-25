@@ -690,9 +690,9 @@ export class AddEditExpensePage implements OnInit {
         const originalAdvanceWalletId = etxn && etxn.tx && etxn.tx.advance_wallet_id;
         let isPaymentModeInvalid = false;
 
-        // Only check balance for advance wallets
-        const isAdvanceWallet =
-          paymentMode?.id && isAdvanceWalletEnabled && paymentMode.type === 'PERSONAL_ADVANCE_ACCOUNT';
+        // Check if it's an advance wallet (new system)
+        const isAdvanceWallet = isAdvanceWalletEnabled && paymentMode?.id && !paymentMode?.acc;
+        // Check if it's an advance account (old system)
         const isAdvanceAccount = paymentMode?.acc?.type === AccountType.ADVANCE && !isAdvanceWalletEnabled;
 
         if (isAdvanceAccount) {
