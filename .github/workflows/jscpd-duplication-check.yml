@@ -12,7 +12,7 @@ concurrency:
 jobs:
   call-jscpd-duplication-check:
     if: ${{ github.event.pull_request.draft == false }}
-    uses: fylein/workflows/.github/workflows/jscpd-duplication-check.yml@master
+    uses: fylein/workflows/.github/workflows/jscpd-duplication-check.yml@add-gitleaks-workflow
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
     with:
