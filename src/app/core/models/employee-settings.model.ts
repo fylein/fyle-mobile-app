@@ -9,9 +9,12 @@ export interface EmployeeSettings {
   created_at: Date;
   updated_at: Date;
 
-  cost_center_ids: number[];
-  project_ids: number[];
-  per_diem_rate_ids: number[];
+  category_ids: number[];
+  mileage_rate_ids: number[];
+
+  cost_center_ids: string[];
+  project_ids: string[];
+  per_diem_rate_ids: string[];
 
   insta_fyle_settings: {
     allowed: boolean;

@@ -88,7 +88,9 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
           () => orgSettings.advanced_projects.enable_individual_projects,
           this.platformEmployeeSettingsService
             .get()
-            .pipe(map((employeeSettings: EmployeeSettings) => employeeSettings.project_ids || [])),
+            .pipe(
+              map((employeeSettings: EmployeeSettings) => employeeSettings.project_ids?.map((id) => Number(id)) || [])
+            ),
           of(null)
         );
 
