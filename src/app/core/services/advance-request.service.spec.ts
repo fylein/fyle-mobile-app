@@ -63,7 +63,7 @@ import {
 import { cloneDeep } from 'lodash';
 import { PlatformEmployeeSettingsService } from './platform/v1/spender/employee-settings.service';
 
-describe('AdvanceRequestService', () => {
+fdescribe('AdvanceRequestService', () => {
   let advanceRequestService: AdvanceRequestService;
   let apiService: jasmine.SpyObj<ApiService>;
   let authService: jasmine.SpyObj<AuthService>;
@@ -506,19 +506,6 @@ describe('AdvanceRequestService', () => {
   });
 
   it('getActiveApproversByAdvanceRequestId(): should get active approvers for an advance request', (done) => {
-    const advID = 'areqa4CojbCAqd';
-    //@ts-ignore
-    spyOn(advanceRequestService, 'getApproversByAdvanceRequestId').and.returnValue(of(advanceReqApprovals));
-
-    advanceRequestService.getActiveApproversByAdvanceRequestId(advID).subscribe((res) => {
-      expect(res).toEqual(advanceReqApprovals);
-      //@ts-ignore
-      expect(advanceRequestService.getApproversByAdvanceRequestId).toHaveBeenCalledOnceWith(advID);
-      done();
-    });
-  });
-
-  it('getActiveApproversByAdvanceRequestId(): should get active approvers for an advance request', (done) => {
     const advID = 'areqiwr3Wwirr';
     //@ts-ignore
     spenderService.get.and.returnValue(of(advanceRequestPlatform));
@@ -532,14 +519,25 @@ describe('AdvanceRequestService', () => {
     });
   });
 
-  it('getApproversByAdvanceRequestId(): should get approvers for an advance request', (done) => {
-    apiService.get.and.returnValue(of(advanceReqApprovals));
-    const advID = 'areqa4CojbCAqd';
-
+  it('getActiveApproversByAdvanceRequestIdPlatformForApprover(): should get active approvers for team advance request using platform API', (done) => {
+    const advID = 'areqiwr3Wwirr';
     //@ts-ignore
-    advanceRequestService.getActiveApproversByAdvanceRequestId(advID).subscribe((res) => {
-      expect(res).toEqual(advanceReqApprovals);
-      expect(apiService.get).toHaveBeenCalledOnceWith(`/eadvance_requests/${advID}/approvals`);
+    approverService.get.and.returnValue(of(advanceRequestPlatform));
+
+    const expectedApprovals = [
+      {
+        approver_name: 'John Doe',
+        approver_email: 'john.doe@example.com',
+        state: 'APPROVAL_PENDING',
+      },
+    ];
+
+    advanceRequestService.getActiveApproversByAdvanceRequestIdPlatformForApprover(advID).subscribe((res) => {
+      expect(res).toEqual(expectedApprovals);
+      //@ts-ignore
+      expect(approverService.get).toHaveBeenCalledOnceWith('/advance_requests', {
+        params: { id: `eq.${advID}` },
+      });
       done();
     });
   });

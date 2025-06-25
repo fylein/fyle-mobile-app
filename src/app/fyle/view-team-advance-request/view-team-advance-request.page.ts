@@ -6,7 +6,7 @@ import { Observable } from 'rxjs/internal/Observable';
 import { catchError, concatMap, finalize, map, reduce, shareReplay, startWith, switchMap, take } from 'rxjs/operators';
 import { MIN_SCREEN_WIDTH } from 'src/app/app.module';
 import { AdvanceRequestActions } from 'src/app/core/models/advance-request-actions.model';
-import { Approval } from 'src/app/core/models/approval.model';
+import { ApprovalPublic } from 'src/app/core/models/approval-public.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
 import { FileObject } from 'src/app/core/models/file-obj.model';
@@ -40,9 +40,9 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
 
   actions$: Observable<AdvanceRequestActions>;
 
-  approvals$: Observable<Approval[]>;
+  approvals$: Observable<ApprovalPublic[]>;
 
-  activeApprovals$: Observable<Approval[]>;
+  activeApprovals$: Observable<ApprovalPublic[]>;
 
   attachedFiles$: Observable<File[] | FileObject[]>;
 
@@ -131,7 +131,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
       map((advanceActions) => advanceActions.can_approve || advanceActions.can_inquire || advanceActions.can_reject)
     );
 
-    this.approvals$ = this.advanceRequestService.getActiveApproversByAdvanceRequestId(id);
+    this.approvals$ = this.advanceRequestService.getActiveApproversByAdvanceRequestIdPlatformForApprover(id);
 
     this.activeApprovals$ = this.refreshApprovers$.pipe(
       startWith(true),
@@ -193,7 +193,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
     ]);
   }
 
-  getApproverEmails(activeApprovals: Approval[]): string[] {
+  getApproverEmails(activeApprovals: ApprovalPublic[]): string[] {
     return activeApprovals?.map((approver) => approver.approver_email);
   }
 
