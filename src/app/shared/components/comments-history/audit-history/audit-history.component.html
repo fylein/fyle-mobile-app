@@ -37,12 +37,14 @@
               estatus.st.category !== 'Expense automatically merged' &&
               estatus.st.category !== 'Expense merged'
             "
-            >Details:
+            >{{ 'auditHistory.detailsLabel' | transloco }}
           </span>
-          <span *ngIf="estatus.st.category === 'Card Transaction Matched'">Card transaction details: </span>
+          <span *ngIf="estatus.st.category === 'Card Transaction Matched'">{{
+            'auditHistory.cardTransactionDetailsLabel' | transloco
+          }}</span>
           <span
             *ngIf="estatus.st.category === 'Expense automatically merged' || estatus.st.category === 'Expense merged'"
-            >Details of the merged expense:
+            >{{ 'auditHistory.mergedExpenseDetailsLabel' | transloco }}
           </span>
           <ul class="audit-history--diff-list">
             <div *ngFor="let item of estatus.st_diff | keyvalue" class="audit-history--diff">

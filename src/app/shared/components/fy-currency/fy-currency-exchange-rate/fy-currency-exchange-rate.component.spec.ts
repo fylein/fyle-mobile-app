@@ -16,6 +16,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { FyNumberComponent } from '../../fy-number/fy-number.component';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FyCurrencyExchangeRateComponent } from './fy-currency-exchange-rate.component';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 
 describe('FyCurrencyExchangeRateComponent', () => {
   let component: FyCurrencyExchangeRateComponent;
@@ -24,7 +25,7 @@ describe('FyCurrencyExchangeRateComponent', () => {
   let modalController: jasmine.SpyObj<ModalController>;
   let currencyService: jasmine.SpyObj<CurrencyService>;
   let loaderService: jasmine.SpyObj<LoaderService>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss', 'create']);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', [
@@ -32,10 +33,16 @@ describe('FyCurrencyExchangeRateComponent', () => {
       'getAmountWithCurrencyFraction',
     ]);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['hideLoader', 'showLoader']);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [FyCurrencyExchangeRateComponent, FyNumberComponent],
-      imports: [IonicModule.forRoot(), FormsModule, ReactiveFormsModule],
+      imports: [IonicModule.forRoot(), FormsModule, ReactiveFormsModule, TranslocoModule],
       providers: [
         {
           provide: ModalController,
@@ -49,6 +56,10 @@ describe('FyCurrencyExchangeRateComponent', () => {
           provide: LoaderService,
           useValue: loaderServiceSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
         UntypedFormBuilder,
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -60,6 +71,33 @@ describe('FyCurrencyExchangeRateComponent', () => {
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'fyCurrencyExchangeRate.title': 'Currency',
+        'fyCurrencyExchangeRate.expenseAmountInCurrencyLabel': 'Expense amount in {{currency}}',
+        'fyCurrencyExchangeRate.exchangeRateLabel': 'Exchange rate 1 {{newCurrency}} =',
+        'fyCurrencyExchangeRate.placeholderAmount': '00.00',
+        'fyCurrencyExchangeRate.conversionMessage':
+          '{{newCurrency}} {{newCurrencyAmount}} was converted to {{currentCurrency}} {{homeCurrencyAmount}} at the exchange rate of {{exchangeRate}} {{currentCurrency}}/{{newCurrency}}.',
+        'fyCurrencyExchangeRate.rateLabel': 'Rate',
+        'fyCurrencyExchangeRate.placeholderExample': 'e.g. 9.99',
+        'fyCurrencyExchangeRate.saveButton': 'Save',
+        'fyCurrencyExchangeRate.conversionInfo':
+          '{{newCurrency}} {{newCurrencyAmount}} will be converted to {{currentCurrency}} {{homeCurrencyAmount}} at {{exchangeRate}} {{newCurrency}}/{{currentCurrency}}',
+      };
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
+    });
     component.txnDt = new Date();
     component.amount = 100;
     component.currentCurrency = 'USD';

@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
@@ -32,12 +33,18 @@ describe('FyUserlistModalComponent', () => {
   let modalController: jasmine.SpyObj<ModalController>;
   let cdr: jasmine.SpyObj<ChangeDetectorRef>;
   let employeesService: jasmine.SpyObj<EmployeesService>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
     const cdrSpy = jasmine.createSpyObj('ChangeDetectorRef', ['detectChanges']);
     const employeesServiceSpy = jasmine.createSpyObj('EmployeesService', ['getEmployeesBySearch']);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [FyUserlistModalComponent],
       imports: [
@@ -47,18 +54,38 @@ describe('FyUserlistModalComponent', () => {
         MatChipsModule,
         MatIconModule,
         MatCheckboxModule,
+        TranslocoModule,
       ],
       providers: [
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: ChangeDetectorRef, useValue: cdrSpy },
         { provide: EmployeesService, useValue: employeesServiceSpy },
+        { provide: TranslocoService, useValue: translocoServiceSpy },
       ],
     }).compileComponents();
 
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     cdr = TestBed.inject(ChangeDetectorRef) as jasmine.SpyObj<ChangeDetectorRef>;
     employeesService = TestBed.inject(EmployeesService) as jasmine.SpyObj<EmployeesService>;
-
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'fyUserlistModal.title': 'Select items',
+        'fyUserlistModal.done': 'Done',
+        'fyUserlistModal.multiSelectAriaLabel': 'Multi select',
+        'fyUserlistModal.searchPlaceholder': 'Search',
+        'fyUserlistModal.selected': 'selected',
+        'fyUserlistModal.addPrefix': 'Add "',
+        'fyUserlistModal.addSuffix': '"',
+      };
+      let translation = translations[key] || key;
+      if (params) {
+        Object.keys(params).forEach((key) => {
+          translation = translation.replace(`{{${key}}}`, params[key]);
+        });
+      }
+      return translation;
+    });
     const employeesData = cloneDeep(employeesRes.data);
     employeesService.getEmployeesBySearch.and.returnValue(of(employeesData));
     fixture = TestBed.createComponent(FyUserlistModalComponent);

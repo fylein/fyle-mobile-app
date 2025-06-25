@@ -8,24 +8,36 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { FormsModule } from '@angular/forms';
 import { of, throwError } from 'rxjs';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 
 describe('DismissDialogComponent', () => {
   let component: DismissDialogComponent;
   let fixture: ComponentFixture<DismissDialogComponent>;
   let popoverController: jasmine.SpyObj<PopoverController>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   const dismissMethod = () => of(true);
   const errMethod = () => throwError(() => new Error('error'));
 
   beforeEach(waitForAsync(() => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['dismiss']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [DismissDialogComponent, FormButtonValidationDirective],
-      imports: [IonicModule.forRoot(), FormsModule, MatIconTestingModule, MatIconModule],
+      imports: [IonicModule.forRoot(), FormsModule, MatIconTestingModule, MatIconModule, TranslocoModule],
       providers: [
         {
           provide: PopoverController,
           useValue: popoverControllerSpy,
+        },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
       ],
     }).compileComponents();
@@ -33,6 +45,26 @@ describe('DismissDialogComponent', () => {
     fixture = TestBed.createComponent(DismissDialogComponent);
     component = fixture.componentInstance;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'dismissDialog.title': 'Dismiss duplicate expenses',
+        'dismissDialog.confirmation': 'Are you sure you want to dismiss these expenses?',
+        'dismissDialog.cancel': 'Cancel',
+        'dismissDialog.confirm': 'Yes, dismiss',
+      };
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
+    });
     fixture.detectChanges();
   }));
 

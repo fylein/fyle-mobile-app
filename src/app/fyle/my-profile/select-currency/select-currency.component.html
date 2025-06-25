@@ -2,7 +2,7 @@
   <mat-icon class="fy-modal-top-bar" svgIcon="notch"></mat-icon>
   <ion-toolbar mode="md" class="fy-modal-toolbar">
     <ion-title>
-      <div class="selection-modal--title">Select currency</div>
+      <div class="selection-modal--title">{{ 'selectCurrency.title' | transloco }}</div>
     </ion-title>
     <ion-buttons slot="start">
       <ion-button (click)="closeModal()">
@@ -17,10 +17,17 @@
         #searchBar
         class="selection-modal--search-input smartlook-show"
         matInput
-        placeholder="Search"
+        [placeholder]="'selectCurrency.searchPlaceholder' | transloco"
         [(ngModel)]="value"
       />
-      <button mat-button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="clearValue()">
+      <button
+        mat-button
+        *ngIf="value"
+        matSuffix
+        mat-icon-button
+        [attr.aria-label]="'selectCurrency.clear' | transloco"
+        (click)="clearValue()"
+      >
         <mat-icon>close</mat-icon>
       </button>
     </mat-form-field>

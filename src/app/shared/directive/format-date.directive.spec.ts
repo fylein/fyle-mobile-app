@@ -2,6 +2,7 @@ import { Component, DebugElement, Renderer2 } from '@angular/core';
 import { FormatDateDirective } from './format-date.directive';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   template: `<input appFormatDate type="date" />`,
@@ -13,15 +14,43 @@ describe('FormatDateDirective', () => {
   let fixture: ComponentFixture<TestFormatDateDirectiveComponent>;
   let inputEl: DebugElement;
   let directive: FormatDateDirective;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
 
   beforeEach(() => {
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+
     TestBed.configureTestingModule({
       declarations: [TestFormatDateDirectiveComponent, FormatDateDirective],
+      providers: [
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
+      ],
     });
+
     fixture = TestBed.createComponent(TestFormatDateDirectiveComponent);
     component = fixture.componentInstance;
     inputEl = fixture.debugElement.query(By.css('input'));
     directive = inputEl.injector.get(FormatDateDirective);
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+
+    // Mock translate method to return expected strings
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'directives.formatDate.selectNamePlaceholder': 'Select {{name}}',
+        'directives.formatDate.selectDatePlaceholder': 'Select date',
+      };
+
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && params.name) {
+        translation = translation.replace('{{name}}', params.name);
+      }
+
+      return translation;
+    });
   });
 
   it('should create an instance', () => {

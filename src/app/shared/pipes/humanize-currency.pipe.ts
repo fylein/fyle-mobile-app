@@ -1,16 +1,29 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import { FyCurrencyPipe } from './fy-currency.pipe';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Pipe({
   name: 'humanizeCurrency',
 })
 export class HumanizeCurrencyPipe implements PipeTransform {
-  constructor(private fyCurrencyPipe: FyCurrencyPipe) {}
+  constructor(private fyCurrencyPipe: FyCurrencyPipe, private translocoService: TranslocoService) {}
 
   transform(value: number, currencyCode: string, skipSymbol = false, fraction?: number): string {
     const sign = value < 0 ? '-' : '';
     const amount = Math.abs(value) || 0;
-    const si = ['', 'K', 'M', 'B', 't', 'q', 'Q', 's', 'S', 'o', 'n'];
+    const si = [
+      '',
+      this.translocoService.translate('pipes.humanizeCurrency.kiloSuffix'),
+      this.translocoService.translate('pipes.humanizeCurrency.megaSuffix'),
+      this.translocoService.translate('pipes.humanizeCurrency.gigaSuffix'),
+      this.translocoService.translate('pipes.humanizeCurrency.teraSuffix'),
+      this.translocoService.translate('pipes.humanizeCurrency.quadrillionSuffix'),
+      this.translocoService.translate('pipes.humanizeCurrency.quintillionSuffix'),
+      this.translocoService.translate('pipes.humanizeCurrency.sextillionSuffix'),
+      this.translocoService.translate('pipes.humanizeCurrency.septillionSuffix'),
+      this.translocoService.translate('pipes.humanizeCurrency.octillionSuffix'),
+      this.translocoService.translate('pipes.humanizeCurrency.nonillionSuffix'),
+    ];
     const exp = Math.max(0, Math.floor(Math.log(amount) / Math.log(1000)));
     const result = amount / Math.pow(1000, exp);
 

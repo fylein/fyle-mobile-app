@@ -2,7 +2,7 @@
   <mat-icon class="fy-modal-top-bar" svgIcon="notch"></mat-icon>
   <ion-toolbar mode="md" class="fy-modal-toolbar">
     <ion-title>
-      <div class="selection-modal--title">Select items</div>
+      <div class="selection-modal--title">{{ 'fyUserlistModal.title' | transloco }}</div>
     </ion-title>
     <ion-buttons slot="start">
       <ion-button (click)="onDoneClick()">
@@ -10,7 +10,9 @@
       </ion-button>
     </ion-buttons>
     <ion-buttons slot="end">
-      <ion-button class="selection-modal--cta" (click)="useSelected()"> Done </ion-button>
+      <ion-button class="selection-modal--cta" (click)="useSelected()">
+        {{ 'fyUserlistModal.done' | transloco }}
+      </ion-button>
     </ion-buttons>
   </ion-toolbar>
   <ion-toolbar class="text-center" [ngClass]="{ 'selection-modal--toolbar': currentSelections?.length > 0 }">
@@ -19,7 +21,7 @@
       appearance="none"
       [ngClass]="{ 'selection-modal--form-container__chips': currentSelections?.length > 0 }"
     >
-      <mat-chip-list #chipList aria-label="Multi select">
+      <mat-chip-list #chipList [attr.aria-label]="'fyUserlistModal.multiSelectAriaLabel' | transloco">
         <mat-chip
           *ngFor="let item of currentSelections"
           [selectable]="selectable"
@@ -45,7 +47,7 @@
           [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
           [matChipInputAddOnBlur]="addOnBlur"
           (matChipInputTokenEnd)="addChip($event)"
-          [placeholder]="!(currentSelections?.length > 0) ? 'Search' : ''"
+          [placeholder]="!(currentSelections?.length > 0) ? ('fyUserlistModal.searchPlaceholder' | transloco) : ''"
         />
         <mat-icon
           *ngIf="isLoading && value"
@@ -56,7 +58,7 @@
       </mat-chip-list>
     </mat-form-field>
     <div class="selection-modal--selected-count" *ngIf="currentSelections?.length > 0">
-      {{ currentSelections.length }} selected
+      {{ currentSelections.length }} {{ 'fyUserlistModal.selected' | transloco }}
     </div>
   </ion-toolbar>
 </ion-header>
@@ -86,7 +88,8 @@
           >
             <mat-icon class="selection-modal--add-item-icon"> add_circle_outline </mat-icon>
             <span
-              >Add "<span class="selection-modal--new-item-name"
+              >{{ 'fyUserlistModal.addPrefix' | transloco
+              }}<span class="selection-modal--new-item-name"
                 ><strong>{{ value }}</strong></span
               >"</span
             >

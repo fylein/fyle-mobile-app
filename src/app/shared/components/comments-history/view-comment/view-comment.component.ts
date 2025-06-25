@@ -12,6 +12,7 @@ import { DateWithTimezonePipe } from 'src/app/shared/pipes/date-with-timezone.pi
 import { ExpenseCommentService as SpenderExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 import { ExpenseCommentService as ApproverExpenseCommentService } from 'src/app/core/services/platform/v1/approver/expense-comment.service';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-view-comment',
@@ -64,7 +65,8 @@ export class ViewCommentComponent implements OnInit {
     public platform: Platform,
     private dateWithTimezonePipe: DateWithTimezonePipe,
     private spenderExpenseCommentService: SpenderExpenseCommentService,
-    private approverExpenseCommentService: ApproverExpenseCommentService
+    private approverExpenseCommentService: ApproverExpenseCommentService,
+    private translocoService: TranslocoService
   ) {}
 
   setContentScrollToBottom(): void {
@@ -112,18 +114,20 @@ export class ViewCommentComponent implements OnInit {
   }
 
   async closeCommentModal(): Promise<void> {
+    const title = this.translocoService.translate('viewComment.discardMessage');
+    const message = this.translocoService.translate('viewComment.confirmDiscard');
     if (this.newComment) {
       const unsavedChangesPopOver = await this.popoverController.create({
         component: PopupAlertComponent,
         componentProps: {
-          title: 'Discard Message',
-          message: 'Are you sure you want to discard the message?',
+          title,
+          message,
           primaryCta: {
-            text: 'Discard',
+            text: this.translocoService.translate('viewComment.discard'),
             action: 'discard',
           },
           secondaryCta: {
-            text: 'Cancel',
+            text: this.translocoService.translate('viewComment.cancel'),
             action: 'cancel',
           },
         },
@@ -230,7 +234,7 @@ export class ViewCommentComponent implements OnInit {
 
       this.type =
         this.objectType.toLowerCase() === 'transactions'
-          ? 'Expense'
+          ? this.translocoService.translate('viewComment.expense')
           : this.objectType.substring(0, this.objectType.length - 1);
 
       this.systemEstatuses = this.statusService.createStatusMap(this.systemComments, this.type);

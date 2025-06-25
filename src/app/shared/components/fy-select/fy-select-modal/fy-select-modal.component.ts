@@ -6,6 +6,7 @@ import { isEqual } from 'lodash';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
 import { ExtendedOption, ModalOption, Option } from './fy-select-modal.interface';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-fy-select-modal',
@@ -53,7 +54,8 @@ export class FySelectModalComponent implements AfterViewInit {
     private modalController: ModalController,
     private cdr: ChangeDetectorRef,
     private recentLocalStorageItemsService: RecentLocalStorageItemsService,
-    private utilityService: UtilityService
+    private utilityService: UtilityService,
+    private translocoService: TranslocoService
   ) {}
 
   clearValue(): void {
@@ -93,7 +95,7 @@ export class FySelectModalComponent implements AfterViewInit {
           const initial: Option[] = [];
 
           if (this.nullOption && this.currentSelection) {
-            initial.push({ label: 'None', value: null });
+            initial.push({ label: this.translocoService.translate('fySelectModal.none'), value: null });
           }
 
           if (this.customInput) {
@@ -143,7 +145,7 @@ export class FySelectModalComponent implements AfterViewInit {
       const initial: Option[] = [];
 
       if (this.nullOption && this.currentSelection) {
-        initial.push({ label: 'None', value: null });
+        initial.push({ label: this.translocoService.translate('fySelectModal.none'), value: null });
       }
 
       this.filteredOptions$ = of(

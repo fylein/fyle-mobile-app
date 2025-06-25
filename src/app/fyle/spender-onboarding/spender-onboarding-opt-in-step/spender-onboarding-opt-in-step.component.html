@@ -1,8 +1,8 @@
 <div class="opt-in-step__body">
   <div>
     <div>
-      <div class="opt-in-step__heading">Opt in to send text receipts</div>
-      <div class="opt-in-step__sub-heading">This will help you send receipts via text message.</div>
+      <div class="opt-in-step__heading">{{ 'spenderOnboardingOptInStep.title' | transloco }}</div>
+      <div class="opt-in-step__sub-heading">{{ 'spenderOnboardingOptInStep.subTitle' | transloco }}</div>
     </div>
 
     <div class="opt-in-step__content no-keyboard-adjust">
@@ -13,7 +13,7 @@
           <ng-container *ngIf="optInFlowState === OptInFlowState.MOBILE_INPUT">
             <div class="opt-in-step__mobile-input-container">
               <div class="opt-in-step__mobile-input-container__label">
-                <span> Mobile number </span>
+                <span> {{ 'spenderOnboardingOptInStep.mobileNumberLabel' | transloco }} </span>
               </div>
               <input
                 #mobileInput
@@ -21,7 +21,7 @@
                 [(ngModel)]="mobileNumberInputValue"
                 class="opt-in-step__mobile-input-container__input"
                 [ngClass]="{ 'opt-in-step__mobile-input-container__input__error': mobileNumberError?.length }"
-                [placeholder]="'Enter mobile number with country code e.g +155512345..'"
+                [placeholder]="'spenderOnboardingOptInStep.mobileNumberPlaceholder' | transloco"
                 type="tel"
                 [maxlength]="15"
                 [minlength]="7"
@@ -33,7 +33,7 @@
           </ng-container>
           <ng-container *ngIf="optInFlowState === OptInFlowState.OTP_VERIFICATION">
             <div class="opt-in-step__mobile-input-container__label">
-              <span> Mobile number </span>
+              <span> {{ 'spenderOnboardingOptInStep.mobileNumberLabel' | transloco }} </span>
             </div>
             <div class="opt-in-step__description">
               {{ mobileNumberInputValue }}
@@ -41,7 +41,9 @@
                 <ion-icon class="opt-in-step__edit-icon" src="../../../assets/svg/edit.svg"></ion-icon>
               </span>
             </div>
-            <div class="opt-in-step__otp-container-text">Enter 6-digit code sent to your phone</div>
+            <div class="opt-in-step__otp-container-text">
+              {{ 'spenderOnboardingOptInStep.otpDescription' | transloco }}
+            </div>
             <div class="opt-in-step__otp-container">
               <ng-otp-input
                 class="opt-in-step__otp-input"
@@ -51,11 +53,13 @@
             </div>
             <ng-container *ngIf="showOtpTimer; else resendOtpCta">
               <span class="opt-in-step__otp-container__label__otp-timer">
-                Resend code in
+                {{ 'spenderOnboardingOptInStep.resendCodeTimerPrefix' | transloco }}
                 <span class="opt-in-step__otp-container__label__otp-timer__timer">
                   0:{{ otpTimer | number : '2.0' }}
                 </span>
-                <span class="opt-in-step__otp-container__label__attempts"> ({{ otpAttemptsLeft }} attempts left) </span>
+                <span class="opt-in-step__otp-container__label__attempts">
+                  ({{ otpAttemptsLeft }} {{ 'spenderOnboardingOptInStep.attemptsLeft' | transloco }})
+                </span>
               </span>
             </ng-container>
             <ng-template #resendOtpCta>
@@ -66,15 +70,21 @@
                   appFormButtonValidation
                   buttonType="secondary"
                   [loading]="sendCodeLoading"
-                  loadingText="Sending code"
+                  [loadingText]="'spenderOnboardingOptInStep.sendingCodeLoader' | transloco"
                 >
-                  Resend code
+                  {{ 'spenderOnboardingOptInStep.resendCode' | transloco }}
                 </button>
-                <span class="opt-in-step__otp-container__label__attempts">({{ otpAttemptsLeft }} attempts left)</span>
+                <span class="opt-in-step__otp-container__label__attempts"
+                  >({{ otpAttemptsLeft }} {{ 'spenderOnboardingOptInStep.attemptsLeft' | transloco }})</span
+                >
               </ng-container>
               <div *ngIf="disableResendOtp" class="opt-in-step__otp-container__label__resend__disabled-container">
-                <span class="opt-in-step__otp-container__label__resend__disabled"> Resend code </span>
-                <span class="opt-in-step__otp-container__label__attempts">(0 attempts left)</span>
+                <span class="opt-in-step__otp-container__label__resend__disabled">
+                  {{ 'spenderOnboardingOptInStep.resendCode' | transloco }}
+                </span>
+                <span class="opt-in-step__otp-container__label__attempts"
+                  >(0 {{ 'spenderOnboardingOptInStep.attemptsLeft' | transloco }})</span
+                >
               </div>
             </ng-template>
           </ng-container>
@@ -86,10 +96,9 @@
             class="fy-icon opt-in-step__success__image-container"
             src="/assets/svg/check-circle-fill.svg"
           ></ion-icon>
-          <div class="opt-in-step__success__header">You are all set</div>
+          <div class="opt-in-step__success__header">{{ 'spenderOnboardingOptInStep.successHeader' | transloco }}</div>
           <div class="opt-in-step__success__description">
-            We have sent you a confirmation message. You can now use text messages to create and submit your next
-            expense!
+            {{ 'spenderOnboardingOptInStep.successDescription' | transloco }}
           </div>
         </div>
       </ng-container>
@@ -110,7 +119,7 @@
       *ngIf="isConnectCardsSkipped && !areCardsEnrolled"
     >
       <ion-icon class="opt-in-step__arrow-icon" [src]="'/assets/svg/arrow-left.svg'" slot="icon-only"></ion-icon>
-      <span class="opt-in-step__cta-text">Go back</span>
+      <span class="opt-in-step__cta-text">{{ 'spenderOnboardingOptInStep.goBack' | transloco }}</span>
     </div>
     <ion-button
       *ngIf="optInFlowState === OptInFlowState.MOBILE_INPUT"
@@ -120,9 +129,9 @@
       appFormButtonValidation
       (click)="saveMobileNumber()"
       [loading]="savingMobileNumber"
-      [loadingText]="'Continue'"
+      [loadingText]="'spenderOnboardingOptInStep.continue' | transloco"
     >
-      Continue
+      {{ 'spenderOnboardingOptInStep.continue' | transloco }}
     </ion-button>
   </div>
 </div>

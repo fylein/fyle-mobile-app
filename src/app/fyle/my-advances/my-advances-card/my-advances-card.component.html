@@ -34,7 +34,10 @@
         <!-- Approval date -->
         <div class="advance-card--approval">
           <div *ngIf="advanceRequest.areq_approved_at">
-            <span>Approved date {{ advanceRequest.areq_approved_at | date : 'MMM dd, YYYY' }}</span>
+            <span
+              >{{ 'myAdvancesCard.approvedDate' | transloco }}
+              {{ advanceRequest.areq_approved_at | date : 'MMM dd, YYYY' }}</span
+            >
           </div>
         </div>
       </div>

@@ -1,7 +1,28 @@
+import { TranslocoService } from '@jsverse/transloco';
 import { ExpenseState } from './expense-state.pipe';
 
 describe('ExpenseStatePipe', () => {
-  const pipe = new ExpenseState();
+  let pipe: ExpenseState;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
+
+  beforeEach(() => {
+    translocoService = jasmine.createSpyObj('TranslocoService', ['translate']);
+
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'pipes.expenseState.incomplete': 'incomplete',
+        'pipes.expenseState.complete': 'complete',
+        'pipes.expenseState.submitted': 'submitted',
+        'pipes.expenseState.approved': 'approved',
+        'pipes.expenseState.paymentPending': 'payment_pending',
+        'pipes.expenseState.processing': 'processing',
+        'pipes.expenseState.closed': 'closed',
+      };
+      return translations[key] || key;
+    });
+
+    pipe = new ExpenseState(translocoService);
+  });
 
   it('transforms "" state to ""', () => {
     expect(pipe.transform('')).toBe('');

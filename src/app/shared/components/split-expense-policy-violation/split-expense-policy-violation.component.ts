@@ -4,6 +4,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { UntypedFormArray, UntypedFormBuilder } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
 import { FilteredSplitPolicyViolations } from 'src/app/core/models/filtered-split-policy-violations.model';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-split-expense-policy-violation',
@@ -23,9 +24,13 @@ export class SplitExpensePolicyViolationComponent implements OnInit {
 
   isSplitBlocked = false;
 
-  splitExpenseModalHeader = 'Policy Violation Found';
+  splitExpenseModalHeader: string;
 
-  constructor(private modalController: ModalController, private fb: UntypedFormBuilder) {}
+  constructor(
+    private modalController: ModalController,
+    private fb: UntypedFormBuilder,
+    private translocoService: TranslocoService
+  ) {}
 
   get formComments(): UntypedFormArray {
     return this.form.controls.comments as UntypedFormArray;
@@ -39,11 +44,14 @@ export class SplitExpensePolicyViolationComponent implements OnInit {
     });
 
     if (this.isSplitBlocked) {
-      this.splitExpenseModalHeader = 'Expense cannot be split';
+      this.splitExpenseModalHeader = this.translocoService.translate(
+        'splitExpensePolicyViolation.expenseCannotBeSplit'
+      );
     }
   }
 
   ngOnInit(): void {
+    this.splitExpenseModalHeader = this.translocoService.translate('splitExpensePolicyViolation.policyViolationFound');
     this.transactionIDs = [];
     Object.keys(this.policyViolations).forEach((transactionsID) => {
       const comment = this.fb.group({

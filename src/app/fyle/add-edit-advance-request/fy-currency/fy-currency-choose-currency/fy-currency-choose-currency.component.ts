@@ -13,6 +13,7 @@ import {
   switchMap,
   filter,
 } from 'rxjs/operators';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-fy-currency-choose-currency',
@@ -20,7 +21,7 @@ import {
   styleUrls: ['./fy-currency-choose-currency.component.scss'],
 })
 export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit {
-  @ViewChild('searchBar') searchBarRef: ElementRef;
+  @ViewChild('searchBar') searchBarRef: ElementRef<HTMLInputElement>;
 
   @Input() currentSelection: string;
 
@@ -33,22 +34,23 @@ export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit 
   constructor(
     private currencyService: CurrencyService,
     private modalController: ModalController,
-    private loaderService: LoaderService
+    private loaderService: LoaderService,
+    private translocoService: TranslocoService
   ) {}
 
-  clearValue() {
+  clearValue(): void {
     this.value = '';
-    const searchInput = this.searchBarRef.nativeElement as HTMLInputElement;
+    const searchInput = this.searchBarRef.nativeElement;
     searchInput.value = '';
     searchInput.dispatchEvent(new Event('keyup'));
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.currencies$ = from(this.loaderService.showLoader()).pipe(
       concatMap(() => this.currencyService.getAll()),
-      startWith({ INR: 'Indian Rupee' }),
+      startWith({ INR: this.translocoService.translate('fyCurrencyChooseCurrency.indianRupee') }),
       filter((currenciesObj) => !!currenciesObj),
-      map((currenciesObj) =>
+      map((currenciesObj: { [key: string]: string }) =>
         Object.keys(currenciesObj).map((shortCode) => ({ shortCode, longName: currenciesObj[shortCode] || shortCode }))
       ),
       finalize(() => {
@@ -61,11 +63,11 @@ export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit 
   }
 
   ngAfterViewInit(): void {
-    this.filteredCurrencies$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
-      map((event: any) => event.srcElement.value),
+    this.filteredCurrencies$ = fromEvent<Event>(this.searchBarRef.nativeElement, 'keyup').pipe(
+      map((event: Event) => (event.target as HTMLInputElement).value),
       startWith(''),
       distinctUntilChanged(),
-      switchMap((searchText) =>
+      switchMap((searchText: string) =>
         this.currencies$.pipe(
           map((currencies) =>
             currencies.filter(
@@ -80,11 +82,11 @@ export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit 
     );
   }
 
-  onDoneClick() {
+  onDoneClick(): void {
     this.modalController.dismiss();
   }
 
-  onCurrencySelect(currency) {
+  onCurrencySelect(currency: { shortCode: string; longName: string }): void {
     this.modalController.dismiss({
       currency,
     });

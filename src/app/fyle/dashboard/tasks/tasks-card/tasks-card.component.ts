@@ -5,6 +5,7 @@ import { map } from 'rxjs/operators';
 import { TaskCta } from 'src/app/core/models/task-cta.model';
 import { DashboardTask } from 'src/app/core/models/dashboard-task.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-tasks-card',
@@ -16,9 +17,9 @@ export class TasksCardComponent implements OnInit {
 
   @Input() autoSubmissionReportDate: Date;
 
-  @Output() ctaClicked: EventEmitter<TaskCta> = new EventEmitter();
+  @Output() ctaClicked = new EventEmitter<TaskCta>();
 
-  @Output() infoCardClicked = new EventEmitter();
+  @Output() infoCardClicked = new EventEmitter<void>();
 
   homeCurrency$: Observable<string>;
 
@@ -26,7 +27,7 @@ export class TasksCardComponent implements OnInit {
 
   showReportAutoSubmissionInfo = false;
 
-  constructor(private currencyService: CurrencyService) {}
+  constructor(private currencyService: CurrencyService, private translocoService: TranslocoService) {}
 
   ngOnInit(): void {
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
@@ -34,14 +35,15 @@ export class TasksCardComponent implements OnInit {
       map((homeCurrency: string) => getCurrencySymbol(homeCurrency, 'wide'))
     );
     this.showReportAutoSubmissionInfo =
-      this.task.header.includes('Incomplete expense') && !!this.autoSubmissionReportDate;
+      this.task.header.includes(this.translocoService.translate('tasksCard.incompleteExpense')) &&
+      !!this.autoSubmissionReportDate;
   }
 
-  taskCtaClicked(task: DashboardTask) {
+  taskCtaClicked(task: DashboardTask): void {
     this.ctaClicked.emit(task.ctas[0]);
   }
 
-  onInfoCardClicked() {
+  onInfoCardClicked(): void {
     this.infoCardClicked.emit();
   }
 }

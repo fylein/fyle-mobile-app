@@ -2,7 +2,7 @@
   <mat-icon class="fy-modal-top-bar" svgIcon="notch"></mat-icon>
   <ion-toolbar mode="md" class="text-center fy-modal-toolbar share-report--toolbar">
     <ion-title>
-      <div class="share-report--toolbar__title">Share report</div>
+      <div class="share-report--toolbar__title">{{ 'shareReport.title' | transloco }}</div>
     </ion-title>
     <ion-buttons slot="start">
       <ion-button (click)="cancel()">
@@ -15,19 +15,19 @@
         class="share-report--toolbar__btn-share"
         (click)="shareReport(emailInput)"
       >
-        Share
+        {{ 'shareReport.share' | transloco }}
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <div class="share-report--input-container">
-  <div class="share-report--input-container__label">Share report with</div>
+  <div class="share-report--input-container__label">{{ 'shareReport.shareWith' | transloco }}</div>
   <input
     #simpleEmailInput
     matInput
     type="email"
-    placeholder="Email ID"
+    [placeholder]="'shareReport.emailPlaceholder' | transloco"
     [(ngModel)]="email"
     pattern="\S+@\S+\.\S{2,}"
     #emailInput="ngModel"

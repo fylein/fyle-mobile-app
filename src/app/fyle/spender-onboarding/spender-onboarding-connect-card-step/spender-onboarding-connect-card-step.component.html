@@ -1,14 +1,14 @@
 <div class="connect-card__body" *ngIf="cardsLoading === false && fg">
   <div>
-    <div class="connect-card__heading">Connect corporate card</div>
+    <div class="connect-card__heading">{{ 'spenderOnboardingConnectCardStep.title' | transloco }}</div>
     <div class="connect-card__sub-heading">
-      This will help you bring your card transactions into Fyle as expenses instantly.
+      {{ 'spenderOnboardingConnectCardStep.subTitle' | transloco }}
     </div>
     <form [formGroup]="fg">
       <div *ngIf="enrollableCards.length > 0" class="connect-card__multiple-cards">
         <div *ngFor="let card of enrollableCards; let i = index">
           <div class="connect-card__input-label">
-            <span>Corporate card</span>
+            <span>{{ 'spenderOnboardingConnectCardStep.cardLabel' | transloco }}</span>
           </div>
 
           <div
@@ -25,7 +25,7 @@
                 class="smartlook-show connect-card__card-number-input pl-0"
                 inputmode="numeric"
                 mask="0000 0000 0000"
-                placeholder="XXXX XXXX XXXX"
+                [placeholder]="'spenderOnboardingConnectCardStep.cardNumberPlaceholder' | transloco"
                 data-testid="card-number-input"
                 formControlName="card_number_{{ card.id }}"
                 required
@@ -71,18 +71,18 @@
             class="connect-card__input-errors"
             data-testid="error-message"
           >
-            <span *ngIf="fg.controls['card_number_' + card.id]?.errors.invalidCardNumber"
-              >Please enter a valid card number.</span
-            >
+            <span *ngIf="fg.controls['card_number_' + card.id]?.errors.invalidCardNumber">{{
+              'spenderOnboardingConnectCardStep.invalidCardNumberError' | transloco
+            }}</span>
 
             <span *ngIf="fg.controls['card_number_' + card.id]?.errors.enrollmentError">{{
               cardValuesMap[card.id].enrollment_error
             }}</span>
 
             <ng-container *ngIf="fg.controls['card_number_' + card.id]?.errors.invalidCardNetwork">
-              <span *ngIf="isVisaRTFEnabled && isMastercardRTFEnabled; else visaOnlyOrg"
-                >Enter a valid Visa or Mastercard number. If you have other cards, please contact your admin.</span
-              >
+              <span *ngIf="isVisaRTFEnabled && isMastercardRTFEnabled; else visaOnlyOrg">{{
+                'spenderOnboardingConnectCardStep.invalidCardNetworkVisaMastercardError' | transloco
+              }}</span>
 
               <ng-template #visaOnlyOrg>
                 <!-- Check if only visa is enabled -->
@@ -91,14 +91,15 @@
                     fg.controls['card_number_' + card.id]?.errors.invalidCardNetwork && isVisaRTFEnabled;
                     else mastercardOnlyOrg
                   "
-                  >Enter a valid Visa number. If you have other cards, please contact your admin.</span
+                  >{{ 'spenderOnboardingConnectCardStep.invalidCardNetworkVisaError' | transloco }}</span
                 >
               </ng-template>
 
               <ng-template #mastercardOnlyOrg>
                 <!-- Check if only mastercard is enabled -->
-                <span *ngIf="fg.controls['card_number_' + card.id]?.errors.invalidCardNetwork && isMastercardRTFEnabled"
-                  >Enter a valid Mastercard number. If you have other cards, please contact your admin.</span
+                <span
+                  *ngIf="fg.controls['card_number_' + card.id]?.errors.invalidCardNetwork && isMastercardRTFEnabled"
+                  >{{ 'spenderOnboardingConnectCardStep.invalidCardNetworkMastercardError' | transloco }}</span
                 >
               </ng-template>
             </ng-container>
@@ -107,7 +108,7 @@
       </div>
       <div *ngIf="enrollableCards.length === 0">
         <div class="connect-card__input-label">
-          <span>Corporate card</span>
+          <span>{{ 'spenderOnboardingConnectCardStep.cardLabel' | transloco }}</span>
         </div>
 
         <div
@@ -121,7 +122,7 @@
             class="smartlook-show connect-card__card-number-input-singular pl-0"
             inputmode="numeric"
             mask="0000 0000 0000 0000"
-            placeholder="Enter corporate card number"
+            [placeholder]="'spenderOnboardingConnectCardStep.singularCardPlaceholder' | transloco"
             data-testid="card-number-input"
             formControlName="card_number"
             required
@@ -157,29 +158,31 @@
           class="connect-card__input-errors"
           data-testid="error-message"
         >
-          <span *ngIf="fg.controls.card_number.errors.invalidCardNumber">Please enter a valid card number.</span>
+          <span *ngIf="fg.controls.card_number.errors.invalidCardNumber">{{
+            'spenderOnboardingConnectCardStep.invalidCardNumberError' | transloco
+          }}</span>
           <span *ngIf="fg.controls.card_number.errors.enrollmentError">
             {{ singularEnrollmentFailure }}
           </span>
 
           <ng-container *ngIf="fg.controls.card_number?.errors.invalidCardNetwork">
-            <span *ngIf="isVisaRTFEnabled && isMastercardRTFEnabled; else visaOnlyOrg"
-              >Enter a valid Visa or Mastercard number. If you have other cards, please contact your admin.</span
-            >
+            <span *ngIf="isVisaRTFEnabled && isMastercardRTFEnabled; else visaOnlyOrg">{{
+              'spenderOnboardingConnectCardStep.invalidCardNetworkVisaMastercardError' | transloco
+            }}</span>
 
             <ng-template #visaOnlyOrg>
               <!-- Check if only visa is enabled -->
               <span
                 *ngIf="fg.controls.card_number?.errors.invalidCardNetwork && isVisaRTFEnabled; else mastercardOnlyOrg"
-                >Enter a valid Visa number. If you have other cards, please contact your admin.</span
+                >{{ 'spenderOnboardingConnectCardStep.invalidCardNetworkVisaError' | transloco }}</span
               >
             </ng-template>
 
             <ng-template #mastercardOnlyOrg>
               <!-- Check if only mastercard is enabled -->
-              <span *ngIf="fg.controls.card_number?.errors.invalidCardNetwork && isMastercardRTFEnabled"
-                >Enter a valid Mastercard number. If you have other cards, please contact your admin.</span
-              >
+              <span *ngIf="fg.controls.card_number?.errors.invalidCardNetwork && isMastercardRTFEnabled">{{
+                'spenderOnboardingConnectCardStep.invalidCardNetworkMastercardError' | transloco
+              }}</span>
             </ng-template>
           </ng-container>
         </div>
@@ -194,9 +197,9 @@
       (click)="enrollCards()"
       appFormButtonValidation
       [loading]="cardsEnrolling"
-      [loadingText]="'Continue'"
+      [loadingText]="'spenderOnboardingConnectCardStep.continue' | transloco"
     >
-      Continue
+      {{ 'spenderOnboardingConnectCardStep.continue' | transloco }}
     </ion-button>
   </div>
 </div>

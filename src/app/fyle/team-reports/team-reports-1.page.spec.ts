@@ -29,6 +29,7 @@ import { ApproverReportsService } from 'src/app/core/services/platform/v1/approv
 import { AuthService } from 'src/app/core/services/auth.service';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { LaunchDarklyService } from '../../core/services/launch-darkly.service';
+import { TranslocoService } from '@jsverse/transloco';
 
 export function TestCases1(getTestBed) {
   return describe('test cases set 1', () => {
@@ -50,9 +51,37 @@ export function TestCases1(getTestBed) {
     let authService: jasmine.SpyObj<AuthService>;
     let inputElement: HTMLInputElement;
     let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
-
+    let translocoService: jasmine.SpyObj<TranslocoService>;
     beforeEach(waitForAsync(() => {
       const TestBed = getTestBed();
+
+      // Create a spy for TranslocoService
+      const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+
+      // Mock the translate method
+      translocoServiceSpy.translate.and.callFake((key: any, params?: any) => {
+        const translations: { [key: string]: string } = {
+          'pipes.reportState.draft': 'draft',
+          'pipes.reportState.submitted': 'submitted',
+          'pipes.reportState.reported': 'reported',
+          'pipes.reportState.sentBack': 'sent_back',
+          'pipes.reportState.autoFlagged': 'auto_flagged',
+          'pipes.reportState.rejected': 'rejected',
+          'pipes.reportState.approved': 'approved',
+          'pipes.reportState.paymentPending': 'payment_pending',
+          'pipes.reportState.processing': 'processing',
+          'pipes.reportState.closed': 'closed',
+          'pipes.reportState.cancelled': 'cancelled',
+          'pipes.reportState.disabled': 'disabled',
+        };
+        return translations[key] || key;
+      });
+
+      // Add Transloco configuration to the test module
+      TestBed.configureTestingModule({
+        providers: [{ provide: TranslocoService, useValue: translocoServiceSpy }],
+      });
+
       fixture = TestBed.createComponent(TeamReportsPage);
       component = fixture.componentInstance;
       networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
@@ -72,6 +101,7 @@ export function TestCases1(getTestBed) {
       launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
       launchDarklyService.getVariation.and.returnValue(of(false));
       component.eou$ = of(apiEouRes);
+      translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     }));
 
     it('should create', () => {
