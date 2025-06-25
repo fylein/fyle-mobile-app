@@ -12,11 +12,11 @@ concurrency:
 jobs:
   call-jscpd-duplication-check:
     if: ${{ github.event.pull_request.draft == false }}
-    uses: fylein/workflows/.github/workflows/jscpd-duplication-check.yml@debug_duplicate_check
+    uses: fylein/workflows/.github/workflows/jscpd-duplication-check.yml@master
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
     with:
-      duplication_threshold: 11
+      duplication_threshold: 10
       reviewer_1: 'mvaishnavi'
       reviewer_2: 'Julias0'
       tech_stack: 'Angular'
