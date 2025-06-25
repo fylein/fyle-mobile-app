@@ -63,7 +63,7 @@ import {
 import { cloneDeep } from 'lodash';
 import { PlatformEmployeeSettingsService } from './platform/v1/spender/employee-settings.service';
 
-fdescribe('AdvanceRequestService', () => {
+describe('AdvanceRequestService', () => {
   let advanceRequestService: AdvanceRequestService;
   let apiService: jasmine.SpyObj<ApiService>;
   let authService: jasmine.SpyObj<AuthService>;
