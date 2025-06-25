@@ -7,7 +7,7 @@ import { ActivatedRoute, NavigationStart, Router } from '@angular/router';
 import { BackButtonService } from 'src/app/core/services/back-button.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { SmartlookService } from 'src/app/core/services/smartlook.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -15,7 +15,7 @@ import { EventEmitter, NO_ERRORS_SCHEMA } from '@angular/core';
 import { FooterState } from 'src/app/shared/components/footer/footer-state.enum';
 import { Subject, Subscription, of } from 'rxjs';
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
-import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
+import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { clone, cloneDeep } from 'lodash';
 import {
@@ -56,7 +56,7 @@ describe('DashboardPage', () => {
   let tasksService: jasmine.SpyObj<TasksService>;
   let smartlookService: jasmine.SpyObj<SmartlookService>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
-  let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
+  let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
   let categoriesService: jasmine.SpyObj<CategoriesService>;
   let backButtonService: jasmine.SpyObj<BackButtonService>;
   let platform: Platform;
@@ -89,7 +89,7 @@ describe('DashboardPage', () => {
     const tasksServiceSpy = jasmine.createSpyObj('TasksService', ['getTotalTaskCount']);
     const smartlookServiceSpy = jasmine.createSpyObj('SmartlookService', ['init']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
-    const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
+    const platformEmployeeSettingsServiceSpy = jasmine.createSpyObj('PlatformEmployeeSettingsService', ['get']);
     const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', ['getMileageOrPerDiemCategories']);
     const backButtonServiceSpy = jasmine.createSpyObj('BackButtonService', ['showAppCloseAlert']);
     const navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
@@ -126,7 +126,7 @@ describe('DashboardPage', () => {
         { provide: TasksService, useValue: tasksServiceSpy },
         { provide: SmartlookService, useValue: smartlookServiceSpy },
         { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
-        { provide: OrgUserSettingsService, useValue: orgUserSettingsServiceSpy },
+        { provide: PlatformEmployeeSettingsService, useValue: platformEmployeeSettingsServiceSpy },
         { provide: CategoriesService, useValue: categoriesServiceSpy },
         { provide: BackButtonService, useValue: backButtonServiceSpy },
         { provide: NavController, useValue: navControllerSpy },
@@ -179,7 +179,9 @@ describe('DashboardPage', () => {
     tasksService = TestBed.inject(TasksService) as jasmine.SpyObj<TasksService>;
     smartlookService = TestBed.inject(SmartlookService) as jasmine.SpyObj<SmartlookService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
-    orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
+    platformEmployeeSettingsService = TestBed.inject(
+      PlatformEmployeeSettingsService
+    ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
     backButtonService = TestBed.inject(BackButtonService) as jasmine.SpyObj<BackButtonService>;
     platform = TestBed.inject(Platform);
@@ -283,7 +285,7 @@ describe('DashboardPage', () => {
       spyOn(component, 'startTour');
       spyOn(component, 'setNavbarWalkthroughFeatureConfigFlag');
       orgSettingsService.get.and.returnValue(of(orgSettingsRes));
-      orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+      platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
       categoriesService.getMileageOrPerDiemCategories.and.returnValue(of(mileagePerDiemPlatformCategoryData));
       currencyService.getHomeCurrency.and.returnValue(of('USD'));
       spyOn(component, 'setupActionSheet');
@@ -329,11 +331,11 @@ describe('DashboardPage', () => {
       });
     });
 
-    it('should set orgUserSettings$ equal to orgUserSettingsData', () => {
+    it('should set employeeSettings$ equal to employeeSettingsData', () => {
       component.ionViewWillEnter();
-      component.orgUserSettings$.subscribe((res) => {
-        expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
-        expect(res).toEqual(orgUserSettingsData);
+      component.employeeSettings$.subscribe((res) => {
+        expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
+        expect(res).toEqual(employeeSettingsData);
         expect(timezoneService.setTimezone).toHaveBeenCalledTimes(1);
       });
     });

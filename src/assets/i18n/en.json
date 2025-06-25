@@ -91,6 +91,7 @@
       "personalCardCash": "Personal Card/Cash",
       "paidByCompany": "Paid by Company",
       "corporateCard": "Corporate Card",
+      "advanceWallet": "Advance Wallet",
       "advanceWalletDisplayName": "Advance Wallet (Balance: {{balance}})",
       "advanceAccountDisplayName": "Advance (Balance: {{balance}})"
     },

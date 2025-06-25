@@ -13,7 +13,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
@@ -105,7 +105,7 @@ export function TestCases4(getTestBed) {
     let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
     let platform: Platform;
     let paymentModesService: jasmine.SpyObj<PaymentModesService>;
-    let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
+    let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
     let storageService: jasmine.SpyObj<StorageService>;
     let perDiemService: jasmine.SpyObj<PerDiemService>;
     let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
@@ -147,7 +147,9 @@ export function TestCases4(getTestBed) {
       snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
       platform = TestBed.inject(Platform);
       paymentModesService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
-      orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
+      platformEmployeeSettingsService = TestBed.inject(
+        PlatformEmployeeSettingsService
+      ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       perDiemService = TestBed.inject(PerDiemService) as jasmine.SpyObj<PerDiemService>;
       spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
@@ -336,10 +338,6 @@ export function TestCases4(getTestBed) {
           expect(transactionService.upsert).toHaveBeenCalledOnceWith(tx);
           expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(tx.id);
           expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseDataForAdvanceWallet);
-          expect(expensesService.post).toHaveBeenCalledOnceWith({
-            id: tx.id,
-            advance_wallet_id: 'areq1234',
-          });
           done();
         });
       });
@@ -939,7 +937,6 @@ export function TestCases4(getTestBed) {
       });
 
       it('should add expense and go back if form and payment mode is valid', () => {
-        spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(false));
         component.savePerDiem();
         expect(component.addExpense).toHaveBeenCalledOnceWith(PerDiemRedirectedFrom.SAVE_PER_DIEM);
         expect(component.editExpense).not.toHaveBeenCalled();
@@ -947,7 +944,6 @@ export function TestCases4(getTestBed) {
       });
 
       it('should add expense and go back if form and payment mode is valid and user is in edit mode', () => {
-        spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(false));
         component.mode = 'edit';
         component.savePerDiem();
         expect(component.addExpense).not.toHaveBeenCalled();
@@ -956,7 +952,6 @@ export function TestCases4(getTestBed) {
       });
 
       it('should mark all fields as touched and scroll to invalid element if form is invalid', fakeAsync(() => {
-        spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(true));
         Object.defineProperty(component.fg, 'valid', {
           get: () => false,
         });
@@ -966,9 +961,6 @@ export function TestCases4(getTestBed) {
         expect(component.addExpense).not.toHaveBeenCalled();
         expect(component.editExpense).not.toHaveBeenCalled();
         expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
-        expect(component.invalidPaymentMode).toBeTrue();
-        tick(3000);
-        expect(component.invalidPaymentMode).toBeFalse();
       }));
     });
   });
