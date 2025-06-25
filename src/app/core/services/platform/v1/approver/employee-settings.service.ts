@@ -34,7 +34,9 @@ export class PlatformEmployeeSettingsService {
 
             if (employeeSettings.payment_mode_settings?.allowed_payment_modes) {
               employeeSettings.payment_mode_settings.allowed_payment_modes =
-                employeeSettings.payment_mode_settings.allowed_payment_modes.map((mode) => mode === AccountType.PERSONAL_ACCOUNT ? AccountType.PERSONAL : mode);
+                employeeSettings.payment_mode_settings.allowed_payment_modes.map((mode) =>
+                  mode === AccountType.PERSONAL_ACCOUNT ? AccountType.PERSONAL : mode
+                );
             }
             return employeeSettings;
           }
@@ -54,7 +56,7 @@ export class PlatformEmployeeSettingsService {
             .getAllActive()
             .pipe(
               map((costCenters) =>
-                costCenters.filter((costCenter) => employeeSettings.cost_center_ids?.includes(costCenter.id))
+                costCenters.filter((costCenter) => employeeSettings.cost_center_ids?.includes(costCenter.id.toString()))
               )
             );
         }

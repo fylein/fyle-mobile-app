@@ -239,9 +239,9 @@ describe('PlatformEmployeeSettingsService', () => {
       approverService.get.and.returnValue(of(mockEmployeeSettingsResponse));
       costCentersService.getAllActive.and.returnValue(of(costCentersData));
 
-      // Filter cost centers based on employee settings cost_center_ids
+      // Filter cost centers based on employee settings cost_center_ids (service converts costCenter.id to string)
       const expectedCostCenters = costCentersData.filter((costCenter) =>
-        mutableEmployeeSettings.cost_center_ids.includes(costCenter.id)
+        mutableEmployeeSettings.cost_center_ids.includes(costCenter.id.toString())
       );
 
       service.getAllowedCostCentersByEmployeeId(testEmployeeId).subscribe((result) => {
@@ -326,7 +326,7 @@ describe('PlatformEmployeeSettingsService', () => {
     it('should filter cost centers correctly when some IDs match', (done) => {
       const employeeSettingsWithSpecificCostCenters = {
         ...JSON.parse(JSON.stringify(employeeSettingsData)),
-        cost_center_ids: [2411, 2428], // Only these two IDs from costCentersData
+        cost_center_ids: ['2411', '2428'], // Only these two IDs from costCentersData (as strings)
       };
 
       const mockEmployeeSettingsResponse: PlatformApiResponse<EmployeeSettings[]> = {
@@ -336,7 +336,9 @@ describe('PlatformEmployeeSettingsService', () => {
       approverService.get.and.returnValue(of(mockEmployeeSettingsResponse));
       costCentersService.getAllActive.and.returnValue(of(costCentersData));
 
-      const expectedCostCenters = costCentersData.filter((costCenter) => [2411, 2428].includes(costCenter.id));
+      const expectedCostCenters = costCentersData.filter((costCenter) =>
+        ['2411', '2428'].includes(costCenter.id.toString())
+      );
 
       service.getAllowedCostCentersByEmployeeId(testEmployeeId).subscribe((result) => {
         expect(result).toEqual(expectedCostCenters);
@@ -361,7 +363,7 @@ describe('PlatformEmployeeSettingsService', () => {
       costCentersService.getAllActive.and.returnValue(of(costCentersData2));
 
       const expectedCostCenters = costCentersData2.filter((costCenter) =>
-        mutableEmployeeSettings.cost_center_ids.includes(costCenter.id)
+        mutableEmployeeSettings.cost_center_ids.includes(costCenter.id.toString())
       );
 
       service.getAllowedCostCentersByEmployeeId(testEmployeeId).subscribe((result) => {

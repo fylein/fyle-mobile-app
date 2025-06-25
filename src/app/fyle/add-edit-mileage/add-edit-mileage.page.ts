@@ -1602,7 +1602,7 @@ export class AddEditMileagePage implements OnInit {
     );
 
     this.individualProjectIds$ = employeeSettings$.pipe(
-      map((employeeSettings: EmployeeSettings) => employeeSettings.project_ids || [])
+      map((employeeSettings: EmployeeSettings) => employeeSettings.project_ids?.map((id) => Number(id)) || [])
     );
 
     this.isProjectsEnabled$ = orgSettings$.pipe(map((orgSettings) => !!orgSettings.projects?.enabled));
