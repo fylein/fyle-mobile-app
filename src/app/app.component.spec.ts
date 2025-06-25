@@ -123,6 +123,7 @@ describe('AppComponent', () => {
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
+    // adding transloco service to the testbed
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
   }));
 
