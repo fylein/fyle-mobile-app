@@ -2,13 +2,14 @@ import { Injectable } from '@angular/core';
 import { LocationService } from './location.service';
 import { from, Observable, of } from 'rxjs';
 import { concatMap, map, reduce } from 'rxjs/operators';
-import { OrgUserSettingsService } from './org-user-settings.service';
+import { PlatformEmployeeSettingsService } from './platform/v1/spender/employee-settings.service';
 import { Cacheable } from 'ts-cacheable';
-import { MileageSettings, OrgUserSettings } from '../models/org_user_settings.model';
+import { MileageSettings } from '../models/mileage-settings.model';
 import { Location } from '../models/location.model';
 import { OrgSettings } from '../models/org-settings.model';
 import { CommuteDeductionOptions } from '../models/commute-deduction-options.model';
 import { CommuteDeduction } from '../enums/commute-deduction.enum';
+import { EmployeeSettings } from '../models/employee-settings.model';
 import { TranslocoService } from '@jsverse/transloco';
 @Injectable({
   providedIn: 'root',
@@ -16,13 +17,14 @@ import { TranslocoService } from '@jsverse/transloco';
 export class MileageService {
   constructor(
     private locationService: LocationService,
-    private orgUserSettingsService: OrgUserSettingsService,
+
+    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
     private translocoService: TranslocoService
   ) {}
 
   @Cacheable()
-  getOrgUserMileageSettings(): Observable<MileageSettings> {
-    return this.orgUserSettingsService.get().pipe(map((res: OrgUserSettings) => res.mileage_settings));
+  getEmployeeMileageSettings(): Observable<MileageSettings> {
+    return this.platformEmployeeSettingsService.get().pipe(map((res: EmployeeSettings) => res.mileage_settings));
   }
 
   getDistanceInternal(fromLocation: Location, toLocation: Location): Observable<number> {

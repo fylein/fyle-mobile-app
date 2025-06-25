@@ -4,7 +4,7 @@ import { DateService } from './date.service';
 import { map, switchMap, tap, catchError } from 'rxjs/operators';
 import { StorageService } from './storage.service';
 import { from, Observable, forkJoin, of } from 'rxjs';
-import { OrgUserSettingsService } from './org-user-settings.service';
+import { PlatformEmployeeSettingsService } from './platform/v1/spender/employee-settings.service';
 import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
 import { Expense } from '../models/expense.model';
@@ -52,7 +52,7 @@ export class TransactionService {
     private storageService: StorageService,
     private apiService: ApiService,
     private dateService: DateService,
-    private orgUserSettingsService: OrgUserSettingsService,
+    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
     private timezoneService: TimezoneService,
     private utilityService: UtilityService,
     private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
@@ -108,12 +108,12 @@ export class TransactionService {
     }
 
     return forkJoin({
-      orgUserSettings: this.orgUserSettingsService.get(),
+      employeeSettings: this.platformEmployeeSettingsService.get(),
       txnAccount: this.getTxnAccount(),
       personalAccount: this.getPersonalAccount(),
     }).pipe(
-      switchMap(({ orgUserSettings, txnAccount, personalAccount }) => {
-        const offset = orgUserSettings.locale.offset;
+      switchMap(({ employeeSettings, txnAccount, personalAccount }) => {
+        const offset = employeeSettings.locale.offset;
 
         transaction.custom_properties = <TxnCustomProperties[]>(
           this.timezoneService.convertAllDatesToProperLocale(transaction.custom_properties, offset)
@@ -219,8 +219,8 @@ export class TransactionService {
   }
 
   checkPolicy(platformPolicyExpense: PlatformPolicyExpense): Observable<ExpensePolicy> {
-    return this.orgUserSettingsService.get().pipe(
-      switchMap((orgUserSettings) => {
+    return this.platformEmployeeSettingsService.get().pipe(
+      switchMap((employeeSettings) => {
         // setting txn_dt time to T10:00:00:000 in local time zone
         if (platformPolicyExpense.spent_at) {
           platformPolicyExpense.spent_at.setHours(12);
@@ -229,7 +229,7 @@ export class TransactionService {
           platformPolicyExpense.spent_at.setMilliseconds(0);
           platformPolicyExpense.spent_at = this.timezoneService.convertToUtc(
             platformPolicyExpense.spent_at,
-            orgUserSettings.locale.offset
+            employeeSettings.locale.offset
           );
         }
 
@@ -240,7 +240,7 @@ export class TransactionService {
           platformPolicyExpense.started_at.setMilliseconds(0);
           platformPolicyExpense.started_at = this.timezoneService.convertToUtc(
             platformPolicyExpense.started_at,
-            orgUserSettings.locale.offset
+            employeeSettings.locale.offset
           );
         }
 
@@ -251,7 +251,7 @@ export class TransactionService {
           platformPolicyExpense.ended_at.setMilliseconds(0);
           platformPolicyExpense.ended_at = this.timezoneService.convertToUtc(
             platformPolicyExpense.ended_at,
-            orgUserSettings.locale.offset
+            employeeSettings.locale.offset
           );
         }
         const payload = {
@@ -630,11 +630,8 @@ export class TransactionService {
     }
   }
 
-  sourceAccountTypePublicMapping(type: string): string {
-    return type === 'PERSONAL_CASH_ACCOUNT' ? 'PERSONAL_ACCOUNT' : type;
-  }
-
   // Todo : Remove transformExpense method once upsert in migrated to platform
+  // eslint-disable-next-line complexity
   transformExpense(expense: PlatformExpense): Partial<UnflattenedTransaction> {
     const updatedExpense = {
       tx: {
@@ -730,14 +727,14 @@ export class TransactionService {
               corporate_card_nickname: transaction?.corporate_card_nickname,
             }))
           : null,
-        source_account_id: expense.source_account_id,
-        advance_wallet_id: expense.advance_wallet_id,
+        source_account_id: expense.advance_wallet_id ? null : expense.source_account_id,
+        advance_wallet_id: expense.advance_wallet_id || null,
         org_category_code: expense.category?.code,
         project_code: expense.project?.code,
       },
       source: {
         account_id: expense.source_account?.id,
-        account_type: this.sourceAccountTypePublicMapping(expense.source_account?.type),
+        account_type: expense.source_account?.type,
       },
       ou: {
         id: expense.employee?.id,
@@ -830,15 +827,15 @@ export class TransactionService {
       tx_project_code: expense.project?.code,
       tx_advance_wallet_id: expense.advance_wallet_id,
       source_account_id: expense.source_account_id,
-      source_account_type: this.sourceAccountTypePublicMapping(expense.source_account?.type),
+      source_account_type: expense.source_account?.type,
     };
     return updatedExpense;
   }
 
   private getPersonalAccount(): Observable<{ source_account_id: string }> {
-    return this.accountsService.getEMyAccounts().pipe(
+    return this.accountsService.getMyAccounts().pipe(
       map((accounts) => {
-        const account = accounts?.find((account) => account?.acc?.type === 'PERSONAL_ACCOUNT');
+        const account = accounts?.find((account) => account?.acc?.type === AccountType.PERSONAL);
         return {
           source_account_id: account?.acc?.id,
         };
@@ -849,11 +846,11 @@ export class TransactionService {
   private getTxnAccount(): Observable<{ source_account_id: string; skip_reimbursement: boolean }> {
     return forkJoin({
       orgSettings: this.orgSettingsService.get(),
-      accounts: this.accountsService.getEMyAccounts(),
-      orgUserSettings: this.orgUserSettingsService.get(),
+      accounts: this.accountsService.getMyAccounts(),
+      employeeSettings: this.platformEmployeeSettingsService.get(),
     }).pipe(
-      switchMap(({ orgSettings, accounts, orgUserSettings }) =>
-        this.paymentModesService.getDefaultAccount(orgSettings, accounts, orgUserSettings)
+      switchMap(({ orgSettings, accounts, employeeSettings }) =>
+        this.paymentModesService.getDefaultAccount(orgSettings, accounts, employeeSettings)
       ),
       map((account) => {
         const accountDetails = {

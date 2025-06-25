@@ -1,22 +1,22 @@
 import { TestBed } from '@angular/core/testing';
 import { MileageService } from './mileage.service';
 import { LocationService } from './location.service';
-import { OrgUserSettingsService } from './org-user-settings.service';
+import { PlatformEmployeeSettingsService } from './platform/v1/spender/employee-settings.service';
 import { of } from 'rxjs';
-import { orgUserSettingsData } from '../mock-data/org-user-settings.data';
 import { locationData1, locationData2, locationData3 } from '../mock-data/location.data';
+import { employeeSettingsData } from '../mock-data/employee-settings.data';
 import { TranslocoService } from '@jsverse/transloco';
 
 describe('MileageService', () => {
   let mileageService: MileageService;
   let locationService: jasmine.SpyObj<LocationService>;
-  let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
+  let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
   let translocoService: jasmine.SpyObj<TranslocoService>;
   const distance = 13167;
 
   beforeEach(() => {
     const locationServiceSpy = jasmine.createSpyObj('LocationService', ['getDistance']);
-    const orgUserSettingsSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
+    const platformEmployeeSettingsSpy = jasmine.createSpyObj('PlatformEmployeeSettingsService', ['get']);
     const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
 
     // Mock translate method to return expected strings
@@ -37,8 +37,8 @@ describe('MileageService', () => {
           useValue: locationServiceSpy,
         },
         {
-          provide: OrgUserSettingsService,
-          useValue: orgUserSettingsSpy,
+          provide: PlatformEmployeeSettingsService,
+          useValue: platformEmployeeSettingsSpy,
         },
         {
           provide: TranslocoService,
@@ -49,7 +49,9 @@ describe('MileageService', () => {
 
     mileageService = TestBed.inject(MileageService);
     locationService = TestBed.inject(LocationService) as jasmine.SpyObj<LocationService>;
-    orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
+    platformEmployeeSettingsService = TestBed.inject(
+      PlatformEmployeeSettingsService
+    ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
   });
 
@@ -57,12 +59,12 @@ describe('MileageService', () => {
     expect(mileageService).toBeTruthy();
   });
 
-  it('getOrgUserMileageSettings(): should get user mileage settings', (done) => {
-    orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+  it('getEmployeeMileageSettings(): should get user mileage settings', (done) => {
+    platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
 
-    mileageService.getOrgUserMileageSettings().subscribe((res) => {
-      expect(res).toEqual(orgUserSettingsData.mileage_settings);
-      expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+    mileageService.getEmployeeMileageSettings().subscribe((res) => {
+      expect(res).toEqual(employeeSettingsData.mileage_settings);
+      expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
       done();
     });
   });

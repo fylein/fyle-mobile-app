@@ -31,7 +31,7 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
@@ -49,7 +49,7 @@ import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 describe('AddEditPerDiemPage', () => {
   const getTestBed = () => {
     const accountsServiceSpy = jasmine.createSpyObj('AccountsService', [
-      'getEMyAccounts',
+      'getMyAccounts',
       'getPaymentModes',
       'getEtxnSelectedPaymentMode',
       'getAccountTypeFromPaymentMode',
@@ -140,7 +140,7 @@ describe('AddEditPerDiemPage', () => {
     ]);
     const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', ['getAll']);
     const costCentersServiceSpy = jasmine.createSpyObj('CostCentersService', ['getAllActive']);
-    const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', [
+    const platformEmployeeSettingsServiceSpy = jasmine.createSpyObj('PlatformEmployeeSettingsService', [
       'getAllowedPaymentModes',
       'get',
       'getAllowedCostCenters',
@@ -263,8 +263,8 @@ describe('AddEditPerDiemPage', () => {
           useValue: costCentersServiceSpy,
         },
         {
-          provide: OrgUserSettingsService,
-          useValue: orgUserSettingsServiceSpy,
+          provide: PlatformEmployeeSettingsService,
+          useValue: platformEmployeeSettingsServiceSpy,
         },
         {
           provide: OrgSettingsService,

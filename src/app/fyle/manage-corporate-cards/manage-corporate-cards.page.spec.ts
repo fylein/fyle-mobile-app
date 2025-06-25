@@ -15,11 +15,11 @@ import { getElementBySelector } from 'src/app/core/dom-helpers';
 import { NavigationStart, Router } from '@angular/router';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { RealTimeFeedService } from 'src/app/core/services/real-time-feed.service';
 import { NEVER, Observable, Subscription, of, throwError } from 'rxjs';
 import { orgSettingsCCCEnabled } from 'src/app/core/mock-data/org-settings.data';
-import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
+import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
 import {
   mastercardRTFCard,
   statementUploadedCard,
@@ -69,7 +69,7 @@ describe('ManageCorporateCardsPage', () => {
   let actionSheetController: jasmine.SpyObj<ActionSheetController>;
   let popoverController: jasmine.SpyObj<PopoverController>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
-  let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
+  let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
   let realTimeFeedService: jasmine.SpyObj<RealTimeFeedService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
   let virtualCardsService: jasmine.SpyObj<VirtualCardsService>;
@@ -88,7 +88,7 @@ describe('ManageCorporateCardsPage', () => {
     const actionSheetControllerSpy = jasmine.createSpyObj('ActionSheetController', ['create']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
-    const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
+    const platformEmployeeSettingsServiceSpy = jasmine.createSpyObj('PlatformEmployeeSettingsService', ['get']);
     const realTimeFeedServiceSpy = jasmine.createSpyObj('RealTimeFeedService', ['getCardType', 'unenroll']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
       'cardUnenrolled',
@@ -132,8 +132,8 @@ describe('ManageCorporateCardsPage', () => {
           useValue: orgSettingsServiceSpy,
         },
         {
-          provide: OrgUserSettingsService,
-          useValue: orgUserSettingsServiceSpy,
+          provide: PlatformEmployeeSettingsService,
+          useValue: platformEmployeeSettingsServiceSpy,
         },
         {
           provide: RealTimeFeedService,
@@ -180,7 +180,9 @@ describe('ManageCorporateCardsPage', () => {
     actionSheetController = TestBed.inject(ActionSheetController) as jasmine.SpyObj<ActionSheetController>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
-    orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
+    platformEmployeeSettingsService = TestBed.inject(
+      PlatformEmployeeSettingsService
+    ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     realTimeFeedService = TestBed.inject(RealTimeFeedService) as jasmine.SpyObj<RealTimeFeedService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     virtualCardsService = TestBed.inject(VirtualCardsService) as jasmine.SpyObj<VirtualCardsService>;
@@ -192,7 +194,7 @@ describe('ManageCorporateCardsPage', () => {
 
     // Default return values
     orgSettingsService.get.and.returnValue(of(orgSettingsCCCEnabled));
-    orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+    platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
     corporateCreditCardExpenseService.clearCache.and.returnValue(of(null));
     corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([]));
     realTimeFeedService.unenroll.and.returnValue(of(null));

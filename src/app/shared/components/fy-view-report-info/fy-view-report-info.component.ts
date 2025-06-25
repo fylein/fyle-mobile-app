@@ -4,7 +4,6 @@ import { ModalController, Platform } from '@ionic/angular';
 import { Observable, combineLatest } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { KeyValue, DatePipe } from '@angular/common';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
@@ -16,6 +15,7 @@ import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { AmountDetails } from 'src/app/core/models/amount-details.model';
 import { ReportInfoPaymentMode } from 'src/app/core/models/report-info-payment-mode.model';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/approver/employee-settings.service';
 
 @Component({
   selector: 'app-fy-view-report-info-v2',
@@ -51,7 +51,7 @@ export class FyViewReportInfoComponent {
     private modalController: ModalController,
     private sharedExpensesService: SharedExpensesService,
     private datePipe: DatePipe,
-    private orgUserSettingsService: OrgUserSettingsService,
+    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
     public platform: Platform,
     private elementRef: ElementRef,
     private trackingService: TrackingService,
@@ -196,10 +196,12 @@ export class FyViewReportInfoComponent {
     try {
       const orgUser = await this.authService.getEou();
       if (report.org_id === orgUser.ou.org_id) {
-        this.orgUserSettingsService.getAllowedCostCentersByOuId(report.employee.id).subscribe((costCenters) => {
-          const allowedCostCenters = costCenters.map((costCenter) => costCenter.name).join(', ');
-          this.employeeDetails['Allowed Cost Centers'] = allowedCostCenters;
-        });
+        this.platformEmployeeSettingsService
+          .getAllowedCostCentersByEmployeeId(report.employee.id)
+          .subscribe((costCenters) => {
+            const allowedCostCenters = costCenters.map((costCenter) => costCenter.name).join(', ');
+            this.employeeDetails['Allowed Cost Centers'] = allowedCostCenters;
+          });
       }
     } catch (err) {
       return;
