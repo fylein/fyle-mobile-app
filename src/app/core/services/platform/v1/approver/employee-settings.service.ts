@@ -6,6 +6,7 @@ import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
 import { Cacheable } from 'ts-cacheable';
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
+import { AccountType } from 'src/app/core/enums/account-type.enum';
 
 const employeeSettingsCacheBuster$ = new Subject<void>();
 
@@ -21,7 +22,28 @@ export class PlatformEmployeeSettingsService {
   getByEmployeeId(employeeId: string): Observable<EmployeeSettings> {
     return this.approverService
       .get<PlatformApiResponse<EmployeeSettings[]>>('/employee_settings', { params: { employee_id: employeeId } })
-      .pipe(map((response) => (response.data.length > 0 ? response.data[0] : null)));
+      .pipe(
+        map((response) => {
+          if (response.data.length > 0) {
+            const employeeSettings = response.data[0];
+            if (employeeSettings.default_payment_mode === AccountType.PERSONAL_ACCOUNT) {
+              employeeSettings.default_payment_mode = AccountType.PERSONAL;
+            }
+
+            if (employeeSettings.payment_mode_settings?.allowed_payment_modes) {
+              employeeSettings.payment_mode_settings.allowed_payment_modes =
+                employeeSettings.payment_mode_settings.allowed_payment_modes.map((mode) => {
+                  if (mode === AccountType.PERSONAL_ACCOUNT) {
+                    return AccountType.PERSONAL;
+                  }
+                  return mode;
+                });
+            }
+            return employeeSettings;
+          }
+          return null;
+        })
+      );
   }
 
   @Cacheable({

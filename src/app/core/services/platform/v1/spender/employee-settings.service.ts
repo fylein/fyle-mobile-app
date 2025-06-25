@@ -24,9 +24,28 @@ export class PlatformEmployeeSettingsService {
     cacheBusterObserver: employeeSettingsCacheBuster$,
   })
   get(): Observable<EmployeeSettings> {
-    return this.spenderService
-      .get<PlatformApiResponse<EmployeeSettings[]>>('/employee_settings', {})
-      .pipe(map((response) => (response.data.length > 0 ? response.data[0] : null)));
+    return this.spenderService.get<PlatformApiResponse<EmployeeSettings[]>>('/employee_settings', {}).pipe(
+      map((response) => {
+        if (response.data.length > 0) {
+          const employeeSettings = response.data[0];
+          if (employeeSettings.default_payment_mode === AccountType.PERSONAL_ACCOUNT) {
+            employeeSettings.default_payment_mode = AccountType.PERSONAL;
+          }
+
+          if (employeeSettings.payment_mode_settings?.allowed_payment_modes) {
+            employeeSettings.payment_mode_settings.allowed_payment_modes =
+              employeeSettings.payment_mode_settings.allowed_payment_modes.map((mode) => {
+                if (mode === AccountType.PERSONAL_ACCOUNT) {
+                  return AccountType.PERSONAL;
+                }
+                return mode;
+              });
+          }
+          return employeeSettings;
+        }
+        return null;
+      })
+    );
   }
 
   @CacheBuster({
