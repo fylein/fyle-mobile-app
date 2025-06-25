@@ -442,12 +442,20 @@ export function TestCases1(getTestBed) {
       });
 
       it('should check for invalid payment in case of Advance accounts', (done) => {
-        component.etxn$ = of(unflattenedExpData);
-        orgSettingsService.get.and.returnValue(of(orgSettingsRes));
+        component.etxn$ = of({
+          ...unflattenedExpData,
+          tx: { ...unflattenedExpData.tx, advance_wallet_id: 'accfziaxbGFVW' },
+        });
+        orgSettingsService.get.and.returnValue(
+          of({
+            ...orgSettingsRes,
+            advances: { ...orgSettingsRes.advances, advance_wallets_enabled: true },
+          })
+        );
 
         component.fg.controls.paymentMode.setValue({
-          ...unflattenedAccount1Data,
-          acc: { ...unflattenedAccount1Data.acc, type: AccountType.ADVANCE },
+          id: 'accfziaxbGFVW',
+          balance_amount: 0,
         });
         component.fg.controls.currencyObj.setValue({
           currency: 'USD',
