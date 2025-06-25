@@ -686,25 +686,11 @@ export class AddEditExpensePage implements OnInit {
       map(({ etxn, orgSettings }) => {
         const paymentMode: ExtendedAccount | AdvanceWallet = formValues.paymentMode;
         const isAdvanceWalletEnabled = orgSettings?.advances?.advance_wallets_enabled;
-        const originalSourceAccountId = etxn && etxn.tx && etxn.tx.source_account_id;
         const originalAdvanceWalletId = etxn && etxn.tx && etxn.tx.advance_wallet_id;
         let isPaymentModeInvalid = false;
 
-        // Check if it's an advance wallet (new system)
+        // Check if it's specifically an advance wallet (has id but no acc property)
         const isAdvanceWallet = isAdvanceWalletEnabled && paymentMode?.id && !paymentMode?.acc;
-        // Check if it's an advance account (old system)
-        const isAdvanceAccount = paymentMode?.acc?.type === AccountType.ADVANCE && !isAdvanceWalletEnabled;
-
-        if (isAdvanceAccount) {
-          if (paymentMode.acc.id !== originalSourceAccountId) {
-            isPaymentModeInvalid =
-              paymentMode.acc.tentative_balance_amount < (formValues.currencyObj && formValues.currencyObj.amount);
-          } else {
-            isPaymentModeInvalid =
-              paymentMode.acc.tentative_balance_amount + etxn.tx.amount <
-              (formValues.currencyObj && formValues.currencyObj.amount);
-          }
-        }
 
         if (isAdvanceWallet) {
           if (etxn.tx.id && paymentMode.id === originalAdvanceWalletId) {
@@ -716,8 +702,7 @@ export class AddEditExpensePage implements OnInit {
           }
         }
 
-        // Only show toast for advance wallets/accounts
-        if (isPaymentModeInvalid && (isAdvanceWallet || isAdvanceAccount)) {
+        if (isPaymentModeInvalid && isAdvanceWallet) {
           this.paymentModesService.showInvalidPaymentModeToast();
         }
         return isPaymentModeInvalid;
