@@ -517,12 +517,20 @@ export function TestCases1(getTestBed) {
       });
 
       it('should check for invalid payment mode if the source account ID matches with the account type', (done) => {
-        component.etxn$ = of(unflattenedExpData);
-        orgSettingsService.get.and.returnValue(of(orgSettingsRes));
+        component.etxn$ = of({
+          ...unflattenedExpData,
+          tx: { ...unflattenedExpData.tx, advance_wallet_id: 'accZ1IWjhjLv4' },
+        });
+        orgSettingsService.get.and.returnValue(
+          of({
+            ...orgSettingsRes,
+            advances: { ...orgSettingsRes.advances, advance_wallets_enabled: true },
+          })
+        );
 
         component.fg.controls.paymentMode.setValue({
-          ...unflattenedAccount1Data,
-          acc: { ...unflattenedAccount1Data.acc, type: AccountType.ADVANCE, id: 'accZ1IWjhjLv4' },
+          id: 'accZ1IWjhjLv4',
+          balance_amount: 100,
         });
         component.fg.controls.currencyObj.setValue({
           currency: 'USD',
