@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@angular/core';
 import { cloneDeep } from 'lodash';
 import { TxnCustomProperties } from '../models/txn-custom-properties.model';
 import { UtilityService } from './utility.service';
-import { Locale } from '../models/org_user_settings.model';
+import { Locale } from '../models/locale.model';
 import { TIMEZONE } from 'src/app/constants';
 import { BehaviorSubject } from 'rxjs';
 
