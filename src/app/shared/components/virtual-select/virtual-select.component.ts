@@ -66,7 +66,7 @@ export class VirtualSelectComponent implements ControlValueAccessor, OnInit {
     private modalProperties: ModalPropertiesService,
     private translocoService: TranslocoService
   ) {
-    this.subheader = this.translocoService.translate('virtualSelect.subheader');
+    this.subheader = this.subheader || this.translocoService.translate('virtualSelect.subheader');
   }
 
   get valid(): boolean {
