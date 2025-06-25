@@ -451,7 +451,7 @@ export function TestCases1(getTestBed) {
         });
         component.fg.controls.currencyObj.setValue({
           currency: 'USD',
-          amount: 500,
+          amount: 1000,
         });
         fixture.detectChanges();
 
@@ -534,7 +534,7 @@ export function TestCases1(getTestBed) {
         });
         component.fg.controls.currencyObj.setValue({
           currency: 'USD',
-          amount: 500,
+          amount: 1000,
         });
         fixture.detectChanges();
 
