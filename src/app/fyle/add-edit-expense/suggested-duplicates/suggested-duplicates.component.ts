@@ -8,6 +8,7 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-suggested-duplicates',
@@ -25,7 +26,8 @@ export class SuggestedDuplicatesComponent {
     private router: Router,
     private snackbarProperties: SnackbarPropertiesService,
     private matSnackBar: MatSnackBar,
-    private orgSettingsService: OrgSettingsService
+    private orgSettingsService: OrgSettingsService,
+    private translocoService: TranslocoService
   ) {}
 
   ionViewWillEnter(): void {
@@ -70,7 +72,7 @@ export class SuggestedDuplicatesComponent {
 
   showDismissedSuccessToast(): void {
     const toastMessageData = {
-      message: 'Duplicates was successfully dismissed',
+      message: this.translocoService.translate('suggestedDuplicates.dismissSuccess'),
     };
     this.matSnackBar
       .openFromComponent(ToastMessageComponent, {

@@ -27,6 +27,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { CameraService } from 'src/app/core/services/camera.service';
 import { CameraPreviewService } from 'src/app/core/services/camera-preview.service';
 import { ReceiptPreviewData } from 'src/app/core/models/receipt-preview-data.model';
+import { TranslocoService } from '@jsverse/transloco';
 
 // eslint-disable-next-line custom-rules/prefer-semantic-extension-name
 type Image = Partial<{
@@ -81,7 +82,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     private authService: AuthService,
     private cameraService: CameraService,
     private cameraPreviewService: CameraPreviewService,
-    @Inject(DEVICE_PLATFORM) private devicePlatform: 'android' | 'ios' | 'web'
+    @Inject(DEVICE_PLATFORM) private devicePlatform: 'android' | 'ios' | 'web',
+    private translocoService: TranslocoService
   ) {}
 
   setupNetworkWatcher(): void {
@@ -150,8 +152,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   showBulkModeToastMessage(): void {
-    const message =
-      'If you have multiple receipts to upload, please use <b>BULK MODE</b> to upload all the receipts at once.';
+    const message = this.translocoService.translate('captureReceipt.bulkModeInfo');
     this.bulkModeToastMessageRef = this.matSnackBar.openFromComponent(ToastMessageComponent, {
       ...this.snackbarProperties.setSnackbarProperties('information', { message }),
       panelClass: ['msb-bulkfyle-prompt'],
@@ -320,7 +321,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
             !receiptPreviewDetails.continueCaptureReceipt && !!receiptPreviewDetails.base64ImagesWithSource.length
         ),
         switchMap(() => {
-          this.loaderService.showLoader('Please wait...', 10000);
+          this.loaderService.showLoader(this.translocoService.translate('captureReceipt.pleaseWait'), 10000);
           return this.addMultipleExpensesToQueue(this.base64ImagesWithSource);
         }),
         finalize(() => this.loaderService.hideLoader())
@@ -353,15 +354,18 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   showLimitReachedPopover(): Observable<HTMLIonPopoverElement> {
+    const title = this.translocoService.translate('captureReceipt.limitReachedTitle');
+    const message = this.translocoService.translate('captureReceipt.limitReachedMessage');
+    const primaryCta = {
+      text: this.translocoService.translate('captureReceipt.ok'),
+    };
+
     const limitReachedPopover = this.popoverController.create({
       component: PopupAlertComponent,
       componentProps: {
-        title: 'Limit Reached',
-        message:
-          'You’ve added the maximum limit of 20 receipts. Please review and save these as expenses before adding more.',
-        primaryCta: {
-          text: 'Ok',
-        },
+        title,
+        message,
+        primaryCta,
       },
       cssClass: 'pop-up-in-center',
     });
@@ -403,15 +407,17 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     const isIos = this.devicePlatform === 'ios';
 
     const galleryPermissionName = isIos ? 'Photos' : 'Storage';
-    let title = 'Camera permission';
+    let title = this.translocoService.translate('captureReceipt.cameraPermissionTitle');
     if (permissionType === 'GALLERY') {
-      title = galleryPermissionName + ' permission';
+      title = isIos
+        ? this.translocoService.translate('captureReceipt.photosPermissionTitle')
+        : this.translocoService.translate('captureReceipt.storagePermissionTitle');
     }
 
-    const cameraPermissionMessage = `To capture photos, please allow Fyle to access your camera. Click Open Settings and allow access to Camera and ${galleryPermissionName}`;
-    const galleryPermissionMessage = `Please allow Fyle to access device photos. Click Settings and allow ${galleryPermissionName} access`;
-
-    const message = permissionType === 'CAMERA' ? cameraPermissionMessage : galleryPermissionMessage;
+    const message =
+      permissionType === 'CAMERA'
+        ? this.translocoService.translate('captureReceipt.cameraPermissionMessage', { galleryPermissionName })
+        : this.translocoService.translate('captureReceipt.galleryPermissionMessage', { galleryPermissionName });
 
     return this.popoverController.create({
       component: PopupAlertComponent,
@@ -419,11 +425,11 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         title,
         message,
         primaryCta: {
-          text: 'Open settings',
+          text: this.translocoService.translate('captureReceipt.openSettings'),
           action: 'OPEN_SETTINGS',
         },
         secondaryCta: {
-          text: 'Cancel',
+          text: this.translocoService.translate('captureReceipt.cancel'),
           action: 'CANCEL',
         },
       },

@@ -11,6 +11,7 @@ import { FooterState } from './footer-state.enum';
 import { of } from 'rxjs';
 import { MatRippleModule } from '@angular/material/core';
 import { getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 
 describe('FooterComponent', () => {
   let footerComponent: FooterComponent;
@@ -18,25 +19,52 @@ describe('FooterComponent', () => {
   let networkServiceSpy: jasmine.SpyObj<NetworkService>;
   let trackingServiceSpy: jasmine.SpyObj<TrackingService>;
   let routerSpy: jasmine.SpyObj<Router>;
-
+  let translocoServiceSpy: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'getConnectionStatus']);
 
     trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['footerButtonClicked']);
     routerSpy = jasmine.createSpyObj('Router', ['url']);
 
+    translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [FooterComponent],
-      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, MatRippleModule],
+      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, MatRippleModule, TranslocoModule],
       providers: [
         { provide: NetworkService, useValue: networkServiceSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },
         { provide: Router, useValue: routerSpy },
+        { provide: TranslocoService, useValue: translocoServiceSpy },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(FooterComponent);
     footerComponent = fixture.componentInstance;
+    translocoServiceSpy.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'footer.home': 'Home',
+        'footer.expenses': 'Expenses',
+        'footer.reports': 'Reports',
+        'footer.tasks': 'Tasks',
+      };
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
+    });
     fixture.detectChanges();
   }));
 

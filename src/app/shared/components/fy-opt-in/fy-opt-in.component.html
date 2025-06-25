@@ -18,13 +18,13 @@
     <div class="opt-in--container">
       <div class="d-flex mb-16">
         <mat-icon class="fy-icon opt-in--sparkle-icon" svgIcon="sparkle"></mat-icon>
-        <span class="opt-in--try-ai-text"> Try AI </span>
+        <span class="opt-in--try-ai-text"> {{ 'fyOptIn.tryAI' | transloco }} </span>
       </div>
       <ng-container *ngIf="optInFlowState === OptInFlowState.MOBILE_INPUT">
-        <div class="opt-in--description">Opt into text messaging for instant expense submission</div>
+        <div class="opt-in--description">{{ 'fyOptIn.optInDescription' | transloco }}</div>
         <div class="opt-in--mobile-input-container">
           <div class="opt-in--mobile-input-container__label">
-            <span> Mobile number </span>
+            <span> {{ 'fyOptIn.mobileNumberLabel' | transloco }} </span>
             <span class="opt-in--mobile-input-container__mandatory"> * </span>
           </div>
           <input
@@ -34,7 +34,7 @@
             class="opt-in--mobile-input-container__input"
             [ngClass]="{ 'opt-in--mobile-input-container__input--error': mobileNumberError?.length }"
             (focus)="onFocus()"
-            [placeholder]="'Enter mobile number with country code e.g +155512345..'"
+            [placeholder]="'fyOptIn.mobileNumberPlaceholder' | transloco"
             type="tel"
             [maxlength]="15"
             [minlength]="7"
@@ -46,7 +46,7 @@
       </ng-container>
       <ng-container *ngIf="optInFlowState === OptInFlowState.OTP_VERIFICATION">
         <div class="opt-in--description">
-          Enter 6 digit code sent to your phone {{ mobileNumberInputValue }}
+          {{ 'fyOptIn.otpDescription' | transloco }} {{ mobileNumberInputValue }}
           <span (click)="goBack()">
             <ion-icon class="opt-in--edit-icon" src="../../../assets/svg/edit.svg"></ion-icon>
           </span>
@@ -56,9 +56,11 @@
         </div>
         <ng-container *ngIf="showOtpTimer; else resendOtpCta">
           <span class="opt-in--otp-container__label__otp-timer">
-            Resend code in
+            {{ 'fyOptIn.resendCodeIn' | transloco }}
             <span class="opt-in--otp-container__label__otp-timer--timer"> 0:{{ otpTimer | number : '2.0' }} </span>
-            <span class="opt-in--otp-container__label__attempts"> ({{ otpAttemptsLeft }} attempts left) </span>
+            <span class="opt-in--otp-container__label__attempts">
+              ({{ otpAttemptsLeft }} {{ 'fyOptIn.attemptsLeft' | transloco }})
+            </span>
           </span>
         </ng-container>
         <ng-template #resendOtpCta>
@@ -69,15 +71,17 @@
               appFormButtonValidation
               buttonType="secondary"
               [loading]="sendCodeLoading"
-              loadingText="Sending Code"
+              [loadingText]="'fyOptIn.sendingCode' | transloco"
             >
-              Resend code
+              {{ 'fyOptIn.resendCode' | transloco }}
             </button>
-            <span class="opt-in--otp-container__label__attempts">({{ otpAttemptsLeft }} attempts left)</span>
+            <span class="opt-in--otp-container__label__attempts"
+              >({{ otpAttemptsLeft }} {{ 'fyOptIn.attemptsLeft' | transloco }})</span
+            >
           </ng-container>
           <div *ngIf="disableResendOtp" class="opt-in--otp-container__label__resend--disabled-container">
-            <span class="opt-in--otp-container__label__resend--disabled"> Resend code </span>
-            <span class="opt-in--otp-container__label__attempts">(0 attempts left)</span>
+            <span class="opt-in--otp-container__label__resend--disabled"> {{ 'fyOptIn.resendCode' | transloco }} </span>
+            <span class="opt-in--otp-container__label__attempts">(0 {{ 'fyOptIn.attemptsLeft' | transloco }})</span>
           </div>
         </ng-template>
       </ng-container>
@@ -89,9 +93,9 @@
         class="fy-icon opt-in--success__image-container"
         src="../../../assets/svg/check-circle-fill.svg"
       ></ion-icon>
-      <div class="opt-in--success__header">You are all set</div>
+      <div class="opt-in--success__header">{{ 'fyOptIn.successHeader' | transloco }}</div>
       <div class="opt-in--success__description">
-        We have sent you a confirmation message. You can now use text messages to create and submit your next expense!
+        {{ 'fyOptIn.successDescription' | transloco }}
       </div>
     </div>
   </ng-container>
@@ -107,9 +111,9 @@
         color="primary"
         (click)="saveMobileNumber()"
         [loading]="sendCodeLoading"
-        [loadingText]="'Send Code'"
+        [loadingText]="'fyOptIn.sendCodeLoading' | transloco"
       >
-        Send code
+        {{ 'fyOptIn.sendCodeBtn' | transloco }}
         <span>
           <mat-icon class="fy-icon opt-in--send-code-btn__icon" svgIcon="arrow-tail-right"></mat-icon>
         </span>
@@ -120,13 +124,13 @@
     <div>
       <ion-buttons class="opt-in--success__footer">
         <ion-button class="btn-outline-secondary" (click)="openHelpArticle()">
-          <span class="opt-in--success__footer--secondary-cta-text"> Read help article </span>
+          <span class="opt-in--success__footer--secondary-cta-text"> {{ 'fyOptIn.readHelpArticle' | transloco }} </span>
           <span>
             <mat-icon class="fy-icon opt-in--success__help-article-icon" svgIcon="open-in-new-tab"></mat-icon>
           </span>
         </ion-button>
         <ion-button class="btn-primary" (click)="onGotItClicked()">
-          <span class="opt-in--success__footer--primary-cta-text">Got it</span>
+          <span class="opt-in--success__footer--primary-cta-text">{{ 'fyOptIn.gotIt' | transloco }}</span>
         </ion-button>
       </ion-buttons>
     </div>

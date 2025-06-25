@@ -13,6 +13,7 @@ import { EmployeesService } from 'src/app/core/services/platform/v1/spender/empl
 import { ToastMessageComponent } from '../toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-fy-select-commute-details',
@@ -34,7 +35,8 @@ export class FySelectCommuteDetailsComponent implements OnInit {
     private orgSettingsService: OrgSettingsService,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private translocoService: TranslocoService
   ) {}
 
   ngOnInit(): void {
@@ -111,7 +113,7 @@ export class FySelectCommuteDetailsComponent implements OnInit {
           catchError((err: HttpErrorResponse) => {
             this.saveCommuteDetailsLoading = false;
             this.trackingService.commuteDeductionDetailsError(err);
-            const message = 'We were unable to save your commute details. Please enter correct home and work location.';
+            const message = this.translocoService.translate('fySelectCommuteDetails.saveError');
             this.showToastMessage(message, ToastType.FAILURE, 'msb-failure');
             return throwError(err);
           })

@@ -7,17 +7,17 @@
         id="select-currency-modal--search-input"
         class="select-currency-modal--search-input smartlook-show"
         matInput
-        placeholder="Search"
+        [placeholder]="'selectCurrency.searchInputPlaceholder' | transloco"
       />
     </mat-form-field>
     <ion-buttons slot="end">
-      <ion-button (click)="onDoneClick()"> Done </ion-button>
+      <ion-button (click)="onDoneClick()"> {{ 'selectCurrency.doneButtonText' | transloco }} </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <div class="select-currency-modal--header">All currencies</div>
+  <div class="select-currency-modal--header">{{ 'selectCurrency.headerText' | transloco }}</div>
   <div
     matRipple
     class="select-currency-modal--currency-element"

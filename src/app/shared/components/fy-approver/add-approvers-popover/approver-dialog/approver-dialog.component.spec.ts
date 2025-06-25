@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { IonicModule } from '@ionic/angular';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
@@ -23,6 +24,7 @@ describe('ApproverDialogComponent', () => {
   let loaderService: jasmine.SpyObj<LoaderService>;
   let employeesService: jasmine.SpyObj<EmployeesService>;
   let modalController: jasmine.SpyObj<ModalController>;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
 
   const approvers = [
     {
@@ -62,7 +64,13 @@ describe('ApproverDialogComponent', () => {
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const employeesServiceSpy = jasmine.createSpyObj('EmployeesService', ['getEmployeesBySearch']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [ApproverDialogComponent],
       imports: [
@@ -72,6 +80,7 @@ describe('ApproverDialogComponent', () => {
         FormsModule,
         MatChipsModule,
         MatCheckboxModule,
+        TranslocoModule,
       ],
       providers: [
         {
@@ -86,6 +95,10 @@ describe('ApproverDialogComponent', () => {
           provide: ModalController,
           useValue: modalControllerSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(ApproverDialogComponent);
@@ -94,7 +107,24 @@ describe('ApproverDialogComponent', () => {
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     employeesService = TestBed.inject(EmployeesService) as jasmine.SpyObj<EmployeesService>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
-
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'approverDialog.selectApprovers': 'Select approvers',
+        'approverDialog.done': 'Done',
+        'approverDialog.multiSelect': 'Multi select',
+        'approverDialog.search': 'Search',
+        'approverDialog.selected': 'selected',
+        'approverDialog.loading': 'Loading...',
+      };
+      let translation = translations[key] || key;
+      if (params) {
+        Object.keys(params).forEach((key) => {
+          translation = translation.replace(`{{${key}}}`, params[key]);
+        });
+      }
+      return translation;
+    });
     component.initialApproverList = cloneDeep(approvers);
 
     component.approverEmailsList = ['jay.b@fyle.in', 'ajain@fyle.in'];

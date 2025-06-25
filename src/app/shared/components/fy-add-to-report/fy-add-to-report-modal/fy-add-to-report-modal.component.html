@@ -2,7 +2,7 @@
   <mat-icon class="fy-modal-top-bar" svgIcon="notch"></mat-icon>
   <ion-toolbar mode="md" class="fy-modal-toolbar">
     <ion-title>
-      <div class="report-list--title text-center">Add to report</div>
+      <div class="report-list--title text-center">{{ 'fyAddToReportModal.title' | transloco }}</div>
     </ion-title>
     <ion-buttons slot="start">
       <ion-button data-testid="close_icon" (click)="onDoneClick()">
@@ -20,7 +20,7 @@
 <ion-content>
   <div *ngIf="options.length; else zeroState" class="report-list--container">
     <div *ngIf="showNullOption" matRipple (click)="dismissModal($event)" class="report-list--list">
-      <div class="report-list--purpose report-list--none">None</div>
+      <div class="report-list--purpose report-list--none">{{ 'fyAddToReportModal.none' | transloco }}</div>
     </div>
 
     <ng-container *ngIf="autoSubmissionReportName">
@@ -50,7 +50,11 @@
             <ion-col class="ion-no-padding report-list--purpose-count-container">
               <div class="report-list--purpose">{{ option.value.purpose }}</div>
               <div class="report-list--count">
-                {{ option.value.num_expenses }} Expense{{ option.value.num_expenses > 1 ? 's' : '' }}
+                {{ option.value.num_expenses }}
+                {{
+                  (option.value.num_expenses > 1 ? 'fyAddToReportModal.expenses' : 'fyAddToReportModal.expense')
+                    | transloco
+                }}
               </div>
             </ion-col>
             <ion-col size="3.5" class="ion-no-padding ion-text-right">
@@ -85,10 +89,14 @@
 
   <ng-template #zeroState>
     <div class="report-list--zero-state">
-      <img class="report-list--zero-state__img" src="../../../../../assets/images/zero-states/reports.png" alt="zero" />
-      <div class="report-list--zero-state__subtitle">You have no reports right now</div>
+      <img
+        class="report-list--zero-state__img"
+        src="../../../../../assets/images/zero-states/reports.png"
+        [alt]="'fyAddToReportModal.zeroStateAlt' | transloco"
+      />
+      <div class="report-list--zero-state__subtitle">{{ 'fyAddToReportModal.noReports' | transloco }}</div>
       <div class="report-list--zero-state__subtitle">
-        To create a draft report please click on
+        {{ 'fyAddToReportModal.createNewReport' | transloco }}
         <ion-icon
           class="report-list--zero-state__icon"
           slot="icon-only"

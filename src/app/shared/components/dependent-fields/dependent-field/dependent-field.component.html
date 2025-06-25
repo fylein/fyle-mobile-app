@@ -7,7 +7,7 @@
     <input
       class="dependent-field__input smartlook-show"
       type="text"
-      [placeholder]="placeholder || 'Select ' + label"
+      [placeholder]="placeholder || ('dependentField.selectLabel' | transloco : { label: label })"
       [ngModel]="displayValue"
       (blur)="onBlur()"
       (click)="openModal()"
@@ -16,4 +16,6 @@
   </div>
 </label>
 
-<div *ngIf="!valid" class="dependent-field__error">Please enter {{ label }}.</div>
+<div *ngIf="!valid" class="dependent-field__error">
+  {{ 'dependentField.validationError' | transloco : { label: label } }}
+</div>

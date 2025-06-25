@@ -1,4 +1,5 @@
 import { Component, Input, Output, EventEmitter, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { TranslocoService } from '@jsverse/transloco';
 import { PasswordChecks } from './password-checks.model';
 import { PasswordCriteria } from './password-criteria.model';
 
@@ -22,27 +23,29 @@ export class PasswordCheckTooltipComponent implements OnChanges, OnInit {
 
   passwordCriteria: PasswordCriteria[];
 
+  constructor(private translocoService: TranslocoService) {}
+
   updatePasswordCriteria(): void {
     this.passwordCriteria = [
       {
         isValid: this.passwordChecks.lengthValid,
-        message: '12 to 32 characters',
+        message: this.translocoService.translate('passwordCheckTooltip.lengthRequirement'),
       },
       {
         isValid: this.passwordChecks.uppercaseValid,
-        message: '1 uppercase character',
+        message: this.translocoService.translate('passwordCheckTooltip.uppercaseRequirement'),
       },
       {
         isValid: this.passwordChecks.lowercaseValid,
-        message: '1 lowercase character',
+        message: this.translocoService.translate('passwordCheckTooltip.lowercaseRequirement'),
       },
       {
         isValid: this.passwordChecks.numberValid,
-        message: '1 number',
+        message: this.translocoService.translate('passwordCheckTooltip.numberRequirement'),
       },
       {
         isValid: this.passwordChecks.specialCharValid,
-        message: '1 special character',
+        message: this.translocoService.translate('passwordCheckTooltip.specialCharRequirement'),
       },
     ];
   }

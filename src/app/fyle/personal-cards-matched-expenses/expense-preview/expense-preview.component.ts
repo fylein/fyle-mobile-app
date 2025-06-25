@@ -10,6 +10,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { Observable } from 'rxjs';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-expense-preview',
@@ -39,7 +40,8 @@ export class ExpensePreviewComponent implements OnInit {
     private snackbarProperties: SnackbarPropertiesService,
     private platform: Platform,
     private trackingService: TrackingService,
-    private expensesService: ExpensesService
+    private expensesService: ExpensesService,
+    private translocoService: TranslocoService
   ) {}
 
   ngOnInit(): void {
@@ -66,7 +68,9 @@ export class ExpensePreviewComponent implements OnInit {
       .subscribe(() => {
         this.modalController.dismiss();
         this.matSnackBar.openFromComponent(ToastMessageComponent, {
-          ...this.snackbarProperties.setSnackbarProperties('success', { message: 'Successfully matched the expense.' }),
+          ...this.snackbarProperties.setSnackbarProperties('success', {
+            message: this.translocoService.translate('expensePreview.successfullyMatched'),
+          }),
           panelClass: ['msb-success'],
         });
         this.router.navigate(['/', 'enterprise', 'personal_cards'], { queryParams: { refresh: true } });

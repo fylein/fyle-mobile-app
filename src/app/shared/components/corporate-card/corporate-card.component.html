@@ -4,7 +4,7 @@
       <ion-row class="corporate-card__row">
         <div class="corporate-card__bank-name" *ngIf="card?.bank_name">{{ card.bank_name }}</div>
         <div class="corporate-card-badge-container">
-          <span class="corporate-card-badge">Corporate card</span>
+          <span class="corporate-card-badge">{{ 'corporateCard.badge' | transloco }}</span>
         </div>
       </ion-row>
     </ion-col>
@@ -31,10 +31,10 @@
   <div class="corporate-card__feed">
     <div class="corporate-card__status">
       <ng-container *ngIf="isCardConnectedToRTF">
-        <span class="corporate-card__feed-label">Transactions feed</span>
+        <span class="corporate-card__feed-label">{{ 'corporateCard.transactionsFeed' | transloco }}</span>
         <div class="corporate-card__feed-value corporate-card__feed-live">
           <div class="corporate-card__feed-live-dot"></div>
-          <span data-testid="feed-info">Live</span>
+          <span data-testid="feed-info">{{ 'corporateCard.live' | transloco }}</span>
         </div>
       </ng-container>
 
@@ -44,7 +44,7 @@
           card.data_feed_source === dataFeedSourceTypes.AMEX_FEED
         "
       >
-        <span class="corporate-card__feed-label">Last synced</span>
+        <span class="corporate-card__feed-label">{{ 'corporateCard.lastSynced' | transloco }}</span>
         <span class="corporate-card__feed-value" data-testid="feed-info">{{
           card.last_synced_at | date : 'MMM dd, YYYY'
         }}</span>
@@ -56,9 +56,10 @@
           isCardConnectedToBankFeed
         "
       >
-        <span class="corporate-card__feed-label">Synced using</span>
+        <span class="corporate-card__feed-label">{{ 'corporateCard.syncedUsing' | transloco }}</span>
         <span class="corporate-card__feed-label" data-testid="feed-info">{{
-          card.data_feed_source === 'STATEMENT_UPLOAD' ? 'Statement upload' : 'Bank Feed'
+          (card.data_feed_source === 'STATEMENT_UPLOAD' ? 'corporateCard.statementUpload' : 'corporateCard.bankFeed')
+            | transloco
         }}</span>
       </ng-container>
     </div>

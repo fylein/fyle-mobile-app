@@ -5,8 +5,8 @@
     (click)="openAnotherPopover('approveAdvance')"
     *ngIf="actions.can_approve"
   >
-    <div class="advance-action--action-head">Approve advance</div>
-    <div class="advance-action--action-info">Approve this advance request</div>
+    <div class="advance-action--action-head">{{ 'advanceActions.approveAdvance' | transloco }}</div>
+    <div class="advance-action--action-info">{{ 'advanceActions.approveAdvanceInfo' | transloco }}</div>
   </div>
 
   <div
@@ -15,8 +15,8 @@
     (click)="openAnotherPopover('sendBackAdvance')"
     *ngIf="actions.can_inquire"
   >
-    <div class="advance-action--action-head">Send back advance</div>
-    <div class="advance-action--action-info">Send back advance request</div>
+    <div class="advance-action--action-head">{{ 'advanceActions.sendBackAdvance' | transloco }}</div>
+    <div class="advance-action--action-info">{{ 'advanceActions.sendBackAdvanceInfo' | transloco }}</div>
   </div>
 
   <div
@@ -25,7 +25,7 @@
     (click)="openAnotherPopover('rejectAdvance')"
     *ngIf="actions.can_reject"
   >
-    <div class="advance-action--action-head">Reject advance</div>
-    <div class="advance-action--action-info">Reject this advance request</div>
+    <div class="advance-action--action-head">{{ 'advanceActions.rejectAdvance' | transloco }}</div>
+    <div class="advance-action--action-info">{{ 'advanceActions.rejectAdvanceInfo' | transloco }}</div>
   </div>
 </div>

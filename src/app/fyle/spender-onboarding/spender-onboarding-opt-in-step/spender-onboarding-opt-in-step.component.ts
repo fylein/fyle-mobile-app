@@ -31,6 +31,7 @@ import { SpenderOnboardingService } from 'src/app/core/services/spender-onboardi
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { UserEventService } from 'src/app/core/services/user-event.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-spender-onboarding-opt-in-step',
@@ -119,7 +120,8 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
     private matSnackBar: MatSnackBar,
     private userEventService: UserEventService,
     private snackbarProperties: SnackbarPropertiesService,
-    private spenderOnboardingService: SpenderOnboardingService
+    private spenderOnboardingService: SpenderOnboardingService,
+    private translocoService: TranslocoService
   ) {}
 
   get OptInFlowState(): typeof OptInFlowState {
@@ -156,9 +158,9 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
 
   validateInput(): void {
     if (!this.mobileNumberInputValue?.length) {
-      this.mobileNumberError = 'Please enter mobile number.';
+      this.mobileNumberError = this.translocoService.translate('spenderOnboardingOptInStep.mobileNumberError');
     } else if (!this.mobileNumberInputValue.match(/^\+1\d{10}$/)) {
-      this.mobileNumberError = 'Please enter a valid number with +1 country code. Try re-entering your number.';
+      this.mobileNumberError = this.translocoService.translate('spenderOnboardingOptInStep.invalidMobileNumberError');
     } else {
       this.mobileNumberError = '';
     }
@@ -215,13 +217,17 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
 
     if (this.otpAttemptsLeft > 0) {
       if (action === 'CLICK') {
-        this.toastWithoutCTA('Code sent successfully', ToastType.SUCCESS, 'msb-success-with-camera-icon');
+        this.toastWithoutCTA(
+          this.translocoService.translate('spenderOnboardingOptInStep.codeSentSuccess'),
+          ToastType.SUCCESS,
+          'msb-success-with-camera-icon'
+        );
         this.ngOtpInput.setValue('');
       }
       this.startTimer();
     } else {
       this.toastWithoutCTA(
-        'You have reached the limit for 6 digit code requests. Try again after 24 hours.',
+        this.translocoService.translate('spenderOnboardingOptInStep.otpLimitReached'),
         ToastType.FAILURE,
         'msb-failure-with-camera-icon'
       );
@@ -239,7 +245,7 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
       if (errorMessage.includes('out of attempts') || errorMessage.includes('max send attempts reached')) {
         this.trackingService.eventTrack('Sms Opt In Onboarding Step - Max Otp Attempts Reached');
         this.toastWithoutCTA(
-          'You have reached the limit for 6 digit code requests. Try again after 24 hours.',
+          this.translocoService.translate('spenderOnboardingOptInStep.otpLimitReached'),
           ToastType.FAILURE,
           'msb-failure-with-camera-icon'
         );
@@ -247,19 +253,23 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
         this.disableResendOtp = true;
       } else if (errorMessage.includes('invalid parameter')) {
         this.toastWithoutCTA(
-          'Invalid mobile number. Please try again.',
+          this.translocoService.translate('spenderOnboardingOptInStep.invalidMobileNumberToast'),
           ToastType.FAILURE,
           'msb-failure-with-camera-icon'
         );
       } else if (errorMessage.includes('expired')) {
         this.toastWithoutCTA(
-          'The code has expired. Please request a new one.',
+          this.translocoService.translate('spenderOnboardingOptInStep.codeExpired'),
           ToastType.FAILURE,
           'msb-failure-with-camera-icon'
         );
         this.ngOtpInput?.setValue('');
       } else {
-        this.toastWithoutCTA('Code is invalid', ToastType.FAILURE, 'msb-failure-with-camera-icon');
+        this.toastWithoutCTA(
+          this.translocoService.translate('spenderOnboardingOptInStep.invalidCode'),
+          ToastType.FAILURE,
+          'msb-failure-with-camera-icon'
+        );
         this.ngOtpInput?.setValue('');
       }
     }
@@ -281,7 +291,9 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
 
   verifyOtp(otp: string): void {
     this.verifyingOtp = true;
-    from(this.loaderService.showLoader('Verifying code...'))
+    from(
+      this.loaderService.showLoader(this.translocoService.translate('spenderOnboardingOptInStep.verifyingCodeLoader'))
+    )
       .pipe(
         switchMap(() => this.mobileNumberVerificationService.verifyOtp(otp)),
         switchMap(() => this.authService.refreshEou()),
@@ -296,7 +308,11 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
           this.userEventService.clearTaskCache();
         },
         error: () => {
-          this.toastWithoutCTA('Code is invalid', ToastType.FAILURE, 'msb-failure-with-camera-icon');
+          this.toastWithoutCTA(
+            this.translocoService.translate('spenderOnboardingOptInStep.invalidCode'),
+            ToastType.FAILURE,
+            'msb-failure-with-camera-icon'
+          );
           this.ngOtpInput.setValue('');
           this.verifyingOtp = false;
         },

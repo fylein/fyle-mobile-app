@@ -2,7 +2,7 @@
   <mat-icon class="fy-modal-top-bar" svgIcon="notch"></mat-icon>
   <ion-toolbar mode="md" class="fy-modal-toolbar">
     <ion-title>
-      <div class="selection-modal--title">Select currency</div>
+      <div class="selection-modal--title">{{ 'fyCurrencyChooseCurrency.selectCurrency' | transloco }}</div>
     </ion-title>
     <ion-buttons slot="start">
       <ion-button (click)="onDoneClick()">
@@ -17,7 +17,7 @@
         id="select-currency-modal--search-input"
         class="selection-modal--search-input smartlook-show"
         matInput
-        placeholder="Search"
+        [placeholder]="'fyCurrencyChooseCurrency.search' | transloco"
         [(ngModel)]="value"
       />
       <button
@@ -25,7 +25,7 @@
         *ngIf="value"
         matSuffix
         mat-icon-button
-        aria-label="Clear"
+        [attr.aria-label]="'fyCurrencyChooseCurrency.clear' | transloco"
         class="selection-modal--clear"
         (click)="clearValue()"
       >
@@ -36,7 +36,7 @@
 </ion-header>
 
 <ion-content>
-  <div class="selection-modal--sub-title">All currencies</div>
+  <div class="selection-modal--sub-title">{{ 'fyCurrencyChooseCurrency.allCurrencies' | transloco }}</div>
   <ng-container *ngFor="let currency of filteredCurrencies$ | async as list">
     <div
       matRipple

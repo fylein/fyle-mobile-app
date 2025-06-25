@@ -18,6 +18,7 @@ import { BrowserHandlerService } from 'src/app/core/services/browser-handler.ser
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { UserEventService } from 'src/app/core/services/user-event.service';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-fy-opt-in',
@@ -75,7 +76,8 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
     private loaderService: LoaderService,
     private browserHandlerService: BrowserHandlerService,
     private platformHandlerService: PlatformHandlerService,
-    private userEventService: UserEventService
+    private userEventService: UserEventService,
+    private translocoService: TranslocoService
   ) {}
 
   get OptInFlowState(): typeof OptInFlowState {
@@ -125,9 +127,9 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
 
   validateInput(): void {
     if (!this.mobileNumberInputValue?.length) {
-      this.mobileNumberError = 'Please enter mobile number';
+      this.mobileNumberError = this.translocoService.translate('fyOptIn.enterMobileNumber');
     } else if (!this.mobileNumberInputValue.match(/^\+1\d{10}$/)) {
-      this.mobileNumberError = 'Please enter a valid number with +1 country code. Try re-entering your number.';
+      this.mobileNumberError = this.translocoService.translate('fyOptIn.invalidMobileNumber');
     }
   }
 
@@ -171,13 +173,17 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
 
         if (this.otpAttemptsLeft > 0) {
           if (action === 'CLICK') {
-            this.toastWithoutCTA('Code sent successfully', ToastType.SUCCESS, 'msb-success-with-camera-icon');
+            this.toastWithoutCTA(
+              this.translocoService.translate('fyOptIn.codeSent'),
+              ToastType.SUCCESS,
+              'msb-success-with-camera-icon'
+            );
             this.ngOtpInput.setValue('');
           }
           this.startTimer();
         } else {
           this.toastWithoutCTA(
-            'You have reached the limit for 6 digit code requests. Try again after 24 hours.',
+            this.translocoService.translate('fyOptIn.otpLimitReached'),
             ToastType.FAILURE,
             'msb-failure-with-camera-icon'
           );
@@ -195,7 +201,7 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
               message: 'OTP_MAX_ATTEMPTS_REACHED',
             });
             this.toastWithoutCTA(
-              'You have reached the limit for 6 digit code requests. Try again after 24 hours.',
+              this.translocoService.translate('fyOptIn.otpLimitReached'),
               ToastType.FAILURE,
               'msb-failure-with-camera-icon'
             );
@@ -203,19 +209,23 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
             this.disableResendOtp = true;
           } else if (errorMessage.includes('invalid parameter')) {
             this.toastWithoutCTA(
-              'Invalid mobile number. Please try again.',
+              this.translocoService.translate('fyOptIn.invalidMobileTryAgain'),
               ToastType.FAILURE,
               'msb-failure-with-camera-icon'
             );
           } else if (errorMessage.includes('expired')) {
             this.toastWithoutCTA(
-              'The code has expired. Please request a new one.',
+              this.translocoService.translate('fyOptIn.codeExpired'),
               ToastType.FAILURE,
               'msb-failure-with-camera-icon'
             );
             this.ngOtpInput?.setValue('');
           } else {
-            this.toastWithoutCTA('Code is invalid', ToastType.FAILURE, 'msb-failure-with-camera-icon');
+            this.toastWithoutCTA(
+              this.translocoService.translate('fyOptIn.invalidCode'),
+              ToastType.FAILURE,
+              'msb-failure-with-camera-icon'
+            );
             this.ngOtpInput?.setValue('');
           }
         }
@@ -227,7 +237,7 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
 
   verifyOtp(otp: string): void {
     this.verifyingOtp = true;
-    from(this.loaderService.showLoader('Verifying code...'))
+    from(this.loaderService.showLoader(this.translocoService.translate('fyOptIn.verifyingCode')))
       .pipe(
         switchMap(() => this.mobileNumberVerificationService.verifyOtp(otp)),
         switchMap(() => this.authService.refreshEou()),
@@ -240,7 +250,11 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
           this.userEventService.clearTaskCache();
         },
         error: () => {
-          this.toastWithoutCTA('Code is invalid', ToastType.FAILURE, 'msb-failure-with-camera-icon');
+          this.toastWithoutCTA(
+            this.translocoService.translate('fyOptIn.invalidCode'),
+            ToastType.FAILURE,
+            'msb-failure-with-camera-icon'
+          );
           this.ngOtpInput.setValue('');
           this.verifyingOtp = false;
         },

@@ -6,7 +6,7 @@
         svgIcon="camera"
       ></mat-icon>
     </div>
-    <div class="camera-options--content">Click a picture</div>
+    <div class="camera-options--content">{{ 'cameraOptionsPopup.clickAPicture' | transloco }}</div>
   </div>
 
   <div class="camera-options--element" matRipple (click)="getImageFromImagePicker()">
@@ -16,7 +16,7 @@
         svgIcon="image"
       ></mat-icon>
     </div>
-    <div class="camera-options--content">Upload files</div>
+    <div class="camera-options--content">{{ 'cameraOptionsPopup.uploadFiles' | transloco }}</div>
   </div>
   <input type="file" #fileUpload accept="application/pdf,image/*" class="d-none" />
 </div>

@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { IonicModule } from '@ionic/angular';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { AuditHistoryComponent } from './audit-history.component';
@@ -23,29 +24,67 @@ describe('AuditHistoryComponent', () => {
   let component: AuditHistoryComponent;
   let fixture: ComponentFixture<AuditHistoryComponent>;
   let expenseFieldsService: jasmine.SpyObj<ExpenseFieldsService>;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
 
   beforeEach(waitForAsync(() => {
     const expenseFieldsServiceSpy = jasmine.createSpyObj('ExpenseFieldsService', ['getAllEnabled']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [AuditHistoryComponent, StatusesDiffComponent, SnakeCaseToSpaceCase, DateWithTimezonePipe],
-      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule],
+      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, TranslocoModule],
       providers: [
         {
           provide: ExpenseFieldsService,
           useValue: expenseFieldsServiceSpy,
         },
         { provide: TIMEZONE, useValue: new BehaviorSubject<string>('UTC') },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(AuditHistoryComponent);
     component = fixture.componentInstance;
     expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
     expenseFieldsService.getAllEnabled.and.returnValue(of(transformedResponse2));
-    const mockEstatuses = cloneDeep(estatusSample);
+    const mockEstatuses = cloneDeep(estatusSample).map((estatus) => ({
+      ...estatus,
+      st_created_at: new Date(estatus.st_created_at),
+    }));
     component.estatuses = mockEstatuses;
     spyOn(component, 'hasDetails').and.callThrough();
     spyOn(component, 'getAndUpdateProjectName').and.callThrough();
     spyOn(component, 'setReimbursable').and.callThrough();
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'auditHistory.detailsLabel': 'Details:',
+        'auditHistory.cardTransactionDetailsLabel': 'Card transaction details: ',
+        'auditHistory.mergedExpenseDetailsLabel': 'Details of the merged expense: ',
+        'auditHistory.defaultProjectFieldName': 'project',
+        'auditHistory.projectNameCollision': 'project name ({{projectFieldName}})',
+        'auditHistory.reimbursableNo': 'No',
+        'auditHistory.reimbursableYes': 'Yes',
+      };
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
+    });
     fixture.detectChanges();
   }));
 
@@ -101,7 +140,10 @@ describe('AuditHistoryComponent', () => {
   });
 
   it('setReimbursable(): should set re-imbursable', () => {
-    component.estatuses = cloneDeep(eStatusWithReimbursible);
+    component.estatuses = cloneDeep(eStatusWithReimbursible).map((estatus) => ({
+      ...estatus,
+      st_created_at: new Date(estatus.st_created_at),
+    }));
     fixture.detectChanges();
 
     component.setReimbursable();

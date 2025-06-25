@@ -5,7 +5,7 @@
     [ngClass]="{ 'receipt-preview__toolbar--no-index': base64ImagesWithSource.length === 1 }"
   >
     <ion-title [ngClass]="{ 'receipt-preview__title--with-delete': base64ImagesWithSource.length > 1 }">
-      <div class="receipt-preview__title">Receipt Previews</div>
+      <div class="receipt-preview__title">{{ 'receiptPreview.receiptPreviews' | transloco }}</div>
       <div *ngIf="base64ImagesWithSource.length > 1" class="receipt-preview__sub-title">
         {{ activeIndex + 1 }}/{{ base64ImagesWithSource.length }}
       </div>
@@ -88,14 +88,18 @@
   <ion-toolbar mode="md" class="pb-0">
     <div class="receipt-preview__cta-container">
       <ng-container *ngIf="mode === 'single' && base64ImagesWithSource.length === 1; else bulkMode">
-        <button type="button" class="btn-secondary" (click)="retake()">Retake</button>
+        <button type="button" class="btn-secondary" (click)="retake()">
+          {{ 'receiptPreview.retake' | transloco }}
+        </button>
       </ng-container>
       <ng-template #bulkMode>
         <button *ngIf="base64ImagesWithSource.length < 20" type="button" class="btn-secondary" (click)="addMore()">
-          Add more
+          {{ 'receiptPreview.addMore' | transloco }}
         </button>
       </ng-template>
-      <button type="submit" class="btn-primary" (click)="saveReceipt()">Finish</button>
+      <button type="submit" class="btn-primary" (click)="saveReceipt()">
+        {{ 'receiptPreview.finish' | transloco }}
+      </button>
     </div>
   </ion-toolbar>
 </ion-footer>

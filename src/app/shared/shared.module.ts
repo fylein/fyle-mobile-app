@@ -6,6 +6,7 @@ import { MatLegacyChipsModule as MatChipsModule } from '@angular/material/legacy
 import { SwiperModule } from 'swiper/angular';
 import { RouterModule } from '@angular/router';
 import { ScrollingModule } from '@angular/cdk/scrolling';
+import { TranslocoModule } from '@jsverse/transloco';
 
 // pipe imports
 import { EllipsisPipe } from './pipes/ellipses.pipe';
@@ -318,6 +319,7 @@ import { FyExpansionInfoMsgComponent } from './components/fy-expansion-info-msg/
     ImageCropperModule,
     ScrollingModule,
     NgOtpInputModule,
+    TranslocoModule,
   ],
   exports: [
     EllipsisPipe,
@@ -430,6 +432,7 @@ import { FyExpansionInfoMsgComponent } from './components/fy-expansion-info-msg/
     ReviewSplitExpenseComponent,
     DateWithTimezonePipe,
     FyExpansionInfoMsgComponent,
+    TranslocoModule,
   ],
   providers: [
     DecimalPipe,

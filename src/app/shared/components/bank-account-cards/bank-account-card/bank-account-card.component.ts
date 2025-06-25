@@ -11,6 +11,7 @@ import { SnackbarPropertiesService } from '../../../../core/services/snackbar-pr
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { DeleteButtonComponent } from './delete-button/delete-button-component';
 import { DateService } from 'src/app/core/services/date.service';
+import { TranslocoService } from '@jsverse/transloco';
 @Component({
   selector: 'app-bank-account-card',
   templateUrl: './bank-account-card.component.html',
@@ -33,7 +34,8 @@ export class BankAccountCardComponent implements OnInit {
     private popoverController: PopoverController,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
-    private dateService: DateService
+    private dateService: DateService,
+    private translocoService: TranslocoService
   ) {}
 
   ngOnInit(): void {
@@ -60,12 +62,12 @@ export class BankAccountCardComponent implements OnInit {
   }
 
   async deleteAccount(): Promise<void> {
-    from(this.loaderService.showLoader('Deleting your card...', 5000))
+    from(this.loaderService.showLoader(this.translocoService.translate('bankAccountCard.deletingCard'), 5000))
       .pipe(
         switchMap(() => this.personalCardsService.deleteAccount(this.accountDetails.id)),
         finalize(async () => {
           await this.loaderService.hideLoader();
-          const message = 'Card successfully deleted.';
+          const message = this.translocoService.translate('bankAccountCard.cardDeletedSuccess');
           this.matSnackBar.openFromComponent(ToastMessageComponent, {
             ...this.snackbarProperties.setSnackbarProperties('success', { message }),
             panelClass: ['msb-success'],
@@ -76,19 +78,26 @@ export class BankAccountCardComponent implements OnInit {
   }
 
   async confirmPopup(): Promise<void> {
+    const title = this.translocoService.translate('bankAccountCard.deleteCardTitle');
+    const message = this.translocoService.translate('bankAccountCard.deleteConfirmationMessage', {
+      accountInfo: `(${this.accountDetails.bank_name} ${this.accountDetails.card_number})`,
+    });
+    const primaryCta = {
+      text: this.translocoService.translate('bankAccountCard.delete'),
+      action: 'delete',
+    };
+    const secondaryCta = {
+      text: this.translocoService.translate('bankAccountCard.cancel'),
+      action: 'cancel',
+    };
+
     const deleteCardPopOver = await this.popoverController.create({
       component: PopupAlertComponent,
       componentProps: {
-        title: 'Delete Card',
-        message: `Are you sure want to delete this card <b> (${this.accountDetails.bank_name} ${this.accountDetails.card_number}) </b>?`,
-        primaryCta: {
-          text: 'Delete',
-          action: 'delete',
-        },
-        secondaryCta: {
-          text: 'Cancel',
-          action: 'cancel',
-        },
+        title,
+        message,
+        primaryCta,
+        secondaryCta,
       },
       cssClass: 'pop-up-in-center',
     });

@@ -40,15 +40,23 @@
           class="personal-card-transaction--type"
           [ngClass]="{ ' personal-card-transaction--green': transaction.transactionType === 'credit' }"
         >
-          <ng-container *ngIf="transaction.transactionType === 'debit'">DR</ng-container>
-          <ng-container *ngIf="transaction.transactionType === 'credit'">CR</ng-container>
+          <ng-container *ngIf="transaction.transactionType === 'debit'">{{
+            'personalCardTransaction.debit' | transloco
+          }}</ng-container>
+          <ng-container *ngIf="transaction.transactionType === 'credit'">{{
+            'personalCardTransaction.credit' | transloco
+          }}</ng-container>
         </span>
       </div>
 
       <!-- Buttons -->
       <div class="personal-card-transaction--button">
-        <ng-container *ngIf="status === 'INITIALIZED' || status === 'HIDDEN'"> Create expense </ng-container>
-        <ng-container *ngIf="status === 'MATCHED'"> View expense </ng-container>
+        <ng-container *ngIf="status === 'INITIALIZED' || status === 'HIDDEN'">
+          {{ 'personalCardTransaction.createExpense' | transloco }}
+        </ng-container>
+        <ng-container *ngIf="status === 'MATCHED'">
+          {{ 'personalCardTransaction.viewExpense' | transloco }}
+        </ng-container>
         <ion-icon
           *ngIf="!isMatchedCountLoading"
           [src]="'assets/svg/arrow-right.svg'"

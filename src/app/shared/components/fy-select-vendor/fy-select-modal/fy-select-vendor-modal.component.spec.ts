@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { IonicModule } from '@ionic/angular';
 import { ModalController } from '@ionic/angular';
 import { VendorService } from 'src/app/core/services/vendor.service';
@@ -23,7 +24,7 @@ describe('FySelectVendorModalComponent', () => {
   let vendorService: jasmine.SpyObj<VendorService>;
   let recentLocalStorageItemsService: jasmine.SpyObj<RecentLocalStorageItemsService>;
   let utilityService: jasmine.SpyObj<UtilityService>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   const vendors = [
     {
       id: 309,
@@ -92,7 +93,13 @@ describe('FySelectVendorModalComponent', () => {
     const recentLocalStorageItemsServiceSpy = jasmine.createSpyObj('RecentLocalStorageItemsService', ['get', 'post']);
     const utilityServiceSpy = jasmine.createSpyObj('UtilityService', ['searchArrayStream']);
     const changeDetectionRefSpy = jasmine.createSpyObj('ChangeDetectorRef', ['detectChanges']);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [FySelectVendorModalComponent],
       imports: [
@@ -103,6 +110,7 @@ describe('FySelectVendorModalComponent', () => {
         MatFormFieldModule,
         MatInputModule,
         BrowserAnimationsModule,
+        TranslocoModule,
       ],
       providers: [
         {
@@ -125,6 +133,10 @@ describe('FySelectVendorModalComponent', () => {
           provide: UtilityService,
           useValue: utilityServiceSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
@@ -138,13 +150,30 @@ describe('FySelectVendorModalComponent', () => {
     ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
     utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
     cdr = TestBed.inject(ChangeDetectorRef) as jasmine.SpyObj<ChangeDetectorRef>;
-
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'fySelectVendorModal.title': 'Select merchant',
+        'fySelectVendorModal.searchPlaceholder': 'Search',
+        'fySelectVendorModal.clear': 'Clear',
+        'fySelectVendorModal.noResultsFound': '<i> No results found </i>',
+        'fySelectVendorModal.add': 'Add',
+        'fySelectVendorModal.none': 'None',
+      };
+      let translation = translations[key] || key;
+      if (params) {
+        Object.keys(params).forEach((key) => {
+          translation = translation.replace(`{{${key}}}`, params[key]);
+        });
+      }
+      return translation;
+    });
     vendorService.get.and.returnValue(of(vendors));
     recentLocalStorageItemsService.get.and.resolveTo(vendorsList);
     utilityService.searchArrayStream.and.returnValue(() => of([{ label: '', value: '' }]));
     component.filteredOptions$ = of(vendorsList);
 
-    component.currentSelection = vendorsList;
+    component.currentSelection = vendors[0];
 
     fixture.detectChanges();
   }));
