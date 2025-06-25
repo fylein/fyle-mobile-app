@@ -65,9 +65,7 @@ export class VirtualSelectComponent implements ControlValueAccessor, OnInit {
     private injector: Injector,
     private modalProperties: ModalPropertiesService,
     private translocoService: TranslocoService
-  ) {
-    this.subheader = this.subheader || this.translocoService.translate('virtualSelect.subheader');
-  }
+  ) {}
 
   get valid(): boolean {
     if (this.ngControl.touched) {
@@ -103,6 +101,7 @@ export class VirtualSelectComponent implements ControlValueAccessor, OnInit {
 
   ngOnInit(): void {
     this.ngControl = this.injector.get(NgControl);
+    this.subheader = this.subheader || this.translocoService.translate('virtualSelect.subheader');
   }
 
   async openModal(): Promise<void> {
