@@ -11,7 +11,7 @@ import { ReportStates } from './stat-badge/report-states.enum';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { PlatformReportsStatsResponse } from 'src/app/core/models/platform/v1/report-stats-response.model';
-import { GroupedReportStatsResponse } from 'src/app/core/models/platform/v1/grouped-report-stats-response.model';
+import { GroupedReportStats } from 'src/app/core/models/platform/v1/grouped-report-stats.model';
 
 @Injectable()
 export class DashboardService {
@@ -102,7 +102,7 @@ export class DashboardService {
     }
   }
 
-  private transformStat(stat?: GroupedReportStatsResponse): PlatformReportsStatsResponse {
+  private transformStat(stat?: GroupedReportStats): PlatformReportsStatsResponse {
     return {
       count: stat?.count ?? 0,
       total_amount: stat?.total_amount ?? 0,
