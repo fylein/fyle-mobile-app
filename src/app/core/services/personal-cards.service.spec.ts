@@ -20,16 +20,53 @@ import { PlatformPersonalCardQueryParams } from '../models/platform/platform-per
 import { personalCardAccessTokenResponse } from '../mock-data/personal-cards-access-token.data';
 import { platformPersonalCardTxnExpenseSuggestionsRes } from '../mock-data/personal-card-txn-expense-suggestions.data';
 import { PlatformPersonalCardFilterParams } from '../models/platform/platform-personal-card-filter-params.model';
-
+import { TranslocoService } from '@jsverse/transloco';
 describe('PersonalCardsService', () => {
   let personalCardsService: PersonalCardsService;
   let apiService: jasmine.SpyObj<ApiService>;
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
   let dateService: DateService;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(() => {
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['post', 'get']);
     const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get', 'post']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+
+    // Mock translate method to return expected strings
+    translocoServiceSpy.translate.and.callFake((key: string, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'services.personalCards.transactionCredit': 'credit',
+        'services.personalCards.transactionDebit': 'debit',
+        'services.personalCards.createdDate': 'Created date',
+        'services.personalCards.updatedDate': 'Updated date',
+        'services.personalCards.transactionsType': 'Transactions Type',
+        'services.personalCards.dateRangeTo': '{{startDate}} to {{endDate}}',
+        'services.personalCards.dateRangeFrom': '>= {{startDate}}',
+        'services.personalCards.dateRangeToInclusive': '<= {{endDate}}',
+        'services.personalCards.creditPillValue': 'Credit',
+        'services.personalCards.debitPillValue': 'Debit',
+        'services.personalCards.thisWeekPillValue': 'this Week',
+        'services.personalCards.thisMonthPillValue': 'this Month',
+        'services.personalCards.allPillValue': 'All',
+        'services.personalCards.lastMonthPillValue': 'Last Month',
+      };
+
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params) {
+        if (params.startDate && params.endDate) {
+          translation = translation.replace('{{startDate}}', params.startDate).replace('{{endDate}}', params.endDate);
+        } else if (params.startDate) {
+          translation = translation.replace('{{startDate}}', params.startDate);
+        } else if (params.endDate) {
+          translation = translation.replace('{{endDate}}', params.endDate);
+        }
+      }
+
+      return translation;
+    });
+
     TestBed.configureTestingModule({
       providers: [
         PersonalCardsService,
@@ -42,6 +79,10 @@ describe('PersonalCardsService', () => {
           provide: SpenderPlatformV1ApiService,
           useValue: spenderPlatformV1ApiServiceSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
     });
     personalCardsService = TestBed.inject(PersonalCardsService);
@@ -50,6 +91,7 @@ describe('PersonalCardsService', () => {
     spenderPlatformV1ApiService = TestBed.inject(
       SpenderPlatformV1ApiService
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
   });
 
   it('should be created', () => {

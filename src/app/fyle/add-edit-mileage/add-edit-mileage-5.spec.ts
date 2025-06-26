@@ -238,7 +238,6 @@ export function TestCases5(getTestBed) {
       spyOn(component, 'getMileageRatesOptions');
       spyOn(component, 'setupTxnFields');
       spyOn(component, 'getPolicyDetails');
-      spyOn(component, 'setupBalanceFlag');
       spyOn(component, 'checkIndividualMileageEnabled');
       spyOn(component, 'setupFilteredCategories');
     }
@@ -251,7 +250,6 @@ export function TestCases5(getTestBed) {
       spyOn(component, 'getNewExpense').and.returnValue(of(newExpenseMileageData1));
       spyOn(component, 'getCustomInputs').and.returnValue(of(null));
       spyOn(component, 'getPaymentModes').and.returnValue(of(accountOptionData1));
-      spyOn(component, 'checkAdvanceEnabled').and.returnValue(of(true));
       spyOn(component, 'getCostCenters').and.returnValue(of(costCenterOptions2));
       spyOn(component, 'getEditRates').and.returnValue(of(10));
       spyOn(component, 'getAddRates').and.returnValue(of(10));
@@ -302,7 +300,6 @@ export function TestCases5(getTestBed) {
       expect(storageService.get).toHaveBeenCalledOnceWith('isExpandedViewMileage');
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
       expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
-      expect(component.checkAdvanceEnabled).toHaveBeenCalledOnceWith(jasmine.any(Observable));
       expect(component.checkNewReportsFlow).toHaveBeenCalledOnceWith(jasmine.any(Observable));
       expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
       expect(component.getTransactionFields).toHaveBeenCalledTimes(1);
@@ -317,7 +314,6 @@ export function TestCases5(getTestBed) {
       expect(recentlyUsedItemsService.getRecentCostCenters).toHaveBeenCalledTimes(1);
       expect(component.setupTxnFields).toHaveBeenCalledTimes(1);
       expect(component.getPolicyDetails).toHaveBeenCalledTimes(1);
-      expect(component.setupBalanceFlag).toHaveBeenCalledTimes(1);
       expect(component.getEditRates).toHaveBeenCalledTimes(1);
       expect(component.getAddRates).toHaveBeenCalledTimes(1);
       expect(component.getExpenseAmount).toHaveBeenCalledTimes(1);
@@ -362,10 +358,6 @@ export function TestCases5(getTestBed) {
 
         component.mileageConfig$.subscribe((res) => {
           expect(res).toEqual(orgSettingsRes.mileage);
-        });
-
-        component.isAdvancesEnabled$.subscribe((res) => {
-          expect(res).toBeTrue();
         });
 
         component.recentlyUsedValues$.subscribe((res) => {
@@ -473,10 +465,6 @@ export function TestCases5(getTestBed) {
           expect(res).toEqual(orgSettingsRes.mileage);
         });
 
-        component.isAdvancesEnabled$.subscribe((res) => {
-          expect(res).toBeTrue();
-        });
-
         component.recentlyUsedValues$.subscribe((res) => {
           expect(res).toEqual(recentlyUsedRes);
         });
@@ -574,10 +562,6 @@ export function TestCases5(getTestBed) {
 
         component.mileageConfig$.subscribe((res) => {
           expect(res).toEqual(orgSettingsRes.mileage);
-        });
-
-        component.isAdvancesEnabled$.subscribe((res) => {
-          expect(res).toBeTrue();
         });
 
         component.recentlyUsedValues$.subscribe((res) => {

@@ -42,7 +42,6 @@ import { BackButtonActionPriority } from 'src/app/core/models/back-button-action
 import { CostCenterOptions } from 'src/app/core/models/cost-center-options.model';
 import { Destination } from 'src/app/core/models/destination.model';
 import { Expense } from 'src/app/core/models/expense.model';
-import { ExtendedAccount } from 'src/app/core/models/extended-account.model';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { Location } from 'src/app/core/models/location.model';
@@ -107,8 +106,6 @@ import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
 import { CommuteDeductionOptions } from 'src/app/core/models/commute-deduction-options.model';
 import { MileageFormValue } from 'src/app/core/models/mileage-form-value.model';
 import { CommuteDetailsResponse } from 'src/app/core/models/platform/commute-details-response.model';
-import { AdvanceWallet } from 'src/app/core/models/platform/v1/advance-wallet.model';
-import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
 import { LocationInfo } from 'src/app/core/models/location-info.model';
 import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
@@ -177,8 +174,6 @@ export class AddEditMileagePage implements OnInit {
 
   isCriticalPolicyViolated$: Observable<boolean>;
 
-  isBalanceAvailableInAnyAdvanceAccount$: Observable<boolean>;
-
   amount$: Observable<number>;
 
   mileageConfig$: Observable<MileageDetails>;
@@ -200,8 +195,6 @@ export class AddEditMileagePage implements OnInit {
   isConnected$: Observable<boolean>;
 
   connectionStatus$: Observable<{ connected: boolean }>;
-
-  isAdvancesEnabled$: Observable<boolean>;
 
   comments$: Observable<ExtendedStatus[]>;
 
@@ -252,8 +245,6 @@ export class AddEditMileagePage implements OnInit {
   isProjectVisible$: Observable<boolean>;
 
   formInitializedFlag = false;
-
-  invalidPaymentMode = false;
 
   billableDefaultValue: boolean;
 
@@ -335,7 +326,6 @@ export class AddEditMileagePage implements OnInit {
     private employeesService: EmployeesService,
     private expensesService: ExpensesService,
     private changeDetectorRef: ChangeDetectorRef,
-    private advanceWalletsService: AdvanceWalletsService,
     private expenseCommentService: ExpenseCommentService
   ) {}
 
@@ -639,34 +629,22 @@ export class AddEditMileagePage implements OnInit {
 
   getPaymentModes(): Observable<AccountOption[]> {
     return forkJoin({
-      accounts: this.accountsService.getEMyAccounts(),
-      advanceWallets: this.advanceWalletsService.getAllAdvanceWallets(),
+      accounts: this.accountsService.getMyAccounts(),
       orgSettings: this.orgSettingsService.get(),
       etxn: this.etxn$,
       allowedPaymentModes: this.platformEmployeeSettingsService.getAllowedPaymentModes(),
       isPaymentModeConfigurationsEnabled: this.paymentModesService.checkIfPaymentModeConfigurationsIsEnabled(),
     }).pipe(
-      map(
-        ({ accounts, advanceWallets, orgSettings, etxn, allowedPaymentModes, isPaymentModeConfigurationsEnabled }) => {
-          const isAdvanceWalletEnabled = orgSettings?.advances?.advance_wallets_enabled;
-          const config = {
-            etxn,
-            orgSettings,
-            expenseType: ExpenseType.MILEAGE,
-            isPaymentModeConfigurationsEnabled,
-          };
+      map(({ accounts, orgSettings, etxn, allowedPaymentModes, isPaymentModeConfigurationsEnabled }) => {
+        const config = {
+          etxn,
+          orgSettings,
+          expenseType: ExpenseType.MILEAGE,
+          isPaymentModeConfigurationsEnabled,
+        };
 
-          if (isAdvanceWalletEnabled) {
-            return this.accountsService.getPaymentModesWithAdvanceWallets(
-              accounts,
-              advanceWallets,
-              allowedPaymentModes,
-              config
-            );
-          }
-          return this.accountsService.getPaymentModes(accounts, allowedPaymentModes, config);
-        }
-      ),
+        return this.accountsService.getPaymentModes(accounts, allowedPaymentModes, config);
+      }),
       shareReplay(1)
     );
   }
@@ -1112,16 +1090,6 @@ export class AddEditMileagePage implements OnInit {
     });
   }
 
-  checkAdvanceEnabled(orgSettings$: Observable<OrgSettings>): Observable<boolean> {
-    return orgSettings$.pipe(
-      map(
-        (orgSettings) =>
-          (orgSettings.advances && orgSettings.advances.enabled) ||
-          (orgSettings.advance_requests && orgSettings.advance_requests.enabled)
-      )
-    );
-  }
-
   getRecentlyUsedValues(): Observable<RecentlyUsed | null> {
     return this.isConnected$.pipe(
       take(1),
@@ -1149,39 +1117,6 @@ export class AddEditMileagePage implements OnInit {
         return distance * mileageRate;
       }),
       shareReplay(1)
-    );
-  }
-
-  checkAdvanceWalletsWithSufficientBalance(advanceWallets: AdvanceWallet[]): boolean {
-    return !!advanceWallets?.some((advanceWallet) => advanceWallet.balance_amount > 0);
-  }
-
-  checkAdvanceAccountAndBalance(account: ExtendedAccount): boolean {
-    return account?.acc?.type === AccountType.ADVANCE && account.acc.tentative_balance_amount > 0;
-  }
-
-  setupBalanceFlag(): void {
-    const accounts$ = this.accountsService.getEMyAccounts();
-    const advanceWallets$ = this.advanceWalletsService.getAllAdvanceWallets();
-    const orgSettings$ = this.orgSettingsService.get();
-    this.isBalanceAvailableInAnyAdvanceAccount$ = this.fg.controls.paymentMode.valueChanges.pipe(
-      switchMap((paymentMode: ExtendedAccount) => {
-        // check both advance wallets and advance accounts
-        let isAdvanceWalletEnabled = false;
-        orgSettings$.pipe(map((orgSettings) => orgSettings?.advances?.advance_wallets_enabled)).subscribe((data) => {
-          isAdvanceWalletEnabled = data;
-        });
-        if (paymentMode?.acc?.type === AccountType.PERSONAL && !!isAdvanceWalletEnabled) {
-          return advanceWallets$.pipe(
-            map((advanceWallets) => this.checkAdvanceWalletsWithSufficientBalance(advanceWallets))
-          );
-        } else if (paymentMode?.acc?.type === AccountType.PERSONAL && !isAdvanceWalletEnabled) {
-          return accounts$.pipe(
-            map((accounts) => accounts.filter((account) => this.checkAdvanceAccountAndBalance(account)).length > 0)
-          );
-        }
-        return of(false);
-      })
     );
   }
 
@@ -1590,7 +1525,6 @@ export class AddEditMileagePage implements OnInit {
     const employeeSettings$ = this.platformEmployeeSettingsService.get().pipe(shareReplay(1));
 
     this.mileageConfig$ = orgSettings$.pipe(map((orgSettings) => orgSettings.mileage));
-    this.isAdvancesEnabled$ = this.checkAdvanceEnabled(orgSettings$);
     this.isProjectCategoryRestrictionsEnabled$ = orgSettings$.pipe(
       map(
         (orgSettings) =>
@@ -1668,7 +1602,7 @@ export class AddEditMileagePage implements OnInit {
     );
 
     this.individualProjectIds$ = employeeSettings$.pipe(
-      map((employeeSettings: EmployeeSettings) => employeeSettings.project_ids || [])
+      map((employeeSettings: EmployeeSettings) => employeeSettings.project_ids?.map((id) => Number(id)) || [])
     );
 
     this.isProjectsEnabled$ = orgSettings$.pipe(map((orgSettings) => !!orgSettings.projects?.enabled));
@@ -1719,8 +1653,6 @@ export class AddEditMileagePage implements OnInit {
     );
 
     this.getPolicyDetails();
-
-    this.setupBalanceFlag();
 
     this.rate$ = iif(() => this.mode === 'edit', this.getEditRates(), this.getAddRates());
 
@@ -2086,54 +2018,6 @@ export class AddEditMileagePage implements OnInit {
     }
   }
 
-  checkIfInvalidPaymentMode(): Observable<boolean> {
-    return forkJoin({
-      amount: this.amount$.pipe(take(1)),
-      etxn: this.etxn$,
-      orgSettings: this.orgSettingsService.get(),
-    }).pipe(
-      map(
-        ({
-          etxn,
-          amount,
-          orgSettings,
-        }: {
-          etxn: Partial<UnflattenedTransaction>;
-          amount: number;
-          orgSettings: OrgSettings;
-        }) => {
-          const formValues = this.getFormValues();
-          const paymentMode: ExtendedAccount | AdvanceWallet = formValues.paymentMode;
-          const isAdvanceWalletEnabled = orgSettings?.advances?.advance_wallets_enabled;
-          const originalSourceAccountId = etxn.tx.source_account_id;
-          const originalAdvanceWalletId = etxn.tx.advance_wallet_id;
-
-          let isPaymentModeInvalid = false;
-          if (!isAdvanceWalletEnabled && paymentMode?.acc?.type === AccountType.ADVANCE) {
-            if (paymentMode.acc.id !== originalSourceAccountId) {
-              isPaymentModeInvalid = paymentMode.acc.tentative_balance_amount < amount;
-            } else {
-              isPaymentModeInvalid = paymentMode.acc.tentative_balance_amount + etxn.tx.amount < amount;
-            }
-          }
-
-          if (isAdvanceWalletEnabled && paymentMode?.id) {
-            if (etxn.tx.id && paymentMode.id === originalAdvanceWalletId) {
-              isPaymentModeInvalid = paymentMode.balance_amount + etxn.tx.amount < amount;
-            } else {
-              isPaymentModeInvalid = paymentMode.balance_amount < amount;
-            }
-          }
-
-          if (isPaymentModeInvalid) {
-            this.paymentModesService.showInvalidPaymentModeToast();
-          }
-          return isPaymentModeInvalid;
-        }
-      )
-    );
-  }
-
   showAddToReportSuccessToast(reportId: string): void {
     const toastMessageData = {
       message: 'Mileage expense added to report successfully',
@@ -2164,26 +2048,16 @@ export class AddEditMileagePage implements OnInit {
   }
 
   saveExpense(): void {
-    this.checkIfInvalidPaymentMode()
-      .pipe(take(1))
-      .subscribe((invalidPaymentMode) => {
-        if (this.fg.valid && !invalidPaymentMode) {
-          if (this.mode === 'add') {
-            this.addExpense('SAVE_MILEAGE').subscribe(() => this.close());
-          } else {
-            // to do edit
-            this.editExpense('SAVE_MILEAGE').subscribe(() => this.close());
-          }
-        } else {
-          this.showFormValidationErrors();
-          if (invalidPaymentMode) {
-            this.invalidPaymentMode = true;
-            setTimeout(() => {
-              this.invalidPaymentMode = false;
-            }, 3000);
-          }
-        }
-      });
+    if (this.fg.valid) {
+      if (this.mode === 'add') {
+        this.addExpense('SAVE_MILEAGE').subscribe(() => this.close());
+      } else {
+        // to do edit
+        this.editExpense('SAVE_MILEAGE').subscribe(() => this.close());
+      }
+    } else {
+      this.showFormValidationErrors();
+    }
   }
 
   async reloadCurrentRoute(): Promise<void> {
@@ -2192,31 +2066,21 @@ export class AddEditMileagePage implements OnInit {
   }
 
   saveAndNewExpense(): void {
-    this.checkIfInvalidPaymentMode()
-      .pipe(take(1))
-      .subscribe((invalidPaymentMode) => {
-        if (this.fg.valid && !invalidPaymentMode) {
-          if (this.mode === 'add') {
-            this.addExpense('SAVE_AND_NEW_MILEAGE').subscribe(() => {
-              this.trackingService.clickSaveAddNew();
-              this.reloadCurrentRoute();
-            });
-          } else {
-            // to do edit
-            this.editExpense('SAVE_AND_NEW_MILEAGE').subscribe(() => {
-              this.close();
-            });
-          }
-        } else {
-          this.showFormValidationErrors();
-          if (invalidPaymentMode) {
-            this.invalidPaymentMode = true;
-            setTimeout(() => {
-              this.invalidPaymentMode = false;
-            }, 3000);
-          }
-        }
-      });
+    if (this.fg.valid) {
+      if (this.mode === 'add') {
+        this.addExpense('SAVE_AND_NEW_MILEAGE').subscribe(() => {
+          this.trackingService.clickSaveAddNew();
+          this.reloadCurrentRoute();
+        });
+      } else {
+        // to do edit
+        this.editExpense('SAVE_AND_NEW_MILEAGE').subscribe(() => {
+          this.close();
+        });
+      }
+    } else {
+      this.showFormValidationErrors();
+    }
   }
 
   saveExpenseAndGotoPrev(): void {
@@ -2387,15 +2251,6 @@ export class AddEditMileagePage implements OnInit {
     return data;
   }
 
-  getAdvanceWalletId(isAdvanceWalletEnabled: boolean): string {
-    const formValue = this.getFormValues();
-    if (!formValue?.paymentMode?.acc?.id) {
-      return isAdvanceWalletEnabled && formValue?.paymentMode?.id;
-    }
-    // setting advance_wallet_id as null when the source account id is set.
-    return null;
-  }
-
   generateEtxnFromFg(
     etxn$: Observable<Partial<UnflattenedTransaction>>,
     standardisedCustomProperties$: Observable<TxnCustomProperties[]>,
@@ -2413,7 +2268,6 @@ export class AddEditMileagePage implements OnInit {
     }).pipe(
       map((res) => {
         const etxn: Partial<UnflattenedTransaction> = res.etxn;
-        const isAdvanceWalletEnabled = res.orgSettings?.advances?.advance_wallets_enabled;
         const formValue = this.getFormValues();
         let customProperties = res.customProperties;
         customProperties = customProperties?.map((customProperty) => {
@@ -2429,10 +2283,26 @@ export class AddEditMileagePage implements OnInit {
         const calculatedDistance = +res.calculatedDistance;
 
         const amount = parseFloat(res.amount.toFixed(2));
-        const skipReimbursement =
+        let skipReimbursement =
           (formValue?.paymentMode?.acc?.type === AccountType.PERSONAL &&
             !formValue?.paymentMode?.acc?.isReimbursable) ||
           !!formValue?.paymentMode?.id;
+
+        // Handle payment mode type and source account
+        const paymentMode = formValue.paymentMode;
+        let sourceAccountId: string | null = null;
+
+        if (paymentMode) {
+          if (paymentMode.type === 'PERSONAL_CASH_ACCOUNT') {
+            sourceAccountId = paymentMode.id;
+            if (paymentMode.acc?.displayName === 'Paid by Company' || !paymentMode.isReimbursable) {
+              skipReimbursement = true;
+            } else {
+              skipReimbursement = false;
+            }
+          }
+        }
+
         const rate = res.rate;
         return {
           tx: {
@@ -2440,13 +2310,12 @@ export class AddEditMileagePage implements OnInit {
             mileage_rate_id: formValue.mileage_rate_name?.id,
             mileage_is_round_trip: formValue.route.roundTrip,
             mileage_rate: rate || etxn.tx.mileage_rate,
-            source_account_id: formValue?.paymentMode?.acc?.id,
-            advance_wallet_id: this.getAdvanceWalletId(isAdvanceWalletEnabled),
+            source_account_id: sourceAccountId,
+            skip_reimbursement: skipReimbursement,
             billable: formValue.billable,
             distance: +formValue.route.distance,
             org_category_id: (formValue.sub_category && formValue.sub_category.id) || etxn.tx.org_category_id,
             txn_dt: this.dateService.getUTCDate(new Date(formValue.dateOfSpend)),
-            skip_reimbursement: skipReimbursement,
             source: 'MOBILE',
             currency: res.homeCurrency,
             locations: formValue.route?.mileageLocations,

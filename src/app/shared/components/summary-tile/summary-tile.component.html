@@ -13,7 +13,9 @@
         {{ merchant }}
       </div>
 
-      <div *ngIf="project" class="summary-tile--card-container__project">Project: {{ project }}</div>
+      <div *ngIf="project" class="summary-tile--card-container__project">
+        {{ 'fySummaryTile.projectLabel' | transloco }} {{ project }}
+      </div>
 
       <div class="summary-tile--card-container__amount_container">
         <span class="summary-tile--card-container__amount">
@@ -37,7 +39,7 @@
 <div *ngIf="approvals?.length > 0" class="summary-tile--approval-container">
   <div class="summary-tile--approval-state-block">
     <div class="summary-tile--approval-state-block-header">
-      <div class="summary-tile--approvers">Approvers</div>
+      <div class="summary-tile--approvers">{{ 'fySummaryTile.approvers' | transloco }}</div>
       <div class="summary-tile--approvers-add-approver">
         <app-fy-approver
           *ngIf="actions?.can_add_approver"
@@ -58,7 +60,11 @@
           <div
             class="summary-tile--approver-state-pill summary-tile--approver-state-pill__{{ ap.state | lowercase }}"
           ></div>
-          <span>{{ ap.state === 'APPROVAL_DONE' ? 'Approved' : (ap.state | titlecase | snakeCaseToSpaceCase) }}</span>
+          <span>{{
+            ap.state === 'APPROVAL_DONE'
+              ? ('fySummaryTile.approved' | transloco)
+              : (ap.state | titlecase | snakeCaseToSpaceCase)
+          }}</span>
         </div>
       </div>
     </div>

@@ -11,7 +11,7 @@ export class FyExpansionInfoMsgComponent {
 
   @Input() showHelpLink = false;
 
-  @Input() helpLinkLabel = 'Learn more';
+  @Input() helpLinkLabel: string;
 
   @Output() helpLinkClick = new EventEmitter<void>();
 

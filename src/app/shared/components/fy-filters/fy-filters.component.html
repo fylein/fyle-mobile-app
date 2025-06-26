@@ -5,10 +5,10 @@
         <ion-icon [src]="'../../../../assets/svg/arrow-left.svg'" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title class="fy-filters--title" mode="md"> Filter and sort </ion-title>
+    <ion-title class="fy-filters--title" mode="md"> {{ 'fyFilters.title' | transloco }} </ion-title>
     <ion-buttons *ngIf="getNoOfFilters()" mode="md" slot="end">
       <ion-button class="fy-filters--clear-all" mode="md" color="fy-primary" (click)="clearAll()">
-        Clear all
+        {{ 'fyFilters.clearAll' | transloco }}
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -131,7 +131,7 @@
           <ng-container *ngIf="currentFilterValueMap[activeFilter.name] === 'custom'">
             <div class="fy-filters--custom-date-filters">
               <mat-form-field>
-                <mat-label>Start date</mat-label>
+                <mat-label>{{ 'fyFilters.startDate' | transloco }}</mat-label>
                 <input
                   class="smartlook-show"
                   matInput
@@ -144,7 +144,7 @@
               </mat-form-field>
 
               <mat-form-field>
-                <mat-label>End date</mat-label>
+                <mat-label>{{ 'fyFilters.endDate' | transloco }}</mat-label>
                 <input
                   class="smartlook-show"
                   matInput
@@ -166,9 +166,11 @@
   <ion-toolbar class="fy-filters--footer">
     <div class="fy-footer-cta-container">
       <ion-button class="fy-footer-cta fy-footer-cta--tertiary-secondary" (click)="cancel()" fill="clear">
-        Cancel
+        {{ 'fyFilters.cancel' | transloco }}
       </ion-button>
-      <ion-button class="fy-footer-cta fy-footer-cta--primary" (click)="save()"> Save </ion-button>
+      <ion-button class="fy-footer-cta fy-footer-cta--primary" (click)="save()">
+        {{ 'fyFilters.save' | transloco }}
+      </ion-button>
     </div>
   </ion-toolbar>
 </ion-footer>

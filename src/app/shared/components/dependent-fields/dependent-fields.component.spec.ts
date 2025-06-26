@@ -20,20 +20,34 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { dependentCustomProperties } from 'src/app/core/mock-data/custom-property.data';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { SimpleChange } from '@angular/core';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 
 describe('DependentFieldsComponent', () => {
   let component: DependentFieldsComponent;
   let fixture: ComponentFixture<DependentFieldsComponent>;
   let dependentFieldsService: jasmine.SpyObj<DependentFieldsService>;
   let formBuilder: jasmine.SpyObj<UntypedFormBuilder>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     const dependentFieldsServiceSpy = jasmine.createSpyObj('DependentFieldsService', ['getOptionsForDependentField']);
     const formBuilderSpy = jasmine.createSpyObj('FormBuilder', ['group']);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [DependentFieldsComponent, DependentFieldComponent],
-      imports: [IonicModule.forRoot(), ReactiveFormsModule, FormsModule, MatIconModule, MatIconTestingModule],
+      imports: [
+        IonicModule.forRoot(),
+        ReactiveFormsModule,
+        FormsModule,
+        MatIconModule,
+        MatIconTestingModule,
+        TranslocoModule,
+      ],
       providers: [
         {
           provide: DependentFieldsService,
@@ -43,6 +57,10 @@ describe('DependentFieldsComponent', () => {
           provide: UntypedFormBuilder,
           useValue: formBuilderSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(DependentFieldsComponent);
@@ -51,7 +69,7 @@ describe('DependentFieldsComponent', () => {
 
     dependentFieldsService = TestBed.inject(DependentFieldsService) as jasmine.SpyObj<DependentFieldsService>;
     formBuilder = TestBed.inject(UntypedFormBuilder) as jasmine.SpyObj<UntypedFormBuilder>;
-
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     component.dependentCustomFields = dependentCustomFields;
     component.dependentFieldsFormArray = new UntypedFormArray([]);
     component.parentFieldId = 219175;

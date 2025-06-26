@@ -5,21 +5,34 @@ import { IonicModule, PopoverController } from '@ionic/angular';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { AddApproversPopoverComponent } from './add-approvers-popover/add-approvers-popover.component';
 import { FyApproverComponent } from './fy-approver.component';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
+import { of } from 'rxjs';
 
 describe('FyApproverComponent', () => {
   let component: FyApproverComponent;
   let fixture: ComponentFixture<FyApproverComponent>;
   let popoverController: jasmine.SpyObj<PopoverController>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [FyApproverComponent],
-      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule],
+      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, TranslocoModule],
       providers: [
         {
           provide: PopoverController,
           useValue: popoverControllerSpy,
+        },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
       ],
     }).compileComponents();
@@ -27,6 +40,23 @@ describe('FyApproverComponent', () => {
     fixture = TestBed.createComponent(FyApproverComponent);
     component = fixture.componentInstance;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'fyApprover.addApprover': 'Add approver',
+      };
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
+    });
     fixture.detectChanges();
   }));
 

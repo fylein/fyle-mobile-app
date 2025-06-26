@@ -5,6 +5,7 @@ import { ModalController } from '@ionic/angular';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { DependentFieldOption } from 'src/app/core/models/dependent-field-option.model';
 import { cloneDeep } from 'lodash';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-dependent-field-modal',
@@ -35,7 +36,8 @@ export class DependentFieldModalComponent implements AfterViewInit {
   constructor(
     private modalController: ModalController,
     private dependentFieldsService: DependentFieldsService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private translocoService: TranslocoService
   ) {}
 
   getDependentFieldOptions(searchQuery: string): Observable<DependentFieldOption[]> {
@@ -96,7 +98,11 @@ export class DependentFieldModalComponent implements AfterViewInit {
     dependentFieldOptions: DependentFieldOption[],
     currentSelection: string
   ): DependentFieldOption[] {
-    const nullOption = { label: 'None', value: null, selected: currentSelection === null };
+    const nullOption = {
+      label: this.translocoService.translate('dependentFieldModal.none'),
+      value: null,
+      selected: currentSelection === null,
+    };
 
     if (!currentSelection) {
       return [nullOption, ...dependentFieldOptions];

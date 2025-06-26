@@ -1,6 +1,7 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { AdvanceApprover } from 'src/app/core/models/advance-approver.model';
 import { AdvanceRequestActions } from 'src/app/core/models/advance-request-actions.model';
+import { TranslocoService } from '@jsverse/transloco';
 @Component({
   selector: 'app-summary-tile',
   templateUrl: './summary-tile.component.html',
@@ -35,11 +36,14 @@ export class FySummaryTileComponent implements OnInit, OnChanges {
 
   @Input() approverEmails: string[];
 
-  constructor() {}
+  constructor(private translocoService: TranslocoService) {}
 
-  ngOnChanges(changes: SimpleChanges) {
-    this.status = this.status === 'APPROVAL PENDING' ? 'Pending' : this.status;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  ngOnChanges(changes: SimpleChanges): void {
+    this.status =
+      this.status === 'APPROVAL PENDING' ? this.translocoService.translate('fySummaryTile.pending') : this.status;
   }
 
-  ngOnInit() {}
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  ngOnInit(): void {}
 }

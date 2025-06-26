@@ -20,7 +20,7 @@ import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender
 import { ReportStates } from './stat-badge/report-states.enum';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 import { expectedSentBackResponse } from '../../core/mock-data/report-stats.data';
-
+import { TranslocoService } from '@jsverse/transloco';
 describe('DashboardService', () => {
   let dashboardService: DashboardService;
   let expensesService: jasmine.SpyObj<ExpensesService>;
@@ -28,13 +28,27 @@ describe('DashboardService', () => {
   let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
   let approverReportService: jasmine.SpyObj<ApproverReportsService>;
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(() => {
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseStats']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', ['getReportsStats']);
     const approverReportServiceSpy = jasmine.createSpyObj('ApproverReportsService', ['getReportsStats']);
     const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['post']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+
+    // Mock translate method to return expected strings
+    translocoServiceSpy.translate.and.callFake((key: string) => {
+      const translations: { [key: string]: string } = {
+        'services.dashboard.draft': 'Draft',
+        'services.dashboard.reported': 'Reported',
+        'services.dashboard.approved': 'Approved',
+        'services.dashboard.paymentPending': 'Payment Pending',
+        'services.dashboard.processing': 'Processing',
+      };
+      return translations[key] || key;
+    });
+
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
       providers: [
@@ -60,6 +74,10 @@ describe('DashboardService', () => {
           provide: SpenderPlatformV1ApiService,
           useValue: spenderPlatformV1ApiServiceSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
     });
     dashboardService = TestBed.inject(DashboardService);
@@ -70,6 +88,7 @@ describe('DashboardService', () => {
     spenderPlatformV1ApiService = TestBed.inject(
       SpenderPlatformV1ApiService
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
   });
 
   it('should be created', () => {

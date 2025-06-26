@@ -2,7 +2,7 @@
   <mat-icon class="fy-modal-top-bar" svgIcon="notch"></mat-icon>
   <ion-toolbar mode="md" class="fy-modal-toolbar">
     <ion-title>
-      <div class="selection-modal--title">Select currency</div>
+      <div class="selection-modal--title">{{ 'fyCurrencyChooseCurrency.title' | transloco }}</div>
     </ion-title>
     <ion-buttons slot="start">
       <ion-button (click)="onDoneClick()">
@@ -17,10 +17,17 @@
         id="election-modal--search-input"
         class="selection-modal--search-input smartlook-show"
         matInput
-        placeholder="Search"
+        [placeholder]="'fyCurrencyChooseCurrency.searchPlaceholder' | transloco"
         [(ngModel)]="value"
       />
-      <button mat-button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="clearValue()">
+      <button
+        mat-button
+        *ngIf="value"
+        matSuffix
+        mat-icon-button
+        [attr.aria-label]="'fyCurrencyChooseCurrency.clear' | transloco"
+        (click)="clearValue()"
+      >
         <mat-icon>close</mat-icon>
       </button>
     </mat-form-field>
@@ -53,7 +60,7 @@
     </div>
     <div *ngIf="filteredCurrencies$ | async as filteredCurrencies">
       <div *ngIf="filteredCurrencies.length > 0">
-        <div class="selection-modal--sub-title">All currencies</div>
+        <div class="selection-modal--sub-title">{{ 'fyCurrencyChooseCurrency.allCurrencies' | transloco }}</div>
         <ng-container *ngFor="let currency of filteredCurrencies">
           <div matRipple class="selection-modal--list-element" (click)="onCurrencySelect(currency)">
             <div>{{ currency.shortCode }} - {{ currency.longName }}</div>

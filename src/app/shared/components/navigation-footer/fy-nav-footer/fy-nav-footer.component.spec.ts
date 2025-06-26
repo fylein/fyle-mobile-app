@@ -1,21 +1,44 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { IonicModule } from '@ionic/angular';
 import { getAllElementsBySelector, getElementBySelector } from 'src/app/core/dom-helpers';
 
 import { FyNavFooterComponent } from './fy-nav-footer.component';
+import { of } from 'rxjs';
 
 describe('FyNavFooterComponent', () => {
   let component: FyNavFooterComponent;
   let fixture: ComponentFixture<FyNavFooterComponent>;
   let mockActiveEtxnIndex: number;
   let mockNumEtxnsInReport: number;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [FyNavFooterComponent],
-      imports: [IonicModule.forRoot()],
+      imports: [IonicModule.forRoot(), TranslocoModule],
+      providers: [{ provide: TranslocoService, useValue: translocoServiceSpy }],
     }).compileComponents();
-
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'fyNavFooter.previous': 'Previous',
+        'fyNavFooter.next': 'Next',
+      };
+      let translation = translations[key] || key;
+      if (params) {
+        Object.keys(params).forEach((key) => {
+          translation = translation.replace(`{{${key}}}`, params[key]);
+        });
+      }
+      return translation;
+    });
     fixture = TestBed.createComponent(FyNavFooterComponent);
     component = fixture.componentInstance;
     mockActiveEtxnIndex = 0;

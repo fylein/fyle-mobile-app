@@ -277,22 +277,20 @@ export function TestCases2(getTestBed) {
     describe('getPaymentModes():', () => {
       it('should get payment modes', (done) => {
         component.etxn$ = of(unflattenedTxnData);
-        accountsService.getEMyAccounts.and.returnValue(of(accountsData));
+        accountsService.getMyAccounts.and.returnValue(of(accountsData));
         advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
         orgSettingsService.get.and.returnValue(of(orgSettingsCCCDisabled));
         platformEmployeeSettingsService.getAllowedPaymentModes.and.returnValue(
           of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY])
         );
-        paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(
-          of(orgSettingsData.payment_mode_settings.enabled && orgSettingsData.payment_mode_settings.allowed)
-        );
+        paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(of(false));
         accountsService.getPaymentModes.and.returnValue(paymentModesData);
         fixture.detectChanges();
 
         component.getPaymentModes().subscribe((res) => {
           expect(res).toEqual(paymentModesData);
           expect(component.showCardTransaction).toBeFalse();
-          expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+          expect(accountsService.getMyAccounts).toHaveBeenCalledTimes(1);
           expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledTimes(1);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
           expect(platformEmployeeSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
@@ -303,22 +301,20 @@ export function TestCases2(getTestBed) {
 
       it('should get payment modes in case org settings are not present', (done) => {
         component.etxn$ = of(unflattenedTxnData);
-        accountsService.getEMyAccounts.and.returnValue(of(accountsData));
+        accountsService.getMyAccounts.and.returnValue(of(accountsData));
         advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
         orgSettingsService.get.and.returnValue(of(null));
         platformEmployeeSettingsService.getAllowedPaymentModes.and.returnValue(
           of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY])
         );
-        paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(
-          of(orgSettingsData.payment_mode_settings.enabled && orgSettingsData.payment_mode_settings.allowed)
-        );
+        paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(of(false));
         accountsService.getPaymentModes.and.returnValue(paymentModesData);
         spyOn(component, 'getCCCSettings').and.returnValue(false);
 
         component.getPaymentModes().subscribe((res) => {
           expect(res).toEqual(paymentModesData);
           expect(component.showCardTransaction).toBeFalse();
-          expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+          expect(accountsService.getMyAccounts).toHaveBeenCalledTimes(1);
           expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledTimes(1);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
           expect(platformEmployeeSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
@@ -330,22 +326,20 @@ export function TestCases2(getTestBed) {
 
       it('should get payment modes if CCC expense is enabled', (done) => {
         component.etxn$ = of(unflattenedTxnData);
-        accountsService.getEMyAccounts.and.returnValue(of(accountsData));
+        accountsService.getMyAccounts.and.returnValue(of(accountsData));
         advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
         orgSettingsService.get.and.returnValue(of(orgSettingsCCCEnabled));
         platformEmployeeSettingsService.getAllowedPaymentModes.and.returnValue(
           of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY])
         );
-        paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(
-          of(orgSettingsData.payment_mode_settings.enabled && orgSettingsData.payment_mode_settings.allowed)
-        );
+        paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(of(false));
         spyOn(component, 'getCCCSettings').and.returnValue(true);
         accountsService.getPaymentModes.and.returnValue(paymentModesData);
 
         component.getPaymentModes().subscribe((res) => {
           expect(res).toEqual(paymentModesData);
           expect(component.showCardTransaction).toBeTrue();
-          expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+          expect(accountsService.getMyAccounts).toHaveBeenCalledTimes(1);
           expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledTimes(1);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
           expect(platformEmployeeSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
@@ -357,7 +351,7 @@ export function TestCases2(getTestBed) {
 
       it('should get payment modes with advance wallets if advance wallets are enabled', (done) => {
         component.etxn$ = of(unflattenedTxnData);
-        accountsService.getEMyAccounts.and.returnValue(of(accountsData));
+        accountsService.getMyAccounts.and.returnValue(of(accountsData));
         advanceWalletsService.getAllAdvanceWallets.and.returnValue(of(advanceWallet1Data));
         orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithAdvanceWallet));
         platformEmployeeSettingsService.getAllowedPaymentModes.and.returnValue(
@@ -372,7 +366,7 @@ export function TestCases2(getTestBed) {
         component.getPaymentModes().subscribe((res) => {
           expect(res).toEqual(paymentModesWithAdvanceWalletsResData);
           expect(component.showCardTransaction).toBeFalse();
-          expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+          expect(accountsService.getMyAccounts).toHaveBeenCalledTimes(1);
           expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledTimes(1);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
           expect(platformEmployeeSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);

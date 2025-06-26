@@ -34,6 +34,7 @@ import {
   expectedReportsSinglePageWithApproval,
 } from 'src/app/core/mock-data/platform-report.data';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 
 export function TestCases3(getTestBed) {
   return describe('test case set 3', () => {
@@ -56,9 +57,13 @@ export function TestCases3(getTestBed) {
     let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
     let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
     let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
-
+    let translocoService: jasmine.SpyObj<TranslocoService>;
     beforeEach(waitForAsync(() => {
       const TestBed = getTestBed();
+      TestBed.configureTestingModule({
+        declarations: [TasksComponent],
+        imports: [TranslocoModule],
+      });
       fixture = TestBed.createComponent(TasksComponent);
       component = fixture.componentInstance;
       tasksService = TestBed.inject(TasksService) as jasmine.SpyObj<TasksService>;
@@ -80,6 +85,38 @@ export function TestCases3(getTestBed) {
       spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
       approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
       orgSettingsService.get.and.returnValue(of(orgSettingsPendingRestrictions));
+      translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+      translocoService.translate.and.callFake((key: any, params?: any) => {
+        const translations: { [key: string]: string } = {
+          'tasks.expenses': 'Expenses',
+          'tasks.complete': 'Complete',
+          'tasks.draft': 'Draft',
+          'tasks.duplicate': 'Duplicate',
+          'tasks.reports': 'Reports',
+          'tasks.sentBack': 'Sent Back',
+          'tasks.unsubmitted': 'Unsubmitted',
+          'tasks.unapproved': 'Unapproved',
+          'tasks.advances': 'Advances',
+          'tasks.loadingExpenses': 'please wait while we load your expenses',
+          'tasks.openingReport': 'Opening your report...',
+          'tasks.openingAdvance': 'Opening your advance request...',
+          'tasks.addingExpenseToReport': 'Adding expense to report',
+          'tasks.viewReport': 'View Report',
+          'tasks.expensesAddedToDraft': 'Expenses added to an existing draft report',
+          'tasks.expensesAddedSuccessfully': 'Expenses added to report successfully',
+          'tasks.commuteDetailsSaved': 'Commute details saved successfully',
+          'tasks.noTasks': 'You have no tasks right now',
+          'tasks.noTasksFiltered': 'You have no tasks',
+          'tasks.matchingFilters': 'matching the applied filters',
+        };
+        let translation = translations[key] || key;
+        if (params) {
+          Object.keys(params).forEach((key) => {
+            translation = translation.replace(`{{${key}}}`, params[key]);
+          });
+        }
+        return translation;
+      });
     }));
 
     it('onPotentialDuplicatesTaskClick(): should navigate to potential duplicate page', () => {

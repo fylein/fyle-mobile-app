@@ -21,9 +21,16 @@
         class="selection-modal--search-input smartlook-show"
         id="election-modal--search-input"
         matInput
-        placeholder="{{ placeholder || 'Search' }}"
+        [placeholder]="placeholder || ('virtualSelectModal.searchPlaceholder' | transloco)"
       />
-      <button (click)="clearValue()" *ngIf="value" aria-label="Clear" mat-button mat-icon-button matSuffix>
+      <button
+        (click)="clearValue()"
+        *ngIf="value"
+        [attr.aria-label]="'virtualSelectModal.clearLabel' | transloco"
+        mat-button
+        mat-icon-button
+        matSuffix
+      >
         <mat-icon>close</mat-icon>
       </button>
     </mat-form-field>
@@ -40,8 +47,8 @@
     <div class="selection-modal--container">
       <div *ngIf="selectableOptions.length === 0">
         <app-fy-zero-state
-          [header]="'No such ' + label + ' found'"
-          [submessage]="'Search for another ' + label + ' or select one from the list.'"
+          [header]="'virtualSelectModal.noResultsHeader' | transloco : { label: label }"
+          [submessage]="'virtualSelectModal.noResultsSubmessage' | transloco : { label: label }"
           [image]="'../../../../assets/images/zero-states/search.png'"
           [unscaledImage]="true"
           [useNewStyling]="true"
@@ -91,7 +98,7 @@
   <ion-toolbar>
     <div class="selection-modal--cta-container">
       <ion-button (click)="saveToCacheAndUse()" class="selection-modal--primary-cta" color="fyle-primary" fill="solid">
-        Save
+        {{ 'virtualSelectModal.saveButton' | transloco }}
       </ion-button>
     </div>
   </ion-toolbar>

@@ -62,6 +62,7 @@ import {
 } from '../mock-data/platform/v1/advance-request-platform.data';
 import { cloneDeep } from 'lodash';
 import { PlatformEmployeeSettingsService } from './platform/v1/spender/employee-settings.service';
+import { TranslocoService } from '@jsverse/transloco';
 
 describe('AdvanceRequestService', () => {
   let advanceRequestService: AdvanceRequestService;
@@ -72,7 +73,7 @@ describe('AdvanceRequestService', () => {
   let fileService: jasmine.SpyObj<FileService>;
   let spenderService: jasmine.SpyObj<SpenderService>;
   let approverService: jasmine.SpyObj<ApproverService>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(() => {
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post', 'delete']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
@@ -82,6 +83,21 @@ describe('AdvanceRequestService', () => {
     const timezoneServiceSpy = jasmine.createSpyObj('TimezoneService', ['convertToUtc']);
     const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['post', 'get']);
     const approverServiceSpy = jasmine.createSpyObj('ApproverService', ['get', 'post']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+
+    // Mock translate method to return expected strings
+    translocoServiceSpy.translate.and.callFake((key: string) => {
+      const translations: { [key: string]: string } = {
+        'services.advanceRequest.sentBack': 'Sent Back',
+        'services.advanceRequest.pending': 'Pending',
+        'services.advanceRequest.approved': 'Approved',
+        'services.advanceRequest.paid': 'Paid',
+        'services.advanceRequest.rejected': 'Rejected',
+        'services.advanceRequest.draft': 'Draft',
+        'services.advanceRequest.pulledBack': 'Pulled Back',
+      };
+      return translations[key] || key;
+    });
 
     TestBed.configureTestingModule({
       providers: [
@@ -119,6 +135,10 @@ describe('AdvanceRequestService', () => {
           provide: ApproverService,
           useValue: approverServiceSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
     });
     advanceRequestService = TestBed.inject(AdvanceRequestService);
@@ -129,6 +149,7 @@ describe('AdvanceRequestService', () => {
     fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
     spenderService = TestBed.inject(SpenderService) as jasmine.SpyObj<SpenderService>;
     approverService = TestBed.inject(ApproverService) as jasmine.SpyObj<ApproverService>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
   });
 
   it('should be created', () => {

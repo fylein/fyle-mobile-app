@@ -13,6 +13,7 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { ErrorType } from './error-type.model';
 import { errorMappings } from 'src/app/core/mock-data/error-mapping-for-verify-number-popover.data';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 
 describe('VerifyNumberPopoverComponent', () => {
   let component: VerifyNumberPopoverComponent;
@@ -20,6 +21,7 @@ describe('VerifyNumberPopoverComponent', () => {
   let popoverController: jasmine.SpyObj<PopoverController>;
   let mobileNumberVerificationService: jasmine.SpyObj<MobileNumberVerificationService>;
   let resendOtpSpy: jasmine.Spy;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
 
   beforeEach(waitForAsync(() => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['dismiss']);
@@ -27,13 +29,20 @@ describe('VerifyNumberPopoverComponent', () => {
       'sendOtp',
       'verifyOtp',
     ]);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [VerifyNumberPopoverComponent, FyAlertInfoComponent, FormButtonValidationDirective],
-      imports: [IonicModule.forRoot(), FormsModule, MatIconModule, MatIconTestingModule],
+      imports: [IonicModule.forRoot(), FormsModule, MatIconModule, MatIconTestingModule, TranslocoModule],
       providers: [
         { provide: PopoverController, useValue: popoverControllerSpy },
         { provide: MobileNumberVerificationService, useValue: mobileNumberVerificationServiceSpy },
+        { provide: TranslocoService, useValue: translocoServiceSpy },
       ],
     }).compileComponents();
 
@@ -44,14 +53,44 @@ describe('VerifyNumberPopoverComponent', () => {
     mobileNumberVerificationService = TestBed.inject(
       MobileNumberVerificationService
     ) as jasmine.SpyObj<MobileNumberVerificationService>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'verifyNumberPopover.title': 'Verify mobile number',
+        'verifyNumberPopover.verifyButton': 'Verify',
+        'verifyNumberPopover.otpLabel': 'One Time Password (OTP)',
+        'verifyNumberPopover.resendTimerPrefix': 'Resend OTP in',
+        'verifyNumberPopover.resendButton': 'Resend OTP',
+        'verifyNumberPopover.resendButtonLoading': 'Sending OTP',
+        'verifyNumberPopover.otpPlaceholder': 'Enter 6 digit OTP',
+        'verifyNumberPopover.infoBoxText':
+          'Please verify your mobile number using the 6-digit OTP sent to {{mobileNumber}}',
+        'verifyNumberPopover.limitReached':
+          'You have exhausted the limit to request OTP for your mobile number. Please try again after 24 hours.',
+        'verifyNumberPopover.invalidMobileNumber': 'Invalid mobile number. Please try again',
+        'verifyNumberPopover.invalidOtp': 'Incorrect mobile number or OTP. Please try again.',
+        'verifyNumberPopover.invalidInput': 'Please enter 6 digit OTP',
+        'verifyNumberPopover.attemptsLeft':
+          'You have {{attemptsLeft}} attempt{{plural}} left to verify your mobile number.',
+      };
+      let translation = translations[key] || key;
 
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
+    });
     component.extendedOrgUser = apiEouRes;
     component.showOtpTimer = false;
     component.disableResendOtp = false;
     component.error = null;
     component.value = '';
     resendOtpSpy = spyOn(component, 'resendOtp');
-
     fixture.detectChanges();
   }));
 

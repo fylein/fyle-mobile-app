@@ -44,6 +44,7 @@ import {
   transformedExpenseWithExtractedData,
 } from 'src/app/core/mock-data/transformed-expense.data';
 import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 
 describe('ExpensesCardComponent', () => {
   let component: ExpensesCardComponent;
@@ -64,6 +65,7 @@ describe('ExpensesCardComponent', () => {
   let currencyService: jasmine.SpyObj<CurrencyService>;
   let expenseFieldsService: jasmine.SpyObj<ExpenseFieldsService>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   let componentElement: DebugElement;
 
   beforeEach(waitForAsync(() => {
@@ -102,10 +104,23 @@ describe('ExpensesCardComponent', () => {
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const dateFormatPipeSpy = jasmine.createSpyObj('DateFormatPipe', ['transform']);
     const humanizeCurrencyPipeSpy = jasmine.createSpyObj('HumanizeCurrencyPipe', ['transform']);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [ExpensesCardComponent, DateFormatPipe, HumanizeCurrencyPipe, ExpenseState],
-      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, MatCheckboxModule, FormsModule],
+      imports: [
+        IonicModule.forRoot(),
+        MatIconModule,
+        MatIconTestingModule,
+        MatCheckboxModule,
+        FormsModule,
+        TranslocoModule,
+      ],
       providers: [
         { provide: TransactionService, useValue: transactionServiceSpy },
         { provide: ExpensesService, useValue: expensesServiceSpy },
@@ -126,6 +141,7 @@ describe('ExpensesCardComponent', () => {
         { provide: DateFormatPipe, useValue: dateFormatPipeSpy },
         { provide: HumanizeCurrencyPipe, useValue: humanizeCurrencyPipeSpy },
         { provide: ExpenseState, useValue: expenseStateSpy },
+        { provide: TranslocoService, useValue: translocoServiceSpy },
       ],
     }).compileComponents();
 
@@ -147,7 +163,7 @@ describe('ExpensesCardComponent', () => {
     transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     sharedExpenseService = TestBed.inject(SharedExpenseService) as jasmine.SpyObj<SharedExpenseService>;
-
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     orgSettingsService.get.and.returnValue(of(orgSettingsGetData));
     transactionsOutboxService.isSyncInProgress.and.returnValue(true);
     expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse2));
@@ -160,6 +176,54 @@ describe('ExpensesCardComponent', () => {
     transactionService.transformExpense.and.returnValue(transformedExpenseData);
     networkService.isOnline.and.returnValue(of(true));
     sharedExpenseService.isExpenseInDraft.and.returnValue(true);
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'expensesCard.receiptAdded': 'Receipt added to Expense successfully',
+        'expensesCard.sizeLimitExceeded': 'Size limit exceeded',
+        'expensesCard.fileTooLarge':
+          'The uploaded file is greater than {{maxFileSize}}MB in size. Please reduce the file size and try again.',
+        'expensesCard.ok': 'OK',
+        'expensesCard.offlineExpenses': 'Offline expenses',
+        'expensesCard.syncingMileage': 'Syncing mileage',
+        'expensesCard.syncingPerDiem': 'Syncing per diem',
+        'expensesCard.syncingReceipt': 'Syncing receipt...',
+        'expensesCard.uploadingReceipt': 'Uploading receipt...',
+        'expensesCard.yourPrefix': 'Your',
+        'expensesCard.receipt': 'receipt',
+        'expensesCard.addedShortlySuffix': 'will be added shortly.',
+        'expensesCard.scanningReceipt': 'Scanning receipt...',
+        'expensesCard.scanTakesTime': 'This takes a short while',
+        'expensesCard.scanFailed': 'Scan failed',
+        'expensesCard.unspecifiedCategory': 'Unspecified category',
+        'expensesCard.expenseInfoMissing': 'Expense information missing',
+        'expensesCard.exchangeRateAt': 'at',
+        'expensesCard.criticalPolicyViolations': 'Critical policy violations',
+        'expensesCard.receiptAddedSuccess': 'Receipt added to Expense successfully',
+        'expensesCard.fileSizeError':
+          'The uploaded file is greater than {{maxFileSize}}MB in size. Please reduce the file size and try again.',
+        'expensesCard.your': 'Your',
+        'expensesCard.mileage': 'mileage',
+        'expensesCard.perDiem': 'per diem',
+        'expensesCard.addedShortly': 'will be added shortly.',
+        'expensesCard.takesShortWhile': 'This takes a short while',
+        'expensesCard.unspecifiedProject': 'Unspecified',
+        'expensesCard.expenseInfo': 'Expense information',
+        'expensesCard.missing': 'missing',
+        'expensesCard.at': 'at',
+        'expensesCard.countSelected': '{{count}} selected',
+      };
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
+    });
 
     networkService.connectivityWatcher.and.returnValue(new EventEmitter());
     fixture = TestBed.createComponent(ExpensesCardComponent);

@@ -8,8 +8,10 @@
     </ion-buttons>
     <ion-title>
       <div class="expense-preview--toolbar__title">
-        <ng-container *ngIf="type === 'match'"> Confirm matching expense </ng-container>
-        <ng-container *ngIf="type === 'edit'"> View matching expense </ng-container>
+        <ng-container *ngIf="type === 'match'">
+          {{ 'expensePreview.confirmMatchingExpense' | transloco }}
+        </ng-container>
+        <ng-container *ngIf="type === 'edit'"> {{ 'expensePreview.viewMatchingExpense' | transloco }} </ng-container>
       </div>
     </ion-title>
   </ion-toolbar>
@@ -20,7 +22,7 @@
     <ion-grid class="expense-preview--body-container">
       <ion-row class="expense-preview--body-container__content">
         <ion-col size="5">
-          <div class="expense-preview--body-container__title">Expense number</div>
+          <div class="expense-preview--body-container__title">{{ 'expensePreview.expenseNumber' | transloco }}</div>
         </ion-col>
         <ion-col size="7" (click)="editExpense()">
           <div class="expense-preview--body-container__value expense-preview--link">
@@ -30,7 +32,7 @@
       </ion-row>
       <ion-row class="expense-preview--body-container__content">
         <ion-col size="5">
-          <div class="expense-preview--body-container__title">Amount</div>
+          <div class="expense-preview--body-container__title">{{ 'expensePreview.amount' | transloco }}</div>
         </ion-col>
         <ion-col size="7">
           <div class="expense-preview--body-container__value">
@@ -40,7 +42,7 @@
       </ion-row>
       <ion-row class="expense-preview--body-container__content">
         <ion-col size="5">
-          <div class="expense-preview--body-container__title">Created date</div>
+          <div class="expense-preview--body-container__title">{{ 'expensePreview.createdDate' | transloco }}</div>
         </ion-col>
         <ion-col size="7">
           <div class="expense-preview--body-container__value">
@@ -50,7 +52,7 @@
       </ion-row>
       <ion-row class="expense-preview--body-container__content">
         <ion-col size="5">
-          <div class="expense-preview--body-container__title">Spent date</div>
+          <div class="expense-preview--body-container__title">{{ 'expensePreview.spentDate' | transloco }}</div>
         </ion-col>
         <ion-col size="7">
           <div class="expense-preview--body-container__value">
@@ -60,7 +62,7 @@
       </ion-row>
       <ion-row class="expense-preview--body-container__content">
         <ion-col size="5">
-          <div class="expense-preview--body-container__title">Merchant</div>
+          <div class="expense-preview--body-container__title">{{ 'expensePreview.merchant' | transloco }}</div>
         </ion-col>
         <ion-col size="7">
           <div class="expense-preview--body-container__value">
@@ -71,7 +73,7 @@
       </ion-row>
       <ion-row class="expense-preview--body-container__content">
         <ion-col size="5">
-          <div class="expense-preview--body-container__title">Category</div>
+          <div class="expense-preview--body-container__title">{{ 'expensePreview.category' | transloco }}</div>
         </ion-col>
         <ion-col size="7">
           <div class="expense-preview--body-container__value">
@@ -81,7 +83,7 @@
       </ion-row>
       <ion-row class="expense-preview--body-container__content">
         <ion-col size="5">
-          <div class="expense-preview--body-container__title">Card ending in...</div>
+          <div class="expense-preview--body-container__title">{{ 'expensePreview.cardEndingIn' | transloco }}</div>
         </ion-col>
         <ion-col size="7">
           <div class="expense-preview--body-container__value">
@@ -91,12 +93,12 @@
       </ion-row>
       <ion-row class="expense-preview--body-container__content">
         <ion-col size="5">
-          <div class="expense-preview--body-container__title">Receipt</div>
+          <div class="expense-preview--body-container__title">{{ 'expensePreview.receipt' | transloco }}</div>
         </ion-col>
         <ion-col size="7">
           <div class="expense-preview--body-container__value">
             <ng-container *ngIf="!expenseDetails.file_ids?.length"
-              >Not attached
+              >{{ 'expensePreview.notAttached' | transloco }}
               <ion-icon
                 [src]="'assets/svg/attachment-none.svg'"
                 class="expense-preview--icon"
@@ -104,7 +106,7 @@
               ></ion-icon>
             </ng-container>
             <ng-container *ngIf="expenseDetails.file_ids?.length"
-              >Attached
+              >{{ 'expensePreview.attached' | transloco }}
               <ion-icon [src]="'assets/svg/attachment.svg'" class="expense-preview--icon" slot="icon-only"></ion-icon>
             </ng-container>
           </div>
@@ -122,20 +124,24 @@
   <ion-toolbar mode="md">
     <div class="expense-preview--footer-toolbar">
       <ion-buttons *ngIf="type === 'match'">
-        <ion-button (click)="closeModal()" [disabled]="loading" class="btn-secondary"> Cancel </ion-button>
+        <ion-button (click)="closeModal()" [disabled]="loading" class="btn-secondary">
+          {{ 'expensePreview.cancel' | transloco }}
+        </ion-button>
         <ion-button
           (click)="matchExpense()"
           [disabled]="loading"
-          [loadingText]="'matching'"
+          [loadingText]="'expensePreview.matching' | transloco"
           [loading]="loading"
           appFormButtonValidation
           class="btn-primary"
         >
-          Confirm match
+          {{ 'expensePreview.confirmMatch' | transloco }}
         </ion-button>
       </ion-buttons>
       <ion-buttons *ngIf="type === 'edit'">
-        <ion-button (click)="editExpense()" appFormButtonValidation class="btn-primary"> Edit </ion-button>
+        <ion-button (click)="editExpense()" appFormButtonValidation class="btn-primary">
+          {{ 'expensePreview.edit' | transloco }}
+        </ion-button>
       </ion-buttons>
     </div>
   </ion-toolbar>
