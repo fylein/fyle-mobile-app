@@ -2,6 +2,7 @@ import deepFreeze from 'deep-freeze-strict';
 
 import { ReportStats } from '../models/report-stats.model';
 import { PlatformReportsStatsResponse } from '../models/platform/v1/report-stats-response.model';
+import { GroupedReportStats } from '../models/platform/v1/grouped-report-stats.model';
 
 export const expectedReportStats: ReportStats = deepFreeze({
   draft: {
@@ -43,11 +44,11 @@ export const expectedReportStats: ReportStats = deepFreeze({
   processing: {
     count: 7,
     total_amount: 5012.12,
-    failed_amount: null,
-    failed_count: null,
+    failed_amount: 0,
+    failed_count: 0,
     processing_amount: 5012.12,
     processing_count: 7,
-    reimbursable_amount: null,
+    reimbursable_amount: 0,
   },
 });
 
@@ -118,3 +119,56 @@ export const expectedSentBackResponseSingularReport: PlatformReportsStatsRespons
   processing_count: 0,
   reimbursable_amount: 0,
 });
+
+export const expectedGroupedReportStats: GroupedReportStats[] = deepFreeze([
+  {
+    state: 'DRAFT',
+    count: 2,
+    total_amount: 93165.91,
+    reimbursable_amount: 0,
+    failed_amount: null,
+    failed_count: null,
+    processing_amount: null,
+    processing_count: null,
+  },
+  {
+    state: 'APPROVER_PENDING',
+    count: 2,
+    total_amount: 5177243929.65219,
+    reimbursable_amount: 0,
+    failed_amount: null,
+    failed_count: null,
+    processing_amount: null,
+    processing_count: null,
+  },
+  {
+    state: 'APPROVED',
+    count: 56,
+    total_amount: 28758273650702.816,
+    reimbursable_amount: 0,
+    failed_amount: null,
+    failed_count: null,
+    processing_amount: null,
+    processing_count: null,
+  },
+  {
+    state: 'PAYMENT_PENDING',
+    count: 4,
+    total_amount: 501602.12,
+    reimbursable_amount: 0,
+    failed_amount: null,
+    failed_count: null,
+    processing_amount: null,
+    processing_count: null,
+  },
+  {
+    state: 'PAYMENT_PROCESSING',
+    count: 7,
+    total_amount: 5012.12,
+    reimbursable_amount: 0,
+    failed_amount: 0,
+    failed_count: 0,
+    processing_amount: 5012.12,
+    processing_count: 7,
+  },
+]);
