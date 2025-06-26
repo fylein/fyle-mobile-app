@@ -47,6 +47,7 @@ import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { orgSettingsCardsDisabled, orgSettingsData } from 'src/app/core/test-data/org-settings.service.spec.data';
 import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 
 const roles = ['OWNER', 'USER', 'FYLER'];
 const email = 'ajain@fyle.in';
@@ -78,7 +79,7 @@ describe('SwitchOrgPage', () => {
   let deepLinkService: jasmine.SpyObj<DeepLinkService>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let spenderOnboardingService: jasmine.SpyObj<SpenderOnboardingService>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     const platformSpy = jasmine.createSpyObj('Platform', ['is']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
@@ -119,7 +120,13 @@ describe('SwitchOrgPage', () => {
     const spenderOnboardingServiceSpy = jasmine.createSpyObj('SpenderOnboardingService', [
       'checkForRedirectionToOnboarding',
     ]);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [SwitchOrgPage, ActiveOrgCardComponent, OrgCardComponent, FyZeroStateComponent],
       imports: [
@@ -131,6 +138,7 @@ describe('SwitchOrgPage', () => {
         BrowserAnimationsModule,
         FormsModule,
         ReactiveFormsModule,
+        TranslocoModule,
       ],
       providers: [
         UrlSerializer,
@@ -243,6 +251,10 @@ describe('SwitchOrgPage', () => {
           provide: DeepLinkService,
           useValue: deepLinkServiceSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -275,7 +287,7 @@ describe('SwitchOrgPage', () => {
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     spenderOnboardingService = TestBed.inject(SpenderOnboardingService) as jasmine.SpyObj<SpenderOnboardingService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
-
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     component.searchRef = fixture.debugElement.query(By.css('#search'));
     component.searchOrgsInput = fixture.debugElement.query(By.css('.smartlook-show'));
     component.contentRef = fixture.debugElement.query(By.css('.switch-org__content-container__content-block'));

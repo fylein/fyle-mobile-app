@@ -1,7 +1,13 @@
 <ion-header mode="md">
   <ion-toolbar mode="md" class="view-attachments--toolbar">
     <ion-title [ngClass]="{ 'view-attachments--title-container': !canEdit }">
-      <div class="text-center view-attachments--title">{{ isMileageExpense ? 'Map preview' : 'Receipt previews' }}</div>
+      <div class="text-center view-attachments--title">
+        {{
+          isMileageExpense
+            ? ('fyViewAttachment.mapPreview' | transloco)
+            : ('fyViewAttachment.receiptPreviews' | transloco)
+        }}
+      </div>
       <div class="view-attachments--sub-title text-center">{{ activeIndex + 1 }}/{{ attachments.length }}</div>
     </ion-title>
     <ion-buttons class="view-attachments--ion-buttons" slot="start">
@@ -109,15 +115,17 @@
           *ngIf="isImageDirty[activeIndex]"
           (click)="saveRotatedImage()"
           [disabled]="saving"
-          [loadingText]="'Saving'"
+          [loadingText]="'fyViewAttachment.saving' | transloco"
           [loading]="saving"
           appFormButtonValidation
           class="btn-primary action-button"
         >
-          <span *ngIf="!saving">Save changes</span>
+          <span *ngIf="!saving">{{ 'fyViewAttachment.saveChanges' | transloco }}</span>
         </ion-button>
       </ion-buttons>
-      <span *ngIf="saveComplete[activeIndex]" class="saved-text btn-text-primary">Saved</span>
+      <span *ngIf="saveComplete[activeIndex]" class="saved-text btn-text-primary">{{
+        'fyViewAttachment.saved' | transloco
+      }}</span>
     </div>
   </div>
 </ion-footer>

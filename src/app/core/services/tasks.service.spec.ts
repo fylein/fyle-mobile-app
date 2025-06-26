@@ -70,7 +70,7 @@ import {
 import { OrgService } from './org.service';
 import { orgData1 } from '../mock-data/org.data';
 import { UtilityService } from './utility.service';
-
+import { TranslocoService } from '@jsverse/transloco';
 describe('TasksService', () => {
   let tasksService: TasksService;
   let reportService: jasmine.SpyObj<ReportService>;
@@ -88,6 +88,7 @@ describe('TasksService', () => {
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let orgService: jasmine.SpyObj<OrgService>;
   let utilityService: jasmine.SpyObj<UtilityService>;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   const mockTaskClearSubject = new Subject();
   const homeCurrency = 'INR';
 
@@ -109,6 +110,92 @@ describe('TasksService', () => {
     const approverReportsServiceSpy = jasmine.createSpyObj('ApproverReportsService', ['getReportsStats']);
     const orgServiceSpy = jasmine.createSpyObj('OrgService', ['getCurrentOrg', 'getPrimaryOrg']);
     const utilityServiceSpy = jasmine.createSpyObj('UtilityService', ['isUserFromINCluster']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+
+    // Mock translate method to return expected strings
+    translocoServiceSpy.translate.and.callFake((key: string, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'services.tasks.expenses': 'Expenses',
+        'services.tasks.reports': 'Reports',
+        'services.tasks.advances': 'Advances',
+        'services.tasks.incomplete': 'Incomplete',
+        'services.tasks.complete': 'Complete',
+        'services.tasks.duplicate': 'Duplicate',
+        'services.tasks.draft': 'Draft',
+        'services.tasks.sentBack': 'Sent Back',
+        'services.tasks.unapproved': 'Unapproved',
+        'services.tasks.updatePhoneNumberHeader': 'Update phone number to opt in to text receipts',
+        'services.tasks.optInToTextReceiptsHeader': 'Opt in to text receipts',
+        'services.tasks.updatePhoneNumberSubheader':
+          'Add a +1 country code to your mobile number to receive text message receipts.',
+        'services.tasks.optInToTextReceiptsSubheader':
+          'Opt-in to activate text messages for instant expense submission',
+        'services.tasks.updateAndOptIn': 'Update and Opt in',
+        'services.tasks.optIn': 'Opt in',
+        'services.tasks.addCorporateCard': 'Add Corporate Card',
+        'services.tasks.addCorporateCardSubheader': 'Add your corporate card to track expenses.',
+        'services.tasks.addCard': 'Add Card',
+        'services.tasks.potentialDuplicatesHeader': '{count} Potential Duplicates',
+        'services.tasks.potentialDuplicatesSubheader': 'We detected {count} expenses which may be duplicates',
+        'services.tasks.review': 'Review',
+        'services.tasks.worth': 'worth',
+        'services.tasks.reportSentBack': 'Report sent back!',
+        'services.tasks.reportsSentBack': 'Reports sent back!',
+        'services.tasks.sentBackReportSubheader': '{count} report {amount} was sent back by your approver',
+        'services.tasks.sentBackReportsSubheader': '{count} reports {amount} were sent back by your approver',
+        'services.tasks.viewReport': 'View Report',
+        'services.tasks.viewReports': 'View Reports',
+        'services.tasks.advanceSentBack': 'Advance sent back!',
+        'services.tasks.advancesSentBack': 'Advances sent back!',
+        'services.tasks.sentBackAdvanceSubheader': '{count} advance {amount} was sent back by your approver',
+        'services.tasks.sentBackAdvancesSubheader': '{count} advances {amount} were sent back by your approver',
+        'services.tasks.viewAdvance': 'View Advance',
+        'services.tasks.viewAdvances': 'View Advances',
+        'services.tasks.unsubmittedReport': 'Unsubmitted report',
+        'services.tasks.unsubmittedReports': 'Unsubmitted reports',
+        'services.tasks.unsubmittedReportSubheader': '{count} report {amount} remains in draft state',
+        'services.tasks.unsubmittedReportsSubheader': '{count} reports {amount} remain in draft state',
+        'services.tasks.submitReport': 'Submit Report',
+        'services.tasks.submitReports': 'Submit Reports',
+        'services.tasks.reportToBeApproved': 'Report to be approved',
+        'services.tasks.reportsToBeApproved': 'Reports to be approved',
+        'services.tasks.teamReportSubheader': '{count} report {amount} requires your approval',
+        'services.tasks.teamReportsSubheader': '{count} reports {amount} require your approval',
+        'services.tasks.showReport': 'Show Report',
+        'services.tasks.showReports': 'Show Reports',
+        'services.tasks.incompleteExpense': 'Incomplete expense',
+        'services.tasks.incompleteExpenses': 'Incomplete expenses',
+        'services.tasks.draftExpenseSubheader': '{count} expense {amount} require additional information',
+        'services.tasks.draftExpensesSubheader': '{count} expenses {amount} require additional information',
+        'services.tasks.reviewExpense': 'Review expense',
+        'services.tasks.reviewExpenses': 'Review expenses',
+        'services.tasks.expensesReadyToReport': 'Expenses are ready to report',
+        'services.tasks.unreportedExpenseSubheader': '{count} expense {amount} can be added to a report',
+        'services.tasks.unreportedExpensesSubheader': '{count} expenses {amount} can be added to a report',
+        'services.tasks.addToReport': 'Add to report',
+        'services.tasks.addCommuteDetails': 'Add Commute Details',
+        'services.tasks.addCommuteDetailsSubheader':
+          'Add your Home and Work locations to easily deduct commute distance from your mileage expenses',
+        'services.tasks.add': 'Add',
+      };
+
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params) {
+        if (params.count) {
+          translation = translation.replace('{count}', params.count);
+        }
+        if (params.amount !== undefined) {
+          // For amount parameter, replace with the actual amount or empty string if not provided
+          // If amount is provided, it should include a space before it
+          const amountValue = params.amount ? `${params.amount}` : '';
+          translation = translation.replace('{amount}', amountValue);
+        }
+      }
+
+      return translation;
+    });
 
     TestBed.configureTestingModule({
       providers: [
@@ -173,6 +260,10 @@ describe('TasksService', () => {
           provide: UtilityService,
           useValue: utilityServiceSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
     });
     tasksService = TestBed.inject(TasksService);
@@ -196,6 +287,7 @@ describe('TasksService', () => {
     utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
     orgSettingsService.get.and.returnValue(of(orgSettingsPendingRestrictions));
     utilityService.isUserFromINCluster.and.resolveTo(false);
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
   });
 
   it('should be created', () => {
@@ -695,7 +787,7 @@ describe('TasksService', () => {
       },
       homeCurrency
     );
-    expect(tasks[0].subheader).toEqual('1 expense  worth ₹339.00  can be added to a report');
+    expect(tasks[0].subheader).toEqual('1 expense worth ₹339.00 can be added to a report');
   });
 
   it('should not be generating tasks when no corresponding data is present', () => {
@@ -918,7 +1010,7 @@ describe('TasksService', () => {
         amount: '123370000.00',
         count: 1,
         header: 'Advance sent back!',
-        subheader: '1 advance worth ₹123370000.00  was sent back by your approver',
+        subheader: '1 advance worth ₹123370000.00 was sent back by your approver',
         icon: TaskIcon.ADVANCE,
         ctas: [
           {
@@ -958,7 +1050,7 @@ describe('TasksService', () => {
         amount: '44.53',
         count: 2,
         header: 'Reports sent back!',
-        subheader: '2 reports worth ₹44.53  were sent back by your approver',
+        subheader: '2 reports worth ₹44.53 were sent back by your approver',
         icon: TaskIcon.REPORT,
         ctas: [
           {
@@ -995,7 +1087,7 @@ describe('TasksService', () => {
         amount: '132573333762.37',
         count: 1,
         header: 'Incomplete expense',
-        subheader: '1 expense worth ₹132573333762.37  require additional information',
+        subheader: '1 expense worth ₹132573333762.37 require additional information',
         icon: TaskIcon.WARNING,
         ctas: [
           {
@@ -1029,7 +1121,7 @@ describe('TasksService', () => {
         amount: '0.00',
         count: 1,
         header: 'Unsubmitted report',
-        subheader: '1 report remains in draft state',
+        subheader: '1 report  remains in draft state',
         icon: TaskIcon.REPORT,
         ctas: [
           {
@@ -1069,7 +1161,7 @@ describe('TasksService', () => {
         amount: '733479.83',
         count: 1,
         header: 'Report to be approved',
-        subheader: '1 report worth ₹733479.83  requires your approval',
+        subheader: '1 report worth ₹733479.83 requires your approval',
         icon: TaskIcon.REPORT,
         ctas: [
           {

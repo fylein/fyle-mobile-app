@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync, fakeAsync, tick } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { ModalController } from '@ionic/angular';
 import { FyMultiselectModalComponent } from './fy-multiselect-modal.component';
@@ -14,17 +14,25 @@ import { MatLegacyFormFieldModule as MatFormFieldModule } from '@angular/materia
 import { FormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { click, getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
+import { of } from 'rxjs';
 
 describe('FyMultiselectModalComponent', () => {
   let component: FyMultiselectModalComponent;
   let fixture: ComponentFixture<FyMultiselectModalComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
   let cdr: jasmine.SpyObj<ChangeDetectorRef>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
     const cdrSpy = jasmine.createSpyObj('ChangeDetectorRef', ['detectChanges']);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [FyMultiselectModalComponent],
       imports: [
@@ -36,6 +44,7 @@ describe('FyMultiselectModalComponent', () => {
         MatFormFieldModule,
         FormsModule,
         BrowserAnimationsModule,
+        TranslocoModule,
       ],
       providers: [
         {
@@ -46,13 +55,38 @@ describe('FyMultiselectModalComponent', () => {
           provide: ChangeDetectorRef,
           useValue: cdrSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(FyMultiselectModalComponent);
     component = fixture.componentInstance;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     cdr = TestBed.inject(ChangeDetectorRef) as jasmine.SpyObj<ChangeDetectorRef>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'fyMultiselectModal.selectItems': 'Select Items',
+        'fyMultiselectModal.allItems': 'All Items',
+        'fyMultiselectModal.done': 'Done',
+        'fyMultiselectModal.multiSelect': 'Multi select',
+        'fyMultiselectModal.search': 'Search',
+        'fyMultiselectModal.countSelected': '{{count}} selected',
+      };
+      let translation = translations[key] || key;
 
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
+    });
     component.options = [
       {
         label: 'Label1',
@@ -162,12 +196,14 @@ describe('FyMultiselectModalComponent', () => {
     expect(chips.length).toEqual(component.currentSelections.length);
   });
 
-  it('should show the number of current selected items', () => {
+  it('should show the number of current selected items', fakeAsync(() => {
     component.currentSelections = ['value1', 'value2'];
+    fixture.detectChanges();
+    tick();
     fixture.detectChanges();
 
     expect(getTextContent(getElementBySelector(fixture, '.selection-modal--selected-count'))).toEqual('2 selected');
-  });
+  }));
 
   it('should show all available options', () => {
     const options = getAllElementsBySelector(fixture, '.selection-modal--list-element');

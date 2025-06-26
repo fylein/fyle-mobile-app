@@ -8,7 +8,7 @@
     <input
       class="preference-setting__input-container__input smartlook-show"
       type="text"
-      placeholder="Select currency"
+      [placeholder]="'preferenceSetting.selectCurrency' | transloco"
       [ngModel]="defaultCurrency"
       (click)="openCurrencyModal()"
     />

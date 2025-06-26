@@ -12,6 +12,7 @@ import {
   QuickBooksSettings,
   TallySettings,
 } from '../models/org-settings.model';
+import { TranslocoService } from '@jsverse/transloco';
 
 const orgSettingsCacheBuster$ = new Subject<void>();
 
@@ -19,7 +20,7 @@ const orgSettingsCacheBuster$ = new Subject<void>();
   providedIn: 'root',
 })
 export class OrgSettingsService {
-  constructor(private apiService: ApiService) {}
+  constructor(private apiService: ApiService, private translocoService: TranslocoService) {}
 
   @Cacheable({
     cacheBusterObserver: orgSettingsCacheBuster$,
@@ -295,7 +296,7 @@ export class OrgSettingsService {
         allowed: incoming.currencylayer_provider_settings && incoming.currencylayer_provider_settings.allowed,
         enabled: incoming.currencylayer_provider_settings && incoming.currencylayer_provider_settings.enabled,
         id: 'CURRENCYLAYER',
-        name: 'Currency Layer',
+        name: this.translocoService.translate('services.orgSettings.currencyLayer'),
       },
       transaction_field_configurations: incoming.transaction_field_configurations,
       gmail_addon_settings: incoming.gmail_addon_settings,

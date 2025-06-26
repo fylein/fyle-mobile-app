@@ -14,6 +14,7 @@ import { OrgCategory } from 'src/app/core/models/v1/org-category.model';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-fy-select-modal',
@@ -58,7 +59,8 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
     private utilityService: UtilityService,
     private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
     private orgSettingsService: OrgSettingsService,
-    private categoriesService: CategoriesService
+    private categoriesService: CategoriesService,
+    private translocoService: TranslocoService
   ) {}
 
   getProjects(searchNameText: string): Observable<ProjectOption[]> {
@@ -86,7 +88,9 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
           () => orgSettings.advanced_projects.enable_individual_projects,
           this.platformEmployeeSettingsService
             .get()
-            .pipe(map((employeeSettings: EmployeeSettings) => employeeSettings.project_ids || [])),
+            .pipe(
+              map((employeeSettings: EmployeeSettings) => employeeSettings.project_ids?.map((id) => Number(id)) || [])
+            ),
           of(null)
         );
 
@@ -139,7 +143,7 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
           });
         }
 
-        return [{ label: 'None', value: null }]
+        return [{ label: this.translocoService.translate('fyProjectSelectModal.none'), value: null }]
           .concat(currentElement)
           .concat(projects.map((project) => ({ label: project.project_name, value: project })));
       }),

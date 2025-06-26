@@ -1,5 +1,6 @@
-import { Component, Input, OnInit, EventEmitter, Output } from '@angular/core';
+import { Component, Input, EventEmitter, Output, OnInit } from '@angular/core';
 import { HeaderState } from './header-state.enum';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-fy-header',
@@ -11,7 +12,7 @@ export class FyHeaderComponent implements OnInit {
 
   @Input() navigateBack = false;
 
-  @Input() title = 'Fyle';
+  @Input() title: string;
 
   @Input() isHiddenBorder = false;
 
@@ -19,19 +20,21 @@ export class FyHeaderComponent implements OnInit {
 
   @Output() multiselectBack = new EventEmitter();
 
-  constructor() {}
+  constructor(private translocoService: TranslocoService) {}
 
-  get HeaderState() {
+  get HeaderState(): typeof HeaderState {
     return HeaderState;
   }
 
-  ngOnInit() {}
+  ngOnInit(): void {
+    this.title = this.title || this.translocoService.translate('fyHeader.fyle');
+  }
 
-  onSimpleSearchCancel() {
+  onSimpleSearchCancel(): void {
     this.simpleSearchCancel.emit();
   }
 
-  onMultiselectBack() {
+  onMultiselectBack(): void {
     this.multiselectBack.emit();
   }
 }

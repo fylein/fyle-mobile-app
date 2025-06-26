@@ -1,11 +1,11 @@
 <div class="receipt-preview-thumbnail--actions" [ngClass]="{ 'mt-0': !canEdit }">
   <div class="receipt-preview-thumbnail--receipt-index" *ngIf="!hideLabel">
-    {{ isMileageExpense ? 'Map' : 'Receipt' }}
+    {{ (isMileageExpense ? 'receiptPreviewThumbnail.mapLabel' : 'receiptPreviewThumbnail.receiptLabel') | transloco }}
     <ng-container *ngIf="attachments.length > 1">{{ activeIndex + 1 }}/{{ attachments.length }} </ng-container>
   </div>
   <div *ngIf="canEdit" (click)="addAttachments($event)" class="receipt-preview-thumbnail--add-more">
     <mat-icon class="receipt-preview-thumbnail--icon" svgIcon="plus-square"></mat-icon>
-    <span class="receipt-preview-thumbnail--add-more-text">Add more</span>
+    <span class="receipt-preview-thumbnail--add-more-text">{{ 'receiptPreviewThumbnail.addMore' | transloco }}</span>
   </div>
 </div>
 
@@ -17,7 +17,11 @@
     <div class="receipt-preview-thumbnail--spinner-container">
       <ion-spinner class="receipt-preview-thumbnail--spinner" name="crescent"></ion-spinner>
       <div class="text-center receipt-preview-thumbnail--spinner-text">
-        {{ (isUploading ? 'Uploading' : 'Loading') + (isMileageExpense ? ' map' : ' receipt') }}
+        {{
+          ((isUploading ? 'receiptPreviewThumbnail.uploading' : 'receiptPreviewThumbnail.loading') | transloco) +
+            ((isMileageExpense ? 'receiptPreviewThumbnail.mapSuffix' : 'receiptPreviewThumbnail.receiptSuffix')
+              | transloco)
+        }}
       </div>
     </div>
   </div>

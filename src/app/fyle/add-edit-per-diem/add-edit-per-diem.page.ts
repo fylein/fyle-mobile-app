@@ -1005,7 +1005,9 @@ export class AddEditPerDiemPage implements OnInit {
       map((orgSettings) => orgSettings.advanced_projects && orgSettings.advanced_projects.enable_individual_projects)
     );
 
-    this.individualProjectIds$ = employeeSettings$.pipe(map((employeeSettings) => employeeSettings.project_ids || []));
+    this.individualProjectIds$ = employeeSettings$.pipe(
+      map((employeeSettings) => employeeSettings.project_ids?.map((id) => Number(id)) || [])
+    );
 
     this.etxn$ = iif(() => this.mode === 'add', this.getNewExpense(), this.getEditExpense());
 

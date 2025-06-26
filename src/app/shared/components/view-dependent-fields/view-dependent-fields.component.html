@@ -17,7 +17,9 @@
             </ion-col>
             <ion-col class="view-expense--content-container">
               <div class="view-expense--label">{{ parentFieldName | titlecase }}</div>
-              <div class="view-expense--value">{{ parentFieldValue || 'Unspecified' }}</div>
+              <div class="view-expense--value">
+                {{ parentFieldValue || ('viewDependentFields.unspecified' | transloco) }}
+              </div>
             </ion-col>
           </ion-row>
         </ion-grid>
@@ -34,7 +36,7 @@
               </div>
             </ion-col>
             <ion-col class="view-expense--content-container">
-              <div class="view-expense--label">Cost center code</div>
+              <div class="view-expense--label">{{ 'viewDependentFields.costCenterCode' | transloco }}</div>
               <div class="view-expense--value">{{ costCenterCode }}</div>
             </ion-col>
           </ion-row>

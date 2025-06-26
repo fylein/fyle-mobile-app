@@ -22,7 +22,9 @@
       </ion-buttons>
       <ng-content select="[simpleSearch]"></ng-content>
       <ion-buttons mode="md" slot="end">
-        <ion-button class="fy-header--simple-search-cancel" (click)="onSimpleSearchCancel()"> Cancel </ion-button>
+        <ion-button class="fy-header--simple-search-cancel" (click)="onSimpleSearchCancel()">
+          {{ 'fyHeader.cancel' | transloco }}
+        </ion-button>
       </ion-buttons>
     </ion-toolbar>
   </ng-container>

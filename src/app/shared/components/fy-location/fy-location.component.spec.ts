@@ -5,23 +5,37 @@ import { ModalController } from '@ionic/angular';
 import { FyLocationModalComponent } from './fy-location-modal/fy-location-modal.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
+import { of } from 'rxjs';
 
 describe('FyLocationComponent', () => {
   let component: FyLocationComponent;
   let fixture: ComponentFixture<FyLocationComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
   let modalPropertiesService: jasmine.SpyObj<ModalPropertiesService>;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
 
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
 
     TestBed.configureTestingModule({
-      imports: [FormsModule],
+      imports: [FormsModule, TranslocoModule],
       declarations: [FyLocationComponent],
       providers: [
         {
           provide: ModalController,
           useValue: modalControllerSpy,
+        },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -30,6 +44,44 @@ describe('FyLocationComponent', () => {
     fixture = TestBed.createComponent(FyLocationComponent);
     component = fixture.componentInstance;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'fyLocation.label': 'location',
+        'fyLocation.selectLocation': 'Select {{label}}',
+        'fyLocationModal.loadingLocation': 'Loading location...',
+        'fyLocationModal.enableLocationServicesTitle': 'Enable Location Services',
+        'fyLocationModal.enableLocationTitle': 'Enable Location',
+        'fyLocationModal.enableLocationServicesMessage':
+          "To fetch your current location, please enable Location Services. Click 'Open Settings',then go to Privacy & Security and turn on Location Services",
+        'fyLocationModal.enableLocationMessage':
+          "To fetch your current location, please enable Location. Click 'Open Settings' and turn on Location",
+        'fyLocationModal.openSettings': 'Open settings',
+        'fyLocationModal.cancel': 'Cancel',
+        'fyLocationModal.locationPermissionTitle': 'Location permission',
+        'fyLocationModal.locationPermissionMessage':
+          "To fetch current location, please allow Fyle to access your Location. Click on 'Open Settings', then enable both 'Location' and 'Precise Location' to continue.",
+        'fyLocationModal.loadingCurrentLocation': 'Loading current location...',
+        'fyLocationModal.search': 'Search',
+        'fyLocationModal.clear': 'Clear',
+        'fyLocationModal.save': 'Save',
+        'fyLocationModal.enableLocationFromSettings': 'Enable location from Settings to fetch current location',
+        'fyLocationModal.enable': 'Enable',
+        'fyLocationModal.locationError': "Couldn't get current location. Please enter manually.",
+        'fyLocationModal.useCurrentLocation': 'Use current location',
+      };
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
+    });
     fixture.detectChanges();
   }));
 

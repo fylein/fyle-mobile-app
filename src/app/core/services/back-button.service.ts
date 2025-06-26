@@ -5,24 +5,25 @@ import { from, noop } from 'rxjs';
 import { switchMap, tap, map } from 'rxjs/operators';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { OverlayResponse } from '../models/overlay-response.modal';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Injectable({
   providedIn: 'root',
 })
 export class BackButtonService {
-  constructor(private popoverController: PopoverController) {}
+  constructor(private popoverController: PopoverController, private translocoService: TranslocoService) {}
 
-  showAppCloseAlert() {
+  showAppCloseAlert(): void {
     const exitAppPopover = this.popoverController.create({
       componentProps: {
-        title: 'Exit Fyle App',
-        message: 'Are you sure you want to exit the app?',
+        title: this.translocoService.translate<string>('services.backButton.title'),
+        message: this.translocoService.translate<string>('services.backButton.message'),
         primaryCta: {
-          text: 'OK',
+          text: this.translocoService.translate<string>('services.backButton.primaryCtaText'),
           action: 'close',
         },
         secondaryCta: {
-          text: 'Cancel',
+          text: this.translocoService.translate('services.backButton.secondaryCtaText'),
           action: 'cancel',
         },
       },

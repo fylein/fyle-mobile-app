@@ -63,6 +63,7 @@
     "@ionic/angular": "^8.4.3",
     "@ionic/core": "^8.4.3",
     "@ionic/pwa-elements": "^3.1.1",
+    "@jsverse/transloco": "^7.6.1",
     "@mtnair/ngx-pinch-zoom": "2.5.12",
     "@sentry/angular-ivy": "^7.120.3",
     "@sentry/cli": "^2.33.0",

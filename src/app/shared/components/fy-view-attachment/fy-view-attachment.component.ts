@@ -15,6 +15,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FileService } from 'src/app/core/services/file.service';
 import { RotationDirection } from 'src/app/core/enums/rotation-direction.enum';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-fy-view-attachment',
@@ -67,7 +68,8 @@ export class FyViewAttachmentComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private fileService: FileService,
     private transactionsOutboxService: TransactionsOutboxService,
-    private router: Router
+    private router: Router,
+    private translocoService: TranslocoService
   ) {}
 
   ngOnInit(): void {
@@ -148,6 +150,8 @@ export class FyViewAttachmentComponent implements OnInit {
   }
 
   async deleteAttachment(): Promise<void> {
+    const title = this.translocoService.translate('fyViewAttachment.removeReceiptTitle');
+    const message = this.translocoService.translate('fyViewAttachment.removeReceiptMessage');
     const activeIndex = await this.imageSlides.swiperRef.activeIndex;
     try {
       this.trackingService.deleteFileClicked({ 'File ID': this.attachments[activeIndex].id });
@@ -155,15 +159,15 @@ export class FyViewAttachmentComponent implements OnInit {
     const deletePopover = await this.popoverController.create({
       component: PopupAlertComponent,
       componentProps: {
-        title: 'Remove Receipt',
-        message: 'Are you sure you want to remove this receipt?',
+        title,
+        message,
         primaryCta: {
-          text: 'Remove',
+          text: this.translocoService.translate('fyViewAttachment.remove'),
           action: 'remove',
           type: 'alert',
         },
         secondaryCta: {
-          text: 'Cancel',
+          text: this.translocoService.translate('fyViewAttachment.cancel'),
           action: 'cancel',
         },
       },

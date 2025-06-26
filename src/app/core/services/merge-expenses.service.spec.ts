@@ -104,6 +104,7 @@ import {
   platformExpenseWithExtractedData,
 } from '../mock-data/platform/v1/expense.data';
 import { generateUrlsBulkData1 } from '../mock-data/generate-urls-bulk-response.data';
+import { TranslocoService } from '@jsverse/transloco';
 
 describe('MergeExpensesService', () => {
   let mergeExpensesService: MergeExpensesService;
@@ -118,7 +119,7 @@ describe('MergeExpensesService', () => {
   let taxGroupService: jasmine.SpyObj<TaxGroupService>;
   let expensesService: jasmine.SpyObj<ExpensesService>;
   let spenderFileService: jasmine.SpyObj<SpenderFileService>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(() => {
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['post']);
     const fileServiceSpy = jasmine.createSpyObj('FileService', [
@@ -137,6 +138,21 @@ describe('MergeExpensesService', () => {
     const taxGroupServiceSpy = jasmine.createSpyObj('TaxGroupService', ['get']);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById']);
     const spenderFileServiceSpy = jasmine.createSpyObj('SpenderFileService', ['generateUrlsBulk']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+
+    // Mock translate method to return expected strings
+    translocoServiceSpy.translate.and.callFake((key: string) => {
+      const translations: { [key: string]: string } = {
+        'services.mergeExpenses.receiptFromExpense': 'Receipt From Expense',
+        'services.mergeExpenses.unspecified': 'Unspecified',
+        'services.mergeExpenses.yes': 'Yes',
+        'services.mergeExpenses.no': 'No',
+        'services.mergeExpenses.corporateCard': 'Corporate Card',
+        'services.mergeExpenses.personalCardCash': 'Personal Card/Cash',
+        'services.mergeExpenses.advance': 'Advance',
+      };
+      return translations[key] || key;
+    });
 
     TestBed.configureTestingModule({
       providers: [
@@ -152,6 +168,7 @@ describe('MergeExpensesService', () => {
         { provide: TaxGroupService, useValue: taxGroupServiceSpy },
         { provide: ExpensesService, useValue: expensesServiceSpy },
         { provide: SpenderFileService, useValue: spenderFileServiceSpy },
+        { provide: TranslocoService, useValue: translocoServiceSpy },
       ],
     });
     mergeExpensesService = TestBed.inject(MergeExpensesService);
@@ -168,6 +185,7 @@ describe('MergeExpensesService', () => {
     taxGroupService = TestBed.inject(TaxGroupService) as jasmine.SpyObj<TaxGroupService>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     spenderFileService = TestBed.inject(SpenderFileService) as jasmine.SpyObj<SpenderFileService>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
   });
 
   it('should be created', () => {

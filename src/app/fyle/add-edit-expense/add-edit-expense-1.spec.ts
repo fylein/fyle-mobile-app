@@ -78,6 +78,7 @@ import { reportData1 } from 'src/app/core/mock-data/report.data';
 import { sortedCategory } from 'src/app/core/mock-data/org-category.data';
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 
 export function TestCases1(getTestBed) {
   return describe('AddEditExpensePage-1', () => {
@@ -128,11 +129,21 @@ export function TestCases1(getTestBed) {
     let storageService: jasmine.SpyObj<StorageService>;
     let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
     let advanceWalletsService: jasmine.SpyObj<AdvanceWalletsService>;
-
+    let translocoService: jasmine.SpyObj<TranslocoService>;
     beforeEach(() => {
       const TestBed = getTestBed();
       TestBed.compileComponents();
-
+      const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+        config: {
+          reRenderOnLangChange: true,
+        },
+        langChanges$: of('en'),
+        _loadDependencies: () => Promise.resolve(),
+      });
+      TestBed.configureTestingModule({
+        imports: [TranslocoModule],
+        providers: [{ provide: TranslocoService, useValue: translocoServiceSpy }],
+      });
       fixture = TestBed.createComponent(AddEditExpensePage);
       component = fixture.componentInstance;
 
@@ -186,7 +197,7 @@ export function TestCases1(getTestBed) {
       ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
-
+      translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
       component.fg = formBuilder.group({
         currencyObj: [, component.currencyObjValidator],
         paymentMode: [, Validators.required],

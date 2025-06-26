@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { ClipboardService } from 'src/app/core/services/clipboard.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-profile-opt-in-card',
@@ -29,7 +30,11 @@ export class ProfileOptInCardComponent implements OnInit {
 
   mobileNumber: string;
 
-  constructor(private clipboardService: ClipboardService, private trackingService: TrackingService) {}
+  constructor(
+    private clipboardService: ClipboardService,
+    private trackingService: TrackingService,
+    private translocoService: TranslocoService
+  ) {}
 
   ngOnInit(): void {
     this.isUserOptedIn = this.extendedOrgUser.ou.mobile && this.extendedOrgUser.ou.mobile_verified;
@@ -62,6 +67,6 @@ export class ProfileOptInCardComponent implements OnInit {
 
   async copyToClipboard(): Promise<void> {
     await this.clipboardService.writeString('(302) 440-2921');
-    this.copiedText.emit('Phone Number Copied Successfully');
+    this.copiedText.emit(this.translocoService.translate('profileOptInCard.copySuccess'));
   }
 }

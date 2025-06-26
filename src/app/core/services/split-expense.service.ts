@@ -22,21 +22,19 @@ import { ExpenseComment } from '../models/expense-comment.model';
 import { UntypedFormArray, AbstractControl } from '@angular/forms';
 import { fallbackCurrencies } from '../mock-data/fallback-currency-data';
 import { map } from 'rxjs/operators';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SplitExpenseService {
-  defaultPolicyViolationMessage = 'No policy violation explanation provided';
-
-  prependPolicyViolationMessage = 'Policy violation explanation: ';
-
   constructor(
     private policyService: PolicyService,
     private categoriesService: CategoriesService,
     private utilityService: UtilityService,
     private expensesService: ExpensesService,
-    private expenseCommentService: ExpenseCommentService
+    private expenseCommentService: ExpenseCommentService,
+    private translocoService: TranslocoService
   ) {}
 
   formatDisplayName(model: number, categoryList: OrgCategory[]): string {
@@ -418,8 +416,8 @@ export class SplitExpenseService {
       expense_id: txnId,
       comment:
         comments[index] !== ''
-          ? this.prependPolicyViolationMessage + comments[index]
-          : this.defaultPolicyViolationMessage,
+          ? this.translocoService.translate('services.splitExpense.policyViolationExplanationPrefix') + comments[index]
+          : this.translocoService.translate('services.splitExpense.noPolicyViolationExplanation'),
       notify: true,
     }));
 
