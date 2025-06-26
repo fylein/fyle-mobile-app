@@ -242,7 +242,6 @@ export class AdvanceRequestService {
           params.or = `(approvals.cs.[{"approver_user_id": "${userId}", "state":"APPROVAL_PENDING"}], approvals.cs.[{"approver_user_id": "${userId}", "state":"APPROVAL_DONE"}], approvals.cs.[{"approver_user_id":"${userId}", "state":"APPROVAL_REJECTED"}])`;
         }
         params.order = this.getSortOrder(config.filter.sortParam, config.filter.sortDir);
-
         return this.approverService.get<PlatformApiResponse<AdvanceRequestPlatform[]>>('/advance_requests', {
           params,
         });
@@ -295,17 +294,27 @@ export class AdvanceRequestService {
       .pipe(map((response) => response.data));
   }
 
-  getActiveApproversByAdvanceRequestId(advanceRequestId: string): Observable<Approval[]> {
-    return from(this.getApproversByAdvanceRequestId(advanceRequestId)).pipe(
-      map((approvers) => {
-        const filteredApprovers = approvers.filter((approver) => {
-          if (approver.state !== 'APPROVAL_DISABLED') {
-            return approver;
-          }
-        });
-        return filteredApprovers;
+  getActiveApproversByAdvanceRequestIdPlatformForApprover(advanceRequestId: string): Observable<ApprovalPublic[]> {
+    return this.approverService
+      .get<PlatformApiResponse<AdvanceRequestPlatform[]>>('/advance_requests', {
+        params: { id: `eq.${advanceRequestId}` },
       })
-    );
+      .pipe(
+        map((res) => {
+          const approvals = res.data[0].approvals;
+          const filteredApprovers: ApprovalPublic[] = [];
+          approvals.filter((approver) => {
+            if (approver.state !== 'APPROVAL_DISABLED') {
+              filteredApprovers.push({
+                approver_name: approver.approver_user.full_name,
+                approver_email: approver.approver_user.email,
+                state: approver.state,
+              });
+            }
+          });
+          return filteredApprovers;
+        })
+      );
   }
 
   getActiveApproversByAdvanceRequestIdPlatform(advanceRequestId: string): Observable<ApprovalPublic[]> {
