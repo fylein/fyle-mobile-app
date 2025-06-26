@@ -3444,10 +3444,16 @@ export class AddEditExpensePage implements OnInit {
 
   getSkipRemibursement(): boolean {
     const formValue = this.getFormValues();
-    return (
-      (formValue?.paymentMode?.acc?.type === AccountType.PERSONAL && !formValue.paymentMode.acc.isReimbursable) ||
-      !!formValue?.paymentMode?.id
-    );
+    const paymentMode = formValue?.paymentMode;
+    // If it's an advance wallet (has id but no acc property), skip reimbursement
+    if (paymentMode?.id && !paymentMode?.acc) {
+      return true;
+    }
+    // If it's a personal account that's not reimbursable, skip reimbursement
+    if (paymentMode?.acc?.type === AccountType.PERSONAL && !paymentMode.acc.isReimbursable) {
+      return true;
+    }
+    return false;
   }
 
   getTxnDate(): Date {
