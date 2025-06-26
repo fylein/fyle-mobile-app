@@ -3,6 +3,7 @@ import { ModalController, PopoverController } from '@ionic/angular';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { FyOptInComponent } from '../fy-opt-in/fy-opt-in.component';
 import { PopupAlertComponent } from '../popup-alert/popup-alert.component';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-promote-opt-in-modal',
@@ -12,7 +13,11 @@ import { PopupAlertComponent } from '../popup-alert/popup-alert.component';
 export class PromoteOptInModalComponent {
   @Input() extendedOrgUser: ExtendedOrgUser;
 
-  constructor(private modalController: ModalController, private popoverController: PopoverController) {}
+  constructor(
+    private modalController: ModalController,
+    private popoverController: PopoverController,
+    private translocoService: TranslocoService
+  ) {}
 
   async optInClick(): Promise<void> {
     const optInModal = await this.modalController.create({
@@ -32,24 +37,22 @@ export class PromoteOptInModalComponent {
   }
 
   getSkipOptInMessageBody(): string {
-    return `<div>
-              <p>You can't send receipts and expense details via text message if you don't opt in.</p>
-              <p>Are you sure you want to skip?<p>  
-            </div>`;
+    return this.translocoService.translate('promoteOptInModal.skipMessageBody');
   }
 
   async skip(): Promise<void> {
+    const title = this.translocoService.translate('promoteOptInModal.areYouSure');
     const optOutPopover = await this.popoverController.create({
       component: PopupAlertComponent,
       componentProps: {
-        title: 'Are you sure?',
+        title,
         message: this.getSkipOptInMessageBody(),
         primaryCta: {
-          text: 'Yes, skip opt in',
+          text: this.translocoService.translate('promoteOptInModal.yesSkipOptIn'),
           action: 'continue',
         },
         secondaryCta: {
-          text: 'No, go back',
+          text: this.translocoService.translate('promoteOptInModal.noGoBack'),
           action: 'cancel',
         },
       },

@@ -40,6 +40,7 @@ import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { AddCorporateCardComponent } from '../../manage-corporate-cards/add-corporate-card/add-corporate-card.component';
 import { CardAddedComponent } from '../../manage-corporate-cards/card-added/card-added.component';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-tasks',
@@ -98,7 +99,8 @@ export class TasksComponent implements OnInit {
     private authService: AuthService,
     private orgService: OrgService,
     private popoverController: PopoverController,
-    private corporateCreditCardExpenseService: CorporateCreditCardExpenseService
+    private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
+    private translocoService: TranslocoService
   ) {}
 
   ngOnInit(): void {
@@ -248,47 +250,47 @@ export class TasksComponent implements OnInit {
       componentProps: {
         filterOptions: [
           {
-            name: 'Expenses',
+            name: this.translocoService.translate('tasks.expenses'),
             optionType: FilterOptionType.multiselect,
             options: [
               {
-                label: 'Complete',
+                label: this.translocoService.translate('tasks.complete'),
                 value: 'UNREPORTED',
               },
               {
-                label: 'Draft',
+                label: this.translocoService.translate('tasks.draft'),
                 value: 'DRAFT',
               },
               {
-                label: 'Duplicate',
+                label: this.translocoService.translate('tasks.duplicate'),
                 value: 'DUPLICATE',
               },
             ],
           } as FilterOptions<string>,
           {
-            name: 'Reports',
+            name: this.translocoService.translate('tasks.reports'),
             optionType: FilterOptionType.multiselect,
             options: [
               {
-                label: 'Sent Back',
+                label: this.translocoService.translate('tasks.sentBack'),
                 value: 'SENT_BACK',
               },
               {
-                label: 'Unsubmitted',
+                label: this.translocoService.translate('tasks.unsubmitted'),
                 value: 'DRAFT',
               },
               {
-                label: 'Unapproved',
+                label: this.translocoService.translate('tasks.unapproved'),
                 value: 'TEAM',
               },
             ],
           } as FilterOptions<string>,
           {
-            name: 'Advances',
+            name: this.translocoService.translate('tasks.advances'),
             optionType: FilterOptionType.multiselect,
             options: [
               {
-                label: 'Sent Back',
+                label: this.translocoService.translate('tasks.sentBack'),
                 value: 'SENT_BACK',
               },
             ],
@@ -314,7 +316,7 @@ export class TasksComponent implements OnInit {
   }
 
   onFilterClose(filterPillType: string): void {
-    if (filterPillType === 'Expenses') {
+    if (filterPillType === this.translocoService.translate('tasks.expenses')) {
       this.applyFilters({
         ...this.loadData$.getValue(),
         draftExpenses: false,
@@ -323,7 +325,7 @@ export class TasksComponent implements OnInit {
       });
     }
 
-    if (filterPillType === 'Reports') {
+    if (filterPillType === this.translocoService.translate('tasks.reports')) {
       this.applyFilters({
         ...this.loadData$.getValue(),
         draftReports: false,
@@ -331,7 +333,7 @@ export class TasksComponent implements OnInit {
       });
     }
 
-    if (filterPillType === 'Advances') {
+    if (filterPillType === this.translocoService.translate('tasks.advances')) {
       this.applyFilters({
         ...this.loadData$.getValue(),
         sentBackAdvances: false,
@@ -510,7 +512,7 @@ export class TasksComponent implements OnInit {
       state: 'in.(DRAFT)',
       report_id: 'is.null',
     };
-    from(this.loaderService.showLoader('please wait while we load your expenses', 3000))
+    from(this.loaderService.showLoader(this.translocoService.translate('tasks.loadingExpenses'), 3000))
       .pipe(
         switchMap(() =>
           this.expensesService.getAllExpenses({
@@ -579,7 +581,7 @@ export class TasksComponent implements OnInit {
         limit: 1,
       };
 
-      from(this.loaderService.showLoader('Opening your report...'))
+      from(this.loaderService.showLoader(this.translocoService.translate('tasks.openingReport')))
         .pipe(
           switchMap(() => this.spenderReportsService.getAllReportsByParams(queryParams)),
           finalize(() => this.loaderService.hideLoader())
@@ -604,7 +606,7 @@ export class TasksComponent implements OnInit {
         state: 'eq.SENT_BACK',
       };
 
-      from(this.loaderService.showLoader('Opening your advance request...'))
+      from(this.loaderService.showLoader(this.translocoService.translate('tasks.openingAdvance')))
         .pipe(
           switchMap(() => this.advanceRequestService.getSpenderAdvanceRequests({ queryParams, offset: 0, limit: 1 })),
           finalize(() => this.loaderService.hideLoader())
@@ -628,7 +630,7 @@ export class TasksComponent implements OnInit {
           next_approver_user_ids: `cs.[${eou.us.id}]`,
           state: `eq.${ReportState.APPROVER_PENDING}`,
         };
-        return from(this.loaderService.showLoader('Opening your report...'))
+        return from(this.loaderService.showLoader(this.translocoService.translate('tasks.openingReport')))
           .pipe(
             switchMap(() => this.approverReportsService.getAllReportsByParams(queryParams)),
             finalize(() => this.loaderService.hideLoader())
@@ -656,7 +658,7 @@ export class TasksComponent implements OnInit {
         limit: 1,
       };
 
-      from(this.loaderService.showLoader('Opening your report...'))
+      from(this.loaderService.showLoader(this.translocoService.translate('tasks.openingReport')))
         .pipe(
           switchMap(() => this.spenderReportsService.getAllReportsByParams(queryParams)),
           finalize(() => this.loaderService.hideLoader())
@@ -681,7 +683,7 @@ export class TasksComponent implements OnInit {
   }
 
   addTransactionsToReport(report: Report, selectedExpensesId: string[]): Observable<Report> {
-    return from(this.loaderService.showLoader('Adding expense to report')).pipe(
+    return from(this.loaderService.showLoader(this.translocoService.translate('tasks.addingExpenseToReport'))).pipe(
       switchMap(() => this.spenderReportsService.addExpenses(report.id, selectedExpensesId).pipe(map(() => report))),
       finalize(() => this.loaderService.hideLoader())
     );
@@ -690,7 +692,7 @@ export class TasksComponent implements OnInit {
   showAddToReportSuccessToast(config: { message: string; report: Report }): void {
     const toastMessageData = {
       message: config.message,
-      redirectionText: 'View Report',
+      redirectionText: this.translocoService.translate('tasks.viewReport'),
     };
     const expensesAddedToReportSnackBar = this.matSnackBar.openFromComponent(ToastMessageComponent, {
       ...this.snackbarProperties.setSnackbarProperties('success', toastMessageData),
@@ -769,9 +771,9 @@ export class TasksComponent implements OnInit {
         if (report) {
           let message = '';
           if (report.state.toLowerCase() === 'draft') {
-            message = 'Expenses added to an existing draft report';
+            message = this.translocoService.translate('tasks.expensesAddedToDraft');
           } else {
-            message = 'Expenses added to report successfully';
+            message = this.translocoService.translate('tasks.expensesAddedSuccessfully');
           }
           this.showAddToReportSuccessToast({ message, report });
         }
@@ -815,7 +817,7 @@ export class TasksComponent implements OnInit {
     // Show toast message and refresh the page once commute details are saved
     if (data.action === 'save') {
       this.trackingService.commuteDeductionDetailsAddedFromSpenderTask(data.commuteDetails);
-      this.showToastMessage('Commute details saved successfully', 'success');
+      this.showToastMessage(this.translocoService.translate('tasks.commuteDetailsSaved'), 'success');
       this.doRefresh();
     }
   }

@@ -2,7 +2,9 @@
   <mat-icon class="fy-modal-top-bar" svgIcon="notch"></mat-icon>
   <ion-toolbar mode="md" class="fy-modal-toolbar">
     <ion-title>
-      <div class="selection-modal--title text-capitalize">Select {{ label }}</div>
+      <div class="selection-modal--title text-capitalize">
+        {{ 'fyProjectSelectModal.selectLabel' | transloco : { label: label } }}
+      </div>
     </ion-title>
     <ion-buttons slot="start">
       <ion-button (click)="onDoneClick()">
@@ -18,7 +20,7 @@
         id="selection-modal--search-input"
         class="selection-modal--search-input smartlook-show"
         matInput
-        placeholder="Search"
+        [placeholder]="'fyProjectSelectModal.searchPlaceholder' | transloco"
         [(ngModel)]="value"
       />
       <mat-icon *ngIf="isLoading" class="selection-modal--autocomplete-loader" svgIcon="loader" matSuffix></mat-icon>
@@ -26,7 +28,7 @@
         (click)="clearValue()"
         class="selection-modal--clear-button"
         *ngIf="!isLoading && value"
-        aria-label="Clear"
+        [attr.aria-label]="'fyProjectSelectModal.clearAriaLabel' | transloco"
         mat-button
         mat-icon-button
         matSuffix

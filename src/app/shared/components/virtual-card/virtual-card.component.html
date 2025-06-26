@@ -10,7 +10,9 @@
             'virtual-card__status-pill__dot__danger': !showSuccessStatusDot
           }"
         ></div>
-        <div>{{ cardStatus === CardStatus.PREACTIVE ? 'Pre-Active' : (cardStatus | titlecase) }}</div>
+        <div>
+          {{ cardStatus === CardStatus.PREACTIVE ? ('virtualCard.preActive' | transloco) : (cardStatus | titlecase) }}
+        </div>
       </div>
     </div>
     <div class="virtual-card__card-number__card-number-container">
@@ -37,7 +39,7 @@
   </div>
   <div class="virtual-card__card-fields">
     <div class="virtual-card__card-fields__cvv-field">
-      <div class="virtual-card__card-fields__label-text">CVV</div>
+      <div class="virtual-card__card-fields__label-text">{{ 'virtualCard.cvv' | transloco }}</div>
       <div class="virtual-card__card-fields__cvv-field__cvv-value">
         <div *ngIf="!showCvv" class="virtual-card__card-fields__cvv-mask">***</div>
         <div *ngIf="showCvv" class="virtual-card__card-fields__cvv-number">{{ cvv }}</div>
@@ -52,13 +54,13 @@
       </div>
     </div>
     <div>
-      <div class="virtual-card__card-fields__label-text">Expiry</div>
+      <div class="virtual-card__card-fields__label-text">{{ 'virtualCard.expiry' | transloco }}</div>
       <div class="virtual-card__card-fields__value-text">{{ expiry | date : 'MM/yy' }}</div>
     </div>
     <div *ngIf="availableAmount !== undefined" class="virtual-card__vertical-divider"></div>
     <div *ngIf="availableAmount !== undefined">
       <div class="virtual-card__card-fields__label-text">
-        Available
+        {{ 'virtualCard.available' | transloco }}
         <ion-icon
           class="virtual-card__card-fields__label-text__info-icon"
           src="../../../../../assets/svg/info-circle-outline.svg"

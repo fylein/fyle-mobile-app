@@ -6,6 +6,7 @@ import { cloneDeep, isEqual } from 'lodash';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
 import { VirtualSelectOption } from './virtual-select-option.interface';
+import { TranslocoService } from '@jsverse/transloco';
 @Component({
   selector: 'app-virtual-select-modal',
   templateUrl: './virtual-select-modal.component.html',
@@ -50,7 +51,8 @@ export class VirtualSelectModalComponent implements AfterViewInit {
     private modalController: ModalController,
     private cdr: ChangeDetectorRef,
     private recentLocalStorageItemsService: RecentLocalStorageItemsService,
-    private utilityService: UtilityService
+    private utilityService: UtilityService,
+    private translocoService: TranslocoService
   ) {}
 
   clearValue(): void {
@@ -97,7 +99,7 @@ export class VirtualSelectModalComponent implements AfterViewInit {
     const initial: VirtualSelectOption[] = [];
 
     if (this.nullOption && this.currentSelection) {
-      initial.push({ label: 'None', value: null });
+      initial.push({ label: this.translocoService.translate('virtualSelectModal.noneOption'), value: null });
     }
 
     let extraOption: VirtualSelectOption[] = [];
@@ -151,7 +153,7 @@ export class VirtualSelectModalComponent implements AfterViewInit {
       const initial: VirtualSelectOption[] = [];
 
       if (this.nullOption && this.currentSelection) {
-        initial.push({ label: 'None', value: null });
+        initial.push({ label: this.translocoService.translate('virtualSelectModal.noneOption'), value: null });
       }
 
       this.recentlyUsedItems$ = of([]) as Observable<VirtualSelectOption[]>;

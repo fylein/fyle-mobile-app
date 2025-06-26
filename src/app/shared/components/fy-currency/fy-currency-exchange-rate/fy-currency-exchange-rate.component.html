@@ -7,8 +7,10 @@
       </ion-button>
     </ion-buttons>
     <div class="exchange-rate-header-block">
-      <div class="exchange-rate-title" mode="md">Currency</div>
-      <button class="exchange-rate-save text-right" [disabled]="!fg.valid" (click)="save()">Save</button>
+      <div class="exchange-rate-title" mode="md">{{ 'fyCurrencyExchangeRate.title' | transloco }}</div>
+      <button class="exchange-rate-save text-right" [disabled]="!fg.valid" (click)="save()">
+        {{ 'fyCurrencyExchangeRate.save' | transloco }}
+      </button>
     </div>
   </ion-toolbar>
 </ion-header>
@@ -17,28 +19,51 @@
   <div class="exchange-rate-modal">
     <form [formGroup]="fg">
       <div class="exchange-rate-modal--form-control">
-        <div class="exchange-rate-modal--label">Expense amount in {{ newCurrency }}</div>
-        <app-fy-number placeholder="00.00" formControlName="newCurrencyAmount"> </app-fy-number>
+        <div class="exchange-rate-modal--label">
+          {{ 'fyCurrencyExchangeRate.expenseAmountInCurrencyLabel' | transloco : { currency: newCurrency } }}
+        </div>
+        <app-fy-number
+          [placeholder]="'fyCurrencyExchangeRate.placeholderAmount' | transloco"
+          formControlName="newCurrencyAmount"
+        >
+        </app-fy-number>
       </div>
       <div class="exchange-rate-modal--form-control">
         <div class="exchange-rate-modal--label">
-          Exchange rate 1 {{ newCurrency }} =
+          {{ 'fyCurrencyExchangeRate.exchangeRateLabel' | transloco : { newCurrency: newCurrency } }}
           <span class="exchange-rate-value">{{ fg.controls.exchangeRate.value }}</span> {{ currentCurrency }}
         </div>
-        <app-fy-number placeholder="00.00" formControlName="exchangeRate"> </app-fy-number>
+        <app-fy-number
+          [placeholder]="'fyCurrencyExchangeRate.placeholderAmount' | transloco"
+          formControlName="exchangeRate"
+        >
+        </app-fy-number>
       </div>
       <div class="exchange-rate-modal--form-control">
-        <div class="exchange-rate-modal--label">Expense amount in {{ currentCurrency }}</div>
-        <app-fy-number placeholder="00.00" formControlName="homeCurrencyAmount"> </app-fy-number>
+        <div class="exchange-rate-modal--label">
+          {{ 'fyCurrencyExchangeRate.expenseAmountInCurrencyLabel' | transloco : { currency: currentCurrency } }}
+        </div>
+        <app-fy-number
+          [placeholder]="'fyCurrencyExchangeRate.placeholderAmount' | transloco"
+          formControlName="homeCurrencyAmount"
+        >
+        </app-fy-number>
       </div>
     </form>
   </div>
   <div class="exchange-rate-info">
     <app-fy-alert-info
-      message="{{ newCurrency }} {{ fg.controls.newCurrencyAmount.value }} was converted to {{ currentCurrency }}
-  {{ fg.controls.homeCurrencyAmount.value }} at the exchange rate of {{ fg.controls.exchangeRate.value }} {{
-        currentCurrency
-      }}/{{ newCurrency }}."
+      [message]="
+        'fyCurrencyExchangeRate.conversionMessage'
+          | transloco
+            : {
+                newCurrency: newCurrency,
+                newCurrencyAmount: fg.controls.newCurrencyAmount.value,
+                currentCurrency: currentCurrency,
+                homeCurrencyAmount: fg.controls.homeCurrencyAmount.value,
+                exchangeRate: fg.controls.exchangeRate.value
+              }
+      "
       [type]="'information'"
     ></app-fy-alert-info>
   </div>

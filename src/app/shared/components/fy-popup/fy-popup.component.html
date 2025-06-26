@@ -3,7 +3,9 @@
     <div class="fy-popup--header-text">
       {{ config.header }}
     </div>
-    <div class="fy-popup--header-cancel" *ngIf="config.showCancelButton" (click)="cancel()">Cancel</div>
+    <div class="fy-popup--header-cancel" *ngIf="config.showCancelButton" (click)="cancel()">
+      {{ 'fyPopup.cancel' | transloco }}
+    </div>
   </div>
   <div class="fy-popup--body">
     <span [innerHTML]="config.message"></span>

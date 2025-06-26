@@ -1,5 +1,5 @@
 <div class="active-org-card" (click)="switchOrg()">
-  <div class="active-org-card__header">Active organization</div>
+  <div class="active-org-card__header">{{ 'activeOrgCard.activeOrganization' | transloco }}</div>
   <ion-grid class="ion-grid-no-padding">
     <ion-row>
       <ion-col class="active-org-card__icon-container">
@@ -30,7 +30,7 @@
         </ion-grid>
       </ion-col>
       <ion-col *ngIf="isPrimaryOrg" class="active-org-card__pill-container">
-        <div class="active-org-card__pill-container__pill">Primary</div>
+        <div class="active-org-card__pill-container__pill">{{ 'activeOrgCard.primaryLabel' | transloco }}</div>
       </ion-col>
     </ion-row>
   </ion-grid>

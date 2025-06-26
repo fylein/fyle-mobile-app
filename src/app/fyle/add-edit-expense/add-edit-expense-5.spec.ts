@@ -18,6 +18,7 @@ import { expenseFieldObjData } from 'src/app/core/mock-data/expense-field-obj.da
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { expectedFileData1, fileObject4 } from 'src/app/core/mock-data/file-object.data';
 import { categorieListRes, recentUsedCategoriesRes } from 'src/app/core/mock-data/org-category-list-item.data';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 
 import {
   filteredCategoriesData,
@@ -179,9 +180,20 @@ export function TestCases5(getTestBed) {
     let platform: jasmine.SpyObj<Platform>;
     let expensesService: jasmine.SpyObj<ExpensesService>;
     let advanceWalletsService: jasmine.SpyObj<AdvanceWalletsService>;
-
+    let translocoService: jasmine.SpyObj<TranslocoService>;
     beforeEach(() => {
+      const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+        config: {
+          reRenderOnLangChange: true,
+        },
+        langChanges$: of('en'),
+        _loadDependencies: () => Promise.resolve(),
+      });
       const TestBed = getTestBed();
+      TestBed.configureTestingModule({
+        imports: [TranslocoModule],
+        providers: [{ provide: TranslocoService, useValue: translocoServiceSpy }],
+      });
       TestBed.compileComponents();
 
       fixture = TestBed.createComponent(AddEditExpensePage);
@@ -237,7 +249,7 @@ export function TestCases5(getTestBed) {
       launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
       expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
       advanceWalletsService = TestBed.inject(AdvanceWalletsService) as jasmine.SpyObj<AdvanceWalletsService>;
-
+      translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
       component.fg = formBuilder.group({
         currencyObj: [, component.currencyObjValidator],
         paymentMode: [, Validators.required],

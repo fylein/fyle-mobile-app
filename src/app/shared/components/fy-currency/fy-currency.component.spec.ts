@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import {
   UntypedFormBuilder,
   UntypedFormControl,
@@ -23,12 +24,19 @@ describe('FyCurrencyComponent', () => {
   let modalController: jasmine.SpyObj<ModalController>;
   let currencyService: jasmine.SpyObj<CurrencyService>;
   let modalPropertiesService: jasmine.SpyObj<ModalPropertiesService>;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
 
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss', 'create']);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getExchangeRate']);
     const modalPropertiesServiceSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [
         FyCurrencyComponent,
@@ -36,7 +44,7 @@ describe('FyCurrencyComponent', () => {
         FyCurrencyExchangeRateComponent,
         FyNumberComponent,
       ],
-      imports: [IonicModule.forRoot(), FormsModule, ReactiveFormsModule],
+      imports: [IonicModule.forRoot(), FormsModule, ReactiveFormsModule, TranslocoModule],
       providers: [
         {
           provide: ModalController,
@@ -51,6 +59,10 @@ describe('FyCurrencyComponent', () => {
           useValue: modalPropertiesServiceSpy,
         },
         UntypedFormBuilder,
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
@@ -61,6 +73,29 @@ describe('FyCurrencyComponent', () => {
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
     modalPropertiesService = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'fyCurrency.currencyAutoCoded': 'Currency is auto coded.',
+        'fyCurrency.amountAutoCoded': 'Amount is auto coded.',
+        'fyCurrency.currency': 'Currency',
+        'fyCurrency.amount': 'Amount',
+        'fyCurrency.amountPlaceholder': '00.00',
+        'fyCurrency.exchangeRateInfo': 'at {{exchangeRate}} {{currency}} / {{origCurrency}}',
+        'fyCurrency.modifyButton': 'Modify',
+      };
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
+    });
     component.txnDt = new Date();
     component.recentlyUsed = [];
     component.expanded = true;

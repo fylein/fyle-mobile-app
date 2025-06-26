@@ -6,14 +6,14 @@
   >
     <app-fy-select
       [enableSearch]="false"
-      [label]="'From'"
+      [label]="'categoryDependentFieldsForm.from' | transloco"
       [mandatory]="false"
       [nullOption]="false"
       [disabled]="
         disableFormElements || location1OptionsData?.options?.length === 0 || location1OptionsData?.areSameValues
       "
       [options]="location1OptionsData?.options"
-      [selectModalHeader]="'Select from'"
+      [selectModalHeader]="'categoryDependentFieldsForm.selectFrom' | transloco"
       formControlName="location_1"
       [touchedInParent]="categoryDependentFormGroup.controls.location_1.touched"
       [validInParent]="categoryDependentFormGroup.controls.location_1.valid"
@@ -28,14 +28,14 @@
   >
     <app-fy-select
       [enableSearch]="false"
-      [label]="'To'"
+      [label]="'categoryDependentFieldsForm.to' | transloco"
       [mandatory]="false"
       [nullOption]="false"
       [disabled]="
         disableFormElements || location2OptionsData?.options?.length === 0 || location2OptionsData?.areSameValues
       "
       [options]="location2OptionsData?.options"
-      [selectModalHeader]="'Select to'"
+      [selectModalHeader]="'categoryDependentFieldsForm.selectTo' | transloco"
       formControlName="location_2"
       [touchedInParent]="categoryDependentFormGroup.controls.location_2.touched"
       [validInParent]="categoryDependentFormGroup.controls.location_2.valid"
@@ -50,14 +50,14 @@
   >
     <app-fy-select
       [enableSearch]="false"
-      [label]="'Onward Date'"
+      [label]="'categoryDependentFieldsForm.onwardDate' | transloco"
       [mandatory]="false"
       [nullOption]="false"
       [disabled]="
         disableFormElements || onwardDateOptionsData?.options?.length === 0 || onwardDateOptionsData?.areSameValues
       "
       [options]="onwardDateOptionsData?.options"
-      [selectModalHeader]="'Select onward date'"
+      [selectModalHeader]="'categoryDependentFieldsForm.selectOnwardDate' | transloco"
       formControlName="from_dt"
       [touchedInParent]="categoryDependentFormGroup.controls.from_dt.touched"
       [validInParent]="categoryDependentFormGroup.controls.from_dt.valid"
@@ -72,14 +72,14 @@
   >
     <app-fy-select
       [enableSearch]="false"
-      [label]="'Return Date'"
+      [label]="'categoryDependentFieldsForm.returnDate' | transloco"
       [mandatory]="false"
       [nullOption]="false"
       [disabled]="
         disableFormElements || returnDateOptionsData?.options?.length === 0 || returnDateOptionsData?.areSameValues
       "
       [options]="returnDateOptionsData?.options"
-      [selectModalHeader]="'Select return date'"
+      [selectModalHeader]="'categoryDependentFieldsForm.selectReturnDate' | transloco"
       formControlName="to_dt"
       [touchedInParent]="categoryDependentFormGroup.controls.to_dt.touched"
       [validInParent]="categoryDependentFormGroup.controls.to_dt.valid"
@@ -96,7 +96,7 @@
   >
     <app-fy-select
       [enableSearch]="false"
-      [label]="'Travel Class'"
+      [label]="'categoryDependentFieldsForm.travelClass' | transloco"
       [mandatory]="false"
       [nullOption]="false"
       [disabled]="
@@ -105,7 +105,7 @@
         flightJourneyTravelClassOptionsData?.areSameValues
       "
       [options]="flightJourneyTravelClassOptionsData?.options"
-      [selectModalHeader]="'Select travel class'"
+      [selectModalHeader]="'categoryDependentFieldsForm.selectTravelClass' | transloco"
       formControlName="flight_journey_travel_class"
       [touchedInParent]="categoryDependentFormGroup.controls.flight_journey_travel_class.touched"
       [validInParent]="categoryDependentFormGroup.controls.flight_journey_travel_class.valid"
@@ -122,7 +122,7 @@
   >
     <app-fy-select
       [enableSearch]="false"
-      [label]="'Return Travel Class'"
+      [label]="'categoryDependentFieldsForm.returnTravelClass' | transloco"
       [mandatory]="false"
       [nullOption]="false"
       [disabled]="
@@ -131,7 +131,7 @@
         flightReturnTravelClassOptionsData?.areSameValues
       "
       [options]="flightReturnTravelClassOptionsData?.options"
-      [selectModalHeader]="'Select return travel class'"
+      [selectModalHeader]="'categoryDependentFieldsForm.selectReturnTravelClass' | transloco"
       formControlName="flight_return_travel_class"
       [touchedInParent]="categoryDependentFormGroup.controls.flight_return_travel_class.touched"
       [validInParent]="categoryDependentFormGroup.controls.flight_return_travel_class.valid"
@@ -148,7 +148,7 @@
   >
     <app-fy-select
       [enableSearch]="false"
-      [label]="'Travel Class'"
+      [label]="'categoryDependentFieldsForm.travelClass' | transloco"
       [mandatory]="false"
       [nullOption]="false"
       [disabled]="
@@ -157,7 +157,7 @@
         trainTravelClassOptionsData?.areSameValues
       "
       [options]="trainTravelClassOptionsData?.options"
-      [selectModalHeader]="'Select travel class'"
+      [selectModalHeader]="'categoryDependentFieldsForm.selectTravelClass' | transloco"
       formControlName="train_travel_class"
       [touchedInParent]="categoryDependentFormGroup.controls.train_travel_class.touched"
       [validInParent]="categoryDependentFormGroup.controls.train_travel_class.valid"
@@ -174,7 +174,7 @@
   >
     <app-fy-select
       [enableSearch]="false"
-      [label]="'Travel Class'"
+      [label]="'categoryDependentFieldsForm.travelClass' | transloco"
       [mandatory]="false"
       [nullOption]="false"
       [disabled]="
@@ -183,7 +183,7 @@
         busTravelClassOptionsData?.areSameValues
       "
       [options]="busTravelClassOptionsData?.options"
-      [selectModalHeader]="'Select travel class'"
+      [selectModalHeader]="'categoryDependentFieldsForm.selectTravelClass' | transloco"
       formControlName="bus_travel_class"
       [touchedInParent]="categoryDependentFormGroup.controls.bus_travel_class.touched"
       [validInParent]="categoryDependentFormGroup.controls.bus_travel_class.valid"
@@ -198,14 +198,14 @@
   >
     <app-fy-select
       [enableSearch]="false"
-      [label]="'Distance'"
+      [label]="'categoryDependentFieldsForm.distance' | transloco"
       [mandatory]="false"
       [nullOption]="false"
       [disabled]="
         disableFormElements || distanceOptionsData?.options?.length === 0 || distanceOptionsData?.areSameValues
       "
       [options]="distanceOptionsData?.options"
-      [selectModalHeader]="'Select distance'"
+      [selectModalHeader]="'categoryDependentFieldsForm.selectDistance' | transloco"
       formControlName="distance"
       [touchedInParent]="categoryDependentFormGroup.controls.distance.touched"
       [validInParent]="categoryDependentFormGroup.controls.distance.valid"
@@ -220,14 +220,14 @@
   >
     <app-fy-select
       [enableSearch]="false"
-      [label]="'Distance'"
+      [label]="'categoryDependentFieldsForm.distance' | transloco"
       [mandatory]="false"
       [nullOption]="false"
       [disabled]="
         disableFormElements || distanceUnitOptionsData?.options?.length === 0 || distanceUnitOptionsData?.areSameValues
       "
       [options]="distanceUnitOptionsData?.options"
-      [selectModalHeader]="'Select distance unit'"
+      [selectModalHeader]="'categoryDependentFieldsForm.selectDistanceUnit' | transloco"
       formControlName="distance_unit"
       [touchedInParent]="categoryDependentFormGroup.controls.distance_unit.touched"
       [validInParent]="categoryDependentFormGroup.controls.distance_unit.valid"

@@ -1,25 +1,37 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { IonicModule, PopoverController } from '@ionic/angular';
 
 import { TransactionStatusInfoPopoverComponent } from './transaction-status-info-popover.component';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
+import { of } from 'rxjs';
 
 describe('TransactionStatusInfoComponent', () => {
   let component: TransactionStatusInfoPopoverComponent;
   let popoverController: jasmine.SpyObj<PopoverController>;
   let fixture: ComponentFixture<TransactionStatusInfoPopoverComponent>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['dismiss']);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [TransactionStatusInfoPopoverComponent],
-      imports: [IonicModule.forRoot()],
+      imports: [IonicModule.forRoot(), TranslocoModule],
       providers: [
         {
           provide: PopoverController,
           useValue: popoverControllerSpy,
+        },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
       ],
     }).compileComponents();
@@ -27,6 +39,22 @@ describe('TransactionStatusInfoComponent', () => {
     fixture = TestBed.createComponent(TransactionStatusInfoPopoverComponent);
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     component = fixture.componentInstance;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'transactionStatusInfoPopover.title': 'Transaction status:',
+        'transactionStatusInfoPopover.pendingStatusInfo':
+          "Your transaction status is 'Pending' until your bank processes the transaction.",
+        'transactionStatusInfoPopover.postedStatusInfo': 'The transaction has been processed by your bank.',
+      };
+      let translation = translations[key] || key;
+      if (params) {
+        Object.keys(params).forEach((key) => {
+          translation = translation.replace(`{{${key}}}`, params[key]);
+        });
+      }
+      return translation;
+    });
     fixture.detectChanges();
   }));
 
@@ -69,16 +97,18 @@ describe('TransactionStatusInfoComponent', () => {
     });
 
     describe('content', () => {
-      it('should display the correct content when transaction status is PENDING', () => {
+      it('should display the correct content when transaction status is PENDING', fakeAsync(() => {
         component.transactionStatus = ExpenseTransactionStatus.PENDING;
 
+        fixture.detectChanges();
+        tick();
         fixture.detectChanges();
 
         const content = getElementBySelector(fixture, '[data-testid="content"');
         expect(content.textContent).toEqual(
           `Your transaction status is 'Pending' until your bank processes the transaction.`
         );
-      });
+      }));
 
       it('should display the correct content when transaction status is POSTED', () => {
         component.transactionStatus = ExpenseTransactionStatus.POSTED;

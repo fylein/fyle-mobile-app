@@ -1,22 +1,53 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync, fakeAsync, tick } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { SnakeCaseToSpaceCase } from 'src/app/shared/pipes/snake-case-to-space-case.pipe';
 
 import { StatusesDiffComponent } from './statuses-diff.component';
-
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
+import { of } from 'rxjs';
 describe('StatusesDiffComponent', () => {
   let component: StatusesDiffComponent;
   let fixture: ComponentFixture<StatusesDiffComponent>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [StatusesDiffComponent, SnakeCaseToSpaceCase],
-      imports: [IonicModule.forRoot()],
+      imports: [IonicModule.forRoot(), TranslocoModule],
+      providers: [
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(StatusesDiffComponent);
     component = fixture.componentInstance;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'statusesDiff.mileageRateName': 'Mileage Rate Name',
+      };
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
+    });
     fixture.detectChanges();
   }));
 
@@ -57,14 +88,16 @@ describe('StatusesDiffComponent', () => {
     expect(getTextContent(listItem)).toEqual('Distance : 4000');
   });
 
-  it('should render key as Mileage Rate Name if key is vehicle type', () => {
+  it('should render key as Mileage Rate Name if key is vehicle type', fakeAsync(() => {
     component.key = 'vehicle type';
     component.value = 'Two Wheeler';
     component.ngOnInit();
     fixture.detectChanges();
+    tick();
+    fixture.detectChanges();
     const listItem = getElementBySelector(fixture, 'li');
     expect(getTextContent(listItem)).toEqual('Mileage Rate Name : Two Wheeler');
-  });
+  }));
 
   it('should render Please contact your admin to configure the following key correctly', () => {
     component.key = 'Please contact your admin to configure the following';

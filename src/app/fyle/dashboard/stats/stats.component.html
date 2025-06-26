@@ -3,7 +3,7 @@
     <ion-row class="stats--expenses-stats-row" *ngIf="isConnected$ | async">
       <ion-col class="stats--expenses-stats-col">
         <div class="stats--header">
-          <span>My expenses</span>
+          <span>{{ 'stats.myExpenses' | transloco }}</span>
         </div>
       </ion-col>
     </ion-row>
@@ -12,7 +12,7 @@
         <app-stat-badge
           [currency]="homeCurrency$ | async"
           [currencySymbol]="currencySymbol$ | async"
-          [name]="'Incomplete'"
+          [name]="'stats.incomplete' | transloco"
           [expenseState]="'INCOMPLETE_EXPENSE'"
           [count]="(incompleteExpensesStats$ | async)?.count"
           [value]="(incompleteExpensesStats$ | async)?.sum"
@@ -24,7 +24,7 @@
         <app-stat-badge
           [currency]="homeCurrency$ | async"
           [currencySymbol]="currencySymbol$ | async"
-          [name]="'Complete'"
+          [name]="'stats.complete' | transloco"
           [expenseState]="'COMPLETE'"
           [count]="(unreportedExpensesStats$ | async)?.count"
           [value]="(unreportedExpensesStats$ | async)?.sum"
@@ -36,7 +36,7 @@
     <ion-row class="stats--report-stats-row" *ngIf="isConnected$ | async">
       <ion-col class="stats--report-stats-col">
         <div class="stats--header">
-          <span>My expense reports</span>
+          <span>{{ 'stats.myExpenseReports' | transloco }}</span>
         </div>
       </ion-col>
     </ion-row>
@@ -47,7 +47,7 @@
             <app-stat-badge
               [currency]="reportStatsData.homeCurrency"
               [currencySymbol]="reportStatsData.currencySymbol"
-              [name]="'Draft'"
+              [name]="'stats.draft' | transloco"
               [reportState]="ReportStates.DRAFT"
               [count]="reportStatsData.reportStats?.draft?.count"
               [value]="reportStatsData.reportStats?.draft?.total_amount"
@@ -58,7 +58,9 @@
             <app-stat-badge
               [currency]="reportStatsData.homeCurrency"
               [currencySymbol]="reportStatsData.currencySymbol"
-              [name]="reportStatsData.simplifyReportsSettings.enabled ? 'Submitted' : 'Reported'"
+              [name]="
+                (reportStatsData.simplifyReportsSettings.enabled ? 'stats.submitted' : 'stats.reported') | transloco
+              "
               [reportState]="ReportStates.APPROVER_PENDING"
               [count]="reportStatsData.reportStats?.report?.count"
               [value]="reportStatsData.reportStats?.report?.total_amount"
@@ -74,7 +76,7 @@
             <app-stat-badge
               [currency]="reportStatsData.homeCurrency"
               [currencySymbol]="reportStatsData.currencySymbol"
-              [name]="'Approved'"
+              [name]="'stats.approved' | transloco"
               [reportState]="ReportStates.APPROVED"
               [count]="reportStatsData.reportStats?.approved?.count"
               [value]="reportStatsData.reportStats?.approved?.total_amount"
@@ -89,7 +91,7 @@
               <app-stat-badge
                 [currency]="reportStatsData.homeCurrency"
                 [currencySymbol]="reportStatsData.currencySymbol"
-                [name]="'Processing'"
+                [name]="'stats.processing' | transloco"
                 [reportState]="ReportStates.PAYMENT_PROCESSING"
                 [count]="reportStatsData.reportStats?.processing?.count"
                 [value]="reportStatsData.reportStats?.processing?.total_amount"
@@ -100,7 +102,7 @@
               <app-stat-badge
                 [currency]="reportStatsData.homeCurrency"
                 [currencySymbol]="reportStatsData.currencySymbol"
-                [name]="'Payment Pending'"
+                [name]="'stats.paymentPending' | transloco"
                 [reportState]="ReportStates.PAYMENT_PENDING"
                 [count]="reportStatsData.reportStats?.paymentPending?.count"
                 [value]="reportStatsData.reportStats?.paymentPending?.total_amount"
@@ -114,7 +116,7 @@
         <ion-row class="stats--report-stats-row-team" *ngIf="isConnected$ | async">
           <ion-col class="stats--report-stats-col">
             <div class="stats--header">
-              <span>Team expense reports</span>
+              <span>{{ 'stats.teamExpenseReports' | transloco }}</span>
             </div>
           </ion-col>
         </ion-row>
@@ -123,7 +125,7 @@
             <app-stat-badge
               [currency]="homeCurrency$ | async"
               [currencySymbol]="currencySymbol$ | async"
-              [name]="'Approval pending'"
+              [name]="'stats.approvalPending' | transloco"
               [reportState]="ReportStates.UNAPPROVED_TEAM_REPORTS"
               [count]="(unapprovedTeamReportsStats$ | async)?.count"
               [value]="(unapprovedTeamReportsStats$ | async)?.total_amount"
@@ -167,8 +169,8 @@
       <app-fy-zero-state
         class="stats--zero-state"
         image="../../../../assets/images/no-internet.svg"
-        header="You're Offline!"
-        message="Fear not, you can still add expenses offline."
+        [header]="'stats.offlineHeader' | transloco"
+        [message]="'stats.offlineMessage' | transloco"
         [unscaledImage]="true"
         [useNewStyling]="true"
       ></app-fy-zero-state>

@@ -6,22 +6,58 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { FormsModule } from '@angular/forms';
 import { getElementBySelector, getElementByTagName } from 'src/app/core/dom-helpers';
 import { ShareReportComponent } from './share-report.component';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
+import { of } from 'rxjs';
 
 describe('ShareReportComponent', () => {
   let component: ShareReportComponent;
   let fixture: ComponentFixture<ShareReportComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     modalController = jasmine.createSpyObj('ModalController', ['dismiss']);
     TestBed.configureTestingModule({
       declarations: [ShareReportComponent],
-      imports: [IonicModule.forRoot(), FormsModule, MatIconModule, MatIconTestingModule],
-      providers: [{ provide: ModalController, useValue: modalController }],
+      imports: [IonicModule.forRoot(), FormsModule, MatIconModule, MatIconTestingModule, TranslocoModule],
+      providers: [
+        { provide: ModalController, useValue: modalController },
+        { provide: TranslocoService, useValue: translocoServiceSpy },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ShareReportComponent);
     component = fixture.componentInstance;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'shareReport.title': 'Share report',
+        'shareReport.cancel': 'Cancel',
+        'shareReport.details': 'Share report via email.',
+        'shareReport.emailPlaceholder': 'Email ID',
+        'shareReport.invalidEmail': 'Please enter a valid email',
+        'shareReport.ctaButton': 'Pull back',
+        'shareReport.share': 'Share',
+        'shareReport.shareWith': 'Share report with',
+      };
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
+    });
     fixture.detectChanges();
   }));
 

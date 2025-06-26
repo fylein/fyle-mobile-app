@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed, discardPeriodicTasks, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { IonicModule } from '@ionic/angular';
 import { ModalController } from '@ionic/angular';
 import { ProjectsService } from 'src/app/core/services/projects.service';
@@ -56,7 +57,7 @@ describe('FyProjectSelectModalComponent', () => {
   let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let inputElement: HTMLInputElement;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
     const projectsServiceSpy = jasmine.createSpyObj('ProjectsService', ['getbyId', 'getByParamsUnformatted']);
@@ -70,7 +71,13 @@ describe('FyProjectSelectModalComponent', () => {
       'filterRequired',
       'getCategoryById',
     ]);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [FyProjectSelectModalComponent, FyHighlightTextComponent, HighlightPipe],
       imports: [
@@ -81,6 +88,7 @@ describe('FyProjectSelectModalComponent', () => {
         MatFormFieldModule,
         MatInputModule,
         BrowserAnimationsModule,
+        TranslocoModule,
       ],
       providers: [
         ChangeDetectorRef,
@@ -116,6 +124,10 @@ describe('FyProjectSelectModalComponent', () => {
           provide: CategoriesService,
           useValue: categoriesServiceSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(FyProjectSelectModalComponent);
@@ -134,7 +146,22 @@ describe('FyProjectSelectModalComponent', () => {
     platformEmployeeSettingsService = TestBed.inject(
       PlatformEmployeeSettingsService
     ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
-
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'fyProjectSelectModal.selectLabel': 'Select {{label}}',
+        'fyProjectSelectModal.searchPlaceholder': 'Search',
+        'fyProjectSelectModal.clearAriaLabel': 'Clear',
+        'fyProjectSelectModal.none': 'None',
+      };
+      let translation = translations[key] || key;
+      if (params) {
+        Object.keys(params).forEach((paramKey) => {
+          translation = translation.replace(`{{${paramKey}}}`, params[paramKey]);
+        });
+      }
+      return translation;
+    });
     projectsService.getbyId.and.returnValue(of(singleProjects1));
 
     orgSettingsService.get.and.returnValue(of(orgSettingsData));
@@ -426,13 +453,15 @@ describe('FyProjectSelectModalComponent', () => {
     }));
   });
 
-  it('should show label on the screen', () => {
+  it('should show label on the screen', fakeAsync(() => {
     component.activeCategories$ = of([]);
     component.label = 'Projects';
     fixture.detectChanges();
-
+    tick();
+    fixture.detectChanges();
     expect(getTextContent(getElementBySelector(fixture, '.selection-modal--title'))).toEqual('Select Projects');
-  });
+    discardPeriodicTasks();
+  }));
 
   it('should close the modal on clicking done CTA', () => {
     spyOn(component, 'onDoneClick');

@@ -10,6 +10,7 @@ import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-create-new-report',
@@ -44,7 +45,8 @@ export class CreateNewReportComponent implements OnInit {
     private trackingService: TrackingService,
     private currencyService: CurrencyService,
     private expenseFieldsService: ExpenseFieldsService,
-    private spenderReportsService: SpenderReportsService
+    private spenderReportsService: SpenderReportsService,
+    private translocoService: TranslocoService
   ) {}
 
   getReportTitle(): Subscription {
@@ -136,7 +138,7 @@ export class CreateNewReportComponent implements OnInit {
         .subscribe((report) => {
           this.modalController.dismiss({
             report,
-            message: 'Expenses added to a new report',
+            message: this.translocoService.translate('createNewReport.draftSuccessMessage'),
           });
         });
     } else {
@@ -157,7 +159,7 @@ export class CreateNewReportComponent implements OnInit {
         .subscribe((report) => {
           this.modalController.dismiss({
             report,
-            message: 'Expenses submitted for approval',
+            message: this.translocoService.translate('createNewReport.submitSuccessMessage'),
           });
         });
     }

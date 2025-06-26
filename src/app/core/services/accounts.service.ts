@@ -15,21 +15,23 @@ import { AdvanceWallet } from 'src/app/core/models/platform/v1/advance-wallet.mo
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { AccountDetail } from '../models/account-detail.model';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AccountsService {
   private readonly accountDisplayNameMapping: Record<string, string> = {
-    PERSONAL_CASH_ACCOUNT: 'Personal Card/Cash',
-    PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT: 'Corporate Card',
-    PERSONAL_ADVANCE_ACCOUNT: 'Advance Wallet',
-    COMPANY_ACCOUNT: 'Paid by Company',
+    PERSONAL_CASH_ACCOUNT: 'services.accounts.personalCardCash',
+    PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT: 'services.accounts.corporateCard',
+    PERSONAL_ADVANCE_ACCOUNT: 'services.accounts.advanceWallet',
+    COMPANY_ACCOUNT: 'services.accounts.paidByCompany',
   };
 
   constructor(
     private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
-    private fyCurrencyPipe: FyCurrencyPipe
+    private fyCurrencyPipe: FyCurrencyPipe,
+    private translocoService: TranslocoService
   ) {}
 
   @Cacheable()
@@ -166,15 +168,15 @@ export class AccountsService {
       if (paymentMode === AccountType.PERSONAL) {
         accountCopy.isReimbursable = true;
         accountCopy.acc.isReimbursable = true;
-        accountCopy.acc.displayName = 'Personal Card/Cash';
+        accountCopy.acc.displayName = this.translocoService.translate('services.accounts.personalCardCash');
       } else if (paymentMode === AccountType.COMPANY) {
         accountCopy.isReimbursable = false;
         accountCopy.acc.isReimbursable = false;
-        accountCopy.acc.displayName = 'Paid by Company';
+        accountCopy.acc.displayName = this.translocoService.translate('services.accounts.paidByCompany');
       } else if (account.type === AccountType.CCC) {
         accountCopy.isReimbursable = false;
         accountCopy.acc.isReimbursable = false;
-        accountCopy.acc.displayName = 'Corporate Card';
+        accountCopy.acc.displayName = this.translocoService.translate('services.accounts.corporateCard');
       } else if (account.type === AccountType.ADVANCE) {
         accountCopy.isReimbursable = false;
         accountCopy.acc.isReimbursable = false;
@@ -189,11 +191,9 @@ export class AccountsService {
   }
 
   getAdvanceWalletDisplayName(advanceWallet: AdvanceWallet): string {
-    return (
-      'Advance Wallet (Balance: ' +
-      this.fyCurrencyPipe.transform(advanceWallet.balance_amount, advanceWallet.currency) +
-      ')'
-    );
+    return this.translocoService.translate('services.accounts.advanceWalletDisplayName', {
+      balance: this.fyCurrencyPipe.transform(advanceWallet.balance_amount, advanceWallet.currency),
+    });
   }
 
   getAdvanceAccountDisplayName(account: ExtendedAccount, isMultipleAdvanceEnabled: boolean): string {
@@ -204,7 +204,9 @@ export class AccountsService {
       accountBalance =
         (account.acc.tentative_balance_amount * account.orig.amount) / account.acc.current_balance_amount;
     }
-    return 'Advance (Balance: ' + this.fyCurrencyPipe.transform(accountBalance, accountCurrency) + ')';
+    return this.translocoService.translate('services.accounts.advanceAccountDisplayName', {
+      balance: this.fyCurrencyPipe.transform(accountBalance, accountCurrency),
+    });
   }
 
   filterAccountsWithSufficientBalance(accounts: ExtendedAccount[], isAdvanceEnabled: boolean): ExtendedAccount[] {
@@ -279,12 +281,14 @@ export class AccountsService {
         current_balance_amount: platformAccount.current_balance_amount,
         tentative_balance_amount: platformAccount.tentative_balance_amount,
         displayName: isPersonalCashAccount
-          ? 'Personal Card/Cash'
-          : this.accountDisplayNameMapping[platformAccount.type],
+          ? this.translocoService.translate('services.accounts.personalCardCash')
+          : this.translocoService.translate(this.accountDisplayNameMapping[platformAccount.type]),
         isReimbursable: isPersonalCashAccount,
         created_at: new Date(platformAccount.created_at),
         updated_at: new Date(platformAccount.updated_at),
-        name: isPersonalCashAccount ? 'Personal Card/Cash' : this.accountDisplayNameMapping[platformAccount.type],
+        name: isPersonalCashAccount
+          ? this.translocoService.translate('services.accounts.personalCardCash')
+          : this.translocoService.translate(this.accountDisplayNameMapping[platformAccount.type]),
         category: platformAccount.category_id || '',
       },
       org: {
