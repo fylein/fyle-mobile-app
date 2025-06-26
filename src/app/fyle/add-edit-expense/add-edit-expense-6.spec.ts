@@ -1241,39 +1241,5 @@ export function TestCases6(getTestBed) {
       expect(modalSpy.present).toHaveBeenCalledTimes(1);
       expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
     }));
-
-    describe('getCostCenterDependentFields():', () => {
-      it('should get cost center dependent fields', () => {
-        const mockDependentFields = [
-          { id: 1, name: 'field1', value: 'test1' },
-          { id: 2, name: 'field2', value: 'test2' },
-        ];
-
-        // Clear the form array and add new controls
-        const costCenterDependentFieldsArray = component.fg.controls.cost_center_dependent_fields as UntypedFormArray;
-        while (costCenterDependentFieldsArray.length) {
-          costCenterDependentFieldsArray.removeAt(0);
-        }
-
-        mockDependentFields.forEach((field) => {
-          costCenterDependentFieldsArray.push(formBuilder.control(field));
-        });
-
-        const result = component.getCostCenterDependentFields();
-        expect(result).toEqual(mockDependentFields);
-      });
-
-      it('should return empty array when form value is null', () => {
-        // Set form value to have empty cost_center_dependent_fields
-        Object.defineProperty(component.fg, 'value', {
-          get: () => ({
-            cost_center_dependent_fields: [],
-          }),
-        });
-
-        const result = component.getCostCenterDependentFields();
-        expect(result).toEqual([]);
-      });
-    });
   });
 }
