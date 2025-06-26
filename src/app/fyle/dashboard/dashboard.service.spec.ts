@@ -8,7 +8,12 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { expectedAssignedCCCStats } from '../../core/mock-data/ccc-expense.details.data';
-import { expectedReportStats, expectedGroupedReportStats } from '../../core/mock-data/report-stats.data';
+import {
+  expectedReportStats,
+  expectedGroupedReportStats,
+  expectedSentBackResponse,
+  expectedEmptyReportStats,
+} from '../../core/mock-data/report-stats.data';
 import { apiAssignedCardDetailsRes } from '../../core/mock-data/stats-response.data';
 import {
   emptyStatsAgg,
@@ -19,7 +24,6 @@ import { DashboardService } from './dashboard.service';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { ReportStates } from './stat-badge/report-states.enum';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
-import { expectedSentBackResponse } from '../../core/mock-data/report-stats.data';
 import { TranslocoService } from '@jsverse/transloco';
 
 describe('DashboardService', () => {
@@ -212,6 +216,25 @@ describe('DashboardService', () => {
 
     it('should return "Reported" if report state is APPROVER_PENDING', () => {
       expect(dashboardService.getReportStateMapping(ReportStates.APPROVER_PENDING)).toEqual('Reported');
+    });
+  });
+
+  describe('transformStat():', () => {
+    it('should return all zeros if stat is undefined', () => {
+      const result = (dashboardService as any).transformStat(undefined);
+      expect(result).toEqual(expectedEmptyReportStats.draft);
+    });
+
+    it('should convert null values to 0 using nullish coalescing', () => {
+      const statWithNulls = expectedGroupedReportStats[0];
+      const result = (dashboardService as any).transformStat(statWithNulls);
+      expect(result).toEqual(expectedReportStats.draft);
+    });
+
+    it('should preserve actual values when they are not null', () => {
+      const statWithValues = expectedGroupedReportStats[4]; // PAYMENT_PROCESSING
+      const result = (dashboardService as any).transformStat(statWithValues);
+      expect(result).toEqual(expectedReportStats.processing);
     });
   });
 });
