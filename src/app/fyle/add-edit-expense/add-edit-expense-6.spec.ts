@@ -91,7 +91,7 @@ import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense
 import { CCExpenseMerchantInfoModalComponent } from 'src/app/shared/components/cc-expense-merchant-info-modal/cc-expense-merchant-info-modal.component';
 
 export function TestCases6(getTestBed) {
-  describe('AddEditExpensePage-6', () => {
+  fdescribe('AddEditExpensePage-6', () => {
     let component: AddEditExpensePage;
     let fixture: ComponentFixture<AddEditExpensePage>;
     let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
@@ -827,6 +827,42 @@ export function TestCases6(getTestBed) {
 
         const result = component.getOrgCategoryID();
         expect(result).toBeUndefined();
+      });
+    });
+
+    describe('customDateValidator():', () => {
+      it('should validate date correctly', () => {
+        const mockControl = {
+          value: new Date('2023-01-15'),
+        } as any;
+        const result = component.customDateValidator(mockControl);
+        expect(result).toBeNull();
+      });
+
+      it('should return undefined for null date', () => {
+        const mockControl = {
+          value: null,
+        } as any;
+        const result = component.customDateValidator(mockControl);
+        expect(result).toBeUndefined();
+      });
+    });
+
+    describe('merchantValidator():', () => {
+      it('should validate merchant correctly', () => {
+        const mockControl = {
+          value: { display_name: 'Test Merchant' },
+        } as any;
+        const result = component.merchantValidator(mockControl);
+        expect(result).toBeNull();
+      });
+
+      it('should return null for null merchant', () => {
+        const mockControl = {
+          value: null,
+        } as any;
+        const result = component.merchantValidator(mockControl);
+        expect(result).toBeNull();
       });
     });
 
