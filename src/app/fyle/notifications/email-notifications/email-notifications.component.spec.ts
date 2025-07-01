@@ -5,17 +5,17 @@ import { cloneDeep } from 'lodash';
 import { of } from 'rxjs';
 import { NotificationEventItem } from 'src/app/core/models/notification-event-item.model';
 import { NotificationEventsEnum } from 'src/app/core/models/notification-events.enum';
-import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { EmailNotificationsComponent } from './email-notifications.component';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
+import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
 
 describe('EmailNotificationsComponent', () => {
   let component: EmailNotificationsComponent;
   let fixture: ComponentFixture<EmailNotificationsComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
   let platform: jasmine.SpyObj<Platform>;
-  let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
+  let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
 
   const mockNotifications: NotificationEventItem[] = [
@@ -31,13 +31,15 @@ describe('EmailNotificationsComponent', () => {
     },
   ];
 
-  const mockOrgUserSettings = cloneDeep(orgUserSettingsData);
   const mockUnsubscribedEventsByUser = [NotificationEventsEnum.ESTATUSES_CREATED_TXN];
 
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
     const platformSpy = jasmine.createSpyObj('Platform', ['is']);
-    const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['post', 'clearOrgUserSettings']);
+    const platformEmployeeSettingsServiceSpy = jasmine.createSpyObj('PlatformEmployeeSettingsService', [
+      'post',
+      'clearEmployeeSettings',
+    ]);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['eventTrack']);
 
     TestBed.configureTestingModule({
@@ -52,8 +54,8 @@ describe('EmailNotificationsComponent', () => {
           useValue: platformSpy,
         },
         {
-          provide: OrgUserSettingsService,
-          useValue: orgUserSettingsServiceSpy,
+          provide: PlatformEmployeeSettingsService,
+          useValue: platformEmployeeSettingsServiceSpy,
         },
         {
           provide: TrackingService,
@@ -68,16 +70,17 @@ describe('EmailNotificationsComponent', () => {
 
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     platform = TestBed.inject(Platform) as jasmine.SpyObj<Platform>;
-    orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
+    platformEmployeeSettingsService = TestBed.inject(
+      PlatformEmployeeSettingsService
+    ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
 
     component.title = 'Email Notifications';
     component.notifications = cloneDeep(mockNotifications);
-    component.orgUserSettings = cloneDeep(mockOrgUserSettings);
     component.unsubscribedEventsByUser = cloneDeep(mockUnsubscribedEventsByUser);
-
-    orgUserSettingsService.post.and.returnValue(of(null));
-    orgUserSettingsService.clearOrgUserSettings.and.returnValue(of(null));
+    component.employeeSettings = cloneDeep(employeeSettingsData);
+    platformEmployeeSettingsService.post.and.returnValue(of(null));
+    platformEmployeeSettingsService.clearEmployeeSettings.and.returnValue(of(null));
     platform.is.and.returnValue(false);
   }));
 
@@ -121,33 +124,33 @@ describe('EmailNotificationsComponent', () => {
   });
 
   describe('closeModal():', () => {
-    it('should dismiss the modal with orgUserSettingsUpdated as true when saveText is "Saved"', () => {
+    it('should dismiss the modal with employeeSettingsUpdated as true when saveText is "Saved"', () => {
       component.saveText = 'Saved';
 
       component.closeModal();
 
       expect(modalController.dismiss).toHaveBeenCalledWith({
-        orgUserSettingsUpdated: true,
+        employeeSettingsUpdated: true,
       });
     });
 
-    it('should dismiss the modal with orgUserSettingsUpdated as false when saveText is not "Saved"', () => {
+    it('should dismiss the modal with employeeSettingsUpdated as false when saveText is not "Saved"', () => {
       component.saveText = 'Saving...';
 
       component.closeModal();
 
       expect(modalController.dismiss).toHaveBeenCalledWith({
-        orgUserSettingsUpdated: false,
+        employeeSettingsUpdated: false,
       });
     });
 
-    it('should dismiss the modal with orgUserSettingsUpdated as false when saveText is empty', () => {
+    it('should dismiss the modal with employeeSettingsUpdated as false when saveText is empty', () => {
       component.saveText = '';
 
       component.closeModal();
 
       expect(modalController.dismiss).toHaveBeenCalledWith({
-        orgUserSettingsUpdated: false,
+        employeeSettingsUpdated: false,
       });
     });
   });
@@ -224,29 +227,29 @@ describe('EmailNotificationsComponent', () => {
 
   describe('updateNotificationSettings():', () => {
     it('should update unsubscribed events and call tracking service', () => {
-      spyOn(component, 'updateOrgUserSettings');
+      spyOn(component, 'updateEmployeeSettings');
 
       component.updateNotificationSettings();
 
-      expect(component.orgUserSettings.notification_settings.email.unsubscribed_events).toContain(
+      expect(component.employeeSettings.notification_settings.email_unsubscribed_events).toContain(
         NotificationEventsEnum.ERPTS_SUBMITTED
       );
       expect(trackingService.eventTrack).toHaveBeenCalledWith('Email notifications updated from mobile app', {
         unsubscribedEvents: jasmine.any(Array),
       });
-      expect(component.updateOrgUserSettings).toHaveBeenCalledTimes(1);
+      expect(component.updateEmployeeSettings).toHaveBeenCalledTimes(1);
     });
   });
 
-  describe('updateOrgUserSettings():', () => {
-    it('should update org user settings and show save status', fakeAsync(() => {
+  describe('updateEmployeeSettings():', () => {
+    it('should update employee settings and show save status', fakeAsync(() => {
       spyOn(component, 'updateSaveText');
 
-      component.updateOrgUserSettings();
+      component.updateEmployeeSettings();
       tick();
 
-      expect(orgUserSettingsService.post).toHaveBeenCalledWith(component.orgUserSettings);
-      expect(orgUserSettingsService.clearOrgUserSettings).toHaveBeenCalledTimes(1);
+      expect(platformEmployeeSettingsService.post).toHaveBeenCalledWith(component.employeeSettings);
+      expect(platformEmployeeSettingsService.clearEmployeeSettings).toHaveBeenCalledTimes(1);
       expect(component.updateSaveText).toHaveBeenCalledWith('Saving...');
       expect(component.updateSaveText).toHaveBeenCalledWith('Saved');
     }));
