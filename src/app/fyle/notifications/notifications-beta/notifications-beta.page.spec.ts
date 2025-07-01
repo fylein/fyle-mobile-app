@@ -5,11 +5,11 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { of } from 'rxjs';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
-import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
+import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
 import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
 import { NotificationsBetaPageService } from './notifications-beta.page.service';
 import { ModalController } from '@ionic/angular';
@@ -34,7 +34,7 @@ describe('NotificationsBetaPage', () => {
   let fixture: ComponentFixture<NotificationsBetaPage>;
   let router: jasmine.SpyObj<Router>;
   let authService: jasmine.SpyObj<AuthService>;
-  let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
+  let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let employeesService: jasmine.SpyObj<EmployeesService>;
   let notificationsBetaPageService: jasmine.SpyObj<NotificationsBetaPageService>;
@@ -45,10 +45,10 @@ describe('NotificationsBetaPage', () => {
   beforeEach(waitForAsync(() => {
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
-    const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', [
+    const platformEmployeeSettingsServiceSpy = jasmine.createSpyObj('PlatformEmployeeSettingsService', [
       'get',
       'post',
-      'clearOrgUserSettings',
+      'clearEmployeeSettings',
     ]);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const employeesServiceSpy = jasmine.createSpyObj('EmployeesService', ['getByParams']);
@@ -73,8 +73,8 @@ describe('NotificationsBetaPage', () => {
           useValue: authServiceSpy,
         },
         {
-          provide: OrgUserSettingsService,
-          useValue: orgUserSettingsServiceSpy,
+          provide: PlatformEmployeeSettingsService,
+          useValue: platformEmployeeSettingsServiceSpy,
         },
         {
           provide: OrgSettingsService,
@@ -109,7 +109,9 @@ describe('NotificationsBetaPage', () => {
 
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-    orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
+    platformEmployeeSettingsService = TestBed.inject(
+      PlatformEmployeeSettingsService
+    ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     employeesService = TestBed.inject(EmployeesService) as jasmine.SpyObj<EmployeesService>;
     notificationsBetaPageService = TestBed.inject(
@@ -120,7 +122,7 @@ describe('NotificationsBetaPage', () => {
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
 
     // Setup default mock responses
-    orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+    platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
     orgSettingsService.get.and.returnValue(of(orgSettingsData));
     authService.getEou.and.resolveTo(apiEouRes);
     employeesService.getByParams.and.returnValue(of(null));
@@ -146,13 +148,11 @@ describe('NotificationsBetaPage', () => {
       component.ngOnInit();
 
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-      expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+      expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
 
-      component.getOrgSettings().subscribe(({ orgSettings, orgUserSettings }) => {
+      component.getOrgSettings().subscribe(({ orgSettings, employeeSettings }) => {
         expect(orgSettings).toEqual(orgSettingsData);
-        expect(orgUserSettings).toEqual(orgUserSettingsData);
-        expect(component.orgSettings).toEqual(orgSettingsData);
-        expect(component.orgUserSettings).toEqual(orgUserSettingsData);
+        expect(employeeSettings).toEqual(employeeSettingsData);
         expect(component.isAdvancesEnabled).toBe(
           orgSettingsData.advances?.allowed && orgSettingsData.advances?.enabled
         );
@@ -204,13 +204,13 @@ describe('NotificationsBetaPage', () => {
       notificationsBetaPageService.getEmailNotificationsConfig.and.returnValue(mockEmailNotificationsConfig2);
 
       component.orgSettings = orgSettingsData;
-      component.orgUserSettings = orgUserSettingsData;
+      component.employeeSettings = employeeSettingsData;
 
       component.initializeEmailNotificationsConfig();
 
       expect(notificationsBetaPageService.getEmailNotificationsConfig).toHaveBeenCalledOnceWith(
         orgSettingsData,
-        orgUserSettingsData
+        employeeSettingsData
       );
       expect(component.expenseNotificationsConfig).toEqual(mockEmailNotificationsConfig2.expenseNotificationsConfig);
       expect(component.expenseReportNotificationsConfig).toEqual(
@@ -221,15 +221,15 @@ describe('NotificationsBetaPage', () => {
   });
 
   describe('getOrgSettings():', () => {
-    it('should fetch org settings and org user settings using forkJoin', (done) => {
-      component.getOrgSettings().subscribe(({ orgSettings, orgUserSettings }) => {
+    it('should fetch org settings and employee settings using forkJoin', (done) => {
+      component.getOrgSettings().subscribe(({ orgSettings, employeeSettings }) => {
         expect(orgSettings).toEqual(orgSettingsData);
-        expect(orgUserSettings).toEqual(orgUserSettingsData);
+        expect(employeeSettings).toEqual(employeeSettingsData);
 
         done();
       });
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-      expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+      expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -277,8 +277,8 @@ describe('NotificationsBetaPage', () => {
 
   describe('updateDelegateNotificationPreference():', () => {
     beforeEach(() => {
-      component.orgUserSettings = cloneDeep(orgUserSettingsData);
-      orgUserSettingsService.post.and.returnValue(of(component.orgUserSettings));
+      component.employeeSettings = cloneDeep(employeeSettingsData);
+      platformEmployeeSettingsService.post.and.returnValue(of(component.employeeSettings));
     });
 
     it('should handle all preference values correctly', () => {
@@ -289,21 +289,21 @@ describe('NotificationsBetaPage', () => {
       ];
 
       testCases.forEach(({ preference, expectedDelegatee, expectedUser }) => {
-        component.orgUserSettings = cloneDeep(orgUserSettingsData);
+        component.employeeSettings = cloneDeep(employeeSettingsData);
         component.selectedPreference = preference;
 
         component.updateDelegateNotificationPreference();
 
-        expect(component.orgUserSettings.notification_settings.notify_delegatee).toBe(expectedDelegatee);
-        expect(component.orgUserSettings.notification_settings.notify_user).toBe(expectedUser);
-        expect(orgUserSettingsService.post).toHaveBeenCalledWith(component.orgUserSettings);
+        expect(component.employeeSettings.notification_settings.notify_delegatee).toBe(expectedDelegatee);
+        expect(component.employeeSettings.notification_settings.notify_user).toBe(expectedUser);
+        expect(platformEmployeeSettingsService.post).toHaveBeenCalledWith(component.employeeSettings);
         expect(trackingService.eventTrack).toHaveBeenCalledWith(
           'Delegate notification preference updated from mobile app',
           {
             preference,
           }
         );
-        expect(orgUserSettingsService.clearOrgUserSettings).toHaveBeenCalled();
+        expect(platformEmployeeSettingsService.clearEmployeeSettings).toHaveBeenCalled();
       });
     });
   });
@@ -322,14 +322,14 @@ describe('NotificationsBetaPage', () => {
 
   describe('openNotificationModal():', () => {
     beforeEach(() => {
-      component.orgUserSettings = orgUserSettingsData;
+      component.employeeSettings = employeeSettingsData;
       modalPropertiesService.getModalDefaultProperties.and.returnValue(properties);
     });
 
     it('should open notification modal', fakeAsync(() => {
       const notificationModalSpy = jasmine.createSpyObj('notificationModal', ['present', 'onWillDismiss']);
       notificationModalSpy.onWillDismiss.and.resolveTo({
-        data: { orgUserSettingsUpdated: true },
+        data: { employeeSettingsUpdated: true },
       });
       modalController.create.and.resolveTo(notificationModalSpy);
       spyOn(component, 'ngOnInit');
@@ -342,8 +342,8 @@ describe('NotificationsBetaPage', () => {
         componentProps: {
           title: mockEmailNotificationsConfig.expenseNotificationsConfig.title,
           notifications: mockEmailNotificationsConfig.expenseNotificationsConfig.notifications,
-          orgUserSettings: component.orgUserSettings,
-          unsubscribedEventsByUser: component.orgUserSettings.notification_settings.email?.unsubscribed_events ?? [],
+          employeeSettings: component.employeeSettings,
+          unsubscribedEventsByUser: component.employeeSettings.notification_settings.email_unsubscribed_events ?? [],
         },
         ...properties,
       });
@@ -352,10 +352,10 @@ describe('NotificationsBetaPage', () => {
       expect(component.ngOnInit).toHaveBeenCalledTimes(1);
     }));
 
-    it('should not call ngOnInit when orgUserSettingsUpdated is false', fakeAsync(() => {
+    it('should not call ngOnInit when employeeSettingsUpdated is false', fakeAsync(() => {
       const notificationModalSpy = jasmine.createSpyObj('notificationModal', ['present', 'onWillDismiss']);
       notificationModalSpy.onWillDismiss.and.resolveTo({
-        data: { orgUserSettingsUpdated: false },
+        data: { employeeSettingsUpdated: false },
       });
       modalController.create.and.resolveTo(notificationModalSpy);
       spyOn(component, 'ngOnInit');
@@ -368,8 +368,8 @@ describe('NotificationsBetaPage', () => {
         componentProps: {
           title: mockEmailNotificationsConfig.expenseNotificationsConfig.title,
           notifications: mockEmailNotificationsConfig.expenseNotificationsConfig.notifications,
-          orgUserSettings: component.orgUserSettings,
-          unsubscribedEventsByUser: component.orgUserSettings.notification_settings.email?.unsubscribed_events ?? [],
+          employeeSettings: component.employeeSettings,
+          unsubscribedEventsByUser: component.employeeSettings.notification_settings.email_unsubscribed_events ?? [],
         },
         ...properties,
       });
