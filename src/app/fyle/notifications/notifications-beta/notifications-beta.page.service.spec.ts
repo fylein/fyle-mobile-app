@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { NotificationsBetaPageService } from './notifications-beta.page.service';
 import { NotificationEventsEnum } from 'src/app/core/models/notification-events.enum';
-import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
+import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
 import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
 import { cloneDeep } from 'lodash';
 import {
@@ -26,31 +26,31 @@ describe('NotificationsBetaPageService', () => {
 
   describe('getInitialDelegateNotificationPreference():', () => {
     it('should return "onlyMe" when notify_user is true and notify_delegatee is false', () => {
-      const orgUserSettings = cloneDeep(orgUserSettingsData);
-      orgUserSettings.notification_settings.notify_user = true;
-      orgUserSettings.notification_settings.notify_delegatee = false;
+      const employeeSettings = cloneDeep(employeeSettingsData);
+      employeeSettings.notification_settings.notify_user = true;
+      employeeSettings.notification_settings.notify_delegatee = false;
 
-      const result = service.getInitialDelegateNotificationPreference(orgUserSettings);
+      const result = service.getInitialDelegateNotificationPreference(employeeSettings);
 
       expect(result).toBe('onlyMe');
     });
 
     it('should return "onlyDelegate" when notify_user is false and notify_delegatee is true', () => {
-      const orgUserSettings = cloneDeep(orgUserSettingsData);
-      orgUserSettings.notification_settings.notify_user = false;
-      orgUserSettings.notification_settings.notify_delegatee = true;
+      const employeeSettings = cloneDeep(employeeSettingsData);
+      employeeSettings.notification_settings.notify_user = false;
+      employeeSettings.notification_settings.notify_delegatee = true;
 
-      const result = service.getInitialDelegateNotificationPreference(orgUserSettings);
+      const result = service.getInitialDelegateNotificationPreference(employeeSettings);
 
       expect(result).toBe('onlyDelegate');
     });
 
     it('should return "both" when both notify_user and notify_delegatee are true', () => {
-      const orgUserSettings = cloneDeep(orgUserSettingsData);
-      orgUserSettings.notification_settings.notify_user = true;
-      orgUserSettings.notification_settings.notify_delegatee = true;
+      const employeeSettings = cloneDeep(employeeSettingsData);
+      employeeSettings.notification_settings.notify_user = true;
+      employeeSettings.notification_settings.notify_delegatee = true;
 
-      const result = service.getInitialDelegateNotificationPreference(orgUserSettings);
+      const result = service.getInitialDelegateNotificationPreference(employeeSettings);
 
       expect(result).toBe('both');
     });
@@ -94,15 +94,15 @@ describe('NotificationsBetaPageService', () => {
 
   describe('getEmailNotificationsConfig():', () => {
     let orgSettings: any;
-    let orgUserSettings: any;
+    let employeeSettings: any;
 
     beforeEach(() => {
       orgSettings = cloneDeep(orgSettingsData);
-      orgUserSettings = cloneDeep(orgUserSettingsData);
+      employeeSettings = cloneDeep(employeeSettingsData);
     });
 
     it('should return email notifications config with correct structure', () => {
-      const result = service.getEmailNotificationsConfig(orgSettings, orgUserSettings);
+      const result = service.getEmailNotificationsConfig(orgSettings, employeeSettings);
 
       expect(result).toEqual({
         expenseNotificationsConfig: {
@@ -125,7 +125,7 @@ describe('NotificationsBetaPageService', () => {
         unsubscribed_events: [NotificationEventsEnum.EOUS_FORWARD_EMAIL_TO_USER],
       };
 
-      const result = service.getEmailNotificationsConfig(orgSettings, orgUserSettings);
+      const result = service.getEmailNotificationsConfig(orgSettings, employeeSettings);
 
       const expenseNotifications = result.expenseNotificationsConfig.notifications;
       const filteredNotification = expenseNotifications.find(
@@ -136,11 +136,9 @@ describe('NotificationsBetaPageService', () => {
     });
 
     it('should apply user preferences to filter notifications', () => {
-      orgUserSettings.notification_settings.email = {
-        unsubscribed_events: [NotificationEventsEnum.ERPTS_SUBMITTED],
-      };
+      employeeSettings.notification_settings.email_unsubscribed_events = [NotificationEventsEnum.ERPTS_SUBMITTED];
 
-      const result = service.getEmailNotificationsConfig(orgSettings, orgUserSettings);
+      const result = service.getEmailNotificationsConfig(orgSettings, employeeSettings);
 
       const reportNotifications = result.expenseReportNotificationsConfig.notifications;
       const userUnsubscribedNotification = reportNotifications.find(
@@ -155,7 +153,7 @@ describe('NotificationsBetaPageService', () => {
         unsubscribed_events: [],
       };
 
-      const result = service.getEmailNotificationsConfig(orgSettings, orgUserSettings);
+      const result = service.getEmailNotificationsConfig(orgSettings, employeeSettings);
 
       expect(result.expenseNotificationsConfig.notifications.length).toBe(4);
       expect(result.expenseReportNotificationsConfig.notifications.length).toBe(5);
@@ -163,11 +161,9 @@ describe('NotificationsBetaPageService', () => {
     });
 
     it('should handle empty user unsubscribed events', () => {
-      orgUserSettings.notification_settings.email = {
-        unsubscribed_events: [],
-      };
+      employeeSettings.notification_settings.email_unsubscribed_events = [];
 
-      const result = service.getEmailNotificationsConfig(orgSettings, orgUserSettings);
+      const result = service.getEmailNotificationsConfig(orgSettings, employeeSettings);
 
       const allNotifications = [
         ...result.expenseNotificationsConfig.notifications,
@@ -187,11 +183,9 @@ describe('NotificationsBetaPageService', () => {
       };
 
       // User unsubscribes from one report notification
-      orgUserSettings.notification_settings.email = {
-        unsubscribed_events: [NotificationEventsEnum.ERPTS_SUBMITTED],
-      };
+      employeeSettings.notification_settings.email_unsubscribed_events = [NotificationEventsEnum.ERPTS_SUBMITTED];
 
-      const result = service.getEmailNotificationsConfig(orgSettings, orgUserSettings);
+      const result = service.getEmailNotificationsConfig(orgSettings, employeeSettings);
 
       // Expense notifications should be filtered by admin (3 remaining, 1 removed)
       expect(result.expenseNotificationsConfig.notifications.length).toBe(3);

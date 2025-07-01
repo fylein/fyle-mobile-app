@@ -1,10 +1,10 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
+import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
 import { finalize, forkJoin, from, map, Observable, switchMap, tap } from 'rxjs';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { NotificationsBetaPageService } from './notifications-beta.page.service';
 import { NotificationConfig } from 'src/app/core/models/notification-config.model';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -41,7 +41,7 @@ export class NotificationsBetaPage implements OnInit {
 
   advanceNotificationsConfig: NotificationConfig;
 
-  orgUserSettings: OrgUserSettings;
+  employeeSettings: EmployeeSettings;
 
   orgSettings: OrgSettings;
 
@@ -49,7 +49,7 @@ export class NotificationsBetaPage implements OnInit {
 
   private notificationsBetaPageService = inject(NotificationsBetaPageService);
 
-  private orgUserSettingsService = inject(OrgUserSettingsService);
+  private platformEmployeeSettingsService = inject(PlatformEmployeeSettingsService);
 
   private orgSettingsService = inject(OrgSettingsService);
 
@@ -64,9 +64,9 @@ export class NotificationsBetaPage implements OnInit {
   private trackingService = inject(TrackingService);
 
   ngOnInit(): void {
-    this.getOrgSettings().subscribe(({ orgSettings, orgUserSettings }) => {
+    this.getOrgSettings().subscribe(({ orgSettings, employeeSettings }) => {
       this.orgSettings = orgSettings;
-      this.orgUserSettings = orgUserSettings;
+      this.employeeSettings = employeeSettings;
       this.isAdvancesEnabled = this.orgSettings.advances?.allowed && this.orgSettings.advances?.enabled;
 
       this.initializeEmailNotificationsConfig();
@@ -77,7 +77,7 @@ export class NotificationsBetaPage implements OnInit {
   initializeEmailNotificationsConfig(): void {
     const emailNotificationsConfig = this.notificationsBetaPageService.getEmailNotificationsConfig(
       this.orgSettings,
-      this.orgUserSettings
+      this.employeeSettings
     );
 
     this.expenseNotificationsConfig = emailNotificationsConfig.expenseNotificationsConfig;
@@ -85,11 +85,11 @@ export class NotificationsBetaPage implements OnInit {
     this.advanceNotificationsConfig = emailNotificationsConfig.advanceNotificationsConfig;
   }
 
-  getOrgSettings(): Observable<{ orgSettings: OrgSettings; orgUserSettings: OrgUserSettings }> {
+  getOrgSettings(): Observable<{ orgSettings: OrgSettings; employeeSettings: EmployeeSettings }> {
     this.isLoading = true;
     return forkJoin({
       orgSettings: this.orgSettingsService.get(),
-      orgUserSettings: this.orgUserSettingsService.get(),
+      employeeSettings: this.platformEmployeeSettingsService.get(),
     }).pipe(
       finalize(() => {
         this.isLoading = false;
@@ -111,20 +111,20 @@ export class NotificationsBetaPage implements OnInit {
 
   initializeSelectedPreference(): void {
     this.selectedPreference = this.notificationsBetaPageService.getInitialDelegateNotificationPreference(
-      this.orgUserSettings
+      this.employeeSettings
     );
   }
 
   async openNotificationModal(notificationConfig: NotificationConfig): Promise<void> {
     const unsubscribedEventsByUser: string[] =
-      this.orgUserSettings.notification_settings.email?.unsubscribed_events ?? [];
+      this.employeeSettings.notification_settings.email_unsubscribed_events ?? [];
 
     const emailNotificationsModal = await this.modalController.create({
       component: EmailNotificationsComponent,
       componentProps: {
         title: notificationConfig.title,
         notifications: notificationConfig.notifications,
-        orgUserSettings: this.orgUserSettings,
+        employeeSettings: this.employeeSettings,
         unsubscribedEventsByUser,
       },
       ...this.modalPropertiesService.getModalDefaultProperties('email-notifications-modal'),
@@ -132,9 +132,9 @@ export class NotificationsBetaPage implements OnInit {
 
     await emailNotificationsModal.present();
     const { data } = (await emailNotificationsModal.onWillDismiss()) as OverlayResponse<{
-      orgUserSettingsUpdated: boolean;
+      employeeSettingsUpdated: boolean;
     }>;
-    if (data?.orgUserSettingsUpdated) {
+    if (data?.employeeSettingsUpdated) {
       this.ngOnInit();
     }
   }
@@ -147,24 +147,24 @@ export class NotificationsBetaPage implements OnInit {
   updateDelegateNotificationPreference(): void {
     switch (this.selectedPreference) {
       case 'onlyMe':
-        this.orgUserSettings.notification_settings.notify_delegatee = false;
-        this.orgUserSettings.notification_settings.notify_user = true;
+        this.employeeSettings.notification_settings.notify_delegatee = false;
+        this.employeeSettings.notification_settings.notify_user = true;
         break;
       case 'onlyDelegate':
-        this.orgUserSettings.notification_settings.notify_delegatee = true;
-        this.orgUserSettings.notification_settings.notify_user = false;
+        this.employeeSettings.notification_settings.notify_delegatee = true;
+        this.employeeSettings.notification_settings.notify_user = false;
         break;
       case 'both':
-        this.orgUserSettings.notification_settings.notify_delegatee = true;
-        this.orgUserSettings.notification_settings.notify_user = true;
+        this.employeeSettings.notification_settings.notify_delegatee = true;
+        this.employeeSettings.notification_settings.notify_user = true;
         break;
     }
 
-    this.orgUserSettingsService.post(this.orgUserSettings).subscribe(() => {
+    this.platformEmployeeSettingsService.post(this.employeeSettings).subscribe(() => {
       this.trackingService.eventTrack('Delegate notification preference updated from mobile app', {
         preference: this.selectedPreference,
       });
-      this.orgUserSettingsService.clearOrgUserSettings();
+      this.platformEmployeeSettingsService.clearEmployeeSettings();
     });
   }
 

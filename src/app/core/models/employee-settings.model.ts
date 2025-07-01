@@ -1,6 +1,7 @@
 import { AccountType } from '../enums/account-type.enum';
 import { CommonEmployeeSettings } from './common-employee-settings.model';
 import { MileageSettings } from './mileage-settings.model';
+import { Locale } from './locale.model';
 
 export interface EmployeeSettings {
   id: string;
@@ -44,11 +45,7 @@ export interface EmployeeSettings {
 
   payment_mode_settings: CommonEmployeeSettings & { allowed_payment_modes: AccountType[] };
 
-  locale: {
-    timezone: string;
-    abbreviation: string;
-    offset: string;
-  };
+  locale: Locale;
 
   is_personal_cards_enabled: boolean;
   default_project_id: number | null;

@@ -160,10 +160,6 @@ describe('MyProfilePage', () => {
           useValue: networkServiceSpy,
         },
         {
-          provide: PlatformEmployeeSettingsService,
-          useValue: platformEmployeeSettingsServiceSpy,
-        },
-        {
           provide: OrgSettingsService,
           useValue: orgSettingsServiceSpy,
         },
@@ -227,9 +223,6 @@ describe('MyProfilePage', () => {
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     orgService = TestBed.inject(OrgService) as jasmine.SpyObj<OrgService>;
     networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
-    platformEmployeeSettingsService = TestBed.inject(
-      PlatformEmployeeSettingsService
-    ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
