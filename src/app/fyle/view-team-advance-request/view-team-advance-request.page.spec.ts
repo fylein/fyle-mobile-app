@@ -19,7 +19,7 @@ import { transformedResponse2 } from 'src/app/core/mock-data/expense-field.data'
 import { finalize, of } from 'rxjs';
 import { extendedAdvReqDraft } from 'src/app/core/mock-data/extended-advance-request.data';
 import { apiAdvanceRequestAction } from 'src/app/core/mock-data/advance-request-actions.data';
-import { advanceReqApprovals } from 'src/app/core/mock-data/approval.data';
+import { advanceReqApprovals, advanceReqApprovalsPublic } from 'src/app/core/mock-data/approval.data';
 import { advanceRequestFileUrlData, fileObject10, fileObject4 } from 'src/app/core/mock-data/file-object.data';
 import { advanceRequestCustomFieldData2 } from 'src/app/core/mock-data/advance-requests-custom-fields.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
@@ -59,13 +59,14 @@ describe('ViewTeamAdvanceRequestPage', () => {
   beforeEach(waitForAsync(() => {
     const advanceRequestServiceSpy = jasmine.createSpyObj('AdvanceRequestService', [
       'getApproverAdvanceRequest',
-      'getActions',
+      'getApproverPermissions',
       'getActiveApproversByAdvanceRequestId',
       'modifyAdvanceRequestCustomFields',
       'delete',
       'approve',
       'sendBack',
       'reject',
+      'getActiveApproversByAdvanceRequestIdPlatformForApprover',
     ]);
     const fileServiceSpy = jasmine.createSpyObj('FileService', [
       'findByAdvanceRequestId',
@@ -176,8 +177,10 @@ describe('ViewTeamAdvanceRequestPage', () => {
       loaderService.showLoader.and.resolveTo();
       loaderService.hideLoader.and.resolveTo();
       advanceRequestService.getApproverAdvanceRequest.and.returnValue(of(extendedAdvReqDraft));
-      advanceRequestService.getActions.and.returnValue(of(apiAdvanceRequestAction));
-      advanceRequestService.getActiveApproversByAdvanceRequestId.and.returnValue(of(advanceReqApprovals));
+      advanceRequestService.getApproverPermissions.and.returnValue(of(apiAdvanceRequestAction));
+      advanceRequestService.getActiveApproversByAdvanceRequestIdPlatformForApprover.and.returnValue(
+        of(advanceReqApprovalsPublic)
+      );
       spyOn(component, 'getAttachedReceipts').and.returnValue(of(fileObject4));
       advanceRequestsCustomFieldsService.getAll.and.returnValue(of(advanceRequestCustomFieldData2));
       authService.getEou.and.resolveTo(apiEouRes);
@@ -205,7 +208,7 @@ describe('ViewTeamAdvanceRequestPage', () => {
 
       component.actions$.subscribe((data) => {
         expect(data).toEqual(apiAdvanceRequestAction);
-        expect(advanceRequestService.getActions).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
+        expect(advanceRequestService.getApproverPermissions).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
       });
 
       component.showAdvanceActions$.subscribe((data) => {
@@ -218,12 +221,14 @@ describe('ViewTeamAdvanceRequestPage', () => {
       tick(100);
 
       component.approvals$.subscribe((data) => {
-        expect(data).toEqual(advanceReqApprovals);
-        expect(advanceRequestService.getActiveApproversByAdvanceRequestId).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
+        expect(data).toEqual(advanceReqApprovalsPublic);
+        expect(advanceRequestService.getActiveApproversByAdvanceRequestIdPlatformForApprover).toHaveBeenCalledOnceWith(
+          'areqR1cyLgXdND'
+        );
       });
 
       component.activeApprovals$.subscribe((data) => {
-        expect(data).toEqual(advanceReqApprovals);
+        expect(data).toEqual(advanceReqApprovalsPublic);
       });
 
       component.attachedFiles$.subscribe((data) => {
@@ -305,8 +310,8 @@ describe('ViewTeamAdvanceRequestPage', () => {
 
   describe('getApproverEmails():', () => {
     it('getApproverEmails(): should return approver emails', () => {
-      const approvalEmails = component.getApproverEmails(advanceReqApprovals);
-      expect(approvalEmails).toEqual(['ajain@fyle.in']);
+      const approvalEmails = component.getApproverEmails(advanceReqApprovalsPublic);
+      expect(approvalEmails).toEqual(['john.doe@example.com']);
     });
 
     it('getApproverEmails(): should return undefined if approvals are undefined', () => {

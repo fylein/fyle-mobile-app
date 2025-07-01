@@ -20,6 +20,7 @@ import { RealTimeFeedService } from 'src/app/core/services/real-time-feed.servic
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { CardProperties } from '../models/card-properties.model';
 import { TrackingService } from 'src/app/core/services/tracking.service';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-spender-onboarding-connect-card-step',
@@ -63,7 +64,8 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
     private realTimeFeedService: RealTimeFeedService,
     private fb: UntypedFormBuilder,
     private popoverController: PopoverController,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private translocoService: TranslocoService
   ) {}
 
   setupErrorMessages(error: HttpErrorResponse, cardNumber: string, cardId?: string): void {
@@ -143,34 +145,50 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
 
   generateMessage(): string {
     if (this.cardsList.successfulCards.length > 0) {
-      return 'Some cards were not enrolled. You can enroll them later from Settings.';
+      return this.translocoService.translate('spenderOnboardingConnectCardStep.partialEnrollmentError');
     } else if (this.cardsList.failedCards.length > 1) {
       const allButLast = this.cardsList.failedCards.slice(0, -1).join(', ');
       const lastCard = this.cardsList.failedCards[this.cardsList.failedCards.length - 1];
-      return `We ran into an issue while processing your request for the cards <span class='text-bold'>${allButLast}</span> and <span class='text-bold'>${lastCard}</span>.<br><br>You can cancel and retry connecting the failed card or proceed to the next step.`;
+      return this.translocoService.translate('spenderOnboardingConnectCardStep.multipleEnrollmentError', {
+        allButLast,
+        lastCard,
+      });
     } else {
-      return `We ran into an issue while processing your request for the card <span class='text-bold'>${this.cardsList.failedCards[0]}</span>.<br><br> You can cancel and retry connecting the failed card or proceed to the next step.`;
+      const failedCard = this.cardsList.failedCards[0];
+      return this.translocoService.translate('spenderOnboardingConnectCardStep.singleEnrollmentError', { failedCard });
     }
   }
 
   async showErrorPopover(): Promise<void> {
+    const title =
+      this.cardsList.successfulCards.length > 0
+        ? this.translocoService.translate('spenderOnboardingConnectCardStep.statusSummaryTitle')
+        : this.translocoService.translate('spenderOnboardingConnectCardStep.failedConnectingTitle');
+    const message = this.generateMessage();
+    const primaryCta =
+      this.cardsList.successfulCards.length > 0
+        ? this.translocoService.translate('spenderOnboardingConnectCardStep.continue')
+        : this.translocoService.translate('spenderOnboardingConnectCardStep.proceedAnyway');
+    const secondaryCta =
+      this.cardsList.successfulCards.length > 0
+        ? null
+        : {
+            text: this.translocoService.translate('spenderOnboardingConnectCardStep.cancel'),
+            action: 'cancel',
+          };
+    const cardsList = this.cardsList.successfulCards.length > 0 ? this.cardsList : {};
+
     const errorPopover = await this.popoverController.create({
       componentProps: {
-        title: this.cardsList.successfulCards.length > 0 ? 'Status summary' : 'Failed connecting',
-        message: this.generateMessage(),
+        title,
+        message,
         leftAlign: true,
         primaryCta: {
-          text: this.cardsList.successfulCards.length > 0 ? 'Continue' : 'Proceed anyway',
+          text: primaryCta,
           action: 'close',
         },
-        secondaryCta:
-          this.cardsList.successfulCards.length > 0
-            ? null
-            : {
-                text: 'Cancel',
-                action: 'cancel',
-              },
-        cardsList: this.cardsList.successfulCards.length > 0 ? this.cardsList : {},
+        secondaryCta,
+        cardsList,
       },
       component: PopupAlertComponent,
       cssClass: 'pop-up-in-center',
@@ -261,7 +279,8 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
   }
 
   private handleEnrollmentFailures(error: Error, cardId?: string): void {
-    const enrollmentFailureMessage = error.message || 'Something went wrong. Please try after some time.';
+    const enrollmentFailureMessage =
+      error.message || this.translocoService.translate('spenderOnboardingConnectCardStep.genericEnrollmentError');
     if (this.enrollableCards.length > 0) {
       this.fg.controls[`card_number_${cardId}`].setErrors({ enrollmentError: true });
       this.cardValuesMap[cardId].enrollment_error = enrollmentFailureMessage;

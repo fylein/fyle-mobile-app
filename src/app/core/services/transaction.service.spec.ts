@@ -60,7 +60,7 @@ import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { expenseData } from '../mock-data/platform/v1/expense.data';
 import { TrackingService } from './tracking.service';
 import { employeeSettingsData } from '../mock-data/employee-settings.data';
-
+import { TranslocoService } from '@jsverse/transloco';
 describe('TransactionService', () => {
   let transactionService: TransactionService;
   let storageService: jasmine.SpyObj<StorageService>;
@@ -78,7 +78,7 @@ describe('TransactionService', () => {
   let accountsService: jasmine.SpyObj<AccountsService>;
   let expensesService: jasmine.SpyObj<ExpensesService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(() => {
     const storageServiceSpy = jasmine.createSpyObj('StorageService', ['get', 'set']);
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post', 'delete']);
@@ -103,10 +103,48 @@ describe('TransactionService', () => {
     const userEventServiceSpy = jasmine.createSpyObj('UserEventService', ['clearTaskCache']);
     const paymentModesServiceSpy = jasmine.createSpyObj('PaymentModesService', ['getDefaultAccount']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
-    const accountsServiceSpy = jasmine.createSpyObj('AccountsService', ['getEMyAccounts']);
+    const accountsServiceSpy = jasmine.createSpyObj('AccountsService', ['getMyAccounts']);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['transformTo', 'post', 'createFromFile']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['patchExpensesError']);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+    translocoServiceSpy.translate.and.callFake((key: string, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'services.transaction.days': 'Days',
+        'services.transaction.day': 'Day',
+        'services.transaction.deleteSingleExpenseMessage': 'You are about to permanently delete 1 selected expense.',
+        'services.transaction.deleteMultipleExpensesMessage':
+          'You are about to permanently delete {expenseCount} selected expenses.',
+        'services.transaction.cccSingleExpenseWarning':
+          "There is {cccExpenses} corporate card expense from the selection which can't be deleted.",
+        'services.transaction.cccMultipleExpensesWarning':
+          "There are {cccExpenses} corporate card expenses from the selection which can't be deleted.",
+        'services.transaction.deleteOtherExpensesInfo': 'However you can delete the other expenses from the selection.',
+        'services.transaction.actionCantBeReversed': "Once deleted, the action can't be reversed.",
+        'services.transaction.confirmPermanentDelete':
+          'Are you sure to <b>permanently</b> delete the selected expenses?',
+        'services.transaction.splitExpenseRemovalInfo':
+          'Since this is a split expense, clicking on <strong>Confirm</strong> will remove the card details from all the related split expenses.',
+        'services.transaction.newExpenseCreationInfo':
+          'A new expense will be created from the card expense removed here.',
+        'services.transaction.confirmCardRemoval': 'Are you sure to remove your card expense from this expense?',
+        'services.transaction.reimbursable': 'Reimbursable',
+        'services.transaction.nonReimbursable': 'Non-Reimbursable',
+        'services.transaction.advance': 'Advance',
+        'services.transaction.ccc': 'CCC',
+        'services.transaction.cccMessagePlural':
+          "There are {cccExpenses} corporate card expenses from the selection which can't be deleted. However you can delete the other expenses from the selection.",
+      };
+      let translation = translations[key] || key;
+      if (params) {
+        if (params.cccExpenses !== undefined) {
+          translation = translation.replace('{cccExpenses}', params.cccExpenses);
+        }
+        if (params.expenseCount !== undefined) {
+          translation = translation.replace('{expenseCount}', params.expenseCount);
+        }
+      }
+      return translation;
+    });
     TestBed.configureTestingModule({
       providers: [
         TransactionService,
@@ -174,6 +212,10 @@ describe('TransactionService', () => {
           provide: PAGINATION_SIZE,
           useValue: 2,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
     });
 
@@ -197,6 +239,7 @@ describe('TransactionService', () => {
     accountsService = TestBed.inject(AccountsService) as jasmine.SpyObj<AccountsService>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
   });
 
   it('should be created', () => {
@@ -889,7 +932,7 @@ describe('TransactionService', () => {
 
     it('should return ccc expense message for with only ccc expenses selected', () => {
       expect(transactionService.getCCCExpenseMessage(null, 3)).toEqual(
-        "There are 3 corporate card expenses from the selection which can't be deleted. "
+        "There are 3 corporate card expenses from the selection which can't be deleted."
       );
     });
   });
@@ -955,7 +998,7 @@ describe('TransactionService', () => {
 
   it('getTxnAccount(): should get the default txn account', (done) => {
     orgSettingsService.get.and.returnValue(of(orgSettingsData));
-    accountsService.getEMyAccounts.and.returnValue(of(accountsData));
+    accountsService.getMyAccounts.and.returnValue(of(accountsData));
     platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
     paymentModesService.getDefaultAccount.and.returnValue(of(accountsData[0]));
 
@@ -973,14 +1016,14 @@ describe('TransactionService', () => {
         employeeSettingsData
       );
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-      expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+      expect(accountsService.getMyAccounts).toHaveBeenCalledTimes(1);
       expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
       done();
     });
   });
 
   it('getPersonalAccount(): should get the personal account', (done) => {
-    accountsService.getEMyAccounts.and.returnValue(of(accountsData));
+    accountsService.getMyAccounts.and.returnValue(of(accountsData));
 
     const expectedResult = {
       source_account_id: 'acc5APeygFjRd',
@@ -989,7 +1032,7 @@ describe('TransactionService', () => {
     // @ts-ignore
     transactionService.getPersonalAccount().subscribe((res) => {
       expect(res).toEqual(expectedResult);
-      expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+      expect(accountsService.getMyAccounts).toHaveBeenCalledTimes(1);
       done();
     });
   });

@@ -31,6 +31,7 @@ import { GmapsService } from 'src/app/core/services/gmaps.service';
 import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-settings';
 import { PopupAlertComponent } from '../../popup-alert/popup-alert.component';
 import { DEVICE_PLATFORM } from 'src/app/constants';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-fy-location-modal',
@@ -80,7 +81,8 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
     private loaderService: LoaderService,
     private recentLocalStorageItemsService: RecentLocalStorageItemsService,
     private popoverController: PopoverController,
-    @Inject(DEVICE_PLATFORM) private devicePlatform: 'android' | 'ios' | 'web'
+    @Inject(DEVICE_PLATFORM) private devicePlatform: 'android' | 'ios' | 'web',
+    private translocoService: TranslocoService
   ) {}
 
   ngOnInit(): void {
@@ -242,7 +244,7 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
   }
 
   onRecentItemSelect(location: string) {
-    from(this.loaderService.showLoader('Loading location...', 5000))
+    from(this.loaderService.showLoader(this.translocoService.translate('fyLocationModal.loadingLocation'), 5000))
       .pipe(
         switchMap(() =>
           forkJoin({
@@ -339,11 +341,15 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
 
   setupEnableLocationPopover(): Promise<HTMLIonPopoverElement> {
     const isIos = this.devicePlatform === 'ios';
-    const locationServiceName = isIos ? 'Location Services' : 'Location';
-    let title = `Enable ${locationServiceName}`;
-    const message = `To fetch your current location, please enable ${locationServiceName}. Click 'Open Settings'${
-      isIos ? ',then go to Privacy & Security' : ''
-    } and turn on ${locationServiceName}`;
+    let title = '';
+    let message = '';
+    if (isIos) {
+      title = this.translocoService.translate('fyLocationModal.enableLocationServicesTitle');
+      message = this.translocoService.translate('fyLocationModal.enableLocationServicesMessage');
+    } else {
+      title = this.translocoService.translate('fyLocationModal.enableLocationTitle');
+      message = this.translocoService.translate('fyLocationModal.enableLocationMessage');
+    }
 
     return this.popoverController.create({
       component: PopupAlertComponent,
@@ -351,11 +357,11 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
         title,
         message,
         primaryCta: {
-          text: 'Open settings',
+          text: this.translocoService.translate('fyLocationModal.openSettings'),
           action: 'OPEN_SETTINGS',
         },
         secondaryCta: {
-          text: 'Cancel',
+          text: this.translocoService.translate('fyLocationModal.cancel'),
           action: 'CANCEL',
         },
       },
@@ -365,8 +371,8 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
   }
 
   setupPermissionDeniedPopover(): Promise<HTMLIonPopoverElement> {
-    let title = 'Location permission';
-    const message = `To fetch current location, please allow Fyle to access your Location. Click on 'Open Settings', then enable both 'Location' and 'Precise Location' to continue.`;
+    const title = this.translocoService.translate('fyLocationModal.locationPermissionTitle');
+    const message = this.translocoService.translate('fyLocationModal.locationPermissionMessage');
 
     return this.popoverController.create({
       component: PopupAlertComponent,
@@ -374,11 +380,11 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
         title,
         message,
         primaryCta: {
-          text: 'Open settings',
+          text: this.translocoService.translate('fyLocationModal.openSettings'),
           action: 'OPEN_SETTINGS',
         },
         secondaryCta: {
-          text: 'Cancel',
+          text: this.translocoService.translate('fyLocationModal.cancel'),
           action: 'CANCEL',
         },
       },
@@ -389,7 +395,9 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
 
   async getCurrentLocation() {
     if (this.currentGeolocationPermissionGranted) {
-      from(this.loaderService.showLoader('Loading current location...', 10000))
+      from(
+        this.loaderService.showLoader(this.translocoService.translate('fyLocationModal.loadingCurrentLocation'), 10000)
+      )
         .pipe(
           switchMap(() => this.locationService.getCurrentLocation({ enableHighAccuracy: true })),
           switchMap((coordinates) =>

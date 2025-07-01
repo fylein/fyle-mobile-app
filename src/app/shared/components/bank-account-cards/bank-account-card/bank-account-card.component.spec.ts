@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { IonicModule } from '@ionic/angular';
 import { PopoverController } from '@ionic/angular';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
@@ -23,7 +24,7 @@ describe('BankAccountCardComponent', () => {
   let matSnackBar: jasmine.SpyObj<MatSnackBar>;
   let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
   let dateService: jasmine.SpyObj<DateService>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     const personalCardsServiceSpy = jasmine.createSpyObj('PersonalCardsService', ['deleteAccount']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
@@ -31,9 +32,16 @@ describe('BankAccountCardComponent', () => {
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     const dateServiceSpy = jasmine.createSpyObj('DateService', ['convertUTCDateToLocalDate']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [BankAccountCardComponent],
-      imports: [IonicModule.forRoot()],
+      imports: [IonicModule.forRoot(), TranslocoModule],
       providers: [
         {
           provide: PersonalCardsService,
@@ -59,6 +67,10 @@ describe('BankAccountCardComponent', () => {
           provide: DateService,
           useValue: dateServiceSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(BankAccountCardComponent);
@@ -68,6 +80,31 @@ describe('BankAccountCardComponent', () => {
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
     snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
     dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'bankAccountCard.lastFetch': 'Last fetch:',
+        'bankAccountCard.deletingCard': 'Deleting your card...',
+        'bankAccountCard.cardDeletedSuccess': 'Card successfully deleted.',
+        'bankAccountCard.deleteCardTitle': 'Delete Card',
+        'bankAccountCard.deleteConfirmationMessage': 'Are you sure want to delete this card <b> {{accountInfo}} </b>?',
+        'bankAccountCard.delete': 'Delete',
+        'bankAccountCard.cancel': 'Cancel',
+      };
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
+    });
+
     component = fixture.componentInstance;
 
     component.accountDetails = linkedAccounts[1];

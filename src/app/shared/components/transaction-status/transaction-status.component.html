@@ -6,7 +6,7 @@
       posted: transactionStatus === TransactionStatus.POSTED
     }"
   ></div>
-  <div class="transaction-status__status-label">Transaction status:</div>
+  <div class="transaction-status__status-label">{{ 'transactionStatus.statusLabel' | transloco }}</div>
   <div (click)="statusClick.emit(transactionStatus)" class="transaction-status__status-value-container">
     <span class="transaction-status__status-value" data-testid="status-value">{{ transactionStatus | titlecase }}</span>
 

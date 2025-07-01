@@ -8,7 +8,7 @@
       {{ expense.tx_txn_dt || expense.tx_created_at | dateFormat }}
     </ng-container>
 
-    <ng-template #isOffline> Offline expenses </ng-template>
+    <ng-template #isOffline> {{ 'expensesCard.offlineExpenses' | transloco }} </ng-template>
   </ng-container>
 </div>
 
@@ -114,21 +114,32 @@
           <ng-container *ngIf="isSycing$ | async; else expenseCardScanning">
             <div class="expenses-card--scaning-receipt__container">
               <div class="expenses-card--scaning-receipt__header">
-                <ng-container *ngIf="category === 'mileage'; else uploadPerDiem"> Syncing mileage </ng-container>
+                <ng-container *ngIf="category === 'mileage'; else uploadPerDiem">
+                  {{ 'expensesCard.syncingMileage' | transloco }}
+                </ng-container>
                 <ng-template #uploadPerDiem>
-                  <ng-container *ngIf="category === 'per diem'; else uploadDefault"> Syncing per diem </ng-container>
+                  <ng-container *ngIf="category === 'per diem'; else uploadDefault">
+                    {{ 'expensesCard.syncingPerDiem' | transloco }}
+                  </ng-container>
                 </ng-template>
                 <ng-template #uploadDefault>
-                  {{ expense.tx_amount || expense.tx_user_amount ? 'Syncing' : 'Uploading' }} receipt...
+                  {{
+                    expense.tx_amount || expense.tx_user_amount
+                      ? ('expensesCard.syncingReceipt' | transloco)
+                      : ('expensesCard.uploadingReceipt' | transloco)
+                  }}
                 </ng-template>
               </div>
               <div class="expenses-card--scaning-receipt__content">
-                Your
+                {{ 'expensesCard.your' | transloco }}
                 <ng-container *ngIf="category === 'mileage' || category === 'per diem'; else receiptContent">
-                  {{ category }}
+                  <ng-container [ngSwitch]="category">
+                    <ng-container *ngSwitchCase="'mileage'">{{ 'expensesCard.mileage' | transloco }}</ng-container>
+                    <ng-container *ngSwitchCase="'per diem'">{{ 'expensesCard.perDiem' | transloco }}</ng-container>
+                  </ng-container>
                 </ng-container>
-                <ng-template #receiptContent> receipt </ng-template>
-                will be added shortly.
+                <ng-template #receiptContent> {{ 'expensesCard.receipt' | transloco }} </ng-template>
+                {{ 'expensesCard.addedShortly' | transloco }}
               </div>
             </div>
           </ng-container>
@@ -139,15 +150,17 @@
             <ng-container *ngIf="isScanInProgress; else scanFailed">
               <div class="expenses-card--scaning-receipt__container">
                 <div class="expenses-card--scaning-receipt__header expenses-card--scaning-receipt__header-scanning">
-                  Scanning receipt...
+                  {{ 'expensesCard.scanningReceipt' | transloco }}
                 </div>
-                <div class="expenses-card--scaning-receipt__content">This takes a short while</div>
+                <div class="expenses-card--scaning-receipt__content">
+                  {{ 'expensesCard.takesShortWhile' | transloco }}
+                </div>
               </div>
             </ng-container>
             <ng-template #scanFailed>
               <div class="expenses-card--scaning-receipt__container expenses-card--scaning-receipt__container-error">
                 <div class="expenses-card--scaning-receipt__header expenses-card--scaning-receipt__header-failed">
-                  Scan failed
+                  {{ 'expensesCard.scanFailed' | transloco }}
                 </div>
               </div>
               <div *ngIf="expense.isDraft && !isFromViewReports">
@@ -180,7 +193,7 @@
                 >
                   {{ expense?.tx_org_category }}
                 </ng-container>
-                <ng-template #unspecifiedCategory> Unspecified category </ng-template>
+                <ng-template #unspecifiedCategory> {{ 'expensesCard.unspecifiedCategory' | transloco }} </ng-template>
               </div>
               <div class="expenses-card--icons">
                 <mat-icon
@@ -212,7 +225,9 @@
             >
               <div *ngIf="expense?.tx_project_name?.length > 0">
                 <span class="text-capitalize"> {{ expenseFields?.project_id[0]?.field_name }}: </span>
-                {{ expense?.tx_project_name ? expense?.tx_project_name : 'Unspecified' }}
+                {{
+                  expense?.tx_project_name ? expense?.tx_project_name : ('expensesCard.unspecifiedProject' | transloco)
+                }}
               </div>
             </div>
           </div>
@@ -220,8 +235,8 @@
             *ngIf="expense.isDraft"
             class="expenses-card--category-vendor-project-container expenses-card--category-vendor-project-container__align-vertical-center expenses-card--category-vendor-project-container__error"
           >
-            <div>Expense information</div>
-            <div>missing</div>
+            <div>{{ 'expensesCard.expenseInfo' | transloco }}</div>
+            <div>{{ 'expensesCard.missing' | transloco }}</div>
           </div>
           <div class="expenses-card--default-view-container">
             <div class="expenses-card--currency-amount-container ion-text-right">
@@ -244,7 +259,8 @@
               *ngIf="expense.tx_orig_currency && expense.tx_orig_amount"
               class="expenses-card--exchange-rate ion-text-right"
             >
-              ({{ expense.tx_orig_amount | humanizeCurrency : expense.tx_orig_currency }} at
+              ({{ expense.tx_orig_amount | humanizeCurrency : expense.tx_orig_currency }}
+              {{ 'expensesCard.at' | transloco }}
               {{ expense.tx_amount / expense.tx_orig_amount | currency : expense.tx_currency : 'code' }})
             </div>
 
@@ -258,7 +274,7 @@
             </div>
 
             <div class="expenses-card--critical-policy-violatios" *ngIf="expense.isCriticalPolicyViolated">
-              Critical policy violations
+              {{ 'expensesCard.criticalPolicyViolations' | transloco }}
             </div>
           </div>
         </ng-template>

@@ -9,14 +9,22 @@ import { FilterOptions } from './filter-options.interface';
 import { filterOptions1 } from 'src/app/core/mock-data/filter.data';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 
 describe('FyFiltersComponent', () => {
   let component: FyFiltersComponent;
   let fixture: ComponentFixture<FyFiltersComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss', 'create']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [FyFiltersComponent],
       providers: [
@@ -24,14 +32,40 @@ describe('FyFiltersComponent', () => {
           provide: ModalController,
           useValue: modalControllerSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
       schemas: [NO_ERRORS_SCHEMA],
-      imports: [IonicModule.forRoot(), FormsModule],
+      imports: [IonicModule.forRoot(), FormsModule, TranslocoModule],
     }).compileComponents();
 
     fixture = TestBed.createComponent(FyFiltersComponent);
     component = fixture.componentInstance;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'fyFilters.title': 'Filter and sort',
+        'fyFilters.clearAll': 'Clear all',
+        'fyFilters.startDate': 'Start date',
+        'fyFilters.endDate': 'End date',
+        'fyFilters.cancel': 'Cancel',
+        'fyFilters.save': 'Save',
+      };
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
+    });
   }));
 
   it('should create', () => {

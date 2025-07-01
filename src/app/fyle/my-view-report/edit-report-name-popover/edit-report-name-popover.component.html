@@ -1,7 +1,7 @@
 <ion-header mode="md">
   <ion-toolbar mode="md" class="text-center fy-modal-toolbar edit-report-name--toolbar">
     <ion-title>
-      <div class="edit-report-name--toolbar__title">Edit name</div>
+      <div class="edit-report-name--toolbar__title">{{ 'editReportNamePopover.editName' | transloco }}</div>
     </ion-title>
     <ion-buttons slot="start">
       <ion-button (click)="closePopover()">
@@ -14,7 +14,7 @@
         class="edit-report-name--toolbar__btn-save"
         (click)="saveReportName()"
       >
-        Save
+        {{ 'editReportNamePopover.save' | transloco }}
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -22,7 +22,7 @@
 
 <div class="edit-report-name--input-container">
   <div class="edit-report-name--input-container__label">
-    <span> Report name </span>
+    <span> {{ 'editReportNamePopover.reportName' | transloco }} </span>
     <span class="edit-report-name--input-container__mandatory"> * </span>
   </div>
   <input

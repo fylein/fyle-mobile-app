@@ -4,21 +4,34 @@ import { IonicModule, PopoverController } from '@ionic/angular';
 import { click, getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 
 import { AdvanceActionsComponent } from './advance-actions.component';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
+import { of } from 'rxjs';
 
 describe('AdvanceActionsComponent', () => {
   let component: AdvanceActionsComponent;
   let fixture: ComponentFixture<AdvanceActionsComponent>;
   let popoverControllerSpy: PopoverController;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['dismiss']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [AdvanceActionsComponent],
-      imports: [IonicModule.forRoot(), MatRippleModule],
+      imports: [IonicModule.forRoot(), MatRippleModule, TranslocoModule],
       providers: [
         {
           provide: PopoverController,
           useValue: popoverControllerSpy,
+        },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
       ],
     }).compileComponents();
@@ -30,6 +43,28 @@ describe('AdvanceActionsComponent', () => {
       can_inquire: true,
       can_reject: true,
     };
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'advanceActions.approveAdvance': 'Approve advance',
+        'advanceActions.approveAdvanceInfo': 'Approve this advance request',
+        'advanceActions.sendBackAdvance': 'Send back advance',
+        'advanceActions.sendBackAdvanceInfo': 'Send back advance request',
+        'advanceActions.rejectAdvance': 'Reject advance',
+        'advanceActions.rejectAdvanceInfo': 'Reject this advance request',
+      };
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
+    });
     fixture.detectChanges();
   }));
 

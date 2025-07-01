@@ -4,6 +4,7 @@ import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { FyOptInComponent } from '../fy-opt-in/fy-opt-in.component';
 import { PopupAlertComponent } from '../popup-alert/popup-alert.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-dashboard-opt-in',
@@ -18,7 +19,8 @@ export class DashboardOptInComponent {
   constructor(
     private modalController: ModalController,
     private popoverController: PopoverController,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private translocoService: TranslocoService
   ) {}
 
   async optInClick(): Promise<void> {
@@ -41,24 +43,22 @@ export class DashboardOptInComponent {
   }
 
   getSkipOptInMessageBody(): string {
-    return `<div>
-              <p>You can't send receipts and expense details via text message if you don't opt in.</p>
-              <p>Are you sure you want to skip?<p>  
-            </div>`;
+    return this.translocoService.translate('dashboardOptIn.skipOptInMessage');
   }
 
   async skip(): Promise<void> {
+    const title = this.translocoService.translate('dashboardOptIn.areYouSure');
     const optOutPopover = await this.popoverController.create({
       component: PopupAlertComponent,
       componentProps: {
-        title: 'Are you sure?',
+        title,
         message: this.getSkipOptInMessageBody(),
         primaryCta: {
-          text: 'Yes, skip opt in',
+          text: this.translocoService.translate('dashboardOptIn.yesSkipOptIn'),
           action: 'continue',
         },
         secondaryCta: {
-          text: 'No, go back',
+          text: this.translocoService.translate('dashboardOptIn.noGoBack'),
           action: 'cancel',
         },
       },

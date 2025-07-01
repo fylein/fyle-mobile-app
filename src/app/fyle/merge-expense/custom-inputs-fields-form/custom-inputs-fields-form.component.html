@@ -13,7 +13,7 @@
             combinedCustomProperties[customField.name]?.options?.length === 0
           "
           [options]="combinedCustomProperties[customField.name]?.options"
-          [selectModalHeader]="'Select'"
+          [selectModalHeader]="'customInputsFieldsForm.select' | transloco"
           formControlName="value"
           [touchedInParent]="customField.control.controls.value.touched"
           [validInParent]="customField.control.controls.value.valid"

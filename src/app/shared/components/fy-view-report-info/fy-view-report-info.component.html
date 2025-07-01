@@ -7,7 +7,7 @@
       </ion-button>
     </ion-buttons>
     <ion-title>
-      <div class="view-info--toolbar__title">View info</div>
+      <div class="view-info--toolbar__title">{{ 'fyViewReportInfo.viewInfo' | transloco }}</div>
     </ion-title>
   </ion-toolbar>
 
@@ -18,17 +18,17 @@
       value="report"
     >
       <ion-segment-button value="report" class="view-info--segment-block-container__btn text-capitalize">
-        Report
+        {{ 'fyViewReportInfo.report' | transloco }}
       </ion-segment-button>
       <ion-segment-button value="amount" class="view-info--segment-block-container__btn text-capitalize">
-        Amount
+        {{ 'fyViewReportInfo.amount' | transloco }}
       </ion-segment-button>
       <ion-segment-button
         *ngIf="view === ExpenseView.team"
         value="employee"
         class="view-info--segment-block-container__btn text-capitalize"
       >
-        Employee
+        {{ 'fyViewReportInfo.employee' | transloco }}
       </ion-segment-button>
     </ion-segment>
   </ion-toolbar>
@@ -52,7 +52,7 @@
 </ion-content>
 
 <ion-content *ngIf="!isReportView && !isEmployeeView" (swipe)="onSwipeAmount($event)">
-  <p class="view-info--section-header">Component wise split</p>
+  <p class="view-info--section-header">{{ 'fyViewReportInfo.componentWiseSplit' | transloco }}</p>
   <ion-grid class="view-info--body-container">
     <ion-row
       *ngFor="let item of amountComponentWiseDetails | keyvalue : originalOrder"
@@ -60,10 +60,14 @@
     >
       <ion-col size="5">
         <div class="view-info--body-container__title">
-          {{ item.key }}
+          <ng-container [ngSwitch]="item.key">
+            <ng-container *ngSwitchCase="'CCC'">{{ 'fyViewReportInfo.ccc' | transloco }}</ng-container>
+            <ng-container *ngSwitchCase="'Advance'">{{ 'fyViewReportInfo.advance' | transloco }}</ng-container>
+            <ng-container *ngSwitchDefault>{{ item.key }}</ng-container>
+          </ng-container>
         </div>
         <div *ngIf="item && (item.key === 'Advance' || item.key === 'CCC')" class="view-info--body-container__subtitle">
-          Non-reimbursable
+          {{ 'fyViewReportInfo.nonReimbursable' | transloco }}
         </div>
       </ion-col>
       <ion-col size="7">
@@ -74,7 +78,9 @@
     </ion-row>
   </ion-grid>
   <div *ngIf="isForeignCurrency">
-    <p class="view-info--section-header view-info--section-header__currency">Currency wise split</p>
+    <p class="view-info--section-header view-info--section-header__currency">
+      {{ 'fyViewReportInfo.currencyWiseSplit' | transloco }}
+    </p>
     <ion-grid class="view-info--body-container">
       <ion-row *ngFor="let item of amountCurrencyWiseDetails" class="view-info--body-container__content">
         <ion-col size="5">
@@ -82,7 +88,11 @@
             {{ item.name }}
           </div>
           <div class="view-info--body-container__subtitle">
-            {{ item.count === 1 ? '1 Expense' : item.count + ' Expenses' }}
+            {{
+              item.count === 1
+                ? ('fyViewReportInfo.oneExpense' | transloco)
+                : item.count + ('fyViewReportInfo.expenses' | transloco)
+            }}
           </div>
         </ion-col>
         <ion-col size="7">

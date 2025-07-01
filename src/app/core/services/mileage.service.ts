@@ -10,13 +10,16 @@ import { OrgSettings } from '../models/org-settings.model';
 import { CommuteDeductionOptions } from '../models/commute-deduction-options.model';
 import { CommuteDeduction } from '../enums/commute-deduction.enum';
 import { EmployeeSettings } from '../models/employee-settings.model';
+import { TranslocoService } from '@jsverse/transloco';
 @Injectable({
   providedIn: 'root',
 })
 export class MileageService {
   constructor(
     private locationService: LocationService,
-    private platformEmployeeSettingsService: PlatformEmployeeSettingsService
+
+    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
+    private translocoService: TranslocoService
   ) {}
 
   @Cacheable()
@@ -55,16 +58,20 @@ export class MileageService {
   getCommuteDeductionOptions(distance: number): CommuteDeductionOptions[] {
     return [
       {
-        label: 'One Way Distance',
+        label: this.translocoService.translate('services.mileage.oneWayDistance'),
         value: CommuteDeduction.ONE_WAY,
         distance: distance === null || distance === undefined ? null : distance,
       },
       {
-        label: 'Round Trip Distance',
+        label: this.translocoService.translate('services.mileage.roundTripDistance'),
         value: CommuteDeduction.ROUND_TRIP,
         distance: distance === null || distance === undefined ? null : distance * 2,
       },
-      { label: 'No Deduction', value: CommuteDeduction.NO_DEDUCTION, distance: 0 },
+      {
+        label: this.translocoService.translate('services.mileage.noDeduction'),
+        value: CommuteDeduction.NO_DEDUCTION,
+        distance: 0,
+      },
     ];
   }
 

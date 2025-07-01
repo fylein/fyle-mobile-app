@@ -1095,6 +1095,15 @@ ion-modal.add-location-modal {
   }
 }
 
+ion-modal.email-notifications-modal {
+  &::part(content) {
+    border-radius: 16px 16px 0 0;
+    position: absolute;
+    max-height: 50%;
+    bottom: 0;
+  }
+}
+
 ion-modal.promote-opt-in-modal {
   &::part(content) {
     border-radius: 32px 32px 0 0 !important;
@@ -1488,6 +1497,60 @@ ion-toggle.toggle-checked::before {
   //get state keys for generating state class
   @each $state in map-keys($states) {
     @include state($state);
+  }
+}
+
+.promote-opt-in-modal {
+  &__instant-text-decoration {
+    position: relative;
+
+    &:after {
+      background-color: $bright-yellow;
+      content: ' ';
+      height: 14px;
+      width: 68px;
+      position: absolute;
+      left: 0;
+      top: 45%;
+      z-index: -1;
+      transform: rotate(-2deg);
+    }
+  }
+}
+
+.dashboard-opt-in {
+  &__instant-text-decoration {
+    position: relative;
+
+    &:after {
+      background-color: $bright-yellow;
+      content: ' ';
+      height: 14px;
+      width: 68px;
+      position: absolute;
+      left: 0;
+      top: 45%;
+      z-index: -1;
+      transform: rotate(-2deg);
+    }
+  }
+}
+
+.report-list {
+  &--zero-state {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    height: 80%;
+    color: $blue-black;
+
+    &__icon {
+      height: 16px;
+      width: 16px;
+      padding: 0 2px;
+      vertical-align: text-bottom;
+    }
   }
 }
 

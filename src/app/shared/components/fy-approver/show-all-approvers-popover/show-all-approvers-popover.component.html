@@ -5,7 +5,9 @@
         <mat-icon class="fy-icon-close" svgIcon="cross"></mat-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title class="show-all-approvers-popover--toolbar__title"> All approvers </ion-title>
+    <ion-title class="show-all-approvers-popover--toolbar__title">
+      {{ 'showAllApproversPopover.title' | transloco }}
+    </ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -40,13 +42,13 @@
               *ngIf="approval.state === approvalState.APPROVAL_PENDING"
               class="show-all-approvers-popover__approver-state-pending"
             >
-              Approval pending
+              {{ 'showAllApproversPopover.approvalPending' | transloco }}
             </div>
             <div
               *ngIf="approval.state === approvalState.APPROVAL_DONE"
               class="show-all-approvers-popover__approver-state-done"
             >
-              Approved
+              {{ 'showAllApproversPopover.approved' | transloco }}
             </div>
           </div>
         </div>

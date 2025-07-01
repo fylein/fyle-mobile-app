@@ -5,6 +5,7 @@ import { ModalController } from '@ionic/angular';
 import { isEqual } from 'lodash';
 import { FyMultiselectModalComponent } from './fy-multiselect-modal/fy-multiselect-modal.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-fy-multiselect',
@@ -19,7 +20,7 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
   ],
 })
 export class FyMultiselectComponent implements OnInit, ControlValueAccessor {
-  @Input() options: { label: string; value: any }[] = [];
+  @Input() options: { label: string; value: unknown }[] = [];
 
   @Input() disabled = false;
 
@@ -27,9 +28,9 @@ export class FyMultiselectComponent implements OnInit, ControlValueAccessor {
 
   @Input() mandatory = false;
 
-  @Input() selectModalHeader = 'Select Items';
+  @Input() selectModalHeader: string;
 
-  @Input() subheader = 'All Items';
+  @Input() subheader: string;
 
   @Input() placeholder: string;
 
@@ -37,17 +38,21 @@ export class FyMultiselectComponent implements OnInit, ControlValueAccessor {
 
   @Input() validInParent: boolean;
 
-  displayValue;
+  displayValue: string;
 
-  innerValue;
+  innerValue: unknown[] = [];
 
   onTouchedCallback: () => void = noop;
 
-  onChangeCallback: (_: any) => void = noop;
+  onChangeCallback: (_: unknown[]) => void = noop;
 
-  constructor(private modalController: ModalController, private modalProperties: ModalPropertiesService) {}
+  constructor(
+    private modalController: ModalController,
+    private modalProperties: ModalPropertiesService,
+    private translocoService: TranslocoService
+  ) {}
 
-  get valid() {
+  get valid(): boolean {
     if (this.touchedInParent) {
       return this.validInParent;
     } else {
@@ -55,17 +60,21 @@ export class FyMultiselectComponent implements OnInit, ControlValueAccessor {
     }
   }
 
-  get value(): any {
+  get computedPlaceholder(): string {
+    return this.placeholder || `${this.translocoService.translate('fyMultiselect.select')} ${this.label}`;
+  }
+
+  get value(): unknown[] {
     return this.innerValue;
   }
 
-  set value(v: any) {
-    if (v !== this.innerValue) {
+  set value(v: unknown[]) {
+    if (!isEqual(v, this.innerValue)) {
       this.innerValue = v;
       if (this.innerValue && this.innerValue.length > 0) {
         this.displayValue = this.innerValue
           .map((selectedValue) => this.options.find((option) => isEqual(option.value, selectedValue)))
-          .map((option) => option && option.label)
+          .map((option) => option?.label || '')
           .join(',');
       } else {
         this.displayValue = '';
@@ -75,9 +84,12 @@ export class FyMultiselectComponent implements OnInit, ControlValueAccessor {
     }
   }
 
-  ngOnInit() {}
+  ngOnInit(): void {
+    this.selectModalHeader = this.selectModalHeader ?? this.translocoService.translate('fyMultiselect.selectItems');
+    this.subheader = this.subheader ?? this.translocoService.translate('fyMultiselect.allItems');
+  }
 
-  async openModal() {
+  async openModal(): Promise<void> {
     const selectionModal = await this.modalController.create({
       component: FyMultiselectModalComponent,
       componentProps: {
@@ -92,24 +104,25 @@ export class FyMultiselectComponent implements OnInit, ControlValueAccessor {
 
     await selectionModal.present();
 
-    const { data } = await selectionModal.onWillDismiss();
+    const result = await selectionModal.onWillDismiss();
+    const data = result.data as { selected?: { value: unknown }[] } | undefined;
 
-    if (data) {
+    if (data?.selected) {
       this.value = data.selected.map((selection) => selection.value);
     }
   }
 
-  onBlur() {
+  onBlur(): void {
     this.onTouchedCallback();
   }
 
-  writeValue(value: any): void {
-    if (value !== this.innerValue) {
+  writeValue(value: unknown[]): void {
+    if (!isEqual(value, this.innerValue)) {
       this.innerValue = value;
       if (this.innerValue && this.innerValue.length > 0) {
         this.displayValue = this.innerValue
           .map((selectedValue) => this.options.find((option) => isEqual(option.value, selectedValue)))
-          .map((option) => option && option.label)
+          .map((option) => option?.label || '')
           .join(',');
       } else {
         this.displayValue = '';
@@ -117,11 +130,11 @@ export class FyMultiselectComponent implements OnInit, ControlValueAccessor {
     }
   }
 
-  registerOnChange(fn: any) {
+  registerOnChange(fn: (value: unknown[]) => void): void {
     this.onChangeCallback = fn;
   }
 
-  registerOnTouched(fn: any) {
+  registerOnTouched(fn: () => void): void {
     this.onTouchedCallback = fn;
   }
 }

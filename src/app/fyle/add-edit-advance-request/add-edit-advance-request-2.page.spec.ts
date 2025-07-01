@@ -320,7 +320,8 @@ export function TestCases2(getTestBed) {
         orgSettingsService.get.and.returnValue(of(orgSettingsRes));
         platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
         currencyService.getHomeCurrency.and.returnValue(of('USD'));
-        advanceRequestService.getActions.and.returnValue(of(apiAdvanceRequestAction));
+        advanceRequestService.getSpenderPermissions.and.returnValue(of(apiAdvanceRequestAction));
+        advanceRequestService.getApproverPermissions.and.returnValue(of(apiAdvanceRequestAction));
         loaderService.showLoader.and.resolveTo(undefined);
         loaderService.hideLoader.and.resolveTo(undefined);
         advanceRequestService.getEReqFromPlatform.and.returnValue(of(unflattenedAdvanceRequestData));
@@ -334,16 +335,35 @@ export function TestCases2(getTestBed) {
         spyOn(component, 'setupNetworkWatcher');
       });
 
-      it('should set mode, homeCurrency$ and actions$ correctly', fakeAsync(() => {
+      it('should call getSpenderPermissions when from is not TEAM_ADVANCE', fakeAsync(() => {
+        activatedRoute.snapshot.params = {
+          id: 'areqR1cyLgXdND',
+          from: 'ADVANCE',
+        };
+        component.from = 'ADVANCE';
         component.ionViewWillEnter();
         tick(100);
         expect(component.mode).toEqual('edit');
-        component.homeCurrency$.subscribe((res) => {
-          expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
-          expect(res).toEqual('USD');
-        });
         component.actions$.subscribe((res) => {
-          expect(advanceRequestService.getActions).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
+          expect(advanceRequestService.getSpenderPermissions).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
+          expect(advanceRequestService.getApproverPermissions).not.toHaveBeenCalled();
+          expect(component.advanceActions).toEqual(apiAdvanceRequestAction);
+          expect(res).toEqual(apiAdvanceRequestAction);
+        });
+      }));
+
+      it('should call getApproverPermissions when from is TEAM_ADVANCE', fakeAsync(() => {
+        activatedRoute.snapshot.params = {
+          id: 'areqR1cyLgXdND',
+          from: 'TEAM_ADVANCE',
+        };
+        component.from = 'TEAM_ADVANCE';
+        component.ionViewWillEnter();
+        tick(100);
+        expect(component.mode).toEqual('edit');
+        component.actions$.subscribe((res) => {
+          expect(advanceRequestService.getApproverPermissions).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
+          expect(advanceRequestService.getSpenderPermissions).not.toHaveBeenCalled();
           expect(component.advanceActions).toEqual(apiAdvanceRequestAction);
           expect(res).toEqual(apiAdvanceRequestAction);
         });
@@ -395,7 +415,9 @@ export function TestCases2(getTestBed) {
       it('should get edit advance request observable if mode is edit and view is individual', fakeAsync(() => {
         activatedRoute.snapshot.params = {
           id: 'areqR1cyLgXdND',
+          from: 'ADVANCE',
         };
+        component.from = 'ADVANCE';
         const mockAdvanceRequest = cloneDeep(unflattenedAdvanceRequestData);
         mockAdvanceRequest.areq.project_id = '3019';
         advanceRequestService.getEReqFromPlatform.and.returnValue(of(mockAdvanceRequest));
@@ -420,11 +442,12 @@ export function TestCases2(getTestBed) {
         });
       }));
 
-      it('should get edit advance request observable if mode is edit', fakeAsync(() => {
+      it('should get edit advance request observable if mode is edit and view is team', fakeAsync(() => {
         activatedRoute.snapshot.params = {
           from: 'TEAM_ADVANCE',
           id: 'areqR1cyLgXdND',
         };
+        component.from = 'TEAM_ADVANCE';
         const mockAdvanceRequest = cloneDeep(unflattenedAdvanceRequestData);
         mockAdvanceRequest.areq.project_id = '3019';
         advanceRequestService.getEReq.and.returnValue(of(mockAdvanceRequest));

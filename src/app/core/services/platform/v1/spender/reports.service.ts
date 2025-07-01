@@ -17,6 +17,7 @@ import { ReportPermissions } from 'src/app/core/models/report-permissions.model'
 import { Comment } from 'src/app/core/models/platform/v1/comment.model';
 import { ReportPurpose } from 'src/app/core/models/report-purpose.model';
 import { ExportPayload } from 'src/app/core/models/platform/export-payload.model';
+import { GroupedReportStats } from 'src/app/core/models/platform/v1/grouped-report-stats.model';
 
 const reportsCacheBuster$ = new Subject<void>();
 
@@ -198,6 +199,17 @@ export class SpenderReportsService {
     };
     return this.spenderPlatformV1ApiService
       .post<{ data: PlatformReportsStatsResponse }>('/reports/stats', queryParams)
+      .pipe(map((res) => res.data));
+  }
+
+  getGroupedReportsStats(): Observable<GroupedReportStats[]> {
+    const queryParams = {
+      data: {
+        query_params: 'group_by_state=eq.true',
+      },
+    };
+    return this.spenderPlatformV1ApiService
+      .post<{ data: GroupedReportStats[] }>('/reports/stats', queryParams)
       .pipe(map((res) => res.data));
   }
 }

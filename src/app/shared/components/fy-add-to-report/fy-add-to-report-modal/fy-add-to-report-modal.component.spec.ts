@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync, fakeAsync, tick } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { ModalController } from '@ionic/angular';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -14,6 +14,7 @@ import { SnakeCaseToSpaceCase } from 'src/app/shared/pipes/snake-case-to-space-c
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { click, getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 
 describe('FyAddToReportModalComponent', () => {
   let component: FyAddToReportModalComponent;
@@ -21,13 +22,47 @@ describe('FyAddToReportModalComponent', () => {
   let modalController: jasmine.SpyObj<ModalController>;
   let cdr: jasmine.SpyObj<ChangeDetectorRef>;
   let currencyService: jasmine.SpyObj<CurrencyService>;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
     const cdrSpy = jasmine.createSpyObj('ChangeDetectorRef', ['detectChanges']);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
+
+    // Mock the translate method
+    translocoServiceSpy.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'pipes.humanizeCurrency.kiloSuffix': 'K',
+        'fyAddToReportModal.title': 'Add to report',
+        'fyAddToReportModal.none': 'None',
+        'fyAddToReportModal.expense': 'Expense',
+        'fyAddToReportModal.expenses': 'Expenses',
+        'fyAddToReportModal.noReports': 'You have no reports right now',
+        'fyAddToReportModal.createNewReport': 'To create a draft report please click on',
+        'fyAddToReportModal.zeroStateAlt': 'No reports found',
+      };
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
+    });
+
     TestBed.configureTestingModule({
       declarations: [FyAddToReportModalComponent, HumanizeCurrencyPipe, ReportState, SnakeCaseToSpaceCase],
-      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule],
+      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, TranslocoModule],
       providers: [
         FyCurrencyPipe,
         CurrencyPipe,
@@ -43,6 +78,10 @@ describe('FyAddToReportModalComponent', () => {
           provide: CurrencyService,
           useValue: currencyServiceSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(FyAddToReportModalComponent);
@@ -50,6 +89,7 @@ describe('FyAddToReportModalComponent', () => {
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     cdr = TestBed.inject(ChangeDetectorRef) as jasmine.SpyObj<ChangeDetectorRef>;
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     component.currentSelection = optionData1[0].value;
     component.options = optionData1;
     currencyService.getHomeCurrency.and.returnValue(of('USD'));
@@ -98,14 +138,15 @@ describe('FyAddToReportModalComponent', () => {
     expect(getTextContent(getElementBySelector(fixture, '[data-testid="auto_submit_report"]'))).toEqual('Report 1');
   });
 
-  it('display zero state if no report found', () => {
+  it('display zero state if no report found', fakeAsync(() => {
     component.options = [];
     fixture.detectChanges();
-
+    tick();
+    fixture.detectChanges();
     const subtitles = getAllElementsBySelector(fixture, '.report-list--zero-state__subtitle');
     expect(getTextContent(subtitles[0])).toEqual('You have no reports right now');
     expect(getTextContent(subtitles[1])).toEqual('To create a draft report please click on');
-  });
+  }));
 
   it('should go to create draft report if add icon is clicked', () => {
     spyOn(component, 'createDraftReport');
@@ -144,9 +185,10 @@ describe('FyAddToReportModalComponent', () => {
     expect(component.dismissModal).toHaveBeenCalledTimes(1);
   });
 
-  it('should report information correctly', () => {
+  it('should report information correctly', fakeAsync(() => {
     const reportCards = getAllElementsBySelector(fixture, '[data-testid="reports"]');
-
+    tick();
+    fixture.detectChanges();
     expect(getTextContent(reportCards[0].getElementsByClassName('report-list--purpose')[0])).toEqual(
       optionData1[0].value.purpose
     );
@@ -157,5 +199,5 @@ describe('FyAddToReportModalComponent', () => {
 
     expect(getTextContent(reportCards[0].getElementsByClassName('report-list--currency')[0])).toEqual('$');
     expect(getTextContent(reportCards[0].getElementsByClassName('report-list--amount')[0])).toEqual('1.35K');
-  });
+  }));
 });

@@ -4,7 +4,7 @@
     [ngClass]="{ 'zero-state--image__unscaled': unscaledImage }"
     [src]="image"
     [ngStyle]="taskImageStyle"
-    alt="zero"
+    [alt]="'fyZeroState.altText' | transloco"
   />
   <div *ngIf="header" [ngClass]="{ 'zero-state--header__new': useNewStyling }" class="zero-state--header">
     {{ header }}

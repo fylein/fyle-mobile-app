@@ -8,6 +8,7 @@ import { FySelectModalComponent } from './fy-select-modal/fy-select-modal.compon
 import { isEqual } from 'lodash';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { Value } from './fy-select.interface';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-fy-select',
@@ -68,7 +69,11 @@ export class FySelectComponent implements ControlValueAccessor {
 
   onChangeCallback: (_: any) => void = noop;
 
-  constructor(private modalController: ModalController, private modalProperties: ModalPropertiesService) {}
+  constructor(
+    private modalController: ModalController,
+    private modalProperties: ModalPropertiesService,
+    private translocoService: TranslocoService
+  ) {}
 
   get valid(): boolean {
     if (this.touchedInParent) {
@@ -125,7 +130,7 @@ export class FySelectComponent implements ControlValueAccessor {
         customInput: this.customInput,
         subheader: this.subheader,
         enableSearch: this.enableSearch,
-        selectModalHeader: this.selectModalHeader || 'Select item',
+        selectModalHeader: this.selectModalHeader || this.translocoService.translate('fySelect.selectItem'),
         placeholder: this.placeholder,
         showSaveButton: this.showSaveButton,
         defaultLabelProp: this.defaultLabelProp,

@@ -96,6 +96,8 @@ export class SplitExpensePage implements OnDestroy {
 
   remainingAmount: number;
 
+  homeCurrency: string;
+
   categories$: Observable<OrgCategoryListItem[]>;
 
   filteredCategories$: Observable<OrgCategoryListItem[]>;
@@ -526,7 +528,8 @@ export class SplitExpensePage implements OnDestroy {
         this.transaction,
         this.totalSplitAmount,
         splitExpenses,
-        this.expenseFields
+        this.expenseFields,
+        this.homeCurrency
       ),
     };
 
@@ -1067,6 +1070,7 @@ export class SplitExpensePage implements OnDestroy {
   }
 
   setValuesForCCC(currencyObj: CurrencyObj, homeCurrency: string, isCorporateCardsEnabled: boolean): void {
+    this.homeCurrency = homeCurrency;
     this.setAmountAndCurrency(currencyObj, homeCurrency);
 
     let amount1 = this.amount > 0.0001 || isCorporateCardsEnabled ? this.amount * 0.6 : null; // 60% split

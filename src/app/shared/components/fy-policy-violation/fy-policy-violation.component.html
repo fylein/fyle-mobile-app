@@ -6,7 +6,12 @@
         <span class="policy-violation--toolbar__close-icon" *ngIf="showCloseIcon" slot="start">
           <mat-icon (click)="cancel()" class="fy-icon-close" svgIcon="cross"></mat-icon>
         </span>
-        Policy violation<span *ngIf="policyViolationMessages?.length > 1">s</span> found
+        {{
+          (policyViolationMessages?.length > 1
+            ? 'fyPolicyViolation.multipleViolationsFound'
+            : 'fyPolicyViolation.singleViolationFound'
+          ) | transloco
+        }}
       </div>
     </div>
   </div>
@@ -22,13 +27,13 @@
 
     <ng-container *ngIf="policyAction?.run_summary?.length">
       <div>
-        <p class="policy-violation--action-header">The policy violation will trigger the following action(s):</p>
+        <p class="policy-violation--action-header">{{ 'fyPolicyViolation.policyActionHeader' | transloco }}</p>
       </div>
 
       <ng-container *ngIf="isExpenseFlagged">
         <app-policy-violation-action
           [icon]="'../../../../assets/svg/flag-outline.svg'"
-          [message]="'Expense will be flagged for verification and approval'"
+          [message]="'fyPolicyViolation.flaggedMessage' | transloco"
           [actionsCount]="policyAction?.run_summary?.length"
         ></app-policy-violation-action>
       </ng-container>
@@ -36,7 +41,7 @@
       <ng-container *ngIf="isPrimaryApproverSkipped">
         <app-policy-violation-action
           [icon]="'../../../../assets/svg/user-one.svg'"
-          [message]="'Primary approver will be skipped'"
+          [message]="'fyPolicyViolation.skippedMessage' | transloco"
           [actionsCount]="policyAction?.run_summary?.length"
         ></app-policy-violation-action>
       </ng-container>
@@ -62,7 +67,7 @@
       <form [formGroup]="form">
         <div>
           <p class="policy-violation--additional-details-header">
-            Please provide additional details for approval
+            {{ 'fyPolicyViolation.additionalDetailsHeader' | transloco }}
             <span class="policy-violation--additional-details-comment-length">{{ form.value.comment.length }}/500</span>
           </p>
         </div>
@@ -71,7 +76,7 @@
           maxlength="500"
           class="policy-violation--textarea"
           formControlName="comment"
-          placeholder="Enter the details here"
+          [placeholder]="'fyPolicyViolation.detailsPlaceholder' | transloco"
         ></textarea>
       </form>
     </ng-container>
@@ -81,8 +86,12 @@
 <ion-footer *ngIf="showCTA">
   <ion-toolbar mode="md">
     <div class="fy-footer-cta-container">
-      <ion-button class="fy-footer-cta fy-footer-cta--tertiary-secondary" (click)="cancel()"> Cancel </ion-button>
-      <ion-button class="fy-footer-cta fy-footer-cta--primary" (click)="continue()"> Continue </ion-button>
+      <ion-button class="fy-footer-cta fy-footer-cta--tertiary-secondary" (click)="cancel()">
+        {{ 'fyPolicyViolation.cancel' | transloco }}
+      </ion-button>
+      <ion-button class="fy-footer-cta fy-footer-cta--primary" (click)="continue()">
+        {{ 'fyPolicyViolation.continue' | transloco }}
+      </ion-button>
     </div>
   </ion-toolbar>
 </ion-footer>

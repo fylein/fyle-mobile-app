@@ -498,9 +498,13 @@ export class AddEditAdvanceRequestPage implements OnInit {
     this.dataUrls = [];
     this.customFieldValues = [];
     if (this.mode === 'edit') {
-      this.actions$ = this.advanceRequestService
-        .getActions(this.activatedRoute.snapshot.params.id as string)
-        .pipe(shareReplay(1));
+      const requestId = this.activatedRoute.snapshot.params.id as string;
+
+      if (this.from === 'TEAM_ADVANCE') {
+        this.actions$ = this.advanceRequestService.getApproverPermissions(requestId).pipe(shareReplay(1));
+      } else {
+        this.actions$ = this.advanceRequestService.getSpenderPermissions(requestId).pipe(shareReplay(1));
+      }
 
       this.actions$.subscribe((res) => {
         this.advanceActions = res;

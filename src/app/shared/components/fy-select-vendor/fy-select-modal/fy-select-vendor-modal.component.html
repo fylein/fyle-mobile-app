@@ -2,7 +2,7 @@
   <mat-icon class="fy-modal-top-bar" svgIcon="notch"></mat-icon>
   <ion-toolbar mode="md" class="fy-modal-toolbar">
     <ion-title>
-      <div class="selection-modal--title">Select merchant</div>
+      <div class="selection-modal--title">{{ 'fySelectVendorModal.title' | transloco }}</div>
     </ion-title>
     <ion-buttons slot="start">
       <ion-button (click)="onDoneClick()">
@@ -18,7 +18,7 @@
         id="selection-modal--search-input"
         class="selection-modal--search-input smartlook-show"
         matInput
-        placeholder="Search"
+        [placeholder]="'fySelectVendorModal.searchPlaceholder' | transloco"
         [(ngModel)]="value"
       />
       <mat-icon *ngIf="isLoading" class="selection-modal--autocomplete-loader" svgIcon="loader" matSuffix></mat-icon>
@@ -28,7 +28,7 @@
         matSuffix
         data-testid="clear"
         mat-icon-button
-        aria-label="Clear"
+        [attr.aria-label]="'fySelectVendorModal.clear' | transloco"
         (click)="clearValue()"
       >
         <mat-icon>close</mat-icon>
@@ -46,14 +46,16 @@
   >
     <div class="selection-modal--container">
       <div *ngIf="value && value.trim().length">
-        <div *ngIf="!(selectableOptions?.length > 0)" class="selection-modal--list-element">
-          <i> No results found </i>
-        </div>
+        <div
+          *ngIf="!(selectableOptions?.length > 0)"
+          class="selection-modal--list-element"
+          [innerHTML]="'fySelectVendorModal.noResultsFound' | transloco"
+        ></div>
         <div matRipple class="selection-modal--list-element" (click)="onNewSelect()">
           <div class="selection-modal--add-item-block">
             <mat-icon class="selection-modal--add-item-icon"> add_circle_outline </mat-icon>
             <span
-              >Add "<span class="selection-modal--new-item-name"
+              >{{ 'fySelectVendorModal.add' | transloco }} "<span class="selection-modal--new-item-name"
                 ><strong>{{ value }}</strong></span
               >"</span
             >

@@ -32,6 +32,7 @@ import { advanceRequests } from 'src/app/core/mock-data/advance-requests.data';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
 import { modalControllerParams8, modalControllerParams9 } from 'src/app/core/mock-data/modal-controller.data';
+import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 
 describe('MyViewAdvanceRequestPage', () => {
   let component: MyViewAdvanceRequestPage;
@@ -51,7 +52,7 @@ describe('MyViewAdvanceRequestPage', () => {
   beforeEach(waitForAsync(() => {
     const advanceRequestServiceSpy = jasmine.createSpyObj('AdvanceRequestService', [
       'getAdvanceRequestPlatform',
-      'getActions',
+      'getSpenderPermissions',
       'getInternalStateAndDisplayName',
       'getActiveApproversByAdvanceRequestIdPlatform',
       'modifyAdvanceRequestCustomFields',
@@ -180,7 +181,7 @@ describe('MyViewAdvanceRequestPage', () => {
         state: 'DRAFT',
         name: 'Draft',
       });
-      advanceRequestService.getActions.and.returnValue(of(apiAdvanceRequestAction));
+      advanceRequestService.getSpenderPermissions.and.returnValue(of(apiAdvanceRequestAction));
       advanceRequestService.getActiveApproversByAdvanceRequestIdPlatform.and.returnValue(of(advanceReqApprovalsPublic));
       const mockFileObject = cloneDeep(advanceRequestFileUrlData[0]);
       spyOn(component, 'getReceiptDetails').and.returnValue({
@@ -234,7 +235,7 @@ describe('MyViewAdvanceRequestPage', () => {
       component.actions$.subscribe((res) => {
         expect(res).toEqual(apiAdvanceRequestAction);
       });
-      expect(advanceRequestService.getActions).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
+      expect(advanceRequestService.getSpenderPermissions).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
     }));
 
     it('should set activeApprovals$ to active approvals', fakeAsync(() => {
@@ -252,13 +253,16 @@ describe('MyViewAdvanceRequestPage', () => {
     it('should set attachedFiles$ to attached files', fakeAsync(() => {
       const mockFileObject = cloneDeep(expectedFileData1[0]);
       fileService.findByAdvanceRequestId.and.returnValue(of([mockFileObject]));
+
       component.ionViewWillEnter();
       tick(100);
 
       component.attachedFiles$.subscribe((res) => {
         expect(fileService.findByAdvanceRequestId).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
         expect(fileService.downloadUrl).toHaveBeenCalledOnceWith('fiV1gXpyCcbU');
-        expect(res).toEqual([mockFileObject]);
+        expect(res[0].url).toEqual('mockdownloadurl.png');
+        expect(res[0].type).toEqual('pdf');
+        expect(res[0].thumbnail).toEqual('src/assets/images/pdf-receipt-placeholder.png');
       });
     }));
 
@@ -307,7 +311,7 @@ describe('MyViewAdvanceRequestPage', () => {
       '/',
       'enterprise',
       'add_edit_advance_request',
-      { id: 'areqR1cyLgXdND', },
+      { id: 'areqR1cyLgXdND' },
     ]);
   });
 
@@ -367,10 +371,18 @@ describe('MyViewAdvanceRequestPage', () => {
     const attachmentsModalSpy = jasmine.createSpyObj('attachmentsModal', ['present']);
     modalController.create.and.resolveTo(attachmentsModalSpy);
     modalProperties.getModalDefaultProperties.and.returnValue(properties);
-    component.viewAttachments(fileObject4[0]);
+    const attachments = [fileObject4[0]];
+    component.viewAttachments(attachments);
     tick(100);
 
-    expect(modalController.create).toHaveBeenCalledOnceWith(modalControllerParams9);
+    expect(modalController.create).toHaveBeenCalledOnceWith({
+      component: FyViewAttachmentComponent,
+      componentProps: {
+        attachments,
+      },
+      mode: 'ios',
+      ...properties,
+    });
     expect(attachmentsModalSpy.present).toHaveBeenCalledTimes(1);
     expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
   }));

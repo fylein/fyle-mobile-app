@@ -24,9 +24,25 @@ export class PlatformEmployeeSettingsService {
     cacheBusterObserver: employeeSettingsCacheBuster$,
   })
   get(): Observable<EmployeeSettings> {
-    return this.spenderService
-      .get<PlatformApiResponse<EmployeeSettings[]>>('/employee_settings', {})
-      .pipe(map((response) => (response.data.length > 0 ? response.data[0] : null)));
+    return this.spenderService.get<PlatformApiResponse<EmployeeSettings[]>>('/employee_settings', {}).pipe(
+      map((response) => {
+        if (response.data.length > 0) {
+          const employeeSettings = response.data[0];
+          // This is being done because of public platform data mismatch;
+          // TODO: Remove this once migration is done.
+          if (employeeSettings.default_payment_mode === AccountType.PERSONAL_ACCOUNT) {
+            employeeSettings.default_payment_mode = AccountType.PERSONAL;
+          }
+
+          if (employeeSettings.payment_mode_settings?.allowed_payment_modes) {
+            employeeSettings.payment_mode_settings.allowed_payment_modes =
+              employeeSettings.payment_mode_settings.allowed_payment_modes.map((mode) => mode === AccountType.PERSONAL_ACCOUNT ? AccountType.PERSONAL : mode);
+          }
+          return employeeSettings;
+        }
+        return null;
+      })
+    );
   }
 
   @CacheBuster({
@@ -49,7 +65,7 @@ export class PlatformEmployeeSettingsService {
     cacheBusterObserver: employeeSettingsCacheBuster$,
   })
   getAllowedPaymentModes(): Observable<AccountType[]> {
-    return this.get().pipe(map((employeeSettings) => employeeSettings.payment_mode_settings?.allowed_payment_modes));
+    return this.get().pipe(map((employeeSettings) => employeeSettings?.payment_mode_settings?.allowed_payment_modes));
   }
 
   getEmailEvents(): EmailEventsObject {

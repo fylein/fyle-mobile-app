@@ -26,6 +26,7 @@ import { ApproverReportsService } from 'src/app/core/services/platform/v1/approv
 import { OrgService } from 'src/app/core/services/org.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 
 describe('TasksComponent', () => {
   const getTestBed = () => {
@@ -86,10 +87,10 @@ describe('TasksComponent', () => {
     };
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create', 'onDidDismiss']);
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
     TestBed.configureTestingModule({
       declarations: [TasksComponent],
-      imports: [IonicModule.forRoot(), RouterTestingModule],
+      imports: [IonicModule.forRoot(), RouterTestingModule, TranslocoModule],
       providers: [
         { provide: TasksService, useValue: tasksServiceSpy },
         { provide: TransactionService, useValue: transactionServiceSpy },
@@ -113,6 +114,7 @@ describe('TasksComponent', () => {
         { provide: PopoverController, useValue: popoverControllerSpy },
         { provide: PlatformEmployeeSettingsService, useValue: platformEmployeeSettingsServiceSpy },
         { provide: CorporateCreditCardExpenseService, useValue: corporateCreditCardExpenseServiceSpy },
+        { provide: TranslocoService, useValue: translocoServiceSpy },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();

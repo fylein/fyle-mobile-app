@@ -9,6 +9,7 @@ import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MatLegacyChipInputEvent as MatChipInputEvent } from '@angular/material/legacy-chips';
 import { Approver } from '../models/approver.model';
 import { EmployeeParams } from 'src/app/core/models/employee-params.model';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-approver-dialog',
@@ -51,7 +52,8 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
   constructor(
     private loaderService: LoaderService,
     private employeesService: EmployeesService,
-    private modalController: ModalController
+    private modalController: ModalController,
+    private translocoService: TranslocoService
   ) {}
 
   ngOnInit(): void {
@@ -124,7 +126,7 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
       params.limit = 20;
     }
 
-    return from(this.loaderService.showLoader('Loading...')).pipe(
+    return from(this.loaderService.showLoader(this.translocoService.translate('approverDialog.loading'))).pipe(
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       switchMap((_) => this.employeesService.getEmployeesBySearch(params)),
       map((approvers) =>

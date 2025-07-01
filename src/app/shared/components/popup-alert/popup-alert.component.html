@@ -11,7 +11,7 @@
         <ion-icon class="popup-alert--success-tick" src="/assets/svg/check.svg"></ion-icon>
       </div>
       <div>
-        <div class="popup-alert--content-header">Successfully connected</div>
+        <div class="popup-alert--content-header">{{ 'popupAlert.successfullyConnected' | transloco }}</div>
         <div class="popup-alert--card-numbers">
           {{ cardsList?.successfulCards?.join() }}
         </div>
@@ -22,7 +22,7 @@
         <ion-icon class="popup-alert--error-icon" src="/assets/svg/error-outlined.svg"></ion-icon>
       </div>
       <div>
-        <div class="popup-alert--content-header">Failed connecting</div>
+        <div class="popup-alert--content-header">{{ 'popupAlert.failedConnecting' | transloco }}</div>
         <div class="popup-alert--card-numbers">
           {{ cardsList?.failedCards?.join(', ') }}
         </div>
@@ -39,7 +39,10 @@
   ></div>
 
   <div class="popup-alert--info-container" *ngIf="flaggedExpensesCount">
-    <app-fy-alert-info [message]="'This report has ' + flaggedExpensesCount + ' violations'" [type]="'warning'">
+    <app-fy-alert-info
+      [message]="'popupAlert.reportViolations' | transloco : { count: flaggedExpensesCount }"
+      [type]="'warning'"
+    >
     </app-fy-alert-info>
   </div>
 

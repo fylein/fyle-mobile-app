@@ -6,6 +6,7 @@ import { ToastMessageComponent } from '../toast-message/toast-message.component'
 import { CardStatus } from 'src/app/core/enums/card-status.enum';
 import { PopoverController } from '@ionic/angular';
 import { FyPopoverComponent } from '../fy-popover/fy-popover.component';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-virtual-card',
@@ -37,7 +38,8 @@ export class VirtualCardComponent implements OnInit {
     private clipboardService: ClipboardService,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
-    private popoverController: PopoverController
+    private popoverController: PopoverController,
+    private translocoService: TranslocoService
   ) {}
 
   showToastMessage(message: string): void {
@@ -54,7 +56,7 @@ export class VirtualCardComponent implements OnInit {
 
   async copyToClipboard(contentToCopy: string): Promise<void> {
     await this.clipboardService.writeString(contentToCopy);
-    this.showToastMessage('Copied Successfully!');
+    this.showToastMessage(this.translocoService.translate('virtualCard.copiedSuccessfully'));
   }
 
   ngOnInit(): void {
@@ -62,12 +64,14 @@ export class VirtualCardComponent implements OnInit {
   }
 
   openInfoPopup(): void {
+    const title = this.translocoService.translate('virtualCard.availableMonthlyLimit');
+    const message = this.translocoService.translate('virtualCard.availableLimitMessage');
     this.popoverController
       .create({
         component: FyPopoverComponent,
         componentProps: {
-          title: 'Available monthly limit',
-          message: 'Available limit on this card for the current month.',
+          title,
+          message,
         },
         cssClass: 'dialog-popover',
       })

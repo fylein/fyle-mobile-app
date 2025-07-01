@@ -1,7 +1,23 @@
 import { ArrayToCommaListPipe } from './array-to-comma-list.pipe';
+import { TranslocoService } from '@jsverse/transloco';
 
 describe('ArrayToCommaListPipe', () => {
-  const arrayToCommaListPipe = new ArrayToCommaListPipe();
+  let arrayToCommaListPipe: ArrayToCommaListPipe;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
+
+  beforeEach(() => {
+    translocoService = jasmine.createSpyObj('TranslocoService', ['translate']);
+    arrayToCommaListPipe = new ArrayToCommaListPipe(translocoService);
+
+    // Mock translate method to return expected strings
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'pipes.arrayToCommaList.and': 'and',
+      };
+      return translations[key] || key;
+    });
+  });
+
   it('create an instance', () => {
     expect(arrayToCommaListPipe).toBeTruthy();
   });
