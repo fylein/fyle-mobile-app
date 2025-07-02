@@ -21,6 +21,8 @@ export class EmailNotificationsComponent implements OnInit {
 
   @Input() unsubscribedEventsByUser: string[];
 
+  isLongTitle = false;
+
   isIos = false;
 
   selectAll = false;
@@ -60,14 +62,8 @@ export class EmailNotificationsComponent implements OnInit {
   }
 
   toggleNotification(updatedNotification: NotificationEventItem): void {
-    const updatedNotifications = this.notifications.map((notification) =>
-      notification.eventEnum === updatedNotification.eventEnum
-        ? { ...notification, email: updatedNotification.email }
-        : notification
-    );
-    this.notifications = updatedNotifications;
+    updatedNotification.email = !updatedNotification.email;
     this.updateSelectAll();
-
     this.updateNotificationSettings();
   }
 
@@ -107,6 +103,7 @@ export class EmailNotificationsComponent implements OnInit {
 
   ngOnInit(): void {
     this.isIos = this.platform.is('ios');
+    this.isLongTitle = this.title.length > 25;
     this.updateSelectAll();
   }
 }

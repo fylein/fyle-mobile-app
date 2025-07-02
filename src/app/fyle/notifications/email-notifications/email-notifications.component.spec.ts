@@ -205,16 +205,14 @@ describe('EmailNotificationsComponent', () => {
 
   describe('toggleNotification():', () => {
     it('should toggle specific notification', () => {
-      const updatedNotification: NotificationEventItem = {
-        eventEnum: NotificationEventsEnum.ESTATUSES_CREATED_TXN,
-        event: 'Expense Created',
-        email: false,
-      };
+      const notificationToBeToggled = component.notifications.find(
+        (n) => n.eventEnum === NotificationEventsEnum.ESTATUSES_CREATED_TXN
+      );
 
       spyOn(component, 'updateSelectAll');
       spyOn(component, 'updateNotificationSettings');
 
-      component.toggleNotification(updatedNotification);
+      component.toggleNotification(notificationToBeToggled);
 
       const toggledNotification = component.notifications.find(
         (n) => n.eventEnum === NotificationEventsEnum.ESTATUSES_CREATED_TXN
