@@ -62,6 +62,7 @@ export class EmailNotificationsComponent implements OnInit {
   }
 
   toggleNotification(updatedNotification: NotificationEventItem): void {
+    updatedNotification.email = !updatedNotification.email;
     const updatedNotifications = this.notifications.map((notification) =>
       notification.eventEnum === updatedNotification.eventEnum
         ? { ...notification, email: updatedNotification.email }
