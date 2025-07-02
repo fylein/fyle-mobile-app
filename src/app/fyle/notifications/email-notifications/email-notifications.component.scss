@@ -14,6 +14,12 @@
     min-width: 40px;
   }
 
+  &--end-buttons {
+    min-width: 70px;
+    display: flex;
+    justify-content: flex-end;
+  }
+
   &--flex-row {
     display: flex;
     flex-direction: row;
@@ -43,4 +49,13 @@
   margin-bottom: 12px;
   justify-content: space-between;
   font-weight: 500;
+}
+
+ion-title {
+  font-size: 16px;
+  margin-left: 28px;
+}
+
+.long-title {
+  margin-left: 24px;
 }

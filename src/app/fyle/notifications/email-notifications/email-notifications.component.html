@@ -6,10 +6,10 @@
         <mat-icon class="fy-icon-close" svgIcon="cross"></mat-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>
+    <ion-title [class.long-title]="isLongTitle">
       {{ title }}
     </ion-title>
-    <ion-buttons slot="end">
+    <ion-buttons slot="end" class="email-notifications--end-buttons">
       <div class="email-notifications--saved-text">{{ saveText }}</div>
     </ion-buttons>
   </ion-toolbar>
