@@ -26,7 +26,15 @@
   }
 
   &--event-name {
-    width: 75vw;
+    width: 70vw;
+    flex-shrink: 0;
+  }
+
+  &--checkbox-col {
+    margin-left: 6px;
+    flex: 1;
+    display: flex;
+    justify-content: flex-start;
   }
 }
 

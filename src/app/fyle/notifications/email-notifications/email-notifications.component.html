@@ -19,15 +19,19 @@
   <div class="email-notifications--container">
     <div class="email-notifications--flex-row table-header">
       <div class="email-notifications--event-name">Events</div>
-      <mat-checkbox [(ngModel)]="selectAll" (ngModelChange)="toggleAllNotifications($event)">
-        <span>Email</span>
-      </mat-checkbox>
+      <div class="email-notifications--checkbox-col">
+        <mat-checkbox [(ngModel)]="selectAll" (ngModelChange)="toggleAllNotifications($event)">
+          <span>Email</span>
+        </mat-checkbox>
+      </div>
     </div>
     <div>
       <div class="email-notifications--flex-row" *ngFor="let notification of notifications">
         <div class="email-notifications--event-name">{{ notification.event }}</div>
-        <mat-checkbox [(ngModel)]="notification.email" (ngModelChange)="toggleNotification(notification)">
-        </mat-checkbox>
+        <div class="email-notifications--checkbox-col">
+          <mat-checkbox [(ngModel)]="notification.email" (ngModelChange)="toggleNotification(notification)">
+          </mat-checkbox>
+        </div>
       </div>
     </div>
   </div>
