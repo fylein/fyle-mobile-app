@@ -66,6 +66,8 @@ describe('ViewCommentComponent', () => {
     advanceRequestService = jasmine.createSpyObj('AdvanceRequestService', [
       'getCommentsByAdvanceRequestIdPlatform',
       'getCommentsByAdvanceRequestIdPlatformForApprover',
+      'postCommentPlatform',
+      'postCommentPlatformForApprover',
     ]);
     const dateFormatPipeSpy = jasmine.createSpyObj('DateFormatPipe', ['transform']);
     const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
@@ -349,5 +351,57 @@ describe('ViewCommentComponent', () => {
       tick(500);
       expect(component.type).toEqual('Expense');
     }));
+  });
+
+  describe('addComment with advance requests (platform API)', () => {
+    beforeEach(() => {
+      component.newComment = 'Test comment';
+      spyOn(component.refreshEstatuses$, 'next');
+    });
+
+    it('should use postCommentPlatform for my advances', () => {
+      component.objectType = 'advance_requests';
+      component.objectId = 'areq123';
+      spyOn<any>(component, 'isTeamAdvanceRoute').and.returnValue(false);
+      advanceRequestService.postCommentPlatform.and.returnValue({
+        pipe: () => ({ subscribe: (cb: any) => cb() }),
+      } as any);
+
+      component.addComment();
+
+      expect(advanceRequestService.postCommentPlatform).toHaveBeenCalledWith('areq123', 'Test comment');
+      expect(advanceRequestService.postCommentPlatformForApprover).not.toHaveBeenCalled();
+      expect(statusService.post).not.toHaveBeenCalled();
+      expect(component.refreshEstatuses$.next).toHaveBeenCalledWith(null);
+    });
+
+    it('should use postCommentPlatformForApprover for team advances', () => {
+      component.objectType = 'advance_requests';
+      component.objectId = 'areq456';
+      spyOn<any>(component, 'isTeamAdvanceRoute').and.returnValue(true);
+      advanceRequestService.postCommentPlatformForApprover.and.returnValue({
+        pipe: () => ({ subscribe: (cb: any) => cb() }),
+      } as any);
+
+      component.addComment();
+
+      expect(advanceRequestService.postCommentPlatformForApprover).toHaveBeenCalledWith('areq456', 'Test comment');
+      expect(advanceRequestService.postCommentPlatform).not.toHaveBeenCalled();
+      expect(statusService.post).not.toHaveBeenCalled();
+      expect(component.refreshEstatuses$.next).toHaveBeenCalledWith(null);
+    });
+
+    it('should use statusService.post for legacy/other types', () => {
+      component.objectType = 'legacy_type';
+      component.objectId = 'legacy123';
+      statusService.post.and.returnValue({ pipe: () => ({ subscribe: (cb: any) => cb() }) } as any);
+
+      component.addComment();
+
+      expect(statusService.post).toHaveBeenCalledWith('legacy_type', 'legacy123', { comment: 'Test comment' });
+      expect(advanceRequestService.postCommentPlatform).not.toHaveBeenCalled();
+      expect(advanceRequestService.postCommentPlatformForApprover).not.toHaveBeenCalled();
+      expect(component.refreshEstatuses$.next).toHaveBeenCalledWith(null);
+    });
   });
 });

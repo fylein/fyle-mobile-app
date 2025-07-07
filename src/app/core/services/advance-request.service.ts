@@ -256,6 +256,36 @@ export class AdvanceRequestService {
     );
   }
 
+  @CacheBuster({
+    cacheBusterNotifier: advanceRequestsCacheBuster$,
+  })
+  postCommentPlatform(advanceRequestId: string, comment: string): Observable<Comment> {
+    const payload = {
+      data: {
+        advance_request_id: advanceRequestId,
+        comment,
+      },
+    };
+    return this.spenderService
+      .post<PlatformApiResponse<Comment>>('/advance_requests/comments', payload)
+      .pipe(map((response) => response.data));
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: advanceRequestsCacheBuster$,
+  })
+  postCommentPlatformForApprover(advanceRequestId: string, comment: string): Observable<Comment> {
+    const payload = {
+      data: {
+        advance_request_id: advanceRequestId,
+        comment,
+      },
+    };
+    return this.approverService
+      .post<PlatformApiResponse<Comment>>('/advance_requests/comments', payload)
+      .pipe(map((response) => response.data));
+  }
+
   getEReqFromPlatform(advanceRequestId: string): Observable<UnflattenedAdvanceRequest> {
     return this.getAdvanceRequestPlatform(advanceRequestId).pipe(
       map((res) => {
@@ -358,22 +388,24 @@ export class AdvanceRequestService {
             return [];
           }
 
-          return advanceRequest.comments.map((comment: Comment) => ({
-            st_id: comment.id,
-            st_created_at: new Date(comment.created_at),
-            st_org_user_id: comment.creator_user_id,
-            st_comment: comment.comment,
-            st_diff: null,
-            st_state: null,
-            st_transaction_id: null,
-            st_report_id: null,
-            st_advance_request_id: advanceRequestId,
-            us_full_name: comment.creator_user?.full_name || null,
-            us_email: comment.creator_user?.email || null,
-            isBotComment: comment.creator_type === 'SYSTEM',
-            isSelfComment: false, // This will be determined by the calling component
-            isOthersComment: false, // This will be determined by the calling component
-          }));
+          return advanceRequest.comments.map(
+            (comment: Comment): ExtendedStatus => ({
+              st_id: comment.id,
+              st_created_at: new Date(comment.created_at),
+              st_org_user_id: comment.creator_user_id,
+              st_comment: comment.comment,
+              st_diff: null,
+              st_state: null,
+              st_transaction_id: null,
+              st_report_id: null,
+              st_advance_request_id: advanceRequestId,
+              us_full_name: comment.creator_user?.full_name || null,
+              us_email: comment.creator_user?.email || null,
+              isBotComment: comment.creator_type === 'SYSTEM',
+              isSelfComment: false, // This will be determined by the calling component
+              isOthersComment: false, // This will be determined by the calling component
+            })
+          );
         })
       );
   }
@@ -394,22 +426,24 @@ export class AdvanceRequestService {
             return [];
           }
 
-          return advanceRequest.comments.map((comment: Comment) => ({
-            st_id: comment.id,
-            st_created_at: new Date(comment.created_at),
-            st_org_user_id: comment.creator_user_id,
-            st_comment: comment.comment,
-            st_diff: null,
-            st_state: null,
-            st_transaction_id: null,
-            st_report_id: null,
-            st_advance_request_id: advanceRequestId,
-            us_full_name: comment.creator_user?.full_name || null,
-            us_email: comment.creator_user?.email || null,
-            isBotComment: comment.creator_type === 'SYSTEM',
-            isSelfComment: false, // This will be determined by the calling component
-            isOthersComment: false, // This will be determined by the calling component
-          }));
+          return advanceRequest.comments.map(
+            (comment: Comment): ExtendedStatus => ({
+              st_id: comment.id,
+              st_created_at: new Date(comment.created_at),
+              st_org_user_id: comment.creator_user_id,
+              st_comment: comment.comment,
+              st_diff: null,
+              st_state: null,
+              st_transaction_id: null,
+              st_report_id: null,
+              st_advance_request_id: advanceRequestId,
+              us_full_name: comment.creator_user?.full_name || null,
+              us_email: comment.creator_user?.email || null,
+              isBotComment: comment.creator_type === 'SYSTEM',
+              isSelfComment: false, // This will be determined by the calling component
+              isOthersComment: false, // This will be determined by the calling component
+            })
+          );
         })
       );
   }

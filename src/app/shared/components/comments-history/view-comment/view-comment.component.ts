@@ -88,6 +88,7 @@ export class ViewCommentComponent implements OnInit {
       this.isCommentAdded = true;
 
       const isExpense = this.objectType === 'transactions';
+      const isAdvanceRequest = this.objectType === 'advance_requests';
 
       if (isExpense) {
         const commentsPayload = [
@@ -103,6 +104,13 @@ export class ViewCommentComponent implements OnInit {
             ? this.approverExpenseCommentService.post(commentsPayload)
             : this.spenderExpenseCommentService.post(commentsPayload);
 
+        post$.pipe().subscribe(() => {
+          this.refreshEstatuses$.next(null);
+        });
+      } else if (isAdvanceRequest) {
+        const post$ = this.isTeamAdvanceRoute()
+          ? this.advanceRequestService.postCommentPlatformForApprover(this.objectId, data.comment)
+          : this.advanceRequestService.postCommentPlatform(this.objectId, data.comment);
         post$.pipe().subscribe(() => {
           this.refreshEstatuses$.next(null);
         });
