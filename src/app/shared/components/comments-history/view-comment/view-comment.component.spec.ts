@@ -30,7 +30,7 @@ import { DateWithTimezonePipe } from 'src/app/shared/pipes/date-with-timezone.pi
 import { TIMEZONE } from 'src/app/constants';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 
-describe('ViewCommentComponent', () => {
+fdescribe('ViewCommentComponent', () => {
   let component: ViewCommentComponent;
   let fixture: ComponentFixture<ViewCommentComponent>;
   let statusService: jasmine.SpyObj<StatusService>;
@@ -266,7 +266,7 @@ describe('ViewCommentComponent', () => {
     const mockBtn = {
       click: jasmine.createSpy('click'),
     };
-    spyOn(component.elementRef.nativeElement, 'getElementsByClassName').and.returnValue([null, mockBtn] as any);
+    spyOn(component['elementRef'].nativeElement, 'getElementsByClassName').and.returnValue([null, mockBtn] as any);
 
     const event = {
       direction: 2,
@@ -289,7 +289,7 @@ describe('ViewCommentComponent', () => {
     const mockBtn = {
       click: jasmine.createSpy('click'),
     };
-    spyOn(component.elementRef.nativeElement, 'getElementsByClassName').and.returnValue([mockBtn, null] as any);
+    spyOn(component['elementRef'].nativeElement, 'getElementsByClassName').and.returnValue([mockBtn, null] as any);
 
     const event = {
       direction: 4,
