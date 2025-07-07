@@ -63,6 +63,7 @@ import {
 import { cloneDeep } from 'lodash';
 import { PlatformEmployeeSettingsService } from './platform/v1/spender/employee-settings.service';
 import { TranslocoService } from '@jsverse/transloco';
+import { Comment } from '../models/platform/v1/comment.model';
 
 describe('AdvanceRequestService', () => {
   let advanceRequestService: AdvanceRequestService;
@@ -981,6 +982,70 @@ describe('AdvanceRequestService', () => {
           params: expectedParams,
         });
         expect(authService.getEou).toHaveBeenCalledTimes(1);
+        done();
+      });
+    });
+  });
+
+  describe('postCommentPlatform():', () => {
+    it('should post a comment for spender advance request', (done) => {
+      const advanceRequestId = 'areq123';
+      const comment = 'Test comment';
+      const expectedResponse: Comment = {
+        id: 'stPFnRryn7DY',
+        created_at: new Date('2025-04-29T05:20:49.391Z'),
+        creator_user_id: 'ouUkCJf482XN',
+        creator_type: 'USER',
+        comment: 'Test comment',
+        creator_user: {
+          email: 'kartikey.rajvaidya@fyle.in',
+          full_name: 'kartikey',
+          id: 'usdM767Q2gox',
+        },
+      };
+
+      spenderService.post.and.returnValue(of({ data: expectedResponse }));
+
+      advanceRequestService.postCommentPlatform(advanceRequestId, comment).subscribe((res) => {
+        expect(res).toEqual(expectedResponse);
+        expect(spenderService.post).toHaveBeenCalledOnceWith('/advance_requests/comments', {
+          data: {
+            advance_request_id: advanceRequestId,
+            comment,
+          },
+        });
+        done();
+      });
+    });
+  });
+
+  describe('postCommentPlatformForApprover():', () => {
+    it('should post a comment for approver advance request', (done) => {
+      const advanceRequestId = 'areq456';
+      const comment = 'Approver comment';
+      const expectedResponse: Comment = {
+        id: 'stPFnRryn7DY',
+        created_at: new Date('2025-04-29T05:20:49.391Z'),
+        creator_user_id: 'ouUkCJf482XN',
+        creator_type: 'USER',
+        comment: 'Approver comment',
+        creator_user: {
+          email: 'approver@fyle.in',
+          full_name: 'Approver User',
+          id: 'usdM767Q2gox',
+        },
+      };
+
+      approverService.post.and.returnValue(of({ data: expectedResponse }));
+
+      advanceRequestService.postCommentPlatformForApprover(advanceRequestId, comment).subscribe((res) => {
+        expect(res).toEqual(expectedResponse);
+        expect(approverService.post).toHaveBeenCalledOnceWith('/advance_requests/comments', {
+          data: {
+            advance_request_id: advanceRequestId,
+            comment,
+          },
+        });
         done();
       });
     });

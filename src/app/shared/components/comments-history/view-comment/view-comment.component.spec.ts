@@ -266,6 +266,7 @@ fdescribe('ViewCommentComponent', () => {
     const mockBtn = {
       click: jasmine.createSpy('click'),
     };
+    // eslint-disable-next-line @typescript-eslint/dot-notation
     spyOn(component['elementRef'].nativeElement, 'getElementsByClassName').and.returnValue([null, mockBtn] as any);
 
     const event = {
@@ -289,6 +290,7 @@ fdescribe('ViewCommentComponent', () => {
     const mockBtn = {
       click: jasmine.createSpy('click'),
     };
+    // eslint-disable-next-line @typescript-eslint/dot-notation
     spyOn(component['elementRef'].nativeElement, 'getElementsByClassName').and.returnValue([mockBtn, null] as any);
 
     const event = {
