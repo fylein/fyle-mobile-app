@@ -563,6 +563,106 @@ describe('AdvanceRequestService', () => {
     });
   });
 
+  it('getCommentsByAdvanceRequestIdPlatformForApprover(): should get comments for team advance request using platform API', (done) => {
+    const advID = 'areqiwr3Wwirr';
+    //@ts-ignore
+    approverService.get.and.returnValue(of(advanceRequestPlatform));
+
+    const expectedComments = [
+      {
+        st_id: 'st72VKetVkek',
+        st_created_at: new Date('2025-04-28T10:27:40.776503+00:00'),
+        st_org_user_id: null,
+        st_comment: 'Approver ajain@fyle.in added by SYSTEM',
+        st_diff: null,
+        st_state: null,
+        st_transaction_id: null,
+        st_report_id: null,
+        st_advance_request_id: advID,
+        us_full_name: null,
+        us_email: null,
+        isBotComment: true,
+        isSelfComment: false,
+        isOthersComment: false,
+      },
+      {
+        st_id: 'stIIp14dChOt',
+        st_created_at: new Date('2025-06-17T09:32:14.186Z'),
+        st_org_user_id: 'uswjwgnwwgo',
+        st_comment: 'Advance request submitted by John Doe',
+        st_diff: null,
+        st_state: null,
+        st_transaction_id: null,
+        st_report_id: null,
+        st_advance_request_id: advID,
+        us_full_name: 'John Doe',
+        us_email: 'john.doe@example.com',
+        isBotComment: false,
+        isSelfComment: false,
+        isOthersComment: false,
+      },
+    ];
+
+    advanceRequestService.getCommentsByAdvanceRequestIdPlatformForApprover(advID).subscribe((res) => {
+      expect(res).toEqual(expectedComments);
+      //@ts-ignore
+      expect(approverService.get).toHaveBeenCalledOnceWith('/advance_requests', {
+        params: { id: `eq.${advID}` },
+      });
+      done();
+    });
+  });
+
+  it('getCommentsByAdvanceRequestIdPlatform(): should get comments for spender advance request using platform API', (done) => {
+    const advID = 'areqiwr3Wwirr';
+    //@ts-ignore
+    spenderService.get.and.returnValue(of(advanceRequestPlatform));
+
+    const expectedComments = [
+      {
+        st_id: 'st72VKetVkek',
+        st_created_at: new Date('2025-04-28T10:27:40.776503+00:00'),
+        st_org_user_id: null,
+        st_comment: 'Approver ajain@fyle.in added by SYSTEM',
+        st_diff: null,
+        st_state: null,
+        st_transaction_id: null,
+        st_report_id: null,
+        st_advance_request_id: advID,
+        us_full_name: null,
+        us_email: null,
+        isBotComment: true,
+        isSelfComment: false,
+        isOthersComment: false,
+      },
+      {
+        st_id: 'stIIp14dChOt',
+        st_created_at: new Date('2025-06-17T09:32:14.186Z'),
+        st_org_user_id: 'uswjwgnwwgo',
+        st_comment: 'Advance request submitted by John Doe',
+        st_diff: null,
+        st_state: null,
+        st_transaction_id: null,
+        st_report_id: null,
+        st_advance_request_id: advID,
+        us_full_name: 'John Doe',
+        us_email: 'john.doe@example.com',
+        isBotComment: false,
+        isSelfComment: false,
+        isOthersComment: false,
+      },
+    ];
+
+    advanceRequestService.getCommentsByAdvanceRequestIdPlatform(advID).subscribe((res) => {
+      expect(res).toEqual(expectedComments);
+      //@ts-ignore
+      expect(spenderService.get).toHaveBeenCalledOnceWith('/advance_requests', {
+        params: { id: `eq.${advID}` },
+      });
+      done();
+    });
+  });
+
   describe('createAdvReqWithFilesAndSubmit():', () => {
     it('should create advanced request and submit it with the file', (done) => {
       fileService.post.and.returnValue(of(fileObjectData3));

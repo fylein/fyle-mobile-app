@@ -16,6 +16,8 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { DateFormatPipe } from 'src/app/shared/pipes/date-format.pipe';
 import { PopupAlertComponent } from '../../popup-alert/popup-alert.component';
 import { BehaviorSubject, of } from 'rxjs';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import {
@@ -42,6 +44,7 @@ describe('ViewCommentComponent', () => {
   let elementRef: jasmine.SpyObj<ElementRef>;
   let platform: jasmine.SpyObj<Platform>;
   let translocoService: jasmine.SpyObj<TranslocoService>;
+  let advanceRequestService: jasmine.SpyObj<AdvanceRequestService>;
 
   beforeEach(waitForAsync(() => {
     statusService = jasmine.createSpyObj('StatusService', ['post', 'find', 'createStatusMap']);
@@ -60,6 +63,10 @@ describe('ViewCommentComponent', () => {
     trackingService = jasmine.createSpyObj('TrackingService', ['addComment', 'viewComment', 'commentsHistoryActions']);
     elementRef = jasmine.createSpyObj('ElementRef', ['nativeElement']);
     platform = jasmine.createSpyObj('Platform', ['is']);
+    advanceRequestService = jasmine.createSpyObj('AdvanceRequestService', [
+      'getCommentsByAdvanceRequestIdPlatform',
+      'getCommentsByAdvanceRequestIdPlatformForApprover',
+    ]);
     const dateFormatPipeSpy = jasmine.createSpyObj('DateFormatPipe', ['transform']);
     const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
       config: {
@@ -70,7 +77,14 @@ describe('ViewCommentComponent', () => {
     });
     TestBed.configureTestingModule({
       declarations: [ViewCommentComponent, DateFormatPipe, DateWithTimezonePipe],
-      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, FormsModule, TranslocoModule],
+      imports: [
+        IonicModule.forRoot(),
+        MatIconModule,
+        MatIconTestingModule,
+        FormsModule,
+        TranslocoModule,
+        HttpClientTestingModule,
+      ],
       providers: [
         { provide: StatusService, useValue: statusService },
         { provide: AuthService, useValue: authService },
@@ -85,6 +99,7 @@ describe('ViewCommentComponent', () => {
         { provide: SpenderExpenseCommentService, useValue: spenderExpenseCommentService },
         { provide: ApproverExpenseCommentService, useValue: approverExpenseCommentService },
         { provide: TranslocoService, useValue: translocoServiceSpy },
+        { provide: AdvanceRequestService, useValue: advanceRequestService },
       ],
     }).compileComponents();
 
@@ -100,7 +115,26 @@ describe('ViewCommentComponent', () => {
     component.objectId = 'tx1oTNwgRdRq';
     component.newComment = 'This is a new comment';
     component.view = ExpenseView.team;
+    component.isCommentsView = true;
+    component.isSwipe = false;
+    component.isCommentAdded = false;
+    component.systemComments = [];
+    component.userComments = [];
+    component.type = 'Expense';
+    component.systemEstatuses = [];
+    component.showDt = false;
+
+    // Mock the commentInput element
+    component.commentInput = {
+      nativeElement: {
+        focus: jasmine.createSpy('focus'),
+      },
+    } as any;
+
     approverExpenseCommentService.getTransformedComments.and.returnValue(of(mockCommentResponse));
+    advanceRequestService.getCommentsByAdvanceRequestIdPlatform.and.returnValue(of([]));
+    advanceRequestService.getCommentsByAdvanceRequestIdPlatformForApprover.and.returnValue(of([]));
+    Object.defineProperty(router, 'url', { value: '/some-url', writable: true });
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     translocoService.translate.and.callFake((key: any, params?: any) => {
       const translations: { [key: string]: string } = {
@@ -137,6 +171,7 @@ describe('ViewCommentComponent', () => {
     const newComment = 'This is a new comment';
     const commentsPayload = [{ expense_id: component.objectId, comment: newComment, notify: false }];
     component.newComment = newComment;
+    component.objectId = 'tx1oTNwgRdRq'; // Ensure objectId is set
     approverExpenseCommentService.post.and.returnValue(of(null));
     fixture.detectChanges();
     const focusSpy = spyOn(component.commentInput.nativeElement, 'focus');
@@ -224,9 +259,12 @@ describe('ViewCommentComponent', () => {
 
   it('swipeRightToHistory(): should swipe to history in the right direction', () => {
     component.isSwipe = true;
-    const app = fixture.nativeElement;
-    const btn = app.getElementsByClassName('view-comment--segment-block__btn')[1];
-    const clickSpy = spyOn(btn, 'click');
+
+    // Mock the DOM elements
+    const mockBtn = {
+      click: jasmine.createSpy('click'),
+    };
+    spyOn(component.elementRef.nativeElement, 'getElementsByClassName').and.returnValue([null, mockBtn] as any);
 
     const event = {
       direction: 2,
@@ -235,7 +273,7 @@ describe('ViewCommentComponent', () => {
 
     fixture.detectChanges();
     expect(component.isSwipe).toBeTrue();
-    expect(clickSpy).toHaveBeenCalledTimes(1);
+    expect(mockBtn.click).toHaveBeenCalledTimes(1);
     expect(trackingService.commentsHistoryActions).toHaveBeenCalledOnceWith({
       action: 'swipe',
       segment: 'comments',
@@ -244,9 +282,12 @@ describe('ViewCommentComponent', () => {
 
   it('swipeLeftToComments(): should swipe to comments in the left direction', () => {
     component.isSwipe = true;
-    const app = fixture.nativeElement;
-    const btn = app.getElementsByClassName('view-comment--segment-block__btn')[0];
-    const clickSpy = spyOn(btn, 'click');
+
+    // Mock the DOM elements
+    const mockBtn = {
+      click: jasmine.createSpy('click'),
+    };
+    spyOn(component.elementRef.nativeElement, 'getElementsByClassName').and.returnValue([mockBtn, null] as any);
 
     const event = {
       direction: 4,
@@ -255,7 +296,7 @@ describe('ViewCommentComponent', () => {
 
     fixture.detectChanges();
     expect(component.isSwipe).toBeTrue();
-    expect(clickSpy).toHaveBeenCalledTimes(1);
+    expect(mockBtn.click).toHaveBeenCalledTimes(1);
     expect(trackingService.commentsHistoryActions).toHaveBeenCalledOnceWith({
       action: 'swipe',
       segment: 'history',
@@ -270,7 +311,11 @@ describe('ViewCommentComponent', () => {
         st_org_user_id: 'POLICY',
       }));
 
-      spyOn(component, 'setContentScrollToBottom');
+      // Mock the content element
+      component.content = {
+        scrollToBottom: jasmine.createSpy('scrollToBottom'),
+      } as any;
+
       const totalCommentsCount = 33;
       authService.getEou.and.resolveTo(apiEouRes);
       approverExpenseCommentService.getTransformedComments.and.returnValue(of(updatedApiCommentsResponse));
@@ -294,7 +339,11 @@ describe('ViewCommentComponent', () => {
     }));
 
     it('should set type correctly for a given objectType', fakeAsync(() => {
-      spyOn(component, 'setContentScrollToBottom');
+      // Mock the content element
+      component.content = {
+        scrollToBottom: jasmine.createSpy('scrollToBottom'),
+      } as any;
+
       component.objectType = 'transactions';
       component.ngOnInit();
       tick(500);

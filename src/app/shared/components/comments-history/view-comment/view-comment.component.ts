@@ -13,6 +13,8 @@ import { ExpenseCommentService as SpenderExpenseCommentService } from 'src/app/c
 import { ExpenseCommentService as ApproverExpenseCommentService } from 'src/app/core/services/platform/v1/approver/expense-comment.service';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { TranslocoService } from '@jsverse/transloco';
+import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-view-comment',
@@ -66,7 +68,9 @@ export class ViewCommentComponent implements OnInit {
     private dateWithTimezonePipe: DateWithTimezonePipe,
     private spenderExpenseCommentService: SpenderExpenseCommentService,
     private approverExpenseCommentService: ApproverExpenseCommentService,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
+    private advanceRequestService: AdvanceRequestService,
+    private router: Router
   ) {}
 
   setContentScrollToBottom(): void {
@@ -204,10 +208,14 @@ export class ViewCommentComponent implements OnInit {
         // - For Advance Requests (Public API), the status object contains `org_user_id`, so we compare with `eou.ou.id`.
         const userId = isExpense ? eou?.us?.id : eou?.ou?.id;
 
-        const comments$ = isExpense
+        const comments$: Observable<ExtendedStatus[]> = isExpense
           ? this.view === ExpenseView.team
             ? this.approverExpenseCommentService.getTransformedComments(this.objectId)
             : this.spenderExpenseCommentService.getTransformedComments(this.objectId)
+          : this.objectType === 'advance_requests'
+          ? this.isTeamAdvanceRoute()
+            ? this.advanceRequestService.getCommentsByAdvanceRequestIdPlatformForApprover(this.objectId)
+            : this.advanceRequestService.getCommentsByAdvanceRequestIdPlatform(this.objectId)
           : this.statusService.find(this.objectType, this.objectId);
 
         return comments$.pipe(
@@ -259,5 +267,10 @@ export class ViewCommentComponent implements OnInit {
     this.totalCommentsCount$ = this.estatuses$.pipe(
       map((res) => res.filter((estatus) => estatus.st_org_user_id !== 'SYSTEM').length)
     );
+  }
+
+  private isTeamAdvanceRoute(): boolean {
+    const currentUrl = this.router.url;
+    return currentUrl.includes('team_advance') || currentUrl.includes('view-team-advance-request');
   }
 }
