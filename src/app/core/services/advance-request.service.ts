@@ -402,8 +402,8 @@ export class AdvanceRequestService {
               us_full_name: comment.creator_user?.full_name || null,
               us_email: comment.creator_user?.email || null,
               isBotComment: comment.creator_type === 'SYSTEM',
-              isSelfComment: false, // This will be determined by the calling component
-              isOthersComment: false, // This will be determined by the calling component
+              isSelfComment: false,
+              isOthersComment: false,
             })
           );
         })
@@ -440,8 +440,8 @@ export class AdvanceRequestService {
               us_full_name: comment.creator_user?.full_name || null,
               us_email: comment.creator_user?.email || null,
               isBotComment: comment.creator_type === 'SYSTEM',
-              isSelfComment: false, // This will be determined by the calling component
-              isOthersComment: false, // This will be determined by the calling component
+              isSelfComment: false,
+              isOthersComment: false,
             })
           );
         })
