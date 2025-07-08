@@ -378,35 +378,9 @@ export class AdvanceRequestService {
         params: { id: `eq.${advanceRequestId}` },
       })
       .pipe(
-        map((res: PlatformApiResponse<AdvanceRequestPlatform[]>) => {
-          if (!res.data || res.data.length === 0) {
-            return [];
-          }
-
-          const advanceRequest = res.data[0];
-          if (!advanceRequest.comments) {
-            return [];
-          }
-
-          return advanceRequest.comments.map(
-            (comment: Comment): ExtendedStatus => ({
-              st_id: comment.id,
-              st_created_at: new Date(comment.created_at),
-              st_org_user_id: comment.creator_user_id,
-              st_comment: comment.comment,
-              st_diff: null,
-              st_state: null,
-              st_transaction_id: null,
-              st_report_id: null,
-              st_advance_request_id: advanceRequestId,
-              us_full_name: comment.creator_user?.full_name || null,
-              us_email: comment.creator_user?.email || null,
-              isBotComment: comment.creator_type === 'SYSTEM',
-              isSelfComment: false,
-              isOthersComment: false,
-            })
-          );
-        })
+        map((res: PlatformApiResponse<AdvanceRequestPlatform[]>) =>
+          this.mapCommentsToExtendedStatus(res, advanceRequestId)
+        )
       );
   }
 
@@ -416,35 +390,9 @@ export class AdvanceRequestService {
         params: { id: `eq.${advanceRequestId}` },
       })
       .pipe(
-        map((res: PlatformApiResponse<AdvanceRequestPlatform[]>) => {
-          if (!res.data || res.data.length === 0) {
-            return [];
-          }
-
-          const advanceRequest = res.data[0];
-          if (!advanceRequest.comments) {
-            return [];
-          }
-
-          return advanceRequest.comments.map(
-            (comment: Comment): ExtendedStatus => ({
-              st_id: comment.id,
-              st_created_at: new Date(comment.created_at),
-              st_org_user_id: comment.creator_user_id,
-              st_comment: comment.comment,
-              st_diff: null,
-              st_state: null,
-              st_transaction_id: null,
-              st_report_id: null,
-              st_advance_request_id: advanceRequestId,
-              us_full_name: comment.creator_user?.full_name || null,
-              us_email: comment.creator_user?.email || null,
-              isBotComment: comment.creator_type === 'SYSTEM',
-              isSelfComment: false,
-              isOthersComment: false,
-            })
-          );
-        })
+        map((res: PlatformApiResponse<AdvanceRequestPlatform[]>) =>
+          this.mapCommentsToExtendedStatus(res, advanceRequestId)
+        )
       );
   }
 
@@ -721,6 +669,39 @@ export class AdvanceRequestService {
     }
 
     return data;
+  }
+
+  private mapCommentsToExtendedStatus(
+    res: PlatformApiResponse<AdvanceRequestPlatform[]>,
+    advanceRequestId: string
+  ): ExtendedStatus[] {
+    if (!res.data || res.data.length === 0) {
+      return [];
+    }
+
+    const advanceRequest = res.data[0];
+    if (!advanceRequest.comments) {
+      return [];
+    }
+
+    return advanceRequest.comments.map(
+      (comment: Comment): ExtendedStatus => ({
+        st_id: comment.id,
+        st_created_at: new Date(comment.created_at),
+        st_org_user_id: comment.creator_user_id,
+        st_comment: comment.comment,
+        st_diff: null,
+        st_state: null,
+        st_transaction_id: null,
+        st_report_id: null,
+        st_advance_request_id: advanceRequestId,
+        us_full_name: comment.creator_user?.full_name || null,
+        us_email: comment.creator_user?.email || null,
+        isBotComment: comment.creator_type === 'SYSTEM',
+        isSelfComment: false,
+        isOthersComment: false,
+      })
+    );
   }
 
   private getStateIfDraft(advanceRequest: ExtendedAdvanceRequest | ExtendedAdvanceRequestPublic): {
