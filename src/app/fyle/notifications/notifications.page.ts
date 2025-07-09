@@ -301,6 +301,7 @@ export class NotificationsPage implements OnInit {
         this.employeeSettings = res[1];
         this.setEvents(this.notificationEvents, this.employeeSettings);
       });
+      
 
     /**
      * on valueChange of any check box, checking for all box selected or not
