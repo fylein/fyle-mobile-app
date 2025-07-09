@@ -13,7 +13,7 @@ import {
   expenseList3,
   expenseList4,
 } from '../mock-data/expense.data';
-import { UndoMergeData } from '../mock-data/undo-merge.data';
+
 import { AccountsService } from './accounts.service';
 import { ApiService } from './api.service';
 import { DataTransformService } from './data-transform.service';
@@ -308,13 +308,21 @@ describe('TransactionService', () => {
 
   it('removeCorporateCardExpense(): should remove corporate card expense', (done) => {
     const transactionID = 'tx7NU3Dviv4K';
+    const mockResponse = {
+      data: {
+        user_created_expense: expenseData,
+        auto_created_expense: expenseData,
+      },
+    };
 
-    apiService.post.and.returnValue(of(UndoMergeData));
+    spenderPlatformV1ApiService.post.and.returnValue(of(mockResponse));
 
     transactionService.removeCorporateCardExpense(transactionID).subscribe((res) => {
-      expect(res).toEqual(UndoMergeData);
-      expect(apiService.post).toHaveBeenCalledOnceWith('/transactions/unlink_card_expense', {
-        txn_id: transactionID,
+      expect(res).toEqual(mockResponse);
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/expenses/unlink_card_transaction', {
+        data: {
+          expense_id: transactionID,
+        },
       });
       done();
     });
