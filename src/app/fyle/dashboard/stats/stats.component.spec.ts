@@ -19,6 +19,7 @@ import { reportStatsData1, reportStatsData2 } from 'src/app/core/mock-data/repor
 import { expectedIncompleteExpStats, expectedUnreportedExpStats } from 'src/app/core/mock-data/stats.data';
 import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 
 describe('StatsComponent', () => {
   let component: StatsComponent;
@@ -32,7 +33,7 @@ describe('StatsComponent', () => {
   let orgService: jasmine.SpyObj<OrgService>;
   let paymentModeService: jasmine.SpyObj<PaymentModesService>;
   let performance: jasmine.SpyObj<Performance>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     const dashboardServiceSpy = jasmine.createSpyObj('DashboardService', [
       'getReportsStats',
@@ -51,10 +52,16 @@ describe('StatsComponent', () => {
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const orgServiceSpy = jasmine.createSpyObj('OrgService', ['getOrgs', 'getCurrentOrg', 'getPrimaryOrg']);
     const paymentModeServiceSpy = jasmine.createSpyObj('PaymentModesService', ['isNonReimbursableOrg']);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [StatsComponent],
-      imports: [IonicModule.forRoot()],
+      imports: [IonicModule.forRoot(), TranslocoModule],
       providers: [
         {
           provide: DashboardService,
@@ -88,6 +95,10 @@ describe('StatsComponent', () => {
           provide: PaymentModesService,
           useValue: paymentModeServiceSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
     }).compileComponents();
 
@@ -101,6 +112,36 @@ describe('StatsComponent', () => {
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     orgService = TestBed.inject(OrgService) as jasmine.SpyObj<OrgService>;
     paymentModeService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'stats.myExpenses': 'My expenses',
+        'stats.incomplete': 'Incomplete',
+        'stats.complete': 'Complete',
+        'stats.myExpenseReports': 'My expense reports',
+        'stats.draft': 'Draft',
+        'stats.submitted': 'Submitted',
+        'stats.reported': 'Reported',
+        'stats.approved': 'Approved',
+        'stats.processing': 'Processing',
+        'stats.paymentPending': 'Payment Pending',
+        'stats.teamExpenseReports': 'Team expense reports',
+        'stats.approvalPending': 'Approval pending',
+        'stats.offlineHeader': "You're Offline!",
+        'stats.offlineMessage': 'Fear not, you can still add expenses offline.',
+      };
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
+    });
   }));
 
   it('should create', () => {

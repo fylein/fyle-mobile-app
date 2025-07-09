@@ -1,4 +1,5 @@
 import { CurrencyPipe } from '@angular/common';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { extendedAdvReqDraft } from 'src/app/core/mock-data/extended-advance-request.data';
@@ -11,23 +12,36 @@ import { MyAdvancesCardComponent } from './my-advances-card.component';
 import * as dayjs from 'dayjs';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { advanceRequests } from 'src/app/core/mock-data/advance-requests.data';
+import { of } from 'rxjs';
 
 describe('MyAdvancesCardComponent', () => {
   let component: MyAdvancesCardComponent;
   let fixture: ComponentFixture<MyAdvancesCardComponent>;
   let advanceRequestService: jasmine.SpyObj<AdvanceRequestService>;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
 
   beforeEach(waitForAsync(() => {
     const advanceRequestServiceSpy = jasmine.createSpyObj('AdvanceRequestService', ['getInternalStateAndDisplayName']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [MyAdvancesCardComponent, EllipsisPipe, HumanizeCurrencyPipe, ExactCurrencyPipe],
-      imports: [IonicModule.forRoot()],
+      imports: [IonicModule.forRoot(), TranslocoModule],
       providers: [
         FyCurrencyPipe,
         CurrencyPipe,
         {
           provide: AdvanceRequestService,
           useValue: advanceRequestServiceSpy,
+        },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
       ],
     }).compileComponents();
@@ -36,6 +50,28 @@ describe('MyAdvancesCardComponent', () => {
     component = fixture.componentInstance;
     advanceRequestService = TestBed.inject(AdvanceRequestService) as jasmine.SpyObj<AdvanceRequestService>;
     component.advanceRequest = extendedAdvReqDraft;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'myAdvancesCard.paid': 'Paid',
+        'myAdvancesCard.pending': 'Pending',
+        'myAdvancesCard.approved': 'Approved',
+        'myAdvancesCard.rejected': 'Rejected',
+        'myAdvancesCard.cancelled': 'Cancelled',
+        'myAdvancesCard.expired': 'Expired',
+      };
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
+    });
     fixture.detectChanges();
   }));
 

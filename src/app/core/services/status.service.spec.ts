@@ -9,16 +9,69 @@ import {
   updateReponseWithFlattenedEStatus,
 } from '../test-data/status.service.spec.data';
 import { cloneDeep } from 'lodash';
-
+import { TranslocoService } from '@jsverse/transloco';
 describe('StatusService', () => {
   let statusService: StatusService;
   let apiService: jasmine.SpyObj<ApiService>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   const type = 'transactions';
   const id = 'tx1oTNwgRdRq';
 
   beforeEach(() => {
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+
+    // Mock translate method to return expected strings
+    translocoServiceSpy.translate.and.callFake((key: string, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'services.status.expenseAutomaticallyMerged': 'Expense automatically merged',
+        'services.status.expensesMergedToThisExpense': '{{count}} expenses merged to this expense',
+        'services.status.expenseMerged': 'Expense merged',
+        'services.status.typeReversed': '{{type}} Reversed',
+        'services.status.expenseRuleApplied': 'Expense Rule Applied',
+        'services.status.typeCreated': '{{type}} Created',
+        'services.status.typeEdited': '{{type}} Edited',
+        'services.status.policyViolation': 'Policy Violation',
+        'services.status.expenseAdded': 'Expense added',
+        'services.status.receiptAttached': 'Receipt Attached',
+        'services.status.reportSubmitted': 'Report Submitted',
+        'services.status.receiptRemoved': 'Receipt Removed',
+        'services.status.expenseRemoved': 'Expense removed',
+        'services.status.reportNameChanged': 'Report Name Changed',
+        'services.status.report': 'Report',
+        'services.status.unflagged': 'Unflagged',
+        'services.status.flagged': 'Flagged',
+        'services.status.failedToRunPolicies': 'Failed to run policies',
+        'services.status.verified': 'Verified',
+        'services.status.typeSentBack': '{{type}} Sent Back',
+        'services.status.approverPending': 'Approver Pending',
+        'services.status.typeApproved': '{{type}} Approved',
+        'services.status.processingPayment': 'Processing Payment',
+        'services.status.paid': 'Paid',
+        'services.status.expenseIssues': 'Expense Issues',
+        'services.status.policiesRanSuccessfully': 'Policies Ran Successfully',
+        'services.status.cardTransactionMatched': 'Card Transaction Matched',
+        'services.status.expenseUnmatched': 'Expense Unmatched',
+        'services.status.expenseMatched': 'Expense Matched',
+        'services.status.duplicateDetected': 'Duplicate Detected',
+        'services.status.duplicateIssueResolved': 'Duplicate(s) issue resolved',
+        'services.status.others': 'Others',
+      };
+
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params) {
+        if (params.count) {
+          translation = translation.replace('{{count}}', params.count);
+        }
+        if (params.type) {
+          translation = translation.replace('{{type}}', params.type);
+        }
+      }
+
+      return translation;
+    });
 
     TestBed.configureTestingModule({
       providers: [
@@ -27,10 +80,15 @@ describe('StatusService', () => {
           provide: ApiService,
           useValue: apiServiceSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
     });
     statusService = TestBed.inject(StatusService);
     apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
   });
 
   it('should be created', () => {

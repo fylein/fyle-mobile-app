@@ -12,6 +12,7 @@ import { PlatformApiResponse } from '../models/platform/platform-api-response.mo
 import { PlatformExpenseField } from '../models/platform/platform-expense-field.model';
 import { ExpenseFieldsService } from './expense-fields.service';
 import { CustomInput } from '../models/custom-input.model';
+import { TranslocoService } from '@jsverse/transloco';
 
 const customInputssCacheBuster$ = new Subject<void>();
 
@@ -24,7 +25,8 @@ export class CustomInputsService {
     private datePipe: DatePipe,
     private authService: AuthService,
     private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
-    private expenseFieldsService: ExpenseFieldsService
+    private expenseFieldsService: ExpenseFieldsService,
+    private translocoService: TranslocoService
   ) {}
 
   @Cacheable({
@@ -78,7 +80,9 @@ export class CustomInputsService {
         // Iterate through custom inputs and process each one
         for (const customInput of customInputs) {
           const fieldName =
-            customInput.is_enabled === false ? `${customInput.field_name} (Deleted)` : customInput.field_name;
+            customInput.is_enabled === false
+              ? `${customInput.field_name}${this.translocoService.translate('services.customInputs.deletedSuffix')}`
+              : customInput.field_name;
 
           // Initialize the property object
           const property = {
@@ -196,7 +200,9 @@ export class CustomInputsService {
   }
 
   private formatBooleanCustomProperty(customProperty: CustomField): string {
-    return customProperty.value ? 'Yes' : 'No';
+    return customProperty.value
+      ? this.translocoService.translate('services.customInputs.yes')
+      : this.translocoService.translate('services.customInputs.no');
   }
 
   private formatDateCustomProperty(customProperty: CustomField): string {

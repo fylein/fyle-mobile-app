@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { IonicModule, ModalController } from '@ionic/angular';
 
 import { Injector, NO_ERRORS_SCHEMA } from '@angular/core';
@@ -7,21 +8,28 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { UntypedFormControl, NG_VALUE_ACCESSOR, NgControl } from '@angular/forms';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
 import { virtualSelectModalControllerParams } from 'src/app/core/mock-data/modal-controller.data';
+import { of } from 'rxjs';
 
 describe('VirtualSelectModalComponent', () => {
   let component: VirtualSelectComponent;
   let fixture: ComponentFixture<VirtualSelectComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
   let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const modalPropertiesServiceSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
     const injectorSpy = jasmine.createSpyObj('Injector', ['get']);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [VirtualSelectComponent],
-      imports: [IonicModule.forRoot()],
+      imports: [IonicModule.forRoot(), TranslocoModule],
       providers: [
         {
           provide: ModalController,
@@ -41,6 +49,10 @@ describe('VirtualSelectModalComponent', () => {
             control: new UntypedFormControl(),
           },
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -49,6 +61,22 @@ describe('VirtualSelectModalComponent', () => {
     component = fixture.componentInstance;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'virtualSelect.selectItemHeader': 'Select item',
+        'virtualSelect.subheader': 'All',
+        'virtualSelect.paymentModeLabel': 'Payment mode',
+        'virtualSelect.placeholder': 'Select {{label}}',
+      };
+      let translation = translations[key] || key;
+      if (params) {
+        Object.keys(params).forEach((key) => {
+          translation = translation.replace(`{${key}}`, params[key]);
+        });
+      }
+      return translation;
+    });
     component.enableSearch = true;
     fixture.debugElement.injector.get(NG_VALUE_ACCESSOR);
     fixture.detectChanges();
@@ -72,6 +100,8 @@ describe('VirtualSelectModalComponent', () => {
     });
 
     it('should open select modal and set value equals to value returned by modal', fakeAsync(() => {
+      // Explicitly set subheader to match the expected mock data
+      component.subheader = 'All';
       component.openModal();
       tick(100);
 
@@ -83,6 +113,8 @@ describe('VirtualSelectModalComponent', () => {
 
     it('should open select modal and set value equals to value returned by modal if label is Payment Mode', fakeAsync(() => {
       component.label = 'Payment mode';
+      // Explicitly set subheader to match the expected mock data
+      component.subheader = 'All';
       component.openModal();
       tick(100);
 

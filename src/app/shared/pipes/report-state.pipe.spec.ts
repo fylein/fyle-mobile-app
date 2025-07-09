@@ -1,7 +1,33 @@
 import { ReportState } from './report-state.pipe';
+import { TranslocoService } from '@jsverse/transloco';
 
 describe('ReportStatePipe', () => {
-  const pipe = new ReportState();
+  let pipe: ReportState;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
+
+  beforeEach(() => {
+    translocoService = jasmine.createSpyObj('TranslocoService', ['translate']);
+
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'pipes.reportState.draft': 'draft',
+        'pipes.reportState.submitted': 'submitted',
+        'pipes.reportState.reported': 'reported',
+        'pipes.reportState.sentBack': 'sent_back',
+        'pipes.reportState.autoFlagged': 'auto_flagged',
+        'pipes.reportState.rejected': 'rejected',
+        'pipes.reportState.approved': 'approved',
+        'pipes.reportState.paymentPending': 'payment_pending',
+        'pipes.reportState.processing': 'processing',
+        'pipes.reportState.closed': 'closed',
+        'pipes.reportState.cancelled': 'cancelled',
+        'pipes.reportState.disabled': 'disabled',
+      };
+      return translations[key] || key;
+    });
+
+    pipe = new ReportState(translocoService);
+  });
 
   it('transforms "" state to ""', () => {
     expect(pipe.transform('')).toBe('');

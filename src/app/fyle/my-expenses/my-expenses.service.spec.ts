@@ -38,16 +38,68 @@ import {
 import { filter1, filter2 } from 'src/app/core/mock-data/my-reports-filters.data';
 import { filterOptions2 } from 'src/app/core/mock-data/filter-options.data';
 import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
-
+import { TranslocoService } from '@jsverse/transloco';
 describe('MyExpensesService', () => {
   let myExpensesService: MyExpensesService;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(() => {
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+
+    // Mock translate method to return expected strings
+    translocoServiceSpy.translate.and.callFake((key: string) => {
+      const translations: { [key: string]: string } = {
+        'services.myExpenses.sortBy': 'Sort by',
+        'services.myExpenses.amountHighToLowPill': 'amount - high to low',
+        'services.myExpenses.amountLowToHighPill': 'amount - low to high',
+        'services.myExpenses.dateOldToNewPill': 'date - old to new',
+        'services.myExpenses.dateNewToOldPill': 'date - new to old',
+        'services.myExpenses.regularExpenses': 'Regular Expenses',
+        'services.myExpenses.perDiem': 'Per Diem',
+        'services.myExpenses.mileage': 'Mileage',
+        'services.myExpenses.expenseType': 'Expense Type',
+        'services.myExpenses.date': 'Date',
+        'services.myExpenses.thisWeekPill': 'this Week',
+        'services.myExpenses.thisMonthPill': 'this Month',
+        'services.myExpenses.lastMonthPill': 'Last Month',
+        'services.myExpenses.all': 'All',
+        'services.myExpenses.to': ' to ',
+        'services.myExpenses.greaterThanOrEqual': '>= ',
+        'services.myExpenses.lessThanOrEqual': '<= ',
+        'services.myExpenses.receiptsAttached': 'Receipts Attached',
+        'services.myExpenses.potentialDuplicates': 'Potential duplicates',
+        'services.myExpenses.splitExpense': 'Split Expense',
+        'services.myExpenses.cardsEndingIn': 'Cards ending in...',
+        'services.myExpenses.type': 'Type',
+        'services.myExpenses.incomplete': 'Incomplete',
+        'services.myExpenses.complete': 'Complete',
+        'services.myExpenses.thisWeek': 'This Week',
+        'services.myExpenses.thisMonth': 'This Month',
+        'services.myExpenses.lastMonth': 'Last Month',
+        'services.myExpenses.custom': 'Custom',
+        'services.myExpenses.yes': 'Yes',
+        'services.myExpenses.no': 'No',
+        'services.myExpenses.policyViolated': 'Policy Violated',
+        'services.myExpenses.cannotReport': 'Cannot Report',
+        'services.myExpenses.dateNewToOldSort': 'Date - New to Old',
+        'services.myExpenses.dateOldToNewSort': 'Date - Old to New',
+        'services.myExpenses.amountHighToLowSort': 'Amount - High to Low',
+        'services.myExpenses.amountLowToHighSort': 'Amount - Low to High',
+        'services.myExpenses.categoryAToZSort': 'Category - A to Z',
+        'services.myExpenses.categoryZToASort': 'Category - Z to A',
+        'services.myExpenses.categoryAToZPill': 'category - a to z',
+        'services.myExpenses.categoryZToAPill': 'category - z to a',
+        'services.myExpenses.policyViolatedPill': 'policy violated',
+        'services.myExpenses.cannotReportPill': 'cannot report',
+      };
+      return translations[key] || key;
+    });
+
     TestBed.configureTestingModule({
-      providers: [MyExpensesService],
+      providers: [MyExpensesService, { provide: TranslocoService, useValue: translocoServiceSpy }],
     });
 
     myExpensesService = TestBed.inject(MyExpensesService);
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
   });
 
   it('should be created', () => {

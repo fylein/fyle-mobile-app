@@ -5,10 +5,10 @@
         <ion-icon name="chevron-back-outline" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title class="route-selector-modal--title" mode="ios"> Route </ion-title>
+    <ion-title class="route-selector-modal--title" mode="ios"> {{ 'routeSelectorModal.title' | transloco }} </ion-title>
     <ion-buttons slot="end">
       <ion-button color="fy-primary" class="text-capitalize route-selector-modal--save" (click)="save()">
-        Save
+        {{ 'routeSelectorModal.save' | transloco }}
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -16,7 +16,8 @@
 <ion-content>
   <div class="route-selector-modal--body" [formGroup]="form">
     <div class="route-selector-modal--distance-details">
-      Total distance: {{ calculatedLocationDistance || '-' }} {{ unit | titlecase }}
+      {{ 'routeSelectorModal.totalDistance' | transloco }} {{ calculatedLocationDistance || '-' }}
+      {{ unit | titlecase }}
     </div>
 
     <div class="timeline--timeline route-selector-modal--timeline">
@@ -42,7 +43,13 @@
               <app-fy-location
                 class="route-selector-modal--location"
                 [formControlName]="i"
-                [label]="isFirst ? 'Start' : isLast ? 'Destination' : control.value ? 'Stop ' + i : 'Stop ' + i"
+                [label]="
+                  isFirst
+                    ? ('routeSelectorModal.start' | transloco)
+                    : isLast
+                    ? ('routeSelectorModal.destination' | transloco)
+                    : ('routeSelectorModal.stop' | transloco) + i
+                "
                 [mandatory]="mileageConfig.location_mandatory"
                 [hideSuffix]="true"
                 [cacheName]="isFirst ? 'routeFirstElement' : 'routeOtherElements'"
@@ -76,7 +83,7 @@
               class="route-selector-modal--error"
               [ngClass]="{ 'route-selector-modal--error__first': isFirst, 'route-selector-modal--error__last': isLast }"
             >
-              Please select location
+              {{ 'routeSelectorModal.selectLocationError' | transloco }}
             </div>
           </div>
         </ng-container>
@@ -85,14 +92,14 @@
 
     <app-fy-alert-info
       *ngIf="mileageLocations.controls.length === 10"
-      [message]="'You can add a maximum of 10 locations'"
+      [message]="'routeSelectorModal.maxLocationsInfo' | transloco"
       [type]="'information'"
     >
     </app-fy-alert-info>
 
     <div class="route-selector-modal--internal-block" *ngIf="mileageLocations.controls.length < 3">
       <mat-checkbox formControlName="roundTrip">
-        <span class="route-selector-modal--checkbox"> Round trip </span>
+        <span class="route-selector-modal--checkbox"> {{ 'routeSelectorModal.roundTrip' | transloco }} </span>
       </mat-checkbox>
     </div>
   </div>

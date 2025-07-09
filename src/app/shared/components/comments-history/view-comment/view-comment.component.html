@@ -5,8 +5,12 @@
       <mat-icon class="fy-icon-close view-comment--btn-close" svgIcon="cross"></mat-icon>
     </ion-buttons>
     <ion-segment class="segment-block view-comment--segment-block" (ionChange)="segmentChanged()" value="comments">
-      <ion-segment-button value="comments" class="view-comment--segment-block__btn"> Comments </ion-segment-button>
-      <ion-segment-button value="history" class="view-comment--segment-block__btn"> History </ion-segment-button>
+      <ion-segment-button value="comments" class="view-comment--segment-block__btn">
+        {{ 'viewComment.comments' | transloco }}
+      </ion-segment-button>
+      <ion-segment-button value="history" class="view-comment--segment-block__btn">
+        {{ 'viewComment.history' | transloco }}
+      </ion-segment-button>
     </ion-segment>
   </ion-toolbar>
 </ion-header>
@@ -92,8 +96,8 @@
 >
   <div class="view-comment--zero-state">
     <img class="view-comment--zero-state__img" src="../../../assets/images/zero-states/new-comments.png" />
-    <div class="view-comment--zero-state__content">Need to clarify something?</div>
-    <div class="view-comment--zero-state__content">Post a comment.</div>
+    <div class="view-comment--zero-state__content">{{ 'viewComment.clarificationPrompt' | transloco }}</div>
+    <div class="view-comment--zero-state__content">{{ 'viewComment.postCommentPrompt' | transloco }}</div>
   </div>
 </ion-content>
 
@@ -118,7 +122,7 @@
           class="view-comment--text-area"
           rows="1"
           matInput
-          placeholder="Type your comment here..."
+          [placeholder]="'viewComment.commentPlaceholder' | transloco"
           [(ngModel)]="newComment"
         ></textarea>
         <mat-icon class="view-comment--send-icon" (click)="addComment()" svgIcon="send-fill"></mat-icon>

@@ -3,8 +3,8 @@ import { ModalController, Platform } from '@ionic/angular';
 import { finalize, tap } from 'rxjs';
 import { NotificationEventItem } from 'src/app/core/models/notification-event-item.model';
 import { NotificationEventsEnum } from 'src/app/core/models/notification-events.enum';
-import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 
 @Component({
@@ -17,9 +17,11 @@ export class EmailNotificationsComponent implements OnInit {
 
   @Input() notifications: NotificationEventItem[];
 
-  @Input() orgUserSettings: OrgUserSettings;
+  @Input() employeeSettings: EmployeeSettings;
 
   @Input() unsubscribedEventsByUser: string[];
+
+  isLongTitle = false;
 
   isIos = false;
 
@@ -31,7 +33,7 @@ export class EmailNotificationsComponent implements OnInit {
 
   private modalController = inject(ModalController);
 
-  private orgUserSettingsService = inject(OrgUserSettingsService);
+  private platformEmployeeSettingsService = inject(PlatformEmployeeSettingsService);
 
   private trackingService = inject(TrackingService);
 
@@ -42,7 +44,7 @@ export class EmailNotificationsComponent implements OnInit {
   closeModal(): void {
     // saveText === 'Saved' implies the user has made changes
     const data = {
-      orgUserSettingsUpdated: this.saveText === 'Saved',
+      employeeSettingsUpdated: this.saveText === 'Saved',
     };
     this.modalController.dismiss(data);
   }
@@ -60,14 +62,8 @@ export class EmailNotificationsComponent implements OnInit {
   }
 
   toggleNotification(updatedNotification: NotificationEventItem): void {
-    const updatedNotifications = this.notifications.map((notification) =>
-      notification.eventEnum === updatedNotification.eventEnum
-        ? { ...notification, email: updatedNotification.email }
-        : notification
-    );
-    this.notifications = updatedNotifications;
+    updatedNotification.email = !updatedNotification.email;
     this.updateSelectAll();
-
     this.updateNotificationSettings();
   }
 
@@ -86,20 +82,20 @@ export class EmailNotificationsComponent implements OnInit {
 
     const updatedUnsubscribedEventsByUser = [...otherUnsubscribedEvents, ...currentlyUnsubscribedEvents];
 
-    this.orgUserSettings.notification_settings.email.unsubscribed_events = updatedUnsubscribedEventsByUser;
-    this.updateOrgUserSettings();
+    this.employeeSettings.notification_settings.email_unsubscribed_events = updatedUnsubscribedEventsByUser;
+    this.updateEmployeeSettings();
 
     this.trackingService.eventTrack('Email notifications updated from mobile app', {
       unsubscribedEvents: updatedUnsubscribedEventsByUser,
     });
   }
 
-  updateOrgUserSettings(): void {
+  updateEmployeeSettings(): void {
     this.updateSaveText('Saving...');
-    this.orgUserSettingsService
-      .post(this.orgUserSettings)
+    this.platformEmployeeSettingsService
+      .post(this.employeeSettings)
       .pipe(
-        tap(() => this.orgUserSettingsService.clearOrgUserSettings()),
+        tap(() => this.platformEmployeeSettingsService.clearEmployeeSettings()),
         finalize(() => this.updateSaveText('Saved'))
       )
       .subscribe();
@@ -107,6 +103,7 @@ export class EmailNotificationsComponent implements OnInit {
 
   ngOnInit(): void {
     this.isIos = this.platform.is('ios');
+    this.isLongTitle = this.title.length > 25;
     this.updateSelectAll();
   }
 }

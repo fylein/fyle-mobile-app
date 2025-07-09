@@ -5,6 +5,7 @@ import { ToastMessageComponent } from '../toast-message/toast-message.component'
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ListItem } from 'src/app/core/models/list-item.model';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-popup-with-bullets',
@@ -24,7 +25,8 @@ export class PopupWithBulletsComponent {
     private popoverController: PopoverController,
     private clipboardService: ClipboardService,
     private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService
+    private snackbarProperties: SnackbarPropertiesService,
+    private translocoService: TranslocoService
   ) {}
 
   dismissPopover(): void {
@@ -33,7 +35,7 @@ export class PopupWithBulletsComponent {
 
   async copyToClipboard(textToCopy: string): Promise<void> {
     this.clipboardService.writeString(textToCopy);
-    this.showToastMessage('Phone Number Copied Successfully');
+    this.showToastMessage(this.translocoService.translate('popupWithBullets.phoneNumberCopied'));
   }
 
   showToastMessage(message: string): void {

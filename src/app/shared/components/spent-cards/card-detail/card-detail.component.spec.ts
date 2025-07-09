@@ -1,4 +1,5 @@
 import { CurrencyPipe } from '@angular/common';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { Router, RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -33,7 +34,7 @@ describe('CardDetailComponent', () => {
   let router: jasmine.SpyObj<Router>;
   let trackingService: jasmine.SpyObj<TrackingService>;
   let orgSettingService: jasmine.SpyObj<OrgSettingsService>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
@@ -41,6 +42,13 @@ describe('CardDetailComponent', () => {
       'dashboardOnCompleteCardExpensesClick',
     ]);
     const orgSettingServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
       declarations: [
         CardDetailComponent,
@@ -49,7 +57,7 @@ describe('CardDetailComponent', () => {
         MaskNumber,
         MockCorporateCardComponent,
       ],
-      imports: [IonicModule.forRoot(), RouterModule, RouterTestingModule],
+      imports: [IonicModule.forRoot(), RouterModule, RouterTestingModule, TranslocoModule],
       providers: [
         FyCurrencyPipe,
         CurrencyPipe,
@@ -65,6 +73,10 @@ describe('CardDetailComponent', () => {
           provide: OrgSettingsService,
           useValue: orgSettingServiceSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
     }).compileComponents();
 
@@ -76,6 +88,16 @@ describe('CardDetailComponent', () => {
     component.cardDetail = cardDetailsRes[cardDetailsRes.length - 1];
     orgSettingService.get.and.returnValue(of(orgSettingsWithV2ExpensesPage));
     fixture.detectChanges();
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'cardDetail.incompleteCardExpenseSingular': 'Incomplete card expense',
+        'cardDetail.incompleteCardExpensePlural': 'Incomplete card expenses',
+        'cardDetail.completeCardExpenseSingular': 'Complete card expense',
+        'cardDetail.completeCardExpensePlural': 'Complete card expenses',
+      };
+      return translations[key] || key;
+    });
   }));
 
   it('should create', () => {

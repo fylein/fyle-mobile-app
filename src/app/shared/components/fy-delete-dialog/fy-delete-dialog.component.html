@@ -29,7 +29,7 @@
           class="fy-delete-dialog--cancel"
           (click)="cancel()"
         >
-          Cancel
+          {{ 'fyDeleteDialog.cancel' | transloco }}
         </div>
       </ion-col>
       <ion-col size="6">
@@ -40,9 +40,9 @@
           appFormButtonValidation
           [loaderPosition]="LoaderPosition.prefix"
           [loading]="deleteCallInProgress"
-          [loadingText]="ctaLoadingText ? ctaLoadingText : 'Deleting'"
+          [loadingText]="ctaLoadingText ? ctaLoadingText : ('fyDeleteDialog.deleting' | transloco)"
         >
-          {{ ctaText ? ctaText : 'Delete' }}
+          {{ ctaText ? ctaText : ('fyDeleteDialog.delete' | transloco) }}
         </div>
       </ion-col>
     </ion-row>

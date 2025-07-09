@@ -3,14 +3,14 @@ import { NotificationConfig } from 'src/app/core/models/notification-config.mode
 import { NotificationEventItem } from 'src/app/core/models/notification-event-item.model';
 import { NotificationEventsEnum } from 'src/app/core/models/notification-events.enum';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
-import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
+import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class NotificationsBetaPageService {
-  getInitialDelegateNotificationPreference(orgUserSettings: OrgUserSettings): 'onlyMe' | 'onlyDelegate' | 'both' {
-    const notificationSettings = orgUserSettings.notification_settings;
+  getInitialDelegateNotificationPreference(employeeSettings: EmployeeSettings): 'onlyMe' | 'onlyDelegate' | 'both' {
+    const notificationSettings = employeeSettings.notification_settings;
     if (notificationSettings.notify_user === true && notificationSettings.notify_delegatee === false) {
       return 'onlyMe';
     } else if (notificationSettings.notify_user === false && notificationSettings.notify_delegatee === true) {
@@ -112,14 +112,14 @@ export class NotificationsBetaPageService {
 
   getEmailNotificationsConfig(
     orgSettings: OrgSettings,
-    orgUserSettings: OrgUserSettings
+    employeeSettings: EmployeeSettings
   ): {
     expenseNotificationsConfig: NotificationConfig;
     expenseReportNotificationsConfig: NotificationConfig;
     advanceNotificationsConfig: NotificationConfig;
   } {
     const unsubscribedEventsByAdmin: string[] = orgSettings.admin_email_settings?.unsubscribed_events ?? [];
-    const unsubscribedEventsByUser: string[] = orgUserSettings.notification_settings.email?.unsubscribed_events ?? [];
+    const unsubscribedEventsByUser: string[] = employeeSettings.notification_settings.email_unsubscribed_events ?? [];
 
     // Filter out admin-disabled notifications first, then apply user preferences
     const processNotifications = (notifications: NotificationEventItem[]): NotificationEventItem[] =>

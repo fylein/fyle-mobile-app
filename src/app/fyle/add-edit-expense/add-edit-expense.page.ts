@@ -687,25 +687,11 @@ export class AddEditExpensePage implements OnInit {
       map(({ etxn, orgSettings }) => {
         const paymentMode: ExtendedAccount | AdvanceWallet = formValues.paymentMode;
         const isAdvanceWalletEnabled = orgSettings?.advances?.advance_wallets_enabled;
-        const originalSourceAccountId = etxn && etxn.tx && etxn.tx.source_account_id;
         const originalAdvanceWalletId = etxn && etxn.tx && etxn.tx.advance_wallet_id;
         let isPaymentModeInvalid = false;
 
-        // Only check balance for advance wallets
-        const isAdvanceWallet =
-          paymentMode?.id && isAdvanceWalletEnabled && paymentMode.type === 'PERSONAL_ADVANCE_ACCOUNT';
-        const isAdvanceAccount = paymentMode?.acc?.type === AccountType.ADVANCE && !isAdvanceWalletEnabled;
-
-        if (isAdvanceAccount) {
-          if (paymentMode.acc.id !== originalSourceAccountId) {
-            isPaymentModeInvalid =
-              paymentMode.acc.tentative_balance_amount < (formValues.currencyObj && formValues.currencyObj.amount);
-          } else {
-            isPaymentModeInvalid =
-              paymentMode.acc.tentative_balance_amount + etxn.tx.amount <
-              (formValues.currencyObj && formValues.currencyObj.amount);
-          }
-        }
+        // Check if it's specifically an advance wallet (has id but no acc property)
+        const isAdvanceWallet = isAdvanceWalletEnabled && paymentMode?.id && !paymentMode?.acc;
 
         if (isAdvanceWallet) {
           if (etxn.tx.id && paymentMode.id === originalAdvanceWalletId) {
@@ -717,8 +703,7 @@ export class AddEditExpensePage implements OnInit {
           }
         }
 
-        // Only show toast for advance wallets/accounts
-        if (isPaymentModeInvalid && (isAdvanceWallet || isAdvanceAccount)) {
+        if (isPaymentModeInvalid && isAdvanceWallet) {
           this.paymentModesService.showInvalidPaymentModeToast();
         }
         return isPaymentModeInvalid;
@@ -3168,7 +3153,7 @@ export class AddEditExpensePage implements OnInit {
     );
 
     this.individualProjectIds$ = this.employeeSettings$.pipe(
-      map((employeeSettings: EmployeeSettings) => employeeSettings.project_ids || []),
+      map((employeeSettings: EmployeeSettings) => employeeSettings.project_ids?.map((id) => Number(id)) || []),
       shareReplay(1)
     );
 
@@ -3460,10 +3445,11 @@ export class AddEditExpensePage implements OnInit {
 
   getSkipRemibursement(): boolean {
     const formValue = this.getFormValues();
-    return (
-      (formValue?.paymentMode?.acc?.type === AccountType.PERSONAL && !formValue.paymentMode.acc.isReimbursable) ||
-      !!formValue?.paymentMode?.id
-    );
+    const paymentMode = formValue?.paymentMode;
+    // If it's an advance wallet (has id but no acc property), skip reimbursement
+    if (paymentMode?.id && !paymentMode?.acc) {return true;}
+    // If it's a personal account that's not reimbursable, skip reimbursement
+    return paymentMode?.acc?.type === AccountType.PERSONAL && !paymentMode.acc.isReimbursable;
   }
 
   getTxnDate(): Date {

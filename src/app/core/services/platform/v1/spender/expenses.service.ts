@@ -24,6 +24,7 @@ import { Location } from 'src/app/core/models/location.model';
 import { CommuteDeduction } from 'src/app/core/enums/commute-deduction.enum';
 import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
 import { MergeExpensesPayload } from 'src/app/core/models/merge-expenses-payload.model';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Injectable({
   providedIn: 'root',
@@ -37,7 +38,8 @@ export class ExpensesService {
     @Inject(PAGINATION_SIZE) private paginationSize: number,
     private spenderService: SpenderService,
     private sharedExpenseService: SharedExpenseService,
-    private corporateCreditCardExpenseService: CorporateCreditCardExpenseService
+    private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
+    private translocoService: TranslocoService
   ) {}
 
   @CacheBuster({
@@ -139,7 +141,7 @@ export class ExpensesService {
       map((res) => res.data[0]),
       switchMap((expense) => {
         if (!expense) {
-          throw new Error('expense not found');
+          throw new Error(this.translocoService.translate('services.expenses.expenseNotFound'));
         }
         if (
           expense.matched_corporate_card_transaction_ids.length > 0 &&

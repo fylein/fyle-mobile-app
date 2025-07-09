@@ -1,7 +1,7 @@
 <div class="info-card">
   <div class="info-card__container" (click)="onCardClicked()">
-    <div>Next auto-submission of expense reports on</div>
+    <div>{{ 'autoSubmissionInfoCard.nextSubmissionOn' | transloco }}</div>
     <div class="info-card__date">{{ autoSubmissionReportDate | date : 'MMM d' }}</div>
-    <div class="info-card__sub-header">Add and complete your expenses for auto-submission</div>
+    <div class="info-card__sub-header">{{ 'autoSubmissionInfoCard.completeExpenses' | transloco }}</div>
   </div>
 </div>

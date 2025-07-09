@@ -6,6 +6,7 @@ import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup
 import { MAX_FILE_SIZE } from 'src/app/core/constants';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { finalize, from, map, raceWith, switchMap, timer } from 'rxjs';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-camera-options-popup',
@@ -21,7 +22,8 @@ export class CameraOptionsPopupComponent implements OnInit {
     private popoverController: PopoverController,
     private fileService: FileService,
     private trackingService: TrackingService,
-    private loaderService: LoaderService
+    private loaderService: LoaderService,
+    private translocoService: TranslocoService
   ) {}
 
   ngOnInit(): void {
@@ -42,7 +44,9 @@ export class CameraOptionsPopupComponent implements OnInit {
     if (file?.size < MAX_FILE_SIZE) {
       const fileRead$ = from(this.fileService.readFile(file));
       const delayedLoader$ = timer(300).pipe(
-        switchMap(() => from(this.loaderService.showLoader('Please wait...', 5000))),
+        switchMap(() =>
+          from(this.loaderService.showLoader(this.translocoService.translate('cameraOptionsPopup.loaderMessage'), 5000))
+        ),
         switchMap(() => fileRead$) // switch to fileRead$ after showing loader
       );
 
@@ -89,15 +93,19 @@ export class CameraOptionsPopupComponent implements OnInit {
   }
 
   async showSizeLimitExceededPopover(maxFileSize: number): Promise<void> {
+    const title: string = this.translocoService.translate('cameraOptionsPopup.sizeLimitExceededTitle');
+    const message: string = this.translocoService.translate('cameraOptionsPopup.sizeLimitExceededMessage', {
+      maxFileSize: (maxFileSize / (1024 * 1024)).toFixed(0),
+    });
+    const okText: string = this.translocoService.translate('cameraOptionsPopup.ok');
+
     const sizeLimitExceededPopover = await this.popoverController.create({
       component: PopupAlertComponent,
       componentProps: {
-        title: 'Size limit exceeded',
-        message: `The uploaded file is greater than ${(maxFileSize / (1024 * 1024)).toFixed(
-          0
-        )}MB in size. Please reduce the file size and try again.`,
+        title,
+        message,
         primaryCta: {
-          text: 'OK',
+          text: okText,
         },
       },
       cssClass: 'pop-up-in-center',

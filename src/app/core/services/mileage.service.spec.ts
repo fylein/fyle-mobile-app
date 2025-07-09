@@ -5,17 +5,29 @@ import { PlatformEmployeeSettingsService } from './platform/v1/spender/employee-
 import { of } from 'rxjs';
 import { locationData1, locationData2, locationData3 } from '../mock-data/location.data';
 import { employeeSettingsData } from '../mock-data/employee-settings.data';
+import { TranslocoService } from '@jsverse/transloco';
 
 describe('MileageService', () => {
   let mileageService: MileageService;
   let locationService: jasmine.SpyObj<LocationService>;
   let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   const distance = 13167;
 
   beforeEach(() => {
     const locationServiceSpy = jasmine.createSpyObj('LocationService', ['getDistance']);
     const platformEmployeeSettingsSpy = jasmine.createSpyObj('PlatformEmployeeSettingsService', ['get']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+
+    // Mock translate method to return expected strings
+    translocoServiceSpy.translate.and.callFake((key: string) => {
+      const translations: { [key: string]: string } = {
+        'services.mileage.oneWayDistance': 'One Way Distance',
+        'services.mileage.roundTripDistance': 'Round Trip Distance',
+        'services.mileage.noDeduction': 'No Deduction',
+      };
+      return translations[key] || key;
+    });
 
     TestBed.configureTestingModule({
       providers: [
@@ -28,6 +40,10 @@ describe('MileageService', () => {
           provide: PlatformEmployeeSettingsService,
           useValue: platformEmployeeSettingsSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
     });
 
@@ -36,6 +52,7 @@ describe('MileageService', () => {
     platformEmployeeSettingsService = TestBed.inject(
       PlatformEmployeeSettingsService
     ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
   });
 
   it('should be created', () => {

@@ -16,17 +16,34 @@ import { of } from 'rxjs';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { cloneDeep } from 'lodash';
 import { ApproverPlatformApiService } from './approver-platform-api.service';
-
+import { TranslocoService } from '@jsverse/transloco';
 describe('MileageRatesService', () => {
   let mileageRatesService: MileageRatesService;
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
   let approverPlatformApiService: jasmine.SpyObj<ApproverPlatformApiService>;
   let currencyPipe: jasmine.SpyObj<CurrencyPipe>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(() => {
     const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get']);
     const approverPlatformApiServiceSpy = jasmine.createSpyObj('ApproverPlatformApiService', ['get']);
     const currencyPipeSpy = jasmine.createSpyObj('CurrencyPipe', ['transform']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+
+    // Mock translate method to return expected strings
+    translocoServiceSpy.translate.and.callFake((key: string) => {
+      const translations: { [key: string]: string } = {
+        'services.mileageRates.twoWheeler': 'Two Wheeler',
+        'services.mileageRates.fourWheelerType1': 'Four Wheeler - Type 1',
+        'services.mileageRates.fourWheelerType2': 'Four Wheeler - Type 2',
+        'services.mileageRates.fourWheelerType3': 'Four Wheeler - Type 3',
+        'services.mileageRates.fourWheelerType4': 'Four Wheeler - Type 4',
+        'services.mileageRates.bicycle': 'Bicycle',
+        'services.mileageRates.electricCar': 'Electric Car',
+        'services.mileageRates.mile': 'mile',
+        'services.mileageRates.km': 'km',
+      };
+      return translations[key] || key;
+    });
 
     TestBed.configureTestingModule({
       providers: [
@@ -47,6 +64,10 @@ describe('MileageRatesService', () => {
           provide: PAGINATION_SIZE,
           useValue: 2,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
     });
     mileageRatesService = TestBed.inject(MileageRatesService);
@@ -58,6 +79,7 @@ describe('MileageRatesService', () => {
     ) as jasmine.SpyObj<ApproverPlatformApiService>;
 
     currencyPipe = TestBed.inject(CurrencyPipe) as jasmine.SpyObj<CurrencyPipe>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
   });
 
   it('should be created', () => {
