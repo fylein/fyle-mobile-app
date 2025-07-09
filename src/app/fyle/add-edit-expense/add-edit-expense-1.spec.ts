@@ -22,7 +22,7 @@ import {
   getMarkDismissModalParamsData2,
 } from 'src/app/core/mock-data/popover-params.data';
 import { expectedReportsPaginated } from 'src/app/core/mock-data/platform-report.data';
-import { UndoMergeData2 } from 'src/app/core/mock-data/undo-merge.data';
+import { expenseResponseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import {
   unflattenedExpData,
   unflattenedTxn,
@@ -71,7 +71,7 @@ import {
 import { projectsV1Data } from 'src/app/core/test-data/projects.spec.data';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { AddEditExpensePage } from './add-edit-expense.page';
-import { expenseResponseData } from 'src/app/core/mock-data/platform/v1/expense.data';
+import { platformExpenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { expenseFieldResponse } from 'src/app/core/mock-data/expense-field.data';
 import { expectedProjects4 } from 'src/app/core/mock-data/extended-projects.data';
 import { reportData1 } from 'src/app/core/mock-data/report.data';
@@ -918,7 +918,13 @@ export function TestCases1(getTestBed) {
     });
 
     it('getRemoveCCCExpModalParams(): should return params for remove CCC expense modal', (done) => {
-      transactionService.removeCorporateCardExpense.and.returnValue(of(UndoMergeData2));
+      const mockUnlinkResponse = {
+        data: {
+          user_created_expense: platformExpenseData,
+          auto_created_expense: platformExpenseData,
+        },
+      };
+      transactionService.removeCorporateCardExpense.and.returnValue(of(mockUnlinkResponse));
       const header = 'Remove Card Expense';
       const body = 'removed';
       const ctaText = 'Confirm';
@@ -926,7 +932,7 @@ export function TestCases1(getTestBed) {
 
       const result = component.getRemoveCCCExpModalParams(header, body, ctaText, ctaLoadingText);
       result.componentProps.deleteMethod().subscribe((res) => {
-        expect(res).toEqual(UndoMergeData2);
+        expect(res).toEqual(mockUnlinkResponse);
         expect(transactionService.removeCorporateCardExpense).toHaveBeenCalledOnceWith(
           activatedRoute.snapshot.params.id
         );
