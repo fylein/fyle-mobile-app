@@ -391,7 +391,7 @@ export class TransactionService {
   removeCorporateCardExpense(txnId: string): Observable<UnlinkCardTransactionResponse> {
     const payload = {
       data: {
-        expense_id: txnId,
+        id: txnId,
       },
     };
     return this.spenderPlatformV1ApiService.post('/expenses/unlink_card_transaction', payload);

@@ -321,7 +321,7 @@ describe('TransactionService', () => {
       expect(res).toEqual(mockResponse);
       expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/expenses/unlink_card_transaction', {
         data: {
-          expense_id: transactionID,
+          id: transactionID,
         },
       });
       done();
