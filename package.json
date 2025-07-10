@@ -108,6 +108,7 @@
     "@angular/compiler-cli": "^16.2.12",
     "@angular/language-service": "^16.2.12",
     "@capacitor/cli": "^7.0.0",
+    "@fyle/eslint-plugin": "github:fylein/fyle-eslint-plugin#v1.0.1",
     "@ionic/angular-toolkit": "^10.1.1",
     "@types/deep-freeze-strict": "^1.1.2",
     "@types/jasmine": "^4.0.3",
@@ -164,7 +165,7 @@
   },
   "lint-staged": {
     "*.{ts,scss,html}": "prettier --write",
-    "*.ts": [
+    "*.{ts,html}": [
       "eslint --fix"
     ]
   }
