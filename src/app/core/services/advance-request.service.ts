@@ -32,6 +32,9 @@ import { ApprovalPublic } from '../models/approval-public.model';
 import { StatsResponse } from '../models/platform/v1/stats-response.model';
 import { PlatformConfig } from '../models/platform/platform-config.model';
 import { TranslocoService } from '@jsverse/transloco';
+import { ExtendedStatus } from '../models/extended_status.model';
+import { Comment } from '../models/platform/v1/comment.model';
+import { ExtendedOrgUser } from '../models/extended-org-user.model';
 
 const advanceRequestsCacheBuster$ = new Subject<void>();
 
@@ -254,6 +257,36 @@ export class AdvanceRequestService {
     );
   }
 
+  @CacheBuster({
+    cacheBusterNotifier: advanceRequestsCacheBuster$,
+  })
+  postCommentPlatform(advanceRequestId: string, comment: string): Observable<Comment> {
+    const payload = {
+      data: {
+        advance_request_id: advanceRequestId,
+        comment,
+      },
+    };
+    return this.spenderService
+      .post<PlatformApiResponse<Comment>>('/advance_requests/comments', payload)
+      .pipe(map((response) => response.data));
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: advanceRequestsCacheBuster$,
+  })
+  postCommentPlatformForApprover(advanceRequestId: string, comment: string): Observable<Comment> {
+    const payload = {
+      data: {
+        advance_request_id: advanceRequestId,
+        comment,
+      },
+    };
+    return this.approverService
+      .post<PlatformApiResponse<Comment>>('/advance_requests/comments', payload)
+      .pipe(map((response) => response.data));
+  }
+
   getEReqFromPlatform(advanceRequestId: string): Observable<UnflattenedAdvanceRequest> {
     return this.getAdvanceRequestPlatform(advanceRequestId).pipe(
       map((res) => {
@@ -337,6 +370,30 @@ export class AdvanceRequestService {
           });
           return filteredApprovers;
         })
+      );
+  }
+
+  getCommentsByAdvanceRequestIdPlatformForApprover(advanceRequestId: string): Observable<ExtendedStatus[]> {
+    return this.approverService
+      .get<PlatformApiResponse<AdvanceRequestPlatform[]>>('/advance_requests', {
+        params: { id: `eq.${advanceRequestId}` },
+      })
+      .pipe(
+        switchMap((res: PlatformApiResponse<AdvanceRequestPlatform[]>) =>
+          this.mapCommentsToExtendedStatus(res, advanceRequestId)
+        )
+      );
+  }
+
+  getCommentsByAdvanceRequestIdPlatform(advanceRequestId: string): Observable<ExtendedStatus[]> {
+    return this.spenderService
+      .get<PlatformApiResponse<AdvanceRequestPlatform[]>>('/advance_requests', {
+        params: { id: `eq.${advanceRequestId}` },
+      })
+      .pipe(
+        switchMap((res: PlatformApiResponse<AdvanceRequestPlatform[]>) =>
+          this.mapCommentsToExtendedStatus(res, advanceRequestId)
+        )
       );
   }
 
@@ -613,6 +670,42 @@ export class AdvanceRequestService {
     }
 
     return data;
+  }
+
+  private mapCommentsToExtendedStatus(
+    res: PlatformApiResponse<AdvanceRequestPlatform[]>,
+    advanceRequestId: string
+  ): Observable<ExtendedStatus[]> {
+    if (!res.data || res.data.length === 0) {
+      return of([] as ExtendedStatus[]);
+    }
+
+    const advanceRequest = res.data[0];
+    if (!advanceRequest.comments) {
+      return of([] as ExtendedStatus[]);
+    }
+
+    return from(this.authService.getEou()).pipe(
+      map((eou: ExtendedOrgUser): ExtendedStatus[] => {
+        const currentUserId = eou?.us?.id;
+
+        return advanceRequest.comments.map(
+          (comment: Comment): ExtendedStatus => ({
+            st_id: comment.id,
+            st_created_at: new Date(comment.created_at),
+            st_org_user_id: comment.creator_user_id,
+            st_comment: comment.comment,
+            st_advance_request_id: advanceRequestId,
+            us_full_name: comment.creator_user?.full_name || null,
+            us_email: comment.creator_user?.email || null,
+            isBotComment: comment.creator_type === 'SYSTEM',
+            isSelfComment: currentUserId ? comment.creator_user_id === currentUserId : false,
+            isOthersComment:
+              comment.creator_type !== 'SYSTEM' && currentUserId && comment.creator_user_id !== currentUserId,
+          })
+        );
+      })
+    );
   }
 
   private getStateIfDraft(advanceRequest: ExtendedAdvanceRequest | ExtendedAdvanceRequestPublic): {

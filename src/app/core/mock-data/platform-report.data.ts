@@ -116,6 +116,7 @@ export const allReportsPaginated1: PlatformApiResponse<Report[]> = deepFreeze({
           created_at: new Date('2024-05-21T11:07:01.99036+00:00'),
           creator_user: null,
           creator_user_id: 'SYSTEM',
+          creator_type: 'SYSTEM',
           id: 'styBS6Mt3srX',
         },
         {
@@ -123,6 +124,7 @@ export const allReportsPaginated1: PlatformApiResponse<Report[]> = deepFreeze({
           created_at: new Date('2024-05-21T11:07:02.102867+00:00'),
           creator_user: null,
           creator_user_id: 'SYSTEM',
+          creator_type: 'SYSTEM',
           id: 'stI6NDy8La7b',
         },
         {
@@ -134,6 +136,7 @@ export const allReportsPaginated1: PlatformApiResponse<Report[]> = deepFreeze({
             id: 'usaTtklUXVZn',
           },
           creator_user_id: 'usaTtklUXVZn',
+          creator_type: 'USER',
           id: 'stVFdDpz1LAi',
         },
         {
@@ -145,6 +148,7 @@ export const allReportsPaginated1: PlatformApiResponse<Report[]> = deepFreeze({
             id: 'usaTtklUXVZn',
           },
           creator_user_id: 'usaTtklUXVZn',
+          creator_type: 'USER',
           id: 'stVFdDpz1LAd',
         },
         {
@@ -156,6 +160,7 @@ export const allReportsPaginated1: PlatformApiResponse<Report[]> = deepFreeze({
             id: 'usaTtklUXVZn',
           },
           creator_user_id: 'usaTtklUXVZn',
+          creator_type: 'USER',
           id: 'stVFdDpz1LAL',
         },
       ],
@@ -656,6 +661,7 @@ export const submittedReportData: Report = deepFreeze({
       created_at: new Date('2024-05-21T11:07:01.99036+00:00'),
       creator_user: null,
       creator_user_id: 'SYSTEM',
+      creator_type: 'SYSTEM',
       id: 'styBS6Mt3srX',
     },
     {
@@ -663,6 +669,7 @@ export const submittedReportData: Report = deepFreeze({
       created_at: new Date('2024-05-21T11:07:02.102867+00:00'),
       creator_user: null,
       creator_user_id: 'SYSTEM',
+      creator_type: 'SYSTEM',
       id: 'stI6NDy8La7b',
     },
     {
@@ -674,6 +681,7 @@ export const submittedReportData: Report = deepFreeze({
         id: 'usaTtklUXVZn',
       },
       creator_user_id: 'usaTtklUXVZn',
+      creator_type: 'USER',
       id: 'stVFdDpz1LAi',
     },
     {
@@ -685,6 +693,7 @@ export const submittedReportData: Report = deepFreeze({
         id: 'usaTtklUXVZn',
       },
       creator_user_id: 'usaTtklUXVZn',
+      creator_type: 'USER',
       id: 'stVFdDpz1LAd',
     },
     {
@@ -696,6 +705,7 @@ export const submittedReportData: Report = deepFreeze({
         id: 'usaTtklUXVZn',
       },
       creator_user_id: 'usaTtklUXVZn',
+      creator_type: 'USER',
       id: 'stVFdDpz1LAL',
     },
   ],
