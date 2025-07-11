@@ -34,6 +34,7 @@ import { PlatformConfig } from '../models/platform/platform-config.model';
 import { TranslocoService } from '@jsverse/transloco';
 import { ExtendedStatus } from '../models/extended_status.model';
 import { Comment } from '../models/platform/v1/comment.model';
+import { ExtendedOrgUser } from '../models/extended-org-user.model';
 
 const advanceRequestsCacheBuster$ = new Subject<void>();
 
@@ -378,7 +379,7 @@ export class AdvanceRequestService {
         params: { id: `eq.${advanceRequestId}` },
       })
       .pipe(
-        map((res: PlatformApiResponse<AdvanceRequestPlatform[]>) =>
+        switchMap((res: PlatformApiResponse<AdvanceRequestPlatform[]>) =>
           this.mapCommentsToExtendedStatus(res, advanceRequestId)
         )
       );
@@ -390,7 +391,7 @@ export class AdvanceRequestService {
         params: { id: `eq.${advanceRequestId}` },
       })
       .pipe(
-        map((res: PlatformApiResponse<AdvanceRequestPlatform[]>) =>
+        switchMap((res: PlatformApiResponse<AdvanceRequestPlatform[]>) =>
           this.mapCommentsToExtendedStatus(res, advanceRequestId)
         )
       );
@@ -674,32 +675,34 @@ export class AdvanceRequestService {
   private mapCommentsToExtendedStatus(
     res: PlatformApiResponse<AdvanceRequestPlatform[]>,
     advanceRequestId: string
-  ): ExtendedStatus[] {
+  ): Observable<ExtendedStatus[]> {
     if (!res.data || res.data.length === 0) {
-      return [];
+      return of([] as ExtendedStatus[]);
     }
 
     const advanceRequest = res.data[0];
     if (!advanceRequest.comments) {
-      return [];
+      return of([] as ExtendedStatus[]);
     }
 
-    return advanceRequest.comments.map(
-      (comment: Comment): ExtendedStatus => ({
-        st_id: comment.id,
-        st_created_at: new Date(comment.created_at),
-        st_org_user_id: comment.creator_user_id,
-        st_comment: comment.comment,
-        st_diff: null,
-        st_state: null,
-        st_transaction_id: null,
-        st_report_id: null,
-        st_advance_request_id: advanceRequestId,
-        us_full_name: comment.creator_user?.full_name || null,
-        us_email: comment.creator_user?.email || null,
-        isBotComment: comment.creator_type === 'SYSTEM',
-        isSelfComment: false,
-        isOthersComment: false,
+    return from(this.authService.getEou()).pipe(
+      map((eou: ExtendedOrgUser): ExtendedStatus[] => {
+        const currentUserId = eou?.us?.id;
+
+        return advanceRequest.comments.map(
+          (comment: Comment): ExtendedStatus => ({
+            st_id: comment.id,
+            st_created_at: new Date(comment.created_at),
+            st_org_user_id: comment.creator_user_id,
+            st_comment: comment.comment,
+            st_advance_request_id: advanceRequestId,
+            us_full_name: comment.creator_user?.full_name || null,
+            us_email: comment.creator_user?.email || null,
+            isBotComment: comment.creator_type === 'SYSTEM',
+            isSelfComment: currentUserId ? comment.creator_user_id === currentUserId : false,
+            isOthersComment: currentUserId ? comment.creator_user_id !== currentUserId : true,
+          })
+        );
       })
     );
   }
