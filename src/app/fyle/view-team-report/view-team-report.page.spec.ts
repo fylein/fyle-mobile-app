@@ -64,7 +64,7 @@ import { TIMEZONE } from 'src/app/constants';
 import { ShowAllApproversPopoverComponent } from 'src/app/shared/components/fy-approver/show-all-approvers-popover/show-all-approvers-popover.component';
 import { BrowserHandlerService } from 'src/app/core/services/browser-handler.service';
 
-fdescribe('ViewTeamReportPageV2', () => {
+describe('ViewTeamReportPageV2', () => {
   let component: ViewTeamReportPage;
   let fixture: ComponentFixture<ViewTeamReportPage>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
