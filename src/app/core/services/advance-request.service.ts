@@ -700,7 +700,8 @@ export class AdvanceRequestService {
             us_email: comment.creator_user?.email || null,
             isBotComment: comment.creator_type === 'SYSTEM',
             isSelfComment: currentUserId ? comment.creator_user_id === currentUserId : false,
-            isOthersComment: currentUserId ? comment.creator_user_id !== currentUserId : true,
+            isOthersComment:
+              comment.creator_type !== 'SYSTEM' && currentUserId && comment.creator_user_id !== currentUserId,
           })
         );
       })

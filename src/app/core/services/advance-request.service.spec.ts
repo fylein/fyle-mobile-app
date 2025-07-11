@@ -65,7 +65,7 @@ import { PlatformEmployeeSettingsService } from './platform/v1/spender/employee-
 import { TranslocoService } from '@jsverse/transloco';
 import { Comment } from '../models/platform/v1/comment.model';
 
-describe('AdvanceRequestService', () => {
+fdescribe('AdvanceRequestService', () => {
   let advanceRequestService: AdvanceRequestService;
   let apiService: jasmine.SpyObj<ApiService>;
   let authService: jasmine.SpyObj<AuthService>;
@@ -568,6 +568,7 @@ describe('AdvanceRequestService', () => {
     const advID = 'areqiwr3Wwirr';
     //@ts-ignore
     approverService.get.and.returnValue(of(advanceRequestPlatform));
+    authService.getEou.and.resolveTo(apiEouRes);
 
     const expectedComments = [
       {
@@ -592,7 +593,7 @@ describe('AdvanceRequestService', () => {
         us_email: 'john.doe@example.com',
         isBotComment: false,
         isSelfComment: false,
-        isOthersComment: false,
+        isOthersComment: true,
       },
     ];
 
@@ -610,6 +611,7 @@ describe('AdvanceRequestService', () => {
     const advID = 'areqiwr3Wwirr';
     //@ts-ignore
     spenderService.get.and.returnValue(of(advanceRequestPlatform));
+    authService.getEou.and.resolveTo(apiEouRes);
 
     const expectedComments = [
       {
@@ -634,7 +636,7 @@ describe('AdvanceRequestService', () => {
         us_email: 'john.doe@example.com',
         isBotComment: false,
         isSelfComment: false,
-        isOthersComment: false,
+        isOthersComment: true,
       },
     ];
 

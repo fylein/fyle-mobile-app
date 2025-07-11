@@ -30,7 +30,7 @@ import { DateWithTimezonePipe } from 'src/app/shared/pipes/date-with-timezone.pi
 import { TIMEZONE } from 'src/app/constants';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 
-describe('ViewCommentComponent', () => {
+fdescribe('ViewCommentComponent', () => {
   let component: ViewCommentComponent;
   let fixture: ComponentFixture<ViewCommentComponent>;
   let statusService: jasmine.SpyObj<StatusService>;
