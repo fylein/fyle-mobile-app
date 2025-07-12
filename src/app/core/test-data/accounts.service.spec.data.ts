@@ -2642,42 +2642,25 @@ export const paymentModesAccountsData: PlatformAccount[] = deepFreeze([
   },
 ]);
 
-export const accountsData: ExtendedAccount[] = deepFreeze([
+export const accountsData: PlatformAccount[] = deepFreeze([
   {
-    acc: {
-      id: 'acc5APeygFjRd',
-      created_at: new Date('2018-08-05T06:02:11.742Z'),
-      updated_at: new Date('2022-12-09T10:16:22.082Z'),
-      name: 'Personal Account',
-      type: AccountType.PERSONAL,
-      currency: 'USD',
-      current_balance_amount: 0,
-      tentative_balance_amount: 159097.536645,
-      category: null,
-    },
-    org: {
-      id: null,
-      domain: null,
-    },
-    advance: {
-      purpose: null,
-      number: null,
-      id: null,
-    },
-    orig: {
-      currency: null,
-      amount: null,
-    },
-    currency: 'USD',
-    amount: 23213,
     id: 'acc5APeygFjRd',
-    type: AccountType.PERSONAL,
-    isReimbursable: true,
-    org_id: 'orrb8EW1zZsy',
-    user_id: 'usvyOFOSx5bh',
-    balance_amount: 0,
     created_at: '2018-08-05T06:02:11.742Z',
     updated_at: '2022-12-09T10:16:22.082Z',
+    currency: 'USD',
+    current_balance_amount: 0,
+    tentative_balance_amount: 159097.536645,
+    type: AccountType.PERSONAL,
+    org_id: 'orrb8EW1zZsy',
+    user_id: 'usvyOFOSx5bh',
+    category_id: null,
+    displayName: 'Personal Account',
+    isReimbursable: true,
+    advance: {
+      id: null,
+      purpose: null,
+      number: null,
+    },
   },
 ]);
 
