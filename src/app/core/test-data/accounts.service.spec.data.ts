@@ -709,7 +709,21 @@ export const paymentModeDataAdvanceWallet = deepFreeze({
   user_id: 'usvKA4X8Ugcr',
   created_at: new Date('2021-03-14T11:37:39.652+05:30'),
   updated_at: new Date('2022-05-05T23:15:12.393+05:30'),
-  type: 'PERSONAL_ADVANCE_ACCOUNT',
+  isReimbursable: false,
+});
+
+export const paymentModeDataAdvanceWallet2 = deepFreeze({
+  currency: 'USD',
+  balance_amount: 1500,
+  current_balance_amount: 1500,
+  tentative_balance_amount: 1500,
+  category_id: null,
+  id: 'areq1234',
+  type: AccountType.ADVANCE,
+  org_id: 'orNVthTo2Zyo',
+  user_id: 'usvKA4X8Ugcr',
+  created_at: new Date('2021-03-14T11:37:39.652+05:30'),
+  updated_at: new Date('2022-05-05T23:15:12.393+05:30'),
   isReimbursable: false,
 });
 
