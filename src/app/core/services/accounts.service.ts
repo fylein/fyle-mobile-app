@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { map } from 'rxjs/operators';
 import { cloneDeep } from 'lodash';
-import { ExtendedAccount } from '../models/extended-account.model';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 import { Cacheable } from 'ts-cacheable';
 import { AccountOption } from '../models/account-option.model';
@@ -14,7 +13,6 @@ import { PlatformAccount } from '../models/platform-account.model';
 import { AdvanceWallet } from 'src/app/core/models/platform/v1/advance-wallet.model';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
-import { AccountDetail } from '../models/account-detail.model';
 import { TranslocoService } from '@jsverse/transloco';
 
 @Injectable({
@@ -35,20 +33,18 @@ export class AccountsService {
   ) {}
 
   @Cacheable()
-  getMyAccounts(): Observable<ExtendedAccount[]> {
+  getMyAccounts(): Observable<PlatformAccount[]> {
     return this.spenderPlatformV1ApiService
       .get<PlatformApiResponse<PlatformAccount[]>>('/accounts')
       .pipe(
-        map((response: PlatformApiResponse<PlatformAccount[]>) =>
-          response.data.map((platformAccount) => this.transformToExtendedAccount(platformAccount))
-        )
+        map((response: PlatformApiResponse<PlatformAccount[]>) => response.data)
       );
   }
 
   // Filter user accounts by allowed payment modes and return an observable of allowed accounts
   // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
   getPaymentModesWithAdvanceWallets(
-    accounts: ExtendedAccount[],
+    accounts: PlatformAccount[],
     advanceWallets: AdvanceWallet[],
     allowedPaymentModes: string[],
     config: {
@@ -59,7 +55,7 @@ export class AccountsService {
     const { etxn, expenseType } = config;
     const isMileageOrPerDiemExpense = [ExpenseType.MILEAGE, ExpenseType.PER_DIEM].includes(expenseType);
     const userAccounts = accounts.filter((account) =>
-      [AccountType.PERSONAL, AccountType.CCC].includes(account.acc.type)
+      [AccountType.PERSONAL, AccountType.CCC].includes(account.type)
     );
 
     const allowedAccounts = this.getAllowedAccountsWithAdvanceWallets(
@@ -79,7 +75,7 @@ export class AccountsService {
     }
 
     const formattedAccounts = allowedAccounts.map((account) => ({
-      label: account.acc.displayName,
+      label: account.displayName,
       value: account,
     }));
 
@@ -99,7 +95,7 @@ export class AccountsService {
   // Filter user accounts by allowed payment modes and return an observable of allowed accounts
   // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
   getPaymentModes(
-    accounts: ExtendedAccount[],
+    accounts: PlatformAccount[],
     allowedPaymentModes: string[],
     config: {
       etxn: Partial<UnflattenedTransaction>;
@@ -123,25 +119,25 @@ export class AccountsService {
     );
 
     return allowedAccounts.map((account) => ({
-      label: account.acc.displayName,
+      label: account.displayName,
       value: account,
     }));
   }
 
-  getAccountTypeFromPaymentMode(paymentMode: ExtendedAccount | AdvanceWallet): AccountType {
+  getAccountTypeFromPaymentMode(paymentMode: PlatformAccount | AdvanceWallet): AccountType {
     if (
-      (paymentMode as ExtendedAccount).acc.type === AccountType.PERSONAL &&
-      !(paymentMode as ExtendedAccount).acc.isReimbursable
+      (paymentMode as PlatformAccount).type === AccountType.PERSONAL &&
+      !(paymentMode as PlatformAccount).isReimbursable
     ) {
       return AccountType.COMPANY;
     }
-    return (paymentMode as ExtendedAccount).acc.type;
+    return (paymentMode as PlatformAccount).type;
   }
 
   getEtxnSelectedPaymentMode(
     etxn: Partial<UnflattenedTransaction>,
     paymentModes: AccountOption[]
-  ): ExtendedAccount | AdvanceWallet {
+  ): PlatformAccount | AdvanceWallet {
     if (etxn.tx.source_account_id) {
       return paymentModes
         .map((res) => res.value)
@@ -156,35 +152,27 @@ export class AccountsService {
 
   // Add display name and isReimbursable properties to account object
   setAccountProperties(
-    account: ExtendedAccount,
+    account: PlatformAccount,
     paymentMode: string,
     isMultipleAdvanceEnabled?: boolean
-  ): ExtendedAccount {
+  ): PlatformAccount {
     const accountCopy = cloneDeep(account);
     if (accountCopy) {
-      if (!accountCopy.acc) {
-        accountCopy.acc = {} as unknown as AccountDetail;
-      }
       if (paymentMode === AccountType.PERSONAL) {
         accountCopy.isReimbursable = true;
-        accountCopy.acc.isReimbursable = true;
-        accountCopy.acc.displayName = this.translocoService.translate('services.accounts.personalCardCash');
+        accountCopy.displayName = this.translocoService.translate('services.accounts.personalCardCash');
       } else if (paymentMode === AccountType.COMPANY) {
         accountCopy.isReimbursable = false;
-        accountCopy.acc.isReimbursable = false;
-        accountCopy.acc.displayName = this.translocoService.translate('services.accounts.paidByCompany');
+        accountCopy.displayName = this.translocoService.translate('services.accounts.paidByCompany');
       } else if (account.type === AccountType.CCC) {
         accountCopy.isReimbursable = false;
-        accountCopy.acc.isReimbursable = false;
-        accountCopy.acc.displayName = this.translocoService.translate('services.accounts.corporateCard');
+        accountCopy.displayName = this.translocoService.translate('services.accounts.corporateCard');
       } else if (account.type === AccountType.ADVANCE) {
         accountCopy.isReimbursable = false;
-        accountCopy.acc.isReimbursable = false;
-        accountCopy.acc.displayName = this.getAdvanceAccountDisplayName(accountCopy, isMultipleAdvanceEnabled);
+        accountCopy.displayName = this.getAdvanceAccountDisplayName(accountCopy, isMultipleAdvanceEnabled);
       } else {
         accountCopy.isReimbursable = false;
-        accountCopy.acc.isReimbursable = false;
-        accountCopy.acc.displayName = account.type;
+        accountCopy.displayName = account.type;
       }
     }
     return accountCopy;
@@ -196,37 +184,36 @@ export class AccountsService {
     });
   }
 
-  getAdvanceAccountDisplayName(account: ExtendedAccount, isMultipleAdvanceEnabled: boolean): string {
+  getAdvanceAccountDisplayName(account: PlatformAccount, isMultipleAdvanceEnabled: boolean): string {
     let accountCurrency = account.currency;
-    let accountBalance = account.acc.tentative_balance_amount;
-    if (isMultipleAdvanceEnabled && account.orig?.amount) {
-      accountCurrency = account.orig.currency;
-      accountBalance =
-        (account.acc.tentative_balance_amount * account.orig.amount) / account.acc.current_balance_amount;
+    let accountBalance = account.tentative_balance_amount;
+    if (isMultipleAdvanceEnabled && account.current_balance_amount) {
+      accountCurrency = account.currency;
+      accountBalance = account.tentative_balance_amount;
     }
     return this.translocoService.translate('services.accounts.advanceAccountDisplayName', {
       balance: this.fyCurrencyPipe.transform(accountBalance, accountCurrency),
     });
   }
 
-  filterAccountsWithSufficientBalance(accounts: ExtendedAccount[], isAdvanceEnabled: boolean): ExtendedAccount[] {
+  filterAccountsWithSufficientBalance(accounts: PlatformAccount[], isAdvanceEnabled: boolean): PlatformAccount[] {
     return accounts.filter(
       (account) =>
-        account?.acc &&
+        account &&
         // Personal Account and CCC account are considered to always have sufficient funds
-        ((isAdvanceEnabled && account.acc.tentative_balance_amount > 0) ||
-          [AccountType.PERSONAL, AccountType.CCC].indexOf(account.acc.type) > -1)
+        ((isAdvanceEnabled && account.tentative_balance_amount > 0) ||
+          [AccountType.PERSONAL, AccountType.CCC].indexOf(account.type) > -1)
     );
   }
 
   // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
   getAllowedAccounts(
-    allAccounts: ExtendedAccount[],
+    allAccounts: PlatformAccount[],
     allowedPaymentModes: string[],
     isMultipleAdvanceEnabled: boolean,
     etxn?: Partial<UnflattenedTransaction>,
     isMileageOrPerDiemExpense = false
-  ): ExtendedAccount[] {
+  ): PlatformAccount[] {
     const filteredPaymentModes = this.handlePaymentModeFiltering(allowedPaymentModes, isMileageOrPerDiemExpense, etxn);
 
     return this.processAccountsByPaymentMode(allAccounts, filteredPaymentModes, isMultipleAdvanceEnabled);
@@ -234,11 +221,11 @@ export class AccountsService {
 
   // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
   getAllowedAccountsWithAdvanceWallets(
-    allAccounts: ExtendedAccount[],
+    allAccounts: PlatformAccount[],
     allowedPaymentModes: string[],
     etxn?: Partial<UnflattenedTransaction>,
     isMileageOrPerDiemExpense = false
-  ): ExtendedAccount[] {
+  ): PlatformAccount[] {
     const filteredPaymentModes = this.handlePaymentModeFiltering(allowedPaymentModes, isMileageOrPerDiemExpense, etxn);
 
     return this.processAccountsByPaymentMode(allAccounts, filteredPaymentModes);
@@ -247,66 +234,17 @@ export class AccountsService {
   // `Paid by Company` and `Paid by Employee` have same account id so explicitly checking for them.
   checkIfEtxnHasSamePaymentMode(
     etxn: Partial<UnflattenedTransaction>,
-    paymentMode: ExtendedAccount | AdvanceWallet
+    paymentMode: PlatformAccount | AdvanceWallet
   ): boolean {
     if (etxn.source.account_type === AccountType.PERSONAL && !etxn.tx.advance_wallet_id) {
       return (
-        (paymentMode as ExtendedAccount).acc.id === etxn.tx.source_account_id &&
-        (paymentMode as ExtendedAccount).acc.isReimbursable !== etxn.tx.skip_reimbursement
+        (paymentMode as PlatformAccount).id === etxn.tx.source_account_id &&
+        (paymentMode as PlatformAccount).isReimbursable !== etxn.tx.skip_reimbursement
       );
     } else if (etxn.tx.id && etxn.tx.advance_wallet_id) {
       return (paymentMode as AdvanceWallet).id === etxn.tx.advance_wallet_id;
     }
-    return (paymentMode as ExtendedAccount).acc.id === etxn.tx.source_account_id;
-  }
-
-  private transformToExtendedAccount(platformAccount: PlatformAccount): ExtendedAccount {
-    const isPersonalCashAccount = platformAccount.type === AccountType.PERSONAL;
-
-    const transformedAccount: ExtendedAccount = {
-      id: platformAccount.id,
-      type: platformAccount.type,
-      currency: platformAccount.currency,
-      amount: platformAccount.current_balance_amount,
-      balance_amount: platformAccount.current_balance_amount,
-      created_at: platformAccount.created_at,
-      updated_at: platformAccount.updated_at,
-      org_id: platformAccount.org_id,
-      user_id: platformAccount.user_id,
-      isReimbursable: isPersonalCashAccount,
-      acc: {
-        id: platformAccount.id,
-        type: platformAccount.type,
-        currency: platformAccount.currency,
-        current_balance_amount: platformAccount.current_balance_amount,
-        tentative_balance_amount: platformAccount.tentative_balance_amount,
-        displayName: isPersonalCashAccount
-          ? this.translocoService.translate('services.accounts.personalCardCash')
-          : this.translocoService.translate(this.accountDisplayNameMapping[platformAccount.type]),
-        isReimbursable: isPersonalCashAccount,
-        created_at: new Date(platformAccount.created_at),
-        updated_at: new Date(platformAccount.updated_at),
-        name: isPersonalCashAccount
-          ? this.translocoService.translate('services.accounts.personalCardCash')
-          : this.translocoService.translate(this.accountDisplayNameMapping[platformAccount.type]),
-        category: platformAccount.category_id || '',
-      },
-      org: {
-        id: platformAccount.org_id,
-        domain: '',
-      },
-      advance: platformAccount.advance || {
-        id: null,
-        purpose: null,
-        // eslint-disable-next-line id-blacklist
-        number: null,
-      },
-      orig: {
-        currency: platformAccount.currency,
-        amount: platformAccount.current_balance_amount,
-      },
-    };
-    return transformedAccount;
+    return (paymentMode as PlatformAccount).id === etxn.tx.source_account_id;
   }
 
   private handlePaymentModeFiltering(
@@ -344,15 +282,15 @@ export class AccountsService {
   }
 
   private processAccountsByPaymentMode(
-    allAccounts: ExtendedAccount[],
+    allAccounts: PlatformAccount[],
     allowedPaymentModes: string[],
     isMultipleAdvanceEnabled?: boolean
-  ): ExtendedAccount[] {
+  ): PlatformAccount[] {
     const isOnlyCCCAllowed = allowedPaymentModes.length === 1 && allowedPaymentModes[0] === AccountType.CCC;
 
     return allowedPaymentModes
       .map((allowedPaymentMode) => {
-        let accountsForPaymentMode: ExtendedAccount[] = [];
+        let accountsForPaymentMode: PlatformAccount[] = [];
 
         if (allowedPaymentMode === AccountType.PERSONAL && !isOnlyCCCAllowed) {
           accountsForPaymentMode = allAccounts
