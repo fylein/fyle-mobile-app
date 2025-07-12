@@ -3422,7 +3422,7 @@ export class AddEditExpensePage implements OnInit {
 
   getSourceAccID(): string {
     const formValue = this.getFormValues();
-    const paymentMode = formValue?.paymentMode;    
+    const paymentMode = formValue?.paymentMode;
     // If it's an advance wallet (has id but no type property), return null for source_account_id
     if (paymentMode?.id && !paymentMode?.type) {
       return null;

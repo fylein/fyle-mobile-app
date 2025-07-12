@@ -91,7 +91,7 @@ export const account2Data = deepFreeze({
   org_id: 'orrb8EW1zZsy',
   user_id: 'usvKA4X8Ugcr',
   category_id: null,
-  displayName: 'Advance (Balance: $223,146,386.93)',
+  displayName: 'Advance Wallet',
   isReimbursable: false,
   advance: {
     id: 'adve6o3JdrDbI',
@@ -102,40 +102,21 @@ export const account2Data = deepFreeze({
 
 export const unflattenedAccount2Data = deepFreeze({
   id: 'acc6mK6CEesGL',
-  type: AccountType.ADVANCE,
-  currency: 'USD',
-  amount: 223146436,
-  balance_amount: 223146436,
   created_at: '2018-11-15T06:25:00.402Z',
   updated_at: '2022-09-14T09:20:46.442Z',
+  currency: 'USD',
+  current_balance_amount: 223146436,
+  tentative_balance_amount: 223146386.93,
+  type: AccountType.ADVANCE,
   org_id: 'orrb8EW1zZsy',
   user_id: 'usvKA4X8Ugcr',
+  category_id: null,
+  displayName: 'Advance Wallet',
   isReimbursable: false,
-  acc: {
-    id: 'acc6mK6CEesGL',
-    type: AccountType.ADVANCE,
-    currency: 'USD',
-    current_balance_amount: 223146436,
-    tentative_balance_amount: 223146386.93,
-    displayName: 'Advance Wallet',
-    isReimbursable: false,
-    created_at: new Date('2018-11-15T06:25:00.402Z'),
-    updated_at: new Date('2022-09-14T09:20:46.442Z'),
-    name: 'Advance Wallet',
-    category: '',
-  },
-  org: {
-    id: 'orrb8EW1zZsy',
-    domain: '',
-  },
   advance: {
     id: 'adve6o3JdrDbI',
     purpose: 'erertert',
     number: 'A/2022/03/T/4',
-  },
-  orig: {
-    currency: 'USD',
-    amount: 223146436,
   },
 });
 
