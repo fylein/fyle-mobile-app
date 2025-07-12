@@ -2078,7 +2078,7 @@ export const orgSettingsData: OrgSettings = deepFreeze({
     enabled: true,
     payment_modes_order: [
       AllowedPaymentModes.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT,
-      AllowedPaymentModes.PERSONAL_ACCOUNT,
+      AllowedPaymentModes.PERSONAL_CASH_ACCOUNT,
       AllowedPaymentModes.COMPANY_ACCOUNT,
       AllowedPaymentModes.PERSONAL_ADVANCE_ACCOUNT,
     ],
@@ -2484,7 +2484,7 @@ export const orgSettingsAdvDisabledData: OrgSettings = deepFreeze({
     enabled: true,
     payment_modes_order: [
       AllowedPaymentModes.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT,
-      AllowedPaymentModes.PERSONAL_ACCOUNT,
+      AllowedPaymentModes.PERSONAL_CASH_ACCOUNT,
       AllowedPaymentModes.COMPANY_ACCOUNT,
       AllowedPaymentModes.PERSONAL_ADVANCE_ACCOUNT,
     ],
@@ -2984,9 +2984,9 @@ export const paymentModesWithZeroAdvanceWalletBalanceResData = deepFreeze([
         domain: null,
       },
       advance: {
+        id: null,
         purpose: null,
         number: null,
-        id: null,
       },
       orig: {
         currency: null,

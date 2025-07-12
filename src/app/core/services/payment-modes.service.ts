@@ -65,7 +65,7 @@ export class PaymentModesService {
         const defaultAccount = accounts.find((account) => {
           /*
            * Accounts array does not have anything called COMPANY_ACCOUNT
-           * We map PERSONAL_ACCOUNT to 'Peronsal Card/Cash' and 'Paid by Company' in the frontend
+           * We use PERSONAL_CASH_ACCOUNT directly in the frontend
            * which happens in the setAccountProperties() method below
            */
           const mappedAccountType =

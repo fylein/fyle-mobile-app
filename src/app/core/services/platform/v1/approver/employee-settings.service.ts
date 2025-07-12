@@ -26,18 +26,6 @@ export class PlatformEmployeeSettingsService {
         map((response) => {
           if (response.data.length > 0) {
             const employeeSettings = response.data[0];
-            // This is being done because of public platform data mismatch;
-            // TODO: Remove this once migration is done.
-            if (employeeSettings.default_payment_mode === AccountType.PERSONAL_ACCOUNT) {
-              employeeSettings.default_payment_mode = AccountType.PERSONAL;
-            }
-
-            if (employeeSettings.payment_mode_settings?.allowed_payment_modes) {
-              employeeSettings.payment_mode_settings.allowed_payment_modes =
-                employeeSettings.payment_mode_settings.allowed_payment_modes.map((mode) =>
-                  mode === AccountType.PERSONAL_ACCOUNT ? AccountType.PERSONAL : mode
-                );
-            }
             return employeeSettings;
           }
           return null;

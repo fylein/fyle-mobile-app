@@ -324,7 +324,7 @@ export class AccountsService {
     // Check if only CCC is allowed
     const isOnlyCCCAllowed = updatedModes.length === 1 && updatedModes[0] === AccountType.CCC;
 
-    // Add PERSONAL_ACCOUNT if not present (unless only CCC is allowed)
+    // Add PERSONAL_CASH_ACCOUNT if not present (unless only CCC is allowed)
     if (!isOnlyCCCAllowed && !updatedModes.includes(AccountType.PERSONAL)) {
       updatedModes.push(AccountType.PERSONAL);
     }
