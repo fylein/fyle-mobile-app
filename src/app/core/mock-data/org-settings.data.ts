@@ -146,7 +146,7 @@ export const orgSettingsRes: OrgSettings = deepFreeze({
   payment_mode_settings: {
     allowed: true,
     enabled: true,
-    payment_modes_order: [AllowedPaymentModes.PERSONAL_ACCOUNT],
+    payment_modes_order: [AllowedPaymentModes.PERSONAL_CASH_ACCOUNT],
   },
   access_delegation: {
     allowed: true,
@@ -559,7 +559,7 @@ export const orgSettingsParams2: OrgSettings = deepFreeze({
   payment_mode_settings: {
     allowed: true,
     enabled: true,
-    payment_modes_order: [AllowedPaymentModes.PERSONAL_ACCOUNT],
+    payment_modes_order: [AllowedPaymentModes.PERSONAL_CASH_ACCOUNT],
   },
   access_delegation: {
     allowed: true,
@@ -949,7 +949,7 @@ export const orgSettingsParamWoCCC: OrgSettings = deepFreeze({
   payment_mode_settings: {
     allowed: true,
     enabled: true,
-    payment_modes_order: [AllowedPaymentModes.PERSONAL_ACCOUNT],
+    payment_modes_order: [AllowedPaymentModes.PERSONAL_CASH_ACCOUNT],
   },
   access_delegation: {
     allowed: true,

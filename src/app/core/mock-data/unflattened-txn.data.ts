@@ -143,7 +143,7 @@ export const unflattenedTxnData: UnflattenedTransaction = deepFreeze({
     email: 'ajain@fyle.in',
   },
   source: {
-    account_type: 'PERSONAL_ACCOUNT',
+    account_type: 'PERSONAL_CASH_ACCOUNT',
     account_id: 'acc5APeygFjRd',
   },
   external: {
@@ -291,7 +291,7 @@ export const unflattenedTxnDataWithSubCategory: UnflattenedTransaction = deepFre
     email: 'ajain@fyle.in',
   },
   source: {
-    account_type: 'PERSONAL_ACCOUNT',
+    account_type: 'PERSONAL_CASH_ACCOUNT',
     account_id: 'acc5APeygFjRd',
   },
   external: {
@@ -470,7 +470,7 @@ export const expectedUnflattendedTxnData1: UnflattenedTransaction = deepFreeze({
     email: 'ajain@fyle.in',
   },
   source: {
-    account_type: 'PERSONAL_ACCOUNT',
+    account_type: 'PERSONAL_CASH_ACCOUNT',
     account_id: 'acc5APeygFjRd',
   },
   external: {
@@ -1608,7 +1608,7 @@ export const newUnflattenedTxn = deepFreeze({
     email: 'ajain@fyle.in',
   },
   source: {
-    account_type: 'PERSONAL_ACCOUNT',
+    account_type: 'PERSONAL_CASH_ACCOUNT',
     account_id: 'acc5APeygFjRd',
   },
   external: {
@@ -3147,7 +3147,7 @@ export const unflattenedTxnWithReportID3: UnflattenedTransaction = deepFreeze({
     email: 'ajain@fyle.in',
   },
   source: {
-    account_type: 'PERSONAL_ACCOUNT',
+    account_type: 'PERSONAL_CASH_ACCOUNT',
     account_id: 'acc5APeygFjRd',
   },
   external: {
@@ -3637,7 +3637,7 @@ export const unflattenedTxnWithCategory: UnflattenedTransaction = deepFreeze({
     email: 'ajain@fyle.in',
   },
   source: {
-    account_type: 'PERSONAL_ACCOUNT',
+    account_type: 'PERSONAL_CASH_ACCOUNT',
     account_id: 'acc5APeygFjRd',
   },
   external: {

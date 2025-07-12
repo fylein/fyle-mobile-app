@@ -55,29 +55,11 @@ describe('PlatformEmployeeSettingsService', () => {
 
       approverService.get.and.returnValue(of(mockResponse));
 
-      service.getByEmployeeId(testEmployeeId).subscribe((result) => {
-        const expectedResult = {
-          ...mutableEmployeeSettings,
-          default_payment_mode:
-            mutableEmployeeSettings.default_payment_mode === AccountType.PERSONAL_ACCOUNT
-              ? AccountType.PERSONAL
-              : mutableEmployeeSettings.default_payment_mode,
-          payment_mode_settings: mutableEmployeeSettings.payment_mode_settings
-            ? {
-                ...mutableEmployeeSettings.payment_mode_settings,
-                allowed_payment_modes: mutableEmployeeSettings.payment_mode_settings.allowed_payment_modes?.map(
-                  (mode) => {
-                    return mode === AccountType.PERSONAL_ACCOUNT ? AccountType.PERSONAL : mode;
-                  }
-                ),
-              }
-            : mutableEmployeeSettings.payment_mode_settings,
-        };
-
-        expect(result).toEqual(expectedResult);
+      service.getByEmployeeId('employee123').subscribe((result) => {
+        expect(result).toEqual(mutableEmployeeSettings);
         expect(approverService.get).toHaveBeenCalledTimes(1);
         expect(approverService.get).toHaveBeenCalledWith('/employee_settings', {
-          params: { employee_id: testEmployeeId },
+          params: { employee_id: 'employee123' },
         });
         done();
       });
@@ -138,50 +120,6 @@ describe('PlatformEmployeeSettingsService', () => {
       });
     });
 
-    it('should map PERSONAL_ACCOUNT to PERSONAL in default_payment_mode', (done) => {
-      const employeeSettingsWithPersonalAccount = {
-        ...JSON.parse(JSON.stringify(employeeSettingsData)),
-        default_payment_mode: AccountType.PERSONAL_ACCOUNT,
-      };
-      const mockResponse: PlatformApiResponse<EmployeeSettings[]> = {
-        data: [employeeSettingsWithPersonalAccount],
-      };
-
-      approverService.get.and.returnValue(of(mockResponse));
-
-      service.getByEmployeeId(testEmployeeId).subscribe((result) => {
-        expect(result.default_payment_mode).toBe(AccountType.PERSONAL);
-        expect(approverService.get).toHaveBeenCalledTimes(1);
-        expect(approverService.get).toHaveBeenCalledWith('/employee_settings', {
-          params: { employee_id: testEmployeeId },
-        });
-        done();
-      });
-    });
-
-    it('should map PERSONAL_ACCOUNT to PERSONAL in allowed_payment_modes', (done) => {
-      const employeeSettingsWithPersonalAccountModes = {
-        ...JSON.parse(JSON.stringify(employeeSettingsData)),
-        payment_mode_settings: {
-          allowed_payment_modes: [AccountType.PERSONAL_ACCOUNT, AccountType.COMPANY],
-        },
-      };
-      const mockResponse: PlatformApiResponse<EmployeeSettings[]> = {
-        data: [employeeSettingsWithPersonalAccountModes],
-      };
-
-      approverService.get.and.returnValue(of(mockResponse));
-
-      service.getByEmployeeId(testEmployeeId).subscribe((result) => {
-        expect(result.payment_mode_settings.allowed_payment_modes).toEqual([AccountType.PERSONAL, AccountType.COMPANY]);
-        expect(approverService.get).toHaveBeenCalledTimes(1);
-        expect(approverService.get).toHaveBeenCalledWith('/employee_settings', {
-          params: { employee_id: testEmployeeId },
-        });
-        done();
-      });
-    });
-
     it('should handle employee settings without payment_mode_settings', (done) => {
       const employeeSettingsWithoutPaymentModes = {
         ...JSON.parse(JSON.stringify(employeeSettingsData)),
@@ -193,11 +131,11 @@ describe('PlatformEmployeeSettingsService', () => {
 
       approverService.get.and.returnValue(of(mockResponse));
 
-      service.getByEmployeeId(testEmployeeId).subscribe((result) => {
+      service.getByEmployeeId('employee123').subscribe((result) => {
         expect(result.payment_mode_settings).toBeUndefined();
         expect(approverService.get).toHaveBeenCalledTimes(1);
         expect(approverService.get).toHaveBeenCalledWith('/employee_settings', {
-          params: { employee_id: testEmployeeId },
+          params: { employee_id: 'employee123' },
         });
         done();
       });

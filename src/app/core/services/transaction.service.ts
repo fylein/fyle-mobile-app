@@ -838,9 +838,9 @@ export class TransactionService {
   private getPersonalAccount(): Observable<{ source_account_id: string }> {
     return this.accountsService.getMyAccounts().pipe(
       map((accounts) => {
-        const account = accounts?.find((account) => account?.acc?.type === AccountType.PERSONAL);
+        const account = accounts?.find((account) => account?.type === AccountType.PERSONAL);
         return {
-          source_account_id: account?.acc?.id,
+          source_account_id: account?.id,
         };
       })
     );
@@ -857,8 +857,8 @@ export class TransactionService {
       ),
       map((account) => {
         const accountDetails = {
-          source_account_id: account.acc.id,
-          skip_reimbursement: !account.acc.isReimbursable || false,
+          source_account_id: account.id,
+          skip_reimbursement: !account.isReimbursable || false,
         };
         return accountDetails;
       })

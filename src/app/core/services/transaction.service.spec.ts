@@ -1008,7 +1008,8 @@ describe('TransactionService', () => {
     orgSettingsService.get.and.returnValue(of(orgSettingsData));
     accountsService.getMyAccounts.and.returnValue(of(accountsData));
     platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
-    paymentModesService.getDefaultAccount.and.returnValue(of(accountsData[0]));
+    const mockAccount = { ...accountsData[0], isReimbursable: false };
+    paymentModesService.getDefaultAccount.and.returnValue(of(mockAccount));
 
     const expectedResult = {
       source_account_id: 'acc5APeygFjRd',

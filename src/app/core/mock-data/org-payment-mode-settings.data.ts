@@ -12,14 +12,17 @@ export const cccOnlyPaymentModeSettingsParam: PaymentmodeSettings = deepFreeze({
 export const reimbursableOnlyPaymentModeSettingsParam: PaymentmodeSettings = deepFreeze({
   allowed: true,
   enabled: true,
-  payment_modes_order: [AllowedPaymentModes.PERSONAL_ACCOUNT],
+  payment_modes_order: [AllowedPaymentModes.PERSONAL_CASH_ACCOUNT],
+  allowed_payment_modes: [
+    AllowedPaymentModes.PERSONAL_CASH_ACCOUNT,
+  ],
 });
 
 export const cccAndReimbursablePaymentModeSettingsParam: PaymentmodeSettings = deepFreeze({
   allowed: true,
   enabled: true,
   payment_modes_order: [
-    AllowedPaymentModes.PERSONAL_ACCOUNT,
+    AllowedPaymentModes.PERSONAL_CASH_ACCOUNT,
     AllowedPaymentModes.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT,
   ],
 });

@@ -142,7 +142,7 @@ export const flattenedData = deepFreeze({
   tx_expense_number: 'E/2023/09/T/1',
   us_full_name: 'devendra',
   us_email: 'devendra.r@fyle.in',
-  source_account_type: 'PERSONAL_ACCOUNT',
+  source_account_type: 'PERSONAL_CASH_ACCOUNT',
   source_account_id: 'accO6abI7gZ6T',
 });
 
@@ -167,7 +167,7 @@ export const unflattenedData = deepFreeze({
     email: 'devendra.r@fyle.in',
   },
   source: {
-    account_type: 'PERSONAL_ACCOUNT',
+    account_type: 'PERSONAL_CASH_ACCOUNT',
     account_id: 'accO6abI7gZ6T',
   },
 });
