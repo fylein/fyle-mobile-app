@@ -43,6 +43,7 @@ import {
   unflattenedTransactionAdvanceWallet,
   paymentModeDataAdvanceWallet,
   multiplePaymentModesWithCompanyAccData2,
+  multiplePaymentModesWithCompanyAccData3,
 } from '../test-data/accounts.service.spec.data';
 import { AccountsService } from './accounts.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
@@ -236,7 +237,7 @@ describe('AccountsService', () => {
     const allowedPaymentModes = [AccountType.CCC, AccountType.PERSONAL];
     expect(
       accountsService.getAllowedAccountsWithAdvanceWallets(
-        multiplePaymentModesWithCompanyAccData,
+        multiplePaymentModesWithCompanyAccData2,
         allowedPaymentModes,
         etxnObjData
       )
@@ -425,7 +426,7 @@ describe('AccountsService', () => {
     ).toEqual(multiplePaymentModesWithCompanyAccData);
   });
 
-  it('should be able to get allowed accounts without passing isMileageOrPerDiem param', () => {
+  it('should be able to get allowed accounts without passing isMileageOrPerDiem param 2', () => {
     const allowedPaymentModes = [AccountType.CCC, AccountType.COMPANY, AccountType.PERSONAL];
     expect(
       accountsService.getAllowedAccountsWithAdvanceWallets(
@@ -433,7 +434,7 @@ describe('AccountsService', () => {
         allowedPaymentModes,
         etxnObjData
       )
-    ).toEqual(multiplePaymentModesWithCompanyAccData);
+    ).toEqual(multiplePaymentModesWithCompanyAccData3);
   });
 
   it('should be able to get allowed accounts without passing etxn param', () => {
