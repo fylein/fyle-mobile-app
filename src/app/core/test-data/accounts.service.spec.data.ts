@@ -5,7 +5,6 @@ import { AccountType } from '../enums/account-type.enum';
 import { ExpenseType } from '../enums/expense-type.enum';
 import { unflattenedTxn } from '../mock-data/unflattened-expense.data';
 import { AllowedPaymentModes } from '../models/allowed-payment-modes.enum';
-import { ExtendedAccount } from '../models/extended-account.model';
 import { OrgSettings } from '../models/org-settings.model';
 import { UnflattenedTransaction } from '../models/unflattened-transaction.model';
 import { AdvanceWallet } from '../models/platform/v1/advance-wallet.model';
