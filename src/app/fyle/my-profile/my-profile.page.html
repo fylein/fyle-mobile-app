@@ -147,7 +147,7 @@
             class="my-profile__card"
             role="button"
             aria-label="Manage notifications"
-            (click)="goToNotificationsPage()"
+            [routerLink]="[ '/', 'enterprise', 'notifications' ]"
             matRipple
           >
             <div class="my-profile__card__title">Manage notifications</div>
