@@ -1566,8 +1566,11 @@ export class AddEditExpensePage implements OnInit {
   }
 
   getSelectedPaymentModes(): Observable<PlatformAccount | AdvanceWallet> {
-    return this.paymentModes$.pipe(
-      map((paymentModes) => paymentModes.find((paymentMode) => paymentMode.value.id === this.getSourceAccID())?.value)
+    return forkJoin({
+      etxn: this.etxn$,
+      paymentModes: this.paymentModes$,
+    }).pipe(
+      map(({ etxn, paymentModes }) => this.accountsService.getEtxnSelectedPaymentMode(etxn, paymentModes))
     );
   }
 
@@ -3419,15 +3422,22 @@ export class AddEditExpensePage implements OnInit {
 
   getSourceAccID(): string {
     const formValue = this.getFormValues();
-    return formValue?.paymentMode?.id;
+    const paymentMode = formValue?.paymentMode;    
+    // If it's an advance wallet (has id but no type property), return null for source_account_id
+    if (paymentMode?.id && !paymentMode?.type) {
+      return null;
+    }
+    return paymentMode?.id;
   }
 
   getAdvanceWalletId(isAdvanceWalletEnabled: boolean): string {
     const formValue = this.getFormValues();
-    if (!formValue?.paymentMode?.id) {
-      return isAdvanceWalletEnabled && formValue?.paymentMode?.id;
+    const paymentMode = formValue?.paymentMode;
+    // If it's an advance wallet (has id but no type property), return the advance wallet id
+    if (isAdvanceWalletEnabled && paymentMode?.id && !paymentMode?.type) {
+      return paymentMode.id;
     }
-    // setting advance_wallet_id as null when the source account id is set.
+    // For regular payment modes, return null for advance_wallet_id
     return null;
   }
 

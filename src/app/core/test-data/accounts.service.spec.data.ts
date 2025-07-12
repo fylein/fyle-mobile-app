@@ -62,40 +62,21 @@ export const account1Data = deepFreeze({
 
 export const unflattenedAccount1Data = deepFreeze({
   id: 'accfziaxbGFVW',
-  type: AccountType.PERSONAL,
-  currency: 'INR',
-  amount: 0,
-  balance_amount: 0,
   created_at: '2018-10-08T07:04:42.753Z',
   updated_at: '2022-04-27T08:57:52.221Z',
+  currency: 'INR',
+  current_balance_amount: 0,
+  tentative_balance_amount: -5620222.586054,
+  type: AccountType.PERSONAL,
   org_id: 'orrjqbDbeP9p',
   user_id: 'usvKA4X8Ugcr',
+  category_id: null,
+  displayName: 'Personal Card/Cash',
   isReimbursable: true,
-  acc: {
-    id: 'accfziaxbGFVW',
-    type: AccountType.PERSONAL,
-    currency: 'INR',
-    current_balance_amount: 0,
-    tentative_balance_amount: -5620222.586054,
-    displayName: 'Personal Card/Cash',
-    isReimbursable: true,
-    created_at: new Date('2018-10-08T07:04:42.753Z'),
-    updated_at: new Date('2022-04-27T08:57:52.221Z'),
-    name: 'Personal Card/Cash',
-    category: '',
-  },
-  org: {
-    id: 'orrjqbDbeP9p',
-    domain: '',
-  },
   advance: {
     id: null,
     purpose: null,
     number: null,
-  },
-  orig: {
-    currency: 'INR',
-    amount: 0,
   },
 });
 
