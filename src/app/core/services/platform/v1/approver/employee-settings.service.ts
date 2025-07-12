@@ -6,7 +6,6 @@ import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
 import { Cacheable } from 'ts-cacheable';
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
-import { AccountType } from 'src/app/core/enums/account-type.enum';
 
 const employeeSettingsCacheBuster$ = new Subject<void>();
 
