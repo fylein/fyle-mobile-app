@@ -28,6 +28,7 @@ import { CameraService } from 'src/app/core/services/camera.service';
 import { CameraPreviewService } from 'src/app/core/services/camera-preview.service';
 import { ReceiptPreviewData } from 'src/app/core/models/receipt-preview-data.model';
 import { TranslocoService } from '@jsverse/transloco';
+import { CustomGalleryPickerComponent } from '../custom-gallery-picker/custom-gallery-picker.component';
 
 // eslint-disable-next-line custom-rules/prefer-semantic-extension-name
 type Image = Partial<{
@@ -457,44 +458,26 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   onGalleryUpload(): void {
     this.trackingService.instafyleGalleryUploadOpened({});
+    this.openCustomGalleryPicker();
+  }
 
-    const checkPermission$ = from(this.imagePicker.hasReadPermission()).pipe(shareReplay(1));
-
-    const receiptsFromGallery$ = checkPermission$.pipe(
-      filter((permission) => !!permission),
-      switchMap(() => {
-        const galleryUploadOptions = {
-          maximumImagesCount: 10,
-          outputType: 1,
-          quality: 70,
-        };
-        return from(this.imagePicker.getPictures(galleryUploadOptions));
-      }),
-      shareReplay(1)
-    );
-
-    checkPermission$.subscribe((hasPermission) => {
-      if (!hasPermission) {
-        return this.showPermissionDeniedPopover('GALLERY');
-      }
+  private async openCustomGalleryPicker(): Promise<void> {
+    const customGalleryModal = await this.modalController.create({
+      component: CustomGalleryPickerComponent,
+      cssClass: 'custom-gallery-modal',
+      backdropDismiss: false,
     });
 
-    receiptsFromGallery$
-      .pipe(filter((receiptsFromGallery: string[]) => receiptsFromGallery.length > 0))
-      .subscribe((receiptsFromGallery) => {
-        receiptsFromGallery.forEach((receiptBase64) => {
-          const receiptBase64Data = 'data:image/jpeg;base64,' + receiptBase64;
-          this.base64ImagesWithSource.push({
-            source: 'MOBILE_DASHCAM_GALLERY',
-            base64Image: receiptBase64Data,
-          });
-        });
-        this.openReceiptPreviewModal();
-      });
+    await customGalleryModal.present();
 
-    receiptsFromGallery$
-      .pipe(filter((receiptsFromGallery: string[]) => !receiptsFromGallery.length))
-      .subscribe(() => this.setUpAndStartCamera());
+    const { data } = await customGalleryModal.onWillDismiss();
+    
+    if (data && data.base64ImagesWithSource) {
+      this.base64ImagesWithSource.push(...data.base64ImagesWithSource);
+      this.openReceiptPreviewModal();
+    } else {
+      this.setUpAndStartCamera();
+    }
   }
 
   ngAfterViewInit(): void {

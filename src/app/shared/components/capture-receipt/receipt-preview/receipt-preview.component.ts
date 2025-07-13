@@ -14,6 +14,7 @@ import { Image } from 'src/app/core/models/image-type.model';
 import { RotationDirection } from 'src/app/core/enums/rotation-direction.enum';
 import { Router } from '@angular/router';
 import { TranslocoService } from '@jsverse/transloco';
+import { CustomGalleryPickerComponent } from '../../custom-gallery-picker/custom-gallery-picker.component';
 
 // install Swiper modules
 SwiperCore.use([Pagination]);
@@ -215,7 +216,7 @@ export class ReceiptPreviewComponent implements OnInit, OnDestroy {
                 base64Image: base64PictureData,
               });
             });
-          }
+    }
         });
       } else {
         this.imagePicker.requestReadPermission();

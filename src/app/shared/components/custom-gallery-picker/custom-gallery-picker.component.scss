@@ -1,0 +1,263 @@
+.custom-gallery {
+  &__toolbar {
+    --background: #ffffff;
+    --border-color: #e0e0e0;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  &__title {
+    text-align: center;
+    padding: 0;
+  }
+
+  &__btn {
+    --color: #007bff;
+    --background: transparent;
+    --border-radius: 8px;
+    --padding-start: 12px;
+    --padding-end: 12px;
+    --padding-top: 8px;
+    --padding-bottom: 8px;
+    font-weight: 500;
+    font-size: 16px;
+
+    &--cancel {
+      --color: #6c757d;
+    }
+
+    &--files {
+      --color: #007bff;
+    }
+  }
+
+  &__btn-text {
+    font-weight: 500;
+  }
+
+  &__counter {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 2px;
+  }
+
+  &__message {
+    font-size: 14px;
+    color: #6c757d;
+    font-weight: 400;
+  }
+
+  &__content {
+    --background: #f8f9fa;
+  }
+
+  &__loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 50vh;
+    color: #6c757d;
+
+    ion-spinner {
+      width: 32px;
+      height: 32px;
+      margin-bottom: 16px;
+    }
+  }
+
+  &__loading-text {
+    font-size: 16px;
+    color: #6c757d;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    padding: 2px;
+  }
+
+  &__image-item {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      transform: scale(0.98);
+    }
+
+    &--selected {
+      .custom-gallery__selection-overlay {
+        opacity: 1;
+        background: rgba(0, 123, 255, 0.8);
+      }
+
+      .custom-gallery__selection-indicator {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+  }
+
+  &__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  &__selection-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 123, 255, 0.3);
+    opacity: 0;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__selection-indicator {
+    background: #007bff;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.2s ease;
+  }
+
+  &__check-icon {
+    color: white;
+    font-size: 20px;
+  }
+
+  &__disabled-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__limit-message {
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  &__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 50vh;
+    color: #6c757d;
+  }
+
+  &__empty-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+  }
+
+  &__empty-text {
+    font-size: 16px;
+    color: #6c757d;
+  }
+
+  &__upload-btn {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: #007bff;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 1000;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 123, 255, 0.4);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+
+  &__upload-icon {
+    font-size: 18px;
+  }
+
+  &__upload-text {
+    font-weight: 500;
+    font-size: 14px;
+  }
+}
+
+// Responsive design
+@media (max-width: 480px) {
+  .custom-gallery {
+    &__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    &__upload-btn {
+      bottom: 16px;
+      right: 16px;
+      padding: 10px 16px;
+    }
+  }
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  .custom-gallery {
+    &__toolbar {
+      --background: #1a1a1a;
+      --border-color: #333;
+    }
+
+    &__content {
+      --background: #0f0f0f;
+    }
+
+    &__counter {
+      color: #ffffff;
+    }
+
+    &__message {
+      color: #b0b0b0;
+    }
+
+    &__btn {
+      &--cancel {
+        --color: #b0b0b0;
+      }
+    }
+  }
+} 
