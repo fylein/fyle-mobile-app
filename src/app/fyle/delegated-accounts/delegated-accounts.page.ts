@@ -12,6 +12,7 @@ import { Delegator } from 'src/app/core/models/platform/delegator.model';
 import { DataTransformService } from 'src/app/core/services/data-transform.service';
 import { EouApiResponse } from 'src/app/core/models/eou-api-response.model';
 import { AuthService } from 'src/app/core/services/auth.service';
+import { NavController } from '@ionic/angular';
 
 @Component({
   selector: 'app-delegated-accounts',
@@ -34,8 +35,13 @@ export class DelegatedAccountsPage {
     private loaderService: LoaderService,
     private activatedRoute: ActivatedRoute,
     private recentLocalStorageItemsService: RecentLocalStorageItemsService,
-    private authService: AuthService
+    private authService: AuthService,
+    private navController: NavController
   ) {}
+
+  goBack(): void {
+    this.navController.back();
+  }
 
   switchToDelegatee(delegator: Delegator): void {
     from(this.loaderService.showLoader('Switching Account'))
